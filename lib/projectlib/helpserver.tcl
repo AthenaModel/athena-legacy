@@ -76,13 +76,6 @@ snit::type ::projectlib::helpserver {
             error "No -helpdb given!"
         }
 
-        # NEXT, open the helpdb.
-        install hdb using sqldocument ${selfns}::hdb \
-            -autotrans off                           \
-            -rollback  off
-
-        $hdb open $options(-helpdb)
-
         # NEXT, create the server
         install server using myserver ${selfns}::server
 
@@ -100,6 +93,18 @@ snit::type ::projectlib::helpserver {
                 regardless of referenced page.  If tcl/linkdict is requested,
                 the result is a tcl/linkdict of the children of the page.
             }
+
+        # NEXT, try to open the helpdb.
+        install hdb using sqldocument ${selfns}::hdb \
+            -autotrans off                           \
+            -rollback  off
+
+        if {![file exists $options(-helpdb)]} {
+            set hdb ""
+            return
+        }
+
+        $hdb open $options(-helpdb)
     }
 
     #-------------------------------------------------------------------
@@ -116,6 +121,8 @@ snit::type ::projectlib::helpserver {
 
     method image_Image {udict matchArray} {
         upvar 1 $matchArray ""
+
+        $self CheckForHelpFile
 
         set path /[dict get $udict path]
 
@@ -148,6 +155,8 @@ snit::type ::projectlib::helpserver {
 
     method html_Page {udict matchArray} {
         upvar 1 $matchArray ""
+
+        $self CheckForHelpFile
 
         # FIRST, handle queries
         set query [dict get $udict query]
@@ -183,6 +192,8 @@ snit::type ::projectlib::helpserver {
     # Retrieves the search results.
 
     method html_Search {udict} {
+        $self CheckForHelpFile
+
         set query [dict get $udict query]
         set host [dict get $udict host]
 
@@ -268,6 +279,8 @@ snit::type ::projectlib::helpserver {
     method linkdict_Page {udict matchArray} {
         upvar 1 $matchArray ""
 
+        $self CheckForHelpFile
+
         set parent /[dict get $udict path]
 
         if {![$hdb exists {
@@ -296,6 +309,17 @@ snit::type ::projectlib::helpserver {
         }
 
         return $result
+    }
+
+    # CheckForHelpFile
+    #
+    # Returns an error if there's no hdb.
+
+    method CheckForHelpFile {} {
+        if {$hdb eq ""} {
+            return -code error -errorcode NOTFOUND \
+                "Help DB not found: \"$options(-helpdb)\""
+        }
     }
 
 
