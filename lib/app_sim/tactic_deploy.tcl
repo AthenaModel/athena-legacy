@@ -119,12 +119,7 @@ tactic type define DEPLOY {g text1 int1 nlist} {
             # we can afford.  If they want SOME, we'll take the 
             # requested amount, *if* we can afford it.
             if {$text1 eq "ALL"} {
-                # FIRST, if there are no troops left, we're done.
-                if {$available == 0} {
-                    return 0
-                }
-
-                # NEXT, how many troops can we afford?
+                # FIRST, how many troops can we afford?
                 if {$costPerPerson == 0.0} {
                     set int1 $available
                 } else {
@@ -135,6 +130,11 @@ tactic type define DEPLOY {g text1 int1 nlist} {
                     # a bignum; but we want to truncate.  Hence, 
                     # round(floor(x)).
                     let int1 {round(floor(min($available,$maxTroops)))}
+                }
+
+                # NEXT, if there are no troops left, we're done.
+                if {$int1 == 0} {
+                    return 0
                 }
             } else {
                 # FIRST, if there are insufficient troops available,
