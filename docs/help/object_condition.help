@@ -422,7 +422,11 @@ object condition_troops {
         If they are the same, the condition queries the group's total
         number of personnel <b>at that point in strategy execution</b>;
         otherwise it queries the number of personnel in the playbox
-        before strategy execution began.<p>
+        before strategy execution began.  In other words, the condition
+        takes into account the effects of any previous
+        <<cref /object/tactic/mobilize>> or <<cref /object/tactic/demob>>
+        that was executed by the owning actor during the same strategy
+        execution tock.<p>
     }
 
     include condition_ 
