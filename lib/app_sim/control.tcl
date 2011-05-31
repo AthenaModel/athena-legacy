@@ -290,8 +290,8 @@ snit::type control {
 
         # NEXT, add the support of each group in each neighborhood
         # to each actor.
-        set vrelMin [parm get control.support.vrelMin]
-        set secMin  [parm get control.support.secMin]
+        set vrelMin   [parm get control.support.vrelMin]
+        set Zsecurity [parm get control.support.Zsecurity]
 
         foreach {n g personnel security a vrel} [rdb eval {
             SELECT NG.n,
@@ -305,8 +305,10 @@ snit::type control {
             JOIN vrel_ga  AS V ON (V.g=NG.g AND V.a=A.a)
             WHERE NG.personnel > 0
         }] {
-            if {$vrel >= $vrelMin && $security > $secMin} {
-                set contrib [expr {$vrel * $personnel * $security}]
+            set factor [zcurve eval $Zsecurity $security]
+
+            if {$vrel >= $vrelMin && $factor > 0.0} {
+                set contrib [expr {$vrel * $personnel * $factor}]
             } else {
                 set contrib 0.0
             }

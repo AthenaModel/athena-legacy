@@ -728,10 +728,7 @@ snit::type appserver {
             ht putln "(and would-be supporters).  "
             ht putln "Note that a group only supports an actor if"
             ht putln "its vertical relationship with the actor is at"
-            ht putln "least $vmin, and"
-            ht putln "its support makes a difference only if its"
-            ht putln "security is at least"
-            ht putln "[parm get control.support.secMin]."
+            ht putln "least $vmin."
             ht para
 
             ht query {
@@ -1215,10 +1212,7 @@ snit::type appserver {
         ht putln "Actor support comes from the following groups."
         ht putln "Note that a group only supports an actor if"
         ht putln "its vertical relationship with the actor is at"
-        ht putln "least [parm get control.support.vrelMin], and"
-        ht putln "its support makes a difference only if its"
-        ht putln "security is at least"
-        ht putln "[parm get control.support.secMin]."
+        ht putln "least [parm get control.support.vrelMin]."
         ht para
 
         ht query {

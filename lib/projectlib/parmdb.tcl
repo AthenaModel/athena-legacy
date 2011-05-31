@@ -629,9 +629,14 @@ snit::type ::projectlib::parmdb {
             still be deemed to be a supporter of a.
         }
 
-        $ps define control.support.secMin ::projectlib::parmdb_nnsec 1 {
-            The minimum security.ng that group g can have and still be
-            able to support actor a in neighborhood n.
+        $ps define control.support.Zsecurity ::marsutil::zcurve \
+            {0.0 -25 25 1.0} {
+                A Z-curve for computing a group's security factor
+                in a neighborhood, that is, the degree to which the
+                group can support an actor given their current
+                security level.  The input is the group's security
+                level, -100 to +100; the output is a factor from 0.0
+                to 1.0.
         }
 
         $ps define control.threshold ::simlib::rfraction 0.5 {
