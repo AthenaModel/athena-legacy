@@ -166,7 +166,8 @@ snit::type control {
     #
     # The actor initially in control in the neighborhood is specified
     # in the nbhoods table.  This routine, consequently, simply 
-    # populates the control_n table with that information.
+    # populates the control_n table with that information.  Note
+    # that "controller" is NULL if no actor controls the neighborhood.
 
     typemethod PopulateNbhoodControl {} {
         rdb eval {
@@ -373,7 +374,7 @@ snit::type control {
         # for that neighborhood.
         #
         # Note that a neighborhood can be in a state of chaos; the
-        # controller will be "" and his influence 0.0.
+        # controller will be NULL and his influence 0.0.
 
         foreach {n controller influence} [rdb eval {
             SELECT C.n                        AS n,
@@ -470,7 +471,7 @@ snit::type control {
         # FIRST, update control_n.
         rdb eval {
             UPDATE control_n 
-            SET controller = $cNew,
+            SET controller = nullif($cNew,''),
                 since      = now()
             WHERE n=$n;
         }
