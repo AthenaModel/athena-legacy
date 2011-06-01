@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.20, 1 June 2011</h3>
+
+This build contains a number of bug fixes and minor tweaks, along with
+a significant reorganization of the on-line help.  The full set of
+changes are as follows:<p>
+
+<ul>
+  <li> Bug 2988: Troops condition does not refer to transient values
+  <li> Bug 2993: athena(1): ShiftControl fails when neighborhood is in chaos
+  <li> Bug 2995: INFLUENCE condition not evaluating properly
+  <li> Bug 3009: Attempt to deploy negative personnel bgerror
+  <li> Bug 3010: athena(1): Help Scrub, Part II
+  <li> Bug 3013: athena(1): no such table: helpdb_pages
+  <li> Bug 3014: athena(1): Z.security function for computing actor support
+  <li> Bug 3016: athena(1): Belief System Browser, tolerance values
+  <li> Bug 3017: athena(1): control analysis vs. control assessment
+</ul>
+
 <h3>Build 3.0.19, 24 May 2011</h3>
 
 This build contains the MOBILIZE and ATTROE tactics and the NBCOOP

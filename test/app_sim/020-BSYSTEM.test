@@ -430,7 +430,7 @@ T1  New Title 1
     } -cleanup {
         cleanup
     } -result {
-        tolerance {invalid value "NONESUCH", should be a real number in range 0.0, 1.0, or one of: VT, T, B, I, VI}
+        tolerance {invalid value "NONESUCH", should be a real number in range 0.0, 1.0, or one of: VT, T, B, I, VI, EI}
     }
 
     test BELIEF:UPDATE-2.1 {belief is updated} -setup {
