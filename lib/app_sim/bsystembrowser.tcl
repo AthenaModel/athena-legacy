@@ -596,7 +596,7 @@ snit::widget bsystembrowser {
             set width 20
         } else {
             set wintype ::qtolerance
-            set width 15
+            set width 20
         }
 
         if {[sim state] eq "PREP"} {
