@@ -13,12 +13,8 @@
 #    the groups and units within it.  Most of the work is done by
 #    the security(sim) and activity(sim) submodules.
 #
-#    Note: the "init" method can be called as needed to reinitialize
-#    the starting set of data.  This is typically done as part of
-#    a reconciliation.
-#
 #    ::nbstat is a singleton object implemented as a snit::type.  To
-#    initialize it, call "::nbstat init".  It can be re-initialized
+#    initialize it, call "::nbstat start".  It can be re-initialized
 #    on demand.
 #
 #-----------------------------------------------------------------------

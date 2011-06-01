@@ -176,27 +176,23 @@ snit::type control {
         }
     }
 
-
     #-------------------------------------------------------------------
-    # Tock
+    # Analysis
     #
-    # These routines are called during the strategy tock to determine
-    # who's in control before assessing strategies.
+    # These routines are called to determine vertical relationships and
+    # the support and influence of every actor in every neighborhood.
 
-    # tock
+    # analyze
     #
-    # Update vrel, influence, and control.
+    # Update vrel and influence.
 
-    typemethod tock {} {
+    typemethod analyze {} {
         # FIRST, update vertical relationships based on current
         # circumstances.
         $type ComputeVerticalRelationships
 
         # NEXT, Compute each actor's influence in each neighborhood.
         $type ComputeActorInfluence
-
-        # NEXT, see if control has shifted in any neighborhood.
-        $type ComputeControl
     }
 
     # ComputeVerticalRelationships
@@ -365,12 +361,18 @@ snit::type control {
         }
     }
 
-    # ComputeControl
+    #-------------------------------------------------------------------
+    # Assessment
+    #
+    # These routines are called during the strategy tock to determine
+    # who's in control before strategy execution
+
+    # assess
     #
     # Looks for shifts of control in all neighborhoods, and takes the
     # action that follows from that.
     
-    typemethod ComputeControl {} {
+    typemethod assess {} {
         # FIRST, get the actor in control of each neighborhood,
         # and their influence, and then see if control has shifted
         # for that neighborhood.

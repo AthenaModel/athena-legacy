@@ -465,6 +465,7 @@ snit::type sim {
                                         # strategy.
         demog     analyze pop
         nbstat    start
+        control   analyze
         econ      start
         demog     analyze econ
         demsit    assess               ;# TBD
@@ -644,6 +645,7 @@ snit::type sim {
         profile demog analyze pop
         profile ensit assess
         profile nbstat analyze
+        profile control analyze
         profile actsit assess
         
         if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
@@ -693,7 +695,7 @@ snit::type sim {
 
         # NEXT, assess actor influence and execute actor strategies.
         if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
-            profile control tock
+            profile control assess
             profile strategy tock
         }
 
@@ -732,8 +734,9 @@ snit::type sim {
 
             # Update demographics and nbstats, in case the user
             # wants to look at them.
-            profile demog    analyze pop
-            profile nbstat   analyze
+            profile demog   analyze pop
+            profile nbstat  analyze
+            profile control analyze
         }
 
         # NEXT, notify the application that the tick has occurred.
