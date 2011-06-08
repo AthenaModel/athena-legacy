@@ -28,7 +28,7 @@
 #-------------------------------------------------------------------
 # Tactic: ATTROE
 
-tactic type define ATTROE {n f g text1 int1} {
+tactic type define ATTROE {n f g text1 int1} actor {
     #-------------------------------------------------------------------
     # Public Methods
 

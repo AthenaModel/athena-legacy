@@ -18,7 +18,8 @@ object actor_ {
 
     overview {
         An <i>actor</i> is a significant decision-maker in the 
-        region of interest.  An actor uses <<term tactic>>s to
+        region of interest.  Actors are <<term agent>>s, so they 
+        can use <<term tactic>>s to
         achieve <<term goal>>s subject to certain 
         <<term condition>>s.  Collectively, this is called the
         actor's <<term strategy>>; it is browsed and edited on 

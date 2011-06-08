@@ -22,7 +22,7 @@
 #-------------------------------------------------------------------
 # Tactic: MOBILIZE
 
-tactic type define MOBILIZE {g int1 once} {
+tactic type define MOBILIZE {g int1 once} actor {
     #-------------------------------------------------------------------
     # Public Methods
 

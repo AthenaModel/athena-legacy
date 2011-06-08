@@ -60,8 +60,10 @@ snit::type tactic {
 
     # tinfo array: Type Info
     #
-    # names        - List of the names of the tactic types.
-    # parms-$ttype - List of the optional parms used by the tactic type.
+    # names         - List of the names of the tactic types.
+    # parms-$ttype  - List of the optional parms used by the tactic type.
+    # atypes-$ttype - Agent types that can use this tactic type.
+    # ttypes-$atype - Tactic types that can be used by this agent type
 
     typevariable tinfo -array {
         names {}
@@ -75,6 +77,23 @@ snit::type tactic {
         return [lsort $tinfo(names)]
     }
 
+    # type names_by_agent agent
+    #
+    # agent   - An agent ID
+    #
+    # Returns the tactic type names that can be used by the given
+    # agent.
+    
+    typemethod {type names_by_agent} {agent} {
+        set atype [agent type $agent]
+        
+        if {[info exists tinfo(ttypes-$atype)]} {
+            return [lsort $tinfo(ttypes-$atype)]
+        } else {
+            return [list]
+        }
+    }
+
     # type parms ttype
     #
     # Returns a list of the names of the optional parameters used by
@@ -84,18 +103,18 @@ snit::type tactic {
         return $tinfo(parms-$ttype)
     }
 
-
-    # type define name optparms defscript
+    # type define name optparms agent_types defscript
     #
-    # name       - The tactic name
-    # optparms   - List of optional parameters used by this tactic type.
-    # defscript  - The definition script (a snit::type script)
+    # name        - The tactic name
+    # optparms    - List of optional parameters used by this tactic type.
+    # agent_types - List of agent types that can use this tactic_type.
+    # defscript   - The definition script (a snit::type script)
     #
     # Defines tactic::$name as a type ensemble given the typemethods
     # defined in the defscript.  See tactic(i) for documentation of the
     # expected typemethods.
 
-    typemethod {type define} {name optparms defscript} {
+    typemethod {type define} {name optparms agent_types defscript} {
         # FIRST, define the type.
         set header {
             # Make it a singleton
@@ -110,6 +129,11 @@ snit::type tactic {
         # NEXT, save the type metadata
         ladd tinfo(names) $name
         set tinfo(parms-$name) $optparms
+        set tinfo(atypes-$name) $agent_types
+        
+        foreach atype $agent_types {
+            lappend tinfo(ttypes-$atype) $name
+        }
     }
 
     #===================================================================
@@ -223,7 +247,7 @@ snit::type tactic {
     # parmdict     A dictionary of tactic parms
     #
     #    tactic_type    The tactic type
-    #    owner          The tactic's owning actor
+    #    owner          The tactic's owning agent
     #    priority       "top" or "bottom" or ""; defaults to "bottom".
     #    once           1 or 0 or ""; defaults to 0.
     #    m,n            Neighborhoods, or ""
@@ -239,6 +263,12 @@ snit::type tactic {
     typemethod {mutate create} {parmdict} {
         # FIRST, make sure the parm dict is complete
         set parmdict [dict merge $optParms $parmdict]
+
+        # NEXT, ensure that this agent can own this tactic.
+        dict with parmdict {
+            require {$tactic_type in [$type type names_by_agent $owner]} \
+                "Agent $owner cannot own $tactic_type tactics"
+        }
 
         # NEXT, compute the narrative string.
         set narrative [$type call narrative $parmdict]
@@ -318,7 +348,7 @@ snit::type tactic {
     #    x1             Real, or ""
     #
     # Updates a tactic given the parms, which are presumed to be
-    # valid.  Note that you can't change the tactic's actor or
+    # valid.  Note that you can't change the tactic's agent or
     # type, and the priority is set by a different mutator.
 
     typemethod {mutate update} {parmdict} {
@@ -392,11 +422,11 @@ snit::type tactic {
     # id        The tactic ID whose priority is changing.
     # priority  An ePrioUpdate value
     #
-    # Re-prioritizes the items for the tactic's actor so that id has the
+    # Re-prioritizes the items for the tactic's agent so that id has the
     # desired position.
 
     typemethod {mutate priority} {id priority} {
-        # FIRST, get the tactic's actor
+        # FIRST, get the tactic's agent
         set owner [rdb onecolumn {
             SELECT owner FROM tactics WHERE tactic_id=$id
         }]

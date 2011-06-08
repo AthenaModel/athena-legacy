@@ -20,7 +20,7 @@
 #-------------------------------------------------------------------
 # Tactic: DEFROE
 
-tactic type define DEFROE {n g text1} {
+tactic type define DEFROE {n g text1} actor {
     #-------------------------------------------------------------------
     # Public Methods
 

@@ -23,7 +23,7 @@
 #-------------------------------------------------------------------
 # Tactic: DEMOB
 
-tactic type define DEMOB {g text1 int1 once} {
+tactic type define DEMOB {g text1 int1 once} actor {
     #-------------------------------------------------------------------
     # Public Methods
 

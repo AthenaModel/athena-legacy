@@ -17,8 +17,9 @@ object tactic_ {
     noun "tactic"
     overview {
         Tactics are the <<cref /object>> by which an
-        <<term actor>> implements his <<term strategy>>.  For
-        example, an actor may use the <<cref /object/tactic/deploy>>
+        <<term agent>> implements his <<term strategy>>.  For
+        example, an <<term actor>> may use the 
+        <<cref /object/tactic/deploy>>
         to position troops in a neighborhood, and then use the
         <<cref /object/tactic/attroe>> to call for attacks on another
         group.  Tactics may have <<term condition>>s attached
@@ -32,7 +33,7 @@ object tactic_ {
     } -tags {object state}
 
     attribute owner "Owner" {
-        The ID of the <<term actor>> to whose strategy this
+        The ID of the <<term agent>> to whose strategy this
         tactic belongs.
     } -tags {object create}
 
@@ -51,8 +52,8 @@ object tactic_ {
     } -tags {object state}
 
     attribute priority "Priority" {
-        An <<term actor>>'s tactics are ranked from highest priority to
-        lowest; when the actor's strategy is executed, the tactics are
+        An <<term agent>>'s tactics are ranked from highest priority to
+        lowest; when the agent's strategy is executed, the tactics are
         considered for execution in this order.
     } -tags object
 

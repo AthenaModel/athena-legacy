@@ -224,6 +224,14 @@ CREATE TABLE actors (
     cash_on_hand DOUBLE DEFAULT 0
 );
 
+CREATE TRIGGER actor_delete
+AFTER DELETE ON actors BEGIN
+    DELETE FROM goals      WHERE owner = old.a;
+    DELETE FROM tactics    WHERE owner = old.a;
+    DELETE FROM conditions WHERE owner = old.a;
+END;
+
+
 ------------------------------------------------------------------------
 -- Group Tables
 
@@ -483,6 +491,19 @@ CREATE TABLE control_n (
 );
 
 ------------------------------------------------------------------------
+-- Agent
+--
+-- An agent is an entity that can own goals and tactics.  In theory, any 
+-- kind of entity can be an agent.  At present there are two kinds, actors 
+-- and the SYSTEM.
+
+CREATE VIEW agents AS
+SELECT 'SYSTEM' AS agent_id, 'system' AS agent_type
+UNION
+SELECT a        AS agent_id, 'actor'  AS agent_type  FROM actors;
+
+
+------------------------------------------------------------------------
 -- Condition Collection Table
 --
 -- Tactics and Goals are both "condition collections"; they can have
@@ -505,10 +526,8 @@ CREATE TABLE goals (
     -- other way around.
     goal_id      INTEGER PRIMARY KEY, 
     
-    -- Owning Actor
-    owner        TEXT REFERENCES actors(a)
-                 ON DELETE CASCADE
-                 DEFERRABLE INITIALLY DEFERRED, 
+    -- Owning agent; see agents
+    owner        TEXT,
 
     -- Narrative: For goals, this is a user-edited string.
     narrative    TEXT NOT NULL,
@@ -542,10 +561,8 @@ CREATE TABLE tactics (
     tactic_id    INTEGER PRIMARY KEY, 
     tactic_type  TEXT,
     
-    -- Owning Actor
-    owner        TEXT REFERENCES actors(a)
-                 ON DELETE CASCADE
-                 DEFERRABLE INITIALLY DEFERRED, 
+    -- Owning agent; see agents
+    owner        TEXT,
 
     -- Narrative: different tactics use different sets of parameters, 
     -- so a conventional browser of all of the columns is 
@@ -614,10 +631,8 @@ CREATE TABLE conditions (
                    ON DELETE CASCADE
                    DEFERRABLE INITIALLY DEFERRED, 
 
-    -- Owning Actor: The actor that owns the condition collection
-    owner          TEXT REFERENCES actors(a)
-                   ON DELETE CASCADE
-                   DEFERRABLE INITIALLY DEFERRED, 
+    -- Owning agent; see agents
+    owner          TEXT,
 
     -- Narrative: different conditions use different sets of parameters, 
     -- so a conventional browser of all of the columns is 

@@ -188,27 +188,27 @@ tab "Map" {
 
 tab "Strategy" {
     The Strategy tab is where the analyst browses and edits each
-    <<term actor>>'s <<term strategy>>: the actor's <<term goal>>s
-    and the collection of <<term tactic>>s the actor will use to 
+    <<term agent>>'s <<term strategy>>: the agent's <<term goal>>s
+    and the collection of <<term tactic>>s the agent will use to 
     achieve them.<p>
 
-    The Strategy tab shows the strategy for one actor at a time.  It
+    The Strategy tab shows the strategy for one agent at a time.  It
     consists of several panes, each with its own controls:<p>
 
     <ul>
-    <li> <b>The Actor List</b>: A list of all of the actors in the
-    simulation.  Selecting an actor in the list displays the actor's
+    <li> <b>The Agent List</b>: A list of all of the agents in the
+    simulation.  Selecting an agent in the list displays the agent's
     strategy in the other panes.</li>
 
     <li> <b>The <<cref /tab/strategy/goals_tree>></b>: This pane shows
-    the actor's  
+    the agent's  
     goals, along with all attached conditions.  A goal is deemed to be
     met when all attached conditions are true.  The analyst creates,
     edits, and browses goals in this pane.
     </li>
 
     <li> <b>The <<cref /tab/strategy/tactics_tree>></b>:  This pane
-    shows the actor's 
+    shows the agent's 
     tactics in priority order, along with all attached conditions.
     The analyst creates, edits, and browses tactics in this pane.</li>
 
@@ -219,12 +219,12 @@ page /tab/strategy goals_tree "Goals Tree" {
     <<title>>
 
     The Goals Tree shows the <<term goal>>s currently defined for
-    the <<term actor>> shown in the Actor List, along with all
+    the <<term agent>> shown in the Agent List, along with all
     attached <<term condition>>s.  A goal is said to be "met" when
     all of the attached conditions are met, and "unmet" otherwise.
     The Goals Tree consists of a tool bar containing controls used in
     creating, editing, and manipulating goals and conditions, and an 
-    outline view of the actor's goals with the conditions
+    outline view of the agent's goals with the conditions
     attached to each goal indented underneath.  The user can expand
     or collapse each goal to show or hide the attached
     conditions.<p>
@@ -283,11 +283,11 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     <<title>>
 
     The Tactics Tree shows the <<term tactic>>s currently defined for
-    the <<term actor>> shown in the Actor List, along with all
+    the <<term agent>> shown in the Agent List, along with all
     attached <<term condition>>s.  It 
     consists of a tool bar containing controls used in creating,
     editing, and manipulating tactics and conditions, and an outline
-    view of the actor's tactics in priority order with the conditions
+    view of the agent's tactics in priority order with the conditions
     attached to each tactic indented underneath.  The user can expand
     or collapse each tactic to show or hide the attached
     conditions.<p>
@@ -351,7 +351,7 @@ page /tab/strategy tactics_tree "Tactics Tree" {
 
     <<topic [image button_totop]>>
     Gives the selected tactic item top priority over all other tactics
-    for the selected actor.
+    for the selected agent.
     <</topic>>
 
     <<topic [image button_raise]>>
@@ -366,7 +366,7 @@ page /tab/strategy tactics_tree "Tactics Tree" {
 
     <<topic [image button_tobottom]>>
     Gives the selected tactic bottom priority below all other tactics
-    scheduled for the same actor.
+    scheduled for the same agent.
     <</topic>>
 
     <<topic "TBD: On/Off icon">>

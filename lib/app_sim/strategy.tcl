@@ -8,9 +8,9 @@
 # DESCRIPTION:
 #    athena_sim(1): Strategy Execution Engine
 #
-#    An actor's strategy is his collection of goals and tactics and their
+#    An agent's strategy is his collection of goals and tactics and their
 #    attached conditions.  This module is responsible for sanity-checking
-#    actor strategies, and for executing the actor's strategy at each 
+#    agent strategies, and for executing the agent's strategy at each 
 #    strategy execution tock (nominally seven days).
 #
 #-----------------------------------------------------------------------
@@ -27,10 +27,10 @@ snit::type strategy {
 
     # tock
     #
-    # Executes actor strategies:
+    # Executes agent strategies:
     #
     # * Determines whether all goals and conditions are met or unmet.
-    # * For each actor, 
+    # * For each agent, 
     #   * Determines which tactics are eligible for 
     #     execution (i.e., have no unmet conditions).
     #   * Selects the tactics to execute given available resources.
@@ -49,7 +49,7 @@ snit::type strategy {
         # NEXT, determine whether the goals are met or unmet.
         $type ComputeGoalFlags
 
-        # NEXT, examine each actor's tactic in priority order.  If the
+        # NEXT, examine each agent's tactic in priority order.  If the
         # tactic is eligible, attempt to execute it.
         foreach tid [rdb eval {
             SELECT tactic_id
@@ -382,9 +382,9 @@ snit::type strategy {
         $ht putln "The following goals have invalid conditions attached."
         $ht para
              
-        # Get the errant conditions by actor and goal.
+        # Get the errant conditions by agent and goal.
         
-        # Dictionary: actor->goal->condition
+        # Dictionary: agent->goal->condition
         set adict [dict create]
 
         rdb eval {
@@ -403,7 +403,7 @@ snit::type strategy {
         }
 
         dict for {a gdict} $adict {
-            $ht putln "<b>Actor: $a</b>"
+            $ht putln "<b>Agent: $a</b>"
             $ht ul
 
             dict for {gid cdict} $gdict {
@@ -448,7 +448,7 @@ snit::type strategy {
 
         $ht para
 
-        # Dictionary: actor->tactic->condition
+        # Dictionary: agent->tactic->condition
         set adict [dict create]
 
         rdb eval {
@@ -471,7 +471,7 @@ snit::type strategy {
         }
 
         dict for {a tdict} $adict {
-            $ht putln "<b>Actor: $a</b>"
+            $ht putln "<b>Agent: $a</b>"
             $ht ul
 
             dict for {tid cdict} $tdict {

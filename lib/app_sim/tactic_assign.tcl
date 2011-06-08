@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------
 # Tactic: ASSIGN
 
-tactic type define ASSIGN {g n text1 int1} {
+tactic type define ASSIGN {g n text1 int1} actor {
     #-------------------------------------------------------------------
     # Public Methods
 

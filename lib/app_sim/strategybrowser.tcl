@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    strategybrowser(sim) package: Actor/Goal/Tactic browser/editor
+#    strategybrowser(sim) package: Agent/Goal/Tactic browser/editor
 #
 # TBD:
 # 
@@ -159,8 +159,8 @@ snit::widget strategybrowser {
 
     component reloader       ;# timeout(n) that reloads content
 
-    # AList: Actor List
-    component alist          ;# Actor sqlbrowser(n)
+    # AList: Agent List
+    component alist          ;# Agent sqlbrowser(n)
 
     # GTree: Goal/Condition Tree
     component gtree          ;# Goal treectrl
@@ -190,11 +190,11 @@ snit::widget strategybrowser {
 
     # info array
     #
-    #   actor           - Name of currently displayed actor, or ""
+    #   agent           - Name of currently displayed agent, or ""
     #   reloadRequests  - Number of reload requests since the last reload.
     
     variable info -array {
-        actor          ""
+        agent          ""
         reloadRequests 0
     }
 
@@ -326,9 +326,9 @@ snit::widget strategybrowser {
         $alist uid $op $a
 
         # NEXT, if the actor was updated and it's the currently
-        # selected actor, refresh the entire browser; a number
+        # selected agent, refresh the entire browser; a number
         # of things might have changed.
-        if {$op eq "update" && $a == $info(actor)} {
+        if {$op eq "update" && $a == $info(agent)} {
             $self reload
         }
     }
@@ -341,11 +341,11 @@ snit::widget strategybrowser {
 
     method {MonGoals update} {goal_id} {
         # FIRST, we need to get the data about this goal.
-        # If it isn't for the currently displayed actor, we
+        # If it isn't for the currently displayed agent, we
         # can ignore it.
         array set gdata [goal get $goal_id]
 
-        if {$gdata(owner) ne $info(actor)} {
+        if {$gdata(owner) ne $info(agent)} {
             return
         }
 
@@ -380,11 +380,11 @@ snit::widget strategybrowser {
 
     method {MonTactics update} {tactic_id} {
         # FIRST, we need to get the data about this tactic.
-        # If it isn't for the currently displayed actor, we
+        # If it isn't for the currently displayed agent, we
         # can ignore it.
         array set tdata [tactic get $tactic_id]
 
-        if {$tdata(owner) ne $info(actor)} {
+        if {$tdata(owner) ne $info(agent)} {
             return
         }
 
@@ -465,14 +465,14 @@ snit::widget strategybrowser {
 
 
     #-------------------------------------------------------------------
-    # Actor List Pane
+    # Agent List Pane
 
     # AListCreate pane
     #
-    # pane - The name of the actor list's pane widget
+    # pane - The name of the agent list's pane widget
     #
     # Creates the "alist" component, which lists all of the
-    # available actors.
+    # available agents.
 
     method AListCreate {pane} {
         # FIRST, create the list widget
@@ -483,31 +483,31 @@ snit::widget strategybrowser {
             -borderwidth  1                           \
             -stripeheight 0                           \
             -db           ::rdb                       \
-            -view         actors                      \
-            -uid          a                           \
+            -view         agents                      \
+            -uid          agent_id                    \
             -filterbox    off                         \
             -selectmode   browse                      \
-            -selectioncmd [mymethod AListActorSelect] \
+            -selectioncmd [mymethod AListAgentSelect] \
             -layout {
-                {a "Actor" -stretchable yes} 
+                {agent_id "Agent" -stretchable yes} 
             } 
 
-        # NEXT, update individual entities when they change.
+        # NEXT, Detect agent updates
         notifier bind ::rdb <actors> $self [list $alist uid]
     }
 
-    # AListActorSelect
+    # AListAgentSelect
     #
-    # Called when an actor is selected in the alist.  Updates the
-    # rest of the browser to display that actor's data.
+    # Called when an agent is selected in the alist.  Updates the
+    # rest of the browser to display that agent's data.
 
-    method AListActorSelect {} {
+    method AListAgentSelect {} {
 
         # FIRST, update the rest of the browser
-        set actor [lindex [$alist uid curselection] 0]
+        set agent [lindex [$alist uid curselection] 0]
 
-        if {$actor ne $info(actor)} {
-            set info(actor) $actor
+        if {$agent ne $info(agent)} {
+            set info(agent) $agent
 
             $self reload
         }
@@ -692,8 +692,8 @@ snit::widget strategybrowser {
         array unset gt_g2item
         array unset gt_c2item
 
-        # NEXT, if no actor we're done.
-        if {$info(actor) eq ""} {
+        # NEXT, if no agent we're done.
+        if {$info(agent) eq ""} {
             return
         }
 
@@ -701,7 +701,7 @@ snit::widget strategybrowser {
         rdb eval {
             SELECT *
             FROM goals
-            WHERE owner=$info(actor)
+            WHERE owner=$info(agent)
             ORDER BY goal_id
         } row {
             unset -nocomplain row(*)
@@ -714,7 +714,7 @@ snit::widget strategybrowser {
                    G.owner
             FROM conditions AS C
             JOIN goals AS G ON (cc_id = goal_id)
-            WHERE G.owner=$info(actor)
+            WHERE G.owner=$info(agent)
             ORDER BY condition_id;
         } row {
             unset -nocomplain row(*)
@@ -778,7 +778,7 @@ snit::widget strategybrowser {
     # Allows the user to create a new goal.
     
     method GTreeGoalAdd {} {
-        order enter GOAL:CREATE owner $info(actor)
+        order enter GOAL:CREATE owner $info(agent)
     }
 
     # GTreeGoalState
@@ -912,7 +912,7 @@ snit::widget strategybrowser {
                        -values    $list                \
                        -message   [normalize "
                            Select a condition to create for
-                           actor $info(actor)'s goal $cc_id.
+                           agent $info(agent)'s goal $cc_id.
                        "]]
 
         if {$title ne ""} {
@@ -1196,8 +1196,8 @@ snit::widget strategybrowser {
         array unset tt_t2item
         array unset tt_c2item
 
-        # NEXT, if no actor we're done.
-        if {$info(actor) eq ""} {
+        # NEXT, if no agent we're done.
+        if {$info(agent) eq ""} {
             return
         }
 
@@ -1205,7 +1205,7 @@ snit::widget strategybrowser {
         rdb eval {
             SELECT *
             FROM tactics
-            WHERE owner=$info(actor)
+            WHERE owner=$info(agent)
             ORDER BY priority
         } row {
             unset -nocomplain row(*)
@@ -1218,7 +1218,7 @@ snit::widget strategybrowser {
                    T.owner
             FROM conditions AS C
             JOIN tactics AS T ON (cc_id = tactic_id)
-            WHERE T.owner=$info(actor)
+            WHERE T.owner=$info(agent)
             ORDER BY condition_id;
         } row {
             unset -nocomplain row(*)
@@ -1286,10 +1286,13 @@ snit::widget strategybrowser {
     # then pops up the related TACTIC:*:CREATE dialog.
     
     method TTreeTacticAdd {} {
-        # FIRST, get a list of order names and titles
+        # FIRST, get a list of tactic types for the current agent
+        set ttypes [lsort [tactic type names_by_agent $info(agent)]]
+
+        # NEXT, get a list of order names and titles
         set odict [dict create]
 
-        foreach ttype [lsort [tactic type names]] {
+        foreach ttype $ttypes {
             set order "TACTIC:$ttype:CREATE"
             set title [string map {"Create Tactic: " ""} [order title $order]]
             dict set odict "$ttype: $title" $order
@@ -1305,11 +1308,11 @@ snit::widget strategybrowser {
                        -values    $titles             \
                        -message   [normalize "
                            Select a tactic to create for 
-                           actor $info(actor).
+                           agent $info(agent).
                        "]]
 
         if {$title ne ""} {
-            order enter [dict get $odict $title ] owner $info(actor)
+            order enter [dict get $odict $title ] owner $info(agent)
         }
     }
 
@@ -1483,7 +1486,7 @@ snit::widget strategybrowser {
                        -values    $list             \
                        -message   [normalize "
                            Select a condition to create for
-                           actor $info(actor)'s tactic $cc_id.
+                           agent $info(agent)'s tactic $cc_id.
                        "]]
 
         if {$title ne ""} {

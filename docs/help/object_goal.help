@@ -17,11 +17,11 @@ object goal_ {
     noun goal
 
     overview {
-        A <i>goal</i> is a state of affairs that an <<term actor>>
+        A <i>goal</i> is a state of affairs that an <<term agent>>
         wishes to bring about or maintain.  The precise state of
         affairs is defined by one or more <<term condition>>s 
-        attached to the goal.  <<term actor Actors>> use
-        <<term tactic>>s to achieve their goals.<p>
+        attached to the goal.  Agents, particularly <<term actor>>s,
+        use <<term tactic>>s to achieve their goals.<p>
 
         Goals are browsed, created, and edited on
         the <<tab Strategy>> using the <<cref /order/goal>>.
@@ -33,7 +33,7 @@ object goal_ {
     } -tags {update state}
 
     attribute owner "Owner" {
-        The ID of the <<term actor>> to whose strategy this
+        The ID of the <<term agent>> to whose strategy this
         goal belongs.
     } -tags {create update}
 

@@ -39,6 +39,7 @@ macro sotitle {} {
 # Object Types
 
 include object_actor.help
+include object_agent.help
 include object_nbhood.help
 include object_group.help
 include object_goal.help

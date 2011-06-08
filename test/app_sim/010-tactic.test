@@ -203,6 +203,16 @@ tactic_id tactic_type owner priority
 1         SAVE        JOE   1        
     }
 
+    test create-3.1 {tactic type must match agent type} -setup {
+        setup
+    } -body {
+        tactic mutate create [dict merge $T1 {owner SYSTEM}]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Agent SYSTEM cannot own SAVE tactics}
+
     #-------------------------------------------------------------------
     # mutate delete
 

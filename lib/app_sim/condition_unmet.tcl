@@ -133,8 +133,8 @@ condition type define UNMET {list1} -attachto tactic {
     # dlg    - The order dialog
     # cc_id  - The tactic ID
     #
-    # Retrieves the owning actor for the tactic, and then the
-    # dictionary of goal IDs and narratives for the owning actor.
+    # Retrieves the owning agent for the tactic, and then the
+    # dictionary of goal IDs and narratives for the owning agent.
     # These are loaded into the list1 field's -itemdict, so that
     # the user can choose from the required goals.
 
@@ -160,10 +160,10 @@ condition type define UNMET {list1} -attachto tactic {
 
     # ValidateGoals owner gids
     #
-    # owner - The owning actor
+    # owner - The owning agent
     # gids  - The goals
     #
-    # Verifies that all goals belong to the specified actor.
+    # Verifies that all goals belong to the specified agent.
 
     typemethod ValidateGoals {owner gids} {
         # FIRST, get the valid goals
@@ -177,7 +177,7 @@ condition type define UNMET {list1} -attachto tactic {
         foreach gid $gids {
             if {$gid ni $validGoals} {
                 return -code error -errorcode INVALID \
-                    "Goal $gid does not belong to the condition's owning actor"
+                    "Goal $gid does not belong to the condition's owning agent"
             }
         }
         

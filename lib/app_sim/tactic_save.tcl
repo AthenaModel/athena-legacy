@@ -20,7 +20,7 @@
 # int1 - Integer percentage of income to save to the actor's reserve.
 
 
-tactic type define SAVE {int1} {
+tactic type define SAVE {int1} actor {
     typemethod narrative {tdict} {
         dict with tdict {
             return "Save $int1% of income for later use"

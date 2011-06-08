@@ -30,7 +30,7 @@
 #-------------------------------------------------------------------
 # Tactic: DEPLOY
 
-tactic type define DEPLOY {g text1 int1 nlist} {
+tactic type define DEPLOY {g text1 int1 nlist} actor {
     #-------------------------------------------------------------------
     # Public Methods
 

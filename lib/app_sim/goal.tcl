@@ -11,7 +11,7 @@
 #    This module is responsible for managing goals and operations
 #    upon them.  As such, it is a type ensemble.
 #
-#    A goal is an object owned by an actor that can be met or unmet.
+#    A goal is an object owned by an agent that can be met or unmet.
 #    Whether it is met or unmet is determined by the conditions
 #    attached to it.  As such, it is a "cond_collection".
 #
@@ -90,7 +90,7 @@ snit::type goal {
     #
     # parmdict     A dictionary of goal parms
     #
-    #    owner          The goal's owning actor
+    #    owner          The goal's owning agent
     #    narrative      The narrative text.
     #
     # Creates a goal given the parms, which are presumed to be
@@ -143,7 +143,7 @@ snit::type goal {
     #    narrative      The new narrative
     #
     # Updates a goal given the parms, which are presumed to be
-    # valid.  Note that you can't change the goal's actor.
+    # valid.  Note that you can't change the goal's agent.
 
     typemethod {mutate update} {parmdict} {
         # FIRST, save the changed data.
@@ -199,11 +199,11 @@ order define GOAL:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm owner     actor  "Owner"      -context yes
+    parm owner     agent  "Owner"      -context yes
     parm narrative text   "Narrative"
 } {
     # FIRST, prepare and validate the parameters
-    prepare owner     -toupper   -required -type actor
+    prepare owner     -toupper   -required -type agent
     prepare narrative -normalize -required
 
     returnOnError -final

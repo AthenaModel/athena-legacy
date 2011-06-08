@@ -71,6 +71,9 @@ term affinity "affinity" {
     group and group/actor relationships.<p>
 }
 
+#-----------------------------------------------------------------------
+
+alias /term agent "agent" /object/agent
 
 #-----------------------------------------------------------------------
 
@@ -914,6 +917,10 @@ term sapop "subsistence agriculture population" {
 
 #-----------------------------------------------------------------------
 
+alias /term system "SYSTEM agent" /object/agent/system
+
+#-----------------------------------------------------------------------
+
 alias /term tactic "tactic" /object/tactic
 
 #-----------------------------------------------------------------------
@@ -1108,28 +1115,3 @@ term zulu "zulu-time" {
 
     <</topiclist>>
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

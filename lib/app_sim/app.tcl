@@ -396,6 +396,15 @@ snit::type app {
         orderdialog fieldopts actor \
             -db ::rdb
 
+        # agent -- Agent IDs
+        form register agent ::marsgui::keyfield \
+            -table agents                       \
+            -keys  agent_id
+
+        orderdialog fieldopts agent \
+            -db ::rdb
+
+
         # coop -- Cooperation Values
         form register coop ::marsgui::rangefield \
             -type        ::qcooperation          \
