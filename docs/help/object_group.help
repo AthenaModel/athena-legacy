@@ -144,12 +144,6 @@ object group_frc {
         In order to apply force, force group
         personnel must be deployed to neighborhoods and assigned 
         duties using <<term tactic>>s.<p>
-
-        Once deployed, force group personnel can also be assigned
-        JNEM-style <<term activity "activities">> on the 
-        <<tab Schedule>>.  Note that this model predates Athena's 
-        <<term actor>>/<<term goal>>/<<term tactic>> paradigm, and
-        isn't completely consistent with it.<p>
     }
 
     attribute g "Group" {
@@ -247,12 +241,6 @@ object group_org {
         In order to work, organization group
         personnel must be deployed to neighborhoods and assigned 
         duties using <<term tactic>>s.<p>
-
-        Once deployed, organization group personnel can also be assigned
-        JNEM-style <<term activity "activities">> on the 
-        <<tab Schedule>>.  Note that this model predates Athena's 
-        <<term actor>>/<<term goal>>/<<term tactic>> paradigm, and
-        isn't completely consistent with it.<p>
     }
 
     attribute g "Group" {

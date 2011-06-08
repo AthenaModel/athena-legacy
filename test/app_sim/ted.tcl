@@ -36,7 +36,6 @@ snit::type ted {
         attrit_nf
         attrit_nfg
         attroe_nfg
-        calendar
         civgroups
         conditions
         cond_collections
@@ -422,7 +421,10 @@ snit::type ted {
         }
 
         # So that automatically generated IDs start over at 1.
-        rdb eval {DELETE FROM main.sqlite_sequence}
+        # Note that SQLite adds this table as needed.
+        catch {
+            rdb eval {DELETE FROM main.sqlite_sequence}
+        }
 
         foreach module $cleanupModules {
             {*}$module dbsync

@@ -84,7 +84,7 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 BLUE 100
         }
     } -body {
-        ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties NONESUCH
+        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -97,7 +97,7 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 BLUE 100
         }
     } -body {
-        ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties -1
+        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties -1
     } -cleanup {
         cleanup
     } -result {
@@ -110,7 +110,7 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 BLUE 100
         }
     } -body {
-        ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g1 NONESUCH
+        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g1 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -123,7 +123,7 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 BLUE 100
         }
     } -body {
-        ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g1 BLUE
+        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g1 BLUE
     } -cleanup {
         cleanup
     } -result {
@@ -136,7 +136,7 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 BLUE 100
         }
     } -body {
-        ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g2 NONESUCH
+        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g2 NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -149,7 +149,7 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 BLUE 100
         }
     } -body {
-        ted order -reject ATTRIT:UNIT u BLUE-NB1/0000 casualties 10 g2 BLUE
+        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g2 BLUE
     } -cleanup {
         cleanup
     } -result {
@@ -162,19 +162,19 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
-        ted order ATTRIT:UNIT u SHIA-NB1/0000 casualties 5 g1 BLUE g2 BRIT
+        ted order ATTRIT:UNIT u SHIA/NB1 casualties 5 g1 BLUE g2 BRIT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
         {::demog <Update>}
-        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SHIA/NB1}
     }
 
 
     test UNIT-3.1 {undo undoes the change} -setup {
         setup
-        ted order ATTRIT:UNIT u SHIA-NB1/0000 casualties 5
+        ted order ATTRIT:UNIT u SHIA/NB1 casualties 5
     } -body {
         ted notifier bind ::rdb <units>
         ted notifier bind ::demog <Update>
@@ -184,7 +184,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::demog <Update>}
-        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SHIA/NB1}
     }
 
 
@@ -270,13 +270,13 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::demog <Update>}
         {::demog <Update>}
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SUNN-NB1/0000}
-        {::rdb <units> update KURD-NB2/0000}
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SUNN-NB1/0000}
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SUNN-NB1/0000}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SUNN/NB1}
+        {::rdb <units> update KURD/NB2}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SUNN/NB1}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SUNN/NB1}
     }
 
     test NBHOOD-3.1 {undo undoes the change} -setup {
@@ -292,8 +292,8 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::demog <Update>}
         {::demog <Update>}
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SUNN-NB1/0000}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SUNN/NB1}
     }
 
 
@@ -414,12 +414,12 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <units> update BLUE-NB1/0000}
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SUNN-NB1/0000}
-        {::rdb <units> update KURD-NB2/0000}
-        {::rdb <units> update BLUE-NB1/0000}
-        {::rdb <units> update BLUE-NB1/0000}
+        {::rdb <units> update BLUE/NB1}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SUNN/NB1}
+        {::rdb <units> update KURD/NB2}
+        {::rdb <units> update BLUE/NB1}
+        {::rdb <units> update BLUE/NB1}
         {::rdb <deploy_ng> update {NB1 BLUE}}
     }
 
@@ -436,12 +436,12 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SUNN-NB1/0000}
-        {::rdb <units> update USAID-NB1/0000}
-        {::rdb <units> update KURD-NB2/0000}
-        {::rdb <units> update USAID-NB1/0000}
-        {::rdb <units> update USAID-NB1/0000}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SUNN/NB1}
+        {::rdb <units> update USAID/NB1}
+        {::rdb <units> update KURD/NB2}
+        {::rdb <units> update USAID/NB1}
+        {::rdb <units> update USAID/NB1}
         {::rdb <deploy_ng> update {NB1 USAID}}
     }
 
@@ -457,11 +457,11 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::demog <Update>}
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SUNN-NB1/0000}
-        {::rdb <units> update KURD-NB2/0000}
-        {::rdb <units> update SHIA-NB1/0000}
-        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SUNN/NB1}
+        {::rdb <units> update KURD/NB2}
+        {::rdb <units> update SHIA/NB1}
+        {::rdb <units> update SHIA/NB1}
     }
 
     test GROUP-3.1 {undo undoes the change} -setup {
@@ -476,7 +476,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::demog <Update>}
-        {::rdb <units> update SHIA-NB1/0000}
+        {::rdb <units> update SHIA/NB1}
     }
 
     #-------------------------------------------------------------------

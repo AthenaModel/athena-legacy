@@ -161,8 +161,8 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
     test analyze-1.5 {Can have multiple} -setup {
         setup
         deploy NB1 BLUE 30
-        ted order ACTIVITY:SCHEDULE n NB1 g BLUE a PATROL personnel 15 start +0 pattern daily
-        ted order ACTIVITY:SCHEDULE n NB1 g BLUE a GUARD  personnel 15 start +0 pattern daily
+        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 text1 PATROL int1 15 priority bottom
+        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 text1 GUARD int1 15 priority bottom
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes

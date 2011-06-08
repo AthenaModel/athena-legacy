@@ -44,6 +44,7 @@ snit::type strategy {
         tactic reset
         tactic::ATTROE reset
         tactic::DEFROE reset
+        unit reset
 
         # NEXT, determine whether the goals are met or unmet.
         $type ComputeGoalFlags
@@ -68,7 +69,10 @@ snit::type strategy {
         cash save
         personnel save
 
+        # NEXT, populate base units for all groups.
+        unit makebase
     }
+
 
     # ComputeGoalFlags
     #

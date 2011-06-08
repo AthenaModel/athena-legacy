@@ -110,13 +110,6 @@ snit::widget appwin {
             script  { strategybrowser %W }
         }
 
-        schedule {
-            label   "Schedule"
-            vistype *
-            parent  ""
-            script  { schedulebrowser %W }
-        }
-
         nbhoodst {
             label   "Neighborhoods"
             vistype *
@@ -664,15 +657,6 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SIM:STARTDATE
-
-        # Orders/Activity
-        set submenu [menu $ordersmenu.activity]
-        $ordersmenu add cascade -label "Activity" \
-            -underline 4 -menu $submenu
-        
-        $self AddOrder $submenu ACTIVITY:SCHEDULE
-        $self AddOrder $submenu ACTIVITY:UPDATE
-        $self AddOrder $submenu ACTIVITY:CANCEL
 
         # Orders/Unit
         set submenu [menu $ordersmenu.unit]

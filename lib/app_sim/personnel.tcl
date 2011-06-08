@@ -94,16 +94,6 @@ snit::type personnel {
         }
     }
 
-    # available g
-    #
-    # g  - A force or ORG group
-    #
-    # Retrieves the number of personnel available for deployment.
-
-    typemethod available {g} {
-        rdb onecolumn {SELECT available FROM working_personnel WHERE g=$g}
-    }
-
     # inplaybox g
     #
     # g  - A force or ORG group
@@ -112,6 +102,41 @@ snit::type personnel {
 
     typemethod inplaybox {g} {
         rdb onecolumn {SELECT personnel FROM working_personnel WHERE g=$g}
+    }
+
+    # available g
+    #
+    # g  - A force or ORG group
+    #
+    # Retrieves the number of personnel available for deployment.
+
+    typemethod available {g} {
+        rdb eval {
+            SELECT available FROM working_personnel WHERE g=$g
+        } {
+            return $available
+        }
+
+        return 0
+    }
+
+    # unassigned n g
+    #
+    # n  - A neighborhood
+    # g  - A force or ORG group
+    #
+    # Retrieves the number of unassigned personnel from group g in 
+    # neighborhood n.
+
+    typemethod unassigned {n g} {
+        rdb eval {
+            SELECT unassigned FROM working_deployment 
+            WHERE n=$n AND g=$g
+        } {
+            return $unassigned
+        }
+
+        return 0
     }
 
 
@@ -139,7 +164,7 @@ snit::type personnel {
         }
     }
 
-    # mobiblize g personnel
+    # mobilize g personnel
     #
     # g         - A force or ORG group
     # personnel - The number of personnel to mobilize, or "all"
@@ -155,6 +180,37 @@ snit::type personnel {
         }
     }
 
+    # assign tactic_id g origin n a personnel
+    #
+    # tactic_id   - The tactic ID for which the personnel are being
+    #               assigned.
+    # g           - The group providing the personnel
+    # origin      - The nbhood in which the personnel are deployed.
+    # n           - The nbhood in which the personnel will be assigned
+    # a           - The activity to which they will be assigned
+    # personnel   - The number of personnel to assign.
+    #
+    # Assigns the personnel to the activity, decrementing the
+    # "unassigned" count.  If there's no unit already existing, 
+    # creates it.  Otherwise, updates the unit's personnel.
+
+    typemethod assign {tactic_id g origin n a personnel} {
+        # FIRST, ensure that enough personnel remain.
+        set unassigned [$type unassigned $origin $g]
+
+        require {$personnel <= $unassigned} \
+            "Insufficient unassigned personnel: $personnel > $unassigned"
+        
+        # NEXT, allocate the personnel.
+        rdb eval {
+            UPDATE working_deployment
+            SET unassigned = unassigned - $personnel
+            WHERE n=$origin AND g=$g
+        }
+
+        # NEXT, assign the tactic unit to this activity.
+        return [unit assign $tactic_id $g $origin $n $a $personnel]
+    }
 
     # save
     #

@@ -74,7 +74,6 @@ snit::type scenario {
         # NEXT, monitor tables. 
         rdb monitor add actors       {a}
         rdb monitor add attroe_nfg   {n f g}
-        rdb monitor add calendar     {cid}
         rdb monitor add civgroups    {g}
         rdb monitor add conditions   {condition_id}
         rdb monitor add coop_fg      {f g}
@@ -539,7 +538,6 @@ snit::type scenario {
         rdb function ciftop               [list ::cif mark]
         rdb function qsecurity            ::projectlib::qsecurity
         rdb function moneyfmt             ::marsutil::moneyfmt
-        rdb function calpattern_narrative [list ::calpattern narrative]
         rdb function mklinks              [list ::sigevent mklinks]
 
         # NEXT, define the GUI Views

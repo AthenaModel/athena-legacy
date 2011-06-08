@@ -203,50 +203,6 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
         cleanup
     } -result {SHIA BLUE}
 
-    test delete-6.1 {calendar items with g are deleted} -setup {
-        ted create NB1 SHIA
-
-        activity mutate create {
-            n         NB1
-            g         SHIA
-            a         DISPLACED
-            tn        NB1
-            personnel 70
-            start     0
-            finish    never
-            pattern   daily
-            priority  bottom
-        }
-    } -body {
-        civgroup mutate delete SHIA
-        rdb eval {SELECT n,g,a,tn FROM calendar}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-6.2 {undoing restores items with g} -setup {
-        ted create NB1 SHIA
-
-        activity mutate create {
-            n         NB1
-            g         SHIA
-            a         DISPLACED
-            tn        NB1
-            personnel 70
-            start     0
-            finish    never
-            pattern   daily
-            priority  bottom
-        }
-
-        set undo [civgroup mutate delete SHIA]
-
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT n,g,a,tn FROM calendar}
-    } -cleanup {
-        cleanup
-    } -result {NB1 SHIA DISPLACED NB1}
 
     test delete-7.1 {deletes rel_fg overrides} -setup {
         ted create SHIA SUNN

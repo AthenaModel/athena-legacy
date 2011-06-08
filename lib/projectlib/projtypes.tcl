@@ -16,6 +16,7 @@
 namespace eval ::projectlib:: {
     namespace export     \
         boolean          \
+        eactortype       \
         eattroe          \
         eattroenf        \
         eattroeuf        \
@@ -127,6 +128,13 @@ snit::type ::projectlib::typewrapper {
 
 #-------------------------------------------------------------------
 # Enumerations
+
+# Actor Types
+::marsutil::enum ::projectlib::eactortype {
+    NORMAL          "Normal"
+    PSEUDO          "Pseudo-actor"
+}
+
 
 # AAM Attacking ROEs, UF and NF combined
 ::marsutil::enum ::projectlib::eattroe  {

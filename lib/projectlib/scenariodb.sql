@@ -947,8 +947,11 @@ CREATE TABLE units (
     -- Symbolic unit name
     u                TEXT PRIMARY KEY,
 
-    -- Calendar Item ID, or 0 if a = NONE
-    cid              INTEGER,
+    -- Tactic ID, or NULL if this is a base unit.
+    -- NOTE: There is no FK reference because the unit can outlive the
+    -- tactic that created it.  A unit is associated with at most one
+    -- tactic.
+    tactic_id        INTEGER UNIQUE,
 
     -- Active flag: 1 if active, 0 otherwise.  A unit is active if it
     -- is currently scheduled.
@@ -966,7 +969,7 @@ CREATE TABLE units (
     -- Neighborhood of Origin
     origin           TEXT,
 
-    -- Unit activity: eactivity(n) value
+    -- Unit activity: eactivity(n) value, or NONE if this is a base unit
     a                TEXT,
 
     -- Total Personnel
@@ -974,10 +977,6 @@ CREATE TABLE units (
 
     -- Location, in map coordinates, within n
     location         TEXT,
-
-    -- Activity effective flag: 1 if activity is effective, and 0 otherwise.
-    -- TBD: Not set; might go away.
-    a_effective      INTEGER DEFAULT 0,
 
     -- Attrition Flag: 1 if the unit is about to be attrited.
     attrit_flag      INTEGER DEFAULT 0
@@ -1083,50 +1082,6 @@ CREATE TABLE activity_nga (
 
     PRIMARY KEY (n,g,a)
 );
-
--- Activity calendar
-CREATE TABLE calendar (
-    -- Calendar Item ID
-    cid          INTEGER PRIMARY KEY AUTOINCREMENT,
-
-    -- Scheduled activity
-
-    -- Neighborhood in which personnel are based
-    n            TEXT REFERENCES nbhoods(n)
-                 ON DELETE CASCADE
-                 DEFERRABLE INITIALLY DEFERRED,
-
-    -- Group providing personnel
-    g            TEXT REFERENCES groups(g)
-                 ON DELETE CASCADE
-                 DEFERRABLE INITIALLY DEFERRED,
-
-    -- Activity being performed        
-    a            TEXT,
-
-    -- Neighborhood targetted by activity
-    tn           TEXT REFERENCES nbhoods(n)
-                 ON DELETE CASCADE
-                 DEFERRABLE INITIALLY DEFERRED,
-
-    -- Number personnel scheduled.
-    personnel    INTEGER,
-
-    -- Priority of this item
-    priority     INTEGER DEFAULT 0,
-
-    -- Time tick at which item takes effect.
-    start        INTEGER,
-
-    -- Time tick at which item ceases, or ''  
-    finish       INTEGER,  
-
-    -- Pattern, calpattern(sim) value
-    pattern      TEXT DEFAULT 'daily'
-);
-
-CREATE INDEX calendar_nga_index 
-ON calendar(n,g,a);
 
 
 ------------------------------------------------------------------------

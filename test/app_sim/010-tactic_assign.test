@@ -1,0 +1,236 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_assign.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_assign(sim) tests.
+#
+#    This test suite tests the tactic::ASSIGN ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT USAID
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    proc execute_setup {} {
+        setup
+        personnel start
+        personnel load
+        cash load
+
+        personnel deploy NB1 BLUE 1000
+        personnel deploy NB2 BLUE 2000
+        personnel deploy NB2 BRIT 3000
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    set T1 {
+        tactic_type ASSIGN
+        owner       JOE
+        priority    top
+        g           BLUE
+        n           NB1
+        text1       PATROL
+        int1        100
+    }
+
+    set T2 {
+        tactic_type ASSIGN
+        owner       JOE
+        priority    top
+        g           USAID
+        n           NB2
+        text1       CMO_HEALTHCARE
+        int1        100
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::ASSIGN narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {In NB1, assign 100 BLUE personnel to do PATROL.}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: g no longer exists} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM frcgroups WHERE g='BLUE'}
+    } -body {
+        tactic::ASSIGN check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force/organization group BLUE no longer exists.}
+
+    test check-1.2 {check: n no longer exists} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+    } -body {
+        tactic::ASSIGN check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB2 no longer exists.}
+
+    test check-1.3 {check: g no longer owned by owner} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {UPDATE frcgroups SET a=NULL}
+    } -body {
+        tactic::ASSIGN check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Force/organization group BLUE is no longer owned by actor JOE.}
+
+    test check-1.4 {check: multiple failures} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {UPDATE orggroups SET a=NULL}
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+    } -body {
+        tactic::ASSIGN check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB2 no longer exists.  Force/organization group USAID is no longer owned by actor JOE.}
+
+    #-------------------------------------------------------------------
+    # dollars
+
+    test dollars-1.1 {dollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::ASSIGN dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {n/a}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {execute: insufficient troops, no exec} -setup {
+        execute_setup
+        tactic mutate create [dict merge $T1 {int1 20000}]
+    } -body {
+        tactic::ASSIGN execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test execute-1.2 {execute: insufficent troops, no change} -setup {
+        execute_setup
+        tactic mutate create [dict merge $T1 {int1 20000}]
+    } -body {
+        tactic::ASSIGN execute [tactic get 1]
+        ted query {SELECT * FROM working_deployment}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     personnel unassigned 
+--- ----- --------- ---------- 
+NB1 BLUE  1000      1000       
+NB2 BLUE  2000      2000       
+NB1 BRIT  0         0          
+NB2 BRIT  3000      3000       
+NB1 USAID 0         0          
+NB2 USAID 0         0          
+    }
+
+    test execute-1.3 {execute: 1 on success} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::ASSIGN execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test execute-1.4 {execute: unassigned decremented} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::ASSIGN execute [tactic get 1]
+        ted query {SELECT * FROM working_deployment}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g     personnel unassigned 
+--- ----- --------- ---------- 
+NB1 BLUE  1000      900        
+NB2 BLUE  2000      2000       
+NB1 BRIT  0         0          
+NB2 BRIT  3000      3000       
+NB1 USAID 0         0          
+NB2 USAID 0         0          
+    }
+
+    test execute-1.5 {execute: unit created} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::ASSIGN execute [tactic get 1]
+        ted querylist {SELECT u,tactic_id,active,n,g,a,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u          UT0001
+tactic_id  1
+active     1
+n          NB1
+g          BLUE
+a          PATROL
+personnel  100
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

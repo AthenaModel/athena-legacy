@@ -46,9 +46,9 @@ macro term.header {} {
 
 term activity "activity" {
     An <i>activity</i> is an action that a <<term group>> can
-    perform in a <<term nbhood>>.  Activities are scheduled on the
-    <<tab Schedule>> and are staffed from available personnel
-    each <<term morning>>.  Personnel assigned to an activity
+    perform in a <<term nbhood>>, as initiated by a <<term tactic>>.
+    Activities are staffed by personnel deployed to neighborhoods during
+    <<term strategy>> execution.  Personnel assigned to an activity
     appear as a <<term unit>> on the <<tab Map>>; the unit is said to 
     perform the activity. There are different sets of activities for the
     different group types: <<term frcgroup>>s, <<term orggroup>>s, and 
@@ -1020,10 +1020,12 @@ term unit "unit" {
 
     Units come into existence automatically to represent the
     neighborhood population; to represent force and organization group
-    personnel stationed in neighborhoods by the <<cref /order/personnel>>; 
+    personnel deployed to neighborhoods by the 
+    <<cref /object/tactic/deploy>>;
     and also to represent personnel assigned to particular activities
-    by the <<cref /order/activity>>.  Thus, every unit belongs to some group
-    and represents personnel drawn from some particular neighborhood.
+    by the <<cref /object/tactic/assign>>.  Thus, every unit belongs to 
+    some group and represents personnel drawn from some particular 
+    neighborhood.<p>
 
     Each unit is tied to a particular neighborhood and can be moved
     about within that neighborhood for the purposes of visualization;
@@ -1031,25 +1033,15 @@ term unit "unit" {
     effect on the simulation.  Units cannot be moved from one 
     neighborhood to another.<p>
 
-    A unit's name has the form "<i>group-nbhood/nnnn</i>" where
-    <i>group</i> is the group name and <i>nbhood</i> is the unit's
-    neighborhood of origin (which isn't necessarily the same as the
-    neighborhood in which the unit is located).  The number
-    <i>nnnn</i> is "0000" for personnel not allocated to any
-    particular activity, and the ID of the relevant
-    <<cref /order/activity "calendar entry">> for units doing an activity.<p>
-
     In conventional war games, units correspond to a Table of
     Organization and Equipment (TOE); thus, a unit might be Company A
-    of such-and-such a battalion.  Athena borrows this term, but
-    changes it.  In Athena, a unit is really an allocation of
-    personnel to some purpose over a period of time, e.g., an
-    allocation of members of a <<term frcgroup>> to the 
+    of such-and-such a battalion.  In Athena, a unit is simply
+    an allocation of personnel to some purpose over a period of time, 
+    e.g., an allocation of members of a <<term frcgroup>> to the 
     <<term activity>> of law enforcement.<p>
 
     Units can be positioned using the controls on the
-    <<tab Map>>.  The full set of units can browsed
-    and edited on the <<tab Groups/Units>>, using the <<cref /order/unit>>.<p>
+    <<tab Map>>.
 }
 
 #-----------------------------------------------------------------------

@@ -461,8 +461,6 @@ snit::type sim {
         personnel start
         control   start
         strategy  tock
-        activity  analyze staffing     ;# TBD: should be controlled by 
-                                        # strategy.
         demog     analyze pop
         nbstat    start
         control   analyze
@@ -698,9 +696,6 @@ snit::type sim {
             profile control assess
             profile strategy tock
         }
-
-        # NEXT, do staffing.
-        profile activity analyze staffing
 
         # NEXT, pause if it's the pause time, or checks failed.
         set stopping 0

@@ -26,139 +26,166 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    # Clean up after a test
+    proc setup {} {
+        ted create NB1 NB2 BLUE USAID SHIA 
+        personnel start
+        personnel load
+        personnel deploy NB1 BLUE  100
+        personnel deploy NB2 USAID 100
+        personnel save
+    }
 
+    # Clean up after a test
     proc cleanup {} {
         # Clean up the test environment
         array unset parms
         ted cleanup
     }
 
-    set u1 {
-        cid       991
-        n         NB1 
-        g         BLUE  
-        tn        NB1    
-        a         PATROL    
-        personnel 1
-    }
-
-    set u2 {
-        cid       0
-        n         NB2 
-        g         USAID 
-        tn        NB2    
-        a         NONE
-        personnel 2        
-    }
-
-    set u3 {
-        cid       992
-        n         NB1 
-        g         SHIA  
-        tn        NB2    
-        a         DISPLACED 
-        personnel 3
-    }
-
     #-------------------------------------------------------------------
-    # create
+    # makebase
 
-    test create-1.1 {units are created} -setup {
-        ted create NB1 NB2 BLUE USAID SHIA 
+    test makebase-1.1 {units are created} -setup {
+        setup
     } -body {
-        unit create $u1
-        unit create $u2
-        unit create $u3
+        unit makebase
 
         ted query {SELECT u,n,g,gtype,origin,a,personnel,active FROM units}
     } -cleanup {
         cleanup
     } -result {
-u              n   g     gtype origin a         personnel active 
--------------- --- ----- ----- ------ --------- --------- ------ 
-BLUE-NB1/0991  NB1 BLUE  FRC   NB1    PATROL    1         1      
-USAID-NB2/0000 NB2 USAID ORG   NB2    NONE      2         1      
-SHIA-NB1/0992  NB2 SHIA  CIV   NB1    DISPLACED 3         1      
+u         n   g     gtype origin a    personnel active 
+--------- --- ----- ----- ------ ---- --------- ------ 
+BLUE/NB1  NB1 BLUE  FRC   NB1    NONE 100       1      
+SHIA/NB1  NB1 SHIA  CIV   NB1    NONE 1000      1      
+USAID/NB2 NB2 USAID ORG   NB2    NONE 100       1      
+    }
+
+
+    #-------------------------------------------------------------------
+    # assign
+
+    test assign-1.1 {units are created} -setup {
+        setup
+    } -body {
+        unit assign 1 BLUE NB1 NB2 PATROL 50
+
+        ted query {
+            SELECT tactic_id,u,n,g,gtype,origin,a,personnel,active 
+            FROM units
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id u      n   g    gtype origin a      personnel active 
+--------- ------ --- ---- ----- ------ ------ --------- ------ 
+1         UT0001 NB2 BLUE FRC   NB1    PATROL 50        1      
     }
 
     #-------------------------------------------------------------------
-    # deactivate
+    # reset
 
-    test deactivate-1.1 {units are created} -setup {
-        ted create NB1 NB2 BLUE USAID SHIA 
-        unit create $u1
+    test reset-1.1 {units are reset} -setup {
+        setup
+        unit makebase
+        unit assign 1 BLUE NB1 NB2 PATROL 50
     } -body {
-        unit deactivate BLUE-NB1/0991
+        unit reset
+        ted query {
+            SELECT tactic_id,u,n,g,gtype,origin,a,personnel,active 
+            FROM units
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id u         n   g     gtype origin a    personnel active 
+--------- --------- --- ----- ----- ------ ---- --------- ------ 
+          BLUE/NB1  NB1 BLUE  FRC   NB1    NONE 0         0      
+          SHIA/NB1  NB1 SHIA  CIV   NB1    NONE 0         0      
+          USAID/NB2 NB2 USAID ORG   NB2    NONE 0         0      
+    }
+
+    #-------------------------------------------------------------------
+    # personnel
+
+
+    test personnel-1.1 {unit is updated} -setup {
+        setup
+        unit assign 1 BLUE NB1 NB2 PATROL 50
+    } -body {
+        unit personnel UT0001 3
+
+        ted query {SELECT u,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u      personnel 
+------ --------- 
+UT0001 3         
+    }
+
+
+    test personnel-1.2 {updated unit is active} -setup {
+        setup
+        unit makebase
+        unit reset
+    } -body {
+        unit personnel BLUE/NB1 3
+
         ted query {SELECT u,personnel,active FROM units}
     } -cleanup {
         cleanup
     } -result {
-u             personnel active 
-------------- --------- ------ 
-BLUE-NB1/0991 0         0      
+u         personnel active 
+--------- --------- ------ 
+BLUE/NB1  3         1      
+SHIA/NB1  0         0      
+USAID/NB2 0         0      
     }
 
-
     #-------------------------------------------------------------------
-    # mutate delete
+    # delete
 
     test delete-1.1 {Unit is deleted} -setup {
-        ted create NB1 NB2 BLUE USAID
-        unit create $u1
-        unit create $u2
+        setup
+        unit makebase
     } -body {
-        unit mutate delete BLUE-NB1/0991
+        unit delete BLUE/NB1
 
-        # Is BLUE-NB1/0991 gone?
+        # Is it gone?
         rdb eval {SELECT u FROM units}
     } -cleanup {
         cleanup
-    } -result {USAID-NB2/0000}
-
-
-    test delete-2.1 {Undo restores unit} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-    } -body {
-        set a [unit get BLUE-NB1/0991]
-        set undo [unit mutate delete BLUE-NB1/0991]
-        {*}$undo
-        set b [unit get BLUE-NB1/0991]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
+    } -result {SHIA/NB1 USAID/NB2}
 
     #-------------------------------------------------------------------
     # mutate move
 
     test move-1.1 {unit is moved} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
+        unit makebase
     } -body {
-        unit mutate move BLUE-NB1/0991 {2 2}
+        unit mutate move BLUE/NB1 {2 2}
 
-        ted query {SELECT u, location FROM units}
+        ted query {SELECT u, location FROM units WHERE u='BLUE/NB1'}
     } -cleanup {
         cleanup
     } -result {
-u             location 
-------------- -------- 
-BLUE-NB1/0991 2 2      
+u        location 
+-------- -------- 
+BLUE/NB1 2 2      
     }
 
 
     test move-2.1 {undo undoes the change} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
+        unit makebase
     } -body {
 
-        set a [unit get BLUE-NB1/0991 location]
-        set undo [unit mutate move BLUE-NB1/0991 {3 3}]
+        set a [unit get BLUE/NB1 location]
+        set undo [unit mutate move BLUE/NB1 {3 3}]
         namespace eval :: $undo
-        set b [unit get BLUE-NB1/0991 location]
+        set b [unit get BLUE/NB1 location]
 
         expr {$a eq $b}
     } -cleanup {
@@ -171,50 +198,53 @@ BLUE-NB1/0991 2 2
 
 
     test personnel-1.1 {unit is updated} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
+        unit makebase
     } -body {
-        unit mutate personnel BLUE-NB1/0991 3
-
+        unit mutate personnel BLUE/NB1 3
 
         ted query {SELECT u,personnel FROM units}
     } -cleanup {
         cleanup
     } -result {
-u             personnel 
-------------- --------- 
-BLUE-NB1/0991 3         
+u         personnel 
+--------- --------- 
+BLUE/NB1  3         
+SHIA/NB1  1000      
+USAID/NB2 100       
     }
 
 
     test personnel-1.3 {updated unit is active} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
+        unit makebase
+        unit reset
     } -body {
-        unit deactivate BLUE-NB1/0991
-        unit mutate personnel BLUE-NB1/0991 3
+        unit mutate personnel BLUE/NB1 3
 
         ted query {SELECT u,personnel,active FROM units}
     } -cleanup {
         cleanup
     } -result {
-u             personnel active 
-------------- --------- ------ 
-BLUE-NB1/0991 3         1      
+u         personnel active 
+--------- --------- ------ 
+BLUE/NB1  3         1      
+SHIA/NB1  0         0      
+USAID/NB2 0         0      
     }
 
     test personnel-2.1 {undo undoes the change} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
+        unit makebase
     } -body {
 
-        set a [unit get BLUE-NB1/0991 personnel]
+        set a [unit get BLUE/NB1 personnel]
 
-        set undo [unit mutate personnel BLUE-NB1/0991 25]
+        set undo [unit mutate personnel BLUE/NB1 25]
 
         namespace eval :: $undo
 
-        set b [unit get BLUE-NB1/0991 personnel]
+        set b [unit get BLUE/NB1 personnel]
 
         expr {$a eq $b}
     } -cleanup {
@@ -232,14 +262,13 @@ BLUE-NB1/0991 3         1
 
 
     test names-1.2 {Returns names} -setup {
-        ted create NB1 NB2 BLUE USAID
-        unit create $u1
-        unit create $u2
+        setup
+        unit makebase
     } -body {
         unit names
     } -cleanup {
         cleanup
-    } -result {BLUE-NB1/0991 USAID-NB2/0000}
+    } -result {BLUE/NB1 SHIA/NB1 USAID/NB2}
 
 
     #-------------------------------------------------------------------
@@ -255,14 +284,47 @@ BLUE-NB1/0991 3         1
 
 
     test validate-2.1 {Valid name} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
+        unit makebase
     } -body {
-        unit validate BLUE-NB1/0991
+        unit validate BLUE/NB1
     } -cleanup {
         cleanup
-    } -result {BLUE-NB1/0991}
+    } -result {BLUE/NB1}
 
+
+    #-------------------------------------------------------------------
+    # names
+
+    test get-1.1 {Get dict} -setup {
+        setup
+        unit makebase
+    } -body {
+        ted pdict [dict remove [unit get BLUE/NB1] location]
+    } -cleanup {
+        cleanup
+    } -result {
+        origin      NB1
+        a           NONE
+        active      1
+        u           BLUE/NB1
+        g           BLUE
+        gtype       FRC
+        attrit_flag 0
+        tactic_id   {}
+        n           NB1
+        personnel   100
+    }
+
+
+    test get-1.2 {Get one parameter} -setup {
+        setup
+        unit makebase
+    } -body {
+        unit get BLUE/NB1 n
+    } -cleanup {
+        cleanup
+    } -result {NB1}
 
     #-------------------------------------------------------------------
     # Cleanup

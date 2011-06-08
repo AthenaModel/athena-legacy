@@ -18,16 +18,6 @@ snit::type unit {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
-    # Type Variables
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -89,71 +79,203 @@ snit::type unit {
     # The following commands act on units on behalf of other simulation
     # modules.  They should not be used from orders, as they are not
     # mutators.
-
-
-    # create parmdict
     #
-    # parmdict   A parameter dictionary
+    # NOTE: No notification is sent to the GUI!  These routines are
+    # for use during time advances and at simulation start, each of
+    # which have their own updates.
+
+
+    # reset
+    #
+    # Deactivates all units, setting their personnel to 0.  Units will
+    # be activated as strategy execution proceeds.  Also, deletes 
+    # units that are no longer needed.
+    #
+    # NOTE: This routine is called at the *beginning* of strategy execution.
+
+    typemethod reset {} {
+        # FIRST, delete all units associated with tactics that no longer
+        # exist.
+        rdb eval {
+            SELECT u
+            FROM units LEFT OUTER JOIN tactics USING (tactic_id)
+            WHERE tactic_id > 0
+            AND tactics.tactic_type IS NULL
+        } {
+            unit delete $u
+        }
+
+        # NEXT, deactivate all of the remaining units.
+        rdb eval {
+            UPDATE units
+            SET personnel = 0,
+                active    = 0
+        }
+    }
+
+    # makebase
+    #
+    # Makes base units for all civilian groups and force and org 
+    # deployments.
+    #
+    # NOTE: This routine is called at the *end* of strategy execution
+    # to create base units for all unassigned personnel.
+
+    typemethod makebase {} {
+        # TBD: This code will change once civilian groups can
+        # be assigned activities via a tactic.  For now, just
+        # presume that all living civilians are unassigned.
+        rdb eval {
+            SELECT n,
+                   g,
+                   basepop - attrition AS unassigned
+            FROM gui_civgroups
+
+            UNION
+
+            SELECT n, g, unassigned 
+            FROM deploy_ng
+            WHERE personnel > 0
+        } {
+            $type PositionBaseUnit $n $g $unassigned
+        }
+    }
+
+    # PositionBaseUnit
     #
     #   n          The unit's neighborhood of origin
     #   g          The group to which it belongs
-    #   a          The activity it is doing, or NONE
-    #   tn         The unit's target neighborhood, i.e., where it is.
-    #   personnel  The number of personnel in the unit.
-    #   cid        The calendar ID driving this unit, or 0.
-    #
-    # Creates a unit with these parameters, picking a name, u,
-    # and a random location in tn. The unit is presumed to be active.
-    # Note that cid is 0 only for "base" units.
-    #
-    # NOTE: No notification is sent to the GUI!  Deployment is done
-    # by the staffing algorithm in activity(sim), which is done at
-    # start and during the time tick, which should be sufficient 
-    # notification to the app.
+    #   personnel  The number of personnel unassigned
+    #projectlib/
+    # Creates a base unit with these parameters if one doesn't already
+    # exist, Otherwise, assigns it the specified number of personnel.
 
-    typemethod create {parmdict} {
-        dict with parmdict {
-            # FIRST, generate a name
-            set u [format "%s-%s/%04d" $g $n $cid]
-
-            # NEXT, generate a random location in tn
-            set location [nbhood randloc $tn]
+    typemethod PositionBaseUnit {n g personnel} {
+        # FIRST, does the desired unit already exist?
+        set u [format "%s/%s" $g $n]
+ 
+        if {[rdb exists {SELECT u FROM units WHERE u=$u}]} {
+            unit personnel $u $personnel
+        } else {
+            # FIRST, generate a random location in n
+            set location [nbhood randloc $n]
 
             # NEXT, retrieve the group type
             set gtype [group gtype $g]
 
             # NEXT, save the unit in the database.
             rdb eval {
-                INSERT INTO units(u,cid,active,n,g,gtype,origin,a,
+                INSERT INTO units(u,active,n,g,gtype,origin,a,
                                   personnel,location)
                 VALUES($u,
-                       $cid,
                        1,
-                       $tn,
+                       $n,
                        $g,
                        $gtype,
                        $n,
-                       $a,
+                       'NONE',
                        $personnel,
                        $location);
             }
         }
     }
 
-    # deactivate u
-    #
-    # u    A unit name
-    #
-    # Marks the unit inactive, and assigns it 0 personnel.
+    
 
-    typemethod deactivate {u} {
+    # assign tactic_id g origin n a personnel
+    #
+    # tactic_id   - The tactic ID for which the personnel are being
+    #               assigned.
+    # g           - The group providing the personnel
+    # origin      - The nbhood in which the personnel are deployed.
+    # n           - The nbhood in which the personnel will be assigned
+    # a           - The activity to which they will be assigned
+    # personnel   - The number of personnel to assign.
+    #
+    # Creates a unit with these parameters if one doesn't already exist.
+    # The unit will be given a random location in n if it is new, or
+    # if it isn't already in n.  The unit will be active.
+    #
+    # NOTE: The main point here is it retain the (possibly user-set) 
+    # location for the unit, if at all possible, while allowing all of
+    # the rest of the data to change as the tactic changes.
+    #
+    # Returns the unit name.
+
+    typemethod assign {tactic_id g origin n a personnel} {
+        # FIRST, try to retrieve the unit data.
+        set unit(u) ""
+
+        rdb eval {SELECT * FROM units WHERE tactic_id=$tactic_id} unit {}
+
+        # NEXT, create it or update it.
+        if {$unit(u) eq ""} {
+            # FIRST, Compute required fields.
+            set unit(u)  [format "UT%04d" $tactic_id]
+            set location [nbhood randloc $n]
+            set gtype    [group gtype $g]
+
+            # NEXT, save the unit in the database.
+            rdb eval {
+                INSERT INTO units(u,tactic_id,active,n,g,gtype,origin,a,
+                                  personnel,location)
+                VALUES($unit(u),
+                       $tactic_id,
+                       1,
+                       $n,
+                       $g,
+                       $gtype,
+                       $origin,
+                       $a,
+                       $personnel,
+                       $location);
+            }
+        } else {
+            # FIRST, the group type might have changed.
+            set gtype [group gtype $g]
+
+            # NEXT, the neighborhood might have changed.  If so,
+            # pick a random location in the new neighborhood.
+            if {[nbhood find {*}$unit(location)] ne $n} {
+                set unit(location) [nbhood randloc $n]
+            }
+
+            # NEXT, update the unit
+            rdb eval {
+                UPDATE units
+                SET active    = 1,
+                    n         = $n,
+                    g         = $g,
+                    gtype     = $gtype,
+                    origin    = $origin,
+                    personnel = $personnel,
+                    location  = $unit(location)
+                WHERE tactic_id=$tactic_id;
+            }
+        }
+
+        return $unit(u)
+    }
+
+
+    # personnel u personnel
+    #
+    # u              The unit's ID
+    # personnel      The new number of personnel
+    #
+    # Sets the unit's personnel and marks the unit active.
+
+    typemethod personnel {u personnel} {
         rdb eval {
             UPDATE units
-            SET personnel = 0,
-                active    = 0
+            SET   personnel = $personnel,
+                  active    = 1
             WHERE u=$u
         }
+
+        return
     }
+
 
     # delete u
     #
@@ -162,7 +284,7 @@ snit::type unit {
     # Deletes the unit altogether.
 
     typemethod delete {u} {
-        $type mutate delete $u
+        rdb delete units {u=$u}
         return
     }
 
@@ -174,20 +296,6 @@ snit::type unit {
     # a script of one or more commands that will undo the change.  When
     # a change cannot be undone, the mutator returns the empty string.
 
-
-    # mutate delete u
-    #
-    # u     A unit name
-    #
-    # Deletes the unit.
-
-    typemethod {mutate delete} {u} {
-        # FIRST, delete the unit, grabbing the undo information
-        set data [rdb delete -grab units {u=$u}]
-
-        # NEXT, Return the undo script
-        return [list rdb ungrab $data]
-    }
 
     # mutate move u location
     #
@@ -221,7 +329,8 @@ snit::type unit {
     # personnel      The new number of personnel
     #
     # Sets the unit's personnel given the parms, which are presumed to be
-    # valid, and marks the unit active.
+    # valid, and marks the unit active.  This is used only by the ATTRIT:*
+    # orders.
 
     typemethod {mutate personnel} {u personnel} {
         # FIRST, get the undo information
@@ -241,93 +350,6 @@ snit::type unit {
         # NEXT, Return the undo command
         return [mytypemethod mutate personnel $u $oldPersonnel]
     }
-
-
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-    # ValidateActivity gtypes a
-    #
-    # gtypes     List of one or more group types
-    # a          An activity
-    #
-    # Ensures that the activity is valid for the group type(s)
-
-    typemethod ValidateActivity {gtypes a} {
-
-        foreach gtype $gtypes {
-            switch -exact -- $gtype {
-                CIV     { activity civ validate $a }
-                FRC     { activity frc validate $a }
-                ORG     { activity org validate $a }
-                default { error "Unexpected gtype: \"$gtype\""   }
-            }
-        }
-    }
-
-    # RefreshUnitName field parmdict
-    #
-    # field     The "u" field in a U:CREATE order.
-    # parmdict  The current values of the various fields.
-    #
-    # Initializes the unit name, if it's not set.
-    #
-    # TBD: Need a better mechanism for generating names!
-
-    typemethod RefreshUnitName {field parmdict} {
-        dict with parmdict {
-            # FIRST, leave it alone if the group is unknown.
-            if {$g eq ""} {
-                return
-            }
-
-            # NEXT, if the name is already set, and doesn't look like
-            # an automatically generated name, you can't replace it.
-            if {$u ne ""} {
-                if {![regexp {(.*)/\d\d\d\d$} $u]} {
-                    return
-                }
-            }
-
-            # NEXT, get the group type; if it's CIV, leave it
-            # alone if the origin is unknown.  Determine the
-            # root and the initial count.
-            set gtype [group gtype $g]
-
-            if {$gtype eq "CIV"} {
-                if {$origin eq ""} {
-                    return
-                }
-
-                set root $g-$origin
-
-                set count [rdb onecolumn {
-                    SELECT count(u) FROM units
-                    WHERE g=$g AND origin=$origin;
-                }]
-
-            } else {
-                set root $g
-
-                set count [rdb onecolumn {
-                    SELECT count(u) FROM units
-                    WHERE g=$g;
-                }]
-            }
-            
-
-            # NEXT, generate a unit name for this group.
-            set u [format "%s/%04d" $root [incr count]]
-
-            while {[rdb exists {SELECT u FROM units WHERE u=$u}]} {
-                set u [format "%s/%04d" $root [incr count]]
-            }
-
-            $field set $u
-        }
-    }
-
-
 }
 
 #-------------------------------------------------------------------

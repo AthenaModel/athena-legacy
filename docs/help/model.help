@@ -90,15 +90,12 @@ model /model/ground force "Force Analysis" {
 
 
 model /model/ground activity "Group Activities" {
-    The user can station force and organization <<term group>> personnel in
-    <<term nbhood>>s by setting their force levels on the
-    <<tab Groups/Personnel>>.  Then, he can schedule
-    and prioritize activities for these personnel 
-    (and for resident civilians) on the
-    <<tab Schedule>>.<p>
+    <b>TBD:</b> This page needs serious work.
+    
+    TBD: station troops using DEPLOY, assign using ASSIGN; troops
+    are assigned for a week at a time.<p>
 
-    Each <<term morning>>, the activities scheduled for the day are staffed
-    in priority order from the available pool of personnel.  Athena
+    Athena
     automatically creates units for each staffed activity, along with
     a "base" unit for any remaining personnel.<p>
 
@@ -154,9 +151,8 @@ model /model/ground aam "Athena Attrition Model" {
     to their size.<p>
 
     The decrease in personnel resulting from attrition
-    can be seen in the <<tab Map>>, the 
-    <<tab Groups/Personnel>>, the <<tab Groups/Units>>, and the
-    <<tab Demog>>.<p>
+    can be seen on the <<tab Map>>, and also in various pages in the
+    <<tab Detail>>.<p>
 
     The Athena Attrition Model
     depends on the <<parmdb aam>> model

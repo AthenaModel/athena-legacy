@@ -80,6 +80,63 @@ page /object tactic "Tactic" {
 }
 
 #-----------------------------------------------------------------------
+# ASSIGN
+
+object tactic_assign {
+    noun "ASSIGN tactic"
+    overview {
+        This <<term tactic>> assigns an 
+        abstract <<term activity>> to an <<term actor>>'s
+        <<term frcgroup>> or <<term orggroup>> personnel
+        in a particular <<term nbhood>>.  The personnel must already
+        be <<cref /object/tactic/deploy deployed>> in the
+        neighborhood.  Athena will create a <<term unit>> containing
+        the assigned personnel; the unit will be visible on the
+        <<tab Map>>.<p>
+
+        Multiple ASSIGN tactics are cumulative.  The assignment lasts
+        until the next strategy tock.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or <<term orggroup>> belonging
+        to the <i>owner</i>.
+    } -tags {create update}
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The personnel to be assigned will be 
+        drawn from those deployed into this neighborhood.
+    } -tags {create update}
+
+    attribute text1 "Activity" {
+        The <<term activity>> to be assigned.  The valid
+        abstract activities are different for different group types;
+        see <i>Athena Rules Document</i>, delivered with the software,
+        for the full set.
+    } -tags {create update}
+
+    attribute int1 "Personnel" {
+        The number of personnel to be assigned to do the activity.
+    } -tags {create update}
+
+
+}
+
+page /object/tactic assign "ASSIGN tactic" {
+    <<sotitle>>
+
+    <<tactic_assign overview>><p>
+
+    ASSIGN tactics have the following attributes:<p>
+
+    <<tactic_assign parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # ATTROE
 
 object tactic_attroe {
@@ -354,7 +411,7 @@ object tactic_deploy {
         to the <i>owner</i>.
     } -tags {create update}
 
-    attribute mode "Mode" {
+    attribute text1 "Mode" {
         The deployment mode, as indicated by the following enumeration:<p>
 
         <<enumdoc ::projectlib::edeploymode>>

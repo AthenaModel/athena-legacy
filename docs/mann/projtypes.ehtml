@@ -31,6 +31,12 @@ for false values.  On error, throws an error with <code>-errorcode</code>
 This call differs from <code>snit::boolean</code> in that it converts
 the value to canonical form, and throws <b>INVALID</b> on error.<p>
 
+<<defitem eactortype {eactortype <i>subcommand</i> ?<i>args</i>?}>>
+
+This <<xref mars:enum(n)>> type defines the set of actor types.
+Almost all actors are "normal" actors.<p>
+
+<<::projectlib::eactortype html>>
 
 <<defitem eattroe {eattroe <i>subcommand</i> ?<i>args</i>?}>>
 

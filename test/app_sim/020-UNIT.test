@@ -36,6 +36,15 @@ namespace eval ::athena_test::tests:: {
         personnel 1
     }
 
+    proc setup {} {
+        ted create NB1 BLUE
+        personnel start
+        personnel load
+        personnel deploy NB1 BLUE  100
+        personnel save
+        unit makebase
+    }
+
     proc cleanup {} {
         # Clean up the test environment
         ted cleanup
@@ -63,10 +72,9 @@ namespace eval ::athena_test::tests:: {
 
 
     test MOVE-1.3 {invalid location} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
     } -body {
-        ted order -reject UNIT:MOVE u BLUE-NB1/0991 location NONESUCH
+        ted order -reject UNIT:MOVE u BLUE/NB1 location NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -75,10 +83,9 @@ namespace eval ::athena_test::tests:: {
 
 
     test MOVE-1.4 {location not in neighborhood} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
     } -body {
-        ted order -reject UNIT:MOVE u BLUE-NB1/0991 location A00A00
+        ted order -reject UNIT:MOVE u BLUE/NB1 location A00A00
     } -cleanup {
         cleanup
     } -result {
@@ -87,39 +94,36 @@ namespace eval ::athena_test::tests:: {
 
 
     test MOVE-2.1 {unit is moved} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
     } -body {
-        ted order UNIT:MOVE u BLUE-NB1/0991 location B01B01
+        ted order UNIT:MOVE u BLUE/NB1 location B01B01
 
         ted query {SELECT u,location FROM units}
     } -cleanup {
         cleanup
     } -result {
-u             location 
-------------- -------- 
-BLUE-NB1/0991 101 101  
+u        location 
+-------- -------- 
+BLUE/NB1 101 101  
     }
 
 
     test MOVE-2.2 {table monitor event} -setup {
-        ted create NB1 BLUE
-        unit create $u1
+        setup
     } -body {
         ted notifier bind ::rdb <units>
-        ted order UNIT:MOVE u BLUE-NB1/0991 location B01B01
+        ted order UNIT:MOVE u BLUE/NB1 location B01B01
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <units> update BLUE-NB1/0991}
+        {::rdb <units> update BLUE/NB1}
     }
 
 
     test MOVE-3.1 {undo undoes the change} -setup {
-        ted create NB1 BLUE
-        unit create $u1
-        ted order UNIT:MOVE u BLUE-NB1/0991 location B01B01
+        setup        
+        ted order UNIT:MOVE u BLUE/NB1 location B01B01
     } -body {
         ted notifier bind ::rdb <units>
         cif undo -test
@@ -127,7 +131,7 @@ BLUE-NB1/0991 101 101
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <units> update BLUE-NB1/0991}
+        {::rdb <units> update BLUE/NB1}
     }
 
 

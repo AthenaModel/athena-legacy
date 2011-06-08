@@ -116,6 +116,37 @@ order TACTIC:STATE "Set Tactic State" {
 
 
 #-----------------------------------------------------------------------
+# Tactic: ASSIGN
+
+page /order/tactic assign TACTIC:ASSIGN:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/assign>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:ASSIGN:CREATE "Create Tactic: Assign Activity" {
+    Creates a <<cref /object/tactic/assign>>.<p>
+
+    <<parmlist>>
+    <<tactic_assign parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:ASSIGN:UPDATE "Update Tactic: Assign Activity" {
+    Updates an existing <<cref /object/tactic/assign>>.<p>
+
+    <<parmlist>>
+    <<tactic_assign parm tactic_id -required>>
+    <<tactic_assign parm owner -display>>
+    <<tactic_assign parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # Tactic: ATTROE
 
 page /order/tactic attroe TACTIC:ATTROE:* {

@@ -198,7 +198,7 @@ tactic type define DEPLOY {g text1 int1 nlist} {
         dict with fdict {
             if {"owner" in $fields} {
                 set groups [rdb eval {
-                    SELECT g FROM frcgroups
+                    SELECT g FROM agroups
                     WHERE a=$owner
                 }]
                 
@@ -238,7 +238,7 @@ tactic type define DEPLOY {g text1 int1 nlist} {
 
             dict with fdict {
                 set groups [rdb eval {
-                    SELECT g FROM frcgroups
+                    SELECT g FROM agroups
                     WHERE a=$owner
                 }]
                 

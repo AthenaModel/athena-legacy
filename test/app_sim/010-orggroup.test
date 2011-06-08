@@ -103,50 +103,6 @@ g     longname color   shape   symbol       demeanor basepop cost rel_entity gty
 USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG   JOE NGO     
     }
 
-    test delete-4.1 {calendar items with g are deleted} -setup {
-        ted create NB1 USAID
-
-        activity mutate create {
-            n         NB1
-            g         USAID
-            a         CMO_INDUSTRY
-            tn        NB1
-            personnel 70
-            start     0
-            finish    never
-            pattern   daily
-            priority  bottom
-        }
-    } -body {
-        orggroup mutate delete USAID
-        rdb eval {SELECT n,g,a,tn FROM calendar}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-4.2 {undoing restores items with g} -setup {
-        ted create NB1 USAID
-
-        activity mutate create {
-            n         NB1
-            g         USAID
-            a         CMO_INDUSTRY
-            tn        NB1
-            personnel 70
-            start     0
-            finish    never
-            pattern   daily
-            priority  bottom
-        }
-
-        set undo [orggroup mutate delete USAID]
-
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT n,g,a,tn FROM calendar}
-    } -cleanup {
-        cleanup
-    } -result {NB1 USAID CMO_INDUSTRY NB1}
 
     test delete-5.1 {deletes rel_fg overrides} -setup {
         ted create USAID BRIT

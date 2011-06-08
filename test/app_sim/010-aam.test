@@ -44,7 +44,7 @@ namespace eval ::athena_test::tests:: {
             a         NONE
             tn        NB1
             personnel 15
-            cid       0
+            tactic_id 0
         }
 
         BLUE-NB1/0001 {
@@ -53,7 +53,7 @@ namespace eval ::athena_test::tests:: {
             a         PATROL
             tn        NB1
             personnel 15
-            cid       1
+            tactic_id 1
         }
 
         BRIT-NB1/0000 {
@@ -62,7 +62,7 @@ namespace eval ::athena_test::tests:: {
             a         NONE
             tn        NB1
             personnel 15
-            cid       0
+            tactic_id 0
         }
 
         USAID-NB1/0000 {
@@ -71,7 +71,7 @@ namespace eval ::athena_test::tests:: {
             a         NONE
             tn        NB1
             personnel 15
-            cid       0
+            tactic_id 0
         }
 
         USAID-NB1/0001 {
@@ -80,7 +80,7 @@ namespace eval ::athena_test::tests:: {
             a         CMO_HEALTHCARE
             tn        NB1
             personnel 15
-            cid       1
+            tactic_id 1
         }
 
         HAL-NB1/0000 {
@@ -89,7 +89,7 @@ namespace eval ::athena_test::tests:: {
             a         NONE
             tn        NB1
             personnel 15
-            cid       0
+            tactic_id 0
         }
     }
 
@@ -101,9 +101,12 @@ namespace eval ::athena_test::tests:: {
         personnel load
 
         foreach unit $args {
-            unit create $units($unit)
-
             dict with units($unit) {
+                rdb eval {
+                    INSERT INTO units(u,g,n,origin,a,personnel)
+                    VALUES($unit,$g,$n,$n,'NONE',$personnel);
+                }
+
                 personnel deploy $n $g $personnel
             }
         }
@@ -382,10 +385,10 @@ g    attrition displaced population
 SHIA 0         0         1000       
 SUNN 0         0         1000       
     
-u             personnel 
-------------- --------- 
-SHIA-NB1/0000 1000      
-SUNN-NB1/0000 1000      
+u        personnel 
+-------- --------- 
+SHIA/NB1 1000      
+SUNN/NB1 1000      
     
     
     }
@@ -450,13 +453,15 @@ g    attrition displaced population
 SHIA 50        0         950        
 SUNN 50        0         950        
     
-u             personnel 
-------------- --------- 
-SHIA-NB1/0000 950       
-SUNN-NB1/0000 950       
+u        personnel 
+-------- --------- 
+SHIA/NB1 950       
+SUNN/NB1 950       
     }
 
-    test attritn-1.4 {nbhood, displaced units attrit origin} -setup {
+    test attritn-1.4 {nbhood, displaced units attrit origin} -constraints tbd -setup {
+        # TBD: the ACTIVITY:SCHEDULE order no longer exists, and it's
+        # not yet possible to DISPLACE units using tactics.
         ted create NB1 NB2 BLUE SHIA KURD
         ted order ACTIVITY:SCHEDULE n NB2 g KURD a DISPLACED tn NB1 \
             personnel 100 start 0 finish NEVER pattern daily
@@ -523,12 +528,12 @@ id n   f    g    casualties
     } -cleanup {
         cleanup
     } -result {
-u              personnel 
--------------- --------- 
-BLUE-NB1/0000  15        
-SHIA-NB1/0000  0         
-SUNN-NB1/0000  0         
-USAID-NB1/0000 15        
+u         personnel 
+--------- --------- 
+BLUE/NB1  15        
+SHIA/NB1  0         
+SUNN/NB1  0         
+USAID/NB1 15        
     }
 
 
@@ -555,10 +560,10 @@ g    attrition displaced population
 SHIA 0         0         1000       
 SUNN 0         0         1000       
     
-u             personnel 
-------------- --------- 
-SHIA-NB1/0000 1000      
-SUNN-NB1/0000 1000      
+u        personnel 
+-------- --------- 
+SHIA/NB1 1000      
+SUNN/NB1 1000      
     
     
     }
@@ -613,7 +618,7 @@ USAID-NB1/0001 10
         ted create NB1 BLUE BRIT SHIA
         ted lock
     } -body {
-        aam mutate attritunit [list u SHIA-NB1/0000 casualties 5 g1 BLUE g2 BRIT]
+        aam mutate attritunit [list u SHIA/NB1 casualties 5 g1 BLUE g2 BRIT]
 
         set a [ted query {SELECT u,personnel FROM units}]
         set b [pprint_demog_g]
@@ -623,9 +628,9 @@ USAID-NB1/0001 10
     } -cleanup {
         cleanup
     }  -result {
-u             personnel 
-------------- --------- 
-SHIA-NB1/0000 995       
+u        personnel 
+-------- --------- 
+SHIA/NB1 995       
     
 g    attrition displaced population 
 ---- --------- --------- ---------- 
@@ -647,7 +652,7 @@ id n   f    g    casualties
         ted lock
 
         set a [aam mutate attritunit \
-                   [list u SHIA-NB1/0000 casualties 5 g1 "" g2 ""]]
+                   [list u SHIA/NB1 casualties 5 g1 "" g2 ""]]
 
     } -body {
         eval $a
@@ -660,9 +665,9 @@ id n   f    g    casualties
     } -cleanup {
         cleanup
     }  -result {
-u             personnel 
-------------- --------- 
-SHIA-NB1/0000 1000      
+u        personnel 
+-------- --------- 
+SHIA/NB1 1000      
     
 g    attrition displaced population 
 ---- --------- --------- ---------- 

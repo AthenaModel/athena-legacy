@@ -363,15 +363,14 @@ WHERE MN.m != MN.n;
 CREATE TEMPORARY VIEW gui_units AS
 SELECT u                                                AS id,
        u                                                AS u,
-       cid                                              AS cid,
+       tactic_id                                        AS tactic_id,
        n                                                AS n,
        g                                                AS g,
        gtype                                            AS gtype,
        origin                                           AS origin,
        a                                                AS a,
        personnel                                        AS personnel,
-       m2ref(location)                                  AS location,
-       CASE a_effective WHEN 1 THEN 'YES' ELSE 'NO' END AS a_effective
+       m2ref(location)                                  AS location
 FROM units
 WHERE active;
 
@@ -391,31 +390,6 @@ SELECT n || ' ' || g                  AS id,
        nominal_volatility             AS nominal_volatility
 FROM force_ng JOIN force_n USING (n)
 ORDER BY n, g;
-
--- An activity calendar view for use by the GUI
-CREATE TEMPORARY VIEW gui_calendar AS
-SELECT C.cid                                            AS cid,
-       C.n                                              AS n,
-       C.g                                              AS g,
-       C.a                                              AS a,
-       C.tn                                             AS tn,
-       C.personnel                                      AS personnel,
-       C.priority                                       AS priority,
-       C.start                                          AS start_tick,
-       CASE WHEN C.start == now()     THEN 'NOW'
-            WHEN C.start == now() + 1 THEN 'NOW+1'
-            ELSE tozulu(C.start)      END               AS start,
-       C.finish                                         AS finish_tick,
-       CASE WHEN C.finish == ''        THEN 'NEVER'
-            WHEN C.finish == now()     THEN 'NOW'
-            WHEN C.finish == now() + 1 THEN 'NOW+1'
-            ELSE tozulu(C.finish)      END              AS finish,
-       C.pattern                                        AS pattern,
-       calpattern_narrative(C.pattern,C.start,C.finish) AS narrative,
-       U.u                                              AS u
-FROM calendar AS C
-LEFT OUTER JOIN units AS U USING (cid)
-ORDER BY priority, g, n, a, tn;
 
 -- An activity_nga view for use by the GUI
 CREATE TEMPORARY VIEW gui_activity_nga AS
