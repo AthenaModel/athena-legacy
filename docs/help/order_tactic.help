@@ -273,6 +273,38 @@ order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
 }
 
 #-----------------------------------------------------------------------
+# Tactic: DISPLACE
+
+page /order/tactic displace TACTIC:DISPLACE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/displace>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:DISPLACE:CREATE "Create Tactic: Displace Civilians" {
+    Creates a <<cref /object/tactic/displace>>.<p>
+
+    <<parmlist>>
+    <<tactic_displace parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:DISPLACE:UPDATE "Update Tactic: Displace Civilians" {
+    Updates an existing <<cref /object/tactic/displace>>.<p>
+
+    <<parmlist>>
+    <<tactic_displace parm tactic_id -required>>
+    <<tactic_displace parm owner -display>>
+    <<tactic_displace parms -optional -tags update>>
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # Tactic: MOBILIZE
 
 page /order/tactic mobilize TACTIC:MOBILIZE:* {

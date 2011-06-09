@@ -1,0 +1,223 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_displace.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_displace(sim) tests.
+#
+#    This test suite tests the tactic::DISPLACE ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create NB1 NB2 SHIA KURD
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    proc execute_setup {} {
+        setup
+        personnel start
+        personnel load
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    set T1 {
+        tactic_type DISPLACE
+        owner       SYSTEM
+        priority    top
+        g           SHIA
+        n           NB2
+        text1       DISPLACED
+        int1        100
+    }
+
+    set T2 {
+        tactic_type DISPLACE
+        owner       SYSTEM
+        priority    top
+        g           KURD
+        n           NB1
+        text1       IN_CAMP
+        int1        200
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DISPLACE narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Displace 100 SHIA personnel to NB2 with activity DISPLACED.}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: g no longer exists} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM civgroups WHERE g='SHIA'}
+    } -body {
+        tactic::DISPLACE check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Civilian group SHIA no longer exists.}
+
+    test check-1.2 {check: n no longer exists} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+    } -body {
+        tactic::DISPLACE check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB2 no longer exists.}
+
+    test check-1.3 {check: multiple failures} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM civgroups WHERE g='SHIA'}
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+    } -body {
+        tactic::DISPLACE check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB2 no longer exists.  Civilian group SHIA no longer exists.}
+
+    #-------------------------------------------------------------------
+    # dollars
+
+    test dollars-1.1 {dollars} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DISPLACE dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {n/a}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {execute: insufficient personnel, no exec} -setup {
+        execute_setup
+        tactic mutate create [dict merge $T1 {int1 20000}]
+    } -body {
+        tactic::DISPLACE execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test execute-1.2 {execute: insufficent troops, no change} -setup {
+        execute_setup
+        tactic mutate create [dict merge $T1 {int1 20000}]
+    } -body {
+        tactic::DISPLACE execute [tactic get 1]
+        ted query {SELECT * FROM working_deployment}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel unassigned 
+--- ---- --------- ---------- 
+NB1 SHIA 1000      1000       
+NB2 KURD 1000      1000       
+    }
+
+    test execute-1.3 {execute: 1 on success} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DISPLACE execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test execute-1.4 {execute: unassigned decremented} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::DISPLACE execute [tactic get 1]
+        ted query {SELECT * FROM working_deployment}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel unassigned 
+--- ---- --------- ---------- 
+NB1 SHIA 1000      900        
+NB2 KURD 1000      1000       
+    }
+
+    test execute-1.5 {execute: unit created} -setup {
+        execute_setup
+        tactic mutate create $T1
+        tactic mutate create $T2
+    } -body {
+        tactic::DISPLACE execute [tactic get 1]
+        tactic::DISPLACE execute [tactic get 2]
+        ted querylist {SELECT u,tactic_id,active,n,g,a,personnel FROM units}
+    } -cleanup {
+        cleanup
+    } -result {
+u          UT0001
+tactic_id  1
+active     1
+n          NB2
+g          SHIA
+a          DISPLACED
+personnel  100
+
+u          UT0002
+tactic_id  2
+active     1
+n          NB1
+g          KURD
+a          IN_CAMP
+personnel  200
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

@@ -37,7 +37,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # names
 
-    test names-1.1 {Returns names: none defined} -body {
+    test names-1.1 {Returns names: no actors defined} -body {
         agent names
     } -cleanup {
         cleanup
@@ -72,6 +72,32 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {BOB}
+
+    #-------------------------------------------------------------------
+    # system names
+
+    test system_names-1.1 {Returns name} -body {
+        agent system names
+    } -cleanup {
+        cleanup
+    } -result {SYSTEM}
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Invalid name} -body {
+        agent system validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid system agent, should be one of: SYSTEM}
+
+    test validate-2.1 {Valid name} -body {
+        agent system validate SYSTEM
+    } -cleanup {
+        cleanup
+    } -result {SYSTEM}
 
     #-------------------------------------------------------------------
     # type

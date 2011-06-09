@@ -94,7 +94,7 @@ namespace eval ::athena_test::tests:: {
         list1 {Invalid goal ID: "NONESUCH"}
     }
 
-    test MET:CREATE-1.4 {goal belongs to different actor} -setup {
+    test MET:CREATE-1.4 {goal belongs to different agent} -setup {
         setup
     } -body {
         ted order -reject CONDITION:MET:CREATE \
@@ -102,7 +102,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        list1 {Goal 3 does not belong to the condition's owning actor}
+        list1 {Goal 3 does not belong to the condition's owning agent}
     }
 
     test MET:CREATE-2.1 {condition is created} -setup {
@@ -184,7 +184,7 @@ list1           1
         list1 {Invalid goal ID: "NONESUCH"}
     }
 
-    test MET:UPDATE-1.4 {has goals owned by another actor} -setup {
+    test MET:UPDATE-1.4 {has goals owned by another agent} -setup {
         setup
         ted order CONDITION:MET:CREATE $C1
     } -body {
@@ -192,7 +192,7 @@ list1           1
     } -cleanup {
         cleanup
     } -result {
-        list1 {Goal 3 does not belong to the condition's owning actor}
+        list1 {Goal 3 does not belong to the condition's owning agent}
     }
 
     test MET:UPDATE-2.1 {conditions are updated} -setup {

@@ -455,6 +455,69 @@ page /object/tactic deploy "DEPLOY tactic" {
 }
 
 #-----------------------------------------------------------------------
+# DISPLACE
+
+object tactic_displace {
+    noun "DISPLACE tactic"
+    overview {
+        This <<term tactic>> displaces personnel belonging to a
+        <<term civgroup>> from their homes to a particular
+        <<term nbhood>>.  Athena will create a <<term unit>> containing
+        the displaced personnel; the unit will be visible on the
+        <<tab Map>>.  Displaced personnel can be dispersed among the
+        existing neighborhood population, or segregated in camps.<p>
+
+        Multiple DISPLACE tactics are cumulative.  The displacement lasts
+        until the next strategy tock.<p>
+
+        This tactic can be used only by the
+        <<cref /object/agent/system>>.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute g "Group" {
+        The ID of a <<term civgroup>>.
+    } -tags {create update}
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The personnel will be displaced into
+        this neighborhood from their neighborhood of residence.
+    } -tags {create update}
+
+    attribute text1 "Activity" {
+        An <<term activity>> for the displaced personnel, either
+        <b>DISPLACED</b> or <b>IN_CAMP</b>.  For the former, the
+        displaced personnel are living among the existing population
+        of the target neighborhood, and affect their attitudes.  For
+        the latter, they are segregated in camps, and have no effect
+        on attitudes.<p>
+
+        See the <i>Athena Rules Document</i>, delivered with the software,
+        for details on the effects of DISPLACED personnel.<p>
+    } -tags {create update}
+
+    attribute int1 "Personnel" {
+        The number of personnel to be displaced.
+    } -tags {create update}
+
+
+}
+
+page /object/tactic displace "DISPLACE tactic" {
+    <<sotitle>>
+
+    <<tactic_displace overview>><p>
+
+    DISPLACE tactics have the following attributes:<p>
+
+    <<tactic_displace parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # MOBILIZE
 
 object tactic_mobilize {

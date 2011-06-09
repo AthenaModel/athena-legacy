@@ -1,0 +1,357 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-TACTIC-DISPLACE.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) TACTIC:DISPLACE:* order tests.
+#
+#    This test suite tests the DISPLACE tactic's orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+    proc setup {} {
+        ted create NB1 NB2 SHIA KURD
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    # Standard items
+
+    set T1 {
+        owner       SYSTEM
+        priority    top
+        g           SHIA
+        n           NB2
+        text1       DISPLACED
+        int1        100
+    }
+
+    set T2 {
+        owner       SYSTEM
+        priority    top
+        g           KURD
+        n           NB1
+        text1       IN_CAMP
+        int1        200
+    }
+
+    #-------------------------------------------------------------------
+    # TACTIC:DISPLACE:CREATE
+
+    test CREATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:DISPLACE:CREATE {}
+    } -result {
+        owner {required value}
+        g {required value}
+        n {required value}
+        text1 {required value}
+        int1 {required value}
+    }
+
+    test CREATE-1.2 {owner is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:CREATE \
+            [dict merge $T1 [list owner NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        owner {Invalid system agent, should be one of: SYSTEM}
+    }
+
+    test CREATE-1.3 {g is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:CREATE \
+            [dict merge $T1 [list g NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid civilian group, should be one of: SHIA, KURD}
+    }
+
+    test CREATE-1.4 {n is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:CREATE \
+            [dict merge $T1 [list n NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test CREATE-1.5 {text1 is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:CREATE \
+            [dict merge $T1 [list text1 NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        text1 {Invalid activity, should be one of: DISPLACED, IN_CAMP}
+    }
+
+    test CREATE-1.6 {int1 is non-integer} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:CREATE \
+            [dict merge $T1 [list int1 NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        int1 {invalid value "NONESUCH", expected integer}
+    }
+
+    test CREATE-1.7 {int1 is non-positive} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:CREATE \
+            [dict merge $T1 [list int1 0]]
+    } -cleanup {
+        cleanup
+    } -result {
+        int1 {invalid value "0", expected integer no less than 1}
+    }
+
+    test CREATE-1.8 {priority is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:CREATE [dict merge $T1 {
+            priority NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        priority {invalid value "nonesuch", should be one of: top, bottom}
+    }
+
+    test CREATE-2.1 {tactic is created} -setup {
+        setup
+    } -body {
+        ted order TACTIC:DISPLACE:CREATE $T1
+
+        ted querylist {SELECT * FROM tactics_DISPLACE}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  DISPLACE
+owner        SYSTEM
+narrative    Displace 100 SHIA personnel to NB2 with activity DISPLACED.
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+g            SHIA
+n            NB2
+text1        DISPLACED
+int1         100
+    }
+
+    test CREATE-2.2 {Effects} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        ted order TACTIC:DISPLACE:CREATE $T1
+        ted notifier received
+
+        # NOTE: Two updates, because of priority setting.
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+        {::rdb <tactics> update 1}
+    }
+
+
+    test CREATE-3.1 {undo effects} -setup {
+        setup
+        ted order TACTIC:DISPLACE:CREATE $T1
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> delete 1}
+    }
+
+    #-------------------------------------------------------------------
+    # TACTIC:DISPLACE:UPDATE
+
+    proc update_setup {} {
+        variable T2
+        setup
+        ted order TACTIC:DISPLACE:CREATE $T2
+    }
+
+    test UPDATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE {}
+    } -result {
+        tactic_id {required value}
+    }
+
+    
+    test UPDATE-1.2 {tactic_id is unknown} -setup {
+        update_setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE \
+            tactic_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {Invalid tactic ID: "NONESUCH"}
+    }
+
+    test UPDATE-1.3 {g is unknown} -setup {
+        update_setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 g NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid civilian group, should be one of: SHIA, KURD}
+    }
+
+    test UPDATE-1.4 {n is invalid} -setup {
+        update_setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 n NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test UPDATE-1.5 {text1 is invalid} -setup {
+        update_setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 text1 NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        text1 {Invalid activity, should be one of: DISPLACED, IN_CAMP}
+    }
+
+    test UPDATE-1.6 {int1 is non-integer} -setup {
+        update_setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 int1 NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        int1 {invalid value "NONESUCH", expected integer}
+    }
+
+    test UPDATE-1.7 {int1 is non-positive} -setup {
+        update_setup
+    } -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 int1 0
+    } -cleanup {
+        cleanup
+    } -result {
+        int1 {invalid value "0", expected integer no less than 1}
+    }
+
+    test UPDATE-1.8 {wrong flavor of tactic} -setup {
+        update_setup
+        rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
+    } -body {
+        ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {Tactic 1 is not a DISPLACE tactic}
+    }
+
+    test UPDATE-2.1 {tactic is updated} -setup {
+        update_setup
+    } -body {
+        ted order TACTIC:DISPLACE:UPDATE \
+            tactic_id 1 g SHIA n NB2 text1 DISPLACED int1 150
+
+        ted querylist {SELECT * FROM tactics_DISPLACE}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  DISPLACE
+owner        SYSTEM
+narrative    Displace 150 SHIA personnel to NB2 with activity DISPLACED.
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+g            SHIA
+n            NB2
+text1        DISPLACED
+int1         150
+    }
+
+    test UPDATE-2.2 {Effects} -setup {
+        setup
+        ted order TACTIC:DISPLACE:CREATE $T2
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        ted order TACTIC:DISPLACE:UPDATE tactic_id 1 int1 150
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+        {::rdb <tactics> update 1}
+    }
+
+
+    test UPDATE-3.1 {undo effects} -setup {
+        update_setup
+        ted order TACTIC:DISPLACE:UPDATE tactic_id 1 int1 150
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

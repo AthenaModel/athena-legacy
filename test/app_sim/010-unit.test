@@ -50,7 +50,11 @@ namespace eval ::athena_test::tests:: {
     } -body {
         unit makebase
 
-        ted query {SELECT u,n,g,gtype,origin,a,personnel,active FROM units}
+        ted query {
+            SELECT u,n,g,gtype,origin,a,personnel,active 
+            FROM units
+            ORDER BY u
+        }
     } -cleanup {
         cleanup
     } -result {
@@ -94,6 +98,7 @@ tactic_id u      n   g    gtype origin a      personnel active
         ted query {
             SELECT tactic_id,u,n,g,gtype,origin,a,personnel,active 
             FROM units
+            ORDER BY u
         }
     } -cleanup {
         cleanup
@@ -132,7 +137,7 @@ UT0001 3
     } -body {
         unit personnel BLUE/NB1 3
 
-        ted query {SELECT u,personnel,active FROM units}
+        ted query {SELECT u,personnel,active FROM units ORDER BY u}
     } -cleanup {
         cleanup
     } -result {
@@ -153,7 +158,7 @@ USAID/NB2 0         0
         unit delete BLUE/NB1
 
         # Is it gone?
-        rdb eval {SELECT u FROM units}
+        rdb eval {SELECT u FROM units ORDER BY u}
     } -cleanup {
         cleanup
     } -result {SHIA/NB1 USAID/NB2}
@@ -197,13 +202,13 @@ BLUE/NB1 2 2
     # mutate personnel
 
 
-    test personnel-1.1 {unit is updated} -setup {
+    test mutate_personnel-1.1 {unit is updated} -setup {
         setup
         unit makebase
     } -body {
         unit mutate personnel BLUE/NB1 3
 
-        ted query {SELECT u,personnel FROM units}
+        ted query {SELECT u,personnel FROM units ORDER BY u}
     } -cleanup {
         cleanup
     } -result {
@@ -215,14 +220,14 @@ USAID/NB2 100
     }
 
 
-    test personnel-1.3 {updated unit is active} -setup {
+    test mutate_personnel-1.2 {updated unit is active} -setup {
         setup
         unit makebase
         unit reset
     } -body {
         unit mutate personnel BLUE/NB1 3
 
-        ted query {SELECT u,personnel,active FROM units}
+        ted query {SELECT u,personnel,active FROM units ORDER BY u}
     } -cleanup {
         cleanup
     } -result {
@@ -233,7 +238,7 @@ SHIA/NB1  0         0
 USAID/NB2 0         0      
     }
 
-    test personnel-2.1 {undo undoes the change} -setup {
+    test mutate_personnel-2.1 {undo undoes the change} -setup {
         setup
         unit makebase
     } -body {
@@ -265,7 +270,7 @@ USAID/NB2 0         0
         setup
         unit makebase
     } -body {
-        unit names
+        lsort [unit names]
     } -cleanup {
         cleanup
     } -result {BLUE/NB1 SHIA/NB1 USAID/NB2}

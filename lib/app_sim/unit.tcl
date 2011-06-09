@@ -122,17 +122,7 @@ snit::type unit {
     # to create base units for all unassigned personnel.
 
     typemethod makebase {} {
-        # TBD: This code will change once civilian groups can
-        # be assigned activities via a tactic.  For now, just
-        # presume that all living civilians are unassigned.
         rdb eval {
-            SELECT n,
-                   g,
-                   basepop - attrition AS unassigned
-            FROM gui_civgroups
-
-            UNION
-
             SELECT n, g, unassigned 
             FROM deploy_ng
             WHERE personnel > 0
@@ -248,6 +238,7 @@ snit::type unit {
                     g         = $g,
                     gtype     = $gtype,
                     origin    = $origin,
+                    a         = $a,
                     personnel = $personnel,
                     location  = $unit(location)
                 WHERE tactic_id=$tactic_id;

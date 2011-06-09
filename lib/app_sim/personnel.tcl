@@ -6,15 +6,13 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): FRC/ORG Group Personnel Manager
+#    athena_sim(1): Personnel Manager
 #
-#    This module is responsible for managing personnel of FRC and ORG
-#    groups in neighborhoods.
-#
-# CREATION/DELETION:
-#    deploy_ng records are created explicitly by the 
-#    nbhood(sim), frcgroup(sim), and orggroup(sim) modules, and
-#    deleted by cascading delete.
+#    This module is responsible for managing the deployment of 
+#    personnel in neighborhoods and the assignment of activities
+#    to deployed personnel.  The focus is on FRC and ORG groups,
+#    since CIV groups are not deployed as such; however, CIV
+#    groups can also be assigned.
 #
 #-----------------------------------------------------------------------
 
@@ -47,6 +45,10 @@ snit::type personnel {
             FROM nbhoods AS N
             JOIN groups AS G
             WHERE G.gtype IN ('FRC', 'ORG');
+
+            INSERT INTO deploy_ng(n,g,personnel,unassigned)
+            SELECT n, g, basepop, basepop
+            FROM civgroups_view;
         }
     }
 
@@ -61,15 +63,23 @@ snit::type personnel {
             SELECT g, personnel, personnel FROM personnel_g;
             
             DELETE FROM working_deployment;
+
             INSERT INTO working_deployment(n,g)
-            SELECT n,g FROM deploy_ng;
+            SELECT n,g FROM deploy_ng JOIN agroups USING (g);
+
+            INSERT INTO working_deployment(n,g,personnel,unassigned)
+            SELECT n,
+                   g,
+                   basepop - attrition,
+                   basepop - attrition
+            FROM gui_civgroups;
         }
     }
 
     # deploy n g personnel
     #
     # This routine is called by the DEPLOY tactic.  It deploys the
-    # requested number of available personnel.
+    # requested number of available FRC or ORG personnel.
 
     typemethod deploy {n g personnel} {
         set available [rdb onecolumn {
@@ -123,7 +133,7 @@ snit::type personnel {
     # unassigned n g
     #
     # n  - A neighborhood
-    # g  - A force or ORG group
+    # g  - A group
     #
     # Retrieves the number of unassigned personnel from group g in 
     # neighborhood n.

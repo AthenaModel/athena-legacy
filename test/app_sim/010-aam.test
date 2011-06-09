@@ -459,12 +459,10 @@ SHIA/NB1 950
 SUNN/NB1 950       
     }
 
-    test attritn-1.4 {nbhood, displaced units attrit origin} -constraints tbd -setup {
-        # TBD: the ACTIVITY:SCHEDULE order no longer exists, and it's
-        # not yet possible to DISPLACE units using tactics.
+    test attritn-1.4 {nbhood, displaced units attrit origin} -setup {
         ted create NB1 NB2 BLUE SHIA KURD
-        ted order ACTIVITY:SCHEDULE n NB2 g KURD a DISPLACED tn NB1 \
-            personnel 100 start 0 finish NEVER pattern daily
+        ted order TACTIC:DISPLACE:CREATE \
+            owner SYSTEM g KURD n NB1 text1 DISPLACED int1 100
         ted lock
     } -body {
         aam mutate attritn [list n NB1 casualties 100 g1 "" g2 ""]
@@ -481,11 +479,11 @@ g    attrition displaced population
 SHIA 91        0         909        
 KURD 9         91        900        
     
-u             personnel 
-------------- --------- 
-KURD-NB2/0001 91        
-SHIA-NB1/0000 909       
-KURD-NB2/0000 900       
+u        personnel 
+-------- --------- 
+UT0001   91        
+SHIA/NB1 909       
+KURD/NB2 900       
     }
 
 
@@ -524,7 +522,7 @@ id n   f    g    casualties
     } -body {
         aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]
 
-        ted query {SELECT u,personnel FROM units}
+        ted query {SELECT u,personnel FROM units ORDER BY u}
     } -cleanup {
         cleanup
     } -result {

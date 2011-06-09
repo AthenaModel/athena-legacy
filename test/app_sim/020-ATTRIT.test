@@ -436,9 +436,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
+        {::rdb <units> update USAID/NB1}
         {::rdb <units> update SHIA/NB1}
         {::rdb <units> update SUNN/NB1}
-        {::rdb <units> update USAID/NB1}
         {::rdb <units> update KURD/NB2}
         {::rdb <units> update USAID/NB1}
         {::rdb <units> update USAID/NB1}
