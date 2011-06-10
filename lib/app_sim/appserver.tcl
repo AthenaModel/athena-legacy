@@ -257,22 +257,30 @@ snit::type appserver {
             text/html [myproc html_Overview]    \
             "Overview"
 
-        $server register /overview/attroe {overview/attroe?} \
+        $server register /overview/attroe {overview/attroe/?} \
             text/html [myproc html_Attroe] {
                 All attacking ROEs for all force groups in all 
                 neighborhoods.
             }
 
-        $server register /overview/defroe {overview/defroe?} \
+        $server register /overview/defroe {overview/defroe/?} \
             text/html [myproc html_Defroe] {
                 All defending ROEs for all uniformed force groups in all 
                 neighborhoods.
             }
 
-        $server register /overview/deployment {overview/deployment?} \
+        $server register /overview/deployment {overview/deployment/?} \
             text/html [myproc html_Deployment] {
                 Deployment of force and organization group personnel
                 to neighborhoods.
+            }
+
+        $server register /parmdb {parmdb/?} \
+            text/html [myproc html_Parmdb] {
+                An editable table displaying the contents of the
+                model parameter database.  This resource can take a parameter,
+                a wildcard pattern; the table will contain only
+                parameters that match the pattern.
             }
 
         $server register /sigevents {sigevents/?} \
@@ -2335,6 +2343,92 @@ snit::type appserver {
 
         return [ht get]
     }
+
+    #-------------------------------------------------------------------
+    # Parmdb
+
+    # html_Parmdb udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches.
+    #
+    # Returns a page that documents the current parmdb(5) values.
+    # There can be a query; if so, it is treated as a glob-pattern,
+    # and only parameters that match are included.
+
+    proc html_Parmdb {udict matchArray} {
+        # FIRST, get the pattern, if any.
+        set pattern [dict get $udict query]
+
+        # NEXT, begin the page.
+        if {$pattern eq ""} {
+            set parms [parm names]
+
+            ht page "Model Parameters"
+            ht title "Model Parameters"
+        } else {
+            set parms [parm names $pattern]
+
+            set ptext [htools escape $pattern]
+
+            ht page "Model Parameters: $ptext"
+            ht title "Model Parameters: $ptext"
+        }
+
+        # NEXT, if no parameters are found, note it and return.
+        if {$pattern ne "" && [llength $parms] == 0} {
+            ht putln "No parameters match the query."
+            ht para
+            
+            ht /page
+            return [ht get]
+        }
+
+        ht table {"Parameter" "Default Value" "Current Value" ""} {
+            foreach parm $parms {
+                ht tr {
+                    ht td left {
+                        set path [string tolower [join [split $parm .] /]]
+                        ht link my://help/parmdb/$path $parm 
+                    }
+                    
+                    ht td left {
+                        set defval [htools escape [parm getdefault $parm]]
+                        ht putln <tt>$defval</tt>
+                    }
+
+                    ht td left {
+                        set value [htools escape [parm get $parm]]
+
+                        if {$value eq $defval} {
+                            set color black
+                        } else {
+                            set color "#990000"
+                        }
+
+                        ht putln "<font color=$color><tt>$value</tt></font>"
+                    }
+
+                    ht td left {
+                        if {[parm islocked $parm]} {
+                            ht image ::marsgui::icon::locked
+                        } elseif {![order cansend PARM:SET]} {
+                            ht image ::marsgui::icon::pencil22d
+                        } else {
+                            ht putln "<a href=\"gui:/order/PARM:SET?parm=$parm\">"
+                            ht image ::marsgui::icon::pencil22
+                            ht putln "</a>"
+                        }
+                    }
+                }
+            }
+        }
+
+        return [ht get]
+    }
+
+
+
 
     #-------------------------------------------------------------------
     # Significant Events

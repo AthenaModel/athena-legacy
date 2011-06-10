@@ -765,7 +765,6 @@ snit::type app {
 
             if {[order exists $order]} {
                 set parms [split $parts(query) "=+"]
-
                 if {[catch {
                     order enter $order {*}$parms
                 } result]} {

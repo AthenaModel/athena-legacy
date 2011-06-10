@@ -139,6 +139,28 @@ snit::type parm {
         order send cli PARM:SET parm $parm value $value
     }
 
+    #-------------------------------------------------------------------
+    # Queries
+
+    # validate parm
+    #
+    # parm     - A parameter name
+    #
+    # Validates parm as a parameter name.  Returns the name.
+
+    typemethod validate {parm} {
+        set canonical [$type names $parm]
+
+        if {$canonical ni [$type names]} {
+            return -code error -errorcode INVALID \
+                "Unknown model parameter: \"$parm\""
+        }
+
+        # Return it in canonical form
+        return $canonical
+    }
+
+
 
     #-------------------------------------------------------------------
     # Mutators
@@ -243,6 +265,30 @@ snit::type parm {
         # NEXT, return the undo script
         return $undo
     }
+
+    #-------------------------------------------------------------------
+    # Order helpers
+
+    # RefreshParmSet dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current values of the various fields.
+    #
+    # Refreshes the value when the parameter changes.
+
+    typemethod RefreshParmSet {dlg fields fdict} {
+        if {"parm" in $fields} {
+            dict with fdict {
+                if {![catch {parm get $parm} result]} {
+                    $dlg set value $result
+                }
+            }
+        }
+    }
+
+
+
 }
 
 #-----------------------------------------------------------------------
@@ -255,7 +301,7 @@ snit::type parm {
 order define PARM:IMPORT {
     title "Import Parameter File"
 
-    options -sendstates {PREP RUNNING PAUSED}
+    options -sendstates {PREP PAUSED}
 
     # NOTE: Dialog is not usually used.  Could define a "filepicker"
     # -editcmd, though.
@@ -285,7 +331,7 @@ order define PARM:IMPORT {
 order define PARM:RESET {
     title "Reset Parameters to Defaults"
 
-    options -sendstates {PREP RUNNING PAUSED}
+    options -sendstates {PREP PAUSED}
 } {
     returnOnError -final
 
@@ -308,25 +354,26 @@ order define PARM:RESET {
 order define PARM:SET {
     title "Set Parameter Value"
 
-    options -sendstates {PREP RUNNING PAUSED}
+    options \
+        -sendstates {PREP PAUSED}          \
+        -refreshcmd {parm RefreshParmSet}
 
-    # NOTE: Dialog is not usually used.
-    parm parm   text "Parameter"
+    parm parm   enum "Parameter"     -enumtype parm -width 30
     parm value  text "Value"
 } {
     # FIRST, prepare the parameters
-    prepare parm  -required 
+    prepare parm  -required  -type parm
     prepare value -required
 
-    returnOnError -final
+    returnOnError
 
     # NEXT, validate the parameters
     if {[catch {
         # In this case, simply try it.
         setundo [parm mutate set $parms(parm) $parms(value)]
     } result]} {
-        reject * $result
+        reject value $result
     }
 
-    returnOnError
+    returnOnError -final
 }
