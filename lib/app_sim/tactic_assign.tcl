@@ -40,7 +40,25 @@ tactic type define ASSIGN {g n text1 int1} actor {
         }
     }
 
-    # No cost, yet
+    typemethod dollars {tdict} {
+        return [moneyfmt [$type ComputeCost $tdict]]
+    }
+
+    # ComputeCost tdict
+    #
+    # Computes the actual cost of this tactic: the number of personnel,
+    # times the cost of having one person of this group doing this
+    # activity for one strategy tock.
+
+    typemethod ComputeCost {tdict} {
+        dict with tdict {
+            set gtype [group gtype $g]
+            set costPerTroop [parm get activity.$gtype.$text1.cost]
+            let cost {$costPerTroop * $int1}
+
+            return $cost
+        }
+    }
 
     typemethod check {tdict} {
         set errors [list]
@@ -68,12 +86,20 @@ tactic type define ASSIGN {g n text1 int1} actor {
     }
 
     typemethod execute {tdict} {
+        # FIRST, compute the cost of this tactic.
+        set cost [$type ComputeCost $tdict]
+
         dict with tdict {
             # FIRST, retrieve relevant data.
             set unassigned [personnel unassigned $n $g]
 
             # NEXT, are there enough people available?
             if {$int1 > $unassigned} {
+                return 0
+            }
+
+            # NEXT, can we afford it?
+            if {![cash spend $owner $cost]} {
                 return 0
             }
 

@@ -54,6 +54,7 @@ namespace eval ::projectlib:: {
         ipositive        \
         iquantity        \
         leensit          \
+        money            \
         polygon          \
         qsecurity        \
         ratrend          \
@@ -915,5 +916,34 @@ snit::type ::projectlib::weight {
         return $value
     }
 }
+
+
+#-----------------------------------------------------------------------
+# Money type
+
+# A money value is a string defined as for marsutil::moneyscan.  It is
+# converted to a real number.
+
+snit::type ::projectlib::money {
+    pragma -hasinstances no
+
+    typemethod validate {value} {
+        if {[catch {
+            set newValue [::marsutil::moneyscan $value]
+        } result]} {
+            set scanErr 1
+        } else {
+            set scanErr 0
+        }
+
+        if {$scanErr || $newValue < 0.0} {
+            return -code error -errorcode INVALID \
+                "invalid money value \"$value\", expected positive numeric value with optional K, M, or B suffix"
+        }
+
+        return $newValue
+    }
+}
+
 
 

@@ -256,6 +256,14 @@ Integer quantity type: a non-negative integer number.<p>
 Validates and returns <i>quantity</i>.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
+
+
+<<defitem "money validate" {money validate <i>dollars</i>}>>
+
+Money type; the <i>dollars</i> value must be a string accepted
+by the <<xref mars:marsmisc(n)>> <<xref mars:marsmisc(n) moneyscan>>
+function.  The value is returned as a normal floating point value.<p>
+
 <<defitem "polygon validate" {polygon validate <i>coords</i>}>>
 
 Validates the polygon described by the <i>coords</i>, which is a flat

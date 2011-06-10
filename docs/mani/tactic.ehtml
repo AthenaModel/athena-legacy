@@ -65,7 +65,7 @@ We make any problems known to the user, and allow them to fix them.<p>
 
 Returns the estimated cost in dollars of executing the tactic
 once, for display in the GUI.  The
-<<xref marsutil:marsmisc(n) moneyfmt>> command should be used to
+<<xref mars:marsmisc(n) moneyfmt>> command should be used to
 format numeric output.  If an estimated cost in dollars doesn't
 make sense for this tactic, return "n/a".<p>
     

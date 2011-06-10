@@ -135,14 +135,24 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # dollars
 
-    test dollars-1.1 {dollars} -setup {
+    test dollars-1.1 {dollars, default settings} -setup {
         setup
         tactic mutate create $T1
     } -body {
         tactic::ASSIGN dollars [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {n/a}
+    } -result {0.00}
+
+    test dollars-1.2 {dollars, with cost} -setup {
+        setup
+        tactic mutate create $T1
+        parm set activity.FRC.PATROL.cost 10.0
+    } -body {
+        tactic::ASSIGN dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1,000.00}
 
     #-------------------------------------------------------------------
     # execute

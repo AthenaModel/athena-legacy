@@ -95,6 +95,13 @@ object tactic_assign {
         the assigned personnel; the unit will be visible on the
         <<tab Map>>.<p>
 
+        The cost in dollars/person/week of assigning troops to do
+        activities is defined for each activity using 
+        <<cref /parmdb>>.  Look under <<cref /parmdb/activity/frc>> and
+        <<cref /parmdb/activity/org>> for the cost parameters, e.g.,
+        <<parmdb activity.FRC.PATROL.cost>>.  By
+        default, all activity costs are set to zero.<p>
+
         Multiple ASSIGN tactics are cumulative.  The assignment lasts
         until the next strategy tock.
     }
