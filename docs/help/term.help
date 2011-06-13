@@ -507,6 +507,19 @@ alias /term goal "goal" /object/goal
 
 alias /term group "group" /object/group
 
+
+#-----------------------------------------------------------------------
+
+term influence "influence" {
+    <i>Influence</i> is a measure of an <<term actor>>'s influence in
+    a <<term nbhood>>, based on the <<term support>> for the actor
+    by the residents of the neighborhood relative to other actors.  
+    Mathematically, influence is a fraction of neighborhood control;
+    the influence of all actors in the neighborhood sums to one.  In
+    general, an actor takes control of a neighborhood by having an
+    influence greater than 0.5.
+}
+
 #-----------------------------------------------------------------------
 
 term local_economy "local economy" {
@@ -913,6 +926,20 @@ term sapop "subsistence agriculture population" {
     cash economy.  Athena assumes that there is a hard line between
     the subsistence farmers and the <<term consumer>>s, although there
     is certainly some overlap in reality.
+}
+
+
+#-----------------------------------------------------------------------
+
+term support "support" {
+    An <<term actor>>'s <i>support</i> in a <<term nbhood>> is the
+    degree to which the people (including force and organization
+    group personnel) in the neighborhood will do his bidding.
+    Support is based on the vertical relationship
+    between local groups and the actor, on each group's security, and
+    on the number of people in each group.<p>
+
+    Support is used to compute <<term influence>>.
 }
 
 #-----------------------------------------------------------------------

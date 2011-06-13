@@ -63,6 +63,14 @@ object nbhood_ {
         <<enumdoc ::projectlib::eurbanization>>
     } -tags {create update multi}
 
+    attribute controller "Controller" {
+        A neighborhood can be controlled by at most one 
+        <<term actor>>.  During <<cref /using/prep>>, this is the actor
+        initially in control of the neighborhood.  The attribute may
+        be blank if no actor is initially in control.  As the
+        simulation runs, control can shift from actor to actor.
+    } -tags {create update multi}
+
     attribute vtygain "Volatility Gain" {
         The neighborhood's volatility gain, a real
         number no less than zero; it is used to dial up and down the

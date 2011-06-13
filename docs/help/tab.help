@@ -406,6 +406,7 @@ tab "Neighborhoods/Neighborhoods" {
     <<nbhood_ parm longname       -label "Neighborhood">>
     <<nbhood_ parm local          -label "Local">>
     <<nbhood_ parm urbanization   -label "Urbanization">>
+    <<nbhood_ parm controller     -label "Controller">>
     <<nbhood_ parm vtygain        -label "VtyGain">>
     <<nbhood_ parm stacking_order -label "StkOrder">>
     <<nbhood_ parm obscured_by    -label "ObscuredBy">>

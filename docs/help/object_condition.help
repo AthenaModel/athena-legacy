@@ -285,14 +285,20 @@ page /object/condition during "DURING condition" {
 object condition_influence {
     noun "INFLUENCE condition"
     overview {
-        This <<term condition>> compares an actor's influence in a neighborhood
+        This <<term condition>> compares an <<term actor>>'s 
+        <<term influence>> in a <<term nbhood>>
         with a user-specified amount.<p>
     }
 
     include condition_ 
 
     attribute a "Actor" {
-        The name of the actor whose influence is being compared.
+        The name of the <<term actor>> whose influence is being compared.
+    } -tags {create update}
+
+    attribute n "Neighborhood" {
+        The name of the <<term nbhood>> in which the <<term actor>>
+        might have influence.
     } -tags {create update}
 
     attribute op1 "Comparison" {
