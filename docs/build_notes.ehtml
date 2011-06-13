@@ -11,6 +11,27 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.21, 13 June 2011</h3>
+
+This package adds the notion of "agents".  An agent is an object that
+can have a strategy.  At present there are two kinds of agent: actors,
+and the SYSTEM agent.  In addition, it adds two tactics: the ASSIGN
+tactic, which actors may use to assign abstract activities to force
+and organization group personnel in neighborhoods, and the DISPLACE
+tactic, which the SYSTEM actor may use to displace civilian personnel
+into other neighborhoods.  Finally, it adds the ability to view and
+edit model parameters through the GUI via the "my://app/parmdb" page.<p>
+
+<ul>
+  <li> Bug 3020: athena(1): ASSIGN tactic, with related changes
+  <li> Bug 3026: athena(1): Agents
+  <li> Bug 3028: Sim Object Typos
+  <li> Bug 3029: athena(1): DISPLACE tactic
+  <li> Bug 3030: Include "rm athena" in install.txt
+  <li> Bug 3032: athena(1): Activity Costs
+  <li> Bug 3034: athena(1): my://app/parmdb page
+</ul>
+
 <h3>Build 3.0.20, 1 June 2011</h3>
 
 This build contains a number of bug fixes and minor tweaks, along with
