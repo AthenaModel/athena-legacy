@@ -426,10 +426,10 @@ snit::widget bsystembrowser {
         ttk::label $pane.title \
             -text "Entities"
 
-        install etree using linktree $pane.tree     \
-            -url       my://app/entitytype/bsystem  \
-            -width     1.5i                         \
-            -height    200                          \
+        install etree using linktree $pane.tree  \
+            -url       my://app/objects/bsystem  \
+            -width     1.5i                      \
+            -height    200                       \
             -changecmd [mymethod ETreeSelect]
 
         grid $pane.title -row 0 -column 0 -sticky w    -pady {3 2}

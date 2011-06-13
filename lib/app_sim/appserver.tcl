@@ -60,21 +60,21 @@ snit::type appserver {
     typevariable rinfo {}
 
     #-------------------------------------------------------------------
-    # Entity Types
+    # Object Types
     #
-    # This data is used to handle the entity type URLs.
+    # This data is used to handle the objects URLs.
 
-    # entityTypes: Nested dictionary of entity type data.
+    # objectInfo: Nested dictionary of object data.
     #
-    # key: entity type collection resource
+    # key: object collection resource
     #
-    # value: Dictionary of data about each entity
+    # value: Dictionary of data about each object/object type
     #
-    #   label     - A human readable label for this kind of entity.
+    #   label     - A human readable label for this kind of object.
     #   listIcon  - A Tk icon to use in lists and trees next to the
     #               label
 
-    typevariable entityTypes {
+    typevariable objectInfo {
         /actors {
             label    "Actors"
             listIcon ::projectgui::icon::actor12
@@ -82,11 +82,11 @@ snit::type appserver {
             key      a
         }
 
-        /nbhoods {
-            label    "Neighborhoods"
-            listIcon ::projectgui::icon::nbhood12
-            table    gui_nbhoods
-            key      n
+        /groups {
+            label    "Groups"
+            listIcon ::projectgui::icon::group12
+            table    gui_groups
+            key      g
         }
 
         /groups/civ {
@@ -103,18 +103,28 @@ snit::type appserver {
             key      g
         }
 
-        /groups {
-            label    "Groups"
-            listIcon ::projectgui::icon::group12
-            table    gui_groups
-            key      g
-        }
-
         /groups/org {
             label    "Org. Groups"
             listIcon ::projectgui::icon::orggroup12
             table    gui_orggroups
             key      g
+        }
+
+        /nbhoods {
+            label    "Neighborhoods"
+            listIcon ::projectgui::icon::nbhood12
+            table    gui_nbhoods
+            key      n
+        }
+
+        /overview {
+            label "Overview"
+            listIcon ::projectgui::icon::eye12
+        }
+
+        /parmdb {
+            label "Model Parameters"
+            listIcon ::projectgui::icon::pencil12
         }
     }
 
@@ -149,7 +159,7 @@ snit::type appserver {
 
         # NEXT, register the resource types
         $server register /actors {actors/?} \
-            tcl/linkdict [myproc linkdict_EntityLinks /actors /actor] \
+            tcl/linkdict [myproc linkdict_ObjectLinks /actors] \
             text/html    [myproc html_Actors] {
                 Links to all of the currently defined actors.  HTML
                 content includes actor attributes.
@@ -170,18 +180,6 @@ snit::type appserver {
         $server register /docs/{imageFile} {(docs/.+\.(gif|jpg|png))} \
             tk/image [myproc image_File ""]                           \
             "A .gif, .jpg, or .png file in the Athena /docs/ tree."
-
-        $server register /entitytype {entitytype/?}              \
-            tcl/linkdict [myproc linkdict_EntityType]            \
-            text/html    [myproc html_EntityType "Entity Types"] \
-            "Links to the main Athena entity types."
-
-        $server register /entitytype/bsystem {entitytype/(bsystem)/?}   \
-            tcl/linkdict [myproc linkdict_EntityType]                   \
-            text/html    [myproc html_EntityType "Belief Entity Types"] {
-                Links to the Athena entity types for which belief 
-                systems are defined.
-            }
 
         $server register /groups {groups/?} \
             tcl/linkdict [myproc linkdict_GroupLinks]              \
@@ -225,7 +223,7 @@ snit::type appserver {
             }   
 
         $server register /nbhoods {nbhoods/?} \
-            tcl/linkdict [myproc linkdict_EntityLinks /nbhoods /nbhood] \
+            tcl/linkdict [myproc linkdict_ObjectLinks /nbhoods] \
             text/html    [myproc html_Nbhoods]                          {
                 Links to the currently defined neighborhoods.  The
                 HTML content includes neighborhood attributes.
@@ -241,20 +239,21 @@ snit::type appserver {
             text/html [myproc html_Nbhood]            \
             "Detail page for neighborhood {n}."
 
-        $server register /sanity/onlock {sanity/onlock/?} \
-            text/html [myproc html_SanityOnLock]          \
-            "Scenario On-Lock sanity check report."
+        $server register /objects {objects/?}                \
+            tcl/linkdict [myproc linkdict_Objects]           \
+            text/html    [myproc html_Objects "Objects"]     \
+            "Links to the main Athena simulation objects."
 
-        $server register /sanity/ontick {sanity/ontick/?} \
-            text/html [myproc html_SanityOnTick]          \
-            "Simulation On-Tick sanity check report."
+        $server register /objects/bsystem {objects/(bsystem)/?}      \
+            tcl/linkdict [myproc linkdict_Objects]                   \
+            text/html    [myproc html_Objects "Belief System Objects"] {
+                Links to the Athena objects for which belief 
+                systems are defined.
+            }
 
-        $server register /sanity/strategy {sanity/strategy/?} \
-            text/html [myproc html_SanityStrategy]            \
-            "Sanity check report for actor strategies."
-
-        $server register /overview {overview/?} \
-            text/html [myproc html_Overview]    \
+        $server register /overview {overview/?}     \
+            tcl/linkdict [myproc linkdict_Overview] \
+            text/html [myproc html_Overview]        \
             "Overview"
 
         $server register /overview/attroe {overview/attroe/?} \
@@ -276,12 +275,35 @@ snit::type appserver {
             }
 
         $server register /parmdb {parmdb/?} \
+            tcl/linkdict [myproc linkdict_Parmdb] \
             text/html [myproc html_Parmdb] {
                 An editable table displaying the contents of the
                 model parameter database.  This resource can take a parameter,
                 a wildcard pattern; the table will contain only
                 parameters that match the pattern.
             }
+
+        $server register /parmdb/{subset} {parmdb/(\w+)/?} \
+            text/html [myproc html_Parmdb] {
+                An editable table displaying the contents of the given
+                subset of the model parameter database.
+                This resource can take a parameter,
+                a wildcard pattern; the table will contain only
+                parameters that match the pattern.
+            }
+
+
+        $server register /sanity/onlock {sanity/onlock/?} \
+            text/html [myproc html_SanityOnLock]          \
+            "Scenario On-Lock sanity check report."
+
+        $server register /sanity/ontick {sanity/ontick/?} \
+            text/html [myproc html_SanityOnTick]          \
+            "Simulation On-Tick sanity check report."
+
+        $server register /sanity/strategy {sanity/strategy/?} \
+            text/html [myproc html_SanityStrategy]            \
+            "Sanity check report for actor strategies."
 
         $server register /sigevents {sigevents/?} \
             text/html [myproc html_SigEvents] {
@@ -470,6 +492,42 @@ snit::type appserver {
         return [tsubst $text]
     }
 
+    # linkdict_Overview udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches
+    #
+    # Returns a tcl/linkdict of overview pages
+
+    proc linkdict_Overview {udict matchArray} {
+        return {
+            /sigevents { 
+                label "Sig. Events: Recent" 
+                listIcon ::projectgui::icon::eye12
+            }
+            /sigevents/all { 
+                label "Sig. Events: All" 
+                listIcon ::projectgui::icon::eye12
+            }
+            /overview/attroe { 
+                label "Attacking ROEs" 
+                listIcon ::projectgui::icon::eye12
+            }
+            /overview/defroe { 
+                label "Defending ROEs" 
+                listIcon ::projectgui::icon::eye12
+            }
+            /overview/deployment { 
+                label "Personnel Deployment" 
+                listIcon ::projectgui::icon::eye12
+            }
+            /nbhoods/rel { 
+                label "Neighborhood Relationships" 
+                listIcon ::projectgui::icon::eye12
+            }
+        }
+    }
+
     # html_Overview udict matchArray
     #
     # udict      - A dictionary containing the URL components
@@ -489,28 +547,33 @@ snit::type appserver {
     }
 
     #-------------------------------------------------------------------
-    # Generic Entity Type Code
+    # Objects Tree Code
 
-    # linkdict_EntityType udict matchArray
+    #-------------------------------------------------------------------
+    # Generic Simulation Object Code
+
+    # linkdict_Objects udict matchArray
     #
     # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
-    # Returns an entitytype[/*] resource as a tcl/linkdict 
-    # where $(1) is the entity type subset.
+    # Returns an objects[/*] resource as a tcl/linkdict 
+    # where $(1) is the objects subset.
 
-    proc linkdict_EntityType {udict matchArray} {
+    proc linkdict_Objects {udict matchArray} {
         upvar 1 $matchArray ""
 
         # FIRST, handle subsets
         switch -exact -- $(1) {
             "" { 
                 set subset {
+                    /overview
                     /actors 
                     /nbhoods 
                     /groups/civ 
                     /groups/frc 
                     /groups/org
+                    /parmdb
                 }
             }
 
@@ -526,28 +589,31 @@ snit::type appserver {
             }
         }
 
-        foreach etype $subset {
-            dict set result $etype [dict get $entityTypes $etype]
+        foreach otype $subset {
+            dict with objectInfo $otype {
+                dict set result $otype label $label
+                dict set result $otype listIcon $listIcon
+            }
         }
 
         return $result
     }
-    
-    # html_EntityType udict matchArray
+
+    # html_Objects udict matchArray
     #
     # title      - The page title
     # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
-    # Returns an entitytype/* resource as a tcl/linkdict 
-    # where $(1) is the entity type subset.
+    # Returns an object/* resource as a text/html
+    # where $(1) is the objects subset.
 
-    proc html_EntityType {title udict matchArray} {
+    proc html_Objects {title udict matchArray} {
         upvar 1 $matchArray ""
 
         set url [dict get $udict url]
 
-        set types [linkdict_EntityType $url ""]
+        set types [linkdict_Objects $url ""]
 
         ht page $title
         ht h1 $title
@@ -562,20 +628,19 @@ snit::type appserver {
     }
 
 
-    # linkdict_EntityLinks etype eroot udict matchArray
+    # linkdict_ObjectLinks otype udict matchArray
     #
-    # etype      - entityTypes key
-    # eroot      - root URL for the entity type
+    # otype      - objectInfo key
     # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches; ignored.
     #
     # Returns tcl/linkdict for a collection resource, based on an RDB 
     # table.
 
-    proc linkdict_EntityLinks {etype eroot udict matchArray} {
+    proc linkdict_ObjectLinks {otype udict matchArray} {
         set result [dict create]
 
-        dict with entityTypes $etype {
+        dict with objectInfo $otype {
             rdb eval "
                 SELECT url, fancy
                 FROM $table 
@@ -1295,17 +1360,17 @@ snit::type appserver {
     proc linkdict_GroupLinks {udict matchArray} {
         upvar 1 $matchArray ""
 
-        # FIRST, get the etype.
+        # FIRST, get the otype.
         if {$(1) eq ""} {
-            set etype /groups
+            set otype /groups
         } else {
-            set etype /groups/$(1)
+            set otype /groups/$(1)
         }
 
         # NEXT, get the results
         set result [dict create]
 
-        dict with entityTypes $etype {
+        dict with objectInfo $otype {
             rdb eval "
                 SELECT $key AS id, longname 
                 FROM $table 
@@ -2347,18 +2412,59 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Parmdb
 
+    # linkdict_Parmdb udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches
+    #
+    # Returns a parmdb resource as a tcl/linkdict.
+
+    proc linkdict_Parmdb {udict matchArray} {
+        foreach subset {
+            sim
+            aam
+            activity
+            control
+            dam
+            demsit
+            demog
+            econ
+            ensit
+            force
+            gram
+            rmf
+            strategy
+        } {
+            set url /parmdb/$subset
+
+            dict set result $url label "$subset.*"
+            dict set result $url listIcon ::projectgui::icon::pencil12
+        }
+
+        return $result
+    }
+
     # html_Parmdb udict matchArray
     #
     # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches.
+    #
+    # Matches:
+    #   $(1) - The major subset
     #
     # Returns a page that documents the current parmdb(5) values.
     # There can be a query; if so, it is treated as a glob-pattern,
     # and only parameters that match are included.
 
     proc html_Parmdb {udict matchArray} {
+        upvar 1 $matchArray ""
+
         # FIRST, get the pattern, if any.
         set pattern [dict get $udict query]
+
+        if {$pattern eq "" && $(1) ne ""} {
+            set pattern "$(1).*"
+        }
 
         # NEXT, begin the page.
         if {$pattern eq ""} {

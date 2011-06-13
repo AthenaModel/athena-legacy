@@ -65,7 +65,7 @@ snit::widget detailbrowser {
     # Components
 
     component browser ;# The mybrowser(n)
-    component etree   ;# The entity linktree(n)
+    component otree   ;# The object linktree(n)
     component htree   ;# The help linktree(n)
     component lazy    ;# The lazyupdater(n)
     component context ;# The context menu
@@ -90,15 +90,15 @@ snit::widget detailbrowser {
 
         pack $sidebar.tabs -fill both -expand yes
 
-        # Entity Tree
-        install etree using linktree $sidebar.tabs.etree \
-            -url       my://app/entitytype               \
+        # Object Tree
+        install otree using linktree $sidebar.tabs.otree \
+            -url       my://app/objects                  \
             -width     150                               \
             -height    400                               \
             -changecmd [mymethod ShowLink]               \
             -errorcmd  [list log warning detailb]
 
-        $sidebar.tabs add $sidebar.tabs.etree    \
+        $sidebar.tabs add $sidebar.tabs.otree    \
             -sticky  nsew                        \
             -padding 2                           \
             -image   ::projectgui::icon::actor12
@@ -348,7 +348,7 @@ snit::widget detailbrowser {
     # Called on browser reload; refreshes the links tree
     
     method RefreshLinks {} {
-        $etree refresh
+        $otree refresh
     }
 
     # ShowLink url
