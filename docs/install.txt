@@ -1,5 +1,5 @@
 
-Athena 2.1 Installation Instructions
+Athena 3.0 Installation Instructions
 -----------------------------------------------------------------
 
 1. Athena is designed to run under Red Hat Enterprise Linux 5,
@@ -19,16 +19,28 @@ Athena 2.1 Installation Instructions
 
       tar zxf athena_3.1.x.tgz
 
-   (Again, "3.1.x" is the version number in the installation file
-   name, e.g., "3.1.0".)
+   This should create a directory called "athena_3.1.x" in your chosen 
+   location.  (Again, "3.1.x" is the version number in the
+   installation file name, e.g., "3.1.0".)
 
-6. Create an "athena_3.1.x" directory link in your home directory 
-   and link ~/athena to it:
+6. Link ~/athena to your newly created "athena_3.1.x" directory.  If
+   you've had a previous version of Athena installed, you'll need to 
+   remove the old link first:
+
+      cd ~
+      rm athena
+
+   Note that this won't remove the old version of Athena; just the
+   link to it.  Then, link ~/athena to the new version of Athena: 
 
       ln -s ~/athena_3.1.x athena
 
-7. Add '~/athena/bin' to your $PATH environment variable by editing 
-   the file ".bash_profile" and adding the line 
+   If you untarred Athena somewhere other than your home directory,
+   replace "~/athena_3.1.x" in the "ln" command with the full path to
+   the actual location.
+
+7. Add '~/athena/bin' to your PATH environment variable (if it isn't
+   already there) by editing the file ".bash_profile" and adding the line 
 
       export PATH=$PATH:$HOME/athena/bin
 
@@ -41,10 +53,10 @@ Athena 2.1 Installation Instructions
 9. Launch the Athena simulation application using the following 
    command in a terminal window:
 
-      athena sim
+      athena
 
 10. The athena scenario files may be stored in any directory in 
-    your account that you choose.  Typically, users will create a 
+    your account that you choose.  Users will typically create a 
     subdirectory for each scenario, but that's up to you.
 
 
