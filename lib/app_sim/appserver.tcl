@@ -2559,11 +2559,12 @@ snit::type appserver {
             }
 
             ht putln {
-                The following signficant simulation events have
-                occurred since the scenario was locked.
+                The following significant simulation events have
+                occurred since the scenario was locked.  Newer events
+                are listed first.
             }
 
-            set opts {}
+            set opts -desc
         } else {
             ht page "Significant Events: Last Advance"
             ht title "Significant Events: Last Advance"
@@ -2595,17 +2596,20 @@ snit::type appserver {
     #
     # -tags     - A list of sigevents tags
     # -mark     - A sigevent mark type
+    # -desc     - List in descending order.
     #
     # Formats the sigevents as HTML, in order of occurrence.  If
     # If -tags is given, then only events with those tags are included.
     # If -mark is given, then only events since the most recent mark of
-    # the given type are included.
+    # the given type are included.  If -desc is given, sigevents are
+    # shown in reverse order.
 
     proc SigEvents {args} {
         # FIRST, process the options.
         array set opts {
             -tags ""
             -mark "lock"
+            -desc 0
         }
 
         while {[llength $args] > 0} {
@@ -2615,6 +2619,10 @@ snit::type appserver {
                 -tags -
                 -mark {
                     set opts($opt) [lshift args]
+                }
+
+                -desc {
+                    set opts($opt) 1
                 }
 
                 default {
@@ -2653,6 +2661,12 @@ snit::type appserver {
                 WHERE event_id >= \$mark
                 AND tag IN $tags
             "
+        }
+
+        if {$opts(-desc)} {
+            append query "ORDER BY t DESC, event_id"
+        } else {
+            append query "ORDER BY event_id"
         }
 
         rdb eval $query {

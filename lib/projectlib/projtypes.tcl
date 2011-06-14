@@ -231,6 +231,10 @@ snit::type ::projectlib::typewrapper {
     COMMOUT-3-1   "Communications are restored by outsiders"
     COMMOUT-3-2   "Communications are restored by locals"
 
+    CONTROL-1-1   "Neighborhood sees shift in control"
+    CONTROL-1-2   "Neighborhood is now in chaos."
+    CONTROL-1-3   "Neighborhood is now no longer in chaos."
+
     CRIMINAL-1-1  "Force units engaging in criminal activities"
     CRIMINAL-2-1  "Force units no longer engaging in criminal activities"
 
@@ -397,6 +401,7 @@ snit::type ::projectlib::typewrapper {
     CMOOTHER  "CMO -- Other"
     COERCION  "Coercion"
     COMMOUT   "Communications Outage"
+    CONTROL   "Shift in Control of Neighborhood"
     CRIMINAL  "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
     CURFEW    "Curfew"
@@ -447,6 +452,7 @@ snit::type ::projectlib::typewrapper {
     CMOOTHER  "CMO -- Other"
     COERCION  "Coercion"
     COMMOUT   "Communications Outage"
+    CONTROL   "Shift in Control of Neighborhood"
     CRIMINAL  "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
     CURFEW    "Curfew"

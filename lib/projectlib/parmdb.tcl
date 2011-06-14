@@ -873,6 +873,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.COMMOUT.nearFactor     0.1
         $ps setdefault dam.COMMOUT.farFactor      0.1
 
+        # Rule Set: CONTROL
+        $ps setdefault dam.CONTROL.cause          CONTROL
+        $ps setdefault dam.CONTROL.nearFactor     0.2
+        $ps setdefault dam.CONTROL.farFactor      0.0
+
         # Rule Set: CRIMINAL
         $ps setdefault dam.CRIMINAL.cause         CRIMINAL
         $ps setdefault dam.CRIMINAL.nearFactor    0.5

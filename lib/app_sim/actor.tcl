@@ -60,16 +60,13 @@ snit::type actor {
         return $a
     }
 
-    # Type Method: get
+    # get a ?parm?
+    #
+    # a    - An actor
+    # parm - A actors column name
     #
     # Retrieves a row dictionary, or a particular column value, from
     # actors.
-    #
-    # Syntax:
-    #   get _a ?parm?_
-    #
-    #   a    - An actor
-    #   parm - A actors column name
 
     typemethod get {a {parm ""}} {
         # FIRST, get the data
@@ -83,6 +80,16 @@ snit::type actor {
         }
 
         return ""
+    }
+
+    # frcgroups a 
+    #
+    # a - An actor
+    #
+    # Returns a list of the force groups owned by the actor.
+    
+    typemethod frcgroups {a} {
+        rdb eval {SELECT g FROM frcgroups WHERE a=$a}
     }
 
     #-------------------------------------------------------------------

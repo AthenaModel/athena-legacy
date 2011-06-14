@@ -513,8 +513,15 @@ snit::type control {
         }
         
         # NEXT, invoke the CONTROL rule set for this transition.
-        
-        # TBD
+        dict set rdict n $n
+        dict set rdict a $cOld
+        dict set rdict b $cNew
+        dict set rdict driver     \
+            [aram driver add      \
+                 -dtype   CONTROL \
+                 -oneliner "Shift in control of nbhood $n"]
+
+        control_rules analyze $rdict
     }
 
 
