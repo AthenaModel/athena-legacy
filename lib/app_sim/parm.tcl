@@ -363,17 +363,19 @@ order define PARM:SET {
 } {
     # FIRST, prepare the parameters
     prepare parm  -required  -type parm
-    prepare value -required
+    prepare value
 
     returnOnError
 
-    # NEXT, validate the parameters
-    if {[catch {
-        # In this case, simply try it.
-        setundo [parm mutate set $parms(parm) $parms(value)]
-    } result]} {
+    # NEXT, validate the value
+    set vtype [parm type $parms(parm)]
+
+    if {[catch {$vtype validate $parms(value)} result]} {
         reject value $result
     }
 
     returnOnError -final
+
+    # NEXT, set the value
+    setundo [parm mutate set $parms(parm) $parms(value)]
 }
