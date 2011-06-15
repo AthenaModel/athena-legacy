@@ -11,6 +11,20 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.22, 15 June 2011</h3>
+
+This is the "pre-vacation" build, getting the latest work into Athena
+to allow time for testing before I leave, so that this version can be
+used to develop scenarios for the demo in early July while I'm
+gone.  The changes are as follows:<p>
+
+<ul>
+  <li> Bug 3035: athena(1): Extensions to the Object Tree
+  <li> Bug 3036: athena(1): CONTROL rule set
+  <li> Bug 3037: my:/parmdb parameters don't update correctly 
+</ul><p>
+
+
 <h3>Build 3.0.21, 13 June 2011</h3>
 
 This package adds the notion of "agents".  An agent is an object that
