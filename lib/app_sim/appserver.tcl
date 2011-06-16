@@ -286,7 +286,11 @@ snit::type appserver {
         $server register /parmdb/{subset} {parmdb/(\w+)/?} \
             text/html [myproc html_Parmdb] {
                 An editable table displaying the contents of the given
-                subset of the model parameter database.
+                subset of the model parameter database.  The subsets
+                are the top-level divisions of the database, e.g.,
+                "sim", "aam", "force", etc.  In addition, the subset
+                "changed" will return all parameters with non-default
+                values.
                 This resource can take a parameter,
                 a wildcard pattern; the table will contain only
                 parameters that match the pattern.
@@ -2420,6 +2424,9 @@ snit::type appserver {
     # Returns a parmdb resource as a tcl/linkdict.
 
     proc linkdict_Parmdb {udict matchArray} {
+        dict set result /parmdb/changed label "Changed"
+        dict set result /parmdb/changed listIcon ::projectgui::icon::pencil12
+
         foreach subset {
             sim
             aam
@@ -2450,7 +2457,7 @@ snit::type appserver {
     # matchArray - Array of pattern matches.
     #
     # Matches:
-    #   $(1) - The major subset
+    #   $(1) - The major subset, or "changed".
     #
     # Returns a page that documents the current parmdb(5) values.
     # There can be a query; if so, it is treated as a glob-pattern,
@@ -2459,30 +2466,66 @@ snit::type appserver {
     proc html_Parmdb {udict matchArray} {
         upvar 1 $matchArray ""
 
-        # FIRST, get the pattern, if any.
+        # FIRST, are we looking at all parms or only changed parms?
+        if {$(1) eq "changed"} {
+            set initialSet changed
+        } else {
+            set initialSet names
+        }
+
+        # NEXT, get the pattern, if any.
         set pattern [dict get $udict query]
 
-        if {$pattern eq "" && $(1) ne ""} {
-            set pattern "$(1).*"
-        }
-
-        # NEXT, begin the page.
+        # NEXT, get the base set of parms.
         if {$pattern eq ""} {
-            set parms [parm names]
-
-            ht page "Model Parameters"
-            ht title "Model Parameters"
+            set parms [parm $initialSet]
         } else {
-            set parms [parm names $pattern]
-
-            set ptext [htools escape $pattern]
-
-            ht page "Model Parameters: $ptext"
-            ht title "Model Parameters: $ptext"
+            set parms [parm $initialSet $pattern]
         }
+
+        # NEXT, if some subset other than "changed" was given, find
+        # only those that match.
+
+        if {$(1) ne "" && $(1) ne "changed"} {
+            set subset "$(1).*"
+            
+            set allParms $parms
+            set parms [list]
+
+            foreach parm $allParms {
+                if {[string match $subset $parm]} {
+                    lappend parms $parm
+                }
+            }
+        }
+
+        # NEXT, get the title
+
+        set parts ""
+
+        if {$(1) eq "changed"} {
+            lappend parts "Changed"
+        } elseif {$(1) ne ""} {
+            lappend parts "$(1).*"
+        }
+
+        if {$pattern ne ""} {
+            lappend parts [htools escape $pattern]
+        }
+
+        set title "Model Parameters: "
+
+        if {[llength $parts] == 0} {
+            append title "All"
+        } else {
+            append title [join $parts ", "]
+        }
+
+        ht page $title
+        ht title $title
 
         # NEXT, if no parameters are found, note it and return.
-        if {$pattern ne "" && [llength $parms] == 0} {
+        if {[llength $parms] == 0} {
             ht putln "No parameters match the query."
             ht para
             

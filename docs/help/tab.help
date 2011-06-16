@@ -1955,18 +1955,15 @@ page /tab/plots time "Time Chart" {
 }
 
 #=======================================================================
-# Reports
+# Firings
 
-tab "Reports" {
-    The Reports tab displays all of the 
-    reports produced by Athena.
-    Some reports are produced automatically as Athena runs, but most
-    are requested by the user via the Reports menu.  Reports
-    can also be 
-    <<menu "Reports/Save Hot List to Disk..." "saved to disk">>
-    in text format.<p>
+tab "Firings" {
+    The Firings tab displays all of the DAM rule firing reports produced 
+    by Athena, conveniently sorted into bins.  This tab is hidden by
+    default; it can be made visible by selecting "Rule Firings" on the
+    <<menu View>>.<p>
 
-    The report browser contains the following elements:<p>
+    The Firings browser contains the following elements:<p>
 
     <ul>
     <li> At the top, a tool bar containing the 
@@ -2024,14 +2021,11 @@ tab "Reports" {
     <b><a name="bintree">Bin Tree:</a></b>  Athena automatically sorts
     all reports into bins by type, so that it is easier to find a
     particular report later on.  Note that a report can appear in
-    multiple bins. There are three special bins.<p>
+    multiple bins.<p>
 
-    The <b>All Reports</b> bin contains all reports of every type.<p>
-
-    The <b>Requested</b> bin 
-    contains all reports requested by the user; whenever the user
-    requests a report, the browser automatically switches to this
-    bin.<p>
+    The <b>All Reports</b> bin contains all reports of every type.
+    The <b>Hot List</b> bin contains all reports the user has added to the 
+    <<seebelow hotlist "Hot List">>.<p>
 
     <b><a name="replist">The Report List:</a></b> This pane lists the
     report ID number, <<term zulu>> and title of each report in the
@@ -2039,16 +2033,10 @@ tab "Reports" {
     browser; double-click it to pop up a separate report viewer
     window.<p>
 
-    The <b>Hot List</b> contains all reports the user has added to the 
-    <<seebelow hotlist "Hot List">>.<p>
-
     <b><a name="hotlist">The Hot List:</a></b> The user can add
     reports of particular interest to the Hot List by checking the
     Hot List box that appears just above the text of the report.
-    These reports then appear in the <b>Hot List</b> bin.  The reports
-    in the Hot List can be 
-    <<menu "Reports/Save Hot List to Disk..." "saved to disk">>
-    as a text file.<p>
+    These reports then appear in the <b>Hot List</b> bin.<p>
 }
 
 
@@ -2288,68 +2276,6 @@ tab "Log" {
     <</topiclist>>
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

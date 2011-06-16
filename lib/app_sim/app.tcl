@@ -188,7 +188,7 @@ snit::type app {
             -ordercmd     [myproc AddOrderToCIF]
         scenario  init \
             -ignoredefaultparms $opts(-ignoreuser)
-        report    init
+        firings   init
         nbhood    init
         sim       init
 
@@ -315,10 +315,13 @@ snit::type app {
     # parmdict   - The order parameters
     # undoScript - The order's undo script, or "" if not undoable.
     #
-    # Adds accepted orders to the CIF.
+    # Adds accepted orders to the CIF, export for REPORT:* orders,
+    # which don't modify the RDB and hence don't need to be CIF'd.
 
     proc AddOrderToCIF {interface name parmdict undoScript} {
-        cif add $name $parmdict $undoScript
+        if {![string match "REPORT:*" $name]} {
+            cif add $name $parmdict $undoScript
+        }
     }
 
 

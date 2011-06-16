@@ -8,8 +8,8 @@
 # DESCRIPTION:
 #    athena_sim(1): Report Manager
 #
-#    This module wraps reporter(n), and integrates it into the app.
-#    It also defines a number of specific reports.
+#    This module contains the orders that produce customized reports
+#    in the Detail browser.
 #
 #-----------------------------------------------------------------------
 
@@ -18,11 +18,6 @@
 
 snit::type ::report {
     pragma -hasinstances no
-
-    #-------------------------------------------------------------------
-    # Components
-
-    typecomponent reporter  ;# For delegation to reporter(n).
 
     #-------------------------------------------------------------------
     # Type Constructor
@@ -40,216 +35,6 @@ snit::type ::report {
             CHANGED   "Changed Parameters"
         }
     }
-
-    #-------------------------------------------------------------------
-    # Initialization
-    
-    typemethod init {} {
-        log normal report "init"
-
-        # FIRST, support delegation to reporter(n)
-        set reporter ::projectlib::reporter
-
-        # NEXT, configure the reporter
-        reporter configure \
-            -db        ::rdb                                \
-            -clock     ::simclock                           \
-            -deletecmd [list notifier send $type <Update>]  \
-            -reportcmd [list notifier send $type <Report>]
-
-        # NEXT, define the bins.
-
-        reporter bin define all "All Reports" "" {
-            SELECT * FROM reports
-        }
-
-        reporter bin define requested "Requested" "" {
-            SELECT * FROM reports WHERE requested=1
-        }
-
-        reporter bin define hotlist "Hot List" "" {
-            SELECT * FROM reports WHERE hotlist=1
-        }
-
-        reporter bin define gram "Attitudes" "" {
-            SELECT * FROM reports WHERE rtype='GRAM'
-        }
-
-        reporter bin define gram_driver "Drivers" gram {
-            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='DRIVER'
-        }
-
-        reporter bin define gram_satcontrib "Sat. Contrib." gram {
-            SELECT * FROM reports WHERE rtype='GRAM' AND subtype='SATCONTRIB'
-        }
-
-        reporter bin define scenario "Scenario" "" {
-            SELECT * FROM reports WHERE rtype='SCENARIO'
-        }
-
-        reporter bin define scenario_parmdb "Model Parameters" scenario {
-            SELECT * FROM reports WHERE rtype='SCENARIO' AND subtype='PARMDB'
-        }
-
-        reporter bin define dam "DAM Rule Firings" "" {
-            SELECT * FROM reports WHERE rtype='DAM'
-        }
-
-        set count 0
-        foreach ruleset [edamruleset names] {
-            set bin "dam[incr count]"
-
-            reporter bin define $bin $ruleset dam "
-                SELECT * FROM reports WHERE rtype='DAM' AND subtype='$ruleset'
-            "
-        }
-
-        log normal report "init complete"
-    }
-
-    #-------------------------------------------------------------------
-    # Reports
-
-    # hotlist save
-    #
-    # Saves the reports on the hot list to a disk file.
-
-    typemethod {hotlist save} {} {
-        # FIRST, are there any to save?
-        if {![rdb exists {SELECT id FROM reports WHERE hotlist=1}]} {
-            messagebox popup \
-                -title    "Cannot Save Reports" \
-                -icon     error                 \
-                -buttons  {cancel "Cancel"}     \
-                -parent   [app topwin]          \
-                -message  [normalize {
-                    No reports have been added to the Report Hot List,
-                    so there's nothing to save.  To add a report to the 
-                    Hot List, view the report in the Report Browser, 
-                    and check the "Hot List" check box on the toolbar
-                    above the report's header.
-                }]
-
-            return
-        }
-
-        # NEXT, query for the file name.  If the file already
-        # exists, the dialog will automatically query whether to 
-        # overwrite it or not. Returns 1 on success and 0 on failure.
-
-        set filename [tk_getSaveFile                                 \
-                          -parent      [app topwin]                  \
-                          -title       "Save Hot Listed Reports As"  \
-                          -initialfile "hotlist.txt"                 \
-                          -filetypes {
-                              {{Text File} {.txt} }
-                          }]
-
-        # NEXT, If none, they cancelled.
-        if {$filename eq ""} {
-            return 0
-        }
-
-        # NEXT, Save the reports on the hotlist.
-        if {[catch {
-            $type SaveHotList $filename
-        } result]} {
-            messagebox popup \
-                -title    "Cannot Save Reports" \
-                -icon     error                 \
-                -buttons  {cancel "Cancel"}     \
-                -parent   [app topwin]          \
-                -message  [normalize {
-                    Athena was unable to save the reports to the
-                    requested file:  $result
-                }]
-        } else {
-            app puts "Reports saved to $filename"
-        }
-    }
-
-    # SaveHotList filename
-    #
-    # filename     A file to which to save the hot list.
-    #
-    # Saves the hot listed reports.
-
-    typemethod SaveHotList {filename} {
-        # FIRST, open the file
-        set f [open $filename w]
-
-        try {
-            set count 0
-
-            rdb eval {
-                SELECT * FROM reports
-                WHERE hotlist=1
-                ORDER BY id
-            } data {
-                if {$count > 0} {
-                    puts $f "\f"
-                }
-
-                puts $f [$type FormatReport data]
-
-                incr count
-            }
-
-        } finally {
-            close $f
-        }
-    }
-
-    # FormatReport dataVar
-    #
-    # dataVar     An array of the report attributes
-    #
-    # Formats the report so that it can saved to disk.
-
-    typemethod FormatReport {dataVar} {
-        upvar 1 $dataVar data
-
-        tsubst {
-            |<--
-            ID:    $data(id)
-            Time:  $data(stamp) (Tick $data(time))
-            Title: $data(title)
-            Type:  $data(rtype)/$data(subtype)
-
-            $data(text)
-        }
-    }
-
-    # hotlist clear
-    #
-    # Clears all hotlist flags, if the user so chooses.
-
-    typemethod {hotlist clear} {} {
-        set answer [messagebox popup \
-                        -title         "Are you sure?"                  \
-                        -icon          warning                          \
-                        -buttons       {ok "Clear" cancel "Cancel"} \
-                        -default       cancel                           \
-                        -ignoretag     "report:hotlist:clear"           \
-                        -ignoredefault ok                               \
-                        -parent        [app topwin]                     \
-                        -message       [normalize {
-                            Are you sure you really want to clear the
-                            report hot list?  Your hot listed reports
-                            will no longer be available in the Hot List
-                            bin in the report browser.
-                        }]]
-
-        if {$answer eq "cancel"} {
-            return
-        }
-
-        reporter hotlist set all 0
-
-        notifier send $type <Update> all
-    }
-
-
 
     #-------------------------------------------------------------------
     # Report Implementations
@@ -339,129 +124,6 @@ snit::type ::report {
                     -subtype   DRIVER]
 
         return [list reporter delete $id]
-    }
-
-    # imp parmdb state pattern
-    #
-    # state    CHANGED|ALL
-    # pattern  Glob-pattern
-    #
-    # Produces a report of all parameter values, or only those
-    # whose values differ from the default.
-
-    typemethod {imp parmdb} {state pattern} {
-        # FIRST, get everybody if there's no pattern.
-        if {$pattern eq ""} {
-            set pattern "*"
-        }
-
-        # NEXT, get the width of the longest parameter name
-        set parmwid [lmaxlen [parmdb names $pattern]]
-        set fmt     "%-${parmwid}s = %s\n"
-        let indent  {$parmwid + 3}
-
-        # NEXT, get the text.
-        set text ""
-
-        foreach {parm value} [parmdb list $pattern] {
-            set defvalue [parmdb getdefault $parm]
-
-            if {$value ne $defvalue} {
-                append text [format $fmt $parm [WrapVal $indent $value]]
-                append text [format $fmt "    Default Setting" \
-                                 [WrapVal $indent $defvalue]]
-            } elseif {$state eq "ALL"} {
-                append text [format $fmt $parm [WrapVal $indent $value]]
-            } {
-                # Current == default, and we're not showing that.
-                continue
-            }
-        }
-
-        if {$text eq ""} {
-            set text "No such parameters found.\n"
-        }
-
-        # NEXT, indicate which ones we're showing
-        set header "This report lists the values of all model parameters"
- 
-        if {$state eq "CHANGED"} {
-            set title "Changed"
-
-            append header \
-                "\nthat have been changed from their default settings"
-        } else {
-            set title "All"
-        }
-
-        if {$pattern ne "*"} {
-            append title " matching \"$pattern\""
-            append header \
-                "\nand match the pattern \"$pattern\""
-        }
-
-        append header "."
-
-        # NEXT, save the report
-        set id [reporter save \
-                    -title     "Model Parameters ($title)"  \
-                    -text      "$header\n\n$text"           \
-                    -requested 1                            \
-                    -rtype     SCENARIO                     \
-                    -subtype   PARMDB]
-
-        return [list reporter delete $id]
-    }
-
-    # WrapVal indent value
-    #
-    # indent    Indent in characters for the second and subsequent lines
-    # value     Value to wrap
-    #
-    # Wraps the value to fit within a field (75 - indent) characters wide,
-    # breaking on whitespace, and indenting the second and subsequent
-    # lines.
-
-    proc WrapVal {indent value} {
-        # FIRST, does it need to be wrapped?
-        let wid {80 - $indent}
-
-        if {[string length $value] <= $wid} {
-            return $value
-        }
-
-        # NEXT, it does.  Compute the indent leader.
-        set leader  "\n[string repeat " " $indent]"
-
-        # NEXT, split the input into tokens
-        set lines [list]
-        set line ""
-
-        foreach token [split $value] {
-            # FIRST, if it's the empty string ignore it; we'll get that
-            # if there are multiple adjacent whitespaces in the value.
-            if {$token eq ""} {
-                continue
-            }
-
-            # NEXT, can the token be added to the current line without
-            # making it too long?
-
-            if {[string length $line] + [string length $token] + 1 < $wid} {
-                if {$line ne ""} {
-                    append line " "
-                }
-                append line $token
-            } elseif {$line eq ""} {
-                # This token is too long all by itself
-                lappend lines $token
-            } else {
-                lappend lines $line
-                set line $token
-            }
-        }
-
-        return [join $lines $leader]
     }
 
 
@@ -681,10 +343,17 @@ order define REPORT:PARMDB {
     returnOnError -final
 
     # NEXT, produce the report
-    set undo [list]
-    lappend undo [report imp parmdb $parms(state) $parms(wildcard)]
+    if {$parms(state) eq "ALL"} {
+        set url "my://app/parmdb"
+    } else {
+        set url "my://app/parmdb/changed"
+    }
 
-    setundo [join $undo \n]
+    if {$parms(wildcard) ne ""} {
+        append url "?$parms(wildcard)"
+    }
+
+    app show $url
 }
 
 

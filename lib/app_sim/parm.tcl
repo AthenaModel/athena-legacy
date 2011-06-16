@@ -160,7 +160,27 @@ snit::type parm {
         return $canonical
     }
 
+    # changed ?pattern?
+    #
+    # Returns a list of the parameters with non-default values.
 
+    typemethod changed {{pattern ""}} {
+        if {$pattern eq ""} {
+            set parms [parm names]
+        } else {
+            set parms [parm names $pattern]
+        }
+
+        set result [list]
+
+        foreach parm $parms {
+            if {[parm get $parm] ne [parm getdefault $parm]} {
+                lappend result $parm
+            }
+        }
+
+        return $result
+    }
 
     #-------------------------------------------------------------------
     # Mutators

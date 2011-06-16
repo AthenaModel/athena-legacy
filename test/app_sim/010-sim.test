@@ -151,27 +151,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {NB1}
 
-    test mutate_lock-1.5 {Executes events scheduled at time 0} -setup {
-        parm set demsit.disable yes
-        ted create NB1 BLUE SHIA
-        scenario mutate reconcile
-        ted order ORDER:SCHEDULE {
-            timespec +0
-            name     REPORT:PARMDB
-            parmdict {state ALL wildcard "sim.*"}
-        }
-    } -body {
-        sim mutate lock
-
-        ted query {SELECT time, rtype, subtype FROM reports}
-    } -cleanup {
-        cleanup
-    } -result {
-time rtype    subtype 
----- -------- ------- 
-0    SCENARIO PARMDB  
-    }
-
     #-------------------------------------------------------------------
     # mutate run/mutate pause
 

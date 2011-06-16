@@ -315,9 +315,9 @@ snit::widget appwin {
             }
         }
 
-        report {
-            label   "Reports"
-            vistype *
+        firings {
+            label   "Firings"
+            vistype firings
             parent  ""
             script  { 
                 reportbrowser %W -db ::rdb
@@ -398,6 +398,7 @@ snit::widget appwin {
     # *          - Used to tag tabs that are always visible.
     # scenario   - Visible in scenario mode
     # simulation - Visible in simulation mode
+    # firings    - Rule Firings tab; visible in -dev mode or on request.
     # orders     - Order tabs; visible in -dev mode or on request.
     # slog       - Scrolling log; visible in -dev mode, on request, or
     #              on error.
@@ -408,6 +409,7 @@ snit::widget appwin {
         *           1
         scenario    1
         simulation  0
+        firings     0
         orders      0
         slog        0
         cli         0
@@ -430,9 +432,10 @@ snit::widget appwin {
             -repetition no
 
         # NEXT, enable the development tabs
-        set visibility(orders) $options(-dev)
-        set visibility(slog)   $options(-dev)
-        set visibility(cli)    $options(-dev)
+        set visibility(firings) $options(-dev)
+        set visibility(orders)  $options(-dev)
+        set visibility(slog)    $options(-dev)
+        set visibility(cli)     $options(-dev)
 
         # NEXT, Exit the app when this window is closed.
         wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
@@ -798,18 +801,6 @@ snit::widget appwin {
         $self AddOrder $reportsmenu REPORT:SAT:CONTRIB
         $self AddOrder $reportsmenu REPORT:PARMDB
 
-        $reportsmenu add separator
-
-        $reportsmenu add command \
-            -label     "Save Hot List to Disk..." \
-            -underline 0                          \
-            -command   [list report hotlist save]
-
-        $reportsmenu add command \
-            -label     "Clear Hot List..." \
-            -underline 0                          \
-            -command   [list report hotlist clear]
-
         # Help menu
         set helpmenu [menu $menubar.helpmenu]
         $menubar add cascade -label "Help" -underline 0 -menu $helpmenu
@@ -1032,9 +1023,9 @@ snit::widget appwin {
         # Viewer
         set viewer [$self tab win viewer]
 
-        # Report browser
-        notifier bind ::report <Report> $self [mymethod ReportCB]
-        notifier bind ::report <Update> $self [mymethod ReportUpdateCB] 
+        # Firings browser
+        notifier bind ::firings <Report> $self [mymethod FiringsCB]
+        notifier bind ::firings <Update> $self [mymethod FiringsUpdateCB] 
 
         # Scrolling log
         set slog   [$self tab win slog]
@@ -1297,6 +1288,11 @@ snit::widget appwin {
 
         # NEXT, replace the check boxes at the bottom
         $viewmenu add separator
+
+        $viewmenu add checkbutton                   \
+            -label    "Rule Firings"                \
+            -variable [myvar visibility(firings)]   \
+            -command  [mymethod MakeTabsVisible]
 
         $viewmenu add checkbutton                   \
             -label    "Order History"               \
@@ -1948,8 +1944,8 @@ snit::widget appwin {
         $self SimState
         $self SimTime
 
-        # NEXT, refresh the report browser
-        [$self tab win report] refresh
+        # NEXT, refresh the firings browser
+        [$self tab win firings] refresh
     }
 
     # SimState
@@ -2071,10 +2067,10 @@ snit::widget appwin {
             }
         }
 
-        # NEXT, set the -recentlimit on the report browser, so that
+        # NEXT, set the -recentlimit on the firings browser, so that
         # reports from this run are recent.
         if {[sim state] eq "RUNNING"} {
-            [$self tab win report] configure -recentlimit [simclock now]
+            [$self tab win firings] configure -recentlimit [simclock now]
         }
     }
 
@@ -2109,33 +2105,33 @@ snit::widget appwin {
         }
     }
 
-    # ReportCB dict
+    # FiringsCB dict
     #
-    # dict     A dictionary of report options
+    # dict     A dictionary of firings report options
     #
-    # Displays the report in the browser.
+    # Displays the report in the firings browser.
 
-    method ReportCB {dict} {
+    method FiringsCB {dict} {
         # If this is a requested report, and if this is the top window,
         # then switch the report browser to the "requested" bin, and
         # make the report browser visible.
         if {[dict get $dict -requested] &&
             $win eq [app topwin]
         } {
-            $self tab view report
-            [$self tab win report] setbin requested
+            $self tab view firings
+            [$self tab win firings] setbin requested
         } else {
-            [$self tab win report] update
+            [$self tab win firings] update
         }
     }
 
-    # ReportUpdateCB id
+    # FiringsUpdateCB id
     #
-    # Refreshes the report browser when an existing report or reports
+    # Refreshes the firings report browser when an existing report or reports
     # are updated or deleted.
 
-    method ReportUpdateCB {id} {
-        [$self tab win report] refresh
+    method FiringsUpdateCB {id} {
+        [$self tab win firings] refresh
     }
 
     #-------------------------------------------------------------------

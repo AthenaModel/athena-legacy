@@ -319,7 +319,7 @@ snit::type mad {
         append text "other neighborhoods is delayed as usual.\n"
 
         set reportid \
-            [report save \
+            [firings save \
                  -rtype   DAM                                        \
                  -subtype MAGIC                                      \
                  -meta1   MAGIC-3-1                                  \
@@ -377,7 +377,7 @@ snit::type mad {
             append text [format $fmt "Delta:"        $deltaText]
 
             set reportid \
-                [report save \
+                [firings save \
                      -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-1-1                                   \
@@ -440,7 +440,7 @@ snit::type mad {
             append text [format $fmt "New Value:"    $satText]
 
             set reportid \
-                [report save \
+                [firings save \
                      -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-1-2                                   \
@@ -618,7 +618,7 @@ snit::type mad {
             append text [format $fmt "Delta:"        $deltaText]
 
             set reportid \
-                [report save \
+                [firings save \
                      -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-2-1                                   \
@@ -681,7 +681,7 @@ snit::type mad {
             append text [format $fmt "New Value:"    $coopText]
 
             set reportid \
-                [report save \
+                [firings save \
                      -rtype   DAM                                          \
                      -subtype ADJUST                                       \
                      -meta1   ADJUST-2-2                                   \

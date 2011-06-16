@@ -192,7 +192,7 @@ model /model/attitude dam "Driver Assessment Model" {
 
     Each time a rule set is triggered, and a rule fires, the effect of
     the rule is output as a rule firing report.  These reports can be
-    browsed on the <<tab Reports>>.<p>
+    browsed on the <<tab Firings>>.<p>
 
     Magic attitude inputs, as entered using the
     <<cref /order/mad/sat>> and <<cref /order/mad/coop>>, are handled trivially by

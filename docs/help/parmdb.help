@@ -19,8 +19,9 @@ page / parmdb "Model Parameters" {
     <<title>>
     Model parameters are variable settings used to calibrate
     Athena's models and configure its low-level behavior.
-    Parameter values can be queried and set using the
-    <<command parm>> executive command.<p>
+    Parameter values can be queried and set on the 
+    <a href="my://app/parmdb">Model Parameter</a> page on the
+    <<tab Detail>>, or by using the <<command parm>> executive command.<p>
 
     <<childlinks>>
 }

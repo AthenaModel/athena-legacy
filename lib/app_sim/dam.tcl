@@ -585,8 +585,8 @@ snit::type dam {
             append input(header) $table
         }
 
-        # Save the report to the console/workstation
-        report save                  \
+        # Save the report to the firings tab
+        firings save                 \
             -rtype    DAM            \
             -subtype $input(ruleset) \
             -meta1   $input(rule)    \

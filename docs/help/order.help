@@ -2413,3 +2413,52 @@ order PARM:SET "Set Parameter Value" {
     <<command parm set>> for details. 
 }
 
+#=======================================================================
+# Report Orders
+
+page /order report "Report Orders" {
+    <<title>>
+
+    These orders are used to request specific reports.  The requested
+    report will appear in the Detail Browser.  Most reports are 
+    customized or filtered versions of standard Detail Browser pages.
+    The complete set of requested reports is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order REPORT:PARMDB "Model Parameters Report" {
+    This report lists each of Athena's model parameters with its current
+    and default values.<p>
+
+    The report's output can be filtered in two ways.  First, if
+    <b>CHANGED</b> is selected, the report will include only those
+    parameters whose values differ from their installation defaults.  
+    Second, the report will include only parameters whose names match
+    the specified wildcard pattern.  (Wildcard-matching is case-insensitive.)
+    For example, the wildcard "aam.UFvsNF.*" will limit the output to
+    the parameters governing uniformed vs. non-uniformed attrition.<p>
+
+    <<parmlist>>
+
+    <<parm state "Parameter State">>
+    <b>Required.</b>  The set of parameters to include in the report:<p>
+
+    <ul>
+    <li> <b>ALL</b>: All parameters
+    <li> <b>CHANGED</b>:  All parameters that have been changed from their 
+         default settings.
+    </ul>
+    <</parm>>
+
+    <<parm wildcard "Wildcard">>
+    <b>Optional.</b>  A wildcard pattern, e.g., the pattern "aam.*"
+    matches all of the attrition model parameters.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+

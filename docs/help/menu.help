@@ -228,6 +228,10 @@ menuitem "View/Simulation" {
     the scenario is locked.
 }
 
+menuitem "View/Rule Firings" {
+    Selecting this item shows or hides the <<tab Firings>>.
+}
+
 menuitem "View/Order History" {
     Selecting this item shows or hides the <<tab Orders>>.
 }
@@ -257,40 +261,8 @@ menu "Orders" {
 # Reports Menu
 
 menu "Reports" {
-    This menu provides access to Athena's user-requested reports, as
-    well as other report-oriented operations.  <b>TBD: most or all
-    Athena reports are going to go away.</b><p>
-
-    The remaining menu items are as follows:<p>
-
-    <<childlinks>>
-}
-
-macro reports.hotlist {} {
-    |<--
-    The user can mark particular reports as being of interest by checking
-    the Hot List box when the report is displayed in the
-    Report Browser.  These reports can be viewed as a group in the
-    Report Browser's Hot List bin, and can be saved to disk as a text
-    file.
-}
-
-#-----------------------------------------------------------------------
-
-menuitem "Reports/Save Hot List to Disk..." {
-    <<reports.hotlist>><p>
-
-    This item saves the reports on the Hot List as a single text file;
-    if there are multiple reports they are separated by form feeds,
-    so that the individual reports will print on separate pages.
-}
-
-#-----------------------------------------------------------------------
-
-menuitem "Reports/Clear Hot List..." {
-    <<reports.hotlist>><p>
-
-    This menu item removes all reports from the Hot List.<p>
+    This menu provides access to Athena's user-requested reports; for
+    the complete list, see the <<cref /order/report>>.<p>
 }
 
 #=======================================================================
