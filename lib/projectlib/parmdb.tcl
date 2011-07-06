@@ -638,6 +638,11 @@ snit::type ::projectlib::parmdb {
             neighborhood for a particular actor.
         }
 
+        $ps define control.support.min ::simlib::rfraction 0.1 {
+            The minimum support than actor a can have in neighborhood
+            n and still be able to take control of neighborhood n.
+        }
+
         $ps define control.support.vrelMin ::simlib::rfraction 0.2 {
             The minimum V.ga that group g can have for actor a and
             still be deemed to be a supporter of a.

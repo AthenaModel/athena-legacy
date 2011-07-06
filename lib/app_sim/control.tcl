@@ -282,12 +282,20 @@ snit::type control {
                 influence = 0;
    
             DELETE FROM support_nga;
-     }
+        }
+
+        # NEXT, get the total number of personnel in each neighborhood.
+        array set tp [rdb eval {
+            SELECT n, total(personnel)
+            FROM force_ng
+            GROUP BY n
+        }]
 
         # NEXT, add the support of each group in each neighborhood
         # to each actor.
-        set vrelMin   [parm get control.support.vrelMin]
-        set Zsecurity [parm get control.support.Zsecurity]
+        set minSupport [parm get control.support.min]
+        set vrelMin    [parm get control.support.vrelMin]
+        set Zsecurity  [parm get control.support.Zsecurity]
 
         foreach {n g personnel security a vrel} [rdb eval {
             SELECT NG.n,
@@ -304,7 +312,7 @@ snit::type control {
             set factor [zcurve eval $Zsecurity $security]
 
             if {$vrel >= $vrelMin && $factor > 0.0} {
-                set contrib [expr {$vrel * $personnel * $factor}]
+                let contrib {$vrel * $personnel * $factor / $tp($n) }
             } else {
                 set contrib 0.0
             }
@@ -320,10 +328,12 @@ snit::type control {
             }
         }
 
-        # NEXT, compute the total support for each neighborhood
+        # NEXT, compute the total support for each neighborhood.
+        # Exclude actors with less than the minimum required support.
         rdb eval {
             SELECT n, total(support) AS denom
             FROM influence_na
+            WHERE support >= $minSupport
             GROUP BY n
         } {
             set nsupport($n) $denom
@@ -343,14 +353,21 @@ snit::type control {
         }
 
         # NEXT, compute the influence of each actor in the 
-        # neighborhood.
+        # neighborhood.  The actor requires a minimum level of
+        # support to have any influence.
+
         rdb eval {
             SELECT n, a, support FROM influence_na
         } {
-            if {$nsupport($n) > 0} {
-                set influence [expr {double($support) / $nsupport($n)}]
-            } else {
+            if {![info exists nsupport($n)] || $nsupport($n) == 0} {
+                # Nobody has any support
                 set influence 0.0
+            } elseif {$support < $minSupport} {
+                # Actor has too little support to be influential
+                set influence 0.0
+            } else {
+                # At least one actor has support in the neighborhood
+                set influence [expr {double($support) / $nsupport($n)}]
             }
 
             rdb eval {
