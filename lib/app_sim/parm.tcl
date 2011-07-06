@@ -160,11 +160,11 @@ snit::type parm {
         return $canonical
     }
 
-    # changed ?pattern?
+    # nondefaults ?pattern?
     #
     # Returns a list of the parameters with non-default values.
 
-    typemethod changed {{pattern ""}} {
+    typemethod nondefaults {{pattern ""}} {
         if {$pattern eq ""} {
             set parms [parm names]
         } else {

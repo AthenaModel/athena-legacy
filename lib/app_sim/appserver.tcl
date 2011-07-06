@@ -2468,7 +2468,7 @@ snit::type appserver {
 
         # FIRST, are we looking at all parms or only changed parms?
         if {$(1) eq "changed"} {
-            set initialSet changed
+            set initialSet nondefaults
         } else {
             set initialSet names
         }
