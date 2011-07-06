@@ -490,8 +490,11 @@ snit::type ::projectlib::scenariodb {
     # tables      A list of table names
     #
     # Exports the database as a Tcl string.  If tables is given, 
-    # exports the named tables.  If -exclude tables is given, exports 
-    # all *but* the named tables.
+    # exports the named tables, whatever they are.  Otherwise,
+    # exports all tables from sqlite_master.  
+    # If -exclude tables is given, exports 
+    # all *but* the named tables from sqlite_master.
+    
     
     method tclexport {args} {
         # FIRST, process the arguments
@@ -517,12 +520,16 @@ snit::type ::projectlib::scenariodb {
         
         # NEXT, export each of the requested tables; or all tables.
         if {[llength $tables] == 0} {
-            set tables [$self tables]
+            set tables [$self eval {
+                SELECT name FROM sqlite_master WHERE type='table'
+            }]
         } elseif {$exclude} {
             set excluded $tables
             set tables [list]
 
-            foreach name [$self tables] {
+            $self eval {
+                SELECT name FROM sqlite_master WHERE type='table'
+            } {
                 if {$name ni $excluded} {
                     lappend tables $name
                 }
