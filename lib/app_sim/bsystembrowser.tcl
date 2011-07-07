@@ -148,6 +148,11 @@ snit::widget bsystembrowser {
         # NEXT, clear the reload request counter.
         set info(reloadRequests) 0
 
+        # NEXT, if the selected entity no longer exists, clear it.
+        if {$info(entity) ni [bsystem entity names]} {
+            set info(entity) ""
+        }
+
         # NEXT, Reload each of the components
         $self TListReload
         $etree refresh
