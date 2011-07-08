@@ -2429,6 +2429,32 @@ page /order report "Report Orders" {
 
 #-----------------------------------------------------------------------
 
+order REPORT:DRIVER "Attitude Drivers Report" {
+    This report lists the events and situations which have driven 
+    changes in Athena's attitude model.<p>
+
+    <<parmlist>>
+
+    <<parm state "Driver State">>
+    <b>Required.</b>  The report will include only those drivers with the
+    given state.  The set of valid states is as follows:<p>
+
+    <ul>
+    <li> <b>all</b>: All drivers
+    <li> <b>active</b>:  Active drivers: those that are currently causing 
+         attitudes to change.
+    <li> <b>inactive</b>: Inactive drivers: those that are no longer
+         causing attitudes to change.
+    <li> <b>empty</b>: Empty drivers: those that have never caused
+         attitudes to change.
+    </ul>
+    <</parm>>
+
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+
 order REPORT:PARMDB "Model Parameters Report" {
     This report lists each of Athena's model parameters with its current
     and default values.<p>

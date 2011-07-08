@@ -43,90 +43,6 @@ snit::type ::report {
     # the RDB, and returns an undo script.
 
 
-
-    # imp driver state
-    #
-    # state    empty|inactive|active|all
-    #
-    # Produces a report of all GRAM drivers that are active, inactive, etc.,
-    # or all drivers.
-    #
-    # TBD: GRAM should probably keep some of these statistics 
-    # automatically.
-
-    typemethod {imp driver} {state} {
-        # FIRST, get summary statistics
-        rdb eval {
-            DROP TABLE IF EXISTS temp_report_driver_effects;
-            DROP TABLE IF EXISTS temp_report_driver_contribs;
-
-            CREATE TEMPORARY TABLE temp_report_driver_effects AS
-            SELECT driver, 
-                   CASE WHEN min(ts) IS NULL THEN 0
-                                             ELSE 1 END AS has_effects,
-                   CASE WHEN min(ts) NOT NULL    THEN tozulu(min(ts)) 
-                                                 ELSE '' END AS ts,
-                   CASE WHEN max(te) IS NULL     THEN ''
-                        WHEN max(te) != 99999999 THEN tozulu(max(te)) 
-                                                 ELSE 'On-going' END AS te
-            FROM gram_driver LEFT OUTER JOIN gram_effects USING (driver)
-            GROUP BY driver;
-
-            CREATE TEMPORARY TABLE temp_report_driver_contribs AS
-            SELECT driver, 
-                   CASE WHEN min(time) IS NULL THEN 0
-                                               ELSE 1 END AS has_contribs
-            FROM gram_driver LEFT OUTER JOIN gram_contribs USING (driver)
-            GROUP BY driver;
-        }
-
-        # NEXT, produce the query.
-        if {$state eq "all"} {
-            set clause ""
-        } else {
-            set clause "WHERE state = '$state'"
-        }
-
-        set query "
-            SELECT gram_driver.driver AS driver, 
-                   dtype, 
-                   name, 
-                   oneliner,
-                   CASE WHEN NOT has_effects AND NOT has_contribs 
-                        THEN 'empty'
-                        WHEN NOT has_effects AND has_contribs  
-                        THEN 'inactive'
-                        ELSE 'active'
-                        END AS state,
-                   ts,
-                   te
-            FROM gram_driver
-            JOIN temp_report_driver_effects USING (driver)
-            JOIN temp_report_driver_contribs USING (driver)
-            $clause
-            ORDER BY driver DESC;
-        "
-
-        # NEXT, generate the report text
-        set text [rdb query $query -labels {
-            "ID" "Type" "Name" "Description" "State" "Start Time" "End Time"
-        }]
-
-        if {$text eq ""} {
-            set text "No drivers found."
-        }
-
-        set id [reporter save \
-                    -title     "Attitude Drivers ($state)"  \
-                    -text      $text                        \
-                    -requested 1                            \
-                    -rtype     GRAM                         \
-                    -subtype   DRIVER]
-
-        return [list reporter delete $id]
-    }
-
-
     # imp satcontrib parmdict
     #
     # parmdict      Parameters for this report
@@ -307,18 +223,21 @@ order define REPORT:DRIVER {
         -sendstates     PAUSED
 
     parm state enum  "Driver State"  -enumtype {::report::edriverstate} \
-                                    -defval    active
+                                     -defval    active
 } {
     # FIRST, prepare the parameters
-    prepare state      -toupper -required -type {::report::edriverstate}
+    prepare state  -toupper -required -type {::report::edriverstate}
 
     returnOnError -final
 
     # NEXT, produce the report
-    set undo [list]
-    lappend undo [report imp driver $parms(state)]
+    set url my://app/drivers
 
-    setundo [join $undo \n]
+    if {$parms(state) ne "all"} {
+        append url "/$parms(state)"
+    }
+
+    app show $url
 }
 
 

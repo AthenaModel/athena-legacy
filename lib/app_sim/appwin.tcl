@@ -2109,20 +2109,11 @@ snit::widget appwin {
     #
     # dict     A dictionary of firings report options
     #
-    # Displays the report in the firings browser.
+    # Called when a firings report is produced.  Asks the firings
+    # browser to display the latest reports.
 
     method FiringsCB {dict} {
-        # If this is a requested report, and if this is the top window,
-        # then switch the report browser to the "requested" bin, and
-        # make the report browser visible.
-        if {[dict get $dict -requested] &&
-            $win eq [app topwin]
-        } {
-            $self tab view firings
-            [$self tab win firings] setbin requested
-        } else {
-            [$self tab win firings] update
-        }
+        [$self tab win firings] update
     }
 
     # FiringsUpdateCB id

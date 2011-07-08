@@ -181,6 +181,17 @@ snit::type appserver {
             tk/image [myproc image_File ""]                           \
             "A .gif, .jpg, or .png file in the Athena /docs/ tree."
 
+        $server register /drivers {drivers/?} \
+            text/html [myproc html_Drivers] {
+                A table displaying all of the attitude drivers to date.
+            }
+
+        $server register /drivers/{subset} {drivers/(\w+)/?} \
+            text/html [myproc html_Drivers] {
+                A table displaying all of the attitude drivers in the
+                specified subset: "active", "inactive", "empty".
+            }
+
         $server register /groups {groups/?} \
             tcl/linkdict [myproc linkdict_GroupLinks]              \
             text/html    [myproc html_Groups] {
@@ -2409,6 +2420,118 @@ snit::type appserver {
                 ht para
             }
         }
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # /drivers/{subset}
+
+
+    # html_Drivers udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches.
+    #
+    # Matches:
+    #   $(1) - The drivers subset: active, inactive, or empty, or "" 
+    #          for all.
+    #
+    # Returns a page that documents the current attitude
+    # drivers.
+
+    proc html_Drivers {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the driver state
+        if {$(1) eq ""} {
+            set state "all"
+        } else {
+            set state $(1)
+        }
+
+        # NEXT, set the page title
+        ht page "Attitude Drivers ($state)"
+        ht title "Attitude Drivers ($state)"
+
+        ht putln "The following drivers are affecting or have affected"
+        ht putln "attitudes (satisfaction or cooperation) in the playbox."
+        ht para
+
+        # NEXT, get summary statistics
+        rdb eval {
+            DROP VIEW IF EXISTS temp_report_driver_view;
+            DROP TABLE IF EXISTS temp_report_driver_effects;
+            DROP TABLE IF EXISTS temp_report_driver_contribs;
+
+            CREATE TEMPORARY TABLE temp_report_driver_effects AS
+            SELECT driver, 
+                   CASE WHEN min(ts) IS NULL THEN 0
+                                             ELSE 1 END AS has_effects
+            FROM gram_driver LEFT OUTER JOIN gram_effects USING (driver)
+            GROUP BY driver;
+
+            CREATE TEMPORARY TABLE temp_report_driver_contribs AS
+            SELECT driver, 
+                   CASE WHEN min(time) IS NULL 
+                        THEN 0
+                        ELSE 1 END                  AS has_contribs,
+                   CASE WHEN min(time) NOT NULL    
+                        THEN tozulu(min(time)) 
+                        ELSE '' END                 AS ts,
+                   CASE WHEN max(time) NOT NULL    
+                        THEN tozulu(max(time)) 
+                        ELSE '' END                 AS te
+            FROM gram_driver LEFT OUTER JOIN gram_contribs USING (driver)
+            GROUP BY driver;
+
+            CREATE TEMPORARY VIEW temp_report_driver_view AS
+            SELECT gram_driver.driver AS driver, 
+                   dtype, 
+                   name, 
+                   oneliner,
+                   CASE WHEN NOT has_effects AND NOT has_contribs 
+                        THEN 'empty'
+                        WHEN NOT has_effects AND has_contribs  
+                        THEN 'inactive'
+                        ELSE 'active'
+                        END AS state,
+                   ts,
+                   te
+            FROM gram_driver
+            JOIN temp_report_driver_effects USING (driver)
+            JOIN temp_report_driver_contribs USING (driver)
+            ORDER BY driver DESC;
+        }
+
+        # NEXT, produce the query.
+        set query {
+            SELECT driver   AS "ID",
+                   dtype    AS "Type",
+                   name     AS "Name",
+                   oneliner AS "Description",
+                   state    AS "State",
+                   ts       AS "Start Time",
+                   te       AS "End Time"
+            FROM temp_report_driver_view
+        }
+
+        if {$state ne "all"} {
+            append query "WHERE state = '$state'"
+        }
+
+        # NEXT, generate the report text
+        ht query $query \
+            -default "No drivers found." \
+            -align   RLLLLLL
+
+        rdb eval {
+            DROP VIEW  temp_report_driver_view;
+            DROP TABLE temp_report_driver_effects;
+            DROP TABLE temp_report_driver_contribs;
+        }
+
+        ht /page
 
         return [ht get]
     }
