@@ -106,11 +106,11 @@ order define REPORT:PARMDB {
 
 
 
-# REPORT:SAT:CONTRIB
+# REPORT:SATCONTRIB
 #
 # Produces a Contribution to Satisfaction Report
 
-order define REPORT:SAT:CONTRIB {
+order define REPORT:SATCONTRIB {
     title "Contribution to Satisfaction Report"
     options \
         -sendstates     PAUSED

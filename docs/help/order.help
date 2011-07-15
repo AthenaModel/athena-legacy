@@ -2487,4 +2487,44 @@ order REPORT:PARMDB "Model Parameters Report" {
     <</parmlist>>
 }
 
+#-----------------------------------------------------------------------
+
+order REPORT:SATCONTRIB "Contribution to Satisfaction Report" {
+    For a given satisfaction curve or group mood, this report lists
+    the top satisfaction drivers along with their total contributions
+    to satisfaction change.  The user can select the time interval,
+    and the maximum number of drivers to list.<p>
+
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  The name of the civilian group.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  The name of a concern, as chosen from the
+    following list, or "MOOD" for the group's mood:<p>
+
+    <<enumdoc ::projectlib::econcern>>
+    <</parm>>
+
+    <<parm top "Number">>
+    <b>Optional.</b>  The maximum number of drivers to include in the
+    list.  Defaults to 20.    
+    <</parm>>
+
+    <<parm start "Start Time">>
+    <b>Optional.</b>  The start time of the interval of interest, 
+    expressed as a <<term timespec>>.  Defaults to "T0", the start of
+    simulation time.
+    <</parm>>
+
+    <<parm end "End Time">>
+    <b>Optional.</b>  The end time of the interval of interest, 
+    expressed as a <<term timespec>>.  Defaults to "NOW", the current
+    simulation time.
+    <</parm>>
+
+    <</parmlist>>
+}
 
