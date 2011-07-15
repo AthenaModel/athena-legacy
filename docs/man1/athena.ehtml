@@ -1,4 +1,4 @@
-<<manpage athena(1) "Athena S&RO Simulation">>
+<<manpage {athena(1)} "Athena S&RO Simulation">>
 
 <<section SYNOPSIS>>
 
@@ -8,18 +8,46 @@
 
 <<deflist program>>
 
-<<defitem athena {athena <i>app</i> [<i>args...</i>]}>>
+<<defitem {athena sim} {athena sim ?options...? ?<i>filename</i>.adb?}>>
 
 <</deflist program>>
 
-The athena(1) command is the launcher for a number of Athena applications,
-including the Athena simulation proper, <<xref athena_sim(1)>>.
-Enter "athena" with no command line arguments to see a list of the
-available applications.<p>
+<<xref athena_sim(1)>> is the Athena simulation application.  Details of
+the simulation model are to be found in the <i>Athena Analyst's
+Guide</i> and related documents, rather than here.<p>
 
-See the
-the <a href="index.html">section (1) index</a> for a complete list of
-applications.<p>
+<<xref athena_sim(1)>> is a documentic-centric application, like a
+word-processor; here, however, the documents are Athena scenario
+files, which conventionally have a "<code>.adb</code>" extension.
+If a scenario file name is given on the command line, it will be
+opened automatically.<p>
+
+The following options may be used:<p>
+
+<<deflist options>>
+
+<<defopt {-script <i>filename</i>.tcl}>>
+
+Names an Athena executive script to be executed at start-up,
+immediately after loading scenario file (if any).  This option is
+usually used to execute exported order scripts.<p>
+
+<<defopt {-dev}>>
+
+Tells the application to ensure that all GUI elements of interest to
+the developer are made visible at start-up.  This includes the command
+line interface (CLI), the scrolling log, and the order history tab.<p>
+
+<<defopt {-ignoreuser}>>
+
+This option is intended for use during testing; it tells the
+application to ignore user preference settings, so that the tests
+always begin with the application in a known state.<p>
+
+<</deflist options>>
+
+The application has extensive on-line help; invoke the application
+and see the <b>Help</b> menu.<p>
 
 <<section MODS>>
 
@@ -32,22 +60,20 @@ mod files.  To use a mod, just copy the mod file to the installation's
 A mod file is a Tcl-formatted file that may contain one or more mods.
 Each mod has this syntax:<p>
 
-<b>mod</b> <i>app version num title</i> {<br>
+<b>mod</b> <i>version num title</i> {<br>
 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>body</i><br>
 }<p>
 
-where <i>app</i> is the application name, e.g., "<b>sim</b>" for
-<<xref athena_sim(1)>>; <i>version</i> is the Athena version, e.g.,
+where <i>version</i> is the Athena version, e.g.,
 "<b>2.1.0</b>"; <i>num</i> is the serial number of this mod;
 <i>title</i> is a brief string that identifies the purpose of the mod;
 and <i>body</i> is the code to load into the Athena application.<p>
 
-Mods for other <i>app</i>'s are ignored. It's an error if the mod is
+It's an error if the mod is
 written for a different version of Athena than the one attempting to
 load it, or if there are two mods present with the same <i>num</i>.<p>
 
 Mods are loaded in numerical order.<p.
-
 
 <<section AUTHOR>>
 
@@ -58,8 +84,4 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
-
-
-
-
 

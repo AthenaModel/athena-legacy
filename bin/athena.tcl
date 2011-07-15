@@ -219,9 +219,8 @@ proc ::athena_mods::load {} {
     rename $interp ""
 }
 
-# ModCmd app ver num title body 
+# ModCmd ver num title body 
 #
-# app    The application name, e.g., "sim"
 # ver    The Athena version, e.g., "1.0.x"
 # num    The number of the mod
 # title  The title of the mod
@@ -231,16 +230,11 @@ proc ::athena_mods::load {} {
 # the version must match.  It's an error to have two mods with the
 # same number.
 
-proc ::athena_mods::ModCmd {app ver num title body} {
+proc ::athena_mods::ModCmd {ver num title body} {
     variable modfile
     variable mods
 
-    # FIRST, skip it if the app name doesn't match.
-    if {$app ne $::appname} {
-        return
-    }
-
-    # NEXT, it's an error if we already have a mod with this number
+    # FIRST, it's an error if we already have a mod with this number
     if {$num in $mods(ids)} {
         puts "Duplicate mod:"
         puts "  Mod #$num is defined in [file tail $modfile]"
@@ -258,7 +252,7 @@ proc ::athena_mods::ModCmd {app ver num title body} {
 
 # apply
 #
-# Applies any mods loaded for this app, in numerical order
+# Applies all loaded mods, in numerical order
 
 proc ::athena_mods::apply {} {
     variable mods
@@ -284,10 +278,6 @@ proc ::athena_mods::apply {} {
             puts "Remove $mods(modfile-$num) from [file join $::appdir mods]."
             exit 1
         }
-
-        # It's the application's responsible to log mods in an appropriate
-        # way.
-        # puts "Mod loaded: $num ($mods(title-$num)) from $mods(modfile-$num)"
     }
 }
 
