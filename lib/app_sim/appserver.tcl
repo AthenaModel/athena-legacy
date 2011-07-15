@@ -169,6 +169,28 @@ snit::type appserver {
             text/html [myproc html_Actor]           \
             "Detail page for actor {a}."
 
+        $server register /contribs {contribs/?} \
+            text/html [myproc html_Contribs]    \
+            "Contributions to attitude curves."
+
+        $server register /contribs/coop {contribs/(coop)/?} \
+            text/html [myproc html_Contribs]    \
+            "Contributions to cooperation curves."
+
+        $server register /contribs/sat {contribs/(sat)/?} \
+            text/html [myproc html_Contribs]    \
+            "Contributions to satisfaction curves."
+
+        $server register /contribs/sat/{g} {contribs/(sat)/(\w+)/?} \
+            text/html [myproc html_Contribs]    \
+            "Contributions to civilian group {g}'s satisfaction curves."
+
+        $server register /contribs/sat/{g}/{c} {contribs/(sat)/(\w+)/(\w+)?} \
+            text/html [myproc html_Contribs] {
+                Contributions to civilian group {g}'s satisfaction with {c},
+                where {c} may be AUT, CUL, QOL, SFT, or "mood".
+            }
+
         $server register /docs/{path}.html {(docs/.+\.html)} \
             text/html [myproc text_File ""]                    \
             "An HTML file in the Athena docs/ tree."
@@ -544,7 +566,7 @@ snit::type appserver {
     }
 
     # html_Overview udict matchArray
-    #
+    #Attitude Drivers ($state
     # udict      - A dictionary containing the URL components
     # matchArray - Array of pattern matches
     #
@@ -2425,6 +2447,270 @@ snit::type appserver {
     }
 
     #-------------------------------------------------------------------
+    # /contribs
+
+
+    # html_Contribs udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of pattern matches.
+    #
+    # Matches:
+    #   $(1) - "sat" or "coop" -- Only "sat" is implemented at the moment.
+    #
+    #   If $(1) is "sat"
+    #   $(2) - civilan group name
+    #   $(3) - civilian concern name, or "MOOD"
+    #
+    # Returns a page that documents the contributions to a particular
+    # attitude curve, or navigation pages that drill down to it.
+
+    proc html_Contribs {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Case 1: no attitude type given.
+        if {$(1) eq ""} {
+            ht page "Contributions to Attitude Curves" {
+                ht title "Contributions to Attitude Curves"
+
+                ht ul {
+                    ht li {
+                        ht link /contribs/sat "Satisfaction"
+                    }
+                    ht li {
+                        ht link /contribs/coop "Cooperation"
+                    }
+                }
+            }
+
+            return [ht get]
+        }
+
+        # Case 2: sat contributions
+        if {$(1) eq "sat"} {
+            # FIRST, get the group and concern
+            set g [string toupper $(2)]
+            set c [string toupper $(3)]
+
+
+            # Case 2.1: No group
+            if {$g eq ""} {
+                ht page "Contributions to Satisfaction" {
+                    ht title "Contributions to Satisfaction"
+                    
+                    ht putln "Of group:"
+                    ht para
+
+                    ht ul {
+                        foreach g [lsort [civgroup names]] {
+                            ht li {
+                                ht link /contribs/sat/$g $g
+                            }
+                        }
+                    }
+                }
+                
+                return [ht get]
+            }
+            
+            # Validate the group
+            if {[catch {civgroup validate $g} result]} {
+                return -code error -errorcode NOTFOUND \
+                    $result
+            }
+
+            # Case 2.2: Group, but no concern
+            if {$c eq ""} {
+                ht page "Contributions to Satisfaction of $g" {
+                    ht title "Contributions to Satisfaction of $g"
+                    
+                    ht putln "With respect to:"
+                    ht para
+
+                    ht ul {
+                        ht li {
+                            ht link /contribs/sat/$g/mood Mood
+                        }
+
+                        foreach c [lsort [econcern names]] {
+                            ht li {
+                                ht link /contribs/sat/$g/$c $c
+                            }
+                        }
+                    }
+                }
+                
+                return [ht get]
+            }
+
+
+            # Validate the concern
+            if {[catch {ptype c+mood validate $c} result]} {
+                return -code error -errorcode NOTFOUND \
+                    $result
+            }
+
+
+            # Case 2.3: Group and Concern
+            return [html_ContribsSat $g $c $udict]
+
+        }
+
+        # Case 3: coop contributions
+        if {$(1) eq "coop"} {
+            return -code error -errorcode NOTFOUND \
+                "The ability to query contributions to cooperation has not yet been implemented."
+
+        }
+
+        # This should never happen, as there's no matching URL 
+        # registered with the server.
+        return -code error -errorcode NOTFOUND \
+            "Unknown attitude type: \"$(1)\""
+    }
+
+    # html_ContribsSat g c udict
+    #
+    # g          - The civilian group
+    # c          - A concern name, or "MOOD"
+    # udict      - A dictionary containing the URL components
+    #
+    #
+    # Returns a page that documents the contributions to the given
+    # satisfaction curve.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    top    Max number of top contributors to include.
+    #    start  Start time in ticks
+    #    end    End time in ticks
+    #
+    # Unknown query parameters and invalid query values are ignored.
+
+    proc html_ContribsSat {g c udict} {
+        # FIRST, begin to format the report
+        ht title "Contributions to Satisfaction (to $c of $g)"
+        ht page "Contributions to Satisfaction (to $c of $g)"
+
+        # NEXT, if we're not locked we're done.
+        if {![Locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, get the query parameters
+        set q [split [dict get $udict query] "=+"]
+
+        set top   [Restrict $q top   ipositive 20]
+        set start [Restrict $q start iquantity 0]
+        set end   [Restrict $q end   iquantity [simclock now]]
+
+        # NEXT, fix up the concern
+        if {$c eq "MOOD"} {
+            set c "mood"
+        }
+
+        # NEXT, Get the drivers for this time period.
+        aram sat drivers    \
+            -group   $g     \
+            -concern $c     \
+            -start   $start \
+            -end     $end
+
+        # NEXT, pull them into a temporary table, in sorted order,
+        # so that we can use the "rowid" as the rank.  Note that
+        # if we asked for "mood", we have all of the
+        # concerns as well; only take what we asked for.
+        # Note: This query is passed as a string, because the LIMIT
+        # is an integer, not an expression, so we can't use an SQL
+        # variable.
+        rdb eval "
+            DROP TABLE IF EXISTS temp_satcontribs;
+    
+            CREATE TEMP TABLE temp_satcontribs AS
+            SELECT driver,
+                   acontrib
+            FROM gram_sat_drivers
+            WHERE g=\$g AND c=\$c
+            ORDER BY abs(acontrib) DESC
+            LIMIT $top
+        "
+
+        # NEXT, get the total contribution to this curve in this
+        # time window.
+        # for.
+
+        set totContrib [rdb onecolumn {
+            SELECT total(abs(acontrib))
+            FROM gram_sat_drivers
+            WHERE g=$g AND c=$c
+        }]
+
+        # NEXT, get the total contribution represented by the report.
+
+        set totReported [rdb onecolumn {
+            SELECT total(abs(acontrib)) 
+            FROM temp_satcontribs
+        }]
+
+
+        # NEXT, format the body of the report.
+
+        ht putln "Contributions to Satisfaction Curve:"
+        ht para
+        ht ul {
+            ht li {
+                ht put "Group: "
+                ht put [GroupLongLink $g]
+            }
+            ht li {
+                ht put "Concern: $c"
+            }
+            ht li {
+                ht put "Window: [simclock toZulu $start] to "
+
+                if {$end == [simclock now]} {
+                    ht put "now"
+                } else {
+                    ht put "[simclock toZulu $end]"
+                }
+            }
+        }
+
+        ht para
+
+        # NEXT, format the body of the report.
+        ht query {
+            SELECT format('%4d', temp_satcontribs.rowid) AS "Rank",
+                   format('%8.3f', acontrib)             AS "Actual",
+                   driver                                AS "ID",
+                   name                                  AS "Name",
+                   oneliner                              AS "Description"
+            FROM temp_satcontribs
+            JOIN gram_driver USING (driver);
+
+            DROP TABLE temp_satcontribs;
+        }  -default "None known." -align "RRRLL"
+
+        ht para
+
+        if {$totContrib > 0.0} {
+            set pct [percent [expr {$totReported / $totContrib}]]
+
+            ht putln "Reported events and situations represent"
+            ht putln "$pct of the contributions made to this curve"
+            ht putln "during the specified time window."
+            ht para
+        }
+
+        ht /page
+
+        return [ht get]
+    }
+
+
+    #-------------------------------------------------------------------
     # /drivers/{subset}
 
 
@@ -2909,6 +3195,46 @@ snit::type appserver {
     #-------------------------------------------------------------------
     # Boilerplate and Utilities
 
+    # GroupLongLink g
+    #
+    # g      A group name
+    #
+    # Returns the group's long link.
+
+    proc GroupLongLink {g} {
+        rdb onecolumn {
+            SELECT longlink FROM gui_groups WHERE g=$g
+        }
+    }
+
+    # Restrict dict key vtype defval
+    #
+    # dict    A dictionary
+    # key     A dictionary key 
+    # vtype   A validation type
+    # defval  A default value
+    #
+    # Restricts a parameter value to belong to the validation type.
+    #
+    # If the dict contains the key, and the key's value is not empty,
+    # and the key's value is valid, returns the canonicalized 
+    # value.  Otherwise, returns the default value.
+
+    proc Restrict {dict key vtype defval} {
+        if {[dict exists $dict $key]} {
+            set value [dict get $dict $key]
+
+            if {$value ne "" &&
+                ![catch {{*}$vtype validate $value} result]
+            } {
+                # Allow the validation type to canonicalize the
+                # result.
+                return $result
+            }
+        }
+
+        return $defval
+    }
 
     # Locked ?-disclaimer?
     #

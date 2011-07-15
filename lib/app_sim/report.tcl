@@ -35,175 +35,6 @@ snit::type ::report {
             CHANGED   "Changed Parameters"
         }
     }
-
-    #-------------------------------------------------------------------
-    # Report Implementations
-    #
-    # Each of these methods is a mutator, in that it adds a report to
-    # the RDB, and returns an undo script.
-
-
-    # imp satcontrib parmdict
-    #
-    # parmdict      Parameters for this report
-    #
-    # n          Neighborhood
-    # g          Group
-    # c          Concern, or "MOOD".
-    # top        Number of drivers to include.
-    # start      Start of time window, in ticks
-    # end        End of time window, in ticks
-    #
-    # List of top-contributing drivers for a particular satisfaction curve,
-    # with contributions.
-
-    typemethod {imp satcontrib} {parmdict} {
-        dict with parmdict {
-            # FIRST, fix up the concern
-            if {$c eq "MOOD"} {
-                set c "mood"
-            }
-
-            # NEXT, Get the drivers for this time period.
-            aram sat drivers    \
-                -nbhood  $n     \
-                -group   $g     \
-                -concern $c     \
-                -start   $start \
-                -end     $end
-
-            # NEXT, pull them into a temporary table, in sorted order,
-            # so that we can use the "rowid" as the rank.  Note that
-            # if we asked for "mood", we have all of the
-            # concerns as well; only take what we asked for.
-            rdb eval "
-                DROP TABLE IF EXISTS temp_satcontribs;
-    
-                CREATE TEMP TABLE temp_satcontribs AS
-                SELECT driver,
-                       acontrib
-                FROM gram_sat_drivers
-                WHERE n=\$n AND g=\$g AND c=\$c
-                ORDER BY abs(acontrib) DESC
-                LIMIT $top
-            "
-
-            # NEXT, get the total contribution to this curve in this
-            # time window.
-            # for.
-
-            set totContrib [rdb onecolumn {
-                SELECT total(abs(acontrib))
-                FROM gram_sat_drivers
-                WHERE n=$n AND g=$g AND c=$c
-            }]
-
-            # NEXT, get the total contribution represented by the report.
-            # Note: This query is passed as a string, because the LIMIT
-            # is an integer, not an expression, so we can't use an SQL
-            # variable.
-
-            set totReported [rdb onecolumn "
-                SELECT total(abs(acontrib)) 
-                FROM temp_satcontribs
-            "]
-
-            # NEXT, format the body of the report.
-            set results [rdb query {
-                SELECT format('%4d', temp_satcontribs.rowid),
-                       format('%8.3f', acontrib),
-                       driver,
-                       name,
-                       oneliner
-                FROM temp_satcontribs
-                JOIN gram_driver USING (driver);
-
-                DROP TABLE temp_satcontribs;
-            }  -maxcolwidth 0 -labels {
-                "Rank" "  Actual" "ID" "Name" "Description"
-            }]
-
-            # NEXT, always include the options 
-            set text "Total Contributions to Satisfaction Curve:\n\n"
-            append text "  Nbhood:  $n\n"
-            append text "  Group:   $g\n"
-            append text "  Concern: $c\n"
-            append text "  Window:  [simclock toZulu $start] to "
-
-            if {$end == [simclock now]} {
-                append text "now\n\n"
-            } else {
-                append text "[simclock toZulu $end]\n\n"
-            }
-
-            # NEXT, produce the text of the report if any
-            if {$results eq ""} {
-                append text "None known."
-            } else {
-                append text $results
-
-                append text "\n"
-
-                if {$totContrib > 0.0} {
-                    set pct [percent [expr {$totReported / $totContrib}]]
-
-                    append text [tsubst {
-             |<--
-             Reported events and situations represent $pct of the contributions
-             made to this curve during the specified time window.
-                    }]
-                }
-            }
-
-            # NEXT, save the report
-            set title \
-                "Contributions to Satisfaction (to $c of $g in $n)"
-
-            set id [reporter save \
-                        -title     $title                       \
-                        -text      $text                        \
-                        -requested 1                            \
-                        -rtype     GRAM                         \
-                        -subtype   SATCONTRIB]
-        }
-
-        return [list reporter delete $id]
-    }
-
-    #-------------------------------------------------------------------
-    # Public typemethods
-
-    delegate typemethod save to reporter
-
-    #-------------------------------------------------------------------
-    # Order Helper procs
-
-    # Refresh_RSC_g dlg fields
-    #
-    # dlg       The order dialog
-    # fields    List of field names
-    # fdict     Dictionary of field values.
-    #
-    # Refreshes the g and c fields when the upstream fields change.
-
-    proc Refresh_RSC {dlg fields fdict} {
-        set disabled [list]
-
-        dict with fdict {
-            # Refresh g
-            if {"n" in $fields} {
-                set values [civgroup gIn $n]
-
-                $dlg field configure g -values $values
-
-                if {[llength $values] == 0} {
-                    lappend disabled g
-                }
-            }
-        }
-
-        $dlg disabled $disabled
-    }
 }
 
 
@@ -219,7 +50,6 @@ snit::type ::report {
 order define REPORT:DRIVER {
     title "Attitude Driver Report"
     options \
-        -schedulestates {PREP PAUSED} \
         -sendstates     PAUSED
 
     parm state enum  "Driver State"  -enumtype {::report::edriverstate} \
@@ -248,7 +78,6 @@ order define REPORT:DRIVER {
 order define REPORT:PARMDB {
     title "Model Parameters Report"
     options \
-        -schedulestates {PREP PAUSED} \
         -sendstates     {PREP PAUSED}
 
     parm state    enum "Parameter State" -enumtype ::report::eparmstate \
@@ -284,20 +113,15 @@ order define REPORT:PARMDB {
 order define REPORT:SAT:CONTRIB {
     title "Contribution to Satisfaction Report"
     options \
-        -schedulestates {PREP PAUSED}          \
-        -sendstates     PAUSED                 \
-        -refreshcmd     ::report::Refresh_RSC
+        -sendstates     PAUSED
 
-
-    parm n      enum  "Nbhood"        -enumtype {ptype n}
-    parm g      enum  "Group"
+    parm g      enum  "Group"         -enumtype civgroup
     parm c      enum  "Concern"       -enumtype {ptype c+mood} -defval "MOOD"
     parm top    text  "Number"        -defval 20
     parm start  text  "Start Time"    -defval "T0"
     parm end    text  "End Time"      -defval "NOW"
 } {
     # FIRST, prepare the parameters
-    prepare n      -toupper -required -type {ptype n}
     prepare g      -toupper -required -type civgroup
     prepare c      -toupper -required -type {ptype c+mood}
     prepare top                       -type ipositive
@@ -331,10 +155,8 @@ order define REPORT:SAT:CONTRIB {
     }
 
     # NEXT, produce the report
-    set undo [list]
-    lappend undo [report imp satcontrib [array get parms]]
-
-    setundo [join $undo \n]
+    set query "top=$parms(top)+start=$parms(start)+end=$parms(end)"
+    app show my://app/contribs/sat/$parms(g)/$parms(c)?$query
 }
 
 
