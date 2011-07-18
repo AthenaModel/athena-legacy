@@ -224,8 +224,8 @@ snit::type tactic {
             SELECT * FROM tactics WHERE tactic_id=$parms(tactic_id)
         } tdata {}
 
-        foreach parm [array names parms] {
-            if {$parms($parm) eq ""} {
+        foreach parm $tinfo(parms-$tdata(tactic_type)) {
+            if {![info exists parms($parm)] || $parms($parm) eq ""} {
                 set parms($parm) $tdata($parm)
             }
         }

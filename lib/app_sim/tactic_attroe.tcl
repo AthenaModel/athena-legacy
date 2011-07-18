@@ -388,8 +388,18 @@ order define TACTIC:ATTROE:UPDATE {
     parm text1     enum "ROE"             
     parm int1      text "Max Attacks"
 } {
-    # FIRST, prepare the parameters
+    # FIRST, validate the tactic ID.
     prepare tactic_id  -required           -type tactic
+    returnOnError
+    
+    # NEXT, make sure this is the right kind of tactic
+    validate tactic_id { tactic RequireType ATTROE $parms(tactic_id)  }
+    returnOnError
+
+    # NEXT, get the old data
+    tactic delta parms
+
+    # NEXT, prepare the remaining parameters
     prepare f                     -toupper -type frcgroup
     prepare g                     -toupper -type frcgroup
     prepare n                     -toupper -type nbhood
@@ -398,13 +408,6 @@ order define TACTIC:ATTROE:UPDATE {
 
     returnOnError
 
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType ATTROE $parms(tactic_id)  }
-
-    returnOnError
-
-    # NEXT, get the old data
-    tactic delta parms
 
     # NEXT, cross-checks
     rdb eval {SELECT uniformed,a FROM frcgroups WHERE g=$parms(f)} fdata {}

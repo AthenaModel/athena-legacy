@@ -127,19 +127,19 @@ namespace eval ::athena_test::tests:: {
     } -result {}
 
     #-------------------------------------------------------------------
-    # REPORT:SAT:CONTRIB
+    # REPORT:SATCONTRIB
 
-    test SAT:CONTRIB-1.1 {not in prep} -body {
-        ted order -reject REPORT:SAT:CONTRIB {}
+    test SATCONTRIB-1.1 {not in prep} -body {
+        ted order -reject REPORT:SATCONTRIB {}
     } -result {
         * {Order state is PREP, but order is valid only in these states: PAUSED}
     }
 
 
-    test SAT:CONTRIB-1.2 {required parms} -setup {
+    test SATCONTRIB-1.2 {required parms} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB {}
+        ted order -reject REPORT:SATCONTRIB {}
     } -cleanup {
         cleanup
     } -result {
@@ -148,10 +148,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test SAT:CONTRIB-1.3 {invalid group} -setup {
+    test SATCONTRIB-1.3 {invalid group} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB g NONESUCH c AUT
+        ted order -reject REPORT:SATCONTRIB g NONESUCH c AUT
     } -cleanup {
         cleanup
     } -result {
@@ -159,10 +159,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test SAT:CONTRIB-1.4 {invalid concern} -setup {
+    test SATCONTRIB-1.4 {invalid concern} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB g SHIA c NONESUCH
+        ted order -reject REPORT:SATCONTRIB g SHIA c NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -170,10 +170,10 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test SAT:CONTRIB-1.5 {invalid top} -setup {
+    test SATCONTRIB-1.5 {invalid top} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB \
+        ted order -reject REPORT:SATCONTRIB \
             g SHIA c AUT top 0
     } -cleanup {
         cleanup
@@ -181,10 +181,10 @@ namespace eval ::athena_test::tests:: {
         top {invalid value "0", expected integer no less than 1}
     }
 
-    test SAT:CONTRIB-1.6 {invalid start} -setup {
+    test SATCONTRIB-1.6 {invalid start} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB \
+        ted order -reject REPORT:SATCONTRIB \
             g SHIA c AUT start NONESUCH
     } -cleanup {
         cleanup
@@ -192,10 +192,10 @@ namespace eval ::athena_test::tests:: {
         start {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
     }
 
-    test SAT:CONTRIB-1.7 {invalid end} -setup {
+    test SATCONTRIB-1.7 {invalid end} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB \
+        ted order -reject REPORT:SATCONTRIB \
             g SHIA c AUT end NONESUCH
     } -cleanup {
         cleanup
@@ -203,10 +203,10 @@ namespace eval ::athena_test::tests:: {
         end {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
     }
 
-    test SAT:CONTRIB-1.8 {start < 0} -setup {
+    test SATCONTRIB-1.8 {start < 0} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB \
+        ted order -reject REPORT:SATCONTRIB \
             g SHIA c AUT start [simclock toZulu -1]
     } -cleanup {
         cleanup
@@ -214,10 +214,10 @@ namespace eval ::athena_test::tests:: {
         start {invalid time spec "090000ZJAN10", expected time between T0 and NOW}
     }
 
-    test SAT:CONTRIB-1.9 {end > now} -setup {
+    test SATCONTRIB-1.9 {end > now} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB \
+        ted order -reject REPORT:SATCONTRIB \
             g SHIA c AUT end [simclock asZulu 1]
     } -cleanup {
         cleanup
@@ -225,10 +225,10 @@ namespace eval ::athena_test::tests:: {
         end {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
     }
 
-    test SAT:CONTRIB-1.10 {start > end} -setup {
+    test SATCONTRIB-1.10 {start > end} -setup {
         setup
     } -body {
-        ted order -reject REPORT:SAT:CONTRIB \
+        ted order -reject REPORT:SATCONTRIB \
             g SHIA c AUT \
             start [simclock asZulu 1] \
             end   [simclock asZulu 0]
@@ -238,19 +238,19 @@ namespace eval ::athena_test::tests:: {
         start {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
     }
 
-    test SAT:CONTRIB-2.1 {Without optional} -setup {
+    test SATCONTRIB-2.1 {Without optional} -setup {
         setup
     } -body {
-        ted order REPORT:SAT:CONTRIB g SHIA c MOOD
+        ted order REPORT:SATCONTRIB g SHIA c MOOD
     } -cleanup {
         cleanup
     } -result {}
 
 
-    test SAT:CONTRIB-2.2 {With Optional} -setup {
+    test SATCONTRIB-2.2 {With Optional} -setup {
         setup
     } -body {
-        ted order REPORT:SAT:CONTRIB g SHIA c MOOD \
+        ted order REPORT:SATCONTRIB g SHIA c MOOD \
             top 10 start [simclock toZulu 0] end [simclock asZulu]
     } -cleanup {
         cleanup
