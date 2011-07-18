@@ -11,6 +11,26 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.23, 18 July 2011</h3>
+
+This build fixes many bugs; in addition, all user requested reports
+are now displayed in the Detail Browser.<p>
+
+<ul>
+  <li> Bug 2942: Unknown mam_entity key bgerror
+  <li> Bug 3038: athena(1): Revised "Model Parameter" report
+  <li> Bug 3039: athena(1): Revise Attitude Driver report
+  <li> Bug 3040: athena(1): Contributions to Satisfaction Report
+  <li> Bug 3050: Inconsistent Vertical Relationship Narratives
+  <li> Bug 3051: athena(1): Per-capita Support
+  <li> Bug 3052: athena(1): bgerror on close
+  <li> Bug 3053: unknown table: temp_satcontribs bgerror
+  <li> Bug 3056: Update Tactic with a Deleted Nbhood Bgerror
+  <li> Bug 3062: athena(1): Mods don't work
+  <li> Bug 3064: Update ATTROE Tactic Bgerror
+</ul><p>
+       
+
 <h3>Build 3.0.22, 15 June 2011</h3>
 
 This is the "pre-vacation" build, getting the latest work into Athena
