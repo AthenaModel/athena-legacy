@@ -172,11 +172,6 @@ object group_frc {
     include group_ -attrs demeanor \
         -tags {create update multi}
 
-    attribute basepop "Personnel" {
-        The number of personnel belonging to this group
-        who are present in the playbox at time 0.
-    } -tags {create update multi}
-
     attribute cost "Cost $/person/week" {
         The cost to the owning actor of 
         maintaining one member of the group in the playbox for one week,
@@ -266,11 +261,6 @@ object group_org {
 
     include group_ -attrs demeanor \
         -tags {create update multi}
-
-    attribute basepop "Personnel" {
-        The number of personnel belonging to this group
-        who are present in the playbox at time 0.
-    } -tags {create update multi}
 
     attribute cost "Cost $/person/week" {
         The cost to the owning actor of 

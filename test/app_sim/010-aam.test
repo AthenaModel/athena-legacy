@@ -98,7 +98,8 @@ namespace eval ::athena_test::tests:: {
         variable units
 
         personnel start
-        personnel load
+
+        rdb eval { DELETE FROM units }
 
         foreach unit $args {
             dict with units($unit) {
@@ -106,12 +107,8 @@ namespace eval ::athena_test::tests:: {
                     INSERT INTO units(u,g,n,origin,a,personnel)
                     VALUES($unit,$g,$n,$n,'NONE',$personnel);
                 }
-
-                personnel deploy $n $g $personnel
             }
         }
-
-        personnel save
     }
 
     proc deploy {n g personnel} {
@@ -155,7 +152,7 @@ BRIT-NB1/0000 15
 
 
     test attritnf-1.2 {f is FRC, overkill leaves 0} -setup {
-        ted create NB1 BLUE BRIT
+        ted create NB1_BLUE NB1_BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
     } -body {
         aam mutate attritnf [list n NB1 f BLUE casualties 40 g1 "" g2 ""]
@@ -174,7 +171,7 @@ BRIT-NB1/0000 15
 
 
     test attritnf-1.3 {f is FRC, no units present} -setup {
-        ted create NB1 BLUE BRIT
+        ted create NB1_BLUE NB1_BRIT
         mkunits BRIT-NB1/0000
     } -body {
         aam mutate attritnf [list n NB1 f BLUE casualties 40 g1 "" g2 ""]
@@ -469,7 +466,7 @@ SUNN/NB1 950
         demog analyze pop
 
         set a [pprint_demog_g]
-        set b [ted query {SELECT u,personnel FROM units}]
+        set b [ted query {SELECT u,personnel FROM units ORDER BY u}]
         set c "$a$b"
     } -cleanup {
         cleanup
@@ -481,9 +478,9 @@ KURD 9         91        900
     
 u        personnel 
 -------- --------- 
-UT0001   91        
-SHIA/NB1 909       
 KURD/NB2 900       
+SHIA/NB1 909       
+UT0001   91        
     }
 
 
@@ -515,7 +512,7 @@ id n   f    g    casualties
 
 
     test attritn-1.6 {nbhood, force, org units not attrited} -setup {
-        ted create JOE NB1 BLUE USAID SHIA SUNN
+        ted create JOE NB1 NB1_BLUE NB1_USAID SHIA SUNN
         deploy NB1 BLUE 15
         deploy NB1 USAID 15
         ted lock

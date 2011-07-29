@@ -455,21 +455,50 @@ snit::type sim {
         # NEXT, do initial analyses, and initialize modules that
         # begin to work at this time.
         sigevent log 1 lock "Scenario locked; simulation begins"
+
+        # Set up the attitudes model: initialize GRAM, and add slope effects
+        # for the ascending and descending trends.  Finally, relate all
+        # existing MADs to GRAM drivers.
         aram      init -reload
-        sat       start                ;# TBD: check results (need trends)
-        coop      start                ;# TBD: check results (need trends)
+        sat       start
+        coop      start
+        mad       start
+
+        # Next, set up the status quo, as required by strategy execution.
+        # 
+        # * [personnel start] creates units for all status quo
+        #   CIV/FRC/ORG personnel.  
+        #
+        # * [demog analyze pop] initializes the demographics tables; in 
+        #   the status quo there has been no attrition and no 
+        #   displacements.
+        #
+        # * [nbstat start] computes the security levels and activity
+        #   coverage.
+        #
+        # * [control start] initializes vertical relationships, actor
+        #   support and influence, and neighborhood control, based on
+        #   the status quo data.
+       
         personnel start
-        control   start
-        strategy  tock
+
         demog     analyze pop
         nbstat    start
-        control   analyze
-        econ      start
-        demog     analyze econ
-        demsit    assess               ;# TBD
-        mad       getdrivers
+        control   start
 
-        # NEXT, execute events scheduled at time 0.
+        # Execute the actor's strategies at time 0, given the 
+        # status quo.
+        strategy  tock
+
+        # Compute the new state of affairs, given the agent's
+        # decisions at time 0.
+        demog     analyze pop
+        nbstat    analyze
+        control   analyze
+        econ      start          ;# TBD: Include in status quo?
+        demog     analyze econ
+
+        # NEXT, execute events scheduled at time 0, if any.
         eventq advance 0
 
         # NEXT, set the state to PAUSED

@@ -37,7 +37,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     proc setup {} {
-        ted create NB1 BLUE
+        ted create NB1_BLUE
         personnel start
         personnel load
         personnel deploy NB1 BLUE  100

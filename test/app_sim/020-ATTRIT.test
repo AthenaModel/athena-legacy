@@ -29,7 +29,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {{script ""}} {
-        ted create NB1 NB2 BLUE BRIT USAID HAL
+        ted create NB1 NB2 NB1_BLUE NB1_BRIT NB1_USAID NB1_HAL
         ted create SHIA SUNN KURD
 
         if {$script ne ""} {
@@ -270,6 +270,10 @@ namespace eval ::athena_test::tests:: {
     } -result {
         {::demog <Update>}
         {::demog <Update>}
+        {::rdb <units> update BLUE/NB1}
+        {::rdb <units> update BRIT/NB1}
+        {::rdb <units> update USAID/NB1}
+        {::rdb <units> update HAL/NB1}
         {::rdb <units> update SHIA/NB1}
         {::rdb <units> update SUNN/NB1}
         {::rdb <units> update KURD/NB2}
@@ -415,6 +419,9 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::rdb <units> update BLUE/NB1}
+        {::rdb <units> update BRIT/NB1}
+        {::rdb <units> update USAID/NB1}
+        {::rdb <units> update HAL/NB1}
         {::rdb <units> update SHIA/NB1}
         {::rdb <units> update SUNN/NB1}
         {::rdb <units> update KURD/NB2}
@@ -436,7 +443,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
+        {::rdb <units> update BLUE/NB1}
+        {::rdb <units> update BRIT/NB1}
         {::rdb <units> update USAID/NB1}
+        {::rdb <units> update HAL/NB1}
         {::rdb <units> update SHIA/NB1}
         {::rdb <units> update SUNN/NB1}
         {::rdb <units> update KURD/NB2}
@@ -457,6 +467,10 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         {::demog <Update>}
+        {::rdb <units> update BLUE/NB1}
+        {::rdb <units> update BRIT/NB1}
+        {::rdb <units> update USAID/NB1}
+        {::rdb <units> update HAL/NB1}
         {::rdb <units> update SHIA/NB1}
         {::rdb <units> update SUNN/NB1}
         {::rdb <units> update KURD/NB2}

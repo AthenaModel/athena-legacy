@@ -38,7 +38,6 @@ snit::widgetadaptor frcgroupbrowser {
         { shape       "Unit Shape"                   }
         { forcetype   "Force Type"                   }
         { demeanor    "Demeanor"                     }
-        { basepop     "Personnel"  -sortmode integer }
         { cost        "Cost, $/person/week"          }
         { attack_cost "Cost, $/attack"               }
         { uniformed   "Uniformed?"                   }

@@ -29,7 +29,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT USAID
+        ted create JOE BOB NB1 NB2 NB1_BLUE NB1_BRIT USAID
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"
@@ -218,7 +218,11 @@ NB2 USAID 0         0
         tactic mutate create $T1
     } -body {
         tactic::ASSIGN execute [tactic get 1]
-        ted querylist {SELECT u,tactic_id,active,n,g,a,personnel FROM units}
+        ted querylist {
+            SELECT u,tactic_id,active,n,g,a,personnel 
+            FROM units
+            WHERE a='PATROL'
+        }
     } -cleanup {
         cleanup
     } -result {

@@ -54,7 +54,7 @@ snit::type nbstat {
     typemethod analyze {} {
         # FIRST, call the submodules
         security analyze
-        activity analyze coverage
+        activity analyze
     }
 }
 

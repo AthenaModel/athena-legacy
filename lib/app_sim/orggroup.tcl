@@ -78,7 +78,6 @@ snit::type orggroup {
     #    shape            The group's unit shape (eunitshape(n))
     #    orgtype          The group's eorgtype
     #    demeanor         The group's demeanor (edemeanor(n))
-    #    basepop          The group's initial # of personnel in the playbox.
     #    cost             The group's maintenance cost, $/person/week
     #
     # Creates a organization group given the parms, which are presumed to be
@@ -92,7 +91,7 @@ snit::type orggroup {
             # FIRST, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                groups(g, longname, color, shape, symbol, demeanor, basepop,
+                groups(g, longname, color, shape, symbol, demeanor,
                        cost, rel_entity, gtype)
                 VALUES($g,
                        $longname,
@@ -100,7 +99,6 @@ snit::type orggroup {
                        $shape,
                        'organization',
                        $demeanor,
-                       $basepop,
                        $cost,
                        nullif($a,''),
                        'ORG');
@@ -142,7 +140,6 @@ snit::type orggroup {
     #    shape            A new shape, or ""
     #    orgtype          A new orgtype, or ""
     #    demeanor         A new demeanor, or ""
-    #    basepop          A new basepop, or ""
     #    cost             A new cost, or ""
     #
     # Updates a orggroup given the parms, which are presumed to be
@@ -159,7 +156,6 @@ snit::type orggroup {
                 SET longname   = nonempty($longname,     longname),
                     color      = nonempty($color,        color),
                     demeanor   = nonempty($demeanor,     demeanor),
-                    basepop    = nonempty($basepop,      basepop),
                     cost       = nonempty($cost,         cost),
                     shape      = nonempty($shape,        shape),
                     rel_entity = coalesce(nullif($a,''), rel_entity)
@@ -198,7 +194,6 @@ order define ORGGROUP:CREATE {
                                                  -defval   NGO
     parm demeanor    enum  "Demeanor"            -enumtype edemeanor  \
                                                  -defval   AVERAGE
-    parm basepop     text  "Personnel"           -defval   1000
     parm cost        text  "Cost, $/person/week" -defval   0
 } {
     # FIRST, prepare and validate the parameters
@@ -209,7 +204,6 @@ order define ORGGROUP:CREATE {
     prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
     prepare demeanor       -toupper   -required -type edemeanor
-    prepare basepop                   -required -type count
     prepare cost           -toupper   -required -type money
 
     returnOnError -final
@@ -287,7 +281,6 @@ order define ORGGROUP:UPDATE {
     parm shape          enum  "Unit Shape"          -enumtype eunitshape
     parm orgtype        enum  "Organization Type"   -enumtype eorgtype
     parm demeanor       enum  "Demeanor"            -enumtype edemeanor
-    parm basepop        text  "Personnel"
     parm cost           text  "Cost, $/person/week"
 } {
     # FIRST, prepare the parameters
@@ -298,7 +291,6 @@ order define ORGGROUP:UPDATE {
     prepare shape          -toupper   -type eunitshape
     prepare orgtype        -toupper   -type eorgtype
     prepare demeanor       -toupper   -type edemeanor
-    prepare basepop                   -type count
     prepare cost           -toupper   -type money
 
     returnOnError -final
@@ -324,7 +316,6 @@ order define ORGGROUP:UPDATE:MULTI {
     parm shape      enum  "Unit Shape"          -enumtype eunitshape
     parm orgtype    enum  "Organization Type"   -enumtype eorgtype
     parm demeanor   enum  "Demeanor"            -enumtype edemeanor
-    parm basepop    text  "Personnel"
     parm cost       text  "Cost, $/person/week"
 } {
     # FIRST, prepare the parameters
@@ -334,7 +325,6 @@ order define ORGGROUP:UPDATE:MULTI {
     prepare shape      -toupper            -type   eunitshape
     prepare orgtype    -toupper            -type   eorgtype
     prepare demeanor   -toupper            -type   edemeanor
-    prepare basepop                        -type   count
     prepare cost       -toupper            -type   money
 
     returnOnError -final

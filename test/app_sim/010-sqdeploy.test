@@ -1,0 +1,274 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-sqdeploy.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    sqdeploy(sim) tests.
+#
+#    This test suite tests the sqdeploy(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for a test
+    proc setup {} {
+        ted create NB1 NB2 BLUE HAL SHIA
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # mutate create
+
+    test create-1.1 {override is created} -setup {
+        setup
+    } -body {
+        sqdeploy mutate create {id {NB1 BLUE} personnel 500}
+        ted query {SELECT * FROM sqdeploy_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 500       
+    }
+
+    test create-2.1 {undo deletes the override} -setup {
+        setup
+        set undo [sqdeploy mutate create {id {NB1 BLUE} personnel 500}]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT * FROM sqdeploy_ng}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # mutate delete
+
+    test delete-1.1 {Record is deleted} -setup {
+        setup
+        sqdeploy mutate create {id {NB1 BLUE} personnel 500}
+    } -body {
+        sqdeploy mutate delete {NB1 BLUE}
+
+        # Is it gone?
+        rdb eval {SELECT n,g FROM sqdeploy_ng}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-2.1 {Undo restores record} -setup {
+        setup
+        sqdeploy mutate create {id {NB1 BLUE} personnel 500}
+        set undo [sqdeploy mutate delete {NB1 BLUE}]
+    } -body {
+        namespace eval :: $undo
+        ted query {SELECT * FROM sqdeploy_ng}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 500       
+    }
+
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+
+    test update-1.1 {sqdeploy is updated} -setup {
+        setup
+        sqdeploy mutate create {id {NB2 HAL} personnel 500}
+    } -body {
+        sqdeploy mutate update {
+            id         {NB2 HAL}
+            personnel  700
+        }
+
+        ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g   personnel 
+--- --- --------- 
+NB2 HAL 700       
+    }
+
+
+    test update-1.2 {identical values are OK} -setup {
+        setup
+
+        set parmdict {
+            id         {NB2 HAL}
+            personnel  500
+        }
+
+        sqdeploy mutate create $parmdict
+    } -body {
+        set a [ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}]
+        
+        sqdeploy mutate update $parmdict
+
+        set b [ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test update-2.1 {undo undoes the change} -setup {
+        setup
+        sqdeploy mutate create {id {NB2 HAL} personnel 100}
+    } -body {
+
+        set a [ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}]
+
+        set undo [sqdeploy mutate update {
+            id        {NB2 HAL}
+            personnel 500
+        }]
+
+        eval $undo
+
+        set b [ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # exists
+
+    test exists-1.1 {record does not exist} -body {
+        setup
+        sqdeploy exists {NB2 HAL}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test exists-1.3 {record exists} -setup {
+        setup
+        sqdeploy mutate create {id {NB2 HAL} personnel 500}
+    } -body {
+        sqdeploy exists {NB2 HAL}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {invalid neighborhood} -body {
+        sqdeploy validate {NONESUCH NONESUCH}
+    } -returnCodes {
+        error
+    } -result {Invalid neighborhood, none are defined}
+
+
+    test validate-1.2 {Invalid group} -setup {
+        setup
+    } -body {
+        sqdeploy validate {NB1 NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid group, should be one of: BLUE, HAL, SHIA}
+
+
+    test validate-1.3 {Civilian group} -setup {
+        setup
+    } -body {
+        sqdeploy validate {NB1 SHIA}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Group SHIA is neither a FRC nor an ORG group.}
+
+
+    test validate-2.1 {Valid n,g pair} -setup {
+        setup
+    } -body {
+        sqdeploy validate {NB2 HAL}
+    } -cleanup {
+        cleanup
+    } -result {NB2 HAL}
+
+    #-------------------------------------------------------------------
+    # sqdeploy_view
+    #
+    # The sqdeploy_view is implemented in scenariodb.sql.  It creates a
+    # pseudo-table with 0 personnel where deployments have no explicitly
+    # been made.
+
+    test sqdeploy_view-1.1 {Defaults to 0.} -setup {
+        setup
+    } -body {
+        ted query {SELECT * FROM sqdeploy_view ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 0         
+NB1 HAL  0         
+NB2 BLUE 0         
+NB2 HAL  0         
+    }
+
+    test sqdeploy_view-1.2 {Overridden by sqdeploy_ng records.} -setup {
+        setup
+    } -body {
+        sqdeploy mutate create {id {NB2 HAL} personnel 500}
+        ted query {SELECT * FROM sqdeploy_view ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g    personnel 
+--- ---- --------- 
+NB1 BLUE 0         
+NB1 HAL  0         
+NB2 BLUE 0         
+NB2 HAL  500       
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

@@ -1056,7 +1056,6 @@ tab "Groups/FrcGroups" {
     <<group_frc parm shape>>
     <<group_frc parm forcetype>>
     <<group_frc parm demeanor>>
-    <<group_frc parm basepop>>
     <<group_frc parm cost>>
     <<group_frc parm attack_cost>>
     <<group_frc parm uniformed>>
@@ -1106,7 +1105,6 @@ tab "Groups/OrgGroups" {
     <<group_org parm shape>>
     <<group_org parm orgtype -label "Org Type">>
     <<group_org parm demeanor>>
-    <<group_org parm basepop>>
     <<group_org parm cost>>
     <</parmlist>>
 
@@ -1225,6 +1223,64 @@ tab "Groups/Relationships" {
     <<control.headers>>
     <</topiclist>>
 }
+
+#-----------------------------------------------------------------------
+
+tab "Groups/Deployments" {
+    <b>Scenario Mode Only.</b><p>
+
+    This tab is used to enter and browse the "status quo" deployments
+    of force and organization personnel to neighborhoods.<p>
+
+    At simulation time, deployment is done using the 
+    <<cref /object/tactic/deploy>> during <<term strategy>>
+    execution.  However, actor's strategies execute in the context of
+    the status quo, the state of affairs during the previous week.
+    Normally, this is simply the result of the previous week's
+    strategy execution, but at time 0, when the scenario is locked,
+    there <i>is</i> no previous week's strategy execution.  The
+    status quo deployments provide the necessary context at this
+    time.  <b>If no status quo deployments are created, Athena will
+    assume that there were no troops present in the playbox prior to
+    time 0.</b><p>
+
+    
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic Group>>The name of a force or organization group.<</topic>>
+    
+    <<topic "Personnel">>The number of the group's personnel stationed
+    in the neighborhood prior to time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If a single row is selected, pops up the 
+    <<cref /order/sqdeploy/set>> dialog for the selected neighborhood
+    and group.
+    <</topic>>
+
+    <<topic [image button_x]>>
+    If a single row is selected, zeroes the selected deployment.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
 
 #=======================================================================
 # Attitudes

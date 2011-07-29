@@ -53,12 +53,12 @@ snit::type activity {
     # Analysis: Coverage
 
 
-    # analyze coverage
+    # analyze
     #
     # Computes activity coverage given staffing and activity
     # effectiveness. Must follow [security analyze].
 
-    typemethod {analyze coverage} {} {
+    typemethod analyze {} {
         activity InitializeActivityTable
         activity ComputeActivityPersonnel
         activity ComputeForceActivityFlags

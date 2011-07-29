@@ -51,7 +51,6 @@ color        #f00001
 shape        FRIEND
 symbol       infantry
 demeanor     AVERAGE
-basepop      5000
 cost         0.0
 rel_entity   JOE
 gtype        FRC
@@ -76,7 +75,6 @@ color        #f00001
 shape        FRIEND
 symbol       infantry
 demeanor     AVERAGE
-basepop      5000
 cost         0.0
 rel_entity   
 gtype        FRC
@@ -149,7 +147,6 @@ color        #f00001
 shape        FRIEND
 symbol       infantry
 demeanor     AVERAGE
-basepop      5000
 cost         0.0
 rel_entity   JOE
 gtype        FRC
@@ -222,7 +219,6 @@ local        0
             shape        NEUTRAL
             forcetype    POLICE
             demeanor     AGGRESSIVE
-            basepop      1500
             cost         10.0
             attack_cost  20.0
             uniformed    0
@@ -239,7 +235,6 @@ color        #ff0000
 shape        NEUTRAL
 symbol       police
 demeanor     AGGRESSIVE
-basepop      1500
 cost         10.0
 rel_entity   BOB
 gtype        FRC
@@ -278,7 +273,6 @@ local        1
             color        ""
             forcetype    ""
             demeanor     ""
-            basepop      ""
             cost         ""
             attack_cost  ""
             uniformed    ""
@@ -306,7 +300,6 @@ local        1
             color        ""
             forcetype    ""
             demeanor     ""
-            basepop      ""
             cost         ""
             attack_cost  ""
             uniformed    ""

@@ -255,9 +255,6 @@ CREATE TABLE groups (
     -- Group demeanor: edemeanor
     demeanor    TEXT DEFAULT 'AVERAGE',
 
-    -- Base Population/Personnel for this group
-    basepop     INTEGER DEFAULT 0,
-
     -- Maintenance Cost, in $/person/week (FRC/ORG groups only)
     cost        DOUBLE DEFAULT 0,
 
@@ -277,6 +274,9 @@ CREATE TABLE civgroups (
 
     -- Symbolic neighborhood name for neighborhood of residence.
     n              TEXT,
+
+    -- Base Population/Personnel for this group
+    basepop     INTEGER DEFAULT 0,
 
     -- Subsistence Agriculture Percentage in n.
     sap            INTEGER DEFAULT 0
@@ -662,6 +662,37 @@ CREATE TABLE conditions (
 
 ------------------------------------------------------------------------
 -- Personnel Tables
+
+-- Status Quo Deployment Table: FRC and ORG personnel deployed 
+-- into neighborhoods prior to time 0, as part of the status quo.
+
+CREATE TABLE sqdeploy_ng (
+    -- Symbolic neighborhood name
+    n          TEXT REFERENCES nbhoods(n)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic group name
+    g          TEXT REFERENCES groups(g)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
+
+    -- Personnel
+    personnel  INTEGER DEFAULT 0,
+    
+    PRIMARY KEY (n,g)
+);
+
+-- An sqdeploy_ng view that fills in 0's for missing values.
+CREATE TEMPORARY VIEW sqdeploy_view AS
+SELECT N.n                                           AS n,
+       G.g                                           AS g,
+       coalesce(SQ.personnel,0)                      AS personnel       
+FROM nbhoods AS N
+JOIN groups AS G
+LEFT OUTER JOIN sqdeploy_ng AS SQ USING (n,g)
+WHERE G.gtype IN ('FRC', 'ORG');
+
 
 -- FRC and ORG personnel in playbox.
 CREATE TABLE personnel_g (

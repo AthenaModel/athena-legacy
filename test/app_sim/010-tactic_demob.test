@@ -29,7 +29,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT
+        ted create JOE BOB NB1 NB2 NB1_BLUE NB1_BRIT
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"

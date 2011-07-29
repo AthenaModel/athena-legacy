@@ -34,7 +34,7 @@ namespace eval ::athena_test::tests:: {
     }
 
     proc setup {} {
-        ted create NB1 NB2 BLUE BRIT HAL
+        ted create NB1 NB2 NB1_BLUE NB1_BRIT NB1_HAL
     }
 
     #-------------------------------------------------------------------
@@ -65,11 +65,11 @@ HAL  2000
     } -result {
 n   g    personnel unassigned 
 --- ---- --------- ---------- 
-NB1 BLUE 0         0          
+NB1 BLUE 5000      5000       
 NB2 BLUE 0         0          
-NB1 BRIT 0         0          
+NB1 BRIT 5000      5000       
 NB2 BRIT 0         0          
-NB1 HAL  0         0          
+NB1 HAL  2000      2000       
 NB2 HAL  0         0          
     }
 
@@ -225,16 +225,21 @@ HAL  2000      2000
         personnel start
         personnel load
         personnel demob BLUE 3000
-        personnel deploy NB1 BLUE 2000
-        personnel deploy NB1 BRIT 5000
-        personnel deploy NB1 HAL 2000
+
+        # Initially, all troops are deployed in NB1.  Move or
+        # otherwise change them.
+        personnel deploy NB2 BLUE 2000
+        personnel deploy NB2 BRIT 5000
+        personnel deploy NB2 HAL 2000
     } -body {
         personnel save
 
+        # Should be 6 messages: 3 withdrawals from NB1 and 3
+        # additions to NB2.
         rdb eval {SELECT count(event_id) FROM sigevents}
     } -cleanup {
         cleanup
-    } -result {3}
+    } -result {6}
 
     test save-1.2 {Saves personnel back to personnel_g} -setup {
         setup

@@ -91,10 +91,13 @@ snit::type control {
     # the model and populate the relevant tables.
 
     typemethod start {} {
+        log normal control "start"
+
         # FIRST, initialize the control tables
         $type PopulateVerticalRelationships
         $type PopulateActorInfluence
         $type PopulateNbhoodControl
+        log normal control "start complete"
     }
 
     # PopulateVerticalRelationships

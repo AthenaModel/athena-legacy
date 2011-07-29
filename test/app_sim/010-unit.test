@@ -27,8 +27,9 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     proc setup {} {
-        ted create NB1 NB2 BLUE USAID SHIA 
+        ted create NB1 NB2 NB1_BLUE NB1_USAID SHIA 
         personnel start
+        unit reset
         personnel load
         personnel deploy NB1 BLUE  100
         personnel deploy NB2 USAID 100
@@ -53,6 +54,7 @@ namespace eval ::athena_test::tests:: {
         ted query {
             SELECT u,n,g,gtype,origin,a,personnel,active 
             FROM units
+            WHERE active
             ORDER BY u
         }
     } -cleanup {
@@ -77,6 +79,7 @@ USAID/NB2 NB2 USAID ORG   NB2    NONE 100       1
         ted query {
             SELECT tactic_id,u,n,g,gtype,origin,a,personnel,active 
             FROM units
+            WHERE active
         }
     } -cleanup {
         cleanup
@@ -107,6 +110,7 @@ tactic_id u         n   g     gtype origin a    personnel active
 --------- --------- --- ----- ----- ------ ---- --------- ------ 
           BLUE/NB1  NB1 BLUE  FRC   NB1    NONE 0         0      
           SHIA/NB1  NB1 SHIA  CIV   NB1    NONE 0         0      
+          USAID/NB1 NB1 USAID ORG   NB1    NONE 0         0      
           USAID/NB2 NB2 USAID ORG   NB2    NONE 0         0      
     }
 
@@ -120,7 +124,7 @@ tactic_id u         n   g     gtype origin a    personnel active
     } -body {
         unit personnel UT0001 3
 
-        ted query {SELECT u,personnel FROM units}
+        ted query {SELECT u,personnel FROM units WHERE active}
     } -cleanup {
         cleanup
     } -result {
@@ -145,6 +149,7 @@ u         personnel active
 --------- --------- ------ 
 BLUE/NB1  3         1      
 SHIA/NB1  0         0      
+USAID/NB1 0         0      
 USAID/NB2 0         0      
     }
 
@@ -161,7 +166,7 @@ USAID/NB2 0         0
         rdb eval {SELECT u FROM units ORDER BY u}
     } -cleanup {
         cleanup
-    } -result {SHIA/NB1 USAID/NB2}
+    } -result {SHIA/NB1 USAID/NB1 USAID/NB2}
 
     #-------------------------------------------------------------------
     # mutate move
@@ -208,7 +213,7 @@ BLUE/NB1 2 2
     } -body {
         unit mutate personnel BLUE/NB1 3
 
-        ted query {SELECT u,personnel FROM units ORDER BY u}
+        ted query {SELECT u,personnel FROM units WHERE active ORDER BY u}
     } -cleanup {
         cleanup
     } -result {
@@ -235,6 +240,7 @@ u         personnel active
 --------- --------- ------ 
 BLUE/NB1  3         1      
 SHIA/NB1  0         0      
+USAID/NB1 0         0      
 USAID/NB2 0         0      
     }
 
@@ -273,7 +279,7 @@ USAID/NB2 0         0
         lsort [unit names]
     } -cleanup {
         cleanup
-    } -result {BLUE/NB1 SHIA/NB1 USAID/NB2}
+    } -result {BLUE/NB1 SHIA/NB1 USAID/NB1 USAID/NB2}
 
 
     #-------------------------------------------------------------------

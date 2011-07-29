@@ -78,6 +78,7 @@ snit::type scenario {
         rdb monitor add conditions   {condition_id}
         rdb monitor add coop_fg      {f g}
         rdb monitor add defroe_ng    {n g}
+        rdb monitor add deploy_ng    {n g}
         rdb monitor add econ_n       {n}
         rdb monitor add ensits_t     {s}
         rdb monitor add frcgroups    {g}
@@ -92,10 +93,10 @@ snit::type scenario {
         rdb monitor add nbhoods      {n}
         rdb monitor add nbrel_mn     {m n}
         rdb monitor add orggroups    {g}
-        rdb monitor add deploy_ng {n g}
         rdb monitor add rel_fg       {f g}
         rdb monitor add sat_gc       {g c}
         rdb monitor add situations   {s}
+        rdb monitor add sqdeploy_ng  {n g}
         rdb monitor add tactics      {tactic_id}
         rdb monitor add units        {u}
 

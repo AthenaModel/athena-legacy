@@ -36,7 +36,6 @@ namespace eval ::athena_test::tests:: {
         shape          NEUTRAL
         orgtype        NGO
         demeanor       AVERAGE
-        basepop        1000
         cost           0.0
     }
 
@@ -48,7 +47,6 @@ namespace eval ::athena_test::tests:: {
         shape          NEUTRAL
         orgtype        CTR
         demeanor       AVERAGE
-        basepop        2000
         cost           0.0
     }
 
@@ -71,7 +69,6 @@ namespace eval ::athena_test::tests:: {
         shape {required value}
         orgtype {required value}
         demeanor {required value}
-        basepop {required value}
         cost {required value}
     }
 
@@ -160,18 +157,6 @@ namespace eval ::athena_test::tests:: {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
-    test CREATE-1.9 {invalid basepop} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ORGGROUP:CREATE [dict merge $usaid {
-            basepop NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        basepop {invalid value "NONESUCH", expected integer}
-    }
-
     test CREATE-1.10 {invalid cost} -setup {
         ted create JOE
     } -body {
@@ -193,10 +178,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   shape   symbol       demeanor basepop cost rel_entity gtype a   orgtype 
------ ---------- ------- ------- ------------ -------- ------- ---- ---------- ----- --- ------- 
-USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG   JOE NGO     
-HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    0.0  JOE        ORG   JOE CTR     
+g     longname   color   shape   symbol       demeanor cost rel_entity gtype a   orgtype 
+----- ---------- ------- ------- ------------ -------- ---- ---------- ----- --- ------- 
+USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE NGO     
+HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE CTR     
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -348,16 +333,6 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    0.0  JOE        O
     }
 
 
-    test UPDATE-1.7 {invalid basepop} -setup {
-        ted create USAID
-    } -body {
-        ted order -reject ORGGROUP:UPDATE g USAID basepop NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        basepop {invalid value "NONESUCH", expected integer}
-    }
-
     test UPDATE-1.8 {invalid cost} -setup {
         ted create USAID
     } -body {
@@ -378,7 +353,6 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    0.0  JOE        O
             shape          ENEMY
             orgtype        IGO
             demeanor       AGGRESSIVE
-            basepop        3000
             cost           10.0
         }
 
@@ -386,9 +360,9 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  2000    0.0  JOE        O
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape symbol       demeanor   basepop cost rel_entity gtype a   orgtype 
------ --------- ------- ----- ------------ ---------- ------- ---- ---------- ----- --- ------- 
-USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE 3000    10.0 JOE        ORG   JOE IGO     
+g     longname  color   shape symbol       demeanor   cost rel_entity gtype a   orgtype 
+----- --------- ------- ----- ------------ ---------- ---- ---------- ----- --- ------- 
+USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE 10.0 JOE        ORG   JOE IGO     
     }
 
 
@@ -500,18 +474,6 @@ USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE 3000    10.0 JOE        OR
         cleanup
     } -result {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
-    }
-
-
-    test UPDATE:MULTI-1.9 {invalid basepop} -setup {
-        ted create USAID
-    } -body {
-        ted order -reject ORGGROUP:UPDATE:MULTI \
-            ids USAID basepop NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        basepop {invalid value "NONESUCH", expected integer}
     }
 
 

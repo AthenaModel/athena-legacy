@@ -30,26 +30,31 @@ snit::type personnel {
     # tables.
 
     typemethod start {} {
+        # FIRST, populate the personnel_g and deploy_ng tables from
+        # the status quo FRC/ORG deployments and the base civilian
+        # population figures.
         rdb eval {
             -- Populate personnel_g table.
             INSERT INTO personnel_g(g,personnel)
-            SELECT g, basepop
-            FROM groups
-            WHERE gtype IN ('FRC', 'ORG');
+            SELECT g, total(personnel)
+            FROM sqdeploy_ng
+            GROUP BY g;
 
-            -- Populate deploy_ng table.  
-            -- TBD: For now, insert everything; later, maybe we can
-            -- let it be sparse.
-            INSERT INTO deploy_ng(n,g,personnel)
-            SELECT N.n, G.g, 0
-            FROM nbhoods AS N
-            JOIN groups AS G
-            WHERE G.gtype IN ('FRC', 'ORG');
+            -- Populate deploy_ng table
 
+            -- Status quo FRC/ORG deployments
+            INSERT INTO deploy_ng(n,g,personnel, unassigned)
+            SELECT n, g, personnel, personnel 
+            FROM sqdeploy_view;
+
+            -- Status quo civilian population.
             INSERT INTO deploy_ng(n,g,personnel,unassigned)
             SELECT n, g, basepop, basepop
             FROM civgroups_view;
         }
+
+        # NEXT, make the base units.
+        unit makebase
     }
 
     # load

@@ -36,7 +36,6 @@ namespace eval ::athena_test::tests:: {
         shape       FRIEND
         forcetype   REGULAR
         demeanor    AVERAGE
-        basepop     5000
         cost        0.0
         attack_cost 0.0
         uniformed   yes
@@ -51,7 +50,6 @@ namespace eval ::athena_test::tests:: {
         shape       FRIEND
         forcetype   REGULAR
         demeanor    AVERAGE
-        basepop     4000
         cost        0.0
         attack_cost 0.0
         uniformed   yes
@@ -77,7 +75,6 @@ namespace eval ::athena_test::tests:: {
         shape {required value}
         forcetype {required value}
         demeanor {required value}
-        basepop {required value}
         cost {required value}
         attack_cost {required value}
         uniformed {required value}
@@ -167,18 +164,6 @@ namespace eval ::athena_test::tests:: {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
-    test CREATE-1.9 {invalid basepop} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject FRCGROUP:CREATE [dict merge $blue {
-            basepop NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        basepop {invalid value "NONESUCH", expected integer}
-    }
-
     test CREATE-1.10 {invalid cost} -setup {
         ted create JOE
     } -body {
@@ -242,7 +227,6 @@ color        #0000FF
 shape        FRIEND
 symbol       infantry
 demeanor     AVERAGE
-basepop      5000
 cost         0.0
 rel_entity   JOE
 gtype        FRC
@@ -400,17 +384,6 @@ local        0
     }
 
 
-    test UPDATE-1.7 {invalid basepop} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE g BLUE basepop NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        basepop {invalid value "NONESUCH", expected integer}
-    }
-
-
     test UPDATE-1.8 {invalid cost} -setup {
         ted create BLUE
     } -body {
@@ -466,7 +439,6 @@ local        0
             shape        NEUTRAL
             forcetype    POLICE
             demeanor     AGGRESSIVE
-            basepop      1500
             cost         10.0
             attack_cost  20.0
             uniformed    no
@@ -483,7 +455,6 @@ color        #FF0000
 shape        NEUTRAL
 symbol       police
 demeanor     AGGRESSIVE
-basepop      1500
 cost         10.0
 rel_entity   BOB
 gtype        FRC
@@ -517,7 +488,6 @@ local        1
             color        "#ff0000"
             forcetype    POLICE
             demeanor     AGGRESSIVE
-            basepop      1500
             cost         10.0
             attack_cost  20.0
             local        yes
@@ -615,17 +585,6 @@ local        1
     }
 
 
-    test UPDATE:MULTI-1.9 {invalid basepop} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE basepop NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        basepop {invalid value "NONESUCH", expected integer}
-    }
-
-
     test UPDATE:MULTI-1.10 {invalid cost} -setup {
         ted create BLUE
     } -body {
@@ -682,7 +641,6 @@ local        1
             shape       NEUTRAL
             forcetype   POLICE
             demeanor    AGGRESSIVE
-            basepop     1500
             cost        10.0
             attack_cost 20.0
             uniformed   no
@@ -709,7 +667,6 @@ local        1
             shape       NEUTRAL
             forcetype   POLICE
             demeanor    AGGRESSIVE
-            basepop     1500
             cost        10.0
             attack_cost 20.0
             uniformed   no

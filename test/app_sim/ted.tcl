@@ -59,6 +59,7 @@ snit::type ted {
         sigevent_tags
         sigevent_marks
         situations
+        sqdeploy_ng
         tactics
         units
         working_cash
@@ -239,7 +240,6 @@ snit::type ted {
             shape       FRIEND
             forcetype   REGULAR
             demeanor    AVERAGE
-            basepop     5000
             cost        0.0
             attack_cost 0.0
             uniformed   1
@@ -254,7 +254,6 @@ snit::type ted {
             shape       FRIEND
             forcetype   REGULAR
             demeanor    AVERAGE
-            basepop     5000
             cost        0.0
             attack_cost 0.0
             uniformed   1
@@ -269,7 +268,6 @@ snit::type ted {
             shape       ENEMY
             forcetype   IRREGULAR
             demeanor    AGGRESSIVE
-            basepop     2000
             cost        0.0
             attack_cost 0.0
             uniformed   0
@@ -284,7 +282,6 @@ snit::type ted {
             shape       ENEMY
             forcetype   IRREGULAR
             demeanor    AGGRESSIVE
-            basepop     2000
             cost        0.0
             attack_cost 0.0
             uniformed   0
@@ -301,7 +298,6 @@ snit::type ted {
             shape          NEUTRAL
             orgtype        NGO
             demeanor       AVERAGE
-            basepop        1000
             cost           0.0
         } JOE
 
@@ -313,9 +309,39 @@ snit::type ted {
             shape          NEUTRAL
             orgtype        CTR
             demeanor       AVERAGE
-            basepop        2000
             cost           0.0
         } JOE
+
+        # FRC/ORG Status Quo deployments
+        defentity NB1_BLUE ::sqdeploy {
+            id        {NB1 BLUE}
+            personnel 5000
+        } NB1 BLUE
+
+        defentity NB1_BRIT ::sqdeploy {
+            id        {NB1 BRIT}
+            personnel 5000
+        } NB1 BRIT
+
+        defentity NB1_ALQ ::sqdeploy {
+            id        {NB1 ALQ}
+            personnel 2000
+        } NB1 ALQ
+
+        defentity NB1_TAL ::sqdeploy {
+            id        {NB1 TAL}
+            personnel 2000
+        } NB1 TAL
+
+        defentity NB1_USAID ::sqdeploy {
+            id        {NB1 USAID}
+            personnel 1000
+        } NB1 USAID
+
+        defentity NB1_HAL ::sqdeploy {
+            id        {NB1 HAL}
+            personnel 2000
+        } NB1 HAL
     }
 
     # defentity name module parmdict ?entity...?
@@ -371,9 +397,10 @@ snit::type ted {
             if {$name ni $createdEntities} {
                 lassign $entities($name) module parmdict parents
 
-                # Create any entities on which this entity depends
+                # FIRST, Create any entities on which this entity depends
                 $type create {*}$parents
 
+                # NEXT, create the requested entity
                 {*}$module mutate create $parmdict
 
                 lappend createdEntities $name

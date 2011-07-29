@@ -187,7 +187,11 @@ NB2 KURD 1000      1000
     } -body {
         tactic::DISPLACE execute [tactic get 1]
         tactic::DISPLACE execute [tactic get 2]
-        ted querylist {SELECT u,tactic_id,active,n,g,a,personnel FROM units}
+        ted querylist {
+            SELECT u,tactic_id,active,n,g,a,personnel 
+            FROM units
+            WHERE a != 'NONE'
+        }
     } -cleanup {
         cleanup
     } -result {

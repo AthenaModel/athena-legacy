@@ -215,6 +215,13 @@ snit::widget appwin {
             script  { relbrowser %W }
         }
 
+        sqdeploy {
+            label   "Deployments"
+            vistype scenario
+            parent  groupst
+            script  { sqdeploybrowser %W }
+        }
+
         gramt {
             label   "Attitudes"
             vistype *

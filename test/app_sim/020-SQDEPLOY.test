@@ -1,0 +1,360 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-SQDEPLOY.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) SQDEPLOY:* order tests.
+#
+#    This test suite tests the sqdeploy(sim) orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    proc setup {} {
+        ted create NB1 NB2 BLUE HAL SHIA
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # SQDEPLOY:SET
+
+    test SET-1.1 {required parms} -body {
+        ted order -reject SQDEPLOY:SET {}
+    } -result {
+        id {required value}
+        personnel {required value}
+    }
+    
+
+    test SET-1.2 {invalid n} -setup {
+        setup
+    } -body {
+        ted order -reject SQDEPLOY:SET id {NONESUCH BLUE} personnel 1000
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test SET-1.3 {invalid g} -setup {
+        setup
+    } -body {
+        ted order -reject SQDEPLOY:SET id {NB1 NONESUCH} personnel 1000
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, HAL, SHIA}
+    }
+
+    test SET-1.4 {invalid personnel: non-numeric range} -setup {
+        setup
+    } -body {
+        ted order -reject SQDEPLOY:SET id {NB1 BLUE} personnel NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "NONESUCH", expected integer}
+    }
+
+    test SET-1.5 {invalid personnel: out of range} -setup {
+        setup
+    } -body {
+        ted order -reject SQDEPLOY:SET id {NB1 BLUE} personnel -1
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "-1", expected integer no less than 0}
+    }
+
+    # CASE 1: Create new record
+
+    test SET-2.1 {Record is created} -setup {
+        setup
+    } -body {
+        ted order SQDEPLOY:SET {
+            id          {NB2 HAL}
+            personnel   500
+        }
+
+        ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g   personnel 
+--- --- --------- 
+NB2 HAL 500       
+    }
+
+    test SET-2.2 {table monitor event on creation} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> update {NB2 HAL}}
+    }
+
+
+    test SET-2.3 {undo undoes the creation} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> delete {NB2 HAL}}
+    }
+
+    # CASE 2: 0 specified, no record exists, no new record needed.
+
+
+    test SET-3.1 {0 specified; no record created} -setup {
+        setup
+    } -body {
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 0
+
+        ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+
+    test SET-3.2 {no table monitor event} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 0
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test SET-3.3 {undo is a no-op} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 0
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    # CASE 3: Update existing record
+
+    test SET-4.1 {update existing record} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+    } -body {
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 1000
+
+        ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {
+n   g   personnel 
+--- --- --------- 
+NB2 HAL 1000      
+    }
+
+
+    test SET-4.2 {table monitor event on update} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 1000
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> update {NB2 HAL}}
+    }
+
+
+    test SET-4.3 {undo undoes the update} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 1000
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> update {NB2 HAL}}
+    }
+
+
+    # CASE 4: 0 specified, delete existing record
+
+    test SET-5.1 {0 specified, delete existing record} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+    } -body {
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 0
+
+        ted query {SELECT * FROM sqdeploy_ng ORDER BY n,g}
+    } -cleanup {
+        cleanup
+    } -result {
+    }
+
+    test SET-5.2 {table monitor event on deletion} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 0
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> delete {NB2 HAL}}
+    }
+
+    test SET-5.3 {undo undoes the deletion} -setup {
+        setup
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 500
+        ted order SQDEPLOY:SET id {NB2 HAL} personnel 0
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> update {NB2 HAL}}
+    }
+
+    # TBD: Start here
+
+    #-------------------------------------------------------------------
+    # SQDEPLOY:DELETE
+
+    test DELETE-1.1 {required parms} -body {
+        ted order -reject SQDEPLOY:DELETE {}
+    } -result {
+        id {required value}
+    }
+    
+
+    test DELETE-1.2 {unknown n in id} -setup {
+        setup
+    } -body {
+        ted order -reject SQDEPLOY:DELETE id {NONESUCH BLUE}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test DELETE-1.3 {unknown g in id} -setup {
+        setup
+    } -body {
+        ted order -reject SQDEPLOY:DELETE id {NB1 NONESUCH}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, HAL, SHIA}
+    }
+
+    test DELETE-2.1 {Effects} -setup {
+        setup
+        ted order SQDEPLOY:SET {id {NB1 BLUE} personnel 500}
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        ted order SQDEPLOY:DELETE id {NB1 BLUE}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> delete {NB1 BLUE}}
+    }
+
+
+    test DELETE-2.2 {Effects on undo} -setup {
+        setup
+        ted order SQDEPLOY:SET {id {NB1 BLUE} personnel 500}
+        ted order SQDEPLOY:DELETE {id {NB1 BLUE}}
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <sqdeploy_ng> update {NB1 BLUE}}
+    }
+
+    test DELETE-3.1 {OK if there's no override} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        ted order SQDEPLOY:DELETE id {NB1 BLUE}
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test DELETE-3.2 {Can undo even if there was no override} -setup {
+        setup
+        ted order SQDEPLOY:DELETE {id {NB1 BLUE}}
+    } -body {
+        ted notifier bind ::rdb <sqdeploy_ng>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+
+

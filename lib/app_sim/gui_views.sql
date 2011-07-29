@@ -102,7 +102,6 @@ SELECT g                                                 AS id,
        color                                             AS color,
        shape                                             AS shape,
        demeanor                                          AS demeanor,
-       basepop                                           AS basepop,
        moneyfmt(cost)                                    AS cost
 FROM groups;
 
@@ -120,7 +119,7 @@ SELECT G.id                                         AS id,
        G.color                                      AS color,
        G.shape                                      AS shape,
        G.demeanor                                   AS demeanor,
-       G.basepop                                    AS basepop,
+       CG.basepop                                   AS basepop,
        CG.n                                         AS n,
        CG.sap                                       AS sap,
        DG.population                                AS population,
@@ -152,8 +151,7 @@ SELECT G.id                                             AS id,
        G.color                                          AS color,
        G.shape                                          AS shape,
        G.demeanor                                       AS demeanor,
-       G.basepop                                        AS basepop,
-       coalesce(P.personnel, G.basepop)                 AS personnel,
+       coalesce(P.personnel, 0)                         AS personnel,
        G.cost                                           AS cost,
        F.a                                              AS a,
        F.forcetype                                      AS forcetype,
@@ -177,8 +175,7 @@ SELECT G.id                                             AS id,
        G.color                                          AS color,
        G.shape                                          AS shape,
        G.demeanor                                       AS demeanor,
-       G.basepop                                        AS basepop,
-       coalesce(P.personnel, G.basepop)                 AS personnel,
+       coalesce(P.personnel, 0)                         AS personnel,
        G.cost                                           AS cost,
        O.a                                              AS a,
        O.orgtype                                        AS orgtype
@@ -224,6 +221,13 @@ SELECT id,
        format("%4.1f", agf) AS agf
 FROM mam_acompare_view;
 
+-- An sqdeploy_ng view for use by the GUI.
+CREATE TEMPORARY VIEW gui_sqdeploy_ng AS
+SELECT n || ' ' || g                             AS id,
+       n                                         AS n,
+       g                                         AS g,
+       personnel                                 AS personnel
+FROM sqdeploy_view;
 
 -- A deploy_ng view for use by the GUI.
 CREATE TEMPORARY VIEW gui_deploy_ng AS

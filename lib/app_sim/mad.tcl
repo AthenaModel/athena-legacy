@@ -84,12 +84,12 @@ snit::type mad {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # getdrivers
+    # start
     #
     # This routine is called when the sim leaves the PREP state; it
     # assigns driver IDs to all existing MADs.
 
-    typemethod getdrivers {} {
+    typemethod start {} {
         foreach id [$type names] {
             $type mutate getdriver $id
         }

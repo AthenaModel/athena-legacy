@@ -2528,3 +2528,59 @@ order REPORT:SATCONTRIB "Contribution to Satisfaction Report" {
     <</parmlist>>
 }
 
+#-----------------------------------------------------------------------
+
+page /order sqdeploy "Status Quo Group Deployment Orders" {
+    <<title>>
+
+    In Athena, force and organization personnel must be deployed to
+    neighborhoods.  During simulation, this is done via the
+    <<cref /object/tactic/deploy>> during <<term strategy>> execution.
+    However, strategy execution assumes the presence of a status quo:
+    troop deployments, neighborhood security levels, and so forth;
+    without this status quo, strategies will not execute as they
+    ought.<p>
+
+    Consequently, these orders are used to specify the "status quo"
+    troop deployments for all force and organization groups.  These
+    deployments form part of the context for the initial strategy
+    execution that takes place when the scenario is locked and
+    simulation begins.<p>
+}
+
+order SQDEPLOY:SET "Set Status Quo Group Deployment" {
+    This order is used to set a force or organization group's initial
+    "status quo" deployment of personnel into a particular
+    neighborhood.  By default, no personnel are assigned to any
+    neighborhood.<p>
+
+    <<parmlist>>
+    <<parm id "Nbhood/Group">>
+    <b>Required.</b>  A list {<i>n g</i>} where <i>n</i> is the name
+    of a neighborhood and <i>g</i> is the name of a a force or
+    organization group.
+    <</parm>>
+
+    <<parm personnel "Personnel">>
+    <b>Required.</b> The number of group <i>g's</i> personnel to
+    deploy to neighborhood <i>n</i>.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+order SQDEPLOY:DELETE "Delete Status Quo Group Deployment" {
+    This order is used to delete an initial
+    "status quo" deployment of force or organization group personnel 
+    into a particular, that is, to set an existing deployment to
+    zero.<p>
+
+    <<parmlist>>
+    <<parm id "Nbhood/Group">>
+    <b>Required.</b>  A list {<i>n g</i>} where <i>n</i> is the name
+    of a neighborhood and <i>g</i> is the name of a a force or
+    organization group.
+    <</parm>>
+
+    <</parmlist>>
+}

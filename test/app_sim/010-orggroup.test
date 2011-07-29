@@ -45,9 +45,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor basepop cost rel_entity gtype a   orgtype 
------ -------- ------- ------- ------------ -------- ------- ---- ---------- ----- --- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG   JOE NGO     
+g     longname color   shape   symbol       demeanor cost rel_entity gtype a   orgtype 
+----- -------- ------- ------- ------------ -------- ---- ---------- ----- --- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE NGO     
     }
 
     test create-1.2 {a can be empty, yields NULL} -setup {
@@ -58,9 +58,9 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor basepop cost rel_entity gtype a orgtype 
------ -------- ------- ------- ------------ -------- ------- ---- ---------- ----- - ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0             ORG     NGO     
+g     longname color   shape   symbol       demeanor cost rel_entity gtype a orgtype 
+----- -------- ------- ------- ------------ -------- ---- ---------- ----- - ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0             ORG     NGO     
     }
 
     test create-2.1 {undo deletes the orggroup} -setup {
@@ -98,9 +98,9 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0             ORG
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor basepop cost rel_entity gtype a   orgtype 
------ -------- ------- ------- ------------ -------- ------- ---- ---------- ----- --- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG   JOE NGO     
+g     longname color   shape   symbol       demeanor cost rel_entity gtype a   orgtype 
+----- -------- ------- ------- ------------ -------- ---- ---------- ----- --- ------- 
+USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE NGO     
     }
 
 
@@ -145,7 +145,6 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG
             shape          FRIEND
             orgtype        IGO
             demeanor       APATHETIC
-            basepop        2000
             cost           10.0
         }
 
@@ -153,9 +152,9 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  1000    0.0  JOE        ORG
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape  symbol       demeanor  basepop cost rel_entity gtype a   orgtype 
------ --------- ------- ------ ------------ --------- ------- ---- ---------- ----- --- ------- 
-USAID Red Cross #ff0000 FRIEND organization APATHETIC 2000    10.0 BOB        ORG   BOB IGO     
+g     longname  color   shape  symbol       demeanor  cost rel_entity gtype a   orgtype 
+----- --------- ------- ------ ------------ --------- ---- ---------- ----- --- ------- 
+USAID Red Cross #ff0000 FRIEND organization APATHETIC 10.0 BOB        ORG   BOB IGO     
     }
 
 
@@ -187,7 +186,6 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC 2000    10.0 BOB        OR
             shape          ""
             orgtype        ""
             demeanor       ""
-            basepop        ""
             cost           ""
         }
 
@@ -213,7 +211,6 @@ USAID Red Cross #ff0000 FRIEND organization APATHETIC 2000    10.0 BOB        OR
             shape          FRIEND
             orgtype        IGO
             demeanor       AGGRESSIVE
-            basepop        2000
             cost           10.0
         }]
 
