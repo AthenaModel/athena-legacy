@@ -1341,6 +1341,11 @@ snit::widget mapviewer {
                 $self IconDelete $u
             }
 
+            # NEXT, we only draw active units.
+            if {!$active} {
+                return
+            }
+
             # NEXT, color it.
             if {$personnel > 0} {
                 set bg black

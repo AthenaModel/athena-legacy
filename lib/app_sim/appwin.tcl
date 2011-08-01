@@ -1902,8 +1902,8 @@ snit::widget appwin {
 
     method Unit-1 {u} {
         rdb eval {SELECT * FROM gui_units WHERE u=$u} row {
-        $self puts \
-            "Unit $u  at: $row(location)  group: $row(g)  activity: $row(a)  personnel: $row(personnel)"
+            $self puts \
+                "Unit $u  at: $row(location)  group: $row(g)  activity: $row(a)  personnel: $row(personnel)"
         }
     }
 
