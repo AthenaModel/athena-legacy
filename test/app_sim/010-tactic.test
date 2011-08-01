@@ -111,6 +111,7 @@ n            @
 nlist        @
 f            @
 g            @
+glist        @
 text1        @
 int1         10
 x1           @
@@ -138,6 +139,7 @@ n            NB2
 nlist        @
 f            @
 g            BRIT
+glist        @
 text1        HOLD_FIRE
 int1         @
 x1           @
@@ -253,6 +255,7 @@ n            NB1
 nlist        @
 f            @
 g            BLUE
+glist        @
 text1        HOLD_FIRE
 int1         @
 x1           @
@@ -271,6 +274,7 @@ n            @
 nlist        @
 f            @
 g            @
+glist        @
 text1        @
 int1         10
 x1           @
@@ -334,6 +338,7 @@ n            NB1
 nlist        @
 f            @
 g            BLUE
+glist        @
 text1        FIRE_BACK_IMMEDIATELY
 int1         @
 x1           @
@@ -560,6 +565,7 @@ tactic_id state
         x1          @
         tactic_type DEFROE
         priority    1
+        glist       @
         owner       JOE
         tactic_id   1
         m           @

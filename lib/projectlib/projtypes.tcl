@@ -613,6 +613,7 @@ snit::type ::projectlib::typewrapper {
 
 # Urbanization Level
 ::marsutil::enum ::projectlib::eurbanization {
+    ISOLATED     "Isolated"
     RURAL        "Rural"
     SUBURBAN     "Suburban"
     URBAN        "Urban"

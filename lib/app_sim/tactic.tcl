@@ -47,6 +47,7 @@ snit::type tactic {
         nlist    ""
         f        ""
         g        ""
+        glist    ""
         text1    ""
         int1     ""
         x1       ""
@@ -253,6 +254,7 @@ snit::type tactic {
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
+    #    glist          Group list, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
     #    x1             Real, or ""
@@ -287,6 +289,7 @@ snit::type tactic {
                         nlist,
                         f,
                         g,
+                        glist,
                         text1,
                         int1,
                         x1)
@@ -297,6 +300,7 @@ snit::type tactic {
                        nullif($nlist, ''),
                        nullif($f,     ''),
                        nullif($g,     ''),
+                       nullif($glist, ''),
                        nullif($text1, ''),
                        nullif($int1,  ''),
                        nullif($x1,    ''));
@@ -343,6 +347,7 @@ snit::type tactic {
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
+    #    glist          Group list, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
     #    x1             Real, or ""
@@ -372,6 +377,7 @@ snit::type tactic {
                     nlist = nullif(nonempty($nlist, nlist), ''),
                     f     = nullif(nonempty($f,     f),     ''),
                     g     = nullif(nonempty($g,     g),     ''),
+                    glist = nullif(nonempty($glist, glist), ''),
                     text1 = nullif(nonempty($text1, text1), ''),
                     int1  = nullif(nonempty($int1,  int1),  ''),
                     x1    = nullif(nonempty($x1,    x1),    '')

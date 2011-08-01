@@ -41,6 +41,7 @@ snit::type strategy {
         # the actors their incomes.
         cash load
         personnel load
+        service load
         tactic reset
         tactic::ATTROE reset
         tactic::DEFROE reset
@@ -68,6 +69,7 @@ snit::type strategy {
         # NEXT, save working data
         cash save
         personnel save
+        service save
 
         # NEXT, populate base units for all groups.
         unit makebase

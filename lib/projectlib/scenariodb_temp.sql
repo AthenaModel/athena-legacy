@@ -113,6 +113,22 @@ CREATE TEMPORARY TABLE working_deployment (
     PRIMARY KEY (n,g)
 );
 
+-- Working Service Group/Actor table: funding for service to the group
+-- by the actor.
+
+CREATE TABLE working_service_ga (
+    -- Civilian Group ID
+    g            TEXT,
+
+    -- Actor ID
+    a            TEXT,
+
+    -- Funding, $/week (symbol: F.ga)
+    funding      REAL DEFAULT 0.0,
+
+    PRIMARY KEY (g,a)
+);
+
 
 --------------------------------------------------------------------
 -- Temporary Attrition Tables

@@ -418,6 +418,11 @@ snit::type app {
         form register frac ::marsgui::rangefield \
             -type        ::rfraction
 
+        # glist -- listfield of appropriate size for group selection
+        form register glist ::marsgui::listfield \
+            -height      8                       \
+            -width       30
+
         # goal -- Goal IDs
         form register goal ::marsgui::keyfield \
             -table goals                       \

@@ -305,6 +305,37 @@ order TACTIC:DISPLACE:UPDATE "Update Tactic: Displace Civilians" {
 
 
 #-----------------------------------------------------------------------
+# Tactic: FUNDENI
+
+page /order/tactic fundeni TACTIC:FUNDENI:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/fundeni>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:FUNDENI:CREATE "Create Tactic: Fund ENI Services" {
+    Creates a <<cref /object/tactic/fundeni>>.<p>
+
+    <<parmlist>>
+    <<tactic_fundeni parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:FUNDENI:UPDATE "Update Tactic: Fund ENI Services" {
+    Updates an existing <<cref /object/tactic/fundeni>>.<p>
+
+    <<parmlist>>
+    <<tactic_fundeni parm tactic_id -required>>
+    <<tactic_fundeni parm owner -display>>
+    <<tactic_fundeni parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # Tactic: MOBILIZE
 
 page /order/tactic mobilize TACTIC:MOBILIZE:* {

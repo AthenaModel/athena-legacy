@@ -473,6 +473,10 @@ snit::type sim {
         #   the status quo there has been no attrition and no 
         #   displacements.
         #
+        # * [service start] initializes the service tables.  
+        #   TBD: Adds the status quo level of funding and computes the
+        #   expected level of service.
+        #
         # * [nbstat start] computes the security levels and activity
         #   coverage.
         #
@@ -481,8 +485,8 @@ snit::type sim {
         #   the status quo data.
        
         personnel start
-
         demog     analyze pop
+        service   start
         nbstat    start
         control   start
 

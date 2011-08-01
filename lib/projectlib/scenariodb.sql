@@ -600,6 +600,7 @@ CREATE TABLE tactics (
     -- Groups; use g first.
     f            TEXT,
     g            TEXT,
+    glist        TEXT,   -- List of groups
 
     -- Data items
     text1        TEXT,
@@ -1261,6 +1262,59 @@ SELECT * FROM situations JOIN demsits_t USING (s);
 CREATE VIEW demsits_current AS
 SELECT * FROM situations JOIN demsits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
+
+------------------------------------------------------------------------
+-- Services
+
+-- Service Group/Actor table: provision of service to a civilian
+-- group by an actor.
+--
+-- NOTE: At present, there is only one kind of service,
+-- Essential Non-Infrastructure (ENI).  When we add other services,
+-- these tables may change considerably.
+
+CREATE TABLE service_ga (
+    -- Civilian Group ID
+    g            TEXT REFERENCES civgroups(g) 
+                      ON DELETE CASCADE
+                      DEFERRABLE INITIALLY DEFERRED,
+
+    -- Actor ID
+    a            TEXT REFERENCES actors(a)
+                      ON DELETE CASCADE
+                      DEFERRABLE INITIALLY DEFERRED,
+
+    -- Funding, $/week (symbol: F.ga)
+    funding      REAL DEFAULT 0.0,
+
+    PRIMARY KEY (g,a)
+);
+
+-- Service Table: level of service experienced by civilian groups.
+
+CREATE TABLE service_g (
+    -- Civilian Group ID
+    g                   TEXT PRIMARY KEY
+                             REFERENCES civgroups(g) 
+                             ON DELETE CASCADE
+                             DEFERRABLE INITIALLY DEFERRED,
+
+    -- Saturation funding, $/week
+    saturation_funding  REAL DEFAULT 0.0,
+
+    -- Required level of service, fraction of saturation
+    -- (from parmdb)
+    required            REAL DEFAULT 0.0,
+
+    -- Funding, $/week
+    funding             REAL DEFAULT 0.0,
+
+    -- Actual level of service, fraction of saturation
+    actual              REAL DEFAULT 0.0,
+
+    -- Expected level of service, fraction of saturation
+    expected            REAL DEFAULT 0.0
+);
 
 ------------------------------------------------------------------------
 -- Magic Attitude Drivers (MADs)

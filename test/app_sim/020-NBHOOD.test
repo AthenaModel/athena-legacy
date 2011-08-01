@@ -110,7 +110,7 @@ namespace eval ::athena_test::tests:: {
             urbanization NONESUCH
         }]
     } -result {
-        urbanization {invalid value "NONESUCH", should be one of: RURAL, SUBURBAN, URBAN}
+        urbanization {invalid value "NONESUCH", should be one of: ISOLATED, RURAL, SUBURBAN, URBAN}
     }
 
     test CREATE-1.5 {invalid controller} -body {
@@ -427,7 +427,7 @@ OV1 Over     2
     } -cleanup {
         cleanup
     } -result {
-        urbanization {invalid value "NONESUCH", should be one of: RURAL, SUBURBAN, URBAN}
+        urbanization {invalid value "NONESUCH", should be one of: ISOLATED, RURAL, SUBURBAN, URBAN}
     }
 
     test UPDATE-1.3 {invalid controller} -setup {
@@ -608,7 +608,7 @@ NB1 Not Here 0     RURAL        JOE        2.0     5 5      0 0 10 0 10 10 0 10
     } -cleanup {
         cleanup
     } -result {
-        urbanization {invalid value "NONESUCH", should be one of: RURAL, SUBURBAN, URBAN}
+        urbanization {invalid value "NONESUCH", should be one of: ISOLATED, RURAL, SUBURBAN, URBAN}
     }
 
     test UPDATE:MULTI-1.5 {invalid vtygain} -setup {

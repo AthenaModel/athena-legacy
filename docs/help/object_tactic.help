@@ -523,6 +523,61 @@ page /object/tactic displace "DISPLACE tactic" {
     <<tactic_displace parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# FUNDENI
+
+object tactic_fundeni {
+    noun "FUNDENI tactic"
+    overview {
+        This <<term tactic>> funds Essential Non-Infrastructure (ENI) 
+        services for one or more <<term civgroup>>s.  The <<term actor>>
+        may specify any amount of money, which will come out of the 
+        actor's cash-on-hand.  If the cash is unavailable, the groups
+        will not be funded.<p>
+
+        Civilian groups require a minimum amount of ENI services, and 
+        may expect a much higher amount.  When a group's requirements and
+        expectations are not met, the group's mood will fall, and the
+        group's vertical relationships with the actors may also fall.
+        If the group's requirements and expectations are exceeded, the
+        group's mood and vertical relationships may rise.<p>
+
+        It is possible to fund more than the saturation level of ENI
+        service; providing service in excess of the saturation level
+        has no additional effect on the civilian groups in
+        question.<p>
+
+        When executed, the FUNDENI tactic funds provision of the
+        service until the next strategy tock (one week).  Multiple
+        FUNDENI tactics are cumulative.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute glist "Groups" {
+        The IDs of one or more civilian groups.
+    } -tags {create update}
+
+    attribute x1 "Amount, $/week" {
+        The amount of money to be provided to the groups.  The groups
+        will receive the funds in proportion to their population; or,
+        to it another way, every individual in the set of groups will
+        receive the same dollar amount of service.
+    } -tags {create update}
+}
+
+page /object/tactic fundeni "FUNDENI tactic" {
+    <<sotitle>>
+
+    <<tactic_fundeni overview>><p>
+
+    FUNDENI tactics have the following attributes:<p>
+
+    <<tactic_fundeni parmlist>>
+}
+
 
 #-----------------------------------------------------------------------
 # MOBILIZE

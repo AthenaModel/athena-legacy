@@ -203,6 +203,7 @@ snit::type ::projectlib::parmdb {
             }
         }
 
+        $ps setdefault aam.UFvsNF.ECDA.ISOLATED 0.0
         $ps setdefault aam.UFvsNF.ECDA.RURAL    1.0
         $ps setdefault aam.UFvsNF.ECDA.SUBURBAN 3.0
         $ps setdefault aam.UFvsNF.ECDA.URBAN    5.0
@@ -316,6 +317,7 @@ snit::type ::projectlib::parmdb {
             }
         }
 
+        $ps setdefault aam.NFvsUF.ECDC.ISOLATED 0.0
         $ps setdefault aam.NFvsUF.ECDC.RURAL    0.1
         $ps setdefault aam.NFvsUF.ECDC.SUBURBAN 0.15
         $ps setdefault aam.NFvsUF.ECDC.URBAN    0.2
@@ -1449,6 +1451,76 @@ snit::type ::projectlib::parmdb {
 
         # NEXT, define rmf parameters
         $ps slave add [list ::simlib::rmf parm]
+
+        # Service Model Parameters
+        $ps subset service {
+            Parameters which affect the Athena Service models.
+        }
+
+        $ps subset service.ENI {
+            Parameters which affect the Essential Non-Infrastructure
+            Services model.
+        }
+
+        $ps define service.ENI.alphaA ::simlib::rfraction 0.10 {
+            Smoothing constant for computing the expected level of
+            service <b>when the average amount of service has been 
+            higher than the expectation</b>.  If 1.0, the expected
+            level of service will just be the current level of service
+            (expectations change instantly); if 0.0, the expected
+            level of service will never change at all.  
+        }
+
+        $ps define service.ENI.alphaX ::simlib::rfraction 0.05 {
+            Smoothing constant for computing the expected level of
+            service <b>when the expectation of service has been higher
+            than the average amount</b>.  If 1.0, the expected
+            level of service will just be the current level of service
+            (expectations change instantly); if 0.0, the expected
+            level of service will never change at all.  
+        }
+
+        $ps subset service.ENI.beta {
+            The shape parameter for the service vs. funding curve, by
+            neighborhood urbanization level.  If 1.0, the curve is
+            linear; for values less than 1.0, the curve exhibits
+            economies of scale.
+        }
+
+        $ps subset service.ENI.required {
+            The required level of service, by neighborhood
+            urbanization level, expressed as a fraction of the
+            saturation level of service.
+        }
+
+        $ps subset service.ENI.saturationCost {
+            The per capita cost of providing the saturation level of
+            service, by neighborhood urbanization level, in $/week.
+        }
+
+        foreach ul [::projectlib::eurbanization names] {
+            $ps define service.ENI.beta.$ul \
+                ::projectlib::parmdb_rquantity 1.0 \
+                "Value of service.ENI.beta for urbanization level $ul."
+
+            $ps define service.ENI.required.$ul \
+                ::simlib::rfraction 0.0 \
+                "Value of service.ENI.required for urbanization level $ul."
+
+            $ps define service.ENI.saturationCost.$ul \
+                ::projectlib::money 0.0 \
+             "Value of service.ENI.saturationCost for urbanization level $ul."
+        }
+
+        $ps setdefault service.ENI.required.ISOLATED       0.0
+        $ps setdefault service.ENI.required.RURAL          0.1
+        $ps setdefault service.ENI.required.SUBURBAN       0.1
+        $ps setdefault service.ENI.required.URBAN          0.1
+
+        $ps setdefault service.ENI.saturationCost.ISOLATED 0.01
+        $ps setdefault service.ENI.saturationCost.RURAL    0.10
+        $ps setdefault service.ENI.saturationCost.SUBURBAN 0.15
+        $ps setdefault service.ENI.saturationCost.URBAN    0.20
 
         # Strategy Model parameters
 
