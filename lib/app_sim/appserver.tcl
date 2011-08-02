@@ -865,97 +865,107 @@ snit::type appserver {
         # Deployment
         ht subtitle "Force Deployment" forces
 
-        ht query {
-            SELECT N.longlink              AS 'Neighborhood',
-                   P.personnel             AS 'Personnel',
-                   G.longlink              AS 'Group',
-                   G.fulltype              AS 'Type'
-            FROM deploy_ng AS P
-            JOIN gui_agroups  AS G ON (G.g=P.g)
-            JOIN gui_nbhoods  AS N ON (N.n=P.n)
-            WHERE G.a=$a AND personnel > 0
-        } -default "No forces are deployed."
+        if {[Locked]} {
+            ht query {
+                SELECT N.longlink              AS 'Neighborhood',
+                       P.personnel             AS 'Personnel',
+                       G.longlink              AS 'Group',
+                       G.fulltype              AS 'Type'
+                FROM deploy_ng AS P
+                JOIN gui_agroups  AS G ON (G.g=P.g)
+                JOIN gui_nbhoods  AS N ON (N.n=P.n)
+                WHERE G.a=$a AND personnel > 0
+            } -default "No forces are deployed."
+        } else {
+            ht put {
+                The status quo deployment of the actor's force and
+                organization group personnel is as follows; this is
+                the disposition of the actor's personnel prior to the
+                start of the simulation, as set on the
+            }
+            ht link gui:/tab/sqdeploy "Groups/Deployments tab"
+            ht put "."
+            ht putln {
+                As such, it determines the initial neighborhood
+                security levels, and the initial support and influence of
+                the various actors, and hence provides the context for
+                the initial strategy execution that takes place when
+                the scenario is locked at time 0.
+            }
+
+            ht para
+
+            ht query {
+                SELECT N.longlink              AS 'Neighborhood',
+                       P.personnel             AS 'Personnel',
+                       G.longlink              AS 'Group',
+                       G.fulltype              AS 'Type'
+                FROM sqdeploy_ng AS P
+                JOIN gui_agroups  AS G ON (G.g=P.g)
+                JOIN gui_nbhoods  AS N ON (N.n=P.n)
+                WHERE G.a=$a AND personnel > 0
+            } -default "No forces are deployed."
+        }
 
 
         ht subtitle "Attack Status" attack
 
-        # There might not be any.
-        ht push
+        if {[Locked -disclaimer]} {
+            # There might not be any.
+            ht push
 
-        rdb eval {
-            SELECT nlink,
-                   flink,
-                   froe,
-                   fpersonnel,
-                   glink,
-                   fattacks,
-                   gpersonnel,
-                   groe
-            FROM gui_conflicts
-            WHERE factor = $a;
-        } {
-            if {$fpersonnel && $gpersonnel > 0} {
-                set bgcolor white
-            } else {
-                set bgcolor lightgray
-            }
-
-            ht tr bgcolor $bgcolor {
-                ht td left {
-                    ht put $nlink
-                }
-
-                ht td left {
-                    ht put $flink
-                }
-
-                ht td left {
-                    ht put $froe
-                }
-
-                ht td right {
-                    ht put $fpersonnel
-                }
-
-                ht td right {
-                    ht put $fattacks
-                }
-
-                ht td left {
-                    ht put $glink
-                }
-
-                ht td right {
-                    ht put $gpersonnel
-                }
-
-                ht td left {
-                    ht put $groe
-                }
-            }
-        }
-
-        set text [ht pop]
-
-        if {$text ne ""} {
-            ht putln "Actor $a's force groups have the following "
-            ht put   "attacking ROEs."
-            ht putln {
-                The background will be gray for potential conflicts,
-                i.e., those in which one or the other group (or both)
-                has no personnel in the neighborhood in question.
-            }
-            ht para
-
-            ht table {
-                "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
-                "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
+            rdb eval {
+                SELECT nlink,
+                       flink,
+                       froe,
+                       fpersonnel,
+                       glink,
+                       fattacks,
+                       gpersonnel,
+                       groe
+                FROM gui_conflicts
+                WHERE factor = $a;
             } {
-                ht putln $text
+                if {$fpersonnel && $gpersonnel > 0} {
+                    set bgcolor white
+                } else {
+                    set bgcolor lightgray
+                }
+
+                ht tr bgcolor $bgcolor {
+                    ht td left  { ht put $nlink      }
+                    ht td left  { ht put $flink      }
+                    ht td left  { ht put $froe       }
+                    ht td right { ht put $fpersonnel }
+                    ht td right { ht put $fattacks   }
+                    ht td left  { ht put $glink      }
+                    ht td right { ht put $gpersonnel }
+                    ht td left  { ht put $groe       }
+                }
             }
-        } else {
-            ht putln "No group owned by actor $a is attacking any other "
-            ht put   "groups."
+
+            set text [ht pop]
+
+            if {$text ne ""} {
+                ht putln "Actor $a's force groups have the following "
+                ht put   "attacking ROEs."
+                ht putln {
+                    The background will be gray for potential conflicts,
+                    i.e., those in which one or the other group (or both)
+                    has no personnel in the neighborhood in question.
+                }
+                ht para
+
+                ht table {
+                    "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
+                    "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
+                } {
+                    ht putln $text
+                }
+            } else {
+                ht putln "No group owned by actor $a is attacking any other "
+                ht put   "groups."
+            }
         }
 
         ht para
@@ -963,38 +973,30 @@ snit::type appserver {
 
         ht subtitle "Defense Status" defense
 
-        ht putln "Actor $a's force groups are defending against "
-        ht put   "the following attacks:"
-        ht para
+        if {[Locked -disclaimer]} {
+            ht putln "Actor $a's force groups are defending against "
+            ht put   "the following attacks:"
+            ht para
 
-        ht query {
-            SELECT nlink                AS "Neighborhood",
-                   glink                AS "Defender",
-                   groe                 AS "Def. ROE",
-                   gpersonnel           AS "Def. Personnel",
-                   flink                AS "Attacker",
-                   froe                 AS "Att. ROE",
-                   fpersonnel           AS "Att. Personnel"
-            FROM gui_conflicts
-            WHERE gactor = $a
-            AND   fpersonnel > 0
-            AND   gpersonnel > 0
-        } -default "None."
+            ht query {
+                SELECT nlink                AS "Neighborhood",
+                       glink                AS "Defender",
+                       groe                 AS "Def. ROE",
+                       gpersonnel           AS "Def. Personnel",
+                       flink                AS "Attacker",
+                       froe                 AS "Att. ROE",
+                       fpersonnel           AS "Att. Personnel"
+                FROM gui_conflicts
+                WHERE gactor = $a
+                AND   fpersonnel > 0
+                AND   gpersonnel > 0
+            } -default "None."
 
-        ht para
-
-        ht subtitle "Significant Events" sigevents
-
-        ht putln {
-            The following are the most recent significant events 
-            involving this actor, oldest first.
+            ht para
         }
 
-        ht para
-
-
-
-        SigEvents -tags $a -mark run
+        # Sig Events; anchor is "sigevents"
+        EntitySigEvents actor $a
 
         ht /page
 
@@ -1789,11 +1791,6 @@ snit::type appserver {
         ht page "Force Group: $g"
         ht title "$data(longname) ($g)" "Force Group" 
 
-        if {![Locked -disclaimer]} {
-            ht /page
-            return [ht get]
-        }
-
         ht linkbar {
             "#deployment" "Deployment"
             "#attack"     "Attack Status"
@@ -1801,85 +1798,63 @@ snit::type appserver {
             "#sigevents"  "Significant Events"
         }
 
-        ht subtitle "Deployment" deployment
+        # Deployment; anchor is "deployment".
+        html_GroupDeployment $g
 
-        ht query {
-            SELECT N.longlink     AS "Neighborhood",
-                   D.personnel    AS "Personnel"
-            FROM deploy_ng AS D
-            JOIN gui_nbhoods AS N ON (D.n = N.n)
-            WHERE D.g = $g AND D.personnel > 0
-            ORDER BY N.longlink
-        } -default "No personnel are deployed." -align LR
 
-        
         ht subtitle "Attack Status" attack
 
-        # There might not be any.
-        ht push
+        if {[Locked -disclaimer]} {
+            # There might not be any.
+            ht push
 
-        rdb eval {
-            SELECT nlink,
-                   froe,
-                   fpersonnel,
-                   glink,
-                   fattacks,
-                   gpersonnel,
-                   groe
-            FROM gui_conflicts
-            WHERE f = $g;
-        } {
-            if {$fpersonnel && $gpersonnel > 0} {
-                set bgcolor white
-            } else {
-                set bgcolor lightgray
-            }
-
-            ht tr bgcolor $bgcolor {
-                ht td left {
-                    ht put $nlink
-                }
-
-                ht td left {
-                    ht put $froe
-                }
-
-                ht td right {
-                    ht put $fattacks
-                }
-
-                ht td left {
-                    ht put $glink
-                }
-
-                ht td right {
-                    ht put $gpersonnel
-                }
-
-                ht td left {
-                    ht put $groe
-                }
-            }
-        }
-
-        set text [ht pop]
-
-        if {$text ne ""} {
-            ht putln "Group $g has the following attacking ROEs."
-            ht putln {
-                The background will be gray for potential conflicts, 
-                i.e., those in which one or the other group (or both)
-                has no personnel in the neighborhood in question.
-            }
-            ht para
-
-            ht table {
-                "Nbhood" "Att. ROE" "Max Attacks" "Defender" "Personnel" "Def. ROE"
+            rdb eval {
+                SELECT nlink,
+                       froe,
+                       fpersonnel,
+                       glink,
+                       fattacks,
+                       gpersonnel,
+                       groe
+                       FROM gui_conflicts
+                WHERE f = $g;
             } {
-                ht putln $text
+                if {$fpersonnel && $gpersonnel > 0} {
+                    set bgcolor white
+                } else {
+                    set bgcolor lightgray
+                }
+
+                ht tr bgcolor $bgcolor {
+                    ht td left  { ht put $nlink      }
+                    ht td left  { ht put $froe       }
+                    ht td right { ht put $fattacks   }
+                    ht td left  { ht put $glink      }
+                    ht td right { ht put $gpersonnel }
+                    ht td left  { ht put $groe       }
+                }
             }
-        } else {
-            ht putln "Group $g is not attacking any other groups."
+
+            set text [ht pop]
+
+            if {$text ne ""} {
+                ht putln "Group $g has the following attacking ROEs."
+                ht putln {
+                    The background will be gray for potential conflicts, 
+                    i.e., those in which one or the other group (or both)
+                    has no personnel in the neighborhood in question.
+                }
+                ht para
+
+                ht table {
+                    "Nbhood" "Att. ROE" "Max Attacks" "Defender" 
+                    "Personnel" "Def. ROE"
+                } {
+                    ht putln $text
+                }
+            } else {
+                ht putln "Group $g is not attacking any other groups."
+            }
         }
 
         ht para
@@ -1887,36 +1862,28 @@ snit::type appserver {
 
         ht subtitle "Defense Status" defense
 
-        ht putln "Group $g is defending against attack from the following "
-        ht put   "groups:"
-        ht para
+        if {[Locked -disclaimer]} {
+            ht putln "Group $g is defending against attack from the following "
+            ht put   "groups:"
+            ht para
 
-        ht query {
-            SELECT nlink                AS "Neighborhood",
-                   groe                 AS "Def. ROE",
-                   flink                AS "Attacker",
-                   froe                 AS "Att. ROE",
-                   fpersonnel           AS "Att. Personnel"
-            FROM gui_conflicts
-            WHERE g=$g
-            AND   fpersonnel > 0
-            AND   gpersonnel > 0
-        } -default "None."
+            ht query {
+                SELECT nlink                AS "Neighborhood",
+                       groe                 AS "Def. ROE",
+                       flink                AS "Attacker",
+                       froe                 AS "Att. ROE",
+                       fpersonnel           AS "Att. Personnel"
+                FROM gui_conflicts
+                WHERE g=$g
+                AND   fpersonnel > 0
+                AND   gpersonnel > 0
+            } -default "None."
 
-        ht para
-
-        ht subtitle "Significant Events" sigevents
-
-        ht putln {
-            The following are the most recent significant events 
-            involving this group, oldest first.
+            ht para
         }
 
-        ht para
-
-        SigEvents -tags $g -mark run
-
-        ht /page
+        # Significant events: anchor is "sigevents"
+        EntitySigEvents group $g
 
         return [ht get]
     }
@@ -1933,42 +1900,76 @@ snit::type appserver {
         ht page "Organization Group: $g"
         ht title "$data(longname) ($g)" "Organization Group" 
 
-        if {![Locked -disclaimer]} {
-            ht /page
-            return [ht get]
-        }
-
         ht linkbar {
             "#deployment" "Deployment"
             "#sigevents"  "Significant Events"
         }
 
-        ht subtitle "Deployment" deployment
+        # Deployment; anchor is "deployment".
+        html_GroupDeployment $g
 
-        ht query {
-            SELECT N.longlink     AS "Neighborhood",
-                   D.personnel    AS "Personnel"
-            FROM deploy_ng AS D
-            JOIN gui_nbhoods AS N ON (D.n = N.n)
-            WHERE D.g = $g AND D.personnel > 0
-            ORDER BY N.longlink
-        } -default "No personnel are deployed." -align LR
-
-
-        ht subtitle "Significant Events" sigevents
-
-        ht putln {
-            The following are the most recent significant events 
-            involving this group, oldest first.
-        }
-
-        ht para
-
-        SigEvents -tags $g -mark run
+        # Significant events: anchor is "sigevents"
+        EntitySigEvents group $g
 
         ht /page
 
         return [ht get]
+    }
+
+    # html_GroupDeployment g
+    #
+    # g   - A FRC/ORG group.
+    #
+    # Outputs the deployment for group g, with title; the 
+    # anchor is "deployment".  During PREP, shows the status
+    # quo deployment, with explanation.
+
+    proc html_GroupDeployment {g} {
+        ht subtitle "Deployment" deployment
+
+        if {[Locked]} {
+            ht put "Group $g is currently deployed into the following "
+            ht put "neighborhoods:" 
+
+            ht para
+
+            ht query {
+                SELECT N.longlink     AS "Neighborhood",
+                       D.personnel    AS "Personnel"
+                FROM deploy_ng AS D
+                JOIN gui_nbhoods AS N ON (D.n = N.n)
+                WHERE D.g = $g AND D.personnel > 0
+                ORDER BY N.longlink
+            } -default "No personnel are deployed." -align LR
+        } else {
+            ht put "The status quo deployment of group $g is as follows."
+            ht put {
+                This is the disposition of group personnel prior to
+                the beginning of simulation, as set on the
+            }
+            ht link gui:/tab/sqdeploy "Groups/Deployments tab"
+            ht put "."
+            ht putln { 
+                As such, it sets the context for
+                the first strategy execution when the scenario is
+                locked.  For example, it determines neighborhood
+                security levels, and each actor's initial 
+                support and influence.
+            }
+
+            ht para
+
+            ht query {
+                SELECT N.longlink     AS "Neighborhood",
+                       D.personnel    AS "Personnel"
+                FROM sqdeploy_ng AS D
+                JOIN gui_nbhoods AS N ON (D.n = N.n)
+                WHERE D.g = $g AND D.personnel > 0
+                ORDER BY N.longlink
+            } -default "No personnel are deployed." -align LR
+        }
+
+        ht para
     }
 
     # html_GroupVrel udict matchArray
@@ -3162,6 +3163,29 @@ snit::type appserver {
             ht para
         } else {
             ht putln "No significant events occurred."
+        }
+    }
+
+    # EntitySigEvents etype ename
+    #
+    # etype   - The entity type, e.g., "group"
+    # ename   - The entity name, e.g., $g
+    #
+    # Outputs a "Signficant Events" block with title and unlocked
+    # scenario disclaimer.
+
+    proc EntitySigEvents {etype ename} {
+        ht subtitle "Significant Events" sigevents
+
+        if {[Locked -disclaimer]} {
+            ht putln "
+                The following are the most recent significant events 
+                involving this $etype, oldest first.
+            "
+
+            ht para
+
+            SigEvents -tags $ename -mark run
         }
     }
 
