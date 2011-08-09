@@ -275,12 +275,12 @@ snit::type ::projectlib::scenariodb {
             qfancyfmt  ::projectlib::scenariodb::QFancyFmt
             qaffinity  ::simlib::qaffinity
             qcoop      ::simlib::qcooperation
+            qemphasis  ::simlib::qemphasis
             qmag       ::simlib::qmag
             qposition  ::simlib::qposition
             qsat       ::simlib::qsat
             qsaliency  ::simlib::qsaliency
             qsecurity  ::projectlib::qsecurity
-            qtolerance ::simlib::qtolerance
             link       ::projectlib::scenariodb::Link
             pair       ::projectlib::scenariodb::Pair
             qfancyfmt  ::projectlib::scenariodb::QFancyFmt

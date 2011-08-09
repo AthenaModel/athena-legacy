@@ -128,7 +128,7 @@ term bsystem "belief system" {
     Every <<term civgroup>> and <<term actor>> has a belief system, which
     is a set of beliefs with regard to a number of <<term topic>>s.  Each
     belief consists of a <<term position>> for or against the topic,
-    along with a <<term tolerance>> for disagreement with that
+    along with a <<term emphasis>> on agreement or disagreement for that
     position.<p>
 
     Belief systems are used to compute <<term affinity affinities>>,
@@ -401,6 +401,29 @@ term effects_delay "effects delay" {
     <<cref /order/nbrel>>.
 }
 
+#-------------------------------------------------------------------
+
+term emphasis "emphasis" {
+    A <<term civgroup>> or <<term actor>>'s belief about a 
+    <<term topic>> is represented as a <<term position>> and an
+    emphasis on agreement or disagreement with that position.
+    The emphasis is a number from 0.0 to 1.0; 0.0 indicates that when
+    computing affinity, disagreement counts entirely and agreement not
+    at all, and 1.0 indicates that agreement counts entirely and
+    disagreement not at all.  In general, the lower the emphasis, the
+    the lower the <<term affinity affinities>>.<p>
+
+    <b>Note:</b> the 
+    extreme values of 0.0 and 1.0 represent extreme pathological cases
+    and generally should not be used.<p>
+
+    Emphasis can and should be defined using the following symbolic
+    constants:<p>
+
+    <<::simlib::qemphasis html>>
+}
+
+
 #-----------------------------------------------------------------------
 
 term ensit "environmental situation" {
@@ -663,8 +686,9 @@ term playbox "playbox" {
 
 term position "position" {
     A <<term civgroup>> or <<term actor>>'s belief about a 
-    <<term topic>> is represented as a position and a 
-    <<term tolerance>>.  The position is a number from 1.0 to
+    <<term topic>> is represented as a position and an
+    <<term emphasis>> on agreement or disagreement with that position.
+    The position is a number from 1.0 to
     -1.0 that represents not only whether the entity is for or against
     the topic, but also the strength of that position: the greater the
     absolute magnitude of the number, the more likely the entity is to
@@ -1002,28 +1026,6 @@ term tock "tock" {
 
 #-----------------------------------------------------------------------
 
-term tolerance "tolerance" {
-    A <<term civgroup>> or <<term actor>>'s belief about a 
-    <<term topic>> is represented as a <<term position>> and a 
-    tolerance for disagreement.  The tolerance is a number from 0.0 to
-    1.0 that indicates the entity's tolerance for those who disagree
-    with the entity's position on the topic.  Lower tolerances
-    lead to lower <<term affinity affinities>>.<p>
-
-    <b>Note:</b> the 
-    extreme values of 0.0 and 1.0 represent extreme pathological cases
-    and generally should not be used.<p>
-
-    Note that a low tolerance for disagreement does not necessarily
-    imply political action, violent or otherwise, against those one
-    disagrees with, though it will certainly work against political
-    alliance.<p>
-
-    Tolerances can be defined using the following symbolic
-    constants:<p>
-
-    <<::simlib::qtolerance html>>
-}
 
 #-----------------------------------------------------------------------
 

@@ -401,7 +401,8 @@ page /order/bsystem belief "Belief Orders" {
 
     Each <<term bsystem>> consists of a 
     set of beliefs, each consisting of a 
-    <<term position>> and a <<term tolerance>> for disagreement.
+    <<term position>> and an <<term emphasis>> on agreement or
+    disagreement with respect that position.
     Every <<term civgroup>> and <<term actor>> automatically has
     a belief about every defined <<term topic>>.  The following
     order is used to edit beliefs.<p>
@@ -427,12 +428,13 @@ order BSYSTEM:BELIEF:UPDATE "Update Belief" {
     <<::simlib::qposition html>>
     <</parm>>
 
-    <<parm tolerance "Tolerance">>
-    <b>Optional.</b> The entity's <<term tolerance>> for disagreement
-    on the topic, a number from 0.0 to 1.0.  The symbolic constants 
-    defined in the following table may also be used:<p>
+    <<parm emphasis "Emphasis is On">>
+    <b>Optional.</b> The entity's <<term emphasis>> on agreement or 
+    disagreement for the topic, a number from 0.0 to 1.0.  The 
+    symbolic constants defined in the following table should generally
+    be used.<p>
 
-    <<::simlib::qtolerance html>>
+    <<::simlib::qemphasis html>>
     <</parm>>
 
     <</parmlist>>

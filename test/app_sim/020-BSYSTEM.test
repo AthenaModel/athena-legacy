@@ -391,7 +391,7 @@ T1  New Title 1
 
     test BELIEF:UPDATE-1.2 {invalid belief: entity} -body {
         ted order -reject BSYSTEM:BELIEF:UPDATE \
-            id {NONESUCH NONESUCH} position 0.5 tolerance 0.7
+            id {NONESUCH NONESUCH} position 0.5 emphasis 0.7
     } -cleanup {
         cleanup
     } -result {
@@ -402,7 +402,7 @@ T1  New Title 1
         ted create JOE
     } -body {
         ted order -reject BSYSTEM:BELIEF:UPDATE \
-            id {JOE NONESUCH} position 0.5 tolerance 0.7
+            id {JOE NONESUCH} position 0.5 emphasis 0.7
     } -cleanup {
         cleanup
     } -result {
@@ -421,16 +421,16 @@ T1  New Title 1
         position {invalid value "NONESUCH", should be a real number in range -1.0, 1.0, or one of: P+, S+, W+, A, W-, S-, P-}
     }
 
-    test BELIEF:UPDATE-1.5 {invalid tolerance} -setup {
+    test BELIEF:UPDATE-1.5 {invalid emphasis} -setup {
         ted create JOE
         ted order BSYSTEM:TOPIC:CREATE $T1
     } -body {
         ted order -reject BSYSTEM:BELIEF:UPDATE \
-            id {JOE T1} tolerance NONESUCH
+            id {JOE T1} emphasis NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        tolerance {invalid value "NONESUCH", should be a real number in range 0.0, 1.0, or one of: VT, T, B, I, VI, EI}
+        emphasis {invalid value "NONESUCH", should be a real number in range 0.0, 1.0, or one of: ASTRONG, AWEAK, NEITHER, DWEAK, DSTRONG, DEXTREME}
     }
 
     test BELIEF:UPDATE-2.1 {belief is updated} -setup {
@@ -438,15 +438,15 @@ T1  New Title 1
         ted order BSYSTEM:TOPIC:CREATE $T1
     } -body {
         ted order BSYSTEM:BELIEF:UPDATE \
-            id {JOE T1} position 0.1 tolerance 0.2
+            id {JOE T1} position 0.1 emphasis 0.2
 
         ted query {SELECT * FROM mam_belief}
     } -cleanup {
         cleanup
     } -result {
-eid tid position tolerance 
---- --- -------- --------- 
-JOE T1  0.1      0.2       
+eid tid position emphasis 
+--- --- -------- -------- 
+JOE T1  0.1      0.2      
     }
 
     test BELIEF:UPDATE-2.2 {symbols are OK} -setup {
@@ -454,15 +454,15 @@ JOE T1  0.1      0.2
         ted order BSYSTEM:TOPIC:CREATE $T1
     } -body {
         ted order BSYSTEM:BELIEF:UPDATE \
-            id {JOE T1} position P- tolerance VT
+            id {JOE T1} position P- emphasis ASTRONG
 
         ted query {SELECT * FROM mam_belief}
     } -cleanup {
         cleanup
     } -result {
-eid tid position tolerance 
---- --- -------- --------- 
-JOE T1  -0.9     0.9       
+eid tid position emphasis 
+--- --- -------- -------- 
+JOE T1  -0.9     0.9      
     }
 
     test BELIEF:UPDATE-2.3 {belief is monitored} -setup {
@@ -471,7 +471,7 @@ JOE T1  -0.9     0.9
     } -body {
         ted notifier bind ::rdb <mam_belief>
         ted order BSYSTEM:BELIEF:UPDATE \
-            id {JOE T1} position 0.1 tolerance 0.2
+            id {JOE T1} position 0.1 emphasis 0.2
         ted notifier received
     } -cleanup {
         cleanup
@@ -485,7 +485,7 @@ JOE T1  -0.9     0.9
         ted create JOE
         ted order BSYSTEM:TOPIC:CREATE $T1
         ted order BSYSTEM:BELIEF:UPDATE \
-            id {JOE T1} position 0.1 tolerance 0.2
+            id {JOE T1} position 0.1 emphasis 0.2
     } -body {
         ted notifier bind ::rdb <mam_belief>
         cif undo -test

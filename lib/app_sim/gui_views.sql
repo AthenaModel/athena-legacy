@@ -209,7 +209,7 @@ SELECT eid || ' ' || tid                AS id,
        eid                              AS eid,
        tid                              AS tid,
        qposition('name',position)       AS position,
-       qtolerance('name',tolerance)     AS tolerance
+       qemphasis('name',emphasis)       AS emphasis
 FROM mam_belief;
 
 -- An affinity comparison view

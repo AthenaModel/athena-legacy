@@ -342,17 +342,17 @@ order define BSYSTEM:BELIEF:UPDATE {
     parm id        key   "Select Belief" -table gui_mam_belief \
                                          -keys  {eid tid}
     parm position  text  "Position"
-    parm tolerance text  "Tolerance"
+    parm emphasis  text  "Emphasis is On"
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type {bsystem belief}
     prepare position  -type qposition  -xform {qposition value}
-    prepare tolerance -type qtolerance -xform {qtolerance value}
+    prepare emphasis  -type qemphasis  -xform {qemphasis value}
 
     returnOnError -final
 
     # NEXT, modify the group.
-    set opts [bsystem::ParmsToOptions {position tolerance}]
+    set opts [bsystem::ParmsToOptions {position emphasis}]
 
     bsystem belief configure {*}$parms(id) {*}$opts
     bsystem compute

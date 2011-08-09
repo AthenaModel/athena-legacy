@@ -498,7 +498,7 @@ snit::widget bsystembrowser {
                 { tid "Topic" }
                 { position "Position" 
                     -formatcommand {format ""} }
-                { tolerance "Tolerance" 
+                { emphasis "Emphasis is On" 
                     -formatcommand {format ""} }
             }
 
@@ -574,7 +574,7 @@ snit::widget bsystembrowser {
     # It specifies the window creation command for cells that need one.
 
     method BListWindows {r data} {
-        foreach column {position tolerance} {
+        foreach column {position emphasis} {
             # FIRST, get the cell ID
             set rc $r,[$blist cname2cindex $column]
 
@@ -591,7 +591,7 @@ snit::widget bsystembrowser {
     # c     The column being edited
     # w     The window to be created
     #
-    # Creates the position and tolerance pulldowns.
+    # Creates the position and emphasis pulldowns.
 
     method BListCreateEditor {tbl r c w} {
         set cname [$blist cindex2cname $c]
@@ -600,8 +600,8 @@ snit::widget bsystembrowser {
             set wintype ::qposition
             set width 20
         } else {
-            set wintype ::qtolerance
-            set width 20
+            set wintype ::qemphasis
+            set width 21
         }
 
         if {[sim state] eq "PREP"} {
