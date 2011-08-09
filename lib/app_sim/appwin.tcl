@@ -2192,7 +2192,6 @@ snit::widget appwin {
         
         dict set checkpoint mode           $info(mode)
         dict set checkpoint visibility     [array get visibility]
-        dict set checkpoint cli            [$cli saveable checkpoint]
 
         return $checkpoint
     }
@@ -2205,7 +2204,6 @@ snit::widget appwin {
         # FIRST, restore the checkpoint data
         set info(mode)           [dict get $checkpoint mode]
         array set visibility     [dict get $checkpoint visibility]
-        $cli saveable restore    [dict get $checkpoint cli]
     }
 
     # changed
