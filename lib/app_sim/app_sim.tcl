@@ -113,6 +113,7 @@ source [file join $::app_sim::library condition_unmet.tcl    ]
 source [file join $::app_sim::library sqdeploy.tcl           ]
 source [file join $::app_sim::library personnel.tcl          ]
 source [file join $::app_sim::library cash.tcl               ]
+source [file join $::app_sim::library sqservice.tcl          ]
 source [file join $::app_sim::library service.tcl            ]
 source [file join $::app_sim::library sat.tcl                ]
 source [file join $::app_sim::library rel.tcl                ]
@@ -180,17 +181,9 @@ source [file join $::app_sim::library strategybrowser.tcl    ]
 source [file join $::app_sim::library bsystembrowser.tcl     ]
 source [file join $::app_sim::library relbrowser.tcl         ]
 source [file join $::app_sim::library sqdeploybrowser.tcl    ]
+source [file join $::app_sim::library sqservicebrowser.tcl   ]
 source [file join $::app_sim::library satbrowser.tcl         ]
 source [file join $::app_sim::library securitybrowser.tcl    ]
-
-
-
-
-
-
-
-
-
 
 
 

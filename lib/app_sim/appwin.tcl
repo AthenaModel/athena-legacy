@@ -222,6 +222,13 @@ snit::widget appwin {
             script  { sqdeploybrowser %W }
         }
 
+        sqservice {
+            label   "Services"
+            vistype scenario
+            parent  groupst
+            script  { sqservicebrowser %W }
+        }
+
         gramt {
             label   "Attitudes"
             vistype *

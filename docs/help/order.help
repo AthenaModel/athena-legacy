@@ -2548,6 +2548,8 @@ page /order sqdeploy "Status Quo Group Deployment Orders" {
     deployments form part of the context for the initial strategy
     execution that takes place when the scenario is locked and
     simulation begins.<p>
+
+    <<childlinks>>
 }
 
 order SQDEPLOY:SET "Set Status Quo Group Deployment" {
@@ -2582,6 +2584,61 @@ order SQDEPLOY:DELETE "Delete Status Quo Group Deployment" {
     <b>Required.</b>  A list {<i>n g</i>} where <i>n</i> is the name
     of a neighborhood and <i>g</i> is the name of a a force or
     organization group.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+
+page /order sqservice "Status Quo ENI Funding Orders" {
+    <<title>>
+
+    In Athena, <<term actor>>s provide Essential Non-Infrastructure
+    (ENI) services to <<term civgroup>>s using the 
+    <<cref /object/tactic/fundeni>> during <<term strategy>>
+    execution.  However, strategies execute in the context of the
+    status quo, and so the actor's tactics cannot establish the
+    status quo at time 0, when the scenario is locked and simulation
+    begins.<p>
+
+    Consequently, these orders are used to specify the "status quo"
+    level of funding for ENI services from each actor to each each
+    civilian group.  This affects the initial vertical
+    relationship between each civilian group and each actor, which in turn
+    affects each actor's support and influence in each neighborhood.<p>
+
+    <<childlinks>>
+}
+
+order SQSERVICE:SET "Set Status Quo ENI Funding" {
+    This order is used to set an <<term actor>>'s status quo level 
+    of funding for Essential Non-Infrastructure (ENI) services to a 
+    <<term civgroup>>.  By default, no services are funded.<p>
+
+    <<parmlist>>
+    <<parm id "Group/Actor">>
+    <b>Required.</b>  A list {<i>g a</i>} where <i>g</i> is the name
+    of a civilian group and <i>a</i> is the name of an actor.
+    <</parm>>
+
+    <<parm funding "Funding, $/week">>
+    <b>Required.</b> The amount of money being spent on ENI services
+    by the actor for the group each week, in the status quo.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+order SQSERVICE:RESET "Reset Status Quo ENI Funding" {
+    This order is used to reset an <<term actor>>'s status quo level 
+    of funding for Essential Non-Infrastructure (ENI) services to a 
+    <<term civgroup>> back to zero.<p>
+
+    <<parmlist>>
+    <<parm id "Group/Actor">>
+    <b>Required.</b>  A list {<i>g a</i>} where <i>g</i> is the name
+    of a civilian group and <i>a</i> is the name of an actor.
     <</parm>>
 
     <</parmlist>>

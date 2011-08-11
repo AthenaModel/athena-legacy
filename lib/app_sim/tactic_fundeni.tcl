@@ -88,7 +88,14 @@ tactic type define FUNDENI {x1 glist} actor {
             # NEXT, fund the service
             service fundeni $owner $x1 $glist
 
-            # NEXT, log it.
+            # NEXT, get the related neighborhoods.
+            set nbhoods [rdb eval "
+                SELECT DISTINCT n 
+                FROM civgroups
+                WHERE g IN ('[join $glist ',']')
+            "]
+
+            # NEXT, Log it.
             if {[llength $glist] == 1} {
                 set gtext "{group:[lindex $glist 0]}"
             } else {
@@ -101,12 +108,14 @@ tactic type define FUNDENI {x1 glist} actor {
                 set gtext [join $grps ", "]
             }
 
+            
+
             # TBD: Do I need to include neighborhoods in here?
             sigevent log 2 tactic "
                 FUNDENI: Actor {actor:$owner} funds \$[moneyfmt $x1]
                 worth of Essential Non-Infrastructure services to
                 $gtext.
-            " $owner {*}$glist
+            " $owner {*}$glist {*}$nbhoods
         }
 
         return 1

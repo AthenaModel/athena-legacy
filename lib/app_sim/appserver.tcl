@@ -2039,8 +2039,10 @@ snit::type appserver {
             SELECT A.link,
                    qaffinity('format',V.vrel),
                    qaffinity('format',B.bvrel),
-                   V.dv_mood,
-                   V.dv_services
+                   CASE WHEN V.dv_mood == 0.0 THEN '0'
+                        ELSE qmag('name',V.dv_mood) END,
+                   CASE WHEN V.dv_eni == 0.0 THEN '0'
+                        ELSE qmag('name',V.dv_eni) END
             FROM vrel_ga AS V
             JOIN gui_actors AS A USING (a)
             JOIN bvrel_tga AS B ON (B.t=V.bvt AND B.g=V.g AND B.a=V.a)
@@ -2051,7 +2053,7 @@ snit::type appserver {
             "V.ga"
             "= BV.ga(t.control)"
             "+ &Delta;V.mood"
-            "+ &Delta;V.services"
+            "+ &Delta;V.eni"
         } -align LRRRR
 
         ht subtitle "Description"
@@ -2078,7 +2080,7 @@ snit::type appserver {
 
         ht putln {
             The remaining terms depend on group <i>g</i>'s environment
-            at the time of assessment.  The deltas as expressed as
+            at the time of assessment.  The deltas are expressed as
             magnitude symbols (TBD: Need link to on-line help.)
         }
 
@@ -2092,13 +2094,13 @@ snit::type appserver {
         }
         ht para
 
-        ht putln "<dt><b>&Delta;V.services</b>"
+        ht putln "<dt><b>&Delta;V.eni</b>"
         ht putln <dd>
         ht put {
-            Change in <i>V</i> due to the current level of basic services
-            in the neighborhood.  This term is non-zero if the level of 
-            basic services in the neighborhood is bettor or worse 
-            than expected.
+            Change in <i>V</i> due to the current level of 
+            Essential Non-Infrastructure (ENI) services
+            provided to the group.  This term is non-zero if the level of 
+            ENI servies is better or worse than expected.
         }
         ht putln </dl>
         
@@ -2850,6 +2852,7 @@ snit::type appserver {
             force
             gram
             rmf
+            service
             strategy
         } {
             set url /parmdb/$subset

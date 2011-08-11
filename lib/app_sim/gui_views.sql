@@ -283,8 +283,13 @@ JOIN gui_frcgroups AS G on (G.g = D.g)
 JOIN gui_actors    AS GA on (GA.a = G.a)
 JOIN deploy_ng AS GP ON (GP.n=D.n AND GP.g=D.g);
 
-
-       
+-- A status quo ENI service view for the GUI
+CREATE TEMPORARY VIEW gui_sqservice_ga AS
+SELECT g || ' ' || a                               AS id,
+       g                                           AS g,
+       a                                           AS a,
+       moneyfmt(funding)                           AS funding
+FROM sqservice_view;
 
 -- A sat_gc view for use by the GUI: 
 -- NOTE: presumes there is a single gram(n)!

@@ -1280,6 +1280,59 @@ tab "Groups/Deployments" {
     <</topiclist>>
 }
 
+#-----------------------------------------------------------------------
+
+tab "Groups/Services" {
+    <b>Scenario Mode Only.</b><p>
+
+    This tab is used to enter and browse the "status quo" levels of 
+    funding from <<term actor>>s to <<term civgroup>>s for 
+    Essential Non-Infrastructure (ENI) services.<p>
+
+    At simulation time, ENI services are funded using the 
+    <<cref /object/tactic/fundeni>> during <<term strategy>>
+    execution.  But since strategy execution depends on the state
+    of affairs during the previous week, the actors' strategies cannot
+    be used to establish the status quo at time 0, when the scenario
+    is locked.  The data entered on this tab is used to establish
+    the status quo level of funding.  If no status quo funding is
+    provided, Athena will assume that no services were funded before
+    the start of the simulation.<p>
+
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Group>>The name of a civilian group.<</topic>>
+
+    <<topic Actor>>The name of an actor.<</topic>>
+    
+    <<topic "Funding">>The level of funding for ENI, in dollars/week,
+    provided by the actor to the group, prior to simulation start.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If a single row is selected, pops up the 
+    <<cref /order/sqservice/set>> dialog for the selected neighborhood
+    and group.
+    <</topic>>
+
+    <<topic [image button_x]>>
+    If a single row is selected, zeroes the funding level.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
 
 
 #=======================================================================

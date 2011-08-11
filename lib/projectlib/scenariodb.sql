@@ -375,13 +375,9 @@ CREATE TABLE vrel_ga (
     -- Vertical Relationship of g with a
     vrel        REAL DEFAULT 0.0,
 
-    -- Deltas to vrel: qmag(n) symbols, or 0.  This is for
-    -- visualization purposes.
-
-    dv_beliefs  TEXT DEFAULT '0', -- deltaV due to changed beliefs
-    dv_mood     TEXT DEFAULT '0', -- deltaV due to group mood
-    dv_services TEXT DEFAULT '0', -- deltaV due to basic services
-    dv_tactics  TEXT DEFAULT '0', -- deltaV due actor's choice of tactics
+    -- Deltas to vrel.
+    dv_mood     REAL DEFAULT 0.0, -- deltaV due to group mood
+    dv_eni      REAL DEFAULT 0.0, -- deltaV due to ENI services
 
     PRIMARY KEY (g, a)
 );
@@ -481,7 +477,7 @@ CREATE TABLE control_n (
                ON DELETE CASCADE
                DEFERRABLE INITIALLY DEFERRED,
 
-    -- Support for a in n
+    -- Actor controlling n, or NULL.
     controller TEXT REFERENCES actors(a)
                ON DELETE CASCADE
                DEFERRABLE INITIALLY DEFERRED,
@@ -685,7 +681,7 @@ CREATE TABLE sqdeploy_ng (
 );
 
 -- An sqdeploy_ng view that fills in 0's for missing values.
-CREATE TEMPORARY VIEW sqdeploy_view AS
+CREATE VIEW sqdeploy_view AS
 SELECT N.n                                           AS n,
        G.g                                           AS g,
        coalesce(SQ.personnel,0)                      AS personnel       
@@ -1265,13 +1261,43 @@ WHERE state != 'ENDED' OR change != '';
 
 ------------------------------------------------------------------------
 -- Services
-
--- Service Group/Actor table: provision of service to a civilian
--- group by an actor.
 --
 -- NOTE: At present, there is only one kind of service,
 -- Essential Non-Infrastructure (ENI).  When we add other services,
 -- these tables may change considerably.
+
+-- Status Quo service group/actor table: status quo provision of 
+-- service to civilian groups by actors before simulation start.
+-- This table normally contains only non-zero entries.
+
+CREATE TABLE sqservice_ga (
+    -- Civilian Group ID
+    g            TEXT REFERENCES civgroups(g) 
+                      ON DELETE CASCADE
+                      DEFERRABLE INITIALLY DEFERRED,
+
+    -- Actor ID
+    a            TEXT REFERENCES actors(a)
+                      ON DELETE CASCADE
+                      DEFERRABLE INITIALLY DEFERRED,
+
+    -- Funding, $/week (symbol: F.ga)
+    funding      REAL DEFAULT 0.0,
+
+    PRIMARY KEY (g,a)
+);
+
+-- An sqservice_ga view that fills in 0.0's for missing values.
+CREATE VIEW sqservice_view AS
+SELECT C.g                        AS g,
+       A.a                        AS a,
+       coalesce(SQ.funding, 0.0)  AS funding
+FROM civgroups AS C
+JOIN actors AS A
+LEFT OUTER JOIN sqservice_ga AS SQ USING (g,a);
+
+-- Service Group/Actor table: provision of service to a civilian
+-- group by an actor.
 
 CREATE TABLE service_ga (
     -- Civilian Group ID
@@ -1286,6 +1312,10 @@ CREATE TABLE service_ga (
 
     -- Funding, $/week (symbol: F.ga)
     funding      REAL DEFAULT 0.0,
+
+    -- Credit, 0.0 to 1.0.  The fraction of unsaturated service
+    -- provided by this actor.
+    credit       REAL DEFAULT 0.0,
 
     PRIMARY KEY (g,a)
 );
@@ -1313,7 +1343,15 @@ CREATE TABLE service_g (
     actual              REAL DEFAULT 0.0,
 
     -- Expected level of service, fraction of saturation
-    expected            REAL DEFAULT 0.0
+    expected            REAL DEFAULT 0.0,
+
+    -- Excess level of service.  Measure of degree to which
+    -- expected exceeds actual (if positive) or vice versa (if negative).
+    excess              REAL DEFAULT 0.0,
+
+    -- Enough level of service.  Measure of degree to which
+    -- actual exceeds required level of services.
+    enough              REAL DEFAULT 0.0
 );
 
 ------------------------------------------------------------------------

@@ -94,10 +94,25 @@ snit::type control {
         log normal control "start"
 
         # FIRST, initialize the control tables
+        $type PopulateNbhoodControl
         $type PopulateVerticalRelationships
         $type PopulateActorInfluence
-        $type PopulateNbhoodControl
+
         log normal control "start complete"
+    }
+
+    # PopulateNbhoodControl
+    #
+    # The actor initially in control in the neighborhood is specified
+    # in the nbhoods table.  This routine, consequently, simply 
+    # populates the control_n table with that information.  Note
+    # that "controller" is NULL if no actor controls the neighborhood.
+
+    typemethod PopulateNbhoodControl {} {
+        rdb eval {
+            INSERT INTO control_n(n, controller, since)
+            SELECT n, controller, 0 FROM nbhoods
+        }
     }
 
     # PopulateVerticalRelationships
@@ -108,43 +123,45 @@ snit::type control {
     # and the affinity of their owning actor for a otherwise.
     #
     # For CIV groups, the initial vrel is their affinity for the actor,
-    # plus a delta based on the provision of basic services.
+    # plus a delta based on the provision of ENI services.
 
     typemethod PopulateVerticalRelationships {} {
+        # FIRST, initialize vrel_ga with the affinities, or 1.0 for
+        # FRC/ORG groups with their rel_entity.
         rdb eval {
-            SELECT G.g           AS g,
-                   G.gtype       AS gtype, 
-                   G.rel_entity  AS rel_entity, 
-                   A.a           AS a, 
-                   V.affinity    AS vrel
+            INSERT INTO vrel_ga(g, a, vrel)
+            SELECT G.g                             AS g,
+                   A.a                             AS a, 
+                   CASE WHEN G.rel_entity = A.a 
+                   THEN 1.0 ELSE V.affinity END    AS vrel
             FROM groups       AS G
             JOIN actors       AS A
             JOIN mam_affinity AS V
-            ON (V.f=G.rel_entity AND V.g=A.a)
-        } {
-            # FIRST, if the group's "relationship entity" is the
-            # actor itself, the vertical relationship is 1.0.
-            # This only happens for FRC and ORG groups.
-            if {$rel_entity eq $a} {
-                set vrel 1.0
-            }
+            ON (V.f=G.rel_entity AND V.g=A.a);
+        }
 
-            # NEXT, if this is a civilian group we must add the
-            # services term, and we must save the base relationship
-            # so that we can compute vrel_ga(t) later on.
-            if {$gtype eq "CIV"} {
-                # TBD: We don't have civilian services yet.
+        # NEXT, for civilian groups set bvrel(0).  It's just
+        # the affinity.
+        rdb eval {
+            INSERT INTO bvrel_tga(t, g, a, bvrel)
+            SELECT 0, g, a, vrel FROM vrel_ga;
+        }
 
-                rdb eval {
-                    INSERT INTO bvrel_tga(t, g, a, bvrel)
-                    VALUES(0, $g, $a, $vrel);
-                }
-            }
 
-            # NEXT, save the vertical relationship.
+        # NEXT, Compute the status quo vrel for civilian groups
+        # by adding deltaV.eni(0)
+        service assess deltav
+
+        foreach {g a vrel dv_eni} [rdb eval {
+            SELECT g, a, vrel, dv_eni
+            FROM vrel_ga
+        }] {
+            let vrel [scale $vrel $dv_eni]
+
             rdb eval {
-                INSERT INTO vrel_ga(g, a, vrel)
-                VALUES($g, $a, $vrel);
+                UPDATE vrel_ga
+                SET vrel = $vrel
+                WHERE g=$g AND a=$a
             }
         }
     }
@@ -163,20 +180,6 @@ snit::type control {
 
         # NEXT, compute the actor's initial influence.
         $type ComputeActorInfluence
-    }
-
-    # PopulateNbhoodControl
-    #
-    # The actor initially in control in the neighborhood is specified
-    # in the nbhoods table.  This routine, consequently, simply 
-    # populates the control_n table with that information.  Note
-    # that "controller" is NULL if no actor controls the neighborhood.
-
-    typemethod PopulateNbhoodControl {} {
-        rdb eval {
-            INSERT INTO control_n(n, controller, since)
-            SELECT n, controller, 0 FROM nbhoods
-        }
     }
 
     #-------------------------------------------------------------------
@@ -205,70 +208,94 @@ snit::type control {
     # currently change over time.)
     #
     # vrel.ga = bvrel.ga 
-    #         + deltaV.beliefs           <== Not yet pertinent
     #         + deltaV.mood              <== Implemented
-    #         + deltaV.services          <== Modeling in progress
+    #         + deltaV.eni               <== Implemented
+    #         + deltaV.beliefs           <== Not yet modeled
     #         + deltaV.tactics           <== Not yet modeled
     #
-    # So for now, it's the base value plus deltaV.mood.
-    # To compute deltaV.mood, I need:
-    #
-    # * g and a
-    # * g's neighborhood, n
-    # * Whether a is in control of n or not
-    # * g's mood now
-    # * g's mood at the time control of n last shifted
-    #
-    # TBD: Refactor for analysis! /vrel/{g}/{a}?
+    # First the deltaV's are computed; then all the deltaVs are 
+    # applied at once.
     
     typemethod ComputeVerticalRelationships {} {
-        foreach {g n a bvrel bvt inControl moodNow moodThen} [rdb eval {
+        # FIRST, Compute deltaV.mood and deltaV.eni
+        $type ComputeDV_mood
+        service assess deltav
+
+        # NEXT, update vrel.
+        foreach {g a dv_mood dv_eni bvrel bvt} [rdb eval {
+            SELECT V.g                               AS g,
+                   V.a                               AS a,
+                   V.dv_mood                         AS dv_mood,
+                   V.dv_eni                          AS dv_eni,
+                   B.bvrel                           AS bvrel,
+                   B.t                               AS bvt
+            FROM vrel_ga   AS V
+            JOIN civgroups AS G  USING (g)
+            JOIN control_n AS C  ON (C.n = G.n)
+            JOIN bvrel_tga AS B  ON (B.t = C.since AND B.g = V.g AND B.a = V.a)
+        }] {
+
+            # NEXT, accumulate, scale,and apply the deltaV's.
+            let vrel [scale $bvrel $dv_mood $dv_eni]
+
+            rdb eval {
+                UPDATE vrel_ga
+                SET vrel    = $vrel,
+                    bvt     = $bvt
+                WHERE g=$g AND a=$a
+            }
+
+            log detail control \
+                [format "vrel(%s,%s)=%.3f; bv=%.3f, dv_mood=%s dv_eni=%s " \
+                     $g $a $vrel $bvrel   \
+                     [qmag name $dv_mood] \
+                     [qmag name $dv_eni]]
+        }
+    }
+
+
+    # ComputeDV_mood
+    #
+    # Computes the vrel_ga.dv_mood for all g,a
+    
+    typemethod ComputeDV_mood {} {
+        # FIRST, get model parameters
+        set better [parm get control.dvmood.better]
+        set worse  [parm get control.dvmood.worse]
+
+        # NEXT, compute dv_mood.
+        rdb eval {
             SELECT G.g                               AS g,
                    G.n                               AS n,
                    A.a                               AS a,
-                   B.bvrel                           AS bvrel,
-                   B.t                               AS bvt,
                    CASE WHEN (C.controller = A.a)
                         THEN 1 ELSE 0 END            AS inControl,
                    GG.sat                            AS moodNow,
                    HM.sat                            AS moodThen
             FROM civgroups AS G
             JOIN actors    AS A
-            JOIN vrel_ga   AS V  ON (V.g = G.g AND V.a = A.a)
             JOIN control_n AS C  ON (C.n = G.n)
-            JOIN bvrel_tga AS B  ON (B.t = C.since AND B.g = V.g AND B.a = V.a)
             JOIN gram_g    AS GG ON (G.g = GG.g)
             JOIN hist_mood AS HM ON (HM.g = G.g AND HM.t = C.since)
-        }] {
+        } {
             # FIRST, compute deltaV.mood
-            set better [parm get control.dvmood.better]
-            set worse  [parm get control.dvmood.worse]
-
             let moodDiff {$moodNow - $moodThen}
 
             # Look up the magnitude in the table
             if {$moodDiff > $better} {
-                set dvMood $moodTable(1,$inControl)
+                set dv_mood [qmag value $moodTable(1,$inControl)]
             } elseif {$moodDiff < $worse} {
-                set dvMood $moodTable(-1,$inControl)
+                set dv_mood [qmag value $moodTable(-1,$inControl)]
             } else {
-                set dvMood $moodTable(0,$inControl)
+                set dv_mood [qmag value $moodTable(0,$inControl)]
             }
-
-            # NEXT, accumulate, scale,and apply the deltaV's.
-            let vrel [scale $bvrel [qmag value $dvMood]]
 
             rdb eval {
                 UPDATE vrel_ga
                 SET vrel    = $vrel,
-                    bvt     = $bvt,
-                    dv_mood = $dvMood
+                    dv_mood = $dv_mood
                 WHERE g=$g AND a=$a
             }
-
-            log detail control \
-                [format "vrel(%s,%s) = %.3f; bv = %.3f, dvMood=%s" \
-                     $g $a $vrel $bvrel $dvMood]
         }
     }
 
@@ -380,6 +407,10 @@ snit::type control {
             }
         }
     }
+
+
+
+
 
     #-------------------------------------------------------------------
     # Assessment

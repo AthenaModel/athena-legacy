@@ -272,10 +272,10 @@ snit::type ::projectlib::scenariodb {
     typemethod {sqlsection functions} {} {
         return {
             commafmt   ::marsutil::commafmt
-            qfancyfmt  ::projectlib::scenariodb::QFancyFmt
             qaffinity  ::simlib::qaffinity
             qcoop      ::simlib::qcooperation
             qemphasis  ::simlib::qemphasis
+            qfancyfmt  ::projectlib::scenariodb::QFancyFmt
             qmag       ::simlib::qmag
             qposition  ::simlib::qposition
             qsat       ::simlib::qsat
@@ -283,7 +283,6 @@ snit::type ::projectlib::scenariodb {
             qsecurity  ::projectlib::qsecurity
             link       ::projectlib::scenariodb::Link
             pair       ::projectlib::scenariodb::Pair
-            qfancyfmt  ::projectlib::scenariodb::QFancyFmt
         }
     }
 

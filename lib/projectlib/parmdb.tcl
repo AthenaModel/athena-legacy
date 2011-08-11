@@ -1462,22 +1462,32 @@ snit::type ::projectlib::parmdb {
             Services model.
         }
 
-        $ps define service.ENI.alphaA ::simlib::rfraction 0.10 {
+        $ps define service.ENI.alphaA ::simlib::rfraction 0.50 {
             Smoothing constant for computing the expected level of
             service <b>when the average amount of service has been 
             higher than the expectation</b>.  If 1.0, the expected
             level of service will just be the current level of service
             (expectations change instantly); if 0.0, the expected
-            level of service will never change at all.  
+            level of service will never change at all.<p>
+
+            The value can be thought of as 1 over the average age of
+            the data in weeks.  Thus, the default value of 0.5 implies
+            that the data used for smoothing has an average age of 2
+            weeks.
         }
 
-        $ps define service.ENI.alphaX ::simlib::rfraction 0.05 {
+        $ps define service.ENI.alphaX ::simlib::rfraction 0.25 {
             Smoothing constant for computing the expected level of
             service <b>when the expectation of service has been higher
             than the average amount</b>.  If 1.0, the expected
             level of service will just be the current level of service
             (expectations change instantly); if 0.0, the expected
-            level of service will never change at all.  
+            level of service will never change at all.  <p>
+
+            The value can be thought of as 1 over the average age of
+            the data in weeks.  Thus, the default value of 0.25 implies
+            that the data used for smoothing has an average age of 4
+            weeks.
         }
 
         $ps subset service.ENI.beta {
@@ -1485,6 +1495,12 @@ snit::type ::projectlib::parmdb {
             neighborhood urbanization level.  If 1.0, the curve is
             linear; for values less than 1.0, the curve exhibits
             economies of scale.
+        }
+
+        $ps define service.ENI.delta ::simlib::rfraction 0.1 {
+            An actual service level A is presumed to be approximately
+            equal to the expected service level X if 
+            abs(A-X) <= delta*X.
         }
 
         $ps subset service.ENI.required {
@@ -1499,8 +1515,7 @@ snit::type ::projectlib::parmdb {
         }
 
         foreach ul [::projectlib::eurbanization names] {
-            $ps define service.ENI.beta.$ul \
-                ::projectlib::parmdb_rquantity 1.0 \
+            $ps define service.ENI.beta.$ul ::simlib::rfraction 1.0     \
                 "Value of service.ENI.beta for urbanization level $ul."
 
             $ps define service.ENI.required.$ul \
