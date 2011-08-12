@@ -123,6 +123,16 @@ command "=" {
 }
 
 #=======================================================================
+# advance command
+
+command "advance" {
+    <<syntax <i>days</i> >>
+
+    Advances simulation time by the specified number of integer <i>days</i>,
+    <<cref /command/lock>>ing the scenario first if necessary.
+}
+
+#=======================================================================
 # call command
 
 command "call" {
@@ -372,6 +382,32 @@ command "help" {
 }
 
 #=======================================================================
+# load command
+
+command "load" {
+    <<syntax <i>filename</i> >>
+
+    Loads the scenario data (including simulation results, if any)
+    from the given <i>filename</i>, overwriting any existing scenario.
+    If the requested scenario cannot be loaded, the application will be
+    left with an empty scenario.
+}
+
+#=======================================================================
+# lock command
+
+command "lock" {
+    <<syntax>>
+
+    <b>Scenario Preparation only.</b> Locks the scenario so that 
+    simulation time can advance.  Does a sanity check of the scenario
+    data; the lock will fail if the scenario is incomplete.<p>
+
+    The scenario can later be unlocked using the 
+    <<cref /command/unlock>> command.<p>
+}
+
+#=======================================================================
 # nbfill command
 
 command "nbfill" {
@@ -382,6 +418,17 @@ command "nbfill" {
     <<cref /var/n "Neighborhood Variable">>.  See the link for a list
     of the available variables.
 }
+
+#=======================================================================
+# new command
+
+command "new" {
+    <<syntax>>
+
+    Creates a new, empty scenario, throwing away any loaded scenario
+    data (including simulation results).
+}
+
 
 #=======================================================================
 # parm commands
@@ -694,6 +741,18 @@ command "rdb tables" {
 }
 
 #=======================================================================
+# save command
+
+command "save" {
+    <<syntax <i>filename</i> >>
+
+    Saves the current scenario to disk, including simulation
+    results if the scenario is <<cref /command/lock>>ed,
+    using the given <i>filename</i>.  The saved scenario 
+    can be loaded again using the <<cref /command/load>> command.<p>
+}
+
+#=======================================================================
 # select command
 
 command "select" {
@@ -766,6 +825,21 @@ command "super" {
 
 
 #=======================================================================
+# unlock command
+
+command "unlock" {
+    <<syntax>>
+
+    <b>Simulation only.</b> Unlocks the current scenario so that 
+    the base scenario data can be changed, throwing away any existing
+    simulation results.<p>
+
+    The scenario can be locked again using the 
+    <<cref /command/lock>> command.<p>
+}
+
+
+#=======================================================================
 # usermode command
 
 command "usermode" {
@@ -794,11 +868,4 @@ command "usermode" {
         >
     }>>
 }
-
-
-
-
-
-
-
 

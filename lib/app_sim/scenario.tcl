@@ -180,6 +180,8 @@ snit::type scenario {
         }
 
         $type FinishOpeningScenario $filename
+
+        return
     }
 
     # FinishOpeningScenario filename

@@ -75,6 +75,10 @@ snit::type executive {
         $interp smartalias = 1 - {expression...} \
             ::expr
 
+        # advance
+        $interp smartalias advance 1 1 {days} \
+            [myproc advance]
+
         # clear
         $interp smartalias clear 0 0 {} \
             [list .main cli clear]
@@ -141,9 +145,21 @@ snit::type executive {
         $interp smartalias help 0 - {?-info? ?command...?} \
             [mytypemethod help]
 
+        # load
+        $interp smartalias load 1 1 {filename} \
+            [list scenario open]
+
+        # lock
+        $interp smartalias lock 0 0 {} \
+            [myproc lock]
+
         # nbfill
         $interp smartalias nbfill 1 1 {varname} \
             [list .main nbfill]
+
+        # new
+        $interp smartalias new 0 0 {} \
+            [list scenario new]
 
         # parm
         $interp ensemble parm
@@ -233,6 +249,10 @@ snit::type executive {
         $interp smartalias {rdb tables} 0 0 {} \
             [list ::rdb tables]
 
+        # save
+        $interp smartalias save 1 1 {filename} \
+            [myproc save]
+
         # send
         $interp smartalias send 1 - {order ?option value...?} \
             [myproc send]
@@ -244,6 +264,10 @@ snit::type executive {
         # super
         $interp smartalias super 1 - {arg ?arg...?} \
             [myproc super]
+
+        # unlock
+        $interp smartalias unlock 0 0 {} \
+            [myproc unlock]
 
         # usermode
         $interp smartalias {usermode} 0 1 {?mode?} \
@@ -415,6 +439,21 @@ snit::type executive {
     #---------------------------------------------------------------
     # Procs
 
+    # advance days
+    #
+    # days    - An integer number of days
+    #
+    # advances time by the specified number of days.  Locks the
+    # scenario if necessary.
+
+    proc advance {days} {
+        if {[sim state] eq "PREP"} {
+            lock
+        }
+
+        send SIM:RUN -days $days -block YES
+    }
+
     # export scriptFile
     #
     # scriptFile    Name of a file relative to the current working
@@ -501,6 +540,28 @@ snit::type executive {
 
         log normal exec "Exported orders as $fullname."
 
+        return
+    }
+
+    # lock
+    #
+    # Locks the scenario.
+
+    proc lock {} {
+        send SIM:LOCK
+    }
+
+    # save filename
+    # 
+    # filename   - Scenario file name
+    #
+    # Saves the scenario using the name.  Errors are handled by
+    # [app error].
+
+    proc save {filename} {
+        scenario save $filename
+
+        # Don't let [scenario save]'s return value pass through.
         return
     }
     
@@ -609,6 +670,14 @@ snit::type executive {
     # Executes args as a command in the global namespace
     proc super {args} {
         namespace eval :: $args
+    }
+
+    # unlock
+    #
+    # Unlocks the scenario.
+
+    proc unlock {} {
+        send SIM:UNLOCK
     }
 
 }

@@ -55,6 +55,8 @@ snit::type app {
     #
     # Application command-line options.
     #
+    # -batch           - If 1, run in batch mode.
+    # 
     # -dev             - If 1, run in development mode (e.g., include 
     #                    debugging log in appwin)
     #
@@ -65,8 +67,9 @@ snit::type app {
     #                    after loading the scenario file (if any).
 
     typevariable opts -array {
-        -ignoreuser 0
+        -batch      0
         -dev        0
+        -ignoreuser 0
         -script     {}
     }
 
@@ -104,6 +107,7 @@ snit::type app {
             set opt [lshift argv]
 
             switch -exact -- $opt {
+                -batch      -
                 -dev        -
                 -ignoreuser {
                     set opts($opt) 1
@@ -114,17 +118,14 @@ snit::type app {
                 }
                 
                 default {
-                    puts "Unknown option: \"$opt\""
-                    app usage
-                    exit 1
+                    app exit "Unknown option: \"$opt\"\n[app usage]"
                 }
             }
 
         }
 
         if {[llength $argv] > 1} {
-            app usage
-            exit 1
+            app exit [app usage]
         }
 
         # NEXT, get the application directory
@@ -164,7 +165,6 @@ snit::type app {
             [list notifier send ::app <Prefs>]
 
         # NEXT, purge old working directories
-        # TBD: If this proves slow, we can make it an idle process.
         workdir purge [prefs get session.purgeHours]
 
 
@@ -261,9 +261,11 @@ snit::type app {
         # It does not, in fact, contain any scenario data; but this allows
         # us to capture the user's "session" as part of the scenario file.
         wm withdraw .
-        appwin .main -dev $opts(-dev)
-        scenario register .main
 
+        if {!$opts(-batch)} {
+            appwin .main -dev $opts(-dev)
+            scenario register .main
+        }
 
 
         # NEXT, log that we're up.
@@ -285,11 +287,26 @@ snit::type app {
                 executive eval [list call $opts(-script)]
             } result eopts]} {
                 if {[dict get $eopts -errorcode] eq "REJECT"} {
-                    app error {
+                    set message {
                         |<--
                         Order rejected in -script:
 
                         $result
+                    }
+
+                    if {$opts(-batch)} {
+                        app exit $message
+                    } else {
+                        app error $message
+                    }
+                } elseif {$opts(-batch)} {
+                    app exit {
+                        |<--
+                        Error in -script:
+                        $result
+
+                        Stack Trace:
+                        [dict get $eopts -errorinfo]
                     }
                 } else {
                     log error app "Unexpected error in -script:\n$result"
@@ -305,6 +322,11 @@ snit::type app {
                     }
                 }
             }
+        }
+
+        # NEXT, if we're in batch mode, exit; we're done.
+        if {$opts(-batch)} {
+            app exit
         }
     }
 
@@ -578,18 +600,20 @@ snit::type app {
 
     # Type Method: usage
     #
-    # Displays the application's command-line syntax.
+    # Returns the application's command-line syntax.
     
     typemethod usage {} {
-        puts "Usage: athena sim ?options...? ?scenario.adb?"
-        puts ""
-        puts "-script filename    A script to execute after loading"
-        puts "                    the scenario file (if any)."
-        puts "-dev                Turns on all developer tools (e.g.,"
-        puts "                    the CLI and scrolling log)"
-        puts "-ignoreuser         Ignore preference settings."
-        puts ""
-        puts "See athena_sim(1) for more information."
+        append usage \
+            "Usage: athena ?options...? ?scenario.adb?\n"           \
+            "\n"                                                        \
+            "-batch              Executed Athena in batch mode.\n"      \
+            "-script filename    A script to execute after loading\n"   \
+            "                    the scenario file (if any).\n"         \
+            "-dev                Turns on all developer tools (e.g.,\n" \
+            "                    the CLI and scrolling log)\n"          \
+            "-ignoreuser         Ignore preference settings.\n"         \
+            "\n"                                                        \
+            "See athena(1) for more information.\n"
     }
 
     # Type Method: NotifierTrace
@@ -634,6 +658,7 @@ snit::type app {
     # Type Method: puts
     #
     # Writes the _text_ to the message line of the topmost appwin.
+    # This is a no-op in batch mode.
     #
     # Syntax: 
     #   puts _text_
@@ -641,16 +666,19 @@ snit::type app {
     #   text - A text string
 
     typemethod puts {text} {
-        set topwin [app topwin]
+        if {!$opts(-batch)} {
+            set topwin [app topwin]
 
-        if {$topwin ne ""} {
-            $topwin puts $text
+            if {$topwin ne ""} {
+                $topwin puts $text
+            }
         }
     }
 
     # Type Method: error
     #
-    # Displays the error _text_ in a message box
+    # Normally, displays the error _text_ in a message box.  In 
+    # batchmode, calls [app exit].
     #
     # Syntax:
     #   error _text_
@@ -658,12 +686,17 @@ snit::type app {
     #   text - A tsubst'd text string
 
     typemethod error {text} {
-        set topwin [app topwin]
-
-        if {$topwin ne ""} {
-            uplevel 1 [list [app topwin] error $text]
+        if {$opts(-batch)} {
+            # Uplevel, so that [app exit] can expand the text.
+            uplevel 1 [list app exit $text]
         } else {
-            error $text
+            set topwin [app topwin]
+
+            if {$topwin ne ""} {
+                uplevel 1 [list [app topwin] error $text]
+            } else {
+                error $text
+            }
         }
     }
 
@@ -678,18 +711,33 @@ snit::type app {
     #   text - Optional error message, tsubst'd
 
     typemethod exit {{text ""}} {
-        # FIRST, output the text.
+        # FIRST, output the text.  In batch mode, write it to
+        # error.log.
         if {$text ne ""} {
-            puts [uplevel 1 [list tsubst $text]]
+            set text [uplevel 1 [list tsubst $text]]
+
+            if {!$opts(-batch)} {
+                puts $text
+            } else {
+                puts stderr \
+                    "Error; see [file join [pwd] error.log] for details."
+                set f [open "error.log" w]
+                puts $f $text
+                close $f
+            }
         }
 
         # NEXT, save the CLI history, if any.
-        if {!$opts(-ignoreuser)} {
+        if {!$opts(-ignoreuser) && [winfo exists .main]} {
             .main savehistory
         }
 
         # NEXT, exit
-        exit
+        if {$text ne ""} {
+            exit 1
+        } else {
+            exit
+        }
     }
 
     # Type Method: topwin
@@ -733,7 +781,8 @@ snit::type app {
 
     typemethod show {uri} {
         # FIRST, if there's no main window, just return.
-        # (This happens when athena_test(1) runs the test suite.)
+        # (This happens in batchmode, or when athena_test(1) runs the 
+        # test suite.)
 
         if {![winfo exists .main]} {
             return
@@ -873,7 +922,10 @@ proc bgerror {msg} {
         sim mutate pause
     }
 
-    if {[app topwin] ne ""} {
+    if {$opts(-batch)} {
+        # app exit subst's in the caller's context
+        app exit {$msg\n\nStack Trace:\n$bgErrorInfo}
+    } elseif {[app topwin] ne ""} {
         [app topwin] tab view slog
 
         app error {
@@ -886,9 +938,5 @@ proc bgerror {msg} {
         puts "Stack Trace:\n$bgErrorInfo"
     }
 }
-
-
-
-
 
 
