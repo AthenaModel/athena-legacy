@@ -11,6 +11,111 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.24, 16 August 2011</h3>
+
+This build includes several major changes, including significant
+database schema changes.  It includes the initial implementation of
+the Essential Non-Infrastructure (ENI) Services model, and also some
+scenario changes.<p>
+
+<b>Batch Mode:</b>  Athena now supports batch-mode execution.  See the
+<<xref athena(1)>> man page for details.<p>
+
+<b>Scenario Changes:</b> Builds prior to Athena 3.0.24 had a
+chicken-and-egg problem at time 0, when the scenario is locked: they
+expected to execute actors' stragies to initialize the state of affairs at
+time 0.  The difficulty is that strategies are executed in the context
+of the current state of affairs, and things go awry if there isn't
+one.  Thus, Build 3.0.24 includes two significant changes to provide
+the status quo state-of-affairs:<p>
+
+<ol>
+  <li> Status quo troop deployments: a whole host of variables that
+       affect how strategies execute depend on the deployment of force
+       and organization groups to neighborhoods--but deployments are
+       determined by the DEPLOY tactic.  Consequently, we need another
+       way to indicate the "status quo" deployment, i.e., the
+       deployments prior to the first strategy execution at time 0.
+       Enter these troops deployments explicitly on the
+       Groups/Deployments tab, prior to locking the scenario.  <b>If
+       no status quo deployments are created, Athena will assume that
+       there were no force or organization group personnel in the
+       playbox prior to time 0.</b><p>
+
+  <li> Status quo ENI funding. Actors provide Essential
+       Non-Infrastructure (ENI) Services to the civilian groups via
+       the FUNDENI tactic.  As with deployments, the level of ENI
+       funding is determined during strategy execution, but how the
+       stragies execute depends on the previous level of ENI funding.
+       Consequently, the status quo level of ENI funding of each
+       civilian group by each actor needs to be set explicitly on the
+       Groups/Services tab.  <b>If no status quo funding levels are
+       set, Athena will assume that no services were being provided
+       prior to time 0.  This will likely cause vertical relationships
+       to be wrong.</b>
+</ol>
+
+<b>Migration Procedure:</b> Use the following procedure to migrate
+Athena 3.0.23 scenario files to Athena 3.0.24.<p> 
+
+<ol>
+  <li> Open the scenario file in Athena 3.0.23.<p>
+       
+  <li> If the scenario is locked, unlock it.  Locked scenarios cannot
+       be migrated.<p>
+       
+  <li> Select View/Command Line from the menu bar, to make the Athena
+       command line appear.<p>
+
+  <li> At the command line, enter<p>
+
+       <pre>&gt; export myscenario.tcl</pre>  <p>
+
+  <li> Open myscenario.tcl in a text editor, and update all instances
+       of the BSYSTEM:BELIEF:UPDATE order.  In particular:<p>
+
+       <ul>
+         <li> Change the <code>-tolerance</code> option to the
+              <code>-emphasis</code> option.
+         <li> Update the option's value as well:
+              <ul>
+                <li> VT -&gt; ASTRONG
+                <li> T  -&gt; AWEAK
+                <li> B  -&gt; NEITHER
+                <li> I  -&gt; DWEAK
+                <li> VI -&gt; DSTRONG
+                <li> EI -&gt; DEXTREME
+              </ul>
+       </ul><p>
+
+       Alternatively, delete all BSYSTEM:BELIEF:UPDATE orders, and
+       re-enter the belief system from scratch.<p>
+
+  <li> Invoke Athena 3.0.24, and make the command line visible, as
+       above.  At the command line, enter:<p>
+
+       <pre>&gt; call myscenario.tcl</pre>
+
+  <li> Save the resulting scenario.<p>
+       
+</ol><p>
+
+
+The complete set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 3065: Update Goal is Met Condition Bgerror
+  <li> Bug 3067: athena(1): Essential (Non-Infrastructure) Services
+  <li> Bug 3082: athena(1): Status quo deployments
+  <li> Bug 3083: athena(1): Empty force units
+  <li> Bug 3084: athena(1): Status quo deployments, appserver pages
+  <li> Bug 3085: athena(1): ENI Services, V.ga effects.
+  <li> Bug 3098: athena(1): Save CLI history for previous session
+  <li> Bug 3103: athena(1): Replace "tolerance" with "emphasis" in belief systems
+  <li> Bug 3108: athena(1): Batch Mode Changes 
+</ul><p>
+
+
 <h3>Build 3.0.23, 18 July 2011</h3>
 
 This build fixes many bugs; in addition, all user requested reports
