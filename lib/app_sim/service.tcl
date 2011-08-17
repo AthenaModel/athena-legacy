@@ -62,7 +62,7 @@ snit::type service {
         C,M,E+  XL+
 
         NC,N,R- 0
-        NC,N,E- 0value
+        NC,N,E- 0
         NC,N,E  0
         NC,N,E+ 0
 
