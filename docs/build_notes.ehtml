@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.25, 17 August 2011</h3>
+
+This build fixes two minor problems found in the new features of Build
+3.0.24.  See the notes on Build 3.0.24 for details on the significant
+changes since Build 3.0.23, including a procedure for migrating
+scenarios from Build 3.0.23 to Build 3.0.24/25.  The changes in this
+build are as follows:<p>
+
+<ul>
+  <li> Bug 3110: 0value Bgerror
+  <li> Bug 3111: opts(-batch): no such variable bgerror
+</ul><p>
+
 <h3>Build 3.0.24, 16 August 2011</h3>
 
 This build includes several major changes, including significant
