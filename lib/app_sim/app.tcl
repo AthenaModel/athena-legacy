@@ -922,7 +922,7 @@ proc bgerror {msg} {
         sim mutate pause
     }
 
-    if {$opts(-batch)} {
+    if {$app::opts(-batch)} {
         # app exit subst's in the caller's context
         app exit {$msg\n\nStack Trace:\n$bgErrorInfo}
     } elseif {[app topwin] ne ""} {
