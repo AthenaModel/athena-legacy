@@ -1345,13 +1345,20 @@ CREATE TABLE service_g (
     -- Expected level of service, fraction of saturation
     expected            REAL DEFAULT 0.0,
 
-    -- Excess level of service.  Measure of degree to which
-    -- expected exceeds actual (if positive) or vice versa (if negative).
-    excess              REAL DEFAULT 0.0,
+    -- Expectations Factor: measures degree to which expected exceeds
+    -- actual (or vice versa) for use in ENI rule set.
+    expectf             REAL DEFAULT 0.0,
 
-    -- Enough level of service.  Measure of degree to which
-    -- actual exceeds required level of services.
-    enough              REAL DEFAULT 0.0
+    -- Needs Factor: measures degree to which actual exceeds required
+    -- (or vice versa) for use in ENI rule set.
+    needs               REAL DEFAULT 0.0,
+
+    -- GRAM Driver ID for satisfaction inputs
+    driver              INTEGER,
+
+    -- Rule signature; prevents rule from firing unless things have
+    -- changed.
+    signature           TEXT DEFAULT ''
 );
 
 ------------------------------------------------------------------------

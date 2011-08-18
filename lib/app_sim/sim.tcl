@@ -680,6 +680,7 @@ snit::type sim {
         profile actsit assess
         
         if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
+            profile service assess attitudes
             profile aam assess
         }
 

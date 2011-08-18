@@ -142,6 +142,7 @@ source [file join $::app_sim::library demsit.tcl             ]
 source [file join $::app_sim::library demsit_rules.tcl       ]
 source [file join $::app_sim::library ensit.tcl              ]
 source [file join $::app_sim::library ensit_rules.tcl        ]
+source [file join $::app_sim::library service_rules.tcl      ]
 
 # GUI: Infrastructure
 source [file join $::app_sim::library toolbutton.tcl         ]

@@ -915,6 +915,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.DISPLACED.nearFactor   0.25
         $ps setdefault dam.DISPLACED.farFactor    0.0
 
+        # Rule Set: ENI
+        $ps setdefault dam.ENI.cause              ENI
+        $ps setdefault dam.ENI.nearFactor         0.25
+        $ps setdefault dam.ENI.farFactor          0.0
+
         # Rule Set: EPIDEMIC
         $ps setdefault dam.EPIDEMIC.cause         SICKNESS
         $ps setdefault dam.EPIDEMIC.nearFactor    0.5
@@ -1501,6 +1506,26 @@ snit::type ::projectlib::parmdb {
             An actual service level A is presumed to be approximately
             equal to the expected service level X if 
             abs(A-X) <= delta*X.
+        }
+
+        $ps define service.ENI.gainNeeds ::simlib::rmagnitude 2.0 {
+            A "gain" multiplier applied to the ENI service "needs"
+            factor.  When the gain is 0.0, the needs factor is 0.0.
+            When the gain is 1.0, then -1.0 <= needs <= 1.0.  When
+            the gain is 2.0 (the default), then -2.0 <= needs <= 2.0,
+            and so on.  Setting the gain greater than 1.0 allows the
+            magnitude applied to the needs factor in the ENI rule set
+            to represent a median value rather than an extreme value.
+        }
+
+        $ps define service.ENI.gainExpect ::simlib::rmagnitude 2.0 {
+            A "gain" multiplier applied to the ENI service "expectations"
+            factor.  When the gain is 0.0, the expectations factor is 0.0.
+            When the gain is 1.0, then -1.0 <= expectf <= 1.0.  When
+            the gain is 2.0 (the default), then -2.0 <= expectf <= 2.0,
+            and so on.  Setting the gain greater than 1.0 allows the
+            magnitude applied to expectf in the ENI rule set
+            to represent a median value rather than an extreme value.
         }
 
         $ps subset service.ENI.required {

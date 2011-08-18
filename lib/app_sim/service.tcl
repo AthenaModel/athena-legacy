@@ -96,10 +96,18 @@ snit::type service {
             INSERT INTO service_ga(g,a, funding)
             SELECT g, a, funding
             FROM sqservice_view;
+        }
 
-            -- Populate service_g table.
-            INSERT INTO service_g(g)
-            SELECT g FROM civgroups;
+        foreach g [civgroup names] {
+            set driver [aram driver add                            \
+                            -dtype ENI                             \
+                            -name  "ENI $g"                        \
+                            -oneliner "Provision of ENI services"]
+            rdb eval {
+                -- Populate service_g table.
+                INSERT INTO service_g(g, driver)
+                VALUES($g, $driver);
+            }
         }
 
         # NEXT, compute the actual and expected levels of 
@@ -203,6 +211,9 @@ snit::type service {
     # exponential smoothing.
 
     typemethod ComputeLOS {{mode ""}} {
+        set gainNeeds [parm get service.ENI.gainNeeds]
+        set gainExpect [parm get service.ENI.gainExpect]
+
         foreach {g n urb pop Fg oldX} [rdb eval {
             SELECT G.g                AS g,
                    G.n                AS n,
@@ -241,19 +252,29 @@ snit::type service {
             # Compute the expected value
             let Xg {$oldX + $alpha*(min(1.0,$Ag) - $oldX)}
 
-            # Compute the excess value
-            let excess {min(1.0,$Ag) - $Xg}
+            # Compute the expectations factor
+            let expectf {$gainExpect * (min(1.0,$Ag) - $Xg)}
 
-            # Compute the enough value
-            # What if Rg is 1.0?  What if Rg is 0.0?
-            if {$Ag == 0.0} {
-                set enough 0.0
+            if {abs($expectf) < 0.01} {
+                set expectf 0.0
+            }
+
+            # Compute the needs factor
+            if {$Ag == $Rg} {
+                set needs 0.0
             } elseif {$Ag >= 1.0} {
-                set enough 1.0
-            } elseif {$Ag <= $Rg} {
-                let enough {($Ag - $Rg)/$Rg}
+                set needs 1.0
+            } elseif {$Ag < $Rg} {
+                let needs {($Ag - $Rg)/$Rg}
             } else {
-                let enough {($Ag - $Rg)/(1-$Rg)}
+                # Ag > Rg
+                let needs {($Ag - $Rg)/(1-$Rg)}
+            }
+
+            let needs {$needs * $gainNeeds}
+
+            if {abs($needs) < 0.01} {
+                set needs 0.0
             }
 
             # Save the new values
@@ -264,8 +285,8 @@ snit::type service {
                     funding            = $Fg,
                     actual             = $Ag,
                     expected           = $Xg,
-                    excess             = $excess,
-                    enough             = $enough
+                    expectf            = $expectf,
+                    needs              = $needs
                 WHERE g=$g;
             }
         }
@@ -460,7 +481,21 @@ snit::type service {
         }
     }
 
+    # assess attitudes
+    #
+    # Calls the ENI rule set to assess the attitude implications for
+    # each group.
+
+    typemethod {assess attitudes} {} {
+        rdb eval {
+            SELECT * FROM civgroups 
+            JOIN service_g USING (g)
+            ORDER BY g
+        } gdata {
+            unset -nocomplain gdata(*)
+
+            service_rules monitor [array get gdata]
+        }
+    }
+
 }
-
-
-

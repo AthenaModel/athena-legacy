@@ -262,6 +262,8 @@ snit::type ::projectlib::typewrapper {
     DISPLACED-1-1 "Displaced persons living in neighborhood"
     DISPLACED-2-1 "Displaced persons no longer living in neighborhood"
 
+    ENI-1-1       "Provision of ENI Services"
+
     EPIDEMIC-1-1  "Epidemic begins to spread"
     EPIDEMIC-2-1  "Epidemic continues to spread"
     EPIDEMIC-2-2  "Epidemic is no longer spreading"
@@ -408,6 +410,7 @@ snit::type ::projectlib::typewrapper {
     DISASTER  "Disaster"
     DISEASE   "Disease"
     DISPLACED "Displaced Persons"
+    ENI       "ENI Services"
     EPIDEMIC  "Epidemic"
     FOODSHRT  "Food Shortage"
     FUELSHRT  "Fuel Shortage"
@@ -458,6 +461,7 @@ snit::type ::projectlib::typewrapper {
     CURFEW    "Curfew"
     DISASTER  "Disaster"
     DISPLACED "Displaced Persons"
+    ENI       "ENI Services"
     FUELSHRT  "Fuel Shortage"
     GARBAGE   "Garbage in the Streets"
     GUARD     "Guard"
