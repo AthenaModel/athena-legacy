@@ -262,7 +262,10 @@ snit::type ::projectlib::typewrapper {
     DISPLACED-1-1 "Displaced persons living in neighborhood"
     DISPLACED-2-1 "Displaced persons no longer living in neighborhood"
 
-    ENI-1-1       "Provision of ENI Services"
+    ENI-1-1       "ENI Services are less than required"
+    ENI-1-2       "ENI Services are less than expected"
+    ENI-1-3       "ENI Services are as expected"
+    ENI-1-4       "ENI Services are better than expected"
 
     EPIDEMIC-1-1  "Epidemic begins to spread"
     EPIDEMIC-2-1  "Epidemic continues to spread"

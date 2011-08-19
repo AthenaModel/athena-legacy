@@ -38,6 +38,20 @@ snit::type service_rules {
         }
 
         bgcatch {
+            # If there's no driver, get one.
+            if {[dict get $gdict driver] eq ""} {
+                dict with gdict {
+                    set driver [aram driver add                            \
+                                    -dtype    ENI                          \
+                                    -name     "ENI $g"                     \
+                                    -oneliner "Provision of ENI services"]
+                    rdb eval {
+                        UPDATE service_g SET driver=$driver
+                        WHERE g=$g
+                    }
+                }                
+            }
+
             # Run the monitor rule set.
             service_rules ENI $gdict
         }
@@ -79,20 +93,7 @@ snit::type service_rules {
         set n        [dict get $gdict n]
         set expectf  [dict get $gdict expectf]
         set needs    [dict get $gdict needs]
-
-        # Handle signature explicitly, since [dam guard] requires a
-        # full fledges situation.
-        set signature [format "%.1f %.1f" $expectf $needs]
-
-        if {$signature eq [dict get $gdict signature]} {
-            return
-        }
-
-        # Save the signature; we know the rule is going to fire.
-        rdb eval {
-            UPDATE service_g SET signature=$signature
-            WHERE g=$g
-        }
+        set oldSig   [dict get $gdict signature]
 
         dam ruleset ENI [dict get $gdict driver] \
             -f  $g                               \
@@ -102,20 +103,89 @@ snit::type service_rules {
         detail "Needs Factor:"        [format %4.2f $needs]
 
         dam rule ENI-1-1 {
-            true
+            $needs < 0.0
         } {
-            # While ENI is affecting group g
-            # Then for CIV group g
+            myguard $oldSig [format "%.1f %.1f" $expectf $needs]
+
+            # While ENI is less than required for CIV group g
+            # Then for group g
             dam sat slope \
                 AUT [mag* $expectf M+ $needs M+] \
                 SFT [mag* $expectf M+ $needs M+] \
                 CUL [mag* $expectf M+ $needs M+] \
                 QOL [mag* $expectf M+ $needs M+]
         }
+
+        dam rule ENI-1-2 {
+            $needs >= 0.0 && $expectf < 0.0
+        } {
+            myguard $oldSig [format "%.1f" $expectf]
+
+            # While ENI is less than expected for CIV group g
+            # Then for group g
+            dam sat slope \
+                AUT [mag* $expectf M+] \
+                SFT [mag* $expectf M+] \
+                CUL [mag* $expectf M+] \
+                QOL [mag* $expectf M+]
+        }
+
+        dam rule ENI-1-3 {
+            $needs >= 0.0 && $expectf == 0.0
+        } {
+            myguard $oldSig [format "%.1f" $expectf]
+
+            # While ENI is as expected for CIV group g
+            # Then for group g
+            dam sat clear AUT SFT CUL QOL
+        }
+
+        dam rule ENI-1-4 {
+            $needs >= 0.0 && $expectf > 0.0
+        } {
+            myguard $oldSig [format "%.1f" $expectf]
+
+            # While ENI is better than expected for CIV group g
+            # Then for group g
+            dam sat slope \
+                AUT [mag* $expectf M+] \
+                SFT [mag* $expectf M+] \
+                CUL [mag* $expectf M+] \
+                QOL [mag* $expectf M+]
+        }
     }
 
     #-------------------------------------------------------------------
     # Utility Procs
+
+    # myguard oldSig newSig
+    #
+    # oldSig - The old signature string
+    # newSig - The new signature string (less the rule name)
+    #
+    # Compares the current signature with the previous rule and
+    # signature; if they match, the rule breaks.
+
+    proc myguard {oldSig newSig} {
+        # FIRST, get the group and rule from the metadata
+        set rule [dam get rule]
+        set g    [dam rget -f]
+
+        # NEXT, add the rule to the new signature
+        set newSig "$rule $newSig"
+
+        # NEXT, if the signatures match, break; the rule shouldn't fire.
+        if {$oldSig eq $newSig} {
+            return -code break
+        }
+
+        # NEXT, save the new signature
+        rdb eval {
+            UPDATE service_g SET signature=$newSig
+            WHERE g=$g
+        }
+    }
+    
     
     # mag* multiplier mag ?multiplier mag...?
     #

@@ -96,18 +96,10 @@ snit::type service {
             INSERT INTO service_ga(g,a, funding)
             SELECT g, a, funding
             FROM sqservice_view;
-        }
 
-        foreach g [civgroup names] {
-            set driver [aram driver add                            \
-                            -dtype ENI                             \
-                            -name  "ENI $g"                        \
-                            -oneliner "Provision of ENI services"]
-            rdb eval {
-                -- Populate service_g table.
-                INSERT INTO service_g(g, driver)
-                VALUES($g, $driver);
-            }
+            -- Populate service_g table
+            INSERT INTO service_g(g)
+            SELECT g FROM civgroups;
         }
 
         # NEXT, compute the actual and expected levels of 

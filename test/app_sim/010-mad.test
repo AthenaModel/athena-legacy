@@ -99,6 +99,7 @@ id oneliner       cause  s   p   q   driver
 
     test create-1.2 {After PREP, GRAM drivers are assigned} -setup {
         parmdb set demsit.disable yes
+        parmdb set dam.ENI.active no
         advance
     } -body {
         mad mutate create $m1
@@ -159,6 +160,7 @@ id oneliner       cause  s   p   q   driver
 
     test delete-1.2 {GRAM driver is deleted} -setup {
         parmdb set demsit.disable yes
+        parmdb set dam.ENI.active no
         advance
 
         mad mutate create $m1
@@ -197,6 +199,7 @@ id oneliner      cause  s   p   q   driver
 
     test delete-2.2 {Undo restores GRAM driver} -setup {
         parmdb set demsit.disable yes
+        parmdb set dam.ENI.active no
         advance
 
         mad mutate create $m1
@@ -243,6 +246,7 @@ id oneliner cause  s   p   q   driver
 
     test update-1.2 {GRAM driver's oneliner is set} -setup {
         parmdb set demsit.disable yes
+        parmdb set dam.ENI.active no
         advance
 
         mad mutate create $m1
@@ -985,6 +989,7 @@ S     MAD0001 1  NB1 SHIA BLUE 5.0   50.0    10.0
 
     test terminate-1.1 {Terminate terminates slope effects} -setup {
         parmdb set demsit.disable yes
+        parmdb set dam.ENI.active no
         advance
 
         mad mutate create $m1
