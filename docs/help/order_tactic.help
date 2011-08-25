@@ -303,6 +303,37 @@ order TACTIC:DISPLACE:UPDATE "Update Tactic: Displace Civilians" {
     <</parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# Tactic: EXECUTIVE
+
+page /order/tactic executive TACTIC:EXECUTIVE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/executive>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:EXECUTIVE:CREATE "Create Tactic: Executive Command" {
+    Creates a <<cref /object/tactic/executive>>.<p>
+
+    <<parmlist>>
+    <<tactic_executive parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:EXECUTIVE:UPDATE "Update Tactic: Executive Command" {
+    Updates an existing <<cref /object/tactic/executive>>.<p>
+
+    <<parmlist>>
+    <<tactic_executive parm tactic_id -required>>
+    <<tactic_executive parm owner -display>>
+    <<tactic_executive parms -optional -tags update>>
+    <</parmlist>>
+}
+
 
 #-----------------------------------------------------------------------
 # Tactic: FUNDENI

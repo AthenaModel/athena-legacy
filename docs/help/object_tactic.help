@@ -60,7 +60,7 @@ object tactic_ {
     attribute once "Once?" {
         A boolean value, "YES" or "NO".  If "YES", this tactic will be
         disabled automatically after it executes, and hence will execute
-        only once.  If "NO", the tactic willO remain enabled, and hence may
+        only once.  If "NO", the tactic will remain enabled, and hence may
         execute multiple times.
     }
 }
@@ -521,6 +521,43 @@ page /object/tactic displace "DISPLACE tactic" {
     DISPLACE tactics have the following attributes:<p>
 
     <<tactic_displace parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# EXECUTIVE
+
+object tactic_executive {
+    noun "EXECUTIVE tactic"
+    overview {
+        This <<term tactic>> executes an Athena 
+        <<cref /command "executive command">>, possibly affecting the 
+        state of the simulation.
+        The tactic succeeds if the command returns normally, and fails
+        if the command throws an error.  In the latter case, any
+        database changes made by the command are rolled back, and a
+        stack trace is written to the debugging log.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute text1 "Command" {
+        The <<cref /command command>> to execute, often a 
+        <<cref /command/call>> or <<cref /command/sigevent>> command.
+    } -tags {create update}
+
+    include tactic_ -attrs once -tags {create update}
+}
+
+page /object/tactic executive "EXECUTIVE tactic" {
+    <<sotitle>>
+
+    <<tactic_executive overview>><p>
+
+    EXECUTIVE tactics have the following attributes:<p>
+
+    <<tactic_executive parmlist>>
 }
 
 #-----------------------------------------------------------------------

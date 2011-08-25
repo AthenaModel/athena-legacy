@@ -429,6 +429,9 @@ snit::type app {
         orderdialog fieldopts agent \
             -db ::rdb
 
+        # command -- Executive Command
+        form register command ::marsgui::textfield \
+            -width 40
 
         # coop -- Cooperation Values
         form register coop ::marsgui::rangefield \
