@@ -753,6 +753,7 @@ snit::type appserver {
             "#goals"     "Goals"
             "#sphere"    "Sphere of Influence"
             "#base"      "Power Base"
+            "#eni"       "ENI Funding"
             "#forces"    "Force Deployment"
             "#attack"    "Attack Status"
             "#defense"   "Defense Status"
@@ -860,6 +861,61 @@ snit::type appserver {
             } -default "None." -align LLRRLRL
 
             ht para
+        }
+
+        # ENI Funding
+        ht subtitle "ENI Funding" eni
+
+        if {[Locked]} {
+            ht put {
+                The funding of ENI services by this actor is as
+                follows.  Civilian groups judge actors by whether
+                they are getting sufficient ENI services, and whether
+                they are getting more or less than they expect.  
+                ENI services also affect each group's mood.
+            }
+
+            ht para
+
+            ht query {
+                SELECT GA.nlink                AS 'Nbhood',
+                       GA.glink                AS 'Group',
+                       GA.funding              AS 'Funding<br>$/week',
+                       GA.pct_credit           AS 'Actor''s<br>Credit',
+                       G.pct_actual            AS 'Actual<br>LOS',
+                       G.pct_expected          AS 'Expected<br>LOS',
+                       G.pct_required          AS 'Required<br>LOS'
+                FROM gui_service_ga AS GA
+                JOIN gui_service_g  AS G USING (g)
+                WHERE GA.a=$a AND numeric_funding > 0.0
+                ORDER BY GA.numeric_funding;
+            } -align LLRRRRR
+        } else {
+            ht put {
+                The status quo funding of ENI services by this actor
+                is as follows; this is the level of funding prior to
+                the start of the simulation, as set on the
+            }
+            ht link gui:/tab/sqservice "Groups/Services tab"
+            ht put "."
+            ht putln {
+                As such, it (along with the contributions by other 
+                actors) determines each group's expected level of
+                service, and also affects the vertical relationships
+                of the groups with the actor.
+            }
+
+            ht para
+
+            ht query {
+                SELECT nlonglink            AS 'Neighborhood',
+                       glonglink            AS 'Group',
+                       funding              AS 'Funding<br>$/week'
+                FROM gui_sqservice_ga
+                WHERE a=$a AND numeric_funding > 0.0
+                ORDER BY numeric_funding
+            } -default "No ENI services are funded." -align LLR
+
         }
 
         # Deployment
@@ -1126,6 +1182,7 @@ snit::type appserver {
             ht linkbar {
                 "#civs"      "Civilian Groups"
                 "#forces"    "Forces Present"
+                "#eni"       "ENI Services"
                 "#control"   "Support and Control"
                 "#conflicts" "Force Conflicts" 
                 "#sigevents" "Significant Events"
@@ -1191,8 +1248,6 @@ snit::type appserver {
 
         ht putln "Their overall mood is [qsat format $data(mood)] "
         ht put "([qsat longname $data(mood)])."
-        ht putln "The level of basic services is TBD, which is "
-        ht put "(more than)/(less than) expected. "
 
         if {$data(local)} {
             if {$data(labor_force) > 0} {
@@ -1296,6 +1351,64 @@ snit::type appserver {
             AND   personnel > 0
             ORDER BY G.g
         } -default "None."
+
+
+        # ENI Services
+        ht subtitle "ENI Services" eni
+
+        ht putln {
+            Actors can provide Essential Non-Infrastructure (ENI) 
+            services to the civilians in this neighborhood.  The level
+            of service currently provided to the groups in this
+            neighborhood is as follows.
+        }
+
+        ht para
+
+        rdb eval {
+            SELECT g,alink FROM gui_service_ga WHERE numeric_funding > 0.0
+        } {
+            lappend funders($g) $alink
+        }
+
+        ht table {
+            "Group" "Funding,<br>$/week" "Actual" "Required" "Expected" 
+            "Funding<br>Actors"
+        } {
+            rdb eval {
+                SELECT g, longlink, funding, pct_required, 
+                       pct_actual, pct_expected 
+                FROM gui_service_g
+                JOIN nbhoods USING (n)
+                WHERE n = $n
+                ORDER BY g
+            } row {
+                if {![info exists funders($row(g))]} {
+                    set funders($row(g)) "None"
+                }
+                
+                ht tr {
+                    ht td left  { ht put $row(longlink)                }
+                    ht td right { ht put $row(funding)                 }
+                    ht td right { ht put $row(pct_actual)              }
+                    ht td right { ht put $row(pct_required)            }
+                    ht td right { ht put $row(pct_expected)            }
+                    ht td left  { ht put [join $funders($row(g)) ", "] }
+                }
+            }
+        }
+
+        ht putln {
+            Service is said to be saturated when additional funding
+            provides no additional service to the civilians.  We peg
+            this level of service as 100% service, and express the actual,
+            required, and expected levels of service as percentages.
+            level required for survival.  The expected level of
+            service is the level the civilians expect to receive
+            based on past history.
+        }
+
+        ht para
 
         # Support and Control
         ht subtitle "Support and Control" control
@@ -1570,6 +1683,8 @@ snit::type appserver {
         # FIRST, get the data about this group
         rdb eval {SELECT * FROM gui_civgroups WHERE g=$g}       data {}
         rdb eval {SELECT * FROM gui_nbhoods   WHERE n=$data(n)} nb   {}
+        rdb eval {SELECT * FROM gui_service_g WHERE g=$g}       eni  {}
+        
 
         # NEXT, begin the page.
         ht page "Civilian Group: $g"
@@ -1583,6 +1698,7 @@ snit::type appserver {
             ht linkbar {
                 "#actors"     "Relationships with Actors"
                 "#rel"        "Friends and Enemies"
+                "#eni"        "ENI Service"
                 "#sat"        "Satisfaction Levels"
                 "#drivers"    "Drivers"
                 "#sigevents"  "Significant Events"
@@ -1631,7 +1747,21 @@ snit::type appserver {
         ht put   "subsistence agriculture."
         
         ht putln "The unemployment rate is [percent $ur]."
-            
+
+        ht putln "The group is receiving "
+
+        if {$eni(actual) < $eni(required)} {
+            ht put "less than the required level of "
+        } elseif {$eni(pct_actual) eq $eni(pct_expected)} {
+            ht put "about the expected amount of "
+        } elseif {$eni(actual) < $eni(expected)} {
+            ht put "less than the expected amount of "
+        } else {
+            ht put "more than the expected amount of "
+        }
+
+        ht put "ENI services."
+
         ht putln "$g's overall mood is [qsat format $data(mood)] "
         ht put   "([qsat longname $data(mood)])."
         ht para
@@ -1714,6 +1844,35 @@ snit::type appserver {
             WHERE f=$g AND g != $g AND qaffinity('name',rel) != 'INDIFF'
             ORDER BY rel DESC
         } -align LLRL
+
+        ht subtitle "ENI Services" eni
+
+        ht putln "$g can receive Essential Non-Infrastructure (ENI) services "
+        ht put   "from actors."
+        ht putln "At present, $g is receiving \$$eni(funding)/week worth of "
+        ht put   "ENI service.  $g's saturation level of funding is "
+        ht put   "\$$eni(saturation_funding)/week, so $g is receiving "
+        ht put   "$eni(pct_actual) of the saturation level of ENI service. "
+        ht put   "$g expects to receive $eni(pct_expected); and "
+        ht put   "$eni(pct_required) is the minimum required for survival."
+        ht putln "$g's <i>needs</i> factor is $eni(needs), and $g's "
+        ht put   "<i>expectf</i> factor is $eni(expectf)."
+
+        ht para
+
+        if {$eni(actual) > 0.0} {
+            ht putln "The following actors are providing ENI service to $g:"
+            ht para
+
+            ht query {
+                SELECT alonglink                   AS 'Actor',
+                       funding                     AS 'Funding, $/week',
+                       pct_credit                  AS 'Credit'
+                FROM gui_service_ga
+                WHERE g=$g
+                ORDER BY credit DESC
+            } -align LRR
+        }
 
         ht subtitle "Satisfaction Levels" sat
 

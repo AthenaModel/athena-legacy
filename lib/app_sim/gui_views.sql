@@ -285,11 +285,65 @@ JOIN deploy_ng AS GP ON (GP.n=D.n AND GP.g=D.g);
 
 -- A status quo ENI service view for the GUI
 CREATE TEMPORARY VIEW gui_sqservice_ga AS
-SELECT g || ' ' || a                               AS id,
+SELECT GA.g || ' ' || GA.a                            AS id,
+       GA.g                                           AS g,
+       G.longlink                                     AS glonglink,
+       GA.a                                           AS a,
+       G.n                                            AS n,
+       N.longlink                                     AS nlonglink,
+       funding                                        AS numeric_funding,
+       moneyfmt(GA.funding)                           AS funding
+FROM sqservice_view AS GA
+JOIN gui_civgroups AS G USING (g)
+JOIN gui_nbhoods AS N using (n);
+
+-- A GUI service_g view
+CREATE TEMPORARY VIEW gui_service_g AS
+SELECT g                                           AS id,
        g                                           AS g,
-       a                                           AS a,
-       moneyfmt(funding)                           AS funding
-FROM sqservice_view;
+       url                                         AS url,
+       fancy                                       AS fancy,
+       link                                        AS link,
+       longlink                                    AS longlink,
+       n                                           AS n,
+       moneyfmt(saturation_funding)                AS saturation_funding,
+       required                                    AS required,
+       percent(required)                           AS pct_required,
+       moneyfmt(funding)                           AS funding,
+       actual                                      AS actual,
+       percent(actual)                             AS pct_actual,
+       expected                                    AS expected,
+       percent(expected)                           AS pct_expected,
+       format('%.2f', needs)                       AS needs,
+       format('%.2f', expectf)                     AS expectf
+FROM service_g
+JOIN gui_civgroups USING (g);
+
+-- A GUI service_ga view
+CREATE TEMPORARY VIEW gui_service_ga AS
+SELECT G.g                                         AS g,
+       G.url                                       AS gurl,
+       G.fancy                                     AS gfancy,
+       G.link                                      AS glink,
+       G.longlink                                  AS glonglink,
+       A.a                                         AS a,
+       A.url                                       AS aurl,
+       A.fancy                                     AS afancy,
+       A.link                                      AS alink,
+       A.longlink                                  AS alonglink,
+       N.n                                         AS n,
+       N.fancy                                     AS fancy,
+       N.url                                       AS nurl,
+       N.link                                      AS nlink,
+       N.longlink                                  AS nlonglink,
+       funding                                     AS numeric_funding,
+       moneyfmt(GA.funding)                        AS funding,
+       GA.credit                                   AS credit,
+       percent(GA.credit)                          AS pct_credit
+FROM service_ga    AS GA
+JOIN gui_civgroups AS G ON (GA.g = G.g)
+JOIN gui_actors    AS A ON (GA.a = A.a)
+JOIN gui_nbhoods   AS N ON (G.n = N.n);
 
 -- A sat_gc view for use by the GUI: 
 -- NOTE: presumes there is a single gram(n)!
