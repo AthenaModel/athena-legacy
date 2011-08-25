@@ -136,14 +136,21 @@ command "advance" {
 # call command
 
 command "call" {
-    <<syntax <i>script</i> >>
+    <<syntax <i>script</i> ?<i>args...</i>? >>
 
     Calls the named <i>script</i>, which is assumed to be in the current
     working directory unless an absolute path is specified. The ".tcl"
     extension may be omitted; <b>call</b> will add it automatically.<p>
 
     An executive script is a Tcl script containing <<cref /command>>.  A
-    number of standard Tcl commands may also be used.
+    number of standard Tcl commands may also be used.<p>
+
+    When the script is executed, a list containing the optional
+    arguments will be assigned to the variable <i>argv</i>.  If the 
+    script takes arguments, and uses <<cref /command/call>> to call
+    any other scripts, it should make a copy of its arguments
+    beforehand, as using <<cref /command/call>> will overwrite 
+    <i>argv</i>'s value.<p>
 }
 
 #=======================================================================
@@ -405,6 +412,18 @@ command "lock" {
 
     The scenario can later be unlocked using the 
     <<cref /command/unlock>> command.<p>
+}
+
+#=======================================================================
+# log command
+
+command "log" {
+    <<syntax <i>message</i> >>
+
+    Writes the <i>message</i> to the debugging log with severity
+    "normal", as component "script".  Contrast this command with
+    <<cref /command/sigevent>>, which writes a message to the
+    significant events log.<p>
 }
 
 #=======================================================================
@@ -809,6 +828,33 @@ command "set" {
     Assigns a value to a named variable.  By itself, this will have no
     effect on the execution of the simulation; however, variables can
     be used with other commands, such as the <<command =>> command.
+}
+
+#=======================================================================
+# sigevent command
+
+command "sigevent" {
+    <<syntax <i>message</i> ?<i>tags...</i>? >>
+
+    Writes the <i>message</i> to the significant events log
+    as component "script".  Contrast this command with
+    <<cref /command/log>>, which writes a message to the
+    debugging log log.<p>
+
+    The <i>tags</i>, if any, are used to tag the message with 
+    group, actor, or neighborhood names, so that the message will show
+    up in the Detail Browser in the context of the tagged entities.
+    For example, the following message involves actor USA in
+    neighborhood N1:<p>
+
+    <<cli {
+        > sigevent "USA has take action in N1" USA N1
+        >
+    }>>
+
+    The message will then appear on actor USA's page and on
+    neighborhood N1's page.
+    
 }
 
  

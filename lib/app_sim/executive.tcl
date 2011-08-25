@@ -54,11 +54,12 @@ snit::type executive {
         $interp expose source
 
         # NEXT, add commands that need to be defined in the slave itself.
-        $interp proc call {script} {
+        $interp proc call {script args} {
             if {[file extension $script] eq ""} {
                 append script ".tcl"
             }
 
+            uplevel 1 [list set argv $args]
             uplevel 1 [list source [file join [pwd] $script]]
         }
 
@@ -152,6 +153,10 @@ snit::type executive {
         # lock
         $interp smartalias lock 0 0 {} \
             [myproc lock]
+
+        # log
+        $interp smartalias log 1 1 {message} \
+            [myproc LogCmd]
 
         # nbfill
         $interp smartalias nbfill 1 1 {varname} \
@@ -260,6 +265,10 @@ snit::type executive {
         # show
         $interp smartalias show 1 1 {url} \
             [myproc show]
+
+        # sigevent
+        $interp smartalias sigevent 1 - {message ?tags...?} \
+            [myproc SigEventLog]
 
         # super
         $interp smartalias super 1 - {arg ?arg...?} \
@@ -551,6 +560,16 @@ snit::type executive {
         send SIM:LOCK
     }
 
+    # LogCmd message
+    #
+    # message - A text string
+    #
+    # Logs the message at normal level as "script".
+
+    proc LogCmd {message} {
+        log normal script $message
+    }
+
     # save filename
     # 
     # filename   - Scenario file name
@@ -663,6 +682,17 @@ snit::type executive {
     proc show {url} {
         [.main tab win detail] show $url
         .main tab view detail
+    }
+
+    # SigEventLog message ?tags...?
+    #
+    # message - A sig event narrative
+    # tags    - Zero or more neighborhoods/actors/groups
+    #
+    # Writes a message to the significant event log.
+
+    proc SigEventLog {message args} {
+        sigevent log 1 script $message {*}$args
     }
 
     # super args
