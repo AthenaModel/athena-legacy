@@ -135,10 +135,13 @@ snit::type mad {
                        $q);
             }
 
-            # NEXT, if we are not in PREP, get the GRAM driver
+            # NEXT, if we are not in PREP, get the GRAM driver.  Use
+            # [order state] rather than [sim state], because MADs
+            # can be created by the EXECUTIVE tactic just before we leave
+            # PREP.  The [order state] is then "TACTIC".
             set undo [list]
 
-            if {[sim state] ne "PREP"} {
+            if {[sim state] ne "PREP" || [order state] eq "TACTIC"} {
                 lappend undo [$type mutate getdriver $id]
             }
 
@@ -246,7 +249,7 @@ snit::type mad {
     #
     # mad         A MAD ID
     #
-    # Assignes a driver ID for the given MAD, and returns an 
+    # Assigns a driver ID for the given MAD, and returns an 
     # undo script.
 
     typemethod {mutate getdriver} {mad} {
@@ -867,7 +870,7 @@ snit::type mad {
 order define MAD:CREATE {
     title "Create Magic Attitude Driver"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates {PREP PAUSED TACTIC}
 
     parm oneliner  text  "Description" 
     parm cause     enum  "Cause"         -enumtype {ptype ecause+unique} \
@@ -1017,8 +1020,8 @@ order define MAD:UPDATE {
 order define MAD:TERMINATE {
     title "Terminate Magic Slope Inputs"
     options \
-        -sendstates     {}             \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {TACTIC}             \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm id       key   "MAD ID"        -table    gui_mads  \
                                         -keys     id        \
@@ -1042,8 +1045,8 @@ order define MAD:TERMINATE {
 order define MAD:SAT:ADJUST {
     title "Magic Adjust Satisfaction Level"
     options \
-        -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm id        key   "Curve"     -table    gui_sat_gc      \
                                      -keys     {g c}           \
@@ -1072,8 +1075,8 @@ order define MAD:SAT:ADJUST {
 order define MAD:SAT:SET {
     title "Magic Set Satisfaction Level"
     options \
-        -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm id        key   "Curve"     -table    gui_sat_gc      \
                                      -keys     {g c}           \
@@ -1102,8 +1105,8 @@ order define MAD:SAT:SET {
 order define MAD:SAT:LEVEL {
     title "Magic Satisfaction Level Input"
     options \
-        -sendstates     {}             \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {TACTIC}             \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm g         enum  "Group"               -enumtype civgroup
     parm c         enum  "Concern"             -enumtype {ptype c}
@@ -1140,8 +1143,8 @@ order define MAD:SAT:LEVEL {
 order define MAD:SAT:SLOPE {
     title "Magic Satisfaction Slope Input"
     options \
-        -sendstates     {}             \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {TACTIC}             \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm g         enum  "Group"               -enumtype civgroup
     parm c         enum  "Concern"             -enumtype {ptype c}
@@ -1176,8 +1179,8 @@ order define MAD:SAT:SLOPE {
 order define MAD:COOP:ADJUST {
     title "Magic Adjust Cooperation Level"
     options \
-        -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm id        key   "Curve"     -table    gui_coop_fg     \
                                      -keys     {f g}           \
@@ -1206,8 +1209,8 @@ order define MAD:COOP:ADJUST {
 order define MAD:COOP:SET {
     title "Magic Set Cooperation Level"
     options \
-        -sendstates     PAUSED         \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm id        key   "Curve"     -table    gui_coop_fg      \
                                      -keys     {f g}            \
@@ -1237,8 +1240,8 @@ order define MAD:COOP:SET {
 order define MAD:COOP:LEVEL {
     title "Magic Cooperation Level Input"
     options \
-        -sendstates     {}             \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {TACTIC}             \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm f         enum  "Of Group"            -enumtype civgroup
     parm g         enum  "With Group"          -enumtype frcgroup
@@ -1276,8 +1279,8 @@ order define MAD:COOP:LEVEL {
 order define MAD:COOP:SLOPE {
     title "Magic Cooperation Slope Input"
     options \
-        -sendstates     {}             \
-        -schedulestates {PREP PAUSED}
+        -sendstates     {TACTIC}             \
+        -schedulestates {PREP PAUSED TACTIC}
 
     parm f         enum  "Of Group"            -enumtype civgroup
     parm g         enum  "With Group"          -enumtype frcgroup

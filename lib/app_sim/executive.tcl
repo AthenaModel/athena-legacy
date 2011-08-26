@@ -146,6 +146,10 @@ snit::type executive {
         $interp smartalias help 0 - {?-info? ?command...?} \
             [mytypemethod help]
 
+        # last_mad
+        $interp smartalias last_mad 0 0 {} \
+            [myproc last_mad]
+
         # load
         $interp smartalias load 1 1 {filename} \
             [list scenario open]
@@ -556,6 +560,16 @@ snit::type executive {
         return
     }
 
+    # last_mad
+    #
+    # Returns the ID of the most recently created MAD.
+
+    proc last_mad {} {
+        return [rdb onecolumn {
+            SELECT id FROM mads ORDER BY id DESC LIMIT 1;
+        }]
+    }
+
     # lock
     #
     # Locks the scenario.
@@ -731,6 +745,8 @@ snit::type executive {
 
         order validate $order
 
+        # NEXT, build the parameter dictionary, validating the
+        # parameter names as we go.
         set parms [order parms $order]
         set pdict [dict create]
 

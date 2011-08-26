@@ -1402,7 +1402,10 @@ order MAD:CREATE "Create Magic Attitude Driver" {
 
     <b>Note:</b> Once any attitude inputs or adjustments have been
     associated with this MAD, it can no longer be deleted; nor can its
-    cause, near factor or far factor be changed.
+    cause, near factor or far factor be changed.<p>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #-------------------------------------------------------------------
@@ -1468,7 +1471,12 @@ order MAD:TERMINATE "Terminate Magic Slope Inputs" {
     This order terminates all currently on-going slope inputs created
     for this MAD using <<cref /order/mad/sat/slope>> or 
     <<cref /order/mad/coop/slope>>.  (Delayed indirect effects
-    are terminated after a suitable delay.)
+    are terminated after a suitable delay.)<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
+
 }
 
 #=======================================================================
@@ -1511,7 +1519,11 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
 
     Immediately adjusts the value of the specified satisfaction curve by the
     specified amount, clamping the curve's value to the range -100.0,
-    100.0 if need be.
+    100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -1539,7 +1551,11 @@ order MAD:SAT:SET "Magic Set Satisfaction Level" {
     <</parmlist>>
 
     Immediately sets the value of the specified satisfaction curve to the
-    specified amount.
+    specified amount.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -1580,7 +1596,11 @@ order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
     <b>This order must be scheduled in advance.</b>
     Enters a magic satisfaction level input into GRAM.  The input will
     change the specified curve's value by <i>limit</i> nominal points
-    over a period of <i>days</i>.
+    over a period of <i>days</i>.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 
@@ -1628,7 +1648,11 @@ order MAD:SAT:SLOPE "Magic Satisfaction Slope Input" {
     The input can be terminated in two ways.  First, the specific
     input can be terminated by sending an identical order with a slope
     of 0.0.  Second, the <<cref /order/mad/terminate>> order will terminate
-    all ongoing slope effects for a particular MAD.
+    all ongoing slope effects for a particular MAD.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #=======================================================================
@@ -1671,7 +1695,11 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Level" {
 
     Adjusts the value of the specified cooperation curve by the
     specified amount, clamping the curve's value to the range 0.0,
-    100.0 if need be.
+    100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -1698,7 +1726,11 @@ order MAD:COOP:SET "Magic Set Cooperation Level" {
     <</parmlist>>
 
     Sets the value of the specified cooperation curve to the
-    specified amount.
+    specified amount.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -1740,7 +1772,11 @@ order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
     Enters a magic cooperation level input into GRAM.  The input will
     change the specified curve's value by <i>limit</i> nominal points
     over a period of <i>days</i>.  The input will be attributed to the
-    specified MAD.
+    specified MAD.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 
@@ -1788,7 +1824,11 @@ order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
     The input can be terminated in two ways.  First, the specific
     input can be terminated by sending an identical order with a slope
     of 0.0.  Second, the <<cref /order/mad/terminate>> order will terminate
-    all ongoing slope effects for a particular MAD.
+    all ongoing slope effects for a particular MAD.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 
