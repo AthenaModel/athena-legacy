@@ -227,6 +227,11 @@ snit::type app {
             -checkstate  yes    \
             -trace       yes
 
+        # tactic: Like raw, but does not trace; used by "send"
+        # when the order state is TACTIC.
+        order interface add tactic \
+            -checkstate  yes
+
         # test: For orders from the test suite.  No special handling
         # for unexpected errors, and no transactions, so that errors
         # remain in place.

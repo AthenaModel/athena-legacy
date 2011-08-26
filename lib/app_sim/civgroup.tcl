@@ -439,7 +439,7 @@ order define CIVGROUP:UPDATE:MULTI {
 order define CIVGROUP:UPDATE:POSTPREP {
     title "Update Civilian Group (Post-PREP)"
     options \
-        -sendstates {PREP PAUSED}                   \
+        -sendstates {PREP PAUSED TACTIC}            \
         -refreshcmd {orderdialog refreshForKey g *}
 
     parm g   key "Select Group"    -table civgroups_view -keys g \

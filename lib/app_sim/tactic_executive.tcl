@@ -43,13 +43,32 @@ tactic type define EXECUTIVE {text1 once} {actor system} {
 
     typemethod execute {tdict} {
         dict with tdict {
+            # FIRST, set the order state to TACTIC, so that
+            # relevant orders can be executed.
+
+            set oldState [order state]
+            order state TACTIC
+                
+            # NEXT, create a savepoint, so that we can back out
+            # the command's changes on error.
+            rdb eval {SAVEPOINT executive}
+                
+
+            # NEXT, attempt to run the user's command.
             if {[catch {
-                rdb eval {SAVEPOINT executive}
                 executive eval $text1
-                rdb eval {RELEASE executive}
             } result eopts]} {
+                # FAILURE 
+
+                # FIRST, roll back any changes made by the script; 
+                # it threw an error, and we don't want any garbage
+                # left behind.
                 rdb eval {ROLLBACK TO executive}
 
+                # NEXT, restore the old order state
+                order state $oldState
+
+                # NEXT, log failure.
                 sigevent log warning tactic "
                     EXECUTIVE: Failed to execute command {$text1}: $result
                 " $owner
@@ -57,15 +76,24 @@ tactic type define EXECUTIVE {text1 once} {actor system} {
                 executive errtrace
                 return 0
             }
-
-            sigevent log 1 tactic "
-                EXECUTIVE: $text1
-            " $owner
         }
+
+        # SUCCESS
+
+        # NEXT, release the savepoint; the script ran without
+        # error.
+        rdb eval {RELEASE executive}
+
+        # NEXT, restore the old order state
+        order state $oldState
+
+        # NEXT, log success
+        sigevent log 1 tactic "
+            EXECUTIVE: $text1
+        " $owner
 
         return 1
     }
-
 }
 
 # TACTIC:EXECUTIVE:CREATE
