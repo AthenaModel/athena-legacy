@@ -1047,7 +1047,7 @@ order define MAD:SAT:ADJUST {
 
     parm id        key   "Curve"     -table    gui_sat_gc      \
                                      -keys     {g c}           \
-                                     -labels   {"" "Grp" "Con"}
+                                     -labels   {"Grp" "Con"}
     parm mad       key   "MAD ID"    -table    gui_mads    \
                                      -keys     id          \
                                      -dispcols longid
@@ -1077,7 +1077,7 @@ order define MAD:SAT:SET {
 
     parm id        key   "Curve"     -table    gui_sat_gc      \
                                      -keys     {g c}           \
-                                     -labels   {"" "Grp" "Con"}
+                                     -labels   {"Grp" "Con"}
     parm mad       key   "MAD ID"    -table    gui_mads     \
                                      -keys     id           \
                                      -dispcols longid
@@ -1181,7 +1181,7 @@ order define MAD:COOP:ADJUST {
 
     parm id        key   "Curve"     -table    gui_coop_fg     \
                                      -keys     {f g}           \
-                                     -labels   {"" "Of" "With"}
+                                     -labels   {"Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
                                      -keys     id        \
                                      -dispcols longid
@@ -1211,7 +1211,7 @@ order define MAD:COOP:SET {
 
     parm id        key   "Curve"     -table    gui_coop_fg      \
                                      -keys     {f g}            \
-                                     -labels   {"" "Of" "With"}
+                                     -labels   {"Of" "With"}
     parm mad       key   "MAD ID"    -table    gui_mads  \
                                      -keys     id        \
                                      -dispcols longid
