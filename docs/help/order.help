@@ -189,7 +189,7 @@ macro ATTRIT.general {} {
     pool.  For civilian units, the staffing pool is the base
     population of the group in its neighborhood of residence; for force
     and organization units, the staffing pool is the number of
-    personnel stationed in the unit's neighborhood of origin.
+    personnel deployed to the unit's neighborhood of origin.
     
     Attrition reduces not only the number of personnel in the affected
     units, but also the number of personnel available in the group's
@@ -200,6 +200,13 @@ macro ATTRIT.general {} {
     responsible force groups are specified, then civilian casualties
     will affect the cooperation of the civilian group with the
     responsible groups.<p>
+
+    <b>Use in [cref /object/tactic/executive]:</b>
+    This order can be scheduled for execution by the EXECUTIVE tactic
+    using the [cref /command/sched] executive command.  It cannot be
+    sent immediately by the EXECUTIVE tactic using the
+    [cref /command/send] executive command.
+    
 }
 
 
@@ -1085,6 +1092,10 @@ order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
     This order updates an existing <<term civgroup>>
     after leaving <<cref /using/prep>>.  Only a subset of the
     group attributes can be edited.<p>
+
+    This order can be sent by an 
+    <<cref /object/tactic/executive>> script using the 
+    <<cref /command/send>> executive command.<p>
 
     <<parmlist>>
     <<parm g "Select Group">>

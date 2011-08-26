@@ -772,6 +772,22 @@ command "save" {
 }
 
 #=======================================================================
+# sched command
+
+command "sched" {
+    <<syntax <i>t order</i> ?<i>option value...</i>? >>
+
+    Schedules the named <i>order</i> to be executed at time <i>t</i>,
+    given the set of options and values.  The <<term timespec>>
+    <i>t</i> must be no earlier than <b>NOW+1</b>.
+    The option names are simply the parameter
+    names as documented on the relevant <<cref /order>> page,
+    <b>prefixed with a hyphen (-)</b>.  The order parameters are
+    validated at the time the order is scheduled; if any are invalid,
+    the order is rejected.
+}
+
+#=======================================================================
 # select command
 
 command "select" {
@@ -810,6 +826,7 @@ command "send" {
     <b>prefixed with a hyphen (-)</b>.  If the order is rejected, the 
     error message is pretty-printed.
 }
+
 
 #=======================================================================
 # show command

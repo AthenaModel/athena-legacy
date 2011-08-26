@@ -984,8 +984,8 @@ snit::type aam {
 order define ATTRIT:NBHOOD {
     title "Magic Attrit Neighborhood"
     options \
-        -schedulestates {PREP PAUSED}           \
-        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}    \
+        -sendstates     {PAUSED}                \
         -refreshcmd     [list ::aam Refresh_AN]
 
     parm n          key  "Neighborhood"      -table  nbhoods   \
@@ -1023,8 +1023,8 @@ order define ATTRIT:NBHOOD {
 order define ATTRIT:GROUP {
     title "Magic Attrit Group"
     options \
-        -schedulestates {PREP PAUSED}           \
-        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}    \
+        -sendstates     {PAUSED}                \
         -refreshcmd     [list ::aam Refresh_AG]
 
     parm n          key   "Neighborhood"      -table  nbhoods -keys n \
@@ -1081,8 +1081,8 @@ order define ATTRIT:GROUP {
 order define ATTRIT:UNIT {
     title "Magic Attrit Unit"
     options \
-        -schedulestates {PREP PAUSED}           \
-        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}    \
+        -sendstates     {PAUSED}                \
         -refreshcmd     [list ::aam Refresh_AU]
 
     parm u          key   "Unit"              -table  units     -keys u \

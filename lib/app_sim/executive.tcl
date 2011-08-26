@@ -258,6 +258,10 @@ snit::type executive {
         $interp smartalias save 1 1 {filename} \
             [myproc save]
 
+        # sched
+        $interp smartalias sched 2 - {t order ?option value...?} \
+            [myproc sched]
+
         # send
         $interp smartalias send 1 - {order ?option value...?} \
             [myproc send]
@@ -584,6 +588,123 @@ snit::type executive {
         return
     }
     
+
+    # sched t order ?option value...?
+    #
+    # t       - The time at which the order should be executed.
+    # order   - The name of an order(sim) order.
+    # option  - One of order's parameter names, prefixed with "-"
+    # value   - The parameter's value
+    #
+    # This routine provides a convenient way to schedule orders for
+    # future execution from a command line or script.
+    # The order name is converted to upper case automatically.  
+    # The parameter names are validated, and a parameter dictionary is 
+    # created.  The order is scheduled.  Any error message is pretty-printed.
+    #
+    # Usually the order is scheduled using the "raw" interface; if the
+    # order state is TACTIC, meaning that the order is scheduled by an
+    # EXECUTIVE tactic script, the order is scheduled using the 
+    # "tactic" interface.  That way the order state is checked but
+    # the order is not CIF'd.
+
+    proc sched {t order args} {
+        # FIRST, validate the timespec.
+        set t [simclock future validate $t]
+
+        if {$t <= [simclock now]} {
+            return -code error -errorcode REJECT \
+                "The scheduled time must be in the future."
+        }
+
+        # NEXT, validate the order name, converting it to upper case.
+        set order [string toupper $order]
+
+        order validate $order
+
+        # NEXT, build the parameter dictionary, validating the
+        # parameter names as we go.
+        set parms [order parms $order]
+        set pdict [dict create]
+
+        foreach parm [order parms $order] {
+            dict set pdict $parm [order parm $order $parm -defval]
+        }
+
+        set userParms [list]
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            set parm [string range $opt 1 end]
+
+            if {![string match "-*" $opt] ||
+                $parm ni $parms
+            } {
+                error "unknown option: $opt"
+            }
+
+            if {[llength $args] == 0} {
+                error "missing value for option $opt"
+            }
+
+            dict set pdict $parm [lshift args]
+            lappend userParms $parm
+        }
+
+        # NEXT, check the order
+        # TBD: Can this be refactored to share with "send"?
+        if {[catch {
+            order check $order $pdict
+        } result eopts]} {
+            if {[dict get $eopts -errorcode] ne "REJECT"} {
+                # Rethrow
+                return {*}$eopts $result
+            }
+
+            set wid [lmaxlen [dict keys $pdict]]
+
+            set text "$order rejected:\n"
+
+            # FIRST, add the parms in error.
+            dict for {parm msg} $result {
+                append text [format "-%-*s   %s\n" $wid $parm $msg]
+            }
+
+            # NEXT, add the defaulted parms
+            set defaulted [list]
+            dict for {parm value} $pdict {
+                if {$parm ni $userParms &&
+                    ![dict exists $result $parm]
+                } {
+                    lappend defaulted $parm
+                }
+            }
+
+            if {[llength $defaulted] > 0} {
+                append text "\nDefaulted Parameters:\n"
+                dict for {parm value} $pdict {
+                    if {$parm in $defaulted} {
+                        append text [format "-%-*s   %s\n" $wid $parm $value]
+                    }
+                }
+            }
+
+            return -code error -errorcode REJECT $text
+        }
+
+        # NEXT, determine the order interface.
+        if {[order state] eq "TACTIC"} {
+            set interface tactic
+        } else {
+            set interface raw
+        }
+
+        # NEXT, send the order, and handle errors.
+        order schedule $interface $t $order $pdict
+
+        return ""
+    }
 
     # send order ?option value...?
     #
