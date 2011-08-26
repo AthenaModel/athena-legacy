@@ -145,8 +145,14 @@ snit::type situation {
     # Returns the new situation ID
 
     typemethod create {kind args} {
+        # FIRST, get the next ID.
+        set s [rdb onecolumn {
+            SELECT COALESCE(max(s)+1, 1) FROM situations
+        }]
+
         # FIRST, get default parameters
         set parmdict [dict create \
+                          s      $s             \
                           state  INITIAL        \
                           change NEW            \
                           ts     [simclock now] \
@@ -160,7 +166,7 @@ snit::type situation {
         rdb insert situations $parmdict
 
         # NEXT, get and return the new situation ID.
-        return [rdb last_insert_rowid]
+        return $s
     }
 
 

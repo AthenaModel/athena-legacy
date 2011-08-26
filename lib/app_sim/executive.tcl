@@ -133,6 +133,18 @@ snit::type executive {
         # dump sat slope
         $interp smartalias {dump sat slope} 2 2 {g c} \
             [mytypemethod dump sat slope]
+
+        # ensit
+        $interp ensemble ensit
+
+        # ensit id
+        $interp smartalias {ensit id} 2 2 {n stype} \
+            [myproc ensit_id]
+
+        # ensit last
+        $interp smartalias {ensit last} 0 0 {} \
+            [myproc ensit_last]
+
         
         # errtrace
         $interp smartalias errtrace 0 0 {} \
@@ -145,6 +157,7 @@ snit::type executive {
         # help
         $interp smartalias help 0 - {?-info? ?command...?} \
             [mytypemethod help]
+
 
         # last_mad
         $interp smartalias last_mad 0 0 {} \
@@ -470,6 +483,36 @@ snit::type executive {
 
         send SIM:RUN -days $days -block YES
     }
+
+    # ensit_id n stype
+    #
+    # n      - Neighborhood
+    # stype  - Situation Type
+    #
+    # Returns the situation ID of the ensit of the given type
+    # in the given neighborhood.  Returns "" if none.
+
+    proc ensit_id {n stype} {
+        set n [nbhood validate [string toupper $n]]
+        set stype [eensit validate $stype]
+
+        return [rdb onecolumn {
+            SELECT s FROM ensits 
+            WHERE n=$n AND stype=$stype
+        }]
+    }
+
+    # ensit_last
+    #
+    # Returns the situation ID of the most recently created ensit.
+
+    proc ensit_last {} {
+        return [rdb onecolumn {
+            SELECT s FROM ensits ORDER BY s DESC LIMIT 1;
+        }]
+    }
+
+
 
     # export scriptFile
     #

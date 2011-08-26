@@ -779,6 +779,10 @@ order ENSIT:CREATE "Create Environmental Situation" {
     <<cref /order/ensit/update>> order can be used to
     edit any of these values so long as the situation has not yet
     become active, i.e., up until the next time advance.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -884,7 +888,12 @@ order ENSIT:RESOLVE "Resolve Environmental Situation" {
 
     Resolves an unresolved environmental situation.  Any on-going
     effects will be terminated, and the neighborhood population will
-    usually respond favorably.
+    usually respond favorably.<p>
+
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
 }
 
 #=======================================================================

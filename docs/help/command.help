@@ -334,6 +334,35 @@ command "dump sat slope" {
     are handled properly.
 }
 
+#=======================================================================
+# ensit
+
+command "ensit" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command queries information about environmental situations.
+    It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# ensit id
+
+command "ensit id" {
+    <<syntax <i>n stype</i> >>
+    
+    Returns the situation ID of the environmental situation of type
+    <i>stype</i> in neighborhood <i>n</i>, if any, and the empty string
+    otherwise.
+}
+
+command "ensit last" {
+    <<syntax>>
+    
+    Returns the situation ID of the most recently created 
+    environmental situation, or the empty string if none.
+}
 
 #=======================================================================
 # errtrace command

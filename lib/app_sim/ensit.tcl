@@ -881,8 +881,8 @@ eventq define ensitAutoResolve {s} {
 order define ENSIT:CREATE {
     title "Create Environmental Situation"
     options \
-        -schedulestates {PREP PAUSED}         \
-        -sendstates     {PREP PAUSED}         \
+        -schedulestates {PREP PAUSED TACTIC}         \
+        -sendstates     {PREP PAUSED TACTIC}         \
         -refreshcmd     {::ensit Refresh_SEC}
 
     parm location   text  "Location"      -tags nbpoint
@@ -995,7 +995,7 @@ order define ENSIT:DELETE {
 order define ENSIT:UPDATE {
     title "Update Environmental Situation"
     options \
-        -sendstates {PREP PAUSED} \
+        -sendstates {PREP PAUSED TACTIC} \
         -refreshcmd {ensit Refresh_SEU}
 
     parm s          key  "Situation"    -table    gui_ensits_initial \
@@ -1144,8 +1144,8 @@ order define ENSIT:MOVE {
 order define ENSIT:RESOLVE {
     title "Resolve Environmental Situation"
     options \
-        -schedulestates {PREP PAUSED}                    \
-        -sendstates     {PREP PAUSED}                    \
+        -schedulestates {PREP PAUSED TACTIC}              \
+        -sendstates     {PREP PAUSED TACTIC}              \
         -refreshcmd     {orderdialog refreshForKey s *}
 
     parm s          key  "Situation"    -table    gui_ensits \
