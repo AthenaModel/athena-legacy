@@ -280,6 +280,52 @@ page /object/condition during "DURING condition" {
 }
 
 #-----------------------------------------------------------------------
+# EXPR
+
+object condition_expr {
+    noun "EXPR condition"
+    overview {
+        This <<term condition>> is met when a particular boolean
+        expression is true.  The expression has Tcl expression 
+        syntax, and is evaluated by the Athena
+        <<term executive>>.  The expression can call
+        arbitrary executive <<cref /command commands>> and functions, 
+        but should avoid
+        calling commands with side effects.<p>
+
+        If the expression contains an error, e.g., a syntax error,
+        that will be discovered when Athena evaluates the condition
+        during <<term strategy>> execution.  The error will be logged
+        in the <a href="my://app/sigevents/all">Significant Events</a>
+        log.<p>
+
+        A condition whose expression contains an error has no value.
+        Such conditions can be seen at a glance in the
+        <a href="gui:/tab/strategy">Strategy Browser</a> because they
+        will be marked by a black dash icon rather than a green
+        thumb's up or a red thumb's down.  (Note that conditions that
+        have been edited but not evaluated also lack values.)
+    }
+
+    include condition_ 
+
+    attribute text1 "Expression" {
+        A boolean expression with Tcl syntax to be evaluated by the
+        Athena <<term executive>>.
+    } -tags {create update}
+}
+
+page /object/condition expr "EXPR condition" {
+    <<sotitle>>
+
+    <<condition_expr overview>><p>
+
+    EXPR conditions have the following attributes:<p>
+
+    <<condition_expr parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # INFLUENCE
 
 object condition_influence {

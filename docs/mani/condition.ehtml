@@ -68,10 +68,14 @@ We make any problems known to the user, and allow them to fix them.<p>
 
 <<defitem eval {eval <i>cdict</i>}>>
 
-Evaluates the condition, returning 1 if true (met) and 0 if false
-(unmet).  The "eval" subcommand will be called only after the
-simulation is locked, and should always be able to compute a value for
-a condition with "normal" state.<p>
+Evaluates the condition, returning 1 if true (met), 0 if false
+(unmet), and the empty string, "", if no value can be computed.<p>
+
+Note that the "eval" subcommand will be called only after the
+simulation is locked, and should almost always be able to compute a
+value for a condition with "normal" state.  The primary exception is a
+condition that evaluates an expression provided by the user, which may
+contain errors.<p>
 
 <</deflist subcommands>>
 

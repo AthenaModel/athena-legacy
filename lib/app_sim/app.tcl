@@ -444,6 +444,10 @@ snit::type app {
             -showsymbols yes                     \
             -resetvalue  50
 
+        # expr -- Expression
+        form register expr ::marsgui::textfield \
+            -width 60
+
         # frac -- Fractions, 0.0 to 1.0
         form register frac ::marsgui::rangefield \
             -type        ::rfraction

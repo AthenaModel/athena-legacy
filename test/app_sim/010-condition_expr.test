@@ -1,0 +1,118 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-condition_expr.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    condition_expr(sim) tests.
+#
+#    This test suite tests the condition_expr(sim) ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE
+
+        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    # Standard Conditions.
+    
+    set C1 {
+        cc_id          1
+        condition_type EXPR
+        text1          {1 < 2}
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::EXPR narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Expression: 1 < 2}
+
+    #-------------------------------------------------------------------
+    # check
+
+
+    test check-1.1 {check: successful} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::EXPR check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    # Checks never fail; errors are caught at run-time.
+
+    #-------------------------------------------------------------------
+    # eval
+
+    proc ExprEval {expr} {
+        condition mutate update [list condition_id 1 text1 $expr]
+        return [condition::EXPR eval [condition get 1]]
+    }
+
+    test eval-1.1 {Test eval} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        set a [ExprEval {1 > 2}]
+        set b [ExprEval {2 > 1}]
+        set c [ExprEval {BOGUS}]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0 1 {}}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

@@ -69,7 +69,7 @@ tactic type define EXECUTIVE {text1 once} {actor system} {
                 order state $oldState
 
                 # NEXT, log failure.
-                sigevent log warning tactic "
+                sigevent log error tactic "
                     EXECUTIVE: Failed to execute command {$text1}: $result
                 " $owner
 

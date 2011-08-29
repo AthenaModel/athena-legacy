@@ -243,7 +243,7 @@ page /order/condition control "Condition: Control" {
 
     The following orders are used to create and update
     <<cref /object/condition/control>>s.<p>
-
+v
     <<childlinks>>
 }
 
@@ -295,6 +295,37 @@ order CONDITION:DURING:UPDATE "Update Condition: During" {
     <<CONDITION.id>>
     <<CONDITION.uco>>
     <<condition_during parms -required -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Condition: EXPR
+
+page /order/condition expr "Condition: Boolean Expression" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/expr>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:EXPR:CREATE "Create Condition: Boolean Expression" {
+    Creates an <<cref /object/condition/expr>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_expr parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:EXPR:UPDATE "Update Condition: Boolean Expression" {
+    Updates an existing <<cref /object/condition/expr>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_expr parms -optional -tags update>>
     <</parmlist>>
 }
 

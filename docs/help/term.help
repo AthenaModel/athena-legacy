@@ -450,6 +450,19 @@ term evening "evening" {
     is assessed.
 }
 
+
+
+#-----------------------------------------------------------------------
+
+term executive "executive" {
+    The Athena "executive" is the object that processes 
+    <<cref /command commands>> entered at the Athena command-line or 
+    in Athena executive scripts.  In addition, it is responsible for
+    executing <<cref /object/tactic/executive>>s and for evaluating
+    the boolean expressions entered for the
+    <<cref /object/condition/expr>>.
+}
+
 #-----------------------------------------------------------------------
 
 term filterbox "filter box" {

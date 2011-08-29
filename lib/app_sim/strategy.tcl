@@ -168,6 +168,7 @@ snit::type strategy {
         # tactic.
         set tflag 1
         set cflags [list]
+        set badlist [list]
 
         rdb eval {
             SELECT *
@@ -178,6 +179,11 @@ snit::type strategy {
             unset -nocomplain row(*)
 
             set flag [condition call eval [array get row]]
+
+            # Skip conditions with no value
+            if {$flag eq ""} {
+                continue
+            }
 
             lappend cflags $row(condition_id) $flag
 
