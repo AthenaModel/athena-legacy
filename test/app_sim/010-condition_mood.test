@@ -1,0 +1,135 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-condition_mood.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    condition_mood(sim) tests.
+#
+#    This test suite tests the condition_mood(sim) ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA
+
+        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    # Standard Conditions.
+    
+    set C1 {
+        cc_id          1
+        condition_type MOOD
+        g              SHIA
+        op1            LT
+        x1             50.0
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::MOOD narrative [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Group SHIA's mood is less than 50.00.}
+
+    #-------------------------------------------------------------------
+    # check
+
+
+    test check-1.1 {check: successful} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        condition::MOOD check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test check-1.2 {check: group deleted} -setup {
+        setup
+        condition mutate create $C1
+        civgroup mutate delete SHIA
+    } -body {
+        condition::MOOD check [condition get 1]
+    } -cleanup {
+        cleanup
+    } -result {Group SHIA no longer exists.}
+
+    #-------------------------------------------------------------------
+    # eval
+
+
+    proc MoodEval {mood comp amount} {
+        rdb eval {
+            INSERT OR REPLACE INTO gram_g(g,sat)
+            VALUES('SHIA', $mood);
+        }
+        condition mutate update [list condition_id 1 op1 $comp x1 $amount]
+        return [condition::MOOD eval [condition get 1]]
+    }
+
+    test eval-1.1 {Test eval} -setup {
+        setup
+        condition mutate create $C1
+    } -body {
+        set a [MoodEval 50 EQ 50]
+        set b [MoodEval 50 GE 50]
+        set c [MoodEval 50 LE 50]
+        set d [MoodEval 50 GT 45]
+        set e [MoodEval 50 LT 45]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {1 1 1 1 0}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

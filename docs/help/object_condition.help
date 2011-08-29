@@ -365,6 +365,48 @@ page /object/condition met "MET condition" {
     <<condition_met parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# MOOD
+
+object condition_mood {
+    noun "MOOD condition"
+    overview {
+        This <<term condition>> compares a civilian group's mood
+        with a particular value.  The condition
+        is met when the comparison is true, e.g., when group
+        G1's mood is greater than 55.0.<p>
+    }
+
+    include condition_ 
+
+    attribute g "Group" {
+        The ID of the <<term civgroup>> whose mood is
+        being compared.
+    } -tags {create update}
+
+    attribute op1 "Comparison" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The number to which the group's mood will be compared.
+    } -tags {create update}
+}
+
+page /object/condition mood "MOOD condition" {
+    <<sotitle>>
+
+    <<condition_mood overview>><p>
+
+    MOOD conditions have the following attributes:<p>
+
+    <<condition_mood parmlist>>
+}
+
+
 
 #-----------------------------------------------------------------------
 # NBCOOP

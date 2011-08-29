@@ -360,6 +360,36 @@ order CONDITION:MET:UPDATE "Update Condition: Met" {
     <</parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# Condition: MOOD
+
+page /order/condition mood "Condition: Group Mood" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/mood>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:MOOD:CREATE "Create Condition: Group Mood" {
+    Creates an <<cref /object/condition/mood>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_mood parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:MOOD:UPDATE "Update Condition: Group Mood" {
+    Updates an existing <<cref /object/condition/mood>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_mood parms -optional -tags update>>
+    <</parmlist>>
+}
 
 #-----------------------------------------------------------------------
 # Condition: NBCOOP
