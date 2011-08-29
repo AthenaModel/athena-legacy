@@ -11,6 +11,54 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.26, 29 August 2011</h3>
+
+<b>Note:</b> Like previous builds, this one contains database schema
+incompatibilties.  To bring scenario data forward from 3.0.23 or
+later, following the migration procedure listed under Build 3.0.24,
+below.  (The instructions regarding BSYSTEM:BELIEF:UPDATE only apply
+for Athena 3.0.23 scenarios.).<p>
+
+This build contains a number of significant enhancements.  First, it
+completes the Essential Non-Infrastructure (ENI) services model with a
+satisfaction rule set and proper reporting in the Detail Browser.
+Second, it defines a new tactic, EXECUTIVE, which executes an Athena
+executive command (aka a CLI command).  Because that command can
+execute an entire script, this greatly increases the scope of tactic
+execution.  A number of executive commands have been added or extended
+to support this tactic: "call", "log", "sigevent", "ensit",
+"last_mad".  Many of the ATTRIT:*, MAD:*, and ENSIT:* orders can now
+be sent or scheduled by this new tactic.<p>
+
+The complete list of packages is as follows:<p>
+
+<ul>
+  <li> Bug 3115: athena(1): ENI rule set
+  <li> Bug 3120: athena(1): ENI Appserver Changes
+  <li> Bug 3121: athena(1): Magic Set/Adjust labels are incorrect
+  <li> Bug 3128: athena(1): call, log, sigevent executive commands
+  <li> Bug 3129: athena(1): EXECUTIVE tactic
+  <li> Bug 3131: athena(1): "TACTIC" order state
+  <li> Bug 3132: athena(1): Schedule attrition orders in EXECUTIVE tactic
+  <li> Bug 3133: athena(1): Use magic input orders with EXECUTIVE tactic
+  <li> Bug 3134: athena(1): Use ensit orders with the EXECUTIVE
+       tactic.
+</ul><p>
+
+<h3>Build 3.0.25, 17 August 2011</h3>
+
+This build fixes two minor problems found in the new features of Build
+3.0.24.  See the notes on Build 3.0.24 for details on the significant
+changes since Build 3.0.23, including a procedure for migrating
+scenarios from Build 3.0.23 to Build 3.0.24/25.  The changes in this
+build are as follows:<p>
+
+<ul>
+  <li> Bug 3110: 0value Bgerror
+  <li> Bug 3111: opts(-batch): no such variable bgerror
+</ul><p>
+
+
 <h3>Build 3.0.24, 16 August 2011</h3>
 
 This build includes several major changes, including significant
