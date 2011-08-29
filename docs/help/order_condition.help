@@ -393,6 +393,37 @@ order CONDITION:NBCOOP:UPDATE "Update Condition: Neighborhood Cooperation" {
 }
 
 #-----------------------------------------------------------------------
+# Condition: NBMOOD
+
+page /order/condition nbmood "Condition: Neighborhood Mood" {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/condition/nbmood>>s.<p>
+
+    <<childlinks>>
+}
+
+order CONDITION:NBMOOD:CREATE "Create Condition: Neighborhood Mood" {
+    Creates an <<cref /object/condition/nbmood>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.cco>>
+    <<condition_nbmood parms -required -tags create>>
+    <</parmlist>>
+}
+
+order CONDITION:NBMOOD:UPDATE "Update Condition: Neighborhood Mood" {
+    Updates an existing <<cref /object/condition/nbmood>>.<p>
+
+    <<parmlist>>
+    <<CONDITION.id>>
+    <<CONDITION.uco>>
+    <<condition_nbmood parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # Condition: TROOPS
 
 page /order/condition troops "Condition: Troops" {

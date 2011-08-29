@@ -1,31 +1,31 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    condition_nbcoop.tcl
+#    condition_nbmood.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): NBCOOP Condition Type Definition
+#    athena_sim(1): NBMOOD Condition Type Definition
 #
 #    See condition(i) for the condition interface requirements.
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Condition: NBCOOP(n, g, comp, amount)
+# Condition: NBMOOD(n, comp, amount)
 #
-# How does the cooperation of neighborhood n with group g
+# How does the mood of neighborhood n
 # compare with some amount?
 
-condition type define NBCOOP {n g op1 x1} {
+condition type define NBMOOD {n op1 x1} {
     typemethod narrative {cdict} {
         dict with cdict {
             set comp [ecomparator longname $op1]
 
             return [normalize "
-                Neighborhood $n's cooperation with force group $g is
-                $comp [qcooperation format $x1].
+                Neighborhood $n's mood is
+                $comp [qsat format $x1].
             "]
         }
     }
@@ -35,10 +35,6 @@ condition type define NBCOOP {n g op1 x1} {
             if {$n ni [nbhood names]} {
                 return "Neighborhood $n no longer exists."
             }
-
-            if {$g ni [frcgroup names]} {
-                return "Force group $g no longer exists."
-            }
         }
 
         return
@@ -46,24 +42,24 @@ condition type define NBCOOP {n g op1 x1} {
 
     typemethod eval {cdict} {
         dict with cdict {
-            set nbcoop [rdb onecolumn {
-                SELECT coop FROM gram_frc_ng WHERE n=$n AND g=$g
+            set nbmood [rdb onecolumn {
+                SELECT sat FROM gram_n WHERE n=$n
             }]
 
-            set nbcoop [qcooperation format $nbcoop]
-            set x1     [qcooperation format $x1]
+            set nbmood [qsat format $nbmood]
+            set x1     [qsat format $x1]
 
-            return [condition compare $nbcoop $op1 $x1]
+            return [condition compare $nbmood $op1 $x1]
         }
     }
 }
 
-# CONDITION:NBCOOP:CREATE
+# CONDITION:NBMOOD:CREATE
 #
-# Creates a new NBCOOP condition.
+# Creates a new NBMOOD condition.
 
-order define CONDITION:NBCOOP:CREATE {
-    title "Create Condition: Neighborhood Cooperation"
+order define CONDITION:NBMOOD:CREATE {
+    title "Create Condition: Neighborhood Mood"
 
     options -sendstates {PREP PAUSED}
 
@@ -71,7 +67,6 @@ order define CONDITION:NBCOOP:CREATE {
                                           -table   cond_collections \
                                           -keys    cc_id
     parm n         enum  "Neighborhood"   -enumtype nbhood
-    parm g         enum  "Group"          -enumtype frcgroup
     parm op1       enum  "Comparison"     -enumtype ecomparator \
                                           -displaylong yes
     parm x1        text  "Amount"
@@ -79,25 +74,24 @@ order define CONDITION:NBCOOP:CREATE {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
     prepare n          -toupper  -required -type nbhood
-    prepare g          -toupper  -required -type frcgroup
     prepare op1        -toupper  -required -type ecomparator
-    prepare x1         -toupper  -required -type qcooperation
+    prepare x1         -toupper  -required -type qsat
 
     returnOnError -final
 
     # NEXT, put condition_type in the parmdict
-    set parms(condition_type) NBCOOP
+    set parms(condition_type) NBMOOD
 
     # NEXT, create the condition
     setundo [condition mutate create [array get parms]]
 }
 
-# CONDITION:NBCOOP:UPDATE
+# CONDITION:NBMOOD:UPDATE
 #
-# Updates existing NBCOOP condition.
+# Updates existing NBMOOD condition.
 
-order define CONDITION:NBCOOP:UPDATE {
-    title "Update Condition: Neighborhood Cooperation"
+order define CONDITION:NBMOOD:UPDATE {
+    title "Update Condition: Neighborhood Mood"
     options \
         -sendstates {PREP PAUSED}                              \
         -refreshcmd {orderdialog refreshForKey condition_id *}
@@ -106,7 +100,6 @@ order define CONDITION:NBCOOP:UPDATE {
                                             -table   conditions   \
                                             -keys    condition_id
     parm n            enum  "Neighborhood"  -enumtype nbhood
-    parm g            enum  "Group"         -enumtype frcgroup
     parm op1          enum  "Comparison"    -enumtype ecomparator \
                                             -displaylong yes
     parm x1           text  "Amount"
@@ -115,15 +108,14 @@ order define CONDITION:NBCOOP:UPDATE {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition
     prepare n                       -toupper  -type nbhood
-    prepare g                       -toupper  -type frcgroup
     prepare op1                     -toupper  -type ecomparator
-    prepare x1                      -toupper  -type qcooperation
+    prepare x1                      -toupper  -type qsat
 
     returnOnError
 
     # NEXT, make sure this is the right kind of condition
     validate condition_id { 
-        condition RequireType NBCOOP $parms(condition_id)  
+        condition RequireType NBMOOD $parms(condition_id)  
     }
 
     returnOnError -final

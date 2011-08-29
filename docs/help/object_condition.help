@@ -414,6 +414,48 @@ page /object/condition nbcoop "NBCOOP condition" {
 }
 
 #-----------------------------------------------------------------------
+# NBMOOD
+
+object condition_nbmood {
+    noun "NBMOOD condition"
+    overview {
+        This <<term condition>> compares a neighborhood's mood
+        with a particular value.  The condition
+        is met when the comparison is true, e.g., when neighborhood
+        N1's mood is greater than 55.0.<p>
+    }
+
+    include condition_ 
+
+    attribute n "Neighborhood" {
+        The ID of the <<term nbhood>> whose mood is
+        being compared.
+    } -tags {create update}
+
+    attribute op1 "Comparison" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The number to which the neighborhood's mood will be compared.
+    } -tags {create update}
+}
+
+page /object/condition nbmood "NBMOOD condition" {
+    <<sotitle>>
+
+    <<condition_nbmood overview>><p>
+
+    NBMOOD conditions have the following attributes:<p>
+
+    <<condition_nbmood parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # TROOPS
 
 object condition_troops {
