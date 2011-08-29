@@ -1018,7 +1018,7 @@ order define SIM:RUN {
 
 order define SIM:PAUSE {
     title "Pause Simulation"
-    options -sendstates RUNNING
+    options -sendstates {RUNNING TACTIC}
 } {
     returnOnError -final
 
