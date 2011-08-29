@@ -502,7 +502,7 @@ snit::type econ {
 
 order define ECON:UPDATE {
     title "Update Neighborhood Economic Inputs"
-    options -sendstates {PREP PAUSED} \
+    options -sendstates {PREP PAUSED TACTIC} \
         -refreshcmd {orderdialog refreshForKey n *}
 
     parm n    key  "Neighborhood"            -table gui_econ_n \
