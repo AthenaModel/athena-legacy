@@ -180,12 +180,14 @@ snit::type strategy {
 
             set flag [condition call eval [array get row]]
 
-            # Skip conditions with no value
+            # If an attached condition has no value, the tactic shouldn't
+            # execute.  At the same time, we don't want to flag such a
+            # condition as false in the GUI.
             if {$flag eq ""} {
-                continue
+                set flag 0
+            } else {
+                lappend cflags $row(condition_id) $flag
             }
-
-            lappend cflags $row(condition_id) $flag
 
             if {!$flag} {
                 set tflag 0

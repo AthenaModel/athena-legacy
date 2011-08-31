@@ -41,14 +41,53 @@ snit::type executive {
 
     #-------------------------------------------------------------------
     # Initialization
-    
+   
+    # init
+    #
+    # Initializes the interpreter at start-up.
+ 
     typemethod init {} {
         log normal exec "init"
 
+        $type InitializeInterp
+
+        log normal exec "init complete"
+    }
+
+
+    # reset
+    #
+    # Resets the interpreter back to its original state.
+
+    typemethod reset {} {
+        assert {[info exists interp] && $interp ne ""}
+
+        $interp destroy
+        set interp ""
+
+        $type InitializeInterp
+
+        log normal exec "reset complete"
+
+        return "Executive has been reset."
+    }
+
+    # InitializeInterp
+    #
+    # Creates and initializes the executive interpreter.
+
+    typemethod InitializeInterp {} {
         # FIRST, create the interpreter.  It's a safe interpreter but
         # most Tcl commands are retained, to allow scripting.  Allow
         # the "source" command.
         set interp [smartinterp ${type}::interp -cli yes]
+
+        # NEXT, make all mathfuncs available in the global namespace
+        $interp eval {
+            namespace path ::tcl::mathfunc
+        }
+
+        # NEXT, add a few commands back that we need.
         $interp expose file
         $interp expose pwd
         $interp expose source
@@ -69,12 +108,74 @@ snit::type executive {
             return [rdb query $query]
         }
 
+        # NEXT, install the executive functions
+
+        # ainfluence(n,a)
+        $interp smartalias ::tcl::mathfunc::ainfluence 2 2 {n a} \
+            [myproc influence]
+
+        # controls(a,n,?n...?)
+        $interp smartalias ::tcl::mathfunc::controls 2 - {a n ?n...?} \
+            [myproc controls]
+
+        # coop(f,g)
+        $interp smartalias ::tcl::mathfunc::coop 2 2 {f g} \
+            [myproc coop]
+
+        # gdp()
+        $interp smartalias ::tcl::mathfunc::gdp 0 0 {} \
+            [myproc gdp]
+
+        # mood(g)
+        $interp smartalias ::tcl::mathfunc::mood 1 1 {g} \
+            [myproc mood]
+
+        # nbcoop(n,g)
+        $interp smartalias ::tcl::mathfunc::nbcoop 2 2 {n g} \
+            [myproc nbcoop]
+
+        # nbmood(n)
+        $interp smartalias ::tcl::mathfunc::nbmood 1 1 {n} \
+            [myproc nbmood]
+
+        # now()
+        $interp smartalias ::tcl::mathfunc::now 0 0 {} \
+            [list simclock now]
+
+        # parm(parm)
+        $interp smartalias ::tcl::mathfunc::parm 1 1 {parm} \
+            [list ::parm get]
+
+        # sat(g,c)
+        $interp smartalias ::tcl::mathfunc::sat 2 2 {g c} \
+            [myproc sat]
+
+        # security(n,g)
+        $interp smartalias ::tcl::mathfunc::security 2 2 {n g} \
+            [myproc security]
+
+        # support(n,a)
+        $interp smartalias ::tcl::mathfunc::support 2 2 {n a} \
+            [myproc support]
+
+        # troops(g,?n...?)
+        $interp smartalias ::tcl::mathfunc::troops 1 - {g,?n...?} \
+            [myproc troops]
+
+        # unemp()
+        $interp smartalias ::tcl::mathfunc::unemp 0 0 {} \
+            [myproc unemp]
+
+        # volatility(n)
+        $interp smartalias ::tcl::mathfunc::volatility 1 1 {n} \
+            [myproc volatility]
 
         # NEXT, install the executive commands
 
         # =
-        $interp smartalias = 1 - {expression...} \
-            ::expr
+        $interp eval {
+            interp alias {} = {} expr
+        }
 
         # advance
         $interp smartalias advance 1 1 {days} \
@@ -271,6 +372,10 @@ snit::type executive {
         $interp smartalias {rdb tables} 0 0 {} \
             [list ::rdb tables]
 
+        # reset
+        $interp smartalias {reset} 0 0 {} \
+            [mytypemethod reset]
+
         # save
         $interp smartalias save 1 1 {filename} \
             [myproc save]
@@ -302,9 +407,8 @@ snit::type executive {
         # usermode
         $interp smartalias {usermode} 0 1 {?mode?} \
             [list ::executive usermode]
-
-        log normal exec "init complete"
     }
+
 
     #-------------------------------------------------------------------
     # Private typemethods
@@ -484,6 +588,60 @@ snit::type executive {
         send SIM:RUN -days $days -block YES
     }
 
+    # controls a n ?n...?
+    #
+    # a      - An actor
+    # n      - A neighborhood
+    #
+    # Returns 1 if a controls all of the listed neighborhoods, and 
+    # 0 otherwise.
+
+    proc controls {a args} {
+        set a [actor validate [string toupper $a]]
+
+        if {[llength $args] == 0} {
+            error "No neighborhoods given"
+        }
+
+        set nlist [list]
+
+        foreach n $args {
+            lappend nlist [nbhood validate [string toupper $n]]
+        }
+
+        set inClause "('[join $nlist ',']')"
+
+        rdb eval "
+            SELECT count(n) AS count
+            FROM control_n
+            WHERE n IN $inClause
+            AND controller=\$a
+        " {
+            return [expr {$count == [llength $nlist]}]
+        }
+    }
+
+    # coop f g
+    #
+    # f - A civilian group
+    # g - A force group
+    #
+    # Returns the cooperation of f with g.
+
+    proc coop {f g} {
+        set f [civgroup validate [string toupper $f]]
+        set g [frcgroup validate [string toupper $g]]
+
+        rdb eval {
+            SELECT coop FROM gram_coop WHERE f=$f AND g=$g
+        } {
+            return [format %.1f $coop]
+        }
+
+        error "coop not yet computed"
+    }
+
+
     # ensit_id n stype
     #
     # n      - Neighborhood
@@ -603,6 +761,39 @@ snit::type executive {
         return
     }
 
+    # gdp
+    #
+    # Returns the GDP in base-year dollars (i.e., Out::DGDP).
+    # It's an error if the economic model is disabled.
+
+    proc gdp {} {
+        if {[parm get econ.disable]} {
+            error "Economic model is disabled.  To enable, set econ.disable to no."
+        }
+
+        return [format %.2f [econ value Out::DGDP]]
+    }
+
+    # influence n a
+    #
+    # n - A neighborhood
+    # a - An actor
+    #
+    # Returns the influence of a in n.
+
+    proc influence {n a} {
+        set n [nbhood validate [string toupper $n]]
+        set a [actor validate [string toupper $a]]
+
+        rdb eval {
+            SELECT influence FROM influence_na WHERE n=$n AND a=$a
+        } {
+            return [format %.2f $influence]
+        }
+
+        error "influence not yet computed"
+    }
+
     # last_mad
     #
     # Returns the ID of the most recently created MAD.
@@ -629,6 +820,82 @@ snit::type executive {
 
     proc LogCmd {message} {
         log normal script $message
+    }
+
+    # mood g
+    #
+    # g - A civilian group
+    #
+    # Returns the mood of group g.
+
+    proc mood {g} {
+        set g [civgroup validate [string toupper $g]]
+
+        rdb eval {
+            SELECT sat FROM gram_g WHERE g=$g
+        } {
+            return [format %.1f $sat]
+        }
+
+        error "mood not yet computed"
+    }
+
+    # nbcoop n g
+    #
+    # n - A neighborhood
+    # g - A force group
+    #
+    # Returns the cooperation of n with g.
+
+    proc nbcoop {n g} {
+        set n [nbhood validate [string toupper $n]]
+        set g [frcgroup validate [string toupper $g]]
+
+        rdb eval {
+            SELECT coop FROM gram_frc_ng WHERE n=$n AND g=$g
+        } {
+            return $coop
+        }
+
+        error "nbcoop not yet computed"
+    }
+
+    # nbmood n
+    #
+    # n - Neighborhood
+    #
+    # Returns the mood of neighborhood n.
+
+    proc nbmood {n} {
+        set n [nbhood validate [string toupper $n]]
+
+        rdb eval {
+            SELECT sat FROM gram_n WHERE n=$n
+        } {
+            return [format %.1f $sat]
+        }
+
+        error "nbmood not yet computed"
+    }
+
+    # sat g c
+    #
+    # g - A civilian grou
+    # c - A concern
+    #
+    # Returns the satisfaction of g with c
+
+    proc sat {g c} {
+        set g [civgroup validate [string toupper $g]]
+        set c [econcern validate $c]
+
+        rdb eval {
+            SELECT sat FROM gram_sat WHERE g=$g AND c=$c
+        } {
+            return [format %.1f $sat]
+        }
+
+        error "sat not yet computed"
     }
 
     # save filename
@@ -763,6 +1030,26 @@ snit::type executive {
         return ""
     }
 
+    # security n g
+    #
+    # n - A neighborhood
+    # g - A group
+    #
+    # Returns g's security in n
+
+    proc security {n g} {
+        set n [nbhood validate [string toupper $n]]
+        set g [group validate [string toupper $g]]
+
+        rdb eval {
+            SELECT security FROM force_ng WHERE n=$n AND g=$g
+        } {
+            return $security
+        }
+
+        error "security not yet computed"
+    }
+
     # send order ?option value...?
     #
     # order     The name of an order(sim) order.
@@ -895,6 +1182,81 @@ snit::type executive {
         namespace eval :: $args
     }
 
+    # support n a
+    #
+    # n - A neighborhood
+    # a - An actor
+    #
+    # Returns the support of a in n.
+
+    proc support {n a} {
+        set n [nbhood validate [string toupper $n]]
+        set a [actor validate [string toupper $a]]
+
+        rdb eval {
+            SELECT support FROM influence_na WHERE n=$n AND a=$a
+        } {
+            return [format %.2f $support]
+        }
+
+        error "support not yet computed"
+    }
+
+    # troops g ?n...?
+    #
+    # g      - A force or organization group
+    # n      - A neighborhood
+    #
+    # If no neighborhood is given, returns the number of troops g has in
+    # the playbox.  If one or more neighborhoods are given, returns the
+    # number of troops g has in those neighborhoods.
+
+    proc troops {g args} {
+        set g [ptype fog validate [string toupper $g]]
+
+        # FIRST, handle the playbox case
+        if {[llength $args] == 0} {
+            rdb eval {
+                SELECT total(personnel) AS personnel
+                FROM personnel_g WHERE g=$g
+            } {
+                return [format %.0f $personnel]
+            }
+        }
+
+        # NEXT, handle the multiple neighborhoods case
+
+        set nlist [list]
+
+        foreach n $args {
+            lappend nlist [nbhood validate [string toupper $n]]
+        }
+
+        set inClause "('[join $nlist ',']')"
+
+        rdb eval "
+            SELECT total(personnel) AS personnel
+            FROM deploy_ng
+            WHERE n IN $inClause
+            AND g=\$g
+        " {
+            return [format %.0f $personnel]
+        }
+    }
+ 
+    # unemp
+    #
+    # Returns the playbox unemployment rate as a percentage.
+    # It's an error if the economic model is disabled.
+
+    proc unemp {} {
+        if {[parm get econ.disable]} {
+            error "Economic model is disabled.  To enable, set econ.disable to no."
+        }
+
+        return [format %.1f [econ value Out::UR]]
+    }
+
     # unlock
     #
     # Unlocks the scenario.
@@ -903,6 +1265,23 @@ snit::type executive {
         send SIM:UNLOCK
     }
 
+    # volatility n
+    #
+    # n - A neighborhood
+    #
+    # Returns the volatility of neighborhood n
+
+    proc volatility {n} {
+        set n [nbhood validate [string toupper $n]]
+
+        rdb eval {
+            SELECT volatility FROM force_n WHERE n=$n
+        } {
+            return $volatility
+        }
+
+        error "volatility not yet computed"
+    }
 }
 
 #-------------------------------------------------------------------

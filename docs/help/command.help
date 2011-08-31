@@ -802,6 +802,17 @@ command "rdb tables" {
 }
 
 #=======================================================================
+# reset command
+
+command "reset" {
+    <<syntax>>
+
+    Resets the executive interpreter.  Any user-defined variables or 
+    Tcl procedures are deleted.
+}
+
+
+#=======================================================================
 # save command
 
 command "save" {

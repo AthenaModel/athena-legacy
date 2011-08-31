@@ -469,7 +469,7 @@ snit::type ted {
     # command...    A Tcl command, represented as either a single argument
     #               containing the entire command, or as multiple arguments.
     #
-    # Executes the command in the Executive's "test" client interpreter,
+    # Executes the command in the Executive's client interpreter,
     # and returns the result.  If -error is specified, expects an error
     # returns the error message.
     #
@@ -477,8 +477,6 @@ snit::type ted {
     #
     #    ted sendex magic absit BADFOOD {1.0 1.0}
     #    ted sendex {magic absit BADFOOD {1.0 1.0}} 
-    #
-    # TBD: This really ought to use the executive, now that there is one.
 
     typemethod sendex {args} {
         # FIRST, is -error specified?
@@ -499,8 +497,7 @@ snit::type ted {
         # NEXT, execute the command
         if {$errorFlag} {
             set code [catch {
-                # executive eval test $command
-                uplevel \#0 $command
+                executive eval $command
             } result]
 
             if {$code} {
@@ -511,7 +508,7 @@ snit::type ted {
         } else {
             # Normal case; let nature take its course
             # executive eval test $command
-            uplevel \#0 $command
+            executive eval $command
         }
     }
 

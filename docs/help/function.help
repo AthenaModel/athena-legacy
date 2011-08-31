@@ -1,0 +1,243 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    function.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Executive Functions
+#
+#    This file is included into athena.help.
+#
+#    Function pages have paths like /function/{name}.
+#
+#-----------------------------------------------------------------------
+
+page / function "Executive Functions" {
+    <<title>>
+    Athena provides a number of functions that can be used in math
+    expressions in Athena <<cref /command executive>> scripts, at the
+    Athena command-line interface (CLI), and in 
+    <<cref /object/condition/expr>>s.  For example, the 
+    <<cref /function/mood>> function retrieves a group's mood given
+    its name:<p>
+
+    <pre>
+    if {mood("G1") > 20.0} {
+        ...
+    }
+    </pre>
+
+    Note that string literals need to be enclosed in double-quotes
+    when used in Tcl expressions.<p>
+
+    All executive functions can also be used as commands:<p>
+
+    <<cli {
+        set m [mood G1]
+    }>>
+
+    This page lists the available functions.<p>
+
+    <<childlinks>>
+}
+
+# function name text
+#
+# name     The name of the function, e.g., "mood"
+#
+# Defines a function page, defining the parent/child links properly.
+
+proc function {name text} {
+    set ndx [string first "(" $name]
+    set slug [string range $name 0 $ndx-1]
+
+    page /function $slug $name "<<function_syntax>>\n$text"
+}
+
+macro function_syntax {} {
+    set fullname [pageinfo title]
+    set toplink "<a href=\"/function\">Executive Function</a>"
+} {
+    |<--
+    [mktitle small $toplink $fullname ""]
+}
+
+#=======================================================================
+# ainfluence
+
+function "ainfluence(n,a)" {
+    Returns the influence of <<term actor>> <i>a</i> in 
+    <<term nbhood>> <i>n</i>
+    as a number between 0.0 and 1.0.<p>
+
+    Influence data is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.
+}
+
+#=======================================================================
+# controls
+
+function "controls(a,n,?n...?)" {
+    Returns 1 if <<term actor>> <i>a</i> controls the listed 
+    <<term nbhood>>s,
+    and 0 otherwise.  At least one neighborhood must be specified.<p>
+
+    Neighborhood control is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.
+}
+
+#=======================================================================
+# coop
+
+function "coop(f,g)" {
+    Returns the cooperation of <<term civgroup>> <i>f</i> with 
+    <<term frcgroup>> <i>g</i> as a number between 0.0 and 100.0.<p>
+
+    Cooperation is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# gdp
+
+function "gdp()" {
+    Returns the Gross Domestic Product of the regional economy in
+    base-year dollars.  It is an error if the economic model is
+    disabled; see <<cref /parmdb/econ/disable>>.<p>
+
+    <b>Warning:</b> This function will return 0.0 before the 
+    scenario is locked, and in <<cref /object/condition/expr>>s when
+    strategies are executed at time 0.<p>
+}
+
+#=======================================================================
+# mood
+
+function "mood(g)" {
+    Returns the <<term mood>> of <<term civgroup>> <i>g</i> as a 
+    number between -100.0 and 100.0.<p>
+
+    Mood is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# nbcoop
+
+function "nbcoop(n,g)" {
+    Returns the <<term cooperation>> of <<term nbhood>> <i>n</i> with
+    <<term frcgroup>> <i>g</i>.<p>
+
+    Neighborhood cooperation is the
+    average of the cooperations of the <<term civgroup>>s living in
+    the neighborhood with the given force group.<p>
+
+    Cooperation is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# nbmood
+
+function "nbmood(n)" {
+    Returns the <<term mood>> of <<term nbhood>> <i>n</i> as a 
+    number between -100.0 and 100.0.<p>
+
+    Mood is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# now
+
+function "now()" {
+    Returns the current simulation time in integer days.  Returns 0 if
+    the scenario is unlocked.
+}
+
+#=======================================================================
+# parm
+
+function "parm(parm)" {
+    Returns the value of <<cref /parmdb "model parameter">> <i>parm</i>.
+}
+
+#=======================================================================
+# sat
+
+function sat(g,c) {
+    Returns the <<term satisfaction>> of 
+    <<term civgroup>> <i>g</i> with respect to <<term concern>>
+    <i>c</i> as a number between -100.0 and 100.0.<p>
+
+    Satisfaction is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# security
+
+function security(n,g) {
+    Returns the <<term security>> of 
+    <<term group>> <i>g</i> in <<term nbhood>> <i>n</i> as a number
+    between -100 and 100.<p>
+
+    Security is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# support
+
+function support(n,a) {
+    Returns the support of <<term nbhood>> <i>n</i> for 
+    <<term actor>> <i>a</i> as a number between 0.0 and 1.0.<p>
+
+    Support is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# troops
+
+function troops(g,?n...?) {
+    Returns the number of personnel in the playbox that belong to
+    <<term frcgroup>> or <<term orggroup>> <i>g</i>.  If one or more
+    <<term nbhood>>s are given, returns the number of personnel
+    just in those neighborhoods.<p>
+
+    Force levels are not computed until the scenario is locked; the
+    function return 0 until then.
+}
+
+#=======================================================================
+# unemp
+
+function "unemp()" {
+    Returns the playbox-wide unemployment rate as a number between
+    0.0 and 100.0.  It is an error if the economic model is
+    disabled; see <<cref /parmdb/econ/disable>>.<p>
+
+    The unemployment rate is assumed to be the same in all
+    neighborhoods; hence, there is no function that returns 
+    neighborhood unemployment rates.<p>
+
+    <b>Warning:</b> This function will return 0.0 before the 
+    scenario is locked, and in <<cref /object/condition/expr>>s when
+    strategies are executed at time 0.<p>
+}
+
+#=======================================================================
+# volatility
+
+function volatility(n) {
+    Returns the <<term volatility>> of 
+    <<term nbhood>> <i>n</i> as a number
+    from 0 to 100.<p>
+
+    Volatility is not computed until the scenario is locked; the
+    function will throw an error if the data is unavailable.<p>
+}

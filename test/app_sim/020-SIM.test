@@ -234,7 +234,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        * {Order state is PREP, but order is valid only in these states: RUNNING}
+        * {Order state is PREP, but order is valid only in these states: RUNNING, TACTIC}
     }
 
 
@@ -260,7 +260,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        * {Order state is PAUSED, but order is valid only in these states: RUNNING}
+        * {Order state is PAUSED, but order is valid only in these states: RUNNING, TACTIC}
     }
 
 

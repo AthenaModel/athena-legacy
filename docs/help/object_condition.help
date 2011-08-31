@@ -289,7 +289,8 @@ object condition_expr {
         expression is true.  The expression has Tcl expression 
         syntax, and is evaluated by the Athena
         <<term executive>>.  The expression can call
-        arbitrary executive <<cref /command commands>> and functions, 
+        arbitrary executive <<cref /command commands>> and 
+        <<cref /function functions>>, 
         but should avoid
         calling commands with side effects.<p>
 
@@ -304,7 +305,9 @@ object condition_expr {
         <a href="gui:/tab/strategy">Strategy Browser</a> because they
         will be marked by a black dash icon rather than a green
         thumb's up or a red thumb's down.  (Note that conditions that
-        have been edited but not evaluated also lack values.)
+        have been edited but not evaluated also lack values.)  In addition,
+        if the condition is attached to a tactic, that tactic will not
+        execute.<p>
     }
 
     include condition_ 

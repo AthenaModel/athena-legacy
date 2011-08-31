@@ -1,0 +1,575 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    030-functions.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    executive(sim) tests: functions
+#
+#    This test suite tests the executive(sim) executive functions.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+    proc cleanup {} {
+        executive reset
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # ainfluence()
+
+    test ainfluence-1.1 {invalid neighborhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr ainfluence("NONESUCH","JOE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test ainfluence-1.2 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr ainfluence("NB1","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test ainfluence-1.3 {no data} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr ainfluence("NB1","JOE")
+    } -cleanup {
+        cleanup
+    } -result {influence not yet computed}
+
+
+    test ainfluence-2.1 {get data} -setup {
+        ted create NB1 JOE SUNN BLUE
+        ted lock
+    } -body {
+        ted sendex expr ainfluence("nb1","joe")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # controls()
+
+    test controls-1.1 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr controls("NONESUCH","NB1")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test controls-1.2 {invalid neighborhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr controls("JOE","NB1","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test controls-2.1 {false when no data} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr controls("JOE","NB1")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    test controls-2.2 {true when actor controls n} -setup {
+        ted create NB1 JOE
+        rdb eval {
+            INSERT INTO control_n(n,controller)
+            VALUES('NB1','JOE')
+        }
+    } -body {
+        ted sendex expr controls("joe","nb1")
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test controls-2.3 {false when actor does not control n} -setup {
+        ted create NB1 JOE BOB
+        rdb eval {
+            INSERT INTO control_n(n,controller)
+            VALUES('NB1','BOB')
+        }
+    } -body {
+        ted sendex expr controls("joe","nb1")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test controls-2.4 {true, multiple neighborhoods} -setup {
+        ted create NB1 NB2 JOE
+        rdb eval {
+            INSERT INTO control_n(n,controller)
+            VALUES('NB1','JOE');
+            INSERT INTO control_n(n,controller)
+            VALUES('NB2','JOE');
+        }
+    } -body {
+        ted sendex expr controls("joe","nb1","nb2")
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test controls-2.5 {false, multiple neighborhoods} -setup {
+        ted create NB1 NB2 JOE BOB
+        rdb eval {
+            INSERT INTO control_n(n,controller)
+            VALUES('NB1','JOE');
+            INSERT INTO control_n(n,controller)
+            VALUES('NB2','BOB');
+        }
+    } -body {
+        ted sendex expr controls("joe","nb1","nb2")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
+    # coop()
+
+    test coop-1.1 {invalid civ group} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex -error expr coop("NONESUCH","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SUNN}
+
+    test coop-1.2 {invalid force group} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex -error expr coop("SUNN","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid force group, should be one of: BLUE}
+
+    test coop-1.3 {no data} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex -error expr coop("SUNN","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {coop not yet computed}
+
+
+    test coop-2.1 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr coop("sunn","blue")
+    } -cleanup {
+        cleanup
+    } -result {50.0}
+
+
+    #-------------------------------------------------------------------
+    # gdp()
+
+    # Note: Should really throw an error if used while unlocked.
+
+    test gdp-1.1 {fails when econ is disabled} -setup {
+        parm set econ.disable yes
+    } -body {
+        ted sendex -error expr gdp()
+    } -cleanup {
+        cleanup
+    } -result {Economic model is disabled.  To enable, set econ.disable to no.}
+
+    test gdp-2.1 {succeeds otherwise} -setup {
+        parm set econ.disable no
+    } -body {
+        ted sendex expr gdp()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # mood()
+
+    test mood-1.1 {invalid civ group} -setup {
+        ted create SUNN
+    } -body {
+        ted sendex -error expr mood("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SUNN}
+
+    test mood-1.2 {no data} -setup {
+        ted create SUNN
+    } -body {
+        ted sendex -error expr mood("SUNN")
+    } -cleanup {
+        cleanup
+    } -result {mood not yet computed}
+
+
+    test mood-2.1 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr mood("sunn")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # nbcoop()
+
+    test nbcoop-1.1 {invalid neighborhood} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr nbcoop("NONESUCH","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test nbcoop-1.2 {invalid force group} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr nbcoop("NB1","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid force group, should be one of: BLUE}
+
+    test nbcoop-1.3 {no data} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr nbcoop("NB1","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {nbcoop not yet computed}
+
+
+    test nbcoop-2.1 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr nbcoop("nb1","blue")
+    } -cleanup {
+        cleanup
+    } -result {50.0}
+
+    #-------------------------------------------------------------------
+    # nbmood()
+
+    test nbmood-1.1 {invalid nbhood} -setup {
+        ted create NB1
+    } -body {
+        ted sendex -error expr nbmood("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test nbmood-1.2 {no data} -setup {
+        ted create NB1
+    } -body {
+        ted sendex -error expr nbmood("NB1")
+    } -cleanup {
+        cleanup
+    } -result {nbmood not yet computed}
+
+
+    test nbmood-2.1 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr nbmood("nb1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # now()
+
+    test now-1.1 {get data} -body {
+        ted sendex expr now()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    #-------------------------------------------------------------------
+    # parm()
+
+    test parm-1.1 {no such parameter} -body {
+        ted sendex -error expr parm("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {unknown parameter: "NONESUCH"}
+
+
+    test parm-2.1 {get parm} -body {
+        ted sendex expr parm("strategy.ticksPerTock")
+    } -cleanup {
+        cleanup
+    } -result {7}
+
+
+    #-------------------------------------------------------------------
+    # sat()
+
+    test sat-1.1 {invalid civ group} -setup {
+        ted create SUNN
+    } -body {
+        ted sendex -error expr sat("NONESUCH","AUT")
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SUNN}
+
+    test sat-1.2 {invalid concern} -setup {
+        ted create SUNN
+    } -body {
+        ted sendex -error expr sat("SUNN","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
+
+    test sat-1.3 {no data} -setup {
+        ted create SUNN
+    } -body {
+        ted sendex -error expr sat("SUNN","AUT")
+    } -cleanup {
+        cleanup
+    } -result {sat not yet computed}
+
+
+    test sat-2.1 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr sat("sunn","aut")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+
+    #-------------------------------------------------------------------
+    # security()
+
+    test security-1.1 {invalid neighborhood} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr security("NONESUCH","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test security-1.2 {invalid force group} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr security("NB1","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid group, should be one of: BLUE, SUNN}
+
+    test security-1.3 {no data} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr security("NB1","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {security not yet computed}
+
+
+    test security-2.1 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr security("nb1","blue")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
+    # support()
+
+    test support-1.1 {invalid neighborhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr support("NONESUCH","JOE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test support-1.2 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr support("NB1","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test support-1.3 {no data} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr support("NB1","JOE")
+    } -cleanup {
+        cleanup
+    } -result {support not yet computed}
+
+
+    test support-2.1 {get data} -setup {
+        ted create NB1 JOE BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr support("nb1","joe")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # troops()
+
+    test troops-1.1 {invalid FRC/ORG} -setup {
+        ted create BLUE
+    } -body {
+        ted sendex -error expr troops("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid force/org group "NONESUCH", should be one of: BLUE}
+
+    test troops-1.2 {invalid nbhood} -setup {
+        ted create NB1 BLUE
+    } -body {
+        ted sendex -error expr troops("BLUE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test troops-2.1 {no data} -setup {
+        ted create NB1 BLUE
+    } -body {
+        ted sendex expr troops("BLUE")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test troops-2.2 {get playbox data} -setup {
+        ted create NB1 BLUE SUNN
+        rdb eval {
+            INSERT INTO personnel_g(g,personnel)
+            VALUES('BLUE',500);
+        }
+    } -body {
+        ted sendex expr troops("blue")
+    } -cleanup {
+        cleanup
+    } -result {500}
+
+    test troops-2.3 {get nbhood data} -setup {
+        ted create NB1 NB2 BLUE SUNN
+        rdb eval {
+            INSERT INTO deploy_ng(n,g,personnel)
+            VALUES('NB1','BLUE',200);
+
+            INSERT INTO deploy_ng(n,g,personnel)
+            VALUES('NB2','BLUE',300);
+        }
+    } -body {
+        ted sendex expr troops("blue","nb1")
+    } -cleanup {
+        cleanup
+    } -result {200}
+
+    test troops-2.4 {get multiple nbhood data} -setup {
+        ted create NB1 NB2 BLUE SUNN
+        rdb eval {
+            INSERT INTO deploy_ng(n,g,personnel)
+            VALUES('NB1','BLUE',200);
+
+            INSERT INTO deploy_ng(n,g,personnel)
+            VALUES('NB2','BLUE',300);
+        }
+    } -body {
+        ted sendex expr troops("blue","nb1","nb2")
+    } -cleanup {
+        cleanup
+    } -result {500}
+
+    #-------------------------------------------------------------------
+    # unemp()
+
+    # Note: Should really throw an error if used while unlocked.
+
+    test unemp-1.1 {fails when econ is disabled} -setup {
+        parm set econ.disable yes
+    } -body {
+        ted sendex -error expr unemp()
+    } -cleanup {
+        cleanup
+    } -result {Economic model is disabled.  To enable, set econ.disable to no.}
+
+    test unemp-2.1 {succeeds otherwise} -setup {
+        parm set econ.disable no
+    } -body {
+        ted sendex expr unemp()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # volatility()
+
+    test volatility-1.1 {invalid neighborhood} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr volatility("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test volatility-1.2 {no data} -setup {
+        ted create NB1 BLUE SUNN
+    } -body {
+        ted sendex -error expr volatility("NB1")
+    } -cleanup {
+        cleanup
+    } -result {volatility not yet computed}
+
+
+    test volatility-2.1 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr volatility("nb1")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

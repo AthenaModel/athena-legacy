@@ -42,6 +42,7 @@ page "" "" "Athena Help" {
          <li> <<cref /order>>
          <li> <<cref /var>>
          <li> <<cref /command>>
+         <li> <<cref /function>>
          <li> <<cref /parmdb>>
          <li> <<cref /prefs>>
          </ul>
@@ -114,11 +115,7 @@ include tab.help
 include order.help
 include var.help
 include command.help
+include function.help
 include parmdb.help
 include prefs.help
 include term.help
-
-
-
-
-
