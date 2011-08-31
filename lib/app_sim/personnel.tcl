@@ -37,7 +37,7 @@ snit::type personnel {
             -- Populate personnel_g table.
             INSERT INTO personnel_g(g,personnel)
             SELECT g, total(personnel)
-            FROM sqdeploy_ng
+            FROM sqdeploy_view
             GROUP BY g;
 
             -- Populate deploy_ng table
