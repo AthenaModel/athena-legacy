@@ -41,12 +41,12 @@ snit::type cash {
 
     typemethod save {} {
         rdb eval {
-            SELECT a, cash_reserve, cash_on_hand FROM working_cash
+            SELECT a, cash_reserve, cash_on_hand, gifts FROM working_cash
         } {
             rdb eval {
                 UPDATE actors
                 SET cash_reserve = $cash_reserve,
-                    cash_on_hand = $cash_on_hand
+                    cash_on_hand = $cash_on_hand + $gifts
                 WHERE a=$a
             }
         }
@@ -152,17 +152,36 @@ snit::type cash {
         return 1
     }
 
+    # refund a dollars
+    #
+    # a         - An actor
+    # dollars   - Some number of dollars
+    #
+    # Refunds dollars to the actor's cash on hand.
+
+    typemethod refund {a dollars} {
+        rdb eval {
+            UPDATE working_cash 
+            SET cash_on_hand = cash_on_hand + $dollars
+            WHERE a=$a
+        }
+    }
+
     # give a dollars
     #
     # a         - An actor
     # dollars   - Some number of dollars
     #
-    # Adds dollars to the actor's cash on hand.
+    # Adds dollars to the actor's "gifts" balance; this will
+    # be added to the actor's cash-on-hand when the working cash
+    # is saved.  This allows us to give money to the actor that 
+    # should only be available after this strategy execution is
+    # complete.
 
     typemethod give {a dollars} {
         rdb eval {
             UPDATE working_cash 
-            SET cash_on_hand = cash_on_hand + $dollars
+            SET gifts = gifts + $dollars
             WHERE a=$a
         }
     }

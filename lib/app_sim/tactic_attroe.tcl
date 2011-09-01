@@ -47,7 +47,7 @@ tactic type define ATTROE {n f g text1 int1} actor {
             AND   A.max_attacks > A.attacks
         } {
             log normal attroe "Return \$$extra to $a"
-            cash give $a $extra
+            cash refund $a $extra
         }
 
         # NEXT, delete the old ROEs in preparation for next time.

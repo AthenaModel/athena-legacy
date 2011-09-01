@@ -561,6 +561,44 @@ page /object/tactic executive "EXECUTIVE tactic" {
 }
 
 #-----------------------------------------------------------------------
+# FUND
+
+object tactic_fund {
+    noun "FUND tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to fund other actors.
+        The funding <<term actor>>
+        may specify any amount of money, which will come out of the 
+        actor's cash-on-hand.  The cash will be made available to the
+        recipient at the subsequent strategy execution.<p>
+
+        Multiple FUND tactics are cumulative.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute a "Actor" {
+        The ID of an <<term actor>> to receive the cash.
+    } -tags {create update}
+
+    attribute x1 "Amount, $/week" {
+        The amount of money to be provided to the receiving actor.
+    } -tags {create update}
+}
+
+page /object/tactic fund "FUND tactic" {
+    <<sotitle>>
+
+    <<tactic_fund overview>><p>
+
+    FUND tactics have the following attributes:<p>
+
+    <<tactic_fund parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # FUNDENI
 
 object tactic_fundeni {

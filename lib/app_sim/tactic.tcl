@@ -42,6 +42,8 @@ snit::type tactic {
 
     typevariable optParms {
         once     0
+        a        ""
+        b        ""
         m        ""
         n        ""
         nlist    ""
@@ -251,6 +253,7 @@ snit::type tactic {
     #    owner          The tactic's owning agent
     #    priority       "top" or "bottom" or ""; defaults to "bottom".
     #    once           1 or 0 or ""; defaults to 0.
+    #    a,b            Actors, or ""
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
@@ -284,6 +287,8 @@ snit::type tactic {
                 INSERT INTO 
                 tactics(tactic_id, 
                         tactic_type, owner, narrative, priority, once,
+                        a,
+                        b,
                         m,
                         n,
                         nlist,
@@ -295,6 +300,8 @@ snit::type tactic {
                         x1)
                 VALUES(last_insert_rowid(),
                        $tactic_type, $owner, $narrative, 0, $once,
+                       nullif($a,     ''),
+                       nullif($b,     ''),
                        nullif($m,     ''),
                        nullif($n,     ''),
                        nullif($nlist, ''),
@@ -372,6 +379,8 @@ snit::type tactic {
             rdb eval {
                 UPDATE tactics
                 SET once  = nonempty($once,  once),
+                    a     = nullif(nonempty($a,     a),     ''),
+                    b     = nullif(nonempty($b,     b),     ''),
                     m     = nullif(nonempty($m,     m),     ''),
                     n     = nullif(nonempty($n,     n),     ''),
                     nlist = nullif(nonempty($nlist, nlist), ''),

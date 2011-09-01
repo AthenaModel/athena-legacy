@@ -334,6 +334,38 @@ order TACTIC:EXECUTIVE:UPDATE "Update Tactic: Executive Command" {
     <</parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# Tactic: FUND
+
+page /order/tactic fund TACTIC:FUND:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/fund>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:FUND:CREATE "Create Tactic: Fund Actor" {
+    Creates a <<cref /object/tactic/fund>>.<p>
+
+    <<parmlist>>
+    <<tactic_fund parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:FUND:UPDATE "Update Tactic: Fund ENI Services" {
+    Updates an existing <<cref /object/tactic/fund>>.<p>
+
+    <<parmlist>>
+    <<tactic_fund parm tactic_id -required>>
+    <<tactic_fund parm owner -display>>
+    <<tactic_fund parms -optional -tags update>>
+    <</parmlist>>
+}
+
+
 
 #-----------------------------------------------------------------------
 # Tactic: FUNDENI

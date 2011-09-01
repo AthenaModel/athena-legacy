@@ -588,6 +588,10 @@ CREATE TABLE tactics (
     -- foreign key constraints; errors are checked by tactic-type
     -- sanity checker, to give the user more flexibility.
 
+    -- Actors; use a first.
+    a            TEXT,   -- One actor
+    b            TEXT,   -- One actor
+
     -- Neighborhoods; use n first.
     m            TEXT,   -- One neighborhood
     n            TEXT,   -- One neighborhood

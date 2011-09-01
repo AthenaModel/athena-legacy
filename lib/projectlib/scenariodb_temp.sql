@@ -81,7 +81,11 @@ CREATE TEMPORARY TABLE working_cash (
 
     -- Money available to be spent, in $.
     -- Unspent cash accumulates from tock to tock.
-    cash_on_hand DOUBLE
+    cash_on_hand DOUBLE,
+
+    -- gifts from other actors, in $.  Gifts are unavailable
+    -- to be spent until the next strategy execution.
+    gifts        DOUBLE DEFAULT 0
 );
 
 -- FRC and ORG personnel in playbox and available for deployment.
