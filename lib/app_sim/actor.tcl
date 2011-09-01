@@ -321,4 +321,35 @@ order define ACTOR:UPDATE {
     setundo [actor mutate update [array get parms]]
 }
 
+# ACTOR:UPDATE
+#
+# Updates existing actors.
+
+order define ACTOR:INCOME {
+    title "Update Actor Income"
+    options \
+        -sendstates {PREP PAUSED TACTIC}            \
+        -refreshcmd {orderdialog refreshForKey a *}
+
+    parm a            key    "Select Actor"    -table gui_actors -keys a \
+                                               -tags actor
+    parm income       text   "Income $/week"
+} {
+    # FIRST, prepare the parameters
+    prepare a            -toupper   -required -type actor
+    prepare income       -toupper   -required -type money
+
+    returnOnError -final
+
+    # NEXT, fill in the empty parameters
+    array set parms {
+        longname     {}
+        cash_reserve {}
+        cash_on_hand {}
+    }
+
+    # NEXT, modify the actor
+    setundo [actor mutate update [array get parms]]
+}
+
 

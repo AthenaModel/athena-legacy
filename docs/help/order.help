@@ -155,6 +155,25 @@ order ACTOR:UPDATE "Update Actor" {
 
 #-----------------------------------------------------------------------
 
+order ACTOR:INCOME "Update Actor Income" {
+    This order modifies the income of an existing <<term actor>>.  
+    It may be used interactively when the simulation is paused, and
+    by the <<cref /object/tactic/executive>>.  The order
+    parameters are as follows:<p>
+
+    <<parmlist>>
+    <<parm a "Select Actor">>
+    <b>Required.</b> ID of an existing actor.
+    <</parm>>
+
+    <<actor_ parm income -required>>
+
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+
 page /order attrit "Attrition Orders" {
     <<title>>
 

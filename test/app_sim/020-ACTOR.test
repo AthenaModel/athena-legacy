@@ -297,6 +297,73 @@ JOE Joe the Actress 10.0         0.0    20.0
     }
 
     #-------------------------------------------------------------------
+    # ACTOR:INCOME
+
+    test INCOME-1.1 {required parms} -body {
+        ted order -reject ACTOR:INCOME {}
+    } -result {
+        a {required value}
+        income {required value}
+    }
+
+    
+    test INCOME-1.2 {invalid income} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:INCOME a JOE income NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test INCOME-2.1 {actor is updated} -setup {
+        ted create JOE
+    } -body {
+        ted order ACTOR:INCOME {
+            a            JOE
+            income       0
+        }
+
+        ted querylist {SELECT a,income FROM actors}
+    } -cleanup {
+        cleanup
+    } -result {
+a       JOE
+income  0.0
+    }
+
+
+    test INCOME-2.2 {table monitor event} -setup {
+        ted create JOE
+    } -body {
+        ted notifier bind ::rdb <actors>
+        ted order ACTOR:INCOME a JOE income 5
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> update JOE}
+    }
+
+
+    test INCOME-3.1 {undo effects} -setup {
+        ted create NB1 JOE
+        ted order ACTOR:INCOME {
+            a            JOE
+            income       5
+        }
+    } -body {
+        ted notifier bind ::rdb <actors>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <actors> update JOE}
+    }
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests
