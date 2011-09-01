@@ -33,6 +33,7 @@ namespace eval ::athena_test::tests:: {
         longname     "Joe the Actor"
         cash_reserve 200000
         income       10000
+        cash_on_hand 0
     }
 
     set bob {
@@ -40,6 +41,7 @@ namespace eval ::athena_test::tests:: {
         longname     "Bob the Actor"
         cash_reserve 150000
         income       5000
+        cash_on_hand 0
     }
 
     # Clean up after a test
@@ -98,6 +100,16 @@ namespace eval ::athena_test::tests:: {
         income {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
     
+    test CREATE-1.6 {invalid cash_on_hand} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            cash_on_hand NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        cash_on_hand {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
 
 
     test CREATE-2.1 {actor is created} -body {
@@ -223,6 +235,17 @@ JOE JOE      200000.0     10000.0 0.0
     }
 
 
+    test UPDATE-1.4 {invalid cash_on_hand} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE cash_on_hand NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        cash_on_hand {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+
     test UPDATE-2.1 {actor is updated} -setup {
         ted create JOE
     } -body {
@@ -231,6 +254,7 @@ JOE JOE      200000.0     10000.0 0.0
             longname     "Joe the Actress"
             cash_reserve 10
             income       0
+            cash_on_hand 20
         }
 
         ted query {SELECT * FROM actors}
@@ -239,7 +263,7 @@ JOE JOE      200000.0     10000.0 0.0
     } -result {
 a   longname        cash_reserve income cash_on_hand 
 --- --------------- ------------ ------ ------------ 
-JOE Joe the Actress 10.0         0.0    0.0          
+JOE Joe the Actress 10.0         0.0    20.0         
     }
 
 

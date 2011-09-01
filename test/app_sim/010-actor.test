@@ -234,15 +234,18 @@ JOE Joe the Actor 200000.0     10000.0 0.0
             longname     "Joe the Actress"
             cash_reserve 0
             income       5
+            cash_on_hand 10
         }
 
-        ted query {SELECT * FROM actors}
+        ted querylist {SELECT * FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a   longname        cash_reserve income cash_on_hand 
---- --------------- ------------ ------ ------------ 
-JOE Joe the Actress 0.0          5.0    0.0          
+a             JOE
+longname      Joe the Actress
+cash_reserve  0.0
+income        5.0
+cash_on_hand  10.0
     }
 
 
@@ -256,6 +259,7 @@ JOE Joe the Actress 0.0          5.0    0.0
             longname     ""
             cash_reserve ""
             income       ""
+            cash_on_hand ""
         }
 
         set b [ted query {SELECT * FROM actors}]
@@ -277,6 +281,7 @@ JOE Joe the Actress 0.0          5.0    0.0
             longname     "Joe the Actress"
             cash_reserve ""
             income       ""
+            cash_on_hand ""
         }]
 
         namespace eval :: $undo

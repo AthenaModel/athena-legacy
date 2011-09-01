@@ -106,8 +106,9 @@ snit::type actor {
     #
     #    a              The actor's ID
     #    longname       The actor's long name
-    #    cash_reserve   The actor's cash-on-hand (starting balance)
+    #    cash_reserve   The actor's cash reserve (starting balance)
     #    income         The actor's income per tactics tock
+    #    cash_on_hand   The actor's cash-on-hand (starting balance)
     #
     # Creates an actor given the parms, which are presumed to be
     # valid.
@@ -117,8 +118,8 @@ snit::type actor {
             # FIRST, Put the actor in the database
             rdb eval {
                 INSERT INTO 
-                actors(a,  longname,  cash_reserve, income)
-                VALUES($a, $longname, $cash_reserve, $income)
+                actors(a,  longname,  cash_reserve, income, cash_on_hand)
+                VALUES($a, $longname, $cash_reserve, $income, $cash_on_hand)
             }
 
             # NEXT, create a matching bsystem entity
@@ -185,6 +186,7 @@ snit::type actor {
     #    longname       A new long name, or ""
     #    cash_reserve   A new reserve amount, or ""
     #    income         A new income, or ""
+    #    cash_on_hand   A new cash-on-hand amount, or ""
     #
     # Updates a actor given the parms, which are presumed to be
     # valid.
@@ -199,7 +201,8 @@ snit::type actor {
                 UPDATE actors
                 SET longname     = nonempty($longname,     longname),
                     cash_reserve = nonempty($cash_reserve, cash_reserve),
-                    income       = nonempty($income,       income)
+                    income       = nonempty($income,       income),
+                    cash_on_hand = nonempty($cash_on_hand, cash_on_hand)
                 WHERE a=$a;
             } {}
 
@@ -226,12 +229,14 @@ order define ACTOR:CREATE {
     parm longname     text  "Long Name"
     parm cash_reserve text  "Cash Reserve $"        -defval 0
     parm income       text  "Income $/week"         -defval 0
+    parm cash_on_hand text  "Cash On Hand $"        -defval 0
 } {
     # FIRST, prepare and validate the parameters
     prepare a            -toupper   -required -unused -type ident
     prepare longname     -normalize
     prepare cash_reserve -toupper                     -type money
     prepare income       -toupper                     -type money
+    prepare cash_on_hand -toupper                     -type money
 
     returnOnError -final
 
@@ -301,12 +306,14 @@ order define ACTOR:UPDATE {
     parm longname     text   "Long Name"
     parm cash_reserve text   "Cash Reserve $"
     parm income       text   "Income $/week"
+    parm cash_on_hand text   "Cash On Hand $"
 } {
     # FIRST, prepare the parameters
     prepare a            -toupper   -required -type actor
     prepare longname     -normalize
     prepare cash_reserve -toupper             -type money
     prepare income       -toupper             -type money
+    prepare cash_on_hand -toupper             -type money
 
     returnOnError -final
 

@@ -65,7 +65,12 @@ object actor_ {
         between his cash-on-hand and cash reserve using the
         <<cref /object/tactic/save>> and 
         <<cref /object/tactic/spend>>.  Cash-on-hand that is unspent
-        during a given week automatically carries over to the next week.
+        during a given week automatically carries over to the next week.<p>
+
+        The actor is given an initial amount of cash-on-hand as part
+        of the scenario; this reflects carry-over from the previous
+        week, and possibly funds received from other actors prior to
+        the start of the simulation.<p>
     } -tags {browser}
 }
 

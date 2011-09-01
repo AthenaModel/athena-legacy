@@ -186,6 +186,7 @@ snit::type ted {
             longname     "Joe the Actor"
             cash_reserve 200000
             income       10000
+            cash_on_hand 0
         }
 
         defentity BOB ::actor {
@@ -193,6 +194,7 @@ snit::type ted {
             longname     "Bob the Actor"
             cash_reserve 150000
             income       5000
+            cash_on_hand 0
         }
 
         # Civ Groups
