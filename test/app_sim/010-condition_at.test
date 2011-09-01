@@ -97,14 +97,15 @@ namespace eval ::athena_test::tests:: {
         condition mutate create $C1
     } -body {
         # t1 = 10
-        set a [AtEval 9]
-        set b [AtEval 10]
-        set c [AtEval 11]
+        set a [AtEval 0]
+        set b [AtEval 7]
+        set c [AtEval 14]
+        set d [AtEval 21]
 
-        list $a $b $c
+        list $a $b $c $d
     } -cleanup {
         cleanup
-    } -result {0 1 0}
+    } -result {0 0 1 0}
 
     #-------------------------------------------------------------------
     # Cleanup

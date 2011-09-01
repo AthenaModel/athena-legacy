@@ -93,12 +93,15 @@ object condition_at {
     noun "AT condition"
     overview {
         This <<term condition>> is met when the current simulation
-        time is exactly
-        a particular date.  <b>Warning:</b> conditions are evaluated only
-        at the strategy tock, which is nominally every seven days; 
-        consequently, AT conditions for days not divisible by seven
-        will never be met.  (The size of the strategy tock is set by
-        the <<parmdb strategy.ticksPerTock>> model parameter).<p>
+        time is exactly a particular date.<p>
+
+        <b>Note:</b> Conditions are evaluated only at the strategy
+        tock, which is nominally every seven days (see
+        <<parmdb strategy.ticksPerTock>>).  If day <i>t1</i> is
+        not a strategy tock day, then the condition will be met
+        precisely on the next strategy tock.  For example, if
+        <i>t1</i> is day 8, then the condition will be met at the next
+        strategy execution on day 14.<p>
     }
 
     include condition_ 
