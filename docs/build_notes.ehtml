@@ -11,6 +11,99 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.27, 6 September 2011</h3>
+
+<b>Note:</b> Like previous builds, this one contains database schema
+incompatibilties.  To bring scenario data forward from 3.0.23 or
+later, following the migration procedure listed under Build 3.0.24,
+below.  (The instructions regarding BSYSTEM:BELIEF:UPDATE only apply
+for Athena 3.0.23 scenarios.)<p>
+
+This build contains enhancements and bug fixes to Athena's strategy
+execution model.  The following new tactics are available:<p>
+
+<ul>
+  <li> Pause Simulation
+       <ul>
+         <li> By sending SIM:PAUSE via the EXECUTIVE tactic
+       </ul>
+  <li> Change a neighborhood's production capacity factor (PCF)
+       <ul>
+         <li> By sending ECON:UPDATE via the EXECUTIVE tactic
+       </ul>
+  <li> Change an actor's weekly income
+       <ul>
+         <li> By sending ACTOR:INCOME (a new order) via the EXECUTIVE tactic.
+       </ul>
+  <li> Have one actor give funds to another actor
+       <ul>
+         <li> Via the new FUND tactic
+       </ul>
+</ul><p>
+
+The following new conditions are available:<p>
+
+<ul>
+  <li> NBMOOD: compare a neighborhood's mood to a value.
+  <li> MOOD: compare a civilian group's mood to a value.
+  <li> EXPR: Define a condition using a boolean expression containing
+       "executive functions".
+</ul><p>
+
+The following executive functions are available for use with the EXPR
+condition:<p>
+
+<ul>
+  <li> ainfluence(n,a): Actor a's influence in neighborhood n
+  <li> controls(a,n,...): Whether or not actor a controls one or more
+       neighborhoods.
+  <li> coop(f,g): Civ group f's cooperation with force group g.
+  <li> gdp(): Gross domestic product in base-year dollars.
+  <li> mood(g): Mood of civ group g
+  <li> nbcoop(n,g): cooperation of neighborhood n with force group g
+  <li> nbmood(n): Mood of neighborhood n.
+  <li> now(): Current sim time in integer days.
+  <li> parm(parm): Value of parmdb(5) parameter parm.
+  <li> sat(g,c): Satisfaction of civ group g WRT concern c
+  <li> security(n,g): Security of group g in neighborhood n
+  <li> support(n,a): Support of neighborhood n for actor a.
+  <li> troops(g,n,...): Number of troops force or ORG group g has in
+       playbox, if no neighborhoods listed, or in the listed
+       neighborhoods.
+  <li> unemp(): Playbox unemployment rate, as a percentage.
+  <li> volatility(n): Volatility of neighborhood n.
+</ul><p>
+
+The above tactics, conditions, and executive functions are all
+documented in the Athena help pages.<p>
+
+In addition, it is now possible to set an actor's initial
+cash-on-hand, to reflect transfers of money from other actors prior to
+time 0.<p>
+
+Finally, there are two significant bug fixes.  The MOBILIZE tactic
+now works properly, and the AT condition is now considered to be met
+at the first strategy execution on or after the time specified in the
+condition, i.e., "At day 12" will be met when stragies are executed on
+day 14.  (Otherwise, this condition would never be met, since
+conditions are evaluated only at strategy execution.)<p>
+
+The specific list of packages is as follows:<p>
+
+<ul>
+  <li> Bug 3135: athena(1): Enable SIM:PAUSE in EXECUTIVE tactic
+  <li> Bug 3136: athena(1): Enable ECON:UPDATE with EXECUTIVE tactic
+  <li> Bug 3137: athena(1): NBMOOD condition
+  <li> Bug 3138: athena(1): MOOD condition
+  <li> Bug 3139: athena(1): EXPR condition
+  <li> Bug 3140: Mobilized Troops will not Deploy
+  <li> Bug 3143: Executive Functions
+  <li> Bug 3144: athena(1): Initial cash-on-hand
+  <li> Bug 3145: athena(1): ACTOR:INCOME order
+  <li> Bug 3146: athena(1): FUND tactic
+  <li> Bug 3147: athena(1): AT condition is not very useful 
+</ul>
+
 <h3>Build 3.0.26, 29 August 2011</h3>
 
 <b>Note:</b> Like previous builds, this one contains database schema
