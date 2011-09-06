@@ -57,6 +57,7 @@ if {[info exists env(TCLLIBPATH)]} {
 
 set appdir  [file normalize [file dirname [info script]]]
 set libdir  [file normalize [file join $appdir .. lib]]
+set moddir  [file normalize [file join $appdir .. mods]]
 set marsdir [file normalize [file join $appdir .. mars lib]]
 
 # Add Athena libs to the new lib path.
@@ -266,7 +267,7 @@ proc ::athena_mods::apply {} {
             puts "  Mod file $mods(modfile-$num) is for Athena $mods(version-$num)."
             puts "  This is Athena [version]."
             puts ""
-            puts "Remove $mods(modfile-$num) from [file join $::appdir mods]."
+            puts "Remove $mods(modfile-$num) from $::moddir."
             exit 1
         }
 
@@ -275,7 +276,7 @@ proc ::athena_mods::apply {} {
         } result]} {
             puts "Could not load mod $num from $mods(modfile-$num)\n  $result"
             puts ""
-            puts "Remove $mods(modfile-$num) from [file join $::appdir mods]."
+            puts "Remove $mods(modfile-$num) from $::moddir]."
             exit 1
         }
     }
