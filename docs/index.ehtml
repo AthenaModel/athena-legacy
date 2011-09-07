@@ -13,8 +13,7 @@
 
 <ul>
   <li> <a href="install.txt">Installation Instructions</a>
-  <li> <<xref athena(1)>>: Introduction to Athena
-  <li> <<xref athena_sim(1)>>: The Athena simulation.
+  <li> <<xref athena(1)>>: The Athena simulation.
   <li> <a href="build_notes.html">Build Notes</a>: Details of each
        Athena build.
 </ul>
@@ -31,7 +30,7 @@
 
 <h2>Copyright</h2>
 
-(C) (C) 2008-<<clock format [clock seconds] -format %Y>>.
+(C) 2008-<<clock format [clock seconds] -format %Y>>.
 California Institute of Technology.  ALL RIGHTS RESERVED.
 U.S. Government sponsorship acknowledged. Any commercial use must be
 negotiated with the Office of Technology Transfer at the California
