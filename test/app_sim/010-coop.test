@@ -184,6 +184,28 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
     } -result {SHIA BLUE}
 
     #-------------------------------------------------------------------
+    # Bug Fixes
+
+    test bug3151-1.1 {Can lock when a coop curve has a trend} -setup {
+        ted create NB1 BLUE SHIA
+        coop mutate update {
+            id      {SHIA BLUE}
+            coop0   40.0
+            atrend  5.0
+            athresh 40
+            dtrend  -5.0
+            dthresh 60
+        }
+    } -body {
+        ted lock
+        set a "OK"
+    } -cleanup {
+        cleanup
+    } -result {OK}
+
+
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

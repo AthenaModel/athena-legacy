@@ -38,7 +38,6 @@ snit::type coop {
 
         rdb eval {
             SELECT * FROM coop_fg
-            JOIN civgroups ON (coop_fg.f = civgroups.g)
             WHERE atrend > 0.0 OR dtrend < 0.0
         } row {
             if {$row(atrend) > 0.0} {
