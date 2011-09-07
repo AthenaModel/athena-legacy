@@ -639,8 +639,13 @@ snit::type sim {
         # FIRST, cancel the ticker, so that the next tick doesn't occur.
         $ticker cancel
 
-        # NEXT, set the state to paused, if we're running
-        if {$info(state) eq "RUNNING"} {
+        # NEXT, if we're in tactic execution just set the stop time to now
+        # and TickWork will do the rest.  Otherwise, this is coming from a
+        # GUI event, outside TickWork; just set the state to paused.
+
+        if {[order state] eq "TACTIC"} {
+            set info(stoptime) [simclock now]
+        } elseif {$info(state) eq "RUNNING"} {
             set info(stoptime) 0
             $type SetState PAUSED
         }
