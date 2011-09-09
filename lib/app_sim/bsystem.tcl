@@ -25,7 +25,8 @@ snit::type bsystem {
     #-------------------------------------------------------------------
     # Type Components
 
-    typecomponent mam    ;# The mam(n) instance.
+    typecomponent mam       ;# The mam(n) instance.
+    typecomponent updater   ;# The lazy updater
 
     #-------------------------------------------------------------------
     # Singleton Initializer
@@ -40,14 +41,35 @@ snit::type bsystem {
     typemethod init {} {
         log normal bsystem "init"
 
-        # FIRIST, create a MAM; arrange for it to clear undo info
+        # FIRST, create a MAM; arrange for it to clear undo info
         # before the scenario is saved.
         set mam [mam ${type}::mam \
                      -rdb ::rdb]
 
+        # NEXT, create a lazyupdater to recompute affinities
+        set updater [lazyupdater ${type}::updater \
+                         -command [list $mam compute] \
+                         -delay   1]
+
         notifier bind ::scenario <Saving> ::bsystem [list $mam edit reset]
 
         log normal bsystem "init complete"
+    }
+
+    # start
+    #
+    # Ensures that affinities have been computed on scenario lock.
+
+    typemethod start {} {
+        $mam compute
+    }
+
+    # lazycompute 
+    #
+    # Schedules a lazy recomputation of affinities
+    
+    typemethod lazycompute {} {
+        $updater update
     }
 
     #-------------------------------------------------------------------
@@ -190,7 +212,7 @@ order define BSYSTEM:PLAYBOX:UPDATE {
     # NEXT, save the parameter value.
     bsystem playbox configure \
         -gamma $parms(gamma)
-    bsystem compute
+    bsystem lazycompute
 
     setundo [list ::bsystem::MamUndo]
 }
@@ -218,7 +240,7 @@ order define BSYSTEM:ENTITY:UPDATE {
     # NEXT, save the parameter value.
     bsystem entity configure $parms(eid) \
         -commonality $parms(commonality)
-    bsystem compute
+    bsystem lazycompute
 
     setundo [list ::bsystem::MamUndo]
 }
@@ -250,7 +272,7 @@ order define BSYSTEM:TOPIC:CREATE {
     bsystem topic add $parms(tid)    \
         -title     $parms(title)     \
         -relevance $parms(relevance)
-    bsystem compute
+    bsystem lazycompute
 
     setundo [list ::bsystem::MamUndo]
 }
@@ -295,7 +317,7 @@ order define BSYSTEM:TOPIC:DELETE {
 
     # NEXT, Delete the topic.
     bsystem topic delete $parms(tid)
-    bsystem compute
+    bsystem lazycompute
 
     setundo [list ::bsystem::MamUndo]
 }
@@ -324,7 +346,7 @@ order define BSYSTEM:TOPIC:UPDATE {
     set opts [bsystem::ParmsToOptions {title relevance}]
 
     bsystem topic configure $parms(tid) {*}$opts
-    bsystem compute
+    bsystem lazycompute
 
     setundo [list ::bsystem::MamUndo]
 }
@@ -355,7 +377,7 @@ order define BSYSTEM:BELIEF:UPDATE {
     set opts [bsystem::ParmsToOptions {position emphasis}]
 
     bsystem belief configure {*}$parms(id) {*}$opts
-    bsystem compute
+    bsystem lazycompute
 
     setundo [list ::bsystem::MamUndo]
 }

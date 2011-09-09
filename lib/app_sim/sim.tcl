@@ -459,6 +459,7 @@ snit::type sim {
         # Set up the attitudes model: initialize GRAM, and add slope effects
         # for the ascending and descending trends.  Finally, relate all
         # existing MADs to GRAM drivers.
+        bsystem   compute
         aram      init -reload
         sat       start
         coop      start
