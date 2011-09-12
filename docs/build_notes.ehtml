@@ -11,6 +11,44 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.28, 12 September 2011</h3>
+
+<b>Note:</b> Like previous builds, this one contains database schema
+incompatibilties.  To bring scenario data forward from 3.0.23 or
+later, following the migration procedure listed under Build 3.0.24,
+below.  (The instructions regarding BSYSTEM:BELIEF:UPDATE only apply
+for Athena 3.0.23 scenarios.)<p>
+
+This build contains significant bug fixes, and two enhancements.
+First of all, the BSYSTEM:* orders no longer slow down scenario
+scripts in such a dramatic way.  Instead, the affinities are
+recomputed when the script is complete.  Second, it no longer causes a
+bgerror on scenario lock if a cooperation curve has a non-zero
+ascending or descending trend.<p>
+
+The enhancements are the pctcontrol() function, which returns the
+percentage of neighborhoods controlled by a set of actors, and the new
+SUPPORT tactic.  An actor can now support another actor (or no actor)
+in preference to himself across the playbox, as defined in the Actor
+browser during scenario prep; and then, by use of the SUPPORT tactic,
+the actor can support specific actors (or no actor) in specific
+neighborhoods.  When one actor supports another, the other actor gets
+to use the first actor's support from groups in the neighborhood, and
+use it to gain influence and possibly control in the neighborhood.<p>
+
+The full set of changes is as follows:<p>
+
+<ul>
+  <li> Bug 3148: EXECUTIVE command SIM:PAUSE bgerror
+  <li> Bug 3149: athena(1): Error message on mod version mismatch
+  <li> Bug 3150: Athena doc tree index files reference athena_sim(1)
+  <li> Bug 3151: athena(1): coop start fails when trends are non-zero
+  <li> Bug 3152: athena(1): "bsystem compute" slows down script execution
+  <li> Bug 3153: athena(1): SUPPORT tactic
+  <li> Bug 3154: athena(1): pctcontrol() function 
+</ul><p>
+
+
 <h3>Build 3.0.27, 6 September 2011</h3>
 
 <b>Note:</b> Like previous builds, this one contains database schema
