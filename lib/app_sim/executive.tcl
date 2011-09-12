@@ -146,6 +146,10 @@ snit::type executive {
         $interp smartalias ::tcl::mathfunc::parm 1 1 {parm} \
             [list ::parm get]
 
+        # pctcontrol(a,?a,...?)
+        $interp smartalias ::tcl::mathfunc::pctcontrol 1 - {a ?a...?} \
+            [myproc pctcontrol]
+
         # sat(g,c)
         $interp smartalias ::tcl::mathfunc::sat 2 2 {g c} \
             [myproc sat]
@@ -881,6 +885,39 @@ snit::type executive {
         }
 
         error "nbmood not yet computed"
+    }
+
+    # pctcontrol a ?a...?
+    #
+    # a - An actor
+    #
+    # Returns the percentage of neighborhoods controlled by the
+    # listed actors.
+
+    proc pctcontrol {args} {
+        # FIRST, validate the actor names.
+        foreach a $args {
+            lappend alist [actor validate [string toupper $a]]
+        }
+
+        # NEXT, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the number of neighborhoods controlled by
+        # actors in the list.
+        set count [rdb onecolumn "
+            SELECT count(n) 
+            FROM control_n
+            WHERE controller IN $inClause
+        "]
+
+        set total [llength [nbhood names]]
+
+        if {$total == 0.0} {
+            return 0.0
+        }
+
+        return [expr {100.0*$count/$total}]
     }
 
     # sat g c

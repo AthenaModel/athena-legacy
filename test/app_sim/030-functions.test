@@ -329,6 +329,77 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {7}
 
+    #-------------------------------------------------------------------
+    # pctcontrol()
+
+    test pctcontrol-1.1 {1 actor, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr pctcontrol("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE, BOB}
+
+    test pctcontrol-1.2 {2 actors, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr pctcontrol("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE, BOB}
+
+    test pctcontrol-2.1 {Zero control when no neighborhoods} -setup {
+        ted create JOE BOB
+    } -body {
+        ted sendex expr pctcontrol("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test pctcontrol-2.2 {Zero control when unlocked, 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr pctcontrol("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test pctcontrol-2.3 {Control by 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+        rdb eval {
+            UPDATE control_n SET controller='JOE' WHERE n='NB1'
+        }
+    } -body {
+        ted sendex expr pctcontrol("JOE")
+    } -cleanup {
+        cleanup
+    } -result {50.0}
+
+    test pctcontrol-2.4 {Control by 2 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+        rdb eval {
+            UPDATE control_n SET controller='JOE' WHERE n='NB1'
+        }
+    } -body {
+        ted sendex expr pctcontrol("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {50.0}
+
+    test pctcontrol-2.5 {Control by 2 actor, all neighborhoods} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+        rdb eval {
+            UPDATE control_n SET controller='JOE' WHERE n='NB1';
+            UPDATE control_n SET controller='BOB' WHERE n='NB2';
+        }
+    } -body {
+        ted sendex expr pctcontrol("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {100.0}
 
     #-------------------------------------------------------------------
     # sat()

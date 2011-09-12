@@ -165,6 +165,16 @@ function "parm(parm)" {
     Returns the value of <<cref /parmdb "model parameter">> <i>parm</i>.
 }
 
+
+#=======================================================================
+# pctcontrol
+
+function "pctcontrol(a,?a...?)" {
+    Given the names of one or more <<term actor>>s, returns the 
+    percentage of <<term nbhood>>s controlled by those actors as a 
+    number from 0.0 to 100.0.
+}
+
 #=======================================================================
 # sat
 
