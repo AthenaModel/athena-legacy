@@ -38,6 +38,18 @@ snit::type ptype {
         EnumVal "actor" [$type a+none names] $value
     }
 
+    # a+self+none
+    #
+    # SELF + NONE + Actor names
+
+    typemethod {a+self+none names} {} {
+        linsert [actor names] 0 SELF NONE
+    }
+
+    typemethod {a+self+none validate} {value} {
+        EnumVal "actor" [$type a+self+none names] $value
+    }
+
     # n
     #
     # Neighborhood names

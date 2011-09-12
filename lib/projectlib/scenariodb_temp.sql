@@ -100,6 +100,22 @@ CREATE TEMPORARY TABLE working_personnel (
     available  INTEGER
 );
 
+-- working_supports table: Actor supported by Actor a in n.
+
+CREATE TABLE working_supports (
+    -- Symbolic group name
+    n         TEXT,
+
+    -- Symbolic actor name
+    a         TEXT,
+
+    -- Supported actor name, or NULL
+    supports  TEXT,
+
+    PRIMARY KEY (n, a)
+);
+
+
 -- Deployment Table: FRC and ORG personnel deployed into neighborhoods.
 CREATE TEMPORARY TABLE working_deployment (
     -- Symbolic neighborhood name

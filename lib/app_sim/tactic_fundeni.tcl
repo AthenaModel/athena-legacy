@@ -73,8 +73,7 @@ tactic type define FUNDENI {x1 glist} actor {
             # NEXT, Ensure that the group has influence in the
             # relevant neighborhood, neighborhoods.  If insufficient
             # influence, don't execute.
-
-            set glist [FilterForInfluence $owner $glist]
+            set glist [FilterForSupport $owner $glist]
 
             if {[llength $glist] == 0} {
                 return 0
@@ -124,27 +123,29 @@ tactic type define FUNDENI {x1 glist} actor {
     #-------------------------------------------------------------------
     # Tactic Helpers
 
-    # FilterForInfluence owner glist
+    # FilterForSupport owner glist
     #
     # owner   - An actor
     # glist   - A list of groups
     #
     # Returns a list of the groups in glist that reside in neighborhoods
-    # in which the actor has positive influence.
+    # in which the actor has positive direct support.
 
-    proc FilterForInfluence {owner glist} {
+    proc FilterForSupport {owner glist} {
         # FIRST, make an "IN" clause
         set inClause "IN ('[join $glist ',']')"
 
-        # NEXT, get the list groups that reside in neighborhoods in
-        # which the owner has positive influence
+        # NEXT, get the list of groups that reside in neighborhoods in
+        # which the owner has positive direct support
+
+        set minSupport [parm get service.ENI.minSupport]
 
         rdb eval "
             SELECT g 
             FROM civgroups
             JOIN influence_na USING (n)
             WHERE a=\$owner
-            AND   influence > 0
+            AND   direct_support >= $minSupport
             AND   g $inClause 
         "
     }

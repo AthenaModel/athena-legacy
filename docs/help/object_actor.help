@@ -44,6 +44,25 @@ object actor_ {
         actor's ID, e.g., "United States".
     } -tags {create update browser}
 
+    attribute supports "Supports" {
+        The name of the actor that usually receives this actor's political
+        support, or <b>NONE</b> if the actor supports no other actor,
+        or <b>SELF</b> if the actor intends to use his support directly.<p>
+
+        Every actor can receive political support from the groups
+        present in the various neighborhoods in the playbox.  Most
+        will use this support to attempt to gain political control for
+        themselves.  Others may choose to support another actor, or no
+        actor at all.<p>
+
+        This kind of support applies to each neighborhood separately;
+        the actor can explicitly specify who to support in each
+        neighborhood using the <<cref /object/tactic/support>>.  In
+        the absence of such a tactic for a particular neighborhood,
+        the actor will support the actor specified here.<p>
+    } -tags {create update browser}
+
+
     attribute cash_reserve "Cash Reserve, $" {
         Every actor has some amount of cash in reserve for future needs
         that can be released for use via the 

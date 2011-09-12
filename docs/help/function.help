@@ -201,6 +201,27 @@ function support(n,a) {
 }
 
 #=======================================================================
+# supports
+
+function supports(a,b,?n...?) {
+    Returns 1 if <<term actor>> <i>a</i> supports actor <i>b</i> 
+    politically, and 0 otherwise.<p>
+
+    If no <<term nbhood>> is given, the function returns 1 if actor
+    <i>a</i> usually supports actor <i>b</i>, as indicated in the
+    definition of actor <i>a</i>.  If one or more neighborhoods are
+    listed, the function returns 1 if <i>a</i> supports <i>b</i> in
+    all of them.<p>
+
+    For one actor to support another actor politically means that the
+    first actor directs his supporters to support the second actor.
+    These supporters (i.e., group members) contribute to the second
+    actor's influence rather than to the first actor's influence.  See
+    also the <<term actor>> object, and the 
+    <<cref /object/tactic/support>>.<p>
+}
+
+#=======================================================================
 # troops
 
 function troops(g,?n...?) {

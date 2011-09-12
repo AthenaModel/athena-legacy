@@ -1,0 +1,234 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_support.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_support(sim) tests.
+#
+#    This test suite tests the tactic::SUPPORT ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    proc execute_setup {} {
+        setup
+        control start
+        control load
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    set T1 {
+        tactic_type SUPPORT
+        owner       JOE
+        priority    top
+        a           SELF
+        nlist       NB1
+    }
+
+    set T2 {
+        tactic_type SUPPORT
+        owner       JOE
+        priority    top
+        a           BOB
+        nlist       {NB1 NB2}
+    }
+
+    set T3 {
+        tactic_type SUPPORT
+        owner       JOE
+        priority    top
+        a           NONE
+        nlist       NB2
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative: one nbhood, SELF} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SUPPORT narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Support self in neighborhood NB1}
+
+    test narrative-1.2 {narrative: two nbhoods, specific actor} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+        tactic::SUPPORT narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Support actor BOB in neighborhoods NB1, NB2}
+
+    test narrative-1.3 {narrative: one nbhood, no actor} -setup {
+        setup
+        tactic mutate create $T3
+    } -body {
+        tactic::SUPPORT narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Support no one in neighborhood NB2}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: a no longer exists} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {DELETE FROM actors WHERE a='BOB'}
+    } -body {
+        tactic::SUPPORT check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Actor BOB no longer exists.}
+
+    test check-1.2 {check: n in nlist no longer exists} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+    } -body {
+        tactic::SUPPORT check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB2 no longer exists.}
+
+    test check-1.4 {check: multiple failures} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval {DELETE FROM actors WHERE a='BOB'}
+        rdb eval {DELETE FROM nbhoods WHERE n='NB2'}
+    } -body {
+        tactic::SUPPORT check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB2 no longer exists.  Actor BOB no longer exists.}
+
+    #-------------------------------------------------------------------
+    # dollars
+
+    test dollars-1.1 {no cost.} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SUPPORT dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {n/a}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {execute: T1 succeeds} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::SUPPORT execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test execute-1.2 {execute: T1 effects} -setup {
+        execute_setup
+        tactic mutate create $T1
+        # Reset JOE's supports to something other than JOE, so that
+        # we can verify that this tactic worked.
+        rdb eval {
+            UPDATE working_supports SET supports='BOB';
+        }
+    } -body {
+        tactic::SUPPORT execute [tactic get 1]
+        ted query {SELECT * FROM working_supports}
+    } -cleanup {
+        cleanup
+    } -result {
+n   a   supports 
+--- --- -------- 
+NB1 JOE JOE      
+NB1 BOB BOB      
+NB2 JOE BOB      
+NB2 BOB BOB      
+    }
+
+    test execute-1.3 {execute: T2 effects} -setup {
+        execute_setup
+        tactic mutate create $T2
+    } -body {
+        tactic::SUPPORT execute [tactic get 1]
+        ted query {SELECT * FROM working_supports}
+    } -cleanup {
+        cleanup
+    } -result {
+n   a   supports 
+--- --- -------- 
+NB1 JOE BOB      
+NB1 BOB BOB      
+NB2 JOE BOB      
+NB2 BOB BOB      
+    }
+
+    test execute-1.4 {execute: T3 effects} -setup {
+        execute_setup
+        tactic mutate create $T3
+    } -body {
+        tactic::SUPPORT execute [tactic get 1]
+        ted query {SELECT * FROM working_supports}
+    } -cleanup {
+        cleanup
+    } -result {
+n   a   supports 
+--- --- -------- 
+NB1 JOE JOE      
+NB1 BOB BOB      
+NB2 JOE @        
+NB2 BOB BOB      
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

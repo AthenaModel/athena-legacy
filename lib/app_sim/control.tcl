@@ -96,6 +96,7 @@ snit::type control {
         # FIRST, initialize the control tables
         $type PopulateNbhoodControl
         $type PopulateVerticalRelationships
+        $type PopulateActorSupports
         $type PopulateActorInfluence
 
         log normal control "start complete"
@@ -166,6 +167,20 @@ snit::type control {
         }
     }
 
+    # PopulateActorSupports
+    #
+    # Each actor can give his political support to himself, another actor,
+    # or no one.  This routine populates the supports_na table with the 
+    # default supports from actors.
+
+    typemethod PopulateActorSupports {} {
+        rdb eval {
+            INSERT INTO supports_na(n, a, supports)
+            SELECT n, a, supports
+            FROM nbhoods JOIN actors
+        }
+    }
+
     # PopulateActorInfluence
     #
     # Populates the influence_na table, and computes the
@@ -180,6 +195,62 @@ snit::type control {
 
         # NEXT, compute the actor's initial influence.
         $type ComputeActorInfluence
+    }
+
+    #-------------------------------------------------------------------
+    # Working Supports
+
+    # load
+    #
+    # Loads every actors' default supports into working_supports
+    # for use during strategy execution.
+
+    typemethod load {} {
+        rdb eval {
+            DELETE FROM working_supports;
+
+            INSERT INTO working_supports(n, a, supports)
+            SELECT n, a, supports FROM nbhoods JOIN actors;
+        }
+    }
+
+    # support a b nlist
+    #
+    # a        - An actor
+    # b        - An actor a supports, or NULL
+    # nlist    - List of neighborhoods in which a supports b
+
+    typemethod support {a b nlist} {
+        # FIRST, handle SELF
+        if {$b eq "SELF"} {
+            set b $a
+        }
+
+        # NEXT, format the nlist clause
+        set inClause "IN ('[join $nlist ',']')"
+
+        # NEXT, update the working supports list
+        rdb eval "
+            UPDATE working_supports
+            SET supports = nullif(\$b,'NONE')
+            WHERE a = \$a AND n $inClause
+        "
+    }
+
+    # save
+    #
+    # Save the actor supports back into the supports table, replacing
+    # the previous values.
+
+    typemethod save {} {
+        rdb eval {
+            DELETE FROM supports_na;
+
+            INSERT INTO supports_na(n, a, supports)
+            SELECT n, a, supports FROM working_supports;
+
+            DELETE FROM working_supports;
+        }
     }
 
     #-------------------------------------------------------------------
@@ -308,8 +379,9 @@ snit::type control {
         # FIRST, set support and influence to 0.
         rdb eval {
             UPDATE influence_na
-            SET support   = 0,
-                influence = 0;
+            SET direct_support = 0,
+                support        = 0,
+                influence      = 0;
    
             DELETE FROM support_nga;
         }
@@ -322,7 +394,7 @@ snit::type control {
         }]
 
         # NEXT, add the support of each group in each neighborhood
-        # to each actor.
+        # to each actor's direct support
         set minSupport [parm get control.support.min]
         set vrelMin    [parm get control.support.vrelMin]
         set Zsecurity  [parm get control.support.Zsecurity]
@@ -349,12 +421,37 @@ snit::type control {
 
             rdb eval {
                 UPDATE influence_na
-                SET support = support + $contrib
+                SET direct_support = direct_support + $contrib
                 WHERE n=$n AND a=$a;
 
                 INSERT INTO 
-                support_nga(n,g,a,vrel,personnel,security,support)
+                support_nga(n,g,a,vrel,personnel,security,direct_support)
                 VALUES($n,$g,$a,$vrel,$personnel,$security,$contrib);
+            }
+        }
+
+        # NEXT, compute a's actual support, given the support relationships
+        # in support_na.
+        foreach {n g a direct_support supports} [rdb eval {
+            SELECT G.n                  AS n,
+                   G.g                  AS g,
+                   G.a                  AS a,
+                   G.direct_support     AS direct_support,
+                   S.supports           AS supports
+            FROM support_nga AS G
+            JOIN supports_na AS S USING (n,a)
+            WHERE S.supports IS NOT NULL
+        }] {
+            # FIRST, update the supported actor's support from this group.
+            # Also, update the actor's actual support.
+            rdb eval {
+                UPDATE support_nga 
+                SET support = support + $direct_support
+                WHERE n=$n AND g=$g AND a=$supports;
+
+                UPDATE influence_na
+                SET support = support + $direct_support
+                WHERE n=$n AND a=$supports;
             }
         }
 

@@ -1,0 +1,338 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-TACTIC-SUPPORT.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) TACTIC:SUPPORT:* order tests.
+#
+#    This test suite tests the SUPPORT tactic's orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+    proc setup {} {
+        ted create JOE BOB NB1 NB2
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    # Standard items
+
+    set T1 {
+        owner       JOE
+        priority    bottom
+        a           SELF
+        nlist       NB1
+    }
+
+    set T2 {
+        owner       JOE
+        priority    bottom
+        a           BOB
+        nlist       {NB1 NB2}
+    }
+
+    set T3 {
+        owner       JOE
+        priority    bottom
+        a           NONE
+        nlist       NB1
+    }
+
+    #-------------------------------------------------------------------
+    # TACTIC:SUPPORT:CREATE
+
+    test SUPPORT:CREATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:SUPPORT:CREATE {}
+    } -result {
+        owner {required value}
+        a {required value}
+        nlist {required value}
+    }
+
+    test SUPPORT:CREATE-1.2 {owner is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SUPPORT:CREATE \
+            [dict merge $T1 [list owner NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        owner {Invalid actor, should be one of: JOE, BOB}
+    }
+
+    test SUPPORT:CREATE-1.3 {a is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SUPPORT:CREATE \
+            [dict merge $T1 [list a NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE, BOB}
+    }
+
+    test SUPPORT:CREATE-1.4 {nlist is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SUPPORT:CREATE \
+            [dict merge $T1 [list nlist NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        nlist {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test SUPPORT:CREATE-1.5 {priority is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SUPPORT:CREATE [dict merge $T1 {
+            priority NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        priority {invalid value "nonesuch", should be one of: top, bottom}
+    }
+
+    test SUPPORT:CREATE-2.1 {tactic is created: 2 nbhoods} -setup {
+        setup
+    } -body {
+        ted order TACTIC:SUPPORT:CREATE $T2
+
+        ted querylist {SELECT * FROM tactics_SUPPORT}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SUPPORT
+owner        JOE
+narrative    Support actor BOB in neighborhoods NB1, NB2
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+a            BOB
+nlist        NB1 NB2
+    }
+
+
+    test SUPPORT:CREATE-2.2 {tactic is created: 1 nbhood, NONE} -setup {
+        setup
+    } -body {
+        ted order TACTIC:SUPPORT:CREATE $T3
+
+        ted querylist {SELECT * FROM tactics_SUPPORT}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SUPPORT
+owner        JOE
+narrative    Support no one in neighborhood NB1
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+a            NONE
+nlist        NB1
+    }
+
+
+    test SUPPORT:CREATE-2.3 {Effects} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        ted order TACTIC:SUPPORT:CREATE $T1
+        ted notifier received
+
+        # NOTE: Two updates, because of priority setting.
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+        {::rdb <tactics> update 1}
+    }
+
+
+    test SUPPORT:CREATE-3.1 {undo effects} -setup {
+        setup
+        ted order TACTIC:SUPPORT:CREATE $T1
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> delete 1}
+    }
+
+    #-------------------------------------------------------------------
+    # TACTIC:SUPPORT:UPDATE
+
+    proc setup_update_support {} {
+        variable T2
+        setup
+        ted order TACTIC:SUPPORT:CREATE $T2
+    }
+
+    test SUPPORT:UPDATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:SUPPORT:UPDATE {}
+    } -result {
+        tactic_id {required value}
+    }
+
+    
+    test SUPPORT:UPDATE-1.2 {tactic_id is unknown} -setup {
+        setup_update_support
+    } -body {
+        ted order -reject TACTIC:SUPPORT:UPDATE \
+            tactic_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {Invalid tactic ID: "NONESUCH"}
+    }
+
+    test SUPPORT:UPDATE-1.3 {a is unknown} -setup {
+        setup_update_support
+    } -body {
+        ted order -reject TACTIC:SUPPORT:UPDATE tactic_id 1 a NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE, BOB}
+    }
+
+    test SUPPORT:UPDATE-1.4 {nlist is invalid} -setup {
+        setup_update_support
+    } -body {
+        ted order -reject TACTIC:SUPPORT:UPDATE tactic_id 1 nlist NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        nlist {Invalid neighborhood, should be one of: NB1, NB2}
+    }
+
+    test SUPPORT:UPDATE-1.5 {wrong flavor of tactic} -setup {
+        setup_update_support
+        rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
+    } -body {
+        ted order -reject TACTIC:SUPPORT:UPDATE tactic_id 1
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {Tactic 1 is not a SUPPORT tactic}
+    }
+
+    test SUPPORT:UPDATE-2.1 {tactic is updated} -setup {
+        setup_update_support
+    } -body {
+        ted order TACTIC:SUPPORT:UPDATE \
+            tactic_id 1 a NONE nlist NB1
+
+        ted querylist {SELECT * FROM tactics_SUPPORT}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SUPPORT
+owner        JOE
+narrative    Support no one in neighborhood NB1
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+a            NONE
+nlist        NB1
+    }
+
+    test SUPPORT:UPDATE-2.2 {tactic is updated} -setup {
+        setup
+        ted order TACTIC:SUPPORT:CREATE $T3
+    } -body {
+        ted order TACTIC:SUPPORT:UPDATE \
+            tactic_id 1 a SELF nlist NB1
+
+        ted querylist {SELECT * FROM tactics_SUPPORT}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SUPPORT
+owner        JOE
+narrative    Support self in neighborhood NB1
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+a            SELF
+nlist        NB1
+    }
+
+
+    test SUPPORT:UPDATE-2.3 {Effects} -setup {
+        setup
+        ted order TACTIC:SUPPORT:CREATE $T3
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        ted order TACTIC:SUPPORT:UPDATE tactic_id 1 a SELF
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+        {::rdb <tactics> update 1}
+    }
+
+
+    test SUPPORT:UPDATE-3.1 {undo effects} -setup {
+        setup_update_support
+        ted order TACTIC:SUPPORT:UPDATE tactic_id 1 a SELF
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

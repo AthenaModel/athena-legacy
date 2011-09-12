@@ -139,9 +139,10 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # execute
 
-    test execute-1.1 {execute: insufficient influence} -setup {
+    test execute-1.1 {execute: insufficient support} -setup {
         execute_setup
-        rdb eval {UPDATE influence_na SET influence = 0.0}
+        rdb eval {UPDATE influence_na SET support = 0.0}
+        parm set service.ENI.minSupport 0.2
         tactic mutate create $T1
     } -body {
         tactic::FUNDENI execute [tactic get 1]

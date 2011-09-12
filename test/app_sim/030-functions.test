@@ -443,6 +443,83 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # supports()
+
+    test supports-1.1 {invalid a} -setup {
+        ted create JOE
+    } -body {
+        ted sendex -error expr supports("NONESUCH","JOE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test supports-1.2 {invalid b} -setup {
+        ted create JOE
+    } -body {
+        ted sendex -error expr supports("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE}
+
+    test supports-1.3 {invalid n} -setup {
+        ted create JOE BOB NB1
+    } -body {
+        ted sendex -error expr supports("JOE","BOB","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test supports-2.1 {No neighborhood} -setup {
+        ted create JOE BOB
+    } -body {
+        # Results are based on actors.supports.
+        list \
+            [ted sendex expr supports("JOE","SELF")] \
+            [ted sendex expr supports("JOE","NONE")] \
+            [ted sendex expr supports("JOE","BOB")]
+    } -cleanup {
+        cleanup
+    } -result {1 0 0}
+
+    test supports-2.2 {Neighborhood, not locked} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        # Results are based on supports_na, not yet populated.
+        list \
+            [ted sendex expr supports("JOE","SELF","NB1")] \
+            [ted sendex expr supports("JOE","NONE","NB1")] \
+            [ted sendex expr supports("JOE","BOB","NB1")]
+    } -cleanup {
+        cleanup
+    } -result {0 0 0}
+
+    test supports-2.3 {One neighborhood, locked} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        # Results are based on supports_na,
+        list \
+            [ted sendex expr supports("JOE","SELF","NB1")] \
+            [ted sendex expr supports("JOE","NONE","NB1")] \
+            [ted sendex expr supports("JOE","BOB","NB1")]
+    } -cleanup {
+        cleanup
+    } -result {1 0 0}
+
+    test supports-2.4 {Two neighborhood, locked} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        # Results are based on supports_na
+        list \
+            [ted sendex expr supports("JOE","SELF","NB1","NB2")] \
+            [ted sendex expr supports("JOE","NONE","NB1","NB2")] \
+            [ted sendex expr supports("JOE","BOB","NB1","NB2")]
+    } -cleanup {
+        cleanup
+    } -result {1 0 0}
+
+    #-------------------------------------------------------------------
     # troops()
 
     test troops-1.1 {invalid FRC/ORG} -setup {

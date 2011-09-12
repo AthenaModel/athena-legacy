@@ -207,17 +207,22 @@ CREATE TABLE nbrel_mn (
 -- Actor Data
 CREATE TABLE actors (
     -- Symbolic actor name
-    a           TEXT PRIMARY KEY,
+    a            TEXT PRIMARY KEY,
 
     -- Full actor name
-    longname    TEXT,
+    longname     TEXT,
+
+    -- Supports actor (actor name or NULL)
+    supports     TEXT REFERENCES actors(a)
+                 ON DELETE SET NULL
+                 DEFERRABLE INITIALLY DEFERRED,
 
     -- Money saved for later, in $.
     cash_reserve DOUBLE DEFAULT 0,
 
     -- Income/tactics tock, in $.
     -- TBD: A present this is an input; later it will be computed.
-    income      DOUBLE DEFAULT 0,
+    income       DOUBLE DEFAULT 0,
 
     -- Money available to be spent, in $.
     -- Unspent cash accumulates from tock to tock.
@@ -405,16 +410,11 @@ CREATE TABLE bvrel_tga (
     PRIMARY KEY (t, g, a)
 );
 
--- support_nga table: Support for actor a by group g in nbhood n
+-- supports_na table: Actor supported by Actor a in n.
 
-CREATE TABLE support_nga (
+CREATE TABLE supports_na (
     -- Symbolic group name
     n         TEXT REFERENCES nbhoods(n)
-              ON DELETE CASCADE
-              DEFERRABLE INITIALLY DEFERRED,
-
-    -- Symbolic group name
-    g         TEXT REFERENCES groups(g)
               ON DELETE CASCADE
               DEFERRABLE INITIALLY DEFERRED,
 
@@ -423,21 +423,53 @@ CREATE TABLE support_nga (
               ON DELETE CASCADE
               DEFERRABLE INITIALLY DEFERRED,
 
+    -- Supported actor name, or NULL
+    supports  TEXT REFERENCES actors(a)
+              ON DELETE CASCADE
+              DEFERRABLE INITIALLY DEFERRED,
+
+    PRIMARY KEY (n, a)
+);
+
+
+-- support_nga table: Support for actor a by group g in nbhood n
+
+CREATE TABLE support_nga (
+    -- Symbolic group name
+    n                TEXT REFERENCES nbhoods(n)
+                     ON DELETE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic group name
+    g                TEXT REFERENCES groups(g)
+                     ON DELETE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic actor name
+    a                TEXT REFERENCES actors(a)
+                     ON DELETE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
+
     -- Vertical Relationship of g with a
-    vrel      REAL DEFAULT 0.0,
+    vrel             REAL DEFAULT 0.0,
 
     -- g's personnel in n
-    personnel INTEGER DEFAULT 0,
+    personnel        INTEGER DEFAULT 0,
 
     -- g's security in n
-    security  INTEGER DEFAULT 0,
+    security         INTEGER DEFAULT 0,
 
-    -- Contribution of g to a's support in n
-    support   REAL DEFAULT 0.0,
+    -- Direct Contribution of g to a's support in n
+    direct_support   REAL DEFAULT 0.0,
+
+    -- Actual Contribution of g to a's support in n,
+    -- given a's support of other actors, and other actor's support
+    -- of a.
+    support          REAL DEFAULT 0.0,
 
     -- Contribution of g to a's influence in n.
     -- (support divided total support in n)
-    influence REAL DEFAULT 0.0,
+    influence        REAL DEFAULT 0.0,
 
     PRIMARY KEY (n, g, a)
 );
@@ -450,20 +482,24 @@ CREATE TABLE support_nga (
 
 CREATE TABLE influence_na (
     -- Symbolic group name
-    n         TEXT REFERENCES nbhoods(n)
-              ON DELETE CASCADE
-              DEFERRABLE INITIALLY DEFERRED,
+    n                TEXT REFERENCES nbhoods(n)
+                     ON DELETE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
 
     -- Symbolic actor name
-    a         TEXT REFERENCES actors(a)
-              ON DELETE CASCADE
-              DEFERRABLE INITIALLY DEFERRED,
+    a                TEXT REFERENCES actors(a)
+                     ON DELETE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
 
-    -- Support for a in n
-    support   REAL DEFAULT 0.0,
+    -- Direct Support for a in n
+    direct_support   REAL DEFAULT 0.0,
+
+    -- Actual Support for a in n, including direct support and support
+    -- from other actors's followers.
+    support          REAL DEFAULT 0.0,
 
     -- Influence of a in n
-    influence REAL DEFAULT 0.0,
+    influence        REAL DEFAULT 0.0,
 
     PRIMARY KEY (n, a)
 );

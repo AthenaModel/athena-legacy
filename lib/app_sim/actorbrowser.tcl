@@ -33,6 +33,7 @@ snit::widgetadaptor actorbrowser {
     typevariable layout {
         { a            "ID"                                             }
         { longname     "Long Name"                                      }
+        { supports     "Supports"                                       }
         { cash_reserve "Cash Reserve, $"                                }
         { income       "Income, $/Week"                                 }
         { cash_on_hand "Cash on Hand, $"                                }

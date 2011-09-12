@@ -450,7 +450,7 @@ order TACTIC:SAVE:CREATE "Create Tactic: Save Money" {
     <</parmlist>>
 }
 
-order TACTIC:SAVE:UPDATE "Update Tactic: Save Forces" {
+order TACTIC:SAVE:UPDATE "Update Tactic: Save Money" {
     Updates an existing <<cref /object/tactic/save>>.<p>
 
     <<parmlist>>
@@ -481,13 +481,44 @@ order TACTIC:SPEND:CREATE "Create Tactic: Spend Money" {
     <</parmlist>>
 }
 
-order TACTIC:SPEND:UPDATE "Update Tactic: Spend Forces" {
+order TACTIC:SPEND:UPDATE "Update Tactic: Spend Money" {
     Updates an existing <<cref /object/tactic/spend>>.<p>
 
     <<parmlist>>
     <<tactic_spend parm tactic_id -required>>
     <<tactic_spend parm owner -display>>
     <<tactic_spend parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: SUPPORT
+
+page /order/tactic support TACTIC:SUPPORT:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/support>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:SUPPORT:CREATE "Create Tactic: Support Actor" {
+    Creates a <<cref /object/tactic/support>>.<p>
+
+    <<parmlist>>
+    <<tactic_support parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:SUPPORT:UPDATE "Update Tactic: Support Actor" {
+    Updates an existing <<cref /object/tactic/support>>.<p>
+
+    <<parmlist>>
+    <<tactic_support parm tactic_id -required>>
+    <<tactic_support parm owner -display>>
+    <<tactic_support parms -optional -tags update>>
     <</parmlist>>
 }
 

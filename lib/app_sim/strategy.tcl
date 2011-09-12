@@ -39,6 +39,7 @@ snit::type strategy {
     typemethod tock {} {
         # FIRST, Set up working tables.  This includes giving
         # the actors their incomes.
+        control load
         cash load
         personnel load
         service load
@@ -67,6 +68,7 @@ snit::type strategy {
         }
 
         # NEXT, save working data
+        control save
         cash save
         personnel save
         service save

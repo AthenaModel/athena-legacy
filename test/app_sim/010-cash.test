@@ -252,14 +252,14 @@ BOB 150000.0     5000.0  5000.0       5000.0
         cash withdraw JOE 2000.0
     } -body {
         cash save
-        ted query {SELECT * FROM actors}
+        ted query {SELECT a, cash_reserve, income, cash_on_hand FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a   longname      cash_reserve income  cash_on_hand 
---- ------------- ------------ ------- ------------ 
-JOE Joe the Actor 198000.0     10000.0 12000.0      
-BOB Bob the Actor 150000.0     5000.0  5000.0       
+a   cash_reserve income  cash_on_hand 
+--- ------------ ------- ------------ 
+JOE 198000.0     10000.0 12000.0      
+BOB 150000.0     5000.0  5000.0       
     }
 
     test save-1.2 {Adds gifts to cash_on_hand} -setup {
@@ -268,14 +268,14 @@ BOB Bob the Actor 150000.0     5000.0  5000.0
         cash give JOE 5000.0
     } -body {
         cash save
-        ted query {SELECT * FROM actors}
+        ted query {SELECT a, cash_reserve, income, cash_on_hand FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a   longname      cash_reserve income  cash_on_hand 
---- ------------- ------------ ------- ------------ 
-JOE Joe the Actor 200000.0     10000.0 15000.0      
-BOB Bob the Actor 150000.0     5000.0  5000.0       
+a   cash_reserve income  cash_on_hand 
+--- ------------ ------- ------------ 
+JOE 200000.0     10000.0 15000.0      
+BOB 150000.0     5000.0  5000.0       
     }
 
 

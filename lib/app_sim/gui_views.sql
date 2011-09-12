@@ -48,6 +48,14 @@ SELECT a                                               AS id,
        link('my://app/actor/' || a, a)                 AS link,
        link('my://app/actor/' || a, pair(longname, a)) AS longlink,
        longname                                        AS longname,
+       CASE WHEN supports = a      THEN 'SELF'
+            WHEN supports IS NULL  THEN 'NONE'
+            ELSE supports 
+            END                                        AS supports,
+       CASE WHEN supports = a      THEN 'SELF'
+            WHEN supports IS NULL  THEN 'NONE'
+            ELSE link('my://app/actor/' || supports, supports)
+            END                                        AS supports_link,
        moneyfmt(cash_reserve)                          AS cash_reserve,
        moneyfmt(income)                                AS income,
        moneyfmt(cash_on_hand)                          AS cash_on_hand
@@ -194,6 +202,27 @@ SELECT g, url, fancy, link, longlink, gtype, longname, a, cost,
        orgtype           AS subtype,
        'ORG/' || orgtype AS fulltype
 FROM gui_orggroups;
+
+
+-- Support of one actor by another in neighborhoods.
+CREATE TEMPORARY VIEW gui_supports AS
+SELECT NA.n                                             AS n,
+       N.link                                           AS nlink,
+       N.longlink                                       AS nlonglink,
+       NA.a                                             AS a,
+       A.link                                           AS alink,
+       A.longlink                                       AS alonglink,
+       CASE WHEN NA.supports = NA.a   THEN 'SELF'
+            WHEN NA.supports IS NULL  THEN 'NONE'
+            ELSE NA.supports 
+            END                                         AS supports,
+       CASE WHEN NA.supports = NA.a   THEN 'SELF'
+            WHEN NA.supports IS NULL  THEN 'NONE'
+            ELSE link('my://app/actor/' || NA.supports, NA.supports)
+            END                                         AS supports_link
+FROM supports_na AS NA
+JOIN gui_nbhoods AS N ON (NA.n = N.n)
+JOIN gui_actors  AS A ON (A.a = NA.a);
 
 -- A belief system topics for use by the GUI
 CREATE TEMPORARY VIEW gui_mam_topic AS
@@ -664,6 +693,7 @@ SELECT 'FRC'     AS id, 'reserved' AS etype                  UNION
 SELECT 'ORG'     AS id, 'reserved' AS etype                  UNION
 SELECT 'ALL'     AS id, 'reserved' AS etype                  UNION
 SELECT 'NONE'    AS id, 'reserved' AS etype                  UNION
+SELECT 'SELF'    AS id, 'reserved' AS etype                  UNION
 SELECT n         AS id, 'nbhood'   AS etype FROM nbhoods     UNION
 SELECT a         AS id, 'actor'    AS etype FROM actors      UNION
 SELECT g         AS id, 'group'    AS etype FROM groups      UNION

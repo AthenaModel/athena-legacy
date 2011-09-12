@@ -106,6 +106,7 @@ snit::type actor {
     #
     #    a              The actor's ID
     #    longname       The actor's long name
+    #    supports       Actor name, SELF, or NONE.
     #    cash_reserve   The actor's cash reserve (starting balance)
     #    income         The actor's income per tactics tock
     #    cash_on_hand   The actor's cash-on-hand (starting balance)
@@ -115,11 +116,26 @@ snit::type actor {
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
+            # FIRST, get the "supports" actor
+            if {$supports eq "SELF"} {
+                set supports $a
+            }
+
             # FIRST, Put the actor in the database
             rdb eval {
                 INSERT INTO 
-                actors(a,  longname,  cash_reserve, income, cash_on_hand)
-                VALUES($a, $longname, $cash_reserve, $income, $cash_on_hand)
+                actors(a,  
+                       longname,  
+                       supports, 
+                       cash_reserve, 
+                       income, 
+                       cash_on_hand)
+                VALUES($a, 
+                       $longname, 
+                       nullif($supports, 'NONE'),
+                       $cash_reserve, 
+                       $income, 
+                       $cash_on_hand)
             }
 
             # NEXT, create a matching bsystem entity
@@ -153,8 +169,11 @@ snit::type actor {
 
     typemethod {mutate delete} {a} {
         # FIRST, get the undo information
-        set gdata [rdb grab groups \
-                       {rel_entity=$a} frcgroups {a=$a} orggroups {a=$a}]
+        set gdata [rdb grab \
+                       groups    {rel_entity=$a}          \
+                       frcgroups {a=$a}                   \
+                       orggroups {a=$a}                   \
+                       actors    {a != $a AND supports=$a}]
         
         set adata [rdb delete -grab actors {a=$a}]
 
@@ -184,6 +203,7 @@ snit::type actor {
     #
     #    a              An actor short name
     #    longname       A new long name, or ""
+    #    supports       A new supports (SELF, NONE, actor), or ""
     #    cash_reserve   A new reserve amount, or ""
     #    income         A new income, or ""
     #    cash_on_hand   A new cash-on-hand amount, or ""
@@ -196,10 +216,16 @@ snit::type actor {
             # FIRST, get the undo information
             set data [rdb grab actors {a=$a}]
 
+            # NEXT, handle SELF
+            if {$supports eq "SELF"} {
+                set supports $a
+            }
+
             # NEXT, Update the actor
             rdb eval {
                 UPDATE actors
                 SET longname     = nonempty($longname,     longname),
+                    supports     = nullif(nonempty($supports,supports),'NONE'),
                     cash_reserve = nonempty($cash_reserve, cash_reserve),
                     income       = nonempty($income,       income),
                     cash_on_hand = nonempty($cash_on_hand, cash_on_hand)
@@ -227,6 +253,8 @@ order define ACTOR:CREATE {
 
     parm a            text  "Actor"
     parm longname     text  "Long Name"
+    parm supports     enum  "Supports"       -enumtype {ptype a+self+none} \
+                                             -defval SELF
     parm cash_reserve text  "Cash Reserve $"        -defval 0
     parm income       text  "Income $/week"         -defval 0
     parm cash_on_hand text  "Cash On Hand $"        -defval 0
@@ -234,6 +262,7 @@ order define ACTOR:CREATE {
     # FIRST, prepare and validate the parameters
     prepare a            -toupper   -required -unused -type ident
     prepare longname     -normalize
+    prepare supports     -toupper   -required         -type {ptype a+self+none}
     prepare cash_reserve -toupper                     -type money
     prepare income       -toupper                     -type money
     prepare cash_on_hand -toupper                     -type money
@@ -304,6 +333,7 @@ order define ACTOR:UPDATE {
     parm a            key    "Select Actor"    -table gui_actors -keys a \
                                                -tags actor
     parm longname     text   "Long Name"
+    parm supports     enum   "Supports"        -enumtype {ptype a+self+none}
     parm cash_reserve text   "Cash Reserve $"
     parm income       text   "Income $/week"
     parm cash_on_hand text   "Cash On Hand $"
@@ -311,6 +341,7 @@ order define ACTOR:UPDATE {
     # FIRST, prepare the parameters
     prepare a            -toupper   -required -type actor
     prepare longname     -normalize
+    prepare supports     -toupper             -type {ptype a+self+none}
     prepare cash_reserve -toupper             -type money
     prepare income       -toupper             -type money
     prepare cash_on_hand -toupper             -type money
@@ -321,9 +352,9 @@ order define ACTOR:UPDATE {
     setundo [actor mutate update [array get parms]]
 }
 
-# ACTOR:UPDATE
+# ACTOR:INCOME
 #
-# Updates existing actors.
+# Updates existing actor's income.
 
 order define ACTOR:INCOME {
     title "Update Actor Income"
@@ -344,6 +375,7 @@ order define ACTOR:INCOME {
     # NEXT, fill in the empty parameters
     array set parms {
         longname     {}
+        supports     {}
         cash_reserve {}
         cash_on_hand {}
     }
@@ -352,4 +384,35 @@ order define ACTOR:INCOME {
     setundo [actor mutate update [array get parms]]
 }
 
+# ACTOR:SUPPORTS
+#
+# Updates existing actor's "supports" attribute.
+
+order define ACTOR:SUPPORTS {
+    title "Update Actor Supports"
+    options \
+        -sendstates {PREP PAUSED TACTICS}           \
+        -refreshcmd {orderdialog refreshForKey a *}
+
+    parm a            key    "Select Actor"    -table gui_actors -keys a \
+                                               -tags actor
+    parm supports     enum   "Supports"        -enumtype {ptype a+self+none}
+} {
+    # FIRST, prepare the parameters
+    prepare a            -toupper   -required -type actor
+    prepare supports     -toupper   -required -type {ptype a+self+none}
+
+    returnOnError -final
+
+    # NEXT, fill in the empty parameters
+    array set parms {
+        longname     {}
+        cash_reserve {}
+        income       {}
+        cash_on_hand {}
+    }
+
+    # NEXT, modify the actor
+    setundo [actor mutate update [array get parms]]
+}
 

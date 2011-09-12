@@ -729,6 +729,7 @@ snit::widget appwin {
         $self AddOrder $submenu ACTOR:CREATE
         $self AddOrder $submenu ACTOR:UPDATE
         $self AddOrder $submenu ACTOR:INCOME
+        $self AddOrder $submenu ACTOR:SUPPORTS
         $self AddOrder $submenu ACTOR:DELETE
 
         # Orders/Civilian Group

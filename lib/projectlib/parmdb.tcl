@@ -1528,6 +1528,11 @@ snit::type ::projectlib::parmdb {
             to represent a median value rather than an extreme value.
         }
 
+        $ps define service.ENI.minSupport ::simlib::rfraction 0.0 {
+            The minimum direct support an actor requires in a neighborhood
+            in order to fund ENI services in that neighborhood.
+        }
+
         $ps subset service.ENI.required {
             The required level of service, by neighborhood
             urbanization level, expressed as a fraction of the

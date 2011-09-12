@@ -158,6 +158,11 @@ snit::type executive {
         $interp smartalias ::tcl::mathfunc::support 2 2 {n a} \
             [myproc support]
 
+        # supports(a,b,?n,...?)
+        $interp smartalias ::tcl::mathfunc::supports 2 - {a b ?n...?} \
+            [myproc supports]
+
+
         # troops(g,?n...?)
         $interp smartalias ::tcl::mathfunc::troops 1 - {g,?n...?} \
             [myproc troops]
@@ -1200,6 +1205,58 @@ snit::type executive {
         }
 
         error "support not yet computed"
+    }
+
+    # supports a b ?n...?
+    #
+    # a - An actor
+    # b - Another actor, SELF, or NONE
+    # n - A neighborhood
+    #
+    # Returns 1 if actor a usually supports actor b, and 0 otherwise.
+    # If one or more neighborhoods are given, actor a must support b in 
+    # all of them.
+
+    proc supports {a b args} {
+        # FIRST, handle the playbox case.
+        set a [actor validate [string toupper $a]]
+        set b [ptype a+self+none validate [string toupper $b]]
+
+        if {$b eq $a} {
+            set b SELF
+        }
+
+        if {[llength $args] == 0} {
+            if {[rdb exists {
+                SELECT supports FROM gui_actors
+                WHERE a=$a AND supports=$b
+            }]} {
+                return 1
+            }
+
+            return 0
+        }
+
+        # NEXT, handle the multiple neighborhoods case
+        set nlist [list]
+
+        foreach n $args {
+            lappend nlist [nbhood validate [string toupper $n]]
+        }
+
+        set inClause "('[join $nlist ',']')"
+
+        set count [rdb onecolumn "
+            SELECT count(*)
+            FROM gui_supports
+            WHERE a=\$a AND supports=\$b and n IN $inClause
+        "]
+
+        if {$count == [llength $nlist]} {
+            return 1
+        } else {
+            return 0
+        }
     }
 
     # troops g ?n...?

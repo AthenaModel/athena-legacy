@@ -184,6 +184,7 @@ snit::type ted {
         defentity JOE ::actor {
             a            JOE
             longname     "Joe the Actor"
+            supports     SELF
             cash_reserve 200000
             income       10000
             cash_on_hand 0
@@ -192,6 +193,7 @@ snit::type ted {
         defentity BOB ::actor {
             a            BOB
             longname     "Bob the Actor"
+            supports     SELF
             cash_reserve 150000
             income       5000
             cash_on_hand 0

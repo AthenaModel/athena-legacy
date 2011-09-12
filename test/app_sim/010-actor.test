@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-a   longname      cash_reserve income  cash_on_hand 
---- ------------- ------------ ------- ------------ 
-JOE Joe the Actor 200000.0     10000.0 0.0          
+a   longname      supports cash_reserve income  cash_on_hand 
+--- ------------- -------- ------------ ------- ------------ 
+JOE Joe the Actor JOE      200000.0     10000.0 0.0          
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -54,6 +54,18 @@ JOE Joe the Actor 200000.0     10000.0 0.0
     } -cleanup {
         cleanup
     } -result {JOE}
+
+    test create-1.3 {supports=NONE => NULL} -body {
+        actor mutate create [dict merge [ted entity JOE] {supports NONE}]
+        ted query {SELECT * FROM actors}
+    } -cleanup {
+        cleanup
+    } -result {
+a   longname      supports cash_reserve income  cash_on_hand 
+--- ------------- -------- ------------ ------- ------------ 
+JOE Joe the Actor          200000.0     10000.0 0.0          
+    }
+
 
     test create-2.1 {undo deletes the actor} -setup {
         actor mutate create [ted entity JOE]
@@ -98,9 +110,9 @@ JOE Joe the Actor 200000.0     10000.0 0.0
     } -cleanup {
         cleanup
     } -result {
-a   longname      cash_reserve income  cash_on_hand 
---- ------------- ------------ ------- ------------ 
-JOE Joe the Actor 200000.0     10000.0 0.0          
+a   longname      supports cash_reserve income  cash_on_hand 
+--- ------------- -------- ------------ ------- ------------ 
+JOE Joe the Actor JOE      200000.0     10000.0 0.0          
     }
 
     test delete-3.1 {Bsystem entity deleted} -setup {
@@ -221,6 +233,32 @@ JOE Joe the Actor 200000.0     10000.0 0.0
         cleanup
     } -result {1}
 
+    test delete-8.1 {actors.supports set to NULL} -setup {
+        ted create JOE BOB
+        actor mutate update [list a JOE supports BOB]
+    } -body {
+        actor mutate delete BOB
+
+        rdb onecolumn {SELECT supports FROM actors WHERE a='JOE'}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-8.2 {Undo restores actors.supports} -setup {
+        ted create JOE BOB
+        actor mutate update [list a JOE supports BOB]
+    } -body {
+        set a [rdb eval {SELECT a,supports FROM actors}]
+
+        set undo [actor mutate delete BOB]
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT a,supports FROM actors}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
 
     #-------------------------------------------------------------------
     # mutate update
@@ -232,6 +270,7 @@ JOE Joe the Actor 200000.0     10000.0 0.0
         actor mutate update {
             a            JOE
             longname     "Joe the Actress"
+            supports     NONE
             cash_reserve 0
             income       5
             cash_on_hand 10
@@ -243,6 +282,7 @@ JOE Joe the Actor 200000.0     10000.0 0.0
     } -result {
 a             JOE
 longname      Joe the Actress
+supports      
 cash_reserve  0.0
 income        5.0
 cash_on_hand  10.0
@@ -257,6 +297,7 @@ cash_on_hand  10.0
         actor mutate update  {
             a            JOE
             longname     ""
+            supports     ""
             cash_reserve ""
             income       ""
             cash_on_hand ""
@@ -271,7 +312,7 @@ cash_on_hand  10.0
 
 
     test update-2.1 {undo undoes the change} -setup {
-        ted create JOE
+        ted create JOE BOB
     } -body {
 
         set a [ted query {SELECT * FROM actors}]
@@ -279,6 +320,7 @@ cash_on_hand  10.0
         set undo [actor mutate update {
             a            JOE
             longname     "Joe the Actress"
+            supports     BOB
             cash_reserve ""
             income       ""
             cash_on_hand ""
@@ -352,6 +394,7 @@ cash_on_hand  10.0
     } -cleanup {
         cleanup
     } -result {
+        supports     JOE
         cash_on_hand 0.0
         longname     {Joe the Actor}
         a            JOE

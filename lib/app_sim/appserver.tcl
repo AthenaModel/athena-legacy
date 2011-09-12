@@ -715,11 +715,12 @@ snit::type appserver {
 
         ht query {
             SELECT longlink      AS "Actor",
+                   supports_link AS "Usually Supports",
                    cash_reserve  AS "Reserve, $",
                    income        AS "Income, $/week",
                    cash_on_hand  AS "On Hand, $"
             FROM gui_actors
-        } -default "None." -align LRRR
+        } -default "None." -align LLRRR
 
         ht /page
 
@@ -814,17 +815,45 @@ snit::type appserver {
         ht subtitle "Sphere of Influence" sphere
 
         if {[Locked -disclaimer]} {
-            ht putln "Actor $a has influence in the following neighborhoods:"
+            ht putln "Actor $a has support from groups in the"
+            ht putln "following neighborhoods."
+            ht putln "Note that an actor has influence in a neighborhood"
+            ht putln "only if his total support from groups exceeds"
+            ht putln [format %.2f [parm get control.support.min]].
+            ht para
+
+            set supports [rdb onecolumn {
+                SELECT supports_link FROM gui_actors
+                WHERE a=$a
+            }]
+
+            ht putln 
+
+            if {$supports eq "SELF"} {
+                ht putln "Actor $a usually supports himself"
+            } elseif {$supports eq "NONE"} {
+                ht putln "Actor $a doesn't usually support anyone,"
+                ht putln "including himself,"
+            } else {
+                ht putln "Actor $a usually supports actor $supports"
+            }
+
+            ht putln "across the playbox."
+
             ht para
 
             ht query {
-                SELECT N.longlink                 AS 'Neighborhood',
-                       format('%.2f',I.influence) AS 'Influence'
+                SELECT N.longlink                      AS 'Neighborhood',
+                       format('%.2f',I.direct_support) AS 'Direct Support',
+                       S.supports_link                 AS 'Supports Actor',
+                       format('%.2f',I.support)        AS 'Total Support',
+                       format('%.2f',I.influence)      AS 'Influence'
                 FROM influence_na AS I
                 JOIN gui_nbhoods  AS N USING (n)
-                WHERE I.a=$a AND I.influence > 0.0 
-                ORDER BY I.influence DESC, N.fancy
-            } -default "None."
+                JOIN gui_supports AS S ON (I.n = S.n AND I.a = S.a)
+                WHERE I.a=$a AND (I.direct_support > 0.0 OR I.support > 0.0)
+                ORDER BY I.influence DESC, I.support DESC, N.fancy
+            } -default "None." -align LRLRR
 
             ht para
         }
@@ -835,8 +864,8 @@ snit::type appserver {
         if {[Locked -disclaimer]} {
             set vmin [parm get control.support.vrelMin]
 
-            ht putln "Actor $a has the following supporters "
-            ht putln "(and would-be supporters).  "
+            ht putln "Actor $a receives direct support from the following"
+            ht putln "supporters (and would-be supporters)."
             ht putln "Note that a group only supports an actor if"
             ht putln "its vertical relationship with the actor is at"
             ht putln "least $vmin."
@@ -861,6 +890,21 @@ snit::type appserver {
             } -default "None." -align LLRRLRL
 
             ht para
+
+            ht putln "In addition, actor $a receives indirect support from"
+            ht putln "the following actors in the following neighborhoods:"
+
+            ht para
+            
+            ht query {
+                SELECT S.alonglink                      AS 'From Actor',
+                       S.nlonglink                      AS 'In Nbhood',
+                       format('%.2f',I.direct_support)  AS 'Contributed<br>Support'
+                FROM gui_supports AS S
+                JOIN influence_na AS I USING (n,a)
+                WHERE S.supports = $a
+                ORDER BY S.a, S.n
+            } -default "None." -align LLR
         }
 
         # ENI Funding
@@ -1420,13 +1464,18 @@ snit::type appserver {
             ht putln "Actor $cdata(link) is currently in control of $n."
         }
 
-        ht putln "The actors with influence in this neighborhood are "
-        ht put   "as follows:"
+        ht putln "The actors with support in this neighborhood are "
+        ht putln "as follows."
+        ht putln "Note that an actor has influence in a neighborhood"
+        ht putln "only if his total support from groups exceeds"
+        ht putln [format %.2f [parm get control.support.min]].
         ht para
 
         ht query {
-            SELECT A.longlink                   AS 'Actor',
-                   format('%.2f',I.influence)   AS 'Influence'
+            SELECT A.longlink                      AS 'Actor',
+                   format('%.2f',I.influence)      AS 'Influence',
+                   format('%.2f',I.direct_support) AS 'Direct Support',
+                   format('%.2f',I.support)        AS 'Total Support'
             FROM influence_na AS I
             JOIN gui_actors   AS A USING (a)
             WHERE I.n = $n AND I.influence > 0.0
@@ -1437,7 +1486,10 @@ snit::type appserver {
         ht putln "Actor support comes from the following groups."
         ht putln "Note that a group only supports an actor if"
         ht putln "its vertical relationship with the actor is at"
-        ht putln "least [parm get control.support.vrelMin]."
+        ht putln "least [parm get control.support.vrelMin], or if"
+        ht putln "another actor lends his direct support to the first actor."
+        ht putln "See each actor's page for a detailed analysis of the actor's"
+        ht putln "support and influence."
         ht para
 
         ht query {
@@ -1782,7 +1834,7 @@ snit::type appserver {
 
             set vrelMin [parm get control.support.vrelMin]
             ht putln "$g "
-            ht putif {$vrel_c > $vrelMin} "supports" "does not support"
+            ht putif {$vrel_c > $vrelMin} "favors" "does not favor"
             ht put   " actor "
             ht link /actor/$controller $controller
             ht put   ", who is in control of neighborhood $data(n)."
@@ -1802,7 +1854,7 @@ snit::type appserver {
             } else {
                 ht putln ""
                 ht putif {$controller ne ""} "In fact, "
-                ht put "$g does not support "
+                ht put "$g does not favor "
                 ht put   "any of the actors."
             }
         } else {
@@ -1819,18 +1871,20 @@ snit::type appserver {
             /group/$g/vrel "View Analysis"
 
         ht query {
-            SELECT link('/actor/' || a, pair(longname, a)),
-                   qaffinity('format',vrel),
-                   g || ' ' || qaffinity('longname',vrel) 
-                     || ' ' || a
-            FROM vrel_ga JOIN actors USING (a)
-            WHERE g=$g
-            ORDER BY vrel DESC
-        } -labels {
-            "Actor"
-            "Vertical<br>Rel."
-            "Narrative"
-        } -align LRL
+            SELECT A.longlink                  AS 'Actor',
+                   qaffinity('format',V.vrel)  AS 'Vertical<br>Rel.',
+                   V.g || ' ' || qaffinity('longname', V.vrel) 
+                       || ' ' || V.a           AS 'Narrative',
+                   format('%.2f',S.direct_support) 
+                                               AS 'Direct<br>Support',
+                   format('%.2f',S.support)    AS 'Actual<br>Support',
+                   format('%.2f',S.influence)  AS 'Contributed<br>Influence'
+            FROM vrel_ga AS V 
+            JOIN support_nga AS S USING (g,a)
+            JOIN gui_actors AS A USING (a)
+            WHERE V.g=$g
+            ORDER BY V.vrel DESC
+        } -align LRLRRR
         
         ht subtitle "Friend and Enemies" rel
 
