@@ -1173,10 +1173,10 @@ snit::type ::projectlib::parmdb {
                     set mytype ::simlib::rfraction
                 }
 
-                $ps define econ.f.$i.$j $mytype 0.1 {
+                $ps define econ.f.$i.$j $mytype 0.1 "
                     Fraction of sector \"$j\"'s revenue that is spent in
                     sector \"$i\".
-                }
+                "
             }
         }
 
