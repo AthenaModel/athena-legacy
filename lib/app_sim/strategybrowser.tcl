@@ -304,7 +304,7 @@ snit::widget strategybrowser {
         if {![winfo ismapped $win]} {
             return
         }
-        
+
         # NEXT, clear the reload request counter.
         set info(reloadRequests) 0
 
@@ -502,14 +502,14 @@ snit::widget strategybrowser {
     # rest of the browser to display that agent's data.
 
     method AListAgentSelect {} {
-
         # FIRST, update the rest of the browser
         set agent [lindex [$alist uid curselection] 0]
 
         if {$agent ne $info(agent)} {
             set info(agent) $agent
 
-            $self reload
+            $self GTreeReload
+            $self TTreeReload
         }
 
         # NEXT, update state controllers
