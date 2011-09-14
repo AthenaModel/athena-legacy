@@ -837,7 +837,7 @@ snit::widget appwin {
         $helpmenu add command                    \
             -label       "Application Tabs"      \
             -underline   0                       \
-            -command     [list app show my://help/tabs]
+            -command     [list app show my://help/tab]
 
         $helpmenu add command                    \
             -label       "Orders"                \
