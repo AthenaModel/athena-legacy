@@ -449,7 +449,13 @@ snit::type sim {
     typemethod {mutate lock} {} {
         assert {$info(state) eq "PREP"}
 
-        # FIRST, save a PREP checkpoint.
+        # FIRST, Make sure that bsystem has had a chance to compute
+        # all of the affinities.  Do this before saving a PREP checkpoint;
+        # the computed affinities are really part of the scenario proper,
+        # rather than being simulation outputs.
+        bsystem start
+
+        # NEXT, save a PREP checkpoint.
         scenario snapshot save -prep
 
         # NEXT, do initial analyses, and initialize modules that
@@ -459,7 +465,6 @@ snit::type sim {
         # Set up the attitudes model: initialize GRAM, and add slope effects
         # for the ascending and descending trends.  Finally, relate all
         # existing MADs to GRAM drivers.
-        bsystem   compute
         aram      init -reload
         sat       start
         coop      start
