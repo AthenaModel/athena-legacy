@@ -19,8 +19,11 @@
 export ATHENA_TCL_HOME = /usr/local/ActiveTclEE-2011Q1
 
 # Set ATHENA_VERSION for development if it isn't set.
+export ATHENA_VERSION_DEFAULT = 3.0.x
+
 ifndef ATHENA_VERSION
-    export ATHENA_VERSION = 3.0.x
+    export ATHENA_VERSION = \
+	$(strip $(shell cat $(TOP_DIR)/lib/projectlib/version.txt))
 endif
 
 # Set location of Athena documentation directory on AFS.

@@ -35,26 +35,12 @@ namespace eval ::projectlib:: {
     variable library [file dirname [info script]]
 
     namespace import ::marsutil::* 
-
-    namespace export version
-}
-
-#-------------------------------------------------------------------
-# Load binary extensions, if present.
-
-set binlib [file join $::projectlib::library libVersion.so]
-
-if {[file exists $binlib]} {
-    load $binlib
-} else {
-    proc version {} {
-        return "x.y.z"
-    }
 }
 
 #-----------------------------------------------------------------------
 # Load projectlib(n) submodules
 
+source [file join $::projectlib::library version.tcl        ]
 source [file join $::projectlib::library projtypes.tcl      ]
 source [file join $::projectlib::library calpattern.tcl     ]
 source [file join $::projectlib::library prefs.tcl          ]
@@ -67,4 +53,4 @@ source [file join $::projectlib::library htools.tcl         ]
 source [file join $::projectlib::library myagent.tcl        ]
 source [file join $::projectlib::library myserver.tcl       ]
 source [file join $::projectlib::library rdbserver.tcl      ]
-source [file join $::projectlib::library helpserver.tcl      ]
+source [file join $::projectlib::library helpserver.tcl     ]

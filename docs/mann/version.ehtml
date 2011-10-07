@@ -1,0 +1,57 @@
+<<manpage {projectlib(n) version(n)} "Athena Version">>
+
+<<swallow {package require projectlib}>>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::version
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines the <<iref version>> command, which returns
+the Athena version number.<p>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem "version" {version}>>
+
+Returns the Athena version string.  On the trunk, this will be "3.0.x"
+(or whatever value is currently found in
+lib/projectlib/version.txt").  In tagged builds, it will be the tagged
+version number.<p>
+
+<</deflist commands>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+

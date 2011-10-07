@@ -57,6 +57,7 @@ TOP_DIR = .
 
 include MakeDefs
 
+
 #---------------------------------------------------------------------
 # Target: all
 #
@@ -76,7 +77,6 @@ src: check_env
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
 	cd $(TOP_DIR)/mars ; make src
-	cd $(TOP_DIR)/src ; make
 
 #---------------------------------------------------------------------
 # Target: bin
@@ -283,9 +283,40 @@ clean: check_env
 	@ echo ""
 	-rm $(TOP_DIR)/bin/athena
 	cd $(TOP_DIR)/mars ; make clean
-	cd $(TOP_DIR)/src  ; make clean
 	cd $(TOP_DIR)/test ; make clean
 	cd $(TOP_DIR)/docs ; make clean
+
+#---------------------------------------------------------------------
+# Target: tag
+#
+# Tags the version in the current work area.
+
+BUILD_TAG    = athena_$(ATHENA_VERSION)
+TAG_DIR      = https://oak.jpl.nasa.gov/svn/athena/tags/$(BUILD_TAG)
+VERSION_FILE = $(TOP_DIR)/lib/projectlib/version.txt
+
+tag: check_env check_ver
+	@ echo ""
+	@ echo "*****************************************************"
+	@ echo "         Tagging: Athena $(ATHENA_VERSION)"
+	@ echo "*****************************************************"
+	@ echo ""
+	svn copy -m"Tagging Athena $(ATHENA_VERSION)" . $(TAG_DIR)
+	svn switch $(TAG_DIR) .
+	echo $(ATHENA_VERSION) > $(VERSION_FILE)
+	svn commit -m"Tagging Athena $(ATHENA_VERSION)" $(VERSION_FILE)
+	@ echo ""
+	@ echo "*****************************************************"
+	@ echo "         Now in $(TAG_DIR)"
+	@ echo "*****************************************************"
+	@ echo ""
+
+check_ver:
+	@ if test ! -n "$(ATHENA_VERSION)" ; then \
+	    echo "Makefile variable ATHENA_VERSION is not set." ; exit 1 ; fi
+	@ if test "$(ATHENA_VERSION)" = "$(ATHENA_VERSION_DEFAULT)" ; then \
+	    echo "Makefile variable ATHENA_VERSION is not set." ; exit 1 ; fi
+
 
 #---------------------------------------------------------------------
 # Shared Rules

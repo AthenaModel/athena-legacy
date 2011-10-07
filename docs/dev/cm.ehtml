@@ -60,6 +60,16 @@
 
 <<changelog>>
 
+<<change 10/7/2011 Updated will>>
+<ul>
+  <li> Changed the naming convention for experimental branches; they
+       are now named "yyyymm_name" rather than "yyyymmdd_name".<p>
+
+  <li> Updated the official build procedure; Athena and Mars version
+       strings are now handled differently.<p>
+</ul>
+<</change>>
+
 <<change 1/9/2009 Updated will>>
 Initial Draft
 <</change>>
@@ -264,8 +274,8 @@ facilitate Athena development.  Procedures appear in
 </tr>
 
 <tr valign="top">
-<td><code>branches/<i>user</i>/<i>yyyymmdd_name</i></code></td>
-<td><code>branches/will/20081016_sample</code></td>
+<td><code>branches/<i>user</i>/<i>yyyymm_name</i></code></td>
+<td><code>branches/will/201110_sample</code></td>
 <td>Experimental branch</td>
 </tr>
 
@@ -298,10 +308,10 @@ trunk while the last bugs are being fixed for release on the release branch.<p>
 Developers can create branches on which to do experimental coding; the
 results can later be merged with the trunk or abandoned.  Experimental
 branches are created with branch name
-"<code>branches/<i>user</i>/<i>yyyymmdd_name</i></code>",
-where <i>user</i> is the developer's user name, <i>yyyymmdd</i> is the current
-date, and <i>name</i> is some brief name for the experiment.  Experimental
-branches can then be checked out just like release branches.<p>
+"<code>branches/<i>user</i>/<i>yyyymm_name</i></code>",
+where <i>user</i> is the developer's user name, <i>yyyymm</i> is the current
+year and month, and <i>name</i> is some brief name for the experiment.
+Experimental branches can then be checked out just like release branches.<p>
 
 <<section vc.branches.bugfix "Bug-fix Branches">>
 
@@ -1291,26 +1301,29 @@ $ svn commit -m"Updated for Build 1.0.9"
 Mars trunk.  Temporarily link the working copy to the specific version
 of Mars built earlier.
 <</step/>>
+If your <code>PATH</code> environment variable contains
+<code>~/mars/bin/</code>, then
+
 <pre>
 $ cd ~/athena_pkgs/athena_1.0.9
-$ svn switch <i>repository</i>/mars/tags/mars_1.6 mars
+$ mars link 1.6
 </pre>
 
-or
+Otherwise,<p>
 
 <pre>
 $ cd ~/athena_pkgs/athena_1.0.9
 $ ./mars/bin/mars link 1.6
 </pre>
 
-or if your <code>PATH</code> environment variable contains <pre>~/mars/bin/</pre>
+This is equivalent to:<p>
 
 <pre>
 $ cd ~/athena_pkgs/athena_1.0.9
-$ mars link 1.6
+$ svn switch <i>repository</i>/mars/tags/mars_1.6 mars
 </pre>
-<</step>>
 
+<</step>>
 
 <<step>>
 Do a development build and test of the client. Resolve any errors, and
@@ -1328,34 +1341,41 @@ Tag the build, updating the working copy to the tagged version.
 <</step/>>
 <pre>
 $ cd ~/athena_pkgs/athena_1.0.9
+$ make tag ATHENA_VERSION=1.0.9
+</pre>
+
+This is equivalent to:<p>
+
+<pre>
+$ cd ~/athena_pkgs/athena_1.0.9
 $ svn copy . <i>repository</i>/athena/tags/athena_1.0.9
 $ svn switch <i>repository</i>/athena/tags/athena_1.0.9 .
+$ echo 1.0.9 > lib/projectlib/version.txt
+$ svn commit lib/projectlib/version.txt
 </pre>
 <</step>>
-
 
 <<step>>
 <b>Trunk Only.</b>  Permanently link the tagged version to the
 required version of Mars.  Note that the previous step set the
 embedded version of Mars back to the Mars trunk.<p>
-
-Using <<xref mars:mars_link(1)>> is the preferred mechanism.
 <</step/>>
-<pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ svn switch <i>repository</i>/mars/tags/mars_1.6 mars
-$ svn propset svn:externals \
-    "mars <i>repository</i>/mars/tags/mars_1.6" .
-$ svn commit -m"Tagging 1.0.9" .
-</pre>
-
-or
-
 <pre>
 $ cd ~/athena_pkgs/athena_1.0.9
 $ mars link 1.6
 $ mars link save
 </pre>
+
+This is equivalent to:<p>
+
+<pre>
+$ cd ~/athena_pkgs/athena_1.0.9
+$ svn switch <i>repository</i>/mars/tags/mars_1.6 mars
+$ svn propset svn:externals \
+    "mars <i>repository</i>/mars/tags/mars_1.6" .
+$ svn commit -m"Permanently link with Mars 1.6" .
+</pre>
+
 <</step>>
 
 
@@ -1370,7 +1390,8 @@ tarballs will be created automatically:<p>
 </ul>
 <</step/>>
 <pre>
-$ make ATHENA_VERSION=1.0.9 MARS_VERSION=1.6 cmbuild
+$ cd ~/athena_pkgs/athena_1.0.9
+$ make cmbuild
 </pre>
 <</step>>
 
@@ -1387,7 +1408,8 @@ The documents will then be available on the web at:
 <</step/>>
 <pre>
 $ klog
-$ make ATHENA_VERSION=1.0.9 installdocs
+$ cd ~/athena_pkgs/athena_1.0.9
+$ make installdocs
 </pre>
 <</step>>
 
@@ -1397,7 +1419,8 @@ The previous two steps can be combined:
 <</step/>>
 <pre>
 $ klog
-$ make ATHENA_VERSION=1.0.9 MARS_VERSION=1.3 cmbuild installdocs
+$ cd ~/athena_pkgs/athena_1.0.9
+$ make cmbuild installdocs
 </pre>
 <</step>>
 
@@ -1592,6 +1615,16 @@ described in <<xref proc.cm.build>>.
 Create a Athena 1.1 release branch, "<code>athena_1.1.x</code>", based on
 the final Athena 1.0 build, as described in <<xref proc.cm.mk_relbranch>>.
 All future work leading up to the delivery will be done on this branch. 
+<</step>>
+
+<<step>>
+On the release branch, update <code>lib/projectlib/version.txt</code>,
+e.g., to "1.1.x".
+<</step>>
+
+<<step>>
+On the trunk, update <code>lib/projectlib/version.txt</code>,
+e.g., to "2.0.x".
 <</step>>
 
 <<step>>

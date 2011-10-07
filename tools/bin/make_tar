@@ -100,7 +100,7 @@ set patterns(docs) {
 # Source patterns
 #
 # Files matching one of the following glob patterns (relative to
-# the toplevel "jnem_x.y.z" directory) will be included in the source
+# the toplevel "athena_x.y.z" directory) will be included in the source
 # docs tar file.  (Presumes that the tar is made after "make clean".
 
 set patterns(source) {
