@@ -29,6 +29,19 @@ snit::type bsystem {
     typecomponent updater   ;# The lazy updater
 
     #-------------------------------------------------------------------
+    # Type Variables
+
+    # info array
+    #
+    # autocalc - Flag; if 1, recalculate affinites on each order.
+    
+    typevariable info -array {
+        autocalc 1
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Singleton Initializer
 
     # init
@@ -66,10 +79,21 @@ snit::type bsystem {
 
     # lazycompute 
     #
-    # Schedules a lazy recomputation of affinities
+    # Schedules a lazy recomputation of affinities unless autocalc
+    # is turned off.
     
     typemethod lazycompute {} {
-        $updater update
+        if {$info(autocalc)} {
+            $updater update
+        }
+    }
+
+    # compute
+    #
+    # Forces a recalc.
+
+    typemethod compute {} {
+        $mam compute
     }
 
     #-------------------------------------------------------------------
@@ -79,6 +103,23 @@ snit::type bsystem {
     delegate typemethod {topic *}  to mam using {%c topic %m}
     delegate typemethod {belief *} to mam using {%c belief %m}
     delegate typemethod *          to mam
+
+    # autocalc
+    #
+    # Returns the value of the autocalc flag.
+
+    typemethod autocalc {} {
+        return $info(autocalc)
+    }
+
+    # autocalc_var
+    #
+    # Returns the name of the auto-calc flag variable.  Setting this
+    # flag will change the auto-calc behavior for future orders.
+
+    typemethod autocalc_var {} {
+        return ${type}::info(autocalc)
+    }
 
     # entity validate eid
     #

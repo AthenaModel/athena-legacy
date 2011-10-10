@@ -41,6 +41,8 @@ snit::widget bsystembrowser {
     component teditbtn       ;# Edit Topic button
     component tdeletebtn     ;# Delete Topic button
     component tgamma         ;# Playbox Gamma slider
+    component tcalcbtn       ;# Calc button
+    component tauto          ;# Auto-Calc checkbox
 
     component etree          ;# Entity list
 
@@ -235,12 +237,35 @@ snit::widget bsystembrowser {
         cond::available control $tgamma \
             order BSYSTEM:PLAYBOX:UPDATE
 
+        install tauto using ttk::checkbutton $bar.tauto \
+            -onvalue     1                              \
+            -offvalue    0                              \
+            -variable    [bsystem autocalc_var]         \
+            -text        "Auto-Calc"                    \
+            -command     [mymethod TListAutoCalcSet]
+
+        DynamicHelp::add $tauto \
+            -text "Enable/disable auto-calculation"
+        cond::simIsPrep control $tauto
+
+
+        install tcalcbtn using ttk::button $bar.tcalcbtn \
+            -style   Toolbutton                          \
+            -text    "Calc Now"                          \
+            -command [mymethod TListCalcNow]
+
+        DynamicHelp::add $tcalcbtn -text "Recalculate all affinities now."
+        cond::simIsPrep control $tcalcbtn
+            
+
         pack $bar.title    -side left
         pack $taddbtn      -side left
         pack $teditbtn     -side left
         pack $bar.gammalab -side left -padx {5 0}
         pack $tgamma       -side left
         pack $tdeletebtn   -side right
+        pack $tcalcbtn     -side right -padx 5
+        pack $tauto        -side right
 
         # NEXT, update individual entities when they change.
         notifier bind ::rdb <mam_topic> $self [list $tlist uid]
@@ -414,6 +439,26 @@ snit::widget bsystembrowser {
         return $text
     }
 
+    # TListCalcNow
+    #
+    # Recalculates affinities and reloads the alist.
+
+    method TListCalcNow {} {
+        bsystem compute
+        $alist reload
+    }
+
+    # TListAutoCalcSet
+    #
+    # Sets bsystem's autocalc flag; if true, recalculates affinities
+    # and reloads the alist.
+
+    method TListAutoCalcSet {} {
+        if {[bsystem autocalc]} {
+            bsystem compute
+            $alist reload
+        }
+    }
 
     #-------------------------------------------------------------------
     # Entity List Pane
