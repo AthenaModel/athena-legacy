@@ -1,7 +1,7 @@
 #!/bin/sh
 # -*-tcl-*-
 # The next line restarts using tclsh \
-exec tclsh8.5 "$0" "$@"
+exec tclsh85 "$0" "$@"
 
 #-----------------------------------------------------------------------
 # TITLE:

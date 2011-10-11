@@ -88,8 +88,6 @@ snit::widget detailbrowser {
             -takefocus 0            \
             -padding   2
 
-        pack $sidebar.tabs -fill both -expand yes
-
         # Object Tree
         install otree using linktree $sidebar.tabs.otree \
             -url       my://app/objects                  \
@@ -101,7 +99,7 @@ snit::widget detailbrowser {
         $sidebar.tabs add $sidebar.tabs.otree    \
             -sticky  nsew                        \
             -padding 2                           \
-            -image   ::projectgui::icon::actor12
+            -text "Objects"
 
         $browser configure \
             -reloadcmd [mymethod RefreshLinks]
@@ -120,6 +118,8 @@ snit::widget detailbrowser {
             -padding 2                          \
             -image   ::projectgui::icon::help12
 
+
+        pack $sidebar.tabs -fill both -expand yes
 
         # NEXT, create the lazy updater
         install lazy using lazyupdater ${selfns}::lazy \
