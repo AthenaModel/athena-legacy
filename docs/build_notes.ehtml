@@ -11,6 +11,28 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.29, 11 October 2011</h3>
+
+<b>Note:</b> This version should load Athena 3.0.28 scenarios without
+error, as the database schema has not been changed.<p>
+
+Attention this month has been on keeping Athena stable for studies
+currently being done by our sponsors, some experimental GUI work, and
+on porting Mars to Windows.  Consequently, this build contains mostly
+small bug fixes, and a couple of changes to the Athena build procedure
+that are preparing for the port of Athena itself to Windows.  The
+packages are as follows:<p>
+
+<ul>
+  <li> Bug 3066: View/Scenario/Beliefs Tab Bgerror
+  <li> Bug 3069: Help Menu for the Application Tabs opens the wrong url
+  <li> Bug 3123: athena(1): Strategy Browser agent list: arrow keys are flukey
+  <li> Bug 3155: Displaying Incorrect Affinity Values
+  <li> Bug 3189: Athena Version Specification
+  <li> Bug 3191: athena(1): Prevent automatic recalculation of affinities in Beliefs browser
+  <li> Bug 3192: Update Athena to ATEE 2011Q3 
+</ul><p>
+
 <h3>Build 3.0.28, 12 September 2011</h3>
 
 <b>Note:</b> Like previous builds, this one contains database schema
