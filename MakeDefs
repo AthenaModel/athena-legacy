@@ -15,8 +15,10 @@
 #---------------------------------------------------------------------
 # Settings
 
+include $(TOP_DIR)/MakePlatform
+
 # Location of Tcl Libraries
-export ATHENA_TCL_HOME = /usr/local/ActiveTclEE-2011Q3
+export ATHENA_TCL_HOME = $(MARS_TCL_HOME)
 
 # Set ATHENA_VERSION for development if it isn't set.
 export ATHENA_VERSION_DEFAULT = 3.0.x

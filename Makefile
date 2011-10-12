@@ -87,24 +87,36 @@ src: check_env
 # of that it's not usually needed or built during day-to-day 
 # development.
 
-BASE_KIT = $(TOP_DIR)/tools/basekits/base-tk-thread-linux-ix86
+ifeq "$(MARS_PLATFORM)" "linux32"
+    BASE_KIT   = $(TOP_DIR)/tools/basekits/base-tk-thread-linux-ix86
+    ATHENA_EXE = $(TOP_DIR)/bin/athena
+else ifeq "$(MARS_PLATFORM)" "win32"
+    BASE_KIT   = $(TOP_DIR)/tools/basekits/base-tk-thread-win32-ix86.exe
+    ATHENA_EXE = $(TOP_DIR)/bin/athena.exe
+else
+    BASE_KIT   =
+    ATHENA_EXE =
+endif
+
 ARCHIVE = $(ATHENA_TCL_HOME)/lib/teapot
 
 # tclapp has a nasty habit of not halting the build on error, and
 # the error messages get lost for some reason.  So explicitly delete
 # the binary before calling tclapp, so that on error we don't have
 # a binary.
+
 bin: check_env src
 	@ echo ""
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo "+              Building Athena Executable           +"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
-	-rm $(TOP_DIR)/bin/athena
+	-rm $(ATHENA_EXE)
 	tclapp $(TOP_DIR)/bin/athena.tcl                    \
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/mars/lib/*/*                     \
-		-out $(TOP_DIR)/bin/athena                  \
+		-log $(TOP_DIR)/tclapp.log                  \
+		-out $(ATHENA_EXE)                          \
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
 		-follow                                     \
@@ -123,6 +135,7 @@ bin: check_env src
 		-pkgref "Tkhtml    -require 2.0"            \
 		-pkgref "uri"                               \
 		-pkgref "fileutil"
+	@ cat tclapp.log
 
 #---------------------------------------------------------------------
 # Target: docs
