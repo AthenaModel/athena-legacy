@@ -38,7 +38,6 @@ package provide app_sim 1.0
 package require snit             2.2
 package require sqlite3          3.5
 package require textutil::adjust 0.7
-package require fileutil         1.14
 
 # From Mars
 package require marsutil

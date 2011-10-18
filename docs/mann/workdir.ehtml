@@ -15,7 +15,7 @@ namespace import ::projectlib::*
 Athena working directories.  At start-up, Athena calls
 <<iref workdir init>>, which creates the following directory
 
-<pre>    ~/.athena/<i>pid</i>/</pre>
+<pre>    [os workdir]/<i>pid</i>/</pre>
 
 where <i>pid</i> is the process ID of the current version of Athena.  This
 directory is referred to as the working directory.  Within that, it
@@ -33,8 +33,6 @@ then creates the following subdirectories:<p>
   <dd> <<xref athena_sim(1)>> will put its run-time database (RDB) in
        this directory.<p>
 </dl>
-
-Other working subdirectories are TBD.<p>
 
 <<subsection "Active and Inactive Working Directories">>
 

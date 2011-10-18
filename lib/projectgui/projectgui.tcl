@@ -23,6 +23,7 @@ package require Img
 package require marsutil
 package require marsgui
 package require projectlib
+package require Tkhtml 3.0
 
 #-----------------------------------------------------------------------
 # Package Definition
@@ -50,6 +51,7 @@ source [file join $::projectgui::library entitytree.tcl      ]
 source [file join $::projectgui::library linktree.tcl        ]
 source [file join $::projectgui::library mybrowser.tcl       ]
 source [file join $::projectgui::library textwin.tcl         ]
+source [file join $::projectgui::library htmlviewer3.tcl     ]
 
 
 

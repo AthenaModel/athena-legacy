@@ -179,11 +179,11 @@ snit::widget detailbrowser {
             -label "Save to Disk..."       \
             -state $state                  \
             -command [mymethod SaveToDisk]
-        
+
         $context add command \
-            -label "View in [prefs get helper.browser]..." \
+            -label "View in System Web Browser..." \
             -state $state                                  \
-            -command [mymethod ToExternalBrowser]
+            -command [mymethod ToSystemBrowser]
 
         $context add command \
             -label    "View Source..."            \
@@ -275,25 +275,25 @@ snit::widget detailbrowser {
         }
     }
 
-    # ToExternalBrowser
+    # ToSystemBrowser
     #
     # Saves the current page to a temporary file, and hands it off to 
-    # an external browser (e.g., Firefox).
+    # the system web browser.
 
-    method ToExternalBrowser {} {
+    method ToSystemBrowser {} {
         # FIRST, get the data
         set data [$browser data]
 
         dict with data {
             # FIRST, get a temporary file name, and the browser name.
-            set filename [fileutil::tempfile]
-            set helper  [prefs get helper.browser]
+            set filename [fileutil::tempfile].html
+            set helper  [prefs get helper.[os type].browser]
 
             # NEXT, Save and browse the file
 
             if {[catch {
                 $self WriteFile $filename $content
-                exec $helper $filename &
+                exec {*}$helper $filename &
             } result]} {
                 messagebox popup \
                     -title    "Could Not View Page" \
@@ -301,7 +301,8 @@ snit::widget detailbrowser {
                     -buttons  {cancel "Cancel"}     \
                     -parent   [app topwin]          \
                     -message  [normalize "
-                        Athena was unable to view the page in
+                        Athena was unable to view the page in the
+                        system web browser using the command
                         '$helper': $result
                     "]
                 return

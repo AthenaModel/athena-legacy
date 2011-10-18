@@ -31,8 +31,8 @@ snit::type ::projectlib::prefs {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # Name of the user preferences file.
-    typevariable prefsFile ~/.athena/user.prefs
+    # Name of the user preferences file in the prefsdir
+    typevariable prefsFile user.prefs
 
     #-------------------------------------------------------------------
     # Public typemethods
@@ -77,10 +77,19 @@ snit::type ::projectlib::prefs {
             Names of helper applications.
         }
 
-        $ps define helper.browser snit::stringtype "firefox" {
-            Name of web browser application, for opening pages
-            from the Detail browser.
+        foreach ostype [os types] {
+            $ps subset helper.$ostype \
+                "Helper applications for the \"$ostype\" operating system."
+        
+            $ps define helper.$ostype.browser snit::stringtype "" {
+                Name of the command that invokes the system web browser,
+                e.g., for viewing Detail Browser pages.
+            }
         }
+
+        $ps setdefault helper.linux.browser "firefox"
+        $ps setdefault helper.win32.browser "cmd /C start"
+        $ps setdefault helper.macosx.browser "open"
 
         $ps subset session {
             Parameters which affect session management.
@@ -112,7 +121,7 @@ snit::type ::projectlib::prefs {
 
     typemethod set {parm value} {
         $ps set $parm $value
-        $ps save $prefsFile
+        $ps save [prefsdir join $prefsFile]
     }
     
     # prefs reset
@@ -121,7 +130,7 @@ snit::type ::projectlib::prefs {
     
     typemethod reset {} {
         $ps reset
-        $ps save $prefsFile
+        $ps save [prefsdir join $prefsFile]
     }
 
     # list ?pattern?
@@ -146,8 +155,8 @@ snit::type ::projectlib::prefs {
     # Loads the parameters safely from the prefsFile, if it exists.
 
     typemethod load {} {
-        if {[file exists $prefsFile]} {
-            $ps load $prefsFile -safe
+        if {[file exists [prefsdir join $prefsFile]]} {
+            $ps load [prefsdir join $prefsFile] -safe
         }
     }
 }

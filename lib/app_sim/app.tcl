@@ -143,6 +143,27 @@ snit::type app {
             }
         }
 
+        # NEXT, Save the current PID to the workdir's parent directory
+        # so that we can tell what the most recently used working directory 
+        # was.  (Note that the parent directory is also an Athena-specific
+        # directory.)
+
+        set f [open [workdir join .. pid.txt] w]
+        puts $f "pid=[pid] ts=[clock seconds]"
+        close $f
+
+        # NEXT, create the preferences directory.
+        if {[catch {prefsdir init} result]} {
+            app exit {
+                |<--
+                Error, could not create preferences directory: 
+
+                    [prefsdir join]
+
+                Reason: $result
+            }
+        }
+
         # NEXT, open the debugging log.
         logger ::log                                           \
             -simclock   ::simclock                             \

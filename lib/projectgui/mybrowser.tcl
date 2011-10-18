@@ -37,7 +37,7 @@ snit::widget ::projectgui::mybrowser {
     component agent     ;# The myagent(n)
     component bar       ;# The tool bar
     component sidebar   ;# The sidebar ttk::frame(n)
-    component hv        ;# The htmlviewer(n)
+    component hv        ;# The htmlviewer3(n)
     component backbtn   ;# Back one page button
     component fwdbtn    ;# Forward one page button
     component homebtn   ;# Home button
@@ -113,8 +113,8 @@ snit::widget ::projectgui::mybrowser {
 
     # Browser Info
     #
-    # address     - The URI In the address bar, which might or might not
-    #             - be the current page.
+    # address     - The URI in the address bar, which might or might not
+    #               be the current page.
     # uri         - The URI of the current page, including any anchor
     # page        - The page name from the current URI
     # anchor      - The anchor from the current URI
@@ -122,6 +122,7 @@ snit::widget ::projectgui::mybrowser {
     # history     - The history stack: a list of page refs
     # future      - The future stack: a list of page refs
     # mouseover   - Last mouse-over string
+    # base        - Base URL, used for resolving links
 
     variable info -array {
         address   ""
@@ -132,6 +133,7 @@ snit::widget ::projectgui::mybrowser {
         history   {}
         future    {}
         mouseover ""
+        base      ""
     }
 
     # Viewed: array of counts by page name.
@@ -223,13 +225,11 @@ snit::widget ::projectgui::mybrowser {
         ttk::frame $win.paner.frm
         $win.paner add $win.paner.frm -weight 1
         
-        install hv using htmlviewer $win.paner.frm.hv              \
-            -takefocus           1                                 \
-            -underlinehyperlinks no                                \
-            -mouseovercommand    [mymethod MouseOverCmd]           \
-            -hyperlinkcommand    [mymethod HyperlinkCmd]           \
-            -isvisitedcommand    [mymethod IsVisitedCmd]           \
-            -imagecommand        [mymethod ImageCmd]               \
+        install hv using htmlviewer3 $win.paner.frm.hv             \
+            -hovercmd            [mymethod HoverCmd]               \
+            -hyperlinkcmd        [mymethod HyperlinkCmd]           \
+            -imagecmd            [mymethod ImageCmd]               \
+            -isvisitedcmd        [mymethod IsVisitedCmd]           \
             -xscrollcommand      [list $win.paner.frm.xscroll set] \
             -yscrollcommand      [list $win.paner.frm.yscroll set]
 
@@ -256,9 +256,9 @@ snit::widget ::projectgui::mybrowser {
 
         grid propagate $win no
 
-        # NEXT, update the htmlviewer's clipping window's bindtags,
+        # NEXT, update the htmlviewer's bindtags,
         # so that users can bind mouse events to $win.
-        bindtags $hv.x [list $win {*}[bindtags $hv.x]]
+        bindtags $hv [list $win {*}[bindtags $hv]]
 
         # NEXT, create the agent.
         install agent using myagent ${selfns}::agent \
@@ -278,15 +278,19 @@ snit::widget ::projectgui::mybrowser {
         $self home
     }
 
-    # MouseOverCmd otype text
+    # HoverCmd otype text
     #
-    # otype   - Object type, currently always "href"
+    # otype   - Object type, either "href" or "image"
     # text    - Text describing thing we're over.
     #
     # Called as the mouse moves; calls -messagecmd with the URI.
 
-    method MouseOverCmd {otype text} {
-        callwith $options(-messagecmd) "Link: $text"
+    method HoverCmd {otype text} {
+        if {$otype eq "href"} {
+            set text [$agent resolve $info(base) $text]
+
+            callwith $options(-messagecmd) "Link: $text"
+        }
     }
 
     #
@@ -297,7 +301,7 @@ snit::widget ::projectgui::mybrowser {
 
     method HyperlinkCmd {uri} {
         # FIRST, get the URI
-        set uri [lindex $uri 0]
+        set uri [$agent resolve $info(base) $uri]
 
         # NEXT, get its scheme
         if {[catch {
@@ -322,10 +326,10 @@ snit::widget ::projectgui::mybrowser {
     # Returns 1 if the URI has been visited.
 
     method IsVisitedCmd {uri} {
-        # FIRST, get the page name and the anchor within the topic
-        set uri [lindex $uri 0]
+        set uri [$agent resolve $info(base) $uri]
 
         if {[string index $uri 0] eq "#"} {
+            # TBD: This shouldn't be necessary
             set uri "$info(page)$uri"
         }
 
@@ -336,24 +340,29 @@ snit::widget ::projectgui::mybrowser {
         }
     }
 
-    # ImageCmd src width height dict dummy
+    # ImageCmd src
     #
     # src     The image source
-    # width   The requested width (ignored)
-    # height  The requested height (ignored)
-    # dict    All <img> parms (ignored)
-    # dummy   Not sure what this is.
     #
     # Returns the Tk image relating to the src.
 
-    method ImageCmd {src width height dict dummy} {
+    method ImageCmd {src} {
+        set src [$agent resolve $info(base) $src]
+
         if {[catch {$agent get $src} cdict]              ||
             [dict get $cdict contentType] ne "tk/image"
         } {
-            return ::marsgui::icon::question22
+            set img ::marsgui::icon::question22
+        } else {
+            set img [dict get $cdict content]
         }
 
-        return [dict get $cdict content]
+        # NEXT, make a copy of the image, since htmlviewer3 will delete
+        # it when it is done with it.
+        set copy [image create photo]
+        $copy copy $img
+
+        return $copy
     }
 
    
@@ -463,7 +472,7 @@ snit::widget ::projectgui::mybrowser {
 
         # NEXT, scroll to the anchor, if any.
         if {$anchor ne ""} {
-            $hv yview $anchor
+            $hv setanchor $anchor
         }            
 
         # NEXT, remember that we've been here.
@@ -514,7 +523,11 @@ snit::widget ::projectgui::mybrowser {
             }
 
             # NEXT, show the page.
-            $hv configure -base $url
+            # TBD: Not needed.  Might need to add some logic to
+            # the -hyperlinkcmd.
+            
+            # $hv configure -base $url
+            set info(base) $url
             $hv set $content
             callwith $options(-loadedcmd) $url
         }

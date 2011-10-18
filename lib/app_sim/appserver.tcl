@@ -1442,6 +1442,7 @@ snit::type appserver {
             }
         }
 
+        ht para
         ht putln {
             Service is said to be saturated when additional funding
             provides no additional service to the civilians.  We peg

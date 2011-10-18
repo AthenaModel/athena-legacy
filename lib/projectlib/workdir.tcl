@@ -11,7 +11,7 @@
 #    This object is responsible for providing access to
 #    the Athena working directory tree, which resides at
 #    
-#      ~/.athena/<pid>/
+#      [os workdir]/<pid>/
 #
 #    where <pid> is the process ID of the running instance of Athena.
 #    Within this directory, "workdir init" will create the following
@@ -19,8 +19,6 @@
 #
 #        log/         For application logs
 #        rdb/         For the RDB file(s)
-#
-#    Other directories are TBD.
 #
 # In applications which use the Tcl event loop, the working directory
 # will be "touched" once a minute, so that it's easy for other Athena
@@ -56,7 +54,7 @@ snit::type ::projectlib::workdir {
 
     typevariable inactiveAge 600
 
-    # The absolute path of the working directory, ~/.athena/<version>/<pid>
+    # The absolute path of the working directory.
     typevariable workdir ""
 
 
@@ -75,7 +73,7 @@ snit::type ::projectlib::workdir {
         }
 
         # FIRST, get the absolute path of the working directory
-        set workdir [file normalize ~/.athena/[pid]]
+        set workdir [file join [os workdir] [pid]]
 
         # NEXT, create it, if it doesn't exist.
         file mkdir $workdir
@@ -123,9 +121,9 @@ snit::type ::projectlib::workdir {
 
         set purgeLimit [expr {$now - $hours * 3600}]
 
-        # NEXT, loop over the entries in ~/.athena, and delete
+        # NEXT, loop over the entries in [os workdir], and delete
         # the old working directories.
-        foreach name [glob -nocomplain ~/.athena/*] {
+        foreach name [glob -nocomplain [os workdir]/*] {
             # FIRST, get the timestamp.
             set timestamp [file mtime $name]
 

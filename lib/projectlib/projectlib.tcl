@@ -20,6 +20,8 @@ package require snit
 
 package require sqlite3
 package require uri
+package require fileutil
+package require platform
 package require marsutil
 package require simlib
 
@@ -40,6 +42,7 @@ namespace eval ::projectlib:: {
 #-----------------------------------------------------------------------
 # Load projectlib(n) submodules
 
+source [file join $::projectlib::library os.tcl             ]
 source [file join $::projectlib::library version.tcl        ]
 source [file join $::projectlib::library projtypes.tcl      ]
 source [file join $::projectlib::library calpattern.tcl     ]
@@ -48,6 +51,7 @@ source [file join $::projectlib::library parmdb.tcl         ]
 source [file join $::projectlib::library scenariodb.tcl     ]
 source [file join $::projectlib::library appdir.tcl         ]
 source [file join $::projectlib::library workdir.tcl        ]
+source [file join $::projectlib::library prefsdir.tcl       ]
 source [file join $::projectlib::library verman.tcl         ]
 source [file join $::projectlib::library htools.tcl         ]
 source [file join $::projectlib::library myagent.tcl        ]

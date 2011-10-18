@@ -147,7 +147,7 @@ template macro::enumdoc {enum} {
     set names [{*}$enum names]
 } {
     |<--
-    <table cellspacing=0>
+    <table border="0" cellspacing=0>
     <tr><th align="left">Symbol&nbsp;</th><th align="left">Meaning</th></tr>
     [tforeach name $names {
         |<--
@@ -156,7 +156,7 @@ template macro::enumdoc {enum} {
         <td>[{*}$enum longname $name]</td>
         </tr>
     }]
-    </table>
+    </table><p>
 }
 
 
@@ -169,7 +169,7 @@ template macro::enumdoc {enum} {
 
 template macro::parmlist {{h1 Field} {h2 Description}} {
     |<--
-    <table border width="100%" cellspacing="0" cellpadding="4"> 
+    <table border="1" width="100%" cellspacing="0" cellpadding="4"> 
     <tr>
     <th align="left">$h1</th> 
     <th align="left">$h2</th>
@@ -203,7 +203,7 @@ template macro::/parm {} {
 # Ends a list of order parameters
 template macro::/parmlist {} {
     |<--
-    </table>
+    </table><p>
 }
 
 # topiclist ?h1 ?h2?
@@ -215,7 +215,7 @@ template macro::/parmlist {} {
 
 template macro::topiclist {{h1 Topic} {h2 Description}} {
     |<--
-    <table border width="100%" cellspacing="0" cellpadding="4"> 
+    <table border="1" width="100%" cellspacing="0" cellpadding="4"> 
     <tr>
     <th align="left">$h1</th> 
     <th align="left">$h2</th>
@@ -248,7 +248,7 @@ template macro::/topic {} {
 # Ends a list of topics
 template macro::/topiclist {} {
     |<--
-    </table>
+    </table><p>
 }
 
 

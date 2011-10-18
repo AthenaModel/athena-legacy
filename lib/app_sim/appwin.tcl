@@ -1383,13 +1383,13 @@ snit::widget appwin {
 
     # SaveCliHistory
     #
-    # If there's a CLI, saves its command history to 
-    # ~/.athena/history.cli.
+    # If there's a CLI, saves its command history to the preferences
+    # directory.
 
     method savehistory {} {
         assert {$cli ne ""}
 
-        set f [open ~/.athena/history.cli w]
+        set f [open [prefsdir join history.cli] w]
 
         puts $f [$cli saveable checkpoint]
         
@@ -1401,8 +1401,9 @@ snit::widget appwin {
     # If there's a CLI, and a history file, read its command history.
 
     method LoadCliHistory {} {
-        if {[file exists ~/.athena/history.cli]} {
-            $cli saveable restore [readfile ~/.athena/history.cli]
+        set histFile [prefsdir join history.cli]
+        if {[file exists $histFile]} {
+            $cli saveable restore [readfile $histFile]
         }
     }
 
