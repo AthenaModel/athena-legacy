@@ -53,11 +53,12 @@ if {[info exists env(TCLLIBPATH)]} {
     }
 }
 
-# Next, get the Athena-specific directories.
+# Next, get the Athena-specific library directories.  Whether we're
+# in a starpack or not, the libraries can be found relative to this
+# script file.
 
 set appdir  [file normalize [file dirname [info script]]]
 set libdir  [file normalize [file join $appdir .. lib]]
-set moddir  [file normalize [file join $appdir .. mods]]
 set marsdir [file normalize [file join $appdir .. mars lib]]
 
 # Add Athena libs to the new lib path.
