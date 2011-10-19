@@ -9,15 +9,6 @@
 <body>
 <<banner>>
 
-<h2>Start Here</h2>
-
-<ul>
-  <li> <a href="install.txt">Installation Instructions</a>
-  <li> <<xref athena(1)>>: The Athena simulation.
-  <li> <a href="build_notes.html">Build Notes</a>: Details of each
-       Athena build.
-</ul>
-
 <h2>Modeling Documents</h2>
 
 <ul>
@@ -27,6 +18,13 @@
        Writer</a>)
 </ul>
 
+<h2>Software Notes</h2>
+
+<ul>
+  <li> <<xref athena(1)>>: Command-line syntax for the Athena simulation.
+  <li> <a href="build_notes.html">Build Notes</a>: Details of each
+       Athena build.
+</ul>
 
 <h2>Copyright</h2>
 

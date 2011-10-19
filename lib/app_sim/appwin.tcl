@@ -454,10 +454,12 @@ snit::widget appwin {
         # NEXT, Exit the app when this window is closed.
         wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
 
-        # NEXT, set the icon for this and subsequent windows.
-        set icon [image create photo \
-                      -file [file join $::app_sim::library icon.png]]
-        wm iconphoto $win -default $icon
+        # NEXT, set the icon for this and subsequent windows on X11.
+        if {[tk windowingsystem] eq "x11"} {
+            set icon [image create photo \
+                          -file [file join $::app_sim::library icon.png]]
+            wm iconphoto $win -default $icon
+        }
 
         # NEXT, Allow the developer to pop up the debugger.
         bind all <Control-F12> [list debugger new]

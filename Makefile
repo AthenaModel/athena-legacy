@@ -116,6 +116,7 @@ bin: check_env src
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/mars/lib/*/*                     \
 		-log $(TOP_DIR)/tclapp.log                  \
+		-icon $(TOP_DIR)/installer/athena.ico       \
 		-out $(ATHENA_EXE)                          \
 		-prefix $(BASE_KIT)                         \
 		-archive $(ARCHIVE)                         \
