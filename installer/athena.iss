@@ -25,13 +25,17 @@ OutputBaseFilename=Athena30xInstaller
 SetupIconFile=athena.ico
 Compression=lzma
 SolidCompression=yes
+ChangesAssociations=yes
+WizardImageFile=WizardLogo.bmp
+WizardImageStretch=no
+WizardSmallImageFile=SmallWizardLogo.bmp
+
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Tasks]
 Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
-Name: "quicklaunchicon"; Description: "{cm:CreateQuickLaunchIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked; OnlyBelowVersion: 0,6.1
 
 [Files]             
 Source: "..\bin\athena.exe"; DestDir: "{app}"; Flags: ignoreversion
@@ -47,13 +51,20 @@ Source: "..\maps\*.png"; DestDir: "{app}\maps"; Flags: ignoreversion
 
 [Dirs]
 Name: "{app}\mods"
+Name: "{userdocs}\Athena"
 
 [Icons]
-Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"
+Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{userdocs}\Athena"
+Name: "{group}\Athena Documentation"; Filename: "{app}\docs\index.html"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
-Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: desktopicon
-Name: "{userappdata}\Microsoft\Internet Explorer\Quick Launch\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; Tasks: quicklaunchicon
+Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{userdocs}\Athena"; Tasks: desktopicon
+
+[Registry]
+Root: HKCR; Subkey: ".adb"; ValueType: string; ValueName: ""; ValueData: "AthenaScenarioFile"; Flags: uninsdeletevalue
+Root: HKCR; Subkey: "AthenaScenarioFile"; ValueType: string; ValueName: ""; ValueData: "Athena Scenario File"; Flags: uninsdeletevalue
+Root: HKCR; Subkey: "AthenaScenarioFile\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\ATHENA.EXE,0"
+Root: HKCR; Subkey: "AthenaScenarioFile\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\ATHENA.EXE"" ""%1"""
 
 [Run]
-Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, "&", "&&")}}"; Flags: nowait postinstall skipifsilent
+Filename: "{app}\{#MyAppExeName}"; Description: "{cm:LaunchProgram,{#StringChange(MyAppName, "&", "&&")}}"; WorkingDir: "{userdocs}\Athena"; Flags: nowait postinstall skipifsilent
 
