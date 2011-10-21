@@ -66,7 +66,7 @@ snit::type scenario {
             }
         }
 
-        # NEXT, create the a clean working RDB.
+        # NEXT, create a clean working RDB.
         set rdb [scenariodb ::rdb \
                     -clock ::marsutil::simclock]
         rdb register ::dam
@@ -498,6 +498,9 @@ snit::type scenario {
         file delete -force $rdbfile
         rdb open $rdbfile
         rdb clear
+
+        # NEXT, enable write-ahead logging on the RDB
+        rdb eval { PRAGMA journal_mode = WAL; }
 
         # NEXT, define the temp schema
         DefineTempSchema
