@@ -64,6 +64,7 @@ set patterns(install) {
     mars/docs/dev/*.pdf
     mars/docs/dev/*.doc
     mars/docs/dev/*.txt
+    mars/docs/dev/*.odt
     mods/*
 }
 
@@ -94,6 +95,7 @@ set patterns(docs) {
     mars/docs/dev/*.pdf
     mars/docs/dev/*.doc
     mars/docs/dev/*.txt
+    mars/docs/dev/*.odt
 }
 
 #-------------------------------------------------------------------
