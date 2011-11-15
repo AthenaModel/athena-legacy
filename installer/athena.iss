@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Athena"
-#define MyAppVersion "3.0.x"
+#define MyAppVersion "3.0.30"
 #define MyAppPublisher "Jet Propulsion Laboratory, California Institute of Technology"
 #define MyAppExeName "athena.exe"
 
@@ -15,13 +15,13 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={pf}\Athena 3.0.x
-DefaultGroupName=Athena 3.0.x
+DefaultDirName={pf}\Athena {#MyAppVersion}
+DefaultGroupName=Athena {#MyAppVersion}
 LicenseFile=..\license.txt
 ;InfoBeforeFile=before.txt
 InfoAfterFile=after.txt
 ;OutputDir=
-OutputBaseFilename=Athena30xInstaller
+OutputBaseFilename=Athena3_0_30Installer
 SetupIconFile=athena.ico
 Compression=lzma
 SolidCompression=yes
@@ -46,6 +46,8 @@ Source: "..\docs\help\athena.helpdb"; DestDir: "{app}\docs\help"; Flags: ignorev
 Source: "..\docs\man1\athena.html"; DestDir: "{app}\docs\man1"; Flags: ignoreversion 
 Source: "..\docs\dev\*.odt"; DestDir: "{app}\docs\dev"; Flags: ignoreversion 
 Source: "..\docs\dev\*.pdf"; DestDir: "{app}\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
+Source: "..\mars\docs\dev\*.odt"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion 
+Source: "..\mars\docs\dev\*.pdf"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\maps\*.png"; DestDir: "{app}\maps"; Flags: ignoreversion 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
