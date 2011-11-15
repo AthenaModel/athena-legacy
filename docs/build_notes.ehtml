@@ -11,6 +11,26 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.30, 15 November 2011</h3>
+
+This is the first build for Windows 7, including a new Athena
+Installer.  In addition, this version of Athena uses the Tkhtml 3.0
+widget for HTML display, and SQLite's "WAL" mode for the run-time
+database.  The complete set of packages is as follows:<p>
+
+<ul>
+  <li> Bug 3195: Miscellaneous Windows Fixes
+  <li> Bug 3200: athena(1): Use Tkhtml 3.0
+  <li> Bug 3201: appdir(n): endless loop in [appdir init]
+  <li> Bug 3202: Athena Windows Installer
+  <li> Bug 3205: Athena Windows Installer: Additions
+  <li> Bug 3206: Athena Windows Installer: After Text
+  <li> Bug 3207: athena_test(1), athena_version(1) reference "tclsh85" or "tclsh8.5"
+  <li> Bug 3208: RDB Write-Ahead-Logging
+  <li> Bug 3209: Athena Copyright Marking
+  <li> Bug 3265: Mars Analyst's Guide is not included in Athena builds
+</ul>
+
 <h3>Build 3.0.29, 11 October 2011</h3>
 
 <b>Note:</b> This version should load Athena 3.0.28 scenarios without
