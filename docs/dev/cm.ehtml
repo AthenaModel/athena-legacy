@@ -1226,7 +1226,13 @@ Infrastructure Library.<p>
 
 Note that some of the Mars-related steps only apply when Mars is
 externally linked, i.e., on the Athena trunk.  Release branches generally
-include their own copy of Mars; thus, no special steps need be taken.<p>
+include their own copy of Mars; thus, no special steps need be
+taken.<p>
+
+In addition, some steps are different on Windows than on Linux.  As of
+Athena 3.0.30, Windows is the primary development platform, and we
+will not generally do official builds on Linux.  Nevertheless,
+OS-specific steps are so marked.<p>
 
 <<procedure>>
 
@@ -1242,13 +1248,13 @@ necessary (that is, if anything has changed since the previous Athena
 build).
 <</step/>>
 See the <<xref marscm>>.  We'll assume that the
-resulting Mars build is Mars 1.6.
+resulting Mars build is Mars 1.64.
 <</step>>
 
 <<step>>
 Determine the Athena build number.
 <</step/>>
-We'll assume it's Athena 1.0.9.
+We'll assume it's Athena 3.0.31.
 <</step>>
 
 <<step>>
@@ -1257,7 +1263,7 @@ for the new build.
 <</step/>>
 <pre>
 $ cd ~/athena_pkgs
-$ svn checkout <i>repository</i>/athena/trunk athena_1.0.9
+$ svn checkout <i>repository</i>/athena/trunk athena_3.0.31
 </pre>
 <</step>>
 
@@ -1267,9 +1273,9 @@ Update the build notes file with a description of the changes, and
 check it into the repository.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9/docs
+$ cd ~/athena_pkgs/athena_3.0.31/docs
 $ emacs build_notes.ehtml
-$ svn commit -m"Updated for Build 1.0.9"
+$ svn commit -m"Updated for Build 3.0.31"
 </pre>
 <</step>>
 
@@ -1283,22 +1289,22 @@ If your <code>PATH</code> environment variable contains
 <code>~/mars/bin/</code>, then
 
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ mars link 1.6
+$ cd ~/athena_pkgs/athena_3.0.31
+$ mars link 1.64
 </pre>
 
 Otherwise,<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ ./mars/bin/mars link 1.6
+$ cd ~/athena_pkgs/athena_3.0.31
+$ ./mars/bin/mars link 1.64
 </pre>
 
 This is equivalent to:<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ svn switch <i>repository</i>/mars/tags/mars_1.6 mars
+$ cd ~/athena_pkgs/athena_3.0.31
+$ svn switch <i>repository</i>/mars/tags/mars_1.64 mars
 </pre>
 
 <</step>>
@@ -1308,7 +1314,7 @@ Do a development build and test of the client. Resolve any errors, and
 retest, until the client builds cleanly. Commit any changes.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
+$ cd ~/athena_pkgs/athena_3.0.31
 $ make build
 </pre>
 <</step>>
@@ -1318,17 +1324,17 @@ $ make build
 Tag the build, updating the working copy to the tagged version. 
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ make tag ATHENA_VERSION=1.0.9
+$ cd ~/athena_pkgs/athena_3.0.31
+$ make tag ATHENA_VERSION=3.0.31
 </pre>
 
 This is equivalent to:<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ svn copy . <i>repository</i>/athena/tags/athena_1.0.9
-$ svn switch <i>repository</i>/athena/tags/athena_1.0.9 .
-$ echo 1.0.9 > lib/projectlib/version.txt
+$ cd ~/athena_pkgs/athena_3.0.31
+$ svn copy . <i>repository</i>/athena/tags/athena_3.0.31
+$ svn switch <i>repository</i>/athena/tags/athena_3.0.31 .
+$ echo 3.0.31 > lib/projectlib/version.txt
 $ svn commit lib/projectlib/version.txt
 </pre>
 <</step>>
@@ -1339,19 +1345,19 @@ required version of Mars.  Note that the previous step set the
 embedded version of Mars back to the Mars trunk.<p>
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ mars link 1.6
+$ cd ~/athena_pkgs/athena_3.0.31
+$ mars link 1.64
 $ mars link save
 </pre>
 
 This is equivalent to:<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
-$ svn switch <i>repository</i>/mars/tags/mars_1.6 mars
+$ cd ~/athena_pkgs/athena_3.0.31
+$ svn switch <i>repository</i>/mars/tags/mars_1.64 mars
 $ svn propset svn:externals \
-    "mars <i>repository</i>/mars/tags/mars_1.6" .
-$ svn commit -m"Permanently link with Mars 1.6" .
+    "mars <i>repository</i>/mars/tags/mars_1.64" .
+$ svn commit -m"Permanently link with Mars 1.64" .
 </pre>
 
 <</step>>
@@ -1362,32 +1368,64 @@ Perform the official CM build. Installation, source, and documentation
 tarballs will be created automatically:<p>
 
 <ul>
-  <li> <code>~/athena_pkgs/athena_1.0.9.tgz</code>
-  <li> <code>~/athena_pkgs/athena_1.0.9_src.tgz</code>
-  <li> <code>~/athena_pkgs/athena_1.0.9_docs.tgz</code>
+  <li> <code>~/athena_pkgs/athena_3.0.31.tgz</code>
+  <li> <code>~/athena_pkgs/athena_3.0.31_src.tgz</code>
+  <li> <code>~/athena_pkgs/athena_3.0.31_docs.tgz</code>
 </ul>
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_1.0.9
+$ cd ~/athena_pkgs/athena_3.0.31
 $ make cmbuild
 </pre>
 <</step>>
 
+<<step>>
+<b>Windows Only.</b>  On Windows, Athena is installed using an
+installer rather than a tarball.  Build the installer.
+<</step/>>
+<pre>
+$ cd ~/athena_pkgs/athena_3.0.31/installer
+$ start athena.iss
+</pre>
+
+In the resulting InnoSetup window:<p>
+
+<ul>
+  <li> Set "MyAppVersion" to 3.0.31
+  <li> Select Build/Compile from the menu bar.
+</ul>
+
+This builds the following file:
+
+<pre>
+    installer/Output/Athena3.0.31_Installer.exe
+</pre>
+<</step>>
 
 <<step>>
-Install the build's documentation on the Athena web page. The
-documentation will be installed in the following AFS directory:<p>
+<b>Windows Only.</b>  Make sure that that JPL's AFS server is mounted
+as drive K:.<p>
+<</step>>
 
-<pre>   /afs/jpl/group/athena/www/doc_1.0.9</pre>
+<<step>>
+Install the build's installation files and documentation on the Athena
+web page. The installation files and tarballs will be installed into
+the following AFS directory:
+
+<pre>   /afs/jpl/group/athena/www/archive/athena_3.0.31</pre>
+
+The documentation will be installed in the following AFS directory:<p>
+
+<pre>   /afs/jpl/group/athena/www/doc_3.0.31</pre>
 
 The documents will then be available on the web at:
 
-<pre> http://eis.jpl.nasa.gov/athena/doc_1.0.9/docs/developer.html</pre>
+<pre> http://eis.jpl.nasa.gov/athena</pre>.
 <</step/>>
 <pre>
 $ klog
-$ cd ~/athena_pkgs/athena_1.0.9
-$ make installdocs
+$ cd ~/athena_pkgs/athena_3.0.31
+$ make install
 </pre>
 <</step>>
 
@@ -1397,20 +1435,8 @@ The previous two steps can be combined:
 <</step/>>
 <pre>
 $ klog
-$ cd ~/athena_pkgs/athena_1.0.9
-$ make cmbuild installdocs
-</pre>
-<</step>>
-
-
-<<step>>
-Copy the tarballs to the archive directory on AFS.
-<</step/>>
-<pre>
-$ cd /afs/jpl/group/athena/www/archive
-$ mkdir athena_1.0.9
-$ cd athena_1.0.9
-$ mv ~/athena_pkgs/athena_1.0.9*.tgz .
+$ cd ~/athena_pkgs/athena_3.0.31
+$ make cmbuild install
 </pre>
 <</step>>
 
@@ -1419,7 +1445,7 @@ $ mv ~/athena_pkgs/athena_1.0.9*.tgz .
 Add the new build's documentation tree to the main index on the Athena
 web page.  Add a link to
 
-<pre> http://eis.jpl.nasa.gov/athena/doc_1.0.9/docs/developer.html</pre>
+<pre> http://eis.jpl.nasa.gov/athena/doc_3.0.31/docs/developer.html</pre>
 
 <</step/>>
 <pre>
@@ -1428,7 +1454,24 @@ $ emacs index.html
 </pre>
 <</step>>
 
+<<step>>
+If desired, remove the *.tgz files from the <code>~/athena_pkgs</code>
+directory.
+<</step/>>
+<pre>
+$ cd ~/athena_pkgs
+$ rm *.tgz
+</pre>
+<</step>>
 
+<<step>>
+Add the version to Bugzilla.
+<</step/>>
+
+On the Bugzilla toolbar, click "Administration". On the resulting page
+click "Products", then "Athena 3.0", then "Edit Versions". Add a version
+"B<i>z</i>", e.g., when building Athena 3.0.31 add a version "B31".<p>
+<</step>>
 <</procedure>>
 
 
