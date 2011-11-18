@@ -19,7 +19,9 @@
 #       cmbuild      Official build; requires ATHENA_VERSION=x.y.z
 #                    on make command line.  Builds code and 
 #                    documentation from scratch.
-#    	installdocs  Installs documentation in the Athena AFS Page
+#    	install      Installs documentation and tarballs to the Athena AFS Page
+#    	installdist  Installs tarballs to the Athena AFS Page
+#    	installdocs  Installs documentation to the Athena AFS Page
 #
 #    For normal development, this Makefile is usually executed as
 #    follows:
@@ -169,12 +171,13 @@ test: check_env
 	cd $(TOP_DIR)/test ; make
 
 #---------------------------------------------------------------------
-# Target: installdocs
+# Target: install
 #
-# Copy documentation to the Athena AFS page.
+# Copy tarballs and documentation to the Athena AFS page.
 
 INSTALLDIRS = \
-	$(ATHENA_DOCS) \
+	$(ATHENA_ARCHIVE)             \
+	$(ATHENA_DOCS)                \
 	$(ATHENA_DOCS)/docs           \
 	$(ATHENA_DOCS)/docs/man1      \
 	$(ATHENA_DOCS)/docs/man5      \
@@ -189,6 +192,13 @@ INSTALLDIRS = \
 	$(ATHENA_DOCS)/mars/docs/mani \
 	$(ATHENA_DOCS)/mars/docs/mann \
 	$(ATHENA_DOCS)/mars/docs/dev
+
+install: installdist installdocs
+
+installdist: $(INSTALLDIRS)
+	cp $(TOP_DIR)/../*.tgz $(ATHENA_ARCHIVE)
+	if test -n "$(ATHENA_INSTALLER)" ; then \
+	    cp $(ATHENA_INSTALLER) $(ATHENA_ARCHIVE); fi
 
 installdocs: $(INSTALLDIRS)
 	-cp docs/index.html            $(ATHENA_DOCS)/docs
