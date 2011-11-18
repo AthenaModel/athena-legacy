@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.31, 18 November 2011</h3>
+
+This is the second build for Windows 7.  Build 3.0.30 could not be
+used to create new scenarios on Windows due to a Windows-specific bug
+in the marsgui(n) package colorfield(n).  This build fixes that bug,
+and also updates the Athena build process for the Windows platform.
+The full set of packages is as follows:<p>
+
+<ul>
+  <li> Bug 3267: athena(1): Can't parse color "SystemButtonFace"
+  <li> Bug 3268: Athena Build Issues
+</ul>
+
 <h3>Build 3.0.30, 15 November 2011</h3>
 
 This is the first build for Windows 7, including a new Athena
