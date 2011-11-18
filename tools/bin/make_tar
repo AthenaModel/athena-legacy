@@ -184,11 +184,16 @@ proc main {argv} {
         }
     }
 
+    # NEXT, save the list of files to disk.
+    set f [open tarfiles.txt wb]
+    puts $f [join $installSet \n]
+    close $f
+
     # NEXT, make the tar file
     set tarFile athena_${version}$tags($tarType).tgz
 
     puts "make_tar: [file join [pwd] $tarFile]"
-    eval [concat [list exec tar cvzf $tarFile] $installSet]
+    eval [concat [list exec tar cvzf $tarFile] -T tarfiles.txt]
 }
 
 # excluded file
