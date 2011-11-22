@@ -123,7 +123,6 @@ namespace eval ::athena_test::tests:: {
 
     test LOCK-2.1 {locks the scenario} -setup {
         ted create NB1 BLUE SHIA
-        scenario mutate reconcile
     } -body {
         ted order SIM:LOCK
         sim state
@@ -133,7 +132,6 @@ namespace eval ::athena_test::tests:: {
 
     test LOCK-2.2 {Sends <State>} -setup {
         ted create NB1 BLUE SHIA
-        scenario mutate reconcile
     } -body {
         ted notifier bind ::sim <State>
         ted order SIM:LOCK

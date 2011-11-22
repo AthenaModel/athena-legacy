@@ -215,7 +215,6 @@ order define ORGGROUP:CREATE {
 
     # NEXT, create the group and dependent entities
     lappend undo [orggroup mutate create [array get parms]]
-    lappend undo [scenario mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -257,7 +256,7 @@ order define ORGGROUP:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [orggroup mutate delete $parms(g)]
-    lappend undo [scenario mutate reconcile]
+    lappend undo [ensit mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -341,6 +340,7 @@ order define ORGGROUP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 

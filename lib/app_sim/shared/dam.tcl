@@ -61,7 +61,7 @@ snit::type dam {
     # Returns the section's temporary schema definitions, if any.
 
     typemethod {sqlsection tempschema} {} {
-        return [readfile [file join $::app_sim::library dam_temp.sql]]
+        return [readfile [file join $::app_sim_shared::library dam_temp.sql]]
     }
 
     # sqlsection functions

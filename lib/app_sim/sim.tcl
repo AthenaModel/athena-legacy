@@ -9,7 +9,7 @@
 #    app_sim(n) Simulation Ensemble
 #
 #    This module manages the overall simulation, as distinct from the 
-#    the purely scenario-data oriented work done by sim(sim).
+#    the purely scenario-data oriented work done by scenario(sim).
 #
 #-----------------------------------------------------------------------
 
@@ -91,100 +91,26 @@ snit::type sim {
             -tick $constants(ticksize)  \
             -t0   $constants(startdate)
 
+        notifier send ::sim <Time>
+
         # NEXT, create the ticker
         set ticker [timeout ${type}::ticker                \
                         -interval   $constants(tickDelay) \
                         -repetition yes                    \
                         -command    {profile sim Tick}]
 
-        # NEXT, initialize the event queue
-        eventq init ::rdb
-        scenario register ::marsutil::eventq
+        # NEXT, initialize the belief system manager
+        bsystem init
 
-        # NEXT, create ARAM and register it as a saveable
-        gram ::aram \
-            -clock        ::simclock              \
-            -rdb          ::rdb                   \
-            -logger       ::log                   \
-            -logcomponent "aram"                  \
-            -loadcmd      [mytypemethod LoadAram]
+        # NEXT, initialize the model engine.
+        engine init
 
-        scenario register ::aram
-
-       # NEXT, initialize the simulation modules
-        bsystem   init
-        econ      init
-        situation init
-
+        # NEXT, prepare to echo the engine's time updates.
+        notifier bind ::engine <Time> ::sim [list notifier send ::sim <Time>]
 
         log normal sim "init complete"
     }
 
-    # LoadAram gram
-    #
-    # Loads scenario data into ARAM when it's initialized.
-
-    typemethod LoadAram {gram} {
-        $gram load nbhoods {*}[rdb eval {
-            SELECT n FROM nbhoods
-            ORDER BY n
-        }]
-
-        $gram load nbrel {*}[rdb eval {
-            SELECT m, n, proximity, effects_delay 
-            FROM nbrel_mn
-            ORDER BY m,n
-        }]
-
-        $gram load civg {*}[rdb eval {
-            SELECT g,n,basepop FROM civgroups_view
-            ORDER BY g
-        }]
-
-        $gram load civrel {*}[rdb eval {
-            SELECT R.f,
-                   R.g,
-                   R.rel
-            FROM rel_view AS R
-            JOIN civgroups AS F ON (F.g = R.f)
-            JOIN civgroups as G on (G.g = R.g)
-            ORDER BY R.f, R.g
-        }]
-
-        $gram load concerns {*}[rdb eval {
-            SELECT c FROM concerns
-            ORDER BY c
-        }]
-
-        $gram load sat {*}[rdb eval {
-            SELECT g, c, sat0, saliency
-            FROM sat_gc
-            ORDER BY g, c
-        }]
-
-        $gram load frcg {*}[rdb eval {
-            SELECT g FROM frcgroups
-            ORDER BY g
-        }]
-
-        $gram load frcrel {*}[rdb eval {
-            SELECT R.f,
-                   R.g,
-                   R.rel
-            FROM rel_view AS R
-            JOIN frcgroups AS F ON (F.g = R.f)
-            JOIN frcgroups as G on (G.g = R.g)
-            ORDER BY R.f, R.g
-        }]
-
-        $gram load coop {*}[rdb eval {
-            SELECT f,
-                   g,
-                   coop0
-            FROM coop_fg
-            ORDER BY f, g
-        }]
-    }
 
     # new
     #
@@ -198,6 +124,7 @@ snit::type sim {
             -t0   $constants(startdate)
 
         # NEXT, clear the event queue
+        # TBD: The engine should be doing this.
         eventq restart
 
         # NEXT, clear the belief system
@@ -462,54 +389,8 @@ snit::type sim {
         # begin to work at this time.
         sigevent log 1 lock "Scenario locked; simulation begins"
 
-        # Set up the attitudes model: initialize GRAM, and add slope effects
-        # for the ascending and descending trends.  Finally, relate all
-        # existing MADs to GRAM drivers.
-        aram      init -reload
-        sat       start
-        coop      start
-        mad       start
-
-        # Next, set up the status quo, as required by strategy execution.
-        # 
-        # * [personnel start] creates units for all status quo
-        #   CIV/FRC/ORG personnel.  
-        #
-        # * [demog analyze pop] initializes the demographics tables; in 
-        #   the status quo there has been no attrition and no 
-        #   displacements.
-        #
-        # * [service start] initializes the service tables.  
-        #   TBD: Adds the status quo level of funding and computes the
-        #   expected level of service.
-        #
-        # * [nbstat start] computes the security levels and activity
-        #   coverage.
-        #
-        # * [control start] initializes vertical relationships, actor
-        #   support and influence, and neighborhood control, based on
-        #   the status quo data.
-       
-        personnel start
-        demog     analyze pop
-        service   start
-        nbstat    start
-        control   start
-
-        # Execute the actor's strategies at time 0, given the 
-        # status quo.
-        strategy  tock
-
-        # Compute the new state of affairs, given the agent's
-        # decisions at time 0.
-        demog     analyze pop
-        nbstat    analyze
-        control   analyze
-        econ      start          ;# TBD: Include in status quo?
-        demog     analyze econ
-
-        # NEXT, execute events scheduled at time 0, if any.
-        eventq advance 0
+        # NEXT, start the engine
+        engine start
 
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
@@ -683,64 +564,8 @@ snit::type sim {
     # This command is executed at each time tick.
 
     typemethod TickWork {} {
-        # FIRST, advance models
-        profile demog analyze pop
-        profile ensit assess
-        profile nbstat analyze
-        profile control analyze
-        profile actsit assess
-        
-        if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
-            profile service assess attitudes
-            profile aam assess
-        }
-
-        if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
-            set econOK [profile econ tock]
-
-            if {$econOK} {
-                profile demog analyze econ
-            }
-        }
-
-        profile demsit assess
-
-        # NEXT, advance GRAM (if t > 0); but first give it the latest
-        # population data.
-        #
-        # TBD: This mechanism is nuts.
-        if {[simclock now] > 0} {
-            aram update population {*}[rdb eval {
-                SELECT n,g,population 
-                FROM demog_g
-                JOIN civgroups USING (g)
-            }]
-
-            profile aram advance
-        }
-
-        # NEXT, save the history for this tick.
-        profile hist tick
-
-        if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
-            profile hist econ
-        }
-
-        # NEXT, advance time one tick.
-        simclock tick
-
-        notifier send $type <Time>
-        log normal sim "Tick [simclock now]"
-        set info(changed) 1
-        
-        # NEXT, execute eventq events
-        profile eventq advance [simclock now]
-
-        # NEXT, assess actor influence and execute actor strategies.
-        if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
-            profile control assess
-            profile strategy tock
-        }
+        # FIRST, tell the engine to do a tick.
+        engine tick
 
         # NEXT, pause if it's the pause time, or checks failed.
         set stopping 0
@@ -774,9 +599,7 @@ snit::type sim {
 
             # Update demographics and nbstats, in case the user
             # wants to look at them.
-            profile demog   analyze pop
-            profile nbstat  analyze
-            profile control analyze
+            engine pause
         }
 
         # NEXT, notify the application that the tick has occurred.

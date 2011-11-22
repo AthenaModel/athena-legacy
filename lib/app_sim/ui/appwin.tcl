@@ -1048,7 +1048,7 @@ snit::widget appwin {
         # Scrolling log
         set slog   [$self tab win slog]
         $slog load [log cget -logfile]
-        notifier bind ::app <AppLogNew> $self [list $slog load]
+        notifier bind ::log <NewLog> $self [list $slog load]
 
         # NEXT, add the CLI to the paner
         install cli using cli $win.paner.cli    \

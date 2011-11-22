@@ -222,13 +222,11 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0
     test CREATE-2.3 {effects} -body {
         ted create NB1
         ted notifier bind ::rdb <civgroups>
-        ted notifier bind ::scenario <Reconcile>
         ted order CIVGROUP:CREATE $sunn
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::scenario <Reconcile>}
         {::rdb <civgroups> update SUNN}
     }
 
@@ -267,13 +265,11 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0
         ted create NB1 SHIA
     } -body {
         ted notifier bind ::rdb <civgroups>
-        ted notifier bind ::scenario <Reconcile>
         ted order CIVGROUP:DELETE g SHIA
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::scenario <Reconcile>}
         {::rdb <civgroups> delete SHIA}
     }
 

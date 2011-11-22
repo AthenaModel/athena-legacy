@@ -198,13 +198,11 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE
         ted create JOE
     } -body {
         ted notifier bind ::rdb <orggroups>
-        ted notifier bind ::scenario <Reconcile>
         ted order ORGGROUP:CREATE $usaid
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::scenario <Reconcile>}
         {::rdb <orggroups> update USAID}
     }
 
@@ -244,13 +242,11 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE
         ted create USAID
     } -body {
         ted notifier bind ::rdb <orggroups>
-        ted notifier bind ::scenario <Reconcile>
         ted order ORGGROUP:DELETE g USAID
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::scenario <Reconcile>}
         {::rdb <orggroups> delete USAID}
     }
 

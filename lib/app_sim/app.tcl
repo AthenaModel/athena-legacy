@@ -63,6 +63,8 @@ snit::type app {
     # -ignoreuser      - If 1, ignore user preferences, etc.
     #                    Used for testing.
     #
+    # -threads         - If 1, the app runs multi-threaded.
+    #
     # -script filename - The name of a script to execute at start-up,
     #                    after loading the scenario file (if any).
 
@@ -70,6 +72,7 @@ snit::type app {
         -batch      0
         -dev        0
         -ignoreuser 0
+        -threads    0
         -script     {}
     }
 
@@ -113,6 +116,14 @@ snit::type app {
                     set opts($opt) 1
                 }
 
+                -threads    {
+                    if {![catch {package require Thread}]} {
+                        set opts($opt) 1
+                    } else {
+                        app exit "Multi-threading is not available."
+                    }
+                }
+
                 -script {
                     set opts($opt) [lshift argv]
                 }
@@ -121,7 +132,6 @@ snit::type app {
                     app exit "Unknown option: \"$opt\"\n[app usage]"
                 }
             }
-
         }
 
         if {[llength $argv] > 1} {
@@ -165,10 +175,7 @@ snit::type app {
         }
 
         # NEXT, open the debugging log.
-        logger ::log                                           \
-            -simclock   ::simclock                             \
-            -logdir     [workdir join log app_sim]             \
-            -newlogcmd  [list notifier send $type <AppLogNew>]
+        log init $opts(-threads)
 
         # NEXT, log any loaded mods
         if {[namespace exists ::athena_mods::]} {
@@ -195,7 +202,7 @@ snit::type app {
         # NEXT, Create the working scenario RDB and initialize simulation
         # components
         executive init
-        parm      init
+        parm      init master
         map       init
         view      init
         cif       init
@@ -637,7 +644,7 @@ snit::type app {
     
     typemethod usage {} {
         append usage \
-            "Usage: athena ?options...? ?scenario.adb?\n"           \
+            "Usage: athena ?options...? ?scenario.adb?\n"               \
             "\n"                                                        \
             "-batch              Executed Athena in batch mode.\n"      \
             "-script filename    A script to execute after loading\n"   \
@@ -645,6 +652,7 @@ snit::type app {
             "-dev                Turns on all developer tools (e.g.,\n" \
             "                    the CLI and scrolling log)\n"          \
             "-ignoreuser         Ignore preference settings.\n"         \
+            "-threads            Run Athena multi-threaded.\n"          \
             "\n"                                                        \
             "See athena(1) for more information.\n"
     }
@@ -764,6 +772,11 @@ snit::type app {
         if {!$opts(-ignoreuser) && [winfo exists .main]} {
             .main savehistory
         }
+
+        # NEXT, release the threads
+        log release
+
+        # TBD: May need to wait until all threads exit.
 
         # NEXT, exit
         if {$text ne ""} {

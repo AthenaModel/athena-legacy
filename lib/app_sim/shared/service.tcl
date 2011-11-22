@@ -8,8 +8,8 @@
 # DESCRIPTION:
 #    athena_sim(1): Service Manager
 #
-#    This module is responsible for managing the provision of
-#    services to civilian groups.  At present, the only service
+#    This module is the API used by tactics to fund services
+#    to civilian groups.  At present, the only service
 #    defined is Essential Non-Infrastructure Services (ENI), 
 #    aka "governmental services".  The ENI service allows an actor
 #    to pump money into neighborhoods, thus raising group moods
@@ -107,91 +107,6 @@ snit::type service {
         $type ComputeLOS -start
     }
 
-    # load
-    #
-    # Populates the working tables for strategy execution.
-
-    typemethod load {} {
-        rdb eval {
-            DELETE FROM working_service_ga;
-            INSERT INTO working_service_ga(g,a)
-            SELECT g, a FROM civgroups JOIN actors;
-        }
-    }
-
-    # fundeni a amount glist
-    #
-    # a        - An actor
-    # amount   - ENI funding, in $/week
-    # glist    - List of groups to be funded.
-    #
-    # This routine is called by the FUNDENI tactic.  It allocates
-    # the funding to the listed groups in proportion to their
-    # population.
-
-    typemethod fundeni {a amount glist} {
-        require {$amount > 0} \
-            "Attempt to fund ENI with zero or negative amount: $amount"
-
-        require {[llength $glist] != 0} \
-            "Attempt to fund ENI for empty list of groups"
-
-        # FIRST, get the "in" clause
-        set gclause "g IN ('[join $glist ',']')"
-
-        # NEXT, get the total number of personnel in the groups
-        set total [rdb onecolumn "
-            SELECT total(population) FROM demog_g
-            WHERE $gclause
-        "]
-
-        require {$total > 0} \
-            "Attempt to fund ENI for zero population"
-
-        # NEXT, get the proportion of people in each group:
-        set fracs [rdb eval "
-            SELECT g, (CAST (population AS REAL))/\$total
-            FROM demog_g
-            WHERE $gclause
-        "]
-
-        # NEXT, fund each group with their proportion of the money.
-        dict for {g frac} $fracs {
-            let share {$frac*$amount}
-
-            rdb eval {
-                UPDATE working_service_ga
-                SET funding = funding + $share
-                WHERE g=$g AND a=$a
-            }
-        }
-    }
-
-    # save
-    #
-    # Saves the working data back to the persistent tables,
-    # and computes the current level of service for all groups.
-
-    typemethod save {} {
-        # FIRST, log all changed levels of funding
-        $type LogFundingChanges
-
-        # NEXT, save data back to the persistent tables
-        rdb eval {
-            SELECT g, a, funding
-            FROM working_service_ga
-        } {
-            rdb eval {
-                UPDATE service_ga
-                SET funding = $funding
-                WHERE g=$g AND a=$a
-            }
-        }
-
-        # NEXT, Compute the actual and expected levels of service.
-        $type ComputeLOS
-    }
-
 
     # ComputeLOS ?-start?
     #
@@ -285,39 +200,6 @@ snit::type service {
     }
 
 
-    # LogFundingChanges
-    #
-    # Logs all funding changes.
-
-    typemethod LogFundingChanges {} {
-        rdb eval {
-            SELECT OLD.g                         AS g,
-                   OLD.a                         AS a,
-                   OLD.funding                   AS old,
-                   NEW.funding                   AS new,
-                   NEW.funding - OLD.funding     AS delta,
-                   civgroups.n                   AS n
-            FROM service_ga AS OLD
-            JOIN working_service_ga AS NEW USING (g,a)
-            JOIN civgroups ON (civgroups.g = OLD.g)
-            WHERE abs(delta) >= 1.0
-            ORDER BY delta DESC, a, g
-        } {
-            if {$delta > 0} {
-                sigevent log 1 strategy "
-                    Actor {actor:$a} increased ENI funding to {group:$g}
-                    by [moneyfmt $delta] to [moneyfmt $new].
-                " $a $g $n
-            } else {
-                let delta {-$delta}
-
-                sigevent log 1 strategy "
-                    Actor {actor:$a} decreased ENI funding to {group:$g}
-                    by [moneyfmt $delta] to [moneyfmt $new].
-                " $a $g $n
-            }
-        }
-    }
 
     #-------------------------------------------------------------------
     # Assessment
@@ -490,4 +372,125 @@ snit::type service {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Tactic API
+
+    # load
+    #
+    # Populates the working tables for strategy execution.
+
+    typemethod load {} {
+        rdb eval {
+            DELETE FROM working_service_ga;
+            INSERT INTO working_service_ga(g,a)
+            SELECT g, a FROM civgroups JOIN actors;
+        }
+    }
+
+    # fundeni a amount glist
+    #
+    # a        - An actor
+    # amount   - ENI funding, in $/week
+    # glist    - List of groups to be funded.
+    #
+    # This routine is called by the FUNDENI tactic.  It allocates
+    # the funding to the listed groups in proportion to their
+    # population.
+
+    typemethod fundeni {a amount glist} {
+        require {$amount > 0} \
+            "Attempt to fund ENI with zero or negative amount: $amount"
+
+        require {[llength $glist] != 0} \
+            "Attempt to fund ENI for empty list of groups"
+
+        # FIRST, get the "in" clause
+        set gclause "g IN ('[join $glist ',']')"
+
+        # NEXT, get the total number of personnel in the groups
+        set total [rdb onecolumn "
+            SELECT total(population) FROM demog_g
+            WHERE $gclause
+        "]
+
+        require {$total > 0} \
+            "Attempt to fund ENI for zero population"
+
+        # NEXT, get the proportion of people in each group:
+        set fracs [rdb eval "
+            SELECT g, (CAST (population AS REAL))/\$total
+            FROM demog_g
+            WHERE $gclause
+        "]
+
+        # NEXT, fund each group with their proportion of the money.
+        dict for {g frac} $fracs {
+            let share {$frac*$amount}
+
+            rdb eval {
+                UPDATE working_service_ga
+                SET funding = funding + $share
+                WHERE g=$g AND a=$a
+            }
+        }
+    }
+
+    # save
+    #
+    # Saves the working data back to the persistent tables,
+    # and computes the current level of service for all groups.
+
+    typemethod save {} {
+        # FIRST, log all changed levels of funding
+        $type LogFundingChanges
+
+        # NEXT, save data back to the persistent tables
+        rdb eval {
+            SELECT g, a, funding
+            FROM working_service_ga
+        } {
+            rdb eval {
+                UPDATE service_ga
+                SET funding = $funding
+                WHERE g=$g AND a=$a
+            }
+        }
+
+        # NEXT, compute the actual and effective levels of service.
+        $type ComputeLOS
+    }
+
+    # LogFundingChanges
+    #
+    # Logs all funding changes.
+
+    typemethod LogFundingChanges {} {
+        rdb eval {
+            SELECT OLD.g                         AS g,
+                   OLD.a                         AS a,
+                   OLD.funding                   AS old,
+                   NEW.funding                   AS new,
+                   NEW.funding - OLD.funding     AS delta,
+                   civgroups.n                   AS n
+            FROM service_ga AS OLD
+            JOIN working_service_ga AS NEW USING (g,a)
+            JOIN civgroups ON (civgroups.g = OLD.g)
+            WHERE abs(delta) >= 1.0
+            ORDER BY delta DESC, a, g
+        } {
+            if {$delta > 0} {
+                sigevent log 1 strategy "
+                    Actor {actor:$a} increased ENI funding to {group:$g}
+                    by [moneyfmt $delta] to [moneyfmt $new].
+                " $a $g $n
+            } else {
+                let delta {-$delta}
+
+                sigevent log 1 strategy "
+                    Actor {actor:$a} decreased ENI funding to {group:$g}
+                    by [moneyfmt $delta] to [moneyfmt $new].
+                " $a $g $n
+            }
+        }
+    }
 }

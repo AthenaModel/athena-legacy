@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    control.tcl
+#    control_model.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -23,7 +23,7 @@
 #
 #-----------------------------------------------------------------------
 
-snit::type control {
+snit::type control_model {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -91,7 +91,7 @@ snit::type control {
     # the model and populate the relevant tables.
 
     typemethod start {} {
-        log normal control "start"
+        log normal control_model "start"
 
         # FIRST, initialize the control tables
         $type PopulateNbhoodControl
@@ -99,7 +99,7 @@ snit::type control {
         $type PopulateActorSupports
         $type PopulateActorInfluence
 
-        log normal control "start complete"
+        log normal control_model "start complete"
     }
 
     # PopulateNbhoodControl
@@ -197,61 +197,6 @@ snit::type control {
         $type ComputeActorInfluence
     }
 
-    #-------------------------------------------------------------------
-    # Working Supports
-
-    # load
-    #
-    # Loads every actors' default supports into working_supports
-    # for use during strategy execution.
-
-    typemethod load {} {
-        rdb eval {
-            DELETE FROM working_supports;
-
-            INSERT INTO working_supports(n, a, supports)
-            SELECT n, a, supports FROM nbhoods JOIN actors;
-        }
-    }
-
-    # support a b nlist
-    #
-    # a        - An actor
-    # b        - An actor a supports, or NULL
-    # nlist    - List of neighborhoods in which a supports b
-
-    typemethod support {a b nlist} {
-        # FIRST, handle SELF
-        if {$b eq "SELF"} {
-            set b $a
-        }
-
-        # NEXT, format the nlist clause
-        set inClause "IN ('[join $nlist ',']')"
-
-        # NEXT, update the working supports list
-        rdb eval "
-            UPDATE working_supports
-            SET supports = nullif(\$b,'NONE')
-            WHERE a = \$a AND n $inClause
-        "
-    }
-
-    # save
-    #
-    # Save the actor supports back into the supports table, replacing
-    # the previous values.
-
-    typemethod save {} {
-        rdb eval {
-            DELETE FROM supports_na;
-
-            INSERT INTO supports_na(n, a, supports)
-            SELECT n, a, supports FROM working_supports;
-
-            DELETE FROM working_supports;
-        }
-    }
 
     #-------------------------------------------------------------------
     # Analysis
@@ -601,7 +546,7 @@ snit::type control {
     # Handles the shift in control from cOld to cNew in n.
     
     typemethod ShiftControl {n cNew cOld} {
-        log normal control "shift in $n to <$cNew> from <$cOld>"
+        log normal control_model "shift in $n to <$cNew> from <$cOld>"
 
         if {$cNew eq ""} {
             sigevent log 1 control "
@@ -652,7 +597,7 @@ snit::type control {
             set delta [qmag value $mag]
 
             set bvrel [scale $vrel $delta]
-            log detail control "bvrel.$g,$a = $bvrel ($vrel + $mag)"
+            log detail control_model "bvrel.$g,$a = $bvrel ($vrel + $mag)"
 
             rdb eval {
                 INSERT INTO bvrel_tga(t, g, a, bvrel,dv_control)

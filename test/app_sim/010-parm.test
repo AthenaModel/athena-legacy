@@ -125,54 +125,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1}
 
-    #-------------------------------------------------------------------
-    # exec import
-
-    test exec_import-1.1 {Calls order correctly} -setup {
-        order nullmode yes
-    } -body {
-        parm exec import nonesuch.parmdb
-        order lastparms
-    } -cleanup {
-        order nullmode no
-    } -result {filename nonesuch.parmdb _order PARM:IMPORT}
-
-
-    #-------------------------------------------------------------------
-    # exec list
-
-    test exec_list-1.1 {Throws error if none match} -body {
-        parm exec list NONESUCH
-    } -returnCodes {
-        error
-    } -result {No matching parameters}
-
-
-    #-------------------------------------------------------------------
-    # exec reset
-
-    test exec_reset-1.1 {Calls order correctly} -setup {
-        order nullmode yes
-    } -body {
-        parm exec reset
-        order lastparms
-    } -cleanup {
-        order nullmode no
-    } -result {_order PARM:RESET}
-
-
-    #-------------------------------------------------------------------
-    # exec set
-
-    test exec_set-1.1 {Calls order correctly} -setup {
-        order nullmode yes
-    } -body {
-        parm exec set foo bar
-        order lastparms
-    } -cleanup {
-        order nullmode no
-    } -result {parm foo value bar _order PARM:SET}
-
 
     #-------------------------------------------------------------------
     # Cleanup

@@ -19,15 +19,17 @@ snit::type cif {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Variables
+    # Uncheckpointed Type Variables
 
     # info  -- scalar data
     #
-    # nextid      Next order ID.  If we've undone, it's the ID of the
-    #             next order to redo.
+    # redoStack  - Stack of redo records.  Item "end" is the head of the
+    #              stack.  The variable contains the empty list if there
+    #              is nothing to redo.  Each record is a dict corresponding
+    #              to a CIF row.
 
     typevariable info -array {
-        nextid  0
+        redoStack {}
     }
 
 
@@ -55,10 +57,13 @@ snit::type cif {
     # are waiting to be redone
 
     typemethod ClearUndo {} {
+        # FIRST, clear the undo information from the cif table.
         rdb eval {
             UPDATE cif SET undo='';
-            DELETE FROM cif WHERE id >= $info(nextid);
         }
+
+        # NEXT, get rid of the redo stack.
+        set info(redoStack) [list]
 
         notifier send ::cif <Update>
     }
@@ -68,40 +73,20 @@ snit::type cif {
     # Syncs the CIF stack with the database.
 
     typemethod DbSync {} {
-        if {[rdb exists {SELECT * FROM cif}]} {
-            set info(nextid) [rdb onecolumn {
-                SELECT max(id) + 1 FROM cif
-            }]
-        } else {
-            set info(nextid) 0
-        }
+        # FIRST, clear the redoStack.
+        set info(redoStack) [list]
     }
 
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # mark
+    # clear
     #
-    # Returns a mark representing the top of the CIF
+    # Clears all data from the CIF.
 
-    typemethod mark {} {
-        expr $info(nextid) - 1
-    }
-
-    # clear ?mark?
-    #
-    # mark    A mark, as returned by "mark".
-    #
-    # By default, deletes all history from the CIF.  If mark is
-    # given, deletes all history later than mark.
-
-    typemethod clear {{mark 0}} {
-        rdb eval {
-            DELETE FROM cif WHERE id > $mark;
-        }
-
-        set info(nextid) $mark
-        notifier send ::cif <Update>
+    typemethod clear {} {
+        set info(redoStack) [list]
+        rdb eval {DELETE FROM cif}
     }
 
     # add order parmdict ?undo?
@@ -113,26 +98,34 @@ snit::type cif {
     # Saves the order in the CIF.
 
     typemethod add {order parmdict {undo ""}} {
-        # FIRST, if there are things above this on the
-        # stack, delete them; this replaces them.
-        rdb eval {
-            DELETE FROM cif WHERE id >= $info(nextid);
-        }
+        # FIRST, clear the redo stack.
+        set info(redoStack) [list]
 
         # NEXT, insert the new order.
-        # TBD: there should be an SQL function for this!
         set now [simclock now]
 
         set narrative [order narrative $order $parmdict]
 
         rdb eval {
-            INSERT INTO cif(id,time,name,narrative,parmdict,undo)
-            VALUES($info(nextid), $now, $order, $narrative, $parmdict, $undo);
+            INSERT INTO cif(time,name,narrative,parmdict,undo)
+            VALUES($now, $order, $narrative, $parmdict, $undo);
         }
 
-        incr info(nextid)
-
         notifier send ::cif <Update>
+    }
+
+    # top
+    #
+    # Returns the ID of the top entry in the CIF, or "" if none.
+
+    typemethod top {} {
+        rdb eval {
+            SELECT max(id) AS top FROM cif
+        } {
+            return $top
+        }
+
+        return ""
     }
 
     # canundo
@@ -142,12 +135,17 @@ snit::type cif {
 
     typemethod canundo {} {
         # FIRST, get the undo information
+        set top [cif top]
+
+        if {$top eq ""} {
+            return ""
+        }
+
         rdb eval {
-            SELECT name,
-                   narrative,
+            SELECT narrative,
                    undo == '' AS noUndo
             FROM cif 
-            WHERE id=$info(nextid) - 1
+            WHERE id=$top
         } {
             if {$noUndo} {
                 return ""
@@ -156,7 +154,7 @@ snit::type cif {
             return $narrative
         }
 
-        return
+        return ""
     }
 
     # undo ?-test?
@@ -168,12 +166,13 @@ snit::type cif {
 
     typemethod undo {{opt ""}} {
         # FIRST, get the undo information
-        set id ""
+        set id [cif top]
+
 
         rdb eval {
-            SELECT id, name, parmdict, undo
+            SELECT id, name, narrative, parmdict, undo
             FROM cif 
-            WHERE id=$info(nextid) - 1
+            WHERE id=$id
         } {}
 
         if {$id eq "" || $undo eq ""} {
@@ -234,8 +233,18 @@ snit::type cif {
             # this should clean up any problems in Tcl memory.
             sim dbsync
         } else {
-            # FIRST, no error; update the top of the stack.
-            incr info(nextid) -1
+            # FIRST, no error; add the undo order to the redo stack.
+            lappend info(redoStack)       \
+                [dict create              \
+                     name      $name      \
+                     narrative $narrative \
+                     parmdict  $parmdict  \
+                     undo      $undo]
+
+            # NEXT, delete the order from the undo stack
+            rdb eval {
+                DELETE FROM cif WHERE id=$id
+            }
         }
 
         notifier send ::cif <Update>
@@ -250,12 +259,10 @@ snit::type cif {
 
     typemethod canredo {} {
         # FIRST, get the redo information
-        rdb eval {
-            SELECT name, narrative
-            FROM cif 
-            WHERE id=$info(nextid)
-        } {
-            return $narrative
+        set record [lindex $info(redoStack) end]
+
+        if {[dict size $record] > 0} {
+            return [dict get $record narrative]
         }
 
         return
@@ -268,33 +275,32 @@ snit::type cif {
 
     typemethod redo {} {
         # FIRST, get the redo information
-        rdb eval {
-            SELECT name, parmdict
-            FROM cif 
-            WHERE id=$info(nextid)
-        } {
+        set record [lindex $info(redoStack) end]
+        set info(redoStack) [lrange $info(redoStack) 0 end-1]
+
+        if {[dict size $record] == 0} {
+            error "Nothing to redo"
+        }
+
+        dict with record {
             log normal cif "redo: $name $parmdict"
 
             bgcatch {
                 order send app $name $parmdict
             }
 
-            incr info(nextid)
+            cif add $name $parmdict $undo
 
             notifier send ::cif <Update>
-            return
         }
 
-        error "Nothing to redo"
+        return
     }
 
-    # dump ?-count n? ?-redo"
+    # dump ?-count n?"
     #
     # -count n     Number of entries to dump, starting from the most recent.
     #              Defaults to 1
-    #
-    # -redo        Include undone orders; otherwise starts at the top of
-    #              the undo stack.
     #
     # Returns a dump of the CIF in human-readable form.  Defaults to
     # the entry on the top of the stack.
@@ -303,7 +309,6 @@ snit::type cif {
         # FIRST, get the options
         array set opts {
             -count 1
-            -redo  no
         }
 
         while {[llength $args] > 0} {
@@ -314,10 +319,6 @@ snit::type cif {
                     set opts(-count) [lshift args]
                 }
 
-                -redo {
-                    set opts(-redo) yes
-                }
-                
                 default {
                     error "Unrecognized option: \"$opt\""
                 }
@@ -330,19 +331,10 @@ snit::type cif {
 
         rdb eval [tsubst {
             SELECT * FROM cif
-            [tif {!$opts(-redo)} {WHERE id < \$info(nextid)}]
             ORDER BY id DESC
             LIMIT $opts(-count)
         }] row {
-            if {$row(id) == $info(nextid) - 1} {
-                set tag " *top*"
-            } elseif {$row(id) >= $info(nextid)} {
-                set tag " *redo*"
-            } else {
-                set tag ""
-            }
-
-            set out "\#$row(id)$tag $row(name) @ $row(time): \n"
+            set out "\#$row(id) $row(name) @ $row(time): \n"
 
 
             append out "Parameters:\n"

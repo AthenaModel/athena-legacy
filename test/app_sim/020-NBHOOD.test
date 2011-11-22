@@ -268,13 +268,11 @@ NB1 Here     1     URBAN        JOE        1.0     100 100  80 80 120 80 100 120
         ted create NB1
     } -body {
         ted notifier bind ::rdb <nbhoods>
-        ted notifier bind ::scenario <Reconcile>
         ted order NBHOOD:DELETE n NB1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::scenario <Reconcile>}
         {::rdb <nbhoods> delete NB1}
     }
 

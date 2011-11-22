@@ -16,6 +16,7 @@
   <li> <<xref athena(1)>>: The Athena simulation.
   <li> <a href="build_notes.html">Build Notes</a>: Details of each
        Athena build.
+  <li> <a href="dev/arch.html">Architecture</a>
   <li> <a href="dev/cm.html">CM Plan</a>
   <li> <a href="dev/tps.html">Third-Party Software</a>
 </ul>

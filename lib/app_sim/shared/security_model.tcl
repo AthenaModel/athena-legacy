@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    security.tcl
+#    security_model.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -23,7 +23,7 @@
 #-----------------------------------------------------------------------
 # security
 
-snit::type security {
+snit::type security_model {
     # Make it an ensemble
     pragma -hastypedestroy 0 -hasinstances 0
     
@@ -31,8 +31,6 @@ snit::type security {
     # Initialization method
 
     typemethod start {} {
-        log normal security "start"
-
         # FIRST, check requirements
         require {[info commands ::log]  ne ""} "log is not defined."
         require {[info commands ::rdb]  ne ""} "rdb is not defined."
@@ -52,9 +50,6 @@ snit::type security {
             SELECT n, g
             FROM nbhoods JOIN groups;
         }
-
-        # NEXT, Security is up.
-        log normal security "start complete"
     }
 
 

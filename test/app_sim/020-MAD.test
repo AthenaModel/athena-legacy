@@ -97,7 +97,6 @@ namespace eval ::athena_test::tests:: {
         variable m1
 
         ted create NB1 NB2 BLUE SHIA KURD
-        scenario mutate reconcile
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
         ted order MAD:CREATE $m1

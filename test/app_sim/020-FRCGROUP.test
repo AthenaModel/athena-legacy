@@ -251,13 +251,11 @@ local        0
         ted create JOE
     } -body {
         ted notifier bind ::rdb <frcgroups>
-        ted notifier bind ::scenario <Reconcile>
         ted order FRCGROUP:CREATE $blue
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::scenario <Reconcile>}
         {::rdb <frcgroups> update BLUE}
     }
 
@@ -297,13 +295,11 @@ local        0
         ted create BLUE
     } -body {
         ted notifier bind ::rdb <frcgroups>
-        ted notifier bind ::scenario <Reconcile>
         ted order FRCGROUP:DELETE g BLUE
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::scenario <Reconcile>}
         {::rdb <frcgroups> delete BLUE}
     }
 

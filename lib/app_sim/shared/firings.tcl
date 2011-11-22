@@ -31,7 +31,7 @@ snit::type ::firings {
         log normal report "init"
 
         # FIRST, support delegation to reporter(n)
-        set reporter ::projectlib::reporter
+        set reporter ::marsutil::reporter
 
         # NEXT, configure the reporter
         reporter configure \
@@ -69,7 +69,7 @@ snit::type ::firings {
     #-------------------------------------------------------------------
     # Public typemethods
 
-    delegate typemethod save to reporter
+    delegate typemethod * to reporter
 }
 
 

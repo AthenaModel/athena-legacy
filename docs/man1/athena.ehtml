@@ -28,7 +28,7 @@ The following options may be used:<p>
 
 <<defopt {-batch}>>
 
-Runs Athena in <<xref "BATCH MODE">>
+Runs Athena in <<xref "BATCH MODE">>.<p>
 
 <<defopt {-script <i>filename</i>.tcl}>>
 
@@ -47,6 +47,14 @@ line interface (CLI), the scrolling log, and the order history tab.<p>
 This option is intended for use during testing; it tells the
 application to ignore user preference settings, so that the tests
 always begin with the application in a known state.<p>
+
+<<defopt {-threads}>>
+
+By default, Athena runs single-threaded.  Some experimental work has
+been done towards a multi-threaded mode, to improve
+performance and to keep the user interface responsive while the
+simulation is working.  This option enables the experimental
+multi-threaded mode; it is not recommended for general use.<p>
 
 <</deflist options>>
 

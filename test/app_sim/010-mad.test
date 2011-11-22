@@ -59,7 +59,6 @@ namespace eval ::athena_test::tests:: {
     proc advance {} {
         ted create NB1 BLUE USAID SHIA
 
-        scenario mutate reconcile
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes
     }

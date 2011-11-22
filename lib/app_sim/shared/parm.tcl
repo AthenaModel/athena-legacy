@@ -29,28 +29,39 @@ snit::type parm {
 
     delegate typemethod * to ps
 
-    # init
+    # init mode
     #
-    # Initializes the module
+    # mode   - master or slave
+    #
+    # Initializes the module as a master (in the App thread) or as
+    # a slave (in the Engine thread).
 
-    typemethod init {} {
+    typemethod init {mode} {
         # Don't initialize twice.
         if {$ps ne ""} {
             return
         }
 
-        log detail parm "init"
+        log detail parm "init $mode"
 
         # FIRST, initialize parmdb(n), and delegate to it.
         parmdb init
 
         set ps ::projectlib::parmdb
 
-        # NEXT, register to receive simulation state updates.
-        notifier bind ::sim <State> $type [mytypemethod SimState]
+        # NEXT, if master get connected with the other App thread
+        # entities.
 
-        # FINALLY, register this type as a saveable
-        scenario register ::parm
+        if {$mode eq "master"} {
+            # Register to receive simulation state updates.
+            notifier bind ::sim <State> $type [mytypemethod SimState]
+
+            # Register this type as a saveable
+            scenario register ::parm
+        } else {
+            # Slave
+            $type LockParms
+        }
 
         log detail parm "init complete"
     }
@@ -67,77 +78,28 @@ snit::type parm {
         if {[sim state] eq "PREP"} {
             parmdb unlock *
         } else {
-            parmdb lock strategy.ticksPerTock
-            parmdb lock econ.ticksPerTock
-            parmdb lock econ.BaseWage
-            parmdb lock econ.GBasketPerCapita
-            parmdb lock econ.f.goods.goods
-            parmdb lock econ.f.pop.goods
-            parmdb lock econ.f.goods.pop
-            parmdb lock econ.f.pop.pop
-            parmdb lock econ.f.goods.else
-            parmdb lock econ.f.pop.else
+            $type LockParms
         }
     }
 
-
-
-    #-------------------------------------------------------------------
-    # Executive Commands
+    # LockParms
     #
-    # The following type methods are intended to implement parm-related
-    # executive commands.  They are implemented as subcommands of
-    # "parm exec" to distinguish them from the standard commands with
-    # the same names.
+    # Locks parameters that shouldn't be changed once the simulation is
+    # running.
 
-    # exec import filename
-    #
-    # filename   A .parmdb file
-    #
-    # Imports the .parmdb file
-
-    typemethod {exec import} {filename} {
-        order send cli PARM:IMPORT filename $filename
+    typemethod LockParms {} {
+        parmdb lock strategy.ticksPerTock
+        parmdb lock econ.ticksPerTock
+        parmdb lock econ.BaseWage
+        parmdb lock econ.GBasketPerCapita
+        parmdb lock econ.f.goods.goods
+        parmdb lock econ.f.pop.goods
+        parmdb lock econ.f.goods.pop
+        parmdb lock econ.f.pop.pop
+        parmdb lock econ.f.goods.else
+        parmdb lock econ.f.pop.else
     }
 
-
-    # exec list ?pattern?
-    #
-    # pattern    A glob pattern
-    #
-    # Lists all parameters with their values, or those matching the
-    # pattern.  If none are found, throws an error.
-
-    typemethod {exec list} {{pattern *}} {
-        set result [$ps list $pattern]
-
-        if {$result eq ""} {
-            error "No matching parameters"
-        }
-
-        return $result
-    }
-
-
-    # exec reset 
-    #
-    # Resets all parameters to defaults.
-
-    typemethod {exec reset} {} {
-        order send cli PARM:RESET
-    }
-
-
-    # exec set parm value
-    #
-    # parm     A parameter name
-    # value    A value
-    #
-    # Sets the parameter's value, using PARM:SET
-
-    typemethod {exec set} {parm value} {
-        order send cli PARM:SET parm $parm value $value
-    }
 
     #-------------------------------------------------------------------
     # Queries

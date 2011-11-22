@@ -48,7 +48,7 @@ CREATE TABLE snapshots (
 
 CREATE TABLE cif (
     -- Unique ID; used for ordering
-    id       INTEGER UNIQUE,
+    id       INTEGER PRIMARY KEY,
 
     -- Simulation time at which the order was entered.
     time     INTEGER DEFAULT 0,

@@ -418,7 +418,7 @@ snit::type ted {
     # created, and sends SIM:LOCK.
 
     typemethod lock {} {
-        scenario mutate reconcile
+        ensit mutate reconcile
         ted order SIM:LOCK
     }
 

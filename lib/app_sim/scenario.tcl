@@ -457,29 +457,6 @@ snit::type scenario {
     }
 
     #-------------------------------------------------------------------
-    # Scenario Reconciliation
-
-    # mutate reconcile
-    #
-    # This routine aggregates the various "mutate reconcile" routines,
-    # returning the accumulated undo script, so that order handlers
-    # don't need to be aware of which other modules require reconciliation.
-    #
-    # TBD: This routine is on the way out.  See notes in the
-    # body of the routine.
-
-    typemethod {mutate reconcile} {} {
-        set undo [list]
-
-        # See ensit.tcl for comments on this one.
-        lappend undo [ensit mutate reconcile]
-
-        notifier send $type <Reconcile>
-
-        return [join $undo \n]
-    }
-
-    #-------------------------------------------------------------------
     # Configure RDB
 
     # InitializeRuntimeData
@@ -542,7 +519,6 @@ snit::type scenario {
         # TBD: qsecurity should be added to scenariodb(n).
         # TBD: moneyfmt should be added to sqldocument(n).
         rdb function m2ref                [myproc M2Ref]
-        rdb function ciftop               [list ::cif mark]
         rdb function qsecurity            ::projectlib::qsecurity
         rdb function moneyfmt             ::marsutil::moneyfmt
         rdb function mklinks              [list ::sigevent mklinks]

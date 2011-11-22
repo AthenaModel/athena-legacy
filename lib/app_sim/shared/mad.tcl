@@ -466,7 +466,7 @@ snit::type mad {
 
     typemethod RestoreSat {mad driver g c sat reportid} {
         aram sat set $driver $g $c $sat -undo
-        reporter delete $reportid
+        firings delete $reportid
         notifier send ::mad <Sat> update [list $g $c]
     }
 
@@ -706,7 +706,7 @@ snit::type mad {
 
     typemethod RestoreCoop {mad driver f g coop reportid} {
         aram coop set $driver $f $g $coop -undo
-        reporter delete $reportid
+        firings delete $reportid
         notifier send ::mad <Coop> update [list $f $g]
     }
 

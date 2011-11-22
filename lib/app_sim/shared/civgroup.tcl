@@ -306,7 +306,6 @@ order define CIVGROUP:CREATE {
 
     # NEXT, create the group and dependent entities
     lappend undo [civgroup mutate create [array get parms]]
-    lappend undo [scenario mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -348,7 +347,7 @@ order define CIVGROUP:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [civgroup mutate delete $parms(g)]
-    lappend undo [scenario mutate reconcile]
+    lappend undo [ensit mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -483,4 +482,5 @@ order define CIVGROUP:UPDATE:MULTI:POSTPREP {
 
     setundo [join $undo \n]
 }
+
 

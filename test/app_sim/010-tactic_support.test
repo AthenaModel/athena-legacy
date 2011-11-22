@@ -37,7 +37,7 @@ namespace eval ::athena_test::tests:: {
 
     proc execute_setup {} {
         setup
-        control start
+        control_model start
         control load
     }
 

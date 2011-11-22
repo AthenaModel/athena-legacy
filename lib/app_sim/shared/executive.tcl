@@ -317,11 +317,11 @@ snit::type executive {
 
         # parm import
         $interp smartalias {parm import} 1 1 {filename} \
-            [list ::parm exec import]
+            [myproc parmImport]
 
         # parm list
         $interp smartalias {parm list} 0 1 {?pattern?} \
-            [list ::parm exec list]
+            [myproc parmList]
 
         # parm names
         $interp smartalias {parm names} 0 1 {?pattern?} \
@@ -329,11 +329,11 @@ snit::type executive {
 
         # parm reset
         $interp smartalias {parm reset} 0 0 {} \
-            [list ::parm exec reset]
+            [myproc parmReset]
 
         # parm set
         $interp smartalias {parm set} 2 2 {parm value} \
-            [list ::parm exec set]
+            [myproc parmSet]
 
         # prefs
         $interp ensemble prefs
@@ -697,12 +697,10 @@ snit::type executive {
         set lastRun(index) ""
         set lastRun(time)  ""
 
-        set mark [cif mark]
-
         rdb eval {
             SELECT time,name,parmdict
             FROM cif
-            WHERE id <= $mark AND name != 'SIM:UNLOCK'
+            WHERE name != 'SIM:UNLOCK'
             ORDER BY id
         } {
             # SIM:RUN requires special handling.
@@ -885,6 +883,55 @@ snit::type executive {
         }
 
         error "nbmood not yet computed"
+    }
+
+    # parmImport filename
+    #
+    # filename   A .parmdb file
+    #
+    # Imports the .parmdb file
+
+    proc parmImport {filename} {
+        send PARM:IMPORT -filename $filename
+    }
+
+
+    # parmList ?pattern?
+    #
+    # pattern    A glob pattern
+    #
+    # Lists all parameters with their values, or those matching the
+    # pattern.  If none are found, throws an error.
+
+    proc parmList {{pattern *}} {
+        set result [parm list $pattern]
+
+        if {$result eq ""} {
+            error "No matching parameters"
+        }
+
+        return $result
+    }
+
+
+    # parmReset 
+    #
+    # Resets all parameters to defaults.
+
+    proc parmReset {} {
+        send PARM:RESET
+    }
+
+
+    # parmSet parm value
+    #
+    # parm     A parameter name
+    # value    A value
+    #
+    # Sets the parameter's value, using PARM:SET
+
+    proc parmSet {parm value} {
+        send PARM:SET -parm $parm -value $value
     }
 
     # pctcontrol a ?a...?

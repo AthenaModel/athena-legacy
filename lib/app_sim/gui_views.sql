@@ -620,7 +620,7 @@ SELECT id                                            AS id,
        parmdict                                      AS parmdict,
        undo                                          AS undo,
        CASE WHEN undo != '' THEN 'Yes' ELSE 'No' END AS canUndo
-FROM cif WHERE id <= ciftop()
+FROM cif
 ORDER BY id DESC;
 
 -- View of MADs for use in browsers and order dialogs

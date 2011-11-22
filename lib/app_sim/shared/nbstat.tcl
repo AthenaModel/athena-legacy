@@ -11,7 +11,7 @@
 #
 #    This module computes the status of each neighborhood and of
 #    the groups and units within it.  Most of the work is done by
-#    the security(sim) and activity(sim) submodules.
+#    the security(sim) and coverage(sim) submodules.
 #
 #    ::nbstat is a singleton object implemented as a snit::type.  To
 #    initialize it, call "::nbstat start".  It can be re-initialized
@@ -33,8 +33,8 @@ snit::type nbstat {
         log normal nbstat "start"
 
         # FIRST, initialize the sub-modules.
-        security start
-        activity start
+        security_model start
+        coverage_model start
 
         # NEXT, do the initial analysis
         nbstat analyze
@@ -53,8 +53,8 @@ snit::type nbstat {
 
     typemethod analyze {} {
         # FIRST, call the submodules
-        security analyze
-        activity analyze
+        security_model analyze
+        coverage_model analyze
     }
 }
 

@@ -79,7 +79,7 @@ snit::type econ {
                      -epsilon  0.000001 \
                      -maxiters 1000     \
                      -tracecmd [mytypemethod TraceCGE]]
-        cge load [readfile [file join $::app_sim::library eco3x3.cm]]
+        cge load [readfile [file join $::app_sim_shared::library eco3x3.cm]]
         
         require {[cge sane]} "The econ model's CGE (eco3x3.cm) is not sane."
 

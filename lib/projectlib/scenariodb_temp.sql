@@ -102,7 +102,7 @@ CREATE TEMPORARY TABLE working_personnel (
 
 -- working_supports table: Actor supported by Actor a in n.
 
-CREATE TABLE working_supports (
+CREATE TEMPORARY TABLE working_supports (
     -- Symbolic group name
     n         TEXT,
 
@@ -136,7 +136,7 @@ CREATE TEMPORARY TABLE working_deployment (
 -- Working Service Group/Actor table: funding for service to the group
 -- by the actor.
 
-CREATE TABLE working_service_ga (
+CREATE TEMPORARY TABLE working_service_ga (
     -- Civilian Group ID
     g            TEXT,
 
