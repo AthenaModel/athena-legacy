@@ -72,8 +72,8 @@ KURD BOB 0.0     0.0
         cleanup
     } -result {
 g                   SHIA
-saturation_funding  2000.0
-required            0.1
+saturation_funding  4000.0
+required            0.6
 funding             0.0
 actual              0.0
 expected            0.0
@@ -83,8 +83,8 @@ driver
 signature           
 
 g                   SUNN
-saturation_funding  4000.0
-required            0.1
+saturation_funding  8000.0
+required            0.6
 funding             0.0
 actual              0.0
 expected            0.0
@@ -95,7 +95,7 @@ signature
 
 g                   KURD
 saturation_funding  4000.0
-required            0.1
+required            0.2
 funding             0.0
 actual              0.0
 expected            0.0
@@ -118,30 +118,30 @@ signature
         cleanup
     } -result {
 g                   SHIA
-saturation_funding  2000.0
-required            0.1
-funding             1000.0
-actual              0.5
-expected            0.5
-expectf             0.0
-needs               0.888888888888889
-driver              
-signature           
-
-g                   SUNN
 saturation_funding  4000.0
-required            0.1
+required            0.6
 funding             1000.0
 actual              0.25
 expected            0.25
 expectf             0.0
-needs               0.3333333333333333
+needs               -1.1666666666666667
+driver              
+signature           
+
+g                   SUNN
+saturation_funding  8000.0
+required            0.6
+funding             1000.0
+actual              0.125
+expected            0.125
+expectf             0.0
+needs               -1.5833333333333333
 driver              
 signature           
 
 g                   KURD
 saturation_funding  4000.0
-required            0.1
+required            0.2
 funding             0.0
 actual              0.0
 expected            0.0
@@ -294,8 +294,8 @@ KURD BOB 0.0     0.0
     } -result {
 g    saturation_funding 
 ---- ------------------ 
-SHIA 2000.0             
-SUNN 4000.0             
+SHIA 4000.0             
+SUNN 8000.0             
 KURD 4000.0             
     }
     
@@ -312,9 +312,9 @@ KURD 4000.0
     } -result {
 g    required 
 ---- -------- 
-SHIA 0.1      
-SUNN 0.1      
-KURD 0.1      
+SHIA 0.6      
+SUNN 0.6      
+KURD 0.2      
     }
 
     test save-3.3 {Computes funding: zero funding} -setup {
@@ -380,8 +380,8 @@ KURD 1200.0
     } -result {
 g    funding saturation_funding funding/saturation_funding actual 
 ---- ------- ------------------ -------------------------- ------ 
-SHIA 300.0   2000.0             0.15                       0.15   
-SUNN 600.0   4000.0             0.15                       0.15   
+SHIA 300.0   4000.0             0.075                      0.075  
+SUNN 600.0   8000.0             0.075                      0.075  
 KURD 1200.0  4000.0             0.3                        0.3    
     }
 
@@ -403,8 +403,8 @@ KURD 1200.0  4000.0             0.3                        0.3
     } -result {
 g    actual expected 
 ---- ------ -------- 
-SHIA 0.15   0.075    
-SUNN 0.15   0.075    
+SHIA 0.075  0.0375   
+SUNN 0.075  0.0375   
 KURD 0.3    0.15     
     }
 

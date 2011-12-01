@@ -250,9 +250,8 @@ snit::type actsit_rules {
             # Then for each CIV group f in the nbhood,
             foreach f [civgroup gIn $n] {
                 satslope $cov $f \
-                    AUT quad XXS+ \
-                    SFT quad XXS+ \
-                    QOL quad XXS+
+                    AUT quad XXXS+ \
+                    SFT quad XXXS+ 
 
                 coopslope $f $cov quad XXS+
             }
@@ -801,7 +800,6 @@ snit::type actsit_rules {
             # Then for each CIV group f in the nbhood,
             foreach f [civgroup gIn $n] {
                 satslope $cov $f \
-                    AUT quad M+  \
                     SFT quad S+
 
                 coopslope $f $cov quad M+
@@ -816,7 +814,7 @@ snit::type actsit_rules {
             #     with COVERAGE = 0.0
             # Then for each CIV group in the nbhood there should be no
             # satisfaction implications.
-            dam sat clear AUT SFT
+            dam sat clear SFT
             dam coop clear
         }
     }

@@ -110,15 +110,15 @@ snit::type demsit_rules {
             #     with ngfactor > 0.0
             # Then for CIV group g in the nbhood,
             if {$ngfactor > 0.0} {
-                dam sat slope QOL [mag* $ngfactor L-]
+                dam sat slope QOL [mag* $ngfactor XXS-]
             }
 
             # While there is an UNEMP situation affecting group g
             #     with nfactor > 0.0
             # Then for CIV group g in the nbhood,
             if {$nfactor > 0.0} {
-                dam sat slope SFT [mag* $nfactor M-]
-                dam sat slope AUT [mag* $nfactor S-]
+                dam sat slope SFT [mag* $nfactor XXS-]
+                dam sat slope AUT [mag* $nfactor XXS-]
             }
         }
 
