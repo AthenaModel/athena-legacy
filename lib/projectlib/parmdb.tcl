@@ -848,8 +848,8 @@ snit::type ::projectlib::parmdb {
 
         # Rule Set: CMOLAW
         $ps setdefault dam.CMOLAW.cause           CMOLAW
-        $ps setdefault dam.CMOLAW.nearFactor      0.0
-        $ps setdefault dam.CMOLAW.farFactor       0.0
+        $ps setdefault dam.CMOLAW.nearFactor      0.5
+        $ps setdefault dam.CMOLAW.farFactor       0.25
 
         # Rule Set: CMOMED
         $ps setdefault dam.CMOMED.cause           CMOMED
@@ -917,7 +917,7 @@ snit::type ::projectlib::parmdb {
 
         # Rule Set: ENI
         $ps setdefault dam.ENI.cause              ENI
-        $ps setdefault dam.ENI.nearFactor         0.0
+        $ps setdefault dam.ENI.nearFactor         0.25
         $ps setdefault dam.ENI.farFactor          0.0
 
         # Rule Set: EPIDEMIC
@@ -1024,6 +1024,11 @@ snit::type ::projectlib::parmdb {
             SEWAGE
         }
 
+        # Rule Set: UNEMP
+        $ps setdefault dam.UNEMP.cause            UNEMP
+        $ps setdefault dam.UNEMP.nearFactor       0.2
+        $ps setdefault dam.UNEMP.farFactor        0.0
+
         # Rule Set: PATROL
         $ps setdefault dam.PATROL.cause           PATROL
         $ps setdefault dam.PATROL.nearFactor      0.5
@@ -1041,7 +1046,7 @@ snit::type ::projectlib::parmdb {
 
         # Rule Set: PRESENCE
         $ps setdefault dam.PRESENCE.cause         PRESENCE
-        $ps setdefault dam.PRESENCE.nearFactor    0.0
+        $ps setdefault dam.PRESENCE.nearFactor    0.25
         $ps setdefault dam.PRESENCE.farFactor     0.0
 
         # Rule Set: PSYOP
@@ -1063,11 +1068,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.SEWAGE.cause           SEWAGE
         $ps setdefault dam.SEWAGE.nearFactor      0.2
         $ps setdefault dam.SEWAGE.farFactor       0.0
-
-        # Rule Set: UNEMP
-        $ps setdefault dam.UNEMP.cause            UNEMP
-        $ps setdefault dam.UNEMP.nearFactor       0.0
-        $ps setdefault dam.UNEMP.farFactor        0.0
 
         # Rule parameters
         foreach rule [lsort -dictionary [edamrule names]] {
