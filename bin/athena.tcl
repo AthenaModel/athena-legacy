@@ -144,6 +144,11 @@ proc from {argvar option {defvalue ""}} {
     return $value
 }
 
+# errputs args
+#
+# args   - puts arguments
+#
+# If 
 
 # nonTkArgs arglist
 #
@@ -259,6 +264,10 @@ proc ::athena_mods::ModCmd {ver num title body} {
 proc ::athena_mods::apply {} {
     variable mods
 
+    # FIRST, get the mods directory
+    set moddir [appdir join mods]
+
+    # NEXT, apply the mods
     foreach num [lsort -integer $mods(ids)] {
         # FIRST, it's an error if the version doesn't match
         if {[llength [info commands ::version]] != 0 &&
@@ -268,7 +277,7 @@ proc ::athena_mods::apply {} {
             puts "  Mod file $mods(modfile-$num) is for Athena $mods(version-$num)."
             puts "  This is Athena [version]."
             puts ""
-            puts "Remove $mods(modfile-$num) from $::moddir."
+            puts "Remove $mods(modfile-$num) from $moddir."
             exit 1
         }
 
@@ -277,7 +286,7 @@ proc ::athena_mods::apply {} {
         } result]} {
             puts "Could not load mod $num from $mods(modfile-$num)\n  $result"
             puts ""
-            puts "Remove $mods(modfile-$num) from $::moddir]."
+            puts "Remove $mods(modfile-$num) from $moddir]."
             exit 1
         }
     }
