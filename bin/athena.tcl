@@ -303,8 +303,6 @@ proc ::athena_mods::logmods {} {
 #
 # line   -  One or more lines of text, as distinct arguments.
 #
-# TBD: This should be in [os].
-#
 # On Linux/OS X, writes the text to standard output, and exits.
 # On Windows, pops up a messagebox and exits when the box is closed.
 
@@ -315,11 +313,8 @@ proc errexit {args} {
         puts $text
     } else {
         wm withdraw .
-        messagebox popup \
-            -parent  .         \
-            -buttons {ok "OK"} \
-            -icon    error     \
-            -title   "Athena Error"   \
+        modaltextwin popup \
+            -title   "Athena is shutting down" \
             -message $text
     }
 

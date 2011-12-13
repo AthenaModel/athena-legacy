@@ -797,11 +797,8 @@ snit::type app {
             puts $text
         } else {
             wm withdraw .
-            messagebox popup \
-                -parent  .         \
-                -buttons {ok "OK"} \
-                -icon    error     \
-                -title   "Athena is Shutting Down"   \
+            modaltextwin popup \
+                -title   "Athena is shutting down" \
                 -message $text
         }
     }
