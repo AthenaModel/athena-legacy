@@ -758,9 +758,9 @@ snit::type app {
             set text [uplevel 1 [list tsubst $text]]
 
             if {!$opts(-batch)} {
-                puts $text
+                app DisplayExitText $text
             } else {
-                puts stderr \
+                app DisplayExitText \
                     "Error; see [file join [pwd] error.log] for details."
                 set f [open "error.log" w]
                 puts $f $text
@@ -773,16 +773,36 @@ snit::type app {
             .main savehistory
         }
 
-        # NEXT, release the threads
+        # NEXT, release any threads
         log release
-
-        # TBD: May need to wait until all threads exit.
 
         # NEXT, exit
         if {$text ne ""} {
             exit 1
         } else {
             exit
+        }
+    }
+
+    # DisplayExitText text...
+    #
+    # text - An exit message: multiple lines, each as a separate arg.
+    #
+    # Displays the [app exit] text appropriately for the platform.
+
+    typemethod DisplayExitText {args} {
+        set text [join $args \n]
+
+        if {[os type] ne "win32"} {
+            puts $text
+        } else {
+            wm withdraw .
+            messagebox popup \
+                -parent  .         \
+                -buttons {ok "OK"} \
+                -icon    error     \
+                -title   "Athena is Shutting Down"   \
+                -message $text
         }
     }
 

@@ -144,12 +144,6 @@ proc from {argvar option {defvalue ""}} {
     return $value
 }
 
-# errputs args
-#
-# args   - puts arguments
-#
-# If 
-
 # nonTkArgs arglist
 #
 # arglist        An argument list
@@ -217,8 +211,7 @@ proc ::athena_mods::load {} {
         if {[catch {
             $interp invokehidden source $modfile
         } result]} {
-            puts "Error loading mod [file tail $modfile]: $result"
-            exit 1
+            errexit "Error loading mod [file tail $modfile]: $result"
         }
     }
 
@@ -243,10 +236,12 @@ proc ::athena_mods::ModCmd {ver num title body} {
 
     # FIRST, it's an error if we already have a mod with this number
     if {$num in $mods(ids)} {
-        puts "Duplicate mod:"
-        puts "  Mod #$num is defined in [file tail $modfile]"
-        puts "  Mod #$num is redefined in $mods(modfile-$num)"
-        exit 1
+        errexit \
+            "Duplicate mod:" \
+            "  Mod #$num is defined in [file tail $modfile]"  \
+            "  Mod #$num is redefined in $mods(modfile-$num)" \
+            "" \
+            "Please remove one or the other (or both)."
     }
 
     # NEXT, save the data
@@ -273,21 +268,21 @@ proc ::athena_mods::apply {} {
         if {[llength [info commands ::version]] != 0 &&
             $mods(version-$num) ne [version]
         } {
-            puts "Version mismatch:"
-            puts "  Mod file $mods(modfile-$num) is for Athena $mods(version-$num)."
-            puts "  This is Athena [version]."
-            puts ""
-            puts "Remove $mods(modfile-$num) from $moddir."
-            exit 1
+            errexit \
+                "Version mismatch:" \
+                "  Mod file $mods(modfile-$num) is for Athena $mods(version-$num)." \
+                "  This is Athena [version]." \
+                "" \
+                "Remove $mods(modfile-$num) from $moddir."
         }
 
         if {[catch {
             namespace eval :: $mods(body-$num)
         } result]} {
-            puts "Could not load mod $num from $mods(modfile-$num)\n  $result"
-            puts ""
-            puts "Remove $mods(modfile-$num) from $moddir]."
-            exit 1
+            errexit \
+                "Could not load mod $num from $mods(modfile-$num)\n  $result" \
+                "" \
+                "Remove $mods(modfile-$num) from $moddir."
         }
     }
 }
@@ -304,17 +299,33 @@ proc ::athena_mods::logmods {} {
     }
 }
 
-# putsmods
+# errexit line...
 #
-# Outputs the loaded mods to stdout for the application
+# line   -  One or more lines of text, as distinct arguments.
+#
+# TBD: This should be in [os].
+#
+# On Linux/OS X, writes the text to standard output, and exits.
+# On Windows, pops up a messagebox and exits when the box is closed.
 
-proc ::athena_mods::putsmods {} {
-    variable mods
+proc errexit {args} {
+    set text [join $args \n]
 
-    foreach num [lsort -integer $mods(ids)] {
-        puts "mod loaded: $num, \"$mods(title-$num)\", from $mods(modfile-$num)"
+    if {[os type] ne "win32"} {
+        puts $text
+    } else {
+        wm withdraw .
+        messagebox popup \
+            -parent  .         \
+            -buttons {ok "OK"} \
+            -icon    error     \
+            -title   "Athena Error"   \
+            -message $text
     }
+
+    exit 1
 }
+
 
 #-----------------------------------------------------------------------
 # Run the program
