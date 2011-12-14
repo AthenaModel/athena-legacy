@@ -242,6 +242,11 @@ snit::type scenario {
             set dbfile $filename
         }
 
+        # NEXT, make sure it has a .adb extension.
+        if {[file extension $dbfile] ne ".adb"} {
+            append dbfile ".adb"
+        }
+
         # NEXT, save the saveables
         $type SaveSaveables -saved
 
