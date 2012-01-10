@@ -192,6 +192,9 @@ snit::type scenario {
     # completes the process.
 
     typemethod FinishOpeningScenario {filename} {
+        # FIRST, set the current working directory to the scenario
+        # file location.
+        catch {cd [file dirname [file normalize $filename]]}
 
         # NEXT, define the temporary schema definitions
         DefineTempSchema
@@ -274,6 +277,10 @@ snit::type scenario {
             }
             return 0
         }
+
+        # NEXT, set the current working directory to the scenario
+        # file location.
+        catch {cd [file dirname [file normalize $filename]]}
 
         # NEXT, save the name
         set info(dbfile) $dbfile
