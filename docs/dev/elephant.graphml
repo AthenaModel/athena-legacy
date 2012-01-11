@@ -15,7 +15,6 @@
   <graph edgedefault="directed" id="G">
     <data key="d7"/>
     <node id="n0">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.paperType">
           <y:Geometry height="40.0" width="80.0" x="59.0" y="211.0"/>
@@ -26,7 +25,6 @@
       </data>
     </node>
     <node id="n1">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.paperType">
           <y:Geometry height="40.0" width="118.0" x="515.0" y="247.0"/>
@@ -37,7 +35,6 @@
       </data>
     </node>
     <node id="n2">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="135.0" width="50.0" x="435.0" y="312.0"/>
@@ -48,7 +45,6 @@
       </data>
     </node>
     <node id="n3">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.process">
           <y:Geometry height="135.0" width="50.0" x="249.0" y="312.0"/>
@@ -59,7 +55,6 @@
       </data>
     </node>
     <node id="n4">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.start1">
           <y:Geometry height="153.0" width="308.0" x="219.0" y="190.5"/>
@@ -70,7 +65,6 @@
       </data>
     </node>
     <node id="n5">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.flowchart.start2">
           <y:Geometry height="112.0" width="118.0" x="131.0" y="175.0"/>
@@ -81,7 +75,6 @@
       </data>
     </node>
     <edge id="e0" source="n0" target="n0">
-      <data key="d9"/>
       <data key="d10">
         <y:ArcEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -94,20 +87,18 @@
       </data>
     </edge>
     <edge id="e1" source="n1" target="n2">
-      <data key="d9"/>
       <data key="d10">
         <y:ArcEdge>
           <y:Path sx="-32.59950507901374" sy="19.953807186358176" tx="24.9765625" ty="-38.112945556640625">
             <y:Point x="518.6453247070312" y="319.8267517089844"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
-          <y:Arrows source="none" target="standard"/>
+          <y:Arrows source="standard" target="standard"/>
           <y:Arc height="7.859421253204346" ratio="0.40098822116851807" type="fixedRatio"/>
         </y:ArcEdge>
       </data>
     </edge>
     <edge id="e2" source="n2" target="n3">
-      <data key="d9"/>
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="-25.03207978301856" sy="-25.516202442286442" tx="24.981868181075072" ty="-30.155535185487963">
@@ -119,7 +110,6 @@
       </data>
     </edge>
     <edge id="e3" source="n5" target="n1">
-      <data key="d9"/>
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -131,7 +121,6 @@
       </data>
     </edge>
     <edge id="e4" source="n5" target="n3">
-      <data key="d9"/>
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="0.0" sy="0.0" tx="6.0" ty="-43.0">
@@ -143,7 +132,6 @@
       </data>
     </edge>
     <edge id="e5" source="n0" target="n4">
-      <data key="d9"/>
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -155,7 +143,6 @@
       </data>
     </edge>
     <edge id="e6" source="n5" target="n2">
-      <data key="d9"/>
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="0.0" sy="0.0" tx="-18.0" ty="45.5">
@@ -167,7 +154,6 @@
       </data>
     </edge>
     <edge id="e7" source="n2" target="n0">
-      <data key="d9"/>
       <data key="d10">
         <y:QuadCurveEdge straightness="0.1">
           <y:Path sx="24.98183482852329" sy="-16.394457970589485" tx="0.0" ty="-15.029296875">
