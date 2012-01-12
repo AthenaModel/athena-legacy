@@ -56,6 +56,8 @@ snit::widgetadaptor sqservicebrowser {
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
+                ::rdb <civgroups>
+                ::rdb <actors>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.

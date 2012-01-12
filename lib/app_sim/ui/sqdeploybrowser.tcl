@@ -55,6 +55,8 @@ snit::widgetadaptor sqdeploybrowser {
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
+                ::rdb <nbhoods>
+                ::rdb <groups>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
