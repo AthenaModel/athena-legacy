@@ -49,6 +49,13 @@ namespace eval ::athena_test::tests:: {
         x1             45.0
     }
 
+    set C2 {
+        cc_id          1
+        g              SHIA
+        op1            GT
+        x1             D
+    }
+
     #-------------------------------------------------------------------
     # CONDITION:MOOD:CREATE
 
@@ -128,7 +135,28 @@ x1              45.0
     }
 
 
-    test CREATE-2.2 {Effects} -setup {
+    # Test for Bug 3318
+    test CREATE-2.2 {condition is created; value can be symbolic} -setup {
+        setup
+    } -body {
+        ted order CONDITION:MOOD:CREATE $C2
+
+        ted querylist {SELECT * FROM conditions_MOOD}
+    } -cleanup {
+        cleanup
+    } -result {
+condition_id    1
+condition_type  MOOD
+cc_id           1
+narrative       Group SHIA's mood is greater than -40.00.
+state           normal
+flag            
+g               SHIA
+op1             GT
+x1              -40.0
+    }
+
+    test CREATE-2.3 {Effects} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <conditions>
