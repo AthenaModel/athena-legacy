@@ -42,7 +42,7 @@ snit::widgetadaptor demsitbrowser {
         {stype    "Type"                                        }
         {n        "Nbhood"                                      }
         {g        "Group"                                       }
-        {ngfactor "NG UAF"     -sortmode real    -foreground %D }
+        {ngfactor "G UAF"      -sortmode real    -foreground %D }
         {nfactor  "N UAF"      -sortmode real    -foreground %D }
         {ts       "Began At"                     -foreground %D }
         {tc       "Changed At"                   -foreground %D }

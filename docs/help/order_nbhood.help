@@ -33,7 +33,7 @@ macro NBHOOD.n {} {
 #-----------------------------------------------------------------------
 
 order NBHOOD:CREATE "Create Neighborhood" {
-    <b><<cref /using/prep>> Only.</b>  This order creates a new 
+    <b><<term prep>> Only.</b>  This order creates a new 
     <<term nbhood>>.
     The order parameters are as follows:<p>
 
@@ -45,7 +45,7 @@ order NBHOOD:CREATE "Create Neighborhood" {
 #-----------------------------------------------------------------------
 
 order NBHOOD:DELETE "Delete Neighborhood" {
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <b><<term prep>> Only.</b>  Deletes an existing
     neighborhood, along with all entities (e.g., civilian groups)
     that depend upon it.  The order parameters are as follows:<p>
 
@@ -58,7 +58,7 @@ order NBHOOD:DELETE "Delete Neighborhood" {
 #-----------------------------------------------------------------------
 
 order NBHOOD:LOWER "Lower Neighborhood" {
-    <b><<cref /using/prep>> Only.</b>  Lowers a neighborhood
+    <b><<term prep>> Only.</b>  Lowers a neighborhood
     to the bottom of the stacking order, so that all overlapping
     neighborhoods are stacked upon this one, and then determines
     whether this neighborhood is obscured by any of those above it.
@@ -76,7 +76,7 @@ order NBHOOD:LOWER "Lower Neighborhood" {
 #-----------------------------------------------------------------------
 
 order NBHOOD:RAISE "Raise Neighborhood" {
-    <b><<cref /using/prep>> Only.</b>  Raises a neighborhood
+    <b><<term prep>> Only.</b>  Raises a neighborhood
     to the top of the stacking order, so that all overlapping
     neighborhoods are underneath it, and then determines
     whether this neighborhood obscures any of those below it.
@@ -93,7 +93,7 @@ order NBHOOD:RAISE "Raise Neighborhood" {
 #-----------------------------------------------------------------------
 
 order NBHOOD:UPDATE "Update Neighborhood" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of an existing <<term nbhood>>.  The order
     parameters are as follows:<p>
 
@@ -106,7 +106,7 @@ order NBHOOD:UPDATE "Update Neighborhood" {
 #-----------------------------------------------------------------------
 
 order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of two or more existing <<term nbhood>>s, as selected
     in the GUI.  The order parameters are as follows:<p>
 
@@ -119,4 +119,5 @@ order NBHOOD:UPDATE+MULTI "Update Multiple Neighborhoods" {
 
     <</parmlist>>
 }
+
 

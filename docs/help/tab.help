@@ -75,9 +75,9 @@ tab "Map" {
     browser controls are described <<seebelow controls>>.<p>
 
     <b>Basics:</b> For the most part, using the Map Viewer is
-    intuitive.  See <<cref /using/maps>> for information on map
-    cooperations and importing a map background into the scenario.
-    See <<cref /using/prep>> for information on defining a scenario.<p>
+    intuitive.  See the <i>Athena User's Guide</i> for information on map
+    cooperations and importing a map background into the scenario,
+    and for information on defining a scenario.<p>
 
     <b><a name="controls">Browser Controls:</a></b>  The Map Viewer
     has two toolbars, the manipulation toolbar along the left-hand
@@ -161,7 +161,7 @@ tab "Map" {
     polygons are filled with color based on some 
     <<cref /var/n "Neighborhood Variable">>.  This pulldown determines the
     which variable is used.  Note that some variables are unavailable
-    during <<cref /using/prep>>.<p>
+    during <<term prep>>.<p>
 
     The pulldown is initially populated with a number of neighborhood
     variables; others can be requested using the <<command nbfill>> 
@@ -182,6 +182,107 @@ tab "Map" {
 
     <</topiclist>>
 }
+
+#=======================================================================
+# Detail Tab
+
+tab "Detail" {
+    The Detail tab contains the Detail Browser, which is the central
+    part of the Athena user interface, and the primary spot for
+    viewing scenario inputs, outputs, and the on-line help.  
+
+    In form, the Detail Browser resembles a web browser: it displays
+    pages of HTML-formatted data, each of which has its own URL.  The
+    user can navigate the data by clicking on links, by use of the
+    back and forward buttons, and by entering specific URLs into the
+    browser's address bar.  However, the Detail Browser does not
+    implement true web access; it will only display data from within
+    the application, not data from external web pages.<p>
+
+    The Detail Browser has several distinctive parts:<p>
+
+    <ul>
+    <li> <b>The Toolbar</b>, which contains standard browsing
+         tools.<p>
+
+    <li> <b>The <<cref /tab/detail/sidebar Sidebar>></b>, which provides quick
+         links to many of the available pages.<p>
+
+    <li> <b>The Data Pane</b>, in which pages are displayed.  The data
+         page has a helpful <<cref /tab/detail/context "context menu">>.
+    </ul>
+
+    The toolbar controls are as follows:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_backward]>>
+    Press to go back to the previously displayed page.
+    <</topic>>
+
+    <<topic [image button_forward]>>
+    After pressing the back button, press this to return to the page
+    that was left.
+    <</topic>>
+
+    <<topic [image button_home]>>
+    Go to the application's home page.
+    <</topic>>
+
+    <<topic [image button_reload]>>
+    Reload the current page.  (This is not usually necessary, as
+    Athena will usually reload the displayed page when data changes.)
+    <</topic>>
+
+    <<topic [image control_addressbar]>>
+    The address bar; enter a page's URL here to go straight to that page.
+    <</topic>>
+
+    <<topic [image control_search]>>
+    The search box; enter a search string to find the related on-line help.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+page /tab/detail sidebar "Detail Browser Sidebar" {
+    <<title>>
+
+    The <<cref /tab/detail "Detail Browser's">> sidebar contains links
+    to various useful pages.<p>
+
+    <<image control_dbsidebar>>
+
+    The sidebar has two tabs, the "Objects" tab, which has pages
+    related to the simulation objects and outputs, and the "?" tab,
+    which displays the tree of on-line help pages.  Click on the "+"
+    icons to open and close topics; and click on the topics to go to
+    the indicated page.<p>
+}
+
+page /tab/detail context "Detail Browser Context Menu" {
+    <<title>>
+
+    Right-clicking with the mouse on the 
+    <<cref /tab/detail "Detail Browser's">> data pane brings up a
+    context menu with the following menu items:<p>
+
+    <dl>
+    <dt><b>Save to Disk...</b>
+    <dd> Saves the HTML text of the page to disk as a .html file.<p>
+
+    <dt><b>View in System Web Browser...</b>
+    <dd> Saves the HTML text to disk, and opens it in the system's
+         default web browser.  The formatting may be somewhat
+         different, and images might be missing; however, this is a
+         convenient way to print the text.<p>
+
+    <dt><b>View Source...</b>
+    <dd> Displays the HTML source for the current page in a window.
+    </dl>
+
+}
+
 
 #=======================================================================
 # Strategy Tab
@@ -254,11 +355,11 @@ page /tab/strategy goals_tree "Goals Tree" {
 
     <<topiclist Control Description>>
 
-    <<topic "TBD: Plus/G icon">>
+    <<topic [image button_plusg]>>
     Create a new goal.
     <</topic>>
 
-    <<topic "TBD: Plus/C icon">>
+    <<topic [image button_plusc]>>
     Create a new condition for the currently selected goal.
     <</topic>>
 
@@ -266,12 +367,16 @@ page /tab/strategy goals_tree "Goals Tree" {
     Pops up the update dialog for the selected goal or condition.
     <</topic>>
 
-    <<topic "TBD: On/Off icon">>
+    <<topic [image button_power]>>
     Toggles the selected goal on and off.  Disabled goals are
     grayed out with an overstrike.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_checktxt]>>
+    Force a sanity check of the actors' strategies.
+    <</topic>>
+
+    <<topic [image button_trash]>>
     Deletes the selected goal or condition.
     <</topic>>
 
@@ -337,11 +442,11 @@ page /tab/strategy tactics_tree "Tactics Tree" {
 
     <<topiclist Control Description>>
 
-    <<topic "TBD: Plus/T icon">>
+    <<topic [image button_plust]>>
     Create a new tactic.
     <</topic>>
 
-    <<topic "TBD: Plus/C icon">>
+    <<topic [image button_plusc]>>
     Create a new condition for the currently selected tactic.
     <</topic>>
 
@@ -369,12 +474,12 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     scheduled for the same agent.
     <</topic>>
 
-    <<topic "TBD: On/Off icon">>
+    <<topic [image button_power]>>
     Toggles the selected tactic on and off.  Disabled tactics are
     grayed out with an overstrike.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     Deletes the selected tactic or condition.
     <</topic>>
 
@@ -396,7 +501,7 @@ tab "Neighborhoods" {
 tab "Neighborhoods/Neighborhoods" {
     This tab shows basic data about each 
     <<term nbhood>>, as entered
-    during <<cref /using/prep>>, along with some values computed as the
+    during <<term prep>>, along with some values computed as the
     simulation runs.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -437,7 +542,7 @@ tab "Neighborhoods/Neighborhoods" {
     of the stacking order using the <<cref /order/nbhood/lower>> order.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single neighborhood is selected, deletes it using the
     <<cref /order/nbhood/delete>> order.
     <</topic>>
@@ -454,7 +559,7 @@ tab "Neighborhoods/Relationships" {
 
     This tab shows the relationship between pairs of
     <<cref /order/nbrel neighborhoods>>, as entered
-    during <<cref /using/prep>>.  The browser controls are described 
+    during <<term prep>>.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
@@ -514,7 +619,7 @@ tab "Neighborhoods/Security" {
 
     This tab shows the <<term security>> of each group in each neighborhood.
     This browser is populated only after Athena leaves
-    <<cref /using/prep>>.  The browser controls are described 
+    <<term prep>>.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
@@ -563,7 +668,7 @@ tab "Neighborhoods/Security" {
     <<topic "VtyGain">>A multiplier that increases or decreases the
     <<term volatility>> in the neighborhood.  This number is constant across
     groups in a neighborhood, and can be edited during 
-    <<cref /using/prep>> using the <<cref /order/nbhood/update>> order.
+    <<term prep>> using the <<cref /order/nbhood/update>> order.
     <</topic>>
 
     <<topic "NomVty">>The nominal volatility, i.e., the volatility
@@ -592,7 +697,7 @@ tab "Neighborhoods/Activity" {
     contribute to the <b>PRESENCE</b> activity of their group; in addition,
     group personnel can be assigned activities via the
     <<cref /object/tactic/assign>>.  This browser is populated only
-    after Athena leaves <<cref /using/prep>>.  The browser controls are
+    after Athena leaves <<term prep>>.  The browser controls are
     described <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
@@ -660,7 +765,7 @@ tab "Neighborhoods/ActSits" {
     This tab shows the activity situations created in response to the
     activities listed in the <<tab Neighborhoods/Activity>>.
     This browser is populated only
-    after Athena leaves <<cref /using/prep>>.  The browser controls are
+    after Athena leaves <<term prep>>.  The browser controls are
     described <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
@@ -744,7 +849,7 @@ tab "Neighborhoods/DemSits" {
 
     This tab shows the demographic situations created in response to 
     population effects. This browser is populated only
-    after Athena leaves <<cref /using/prep>>.  The browser controls are
+    after Athena leaves <<term prep>>.  The browser controls are
     described <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
@@ -911,7 +1016,7 @@ tab "Neighborhoods/EnSits" {
     using the <<cref /order/ensit/resolve>> order.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single <b>INITIAL</b> situation is selected, deletes it
     using the <<cref /order/ensit/delete>> order.
     <</topic>>
@@ -951,7 +1056,7 @@ tab "Groups" {
 tab "Groups/Actors" {
     This tab shows basic data about each 
     <<cref /object/actor "actor">>, as entered
-    during <<cref /using/prep>>.
+    during <<term prep>>.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -978,7 +1083,7 @@ tab "Groups/Actors" {
     the selected row.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single row is selected, deletes it using the
     <<cref /order/actor/delete>> order.
     <</topic>>
@@ -993,7 +1098,7 @@ tab "Groups/Actors" {
 tab "Groups/CivGroups" {
     This tab shows basic data about each 
     <<term civgroup>>, as entered
-    during <<cref /using/prep>>.
+    during <<term prep>>.
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1029,7 +1134,7 @@ tab "Groups/CivGroups" {
     the selected row(s).
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single row is selected, deletes it using the
     <<cref /order/civgroup/delete>> order.
     <</topic>>
@@ -1078,7 +1183,7 @@ tab "Groups/FrcGroups" {
     the selected row(s).
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single row is selected, deletes it using the
     <<cref /order/frcgroup/delete>> order.
     <</topic>>
@@ -1124,7 +1229,7 @@ tab "Groups/OrgGroups" {
     the selected row(s).
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single row is selected, deletes it using the
     <<cref /order/orggroup/delete>> order.
     <</topic>>
@@ -1139,9 +1244,152 @@ tab "Groups/OrgGroups" {
 tab "Groups/Beliefs" {
     <b>Scenario Mode Only.</b><p>
 
-    This tab allows the user to edit the belief systems of the 
-    actors and civilian groups.  The documentation is TBD.
+    This tab contains the Belief System Browser, which allows the user
+    to edit the belief systems of the actors and civilian groups. The
+    browser has the following major areas:
+
+    <ul>
+    <li> <b>The <<cref /tab/groups/beliefs/topic "Topics List">></b>,
+    where topics of belief are viewed and edited.<p>
+
+    <li> <b>The <<cref /tab/groups/beliefs/entity "Entities Tree">></b>,
+    which lists the available actors and civilian groups.<p>
+
+    <li> <b>The <<cref /tab/groups/beliefs/beliefs "Beliefs List">></b>,
+    where an entity's beliefs are specified.<p>
+
+    <li> <b>The <<cref /tab/groups/beliefs/affinity "Affinities Pane">></b>,
+    where the currently selected entity's affinities are displayed.<p>
+    </ul>
+
+    Note that you can drag the border between the areas to make them
+    bigger or smaller.
+
+    See the <i>Athena User's Guide</i> for more about defining belief
+    systems.<p>
 }
+
+page /tab/groups/beliefs topic "Belief Systems Browser Topics List" {
+    <<title>>
+
+    The Topics List lists all of the currently defined topics, and
+    allows them to be created and edited.  The major portion of the
+    list is a table with the following columns:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Topic>>
+    The topic ID, a string chosen by the user when
+    creating the topic.
+    <</topic>>
+
+    <<topic Relevant?>>
+    The relevance flag.  If "Yes", the topic is included when
+    computing affinity, and if "No" it is not.  Selected the desired
+    value from the pulldown in the topic's row.
+    <</topic>>
+
+    <<topic Title>>
+    The topic's human-readable title, a string chosen by the user when
+    creating the topic.  To edit, use the "pencil" control or simply
+    click on the title.
+    <</topic>>
+
+    <</topiclist>><p>
+
+    The Topic List's toolbar has the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plust]>>
+    Pops up the <<cref /order/bsystem/topic/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the <<cref /order/bsystem/topic/update>> dialog for the
+    selected topic.
+    <</topic>>
+
+    <<topic [image control_pcommon]>>
+    Sets the playbox commonality level.
+    <</topic>>
+
+    <<topic [image control_autocalc]>>
+    Enables/disables automatic calculation.  If checked, all
+    affinities will be recomputed whenever any belief system input is
+    changed.
+    <</topic>>
+
+    <<topic [image button_calcnow]>>
+    Forces the affinities to be re-calculated.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single row is selected, deletes it using the
+    <<cref /order/bsystem/topic/delete>> order.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+page /tab/groups/beliefs entity "Belief Systems Browser Entities Tree" {
+    <<title>>
+
+    The Entities Tree lists all defined actors and civilian groups.<p>
+
+    <<image bsystem_entities>><p>
+
+    Select an actor or group to edit its belief system.<p>
+}
+
+page /tab/groups/beliefs beliefs "Belief Systems Browser Beliefs List" {
+    <<title>>
+
+    The Beliefs List lists all of the beliefs of the currently
+    selected actor or group, and allows them to be edited.  
+    The major portion of the
+    list is a table with the following columns:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Topic>>
+    The topic ID about which the entity has a belief.
+    <</topic>>
+
+    <<topic Position>>
+    The entity's position on this topic.  Select a value from the
+    pulldown.
+    <</topic>>
+
+    <<topic "Emphasis is On">>
+    The entity's emphasis on agreement vs. disagreement for this
+    topic.  Select a value from the pulldown.
+    <</topic>>
+
+    <</topiclist>><p>
+
+    The Topic List's toolbar has the following control:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image control_ecommon]>>
+    Sets the entity's commonality level, i.e., its participation in
+    the playbox commonality.
+    <</topic>>
+
+    <</topiclist>>
+    
+}
+
+page /tab/groups/beliefs affinity "Belief Systems Browser Affinities Pane" {
+    <<title>>
+
+    This pane shows the affinity between entity A, the entity
+    currently selected in the Entity Tree and every other entity, and
+    also their affinities with A.  Click on a column header to sort on
+    that column.
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -1184,7 +1432,7 @@ tab "Groups/Relationships" {
     group G from F's point of view, a number drawn from the
     following scale:<p>
 
-    <<::simlib::qrel html>>
+    <<::simlib::qaffinity html>>
 
     <</topic>>
 
@@ -1202,7 +1450,7 @@ tab "Groups/Relationships" {
     the selected row(s).
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If an overridden relationship is selected, deletes the
     override and restores the computed relationship.
     <</topic>>
@@ -1271,7 +1519,7 @@ tab "Groups/Deployments" {
     and group.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single row is selected, zeroes the selected deployment.
     <</topic>>
 
@@ -1325,7 +1573,7 @@ tab "Groups/Services" {
     and group.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single row is selected, zeroes the funding level.
     <</topic>>
 
@@ -1367,7 +1615,7 @@ tab "Attitudes/Satisfaction" {
     <<topic Nbhood>>A neighborhood name.<</topic>>
 
     <<topic "Sat at T0">>The initial satisfaction value for this
-    curve, as set during <<cref /using/prep>>.  It is a real number
+    curve, as set during <<term prep>>.  It is a real number
     taken from the following scale:<p>
 
     <<::simlib::qsat html>>
@@ -1384,14 +1632,14 @@ tab "Attitudes/Satisfaction" {
 
     <<topic ATrend>>The ascending trend for this curve, specified as a
     non-negative slope in nominal satisfaction points per day, as set
-    during <<cref /using/prep>>.  The
+    during <<term prep>>.  The
     ascending trend is applied whenever "Sat Now" is less than the
     ascending threshold.  If this value is 0.0, there is no ascending
     trend for this curve.
     <</topic>>
 
     <<topic AThresh>>The ascending threshold for this curve, a
-    satisfaction value specified during <<cref /using/prep>>.  The
+    satisfaction value specified during <<term prep>>.  The
     ascending trend, "ATrend", takes effect only when "Sat Now" is
     less than this value.  It is a real number
     taken from the following scale:<p>
@@ -1401,14 +1649,14 @@ tab "Attitudes/Satisfaction" {
 
     <<topic DTrend>>The descending trend for this curve, specified as a
     non-positive slope in nominal satisfaction points per day, as set
-    during <<cref /using/prep>>.  The
+    during <<term prep>>.  The
     descending trend is applied whenever "Sat Now" is greater than the
     descending threshold.  If this value is 0.0, there is no descending
     trend for this curve.
     <</topic>>
 
     <<topic DThresh>>The descending threshold for this curve, a
-    satisfaction value specified during <<cref /using/prep>>.  The
+    satisfaction value specified during <<term prep>>.  The
     descending trend, "DTrend", takes effect only when "Sat Now" is
     greater than this value.   It is a real number
     taken from the following scale:<p>
@@ -1423,7 +1671,7 @@ tab "Attitudes/Satisfaction" {
 
     <<topiclist Control Description>>
 
-    <<topic [image button_pencil0]>>
+    <<topic [image button_pencil]>>
     If one or more rows are selected, pops up the 
     <<cref /order/sat/update>> or <<cref /order/sat/update:multi>> dialog for
     the selected row(s).
@@ -1462,7 +1710,7 @@ tab "Attitudes/Cooperation" {
     <</topic>>
 
     <<topic "Coop at T0">>The initial cooperation value for this
-    curve, as set during <<cref /using/prep>>.  It is a real number
+    curve, as set during <<term prep>>.  It is a real number
     taken from the following scale:<p>
 
     <<::simlib::qcooperation html>>
@@ -1473,14 +1721,14 @@ tab "Attitudes/Cooperation" {
 
     <<topic ATrend>>The ascending trend for this curve, specified as a
     non-negative slope in nominal cooperation points per day, as set
-    during <<cref /using/prep>>.  The
+    during <<term prep>>.  The
     ascending trend is applied whenever "Coop Now" is less than the
     ascending threshold.  If this value is 0.0, there is no ascending
     trend for this curve.
     <</topic>>
 
     <<topic AThresh>>The ascending threshold for this curve, a
-    cooperation value specified during <<cref /using/prep>>.  The
+    cooperation value specified during <<term prep>>.  The
     ascending trend, "ATrend", takes effect only when "Coop Now" is
     less than this value.  It is a real number
     taken from the following scale:<p>
@@ -1490,14 +1738,14 @@ tab "Attitudes/Cooperation" {
 
     <<topic DTrend>>The descending trend for this curve, specified as a
     non-positive slope in nominal cooperation points per day, as set
-    during <<cref /using/prep>>.  The
+    during <<term prep>>.  The
     descending trend is applied whenever "Coop Now" is greater than the
     descending threshold.  If this value is 0.0, there is no descending
     trend for this curve.
     <</topic>>
 
     <<topic DThresh>>The descending threshold for this curve, a
-    cooperation value specified during <<cref /using/prep>>.  The
+    cooperation value specified during <<term prep>>.  The
     descending trend, "DTrend", takes effect only when "Coop Now" is
     greater than this value.   It is a real number
     taken from the following scale:<p>
@@ -1539,7 +1787,7 @@ tab "Attitudes/NbhoodCoop" {
 
     This tab displays the cooperation of the residents of each
     neighborhood with each force group.  This data is not available 
-    during <<cref /using/prep>>, and so the tab is not populated with
+    during <<term prep>>, and so the tab is not populated with
     data until the first time advance. The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1599,6 +1847,13 @@ tab "Attitudes/Magic Attitude Drivers" {
     independent of all other drivers.
     <</topic>>
 
+    <<topic "Here Factor (s)">>A GRAM input can have indirect effects
+    in the same neighborhood, i.e., <b>HERE</b>.  The here factor is a
+    real number between 0.0 and 1.0 and determines the strength of
+    these indirect effects.  If 0.0, there will be no <b>HERE</b>
+    effects.  The here factor is usually 1.0.
+    <</topic>>
+
     <<topic "Near Factor (p)">>A GRAM input can have indirect effects
     in <b>NEAR</b> neighborhoods.  The near factor is a real number
     between 0.0 and 1.0 and determines the strength of these indirect
@@ -1612,7 +1867,7 @@ tab "Attitudes/Magic Attitude Drivers" {
     <</topic>>
 
     <<topic "Driver">>The GRAM Driver ID associated with this MAD, or
-    -1 during <<cref /using/prep>>. <</topic>>
+    -1 during <<term prep>>. <</topic>>
 
     <<topic "Inputs">>The number of satisfaction and cooperation
     inputs and adjustments associated with this MAD.
@@ -1634,7 +1889,7 @@ tab "Attitudes/Magic Attitude Drivers" {
     the selected row.
     <</topic>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single row is selected, deletes it
     using the <<cref /order/mad/delete>> order.  Note that drivers with
     associated inputs or adjustments cannot be deleted.
@@ -1914,6 +2169,10 @@ tab "Econ/Groups" {
 
     <<topic Population>>The current population of the group in the
     neighborhood.
+    <</topic>>
+
+    <<topic SA%>>The subsistence agriculture percentage (SAP) for this 
+    civilian group.
     <</topic>>
 
     <<topic Subsist.>>The number of people in the group that support
@@ -2205,7 +2464,7 @@ tab "Orders/Scheduled" {
 
     <<topiclist Control Description>>
 
-    <<topic [image button_x]>>
+    <<topic [image button_trash]>>
     If a single order is selected, cancels it
     using the <<cref /order/order/cancel>> order.
     <</topic>>
@@ -2313,7 +2572,7 @@ tab "Log" {
     <li> When saving the scenario under a new name (<b>saveas</b>)
     <li> When entering <<term snapshot>> mode (<b>snapshot</b>)
     <li> When leaving snapshot mode and re-entering the 
-         <<cref /using/prep>> state. (<b>prep</b>)
+         <<term prep>> state. (<b>prep</b>)
     <li> When leaving snapshot mode and re-entering the paused
          state. (<b>latest</b>) 
     <li> When the current log file grows too large.
@@ -2374,7 +2633,7 @@ tab "Log" {
     search text in the current log file.
     <</topic>>
 
-    <<topic [image button_autoscroll]>>
+    <<topic [image button_lock]>>
     <b>Auto-Scroll</b>.  Normally, the log browser automatically
     jumps to the latest log entry as new entries are written.
     Toggle this button to prevent the browser from jumping to the
@@ -2385,6 +2644,7 @@ tab "Log" {
     <</topiclist>>
 
 }
+
 
 
 

@@ -94,7 +94,7 @@ menuitem "File/Save Scenario As..." {
 
 menuitem "File/Save CLI Scrollback Buffer..." {
     Saves the contents of the main window's Command Line Interface
-    (CLI) scrollback buffer to disk as a text file.<p>
+    (<<term cli>>) scrollback buffer to disk as a text file.<p>
 
     This menu item appears only in the main application window.
 }
@@ -102,7 +102,6 @@ menuitem "File/Save CLI Scrollback Buffer..." {
 menuitem "File/Import Map..." {
     Imports an image file in JPEG, GIF, or PNG format to be used as
     a map background for the scenario.  Any image file can be used.
-    See <<cref /using/maps>> for more information.
 }
 
 menu "File/Parameters" {
@@ -151,12 +150,6 @@ menuitem "File/Exit" {
     unsaved changes.<p>
 
     This menu item appears only in the Scenario window.
-}
-
-menuitem "File/Close" {
-    Closes the current browser window.<p>
-
-    This menu item appears only in the Simulation window.
 }
 
 #=======================================================================
@@ -241,7 +234,7 @@ menuitem "View/Scrolling Log" {
 }
 
 menuitem "View/Command Line" {
-    Selecting this item shows or hides the <<cref /using/cli>>.
+    Selecting this item shows or hides the <<term cli>>.
 }
 
 

@@ -110,7 +110,7 @@ page /order actor "Actor Orders" {
 #-----------------------------------------------------------------------
 
 order ACTOR:CREATE "Create Actor" {
-    <b><<cref /using/prep>> Only.</b>  This order creates a new 
+    <b><<term prep>> Only.</b>  This order creates a new 
     <<term actor>>.
     The order parameters are as follows:<p>
 
@@ -123,7 +123,7 @@ order ACTOR:CREATE "Create Actor" {
 #-----------------------------------------------------------------------
 
 order ACTOR:DELETE "Delete Actor" {
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <b><<term prep>> Only.</b>  Deletes an existing
     <<term actor>>, along with all entities (e.g., beliefs)
     that depend upon it, given its ID.    
     The order parameters are as follows:<p>
@@ -139,7 +139,7 @@ order ACTOR:DELETE "Delete Actor" {
 #-----------------------------------------------------------------------
 
 order ACTOR:UPDATE "Update Actor" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of an existing <<term actor>>.  The order
     parameters are as follows:<p>
 
@@ -400,7 +400,7 @@ order BSYSTEM:TOPIC:CREATE "Create Belief System Topic" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order creates a
+    <b><<term prep>> Only.</b>  This order creates a
     new <<term topic>>.
 }
 
@@ -415,7 +415,7 @@ order BSYSTEM:TOPIC:DELETE "Delete Belief System Topic" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <b><<term prep>> Only.</b>  Deletes an existing
     belief system <<term topic>>, along with all beliefs
     that depend upon it.<p>
 }
@@ -438,7 +438,7 @@ order BSYSTEM:TOPIC:UPDATE "Update Belief System Topic" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of an existing <<term topic>>.<p>
 }
 
@@ -487,7 +487,7 @@ order BSYSTEM:BELIEF:UPDATE "Update Belief" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     an existing belief in a <<term bsystem>>.<p>
 }
 
@@ -569,7 +569,7 @@ order COOP:UPDATE "Update Initial Cooperation" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order updates the initial
+    <b><<term prep>> Only.</b>  This order updates the initial
     cooperation level of one group with another; this can only be done
     during the Scenario Preparation phase.<p>
 
@@ -631,7 +631,7 @@ order COOP:UPDATE+MULTI "Update Initial Cooperation (Multi)" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order updates the initial
+    <b><<term prep>> Only.</b>  This order updates the initial
     cooperation level for two or more cooperation curves, as selected 
     in the GUI.<p>
 
@@ -1047,7 +1047,7 @@ macro GROUP.demeanor {} {
 macro GROUP.a {} {
     |<--
     The group's owning actor.  This parameter may remain unset during
-    [cref /using/prep], but must be specified before time can be
+    [term prep], but must be specified before time can be
     advanced.
 }
 
@@ -1079,7 +1079,7 @@ page /order civgroup "Civilian Group Orders" {
 #-----------------------------------------------------------------------
 
 order CIVGROUP:CREATE "Create Civilian Group" {
-    <b><<cref /using/prep>> Only.</b>  This order creates a
+    <b><<term prep>> Only.</b>  This order creates a
     new <<term civgroup>>.  The order parameters
     are as follows:<p>
     
@@ -1092,7 +1092,7 @@ order CIVGROUP:CREATE "Create Civilian Group" {
 #-----------------------------------------------------------------------
 
 order CIVGROUP:DELETE "Delete Civilian Group" {
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <b><<term prep>> Only.</b>  Deletes an existing
     civilian group, along with all entities (e.g., attitudes)
     that depend upon it.<p>
 
@@ -1107,7 +1107,7 @@ order CIVGROUP:DELETE "Delete Civilian Group" {
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE "Update Civilian Group" {
-    <b><<cref /using/prep>> Only.</b>  This order updates an
+    <b><<term prep>> Only.</b>  This order updates an
     existing <<term civgroup>>.  The order parameters
     are as follows:<p>
 
@@ -1124,7 +1124,7 @@ order CIVGROUP:UPDATE "Update Civilian Group" {
 #-----------------------------------------------------------------------
 
 order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies two or 
+    <b><<term prep>> Only.</b>  This order modifies two or 
     more <<term civgroup>>s, as selected in the GUI.<p>
 
     <<parmlist>>
@@ -1140,7 +1140,7 @@ order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
 
 order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
     This order updates an existing <<term civgroup>>
-    after leaving <<cref /using/prep>>.  Only a subset of the
+    after leaving <<term prep>>.  Only a subset of the
     group attributes can be edited.<p>
 
     This order can be sent by an 
@@ -1161,7 +1161,7 @@ order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
 order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP)" {
     This order updates two or more existing <<term civgroup>>s,
     as selected in the GUI, 
-    after leaving <<cref /using/prep>>.  Only a subset of the
+    after leaving <<term prep>>.  Only a subset of the
     group attributes can be edited.<p>
 
     <<parmlist>>
@@ -1191,7 +1191,7 @@ page /order frcgroup "Force Group Orders" {
 #-----------------------------------------------------------------------
 
 order FRCGROUP:CREATE "Create Force Group" {
-    <b><<cref /using/prep>> Only.</b>  This order creates a new 
+    <b><<term prep>> Only.</b>  This order creates a new 
     <<term frcgroup>>.
     The order parameters are as follows:<p>
 
@@ -1204,7 +1204,7 @@ order FRCGROUP:CREATE "Create Force Group" {
 #-----------------------------------------------------------------------
 
 order FRCGROUP:DELETE "Delete Force Group" {
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <b><<term prep>> Only.</b>  Deletes an existing
     <<term frcgroup>>, along with all entities
     that depend upon it.  The order parameters are as follows:<p>
 
@@ -1218,7 +1218,7 @@ order FRCGROUP:DELETE "Delete Force Group" {
 #-----------------------------------------------------------------------
 
 order FRCGROUP:UPDATE "Update Force Group" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of an existing <<term frcgroup>>.  The order
     parameters are as follows:<p>
 
@@ -1235,7 +1235,7 @@ order FRCGROUP:UPDATE "Update Force Group" {
 #-----------------------------------------------------------------------
 
 order FRCGROUP:UPDATE+MULTI "Update Multiple Force Groups" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of two or more existing <<term frcgroup>>s, as
     selected in the GUI.  The order parameters are as follows:<p>
 
@@ -1264,7 +1264,7 @@ page /order orggroup "Organization Group Orders" {
 #-----------------------------------------------------------------------
 
 order ORGGROUP:CREATE "Create Organization Group" {
-    <b><<cref /using/prep>> Only.</b>  This order creates a new 
+    <b><<term prep>> Only.</b>  This order creates a new 
     <<term orggroup>>.
     The order parameters are as follows:<p>
 
@@ -1277,7 +1277,7 @@ order ORGGROUP:CREATE "Create Organization Group" {
 #-----------------------------------------------------------------------
 
 order ORGGROUP:DELETE "Delete Organization Group" {
-    <b><<cref /using/prep>> Only.</b>  Deletes an existing
+    <b><<term prep>> Only.</b>  Deletes an existing
     <<term orggroup>>, along with all entities
     that depend upon it.<p>
 
@@ -1291,7 +1291,7 @@ order ORGGROUP:DELETE "Delete Organization Group" {
 #-----------------------------------------------------------------------
 
 order ORGGROUP:UPDATE "Update Organization Group" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of an existing <<term orggroup>>.  The order
     parameters are as follows:<p>
 
@@ -1307,7 +1307,7 @@ order ORGGROUP:UPDATE "Update Organization Group" {
 #-----------------------------------------------------------------------
 
 order ORGGROUP:UPDATE+MULTI "Update Multiple Organization Groups" {
-    <b><<cref /using/prep>> Only.</b>  This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of two or more existing <<term orggroup>>s, as
     selected in the GUI.  The order parameters are as follows:<p>
 
@@ -1890,8 +1890,7 @@ page /order map "Map Orders" {
 
     Athena allows the user to specify a map background to aid in both
     the construction of the scenario and the analysis and
-    visualization of the results.  (See <<cref /using/maps>> for more
-    information.)  The following orders manipulate
+    visualization of the results.  The following orders manipulate
     the image used as the map background:<p>
 
     <<childlinks>>
@@ -1984,7 +1983,7 @@ order NBREL:UPDATE "Update Neighborhood Relationship" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order modifies existing
+    <b><<term prep>> Only.</b>  This order modifies existing
     neighborhood relationships.<p>
 }
 
@@ -2026,7 +2025,7 @@ order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order modifies two or more
+    <b><<term prep>> Only.</b>  This order modifies two or more
     neighborhood relationships, as selected in the GUI.<p>
 }
 
@@ -2038,7 +2037,7 @@ page /order rel "Group Relationship Orders" {
 
     Groups can be friends, enemies, or neutrals, as determined by
     their <i>relationship</i>, a number between -1.0 and 1.0.  
-    Relationships are established during <<cref /using/prep>> and
+    Relationships are established during <<term prep>> and
     are constant thereafter.<p>
 
     Inter-group relationships are computed from the groups' belief
@@ -2069,7 +2068,7 @@ order REL:OVERRIDE "Override Computed Relationship" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order overrides the
+    <b><<term prep>> Only.</b>  This order overrides the
     computed relationship of one group with another.
 }
 
@@ -2085,7 +2084,7 @@ order REL:RESTORE "Restore Computed Relationship" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order restores the computed
+    <b><<term prep>> Only.</b>  This order restores the computed
     relationship, deleting any manual override.
 }
 
@@ -2109,7 +2108,7 @@ order REL:OVERRIDE+MULTI "Override Multiple Relationships" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order overrides two or more
+    <b><<term prep>> Only.</b>  This order overrides two or more
     computed relationships, as selected in the GUI.
 }
 
@@ -2191,7 +2190,7 @@ order SAT:UPDATE "Update Initial Satisfaction" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order updates the initial
+    <b><<term prep>> Only.</b>  This order updates the initial
     satisfaction level of one group with a concern; this can only be done
     during the Scenario Preparation phase.<p>
 
@@ -2263,7 +2262,7 @@ order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
     <</parm>>
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  This order updates two or more initial
+    <b><<term prep>> Only.</b>  This order updates two or more initial
     satisfaction levels, as selected in the GUI; this can only be done
     during the Scenario Preparation phase.<p>
 
@@ -2298,7 +2297,7 @@ order SIM:STARTDATE "Set Start Date" {
 
     <</parmlist>>
 
-    <b><<cref /using/prep>> Only.</b>  Athena generally reports
+    <b><<term prep>> Only.</b>  Athena generally reports
     simulation time as a number of integer days and as a zulu-time.
     This order determines how simulation time is translated to zulu-time.
 }
@@ -2326,7 +2325,7 @@ order SIM:RUN "Run Simulation" {
     Advances simulation time.  This order is usually triggered by the
     "play" button in the GUI.<p>
 
-    If the simulation is in the <<cref /using/prep>> state, the order
+    If the simulation is in the <<term prep>> state, the order
     does a sanity check on the scenario; time will not be allowed to
     advance if the scenario is incomplete.
 }

@@ -24,28 +24,22 @@ page "" "" "Athena Help" {
     <<image athena right>>
 
     This is the on-line help for <b>V<<version>></b> of the
-    Athena Stability & Recovery Operations Simulation.<p>
+    Athena Stability & Recovery Operations Simulation.  Please see the 
+    <i>Athena User's Guide</i> for more information.<p>
 
     <ul>
     <li> <<cref /changelog>>
     <li> <<cref /about>>
     <li> <<cref /release>>
-    <li> <<cref /using>>
-         <<childlinks /using>>
     <li> <<cref /object>>
-    <li> <<cref /model>>
-         <<childlinks /model>>
-    <li> Athena Software Reference
-         <ul>
-         <li> <<cref /menu>>
-         <li> <<cref /tab>>
-         <li> <<cref /order>>
-         <li> <<cref /var>>
-         <li> <<cref /command>>
-         <li> <<cref /function>>
-         <li> <<cref /parmdb>>
-         <li> <<cref /prefs>>
-         </ul>
+    <li> <<cref /menu>>
+    <li> <<cref /tab>>
+    <li> <<cref /order>>
+    <li> <<cref /var>>
+    <li> <<cref /command>>
+    <li> <<cref /function>>
+    <li> <<cref /parmdb>>
+    <li> <<cref /prefs>>
     <li> <<cref /term>>
     </ul>
 }
@@ -55,6 +49,9 @@ page "" "" "Athena Help" {
 page / changelog "Change Log" {
     <<title>>
     <<changelog>>
+    <<change 2/6/2012 New whd>>
+    Final scrub for Athena 3.
+    <</change>>
     <<change 9/22/2010 New whd>>
     Updated for Athena 2.
     <</change>>
@@ -94,11 +91,21 @@ page / about "About Athena" {
 page / release "Release Notes" {
     <<title Athena V[version] Release notes>>
 
-    The <i>Athena Analyst's Guide</i> gives a complete list of 
-    model-related changes for Athena V<<version>>.  This page gives an
+    The <i>Athena Users's Guide</i> gives a complete list of 
+    changes for Athena V<<version>>.  This page gives an
     overview of the changes.<p>
 
-    TBD.<p>
+    <ul>
+    <li> Athena is now an MS Windows application.
+    <li> Added the notion of <<term actor>>s and their 
+         strategies.
+    <li> Actors have <<term support>> and <<term influence>> 
+         in neighborhoods, and can <<term control>> neighborhoods.
+    <li> Added <<term bsystem>>s.
+    <li> Added Essential Non-Infrastructure (ENI) services.
+    <li> Added the Detail Browser as a new way of browsing Athena
+         inputs and outputs.
+    </ul>
 }
 
 
@@ -106,8 +113,6 @@ page / release "Release Notes" {
 # The following sections are in separate files
 
 include object.help
-include using.help
-include model.help
 include menu.help
 include tab.help
 include order.help

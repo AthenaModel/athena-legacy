@@ -29,7 +29,7 @@ object nbhood_ {
         cannot cover another neighborhood's reference point.<p>
 
         Neighborhoods can be created on the 
-        <<tab Map>> during <<cref /using/prep>>, and manipulated
+        <<tab Map>> during <<term prep>>, and manipulated
         on the <<tab Neighborhoods/Neighborhoods>> and using the
         <<cref /order/nbhood>>.
     }
@@ -65,7 +65,7 @@ object nbhood_ {
 
     attribute controller "Controller" {
         A neighborhood can be controlled by at most one 
-        <<term actor>>.  During <<cref /using/prep>>, this is the actor
+        <<term actor>>.  During <<term prep>>, this is the actor
         initially in control of the neighborhood.  The attribute may
         be blank if no actor is initially in control.  As the
         simulation runs, control can shift from actor to actor.
@@ -118,4 +118,5 @@ page /object nbhood "Neighborhood" {
 
     <<nbhood_ parmlist>>
 }
+
 

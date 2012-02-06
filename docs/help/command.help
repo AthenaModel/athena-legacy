@@ -621,7 +621,7 @@ command "parm reset" {
 
     Note that some parameters are 
     <<cref /parmdb/locked "locked">> once time advances past the
-    <<cref /using/prep>> state, and cannot be changed.  Unlocked
+    <<term prep>> state, and cannot be changed.  Unlocked
     parameters will be reset; locked parameters will not.<p>
 
     This command works by sending the <<cref /order/parm/reset>> order.
@@ -641,7 +641,7 @@ command "parm set" {
 
     Note that some parameters are 
     <<cref /parmdb/locked "locked">> once time advances past the
-    <<cref /using/prep>> state, and cannot be changed.<p>
+    <<term prep>> state, and cannot be changed.<p>
 
     This command works by sending the <<cref /order/parm/set>> order.
 }
@@ -984,4 +984,5 @@ command "usermode" {
         >
     }>>
 }
+
 

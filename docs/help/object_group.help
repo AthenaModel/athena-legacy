@@ -154,7 +154,7 @@ object group_frc {
 
     attribute a "Owning Actor" {
         The group's owning actor.  This parameter may remain unset during
-        <<cref /using/prep>>, but must be specified before time can be
+        <<term prep>>, but must be specified before time can be
         advanced.
     } -tags {create update multi}
 
@@ -246,7 +246,7 @@ object group_org {
 
     attribute a "Owning Actor" {
         The group's owning actor.  This parameter may remain unset during
-        <<cref /using/prep>>, but must be specified before time can be
+        <<term prep>>, but must be specified before time can be
         advanced.
     } -tags {create update multi}
 
@@ -281,4 +281,5 @@ page /object/group org "Organization Group" {
 
     <<group_org parmlist>>
 }
+
 
