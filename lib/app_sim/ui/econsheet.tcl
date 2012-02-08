@@ -225,8 +225,8 @@ snit::widget econsheet {
             -anchor w
         $matrix textcol 0,$cunits [dict values $units] units
 
-        $matrix width -1 8
-        $matrix width $cunits 10
+        $matrix width -1 12
+        $matrix width $cunits 11
 
         $matrix empty $rexp,$crev $rexp,$cidle
         $matrix empty $relse,$clatent $relse,$cidle
@@ -294,6 +294,9 @@ snit::widget econsheet {
         $inputs mapcell 0,1 In::Consumers q -background $color(q)
         $inputs mapcell 1,1 In::WF        q
         $inputs mapcell 2,1 In::LSF       q
+
+        # NEXT, expand widths
+        $inputs width 0 12
     }
 
     # Type Method: CreateScalarOutputs
@@ -335,7 +338,7 @@ snit::widget econsheet {
             "Unemp. Rate"
         }
 
-        $outputs width 0 12
+        $outputs width 0 14
 
         $outputs textcol 0,2 {
             "$/Year"
@@ -408,7 +411,7 @@ snit::widget econsheet {
         $shape textcell 0,5 "Consumption" label \
             -relief flat
 
-        $shape width 5 11
+        $shape width 5 13
 
         $shape textcell 0,7 "GBasket/Yr/Capita" wlabel \
             -anchor w    \
