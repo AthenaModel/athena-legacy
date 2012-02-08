@@ -392,11 +392,10 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
         $hull handler node a [mymethod Handler_a]
 
         # NEXT, prepare for the bindings to fire.
-        set tinfo(sweep-$win) {}
-        set tinfo(start-$win) {}
-        set tinfo(end-$win)   {}
         set tinfo(href-$win)  {}
         set tinfo(src-$win)   {}
+
+        $self reset
     }
 
     #-------------------------------------------------------------------
@@ -450,6 +449,18 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
     #-------------------------------------------------------------------
     # Public Methods
 
+    # reset
+    #
+    # Clears the browser, halting any on-going interactions.
+
+    method reset {} {
+        set tinfo(sweep-$win) {}
+        set tinfo(start-$win) {}
+        set tinfo(end-$win)   {}
+
+        $hull reset
+    }
+
     # set html
     #
     # html    An HTML-formatted text string
@@ -459,7 +470,7 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
     
     method set {html} {
         # FIRST, clear the previous contents.
-        $hull reset
+        $self reset
 
         # NEXT, add the default styles we prefer, on top of the
         # widget's own defaults.
