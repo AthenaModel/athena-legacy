@@ -2037,7 +2037,63 @@ tab "Econ" {
 tab "Econ/Overview" {
     <b>Simulation Mode only.</b><p>
 
-    An overview of the economy.  Description TBD.
+    This tab displays an overview of the economy in spreadsheet form.
+    There are four major areas:<p>
+
+    <ul>
+    <li> <b><<cref /tab/econ/overview/sam     "Current Economy">></b>
+    <li> <b><<cref /tab/econ/overview/current "Current Inputs">></b>
+    <li> <b><<cref /tab/econ/overview/outputs "Other Outputs">></b>
+    <li> <b><<cref /tab/econ/overview/shape   "Shape Inputs">></b>
+    </ul><p>
+}
+
+page /tab/econ/overview sam "Econ Overview: Current Economy" {
+    <<title>>
+
+    <<image econ_sam>><p>
+
+    This area shows the current state of the
+    economy, sector by sector.  Quantities in dollars are shown with a
+    green background, and quantities in units of production are shown
+    with an orange background.  Select "$" or "Qty" at the upper left
+    to show the social accounting matrix as one or the other.  In
+    addition, this area shows the current prices and quantities
+    produced for each sector, along with latent demand and idle
+    capacity.<p>
+}
+
+page /tab/econ/overview current "Econ Overview: Current Inputs" {
+    <<title>>
+
+    <<image econ_current>><p>
+
+    The size of the economy is driven by the
+    number of consumers, the number of workers in the labor force, and
+    the Labor Security Factor, or LSF, which determines how many of
+    the workers are actually willing to go to work under current
+    conditions.  This area shows the current values of these
+    inputs.<p>
+}
+
+page /tab/econ/overview outputs "Econ Overview: Other Outputs" {
+    <<title>>
+
+    <<image econ_outputs>><p>
+
+    This area shows additional outputs,
+    including the Gross Domestic Product (GDP), the unemployment rate,
+    and the number of unemployed workers in the playbox.<p>
+}
+
+page /tab/econ/overview shape "Econ Overview: Shape Inputs" {
+    <<title>>
+
+    <<image econ_shape>><p>
+
+    This area shows the "shape" inputs used to
+    initially calibrate the economy.  See the <i>Athena User's
+    Guide</i> for more information on calibrating the economy.<p>
 }
 
 tab "Econ/Capacity" {

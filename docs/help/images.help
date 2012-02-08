@@ -87,5 +87,9 @@ image control_stoptime   "Control: Stop Time"          control_stoptime.png
 image control_totime     "Control: To Time"            control_totime.png
 image control_weekday    "Control: Weekday"            control_weekday.png
 image control_zoom       "Control: Zoom"               control_zoom.png
+image econ_sam           "Econ SAM"                    econ_sam.png
+image econ_current       "Econ Current Inputs"         econ_current.png
+image econ_outputs       "Econ Other Outputs"          econ_outputs.png
+image econ_shape         "Econ Shape Inputs"           econ_shape.png
 image filterbox          "Filter Box"                  filterbox.png
 image viewbox            "View Box"                    viewbox.png
