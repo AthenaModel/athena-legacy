@@ -398,8 +398,8 @@ snit::type service {
     # population.
 
     typemethod fundeni {a amount glist} {
-        require {$amount > 0} \
-            "Attempt to fund ENI with zero or negative amount: $amount"
+        require {$amount >= 0} \
+            "Attempt to fund ENI with negative amount: $amount"
 
         require {[llength $glist] != 0} \
             "Attempt to fund ENI for empty list of groups"
