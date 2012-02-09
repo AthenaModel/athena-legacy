@@ -160,6 +160,7 @@ snit::type engine {
         service       start
         nbstat        start
         control_model start
+        econ          start 
 
         # Execute the actor's strategies at time 0, given the 
         # status quo.
@@ -170,7 +171,6 @@ snit::type engine {
         demog          analyze pop
         nbstat         analyze
         control_model  analyze
-        econ           start          ;# TBD: Include in status quo?
         demog          analyze econ
 
         # NEXT, execute events scheduled at time 0, if any.
