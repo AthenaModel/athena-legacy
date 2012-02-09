@@ -114,7 +114,7 @@ snit::type scenario {
     # Creates a new, blank scenario.
 
     typemethod new {} {
-        assert {[sim state] ne "RUNNING"}
+        require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, unlock the scenario if it is locked; this
         # will reinitialize modules like GRAM.
@@ -156,7 +156,7 @@ snit::type scenario {
     # Opens the specified file name, replacing the existing file.
 
     typemethod open {filename} {
-        assert {[sim state] ne "RUNNING"}
+        require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, which kind of file is it?
         set ftype [file extension $filename]
@@ -234,6 +234,8 @@ snit::type scenario {
     # the save is successful and 0 otherwise.
 
     typemethod save {{filename ""}} {
+        require {[sim state] ne "RUNNING"} "The simulation is running."
+
         # FIRST, if filename is not specified, get the dbfile
         if {$filename eq ""} {
             if {$info(dbfile) eq ""} {

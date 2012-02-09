@@ -534,18 +534,18 @@ snit::widget appwin {
         bind $win <Control-o> [mymethod FileOpen]
         bind $win <Control-O> [mymethod FileOpen]
 
-        $mnu add command                  \
-            -label       "Save Scenario"       \
-            -underline   0                     \
-            -accelerator "Ctrl+S"              \
-            -command     [mymethod FileSave]
+        cond::simNotRunning control \
+            [menuitem $mnu command "Save Scenario" \
+                 -underline   0                    \
+                 -accelerator "Ctrl+S"             \
+                 -command     [mymethod FileSave]]
         bind $win <Control-s> [mymethod FileSave]
         bind $win <Control-S> [mymethod FileSave]
 
-        $mnu add command                       \
-            -label     "Save Scenario As..."   \
-            -underline 14                      \
-            -command   [mymethod FileSaveAs]
+        cond::simNotRunning control \
+            [menuitem $mnu command "Save Scenario As..." \
+                 -underline 14                           \
+                 -command   [mymethod FileSaveAs]]
 
         $mnu add command                               \
             -label     "Save CLI Scrollback Buffer..." \
@@ -1418,7 +1418,14 @@ snit::widget appwin {
     # Prompts the user to create a brand new scenario.
 
     method FileNew {} {
-        # FIRST, Allow the user to save unsaved data.
+        # FIRST, we can only create a new scenario if we're not RUNNING.
+        # The menu item will be unavailable in this case, but we might
+        # still get here via a hot-key.
+        if {[sim state] eq "RUNNING"} {
+            return
+        }
+
+        # NEXT, Allow the user to save unsaved data.
         if {![$self SaveUnsavedData]} {
             return
         }
@@ -1432,7 +1439,14 @@ snit::widget appwin {
     # Prompts the user to open a scenario in a particular file.
 
     method FileOpen {} {
-        # FIRST, Allow the user to save unsaved data.
+        # FIRST, we can only open a new scenario if we're not RUNNING.
+        # The menu item will be unavailable in this case, but we might
+        # still get here via a hot-key.
+        if {[sim state] eq "RUNNING"} {
+            return
+        }
+
+        # NEXT, Allow the user to save unsaved data.
         if {![$self SaveUnsavedData]} {
             return
         }
@@ -1459,7 +1473,14 @@ snit::widget appwin {
     # Prompts the user to save the scenario as a particular file.
 
     method FileSaveAs {} {
-        # FIRST, query for the scenario file name.  If the file already
+        # FIRST, we can only save a new scenario if we're not RUNNING.
+        # The menu item will be unavailable in this case, but we might
+        # still get here via a hot-key.
+        if {[sim state] eq "RUNNING"} {
+            return
+        }
+
+        # NEXT, query for the scenario file name.  If the file already
         # exists, the dialog will automatically query whether to 
         # overwrite it or not. Returns 1 on success and 0 on failure.
 
@@ -1485,6 +1506,13 @@ snit::widget appwin {
     # copy.  Returns 1 on success and 0 on failure.
 
     method FileSave {} {
+        # FIRST, we can only save a scenario if we're not RUNNING.
+        # The menu item will be unavailable in this case, but we might
+        # still get here via a hot-key.
+        if {[sim state] eq "RUNNING"} {
+            return
+        }
+
         # FIRST, if no file name is known, do a SaveAs.
         if {[scenario dbfile] eq ""} {
             return [$self FileSaveAs]
