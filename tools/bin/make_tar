@@ -86,6 +86,7 @@ set patterns(docs) {
     docs/dev/*.html
     docs/dev/*.pdf
     docs/dev/*.doc
+    docs/dev/*.docx
     docs/dev/*.odt
     docs/dev/*.ods
     docs/dev/*.txt
@@ -96,6 +97,7 @@ set patterns(docs) {
     mars/docs/dev/*.html
     mars/docs/dev/*.pdf
     mars/docs/dev/*.doc
+    mars/docs/dev/*.docx
     mars/docs/dev/*.txt
     mars/docs/dev/*.odt
 }
