@@ -197,7 +197,7 @@ snit::type goal {
 order define GOAL:CREATE {
     title "Create Goal"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates {PREP}
 
     parm owner     agent  "Owner"      -context yes
     parm narrative text   "Narrative"
@@ -221,7 +221,7 @@ order define GOAL:DELETE {
 
     title "Delete Goal"
     options \
-        -sendstates {PREP PAUSED}                           \
+        -sendstates {PREP}                           \
         -refreshcmd {orderdialog refreshForKey goal_id *}
 
     parm goal_id goal "Goal ID"

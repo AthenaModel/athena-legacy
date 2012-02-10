@@ -546,7 +546,7 @@ snit::widget strategybrowser {
 
         cond::simPP_predicate control $gt_gaddbtn                   \
             browser   $win                                          \
-            predicate {alist single}
+            predicate {gtree canAddGoal}
 
         install gt_caddbtn using mktoolbutton $gt_bar.gt_caddbtn    \
             ::icon::addcondition                                    \
@@ -589,7 +589,7 @@ snit::widget strategybrowser {
 
         cond::simPP_predicate control $gt_deletebtn                 \
             browser $win                                            \
-            predicate {gtree single}
+            predicate {gtree canDelete}
             
 
         pack $gt_bar.title  -side left
@@ -1763,6 +1763,39 @@ snit::widget strategybrowser {
         } else {
             return 0
         }
+    }
+
+    # gtree canAddGoal
+    #
+    # Returns 1 if a goal can be added, i.e., if an agent is selected
+    # in the AList, and the GOAL:CREATE order is available, and 0 otherwise.
+    
+    method {gtree canAddGoal} {} {
+        expr {[$self alist single] && [order available GOAL:CREATE]}
+    }
+
+    # gtree canDelete
+    #
+    # Returns 1 if the currently selected entity in the goal browser
+    # can be deleted, and 0 otherwise.  To delete, one entity must be
+    # selected; and if it is a goal, the GOAL:DELETE order must be
+    # available.
+    
+    method {gtree canDelete} {} {
+        if {![$self gtree single]} {
+            return 0
+        }
+
+        set id [lindex [$gtree selection get] 0]
+        
+        if {"goal" in [$gtree item tag names $id]} {
+            return [order available GOAL:DELETE]
+        } {
+            # It's a condition
+            return 1
+        }
+
+        expr {[$self alist single] && [order available GOAL:CREATE]}
     }
 
     # ttree single
