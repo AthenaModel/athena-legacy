@@ -186,8 +186,8 @@ order define TACTIC:MOBILIZE:UPDATE {
         -sendstates {PREP PAUSED}                  \
         -refreshcmd {tactic::MOBILIZE RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"       -context yes           \
-                                          -table   tactics_MOBILIZE \
+    parm tactic_id key  "Tactic ID"       -context yes                  \
+                                          -table   gui_tactics_MOBILIZE \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"

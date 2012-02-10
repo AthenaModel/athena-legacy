@@ -232,8 +232,8 @@ order define TACTIC:DEMOB:UPDATE {
         -sendstates {PREP PAUSED}                  \
         -refreshcmd {tactic::DEMOB RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"       -context yes           \
-                                          -table   tactics_DEMOB \
+    parm tactic_id key  "Tactic ID"       -context yes               \
+                                          -table   gui_tactics_DEMOB \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"

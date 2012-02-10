@@ -140,8 +140,8 @@ order define TACTIC:EXECUTIVE:UPDATE {
         -sendstates {PREP PAUSED}                            \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id key  "Tactic ID"         -context yes               \
-                                            -table   tactics_EXECUTIVE \
+    parm tactic_id key  "Tactic ID"         -context yes                   \
+                                            -table   gui_tactics_EXECUTIVE \
                                             -keys    tactic_id
     parm owner     disp    "Owner"
     parm text1     command "Command"        -width 40

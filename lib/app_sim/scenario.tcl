@@ -543,12 +543,28 @@ snit::type scenario {
         # NEXT, define tactic and condition type views
         set sql ""
         foreach ttype [tactic type names] {
-            set parms [join [tactic type parms $ttype] ", "]
+            set parms [tactic type parms $ttype]
+            set parmlist1 [join $parms ", "]
+
+            if {"once" in $parms} {
+                ldelete parms once
+                set parmlist2 [join $parms ", "]
+                append parmlist2 \
+                    ", CASE once WHEN 1 THEN 'YES' ELSE 'NO' END AS once"
+            } else {
+                set parmlist2 $parmlist1
+            }
 
             append sql "
                 CREATE VIEW tactics_$ttype AS
                 SELECT tactic_id, tactic_type, owner, narrative, priority,
-                       state, exec_ts, exec_flag, $parms
+                       state, exec_ts, exec_flag, $parmlist1
+                FROM tactics WHERE tactic_type='$ttype';
+
+                CREATE VIEW gui_tactics_$ttype AS
+                SELECT tactic_id, tactic_type, owner, narrative, priority,
+                       state, exec_ts, exec_flag, 
+                       $parmlist2
                 FROM tactics WHERE tactic_type='$ttype';
             "
         }
