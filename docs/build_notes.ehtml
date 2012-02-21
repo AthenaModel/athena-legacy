@@ -11,6 +11,39 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.32, 21 February 2012</h3>
+
+This is the third build for Windows 7.  It includes fixes for all
+significant bugs found to date, as well as the complete documentation
+set for release.  If all goes well, the next build will be 3.1.0.  The
+specific changes are as follows:<p>
+
+<ul>
+  <li> Bug 2750: Attacking ROE is Confusing
+  <li> Bug 3112: FUNDENI $0 Bgerror
+  <li> Bug 3130: athena(1): "Once" field in tactic update order dialogs is not p
+  <li> Bug opul:in 3.0.32 athena(1): Econ model is not properly initialized at f
+  <li> Bug irst: FIXE    Fixed in 3.0.32 athena(1): MET, UNMET condition can fai
+  <li> Bug l if:XE    Fixed in 3.0.32 athena(1): GUI actions while RUNNING
+  <li> Bug 3254: athena(1): Preparation for Multi-Threading
+  <li> Bug 3270: Save File should include file extension
+  <li> Bug 3272: athena(1): Rob Crowson's mods of fall 2011
+  <li> Bug 3274: Athena hangs when minimized
+  <li> Bug 3275: athena(1): Error loading mods
+  <li> Bug 3278: athena(1): Start up errors are lost on Windows
+  <li> Bug 3281: Run Until Paused Detail Browser Bgerror
+  <li> Bug 3292: Add SYSTEM to list of Reserved Names
+  <li> Bug 3293: Athena does not set current working directory properly
+  <li> Bug 3295: Group/Deployments, Group/Services tabs not populated
+  <li> Bug 3301: Beliefs tab does not display Disagreement--Strong
+  <li> Bug 3316: athena(1): Econ/Overview tab has column width problem
+  <li> Bug 3318: Creating Conditions with Symbolic Values Causes Bgerrors
+  <li> Bug 3328: On-line Help Scrub for Version 3
+  <li> Bug 3329: On-line help for Econ/Overview tab.
+  <li> Bug 3330: Ensure that AUG, AAG, and MAG are installed and visible
+</ul>
+
+
 <h3>Build 3.0.31, 18 November 2011</h3>
 
 This is the second build for Windows 7.  Build 3.0.30 could not be
