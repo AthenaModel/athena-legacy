@@ -1403,8 +1403,18 @@ This builds the following file:
 <</step>>
 
 <<step>>
+<b>Windows Only.</b>  Commit the changes to the InnoSetup definition file.
+<</step/>>
+<pre>
+$ cd ~/athena_pkgs/athena_3.0.31/installer
+$ svn commit -m"Set version number in installer file"
+<</step>>
+
+<<step>>
 <b>Windows Only.</b>  Make sure that that JPL's AFS server is mounted
-as drive K:.<p>
+as drive K.<p>
+<</step/>>
+n/a
 <</step>>
 
 <<step>>
@@ -1428,18 +1438,6 @@ $ cd ~/athena_pkgs/athena_3.0.31
 $ make install
 </pre>
 <</step>>
-
-
-<<step>>
-The previous two steps can be combined:
-<</step/>>
-<pre>
-$ klog
-$ cd ~/athena_pkgs/athena_3.0.31
-$ make cmbuild install
-</pre>
-<</step>>
-
 
 <<step>>
 Add the new build's documentation tree to the main index on the Athena
