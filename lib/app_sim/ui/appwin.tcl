@@ -1549,6 +1549,11 @@ snit::widget appwin {
             return 0
         }
 
+        # NEXT, make sure it has a .txt extension.
+        if {[file extension $filename] ne ".txt"} {
+            append filename ".txt"
+        }
+
         # NEXT, Save the CLI using this name
         if {[catch {
             try {
@@ -1665,6 +1670,11 @@ snit::widget appwin {
         # NEXT, If none, they cancelled.
         if {$filename eq ""} {
             return 0
+        }
+
+        # NEXT, make sure it has a .txt extension.
+        if {[file extension $filename] ne ".parmdb"} {
+            append filename ".parmdb"
         }
 
         # NEXT, Save the scenario using this name
