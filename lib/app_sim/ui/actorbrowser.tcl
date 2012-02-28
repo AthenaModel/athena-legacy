@@ -34,9 +34,15 @@ snit::widgetadaptor actorbrowser {
         { a            "ID"                                             }
         { longname     "Long Name"                                      }
         { supports     "Supports"                                       }
-        { cash_reserve "Cash Reserve, $"                                }
-        { income       "Income, $/Week"                                 }
-        { cash_on_hand "Cash on Hand, $"                                }
+        { cash_reserve "Cash Reserve, $"
+                       -sortmode command 
+                       -sortcommand ::marsutil::moneysort               }
+        { income       "Income, $/Week"
+                       -sortmode command 
+                       -sortcommand ::marsutil::moneysort               }
+        { cash_on_hand "Cash on Hand, $"
+                       -sortmode command 
+                       -sortcommand ::marsutil::moneysort               }
     }
 
     #-------------------------------------------------------------------
