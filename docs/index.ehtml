@@ -12,12 +12,10 @@
 <h2>Modeling Documents</h2>
 
 <ul>
-  <li> Athena User's Guide (<a href="dev/aug.docx">MS Word docx</a>)
-  <li> Athena Analyst's Guide (<a href="dev/aag.docx">MS Word docx</a>)
-  <li> Athena Rules Document (<a href="dev/rules.odt">OpenOffice
-       Writer</a>)
-  <li> Mars Analyst's Guide (<a href="../mars/docs/dev/mag.docx">MS
-  Word docx</a>)
+  <li> Athena User's Guide (<a href="dev/aug.pdf">PDF</a>)
+  <li> Athena Analyst's Guide (<a href="dev/aag.pdf">PDF</a>)
+  <li> Athena Rules Document (<a href="dev/rules.pdf">PDF</a>)
+  <li> Mars Analyst's Guide (<a href="../mars/docs/dev/mag.pdf">PDF</a>)
 </ul>
 
 <h2>Software Notes</h2>
