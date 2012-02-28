@@ -669,9 +669,7 @@ macro ECON.pcf {} {
 order ECON:UPDATE "Update Neighborhood Economic Inputs" {
     <<parmlist>>
 
-    <<parm n "Neighborhood">>
-    <b>Required.</b>  <<NBHOOD.n>>
-    <</parm>>
+    <<NBHOOD.n>>
 
     <<parm pcf "Proc. Capacity Factor">>
     <b>Optional.</b>  <<ECON.pcf>>

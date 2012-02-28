@@ -2119,13 +2119,13 @@ tab "Econ/Capacity" {
     decreased by changing this number, which is nominally 1.0.
     <</topic>>
 
-    <<topic "Cap. Cal.">>The calibration capacity factor, or CCF.
-    This figure represents the capacity of the neighborhood at time 0,
+    <<topic "Cap. Cal.">>The capacity calibration factor, or CCF.
+    This figure represents the maximum capacity of the neighborhood at time 0,
     in goods baskets, given the PCF at time 0.
     <</topic>>
 
-    <<topic "Cap at T0">>The production capacity at time 0, in 
-    goods baskets.
+    <<topic "Cap at T0">>The actual production capacity at time 0, in 
+    goods baskets, given the PCF at time 0.
     <</topic>>
 
     <<topic "Cap Now">>The current production capacity, in goods baskets.
@@ -2209,7 +2209,7 @@ tab "Econ/Groups" {
     <b>Simulation Mode only.</b><p>
 
     This tab displays the effect of the current economy on the
-    civiliand groups.  The browser controls are described 
+    civilian groups.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>

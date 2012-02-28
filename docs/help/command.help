@@ -379,7 +379,8 @@ command "errtrace" {
 # export command
 
 command "export" {
-    <<syntax <i>scriptFile</i>>>
+    <<syntax <i>scriptFile</i> >>
+
     Exports the orders shown on <<tab orders/sent>> to a script file
     that can be executed to reproduce the current scenario at the
     current simulation time.  Execute the script in a new, empty 
