@@ -1,0 +1,114 @@
+<<manpage {marsgui(n) helpbrowser(n)} "Help Browser Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+helpbrowser(n) defines a simple help browser widget with these features:<p>
+
+<ul>
+  <li> Based on <<xref htmlviewer(n)>>.<p>
+
+  <li> Browses <<xref helpdb(n)>> help databases.<p>
+
+  <li> Provides forward and back buttons, as a web browser does.<p>
+
+  <li> Provides a side-bar containing a user-selectable contents tree.<p>
+</ul>
+
+Over time, we expect this browser to evolve to include additional
+features, such as full-text search.<p>
+
+The browser's hull is a Tk frame widget; it will typically be embedded
+in a top-level window by the programmer.<p>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem helpbrowser {helpbrowser <i>pathName ?options...?</i>}>>
+
+Creates a new <<iref helpbrowser>> widget named <i>pathName</i>. The
+options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-helpdb <i>hdb</i>}>>
+
+This option must be specified when the browser is created, is readonly
+thereafter.  The value must be the name of an instance of
+<<xref helpdb(n)>> containing the help pages to browse.  When
+initially created, the browser will display the first top-level page.<p>
+
+<<defopt {-notfoundcmd <i>cmd</i>}>>
+
+When the user requests a page that is not found in the
+<code>-helpdb</code>, the help browser displays a pseudo-page with the
+title "Page Not Found".  By default, the page's content is a bland
+statement that the page was not found.<p>
+
+The programmer can customize the content of this page by defining a
+<code>-notfoundcmd</code>.  The value is a command that takes one
+additional argument, the name of the requested page, and returns HTML
+text to display to the user.<p>
+
+<</deflist options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Instances of <<xref helpbrowser(n)>> widget define the following
+subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem showpage {<i>pathName</i> showpage <i>name</i>}>>
+
+Asks the browser to display the named help page.  The browser will
+display the page, and highlight its title in the contents tree.
+If the page is not found, it will show the "Page Not Found"
+pseudo-page instead.<p>
+
+<<defitem back {<i>pathName</i> back}>>
+
+Asks the browser to go back one page, as in a web browser.<p>
+
+<<defitem forward {<i>pathName</i> forward}>>
+
+Asks the browser to go forward one page, as in a web browser.<p>
+
+<</deflist>>
+
+<<section ENVIRONMENT>>
+
+marsgui(n) requires Tcl 8.5 or later.
+
+To use marsgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+New package.<p>
+
+<</manpage>>
+
+
+
+
+
+

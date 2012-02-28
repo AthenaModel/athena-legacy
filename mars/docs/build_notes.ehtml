@@ -1,0 +1,849 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<html>
+<head>
+<title>Mars <<version>> Simulation Infrastructure Library</title>
+</head>
+
+<body bgcolor="#F5F5F5" alink="Blue" link="Blue">
+<h1 style="background: red;">&nbsp;Mars <<version>>: Simulation Infrastructure
+Library</h1>
+
+<h2>Build Notes</h2>
+
+<h3>Build 1.65, 21 February 2012</h3>
+
+This build contains a number of small fixes, notably to
+<<xref mam(n)>> and the <<xref quality(n)>> data type.  In particular:<p>
+
+<ul>
+  <li> Bug 3156: mam(n): Special Case code
+  <li> Bug 3273: gram2(n): Default gram.epsilon to 0.01
+  <li> Bug 3277: Athena hangs when minimized
+  <li> Bug 3319: Creating Conditions with Symbolic Values Causes Bgerrors
+  <li> Bug 3323: qemphasis(n) converts 0.25 to DWEAK instead of DSTRONG
+</ul><p>
+
+<h3>Build 1.64, 18 November 2011</h3>
+
+This build contains two changes, an update to the official build
+procedure in the Mars CM Plan, and a fix to a colorfield(n) problem
+that manifests only on Microsoft Windows.<p>
+
+<ul>
+  <li> Bug 3241: Mars CM Plan: Official Build Details
+  <li> Bug 3266: colorfield(n): Can't parse "SystemButtonFace"
+</ul><p>
+
+<h3>Build 1.63, 3 November 2011</h3>
+
+This build contains a couple bug fixes and a minor change to the gtserver
+API. gtserver now allows a -norefresh option for game truth object classes
+that should not be involved in a game truth refresh.
+
+<ul>
+  <li> Bug 3232: modeditor(n): add argument to -formatcmd
+  <li> Bug 3233: messagebox(n): -parent option cannot be the empty string
+  <li> Bug 3236: gtserver(n): add -norefresh option to object class definition 
+</ul><p>
+
+<h3>Build 1.62, 24 October 2011</h3>
+
+This build contains some fixes for gram(n) and gram2(n) test failures and
+some bug fixes. It also introduces the "vista" theme for marsgui(n) so the
+GUIs look nice when running under Windows. marsgui(n) is also changed to load
+Tkhtml 2.0 only when an htmlviewer(n) is created. This allows Athena to use
+Tkthml 3.0 without problem.
+
+<ul>
+  <li> Bug 3188: gram(n), gram2(n): format %7.3f test failures
+  <li> Bug 3194: "make clean" fails in src if Marsbin has never been built.
+  <li> Bug 3196: messagebox(n): transient doesn't place window properly on Windows
+  <li> Bug 3197: marsgui(n): Use "vista" theme on Windows
+  <li> Bug 3198: htmlviewer(n): Load Tkhtml 2.0 lazily
+  <li> Bug 3199: ehtml(n): Use border=1 for changelog table 
+</ul><p>
+
+<h3>Build 1.61, 11 October 2011</h3>
+
+This build contains changes to the build procedure for Mars.  The
+biggest change is to the handling of the Mars binary Tcl extensions.
+All code now builds on both Linux and Windows.  The libMarsutil
+library has been replaced with a new TEA-compliant package called
+Marsbin, which marsutil(n) loads if it's available.<p>
+
+In addition, the handling of the Mars version number has been changed
+to be more robust.  In particular, once Mars has been built and
+tagged, clients will no longer need to specify MARS_VERSION explicitly
+when building against the tagged version; the tagged version will know
+its own version number.<p>
+
+<ul>
+  <li> Bug 3187: Mars: Support for building on Windows
+  <li> Bug 3190: Mars Version Specification
+  <li> Bug 3193: Update Mars to ATEE 2011 Q3 for 32-bit Linux 
+</ul><p>
+
+
+<h3>Build 1.60, 6 October 2011</h3>
+
+This build contains some bug fixes to messagebox(n), rangefield(n),
+gram2(n) and enumfield(n). There is also a new section in the Mars CM
+plan that details how Subversion and Bugzilla are integrated into the
+JNEM/Athena development environments. The list of packages:<p>
+
+<ul>
+  <li> Bug 3122: messagebox: list select dialog close button doesn't work
+  <li> Bug 3158: rangefield(n): set fails when -state is disabled
+  <li> Bug 3164: gram2(n): level inputs with "days" less than one tick are ignored
+  <li> Bug 3166: Subversion/Bugzilla Integration Details
+  <li> Bug 3172: enumfield(n): Doesn't take focus correctly on tab
+  <li> Bug 3174: enumfield(n), textfield(n): -borderwidth, -background
+  <li> Bug 3175: messagebox(n) listselect
+  <li> Bug 3182: mars(1): Use "tclsh" rather than "tclsh8.5"
+  <li> Bug 3183: Mars MakeDefs: Platform Definition 
+</ul><p>
+
+<h3>Build 1.59, 22 August 2011</h3>
+This build simply has the MakeDefs file at the top of the tree point to the
+latest 64-bit distribution of ActiveTcl EE. 
+
+<ul>
+    <li> Bug 3118: Upgrade to latest ActiveTcl EE distribution
+</ul><p>
+
+<h3>Build 1.58, 15 August 2011</h3>
+This build has a couple bug fixes and an extension of the mapcanvas(n)
+API. The mapcanvas can now have its neighborhood polygon color and linewidth
+specified via options.
+
+<ul>
+  <li> Bug 3068: listfield(n): call set when -itemdict is empty
+  <li> Bug 3092: mapcanvas(n): add two options
+  <li> Bug 3100: mam(n): Emphasis rather than Tolerance 
+</ul><p>
+
+<h3>Build 1.57, 18 July 2011</h3>
+
+This build fixes a bug in the listfield(n) type.<p>
+
+<ul>
+  <li> Bug 3063: listfield(n): Invalid set 
+</ul><p>
+
+<h3>Build 1.56, 15 June 2011</h3>
+
+This build changes the quality(n) type slightly, so that all numeric
+quality values that round the same will translate to the same
+symbols.<p>
+
+<ul>
+  <li> Bug 3054 quality(n) name, longname, index should round numeric inputs 
+</ul><p>
+
+
+<h3>Build 1.55, 13 June 2011</h3>
+
+This build fixes a minor bug in htmlviewer(n), and a crash in
+gtifreader(n).<p>
+
+<ul>
+  <li> Bug 3027: gtifreader(n): Tcl binding uses wrong data type
+  <li> Bug 3033: htmlviewer(n): Erroneous selection drag 
+</ul><p>
+
+<h3>Build 1.54, 1 June 2011</h3>
+
+This build adds the GeoTIFF library, and some small changes to the
+qtolerance(n) simtype.<p>
+
+<ul>
+  <li> Bug 3011: gtifreader(n): Add Tcl module in case GeoTIFF library not present.
+  <li> Bug 3015: simlib(n): qtolerance values
+</ul><p>
+
+
+<h3>Build 1.53, 24 May 2011</h3>
+This build introduces a new field(i) type, the zcurvefield(n), for inclusion
+in order dialogs.<p>
+
+<ul>
+    <li> Bug 2954: zcurvefield(n): new field(i) type
+</ul><p>
+
+<h3>Build 1.52, 3 May 2011</h3>
+Only one change in this build, the addition of an echo proc to marsmisc(n):<p>
+
+<ul>
+    <li> Bug 2947: marsmisc(n): Add an echo proc
+</ul><p>
+
+<h3>Build 1.51, 20 April 2011</h3>
+
+This build fixes two significant bugs in mam(n).<p>
+
+<ul>
+  <li> Bug 2938: bgerror: Unknown mam_playbox key: "1"
+  <li> Bug 2939: rangefield(n): debugging puts
+  <li> Bug 2940: Irrelevant Topics Are Relevant 
+</ul><p>
+
+<h3>Build 1.50, 19 April 2011</h3>
+
+This build contains a minor fix in rangefield(n), and integration with
+ATEE 2011Q1.<p>
+
+<ul>
+  <li> Bug 2921: rangefield(n): -changemode onrelease bug 
+  <li> Bug 2924: Integrate with ATEE 2011Q1 
+</ul><p>
+
+<h3>Build 1.49, 12 April 2011</h3>
+
+This build contains some more htmlviewer(n) changes, a mam(n) change, and bug
+fixes for some test failures:<p>
+
+<ul>
+  <li> Bug 2905: htmlviewer(n): no-op &lt;Control-1&gt;, &lt;Shift-1&gt; handlers
+  <li> Bug 2914: htmlviewer(n): Character Entity Translation
+  <li> Bug 2916: mam(n): entity -commonality, playbox -gamma 
+  <li> Bug 2922: mam(n): Test failure 
+</ul><p>
+
+<h3>Build 1.48, 4 April 2011</h3>
+
+This build contains two minor changes:<p>
+
+<ul>
+  <li> Bug 2888: sqldocument(n): <Monitor> event
+  <li> Bug 2890: htmlviewer(n): Mouse click should clear the selection
+</ul><p>
+
+<h3>Build 1.47, 28 March 2011</h3>
+
+This build contains minor enhancements and symbol changes.<p>
+
+<ul>
+  <li> Bug 2871: simtypes(n): qaffinity type
+  <li> Bug 2886: htmlviewer(n): Mouse selection, -mouseovercommand
+</ul><p>
+
+<h3>Build 1.46, 10 March 2011</h3>
+
+This build contains four minor bug fixes/enhancements made while
+implementing Athena's Beliefs browser.<p>
+
+<ul>
+  <li> Bug 2860: sqlbrowser(n): Expose "windowpath" method
+  <li> Bug 2861: enumfield(n): set -silent
+  <li> Bug 2862: sqlbrowser(n): -where ignored on "uid update"
+  <li> Bug 2863: sqlbrowser(n): Pad scrollbars by 1 pixel 
+</ul><p>
+
+
+<h3>Build 1.45, 8 March 2011</h3>
+
+This build includes a number of bug fixes, and one new bit of
+functionality, the ability to define "context" parameters in order(n)
+orders.<p>
+
+<ul>
+  <li> Bug 2849: order(n): order metadata errors are obscure
+  <li> Bug 2850: newkeyfield(n): Second key column doesn't populate
+  <li> Bug 2852: order(n)/orderdialog(n): -context parameters
+  <li> Bug 2856: mam(n): Single commands require multiple undo's.
+  <li> Bug 2857: simtypes(n): Symbolic constants for qposition 
+</ul><p>
+
+<h3>Build 1.44, 2 March 2011/</h3>
+
+This build completes the transfer of infrastructure from Athena 3 to
+Mars, including code for displaying maps, many sqldocument(n)
+improvements, the Athena help system, and the Athena order processing
+system.<p>
+
+<ul>
+  <li> Bug 2820: marsutil(n): mapref(n), projection(i)
+  <li> Bug 2821: marsgui(n): mapcanvas(n) map widget
+  <li> Bug 2822: Help System
+  <li> Bug 2825: marsicons(n): Merge icons
+  <li> Bug 2826: mars_icons(1): Allow scrolling
+  <li> Bug 2828: sqldocument(n): safeeval, safequery
+  <li> Bug 2830: sqldocument(n): monitor API
+  <li> Bug 2846: order(n)/orderdialog(n)  
+</ul>
+
+<h3>Build 1.43, 17 February 2011</h3>
+
+This build has three significant changes.  First, Mars now supports
+both 32-bit and 64-bit builds.  Second, formlib(n) now includes a
+field for selecting multiple items from a list.  Third, formlib(n) has
+been merged into marsgui(n).  The complete list of changes is as follows:<p>
+
+<ul>
+  <li> Bug 2801: sqldocument(n): delete -grab omits triggered deletes
+  <li> Bug 2806: formlib(n): listfield(n) -- field for selecting multiple values from a list
+  <li> Bug 2807: marsgui(n): Left and right arrow icons
+  <li> Bug 2810: listfield(n): Error when -itemdict is the empty dict
+  <li> Bug 2811: listfield(n): Error when setting a non-empty value and -itemdict is {}
+  <li> Bug 2813: marsgui(n): Merge formlib(n) into marsgui(n)
+  <li> Bug 2816: mars: 64-bit build capability 
+</ul><p>
+  
+<h3>Build 1.42, 1 February 2011</h3>
+
+This build contains three enhancements to marsgui(n).  The list of
+packages is as follows:<p>
+
+<ul>
+  <li> Bug 2777: messagebox(n) pick: select item from a list
+  <li> Bug 2778: marsicons(n): thumbs up and thumbs down
+  <li> Bug 2797: sqlbrowser(n): -stripe* options 
+</ul>
+  
+<h3>Build 1.41, 26 January 2011</h3>
+
+This build contains three bug fixes. The most visible is a new logger(n)
+option that limits the size a message is before being written to disk. The
+option is -maxmsglen and has a default of 20000. The list of packages is as 
+follows:<p>
+<ul>
+  <li> Bug 2755: sqldocument(n): "rdb ungrab" can trigger cascading deletes
+  <li> Bug 2762: logger(n): option to limit the size of a message
+  <li> Bug 2763: mars commit(1): SVN weirdness not being handled 
+</ul>
+
+<h3>Build 1.40, 20 December 2010</h3>
+
+This build has an unusually large number of changes, most of them
+minor improvements to the sqldocument(n) module and the formlib(n)
+editing widgets.  Most of these were driven by the prototyping and
+inclusion of the new Mars Affinity Model (mam(n)); others by efforts
+to improve our use of SQLite.  Changes that would
+break existing code have been avoided.<p>
+
+<ul>
+  <li> Bug 2689: gram(n): change all "let" commands to use expr instead
+  <li> Bug 2690: sqldocument(n): DICT collating sequence
+  <li> Bug 2691: sqlbrowser(n): -sortmode dictionary not working
+  <li> Bug 2693: sqldocument(n): -foreignkeys
+  <li> Bug 2695: sqlbrowser(n): -filterbox
+  <li> Bug 2699: mars_sql(1) -- SQL Database Tool
+  <li> Bug 2700: mars_sql(1) -- Explain Mode
+  <li> Bug 2701: rangefield(n): call -changecmd lazily
+  <li> Bug 2702: rangefield(n): enhancements
+  <li> Bug 2703: enumfield(n): -font affects only the menubox entry, not the menubox pulldown.
+  <li> Bug 2704: sqlbrowser(n): Support for cell editing
+  <li> Bug 2705: lazyupdater(n): update never occurs if -win is "".
+  <li> Bug 2709: sqlbrowser(n): -selectioncmd called on reload
+  <li> Bug 2710: rangefield(n): propagate -background
+  <li> Bug 2711: sqldocument(n): grab and ungrab
+  <li> Bug 2717: sqldocument(n): grabbing_delete
+  <li> Bug 2719: sqldocument(n): fklist method
+  <li> Bug 2720: simlib(n): Mars Affinity Model
+  <li> Bug 2724: mam(n): Schema contains format() function
+  <li> Bug 2725: sqldocument(n): "$db clear" fails
+  <li> Bug 2727: sqldocument(n): delete subcommand
+  <li> Bug 2728: mam(n): RGC algorithm of 16 December 2010 
+</ul><p>
+
+<h3>Build 1.39, 17 November 2010</h3>
+<b> Happy Birthday To Me</b><p>
+
+This build contains a new moneysort command in marsmisc(n) and some new code
+for dealing with dynamic civilian groups in GRAM2.<p>
+
+<ul>
+  <li> Bug 2670: marsmisc(n): Add moneysort command
+  <li> Bug 2683: gram2(n): Dynamic civilian groups
+  <li> Bug 2687: gram2(n): Data loading and sanity checking
+</ul>
+
+<h3>Build 1.38, 2 November 2010</h3>
+
+This build contains one change: colorfield(n), a new formlib(n)
+widget.<p>
+
+<ul>
+  <li> Bug 2654: formlib(n): colorfield(n) 
+</ul>
+
+<h3>Build 1.37, 29 October 2010</h3>
+This build contains a bug fix and small enhancement to the rangefield(n)
+widget. It also contains updates to marsgui(n) in support of the upgrade
+to ActiveTcl EE 2010 Q3. The three packages included are:<p>
+
+<ul>
+  <li> Bug 2638: rangefield(n): error in "get" argument list
+  <li> Bug 2644: rangefield(n): Support blank values
+  <li> Bug 2646: marsgui(n): Upgrade to ActiveTcl EE 2010 Q3
+</ul>
+
+<h3>Build 1.36, 25 October 2010</h3>
+
+This build adds a new version of GRAM, gram2(n), with a new internal
+schema which excludes ORG satisfaction and requires that each civilian
+group reside in a single neighborhood.  The old version can be used by
+requesting<p>
+
+<pre>
+    package require -exact simlib 1.0
+</pre>
+
+and the new version by requesting
+
+<pre>
+    package require simlib 2.0
+</pre>
+
+The gramdb(n) package similarly has a new version, gramdb2(n).  All
+other simlib(n) packages are identical across the two versions.<p>
+
+This build has exactly one new package:<p>
+
+<ul>
+  <li> Bug 2632: gram2(n): Pull the experimental GRAM into simlib(n)
+</ul><p>
+
+<h3>Build 1.35, 11 October 2010</h3>
+
+This build adds the new formlib(n) library, which takes user interface
+code from Athena, along with significant new code, and makes it
+available for general use.  The full set of packages is as follows:<p>
+
+<ul>
+  <li> Bug 2609: formlib(n): Data entry form library
+  <li> Bug 2615: formlib(n): rangefield(n)
+</ul><p>
+
+<h3>Build 1.34, 29 September 2010</h3>
+
+This build contains minor updates to the Mars documentation tree,
+and particularly the <i>Mars Analyst's Guide</i>.<p>
+
+<h3>Build 1.33,  9 September 2010</h3>
+
+This build contains a fix to the stripchart(n) widget:<p>
+
+<ul>
+  <li> Bug 2590: stripchart(n): error on plot of empty series 
+</ul><p>
+
+<h3>Build 1.32, 16 August 2010</h3>
+
+This build contains one fix to the cmsheet(n) widget:<p>
+
+<ul>
+  <li> Bug 2563: cmsheet(n): -background is ignored on mapcell method 
+</ul><p>
+
+
+<h3>Build 1.31, 2 August 2010</h3>
+
+This build contains some enhancements to cellmodel(n) for Athena.<p>
+
+<ul>
+  <li> Bug 2548: cellmodel(5): sum and prod indices
+  <li> Bug 2549: cellmodel(5): Enhanced page copying
+  <li> Bug 2551: cellmodel(5): initfrom command 
+</ul><p>
+
+<h3>Build 1.30, 21 July 2010</h3>
+This build contains a minor enhancement to sqldocument(n) and a new subcommand
+to the mars CM tool called "mash" (aka "monster mash") which is used to
+solve a cellmodel(5) model for all combination of values. The list of packages
+is:<p>
+<ul> 
+  <li> Bug 2542: mars_cmtool(1): "mash" subcommand
+  <li> Bug 2544: mars_cmtool(1): "mash", range bounds should be expressions
+  <li> Bug 2537: Implement Real Time Viewing
+</ul>
+
+<h3>Build 1.29, 13 July 2010</h3>
+
+This build contains minor enhancements to Mars packages.<p>
+
+<ul>
+  <li> Bug 2491: Update Mars to ATEE 2010Q2
+  <li> Bug 2508: bgerror: can't read "series(xmin-sat.ANG.BIG.AUT)": no such element in array
+  <li> Bug 2522: sqlbrowser(n): -where option
+  <li> Bug 2524: sqldocument(n): dictget(), dicteq(), dictglob()
+  <li> Bug 2532: libMarsutil: compilation warnings
+  <li> Bug 2533: cellmodel(5): Add fif() function. 
+</ul>
+
+<h3>Build 1.28, 15 June 2010</h3>
+
+This build primarily contains changes to GRAM, along with some minor
+cosmetic changes to the appearance of combobox widgets.<p>
+
+<ul>
+  <li> Bug 2507: marsgui(n) ttk::combobox colors
+  <li> Bug 2510: gram(n): Long-term-trend is deleted.
+  <li> Bug 2512: gram(n): dump commands should show thresholds 
+</ul><p>
+
+<h3>Build 1.27, 28 May 2010</h3>
+This build contains some updates mainly to the <<xref cellmodel(n)>> package.
+There is a bug fix for the <<xref sqlbrowser(n)>> and a few other odds and ends.
+
+<ul>
+  <li> Bug 2471: stripchart(n): Strip Chart Widget
+  <li> Bug 2475: lazyupdater(n): lazy update manager
+  <li> Bug 2476: hbarchart(n), stripchart(n) should use lazyupdater(n)
+  <li> Bug 2478: sqlbrowser setcelltext method error relating to tablelist option
+  <li> Bug 2481: marsgui(n): ttk::entry has white background when -state is readonly
+  <li> Bug 2483: cellmodel(5): Enhancements
+  <li> Bug 2485: cellmodel(5): forall command
+  <li> Bug 2489: cellmodel(n): Acyclic pages are computed in the wrong order
+  <li> Bug 2494: cellmodel(n): Move from simlib(n) to marsutil(n)
+  <li> Bug 2496: marsmisc(n): commafmt, moneyfmt, moneyscan
+  <li> Bug 2497: cmsheet(n) -- Add -formatcmd option
+</ul>
+
+<h3>Build 1.26, 27 April 2010</h3>
+
+This build makes some minor changes to the <<xref pwin(n)>>,
+<<xref hbarchart(n)>> and <<xref cellmodel(5)>> modules.<p>
+
+<ul>
+  <li> Bug 2450: pwin(n): -title option
+  <li> Bug 2458: hbarchart(n): Legend doesn't update when new series are plotted
+  <li> Bug 2459: hbarchart(n): &lt;&lt;Context&gt;&gt; event
+  <li> Bug 2460: hbarchart(n): Missing values bug
+  <li> Bug 2461: cellmodel(5): epsilon(), ediff() functions 
+</ul>
+
+<h3>Build 1.25, 20 April 2010</h3>
+This build contains many updates to the library. Most are in support of
+Athena including <<xref cellmodel(n)>>, <<xref hbarchart(n)>>, 
+<<xref pwinman(n)>> and <<xref messagebox(n)>>.
+There are also updates to <<xref gradient(n)>> and a slight API addition to 
+<<xref sqlbrowser(n)>>. 
+<ul>
+  <li>Bug 2421: cellmodel(n): Cell Model Infrastructure
+  <li>Bug 2422: cellmodel(5): page -except option
+  <li>Bug 2423: cellmodel(n): Allow partial solutions
+  <li>Bug 2432: gradient(n): Clamp input levels to -minlevel, -maxlevel
+  <li>Bug 2437: hbarchart(n): Horizontal Bar Chart widget
+  <li>Bug 2439: sqlbrowser(n): add API call to allow for the text of a cell to be set
+  <li>Bug 2440: hbarchart(n): Gap between bar groups depends on number of data series
+  <li>Bug 2441: pwinman(n), pwin(n): Pseudo-window manager
+  <li>Bug 2442: pwinman(n): "insert 0" doesn't work when pwinman is empty.
+  <li>Bug 2443: hbarchart(n): Allow subcanvases to respond to events bound to the widget
+  <li>Bug 2445: hbarchart(n): Don't render when unmapped
+  <li>Bug 2446: hbarchart(n): automatic min and max detection
+  <li>Bug 2449: hbarchart(n): Legend fails when there are no data series
+  <li>Bug 2456: messagebox(n): messagebox gets, -helpcmd, -initvalue
+</ul>
+
+<h3>Build 1.24, 5 March 2010</h3>
+This build contains a change to how <<xref eventq(n)>> handles events scheduled
+at time 0 and how it advances when given a time greater than the time of the 
+last event in it's queue. It also has a bug fix for <<xref sqlbrowser(n)>>.
+
+
+<ul>
+  <li> Bug 2399: eventq(n): Advance to time 0
+  <li> Bug 2400: sqlbrowser(n): uid update bgerror: can't read "row(id)": no such element in array
+</ul><p>
+
+<h3>Build 1.23, 5 January 2010</h3>
+
+This build contains a new module, the Mars Order Processor
+(<<xref mop(n)>>), and some fixes to <<xref sqlbrowser(n)>>.<p>
+
+<ul>
+  <li> Bug 2380: mop(n): Mars Order Processor
+  <li> Bug 2391: sqlbrowser(n): error when -uid is not one of the visible columns
+  <li> Bug 2393: sqlbrowser(n): uid curselection fails if columns have not yet been layed out
+  <li> Bug 2394: sqlbrowser(n): cellconfigure/cellcget
+  <li> Bug 2395: sqlbrowser(n): -selectioncmd not called on "reload". 
+</ul><p>
+
+
+
+<h3>Build 1.22, 11 December 2009</h3>
+This build contains mainly some gram(n) improvements and clean up. There are 
+also some improvements in other areas and some documentation for Mars 
+applications. The list of packages is as follows:<p>
+
+<ul>
+  <li> Bug 2353: NaturalDocs documentation for Mars applications
+  <li> Bug 2358: debugger(n): Better status line for isearch messages
+  <li> Bug 2359: reportviewer(n)/reportbrowser(n): isearch and -logcmd
+  <li> Bug 2360: gram(n): Thresholds and Clean-up
+  <li> Bug 2362: gram(n): Optimization and Cleanup
+  <li> Bug 2366: gram(n): Optimize "cancel" method
+  <li> Bug 2367: marsgui(n): Tabless Notebook Widgets
+  <li> Bug 2377: sqlbrowser(n): Simplify sorting code
+  <li> Bug 2378: winbrowser(n): Options are now presented in a tablelist.
+</ul><p>
+
+<h3>Build 1.21, 5 November 2009</h3>
+Shortly after build 1.20 it was discovered that a new Tk widget used in Mars
+was not being packaged properly by the tclapp program that bundles Tcl/Tk
+code into a binary executable. This build fixes that by reverting back to the
+previous widget. There is no new functionality.
+
+<ul>
+  <li> Bug 2345 marsgui(n): tablelist_tile causes tclapp to fail
+</ul><p>
+
+<h3>Build 1.20, 4 November 2009</h3>
+This build contains a fair amount of GUI retooling. Included are the move
+of report browser functionality into Mars, and the change of look and feel for
+all Mars GUI widgets. sqldocument(n) has been changed to reguire the register
+of SQL sections with instances of it. There are also some changes to gram(n) and
+the introduction of the mars_gram(1) workbench tool and the mars_log(1) log
+browser. The list of packages is as follows:
+
+<ul>
+  <li> Bug 2282: sqldocument(n): register sections with instances
+  <li> Bug 2314: Move reporter(n), reportviewer(n), reportviewerwin(n), reportbrowser(n) into mars
+  <li> Bug 2319: gram(n): Delete "object" column from schema
+  <li> Bug 2323: gram(n): Delete ability to target inputs at all neighborhoods
+  <li> Bug 2325: gram(n): Here Multiplier
+  <li> Bug 2331: modeditor(n): Mod Editor Widget
+  <li> Bug 2332: getcode(n): Improved output
+  <li> Bug 2334: mars_gram(1): GRAM workbench
+  <li> Bug 2338: marsgui(n): GUI Scrub
+  <li> Bug 2339: mars_log(1): Mars Log Browser
+  <li> Bug 2343: sqlbrowser(n): SQL View Browser
+  <li> Bug 2337: statecontroller(n) -- Import from Athena 
+</ul><p>
+
+<h3>Build 1.19, 5 October 2009 -- Athena 1.1</h3>
+
+This build supports the Athena 1.1 release.  It contains two changes,
+a fix to <<xref mars_link(1)>> and an updated to the <i>Mars Analyst's
+Guide</i>.  There are no code changes that affect clients.<p>
+
+
+<h3>Build 1.18, 2 September 2009</h3>
+
+This build contains a number of changes to gram(n) in support of
+Athena 1.0.14. In particular:<p>
+
+<ul>
+  <li> Bug 2234: gram(n): sat set, coop set
+  <li> Bug 2235: gram(n): "cancel -delete"
+  <li> Bug 2239: gram(n): Control of driver input count
+  <li> Bug 2243: gram(n): coop.nfg, coop.ng methods
+  <li> Bug 2257: gram(n): man page "sat slope" and "coop slope" entries
+  <li> Bug 2261: cli(n): delegate "get" to text(n) widget 
+</ul><p>
+
+<h3>Build 1.17, 10 August 2009</h3>
+
+This build integrates one small performance improvement from JRAM into
+GRAM, and adds a couple of capabilities needed for Athena 1.1.<p>
+
+<ul>
+  <li> Bug 2084: gram(n): Performance
+  <li> Bug 2216: simclock(n): Parse generalized time specification strings
+  <li> Bug 2223: eventq(n): undo schedule/undo cancel  
+</ul><p>
+
+
+
+<h3>Build 1.16, 27 July 2009</h3>
+
+This build fixes a bug in parmset(n): the "reset" subcommand reset
+even those parameters that had been locked.<p>
+
+<ul>
+  <li> Bug 2202: parmset(n): "reset" resets locked parameters
+</ul><p>
+
+<h3>Build 1.15, 9 July 2009</h3>
+
+This build updates Mars to use the latest ActiveTclEE (2009 Q2) build and a
+couple of enhancements for HTML documentation purposes.
+
+<ul>
+  <li> Bug 2172: Upgrade to ActiveTclEE 2009Q2
+  <li> Bug 2177: ehtml(n): macro
+  <li> Bug 2178: quality(n) HTML documentation
+</ul>
+
+<h3>Build 1.14, 24 June 2009</h3>
+
+This build contains a bug fix, and two updates related to the Athena
+Demographic model.<p>
+
+<ul>
+  <li> Bug 2154: sqlsection(i): tempdata
+  <li> Bug 2160: gram(n): Validators not created on restore
+  <li> Bug 2161: gram(n): update population  
+</ul><p>
+
+<h3>Build 1.13, 22 June 2009</h3>
+This build contains a fair number of changes in support of on-going
+Athena development.  The most obvious is that the enum(n), quality(n),
+and range(n) data types have been updated to have much improved error
+messages.<p>
+
+<ul>
+  <li> Bug 188:  enum(n), quality(n), range(n): better validate error messages
+  <li> Bug 2117: parmdb lock does not error when parameter does not exist
+  <li> Bug 2127: gradient(n): Add -midlevel, -midcolor
+  <li> Bug 2132: simtypes(n): Add qrel(n) type
+  <li> Bug 2140: gram(n): Compute coop.ng 
+</ul><p>
+
+<h3>Build 1.12, 27 May 2009</h3>
+
+This build contains a fair number of changes, most of them in support
+of ongoing Athena development; a few relate to bugs found during
+integration of JNEM 4.1.<p>
+
+<ul>
+  <li> Bug 2048: simlib(n): Add coverage(n) coverage function module
+  <li> Bug 2053: gram(n): error on initialization
+  <li> Bug 2072: sqlib(n)/sqldocument(n): replace
+  <li> Bug 2074: eventq(n): Can't schedule events defined before "eventq init"
+  <li> Bug 2087: eventq(n): checkpoint/restore is broken
+  <li> Bug 2112: jnem_sim(1): SPR 1529 - JNEM throws bgerrors on time advance.
+  <li> Bug 2114: bgerror: simclock(n), rtiproxy(n): advance request when advance is pending 
+</ul>
+
+
+<h3>Build 1.11, 13 April 2009</h3>
+
+There are three changes in support of ongoing Athena development in
+this build:<p>
+
+<ul>
+  <li> Bug 1978: parmset(n): add saveable(i) interface
+  <li> Bug 1985: gram(n): clear
+  <li> Bug 2036: gram(n): slope inputs no longer have "limit" 
+</ul><p>
+
+<h3>Build 1.10, 25 March 2009</h3>
+Four changes in support of ongoing Athena development are in this build. There's
+also a patch to prevent a bgerror from occurring in log browsers.
+
+<ul>
+  <li>Bug 1954: simlib(n): simtypes(n), rmf(n), gram(n)
+  <li>Bug 1956: sqldocument(n): -clock option
+  <li>Bug 1957: zulu(n): zulu validate
+  <li>Bug 1960: saveable(i) checkpoint -saved
+</ul>
+
+<h3>Build 1.9, 11 March 2009</h3>
+Two minor changes in this build. marsutil(n) no longer includes the parmdb(n)
+man page and Mars now uses the 2008Q4 version of ActiveTcl Enterprise Edition.<p>
+
+<ul>
+  <li> Bug 1917: marsutil(n) erroneously includes parmdb(n) man page
+  <li> Bug 1928: Use ATEE 2008Q4
+</ul>
+
+<h3>Build 1.8, 11 February 2009</h3>
+
+This build has two minor changes.  The range(n) type now participates
+in the "INVALID" error protocol, and sqldocument(n) now provides the
+ability to insert a dictionary of column names and values into a
+table.<p>
+
+<ul>
+  <li> Bug 1898: sqlib(n), sqldocument(n): insert dict into table
+  <li> Bug 1902: range(n): -errorcode INVALID 
+</ul><p>
+
+<h3>Build 1.7, 6 February 2009</h3>
+
+This build has two minor changes: The removal of an unused SQL table and an 
+increase in the precision of MGRS locations from 100m resolution to 1m
+resolution. The following packages are included:<p>
+
+<ul>
+  <li>Bug 1889: sqldocument(n): remove sqldocument_master
+  <li>Bug 1894: MGRS locations should have 10 digits
+</ul>
+
+<h3>Build 1.6, 27 January 2009</h3>
+This build includes some new functionality for loglist(n), filter(n), 
+enum(n) and quality(n). There are also some icons added for the CV tool.
+The following packages are included:
+<ul>
+  <li>Bug 1852: loglist(n): make applist optional
+  <li>Bug 1855: Need to add/modify icons in support of CV tool
+  <li>Bug 1865: mars_link(1): "mars link save" doesn't commit the change.
+  <li>Bug 1867: enum(n), quality(n): Better HTML output
+  <li>Bug 1876: filter(n): Incremental and case-insensitive filtration
+</ul>
+
+<h3>Build 1.5, 9 January 2009</h3>
+This build includes some minor enhancements and a bug fix. Zcurves are now
+more flexible in their use. The following packages are included.
+<ul>
+   <li>Bug 1754: mars_man(1): Stack trace on unknown parent module
+   <li>Bug 1815: Add a -cmd option to indicate the start of a refresh
+   <li>Bug 1825: zcurve(n): Add instances with min/max limits
+</ul>
+
+<h3>Build 1.4, 3 December 2008</h3>
+This build includes some new functionality in a few areas: sequence diagrams,
+introduction of pixane, a mars commit tool, and a few others in the bugs list
+below. There are also a couple of bug fixes. The following packages are 
+included:
+<ul>
+   <li>Bug 1783: pixane(n): New module in mars.
+   <li>Bug 1787: sequence(5) sequence diagram format
+   <li>Bug 1789: Log level pull-downs in consoles are too narrow to display
+   <li>Bug 1790: sequence(5) sequence diagram format, Part 2
+   <li>Bug 1791: sequence(n): Fix for pixane text handling
+   <li>Bug 1794: geometry(n): boxaround
+   <li>Bug 1796: marsmisc(n): normalize
+   <li>Bug 1800: sequence(n): Draw dots at tail of message arrows
+   <li>Bug 1801: sequence(n): message text alignment
+   <li>Bug 1803: mars_commit(1): New tool
+   <li>Bug 1804: sequence(n): diagrams with titles cause a stack trace
+   <li>Bug 1805: sqldocument(n): nonempty() function
+   <li>Bug 1806: notifier(n): trace
+   <li>Bug 1808: marsgui(n): -setgrid
+   <li>Bug 1811: geoset(n): delete
+</ul>
+
+<h3>Build 1.3, 14 November 2008</h3>
+This build includes some updates to sqldocument to make it more flexible. It
+also introduces the saveable(i) interface, which is used by cli(n). Some bug
+fixes and man pages are also part of this build. The following packages are
+included:
+<ul>
+  <li>Bug 1439:	sqldocument(n) saveas fails when called for jnem_sim(1)'s RDB
+  <li>Bug 1697:	sqldocument(n): need a read-only option to open the database
+  <li>Bug 1765:	sqldocument(n): -autotrans, -rollback, saveas
+  <li>Bug 1767:	mars_man(5): Man page sections
+  <li>Bug 1768:	marsgui(n): Remove dependency on Img
+  <li>Bug 1770:	jnem_log(1): Disabling scroll lock doesn't update the log.
+  <li>Bug 1774:	saveable(i), cli(n): Saveable Interface
+  <li>Bug 1775:	logger(n): -newlogcmd
+  <li>Bug 1778:	marsmisc(n): "try" not exported
+</ul>
+
+<h3>Build 1.2, 06 November 2008</h3>
+This build includes more migration from JNEM to Mars and a few bug fixes. 
+There is also the introduction of a couple of new commands.
+The following packages are included in this build:
+<ul>
+  <li>Bug 1727: JNEM uses Martian infrastructure, Part II
+  <li>Bug 1728: mars_link(1): replacement for mars_import(1)
+  <li>Bug 1731: ehtml(n) supports "root:name(section)" syntax for man pages.
+  <li>Bug 1734: Update JNEM to use mars_man(1) to process man pages.
+  <li>Bug 1741: Migrate util(n) to marsutil(n)
+  <li>Bug 1742: Migrate gui(n) to Mars as marsgui(n)
+  <li>Bug 1753: mars(1): Error in application list output
+  <li>Bug 1756: mkicon(n): Tk Icon Creation Utility
+  <li>Bug 1759: geometry(n): cedge
+  <li>Bug 1765: sqlib(n): saveas now commits changes to the database being saved
+  <li>Bug 1766: Log level fine-tuning
+</ul>
+
+<h3>Build 1.1, 15 October 2008</h3>
+This is the first Mars build. It introduces Mars as a separate library that can
+be used by multiple applications.
+
+</body>
+</html>

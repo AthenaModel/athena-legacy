@@ -1,0 +1,13 @@
+mars_gram(1) Modules
+-----------------------------------------------------------------
+
+This directory contains the app_gram(n) package, which contains
+the modules of Tcl code specific to the GRAM Workbench executable,
+mars_gram(1).  
+
+
+NOTE: Because the modules in this package represent 
+application-level code, they are generally defined as singletons
+and live in the global namespace.
+
+

@@ -1,0 +1,232 @@
+#-----------------------------------------------------------------------
+# TITLE:
+#    test.gramdb2
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Test file for simlib 2.0 unit tests.
+#
+#-----------------------------------------------------------------------
+
+table gramdb_n {
+    record n N1 { }
+    record n N2 { }
+}
+
+table gramdb_civ_g {
+    record g SHIA1 {
+        field n N1
+        field population 10000
+    }
+
+    record g KURD1  {
+        field n N1
+        field population 10000
+    }
+
+    record g SUNN1  {
+        field n N1
+        field population 10000
+    }
+
+    record g SHIA2 {
+        field n N2
+        field population 10000
+    }
+
+    record g KURD2  {
+        field n N2
+        field population 10000
+    }
+
+    record g SUNN2  {
+        field n N2
+        field population 10000
+    }
+}
+
+table gramdb_frc_g {
+    record g BLUE  { }
+    record g BRIT  { }
+    record g OPFOR { }
+}
+
+table gramdb_civ_fg {
+    record f SHIA1 g SHIA1  {field rel   1.0}
+    record f SHIA1 g KURD1  {field rel   0.6}
+    record f SHIA1 g SUNN1  {field rel   0.0}
+    record f SHIA1 g SHIA2  {field rel   1.0}
+    record f SHIA1 g KURD2  {field rel   0.6}
+    record f SHIA1 g SUNN2  {field rel   0.0}
+
+    record f KURD1 g KURD1  {field rel   1.0}
+    record f KURD1 g SHIA1  {field rel   0.6}
+    record f KURD1 g SUNN1  {field rel  -0.6}
+    record f KURD1 g KURD2  {field rel   1.0}
+    record f KURD1 g SHIA2  {field rel   0.6}
+    record f KURD1 g SUNN2  {field rel  -0.6}
+
+    record f SUNN1 g SUNN1  {field rel   1.0}
+    record f SUNN1 g SHIA1  {field rel  -0.3}
+    record f SUNN1 g KURD1  {field rel  -0.6}
+    record f SUNN1 g SUNN2  {field rel   1.0}
+    record f SUNN1 g SHIA2  {field rel  -0.3}
+    record f SUNN1 g KURD2  {field rel  -0.6}
+
+    record f SHIA2 g SHIA1  {field rel   1.0}
+    record f SHIA2 g KURD1  {field rel   0.6}
+    record f SHIA2 g SUNN1  {field rel   0.0}
+    record f SHIA2 g SHIA2  {field rel   1.0}
+    record f SHIA2 g KURD2  {field rel   0.6}
+    record f SHIA2 g SUNN2  {field rel   0.0}
+
+    record f KURD2 g KURD1  {field rel   1.0}
+    record f KURD2 g SHIA1  {field rel   0.6}
+    record f KURD2 g SUNN1  {field rel  -0.6}
+    record f KURD2 g KURD2  {field rel   1.0}
+    record f KURD2 g SHIA2  {field rel   0.6}
+    record f KURD2 g SUNN2  {field rel  -0.6}
+
+    record f SUNN2 g SUNN1  {field rel   1.0}
+    record f SUNN2 g SHIA1  {field rel  -0.3}
+    record f SUNN2 g KURD1  {field rel  -0.6}
+    record f SUNN2 g SUNN2  {field rel   1.0}
+    record f SUNN2 g SHIA2  {field rel  -0.3}
+    record f SUNN2 g KURD2  {field rel  -0.6}
+}
+
+table gramdb_frc_fg {
+    record f BLUE g BRIT  {field rel   0.8}
+    record f BLUE g OPFOR {field rel  -0.8}
+
+    record f BRIT g BLUE  {field rel   0.8}
+    record f BRIT g OPFOR {field rel  -0.8}
+
+    record f OPFOR g BLUE {field rel  -0.8}
+    record f OPFOR g BRIT {field rel  -0.8}
+}
+
+table gramdb_gc {
+    record g SHIA1 c AUT {
+        field sat0 S
+        field saliency CR
+    }
+
+    record g SHIA1 c QOL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SHIA1 c CUL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SHIA1 c SFT {
+        field sat0 S
+        field saliency CR
+    }
+
+    record g KURD1 c AUT {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD1 c QOL {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD1 c CUL {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD1 c SFT {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN1 c AUT {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN1 c QOL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SUNN1 c CUL {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN1 c SFT {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SHIA2 c AUT {
+        field sat0 S
+        field saliency CR
+    }
+
+    record g SHIA2 c QOL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SHIA2 c CUL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SHIA2 c SFT {
+        field sat0 S
+        field saliency CR
+    }
+
+    record g KURD2 c AUT {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD2 c QOL {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD2 c CUL {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD2 c SFT {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN2 c AUT {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN2 c QOL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SUNN2 c CUL {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN2 c SFT {
+        field sat0 VD
+        field saliency CR
+    }
+}
+

@@ -1,0 +1,104 @@
+Format: 1.4
+
+
+Title: Mars
+SubTitle: Internals
+
+# You can add a footer to your documentation like this:
+# Footer: [text]
+# If you want to add a copyright notice, this would be the place to do it.
+Timestamp: Internals Documentation Generated d month year
+#   m     - One or two digit month.  January is "1"
+#   mm    - Always two digit month.  January is "01"
+#   mon   - Short month word.  January is "Jan"
+#   month - Long month word.  January is "January"
+#   d     - One or two digit day.  1 is "1"
+#   dd    - Always two digit day.  1 is "01"
+#   day   - Day with letter extension.  1 is "1st"
+#   yy    - Two digit year.  2006 is "06"
+#   yyyy  - Four digit year.  2006 is "2006"
+#   year  - Four digit year.  2006 is "2006"
+
+
+# --------------------------------------------------------------------------
+# 
+# Cut and paste the lines below to change the order in which your files
+# appear on the menu.  Don't worry about adding or removing files, Natural
+# Docs will take care of that.
+# 
+# You can further organize the menu by grouping the entries.  Add a
+# "Group: [name] {" line to start a group, and add a "}" to end it.
+# 
+# You can add text and web links to the menu by adding "Text: [text]" and
+# "Link: [name] ([URL])" lines, respectively.
+# 
+# The formatting and comments are auto-generated, so don't worry about
+# neatness when editing the file.  Natural Docs will clean it up the next
+# time it is run.  When working with groups, just deal with the braces and
+# forget about the indentation and comments.
+# 
+# --------------------------------------------------------------------------
+
+
+Group: App_cmtool  {
+
+   File: app.tcl  (app_cmtool/app.tcl)
+   File: app_cmtool.tcl  (app_cmtool/app_cmtool.tcl)
+   }  # Group: App_cmtool
+
+Group: App_gram  {
+
+   File: app.tcl  (app_gram/app.tcl)
+   File: app_gram.tcl  (app_gram/app_gram.tcl)
+   File: appwin.tcl  (app_gram/appwin.tcl)
+   File: executive.tcl  (app_gram/executive.tcl)
+   File: parmdb.tcl  (app_gram/parmdb.tcl)
+   File: sim.tcl  (app_gram/sim.tcl)
+   }  # Group: App_gram
+
+Group: App_log  {
+
+   File: app.tcl  (app_log/app.tcl)
+   File: app_log.tcl  (app_log/app_log.tcl)
+   }  # Group: App_log
+
+Group: Simlib  {
+
+   File: gram.tcl  (simlib/gram.tcl)
+   File: gram.sql  (simlib/gram.sql)
+   File: gramdb.tcl  (simlib/gramdb.tcl)
+   File: gramdb.sql  (simlib/gramdb.sql)
+   File: cellmodel.tcl  (simlib/cellmodel.tcl)
+   }  # Group: Simlib
+
+Group: Marsgui  {
+
+   File: cmdbrowser.tcl  (marsgui/cmdbrowser.tcl)
+   File: modeditor.tcl  (marsgui/modeditor.tcl)
+   File: reportbrowser.tcl  (marsgui/reportbrowser.tcl)
+   File: reportviewer.tcl  (marsgui/reportviewer.tcl)
+   File: winbrowser.tcl  (marsgui/winbrowser.tcl)
+   }  # Group: Marsgui
+
+Group: Marsutil  {
+
+   File: mop.tcl  (marsutil/mop.tcl)
+   }  # Group: Marsutil
+
+Group: Index  {
+
+   Index: Everything
+   Event Index: Events
+   File Index: Files
+   Method Index: Methods
+   Module Index: Modules
+   Option Index: Options
+   Proc Index: Procs
+   Type Index: Types
+   Variable Index: Variables
+   Widget Index: Widgets
+   Icon Index: Icons
+   Object Type Index: Object Types
+   Database Table Index: Database Tables
+   }  # Group: Index
+

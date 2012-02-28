@@ -1,0 +1,437 @@
+<<manpage {marsgui(n) orderdialog(n)} "Mars Order Dialog Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsutil::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+orderdialog(n) is responsible for creating and managing dialog boxes
+for orders defined using <<xref order(n)>>.<p>
+
+<b>NOTE:</b> orderdialog(n) is essentially a GUI submodule of
+<<xref order(n)>>.  It sends <<xref notifier(n)>> events as
+<<xref order(n)>> and calls required at runtime
+(notably <<iref orderdialog enter>> and <<iref orderdialog puck>>
+are provided by <<xref order(n)>> and delegated to
+<<xref orderdialog(n)>>.<p>
+
+<<subsection "Fields and Field Types">>
+
+orderdialog(n)'s dialogs are built around <<xref form(n)>> widget.  A
+<<xref form(n)>> is a widget that displays a set of named fields, and
+allows them to be conveniently layed out and manipulated.  Every
+field has a field type, that determines the kind of data that can
+be presented and edited in fields of that type.  For example,
+the <b>text</b> field type is used for editing short text strings,
+and the <b>enum</b> field type is used for selecting one of a number
+of values from a pulldown list.<p>
+
+Field types can be configurable or non-configurable.  A field of a
+non-configurable type, like <b>text</b>, can be created and used
+without any additional information.  A field of a configurable type,
+like <b>enum</b>, requires additional information when it is created:
+the list of items to choose from.  This additional configuration
+data takes the form of options provided to the field on creation.
+
+There are two ways in which the programmer can provide these
+additional configuration options.
+
+First, <<xref form(n)>> allows the client to register custom field
+types.  The client must specify a new field type name, the name
+of a <<xref field(i)>> widget type, and any configuration options
+required by that type.  For example, given a boolean <<xref enum(n)>>
+type called <b>eyesno</b>, the client could define a <b>bool</b>
+field type like this:
+
+<pre>
+form register bool ::marsgui::enumfield -enumtype eyesno
+</pre>
+
+The new <b>bool</b> field type is a non-configurable field type,
+and can be used in <<xref order(n)>> parameter definitions without
+any additional work.<p>
+
+Alternatively, the client can include the configuration options in
+the <<xref order(n)>> parameter definition.  A boolean-valued
+parameter could be defined like this, for example:
+
+<pre>
+order define MY:ORDER {
+    ...
+    parm mybool enum "My Boolean" -enumtype eyesno
+    ...
+} {
+    ...
+}
+</pre>
+
+When this second approach is used, however, <<xref orderdialog(n)>>
+needs to know how to translate the parameter definition options
+into field configuration options.  This translation is provided
+automatically for the standard field types, like <b>enum</b> and
+<b>key</b>; the client can provide a translation for custom field
+types using the <<iref orderdialog fieldopts>> typemethod.  For example,
+the <b>key</b> field type accepts a number of configuration
+options; the translation is specified as follows:<p>
+
+<pre>
+orderdialog fieldopts key \
+    -db       [order cget -rdb] \
+    -table    %!                \
+    -keys     %!                \
+    -labels   %?                \
+    -dispcols %?                \
+    -widths   %?
+</pre>
+
+The option names in the first column are the field configuration
+options; they are defined by the underlying <<xref keyfield(n)>>
+widget. The values in the second column indicate how to translate
+parameter definition options into field configuration options.<p>
+
+First, the <code>-db</code> option gets a hard-coded value, the
+name of the runtime database from <<xref order(n)>>.<p>
+
+Second, the remaining options copy the values of the parameter
+definition options with the same name.<p>
+
+Third, the <code>-table</code> and <code>-keys</code> options are
+required; the remaining three options will be passed to the field
+only if they are included in the parameter definition.<p>
+
+Option names may also be translated.  Suppose the parameter
+definition option was <code>-tab</code> rather than
+<code>-table</code>; the translate spec would be written
+"<code>%!-tab</code>" rather than "<code>%!</code>".<p>
+
+<<section "COMMANDS">>
+
+orderdialog(n) provides the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "orderdialog init" {orderdialog init <i>option value...</i>}>>
+
+Initialize the module.  Call this once, at application
+initialization.  The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-appname <i>string</i>}>>
+
+Specifies the name of the application, to be used in the title bar of
+the generated order dialogs.<p>
+
+<<defopt {-helpcmd <i>cmd</i>}>>
+
+If given, each dialog will have a context-sensitive help button.  The
+<i>cmd</i> should be a command prefix taking one additional argument,
+the name of an order.  The command should then make help available for
+that order.<p>
+
+<<defopt {-parent <i>parent</i>}>>
+
+Specifies the parent window for generated dialogs.  If
+<i>parent</i> begins with a "." character, it is assumed to be the
+name of the parent window.  Otherwise, it is assumed to be a Tcl
+script that will return the name of the parent window on demand.<p>
+
+<<defopt {-refreshon <i>events</i>}>>
+
+The value of this option is a list of <<xref notifier(n)>>
+subjects and events that should cause orderdialog(n) to refresh its
+order dialogs.<p>
+
+The state of an order dialog often depends on the state of the
+application.  As the application state changes, for example, the
+content of pulldowns might change, thus necessitating a refresh.<p>
+
+Note that automatically orderdialog(n) refreshes on order(n)'s <State>
+event.<p>
+
+<</deflist options>>
+
+<<defitem "orderdialog cget" {orderdialog cget ?<i>option</i>?}>>
+
+Queries orderdialog(n)'s configuration options.  If called with an
+<i>option</i> name, it returns the value of that option.  Otherwise,
+it returns a dictionary of all of the module's configuration options
+and their values.  See <<iref orderdialog init>> for a list of the
+configuration options.<p>
+
+<<defitem "orderdialog configure" {orderdialog configure <i>option</i> ?<i>value</i>? ?<i>option value...</i>?}>>
+
+Sets one or more of orderdialog(n)'s configuration options.  See
+<<iref orderdialog init>> for the complete list.<p>
+
+Note that option changes will not affect dialogs that are already
+visible when the change is made.<p>
+
+<<defitem "orderdialog enter" {orderdialog enter <i>order</i> ?<i>parmdict</i>?}>>
+<<defitem "orderdialog enter" {orderdialog enter <i>order</i> ?<i>parm value...</i>?}>>
+
+Pops up the order dialog for the named <i>order</i>, which must be
+defined by <<xref order(n)>>, and initializes it from the specified
+parameter dictionary (if any).  Any number of order dialogs may be
+active at a time, but only one dialog per <i>order</i>.<p>
+
+The application will usually call <<xref order(n)>>
+<<xref order(n) enter>>, which is delegated to this routine.<p>
+
+<<defitem "orderdialog fieldopts" {orderdialog fieldopts <i>fieldtype</i> ?<i>option valspec...</i>?}>>
+
+This command defines the translation from <<xref order(n)>> parameter
+definition options to <<xref form(n)>> field configuration options for
+the custom <<xref form(n)>> field type <code>fieldtype</code>; see
+<<xref "Fields and Field Types">> for the required background
+information.<p>
+
+The command takes one or more <i>option</i>/<i>valspec</i> pairs.
+Each <i>option</i> is the name of a field configuration option
+understood by the <<xref form(n)>> field type.  The <i>valspec</i>
+indicates how to acquire the option's value from the
+<<xref order(n)>> parameter definition.<p>
+
+A <i>valspec</i> that begins with a "%" character defines a
+translation; <i>valspec</i>'s that do not begin with a "%" simply
+define literal values that will be used as is.  The available
+translations are as follows, where <i>parmOption</i> is the name
+of an <<xref order(n)>> parameter definition option:<p>
+
+<<deflist trans>>
+
+<<defopt {%!<i>parmOption</i>}>>
+
+The <i>option</i> will receive the value of the named <i>parmOption</i>,
+which is required to be present in the parameter definition.  Note
+that the <i>parmOption</i> may be omitted from the <i>valspec</i>,
+in which case the <i>option</i> will copy the value of the
+parameter definition option with the same name.<p>
+
+<<defopt {%?<i>parmOption</i>}>>
+
+The <i>option</i> will receive the value of the named
+<i>parmOption</i>, if it is present in the parameter definition;
+the <i>option</i> will be omitted otherwise.    Note
+that the <i>parmOption</i> may be omitted from the <i>valspec</i>,
+in which case the <i>option</i> will copy the value of the
+parameter definition option with the same name.<p>
+
+<</deflist trans>>
+
+See <<xref "Fields and Field Types">> for examples.<p>
+
+
+<<defitem "orderdialog isactive" {orderdialog isactive <i>order</i>}>>
+
+Returns 1 if <i>order</i>'s dialog is visible and in use, and 0
+otherwise.<p>
+
+<<defitem "orderdialog puck" {orderdialog puck <i>tagdict</i>}>>
+
+This command allows the user to fill in fields in the current
+order dialog by clicking on elements of the GUI.  The <i>tagdict</i>
+is a dictionary of tag names and values that reflects the entity on
+which the user clicked.  If the current field in the order dialog is
+tagged with one of the tags in the <i>tagdict</i>, the field will be
+set to the tag's value.<p>
+
+Field tags are set using the <<xref order(n)>>
+<<xref order(n) parm>> command's <code>-tags</code> option.<p>
+
+
+<<defitem "orderdialog refreshForKey" {orderdialog refreshForKey <i>key fields dlg changedFields fdict</i>}>>
+
+The command is intended to be used as an <<xref order(n)>>
+<code>-refreshcmd</code> callback; it simply calls
+<<iref loadForKey>> for the specified <i>key</i> and <i>fields</i>,
+provided that the <i>key</i> is one of the <i>changedFields</i>.<p>
+
+In other words, use this callback to populate an order dialog when a key
+field changes.<p>
+
+<<defitem "orderdialog refreshForMulti" {orderdialog refreshForMulti <i>multi fields dlg changedFields fdict</i>}>>
+
+The command is intended to be used as an <<xref order(n)>>
+<code>-refreshcmd</code> callback; it simply calls
+<<iref loadForMulti>> for the specified <i>multi</i> and <i>fields</i>,
+provided that the <i>multi</i> is one of the <i>changedFields</i>.<p>
+
+In other words, use this callback to populate an order dialog when a multi
+field changes.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Each instance of orderdialog(n) provides the following public
+methods; however, there should rarely be any need for other modules to
+use them.<p>
+
+<<deflist instance>>
+
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
+
+Sets the value of the specified options.<p>
+
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem disabled {<i>pathName</i> disabled ?<i>args...</i>?}>>
+
+Allows the caller to enable and disable particular fields.  The
+command is delegated to the <<xref form(n)>> widget.<p>
+
+<<defitem field {<i>pathName</i> field <i>subcommand</i> ?<i>args...</i>?}>>
+
+Allows access to the dialog's fields.  The command is delegated to the
+<<xref form(n)>> widget.<p>
+
+<<defitem get {<i>pathName</i> get}>>
+
+Returns a dictionary of the values of the dialog's fields, by
+parameter name.<p>
+
+<<defitem set {<i>pathName</i> set <i>parmdict</i>}>>
+<<defitem set {<i>pathName</i> set <i>parm value...</i>}>>
+
+Sets the values of one or more of the dialog's fields given a
+dictionary of the parameter names and values.  Downstream fields are
+refreshed as appropriate.<p>
+
+<<defitem loadForKey {<i>pathName</i> loadForKey <i>key</i> ?<i>fields</i>?}>>
+
+Given the name of a <i>key</i> field, loads the values of the named
+<i>fields</i> from the matching row in the <i>key</i> field's database
+table.  The <i>fields</i> argument defaults to "<b>*</b>", meaning
+that all fields should be loaded from the table.<p>
+
+This command is intended for use in order <code>-refreshcmd</code>
+callbacks.  Unless there is additional logic for the callback to
+perform, one can use <<iref orderdialog refreshForKey>> instead.<p>
+
+<<defitem loadForMulti {<i>pathName</i> loadForMulti <i>multi</i> ?<i>fields</i>?}>>
+
+Given the name of a <i>multi</i> field, loads the values of the named
+<i>fields</i> from the matching rows in the <i>key</i> field's database
+table.  The <i>fields</i> argument defaults to "<b>*</b>", meaning
+that all fields should be loaded from the table.<p>
+
+Fields will contain the loaded value if all matched rows contain the
+same value, and will be blank otherwise.<p>
+
+This command is intended for use in order <code>-refreshcmd</code>
+callbacks.  Unless there is additional logic for the callback to
+perform, one can use <<iref orderdialog refreshForMulti>> instead.<p>
+
+<</deflist instance>>
+
+<<section "STANDARD FIELD TYPES">>
+
+The following standard field types are provided by orderdialog(n).
+Custom field types can be registered with <<xref form(n)>>;
+see <<xref "Fields and Field Types">> for more information.<p>
+
+TBD: Need to make the <b>multi</b> field a standard field type.<p>
+
+<<deflist field types>>
+
+<<defitem "color field" {color}>>
+
+The <b>color</b> field is a <<xref colorfield(n)>> widget used for
+choosing colors using a color picker.<p> 
+
+<<defitem "disp field" {disp}>>
+
+The <b>disp</b> field is used for displaying read-only data, to
+provide context for the other fields.  It is effectively a read-only
+<<iref text field>>.<p>
+
+<<defitem "enum field" {enum}>>
+
+The <b>enum</b> field is an <code>enumfield(n)</code> widget.  The
+parameter may specify the widget's <code>-enumtype</code> and
+<code>-displaylong</code> options; alternatively, it is common
+to omit these options and set the <<xref enumfield(n)>>'s
+<code>-values</code> option directly in the order's
+<code>-refreshcmd</code>.<p>
+
+<<defitem "key field" {key}>>
+
+The field is a <<xref keyfield(n)>> widget; the parameter must specify
+the widget's <code>-table</code> and <code>-keys</code> options, and
+may also specify the widget's <code>-labels</code>,
+<code>-dispcols</code>, and <code>-widths</code> options.<p>
+
+<<defitem "multi field" {multi}>>
+
+The field is a <<xref multifield(n)>> widget; the parameter must specify
+the widget's <code>-table</code> and <code>-key</code> options if
+<<iref loadForMulti>> is intended to be used.<p>
+
+<<defitem "newkey field" {newkey}>>
+
+The field is a <<xref newkeyfield(n)>> widget; the parameter must specify
+the widget's <code>-table</code>, <code>-universe</code>, and
+<code>-keys</code> options, and may also specify the widget's
+<code>-labels</code>, and <code>-widths</code> options.<p>
+
+<<defitem "text field" {text}>>
+
+The field is a <<xref textfield(n)>> widget.<p>
+
+<</deflist>>
+
+In addition to these, <<xref marsgui(n)>> also provides
+<<xref listfield(n)>> and <<xref rangefield(n)>> widgets; these have
+so many options, however, that it is usually best to use them to
+define custom field types rather than to use them directly.<p>
+
+<<section "NOTIFIER EVENTS">>
+
+orderdialog(n) sends the following events as <<xref order(n)>>'s
+<code>-subject</code>:<p>
+
+<<deflist events>>
+
+<<defitem OrderEntry {&lt;OrderEntry&gt; <i>tags</i>}>>
+
+An order dialog contains a field for each order parameter.  When a
+given field receives the focus, this event is sent with
+<i>tags</i> set to the parameter <code>-tags</code> specified in the
+order's metadata, or "" if none.  When no field has the focus, or the
+dialog is closed, this event is sent with <i>tags</i> set to the
+empty string.<p>
+
+This allows GUI components to configure themselves so that the
+appropriate kind of object can be selected by clicking on the
+component, e.g., a neighborhood can be selected by clicking on the
+map.<p>
+
+<</deflist events>>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

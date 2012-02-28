@@ -1,0 +1,134 @@
+<<manpage {marsgui(n) htmlviewer(n)} "HTML Viewer Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines a simple wrapper around the Tkhtml 2.0 HTML
+rendering widget.  The wrapper adds standard bindings and
+additional commands.  All features of the underlying Tkhtml widget are
+available to the programmer.<p>
+
+The Tkhtml 2.0 widget, as shipped, is simply incomplete.  The purpose
+of this module is to remedy its obvious short-comings:<p>
+
+<ul>
+  <li> As implemented, the bare widget defines no Tk event bindings
+       whatsoever.  For example, clicking on a link has no effect.<p>
+
+  <li> The font-handling is peculiar.  By default, the widget uses a
+       proportionally-spaced roman font for everything, including
+       monospace text.  This wrapper defines a
+       <code>-fontcommand</code> that allows the widget to render
+       monospace text; however, the widget does not seem to support
+       bold or italicized monospace text.<p>
+
+  <li> The widget renders HTML the way it wants to.  The dialect of
+       HTML is roughly HTML 3, with quirks; these must simply be
+       lived with.<p>
+</ul>
+
+<<subsection "Character Entities">>
+
+By default, Tkhtml 2.0 can display only a small subset of the defined
+HTML character entities.  However, it can display Unicode characters
+if the Tk fonts in use define them.  htmlviewer(n) can translate a
+number of additional character entities into their unicode equivalents:<p>
+
+<ul>
+  <li> "<code>&amp;Delta;</code>" = "&Delta;"
+</ul>
+
+More such translations can be added as needed.<p>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem htmlviewer {htmlviewer <i>pathName ?options...?</i>}>>
+
+Creates a new <<iref htmlviewer>> widget named <i>pathName</i>.  The
+options are as described in the Tkhtml 2.0 man page, with the addition
+of the following:<p>
+
+<<deflist options>>
+
+<<defopt {-mouseovercommand <i>command</i>}>>
+
+The <i>command</i> is called with two additional arguments when the
+mouse is over something of interest in the displayed page: the type of
+the thing the mouse is over, and a text string.<p>
+
+At present, the only type supported is <b>href</b>, meaning that the
+mouse is over a link; the text string in this case is the link's URL.<p>
+
+<</deflist options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+Instances of <<xref htmlviewer(n)>> widget support all instance
+subcommands defined in the Tkhtml 2.0 man page.  In addition,
+the following commands are defined.<p>
+
+<<deflist instance>>
+
+<<defitem set {<i>pathName</i> set <i>html</i>}>>
+
+Displays the <i>html</i> text in the viewer, replacing any
+previous content.<p>
+
+<</deflist>>
+
+<<section "BINDINGS">>
+
+The <<xref htmlviewer(n)>> widget defines the following bindings;
+some of these were copied from the <a
+href="http://wiki.tcl.tk/2336">Tkhtml page at the Tcler's Wiki</a>:
+
+<ul>
+  <li> The mouse cursor changes to a hand when it is over links.
+  <li> The <code>-mouseovercmd</code> is called when the mouse goes
+       over a link.
+  <li> Clicking on a link invokes the widget's
+       <code>-hyperlinkcommand</code>.
+  <li> The mouse wheel is supported.
+  <li> The user can click and drag to select text, and &lt;&lt;Copy&gt;&gt; to
+       copy it.
+  <li> The arrow, PageUp, PageDown, Home, and End keys can be used to
+       scroll the current page.
+</ul>
+
+<<section ENVIRONMENT>>
+
+marsgui(n) requires Tcl 8.5 or later.
+
+To use marsgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+New package.<p>
+
+<</manpage>>
+
+
+
+
+
+
