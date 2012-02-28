@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Athena"
-#define MyAppVersion "3.0.33"
+#define MyAppVersion "3.1"
 #define MyAppPublisher "Jet Propulsion Laboratory, California Institute of Technology"
 #define MyAppExeName "athena.exe"
 
@@ -10,7 +10,7 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{C6674C4E-EA24-4564-A280-DF3FEF793FAA}
+AppId={{A6691044-0EBD-424A-8088-5EB76E586D06}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
@@ -44,10 +44,10 @@ Source: "..\docs\index.html"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "..\docs\*.png"; DestDir: "{app}\docs"; Flags: ignoreversion 
 Source: "..\docs\help\athena.helpdb"; DestDir: "{app}\docs\help"; Flags: ignoreversion 
 Source: "..\docs\man1\athena.html"; DestDir: "{app}\docs\man1"; Flags: ignoreversion 
-Source: "..\docs\dev\*.odt"; DestDir: "{app}\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "..\docs\dev\*.docx"; DestDir: "{app}\docs\dev"; Flags: ignoreversion 
+#Source: "..\docs\dev\*.odt"; DestDir: "{app}\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
+#Source: "..\docs\dev\*.docx"; DestDir: "{app}\docs\dev"; Flags: ignoreversion 
 Source: "..\docs\dev\*.pdf"; DestDir: "{app}\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
-Source: "..\mars\docs\dev\*.docx"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion 
+#Source: "..\mars\docs\dev\*.docx"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion 
 Source: "..\mars\docs\dev\*.pdf"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\maps\*.png"; DestDir: "{app}\maps"; Flags: ignoreversion 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
