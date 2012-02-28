@@ -11,6 +11,18 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.0.33, 28 February 2012</h3>
+
+This is the fourth build for Windows 7, and possibly the last 3.0.x
+build.  It includes two minor bug fixes and some fixes in the
+on-line help.  The specific changes are as follows:<p>
+
+<ul>
+  <li> Bug 3331: Export .parmdb does not include file extension
+  <li> Bug 3332: Athena 3.0.32 On-line Help Typos
+  <li> Bug 3333: Cost Columns not Sorting Properly
+</ul><p>
+
 <h3>Build 3.0.32, 21 February 2012</h3>
 
 This is the third build for Windows 7.  It includes fixes for all
