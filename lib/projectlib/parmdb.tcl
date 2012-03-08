@@ -1454,6 +1454,40 @@ snit::type ::projectlib::parmdb {
         # NEXT, define gram parameters
         $ps slave add [list ::simlib::gram parm]
 
+        # NEXT, History parameters.
+        $ps subset hist {
+            Parameters which control the history data saved by Athena
+            at each timestep.
+        }
+
+        $ps define hist.control ::snit::boolean on {
+            If on, Athena will save, each week, the actor in control of each
+            neighborhood to the hist_control table.
+        }
+
+        $ps define hist.security ::snit::boolean on {
+            If on, Athena will save, each week, the security of each
+            group in each neighborhood to the hist_security table.
+        }
+
+        $ps define hist.support ::snit::boolean on {
+            If on, Athena will save, each week, the direct
+            support, total support, and influence of each actor in
+            each neighborhood to the hist_support table. 
+        }
+
+        $ps define hist.volatility ::snit::boolean on {
+            If on, Athena will save, each week, the volatility of each
+            neighborhood to the hist_volatility table.
+        }
+
+        $ps define hist.vrel ::snit::boolean on {
+            If on, Athena will save, each week, the vertical
+            relationship of each civilian group with each actor 
+            to the hist_vrel table.
+        }
+
+
         # NEXT, define rmf parameters
         $ps slave add [list ::simlib::rmf parm]
 
