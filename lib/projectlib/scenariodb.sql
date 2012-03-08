@@ -1680,4 +1680,53 @@ CREATE TABLE hist_econ_ij (
     PRIMARY KEY (t,i,j)        
 );
 
+-- control.n.a
+CREATE TABLE hist_control (
+    t   INTEGER,
+    n   TEXT, -- Neighborhood
+    a   TEXT, -- Actor controlling neighborhood n, or NULL if none.
+
+    PRIMARY KEY (t,n)
+);
+
+-- security.n.g
+CREATE TABLE hist_security (
+    t        INTEGER,
+    n        TEXT,     -- Neighborhood
+    g        TEXT,     -- Group
+    security INTEGER,  -- g's security in n.
+
+    PRIMARY KEY (t,n,g)
+);
+
+-- support.n.a
+CREATE TABLE hist_support (
+    t              INTEGER,
+    n              TEXT,    -- Neighborhood
+    a              TEXT,    -- Actor
+    direct_support REAL,    -- a's direct support in n
+    support        REAL,    -- a's total support (direct + derived) in n
+    influence      REAL,    -- a's influence in n
+
+    PRIMARY KEY (t,n,a)
+);
+
+-- volatility.n.a
+CREATE TABLE hist_volatility (
+    t              INTEGER,
+    n              TEXT,    -- Neighborhood
+    volatility     INTEGER, -- Volatility of n
+
+    PRIMARY KEY (t,n)
+);
+
+-- vrel.g.a
+CREATE TABLE hist_vrel (
+    t      INTEGER,
+    g      TEXT,    -- Civilian group
+    a      TEXT,    -- Actor
+    vrel   REAL,    -- Vertical relationship of g with a.
+
+    PRIMARY KEY (t,g,a)
+);
 

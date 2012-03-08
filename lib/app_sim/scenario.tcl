@@ -359,11 +359,16 @@ snit::type scenario {
             gram_fg
             gram_contribs
             gram_deltas
+            hist_control
             hist_coop
             hist_mood
             hist_nbcoop
             hist_nbmood
             hist_sat
+            hist_security
+            hist_support
+            hist_volatility
+            hist_vrel
             sigevents
             sigevent_tags
         }]

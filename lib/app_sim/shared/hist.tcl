@@ -44,14 +44,21 @@ snit::type hist {
 
     typemethod purge {t} {
         rdb eval {
-            DELETE FROM hist_sat     WHERE t >= $t;
-            DELETE FROM hist_mood    WHERE t >= $t;
-            DELETE FROM hist_nbmood  WHERE t >= $t;
-            DELETE FROM hist_coop    WHERE t >= $t;
-            DELETE FROM hist_nbcoop  WHERE t >= $t;
-            DELETE FROM hist_econ    WHERE t >= $t;
-            DELETE FROM hist_econ_i  WHERE t >= $t;
-            DELETE FROM hist_econ_ij WHERE t >= $t;
+            DELETE FROM hist_sat        WHERE t >= $t;
+            DELETE FROM hist_mood       WHERE t >= $t;
+            DELETE FROM hist_nbmood     WHERE t >= $t;
+            DELETE FROM hist_coop       WHERE t >= $t;
+            DELETE FROM hist_nbcoop     WHERE t >= $t;
+            DELETE FROM hist_econ       WHERE t >= $t;
+            DELETE FROM hist_econ_i     WHERE t >= $t;
+            DELETE FROM hist_econ_ij    WHERE t >= $t;
+
+            -- These are recorded after the simclock advances.
+            DELETE FROM hist_control    WHERE t >  $t;
+            DELETE FROM hist_security   WHERE t >  $t;
+            DELETE FROM hist_support    WHERE t >  $t;
+            DELETE FROM hist_volatility WHERE t >  $t;
+            DELETE FROM hist_vrel       WHERE t >  $t;
         }
     }
 
@@ -128,6 +135,53 @@ snit::type hist {
                     VALUES(now(), upper(\$i), upper(\$j), 
                            \$outputs(X.$i.$j), \$outputs(QD.$i.$j)); 
                 "
+            }
+        }
+    }
+
+    # tock
+    #
+    # This method is called at each 7-day tock, and collects various
+    # data.
+
+    typemethod tock {} {
+        if {[parm get hist.control]} {
+            rdb eval {
+                INSERT INTO hist_control
+                SELECT now(),n,controller
+                FROM control_n;
+            }
+        }
+
+        if {[parm get hist.security]} {
+            rdb eval {
+                INSERT INTO hist_security
+                SELECT now(), n, g, security
+                FROM force_ng;
+            }
+        }
+
+        if {[parm get hist.support]} {
+            rdb eval {
+                INSERT INTO hist_support
+                SELECT now(), n, a, direct_support, support, influence
+                FROM influence_na;
+            }
+        }
+
+        if {[parm get hist.volatility]} {
+            rdb eval {
+                INSERT INTO hist_volatility
+                SELECT now(), n, volatility
+                FROM force_n;
+            }
+        }
+
+        if {[parm get hist.vrel]} {
+            rdb eval {
+                INSERT INTO hist_vrel
+                SELECT now(), g, a, vrel
+                FROM vrel_ga;
             }
         }
     }

@@ -164,6 +164,7 @@ snit::type engine {
 
         # Execute the actor's strategies at time 0, given the 
         # status quo.
+        hist tock
         strategy  tock
 
         # Compute the new state of affairs, given the agent's
@@ -239,6 +240,7 @@ snit::type engine {
         # NEXT, assess actor influence and execute actor strategies.
         if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
             profile control_model assess
+            profile hist tock
             profile strategy tock
         }
     }
