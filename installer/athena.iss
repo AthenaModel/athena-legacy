@@ -3,6 +3,7 @@
 
 #define MyAppName "Athena"
 #define MyAppVersion "3.1"
+#define MyAppFullVersion "3.1.1"
 #define MyAppPublisher "Jet Propulsion Laboratory, California Institute of Technology"
 #define MyAppExeName "athena.exe"
 
@@ -21,7 +22,7 @@ LicenseFile=..\license.txt
 ;InfoBeforeFile=before.txt
 InfoAfterFile=after.txt
 ;OutputDir=
-OutputBaseFilename=Athena{#MyAppVersion}_Installer
+OutputBaseFilename=Athena{#MyAppFullVersion}_Installer
 SetupIconFile=athena.ico
 Compression=lzma
 SolidCompression=yes
@@ -44,10 +45,10 @@ Source: "..\docs\index.html"; DestDir: "{app}\docs"; Flags: ignoreversion
 Source: "..\docs\*.png"; DestDir: "{app}\docs"; Flags: ignoreversion 
 Source: "..\docs\help\athena.helpdb"; DestDir: "{app}\docs\help"; Flags: ignoreversion 
 Source: "..\docs\man1\athena.html"; DestDir: "{app}\docs\man1"; Flags: ignoreversion 
-#Source: "..\docs\dev\*.odt"; DestDir: "{app}\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
-#Source: "..\docs\dev\*.docx"; DestDir: "{app}\docs\dev"; Flags: ignoreversion 
+;Source: "..\docs\dev\*.odt"; DestDir: "{app}\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
+;Source: "..\docs\dev\*.docx"; DestDir: "{app}\docs\dev"; Flags: ignoreversion 
 Source: "..\docs\dev\*.pdf"; DestDir: "{app}\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
-#Source: "..\mars\docs\dev\*.docx"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion 
+;Source: "..\mars\docs\dev\*.docx"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion 
 Source: "..\mars\docs\dev\*.pdf"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\maps\*.png"; DestDir: "{app}\maps"; Flags: ignoreversion 
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
