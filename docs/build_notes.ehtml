@@ -11,6 +11,18 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 3.1.1, 15 March 2012</h3>
+
+This build contains a couple of minor documentation fixes, and a new
+feature required by Rob Crowson: Athena now accumulates more history
+data than it previously did.<p>
+
+<ul>
+  <li> Bug 3338: AAG header says "Athena User's Guide"
+  <li> Bug 3340: install.txt is out of date
+  <li> Bug 3343: History: Control, Support, Influence, Security and Volatility
+</ul><p>
+
 <h3>Build 3.1.0, 28 February 2012</h3>
 
 This is the first Athena 3.1 release candidate, and (unless

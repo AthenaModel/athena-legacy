@@ -414,7 +414,7 @@ snit::type sim {
         scenario snapshot load -prep
 
         # NEXT, purge future snapshots
-        scenario snapshot purge 0
+        scenario snapshot purge -unlock
         sigevent purge 0
 
         # NEXT, set state

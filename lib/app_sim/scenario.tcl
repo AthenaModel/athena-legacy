@@ -440,21 +440,27 @@ snit::type scenario {
     
     # snapshot purge t
     #
-    # t     A sim time in ticks
+    # t     A sim time in ticks, or "-unlock"
     #
     # Purges all snapshots with ticks greater than or equal to t,
-    # and all history with ticks greater than t.
+    # and all history with ticks greater than t.  If t is "unlock",
+    # then we're returning to PREP and all non-PREP data is purge.
 
     typemethod {snapshot purge} {t} {
-        # Note: this code presumes that we have a single
-        # instance of GRAM.
+        if {$t ne "-unlock"} {
+            set hist_t $t
+        } else {
+            set t      0
+            set hist_t -1
+        }
+
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
             DELETE FROM gram_contribs WHERE time >= $t;
             DELETE FROM gram_deltas WHERE time >= $t;
         }
 
-        hist purge $t
+        hist purge $hist_t
     }
 
     # snapshot current
