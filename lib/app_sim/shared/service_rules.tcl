@@ -96,6 +96,7 @@ snit::type service_rules {
         set oldSig   [dict get $gdict signature]
 
         dam ruleset ENI [dict get $gdict driver] \
+            -p  0.0                              \
             -f  $g                               \
             -n  $n
 
@@ -103,55 +104,49 @@ snit::type service_rules {
         detail "Needs Factor:"        [format %4.2f $needs]
 
         dam rule ENI-1-1 {
-            $needs < 0.0
+            $needs > 0.0
         } {
             myguard $oldSig [format "%.1f %.1f" $expectf $needs]
 
             # While ENI is less than required for CIV group g
             # Then for group g
             dam sat slope \
-                AUT [mag* $expectf M+ $needs M+] \
-                SFT [mag* $expectf M+ $needs M+] \
-                CUL [mag* $expectf M+ $needs M+] \
-                QOL [mag* $expectf M+ $needs M+]
+                AUT [mag* $expectf XXS+ $needs XXS-] \
+                QOL [mag* $expectf XXS+ $needs XXS-]
         }
 
         dam rule ENI-1-2 {
-            $needs >= 0.0 && $expectf < 0.0
+            $needs == 0.0 && $expectf < 0.0
         } {
             myguard $oldSig [format "%.1f" $expectf]
 
             # While ENI is less than expected for CIV group g
             # Then for group g
             dam sat slope \
-                AUT [mag* $expectf M+] \
-                SFT [mag* $expectf M+] \
-                CUL [mag* $expectf M+] \
-                QOL [mag* $expectf M+]
+                AUT [mag* $expectf XXS+] \
+                QOL [mag* $expectf XXS+]
         }
 
         dam rule ENI-1-3 {
-            $needs >= 0.0 && $expectf == 0.0
+            $needs == 0.0 && $expectf == 0.0
         } {
             myguard $oldSig [format "%.1f" $expectf]
 
             # While ENI is as expected for CIV group g
             # Then for group g
-            dam sat clear AUT SFT CUL QOL
+            dam sat clear AUT QOL
         }
 
         dam rule ENI-1-4 {
-            $needs >= 0.0 && $expectf > 0.0
+            $needs == 0.0 && $expectf > 0.0
         } {
             myguard $oldSig [format "%.1f" $expectf]
 
             # While ENI is better than expected for CIV group g
             # Then for group g
             dam sat slope \
-                AUT [mag* $expectf M+] \
-                SFT [mag* $expectf M+] \
-                CUL [mag* $expectf M+] \
-                QOL [mag* $expectf M+]
+                AUT [mag* $expectf XXS+] \
+                QOL [mag* $expectf XXS+]
         }
     }
 

@@ -167,16 +167,14 @@ snit::type service {
             }
 
             # Compute the needs factor
-            if {$Ag == $Rg} {
+            if {$Ag >= $Rg} {
                 set needs 0.0
-            } elseif {$Ag >= 1.0} {
+            } elseif {$Ag == 0.0} {
                 set needs 1.0
-            } elseif {$Ag < $Rg} {
-                let needs {($Ag - $Rg)/$Rg}
             } else {
-                # Ag > Rg
-                let needs {($Ag - $Rg)/(1-$Rg)}
-            }
+                # $Ag < $Rg
+                let needs {($Rg - $Ag)/$Rg}
+            } 
 
             let needs {$needs * $gainNeeds}
 
