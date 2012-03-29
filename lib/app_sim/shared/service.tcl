@@ -20,6 +20,45 @@
 snit::type service {
     # Make it a singleton
     pragma -hasinstances no
+ 
+    #-------------------------------------------------------------------
+    # sqlsection(i)
+    #
+    # The following variables and routines implement the module's 
+    # sqlsection(i) interface.
+
+    # sqlsection title
+    #
+    # Returns a human-readable title for the section
+
+    typemethod {sqlsection title} {} {
+        return "service(sim)"
+    }
+
+    # sqlsection schema
+    #
+    # Returns the section's persistent schema definitions, if any.
+
+    typemethod {sqlsection schema} {} {
+        return ""
+    }
+
+    # sqlsection tempschema
+    #
+    # Returns the section's temporary schema definitions, if any.
+
+    typemethod {sqlsection tempschema} {} {
+        return \
+            [readfile [file join $::app_sim_shared::library service_temp.sql]]
+    }
+
+    # sqlsection functions
+    #
+    # Returns a dictionary of function names and command prefixes
+
+    typemethod {sqlsection functions} {} {
+        return ""
+    }
 
     #-------------------------------------------------------------------
     # Look-up tables
@@ -82,20 +121,78 @@ snit::type service {
     #-------------------------------------------------------------------
     # Simulation 
 
+    # srcompute state
+    # 
+    # state -   Indicating in which simulation state this computation 
+    #           should actually be carried out.
+    #
+    # This method rebuilds the saturation and required service table based 
+    # on the simulation state. In "PREP" it is the base population, otherwise
+    # it is the actual population from the demographics model.
+    #
+
+    typemethod srcompute {state} {
+        # FIRST, if the request to compute is not commensurate with the sim
+        # state then no-op
+        if {[sim state] ne $state} {
+            return
+        }
+
+        # NEXT, blow away whatever is there
+        rdb eval {
+            DELETE FROM sr_service;
+        }
+
+        # NEXT, determine the correct database query based on state
+        if {[sim state] eq "PREP"} {
+            set rdbQuery "
+                SELECT G.g            AS g,
+                       N.urbanization AS urb,
+                       G.basepop      AS pop
+                FROM civgroups AS G
+                JOIN nbhoods   AS N ON (N.n == G.n)
+            "
+        } else {
+            set rdbQuery "
+                SELECT G.g            AS g,
+                       N.urbanization AS urb,
+                       D.population   AS pop
+                FROM civgroups AS G
+                JOIN nbhoods   AS N ON (N.n == G.n)
+                JOIN demog_g   AS D ON (D.g == G.g)
+            "
+        }
+
+        # NEXT, do the query and fill in the required and saturation 
+        # service table
+        rdb eval "
+            $rdbQuery
+        " {
+            set Sr [parm get service.ENI.saturationCost.$urb]
+            let Sf {$pop * $Sr}
+            set Rr [parm get service.ENI.required.$urb]
+            let Rf {$Sf * $Rr}
+
+            rdb eval {
+                INSERT INTO sr_service(g, req_funding, sat_funding)
+                VALUES($g, $Rf, $Sf)
+            }
+        }
+    }
+
     # start
     #
     # This routine is called when the scenario is locked and the 
     # simulation starts.  It populates the service_* tables.
-    # tables.
 
     typemethod start {} {
-        # FIRST, populate the tables with the status quo data
-        # and defaults.
+        # FIRST, populate the tables with the defaults.
         rdb eval {
-            -- Populate service_ga table from status quo
-            INSERT INTO service_ga(g,a, funding)
-            SELECT g, a, funding
-            FROM sqservice_view;
+            -- Populate service_ga table
+            INSERT INTO service_ga(g,a)
+            SELECT C.g, A.a
+            FROM civgroups AS C
+            JOIN actors    AS A;
 
             -- Populate service_g table
             INSERT INTO service_g(g)
@@ -453,6 +550,9 @@ snit::type service {
                 WHERE g=$g AND a=$a
             }
         }
+
+        # NEXT, update the required and saturation levels of funding
+        $type srcompute [sim state]
 
         # NEXT, compute the actual and effective levels of service.
         $type ComputeLOS

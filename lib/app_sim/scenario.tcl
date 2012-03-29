@@ -70,6 +70,7 @@ snit::type scenario {
         set rdb [scenariodb ::rdb \
                     -clock ::marsutil::simclock]
         rdb register ::dam
+        rdb register ::service
 
         # NEXT, monitor tables. 
         rdb monitor add actors       {a}
@@ -97,7 +98,6 @@ snit::type scenario {
         rdb monitor add sat_gc       {g c}
         rdb monitor add situations   {s}
         rdb monitor add sqdeploy_ng  {n g}
-        rdb monitor add sqservice_ga {g a}
         rdb monitor add tactics      {tactic_id}
         rdb monitor add units        {u}
 

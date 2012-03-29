@@ -137,6 +137,8 @@ SELECT G.id                                         AS id,
        DG.consumers                                 AS consumers,
        DG.labor_force                               AS labor_force,
        DG.unemployed                                AS unemployed,
+       coalesce(moneyfmt(SR.req_funding), 'N/A')    AS req_funding,
+       coalesce(moneyfmt(SR.sat_funding), 'N/A')    AS sat_funding,
        format('%.1f', DG.upc)                       AS upc,
        format('%.2f', DG.uaf)                       AS uaf,
        format('%.3f', coalesce(gram_g.sat0, 0.0))   AS mood0,
@@ -144,7 +146,8 @@ SELECT G.id                                         AS id,
 FROM gui_groups AS G
 JOIN civgroups  AS CG USING (g)
 JOIN demog_g    AS DG USING (g)
-LEFT OUTER JOIN gram_g USING (g);
+LEFT OUTER JOIN sr_service AS SR USING (g)
+LEFT OUTER JOIN gram_g           USING (g);
 
 -- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_frcgroups AS
@@ -312,20 +315,6 @@ JOIN gui_frcgroups AS G on (G.g = D.g)
 JOIN gui_actors    AS GA on (GA.a = G.a)
 JOIN deploy_ng AS GP ON (GP.n=D.n AND GP.g=D.g);
 
--- A status quo ENI service view for the GUI
-CREATE TEMPORARY VIEW gui_sqservice_ga AS
-SELECT GA.g || ' ' || GA.a                            AS id,
-       GA.g                                           AS g,
-       G.longlink                                     AS glonglink,
-       GA.a                                           AS a,
-       G.n                                            AS n,
-       N.longlink                                     AS nlonglink,
-       funding                                        AS numeric_funding,
-       moneyfmt(GA.funding)                           AS funding
-FROM sqservice_view AS GA
-JOIN gui_civgroups AS G USING (g)
-JOIN gui_nbhoods AS N using (n);
-
 -- A GUI service_g view
 CREATE TEMPORARY VIEW gui_service_g AS
 SELECT g                                           AS id,
@@ -335,7 +324,7 @@ SELECT g                                           AS id,
        link                                        AS link,
        longlink                                    AS longlink,
        n                                           AS n,
-       moneyfmt(saturation_funding)                AS saturation_funding,
+       sat_funding                                 AS saturation_funding,
        required                                    AS required,
        percent(required)                           AS pct_required,
        moneyfmt(funding)                           AS funding,

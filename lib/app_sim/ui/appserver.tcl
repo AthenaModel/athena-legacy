@@ -910,7 +910,7 @@ snit::type appserver {
         # ENI Funding
         ht subtitle "ENI Funding" eni
 
-        if {[Locked]} {
+        if {[Locked -disclaimer]} {
             ht put {
                 The funding of ENI services by this actor is as
                 follows.  Civilian groups judge actors by whether
@@ -934,33 +934,7 @@ snit::type appserver {
                 WHERE GA.a=$a AND numeric_funding > 0.0
                 ORDER BY GA.numeric_funding;
             } -align LLRRRRR
-        } else {
-            ht put {
-                The status quo funding of ENI services by this actor
-                is as follows; this is the level of funding prior to
-                the start of the simulation, as set on the
-            }
-            ht link gui:/tab/sqservice "Groups/Services tab"
-            ht put "."
-            ht putln {
-                As such, it (along with the contributions by other 
-                actors) determines each group's expected level of
-                service, and also affects the vertical relationships
-                of the groups with the actor.
-            }
-
-            ht para
-
-            ht query {
-                SELECT nlonglink            AS 'Neighborhood',
-                       glonglink            AS 'Group',
-                       funding              AS 'Funding<br>$/week'
-                FROM gui_sqservice_ga
-                WHERE a=$a AND numeric_funding > 0.0
-                ORDER BY numeric_funding
-            } -default "No ENI services are funded." -align LLR
-
-        }
+        } 
 
         # Deployment
         ht subtitle "Force Deployment" forces
@@ -1603,6 +1577,10 @@ snit::type appserver {
 
         set gtype [string toupper $(1)]
 
+        # FIRST, update the saturation and required levels of service
+        # but only if we are in PREP
+        service srcompute PREP
+
         # Begin the page
         if {$gtype eq ""} {
             ht page "Groups"
@@ -1632,10 +1610,12 @@ snit::type appserver {
                            n            AS "Nbhood",
                            demeanor     AS "Demeanor",
                            basepop      AS "Population",
-                           sap          AS "SA%"
+                           sap          AS "SA%",
+                           req_funding  AS "Req. ENI<br>funding, $/wk",
+                           sat_funding  AS "Sat. ENI<br>funding, $/wk"
                     FROM gui_civgroups 
                     ORDER BY longlink
-                } -default "None." -align LLLRR
+                } -default "None." -align LLLRRRR
             } else {
                 ht query {
                     SELECT longlink     AS "Group",
@@ -1643,11 +1623,13 @@ snit::type appserver {
                            demeanor     AS "Demeanor",
                            population   AS "Population",
                            sap          AS "SA%",
+                           req_funding  AS "Req. ENI<br>funding, $/wk",
+                           sat_funding  AS "Sat. ENI<br>funding, $/wk",
                            mood0        AS "Mood at T0",
                            mood         AS "Mood Now"
                     FROM gui_civgroups 
                     ORDER BY longlink
-                } -default "None." -align LLLRRRR
+                } -default "None." -align LLLRRRRRR
             }
         } elseif {$gtype eq "FRC"} {
             ht page "Groups: Force"
@@ -1733,7 +1715,11 @@ snit::type appserver {
     # Formats the summary page for civilian /group/{g}.
 
     proc html_GroupCiv {g} {
-        # FIRST, get the data about this group
+        # FIRST, update the saturation and required levels of service
+        # but only if we are in PREP
+        service srcompute PREP
+
+        # NEXT, get the data about this group
         rdb eval {SELECT * FROM gui_civgroups WHERE g=$g}       data {}
         rdb eval {SELECT * FROM gui_nbhoods   WHERE n=$data(n)} nb   {}
         rdb eval {SELECT * FROM gui_service_g WHERE g=$g}       eni  {}
@@ -1906,12 +1892,14 @@ snit::type appserver {
         ht put   "from actors."
         ht putln "At present, $g is receiving \$$eni(funding)/week worth of "
         ht put   "ENI service.  $g's saturation level of funding is "
-        ht put   "\$$eni(saturation_funding)/week, so $g is receiving "
+        ht put   "\$$data(sat_funding)/week, so $g is receiving "
         ht put   "$eni(pct_actual) of the saturation level of ENI service. "
         ht put   "$g expects to receive $eni(pct_expected); and "
-        ht put   "$eni(pct_required) is the minimum required for survival."
+        ht put   "$eni(pct_required) is the minimum required for survival. "
+        ht put   "Thus, $g's required level of funding is "
+        ht put   "\$$data(req_funding)/week. "
         ht putln "$g's <i>needs</i> factor is $eni(needs), and $g's "
-        ht put   "<i>expectf</i> factor is $eni(expectf)."
+        ht put   "<i>expectf</i> factor is $eni(expectf). "
 
         ht para
 
