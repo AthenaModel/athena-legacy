@@ -1733,25 +1733,14 @@ snit::type appserver {
         # or not.
         let locked {[sim state] ne "PREP"}
 
-        if {$locked} {
-            ht linkbar {
-                "#actors"     "Relationships with Actors"
-                "#rel"        "Friends and Enemies"
-                "#eni"        "ENI Service"
-                "#sat"        "Satisfaction Levels"
-                "#drivers"    "Drivers"
-                "#sigevents"  "Significant Events"
-            }
-        } else {
-            ht putln ""
-            ht tinyi {
-                More information will be available once the scenario has
-                been locked.
-            }
-
-            ht para
+        ht linkbar {
+            "#actors"     "Relationships with Actors"
+            "#rel"        "Friends and Enemies"
+            "#eni"        "ENI Service"
+            "#sat"        "Satisfaction Levels"
+            "#drivers"    "Drivers"
+            "#sigevents"  "Significant Events"
         }
-
 
         ht putln "$data(longname) ($g) resides in neighborhood "
         ht link  /nbhood/$data(n) "$nb(longname) ($data(n))"
@@ -1771,107 +1760,110 @@ snit::type appserver {
         ht putln "The group's demeanor is "
         ht put   [edemeanor longname $data(demeanor)].
 
-        if {!$locked} {
-            ht /page
-            return [ht get]
-        }
-
-        # NEXT, the rest of the summary
-        let lf {double($data(labor_force))/$data(population)}
-        let sa {double($data(subsistence))/$data(population)}
-        let ur {double($data(unemployed))/$data(labor_force)}
+        if {[Locked]} {
+            # NEXT, the rest of the summary
+            let lf {double($data(labor_force))/$data(population)}
+            let sa {double($data(subsistence))/$data(population)}
+            let ur {double($data(unemployed))/$data(labor_force)}
         
-        ht putln "[percent $lf] of the group is in the labor force, "
-        ht put   "and [percent $sa] of the group is engaged in "
-        ht put   "subsistence agriculture."
+            ht putln "[percent $lf] of the group is in the labor force, "
+            ht put   "and [percent $sa] of the group is engaged in "
+            ht put   "subsistence agriculture."
         
-        ht putln "The unemployment rate is [percent $ur]."
+            ht putln "The unemployment rate is [percent $ur]."
 
-        ht putln "The group is receiving "
+            ht putln "The group is receiving "
 
-        if {$eni(actual) < $eni(required)} {
-            ht put "less than the required level of "
-        } elseif {$eni(pct_actual) eq $eni(pct_expected)} {
-            ht put "about the expected amount of "
-        } elseif {$eni(actual) < $eni(expected)} {
-            ht put "less than the expected amount of "
-        } else {
-            ht put "more than the expected amount of "
-        }
+            if {$eni(actual) < $eni(required)} {
+                ht put "less than the required level of "
+            } elseif {$eni(pct_actual) eq $eni(pct_expected)} {
+                ht put "about the expected amount of "
+            } elseif {$eni(actual) < $eni(expected)} {
+                ht put "less than the expected amount of "
+            } else {
+                ht put "more than the expected amount of "
+            }
 
-        ht put "ENI services."
+            ht put "ENI services."
 
-        ht putln "$g's overall mood is [qsat format $data(mood)] "
-        ht put   "([qsat longname $data(mood)])."
-        ht para
+            ht putln "$g's overall mood is [qsat format $data(mood)] "
+            ht put   "([qsat longname $data(mood)])."
+            ht para
 
-        # Actors
-        set controller [rdb onecolumn {
-            SELECT controller FROM control_n WHERE n=$data(n)
-        }]
-
-        if {$controller eq ""} {
-            ht putln "No actor is in control of $data(n)."
-            set vrel_c -1.0
-        } else {
-            set vrel_c [rdb onecolumn {
-                SELECT vrel FROM vrel_ga
-                WHERE g=$g AND a=$controller
+            # Actors
+            set controller [rdb onecolumn {
+                SELECT controller FROM control_n WHERE n=$data(n)
             }]
 
-            set vrelMin [parm get control.support.vrelMin]
-            ht putln "$g "
-            ht putif {$vrel_c > $vrelMin} "favors" "does not favor"
-            ht put   " actor "
-            ht link /actor/$controller $controller
-            ht put   ", who is in control of neighborhood $data(n)."
-        }
+            if {$controller eq ""} {
+                ht putln "No actor is in control of $data(n)."
+                set vrel_c -1.0
+            } else {
+                set vrel_c [rdb onecolumn {
+                    SELECT vrel FROM vrel_ga
+                    WHERE g=$g AND a=$controller
+                }]
 
-        rdb eval {
-            SELECT a,vrel FROM vrel_ga
-            WHERE g=$g
-            ORDER BY vrel DESC
-            LIMIT 1
-        } fave {}
+                set vrelMin [parm get control.support.vrelMin]
+                ht putln "$g "
+                ht putif {$vrel_c > $vrelMin} "favors" "does not favor"
+                ht put   " actor "
+                ht link /actor/$controller $controller
+                ht put   ", who is in control of neighborhood $data(n)."
+            }
 
-        if {$fave(vrel) > $vrel_c} {
-            if {$fave(vrel) > 0.2} {
-                ht putln "$g would prefer to see actor "
-                ht put "$fave(a) in control of $data(n)."
+            rdb eval {
+                SELECT a,vrel FROM vrel_ga
+                WHERE g=$g
+                ORDER BY vrel DESC
+                LIMIT 1
+            } fave {}
+
+            if {$fave(vrel) > $vrel_c} {
+                if {$fave(vrel) > 0.2} {
+                    ht putln "$g would prefer to see actor "
+                    ht put "$fave(a) in control of $data(n)."
+                } else {
+                    ht putln ""
+                    ht putif {$controller ne ""} "In fact, "
+                    ht put "$g does not favor "
+                    ht put   "any of the actors."
+                }
             } else {
                 ht putln ""
-                ht putif {$controller ne ""} "In fact, "
-                ht put "$g does not favor "
-                ht put   "any of the actors."
+                ht putif {$vrel_c <= 0.2} "However, "
+                ht putln "$g prefers $controller to the other candidates."
             }
-        } else {
-            ht putln ""
-            ht putif {$vrel_c <= 0.2} "However, "
-            ht putln "$g prefers $controller to the other candidates."
         }
-    
+
         ht para
         
         # NEXT, Detail Block: Relationships with actors
 
-        ht subtitle "Relationships with Actors" actors \
-            /group/$g/vrel "View Analysis"
+        if {[Locked]} {
+            ht subtitle "Relationships with Actors" actors \
+                /group/$g/vrel "View Analysis"
+        } else {
+            ht subtitle "Relationships with Actors" actors 
+        }
 
-        ht query {
-            SELECT A.longlink                  AS 'Actor',
-                   qaffinity('format',V.vrel)  AS 'Vertical<br>Rel.',
-                   V.g || ' ' || qaffinity('longname', V.vrel) 
-                       || ' ' || V.a           AS 'Narrative',
-                   format('%.2f',S.direct_support) 
-                                               AS 'Direct<br>Support',
-                   format('%.2f',S.support)    AS 'Actual<br>Support',
-                   format('%.2f',S.influence)  AS 'Contributed<br>Influence'
-            FROM vrel_ga AS V 
-            JOIN support_nga AS S USING (g,a)
-            JOIN gui_actors AS A USING (a)
-            WHERE V.g=$g
-            ORDER BY V.vrel DESC
-        } -align LRLRRR
+        if {[Locked -disclaimer]} {
+            ht query {
+                SELECT A.longlink                  AS 'Actor',
+                       qaffinity('format',V.vrel)  AS 'Vertical<br>Rel.',
+                       V.g || ' ' || qaffinity('longname', V.vrel) 
+                           || ' ' || V.a           AS 'Narrative',
+                       format('%.2f',S.direct_support) 
+                                                   AS 'Direct<br>Support',
+                       format('%.2f',S.support)    AS 'Actual<br>Support',
+                       format('%.2f',S.influence)  AS 'Contributed<br>Influence'
+                FROM vrel_ga AS V 
+                JOIN support_nga AS S USING (g,a)
+                JOIN gui_actors AS A USING (a)
+                WHERE V.g=$g
+                ORDER BY V.vrel DESC
+            } -align LRLRRR
+        }
         
         ht subtitle "Friend and Enemies" rel
 
@@ -1888,37 +1880,52 @@ snit::type appserver {
 
         ht subtitle "ENI Services" eni
 
-        ht putln "$g can receive Essential Non-Infrastructure (ENI) services "
-        ht put   "from actors."
-        ht putln "At present, $g is receiving \$$eni(funding)/week worth of "
-        ht put   "ENI service.  $g's saturation level of funding is "
-        ht put   "\$$data(sat_funding)/week, so $g is receiving "
-        ht put   "$eni(pct_actual) of the saturation level of ENI service. "
-        ht put   "$g expects to receive $eni(pct_expected); and "
-        ht put   "$eni(pct_required) is the minimum required for survival. "
-        ht put   "Thus, $g's required level of funding is "
-        ht put   "\$$data(req_funding)/week. "
-        ht putln "$g's <i>needs</i> factor is $eni(needs), and $g's "
-        ht put   "<i>expectf</i> factor is $eni(expectf). "
-
-        ht para
-
-        if {$eni(actual) > 0.0} {
-            ht putln "The following actors are providing ENI service to $g:"
+        if {[Locked]} {
+            ht putln "$g can receive Essential Non-Infrastructure (ENI) "
+            ht put   "services from actors. At present, $g is receiving "
+            ht put   "\$$eni(funding)/week worth of "
+            ht put   "ENI service.  $g's saturation level of funding is "
+            ht put   "\$$data(sat_funding)/week, so $g is receiving "
+            ht put   "$eni(pct_actual) of the saturation level of ENI service. "
+            ht put   "$g expects to receive $eni(pct_expected); and "
+            ht put   "$eni(pct_required) is the minimum required for survival. "
+            ht put   "Thus, $g's required level of funding is "
+            ht put   "\$$data(req_funding)/week. "
+            ht putln "$g's <i>needs</i> factor is $eni(needs), and $g's "
+            ht put   "<i>expectf</i> factor is $eni(expectf). "
             ht para
 
-            ht query {
-                SELECT alonglink                   AS 'Actor',
-                       funding                     AS 'Funding, $/week',
-                       pct_credit                  AS 'Credit'
-                FROM gui_service_ga
-                WHERE g=$g
-                ORDER BY credit DESC
-            } -align LRR
+            if {$eni(actual) > 0.0} {
+                ht putln "The following actors are providing ENI service to $g:"
+                ht para
+
+                ht query {
+                    SELECT alonglink                   AS 'Actor',
+                           funding                     AS 'Funding, $/week',
+                           pct_credit                  AS 'Credit'
+                    FROM gui_service_ga
+                    WHERE g=$g
+                    ORDER BY credit DESC
+                } -align LRR
+            }
+        } else {
+            ht putln "$g can receive Essential Non-Infrastructure (ENI) "
+            ht put   "services from actors. "
+            ht put   "$g's saturation level of funding is "
+            ht put   "\$$data(sat_funding)/week and "
+            ht putln "$g's required level of funding is "
+            ht put   "\$$data(sat_funding)/week."
+            ht put   "<br><br>"
+            ht tinyi {
+                More information will be available once the scenario has
+                been locked.
+            }
+            ht para
         }
 
         ht subtitle "Satisfaction Levels" sat
 
+        if {[Locked -disclaimer]} {
         ht putln "$g's overall mood is [qsat format $data(mood)] "
         ht put   "([qsat longname $data(mood)]).  $g's satisfactions "
         ht put   "with the various concerns are as follows."
@@ -1933,9 +1940,11 @@ snit::type appserver {
             WHERE g=$g
             ORDER BY C.c
         } -align LRLL
+        }
 
         ht subtitle "Satisfaction Drivers" drivers
 
+        if {[Locked -disclaimer]} {
         ht putln "The most important satisfaction drivers for this group "
         ht put   "at the present time are as follows:"
         ht para
@@ -1963,9 +1972,11 @@ snit::type appserver {
             JOIN gram_driver USING (driver)
             ORDER BY abs(acontrib) DESC
         } -default "No significant drivers." -align RRL
+        }
 
         ht subtitle "Significant Events" sigevents
 
+        if {[Locked -disclaimer]} {
         ht putln {
             The following are the most recent significant events 
             involving this group, oldest first.
@@ -1974,7 +1985,7 @@ snit::type appserver {
         ht para
 
         SigEvents -tags [list $g $data(n)] -mark run
-
+        }
         ht /page
 
         return [ht get]
