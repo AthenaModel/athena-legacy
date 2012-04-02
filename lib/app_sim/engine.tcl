@@ -162,10 +162,9 @@ snit::type engine {
         control_model start
         econ          start 
 
-        # Execute the actor's strategies at time 0, given the 
-        # status quo.
+        # Execute the actor's strategies at time 0 
         hist tock
-        strategy  tock
+        strategy start
 
         # Compute the new state of affairs, given the agent's
         # decisions at time 0.

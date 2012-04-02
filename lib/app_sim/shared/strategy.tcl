@@ -25,18 +25,39 @@ snit::type strategy {
     # These routines are called during the strategy execution tock
     # to select and execute tactics.
 
+    # start
+    #
+    # This method is called when the simulation is locked and going to
+    # the paused state
+
+    typemethod start {} {
+        $type DoTock 1
+    }
+
     # tock
     #
-    # Executes agent strategies:
-    #
-    # * Determines whether all goals and conditions are met or unmet.
-    # * For each agent, 
-    #   * Determines which tactics are eligible for 
-    #     execution (i.e., have no unmet conditions).
-    #   * Selects the tactics to execute given available resources.
-    #   * Executes the selected tactics.
+    # This method is called when the simulation is running forward in
+    # time
 
     typemethod tock {} {
+        $type DoTock 0
+    }
+
+    # DoTock locking
+    #
+    # locking  - a flag indicating whether the sim is locking or not
+    #
+    # Executes agent tactics:
+    #
+    # * Determines whether conditions for executing tactics are met. If
+    #   conditions are met, then an attempt is made to execute it. A
+    #   tactic may not execute if there are not enough resources for it.
+    #
+    # * Some tactics are defined to execute on lock. If so, then that is
+    #   the only condition that must be met when Athena is locked and 
+    #   those tactics are attempted to execute.
+
+    typemethod DoTock {locking} {
         # FIRST, Set up working tables.  This includes giving
         # the actors their incomes.
         control load
@@ -52,18 +73,24 @@ snit::type strategy {
         $type ComputeGoalFlags
 
         # NEXT, examine each agent's tactic in priority order.  If the
-        # tactic is eligible, attempt to execute it.
-        foreach tid [rdb eval {
-            SELECT tactic_id
+        # tactic is eligible, attempt to execute it. If it is a tactic
+        # meant to execute on lock and we are locking, attempt to 
+        # execute it.
+        rdb eval {
+            SELECT tactic_id, on_lock
             FROM tactics
             WHERE state = 'normal'
             ORDER BY owner, priority
-        }] {
-            if {[$type IsEligible $tid]} {
-                log normal strategy "Tactic $tid IS eligible"
-                $type ExecuteTactic $tid
+        } {
+            if {$locking && $on_lock} {
+                log normal strategy \
+                    "Tactic $tactic_id IS eligible on lock"
+                $type ExecuteTactic $tactic_id
+            } elseif {[$type IsEligible $tactic_id]} {
+                log normal strategy "Tactic $tactic_id IS eligible"
+                $type ExecuteTactic $tactic_id
             } else {
-                log normal strategy "Tactic $tid IS NOT eligible"
+                log normal strategy "Tactic $tactic_id IS NOT eligible"
             }
         }
 
@@ -158,7 +185,7 @@ snit::type strategy {
 
     # IsEligible tid
     #
-    # tid - A tactic_id
+    # tid     - A tactic_id
     #
     # Computes whether or not the tactic is eligible, i.e.,
     # whether or not all of its conditions are met.

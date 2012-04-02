@@ -143,6 +143,8 @@ order define TACTIC:DEFROE:CREATE {
     parm priority enum "Priority"          -enumtype ePrioSched  \
                                            -displaylong yes      \
                                            -defval bottom
+    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno \
+                                           -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -150,6 +152,7 @@ order define TACTIC:DEFROE:CREATE {
     prepare n        -toupper   -required -type nbhood
     prepare text1    -toupper   -required -type edefroeuf
     prepare priority -tolower             -type ePrioSched
+    prepare on_lock             -required -type boolean
 
     returnOnError
 
@@ -188,10 +191,12 @@ order define TACTIC:DEFROE:UPDATE {
     parm g         disp "Defending Group"
     parm n         disp "In Neighborhood"
     parm text1     enum "ROE"             -enumtype edefroeuf
+    parm on_lock   enum "Exec On Lock?"   -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required           -type tactic
     prepare text1      -required -toupper  -type edefroeuf
+    prepare on_lock                        -type boolean
 
     returnOnError
 

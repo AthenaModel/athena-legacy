@@ -114,12 +114,15 @@ order define TACTIC:EXECUTIVE:CREATE {
     parm priority  enum    "Priority"      -enumtype ePrioSched  \
                                            -displaylong yes      \
                                            -defval bottom
+    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno \
+                                           -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   agent
     prepare text1
     prepare once     -toupper   -required -type   boolean
     prepare priority -tolower             -type   ePrioSched
+    prepare on_lock             -required -type boolean
 
     returnOnError -final
 
@@ -146,11 +149,13 @@ order define TACTIC:EXECUTIVE:UPDATE {
     parm owner     disp    "Owner"
     parm text1     command "Command"        -width 40
     parm once      enum    "Once Only?"     -enumtype eyesno
+    parm on_lock   enum    "Exec On Lock?"  -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
     prepare text1
     prepare once       -toupper  -type boolean
+    prepare on_lock              -type boolean
 
     returnOnError
 

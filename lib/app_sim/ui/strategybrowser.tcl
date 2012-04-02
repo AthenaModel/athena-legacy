@@ -1122,25 +1122,31 @@ snit::widget strategybrowser {
             -itemstyle   textStyle        \
             -tags        once
 
-        # Tree column 3: $
+        # Tree column 3: Exec On Lock?
+        $ttree column create {*}$colopts  \
+            -text        "Exec On Lock?"  \
+            -itemstyle   textStyle        \
+            -tags        on_lock
+
+        # Tree column 4: $
         $ttree column create {*}$colopts  \
             -text        "Est. $"         \
             -itemstyle   numStyle         \
             -tags        dollars
 
-        # Tree column 4: tactic_id/condition_id
+        # Tree column 5: tactic_id/condition_id
         $ttree column create {*}$colopts  \
             -text        "Id"             \
             -itemstyle   numStyle         \
             -tags        id
 
-        # Tree column 5: tactic_type/condition_type
+        # Tree column 6: tactic_type/condition_type
         $ttree column create {*}$colopts  \
             -text        "Type"           \
             -itemstyle   textStyle        \
             -tags        type
 
-        # Tree column 6: priority
+        # Tree column 7: priority
         $ttree column create {*}$colopts  \
             -text        "Priority"       \
             -itemstyle   textStyle        \
@@ -1419,10 +1425,17 @@ snit::widget strategybrowser {
             set once NO
         }
 
+        if {$tdata(on_lock)} {
+            set on_lock YES
+        } else {
+            set on_lock NO
+        }
+
         $ttree item text $id                             \
             0               $tdata(narrative)            \
             {tag exec_ts}   $timestamp                   \
             {tag once}      $once                        \
+            {tag on_lock}   $on_lock                     \
             {tag dollars}   [tactic call dollars $tdict] \
             {tag id}        $tdata(tactic_id)            \
             {tag type}      $tdata(tactic_type)          \

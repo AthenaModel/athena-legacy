@@ -288,6 +288,8 @@ order define TACTIC:DEPLOY:CREATE {
     parm priority  enum  "Priority"          -enumtype ePrioSched  \
                                              -displaylong yes      \
                                              -defval bottom
+    parm on_lock   enum  "Exec On Lock?"     -enumtype eyesno \
+                                             -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
@@ -296,6 +298,7 @@ order define TACTIC:DEPLOY:CREATE {
     prepare int1                          -type   ingpopulation
     prepare nlist    -toupper   -required -listof nbhood
     prepare priority -tolower             -type   ePrioSched
+    prepare on_lock             -required -type   boolean
 
     returnOnError
 
@@ -341,6 +344,7 @@ order define TACTIC:DEPLOY:UPDATE {
                                           -displaylong yes
     parm int1      text  "Personnel"
     parm nlist     nlist "In Neighborhoods"
+    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
@@ -348,6 +352,7 @@ order define TACTIC:DEPLOY:UPDATE {
     prepare text1      -toupper  -type   edeploymode
     prepare int1                 -type   ingpopulation
     prepare nlist      -toupper  -listof nbhood
+    prepare on_lock              -type   boolean
 
     returnOnError
 

@@ -69,6 +69,18 @@ macro TACTIC.priority {} {
     [/parm]
 }
 
+macro TACTIC.on_lock {} {
+    |<--
+    [parm on_lock "Exec On Lock?"]
+    <b>Required.</b> A boolean value, "YES" or "NO". If "YES", this 
+    tactic will be eligible to be executed when Athena is locked. The
+    tactic will still be subject to resource constraints (ie. enough 
+    troops, money, etc...). If "NO", the tactic will be treated in the
+    normal way with it eligible for execution only if the proper 
+    conditions are met.
+    [/parm]
+}
+
 order TACTIC:DELETE "Delete Tactic" {
     Deletes the <<term tactic>> and all dependent objects,
     i.e., any attached <<term condition>>s.  The order parameters
@@ -133,6 +145,7 @@ order TACTIC:ASSIGN:CREATE "Create Tactic: Assign Activity" {
     <<parmlist>>
     <<tactic_assign parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -143,6 +156,7 @@ order TACTIC:ASSIGN:UPDATE "Update Tactic: Assign Activity" {
     <<tactic_assign parm tactic_id -required>>
     <<tactic_assign parm owner -display>>
     <<tactic_assign parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -164,6 +178,7 @@ order TACTIC:ATTROE:CREATE "Create Tactic: Attacking ROE" {
     <<parmlist>>
     <<tactic_attroe parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -174,6 +189,7 @@ order TACTIC:ATTROE:UPDATE "Update Tactic: Attacking ROE" {
     <<tactic_attroe parm tactic_id -required>>
     <<tactic_attroe parm owner -display>>
     <<tactic_attroe parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -197,6 +213,7 @@ order TACTIC:DEFROE:CREATE "Create Tactic: Defensive ROE" {
     <<parmlist>>
     <<tactic_defroe parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -207,6 +224,7 @@ order TACTIC:DEFROE:UPDATE "Update Tactic: Defensive ROE" {
     <<tactic_defroe parm tactic_id -required>>
     <<tactic_defroe parms -attrs {owner g n} -display>>
     <<tactic_defroe parm text1 -required>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -228,6 +246,7 @@ order TACTIC:DEMOB:CREATE "Create Tactic: Demobilize Forces" {
     <<parmlist>>
     <<tactic_demob parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -238,6 +257,7 @@ order TACTIC:DEMOB:UPDATE "Update Tactic: Demobilize Forces" {
     <<tactic_demob parm tactic_id -required>>
     <<tactic_demob parm owner -display>>
     <<tactic_demob parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -259,6 +279,7 @@ order TACTIC:DEPLOY:CREATE "Create Tactic: Deploy Forces" {
     <<parmlist>>
     <<tactic_deploy parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -269,6 +290,7 @@ order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
     <<tactic_deploy parm tactic_id -required>>
     <<tactic_deploy parm owner -display>>
     <<tactic_deploy parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -290,6 +312,7 @@ order TACTIC:DISPLACE:CREATE "Create Tactic: Displace Civilians" {
     <<parmlist>>
     <<tactic_displace parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -300,6 +323,7 @@ order TACTIC:DISPLACE:UPDATE "Update Tactic: Displace Civilians" {
     <<tactic_displace parm tactic_id -required>>
     <<tactic_displace parm owner -display>>
     <<tactic_displace parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -321,6 +345,7 @@ order TACTIC:EXECUTIVE:CREATE "Create Tactic: Executive Command" {
     <<parmlist>>
     <<tactic_executive parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -331,6 +356,7 @@ order TACTIC:EXECUTIVE:UPDATE "Update Tactic: Executive Command" {
     <<tactic_executive parm tactic_id -required>>
     <<tactic_executive parm owner -display>>
     <<tactic_executive parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -352,6 +378,7 @@ order TACTIC:FUND:CREATE "Create Tactic: Fund Actor" {
     <<parmlist>>
     <<tactic_fund parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -362,6 +389,7 @@ order TACTIC:FUND:UPDATE "Update Tactic: Fund ENI Services" {
     <<tactic_fund parm tactic_id -required>>
     <<tactic_fund parm owner -display>>
     <<tactic_fund parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -385,6 +413,7 @@ order TACTIC:FUNDENI:CREATE "Create Tactic: Fund ENI Services" {
     <<parmlist>>
     <<tactic_fundeni parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -395,6 +424,7 @@ order TACTIC:FUNDENI:UPDATE "Update Tactic: Fund ENI Services" {
     <<tactic_fundeni parm tactic_id -required>>
     <<tactic_fundeni parm owner -display>>
     <<tactic_fundeni parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -416,6 +446,7 @@ order TACTIC:MOBILIZE:CREATE "Create Tactic: Mobilize Forces" {
     <<parmlist>>
     <<tactic_mobilize parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -426,6 +457,7 @@ order TACTIC:MOBILIZE:UPDATE "Update Tactic: Mobilize Forces" {
     <<tactic_mobilize parm tactic_id -required>>
     <<tactic_mobilize parm owner -display>>
     <<tactic_mobilize parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -447,6 +479,7 @@ order TACTIC:SAVE:CREATE "Create Tactic: Save Money" {
     <<parmlist>>
     <<tactic_save parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -457,6 +490,7 @@ order TACTIC:SAVE:UPDATE "Update Tactic: Save Money" {
     <<tactic_save parm tactic_id -required>>
     <<tactic_save parm owner -display>>
     <<tactic_save parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -478,6 +512,7 @@ order TACTIC:SPEND:CREATE "Create Tactic: Spend Money" {
     <<parmlist>>
     <<tactic_spend parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -488,6 +523,7 @@ order TACTIC:SPEND:UPDATE "Update Tactic: Spend Money" {
     <<tactic_spend parm tactic_id -required>>
     <<tactic_spend parm owner -display>>
     <<tactic_spend parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -509,6 +545,7 @@ order TACTIC:SUPPORT:CREATE "Create Tactic: Support Actor" {
     <<parmlist>>
     <<tactic_support parms -required -tags create>>
     <<TACTIC.priority>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 
@@ -519,6 +556,7 @@ order TACTIC:SUPPORT:UPDATE "Update Tactic: Support Actor" {
     <<tactic_support parm tactic_id -required>>
     <<tactic_support parm owner -display>>
     <<tactic_support parms -optional -tags update>>
+    <<TACTIC.on_lock>>
     <</parmlist>>
 }
 

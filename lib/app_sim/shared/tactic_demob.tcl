@@ -188,6 +188,8 @@ order define TACTIC:DEMOB:CREATE {
     parm priority  enum  "Priority"        -enumtype ePrioSched  \
                                            -displaylong yes      \
                                            -defval bottom
+    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno \
+                                           -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
@@ -196,6 +198,7 @@ order define TACTIC:DEMOB:CREATE {
     prepare int1                          -type   ingpopulation
     prepare once     -toupper   -required -type   boolean
     prepare priority -tolower             -type   ePrioSched
+    prepare on_lock             -required -type   boolean
 
     returnOnError
 
@@ -240,7 +243,8 @@ order define TACTIC:DEMOB:UPDATE {
     parm text1     enum  "Mode"           -enumtype edemobmode   \
                                           -displaylong yes
     parm int1      text  "Personnel"
-    parm once      enum  "Once Only?"     -enumtype eyesno       \
+    parm once      enum  "Once Only?"     -enumtype eyesno       
+    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -248,6 +252,7 @@ order define TACTIC:DEMOB:UPDATE {
     prepare text1      -toupper  -type edemobmode
     prepare int1                 -type ingpopulation
     prepare once       -toupper  -type boolean
+    prepare on_lock              -type boolean
 
     returnOnError
 

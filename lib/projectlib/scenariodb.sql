@@ -609,6 +609,10 @@ CREATE TABLE tactics (
     -- on successful execution.
     once         INTEGER DEFAULT 0,
 
+    -- On-lock flag, 1 or 0. If 1, the tactic will be executed on lock 
+    -- regardless of any other condition
+    on_lock      INTEGER DEFAULT 0,
+
     -- State: normal, disabled, invalid (etactic_state)
     state        TEXT DEFAULT 'normal',
 

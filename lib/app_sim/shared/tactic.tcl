@@ -253,6 +253,7 @@ snit::type tactic {
     #    owner          The tactic's owning agent
     #    priority       "top" or "bottom" or ""; defaults to "bottom".
     #    once           1 or 0 or ""; defaults to 0.
+    #    on_lock        1 or 0, defaults to 0.
     #    a,b            Actors, or ""
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
@@ -285,8 +286,8 @@ snit::type tactic {
                 INSERT INTO cond_collections(cc_type) VALUES('tactic');
 
                 INSERT INTO 
-                tactics(tactic_id, 
-                        tactic_type, owner, narrative, priority, once,
+                tactics(tactic_id, tactic_type, 
+                        owner, narrative, priority, once, on_lock,
                         a,
                         b,
                         m,
@@ -298,8 +299,8 @@ snit::type tactic {
                         text1,
                         int1,
                         x1)
-                VALUES(last_insert_rowid(),
-                       $tactic_type, $owner, $narrative, 0, $once,
+                VALUES(last_insert_rowid(), $tactic_type, 
+                       $owner, $narrative, 0, $once, $on_lock,
                        nullif($a,     ''),
                        nullif($b,     ''),
                        nullif($m,     ''),
@@ -351,6 +352,7 @@ snit::type tactic {
     #
     #    tactic_id      The tactic's ID
     #    once           Once flag, 1 or 0, or ""
+    #    on_lock        On lock flag, 1 or 0
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
@@ -378,18 +380,19 @@ snit::type tactic {
             # NULL rather than "".
             rdb eval {
                 UPDATE tactics
-                SET once  = nonempty($once,  once),
-                    a     = nullif(nonempty($a,     a),     ''),
-                    b     = nullif(nonempty($b,     b),     ''),
-                    m     = nullif(nonempty($m,     m),     ''),
-                    n     = nullif(nonempty($n,     n),     ''),
-                    nlist = nullif(nonempty($nlist, nlist), ''),
-                    f     = nullif(nonempty($f,     f),     ''),
-                    g     = nullif(nonempty($g,     g),     ''),
-                    glist = nullif(nonempty($glist, glist), ''),
-                    text1 = nullif(nonempty($text1, text1), ''),
-                    int1  = nullif(nonempty($int1,  int1),  ''),
-                    x1    = nullif(nonempty($x1,    x1),    '')
+                SET once    = nonempty($once,  once),
+                    on_lock = nonempty($on_lock, on_lock),
+                    a       = nullif(nonempty($a,     a),     ''),
+                    b       = nullif(nonempty($b,     b),     ''),
+                    m       = nullif(nonempty($m,     m),     ''),
+                    n       = nullif(nonempty($n,     n),     ''),
+                    nlist   = nullif(nonempty($nlist, nlist), ''),
+                    f       = nullif(nonempty($f,     f),     ''),
+                    g       = nullif(nonempty($g,     g),     ''),
+                    glist   = nullif(nonempty($glist, glist), ''),
+                    text1   = nullif(nonempty($text1, text1), ''),
+                    int1    = nullif(nonempty($int1,  int1),  ''),
+                    x1      = nullif(nonempty($x1,    x1),    '')
                 WHERE tactic_id=$tactic_id;
             } {}
 

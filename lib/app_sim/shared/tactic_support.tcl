@@ -171,12 +171,15 @@ order define TACTIC:SUPPORT:CREATE {
     parm priority  enum  "Priority"         -enumtype ePrioSched  \
                                             -displaylong yes      \
                                             -defval bottom
+    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno \
+                                            -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare a        -toupper   -required -type   {ptype a+self+none}
     prepare nlist    -toupper   -required -listof nbhood
     prepare priority -tolower             -type   ePrioSched
+    prepare on_lock             -required -type   boolean
 
     returnOnError -final
 
@@ -203,11 +206,13 @@ order define TACTIC:SUPPORT:UPDATE {
     parm owner     disp  "Owner"
     parm a         enum  "Supported Actor"  -enumtype {ptype a+self+none}
     parm nlist     nlist "In Neighborhoods"
+    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
     prepare a          -toupper  -type   {ptype a+self+none}
     prepare nlist      -toupper  -listof nbhood
+    prepare on_lock              -type   boolean
 
     returnOnError
 

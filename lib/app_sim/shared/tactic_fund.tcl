@@ -92,12 +92,15 @@ order define TACTIC:FUND:CREATE {
     parm priority  enum  "Priority"          -enumtype ePrioSched  \
                                              -displaylong yes      \
                                              -defval bottom
+    parm on_lock   enum  "Exec On Lock?"     -enumtype eyesno \
+                                             -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare a        -toupper   -required -type   actor
     prepare x1                  -required -type   money
     prepare priority -tolower             -type   ePrioSched
+    prepare on_lock             -required -type   boolean
 
     returnOnError -final
 
@@ -124,11 +127,13 @@ order define TACTIC:FUND:UPDATE {
     parm owner     disp  "Owner"
     parm a         actor "Actor"  
     parm x1        text  "Amount, $/week"
+    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
     prepare a          -toupper  -type   actor
     prepare x1                   -type   money
+    prepare on_lock              -type   boolean
 
     returnOnError
 

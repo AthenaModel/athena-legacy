@@ -555,11 +555,16 @@ snit::type scenario {
         set sql ""
         foreach ttype [tactic type names] {
             set parms [tactic type parms $ttype]
+            ldelete parms on_lock
             set parmlist1 [join $parms ", "]
+            append parmlist1 \
+                ", CASE on_lock WHEN 1 THEN 'YES' ELSE 'NO' END AS on_lock"
 
             if {"once" in $parms} {
                 ldelete parms once
                 set parmlist2 [join $parms ", "]
+                append parmlist2 \
+                    ", CASE on_lock WHEN 1 THEN 'YES' ELSE 'NO' END AS on_lock"
                 append parmlist2 \
                     ", CASE once WHEN 1 THEN 'YES' ELSE 'NO' END AS once"
             } else {

@@ -105,6 +105,8 @@ order define TACTIC:DISPLACE:CREATE {
     parm priority  enum   "Priority"        -enumtype ePrioSched  \
                                             -displaylong yes      \
                                             -defval bottom
+    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno \
+                                            -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
@@ -113,6 +115,7 @@ order define TACTIC:DISPLACE:CREATE {
     prepare text1    -toupper   -required -type {activity civ}
     prepare int1                -required -type ingpopulation
     prepare priority -tolower             -type ePrioSched
+    prepare on_lock             -required -type boolean
 
     returnOnError -final
 
@@ -141,6 +144,7 @@ order define TACTIC:DISPLACE:UPDATE {
     parm n         enum  "Neighborhood"   -enumtype nbhood
     parm text1     enum  "Activity"       -enumtype {activity civ}
     parm int1      text  "Personnel"
+    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -148,6 +152,7 @@ order define TACTIC:DISPLACE:UPDATE {
     prepare n          -toupper  -type nbhood
     prepare text1      -toupper  -type {activity civ}
     prepare int1                 -type ingpopulation
+    prepare on_lock              -type boolean
 
     returnOnError
 
