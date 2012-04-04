@@ -580,16 +580,6 @@ tab "Neighborhoods/Relationships" {
 
     <</topic>>
 
-    <<topic "Effects Delay">>The delay associated with attitude
-    effects in the first neighborhood resulting from events in the
-    second neighborhood, in decimal days.  If the effects delay is
-    2.0, for example, then the reaction of the first neighborhood to
-    an event in the second neighborhood will be delayed by 2.0.<p>
-
-    Note that a neighborhood always has a delay of 0.0 days with
-    itself.
-    <</topic>>
-
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's

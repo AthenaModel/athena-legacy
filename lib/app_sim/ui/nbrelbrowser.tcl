@@ -34,7 +34,6 @@ snit::widgetadaptor nbrelbrowser {
         { m             "Of Nbhood"                    }
         { n             "With Nbhood"                  }
         { proximity     "Proximity"                    }
-        { effects_delay "Effects Delay" -sortmode real }
     }
 
     #-------------------------------------------------------------------

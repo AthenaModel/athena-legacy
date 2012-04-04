@@ -59,7 +59,6 @@ snit::type nbrel {
     #
     #    id               list {m n}
     #    proximity        Proximity of m to n from m's point of view
-    #    effects_delay    Delay in days for effects to reach m from n
     #
     # Updates a neighborhood relationship given the parms, which are 
     # presumed to be valid.
@@ -75,8 +74,7 @@ snit::type nbrel {
             # NEXT, Update the group
             rdb eval {
                 UPDATE nbrel_mn
-                SET proximity     = nonempty($proximity,     proximity),
-                    effects_delay = nonempty($effects_delay, effects_delay)
+                SET proximity     = nonempty($proximity,     proximity)
                 WHERE m=$m AND n=$n
             }
 
@@ -116,11 +114,6 @@ snit::type nbrel {
                     $dlg field configure proximity -values $values
                 }
                 
-                # NEXT, refresh effects_delay
-                if {$m eq $n} {
-                    lappend disabled effects_delay
-                }
-
                 $dlg disabled $disabled
 
                 # NEXT, load the current data.
@@ -175,10 +168,6 @@ snit::type nbrel {
             # $dlg set proximity ""
         }
 
-        if {$same > 0} {
-            lappend disabled effects_delay
-        }
-
         $dlg disabled $disabled
 
         $dlg loadForMulti ids
@@ -204,12 +193,10 @@ order define NBREL:UPDATE {
                                                    -keys     {m n}         \
                                                    -labels   {"Of" "With"}
     parm proximity     enum "Proximity"            -enumtype {ptype prox-HERE}
-    parm effects_delay text "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters
     prepare id            -toupper  -required -type nbrel
     prepare proximity     -toupper            -type {ptype prox-HERE}
-    prepare effects_delay -toupper            -type rdays
 
     returnOnError
 
@@ -241,12 +228,10 @@ order define NBREL:UPDATE:MULTI {
                                                     -key   id
 
     parm proximity     enum   "Proximity"           -enumtype {ptype prox-HERE}
-    parm effects_delay text   "Effects Delay (Days)"
 } {
     # FIRST, prepare the parameters
     prepare ids           -toupper  -required -listof nbrel
     prepare proximity     -toupper            -type {ptype prox-HERE}
-    prepare effects_delay -toupper            -type rdays
 
     returnOnError
 

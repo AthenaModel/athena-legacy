@@ -67,7 +67,7 @@ snit::type engine {
         }]
 
         $gram load nbrel {*}[rdb eval {
-            SELECT m, n, proximity, effects_delay 
+            SELECT m, n, proximity, 0.0 
             FROM nbrel_mn
             ORDER BY m,n
         }]

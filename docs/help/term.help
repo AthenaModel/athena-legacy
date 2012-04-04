@@ -377,24 +377,6 @@ term dam "Driver Assessment Model" {
 
 #-----------------------------------------------------------------------
 
-term effects_delay "effects delay" {
-    The delay, in days, before the effects of a <<term driver>>
-    in <<term nbhood>> <i>n</i> are felt in neighborhood <i>m</i>;
-    closely related to <<term proximity>>.<p>
-    
-    A neighborhood always has a delay of 0.0 days with itself; 
-    <b>NEAR</b>, <b>FAR</b>, and <b>REMOTE</b> neighborhoods may have
-    longer delays.  Note that the delay need not be symmetric.<p>
-
-    The effects delay between two neighborhoods is edited on the
-    <<tab Neighborhoods/Relationships>>, using the
-    <<cref /order/nbrel>>.<p>
-
-    <b>Effects delays are deprecated in Athena 3.</b>
-}
-
-#-------------------------------------------------------------------
-
 term emphasis "emphasis" {
     A <<term civgroup>> or <<term actor>>'s belief about a 
     <<term topic>> is represented as a <<term position>> and an
@@ -789,9 +771,6 @@ term proximity "proximity" {
     The proximity between two neighborhoods is edited on the
     <<tab Neighborhoods/Relationships>>, using the
     <<cref /order/nbrel>>.<p>
-
-
-    See also <<term effects_delay>>.
 }
 
 #-----------------------------------------------------------------------

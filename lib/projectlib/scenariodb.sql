@@ -194,10 +194,6 @@ CREATE TABLE nbrel_mn (
     -- unless m == n (this is set automatically).
     proximity     TEXT DEFAULT 'REMOTE',
 
-    -- Indirect effects delay: how long in decimal days before a
-    -- direct effect in n has an indirect effect in m.
-    effects_delay DOUBLE DEFAULT 0.0, 
-
     PRIMARY KEY (m, n)
 );
 

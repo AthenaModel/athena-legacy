@@ -1970,15 +1970,6 @@ order NBREL:UPDATE "Update Neighborhood Relationship" {
     <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
     <</parm>>
 
-    <<parm effects_delay "Effects Delay">> 
-    <b>Optional.</b> Decimal days.  The attitude effects of events and
-    situations in neighborhood <i>n</i> are felt in neighborhood
-    <i>m</i> only after this number of days.<p>
-
-    Every neighborhood has a delay of 0.0 days with itself; this
-    cannot be changed.
-    <</parm>>
-
     <</parmlist>>
 
     <b><<term prep>> Only.</b>  This order modifies existing
@@ -2010,15 +2001,6 @@ order NBREL:UPDATE+MULTI "Update Multiple Neighborhood Relationships" {
     The attitude effects of events and situations in neighborhood <i>n</i>
     diminish with distance, and vanish altogether in neighborhoods
     <i>m</i> that consider <i>n</i> to be <b>REMOTE</b>.
-    <</parm>>
-
-    <<parm effects_delay "Effects Delay">> 
-    <b>Optional.</b> Decimal days.  The attitude effects of events and
-    situations in neighborhood <i>n</i> are felt in neighborhood
-    <i>m</i> only after this number of days.<p>
-
-    Every neighborhood has a delay of 0.0 days with itself; this
-    cannot be changed.
     <</parm>>
 
     <</parmlist>>

@@ -433,8 +433,7 @@ SELECT MN.m || ' ' || MN.n                           AS id,
        M.longlink                                    AS m_longlink,
        MN.n                                          AS n,
        N.longlink                                    AS n_longlink,
-       MN.proximity                                  AS proximity,
-       format('%5.1f', MN.effects_delay)             AS effects_delay
+       MN.proximity                                  AS proximity
 FROM nbrel_mn AS MN
 JOIN gui_nbhoods AS M ON (MN.m = M.n)
 JOIN gui_nbhoods AS N ON (MN.n = N.n)

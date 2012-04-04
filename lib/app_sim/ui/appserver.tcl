@@ -1154,11 +1154,10 @@ snit::type appserver {
         ht query {
             SELECT m_longlink      AS "Of Nbhood",
                    n_longlink      AS "With Nbhood",
-                   proximity       AS "Proximity",
-                   effects_delay   AS "Effects Delay"
+                   proximity       AS "Proximity"
             FROM gui_nbrel_mn 
             ORDER BY m_longlink, n_longlink
-        } -default "No neighborhood relationships exist." -align LLLR
+        } -default "No neighborhood relationships exist." -align LLL
 
         ht /page
 
