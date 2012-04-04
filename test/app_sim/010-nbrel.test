@@ -44,19 +44,18 @@ namespace eval ::athena_test::tests:: {
         nbrel mutate update {
             id            {NB1 NB2}
             proximity     NEAR
-            effects_delay 1.0
         }
 
         ted query {SELECT * FROM nbrel_mn ORDER BY m,n}
     } -cleanup {
         cleanup
     } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB1 NB1 HERE      0.0           
-NB1 NB2 NEAR      1.0           
-NB2 NB1 REMOTE    0.0           
-NB2 NB2 HERE      0.0           
+m   n   proximity 
+--- --- --------- 
+NB1 NB1 HERE      
+NB1 NB2 NEAR      
+NB2 NB1 REMOTE    
+NB2 NB2 HERE      
     }
 
 
@@ -65,7 +64,6 @@ NB2 NB2 HERE      0.0
         set parmdict {
             id            {NB1 NB2}
             proximity     NEAR
-            effects_delay 1.0
         }
 
         nbrel mutate update $parmdict
@@ -90,7 +88,6 @@ NB2 NB2 HERE      0.0
         nbrel mutate update  {
             id            {NB1 NB2}
             proximity     ""
-            effects_delay ""
         }
 
         set b [ted query {SELECT * FROM nbrel_mn}]
@@ -111,7 +108,6 @@ NB2 NB2 HERE      0.0
         set undo [nbrel mutate update {
             id            {NB1 NB2}
             proximity     NEAR
-            effects_delay 1.0
         }]
 
         eval $undo

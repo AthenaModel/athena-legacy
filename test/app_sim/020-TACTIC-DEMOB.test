@@ -48,6 +48,7 @@ namespace eval ::athena_test::tests:: {
         text1       SOME
         int1        100
         once        YES
+        on_lock     NO
     }
 
     set D2 {
@@ -57,6 +58,7 @@ namespace eval ::athena_test::tests:: {
         text1       SOME
         int1        100
         once        YES
+        on_lock     NO
     }
 
     set D3 {
@@ -65,6 +67,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       ALL
         once        NO
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -77,6 +80,7 @@ namespace eval ::athena_test::tests:: {
         g {required value}
         text1 {required value}
         once {required value}
+        on_lock {required value}
     }
 
     test DEMOB:CREATE-1.2 {owner is unknown} -setup {
@@ -200,6 +204,7 @@ g            BLUE
 text1        SOME
 int1         100
 once         1
+on_lock      NO
     }
 
 
@@ -224,6 +229,7 @@ g            BLUE
 text1        ALL
 int1         
 once         0
+on_lock      NO
     }
 
 
@@ -378,6 +384,7 @@ g            BLUE
 text1        SOME
 int1         150
 once         0
+on_lock      NO
     }
 
     test DEMOB:UPDATE-2.2 {tactic is updated} -setup {
@@ -403,6 +410,7 @@ g            BLUE
 text1        SOME
 int1         150
 once         0
+on_lock      NO
     }
 
 

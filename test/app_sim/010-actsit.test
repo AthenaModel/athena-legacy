@@ -36,7 +36,7 @@ namespace eval ::athena_test::tests:: {
     # Deploy troops into a neighborhood.
     proc deploy {n g personnel} {
         ted order TACTIC:DEPLOY:CREATE \
-            owner JOE g $g text1 SOME int1 $personnel nlist $n
+            owner JOE g $g text1 SOME int1 $personnel nlist $n on_lock NO
     }
 
     proc redeploy {n g personnel} {
@@ -49,7 +49,7 @@ namespace eval ::athena_test::tests:: {
         } {}
 
         ted order TACTIC:DEPLOY:UPDATE \
-            tactic_id $tactic_id int1 $personnel
+            tactic_id $tactic_id int1 $personnel on_lock NO
     }
 
     proc undeploy {n g} {
@@ -161,8 +161,8 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
     test analyze-1.5 {Can have multiple} -setup {
         setup
         deploy NB1 BLUE 30
-        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 text1 PATROL int1 15 priority bottom
-        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 text1 GUARD int1 15 priority bottom
+        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 text1 PATROL int1 15 priority bottom on_lock NO
+        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 text1 GUARD int1 15 priority bottom on_lock NO
     } -body {
         ted order SIM:LOCK
         ted order SIM:RUN days 1 block yes

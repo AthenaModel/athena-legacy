@@ -59,6 +59,7 @@ namespace eval ::athena_test::tests:: {
         text1       SOME
         int1        100
         once        1
+        on_lock     NO
     }
 
     set T2 {
@@ -69,6 +70,7 @@ namespace eval ::athena_test::tests:: {
         text1       SOME
         int1        101
         once        1
+        on_lock     NO
     }
 
     set T3 {
@@ -79,6 +81,7 @@ namespace eval ::athena_test::tests:: {
         text1       ALL
         int1        ""
         once        0
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

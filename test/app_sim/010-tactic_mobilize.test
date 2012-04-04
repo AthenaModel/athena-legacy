@@ -58,6 +58,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         int1        100
         once        1
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

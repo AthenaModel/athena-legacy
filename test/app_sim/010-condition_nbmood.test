@@ -31,7 +31,7 @@ namespace eval ::athena_test::tests:: {
     proc setup {} {
         ted create JOE BOB NB1 NB2 BLUE BRIT
 
-        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+        ted order TACTIC:SAVE:CREATE owner JOE int1 10 on_lock NO
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"

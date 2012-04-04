@@ -46,6 +46,7 @@ namespace eval ::athena_test::tests:: {
         priority    bottom
         a           SELF
         nlist       NB1
+        on_lock     NO
     }
 
     set T2 {
@@ -53,6 +54,7 @@ namespace eval ::athena_test::tests:: {
         priority    bottom
         a           BOB
         nlist       {NB1 NB2}
+        on_lock     NO
     }
 
     set T3 {
@@ -60,6 +62,7 @@ namespace eval ::athena_test::tests:: {
         priority    bottom
         a           NONE
         nlist       NB1
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -71,6 +74,7 @@ namespace eval ::athena_test::tests:: {
         owner {required value}
         a {required value}
         nlist {required value}
+        on_lock {required value}
     }
 
     test SUPPORT:CREATE-1.2 {owner is unknown} -setup {
@@ -137,6 +141,7 @@ exec_ts
 exec_flag    0
 a            BOB
 nlist        NB1 NB2
+on_lock      NO
     }
 
 
@@ -159,6 +164,7 @@ exec_ts
 exec_flag    0
 a            NONE
 nlist        NB1
+on_lock      NO
     }
 
 
@@ -269,6 +275,7 @@ exec_ts
 exec_flag    0
 a            NONE
 nlist        NB1
+on_lock      NO
     }
 
     test SUPPORT:UPDATE-2.2 {tactic is updated} -setup {
@@ -292,6 +299,7 @@ exec_ts
 exec_flag    0
 a            SELF
 nlist        NB1
+on_lock      NO
     }
 
 

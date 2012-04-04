@@ -59,6 +59,7 @@ namespace eval ::athena_test::tests:: {
         n           NB2
         text1       DISPLACED
         int1        100
+        on_lock     NO
     }
 
     set T2 {
@@ -69,6 +70,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         text1       IN_CAMP
         int1        200
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

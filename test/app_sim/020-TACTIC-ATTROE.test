@@ -49,6 +49,7 @@ namespace eval ::athena_test::tests:: {
         g           ALQ
         text1       ATTACK
         int1        5
+        on_lock     NO
     }
 
     set T2 {
@@ -59,6 +60,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         text1       HIT_AND_RUN
         int1        10
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -73,6 +75,7 @@ namespace eval ::athena_test::tests:: {
         n {required value}
         text1 {required value}
         int1 {required value}
+        on_lock {required value}
     }
 
     
@@ -221,6 +224,7 @@ f            BLUE
 g            ALQ
 text1        ATTACK
 int1         5
+on_lock      NO
     }
 
 
@@ -246,6 +250,7 @@ f            ALQ
 g            BLUE
 text1        HIT_AND_RUN
 int1         10
+on_lock      NO
     }
 
     test CREATE-2.3 {Effects} -setup {
@@ -436,6 +441,7 @@ f            BLUE
 g            ALQ
 text1        ATTACK
 int1         7
+on_lock      NO
     }
 
 

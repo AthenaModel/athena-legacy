@@ -54,6 +54,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         text1       ATTACK
         int1        5
+        on_lock     NO
     }
 
     set T2 {
@@ -65,6 +66,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         text1       HIT_AND_RUN
         int1        10
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

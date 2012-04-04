@@ -65,6 +65,7 @@ namespace eval ::athena_test::tests:: {
         priority    top
         int1        10
         once        0
+        on_lock     NO
     }
 
     set T2 {
@@ -74,6 +75,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         g           BLUE
         text1       HOLD_FIRE
+        on_lock     NO
     }
 
     set T3 {
@@ -84,6 +86,7 @@ namespace eval ::athena_test::tests:: {
         n           NB2
         g           BRIT
         text1       HOLD_FIRE
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -103,6 +106,7 @@ owner        JOE
 narrative    Save 10% of income for later use
 priority     1
 once         0
+on_lock      NO
 state        normal
 exec_ts      @
 exec_flag    0
@@ -133,6 +137,7 @@ owner        JOE
 narrative    Group BRIT defends in NB2 with ROE HOLD_FIRE
 priority     1
 once         1
+on_lock      NO
 state        normal
 exec_ts      @
 exec_flag    0
@@ -251,6 +256,7 @@ owner        JOE
 narrative    Group BLUE defends in NB1 with ROE HOLD_FIRE
 priority     1
 once         0
+on_lock      NO
 state        normal
 exec_ts      @
 exec_flag    0
@@ -272,6 +278,7 @@ owner        JOE
 narrative    Save 10% of income for later use
 priority     2
 once         0
+on_lock      NO
 state        normal
 exec_ts      @
 exec_flag    0
@@ -338,6 +345,7 @@ owner        JOE
 narrative    Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY
 priority     1
 once         1
+on_lock      NO
 state        normal
 exec_ts      @
 exec_flag    0
@@ -581,6 +589,7 @@ tactic_id state
         owner       JOE
         tactic_id   1
         m           @
+        on_lock     NO
         text1       HOLD_FIRE
         n           NB1
         exec_flag   0

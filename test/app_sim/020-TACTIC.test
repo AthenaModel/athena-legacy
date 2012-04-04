@@ -45,6 +45,7 @@ namespace eval ::athena_test::tests:: {
         owner       JOE
         priority    bottom
         int1        10
+        on_lock     NO
     }
 
     set D1 {
@@ -53,6 +54,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         g           BLUE
         text1       HOLD_FIRE
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

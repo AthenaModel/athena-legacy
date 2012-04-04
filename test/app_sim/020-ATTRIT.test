@@ -42,7 +42,7 @@ namespace eval ::athena_test::tests:: {
     # Deploy troops into a neighborhood.
     proc deploy {n g personnel} {
         ted order TACTIC:DEPLOY:CREATE \
-            owner JOE g $g text1 SOME int1 $personnel nlist $n
+            owner JOE g $g text1 SOME int1 $personnel nlist $n on_lock NO
     }
 
     # Clean up after a test

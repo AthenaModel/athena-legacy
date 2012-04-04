@@ -69,6 +69,7 @@ namespace eval ::athena_test::tests:: {
         priority    top
         x1          2000.0
         glist       SHIA
+        on_lock     NO
     }
 
     set T2 {
@@ -77,6 +78,7 @@ namespace eval ::athena_test::tests:: {
         priority    top
         x1          7000.0
         glist       {SHIA SUNN KURD}
+        on_lock     NO
     }
 
 

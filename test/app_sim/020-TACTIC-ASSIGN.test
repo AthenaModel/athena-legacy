@@ -48,6 +48,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         text1       PATROL
         int1        100
+        on_lock     NO
     }
 
     set T2 {
@@ -57,6 +58,7 @@ namespace eval ::athena_test::tests:: {
         n           NB2
         text1       CMO_HEALTHCARE
         int1        100
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -70,6 +72,7 @@ namespace eval ::athena_test::tests:: {
         n {required value}
         text1 {required value}
         int1 {required value}
+        on_lock {required value}
     }
 
     test CREATE-1.2 {owner is unknown} -setup {
@@ -193,6 +196,7 @@ g            USAID
 n            NB2
 text1        CMO_HEALTHCARE
 int1         100
+on_lock      NO
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -344,6 +348,7 @@ g            USAID
 n            NB2
 text1        CMO_HEALTHCARE
 int1         150
+on_lock      NO
     }
 
     test UPDATE-2.2 {Effects} -setup {

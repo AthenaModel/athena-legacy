@@ -64,6 +64,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         text1       PATROL
         int1        100
+        on_lock     NO
     }
 
     set T2 {
@@ -74,6 +75,7 @@ namespace eval ::athena_test::tests:: {
         n           NB2
         text1       CMO_HEALTHCARE
         int1        100
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

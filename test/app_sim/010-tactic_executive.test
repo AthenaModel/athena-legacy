@@ -44,6 +44,7 @@ namespace eval ::athena_test::tests:: {
         priority    top
         text1       {sigevent "Tactic T1"}
         once        0
+        on_lock     NO
     }
 
     set T2 {
@@ -52,6 +53,7 @@ namespace eval ::athena_test::tests:: {
         priority    top
         text1       {error "Simulated Error"}
         once        1
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

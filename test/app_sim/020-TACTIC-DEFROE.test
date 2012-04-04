@@ -47,6 +47,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         g           BLUE
         text1       HOLD_FIRE
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -59,6 +60,7 @@ namespace eval ::athena_test::tests:: {
         g {required value}
         n {required value}
         text1 {required value}
+        on_lock {required value}
     }
 
     
@@ -149,9 +151,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag n   g    text1     
---------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- --- ---- --------- 
-1         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal         0         NB1 BLUE HOLD_FIRE 
+tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag n   g    text1     on_lock 
+--------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- --- ---- --------- ------- 
+1         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal         0         NB1 BLUE HOLD_FIRE NO      
     }
 
 
@@ -243,9 +245,9 @@ tactic_id tactic_type owner narrative                                    priorit
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag n   g    text1                 
---------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- --- ---- --------------------- 
-1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal         0         NB1 BLUE FIRE_BACK_IMMEDIATELY 
+tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag n   g    text1                 on_lock 
+--------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- --- ---- --------------------- ------- 
+1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal         0         NB1 BLUE FIRE_BACK_IMMEDIATELY NO      
     }
 
 

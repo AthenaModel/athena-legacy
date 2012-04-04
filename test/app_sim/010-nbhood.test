@@ -121,12 +121,12 @@ OV1 2
     } -cleanup {
         cleanup
     } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB1 NB1 HERE      0.0           
-NB2 NB1 REMOTE    0.0           
-NB1 NB2 REMOTE    0.0           
-NB2 NB2 HERE      0.0           
+m   n   proximity 
+--- --- --------- 
+NB1 NB1 HERE      
+NB2 NB1 REMOTE    
+NB1 NB2 REMOTE    
+NB2 NB2 HERE      
     }
 
     test create-3.2 {undo deletes the nbrel_mn records} -setup {
@@ -140,9 +140,9 @@ NB2 NB2 HERE      0.0
     } -cleanup {
         cleanup
     } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB1 NB1 HERE      0.0           
+m   n   proximity 
+--- --- --------- 
+NB1 NB1 HERE      
     }
 
     test create-4.1 {demog_n records are created} -body {
@@ -252,9 +252,9 @@ NB1 1              OV1
     } -cleanup {
         cleanup
     } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB1 NB1 HERE      0.0           
+m   n   proximity 
+--- --- --------- 
+NB1 NB1 HERE      
     }
 
     test delete-3.2 {Undo restores nbrel_mn} -setup {
@@ -266,9 +266,9 @@ NB1 NB1 HERE      0.0
     } -cleanup {
         cleanup
     } -result {
-m   n   proximity effects_delay 
---- --- --------- ------------- 
-NB1 NB1 HERE      0.0           
+m   n   proximity 
+--- --- --------- 
+NB1 NB1 HERE      
     }
 
 

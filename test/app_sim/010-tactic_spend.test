@@ -54,6 +54,7 @@ namespace eval ::athena_test::tests:: {
         owner       JOE
         priority    top
         int1        10
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

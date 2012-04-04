@@ -60,6 +60,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       SOME
         int1        100
+        on_lock     NO
     }
 
     set T2 {
@@ -70,6 +71,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       SOME
         int1        101
+        on_lock     NO
     }
 
     set T3 {
@@ -80,6 +82,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       ALL
         int1        ""
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------

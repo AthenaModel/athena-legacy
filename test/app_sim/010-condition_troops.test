@@ -35,7 +35,7 @@ namespace eval ::athena_test::tests:: {
         ted create JOE BOB NB1 NB2 NB1_BLUE NB1_BRIT
 
         # Tactic $tid belongs to JOE, as does group BLUE
-        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+        ted order TACTIC:SAVE:CREATE owner JOE int1 10 on_lock NO
         set tid [lindex [tactic names] 0]
 
         # Goal $gid belongs to BOB, unlike group BLUE

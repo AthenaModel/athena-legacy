@@ -45,6 +45,7 @@ namespace eval ::athena_test::tests:: {
         owner       JOE
         priority    bottom
         int1        10
+        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -55,6 +56,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         owner {required value}
         int1 {required value}
+        on_lock {required value}
     }
 
     
@@ -97,13 +99,20 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order TACTIC:SPEND:CREATE $SPEND1
 
-        ted query {SELECT * FROM tactics_SPEND}
+        ted querylist {SELECT * FROM tactics_SPEND}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                 priority state  exec_ts exec_flag int1 
---------- ----------- ----- ------------------------- -------- ------ ------- --------- ---- 
-1         SPEND       JOE   Spend 10% of cash reserve 1        normal         0         10   
+tactic_id    1
+tactic_type  SPEND
+owner        JOE
+narrative    Spend 10% of cash reserve
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+int1         10
+on_lock      NO
     }
 
 
@@ -190,13 +199,20 @@ tactic_id tactic_type owner narrative                 priority state  exec_ts ex
     } -body {
         ted order TACTIC:SPEND:UPDATE tactic_id 1 int1 20
 
-        ted query {SELECT * FROM tactics_SPEND}
+        ted querylist {SELECT * FROM tactics_SPEND}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                 priority state  exec_ts exec_flag int1 
---------- ----------- ----- ------------------------- -------- ------ ------- --------- ---- 
-1         SPEND       JOE   Spend 20% of cash reserve 1        normal         0         20   
+tactic_id    1
+tactic_type  SPEND
+owner        JOE
+narrative    Spend 20% of cash reserve
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+int1         20
+on_lock      NO
     }
 
 
