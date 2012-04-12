@@ -30,12 +30,10 @@ snit::type sim {
 
     # constants -- scalar array
     #
-    # ticksize  - The simclock tick size
     # startdata - The initial date of time 0
     # tickDelay - The delay between ticks
     
     typevariable constants -array {
-        ticksize  {7 days}
         startdate 100000ZJAN10
         tickDelay 50
     }
@@ -87,9 +85,7 @@ snit::type sim {
 
         # NEXT, configure the simclock.
         # TBD: The tick size and the start date should be parmdb parms.
-        simclock configure              \
-            -tick $constants(ticksize)  \
-            -t0   $constants(startdate)
+        simclock configure -t0 $constants(startdate)
 
         notifier send ::sim <Time>
 
@@ -119,9 +115,7 @@ snit::type sim {
     typemethod new {} {
         # FIRST, configure the simclock.
         simclock reset
-        simclock configure              \
-            -tick $constants(ticksize)  \
-            -t0   $constants(startdate)
+        simclock configure -t0 $constants(startdate)
 
         # NEXT, clear the event queue
         # TBD: The engine should be doing this.
