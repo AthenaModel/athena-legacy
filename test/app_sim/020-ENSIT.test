@@ -192,7 +192,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
     }
 
 
@@ -617,7 +617,7 @@ s location
     } -result {
 s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BLUE     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BLUE     2         0       
     }
 
 
@@ -633,7 +633,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     } -result {
 s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     2         0       
     }
 
 

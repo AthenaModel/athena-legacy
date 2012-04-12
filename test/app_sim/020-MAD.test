@@ -98,7 +98,7 @@ namespace eval ::athena_test::tests:: {
 
         ted create NB1 NB2 BLUE SHIA KURD
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         ted order MAD:CREATE $m1
     }
 
@@ -635,7 +635,7 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule +1 MAD:SAT:LEVEL $satlevel
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
     } -result {}
@@ -734,7 +734,7 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule +1 MAD:SAT:SLOPE $satslope
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
     } -result {}
@@ -991,7 +991,7 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule +1 MAD:COOP:LEVEL $cooplevel
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
     } -result {}
@@ -1091,7 +1091,7 @@ id oneliner      cause s   p   q   driver
         advance
     } -body {
         ted schedule +1 MAD:COOP:SLOPE $coopslope
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
     } -result {}

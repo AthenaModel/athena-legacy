@@ -79,8 +79,8 @@ namespace eval ::athena_test::tests:: {
     } -result {
 s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     5         0       
-2 ::ensit COMMOUT  -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           100 100  0         BLUE     7         0       
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
+2 ::ensit COMMOUT  -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           100 100  0         BLUE     1         0       
     }
     
 
@@ -139,7 +139,7 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     } -result {
 s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
     }
 
 
@@ -275,7 +275,7 @@ s n
     } -result {
 s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     2         0       
     }
 
 
@@ -317,7 +317,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     } -result {
 s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           100 100  1         NONE     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           100 100  1         NONE     2         0       
     }
 
 
@@ -336,7 +336,7 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     } -result {
 s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   NONE           100 100  1         NONE     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   NONE           100 100  1         NONE     2         0       
     }
 
 
@@ -355,7 +355,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     } -result {
 s kind    stype    driver n coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ - -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1       1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     5         0       
+1 ::ensit BADWATER -1       1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
     }
 
 
@@ -377,7 +377,7 @@ s kind    stype    driver n coverage state   ts tc change flist g    signature l
     } -result {
 s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
 - ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BRIT     5         0       
+1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BRIT     2         0       
     }
 
 
@@ -643,14 +643,15 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
         ensit mutate create $s3
     } -body {
         ted lock
-        ted order SIM:RUN days 1 block yes
-        ted query {SELECT * FROM eventq_queue_ensitSpawn}
+        ted order SIM:RUN weeks 1 block yes
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-id t etype      s 
--- - ---------- - 
-1  5 ensitSpawn 1 
+s kind    stype    driver n   coverage state   ts tc change flist g    signature         location inception resolver rduration rdriver 
+- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- ----------------- -------- --------- -------- --------- ------- 
+1 ::ensit INDSPILL 1      NB1 1.0      ACTIVE  0  0         ALL   BLUE INDSPILL-2-1 none 100 100  0         NONE     12        0       
+3 ::ensit DISEASE  -1     NB1 1.0      INITIAL 1  1  NEW    ALL   BLUE                   100 100  1         NONE     4         0       
     }
 
 
@@ -658,7 +659,7 @@ id t etype      s
         ted create NB1 BLUE SHIA
         ensit mutate create $s3
         ted lock
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
     } -body {
         ensit mutate resolve {
             s        1
@@ -676,7 +677,7 @@ id t etype      s
         ted create NB1 BLUE SHIA
         ensit mutate create $s3
         ted lock
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         set undo [ensit mutate resolve {
             s        1
             resolver NONE
@@ -684,13 +685,14 @@ id t etype      s
     } -body {
         {*}$undo
 
-        ted query {SELECT * FROM eventq_queue_ensitSpawn}
+        ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-id t etype      s 
--- - ---------- - 
-3  5 ensitSpawn 1 
+s kind    stype    driver n   coverage state   ts tc change flist g    signature         location inception resolver rduration rdriver 
+- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- ----------------- -------- --------- -------- --------- ------- 
+1 ::ensit INDSPILL 1      NB1 1.0      ACTIVE  0  0         ALL   BLUE INDSPILL-2-1 none 100 100  0         NONE     12        0       
+3 ::ensit DISEASE  -1     NB1 1.0      INITIAL 1  1  NEW    ALL   BLUE                   100 100  1         NONE     4         0       
     }
 
 
@@ -701,16 +703,16 @@ id t etype      s
         ensit mutate create $s1
     } -body {
         ted lock
-        ted order SIM:RUN days 3 block yes
+        ted order SIM:RUN weeks 1 block yes
 
         ted query {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state  ts tc change flist g    signature         location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ------ -- -- ------ ----- ---- ----------------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER 1      NB1 1.0      ACTIVE 0  0         ALL   BLUE BADWATER-2-1 none 100 100  0         NONE     5         0       
-2 ::ensit DISEASE  2      NB1 1.0      ACTIVE 1  1  NEW    ALL   BLUE DISEASE-2-1 none  100 100  0         NONE     30        0       
+s kind    stype    driver n   coverage state   ts tc change flist g    signature         location inception resolver rduration rdriver 
+- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- ----------------- -------- --------- -------- --------- ------- 
+1 ::ensit BADWATER 1      NB1 1.0      ACTIVE  0  0         ALL   BLUE BADWATER-2-1 none 100 100  0         NONE     2         0       
+2 ::ensit DISEASE  -1     NB1 1.0      INITIAL 1  1  NEW    ALL   BLUE                   100 100  1         NONE     4         0       
     }
 
 
@@ -735,14 +737,14 @@ s kind    stype    driver n   coverage state  ts tc change flist g    signature 
         ensit mutate create $s1
     } -body {
         ted lock
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         ted query {SELECT * FROM eventq_queue_ensitAutoResolve}
     } -cleanup {
         cleanup
     } -result {
 id t etype            s 
 -- - ---------------- - 
-2  5 ensitAutoResolve 1 
+2  2 ensitAutoResolve 1 
     }
 
 
@@ -750,7 +752,7 @@ id t etype            s
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
         ted lock
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
     } -body {
         ensit mutate resolve {
             s        1
@@ -768,7 +770,7 @@ id t etype            s
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
         ted lock
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         set undo [ensit mutate resolve {
             s        1
             resolver NONE
@@ -782,7 +784,7 @@ id t etype            s
     } -result {
 id t etype            s 
 -- - ---------------- - 
-3  5 ensitAutoResolve 1 
+3  2 ensitAutoResolve 1 
     }
 
 
@@ -793,7 +795,7 @@ id t etype            s
         ensit mutate create [dict merge $s2 [list rduration 2]]
     } -body {
         ted lock
-        ted order SIM:RUN days 4 block yes
+        ted order SIM:RUN weeks 4 block yes
 
         ted query {SELECT * FROM ensits}
     } -cleanup {

@@ -46,7 +46,7 @@ namespace eval ::projectlib:: {
         eunitshape       \
         eunitsymbol      \
         eyesno           \
-        idays            \
+        iticks           \
         ident            \
         ingpopulation    \
         ioptdays         \
@@ -690,8 +690,8 @@ snit::type ::projectlib::typewrapper {
 ::projectlib::typewrapper ::projectlib::ipositive snit::integer -min 1
 
 
-# idays: non-negative days
-::projectlib::typewrapper ::projectlib::idays snit::integer -min 0
+# iticks: non-negative ticks
+::projectlib::typewrapper ::projectlib::iticks snit::integer -min 0
 
 # ioptdays: days with -1 as sentinal
 ::projectlib::typewrapper ::projectlib::ioptdays snit::integer -min -1

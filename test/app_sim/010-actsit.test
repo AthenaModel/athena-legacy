@@ -87,7 +87,7 @@ namespace eval ::athena_test::tests:: {
         deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
 
         ted query {SELECT * FROM actsits}
     } -cleanup {
@@ -104,8 +104,8 @@ s kind     stype    driver n   coverage           state  ts tc change flist g   
         deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
+        ted order SIM:RUN weeks 1 block yes
 
         ted query {SELECT s,change FROM actsits}
     } -cleanup {
@@ -121,13 +121,13 @@ s change
         deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
 
         # Deploy 15 more
         redeploy NB1 BLUE 30
 
-        # Run for 7 days; deployment changes don't take effect until next tock.
-        ted order SIM:RUN days 7 block yes
+        # Run for 2 ticks; deployment changes don't take effect until then.
+        ted order SIM:RUN weeks 2 block yes
 
         ted query {SELECT * FROM actsits}
     } -cleanup {
@@ -135,7 +135,7 @@ s change
     } -result {
 s kind     stype    driver n   coverage           state  ts tc change  flist g    signature         a        
 - -------- -------- ------ --- ------------------ ------ -- -- ------- ----- ---- ----------------- -------- 
-1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 0  7  UPDATED ALL   BLUE PRESENCE-1-1 0.73 PRESENCE 
+1 ::actsit PRESENCE 1      NB1 0.7324194794132565 ACTIVE 0  2  UPDATED ALL   BLUE PRESENCE-1-1 0.73 PRESENCE 
     }
 
 
@@ -144,9 +144,9 @@ s kind     stype    driver n   coverage           state  ts tc change  flist g  
         deploy NB1 BLUE 15
     } -body {
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         undeploy NB1 BLUE
-        ted order SIM:RUN days 7 block yes
+        ted order SIM:RUN weeks 2 block yes
 
         ted query {SELECT * FROM actsits}
     } -cleanup {
@@ -154,7 +154,7 @@ s kind     stype    driver n   coverage           state  ts tc change  flist g  
     } -result {
 s kind     stype    driver n   coverage state ts tc change flist g    signature         a        
 - -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- ----------------- -------- 
-1 ::actsit PRESENCE 1      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
+1 ::actsit PRESENCE 1      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
     }
 
 
@@ -165,14 +165,14 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
         ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 text1 GUARD int1 15 priority bottom on_lock NO
     } -body {
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         set out [ted query {SELECT * FROM actsits}]
 
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         append out [ted query {SELECT * FROM actsits}]
 
         undeploy NB1 BLUE
-        ted order SIM:RUN days 7 block yes
+        ted order SIM:RUN weeks 2 block yes
         append out [ted query {SELECT * FROM actsits}]
 
         set out
@@ -193,9 +193,9 @@ s kind     stype    driver n   coverage           state  ts tc change flist g   
     
 s kind     stype    driver n   coverage state ts tc change flist g    signature         a        
 - -------- -------- ------ --- -------- ----- -- -- ------ ----- ---- ----------------- -------- 
-1 ::actsit GUARD    1      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE GUARD-2-1 none    GUARD    
-2 ::actsit PATROL   2      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE PATROL-2-1 none   PATROL   
-3 ::actsit PRESENCE 3      NB1 0.0      ENDED 0  7  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
+1 ::actsit GUARD    1      NB1 0.0      ENDED 0  3  ENDED  ALL   BLUE GUARD-2-1 none    GUARD    
+2 ::actsit PATROL   2      NB1 0.0      ENDED 0  3  ENDED  ALL   BLUE PATROL-2-1 none   PATROL   
+3 ::actsit PRESENCE 3      NB1 0.0      ENDED 0  3  ENDED  ALL   BLUE PRESENCE-2-1 none PRESENCE 
     }
 
     #-------------------------------------------------------------------
@@ -206,7 +206,7 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
         deploy NB1 BLUE 30
     } -body {
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         
         set sit [actsit get 1]
         $sit oneliner
@@ -219,9 +219,9 @@ s kind     stype    driver n   coverage state ts tc change flist g    signature 
         setup
         deploy NB1 BLUE 30
         ted order SIM:LOCK
-        ted order SIM:RUN days 1 block yes
+        ted order SIM:RUN weeks 1 block yes
         undeploy NB1 BLUE
-        ted order SIM:RUN days 7 block yes
+        ted order SIM:RUN weeks 7 block yes
     } -body {
         set sit [actsit get 1 -live]
     } -returnCodes {

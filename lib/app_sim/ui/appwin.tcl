@@ -30,20 +30,22 @@ snit::widget appwin {
     # for the durations pulldown
     typevariable durations {
         "Until paused"  ""
-        "1 days"         1
-        "2 days"         2
-        "3 days"         3
-        "4 days"         4
-        "5 days"         5
-        "7 days"         7
-        "14 days"       14
-        "21 days"       21
-        "28 days"       28
-        "30 days"       30
-        "45 days"       45
-        "60 days"       60
-        "75 days"       75
-        "90 days"       90
+        "1 week"         1
+        "2 weeks"        2
+        "3 weeks"        3
+        "4 weeks"        4
+        "5 weeks"        5
+        "6 weeks"        6
+        "7 weeks"        7
+        "8 weeks"        8
+        "10 weeks"       10
+        "12 weeks"       12
+        "24 weeks"       24
+        "26 weeks"       26
+        "36 weeks"       36
+        "48 weeks"       48
+        "1 year"         52
+        "2 years"        104
     }
 
     #-------------------------------------------------------------------
@@ -932,7 +934,7 @@ snit::widget appwin {
             -takefocus 0                      \
             -values    [dict keys $durations]
 
-        $simtools.duration set [lindex [dict keys $durations] 6]
+        $simtools.duration set [lindex [dict keys $durations] 1]
 
         DynamicHelp::add $simtools.duration -text "Duration of run"
 
@@ -1877,7 +1879,7 @@ snit::widget appwin {
             }
         } else {
             order send gui SIM:RUN \
-                days [dict get $durations [$simtools.duration get]]
+                weeks [dict get $durations [$simtools.duration get]]
         }
     }
 

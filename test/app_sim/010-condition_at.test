@@ -50,7 +50,7 @@ namespace eval ::athena_test::tests:: {
     set C1 {
         cc_id          1
         condition_type AT
-        t1             10
+        t1             2 
     }
 
     #-------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
         condition::AT narrative [condition get 1]
     } -cleanup {
         cleanup
-    } -result {The current simulation time is day 10, i.e., 200000ZJAN10.}
+    } -result {The current simulation time is week 2, i.e., 240000ZJAN10.}
 
     #-------------------------------------------------------------------
     # check
@@ -98,9 +98,9 @@ namespace eval ::athena_test::tests:: {
     } -body {
         # t1 = 10
         set a [AtEval 0]
-        set b [AtEval 7]
-        set c [AtEval 14]
-        set d [AtEval 21]
+        set b [AtEval 1]
+        set c [AtEval 2]
+        set d [AtEval 3]
 
         list $a $b $c $d
     } -cleanup {

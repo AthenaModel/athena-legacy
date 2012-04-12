@@ -51,7 +51,7 @@ namespace eval ::athena_test::tests:: {
         cc_id          1
         condition_type DURING
         t1             1
-        t2             10
+        t2             4 
     }
 
     #-------------------------------------------------------------------
@@ -64,7 +64,7 @@ namespace eval ::athena_test::tests:: {
         condition::DURING narrative [condition get 1]
     } -cleanup {
         cleanup
-    } -result {The current simulation time is between day 1 and day 10, inclusive, i.e., from 110000ZJAN10 to 200000ZJAN10.}
+    } -result {The current simulation time is between week 1 and week 4, inclusive, i.e., from 170000ZJAN10 to 070000ZFEB10.}
 
     #-------------------------------------------------------------------
     # check
@@ -97,12 +97,12 @@ namespace eval ::athena_test::tests:: {
         setup
         condition mutate create $C1
     } -body {
-        # t1 = 1, t2 = 10
+        # t1 = 1, t2 = 4
         set a [DuringEval 0]
         set b [DuringEval 1]
-        set c [DuringEval 5]
-        set d [DuringEval 10]
-        set e [DuringEval 11]
+        set c [DuringEval 2]
+        set d [DuringEval 3]
+        set e [DuringEval 5]
 
         list $a $b $c $d $e
     } -cleanup {

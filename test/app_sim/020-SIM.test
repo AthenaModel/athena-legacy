@@ -151,29 +151,29 @@ namespace eval ::athena_test::tests:: {
     test RUN-1.1 {invalid days string} -setup {
         setup
     } -body {
-        ted order -reject SIM:RUN days NONESUCH
+        ted order -reject SIM:RUN weeks NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        days {invalid value "NONESUCH", expected integer}
+        weeks {invalid value "NONESUCH", expected integer}
     }
 
 
     test RUN-1.2 {negative days} -setup {
         setup
     } -body {
-        ted order -reject SIM:RUN days -1
+        ted order -reject SIM:RUN weeks -1
     } -cleanup {
         cleanup
     } -result {
-        days {invalid value "-1", expected integer no less than 0}
+        weeks {invalid value "-1", expected integer no less than 0}
     }
 
     
     test RUN-1.3 {invalid block} -setup {
         setup
     } -body {
-        ted order -reject SIM:RUN days 1 block NONESUCH
+        ted order -reject SIM:RUN weeks 1 block NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -188,7 +188,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        block {Cannot block without specifying the days to run}
+        block {Cannot block without specifying the weeks to run}
     }
 
 
@@ -205,7 +205,7 @@ namespace eval ::athena_test::tests:: {
     test RUN-2.2 {Run for days} -setup {
         setup
     } -body {
-        ted order SIM:RUN days 5
+        ted order SIM:RUN weeks 5
         list [sim state] [sim stoptime]
     } -cleanup {
         cleanup

@@ -24,7 +24,7 @@ condition type define DURING {t1 t2} {
             set z2 [simclock toZulu $t2]
 
             return [normalize "
-                The current simulation time is between day $t1 and day $t2,
+                The current simulation time is between week $t1 and week $t2,
                 inclusive, i.e., from $z1 to $z2.
             "]
         }
@@ -51,8 +51,8 @@ order define CONDITION:DURING:CREATE {
     parm cc_id     key   "Tactic/Goal ID" -context yes         \
                                           -table   cond_collections \
                                           -keys    cc_id
-    parm t1        text  "Start Day"          
-    parm t2        text  "End Day"
+    parm t1        text  "Start Week"          
+    parm t2        text  "End Week"
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -63,7 +63,7 @@ order define CONDITION:DURING:CREATE {
 
     validate t2 {
         if {$parms(t2) < $parms(t1)} {
-            reject t2 "End time must be no earlier than start time."
+            reject t2 "End week must be no earlier than start week."
         }
     }
 
@@ -89,8 +89,8 @@ order define CONDITION:DURING:UPDATE {
     parm condition_id key   "Condition ID"  -context yes          \
                                             -table   conditions   \
                                             -keys    condition_id
-    parm t1           text  "Start Day"          
-    parm t2           text  "End Day"
+    parm t1           text  "Start Week"          
+    parm t2           text  "End Week"
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required  -type condition
@@ -121,7 +121,7 @@ order define CONDITION:DURING:UPDATE {
 
     validate t2 {
         if {$parms(t2) < $parms(t1)} {
-            reject t2 "End time must be no earlier than start time."
+            reject t2 "End week must be no earlier than start week."
         }
     }
 

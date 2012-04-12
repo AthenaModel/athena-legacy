@@ -92,7 +92,7 @@ namespace eval ::athena_test::tests:: {
 condition_id    1
 condition_type  AT
 cc_id           1
-narrative       The current simulation time is day 10, i.e., 200000ZJAN10.
+narrative       The current simulation time is week 10, i.e., 210000ZMAR10.
 state           normal
 flag            
 t1              10
@@ -186,7 +186,7 @@ t1              10
 condition_id    1
 condition_type  AT
 cc_id           1
-narrative       The current simulation time is day 2, i.e., 120000ZJAN10.
+narrative       The current simulation time is week 2, i.e., 240000ZJAN10.
 state           normal
 flag            
 t1              2

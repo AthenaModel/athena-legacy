@@ -157,7 +157,7 @@ snit::type ::projectlib::parmdb {
         $ps define aam.UFvsNF.UF.timeToFind \
             ::projectlib::parmdb_posdays 5.0 {
             The average time for the Uniformed Force to find a 
-            Non-uniformed Force cell, in days.
+            Non-uniformed Force cell, in weeks.
         }
 
         $ps subset aam.UFvsNF.NF {
@@ -1137,7 +1137,7 @@ snit::type ::projectlib::parmdb {
             be used.
         }
 
-        $ps define econ.ticksPerTock ::projectlib::ipositive 7 {
+        $ps define econ.ticksPerTock ::projectlib::ipositive 1 {
             Defines the size of the economic model "tock", in ticks.  
             At each tock, Athena updates the economic model with the
             latest demographic data, etc., and computes the new
@@ -1285,14 +1285,14 @@ snit::type ::projectlib::parmdb {
                 [eensit longname $name].
             "
 
-            $ps define ensit.$name.duration ::projectlib::idays 0 {
+            $ps define ensit.$name.duration ::projectlib::iticks 0 {
                 How long until the ensit auto-resolves, in integer
-                days.  If 0, the ensit never auto-resolves.
+                ticks.  If 0, the ensit never auto-resolves.
             }
 
             $ps define ensit.$name.spawnTime ::projectlib::ioptdays -1 {
                 How long until the ensit spawns other ensits, in
-                integer days.  If -1, the ensit never spawns.
+                integer ticks.  If -1, the ensit never spawns.
             }
 
             $ps define ensit.$name.spawns ::projectlib::leensit {} {
@@ -1301,54 +1301,54 @@ snit::type ::projectlib::parmdb {
         }
 
         # Tweak the specifics
-        $ps setdefault ensit.BADFOOD.duration              10
+        $ps setdefault ensit.BADFOOD.duration              2
         $ps setdefault ensit.BADFOOD.spawns                DISEASE
         $ps setdefault ensit.BADFOOD.spawnTime             1
 
-        $ps setdefault ensit.BADWATER.duration             5
+        $ps setdefault ensit.BADWATER.duration             2
         $ps setdefault ensit.BADWATER.spawns               DISEASE
         $ps setdefault ensit.BADWATER.spawnTime            1
 
-        $ps setdefault ensit.COMMOUT.duration              7
+        $ps setdefault ensit.COMMOUT.duration              1
 
-        $ps setdefault ensit.CULSITE.duration              45
+        $ps setdefault ensit.CULSITE.duration              6
 
-        $ps setdefault ensit.DISASTER.duration             45
+        $ps setdefault ensit.DISASTER.duration             6
 
-        $ps setdefault ensit.DISEASE.duration              30
+        $ps setdefault ensit.DISEASE.duration              4
 
-        $ps setdefault ensit.EPIDEMIC.duration             360
+        $ps setdefault ensit.EPIDEMIC.duration             52
 
-        $ps setdefault ensit.FOODSHRT.duration             180
+        $ps setdefault ensit.FOODSHRT.duration             26
 
-        $ps setdefault ensit.FUELSHRT.duration             30
+        $ps setdefault ensit.FUELSHRT.duration             4
 
-        $ps setdefault ensit.GARBAGE.duration              45
+        $ps setdefault ensit.GARBAGE.duration              6
         $ps setdefault ensit.GARBAGE.spawns                DISEASE
-        $ps setdefault ensit.GARBAGE.spawnTime             2
+        $ps setdefault ensit.GARBAGE.spawnTime             1
 
-        $ps setdefault ensit.INDSPILL.duration             90
+        $ps setdefault ensit.INDSPILL.duration             12
         $ps setdefault ensit.INDSPILL.spawns               DISEASE
-        $ps setdefault ensit.INDSPILL.spawnTime            5
+        $ps setdefault ensit.INDSPILL.spawnTime            1
 
-        $ps setdefault ensit.MINEFIELD.duration            1080
+        $ps setdefault ensit.MINEFIELD.duration            156
 
-        $ps setdefault ensit.NOWATER.duration              3
+        $ps setdefault ensit.NOWATER.duration              2
         $ps setdefault ensit.NOWATER.spawns                DISEASE
-        $ps setdefault ensit.NOWATER.spawnTime             2
+        $ps setdefault ensit.NOWATER.spawnTime             1
 
-        $ps setdefault ensit.ORDNANCE.duration             540
+        $ps setdefault ensit.ORDNANCE.duration             78
 
-        $ps setdefault ensit.PIPELINE.duration             7
+        $ps setdefault ensit.PIPELINE.duration             1
 
-        $ps setdefault ensit.POWEROUT.duration             60
+        $ps setdefault ensit.POWEROUT.duration             8
 
-        $ps setdefault ensit.REFINERY.duration             5
+        $ps setdefault ensit.REFINERY.duration             1
 
-        $ps setdefault ensit.RELSITE.duration              45
+        $ps setdefault ensit.RELSITE.duration              6
 
         $ps setdefault ensit.SEWAGE.spawns                 DISEASE
-        $ps setdefault ensit.SEWAGE.spawnTime              30
+        $ps setdefault ensit.SEWAGE.spawnTime              1
 
 
         # NEXT, Force/Volatility/Security Parameters
@@ -1605,14 +1605,6 @@ snit::type ::projectlib::parmdb {
 
         $ps subset strategy {
             Parameters which affect the Athena Strategy Model.
-        }
-
-        $ps define strategy.ticksPerTock ::projectlib::ipositive 7 {
-            Defines the size of the strategy model "tock", in ticks.  
-            At each tock, Athena evaluates goals and conditions,
-            and selects the tactics to be executed
-            during the next interval.  Athena also assess attrition and
-            the resulting attitude effects at the same time.
         }
 
         $ps define strategy.autoDemob snit::boolean yes {

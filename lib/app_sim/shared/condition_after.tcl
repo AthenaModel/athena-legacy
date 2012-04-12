@@ -23,7 +23,7 @@ condition type define AFTER {t1} {
             set z1 [simclock toZulu $t1]
 
             return [normalize "
-                The current simulation time is later than day $t1,
+                The current simulation time is later than week $t1,
                 i.e., after $z1.
             "]
         }
@@ -50,7 +50,7 @@ order define CONDITION:AFTER:CREATE {
     parm cc_id     key   "Tactic/Goal ID" -context yes         \
                                           -table   cond_collections \
                                           -keys    cc_id
-    parm t1        text  "Day"          
+    parm t1        text  "Week"          
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -78,7 +78,7 @@ order define CONDITION:AFTER:UPDATE {
     parm condition_id key   "Condition ID"  -context yes          \
                                             -table   conditions   \
                                             -keys    condition_id
-    parm t1           text  "Day"          
+    parm t1           text  "Week"          
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required            -type condition

@@ -35,7 +35,7 @@ snit::type sim {
     # tickDelay - The delay between ticks
     
     typevariable constants -array {
-        ticksize  {1 day}
+        ticksize  {7 days}
         startdate 100000ZJAN10
         tickDelay 50
     }
@@ -807,21 +807,21 @@ order define SIM:RUN {
     title "Run Simulation"
     options -sendstates {PAUSED}
 
-    parm days  text "Days to Run"
+    parm weeks text "Weeks to Run"
     parm block enum "Block?"         -enumtype eyesno -defval NO
 
     # TBD Need to indicate valid states
 } {
     # FIRST, prepare the parameters
-    prepare days  -toupper -type idays
+    prepare weeks -toupper -type iticks
     prepare block -toupper -type boolean
 
     returnOnError
 
-    # NEXT, if block is yes, then days must be greater than 0
+    # NEXT, if block is yes, then weeks must be greater than 0
     validate block {
-        if {$parms(block) && ($parms(days) eq "" || $parms(days) == 0)} {
-            reject block "Cannot block without specifying the days to run"
+        if {$parms(block) && ($parms(weeks) eq "" || $parms(weeks) == 0)} {
+            reject block "Cannot block without specifying the weeks to run"
         }
     }
 
@@ -831,14 +831,12 @@ order define SIM:RUN {
         set parms(block) 0
     }
 
-    # NEXT, start the simulation and return the undo script
-
-    if {$parms(days) eq "" || $parms(days) == 0} {
+    # NEXT, start the simulation and return the undo script. 
+    # There is an assumption that a tick is exactly one week.
+    if {$parms(weeks) eq "" || $parms(weeks) == 0} {
         lappend undo [sim mutate run]
     } else {
-        set ticks [simclock fromDays $parms(days)]
-
-        lappend undo [sim mutate run -ticks $ticks -block $parms(block)]
+        lappend undo [sim mutate run -ticks $parms(weeks) -block $parms(block)]
     }
 
     setundo [join $undo \n]

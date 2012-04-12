@@ -324,10 +324,10 @@ namespace eval ::athena_test::tests:: {
 
 
     test parm-2.1 {get parm} -body {
-        ted sendex expr parm("strategy.ticksPerTock")
+        ted sendex expr parm("econ.ticksPerTock")
     } -cleanup {
         cleanup
-    } -result {7}
+    } -result {1}
 
     #-------------------------------------------------------------------
     # pctcontrol()

@@ -92,7 +92,7 @@ namespace eval ::athena_test::tests:: {
 condition_id    1
 condition_type  BEFORE
 cc_id           1
-narrative       The current simulation time is earlier than day 10, i.e., before 200000ZJAN10.
+narrative       The current simulation time is earlier than week 10, i.e., before 210000ZMAR10.
 state           normal
 flag            
 t1              10
@@ -186,7 +186,7 @@ t1              10
 condition_id    1
 condition_type  BEFORE
 cc_id           1
-narrative       The current simulation time is earlier than day 2, i.e., before 120000ZJAN10.
+narrative       The current simulation time is earlier than week 2, i.e., before 240000ZJAN10.
 state           normal
 flag            
 t1              2

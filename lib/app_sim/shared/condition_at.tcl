@@ -23,22 +23,16 @@ condition type define AT {t1} {
             set z1 [simclock toZulu $t1]
 
             return [normalize "
-                The current simulation time is day $t1,
+                The current simulation time is week $t1,
                 i.e., $z1.
             "]
         }
     }
 
     typemethod eval {cdict} {
+        # FIRST, if the condition time is "now" then return true, else false.
         dict with cdict {
             set t [simclock now]
-            set ticks [parm get strategy.ticksPerTock]
-
-            # The real time is the next strategy tock.
-            if {$t1 % $ticks > 0} {
-                let t1 {$t1 + 7 - ($t1 % $ticks)} 
-            }
-
             return [expr {$t == $t1}]
         }
     }
@@ -56,7 +50,7 @@ order define CONDITION:AT:CREATE {
     parm cc_id     key   "Tactic/Goal ID" -context yes         \
                                           -table   cond_collections \
                                           -keys    cc_id
-    parm t1        text  "Day"          
+    parm t1        text  "Week"          
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -84,7 +78,7 @@ order define CONDITION:AT:UPDATE {
     parm condition_id key   "Condition ID"  -context yes          \
                                             -table   conditions   \
                                             -keys    condition_id
-    parm t1           text  "Day"          
+    parm t1           text  "Week"          
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required            -type condition

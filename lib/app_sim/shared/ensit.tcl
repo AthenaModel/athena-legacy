@@ -722,13 +722,9 @@ snit::type ensitType {
             return
         }
 
-        # NEXT, schedule the event.  First, get the spawn time in
-        # ticks.
-        set spawnTicks [simclock fromDays $spawnTime]
-
-        # NEXT, get the time at which the spawn should occur: spawnTicks
-        # after the ensit first begins to take effect.
-        let spawnTime {$binfo(ts) + $spawnTicks}
+        # NEXT, get the time at which the spawn should occur: spawnTime
+        # ticks after the ensit first begins to take effect.
+        let spawnTime {$binfo(ts) + $spawnTime}
 
         # NEXT, if this time has already passed, the ensit has
         # already spawned; don't reschedule it.
@@ -772,14 +768,9 @@ snit::type ensitType {
             return
         }
 
-        # NEXT, schedule the event.  First, get the resolution time in
-        # ticks.
-        set ticks [simclock fromDays $dinfo(rduration)]
-
-
         # NEXT, get the time at which the resolution should occur:
         # rduration after the ensit first begins to take effect.  
-        let t {$binfo(ts) + $ticks}
+        let t {$binfo(ts) + $dinfo(rduration)}
         eventq schedule ensitAutoResolve $t $binfo(s)
     }
 
@@ -893,7 +884,7 @@ order define ENSIT:CREATE {
         -defval NONE
     parm resolver   enum  "Resolved By"   -enumtype {ptype g+none} \
         -defval NONE
-    parm rduration  text  "Duration"      -defval 5
+    parm rduration  text  "Duration"      -defval 1
 } {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
@@ -902,7 +893,7 @@ order define ENSIT:CREATE {
     prepare inception -toupper   -required -type boolean
     prepare g         -toupper   -required -type {ptype g+none}
     prepare resolver  -toupper   -required -type {ptype g+none}
-    prepare rduration                      -type idays
+    prepare rduration                      -type iticks
 
     returnOnError
 
@@ -1026,7 +1017,7 @@ order define ENSIT:UPDATE {
     prepare inception -toupper  -type boolean
     prepare g         -toupper  -type {ptype g+none}
     prepare resolver  -toupper  -type {ptype g+none}
-    prepare rduration           -type idays
+    prepare rduration           -type iticks
 
     returnOnError
 

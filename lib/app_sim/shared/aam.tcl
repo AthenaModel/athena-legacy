@@ -25,7 +25,7 @@ snit::type aam {
 
     # assess
     #
-    # This routine is to be called every strategy.ticksPerTock to do the 
+    # This routine is to be called every tick to do the 
     # attrition assessment.
 
     typemethod assess {} {
@@ -152,7 +152,7 @@ snit::type aam {
 
     typemethod UFvsNF {} {
         # FIRST, get the relevant parameter values
-        set deltaT    [simclock toDays [parmdb get strategy.ticksPerTock]]
+        set deltaT    7.0 ;# 1 tick in days.
         set ufCovFunc [parmdb get aam.UFvsNF.UF.coverageFunction]
         set ufCovNom  [parmdb get aam.UFvsNF.UF.nominalCoverage]
         set ufCoopNom [parmdb get aam.UFvsNF.UF.nominalCooperation]
@@ -200,7 +200,7 @@ snit::type aam {
 
             # NEXT, compute the possible number of attacks:
             let Np { 
-                round( ($ufCoop           * $ufCov    * $nfCov    * $deltaT)/
+                round( ($ufCoop           * $ufCov    * $nfCov * deltaT)/
                        (max($nfCoop,10.0) * $ufCovNom * $nfCovNom * $tf ) )
             }
 

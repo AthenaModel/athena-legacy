@@ -50,7 +50,7 @@ namespace eval ::athena_test::tests:: {
     set C1 {
         cc_id          1
         condition_type BEFORE
-        t1             10
+        t1             2
     }
 
     #-------------------------------------------------------------------
@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
         condition::BEFORE narrative [condition get 1]
     } -cleanup {
         cleanup
-    } -result {The current simulation time is earlier than day 10, i.e., before 200000ZJAN10.}
+    } -result {The current simulation time is earlier than week 2, i.e., before 240000ZJAN10.}
 
     #-------------------------------------------------------------------
     # check
@@ -97,9 +97,9 @@ namespace eval ::athena_test::tests:: {
         condition mutate create $C1
     } -body {
         # t1 = 10
-        set a [BeforeEval 9]
-        set b [BeforeEval 10]
-        set c [BeforeEval 11]
+        set a [BeforeEval 1]
+        set b [BeforeEval 2]
+        set c [BeforeEval 3]
 
         list $a $b $c
     } -cleanup {

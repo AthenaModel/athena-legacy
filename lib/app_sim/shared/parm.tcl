@@ -88,7 +88,6 @@ snit::type parm {
     # running.
 
     typemethod LockParms {} {
-        parmdb lock strategy.ticksPerTock
         parmdb lock econ.ticksPerTock
         parmdb lock econ.BaseWage
         parmdb lock econ.GBasketPerCapita

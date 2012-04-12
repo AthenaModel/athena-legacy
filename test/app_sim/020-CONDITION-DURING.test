@@ -102,7 +102,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        t2 {End time must be no earlier than start time.}
+        t2 {End week must be no earlier than start week.}
     }
 
     test DURING:CREATE-2.1 {condition is created} -setup {
@@ -117,7 +117,7 @@ namespace eval ::athena_test::tests:: {
 condition_id    1
 condition_type  DURING
 cc_id           1
-narrative       The current simulation time is between day 1 and day 10, inclusive, i.e., from 110000ZJAN10 to 200000ZJAN10.
+narrative       The current simulation time is between week 1 and week 10, inclusive, i.e., from 170000ZJAN10 to 210000ZMAR10.
 state           normal
 flag            
 t1              1
@@ -206,7 +206,7 @@ t2              10
     } -cleanup {
         cleanup
     } -result {
-        t2 {End time must be no earlier than start time.}
+        t2 {End week must be no earlier than start week.}
     }
 
     test DURING:UPDATE-1.6 {t2 < t1, t1 omitted} -setup {
@@ -217,7 +217,7 @@ t2              10
     } -cleanup {
         cleanup
     } -result {
-        t2 {End time must be no earlier than start time.}
+        t2 {End week must be no earlier than start week.}
     }
 
     test DURING:UPDATE-1.7 {t2 < t1, t2 omitted} -setup {
@@ -228,7 +228,7 @@ t2              10
     } -cleanup {
         cleanup
     } -result {
-        t2 {End time must be no earlier than start time.}
+        t2 {End week must be no earlier than start week.}
     }
 
     test DURING:UPDATE-1.8 {wrong flavor of condition} -setup {
@@ -254,7 +254,7 @@ t2              10
 condition_id    1
 condition_type  DURING
 cc_id           1
-narrative       The current simulation time is between day 2 and day 20, inclusive, i.e., from 120000ZJAN10 to 300000ZJAN10.
+narrative       The current simulation time is between week 2 and week 20, inclusive, i.e., from 240000ZJAN10 to 300000ZMAY10.
 state           normal
 flag            
 t1              2

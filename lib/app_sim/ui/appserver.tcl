@@ -2272,10 +2272,10 @@ snit::type appserver {
 
         ht putln "
             The vertical relationship <i>V.ga</i> is recomputed
-            every [parm get strategy.ticksPerTock] days.  Initially
-            it depends on group <i>g</i>'s affinity for actor <i>a</i>,
-            as determined by their belief systems.  It is affected over
-            time by a number of factors.
+            every week.  Initially it depends on group <i>g</i>'s 
+            affinity for actor <i>a</i>, as determined by their 
+            belief systems.  It is affected over time by a number 
+            of factors.
         "
         ht para
 

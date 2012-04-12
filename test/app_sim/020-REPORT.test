@@ -211,7 +211,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        start {invalid time spec "090000ZJAN10", expected time between T0 and NOW}
+        start {invalid time spec "030000ZJAN10", expected time between T0 and NOW}
     }
 
     test SATCONTRIB-1.9 {end > now} -setup {
@@ -222,7 +222,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        end {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
+        end {invalid time spec "240000ZJAN10", expected time between T0 and NOW}
     }
 
     test SATCONTRIB-1.10 {start > end} -setup {
@@ -235,7 +235,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        start {invalid time spec "120000ZJAN10", expected time between T0 and NOW}
+        start {invalid time spec "240000ZJAN10", expected time between T0 and NOW}
     }
 
     test SATCONTRIB-2.1 {Without optional} -setup {

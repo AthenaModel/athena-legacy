@@ -189,11 +189,8 @@ snit::type engine {
         profile nbstat analyze
         profile control_model analyze
         profile actsit assess
-        
-        if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
-            profile service assess attitudes
-            profile aam assess
-        }
+        profile service assess attitudes
+        profile aam assess
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
             set econOK [profile econ tock]
@@ -237,11 +234,9 @@ snit::type engine {
         profile eventq advance [simclock now]
 
         # NEXT, assess actor influence and execute actor strategies.
-        if {[simclock now] % [parmdb get strategy.ticksPerTock] == 0} {
-            profile control_model assess
-            profile hist tock
-            profile strategy tock
-        }
+        profile control_model assess
+        profile hist tock
+        profile strategy tock
     }
 
     # pause
