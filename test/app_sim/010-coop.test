@@ -43,19 +43,15 @@ namespace eval ::athena_test::tests:: {
         coop mutate update {
             id      {SHIA BLUE}
             coop0   40.0
-            atrend  5.0
-            athresh 40
-            dtrend  -5.0
-            dthresh 60
         }
 
         ted query {SELECT * FROM coop_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    coop0 atrend athresh dtrend dthresh 
----- ---- ----- ------ ------- ------ ------- 
-SHIA BLUE 40.0  5.0    40.0    -5.0   60.0    
+f    g    coop0 
+---- ---- ----- 
+SHIA BLUE 40.0  
     }
 
 
@@ -64,10 +60,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         set parmdict {
             id      {SHIA BLUE}
             coop0   40.0
-            atrend  5.0
-            athresh 40
-            dtrend  -5.0
-            dthresh 60
         }
 
         coop mutate update $parmdict
@@ -92,10 +84,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         coop mutate update  {
             id      {SHIA BLUE}
             coop0   ""
-            atrend  ""
-            athresh ""
-            dtrend  ""
-            dthresh ""
         }
 
         set b [ted query {SELECT * FROM coop_fg}]
@@ -115,10 +103,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         set undo [coop mutate update {
             id      {SHIA BLUE}
             coop0   40.0
-            atrend  5.0
-            athresh 40
-            dtrend  -5.0
-            dthresh 60
         }]
 
         eval $undo
@@ -191,10 +175,6 @@ SHIA BLUE 40.0  5.0    40.0    -5.0   60.0
         coop mutate update {
             id      {SHIA BLUE}
             coop0   40.0
-            atrend  5.0
-            athresh 40
-            dtrend  -5.0
-            dthresh 60
         }
     } -body {
         ted lock

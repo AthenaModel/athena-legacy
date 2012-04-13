@@ -372,11 +372,7 @@ SELECT main.g || ' ' || main.c                        AS id,
        CG.n                                           AS n,
        format('%.3f', coalesce(gram.sat0, main.sat0)) AS sat0,
        format('%.3f', coalesce(gram.sat, main.sat0))  AS sat,
-       format('%.2f', main.saliency)                  AS saliency,
-       format('%.2f', main.atrend)                    AS atrend,
-       format('%.1f', main.athresh)                   AS athresh,
-       format('%.2f', main.dtrend)                    AS dtrend,
-       format('%.1f', main.dthresh)                   AS dthresh
+       format('%.2f', main.saliency)                  AS saliency
 FROM sat_gc AS main
 JOIN civgroups AS CG ON (main.g = CG.g) 
 LEFT OUTER JOIN gram_sat AS gram ON (main.g = gram.g AND main.c = gram.c);
@@ -408,11 +404,7 @@ SELECT f || ' ' || g                                     AS id,
        f                                                 AS f,
        g                                                 AS g,
        format('%5.1f', coalesce(gram.coop0, main.coop0)) AS coop0,
-       format('%5.1f', coalesce(gram.coop, main.coop0))  AS coop,
-       format('%.2f', main.atrend)                       AS atrend,
-       format('%.1f', main.athresh)                      AS athresh,
-       format('%.2f', main.dtrend)                       AS dtrend,
-       format('%.1f', main.dthresh)                      AS dthresh
+       format('%5.1f', coalesce(gram.coop, main.coop0))  AS coop
 FROM coop_fg AS main 
 LEFT OUTER JOIN gram_coop AS gram USING (f,g);
 

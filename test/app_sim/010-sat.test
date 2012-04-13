@@ -45,22 +45,18 @@ namespace eval ::athena_test::tests:: {
             id             {SHIA AUT}
             sat0           1.0
             saliency       0.5
-            atrend         2.0
-            athresh        -10.0
-            dtrend         -2.0
-            dthresh        10.0
         }
 
         ted query {SELECT * FROM sat_gc}
     } -cleanup {
         cleanup
     } -result {
-g    c   sat0 saliency atrend athresh dtrend dthresh 
----- --- ---- -------- ------ ------- ------ ------- 
-SHIA AUT 1.0  0.5      2.0    -10.0   -2.0   10.0    
-SHIA SFT 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
+g    c   sat0 saliency 
+---- --- ---- -------- 
+SHIA AUT 1.0  0.5      
+SHIA SFT 0.0  1.0      
+SHIA CUL 0.0  1.0      
+SHIA QOL 0.0  1.0      
     }
 
 
@@ -71,10 +67,6 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
             id             {SHIA AUT}
             sat0           1.0
             saliency       0.5
-            atrend         2.0
-            athresh        -10.0
-            dtrend         -2.0
-            dthresh        10.0
         }
 
         sat mutate update $parmdict
@@ -101,10 +93,6 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
             id             {SHIA SFT}
             sat0           ""
             saliency       ""
-            atrend         ""
-            athresh        ""
-            dtrend         ""
-            dthresh        ""
         }
 
         set b [ted query {SELECT * FROM sat_gc}]
@@ -125,10 +113,6 @@ SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0
             id             {SHIA SFT}
             sat0           1.0
             saliency       0.5
-            atrend         2.0
-            athresh        -10.0
-            dtrend         -2.0
-            dthresh        10.0
         }]
 
         eval $undo

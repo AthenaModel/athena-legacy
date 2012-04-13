@@ -27,38 +27,6 @@ snit::type coop {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Simulation
-
-    # start
-    #
-    # Starts the ascending and descending trends for cooperation curves.
-
-    typemethod start {} {
-        log normal coop "start"
-
-        rdb eval {
-            SELECT * FROM coop_fg
-            WHERE atrend > 0.0 OR dtrend < 0.0
-        } row {
-            if {$row(atrend) > 0.0} {
-                aram coop slope 0 0 $row(f) $row(g) $row(atrend) \
-                    -cause   ATREND        \
-                    -s       0.0           \
-                    -athresh $row(athresh)
-            }
-
-            if {$row(dtrend) < 0.0} {
-                aram coop slope 0 0 $row(f) $row(g) $row(dtrend) \
-                    -cause   DTREND        \
-                    -s       0.0           \
-                    -dthresh $row(dthresh)
-            }
-        }
-        
-        log normal coop "start complete"
-    }
-
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id
@@ -105,10 +73,6 @@ snit::type coop {
     #
     #    id               list {f g}
     #    coop0            Cooperation of f with g at time 0.
-    #    atrend           A new ascending trend, or ""
-    #    athresh          A new ascending threshold, or ""
-    #    dtrend           A new descending trend, or ""
-    #    dthresh          A new descending threshold, or ""
     #
     # Updates a cooperation given the parms, which are presumed to be
     # valid.
@@ -124,11 +88,7 @@ snit::type coop {
             # NEXT, Update the group
             rdb eval {
                 UPDATE coop_fg
-                SET coop0    = nonempty($coop0,   coop0),
-                    atrend   = nonempty($atrend,  atrend),
-                    athresh  = nonempty($athresh, athresh),
-                    dtrend   = nonempty($dtrend,  dtrend),
-                    dthresh  = nonempty($dthresh, dthresh)
+                SET coop0 = nonempty($coop0, coop0)
                 WHERE f=$f AND g=$g
             } {}
 
@@ -155,20 +115,10 @@ order define COOP:UPDATE {
                                          -keys   {f g}          \
                                          -labels {"Of" "With"}
     parm coop0   coop  "Cooperation"
-    parm atrend  text  "Ascending Trend"
-    parm athresh coop  "Asc. Threshold"
-    parm dtrend  text  "Descending Trend"
-    parm dthresh coop  "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type coop
     prepare coop0    -toupper            -type qcooperation \
-        -xform [list qcooperation value]
-    prepare atrend   -toupper            -type ratrend
-    prepare athresh  -toupper            -type qcooperation \
-        -xform [list qcooperation value]
-    prepare dtrend   -toupper            -type rdtrend
-    prepare dthresh  -toupper            -type qcooperation \
         -xform [list qcooperation value]
 
     returnOnError -final
@@ -191,25 +141,14 @@ order define COOP:UPDATE:MULTI {
     parm ids     multi  "IDs"              -table gui_coop_fg \
                                            -key id
     parm coop0   coop   "Cooperation"
-    parm atrend  text   "Ascending Trend"
-    parm athresh coop   "Asc. Threshold"
-    parm dtrend  text   "Descending Trend"
-    parm dthresh coop   "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof coop
 
     prepare coop0    -toupper            -type qcooperation \
         -xform [list qcooperation value]
-    prepare atrend   -toupper            -type ratrend
-    prepare athresh  -toupper            -type qcooperation \
-        -xform [list qcooperation value]
-    prepare dtrend   -toupper            -type rdtrend
-    prepare dthresh  -toupper            -type qcooperation \
-        -xform [list qcooperation value]
 
     returnOnError -final
-
 
     # NEXT, modify the curves
     set undo [list]

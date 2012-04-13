@@ -914,14 +914,6 @@ CREATE TABLE sat_gc (
     -- Saliency of concern c to group g in nbhood n
     saliency   DOUBLE DEFAULT 1.0,
 
-    -- Ascending trend and threshold
-    atrend     DOUBLE DEFAULT 0.0,
-    athresh    DOUBLE DEFAULT 0.0,
-
-    -- Descending trend and threshold
-    dtrend     DOUBLE DEFAULT 0.0,
-    dthresh    DOUBLE DEFAULT 0.0,
-
     PRIMARY KEY (g, c)
 );
 
@@ -1010,14 +1002,6 @@ CREATE TABLE coop_fg (
 
     -- cooperation of f with g at time 0.
     coop0       DOUBLE DEFAULT 50.0,
-
-    -- Ascending trend and threshold
-    atrend     DOUBLE DEFAULT 0.0,
-    athresh    DOUBLE DEFAULT 50.0,
-
-    -- Descending trend and threshold
-    dtrend     DOUBLE DEFAULT 0.0,
-    dthresh    DOUBLE DEFAULT 50.0,
 
     PRIMARY KEY (f, g)
 );

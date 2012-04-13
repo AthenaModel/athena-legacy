@@ -20,42 +20,6 @@ snit::type sat {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Simulation
-
-    # start
-    #
-    # Starts the ascending and descending trends for satisfaction curves.
-
-    typemethod start {} {
-        log normal sat "start"
-
-        rdb eval {
-            SELECT * 
-            FROM sat_gc
-            JOIN civgroups USING (g)
-            WHERE atrend > 0.0 OR dtrend < 0.0
-        } row {
-            if {$row(atrend) > 0.0} {
-                aram sat slope 0 0 $row(g) $row(c) $row(atrend) \
-                    -cause   ATREND        \
-                    -s       0.0           \
-                    -athresh $row(athresh)
-            }
-
-            if {$row(dtrend) < 0.0} {
-                aram sat slope 0 0 $row(g) $row(c) $row(dtrend) \
-                    -cause   DTREND        \
-                    -s       0.0           \
-                    -dthresh $row(dthresh)
-            }
-        }
-        
-        log normal sat "start complete"
-    }
-
-
-
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id
@@ -102,10 +66,6 @@ snit::type sat {
     #    id               list {g c}
     #    sat0             A new initial satisfaction, or ""
     #    saliency         A new saliency, or ""
-    #    atrend           A new ascending trend, or ""
-    #    athresh          A new ascending threshold, or ""
-    #    dtrend           A new descending trend, or ""
-    #    dthresh          A new descending threshold, or ""
     #
     # Updates a satisfaction level the parms, which are presumed to be
     # valid.
@@ -122,11 +82,7 @@ snit::type sat {
             rdb eval {
                 UPDATE sat_gc
                 SET sat0     = nonempty($sat0,     sat0),
-                    saliency = nonempty($saliency, saliency),
-                    atrend   = nonempty($atrend,   atrend),
-                    athresh  = nonempty($athresh,  athresh),
-                    dtrend   = nonempty($dtrend,   dtrend),
-                    dthresh  = nonempty($dthresh,  dthresh)
+                    saliency = nonempty($saliency, saliency)
                 WHERE g=$g AND c=$c
             } {}
 
@@ -154,20 +110,12 @@ order define SAT:UPDATE {
                                             -labels {"Grp" "Con"}
     parm sat0      sat   "Sat at T0"
     parm saliency  frac  "Saliency"
-    parm atrend    text  "Ascending Trend"
-    parm athresh   sat   "Asc. Threshold"
-    parm dtrend    text  "Descending Trend"
-    parm dthresh   sat   "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type ::sat
 
     prepare sat0     -toupper -type qsat      -xform [list qsat value]
     prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
-    prepare atrend   -toupper -type ratrend
-    prepare athresh  -toupper -type qsat      -xform [list qsat value]
-    prepare dtrend   -toupper -type rdtrend
-    prepare dthresh  -toupper -type qsat      -xform [list qsat value]
 
     returnOnError -final
 
@@ -190,20 +138,12 @@ order define SAT:UPDATE:MULTI {
                                              -key id
     parm sat0      sat    "Sat at T0"
     parm saliency  frac   "Saliency"
-    parm atrend    text   "Ascending Trend"
-    parm athresh   sat    "Asc. Threshold"
-    parm dtrend    text   "Descending Trend"
-    parm dthresh   sat    "Desc. Threshold"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat
 
     prepare sat0     -toupper -type qsat      -xform [list qsat value]
     prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
-    prepare atrend   -toupper -type ratrend
-    prepare athresh  -toupper -type qsat      -xform [list qsat value]
-    prepare dtrend   -toupper -type rdtrend
-    prepare dthresh  -toupper -type qsat      -xform [list qsat value]
 
     returnOnError -final
 

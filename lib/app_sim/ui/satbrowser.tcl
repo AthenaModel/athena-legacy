@@ -37,17 +37,12 @@ snit::widgetadaptor satbrowser {
         { sat0     "Sat at T0" -sortmode real                }
         { sat      "Sat Now"   -sortmode real -foreground %D }
         { saliency "Saliency"  -sortmode real                }
-        { atrend   "ATrend"    -sortmode real                }
-        { athresh  "AThresh"   -sortmode real                }
-        { dtrend   "DTrend"    -sortmode real                }
-        { dthresh  "DThresh"   -sortmode real                }
     }
 
     #-------------------------------------------------------------------
     # Components
 
     component editbtn     ;# The "Edit" button
-    component setbtn      ;# The "Set" button
     component adjbtn      ;# The "Adjust" button
 
     #--------------------------------------------------------------------
@@ -81,18 +76,6 @@ snit::widgetadaptor satbrowser {
             order   SAT:UPDATE          \
             browser $win
 
-       
-        install setbtn using mktoolbutton $bar.set \
-            ::projectgui::icon::pencils22          \
-            "Magic Set Satisfaction Level"         \
-            -state   disabled                      \
-            -command [mymethod SetSelected]
-
-        cond::availableSingle control $setbtn \
-            order   MAD:SAT:SET                  \
-            browser $win
-       
-
         install adjbtn using mktoolbutton $bar.adj \
             ::projectgui::icon::pencila22          \
             "Magic Adjust Satisfaction Level"      \
@@ -104,7 +87,6 @@ snit::widgetadaptor satbrowser {
             browser $win
        
         pack $editbtn   -side left
-        pack $setbtn    -side left
         pack $adjbtn    -side left
 
         # NEXT, update individual entities when they change.
@@ -129,7 +111,7 @@ snit::widgetadaptor satbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::availableMulti update $editbtn
-        cond::availableSingle update [list $setbtn $adjbtn]
+        cond::availableSingle update $adjbtn
     }
 
 
@@ -147,17 +129,6 @@ snit::widgetadaptor satbrowser {
         } else {
             order enter SAT:UPDATE:MULTI ids $ids
         }
-    }
-
-
-    # SetSelected
-    #
-    # Called when the user wants to set the selected level
-
-    method SetSelected {} {
-        set ids [$hull uid curselection]
-
-        order enter MAD:SAT:SET id [lindex $ids 0]
     }
 
     # AdjustSelected

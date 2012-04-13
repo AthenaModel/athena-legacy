@@ -397,69 +397,6 @@ snit::type mad {
         }
     }
 
-    # mutate satset parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    id               list {g c}
-    #    mad              MAD ID
-    #    sat              New qsat(n) value
-    #
-    # Sets a satisfaction level to a particular value given the parms, 
-    # which are presumed to be valid.
-
-    typemethod {mutate satset} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id g c
-            set n [civgroup getg $g n]
-
-            # FIRST, get the undo information
-            set oldSat [aram sat.gc $g $c]
-
-            # NEXT, get the GRAM driver ID.
-            rdb eval {
-                SELECT driver, oneliner FROM mads WHERE id=$mad
-            } {}
-
-            # NEXT, Set the level
-            set inputId [aram sat set $driver $g $c $sat]
-
-            # NEXT, send ADJUST-1-2 report
-            set text [edamrule longname ADJUST-1-2]
-            append text "\n\n"
-
-            set fmt "%-22s %s\n"
-
-            append text [format $fmt "Magic Attitude Driver:" $mad]
-            append text [format $fmt "Description:"           $oneliner]
-            append text [format $fmt "GRAM Driver ID:"        $driver]
-            append text [format $fmt "Input ID:"           "$driver.$inputId"]
-            append text [format $fmt "Neighborhood:"          $n]
-            append text [format $fmt "Group:"                 $g]
-            append text [format $fmt "Concern:"               $c]
-
-            set satText [format "%.3f (%s)" $sat [qsat name $sat]]
-            append text [format $fmt "New Value:"    $satText]
-
-            set reportid \
-                [firings save \
-                     -rtype   DAM                                          \
-                     -subtype ADJUST                                       \
-                     -meta1   ADJUST-1-2                                   \
-                     -title   "ADJUST-1-2: [edamrule longname ADJUST-1-2]"  \
-                     -text    $text]
-
-            # NEXT, notify the app.
-            # Note: need to update ::sat since current sat has changed.
-            notifier send ::mad <Sat> update $id
-
-            # NEXT, Return the undo command
-            return [mytypemethod RestoreSat $mad $driver $g $c $oldSat \
-                       $reportid]
-        }
-    }
-
     # RestoreSat mad driver g c sat reportid
     #
     # Restores a satisfaction level to its previous value on undo.
@@ -479,8 +416,6 @@ snit::type mad {
     #    mad              MAD ID
     #    level            A qmag(n) value
     #    days             An rdays(n) value
-    #    athresh          Ascending threshold, a qsat(n) value
-    #    dthresh          Descending threshold, a qsat(n) value
     #
     # Makes the MAGIC-1-1 rule fire for the given input.
     
@@ -511,10 +446,7 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-1-1 {1} {
-                dam sat level         \
-                    -athresh $athresh \
-                    -dthresh $dthresh \
-                    $c $limit $days
+                dam sat level $c $limit $days
             }
         }
 
@@ -531,8 +463,6 @@ snit::type mad {
     #    c                Concern
     #    mad              MAD ID
     #    slope            A qmag(n) value
-    #    athresh          Ascending threshold, a qsat(n) value
-    #    dthresh          Descending threshold, a qsat(n) value
     #
     # Makes the MAGIC-1-2 rule fire for the given input.
     
@@ -563,10 +493,7 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-1-2 {1} {
-                dam sat slope         \
-                    -athresh $athresh \
-                    -dthresh $dthresh \
-                    $c $slope
+                dam sat slope $c $slope
             }
         }
 
@@ -637,69 +564,6 @@ snit::type mad {
         }
     }
 
-
-    # mutate coopset parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    id               list {f g}
-    #    mad              MAD ID
-    #    coop             New level, a qcooperation(n) value.
-    #
-    # Sets a cooperation level to a new value given the parms, 
-    # which are presumed to be valid.
-
-    typemethod {mutate coopset} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id f g
-            set n [civgroup getg $f n]
-
-            # FIRST, get the undo information
-            set oldCoop [aram coop.fg $f $g]
-
-            # NEXT, get the GRAM driver ID.
-            rdb eval {
-                SELECT driver, oneliner FROM mads WHERE id=$mad
-            } {}
-
-            # NEXT, Set the level
-            set inputId [aram coop set $driver $f $g $coop]
-
-            # NEXT, send ADJUST-2-2 report
-            set text [edamrule longname ADJUST-2-2]
-            append text "\n\n"
-
-            set fmt "%-22s %s\n"
-
-            append text [format $fmt "Magic Attitude Driver:" $mad]
-            append text [format $fmt "Description:"           $oneliner]
-            append text [format $fmt "GRAM Driver ID:"        $driver]
-            append text [format $fmt "Input ID:"           "$driver.$inputId"]
-            append text [format $fmt "Neighborhood:"          $n]
-            append text [format $fmt "Civ Group:"             $f]
-            append text [format $fmt "Frc Group:"             $g]
-
-            set coopText [format "%.3f (%s)" $coop [qcooperation name $coop]]
-            append text [format $fmt "New Value:"    $coopText]
-
-            set reportid \
-                [firings save \
-                     -rtype   DAM                                          \
-                     -subtype ADJUST                                       \
-                     -meta1   ADJUST-2-2                                   \
-                     -title   "ADJUST-2-2: [edamrule longname ADJUST-2-2]" \
-                     -text    $text]
-
-            # NEXT, notify the app.
-            notifier send ::mad <Coop> update $id
-
-            # NEXT, Return the undo command
-            return [mytypemethod RestoreCoop $mad $driver $f $g $oldCoop \
-                       $reportid]
-        }
-    }
-
     # RestoreCoop mad driver f g coop reportid
     #
     # Restores a cooperation level to its previous value on undo.
@@ -719,8 +583,6 @@ snit::type mad {
     #    mad              MAD ID
     #    level            A qmag(n) value
     #    days             An rdays(n) value
-    #    athresh          Ascending threshold, a qcooperation(n) value
-    #    dthresh          Descending threshold, a qcooperation(n) value
     #
     # Makes the MAGIC-2-1 rule fire for the given input.
     
@@ -752,10 +614,7 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-2-1 {1} {
-                dam coop level        \
-                    -athresh $athresh \
-                    -dthresh $dthresh \
-                    -- $limit $days
+                dam coop level -- $limit $days
             }
         }
 
@@ -772,8 +631,6 @@ snit::type mad {
     #    g                Force Group ID
     #    mad              MAD ID
     #    slope            A qmag(n) value
-    #    athresh          Ascending threshold, a qcooperation(n) value
-    #    dthresh          Descending threshold, a qcooperation(n) value
     #
     # Makes the MAGIC-2-2 rule fire for the given input.
     
@@ -805,10 +662,7 @@ snit::type mad {
             detail "GRAM Driver ID:"        $driver
 
             dam rule MAGIC-2-2 {1} {
-                dam coop slope        \
-                    -athresh $athresh \
-                    -dthresh $dthresh \
-                    -- $slope
+                dam coop slope -- $slope
             }
         }
 
@@ -1067,37 +921,6 @@ order define MAD:SAT:ADJUST {
     setundo [mad mutate satadjust [array get parms]]
 }
 
-
-# MAD:SAT:SET
-#
-# Sets a satisfaction curve to some value.
-
-order define MAD:SAT:SET {
-    title "Magic Set Satisfaction Level"
-    options \
-        -sendstates     {PAUSED TACTIC}         \
-        -schedulestates {PREP PAUSED TACTIC}
-
-    parm id        key   "Curve"     -table    gui_sat_gc      \
-                                     -keys     {g c}           \
-                                     -labels   {"Grp" "Con"}
-    parm mad       key   "MAD ID"    -table    gui_mads     \
-                                     -keys     id           \
-                                     -dispcols longid
-    parm sat       text  "New Value"
-} {
-    # FIRST, prepare the parameters
-    prepare id    -toupper -required -type sat
-    prepare mad            -required -type mad
-    prepare sat   -toupper -required -type qsat -xform [list qsat value]
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    setundo [mad mutate satset [array get parms]]
-}
-
-
 # MAD:SAT:LEVEL
 #
 # Enters a magic satisfaction level input.
@@ -1115,8 +938,6 @@ order define MAD:SAT:LEVEL {
                                                -dispcols longid
     parm limit     text  "Limit"
     parm days      text  "Realization Time"    -defval   2.0
-    parm athresh   sat   "Ascending Theshold"  -defval   100.0
-    parm dthresh   sat   "Descending Theshold" -defval   -100.0
 } {
     # FIRST, prepare the parameters
     prepare g       -toupper -required -type civgroup
@@ -1124,8 +945,6 @@ order define MAD:SAT:LEVEL {
     prepare mad              -required -type mad
     prepare limit   -toupper -required -type qmag -xform [list qmag value]
     prepare days             -required -type rdays
-    prepare athresh          -required -type qsat -xform [list qsat value]
-    prepare dthresh          -required -type qsat -xform [list qsat value]
 
     returnOnError -final
 
@@ -1152,16 +971,12 @@ order define MAD:SAT:SLOPE {
                                                -keys     id           \
                                                -dispcols longid
     parm slope     text  "Slope"
-    parm athresh   sat   "Ascending Theshold"  -defval   100.0
-    parm dthresh   sat   "Descending Theshold" -defval   -100.0
 } {
     # FIRST, prepare the parameters
     prepare g       -toupper -required -type civgroup
     prepare c       -toupper -required -type {ptype c}
     prepare mad              -required -type mad
     prepare slope   -toupper -required -type qmag -xform [list qmag value]
-    prepare athresh          -required -type qsat -xform [list qsat value]
-    prepare dthresh          -required -type qsat -xform [list qsat value]
 
     returnOnError -final
 
@@ -1201,38 +1016,6 @@ order define MAD:COOP:ADJUST {
     setundo [mad mutate coopadjust [array get parms]]
 }
 
-
-# MAD:COOP:SET
-#
-# Sets a cooperation curve to some value.
-
-order define MAD:COOP:SET {
-    title "Magic Set Cooperation Level"
-    options \
-        -sendstates     {PAUSED TACTIC}         \
-        -schedulestates {PREP PAUSED TACTIC}
-
-    parm id        key   "Curve"     -table    gui_coop_fg      \
-                                     -keys     {f g}            \
-                                     -labels   {"Of" "With"}
-    parm mad       key   "MAD ID"    -table    gui_mads  \
-                                     -keys     id        \
-                                     -dispcols longid
-    parm coop      text  "New Value"
-} {
-    # FIRST, prepare the parameters
-    prepare id    -toupper -required -type coop
-    prepare mad            -required -type mad
-    prepare coop  -toupper -required -type qcooperation \
-        -xform [list qcooperation value]
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    setundo [mad mutate coopset [array get parms]]
-}
-
-
 # MAD:COOP:LEVEL
 #
 # Enters a magic cooperation level input.
@@ -1250,8 +1033,6 @@ order define MAD:COOP:LEVEL {
                                                -dispcols longid
     parm limit     text  "Limit"
     parm days      text  "Days"                -defval   2.0
-    parm athresh   coop  "Ascending Theshold"  -defval   100.0
-    parm dthresh   coop  "Descending Theshold" -defval   0.0
 } {
     # FIRST, prepare the parameters
     prepare f       -toupper -required -type civgroup
@@ -1259,10 +1040,6 @@ order define MAD:COOP:LEVEL {
     prepare mad              -required -type mad
     prepare limit   -toupper -required -type qmag -xform [list qmag value]
     prepare days             -required -type rdays
-    prepare athresh          -required -type qcooperation \
-        -xform [list qcooperation value]
-    prepare dthresh          -required -type qcooperation \
-        -xform [list qcooperation value]
 
     returnOnError -final
 
@@ -1288,18 +1065,12 @@ order define MAD:COOP:SLOPE {
                                                -keys     id       \
                                                -dispcols longid
     parm slope     text  "Slope"
-    parm athresh   coop  "Ascending Theshold"  -defval   100.0
-    parm dthresh   coop  "Descending Theshold" -defval   0.0
 } {
     # FIRST, prepare the parameters
     prepare f       -toupper -required -type civgroup
     prepare g       -toupper -required -type frcgroup
     prepare mad              -required -type mad
     prepare slope   -toupper -required -type qmag -xform [list qmag value]
-    prepare athresh          -required -type qcooperation \
-        -xform [list qcooperation value]
-    prepare dthresh          -required -type qcooperation \
-        -xform [list qcooperation value]
 
     returnOnError -final
 

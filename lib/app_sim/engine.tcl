@@ -128,12 +128,9 @@ snit::type engine {
     # Engine activities on simulation start.
 
     typemethod start {} {
-        # Set up the attitudes model: initialize GRAM, and add slope effects
-        # for the ascending and descending trends.  Finally, relate all
+        # Set up the attitudes model: initialize GRAM and relate all
         # existing MADs to GRAM drivers.
         aram      init -reload
-        sat       start
-        coop      start
         mad       start
 
         # Next, set up the status quo, as required by strategy execution.

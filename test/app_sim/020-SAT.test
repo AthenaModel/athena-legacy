@@ -102,47 +102,6 @@ namespace eval ::athena_test::tests:: {
         saliency {invalid value "-0.1", should be a real number in range 0.0, 1.0, or one of: CR, VI, I, LI, UN, NG}
     }
 
-
-    test UPDATE-1.7 {invalid atrend} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE id {SHIA SFT} atrend -1.0
-    } -cleanup {
-        cleanup
-    } -result {
-        atrend {invalid value "-1.0", expected double no less than 0.0}
-    }
-
-    test UPDATE-1.8 {invalid athresh} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE id {SHIA SFT} athresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
-    }
-
-    test UPDATE-1.9 {invalid dtrend} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE id {SHIA SFT} dtrend 1.0
-    } -cleanup {
-        cleanup
-    } -result {
-        dtrend {invalid value "1.0", expected double no greater than 0.0}
-    }
-
-    test UPDATE-1.10 {invalid dthresh} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE id {SHIA SFT} dthresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        dthresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
-    }
-
     test UPDATE-2.1 {sat is updated} -setup {
         setup
     } -body {
@@ -150,10 +109,6 @@ namespace eval ::athena_test::tests:: {
             id             {SHIA SFT}
             sat0           VS
             saliency       VI
-            atrend         2
-            athresh        -5
-            dtrend         -1
-            dthresh        10
         }
         ted query {
             SELECT * FROM sat_gc
@@ -161,16 +116,16 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    c   sat0 saliency atrend athresh dtrend dthresh 
----- --- ---- -------- ------ ------- ------ ------- 
-SHIA AUT 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA SFT 80.0 0.85     2.0    -5.0    -1.0   10.0    
-SHIA CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-SHIA QOL 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN AUT 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN SFT 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN CUL 0.0  1.0      0.0    0.0     0.0    0.0     
-SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0     
+g    c   sat0 saliency 
+---- --- ---- -------- 
+SHIA AUT 0.0  1.0      
+SHIA SFT 80.0 0.85     
+SHIA CUL 0.0  1.0      
+SHIA QOL 0.0  1.0      
+SUNN AUT 0.0  1.0      
+SUNN SFT 0.0  1.0      
+SUNN CUL 0.0  1.0      
+SUNN QOL 0.0  1.0      
     }
 
 
@@ -194,10 +149,6 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
             id             {SHIA SFT}
             sat0           VS
             saliency       VI
-            atrend         2
-            athresh        -5
-            dtrend         -1
-            dthresh        10
         }
     } -body {
         ted notifier bind ::rdb <sat_gc>
@@ -294,46 +245,6 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
     }
 
 
-    test UPDATE:MULTI-1.9 {invalid atrend} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} atrend -5
-    } -cleanup {
-        cleanup
-    } -result {
-        atrend {invalid value "-5", expected double no less than 0.0}
-    }
-
-    test UPDATE:MULTI-1.10 {invalid athresh} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} athresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        athresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
-    }
-
-    test UPDATE:MULTI-1.11 {invalid dtrend} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} dtrend 5
-    } -cleanup {
-        cleanup
-    } -result {
-        dtrend {invalid value "5", expected double no greater than 0.0}
-    }
-
-    test UPDATE:MULTI-1.12 {invalid dthresh} -setup {
-        setup
-    } -body {
-        ted order -reject SAT:UPDATE:MULTI ids {{SHIA SFT}} dthresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        dthresh {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
-    }
-
     test UPDATE:MULTI-2.1 {one curve of several is updated} -setup {
         setup
     } -body {
@@ -343,10 +254,6 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
             ids       {{SHIA SFT}}
             sat0      VS
             saliency  VI
-            atrend    2
-            athresh   -5
-            dtrend    -1
-            dthresh   10
         }
 
         ted notifier received
@@ -381,10 +288,6 @@ SUNN QOL 0.0  1.0      0.0    0.0     0.0    0.0
             ids        {{SHIA SFT} {SHIA CUL}}
             sat0       VS
             saliency   VI
-            atrend     2
-            athresh    -5
-            dtrend     -1
-            dthresh    10
         }
     } -body {
         ted notifier bind ::rdb <sat_gc>

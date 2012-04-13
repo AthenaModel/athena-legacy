@@ -70,70 +70,22 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.4 {invalid atrend: out of range} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE id {SHIA BLUE} atrend -5.0
-    } -cleanup {
-        cleanup
-    } -result {
-        atrend {invalid value "-5.0", expected double no less than 0.0}
-    }
-
-
-    test UPDATE-1.5 {invalid athresh: out of range} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE id {SHIA BLUE} athresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        athresh {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
-    }
-
-
-    test UPDATE-1.6 {invalid dtrend: out of range} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE id {SHIA BLUE} dtrend 5.0
-    } -cleanup {
-        cleanup
-    } -result {
-        dtrend {invalid value "5.0", expected double no greater than 0.0}
-    }
-
-
-    test UPDATE-1.7 {invalid dthresh: out of range} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE id {SHIA BLUE} dthresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        dthresh {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
-    }
-
-
     test UPDATE-2.1 {coop0 is updated} -setup {
         setup
     } -body {
         ted order COOP:UPDATE {
             id      {SHIA BLUE}
             coop0   40.0
-            atrend  5.0
-            athresh 40
-            dtrend  -5.0
-            dthresh 60
         }
 
         ted query {SELECT * FROM coop_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    coop0 atrend athresh dtrend dthresh 
----- ---- ----- ------ ------- ------ ------- 
-SHIA BLUE 40.0  5.0    40.0    -5.0   60.0    
-SUNN BLUE 50.0  0.0    50.0    0.0    50.0    
+f    g    coop0 
+---- ---- ----- 
+SHIA BLUE 40.0  
+SUNN BLUE 50.0  
     }
 
 
@@ -156,10 +108,6 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
         ted order COOP:UPDATE {
             id      {SHIA BLUE}
             coop0   40.0
-            atrend  5.0
-            athresh 40
-            dtrend  -5.0
-            dthresh 60
         }
     } -body {
         ted notifier bind ::rdb <coop_fg>
@@ -208,54 +156,6 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
     }
 
 
-    test UPDATE:MULTI-1.4 {invalid atrend: out of range} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE:MULTI \
-            ids {{SHIA BLUE}} atrend -5.0
-    } -cleanup {
-        cleanup
-    } -result {
-        atrend {invalid value "-5.0", expected double no less than 0.0}
-    }
-
-
-    test UPDATE:MULTI-1.5 {invalid athresh} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE:MULTI \
-            ids {{SHIA BLUE}} athresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        athresh {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
-    }
-
-
-    test UPDATE:MULTI-1.6 {invalid dtrend: out of range} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE:MULTI \
-            ids {{SHIA BLUE}} dtrend 5.0
-    } -cleanup {
-        cleanup
-    } -result {
-        dtrend {invalid value "5.0", expected double no greater than 0.0}
-    }
-
-
-    test UPDATE:MULTI-1.7 {invalid dthresh} -setup {
-        setup
-    } -body {
-        ted order -reject COOP:UPDATE:MULTI \
-            ids {{SHIA BLUE}} dthresh NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        dthresh {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
-    }
-
-
     test UPDATE:MULTI-2.1 {one cooperation of several is updated} -setup {
         setup
     } -body {
@@ -264,10 +164,6 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
         ted order COOP:UPDATE:MULTI {
             ids       {{SHIA BLUE}}
             coop0     40.0
-            atrend    5.0
-            athresh   40
-            dtrend    -5.0
-            dthresh   60
         }
 
         ted notifier received
@@ -285,10 +181,6 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
         ted order COOP:UPDATE:MULTI {
             ids       {{SHIA BLUE} {SUNN BLUE}} 
             coop0     40.0
-            atrend    5.0
-            athresh   40
-            dtrend    -5.0
-            dthresh   60
         }
         ted notifier received
     } -cleanup {
@@ -305,10 +197,6 @@ SUNN BLUE 50.0  0.0    50.0    0.0    50.0
         ted order COOP:UPDATE:MULTI {
             ids       {{SHIA BLUE} {SUNN BLUE}}
             coop0     40.0
-            atrend    5.0
-            athresh   40
-            dtrend    -5.0
-            dthresh   60
         }
     } -body {
         ted notifier bind ::rdb <coop_fg>

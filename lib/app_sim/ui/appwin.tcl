@@ -710,11 +710,9 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:DELETE
         $self AddOrder $submenu MAD:TERMINATE
         $self AddOrder $submenu MAD:COOP:ADJUST
-        $self AddOrder $submenu MAD:COOP:SET
         $self AddOrder $submenu MAD:COOP:LEVEL
         $self AddOrder $submenu MAD:COOP:SLOPE
         $self AddOrder $submenu MAD:SAT:ADJUST
-        $self AddOrder $submenu MAD:SAT:SET
         $self AddOrder $submenu MAD:SAT:LEVEL
         $self AddOrder $submenu MAD:SAT:SLOPE
 
@@ -784,7 +782,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu COOP:UPDATE
         $self AddOrder $submenu MAD:COOP:ADJUST
-        $self AddOrder $submenu MAD:COOP:SET
         $self AddOrder $submenu MAD:COOP:LEVEL
         $self AddOrder $submenu MAD:COOP:SLOPE
 
@@ -795,7 +792,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu SAT:UPDATE
         $self AddOrder $submenu MAD:SAT:ADJUST
-        $self AddOrder $submenu MAD:SAT:SET
         $self AddOrder $submenu MAD:SAT:LEVEL
         $self AddOrder $submenu MAD:SAT:SLOPE
 

@@ -35,18 +35,12 @@ snit::widgetadaptor coopbrowser {
         { g        "With Group"                               }
         { coop0    "Coop at T0" -sortmode real                }
         { coop     "Coop Now"   -sortmode real -foreground %D }
-        { atrend   "ATrend"     -sortmode real                }
-        { athresh  "AThresh"    -sortmode real                }
-        { dtrend   "DTrend"     -sortmode real                }
-        { dthresh  "DThresh"    -sortmode real                }
-
     }
 
     #-------------------------------------------------------------------
     # Components
 
     component editbtn     ;# The "Edit" button
-    component setbtn      ;# The "Set" button
     component adjbtn      ;# The "Adjust" button
 
     #--------------------------------------------------------------------
@@ -81,18 +75,6 @@ snit::widgetadaptor coopbrowser {
             order   COOP:UPDATE           \
             browser $win
 
-
-        install setbtn using mktoolbutton $bar.set \
-            ::projectgui::icon::pencils22          \
-            "Magic Set Cooperation Level"          \
-            -state   disabled                      \
-            -command [mymethod SetSelected]
-
-        cond::availableSingle control $setbtn \
-            order   MAD:COOP:SET                 \
-            browser $win
-       
-
         install adjbtn using mktoolbutton $bar.adj \
             ::projectgui::icon::pencila22          \
             "Magic Adjust Cooperation Level"       \
@@ -103,9 +85,7 @@ snit::widgetadaptor coopbrowser {
             order   MAD:COOP:ADJUST              \
             browser $win
 
-       
         pack $editbtn   -side left
-        pack $setbtn    -side left
         pack $adjbtn    -side left
 
         # NEXT, update individual entities when they change.
@@ -129,7 +109,7 @@ snit::widgetadaptor coopbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::availableMulti  update $editbtn
-        cond::availableSingle update [list $setbtn $adjbtn]
+        cond::availableSingle update $adjbtn
     }
 
 
@@ -145,16 +125,6 @@ snit::widgetadaptor coopbrowser {
         } else {
             order enter COOP:UPDATE:MULTI ids $ids
         }
-    }
-
-    # SetSelected
-    #
-    # Called when the user wants to set the selected level
-
-    method SetSelected {} {
-        set ids [$hull uid curselection]
-
-        order enter MAD:COOP:SET id [lindex $ids 0]
     }
 
     # AdjustSelected
