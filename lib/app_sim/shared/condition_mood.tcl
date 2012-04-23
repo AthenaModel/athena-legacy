@@ -42,7 +42,7 @@ condition type define MOOD {g op1 x1} {
     typemethod eval {cdict} {
         dict with cdict {
             set mood [rdb onecolumn {
-                SELECT sat FROM gram_g WHERE g=$g
+                SELECT mood FROM uram_mood WHERE g=$g
             }]
 
             set mood [qsat format $mood]

@@ -1,0 +1,282 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-driver.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    mad(sim) tests.
+#
+#    This test suite tests the driver(sim) module
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    # Do an initial clean-up; this will remove the Adjustments
+    # MAD.
+    cleanup
+
+    #-------------------------------------------------------------------
+    # create
+
+    test create-1.1 {Drivers can be created} -body {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+
+        ted querylist {SELECT * FROM drivers}
+    } -cleanup {
+        cleanup
+    } -result {
+driver_id  1000
+dtype      MAGIC
+narrative  Adjustments
+inputs     0
+
+driver_id  1001
+dtype      CIVCAS
+narrative  Civilian Casualties
+inputs     0
+    }
+
+    test create-1.2 {Returns new driver ID} -body {
+        driver create CIVCAS "Civilian Casualties"
+    } -cleanup {
+        cleanup
+    } -result {1000}
+
+
+    #-------------------------------------------------------------------
+    # delete
+
+    test delete-1.1 {Driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver delete 1000
+
+        # Is 1000 gone?
+        rdb eval {SELECT driver_id FROM drivers}
+    } -cleanup {
+        cleanup
+    } -result {1001}
+
+    #-------------------------------------------------------------------
+    # narrative get
+
+    test narrative_get-1.1 {No such driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver narrative get NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test narrative_get-1.2 {Valid driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver narrative get 1001
+    } -cleanup {
+        cleanup
+    } -result {Civilian Casualties}
+
+    #-------------------------------------------------------------------
+    # narrative set
+
+    test narrative_set-1.1 {No such driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver narrative set NONESUCH "New Text"
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Driver does not exist: "NONESUCH"}
+
+    test narrative_set-1.2 {Valid driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver narrative set 1000 "Attitude Adjustments"
+        ted querylist {SELECT * FROM drivers}
+    } -cleanup {
+        cleanup
+    } -result {
+driver_id  1000
+dtype      MAGIC
+narrative  Attitude Adjustments
+inputs     0
+
+driver_id  1001
+dtype      CIVCAS
+narrative  Civilian Casualties
+inputs     0
+    }
+
+
+    #-------------------------------------------------------------------
+    # inputs get
+
+    test inputs_get-1.1 {No such driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver inputs get NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test inputs_get-1.2 {Valid driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver inputs get 1001
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
+    # inputs incr
+
+    test inputs_incr-1.1 {No such driver} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver inputs incr NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Driver does not exist: "NONESUCH"}
+
+    test inputs_incr-2.1 {incr default} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver inputs incr 1000
+        driver inputs get 1000
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test inputs_incr-2.2 {incr by number} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver inputs incr 1000 2
+        driver inputs get 1000
+    } -cleanup {
+        cleanup
+    } -result {2}
+
+    test inputs_incr-2.3 {incr by negative} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver inputs incr 1000
+        driver inputs incr 1000
+        driver inputs incr 1000 -1
+        driver inputs get 1000
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+
+    #-------------------------------------------------------------------
+    # names
+
+    test names-1.1 {Returns names: none defined} -body {
+        driver names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test names-1.2 {Returns names} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver names
+    } -cleanup {
+        cleanup
+    } -result {1000 1001}
+
+
+    #-------------------------------------------------------------------
+    # longnames
+
+    test longnames-1.1 {Returns names: none defined} -body {
+        driver longnames
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    test longnames-1.2 {Returns names} -setup {
+        driver create MAGIC "Adjustments"
+        driver create CIVCAS "Civilian Casualties"
+    } -body {
+        driver longnames
+    } -cleanup {
+        cleanup
+    } -result {{1000 - Adjustments} {1001 - Civilian Casualties}}
+
+
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {Invalid ID} -body {
+        driver validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Driver does not exist: "NONESUCH"}
+
+
+    test validate-2.1 {Valid ID} -setup {
+        driver create MAGIC "Adjustments"
+    } -body {
+        driver validate 1000
+    } -cleanup {
+        cleanup
+    } -result {1000}
+
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

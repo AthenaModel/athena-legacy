@@ -22,25 +22,6 @@ snit::type aam_rules {
     
     #-------------------------------------------------------------------
     # Public Typemethods
-
-    # isactive ruleset
-    #
-    # ruleset    a Rule Set name
-    #
-    # Returns 1 if the result is active, and 0 otherwise.
-
-    typemethod isactive {ruleset} {
-        return [parmdb get dam.$ruleset.active]
-    }
-
-    # detail label value
-    #
-    # Adds a detail to the input details
-   
-    proc detail {label value} {
-        dam details [format "%-21s %s\n" $label $value]
-    }
-
     
     # civsat dict
     #
@@ -49,14 +30,14 @@ snit::type aam_rules {
     #       n            The neighborhood
     #       f            The CIV group, resident in n
     #       casualties   The number of casualties
-    #       driver       The GRAM driver ID
+    #       driver_id    The URAM driver ID
     #
     # Calls CIVCAS-1 to assess the satisfaction implications of the event.
 
     typemethod civsat {dict} {
         log normal aamr "event CIVCAS-1 [list $dict]"
 
-        if {![aam_rules isactive CIVCAS]} {
+        if {![dam isactive CIVCAS]} {
             log warning aamr "event CIVCAS-1: ruleset has been deactivated"
             return
         }
@@ -73,14 +54,14 @@ snit::type aam_rules {
     #       f            The CIV group, resident in n
     #       g            The force group
     #       casualties   The number of casualties
-    #       driver       The GRAM driver ID
+    #       driver_id    The URAM driver ID
     #
     # Calls CIVCAS-2 to assess the cooperation implications of the event.
 
     typemethod civcoop {dict} {
         log normal aamr "event CIVCAS-2 [list $dict]"
 
-        if {![aam_rules isactive CIVCAS]} {
+        if {![dam isactive CIVCAS]} {
             log warning aamr "event CIVCAS-2: ruleset has been deactivated"
             return
         }
@@ -102,35 +83,34 @@ snit::type aam_rules {
     #       n            The neighborhood
     #       f            The CIV group, resident in n
     #       casualties   The number of casualties
-    #       driver       The GRAM driver ID
+    #       driver_id    The URAM driver ID
     #
     # Assesses the satisfaction implications of the casualties
 
     typemethod CIVCAS-1 {dict} {
-        array set data $dict
+        dict with dict {
+            dam ruleset CIVCAS $driver_id
 
-        dam ruleset CIVCAS $data(driver)                   \
-            -n        $data(n)                             \
-            -f        $data(f)
+            # NEXT, computed the casualty multiplier
+            set zsat [parmdb get dam.CIVCAS.Zsat]
+            set mult [zcurve eval $zsat $casualties]
 
-        # NEXT, computed the casualty multiplier
-        set zsat [parmdb get dam.CIVCAS.Zsat]
-        set mult [zcurve eval $zsat $data(casualties)]
+            # NEXT, add the details
+            dam detail "Neighborhood:" $n
+            dam detail "Civ. Group:"   $f
+            dam detail "Casualties:"   $casualties
+            dam detail "Cas. Mult.:"   [format "%.2f" $mult]
 
-        # NEXT, add the details
-
-        detail "Casualties:" $data(casualties)
-        detail "Cas. Mult.:" [format "%.2f" $mult]
-
-        # The rule fires trivially
-        dam rule CIVCAS-1-1 {1} {
-            # FIRST, apply the satisfaction effects
-            dam sat level AUT [mag* $mult L-]  2
-            dam sat level SFT [mag* $mult XL-] 2
-            dam sat level QOL [mag* $mult L-]  2
+            # The rule fires trivially
+            dam rule CIVCAS-1-1 {1} {
+                # FIRST, apply the satisfaction effects
+                dam sat P $f \
+                    AUT [mag* $mult L-]  \
+                    SFT [mag* $mult XL-] \
+                    QOL [mag* $mult L-]
+            }
         }
     }
-
 
     # CIVCAS-2 dict
     #
@@ -140,71 +120,35 @@ snit::type aam_rules {
     #       f            The CIV group, resident in n
     #       g            The FRC group
     #       casualties   The number of casualties
-    #       driver       The GRAM driver ID
+    #       driver_id    The URAM driver ID
     #
     # Assesses the cooperation implications of the casualties
     # in which force group g was involved.
 
     typemethod CIVCAS-2 {dict} {
-        array set data $dict
+        dict with dict {
+            dam ruleset CIVCAS $driver_id
 
-        dam ruleset CIVCAS $data(driver)                   \
-            -n        $data(n)                             \
-            -f        $data(f)                             \
-            -doer     $data(g)
+            # NEXT, compute the multiplier
+            set zsat [parmdb get dam.CIVCAS.Zcoop]
+            set cmult [zcurve eval $zsat $casualties]
+            set rmult [rmf enmore [hrel.fg $f $g]]
+            let mult {$cmult * $rmult}
 
-        # NEXT, compute the multiplier
-        set zsat [parmdb get dam.CIVCAS.Zcoop]
-        set cmult [zcurve eval $zsat $data(casualties)]
-        set rmult [rmf enmore [rel $data(f) $data(g)]]
-        let mult {$cmult * $rmult}
+            # NEXT, add the details
+            dam detail "Neighborhood:" $n
+            dam detail "Civ. Group:"   $f
+            dam detail "Frc. Group:"   $g
+            dam detail "Casualties:"   $casualties
+            dam detail "Cas. Mult.:"   [format "%.2f" $cmult]
+            dam detail "RMF Mult.:"    [format "%.2f" $rmult]
 
-        # NEXT, add the details
-
-        detail "Casualties:" $data(casualties)
-        detail "Cas. Mult.:" [format "%.2f" $cmult]
-        detail "RMF Mult.:"  [format "%.2f" $rmult]
-
-        # The rule fires trivially
-        dam rule CIVCAS-2-1 {1} {
-            # FIRST, apply the satisfaction effects
-            dam coop level -- [mag* $mult M-] 2
+            # The rule fires trivially
+            dam rule CIVCAS-2-1 {1} {
+                # FIRST, apply the cooperation effects
+                dam coop P $f $g [mag* $mult M-]
+            }
         }
-    }
-
-    #-------------------------------------------------------------------
-    # Utility Procs
-
-    #
-    # multiplier    A numeric multiplier
-    # mag           A qmag value
-    #
-    # Returns the numeric value of mag times the multiplier.
-
-    proc mag* {multiplier mag} {
-        set result [expr {$multiplier * [qmag value $mag]}]
-
-        if {$result == -0.0} {
-            set result 0.0
-        }
-
-        return $result
-    }
-
-    # rel f g
-    #
-    # f    A CIV group f
-    # g    A FRC or ORG group g
-    #
-    # Returns the relationship between the groups.
-
-    proc rel {f g} {
-        set rel [rdb eval {
-            SELECT rel FROM rel_view
-            WHERE f=$f AND g=$g
-        }]
-
-        return $rel
     }
 }
 

@@ -86,11 +86,8 @@ snit::type actsit {
             # NEXT, get an actsit object to manipulate the data.
             set sit [situation get $s]
 
-            # NEXT, create a GRAM driver for this situation
-            $sit set driver [aram driver add \
-                                 -dtype    $row(stype) \
-                                 -name     "Sit $s"    \
-                                 -oneliner [$sit oneliner]]
+            # NEXT, create a URAM driver for this situation
+            $sit set driver_id [driver create $row(stype) [$sit oneliner]]
 
             # NEXT, link it to the activity_nga object.
             rdb eval {

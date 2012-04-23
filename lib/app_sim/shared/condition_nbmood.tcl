@@ -43,7 +43,7 @@ condition type define NBMOOD {n op1 x1} {
     typemethod eval {cdict} {
         dict with cdict {
             set nbmood [rdb onecolumn {
-                SELECT sat FROM gram_n WHERE n=$n
+                SELECT nbmood FROM uram_n WHERE n=$n
             }]
 
             set nbmood [qsat format $nbmood]

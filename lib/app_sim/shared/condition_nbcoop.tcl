@@ -47,7 +47,7 @@ condition type define NBCOOP {n g op1 x1} {
     typemethod eval {cdict} {
         dict with cdict {
             set nbcoop [rdb onecolumn {
-                SELECT coop FROM gram_frc_ng WHERE n=$n AND g=$g
+                SELECT nbcoop FROM uram_nbcoop WHERE n=$n AND g=$g
             }]
 
             set nbcoop [qcooperation format $nbcoop]

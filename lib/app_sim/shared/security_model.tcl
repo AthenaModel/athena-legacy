@@ -106,10 +106,10 @@ snit::type security_model {
             SELECT civgroups.n             AS n,
                    civgroups.g             AS g,
                    civgroups.demeanor      AS demeanor,
-                   gram_g.sat              AS mood,
+                   uram_mood.mood          AS mood,
                    total(units.personnel)  AS P
             FROM civgroups_view AS civgroups
-            JOIN gram_g USING (g)
+            JOIN uram_mood USING (g)
             JOIN units ON (units.origin=civgroups.n AND units.g=civgroups.g)
             WHERE units.n = units.origin
             GROUP BY civgroups.n,civgroups.g
@@ -117,8 +117,8 @@ snit::type security_model {
             set a [parmdb get force.population]
             set D [parmdb get force.demeanor.$demeanor]
             
-            set b    [parmdb get force.mood]
-            let M    {1.0 - $b*$mood/100.0}
+            set b [parmdb get force.mood]
+            let M {1.0 - $b*$mood/100.0}
 
             let pop_force {int(ceil($a*$D*$M*$P))}
 

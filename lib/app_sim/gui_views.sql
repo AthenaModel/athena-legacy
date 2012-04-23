@@ -76,7 +76,7 @@ SELECT N.n                                                    AS id,
        COALESCE(C.since, 0)                                   AS since_ticks,
        tozulu(COALESCE(C.since, 0))                           AS since,
        format('%4.1f',N.vtygain)                              AS vtygain,
-       N.stacking_order                                      AS stacking_order,
+       N.stacking_order                                       AS stacking_order,
        N.obscured_by                                          AS obscured_by,
        m2ref(N.refpoint)                                      AS refpoint,
        m2ref(N.polygon)                                       AS polygon,
@@ -88,12 +88,13 @@ SELECT N.n                                                    AS id,
        COALESCE(D.consumers,0)                                AS consumers,
        COALESCE(D.labor_force,0)                              AS labor_force,
        COALESCE(D.unemployed,0)                               AS unemployed,
-       format('%.3f',COALESCE(GR.sat0, 0.0))                  AS mood0,
-       format('%.3f',COALESCE(GR.sat, 0.0))                   AS mood
+       -- TBD: These should be "nbmood", not "mood".
+       format('%.3f',COALESCE(UN.nbmood0, 0.0))               AS mood0,
+       format('%.3f',COALESCE(UN.nbmood, 0.0))                AS mood
 FROM nbhoods              AS N
 JOIN demog_n              AS D  USING (n)
 LEFT OUTER JOIN force_n   AS F  USING (n)
-LEFT OUTER JOIN gram_n    AS GR USING (n)
+LEFT OUTER JOIN uram_n    AS UN USING (n)
 LEFT OUTER JOIN control_n AS C  USING (n);
 
 -- A Groups view for use by the GUI
@@ -141,13 +142,13 @@ SELECT G.id                                         AS id,
        coalesce(moneyfmt(SR.sat_funding), 'N/A')    AS sat_funding,
        format('%.1f', DG.upc)                       AS upc,
        format('%.2f', DG.uaf)                       AS uaf,
-       format('%.3f', coalesce(gram_g.sat0, 0.0))   AS mood0,
-       format('%.3f', coalesce(gram_g.sat,  0.0))   AS mood
+       format('%.3f', coalesce(UM.mood0, 0.0))      AS mood0,
+       format('%.3f', coalesce(UM.mood, 0.0))       AS mood
 FROM gui_groups AS G
 JOIN civgroups  AS CG USING (g)
 JOIN demog_g    AS DG USING (g)
 LEFT OUTER JOIN sr_service AS SR USING (g)
-LEFT OUTER JOIN gram_g           USING (g);
+LEFT OUTER JOIN uram_mood  AS UM USING (g);
 
 -- A Force Groups view for use by the GUI
 CREATE TEMPORARY VIEW gui_frcgroups AS
@@ -364,18 +365,18 @@ JOIN gui_actors    AS A ON (GA.a = A.a)
 JOIN gui_nbhoods   AS N ON (G.n = N.n);
 
 -- A sat_gc view for use by the GUI: 
--- NOTE: presumes there is a single gram(n)!
+-- NOTE: presumes there is a single uram(n)!
 CREATE TEMPORARY VIEW gui_sat_gc AS
 SELECT main.g || ' ' || main.c                        AS id,
        main.g                                         AS g,
        main.c                                         AS c,
        CG.n                                           AS n,
-       format('%.3f', coalesce(gram.sat0, main.sat0)) AS sat0,
-       format('%.3f', coalesce(gram.sat, main.sat0))  AS sat,
+       format('%.3f', coalesce(uram.sat0, main.sat0)) AS sat0,
+       format('%.3f', coalesce(uram.sat, main.sat0))  AS sat,
        format('%.2f', main.saliency)                  AS saliency
 FROM sat_gc AS main
 JOIN civgroups AS CG ON (main.g = CG.g) 
-LEFT OUTER JOIN gram_sat AS gram ON (main.g = gram.g AND main.c = gram.c);
+LEFT OUTER JOIN uram_sat AS uram ON (main.g = uram.g AND main.c = uram.c);
 
 
 -- A rel_fg view for use by the GUI
@@ -398,25 +399,25 @@ SELECT * FROM gui_rel_view
 WHERE override = 'Y';
 
 -- A coop_fg view for use by the GUI:
--- NOTE: presumes there is a single gram(n)!
+-- NOTE: presumes there is a single uram(n)!
 CREATE TEMPORARY VIEW gui_coop_fg AS
 SELECT f || ' ' || g                                     AS id,
        f                                                 AS f,
        g                                                 AS g,
-       format('%5.1f', coalesce(gram.coop0, main.coop0)) AS coop0,
-       format('%5.1f', coalesce(gram.coop, main.coop0))  AS coop
+       format('%5.1f', coalesce(uram.coop0, main.coop0)) AS coop0,
+       format('%5.1f', coalesce(uram.coop, main.coop0))  AS coop
 FROM coop_fg AS main 
-LEFT OUTER JOIN gram_coop AS gram USING (f,g);
+LEFT OUTER JOIN uram_coop AS uram USING (f,g);
 
 -- A coop_ng view for use by the GUI:
--- NOTE: presumes there is a single gram(n)!
+-- NOTE: presumes there is a single uram(n)!
 CREATE TEMPORARY VIEW gui_coop_ng AS
-SELECT n || ' ' || g          AS id,
-       n                      AS n,
-       g                      AS g,
-       format('%5.1f', coop0) AS coop0,
-       format('%5.1f', coop)  AS coop
-FROM gram_frc_ng;
+SELECT n || ' ' || g            AS id,
+       n                        AS n,
+       g                        AS g,
+       format('%5.1f', nbcoop0) AS coop0,
+       format('%5.1f', nbcoop)  AS coop
+FROM uram_nbcoop;
 
 -- An nbrel_mn view for use by the GUI
 CREATE TEMPORARY VIEW gui_nbrel_mn AS
@@ -488,7 +489,7 @@ SELECT s                        AS id,
        s                        AS s,
        change                   AS change,
        state                    AS state,
-       driver                   AS driver,
+       driver_id                AS driver_id,
        stype                    AS stype,
        n                        AS n,
        g                        AS g,
@@ -513,7 +514,7 @@ SELECT s                        AS id,
        s                        AS s,
        change                   AS change,
        state                    AS state,
-       driver                   AS driver,
+       driver_id                AS driver_id,
        stype                    AS stype,
        n                        AS n,
        g                        AS g,
@@ -539,7 +540,7 @@ SELECT s                                              AS id,
        s                                              AS s,
        change                                         AS change,
        state                                          AS state,
-       driver                                         AS driver,
+       driver_id                                      AS driver_id,
        stype                                          AS stype,
        n                                              AS n,
        g                                              AS g,
@@ -606,17 +607,16 @@ ORDER BY id DESC;
 -- View of MADs for use in browsers and order dialogs
 
 CREATE TEMPORARY VIEW gui_mads AS
-SELECT mads.id                             AS id,
-       mads.id || ' - ' || mads.oneliner   AS longid,
-       mads.oneliner                       AS oneliner,
-       mads.cause                          AS cause,
-       format('%5.3f',mads.s)              AS s,
-       format('%5.3f',mads.p)              AS p,
-       format('%5.3f',mads.q)              AS q,
-       mads.driver                         AS driver,
-       COALESCE(last_input, 0)             AS inputs
-FROM mads
-LEFT OUTER JOIN gram_driver USING (driver);
+SELECT M.driver_id                         AS driver_id,
+       M.driver_id || ' - ' || D.narrative AS longid,
+       D.narrative                         AS narrative,
+       M.cause                             AS cause,
+       format('%5.3f',M.s)                 AS s,
+       format('%5.3f',M.p)                 AS p,
+       format('%5.3f',M.q)                 AS q,
+       D.inputs                            AS inputs
+FROM mads    AS M
+JOIN drivers AS D USING (driver_id);
 
 
 CREATE TEMPORARY VIEW gui_mads_initial AS

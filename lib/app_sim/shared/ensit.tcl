@@ -49,7 +49,7 @@ snit::type ensit {
         # been resolved but the resolution has not yet been assessed.
         set ids [rdb eval {
             SELECT s FROM ensits 
-            WHERE state != 'ENDED' OR rdriver=0
+            WHERE state != 'ENDED' OR rdriver_id=0
         }]
         
         foreach s $ids {
@@ -62,11 +62,6 @@ snit::type ensit {
                 # FIRST, set the state
                 $sit set state ACTIVE
 
-                # NEXT, set the start and change times to right now.
-                # TBD: This probably isn't necessary
-                # $sit set ts [simclock now]
-                # $sit set tc [simclock now]
-
                 # NEXT, if it spawns, schedule the spawn
                 $sit ScheduleSpawn
 
@@ -75,28 +70,22 @@ snit::type ensit {
             }
 
             # NEXT, create a driver if it lacks one.
-            if {[$sit get driver] == -1} {
-                $sit set driver [aram driver add \
-                                     -dtype    [$sit get stype] \
-                                     -name     "Sit $s"         \
-                                     -oneliner [$sit oneliner]]
+            if {[$sit get driver_id] == -1} {
+                $sit set driver_id \
+                    [driver create [$sit get stype] [$sit oneliner]]
             }
 
-            # NEXT, assess inception affects if need be.
-            if {[$sit get inception]} {
-                $sit set inception 0
-                ensit_rules inception $sit
-            }
-
-            # NEXT, it's on going; monitor its coverage
+            # NEXT, it's on going; monitor its coverage.  Afterwards,
+            # clear the inception flag so that we only get inception
+            # once.
             ensit_rules monitor $sit
+            $sit set inception 0
 
             # NEXT, assess resolution affects if need be.
             if {[$sit get state] eq "ENDED"} {
-                $sit set rdriver [aram driver add \
-                                     -dtype    [$sit get stype] \
-                                     -name     "Sit $s"         \
-                                     -oneliner "Resolution of [$sit oneliner]"]
+                $sit set rdriver_id \
+                    [driver create [$sit get stype] \
+                         "Resolution of [$sit oneliner]"]
 
                 ensit_rules resolution $sit
             }

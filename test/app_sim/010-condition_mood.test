@@ -97,15 +97,22 @@ namespace eval ::athena_test::tests:: {
 
     proc MoodEval {mood comp amount} {
         rdb eval {
-            INSERT OR REPLACE INTO gram_g(g,sat)
-            VALUES('SHIA', $mood);
+            SELECT g_id FROM uram_g WHERE g='SHIA'
+        } {
+            rdb eval {
+                UPDATE uram_civ_g
+                SET mood=$mood
+                WHERE g_id=$g_id
+            }
         }
+
         condition mutate update [list condition_id 1 op1 $comp x1 $amount]
         return [condition::MOOD eval [condition get 1]]
     }
 
     test eval-1.1 {Test eval} -setup {
         setup
+        aram init
         condition mutate create $C1
     } -body {
         set a [MoodEval 50 EQ 50]

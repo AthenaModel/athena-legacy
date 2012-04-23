@@ -14,16 +14,10 @@
 -- Temporary Table: DAM Inputs
 CREATE TEMP TABLE dam_inputs (
     id INTEGER PRIMARY KEY,
-    input,            -- GRAM input ID
-    itype,            -- sat, coop
-    etype,            -- LEVEL, SLOPE
-    n,                -- Neighborhood name
-    f,                -- Group name
-    g,                -- Group name (coop)
-    c,                -- Concern name (sat)
-    slope,            -- Slope (SLOPE)
-    climit,           -- Limit (LEVEL)
-    days,             -- Days value (LEVEL)
+    atype,            -- sat, coop, hrel, vrel
+    mode,             -- P or T
+    curve,            -- Curve indices, e.g., "$g $c" for sat
+    mag,              -- Numeric magnitude
     cause,            -- Cause name (ecause)
     s,                -- Here effects multiplier
     p,                -- Near effects multiplier

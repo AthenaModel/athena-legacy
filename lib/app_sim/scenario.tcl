@@ -80,13 +80,13 @@ snit::type scenario {
         rdb monitor add coop_fg      {f g}
         rdb monitor add defroe_ng    {n g}
         rdb monitor add deploy_ng    {n g}
+        rdb monitor add drivers      {driver_id}
         rdb monitor add econ_n       {n}
         rdb monitor add ensits_t     {s}
         rdb monitor add frcgroups    {g}
         rdb monitor add goals        {goal_id}
-        rdb monitor add gram_driver  {driver}
         rdb monitor add groups       {g}
-        rdb monitor add mads         {id}
+        rdb monitor add mads_t       {driver_id}
         rdb monitor add mam_playbox  {pid}
         rdb monitor add mam_belief   {eid tid}
         rdb monitor add mam_entity   {eid}
@@ -117,7 +117,7 @@ snit::type scenario {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, unlock the scenario if it is locked; this
-        # will reinitialize modules like GRAM.
+        # will reinitialize modules like URAM.
         if {[sim state] ne "PREP"} {
             sim mutate unlock
         }
@@ -339,9 +339,9 @@ snit::type scenario {
     # The "maps" are excluded because of the size, and the "snapshots"
     # are excluded for obvious reasons.
     #
-    # In addition, exclude the GRAM influence and history tables.
-    # The GRAM influence tables never change after time 0 (for now,
-    # anyway) and the GRAM history table entries never change after they
+    # In addition, exclude the URAM influence and history tables.
+    # The URAM influence tables never change after time 0 (for now,
+    # anyway) and the URAM history table entries never change after they
     # are written.  We can leave them in place, and truncate the tables
     # if we re-enter the time-stream.
     #
@@ -356,9 +356,6 @@ snit::type scenario {
         set snapshot [rdb tclexport -exclude {
             snapshots 
             maps 
-            gram_fg
-            gram_contribs
-            gram_deltas
             hist_control
             hist_coop
             hist_mood
@@ -371,6 +368,9 @@ snit::type scenario {
             hist_vrel
             sigevents
             sigevent_tags
+            ucurve_contribs_t
+            uram_civrel_t
+            uram_frcrel_t
         }]
 
         log detail scenario "Snapshot size=[string length $snapshot]"
@@ -456,8 +456,7 @@ snit::type scenario {
 
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
-            DELETE FROM gram_contribs WHERE time >= $t;
-            DELETE FROM gram_deltas WHERE time >= $t;
+            DELETE FROM ucurve_contribs_t WHERE t > $t;
         }
 
         hist purge $hist_t
@@ -512,11 +511,11 @@ snit::type scenario {
 
         # NEXT, create the "Adjustments" MAD.
         mad mutate create {
-            oneliner "Adjustments" 
-            cause    UNIQUE
-            s        1.0
-            p        0.0
-            q        0.0
+            narrative "Adjustments" 
+            cause     UNIQUE
+            s         1.0
+            p         0.0
+            q         0.0
         }
 
         # NEXT, if there's a default parameter file, load it; and

@@ -322,10 +322,14 @@ snit::type ::projectlib::scenariodb {
                     -rollback  on]
 
         # NEXT, register the schema sections
+        # TBD: Remove ::simlib::gram when URAM conversion is complete.
         $db register ::marsutil::eventq
         $db register ::marsutil::reporter
+        $db register ::marsutil::undostack
         $db register ::simlib::gram
         $db register ::simlib::mam
+        $db register ::simlib::ucurve
+        $db register ::simlib::uram
         $db register $type
     }
 

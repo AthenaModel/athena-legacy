@@ -73,14 +73,45 @@ namespace eval ::athena_test::tests:: {
         ensit mutate create $s1
         ensit mutate create $s2
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
-2 ::ensit COMMOUT  -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           100 100  0         BLUE     1         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
+
+s           2
+kind        ::ensit
+stype       COMMOUT
+driver_id   -1
+n           NB1
+coverage    0.5
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           NONE
+location    100 100
+inception   0
+resolver    BLUE
+rduration   1
+rdriver_id  0
     }
     
 
@@ -89,13 +120,27 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     } -body {
         ensit mutate create [dict merge $s1 [list rduration 20]]
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     20        0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    NONE
+rduration   20
+rdriver_id  0
     }
     
 
@@ -133,13 +178,27 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
         set undo [ensit mutate delete 1]
     } -body {
         {*}$undo
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
     }
 
 
@@ -162,13 +221,27 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
             rduration 10
         }
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype   driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADFOOD -1     NB1 0.5      INITIAL 0  0  NEW    ALL   NONE           101 101  0         BLUE     10        0       
+s           1
+kind        ::ensit
+stype       BADFOOD
+driver_id   -1
+n           NB1
+coverage    0.5
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           NONE
+location    101 101
+inception   0
+resolver    BLUE
+rduration   10
+rdriver_id  0
     }
 
     test update-1.2 {identical values are OK} -setup {
@@ -269,13 +342,27 @@ s n
             resolver  NONE
         }
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       ENDED
+ts          0
+tc          0
+change      RESOLVED
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
     }
 
 
@@ -311,13 +398,27 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     } -body {
         ensit mutate reconcile
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           100 100  1         NONE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           NONE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
     }
 
 
@@ -330,13 +431,27 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     } -body {
         ensit mutate reconcile
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   NONE           100 100  1         NONE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       ENDED
+ts          0
+tc          0
+change      RESOLVED
+flist       ALL
+g           NONE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
     }
 
 
@@ -349,13 +464,27 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     } -body {
         ensit mutate reconcile
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ - -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1       1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           
+coverage    1.0
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
     }
 
 
@@ -371,13 +500,27 @@ s kind    stype    driver n coverage state   ts tc change flist g    signature l
     } -body {
         eval $undo
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BRIT     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       ENDED
+ts          0
+tc          0
+change      RESOLVED
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    BRIT
+rduration   2
+rdriver_id  0
     }
 
 
@@ -638,7 +781,7 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     }
 
 
-    test spawn-1.2 {Spawn is scheduled on first assess} -setup {
+    test spawn-1.2 {Spawn is scheduled on first assess} -constraints tbd -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s3
     } -body {
@@ -673,7 +816,7 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     }
 
 
-    test spawn-1.4 {undo restores scheduled spawn} -setup {
+    test spawn-1.4 {undo restores scheduled spawn} -constraints tbd -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s3
         ted lock
@@ -696,7 +839,7 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     }
 
 
-    test spawn-1.5 {Ensits spawn at spawn time} -setup {
+    test spawn-1.5 {Ensits spawn at spawn time} -constraints tbd -setup {
         parmdb set demsit.disable yes
         parmdb set dam.ENI.active no
         ted create NB1 BLUE SHIA
@@ -732,7 +875,7 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
     }
 
 
-    test auto-resolve-1.2 {Auto-Resolve is scheduled on first assess} -setup {
+    test auto-resolve-1.2 {Auto-Resolve is scheduled on first assess} -constraints tbd -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
     } -body {
@@ -766,7 +909,7 @@ id t etype            s
     }
 
 
-    test auto-resolve-1.4 {undo restores scheduled auto-resolve} -setup {
+    test auto-resolve-1.4 {undo restores scheduled auto-resolve} -constraints tbd -setup {
         ted create NB1 BLUE SHIA
         ensit mutate create $s1
         ted lock
@@ -788,7 +931,7 @@ id t etype            s
     }
 
 
-    test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -setup {
+    test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -constraints tbd -setup {
         parm set demsit.disable yes
         parmdb set dam.ENI.active no
         ted create NB1 BLUE SHIA

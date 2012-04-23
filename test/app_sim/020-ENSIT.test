@@ -186,13 +186,27 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order ENSIT:CREATE $s1
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      INITIAL 0  0  NEW    ALL   BLUE           100 100  1         NONE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
     }
 
 
@@ -425,13 +439,27 @@ s kind    stype    driver n   coverage state   ts tc change flist g    signature
             rduration 10
         }
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype   driver n   coverage state   ts tc change flist g    signature location inception resolver rduration rdriver 
-- ------- ------- ------ --- -------- ------- -- -- ------ ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit COMMOUT -1     NB1 1.0      INITIAL 0  0  NEW    ALL   NONE           101 101  0         BLUE     10        0       
+s           1
+kind        ::ensit
+stype       COMMOUT
+driver_id   -1
+n           NB1
+coverage    1.0
+state       INITIAL
+ts          0
+tc          0
+change      NEW
+flist       ALL
+g           NONE
+location    101 101
+inception   0
+resolver    BLUE
+rduration   10
+rdriver_id  0
     }
 
 
@@ -611,13 +639,27 @@ s location
     } -body {
         ted order ENSIT:RESOLVE s 1 resolver BLUE
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         BLUE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       ENDED
+ts          0
+tc          0
+change      RESOLVED
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    BLUE
+rduration   2
+rdriver_id  0
     }
 
 
@@ -627,13 +669,27 @@ s kind    stype    driver n   coverage state ts tc change   flist g    signature
     } -body {
         ted order ENSIT:RESOLVE s 1
 
-        ted query {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s kind    stype    driver n   coverage state ts tc change   flist g    signature location inception resolver rduration rdriver 
-- ------- -------- ------ --- -------- ----- -- -- -------- ----- ---- --------- -------- --------- -------- --------- ------- 
-1 ::ensit BADWATER -1     NB1 1.0      ENDED 0  0  RESOLVED ALL   BLUE           100 100  1         NONE     2         0       
+s           1
+kind        ::ensit
+stype       BADWATER
+driver_id   -1
+n           NB1
+coverage    1.0
+state       ENDED
+ts          0
+tc          0
+change      RESOLVED
+flist       ALL
+g           BLUE
+location    100 100
+inception   1
+resolver    NONE
+rduration   2
+rdriver_id  0
     }
 
 

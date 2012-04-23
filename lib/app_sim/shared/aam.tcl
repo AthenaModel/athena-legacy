@@ -102,9 +102,8 @@ snit::type aam {
             # TBD: Consider defining a driver -name, using some kind of
             # serial number, e.g., "Evt 1" or "Att 1" or "AAM 1"
             set row(driver) \
-                [aram driver add      \
-                     -dtype    CIVCAS \
-                     -oneliner "Casualties to nbhood group $row(n) $row(f)"]
+                [driver create CIVCAS \
+                     "Casualties to group $row(f) in $row(n)"]
 
             set driver([list $row(n) $row(f)]) $row(driver)
             aam_rules civsat [array get row]
@@ -170,16 +169,16 @@ snit::type aam {
                    N.urbanization            AS urbanization,
                    DN.population             AS pop,
                    UP.personnel              AS ufPersonnel,
-                   UC.coop                   AS ufCoop,
+                   UC.nbcoop                 AS ufCoop,
                    NP.personnel              AS nfPersonnel,
-                   NC.coop                   AS nfCoop
+                   NC.nbcoop                 AS nfCoop
             FROM attroe_nfg    AS A
             JOIN nbhoods       AS N  ON (N.n  = A.n)
             JOIN demog_n       AS DN ON (DN.n = A.n)
             JOIN force_ng      AS UP ON (UP.n = A.n AND UP.g = A.f)
-            JOIN gram_frc_ng   AS UC ON (UC.n = A.n AND UC.g = A.f)
+            JOIN uram_nbcoop   AS UC ON (UC.n = A.n AND UC.g = A.f)
             JOIN force_ng      AS NP ON (NP.n = A.n AND NP.g = A.g)
-            JOIN gram_frc_ng   AS NC ON (NC.n = A.n AND NC.g = A.g)
+            JOIN uram_nbcoop   AS NC ON (NC.n = A.n AND NC.g = A.g)
             WHERE A.uniformed =  1
             AND   A.roe       =  'ATTACK'
         } {

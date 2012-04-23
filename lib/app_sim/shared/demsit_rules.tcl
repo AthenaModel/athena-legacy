@@ -42,7 +42,7 @@ snit::type demsit_rules {
     typemethod {monitor} {sit} {
         set ruleset [$sit get stype]
 
-        if {![parmdb get dam.$ruleset.active]} {
+        if {![dam isactive $ruleset]} {
             log warning actr \
                 "monitor $ruleset: ruleset has been deactivated"
             return
@@ -53,18 +53,6 @@ snit::type demsit_rules {
             demsit_rules $ruleset $sit
         }
     }
-
-    #-------------------------------------------------------------------
-    # Rule Set Tools
-
-    # detail label value
-    #
-    # Adds a detail to the input details
-   
-    proc detail {label value} {
-        dam details [format "%-21s %s\n" $label $value]
-    }
-
 
     #===================================================================
     # Demographic Situations
@@ -82,8 +70,6 @@ snit::type demsit_rules {
     #
     # This method is called when unemployment significantly affects
     # a group g in neighborhood n.
-    #
-    # TBD: Need thresholds!
 
     typemethod UNEMP {sit} {
         log detail demr [list UNEMP [$sit id]]
@@ -93,68 +79,32 @@ snit::type demsit_rules {
         set ngfactor [$sit get ngfactor]
         set nfactor  [$sit get nfactor]
 
-        dam ruleset UNEMP [$sit get driver]                        \
-            -sit       $sit                                        \
-            -f         $g                                          \
-            -n         $n
+        dam ruleset UNEMP [$sit get driver_id]
 
-        detail "NbGroup UAF:" [format %4.2f $ngfactor]
-        detail "Nbhood UAF:"  [format %4.2f $nfactor]
+        dam detail "Civilian Group:"  $g
+        dam detail "In Neighborhood:" $n
+        dam detail "NbGroup UAF:"     [format %4.2f $ngfactor]
+        dam detail "Nbhood UAF:"      [format %4.2f $nfactor]
 
         dam rule UNEMP-1-1 {
             $ngfactor > 0.0 || $nfactor > 0.0
         } {
-            dam guard [format "%.2f %.2f" $ngfactor $nfactor]
-
             # While there is an UNEMP situation affecting group g
             #     with ngfactor > 0.0
             # Then for CIV group g in the nbhood,
             if {$ngfactor > 0.0} {
-                dam sat slope QOL [mag* $ngfactor L-]
+                dam sat T $g QOL [mag* $ngfactor L-]
             }
 
             # While there is an UNEMP situation affecting group g
             #     with nfactor > 0.0
             # Then for CIV group g in the nbhood,
             if {$nfactor > 0.0} {
-                dam sat slope SFT [mag* $nfactor M-]
-                dam sat slope AUT [mag* $nfactor S-]
+                dam sat T $g SFT [mag* $nfactor M-]
+                dam sat T $g AUT [mag* $nfactor S-]
             }
         }
-
-        dam rule UNEMP-2-1 {
-            $ngfactor == 0.0 && $nfactor == 0.0
-        } {
-            dam guard
-
-            # While there is a UNEMP situation affecting group g
-            #     with ngfactor and nfactor both zero
-            # Then for CIV group g in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-        }
     }
-
-    #-------------------------------------------------------------------
-    # Utility Procs
-    
-    # mag* multiplier mag
-    #
-    # multiplier    A numeric multiplier
-    # mag           A qmag value
-    #
-    # Returns the numeric value of mag times the multiplier.
-
-    proc mag* {multiplier mag} {
-        set result [expr {$multiplier * [qmag value $mag]}]
-
-        if {$result == -0.0} {
-            set result 0.0
-        }
-
-        return $result
-    }
-
 }
 
 

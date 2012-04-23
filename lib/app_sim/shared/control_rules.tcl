@@ -119,24 +119,6 @@ snit::type control_rules {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # isactive ruleset
-    #
-    # ruleset    a Rule Set name
-    #
-    # Returns 1 if the result is active, and 0 otherwise.
-
-    typemethod isactive {ruleset} {
-        return [parmdb get dam.$ruleset.active]
-    }
-
-    # detail label value
-    #
-    # Adds a detail to the input details
-   
-    proc detail {label value} {
-        dam details [format "%-21s %s\n" $label $value]
-    }
-
     # analyze dict
     #
     # dict  Dictionary of aggregate event attributes:
@@ -144,7 +126,7 @@ snit::type control_rules {
     #       n            The neighborhood in which control shifted.
     #       a            The actor that lost control, or "" if none.
     #       b            The actor that gained control, or "" if none.
-    #       driver       The GRAM driver ID
+    #       driver_id    The GRAM driver_id ID
     #
     # Calls CONTROL-1 to assess the satisfaction and cooperation
     # implications of the event.
@@ -152,8 +134,9 @@ snit::type control_rules {
     typemethod analyze {dict} {
         log normal controlr "event CONTROL-1 [list $dict]"
 
-        if {![control_rules isactive CONTROL]} {
-            log warning controlr "event CONTROL-1: ruleset has been deactivated"
+        if {![dam isactive CONTROL]} {
+            log warning controlr \
+                "event CONTROL-1: ruleset has been deactivated"
             return
         }
 
@@ -175,149 +158,122 @@ snit::type control_rules {
     #       n            The neighborhood in which control shifted.
     #       a            The actor that lost control, or "" if none.
     #       b            The actor that gained control, or "" if none.
-    #       driver       The GRAM driver ID
+    #       driver_id    The GRAM driver_id ID
     #
     # Assesses the satisfaction and cooperation implications of the
     # shift in control.
 
     typemethod CONTROL-1 {dict} {
-        array set data $dict
+        dict with dict {
+            set flist [civgroup gIn $n]
 
-        dam ruleset CONTROL $data(driver) \
-            -n $data(n)
+            dam ruleset CONTROL $driver_id
 
-        # CONTROL-1-1
-        #
-        # If Actor b has taken control of nbhood n from Actor a,
-        # Then for each CIV pgroup f in the neighborhood
-        dam rule CONTROL-1-1 {
-            $data(a) ne "" && $data(b) ne ""
-        } {
-            detail "Lost Control:"   $data(a)
-            detail "Gained Control:" $data(b)
+            dam detail "In Neighborhood:" $n
 
-            foreach f [civgroup gIn $data(n)] {
-                # FIRST, get the vertical relationships
-                set Vfa [vrel $f $data(a)]
-                set Vfb [vrel $f $data(b)]
+            # CONTROL-1-1
+            #
+            # If Actor b has taken control of nbhood n from Actor a,
+            # Then for each CIV pgroup f in the neighborhood
+            dam rule CONTROL-1-1 {
+                $a ne "" && $b ne ""
+            } {
+                dam detail "Lost Control:"   $a
+                dam detail "Gained Control:" $b
 
-                # NEXT, get the satisfaction effects.
-                let Vdelta {$Vfb - $Vfa}
+                foreach f $flist {
+                    # FIRST, get the vertical relationships
+                    set Vfa [vrel.ga $f $a]
+                    set Vfb [vrel.ga $f $b]
 
-                if {$Vdelta > 0.0} {
-                    set sign "+"
-                } elseif {$Vdelta < 0.0} {
-                    set sign "-"
-                } else {
-                    set sign ""
-                }
+                    # NEXT, get the satisfaction effects.
+                    let Vdelta {$Vfb - $Vfa}
 
-                set mag 0
-
-                dict for {bound sym} $C11sat {
-                    if {$bound < abs($Vdelta)} {
-                        set mag $sym$sign
-                        break
-                    }
-                }
-                
-                dam sat level -f $f AUT $mag 7
-
-                # NEXT, get the cooperation effects with a's troops
-                dam coop level -f $f -doer [actor frcgroups $data(a)] \
-                    $C11acoop([qaffinity name $Vfa]) 7
-                dam coop level -f $f -doer [actor frcgroups $data(b)] \
-                    $C11bcoop([qaffinity name $Vfb]) 7
-            }
-        }
-
-        # CONTROL-1-2
-        #
-        # If Actor a has lost control of nbhood n, which is now
-        # in chaos,
-        # Then for each CIV pgroup f in the neighborhood
-        dam rule CONTROL-1-2 {
-            $data(a) ne "" && $data(b) eq ""
-        } {
-            detail "Lost Control:"   $data(a)
-
-            foreach f [civgroup gIn $data(n)] {
-                # FIRST, get the vertical relationships
-                set Vsym [qaffinity name [vrel $f $data(a)]]
-
-                dam sat level -f $f AUT $C12sat($Vsym) 7
-
-                # NEXT, get the cooperation effects with each
-                # actor's troops
-                foreach actor [actor names] {
-                    set glist [actor frcgroups $actor]
-
-                    if {$actor eq $data(a)} {
-                        set mag $C12acoop($Vsym)
+                    if {$Vdelta > 0.0} {
+                        set sign "+"
+                    } elseif {$Vdelta < 0.0} {
+                        set sign "-"
                     } else {
-                        set Vc [qaffinity name [vrel $f $actor]]
-                        set mag $C12ccoop($Vc)
+                        set sign ""
                     }
 
-                    dam coop level -f $f -doer $glist $mag 7
+                    set mag 0
+
+                    dict for {bound sym} $C11sat {
+                        if {$bound < abs($Vdelta)} {
+                            set mag $sym$sign
+                            break
+                        }
+                    }
+                    
+                    dam sat P $f AUT $mag
+
+                    # NEXT, get the cooperation effects with a's troops
+                    dam coop P $f [actor frcgroups $a] \
+                        $C11acoop([qaffinity name $Vfa])
+                    dam coop P $f [actor frcgroups $b] \
+                        $C11bcoop([qaffinity name $Vfb])
                 }
             }
-        }
 
-        # CONTROL-1-3
-        #
-        # If Actor b has gained control of nbhood n, which was previously
-        # in chaos,
-        # Then for each CIV pgroup f in the neighborhood
-        dam rule CONTROL-1-3 {
-            $data(a) eq "" && $data(b) ne ""
-        } {
-            detail "Gained Control:" $data(b)
+            # CONTROL-1-2
+            #
+            # If Actor a has lost control of nbhood n, which is now
+            # in chaos,
+            # Then for each CIV pgroup f in the neighborhood
+            dam rule CONTROL-1-2 {
+                $a ne "" && $b eq ""
+            } {
+                dam detail "Lost Control:" $a
 
-            foreach f [civgroup gIn $data(n)] {
-                # FIRST, get the vertical relationships
-                set Vsym [qaffinity name [vrel $f $data(b)]]
+                foreach f $flist {
+                    # FIRST, get the vertical relationships
+                    set Vsym [qaffinity name [vrel.ga $f $a]]
 
-                dam sat level -f $f AUT $C13sat($Vsym) 7
+                    dam sat P $f AUT $C12sat($Vsym)
 
-                # NEXT, get the cooperation effects with actor b's
-                # troops.
-                set glist [actor frcgroups $data(b)]
-                set mag $C13bcoop($Vsym)
-                dam coop level -f $f -doer $glist $mag 7
+                    # NEXT, get the cooperation effects with each
+                    # actor's troops
+                    foreach actor [actor names] {
+                        set glist [actor frcgroups $actor]
+
+                        if {$actor eq $a} {
+                            set mag $C12acoop($Vsym)
+                        } else {
+                            set Vc [qaffinity name [vrel.ga $f $actor]]
+                            set mag $C12ccoop($Vc)
+                        }
+
+                        dam coop P $f $glist $mag
+                    }
+                }
             }
+
+            # CONTROL-1-3
+            #
+            # If Actor b has gained control of nbhood n, which was previously
+            # in chaos,
+            # Then for each CIV pgroup f in the neighborhood
+            dam rule CONTROL-1-3 {
+                $a eq "" && $b ne ""
+            } {
+                dam detail "Gained Control:" $b
+
+                foreach f $flist {
+                    # FIRST, get the vertical relationships
+                    set Vsym [qaffinity name [vrel.ga $f $b]]
+
+                    dam sat P $f AUT $C13sat($Vsym)
+
+                    # NEXT, get the cooperation effects with actor b's
+                    # troops.
+                    set glist [actor frcgroups $b]
+                    set mag $C13bcoop($Vsym)
+                    dam coop P $f $glist $mag
+                }
+            }
+
         }
-    }
-
-    #-------------------------------------------------------------------
-    # Utility Procs
-
-    # vrel f a
-    #
-    # f - A civ group
-    # a - An actor
-    #
-    # Returns the vertical relationship between the group and the 
-    # actor.
-
-    proc vrel {f a} {
-        rdb onecolumn {SELECT vrel FROM vrel_ga WHERE g=$f AND a=$a}
-    }
-
-    #
-    # multiplier    A numeric multiplier
-    # mag           A qmag value
-    #
-    # Returns the numeric value of mag times the multiplier.
-
-    proc mag* {multiplier mag} {
-        set result [expr {$multiplier * [qmag value $mag]}]
-
-        if {$result == -0.0} {
-            set result 0.0
-        }
-
-        return $result
     }
 }
 

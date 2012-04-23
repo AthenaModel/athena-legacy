@@ -201,48 +201,9 @@ snit::type executive {
         # dump
         $interp ensemble dump
 
-
-        # dump coop
-        $interp ensemble {dump coop}
-
-        # dump coop levels
-        $interp smartalias {dump coop levels} 0 1 {?driver?} \
-            [list ::aram dump coop levels]
-
-        # dump coop level
-        $interp smartalias {dump coop level} 2 2 {f g} \
-            [mytypemethod dump coop level]
-
-        # dump coop slopes
-        $interp smartalias {dump coop slopes} 0 1 {?driver?} \
-            [list ::aram dump coop slopes]
-
-        # dump coop slope
-        $interp smartalias {dump coop slope} 2 2 {f g} \
-            [mytypemethod dump coop slope]
-
         # dump econ
         $interp smartalias {dump econ} 0 1 {?page?} \
             [list ::econ dump]
-
-        # dump sat
-        $interp ensemble {dump sat}
-
-        # dump sat levels
-        $interp smartalias {dump sat levels} 0 1 {?driver?} \
-            [list ::aram dump sat levels]
-
-        # dump sat level
-        $interp smartalias {dump sat level} 2 2 {g c} \
-            [mytypemethod dump sat level]
-
-        # dump sat slopes
-        $interp smartalias {dump sat slopes} 0 1 {?driver?} \
-            [list ::aram dump sat slopes]
-
-        # dump sat slope
-        $interp smartalias {dump sat slope} 2 2 {g c} \
-            [mytypemethod dump sat slope]
 
         # ensit
         $interp ensemble ensit
@@ -420,61 +381,6 @@ snit::type executive {
 
 
     #-------------------------------------------------------------------
-    # Private typemethods
-
-    # dump coop level f g
-    #
-    # Capitalizes the arguments and forwards to GRAM.
-
-    typemethod {dump coop level} {f g} {
-        require {[sim state] ne "PREP"} \
-            "This command is unavailable in the PREP state."
-        
-        aram dump coop level \
-            [string toupper $f] \
-            [string toupper $g]
-    }
-
-    # dump coop slope f g
-    #
-    # Capitalizes the arguments and forwards to GRAM.
-
-    typemethod {dump coop slope} {f g} {
-        require {[sim state] ne "PREP"} \
-            "This command is unavailable in the PREP state."
-
-        aram dump coop slope \
-            [string toupper $f] \
-            [string toupper $g]
-    }
-
-    # dump sat level g c
-    #
-    # Capitalizes the arguments and forwards to GRAM.
-
-    typemethod {dump sat level} {g c} {
-        require {[sim state] ne "PREP"} \
-            "This command is unavailable in the PREP state."
-
-        aram dump sat level \
-            [string toupper $g] \
-            [string toupper $c]
-    }
-
-    # dump sat slope g c
-    #
-    # Capitalizes the arguments and forwards to GRAM.
-
-    typemethod {dump sat slope} {g c} {
-        require {[sim state] ne "PREP"} \
-            "This command is unavailable in the PREP state."
-
-        aram dump sat slope \
-            [string toupper $g] \
-            [string toupper $c]
-    }
-
-    #-------------------------------------------------------------------
     # Public typemethods
 
     # commands
@@ -642,7 +548,7 @@ snit::type executive {
         set g [frcgroup validate [string toupper $g]]
 
         rdb eval {
-            SELECT coop FROM gram_coop WHERE f=$f AND g=$g
+            SELECT coop FROM uram_coop WHERE f=$f AND g=$g
         } {
             return [format %.1f $coop]
         }
@@ -839,9 +745,9 @@ snit::type executive {
         set g [civgroup validate [string toupper $g]]
 
         rdb eval {
-            SELECT sat FROM gram_g WHERE g=$g
+            SELECT mood FROM uram_mood WHERE g=$g
         } {
-            return [format %.1f $sat]
+            return [format %.1f $mood]
         }
 
         error "mood not yet computed"
@@ -859,9 +765,9 @@ snit::type executive {
         set g [frcgroup validate [string toupper $g]]
 
         rdb eval {
-            SELECT coop FROM gram_frc_ng WHERE n=$n AND g=$g
+            SELECT nbcoop FROM uram_nbcoop WHERE n=$n AND g=$g
         } {
-            return $coop
+            return $nbcoop
         }
 
         error "nbcoop not yet computed"
@@ -877,9 +783,9 @@ snit::type executive {
         set n [nbhood validate [string toupper $n]]
 
         rdb eval {
-            SELECT sat FROM gram_n WHERE n=$n
+            SELECT nbmood FROM uram_n WHERE n=$n
         } {
-            return [format %.1f $sat]
+            return [format %.1f $nbmood]
         }
 
         error "nbmood not yet computed"
@@ -979,7 +885,7 @@ snit::type executive {
         set c [econcern validate $c]
 
         rdb eval {
-            SELECT sat FROM gram_sat WHERE g=$g AND c=$c
+            SELECT sat FROM uram_sat WHERE g=$g AND c=$c
         } {
             return [format %.1f $sat]
         }

@@ -286,12 +286,12 @@ snit::type control_model {
                    A.a                               AS a,
                    CASE WHEN (C.controller = A.a)
                         THEN 1 ELSE 0 END            AS inControl,
-                   GG.sat                            AS moodNow,
-                   HM.sat                            AS moodThen
+                   UM.mood                           AS moodNow,
+                   HM.mood                           AS moodThen
             FROM civgroups AS G
             JOIN actors    AS A
             JOIN control_n AS C  ON (C.n = G.n)
-            JOIN gram_g    AS GG ON (G.g = GG.g)
+            JOIN uram_mood AS UM ON (G.g = UM.g)
             JOIN hist_mood AS HM ON (HM.g = G.g AND HM.t = C.since)
         } {
             # FIRST, compute deltaV.mood
@@ -609,10 +609,8 @@ snit::type control_model {
         dict set rdict n $n
         dict set rdict a $cOld
         dict set rdict b $cNew
-        dict set rdict driver     \
-            [aram driver add      \
-                 -dtype   CONTROL \
-                 -oneliner "Shift in control of nbhood $n"]
+        dict set rdict driver_id [driver create CONTROL \
+                                      "Shift in control of nbhood $n"]
 
         control_rules analyze $rdict
     }

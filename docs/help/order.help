@@ -1343,41 +1343,12 @@ macro MAD.mad {} {
     the change will be attributed.
 }
 
-macro MAD.limit {} {
+macro MAD.mag {} {
     |<--
-    The magnitude of the level input in points, expressed as a real
+    The magnitude of the input in points, expressed as a real
     number, or as one of the symbols from the following table:<p>
 
     [::simlib::qmag html]
-}
-
-macro MAD.slope {} {
-    |<--
-    The slope of the input in points per day, expressed as a real
-    number, or as one of the symbols from the following table:<p>
-
-    [::simlib::qmag html]
-}
-
-macro MAD.days {} {
-    |<--
-    The realization time for the level input, in
-    decimal days, expressed as a real number.  The input will take
-    effect over this number of days.
-}
-
-macro MAD.athresh {} {
-    |<--
-    The ascending threshold for this input, in points.  The input
-    will have no affect on curves whose value is greater than this
-    amount.
-}
-
-macro MAD.dthresh {} {
-    |<--
-    The descending threshold for this input, in points.  The input
-    will have no affect on curves whose value is less than this
-    amount.
 }
 
 macro MAD.cause {} {
@@ -1419,7 +1390,7 @@ macro MAD.q {} {
 order MAD:CREATE "Create Magic Attitude Driver" {
     <<parmlist>>
 
-    <<parm oneliner "Description">>
+    <<parm narrative "Narrative">>
     <b>Required.</b>  A one-line description of the driver.
     <</parm>>
 
@@ -1441,16 +1412,15 @@ order MAD:CREATE "Create Magic Attitude Driver" {
     
     <</parmlist>>
 
-    Creates a new Magic Attitude Driver (MAD).  The description need
+    Creates a new Magic Attitude Driver (MAD).  The narrative need
     not be unique, but should remind the analyst of the reason for the
     attitude inputs and adjustments associated with the MAD.<p>
 
-    All magic level and slope inputs associated with this MAD will use
+    All magic inputs associated with this MAD will use
     the specified cause, near factor, and far factor.<p>
 
     <b>Note:</b> Once any attitude inputs or adjustments have been
-    associated with this MAD, it can no longer be deleted; nor can its
-    cause, near factor or far factor be changed.<p>
+    associated with this MAD, it can no longer be deleted.<p>
 
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
@@ -1461,7 +1431,7 @@ order MAD:CREATE "Create Magic Attitude Driver" {
 order MAD:DELETE "Delete Magic Attitude Driver" {
     <<parmlist>>
 
-    <<parm id "MAD ID">>
+    <<parm driver_id "MAD ID">>
     <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to delete.
     <</parm>>
     <</parmlist>>
@@ -1475,11 +1445,11 @@ order MAD:DELETE "Delete Magic Attitude Driver" {
 order MAD:UPDATE "Update Magic Attitude Driver" {
     <<parmlist>>
 
-    <<parm id "MAD ID">>
+    <<parm driver_id "MAD ID">>
     <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to update.
     <</parm>>
 
-    <<parm oneliner "Description">>
+    <<parm narrative "Narrative">>
     <b>Optional.</b>  A one-line description of the driver.
     <</parm>>
 
@@ -1501,31 +1471,9 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     
     <</parmlist>>
 
-    Updates the MAD's definition.  Note that only the description can
-    be changed once magic inputs have been entered for this MAD.
+    Updates the MAD's definition.
 }
 
-#-------------------------------------------------------------------
-
-order MAD:TERMINATE "Terminate Magic Slope Inputs" {
-    <<parmlist>>
-
-    <<parm id "MAD ID">>
-    <b>Required.</b>  The ID of a Magic Attitude Driver (MAD).
-    <</parm>>
-    <</parmlist>>
-
-    <b>This order must be scheduled in advance.</b>
-    This order terminates all currently on-going slope inputs created
-    for this MAD using <<cref /order/mad/sat/slope>> or 
-    <<cref /order/mad/coop/slope>>.  (Delayed indirect effects
-    are terminated after a suitable delay.)<p>
-
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
-    <<cref /object/tactic/executive>>.
-
-}
 
 #=======================================================================
 # Magic Satisfaction Orders
@@ -1533,7 +1481,7 @@ order MAD:TERMINATE "Terminate Magic Slope Inputs" {
 page /order/mad sat "Magic Satisfaction Orders" {
     <<title>>
 
-    These orders are used to set, adjust, and otherwise influence 
+    These orders are used to adjust and otherwise influence 
     satisfaction levels.  All such changes are attributes to
     some Magic Attitude Driver (MAD).<p>
 
@@ -1544,7 +1492,7 @@ page /order/mad sat "Magic Satisfaction Orders" {
 
 #-----------------------------------------------------------------------
 
-order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
+order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
     <<parmlist>>
     
     <<parm id "Curve">>
@@ -1553,53 +1501,19 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Level" {
     civilian group and <i>c</i> is a concern.
     <</parm>>
 
-    <<parm mad "MAD ID">>
+    <<parm driver_id "MAD ID">>
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
     <<parm delta "Delta">>
     <b>Required.</b>  The magnitude of the change, expressed as a real
-    number, or as one of the symbols from the following table:<p>
-
-    <<::simlib::qmag html>>
+    number.
     <</parm>>
     <</parmlist>>
 
-    Immediately adjusts the value of the specified satisfaction curve by the
-    specified amount, clamping the curve's value to the range -100.0,
-    100.0 if need be.<p>
-
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
-    <<cref /object/tactic/executive>>.
-}
-
-#-----------------------------------------------------------------------
-
-order MAD:SAT:SET "Magic Set Satisfaction Level" {
-    <<parmlist>>
-    
-    <<parm id "Curve">>
-    <b>Required.</b>  A satisfaction curve ID, which is a list 
-    {<i>g c</i>} where<i>g</i> is a
-    civilian group residing and <i>c</i> is a concern.
-    <</parm>>
-
-    <<parm mad "MAD ID">>
-    <b>Required.</b>  <<MAD.mad>>
-    <</parm>>
-
-    <<parm sat "sat">>
-    <b>Required.</b>  The new value, expressed as a real
-    number, or as one of the symbols from the following table:<p>
-
-    <<::simlib::qsat html>>
-    <</parm>>
-
-    <</parmlist>>
-
-    Immediately sets the value of the specified satisfaction curve to the
-    specified amount.<p>
+    Immediately adjusts the value of the specified satisfaction curve's
+    baseline by the specified amount, clamping the curve's value to 
+    the range -100.0, 100.0 if need be.<p>
 
     This order can be <<cref /command/send sent>>
     or <<cref /command/sched scheduled>> by the
@@ -1623,20 +1537,8 @@ order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
-    <<parm limit "Limit">>
-    <b>Required.</b>  <<MAD.limit>>
-    <</parm>>
-
-    <<parm days "Realization Time">>
-    <b>Required.</b>  <<MAD.days>>
-    <</parm>>
-
-    <<parm athresh "Ascending Threshold">>
-    <b>Required.</b>  <<MAD.athresh>>
-    <</parm>>
-
-    <<parm dthresh "Descending Threshold">>
-    <b>Required.</b>  <<MAD.dthresh>>
+    <<parm mag "Magnitude">>
+    <b>Required.</b>  <<MAD.mag>>
     <</parm>>
 
     <</parmlist>>
@@ -1651,65 +1553,13 @@ order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
     <<cref /object/tactic/executive>>.
 }
 
-
-#-----------------------------------------------------------------------
-
-order MAD:SAT:SLOPE "Magic Satisfaction Slope Input" {
-    <<parmlist>>
-    
-    <<parm g "Group">>
-    <b>Required.</b>  A civilian group ID.
-    <</parm>>
-
-    <<parm c "Concern">>
-    <b>Required.</b>  A concern.
-    <</parm>>
-
-    <<parm mad "MAD ID">>
-    <b>Required.</b>  <<MAD.mad>>
-    <</parm>>
-
-    <<parm slope "Slope">>
-    <b>Required.</b>  <<MAD.slope>>
-    <</parm>>
-
-    <<parm athresh "Ascending Threshold">>
-    <b>Required.</b>  <<MAD.athresh>>
-    <</parm>>
-
-    <<parm dthresh "Descending Threshold">>
-    <b>Required.</b>  <<MAD.dthresh>>
-    <</parm>>
-
-    <</parmlist>>
-
-    <b>This order must be scheduled in advance.</b>
-    Enters a magic satisfaction slope input into GRAM.  The input will
-    change the specified curve's value by <i>slope</i> nominal points
-    per day until the input is terminated.  The input will be
-    attributed to the specified MAD.<p>
-
-    A subsequent order for the same curve and MAD will change
-    the slope of the existing slope input, rather than creating a new
-    slope input.<p>
-
-    The input can be terminated in two ways.  First, the specific
-    input can be terminated by sending an identical order with a slope
-    of 0.0.  Second, the <<cref /order/mad/terminate>> order will terminate
-    all ongoing slope effects for a particular MAD.<p>
-
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
-    <<cref /object/tactic/executive>>.
-}
-
 #=======================================================================
 # Magic Cooperation Orders
 
 page /order/mad coop "Magic Cooperation Orders" {
     <<title>>
 
-    These orders are used to set, adjust, and otherwise influence 
+    These orders are used to adjust and otherwise influence 
     cooperation levels.  All such changes are attributes to
     some Magic Attitude Driver (MAD).<p>
 
@@ -1720,7 +1570,7 @@ page /order/mad coop "Magic Cooperation Orders" {
 
 #-----------------------------------------------------------------------
 
-order MAD:COOP:ADJUST "Magic Adjust Cooperation Level" {
+order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
     <<parmlist>>
     
     <<parm id "Curve">>
@@ -1729,52 +1579,20 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Level" {
     civilian group and <i>g</i> is a force group.
     <</parm>>
 
-    <<parm mad "MAD ID">>
+    <<parm driver_id "MAD ID">>
     <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
     the change will be attributed.
     <</parm>>
 
     <<parm delta "Delta">>
     <b>Required.</b>  The magnitude of the change, expressed as a real
-    number, or as one of the symbols from the following table:<p>
-
-    <<::simlib::qmag html>>
+    number.
+    <</parm>>
     <</parmlist>>
 
-    Adjusts the value of the specified cooperation curve by the
-    specified amount, clamping the curve's value to the range 0.0,
+    Adjusts the value of the specified cooperation curve's baseline
+    by the specified amount, clamping the curve's value to the range 0.0,
     100.0 if need be.<p>
-
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
-    <<cref /object/tactic/executive>>.
-}
-
-#-----------------------------------------------------------------------
-
-order MAD:COOP:SET "Magic Set Cooperation Level" {
-    <<parmlist>>
-    
-    <<parm id "Curve">>
-    <b>Required.</b>  A cooperation curve ID, which is a list 
-    {<i>f g</i>} where <i>f</i> is a
-    civilian group and <i>g</i> is a force group.
-    <</parm>>
-
-    <<parm mad "MAD ID">>
-    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
-    the change will be attributed.
-    <</parm>>
-
-    <<parm coop "coop">>
-    <b>Required.</b>  The new value, expressed as a real
-    number, or as one of the symbols from the following table:<p>
-
-    <<::simlib::qcooperation html>>
-    <</parmlist>>
-
-    Sets the value of the specified cooperation curve to the
-    specified amount.<p>
 
     This order can be <<cref /command/send sent>>
     or <<cref /command/sched scheduled>> by the
@@ -1799,21 +1617,8 @@ order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
     <</parm>>
 
     <<parm limit "Limit">>
-    <b>Required.</b>  <<MAD.limit>>
+    <b>Required.</b>  <<MAD.mag>>
     <</parm>>
-
-    <<parm days "Realization Time">>
-    <b>Required.</b>  <<MAD.days>>
-    <</parm>>
-
-    <<parm athresh "Ascending Threshold">>
-    <b>Required.</b>  <<MAD.athresh>>
-    <</parm>>
-
-    <<parm dthresh "Descending Threshold">>
-    <b>Required.</b>  <<MAD.dthresh>>
-    <</parm>>
-
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
@@ -1827,57 +1632,6 @@ order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
     <<cref /object/tactic/executive>>.
 }
 
-
-#-----------------------------------------------------------------------
-
-order MAD:COOP:SLOPE "Magic Cooperation Slope Input" {
-    <<parmlist>>
-    
-    <<parm f "Of Group">>
-    <b>Required.</b>  A civilian group ID.
-    <</parm>>
-
-    <<parm g "With Group">>
-    <b>Required.</b>  A force group ID.
-    <</parm>>
-
-    <<parm mad "MAD ID">>
-    <b>Required.</b>  <<MAD.mad>>
-    <</parm>>
-
-    <<parm slope "Slope">>
-    <b>Required.</b>  <<MAD.slope>>
-    <</parm>>
-
-    <<parm athresh "Ascending Threshold">>
-    <b>Required.</b>  <<MAD.athresh>>
-    <</parm>>
-
-    <<parm dthresh "Descending Threshold">>
-    <b>Required.</b>  <<MAD.dthresh>>
-    <</parm>>
-
-    <</parmlist>>
-
-    <b>This order must be scheduled in advance.</b>
-    Enters a magic cooperation slope input into GRAM.  The input will
-    change the specified curve's value by <i>slope</i> nominal points
-    per day until the input is terminated.  The input will be
-    attributed to the specified MAD.<p>
-
-    A subsequent order for the same curve and MAD will change
-    the slope of the existing slope input, rather than creating a new
-    slope input.<p>
-
-    The input can be terminated in two ways.  First, the specific
-    input can be terminated by sending an identical order with a slope
-    of 0.0.  Second, the <<cref /order/mad/terminate>> order will terminate
-    all ongoing slope effects for a particular MAD.<p>
-
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
-    <<cref /object/tactic/executive>>.
-}
 
 
 #=======================================================================

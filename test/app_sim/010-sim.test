@@ -137,12 +137,12 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {-1}
 
-    test mutate_lock-1.4 {Initializes GRAM} -setup {
+    test mutate_lock-1.4 {Initializes URAM} -setup {
         ted create NB1 BLUE SHIA
     } -body {
         sim mutate lock
 
-        rdb onecolumn {SELECT n FROM gram_n}
+        rdb onecolumn {SELECT n FROM uram_n}
     } -cleanup {
         cleanup
     } -result {NB1}

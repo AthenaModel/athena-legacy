@@ -8,7 +8,7 @@
 # DESCRIPTION:
 #    nbcoopbrowser(sim) package: Nbhood Cooperation browser.
 #
-#    This widget displays a formatted list of gram_frc_ng records.
+#    This widget displays a formatted list of uram_nbcoop.
 #    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------

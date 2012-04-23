@@ -29,69 +29,54 @@ namespace eval ::athena_test::tests:: {
     # Standard MADs
 
     set m1 {
-        oneliner "The First MAD" 
-        cause    UNIQUE
-        s        1.0
-        p        1.0
-        q        0.9
+        narrative "The First MAD" 
+        cause     UNIQUE
+        s         1.0
+        p         1.0
+        q         0.9
     }
 
     set m2 {
-        oneliner "The Second MAD"
-        cause    CIVCAS
-        s        0.9
-        p        0.8
-        q        0.7
+        narrative "The Second MAD"
+        cause     CIVCAS
+        s         0.9
+        p         0.8
+        q         0.7
     }
 
     set m3 {
-        oneliner "The Third MAD"
-        cause    PATROL
-        s        0.7
-        p        0.6
-        q        0.5
+        narrative "The Third MAD"
+        cause     PATROL
+        s         0.7
+        p         0.6
+        q         0.5
     }
 
     # Standard Magic Inputs
 
-    set satlevel {
-        g       SHIA 
-        c       AUT
-        mad     1 
-        limit   5 
-        days    1 
+    set satinput {
+        driver_id 1000
+        mode      transient
+        g         SHIA 
+        c         AUT
+        mag       5 
     }
 
-    set satslope {
-        g       SHIA 
-        c       AUT 
-        mad     1 
-        slope   5
-    }
-
-    set cooplevel {
-        f       SHIA 
-        g       BLUE 
-        mad     1 
-        limit   5 
-        days    1
-    }
-
-    set coopslope {
-        f       SHIA 
-        g       BLUE 
-        mad     1 
-        slope   5 
+    set coopinput {
+        driver_id 1000
+        mode      persistent
+        f         SHIA 
+        g         BLUE 
+        mag       5 
     }
 
     # Set up for magic inputs
-    proc advance {} {
+    proc lock {} {
         variable m1
 
         ted create NB1 NB2 BLUE SHIA KURD
         ted order SIM:LOCK
-        ted order SIM:RUN weeks 1 block yes
-        ted order MAD:CREATE $m1
+        ted order MAD:CREATE $m1 ;# 1000
     }
 
     # Clean up after a test
@@ -107,7 +92,7 @@ namespace eval ::athena_test::tests:: {
     test CREATE-1.1 {required parms} -body {
         ted order -reject MAD:CREATE {}
     } -result {
-        oneliner {required value}
+        narrative {required value}
         cause {required value}
         s {required value}
         p {required value}
@@ -115,9 +100,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.2 {invalid cause} -setup {
-        advance
-    } -body {
+    test CREATE-1.2 {invalid cause} -body {
         ted order -reject MAD:CREATE [dict merge $m1 {cause NONESUCH}]
     } -cleanup {
         cleanup
@@ -126,9 +109,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.3 {invalid s} -setup {
-        advance
-    } -body {
+    test CREATE-1.3 {invalid s} -body {
         ted order -reject MAD:CREATE [dict merge $m1 {s NONESUCH}]
     } -cleanup {
         cleanup
@@ -137,9 +118,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.4 {invalid p} -setup {
-        advance
-    } -body {
+    test CREATE-1.4 {invalid p} -body {
         ted order -reject MAD:CREATE [dict merge $m1 {p NONESUCH}]
     } -cleanup {
         cleanup
@@ -148,9 +127,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.5 {invalid q} -setup {
-        advance
-    } -body {
+    test CREATE-1.5 {invalid q} -body {
         ted order -reject MAD:CREATE [dict merge $m1 {q NONESUCH}]
     } -cleanup {
         cleanup
@@ -160,46 +137,48 @@ namespace eval ::athena_test::tests:: {
 
 
 
-    test CREATE-2.1 {MAD is created} -setup {
-        ted create NB1 BLUE SHIA
-    } -body {
-        ted order MAD:CREATE $m1
-        ted order MAD:CREATE $m2
-        ted order MAD:CREATE $m3
+    test CREATE-2.1 {MAD is created} -body {
+        ted order MAD:CREATE $m1  ;# 1000
+        ted order MAD:CREATE $m2  ;# 1001
+        ted order MAD:CREATE $m3  ;# 1002
 
         ted query {SELECT * FROM mads}
     } -cleanup {
         cleanup
     } -result {
-id oneliner       cause  s   p   q   driver 
--- -------------- ------ --- --- --- ------ 
-1  The First MAD  UNIQUE 1.0 1.0 0.9 -1     
-2  The Second MAD CIVCAS 0.9 0.8 0.7 -1     
-3  The Third MAD  PATROL 0.7 0.6 0.5 -1     
+driver_id dtype narrative      cause  s   p   q   
+--------- ----- -------------- ------ --- --- --- 
+1000      MAGIC The First MAD  UNIQUE 1.0 1.0 0.9 
+1001      MAGIC The Second MAD CIVCAS 0.9 0.8 0.7 
+1002      MAGIC The Third MAD  PATROL 0.7 0.6 0.5 
     }
 
 
     test CREATE-2.2 {Effects} -body {
-        ted notifier bind ::rdb <mads>
+        ted notifier bind ::rdb <mads_t>
+        ted notifier bind ::rdb <drivers>
         ted order MAD:CREATE $m1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <mads> update 1}
+        {::rdb <drivers> update 1000}
+        {::rdb <mads_t> update 1000}
     }
 
 
     test CREATE-3.1 {undo effects} -setup {
         ted order MAD:CREATE $m1
     } -body {
-        ted notifier bind ::rdb <mads>
+        ted notifier bind ::rdb <mads_t>
+        ted notifier bind ::rdb <drivers>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <mads> delete 1}
+        {::rdb <mads_t> delete 1000}
+        {::rdb <drivers> delete 1000}
     }
 
 
@@ -209,54 +188,58 @@ id oneliner       cause  s   p   q   driver
     test DELETE-1.1 {required parms} -body {
         ted order -reject MAD:DELETE {}
     } -result {
-        id {required value}
+        driver_id {required value}
     }
 
     
     test DELETE-1.2 {unknown id} -body {
-        ted order -reject MAD:DELETE id NONESUCH
+        ted order -reject MAD:DELETE driver_id NONESUCH
     } -result {
-        id {MAD does not exist or is not in initial state: "NONESUCH"}
+        driver_id {MAD does not exist or is not in initial state: "NONESUCH"}
     }
 
 
     test DELETE-1.3 {invalid MAD (not initial)} -body {
-        ted order MAD:CREATE $m2
-        rdb eval {UPDATE mads SET driver=1}
-        ted order -reject MAD:DELETE id 2
+        ted order MAD:CREATE $m2   ;# 1000
+        driver inputs incr 1000
+        ted order -reject MAD:DELETE driver_id 1000
     } -cleanup {
         cleanup
     } -result {
-        id {MAD does not exist or is not in initial state: "2"}
+        driver_id {MAD does not exist or is not in initial state: "1000"}
     }
 
 
     test DELETE-2.1 {Effects} -setup {
         ted create BLUE
-        ted order MAD:CREATE $m1
+        ted order MAD:CREATE $m1     ;# 1000
     } -body {
-        ted notifier bind ::rdb <mads>
-        ted order MAD:DELETE id 1
+        ted notifier bind ::rdb <mads_t>
+        ted notifier bind ::rdb <drivers>
+        ted order MAD:DELETE driver_id 1000
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <mads> delete 1}
+        {::rdb <mads_t> delete 1000}
+        {::rdb <drivers> delete 1000}
     }
 
 
     test DELETE-3.1 {Undo effects} -setup {
         ted create BLUE
-        ted order MAD:CREATE $m1
-        ted order MAD:DELETE id 1
+        ted order MAD:CREATE $m1    ;# 1000
+        ted order MAD:DELETE driver_id 1000
     } -body {
-        ted notifier bind ::rdb <mads>
+        ted notifier bind ::rdb <mads_t>
+        ted notifier bind ::rdb <drivers>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <mads> update 1}
+        {::rdb <mads_t> update 1000}
+        {::rdb <drivers> update 1000}
     }
 
 
@@ -266,23 +249,23 @@ id oneliner       cause  s   p   q   driver
     test UPDATE-1.1 {required parms} -body {
         ted order -reject MAD:UPDATE {}
     } -result {
-        id {required value}
+        driver_id {required value}
     }
     
 
     test UPDATE-1.2 {invalid MAD} -body {
-        ted order -reject MAD:UPDATE id 1 oneliner PATROL
+        ted order -reject MAD:UPDATE driver_id 1 narrative PATROL
     } -cleanup {
         cleanup
     } -result {
-        id {MAD does not exist: "1"}
+        driver_id {MAD does not exist: "1"}
     }
 
 
     test UPDATE-1.3 {invalid cause} -setup {
-        advance
+        ted order MAD:CREATE $m1    ;# 1000
     } -body {
-        ted order -reject MAD:UPDATE id 1 cause NONESUCH
+        ted order -reject MAD:UPDATE driver_id 1000 cause NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -291,9 +274,9 @@ id oneliner       cause  s   p   q   driver
 
 
     test UPDATE-1.4 {invalid s} -setup {
-        advance
+        ted order MAD:CREATE $m1    ;# 1000
     } -body {
-        ted order -reject MAD:UPDATE id 1 s NONESUCH
+        ted order -reject MAD:UPDATE driver_id 1000 s NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -302,9 +285,9 @@ id oneliner       cause  s   p   q   driver
 
 
     test UPDATE-1.5 {invalid p} -setup {
-        advance
+        ted order MAD:CREATE $m1    ;# 1000
     } -body {
-        ted order -reject MAD:UPDATE id 1 p NONESUCH
+        ted order -reject MAD:UPDATE driver_id 1000 p NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -313,9 +296,9 @@ id oneliner       cause  s   p   q   driver
 
 
     test UPDATE-1.6 {invalid q} -setup {
-        advance
+        ted order MAD:CREATE $m1    ;# 1000
     } -body {
-        ted order -reject MAD:UPDATE id 1 q NONESUCH
+        ted order -reject MAD:UPDATE driver_id 1000 q NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -324,53 +307,55 @@ id oneliner       cause  s   p   q   driver
 
 
     test UPDATE-2.1 {MAD is updated} -setup {
-        ted order MAD:CREATE $m1
+        ted order MAD:CREATE $m1  ;# 1000
     } -body {
         ted order MAD:UPDATE {
-            id       1 
-            oneliner "MAD the First"
-            cause    GUARD
-            s        0.5
-            p        0.1
-            q        0.0
+            driver_id 1000 
+            narrative "MAD the First"
+            cause     GUARD
+            s         0.5
+            p         0.1
+            q         0.0
         }
 
         ted query {SELECT * FROM mads}
     } -cleanup {
         cleanup
     } -result {
-id oneliner      cause s   p   q   driver 
--- ------------- ----- --- --- --- ------ 
-1  MAD the First GUARD 0.5 0.1 0.0 -1     
+driver_id dtype narrative     cause s   p   q   
+--------- ----- ------------- ----- --- --- --- 
+1000      MAGIC MAD the First GUARD 0.5 0.1 0.0 
     }
 
 
     test UPDATE-2.2 {table monitor event} -setup {
-        ted create BLUE
-        ted order MAD:CREATE $m1
+        ted order MAD:CREATE $m1   ;# 1000
     } -body {
-        ted notifier bind ::rdb <mads>
-        ted order MAD:UPDATE id 1 oneliner "MAD the FIRST"
+        ted notifier bind ::rdb <mads_t>
+        ted notifier bind ::rdb <drivers>
+        ted order MAD:UPDATE driver_id 1000 narrative "MAD the FIRST"
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <mads> update 1}
+        {::rdb <mads_t> update 1000}
+        {::rdb <drivers> update 1000}
     }
 
 
     test UPDATE-3.1 {undo undoes the change} -setup {
-        ted create BLUE
-        ted order MAD:CREATE $m1
-        ted order MAD:UPDATE id 1 oneliner "MAD the FIRST"
+        ted order MAD:CREATE $m1    ;# 1000
+        ted order MAD:UPDATE driver_id 1000 narrative "MAD the FIRST"
     } -body {
-        ted notifier bind ::rdb <mads>
+        ted notifier bind ::rdb <mads_t>
+        ted notifier bind ::rdb <drivers>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <mads> update 1}
+        {::rdb <mads_t> update 1000}
+        {::rdb <drivers> update 1000}
     }
 
 
@@ -378,50 +363,50 @@ id oneliner      cause s   p   q   driver
     # MAD:SAT:ADJUST
 
     test SAT:ADJUST-1.1 {required parms} -setup {
-        advance
+        lock
     } -body {
         ted order -reject MAD:SAT:ADJUST {}
     } -cleanup {
         cleanup
     } -result {
         id {required value}
-        mad {required value}
+        driver_id {required value}
         delta {required value}
     }
     
 
     test SAT:ADJUST-1.2 {invalid MAD} -setup {
-        advance
+        lock
     } -body {
         ted order -reject MAD:SAT:ADJUST {
-            id {SHIA AUT} mad 2 delta 5
+            id {SHIA AUT} driver_id NONESUCH delta 5
         }
     } -cleanup {
         cleanup
     } -result {
-        mad {MAD does not exist: "2"}
+        driver_id {MAD does not exist: "NONESUCH"}
     }
 
 
     test SAT:ADJUST-1.3 {invalid delta} -setup {
-        advance
+        lock
     } -body {
         ted order -reject MAD:SAT:ADJUST {
-            id {SHIA AUT} mad 1 delta NONESUCH
+            id {SHIA AUT} driver_id 1000 delta NONESUCH
         }
     } -cleanup {
         cleanup
     } -result {
-        delta {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+        delta {invalid value "NONESUCH", expected double}
     }
 
 
     test SAT:ADJUST-2.1 {table monitor events} -setup {
-        advance
+        lock
     } -body {
         ted notifier bind ::mad <Sat>
         ted order MAD:SAT:ADJUST {
-            id {SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} driver_id 1000 delta 5
         }
         ted notifier received
     } -cleanup {
@@ -432,10 +417,10 @@ id oneliner      cause s   p   q   driver
 
 
     test SAT:ADJUST-3.1 {undo undoes the change} -setup {
-        advance
+        lock
 
         ted order MAD:SAT:ADJUST {
-            id {SHIA AUT} mad 1 delta 5
+            id {SHIA AUT} driver_id 1000 delta 5
         }
     } -body {
         ted notifier bind ::mad <Sat>
@@ -448,28 +433,51 @@ id oneliner      cause s   p   q   driver
     }
 
     #-------------------------------------------------------------------
-    # MAD:SAT:LEVEL
+    # MAD:SAT:INPUT
 
-    test SAT:LEVEL-1.1 {required parms} -setup {
-        advance
+    test SAT:INPUT-1.1 {required parms}  -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL {}
+        ted schedule -reject +1 MAD:SAT:INPUT {}
     } -cleanup {
         cleanup
     } -result {
+        driver_id {required value}
+        mode {required value}
         g {required value}
         c {required value}
-        mad {required value}
-        limit {required value}
-        days {required value}
+        mag {required value}
     }
     
 
-    test SAT:LEVEL-1.2 {invalid g} -setup {
-        advance
+    test SAT:INPUT-1.2 {invalid driver_id}  -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL \
-            [dict merge $satlevel {g NONESUCH}]
+        ted schedule -reject +1 MAD:SAT:INPUT \
+            [dict merge $satinput {driver_id NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {MAD does not exist: "NONESUCH"}
+    }
+
+    test SAT:INPUT-1.3 {invalid mode}  -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:SAT:INPUT \
+            [dict merge $satinput {mode NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "nonesuch", should be one of: transient, persistent}
+    }
+
+
+    test SAT:INPUT-1.4 {invalid g}  -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:SAT:INPUT \
+            [dict merge $satinput {g NONESUCH}]
     } -cleanup {
         cleanup
     } -result {
@@ -477,131 +485,32 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test SAT:LEVEL-1.3 {invalid c} -setup {
-        advance
+    test SAT:INPUT-1.5 {invalid c}  -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL \
-            [dict merge $satlevel {c NONESUCH}]
+        ted schedule -reject +1 MAD:SAT:INPUT \
+            [dict merge $satinput {c NONESUCH}]
     } -cleanup {
         cleanup
     } -result {
         c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
     }
 
-
-    test SAT:LEVEL-1.4 {invalid MAD} -setup {
-        advance
+    test SAT:INPUT-1.6 {invalid mag}  -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL \
-            [dict merge $satlevel {mad NONESUCH}]
+        ted schedule -reject +1 MAD:SAT:INPUT \
+            [dict merge $satinput {mag NONESUCH}]
     } -cleanup {
         cleanup
     } -result {
-        mad {MAD does not exist: "NONESUCH"}
+        mag {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
     }
 
-
-    test SAT:LEVEL-1.5 {invalid limit} -setup {
-        advance
+    test SAT:INPUT-2.1 {Order is accepted}  -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL \
-            [dict merge $satlevel {limit NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        limit {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
-    }
-
-
-    test SAT:LEVEL-1.6 {invalid days} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:LEVEL \
-            [dict merge $satlevel {days NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        days {invalid value "NONESUCH", should be a real number no less than 0.0}
-    }
-
-    test SAT:LEVEL-2.1 {Order is accepted} -setup {
-        advance
-    } -body {
-        ted schedule +1 MAD:SAT:LEVEL $satlevel
-        ted order SIM:RUN weeks 1 block yes
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    #-------------------------------------------------------------------
-    # MAD:SAT:SLOPE
-
-    test SAT:SLOPE-1.1 {required parms} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:SLOPE {}
-    } -cleanup {
-        cleanup
-    } -result {
-        g {required value}
-        c {required value}
-        mad {required value}
-        slope {required value}
-    }
-    
-
-    test SAT:SLOPE-1.2 {invalid g} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:SLOPE \
-            [dict merge $satslope {g NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid civilian group, should be one of: SHIA, KURD}
-    }
-
-
-    test SAT:SLOPE-1.3 {invalid c} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:SLOPE \
-            [dict merge $satslope {c NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
-    }
-
-
-    test SAT:SLOPE-1.4 {invalid MAD} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:SLOPE \
-            [dict merge $satslope {mad NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        mad {MAD does not exist: "NONESUCH"}
-    }
-
-
-    test SAT:SLOPE-1.5 {invalid slope} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:SAT:SLOPE \
-            [dict merge $satslope {slope NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        slope {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
-    }
-
-    test SAT:SLOPE-2.1 {Order is accepted} -setup {
-        advance
-    } -body {
-        ted schedule +1 MAD:SAT:SLOPE $satslope
+        ted schedule +1 MAD:SAT:INPUT $satinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
@@ -612,50 +521,50 @@ id oneliner      cause s   p   q   driver
     # MAD:COOP:ADJUST
 
     test COOP:ADJUST-1.1 {required parms} -setup {
-        advance
+        lock
     } -body {
         ted order -reject MAD:COOP:ADJUST {}
     } -cleanup {
         cleanup
     } -result {
         id {required value}
-        mad {required value}
+        driver_id {required value}
         delta {required value}
     }
     
 
     test COOP:ADJUST-1.2 {invalid MAD} -setup {
-        advance
+        lock
     } -body {
         ted order -reject MAD:COOP:ADJUST {
-            id {SHIA BLUE} mad 2 delta 5
+            id {SHIA BLUE} driver_id NONESUCH delta 5
         }
     } -cleanup {
         cleanup
     } -result {
-        mad {MAD does not exist: "2"}
+        driver_id {MAD does not exist: "NONESUCH"}
     }
 
 
     test COOP:ADJUST-1.3 {invalid delta} -setup {
-        advance
+        lock
     } -body {
         ted order -reject MAD:COOP:ADJUST {
-            id {SHIA BLUE} mad 1 delta NONESUCH
+            id {SHIA BLUE} driver_id 1000 delta NONESUCH
         }
     } -cleanup {
         cleanup
     } -result {
-        delta {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+        delta {invalid value "NONESUCH", expected double}
     }
 
 
     test COOP:ADJUST-2.1 {table monitor events} -setup {
-        advance
+        lock
     } -body {
         ted notifier bind ::mad <Coop>
         ted order MAD:COOP:ADJUST {
-            id {SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} driver_id 1000 delta 5
         }
         ted notifier received
     } -cleanup {
@@ -666,10 +575,10 @@ id oneliner      cause s   p   q   driver
 
 
     test COOP:ADJUST-3.1 {undo undoes the change} -setup {
-        advance
+        lock
 
         ted order MAD:COOP:ADJUST {
-            id {SHIA BLUE} mad 1 delta 5
+            id {SHIA BLUE} driver_id 1000 delta 5
         }
     } -body {
         ted notifier bind ::mad <Coop>
@@ -683,27 +592,50 @@ id oneliner      cause s   p   q   driver
 
 
     #-------------------------------------------------------------------
-    # MAD:COOP:LEVEL
+    # MAD:COOP:INPUT
 
-    test COOP:LEVEL-1.1 {required parms} -setup {
-        advance
+    test COOP:INPUT-1.1 {required parms}   -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:LEVEL {}
+        ted schedule -reject +1 MAD:COOP:INPUT {}
     } -cleanup {
         cleanup
     } -result {
+        driver_id {required value}
+        mode {required value}
         f {required value}
         g {required value}
-        mad {required value}
-        limit {required value}
-        days {required value}
+        mag {required value}
     }
     
-    test COOP:LEVEL-1.2 {invalid f} -setup {
-        advance
+    test COOP:INPUT-1.2 {invalid driver_id} -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:LEVEL \
-            [dict merge $cooplevel {f NONESUCH}]
+        ted schedule -reject +1 MAD:COOP:INPUT \
+            [dict merge $coopinput {driver_id NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test COOP:INPUT-1.3 {invalid mode} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:COOP:INPUT \
+            [dict merge $coopinput {mode NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "nonesuch", should be one of: transient, persistent}
+    }
+
+    test COOP:INPUT-1.4 {invalid f} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:COOP:INPUT \
+            [dict merge $coopinput {f NONESUCH}]
     } -cleanup {
         cleanup
     } -result {
@@ -711,11 +643,11 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:LEVEL-1.3 {invalid g} -setup {
-        advance
+    test COOP:INPUT-1.5 {invalid g} -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:LEVEL \
-            [dict merge $cooplevel {g NONESUCH}]
+        ted schedule -reject +1 MAD:COOP:INPUT \
+            [dict merge $coopinput {g NONESUCH}]
     } -cleanup {
         cleanup
     } -result {
@@ -723,122 +655,26 @@ id oneliner      cause s   p   q   driver
     }
 
 
-    test COOP:LEVEL-1.4 {invalid MAD} -setup {
-        advance
+    test COOP:INPUT-1.6 {invalid mag} -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:LEVEL \
-            [dict merge $cooplevel {mad NONESUCH}]
+        ted schedule -reject +1 MAD:COOP:INPUT \
+            [dict merge $coopinput {mag NONESUCH}]
     } -cleanup {
         cleanup
     } -result {
-        mad {MAD does not exist: "NONESUCH"}
+        mag {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
     }
 
-
-    test COOP:LEVEL-1.5 {invalid limit} -setup {
-        advance
+    test COOP:INPUT-2.1 {Order is accepted} -setup {
+        lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:LEVEL \
-            [dict merge $cooplevel {limit NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        limit {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
-    }
-
-
-    test COOP:LEVEL-1.6 {invalid days} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:COOP:LEVEL \
-            [dict merge $cooplevel {days NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        days {invalid value "NONESUCH", should be a real number no less than 0.0}
-    }
-
-    test COOP:LEVEL-2.1 {Order is accepted} -setup {
-        advance
-    } -body {
-        ted schedule +1 MAD:COOP:LEVEL $cooplevel
+        ted schedule +1 MAD:COOP:INPUT $coopinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
     } -result {}
 
-
-    #-------------------------------------------------------------------
-    # MAD:COOP:SLOPE
-
-    test COOP:SLOPE-1.1 {required parms} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:COOP:SLOPE {}
-    } -cleanup {
-        cleanup
-    } -result {
-        f {required value}
-        g {required value}
-        mad {required value}
-        slope {required value}
-    }
-    
-    test COOP:SLOPE-1.2 {invalid f} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:COOP:SLOPE \
-            [dict merge $coopslope {f NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        f {Invalid civilian group, should be one of: SHIA, KURD}
-    }
-
-
-    test COOP:SLOPE-1.3 {invalid g} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:COOP:SLOPE \
-            [dict merge $coopslope {g NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid force group, should be one of: BLUE}
-    }
-
-
-    test COOP:SLOPE-1.4 {invalid MAD} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:COOP:SLOPE \
-            [dict merge $coopslope {mad NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        mad {MAD does not exist: "NONESUCH"}
-    }
-
-
-    test COOP:SLOPE-1.5 {invalid slope} -setup {
-        advance
-    } -body {
-        ted schedule -reject +1 MAD:COOP:SLOPE \
-            [dict merge $coopslope {slope NONESUCH}]
-    } -cleanup {
-        cleanup
-    } -result {
-        slope {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
-    }
-
-    test COOP:SLOPE-2.1 {Order is accepted} -setup {
-        advance
-    } -body {
-        ted schedule +1 MAD:COOP:SLOPE $coopslope
-        ted order SIM:RUN weeks 1 block yes
-    } -cleanup {
-        cleanup
-    } -result {}
 
 
     #-------------------------------------------------------------------

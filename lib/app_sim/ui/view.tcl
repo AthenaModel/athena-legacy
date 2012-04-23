@@ -210,48 +210,6 @@ snit::type view {
             }
         }
 
-        n,coop {
-            indices {f g}
-            validation fg_coop
-            rtype qcoop
-            query {
-                -- Ensure we get NULL x0's in neighborhoods
-                -- where group f does not reside.
-                SELECT nbhoods.n      AS n,
-                       gram_coop.coop AS x0
-                FROM nbhoods
-                JOIN groups
-                JOIN frcgroups
-                LEFT OUTER JOIN gram_coop
-                ON (gram_coop.n = nbhoods.n AND 
-                    gram_coop.f = groups.g AND
-                    gram_coop.g = frcgroups.g)
-                WHERE groups.g = '$1'
-                AND frcgroups.g = '$2'
-            }
-        }
-
-        n,coop0 {
-            indices {f g}
-            validation fg_coop
-            rtype qcoop
-            query {
-                -- Ensure we get NULL x0's in neighborhoods
-                -- where group f does not reside.
-                SELECT nbhoods.n       AS n,
-                       gram_coop.coop0 AS x0
-                FROM nbhoods
-                JOIN groups
-                JOIN frcgroups
-                LEFT OUTER JOIN gram_coop
-                ON (gram_coop.n = nbhoods.n AND 
-                    gram_coop.f = groups.g AND
-                    gram_coop.g = frcgroups.g)
-                WHERE groups.g = '$1'
-                AND frcgroups.g = '$2'
-            }
-        }
-
         n,cov {
             indices {g a}
             validation ga
@@ -263,47 +221,13 @@ snit::type view {
             }
         }
 
-        n,mood {
-            indices {g}
-            validation g_sat
-            rtype qsat
-            query {
-                -- Ensure we get NULL x0's in neighborhoods
-                -- where group g does not reside.
-                SELECT n, x0 
-                FROM nbhoods
-                LEFT OUTER JOIN
-                 (SELECT n,
-                         CASE WHEN population > 0 
-                         THEN sat ELSE NULL END AS x0
-                  FROM gram_g WHERE g='$1')
-                USING (n)
-            }
-        }
-
-        n,mood0 {
-            indices {g}
-            validation g_sat
-            rtype qsat
-            query {
-                SELECT n, x0 
-                FROM nbhoods
-                LEFT OUTER JOIN
-                 (SELECT n,
-                         CASE WHEN population > 0 
-                         THEN sat0 ELSE NULL END AS x0
-                  FROM gram_g WHERE g='$1')
-                USING (n)
-            }
-        }
-
         n,nbcoop {
             indices {g}
             validation g_frc
             rtype qcoop
             query {
-                SELECT n, coop AS x0
-                FROM gram_frc_ng
+                SELECT n, nbcoop AS x0
+                FROM uram_nbcoop
                 WHERE g='$1'
             }
         }
@@ -313,8 +237,8 @@ snit::type view {
             validation {}
             rtype qsat
             query {
-                SELECT n, sat AS x0 
-                FROM gram_n
+                SELECT n, nbmood AS x0 
+                FROM uram_n
             }
         }
 
@@ -323,8 +247,8 @@ snit::type view {
             validation {}
             rtype qsat
             query {
-                SELECT n, sat0 AS x0 
-                FROM gram_n
+                SELECT n, nbmood0 AS x0 
+                FROM uram_n
             }
         }
 
@@ -345,48 +269,6 @@ snit::type view {
             query {
                 SELECT n, pcf AS x0
                 FROM econ_n
-            }
-        }
-
-        n,sat {
-            indices {g c}
-            validation gc
-            rtype qsat
-            query {
-                -- Ensure we get NULL x0's in neighborhoods
-                -- where group g does not reside.
-                SELECT nbhoods.n      AS n,
-                       gram_sat.sat   AS x0
-                FROM nbhoods
-                JOIN groups
-                JOIN concerns
-                LEFT OUTER JOIN gram_sat
-                ON (gram_sat.n = nbhoods.n AND 
-                    gram_sat.g = groups.g AND
-                    gram_sat.c = concerns.c)
-                WHERE groups.g = '$1'
-                AND concerns.c = '$2'
-            }
-        }
-
-        n,sat0 {
-            indices {g c}
-            validation gc
-            rtype qsat
-            query {
-                -- Ensure we get NULL x0's in neighborhoods
-                -- where group g does not reside.
-                SELECT nbhoods.n      AS n,
-                       gram_sat.sat0  AS x0
-                FROM nbhoods
-                JOIN groups
-                JOIN concerns
-                LEFT OUTER JOIN gram_sat
-                ON (gram_sat.n = nbhoods.n AND 
-                    gram_sat.g = groups.g AND
-                    gram_sat.c = concerns.c)
-                WHERE groups.g = '$1'
-                AND concerns.c = '$2'
             }
         }
 
@@ -474,8 +356,8 @@ snit::type view {
             validation g_sat
             rtype qsat
             query {
-                SELECT t   AS t,
-                       sat AS x0
+                SELECT t    AS t,
+                       mood AS x0
                 FROM hist_mood
                 WHERE g='$1'
             }
@@ -498,8 +380,8 @@ snit::type view {
             validation n
             rtype qsat
             query {
-                SELECT t   AS t,
-                       sat AS x0
+                SELECT t      AS t,
+                       nbmood AS x0
                 FROM hist_nbmood
                 WHERE n='$1'
             }

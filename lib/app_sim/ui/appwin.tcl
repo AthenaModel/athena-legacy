@@ -224,7 +224,7 @@ snit::widget appwin {
             script  { sqdeploybrowser %W }
         }
 
-        gramt {
+        att {
             label   "Attitudes"
             vistype *
             parent  ""
@@ -234,28 +234,28 @@ snit::widget appwin {
         sat {
             label   "Satisfaction"
             vistype *
-            parent  gramt
+            parent  att
             script  { satbrowser %W }
         }
 
         coop {
             label   "Cooperation"
             vistype *
-            parent  gramt
+            parent  att
             script  { coopbrowser %W }
         }
 
         nbcoop {
             label   "NbhoodCoop"
             vistype simulation
-            parent  gramt
+            parent  att
             script  { nbcoopbrowser %W }
         }
 
         mads {
             label   "Magic Attitude Drivers"
             vistype *
-            parent  gramt
+            parent  att
             script  {madbrowser %W}
         }
 
@@ -708,13 +708,12 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:CREATE
         $self AddOrder $submenu MAD:UPDATE
         $self AddOrder $submenu MAD:DELETE
-        $self AddOrder $submenu MAD:TERMINATE
+
+        $self AddOrder $submenu MAD:COOP:INPUT
+        $self AddOrder $submenu MAD:SAT:INPUT
+        # TBD: Also, orders for other attitude types
         $self AddOrder $submenu MAD:COOP:ADJUST
-        $self AddOrder $submenu MAD:COOP:LEVEL
-        $self AddOrder $submenu MAD:COOP:SLOPE
         $self AddOrder $submenu MAD:SAT:ADJUST
-        $self AddOrder $submenu MAD:SAT:LEVEL
-        $self AddOrder $submenu MAD:SAT:SLOPE
 
         # Orders/Actors
         set submenu [menu $ordersmenu.actor]
@@ -781,9 +780,8 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu COOP:UPDATE
+        $self AddOrder $submenu MAD:COOP:INPUT
         $self AddOrder $submenu MAD:COOP:ADJUST
-        $self AddOrder $submenu MAD:COOP:LEVEL
-        $self AddOrder $submenu MAD:COOP:SLOPE
 
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]
@@ -791,9 +789,8 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SAT:UPDATE
+        $self AddOrder $submenu MAD:SAT:INPUT
         $self AddOrder $submenu MAD:SAT:ADJUST
-        $self AddOrder $submenu MAD:SAT:LEVEL
-        $self AddOrder $submenu MAD:SAT:SLOPE
 
         # Orders/Economics Menu
         set submenu [menu $ordersmenu.econ]

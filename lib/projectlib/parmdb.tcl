@@ -1465,6 +1465,33 @@ snit::type ::projectlib::parmdb {
             neighborhood to the hist_control table.
         }
 
+        $ps define hist.coop ::snit::boolean on {
+            If on, Athena will save, each week, the cooperation of
+            each civilian group with each force group
+            to the hist_coop table.
+        }
+
+        $ps define hist.mood ::snit::boolean on {
+            If on, Athena will save, each week, the mood of
+            each civilian group to the hist_mood table.
+        }
+
+        $ps define hist.nbcoop ::snit::boolean on {
+            If on, Athena will save, each week, the cooperation of
+            each neighborhood with each force group
+            to the hist_nbcoop table.
+        }
+
+        $ps define hist.nbmood ::snit::boolean on {
+            If on, Athena will save, each week, the mood of
+            each neighborhood to the hist_nbmood table.
+        }
+
+        $ps define hist.sat ::snit::boolean on {
+            If on, Athena will save, each week, the satisfaction of
+            each civilian group with each concern to the hist_sat table.
+        }
+
         $ps define hist.security ::snit::boolean on {
             If on, Athena will save, each week, the security of each
             group in each neighborhood to the hist_security table.

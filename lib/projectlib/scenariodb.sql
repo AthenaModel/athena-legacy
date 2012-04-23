@@ -897,7 +897,7 @@ CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
 
 
 -- Group/concern pairs (g,c) for civilian groups
--- This table contains the data used to initialize GRAM.
+-- This table contains the data used to initialize URAM.
 
 CREATE TABLE sat_gc (
     -- Symbolic groups name
@@ -1170,8 +1170,8 @@ CREATE TABLE situations (
     -- Situation Type (the rule set name)
     stype     TEXT,
 
-    -- GRAM Driver ID
-    driver    INTEGER DEFAULT -1,
+    -- URAM Driver ID
+    driver_id INTEGER DEFAULT -1,
 
     -- Neighborhood
     n         TEXT,
@@ -1195,10 +1195,7 @@ CREATE TABLE situations (
     flist     TEXT DEFAULT 'ALL',
 
     -- Causing Group, or 'NONE'
-    g         TEXT DEFAULT 'NONE',
-
-    -- Signature (used by Athena Driver Assessment rules)
-    signature TEXT DEFAULT ''
+    g         TEXT DEFAULT 'NONE'
 );
 
 -- Activity Situations
@@ -1228,7 +1225,7 @@ CREATE TABLE ensits_t (
     location   TEXT,
 
     --------------------------------------------------------------------
-    -- The following columns are set when the GRAM implications of the
+    -- The following columns are set when the URAM implications of the
     -- situation need to be assessed at the next time tick.
 
     -- Inception Flag: 1 if this is a new situation, and inception 
@@ -1245,8 +1242,8 @@ CREATE TABLE ensits_t (
     rduration  INTEGER DEFAULT 0,
 
     -- Resolution Driver; 0 if the situation's resolution has not been
-    -- assessed, and a GRAM driver ID if it has.
-    rdriver    INTEGER DEFAULT 0
+    -- assessed, and a URAM driver ID if it has.
+    rdriver_id INTEGER DEFAULT 0
 );
 
 -- Environmental Situations View
@@ -1347,29 +1344,37 @@ CREATE TABLE service_g (
     -- (or vice versa) for use in ENI rule set.
     needs               REAL DEFAULT 0.0,
 
-    -- GRAM Driver ID for satisfaction inputs
-    driver              INTEGER,
-
-    -- Rule signature; prevents rule from firing unless things have
-    -- changed.
-    signature           TEXT DEFAULT ''
+    -- URAM Driver ID for satisfaction inputs
+    driver_id           INTEGER
 );
+
+------------------------------------------------------------------------
+-- Attitude Drivers
+--
+-- All attitude inputs to URAM are associated with an attitude 
+-- driver: an event, situation, or magic driver.  Drives are
+-- identified by a unique integer ID.
+
+CREATE TABLE drivers (
+   driver_id INTEGER PRIMARY KEY,  -- Integer ID
+   dtype     TEXT,                 -- Driver type (usually a rule set name)
+   narrative TEXT,                 -- Narrative text
+   inputs    INTEGER DEFAULT 0     -- Number of inputs for this driver.
+);
+
 
 ------------------------------------------------------------------------
 -- Magic Attitude Drivers (MADs)
 --
--- Magic inputs to GRAM are associated with MADs for causality purposes.
+-- Magic inputs to URAM are associated with MADs for causality purposes.
 -- A MAD is similar to an event or situation.
 
-CREATE TABLE mads (
-   -- MAD ID
-   id            INTEGER PRIMARY KEY,
+CREATE TABLE mads_t (
+   -- Driver ID
+   driver_id     INTEGER PRIMARY KEY,
    
-   -- One line description
-   oneliner      TEXT,
-
-   -- Cause: an ecause(n) value, or 'UNIQUE'
-   cause         TEXT DEFAULT 'UNIQUE',
+   -- Cause: an ecause(n) value, or NULL
+   cause         TEXT DEFAULT '',
 
    -- Here Factor (s), a real fraction (0.0 to 1.0)
    s             DOUBLE DEFAULT 1.0,
@@ -1378,11 +1383,19 @@ CREATE TABLE mads (
    p             DOUBLE DEFAULT 0.0,
 
    -- Near Factor (q), a real fraction (0.0 to 1.0)
-   q             DOUBLE DEFAULT 0.0,
-
-   -- GRAM Driver ID
-   driver        INTEGER DEFAULT -1
+   q             DOUBLE DEFAULT 0.0
 );
+
+CREATE VIEW mads AS
+SELECT M.driver_id AS driver_id,
+       D.dtype     AS dtype,
+       D.narrative AS narrative,
+       M.cause     AS cause,
+       M.s         AS s,
+       M.p         AS p,
+       M.q         AS q
+FROM mads_t  AS M
+JOIN drivers AS D USING (driver_id);
 
 
 ------------------------------------------------------------------------
@@ -1565,18 +1578,18 @@ CREATE TABLE hist_sat (
 
 -- mood.g
 CREATE TABLE hist_mood (
-    t   INTEGER,
-    g   TEXT,
-    sat DOUBLE,
+    t    INTEGER,
+    g    TEXT,
+    mood DOUBLE,
 
     PRIMARY KEY (t,g)
 );
 
 -- nbmood.n
 CREATE TABLE hist_nbmood (
-    t   INTEGER,
-    n   TEXT,
-    sat DOUBLE,
+    t      INTEGER,
+    n      TEXT,
+    nbmood DOUBLE,
 
     PRIMARY KEY (t,n)
 );

@@ -49,6 +49,14 @@ enum esector {
     ELSE  else
 }
 
+# Magic Input Mode
+
+enum einputmode {
+    transient  "Transient"
+    persistent "Persistent"
+}
+
+
 # rgamma: The range for the belief system playbox gamma
 
 ::marsutil::range rgamma -min 0.0 -max 2.0

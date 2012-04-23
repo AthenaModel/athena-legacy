@@ -1925,65 +1925,53 @@ snit::type appserver {
         ht subtitle "Satisfaction Levels" sat
 
         if {[Locked -disclaimer]} {
-        ht putln "$g's overall mood is [qsat format $data(mood)] "
-        ht put   "([qsat longname $data(mood)]).  $g's satisfactions "
-        ht put   "with the various concerns are as follows."
-        ht para
+            ht putln "$g's overall mood is [qsat format $data(mood)] "
+            ht put   "([qsat longname $data(mood)]).  $g's satisfactions "
+            ht put   "with the various concerns are as follows."
+            ht para
 
-        ht query {
-            SELECT pair(C.longname, C.c)            AS 'Concern',
-                   qsat('format',sat)               AS 'Satisfaction',
-                   qsat('longname',sat)             AS 'Narrative',
-                   qsaliency('longname',saliency)   AS 'Saliency'
-            FROM gram_sat JOIN concerns AS C USING (c)
-            WHERE g=$g
-            ORDER BY C.c
-        } -align LRLL
+            ht query {
+                SELECT pair(C.longname, C.c)            AS 'Concern',
+                       qsat('format',sat)               AS 'Satisfaction',
+                       qsat('longname',sat)             AS 'Narrative',
+                       qsaliency('longname',saliency)   AS 'Saliency'
+                FROM uram_sat JOIN concerns AS C USING (c)
+                WHERE g=$g
+                ORDER BY C.c
+            } -align LRLL
         }
 
         ht subtitle "Satisfaction Drivers" drivers
 
         if {[Locked -disclaimer]} {
-        ht putln "The most important satisfaction drivers for this group "
-        ht put   "at the present time are as follows:"
-        ht para
+            ht putln "The most important satisfaction drivers for this group "
+            ht put   "at the present time are as follows:"
+            ht para
 
-        aram sat drivers               \
-            -group   $g                \
-            -concern mood              \
-            -start   [simclock now -7]
+            aram contribs mood $g \
+                -start [simclock now]
 
-        rdb eval {
-            DROP TABLE IF EXISTS temp_satcontribs;
-    
-            CREATE TEMP TABLE temp_satcontribs AS
-            SELECT driver,
-                   acontrib
-            FROM gram_sat_drivers
-            WHERE g=$g AND c='mood' AND abs(acontrib) >= 0.001
-        }
-
-        ht query {
-            SELECT format('%8.3f', acontrib) AS 'Delta',
-                   driver                    AS 'ID',
-                   oneliner                  AS 'Description'
-            FROM temp_satcontribs
-            JOIN gram_driver USING (driver)
-            ORDER BY abs(acontrib) DESC
-        } -default "No significant drivers." -align RRL
+            ht query {
+                SELECT format('%8.3f', contrib) AS 'Delta',
+                       driver                   AS 'Driver',
+                       narrative                AS 'Description'
+                FROM uram_satcontribs
+                JOIN drivers ON (driver_id = driver)
+                ORDER BY abs(contrib) DESC
+            } -default "No significant drivers." -align RRL
         }
 
         ht subtitle "Significant Events" sigevents
 
         if {[Locked -disclaimer]} {
-        ht putln {
-            The following are the most recent significant events 
-            involving this group, oldest first.
-        }
+            ht putln {
+                The following are the most recent significant events 
+                involving this group, oldest first.
+            }
 
-        ht para
+            ht para
 
-        SigEvents -tags [list $g $data(n)] -mark run
+            SigEvents -tags [list $g $data(n)] -mark run
         }
         ht /page
 
@@ -2821,22 +2809,19 @@ snit::type appserver {
         set start [Restrict $q start iquantity 0]
         set end   [Restrict $q end   iquantity [simclock now]]
 
-        # NEXT, fix up the concern
+        # NEXT, Get the drivers for this time period.
         if {$c eq "MOOD"} {
-            set c "mood"
+            aram contribs mood $g \
+                -start $start     \
+                -end   $end
+        } else {
+            aram contribs sat $g $c \
+                -start $start       \
+                -end   $end
         }
 
-        # NEXT, Get the drivers for this time period.
-        aram sat drivers    \
-            -group   $g     \
-            -concern $c     \
-            -start   $start \
-            -end     $end
-
         # NEXT, pull them into a temporary table, in sorted order,
-        # so that we can use the "rowid" as the rank.  Note that
-        # if we asked for "mood", we have all of the
-        # concerns as well; only take what we asked for.
+        # so that we can use the "rowid" as the rank.
         # Note: This query is passed as a string, because the LIMIT
         # is an integer, not an expression, so we can't use an SQL
         # variable.
@@ -2844,11 +2829,9 @@ snit::type appserver {
             DROP TABLE IF EXISTS temp_satcontribs;
     
             CREATE TEMP TABLE temp_satcontribs AS
-            SELECT driver,
-                   acontrib
-            FROM gram_sat_drivers
-            WHERE g=\$g AND c=\$c
-            ORDER BY abs(acontrib) DESC
+            SELECT driver, contrib
+            FROM uram_contribs
+            ORDER BY abs(contrib) DESC
             LIMIT $top
         "
 
@@ -2857,15 +2840,14 @@ snit::type appserver {
         # for.
 
         set totContrib [rdb onecolumn {
-            SELECT total(abs(acontrib))
-            FROM gram_sat_drivers
-            WHERE g=$g AND c=$c
+            SELECT total(abs(contrib))
+            FROM uram_contribs
         }]
 
         # NEXT, get the total contribution represented by the report.
 
         set totReported [rdb onecolumn {
-            SELECT total(abs(acontrib)) 
+            SELECT total(abs(contrib)) 
             FROM temp_satcontribs
         }]
 
@@ -2898,12 +2880,12 @@ snit::type appserver {
         # NEXT, format the body of the report.
         ht query {
             SELECT format('%4d', temp_satcontribs.rowid) AS "Rank",
-                   format('%8.3f', acontrib)             AS "Actual",
-                   driver                                AS "ID",
-                   name                                  AS "Name",
-                   oneliner                              AS "Description"
+                   format('%8.3f', contrib)              AS "Actual",
+                   driver                                AS "Driver",
+                   dtype                                 AS "Type",
+                   narrative                             AS "Narrative"
             FROM temp_satcontribs
-            JOIN gram_driver USING (driver);
+            JOIN drivers ON (driver = driver_id);
 
             DROP TABLE temp_satcontribs;
         }  -default "None known." -align "RRRLL"
@@ -2973,7 +2955,7 @@ snit::type appserver {
             GROUP BY driver;
 
             CREATE TEMPORARY TABLE temp_report_driver_contribs AS
-            SELECT driver, 
+            SELECT driver_id, 
                    CASE WHEN min(time) IS NULL 
                         THEN 0
                         ELSE 1 END                  AS has_contribs,
@@ -2983,14 +2965,13 @@ snit::type appserver {
                    CASE WHEN max(time) NOT NULL    
                         THEN tozulu(max(time)) 
                         ELSE '' END                 AS te
-            FROM gram_driver LEFT OUTER JOIN gram_contribs USING (driver)
-            GROUP BY driver;
+            FROM drivers LEFT OUTER JOIN ucurve_contribs_t USING (driver_id)
+            GROUP BY driver_id;
 
             CREATE TEMPORARY VIEW temp_report_driver_view AS
-            SELECT gram_driver.driver AS driver, 
+            SELECT drivers.driver_id AS driver_id, 
                    dtype, 
-                   name, 
-                   oneliner,
+                   narrative,
                    CASE WHEN NOT has_effects AND NOT has_contribs 
                         THEN 'empty'
                         WHEN NOT has_effects AND has_contribs  
@@ -2999,21 +2980,20 @@ snit::type appserver {
                         END AS state,
                    ts,
                    te
-            FROM gram_driver
-            JOIN temp_report_driver_effects USING (driver)
-            JOIN temp_report_driver_contribs USING (driver)
-            ORDER BY driver DESC;
+            FROM drivers
+            JOIN temp_report_driver_effects USING (driver_id)
+            JOIN temp_report_driver_contribs USING (driver_id)
+            ORDER BY driver_id DESC;
         }
 
         # NEXT, produce the query.
         set query {
-            SELECT driver   AS "ID",
-                   dtype    AS "Type",
-                   name     AS "Name",
-                   oneliner AS "Description",
-                   state    AS "State",
-                   ts       AS "Start Time",
-                   te       AS "End Time"
+            SELECT driver_id   AS "Driver",
+                   dtype       AS "Type",
+                   narrative   AS "Narrative",
+                   state       AS "State",
+                   ts          AS "Start Time",
+                   te          AS "End Time"
             FROM temp_report_driver_view
         }
 
@@ -3062,7 +3042,7 @@ snit::type appserver {
             econ
             ensit
             force
-            gram
+            uram
             rmf
             service
             strategy

@@ -29,7 +29,7 @@ snit::type mad {
     # Returns the list of MAD ids
 
     typemethod names {} {
-        rdb eval {SELECT id FROM mads}
+        rdb eval {SELECT driver_id FROM mads}
     }
 
 
@@ -38,18 +38,18 @@ snit::type mad {
     # Returns the list of extended MAD ids
 
     typemethod longnames {} {
-        rdb eval {SELECT id || ' - ' || oneliner AS longid FROM mads}
+        rdb eval {SELECT driver_id || ' - ' || narrative FROM mads}
     }
 
 
     # validate id
     #
-    # id         Possibly, a MAD ID.
+    # id  - Possibly, a MAD ID.
     #
     # Validates a MAD id
 
     typemethod validate {id} {
-        if {![rdb exists {SELECT id FROM mads WHERE id=$id}]} {
+        if {![rdb exists {SELECT driver_id FROM mads WHERE driver_id=$id}]} {
             return -code error -errorcode INVALID \
                 "MAD does not exist: \"$id\""
         }
@@ -62,7 +62,7 @@ snit::type mad {
     # Returns the list of MAD ids for MADs in the initial state
 
     typemethod {initial names} {} {
-        rdb eval {SELECT id FROM gui_mads_initial}
+        rdb eval {SELECT driver_id FROM gui_mads_initial}
     }
 
 
@@ -73,26 +73,14 @@ snit::type mad {
     # Validates a MAD id for a MAD in the initial state
 
     typemethod {initial validate} {id} {
-        if {![rdb exists {SELECT id FROM gui_mads_initial WHERE id=$id}]} {
+        if {![rdb exists {
+            SELECT driver_id FROM gui_mads_initial WHERE driver_id=$id
+        }]} {
             return -code error -errorcode INVALID \
                 "MAD does not exist or is not in initial state: \"$id\""
         }
 
         return $id
-    }
-
-    #-------------------------------------------------------------------
-    # Public Typemethods
-
-    # start
-    #
-    # This routine is called when the sim leaves the PREP state; it
-    # assigns driver IDs to all existing MADs.
-
-    typemethod start {} {
-        foreach id [$type names] {
-            $type mutate getdriver $id
-        }
     }
 
     #-------------------------------------------------------------------
@@ -106,9 +94,9 @@ snit::type mad {
 
     # mutate create parmdict
     #
-    # parmdict     A dictionary of MAD parms
+    # parmdict  -  A dictionary of MAD parms
     #
-    #    oneliner       The MAD's description.
+    #    narrative       The MAD's description.
     #    cause          "UNIQUE", or an ecause(n) value
     #    s              A fraction
     #    p              A fraction
@@ -120,29 +108,16 @@ snit::type mad {
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
             # FIRST, get the next ID.
-            set id [rdb onecolumn {
-                SELECT COALESCE(max(id)+1, 1) FROM mads
-            }]
+            set id [driver create MAGIC $narrative]
 
-            # FIRST, Put the MAD in the database
+            # NEXT, Put the MAD in the database
             rdb eval {
-                INSERT INTO mads(id,oneliner,cause,s,p,q)
+                INSERT INTO mads_t(driver_id,cause,s,p,q)
                 VALUES($id,
-                       $oneliner,
                        $cause,
                        $s,
                        $p,
                        $q);
-            }
-
-            # NEXT, if we are not in PREP, get the GRAM driver.  Use
-            # [order state] rather than [sim state], because MADs
-            # can be created by the EXECUTIVE tactic just before we leave
-            # PREP.  The [order state] is then "TACTIC".
-            set undo [list]
-
-            if {[sim state] ne "PREP" || [order state] eq "TACTIC"} {
-                lappend undo [$type mutate getdriver $id]
             }
 
             # NEXT, Return the undo command
@@ -154,25 +129,23 @@ snit::type mad {
 
     # mutate delete id
     #
-    # id     A MAD ID
+    # id -  A MAD ID
     #
     # Deletes the MAD.
 
     typemethod {mutate delete} {id} {
         # FIRST, get the undo information
-        rdb eval {SELECT * FROM mads WHERE id=$id} row1 { unset row1(*) }
+        rdb eval {SELECT * FROM mads_t WHERE driver_id=$id} row1 { 
+            unset row1(*) 
+        }
+
+        rdb eval {SELECT * FROM drivers WHERE driver_id=$id} row2 { 
+            unset row2(*) 
+        }
 
         # NEXT, delete it.
-        rdb eval {DELETE FROM mads WHERE id=$id}
-
-        # NEXT, delete the GRAM driver, if any
-        if {$row1(driver) != -1} {
-            rdb eval {
-                SELECT * FROM gram_driver WHERE driver=$row1(driver)
-            } row2 { unset row2(*) }
-
-            aram cancel $row1(driver) -delete
-        }
+        rdb eval {DELETE FROM mads_t WHERE driver_id=$id}
+        driver delete $id
 
         # NEXT, Return the undo script
         return [mytypemethod RestoreDeletedMAD \
@@ -187,150 +160,56 @@ snit::type mad {
     # Restores the row to the database
 
     typemethod RestoreDeletedMAD {dict1 dict2} {
-        rdb insert mads $dict1
-
-        if {$dict2 ne ""} {
-            rdb insert gram_driver $dict2
-        }
+        rdb insert mads_t  $dict1
+        rdb insert drivers $dict2
     }
 
     # mutate update parmdict
     #
-    # parmdict     A dictionary of order parms
+    # parmdict   - A dictionary of order parms
     #
-    #   id           The MAD's ID
-    #   oneliner     A new description, or ""
-    #   cause        "UNIQUE", or an ecause(n) value, or ""
-    #   s            A fraction, or ""
-    #   p            A fraction, or ""
-    #   q            A fraction, or ""
+    #   driver_id  - The MAD's ID
+    #   narrative  - A new description, or ""
+    #   cause      - "UNIQUE", or an ecause(n) value, or ""
+    #   s          - A fraction, or ""
+    #   p          - A fraction, or ""
+    #   q          - A fraction, or ""
     #
     # Updates the MAD given the parms, which are presumed to be
     # valid.
     #
-    # Note that cause, p, and q should only be entered if no
-    # magic inputs have been entered for this MAD.
+    # Changes to cause, s, p, and q only affect new inputs entered
+    # for this MAD.
 
     typemethod {mutate update} {parmdict} {
         dict with parmdict {
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM mads
-                WHERE id=$id
+                WHERE driver_id=$driver_id
             } row {
                 unset row(*)
             }
             
+            set row(narrative) [driver narrative get $driver_id]
+
             # NEXT, Update the MAD
             rdb eval {
-                UPDATE mads
-                SET oneliner = nonempty($oneliner, oneliner),
-                    cause    = nonempty($cause,    cause),
+                UPDATE mads_t
+                SET cause    = nonempty($cause,    cause),
                     s        = nonempty($s,        s),
                     p        = nonempty($p,        p),
                     q        = nonempty($q,        q)
-                WHERE id=$id
+                WHERE driver_id=$driver_id
             }
 
-            # NEXT, if there's a GRAM driver, update it as well.
-            set undo [list]
-
-            if {$row(driver) != -1} {
-                set oldtext [aram driver cget $row(driver) -oneliner]
-                aram driver configure $row(driver) -oneliner $oneliner
+            if {$narrative ne ""} {
+                driver narrative set $driver_id $narrative
             }
 
             # NEXT, Return the undo command
             return [mytypemethod mutate update [array get row]]
         }
-    }
-
-    # mutate getdriver mad
-    #
-    # mad         A MAD ID
-    #
-    # Assigns a driver ID for the given MAD, and returns an 
-    # undo script.
-
-    typemethod {mutate getdriver} {mad} {
-        # FIRST, get the MAD data.
-        rdb eval {SELECT * FROM mads WHERE id=$mad} row {}
-
-        # NEXT, create a new GRAM driver
-        set driver [aram driver add \
-                        -name     "MAD $mad"      \
-                        -dtype    "MAGIC"         \
-                        -oneliner $row(oneliner)]
-
-        # NEXT, save the driver ID
-        rdb eval {
-            UPDATE mads SET driver=$driver WHERE id=$mad;
-        }
-
-        return [mytypemethod UndoGetDriver $mad $driver]
-    }
-
-    # UndoGetDriver mad driver
-    #
-    # mad        The mad ID
-    # driver     A gram(n) driver ID
-    #
-    # Cancels the driver, deleting it from the RDB, and resets
-    # the MAD.
-
-    typemethod UndoGetDriver {mad driver} {
-        # FIRST, cancel it in GRAM
-        aram cancel $driver -delete
-
-        # NEXT, clear it in the mads table
-        rdb eval {
-            UPDATE mads SET driver=-1 WHERE id=$mad
-        }
-    }
-
-
-    # mutate terminate id
-    #
-    # id              MAD ID
-    #
-    # Terminates all magic cooperation and satisfaction slopes for
-    # the given MAD.
-
-    typemethod {mutate terminate} {id} {
-        # FIRST, get the GRAM driver ID.
-        rdb eval {
-            SELECT driver, oneliner FROM mads WHERE id=$id
-        } {}
-
-        # NEXT, Terminate the slope inputs.
-        aram terminate $driver [simclock now]
-
-        # NEXT, send MAGIC-3-1 report
-        set text [edamrule longname MAGIC-3-1]
-        append text "\n\n"
-
-        set fmt "%-22s %s\n"
-
-        append text [format $fmt "Magic Attitude Driver:" $id]
-        append text [format $fmt "Description:"           $oneliner]
-        append text [format $fmt "GRAM Driver ID:"        $driver]
-
-        append text "\n"
-
-        append text "All satisfaction and cooperation slope inputs have\n"
-        append text "been terminated.  Termination of indirect effects in\n"
-        append text "other neighborhoods is delayed as usual.\n"
-
-        set reportid \
-            [firings save \
-                 -rtype   DAM                                        \
-                 -subtype MAGIC                                      \
-                 -meta1   MAGIC-3-1                                  \
-                 -title   "MAGIC-3-1: [edamrule longname MAGIC-3-1]" \
-                 -text    $text]
-
-        # NEXT, cannot be undone.
-        return
     }
 
 
@@ -339,10 +218,10 @@ snit::type mad {
     # parmdict    A dictionary of order parameters
     #
     #    id               list {g c}
-    #    mad              MAD ID
-    #    delta            Delta to the level, a qmag(n) value.
+    #    driver_id        MAD ID
+    #    delta            Delta to the baseline, a floating point value.
     #
-    # Adjusts a satisfaction level by a delta given the parms, 
+    # Adjusts a satisfaction curve's baseline by a delta given the parms, 
     # which are presumed to be valid.
 
     typemethod {mutate satadjust} {parmdict} {
@@ -351,16 +230,13 @@ snit::type mad {
             lassign $id g c
             set n [civgroup getg $g n]
 
-            # FIRST, get the undo information
-            set oldSat [aram sat.gc $g $c]
+            # FIRST, get the narrative text
+            set narrative [driver narrative get $driver_id]
 
-            # NEXT, get the GRAM driver ID.
-            rdb eval {
-                SELECT driver, oneliner FROM mads WHERE id=$mad
-            } {}
-
-            # NEXT, Adjust the level
-            set inputId [aram sat adjust $driver $g $c $delta]
+            # NEXT, Adjust the baseline
+            aram edit mark
+            aram sat badjust $driver_id $g $c $delta
+            driver inputs incr $driver_id
 
             # NEXT, send ADJUST-1-1 report
             set text [edamrule longname ADJUST-1-1]
@@ -368,16 +244,14 @@ snit::type mad {
 
             set fmt "%-22s %s\n"
 
-            append text [format $fmt "Magic Attitude Driver:" $mad]
-            append text [format $fmt "Description:"           $oneliner]
-            append text [format $fmt "GRAM Driver ID:"        $driver]
-            append text [format $fmt "Input ID:"           "$driver.$inputId"]
+            append text [format $fmt "Magic Attitude Driver:" $driver_id]
+            append text [format $fmt "Description:"           $narrative]
             append text [format $fmt "Neighborhood:"          $n]
             append text [format $fmt "Group:"                 $g]
             append text [format $fmt "Concern:"               $c]
 
-            set deltaText [format "%.3f (%s)" $delta [qmag name $delta]]
-            append text [format $fmt "Delta:"        $deltaText]
+            set deltaText [format "%.3f" $delta]
+            append text [format $fmt "Delta:"                 $deltaText]
 
             set reportid \
                 [firings save \
@@ -387,130 +261,76 @@ snit::type mad {
                      -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
                      -text    $text]
 
-            # NEXT, notify the app.
-            # Note: need to update <Sat> since current sat has changed.
+            # NEXT, notify application
             notifier send ::mad <Sat> update $id
 
             # NEXT, Return the undo command
-            return [mytypemethod RestoreSat $mad $driver $g $c $oldSat \
-                       $reportid]
+            return [mytypemethod UndoAdjust $driver_id $reportid <Sat> $id]
         }
     }
 
-    # RestoreSat mad driver g c sat reportid
+    # mutate satinput parmdict
     #
-    # Restores a satisfaction level to its previous value on undo.
-
-    typemethod RestoreSat {mad driver g c sat reportid} {
-        aram sat set $driver $g $c $sat -undo
-        firings delete $reportid
-        notifier send ::mad <Sat> update [list $g $c]
-    }
-
-    # mutate satlevel parmdict
+    # parmdict  - A dictionary of order parameters
     #
-    # parmdict    A dictionary of order parameters
-    #
-    #    g                Group ID
-    #    c                Concern
-    #    mad              MAD ID
-    #    level            A qmag(n) value
-    #    days             An rdays(n) value
+    #    driver_id  - The MAD ID
+    #    mode       - An einputmode value
+    #    g          - Group ID
+    #    c          - Concern
+    #    mag        - A qmag(n) value
     #
     # Makes the MAGIC-1-1 rule fire for the given input.
     
-    typemethod {mutate satlevel} {parmdict} {
+    typemethod {mutate satinput} {parmdict} {
         dict with parmdict {
             set n [civgroup getg $g n]
 
-            # FIRST, get the GRAM driver ID
+            # FIRST, get the Driver Data
             rdb eval {
-                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
+                SELECT narrative, cause, s, p, q FROM mads 
+                WHERE driver_id=$driver_id
             } {}
 
-            # NEXT, get the cause.
+            # NEXT, get the cause.  Passing "" will cause URAM to 
+            # use the numeric driver ID as the numeric cause ID.
             if {$cause eq "UNIQUE"} {
-                set cause [format "MAD%04d" $mad]
+                set cause ""
             }
 
-            dam ruleset MAGIC $driver \
-                -n     $n             \
-                -f     $g             \
+            dam ruleset MAGIC $driver_id \
                 -cause $cause         \
                 -s     $s             \
                 -p     $p             \
                 -q     $q
 
-            detail "Magic Attitude Driver:" $mad
-            detail "Description:"           $oneliner
-            detail "GRAM Driver ID:"        $driver
+            dam detail "Magic Attitude Driver:" $driver_id
+            dam detail "Narrative:"             $narrative
+            dam detail "In Neighborhood:"       $n
+
+            if {$mode eq "persistent"} {
+                set mode P
+            } else {
+                set mode T
+            }
 
             dam rule MAGIC-1-1 {1} {
-                dam sat level $c $limit $days
+                dam sat $mode $g $c $mag
             }
         }
 
         # NEXT, cannot be undone.
         return
     }
-
-
-    # mutate satslope parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    g                Group ID
-    #    c                Concern
-    #    mad              MAD ID
-    #    slope            A qmag(n) value
-    #
-    # Makes the MAGIC-1-2 rule fire for the given input.
-    
-    typemethod {mutate satslope} {parmdict} {
-        dict with parmdict {
-            set n [civgroup getg $g n]
-
-            # FIRST, get the GRAM driver ID
-            rdb eval {
-                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
-            } {}
-
-            # NEXT, get the cause.
-            if {$cause eq "UNIQUE"} {
-                set cause [format "MAD%04d" $mad]
-            }
-
-            dam ruleset MAGIC $driver \
-                -n     $n             \
-                -f     $g             \
-                -cause $cause         \
-                -s     $s             \
-                -p     $p             \
-                -q     $q
-
-            detail "Magic Attitude Driver:" $mad
-            detail "Description:"           $oneliner
-            detail "GRAM Driver ID:"        $driver
-
-            dam rule MAGIC-1-2 {1} {
-                dam sat slope $c $slope
-            }
-        }
-
-        # NEXT, cannot be undone.
-        return
-    }
-
 
     # mutate coopadjust parmdict
     #
     # parmdict    A dictionary of order parameters
     #
     #    id               list {f g}
-    #    mad              MAD ID
-    #    delta            Delta to the level, a qmag(n) value.
+    #    driver_id        MAD ID
+    #    delta            Delta to the baseline, a floating point value.
     #
-    # Adjusts a cooperation level by a delta given the parms, 
+    # Adjusts a cooperation curve's baseline by a delta given the parms, 
     # which are presumed to be valid.
 
     typemethod {mutate coopadjust} {parmdict} {
@@ -519,16 +339,13 @@ snit::type mad {
             lassign $id f g
             set n [civgroup getg $f n]
 
-            # FIRST, get the undo information
-            set oldCoop [aram coop.fg $f $g]
+            # FIRST, get the narrative text
+            set narrative [driver narrative get $driver_id]
 
-            # NEXT, get the GRAM driver ID.
-            rdb eval {
-                SELECT driver, oneliner FROM mads WHERE id=$mad
-            } {}
-
-            # NEXT, Adjust the level
-            set inputId [aram coop adjust $driver $f $g $delta]
+            # NEXT, Adjust the baseline
+            aram edit mark
+            aram coop badjust $driver_id $f $g $delta
+            driver inputs incr $driver_id
 
             # NEXT, send ADJUST-2-1 report
             set text [edamrule longname ADJUST-2-1]
@@ -536,16 +353,14 @@ snit::type mad {
 
             set fmt "%-22s %s\n"
 
-            append text [format $fmt "Magic Attitude Driver:" $mad]
-            append text [format $fmt "Description:"           $oneliner]
-            append text [format $fmt "GRAM Driver ID:"        $driver]
-            append text [format $fmt "Input ID:"           "$driver.$inputId"]
+            append text [format $fmt "Magic Attitude Driver:" $driver_id]
+            append text [format $fmt "Narrative:"             $narrative]
             append text [format $fmt "Neighborhood:"          $n]
             append text [format $fmt "Civ Group:"             $f]
             append text [format $fmt "Frc Group:"             $g]
 
-            set deltaText [format "%.3f (%s)" $delta [qmag name $delta]]
-            append text [format $fmt "Delta:"        $deltaText]
+            set deltaText [format "%.3f" $delta]
+            append text [format $fmt "Delta:"                 $deltaText]
 
             set reportid \
                 [firings save \
@@ -555,114 +370,60 @@ snit::type mad {
                      -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
                      -text    $text]
 
-            # NEXT, notify the app.
+            # NEXT, notify application
             notifier send ::mad <Coop> update $id
 
             # NEXT, Return the undo command
-            return [mytypemethod RestoreCoop $mad $driver $f $g $oldCoop \
-                       $reportid]
+            return [mytypemethod UndoAdjust $driver_id $reportid <Coop> $id]
         }
     }
 
-    # RestoreCoop mad driver f g coop reportid
-    #
-    # Restores a cooperation level to its previous value on undo.
-
-    typemethod RestoreCoop {mad driver f g coop reportid} {
-        aram coop set $driver $f $g $coop -undo
-        firings delete $reportid
-        notifier send ::mad <Coop> update [list $f $g]
-    }
-
-    # mutate cooplevel parmdict
+    # mutate coopinput parmdict
     #
     # parmdict    A dictionary of order parameters
     #
-    #    f                Civilian Group ID
-    #    g                Force Group ID
-    #    mad              MAD ID
-    #    level            A qmag(n) value
-    #    days             An rdays(n) value
+    #    driver_id  - The MAD ID
+    #    mode       - An einputmode value
+    #    f          - Civilian Group
+    #    g          - Force Group
+    #    mag        - A qmag(n) value
     #
     # Makes the MAGIC-2-1 rule fire for the given input.
     
-    typemethod {mutate cooplevel} {parmdict} {
+    typemethod {mutate coopinput} {parmdict} {
         dict with parmdict {
             set n [civgroup getg $f n]
 
-            # FIRST, get the GRAM driver ID
+            # FIRST, get the Driver Data
             rdb eval {
-                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
+                SELECT narrative, cause, s, p, q FROM mads 
+                WHERE driver_id=$driver_id
             } {}
 
-            # NEXT, get the cause.
+            # NEXT, get the cause.  Passing "" will cause URAM to 
+            # use the numeric driver ID as the numeric cause ID.
             if {$cause eq "UNIQUE"} {
-                set cause [format "MAD%04d" $mad]
+                set cause ""
             }
 
-            dam ruleset MAGIC $driver \
-                -n     $n             \
-                -f     $f             \
-                -doer  $g             \
-                -cause $cause         \
-                -s     $s             \
-                -p     $p             \
+            dam ruleset MAGIC $driver_id \
+                -cause $cause            \
+                -s     $s                \
+                -p     $p                \
                 -q     $q
 
-            detail "Magic Attitude Driver:" $mad
-            detail "Description:"           $oneliner
-            detail "GRAM Driver ID:"        $driver
+            dam detail "Magic Attitude Driver:" $driver_id
+            dam detail "Narrative:"             $narrative
+            dam detail "In Neighborhood:"       $n
+
+            if {$mode eq "persistent"} {
+                set mode P
+            } else {
+                set mode T
+            }
 
             dam rule MAGIC-2-1 {1} {
-                dam coop level -- $limit $days
-            }
-        }
-
-        # NEXT, cannot be undone.
-        return
-    }
-
-
-    # mutate coopslope parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    f                Civilian Group ID
-    #    g                Force Group ID
-    #    mad              MAD ID
-    #    slope            A qmag(n) value
-    #
-    # Makes the MAGIC-2-2 rule fire for the given input.
-    
-    typemethod {mutate coopslope} {parmdict} {
-        dict with parmdict {
-            set n [civgroup getg $f n]
-
-            # FIRST, get the GRAM driver ID
-            rdb eval {
-                SELECT driver,oneliner,cause,s,p,q FROM mads WHERE id=$mad
-            } {}
-
-            # NEXT, get the cause.
-            if {$cause eq "UNIQUE"} {
-                set cause [format "MAD%04d" $mad]
-            }
-
-            dam ruleset MAGIC $driver \
-                -n     $n             \
-                -f     $f             \
-                -doer  $g             \
-                -cause $cause         \
-                -s     $s             \
-                -p     $p             \
-                -q     $q
-
-            detail "Magic Attitude Driver:" $mad
-            detail "Description:"           $oneliner
-            detail "GRAM Driver ID:"        $driver
-
-            dam rule MAGIC-2-2 {1} {
-                dam coop slope -- $slope
+                dam coop $mode $f $g $mag
             }
         }
 
@@ -672,45 +433,23 @@ snit::type mad {
 
 
     #-------------------------------------------------------------------
-    # Order Helpers
+    # Helpers Methods and Procs
 
-    # detail label value
+    # UndoAdjust driver_id reportid event id
     #
-    # Adds a detail to the rule input details
-   
-    proc detail {label value} {
-        dam details [format "%-22s %s\n" $label $value]
-    }
-
-    # Refresh_MU dlg fields fdict
+    # driver_id  - The driver_id for the adjustment
+    # reportid   - The ID of the rule firing report.
+    # event      - Notifier event ID
+    # id         - Record ID, e.g., {$g $c}
     #
-    # dlg       The order dialog
-    # fields    A list of the fields that have changed
-    # fdict     A dict of the current field values.
-    #
-    # Loads fields for the current MAD.  Also, the cause, s, p, and q 
-    # fields must be disabled if there are inputs for this MAD.
+    # Undoes an attitude adjustment.
 
-    typemethod Refresh_MU {dlg fields fdict} {
-        # FIRST, update fields if the MAD has changed.
-        if {"id" in $fields} {
-            $dlg loadForKey id
-        }
+    typemethod UndoAdjust {driver_id reportid event id} {
+        aram edit undo
+        firings delete $reportid
+        driver inputs incr $driver_id -1
 
-        # NEXT, handle the cause, s, p, and q fields.
-        $dlg disabled {}
-
-        dict with fdict {
-            if {$id ne ""} {
-                set inputs [rdb onecolumn {
-                    SELECT inputs FROM gui_mads WHERE id=$id
-                }]
-
-                if {$inputs > 0} {
-                    $dlg disabled cause s p q
-                }
-            }
-        }
+        notifier send ::mad $event update $id
     }
 }
 
@@ -726,7 +465,7 @@ order define MAD:CREATE {
 
     options -sendstates {PREP PAUSED TACTIC}
 
-    parm oneliner  text  "Description" 
+    parm narrative text  "Narrative" 
     parm cause     enum  "Cause"         -enumtype {ptype ecause+unique} \
                                          -defval   UNIQUE
     parm s         frac  "Here Factor"   -defval   1.0
@@ -735,11 +474,11 @@ order define MAD:CREATE {
 
 } {
     # FIRST, prepare and validate the parameters
-    prepare oneliner          -required
-    prepare cause    -toupper -required -type {ptype ecause+unique}
-    prepare s                 -required -type rfraction
-    prepare p                 -required -type rfraction
-    prepare q                 -required -type rfraction
+    prepare narrative          -required
+    prepare cause     -toupper -required -type {ptype ecause+unique}
+    prepare s                  -required -type rfraction
+    prepare p                  -required -type rfraction
+    prepare q                  -required -type rfraction
 
     returnOnError -final
 
@@ -760,12 +499,12 @@ order define MAD:DELETE {
         -sendstates {PREP PAUSED}
 
 
-    parm id key "MAD ID" -table    gui_mads_initial \
-                         -keys     id               \
-                         -dispcols longid
+    parm driver_id key "MAD ID" -table    gui_mads_initial \
+                                -keys     driver_id        \
+                                -dispcols longid
 } {
     # FIRST, prepare the parameters
-    prepare id -toupper -required -type {mad initial}
+    prepare driver_id -toupper -required -type {mad initial}
 
     returnOnError -final
 
@@ -792,7 +531,7 @@ order define MAD:DELETE {
     }
 
     # NEXT, Delete the mad
-    lappend undo [mad mutate delete $parms(id)]
+    lappend undo [mad mutate delete $parms(driver_id)]
 
     setundo [join $undo \n]
 }
@@ -805,59 +544,25 @@ order define MAD:DELETE {
 order define MAD:UPDATE {
     title "Update Magic Attitude Driver"
     options \
-        -sendstates  {PREP PAUSED}      \
-        -refreshcmd  {::mad Refresh_MU}
+        -sendstates  {PREP PAUSED TACTIC}      \
+        -refreshcmd {orderdialog refreshForKey driver_id *}
 
-    parm id       key   "MAD ID"        -table    gui_mads \
-                                        -keys     id       \
-                                        -dispcols longid
-    parm oneliner text  "Description"
-    parm cause    enum  "Cause"         -enumtype {ptype ecause+unique}
-    parm s        frac  "Here Factor"
-    parm p        frac  "Near Factor"
-    parm q        frac  "Far Factor" 
+    parm driver_id key   "MAD ID"        -table    gui_mads  \
+                                         -keys     driver_id \
+                                         -dispcols longid
+    parm narrative text  "Narrative"
+    parm cause     enum  "Cause"         -enumtype {ptype ecause+unique}
+    parm s         frac  "Here Factor"
+    parm p         frac  "Near Factor"
+    parm q         frac  "Far Factor" 
 } {
     # FIRST, prepare the parameters
-    prepare id       -required -type mad
-    prepare oneliner
-    prepare cause    -toupper -type {ptype ecause+unique}
-    prepare s                 -type rfraction
-    prepare p                 -type rfraction
-    prepare q                 -type rfraction
-
-    returnOnError
-
-    # NEXT, cause, s, p, and q should only be changed if there are no
-    # inputs.
-    set inputs [rdb onecolumn {SELECT inputs FROM gui_mads WHERE id=$id}]
-
-    validate cause {
-        if {$inputs > 0} {
-            reject cause \
-                "Cannot change cause once magic inputs have been made."
-        }
-    }
-
-    validate s {
-        if {$inputs > 0} {
-            reject s \
-                "Cannot change here factor once magic inputs have been made."
-        }
-    }
-
-    validate p {
-        if {$inputs > 0} {
-            reject p \
-                "Cannot change near factor once magic inputs have been made."
-        }
-    }
-
-    validate q {
-        if {$inputs > 0} {
-            reject q \
-                "Cannot change far factor once magic inputs have been made."
-        }
-    }
+    prepare driver_id -required -type mad
+    prepare narrative
+    prepare cause     -toupper  -type {ptype ecause+unique}
+    prepare s                   -type rfraction
+    prepare p                   -type rfraction
+    prepare q                   -type rfraction
 
     returnOnError -final
 
@@ -867,37 +572,12 @@ order define MAD:UPDATE {
     setundo [join $undo \n]
 }
 
-# MAD:TERMINATE
-#
-# Terminates all magic slope inputs for a MAD.
-
-order define MAD:TERMINATE {
-    title "Terminate Magic Slope Inputs"
-    options \
-        -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC}
-
-    parm id       key   "MAD ID"        -table    gui_mads  \
-                                        -keys     id        \
-                                        -dispcols longid
-} {
-    # FIRST, prepare the parameters
-    prepare id            -required -type mad
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    mad mutate terminate $parms(id)
-
-    return
-}
-
 # MAD:SAT:ADJUST
 #
-# Adjusts a satisfaction curve by some delta.
+# Adjusts a satisfaction curve's baseline by some delta.
 
 order define MAD:SAT:ADJUST {
-    title "Magic Adjust Satisfaction Level"
+    title "Magic Adjust Satisfaction Baseline"
     options \
         -sendstates     {PAUSED TACTIC}         \
         -schedulestates {PREP PAUSED TACTIC}
@@ -905,15 +585,15 @@ order define MAD:SAT:ADJUST {
     parm id        key   "Curve"     -table    gui_sat_gc      \
                                      -keys     {g c}           \
                                      -labels   {"Grp" "Con"}
-    parm mad       key   "MAD ID"    -table    gui_mads    \
-                                     -keys     id          \
+    parm driver_id key   "MAD ID"    -table    gui_mads        \
+                                     -keys     driver_id       \
                                      -dispcols longid
     parm delta     text  "Delta"
 } {
     # FIRST, prepare the parameters
-    prepare id    -toupper -required -type sat
-    prepare mad            -required -type mad
-    prepare delta -toupper -required -type qmag -xform [list qmag value]
+    prepare id         -toupper -required -type sat
+    prepare driver_id           -required -type mad
+    prepare delta      -toupper -required -type snit::double
 
     returnOnError -final
 
@@ -921,67 +601,38 @@ order define MAD:SAT:ADJUST {
     setundo [mad mutate satadjust [array get parms]]
 }
 
-# MAD:SAT:LEVEL
+# MAD:SAT:INPUT
 #
-# Enters a magic satisfaction level input.
+# Enters a magic satisfaction input.
 
-order define MAD:SAT:LEVEL {
-    title "Magic Satisfaction Level Input"
+order define MAD:SAT:INPUT {
+    title "Magic Satisfaction Input"
     options \
         -sendstates     {TACTIC}             \
         -schedulestates {PREP PAUSED TACTIC}
 
-    parm g         enum  "Group"               -enumtype civgroup
-    parm c         enum  "Concern"             -enumtype {ptype c}
-    parm mad       key   "MAD ID"              -table    gui_mads     \
-                                               -keys     id           \
-                                               -dispcols longid
-    parm limit     text  "Limit"
-    parm days      text  "Realization Time"    -defval   2.0
+    parm driver_id key   "MAD ID"              -table       gui_mads   \
+                                               -keys        driver_id  \
+                                               -dispcols    longid
+    parm mode      enum  "Mode"                -enumtype    einputmode \
+                                               -displaylong yes        \
+                                               -defval      transient
+    parm g         enum  "Group"               -enumtype    civgroup
+    parm c         enum  "Concern"             -enumtype    {ptype c}
+    parm mag       text  "Magnitude"
 } {
     # FIRST, prepare the parameters
-    prepare g       -toupper -required -type civgroup
-    prepare c       -toupper -required -type {ptype c}
-    prepare mad              -required -type mad
-    prepare limit   -toupper -required -type qmag -xform [list qmag value]
-    prepare days             -required -type rdays
+    prepare driver_id          -required -type mad
+    prepare mode      -tolower -required -type einputmode
+    prepare g         -toupper -required -type civgroup
+    prepare c         -toupper -required -type {ptype c}
+    prepare mag       -toupper -required -type qmag -xform [list qmag value]
 
     returnOnError -final
 
     # NEXT, modify the curve
-    mad mutate satlevel [array get parms]
-
-    return
-}
-
-
-# MAD:SAT:SLOPE
-#
-# Enters a magic satisfaction slope input.
-
-order define MAD:SAT:SLOPE {
-    title "Magic Satisfaction Slope Input"
-    options \
-        -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC}
-
-    parm g         enum  "Group"               -enumtype civgroup
-    parm c         enum  "Concern"             -enumtype {ptype c}
-    parm mad       key   "MAD ID"              -table    gui_mads     \
-                                               -keys     id           \
-                                               -dispcols longid
-    parm slope     text  "Slope"
-} {
-    # FIRST, prepare the parameters
-    prepare g       -toupper -required -type civgroup
-    prepare c       -toupper -required -type {ptype c}
-    prepare mad              -required -type mad
-    prepare slope   -toupper -required -type qmag -xform [list qmag value]
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    mad mutate satslope [array get parms]
+    # TBD: Need to support undo
+    mad mutate satinput [array get parms]
 
     return
 }
@@ -989,10 +640,10 @@ order define MAD:SAT:SLOPE {
 
 # MAD:COOP:ADJUST
 #
-# Adjusts a cooperation curve by some delta.
+# Adjusts a cooperation curve's baseline by some delta.
 
 order define MAD:COOP:ADJUST {
-    title "Magic Adjust Cooperation Level"
+    title "Magic Adjust Cooperation Baseline"
     options \
         -sendstates     {PAUSED TACTIC}         \
         -schedulestates {PREP PAUSED TACTIC}
@@ -1000,15 +651,15 @@ order define MAD:COOP:ADJUST {
     parm id        key   "Curve"     -table    gui_coop_fg     \
                                      -keys     {f g}           \
                                      -labels   {"Of" "With"}
-    parm mad       key   "MAD ID"    -table    gui_mads  \
-                                     -keys     id        \
+    parm driver_id key   "MAD ID"    -table    gui_mads        \
+                                     -keys     driver_id       \
                                      -dispcols longid
     parm delta     text  "Delta"
 } {
     # FIRST, prepare the parameters
-    prepare id    -toupper -required -type coop
-    prepare mad            -required -type mad
-    prepare delta -toupper -required -type qmag -xform [list qmag value]
+    prepare id        -toupper -required -type coop
+    prepare driver_id          -required -type mad
+    prepare delta     -toupper -required -type snit::double
 
     returnOnError -final
 
@@ -1016,66 +667,38 @@ order define MAD:COOP:ADJUST {
     setundo [mad mutate coopadjust [array get parms]]
 }
 
-# MAD:COOP:LEVEL
+# MAD:COOP:INPUT
 #
-# Enters a magic cooperation level input.
+# Enters a magic cooperation input.
 
-order define MAD:COOP:LEVEL {
-    title "Magic Cooperation Level Input"
+order define MAD:COOP:INPUT {
+    title "Magic Cooperation Input"
     options \
         -sendstates     {TACTIC}             \
         -schedulestates {PREP PAUSED TACTIC}
 
+    parm driver_id key   "MAD ID"              -table       gui_mads   \
+                                               -keys        driver_id  \
+                                               -dispcols    longid
+    parm mode      enum  "Mode"                -enumtype    einputmode \
+                                               -displaylong yes        \
+                                               -defval      transient
     parm f         enum  "Of Group"            -enumtype civgroup
     parm g         enum  "With Group"          -enumtype frcgroup
-    parm mad       key   "MAD ID"              -table    gui_mads \
-                                               -keys     id       \
-                                               -dispcols longid
-    parm limit     text  "Limit"
-    parm days      text  "Days"                -defval   2.0
+    parm mag       text  "Magnitude"
 } {
     # FIRST, prepare the parameters
-    prepare f       -toupper -required -type civgroup
-    prepare g       -toupper -required -type frcgroup
-    prepare mad              -required -type mad
-    prepare limit   -toupper -required -type qmag -xform [list qmag value]
-    prepare days             -required -type rdays
+    prepare driver_id          -required -type mad
+    prepare mode      -tolower -required -type einputmode
+    prepare f         -toupper -required -type civgroup
+    prepare g         -toupper -required -type frcgroup
+    prepare mag       -toupper -required -type qmag -xform [list qmag value]
 
     returnOnError -final
 
     # NEXT, modify the curve
-    mad mutate cooplevel [array get parms]
+    mad mutate coopinput [array get parms]
 
     return
 }
 
-# MAD:COOP:SLOPE
-#
-# Enters a magic cooperation slope input.
-
-order define MAD:COOP:SLOPE {
-    title "Magic Cooperation Slope Input"
-    options \
-        -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC}
-
-    parm f         enum  "Of Group"            -enumtype civgroup
-    parm g         enum  "With Group"          -enumtype frcgroup
-    parm mad       key   "MAD ID"              -table    gui_mads \
-                                               -keys     id       \
-                                               -dispcols longid
-    parm slope     text  "Slope"
-} {
-    # FIRST, prepare the parameters
-    prepare f       -toupper -required -type civgroup
-    prepare g       -toupper -required -type frcgroup
-    prepare mad              -required -type mad
-    prepare slope   -toupper -required -type qmag -xform [list qmag value]
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    mad mutate coopslope [array get parms]
-
-    return
-}

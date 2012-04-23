@@ -29,7 +29,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN
 
         ted order TACTIC:SAVE:CREATE owner JOE int1 10 on_lock NO
 
@@ -97,8 +97,9 @@ namespace eval ::athena_test::tests:: {
 
     proc NbmoodEval {nbmood comp amount} {
         rdb eval {
-            INSERT OR REPLACE INTO gram_n(n,sat)
-            VALUES('NB1', $nbmood);
+            UPDATE uram_n
+            SET nbmood = $nbmood
+            WHERE n='NB1'
         }
         condition mutate update [list condition_id 1 op1 $comp x1 $amount]
         return [condition::NBMOOD eval [condition get 1]]
@@ -106,6 +107,7 @@ namespace eval ::athena_test::tests:: {
 
     test eval-1.1 {Test eval} -setup {
         setup
+        aram init
         condition mutate create $C1
     } -body {
         set a [NbmoodEval 50 EQ 50]

@@ -98,11 +98,8 @@ snit::type demsit {
                 # NEXT, get a demsit object to manipulate the data.
                 set sit [situation get $s]
                 
-                # NEXT, create a GRAM driver for this situation
-                $sit set driver [aram driver add \
-                                     -dtype    "UNEMP"          \
-                                     -name     "Sit $s"         \
-                                     -oneliner [$sit oneliner]]
+                # NEXT, create a URAM driver for this situation
+                $sit set driver_id [driver create UNEMP [$sit oneliner]]
                 
                 # NEXT, link it to the demog_ng object.
                 rdb eval {

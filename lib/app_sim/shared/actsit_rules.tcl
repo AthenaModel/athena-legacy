@@ -43,7 +43,7 @@ snit::type actsit_rules {
     typemethod {monitor} {sit} {
         set ruleset [$sit get stype]
 
-        if {![parmdb get dam.$ruleset.active]} {
+        if {![dam isactive $ruleset]} {
             log warning actr \
                 "monitor $ruleset: ruleset has been deactivated"
             return
@@ -56,90 +56,62 @@ snit::type actsit_rules {
     }
 
     #-------------------------------------------------------------------
-    # Control Structures
-
-    #-------------------------------------------------------------------
     # Rule Set Tools
 
-    # satslope cov f con rmf slope ?con rmf slope...?
+    # satinput flist g cov con rmf mag ?con rmf mag...?
     #
-    # cov        The coverage fraction
-    # f          The affected group
-    # con        The affected concern
-    # rmf        The RMF to apply
-    # slope      The nominal slope
+    # flist    - The affected group(s)
+    # g        - The doing group
+    # cov      - The coverage fraction
+    # con      - The affected concern
+    # rmf      - The RMF to apply
+    # mag      - The nominal magnitude
     #
-    # Enters satisfaction slope inputs for -n, the -f groups, and acting 
-    # group "g"  -doer, for the force activity situations.
+    # Enters satisfaction inputs.
 
-    proc satslope {cov f args} {
-        set n       [dam rget -n]
-        set g       [dam rget -doer]
-        set nomCov  [parmdb get dam.actsit.nominalCoverage]
+    proc satinput {flist g cov args} {
+        set nomCov [parmdb get dam.actsit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 3 == 0}
 
-        set rel [rel $f $g]
+        foreach f $flist {
+            set hrel [hrel.fg $f $g]
 
-        set result [list]
+            set result [list]
 
-        foreach {con rmf slope} $args {
-            let mult {[rmf $rmf $rel] * $cov / $nomCov}
-
-            let slope {[qmag value $slope] * $mult}
-
-            # Get rid of -0's
-            if {$slope == 0.0} {
-                set slope 0.0
+            foreach {con rmf mag} $args {
+                let mult {[rmf $rmf $hrel] * $cov / $nomCov}
+                
+                lappend result $con [mag* $mult $mag]
             }
-
-            lappend result $con $slope
+            
+            dam sat T $f {*}$result
         }
-
-        dam sat slope -f $f {*}$result
     }
 
 
-    # coopslope f cov rmf slope
+    # coopinput flist g cov rmf mag
     #
-    # f          The affected group
-    # cov        The coverage fraction
-    # rmf        The RMF to apply
-    # slope      The nominal slope
+    # flist    - The affected CIV groups
+    # g        - The acting force group
+    # cov      - The coverage fraction
+    # rmf      - The RMF to apply
+    # mag      - The nominal slope
     #
-    # Enters cooperation slope inputs for -n, "f", and acting 
-    # group "g"  -doer, for the force activity situations.
+    # Enters cooperation inputs.
 
-    proc coopslope {f cov rmf slope} {
+    proc coopinput {flist g cov rmf mag} {
         set ruleset [dam get ruleset]
-        set n       [dam rget -n]
-        set g       [dam rget -doer]
         set nomCov  [parmdb get dam.actsit.nominalCoverage]
 
-        set rel [rel $f $g]
+        foreach f $flist {
+            set hrel [hrel.fg $f $g]
 
-        let mult {[rmf $rmf $rel] * $cov / $nomCov}
-
-        let slope {[qmag value $slope] * $mult}
-
-
-        # Get rid of -0's
-        if {$slope == 0.0} {
-            set slope 0.0
-        }
+            let mult {[rmf $rmf $hrel] * $cov / $nomCov}
         
-        dam coop slope -f $f -- $slope
+            dam coop T $f $g [mag* $mult $mag]
+        }
     }
-
-
-    # detail label value
-    #
-    # Adds a detail to the input details
-   
-    proc detail {label value} {
-        dam details [format "%-21s %s\n" $label $value]
-    }
-
 
     #===================================================================
     # Civilian Activity Situations
@@ -163,45 +135,27 @@ snit::type actsit_rules {
     typemethod DISPLACED {sit} {
         log detail actr [list DISPLACED [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
 
-        dam ruleset DISPLACED [$sit get driver]                    \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset DISPLACED [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        dam detail "Civ. Group:"    $g
+        dam detail "Displaced in:"  $n
+        dam detail "Coverage:"      [string trim [percent $cov]]
 
         dam rule DISPLACED-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a DISPLACED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f      \
+            satinput [civgroup gIn $n] $g $cov   \
                     AUT enmore   S-   \
                     SFT enmore   L-   \
                     CUL enquad   S-   \
                     QOL constant M- 
-            }
-        }
-
-        dam rule DISPLACED-2-1 {
-            $cov == 0.0 
-        } {
-            dam guard
-
-            # While there is a DISPLACED situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
         }
     }
 
@@ -211,6 +165,13 @@ snit::type actsit_rules {
     #
     # The following rule sets are for situations which do not depend
     # on the unit's stated ACTIVITY.
+
+    proc frcdetails {sit} {
+        dam detail "Force Group:"   [$sit get g]
+        dam detail "Acting In:"     [$sit get n]
+        dam detail "With Coverage:" \
+            [string trim [percent [$sit get coverage]]]
+    }
 
     #-------------------------------------------------------------------
     # Rule Set: PRESENCE:  Mere Presence of Force Units
@@ -228,47 +189,27 @@ snit::type actsit_rules {
     typemethod PRESENCE {sit} {
         log detail actr [list PRESENCE [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset PRESENCE [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset PRESENCE [$sit get driver_id]
         
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule PRESENCE-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a PRESENCE situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad XXS+ \
-                    SFT quad XXS+ \
-                    QOL quad XXS+
+            satinput $flist $g $cov \
+                AUT quad XXS+ \
+                SFT quad XXS+ \
+                QOL quad XXS+
 
-                coopslope $f $cov quad XXS+
-            }
-
-        }
-
-        dam rule PRESENCE-2-1 {
-            $cov == 0.0
-        } { 
-            dam guard
-            # While there is a PRESENCE situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT QOL
-            dam coop clear
+            coopinput $flist $g $cov quad XXS+
         }
     }
 
@@ -295,61 +236,44 @@ snit::type actsit_rules {
     typemethod CHKPOINT {sit} {
         log detail actr [list CHKPOINT [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset CHKPOINT [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CHKPOINT [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CHKPOINT-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a CHKPOINT situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                set rel [rel $f $g]
+            foreach f $flist {
+                set hrel [hrel.fg $f $g]
 
-                if {$rel >= 0} {
+                if {$hrel >= 0} {
                     # FRIENDS
-                    satslope $cov $f      \
+                    satinput $f $g $cov   \
                         AUT quad     S+   \
                         SFT quad     S+   \
                         CUL constant XXS- \
                         QOL constant XS- 
-                } elseif {$rel < 0} {
+                } elseif {$hrel < 0} {
                     # ENEMIES
-                    # Note: by default, RMF=quad for AUT, SFT, which will
+                    # Note: RMF=quad for AUT, SFT, which will
                     # reverse the sign in this case.
-                    satslope $cov $f     \
+                    satinput $f $g $cov  \
                         AUT quad     S+  \
                         SFT quad     S+  \
                         CUL constant S-  \
                         QOL constant S-        
                 }
-
-                coopslope $f $cov quad XXXS+
             }
-        }
 
-        dam rule CHKPOINT-2-1 {
-            $cov == 0.0 
-        } {
-            dam guard
-            # While there is a CHKPOINT situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov quad XXXS+
         }
     }
 
@@ -372,16 +296,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
-        set mitigating   0
 
-        dam ruleset CMOCONST [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CMOCONST [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CMOCONST-1-1 {
             $cov > 0.0
@@ -390,36 +310,20 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates CMOCONST $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
-
-            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOCONST situation
             #     with COVERAGE > 0.0
             # For each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad     [mag+ $stops S+]  \
-                    SFT constant [mag+ $stops S+]  \
-                    CUL constant [mag+ $stops XS+] \
-                    QOL constant [mag+ $stops L+] 
+            satinput $flist $g $cov \
+                AUT quad     [mag+ $stops S+]  \
+                SFT constant [mag+ $stops S+]  \
+                CUL constant [mag+ $stops XS+] \
+                QOL constant [mag+ $stops L+] 
 
-                coopslope $f $cov frmore [mag+ $stops M+]
-            }
-        }
-
-        dam rule CMOCONST-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOCONST situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore [mag+ $stops M+]
         }
     }
 
@@ -439,47 +343,28 @@ snit::type actsit_rules {
     typemethod CMODEV {sit} {
         log detail actr [list CMODEV [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset CMODEV [$sit get driver]                   \
-            -sit       $sit                                      \
-            -doer      $g                                        \
-            -n         $n                                        \
-            -f         [civgroup gIn $n]
-        
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        dam ruleset CMODEV [$sit get driver_id]
+
+        frcdetails $sit
 
         dam rule CMODEV-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a CMODEV situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f  \
-                    AUT quad M+   \
-                    SFT quad S+   \
-                    CUL quad S+   \
-                    QOL quad L+
+            satinput $flist $g $cov \
+                AUT quad M+   \
+                SFT quad S+   \
+                CUL quad S+   \
+                QOL quad L+
 
-                coopslope $f $cov frmore M+
-            }
-        }
-
-        dam rule CMODEV-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMODEV situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore M+
         }
     }
 
@@ -502,16 +387,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
-        set mitigating   0
 
-        dam ruleset CMOEDU [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CMOEDU [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CMOEDU-1-1 {
             $cov > 0.0
@@ -520,36 +401,20 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates CMOEDU $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
-
-            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOEDU situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad     [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL quad     [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
+            satinput $flist $g $cov \
+                AUT quad     [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL quad     [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
 
-                coopslope $f $cov frmore [mag+ $stops M+]
-            }
-        }
-
-        dam rule CMOEDU-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOEDU situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore [mag+ $stops M+]
         }
     }
 
@@ -572,16 +437,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
-        set mitigating   0
 
-        dam ruleset CMOEMP [$sit get driver]                       \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
-       
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        dam ruleset CMOEMP [$sit get driver_id]
+
+        frcdetails $sit
 
         dam rule CMOEMP-1-1 {
             $cov > 0.0
@@ -590,37 +451,21 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates CMOEMP $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
-
-            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOEMP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad     [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
+            satinput $flist $g $cov \
+                AUT quad     [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
 
-                coopslope $f $cov frmore [mag+ $stops M+]
-            }
+            coopinput $flist $g $cov frmore [mag+ $stops M+]
         }
-
-        dam rule CMOEMP-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOEMP situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
-         }
     }
 
     #-------------------------------------------------------------------
@@ -642,16 +487,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
-        set mitigating   0
 
-        dam ruleset CMOIND [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CMOIND [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CMOIND-1-1 {
             $cov > 0.0
@@ -660,36 +501,20 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates CMOIND $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
-
-            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOIND situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad     [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
+            satinput $flist $g $cov \
+                AUT quad     [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
 
-                coopslope $f $cov frmore [mag+ $stops M+]
-            }
-        }
-
-        dam rule CMOIND-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOIND situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore [mag+ $stops M+]
         }
     }
 
@@ -712,16 +537,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
-        set mitigating   0
 
-        dam ruleset CMOINF [$sit get driver]                       \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CMOINF [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CMOINF-1-1 {
             $cov > 0.0
@@ -730,36 +551,20 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates CMOINF $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
-
-            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOINF situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad     [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops M+]
+            satinput $flist $g $cov \
+                AUT quad     [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops M+]
 
-                coopslope $f $cov frmore [mag+ $stops M+]
-            }
-        }
-
-        dam rule CMOINF-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOINF situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore [mag+ $stops M+]
         }
     }
 
@@ -779,45 +584,26 @@ snit::type actsit_rules {
     typemethod CMOLAW {sit} {
         log detail actr [list CMOLAW [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset CMOLAW [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CMOLAW [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
        dam rule CMOLAW-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a CMOLAW situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad M+  \
-                    SFT quad S+
+            satinput $flist $g $cov \
+                AUT quad M+  \
+                SFT quad S+
 
-                coopslope $f $cov quad M+
-            }
-        }
-
-        dam rule CMOLAW-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOLAW situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT
-            dam coop clear
+            coopinput $flist $g $cov quad M+
         }
     }
 
@@ -840,16 +626,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
-        set mitigating   0
 
-        dam ruleset CMOMED [$sit get driver]                       \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CMOMED [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CMOMED-1-1 {
             $cov > 0.0
@@ -858,35 +640,19 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates CMOMED $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
-
-            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOMED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad     [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
+            satinput $flist $g $cov \
+                AUT quad     [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
 
-                coopslope $f $cov frmore [mag+ $stops L+]
-            }
-        }
-
-        dam rule CMOMED-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOMED situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore [mag+ $stops L+]
         }
     }
 
@@ -909,16 +675,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
-        set mitigating   0
 
-        dam ruleset CMOOTHER [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CMOOTHER [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CMOOTHER-1-1 {
             $cov > 0.0
@@ -927,36 +689,20 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates CMOOTHER $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
             }
-
-            dam guard [format "%.2f %s" $cov $stops]
 
             # While there is a CMOOTHER situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT quad     [mag+ $stops S+]  \
-                    SFT constant [mag+ $stops S+]  \
-                    CUL constant [mag+ $stops XS+] \
-                    QOL constant [mag+ $stops L+]
+            satinput $flist $g $cov \
+                AUT quad     [mag+ $stops S+]  \
+                SFT constant [mag+ $stops S+]  \
+                CUL constant [mag+ $stops XS+] \
+                QOL constant [mag+ $stops L+]
 
-                coopslope $f $cov frmore [mag+ $stops M+]
-            }
-        }
-
-        dam rule CMOOTHER-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CMOOTHER situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore [mag+ $stops M+]
         }
     }
 
@@ -977,47 +723,28 @@ snit::type actsit_rules {
     typemethod COERCION {sit} {
         log detail actr [list COERCION [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset COERCION [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset COERCION [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule COERCION-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a COERCION situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT enquad XL-  \
-                    SFT enquad XXL- \
-                    CUL enquad XS-  \
-                    QOL enquad M-
+            satinput $flist $g $cov \
+                AUT enquad XL-  \
+                SFT enquad XXL- \
+                CUL enquad XS-  \
+                QOL enquad M-
 
-                coopslope $f $cov enmore XXXL+
-            }
-        }
-
-        dam rule COERCION-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a COERCION situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov enmore XXXL+
         }
     }
 
@@ -1038,43 +765,25 @@ snit::type actsit_rules {
     typemethod CRIMINAL {sit} {
         log detail actr [list CRIMINAL [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset CRIMINAL [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CRIMINAL [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CRIMINAL-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a CRIMINAL situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT enquad L-  \
-                    SFT enquad XL- \
-                    QOL enquad L-
-            }
-        }
-
-        dam rule CRIMINAL-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CRIMINAL situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT QOL
+            satinput $flist $g $cov \
+                AUT enquad L-  \
+                SFT enquad XL- \
+                QOL enquad L-
         }
     }
 
@@ -1094,32 +803,27 @@ snit::type actsit_rules {
     typemethod CURFEW {sit} {
         log detail actr [list CURFEW [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset CURFEW [$sit get driver]                       \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset CURFEW [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule CURFEW-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a CURFEW situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                set rel [rel $f $g]
+            foreach f $flist {
+                set rel [hrel.fg $f $g]
 
                 if {$rel >= 0} {
                     # Friends
-                    satslope $cov $f \
+                    satinput $f $g $cov \
                         AUT constant S- \
                         SFT frquad   S+ \
                         CUL constant S- \
@@ -1129,27 +833,15 @@ snit::type actsit_rules {
                     
                     # NOTE: Because $rel < 0, and the expected RMF
                     # is "quad", the SFT input turns into a minus.
-                    satslope $cov $f \
+                    satinput $f $g $cov \
                         AUT constant S- \
                         SFT enquad   M- \
                         CUL constant S- \
                         QOL constant S-
                 }
-
-                coopslope $f $cov quad M+
             }
-        }
 
-        dam rule CURFEW-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a CURFEW situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g quad M+
         }
     }
 
@@ -1169,47 +861,28 @@ snit::type actsit_rules {
     typemethod GUARD {sit} {
         log detail actr [list GUARD [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset GUARD [$sit get driver]                        \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset GUARD [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule GUARD-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a GUARD situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f  \
-                    AUT enmore L- \
-                    SFT enmore L- \
-                    CUL enmore L- \
-                    QOL enmore M-
+            satinput $flist $g $cov \
+                AUT enmore L- \
+                SFT enmore L- \
+                CUL enmore L- \
+                QOL enmore M-
 
-                coopslope $f $cov quad S+
-            }
-        }
-
-        dam rule GUARD-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a GUARD situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov quad S+
         }
     }
 
@@ -1230,47 +903,28 @@ snit::type actsit_rules {
     typemethod PATROL {sit} {
         log detail actr [list PATROL [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        dam ruleset PATROL [$sit get driver]                       \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset PATROL [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        frcdetails $sit
 
         dam rule PATROL-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a PATROL situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f  \
-                    AUT enmore M- \
-                    SFT enmore M- \
-                    CUL enmore S- \
-                    QOL enmore L-
+            satinput $flist $g $cov \
+                AUT enmore M- \
+                SFT enmore M- \
+                CUL enmore S- \
+                QOL enmore L-
 
-                coopslope $f $cov quad S+
-            }
-        }
-
-        dam rule PATROL-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a PATROL situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov quad S+
         }
     }
 
@@ -1290,60 +944,42 @@ snit::type actsit_rules {
     typemethod PSYOP {sit} {
         log detail actr [list PSYOP [$sit id]]
 
-        set g   [$sit get g]
-        set n   [$sit get n]
-        set cov [$sit get coverage]
-        
-        dam ruleset PSYOP [$sit get driver]                      \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        set g     [$sit get g]
+        set n     [$sit get n]
+        set cov   [$sit get coverage]
+        set flist [civgroup gIn $n]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        dam ruleset PSYOP [$sit get driver_id]
+
+        frcdetails $sit
 
         dam rule PSYOP-1-1 {
             $cov > 0.0
         } {
-            dam guard [format %.2f $cov]
-
             # While there is a PSYOP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                set rel [rel $f $g]
+            foreach f $flist {
+                set rel [hrel.fg $f $g]
 
                 if {$rel >= 0} {
                     # Friends
-                    satslope $cov $f \
+                    satinput $f $g $cov \
                         AUT constant S+ \
                         SFT constant S+ \
                         CUL constant S+ \
                         QOL constant S+
                 } else {
                     # Enemies
-                    satslope $cov $f \
+                    satinput $f $g $cov \
                         AUT constant XS+ \
                         SFT constant XS+ \
                         CUL constant XS+ \
                         QOL constant XS+
                 }
-
-
-                coopslope $f $cov frmore XL+
             }
-        }
 
-        dam rule PSYOP-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a PSYOP situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
-            dam coop clear
+            coopinput $flist $g $cov frmore XL+
         }
     }
 
@@ -1354,6 +990,13 @@ snit::type actsit_rules {
     #
     # The following rule sets are for situations which depend
     # on the stated ACTIVITY of ORG units.
+
+    proc orgdetails {sit} {
+        dam detail "Org. Group:"    [$sit get g]
+        dam detail "Acting In:"     [$sit get n]
+        dam detail "With Coverage:" \
+            [string trim [percent [$sit get coverage]]]
+    }
 
     #-------------------------------------------------------------------
     # Rule Set: ORGCONST:  CMO -- Construction
@@ -1374,15 +1017,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
  
-        dam ruleset ORGCONST [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset ORGCONST [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        orgdetails $sit
 
         dam rule ORGCONST-1-1 {
             $cov > 0.0
@@ -1391,33 +1031,18 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates ORGCONST $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
-
-            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGCONST situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT constant [mag+ $stops S+]  \
-                    SFT constant [mag+ $stops S+]  \
-                    CUL constant [mag+ $stops XS+] \
-                    QOL constant [mag+ $stops L+]
-            }
-        }
-
-        dam rule ORGCONST-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a ORGCONST situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
+            satinput $flist $g $cov \
+                AUT constant [mag+ $stops S+]  \
+                SFT constant [mag+ $stops S+]  \
+                CUL constant [mag+ $stops XS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 
@@ -1440,15 +1065,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
 
-        dam ruleset ORGEDU [$sit get driver]                       \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset ORGEDU [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        orgdetails $sit
 
         dam rule ORGEDU-1-1 {
             $cov > 0.0
@@ -1457,33 +1079,18 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates ORGEDU $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
-
-            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGEDU situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
-            }
-        }
-
-        dam rule ORGEDU-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a ORGEDU situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
+            satinput $flist $g $cov \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 
@@ -1506,15 +1113,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
 
-        dam ruleset ORGEMP [$sit get driver]                       \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset ORGEMP [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        orgdetails $sit
 
         dam rule ORGEMP-1-1 {
             $cov > 0.0
@@ -1523,33 +1127,18 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates ORGEMP $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
-
-            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGEMP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
-            }
-        }
-
-        dam rule ORGEMP-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a ORGEMP situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
+            satinput $flist $g $cov \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 
@@ -1572,15 +1161,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
 
-        dam ruleset ORGIND [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset ORGIND [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        orgdetails $sit
 
         dam rule ORGIND-1-1 {
             $cov > 0.0
@@ -1589,33 +1175,18 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates ORGIND $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
-
-            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGIND situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
-            }
-        }
-
-        dam rule ORGIND-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a ORGIND situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
+            satinput $flist $g $cov \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 
@@ -1638,15 +1209,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
 
-        dam ruleset ORGINF [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset ORGINF [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        orgdetails $sit
 
         dam rule ORGINF-1-1 {
             $cov > 0.0
@@ -1655,33 +1223,18 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates ORGINF $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
-
-            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGINF situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops M+]
-            }
-        }
-
-        dam rule ORGINF-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a ORGINF situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
+            satinput $flist $g $cov \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops M+]
         }
     }
 
@@ -1704,15 +1257,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
 
-        dam ruleset ORGMED [$sit get driver]                     \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset ORGMED [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        orgdetails $sit
 
         dam rule ORGMED-1-1 {
             $cov > 0.0
@@ -1721,33 +1271,18 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates ORGMED $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
-
-            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGMED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT constant [mag+ $stops S+]   \
-                    SFT constant [mag+ $stops XXS+] \
-                    CUL constant [mag+ $stops XXS+] \
-                    QOL constant [mag+ $stops L+]
-            }
-        }
-
-        dam rule ORGMED-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a ORGMED situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
+            satinput $flist $g $cov \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 
@@ -1770,15 +1305,12 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
+        set flist        [civgroup gIn $n]
         set stops        0
 
-        dam ruleset ORGOTHER [$sit get driver]                   \
-            -sit       $sit                                        \
-            -doer      $g                                          \
-            -n         $n                                          \
-            -f         [civgroup gIn $n]
+        dam ruleset ORGOTHER [$sit get driver_id]
 
-        detail "Nbhood Coverage:" [string trim [percent $cov]]
+        orgdetails $sit
 
         dam rule ORGOTHER-1-1 {
             $cov > 0.0
@@ -1787,54 +1319,23 @@ snit::type actsit_rules {
             set ensitsMitigated [mitigates ORGOTHER $n]
 
             if {[llength $ensitsMitigated] > 0} {
-                detail "Mitigates:"  [join $ensitsMitigated ", "]
+                dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
             }
-
-            dam guard [format "%.2f %d" $cov $stops]
 
             # While there is a ORGOTHER situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            foreach f [civgroup gIn $n] {
-                satslope $cov $f \
-                    AUT constant [mag+ $stops S+]  \
-                    SFT constant [mag+ $stops S+]  \
-                    CUL constant [mag+ $stops XS+] \
-                    QOL constant [mag+ $stops L+]
-            }
-        }
-
-        dam rule ORGOTHER-2-1 {
-            $cov == 0.0
-        } {
-            dam guard
-            # While there is a ORGOTHER situation
-            #     with COVERAGE = 0.0
-            # Then for each CIV group in the nbhood there should be no
-            # satisfaction implications.
-            dam sat clear AUT SFT CUL QOL
+            satinput $flist $g $cov \
+                AUT constant [mag+ $stops S+]  \
+                SFT constant [mag+ $stops S+]  \
+                CUL constant [mag+ $stops XS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 
     #-------------------------------------------------------------------
     # Utility Procs
-
-    # rel f g
-    #
-    # f    A CIV group f
-    # g    A FRC or ORG group g
-    #
-    # Returns the relationship between the groups.
-
-    proc rel {f g} {
-        set rel [rdb eval {
-            SELECT rel FROM rel_view
-            WHERE f=$f AND g=$g
-        }]
-
-        return $rel
-    }
 
     # mitigates ruleset nbhood
     #
@@ -1865,61 +1366,4 @@ snit::type actsit_rules {
             AND   stype IN $inList
         "]
     }
-
-    #-------------------------------------------------------------------
-    # Utility Procs
-
-    # mag+ stops mag
-    #
-    # stops      Some number of "stops"
-    # mag        A qmag symbol
-    #
-    # Returns the symbolic value of mag, moved up or down the specified
-    # number of stops, or 0.  I.e., XL +1 stop is XXL; XL -1 stop is L.  
-    # Stopping up or down never changes the sign.  Stopping down from
-    # from XXXS returns 0; stopping up from XXXXL returns the value
-    # of XXXXL.
-
-    proc mag+ {stops mag} {
-        set symbols [qmag names]
-        set index [qmag index $mag]
-
-        if {$index <= 9} {
-            # Sign is positive; 0 is XXXXL+, 9 is XXXS+
-
-            let index {$index - $stops}
-
-            if {$index < 0} {
-                return [lindex $symbols 0]
-            } elseif {$index > 9} {
-                return 0
-            } else {
-                return [lindex $symbols $index]
-            }
-        } else {
-            # Sign is negative; 10 is XXXS-, 19 is XXXXL-
-
-            let index {$index + $stops}
-
-            if {$index > 19} {
-                return [lindex $symbols 19]
-            } elseif {$index < 10} {
-                return 0
-            } else {
-                return [lindex $symbols $index]
-            }
-        }
-
-
-        expr {$stops * [qmag value $mag]}
-    }
-
 }
-
-
-
-
-
-
-
-

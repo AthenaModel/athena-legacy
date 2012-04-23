@@ -79,8 +79,7 @@ actual              0.0
 expected            0.0
 expectf             0.0
 needs               2.0
-driver              
-signature           
+driver_id           
 
 g                   SUNN
 saturation_funding  8000.0
@@ -90,8 +89,7 @@ actual              0.0
 expected            0.0
 expectf             0.0
 needs               2.0
-driver              
-signature           
+driver_id           
 
 g                   KURD
 saturation_funding  4000.0
@@ -101,8 +99,7 @@ actual              0.0
 expected            0.0
 expectf             0.0
 needs               2.0
-driver              
-signature           
+driver_id           
     }
 
     #-------------------------------------------------------------------

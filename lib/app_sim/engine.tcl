@@ -38,16 +38,17 @@ snit::type engine {
         eventq init ::rdb
         scenario register ::marsutil::eventq
 
-        # NEXT, create ARAM and register it as a saveable
+        # NEXT, create an instance of URAM and register it as a saveable
         # TBD: wart needed.  Register only in main thread.
-        gram ::aram \
-            -clock        ::simclock              \
+        uram ::aram \
             -rdb          ::rdb                   \
+            -loadcmd      [mytypemethod LoadAram] \
+            -undo         on                      \
             -logger       ::log                   \
-            -logcomponent "aram"                  \
-            -loadcmd      [mytypemethod LoadAram]
+            -logcomponent "aram"
 
-        scenario register ::aram
+
+        scenario register [list ::aram saveable]
 
         # NEXT, initialize the simulation modules
         econ      init ;# TBD: Proxy needed, but not a simple forwarding proxy.
@@ -56,68 +57,60 @@ snit::type engine {
         log normal engine "init complete"
     }
 
-    # LoadAram gram
+    # LoadAram uram
     #
-    # Loads scenario data into ARAM when it's initialized.
+    # Loads scenario data into URAM when it's initialized.
 
-    typemethod LoadAram {gram} {
-        $gram load nbhoods {*}[rdb eval {
+    typemethod LoadAram {uram} {
+        $uram load causes {*}[ecause names]
+
+        $uram load actors {*}[rdb eval {
+            SELECT a FROM actors
+            ORDER BY a
+        }]
+
+        $uram load nbhoods {*}[rdb eval {
             SELECT n FROM nbhoods
             ORDER BY n
         }]
 
-        $gram load nbrel {*}[rdb eval {
-            SELECT m, n, proximity, 0.0 
+        $uram load prox {*}[rdb eval {
+            SELECT m, n, proximity 
             FROM nbrel_mn
-            ORDER BY m,n
+            ORDER BY m, n
         }]
 
-        $gram load civg {*}[rdb eval {
+        $uram load civg {*}[rdb eval {
             SELECT g,n,basepop FROM civgroups_view
             ORDER BY g
         }]
 
-        $gram load civrel {*}[rdb eval {
-            SELECT R.f,
-                   R.g,
-                   R.rel
-            FROM rel_view AS R
-            JOIN civgroups AS F ON (F.g = R.f)
-            JOIN civgroups as G on (G.g = R.g)
-            ORDER BY R.f, R.g
+        $uram load otherg {*}[rdb eval {
+            SELECT g,gtype FROM groups
+            WHERE gtype != 'CIV'
+            ORDER BY g
         }]
 
-        $gram load concerns {*}[rdb eval {
-            SELECT c FROM concerns
-            ORDER BY c
+        $uram load hrel {*}[rdb eval {
+            SELECT f, g, rel FROM rel_view
+            ORDER BY f, g
         }]
 
-        $gram load sat {*}[rdb eval {
+        # TBD: vrels need additional work; for now, all 0.0.
+        $uram load vrel {*}[rdb eval {
+            SELECT g, a, 0.0
+            FROM groups JOIN actors
+            ORDER BY g, a
+        }]
+
+        $uram load sat {*}[rdb eval {
             SELECT g, c, sat0, saliency
             FROM sat_gc
             ORDER BY g, c
         }]
 
-        $gram load frcg {*}[rdb eval {
-            SELECT g FROM frcgroups
-            ORDER BY g
-        }]
-
-        $gram load frcrel {*}[rdb eval {
-            SELECT R.f,
-                   R.g,
-                   R.rel
-            FROM rel_view AS R
-            JOIN frcgroups AS F ON (F.g = R.f)
-            JOIN frcgroups as G on (G.g = R.g)
-            ORDER BY R.f, R.g
-        }]
-
-        $gram load coop {*}[rdb eval {
-            SELECT f,
-                   g,
-                   coop0
-            FROM coop_fg
+        $uram load coop {*}[rdb eval {
+            SELECT f, g, coop0 FROM coop_fg
             ORDER BY f, g
         }]
     }
@@ -128,12 +121,12 @@ snit::type engine {
     # Engine activities on simulation start.
 
     typemethod start {} {
-        # Set up the attitudes model: initialize GRAM and relate all
-        # existing MADs to GRAM drivers.
+        # FIRST, Set up the attitudes model: initialize URAM and relate all
+        # existing MADs to URAM drivers.
         aram      init -reload
-        mad       start
+        # TBD: Update natural levels
 
-        # Next, set up the status quo, as required by strategy execution.
+        # NEXT, set up the status quo.
         # 
         # * [personnel start] creates units for all status quo
         #   CIV/FRC/ORG personnel.  
@@ -152,6 +145,9 @@ snit::type engine {
         #   support and influence, and neighborhood control, based on
         #   the status quo data.
        
+        # TBD: Look through these; now that the on-lock strategy execution
+        # doesn't depend on conditions, we might be doing more than we
+        # need to do.
         personnel     start
         demog         analyze pop
         service       start
@@ -159,28 +155,44 @@ snit::type engine {
         control_model start
         econ          start 
 
-        # Execute the actor's strategies at time 0 
-        hist tock
+        # NEXT, Enter time 0: Execute the on-lock strategy, and execute
+        # any scheduled events (scheduled orders, really).
         strategy start
+        eventq advance 0
 
-        # Compute the new state of affairs, given the agent's
+        # NEXT, Compute the new state of affairs, given the agent's
         # decisions at time 0.
         demog          analyze pop
         nbstat         analyze
         control_model  analyze
         demog          analyze econ
 
-        # NEXT, execute events scheduled at time 0, if any.
-        eventq advance 0
+        # NEXT,  Save time 0 history!
+        hist tick
+        hist econ
     }
 
 
     # tick
     #
     # This command is executed at each simulation time tick.
+    # A tick is one week long.
 
     typemethod tick {} {
-        # FIRST, advance models
+        # FIRST, advance time by one tick.
+        simclock tick
+        notifier send $type <Time>
+        log normal engine "Tick [simclock now]"
+
+        # NEXT, execute strategies; this changes the situation
+        # on the ground.  It may also schedule events to be executed
+        # immediately.
+        profile strategy tock
+
+        # NEXT, execute eventq events
+        profile eventq advance [simclock now]
+
+        # FIRST, do analysis and assessment
         profile demog analyze pop
         profile ensit assess
         profile nbstat analyze
@@ -198,51 +210,35 @@ snit::type engine {
         }
 
         profile demsit assess
+        profile control_model assess
 
-        # NEXT, advance GRAM (if t > 0); but first give it the latest
-        # population data.
-        #
-        # TBD: This mechanism is nuts.
-        if {[simclock now] > 0} {
-            aram update population {*}[rdb eval {
-                SELECT n,g,population 
-                FROM demog_g
-                JOIN civgroups USING (g)
-            }]
+        # NEXT, advance URAM, first giving it the latest population data
+        # and natural attitude levels.
+        aram update pop {*}[rdb eval {
+            SELECT g,population 
+            FROM demog_g
+        }]
 
-            profile aram advance
-        }
+        # TBD: Update natural levels!
+        profile aram advance [simclock now]
+
 
         # NEXT, save the history for this tick.
         profile hist tick
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
-            profile hist econ
+            if {$econOK} {
+                profile hist econ
+            }
         }
-
-        # NEXT, advance time one tick.
-        simclock tick
-
-        # TBD: Need to notify ::sim
-        notifier send $type <Time>
-        log normal engine "Tick [simclock now]"
-        
-        # NEXT, execute eventq events
-        profile eventq advance [simclock now]
-
-        # NEXT, assess actor influence and execute actor strategies.
-        profile control_model assess
-        profile hist tock
-        profile strategy tock
     }
 
-    # pause
+    # analysis
     #
-    # Engine actions when the simulation pauses
+    # Analysis to be done when restarting simulation, to update
+    # data values used by strategy conditions.
 
-    typemethod pause {} {
-        # Update demographics and nbstats, in case the user
-        # wants to look at them.
+    typemethod analysis {} {
         profile demog   analyze pop
         profile nbstat  analyze
         profile control_model analyze

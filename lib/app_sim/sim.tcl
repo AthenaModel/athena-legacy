@@ -489,6 +489,10 @@ snit::type sim {
         # NEXT, mark the start of the run.
         sigevent mark run "Beginning to advance time."
 
+        # NEXT, we have been paused, and the user might have made
+        # changes.  Run necessary analysis before the first tick.
+        engine analysis
+
         # NEXT, Either execute the first tick and schedule the next,
         # or run in blocking mode until the stop time.
         if {!$blocking} {
@@ -558,8 +562,14 @@ snit::type sim {
     # This command is executed at each time tick.
 
     typemethod TickWork {} {
-        # FIRST, tell the engine to do a tick.
-        engine tick
+        # FIRST, tell the engine to do a tick.  Disable aram's undo
+        # capability so that we aren't saving undo info unnecessarily.
+        try {
+            aram configure -undo off
+            engine tick
+        } finally {
+            aram configure -undo on
+        }
 
         # NEXT, pause if it's the pause time, or checks failed.
         set stopping 0
@@ -590,10 +600,6 @@ snit::type sim {
 
         if {$stopping} {
             $type mutate pause
-
-            # Update demographics and nbstats, in case the user
-            # wants to look at them.
-            engine pause
         }
 
         # NEXT, notify the application that the tick has occurred.

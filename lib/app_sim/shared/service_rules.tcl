@@ -39,14 +39,13 @@ snit::type service_rules {
 
         bgcatch {
             # If there's no driver, get one.
-            if {[dict get $gdict driver] eq ""} {
+            if {[dict get $gdict driver_id] eq ""} {
                 dict with gdict {
-                    set driver [aram driver add                            \
-                                    -dtype    ENI                          \
-                                    -name     "ENI $g"                     \
-                                    -oneliner "Provision of ENI services"]
+                    set driver_id [driver create ENI \
+                                       "Provision of ENI services to $g"]
+
                     rdb eval {
-                        UPDATE service_g SET driver=$driver
+                        UPDATE service_g SET driver_id=$driver_id
                         WHERE g=$g
                     }
                 }                
@@ -56,18 +55,6 @@ snit::type service_rules {
             service_rules ENI $gdict
         }
     }
-
-    #-------------------------------------------------------------------
-    # Rule Set Tools
-
-    # detail label value
-    #
-    # Adds a detail to the input details
-   
-    proc detail {label value} {
-        dam details [format "%-21s %s\n" $label $value]
-    }
-
 
     #===================================================================
     # Service Situations
@@ -93,116 +80,46 @@ snit::type service_rules {
         set n        [dict get $gdict n]
         set expectf  [dict get $gdict expectf]
         set needs    [dict get $gdict needs]
-        set oldSig   [dict get $gdict signature]
 
-        dam ruleset ENI [dict get $gdict driver] \
-            -p  0.0                              \
-            -f  $g                               \
-            -n  $n
+        dam ruleset ENI [dict get $gdict driver_id]
 
-        detail "Expectations Factor:" [format %4.2f $expectf]
-        detail "Needs Factor:"        [format %4.2f $needs]
+        dam detail "Civilian Group:"      $g
+        dam detail "In Neighborhood:"     $n
+        dam detail "Expectations Factor:" [format %4.2f $expectf]
+        dam detail "Needs Factor:"        [format %4.2f $needs]
 
         dam rule ENI-1-1 {
             $needs > 0.0
         } {
-            myguard $oldSig [format "%.1f %.1f" $expectf $needs]
-
             # While ENI is less than required for CIV group g
             # Then for group g
-            dam sat slope \
-                AUT [mag* $expectf XXS+ $needs XXS-] \
-                QOL [mag* $expectf XXS+ $needs XXS-]
+            dam sat T $g \
+                AUT [expr {[mag* $expectf XXS+] + [mag* $needs XXS-]}] \
+                QOL [expr {[mag* $expectf XXS+] + [mag* $needs XXS-]}]
         }
 
         dam rule ENI-1-2 {
             $needs == 0.0 && $expectf < 0.0
         } {
-            myguard $oldSig [format "%.1f" $expectf]
-
             # While ENI is less than expected for CIV group g
             # Then for group g
-            dam sat slope \
+            dam sat T $g \
                 AUT [mag* $expectf XXS+] \
                 QOL [mag* $expectf XXS+]
         }
 
-        dam rule ENI-1-3 {
-            $needs == 0.0 && $expectf == 0.0
-        } {
-            myguard $oldSig [format "%.1f" $expectf]
-
-            # While ENI is as expected for CIV group g
-            # Then for group g
-            dam sat clear AUT QOL
-        }
+        # ENI-1-3 -- nothing happens in this case
 
         dam rule ENI-1-4 {
             $needs == 0.0 && $expectf > 0.0
         } {
-            myguard $oldSig [format "%.1f" $expectf]
-
             # While ENI is better than expected for CIV group g
             # Then for group g
-            dam sat slope \
+            dam sat T $g \
                 AUT [mag* $expectf XXS+] \
                 QOL [mag* $expectf XXS+]
         }
     }
-
-    #-------------------------------------------------------------------
-    # Utility Procs
-
-    # myguard oldSig newSig
-    #
-    # oldSig - The old signature string
-    # newSig - The new signature string (less the rule name)
-    #
-    # Compares the current signature with the previous rule and
-    # signature; if they match, the rule breaks.
-
-    proc myguard {oldSig newSig} {
-        # FIRST, get the group and rule from the metadata
-        set rule [dam get rule]
-        set g    [dam rget -f]
-
-        # NEXT, add the rule to the new signature
-        set newSig "$rule $newSig"
-
-        # NEXT, if the signatures match, break; the rule shouldn't fire.
-        if {$oldSig eq $newSig} {
-            return -code break
-        }
-
-        # NEXT, save the new signature
-        rdb eval {
-            UPDATE service_g SET signature=$newSig
-            WHERE g=$g
-        }
-    }
-    
-    
-    # mag* multiplier mag ?multiplier mag...?
-    #
-    # multiplier    A numeric multiplier
-    # mag           A qmag value
-    #
-    # Returns the numeric value of the sum of mag times multiplier.
-
-    proc mag* {args} {
-        set result 0.0
-        
-        foreach {multiplier mag} $args {
-            let result {$result + $multiplier * [qmag value $mag]}
-        }
-
-        if {$result == -0.0} {
-            set result 0.0
-        }
-
-        return $result
-    }
-
 }
 
 

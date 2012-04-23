@@ -45,11 +45,12 @@ snit::type ted {
         demog_local
         demsits_t
         deploy_ng
+        drivers
         ensits_t
         frcgroups
         goals
         groups
-        mads
+        mads_t
         nbhoods
         nbrel_mn
         orggroups
@@ -466,6 +467,8 @@ snit::type ted {
         eventq   restart
         bsystem  clear
         simclock reset
+        aram     clear
+
     }
 
     # sendex ?-error? command...

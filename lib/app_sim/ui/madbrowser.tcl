@@ -31,14 +31,13 @@ snit::widgetadaptor madbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { id       "ID"              -sortmode integer                }
-        { oneliner "Description"                                      }
-        { cause    "Cause "                                           }
-        { s        "Here Factor (s)" -sortmode real                   }
-        { p        "Near Factor (p)" -sortmode real                   }
-        { q        "Far Factor (q)"  -sortmode real                   }
-        { driver   "Driver"          -sortmode integer -foreground %D }
-        { inputs   "Inputs"          -sortmode integer -foreground %D }
+        { driver_id "ID"              -sortmode integer                }
+        { narrative "Narrative"                                        }
+        { cause     "Cause "                                           }
+        { s         "Here Factor (s)" -sortmode real                   }
+        { p         "Near Factor (p)" -sortmode real                   }
+        { q         "Far Factor (q)"  -sortmode real                   }
+        { inputs    "Inputs"          -sortmode integer -foreground %D }
     }
 
     #-------------------------------------------------------------------
@@ -56,7 +55,7 @@ snit::widgetadaptor madbrowser {
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
             -view         gui_mads                    \
-            -uid          id                          \
+            -uid          driver_id                   \
             -titlecolumns 1                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
@@ -106,8 +105,8 @@ snit::widgetadaptor madbrowser {
         # NEXT, update individual entities when they change.
         # We get most changes from table monitoring, but 
         # gram_driver-related changes come through mad.tcl
-        notifier bind ::rdb <mads>        $self [mymethod uid]
-        notifier bind ::rdb <gram_driver> $self [mymethod gd_uid]
+        notifier bind ::rdb <mads_t>  $self [mymethod uid]
+        notifier bind ::rdb <drivers> $self [mymethod uid]
     }
 
     destructor {
@@ -134,22 +133,6 @@ snit::widgetadaptor madbrowser {
 
         return 0
     }
-
-    # gd_uid op uid
-    #
-    # op     create, update, delete
-    # uid    A gram_driver ID
-    #
-    # Converts the driver ID into a mad ID, and calls uid *
-    
-    method gd_uid {op uid} {
-        set id [rdb onecolumn {
-            SELECT id FROM mads WHERE driver=$uid 
-        }]
-
-        $hull uid $op $id
-    }
-
 
     #-------------------------------------------------------------------
     # Private Methods
@@ -190,7 +173,7 @@ snit::widgetadaptor madbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
-        order enter MAD:UPDATE id $id
+        order enter MAD:UPDATE driver_id $id
     }
 
 
@@ -203,7 +186,7 @@ snit::widgetadaptor madbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the delete order.
-        order send gui MAD:DELETE id $id
+        order send gui MAD:DELETE driver_id $id
     }
 
 }
