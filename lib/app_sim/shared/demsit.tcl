@@ -80,6 +80,7 @@ snit::type demsit {
             } row {
                 # FIRST, Create the situation
                 set s [situation create $type       \
+                           ts       [simclock now]  \
                            stype    "UNEMP"         \
                            n        $row(n)         \
                            g        $row(g)         \

@@ -155,7 +155,6 @@ snit::type situation {
                           s      $s             \
                           state  INITIAL        \
                           change NEW            \
-                          ts     [simclock now] \
                           tc     [simclock now]]
 
         set parmdict [dict merge $parmdict $args]

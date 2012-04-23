@@ -1289,67 +1289,28 @@ snit::type ::projectlib::parmdb {
                 How long until the ensit auto-resolves, in integer
                 ticks.  If 0, the ensit never auto-resolves.
             }
-
-            $ps define ensit.$name.spawnTime ::projectlib::ioptdays -1 {
-                How long until the ensit spawns other ensits, in
-                integer ticks.  If -1, the ensit never spawns.
-            }
-
-            $ps define ensit.$name.spawns ::projectlib::leensit {} {
-                List of ensit types spawned by this ensit type.
-            }
         }
 
         # Tweak the specifics
-        $ps setdefault ensit.BADFOOD.duration              2
-        $ps setdefault ensit.BADFOOD.spawns                DISEASE
-        $ps setdefault ensit.BADFOOD.spawnTime             1
-
-        $ps setdefault ensit.BADWATER.duration             2
-        $ps setdefault ensit.BADWATER.spawns               DISEASE
-        $ps setdefault ensit.BADWATER.spawnTime            1
-
-        $ps setdefault ensit.COMMOUT.duration              1
-
-        $ps setdefault ensit.CULSITE.duration              6
-
-        $ps setdefault ensit.DISASTER.duration             6
-
-        $ps setdefault ensit.DISEASE.duration              4
-
-        $ps setdefault ensit.EPIDEMIC.duration             52
-
-        $ps setdefault ensit.FOODSHRT.duration             26
-
-        $ps setdefault ensit.FUELSHRT.duration             4
-
-        $ps setdefault ensit.GARBAGE.duration              6
-        $ps setdefault ensit.GARBAGE.spawns                DISEASE
-        $ps setdefault ensit.GARBAGE.spawnTime             1
-
-        $ps setdefault ensit.INDSPILL.duration             12
-        $ps setdefault ensit.INDSPILL.spawns               DISEASE
-        $ps setdefault ensit.INDSPILL.spawnTime            1
-
-        $ps setdefault ensit.MINEFIELD.duration            156
-
-        $ps setdefault ensit.NOWATER.duration              2
-        $ps setdefault ensit.NOWATER.spawns                DISEASE
-        $ps setdefault ensit.NOWATER.spawnTime             1
-
-        $ps setdefault ensit.ORDNANCE.duration             78
-
-        $ps setdefault ensit.PIPELINE.duration             1
-
-        $ps setdefault ensit.POWEROUT.duration             8
-
-        $ps setdefault ensit.REFINERY.duration             1
-
-        $ps setdefault ensit.RELSITE.duration              6
-
-        $ps setdefault ensit.SEWAGE.spawns                 DISEASE
-        $ps setdefault ensit.SEWAGE.spawnTime              1
-
+        $ps setdefault ensit.BADFOOD.duration        2
+        $ps setdefault ensit.BADWATER.duration       1
+        $ps setdefault ensit.COMMOUT.duration        1
+        $ps setdefault ensit.CULSITE.duration        6
+        $ps setdefault ensit.DISASTER.duration       6
+        $ps setdefault ensit.DISEASE.duration        4
+        $ps setdefault ensit.EPIDEMIC.duration       52
+        $ps setdefault ensit.FOODSHRT.duration       26
+        $ps setdefault ensit.FUELSHRT.duration       4
+        $ps setdefault ensit.GARBAGE.duration        6
+        $ps setdefault ensit.INDSPILL.duration       12
+        $ps setdefault ensit.MINEFIELD.duration      156
+        $ps setdefault ensit.NOWATER.duration        2
+        $ps setdefault ensit.ORDNANCE.duration       78
+        $ps setdefault ensit.PIPELINE.duration       1
+        $ps setdefault ensit.POWEROUT.duration       8
+        $ps setdefault ensit.REFINERY.duration       1
+        $ps setdefault ensit.RELSITE.duration        6
+        $ps setdefault ensit.SEWAGE.duration         9
 
         # NEXT, Force/Volatility/Security Parameters
         $ps subset force {

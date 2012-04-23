@@ -62,9 +62,6 @@ snit::type ensit {
                 # FIRST, set the state
                 $sit set state ACTIVE
 
-                # NEXT, if it spawns, schedule the spawn
-                $sit ScheduleSpawn
-
                 # NEXT, if it auto-resolves, schedule the auto-resolution.
                 $sit ScheduleAutoResolve
             }
@@ -389,11 +386,14 @@ snit::type ensit {
                 set rduration [parmdb get ensit.$stype.duration]
             }
 
-            # NEXT, Create the situation
-            set s [situation create $type   \
-                       stype     $stype     \
-                       n         $n         \
-                       coverage  $coverage  \
+            # NEXT, Create the situation.  The start time is the 
+            # time of the first assessment, which is one tick later than
+            # now.
+            set s [situation create $type         \
+                       ts        [simclock now 1] \
+                       stype     $stype           \
+                       n         $n               \
+                       coverage  $coverage        \
                        g         $g]
 
             rdb eval {
@@ -536,7 +536,6 @@ snit::type ensit {
             $sit set tc         [simclock now]
 
             # NEXT, cancel pending events
-            $sit CancelSpawn
             $sit CancelAutoResolve
 
         }
@@ -550,7 +549,7 @@ snit::type ensit {
     # bdict    row dict for base entity
     # ddict    row dict for derived entity
     #
-    # Restores the rows to the database, and reschedules any spawns.
+    # Restores the rows to the database.
 
     typemethod Replace {bdict ddict} {
         set s [dict get $bdict s]
@@ -563,7 +562,6 @@ snit::type ensit {
 
         if {[$sit get state] eq "ACTIVE"} {
             # Reschedule events, if any.
-            $sit ScheduleSpawn
             $sit ScheduleAutoResolve
         }
     }
@@ -695,54 +693,6 @@ snit::type ensitType {
     #-------------------------------------------------------------------
     # Private Methods
 
-    # ScheduleSpawn
-    #
-    # If this situation type spawns another situation, schedule the spawn.
-
-    method ScheduleSpawn {} {
-        # FIRST, cancel any previous spawn, since evidently it is 
-        # changing.
-        $self CancelSpawn
-
-        # NEXT, does it spawn?
-        set spawnTime [parmdb get ensit.$binfo(stype).spawnTime]
-
-        if {$spawnTime == -1} {
-            return
-        }
-
-        # NEXT, get the time at which the spawn should occur: spawnTime
-        # ticks after the ensit first begins to take effect.
-        let spawnTime {$binfo(ts) + $spawnTime}
-
-        # NEXT, if this time has already passed, the ensit has
-        # already spawned; don't reschedule it.
-        if {$spawnTime <= [simclock now]} {
-            return
-        }
-
-        # NEXT, schedule it.
-        eventq schedule ensitSpawn $spawnTime $binfo(s)
-    }
-
-
-    # CancelSpawn
-    #
-    # If this situation type has a scheduled spawn,
-    # cancel it.
-
-    method CancelSpawn {} {
-        log detail ensit "CancelSpawn s=$binfo(s)"
-        rdb eval {
-            SELECT id FROM eventq_etype_ensitSpawn 
-            WHERE CAST (s AS INTEGER) = $binfo(s)
-        } {
-            log detail ensit "Cancelling eventq event $id"
-
-            eventq cancel $id
-        }
-    }
-
     # ScheduleAutoResolve
     #
     # If this situation auto-resolves, schedules the resolution
@@ -778,55 +728,6 @@ snit::type ensitType {
             log detail ensit "Cancelling eventq event $id"
 
             eventq cancel $id
-        }
-    }
-}
-
-
-#-----------------------------------------------------------------------
-# Eventq: ensitSpawn
-
-# ensitSpawn s
-#
-# s      An ensit ID
-#
-# Ensit s spawns another ensit, provide that s is still "live"
-
-eventq define ensitSpawn {s} {
-    # FIRST, is is still "live"?  If not, nothing to do.
-    set sit [ensit get $s]
-
-    if {![$sit islive]} {
-        # TBD: This should probably be an assertion, really.
-        return
-    }
-
-    # NEXT, try to spawn each dependent situation
-    foreach stype [parmdb get ensit.[$sit get stype].spawns] {
-        log normal ensit \
-            "spawn $s: [$sit get stype] spawns $stype in [$sit get n]"
-
-        # FIRST, if there's already an ensit of this type, don't spawn.
-        if {[ensit existsInNbhood [$sit get n] $stype]} {
-            log warning ensit \
-                "can't spawn $stype in [$sit get n]: already present"
-            continue
-        }
-
-        # NEXT, schedule it.  Use bgcatch, so that one bad absit doesn't
-        # prevent others.
-
-        bgcatch {
-            set parmDict {}
-            lappend parmDict stype     $stype
-            lappend parmDict location  [$sit get location]
-            lappend parmDict coverage  [$sit get coverage]
-            lappend parmDict g         [$sit get g]
-            lappend parmDict resolver  [$sit get resolver]
-            lappend parmDict rduration [parmdb get ensit.$stype.duration]
-            lappend parmDict inception 1
-
-            ensit mutate create $parmDict
         }
     }
 }

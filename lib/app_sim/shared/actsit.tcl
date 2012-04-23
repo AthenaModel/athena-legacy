@@ -67,6 +67,7 @@ snit::type actsit {
         } row {
             # FIRST, Create the situation
             set s [situation create $type       \
+                       ts       [simclock now]  \
                        stype    $row(stype)     \
                        n        $row(n)         \
                        g        $row(g)         \
