@@ -1955,7 +1955,7 @@ snit::type appserver {
                 SELECT format('%8.3f', contrib) AS 'Delta',
                        driver                   AS 'Driver',
                        narrative                AS 'Description'
-                FROM uram_satcontribs
+                FROM uram_contribs
                 JOIN drivers ON (driver_id = driver)
                 ORDER BY abs(contrib) DESC
             } -default "No significant drivers." -align RRL
@@ -2917,7 +2917,7 @@ snit::type appserver {
     # matchArray - Array of pattern matches.
     #
     # Matches:
-    #   $(1) - The drivers subset: active, inactive, or empty, or "" 
+    #   $(1) - The drivers subset: active, empty, or "" 
     #          for all.
     #
     # Returns a page that documents the current attitude
@@ -2938,32 +2938,24 @@ snit::type appserver {
         ht title "Attitude Drivers ($state)"
 
         ht putln "The following drivers are affecting or have affected"
-        ht putln "attitudes (satisfaction or cooperation) in the playbox."
+        ht putln "attitudes in the playbox."
         ht para
 
         # NEXT, get summary statistics
         rdb eval {
             DROP VIEW IF EXISTS temp_report_driver_view;
-            DROP TABLE IF EXISTS temp_report_driver_effects;
             DROP TABLE IF EXISTS temp_report_driver_contribs;
-
-            CREATE TEMPORARY TABLE temp_report_driver_effects AS
-            SELECT driver, 
-                   CASE WHEN min(ts) IS NULL THEN 0
-                                             ELSE 1 END AS has_effects
-            FROM gram_driver LEFT OUTER JOIN gram_effects USING (driver)
-            GROUP BY driver;
 
             CREATE TEMPORARY TABLE temp_report_driver_contribs AS
             SELECT driver_id, 
-                   CASE WHEN min(time) IS NULL 
+                   CASE WHEN min(t) IS NULL 
                         THEN 0
                         ELSE 1 END                  AS has_contribs,
-                   CASE WHEN min(time) NOT NULL    
-                        THEN tozulu(min(time)) 
+                   CASE WHEN min(t) NOT NULL    
+                        THEN tozulu(min(t)) 
                         ELSE '' END                 AS ts,
-                   CASE WHEN max(time) NOT NULL    
-                        THEN tozulu(max(time)) 
+                   CASE WHEN max(t) NOT NULL    
+                        THEN tozulu(max(t)) 
                         ELSE '' END                 AS te
             FROM drivers LEFT OUTER JOIN ucurve_contribs_t USING (driver_id)
             GROUP BY driver_id;
@@ -2972,16 +2964,12 @@ snit::type appserver {
             SELECT drivers.driver_id AS driver_id, 
                    dtype, 
                    narrative,
-                   CASE WHEN NOT has_effects AND NOT has_contribs 
-                        THEN 'empty'
-                        WHEN NOT has_effects AND has_contribs  
-                        THEN 'inactive'
-                        ELSE 'active'
+                   CASE WHEN has_contribs THEN 'active'
+                        ELSE 'empty'
                         END AS state,
                    ts,
                    te
             FROM drivers
-            JOIN temp_report_driver_effects USING (driver_id)
             JOIN temp_report_driver_contribs USING (driver_id)
             ORDER BY driver_id DESC;
         }
@@ -3004,11 +2992,10 @@ snit::type appserver {
         # NEXT, generate the report text
         ht query $query \
             -default "No drivers found." \
-            -align   RLLLLLL
+            -align   RLLLLL
 
         rdb eval {
             DROP VIEW  temp_report_driver_view;
-            DROP TABLE temp_report_driver_effects;
             DROP TABLE temp_report_driver_contribs;
         }
 

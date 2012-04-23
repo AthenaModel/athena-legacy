@@ -2277,10 +2277,8 @@ order REPORT:DRIVER "Attitude Drivers Report" {
 
     <ul>
     <li> <b>all</b>: All drivers
-    <li> <b>active</b>:  Active drivers: those that are currently causing 
-         attitudes to change.
-    <li> <b>inactive</b>: Inactive drivers: those that are no longer
-         causing attitudes to change.
+    <li> <b>active</b>:  Active drivers: those that are currently or have 
+         previously caused attitudes to change.
     <li> <b>empty</b>: Empty drivers: those that have never caused
          attitudes to change.
     </ul>

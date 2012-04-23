@@ -103,8 +103,6 @@ snit::widgetadaptor madbrowser {
         pack $deletebtn  -side right
 
         # NEXT, update individual entities when they change.
-        # We get most changes from table monitoring, but 
-        # gram_driver-related changes come through mad.tcl
         notifier bind ::rdb <mads_t>  $self [mymethod uid]
         notifier bind ::rdb <drivers> $self [mymethod uid]
     }

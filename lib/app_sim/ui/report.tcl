@@ -26,7 +26,6 @@ snit::type ::report {
         enum edriverstate { 
             all       "All Drivers"
             active    "Active Drivers"
-            inactive  "Inactive Drivers"
             empty     "Empty Drivers"
         }
 

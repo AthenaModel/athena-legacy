@@ -155,7 +155,7 @@ snit::type mad {
     # RestoreDeletedMAD dict1 dict2
     #
     # dict1    row dict for deleted entity in mads
-    # dict2    row dict for deleted entity in gram_drivers
+    # dict2    row dict for deleted entity in drivers
     #
     # Restores the row to the database
 

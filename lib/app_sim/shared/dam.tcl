@@ -270,7 +270,9 @@ snit::type dam {
                 set mode "transient"
             }
 
-            # NEXT, give the input to URAM
+            # NEXT, increment the inputs count for this driver, and
+            # give the input to URAM 
+            driver inputs incr $input(driver_id)
             aram $atype $mode $input(driver_id) $cause {*}$curve $mag {*}$opts
         }
 

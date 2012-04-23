@@ -316,18 +316,18 @@ snit::type aam {
                    N.urbanization                  AS urbanization,
                    DN.population                   AS pop,
                    NP.personnel                    AS nfPersonnel,
-                   NC.coop                         AS nfCoop,
+                   NC.nbcoop                       AS nfCoop,
                    UP.personnel                    AS ufPersonnel,
                    UP.security                     AS ufSecurity,
-                   UC.coop                         AS ufCoop,
+                   UC.nbcoop                       AS ufCoop,
                    UD.roe                          AS ufRoe
             FROM attroe_nfg     AS A
             JOIN nbhoods        AS N  ON (N.n = A.n)
             JOIN demog_n        AS DN ON (DN.n = A.n)
             JOIN force_ng       AS NP ON (NP.n = A.n AND NP.g = A.f)
-            JOIN gram_frc_ng    AS NC ON (NC.n = A.n AND NC.g = A.f)
+            JOIN uram_nbcoop    AS NC ON (NC.n = A.n AND NC.g = A.f)
             JOIN force_ng       AS UP ON (UP.n = A.n AND UP.g = A.g)
-            JOIN gram_frc_ng    AS UC ON (UC.n = A.n AND UC.g = A.g)
+            JOIN uram_nbcoop    AS UC ON (UC.n = A.n AND UC.g = A.g)
             JOIN defroe_view    AS UD ON (UD.n = A.n AND UD.g = A.g)
             WHERE A.uniformed =  0
             AND   A.roe       != 'DO_NOT_ATTACK'

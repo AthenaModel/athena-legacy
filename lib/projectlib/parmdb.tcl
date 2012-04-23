@@ -720,7 +720,7 @@ snit::type ::projectlib::parmdb {
             set causedef [ecause name 0]
 
             $ps define dam.$name.cause ::projectlib::ecause $causedef {
-                The "cause" for all GRAM inputs produced by this
+                The "cause" for all URAM inputs produced by this
                 rule set.  The value must be an ecause(n) short name.
             }
 
@@ -1451,9 +1451,6 @@ snit::type ::projectlib::parmdb {
             "
         }
 
-        # NEXT, define gram parameters
-        $ps slave add [list ::simlib::gram parm]
-
         # NEXT, History parameters.
         $ps subset hist {
             Parameters which control the history data saved by Athena
@@ -1639,6 +1636,9 @@ snit::type ::projectlib::parmdb {
             and organization group personnel that remain undeployed
             at the end of the strategy tock.
         }
+
+        # NEXT, define uram parameters
+        $ps slave add [list ::simlib::uram parm]
 
         # NEXT, destroy tempdb
         $tempdb destroy

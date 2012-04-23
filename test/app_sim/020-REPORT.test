@@ -71,7 +71,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        state {invalid value "NONESUCH", should be one of: all, active, inactive, empty}
+        state {invalid value "NONESUCH", should be one of: all, active, empty}
     }
 
 

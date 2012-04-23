@@ -54,7 +54,7 @@ snit::type actsit {
     # assess
     #
     # This method should be called periodically, just before the
-    # GRAM advance.  It looks for new, vanished, and
+    # URAM advance.  It looks for new, vanished, and
     # changed situations, performs the related housekeeping, and calls
     # the actsit rule sets as appropriate.
 

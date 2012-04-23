@@ -126,7 +126,7 @@ snit::type control_rules {
     #       n            The neighborhood in which control shifted.
     #       a            The actor that lost control, or "" if none.
     #       b            The actor that gained control, or "" if none.
-    #       driver_id    The GRAM driver_id ID
+    #       driver_id    The driver ID
     #
     # Calls CONTROL-1 to assess the satisfaction and cooperation
     # implications of the event.
@@ -158,7 +158,7 @@ snit::type control_rules {
     #       n            The neighborhood in which control shifted.
     #       a            The actor that lost control, or "" if none.
     #       b            The actor that gained control, or "" if none.
-    #       driver_id    The GRAM driver_id ID
+    #       driver_id    The driver ID
     #
     # Assesses the satisfaction and cooperation implications of the
     # shift in control.
