@@ -209,6 +209,7 @@ installdocs: $(INSTALLDIRS)
 	-cp docs/dev/*.html            $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.doc             $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.docx            $(ATHENA_DOCS)/docs/dev
+	-cp docs/dev/*.pptx            $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.odt             $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.ods             $(ATHENA_DOCS)/docs/dev
 	-cp docs/dev/*.pdf             $(ATHENA_DOCS)/docs/dev
@@ -228,6 +229,7 @@ installdocs: $(INSTALLDIRS)
 	-cp mars/docs/dev/*.html       $(ATHENA_DOCS)/mars/docs/dev
 	-cp mars/docs/dev/*.doc        $(ATHENA_DOCS)/mars/docs/dev
 	-cp mars/docs/dev/*.docx       $(ATHENA_DOCS)/mars/docs/dev
+	-cp mars/docs/dev/*.pptx       $(ATHENA_DOCS)/mars/docs/dev
 	-cp mars/docs/dev/*.pdf        $(ATHENA_DOCS)/mars/docs/dev
 	-cp mars/docs/dev/*.txt        $(ATHENA_DOCS)/mars/docs/dev
 	-cp mars/docs/man1/*.html      $(ATHENA_DOCS)/mars/docs/man1

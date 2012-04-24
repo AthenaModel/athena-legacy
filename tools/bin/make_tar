@@ -53,6 +53,7 @@ set patterns(install) {
     docs/dev/*.pdf
     docs/dev/*.doc
     docs/dev/*.docx
+    docs/dev/*.pptx
     docs/dev/*.odt
     docs/dev/*.ods
     docs/dev/*.txt
@@ -65,6 +66,7 @@ set patterns(install) {
     mars/docs/dev/*.pdf
     mars/docs/dev/*.doc
     mars/docs/dev/*.docx
+    mars/docs/dev/*.pptx
     mars/docs/dev/*.txt
     mars/docs/dev/*.odt
     mods/*
@@ -87,6 +89,7 @@ set patterns(docs) {
     docs/dev/*.pdf
     docs/dev/*.doc
     docs/dev/*.docx
+    docs/dev/*.pptx
     docs/dev/*.odt
     docs/dev/*.ods
     docs/dev/*.txt
@@ -98,6 +101,7 @@ set patterns(docs) {
     mars/docs/dev/*.pdf
     mars/docs/dev/*.doc
     mars/docs/dev/*.docx
+    mars/docs/dev/*.pptx
     mars/docs/dev/*.txt
     mars/docs/dev/*.odt
 }
