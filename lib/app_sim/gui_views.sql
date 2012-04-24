@@ -138,8 +138,12 @@ SELECT G.id                                         AS id,
        DG.consumers                                 AS consumers,
        DG.labor_force                               AS labor_force,
        DG.unemployed                                AS unemployed,
-       coalesce(moneyfmt(SR.req_funding), 'N/A')    AS req_funding,
-       coalesce(moneyfmt(SR.sat_funding), 'N/A')    AS sat_funding,
+       CASE WHEN SR.req_funding IS NULL
+            THEN 'N/A' 
+            ELSE moneyfmt(SR.req_funding) END       AS req_funding, 
+       CASE WHEN SR.sat_funding IS NULL
+            THEN 'N/A' 
+            ELSE moneyfmt(SR.sat_funding) END       AS sat_funding, 
        format('%.1f', DG.upc)                       AS upc,
        format('%.2f', DG.uaf)                       AS uaf,
        format('%.3f', coalesce(UM.mood0, 0.0))      AS mood0,
