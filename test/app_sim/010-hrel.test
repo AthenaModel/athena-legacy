@@ -40,22 +40,22 @@ namespace eval ::athena_test::tests:: {
     test create-1.1 {override is created} -setup {
         ted create BLUE SHIA
     } -body {
-        rel mutate create {id {SHIA BLUE} rel 0.5}
-        ted query {SELECT * FROM rel_fg}
+        hrel mutate create {id {SHIA BLUE} hrel 0.5}
+        ted query {SELECT * FROM hrel_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    rel 
----- ---- --- 
-SHIA BLUE 0.5 
+f    g    hrel 
+---- ---- ---- 
+SHIA BLUE 0.5  
     }
 
     test create-2.1 {undo deletes the override} -setup {
         ted create BLUE SHIA
-        set undo [rel mutate create {id {SHIA BLUE} rel 0.5}]
+        set undo [hrel mutate create {id {SHIA BLUE} hrel 0.5}]
     } -body {
         namespace eval :: $undo
-        rdb eval {SELECT * FROM rel_fg}
+        rdb eval {SELECT * FROM hrel_fg}
     } -cleanup {
         cleanup
     } -result {}
@@ -65,29 +65,29 @@ SHIA BLUE 0.5
 
     test delete-1.1 {Record is deleted} -setup {
         ted create BLUE SHIA
-        rel mutate create {id {SHIA BLUE} rel 0.5}
+        hrel mutate create {id {SHIA BLUE} hrel 0.5}
     } -body {
-        rel mutate delete {SHIA BLUE}
+        hrel mutate delete {SHIA BLUE}
 
         # Is SHIA gone?
-        rdb eval {SELECT f,g FROM rel_fg}
+        rdb eval {SELECT f,g FROM hrel_fg}
     } -cleanup {
         cleanup
     } -result {}
 
     test delete-2.1 {Undo restores record} -setup {
         ted create BLUE SHIA
-        rel mutate create {id {SHIA BLUE} rel 0.5}
-        set undo [rel mutate delete {SHIA BLUE}]
+        hrel mutate create {id {SHIA BLUE} hrel 0.5}
+        set undo [hrel mutate delete {SHIA BLUE}]
     } -body {
         namespace eval :: $undo
-        ted query {SELECT * FROM rel_fg}
+        ted query {SELECT * FROM hrel_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    rel 
----- ---- --- 
-SHIA BLUE 0.5 
+f    g    hrel 
+---- ---- ---- 
+SHIA BLUE 0.5  
     }
 
 
@@ -97,20 +97,20 @@ SHIA BLUE 0.5
 
     test update-1.1 {rel is updated} -setup {
         ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.5}
+        hrel mutate create {id {BLUE BRIT} hrel 0.5}
     } -body {
-        rel mutate update {
+        hrel mutate update {
             id   {BLUE BRIT}
-            rel  0.7
+            hrel  0.7
         }
 
-        ted query {SELECT * FROM rel_fg ORDER BY f,g}
+        ted query {SELECT * FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    rel 
----- ---- --- 
-BLUE BRIT 0.7 
+f    g    hrel 
+---- ---- ---- 
+BLUE BRIT 0.7  
     }
 
 
@@ -119,16 +119,16 @@ BLUE BRIT 0.7
 
         set parmdict {
             id   {BLUE BRIT}
-            rel  0.5
+            hrel  0.5
         }
 
-        rel mutate create $parmdict
+        hrel mutate create $parmdict
     } -body {
-        set a [ted query {SELECT * FROM rel_fg ORDER BY f,g}]
+        set a [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
         
-        rel mutate update $parmdict
+        hrel mutate update $parmdict
 
-        set b [ted query {SELECT * FROM rel_fg ORDER BY f,g}]
+        set b [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -138,16 +138,16 @@ BLUE BRIT 0.7
 
     test update-1.3 {empty values are OK} -setup {
         ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.5}
+        hrel mutate create {id {BLUE BRIT} hrel 0.5}
     } -body {
-        set a [ted query {SELECT * FROM rel_fg ORDER BY f,g}]
+        set a [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
 
-        rel mutate update  {
+        hrel mutate update  {
             id   {BLUE BRIT}
-            rel  ""
+            hrel  ""
         }
 
-        set b [ted query {SELECT * FROM rel_fg ORDER BY f,g}]
+        set b [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -157,19 +157,19 @@ BLUE BRIT 0.7
 
     test update-2.1 {undo undoes the change} -setup {
         ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.0}
+        hrel mutate create {id {BLUE BRIT} hrel 0.0}
     } -body {
 
-        set a [ted query {SELECT * FROM rel_fg ORDER BY f,g}]
+        set a [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
 
-        set undo [rel mutate update {
+        set undo [hrel mutate update {
             id   {BLUE BRIT}
-            rel  0.5
+            hrel  0.5
         }]
 
         eval $undo
 
-        set b [ted query {SELECT * FROM rel_fg ORDER BY f,g}]
+        set b [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -181,7 +181,7 @@ BLUE BRIT 0.7
     # exists
 
     test exists-1.1 {groups do exist} -body {
-        rel exists {NONESUCH NONESUCH}
+        hrel exists {NONESUCH NONESUCH}
     } -cleanup {
         cleanup
     } -result {0}
@@ -189,16 +189,16 @@ BLUE BRIT 0.7
 
     test exists-1.2 {record does not exist} -body {
         ted create BLUE BRIT
-        rel exists {BLUE BRIT}
+        hrel exists {BLUE BRIT}
     } -cleanup {
         cleanup
     } -result {0}
 
     test exists-1.3 {record exists} -setup {
         ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.5}
+        hrel mutate create {id {BLUE BRIT} hrel 0.5}
     } -body {
-        rel exists {BLUE BRIT}
+        hrel exists {BLUE BRIT}
     } -cleanup {
         cleanup
     } -result {1}
@@ -208,7 +208,7 @@ BLUE BRIT 0.7
     # validate
 
     test validate-1.1 {invalid group f} -body {
-        rel validate {NONESUCH NONESUCH}
+        hrel validate {NONESUCH NONESUCH}
     } -returnCodes {
         error
     } -result {Invalid group, none are defined}
@@ -217,7 +217,7 @@ BLUE BRIT 0.7
     test validate-1.2 {Invalid group g} -setup {
         ted create BLUE BRIT
     } -body {
-        rel validate {BLUE NONESUCH}
+        hrel validate {BLUE NONESUCH}
     } -returnCodes {
         error
     } -cleanup {
@@ -228,7 +228,7 @@ BLUE BRIT 0.7
     test validate-1.3 {f eq g} -setup {
         ted create BLUE BRIT
     } -body {
-        rel validate {BLUE BLUE}
+        hrel validate {BLUE BLUE}
     } -returnCodes {
         error
     } -cleanup {
@@ -238,48 +238,48 @@ BLUE BRIT 0.7
     test validate-2.1 {Valid relationship} -setup {
         ted create BLUE BRIT
     } -body {
-        rel validate {BLUE BRIT}
+        hrel validate {BLUE BRIT}
     } -cleanup {
         cleanup
     } -result {BLUE BRIT}
 
     #-------------------------------------------------------------------
-    # rel_view
+    # hrel_view
     #
-    # The rel_view is implemented in scenariodb.sql, not in rel.tcl,
+    # The hrel_view is implemented in scenariodb.sql, not in rel.tcl,
     # so perhaps it doesn't belong here; on the other hand, it pulls
     # together affinities from the bsystem with relationship overrides
-    # from rel_fg, and it ought to be tested somewhere.
+    # from hrel_fg, and it ought to be tested somewhere.
 
-    test rel_view-1.1 {Defaults to 1.0 and 0.0} -setup {
+    test hrel_view-1.1 {Defaults to 1.0 and 0.0} -setup {
         ted create BLUE BRIT
     } -body {
-        ted query {SELECT * FROM rel_view ORDER BY f,g}
+        ted query {SELECT * FROM hrel_view ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    rel override 
----- ---- --- -------- 
-BLUE BLUE 1.0 0        
-BLUE BRIT 0.0 0        
-BRIT BLUE 0.0 0        
-BRIT BRIT 1.0 0        
+f    g    hrel_nat hrel override 
+---- ---- -------- ---- -------- 
+BLUE BLUE 1.0      1.0  0        
+BLUE BRIT 0.0      0.0  0        
+BRIT BLUE 0.0      0.0  0        
+BRIT BRIT 1.0      1.0  0        
     }
 
-    test rel_view-1.2 {rel_fg overrides bsystem values} -setup {
+    test hrel_view-1.2 {hrel_fg overrides bsystem values} -setup {
         ted create BLUE BRIT
     } -body {
-        rel mutate create {id {BLUE BRIT} rel 0.5}
-        ted query {SELECT * FROM rel_view ORDER BY f,g}
+        hrel mutate create {id {BLUE BRIT} hrel 0.5}
+        ted query {SELECT * FROM hrel_view ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    rel override 
----- ---- --- -------- 
-BLUE BLUE 1.0 0        
-BLUE BRIT 0.5 1        
-BRIT BLUE 0.0 0        
-BRIT BRIT 1.0 0        
+f    g    hrel_nat hrel override 
+---- ---- -------- ---- -------- 
+BLUE BLUE 1.0      1.0  0        
+BLUE BRIT 0.0      0.5  1        
+BRIT BLUE 0.0      0.0  0        
+BRIT BRIT 1.0      1.0  0        
     }
 
     #-------------------------------------------------------------------

@@ -1,33 +1,36 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    rel.tcl
+#    hrel.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Relationship Manager
+#    athena_sim(1): Horizontal Relationship Manager
 #
-#    By default, group relationships are computed from belief systems
-#    by the bsystem module, an instance of mam(n), with the exception
-#    that rel.gg is always 1.0.  The analyst is allowed to override
-#    any relationship for which f != g.  These overrides are stored in
-#    the rel_fg table and viewed in relbrowser(sim).  The rel_view
-#    view pulls all of the data together.
+#    By default, the initial horizontal group relationships (hrel)
+#    are computed from belief systems by the bsystem module, an
+#    instance of mam(n), with the exception that rel.gg is always 1.0.
+#    The analyst is allowed to override any initial relationship for which 
+#    f != g.  The natural relationship is always either 1.0 when f=g
+#    and the affinity otherwise.
 #
-#    Because rel_fg stores overrides values computed elsewhere, this
+#    These overrides are stored in the hrel_fg table and viewed in
+#    hrelbrowser(sim).  The hrel_view view pulls all of the data together.
+#
+#    Because hrel_fg overrides values computed elsewhere, this
 #    module follows a rather different pattern than other scenario
 #    editing modules.  The relationships come into being automatically
-#    with the groups.  Thus, there is no REL:CREATE order.  Instead,
-#    REL:OVERRIDE and REL:OVERRIDE:MULTI will create new records as 
-#    needed.  REL:RESTORE will delete overrides.
+#    with the groups.  Thus, there is no HREL:CREATE order.  Instead,
+#    HREL:OVERRIDE and HREL:OVERRIDE:MULTI will create new records as 
+#    needed.  HREL:RESTORE will delete overrides.
 #
 #    Note that overridden relationships are deleted via cascading
 #    delete if the relevant groups are deleted.
 #
 #-----------------------------------------------------------------------
 
-snit::type rel {
+snit::type hrel {
     # Make it a singleton
     pragma -hasinstances no
 
@@ -65,7 +68,7 @@ snit::type rel {
         lassign $id f g
 
         rdb exists {
-            SELECT * FROM rel_fg WHERE f=$f AND g=$g
+            SELECT * FROM hrel_fg WHERE f=$f AND g=$g
         }
     }
 
@@ -80,10 +83,10 @@ snit::type rel {
 
     # mutate create parmdict
     #
-    # parmdict     A dictionary of rel parms
+    # parmdict  - A dictionary of hrel parms
     #
-    #    id               list {f g}
-    #    rel              The relationship of f with g
+    #    id     - list {f g}
+    #    hrel   - The relationship of f with g
     #
     # Creates a relationship record given the parms, which are presumed to be
     # valid.
@@ -92,27 +95,27 @@ snit::type rel {
         dict with parmdict {
             lassign $id f g
 
-            # FIRST, default rel to 0.0
-            if {$rel eq ""} {
-                set rel 0.0
+            # FIRST, default hrel to 0.0
+            if {$hrel eq ""} {
+                set hrel 0.0
             }
 
             # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                rel_fg(f,g,rel)
-                VALUES($f, $g, $rel);
+                hrel_fg(f,g,hrel)
+                VALUES($f, $g, $hrel);
             }
 
             # NEXT, Return the undo command
-            return [list rdb delete rel_fg "f='$f' AND g='$g'"]
+            return [list rdb delete hrel_fg "f='$f' AND g='$g'"]
         }
     }
 
 
     # mutate delete id
     #
-    # id        list {f g}
+    # id   - list {f g}
     #
     # Deletes the relationship override.
 
@@ -120,7 +123,7 @@ snit::type rel {
         lassign $id f g
 
         # FIRST, delete the records, grabbing the undo information
-        set data [rdb delete -grab rel_fg {f=$f AND g=$g}]
+        set data [rdb delete -grab hrel_fg {f=$f AND g=$g}]
 
         # NEXT, Return the undo script
         return [list rdb ungrab $data]
@@ -129,10 +132,10 @@ snit::type rel {
 
     # mutate update parmdict
     #
-    # parmdict     A dictionary of group parms
+    # parmdict  - A dictionary of group parms
     #
-    #    id               list {f g}
-    #    rel              Relationship of f with g
+    #    id     - list {f g}
+    #    hrel   - Relationship of f with g
     #
     # Updates a relationship given the parms, which are presumed to be
     # valid.
@@ -143,12 +146,12 @@ snit::type rel {
             lassign $id f g
 
             # FIRST, get the undo information
-            set data [rdb grab rel_fg {f=$f AND g=$g}]
+            set data [rdb grab hrel_fg {f=$f AND g=$g}]
 
             # NEXT, Update the group
             rdb eval {
-                UPDATE rel_fg
-                SET rel = nonempty($rel, rel)
+                UPDATE hrel_fg
+                SET hrel = nonempty($hrel, hrel)
                 WHERE f=$f AND g=$g
             } {}
 
@@ -160,77 +163,77 @@ snit::type rel {
 
 
 #-------------------------------------------------------------------
-# Orders: REL:*
+# Orders: HREL:*
 
-# REL:RESTORE
+# HREL:RESTORE
 #
 # Deletes existing relationship override
 
-order define REL:RESTORE {
-    title "Restore Computed Relationship"
+order define HREL:RESTORE {
+    title "Restore Initial Horizontal Relationship"
     options \
         -sendstates PREP
 
-    parm id   key   "Groups"         -table  gui_rel_view \
+    parm id   key   "Groups"         -table  gui_hrel_view \
                                      -keys   {f g}      \
                                      -labels {Of With}
 } {
     # FIRST, prepare the parameters
-    prepare id       -toupper  -required -type rel
+    prepare id       -toupper  -required -type hrel
 
     returnOnError -final
 
     # NEXT, delete the record
-    setundo [rel mutate delete $parms(id)]
+    setundo [hrel mutate delete $parms(id)]
 }
 
-# REL:OVERRIDE
+# HREL:OVERRIDE
 #
 # Updates existing override
 
-order define REL:OVERRIDE {
-    title "Override Computed Relationship"
+order define HREL:OVERRIDE {
+    title "Override Initial Horizontal Relationship"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id   key   "Groups"         -table  gui_rel_view \
-                                     -keys   {f g}      \
+    parm id   key   "Groups"         -table  gui_hrel_view \
+                                     -keys   {f g}         \
                                      -labels {Of With}
-    parm rel  rel   "Relationship"
+    parm hrel rel   "Relationship"
 } {
     # FIRST, prepare the parameters
-    prepare id       -toupper  -required -type rel
-    prepare rel      -toupper            -type qrel
+    prepare id       -toupper  -required -type hrel
+    prepare hrel     -toupper            -type qaffinity
 
     returnOnError -final
 
     # NEXT, modify the curve
-    if {[rel exists $parms(id)]} {
-        setundo [rel mutate update [array get parms]]
+    if {[hrel exists $parms(id)]} {
+        setundo [hrel mutate update [array get parms]]
     } else {
-        setundo [rel mutate create [array get parms]]
+        setundo [hrel mutate create [array get parms]]
     }
 }
 
 
-# REL:OVERRIDE:MULTI
+# HREL:OVERRIDE:MULTI
 #
 # Updates multiple existing relationship overrides
 
-order define REL:OVERRIDE:MULTI {
-    title "Override Multiple Relationships"
+order define HREL:OVERRIDE:MULTI {
+    title "Override Multiple Horizontal Relationships"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids  multi  "IDs"           -table gui_rel_view \
+    parm ids  multi  "IDs"           -table gui_hrel_view \
                                      -key   id
-    parm rel  rel    "Relationship"
+    parm hrel rel    "Relationship"
 } {
     # FIRST, prepare the parameters
-    prepare ids      -toupper  -required -listof rel
-    prepare rel      -toupper            -type qrel
+    prepare ids      -toupper  -required -listof hrel
+    prepare hrel     -toupper            -type qaffinity
 
     returnOnError -final
 
@@ -239,10 +242,10 @@ order define REL:OVERRIDE:MULTI {
     set undo [list]
 
     foreach parms(id) $parms(ids) {
-        if {[rel exists $parms(id)]} {
-            lappend undo [rel mutate update [array get parms]]
+        if {[hrel exists $parms(id)]} {
+            lappend undo [hrel mutate update [array get parms]]
         } else {
-            lappend undo [rel mutate create [array get parms]]
+            lappend undo [hrel mutate create [array get parms]]
         }
     }
 

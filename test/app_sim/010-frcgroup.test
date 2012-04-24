@@ -178,28 +178,28 @@ local        0
     } -result {SHIA BLUE}
 
 
-    test delete-7.1 {deletes rel_fg overrides} -setup {
+    test delete-7.1 {deletes hrel_fg overrides} -setup {
         ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.5}
-        rel mutate create {id {BRIT BLUE} rel 0.5}
+        hrel mutate create {id {BLUE BRIT} hrel 0.5}
+        hrel mutate create {id {BRIT BLUE} hrel 0.5}
     } -body {
         frcgroup mutate delete BLUE
 
-        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+        rdb eval {SELECT f,g FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {}
 
-    test delete-7.2 {undo restores rel_fg overrides} -setup {
+    test delete-7.2 {undo restores hrel_fg overrides} -setup {
         ted create BLUE BRIT
-        rel mutate create {id {BLUE BRIT} rel 0.5}
-        rel mutate create {id {BRIT BLUE} rel 0.5}
+        hrel mutate create {id {BLUE BRIT} hrel 0.5}
+        hrel mutate create {id {BRIT BLUE} hrel 0.5}
 
         set undo [frcgroup mutate delete BLUE]
     } -body {
         namespace eval :: $undo
 
-        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+        rdb eval {SELECT f,g FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {BLUE BRIT BRIT BLUE}

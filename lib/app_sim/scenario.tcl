@@ -86,6 +86,7 @@ snit::type scenario {
         rdb monitor add frcgroups    {g}
         rdb monitor add goals        {goal_id}
         rdb monitor add groups       {g}
+        rdb monitor add hrel_fg      {f g}
         rdb monitor add mads_t       {driver_id}
         rdb monitor add mam_playbox  {pid}
         rdb monitor add mam_belief   {eid tid}
@@ -94,7 +95,6 @@ snit::type scenario {
         rdb monitor add nbhoods      {n}
         rdb monitor add nbrel_mn     {m n}
         rdb monitor add orggroups    {g}
-        rdb monitor add rel_fg       {f g}
         rdb monitor add sat_gc       {g c}
         rdb monitor add situations   {s}
         rdb monitor add sqdeploy_ng  {n g}

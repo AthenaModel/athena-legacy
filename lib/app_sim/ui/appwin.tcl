@@ -203,20 +203,6 @@ snit::widget appwin {
             script  { orggroupbrowser %W }
         }
 
-        bsystem {
-            label   "Beliefs"
-            vistype scenario
-            parent  groupst
-            script  { bsystembrowser %W }
-        }
-
-        rel {
-            label   "Relationships"
-            vistype scenario
-            parent  groupst
-            script  { relbrowser %W }
-        }
-
         sqdeploy {
             label   "Deployments"
             vistype scenario
@@ -229,6 +215,20 @@ snit::widget appwin {
             vistype *
             parent  ""
             script  ""
+        }
+
+        bsystem {
+            label   "Beliefs"
+            vistype scenario
+            parent  att
+            script  { bsystembrowser %W }
+        }
+
+        hrel {
+            label   "HRel"
+            vistype *
+            parent  att
+            script  { hrelbrowser %W }
         }
 
         sat {
@@ -771,8 +771,8 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Relationship" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu REL:OVERRIDE
-        $self AddOrder $submenu REL:RESTORE
+        $self AddOrder $submenu HREL:OVERRIDE
+        $self AddOrder $submenu HREL:RESTORE
 
         # Orders/Cooperation Menu
         set submenu [menu $ordersmenu.coop]

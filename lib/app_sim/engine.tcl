@@ -92,9 +92,10 @@ snit::type engine {
         }]
 
         $uram load hrel {*}[rdb eval {
-            SELECT f, g, rel FROM rel_view
+            SELECT f, g, hrel FROM hrel_view
             ORDER BY f, g
         }]
+        # TBD: Set natural level
 
         # TBD: vrels need additional work; for now, all 0.0.
         $uram load vrel {*}[rdb eval {

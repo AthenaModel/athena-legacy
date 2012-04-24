@@ -50,12 +50,12 @@ snit::type ted {
         frcgroups
         goals
         groups
+        hrel_fg
         mads_t
         nbhoods
         nbrel_mn
         orggroups
         personnel_g
-        rel_fg
         sigevents
         sigevent_tags
         sigevent_marks

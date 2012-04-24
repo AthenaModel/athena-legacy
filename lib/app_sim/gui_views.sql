@@ -383,23 +383,26 @@ JOIN civgroups AS CG ON (main.g = CG.g)
 LEFT OUTER JOIN uram_sat AS uram ON (main.g = uram.g AND main.c = uram.c);
 
 
--- A rel_fg view for use by the GUI
-CREATE TEMPORARY VIEW gui_rel_view AS
-SELECT R.f || ' ' || R.g                             AS id,
-       R.f                                           AS f,
+-- An hrel_view for use by the GUI
+CREATE TEMPORARY VIEW gui_hrel_view AS
+SELECT HV.f || ' ' || HV.g                           AS id,
+       HV.f                                          AS f,
        F.gtype                                       AS ftype,
-       R.g                                           AS g,
+       HV.g                                          AS g,
        G.gtype                                       AS gtype,
-       format('%+4.1f', R.rel)                       AS rel,
+       format('%+4.1f', HV.hrel)                     AS hrel0,
+       format('%+4.1f', coalesce(UH.hrel, HV.hrel))  AS hrel,
+       format('%+4.1f', HV.hrel_nat)                 AS hrel_nat,
        CASE WHEN override THEN 'Y' ELSE 'N' END      AS override
-FROM rel_view AS R
-JOIN groups AS F ON (F.g = R.f)
-JOIN groups as G on (G.g = R.g)
+FROM hrel_view AS HV
+JOIN groups AS F ON (F.g = HV.f)
+JOIN groups AS G ON (G.g = HV.g)
+LEFT OUTER JOIN uram_hrel AS UH ON (UH.f=HV.f AND UH.g=HV.g)
 WHERE F.g != G.g;
 
--- A gui_rel_view subview, for overridden relationships only.
-CREATE TEMPORARY VIEW gui_rel_override_view AS
-SELECT * FROM gui_rel_view
+-- A gui_hrel_view subview, for overridden relationships only.
+CREATE TEMPORARY VIEW gui_hrel_override_view AS
+SELECT * FROM gui_hrel_view
 WHERE override = 'Y';
 
 -- A coop_fg view for use by the GUI:

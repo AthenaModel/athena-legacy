@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    relbrowser.tcl
+#    hrelbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    relbrowser(sim) package: Relationship browser.
+#    hrelbrowser(sim) package: Relationship browser.
 #
-#    This widget displays a formatted list of rel_fg records.
+#    This widget displays a formatted list of hrel_fg records.
 #    It is a variation of browser_base(n).
 #
 #-----------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor relbrowser {
+snit::widgetadaptor hrelbrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -35,7 +35,9 @@ snit::widgetadaptor relbrowser {
         {g        "With Group G"                }
         {ftype    "F Type"                      }
         {gtype    "G Type"                      }
-        {rel      "Relationship" -sortmode real }
+        {hrel0    "HRel at T0"   -sortmode real }
+        {hrel     "HRel Now"     -sortmode real }
+        {hrel_nat "Nat. HRel"    -sortmode real }
         {override "OV"           -hide 1        }
     }
 
@@ -52,7 +54,7 @@ snit::widgetadaptor relbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_rel_view                \
+            -view         gui_hrel_view               \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
@@ -61,8 +63,8 @@ snit::widgetadaptor relbrowser {
                 ::rdb <groups>
                 ::sim <DbSyncB>
             } -views {
-                gui_rel_view          "All"
-                gui_rel_override_view "Overridden"
+                gui_hrel_view          "All"
+                gui_hrel_override_view "Overridden"
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
@@ -71,29 +73,29 @@ snit::widgetadaptor relbrowser {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install editbtn using mkeditbutton $bar.edit \
-            "Override Computed Relationship"         \
-            -state   disabled                        \
+        install editbtn using mkeditbutton $bar.edit   \
+            "Override Initial Horizontal Relationship" \
+            -state   disabled                          \
             -command [mymethod EditSelected]
 
         cond::availableCanUpdate control $editbtn \
-            order   REL:OVERRIDE                     \
+            order   HREL:OVERRIDE                 \
             browser $win
 
         install deletebtn using mkdeletebutton $bar.delete \
-            "Restore Computed Relationship"                \
+            "Restore Initial Horizontal Relationship"      \
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 
         cond::availableCanDelete control $deletebtn \
-            order   REL:RESTORE                        \
+            order   HREL:RESTORE                    \
             browser $win
 
         pack $editbtn   -side left
         pack $deletebtn -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::rdb <rel_fg> $self [mymethod uid]
+        notifier bind ::rdb <hrel_fg> $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
@@ -101,7 +103,7 @@ snit::widgetadaptor relbrowser {
 
     delegate method * to hull
 
-    # When rel_fg records are deleted, treat it like an update.
+    # When hrel_fg records are deleted, treat it like an update.
     delegate method {uid *}      to hull using {%c uid %m}
     delegate method {uid delete} to hull using {%c uid update}
 
@@ -140,7 +142,7 @@ snit::widgetadaptor relbrowser {
         lassign $id f g
 
         set override [rdb onecolumn {
-            SELECT override FROM rel_view WHERE f=$f AND g=$g
+            SELECT override FROM hrel_view WHERE f=$f AND g=$g
         }]
 
         if {$override ne "" && $override} {
@@ -161,9 +163,9 @@ snit::widgetadaptor relbrowser {
     # Sets the cell foreground color for the color cells.
 
     method DisplayData {rindex values} {
-        set override [lindex $values 5]
+        set override [lindex $values end-1]
 
-        if {$override} {
+        if {$override && [sim state] eq "PREP"} {
             $hull rowconfigure $rindex -foreground "#BB0000"
         } else {
             $hull rowconfigure $rindex -foreground $::app::derivedfg
@@ -190,9 +192,9 @@ snit::widgetadaptor relbrowser {
         set ids [$hull uid curselection]
 
         if {[llength $ids] == 1} {
-            order enter REL:OVERRIDE id [lindex $ids 0]
+            order enter HREL:OVERRIDE id [lindex $ids 0]
         } else {
-            order enter REL:OVERRIDE:MULTI ids $ids
+            order enter HREL:OVERRIDE:MULTI ids $ids
         }
     }
 
@@ -205,7 +207,7 @@ snit::widgetadaptor relbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the dialog, and select this entity
-        order send gui REL:RESTORE id $id
+        order send gui HREL:RESTORE id $id
     }
 }
 

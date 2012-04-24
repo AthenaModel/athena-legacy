@@ -1231,239 +1231,6 @@ tab "Groups/OrgGroups" {
 
 #-----------------------------------------------------------------------
 
-tab "Groups/Beliefs" {
-    <b>Scenario Mode Only.</b><p>
-
-    This tab contains the Belief System Browser, which allows the user
-    to edit the belief systems of the actors and civilian groups. The
-    browser has the following major areas:
-
-    <ul>
-    <li> <b>The <<cref /tab/groups/beliefs/topic "Topics List">></b>,
-    where topics of belief are viewed and edited.<p>
-
-    <li> <b>The <<cref /tab/groups/beliefs/entity "Entities Tree">></b>,
-    which lists the available actors and civilian groups.<p>
-
-    <li> <b>The <<cref /tab/groups/beliefs/beliefs "Beliefs List">></b>,
-    where an entity's beliefs are specified.<p>
-
-    <li> <b>The <<cref /tab/groups/beliefs/affinity "Affinities Pane">></b>,
-    where the currently selected entity's affinities are displayed.<p>
-    </ul>
-
-    Note that you can drag the border between the areas to make them
-    bigger or smaller.
-
-    See the <i>Athena User's Guide</i> for more about defining belief
-    systems.<p>
-}
-
-page /tab/groups/beliefs topic "Belief Systems Browser Topics List" {
-    <<title>>
-
-    The Topics List lists all of the currently defined topics, and
-    allows them to be created and edited.  The major portion of the
-    list is a table with the following columns:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Topic>>
-    The topic ID, a string chosen by the user when
-    creating the topic.
-    <</topic>>
-
-    <<topic Relevant?>>
-    The relevance flag.  If "Yes", the topic is included when
-    computing affinity, and if "No" it is not.  Selected the desired
-    value from the pulldown in the topic's row.
-    <</topic>>
-
-    <<topic Title>>
-    The topic's human-readable title, a string chosen by the user when
-    creating the topic.  To edit, use the "pencil" control or simply
-    click on the title.
-    <</topic>>
-
-    <</topiclist>><p>
-
-    The Topic List's toolbar has the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plust]>>
-    Pops up the <<cref /order/bsystem/topic/create>> dialog.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    Pops up the <<cref /order/bsystem/topic/update>> dialog for the
-    selected topic.
-    <</topic>>
-
-    <<topic [image control_pcommon]>>
-    Sets the playbox commonality level.
-    <</topic>>
-
-    <<topic [image control_autocalc]>>
-    Enables/disables automatic calculation.  If checked, all
-    affinities will be recomputed whenever any belief system input is
-    changed.
-    <</topic>>
-
-    <<topic [image button_calcnow]>>
-    Forces the affinities to be re-calculated.
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If a single row is selected, deletes it using the
-    <<cref /order/bsystem/topic/delete>> order.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-page /tab/groups/beliefs entity "Belief Systems Browser Entities Tree" {
-    <<title>>
-
-    The Entities Tree lists all defined actors and civilian groups.<p>
-
-    <<image bsystem_entities>><p>
-
-    Select an actor or group to edit its belief system.<p>
-}
-
-page /tab/groups/beliefs beliefs "Belief Systems Browser Beliefs List" {
-    <<title>>
-
-    The Beliefs List lists all of the beliefs of the currently
-    selected actor or group, and allows them to be edited.  
-    The major portion of the
-    list is a table with the following columns:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Topic>>
-    The topic ID about which the entity has a belief.
-    <</topic>>
-
-    <<topic Position>>
-    The entity's position on this topic.  Select a value from the
-    pulldown.
-    <</topic>>
-
-    <<topic "Emphasis is On">>
-    The entity's emphasis on agreement vs. disagreement for this
-    topic.  Select a value from the pulldown.
-    <</topic>>
-
-    <</topiclist>><p>
-
-    The Topic List's toolbar has the following control:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image control_ecommon]>>
-    Sets the entity's commonality level, i.e., its participation in
-    the playbox commonality.
-    <</topic>>
-
-    <</topiclist>>
-    
-}
-
-page /tab/groups/beliefs affinity "Belief Systems Browser Affinities Pane" {
-    <<title>>
-
-    This pane shows the affinity between entity A, the entity
-    currently selected in the Entity Tree and every other entity, and
-    also their affinities with A.  Click on a column header to sort on
-    that column.
-}
-
-
-#-----------------------------------------------------------------------
-
-tab "Groups/Relationships" {
-    <b>Scenario Mode Only.</b><p>
-
-    This tab shows the relationship between the various pairs of
-    groups in the playbox.  Each row shows the relationship of 
-    group F with group G from group F's point of view.<p>
-
-    By default, relationships are computed automatically from the 
-    belief systems model; civilian groups have their own 
-    belief systems, and force and organization groups inherit the
-    belief systems of their owning actors.  Computed relationships
-    are shown in green text.<p>
-
-    Additionally, the analyst can override any computed relationship
-    with a specific value; these manually-entered relationships are
-    shown in red text.
-
-    The browser controls are described <<seebelow controls>>; the data
-    fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Of Group F">>A group ID.<</topic>>
-    
-    <<topic "With Group G">>Another group ID.<</topic>>
-    
-    <<topic "F Type">>The group type of group F:<p>
-
-    <<enumdoc ::simlib::egrouptype>>
-    <</topic>>
-
-    <<topic "G Type">>The group type of group G, as above.<p>
-
-    <</topic>>
-
-    <<topic "Relationship">> The relationship between group F and
-    group G from F's point of view, a number drawn from the
-    following scale:<p>
-
-    <<::simlib::qaffinity html>>
-
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/rel/override>> or 
-    <<cref /order/rel/override:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If an overridden relationship is selected, deletes the
-    override and restores the computed relationship.
-    <</topic>>
-
-    <<topic [image viewbox]>>
-    The view box determines which set of entities is to be displayed.
-    The following sets may be selected from the pulldown:<p>
-
-    <ul>
-    <li> <b>All</b>: All relationships, whether computed or overridden.
-    <li> <b>Overridden</b>: Manually overridden relationships only.
-    </ul>
-    <</topic>>
-
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
 tab "Groups/Deployments" {
     <b>Scenario Mode Only.</b><p>
 
@@ -1581,6 +1348,252 @@ tab "Attitudes" {
     GRAM attitude model.  The full set of subtabs is as follows:<p>
 
     <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Attitudes/Beliefs" {
+    <b>Scenario Mode Only.</b><p>
+
+    This tab contains the Belief System Browser, which allows the user
+    to edit the belief systems of the actors and civilian groups. The
+    browser has the following major areas:
+
+    <ul>
+    <li> <b>The <<cref /tab/attitudes/beliefs/topic "Topics List">></b>,
+    where topics of belief are viewed and edited.<p>
+
+    <li> <b>The <<cref /tab/attitudes/beliefs/entity "Entities Tree">></b>,
+    which lists the available actors and civilian groups.<p>
+
+    <li> <b>The <<cref /tab/attitudes/beliefs/beliefs "Beliefs List">></b>,
+    where an entity's beliefs are specified.<p>
+
+    <li> <b>The <<cref /tab/attitudes/beliefs/affinity "Affinities Pane">></b>,
+    where the currently selected entity's affinities are displayed.<p>
+    </ul>
+
+    Note that you can drag the border between the areas to make them
+    bigger or smaller.
+
+    See the <i>Athena User's Guide</i> for more about defining belief
+    systems.<p>
+}
+
+page /tab/attitudes/beliefs topic "Belief Systems Browser Topics List" {
+    <<title>>
+
+    The Topics List lists all of the currently defined topics, and
+    allows them to be created and edited.  The major portion of the
+    list is a table with the following columns:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Topic>>
+    The topic ID, a string chosen by the user when
+    creating the topic.
+    <</topic>>
+
+    <<topic Relevant?>>
+    The relevance flag.  If "Yes", the topic is included when
+    computing affinity, and if "No" it is not.  Selected the desired
+    value from the pulldown in the topic's row.
+    <</topic>>
+
+    <<topic Title>>
+    The topic's human-readable title, a string chosen by the user when
+    creating the topic.  To edit, use the "pencil" control or simply
+    click on the title.
+    <</topic>>
+
+    <</topiclist>><p>
+
+    The Topic List's toolbar has the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plust]>>
+    Pops up the <<cref /order/bsystem/topic/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the <<cref /order/bsystem/topic/update>> dialog for the
+    selected topic.
+    <</topic>>
+
+    <<topic [image control_pcommon]>>
+    Sets the playbox commonality level.
+    <</topic>>
+
+    <<topic [image control_autocalc]>>
+    Enables/disables automatic calculation.  If checked, all
+    affinities will be recomputed whenever any belief system input is
+    changed.
+    <</topic>>
+
+    <<topic [image button_calcnow]>>
+    Forces the affinities to be re-calculated.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single row is selected, deletes it using the
+    <<cref /order/bsystem/topic/delete>> order.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+page /tab/attitudes/beliefs entity "Belief Systems Browser Entities Tree" {
+    <<title>>
+
+    The Entities Tree lists all defined actors and civilian groups.<p>
+
+    <<image bsystem_entities>><p>
+
+    Select an actor or group to edit its belief system.<p>
+}
+
+page /tab/attitudes/beliefs beliefs "Belief Systems Browser Beliefs List" {
+    <<title>>
+
+    The Beliefs List lists all of the beliefs of the currently
+    selected actor or group, and allows them to be edited.  
+    The major portion of the
+    list is a table with the following columns:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Topic>>
+    The topic ID about which the entity has a belief.
+    <</topic>>
+
+    <<topic Position>>
+    The entity's position on this topic.  Select a value from the
+    pulldown.
+    <</topic>>
+
+    <<topic "Emphasis is On">>
+    The entity's emphasis on agreement vs. disagreement for this
+    topic.  Select a value from the pulldown.
+    <</topic>>
+
+    <</topiclist>><p>
+
+    The Topic List's toolbar has the following control:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image control_ecommon]>>
+    Sets the entity's commonality level, i.e., its participation in
+    the playbox commonality.
+    <</topic>>
+
+    <</topiclist>>
+    
+}
+
+page /tab/attitudes/beliefs affinity "Belief Systems Browser Affinities Pane" {
+    <<title>>
+
+    This pane shows the affinity between entity A, the entity
+    currently selected in the Entity Tree and every other entity, and
+    also their affinities with A.  Click on a column header to sort on
+    that column.
+}
+#-----------------------------------------------------------------------
+
+tab "Attitudes/HRel" {
+    This tab shows the horizontal relationship (HRel) between the
+    various pairs of
+    groups in the playbox.  Each row shows the horizontal relationship of 
+    group F with group G from group F's point of view.<p>
+
+    Initially, horizontal relationships are computed automatically from the 
+    belief systems model; civilian groups have their own 
+    belief systems, and force and organization groups inherit the
+    belief systems of their owning actors.  Computed relationships
+    are shown in green text.<p>
+
+    Additionally, the analyst can override any initial relationship
+    with a specific value; these manually-entered relationships are
+    shown in red text.<p>
+
+    Once the scenario is locked, horizontal relationships can change
+    dynamically due to the effects of attitude drivers.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group F">>A group ID.<</topic>>
+    
+    <<topic "With Group G">>Another group ID.<</topic>>
+    
+    <<topic "F Type">>The group type of group F:<p>
+
+    <<enumdoc ::simlib::egrouptype>>
+    <</topic>>
+
+    <<topic "G Type">>The group type of group G, as above.<p>
+
+    <</topic>>
+
+    <<topic "HRel at T0">> The initial relationship between group F and
+    group G from F's point of view, a number drawn from the
+    following scale:<p>
+
+    <<::simlib::qaffinity html>>
+
+    <</topic>>
+
+    <<topic "HRel Now">> The relationship between group F and
+    group G from F's point of view right now.
+
+    <</topic>>
+
+    <<topic "Nat. HRel">> The natural relationship between group F and
+    group G from F's point of view, as derived from the affinity.  It
+    will be the same as the initial value if the initial value is not
+    overridden by the analyst.  In the absence of other drivers, the
+    natural relationship will regress to this value slowly over time.<p>
+
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/hrel/override>> or 
+    <<cref /order/hrel/override:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If an overridden relationship is selected, deletes the
+    override and restores the computed relationship.
+    <</topic>>
+
+    <<topic [image viewbox]>>
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All relationships, whether computed or overridden.
+    <li> <b>Overridden</b>: Manually overridden relationships only.
+    </ul>
+    <</topic>>
+
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
 }
 
 #-----------------------------------------------------------------------

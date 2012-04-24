@@ -1866,16 +1866,30 @@ snit::type appserver {
         
         ht subtitle "Friend and Enemies" rel
 
+        ht put {
+            Friends and enemies have a non-zero horizontal relationship
+            (HRel) with each other.  The HRel can vary over time, but
+            (in the absence of significant drivers) will regress back to
+            its natural level, which depends on the affinity between
+            the groups.
+        }
+
+        ht para
+
+
         ht query {
-            SELECT link('/group/' || g, pair(longname, g)) AS 'Friend/Enemy',
-                   gtype                                   AS 'Type',
-                   qaffinity('format',rel)                 AS 'Relationship',
-                   $g || ' ' || qaffinity('longname',rel) 
-                      || ' ' || g                          AS 'Narrative'
-            FROM rel_view JOIN groups USING (g)
-            WHERE f=$g AND g != $g AND qaffinity('name',rel) != 'INDIFF'
-            ORDER BY rel DESC
-        } -align LLRL
+            SELECT link('/group/' || g, pair(longname, g)) 
+                                                           AS 'Friend/Enemy',
+                   G.gtype                                 AS 'Type',
+                   hrel                                    AS 'HRel',
+                   $g || ' ' || qaffinity('longname',hrel) 
+                      || ' ' || g                          AS 'Narrative',
+                   qaffinity('format',hrel_nat)            AS 'Nat. HRel'
+            FROM gui_hrel_view
+            JOIN groups AS G USING (g)
+            WHERE f=$g AND qaffinity('name',hrel) != 'INDIFF'
+            ORDER BY hrel DESC
+        } -align LLRLR
 
         ht subtitle "ENI Services" eni
 

@@ -204,28 +204,28 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
     } -result {SHIA BLUE}
 
 
-    test delete-7.1 {deletes rel_fg overrides} -setup {
+    test delete-7.1 {deletes hrel_fg overrides} -setup {
         ted create SHIA SUNN
-        rel mutate create {id {SHIA SUNN} rel 0.5}
-        rel mutate create {id {SUNN SHIA} rel 0.5}
+        hrel mutate create {id {SHIA SUNN} hrel 0.5}
+        hrel mutate create {id {SUNN SHIA} hrel 0.5}
     } -body {
         civgroup mutate delete SHIA
 
-        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+        rdb eval {SELECT f,g FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {}
 
-    test delete-7.2 {undo restores rel_fg overrides} -setup {
+    test delete-7.2 {undo restores hrel_fg overrides} -setup {
         ted create SHIA SUNN
-        rel mutate create {id {SHIA SUNN} rel 0.5}
-        rel mutate create {id {SUNN SHIA} rel 0.5}
+        hrel mutate create {id {SHIA SUNN} hrel 0.5}
+        hrel mutate create {id {SUNN SHIA} hrel 0.5}
 
         set undo [civgroup mutate delete SHIA]
     } -body {
         namespace eval :: $undo
 
-        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+        rdb eval {SELECT f,g FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {SHIA SUNN SUNN SHIA}

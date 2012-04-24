@@ -534,14 +534,15 @@ term hrel "horizontal relationship" {
 
     <<::simlib::qaffinity html>><p>
 
-    Group relationships have effects throughout the Athena models.  
+    Horizontal relationships have effects throughout the Athena models.  
     Every group has a relationship of 1.0 with itself and by default a
-    relationship of 0.0 with every other group.  Realistic
+    relationship with every other group equal to its affinity with
+    that group.  Realistic
     relationships between groups range from +0.6 to -0.3 or -0.4.<p>
 
-    Group relationships are edited on the 
-    <<tab Groups/Relationships>>, using the 
-    <<cref /order/rel>> orders.<p>
+    The initial relationship can be overridden on the 
+    <<tab Attitudes/HRel>>, using the 
+    <<cref /order/hrel>> orders.<p>
 }
 
 #-----------------------------------------------------------------------

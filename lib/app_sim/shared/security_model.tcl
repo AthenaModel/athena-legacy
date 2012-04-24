@@ -201,23 +201,23 @@ snit::type security_model {
                    NF.g         AS f,
                    NF.own_force AS f_own_force,
                    G.g          AS g,
-                   FG.rel       AS rel
+                   FG.hrel      AS hrel
             FROM force_ng AS NF
             JOIN groups AS G
-            JOIN rel_view AS FG ON (FG.f = NF.g AND FG.g = G.g)
-            WHERE rel != 0.0 AND NF.own_force > 0
+            JOIN uram_hrel AS FG ON (FG.f = NF.g AND FG.g = G.g)
+            WHERE hrel != 0.0 AND NF.own_force > 0
             
         } {
-            if {$rel > 0} {
-                let friends {int(ceil($f_own_force*$rel))}
+            if {$hrel > 0} {
+                let friends {int(ceil($f_own_force*$hrel))}
 
                 rdb eval {
                     UPDATE force_ng
                     SET local_force = local_force + $friends
                     WHERE n = $n AND g = $g
                 }
-            } elseif {$rel < 0} {
-                let enemies {int(ceil($f_own_force*abs($rel)))}
+            } elseif {$hrel < 0} {
+                let enemies {int(ceil($f_own_force*abs($hrel)))}
 
                 rdb eval {
                     UPDATE force_ng

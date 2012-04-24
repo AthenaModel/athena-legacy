@@ -104,28 +104,28 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE N
     }
 
 
-    test delete-5.1 {deletes rel_fg overrides} -setup {
+    test delete-5.1 {deletes hrel_fg overrides} -setup {
         ted create USAID BRIT
-        rel mutate create {id {USAID BRIT} rel 0.5}
-        rel mutate create {id {BRIT USAID} rel 0.5}
+        hrel mutate create {id {USAID BRIT} hrel 0.5}
+        hrel mutate create {id {BRIT USAID} hrel 0.5}
     } -body {
         orggroup mutate delete USAID
 
-        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+        rdb eval {SELECT f,g FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {}
 
-    test delete-5.2 {undo restores rel_fg overrides} -setup {
+    test delete-5.2 {undo restores hrel_fg overrides} -setup {
         ted create USAID BRIT
-        rel mutate create {id {USAID BRIT} rel 0.5}
-        rel mutate create {id {BRIT USAID} rel 0.5}
+        hrel mutate create {id {USAID BRIT} hrel 0.5}
+        hrel mutate create {id {BRIT USAID} hrel 0.5}
 
         set undo [orggroup mutate delete USAID]
     } -body {
         namespace eval :: $undo
 
-        rdb eval {SELECT f,g FROM rel_fg ORDER BY f,g}
+        rdb eval {SELECT f,g FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {BRIT USAID USAID BRIT}

@@ -118,16 +118,14 @@ proc mag+ {stops mag} {
 # g    Another group
 #
 # Returns the relationship of f with g.
-#
-# TBD: Needs to get data from uram_hrel.
 
 proc hrel.fg {f g} {
-    set rel [rdb eval {
-        SELECT rel FROM rel_view
+    set hrel [rdb eval {
+        SELECT hrel FROM uram_hrel
         WHERE f=$f AND g=$g
     }]
 
-    return $rel
+    return $hrel
 }
 
 # vrel.ga g a
