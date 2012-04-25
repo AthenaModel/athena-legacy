@@ -405,6 +405,25 @@ CREATE TEMPORARY VIEW gui_hrel_override_view AS
 SELECT * FROM gui_hrel_view
 WHERE override = 'Y';
 
+-- An vrel_view for use by the GUI
+CREATE TEMPORARY VIEW gui_vrel_view AS
+SELECT VV.g || ' ' || VV.a                           AS id,
+       VV.g                                          AS g,
+       VV.gtype                                      AS gtype,
+       VV.a                                          AS a,
+       format('%+4.1f', VV.vrel)                     AS vrel0,
+       format('%+4.1f', coalesce(UV.vrel, VV.vrel))  AS vrel,
+       format('%+4.1f', VV.vrel_nat)                 AS vrel_nat,
+       CASE WHEN override THEN 'Y' ELSE 'N' END      AS override
+FROM vrel_view AS VV
+LEFT OUTER JOIN uram_vrel AS UV USING (g, a);
+
+-- A gui_vrel_view subview, for overridden relationships only.
+CREATE TEMPORARY VIEW gui_vrel_override_view AS
+SELECT * FROM gui_vrel_view
+WHERE override = 'Y';
+
+
 -- A coop_fg view for use by the GUI:
 -- NOTE: presumes there is a single uram(n)!
 CREATE TEMPORARY VIEW gui_coop_fg AS

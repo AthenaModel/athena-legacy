@@ -60,6 +60,8 @@ snit::type engine {
     # LoadAram uram
     #
     # Loads scenario data into URAM when it's initialized.
+    #
+    # TBD: Set natural levels!
 
     typemethod LoadAram {uram} {
         $uram load causes {*}[ecause names]
@@ -95,12 +97,9 @@ snit::type engine {
             SELECT f, g, hrel FROM hrel_view
             ORDER BY f, g
         }]
-        # TBD: Set natural level
 
-        # TBD: vrels need additional work; for now, all 0.0.
         $uram load vrel {*}[rdb eval {
-            SELECT g, a, 0.0
-            FROM groups JOIN actors
+            SELECT g, a, vrel FROM vrel_view
             ORDER BY g, a
         }]
 
@@ -199,7 +198,7 @@ snit::type engine {
         profile nbstat analyze
         profile control_model analyze
         profile actsit assess
-        profile service assess attitudes
+        profile service assess
         profile aam assess
 
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {

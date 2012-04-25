@@ -54,6 +54,22 @@ namespace eval ::athena_test::tests:: {
 
     # Standard Magic Inputs
 
+    set hrelinput {
+        driver_id 1000
+        mode      transient
+        f         SHIA 
+        g         BLUE
+        mag       5 
+    }
+
+    set vrelinput {
+        driver_id 1000
+        mode      transient
+        g         SHIA 
+        a         JOE
+        mag       5 
+    }
+
     set satinput {
         driver_id 1000
         mode      transient
@@ -74,7 +90,7 @@ namespace eval ::athena_test::tests:: {
     proc lock {} {
         variable m1
 
-        ted create NB1 NB2 BLUE SHIA KURD
+        ted create JOE NB1 NB2 BLUE SHIA KURD
         ted order SIM:LOCK
         ted order MAD:CREATE $m1 ;# 1000
     }
@@ -357,6 +373,381 @@ driver_id dtype narrative     cause s   p   q
         {::rdb <mads_t> update 1000}
         {::rdb <drivers> update 1000}
     }
+
+    #-------------------------------------------------------------------
+    # MAD:HREL:ADJUST
+
+    test HREL:ADJUST-1.1 {required parms} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:HREL:ADJUST {}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {required value}
+        driver_id {required value}
+        delta {required value}
+    }
+    
+
+    test HREL:ADJUST-1.2 {invalid ID} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:HREL:ADJUST {
+            id {SHIA NONESUCH} driver_id 1000 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, KURD, SHIA}
+    }
+
+    test HREL:ADJUST-1.3 {f=g} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:HREL:ADJUST {
+            id {SHIA SHIA} driver_id 1000 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        id {A group's relationship with itself cannot be overridden.}
+    }
+
+
+    test HREL:ADJUST-1.4 {invalid MAD} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:HREL:ADJUST {
+            id {SHIA BLUE} driver_id NONESUCH delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test HREL:ADJUST-1.5 {invalid delta} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:HREL:ADJUST {
+            id {SHIA BLUE} driver_id 1000 delta NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        delta {invalid value "NONESUCH", expected double}
+    }
+
+
+    test HREL:ADJUST-2.1 {table monitor events} -setup {
+        lock
+    } -body {
+        ted notifier bind ::mad <Hrel>
+        ted order MAD:HREL:ADJUST {
+            id {SHIA BLUE} driver_id 1000 delta 5
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Hrel> update {SHIA BLUE}}
+    }
+
+
+    test HREL:ADJUST-3.1 {undo undoes the change} -setup {
+        lock
+
+        ted order MAD:HREL:ADJUST {
+            id {SHIA BLUE} driver_id 1000 delta 5
+        }
+    } -body {
+        ted notifier bind ::mad <Hrel>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Hrel> update {SHIA BLUE}}
+    }
+
+
+    #-------------------------------------------------------------------
+    # MAD:HREL:INPUT
+
+    test HREL:INPUT-1.1 {required parms}   -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:HREL:INPUT {}
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {required value}
+        mode {required value}
+        f {required value}
+        g {required value}
+        mag {required value}
+    }
+    
+    test HREL:INPUT-1.2 {invalid driver_id} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:HREL:INPUT \
+            [dict merge $hrelinput {driver_id NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test HREL:INPUT-1.3 {invalid mode} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:HREL:INPUT \
+            [dict merge $hrelinput {mode NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "nonesuch", should be one of: transient, persistent}
+    }
+
+    test HREL:INPUT-1.4 {invalid f} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:HREL:INPUT \
+            [dict merge $hrelinput {f NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Invalid group, should be one of: BLUE, KURD, SHIA}
+    }
+
+
+    test HREL:INPUT-1.5 {invalid g} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:HREL:INPUT \
+            [dict merge $hrelinput {g NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group, should be one of: BLUE, KURD, SHIA}
+    }
+
+    test HREL:INPUT-1.6 {f=g} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:HREL:INPUT \
+            [dict merge $hrelinput {g SHIA}]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Cannot change a group's relationship with itself.}
+    }
+
+    test HREL:INPUT-1.7 {invalid mag} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:HREL:INPUT \
+            [dict merge $hrelinput {mag NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        mag {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+    test HREL:INPUT-2.1 {Order is accepted} -setup {
+        lock
+    } -body {
+        ted schedule +1 MAD:HREL:INPUT $hrelinput
+        ted order SIM:RUN weeks 1 block yes
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # MAD:VREL:ADJUST
+
+    test VREL:ADJUST-1.1 {required parms} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:VREL:ADJUST {}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {required value}
+        driver_id {required value}
+        delta {required value}
+    }
+    
+
+    test VREL:ADJUST-1.2 {invalid g in ID} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:VREL:ADJUST {
+            id {NONESUCH JOE} driver_id 1000 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid group, should be one of: BLUE, KURD, SHIA}
+    }
+
+    test VREL:ADJUST-1.3 {invalid a in ID} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:VREL:ADJUST {
+            id {SHIA NONESUCH} driver_id 1000 delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid actor, should be one of: JOE}
+    }
+
+    test VREL:ADJUST-1.4 {invalid MAD} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:VREL:ADJUST {
+            id {SHIA JOE} driver_id NONESUCH delta 5
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test VREL:ADJUST-1.4 {invalid delta} -setup {
+        lock
+    } -body {
+        ted order -reject MAD:VREL:ADJUST {
+            id {SHIA JOE} driver_id 1000 delta NONESUCH
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+        delta {invalid value "NONESUCH", expected double}
+    }
+
+
+    test VREL:ADJUST-2.1 {table monitor events} -setup {
+        lock
+    } -body {
+        ted notifier bind ::mad <Vrel>
+        ted order MAD:VREL:ADJUST {
+            id {SHIA JOE} driver_id 1000 delta 5
+        }
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Vrel> update {SHIA JOE}}
+    }
+
+
+    test VREL:ADJUST-3.1 {undo undoes the change} -setup {
+        lock
+
+        ted order MAD:VREL:ADJUST {
+            id {SHIA JOE} driver_id 1000 delta 5
+        }
+    } -body {
+        ted notifier bind ::mad <Vrel>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Vrel> update {SHIA JOE}}
+    }
+
+
+    #-------------------------------------------------------------------
+    # MAD:VREL:INPUT
+
+    test VREL:INPUT-1.1 {required parms}   -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:VREL:INPUT {}
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {required value}
+        mode {required value}
+        g {required value}
+        a {required value}
+        mag {required value}
+    }
+    
+    test VREL:INPUT-1.2 {invalid driver_id} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:VREL:INPUT \
+            [dict merge $vrelinput {driver_id NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        driver_id {MAD does not exist: "NONESUCH"}
+    }
+
+
+    test VREL:INPUT-1.3 {invalid mode} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:VREL:INPUT \
+            [dict merge $vrelinput {mode NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "nonesuch", should be one of: transient, persistent}
+    }
+
+    test VREL:INPUT-1.4 {invalid f} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:VREL:INPUT \
+            [dict merge $vrelinput {g NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        g {Invalid group, should be one of: BLUE, KURD, SHIA}
+    }
+
+
+    test VREL:INPUT-1.5 {invalid a} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:VREL:INPUT \
+            [dict merge $vrelinput {a NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Invalid actor, should be one of: JOE}
+    }
+
+    test VREL:INPUT-1.6 {invalid mag} -setup {
+        lock
+    } -body {
+        ted schedule -reject +1 MAD:VREL:INPUT \
+            [dict merge $vrelinput {mag NONESUCH}]
+    } -cleanup {
+        cleanup
+    } -result {
+        mag {invalid value "NONESUCH", should be a real number, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+    test VREL:INPUT-2.1 {Order is accepted} -setup {
+        lock
+    } -body {
+        ted schedule +1 MAD:VREL:INPUT $vrelinput
+        ted order SIM:RUN weeks 1 block yes
+    } -cleanup {
+        cleanup
+    } -result {}
 
 
     #-------------------------------------------------------------------

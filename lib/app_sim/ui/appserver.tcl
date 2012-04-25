@@ -1797,7 +1797,7 @@ snit::type appserver {
                 set vrel_c -1.0
             } else {
                 set vrel_c [rdb onecolumn {
-                    SELECT vrel FROM vrel_ga
+                    SELECT vrel FROM gui_vrel_view
                     WHERE g=$g AND a=$controller
                 }]
 
@@ -1810,7 +1810,7 @@ snit::type appserver {
             }
 
             rdb eval {
-                SELECT a,vrel FROM vrel_ga
+                SELECT a,vrel FROM gui_vrel_view
                 WHERE g=$g
                 ORDER BY vrel DESC
                 LIMIT 1
@@ -1854,7 +1854,7 @@ snit::type appserver {
                                                    AS 'Direct<br>Support',
                        format('%.2f',S.support)    AS 'Actual<br>Support',
                        format('%.2f',S.influence)  AS 'Contributed<br>Influence'
-                FROM vrel_ga AS V 
+                FROM gui_vrel_view AS V 
                 JOIN support_nga AS S USING (g,a)
                 JOIN gui_actors AS A USING (a)
                 WHERE V.g=$g
@@ -2255,7 +2255,7 @@ snit::type appserver {
                         ELSE qmag('name',V.dv_mood) END,
                    CASE WHEN V.dv_eni == 0.0 THEN '0'
                         ELSE qmag('name',V.dv_eni) END
-            FROM vrel_ga AS V
+            FROM gui_vrel_view AS V
             JOIN gui_actors AS A USING (a)
             JOIN bvrel_tga AS B ON (B.t=V.bvt AND B.g=V.g AND B.a=V.a)
             WHERE V.g=$g
@@ -2366,7 +2366,7 @@ snit::type appserver {
         ht query {
             SELECT A.link,
                    qaffinity('format',V.vrel)
-            FROM vrel_ga AS V
+            FROM gui_vrel_view AS V
             JOIN gui_actors AS A USING (a)
             WHERE V.g=$g
             ORDER BY V.vrel DESC

@@ -139,7 +139,7 @@ snit::type hist {
             rdb eval {
                 INSERT INTO hist_vrel
                 SELECT now(), g, a, vrel
-                FROM vrel_ga;
+                FROM uram_vrel;
             }
         }
     }

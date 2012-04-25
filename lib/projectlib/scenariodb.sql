@@ -356,56 +356,6 @@ FROM orggroups JOIN groups USING (g);
 ------------------------------------------------------------------------
 -- Support/Control tables
 
--- vrel_ga table: Vertical relationships between groups and actors.
---
--- Note: We don't cascade deletions, as this table is populated only 
--- during simulation, when actors and groups aren't being deleted.
-
-CREATE TABLE vrel_ga (
-    -- Symbolic group name
-    g           TEXT REFERENCES groups(g)
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Symbolic actor name
-    a           TEXT REFERENCES actors(a)
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Tick of bvrel_tga entry used to compute vrel
-    bvt         INTEGER DEFAULT 0,
-
-    -- Vertical Relationship of g with a
-    vrel        REAL DEFAULT 0.0,
-
-    -- Deltas to vrel.
-    dv_mood     REAL DEFAULT 0.0, -- deltaV due to group mood
-    dv_eni      REAL DEFAULT 0.0, -- deltaV due to ENI services
-
-    PRIMARY KEY (g, a)
-);
-
--- bvrel_tga table: Base vertical relationships at transition points.
-
-CREATE TABLE bvrel_tga (
-    -- Time of shift of control in g's neighborhood
-    t                 INTEGER,
-
-    -- Symbolic group name
-    g           TEXT REFERENCES groups(g)
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Symbolic actor name
-    a           TEXT REFERENCES actors(a)
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Base Vertical Relationship of g with a
-    bvrel       REAL DEFAULT 0.0,
-
-    -- Delta due to change of control: qmag(n) symbol, or 0
-    dv_control  TEXT DEFAULT '0',
-
-    PRIMARY KEY (t, g, a)
-);
-
 -- supports_na table: Actor supported by Actor a in n.
 
 CREATE TABLE supports_na (
@@ -919,7 +869,7 @@ CREATE TABLE sat_gc (
 
 
 ------------------------------------------------------------------------
--- Initial Relationship Data
+-- Initial Horizontal Relationship Data
 
 -- hrel_fg: Normally, an initial horizontal relationship is the affinity
 -- between the two groups; however, this can be overridden.  This
@@ -947,7 +897,7 @@ CREATE TABLE hrel_fg (
 );
 
 ------------------------------------------------------------------------
--- Relationship View
+-- Horizontal Relationship View
 
 -- This view computes the initial horizontal relationship for each pair 
 -- of groups.  The initial relationship, hrel, defaults to the affinity
@@ -987,6 +937,63 @@ FROM groups AS F
 JOIN groups AS G
 JOIN mam_affinity AS A ON (A.f = F.rel_entity AND A.g = G.rel_entity)
 LEFT OUTER JOIN hrel_fg AS R ON (R.f = F.g AND R.g = G.g);
+
+------------------------------------------------------------------------
+-- Initial Vertical Relationship Data
+
+-- vrel_ga: Normally, an initial vertical relationship is the affinity
+-- between the group and the actor (unless the actor owns the group); 
+-- however, this can be overridden.  This table contains the
+-- overrides.  See vrel_view for the full set of data,  
+-- and uram_vrel for the current relationships.
+--
+-- Thus vrel is group g's initial relationship with actor a.
+
+CREATE TABLE vrel_ga (
+    -- Symbolic group name: group g
+    g    TEXT REFERENCES groups(g)
+         ON DELETE CASCADE
+         DEFERRABLE INITIALLY DEFERRED,
+
+    -- Symbolic group name: actor a
+    a    TEXT REFERENCES actors(a)
+         ON DELETE CASCADE
+         DEFERRABLE INITIALLY DEFERRED,
+
+    -- Initial vertical relationship
+    vrel DOUBLE DEFAULT 0.0,
+
+    PRIMARY KEY (g, a)
+);
+
+------------------------------------------------------------------------
+-- Vertical Relationship View
+
+-- This view computes the initial vertical relationships for each group
+-- and actor.  The initial relationship, vrel, defaults to the affinity
+-- between the relationship entities, and can be explicitly 
+-- overridden in the vrel_ga table.  The natural level, vrel_nat, is
+-- just the affinity.  Note that the relationship of a group with
+-- its owning actor defaults to 1.0.
+
+CREATE VIEW vrel_view AS
+SELECT G.g                                          AS g,
+       G.gtype                                      AS gtype,
+       A.a                                          AS a,
+       -- Assume that actor A owns G if A is G's rel_entity.
+       CASE WHEN G.rel_entity = A.a
+            THEN 1.0
+            ELSE AF.affinity END                    AS vrel_nat,
+       CASE WHEN G.rel_entity = A.a
+            THEN coalesce(V.vrel, 1.0)
+            ELSE coalesce(V.vrel, AF.affinity) END  AS vrel,
+       CASE WHEN V.vrel IS NOT NULL 
+            THEN 1
+            ELSE 0 END                              AS override
+FROM groups AS G
+JOIN actors AS A
+JOIN mam_affinity AS AF ON (AF.f = G.rel_entity AND AF.g = A.a)
+LEFT OUTER JOIN vrel_ga AS V ON (V.g = G.g AND V.a = A.a);
 
 
 ------------------------------------------------------------------------

@@ -63,6 +63,7 @@ snit::type ted {
         sqdeploy_ng
         tactics
         units
+        vrel_ga
         working_cash
         working_personnel
         working_deployment

@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-RELATIONSHIP.test
+#    020-HREL.test
 #
 # AUTHOR:
 #    Will Duquette
@@ -9,7 +9,7 @@
 # DESCRIPTION:
 #    app_sim(1) HREL:* order tests.
 #
-#    This test suite tests the relationship-related orders.
+#    This test suite tests the horizontal relationship-related orders.
 #
 #-----------------------------------------------------------------------
 

@@ -172,10 +172,10 @@ snit::type ::projectlib::typewrapper {
 
 # DAM Rules
 ::marsutil::enum ::projectlib::edamrule {
-    ADJUST-1-1    "Magic Satisfaction Adjustment"
-    ADJUST-1-2    "Magic Satisfaction Set"
-    ADJUST-2-1    "Magic Cooperation Adjustment"
-    ADJUST-2-2    "Magic Cooperation Set"
+    ADJUST-1-1    "Magic Horizontal Relationship Baseline Adjustment"
+    ADJUST-2-1    "Magic Vertical Relationship Baseline Adjustment"
+    ADJUST-3-1    "Magic Satisfaction Baseline Adjustment"
+    ADJUST-4-1    "Magic Cooperation Baseline Adjustment"
 
     BADFOOD-1-1   "Food supply begins to be contaminated"
     BADFOOD-1-2   "Food supply continues to be contaminated"
@@ -261,8 +261,10 @@ snit::type ::projectlib::typewrapper {
     INDSPILL-1-2  "Industrial spill has not been cleaned up"
     INDSPILL-2-1  "Industrial spill is cleaned up by locals"
 
-    MAGIC-1-1     "Magic Satisfaction Input"
-    MAGIC-2-1     "Magic Cooperation Input"
+    MAGIC-1-1     "Magic Horizontal Relationship Input"
+    MAGIC-2-1     "Magic Vertical Relationship Input"
+    MAGIC-3-1     "Magic Satisfaction Input"
+    MAGIC-4-1     "Magic Cooperation Input"
 
     MINEFIELD-1-1 "Minefield is placed"
     MINEFIELD-1-2 "Minefield remains"

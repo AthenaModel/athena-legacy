@@ -291,23 +291,29 @@ snit::type service {
     # Assessment
     #
     # This section contains the code to compute each actor's credit
-    # wrt each group, and the deltaV.eni.ga
-    #
-    # This is separate from the LOS code because it needs to be computed
-    # as part of V.ga by control(sim).
+    # wrt each group, and the resulting attitude effects.
 
-    # assess deltav
+    # assess
     #
-    # Compute each actor's service_ga.credit in service_ga, and set 
-    # vrel_ga.dv_eni
+    # Calls the ENI rule set to assess the attitude implications for
+    # each group.
 
-    typemethod {assess deltav} {} {
+    typemethod {assess} {} {
         # FIRST, compute each actor's credit.
         $type ComputeCredit
 
-        # NEXT, compute dv_eni
-        $type ComputeDV_eni
+        # NEXT, call the ENI rule et.
+        rdb eval {
+            SELECT * FROM civgroups 
+            JOIN service_g USING (g)
+            ORDER BY g
+        } gdata {
+            unset -nocomplain gdata(*)
+
+            service_rules monitor [array get gdata]
+        }
     }
+
 
     # ComputeCredit
     #
@@ -438,23 +444,6 @@ snit::type service {
                 SET dv_eni=$dv_eni
                 WHERE g=$g AND a=$a
             }
-        }
-    }
-
-    # assess attitudes
-    #
-    # Calls the ENI rule set to assess the attitude implications for
-    # each group.
-
-    typemethod {assess attitudes} {} {
-        rdb eval {
-            SELECT * FROM civgroups 
-            JOIN service_g USING (g)
-            ORDER BY g
-        } gdata {
-            unset -nocomplain gdata(*)
-
-            service_rules monitor [array get gdata]
         }
     }
 

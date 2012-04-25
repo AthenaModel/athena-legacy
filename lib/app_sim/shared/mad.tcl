@@ -213,6 +213,212 @@ snit::type mad {
     }
 
 
+    # mutate hreladjust parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    id               list {f g}
+    #    driver_id        MAD ID
+    #    delta            Delta to the baseline, a floating point value.
+    #
+    # Adjusts an hrel curve's baseline by a delta given the parms, 
+    # which are presumed to be valid.
+
+    typemethod {mutate hreladjust} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            lassign $id f g
+
+            # FIRST, get the narrative text
+            set narrative [driver narrative get $driver_id]
+
+            # NEXT, Adjust the baseline
+            aram edit mark
+            aram hrel badjust $driver_id $f $g $delta
+            driver inputs incr $driver_id
+
+            # NEXT, send ADJUST-1-1 report
+            set text [edamrule longname ADJUST-1-1]
+            append text "\n\n"
+
+            set fmt "%-22s %s\n"
+
+            append text [format $fmt "Magic Attitude Driver:" $driver_id]
+            append text [format $fmt "Narrative:"             $narrative]
+            append text [format $fmt "Group F:"               $f]
+            append text [format $fmt "Group G:"               $g]
+
+            set deltaText [format "%.3f" $delta]
+            append text [format $fmt "Delta:"                 $deltaText]
+
+            set reportid \
+                [firings save \
+                     -rtype   DAM                                          \
+                     -subtype ADJUST                                       \
+                     -meta1   ADJUST-1-1                                   \
+                     -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
+                     -text    $text]
+
+            # NEXT, notify application
+            notifier send ::mad <Hrel> update $id
+
+            # NEXT, Return the undo command
+            return [mytypemethod UndoAdjust $driver_id $reportid <Hrel> $id]
+        }
+    }
+
+    # mutate hrelinput parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    driver_id  - The MAD ID
+    #    mode       - An einputmode value
+    #    f          - A Group
+    #    g          - Another Group
+    #    mag        - A qmag(n) value
+    #
+    # Makes the MAGIC-1-1 rule fire for the given input.
+    
+    typemethod {mutate hrelinput} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the Driver Data
+            rdb eval {
+                SELECT narrative, cause FROM mads 
+                WHERE driver_id=$driver_id
+            } {}
+
+            # NEXT, get the cause.  Passing "" will cause URAM to 
+            # use the numeric driver ID as the numeric cause ID.
+            if {$cause eq "UNIQUE"} {
+                set cause ""
+            }
+
+            dam ruleset MAGIC $driver_id \
+                -cause $cause
+
+            dam detail "Magic Attitude Driver:" $driver_id
+            dam detail "Narrative:"             $narrative
+            dam detail "Group F:"               $f
+            dam detail "Group G:"               $g
+
+            if {$mode eq "persistent"} {
+                set mode P
+            } else {
+                set mode T
+            }
+
+            dam rule MAGIC-1-1 {1} {
+                dam hrel $mode $f $g $mag
+            }
+        }
+
+        # NEXT, cannot be undone.
+        return
+    }
+
+    # mutate vreladjust parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    id               list {g a}
+    #    driver_id        MAD ID
+    #    delta            Delta to the baseline, a floating point value.
+    #
+    # Adjusts an vrel curve's baseline by a delta given the parms, 
+    # which are presumed to be valid.
+
+    typemethod {mutate vreladjust} {parmdict} {
+        # FIRST, use the dict
+        dict with parmdict {
+            lassign $id g a
+
+            # FIRST, get the narrative text
+            set narrative [driver narrative get $driver_id]
+
+            # NEXT, Adjust the baseline
+            aram edit mark
+            aram vrel badjust $driver_id $g $a $delta
+            driver inputs incr $driver_id
+
+            # NEXT, send ADJUST-2-1 report
+            set text [edamrule longname ADJUST-2-1]
+            append text "\n\n"
+
+            set fmt "%-22s %s\n"
+
+            append text [format $fmt "Magic Attitude Driver:" $driver_id]
+            append text [format $fmt "Narrative:"             $narrative]
+            append text [format $fmt "Group:"                 $g]
+            append text [format $fmt "Actor:"                 $a]
+
+            set deltaText [format "%.3f" $delta]
+            append text [format $fmt "Delta:"                 $deltaText]
+
+            set reportid \
+                [firings save \
+                     -rtype   DAM                                          \
+                     -subtype ADJUST                                       \
+                     -meta1   ADJUST-2-1                                   \
+                     -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
+                     -text    $text]
+
+            # NEXT, notify application
+            notifier send ::mad <Vrel> update $id
+
+            # NEXT, Return the undo command
+            return [mytypemethod UndoAdjust $driver_id $reportid <Vrel> $id]
+        }
+    }
+
+    # mutate vrelinput parmdict
+    #
+    # parmdict    A dictionary of order parameters
+    #
+    #    driver_id  - The MAD ID
+    #    mode       - An einputmode value
+    #    g          - A group
+    #    a          - An actor
+    #    mag        - A qmag(n) value
+    #
+    # Makes the MAGIC-2-1 rule fire for the given input.
+    
+    typemethod {mutate vrelinput} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the Driver Data
+            rdb eval {
+                SELECT narrative, cause FROM mads 
+                WHERE driver_id=$driver_id
+            } {}
+
+            # NEXT, get the cause.  Passing "" will cause URAM to 
+            # use the numeric driver ID as the numeric cause ID.
+            if {$cause eq "UNIQUE"} {
+                set cause ""
+            }
+
+            dam ruleset MAGIC $driver_id \
+                -cause $cause
+
+            dam detail "Magic Attitude Driver:" $driver_id
+            dam detail "Narrative:"             $narrative
+            dam detail "Group:"                 $g
+            dam detail "Actor:"                 $a
+
+            if {$mode eq "persistent"} {
+                set mode P
+            } else {
+                set mode T
+            }
+
+            dam rule MAGIC-2-1 {1} {
+                dam vrel $mode $g $a $mag
+            }
+        }
+
+        # NEXT, cannot be undone.
+        return
+    }
+
     # mutate satadjust parmdict
     #
     # parmdict    A dictionary of order parameters
@@ -238,8 +444,8 @@ snit::type mad {
             aram sat badjust $driver_id $g $c $delta
             driver inputs incr $driver_id
 
-            # NEXT, send ADJUST-1-1 report
-            set text [edamrule longname ADJUST-1-1]
+            # NEXT, send ADJUST-3-1 report
+            set text [edamrule longname ADJUST-3-1]
             append text "\n\n"
 
             set fmt "%-22s %s\n"
@@ -257,8 +463,8 @@ snit::type mad {
                 [firings save \
                      -rtype   DAM                                          \
                      -subtype ADJUST                                       \
-                     -meta1   ADJUST-1-1                                   \
-                     -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
+                     -meta1   ADJUST-3-1                                   \
+                     -title   "ADJUST-3-1: [edamrule longname ADJUST-3-1]" \
                      -text    $text]
 
             # NEXT, notify application
@@ -279,7 +485,7 @@ snit::type mad {
     #    c          - Concern
     #    mag        - A qmag(n) value
     #
-    # Makes the MAGIC-1-1 rule fire for the given input.
+    # Makes the MAGIC-3-1 rule fire for the given input.
     
     typemethod {mutate satinput} {parmdict} {
         dict with parmdict {
@@ -306,6 +512,8 @@ snit::type mad {
             dam detail "Magic Attitude Driver:" $driver_id
             dam detail "Narrative:"             $narrative
             dam detail "In Neighborhood:"       $n
+            dam detail "Civilian Group:"        $g
+            dam detail "Concern:"               $c
 
             if {$mode eq "persistent"} {
                 set mode P
@@ -313,7 +521,7 @@ snit::type mad {
                 set mode T
             }
 
-            dam rule MAGIC-1-1 {1} {
+            dam rule MAGIC-3-1 {1} {
                 dam sat $mode $g $c $mag
             }
         }
@@ -347,8 +555,8 @@ snit::type mad {
             aram coop badjust $driver_id $f $g $delta
             driver inputs incr $driver_id
 
-            # NEXT, send ADJUST-2-1 report
-            set text [edamrule longname ADJUST-2-1]
+            # NEXT, send ADJUST-4-1 report
+            set text [edamrule longname ADJUST-4-1]
             append text "\n\n"
 
             set fmt "%-22s %s\n"
@@ -366,8 +574,8 @@ snit::type mad {
                 [firings save \
                      -rtype   DAM                                          \
                      -subtype ADJUST                                       \
-                     -meta1   ADJUST-2-1                                   \
-                     -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
+                     -meta1   ADJUST-4-1                                   \
+                     -title   "ADJUST-4-1: [edamrule longname ADJUST-4-1]" \
                      -text    $text]
 
             # NEXT, notify application
@@ -388,7 +596,7 @@ snit::type mad {
     #    g          - Force Group
     #    mag        - A qmag(n) value
     #
-    # Makes the MAGIC-2-1 rule fire for the given input.
+    # Makes the MAGIC-4-1 rule fire for the given input.
     
     typemethod {mutate coopinput} {parmdict} {
         dict with parmdict {
@@ -415,6 +623,8 @@ snit::type mad {
             dam detail "Magic Attitude Driver:" $driver_id
             dam detail "Narrative:"             $narrative
             dam detail "In Neighborhood:"       $n
+            dam detail "Civilian Group:"        $f
+            dam detail "Force Group:"           $g
 
             if {$mode eq "persistent"} {
                 set mode P
@@ -422,7 +632,7 @@ snit::type mad {
                 set mode T
             }
 
-            dam rule MAGIC-2-1 {1} {
+            dam rule MAGIC-4-1 {1} {
                 dam coop $mode $f $g $mag
             }
         }
@@ -570,6 +780,142 @@ order define MAD:UPDATE {
     lappend undo [mad mutate update [array get parms]]
 
     setundo [join $undo \n]
+}
+
+# MAD:HREL:ADJUST
+#
+# Adjusts a horizontal relationship curve's baseline by some delta.
+
+order define MAD:HREL:ADJUST {
+    title "Magic Adjust Horizontal Relationship Baseline"
+    options \
+        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}
+
+    parm id        key   "Curve"     -table    gui_hrel_view   \
+                                     -keys     {f g}           \
+                                     -labels   {"Of" "With"}
+    parm driver_id key   "MAD ID"    -table    gui_mads        \
+                                     -keys     driver_id       \
+                                     -dispcols longid
+    parm delta     text  "Delta"
+} {
+    # FIRST, prepare the parameters
+    prepare id        -toupper -required -type hrel
+    prepare driver_id          -required -type mad
+    prepare delta     -toupper -required -type snit::double
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    setundo [mad mutate hreladjust [array get parms]]
+}
+
+# MAD:HREL:INPUT
+#
+# Enters a magic horizontal relationship input.
+
+order define MAD:HREL:INPUT {
+    title "Magic Horizontal Relationship Input"
+    options \
+        -sendstates     {TACTIC}             \
+        -schedulestates {PREP PAUSED TACTIC}
+
+    parm driver_id key   "MAD ID"              -table       gui_mads   \
+                                               -keys        driver_id  \
+                                               -dispcols    longid
+    parm mode      enum  "Mode"                -enumtype    einputmode \
+                                               -displaylong yes        \
+                                               -defval      transient
+    parm f         enum  "Of Group"            -enumtype group
+    parm g         enum  "With Group"          -enumtype group
+    parm mag       text  "Magnitude"
+} {
+    # FIRST, prepare the parameters
+    prepare driver_id          -required -type mad
+    prepare mode      -tolower -required -type einputmode
+    prepare f         -toupper -required -type group
+    prepare g         -toupper -required -type group
+    prepare mag       -toupper -required -type qmag -xform [list qmag value]
+
+    returnOnError
+
+    validate g {
+        if {$parms(g) eq $parms(f)} {
+            reject g "Cannot change a group's relationship with itself."
+        }
+    }
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    mad mutate hrelinput [array get parms]
+
+    return
+}
+
+# MAD:VREL:ADJUST
+#
+# Adjusts a vertical relationship curve's baseline by some delta.
+
+order define MAD:VREL:ADJUST {
+    title "Magic Adjust Vertical Relationship Baseline"
+    options \
+        -sendstates     {PAUSED TACTIC}         \
+        -schedulestates {PREP PAUSED TACTIC}
+
+    parm id        key   "Curve"     -table    gui_vrel_view   \
+                                     -keys     {g a}           \
+                                     -labels   {"Of" "With"}
+    parm driver_id key   "MAD ID"    -table    gui_mads        \
+                                     -keys     driver_id       \
+                                     -dispcols longid
+    parm delta     text  "Delta"
+} {
+    # FIRST, prepare the parameters
+    prepare id        -toupper -required -type vrel
+    prepare driver_id          -required -type mad
+    prepare delta     -toupper -required -type snit::double
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    setundo [mad mutate vreladjust [array get parms]]
+}
+
+# MAD:VREL:INPUT
+#
+# Enters a magic vertical relationship input.
+
+order define MAD:VREL:INPUT {
+    title "Magic Vertical Relationship Input"
+    options \
+        -sendstates     {TACTIC}             \
+        -schedulestates {PREP PAUSED TACTIC}
+
+    parm driver_id key   "MAD ID"              -table       gui_mads   \
+                                               -keys        driver_id  \
+                                               -dispcols    longid
+    parm mode      enum  "Mode"                -enumtype    einputmode \
+                                               -displaylong yes        \
+                                               -defval      transient
+    parm g         enum  "Of Group"            -enumtype group
+    parm a         enum  "With Actor"          -enumtype actor
+    parm mag       text  "Magnitude"
+} {
+    # FIRST, prepare the parameters
+    prepare driver_id          -required -type mad
+    prepare mode      -tolower -required -type einputmode
+    prepare g         -toupper -required -type group
+    prepare a         -toupper -required -type actor
+    prepare mag       -toupper -required -type qmag -xform [list qmag value]
+
+    returnOnError -final
+
+    # NEXT, modify the curve
+    mad mutate vrelinput [array get parms]
+
+    return
 }
 
 # MAD:SAT:ADJUST

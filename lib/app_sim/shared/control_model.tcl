@@ -95,7 +95,6 @@ snit::type control_model {
 
         # FIRST, initialize the control tables
         $type PopulateNbhoodControl
-        $type PopulateVerticalRelationships
         $type PopulateActorSupports
         $type PopulateActorInfluence
 
@@ -113,57 +112,6 @@ snit::type control_model {
         rdb eval {
             INSERT INTO control_n(n, controller, since)
             SELECT n, controller, 0 FROM nbhoods
-        }
-    }
-
-    # PopulateVerticalRelationships
-    #
-    # Populates the vrel_ga table for all groups and actors.
-    #
-    # For FRC and ORG groups, the vrel is 1.0 when a is their owning actor,
-    # and the affinity of their owning actor for a otherwise.
-    #
-    # For CIV groups, the initial vrel is their affinity for the actor,
-    # plus a delta based on the provision of ENI services.
-
-    typemethod PopulateVerticalRelationships {} {
-        # FIRST, initialize vrel_ga with the affinities, or 1.0 for
-        # FRC/ORG groups with their rel_entity.
-        rdb eval {
-            INSERT INTO vrel_ga(g, a, vrel)
-            SELECT G.g                             AS g,
-                   A.a                             AS a, 
-                   CASE WHEN G.rel_entity = A.a 
-                   THEN 1.0 ELSE V.affinity END    AS vrel
-            FROM groups       AS G
-            JOIN actors       AS A
-            JOIN mam_affinity AS V
-            ON (V.f=G.rel_entity AND V.g=A.a);
-        }
-
-        # NEXT, for civilian groups set bvrel(0).  It's just
-        # the affinity.
-        rdb eval {
-            INSERT INTO bvrel_tga(t, g, a, bvrel)
-            SELECT 0, g, a, vrel FROM vrel_ga;
-        }
-
-
-        # NEXT, Compute the status quo vrel for civilian groups
-        # by adding deltaV.eni(0)
-        service assess deltav
-
-        foreach {g a vrel dv_eni} [rdb eval {
-            SELECT g, a, vrel, dv_eni
-            FROM vrel_ga
-        }] {
-            let vrel [scale $vrel $dv_eni]
-
-            rdb eval {
-                UPDATE vrel_ga
-                SET vrel = $vrel
-                WHERE g=$g AND a=$a
-            }
         }
     }
 
@@ -201,78 +149,24 @@ snit::type control_model {
     #-------------------------------------------------------------------
     # Analysis
     #
-    # These routines are called to determine vertical relationships and
-    # the support and influence of every actor in every neighborhood.
+    # These routines are called to determine the support and influence 
+    # of every actor in every neighborhood.
 
     # analyze
     #
-    # Update vrel and influence.
+    # Update influence.
 
     typemethod analyze {} {
-        # FIRST, update vertical relationships based on current
-        # circumstances.
-        $type ComputeVerticalRelationships
-
-        # NEXT, Compute each actor's influence in each neighborhood.
+        # FIRST, Compute each actor's support and influence in each 
+        # neighborhood.
         $type ComputeActorInfluence
     }
-
-    # ComputeVerticalRelationships
-    #
-    # Computes the vertical relationships between each civilian 
-    # group and each actor.  (The FRC and ORG group vrel's don't
-    # currently change over time.)
-    #
-    # vrel.ga = bvrel.ga 
-    #         + deltaV.mood              <== Implemented
-    #         + deltaV.eni               <== Implemented
-    #         + deltaV.beliefs           <== Not yet modeled
-    #         + deltaV.tactics           <== Not yet modeled
-    #
-    # First the deltaV's are computed; then all the deltaVs are 
-    # applied at once.
-    
-    typemethod ComputeVerticalRelationships {} {
-        # FIRST, Compute deltaV.mood and deltaV.eni
-        $type ComputeDV_mood
-        service assess deltav
-
-        # NEXT, update vrel.
-        foreach {g a dv_mood dv_eni bvrel bvt} [rdb eval {
-            SELECT V.g                               AS g,
-                   V.a                               AS a,
-                   V.dv_mood                         AS dv_mood,
-                   V.dv_eni                          AS dv_eni,
-                   B.bvrel                           AS bvrel,
-                   B.t                               AS bvt
-            FROM vrel_ga   AS V
-            JOIN civgroups AS G  USING (g)
-            JOIN control_n AS C  ON (C.n = G.n)
-            JOIN bvrel_tga AS B  ON (B.t = C.since AND B.g = V.g AND B.a = V.a)
-        }] {
-
-            # NEXT, accumulate, scale,and apply the deltaV's.
-            let vrel [scale $bvrel $dv_mood $dv_eni]
-
-            rdb eval {
-                UPDATE vrel_ga
-                SET vrel    = $vrel,
-                    bvt     = $bvt
-                WHERE g=$g AND a=$a
-            }
-
-            log detail control \
-                [format "vrel(%s,%s)=%.3f; bv=%.3f, dv_mood=%s dv_eni=%s " \
-                     $g $a $vrel $bvrel   \
-                     [qmag name $dv_mood] \
-                     [qmag name $dv_eni]]
-        }
-    }
-
 
     # ComputeDV_mood
     #
     # Computes the vrel_ga.dv_mood for all g,a
+    #
+    # TBD: Needs to be a rule set
     
     typemethod ComputeDV_mood {} {
         # FIRST, get model parameters
@@ -351,9 +245,9 @@ snit::type control_model {
                    NG.security,
                    A.a,
                    V.vrel
-            FROM force_ng AS NG
-            JOIN actors   AS A
-            JOIN vrel_ga  AS V ON (V.g=NG.g AND V.a=A.a)
+            FROM force_ng  AS NG
+            JOIN actors    AS A
+            JOIN uram_vrel AS V ON (V.g=NG.g AND V.a=A.a)
             WHERE NG.personnel > 0
         }] {
             set factor [zcurve eval $Zsecurity $security]
@@ -573,44 +467,70 @@ snit::type control_model {
             WHERE n=$n;
         }
 
-        # NEXT, recompute bvrel.ga for all CIV groups that reside
+        if 0 {
+        # NEXT, set the baseline VREL for all CIV groups that reside
         # in n.
+        #
+        # TBD: This has two components: the shift in the baseline to
+        # the current level, and then a persistent input which
+        # should be handled in the CONTROL rule set.
+
+            # TBD: Remove this old code when the new code is done.
+            foreach {g a vrel} [rdb eval {
+                SELECT V.g,
+                V.a,
+                V.vrel
+                FROM vrel_ga AS V
+                JOIN civgroups AS C USING (g)
+                WHERE C.n=$n
+            }] {
+                set vsym [qaffinity name $vrel]
+                
+                if {$a eq $cNew} {
+                    set change 1
+                } elseif {$a eq $cOld} {
+                    set change -1
+                } else {
+                    set change 0
+                }
+
+                set mag   $controlTable($vsym,$change)
+                set delta [qmag value $mag]
+
+                set bvrel [scale $vrel $delta]
+                log detail control_model "bvrel.$g,$a = $bvrel ($vrel + $mag)"
+
+                rdb eval {
+                    INSERT INTO bvrel_tga(t, g, a, bvrel,dv_control)
+                    VALUES(now(), $g, $a, $bvrel, $mag)
+                }
+            }
+        }
+
+        # NEXT, Get a driver ID for this event.
+        set driver_id [driver create CONTROL \
+                           "Shift in control of nbhood $n"]
+
+        # NEXT, set the vrel baseline to the current level for 
+        # all civ groups in n.
         foreach {g a vrel} [rdb eval {
             SELECT V.g,
-                   V.a,
-                   V.vrel
-            FROM vrel_ga AS V
+            V.a,
+            V.vrel
+            FROM uram_vrel AS V
             JOIN civgroups AS C USING (g)
             WHERE C.n=$n
         }] {
-            set vsym [qaffinity name $vrel]
-            
-            if {$a eq $cNew} {
-                set change 1
-            } elseif {$a eq $cOld} {
-                set change -1
-            } else {
-                set change 0
-            }
-
-            set mag   $controlTable($vsym,$change)
-            set delta [qmag value $mag]
-
-            set bvrel [scale $vrel $delta]
-            log detail control_model "bvrel.$g,$a = $bvrel ($vrel + $mag)"
-
-            rdb eval {
-                INSERT INTO bvrel_tga(t, g, a, bvrel,dv_control)
-                VALUES(now(), $g, $a, $bvrel, $mag)
-            }
+            # TBD: We might want a routine to do this in bulk.
+            aram vrel bset $driver_id $g $a $vrel
         }
-        
+
+
         # NEXT, invoke the CONTROL rule set for this transition.
         dict set rdict n $n
         dict set rdict a $cOld
         dict set rdict b $cNew
-        dict set rdict driver_id [driver create CONTROL \
-                                      "Shift in control of nbhood $n"]
+        dict set rdict driver_id $driver_id
 
         control_rules analyze $rdict
     }

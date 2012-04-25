@@ -1343,6 +1343,14 @@ macro MAD.mad {} {
     the change will be attributed.
 }
 
+macro MAD.mode {} {
+    |<--
+    The mode, <b>persistent</b> or <b>transient</b>.  Transient inputs
+    affect the current level of the curve during the next time step; 
+    persistent inputs affect the curve's baseline, and hence usually 
+    persistent during subsequent weeks.
+}
+
 macro MAD.mag {} {
     |<--
     The magnitude of the input in points, expressed as a real
@@ -1476,6 +1484,160 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
 
 
 #=======================================================================
+# Magic Horizontal Relationship Orders
+
+page /order/mad hrel "Magic Horizontal Relationship Orders" {
+    <<title>>
+
+    These orders are used to adjust and otherwise influence 
+    horizontal relationship levels.  All such changes are attributes to
+    some Magic Attitude Driver (MAD).<p>
+
+    The following orders are available:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:HREL:ADJUST "Magic Adjust Horizontal Relationship Baseline" {
+    <<parmlist>>
+    
+    <<parm id "Curve">>
+    <b>Required.</b>  A horizontal relationship curve ID, which is a list 
+    {<i>f g</i>} where <i>f</i> and <i>g</i> are two different groups.
+    <</parm>>
+
+    <<parm driver_id "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm delta "Delta">>
+    <b>Required.</b>  The magnitude of the change, expressed as a real
+    number.
+    <</parm>>
+    <</parmlist>>
+
+    Adjusts the value of the specified horizontal relationship curve's 
+    baseline
+    by the specified amount, clamping the curve's value to the range 0.0,
+    100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:HREL:INPUT "Magic Horizontal Relationship Input" {
+    <<parmlist>>
+    
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm mode "Mode">>
+    <b>Required.</b> <<MAD.mode>>
+    <</parm>>
+
+    <<parm f "Of Group">>
+    <b>Required.</b>  A group ID.
+    <</parm>>
+
+    <<parm g "With Group">>
+    <b>Required.</b>  A different group ID.
+    <</parm>>
+
+    <<parm mag "Magnitude">>
+    <b>Required.</b>  <<MAD.mag>>
+    <</parm>>
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic horizontal relationship input into URAM.   The input will
+    be persistent or transient, and will the specified curve's value 
+    by <i>mag</i> nominal points at the next time advance.
+    The input will be attributed to the
+    specified MAD.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
+}
+
+
+#-----------------------------------------------------------------------
+
+order MAD:VREL:ADJUST "Magic Adjust Vertical Relationship Baseline" {
+    <<parmlist>>
+    
+    <<parm id "Curve">>
+    <b>Required.</b>  A vertical relationship curve ID, which is a list 
+    {<i>g a</i>} where <i>g</i> is a group and <i>a</i> is an actor.
+    <</parm>>
+
+    <<parm driver_id "MAD ID">>
+    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
+    the change will be attributed.
+    <</parm>>
+
+    <<parm delta "Delta">>
+    <b>Required.</b>  The magnitude of the change, expressed as a real
+    number.
+    <</parm>>
+    <</parmlist>>
+
+    Adjusts the value of the specified vertical relationship curve's 
+    baseline
+    by the specified amount, clamping the curve's value to the range 0.0,
+    100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
+}
+
+#-----------------------------------------------------------------------
+
+order MAD:VREL:INPUT "Magic Vertical Relationship Input" {
+    <<parmlist>>
+    
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm mode "Mode">>
+    <b>Required.</b> <<MAD.mode>>
+    <</parm>>
+
+    <<parm g "Of Group">>
+    <b>Required.</b>  A group ID.
+    <</parm>>
+
+    <<parm a "With Actor">>
+    <b>Required.</b>  An actor ID.
+    <</parm>>
+
+    <<parm mag "Magnitude">>
+    <b>Required.</b>  <<MAD.mag>>
+    <</parm>>
+    <</parmlist>>
+
+    <b>This order must be scheduled in advance.</b>
+    Enters a magic vertical relationship input into URAM.   The input will
+    be persistent or transient, and will the specified curve's value 
+    by <i>mag</i> nominal points at the next time advance.
+    The input will be attributed to the
+    specified MAD.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
+}
+
+#=======================================================================
 # Magic Satisfaction Orders
 
 page /order/mad sat "Magic Satisfaction Orders" {
@@ -1522,19 +1684,23 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
 
 #-----------------------------------------------------------------------
 
-order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
+order MAD:SAT:INPUT "Magic Satisfaction Input" {
     <<parmlist>>
     
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm mode "Mode">>
+    <b>Required.</b> <<MAD.mode>>
+    <</parm>>
+
     <<parm g "Group">>
     <b>Required.</b>  A civilian group ID.
     <</parm>>
 
     <<parm c "Concern">>
     <b>Required.</b>  A concern.
-    <</parm>>
-
-    <<parm mad "MAD ID">>
-    <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
     <<parm mag "Magnitude">>
@@ -1544,9 +1710,11 @@ order MAD:SAT:LEVEL "Magic Satisfaction Level Input" {
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
-    Enters a magic satisfaction level input into GRAM.  The input will
-    change the specified curve's value by <i>limit</i> nominal points
-    over a period of <i>days</i>.<p>
+    Enters a magic satisfaction input into URAM.  The input will
+    be persistent or transient, and will the specified curve's value 
+    by <i>mag</i> nominal points at the next time advance.
+    The input will be attributed to the
+    specified MAD.<p>
 
     This order can be <<cref /command/send sent>>
     or <<cref /command/sched scheduled>> by the
@@ -1601,9 +1769,17 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
 
 #-----------------------------------------------------------------------
 
-order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
+order MAD:COOP:INPUT "Magic Cooperation Input" {
     <<parmlist>>
     
+    <<parm mad "MAD ID">>
+    <b>Required.</b>  <<MAD.mad>>
+    <</parm>>
+
+    <<parm mode "Mode">>
+    <b>Required.</b> <<MAD.mode>>
+    <</parm>>
+
     <<parm f "Of Group">>
     <b>Required.</b>  A civilian group ID.
     <</parm>>
@@ -1612,19 +1788,16 @@ order MAD:COOP:LEVEL "Magic Cooperation Level Input" {
     <b>Required.</b>  A force group ID.
     <</parm>>
 
-    <<parm mad "MAD ID">>
-    <b>Required.</b>  <<MAD.mad>>
-    <</parm>>
-
-    <<parm limit "Limit">>
+    <<parm mag "Magnitude">>
     <b>Required.</b>  <<MAD.mag>>
     <</parm>>
     <</parmlist>>
 
     <b>This order must be scheduled in advance.</b>
-    Enters a magic cooperation level input into GRAM.  The input will
-    change the specified curve's value by <i>limit</i> nominal points
-    over a period of <i>days</i>.  The input will be attributed to the
+    Enters a magic cooperation input into URAM.   The input will
+    be persistent or transient, and will the specified curve's value 
+    by <i>mag</i> nominal points at the next time advance.
+    The input will be attributed to the
     specified MAD.<p>
 
     This order can be <<cref /command/send sent>>

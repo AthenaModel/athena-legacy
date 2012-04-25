@@ -100,6 +100,7 @@ snit::type scenario {
         rdb monitor add sqdeploy_ng  {n g}
         rdb monitor add tactics      {tactic_id}
         rdb monitor add units        {u}
+        rdb monitor add vrel_ga      {g a}
 
         InitializeRuntimeData
 

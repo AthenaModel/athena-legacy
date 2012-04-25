@@ -57,7 +57,7 @@ namespace eval ::athena_test::tests:: {
     # Lock scenario during setup
     
     proc lock {} {
-        ted create NB1 BLUE USAID SHIA
+        ted create JOE NB1 BLUE USAID SHIA
         ted order SIM:LOCK
     }
 
@@ -212,6 +212,360 @@ driver_id dtype narrative cause  s   p   q
         cleanup
     } -result {1}
 
+    #-------------------------------------------------------------------
+    # hreladjust
+
+    test hreladjust-1.1 {Adjustment takes effect.} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+    } -body {
+        mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }
+
+        ted querylist {
+            SELECT f, g, driver_id, delta, inputs
+            FROM uram_hrel_adjustments JOIN drivers USING (driver_id)
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+f          SHIA
+g          BLUE
+driver_id  1000
+delta      0.1
+inputs     1
+    }
+
+
+    test hreladjust-1.2 {Adjustment sends report} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+    } -body {
+        mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+            WHERE subtype = 'ADJUST'
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM ADJUST {ADJUST-1-1: Magic Horizontal Relationship Baseline Adjustment}}
+
+
+    test hreladjust-1.3 {Adjustment sends events} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+    } -body {
+        ted notifier bind ::mad <Hrel>
+
+        mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }
+        
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Hrel> update {SHIA BLUE}}
+    }
+
+
+    test hreladjust-2.1 {Undo removes effect.} -setup {
+        lock
+        mad mutate create $m1   ;# 1000
+    } -body {
+        set undo [mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }]
+
+        eval $undo
+
+        rdb exists { 
+            SELECT * FROM uram_hrel_adjustments 
+            WHERE driver_id=1000
+        }
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    test hreladjust-2.2 {Undo removes report} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+
+        set undo [mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }]
+    } -body {
+        eval $undo
+
+        rdb exists {
+            SELECT * FROM reports
+            WHERE subtype = 'ADJUST'
+        }
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    test hreladjust-2.3 {Undo sends events} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+
+        set undo [mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }]
+    } -body {
+        ted notifier bind ::mad <Hrel>
+
+        eval $undo
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Hrel> update {SHIA BLUE}}
+    }
+
+    test hreladjust-2.4 {Undo decrements input count} -setup {
+        lock
+
+        mad mutate create $m1    ;# 1000
+
+        set undo [mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }]
+    } -body {
+        eval $undo
+
+        driver inputs get 1000
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
+    # hrelinput
+
+    test hrelinput-1.1 {input is created} -setup {
+        lock
+
+        mad mutate create $m1  ;# 1000
+    } -body {
+        mad mutate hrelinput {
+            driver_id 1000 mode persistent f SHIA g BLUE mag 5
+        }
+
+        ted query {
+            SELECT driver_id,pflag,cause,f,g,mag
+            FROM uram_hrel_effects
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+driver_id pflag cause f    g    mag 
+--------- ----- ----- ---- ---- --- 
+1000      1     1000  SHIA BLUE 5.0 
+    }
+
+
+    test hrelinput-1.2 {Level input sends report} -setup {
+        lock
+
+        mad mutate create $m1
+    } -body {
+        mad mutate hrelinput {
+            driver_id 1000 mode persistent f SHIA g BLUE mag 5
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+            WHERE subtype = 'MAGIC'
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM MAGIC {MAGIC-1-1: Magic Horizontal Relationship Input}}
+
+
+    #-------------------------------------------------------------------
+    # vreladjust
+
+    test vreladjust-1.1 {Adjustment takes effect.} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+    } -body {
+        mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }
+
+        ted querylist {
+            SELECT g, a, driver_id, delta, inputs
+            FROM uram_vrel_adjustments JOIN drivers USING (driver_id)
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+g          SHIA
+a          JOE
+driver_id  1000
+delta      0.1
+inputs     1
+    }
+
+
+    test vreladjust-1.2 {Adjustment sends report} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+    } -body {
+        mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+            WHERE subtype = 'ADJUST'
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM ADJUST {ADJUST-2-1: Magic Vertical Relationship Baseline Adjustment}}
+
+
+    test vreladjust-1.3 {Adjustment sends events} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+    } -body {
+        ted notifier bind ::mad <Vrel>
+
+        mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }
+        
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Vrel> update {SHIA JOE}}
+    }
+
+
+    test vreladjust-2.1 {Undo removes effect.} -setup {
+        lock
+        mad mutate create $m1   ;# 1000
+    } -body {
+        set undo [mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }]
+
+        eval $undo
+
+        rdb exists { 
+            SELECT * FROM uram_vrel_adjustments 
+            WHERE driver_id=1000
+        }
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    test vreladjust-2.2 {Undo removes report} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+
+        set undo [mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }]
+    } -body {
+        eval $undo
+
+        rdb exists {
+            SELECT * FROM reports
+            WHERE subtype = 'ADJUST'
+        }
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    test vreladjust-2.3 {Undo sends events} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+
+        set undo [mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }]
+    } -body {
+        ted notifier bind ::mad <Vrel>
+
+        eval $undo
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::mad <Vrel> update {SHIA JOE}}
+    }
+
+    test vreladjust-2.4 {Undo decrements input count} -setup {
+        lock
+
+        mad mutate create $m1    ;# 1000
+
+        set undo [mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }]
+    } -body {
+        eval $undo
+
+        driver inputs get 1000
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
+    # vrelinput
+
+    test vrelinput-1.1 {input is created} -setup {
+        lock
+
+        mad mutate create $m1  ;# 1000
+    } -body {
+        mad mutate vrelinput {
+            driver_id 1000 mode persistent g SHIA a JOE mag 5
+        }
+
+        ted query {
+            SELECT driver_id,pflag,cause,g,a,mag
+            FROM uram_vrel_effects
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+driver_id pflag cause g    a   mag 
+--------- ----- ----- ---- --- --- 
+1000      1     1000  SHIA JOE 5.0 
+    }
+
+
+    test vrelinput-1.2 {Level input sends report} -setup {
+        lock
+
+        mad mutate create $m1
+    } -body {
+        mad mutate vrelinput {
+            driver_id 1000 mode persistent g SHIA a JOE mag 5
+        }
+
+        rdb eval {
+            SELECT rtype,subtype,title FROM reports
+            WHERE subtype = 'MAGIC'
+        }
+    } -cleanup {
+        cleanup
+    } -result {DAM MAGIC {MAGIC-2-1: Magic Vertical Relationship Input}}
+
+
 
     #-------------------------------------------------------------------
     # satadjust
@@ -255,7 +609,7 @@ inputs     1
         }
     } -cleanup {
         cleanup
-    } -result {DAM ADJUST {ADJUST-1-1: Magic Satisfaction Adjustment}}
+    } -result {DAM ADJUST {ADJUST-3-1: Magic Satisfaction Baseline Adjustment}}
 
     test satadjust-1.3 {Adjustment sends events} -setup {
         lock
@@ -391,7 +745,7 @@ driver_id pflag cause g    c   mag
         }
     } -cleanup {
         cleanup
-    } -result {DAM MAGIC {MAGIC-1-1: Magic Satisfaction Input}}
+    } -result {DAM MAGIC {MAGIC-3-1: Magic Satisfaction Input}}
 
 
 
@@ -435,7 +789,7 @@ inputs     1
         }
     } -cleanup {
         cleanup
-    } -result {DAM ADJUST {ADJUST-2-1: Magic Cooperation Adjustment}}
+    } -result {DAM ADJUST {ADJUST-4-1: Magic Cooperation Baseline Adjustment}}
 
 
     test coopadjust-1.3 {Adjustment sends events} -setup {
@@ -569,7 +923,7 @@ driver_id pflag cause f    g    mag
         }
     } -cleanup {
         cleanup
-    } -result {DAM MAGIC {MAGIC-2-1: Magic Cooperation Input}}
+    } -result {DAM MAGIC {MAGIC-4-1: Magic Cooperation Input}}
 
 
     #-------------------------------------------------------------------

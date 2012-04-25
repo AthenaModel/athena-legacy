@@ -231,6 +231,13 @@ snit::widget appwin {
             script  { hrelbrowser %W }
         }
 
+        vrel {
+            label   "VRel"
+            vistype *
+            parent  att
+            script  { vrelbrowser %W }
+        }
+
         sat {
             label   "Satisfaction"
             vistype *
@@ -772,7 +779,7 @@ snit::widget appwin {
         $self AddOrder $submenu NBREL:UPDATE
 
         # Orders/Horz. Relationship Menu
-        set submenu [menu $ordersmenu.rel]
+        set submenu [menu $ordersmenu.hrel]
         $ordersmenu add cascade -label "Horz. Relationship" \
             -underline 0 -menu $submenu
         
@@ -780,6 +787,16 @@ snit::widget appwin {
         $self AddOrder $submenu HREL:RESTORE
         $self AddOrder $submenu MAD:HREL:INPUT
         $self AddOrder $submenu MAD:HREL:ADJUST
+    
+        # Orders/Vert. Relationship Menu
+        set submenu [menu $ordersmenu.vrel]
+        $ordersmenu add cascade -label "Vert. Relationship" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu VREL:OVERRIDE
+        $self AddOrder $submenu VREL:RESTORE
+        $self AddOrder $submenu MAD:VREL:INPUT
+        $self AddOrder $submenu MAD:VREL:ADJUST
     
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]

@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-rel.test
+#    010-hrel.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    rel(sim) tests.
+#    hrel(sim) tests.
 #
-#    This test suite tests the rel(sim) mutators and queries
+#    This test suite tests the hrel(sim) mutators and queries
 #
 #-----------------------------------------------------------------------
 

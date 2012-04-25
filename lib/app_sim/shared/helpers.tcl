@@ -137,5 +137,5 @@ proc hrel.fg {f g} {
 # actor.
 
 proc vrel.ga {g a} {
-    rdb onecolumn {SELECT vrel FROM vrel_ga WHERE g=$g AND a=$a}
+    rdb onecolumn {SELECT vrel FROM uram_vrel WHERE g=$g AND a=$a}
 }
