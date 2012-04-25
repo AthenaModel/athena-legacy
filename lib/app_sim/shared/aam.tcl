@@ -101,11 +101,11 @@ snit::type aam {
 
             # TBD: Consider defining a driver -name, using some kind of
             # serial number, e.g., "Evt 1" or "Att 1" or "AAM 1"
-            set row(driver) \
+            set row(driver_id) \
                 [driver create CIVCAS \
                      "Casualties to group $row(f) in $row(n)"]
 
-            set driver([list $row(n) $row(f)]) $row(driver)
+            set driver([list $row(n) $row(f)]) $row(driver_id)
             aam_rules civsat [array get row]
         }
 
@@ -121,7 +121,7 @@ snit::type aam {
             unset -nocomplain row(*)
 
             # Use the same driver as for the satisfaction effects.
-            set row(driver) $driver([list $row(n) $row(f)])
+            set row(driver_id) $driver([list $row(n) $row(f)])
 
             aam_rules civcoop [array get row]
         }
