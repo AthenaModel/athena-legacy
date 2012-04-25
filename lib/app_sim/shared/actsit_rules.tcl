@@ -841,7 +841,7 @@ snit::type actsit_rules {
                 }
             }
 
-            coopinput $flist $g quad M+
+            coopinput $flist $g $cov quad M+
         }
     }
 

@@ -28,19 +28,19 @@ snit::widgetadaptor ensitbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { id       "ID"          -sortmode integer                }
-        { change   "Change"                        -foreground %D }
-        { state    "State"                         -foreground %D }
-        { stype    "Type"                                         }
-        { n        "Nbhood"                        -foreground %D }
-        { location "Location"                                     }
-        { coverage "Coverage"    -sortmode real    -foreground %D }
-        { ts       "Began At"                      -foreground %D }
-        { tc       "Changed At"                    -foreground %D }
-        { g        "Caused By"                                    }
-        { resolver "Resolved By"                                  }
-        { tr       "Resolve At"                    -foreground %D }
-        { driver   "Driver"      -sortmode integer -foreground %D }
+        { id        "ID"          -sortmode integer                }
+        { change    "Change"                        -foreground %D }
+        { state     "State"                         -foreground %D }
+        { stype     "Type"                                         }
+        { n         "Nbhood"                        -foreground %D }
+        { location  "Location"                                     }
+        { coverage  "Coverage"    -sortmode real    -foreground %D }
+        { ts        "Began At"                      -foreground %D }
+        { tc        "Changed At"                    -foreground %D }
+        { g         "Caused By"                                    }
+        { resolver  "Resolved By"                                  }
+        { tr        "Resolve At"                    -foreground %D }
+        { driver_id "Driver"      -sortmode integer -foreground %D }
     }
 
     #-------------------------------------------------------------------

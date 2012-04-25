@@ -31,17 +31,17 @@ snit::widgetadaptor actsitbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        {id       "ID"         -sortmode integer                }
-        {change   "Change"                       -foreground %D }
-        {state    "State"                        -foreground %D }
-        {stype    "Type"                                        }
-        {n        "Nbhood"                                      }
-        {g        "Group"                                       }
-        {a        "Activity"                                    }
-        {coverage "Coverage"   -sortmode real    -foreground %D }
-        {ts       "Began At"                     -foreground %D }
-        {tc       "Changed At"                   -foreground %D }
-        {driver   "Driver"     -sortmode integer -foreground %D }
+        {id        "ID"         -sortmode integer                }
+        {change    "Change"                       -foreground %D }
+        {state     "State"                        -foreground %D }
+        {stype     "Type"                                        }
+        {n         "Nbhood"                                      }
+        {g         "Group"                                       }
+        {a         "Activity"                                    }
+        {coverage  "Coverage"   -sortmode real    -foreground %D }
+        {ts        "Began At"                     -foreground %D }
+        {tc        "Changed At"                   -foreground %D }
+        {driver_id "Driver"     -sortmode integer -foreground %D }
     }
 
     #--------------------------------------------------------------------
