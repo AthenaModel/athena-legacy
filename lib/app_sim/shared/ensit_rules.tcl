@@ -223,11 +223,13 @@ snit::type ensit_rules {
         log detail envr [list BADFOOD-1 [$sit get s]]
 
         set inception [$sit get inception]
+        set cov       [$sit get coverage]
+        set flist     [civgroup gIn [$sit get n]]
 
         dam rule BADFOOD-1-1 {
             $inception
         } {
-            satinput $sit \
+            satinput $flist $cov \
                 AUT M-    \
                 SFT XXXS- \
                 QOL XXL-
@@ -236,7 +238,7 @@ snit::type ensit_rules {
         dam rule BADFOOD-1-2 {
             !$inception
         } {
-            satinput $sit \
+            satinput $flist $cov \
                 AUT M-    \
                 SFT XXXS- \
                 QOL L-
@@ -258,7 +260,7 @@ snit::type ensit_rules {
         dam rule BADFOOD-2-1 {
             [resolverIsLocal [$sit get resolver]]
         } {
-            satinput $sit  \
+            satinput $flist $cov  \
                 AUT S+
         }
     }
