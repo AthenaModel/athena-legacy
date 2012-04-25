@@ -1577,8 +1577,7 @@ snit::type appserver {
         set gtype [string toupper $(1)]
 
         # FIRST, update the saturation and required levels of service
-        # but only if we are in PREP
-        service srcompute PREP
+        service srcompute
 
         # Begin the page
         if {$gtype eq ""} {
@@ -1715,8 +1714,7 @@ snit::type appserver {
 
     proc html_GroupCiv {g} {
         # FIRST, update the saturation and required levels of service
-        # but only if we are in PREP
-        service srcompute PREP
+        service srcompute
 
         # NEXT, get the data about this group
         rdb eval {SELECT * FROM gui_civgroups WHERE g=$g}       data {}

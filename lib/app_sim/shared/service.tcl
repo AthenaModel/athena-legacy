@@ -121,24 +121,15 @@ snit::type service {
     #-------------------------------------------------------------------
     # Simulation 
 
-    # srcompute state
+    # srcompute 
     # 
-    # state -   Indicating in which simulation state this computation 
-    #           should actually be carried out.
-    #
     # This method rebuilds the saturation and required service table based 
     # on the simulation state. In "PREP" it is the base population, otherwise
     # it is the actual population from the demographics model.
     #
 
-    typemethod srcompute {state} {
-        # FIRST, if the request to compute is not commensurate with the sim
-        # state then no-op
-        if {[sim state] ne $state} {
-            return
-        }
-
-        # NEXT, blow away whatever is there
+    typemethod srcompute {} {
+        # FIRST, blow away whatever is there it will be computed again
         rdb eval {
             DELETE FROM sr_service;
         }
@@ -552,7 +543,7 @@ snit::type service {
         }
 
         # NEXT, update the required and saturation levels of funding
-        $type srcompute [sim state]
+        $type srcompute
 
         # NEXT, compute the actual and effective levels of service.
         $type ComputeLOS
