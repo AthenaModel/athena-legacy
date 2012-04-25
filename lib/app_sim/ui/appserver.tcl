@@ -3043,6 +3043,7 @@ snit::type appserver {
             econ
             ensit
             force
+            hist
             uram
             rmf
             service
