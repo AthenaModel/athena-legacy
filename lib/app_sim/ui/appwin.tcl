@@ -709,11 +709,16 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:UPDATE
         $self AddOrder $submenu MAD:DELETE
 
-        $self AddOrder $submenu MAD:COOP:INPUT
+        $self AddOrder $submenu MAD:HREL:INPUT
+        $self AddOrder $submenu MAD:VREL:INPUT
         $self AddOrder $submenu MAD:SAT:INPUT
-        # TBD: Also, orders for other attitude types
-        $self AddOrder $submenu MAD:COOP:ADJUST
+        $self AddOrder $submenu MAD:COOP:INPUT
+
+        
+        $self AddOrder $submenu MAD:HREL:ADJUST
+        $self AddOrder $submenu MAD:VREL:ADJUST
         $self AddOrder $submenu MAD:SAT:ADJUST
+        $self AddOrder $submenu MAD:COOP:ADJUST
 
         # Orders/Actors
         set submenu [menu $ordersmenu.actor]
@@ -766,13 +771,24 @@ snit::widget appwin {
         $self AddOrder $submenu NBHOOD:DELETE
         $self AddOrder $submenu NBREL:UPDATE
 
-        # Orders/Relationship Menu
+        # Orders/Horz. Relationship Menu
         set submenu [menu $ordersmenu.rel]
-        $ordersmenu add cascade -label "Relationship" \
+        $ordersmenu add cascade -label "Horz. Relationship" \
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu HREL:OVERRIDE
         $self AddOrder $submenu HREL:RESTORE
+        $self AddOrder $submenu MAD:HREL:INPUT
+        $self AddOrder $submenu MAD:HREL:ADJUST
+    
+        # Orders/Satisfaction Menu
+        set submenu [menu $ordersmenu.sat]
+        $ordersmenu add cascade -label "Satisfaction" \
+            -underline 0 -menu $submenu
+        
+        $self AddOrder $submenu SAT:UPDATE
+        $self AddOrder $submenu MAD:SAT:INPUT
+        $self AddOrder $submenu MAD:SAT:ADJUST
 
         # Orders/Cooperation Menu
         set submenu [menu $ordersmenu.coop]
@@ -783,14 +799,6 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:COOP:INPUT
         $self AddOrder $submenu MAD:COOP:ADJUST
 
-        # Orders/Satisfaction Menu
-        set submenu [menu $ordersmenu.sat]
-        $ordersmenu add cascade -label "Satisfaction" \
-            -underline 0 -menu $submenu
-        
-        $self AddOrder $submenu SAT:UPDATE
-        $self AddOrder $submenu MAD:SAT:INPUT
-        $self AddOrder $submenu MAD:SAT:ADJUST
 
         # Orders/Economics Menu
         set submenu [menu $ordersmenu.econ]
