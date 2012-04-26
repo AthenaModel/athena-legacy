@@ -196,6 +196,7 @@ snit::type engine {
         profile demog analyze pop
         profile ensit assess
         profile nbstat analyze
+        profile misc_rules assess
         profile control_model analyze
         profile actsit assess
         profile service assess

@@ -31,6 +31,9 @@ namespace eval ::athena_test::tests:: {
         # Turn off auto-demobilization, as it makes setting up 
         # tests difficult.
         parm set strategy.autoDemob no
+
+        # Disable MOOD, so that it doesn't generate drivers.
+        parm set dam.MOOD.active no
     }
 
     # Deploy troops into a neighborhood.

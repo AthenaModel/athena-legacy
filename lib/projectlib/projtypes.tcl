@@ -270,6 +270,9 @@ snit::type ::projectlib::typewrapper {
     MINEFIELD-1-2 "Minefield remains"
     MINEFIELD-2-1 "Minefield is cleared by locals"
 
+    MOOD-1-1      "Mood is much worse"
+    MOOD-1-2      "Mood is much better"
+
     NOWATER-1-1   "Water becomes unavailable"
     NOWATER-1-2   "Water continues to be unavailable"
     NOWATER-2-1   "Water supply is restored by locals"
@@ -355,6 +358,7 @@ snit::type ::projectlib::typewrapper {
     INDSPILL  "Industrial Spill"
     MAGIC     "Magic Attitude Inputs"
     MINEFIELD "Minefield"
+    MOOD      "Civilian Mood Changes"
     NOWATER   "Interrupted Water Supply"
     ORDNANCE  "Unexploded Ordnance"
     ORGCAS    "Organization Casualties"
@@ -403,7 +407,7 @@ snit::type ::projectlib::typewrapper {
     GUARD     "Guard"
     HUNGER    "Hunger"
     INDSPILL  "Industrial Spill"
-    MOSQUE    "Damage to Mosque"
+    MOOD      "Mood"
     ORDNANCE  "Unexploded Ordnance/Minefield"
     ORGCAS    "Organization Casualties"
     ORGCONST  "ORG -- Construction"

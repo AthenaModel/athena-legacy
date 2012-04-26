@@ -616,25 +616,6 @@ snit::type ::projectlib::parmdb {
             control.
         }
 
-        $ps subset control.dvmood {
-            Parameters related to the computation of the
-            deltaV.mood term of the V.ga vertical relationship.
-        }
-
-        $ps define control.dvmood.better ::simlib::qsat 30.0 {
-            The "better" threshold for deltaV.mood; a group's mood has
-            significantly improved since the last time control of the
-            neighborhood shifted if it has grown by more than this
-            amount.
-        }
-
-        $ps define control.dvmood.worse ::simlib::qsat -30.0 {
-            The "worse" threshold for deltaV.mood; a group's mood has
-            gotten significantly worse since the last time control of the
-            neighborhood shifted if it has dropped by more than this
-            amount.
-        }
-
         $ps subset control.support {
             Parameters related to the computation of the support of a 
             neighborhood for a particular actor.
@@ -769,19 +750,6 @@ snit::type ::projectlib::parmdb {
             }
         }
 
-        # Add parameters for Attrition rule sets
-        $ps define dam.CIVCAS.Zsat ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
-            Z-curve used to compute the casualty multiplier used in
-            the CIVCAS satisfaction rules from the number of civilian
-            casualties.
-        }
-
-        $ps define dam.CIVCAS.Zcoop ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
-            Z-curve used to compute the casualty multiplier used in
-            the CIVCAS cooperation rule from the number of civilian
-            casualties.
-        }
-
         # Rule Set: BADFOOD
         $ps setdefault dam.BADFOOD.cause          HUNGER
         $ps setdefault dam.BADFOOD.nearFactor     0.0
@@ -801,6 +769,19 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CIVCAS.cause           CIVCAS
         $ps setdefault dam.CIVCAS.nearFactor      0.25
         $ps setdefault dam.CIVCAS.farFactor       0.1
+
+        # Add additional parameters for CIVCAS rule sets
+        $ps define dam.CIVCAS.Zsat ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
+            Z-curve used to compute the casualty multiplier used in
+            the CIVCAS satisfaction rules from the number of civilian
+            casualties.
+        }
+
+        $ps define dam.CIVCAS.Zcoop ::marsutil::zcurve {0.3 1.0 100.0 2.0} {
+            Z-curve used to compute the casualty multiplier used in
+            the CIVCAS cooperation rule from the number of civilian
+            casualties.
+        }
 
         # Rule Set: CMOCONST
         $ps setdefault dam.CMOCONST.cause         CMOCONST
@@ -954,6 +935,18 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.MINEFIELD.cause        ORDNANCE
         $ps setdefault dam.MINEFIELD.nearFactor   0.2
         $ps setdefault dam.MINEFIELD.farFactor    0.0
+
+        # Rule Set: MOOD
+        $ps setdefault dam.MOOD.cause             MOOD
+        $ps setdefault dam.MOOD.nearFactor        0.0
+        $ps setdefault dam.MOOD.farFactor         0.0
+
+        # Add additional parameters for MOOD rule set
+        $ps define dam.MOOD.threshold ::projectlib::parmdb_rquantity 5.0 {
+            Delta-mood threshold; changes in civilian mood will only
+            affect vertical relationships if the absolute change 
+            in mood meets or exceeds this threshold.
+        }
 
         # Rule Set: NOWATER
         $ps setdefault dam.NOWATER.cause          THIRST

@@ -839,7 +839,8 @@ id t etype            s
 
     test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -setup {
         parm set demsit.disable yes
-        parmdb set dam.ENI.active no
+        parm set dam.ENI.active no
+        parm set dam.MOOD.active no
         ted create NB1 BLUE SHIA
         ensit mutate create [dict merge $s2 [list rduration 2]]
     } -body {

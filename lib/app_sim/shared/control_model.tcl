@@ -30,26 +30,6 @@ snit::type control_model {
     #-------------------------------------------------------------------
     # Lookup Tables
 
-    # moodTable - deltaV to do change in mood since last shift in control.
-    #
-    # Array (sign,inControl) => qmag(n) symbol
-    #
-    # sign      - 1 if change is very positive, -1 if change is very 
-    #             negative, and 0 otherwise.
-    # inControl - 1 if actor is in control of the neighborhood, and 0 
-    #             otherwise.
-    #
-    # TBD: Eventually, this should probably be a set of model parameters.
-
-    typevariable moodTable -array {
-        -1,1 XL-
-        -1,0 M+
-         0,1 0
-         0,0 0
-         1,1 XL+
-         1,0 M-
-    }
-
     # controlTable - deltaV to bvrel due to change in control
     #
     # Array (vrel,change) => qmag(n) symbol
@@ -160,53 +140,6 @@ snit::type control_model {
         # FIRST, Compute each actor's support and influence in each 
         # neighborhood.
         $type ComputeActorInfluence
-    }
-
-    # ComputeDV_mood
-    #
-    # Computes the vrel_ga.dv_mood for all g,a
-    #
-    # TBD: Needs to be a rule set
-    
-    typemethod ComputeDV_mood {} {
-        # FIRST, get model parameters
-        set better [parm get control.dvmood.better]
-        set worse  [parm get control.dvmood.worse]
-
-        # NEXT, compute dv_mood.
-        rdb eval {
-            SELECT G.g                               AS g,
-                   G.n                               AS n,
-                   A.a                               AS a,
-                   CASE WHEN (C.controller = A.a)
-                        THEN 1 ELSE 0 END            AS inControl,
-                   UM.mood                           AS moodNow,
-                   HM.mood                           AS moodThen
-            FROM civgroups AS G
-            JOIN actors    AS A
-            JOIN control_n AS C  ON (C.n = G.n)
-            JOIN uram_mood AS UM ON (G.g = UM.g)
-            JOIN hist_mood AS HM ON (HM.g = G.g AND HM.t = C.since)
-        } {
-            # FIRST, compute deltaV.mood
-            let moodDiff {$moodNow - $moodThen}
-
-            # Look up the magnitude in the table
-            if {$moodDiff > $better} {
-                set dv_mood [qmag value $moodTable(1,$inControl)]
-            } elseif {$moodDiff < $worse} {
-                set dv_mood [qmag value $moodTable(-1,$inControl)]
-            } else {
-                set dv_mood [qmag value $moodTable(0,$inControl)]
-            }
-
-            rdb eval {
-                UPDATE vrel_ga
-                SET vrel    = $vrel,
-                    dv_mood = $dv_mood
-                WHERE g=$g AND a=$a
-            }
-        }
     }
 
     # ComputeActorInfluence
