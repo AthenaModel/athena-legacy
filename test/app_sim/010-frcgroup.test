@@ -204,6 +204,30 @@ local        0
         cleanup
     } -result {BLUE BRIT BRIT BLUE}
 
+    test delete-8.1 {deletes vrel_ga overrides} -setup {
+        ted create JOE BLUE
+        vrel mutate create {id {BLUE JOE} vrel 0.5}
+    } -body {
+        frcgroup mutate delete BLUE
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-8.2 {undo restores vrel_ga overrides} -setup {
+        ted create JOE BLUE
+        vrel mutate create {id {BLUE JOE} vrel 0.5}
+
+        set undo [frcgroup mutate delete BLUE]
+    } -body {
+        namespace eval :: $undo
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {BLUE JOE}
+
     #-------------------------------------------------------------------
     # mutate update
 

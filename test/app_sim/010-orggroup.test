@@ -130,6 +130,30 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE N
         cleanup
     } -result {BRIT USAID USAID BRIT}
 
+    test delete-6.1 {deletes vrel_ga overrides} -setup {
+        ted create JOE USAID
+        vrel mutate create {id {USAID JOE} vrel 0.5}
+    } -body {
+        orggroup mutate delete USAID
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-6.2 {undo restores vrel_ga overrides} -setup {
+        ted create JOE USAID
+        vrel mutate create {id {USAID JOE} vrel 0.5}
+
+        set undo [orggroup mutate delete USAID]
+    } -body {
+        namespace eval :: $undo
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {USAID JOE}
+
     #-------------------------------------------------------------------
     # mutate update
 

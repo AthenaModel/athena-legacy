@@ -230,6 +230,30 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
         cleanup
     } -result {SHIA SUNN SUNN SHIA}
 
+    test delete-8.1 {deletes vrel_ga overrides} -setup {
+        ted create JOE SHIA
+        vrel mutate create {id {SHIA JOE} vrel 0.5}
+    } -body {
+        civgroup mutate delete SHIA
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-8.2 {undo restores vrel_ga overrides} -setup {
+        ted create JOE SHIA
+        vrel mutate create {id {SHIA JOE} vrel 0.5}
+
+        set undo [civgroup mutate delete SHIA]
+    } -body {
+        namespace eval :: $undo
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {SHIA JOE}
+
     #-------------------------------------------------------------------
     # mutate update
 

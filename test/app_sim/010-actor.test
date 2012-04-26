@@ -260,6 +260,30 @@ JOE Joe the Actor JOE      200000.0     10000.0 0.0
         cleanup
     } -result {1}
 
+    test delete-9.1 {deletes vrel_ga overrides} -setup {
+        ted create JOE SHIA
+        vrel mutate create {id {SHIA JOE} vrel 0.5}
+    } -body {
+        actor mutate delete JOE
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-9.2 {undo restores vrel_ga overrides} -setup {
+        ted create JOE SHIA
+        vrel mutate create {id {SHIA JOE} vrel 0.5}
+
+        set undo [actor mutate delete JOE]
+    } -body {
+        namespace eval :: $undo
+
+        rdb eval {SELECT g,a FROM vrel_ga ORDER BY g,a}
+    } -cleanup {
+        cleanup
+    } -result {SHIA JOE}
+
     #-------------------------------------------------------------------
     # mutate update
 
