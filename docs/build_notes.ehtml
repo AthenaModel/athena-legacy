@@ -11,6 +11,32 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.2, 30 April 2012</h3>
+
+This is the second Athena 4 build.  It contains a number of bug fixes,
+including two significant bugs involving display of civilian groups, and the
+rest of the work required to make Athena use horizontal and vertical 
+relationships from URAM.  It includes one of the vertical relationship
+rule sets, the new MOOD rule set; the remaining two vrel rule sets will
+be added as rule subsets to the existing ENI and CONTROL rule sets in
+Athena 4.0.3.  The specific bugs in this build are as follows:<p>
+
+<ul>
+  <li> Bug: 3346 History Parameters not in Model Parameters Tree
+  <li> Bug: 3389 athena(1): gui_civgroups fails after reload
+  <li> Bug: 3390 athena(1): Ensit spawn and ensit auto-resolve
+  <li> Bug: 3391 Added rules.pptx to Athena installer
+  <li> Bug: 3393 athena(1): gui_civgroups view error
+  <li> Bug: 3395 CIVCAS dam rules bgerror
+  <li> Bug: 3397 CURFEW dam rules bgerror
+  <li> Bug: 3398 athena(1): URAM's HRel values are used everywhere
+  <li> Bug: 3399 BADFOOD dam rules bgerror
+  <li> Bug: 3402 athena(1): MAD:HREL:* Orders
+  <li> Bug: 3403 athena(1): Vertical relationships
+  <li> Bug: 3404 athena(1): vrel_ga cascading delete tests
+  <li> Bug: 3406 athena(1): MOOD rule set
+</ul><p>
+
 <h3>Build 4.0.1, 24 April 2012</h3>
 
 This is the first Athena 4 build; it contains many changes since
