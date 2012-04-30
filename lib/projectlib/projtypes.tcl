@@ -56,6 +56,7 @@ namespace eval ::projectlib:: {
         leensit          \
         money            \
         polygon          \
+        qcredit          \
         qsecurity        \
         ratrend          \
         rdtrend          \
@@ -600,6 +601,13 @@ snit::type ::projectlib::typewrapper {
 
 #-------------------------------------------------------------------
 # Qualities
+
+# Credit
+::marsutil::quality ::projectlib::qcredit {
+    M   "Most"          0.50 0.75 1.00
+    S   "Some"          0.20 0.35 0.50
+    N   "Negligible"    0.00 0.10 0.20
+} -bounds yes -format {%.2f}
 
 # Security
 ::marsutil::quality ::projectlib::qsecurity {

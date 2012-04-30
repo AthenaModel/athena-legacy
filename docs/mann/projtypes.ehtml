@@ -271,6 +271,14 @@ list of <i>x</i> and <i>y</i> coordinates.  It may be passed as a
 single argument, or as one argument per coordinate.  On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
+<<defitem qcredit qcredit>>
+
+This quality is used to assess the credit an actor receives for
+provision of service to civilian groups.  <<iref qcredit>> values have
+the bounds shown in the following table:<p>
+
+<<::projectlib::qcredit html>>
+
 <<defitem qsecurity qsecurity>>
 
 This quality is use to rate a group's security in a neighborhood.

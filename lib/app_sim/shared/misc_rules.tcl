@@ -58,7 +58,7 @@ snit::type misc_rules {
         # NEXT, look for groups for which the rule set should fire.
 
         set threshold [parm get dam.MOOD.threshold]
-        log normal miscr "threshold=$threshold"
+
         rdb eval {
             SELECT G.g                AS g,
                    G.n                AS n,

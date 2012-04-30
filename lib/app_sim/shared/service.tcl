@@ -60,63 +60,6 @@ snit::type service {
         return ""
     }
 
-    #-------------------------------------------------------------------
-    # Look-up tables
-
-    # deltav: deltaV.eni magnitude given these variables:
-    #
-    # Control: C, NC
-    #
-    #   C   - Actor is in control of group's neighborhood.
-    #   NC  - Actor is not in control of group's neighborhood.
-    #
-    # Credit: N, S, M
-    #
-    #   N   - Actor's contribution is a Negligible fraction of total
-    #   S   - Actor has contributed Some of the total
-    #   M   - Actor has contributed Most of the total
-    #
-    # case: R-, E-, E, E+
-    #
-    #   R-  - actual LOS is less than required.
-    #   E-  - actual LOS is at least the required amount, but less than
-    #         expected.
-    #   E   - actual LOS is approximately the same as expected
-    #   E+  - actual LOS is more than expected.
-
-    typevariable deltav -array {
-        C,N,R-  XXL-
-        C,N,E-  XL-
-        C,N,E   L+
-        C,N,E+  XL+
-
-        C,S,R-  XL-
-        C,S,E-  L-
-        C,S,E   L+
-        C,S,E+  XL+
-
-        C,M,R-  L-
-        C,M,E-  M-
-        C,M,E   L+
-        C,M,E+  XL+
-
-        NC,N,R- 0
-        NC,N,E- 0
-        NC,N,E  0
-        NC,N,E+ 0
-
-        NC,S,R- S+
-        NC,S,E- M+
-        NC,S,E  L+
-        NC,S,E+ XL+
-
-        NC,M,R- M+
-        NC,M,E- L+
-        NC,M,E  XL+
-        NC,M,E+ XXL+
-    }
-
-
 
     #-------------------------------------------------------------------
     # Simulation 
@@ -177,17 +120,27 @@ snit::type service {
     # simulation starts.  It populates the service_* tables.
 
     typemethod start {} {
-        # FIRST, populate the tables with the defaults.
+        # FIRST, populate the service_ga table with the defaults.
         rdb eval {
             -- Populate service_ga table
             INSERT INTO service_ga(g,a)
             SELECT C.g, A.a
             FROM civgroups AS C
             JOIN actors    AS A;
+        }
 
-            -- Populate service_g table
-            INSERT INTO service_g(g)
-            SELECT g FROM civgroups;
+        # NEXT, populate the service_g table, assigning driver IDs
+        rdb eval {
+            SELECT g FROM civgroups
+        } {
+            set driver_id [driver create ENI \
+                               "Provision of ENI services to $g"]
+            
+            rdb eval {
+                -- Populate service_g table
+                INSERT INTO service_g(g,driver_id) 
+                VALUES($g, $driver_id);
+            }
         }
 
         # NEXT, compute the actual and expected levels of 
@@ -302,16 +255,8 @@ snit::type service {
         # FIRST, compute each actor's credit.
         $type ComputeCredit
 
-        # NEXT, call the ENI rule et.
-        rdb eval {
-            SELECT * FROM civgroups 
-            JOIN service_g USING (g)
-            ORDER BY g
-        } gdata {
-            unset -nocomplain gdata(*)
-
-            service_rules monitor [array get gdata]
-        }
+        # NEXT, allow the rules to fire.
+        service_rules monitor
     }
 
 
@@ -384,64 +329,6 @@ snit::type service {
             rdb eval {
                 UPDATE service_ga
                 SET credit = $credit
-                WHERE g=$g AND a=$a
-            }
-        }
-    }
-
-    # ComputeDV_eni
-    #
-    # Computes vrel_ga.dv_eni, the deltaV due to ENI services.  Does
-    # not update the vertical relationship itself.
-
-    typemethod ComputeDV_eni {} {
-        # FIRST, get the delta parameter
-        set delta [parmdb get service.ENI.delta]
-
-        # FIRST, compute dv_eni for all actors and groups.
-        rdb eval {
-            SELECT SGA.g                             AS g,
-                   SGA.a                             AS a,
-                   SGA.credit                        AS credit,
-                   SG.actual                         AS actual,
-                   SG.expected                       AS expected,
-                   SG.required                       AS required,
-                   CASE WHEN (C.controller = SGA.a)
-                        THEN 'C' ELSE 'NC' END       AS inControl
-            FROM service_ga AS SGA
-            JOIN service_g  AS SG USING (g)
-            JOIN civgroups  AS G  USING (g)
-            JOIN control_n  AS C  USING (n)
-        } {
-            # FIRST, compute contribution
-            if {$credit < 0.2} {
-                # Contribution is negligible
-                set cont N
-            } elseif {$credit <= 0.5} {
-                # actor is contributing some of the funding.
-                set cont S
-            } else {
-                # actor is contributing most of the funding.
-                set cont M
-            }
-
-            # NEXT, compute case.
-            if {$actual < $required} {
-                set case R-
-            } elseif {abs($actual - $expected) < $delta * $expected} {
-                set case E
-            } elseif {$actual < $expected} {
-                set case E-
-            } else {
-                set case E+
-            }
-
-            # NEXT, get the deltaV
-            set dv_eni [qmag value $deltav($inControl,$cont,$case)]
-
-            rdb eval {
-                UPDATE vrel_ga
-                SET dv_eni=$dv_eni
                 WHERE g=$g AND a=$a
             }
         }
