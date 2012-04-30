@@ -1567,6 +1567,21 @@ order MAD:HREL:INPUT "Magic Horizontal Relationship Input" {
     <<cref /object/tactic/executive>>.
 }
 
+#=======================================================================
+# Magic Vertical Relationship Orders
+
+page /order/mad vrel "Magic Vertical Relationship Orders" {
+    <<title>>
+
+    These orders are used to adjust and otherwise influence 
+    vertical relationship levels.  All such changes are attributes to
+    some Magic Attitude Driver (MAD).<p>
+
+    The following orders are available:<p>
+
+    <<childlinks>>
+}
+
 
 #-----------------------------------------------------------------------
 
