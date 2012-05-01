@@ -217,6 +217,7 @@ snit::type ::projectlib::typewrapper {
     CONTROL-1-1   "Neighborhood sees shift in control"
     CONTROL-1-2   "Neighborhood is now in chaos."
     CONTROL-1-3   "Neighborhood is no longer in chaos."
+    CONTROL-2-1   "Neighborhood sees shift in control"
 
     CRIMINAL-1-1  "Force is engaging in criminal activities"
 

@@ -115,6 +115,29 @@ snit::type control_rules {
         OPPOSE  0
     }
 
+    # C21 -- Effect on civgroup g's vertical relationship with actor a,
+    # given vrel.ga,<case> where case is G (gained control), L (lost 
+    # control), or N (neither).
+    
+    typevariable C21 -array {
+        SUPPORT,G  L+
+        LIKE,G     M+
+        INDIFF,G   0
+        DISLIKE,G  M-
+        OPPOSE,G   L-
+
+        SUPPORT,N  M-
+        LIKE,N     S-
+        INDIFF,N   0
+        DISLIKE,N  0
+        OPPOSE,N   0
+
+        SUPPORT,L  L-
+        LIKE,L     M-
+        INDIFF,L   0
+        DISLIKE,L  XS-
+        OPPOSE,L   S-
+    }
     
     #-------------------------------------------------------------------
     # Public Typemethods
@@ -141,6 +164,7 @@ snit::type control_rules {
         }
 
         control_rules CONTROL-1 $dict
+        control_rules CONTROL-2 $dict
     }
 
 
@@ -273,6 +297,53 @@ snit::type control_rules {
                 }
             }
 
+        }
+    }
+
+    # CONTROL-2 dict
+    #
+    # dict - Dictionary of input parameters
+    #
+    #   n          -  The neighborhood in which control shifted.
+    #   a          -  The actor that lost control, or "" if none.
+    #   b          -  The actor that gained control, or "" if none.
+    #   driver_id  -  The driver ID
+    #
+    # Assesses the vertical relationship implications of the
+    # shift in control.
+
+    typemethod CONTROL-2 {dict} {
+        set ag [dict get $dict b]
+        set al [dict get $dict a]
+
+        set glist [civgroup gIn [dict get $dict n]]
+        set alist [actor names]
+
+        dam ruleset CONTROL [dict get $dict driver_id]
+
+        dam detail "In Neighborhood:" [dict get $dict n]
+        dam detail "Lost control:"    [expr {$al ne "" ? $al : "none"}]
+        dam detail "Gained control:"  [expr {$ag ne "" ? $ag : "none"}]
+
+        dam rule CONTROL-2-1 {1} {
+            foreach g $glist {
+                foreach a $alist {
+                    # FIRST, get the vertical relationship
+                    set Vga [qaffinity name [vrel.ga $g $a]]
+
+                    # NEXT, did actor a lose, gain, or neither?
+                    if {$a eq $al} {
+                        set case L
+                    } elseif {$a eq $ag} {
+                        set case G
+                    } else {
+                        set case N
+                    }
+
+                    # NEXT, enter the vrel input
+                    dam vrel P $g $a $C21($Vga,$case)
+                }
+            }
         }
     }
 }

@@ -839,7 +839,6 @@ id t etype            s
 
     test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -setup {
         parm set demsit.disable yes
-        parm set dam.ENI.active no
         parm set dam.MOOD.active no
         ted create NB1 BLUE SHIA
         ensit mutate create [dict merge $s2 [list rduration 2]]
@@ -853,7 +852,7 @@ id t etype            s
     } -result {
 s kind    stype   driver_id n   coverage state ts tc change   flist g    location inception resolver rduration rdriver_id 
 - ------- ------- --------- --- -------- ----- -- -- -------- ----- ---- -------- --------- -------- --------- ---------- 
-1 ::ensit COMMOUT 1000      NB1 0.5      ENDED 1  3  RESOLVED ALL   NONE 100 100  0         BLUE     2         1001       
+1 ::ensit COMMOUT 1001      NB1 0.5      ENDED 1  3  RESOLVED ALL   NONE 100 100  0         BLUE     2         1002       
     }
 
 

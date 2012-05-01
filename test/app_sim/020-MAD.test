@@ -92,6 +92,9 @@ namespace eval ::athena_test::tests:: {
 
         ted create JOE NB1 NB2 BLUE SHIA KURD
         ted order SIM:LOCK
+
+        # Delete other drivers not needed for this test.
+        rdb eval {DELETE FROM drivers}
         ted order MAD:CREATE $m1 ;# 1000
     }
 

@@ -28,41 +28,6 @@ snit::type control_model {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Lookup Tables
-
-    # controlTable - deltaV to bvrel due to change in control
-    #
-    # Array (vrel,change) => qmag(n) symbol
-    #
-    # vrel     - vrel.ga, expressed as a qaffinity symbol.
-    # change   - 1 if a has just gained control, -1 if a has just lost
-    #            control, and 0 otherwise.
-    #
-    # TBD: Eventually, this should probably be a set of model parameters.
-
-    typevariable controlTable -array {
-        SUPPORT,1   L+
-        SUPPORT,0   M-
-        SUPPORT,-1  L-
-
-        LIKE,1      M+
-        LIKE,0      S-
-        LIKE,-1     M-
-
-        INDIFF,1    0
-        INDIFF,0    0
-        INDIFF,-1   0
-
-        DISLIKE,1   M-
-        DISLIKE,0   0
-        DISLIKE,-1  XS-
-
-        OPPOSE,1    L-
-        OPPOSE,0    0
-        OPPOSE,-1   S-
-    }
-
-    #-------------------------------------------------------------------
     # Simulation Start
 
     # start
@@ -398,46 +363,6 @@ snit::type control_model {
             SET controller = nullif($cNew,''),
                 since      = now()
             WHERE n=$n;
-        }
-
-        if 0 {
-        # NEXT, set the baseline VREL for all CIV groups that reside
-        # in n.
-        #
-        # TBD: This has two components: the shift in the baseline to
-        # the current level, and then a persistent input which
-        # should be handled in the CONTROL rule set.
-
-            # TBD: Remove this old code when the new code is done.
-            foreach {g a vrel} [rdb eval {
-                SELECT V.g,
-                V.a,
-                V.vrel
-                FROM vrel_ga AS V
-                JOIN civgroups AS C USING (g)
-                WHERE C.n=$n
-            }] {
-                set vsym [qaffinity name $vrel]
-                
-                if {$a eq $cNew} {
-                    set change 1
-                } elseif {$a eq $cOld} {
-                    set change -1
-                } else {
-                    set change 0
-                }
-
-                set mag   $controlTable($vsym,$change)
-                set delta [qmag value $mag]
-
-                set bvrel [scale $vrel $delta]
-                log detail control_model "bvrel.$g,$a = $bvrel ($vrel + $mag)"
-
-                rdb eval {
-                    INSERT INTO bvrel_tga(t, g, a, bvrel,dv_control)
-                    VALUES(now(), $g, $a, $bvrel, $mag)
-                }
-            }
         }
 
         # NEXT, Get a driver ID for this event.
