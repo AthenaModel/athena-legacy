@@ -98,7 +98,7 @@ snit::type strategy {
         control save
         cash save
         personnel save
-        service save
+        service save $locking
 
         # NEXT, populate base units for all groups.
         unit makebase

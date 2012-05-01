@@ -33,6 +33,17 @@ snit::type demog {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Initialization
+
+    # start
+    # 
+    # Computes population statistics at scenario lock.
+
+    typemethod start {} {
+        $type analyze pop
+    }
+
+    #-------------------------------------------------------------------
     # Group: Analysis of Population
 
     # Type Method: analyze pop

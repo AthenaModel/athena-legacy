@@ -123,49 +123,48 @@ snit::type engine {
     typemethod start {} {
         # FIRST, Set up the attitudes model: initialize URAM and relate all
         # existing MADs to URAM drivers.
-        aram      init -reload
-        # TBD: Update natural levels
+        aram init -reload
 
-        # NEXT, set up the status quo.
-        # 
-        # * [personnel start] creates units for all status quo
-        #   CIV/FRC/ORG personnel.  
-        #
-        # * [demog analyze pop] initializes the demographics tables; in 
-        #   the status quo there has been no attrition and no 
-        #   displacements.
-        #
-        # * [service start] initializes the service tables,
-        #   and computes the actual and expected level of service.
-        #
-        # * [nbstat start] computes the security levels and activity
-        #   coverage.
-        #
-        # * [control_model start] initializes vertical relationships, actor
-        #   support and influence, and neighborhood control, based on
-        #   the status quo data.
-       
-        # TBD: Look through these; now that the on-lock strategy execution
-        # doesn't depend on conditions, we might be doing more than we
-        # need to do.
-        personnel     start
-        demog         analyze pop
-        service       start
-        nbstat        start
-        control_model start
-        econ          start 
+        # NEXT, set natural attitude levels, so that they will look right
+        # when the simulation pauses at t=0.
+        # TBD.  Also, this might need to go further down (e.g., we need
+        # security to compute SFT's natural level.)
 
-        # NEXT, Enter time 0: Execute the on-lock strategy, and execute
-        # any scheduled events (scheduled orders, really).
-        strategy start
-        eventq advance 0
+        # NEXT, initialize all modules, and do basic analysis, in preparation
+        # for executing the on-lock tactics.
 
-        # NEXT, Compute the new state of affairs, given the agent's
-        # decisions at time 0.
-        demog          analyze pop
-        nbstat         analyze
-        control_model  analyze
-        demog          analyze econ
+        personnel start      ;# Initial deployments and base units.
+        demog start          ;# Computes population statistics
+        service start        ;# Populates service tables.
+        nbstat start         ;# Computes initial security and coverage
+        control_model start  ;# Computes initial support and influence
+        econ start           ;# Initializes the econ CGE.
+
+        # NEXT, Advance time to 0.  What we get here is a pseudo-tick,
+        # in which we execute the on-lock strategy and provide transient
+        # effects to URAM.
+
+        strategy start       ;# Execute on-lock strategies
+        eventq advance 0     ;# Execute any scheduled orders.
+
+        # NEXT, do analysis and assessment, of transient effects only.
+        # There will be no attrition and no shifts in neighborhood control.
+
+        demog analyze pop
+        ensit assess
+        nbstat analyze
+        control_model analyze
+        actsit assess
+        service assess
+        set econOK [econ tock]
+        if {$econOK} {
+            demog analyze econ
+        }
+        demsit assess
+
+        # NEXT, advance URAM to time 0, applying the transient inputs
+        # entered above.
+        aram advance 0
 
         # NEXT,  Save time 0 history!
         hist tick

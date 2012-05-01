@@ -142,101 +142,8 @@ snit::type service {
                 VALUES($g, $driver_id);
             }
         }
-
-        # NEXT, compute the actual and expected levels of 
-        # service for the status quo.
-        $type ComputeLOS -start
     }
 
-
-    # ComputeLOS ?-start?
-    #
-    # -start    - Set expected LOS to actual LOS
-    #
-    # Computes the actual and expected levels of service.  If
-    # -start is given, the expected LOS is initialized to the
-    # actual; otherwise, it follows the actual LOS using 
-    # exponential smoothing.
-
-    typemethod ComputeLOS {{mode ""}} {
-        set gainNeeds [parm get service.ENI.gainNeeds]
-        set gainExpect [parm get service.ENI.gainExpect]
-
-        foreach {g n urb pop Fg oldX} [rdb eval {
-            SELECT G.g                AS g,
-                   G.n                AS n,
-                   N.urbanization     AS urb,
-                   D.population       AS pop,
-                   total(SGA.funding) AS Fg,
-                   SG.expected        AS oldX
-            FROM civgroups  AS G 
-            JOIN nbhoods    AS N   USING (n)
-            JOIN demog_g    AS D   ON (D.g = G.g)
-            JOIN service_ga AS SGA ON (SGA.g = G.g)
-            JOIN service_g  AS SG  ON (SG.g = G.g)
-            GROUP BY G.g
-        }] {
-            # Compute the actual value
-            set Sr   [parm get service.ENI.saturationCost.$urb]
-            let Pg   {$pop * $Sr}
-            set Rg   [parm get service.ENI.required.$urb]
-            set beta [parm get service.ENI.beta.$urb]
-
-            let Ag   {($Fg/$Pg)**$beta}
-
-            # The status quo expected value is the same as the
-            # status quo actual value (but not more than 1.0).
-            if {$mode eq "-start"} {
-                let oldX {min(1.0,$Ag)}
-            }
-
-            # Get the smoothing constant.
-            if {$Ag > $oldX} {
-                set alpha [parm get service.ENI.alphaA]
-            } else {
-                set alpha [parm get service.ENI.alphaX]
-            }
-
-            # Compute the expected value
-            let Xg {$oldX + $alpha*(min(1.0,$Ag) - $oldX)}
-
-            # Compute the expectations factor
-            let expectf {$gainExpect * (min(1.0,$Ag) - $Xg)}
-
-            if {abs($expectf) < 0.01} {
-                set expectf 0.0
-            }
-
-            # Compute the needs factor
-            if {$Ag >= $Rg} {
-                set needs 0.0
-            } elseif {$Ag == 0.0} {
-                set needs 1.0
-            } else {
-                # $Ag < $Rg
-                let needs {($Rg - $Ag)/$Rg}
-            } 
-
-            let needs {$needs * $gainNeeds}
-
-            if {abs($needs) < 0.01} {
-                set needs 0.0
-            }
-
-            # Save the new values
-            rdb eval {
-                UPDATE service_g
-                SET saturation_funding = $Pg,
-                    required           = $Rg,
-                    funding            = $Fg,
-                    actual             = $Ag,
-                    expected           = $Xg,
-                    expectf            = $expectf,
-                    needs              = $needs
-                WHERE g=$g;
-            }
-        }
-    }
 
 
 
@@ -397,12 +304,15 @@ snit::type service {
         }
     }
 
-    # save
+    # save locking
+    #
+    # locking  - If 1, the scenario is being locked; if 0, not.
     #
     # Saves the working data back to the persistent tables,
     # and computes the current level of service for all groups.
+    # If locking, sets expected LOS to actual LOS when computing LOS.
 
-    typemethod save {} {
+    typemethod save {locking} {
         # FIRST, log all changed levels of funding
         $type LogFundingChanges
 
@@ -422,7 +332,96 @@ snit::type service {
         $type srcompute
 
         # NEXT, compute the actual and effective levels of service.
-        $type ComputeLOS
+        $type ComputeLOS $locking
+    }
+
+    # ComputeLOS locking
+    #
+    # locking   - If 1, the scenario is being locked; if 0, not.
+    #
+    # Computes the actual and expected levels of service.  If
+    # locking, the expected LOS is initialized to the
+    # actual; otherwise, it follows the actual LOS using 
+    # exponential smoothing.
+
+    typemethod ComputeLOS {locking} {
+        set gainNeeds [parm get service.ENI.gainNeeds]
+        set gainExpect [parm get service.ENI.gainExpect]
+
+        foreach {g n urb pop Fg oldX} [rdb eval {
+            SELECT G.g                AS g,
+                   G.n                AS n,
+                   N.urbanization     AS urb,
+                   D.population       AS pop,
+                   total(SGA.funding) AS Fg,
+                   SG.expected        AS oldX
+            FROM civgroups  AS G 
+            JOIN nbhoods    AS N   USING (n)
+            JOIN demog_g    AS D   ON (D.g = G.g)
+            JOIN service_ga AS SGA ON (SGA.g = G.g)
+            JOIN service_g  AS SG  ON (SG.g = G.g)
+            GROUP BY G.g
+        }] {
+            # Compute the actual value
+            set Sr   [parm get service.ENI.saturationCost.$urb]
+            let Pg   {$pop * $Sr}
+            set Rg   [parm get service.ENI.required.$urb]
+            set beta [parm get service.ENI.beta.$urb]
+
+            let Ag   {($Fg/$Pg)**$beta}
+
+            # The status quo expected value is the same as the
+            # status quo actual value (but not more than 1.0).
+            if {$locking} {
+                let oldX {min(1.0,$Ag)}
+            }
+
+            # Get the smoothing constant.
+            if {$Ag > $oldX} {
+                set alpha [parm get service.ENI.alphaA]
+            } else {
+                set alpha [parm get service.ENI.alphaX]
+            }
+
+            # Compute the expected value
+            let Xg {$oldX + $alpha*(min(1.0,$Ag) - $oldX)}
+
+            # Compute the expectations factor
+            let expectf {$gainExpect * (min(1.0,$Ag) - $Xg)}
+
+            if {abs($expectf) < 0.01} {
+                set expectf 0.0
+            }
+
+            # Compute the needs factor
+            if {$Ag >= $Rg} {
+                set needs 0.0
+            } elseif {$Ag == 0.0} {
+                set needs 1.0
+            } else {
+                # $Ag < $Rg
+                let needs {($Rg - $Ag)/$Rg}
+            } 
+
+            let needs {$needs * $gainNeeds}
+
+            if {abs($needs) < 0.01} {
+                set needs 0.0
+            }
+
+            # Save the new values
+            rdb eval {
+                UPDATE service_g
+                SET saturation_funding = $Pg,
+                    required           = $Rg,
+                    funding            = $Fg,
+                    actual             = $Ag,
+                    expected           = $Xg,
+                    expectf            = $expectf,
+                    needs              = $needs
+                WHERE g=$g;
+            }
+        }
     }
 
     # LogFundingChanges

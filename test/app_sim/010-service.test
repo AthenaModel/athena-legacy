@@ -106,33 +106,33 @@ KURD BOB 0.0     0.0
         cleanup
     } -result {
 g                   SHIA
-saturation_funding  4000.0
-required            0.6
+saturation_funding  0.0
+required            0.0
 funding             0.0
 actual              0.0
 expected            0.0
 expectf             0.0
-needs               2.0
+needs               0.0
 driver_id           1000
 
 g                   SUNN
-saturation_funding  8000.0
-required            0.6
+saturation_funding  0.0
+required            0.0
 funding             0.0
 actual              0.0
 expected            0.0
 expectf             0.0
-needs               2.0
+needs               0.0
 driver_id           1001
 
 g                   KURD
-saturation_funding  4000.0
-required            0.2
+saturation_funding  0.0
+required            0.0
 funding             0.0
 actual              0.0
 expected            0.0
 expectf             0.0
-needs               2.0
+needs               0.0
 driver_id           1002
     }
 
@@ -232,7 +232,7 @@ KURD BOB 0.0
         service load
         service fundeni JOE 7000.0 {SHIA SUNN KURD}
     } -body {
-        service save
+        service save 1
 
         rdb eval {SELECT count(event_id) FROM sigevents}
     } -cleanup {
@@ -245,7 +245,7 @@ KURD BOB 0.0
         service load
         service fundeni JOE 7000.0 {SHIA SUNN KURD}
     } -body {
-        service save
+        service save 1
 
         ted query {SELECT * FROM service_ga}
     } -cleanup {
@@ -267,7 +267,7 @@ KURD BOB 0.0     0.0
         service start
         service load
     } -body {
-        service save
+        service save 1
 
         # saturation_funding is population.g * S.urb;
         # NB1.urb = URBAN, S.URBAN = 0.2 (SHIA, SUNN)
@@ -288,7 +288,7 @@ KURD 4000.0
         service start
         service load
     } -body {
-        service save
+        service save 1
 
         ted query {SELECT g, required FROM service_g}
     } -cleanup {
@@ -306,7 +306,7 @@ KURD 0.2
         service start
         service load
     } -body {
-        service save
+        service save 1
 
         ted query {SELECT g, funding FROM service_g}
     } -cleanup {
@@ -326,7 +326,7 @@ KURD 0.0
         service fundeni JOE 700.0  {SHIA SUNN KURD}
         service fundeni BOB 1400.0 {SHIA SUNN KURD}
     } -body {
-        service save
+        service save 1
 
         # Groups get funding in proportion to their size.
         # So from JOE the groups get 100, 200, and 400
@@ -349,7 +349,7 @@ KURD 1200.0
         service fundeni JOE 700.0  {SHIA SUNN KURD}
         service fundeni BOB 1400.0 {SHIA SUNN KURD}
     } -body {
-        service save
+        service save 1
 
         ted query {
             SELECT g, 
@@ -373,10 +373,11 @@ KURD 1200.0  4000.0             0.3                        0.3
         setup
         service start
         service load
+        service save 1
         service fundeni JOE 700.0  {SHIA SUNN KURD}
         service fundeni BOB 1400.0 {SHIA SUNN KURD}
     } -body {
-        service save
+        service save 0
 
         # The expected will be between 0 and actual
         ted query {

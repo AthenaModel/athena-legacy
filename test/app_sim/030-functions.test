@@ -229,13 +229,14 @@ namespace eval ::athena_test::tests:: {
 
 
     test mood-2.1 {get data} -setup {
+        parm set econ.disable yes
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
         ted sendex expr mood("sunn")
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {-1.5}
 
     #-------------------------------------------------------------------
     # nbcoop()
@@ -295,13 +296,14 @@ namespace eval ::athena_test::tests:: {
 
 
     test nbmood-2.1 {get data} -setup {
+        parm set econ.disable yes
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
         ted sendex expr nbmood("nb1")
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {-1.5}
 
     #-------------------------------------------------------------------
     # now()
@@ -430,13 +432,14 @@ namespace eval ::athena_test::tests:: {
 
 
     test sat-2.1 {get data} -setup {
+        parm set econ.disable yes
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
         ted sendex expr sat("sunn","aut")
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {-3.0}
 
 
     #-------------------------------------------------------------------
