@@ -72,14 +72,16 @@ snit::type ensit {
                     [driver create [$sit get stype] [$sit oneliner]]
             }
 
-            # NEXT, it's on going; monitor its coverage.  Afterwards,
-            # clear the inception flag so that we only get inception
-            # once.
-            ensit_rules monitor $sit
-            $sit set inception 0
-
-            # NEXT, assess resolution affects if need be.
-            if {[$sit get state] eq "ENDED"} {
+            # NEXT, either it's ended or it's on-going.  If it's on-going,
+            # monitor its coverage and clear the inception flag so that 
+            # we only get inception once.  If it is ENDED, call the
+            # resolution rules.
+            if {[$sit get state] ne "ENDED"} {
+                ensit_rules monitor $sit
+                $sit set inception 0
+            } else {
+                # We need a driver; that's how we knew that we
+                # hadn't already run the resolution rules.
                 $sit set rdriver_id \
                     [driver create [$sit get stype] \
                          "Resolution of [$sit oneliner]"]

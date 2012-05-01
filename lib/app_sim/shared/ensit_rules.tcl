@@ -50,79 +50,60 @@ snit::type ensit_rules {
 
 
     typevariable subsets -array {
-        BADFOOD.setup           setup
         BADFOOD.monitor         BADFOOD-1
         BADFOOD.resolution      BADFOOD-2
 
-        BADWATER.setup          setup
         BADWATER.monitor        BADWATER-1
         BADWATER.resolution     BADWATER-2
 
-        COMMOUT.setup           setup
         COMMOUT.monitor         COMMOUT-1
         COMMOUT.resolution      {}
 
-        CULSITE.setup           setup
         CULSITE.monitor         CULSITE-1
         CULSITE.resolution      {}
 
-        DISASTER.setup          setup
         DISASTER.monitor        DISASTER-1
         DISASTER.resolution     DISASTER-2
 
-        DISEASE.setup           setup
         DISEASE.monitor         DISEASE-1
         DISEASE.resolution      DISEASE-2
 
-        EPIDEMIC.setup          setup
         EPIDEMIC.monitor        EPIDEMIC-1
         EPIDEMIC.resolution     EPIDEMIC-2
 
-        FOODSHRT.setup          setup
         FOODSHRT.monitor        FOODSHRT-1
         FOODSHRT.resolution     FOODSHRT-2
 
-        FUELSHRT.setup          setup
         FUELSHRT.monitor        FUELSHRT-1
         FUELSHRT.resolution     FUELSHRT-2
 
-        GARBAGE.setup           setup
         GARBAGE.monitor         GARBAGE-1
         GARBAGE.resolution      GARBAGE-2
 
-        INDSPILL.setup          setup
         INDSPILL.monitor        INDSPILL-1
         INDSPILL.resolution     INDSPILL-2
 
-        MINEFIELD.setup         setup
         MINEFIELD.monitor       MINEFIELD-1
         MINEFIELD.resolution    MINEFIELD-2
 
-        NOWATER.setup           setup
         NOWATER.monitor         NOWATER-1
         NOWATER.resolution      NOWATER-2
 
-        ORDNANCE.setup          setup
         ORDNANCE.monitor        ORDNANCE-1
         ORDNANCE.resolution     ORDNANCE-2
 
-        PIPELINE.setup          setup
         PIPELINE.monitor        PIPELINE-1
         PIPELINE.resolution     PIPELINE-2
 
-        POWEROUT.setup          setup
         POWEROUT.monitor        POWEROUT-1
         POWEROUT.resolution     POWEROUT-2
 
-        REFINERY.setup          setup
         REFINERY.monitor        REFINERY-1
         REFINERY.resolution     REFINERY-2
 
-        RELSITE.setup           setup
         RELSITE.monitor         RELSITE-1
         RELSITE.resolution      RELSITE-2
 
-        SEWAGE.setup            setup
         SEWAGE.monitor          SEWAGE-1
         SEWAGE.resolution       SEWAGE-2
     }
@@ -172,7 +153,7 @@ snit::type ensit_rules {
 
         bgcatch {
             # Set up the rule set
-            ensit_rules $subsets($ruleset.setup) monitor $sit
+            ensit_rules setup monitor $sit
 
             # Run the monitor rule sets.
             foreach subset $subsets($ruleset.monitor) {
@@ -198,7 +179,7 @@ snit::type ensit_rules {
 
         bgcatch {
             # Set up the rule set
-            ensit_rules $subsets($ruleset.setup) resolution $sit
+            ensit_rules setup resolution $sit
 
             # Run the resolve rule sets.
             foreach subset $subsets($ruleset.resolution) {
