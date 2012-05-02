@@ -383,27 +383,46 @@ JOIN civgroups AS CG ON (main.g = CG.g)
 LEFT OUTER JOIN uram_sat AS uram ON (main.g = uram.g AND main.c = uram.c);
 
 
--- An hrel_view for use by the GUI
+-- An hrel_view for use by the GUI during scenario preparation.
 CREATE TEMPORARY VIEW gui_hrel_view AS
 SELECT HV.f || ' ' || HV.g                           AS id,
        HV.f                                          AS f,
        F.gtype                                       AS ftype,
        HV.g                                          AS g,
        G.gtype                                       AS gtype,
-       format('%+4.1f', HV.hrel)                     AS hrel0,
-       format('%+4.1f', coalesce(UH.hrel, HV.hrel))  AS hrel,
-       format('%+4.1f', HV.hrel_nat)                 AS hrel_nat,
+       format('%+4.1f', HV.base)                     AS base,
+       format('%+4.1f', HV.nat)                      AS nat,
        CASE WHEN override THEN 'Y' ELSE 'N' END      AS override
 FROM hrel_view AS HV
 JOIN groups AS F ON (F.g = HV.f)
 JOIN groups AS G ON (G.g = HV.g)
-LEFT OUTER JOIN uram_hrel AS UH ON (UH.f=HV.f AND UH.g=HV.g)
 WHERE F.g != G.g;
 
 -- A gui_hrel_view subview, for overridden relationships only.
 CREATE TEMPORARY VIEW gui_hrel_override_view AS
 SELECT * FROM gui_hrel_view
 WHERE override = 'Y';
+
+-- A uram_hrel_view for use by the GUI during simulation.
+CREATE TEMPORARY VIEW gui_uram_hrel AS
+SELECT UH.f || ' ' || UH.g                           AS id,
+       UH.f                                          AS f,
+       F.gtype                                       AS ftype,
+       UH.g                                          AS g,
+       G.gtype                                       AS gtype,
+       format('%+4.1f', UH.hrel0)                    AS hrel0,
+       format('%+4.1f', UH.bvalue0)                  AS base0,
+       format('%+4.1f', UH.cvalue0)                  AS nat0,
+       format('%+4.1f', UH.hrel)                     AS hrel,
+       format('%+4.1f', UH.bvalue)                   AS base,
+       format('%+4.1f', UH.cvalue)                   AS nat,
+       UH.curve_id                                   AS curve_id,
+       UH.fg_id                                      AS fg_id
+FROM uram_hrel AS UH
+JOIN groups AS F ON (F.g = UH.f)
+JOIN groups AS G ON (G.g = UH.g)
+WHERE F.g != G.g;
+
 
 -- An vrel_view for use by the GUI
 CREATE TEMPORARY VIEW gui_vrel_view AS

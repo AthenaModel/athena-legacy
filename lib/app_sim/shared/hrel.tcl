@@ -8,12 +8,12 @@
 # DESCRIPTION:
 #    athena_sim(1): Horizontal Relationship Manager
 #
-#    By default, the initial horizontal group relationships (hrel)
+#    By default, the initial baseline horizontal relationships (hrel)
 #    are computed from belief systems by the bsystem module, an
 #    instance of mam(n), with the exception that rel.gg is always 1.0.
-#    The analyst is allowed to override any initial relationship for which 
-#    f != g.  The natural relationship is always either 1.0 when f=g
-#    and the affinity otherwise.
+#    The analyst is allowed to override any initial baseline relationship 
+#    for which f != g.  The natural relationship is always either 1.0 
+#    when f=g and the affinity otherwise.
 #
 #    These overrides are stored in the hrel_fg table and viewed in
 #    hrelbrowser(sim).  The hrel_view view pulls all of the data together.
@@ -27,6 +27,10 @@
 #
 #    Note that overridden relationships are deleted via cascading
 #    delete if the relevant groups are deleted.
+#
+# NOTE:
+#    This module concerns itself only with the scenario inputs.  For
+#    the dynamic relationship values, see URAM.
 #
 #-----------------------------------------------------------------------
 
@@ -86,7 +90,7 @@ snit::type hrel {
     # parmdict  - A dictionary of hrel parms
     #
     #    id     - list {f g}
-    #    hrel   - The relationship of f with g
+    #    base   - The overridden baseline relationship of f with g
     #
     # Creates a relationship record given the parms, which are presumed to be
     # valid.
@@ -96,15 +100,15 @@ snit::type hrel {
             lassign $id f g
 
             # FIRST, default hrel to 0.0
-            if {$hrel eq ""} {
-                set hrel 0.0
+            if {$base eq ""} {
+                set base 0.0
             }
 
             # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                hrel_fg(f,g,hrel)
-                VALUES($f, $g, $hrel);
+                hrel_fg(f,g,base)
+                VALUES($f, $g, $base);
             }
 
             # NEXT, Return the undo command
@@ -135,10 +139,10 @@ snit::type hrel {
     # parmdict  - A dictionary of group parms
     #
     #    id     - list {f g}
-    #    hrel   - Relationship of f with g
+    #    base   - Modified baseline relationship of f with g
     #
-    # Updates a relationship given the parms, which are presumed to be
-    # valid.
+    # Updates a baseline relationship override given the parms, which
+    # are presumed to be valid.
 
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
@@ -151,7 +155,7 @@ snit::type hrel {
             # NEXT, Update the group
             rdb eval {
                 UPDATE hrel_fg
-                SET hrel = nonempty($hrel, hrel)
+                SET base = nonempty($base, base)
                 WHERE f=$f AND g=$g
             } {}
 
@@ -170,7 +174,7 @@ snit::type hrel {
 # Deletes existing relationship override
 
 order define HREL:RESTORE {
-    title "Restore Initial Horizontal Relationship"
+    title "Restore Baseline Horizontal Relationship"
     options \
         -sendstates PREP
 
@@ -192,7 +196,7 @@ order define HREL:RESTORE {
 # Updates existing override
 
 order define HREL:OVERRIDE {
-    title "Override Initial Horizontal Relationship"
+    title "Override Baseline Horizontal Relationship"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
@@ -200,11 +204,11 @@ order define HREL:OVERRIDE {
     parm id   key   "Groups"         -table  gui_hrel_view \
                                      -keys   {f g}         \
                                      -labels {Of With}
-    parm hrel rel   "Relationship"
+    parm base rel   "Baseline"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type hrel
-    prepare hrel     -toupper            -type qaffinity
+    prepare base     -toupper            -type qaffinity
 
     returnOnError -final
 
@@ -222,18 +226,18 @@ order define HREL:OVERRIDE {
 # Updates multiple existing relationship overrides
 
 order define HREL:OVERRIDE:MULTI {
-    title "Override Multiple Horizontal Relationships"
+    title "Override Multiple Baseline Horizontal Relationships"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
     parm ids  multi  "IDs"           -table gui_hrel_view \
                                      -key   id
-    parm hrel rel    "Relationship"
+    parm base rel    "Baseline"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof hrel
-    prepare hrel     -toupper            -type qaffinity
+    prepare base     -toupper            -type qaffinity
 
     returnOnError -final
 

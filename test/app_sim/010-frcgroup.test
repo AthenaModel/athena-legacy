@@ -180,8 +180,8 @@ local        0
 
     test delete-7.1 {deletes hrel_fg overrides} -setup {
         ted create BLUE BRIT
-        hrel mutate create {id {BLUE BRIT} hrel 0.5}
-        hrel mutate create {id {BRIT BLUE} hrel 0.5}
+        hrel mutate create {id {BLUE BRIT} base 0.5}
+        hrel mutate create {id {BRIT BLUE} base 0.5}
     } -body {
         frcgroup mutate delete BLUE
 
@@ -192,8 +192,8 @@ local        0
 
     test delete-7.2 {undo restores hrel_fg overrides} -setup {
         ted create BLUE BRIT
-        hrel mutate create {id {BLUE BRIT} hrel 0.5}
-        hrel mutate create {id {BRIT BLUE} hrel 0.5}
+        hrel mutate create {id {BLUE BRIT} base 0.5}
+        hrel mutate create {id {BRIT BLUE} base 0.5}
 
         set undo [frcgroup mutate delete BLUE]
     } -body {

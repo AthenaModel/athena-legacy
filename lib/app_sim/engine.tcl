@@ -94,7 +94,7 @@ snit::type engine {
         }]
 
         $uram load hrel {*}[rdb eval {
-            SELECT f, g, hrel FROM hrel_view
+            SELECT f, g, base FROM hrel_view
             ORDER BY f, g
         }]
 

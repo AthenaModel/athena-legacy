@@ -871,13 +871,13 @@ CREATE TABLE sat_gc (
 ------------------------------------------------------------------------
 -- Initial Horizontal Relationship Data
 
--- hrel_fg: Normally, an initial horizontal relationship is the affinity
--- between the two groups; however, this can be overridden.  This
--- table contains the overrides.  See hrel_view for the full set of data,
--- and uram_hrel for the current relationships.
+-- hrel_fg: Normally, an initial baseline horizontal relationship is 
+-- the affinity between the two groups; however, this can be overridden.  
+-- This table contains the overrides.  See hrel_view for the full set of 
+-- data, and uram_hrel for the current relationships.
 --
--- Thus hrel0 is group f's initial relationship with group g, from
--- f's point of view.
+-- Thus baseline is group f's initial baseline relationship with group g,
+-- from f's point of view.
 
 CREATE TABLE hrel_fg (
     -- Symbolic group name: group f
@@ -890,8 +890,8 @@ CREATE TABLE hrel_fg (
          ON DELETE CASCADE
          DEFERRABLE INITIALLY DEFERRED,
 
-    -- Initial group relationship, from f's point of view.
-    hrel DOUBLE DEFAULT 0.0,
+    -- Initial baseline horizontal relationship, from f's point of view.
+    base DOUBLE DEFAULT 0.0,
 
     PRIMARY KEY (f, g)
 );
@@ -899,38 +899,25 @@ CREATE TABLE hrel_fg (
 ------------------------------------------------------------------------
 -- Horizontal Relationship View
 
--- This view computes the initial horizontal relationship for each pair 
--- of groups.  The initial relationship, hrel, defaults to the affinity
--- between the groups' relationship entities, and can be explicitly 
--- overridden in the hrel_fg table.  The natural level, hrel_nat, is
--- just the affniity.  There are a couple of special cases:
---
--- * The relationship of a group with itself is forced to 1.0; and
---   this cannot be overridden.  A group has a self-identity that
---   it does not share with other groups and that the affinity model
---   does not take into account.
---
--- * IN THE FUTURE, the relationship of two CIV groups with the same 
---   rel_entity should also be 1.0.  This case would arise only because
---   of the split of a CIV group (something we do not yet do in
---   Athena); thus, the two groups are the same group, at least in the
---   short run.  (Once we have truly dynamic inter-group relationships,
---   all bets are off.)
---
--- * Two FRC/ORG groups with the same rel_entity do NOT have a 
---   relationship of 1.0, as they lack that self-identity.  
---   Consider the rivalry between the Army and the Navy.
+-- This view computes the initial baseline horizontal relationship for 
+-- each pair of groups.  The initial baseline, base, defaults to the
+-- affinity between the groups' relationship entities, and can be
+-- explicitly overridden in the hrel_fg table.  The natural level,
+-- nat, is just the affinity.  Note that the the relationship of a
+-- group with itself is forced to 1.0; and this cannot be overridden.
+-- A group has a self-identity that it does not share with other
+-- groups and that the affinity model does not take into account.
 
 CREATE VIEW hrel_view AS
 SELECT F.g                                         AS f,
        G.g                                         AS g,
        CASE WHEN F.g = G.g
             THEN 1.0
-            ELSE A.affinity END                    AS hrel_nat,
+            ELSE A.affinity END                    AS nat,
        CASE WHEN F.g = G.g
             THEN 1.0
-            ELSE coalesce(R.hrel, A.affinity) END  AS hrel,
-       CASE WHEN R.hrel IS NOT NULL 
+            ELSE coalesce(R.base, A.affinity) END  AS base,
+       CASE WHEN R.base IS NOT NULL 
             THEN 1
             ELSE 0 END                             AS override
 FROM groups AS F

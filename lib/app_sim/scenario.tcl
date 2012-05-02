@@ -547,6 +547,7 @@ snit::type scenario {
         rdb function qsecurity            ::projectlib::qsecurity
         rdb function moneyfmt             ::marsutil::moneyfmt
         rdb function mklinks              [list ::sigevent mklinks]
+        rdb function uram_gamma           [myproc UramGamma]
 
         # NEXT, define the GUI Views
         rdb eval [readfile [file join $::app_sim::library gui_views.sql]]
@@ -619,7 +620,16 @@ snit::type scenario {
         map m2ref {*}$args
     }
 
-
+    # UramGamma ctype
+    #
+    # ctype - A URAM curve type: HREL, VREL, COOP, AUT, CUL, QOL.
+    #
+    # Returns the "gamma" parameter for curves of that type from
+    # parmdb(5).
+    
+    proc UramGamma {ctype} {
+        return [lindex [parm get uram.factors.$ctype] 1]
+    }
 
     #-------------------------------------------------------------------
     # Registration of saveable objects

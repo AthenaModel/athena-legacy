@@ -61,7 +61,7 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.3 {f eq g} -setup {
         setup
     } -body {
-        ted order -reject HREL:OVERRIDE id {SHIA SHIA} hrel 1.0
+        ted order -reject HREL:OVERRIDE id {SHIA SHIA} base 1.0
     } -cleanup {
         cleanup
     } -result {
@@ -72,11 +72,11 @@ namespace eval ::athena_test::tests:: {
     test UPDATE-1.4 {invalid rel: out of range} -setup {
         setup
     } -body {
-        ted order -reject HREL:OVERRIDE id {SHIA SUNN} hrel 1.1
+        ted order -reject HREL:OVERRIDE id {SHIA SUNN} base 1.1
     } -cleanup {
         cleanup
     } -result {
-        hrel {invalid value "1.1", should be a real number in range -1.0, 1.0, or one of: SUPPORT, LIKE, INDIFF, DISLIKE, OPPOSE}
+        base {invalid value "1.1", should be a real number in range -1.0, 1.0, or one of: SUPPORT, LIKE, INDIFF, DISLIKE, OPPOSE}
     }
 
     # Create new override
@@ -86,14 +86,14 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order HREL:OVERRIDE {
             id    {SHIA BLUE}
-            hrel   0.5
+            base   0.5
         }
 
         ted query {SELECT * FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    hrel 
+f    g    base 
 ---- ---- ---- 
 SHIA BLUE 0.5  
     }
@@ -106,7 +106,7 @@ SHIA BLUE 0.5
     } -cleanup {
         cleanup
     } -result {
-f    g    hrel 
+f    g    base 
 ---- ---- ---- 
 SHIA SUNN 0.0  
     }
@@ -116,7 +116,7 @@ SHIA SUNN 0.0
         setup
     } -body {
         ted notifier bind ::rdb <hrel_fg>
-        ted order HREL:OVERRIDE id {SHIA BLUE} hrel 0.5
+        ted order HREL:OVERRIDE id {SHIA BLUE} base 0.5
         ted notifier received
     } -cleanup {
         cleanup
@@ -130,7 +130,7 @@ SHIA SUNN 0.0
 
         ted order HREL:OVERRIDE {
             id    {SHIA BLUE}
-            hrel   0.5
+            base   0.5
         }
     } -body {
         ted notifier bind ::rdb <hrel_fg>
@@ -151,14 +151,14 @@ SHIA SUNN 0.0
     } -body {
         ted order HREL:OVERRIDE {
             id    {SHIA BLUE}
-            hrel   0.5
+            base   0.5
         }
 
         ted query {SELECT * FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    hrel 
+f    g    base 
 ---- ---- ---- 
 SHIA BLUE 0.5  
     }
@@ -169,7 +169,7 @@ SHIA BLUE 0.5
         ted order HREL:OVERRIDE {id {SHIA BLUE}}
     } -body {
         ted notifier bind ::rdb <hrel_fg>
-        ted order HREL:OVERRIDE id {SHIA BLUE} hrel 0.5
+        ted order HREL:OVERRIDE id {SHIA BLUE} base 0.5
         ted notifier received
     } -cleanup {
         cleanup
@@ -184,7 +184,7 @@ SHIA BLUE 0.5
         ted order HREL:OVERRIDE {id {SHIA BLUE}}
         ted order HREL:OVERRIDE {
             id    {SHIA BLUE}
-            hrel   0.5
+            base   0.5
         }
     } -body {
         ted notifier bind ::rdb <hrel_fg>
@@ -331,11 +331,11 @@ SHIA BLUE 0.5
         setup
     } -body {
         ted order -reject HREL:OVERRIDE:MULTI \
-            ids {{SHIA BLUE}} hrel 1.1
+            ids {{SHIA BLUE}} base 1.1
     } -cleanup {
         cleanup
     } -result {
-        hrel {invalid value "1.1", should be a real number in range -1.0, 1.0, or one of: SUPPORT, LIKE, INDIFF, DISLIKE, OPPOSE}
+        base {invalid value "1.1", should be a real number in range -1.0, 1.0, or one of: SUPPORT, LIKE, INDIFF, DISLIKE, OPPOSE}
     }
 
     # Create new overrides
@@ -347,7 +347,7 @@ SHIA BLUE 0.5
 
         ted order HREL:OVERRIDE:MULTI {
             ids       {{SHIA BLUE} {BLUE SUNN}}
-            hrel       0.5
+            base       0.5
         }
 
         ted notifier received
@@ -362,7 +362,7 @@ SHIA BLUE 0.5
         setup
         ted order HREL:OVERRIDE:MULTI {
             ids        {{SHIA BLUE} {SHIA SUNN}}
-            hrel        0.5
+            base        0.5
         }
     } -body {
         ted notifier bind ::rdb <hrel_fg>
@@ -384,7 +384,7 @@ SHIA BLUE 0.5
         ted notifier bind ::rdb <hrel_fg>
         ted order HREL:OVERRIDE:MULTI {
             ids   {{SHIA BLUE} {SHIA SUNN}} 
-            hrel  0.5
+            base  0.5
         }
         ted notifier received
     } -cleanup {
@@ -401,7 +401,7 @@ SHIA BLUE 0.5
 
         ted order HREL:OVERRIDE:MULTI {
             ids        {{SHIA BLUE} {SHIA SUNN}}
-            hrel       0.5
+            base       0.5
         }
     } -body {
         ted notifier bind ::rdb <hrel_fg>

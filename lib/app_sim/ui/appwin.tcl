@@ -226,9 +226,16 @@ snit::widget appwin {
 
         hrel {
             label   "HRel"
-            vistype *
+            vistype scenario
             parent  att
             script  { hrelbrowser %W }
+        }
+
+        hrel_sim {
+            label   "HRel"
+            vistype simulation
+            parent  att
+            script  { hrelbrowser_sim %W }
         }
 
         vrel {

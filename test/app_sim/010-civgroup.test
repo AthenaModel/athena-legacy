@@ -206,8 +206,8 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
 
     test delete-7.1 {deletes hrel_fg overrides} -setup {
         ted create SHIA SUNN
-        hrel mutate create {id {SHIA SUNN} hrel 0.5}
-        hrel mutate create {id {SUNN SHIA} hrel 0.5}
+        hrel mutate create {id {SHIA SUNN} base 0.5}
+        hrel mutate create {id {SUNN SHIA} base 0.5}
     } -body {
         civgroup mutate delete SHIA
 
@@ -218,8 +218,8 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
 
     test delete-7.2 {undo restores hrel_fg overrides} -setup {
         ted create SHIA SUNN
-        hrel mutate create {id {SHIA SUNN} hrel 0.5}
-        hrel mutate create {id {SUNN SHIA} hrel 0.5}
+        hrel mutate create {id {SHIA SUNN} base 0.5}
+        hrel mutate create {id {SUNN SHIA} base 0.5}
 
         set undo [civgroup mutate delete SHIA]
     } -body {

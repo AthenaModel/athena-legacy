@@ -8,8 +8,7 @@
 # DESCRIPTION:
 #    hrelbrowser(sim) package: Relationship browser.
 #
-#    This widget displays a formatted list of hrel_fg records.
-#    It is a variation of browser_base(n).
+#    This widget displays the scenario's HREL inputs.
 #
 #-----------------------------------------------------------------------
 
@@ -35,9 +34,8 @@ snit::widgetadaptor hrelbrowser {
         {g        "With Group G"                }
         {ftype    "F Type"                      }
         {gtype    "G Type"                      }
-        {hrel0    "HRel at T0"   -sortmode real }
-        {hrel     "HRel Now"     -sortmode real }
-        {hrel_nat "Nat. HRel"    -sortmode real }
+        {base     "Baseline"     -sortmode real }
+        {nat      "Natural"      -sortmode real }
         {override "OV"           -hide 1        }
     }
 
@@ -74,7 +72,7 @@ snit::widgetadaptor hrelbrowser {
         set bar [$hull toolbar]
 
         install editbtn using mkeditbutton $bar.edit   \
-            "Override Initial Horizontal Relationship" \
+            "Override Baseline Horizontal Relationship" \
             -state   disabled                          \
             -command [mymethod EditSelected]
 
@@ -83,7 +81,7 @@ snit::widgetadaptor hrelbrowser {
             browser $win
 
         install deletebtn using mkdeletebutton $bar.delete \
-            "Restore Initial Horizontal Relationship"      \
+            "Restore Baseline Horizontal Relationship"      \
             -state   disabled                              \
             -command [mymethod DeleteSelected]
 

@@ -1874,20 +1874,34 @@ snit::type appserver {
 
         ht para
 
-
-        ht query {
-            SELECT link('/group/' || g, pair(longname, g)) 
-                                                           AS 'Friend/Enemy',
-                   G.gtype                                 AS 'Type',
-                   hrel                                    AS 'HRel',
-                   $g || ' ' || qaffinity('longname',hrel) 
-                      || ' ' || g                          AS 'Narrative',
-                   qaffinity('format',hrel_nat)            AS 'Nat. HRel'
-            FROM gui_hrel_view
-            JOIN groups AS G USING (g)
-            WHERE f=$g AND qaffinity('name',hrel) != 'INDIFF'
-            ORDER BY hrel DESC
-        } -align LLRLR
+        if {![Locked]} {
+            ht query {
+                SELECT G.longlink                          AS 'Friend/Enemy',
+                       G.gtypelink                         AS 'Type',
+                       base                                AS 'Base. HRel',
+                       $g || ' ' || qaffinity('longname',base) 
+                       || ' ' || g                         AS 'Narrative',
+                       nat                                 AS 'Nat. HRel'
+                FROM gui_hrel_view
+                JOIN gui_groups AS G USING (g)
+                WHERE f=$g AND qaffinity('name',base) != 'INDIFF'
+                ORDER BY base DESC
+            } -align LLRLR
+        } else {
+            ht query {
+                SELECT G.longlink                          AS 'Friend/Enemy',
+                       G.gtypelink                         AS 'Type',
+                       hrel                                AS 'HRel',
+                       $g || ' ' || qaffinity('longname',hrel) 
+                       || ' ' || g                         AS 'Narrative',
+                       base                                AS 'Base. HRel',
+                       nat                                 AS 'Nat. HRel'
+                FROM gui_uram_hrel
+                JOIN gui_groups AS G USING (g)
+                WHERE f=$g AND qaffinity('name',hrel) != 'INDIFF'
+                ORDER BY hrel DESC
+            } -align LLRLR
+        }
 
         ht subtitle "ENI Services" eni
 

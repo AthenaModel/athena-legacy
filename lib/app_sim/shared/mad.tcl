@@ -792,7 +792,7 @@ order define MAD:HREL:ADJUST {
         -sendstates     {PAUSED TACTIC}         \
         -schedulestates {PREP PAUSED TACTIC}
 
-    parm id        key   "Curve"     -table    gui_hrel_view   \
+    parm id        key   "Curve"     -table    gui_uram_hrel   \
                                      -keys     {f g}           \
                                      -labels   {"Of" "With"}
     parm driver_id key   "MAD ID"    -table    gui_mads        \
@@ -827,8 +827,8 @@ order define MAD:HREL:INPUT {
     parm mode      enum  "Mode"                -enumtype    einputmode \
                                                -displaylong yes        \
                                                -defval      transient
-    parm f         enum  "Of Group"            -enumtype group
-    parm g         enum  "With Group"          -enumtype group
+    parm f         enum  "Of Group"            -enumtype    group
+    parm g         enum  "With Group"          -enumtype    group
     parm mag       text  "Magnitude"
 } {
     # FIRST, prepare the parameters

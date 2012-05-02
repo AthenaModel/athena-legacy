@@ -106,8 +106,8 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE N
 
     test delete-5.1 {deletes hrel_fg overrides} -setup {
         ted create USAID BRIT
-        hrel mutate create {id {USAID BRIT} hrel 0.5}
-        hrel mutate create {id {BRIT USAID} hrel 0.5}
+        hrel mutate create {id {USAID BRIT} base 0.5}
+        hrel mutate create {id {BRIT USAID} base 0.5}
     } -body {
         orggroup mutate delete USAID
 
@@ -118,8 +118,8 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE N
 
     test delete-5.2 {undo restores hrel_fg overrides} -setup {
         ted create USAID BRIT
-        hrel mutate create {id {USAID BRIT} hrel 0.5}
-        hrel mutate create {id {BRIT USAID} hrel 0.5}
+        hrel mutate create {id {USAID BRIT} base 0.5}
+        hrel mutate create {id {BRIT USAID} base 0.5}
 
         set undo [orggroup mutate delete USAID]
     } -body {

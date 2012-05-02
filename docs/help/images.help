@@ -42,6 +42,7 @@ image button_pencil      "Button: Pencil"              button_pencil.png
 image button_pencil0     "Button: Pencil 0"            button_pencil0.png
 image button_pencils     "Button: Pencil S"            button_pencils.png
 image button_pencila     "Button: Pencil A"            button_pencila.png
+image button_pencili     "Button: Pencil I"            button_pencili.png
 image button_pause       "Button: Pause"               button_pause.png
 image button_peabody     "Button: Peabody"             button_peabody.png
 image button_play        "Button: Play"                button_play.png
