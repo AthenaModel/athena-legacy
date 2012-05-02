@@ -197,7 +197,7 @@ driver_id   -1
 n           NB1
 coverage    1.0
 state       INITIAL
-ts          1
+ts          0
 tc          0
 change      NEW
 flist       ALL
@@ -450,7 +450,7 @@ driver_id   -1
 n           NB1
 coverage    1.0
 state       INITIAL
-ts          1
+ts          0
 tc          0
 change      NEW
 flist       ALL
@@ -650,7 +650,7 @@ driver_id   -1
 n           NB1
 coverage    1.0
 state       ENDED
-ts          1
+ts          0
 tc          0
 change      RESOLVED
 flist       ALL
@@ -680,7 +680,7 @@ driver_id   -1
 n           NB1
 coverage    1.0
 state       ENDED
-ts          1
+ts          0
 tc          0
 change      RESOLVED
 flist       ALL

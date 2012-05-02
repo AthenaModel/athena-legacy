@@ -389,13 +389,24 @@ snit::type ensit {
             }
 
             # NEXT, Create the situation.  The start time is the 
-            # time of the first assessment, which is one tick later than
-            # now.
-            set s [situation create $type         \
-                       ts        [simclock now 1] \
-                       stype     $stype           \
-                       n         $n               \
-                       coverage  $coverage        \
+            # time of the first assessment. In PREP, that will be t=0; while
+            # PAUSED, it will be t+1, i.e., the next time tick; if created
+            # by a tactic or by a scheduled order, it will be t, i.e., 
+            # right now.
+
+            if {[sim state] eq "PREP"} {
+                set ts 0
+            } elseif {[sim state] eq "PAUSED"} {
+                set ts [simclock now 1]
+            } else {
+                set ts [simclock now]
+            }
+
+            set s [situation create $type  \
+                       ts        $ts       \
+                       stype     $stype    \
+                       n         $n        \
+                       coverage  $coverage \
                        g         $g]
 
             rdb eval {
