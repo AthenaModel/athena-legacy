@@ -31,12 +31,11 @@ snit::widgetadaptor satbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g        "Group"                                   }
-        { c        "Concern"                                 }
-        { n        "Nbhood"                                  }
-        { sat0     "Sat at T0" -sortmode real                }
-        { sat      "Sat Now"   -sortmode real -foreground %D }
-        { saliency "Saliency"  -sortmode real                }
+        { g        "Group"                     }
+        { c        "Concern"                   }
+        { n        "Nbhood"                    }
+        { base     "Baseline"  -sortmode real  }
+        { saliency "Saliency"  -sortmode real  }
     }
 
     #-------------------------------------------------------------------
@@ -52,13 +51,12 @@ snit::widgetadaptor satbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_sat_gc                  \
+            -view         gui_sat_view                \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
-                ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
@@ -76,22 +74,10 @@ snit::widgetadaptor satbrowser {
             order   SAT:UPDATE          \
             browser $win
 
-        install adjbtn using mktoolbutton $bar.adj \
-            ::projectgui::icon::pencila22          \
-            "Magic Adjust Satisfaction Level"      \
-            -state   disabled                      \
-            -command [mymethod AdjustSelected]
-
-        cond::availableSingle control $adjbtn \
-            order   MAD:SAT:ADJUST               \
-            browser $win
-       
         pack $editbtn   -side left
-        pack $adjbtn    -side left
 
         # NEXT, update individual entities when they change.
         notifier bind ::rdb <sat_gc> $self [mymethod uid]
-        notifier bind ::mad <Sat>    $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
@@ -111,7 +97,6 @@ snit::widgetadaptor satbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::availableMulti update $editbtn
-        cond::availableSingle update $adjbtn
     }
 
 
@@ -130,18 +115,7 @@ snit::widgetadaptor satbrowser {
             order enter SAT:UPDATE:MULTI ids $ids
         }
     }
-
-    # AdjustSelected
-    #
-    # Called when the user wants to adjust the selected level
-
-    method AdjustSelected {} {
-        set ids [$hull uid curselection]
-
-        order enter MAD:SAT:ADJUST id [lindex $ids 0]
-    }
 }
-
 
 
 

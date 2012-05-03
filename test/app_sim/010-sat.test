@@ -43,7 +43,7 @@ namespace eval ::athena_test::tests:: {
     } -body {
         sat mutate update {
             id             {SHIA AUT}
-            sat0           1.0
+            base           1.0
             saliency       0.5
         }
 
@@ -51,7 +51,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    c   sat0 saliency 
+g    c   base saliency 
 ---- --- ---- -------- 
 SHIA AUT 1.0  0.5      
 SHIA SFT 0.0  1.0      
@@ -65,7 +65,7 @@ SHIA QOL 0.0  1.0
 
         set parmdict {
             id             {SHIA AUT}
-            sat0           1.0
+            base           1.0
             saliency       0.5
         }
 
@@ -91,7 +91,7 @@ SHIA QOL 0.0  1.0
 
         sat mutate update  {
             id             {SHIA SFT}
-            sat0           ""
+            base           ""
             saliency       ""
         }
 
@@ -111,7 +111,7 @@ SHIA QOL 0.0  1.0
 
         set undo [sat mutate update {
             id             {SHIA SFT}
-            sat0           1.0
+            base           1.0
             saliency       0.5
         }]
 

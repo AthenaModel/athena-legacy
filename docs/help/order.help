@@ -1676,7 +1676,7 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
 order MAD:SAT:INPUT "Magic Satisfaction Input" {
     <<parmlist>>
     
-    <<parm mad "MAD ID">>
+    <<parm driver_id "MAD ID">>
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
@@ -2100,9 +2100,9 @@ page /order sat "Satisfaction Orders" {
     Athena models the satisfaction of civilian groups with respect
     to a variety of
     concerns.  This family of orders are used to manipulate the
-    initial satisfaction levels and related parameters.  (Use the
-    <<cref /order/mad/sat>> to adjust or otherwise influence the 
-    current levels.)<p>
+    initial baseline satisfaction levels and related parameters.  
+    (Use the <<cref /order/mad/sat>> to adjust or otherwise influence the 
+    levels during simulation.)<p>
 
     The full set of orders is as follows:<p>
 
@@ -2111,7 +2111,7 @@ page /order sat "Satisfaction Orders" {
 
 #-----------------------------------------------------------------------
 
-order SAT:UPDATE "Update Initial Satisfaction" {
+order SAT:UPDATE "Update Baseline Satisfaction" {
     <<parmlist>>
     <<parm id "Curve">>
     <b>Required.</b>  A satisfaction curve ID, which is a list 
@@ -2119,9 +2119,9 @@ order SAT:UPDATE "Update Initial Satisfaction" {
     civilian group and <i>c</i> is a concern.
     <</parm>>
 
-    <<parm sat0 "Sat at T0">>
-    <b>Optional.</b>  The initial satisfaction level of group <i>g</i>
-    with concern <i>c</i>.  Satisfaction levels
+    <<parm base "Baseline">>
+    <b>Optional.</b>  The initial baseline satisfaction level of 
+    group <i>g</i> with concern <i>c</i>.  Satisfaction levels
     run from -100.0 to 100.0, and are defined either numerically or using
     the following rating scale:<p>
 
@@ -2136,52 +2136,20 @@ order SAT:UPDATE "Update Initial Satisfaction" {
     <<::simlib::qsaliency html>>
     <</parm>>
 
-    <<parm atrend "Ascending Trend">>
-    <b>Optional.</b> The ascending trend for this curve, 
-    a non-negative slope in nominal satisfaction points per day.  The
-    ascending trend is applied whenever the current satisfaction level
-    is less than <i>athresh</i>.  If this value is 0.0, there is no ascending
-    trend for this curve.
-    <</parm>>
-
-    <<parm athresh "Asc. Threshold">>
-    <b>Optional.</b> The ascending threshold for this curve.  Thresholds
-    run from -100.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qsat html>>
-    <</parm>>
-
-    <<parm dtrend "Descending Trend">>
-    <b>Optional.</b> The descending trend for this curve, 
-    a non-positive slope in nominal satisfaction points per day.  The
-    descending trend is applied whenever the current satisfaction level
-    is greater than <i>dthresh</i>.  If this value is 0.0, there is no 
-    descending trend for this curve.
-    <</parm>>
-
-    <<parm dthresh "Desc. Threshold">>
-    <b>Optional.</b> The descending threshold for this curve.  Thresholds
-    run from -100.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qsat html>>
-    <</parm>>
     <</parmlist>>
 
-    <b><<term prep>> Only.</b>  This order updates the initial
+    <b><<term prep>> Only.</b>  This order updates the initial baseline
     satisfaction level of one group with a concern; this can only be done
     during the Scenario Preparation phase.<p>
 
     (Use the <<cref /order/mad>> to adjust or otherwise influence the 
-    current levels.)
-
+    levels during simulation.)
 }
 
 
 #-----------------------------------------------------------------------
 
-order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
+order SAT:UPDATE+MULTI "Update Baseline Satisfaction (Multi)" {
     <<parmlist>>
     <<parm ids "IDs">>
     <b>Required.</b>  <<parm.ids satisfaction>><p>
@@ -2191,9 +2159,9 @@ order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
     <<cref /order/sat/update>> order.
     <</parm>>
 
-    <<parm sat0 "Sat at T0">>
-    <b>Optional.</b>  The initial satisfaction level of group <i>g</i>
-    with concern <i>c</i>.  Satisfaction levels
+    <<parm base "baseline">>
+    <b>Optional.</b>  The initial baseline satisfaction level of 
+    group <i>g</i> with concern <i>c</i>.  Satisfaction levels
     run from -100.0 to 100.0, and are defined either numerically or using
     the following rating scale:<p>
 
@@ -2207,46 +2175,15 @@ order SAT:UPDATE+MULTI "Update Initial Satisfaction (Multi)" {
 
     <<::simlib::qsaliency html>>
     <</parm>>
-
-    <<parm atrend "Ascending Trend">>
-    <b>Optional.</b> The ascending trend for this curve, 
-    a non-negative slope in nominal satisfaction points per day.  The
-    ascending trend is applied whenever the current satisfaction level
-    is less than <i>athresh</i>.  If this value is 0.0, there is no ascending
-    trend for this curve.
-    <</parm>>
-
-    <<parm athresh "Asc. Threshold">>
-    <b>Optional.</b> The ascending threshold for this curve.  Thresholds
-    run from -100.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qsat html>>
-    <</parm>>
-
-    <<parm dtrend "Descending Trend">>
-    <b>Optional.</b> The descending trend for this curve, 
-    a non-positive slope in nominal satisfaction points per day.  The
-    descending trend is applied whenever the current satisfaction level
-    is greater than <i>dthresh</i>.  If this value is 0.0, there is no 
-    descending trend for this curve.
-    <</parm>>
-
-    <<parm dthresh "Desc. Threshold">>
-    <b>Optional.</b> The descending threshold for this curve.  Thresholds
-    run from -100.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qsat html>>
-    <</parm>>
+    
     <</parmlist>>
 
     <b><<term prep>> Only.</b>  This order updates two or more initial
-    satisfaction levels, as selected in the GUI; this can only be done
-    during the Scenario Preparation phase.<p>
+    baseline satisfaction levels, as selected in the GUI; this can only 
+    be done during the Scenario Preparation phase.<p>
 
     (Use the <<cref /order/mad>> to adjust or otherwise influence the 
-    current levels.)
+    levels during simulation.)
 }
 
 #=======================================================================

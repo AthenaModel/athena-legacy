@@ -10,8 +10,8 @@
 #
 #    This module is responsible for managing the scenario's satisfaction
 #    curve inputs as CIV groups come and ago, and for allowing the analyst
-#    to update particular satisfaction levels.  Curves are created and
-#    deleted when civ groups are created and deleted.
+#    to update baseline satisfaction levels and saliencies.  Curves are 
+#    created and deleted when civ groups are created and deleted.
 #
 #-----------------------------------------------------------------------
 
@@ -64,7 +64,7 @@ snit::type sat {
     # parmdict     A dictionary of group parms
     #
     #    id               list {g c}
-    #    sat0             A new initial satisfaction, or ""
+    #    base             A new initial satisfaction, or ""
     #    saliency         A new saliency, or ""
     #
     # Updates a satisfaction level the parms, which are presumed to be
@@ -81,7 +81,7 @@ snit::type sat {
             # NEXT, Update the group
             rdb eval {
                 UPDATE sat_gc
-                SET sat0     = nonempty($sat0,     sat0),
+                SET base     = nonempty($base,     base),
                     saliency = nonempty($saliency, saliency)
                 WHERE g=$g AND c=$c
             } {}
@@ -90,7 +90,6 @@ snit::type sat {
             return [list rdb ungrab $data]
         }
     }
-
 }
 
 #-------------------------------------------------------------------
@@ -101,20 +100,22 @@ snit::type sat {
 # Updates existing curves
 
 order define SAT:UPDATE {
-    title "Update Initial Satisfaction"
+    title "Update Baseline Satisfaction"
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id        key   "Curve"            -table  gui_sat_gc    \
+    parm id        key   "Curve"            -table  gui_sat_view  \
                                             -keys   {g c}         \
                                             -labels {"Grp" "Con"}
-    parm sat0      sat   "Sat at T0"
+    parm base      sat   "Baseline"
     parm saliency  frac  "Saliency"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type ::sat
 
-    prepare sat0     -toupper -type qsat      -xform [list qsat value]
+    # TBD: the -xform might no longer be needed; I believe that validate
+    # now returns the value for quality data types.
+    prepare base     -toupper -type qsat      -xform [list qsat value]
     prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
 
     returnOnError -final
@@ -129,20 +130,20 @@ order define SAT:UPDATE {
 # Updates multiple existing curves
 
 order define SAT:UPDATE:MULTI {
-    title "Update Initial Satisfaction (Multi)"
+    title "Update Baseline Satisfaction (Multi)"
     options \
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids       multi  "Curves"           -table gui_sat_gc \
+    parm ids       multi  "Curves"           -table gui_sat_view \
                                              -key id
-    parm sat0      sat    "Sat at T0"
+    parm base      sat    "Baseline"
     parm saliency  frac   "Saliency"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat
 
-    prepare sat0     -toupper -type qsat      -xform [list qsat value]
+    prepare base     -toupper -type qsat      -xform [list qsat value]
     prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
 
     returnOnError -final

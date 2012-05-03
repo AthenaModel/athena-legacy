@@ -928,7 +928,7 @@ order define MAD:SAT:ADJUST {
         -sendstates     {PAUSED TACTIC}         \
         -schedulestates {PREP PAUSED TACTIC}
 
-    parm id        key   "Curve"     -table    gui_sat_gc      \
+    parm id        key   "Curve"     -table    gui_uram_sat    \
                                      -keys     {g c}           \
                                      -labels   {"Grp" "Con"}
     parm driver_id key   "MAD ID"    -table    gui_mads        \

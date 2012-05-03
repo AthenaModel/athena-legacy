@@ -104,7 +104,7 @@ snit::type engine {
         }]
 
         $uram load sat {*}[rdb eval {
-            SELECT g, c, sat0, saliency
+            SELECT g, c, base, saliency
             FROM sat_gc
             ORDER BY g, c
         }]

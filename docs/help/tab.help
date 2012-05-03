@@ -1875,8 +1875,75 @@ page /tab/attitudes/vrel simulation "VRel browser, Simulation Mode" {
 #-----------------------------------------------------------------------
 
 tab "Attitudes/Satisfaction" {
-    This tab displays the full set of satisfaction curves for all
+    This tab shows the full set of satisfaction curves for all 
     civilian groups.
+
+    This browser functions differently in Scenario mode vs. Simulation
+    mode.
+
+    <<childlinks>>
+}
+
+page /tab/attitudes/satisfaction scenario "Satisfaction browser, Scenario Mode" {
+    <<title>>
+
+    In <b>Scenario Mode</b>, the satisfaction browser shows the baseline
+    level and saliency of each satisfaction curve, as entered by the
+    user.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Group>>The name of a civilian group that's resident in
+    the neighborhood.<</topic>>
+    
+    <<topic "Concern">>A concern of the specified group, from
+    the following enumeration.<p>
+
+    <<enumdoc ::projectlib::econcern>>
+    <</topic>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic "Baseline">>The initial baseline satisfaction value for this
+    curve, as set during <<term prep>>.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+    
+    <<topic Saliency>>The importance of this concern to this group in
+    this neighborhood, a real number from the following scale:<p>
+
+    <<::simlib::qsaliency html>>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/sat/update>> or <<cref /order/sat/update:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+page /tab/attitudes/satisfaction simulation "Satisfaction browser, Simulation Mode" {
+    <<title>>
+
+    In <b>Simulation Mode</b>, the satisfaction browser shows the 
+    current, baseline, and natural levels for each satisfaction curve
+    for the current time and for time 0.  Note that by default, only 
+    SFT satisfaction curves regress to a natural level.<p>
+
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -1893,23 +1960,31 @@ tab "Attitudes/Satisfaction" {
 
     <<topic Nbhood>>A neighborhood name.<</topic>>
 
-    <<topic "Sat at T0">>The initial satisfaction value for this
-    curve, as set during <<term prep>>.  It is a real number
-    taken from the following scale:<p>
+    <<topic "Current">> The group's current satisfaction the concern,
+    a number drawn from the following scale:<p>
 
-    <<::simlib::qsat html>>
-    <</topic>>
-    
-    <<topic "Sat Now">>The current satisfaction value for this curve.
+    <<::simlib::qsat html>><p>
+
+    The current level is the baseline plus any transient effects.
     <</topic>>
 
-    <<topic Saliency>>The importance of this concern to this group in
-    this neighborhood, a real number from the following scale:<p>
-
-    <<::simlib::qsaliency html>>
+    <<topic "Baseline">> The baseline satisfaction level.  This will
+    change slowly in response to transient effects.
     <</topic>>
 
-    <<::simlib::qsat html>>
+    <<topic "Natural">> The natural satisfaction level (if defined).  In
+    the absence of attitude drivers, the baseline relationship will 
+    regress to this value slowly over time.<p>
+
+    <</topic>>
+
+    <<topic "Current at T0">> The current level at time 0.
+    <</topic>>
+
+    <<topic "Baseline at T0">> The baseline level at time 0.
+    <</topic>>
+
+    <<topic "Natural at T0">> The natural level (if defined) at time 0.
     <</topic>>
 
     <</topiclist>>
@@ -1919,15 +1994,14 @@ tab "Attitudes/Satisfaction" {
 
     <<topiclist Control Description>>
 
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/sat/update>> or <<cref /order/sat/update:multi>> dialog for
-    the selected row(s).
+    <<topic [image button_pencila]>>
+    Pops up the <<cref /order/mad/sat/adjust>> dialog for
+    the selected curve.
     <</topic>>
 
-    <<topic [image button_pencila]>>
-    If a single row is selected, pops up the 
-    <<cref /order/mad/sat/adjust>> dialog for the selected curve.
+    <<topic [image button_pencili]>>
+    Pops up the <<cref /order/mad/sat/input>> dialog for
+    the selected curve.
     <</topic>>
 
     <<control.filterbox>>

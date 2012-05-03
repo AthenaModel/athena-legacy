@@ -875,7 +875,7 @@ CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
 
 
 -- Group/concern pairs (g,c) for civilian groups
--- This table contains the data used to initialize URAM.
+-- This table contains the data used to initialize URAM sat curves.
 
 CREATE TABLE sat_gc (
     -- Symbolic groups name
@@ -886,8 +886,8 @@ CREATE TABLE sat_gc (
     -- Symbolic concerns name
     c          TEXT,
 
-    -- Initial satisfaction value
-    sat0       DOUBLE DEFAULT 0.0,
+    -- Initial baseline satisfaction value
+    base       DOUBLE DEFAULT 0.0,
 
     -- Saliency of concern c to group g in nbhood n
     saliency   DOUBLE DEFAULT 1.0,

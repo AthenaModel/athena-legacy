@@ -368,20 +368,40 @@ JOIN gui_civgroups AS G ON (GA.g = G.g)
 JOIN gui_actors    AS A ON (GA.a = A.a)
 JOIN gui_nbhoods   AS N ON (G.n = N.n);
 
--- A sat_gc view for use by the GUI: 
--- NOTE: presumes there is a single uram(n)!
-CREATE TEMPORARY VIEW gui_sat_gc AS
-SELECT main.g || ' ' || main.c                        AS id,
-       main.g                                         AS g,
-       main.c                                         AS c,
-       CG.n                                           AS n,
-       format('%.3f', coalesce(uram.sat0, main.sat0)) AS sat0,
-       format('%.3f', coalesce(uram.sat, main.sat0))  AS sat,
-       format('%.2f', main.saliency)                  AS saliency
-FROM sat_gc AS main
-JOIN civgroups AS CG ON (main.g = CG.g) 
-LEFT OUTER JOIN uram_sat AS uram ON (main.g = uram.g AND main.c = uram.c);
+-- A sat_gc view for use by the GUI during Scenario Mode: 
+CREATE TEMPORARY VIEW gui_sat_view AS
+SELECT GC.g || ' ' || GC.c                          AS id,
+       GC.g                                         AS g,
+       GC.c                                         AS c,
+       G.n                                          AS n,
+       format('%.3f', GC.base)                      AS base,
+       format('%.2f', GC.saliency)                  AS saliency
+FROM sat_gc AS GC
+JOIN civgroups AS G ON (GC.g = G.g)
+ORDER BY g,c;
 
+-- A uram_sat_view for use by the GUI during simulation. Replace the
+-- natural level with "n/a" when gamma is 0.
+CREATE TEMPORARY VIEW gui_uram_sat AS
+SELECT US.g || ' ' || US.c                           AS id,
+       US.g                                          AS g,
+       US.c                                          AS c,
+       G.n                                           AS n,
+       format('%+4.1f', US.sat0)                     AS sat0,
+       format('%+4.1f', US.bvalue0)                  AS base0,
+       CASE WHEN uram_gamma(c) > 0.0
+            THEN format('%+4.1f', US.cvalue0)
+            ELSE 'n/a' END                           AS nat0,
+       format('%+4.1f', US.sat)                      AS sat,
+       format('%+4.1f', US.bvalue)                   AS base,
+       CASE WHEN uram_gamma(c) > 0.0
+            THEN format('%+4.1f', US.cvalue)
+            ELSE 'n/a' END                           AS nat,
+       US.curve_id                                   AS curve_id,
+       US.gc_id                                      AS gc_id
+FROM uram_sat AS US
+JOIN civgroups AS G USING (g)
+ORDER BY g,c;
 
 -- An hrel_view for use by the GUI during scenario preparation.
 CREATE TEMPORARY VIEW gui_hrel_view AS

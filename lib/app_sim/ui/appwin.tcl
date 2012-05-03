@@ -261,9 +261,16 @@ snit::widget appwin {
 
         sat {
             label   "Satisfaction"
-            vistype *
+            vistype scenario
             parent  att
             script  { satbrowser %W }
+        }
+
+        sat_sim {
+            label   "Satisfaction"
+            vistype simulation
+            parent  att
+            script  { satbrowser_sim %W }
         }
 
         coop {
