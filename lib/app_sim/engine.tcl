@@ -99,7 +99,7 @@ snit::type engine {
         }]
 
         $uram load vrel {*}[rdb eval {
-            SELECT g, a, vrel FROM vrel_view
+            SELECT g, a, base FROM vrel_view
             ORDER BY g, a
         }]
 

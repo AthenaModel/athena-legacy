@@ -876,7 +876,7 @@ CREATE TABLE sat_gc (
 -- This table contains the overrides.  See hrel_view for the full set of 
 -- data, and uram_hrel for the current relationships.
 --
--- Thus baseline is group f's initial baseline relationship with group g,
+-- Thus base is group f's initial baseline relationship with group g,
 -- from f's point of view.
 
 CREATE TABLE hrel_fg (
@@ -928,13 +928,13 @@ LEFT OUTER JOIN hrel_fg AS R ON (R.f = F.g AND R.g = G.g);
 ------------------------------------------------------------------------
 -- Initial Vertical Relationship Data
 
--- vrel_ga: Normally, an initial vertical relationship is the affinity
--- between the group and the actor (unless the actor owns the group); 
--- however, this can be overridden.  This table contains the
+-- vrel_ga: Normally, an initial baseline vertical relationship is 
+-- the affinity between the group and the actor (unless the actor owns
+-- the group); however, this can be overridden.  This table contains the
 -- overrides.  See vrel_view for the full set of data,  
 -- and uram_vrel for the current relationships.
 --
--- Thus vrel is group g's initial relationship with actor a.
+-- Thus base is group g's initial baseline relationship with actor a.
 
 CREATE TABLE vrel_ga (
     -- Symbolic group name: group g
@@ -948,7 +948,7 @@ CREATE TABLE vrel_ga (
          DEFERRABLE INITIALLY DEFERRED,
 
     -- Initial vertical relationship
-    vrel DOUBLE DEFAULT 0.0,
+    base DOUBLE DEFAULT 0.0,
 
     PRIMARY KEY (g, a)
 );
@@ -956,10 +956,10 @@ CREATE TABLE vrel_ga (
 ------------------------------------------------------------------------
 -- Vertical Relationship View
 
--- This view computes the initial vertical relationships for each group
--- and actor.  The initial relationship, vrel, defaults to the affinity
--- between the relationship entities, and can be explicitly 
--- overridden in the vrel_ga table.  The natural level, vrel_nat, is
+-- This view computes the initial baseline vertical relationships for 
+-- each group and actor.  The initial baseline, base, defaults to the 
+-- affinity between the relationship entities, and can be explicitly 
+-- overridden in the vrel_ga table.  The natural level, nat, is
 -- just the affinity.  Note that the relationship of a group with
 -- its owning actor defaults to 1.0.
 
@@ -970,11 +970,11 @@ SELECT G.g                                          AS g,
        -- Assume that actor A owns G if A is G's rel_entity.
        CASE WHEN G.rel_entity = A.a
             THEN 1.0
-            ELSE AF.affinity END                    AS vrel_nat,
+            ELSE AF.affinity END                    AS nat,
        CASE WHEN G.rel_entity = A.a
-            THEN coalesce(V.vrel, 1.0)
-            ELSE coalesce(V.vrel, AF.affinity) END  AS vrel,
-       CASE WHEN V.vrel IS NOT NULL 
+            THEN coalesce(V.base, 1.0)
+            ELSE coalesce(V.base, AF.affinity) END  AS base,
+       CASE WHEN V.base IS NOT NULL 
             THEN 1
             ELSE 0 END                              AS override
 FROM groups AS G

@@ -6,7 +6,8 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    vrelbrowser(sim) package: Vertical Relationship browser.
+#    vrelbrowser(sim) package: Vertical Relationship browser, Scenario
+#    Mode.
 #
 #    This widget displays a formatted list of gui_vrel_view records.
 #
@@ -33,9 +34,8 @@ snit::widgetadaptor vrelbrowser {
         {g        "Of Group G"                  }
         {a        "With Actor A"                }
         {gtype    "G Type"                      }
-        {vrel0    "Vrel at T0"   -sortmode real }
-        {vrel     "Vrel Now"     -sortmode real }
-        {vrel_nat "Nat. Vrel"    -sortmode real }
+        {base     "Baseline"     -sortmode real }
+        {nat      "Natural"      -sortmode real }
         {override "OV"           -hide 1        }
     }
 
@@ -58,6 +58,7 @@ snit::widgetadaptor vrelbrowser {
             -selectioncmd [mymethod SelectionChanged] \
             -displaycmd   [mymethod DisplayData]      \
             -reloadon {
+                ::rdb <actors>
                 ::rdb <groups>
                 ::sim <DbSyncB>
             } -views {

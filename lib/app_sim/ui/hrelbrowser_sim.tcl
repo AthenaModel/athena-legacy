@@ -84,7 +84,7 @@ snit::widgetadaptor hrelbrowser_sim {
             ::projectgui::icon::pencili22              \
             "Magic Horizontal Relationship Input"      \
             -state   disabled                          \
-            -command [mymethod AdjustSelected]
+            -command [mymethod InputForSelected]
 
         cond::availableSingle control $inputbtn \
             order   MAD:HREL:INPUT               \
@@ -135,7 +135,7 @@ snit::widgetadaptor hrelbrowser_sim {
         set id [lindex [$hull uid curselection] 0]
         lassign $id f g
 
-        order enter MAD:HREL:INPUT f $id g $id
+        order enter MAD:HREL:INPUT f $f g $g
     }
 }
 

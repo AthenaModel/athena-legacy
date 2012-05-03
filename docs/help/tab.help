@@ -1500,6 +1500,7 @@ page /tab/attitudes/beliefs affinity "Belief Systems Browser Affinities Pane" {
     also their affinities with A.  Click on a column header to sort on
     that column.
 }
+
 #-----------------------------------------------------------------------
 
 tab "Attitudes/HRel" {
@@ -1655,6 +1656,18 @@ page /tab/attitudes/hrel simulation "HRel browser, Simulation Mode" {
 
     <</topic>>
 
+    <<topic "Current at T0">> The current relationship between
+    group F and group G from F's point of view at time 0.
+    <</topic>>
+
+    <<topic "Baseline at T0">> The baseline relationship between
+    group F and group G from F's point of view at time 0.
+    <</topic>>
+
+    <<topic "Natural at T0">> The natural relationship between group F and
+    group G from F's point of view at time 0.
+    <</topic>>
+
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
@@ -1669,6 +1682,188 @@ page /tab/attitudes/hrel simulation "HRel browser, Simulation Mode" {
 
     <<topic [image button_pencili]>>
     Pops up the <<cref /order/mad/hrel/input>> dialog for
+    the selected relationship.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Attitudes/VRel" {
+    This tab shows the vertical relationships (VRel) between the
+    groups and actors in the playbox.  Each row concerns the
+    relationship of group G with actor A from group G's point of
+    view.<p>
+
+    This browser functions differently in Scenario mode vs. Simulation
+    mode.
+
+    <<childlinks>>
+}
+
+page /tab/attitudes/vrel scenario "VRel browser, Scenario Mode" {
+    <<title>>
+
+    In <b>Scenario Mode</b>, the vertical relationship
+    browser shows the natural,
+    affinity-based level for each relationship, along with the initial
+    baseline value.  The baseline value defaults to the natural level,
+    but can be overridden by the user.  Default baselines are
+    shown in green text; overridden baselines are shown in red text.
+
+    Initially, vertical relationships are computed automatically from the 
+    belief systems model; civilian groups and actors have their own 
+    belief systems, and force and organization groups inherit the
+    belief systems of their owning actors.  Computed relationships
+    are shown in green text.<p>
+
+    Additionally, the analyst can override any initial relationship
+    with a specific value; these manually-entered relationships are
+    shown in red text.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group G">>A group ID.<</topic>>
+    
+    <<topic "With Actor A">>An actor ID.<</topic>>
+    
+    <<topic "G Type">>The group type of group G:<p>
+
+    <<enumdoc ::simlib::egrouptype>>
+    <</topic>>
+
+    <<topic "Baseline">> The initial baseline relationship between
+    group G and actor A from G's point of view, a number drawn from the
+    following scale:<p>
+
+    <<::simlib::qaffinity html>>
+
+    <</topic>>
+
+    <<topic "Natural">> The natural relationship between group G and
+    actor A from A's point of view, as derived from the affinity
+    between the group and the actor.  It will be the same as the 
+    baseline value unless the baseline has been overridden by the 
+    analyst.  In the absence of other drivers, the baseline relationship 
+    will regress to this value slowly over time.<p>
+
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/vrel/override>> or 
+    <<cref /order/vrel/override:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If an overridden relationship is selected, deletes the
+    override and restores the computed relationship.
+    <</topic>>
+
+    <<topic [image viewbox]>>
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All relationships, whether computed or overridden.
+    <li> <b>Overridden</b>: Manually overridden relationships only.
+    </ul>
+    <</topic>>
+
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+page /tab/attitudes/vrel simulation "VRel browser, Simulation Mode" {
+    <<title>>
+
+    In <b>Simulation Mode</b>, the vertical relationship
+    browser shows the current, baseline, and natural levels for
+    each relationship for the current time and for time 0.  The
+    current level is the baseline level plus any transient effects.
+    The presence of transient effects will cause the baseline level to
+    change slowly, and in the absence of attitude drivers 
+    the baseline level will regress slowly back to the natural level
+    over time.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group G">>A group ID.<</topic>>
+    
+    <<topic "With Actor A">>An actor ID.<</topic>>
+    
+    <<topic "G Type">>The group type of group G:<p>
+
+    <<enumdoc ::simlib::egrouptype>>
+    <</topic>>
+
+    <<topic "Current">> The current relationship between
+    group G and actor A from G's point of view, a number drawn from the
+    following scale:<p>
+
+    <<::simlib::qaffinity html>><p>
+
+    The current relationships is the baseline plus any transient effects.
+    <</topic>>
+
+    <<topic "Baseline">> The baseline relationship between
+    group G and actor A from G's point of view.
+    <</topic>>
+
+    <<topic "Natural">> The natural relationship between group G and
+    actor A from G's point of view, as derived from the affinity
+    between the group and the actor.  In the
+    absence of attitude drivers, the baseline relationship will regress to 
+    this value slowly over time.<p>
+
+    <</topic>>
+
+    <<topic "Current at T0">> The current relationship between
+    group G and actor A from G's point of view at time 0.
+    <</topic>>
+
+    <<topic "Baseline at T0">> The baseline relationship between
+    group G and actor A from G's point of view at time 0.
+    <</topic>>
+
+    <<topic "Natural at T0">> The natural relationship between group G and
+    actor A from G's point of view at time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencila]>>
+    Pops up the <<cref /order/mad/vrel/adjust>> dialog for
+    the selected relationship.
+    <</topic>>
+
+    <<topic [image button_pencili]>>
+    Pops up the <<cref /order/mad/vrel/input>> dialog for
     the selected relationship.
     <</topic>>
 

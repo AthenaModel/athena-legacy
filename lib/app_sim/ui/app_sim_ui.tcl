@@ -97,3 +97,5 @@ source [file join $::app_sim_ui::library timechart.tcl         ]
 source [file join $::app_sim_ui::library toolbutton.tcl        ]
 source [file join $::app_sim_ui::library view.tcl              ]
 source [file join $::app_sim_ui::library vrelbrowser.tcl       ]
+source [file join $::app_sim_ui::library vrelbrowser_sim.tcl   ]
+

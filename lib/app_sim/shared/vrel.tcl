@@ -8,11 +8,11 @@
 # DESCRIPTION:
 #    athena_sim(1): Vertical Relationship Manager
 #
-#    By default, the initial vertical group relationships (vrel)
+#    By default, the initial baseline vertical group relationships (base)
 #    are computed from belief systems by the bsystem module, an
 #    instance of mam(n), with the exception that vrel.ga is always 1.0
 #    when g is a group owned by actor a. The analyst is allowed to override 
-#    any initial relationship.  The natural relationship is always 
+#    any initial baseline relationship.  The natural relationship is always 
 #    1.0 when a owns g, and the affinity otherwise.
 #
 #    These overrides are stored in the vrel_ga table and viewed in
@@ -27,6 +27,10 @@
 #
 #    Note that overridden relationships are deleted via cascading
 #    delete if the relevant groups are deleted.
+#
+# NOTE:
+#    This module concerns itself only with the scenario inputs.  For
+#    the dynamic relationship values, see URAM.
 #
 #-----------------------------------------------------------------------
 
@@ -81,7 +85,7 @@ snit::type vrel {
     # parmdict  - A dictionary of vrel parms
     #
     #    id     - list {g a}
-    #    vrel   - The relationship of g with a
+    #    base   - The relationship of g with a
     #
     # Creates a relationship record given the parms, which are presumed to be
     # valid.
@@ -90,16 +94,16 @@ snit::type vrel {
         dict with parmdict {
             lassign $id g a
 
-            # FIRST, default vrel to 0.0
-            if {$vrel eq ""} {
-                set vrel 0.0
+            # FIRST, default base to 0.0
+            if {$base eq ""} {
+                set base 0.0
             }
 
             # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                vrel_ga(g,a,vrel)
-                VALUES($g, $a, $vrel);
+                vrel_ga(g,a,base)
+                VALUES($g, $a, $base);
             }
 
             # NEXT, Return the undo command
@@ -130,7 +134,7 @@ snit::type vrel {
     # parmdict  - A dictionary og aroup parms
     #
     #    id     - list {g a}
-    #    vrel   - Relationship of g with a
+    #    base   - Relationship of g with a
     #
     # Updates a relationship given the parms, which are presumed to be
     # valid.
@@ -146,7 +150,7 @@ snit::type vrel {
             # NEXT, Update the group
             rdb eval {
                 UPDATE vrel_ga
-                SET vrel = nonempty($vrel, vrel)
+                SET base = nonempty($base, base)
                 WHERE g=$g AND a=$a
             } {}
 
@@ -165,11 +169,11 @@ snit::type vrel {
 # Deletes existing relationship override
 
 order define VREL:RESTORE {
-    title "Restore Initial Vertical Relationship"
+    title "Restore Baseline Vertical Relationship"
     options \
         -sendstates PREP
 
-    parm id   key   "Groups"         -table  gui_vrel_view \
+    parm id   key   "Group/Actor"    -table  gui_vrel_view \
                                      -keys   {g a}      \
                                      -labels {Of With}
 } {
@@ -187,19 +191,19 @@ order define VREL:RESTORE {
 # Updates existing override
 
 order define VREL:OVERRIDE {
-    title "Override Initial Vertical Relationship"
+    title "Override Baseline Vertical Relationship"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id   key   "Groups"         -table  gui_vrel_view \
+    parm id   key   "Group/Actor"    -table  gui_vrel_view \
                                      -keys   {g a}         \
                                      -labels {Of With}
-    parm vrel rel   "Relationship"
+    parm base rel   "Baseline"
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type vrel
-    prepare vrel     -toupper            -type qaffinity
+    prepare base     -toupper            -type qaffinity
 
     returnOnError -final
 
@@ -217,18 +221,18 @@ order define VREL:OVERRIDE {
 # Updates multiple existing relationship overrides
 
 order define VREL:OVERRIDE:MULTI {
-    title "Override Multiple Vertical Relationships"
+    title "Override Multiple Baseline Vertical Relationships"
     options \
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
     parm ids  multi  "IDs"           -table gui_vrel_view \
                                      -key   id
-    parm vrel rel    "Relationship"
+    parm base rel    "Baseline"
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof vrel
-    prepare vrel     -toupper            -type qaffinity
+    prepare base     -toupper            -type qaffinity
 
     returnOnError -final
 

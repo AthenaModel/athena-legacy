@@ -262,7 +262,7 @@ JOE Joe the Actor JOE      200000.0     10000.0 0.0
 
     test delete-9.1 {deletes vrel_ga overrides} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
     } -body {
         actor mutate delete JOE
 
@@ -273,7 +273,7 @@ JOE Joe the Actor JOE      200000.0     10000.0 0.0
 
     test delete-9.2 {undo restores vrel_ga overrides} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
 
         set undo [actor mutate delete JOE]
     } -body {

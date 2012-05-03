@@ -232,7 +232,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
 
     test delete-8.1 {deletes vrel_ga overrides} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
     } -body {
         civgroup mutate delete SHIA
 
@@ -243,7 +243,7 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
 
     test delete-8.2 {undo restores vrel_ga overrides} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
 
         set undo [civgroup mutate delete SHIA]
     } -body {

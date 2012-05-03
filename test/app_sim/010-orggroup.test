@@ -132,7 +132,7 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE N
 
     test delete-6.1 {deletes vrel_ga overrides} -setup {
         ted create JOE USAID
-        vrel mutate create {id {USAID JOE} vrel 0.5}
+        vrel mutate create {id {USAID JOE} base 0.5}
     } -body {
         orggroup mutate delete USAID
 
@@ -143,7 +143,7 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE N
 
     test delete-6.2 {undo restores vrel_ga overrides} -setup {
         ted create JOE USAID
-        vrel mutate create {id {USAID JOE} vrel 0.5}
+        vrel mutate create {id {USAID JOE} base 0.5}
 
         set undo [orggroup mutate delete USAID]
     } -body {

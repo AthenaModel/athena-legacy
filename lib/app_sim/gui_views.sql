@@ -424,24 +424,38 @@ JOIN groups AS G ON (G.g = UH.g)
 WHERE F.g != G.g;
 
 
--- An vrel_view for use by the GUI
+-- A vrel_view for use by the GUI in Scenario Mode.
 CREATE TEMPORARY VIEW gui_vrel_view AS
-SELECT VV.g || ' ' || VV.a                           AS id,
-       VV.g                                          AS g,
-       VV.gtype                                      AS gtype,
-       VV.a                                          AS a,
-       format('%+4.1f', VV.vrel)                     AS vrel0,
-       format('%+4.1f', coalesce(UV.vrel, VV.vrel))  AS vrel,
-       format('%+4.1f', VV.vrel_nat)                 AS vrel_nat,
-       CASE WHEN override THEN 'Y' ELSE 'N' END      AS override
-FROM vrel_view AS VV
-LEFT OUTER JOIN uram_vrel AS UV USING (g, a);
+SELECT g || ' ' || a                              AS id,
+       g                                          AS g,
+       gtype                                      AS gtype,
+       a                                          AS a,
+       format('%+4.1f', base)                     AS base,
+       format('%+4.1f', nat)                      AS nat,
+       CASE WHEN override THEN 'Y' ELSE 'N' END   AS override
+FROM vrel_view;
 
 -- A gui_vrel_view subview, for overridden relationships only.
 CREATE TEMPORARY VIEW gui_vrel_override_view AS
 SELECT * FROM gui_vrel_view
 WHERE override = 'Y';
 
+-- A uram_vrel_view for use by the GUI during simulation.
+CREATE TEMPORARY VIEW gui_uram_vrel AS
+SELECT UV.g || ' ' || UV.a                           AS id,
+       UV.g                                          AS g,
+       G.gtype                                       AS gtype,
+       UV.a                                          AS a,
+       format('%+4.1f', UV.vrel0)                    AS vrel0,
+       format('%+4.1f', UV.bvalue0)                  AS base0,
+       format('%+4.1f', UV.cvalue0)                  AS nat0,
+       format('%+4.1f', UV.vrel)                     AS vrel,
+       format('%+4.1f', UV.bvalue)                   AS base,
+       format('%+4.1f', UV.cvalue)                   AS nat,
+       UV.curve_id                                   AS curve_id,
+       UV.ga_id                                      AS ga_id
+FROM uram_vrel AS UV
+JOIN groups AS G ON (G.g = UV.g);
 
 -- A coop_fg view for use by the GUI:
 -- NOTE: presumes there is a single uram(n)!

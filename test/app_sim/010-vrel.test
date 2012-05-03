@@ -40,19 +40,19 @@ namespace eval ::athena_test::tests:: {
     test create-1.1 {override is created} -setup {
         ted create JOE SHIA
     } -body {
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
         ted query {SELECT * FROM vrel_ga}
     } -cleanup {
         cleanup
     } -result {
-g    a   vrel 
+g    a   base 
 ---- --- ---- 
 SHIA JOE 0.5  
     }
 
     test create-2.1 {undo deletes the override} -setup {
         ted create JOE SHIA
-        set undo [vrel mutate create {id {SHIA JOE} vrel 0.5}]
+        set undo [vrel mutate create {id {SHIA JOE} base 0.5}]
     } -body {
         namespace eval :: $undo
         rdb eval {SELECT * FROM vrel_ga}
@@ -65,7 +65,7 @@ SHIA JOE 0.5
 
     test delete-1.1 {Record is deleted} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
     } -body {
         vrel mutate delete {SHIA JOE}
 
@@ -77,7 +77,7 @@ SHIA JOE 0.5
 
     test delete-2.1 {Undo restores record} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
         set undo [vrel mutate delete {SHIA JOE}]
     } -body {
         namespace eval :: $undo
@@ -85,7 +85,7 @@ SHIA JOE 0.5
     } -cleanup {
         cleanup
     } -result {
-g    a   vrel 
+g    a   base 
 ---- --- ---- 
 SHIA JOE 0.5  
     }
@@ -97,18 +97,18 @@ SHIA JOE 0.5
 
     test update-1.1 {rel is updated} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
     } -body {
         vrel mutate update {
             id   {SHIA JOE}
-            vrel  0.7
+            base  0.7
         }
 
         ted query {SELECT * FROM vrel_ga ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
-g    a   vrel 
+g    a   base 
 ---- --- ---- 
 SHIA JOE 0.7  
     }
@@ -119,7 +119,7 @@ SHIA JOE 0.7
 
         set parmdict {
             id   {SHIA JOE}
-            vrel  0.5
+            base  0.5
         }
 
         vrel mutate create $parmdict
@@ -138,13 +138,13 @@ SHIA JOE 0.7
 
     test update-1.3 {empty values are OK} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
     } -body {
         set a [ted query {SELECT * FROM vrel_ga ORDER BY g,a}]
 
         vrel mutate update  {
             id   {SHIA JOE}
-            vrel  ""
+            base  ""
         }
 
         set b [ted query {SELECT * FROM vrel_ga ORDER BY g,a}]
@@ -157,14 +157,14 @@ SHIA JOE 0.7
 
     test update-2.1 {undo undoes the change} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.0}
+        vrel mutate create {id {SHIA JOE} base 0.0}
     } -body {
 
         set a [ted query {SELECT * FROM vrel_ga ORDER BY g,a}]
 
         set undo [vrel mutate update {
             id   {SHIA JOE}
-            vrel  0.5
+            base  0.5
         }]
 
         eval $undo
@@ -196,7 +196,7 @@ SHIA JOE 0.7
 
     test exists-1.3 {record exists} -setup {
         ted create JOE SHIA
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
+        vrel mutate create {id {SHIA JOE} base 0.5}
     } -body {
         vrel exists {SHIA JOE}
     } -cleanup {
@@ -258,25 +258,25 @@ SHIA JOE 0.7
     } -cleanup {
         cleanup
     } -result {
-g    gtype a   vrel_nat vrel override 
----- ----- --- -------- ---- -------- 
-BLUE FRC   JOE 1.0      1.0  0        
-SHIA CIV   JOE 0.0      0.0  0        
+g    gtype a   nat base override 
+---- ----- --- --- ---- -------- 
+BLUE FRC   JOE 1.0 1.0  0        
+SHIA CIV   JOE 0.0 0.0  0        
     }
 
     test vrel_view-1.2 {vrel_ga overrides bsystem values} -setup {
         ted create JOE BLUE SHIA
     } -body {
-        vrel mutate create {id {SHIA JOE} vrel 0.5}
-        vrel mutate create {id {BLUE JOE} vrel 0.25}
+        vrel mutate create {id {SHIA JOE} base 0.5}
+        vrel mutate create {id {BLUE JOE} base 0.25}
         ted query {SELECT * FROM vrel_view ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
-g    gtype a   vrel_nat vrel override 
----- ----- --- -------- ---- -------- 
-BLUE FRC   JOE 1.0      0.25 1        
-SHIA CIV   JOE 0.0      0.5  1        
+g    gtype a   nat base override 
+---- ----- --- --- ---- -------- 
+BLUE FRC   JOE 1.0 0.25 1        
+SHIA CIV   JOE 0.0 0.5  1        
     }
 
     #-------------------------------------------------------------------
