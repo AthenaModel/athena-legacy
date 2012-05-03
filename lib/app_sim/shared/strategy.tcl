@@ -82,15 +82,19 @@ snit::type strategy {
             WHERE state = 'normal'
             ORDER BY owner, priority
         } {
-            if {$locking && $on_lock} {
-                log normal strategy \
-                    "Tactic $tactic_id IS eligible on lock"
-                $type ExecuteTactic $tactic_id
-            } elseif {[$type IsEligible $tactic_id]} {
-                log normal strategy "Tactic $tactic_id IS eligible"
-                $type ExecuteTactic $tactic_id
+            if {$locking} {
+                if {$on_lock} {
+                    log normal strategy \
+                        "Tactic $tactic_id IS eligible on lock"
+                    $type ExecuteTactic $tactic_id
+                }
             } else {
-                log normal strategy "Tactic $tactic_id IS NOT eligible"
+                if {[$type IsEligible $tactic_id]} {
+                    log normal strategy "Tactic $tactic_id IS eligible"
+                    $type ExecuteTactic $tactic_id
+                } else {
+                    log normal strategy "Tactic $tactic_id IS NOT eligible"
+                }
             }
         }
 
