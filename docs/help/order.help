@@ -309,31 +309,6 @@ order ATTRIT:NBHOOD "Magic Attrit Neighborhood" {
     <<ATTRIT.general>>
 }
 
-#-----------------------------------------------------------------------
-
-order ATTRIT:UNIT "Magic Attrit Unit" {
-    <<parmlist>>
-
-    <<parm u "Unit">>
-    <b>Required.</b>  The name of an existing unit.
-    <</parm>>
-
-    <<parm casualties "Casualties">>
-    <b>Required.</b>  The number of personnel to be attrited, a
-    positive integer.
-    <</parm>>
-
-    <<ATTRIT.responsible>>
-
-    <</parmlist>>
-
-    This order magically inflicts casualties upon a selected unit.  The
-    casualties are presumed to be dead, and are deducted from the
-    unit's personnel.<p>
-
-    <<ATTRIT.general>>
-}
-
 #=======================================================================
 # Belief System Orders
 

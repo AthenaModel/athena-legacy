@@ -52,142 +52,6 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-
-    #-------------------------------------------------------------------
-    # ATTRIT:UNIT
-
-    test UNIT-1.1 {required parms} -setup {
-        setup
-    } -body {
-        ted order -reject ATTRIT:UNIT {}
-    } -cleanup {
-        cleanup
-    } -result {
-        u {required value}
-        casualties {required value}
-    }
-    
-
-    test UNIT-1.2 {invalid unit} -setup {
-        setup
-    } -body {
-        ted order -reject ATTRIT:UNIT u NONESUCH casualties 25
-    } -cleanup {
-        cleanup
-    } -result {
-        u {Invalid unit name: "NONESUCH"}
-    }
-
-
-    test UNIT-1.3 {invalid casualties} -setup {
-        setup {
-            deploy NB1 BLUE 100
-        }
-    } -body {
-        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        casualties {invalid value "NONESUCH", expected integer}
-    }
-
-
-    test UNIT-1.4 {negative casualties} -setup {
-        setup {
-            deploy NB1 BLUE 100
-        }
-    } -body {
-        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties -1
-    } -cleanup {
-        cleanup
-    } -result {
-        casualties {invalid value "-1", expected integer no less than 0}
-    }
-
-
-    test UNIT-1.5 {invalid g1: unknown} -setup {
-        setup {
-            deploy NB1 BLUE 100
-        }
-    } -body {
-        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g1 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        g1 {Invalid force group, should be one of: BLUE, BRIT}
-    }
-
-
-    test UNIT-1.6 {invalid g1: u not CIV} -setup {
-        setup {
-            deploy NB1 BLUE 100
-        }
-    } -body {
-        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g1 BLUE
-    } -cleanup {
-        cleanup
-    } -result {
-        g1 {Responsible groups only matter when civilians are attrited}
-    }
-
-
-    test UNIT-1.7 {invalid g2: unknown} -setup {
-        setup {
-            deploy NB1 BLUE 100
-        }
-    } -body {
-        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g2 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        g2 {Invalid force group, should be one of: BLUE, BRIT}
-    }
-
-
-    test UNIT-1.8 {invalid g2: u not CIV} -setup {
-        setup {
-            deploy NB1 BLUE 100
-        }
-    } -body {
-        ted order -reject ATTRIT:UNIT u BLUE/NB1 casualties 10 g2 BLUE
-    } -cleanup {
-        cleanup
-    } -result {
-        g2 {Responsible groups only matter when civilians are attrited}
-    }
-
-
-    test UNIT-2.1 {unit and nbgroup are attrited} -setup {
-        setup
-    } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::demog <Update>
-        ted order ATTRIT:UNIT u SHIA/NB1 casualties 5 g1 BLUE g2 BRIT
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::demog <Update>}
-        {::rdb <units> update SHIA/NB1}
-    }
-
-
-    test UNIT-3.1 {undo undoes the change} -setup {
-        setup
-        ted order ATTRIT:UNIT u SHIA/NB1 casualties 5
-    } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::demog <Update>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::demog <Update>}
-        {::rdb <units> update SHIA/NB1}
-    }
-
-
     #-------------------------------------------------------------------
     # ATTRIT:NBHOOD
 
@@ -258,46 +122,29 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test NBHOOD-2.1 {units are attrited} -setup {
+    test NBHOOD-2.1 {magic attrition is stored} -setup {
         setup
     } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::demog <Update>
+        ted notifier bind ::rdb <magic_attrit>
         ted order ATTRIT:NBHOOD n NB1 casualties 1000 g1 BLUE g2 BRIT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::demog <Update>}
-        {::demog <Update>}
-        {::rdb <units> update BLUE/NB1}
-        {::rdb <units> update BRIT/NB1}
-        {::rdb <units> update USAID/NB1}
-        {::rdb <units> update HAL/NB1}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SUNN/NB1}
-        {::rdb <units> update KURD/NB2}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SUNN/NB1}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SUNN/NB1}
+        {::rdb <magic_attrit> update 1}
     }
 
-    test NBHOOD-3.1 {undo undoes the change} -setup {
+    test NBHOOD-3.1 {undo undoes the magic attrition} -setup {
         setup 
         ted order ATTRIT:NBHOOD n NB1 casualties 1000
     } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::demog <Update>
+        ted notifier bind ::rdb <magic_attrit>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::demog <Update>}
-        {::demog <Update>}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SUNN/NB1}
+        {::rdb <magic_attrit> delete 1}
     }
 
 
@@ -411,23 +258,13 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 BLUE 100
         }
     } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::rdb <deploy_ng>
+        ted notifier bind ::rdb <magic_attrit>
         ted order ATTRIT:GROUP n NB1 f BLUE casualties 100
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <units> update BLUE/NB1}
-        {::rdb <units> update BRIT/NB1}
-        {::rdb <units> update USAID/NB1}
-        {::rdb <units> update HAL/NB1}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SUNN/NB1}
-        {::rdb <units> update KURD/NB2}
-        {::rdb <units> update BLUE/NB1}
-        {::rdb <units> update BLUE/NB1}
-        {::rdb <deploy_ng> update {NB1 BLUE}}
+        {::rdb <magic_attrit> update 1}
     }
 
 
@@ -436,61 +273,39 @@ namespace eval ::athena_test::tests:: {
             deploy NB1 USAID 100
         }
     } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::rdb <deploy_ng>
+        ted notifier bind ::rdb <magic_attrit>
         ted order ATTRIT:GROUP n NB1 f USAID casualties 100
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <units> update BLUE/NB1}
-        {::rdb <units> update BRIT/NB1}
-        {::rdb <units> update USAID/NB1}
-        {::rdb <units> update HAL/NB1}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SUNN/NB1}
-        {::rdb <units> update KURD/NB2}
-        {::rdb <units> update USAID/NB1}
-        {::rdb <units> update USAID/NB1}
-        {::rdb <deploy_ng> update {NB1 USAID}}
+        {::rdb <magic_attrit> update 1}
     }
 
 
     test GROUP-2.3 {CIV units are attrited} -setup {
         setup
     } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::demog <Update>
+        ted notifier bind ::rdb <magic_attrit>
         ted order ATTRIT:GROUP n NB1 f SHIA casualties 1000 g1 BLUE g2 BRIT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::demog <Update>}
-        {::rdb <units> update BLUE/NB1}
-        {::rdb <units> update BRIT/NB1}
-        {::rdb <units> update USAID/NB1}
-        {::rdb <units> update HAL/NB1}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SUNN/NB1}
-        {::rdb <units> update KURD/NB2}
-        {::rdb <units> update SHIA/NB1}
-        {::rdb <units> update SHIA/NB1}
+        {::rdb <magic_attrit> update 1}
     }
 
     test GROUP-3.1 {undo undoes the change} -setup {
         setup 
         ted order ATTRIT:GROUP n NB1 f SHIA casualties 1000
     } -body {
-        ted notifier bind ::rdb <units>
-        ted notifier bind ::demog <Update>
+        ted notifier bind ::rdb <magic_attrit>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::demog <Update>}
-        {::rdb <units> update SHIA/NB1}
+        {::rdb <magic_attrit> delete 1}
     }
 
     #-------------------------------------------------------------------

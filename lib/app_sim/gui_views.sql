@@ -681,6 +681,21 @@ JOIN drivers AS D USING (driver_id);
 CREATE TEMPORARY VIEW gui_mads_initial AS
 SELECT * FROM gui_mads WHERE inputs = 0;
 
+-- View of magic attrition for use in the magic attrition browser.
+
+CREATE TEMPORARY VIEW gui_magic_attrit AS
+SELECT id                                              AS id,
+       CASE WHEN mode = 'NBHOOD' 
+            THEN 'Attrition to neighborhood ' || n
+            WHEN mode = 'GROUP'
+            THEN 'Attrition to ' || f || ' in neighborhood ' || n
+            ELSE 'Unknown'
+            END                                        AS narrative,
+       casualties                                      AS casualties,
+       CASE WHEN g1 IS NULL THEN '' ELSE g1 END AS g1,
+       CASE WHEN g2 IS NULL THEN '' ELSE g2 END AS g2
+FROM magic_attrit;
+
 ------------------------------------------------------------------------
 -- Economic Model views
 

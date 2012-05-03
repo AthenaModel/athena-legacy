@@ -795,6 +795,34 @@ LEFT OUTER JOIN defroe_ng USING (n,g)
 WHERE frcgroups.uniformed;
 
 
+-- An instance of magic attrition to a group or a neighborhood.
+-- These records are accumulated while the sim is paused and then applied 
+-- during attrition assessment.
+
+CREATE TABLE magic_attrit (
+    -- Unique ID, assigned automatically.
+    id         INTEGER PRIMARY KEY,
+
+    -- Mode of the magic attrtion: NBHOOD or GROUP
+    mode       TEXT,    
+
+    -- For NBHOOD or GROUP mode, the neighborhood suffering attrition
+    n          TEXT,
+
+    -- For GROUP mode, the group suffering attrition
+    f          TEXT,
+
+    -- The number of casualties to apply
+    casualties INTEGER,
+
+    -- A responsible group or ""
+    g1         TEXT,
+
+    -- A responsible group or ""
+    g2         TEXT
+);
+
+    
 -- An instance of attrition to a group in a neighborhood.  These records
 -- are accumulated between attrition tocks and are used to assess 
 -- satisfaction implications.

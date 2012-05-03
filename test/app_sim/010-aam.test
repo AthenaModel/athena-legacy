@@ -123,19 +123,19 @@ namespace eval ::athena_test::tests:: {
 
 
     #-------------------------------------------------------------------
-    # mutate attritnf
+    # mutate attrit
 
     # 1.* -- Attrition to FRC and ORG units.
     #
     # The code is identical for both types, so we do one ORG test just 
     # to show that we can do it.
 
-    test attritnf-1.1 {f is FRC, all BLUE units attrited} -setup {
+    test attrit-1.1 {f is FRC, all BLUE units attrited} -setup {
         ted create NB1 BLUE BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
     } -body {
-        aam mutate attritnf [list n NB1 f BLUE casualties 20 g1 "" g2 ""]
-
+        aam mutate attrit [list mode GROUP n NB1 f BLUE casualties 20 g1 "" g2 ""]
+        aam assess
         # All units had 15 personnel to start.
         # The two BLUE units should be attrited equally.
         # The BRIT unit should not be touched.
@@ -151,12 +151,13 @@ BRIT-NB1/0000 15
     }
 
 
-    test attritnf-1.2 {f is FRC, overkill leaves 0} -setup {
+    test attrit-1.2 {f is FRC, overkill leaves 0} -setup {
         ted create NB1_BLUE NB1_BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
     } -body {
-        aam mutate attritnf [list n NB1 f BLUE casualties 40 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f BLUE casualties 40 g1 "" g2 ""]
 
+        aam assess
         # All BLUE units should be at 0.
         ted query {SELECT u,personnel FROM units}
     } -cleanup {
@@ -170,12 +171,13 @@ BRIT-NB1/0000 15
     }
 
 
-    test attritnf-1.3 {f is FRC, no units present} -setup {
+    test attrit-1.3 {f is FRC, no units present} -setup {
         ted create NB1_BLUE NB1_BRIT
         mkunits BRIT-NB1/0000
     } -body {
-        aam mutate attritnf [list n NB1 f BLUE casualties 40 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f BLUE casualties 40 g1 "" g2 ""]
 
+        aam assess
         # All BLUE units should be at 0.
         ted query {SELECT u,personnel FROM units}
     } -cleanup {
@@ -187,12 +189,12 @@ BRIT-NB1/0000 15
     }
 
     
-    test attritnf-1.4 {f is ORG, units attrited in proper order} -setup {
+    test attrit-1.4 {f is ORG, units attrited in proper order} -setup {
         ted create NB1 USAID HAL
         mkunits USAID-NB1/0000 USAID-NB1/0001 HAL-NB1/0000
     } -body {
-        aam mutate attritnf [list n NB1 f USAID casualties 20 g1 "" g2 ""]
-
+        aam mutate attrit [list mode GROUP n NB1 f USAID casualties 20 g1 "" g2 ""]
+        aam assess
         # All units had 15 personnel to start.
         # The USAID units should be attrited equally.
         # The HAL unit should not be touched.
@@ -208,15 +210,16 @@ HAL-NB1/0000   15
     }
 
 
-    test attritnf-1.7 {f is FRC, undo restores} -setup {
+    test attrit-1.7 {f is FRC, undo restores} -setup {
         ted create NB1 BLUE BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
 
-        set undo [aam mutate attritnf \
-                      [list n NB1 f BLUE casualties 20 g1 "" g2 ""]]
+        set undo [aam mutate attrit \
+                      [list mode GROUP n NB1 f BLUE casualties 20 g1 "" g2 ""]]
     } -body {
         eval $undo
 
+        aam assess
         # All units should have 15 personnel
         ted query {SELECT u,personnel FROM units}
     } -cleanup {
@@ -230,16 +233,17 @@ BRIT-NB1/0000 15
     }
 
 
-    test attritnf-1.8 {f is ORG, undo deletes saved attrition} -setup {
+    test attrit-1.8 {f is ORG, undo deletes saved attrition} -setup {
         ted create NB1 USAID
 
         mkunits USAID-NB1/0000 USAID-NB1/0001
 
-        set undo [aam mutate attritnf \
-                      [list n NB1 f USAID casualties 20 g1 "" g2 ""]]
+        set undo [aam mutate attrit \
+                      [list mode GROUP n NB1 f USAID casualties 20 g1 "" g2 ""]]
     } -body {
         eval $undo
 
+        aam assess
         ted query {SELECT * FROM attrit_nf}
     } -cleanup {
         cleanup
@@ -249,11 +253,12 @@ BRIT-NB1/0000 15
 
     # 2.* -- Attrition to a particular civ group
 
-    test attritnf-2.1 {f is CIV, not resident in n} -setup {
+    test attrit-2.1 {f is CIV, not resident in n} -setup {
         ted create NB1 NB2 BLUE SHIA KURD 
         ted lock
     } -body {
-        aam mutate attritnf [list n NB1 f KURD casualties 20 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f KURD casualties 20 g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         # No error
@@ -267,11 +272,12 @@ SHIA 0         0         1000
 KURD 0         0         1000       
     }
 
-    test attritnf-2.2 {f is CIV, no units in n, normal} -setup {
+    test attrit-2.2 {f is CIV, no units in n, normal} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
-        aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 20 g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         pprint_demog_g
@@ -285,11 +291,12 @@ SUNN 0         0         1000
     }
 
 
-    test attritnf-2.3 {f is CIV, no units in n, overkill leaves 1} -setup {
+    test attrit-2.3 {f is CIV, no units in n, overkill leaves 1} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
-        aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         pprint_demog_g
@@ -303,14 +310,16 @@ SUNN 0         0         1000
     }
 
 
-    test attritnf-2.4 {f is CIV, no units in n, implicit = 1} -setup {
+    test attrit-2.4 {f is CIV, no units in n, implicit = 1} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
         # use overkill to get down to that point
-        aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        aam assess
         demog analyze pop
     } -body {
-        aam mutate attritnf [list n NB1 f SHIA casualties 20 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 20 g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         # No change
@@ -324,50 +333,55 @@ SHIA 999       0         1
 SUNN 0         0         1000       
     }
 
-    test attritnf-2.5 {f is CIV, overkill, attrition is saved} -setup {
+    test attrit-2.5 {f is CIV, overkill, attrition is saved} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
         # There are only 1000 in the nbgroup, and 1 should remain.  However,
         # we'll count the 1 as a casualty anyway.
-        aam mutate attritnf [list n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 2000 g1 "" g2 ""]
         
-        ted query {SELECT * FROM attrit_nf}
+        aam assess
+        ted query {SELECT u,personnel FROM units}
     } -cleanup {
         cleanup
     } -result {
-id n   f    casualties 
--- --- ---- ---------- 
-1  NB1 SHIA 1000       
+u        personnel 
+-------- --------- 
+SHIA/NB1 0         
+SUNN/NB1 1000      
     }
 
 
-    test attritnf-2.6 {f is CIV, overkill, g1, g2 are saved} -setup {
+
+    test attrit-2.6 {f is CIV, overkill, g1, g2 are saved} -setup {
         ted create NB1 BLUE BRIT SHIA SUNN
         ted lock
     } -body {
-        aam mutate attritnf \
-            [list n NB1 f SHIA casualties 2000 g1 BLUE g2 BRIT]
+        aam mutate attrit \
+            [list mode GROUP n NB1 f SHIA casualties 2000 g1 BLUE g2 BRIT]
         
-        ted query {SELECT * FROM attrit_nfg}
+        aam assess
+        ted query {SELECT u,personnel FROM units}
     } -cleanup {
         cleanup
     } -result {
-id n   f    g    casualties 
--- --- ---- ---- ---------- 
-1  NB1 SHIA BLUE 1000       
-2  NB1 SHIA BRIT 1000       
+u        personnel 
+-------- --------- 
+SHIA/NB1 0         
+SUNN/NB1 1000      
     }
 
-    test attritnf-2.7 {f is CIV, undo restores} -setup {
+    test attrit-2.7 {f is CIV, undo restores} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
         set undo [list]
-        lappend undo [aam mutate attritnf \
-                          [list n NB1 f SHIA casualties 15 g1 BLUE g2 BRIT]]
+        lappend undo [aam mutate attrit \
+                          [list mode GROUP n NB1 f SHIA casualties 15 g1 BLUE g2 BRIT]]
     } -body {
         eval [join $undo \n]
 
+        aam assess
         set a [pprint_demog_g]
         set b [ted query {SELECT u,personnel FROM units}]
         set c [ted query {SELECT * FROM attrit_nf}]
@@ -400,7 +414,8 @@ SUNN/NB1 1000
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
-        aam mutate attritn [list n NB1 casualties 20 g1 "" g2 ""]
+        aam mutate attrit [list mode NBHOOD n NB1 casualties 20 g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         pprint_demog_g
@@ -418,7 +433,8 @@ SUNN 10        0         990
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
-        aam mutate attritn [list n NB1 casualties 3000  g1 "" g2 ""]
+        aam mutate attrit [list mode NBHOOD n NB1 casualties 3000  g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         pprint_demog_g
@@ -436,7 +452,8 @@ SUNN 999       0         1
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
-        aam mutate attritn [list n NB1 casualties 100  g1 "" g2 ""]
+        aam mutate attrit [list mode NBHOOD n NB1 casualties 100  g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         set a [pprint_demog_g]
@@ -462,7 +479,8 @@ SUNN/NB1 950
             owner SYSTEM g KURD n NB1 text1 DISPLACED int1 100 on_lock NO
         ted lock
     } -body {
-        aam mutate attritn [list n NB1 casualties 100 g1 "" g2 ""]
+        aam mutate attrit [list mode NBHOOD n NB1 casualties 100 g1 "" g2 ""]
+        aam assess
         demog analyze pop
 
         set a [pprint_demog_g]
@@ -483,41 +501,14 @@ SHIA/NB1 909
 UT0001   91        
     }
 
-
-    test attritn-1.5 {nbhood, attrition is saved} -setup {
-        ted create NB1 BLUE SHIA SUNN
-        ted lock
-    } -body {
-        aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]
-        demog analyze pop
-
-        set a [ted query {SELECT * FROM attrit_nf}]
-        set b [ted query {SELECT * FROM attrit_nfg}]
-        set c "$a$b"
-    } -cleanup {
-        cleanup
-    } -result {
-id n   f    casualties 
--- --- ---- ---------- 
-1  NB1 SHIA 1000       
-2  NB1 SUNN 1000       
-    
-id n   f    g    casualties 
--- --- ---- ---- ---------- 
-1  NB1 SHIA BLUE 1000       
-2  NB1 SHIA BRIT 1000       
-3  NB1 SUNN BLUE 1000       
-4  NB1 SUNN BRIT 1000       
-    }
-
-
-    test attritn-1.6 {nbhood, force, org units not attrited} -setup {
-        ted create JOE NB1 NB1_BLUE NB1_USAID SHIA SUNN
+    test attritn-1.5 {nbhood, force, org units not attrited} -setup {
+        ted create JOE NB1 NB1_BLUE NB1_USAID NB1_BRIT SHIA SUNN
         deploy NB1 BLUE 15
         deploy NB1 USAID 15
         ted lock
     } -body {
-        aam mutate attritn [list n NB1 casualties 10000 g1 BLUE g2 BRIT]
+        aam mutate attrit [list mode NBHOOD n NB1 casualties 10000 g1 BLUE g2 BRIT]
+        aam assess
 
         ted query {SELECT u,personnel FROM units ORDER BY u}
     } -cleanup {
@@ -526,27 +517,27 @@ id n   f    g    casualties
 u         personnel 
 --------- --------- 
 BLUE/NB1  15        
+BRIT/NB1  0         
 SHIA/NB1  0         
 SUNN/NB1  0         
 USAID/NB1 15        
     }
 
 
-    test attritn-1.8 {nbhood, undo restores} -setup {
+    test attritn-1.6 {nbhood, undo restores} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
 
         set undo [list]
-        lappend undo [aam mutate attritn \
-                          [list n NB1 casualties 100 g1 "" g2 ""]]
+        lappend undo [aam mutate attrit \
+                          [list mode NBHOOD n NB1 casualties 100 g1 "" g2 ""]]
     } -body {
         eval [join $undo \n]
 
+        aam assess
         set a [pprint_demog_g]
         set b [ted query {SELECT u,personnel FROM units}]
-        set c [ted query {SELECT * FROM attrit_nf}]
-        set d [ted query {SELECT * FROM attrit_nfg}]
-        set e "$a$b$c$d"
+        set b "$a$b"
     } -cleanup {
         cleanup
     } -result {
@@ -559,118 +550,7 @@ u        personnel
 -------- --------- 
 SHIA/NB1 1000      
 SUNN/NB1 1000      
-    
-    
     }
-
-
-    #-------------------------------------------------------------------
-    # mutate attritunit
-    #
-    # For CIV units, the unit's neighborhood group is attrited as well
-    # as the unit.  For FRC and ORG units, the unit's deploy_ng 
-    # record is attrited as well as the unit.  Otherwise, attrition is 
-    # handled identically for all three kinds of unit.
-
-    test attritunit-1.1 {FRC unit is attrited} -setup {
-        ted create NB1 BLUE
-        mkunits BLUE-NB1/0000 BLUE-NB1/0001
-    } -body {
-        aam mutate attritunit [list u BLUE-NB1/0001 casualties 5 g1 "" g2 ""]
-
-        # All units had 15 personnel to start.
-        # BLUE-NB1/0001 should be down 5.
-        ted query {SELECT u,personnel FROM units}
-    } -cleanup {
-        cleanup
-    } -result {
-u             personnel 
-------------- --------- 
-BLUE-NB1/0000 15        
-BLUE-NB1/0001 10        
-    }
-
-    test attritunit-1.1 {ORG unit is attrited} -setup {
-        ted create NB1 USAID
-        mkunits USAID-NB1/0000 USAID-NB1/0001
-    } -body {
-        aam mutate attritunit [list u USAID-NB1/0001 casualties 5 g1 "" g2 ""]
-
-        # All units had 15 personnel to start.
-        # USAID-NB1/0001 should be down 5.
-        ted query {SELECT u,personnel FROM units}
-    } -cleanup {
-        cleanup
-    }  -result {
-u              personnel 
--------------- --------- 
-USAID-NB1/0000 15        
-USAID-NB1/0001 10        
-    }
-
-
-    test attritunit-3.1 {CIV unit is attrited in home nbhood} -setup {
-        ted create NB1 BLUE BRIT SHIA
-        ted lock
-    } -body {
-        aam mutate attritunit [list u SHIA/NB1 casualties 5 g1 BLUE g2 BRIT]
-
-        set a [ted query {SELECT u,personnel FROM units}]
-        set b [pprint_demog_g]
-        set c [ted query {SELECT * FROM attrit_nf}]
-        set d [ted query {SELECT * FROM attrit_nfg}]
-        set e "$a$b$c$d"
-    } -cleanup {
-        cleanup
-    }  -result {
-u        personnel 
--------- --------- 
-SHIA/NB1 995       
-    
-g    attrition displaced population 
----- --------- --------- ---------- 
-SHIA 5         0         995        
-    
-id n   f    casualties 
--- --- ---- ---------- 
-1  NB1 SHIA 5          
-    
-id n   f    g    casualties 
--- --- ---- ---- ---------- 
-1  NB1 SHIA BLUE 5          
-2  NB1 SHIA BRIT 5          
-    }
-
-
-    test attritunit-4.2 {Undo restores unit and nbgroup} -setup {
-        ted create NB1 BLUE SHIA
-        ted lock
-
-        set a [aam mutate attritunit \
-                   [list u SHIA/NB1 casualties 5 g1 "" g2 ""]]
-
-    } -body {
-        eval $a
-
-        set a [ted query {SELECT u,personnel FROM units}]
-        set b [pprint_demog_g]
-        set c [ted query {SELECT * FROM attrit_nf}]
-        set d [ted query {SELECT * FROM attrit_nfg}]
-        set e "$a$b$c$d"
-    } -cleanup {
-        cleanup
-    }  -result {
-u        personnel 
--------- --------- 
-SHIA/NB1 1000      
-    
-g    attrition displaced population 
----- --------- --------- ---------- 
-SHIA 0         0         1000       
-    
-    
-    }
-
 
     #-------------------------------------------------------------------
     # Cleanup

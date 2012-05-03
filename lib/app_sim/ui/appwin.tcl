@@ -168,6 +168,13 @@ snit::widget appwin {
             script  { ensitbrowser %W }
         }
 
+        attrit {
+            label   "MagicAttrit"
+            vistype simulation
+            parent  nbhoodst
+            script  { attritbrowser %W }
+        }
+
         groupst {
             label   "Groups"
             vistype scenario
@@ -699,7 +706,6 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu UNIT:MOVE
-        $self AddOrder $submenu ATTRIT:UNIT
 
         # Orders/Attrition
         set submenu [menu $ordersmenu.attrit]
@@ -708,7 +714,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu ATTRIT:NBHOOD
         $self AddOrder $submenu ATTRIT:GROUP
-        $self AddOrder $submenu ATTRIT:UNIT
 
         # Orders/Situation
         set submenu [menu $ordersmenu.sit]

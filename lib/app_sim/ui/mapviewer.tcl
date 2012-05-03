@@ -495,7 +495,6 @@ snit::widget mapviewer {
 
         # NEXT, Create the context menus
         $self CreateNbhoodContextMenu
-        $self CreateUnitContextMenu
         $self CreateEnsitContextMenu
 
         # NEXT, process the arguments
@@ -1382,23 +1381,6 @@ snit::widget mapviewer {
         } row {
             $self UnitDraw [array get row]
         } 
-    }
-
-
-    #-------------------------------------------------------------------
-    # Unit Context Menu
-
-    # CreateUnitContextMenu
-    #
-    # Creates the context menu
-
-    method CreateUnitContextMenu {} {
-        set mnu [menu $canvas.unitmenu]
-
-        cond::available control \
-            [menuitem $mnu command "Magic Attrit Unit" \
-                 -command [mymethod AttritUnit]] \
-            order ATTRIT:UNIT
     }
 
     # AttritUnit

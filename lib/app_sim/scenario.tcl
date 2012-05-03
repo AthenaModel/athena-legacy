@@ -101,6 +101,7 @@ snit::type scenario {
         rdb monitor add tactics      {tactic_id}
         rdb monitor add units        {u}
         rdb monitor add vrel_ga      {g a}
+        rdb monitor add magic_attrit {id}
 
         InitializeRuntimeData
 

@@ -51,11 +51,39 @@ snit::type aam {
 
     # ApplyAttrition
     #
-    # Applies the attrition accumulated by the normal attrition
-    # algorithms.
+    # Applies the attrition from magic attrition and then that
+    # accumulated by the normal attrition algorithms.
 
     typemethod ApplyAttrition {} {
-        # FIRST, apply the force group attrition
+        # FIRST, apply the magic attrition
+        rdb eval {
+            SELECT mode,
+                   n,
+                   f,
+                   casualties,
+                   g1,
+                   g2
+            FROM magic_attrit
+        } {
+            switch -exact -- $mode {
+                NBHOOD {
+                    $type AttritNbhood $n $casualties $g1 $g2
+                }
+
+                GROUP {
+                    $type AttritGroup $n $f $casualties $g1 $g2
+                }
+
+                default {error "Unrecognized attrition mode: \"$mode\""}
+            }
+        }
+
+        # NEXT, clear out the magic attrition, we're done.
+        rdb eval {
+            DELETE FROM magic_attrit;
+        }
+
+        # NEXT, apply the force group attrition
         rdb eval {
             SELECT n, 
                    f, 
@@ -64,8 +92,8 @@ snit::type aam {
                    ''                AS g2
             FROM aam_pending_nf
             GROUP BY n,f
-        } row {
-            $type mutate attritnf [array get row]
+        } {
+            $type AttritGroup $n $f $casualties $g1 $g2
         }
 
 
@@ -76,8 +104,8 @@ snit::type aam {
                    attacker    AS g1,
                    defender    AS g2
             FROM aam_pending_n
-        } row {
-            $type mutate attritn [array get row]
+        } {
+            $type AttritNbhood $n $casualties $g1 $g2
         }
     }
 
@@ -199,7 +227,7 @@ snit::type aam {
 
             # NEXT, compute the possible number of attacks:
             let Np { 
-                round( ($ufCoop           * $ufCov    * $nfCov * deltaT)/
+                round( ($ufCoop           * $ufCov    * $nfCov * $deltaT)/
                        (max($nfCoop,10.0) * $ufCovNom * $nfCovNom * $tf ) )
             }
 
@@ -526,8 +554,57 @@ snit::type aam {
     # a script of one or more commands that will undo the change.  When
     # the change cannot be undone, the mutator returns the empty string.
 
+    # mutate attrit parmdict
+    #
+    # parmdict
+    # 
+    # mode          Mode of attrition: GROUP or NBHOOD 
+    # casualties    Number of casualties taken by GROUP or NBHOOD
+    # n             The neighborhood 
+    # f             The group if mode is GROUP
+    # g1            Responsible force group, or ""
+    # g2            Responsible force group, or ""
+    # 
+    # Adds a record to the magic attrit table for adjudication at the
+    # next aam assessment.
+    #
+    # g1 and g2 are used only for attrition to a civilian group
 
-    # mutate attritnf parmdict
+    typemethod {mutate attrit} {parmdict} {
+        dict with parmdict {
+            # FIRST add a record to the table
+            rdb eval {
+                INSERT INTO magic_attrit(mode,casualties,n,f,g1,g2)
+                VALUES($mode,
+                       $casualties,
+                       $n,
+                       nullif($f,  ''),
+                       nullif($g1, ''),
+                       nullif($g2, ''));
+           }
+
+           set id [rdb last_insert_rowid]
+
+           # NEXT return the undo command
+           return [list rdb delete magic_attrit "id=$id"]
+       }
+    }
+
+    # mutate delete id
+    #
+    # id    a magic attrition ID
+    #
+    # Deletes a magic attrition request.
+
+    typemethod {mutate delete} {id} {
+        # FIRST, get the undo information
+        set data [rdb delete -grab magic_attrit {id=$id}]
+
+        # NEXT, Return the undo script
+        return [list rdb ungrab $data]
+    }
+
+    # AttritGroup n f casualties g1 g2
     #
     # parmdict      Dictionary of order parms
     #
@@ -544,28 +621,26 @@ snit::type aam {
     #
     # g1 and g2 are used only for attrition to a civilian group.
 
-    typemethod {mutate attritnf} {parmdict} {
-        dict with parmdict {
-            log normal aam "mutate attritnf $n $f $casualties $g1 $g2"
+    typemethod AttritGroup {n f casualties g1 g2} {
+        log normal aam "AttritGroup $n $f $casualties $g1 $g2"
 
-            # FIRST, determine the set of units to attrit.
-            set units [rdb eval {
-                UPDATE units
-                SET attrit_flag = 0;
+        # FIRST, determine the set of units to attrit.
+        rdb eval {
+            UPDATE units
+            SET attrit_flag = 0;
 
-                UPDATE units
-                SET attrit_flag = 1
-                WHERE n=$n 
-                AND   g=$f
-                AND   personnel > 0
-            }]
-
-            # NEXT, attrit the units
-            return [$type AttritUnits $casualties $g1 $g2]
+            UPDATE units
+            SET attrit_flag = 1
+            WHERE n=$n 
+            AND   g=$f
+            AND   personnel > 0
         }
+
+        # NEXT, attrit the units
+        $type AttritUnits $casualties $g1 $g2
     }
 
-    # mutate attritn parmdict
+    # AttritNbhood n casualties g1 g2
     #
     # parmdict      Dictionary of order parms
     #
@@ -578,73 +653,24 @@ snit::type aam {
     # by the specified number of casualties (all of which are kills).
     # Units are attrited in proportion to their size.
 
-    typemethod {mutate attritn} {parmdict} {
-        dict with parmdict {
-            log normal aam "mutate attritn $n $casualties $g1 $g2"
+    typemethod AttritNbhood {n casualties g1 g2} {
+        log normal aam "AttritNbhood $n $casualties $g1 $g2"
 
-            # FIRST, determine the set of units to attrit (all
-            # the CIV units in the neighborhood).
-            set units [rdb eval {
-                UPDATE units
-                SET attrit_flag = 0;
+        # FIRST, determine the set of units to attrit (all
+        # the CIV units in the neighborhood).
+        rdb eval {
+            UPDATE units
+            SET attrit_flag = 0;
 
-                UPDATE units
-                SET attrit_flag = 1
-                WHERE n=$n 
-                AND   gtype='CIV'
-                AND   personnel > 0
-            }]
-
-            # NEXT, attrit the units
-            return [$type AttritUnits $casualties $g1 $g2]
-        }
-    }
-
-    # mutate attritunit parmdict
-    #
-    # parmdict      Dictionary of order parms
-    #
-    #   u           Unit to be attrited.
-    #   casualties  Number of casualties taken by the unit.
-    #   g1          Responsible group
-    #   g2          Responsible group
-    #
-    # Attrits the specified unit by the specified number of 
-    # casualties (all of which are kills).
-
-    typemethod {mutate attritunit} {parmdict} {
-        dict with parmdict {
-            log normal aam "mutate attritunit $u $casualties $g1 $g2"
-
-            # FIRST, prepare to undo
-            set undo [list]
-
-            # NEXT, retrieve the unit.
-            set unit [unit get $u]
-
-            dict with unit {
-                # FIRST, get the actual number of casualties the
-                # unit can take.
-                let actual {min($casualties,$personnel)}
-
-                if {$actual == 0} {
-                    log normal aam \
-                        "Overkill; no casualties can be inflicted."
-                    return "# Nothing to undo"
-                } elseif {$actual < $casualties} {
-                    log normal aam \
-                        "Overkill; only $actual casualties can be inflicted."
-                }
-
-                set casualties $actual
-            }
+            UPDATE units
+            SET attrit_flag = 1
+            WHERE n=$n 
+            AND   gtype='CIV'
+            AND   personnel > 0
         }
 
-        # NEXT, attrit the unit
-        set parmdict [dict merge $parmdict $unit]
-        lappend undo [$type AttritUnit $parmdict]
-
-        return [join $undo \n]
+        # NEXT, attrit the units
+        $type AttritUnits $casualties $g1 $g2
     }
 
     # AttritUnits casualties g1 g2
@@ -671,7 +697,7 @@ snit::type aam {
         if {$actual == 0} {
             log normal aam \
                 "Overkill; no casualties can be inflicted."
-            return "# Nothing to undo"
+            return 
         } elseif {$actual < $casualties} {
             log normal aam \
                 "Overkill; only $actual casualties can be inflicted."
@@ -705,15 +731,13 @@ snit::type aam {
             set row(g2)         $g2
             set row(casualties) $take
 
-            lappend undo [$type AttritUnit [array get row]]
+            $type AttritUnit [array get row]
 
             # NEXT, we might have finished early
             if {$remaining == 0} {
                 break
             }
         }
-
-        return [join $undo \n]
     }
 
     # AttritUnit parmdict
@@ -732,17 +756,14 @@ snit::type aam {
 
     typemethod AttritUnit {parmdict} {
         dict with parmdict {
-            # FIRST, prepare to undo
-            set undo [list]
-
-            # NEXT, log the attrition
+            # FIRST, log the attrition
             let personnel {$personnel - $casualties}
 
             log normal aam \
           "Unit $u takes $casualties casualties, leaving $personnel personnel"
             
             # NEXT, update the unit.
-            lappend undo [unit mutate personnel $u $personnel]
+            unit mutate personnel $u $personnel
 
             # NEXT, if this is a CIV unit, attrit the unit's
             # group of origin.
@@ -750,23 +771,24 @@ snit::type aam {
                 # FIRST, attrit the group of origin
                 set parms [list n $origin g $g casualties $casualties]
 
+                # TBD: these no longer need to be mutators
                 if {$n eq $origin} {
-                    lappend undo [demog mutate attritResident $parms]
+                    demog mutate attritResident $parms
                 } else {
-                    lappend undo [demog mutate attritDisplaced $parms]
+                    demog mutate attritDisplaced $parms
                 }
 
                 # NEXT, save the attrition for attitude assessment
-                lappend undo \
-                    [$type SaveCivAttrition $origin $g $casualties $g1 $g2] 
+                $type SaveCivAttrition $origin $g $casualties $g1 $g2
             } else {
                 # FIRST, It's a force or org unit.  Attrit its pool in
                 # its neighborhood of origin.
-                lappend undo [personnel mutate attrit $origin $g $casualties]
+                # TBD: this no longer needs to be a mutator
+                personnel mutate attrit $origin $g $casualties
             }
         }
 
-        return [join $undo \n]
+        return
     }
 
     
@@ -781,18 +803,11 @@ snit::type aam {
     # Accumulates the attrition for later attitude assessment.
 
     typemethod SaveCivAttrition {n f casualties g1 g2} {
-        # FIRST, prepare to accumulated undo info
-        set undo [list]
-
-        # NEXT, save nf casualties for satisfaction.
+        # FIRST, save nf casualties for satisfaction.
         rdb eval {
             INSERT INTO attrit_nf(n,f,casualties)
             VALUES($n,$f,$casualties);
         }
-
-        set id [rdb last_insert_rowid]
-
-        lappend undo [mytypemethod DeleteAttritNF $id]
 
         # NEXT, save nfg casualties for cooperation
         if {$g1 ne ""} {
@@ -800,10 +815,6 @@ snit::type aam {
                 INSERT INTO attrit_nfg(n,f,casualties,g)
                 VALUES($n,$f,$casualties,$g1);
             }
-            
-            set id [rdb last_insert_rowid]
-            
-            lappend undo [mytypemethod DeleteAttritNFG $id]
         }
 
         if {$g2 ne ""} {
@@ -811,39 +822,10 @@ snit::type aam {
                 INSERT INTO attrit_nfg(n,f,casualties,g)
                 VALUES($n,$f,$casualties,$g2);
             }
-            
-            set rowId [rdb last_insert_rowid]
-            
-            lappend undo [mytypemethod DeleteAttritNFG $rowId]
         }
 
-        return [join $undo \n]
+        return 
     }
-
-    # DeleteAttritNF id
-    #
-    # id     Row ID of a record
-    #
-    # Deletes the row on undo.
-
-    typemethod DeleteAttritNF {id} {
-        rdb eval {
-            DELETE FROM attrit_nf WHERE id=$id
-        }
-    }
-
-    # DeleteAttritNFG id
-    #
-    # id     Row ID of a record
-    #
-    # Deletes the row on undo.
-
-    typemethod DeleteAttritNFG {id} {
-        rdb eval {
-            DELETE FROM attrit_nfg WHERE id=$id
-        }
-    }
-
 
     #-------------------------------------------------------------------
     # Order Helpers
@@ -930,46 +912,6 @@ snit::type aam {
 
         $dlg disabled $disabled
     }
-
-    # Refresh_AU dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the ATTRIT:UNIT dialog fields when field values
-    # change.
-
-    typemethod Refresh_AU {dlg fields fdict} {
-        set disabled [list]
-
-        dict with fdict {
-            if {"u" in $fields} {
-                # Update g1
-                if {$u eq "" || [unit get $u gtype] ne "CIV"} {
-                    lappend disabled g1
-                    set g1 ""
-                    $dlg set g1 $g1
-                    ladd fields g1
-                }
-            }
-
-            if {"g1" in $fields} {
-                # Update g2
-                if {$g1 eq ""} {
-                    lappend disabled g2
-                    $dlg set g2 ""
-                } else {
-                    set groups [frcgroup names]
-                    ldelete groups $g1
-                    
-                    $dlg field configure g2 -values $groups
-                }
-            }
-        }
-
-        $dlg disabled $disabled
-    }
 }
 
 #-------------------------------------------------------------------
@@ -983,8 +925,8 @@ snit::type aam {
 order define ATTRIT:NBHOOD {
     title "Magic Attrit Neighborhood"
     options \
-        -schedulestates {PREP PAUSED TACTIC}    \
-        -sendstates     {PAUSED}                \
+        -schedulestates {PAUSED TACTIC}    \
+        -sendstates     {PAUSED TACTIC}    \
         -refreshcmd     [list ::aam Refresh_AN]
 
     parm n          key  "Neighborhood"      -table  nbhoods   \
@@ -1003,13 +945,15 @@ order define ATTRIT:NBHOOD {
 
     returnOnError -final
 
+    set parms(mode) "NBHOOD"
+
     # NEXT, g1 != g2
     if {$parms(g1) eq $parms(g2)} {
         set parms(g2) ""
     }
 
     # NEXT, attrit the civilians in the neighborhood
-    lappend undo [aam mutate attritn [array get parms]]
+    lappend undo [aam mutate attrit [array get parms]]
 
     setundo [join $undo \n]
 }
@@ -1022,8 +966,8 @@ order define ATTRIT:NBHOOD {
 order define ATTRIT:GROUP {
     title "Magic Attrit Group"
     options \
-        -schedulestates {PREP PAUSED TACTIC}    \
-        -sendstates     {PAUSED}                \
+        -schedulestates {PAUSED TACTIC}    \
+        -sendstates     {PAUSED TACTIC}    \
         -refreshcmd     [list ::aam Refresh_AG]
 
     parm n          key   "Neighborhood"      -table  nbhoods -keys n \
@@ -1061,65 +1005,15 @@ order define ATTRIT:GROUP {
 
     returnOnError -final
 
+    set parms(mode) "GROUP"
+
     # NEXT, g1 != g2
     if {$parms(g1) eq $parms(g2)} {
         set parms(g2) ""
     }
 
     # NEXT, attrit the group
-    lappend undo [aam mutate attritnf [array get parms]]
-
-    setundo [join $undo \n]
-}
-
-
-# ATTRIT:UNIT
-#
-# Attrits a single unit.
-
-order define ATTRIT:UNIT {
-    title "Magic Attrit Unit"
-    options \
-        -schedulestates {PREP PAUSED TACTIC}    \
-        -sendstates     {PAUSED}                \
-        -refreshcmd     [list ::aam Refresh_AU]
-
-    parm u          key   "Unit"              -table  units     -keys u \
-                                              -tags   unit
-    parm casualties text  "Casualties"        -defval 1
-    parm g1         key   "Responsible Group" -table  frcgroups -keys g \
-                                              -tags   group
-    parm g2         enum  "Responsible Group" -tags   group
-} {
-    # FIRST, prepare the parameters
-    prepare u          -toupper -required -type unit
-    prepare casualties -toupper -required -type iquantity
-    prepare g1         -toupper           -type frcgroup
-    prepare g2         -toupper           -type frcgroup
-
-    returnOnError
-
-    # NEXT, get the unit's group type
-    set gtype [unit get $parms(u) gtype]
-
-    # NEXT, g1 and g2 should be "" unless u is a CIV unit
-    if {$gtype ne "CIV"} {
-        validate g1 {
-            reject g1 \
-                "Responsible groups only matter when civilians are attrited"
-        }
-
-        validate g2 {
-            reject g2 \
-                "Responsible groups only matter when civilians are attrited"
-        }
-    }
-
-    returnOnError -final
-
-
-    # NEXT, attrit the unit
-    lappend undo [aam mutate attritunit [array get parms]]
+    lappend undo [aam mutate attrit [array get parms]]
 
     setundo [join $undo \n]
 }
