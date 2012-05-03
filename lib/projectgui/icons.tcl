@@ -472,6 +472,28 @@ namespace eval ::projectgui::icon:: {
         ,  #EFB311
         w  #BDA565
     } d {X gray w gray82 , gray82}
+    
+    mkicon ::projectgui::icon::gpoly {
+        ..XX..........
+        ..X.XX........
+        ..X...XX......
+        ..X.....XX....
+        .X........XX..
+        .X..........XX
+        .X..XXXXX....X
+        .X.X.....X...X
+        X..X.........X
+        X..X.........X
+        X..X..XXXX...X
+        X..X.....X...X
+        .X.X.....X...X
+        .X..XXXXX....X
+        .X...........X
+        .X.........XXX
+        ..X.....XXX...
+        ..X..XXX......
+        ..XXX.........
+    } { . trans  X black } d { X gray }
 }
 
 

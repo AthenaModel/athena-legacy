@@ -72,7 +72,7 @@ snit::widgetadaptor attritbrowser {
             order ATTRIT:NBHOOD
 
         install groupbtn using mktoolbutton $bar.group   \
-            ::marsgui::icon::gpoly                       \
+            ::projectgui::icon::gpoly                    \
             "Attrit Group"                               \
             -state   normal                              \
             -command [mymethod AttritGroup]
