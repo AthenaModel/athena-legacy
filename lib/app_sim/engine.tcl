@@ -110,7 +110,7 @@ snit::type engine {
         }]
 
         $uram load coop {*}[rdb eval {
-            SELECT f, g, coop0 FROM coop_fg
+            SELECT f, g, base FROM coop_fg
             ORDER BY f, g
         }]
     }

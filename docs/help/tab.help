@@ -2013,7 +2013,17 @@ page /tab/attitudes/satisfaction simulation "Satisfaction browser, Simulation Mo
 
 tab "Attitudes/Cooperation" {
     This tab displays the full set of cooperation curves for all
-    civilian groups with all force groups in all neighborhoods.    
+    civilian groups with all force groups.
+
+    This browser functions differently in Scenario mode vs. Simulation
+    mode.
+
+    <<childlinks>>
+}
+
+page /tab/attitudes/cooperation scenario "Cooperation browser, Scenario Mode" {
+    <<title>>
+
     The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -2026,18 +2036,13 @@ tab "Attitudes/Cooperation" {
     <<topic "With Group">>The name of a force group.
     <</topic>>
 
-    <<topic "Coop at T0">>The initial cooperation value for this
+    <<topic "Baseline">>The initial baseline cooperation value for this
     curve, as set during <<term prep>>.  It is a real number
     taken from the following scale:<p>
 
     <<::simlib::qcooperation html>>
     <</topic>>
     
-    <<topic "Coop Now">>The current cooperation value for this curve.
-    <</topic>>
-
-    <<::simlib::qcooperation html>>
-    <</topic>>
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
@@ -2045,15 +2050,78 @@ tab "Attitudes/Cooperation" {
 
     <<topiclist Control Description>>
 
-    <<topic [image button_pencil0]>>
+    <<topic [image button_pencil]>>
     If one or more rows are selected, pops up the 
     <<cref /order/coop/update>> or <<cref /order/coop/update:multi>> dialog for
     the selected row(s).
     <</topic>>
 
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+page /tab/attitudes/cooperation simulation "Cooperation browser, Simulation Mode" {
+    <<title>>
+
+    In <b>Simulation Mode</b>, the cooperation browser shows the 
+    current, baseline, and natural levels for each cooperation curve
+    for the current time and for time 0.<p>
+
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group">>The name of a civilian group resident in the
+    neighborhood.
+    <</topic>>
+    
+    <<topic "With Group">>The name of a force group.
+    <</topic>>
+
+    <<topic "Current">> Group F's current cooperation with group G,
+    a number drawn from the following scale:<p>
+
+    <<::simlib::qcooperation html>><p>
+
+    The current level is the baseline plus any transient effects.
+    <</topic>>
+
+    <<topic "Baseline">> The baseline cooperation level.  This will
+    change slowly in response to transient effects.
+    <</topic>>
+
+    <<topic "Natural">> The natural cooperation level. In
+    the absence of attitude drivers, the baseline level will 
+    regress to this value slowly over time.<p>
+
+    <</topic>>
+
+    <<topic "Current at T0">> The current level at time 0.
+    <</topic>>
+
+    <<topic "Baseline at T0">> The baseline level at time 0.
+    <</topic>>
+
+    <<topic "Natural at T0">> The natural level at time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
     <<topic [image button_pencila]>>
-    If a single row is selected, pops up the 
-    <<cref /order/mad/coop/adjust>> dialog for the selected curve.
+    Pops up the <<cref /order/mad/coop/adjust>> dialog for
+    the selected curve.
+    <</topic>>
+
+    <<topic [image button_pencili]>>
+    Pops up the <<cref /order/mad/coop/input>> dialog for
+    the selected curve.
     <</topic>>
 
     <<control.filterbox>>

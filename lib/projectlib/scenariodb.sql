@@ -1014,13 +1014,11 @@ LEFT OUTER JOIN vrel_ga AS V ON (V.g = G.g AND V.a = A.a);
 ------------------------------------------------------------------------
 -- Initial Cooperation Data
 
--- coop_fg: Group f's cooperation with group gn, that
--- is, the likelihood that f will provide intel to g.
---
--- At present, cooperation is defined only between all
--- civgroups f and all force groups g.
-
 CREATE TABLE coop_fg (
+    -- At present, cooperation is defined only between all
+    -- civgroups f and all force groups g.  This table contains the
+    -- initial baseline cooperation levels.
+
     -- Symbolic civ group name: group f
     f           TEXT REFERENCES civgroups(g)
                 ON DELETE CASCADE
@@ -1031,8 +1029,8 @@ CREATE TABLE coop_fg (
                 ON DELETE CASCADE
                 DEFERRABLE INITIALLY DEFERRED,
 
-    -- cooperation of f with g at time 0.
-    coop0       DOUBLE DEFAULT 50.0,
+    -- initial baseline cooperation of f with g at time 0.
+    base        DOUBLE DEFAULT 50.0,
 
     PRIMARY KEY (f, g)
 );

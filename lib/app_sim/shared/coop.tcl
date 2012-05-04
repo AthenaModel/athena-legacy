@@ -8,11 +8,11 @@
 # DESCRIPTION:
 #    athena_sim(1): Cooperation Manager
 #
-#    This module is responsible for managing cooperations between
-#    groups as groups come and ago, and for allowing the analyst
-#    to update particular cooperations.
+#    This module is responsible for managing initial baseline 
+#    cooperation records as groups come and ago, and for allowing the 
+#    analyst to update particular baseline cooperations.
 #
-#    Every civ group has a cooperation with every frc group.
+#    Every civ group has a cooperation level with every frc group.
 #
 # CREATION/DELETION:
 #    coop_fg records are created explicitly by the civgroup(sim)
@@ -71,8 +71,8 @@ snit::type coop {
     #
     # parmdict     A dictionary of group parms
     #
-    #    id               list {f g}
-    #    coop0            Cooperation of f with g at time 0.
+    #    id              list {f g}
+    #    base            Cooperation of f with g at time 0.
     #
     # Updates a cooperation given the parms, which are presumed to be
     # valid.
@@ -88,7 +88,7 @@ snit::type coop {
             # NEXT, Update the group
             rdb eval {
                 UPDATE coop_fg
-                SET coop0 = nonempty($coop0, coop0)
+                SET base = nonempty($base, base)
                 WHERE f=$f AND g=$g
             } {}
 
@@ -111,14 +111,14 @@ order define COOP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey id *}
 
-    parm id      key   "Curve"           -table  gui_coop_fg    \
-                                         -keys   {f g}          \
-                                         -labels {"Of" "With"}
-    parm coop0   coop  "Cooperation"
+    parm id     key   "Curve"           -table  gui_coop_view  \
+                                        -keys   {f g}          \
+                                        -labels {"Of" "With"}
+    parm base   coop  "Baseline"
 } {
     # FIRST, prepare the parameters
-    prepare id       -toupper  -required -type coop
-    prepare coop0    -toupper            -type qcooperation \
+    prepare id      -toupper  -required -type coop
+    prepare base    -toupper            -type qcooperation \
         -xform [list qcooperation value]
 
     returnOnError -final
@@ -133,19 +133,18 @@ order define COOP:UPDATE {
 # Updates multiple existing cooperations
 
 order define COOP:UPDATE:MULTI {
-    title "Update Initial Cooperation (Multi)"
+    title "Update Baseline Cooperation (Multi)"
     options \
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
  
-    parm ids     multi  "IDs"              -table gui_coop_fg \
-                                           -key id
-    parm coop0   coop   "Cooperation"
+    parm ids    multi  "IDs"              -table gui_coop_view \
+                                          -key id
+    parm base   coop   "Baseline"
 } {
     # FIRST, prepare the parameters
-    prepare ids      -toupper  -required -listof coop
-
-    prepare coop0    -toupper            -type qcooperation \
+    prepare ids     -toupper  -required -listof coop
+    prepare base    -toupper            -type qcooperation \
         -xform [list qcooperation value]
 
     returnOnError -final

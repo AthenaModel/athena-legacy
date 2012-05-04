@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    coopbrowser(sim) package: Cooperation browser.
+#    coopbrowser(sim) package: Cooperation browser, Scenario Mode.
 #
 #    This widget displays a formatted list of coop_fg records.
 #    It is a wrapper around sqlbrowser(n).
@@ -31,17 +31,15 @@ snit::widgetadaptor coopbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { f        "Of Group"                                 }
-        { g        "With Group"                               }
-        { coop0    "Coop at T0" -sortmode real                }
-        { coop     "Coop Now"   -sortmode real -foreground %D }
+        { f        "Of Group"                   }
+        { g        "With Group"                 }
+        { base     "Baseline"    -sortmode real }
     }
 
     #-------------------------------------------------------------------
     # Components
 
     component editbtn     ;# The "Edit" button
-    component adjbtn      ;# The "Adjust" button
 
     #--------------------------------------------------------------------
     # Constructor
@@ -50,13 +48,12 @@ snit::widgetadaptor coopbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_coop_fg                 \
+            -view         gui_coop_view               \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
-                ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
@@ -65,9 +62,8 @@ snit::widgetadaptor coopbrowser {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install editbtn using mktoolbutton $bar.edit \
-            ::projectgui::icon::pencil022            \
-            "Edit Selected Curve"                    \
+        install editbtn using mkeditbutton $bar.edit \
+            "Edit Initial Curve"                     \
             -state   disabled                        \
             -command [mymethod EditSelected]
 
@@ -75,22 +71,10 @@ snit::widgetadaptor coopbrowser {
             order   COOP:UPDATE           \
             browser $win
 
-        install adjbtn using mktoolbutton $bar.adj \
-            ::projectgui::icon::pencila22          \
-            "Magic Adjust Cooperation Level"       \
-            -state   disabled                      \
-            -command [mymethod AdjustSelected]
-
-        cond::availableSingle control $adjbtn \
-            order   MAD:COOP:ADJUST              \
-            browser $win
-
         pack $editbtn   -side left
-        pack $adjbtn    -side left
 
         # NEXT, update individual entities when they change.
         notifier bind ::rdb <coop_fg> $self [mymethod uid]
-        notifier bind ::mad <Coop>    $self [mymethod uid]
     }
 
     #-------------------------------------------------------------------
@@ -109,7 +93,6 @@ snit::widgetadaptor coopbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::availableMulti  update $editbtn
-        cond::availableSingle update $adjbtn
     }
 
 
@@ -125,16 +108,6 @@ snit::widgetadaptor coopbrowser {
         } else {
             order enter COOP:UPDATE:MULTI ids $ids
         }
-    }
-
-    # AdjustSelected
-    #
-    # Called when the user wants to adjust the selected level
-
-    method AdjustSelected {} {
-        set ids [$hull uid curselection]
-
-        order enter MAD:COOP:ADJUST id [lindex $ids 0]
     }
 }
 

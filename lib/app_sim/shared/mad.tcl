@@ -994,7 +994,7 @@ order define MAD:COOP:ADJUST {
         -sendstates     {PAUSED TACTIC}         \
         -schedulestates {PREP PAUSED TACTIC}
 
-    parm id        key   "Curve"     -table    gui_coop_fg     \
+    parm id        key   "Curve"     -table    gui_uram_coop   \
                                      -keys     {f g}           \
                                      -labels   {"Of" "With"}
     parm driver_id key   "MAD ID"    -table    gui_mads        \

@@ -275,9 +275,16 @@ snit::widget appwin {
 
         coop {
             label   "Cooperation"
-            vistype *
+            vistype scenario
             parent  att
             script  { coopbrowser %W }
+        }
+
+        coop_sim {
+            label   "Cooperation"
+            vistype simulation
+            parent  att
+            script  { coopbrowser_sim %W }
         }
 
         nbcoop {

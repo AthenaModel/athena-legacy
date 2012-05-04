@@ -477,19 +477,37 @@ SELECT UV.g || ' ' || UV.a                           AS id,
 FROM uram_vrel AS UV
 JOIN groups AS G ON (G.g = UV.g);
 
--- A coop_fg view for use by the GUI:
--- NOTE: presumes there is a single uram(n)!
-CREATE TEMPORARY VIEW gui_coop_fg AS
+-- A coop_fg view for use by the GUI during Scenario Mode:
+CREATE TEMPORARY VIEW gui_coop_view AS
 SELECT f || ' ' || g                                     AS id,
        f                                                 AS f,
        g                                                 AS g,
-       format('%5.1f', coalesce(uram.coop0, main.coop0)) AS coop0,
-       format('%5.1f', coalesce(uram.coop, main.coop0))  AS coop
-FROM coop_fg AS main 
-LEFT OUTER JOIN uram_coop AS uram USING (f,g);
+       format('%5.1f', base)                             AS base
+FROM coop_fg
+ORDER BY f,g;
+
+-- A uram_coop_view for use by the GUI during simulation. Replace the
+-- natural level with "n/a" when gamma is 0.
+CREATE TEMPORARY VIEW gui_uram_coop AS
+SELECT f || ' ' || g                              AS id,
+       f                                          AS f,
+       g                                          AS g,
+       format('%5.1f', coop0)                     AS coop0,
+       format('%5.1f', bvalue0)                   AS base0,
+       CASE WHEN uram_gamma('COOP') > 0.0
+            THEN format('%5.1f', cvalue0)
+            ELSE 'n/a' END                        AS nat0,
+       format('%5.1f', coop)                      AS coop,
+       format('%5.1f', bvalue)                    AS base,
+       CASE WHEN uram_gamma('COOP') > 0.0
+            THEN format('%5.1f', cvalue)
+            ELSE 'n/a' END                        AS nat,
+       curve_id                                   AS curve_id,
+       fg_id                                      AS fg_id
+FROM uram_coop
+ORDER BY f,g;
 
 -- A coop_ng view for use by the GUI:
--- NOTE: presumes there is a single uram(n)!
 CREATE TEMPORARY VIEW gui_coop_ng AS
 SELECT n || ' ' || g            AS id,
        n                        AS n,

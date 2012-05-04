@@ -482,9 +482,9 @@ page /order coop "Cooperation Orders" {
     in the TRAC HUMINT methodology: the likelihood that a member of
     the civilian group will give intelligence to a member of the force
     group.  This family of orders are used to manipulate the
-    initial cooperation levels between various groups.  (Use the
+    initial baseline cooperation levels between various groups.  (Use the
     <<cref /order/mad/coop>> to adjust or otherwise influence the 
-    current levels.)<p>
+    cooperation levels during simulation.)<p>
 
     The full set of orders is as follows:<p>
 
@@ -501,41 +501,9 @@ order COOP:UPDATE "Update Initial Cooperation" {
     civilian group and <i>g</i> is a force group.
     <</parm>>
 
-    <<parm coop0 "Cooperation">>
-    <b>Optional.</b>  The initial cooperation level of group <i>f</i>
-    with group <i>g</i>.  Cooperation levels
-    run from 0.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qcooperation html>>
-    <</parm>>
-
-    <<parm atrend "Ascending Trend">>
-    <b>Optional.</b> The ascending trend for this curve, 
-    a non-negative slope in nominal cooperation points per day.  The
-    ascending trend is applied whenever the current cooperation level
-    is less than <i>athresh</i>.  If this value is 0.0, there is no ascending
-    trend for this curve.
-    <</parm>>
-
-    <<parm athresh "Asc. Threshold">>
-    <b>Optional.</b> The ascending threshold for this curve.  Thresholds
-    run from 0.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qcooperation html>>
-    <</parm>>
-
-    <<parm dtrend "Descending Trend">>
-    <b>Optional.</b> The descending trend for this curve, 
-    a non-positive slope in nominal cooperation points per day.  The
-    descending trend is applied whenever the current cooperation level
-    is greater than <i>dthresh</i>.  If this value is 0.0, there is no 
-    descending trend for this curve.
-    <</parm>>
-
-    <<parm dthresh "Desc. Threshold">>
-    <b>Optional.</b> The descending threshold for this curve.  Thresholds
+    <<parm base "Baseline">>
+    <b>Optional.</b>  The initial baseline cooperation level of 
+    group <i>f</i> with group <i>g</i>.  Cooperation levels
     run from 0.0 to 100.0, and are defined either numerically or using
     the following rating scale:<p>
 
@@ -544,12 +512,12 @@ order COOP:UPDATE "Update Initial Cooperation" {
 
     <</parmlist>>
 
-    <b><<term prep>> Only.</b>  This order updates the initial
+    <b><<term prep>> Only.</b>  This order updates the initial baseline
     cooperation level of one group with another; this can only be done
     during the Scenario Preparation phase.<p>
 
     (Use the <<cref /order/mad>> to adjust or otherwise influence the 
-    current levels.)
+    cooperation levels during simulation.)
 }
 
 #-----------------------------------------------------------------------
@@ -564,54 +532,22 @@ order COOP:UPDATE+MULTI "Update Initial Cooperation (Multi)" {
     <<cref /order/coop/update>> order.
     <</parm>>
 
-    <<parm coop0 "Cooperation">>
-    <b>Required.</b>  The initial cooperation level for the selected
-    curves.  Cooperation levels
-    run from 0.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
+    <<parm base "Baseline">>
+    <b>Required.</b>  The initial baseline cooperation level for 
+    the selected curves.  Cooperation levels run from 0.0 to 100.0, and 
+    are defined either numerically or using the following rating scale:<p>
 
     <<::simlib::qcooperation html>>
     <</parm>>
 
-    <<parm atrend "Ascending Trend">>
-    <b>Optional.</b> The ascending trend for this curve, 
-    a non-negative slope in nominal cooperation points per day.  The
-    ascending trend is applied whenever the current cooperation level
-    is less than <i>athresh</i>.  If this value is 0.0, there is no ascending
-    trend for this curve.
-    <</parm>>
-
-    <<parm athresh "Asc. Threshold">>
-    <b>Optional.</b> The ascending threshold for this curve.  Thresholds
-    run from 0.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qcooperation html>>
-    <</parm>>
-
-    <<parm dtrend "Descending Trend">>
-    <b>Optional.</b> The descending trend for this curve, 
-    a non-positive slope in nominal cooperation points per day.  The
-    descending trend is applied whenever the current cooperation level
-    is greater than <i>dthresh</i>.  If this value is 0.0, there is no 
-    descending trend for this curve.
-    <</parm>>
-
-    <<parm dthresh "Desc. Threshold">>
-    <b>Optional.</b> The descending threshold for this curve.  Thresholds
-    run from 0.0 to 100.0, and are defined either numerically or using
-    the following rating scale:<p>
-
-    <<::simlib::qcooperation html>>
-    <</parm>>
     <</parmlist>>
 
-    <b><<term prep>> Only.</b>  This order updates the initial
+    <b><<term prep>> Only.</b>  This order updates the initial baseline
     cooperation level for two or more cooperation curves, as selected 
     in the GUI.<p>
 
     (Use the <<cref /order/mad>> to adjust or otherwise influence the 
-    current levels.)
+    cooperation levels during simulation.)
 }
 
 #=======================================================================
@@ -1761,7 +1697,7 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
 order MAD:COOP:INPUT "Magic Cooperation Input" {
     <<parmlist>>
     
-    <<parm mad "MAD ID">>
+    <<parm driver_id "MAD ID">>
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 

@@ -42,16 +42,16 @@ namespace eval ::athena_test::tests:: {
     } -body {
         coop mutate update {
             id      {SHIA BLUE}
-            coop0   40.0
+            base    40.0
         }
 
         ted query {SELECT * FROM coop_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    coop0 
----- ---- ----- 
-SHIA BLUE 40.0  
+f    g    base 
+---- ---- ---- 
+SHIA BLUE 40.0 
     }
 
 
@@ -59,7 +59,7 @@ SHIA BLUE 40.0
         ted create NB1 BLUE SHIA
         set parmdict {
             id      {SHIA BLUE}
-            coop0   40.0
+            base    40.0
         }
 
         coop mutate update $parmdict
@@ -83,7 +83,7 @@ SHIA BLUE 40.0
 
         coop mutate update  {
             id      {SHIA BLUE}
-            coop0   ""
+            base    ""
         }
 
         set b [ted query {SELECT * FROM coop_fg}]
@@ -102,7 +102,7 @@ SHIA BLUE 40.0
 
         set undo [coop mutate update {
             id      {SHIA BLUE}
-            coop0   40.0
+            base    40.0
         }]
 
         eval $undo
@@ -166,24 +166,6 @@ SHIA BLUE 40.0
     } -cleanup {
         cleanup
     } -result {SHIA BLUE}
-
-    #-------------------------------------------------------------------
-    # Bug Fixes
-
-    test bug3151-1.1 {Can lock when a coop curve has a trend} -setup {
-        ted create NB1 BLUE SHIA
-        coop mutate update {
-            id      {SHIA BLUE}
-            coop0   40.0
-        }
-    } -body {
-        ted lock
-        set a "OK"
-    } -cleanup {
-        cleanup
-    } -result {OK}
-
-
 
     #-------------------------------------------------------------------
     # Cleanup
