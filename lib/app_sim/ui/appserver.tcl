@@ -3048,6 +3048,7 @@ snit::type appserver {
             sim
             aam
             activity
+            attitude
             control
             dam
             demsit

@@ -609,6 +609,24 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
         $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
 
+        # attitude.* parameters
+        $ps subset attitude {
+            Parameters related to Athena's attitudes model.  Note that
+            parameters implemented by URAM are in the uram.* hierarchy.
+        }
+
+        $ps subset attitude.SFT {
+            Parameters related to SFT satisfaction curves.
+        }
+
+        $ps define attitude.SFT.Znatural ::marsutil::zcurve \
+            {-100.0 -100.0 100.0 100.0} {
+                A Z-curve for computing the natural level of 
+                SFT satisfaction curves from the civilian group's
+                security.  The default curve simply equates the two.
+                The output may not exceed the range (-100.0, +100.0).
+            }
+
         # control.* parameters
         $ps subset control {
             Parameters related to the determination of group/actor

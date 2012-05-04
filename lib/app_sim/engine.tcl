@@ -57,67 +57,6 @@ snit::type engine {
         log normal engine "init complete"
     }
 
-    # LoadAram uram
-    #
-    # Loads scenario data into URAM when it's initialized.
-    #
-    # TBD: Set natural levels!
-
-    typemethod LoadAram {uram} {
-        $uram load causes {*}[ecause names]
-
-        $uram load actors {*}[rdb eval {
-            SELECT a FROM actors
-            ORDER BY a
-        }]
-
-        $uram load nbhoods {*}[rdb eval {
-            SELECT n FROM nbhoods
-            ORDER BY n
-        }]
-
-        $uram load prox {*}[rdb eval {
-            SELECT m, n, proximity 
-            FROM nbrel_mn
-            ORDER BY m, n
-        }]
-
-        $uram load civg {*}[rdb eval {
-            SELECT g,n,basepop FROM civgroups_view
-            ORDER BY g
-        }]
-
-        $uram load otherg {*}[rdb eval {
-            SELECT g,gtype FROM groups
-            WHERE gtype != 'CIV'
-            ORDER BY g
-        }]
-
-        $uram load hrel {*}[rdb eval {
-            SELECT f, g, base, nat FROM hrel_view
-            ORDER BY f, g
-        }]
-
-        $uram load vrel {*}[rdb eval {
-            SELECT g, a, base, nat FROM vrel_view
-            ORDER BY g, a
-        }]
-
-        # Note: only SFT has a natural level, and it can't be computed
-        # until later.
-        $uram load sat {*}[rdb eval {
-            SELECT g, c, base, 0.0, saliency
-            FROM sat_gc
-            ORDER BY g, c
-        }]
-
-        # Note: COOP natural levels are not being computed yet.
-        $uram load coop {*}[rdb eval {
-            SELECT f, g, base, base FROM coop_fg
-            ORDER BY f, g
-        }]
-    }
-
 
     # start
     #
@@ -127,11 +66,6 @@ snit::type engine {
         # FIRST, Set up the attitudes model: initialize URAM and relate all
         # existing MADs to URAM drivers.
         aram init -reload
-
-        # NEXT, set natural attitude levels, so that they will look right
-        # when the simulation pauses at t=0.
-        # TBD.  Also, this might need to go further down (e.g., we need
-        # security to compute SFT's natural level.)
 
         # NEXT, initialize all modules, and do basic analysis, in preparation
         # for executing the on-lock tactics.
@@ -164,6 +98,10 @@ snit::type engine {
             demog analyze econ
         }
         demsit assess
+
+        # NEXT, set natural attitude levels for those attitudes whose
+        # natural level varies with time.
+        $type SetNaturalLevels
 
         # NEXT, advance URAM to time 0, applying the transient inputs
         # entered above.
@@ -222,7 +160,7 @@ snit::type engine {
             FROM demog_g
         }]
 
-        # TBD: Update natural levels!
+        profile $type SetNaturalLevels
         profile aram advance [simclock now]
 
 
@@ -247,6 +185,92 @@ snit::type engine {
         profile control_model analyze
     }
 
+    #-------------------------------------------------------------------
+    # URAM-related routines.
+    #
+    # TBD: Consider defining an ::aram module that wraps an instance
+    # of ::uram.  These calls would naturally belong there.
+    
+    # LoadAram uram
+    #
+    # Loads scenario data into URAM when it's initialized.
+
+    typemethod LoadAram {uram} {
+        $uram load causes {*}[ecause names]
+
+        $uram load actors {*}[rdb eval {
+            SELECT a FROM actors
+            ORDER BY a
+        }]
+
+        $uram load nbhoods {*}[rdb eval {
+            SELECT n FROM nbhoods
+            ORDER BY n
+        }]
+
+        $uram load prox {*}[rdb eval {
+            SELECT m, n, proximity 
+            FROM nbrel_mn
+            ORDER BY m, n
+        }]
+
+        $uram load civg {*}[rdb eval {
+            SELECT g,n,basepop FROM civgroups_view
+            ORDER BY g
+        }]
+
+        $uram load otherg {*}[rdb eval {
+            SELECT g,gtype FROM groups
+            WHERE gtype != 'CIV'
+            ORDER BY g
+        }]
+
+        $uram load hrel {*}[rdb eval {
+            SELECT f, g, base, nat FROM hrel_view
+            ORDER BY f, g
+        }]
+
+        $uram load vrel {*}[rdb eval {
+            SELECT g, a, base, nat FROM vrel_view
+            ORDER BY g, a
+        }]
+
+        # Note: only SFT has a natural level, and it can't be computed
+        # until later.
+        $uram load sat {*}[rdb eval {
+            SELECT g, c, base, 0.0, saliency
+            FROM sat_gc
+            ORDER BY g, c
+        }]
+
+        # Note: COOP natural levels are not being computed yet.
+        $uram load coop {*}[rdb eval {
+            SELECT f, g, base, base FROM coop_fg
+            ORDER BY f, g
+        }]
+    }
+
+    # SetNaturalLevels
+    #
+    # This routine sets the natural level for all attitude curves whose
+    # natural level changes over time.
+    
+    typemethod SetNaturalLevels {} {
+        # Set the natural level for all SFT curves.
+        set Z [parm get attitude.SFT.Znatural]
+
+        set values [list]
+
+        rdb eval {
+            SELECT g, security
+            FROM civgroups
+            JOIN force_ng USING (g,n)
+        } {
+            lappend values $g SFT [zcurve eval $Z $security]
+        }
+
+        aram sat cset {*}$values
+    }
 }
 
 
