@@ -432,10 +432,14 @@ SELECT UH.f || ' ' || UH.g                           AS id,
        G.gtype                                       AS gtype,
        format('%+4.1f', UH.hrel0)                    AS hrel0,
        format('%+4.1f', UH.bvalue0)                  AS base0,
-       format('%+4.1f', UH.cvalue0)                  AS nat0,
+       CASE WHEN uram_gamma('HREL') > 0.0
+            THEN format('%+4.1f', UH.cvalue0)
+            ELSE 'n/a' END                           AS nat0,
        format('%+4.1f', UH.hrel)                     AS hrel,
        format('%+4.1f', UH.bvalue)                   AS base,
-       format('%+4.1f', UH.cvalue)                   AS nat,
+       CASE WHEN uram_gamma('HREL') > 0.0
+            THEN format('%+4.1f', UH.cvalue)
+            ELSE 'n/a' END                           AS nat,
        UH.curve_id                                   AS curve_id,
        UH.fg_id                                      AS fg_id
 FROM uram_hrel AS UH
@@ -468,10 +472,14 @@ SELECT UV.g || ' ' || UV.a                           AS id,
        UV.a                                          AS a,
        format('%+4.1f', UV.vrel0)                    AS vrel0,
        format('%+4.1f', UV.bvalue0)                  AS base0,
-       format('%+4.1f', UV.cvalue0)                  AS nat0,
+       CASE WHEN uram_gamma('VREL') > 0.0
+            THEN format('%+4.1f', UV.cvalue0)
+            ELSE 'n/a' END                           AS nat0,
        format('%+4.1f', UV.vrel)                     AS vrel,
        format('%+4.1f', UV.bvalue)                   AS base,
-       format('%+4.1f', UV.cvalue)                   AS nat,
+       CASE WHEN uram_gamma('VREL') > 0.0
+            THEN format('%+4.1f', UV.cvalue)
+            ELSE 'n/a' END                           AS nat,
        UV.curve_id                                   AS curve_id,
        UV.ga_id                                      AS ga_id
 FROM uram_vrel AS UV

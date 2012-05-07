@@ -629,7 +629,8 @@ snit::type scenario {
     # parmdb(5).
     
     proc UramGamma {ctype} {
-        return [lindex [parm get uram.factors.$ctype] 1]
+        # The [expr] converts it to a number.
+        return [expr [lindex [parm get uram.factors.$ctype] 1]]
     }
 
     #-------------------------------------------------------------------
