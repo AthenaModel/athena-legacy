@@ -61,6 +61,7 @@ snit::widgetadaptor coopbrowser_sim {
             -reloadon {
                 ::sim <Tick>
                 ::sim <DbSyncB>
+                ::parm <Update>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
