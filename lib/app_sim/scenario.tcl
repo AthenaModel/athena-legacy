@@ -355,11 +355,20 @@ snit::type scenario {
         $type SaveSaveables
 
         # NEXT, get the snapshot text
+        #
+        # WARNING: The excluded tables should not define foreign key 
+        # constraints with cascading deletes on non-excluded tables.
+        # On import, all tables in the exported data will be cleared 
+        # before being re-populated, and cascading deletes would 
+        # depopulated the excluded tables.
+
         set snapshot [rdb tclexport -exclude {
             snapshots 
             maps 
             hist_control
             hist_coop
+            hist_econ
+            hist_econ_ij
             hist_mood
             hist_nbcoop
             hist_nbmood
