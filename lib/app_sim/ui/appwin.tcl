@@ -1098,7 +1098,7 @@ snit::widget appwin {
 
         # NEXT, add the CLI to the paner
         install cli using cli $win.paner.cli    \
-            -height    5                        \
+            -height    15                       \
             -relief    flat                     \
             -maxlines  [prefs get cli.maxlines] \
             -promptcmd [mymethod CliPrompt]     \
