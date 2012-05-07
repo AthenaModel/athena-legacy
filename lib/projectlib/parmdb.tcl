@@ -615,6 +615,18 @@ snit::type ::projectlib::parmdb {
             parameters implemented by URAM are in the uram.* hierarchy.
         }
 
+        foreach att {COOP HREL SAT VREL} {
+            $ps subset attitude.$att {
+                Parameters relating to $att curves.
+            }
+
+            $ps define attitude.$att.gain ::projectlib::rgain 1.0 {
+                The input gain for attitude inputs of this type.
+                Increase the gain to make Athena run "hotter",
+                decrease it to make Athena run "colder".
+            }
+        }
+
         $ps subset attitude.SFT {
             Parameters related to SFT satisfaction curves.
         }
@@ -1079,21 +1091,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.SEWAGE.cause           SEWAGE
         $ps setdefault dam.SEWAGE.nearFactor      0.2
         $ps setdefault dam.SEWAGE.farFactor       0.0
-
-        # Rule parameters
-        foreach rule [lsort -dictionary [edamrule names]] {
-            $ps subset dam.$rule "
-                Parameters for DAM Rule $rule: [edamrule longname $rule]
-            "
-
-            $ps define dam.$rule.satgain ::projectlib::rgain 1.0 "
-                Satisfaction gain for DAM Rule $rule.
-            "
-
-            $ps define dam.$rule.coopgain ::projectlib::rgain 1.0 "
-                Cooperation gain for DAM Rule $rule.
-            "
-        }
 
         # demsit.* parameters
         $ps subset demsit {

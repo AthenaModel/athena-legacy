@@ -251,12 +251,14 @@ snit::type dam {
 
     typemethod Complete {} {
         # FIRST, submit the accumulated inputs to URAM.
-        array set got {sat 0 coop 0}
+        array set got {sat 0 coop 0 hrel 0 vrel 0}
 
         rdb eval {
             SELECT id, atype, mode, curve, mag, cause, s, p, q
             FROM dam_inputs
         } {
+            incr got($atype)
+
             # FIRST, prepare to give the input to URAM
             if {$atype in {sat coop}} {
                 set opts [list -s $s -p $p -q $q]
@@ -280,33 +282,38 @@ snit::type dam {
 
         # Add the gain settings:
 
+        if {$got(hrel)} {
+            set hrelgain [parm get attitude.HREL.gain] 
+
+            append input(header) \
+                [format $columns "Horiz. Rel. Gain:" \
+                     [format %.1f $hrelgain]]
+        }
+
+        if {$got(vrel)} {
+            set vrelgain [parm get attitude.VREL.gain] 
+
+            append input(header) \
+                [format $columns "Vert. Rel. Gain:" \
+                     [format %.1f $vrelgain]]
+        }
+
         if {$got(sat)} {
-            set satgain  [parmdb get dam.$input(rule).satgain]
+            set satgain [parm get attitude.SAT.gain] 
 
-            if {$satgain == 1.0} {
-                append input(header) \
-                    [format $columns "Satisfaction Gain:" "1.0 (default)"]
-
-            } else {
-                append input(header) \
-                    [format $columns "Satisfaction Gain:" \
-                         [format %.1f $satgain]]
-            }
+            append input(header) \
+                [format $columns "Satisfaction Gain:" \
+                     [format %.1f $satgain]]
         }
 
         if {$got(coop)} {
-            set coopgain [parmdb get dam.$input(rule).coopgain]
+            set coopgain [parm get attitude.COOP.gain] 
 
-            if {$coopgain == 1.0} {
-                append input(header) \
-                    [format $columns "Cooperation Gain:" "1.0 (default)"]
-
-            } else {
-                append input(header) \
-                    [format $columns "Cooperation Gain:" \
-                         [format %.1f $coopgain]]
-            }
+            append input(header) \
+                [format $columns "Cooperation Gain:" \
+                     [format %.1f $coopgain]]
         }
+
 
         # Add the details
         if {$input(details) ne ""} {
@@ -411,8 +418,8 @@ snit::type dam {
         array set opts $input(ruledefs)
 
         # NEXT, get the input gain.
-        # TBD: No input gain defined for hrel.
-        let mag [qmag value $mag]
+        set gain [parm get attitude.HREL.gain]
+        let mag {$gain * [qmag value $mag]}
 
         foreach f $flist {
             foreach g $glist {
@@ -449,8 +456,8 @@ snit::type dam {
         array set opts $input(ruledefs)
 
         # NEXT, get the input gain.
-        # TBD: No input gain defined for vrel.
-        let mag [qmag value $mag]
+        set gain [parm get attitude.VREL.gain]
+        let mag {$gain * [qmag value $mag]}
 
         foreach g $glist {
             foreach a $alist {
@@ -492,8 +499,7 @@ snit::type dam {
         array set opts $input(ruledefs)
 
         # NEXT, get the input gain.
-        set gain [parmdb get dam.$input(rule).satgain]
-
+        set gain [parm get attitude.SAT.gain]
 
         foreach g $glist {
             foreach {c mag} $args {
@@ -528,7 +534,7 @@ snit::type dam {
         array set opts $input(ruledefs)
 
         # NEXT, get the input gain.
-        set gain [parmdb get dam.$input(rule).satgain]
+        set gain [parm get attitude.COOP.gain]
         let mag {$gain * [qmag value $mag]}
 
         foreach f $flist {
