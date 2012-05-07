@@ -1431,12 +1431,18 @@ snit::widget strategybrowser {
             set on_lock NO
         }
 
+        if {$tdata(state) eq "normal"} {
+            set dollars [tactic call dollars $tdict]
+        } else {
+            set dollars "???"
+        }
+
         $ttree item text $id                             \
             0               $tdata(narrative)            \
             {tag exec_ts}   $timestamp                   \
             {tag once}      $once                        \
             {tag on_lock}   $on_lock                     \
-            {tag dollars}   [tactic call dollars $tdict] \
+            {tag dollars}   $dollars                     \
             {tag id}        $tdata(tactic_id)            \
             {tag type}      $tdata(tactic_type)          \
             {tag priority}  $tdata(priority)
