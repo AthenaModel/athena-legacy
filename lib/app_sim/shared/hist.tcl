@@ -79,12 +79,11 @@ snit::type hist {
             }
         }
 
-        if {[parm get hist.mood]} {
-            rdb eval {
-                INSERT INTO hist_mood
-                SELECT now() AS t, g, mood
-                FROM uram_mood;
-            }
+        # We always save mood; it's needed by the MOOD rule set.
+        rdb eval {
+            INSERT INTO hist_mood
+            SELECT now() AS t, g, mood
+            FROM uram_mood;
         }
 
         if {[parm get hist.nbcoop]} {
