@@ -156,9 +156,11 @@ snit::type service_rules {
                 # And for g with each actor a
                 dict for {a credit} $cdict {
                     if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,R-,$credit)
+                        dam vrel T $g $a $vmags(C,R-,$credit) \
+                            "credit=$credit, has control"
                     } else {
-                        dam vrel T $g $a $vmags(NC,R-,$credit)
+                        dam vrel T $g $a $vmags(NC,R-,$credit) \
+                            "credit=$credit, no control"
                     }
                 }
             }
@@ -175,9 +177,11 @@ snit::type service_rules {
                 # And for g with each actor a
                 dict for {a credit} $cdict {
                     if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,E-,$credit)
+                        dam vrel T $g $a $vmags(C,E-,$credit) \
+                            "credit=$credit, has control"
                     } else {
-                        dam vrel T $g $a $vmags(NC,E-,$credit)
+                        dam vrel T $g $a $vmags(NC,E-,$credit) \
+                            "credit=$credit, no control"
                     }
                 }
             }
@@ -193,9 +197,11 @@ snit::type service_rules {
                 # And for g with each actor a
                 dict for {a credit} $cdict {
                     if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,E,$credit)
+                        dam vrel T $g $a $vmags(C,E,$credit) \
+                            "credit=$credit, has control"
                     } else {
-                        dam vrel T $g $a $vmags(NC,E,$credit)
+                        dam vrel T $g $a $vmags(NC,E,$credit) \
+                            "credit=$credit, no control"
                     }
                 }
             }
@@ -212,9 +218,11 @@ snit::type service_rules {
                 # And for g with each actor a
                 dict for {a credit} $cdict {
                     if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,E+,$credit)
+                        dam vrel T $g $a $vmags(C,E+,$credit) \
+                            "credit=$credit, has control"
                     } else {
-                        dam vrel T $g $a $vmags(NC,E+,$credit)
+                        dam vrel T $g $a $vmags(NC,E+,$credit) \
+                            "credit=$credit, no control"
                     }
                 }
             }

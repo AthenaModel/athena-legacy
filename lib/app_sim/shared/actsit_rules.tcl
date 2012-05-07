@@ -31,7 +31,7 @@ snit::type actsit_rules {
         namespace import ::projectlib::* 
     }
 
-    #-------------------------------------------------------------------
+    #------------------------------------------------------------------
     # Public Typemethods
 
     # monitor sit
@@ -58,18 +58,19 @@ snit::type actsit_rules {
     #-------------------------------------------------------------------
     # Rule Set Tools
 
-    # satinput flist g cov con rmf mag ?con rmf mag...?
+    # satinput flist g cov note con rmf mag ?con rmf mag...?
     #
     # flist    - The affected group(s)
     # g        - The doing group
     # cov      - The coverage fraction
+    # note     - A brief descriptive note
     # con      - The affected concern
     # rmf      - The RMF to apply
     # mag      - The nominal magnitude
     #
     # Enters satisfaction inputs.
 
-    proc satinput {flist g cov args} {
+    proc satinput {flist g cov note args} {
         set nomCov [parmdb get dam.actsit.nominalCoverage]
 
         assert {[llength $args] != 0 && [llength $args] % 3 == 0}
@@ -85,22 +86,23 @@ snit::type actsit_rules {
                 lappend result $con [mag* $mult $mag]
             }
             
-            dam sat T $f {*}$result
+            dam sat T $f {*}$result $note
         }
     }
 
 
-    # coopinput flist g cov rmf mag
+    # coopinput flist g cov rmf mag note
     #
     # flist    - The affected CIV groups
     # g        - The acting force group
     # cov      - The coverage fraction
     # rmf      - The RMF to apply
     # mag      - The nominal slope
+    # note     - A brief descriptive note
     #
     # Enters cooperation inputs.
 
-    proc coopinput {flist g cov rmf mag} {
+    proc coopinput {flist g cov rmf mag {note ""}} {
         set ruleset [dam get ruleset]
         set nomCov  [parmdb get dam.actsit.nominalCoverage]
 
@@ -109,7 +111,7 @@ snit::type actsit_rules {
 
             let mult {[rmf $rmf $hrel] * $cov / $nomCov}
         
-            dam coop T $f $g [mag* $mult $mag]
+            dam coop T $f $g [mag* $mult $mag] $note
         }
     }
 
@@ -151,7 +153,7 @@ snit::type actsit_rules {
             # While there is a DISPLACED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput [civgroup gIn $n] $g $cov   \
+            satinput [civgroup gIn $n] $g $cov ""  \
                     AUT enmore   S-   \
                     SFT enmore   L-   \
                     CUL enquad   S-   \
@@ -204,7 +206,7 @@ snit::type actsit_rules {
             # While there is a PRESENCE situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "" \
                 AUT quad XXS+ \
                 SFT quad XXS+ \
                 QOL quad XXS+
@@ -256,7 +258,7 @@ snit::type actsit_rules {
 
                 if {$hrel >= 0} {
                     # FRIENDS
-                    satinput $f $g $cov   \
+                    satinput $f $g $cov "friends" \
                         AUT quad     S+   \
                         SFT quad     S+   \
                         CUL constant XXS- \
@@ -265,11 +267,11 @@ snit::type actsit_rules {
                     # ENEMIES
                     # Note: RMF=quad for AUT, SFT, which will
                     # reverse the sign in this case.
-                    satinput $f $g $cov  \
+                    satinput $f $g $cov "enemies" \
                         AUT quad     S+  \
                         SFT quad     S+  \
                         CUL constant S-  \
-                        QOL constant S-        
+                        QOL constant S-
                 }
             }
 
@@ -312,18 +314,21 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a CMOCONST situation
             #     with COVERAGE > 0.0
             # For each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note      \
                 AUT quad     [mag+ $stops S+]  \
                 SFT constant [mag+ $stops S+]  \
                 CUL constant [mag+ $stops XS+] \
-                QOL constant [mag+ $stops L+] 
+                QOL constant [mag+ $stops L+]
 
-            coopinput $flist $g $cov frmore [mag+ $stops M+]
+            coopinput $flist $g $cov frmore [mag+ $stops M+] $note
         }
     }
 
@@ -358,7 +363,7 @@ snit::type actsit_rules {
             # While there is a CMODEV situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "" \
                 AUT quad M+   \
                 SFT quad S+   \
                 CUL quad S+   \
@@ -403,18 +408,21 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a CMOEDU situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "$note" \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL quad     [mag+ $stops XXS+] \
                 QOL constant [mag+ $stops L+]
 
-            coopinput $flist $g $cov frmore [mag+ $stops M+]
+            coopinput $flist $g $cov frmore [mag+ $stops M+] $note
         }
     }
 
@@ -453,18 +461,21 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a CMOEMP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
                 QOL constant [mag+ $stops L+]
 
-            coopinput $flist $g $cov frmore [mag+ $stops M+]
+            coopinput $flist $g $cov frmore [mag+ $stops M+] $note
         }
     }
 
@@ -503,18 +514,21 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a CMOIND situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
                 QOL constant [mag+ $stops L+]
 
-            coopinput $flist $g $cov frmore [mag+ $stops M+]
+            coopinput $flist $g $cov frmore [mag+ $stops M+] $note
         }
     }
 
@@ -553,18 +567,21 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a CMOINF situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
                 QOL constant [mag+ $stops M+]
 
-            coopinput $flist $g $cov frmore [mag+ $stops M+]
+            coopinput $flist $g $cov frmore [mag+ $stops M+] $note
         }
     }
 
@@ -599,7 +616,7 @@ snit::type actsit_rules {
             # While there is a CMOLAW situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "" \
                 AUT quad M+  \
                 SFT quad S+
 
@@ -642,17 +659,20 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a CMOMED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 QOL constant [mag+ $stops L+]
 
-            coopinput $flist $g $cov frmore [mag+ $stops L+]
+            coopinput $flist $g $cov frmore [mag+ $stops L+] $note
         }
     }
 
@@ -691,18 +711,21 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 set stops 1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a CMOOTHER situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note      \
                 AUT quad     [mag+ $stops S+]  \
                 SFT constant [mag+ $stops S+]  \
                 CUL constant [mag+ $stops XS+] \
                 QOL constant [mag+ $stops L+]
 
-            coopinput $flist $g $cov frmore [mag+ $stops M+]
+            coopinput $flist $g $cov frmore [mag+ $stops M+] $note
         }
     }
 
@@ -738,7 +761,7 @@ snit::type actsit_rules {
             # While there is a COERCION situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "" \
                 AUT enquad XL-  \
                 SFT enquad XXL- \
                 CUL enquad XS-  \
@@ -780,7 +803,7 @@ snit::type actsit_rules {
             # While there is a CRIMINAL situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "" \
                 AUT enquad L-  \
                 SFT enquad XL- \
                 QOL enquad L-
@@ -823,7 +846,7 @@ snit::type actsit_rules {
 
                 if {$rel >= 0} {
                     # Friends
-                    satinput $f $g $cov \
+                    satinput $f $g $cov "friends" \
                         AUT constant S- \
                         SFT frquad   S+ \
                         CUL constant S- \
@@ -833,7 +856,7 @@ snit::type actsit_rules {
                     
                     # NOTE: Because $rel < 0, and the expected RMF
                     # is "quad", the SFT input turns into a minus.
-                    satinput $f $g $cov \
+                    satinput $f $g $cov "enemies" \
                         AUT constant S- \
                         SFT enquad   M- \
                         CUL constant S- \
@@ -876,7 +899,7 @@ snit::type actsit_rules {
             # While there is a GUARD situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "" \
                 AUT enmore L- \
                 SFT enmore L- \
                 CUL enmore L- \
@@ -918,7 +941,7 @@ snit::type actsit_rules {
             # While there is a PATROL situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov "" \
                 AUT enmore M- \
                 SFT enmore M- \
                 CUL enmore S- \
@@ -964,14 +987,14 @@ snit::type actsit_rules {
 
                 if {$rel >= 0} {
                     # Friends
-                    satinput $f $g $cov \
+                    satinput $f $g $cov "friends" \
                         AUT constant S+ \
                         SFT constant S+ \
                         CUL constant S+ \
                         QOL constant S+
                 } else {
                     # Enemies
-                    satinput $f $g $cov \
+                    satinput $f $g $cov "enemies" \
                         AUT constant XS+ \
                         SFT constant XS+ \
                         CUL constant XS+ \
@@ -1033,12 +1056,15 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a ORGCONST situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note      \
                 AUT constant [mag+ $stops S+]  \
                 SFT constant [mag+ $stops S+]  \
                 CUL constant [mag+ $stops XS+] \
@@ -1081,12 +1107,15 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a ORGEDU situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT constant [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
@@ -1129,12 +1158,15 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a ORGEMP situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT constant [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
@@ -1177,12 +1209,15 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a ORGIND situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT constant [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
@@ -1225,12 +1260,15 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a ORGINF situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT constant [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
@@ -1273,12 +1311,15 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a ORGMED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note       \
                 AUT constant [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
                 CUL constant [mag+ $stops XXS+] \
@@ -1321,12 +1362,15 @@ snit::type actsit_rules {
             if {[llength $ensitsMitigated] > 0} {
                 dam detail "Mitigates:"  [join $ensitsMitigated ", "]
                 incr stops +1
+                set note "mitigates"
+            } else {
+                set note ""
             }
 
             # While there is a ORGOTHER situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput $flist $g $cov \
+            satinput $flist $g $cov $note      \
                 AUT constant [mag+ $stops S+]  \
                 SFT constant [mag+ $stops S+]  \
                 CUL constant [mag+ $stops XS+] \

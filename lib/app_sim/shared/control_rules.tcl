@@ -233,10 +233,13 @@ snit::type control_rules {
                     dam sat P $f AUT $mag
 
                     # NEXT, get the cooperation effects with a's troops
+                    set Vfa [qaffinity name $Vfa]
+                    set Vfb [qaffinity name $Vfb]
+
                     dam coop P $f [actor frcgroups $a] \
-                        $C11acoop([qaffinity name $Vfa])
+                        $C11acoop($Vfa) "a's group, V.fa=$Vfa"
                     dam coop P $f [actor frcgroups $b] \
-                        $C11bcoop([qaffinity name $Vfb])
+                        $C11bcoop($Vfb) "b's group, V.fb=$Vfb"
                 }
             }
 
@@ -263,12 +266,14 @@ snit::type control_rules {
 
                         if {$actor eq $a} {
                             set mag $C12acoop($Vsym)
+                            set note "a's group, V.fa=$Vsym"
                         } else {
                             set Vc [qaffinity name [vrel.ga $f $actor]]
                             set mag $C12ccoop($Vc)
+                            set note "c's group, V.fc=$Vc"
                         }
 
-                        dam coop P $f $glist $mag
+                        dam coop P $f $glist $mag $note
                     }
                 }
             }
@@ -293,7 +298,7 @@ snit::type control_rules {
                     # troops.
                     set glist [actor frcgroups $b]
                     set mag $C13bcoop($Vsym)
-                    dam coop P $f $glist $mag
+                    dam coop P $f $glist $mag "b's group, V.fb=$Vsym"
                 }
             }
 
@@ -334,14 +339,17 @@ snit::type control_rules {
                     # NEXT, did actor a lose, gain, or neither?
                     if {$a eq $al} {
                         set case L
+                        set note "V.ga=$Vga, lost control"
                     } elseif {$a eq $ag} {
                         set case G
+                        set note "V.ga=$Vga, gained control"
                     } else {
                         set case N
+                        set note "V.ga=$Vga, neither"
                     }
 
                     # NEXT, enter the vrel input
-                    dam vrel P $g $a $C21($Vga,$case)
+                    dam vrel P $g $a $C21($Vga,$case) $note
                 }
             }
         }

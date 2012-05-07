@@ -328,11 +328,12 @@ snit::type dam {
                        CASE WHEN p IS NOT NULL
                        THEN format('%4.2f',p) ELSE 'n/a' END,
                        CASE WHEN q IS NOT NULL
-                       THEN format('%4.2f',q) ELSE 'n/a' END
+                       THEN format('%4.2f',q) ELSE 'n/a' END,
+                       note
                 FROM dam_inputs
             } -labels {
                 "Input" "P/T" "Att" "Curve" "Cause" "Mag"
-                "Here" "Near" "Far"
+                "Here" "Near" "Far" "Notes"
             }]
         
         append input(header) "\nATTITUDE INPUTS\n\n"
@@ -392,18 +393,19 @@ snit::type dam {
     #-------------------------------------------------------------------
     # Attitude Inputs
 
-    # hrel mode flist glist mag
+    # hrel mode flist glist mag ?note?
     #
     # mode   - P or T
     # flist  - A list of one or more groups
     # glist  - A list of one or more groups
     # mag    - A qmag(n) value
+    # note   - A brief descriptive note
     #
     # Enters a horizontal relationship input with the given mode 
     # and magnitude for all pairs of groups in flist with glist
     # (but never for a group with itself).
 
-    typemethod hrel {mode flist glist mag} {
+    typemethod hrel {mode flist glist mag {note ""}} {
         assert {$mode in {P T}}
 
         array set opts $input(ruledefs)
@@ -422,25 +424,26 @@ snit::type dam {
 
                 rdb eval {
                     INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause)
-                    VALUES('hrel', $mode, $curve, $mag, $opts(-cause))
+                        atype, mode, curve, mag, cause, note)
+                    VALUES('hrel', $mode, $curve, $mag, $opts(-cause), $note)
                 }
             }
         }
     }
 
-    # vrel mode glist alist mag
+    # vrel mode glist alist mag ?note?
     #
     # mode   - P or T
     # glist  - A list of one or more groups
     # alist  - A list of one or more actors
     # mag    - A qmag(n) value
+    # note   - A brief descriptive note
     #
     # Enters a vertical relationship input with the given mode 
     # and magnitude for all pairs of groups in glist with actors
     # in alist.
 
-    typemethod vrel {mode glist alist mag} {
+    typemethod vrel {mode glist alist mag {note ""}} {
         assert {$mode in {P T}}
 
         array set opts $input(ruledefs)
@@ -455,27 +458,37 @@ snit::type dam {
 
                 rdb eval {
                     INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause)
-                    VALUES('vrel', $mode, $curve, $mag, $opts(-cause))
+                        atype, mode, curve, mag, cause, note)
+                    VALUES('vrel', $mode, $curve, $mag, $opts(-cause), $note)
                 }
             }
         }
     }
 
-    # sat mode glist c mag ?c mag...?
+    # sat mode glist c mag ?c mag...? ?note?
     #
     # mode   - P or T
     # glist  - A list of one or more civilian groups
     # c      - A concern
     # mag    - A qmag(n) value
+    # note   - A brief descriptive note
     #
     # Enters satisfaction inputs with the given mode for all groups in
     # glist and the concerns and magnitudes as listed.
 
     typemethod sat {mode glist args} {
-        assert {[llength $args] != 0 && [llength $args] %2 == 0}
+        assert {[llength $args] != 0}
         assert {$mode in {P T}}
 
+        # FIRST, extract a note from the input, if any.
+        if {[llength $args] %2 == 1} {
+            set note [lindex $args end]
+            set args [lrange $args 0 end-1]
+        } else {
+            set note ""
+        }
+
+        # NEXT, get the options.
         array set opts $input(ruledefs)
 
         # NEXT, get the input gain.
@@ -490,25 +503,26 @@ snit::type dam {
 
                 rdb eval {
                     INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause, s, p, q)
+                        atype, mode, curve, mag, cause, s, p, q, note)
                     VALUES('sat', $mode, $curve, $mag, $opts(-cause), 
-                            $opts(-s), $opts(-p), $opts(-q))
+                            $opts(-s), $opts(-p), $opts(-q), $note)
                 }
             }
         }
     }
 
-    # coop mode flist glist mag
+    # coop mode flist glist mag ?note?
     #
     # mode   - P or T
     # flist  - A list of one or more civilian groups
     # glist  - A list of one or more force groups
     # mag    - A qmag(n) value
+    # note   - A brief descriptive note.
     #
     # Enters a cooperation input with the given mode and magnitude
     # for all pairs of groups in flist with glist.
 
-    typemethod coop {mode flist glist mag} {
+    typemethod coop {mode flist glist mag {note ""}} {
         assert {$mode in {P T}}
 
         array set opts $input(ruledefs)
@@ -523,9 +537,9 @@ snit::type dam {
 
                 rdb eval {
                     INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause, s, p, q)
+                        atype, mode, curve, mag, cause, s, p, q, note)
                     VALUES('coop', $mode, $curve, $mag, $opts(-cause), 
-                            $opts(-s), $opts(-p), $opts(-q))
+                            $opts(-s), $opts(-p), $opts(-q), $note)
                 }
             }
         }

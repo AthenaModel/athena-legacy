@@ -129,9 +129,9 @@ snit::type misc_rules {
             } {
                 foreach a $alist {
                     if {$a eq $controller} {
-                        dam vrel T $g $a [mag/ $delta S-]
+                        dam vrel T $g $a [mag/ $delta S-] "has control"
                     } else {
-                        dam vrel T $g $a [mag/ $delta L+]
+                        dam vrel T $g $a [mag/ $delta L+] "no control"
                     }
                 }
             }
@@ -141,9 +141,9 @@ snit::type misc_rules {
             } {
                 foreach a $alist {
                     if {$a eq $controller} {
-                        dam vrel T $g $a [mag/ $delta S+]
+                        dam vrel T $g $a [mag/ $delta S+] "has control"
                     } else {
-                        dam vrel T $g $a [mag/ $delta L-]
+                        dam vrel T $g $a [mag/ $delta L-] "no control"
                     }
                 }
             }
