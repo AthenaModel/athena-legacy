@@ -233,10 +233,6 @@ snit::type appserver {
             text/html [myproc html_Group]           \
             "Detail page for group {g}."
 
-        $server register /group/{g}/vrel {group/(\w+)/vrel} \
-            text/html [myproc html_GroupVrel]       \
-            "Analysis of Vertical Relationships for group {g}."
-
         $server register /image/{name} {image/(.+)} \
             tk/image [myproc image_TkImage]         \
             "Any Tk image, by its {name}."
@@ -1797,7 +1793,7 @@ snit::type appserver {
                 set vrel_c -1.0
             } else {
                 set vrel_c [rdb onecolumn {
-                    SELECT vrel FROM gui_vrel_view
+                    SELECT vrel FROM gui_uram_vrel
                     WHERE g=$g AND a=$controller
                 }]
 
@@ -1810,7 +1806,7 @@ snit::type appserver {
             }
 
             rdb eval {
-                SELECT a,vrel FROM gui_vrel_view
+                SELECT a,vrel FROM gui_uram_vrel
                 WHERE g=$g
                 ORDER BY vrel DESC
                 LIMIT 1
@@ -1837,12 +1833,7 @@ snit::type appserver {
         
         # NEXT, Detail Block: Relationships with actors
 
-        if {[Locked]} {
-            ht subtitle "Relationships with Actors" actors \
-                /group/$g/vrel "View Analysis"
-        } else {
-            ht subtitle "Relationships with Actors" actors 
-        }
+        ht subtitle "Relationships with Actors" actors 
 
         if {[Locked -disclaimer]} {
             ht query {
@@ -1854,7 +1845,7 @@ snit::type appserver {
                                                    AS 'Direct<br>Support',
                        format('%.2f',S.support)    AS 'Actual<br>Support',
                        format('%.2f',S.influence)  AS 'Contributed<br>Influence'
-                FROM gui_vrel_view AS V 
+                FROM gui_uram_vrel AS V 
                 JOIN support_nga AS S USING (g,a)
                 JOIN gui_actors AS A USING (a)
                 WHERE V.g=$g
@@ -2196,203 +2187,6 @@ snit::type appserver {
         }
 
         ht para
-    }
-
-    # html_GroupVrel udict matchArray
-    #
-    # udict      - A dictionary containing the URL components
-    # matchArray - Array of matches from the URL
-    #
-    # Formats the analysis page for /group/{g}/vrel.
-
-    proc html_GroupVrel {udict matchArray} {
-        upvar 1 $matchArray ""
-
-        # Get the group
-        set g [string toupper $(1)]
-
-        if {![rdb exists {SELECT * FROM groups WHERE g=$g}]} {
-            return -code error -errorcode NOTFOUND \
-                "Unknown entity: [dict get $udict url]."
-        }
-
-        # Next, what kind of group is it?
-        set gtype [group gtype $g]
-
-        switch $gtype {
-            CIV     { return [html_GroupCivVrel   $g] }
-            FRC     { return [html_GroupOtherVrel $g] }
-            ORG     { return [html_GroupOtherVrel $g] }
-            default { error "Unknown group type."          }
-        }
-    }
-
-    # html_GroupCivVrel g
-    #
-    # g          - The group
-    #
-    # Formats the vrel analysis page for civilian /group/{g}.
-
-    proc html_GroupCivVrel {g} {
-        # FIRST,  get the data about this group
-        rdb eval {SELECT * FROM gui_civgroups WHERE g=$g} data {}
-
-        # NEXT, begin the page.
-        ht page "Vertical Relationships: $g"
-        ht title $data(longlink) "Civilian Group" \
-            "Analysis: Vertical Relationships"
-
-        # NEXT, what we do depends on whether the simulation is locked
-        # or not.
-        if {![Locked -disclaimer]} {
-            ht /page
-            return [ht get]
-        }
-
-        # NEXT, Analysis of vertical relationships
-
-        ht putln "
-            The vertical relationship <i>V.ga</i> between
-            civilian group $g and actor <i>a</i> varies over
-            time according to a number of factors: mood, level of basic
-            services, etc.  These factors are described following the
-            table.
-        "
-
-        ht para
-
-        ht query {
-            SELECT A.link,
-                   qaffinity('format',V.vrel),
-                   qaffinity('format',B.bvrel),
-                   CASE WHEN V.dv_mood == 0.0 THEN '0'
-                        ELSE qmag('name',V.dv_mood) END,
-                   CASE WHEN V.dv_eni == 0.0 THEN '0'
-                        ELSE qmag('name',V.dv_eni) END
-            FROM gui_vrel_view AS V
-            JOIN gui_actors AS A USING (a)
-            JOIN bvrel_tga AS B ON (B.t=V.bvt AND B.g=V.g AND B.a=V.a)
-            WHERE V.g=$g
-            ORDER BY vrel DESC
-        } -labels {
-            "Actor a"
-            "V.ga"
-            "= BV.ga(t.control)"
-            "+ &Delta;V.mood"
-            "+ &Delta;V.eni"
-        } -align LRRRR
-
-        ht subtitle "Description"
-
-        ht putln "
-            The vertical relationship <i>V.ga</i> is recomputed
-            every week.  Initially it depends on group <i>g</i>'s 
-            affinity for actor <i>a</i>, as determined by their 
-            belief systems.  It is affected over time by a number 
-            of factors.
-        "
-        ht para
-
-        ht putln {
-            At any given time, <i>V.ga</i> is computed as a base
-            vertical relationship plus a number of deltas.
-            The base value, <i>BV.ga</i>, is set when control of
-            <i>g</i>'s neighborhood shifts; it depends on whether
-            actor <i>a</i> was in control before or after the 
-            transition.
-        }
-
-        ht para
-
-        ht putln {
-            The remaining terms depend on group <i>g</i>'s environment
-            at the time of assessment.  The deltas are expressed as
-            magnitude symbols (TBD: Need link to on-line help.)
-        }
-
-        ht putln <dl>
-        ht putln "<dt><b>&Delta;V.mood</b>"
-        ht putln <dd>
-        ht put {
-            Change in <i>V</i> due to changes in mood.  This term is
-            non-zero if <i>g's</i> mood has changed signficantly since
-            the last shift in control.
-        }
-        ht para
-
-        ht putln "<dt><b>&Delta;V.eni</b>"
-        ht putln <dd>
-        ht put {
-            Change in <i>V</i> due to the current level of 
-            Essential Non-Infrastructure (ENI) services
-            provided to the group.  This term is non-zero if the level of 
-            ENI servies is better or worse than expected.
-        }
-        ht putln </dl>
-        
-        ht /page
-
-        return [ht get]
-    }
-
-    # html_GroupOtherVrel g
-    #
-    # g          - The group
-    #
-    # Formats the vrel analysis page for non-civilian /group/{g}.
-
-    proc html_GroupOtherVrel {g} {
-        # FIRST,  get the data about this group
-        rdb eval {SELECT * FROM gui_groups WHERE g=$g} data {}
-
-        # NEXT, begin the page.
-        ht page "Vertical Relationships: $g"
-
-        if {$data(gtype) eq "FRC"} {
-            set over "Force Group"
-        } else {
-            set over "Organization Group"
-        }
-
-        ht title $data(longlink) $over \
-            "Analysis: Vertical Relationships"
-
-        # NEXT, what we do depends on whether the simulation is locked
-        # or not.
-        if {![Locked -disclaimer]} {
-            ht /page
-            return [ht get]
-        }
-
-        # NEXT, Analysis of vertical relationships
-
-        ht putln "
-            Force and organization groups inherit their relationships
-            from the actors that own them.  Consequently, the vertical
-            relationship <i>V.ga</i> between group $g and its owning actor 
-            is 1.0; and its vertical relationship with every other actor
-            is simply the affinity of its owning actor for the other
-            actor based on their belief systems.
-        "
-
-        ht para
-
-        ht query {
-            SELECT A.link,
-                   qaffinity('format',V.vrel)
-            FROM gui_vrel_view AS V
-            JOIN gui_actors AS A USING (a)
-            WHERE V.g=$g
-            ORDER BY V.vrel DESC
-        } -labels {
-            "Actor a"
-            "V.ga"
-        } -align LR
-
-        
-        ht /page
-
-        return [ht get]
     }
 
     #-------------------------------------------------------------------
@@ -3494,5 +3288,6 @@ snit::type appserver {
         }
     }
 }
+
 
 
