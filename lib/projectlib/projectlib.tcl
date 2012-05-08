@@ -45,7 +45,6 @@ namespace eval ::projectlib:: {
 source [file join $::projectlib::library os.tcl             ]
 source [file join $::projectlib::library version.tcl        ]
 source [file join $::projectlib::library projtypes.tcl      ]
-source [file join $::projectlib::library calpattern.tcl     ]
 source [file join $::projectlib::library prefs.tcl          ]
 source [file join $::projectlib::library parmdb.tcl         ]
 source [file join $::projectlib::library scenariodb.tcl     ]

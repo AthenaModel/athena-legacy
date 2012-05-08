@@ -34,7 +34,7 @@ snit::widgetadaptor ordersentbrowser {
 
     typevariable layout {
         { id        "ID"         -sortmode integer   }
-        { tick      "Day"        -sortmode integer   }
+        { tick      "Week"       -sortmode integer   }
         { zulu      "Zulu"                           }
         { canUndo   "Undo?"                          }
         { narrative "Narrative"  -width 50 -wrap yes }

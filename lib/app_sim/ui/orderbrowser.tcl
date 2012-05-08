@@ -32,7 +32,7 @@ snit::widgetadaptor orderbrowser {
 
     typevariable layout {
         { id        "ID"         -sortmode integer                  }
-        { tick      "Day"        -sortmode integer                  }
+        { tick      "Week"       -sortmode integer                  }
         { zulu      "Zulu"                                          }
         { narrative "Narrative"  -width 50 -wrap 1                  }
         { name      "Order"                                         }

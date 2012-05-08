@@ -380,7 +380,7 @@ snit::type appserver {
         if {[sim state] eq "PREP"} {
             ht put "Scenario is unlocked."
         } else {
-            ht put [format "Simulation time: Day %04d, %s." \
+            ht put [format "Simulation time: Week %04d, %s." \
                       [simclock now] [simclock asZulu]]
         }
 
@@ -3366,7 +3366,7 @@ snit::type appserver {
         set text [ht pop]
 
         if {$text ne ""} {
-            ht table {"Day" "Zulu Time" "Model" "Narrative"} {
+            ht table {"Week" "Zulu Time" "Model" "Narrative"} {
                 ht putln $text
             }
 

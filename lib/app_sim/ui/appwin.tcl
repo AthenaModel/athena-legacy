@@ -431,14 +431,12 @@ snit::widget appwin {
     # simstate    Current simulation state
     # tick        Current sim time as a four-digit tick (a day)
     # zulutime    Current sim time as a zulu time string
-    # dayofweek   Day of week (edayname value)      
 
     variable info -array {
         mode           scenario
         simstate       ""
         tick           "0000"
         zulutime       ""
-        dayofweek      "??"
     }
 
     # Visibility Array: this array determines whether or not various 
@@ -1026,17 +1024,12 @@ snit::widget appwin {
 
         # Tick
         ttk::label $toolbar.ticklab                \
-            -text "Day:"
+            -text "Week:"
 
         ttk::label $toolbar.tick                   \
             -font               codefont               \
             -width              4                      \
             -textvariable       [myvar info(tick)]
-
-        ttk::label $toolbar.dayofweek              \
-            -font               codefont               \
-            -width              4                      \
-            -textvariable       [myvar info(dayofweek)]
 
         pack $simtools.runpause  -side left    
         pack $simtools.duration  -side left -padx {0 15}
@@ -1046,7 +1039,6 @@ snit::widget appwin {
         pack $simtools.last      -side left
 
         pack $toolbar.preplock  -side left
-        pack $toolbar.dayofweek -side right -padx 2 
         pack $toolbar.tick      -side right -padx 2 
         pack $toolbar.ticklab   -side right
         pack $toolbar.zulutime  -side right -padx 2 
@@ -2186,11 +2178,6 @@ snit::widget appwin {
         # Display current sim time.
         set info(tick)     [format "%04d" [simclock now]]
         set info(zulutime) [simclock asZulu]
-        
-        # Get day of week
-        set cs [zulu tosec $info(zulutime)]
-        set dayIndex [clock format $cs -format %w -timezone :UTC]
-        set info(dayofweek) "([lindex [edayname names] $dayIndex])"
     }
 
     # AppPrefs parm
