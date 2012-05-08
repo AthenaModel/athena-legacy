@@ -76,12 +76,12 @@ snit::type strategy {
         # tactic is eligible, attempt to execute it. If it is a tactic
         # meant to execute on lock and we are locking, attempt to 
         # execute it.
-        rdb eval {
+        foreach {tactic_id on_lock} [rdb eval {
             SELECT tactic_id, on_lock
             FROM tactics
             WHERE state = 'normal'
             ORDER BY owner, priority
-        } {
+        }] {
             if {$locking} {
                 if {$on_lock} {
                     log normal strategy \
