@@ -11,6 +11,41 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.3, 8 May 2012</h3>
+
+This build continues the URAM integration.  It fully integrates the
+horizontal and vertical relationship capabilities of URAM into Athena,
+and fixes a large number of small bugs introduced earlier in the
+integration effort.<p>
+
+<ul>
+  <li> Bug 3384: "Day" still used in Athena GUI
+  <li> Bug 3385: athena(1): Magic attrition orders can't be sent during strategy execution
+  <li> Bug 3394: On-Lock Flag not working properly
+  <li> Bug 3413: Detail browser not displaying all CIV group info
+  <li> Bug 3415: Uniformed FRC group ATTROE error
+  <li> Bug 3418: Invalid executive commands cause error
+  <li> Bug 3419: athena(1): Add vertical relationships to the ENI rule set
+  <li> Bug 3420: MAD:HREL:INPUT and MAD:VREL:INPUT on-line help typo
+  <li> Bug 3421: athena(1): Add vertical relationships to the CONTROL rule set
+  <li> Bug 3423: athena(1): Initialize transient effects on-lock
+  <li> Bug 3427: athena(1): Eliminate hist.mood
+  <li> Bug 3428: Activity assigned to a deleted group causes error
+  <li> Bug 3429: Ensit Resolution rule set does not fire
+  <li> Bug 3430: athena(1): Ensits created in PREP get a start time of t=1 instead of t=0.
+  <li> Bug 3431: Change the Future causes attitudes to stop updating
+  <li> Bug 3432: athena(1): HREL browser should display current, baseline, and natural levels
+  <li> Bug 3434: athena(1): VREL browser should display current, baseline, and natural levels
+  <li> Bug 3435: athena(1): satbrowser should display current, baseline, natural levels.
+  <li> Bug 3437: athena(1): Cooperation browser should display current, baseline, and natural levels.
+  <li> Bug 3439: athena(1): Set hrel and vrel natural levels
+  <li> Bug 3440: athena(1): Set SFT's natural level
+  <li> Bug 3442: athena(1): Zero gamma values
+  <li> Bug 3443: athena(1): DAM rule input notes
+  <li> Bug 3444: athena(1): Simplified attitude gains
+  <li> Bug 3445: athena(1): Default CLI size is too small
+</ul><p>
+
 <h3>Build 4.0.2, 30 April 2012</h3>
 
 This is the second Athena 4 build.  It contains a number of bug fixes,
