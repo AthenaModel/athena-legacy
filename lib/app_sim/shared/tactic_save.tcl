@@ -70,14 +70,11 @@ order define TACTIC:SAVE:CREATE {
     parm priority enum  "Priority"             -enumtype ePrioSched \
                                                -displaylong yes     \
                                                -defval bottom
-    parm on_lock   enum  "Exec On Lock?"       -enumtype eyesno \
-                                               -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
     prepare int1                -required -type ipercent
     prepare priority -tolower             -type ePrioSched
-    prepare on_lock             -required -type boolean
 
     returnOnError -final
 
@@ -103,12 +100,10 @@ order define TACTIC:SAVE:UPDATE {
                                                -keys    tactic_id
     parm owner     disp "Owner"
     parm int1      text "Percentage of Income"
-    parm on_lock   enum "Exec On Lock?"        -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id   -required -type tactic
     prepare int1        -required -type ipercent
-    prepare on_lock               -type boolean
 
     returnOnError
 

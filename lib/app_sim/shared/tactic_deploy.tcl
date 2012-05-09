@@ -20,17 +20,19 @@
 #
 # PARAMETER MAPPING:
 #
-#    g     <= g
-#    text1 <= mode: ALL|SOME
-#    int1  <= personnel
-#    nlist <= nlist
+#    g        <= g
+#    text1    <= mode: ALL|SOME
+#    int1     <= personnel
+#    nlist    <= nlist
+#    on_lock  <= on_lock
+#    once     <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Tactic: DEPLOY
 
-tactic type define DEPLOY {g text1 int1 nlist} actor {
+tactic type define DEPLOY {g text1 int1 nlist on_lock once} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -288,8 +290,10 @@ order define TACTIC:DEPLOY:CREATE {
     parm priority  enum  "Priority"          -enumtype ePrioSched  \
                                              -displaylong yes      \
                                              -defval bottom
-    parm on_lock   enum  "Exec On Lock?"     -enumtype eyesno \
+    parm on_lock   enum  "Exec On Lock?"     -enumtype eyesno      \
                                              -defval NO
+    parm once      enum  "Once Only?"        -enumtype eyesno      \
+                                             -defval   NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
@@ -298,7 +302,8 @@ order define TACTIC:DEPLOY:CREATE {
     prepare int1                          -type   ingpopulation
     prepare nlist    -toupper   -required -listof nbhood
     prepare priority -tolower             -type   ePrioSched
-    prepare on_lock             -required -type   boolean
+    prepare on_lock                       -type   boolean
+    prepare once                          -type   boolean
 
     returnOnError
 
@@ -336,7 +341,7 @@ order define TACTIC:DEPLOY:UPDATE {
         -refreshcmd {tactic::DEPLOY RefreshUPDATE}
 
     parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_DEPLOY \
+                                          -table   gui_tactics_DEPLOY \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"
@@ -345,6 +350,7 @@ order define TACTIC:DEPLOY:UPDATE {
     parm int1      text  "Personnel"
     parm nlist     nlist "In Neighborhoods"
     parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
+    parm once      enum  "Once Only?"     -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
@@ -353,6 +359,7 @@ order define TACTIC:DEPLOY:UPDATE {
     prepare int1                 -type   ingpopulation
     prepare nlist      -toupper  -listof nbhood
     prepare on_lock              -type   boolean
+    prepare once                 -type   boolean
 
     returnOnError
 

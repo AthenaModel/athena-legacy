@@ -564,24 +564,50 @@ snit::type scenario {
 
         # NEXT, define tactic and condition type views
         set sql ""
+        set once 0
+        set on_lock 0
+
         foreach ttype [tactic type names] {
             set parms [tactic type parms $ttype]
-            ldelete parms on_lock
-            set parmlist1 [join $parms ", "]
-            append parmlist1 \
-                ", CASE on_lock WHEN 1 THEN 'YES' ELSE 'NO' END AS on_lock"
 
-            if {"once" in $parms} {
-                ldelete parms once
-                set parmlist2 [join $parms ", "]
-                append parmlist2 \
-                    ", CASE on_lock WHEN 1 THEN 'YES' ELSE 'NO' END AS on_lock"
-                append parmlist2 \
-                    ", CASE once WHEN 1 THEN 'YES' ELSE 'NO' END AS once"
-            } else {
-                set parmlist2 $parmlist1
+            # NEXT, look for optional flags in tactic type specific parms.
+            # Need to replace the flags with user-friendly text
+            if {"on_lock" in $parms} {
+                set on_lock 1
+                ldelete parms on_lock
             }
 
+            if {"once" in $parms} {
+                set once 1
+                ldelete parms once
+            }
+
+            # NEXT, set the two parmlists identical, one for each type of view.
+            # parmlist2 may change
+            set parmlist1 [join $parms ", "]
+            set parmlist2 [join $parms ", "]
+
+            # NEXT, if "on_lock" is present set up the user-friendly SQL in 
+            # parmlist2
+            if {$on_lock} {
+                append parmlist2 \
+                    ", CASE on_lock WHEN 1 THEN 'YES' ELSE 'NO' END AS on_lock"
+                # NEXT, "once" should always appear when "on_lock" appears, but
+                # do not want to assume that
+                if {$once} {
+                    append parmlist2 \
+                        ", CASE once WHEN 1 THEN 'YES' ELSE 'NO' END AS once"
+                } 
+            } elseif {$once} {
+                # NEXT, the "once" flag is present, convert to user-friendly
+                # SQL
+                append parmlist2 \
+                    ", CASE once WHEN 1 THEN 'YES' ELSE 'NO' END AS once"
+            }
+
+            # NEXT, create the two views. The order dialogs that use these
+            # will need to chose which one is appropriate, but both are
+            # available
             append sql "
                 CREATE VIEW tactics_$ttype AS
                 SELECT tactic_id, tactic_type, owner, narrative, priority,

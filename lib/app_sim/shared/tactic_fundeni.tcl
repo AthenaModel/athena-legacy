@@ -14,15 +14,17 @@
 #
 # PARAMETER MAPPING:
 #
-#    x1    <= amount
-#    glist <= glist
+#    x1      <= amount
+#    glist   <= glist
+#    on_lock <= on_lock
+#    once    <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Tactic: FUNDENI
 
-tactic type define FUNDENI {x1 glist} actor {
+tactic type define FUNDENI {x1 glist on_lock once} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -222,16 +224,19 @@ order define TACTIC:FUNDENI:CREATE {
     parm priority  enum  "Priority"          -enumtype ePrioSched  \
                                              -displaylong yes      \
                                              -defval bottom
-    parm on_lock   enum  "Exec On Lock?"     -enumtype eyesno \
+    parm on_lock   enum  "Exec On Lock?"     -enumtype eyesno      \
                                              -defval NO
+    parm once      enum  "Once Only?"        -enumtype eyesno      \
+                                             -defval   NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare glist    -toupper   -required -listof civgroup
     prepare x1                  -required -type   money
     prepare priority -tolower             -type   ePrioSched
-    prepare on_lock             -required -type   boolean
-
+    prepare on_lock                       -type   boolean
+    prepare once                          -type   boolean
+ 
     returnOnError -final
 
     # NEXT, put tactic_type in the parmdict
@@ -251,19 +256,21 @@ order define TACTIC:FUNDENI:UPDATE {
         -sendstates {PREP PAUSED}                  \
         -refreshcmd {tactic::FUNDENI RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_FUNDENI \
+    parm tactic_id key  "Tactic ID"       -context yes                 \
+                                          -table   gui_tactics_FUNDENI \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm glist     glist "Groups"  
     parm x1        text  "Amount, $/week"
     parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
+    parm once      enum  "Once Only?"     -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
     prepare glist      -toupper  -listof civgroup
     prepare x1                   -type   money
     prepare on_lock              -type   boolean
+    prepare once                 -type   boolean
 
     returnOnError
 

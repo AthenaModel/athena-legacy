@@ -113,7 +113,7 @@ namespace eval ::athena_test::tests:: {
 
     proc deploy {n g personnel} {
         ted order TACTIC:DEPLOY:CREATE \
-            owner JOE g $g text1 SOME int1 $personnel nlist $n on_lock YES
+            owner JOE g $g text1 SOME int1 $personnel nlist $n on_lock YES once NO
     }
 
     proc cleanup {} {
@@ -476,7 +476,7 @@ SUNN/NB1 950
     test attritn-1.4 {nbhood, displaced units attrit origin} -setup {
         ted create NB1 NB2 BLUE SHIA KURD
         ted order TACTIC:DISPLACE:CREATE \
-            owner SYSTEM g KURD n NB1 text1 DISPLACED int1 100 on_lock YES
+            owner SYSTEM g KURD n NB1 text1 DISPLACED int1 100 on_lock YES once YES
         ted lock
     } -body {
         aam mutate attrit [list mode NBHOOD n NB1 casualties 100 g1 "" g2 ""]

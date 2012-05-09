@@ -70,7 +70,7 @@ object tactic_ {
         still be subject to resource constraints (ie. enough troops, money,
         etc...). If "NO", the tactic will be treated in the normal way with
         it eligible for execution only if the proper conditions are met.
-    } -tags object
+    } 
 }
 
 page /object tactic "Tactic" {
@@ -116,7 +116,7 @@ object tactic_assign {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority on_lock once}
 
     attribute g "Group" {
         The ID of a <<term frcgroup>> or <<term orggroup>> belonging
@@ -179,7 +179,7 @@ object tactic_attroe {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority}
 
     attribute f "Attacking Group" {
         The attacking <<term frcgroup>>.  This group must
@@ -281,7 +281,7 @@ object tactic_defroe {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority}
 
     attribute g "Defending Group" {
         The defending <<term frcgroup>>, the ID of a uniformed
@@ -343,7 +343,7 @@ object tactic_demob {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority}
 
     attribute g "Group" {
         The ID of a <<term frcgroup>> or 
@@ -418,7 +418,7 @@ object tactic_deploy {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority on_lock once}
 
     attribute g "Group" {
         The ID of a <<term frcgroup>> or <<term orggroup>> belonging
@@ -489,7 +489,7 @@ object tactic_displace {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority on_lock once}
 
     attribute g "Group" {
         The ID of a <<term civgroup>>.
@@ -546,14 +546,14 @@ object tactic_executive {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority on_lock once}
 
     attribute text1 "Command" {
         The <<cref /command command>> to execute, often a 
         <<cref /command/call>> or <<cref /command/sigevent>> command.
     } -tags {create update}
 
-    include tactic_ -attrs once -tags {create update}
+    include tactic_ -attrs once    -tags {create update}
 }
 
 page /object/tactic executive "EXECUTIVE tactic" {
@@ -583,7 +583,7 @@ object tactic_fund {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority}
 
     attribute a "Actor" {
         The ID of an <<term actor>> to receive the cash.
@@ -635,7 +635,7 @@ object tactic_fundeni {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority on_lock once}
 
     attribute glist "Groups" {
         The IDs of one or more civilian groups.
@@ -679,7 +679,7 @@ object tactic_mobilize {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority}
 
     attribute g "Group" {
         The ID of a <<term frcgroup>> or <<term orggroup>> belonging
@@ -717,7 +717,7 @@ object tactic_save {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority}
 
     attribute int1 "Percentage of Income" {
         The percentage of the <<term actor>>'s income to save, as
@@ -749,7 +749,7 @@ object tactic_spend {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority}
 
     attribute int1 "Percentage of Reserve" {
         The percentage of the <<term actor>>'s cash reserve to release
@@ -792,7 +792,7 @@ object tactic_support {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock}
+    include tactic_ -attrs {state priority on_lock once}
 
     attribute a "Supported Actor" {
         The ID of the <<term actor>> who will receive the

@@ -13,15 +13,16 @@
 #
 # PARAMETER MAPPING:
 #
-#    text1 <= command
-#    once  <= once
+#    text1   <= command
+#    once    <= once
+#    on_lock <= on_lock
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Tactic: EXECUTIVE
 
-tactic type define EXECUTIVE {text1 once} {actor system} {
+tactic type define EXECUTIVE {text1 on_lock once} {actor system} {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -34,7 +35,13 @@ tactic type define EXECUTIVE {text1 once} {actor system} {
     typemethod narrative {tdict} {
         dict with tdict {
             set msg "Executive command: $text1"
-            if {$once} {
+            if {$on_lock} {
+                append msg " (on lock"
+                if {$once} {
+                    append msg " and once only"
+                }
+                append msg ")"
+            } elseif {$once} {
                 append msg " (once only)"
             }
             return $msg
@@ -114,7 +121,7 @@ order define TACTIC:EXECUTIVE:CREATE {
     parm priority  enum    "Priority"      -enumtype ePrioSched  \
                                            -displaylong yes      \
                                            -defval bottom
-    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno \
+    parm on_lock   enum    "Exec On Lock?" -enumtype eyesno      \
                                            -defval NO
 } {
     # FIRST, prepare and validate the parameters
@@ -122,7 +129,7 @@ order define TACTIC:EXECUTIVE:CREATE {
     prepare text1
     prepare once     -toupper   -required -type   boolean
     prepare priority -tolower             -type   ePrioSched
-    prepare on_lock             -required -type boolean
+    prepare on_lock                       -type boolean
 
     returnOnError -final
 

@@ -42,6 +42,7 @@ snit::type tactic {
 
     typevariable optParms {
         once     0
+        on_lock  0
         a        ""
         b        ""
         m        ""

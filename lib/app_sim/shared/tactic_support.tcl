@@ -15,15 +15,17 @@
 #
 # PARAMETER MAPPING:
 #
-#    a     <= a
-#    nlist <= nlist
+#    a       <= a
+#    nlist   <= nlist
+#    on_lock <= on_lock
+#    once    <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Tactic: SUPPORT
 
-tactic type define SUPPORT {a nlist} actor {
+tactic type define SUPPORT {a nlist on_lock once} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -173,13 +175,16 @@ order define TACTIC:SUPPORT:CREATE {
                                             -defval bottom
     parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno \
                                             -defval NO
+    parm once      enum  "Once Only?"       -enumtype eyesno      \
+                                            -defval   NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare a        -toupper   -required -type   {ptype a+self+none}
     prepare nlist    -toupper   -required -listof nbhood
     prepare priority -tolower             -type   ePrioSched
-    prepare on_lock             -required -type   boolean
+    prepare on_lock                       -type   boolean
+    prepare once                          -type   boolean
 
     returnOnError -final
 
@@ -200,19 +205,21 @@ order define TACTIC:SUPPORT:UPDATE {
         -sendstates {PREP PAUSED}                    \
         -refreshcmd {tactic::SUPPORT RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"         -context yes             \
-                                            -table   tactics_SUPPORT \
+    parm tactic_id key  "Tactic ID"         -context yes                 \
+                                            -table   gui_tactics_SUPPORT \
                                             -keys    tactic_id
     parm owner     disp  "Owner"
     parm a         enum  "Supported Actor"  -enumtype {ptype a+self+none}
     parm nlist     nlist "In Neighborhoods"
     parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno 
+    parm once      enum  "Once Only?"       -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
     prepare a          -toupper  -type   {ptype a+self+none}
     prepare nlist      -toupper  -listof nbhood
     prepare on_lock              -type   boolean
+    prepare once                 -type   boolean
 
     returnOnError
 

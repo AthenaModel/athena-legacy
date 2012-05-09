@@ -47,7 +47,6 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         g           BLUE
         text1       HOLD_FIRE
-        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -60,7 +59,6 @@ namespace eval ::athena_test::tests:: {
         g {required value}
         n {required value}
         text1 {required value}
-        on_lock {required value}
     }
 
     
@@ -147,13 +145,21 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order TACTIC:DEFROE:CREATE $D1
 
-        ted query {SELECT * FROM tactics_DEFROE}
+        ted querylist {SELECT * FROM tactics_DEFROE}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                    priority state  exec_ts exec_flag n   g    text1     on_lock 
---------- ----------- ----- -------------------------------------------- -------- ------ ------- --------- --- ---- --------- ------- 
-1         DEFROE      JOE   Group BLUE defends in NB1 with ROE HOLD_FIRE 1        normal         0         NB1 BLUE HOLD_FIRE NO      
+tactic_id    1
+tactic_type  DEFROE
+owner        JOE
+narrative    Group BLUE defends in NB1 with ROE HOLD_FIRE
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+n            NB1
+g            BLUE
+text1        HOLD_FIRE
     }
 
 
@@ -241,13 +247,21 @@ tactic_id tactic_type owner narrative                                    priorit
         ted order TACTIC:DEFROE:UPDATE \
             tactic_id 1 text1 FIRE_BACK_IMMEDIATELY
 
-        ted query {SELECT * FROM tactics_DEFROE}
+        ted querylist {SELECT * FROM tactics_DEFROE}
     } -cleanup {
         cleanup
     } -result {
-tactic_id tactic_type owner narrative                                                priority state  exec_ts exec_flag n   g    text1                 on_lock 
---------- ----------- ----- -------------------------------------------------------- -------- ------ ------- --------- --- ---- --------------------- ------- 
-1         DEFROE      JOE   Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY 1        normal         0         NB1 BLUE FIRE_BACK_IMMEDIATELY NO      
+tactic_id    1
+tactic_type  DEFROE
+owner        JOE
+narrative    Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY
+priority     1
+state        normal
+exec_ts      
+exec_flag    0
+n            NB1
+g            BLUE
+text1        FIRE_BACK_IMMEDIATELY
     }
 
 

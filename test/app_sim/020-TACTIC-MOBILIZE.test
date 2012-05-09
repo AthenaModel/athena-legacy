@@ -47,7 +47,6 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         int1        100
         once        YES
-        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -59,7 +58,6 @@ namespace eval ::athena_test::tests:: {
         owner {required value}
         g {required value}
         once {required value}
-        on_lock {required value}
     }
 
     test CREATE-1.2 {owner is unknown} -setup {
@@ -159,8 +157,6 @@ exec_ts
 exec_flag    0
 g            BLUE
 int1         100
-once         1
-on_lock      NO
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -290,8 +286,6 @@ exec_ts
 exec_flag    0
 g            BLUE
 int1         150
-once         0
-on_lock      NO
     }
 
 

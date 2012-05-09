@@ -80,7 +80,6 @@ namespace eval ::athena_test::tests:: {
         g {required value}
         text1 {required value}
         nlist {required value}
-        on_lock {required value}
     }
 
     test DEPLOY:CREATE-1.2 {owner is unknown} -setup {
@@ -204,7 +203,6 @@ g            BLUE
 text1        SOME
 int1         100
 nlist        NB1 NB2
-on_lock      NO
     }
 
 
@@ -229,7 +227,6 @@ g            BLUE
 text1        ALL
 int1         
 nlist        NB1
-on_lock      NO
     }
 
 
@@ -384,7 +381,6 @@ g            BLUE
 text1        SOME
 int1         150
 nlist        NB1 NB2
-on_lock      NO
     }
 
     test DEPLOY:UPDATE-2.2 {tactic is updated} -setup {
@@ -410,7 +406,6 @@ g            BLUE
 text1        SOME
 int1         150
 nlist        NB1
-on_lock      NO
     }
 
 

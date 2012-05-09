@@ -14,17 +14,19 @@
 #
 # PARAMETER MAPPING:
 #
-#    g     <= g
-#    n     <= n
-#    text1 <= activity; list depends on whether g is FRC or ORG
-#    int1  <= personnel
+#    g       <= g
+#    n       <= n
+#    text1   <= activity; list depends on whether g is FRC or ORG
+#    int1    <= personnel
+#    on_lock <= on_lock
+#    once    <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Tactic: ASSIGN
 
-tactic type define ASSIGN {g n text1 int1} actor {
+tactic type define ASSIGN {g n text1 int1 on_lock once} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -226,7 +228,9 @@ order define TACTIC:ASSIGN:CREATE {
     parm priority  enum  "Priority"        -enumtype ePrioSched  \
                                            -displaylong yes      \
                                            -defval bottom
-    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno \
+    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno      \
+                                           -defval NO
+    parm once      enum  "Once Only?"      -enumtype eyesno      \
                                            -defval NO
 } {
     # FIRST, prepare and validate the parameters
@@ -237,6 +241,7 @@ order define TACTIC:ASSIGN:CREATE {
     prepare int1                -required -type ingpopulation
     prepare priority -tolower             -type ePrioSched
     prepare on_lock             -required -type boolean
+    prepare once                -required -type boolean
 
     returnOnError
 
@@ -273,8 +278,8 @@ order define TACTIC:ASSIGN:UPDATE {
         -sendstates {PREP PAUSED}                  \
         -refreshcmd {tactic::ASSIGN RefreshUPDATE}
 
-    parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_ASSIGN \
+    parm tactic_id key  "Tactic ID"       -context yes                \
+                                          -table   gui_tactics_ASSIGN \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"
@@ -282,6 +287,7 @@ order define TACTIC:ASSIGN:UPDATE {
     parm text1     enum  "Activity"
     parm int1      text  "Personnel"
     parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
+    parm once      enum  "Once Only?"     -enumtype eyesno 
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -290,6 +296,7 @@ order define TACTIC:ASSIGN:UPDATE {
     prepare text1      -toupper  -type {activity asched}
     prepare int1                 -type ingpopulation
     prepare on_lock              -type boolean
+    prepare once                 -type boolean
 
     returnOnError
 

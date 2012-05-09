@@ -72,7 +72,6 @@ namespace eval ::athena_test::tests:: {
         n {required value}
         text1 {required value}
         int1 {required value}
-        on_lock {required value}
     }
 
     test CREATE-1.2 {owner is unknown} -setup {
@@ -174,7 +173,6 @@ g            SHIA
 n            NB2
 text1        DISPLACED
 int1         100
-on_lock      NO
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -316,7 +314,6 @@ g            SHIA
 n            NB2
 text1        DISPLACED
 int1         150
-on_lock      NO
     }
 
     test UPDATE-2.2 {Effects} -setup {

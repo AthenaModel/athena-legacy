@@ -212,7 +212,7 @@ JOE Joe the Actor JOE      200000.0     10000.0 0.0
 
     test delete-7.1 {Owned tactic deleted} -setup {
         ted create JOE BOB
-        ted order TACTIC:SAVE:CREATE owner JOE int1 20 on_lock NO
+        ted order TACTIC:SAVE:CREATE owner JOE int1 20
     } -body {
         actor mutate delete JOE
 
@@ -224,7 +224,7 @@ JOE Joe the Actor JOE      200000.0     10000.0 0.0
 
     test delete-7.2 {Undo restores tactic} -setup {
         ted create JOE BOB
-        ted order TACTIC:SAVE:CREATE owner JOE int1 20 on_lock NO
+        ted order TACTIC:SAVE:CREATE owner JOE int1 20 
         set undo [actor mutate delete JOE]
     } -body {
         namespace eval :: $undo

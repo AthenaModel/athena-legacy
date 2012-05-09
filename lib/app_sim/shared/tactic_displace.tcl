@@ -17,17 +17,19 @@
 #
 # PARAMETER MAPPING:
 #
-#    g     <= g
-#    n     <= n
-#    text1 <= activity; DISPLACED or IN_CAMP
-#    int1  <= personnel
+#    g       <= g
+#    n       <= n
+#    text1   <= activity; DISPLACED or IN_CAMP
+#    int1    <= personnel
+#    on_lock <= on_lock
+#    once    <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Tactic: DISPLACE
 
-tactic type define DISPLACE {g n text1 int1} system {
+tactic type define DISPLACE {g n text1 int1 on_lock once} system {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -105,8 +107,10 @@ order define TACTIC:DISPLACE:CREATE {
     parm priority  enum   "Priority"        -enumtype ePrioSched  \
                                             -displaylong yes      \
                                             -defval bottom
-    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno \
+    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno      \
                                             -defval NO
+    parm once      enum  "Once Only?"       -enumtype eyesno      \
+                                            -defval   NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
@@ -115,7 +119,8 @@ order define TACTIC:DISPLACE:CREATE {
     prepare text1    -toupper   -required -type {activity civ}
     prepare int1                -required -type ingpopulation
     prepare priority -tolower             -type ePrioSched
-    prepare on_lock             -required -type boolean
+    prepare on_lock                       -type boolean
+    prepare once                          -type boolean
 
     returnOnError -final
 
@@ -136,8 +141,8 @@ order define TACTIC:DISPLACE:UPDATE {
         -sendstates {PREP PAUSED}                           \
         -refreshcmd {orderdialog refreshForKey tactic_id *}
 
-    parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_DISPLACE \
+    parm tactic_id key  "Tactic ID"       -context yes                  \
+                                          -table   gui_tactics_DISPLACE \
                                           -keys    tactic_id
     parm owner     disp  "Owner"
     parm g         enum  "Group"          -enumtype civgroup
@@ -145,6 +150,7 @@ order define TACTIC:DISPLACE:UPDATE {
     parm text1     enum  "Activity"       -enumtype {activity civ}
     parm int1      text  "Personnel"
     parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
+    parm once      enum  "Once Only?"     -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -153,6 +159,7 @@ order define TACTIC:DISPLACE:UPDATE {
     prepare text1      -toupper  -type {activity civ}
     prepare int1                 -type ingpopulation
     prepare on_lock              -type boolean
+    prepare once                 -type boolean
 
     returnOnError
 

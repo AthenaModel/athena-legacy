@@ -323,8 +323,6 @@ order define TACTIC:ATTROE:CREATE {
     parm priority enum  "Priority"         -enumtype ePrioSched  \
                                            -displaylong yes      \
                                            -defval bottom
-    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno \
-                                           -defval NO
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -334,7 +332,6 @@ order define TACTIC:ATTROE:CREATE {
     prepare text1    -toupper   -required
     prepare int1                -required -type ipositive
     prepare priority -tolower             -type ePrioSched
-    prepare on_lock             -required -type eyesno
 
     returnOnError
 
@@ -390,7 +387,6 @@ order define TACTIC:ATTROE:UPDATE {
     parm n         enum "In Neighborhood"  -enumtype nbhood
     parm text1     enum "ROE"             
     parm int1      text "Max Attacks"
-    parm on_lock   enum "Exec On Lock?"    -enumtype eyesno 
 } {
     # FIRST, validate the tactic ID.
     prepare tactic_id  -required           -type tactic
@@ -409,7 +405,6 @@ order define TACTIC:ATTROE:UPDATE {
     prepare n                     -toupper -type nbhood
     prepare text1                 -toupper
     prepare int1                           -type ipositive
-    prepare on_lock                        -type boolean
 
     returnOnError
 

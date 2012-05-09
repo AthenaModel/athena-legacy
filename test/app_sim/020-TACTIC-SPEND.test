@@ -45,7 +45,6 @@ namespace eval ::athena_test::tests:: {
         owner       JOE
         priority    bottom
         int1        10
-        on_lock     NO
     }
 
     #-------------------------------------------------------------------
@@ -56,7 +55,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         owner {required value}
         int1 {required value}
-        on_lock {required value}
     }
 
     
@@ -112,7 +110,6 @@ state        normal
 exec_ts      
 exec_flag    0
 int1         10
-on_lock      NO
     }
 
 
@@ -212,7 +209,6 @@ state        normal
 exec_ts      
 exec_flag    0
 int1         20
-on_lock      NO
     }
 
 
