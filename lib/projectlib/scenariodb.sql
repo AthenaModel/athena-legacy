@@ -301,24 +301,27 @@ FROM groups JOIN civgroups USING (g);
 -- Force Groups
 CREATE TABLE frcgroups (
     -- Symbolic group name
-    g           TEXT PRIMARY KEY,
+    g              TEXT PRIMARY KEY,
 
     -- Owning Actor
-    a           TEXT REFERENCES actors(a)
-                ON DELETE SET NULL
-                DEFERRABLE INITIALLY DEFERRED, 
+    a              TEXT REFERENCES actors(a)
+                   ON DELETE SET NULL
+                   DEFERRABLE INITIALLY DEFERRED, 
 
     -- Force Type
-    forcetype   TEXT,
+    forcetype      TEXT,
+
+    -- The base number personnel 
+    base_personnel INTEGER DEFAULT 0,
 
     -- Cost/Attack, in $
-    attack_cost DOUBLE DEFAULT 0,
+    attack_cost    DOUBLE DEFAULT 0,
 
     -- Uniformed or Non-uniformed: 1 or 0
-    uniformed   INTEGER DEFAULT 1,
+    uniformed      INTEGER DEFAULT 1,
 
     -- Local or foreign: 1 if local, 0 if foreign
-    local       INTEGER
+    local          INTEGER
 );
 
 -- Force Group View: joins groups with frcgroups.
@@ -329,15 +332,18 @@ SELECT * FROM groups JOIN frcgroups USING (g);
 -- Org Groups
 CREATE TABLE orggroups (
     -- Symbolic group name
-    g           TEXT PRIMARY KEY,
+    g                TEXT PRIMARY KEY,
 
     -- Owning Actor
-    a           TEXT REFERENCES actors(a)
-                ON DELETE SET NULL
-                DEFERRABLE INITIALLY DEFERRED, 
+    a                TEXT REFERENCES actors(a)
+                     ON DELETE SET NULL
+                     DEFERRABLE INITIALLY DEFERRED, 
 
     -- Organization type: eorgtype
-    orgtype     TEXT DEFAULT 'NGO'
+    orgtype          TEXT DEFAULT 'NGO',
+
+    -- The base number of personnel
+    base_personnel   INTEGER DEFAULT 0
 );
 
 -- Org Group View: joins groups with orggroups.
@@ -346,10 +352,10 @@ SELECT * FROM groups JOIN orggroups USING (g);
 
 -- AGroups View: Groups that can be owned by actors
 CREATE VIEW agroups AS
-SELECT g, gtype, longname, a, cost, forcetype AS subtype
+SELECT g, gtype, longname, a, cost, forcetype AS subtype, base_personnel
 FROM frcgroups JOIN groups USING (g)
 UNION
-SELECT g, gtype, longname, a, cost, orgtype   AS subtype
+SELECT g, gtype, longname, a, cost, orgtype   AS subtype, base_personnel
 FROM orggroups JOIN groups USING (g);
 
 

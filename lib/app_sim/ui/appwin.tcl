@@ -210,13 +210,6 @@ snit::widget appwin {
             script  { orggroupbrowser %W }
         }
 
-        sqdeploy {
-            label   "Deployments"
-            vistype scenario
-            parent  groupst
-            script  { sqdeploybrowser %W }
-        }
-
         att {
             label   "Attitudes"
             vistype *

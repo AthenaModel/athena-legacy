@@ -60,7 +60,6 @@ snit::type ted {
         sigevent_tags
         sigevent_marks
         situations
-        sqdeploy_ng
         tactics
         units
         vrel_ga
@@ -239,59 +238,63 @@ snit::type ted {
         # Force Groups
 
         defentity BLUE ::frcgroup {
-            g           BLUE
-            longname    "US Army"
-            a           JOE
-            color       "#f00001"
-            shape       FRIEND
-            forcetype   REGULAR
-            demeanor    AVERAGE
-            cost        0.0
-            attack_cost 0.0
-            uniformed   1
-            local       0
+            g              BLUE
+            longname       "US Army"
+            a              JOE
+            color          "#f00001"
+            shape          FRIEND
+            forcetype      REGULAR
+            base_personnel 5000
+            demeanor       AVERAGE
+            cost           0.0
+            attack_cost    0.0
+            uniformed      1
+            local          0
         } JOE
 
         defentity BRIT ::frcgroup {
-            g           BRIT
-            longname    "British Forces"
-            a           JOE
-            color       "#f00002"
-            shape       FRIEND
-            forcetype   REGULAR
-            demeanor    AVERAGE
-            cost        0.0
-            attack_cost 0.0
-            uniformed   1
-            local       0
+            g              BRIT
+            longname       "British Forces"
+            a              JOE
+            color          "#f00002"
+            shape          FRIEND
+            forcetype      REGULAR
+            base_personnel 5000
+            demeanor       AVERAGE
+            cost           0.0
+            attack_cost    0.0
+            uniformed      1
+            local          0
         } JOE
         
         defentity ALQ ::frcgroup {
-            g           ALQ
-            longname    "Al Qaeda"
-            a           BOB
-            color       "#f00003"
-            shape       ENEMY
-            forcetype   IRREGULAR
-            demeanor    AGGRESSIVE
-            cost        0.0
-            attack_cost 0.0
-            uniformed   0
-            local       0
+            g              ALQ
+            longname       "Al Qaeda"
+            a              BOB
+            color          "#f00003"
+            shape          ENEMY
+            forcetype      IRREGULAR
+            base_personnel 1000
+            demeanor       AGGRESSIVE
+            cost           0.0
+            attack_cost    0.0
+            uniformed      0
+            local          0
         } BOB
         
         defentity TAL ::frcgroup {
-            g           TAL
-            longname    "Taliban"
-            a           BOB
-            color       "#f00004"
-            shape       ENEMY
-            forcetype   IRREGULAR
-            demeanor    AGGRESSIVE
-            cost        0.0
-            attack_cost 0.0
-            uniformed   0
-            local       1
+            g              TAL
+            longname       "Taliban"
+            a              BOB
+            color          "#f00004"
+            shape          ENEMY
+            forcetype      IRREGULAR
+            base_personnel 1000
+            demeanor       AGGRESSIVE
+            cost           0.0
+            attack_cost    0.0
+            uniformed      0
+            local          1
         } BOB
         
         # Organization Groups
@@ -303,6 +306,7 @@ snit::type ted {
             color          "#000001"
             shape          NEUTRAL
             orgtype        NGO
+            base_personnel 1000
             demeanor       AVERAGE
             cost           0.0
         } JOE
@@ -314,40 +318,10 @@ snit::type ted {
             color          "#000002"
             shape          NEUTRAL
             orgtype        CTR
+            base_personnel 2000
             demeanor       AVERAGE
             cost           0.0
         } JOE
-
-        # FRC/ORG Status Quo deployments
-        defentity NB1_BLUE ::sqdeploy {
-            id        {NB1 BLUE}
-            personnel 5000
-        } NB1 BLUE
-
-        defentity NB1_BRIT ::sqdeploy {
-            id        {NB1 BRIT}
-            personnel 5000
-        } NB1 BRIT
-
-        defentity NB1_ALQ ::sqdeploy {
-            id        {NB1 ALQ}
-            personnel 2000
-        } NB1 ALQ
-
-        defentity NB1_TAL ::sqdeploy {
-            id        {NB1 TAL}
-            personnel 2000
-        } NB1 TAL
-
-        defentity NB1_USAID ::sqdeploy {
-            id        {NB1 USAID}
-            personnel 1000
-        } NB1 USAID
-
-        defentity NB1_HAL ::sqdeploy {
-            id        {NB1 HAL}
-            personnel 2000
-        } NB1 HAL
     }
 
     # defentity name module parmdict ?entity...?

@@ -97,7 +97,6 @@ snit::type scenario {
         rdb monitor add orggroups    {g}
         rdb monitor add sat_gc       {g c}
         rdb monitor add situations   {s}
-        rdb monitor add sqdeploy_ng  {n g}
         rdb monitor add tactics      {tactic_id}
         rdb monitor add units        {u}
         rdb monitor add vrel_ga      {g a}

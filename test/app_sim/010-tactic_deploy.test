@@ -29,7 +29,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 NB1_BLUE NB1_BRIT
+        ted create JOE BOB NB1 NB2 BLUE BRIT
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"
@@ -230,8 +230,8 @@ namespace eval ::athena_test::tests:: {
 n   g    personnel unassigned 
 --- ---- --------- ---------- 
 NB1 BLUE 0         0          
-NB2 BLUE 0         0          
 NB1 BRIT 0         0          
+NB2 BLUE 0         0          
 NB2 BRIT 0         0          
     }
 
@@ -266,8 +266,8 @@ NB2 BRIT 0         0
 n   g    personnel unassigned 
 --- ---- --------- ---------- 
 NB1 BLUE 100       100        
-NB2 BLUE 0         0          
 NB1 BRIT 0         0          
+NB2 BLUE 0         0          
 NB2 BRIT 0         0          
     }
 
@@ -283,8 +283,8 @@ NB2 BRIT 0         0
 n   g    personnel unassigned 
 --- ---- --------- ---------- 
 NB1 BLUE 51        51         
-NB2 BLUE 50        50         
 NB1 BRIT 0         0          
+NB2 BLUE 50        50         
 NB2 BRIT 0         0          
     }
 
@@ -325,8 +325,8 @@ NB2 BRIT 0         0
 n   g    personnel unassigned 
 --- ---- --------- ---------- 
 NB1 BLUE 5000      5000       
-NB2 BLUE 0         0          
 NB1 BRIT 0         0          
+NB2 BLUE 0         0          
 NB2 BRIT 0         0          
     }
 
@@ -346,8 +346,8 @@ NB2 BRIT 0         0
 n   g    personnel unassigned 
 --- ---- --------- ---------- 
 NB1 BLUE 5000      5000       
-NB2 BLUE 0         0          
 NB1 BRIT 0         0          
+NB2 BLUE 0         0          
 NB2 BRIT 0         0          
     }
 
@@ -367,8 +367,8 @@ NB2 BRIT 0         0
 n   g    personnel unassigned 
 --- ---- --------- ---------- 
 NB1 BLUE 2500      2500       
-NB2 BLUE 0         0          
 NB1 BRIT 0         0          
+NB2 BLUE 0         0          
 NB2 BRIT 0         0          
     }
 

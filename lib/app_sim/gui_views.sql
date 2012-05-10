@@ -171,6 +171,7 @@ SELECT G.id                                             AS id,
        G.cost                                           AS cost,
        F.a                                              AS a,
        F.forcetype                                      AS forcetype,
+       F.base_personnel                                 AS base_personnel,
        moneyfmt(F.attack_cost)                          AS attack_cost,
        CASE F.uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
        CASE F.local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local
@@ -194,7 +195,8 @@ SELECT G.id                                             AS id,
        coalesce(P.personnel, 0)                         AS personnel,
        G.cost                                           AS cost,
        O.a                                              AS a,
-       O.orgtype                                        AS orgtype
+       O.orgtype                                        AS orgtype,
+       O.base_personnel                                 AS base_personnel
 FROM gui_groups  AS G
 JOIN orggroups   AS O USING (g)
 LEFT OUTER JOIN personnel_g AS P USING (g);

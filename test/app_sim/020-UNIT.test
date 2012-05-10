@@ -36,13 +36,16 @@ namespace eval ::athena_test::tests:: {
         personnel 1
     }
 
+    proc deploy {n g personnel} {
+        ted order TACTIC:DEPLOY:CREATE \
+            owner JOE g $g text1 SOME int1 $personnel nlist $n \
+            on_lock YES once NO
+    }
+
     proc setup {} {
-        ted create NB1_BLUE
-        personnel start
-        personnel load
-        personnel deploy NB1 BLUE  100
-        personnel save
-        unit makebase
+        ted create NB1 NB2 BLUE SHIA KURD
+        deploy NB1 BLUE 100
+        ted lock
     }
 
     proc cleanup {} {
@@ -98,7 +101,7 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order UNIT:MOVE u BLUE/NB1 location B01B01
 
-        ted query {SELECT u,location FROM units}
+        ted query {SELECT u,location FROM units WHERE u='BLUE/NB1'}
     } -cleanup {
         cleanup
     } -result {

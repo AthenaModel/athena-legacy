@@ -41,26 +41,44 @@ namespace eval ::athena_test::tests:: {
         ted create JOE
     } -body {
         orggroup mutate create [ted entity USAID]
-        ted query {SELECT * FROM orggroups_view}
+        ted querylist {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor cost rel_entity gtype a   orgtype 
------ -------- ------- ------- ------------ -------- ---- ---------- ----- --- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE NGO     
+g               USAID
+longname        US Aid
+color           #000001
+shape           NEUTRAL
+symbol          organization
+demeanor        AVERAGE
+cost            0.0
+rel_entity      JOE
+gtype           ORG
+a               JOE
+orgtype         NGO
+base_personnel  1000
     }
 
     test create-1.2 {a can be empty, yields NULL} -setup {
         ted create JOE
     } -body {
         orggroup mutate create [dict merge [ted entity USAID] {a ""}]
-        ted query {SELECT * FROM orggroups_view}
+        ted querylist {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor cost rel_entity gtype a orgtype 
------ -------- ------- ------- ------------ -------- ---- ---------- ----- - ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0             ORG     NGO     
+g               USAID
+longname        US Aid
+color           #000001
+shape           NEUTRAL
+symbol          organization
+demeanor        AVERAGE
+cost            0.0
+rel_entity      
+gtype           ORG
+a               
+orgtype         NGO
+base_personnel  1000
     }
 
     test create-2.1 {undo deletes the orggroup} -setup {
@@ -94,13 +112,22 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0             ORG     NGO
         set undo [orggroup mutate delete USAID]
     } -body {
         {*}$undo
-        ted query {SELECT * FROM orggroups_view}
+        ted querylist {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname color   shape   symbol       demeanor cost rel_entity gtype a   orgtype 
------ -------- ------- ------- ------------ -------- ---- ---------- ----- --- ------- 
-USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE NGO     
+g               USAID
+longname        US Aid
+color           #000001
+shape           NEUTRAL
+symbol          organization
+demeanor        AVERAGE
+cost            0.0
+rel_entity      JOE
+gtype           ORG
+a               JOE
+orgtype         NGO
+base_personnel  1000
     }
 
 
@@ -172,13 +199,22 @@ USAID US Aid   #000001 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE N
             cost           10.0
         }
 
-        ted query {SELECT * FROM orggroups_view}
+        ted querylist {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape  symbol       demeanor  cost rel_entity gtype a   orgtype 
------ --------- ------- ------ ------------ --------- ---- ---------- ----- --- ------- 
-USAID Red Cross #ff0000 FRIEND organization APATHETIC 10.0 BOB        ORG   BOB IGO     
+g               USAID
+longname        Red Cross
+color           #ff0000
+shape           FRIEND
+symbol          organization
+demeanor        APATHETIC
+cost            10.0
+rel_entity      BOB
+gtype           ORG
+a               BOB
+orgtype         IGO
+base_personnel  1000
     }
 
 

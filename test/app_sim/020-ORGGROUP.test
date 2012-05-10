@@ -35,6 +35,7 @@ namespace eval ::athena_test::tests:: {
         color          #00ff00
         shape          NEUTRAL
         orgtype        NGO
+        base_personnel 1000
         demeanor       AVERAGE
         cost           0.0
     }
@@ -46,6 +47,7 @@ namespace eval ::athena_test::tests:: {
         color          #ffff00
         shape          NEUTRAL
         orgtype        CTR
+        base_personnel 1000
         demeanor       AVERAGE
         cost           0.0
     }
@@ -68,6 +70,7 @@ namespace eval ::athena_test::tests:: {
         color {required value}
         shape {required value}
         orgtype {required value}
+        base_personnel {required value}
         demeanor {required value}
         cost {required value}
     }
@@ -174,14 +177,35 @@ namespace eval ::athena_test::tests:: {
     } -body {
         ted order ORGGROUP:CREATE $usaid
         ted order ORGGROUP:CREATE $hal
-        ted query {SELECT * FROM orggroups_view}
+        ted querylist {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname   color   shape   symbol       demeanor cost rel_entity gtype a   orgtype 
------ ---------- ------- ------- ------------ -------- ---- ---------- ----- --- ------- 
-USAID US Aid     #00FF00 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE NGO     
-HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE CTR     
+g               USAID
+longname        US Aid
+color           #00FF00
+shape           NEUTRAL
+symbol          organization
+demeanor        AVERAGE
+cost            0.0
+rel_entity      JOE
+gtype           ORG
+a               JOE
+orgtype         NGO
+base_personnel  1000
+
+g               HAL
+longname        Haliburton
+color           #FFFF00
+shape           NEUTRAL
+symbol          organization
+demeanor        AVERAGE
+cost            0.0
+rel_entity      JOE
+gtype           ORG
+a               JOE
+orgtype         CTR
+base_personnel  1000
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -352,13 +376,22 @@ HAL   Haliburton #FFFF00 NEUTRAL organization AVERAGE  0.0  JOE        ORG   JOE
             cost           10.0
         }
 
-        ted query {SELECT * FROM orggroups_view}
+        ted querylist {SELECT * FROM orggroups_view}
     } -cleanup {
         cleanup
     } -result {
-g     longname  color   shape symbol       demeanor   cost rel_entity gtype a   orgtype 
------ --------- ------- ----- ------------ ---------- ---- ---------- ----- --- ------- 
-USAID Red Cross #FF0000 ENEMY organization AGGRESSIVE 10.0 JOE        ORG   JOE IGO     
+g               USAID
+longname        Red Cross
+color           #FF0000
+shape           ENEMY
+symbol          organization
+demeanor        AGGRESSIVE
+cost            10.0
+rel_entity      JOE
+gtype           ORG
+a               JOE
+orgtype         IGO
+base_personnel  1000
     }
 
 

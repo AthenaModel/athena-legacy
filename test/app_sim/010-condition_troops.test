@@ -32,7 +32,7 @@ namespace eval ::athena_test::tests:: {
         variable gid
         variable tid
 
-        ted create JOE BOB NB1 NB2 NB1_BLUE NB1_BRIT
+        ted create JOE BOB NB1 NB2 BLUE BRIT
 
         # Tactic $tid belongs to JOE, as does group BLUE
         ted order TACTIC:SAVE:CREATE owner JOE int1 10

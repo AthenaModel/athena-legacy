@@ -36,16 +36,14 @@ snit::type personnel {
         rdb eval {
             -- Populate personnel_g table.
             INSERT INTO personnel_g(g,personnel)
-            SELECT g, total(personnel)
-            FROM sqdeploy_view
-            GROUP BY g;
+            SELECT g, base_personnel
+            FROM agroups;
 
-            -- Populate deploy_ng table
-
-            -- Status quo FRC/ORG deployments
-            INSERT INTO deploy_ng(n,g,personnel, unassigned)
-            SELECT n, g, personnel, personnel 
-            FROM sqdeploy_view;
+            -- Populate FRC/ORG rows with zeros, they'll need to be
+            -- updated at strategy execution
+            INSERT INTO deploy_ng(n,g,personnel,unassigned)
+            SELECT n, g, 0, 0
+            FROM agroups JOIN nbhoods;
 
             -- Status quo civilian population.
             INSERT INTO deploy_ng(n,g,personnel,unassigned)

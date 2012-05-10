@@ -29,31 +29,33 @@ namespace eval ::athena_test::tests:: {
     # Standard groups
 
     set blue {
-        g           BLUE
-        longname    "US Army"
-        a           JOE
-        color       #0000ff
-        shape       FRIEND
-        forcetype   REGULAR
-        demeanor    AVERAGE
-        cost        0.0
-        attack_cost 0.0
-        uniformed   yes
-        local       no
+        g              BLUE
+        longname       "US Army"
+        a              JOE
+        color          #0000ff
+        shape          FRIEND
+        forcetype      REGULAR
+        base_personnel 1000
+        demeanor       AVERAGE
+        cost           0.0
+        attack_cost    0.0
+        uniformed      yes
+        local          no
     }
 
     set brit {
-        g           BRIT
-        longname    "British Forces"
-        a           JOE
-        color       #00ffff
-        shape       FRIEND
-        forcetype   REGULAR
-        demeanor    AVERAGE
-        cost        0.0
-        attack_cost 0.0
-        uniformed   yes
-        local       no
+        g              BRIT
+        longname       "British Forces"
+        a              JOE
+        color          #00ffff
+        shape          FRIEND
+        forcetype      REGULAR
+        base_personnel 1000
+        demeanor       AVERAGE
+        cost           0.0
+        attack_cost    0.0
+        uniformed      yes
+        local          no
     }
 
 
@@ -74,6 +76,7 @@ namespace eval ::athena_test::tests:: {
         color {required value}
         shape {required value}
         forcetype {required value}
+        base_personnel {required value}
         demeanor {required value}
         cost {required value}
         attack_cost {required value}
@@ -221,20 +224,21 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g            BLUE
-longname     US Army
-color        #0000FF
-shape        FRIEND
-symbol       infantry
-demeanor     AVERAGE
-cost         0.0
-rel_entity   JOE
-gtype        FRC
-a            JOE
-forcetype    REGULAR
-attack_cost  0.0
-uniformed    1
-local        0
+g               BLUE
+longname        US Army
+color           #0000FF
+shape           FRIEND
+symbol          infantry
+demeanor        AVERAGE
+cost            0.0
+rel_entity      JOE
+gtype           FRC
+a               JOE
+forcetype       REGULAR
+base_personnel  1000
+attack_cost     0.0
+uniformed       1
+local           0
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -445,20 +449,21 @@ local        0
     } -cleanup {
         cleanup
     } -result {
-g            BLUE
-longname     Blue Angels
-color        #FF0000
-shape        NEUTRAL
-symbol       police
-demeanor     AGGRESSIVE
-cost         10.0
-rel_entity   BOB
-gtype        FRC
-a            BOB
-forcetype    POLICE
-attack_cost  20.0
-uniformed    0
-local        1
+g               BLUE
+longname        Blue Angels
+color           #FF0000
+shape           NEUTRAL
+symbol          police
+demeanor        AGGRESSIVE
+cost            10.0
+rel_entity      BOB
+gtype           FRC
+a               BOB
+forcetype       POLICE
+base_personnel  5000
+attack_cost     20.0
+uniformed       0
+local           1
     }
 
 

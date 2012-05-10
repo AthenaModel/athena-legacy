@@ -152,7 +152,7 @@ BRIT-NB1/0000 15
 
 
     test attrit-1.2 {f is FRC, overkill leaves 0} -setup {
-        ted create NB1_BLUE NB1_BRIT
+        ted create NB1 BLUE BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
     } -body {
         aam mutate attrit [list mode GROUP n NB1 f BLUE casualties 40 g1 "" g2 ""]
@@ -172,7 +172,7 @@ BRIT-NB1/0000 15
 
 
     test attrit-1.3 {f is FRC, no units present} -setup {
-        ted create NB1_BLUE NB1_BRIT
+        ted create NB1 BLUE BRIT
         mkunits BRIT-NB1/0000
     } -body {
         aam mutate attrit [list mode GROUP n NB1 f BLUE casualties 40 g1 "" g2 ""]
@@ -210,7 +210,7 @@ HAL-NB1/0000   15
     }
 
 
-    test attrit-1.7 {f is FRC, undo restores} -setup {
+    test attrit-1.5 {f is FRC, undo restores} -setup {
         ted create NB1 BLUE BRIT
         mkunits BLUE-NB1/0000 BLUE-NB1/0001 BRIT-NB1/0000
 
@@ -233,7 +233,7 @@ BRIT-NB1/0000 15
     }
 
 
-    test attrit-1.8 {f is ORG, undo deletes saved attrition} -setup {
+    test attrit-1.6 {f is ORG, undo deletes saved attrition} -setup {
         ted create NB1 USAID
 
         mkunits USAID-NB1/0000 USAID-NB1/0001
@@ -502,9 +502,10 @@ UT0001   91
     }
 
     test attritn-1.5 {nbhood, force, org units not attrited} -setup {
-        ted create JOE NB1 NB1_BLUE NB1_USAID NB1_BRIT SHIA SUNN
+        ted create JOE NB1 BLUE USAID BRIT SHIA SUNN
         deploy NB1 BLUE 15
         deploy NB1 USAID 15
+        deploy NB1 BRIT 15
         ted lock
     } -body {
         aam mutate attrit [list mode NBHOOD n NB1 casualties 10000 g1 BLUE g2 BRIT]
@@ -517,7 +518,7 @@ UT0001   91
 u         personnel 
 --------- --------- 
 BLUE/NB1  15        
-BRIT/NB1  0         
+BRIT/NB1  15        
 SHIA/NB1  0         
 SUNN/NB1  0         
 USAID/NB1 15        

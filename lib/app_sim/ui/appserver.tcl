@@ -946,35 +946,6 @@ snit::type appserver {
                 JOIN gui_nbhoods  AS N ON (N.n=P.n)
                 WHERE G.a=$a AND personnel > 0
             } -default "No forces are deployed."
-        } else {
-            ht put {
-                The status quo deployment of the actor's force and
-                organization group personnel is as follows; this is
-                the disposition of the actor's personnel prior to the
-                start of the simulation, as set on the
-            }
-            ht link gui:/tab/sqdeploy "Groups/Deployments tab"
-            ht put "."
-            ht putln {
-                As such, it determines the initial neighborhood
-                security levels, and the initial support and influence of
-                the various actors, and hence provides the context for
-                the initial strategy execution that takes place when
-                the scenario is locked at time 0.
-            }
-
-            ht para
-
-            ht query {
-                SELECT N.longlink              AS 'Neighborhood',
-                       P.personnel             AS 'Personnel',
-                       G.longlink              AS 'Group',
-                       G.fulltype              AS 'Type'
-                FROM sqdeploy_ng AS P
-                JOIN gui_agroups  AS G ON (G.g=P.g)
-                JOIN gui_nbhoods  AS N ON (N.n=P.n)
-                WHERE G.a=$a AND personnel > 0
-            } -default "No forces are deployed."
         }
 
 
@@ -2159,33 +2130,17 @@ snit::type appserver {
                 ORDER BY N.longlink
             } -default "No personnel are deployed." -align LR
         } else {
-            ht put "The status quo deployment of group $g is as follows."
-            ht put {
-                This is the disposition of group personnel prior to
-                the beginning of simulation, as set on the
-            }
-            ht link gui:/tab/sqdeploy "Groups/Deployments tab"
-            ht put "."
-            ht putln { 
-                As such, it sets the context for
-                the first strategy execution when the scenario is
-                locked.  For example, it determines neighborhood
-                security levels, and each actor's initial 
-                support and influence.
-            }
-
+            ht put "Deployment for $g should be done as part of strategy "
+            ht put "execution using \"On Lock\" tactics."
             ht para
 
-            ht query {
-                SELECT N.longlink     AS "Neighborhood",
-                       D.personnel    AS "Personnel"
-                FROM sqdeploy_ng AS D
-                JOIN gui_nbhoods AS N ON (D.n = N.n)
-                WHERE D.g = $g AND D.personnel > 0
-                ORDER BY N.longlink
-            } -default "No personnel are deployed." -align LR
+            ht putln ""
+            ht tinyi {
+                More information will be available once the scenario has
+                been locked.
+            }
+            ht para
         }
-
         ht para
     }
 

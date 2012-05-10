@@ -169,6 +169,7 @@ snit::type frcgroup {
     #    color          The group's color
     #    shape          The group's unit shape (eunitshape(n))
     #    forcetype      The group's eforcetype
+    #    base_personnel The group's base personnel
     #    demeanor       The group's demeanor (edemeanor(n))
     #    cost           The group's maintenance cost, $/person/week
     #    attack_cost    The group's cost per attack, $.
@@ -201,11 +202,12 @@ snit::type frcgroup {
                        nullif($a,''),
                        'FRC');
 
-                INSERT INTO frcgroups(g,a,forcetype,attack_cost,
+                INSERT INTO frcgroups(g,a,forcetype,base_personnel,attack_cost,
                                       uniformed,local)
                 VALUES($g,
                        nullif($a,''),
                        $forcetype,
+                       $base_personnel,
                        $attack_cost,
                        $uniformed,
                        $local);
@@ -243,6 +245,7 @@ snit::type frcgroup {
     #    color          A new color, or ""
     #    shape          A new shape, or ""
     #    forcetype      A new eforcetype, or ""
+    #    base_personnel A new base personnel, or ""
     #    demeanor       A new demeanor, or ""
     #    cost           A new cost, or ""
     #    attack_cost    A new attack cost, or ""
@@ -277,11 +280,12 @@ snit::type frcgroup {
                 WHERE g=$g;
 
                 UPDATE frcgroups
-                SET a           = coalesce(nullif($a,''), a),
-                    forcetype   = nonempty($forcetype,   forcetype),
-                    attack_cost = nonempty($attack_cost, attack_cost),
-                    uniformed   = nonempty($uniformed,   uniformed),
-                    local       = nonempty($local,       local)
+                SET a              = coalesce(nullif($a,''),   a),
+                    forcetype      = nonempty($forcetype,      forcetype),
+                    base_personnel = nonempty($base_personnel, base_personnel),
+                    attack_cost    = nonempty($attack_cost,    attack_cost),
+                    uniformed      = nonempty($uniformed,      uniformed),
+                    local          = nonempty($local,          local)
                 WHERE g=$g
             } {}
 
@@ -303,15 +307,16 @@ order define FRCGROUP:CREATE {
     
     options -sendstates PREP
 
-    parm g           text  "Group"
-    parm longname    text  "Long Name"
-    parm a           enum  "Owning Actor"        -enumtype actor
-    parm color       color "Color"               -defval   "#3B61FF"
-    parm shape       enum  "Unit Shape"          -enumtype eunitshape \
+    parm g              text  "Group"
+    parm longname       text  "Long Name"
+    parm a              enum  "Owning Actor"     -enumtype actor
+    parm color          color "Color"            -defval   "#3B61FF"
+    parm shape          enum  "Unit Shape"       -enumtype eunitshape \
                                                  -defval   NEUTRAL
-    parm forcetype   enum  "Force Type"          -enumtype eforcetype \
+    parm forcetype      enum  "Force Type"       -enumtype eforcetype \
                                                  -defval  REGULAR
-    parm demeanor    enum  "Demeanor"            -enumtype edemeanor  \
+    parm base_personnel text  "Base Personnel"   -defval  0
+    parm demeanor       enum  "Demeanor"         -enumtype edemeanor  \
                                                  -defval   AVERAGE
     parm cost        text  "Cost, $/person/week" -defval   0
     parm attack_cost text  "Cost, $/attack"      -defval   0
@@ -321,17 +326,18 @@ order define FRCGROUP:CREATE {
                                                  -defval   NO
 } {
     # FIRST, prepare and validate the parameters
-    prepare g           -toupper   -required -unused -type ident
-    prepare longname    -normalize
-    prepare a           -toupper             -type actor
-    prepare color       -tolower   -required -type hexcolor
-    prepare shape       -toupper   -required -type eunitshape
-    prepare forcetype   -toupper   -required -type eforcetype
-    prepare demeanor    -toupper   -required -type edemeanor
-    prepare cost        -toupper   -required -type money
-    prepare attack_cost -toupper   -required -type money
-    prepare uniformed   -toupper   -required -type boolean
-    prepare local       -toupper   -required -type boolean
+    prepare g              -toupper   -required -unused -type ident
+    prepare longname       -normalize
+    prepare a              -toupper             -type actor
+    prepare color          -tolower   -required -type hexcolor
+    prepare shape          -toupper   -required -type eunitshape
+    prepare forcetype      -toupper   -required -type eforcetype
+    prepare base_personnel -toupper   -required -type iquantity
+    prepare demeanor       -toupper   -required -type edemeanor
+    prepare cost           -toupper   -required -type money
+    prepare attack_cost    -toupper   -required -type money
+    prepare uniformed      -toupper   -required -type boolean
+    prepare local          -toupper   -required -type boolean
 
     returnOnError -final
 
@@ -398,31 +404,34 @@ order define FRCGROUP:UPDATE {
     options -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey g *}
 
-    parm g           key   "Select Group"        -table gui_frcgroups -keys g \
-                                                 -tags group 
-    parm longname    text  "Long Name"
-    parm a           enum  "Owning Actor"        -enumtype actor
-    parm color       color "Color"
-    parm shape       enum  "Unit Shape"          -enumtype eunitshape
-    parm forcetype   enum  "Force Type"          -enumtype eforcetype
-    parm demeanor    enum  "Demeanor"            -enumtype edemeanor
-    parm cost        text  "Cost, $/person/week"
-    parm attack_cost text  "Cost, $/attack"
-    parm uniformed   enum  "Uniformed?"          -enumtype eyesno
-    parm local       enum  "Local Group?"        -enumtype eyesno
+    parm g              key   "Select Group"        -table gui_frcgroups \
+                                                    -keys g              \
+                                                    -tags group 
+    parm longname       text  "Long Name"
+    parm a              enum  "Owning Actor"        -enumtype actor
+    parm color          color "Color"
+    parm shape          enum  "Unit Shape"          -enumtype eunitshape
+    parm forcetype      enum  "Force Type"          -enumtype eforcetype
+    parm base_personnel text  "Personnel Mobilized" 
+    parm demeanor       enum  "Demeanor"            -enumtype edemeanor
+    parm cost           text  "Cost, $/person/week"
+    parm attack_cost    text  "Cost, $/attack"
+    parm uniformed      enum  "Uniformed?"          -enumtype eyesno
+    parm local          enum  "Local Group?"        -enumtype eyesno
 } {
     # FIRST, prepare the parameters
-    prepare g           -toupper   -required -type frcgroup
-    prepare a           -toupper   -type actor
-    prepare longname    -normalize
-    prepare color       -tolower   -type hexcolor
-    prepare shape       -toupper   -type eunitshape
-    prepare forcetype   -toupper   -type eforcetype
-    prepare demeanor    -toupper   -type edemeanor
-    prepare cost        -toupper   -type money
-    prepare attack_cost -toupper   -type money
-    prepare uniformed   -toupper   -type boolean
-    prepare local       -toupper   -type boolean
+    prepare g              -toupper   -required -type frcgroup
+    prepare a              -toupper   -type actor
+    prepare longname       -normalize
+    prepare color          -tolower   -type hexcolor
+    prepare shape          -toupper   -type eunitshape
+    prepare forcetype      -toupper   -type eforcetype
+    prepare base_personnel -toupper   -type iquantity
+    prepare demeanor       -toupper   -type edemeanor
+    prepare cost           -toupper   -type money
+    prepare attack_cost    -toupper   -type money
+    prepare uniformed      -toupper   -type boolean
+    prepare local          -toupper   -type boolean
 
     returnOnError -final
 
@@ -443,28 +452,31 @@ order define FRCGROUP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids         multi "Groups"               -table gui_frcgroups -key g
-    parm a           enum  "Owning Actor"         -enumtype actor
-    parm color       color "Color"
-    parm shape       enum  "Unit Shape"           -enumtype eunitshape
-    parm forcetype   enum  "Force Type"           -enumtype eforcetype
-    parm demeanor    enum  "Demeanor"             -enumtype edemeanor
-    parm cost        text  "Cost, $/person/week"
-    parm attack_cost text  "Cost, $/attack"
-    parm uniformed   enum  "Uniformed?"           -enumtype eyesno
-    parm local       enum  "Local Group?"         -enumtype eyesno
+    parm ids            multi "Groups"               -table gui_frcgroups \
+                                                     -key g
+    parm a              enum  "Owning Actor"         -enumtype actor
+    parm color          color "Color"
+    parm shape          enum  "Unit Shape"           -enumtype eunitshape
+    parm forcetype      enum  "Force Type"           -enumtype eforcetype
+    parm base_personnel text  "Personnel Mobilized" 
+    parm demeanor       enum  "Demeanor"             -enumtype edemeanor
+    parm cost           text  "Cost, $/person/week"
+    parm attack_cost    text  "Cost, $/attack"
+    parm uniformed      enum  "Uniformed?"           -enumtype eyesno
+    parm local          enum  "Local Group?"         -enumtype eyesno
 } {
     # FIRST, prepare the parameters
-    prepare ids         -toupper  -required -listof frcgroup
-    prepare a           -toupper            -type   actor
-    prepare color       -tolower            -type   hexcolor
-    prepare shape       -toupper            -type   eunitshape
-    prepare forcetype   -toupper            -type   eforcetype
-    prepare demeanor    -toupper            -type   edemeanor
-    prepare cost        -toupper            -type   money
-    prepare attack_cost -toupper            -type   money
-    prepare uniformed   -toupper            -type   boolean
-    prepare local       -toupper            -type   boolean
+    prepare ids            -toupper  -required -listof frcgroup
+    prepare a              -toupper            -type   actor
+    prepare color          -tolower            -type   hexcolor
+    prepare shape          -toupper            -type   eunitshape
+    prepare forcetype      -toupper            -type   eforcetype
+    prepare base_personnel -toupper            -type   iquantity
+    prepare demeanor       -toupper            -type   edemeanor
+    prepare cost           -toupper            -type   money
+    prepare attack_cost    -toupper            -type   money
+    prepare uniformed      -toupper            -type   boolean
+    prepare local          -toupper            -type   boolean
 
     returnOnError -final
 

@@ -45,20 +45,21 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g            BLUE
-longname     US Army
-color        #f00001
-shape        FRIEND
-symbol       infantry
-demeanor     AVERAGE
-cost         0.0
-rel_entity   JOE
-gtype        FRC
-a            JOE
-forcetype    REGULAR
-attack_cost  0.0
-uniformed    1
-local        0
+g               BLUE
+longname        US Army
+color           #f00001
+shape           FRIEND
+symbol          infantry
+demeanor        AVERAGE
+cost            0.0
+rel_entity      JOE
+gtype           FRC
+a               JOE
+forcetype       REGULAR
+base_personnel  5000
+attack_cost     0.0
+uniformed       1
+local           0
     }
 
     test create-1.2 {a can be empty, yields NULL} -setup {
@@ -69,20 +70,21 @@ local        0
     } -cleanup {
         cleanup
     } -result {
-g            BLUE
-longname     US Army
-color        #f00001
-shape        FRIEND
-symbol       infantry
-demeanor     AVERAGE
-cost         0.0
-rel_entity   
-gtype        FRC
-a            
-forcetype    REGULAR
-attack_cost  0.0
-uniformed    1
-local        0
+g               BLUE
+longname        US Army
+color           #f00001
+shape           FRIEND
+symbol          infantry
+demeanor        AVERAGE
+cost            0.0
+rel_entity      
+gtype           FRC
+a               
+forcetype       REGULAR
+base_personnel  5000
+attack_cost     0.0
+uniformed       1
+local           0
     }
 
 
@@ -141,20 +143,21 @@ local        0
     } -cleanup {
         cleanup
     } -result {
-g            BLUE
-longname     US Army
-color        #f00001
-shape        FRIEND
-symbol       infantry
-demeanor     AVERAGE
-cost         0.0
-rel_entity   JOE
-gtype        FRC
-a            JOE
-forcetype    REGULAR
-attack_cost  0.0
-uniformed    1
-local        0
+g               BLUE
+longname        US Army
+color           #f00001
+shape           FRIEND
+symbol          infantry
+demeanor        AVERAGE
+cost            0.0
+rel_entity      JOE
+gtype           FRC
+a               JOE
+forcetype       REGULAR
+base_personnel  5000
+attack_cost     0.0
+uniformed       1
+local           0
     }
 
     test delete-2.1 {coop curves are deleted} -setup {
@@ -253,20 +256,21 @@ local        0
     } -cleanup {
         cleanup
     } -result {
-g            BLUE
-longname     Blue Angels
-color        #ff0000
-shape        NEUTRAL
-symbol       police
-demeanor     AGGRESSIVE
-cost         10.0
-rel_entity   BOB
-gtype        FRC
-a            BOB
-forcetype    POLICE
-attack_cost  20.0
-uniformed    0
-local        1
+g               BLUE
+longname        Blue Angels
+color           #ff0000
+shape           NEUTRAL
+symbol          police
+demeanor        AGGRESSIVE
+cost            10.0
+rel_entity      BOB
+gtype           FRC
+a               BOB
+forcetype       POLICE
+base_personnel  5000
+attack_cost     20.0
+uniformed       0
+local           1
     }
 
 

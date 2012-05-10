@@ -77,6 +77,7 @@ snit::type orggroup {
     #    color            The group's color
     #    shape            The group's unit shape (eunitshape(n))
     #    orgtype          The group's eorgtype
+    #    base_personnel   The group's base personnel
     #    demeanor         The group's demeanor (edemeanor(n))
     #    cost             The group's maintenance cost, $/person/week
     #
@@ -103,10 +104,11 @@ snit::type orggroup {
                        nullif($a,''),
                        'ORG');
 
-                INSERT INTO orggroups(g,a,orgtype)
+                INSERT INTO orggroups(g,a,orgtype,base_personnel)
                 VALUES($g,
                        nullif($a,''),
-                       $orgtype);
+                       $orgtype,
+                       $base_personnel);
             }
 
             # NEXT, Return the undo command
@@ -162,8 +164,9 @@ snit::type orggroup {
                 WHERE g=$g;
 
                 UPDATE orggroups
-                SET a         = coalesce(nullif($a,''), a),
-                    orgtype   = nonempty($orgtype,      orgtype)
+                SET a              = coalesce(nullif($a,''),  a),
+                    orgtype        = nonempty($orgtype,       orgtype),
+                    base_personnel = nonempty($base_personnel,base_personnel)
                 WHERE g=$g
             } {}
 
@@ -184,17 +187,18 @@ order define ORGGROUP:CREATE {
     title "Create Organization Group"
     options -sendstates PREP
 
-    parm g           text  "Group"
-    parm longname    text  "Long Name"
-    parm a           enum  "Owning Actor"        -enumtype actor
-    parm color       color "Color"               -defval   \#10DDD7
-    parm shape       enum  "Unit Shape"          -enumtype eunitshape \
-                                                 -defval   NEUTRAL
-    parm orgtype     enum  "Organization Type"   -enumtype eorgtype   \
-                                                 -defval   NGO
-    parm demeanor    enum  "Demeanor"            -enumtype edemeanor  \
-                                                 -defval   AVERAGE
-    parm cost        text  "Cost, $/person/week" -defval   0
+    parm g              text  "Group"
+    parm longname       text  "Long Name"
+    parm a              enum  "Owning Actor"        -enumtype actor
+    parm color          color "Color"               -defval   \#10DDD7
+    parm shape          enum  "Unit Shape"          -enumtype eunitshape \
+                                                    -defval   NEUTRAL
+    parm orgtype        enum  "Organization Type"   -enumtype eorgtype   \
+                                                    -defval   NGO
+    parm base_personnel text  "Personnel Mobilized" -defval   0
+    parm demeanor       enum  "Demeanor"            -enumtype edemeanor  \
+                                                    -defval   AVERAGE
+    parm cost           text  "Cost, $/person/week" -defval   0
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
@@ -203,6 +207,7 @@ order define ORGGROUP:CREATE {
     prepare color          -tolower   -required -type hexcolor
     prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
+    prepare base_personnel -toupper   -required -type iquantity
     prepare demeanor       -toupper   -required -type edemeanor
     prepare cost           -toupper   -required -type money
 
@@ -279,6 +284,7 @@ order define ORGGROUP:UPDATE {
     parm color          color "Color" 
     parm shape          enum  "Unit Shape"          -enumtype eunitshape
     parm orgtype        enum  "Organization Type"   -enumtype eorgtype
+    parm base_personnel text  "Personnel Mobilized"
     parm demeanor       enum  "Demeanor"            -enumtype edemeanor
     parm cost           text  "Cost, $/person/week"
 } {
@@ -289,6 +295,7 @@ order define ORGGROUP:UPDATE {
     prepare color          -tolower   -type hexcolor
     prepare shape          -toupper   -type eunitshape
     prepare orgtype        -toupper   -type eorgtype
+    prepare base_personnel -toupper   -type iquantity
     prepare demeanor       -toupper   -type edemeanor
     prepare cost           -toupper   -type money
 
@@ -309,22 +316,24 @@ order define ORGGROUP:UPDATE:MULTI {
         -sendstates PREP                                  \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-    parm ids        multi "Groups"              -table gui_orggroups -key g
-    parm a          enum  "Owning Actor"        -enumtype actor
-    parm color      color "Color"
-    parm shape      enum  "Unit Shape"          -enumtype eunitshape
-    parm orgtype    enum  "Organization Type"   -enumtype eorgtype
-    parm demeanor   enum  "Demeanor"            -enumtype edemeanor
-    parm cost       text  "Cost, $/person/week"
+    parm ids            multi "Groups"              -table gui_orggroups -key g
+    parm a              enum  "Owning Actor"        -enumtype actor
+    parm color          color "Color"
+    parm shape          enum  "Unit Shape"          -enumtype eunitshape
+    parm orgtype        enum  "Organization Type"   -enumtype eorgtype
+    parm base_personnel text  "Personnel Mobilized"
+    parm demeanor       enum  "Demeanor"            -enumtype edemeanor
+    parm cost           text  "Cost, $/person/week"
 } {
     # FIRST, prepare the parameters
-    prepare ids        -toupper  -required -listof orggroup
-    prepare a          -toupper            -type   actor
-    prepare color      -tolower            -type   hexcolor
-    prepare shape      -toupper            -type   eunitshape
-    prepare orgtype    -toupper            -type   eorgtype
-    prepare demeanor   -toupper            -type   edemeanor
-    prepare cost       -toupper            -type   money
+    prepare ids            -toupper  -required -listof orggroup
+    prepare a              -toupper            -type   actor
+    prepare color          -tolower            -type   hexcolor
+    prepare shape          -toupper            -type   eunitshape
+    prepare orgtype        -toupper            -type   eorgtype
+    prepare base_personnel -toupper            -type   iquantity
+    prepare demeanor       -toupper            -type   edemeanor
+    prepare cost           -toupper            -type   money
 
     returnOnError -final
 
