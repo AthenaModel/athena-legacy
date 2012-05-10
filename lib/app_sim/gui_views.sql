@@ -778,6 +778,65 @@ WHERE nbhoods.local;
 
 
 ------------------------------------------------------------------------
+-- Communications Asset Package (CAP) Views
+
+-- A GUI caps view
+
+CREATE TEMPORARY VIEW gui_caps AS
+SELECT k                                               AS id,
+       k                                               AS k,
+       'my://app/cap/' || k                            AS url,
+       pair(longname, k)                               AS fancy,
+       link('my://app/cap/' || k, k)                   AS link,
+       link('my://app/cap/' || k, pair(longname, k))   AS longlink,
+       longname                                        AS longname,
+       owner                                           AS owner,
+       format('%4.2f',capacity)                        AS capacity,
+       moneyfmt(cost)                                  AS cost
+FROM caps;
+
+-- A GUI cap_kn_view
+
+CREATE TEMPORARY VIEW gui_cap_kn AS
+SELECT k || ' ' || n          AS id,
+       k                      AS k,
+       n                      AS n,
+       format('%4.2f',nbcov)  AS nbcov
+FROM cap_kn_view;
+
+-- cap_kn's with non-zero coverage
+CREATE TEMPORARY VIEW gui_cap_kn_nonzero AS
+SELECT * FROM gui_cap_kn
+WHERE CAST (nbcov AS REAL) > 0.0;
+
+-- A GUI capcov.  This is used both for the CAP:PEN orders and
+-- for displaying the capcov results.
+
+CREATE TEMPORARY VIEW gui_capcov AS
+SELECT k || ' ' || g                                       AS id,
+       k                                                   AS k,
+       owner                                               AS owner,
+       format('%4.2f',capacity)                            AS capacity,
+       g                                                   AS g,
+       n                                                   AS n,
+       format('%4.2f',nbcov)                               AS nbcov,
+       format('%4.2f',pen)                                 AS pen,
+       format('%4.2f',capcov)                              AS capcov,
+       CASE WHEN pen > 0 AND nbcov = 0.0 
+       THEN 1 ELSE 0 END                                   AS orphan
+FROM capcov;
+
+-- capcov records, excluding zero capcov except for orphans
+CREATE TEMPORARY VIEW gui_capcov_orphans AS
+SELECT * FROM gui_capcov
+WHERE CAST (capcov AS REAL) > 0.0 OR orphan;
+
+-- capcov records, excluding zero capcov
+CREATE TEMPORARY VIEW gui_capcov_nonzero AS
+SELECT * FROM gui_capcov
+WHERE CAST (capcov AS REAL) > 0.0;
+
+------------------------------------------------------------------------
 -- Primary Entities
 --
 -- Any primary entity's ID must be unique in the scenario.  This
@@ -798,6 +857,7 @@ SELECT 'SELF'    AS id, 'reserved' AS etype                  UNION
 SELECT n         AS id, 'nbhood'   AS etype FROM nbhoods     UNION
 SELECT agent_id  AS id, 'agent'    AS etype FROM agents      UNION
 SELECT g         AS id, 'group'    AS etype FROM groups      UNION
+SELECT k         AS id, 'cap'      AS etype FROM caps        UNION
 SELECT c         AS id, 'concern'  AS etype FROM concerns    UNION
 SELECT a         AS id, 'activity' AS etype FROM activity    UNION
 SELECT u         AS id, 'unit'     AS etype FROM units       UNION

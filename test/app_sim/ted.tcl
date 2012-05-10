@@ -36,6 +36,9 @@ snit::type ted {
         attrit_nf
         attrit_nfg
         attroe_nfg
+        caps
+        cap_kn
+        cap_kg
         civgroups
         conditions
         cond_collections
@@ -322,6 +325,27 @@ snit::type ted {
             demeanor       AVERAGE
             cost           0.0
         } JOE
+
+        # Comm. Asset Packages
+        defentity CBS ::cap {
+            k        CBS
+            longname "Columbia Broadcasting System"
+            owner    JOE
+            capacity 0.8
+            cost     1000.0
+            nlist    NB1
+            glist    SHIA
+        } JOE NB1 SHIA
+
+        defentity CNN ::cap {
+            k        CNN
+            longname "Cable News Network"
+            owner    BOB
+            capacity 0.9
+            cost     500.0
+            nlist    {NB1 NB2}
+            glist    {SUNN KURD}
+        } BOB NB1 NB2 SUNN KURD
     }
 
     # defentity name module parmdict ?entity...?
@@ -866,12 +890,4 @@ snit::type ted {
     }
 
 }
-
-
-
-
-
-
-
-
 

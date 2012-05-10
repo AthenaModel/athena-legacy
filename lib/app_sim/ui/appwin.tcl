@@ -840,6 +840,18 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:COOP:INPUT
         $self AddOrder $submenu MAD:COOP:ADJUST
 
+        # Orders/Comm. Asset Package Menu
+        set submenu [menu $ordersmenu.cap]
+        $ordersmenu add cascade -label "Comm. Asset Package" \
+            -underline 2 -menu $submenu
+
+        $self AddOrder $submenu {
+            CAP:CREATE
+            CAP:UPDATE
+            CAP:DELETE
+            CAP:NBCOV:SET
+            CAP:PEN:SET
+        }
 
         # Orders/Economics Menu
         set submenu [menu $ordersmenu.econ]
@@ -912,18 +924,20 @@ snit::widget appwin {
 
     }
 
-    # AddOrder mnu order
+    # AddOrder mnu orders
     #
-    # mnu    A pull-down menu
-    # order  An order name
+    # mnu    - A pull-down menu
+    # orders - A list of order names
     #
-    # Adds a menu item for the order
+    # Adds menu items for the orders
 
-    method AddOrder {mnu order} {
-        cond::available control \
-            [menuitem $mnu command [order title $order]... \
-                 -command [list order enter $order]]    \
-            order $order
+    method AddOrder {mnu orders} {
+        foreach order $orders {
+            cond::available control \
+                [menuitem $mnu command [order title $order]... \
+                     -command [list order enter $order]]    \
+                order $order
+        }
     }
 
     # CreateComponents

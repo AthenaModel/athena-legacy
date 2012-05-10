@@ -75,6 +75,9 @@ snit::type scenario {
         # NEXT, monitor tables. 
         rdb monitor add actors       {a}
         rdb monitor add attroe_nfg   {n f g}
+        rdb monitor add caps         {k}
+        rdb monitor add cap_kn       {k n}
+        rdb monitor add cap_kg       {k g}
         rdb monitor add civgroups    {g}
         rdb monitor add conditions   {condition_id}
         rdb monitor add coop_fg      {f g}
