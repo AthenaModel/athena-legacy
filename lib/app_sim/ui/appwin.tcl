@@ -293,6 +293,34 @@ snit::widget appwin {
             parent  att
             script  {madbrowser %W}
         }
+        
+        info {
+            label   "Info"
+            vistype *
+            parent  ""
+            script  ""
+        }
+
+        caps {
+            label   "CAPs"
+            vistype *
+            parent  info
+            script  {capbrowser %W}
+        }
+
+        caps_nbcov {
+            label   "Nbhood Cov."
+            vistype *
+            parent  info
+            script  {capnbcovbrowser %W}
+        }
+
+        caps_pen {
+            label   "Group Pen."
+            vistype *
+            parent  info
+            script  {cappenbrowser %W}
+        }
 
         demogt {
             label   "Demog"

@@ -826,15 +826,15 @@ SELECT k || ' ' || g                                       AS id,
        THEN 1 ELSE 0 END                                   AS orphan
 FROM capcov;
 
--- capcov records, excluding zero capcov except for orphans
-CREATE TEMPORARY VIEW gui_capcov_orphans AS
-SELECT * FROM gui_capcov
-WHERE CAST (capcov AS REAL) > 0.0 OR orphan;
-
 -- capcov records, excluding zero capcov
 CREATE TEMPORARY VIEW gui_capcov_nonzero AS
 SELECT * FROM gui_capcov
 WHERE CAST (capcov AS REAL) > 0.0;
+
+-- capcov records for orphans (pen > 0, nbcov = 0)
+CREATE TEMPORARY VIEW gui_capcov_orphans AS
+SELECT * FROM gui_capcov
+WHERE orphan;
 
 ------------------------------------------------------------------------
 -- Primary Entities
