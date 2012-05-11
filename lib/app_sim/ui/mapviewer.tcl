@@ -1266,10 +1266,6 @@ snit::widget mapviewer {
 
         # NEXT, popup the menu
         switch -exact $icons(itype-$cid) {
-            unit {
-                tk_popup $canvas.unitmenu $rx $ry
-            }
-
             situation {
                 tk_popup $canvas.ensitmenu $rx $ry
             }
