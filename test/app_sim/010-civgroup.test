@@ -254,6 +254,29 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
         cleanup
     } -result {SHIA JOE}
 
+    test delete-9.1 {deletes cap_kg overrides} -setup {
+        ted create CBS
+    } -body {
+        civgroup mutate delete SHIA
+
+        rdb eval {SELECT k,g FROM cap_kg}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-9.2 {undo restores cap_kg overrides} -setup {
+        ted create CBS
+
+        set undo [civgroup mutate delete SHIA]
+    } -body {
+        namespace eval :: $undo
+
+        rdb eval {SELECT k,g FROM cap_kg}
+    } -cleanup {
+        cleanup
+    } -result {CBS SHIA}
+
+
     #-------------------------------------------------------------------
     # mutate update
 

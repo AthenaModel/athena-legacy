@@ -331,6 +331,25 @@ NB1 NB1 HERE
         cleanup
     } -result {SHIA}
 
+    test delete-7.1 {cap_kn records deleted} -setup {
+        ted create CBS
+    } -body {
+        nbhood mutate delete NB1
+        rdb eval {SELECT k,n FROM cap_kn}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-7.2 {Undo restores cap_kn records} -setup {
+        ted create CBS
+        set undo [nbhood mutate delete NB1]
+    } -body {
+        namespace eval :: $undo
+        rdb eval {SELECT k,n FROM cap_kn}
+    } -cleanup {
+        cleanup
+    } -result {CBS NB1}
+
 
 
     #-------------------------------------------------------------------

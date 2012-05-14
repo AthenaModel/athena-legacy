@@ -755,6 +755,63 @@ CBS SHIA 0.5
         cleanup
     } -result {1}
 
+    #-------------------------------------------------------------------
+    # cap_kn_view
+    
+    test cap_kn_view-1.1 {with overrides} -setup {
+        ted create CBS CNN
+    } -body {
+        ted query {SELECT * FROM cap_kn_view}
+    } -cleanup {
+        cleanup
+    } -result {
+k   owner n   nbcov 
+--- ----- --- ----- 
+CBS JOE   NB1 1.0   
+CBS JOE   NB2 0.0   
+CNN BOB   NB1 1.0   
+CNN BOB   NB2 1.0   
+    }
+
+    #-------------------------------------------------------------------
+    # cap_kg_view
+    
+    test cap_kg_view-1.1 {with overrides} -setup {
+        ted create CBS CNN
+    } -body {
+        ted query {SELECT * FROM cap_kg_view}
+    } -cleanup {
+        cleanup
+    } -result {
+k   owner g    n   pen 
+--- ----- ---- --- --- 
+CBS JOE   SHIA NB1 1.0 
+CBS JOE   SUNN NB1 0.0 
+CBS JOE   KURD NB2 0.0 
+CNN BOB   SHIA NB1 0.0 
+CNN BOB   SUNN NB1 1.0 
+CNN BOB   KURD NB2 1.0 
+    }
+
+    #-------------------------------------------------------------------
+    # capcov view
+    
+    test capcov-1.1 {with overrides} -setup {
+        ted create CBS CNN
+    } -body {
+        ted query {SELECT * FROM capcov}
+    } -cleanup {
+        cleanup
+    } -result {
+k   g    n   owner capacity nbcov pen capcov 
+--- ---- --- ----- -------- ----- --- ------ 
+CBS SHIA NB1 JOE   0.8      1.0   1.0 0.8    
+CNN SHIA NB1 BOB   0.9      1.0   0.0 0.0    
+CBS SUNN NB1 JOE   0.8      1.0   0.0 0.0    
+CNN SUNN NB1 BOB   0.9      1.0   1.0 0.9    
+CBS KURD NB2 JOE   0.8      0.0   0.0 0.0    
+CNN KURD NB2 BOB   0.9      1.0   1.0 0.9    
+    }
 
     #-------------------------------------------------------------------
     # Cleanup
