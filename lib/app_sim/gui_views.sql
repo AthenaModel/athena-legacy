@@ -260,22 +260,6 @@ SELECT id,
        format("%4.1f", agf) AS agf
 FROM mam_acompare_view;
 
--- An sqdeploy_ng view for use by the GUI.
-CREATE TEMPORARY VIEW gui_sqdeploy_ng AS
-SELECT n || ' ' || g                             AS id,
-       n                                         AS n,
-       g                                         AS g,
-       personnel                                 AS personnel
-FROM sqdeploy_view;
-
--- A deploy_ng view for use by the GUI.
-CREATE TEMPORARY VIEW gui_deploy_ng AS
-SELECT n || ' ' || g                                 AS id,
-       n                                             AS n,
-       g                                             AS g,
-       personnel                                     AS personnel
-FROM deploy_ng;
-
 -- Conflicts: a view of frc groups in conflict.
 CREATE TEMPORARY VIEW gui_conflicts AS
 SELECT A.n                                               AS n,
@@ -686,17 +670,6 @@ SELECT id        AS id,
        narrative AS narrative,
        parmdict  AS parmdict
 FROM eventq_queue_order_execute;
-
---View of scheduled force level orders
-CREATE TEMPORARY VIEW gui_plan_force_level_orders AS
-SELECT id        AS id,
-       t         AS tick,
-       tozulu(t) AS zulu,
-       name      AS name,
-       narrative AS narrative,
-       parmdict  AS parmdict
-FROM eventq_queue_order_execute
-WHERE name GLOB 'PERSONNEL:*';
 
 -- View of the CIF
 CREATE TEMPORARY VIEW gui_cif AS
