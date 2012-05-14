@@ -72,6 +72,7 @@ image control_nfilter    "Control: Nbhood Filter"      img/control_nfilter.png
 image control_gfilter    "Control: Group Filter"       img/control_gfilter.png
 image control_hotlist    "Control: Hot List"           img/control_hotlist.png
 image control_infilter   "Control: In Nbhood Filter"   img/control_infilter.png
+image control_knview     "Control: CAP View"           img/control_knview.png
 image control_loglevel   "Control: Log Level"          img/control_loglevel.png
 image control_logtar     "Control: Log Target"         img/control_logtar.png
 image control_logsrch    "Control: Log Up/Down"        img/control_logsrch.png

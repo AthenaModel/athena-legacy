@@ -146,6 +146,10 @@ term calibration "calibration" {
 
 #-----------------------------------------------------------------------
 
+alias /term cap "CAP" /object/cap
+
+#-----------------------------------------------------------------------
+
 term capacity "capacity" {
     Each <<term sector>> in the Economics model has a maximum
     size, or <i>capacity</i>.  The size of the <b>pop</b> sector is 

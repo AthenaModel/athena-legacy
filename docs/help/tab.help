@@ -1061,7 +1061,7 @@ tab "Groups/Actors" {
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>
 
-    <<topiclist Control Description>>
+ <<topiclist Control Description>>
 
     <<topic [image button_plus]>>
     Pops up the <<cref /order/actor/create>> dialog.
@@ -2248,6 +2248,157 @@ tab "Attitudes/Magic Attitude Drivers" {
     <<control.headers>>
     <</topiclist>>
 }
+
+#=======================================================================
+# Info
+
+tab "Info" {
+    The subtabs of the Info tab display various data related to Athena's
+    Information models.  The full set of subtabs is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Info/CAPs" {
+    This tab shows the definition of each Communications Asset Package,
+    or <<term cap>>, as entered during <<term prep>> and modified 
+    thereafter.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+    <<parm k ID>>The CAP's ID.<</parm>>
+
+    <<cap_ parms -tags browser>>
+    <</parmlist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plus]>>
+    Pops up the <<cref /order/cap/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    If one or more row are selected, pops up the 
+    <<cref /order/cap/update>> or <<cref /order/cap/update:multi>> 
+    dialog for the selected row, allowing the data to be edited.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single row is selected, deletes it using the
+    <<cref /order/cap/delete>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Info/Nbhood Coverage" {
+    This tab shows the coverage of each <<term nbhood>> by each 
+    <<term cap>>, as entered during <<term prep>> and modified 
+    thereafter.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+    <<parm k "Of CAP">>A CAP ID.<</parm>>
+    <<parm n "In Nbhood">>A neighborhood ID.<</parm>>
+    <<parm nbcov "Coverage">>The coverage of the neighborhood by the CAP,
+    as a fraction from 0.0 to 1.0.
+    <</parmlist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/cap/nbcov/set>> or 
+    <<cref /order/cap/nbcov/set:multi>> 
+    dialog for the selected rows, allowing the data to be edited.
+    <</topic>>
+
+    <<topic [image control_knview]>>
+    Selects the set of neighborhood coverage records to display: 
+    <b>All</b> records, or only those that are <b>Non-Zero</b>.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Info/Group Penetration" {
+    This tab shows the penetration of each <<term civgroup>> by each 
+    <<term cap>>, as entered during <<term prep>> and modified 
+    thereafter.  In addition, it shows the ultimate coverage of each
+    group by each CAP, as computed from the penetration, the neighborhood 
+    coverage, and the CAP's own capacity.  The browser controls are 
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+    <<parm k "Of CAP">>A CAP ID.<</parm>>
+    <<parm owner "With Owner">>The CAP's owning <<term actor>>.<</parm>>
+    <<parm g "Into Group">>A civilian group ID.<</parm>>
+    
+    <<parm n "In Nbhood">>
+    The ID of the group's home <<term nbhood>>.
+    <</parm>>
+
+    <<parm capcov "Grp Cov">>
+    <b>Computed.</b> The ultimate coverage of this group by this CAP, 
+    as a fraction from 0.0 to 1.0.
+    <</parm>>
+
+    <<parm pen "= Grp Pen">>
+    Penetration of this group by this CAP, as a fraction from 0.0 to 1.0.
+    <</parm>>
+
+    <<parm nbcov "* Nbhood Cov">>
+    The coverage of the group's 
+    neighborhood by the CAP, as a fraction from 0.0 to 1.0.
+    <</parm>>
+
+    <<parm capacity "* Capacity">>
+    The CAP's current capacity.
+    <</parm>>
+    <</parmlist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/cap/pen/set>> or 
+    <<cref /order/cap/pen/set:multi>> 
+    dialog for the selected rows, allowing the group penetration values
+    to be edited.
+    <</topic>>
+
+    <<topic [image control_knview]>>
+    Selects the set of group penetration records to display: 
+    <b>All</b> records, or only those that are <b>Non-Zero</b>, or
+    only those that are <b>Orphans</b>, i.e., those groups for which the
+    CAP has positive penetration but 0.0 coverage of the groups' home 
+    neighborhoods.  Orphans are ignored by the simulation.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
 
 #=======================================================================
 # Demog

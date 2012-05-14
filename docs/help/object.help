@@ -40,6 +40,7 @@ macro sotitle {} {
 
 include object_actor.help
 include object_agent.help
+include object_cap.help
 include object_nbhood.help
 include object_group.help
 include object_goal.help

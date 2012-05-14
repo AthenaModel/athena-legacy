@@ -309,14 +309,14 @@ snit::widget appwin {
         }
 
         caps_nbcov {
-            label   "Nbhood Cov."
+            label   "Nbhood Coverage"
             vistype *
             parent  info
             script  {capnbcovbrowser %W}
         }
 
         caps_pen {
-            label   "Group Pen."
+            label   "Group Penetration"
             vistype *
             parent  info
             script  {cappenbrowser %W}
