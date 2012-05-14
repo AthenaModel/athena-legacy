@@ -100,8 +100,9 @@ tactic type define ASSIGN {g n text1 int1 on_lock once} actor {
                 return 0
             }
 
-            # NEXT, can we afford it?
-            if {![cash spend $owner $cost]} {
+            # NEXT, can we afford it? We can always afford it on scenario
+            # lock.
+            if {![strategy locking] && ![cash spend $owner $cost]} {
                 return 0
             }
 

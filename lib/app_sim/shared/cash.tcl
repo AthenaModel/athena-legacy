@@ -28,6 +28,9 @@ snit::type cash {
     # during strategy execution.  It also gives each actor his income.
 
     typemethod load {} {
+        # FIRST, we should not be locking the scenario
+        assert {![strategy locking]}
+
         rdb eval {
             DELETE FROM working_cash;
             INSERT INTO working_cash(a, cash_reserve, income, cash_on_hand)
@@ -40,6 +43,9 @@ snit::type cash {
     # Save every actors' cash balances back into the actors table.
 
     typemethod save {} {
+        # FIRST, we should not be locking the scenario
+        assert {![strategy locking]}
+
         rdb eval {
             SELECT a, cash_reserve, cash_on_hand, gifts FROM working_cash
         } {

@@ -121,8 +121,9 @@ tactic type define DEPLOY {g text1 int1 nlist on_lock once} actor {
             # we can afford.  If they want SOME, we'll take the 
             # requested amount, *if* we can afford it.
             if {$text1 eq "ALL"} {
-                # FIRST, how many troops can we afford?
-                if {$costPerPerson == 0.0} {
+                # FIRST, how many troops can we afford? All of them if we
+                # are locking or they are free.
+                if {[strategy locking] || $costPerPerson == 0.0} {
                     set int1 $available
                 } else {
                     let maxTroops {double($cash_on_hand)/$costPerPerson}
@@ -146,10 +147,11 @@ tactic type define DEPLOY {g text1 int1 nlist on_lock once} actor {
                 }
             }
 
-            # NEXT, Pay the maintenance cost, if we can.
+            # NEXT, Pay the maintenance cost, if we can. When the scenario
+            # is locking, no cost.
             let cost {$costPerPerson * $int1}
 
-            if {![cash spend $owner $cost]} {
+            if {![strategy locking] && ![cash spend $owner $cost]} {
                 return 0
             }
 

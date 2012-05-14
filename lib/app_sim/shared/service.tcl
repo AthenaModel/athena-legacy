@@ -304,15 +304,11 @@ snit::type service {
         }
     }
 
-    # save locking
-    #
-    # locking  - If 1, the scenario is being locked; if 0, not.
-    #
     # Saves the working data back to the persistent tables,
     # and computes the current level of service for all groups.
     # If locking, sets expected LOS to actual LOS when computing LOS.
 
-    typemethod save {locking} {
+    typemethod save {} {
         # FIRST, log all changed levels of funding
         $type LogFundingChanges
 
@@ -332,19 +328,17 @@ snit::type service {
         $type srcompute
 
         # NEXT, compute the actual and effective levels of service.
-        $type ComputeLOS $locking
+        $type ComputeLOS
     }
 
-    # ComputeLOS locking
-    #
-    # locking   - If 1, the scenario is being locked; if 0, not.
+    # ComputeLOS 
     #
     # Computes the actual and expected levels of service.  If
     # locking, the expected LOS is initialized to the
     # actual; otherwise, it follows the actual LOS using 
     # exponential smoothing.
 
-    typemethod ComputeLOS {locking} {
+    typemethod ComputeLOS {} {
         set gainNeeds [parm get service.ENI.gainNeeds]
         set gainExpect [parm get service.ENI.gainExpect]
 
@@ -372,7 +366,7 @@ snit::type service {
 
             # The status quo expected value is the same as the
             # status quo actual value (but not more than 1.0).
-            if {$locking} {
+            if {[strategy locking]} {
                 let oldX {min(1.0,$Ag)}
             }
 

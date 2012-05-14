@@ -19,6 +19,12 @@ snit::type strategy {
     # Make it a singleton
     pragma -hasinstances no
 
+    # locking: this flag indicates whether strategy is being executed on
+    # lock. This flag is used by tactics to determine whether money
+    # should be spent.
+
+    typevariable locking 0
+
     #-------------------------------------------------------------------
     # Strategy Execution Tock
     #
@@ -31,7 +37,11 @@ snit::type strategy {
     # the paused state
 
     typemethod start {} {
-        $type DoTock 1
+        set locking 1
+
+        $type DoTock $locking
+        
+        set locking 0
     }
 
     # tock
@@ -43,9 +53,19 @@ snit::type strategy {
         $type DoTock 0
     }
 
+    # locking
+    #
+    # This method returns the locking flag. This is called by types
+    # that need to know if strategy execution is occurring on scenario
+    # lock
+
+    typemethod locking {} {
+        return $locking
+    }
+
     # DoTock locking
     #
-    # locking  - a flag indicating whether the sim is locking or not
+    # onlock  - a flag indicating whether the sim is locking or not
     #
     # Executes agent tactics:
     #
@@ -57,11 +77,14 @@ snit::type strategy {
     #   the only condition that must be met when Athena is locked and 
     #   those tactics are attempted to execute.
 
-    typemethod DoTock {locking} {
+    typemethod DoTock {onlock} {
         # FIRST, Set up working tables.  This includes giving
-        # the actors their incomes.
+        # the actors their incomes, unless we are locking, in which
+        # case no cash moves
         control load
-        cash load
+        if {!$onlock} { 
+            cash load
+        }
         personnel load
         service load
         tactic reset
@@ -82,7 +105,7 @@ snit::type strategy {
             WHERE state = 'normal'
             ORDER BY owner, priority
         }] {
-            if {$locking} {
+            if {$onlock} {
                 if {$on_lock} {
                     log normal strategy \
                         "Tactic $tactic_id IS eligible on lock"
@@ -98,11 +121,14 @@ snit::type strategy {
             }
         }
 
-        # NEXT, save working data
+        # NEXT, save working data. If we are on lock, no cash has been used
+        # so we don't want to save it
         control save
-        cash save
+        if {!$onlock} {
+            cash save
+        }
         personnel save
-        service save $locking
+        service save
 
         # NEXT, populate base units for all groups.
         unit makebase
