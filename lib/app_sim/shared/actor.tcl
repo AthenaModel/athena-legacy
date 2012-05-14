@@ -173,6 +173,7 @@ snit::type actor {
                        groups    {rel_entity=$a}          \
                        frcgroups {a=$a}                   \
                        orggroups {a=$a}                   \
+                       caps      {owner=$a}               \
                        actors    {a != $a AND supports=$a}]
         
         set adata [rdb delete -grab actors {a=$a}]

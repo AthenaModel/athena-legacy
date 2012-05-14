@@ -284,6 +284,30 @@ JOE Joe the Actor JOE      200000.0     10000.0 0.0
         cleanup
     } -result {SHIA JOE}
 
+    test delete-10.1 {caps.owner is set to NULL} -setup {
+        ted create JOE CBS
+    } -body {
+        actor mutate delete JOE
+        rdb eval {SELECT k,owner FROM caps}
+    } -cleanup {
+        cleanup
+    } -result {CBS {}}
+
+    test delete-10.2 {undo restores caps.owner} -setup {
+        ted create JOE CBS
+    } -body {
+        set a [rdb eval {SELECT owner FROM caps}]
+
+        set undo [actor mutate delete JOE]
+        namespace eval :: $undo
+
+        set b [rdb eval {SELECT owner FROM caps}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
     #-------------------------------------------------------------------
     # mutate update
 

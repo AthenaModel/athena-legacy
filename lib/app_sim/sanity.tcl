@@ -143,6 +143,20 @@ snit::type sanity {
             "
         }
 
+        # NEXT, Require that each CAP has an actor
+        set names [rdb eval {SELECT k FROM caps WHERE owner IS NULL}]
+
+        if {[llength $names] > 0} {
+            set sane 0
+
+            $ht dlitem \
+                "Some Communication Asset Packages (CAPs) have no owner." "
+                The following CAPs have no owning actor:
+                [join $names {, }].  Assign owning actors to CAPs on the
+                <a href=\"gui:/tab/caps\">Info/CAPs</a> tab.
+            "
+        }
+                
         # NEXT, Require at least one civ group
         if {[llength [civgroup names]] == 0} {
             set sane 0
