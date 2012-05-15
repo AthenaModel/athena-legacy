@@ -11,6 +11,26 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.4, 15 May 2012</h3>
+
+This build contains the first implementation of Communications Asset
+Packages (CAPs) as well as additional work on the process of locking
+the scenario.<p>
+
+<ul>
+    <li> Bug 3447: athena(1): Some tactics should not have "On Lock" as an option.
+    <li> Bug 3448: Right-clicking a map unit icon causes an error
+    <li> Bug 3452: athena(1): Remove status quo deployments in favor of "base personnel"
+    <li> Bug 3453: athena(1): Communication Asset Packages
+    <li> Bug 3454: athena(1): CAP Browsers
+    <li> Bug 3455: athena(1): Sanity check failure if CAP has no owner on lock
+    <li> Bug 3456: athena(1): CAP:CAPACITY order
+    <li> Bug 3459: Move help images to docs/help/img
+    <li> Bug 3461: athena(1): On Lock tactics should not cost any money.
+    <li> Bug 3462: athena(1): Additional CAP tests
+    <li> Bug 3463: athena(1): code clean-up
+</ul><p>
+
 <h3>Build 4.0.3, 8 May 2012</h3>
 
 This build continues the URAM integration.  It fully integrates the
