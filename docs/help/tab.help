@@ -2283,9 +2283,13 @@ tab "Info/CAPs" {
     <</topic>>
 
     <<topic [image button_pencil]>>
-    If one or more row are selected, pops up the 
-    <<cref /order/cap/update>> or <<cref /order/cap/update:multi>> 
-    dialog for the selected row, allowing the data to be edited.
+    If one or more rows are selected, pops up an order dialog for 
+    the selected rows, allow the user to edit the data.  During 
+    <<term prep>>, any CAP data but the ID can be edited;
+    once the scenario is locked, only the capacity can be edited.  The
+    <<cref /order/cap/update>>, <<cref /order/cap/update:multi>>,
+    <<cref /order/cap/capacity>>, or <<cref /order/cap/capacity:multi>>
+    orders are used, as appropriate.
     <</topic>>
 
     <<topic [image button_trash]>>

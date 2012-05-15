@@ -81,8 +81,9 @@ snit::widgetadaptor capbrowser {
             -state   disabled                        \
             -command [mymethod EditSelected]
 
+        # CAP:CAPACITY is used when CAP:UPDATE is not available.
         cond::availableMulti control $editbtn \
-            order   CAP:UPDATE           \
+            order   CAP:CAPACITY              \
             browser $win
 
 
@@ -144,12 +145,18 @@ snit::widgetadaptor capbrowser {
     method EditSelected {} {
         set ids [$hull uid curselection]
 
+        if {[sim state] eq "PREP"} {
+            set root CAP:UPDATE
+        } else {
+            set root CAP:CAPACITY
+        }
+
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            order enter CAP:UPDATE k $id
+            order enter $root k $id
         } else {
-            order enter CAP:UPDATE:MULTI ids $ids
+            order enter ${root}:MULTI ids $ids
         }
     }
 

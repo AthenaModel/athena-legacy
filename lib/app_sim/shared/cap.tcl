@@ -571,6 +571,68 @@ order define CAP:UPDATE:MULTI {
     setundo [join $undo \n]
 }
 
+# CAP:CAPACITY
+#
+# Updates the capacity of an existing CAP.
+
+order define CAP:CAPACITY {
+    title "Set CAP Capacity"
+    options -sendstates {PREP PAUSED TACTIC} \
+        -refreshcmd {orderdialog refreshForKey k *}
+
+    parm k           key   "Select CAP"  -table gui_caps -keys k
+    parm capacity    frac  "Capacity"
+} {
+    # FIRST, prepare the parameters
+    prepare k           -toupper   -required -type cap
+    prepare capacity                         -type rfraction
+
+    returnOnError -final
+
+    # NEXT, prepare the others, so that the mutator will be happy.
+    prepare longname
+    prepare owner
+    prepare cost
+
+    # NEXT, modify the CAP.
+    set undo [list]
+    lappend undo [cap mutate update [array get parms]]
+
+    setundo [join $undo \n]
+}
+
+# CAP:CAPACITY:MULTI
+#
+# Updates capacity for multiple CAPs.
+
+order define CAP:CAPACITY:MULTI {
+    title "Set Multiple CAP Capacities"
+    options \
+        -sendstates {PREP PAUSED TACTIC} \
+        -refreshcmd {orderdialog refreshForMulti ids *}
+
+    parm ids       multi "CAPs"      -table gui_caps -key k
+    parm capacity  frac  "Capacity"
+} {
+    # FIRST, prepare the parameters
+    prepare ids         -toupper  -required -listof cap
+    prepare capacity                        -type   rfraction
+
+    returnOnError -final
+
+    # NEXT, clear the other parameters expected by the mutator
+    prepare longname
+
+    # NEXT, modify the CAP
+    set undo [list]
+
+    foreach parms(k) $parms(ids) {
+        lappend undo [cap mutate update [array get parms]]
+    }
+
+    setundo [join $undo \n]
+}
+
 
 # CAP:NBCOV:SET
 #

@@ -448,6 +448,151 @@ cost      400.0
     }
 
     #-------------------------------------------------------------------
+    # CAP:CAPACITY
+
+    test CAPACITY-1.1 {required parms} -body {
+        ted order -reject CAP:CAPACITY {}
+    } -result {
+        k {required value}
+    }
+
+    test CAPACITY-1.2 {invalid capacity} -setup {
+        ted create CBS
+    } -body {
+        ted order -reject CAP:CAPACITY k CBS capacity NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        capacity {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+    test CAPACITY-2.1 {cap is updated} -setup {
+        ted create BOB CBS
+    } -body {
+        ted order CAP:CAPACITY k CBS capacity 0.5
+
+        ted querylist {SELECT * FROM caps}
+    } -cleanup {
+        cleanup
+    } -result {
+k         CBS
+longname  Columbia Broadcasting System
+owner     JOE
+capacity  0.5
+cost      1000.0
+    }
+
+
+    test CAPACITY-2.2 {table monitor event} -setup {
+        ted create CBS
+    } -body {
+        ted notifier bind ::rdb <caps>
+        ted order CAP:CAPACITY k CBS capacity 0.5
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <caps> update CBS}
+    }
+
+
+    test CAPACITY-3.1 {undo undoes the change} -setup {
+        ted create BOB CBS
+        ted order CAP:CAPACITY k CBS capacity 0.5
+    } -body {
+        ted notifier bind ::rdb <caps>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <caps> update CBS}
+    }
+
+    #-------------------------------------------------------------------
+    # CAP:CAPACITY:MULTI
+
+    test CAPACITY:MULTI-1.1 {required parms} -body {
+        ted order -reject CAP:CAPACITY:MULTI {}
+    } -result {
+        ids {required value}
+    }
+    
+
+    test CAPACITY:MULTI-1.2 {invalid ids, no caps} -body {
+        ted order -reject CAP:CAPACITY:MULTI ids NONESUCH
+    } -result {
+        ids {Invalid CAP, none are defined}
+    }
+
+
+    test CAPACITY:MULTI-1.3 {invalid ids, caps} -setup {
+        ted create CBS
+    } -body {
+        ted order -reject CAP:CAPACITY:MULTI ids NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        ids {Invalid CAP, should be one of: CBS}
+    }
+
+
+    test CAPACITY:MULTI-1.4 {invalid capacity} -setup {
+        ted create CBS
+    } -body {
+        ted order -reject CAP:CAPACITY:MULTI ids CBS capacity NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        capacity {invalid value "NONESUCH", should be a real number in range 0.0, 1.0}
+    }
+
+
+    test CAPACITY:MULTI-2.1 {one cap of several is updated} -setup {
+        ted create BOB CBS CNN
+    } -body {
+        ted notifier bind ::rdb <caps>
+
+        ted order CAP:CAPACITY:MULTI ids CBS capacity 0.5
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <caps> update CBS}
+    }
+
+
+    test CAPACITY:MULTI-2.2 {several groups are updated} -setup {
+        ted create BOB CBS CNN
+    } -body {
+        ted notifier bind ::rdb <caps>
+
+        ted order CAP:CAPACITY:MULTI ids {CBS CNN} capacity 0.5
+
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <caps> update CBS}
+        {::rdb <caps> update CNN}
+    }
+
+    test CAPACITY:MULTI-3.1 {undo effects} -setup {
+        ted create CBS CNN
+        ted order CAP:CAPACITY:MULTI ids {CBS CNN} capacity 0.5
+    } -body {
+        ted notifier bind ::rdb <caps>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <caps> update CBS}
+        {::rdb <caps> update CNN}
+    }
+
+    #-------------------------------------------------------------------
     # CAP:NBCOV:SET
 
     test NBCOV:SET-1.1 {required parms} -body {

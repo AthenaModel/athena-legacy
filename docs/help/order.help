@@ -543,6 +543,43 @@ order CAP:UPDATE+MULTI "Update Multiple CAPs" {
 
 #-----------------------------------------------------------------------
 
+order CAP:CAPACITY "Set CAP Capacity" {
+    This order sets the capacity of an existing <<term cap>>.  The order
+    parameters are as follows:<p>
+
+    <<parmlist>>
+    <<parm k "Select CAP">>
+    <b>Required.</b> ID of an existing CAP.
+    <</parm>>
+
+    <<cap_ parm capacity -optional>>
+
+    <</parmlist>>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.<p>
+}
+
+#-----------------------------------------------------------------------
+
+order CAP:CAPACITY+MULTI "Set Multiple CAP Capacities" {
+    This order sets the capacity of two or more existing <<term cap>>s, 
+    as selected in the GUI.  The order parameters are as follows:<p>
+
+    <<parmlist>>
+    <<parm ids "IDs">>
+    <b>Required.</b>  <<parm.ids "CAP">>
+    <</parm>>
+
+    <<cap_ parm capacity -optional>>
+    <</parmlist>>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.<p>
+}
+
+#-----------------------------------------------------------------------
+
 page /order/cap nbcov "Neighborhood Coverage Orders" {
     <<title>>
 
