@@ -30,7 +30,7 @@ namespace eval ::athena_test::tests:: {
     set T1 {
         tid       T1
         title     "Topic #1"
-        relevance yes
+        affinity yes
     }
 
     # Clean up after a test
@@ -177,7 +177,7 @@ JOE 0.5
     } -result {
         tid {required value}
         title {required value}
-        relevance {required value}
+        affinity {required value}
     }
     
     test TOPIC:CREATE-1.2 {Duplicate tid} -setup {
@@ -199,13 +199,13 @@ JOE 0.5
         tid {Identifiers begin with a letter and contain only letters and digits.}
     }
 
-    test TOPIC:CREATE-1.4 {invalid relevance} -body {
+    test TOPIC:CREATE-1.4 {invalid affinity} -body {
         ted order -reject BSYSTEM:TOPIC:CREATE \
-            [dict merge $T1 {relevance NONESUCH}]
+            [dict merge $T1 {affinity NONESUCH}]
     } -cleanup {
         cleanup
     } -result {
-        relevance {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+        affinity {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
     
 
@@ -216,9 +216,9 @@ JOE 0.5
     } -cleanup {
         cleanup
     } -result {
-tid title    relevance 
---- -------- --------- 
-T1  Topic #1 1         
+tid title    relevance affinity 
+--- -------- --------- -------- 
+T1  Topic #1 1.0       1        
     }
 
 
@@ -310,14 +310,14 @@ T1  Topic #1 1
         tid {Invalid topic, should be one of: T1}
     }
 
-    test TOPIC:UPDATE-1.3 {invalid relevance} -setup {
+    test TOPIC:UPDATE-1.3 {invalid affinity} -setup {
         ted order BSYSTEM:TOPIC:CREATE $T1
     } -body {
-        ted order -reject BSYSTEM:TOPIC:UPDATE tid T1 relevance NONESUCH
+        ted order -reject BSYSTEM:TOPIC:UPDATE tid T1 affinity NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        relevance {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+        affinity {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
 
@@ -325,15 +325,15 @@ T1  Topic #1 1
         ted order BSYSTEM:TOPIC:CREATE $T1
     } -body {
         ted order BSYSTEM:TOPIC:UPDATE \
-            tid T1 title "New Title" relevance no
+            tid T1 title "New Title" affinity no
 
         ted query {SELECT * FROM mam_topic}
     } -cleanup {
         cleanup
     } -result {
-tid title     relevance 
---- --------- --------- 
-T1  New Title 0         
+tid title     relevance affinity 
+--- --------- --------- -------- 
+T1  New Title 1.0       0        
     }
 
     test TOPIC:UPDATE-2.2 {Can update one parm} -setup {
@@ -346,9 +346,9 @@ T1  New Title 0
     } -cleanup {
         cleanup
     } -result {
-tid title     relevance 
---- --------- --------- 
-T1  New Title 1         
+tid title     relevance affinity 
+--- --------- --------- -------- 
+T1  New Title 1.0       1        
     }
 
     test TOPIC:UPDATE-2.3 {topic is updated} -setup {
@@ -356,7 +356,7 @@ T1  New Title 1
     } -body {
         ted notifier bind ::rdb <mam_topic>
         ted order BSYSTEM:TOPIC:UPDATE \
-            tid T1 title "New Title" relevance no
+            tid T1 title "New Title" affinity no
         ted notifier received
     } -cleanup {
         cleanup
@@ -369,7 +369,7 @@ T1  New Title 1
     test TOPIC:UPDATE-3.1 {undo effects} -setup {
         ted order BSYSTEM:TOPIC:CREATE $T1
         ted order BSYSTEM:TOPIC:UPDATE \
-            tid T1 title "New Title" relevance no
+            tid T1 title "New Title" affinity no
     } -body {
         ted notifier bind ::rdb <mam_topic>
         cif undo -test

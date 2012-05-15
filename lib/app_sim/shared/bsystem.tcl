@@ -299,20 +299,20 @@ order define BSYSTEM:TOPIC:CREATE {
 
     parm tid       text   "Topic ID"
     parm title     text   "Title"
-    parm relevance enum   "Relevant?"  -enumtype eyesno \
+    parm affinity  enum   "Affinity?"  -enumtype eyesno \
                                        -defval   YES
 } {
     # FIRST, prepare and validate the parameters
     prepare tid       -toupper   -unused -required -type ident
     prepare title     -normalize         -required
-    prepare relevance -toupper           -required -type boolean
+    prepare affinity  -toupper           -required -type boolean
 
     returnOnError -final
 
     # NEXT, create the topic
     bsystem topic add $parms(tid)    \
         -title     $parms(title)     \
-        -relevance $parms(relevance)
+        -affinity  $parms(affinity)
     bsystem lazycompute
 
     setundo [list ::bsystem::MamUndo]
@@ -374,17 +374,17 @@ order define BSYSTEM:TOPIC:UPDATE {
 
     parm tid       key   "Select Topic" -table gui_mam_topic -keys tid
     parm title     text  "Title"
-    parm relevance enum  "Relevant?"    -enumtype eyesno
+    parm affinity  enum  "Affinity?"    -enumtype eyesno
 } {
     # FIRST, prepare the parameters
     prepare tid       -toupper    -required -type {bsystem topic}
     prepare title     -normalize  
-    prepare relevance -toupper              -type boolean
+    prepare affinity  -toupper              -type boolean
 
     returnOnError -final
 
     # NEXT, modify the group.
-    set opts [bsystem::ParmsToOptions {title relevance}]
+    set opts [bsystem::ParmsToOptions {title affinity}]
 
     bsystem topic configure $parms(tid) {*}$opts
     bsystem lazycompute

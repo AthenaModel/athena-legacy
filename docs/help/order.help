@@ -322,11 +322,10 @@ macro TOPIC.title {} {
     A human readable title that defines the topic.
 }
 
-macro TOPIC.relevance {} {
+macro TOPIC.affinity {} {
     |<--
-    A boolean flag that indicates whether the topic is relevant or
-    not.  Irrelevant topics are omitted from the affinity
-    computations.<p>
+    A boolean flag that indicates whether or not the topic is 
+    included in the affinity computations.
 }
 
 page /order bsystem "Belief System Orders" {
@@ -369,8 +368,8 @@ order BSYSTEM:TOPIC:CREATE "Create Belief System Topic" {
     <b>Required.</b> <<TOPIC.title>>
     <</parm>>
 
-    <<parm relevance "Relevant?">>
-    <b>Required.</b> <<TOPIC.relevance>>
+    <<parm affinity "Affinity?">>
+    <b>Required.</b> <<TOPIC.affinity>>
     <</parm>>
 
     <</parmlist>>
@@ -407,8 +406,8 @@ order BSYSTEM:TOPIC:UPDATE "Update Belief System Topic" {
     <b>Optional.</b> <<TOPIC.title>>
     <</parm>>
 
-    <<parm relevance "Relevant?">>
-    <b>Optional.</b> <<TOPIC.relevance>>
+    <<parm affinity "Affinity?">>
+    <b>Optional.</b> <<TOPIC.affinity>>
     <</parm>>
 
     <</parmlist>>

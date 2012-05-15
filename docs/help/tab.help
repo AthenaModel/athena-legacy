@@ -1394,8 +1394,8 @@ page /tab/attitudes/beliefs topic "Belief Systems Browser Topics List" {
     creating the topic.
     <</topic>>
 
-    <<topic Relevant?>>
-    The relevance flag.  If "Yes", the topic is included when
+    <<topic Affinity?>>
+    The affinity flag.  If "Yes", the topic is included when
     computing affinity, and if "No" it is not.  Selected the desired
     value from the pulldown in the topic's row.
     <</topic>>

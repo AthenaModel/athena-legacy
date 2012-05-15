@@ -18,7 +18,8 @@ snit::widget bsystembrowser {
     # Type Constructor
 
     typeconstructor {
-        enum erelevance {
+        # Affinity Flag enum, for GUI
+        enum eaffinity {
             0 No
             1 Yes
         }
@@ -187,7 +188,7 @@ snit::widget bsystembrowser {
             -editendcommand   [mymethod TListTitleEditEnd]     \
             -layout     {
                 { tid       "Topic"                               }
-                { relevance "Relevant?" -formatcommand {format ""}} 
+                { affinity  "Affinity?" -formatcommand {format ""}} 
                 { title     "Title"     -stretchable yes          }
             }
 
@@ -342,7 +343,7 @@ snit::widget bsystembrowser {
     # It specifies the window creation command for cells that need one.
 
     method TListWindows {r data} {
-        set rc $r,[$tlist cname2cindex relevance]
+        set rc $r,[$tlist cname2cindex affinity]
 
         $tlist cellconfigure $rc \
             -window [mymethod TListCreateEditor]
@@ -363,7 +364,7 @@ snit::widget bsystembrowser {
     # c     The column being edited
     # w     The window to be created
     #
-    # Creates the relevance pulldown.
+    # Creates the affinity flag pulldown.
 
     method TListCreateEditor {tbl r c w} {
         # Create the field widget, and give it its initial value.
@@ -375,7 +376,7 @@ snit::widget bsystembrowser {
 
         ::marsgui::enumfield $w \
             -state       $state                          \
-            -enumtype    ::bsystembrowser::erelevance    \
+            -enumtype    ::bsystembrowser::eaffinity     \
             -displaylong yes                             \
             -width       5                               \
             -font        [$tbl cget -font]               \
@@ -400,7 +401,7 @@ snit::widget bsystembrowser {
         # NEXT, save the new value, updating everything but 
         # this component.
 
-        order send gui BSYSTEM:TOPIC:UPDATE tid $tid relevance $newValue
+        order send gui BSYSTEM:TOPIC:UPDATE tid $tid affinity $newValue
 
         $alist reload
     }
@@ -412,7 +413,7 @@ snit::widget bsystembrowser {
     # c     The column being edited
     # text  The new text
     #
-    # Loads the relevance into the enumfield.
+    # Loads the affinity flag into the enumfield.
 
     method TListTitleEditStart {tbl r c text} {
         return $text
