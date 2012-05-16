@@ -792,9 +792,14 @@ SELECT k || ' ' || g                                       AS id,
        format('%4.2f',capacity)                            AS capacity,
        g                                                   AS g,
        n                                                   AS n,
+       link('my://app/nbhood/' || n, n)                    AS nlink,
+       link('my://app/group/'  || g, g)                    AS glink,
        format('%4.2f',nbcov)                               AS nbcov,
        format('%4.2f',pen)                                 AS pen,
        format('%4.2f',capcov)                              AS capcov,
+       nbcov                                               AS raw_nbcov,
+       pen                                                 AS raw_pen,
+       capcov                                              AS raw_capcov,
        CASE WHEN pen > 0 AND nbcov = 0.0 
        THEN 1 ELSE 0 END                                   AS orphan
 FROM capcov;
