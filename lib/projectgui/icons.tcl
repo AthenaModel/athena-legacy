@@ -305,19 +305,34 @@ namespace eval ::projectgui::icon:: {
     } d { X gray }
 
     mkicon ::projectgui::icon::actor12 {
-        ..XX..
-        .XXXX.
-        .XXXX.
-        ..XX..
-        XXXXXX
-        X.XX.X
-        X.XX.X
-        ..XX..
-        .XXXX.
-        .X..X.
-        .X..X.
-        .X..X.
+        ...XX..
+        ..XXXX.
+        ..XXXX.
+        ...XX..
+        .XXXXXX
+        .X.XX.X
+        .X.XX.X
+        ...XX..
+        ..XXXX.
+        ..X..X.
+        ..X..X.
+        ..X..X.
     } { . trans X black }
+
+    mkicon ::projectgui::icon::cap12 {
+        .X.xx.X.
+        X.xxxx.X
+        X.xxxx.X
+        .X.xx.X.
+        ...xx...
+        ...xx...
+        ...xx...
+        ...xx...
+        ...xx...
+        ...xx...
+        ...xx...
+        ...xx...
+    } { . trans X black x "#666666"}
 
     mkicon ::projectgui::icon::nbhood12 {
         .......
