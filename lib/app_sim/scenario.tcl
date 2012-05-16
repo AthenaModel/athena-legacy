@@ -562,7 +562,14 @@ snit::type scenario {
         rdb function uram_gamma           [myproc UramGamma]
 
         # NEXT, define the GUI Views
-        rdb eval [readfile [file join $::app_sim::library gui_views.sql]]
+        RdbEvalFile gui_scenario.sql    ;# Scenario Entities
+        RdbEvalFile gui_attitude.sql    ;# Attitude Area
+        RdbEvalFile gui_demog.sql       ;# Demographics Area
+        RdbEvalFile gui_econ.sql        ;# Economics Area
+        RdbEvalFile gui_ground.sql      ;# Ground Area
+        RdbEvalFile gui_info.sql        ;# Information Area
+        RdbEvalFile gui_politics.sql    ;# Politics Area
+        RdbEvalFile gui_application.sql ;# Application Views
 
         # NEXT, define tactic and condition type views
         set sql ""
@@ -639,6 +646,16 @@ snit::type scenario {
         rdb eval $sql
     }
 
+    # RdbEvalFile filename
+    #
+    # filename   - An SQL file
+    #
+    # Reads the file from the application library directory and
+    # passes it to the RDB for evaluation.
+
+    proc RdbEvalFile {filename} {
+        rdb eval [readfile [file join $::app_sim::library $filename]]
+    }
 
     #-------------------------------------------------------------------
     # SQL Functions
