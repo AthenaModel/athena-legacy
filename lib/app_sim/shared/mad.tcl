@@ -661,6 +661,39 @@ snit::type mad {
 
         notifier send ::mad $event update $id
     }
+
+    #------------------------------------------------------------------
+    # Order Helpers
+
+    # Refresh_FG dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that changed.
+    # fdict     The current value of the various fields.
+    #
+    # Refreshes the MAD:HREL:INPUT dialog so that when "Of Group" is
+    # selected "With Group" no longer has that group in the list and
+    # vice-versa.
+
+    typemethod Refresh_FG {dlg fields fdict} {
+        dict with fdict {
+            if {"f" in $fields} {
+                set glist [rdb eval {
+                    SELECT g FROM groups
+                    WHERE g != $f
+                }]
+                $dlg field configure g -values $glist
+            }
+
+            if {"g" in $fields} {
+                set glist [rdb eval {
+                    SELECT g FROM groups
+                    WHERE g != $g
+                }]
+                $dlg field configure f -values $glist
+            }
+        }
+    }
 }
 
 #-------------------------------------------------------------------
@@ -819,7 +852,8 @@ order define MAD:HREL:INPUT {
     title "Magic Horizontal Relationship Input"
     options \
         -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC}
+        -schedulestates {PREP PAUSED TACTIC} \
+        -refreshcmd     [list ::mad Refresh_FG]
 
     parm driver_id key   "MAD ID"              -table       gui_mads   \
                                                -keys        driver_id  \
@@ -827,8 +861,8 @@ order define MAD:HREL:INPUT {
     parm mode      enum  "Mode"                -enumtype    einputmode \
                                                -displaylong yes        \
                                                -defval      transient
-    parm f         enum  "Of Group"            -enumtype    group
-    parm g         enum  "With Group"          -enumtype    group
+    parm f         enum  "Of Group"            
+    parm g         enum  "With Group"          
     parm mag       text  "Magnitude"
 } {
     # FIRST, prepare the parameters
