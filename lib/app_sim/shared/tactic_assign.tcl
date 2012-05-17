@@ -230,7 +230,7 @@ order define TACTIC:ASSIGN:CREATE {
                                            -displaylong yes      \
                                            -defval bottom
     parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno      \
-                                           -defval NO
+                                           -defval YES
     parm once      enum  "Once Only?"      -enumtype eyesno      \
                                            -defval NO
 } {
