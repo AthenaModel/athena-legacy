@@ -246,7 +246,21 @@ snit::type ::projectlib::scenariodb {
     # Returns the section's persistent schema definitions, if any.
 
     typemethod {sqlsection schema} {} {
-        readfile [file join $::projectlib::library scenariodb.sql]
+        foreach filename {
+            scenariodb_entities.sql
+            scenariodb_attitude.sql
+            scenariodb_ground.sql
+            scenariodb_demog.sql
+            scenariodb_econ.sql
+            scenariodb_info.sql
+            scenariodb_politics.sql
+            scenariodb_history.sql
+            scenariodb_application.sql
+        } {
+            append out [readfile [file join $::projectlib::library $filename]]
+        }
+
+        return $out
     }
 
     # sqlsection tempschema
