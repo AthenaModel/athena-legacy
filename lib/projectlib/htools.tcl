@@ -259,9 +259,14 @@ snit::type ::projectlib::htools {
                 $self table $qnames
             }
         }
+        
+        # If the alignment spec is longer than the number of columns, 
+        # trim it down. No need to worry if it's shorter, that's handled
+        set alignstr \
+            [string range $qopts(-align) 0 [expr {[llength $qnames]-1}]]
 
         $self tr {
-            foreach name $qnames align [split $qopts(-align) ""] {
+            foreach name $qnames align [split $alignstr ""] {
                 if {$qopts(-escape)} {
                     set qrow($name) <pre>[$type escape $qrow($name)]</pre>
                 }

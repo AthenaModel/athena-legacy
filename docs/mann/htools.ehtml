@@ -285,7 +285,10 @@ The following options may be used:<p>
 
 Specifies a string of column alignments, <b>L</b>, <b>C</b>, or
 <b>R</b> for "left", "center", and "right".  By default, columns have
-alignment <b>L</b>.<p>
+alignment <b>L</b>. If the string of column alignments is longer than
+the number of columns returned by the query, the excess characters in 
+the string are ignored. If it's shorter, the default is used for column
+alignment for those columns that have no spec.<p>
 
 For example, an <code>-align</code> of <b>LRLR</b> indicates that the
 second and fourth column are right-aligned.<p>
