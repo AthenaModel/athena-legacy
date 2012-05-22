@@ -276,7 +276,7 @@ narrative
         iom mutate create $m1
         iom mutate create $m2
     } -body {
-        iom exists P3
+        iom exists M3
     } -cleanup {
         cleanup
     } -result {0}
@@ -289,6 +289,30 @@ narrative
     } -cleanup {
         cleanup
     } -result {1}
+
+    #-------------------------------------------------------------------
+    # get
+
+    test get-1.1 {get dict} -setup {
+        iom mutate create $m1
+    } -body {
+        ted pdict [iom get M1]
+    } -cleanup {
+        cleanup
+    } -result {
+        narrative {}
+        hook_id   {}
+        longname  {IOM One}
+        iom_id    M1
+    }
+
+    test get-1.2 {get column} -setup {
+        iom mutate create $m1
+    } -body {
+        iom get M1 longname
+    } -cleanup {
+        cleanup
+    } -result {IOM One}
 
     #-------------------------------------------------------------------
     # Cleanup

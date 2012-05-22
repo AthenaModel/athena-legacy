@@ -64,7 +64,7 @@ order define PAYLOAD:COOP:CREATE {
 
     parm iom_id    text  "Message ID"      -context yes
     parm g         enum  "Force Group"     -enumtype frcgroup
-    parm mag       text  "Magnitude"
+    parm mag       mag   "Magnitude"
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
@@ -90,12 +90,11 @@ order define PAYLOAD:COOP:UPDATE {
         -sendstates PREP \
         -refreshcmd {::orderdialog refreshForKey id *}
 
-    parm id        key  "Payload"       -context yes               \
-                                        -table   gui_payloads_COOP \
-                                        -keys    payload_id
-    parm iom_id    disp  "Message ID"
-    parm g         enum  "Force Group"    -enumtype frcgroup
-    parm mag       text  "Magnitude"
+    parm id        key   "Payload"      -context  yes                  \
+                                        -table    gui_payloads_COOP    \
+                                        -keys     {iom_id payload_num}
+    parm g         enum  "Force Group"  -enumtype frcgroup
+    parm mag       mag   "Magnitude"
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type payload

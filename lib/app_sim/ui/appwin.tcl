@@ -322,6 +322,13 @@ snit::widget appwin {
             script  {cappenbrowser %W}
         }
 
+        ioms {
+            label   "Info Ops Messages"
+            vistype scenario
+            parent  info
+            script  {iombrowser %W}
+        }
+
         demogt {
             label   "Demog"
             vistype simulation

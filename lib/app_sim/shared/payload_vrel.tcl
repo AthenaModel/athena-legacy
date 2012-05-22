@@ -64,7 +64,7 @@ order define PAYLOAD:VREL:CREATE {
 
     parm iom_id    text  "Message ID"      -context yes
     parm a         enum  "Actor"           -enumtype actor
-    parm mag       text  "Magnitude"
+    parm mag       mag   "Magnitude"
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
@@ -90,12 +90,11 @@ order define PAYLOAD:VREL:UPDATE {
         -sendstates PREP \
         -refreshcmd {::orderdialog refreshForKey id *}
 
-    parm id        key  "Payload"       -context yes               \
-                                        -table   gui_payloads_VREL \
-                                        -keys    payload_id
-    parm iom_id    disp  "Message ID"
+    parm id        key   "Payload"      -context  yes                  \
+                                        -table    gui_payloads_VREL    \
+                                        -keys     {iom_id payload_num}
     parm a         enum  "Actor"        -enumtype actor
-    parm mag       text  "Magnitude"
+    parm mag       mag   "Magnitude"
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type payload

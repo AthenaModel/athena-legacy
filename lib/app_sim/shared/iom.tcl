@@ -70,6 +70,31 @@ snit::type iom {
         }
     }
 
+    # get id ?parm?
+    #
+    # iom_id   - An iom_id
+    # parm     - An ioms column name
+    #
+    # Retrieves a row dictionary, or a particular column value, from
+    # ioms.
+
+    typemethod get {iom_id {parm ""}} {
+        # FIRST, get the data
+        rdb eval {
+            SELECT * FROM ioms 
+            WHERE iom_id=$iom_id
+        } row {
+            if {$parm eq ""} {
+                unset row(*)
+                return [array get row]
+            } else {
+                return $row($parm)
+            }
+        }
+
+        return ""
+    }
+
 
     #-------------------------------------------------------------------
     # Mutators
@@ -166,7 +191,7 @@ order define IOM:CREATE {
         -sendstates PREP
 
     parm iom_id      text  "Message ID"
-    parm longname    text  "Long Name"
+    parm longname    text  "Description"      -width 60
     parm hook_id     text  "Semantic Hook"
     # TBD: should be enum with -enumtype hook.
 } {
@@ -243,7 +268,7 @@ order define IOM:UPDATE {
         -refreshcmd {orderdialog refreshForKey iom_id *}
 
     parm iom_id    key   "Select Message"  -table ioms -keys iom_id 
-    parm longname  text  "Long Name"
+    parm longname  text  "Description"     -width 60
     parm hook_id   text  "Semantic Hook"
     # TBD: should be enum with -enumtype hook.
 } {

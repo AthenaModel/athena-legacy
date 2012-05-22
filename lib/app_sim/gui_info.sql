@@ -84,6 +84,21 @@ WHERE orphan;
 -----------------------------------------------------------------------
 -- PAYLOAD TYPE VIEWS
 
+-- gui_payloads: All payloads
+CREATE TEMPORARY VIEW gui_payloads AS
+SELECT iom_id || ' ' || payload_num             AS id,
+       iom_id                                   AS iom_id,
+       payload_num                              AS payload_num,
+       payload_type                             AS payload_type,
+       narrative                                AS narrative,
+       state                                    AS state,
+       a                                        AS a,
+       c                                        AS c,
+       g                                        AS g,
+       format('%.1f',mag)                       AS mag
+FROM payloads;
+     
+
 -- gui_payloads_COOP: All COOP payloads
 CREATE TEMPORARY VIEW gui_payloads_COOP AS
 SELECT iom_id || ' ' || payload_num             AS id,

@@ -502,10 +502,17 @@ snit::type app {
             -height      8                       \
             -width       30
 
+        # mag -- qmag(n) values
+        form register mag ::marsgui::rangefield \
+            -type        ::qmag                 \
+            -showsymbols yes                    \
+            -resetvalue  0.0                    \
+            -resolution  0.5
+
         # nlist -- listfield of appropriate size for nbhood selection
         form register nlist ::marsgui::listfield \
             -height      8                       \
-            -width       30
+            -width       50
 
         # pct -- Percentages, 0 to 100
         form register pct ::marsgui::rangefield \
@@ -539,6 +546,15 @@ snit::type app {
             ::sim <State>
         } -condition {
             [::sim state] eq "PREP"
+        }
+
+        # Simulation state is PREP, plus browser predicate
+
+        statecontroller ::cond::simPrepPredicate -events {
+            ::sim <State>
+        } -condition {
+            [::sim state] eq "PREP" &&
+            [$browser {*}$predicate]
         }
 
         # Simulation state is not RUNNING.
