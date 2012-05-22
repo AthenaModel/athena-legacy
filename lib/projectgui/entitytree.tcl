@@ -283,7 +283,7 @@ snit::widget ::projectgui::entitytree {
 
         $tree item text $id 0 $label
         $tree item element configure $id 0 elemIcon \
-            -image ::projectgui::icon::folder12
+            -image ::marsgui::icon::folder12
 
         set name2id($name) $id
         set id2name($id)   $name

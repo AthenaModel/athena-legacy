@@ -52,7 +52,7 @@ proc mkaddbutton {w tooltip args} {
 # Creates a "delete" Toolbutton showing a red "X" icon.
 
 proc mkdeletebutton {w tooltip args} {
-    mktoolbutton $w ::projectgui::icon::trash22 $tooltip {*}$args
+    mktoolbutton $w ::marsgui::icon::trash22 $tooltip {*}$args
 }
 
 # mkeditbutton w tooltip ?options...?

@@ -299,9 +299,9 @@ snit::type ::projectlib::helpserver {
             ORDER BY rowid
         } {
             if {$leaf} {
-                set icon ::projectgui::icon::page12
+                set icon ::marsgui::icon::page12
             } else {
-                set icon ::projectgui::icon::folder12
+                set icon ::marsgui::icon::folder12
             }
 
             dict set result $path label $title

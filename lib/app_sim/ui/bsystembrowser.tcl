@@ -199,7 +199,7 @@ snit::widget bsystembrowser {
             -text "Topics"
 
         install taddbtn using mktoolbutton $bar.add \
-            ::projectgui::icon::plust22             \
+            ::marsgui::icon::plust22                \
             "Add a new topic"                       \
             -command [mymethod TListAddTopic]
 

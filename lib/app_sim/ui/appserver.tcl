@@ -131,7 +131,7 @@ snit::type appserver {
 
         /parmdb {
             label "Model Parameters"
-            listIcon ::projectgui::icon::pencil12
+            listIcon ::marsgui::icon::pencil12
         }
     }
 
@@ -2999,7 +2999,7 @@ snit::type appserver {
 
     proc linkdict_Parmdb {udict matchArray} {
         dict set result /parmdb/changed label "Changed"
-        dict set result /parmdb/changed listIcon ::projectgui::icon::pencil12
+        dict set result /parmdb/changed listIcon ::marsgui::icon::pencil12
 
         foreach subset {
             sim
@@ -3022,7 +3022,7 @@ snit::type appserver {
             set url /parmdb/$subset
 
             dict set result $url label "$subset.*"
-            dict set result $url listIcon ::projectgui::icon::pencil12
+            dict set result $url listIcon ::marsgui::icon::pencil12
         }
 
         return $result

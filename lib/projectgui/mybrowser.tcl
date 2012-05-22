@@ -173,12 +173,12 @@ snit::widget ::projectgui::mybrowser {
 
         DynamicHelp::add $fwdbtn -text "Go forward one page"
 
-        install homebtn using ttk::button $bar.home             \
-            -style   Toolbutton                                 \
-            -state   disabled                                   \
-            -image   [list                                      \
-                                   ::projectgui::icon::home22   \
-                          disabled ::projectgui::icon::home22d] \
+        install homebtn using ttk::button $bar.home          \
+            -style   Toolbutton                              \
+            -state   disabled                                \
+            -image   [list                                   \
+                                   ::marsgui::icon::home22   \
+                          disabled ::marsgui::icon::home22d] \
             -command [mymethod home]
 
         DynamicHelp::add $homebtn -text "Display home page"

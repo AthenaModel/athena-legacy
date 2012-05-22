@@ -71,7 +71,7 @@ snit::widgetadaptor coopbrowser_sim {
         set bar [$hull toolbar]
 
         install adjustbtn using mktoolbutton $bar.adjust    \
-            ::projectgui::icon::pencila22                   \
+            ::marsgui::icon::pencila22                      \
             "Magic Adjust Coooperation Baseline"            \
             -state   disabled                               \
             -command [mymethod AdjustSelected]
@@ -81,7 +81,7 @@ snit::widgetadaptor coopbrowser_sim {
             browser $win
 
         install inputbtn using mktoolbutton $bar.input \
-            ::projectgui::icon::pencili22              \
+            ::marsgui::icon::pencili22                 \
             "Magic Cooperation Input"                  \
             -state   disabled                          \
             -command [mymethod InputForSelected]

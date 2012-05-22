@@ -116,7 +116,7 @@ snit::widget detailbrowser {
         $sidebar.tabs add $sidebar.tabs.htree   \
             -sticky  nsew                       \
             -padding 2                          \
-            -image   ::projectgui::icon::help12
+            -image   ::marsgui::icon::help12
 
 
         pack $sidebar.tabs -fill both -expand yes
