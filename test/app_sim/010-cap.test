@@ -273,7 +273,7 @@ cost      10.0
         set a [ted query {SELECT * FROM caps}]
 
         cap mutate update  {
-            g            CBS
+            k            CBS
             longname     ""
             owner        ""
             capacity     ""
@@ -289,12 +289,12 @@ cost      10.0
 
 
     test update-2.1 {undo undoes the change} -setup {
-        ted create CBS
+        ted create CBS BOB
     } -body {
         set a [ted query {SELECT * FROM caps}]
 
         set undo [cap mutate update {
-            g            CBS
+            k            CBS
             owner        BOB
             longname     "Warsim 2000"
             capacity     1.0

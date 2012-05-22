@@ -40,6 +40,7 @@ namespace eval ::projectlib:: {
         eorgactivity     \
         eorgconcern      \
         eorgtype         \
+        epayload_state   \
         esitstate        \
         etactic_state    \
         eurbanization    \
@@ -557,6 +558,15 @@ snit::type ::projectlib::typewrapper {
     LT "less than"
 }
 
+# IOM Payload State
+
+::marsutil::enum ::projectlib::epayload_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
+
+
 # Urbanization Level
 ::marsutil::enum ::projectlib::eurbanization {
     ISOLATED     "Isolated"
@@ -598,6 +608,14 @@ snit::type ::projectlib::typewrapper {
 # List of eensit values
 ::projectlib::typewrapper ::projectlib::leensit \
     snit::listtype -type ::projectlib::eensit 
+
+# Payload Part Types
+::marsutil::enum ::projectlib::epayloadpart {
+    COOP  "Cooperation with force group"
+    HREL  "Horizontal relationship with group"
+    SAT   "Satisfaction with concern"
+    VREL  "Vertical relationship with actor"
+}
 
 
 #-------------------------------------------------------------------

@@ -13,12 +13,12 @@ tactic(sim) "type define" subcommand.  For example, the DEFROE
 tactic is defined by code that looks like
 
 <pre>
-tactic type define DEFROE {
+tactic type define DEFROE {n g text1} actor {
     # Definition script
 }
 </pre>
 
-resulting in a type ensemble calls <code>tactic::DEFROE</code>.  The
+resulting in a type ensemble called <code>tactic::DEFROE</code>.  The
 definition script is simply a Snit type ensemble definition script.<p>
 
 Every tactic ensemble must implement the subcommands defined
@@ -31,7 +31,7 @@ TACTIC:<i>type</i>:CREATE and TACTIC:<i>type</i>:UPDATE.<p>
 <<section "SUBCOMMANDS">>
 
 Each <<xref tactic(i)>> ensemble must implement at least the following
-subcommands.  Note that most of them take the "tactic parameter
+subcommands.  Note that they all take the "tactic parameter
 dictionary", or <i>tdict</i>, as their first argument.  This is simply a
 row from the tactics table in the form of a dictionary.<p>
 
@@ -72,7 +72,7 @@ make sense for this tactic, return "n/a".<p>
    
 <<defitem execute {execute <i>tdict</i>}>>
 
-Determines whether or not the tactic is affordable, given current
+Determines whether or not the tactic is affordable, given 
 its parameters and the available assets.  If it is not, the command
 returns 0.  If it is, the assets are expended, the tactic is executed,
 and the command returns 1.<p>

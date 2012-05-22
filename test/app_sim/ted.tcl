@@ -53,11 +53,14 @@ snit::type ted {
         frcgroups
         goals
         groups
+        hooks
         hrel_fg
+        ioms
         mads_t
         nbhoods
         nbrel_mn
         orggroups
+        payloads
         personnel_g
         sigevents
         sigevent_tags
@@ -346,6 +349,19 @@ snit::type ted {
             nlist    {NB1 NB2}
             glist    {SUNN KURD}
         } BOB NB1 NB2 SUNN KURD
+    
+        # IOMs (TBD: Need some hooks!)
+        defentity IOM1 ::iom {
+            iom_id   IOM1
+            longname "IOM One"
+            hook_id  ""
+        }
+
+        defentity IOM2 ::iom {
+            iom_id   IOM2
+            longname "IOM Two"
+            hook_id  ""
+        }
     }
 
     # defentity name module parmdict ?entity...?

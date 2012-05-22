@@ -82,6 +82,60 @@ WHERE orphan;
 
 
 -----------------------------------------------------------------------
+-- PAYLOAD TYPE VIEWS
+
+-- gui_payloads_COOP: All COOP payloads
+CREATE TEMPORARY VIEW gui_payloads_COOP AS
+SELECT iom_id || ' ' || payload_num             AS id,
+       iom_id                                   AS iom_id,
+       payload_num                              AS payload_num,
+       payload_type                             AS payload_type,
+       narrative                                AS narrative,
+       state                                    AS state,
+       g                                        AS g,
+       format('%.1f',mag)                       AS mag
+FROM payloads WHERE payload_type='COOP';
+      
+
+-- gui_payloads_HREL: All HREL payloads
+CREATE TEMPORARY VIEW gui_payloads_HREL AS
+SELECT iom_id || ' ' || payload_num             AS id,
+       iom_id                                   AS iom_id,
+       payload_num                              AS payload_num,
+       payload_type                             AS payload_type,
+       narrative                                AS narrative,
+       state                                    AS state,
+       g                                        AS g,
+       format('%.1f',mag)                       AS mag
+FROM payloads WHERE payload_type='HREL';
+      
+
+-- gui_payloads_SAT: All SAT payloads
+CREATE TEMPORARY VIEW gui_payloads_SAT AS
+SELECT iom_id || ' ' || payload_num             AS id,
+       iom_id                                   AS iom_id,
+       payload_num                              AS payload_num,
+       payload_type                             AS payload_type,
+       narrative                                AS narrative,
+       state                                    AS state,
+       c                                        AS c,
+       format('%.1f',mag)                       AS mag
+FROM payloads WHERE payload_type='SAT';
+       
+
+-- gui_payloads_VREL: All VREL payloads
+CREATE TEMPORARY VIEW gui_payloads_VREL AS
+SELECT iom_id || ' ' || payload_num             AS id,
+       iom_id                                   AS iom_id,
+       payload_num                              AS payload_num,
+       payload_type                             AS payload_type,
+       narrative                                AS narrative,
+       state                                    AS state,
+       a                                        AS a,
+       format('%.1f',mag)                       AS mag
+FROM payloads WHERE payload_type='VREL';
+      
+-----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------
 

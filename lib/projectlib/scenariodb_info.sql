@@ -11,7 +11,8 @@
 -- SECTIONS:
 --    Communications Asset Packages (CAPs)
 --    Semantic Hooks
---    Message Payloads
+--    Info Ops Messages (IOMs)
+--    IOM Payloads
 --
 ------------------------------------------------------------------------
 
@@ -105,21 +106,67 @@ JOIN cap_kn_view AS KN USING (k,n)
 JOIN caps        AS K  USING (k);
 
 
-
-
-
 ------------------------------------------------------------------------
 -- SEMANTIC HOOKS
 
--- TBD
-
+CREATE TABLE hooks(
+    -- TBD: Place-holder
+    hook_id TEXT PRIMARY KEY
+);   
 
 
 ------------------------------------------------------------------------
--- MESSAGE PAYLOADS 
+-- INFO OPS MESSAGES (IOMS)
 
--- TBD
+CREATE TABLE ioms (
+    -- Messages sent by actors via CAPs.  Each IOM has a hook and
+    -- any number of payloads.  The hook must be set before the scenario
+    -- is locked, or there will be a sanity check failure.
 
+    iom_id     TEXT PRIMARY KEY,                -- Entity ID
+    longname   TEXT,                            -- Human-readable name
+    hook_id    TEXT REFERENCES hooks(hook_id)   -- Semantic hook
+               ON DELETE SET NULL
+               DEFERRABLE INITIALLY DEFERRED, 
+    narrative  TEXT DEFAULT ''                  -- Computed from the hook 
+                                                -- and payloads
+);
+
+------------------------------------------------------------------------
+-- IOM PAYLOADS 
+
+CREATE TABLE payloads (
+    -- Payloads for Info Ops messages.  A payload effects some attitude
+    -- or set of attitudes in some particular way.  Each payload has
+    -- a payload type; the kind of effect it has, and the other data
+    -- required, depends on the payload type.
+    --
+    -- Every payload is associated with some message.
+    
+    iom_id         TEXT REFERENCES ioms(iom_id)
+                   ON DELETE CASCADE
+                   DEFERRABLE INITIALLY DEFERRED, 
+    payload_num    INTEGER,
+    payload_type   TEXT,   -- epayloadpart(n) value
+    
+    -- Narrative: different payloads use different sets of parameters, 
+    -- so a conventional browser of all of the columns is 
+    -- user-unfriendly.  Instead, we compute a narrative string.
+    narrative      TEXT,
+
+    -- State: normal, disabled, invalid (epayload_state)
+    state          TEXT DEFAULT 'normal',
+    
+    -- Payload Type parameters.  The use of these varies by type;
+    -- all are NULL if unused.  There are no foreign key constraints;
+    -- errors are checked by the payload type's "check" method.
+    a              TEXT,   -- Actor ID
+    c              TEXT,   -- Concern ID
+    g              TEXT,   -- Group ID
+    mag            REAL,   -- Numeric qmag(n) value
+
+    PRIMARY KEY (iom_id, payload_num)
+);
 
 ------------------------------------------------------------------------
 -- End of File

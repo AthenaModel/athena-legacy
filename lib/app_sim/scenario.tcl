@@ -73,37 +73,39 @@ snit::type scenario {
         rdb register ::service
 
         # NEXT, monitor tables. 
-        rdb monitor add actors       {a}
-        rdb monitor add attroe_nfg   {n f g}
-        rdb monitor add caps         {k}
-        rdb monitor add cap_kn       {k n}
-        rdb monitor add cap_kg       {k g}
-        rdb monitor add civgroups    {g}
-        rdb monitor add conditions   {condition_id}
-        rdb monitor add coop_fg      {f g}
-        rdb monitor add defroe_ng    {n g}
-        rdb monitor add deploy_ng    {n g}
-        rdb monitor add drivers      {driver_id}
-        rdb monitor add econ_n       {n}
-        rdb monitor add ensits_t     {s}
-        rdb monitor add frcgroups    {g}
-        rdb monitor add goals        {goal_id}
-        rdb monitor add groups       {g}
-        rdb monitor add hrel_fg      {f g}
-        rdb monitor add mads_t       {driver_id}
-        rdb monitor add mam_playbox  {pid}
-        rdb monitor add mam_belief   {eid tid}
-        rdb monitor add mam_entity   {eid}
-        rdb monitor add mam_topic    {tid}
-        rdb monitor add nbhoods      {n}
-        rdb monitor add nbrel_mn     {m n}
-        rdb monitor add orggroups    {g}
-        rdb monitor add sat_gc       {g c}
-        rdb monitor add situations   {s}
-        rdb monitor add tactics      {tactic_id}
-        rdb monitor add units        {u}
-        rdb monitor add vrel_ga      {g a}
-        rdb monitor add magic_attrit {id}
+        rdb monitor add actors        {a}
+        rdb monitor add attroe_nfg    {n f g}
+        rdb monitor add caps          {k}
+        rdb monitor add cap_kn        {k n}
+        rdb monitor add cap_kg        {k g}
+        rdb monitor add civgroups     {g}
+        rdb monitor add conditions    {condition_id}
+        rdb monitor add coop_fg       {f g}
+        rdb monitor add defroe_ng     {n g}
+        rdb monitor add deploy_ng     {n g}
+        rdb monitor add drivers       {driver_id}
+        rdb monitor add econ_n        {n}
+        rdb monitor add ensits_t      {s}
+        rdb monitor add frcgroups     {g}
+        rdb monitor add goals         {goal_id}
+        rdb monitor add groups        {g}
+        rdb monitor add hrel_fg       {f g}
+        rdb monitor add ioms          {iom_id}
+        rdb monitor add mads_t        {driver_id}
+        rdb monitor add mam_playbox   {pid}
+        rdb monitor add mam_belief    {eid tid}
+        rdb monitor add mam_entity    {eid}
+        rdb monitor add mam_topic     {tid}
+        rdb monitor add nbhoods       {n}
+        rdb monitor add nbrel_mn      {m n}
+        rdb monitor add orggroups     {g}
+        rdb monitor add payloads      {iom_id payload_num}
+        rdb monitor add sat_gc        {g c}
+        rdb monitor add situations    {s}
+        rdb monitor add tactics       {tactic_id}
+        rdb monitor add units         {u}
+        rdb monitor add vrel_ga       {g a}
+        rdb monitor add magic_attrit  {id}
 
         InitializeRuntimeData
 

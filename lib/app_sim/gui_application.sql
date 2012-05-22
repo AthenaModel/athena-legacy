@@ -30,21 +30,22 @@
 -- Note: The agents table includes all actors.
 
 CREATE TEMPORARY VIEW entities AS
-SELECT 'PLAYBOX' AS id, 'reserved' AS etype                  UNION
-SELECT 'CIV'     AS id, 'reserved' AS etype                  UNION
-SELECT 'FRC'     AS id, 'reserved' AS etype                  UNION
-SELECT 'ORG'     AS id, 'reserved' AS etype                  UNION
-SELECT 'ALL'     AS id, 'reserved' AS etype                  UNION
-SELECT 'NONE'    AS id, 'reserved' AS etype                  UNION
-SELECT 'SELF'    AS id, 'reserved' AS etype                  UNION
-SELECT n         AS id, 'nbhood'   AS etype FROM nbhoods     UNION
-SELECT agent_id  AS id, 'agent'    AS etype FROM agents      UNION
-SELECT g         AS id, 'group'    AS etype FROM groups      UNION
-SELECT k         AS id, 'cap'      AS etype FROM caps        UNION
-SELECT c         AS id, 'concern'  AS etype FROM concerns    UNION
-SELECT a         AS id, 'activity' AS etype FROM activity    UNION
-SELECT u         AS id, 'unit'     AS etype FROM units       UNION
-SELECT tid       AS id, 'topic'    AS etype FROM mam_topic;
+SELECT 'PLAYBOX'  AS id, 'reserved' AS etype                  UNION
+SELECT 'CIV'      AS id, 'reserved' AS etype                  UNION
+SELECT 'FRC'      AS id, 'reserved' AS etype                  UNION
+SELECT 'ORG'      AS id, 'reserved' AS etype                  UNION
+SELECT 'ALL'      AS id, 'reserved' AS etype                  UNION
+SELECT 'NONE'     AS id, 'reserved' AS etype                  UNION
+SELECT 'SELF'     AS id, 'reserved' AS etype                  UNION
+SELECT n          AS id, 'nbhood'   AS etype FROM nbhoods     UNION
+SELECT agent_id   AS id, 'agent'    AS etype FROM agents      UNION
+SELECT g          AS id, 'group'    AS etype FROM groups      UNION
+SELECT k          AS id, 'cap'      AS etype FROM caps        UNION
+SELECT iom_id     AS id, 'iom'      AS etype FROM ioms        UNION
+SELECT c          AS id, 'concern'  AS etype FROM concerns    UNION
+SELECT a          AS id, 'activity' AS etype FROM activity    UNION
+SELECT u          AS id, 'unit'     AS etype FROM units       UNION
+SELECT tid        AS id, 'topic'    AS etype FROM mam_topic;
 
 
 ------------------------------------------------------------------------
