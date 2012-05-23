@@ -80,7 +80,17 @@ CREATE TEMPORARY VIEW gui_capcov_orphans AS
 SELECT * FROM gui_capcov
 WHERE orphan;
 
+------------------------------------------------------------------------
+-- SEMANTIC HOOK VIEWS
 
+CREATE VIEW gui_hook_topics AS
+SELECT hook_id || ' ' || topic_id  AS id,
+       hook_id                     AS hook_id,
+       topic_id                    AS topic_id,
+       position                    AS position
+FROM hook_topics;
+
+       
 -----------------------------------------------------------------------
 -- PAYLOAD TYPE VIEWS
 

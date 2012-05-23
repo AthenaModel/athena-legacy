@@ -109,11 +109,53 @@ JOIN caps        AS K  USING (k);
 ------------------------------------------------------------------------
 -- SEMANTIC HOOKS
 
-CREATE TABLE hooks(
-    -- TBD: Place-holder
-    hook_id TEXT PRIMARY KEY
-);   
+CREATE TABLE hooks (
+-- Semantic hooks table.  A semantic hook is used in information 
+-- operations to determine the topics and on which position a
+-- message takes with respect to those topics.
 
+    hook_id          TEXT PRIMARY KEY, -- ID of a semantic hook
+
+    longname         TEXT,             -- Longname of the semantic hook
+
+    narrative        TEXT              -- A free form narrative
+);
+
+CREATE TABLE hook_topics (
+-- Semantic hook topics table.  A semantic hook must have topics
+-- and positions on those topics associated with it. This table 
+-- stores that information.
+    hook_id          TEXT              -- The semantic hook for this topic
+                     REFERENCES hooks(hook_id)
+                     ON DELETE CASCADE ON UPDATE CASCADE
+                     DEFERRABLE INITIALLY DEFERRED,
+
+    topic_id         TEXT,             -- A topic of the semantic hook, 
+                                       -- this topic ID exists in the 
+                                       -- mam_topic table
+
+    position         REAL DEFAULT 0.0, -- The position on the topic.
+
+    PRIMARY KEY (hook_id, topic_id)
+);
+
+-- View combining hook ID and topic ID into a single unique ID for
+-- the topics table
+CREATE VIEW hook_topics_view AS
+SELECT hook_id || ' ' || topic_id AS id,
+       hook_id                    AS hook_id,
+       topic_id                   AS topic_id,
+       position                   AS position
+FROM hook_topics;
+
+-- View that combines the ids from the hooks table and from the 
+-- mam_topic table that defines the universe of possible
+-- hook id/topic id pairs 
+CREATE VIEW hook_topic_ids AS
+SELECT hook_id                   AS hook_id,
+       tid                       AS topic_id
+FROM hooks
+JOIN mam_topic;
 
 ------------------------------------------------------------------------
 -- INFO OPS MESSAGES (IOMS)

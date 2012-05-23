@@ -1,0 +1,216 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-hook.test
+#
+# AUTHOR:
+#    Dave Hanks
+#
+# DESCRIPTION:
+#    hook(sim) tests.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Clean up after a test
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    set h1 [dict create \
+                hook_id PUPG                \
+                longname "Puppies are good" \
+                narrative "Puppies are good"]
+
+    set t1 [dict create \
+                hook_id  PUPG \
+                topic_id T1   \
+                position 0.9]
+
+
+    #-----------------------------------------------------------------
+    # Semantic hook creation
+
+    test create-1.1 {Hook is created} -setup {
+    } -body {
+        hook mutate create $h1
+
+        ted querylist {SELECT * FROM hooks}
+    } -cleanup {
+        cleanup
+    } -result {
+hook_id    PUPG
+longname   Puppies are good
+narrative  
+    }
+
+    test create-1.2 {Undo deletes the hook} -setup {
+        set undo [hook mutate create $h1]
+    } -body {
+        {*}$undo
+        rdb query {SELECT hook_id FROM hooks}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #---------------------------------------------------------------
+    # Semantic hook update
+
+    test update-1.1 {Hook is updated} -setup {
+        hook mutate create $h1
+    } -body {
+        set parms(hook_id) [rdb onecolumn {SELECT hook_id FROM hooks}]
+        set parms(longname) "Puppies are evil"
+        hook mutate update [array get parms]
+        rdb onecolumn {SELECT longname FROM hooks}
+    } -cleanup {
+        cleanup
+    } -result {Puppies are evil}
+
+    test update-1.2 {Hook update is undone} -setup {
+        hook mutate create $h1
+        set parms(hook_id) [rdb onecolumn {SELECT hook_id FROM hooks}]
+        set parms(longname) "Puppies are evil"
+        set undo [hook mutate update [array get parms]]
+    } -body {
+        {*}$undo
+        rdb onecolumn {SELECT longname FROM hooks}
+    } -cleanup {
+        cleanup
+    } -result {Puppies are good}
+
+    #--------------------------------------------------------------
+    # Semantic hook delete
+
+    test delete-1.1 {Hook is deleted} -setup {
+        hook mutate create $h1
+    } -body {
+        set hook_id [rdb onecolumn {SELECT hook_id FROM hooks}]
+        hook mutate delete $hook_id
+        rdb query {SELECT * FROM hooks}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-1.2 {Hook deletion is undone} -setup {
+        hook mutate create $h1
+        set hook_id [rdb onecolumn {SELECT hook_id FROM hooks}]
+        set undo [hook mutate delete $hook_id]
+    } -body {
+        {*}$undo
+        ted querylist {SELECT * FROM hooks}
+    } -cleanup {
+        cleanup
+    } -result {
+hook_id    PUPG
+longname   Puppies are good
+narrative  
+    }
+
+    #---------------------------------------------------------------
+    # Semantic hook topic create
+
+    test createtopic-1.1 {Hook topic is created} -setup {
+        bsystem topic add T1
+        hook mutate create $h1
+    } -body {
+        hook mutate topic create $t1
+        ted querylist {SELECT * FROM hook_topics}
+    } -cleanup {
+        cleanup
+    } -result {
+hook_id   PUPG
+topic_id  T1
+position  0.9
+    }
+
+    test createtopic-1.2 {Undo deletes the hook topic} -setup {
+        bsystem topic add T1
+        hook mutate create $h1
+        set undo [hook mutate topic create $t1]
+    } -body {
+        {*}$undo
+        rdb eval {SELECT id FROM hook_topics_view}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #---------------------------------------------------------------
+    # Semantic hook topic update
+
+    test updatetopic-1.1 {Hook topic is updated} -setup {
+        bsystem topic add T1
+        hook mutate create $h1
+        hook mutate topic create $t1
+    } -body {
+        set parms(id) [rdb onecolumn {SELECT id FROM hook_topics_view}]
+        set parms(position) 0.0
+        hook mutate topic update [array get parms]
+        rdb onecolumn {SELECT position FROM hook_topics}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test updatetopic-1.2 {Hook topic update is undone} -setup {
+        bsystem topic add T1
+        hook mutate create $h1
+        hook mutate topic create $t1
+        set parms(id) [rdb onecolumn {SELECT id FROM hook_topics_view}]
+        set parms(position) 0.0
+        set undo [hook mutate topic update [array get parms]]
+    } -body {
+        {*}$undo
+        rdb onecolumn {SELECT position FROM hook_topics}
+    } -cleanup {
+        cleanup
+    } -result {0.9}
+
+    #--------------------------------------------------------------
+    # Semantic hook topic delete
+
+    test deletetopic-1.1 {Hook topic is deleted} -setup {
+        bsystem topic add T1
+        hook mutate create $h1
+        hook mutate topic create $t1
+    } -body {
+        set id [rdb onecolumn {SELECT id FROM hook_topics_view}]
+        hook mutate topic delete $id
+        rdb query {SELECT * FROM hook_topics}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test delete-1.2 {Hook deletion is undone} -setup {
+        bsystem topic add T1
+        hook mutate create $h1
+        hook mutate topic create $t1
+        set id [rdb onecolumn {SELECT id FROM hook_topics_view}]
+        set undo [hook mutate topic delete $id]
+    } -body {
+        {*}$undo
+        ted querylist {SELECT * FROM hook_topics}
+    } -cleanup {
+        cleanup
+    } -result {
+hook_id   PUPG
+topic_id  T1
+position  0.9
+    }
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+

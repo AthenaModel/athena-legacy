@@ -89,9 +89,12 @@ snit::type scenario {
         rdb monitor add frcgroups     {g}
         rdb monitor add goals         {goal_id}
         rdb monitor add groups        {g}
+        rdb monitor add hooks         {hook_id}
+        rdb monitor add hook_topics   {hook_id topic_id}
         rdb monitor add hrel_fg       {f g}
         rdb monitor add ioms          {iom_id}
         rdb monitor add mads_t        {driver_id}
+        rdb monitor add magic_attrit  {id}
         rdb monitor add mam_playbox   {pid}
         rdb monitor add mam_belief    {eid tid}
         rdb monitor add mam_entity    {eid}
@@ -105,7 +108,6 @@ snit::type scenario {
         rdb monitor add tactics       {tactic_id}
         rdb monitor add units         {u}
         rdb monitor add vrel_ga       {g a}
-        rdb monitor add magic_attrit  {id}
 
         InitializeRuntimeData
 

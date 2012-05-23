@@ -54,6 +54,7 @@ snit::type ted {
         goals
         groups
         hooks
+        hook_topics
         hrel_fg
         ioms
         mads_t
