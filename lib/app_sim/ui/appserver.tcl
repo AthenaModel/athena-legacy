@@ -352,6 +352,10 @@ snit::type appserver {
             text/html [myproc html_SanityOnTick]          \
             "Simulation On-Tick sanity check report."
 
+        $server register /sanity/payload {sanity/payload/?} \
+            text/html [myproc html_SanityPayload]           \
+            "Sanity check report for IOM Payloads."
+
         $server register /sanity/strategy {sanity/strategy/?} \
             text/html [myproc html_SanityStrategy]            \
             "Sanity check report for actor strategies."
@@ -3355,6 +3359,33 @@ snit::type appserver {
             SigEvents -tags $ename -mark run
         }
     }
+
+    #-------------------------------------------------------------------
+    # Sanity Checks: Payload
+
+    # html_SanityPayload udict matchArray
+    #
+    # udict      - A dictionary containing the URL components
+    # matchArray - Array of matches from the URL
+    #
+    # Formats the payload sanity check report for
+    # /sanity/payload.  Note that sanity is checked by the
+    # "payload check" command; this command simply reports on the
+    # results.
+
+    proc html_SanityPayload {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # NEXT, begin the page.
+        ht page "Sanity Check: IOM Payloads" {
+            ht title "IOM Payloads" "Sanity Check"
+            
+            payload sanity report ::appserver::ht
+        }
+
+        return [ht get]
+    }
+
 
     #-------------------------------------------------------------------
     # Sanity Checks: Strategy

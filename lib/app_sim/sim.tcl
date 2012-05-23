@@ -773,6 +773,35 @@ order define SIM:LOCK {
         }
     }
 
+    # NEXT, do the payload sanity check.
+    if {![payload sanity check]} {
+        app show my://app/sanity/payload
+
+        set answer \
+            [messagebox popup \
+                 -title         "Payload Sanity Check Failed"    \
+                 -icon          warning                          \
+                 -buttons       {ok "Continue" cancel "Cancel"}  \
+                 -default       cancel                           \
+                 -ignoretag     payload_check_failed             \
+                 -ignoredefault ok                               \
+                 -parent        [app topwin]                     \
+                 -message       [normalize {
+                     The IOM payload sanity check has failed; one or
+                     more IOM payloads are invalid.  See the 
+                     Detail Browser for details.  Press "Cancel" and
+                     fix the problems, or press "Continue" to 
+                     go ahead and lock the scenario, in which 
+                     case the invalid payloads will be 
+                     ignored as the simulation runs.
+                 }]]
+
+        if {$answer eq "cancel"} {
+            # Don't do anything.
+            return
+        }
+    }
+
     # NEXT, lock scenario prep.
     lappend undo [sim mutate lock]
 

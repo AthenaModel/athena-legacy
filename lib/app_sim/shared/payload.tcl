@@ -104,6 +104,149 @@ snit::type payload {
         ladd tinfo(names) $name
         set tinfo(parms-$name) $optparms
     }
+    
+    #-------------------------------------------------------------------
+    # Sanity Check
+
+    # sanity check
+    #
+    # Payloads can become invalid after they are created.
+    # For example, a group referenced by a payload might be deleted.
+    # The sanity check looks for such problems, and highlights them.  
+    # Invalid payloads are so marked, and the user is notified.
+    #
+    # Returns 1 if the check is successful, and 0 otherwise.
+
+    typemethod {sanity check} {} {
+        set edict [$type DoSanityCheck]
+
+        notifier send ::payload <Check>
+
+        # If there were no errors, the dictionary is empty.
+        return [expr {[dict size $edict] == 0}] 
+    }
+
+    # sanity report ht
+    #
+    # ht    - An htools buffer
+    #
+    # Computes the sanity check, and formats the results into the ht
+    # buffer for inclusion in an HTML page.  This command can presume
+    # that the buffer is already initialized and ready to receive the
+    # data.
+
+    typemethod {sanity report} {ht} {
+        return [$type DoSanityReport $ht [$type DoSanityCheck]]
+    }
+
+
+    # DoSanityCheck
+    #
+    # This routine does the actual sanity check, marking the payload
+    # records in the RDB and putting error messages in a 
+    # nested dictionary, iom_id -> payload_num -> errmsg.
+    #
+    # Returns the dictionary, which will be empty if there were no
+    # errors.
+
+    typemethod DoSanityCheck {} {
+        # FIRST, create the empty error dictionary.
+        set edict [dict create]
+
+        # NEXT, clear the invalid states, since we're going to 
+        # recompute them.
+
+        rdb eval {
+            UPDATE payloads
+            SET state = 'normal'
+            WHERE state = 'invalid';
+        }
+
+        # NEXT, identify the invalid payloads.
+        set badlist [list]
+
+        rdb eval {
+            SELECT * FROM payloads
+        } row {
+            set result [payload call check [array get row]]
+
+            if {$result ne ""} {
+                dict set edict $row(iom_id) $row(payload_num) $result
+                lappend badlist $row(iom_id) $row(payload_num)
+            }
+        }
+
+        # NEXT, mark the bad payloads invalid.
+        foreach {iom_id payload_num} $badlist {
+            rdb eval {
+                UPDATE payloads
+                SET state = 'invalid'
+                WHERE iom_id=$iom_id AND payload_num=$payload_num 
+            }
+        }
+
+        return $edict
+    }
+
+
+    # DoSanityReport ht edict
+    #
+    # ht        - An htools buffer to receive a report.
+    # edict     - A dictionary iom_id->payload_num->errmsg
+    #
+    # Writes HTML text of the results of the sanity check to the ht
+    # buffer.
+
+    typemethod DoSanityReport {ht edict} {
+        # FIRST, if there's nothing wrong, the report is simple.
+        if {[dict size $edict] == 0} {
+            if {$ht ne ""} {
+                $ht putln "No sanity check failures were found."
+            }
+
+            return
+        }
+
+        # NEXT, Build the report
+        $ht putln {
+            Certain IOM payloads checks and have been marked invalid in the
+        }
+        
+        $ht link gui:/tab/ioms "Strategy Browser"
+
+        $ht put " Please fix them or delete them."
+        $ht para
+
+
+        # IOMs with payload errors
+        $ht push
+        $ht h2 "IOMs with Payload Errors"
+
+        $ht putln "The following IOMs have invalid payloads attached."
+        $ht para
+             
+        dict for {iom_id idict} $edict {
+            array set idata [iom get $iom_id]
+
+            $ht putln "<b>$iom_id: $idata(longname)</b>"
+            $ht ul
+
+            dict for {payload_num errmsg} $idict {
+                set pdict [payload get [list $iom_id $payload_num]]
+
+                dict with pdict {
+                    $ht li
+                    $ht put "$iom_id payload #$payload_num: $narrative"
+                    $ht br
+                    $ht putln "==> <font color=red>$errmsg</font>"
+                }
+            }
+            
+            $ht /ul
+        }
+
+        return
+    }
 
 
     #===================================================================

@@ -33,6 +33,7 @@ snit::widget iombrowser {
     component paddbtn        ;# Add Payload button
     component editbtn        ;# The "Edit" button
     component togglebtn      ;# The iom state toggle button
+    component checkbtn       ;# Payload sanity check button
     component deletebtn      ;# The Delete button
 
     #-------------------------------------------------------------------
@@ -267,6 +268,11 @@ snit::widget iombrowser {
             browser $win                                \
             predicate {iptree validpayload}
 
+        install checkbtn using ttk::button $bar.check   \
+            -style   Toolbutton                         \
+            -text    "Check"                            \
+            -command [mymethod SanityCheck]
+
         install deletebtn using mkdeletebutton $bar.delete \
             "Delete IOM or payload"                        \
             -state   disabled                              \
@@ -276,11 +282,12 @@ snit::widget iombrowser {
             browser $win                          \
             predicate {iptree single}
             
-        pack $bar.title -side left
+        pack $bar.title  -side left
         pack $iaddbtn    -side left
         pack $paddbtn    -side left
         pack $editbtn    -side left
         pack $togglebtn  -side left
+        pack $checkbtn   -side left
 
         pack $deletebtn  -side right
 
@@ -474,6 +481,16 @@ snit::widget iombrowser {
             order send gui PAYLOAD:STATE id $id state normal
         } else {
             # Do nothing (this should never happen anyway)
+        }
+    }
+
+    # SanityCheck
+    #
+    # Allows the user to check the sanity of the existing payloads. 
+    
+    method SanityCheck {} {
+        if {![payload sanity check]} {
+            app show my://app/sanity/payload
         }
     }
 
