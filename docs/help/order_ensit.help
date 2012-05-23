@@ -1,0 +1,247 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    order_ensit.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: ENSIT:* Orders
+#
+#    This file is included into order.help.
+#
+#-----------------------------------------------------------------------
+
+page /order ensit "Environmental Situation Orders" {
+    <<title>>
+
+    Athena models a variety of on-going conditions within
+    neighborhoods; these are collectively referred to as
+    <i>environmental situations</i>.  The set of situation types
+    includes epidemics, contaminated food and water, power and
+    communication outages, and so forth.  Detailed information about
+    each situation type may be found in the Athena Rules document.<p>
+
+    This family of orders is used to create, update, and resolve
+    environmental situations.<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+macro ENSIT.initial {} {
+    |<--
+    The numeric ID of an environmental situation that has not yet
+    become active.  Ensits become active at the first time advance
+    after their creation.
+}
+
+macro ENSIT.location {} {
+    |<--
+    The location of the situation, expressed as a 
+    [term mapref].  The situation affects the
+    neighborhood that contains this location, and so the location must
+    lie within some neighborhood.
+}
+
+macro ENSIT.stype {} {
+    |<--
+    The type of situation.  There may be only one
+    environmental situation of a given type in each neighborhood.<p>
+
+    [enumdoc ::projectlib::eensit]
+}
+
+macro ENSIT.coverage {} {
+    |<--
+    Neighborhood coverage fraction, as a positive real number
+    less than or equal to 1.0.  The coverage represents the fraction
+    of the neighborhood's population that is affected by this situation.
+}
+
+macro ENSIT.inception {} {
+    |<--
+    A flag (<b>YES</b>, <b>NO</b>) that determines
+    whether the situation has inception effects.  Set this to
+    <b>NO</b> for situations that are to be on-going at time 0. 
+}
+
+macro ENSIT.g {} {
+    |<--
+    The name of the group that the neighborhood
+    population considers responsible for causing this situation,
+    or <b>NONE</b> if none.
+}
+
+macro ENSIT.rduration {} {
+    |<--
+    A duration, in integer days.  If positive, the
+    situation will automatically be resolved at the end of the
+    specified time. If 0, no auto-resolution will take place.<p>
+
+    If this value is omitted, it will default to the value of the
+    <b>ensit.<i>stype</i>.duration</b> [cref /parmdb parameter].
+}
+
+#-----------------------------------------------------------------------
+
+order ENSIT:CREATE "Create Environmental Situation" {
+    <<parmlist>>
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>
+    <</parm>>
+
+    <<parm stype "Type">>
+    <b>Required.</b> <<ENSIT.stype>>
+    <</parm>>
+
+    <<parm coverage "Coverage">>
+    <b>Required.</b> <<ENSIT.coverage>>
+    <</parm>>
+
+    <<parm inception "Inception?">>
+    <b>Required.</b> <<ENSIT.inception>>
+    <</parm>>
+
+    <<parm g "Caused By">>
+    <b>Required.</b>  <<ENSIT.g>>
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Required.</b>  The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  This entry is used when the situation
+    resolves itself automatically; it can be overridden if the
+    situation is resolved manually.
+    <</parm>>
+
+    <<parm rduration "Duration">>
+    <b>Optional.</b>  <<ENSIT.rduration>>
+    <</parm>>
+
+    <</parmlist>>
+
+    This order creates a new environmental situation.  Note that the
+    <<cref /order/ensit/update>> order can be used to
+    edit any of these values so long as the situation has not yet
+    become active, i.e., up until the next time advance.<p>
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
+}
+
+#-----------------------------------------------------------------------
+
+order ENSIT:DELETE "Delete Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  <<ENSIT.initial>>
+    <</parm>>
+    <</parmlist>>
+
+    Deletes an existing environmental situation.
+}
+
+#-----------------------------------------------------------------------
+
+order ENSIT:UPDATE "Update Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  <<ENSIT.initial>>
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>
+    <</parm>>
+
+    <<parm stype "Type">>
+    <b>Required.</b> <<ENSIT.stype>>
+    <</parm>>
+
+    <<parm coverage "Coverage">>
+    <b>Required.</b> <<ENSIT.coverage>>
+    <</parm>>
+
+    <<parm inception "Inception?">>
+    <b>Required.</b> <<ENSIT.inception>>
+    <</parm>>
+
+    <<parm g "Caused By">>
+    <b>Required.</b>  <<ENSIT.g>>
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Required.</b>  The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  This entry is used when the situation
+    resolves itself automatically; it can be overridden if the
+    situation is resolved manually.
+    <</parm>>
+
+    <<parm rduration "Duration">>
+    <b>Optional.</b>  <<ENSIT.rduration>>
+    <</parm>>
+
+    <</parmlist>>
+
+    Updates an existing environmental situation that has not yet
+    become active.
+}
+
+
+#-----------------------------------------------------------------------
+
+order ENSIT:MOVE "Move Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  The numeric ID of any existing environmental
+    situation.
+    <</parm>>
+
+    <<parm location "Location">>
+    <b>Required.</b>  <<ENSIT.location>>  <b>Note:</b> If the ensit
+    has already become active, it cannot be moved out of its
+    neighborhood.
+    <</parm>>
+
+    <</parmlist>>
+
+    Moves an existing environmental situation from one place to another.
+}
+
+
+order ENSIT:RESOLVE "Resolve Environmental Situation" {
+    <<parmlist>>
+
+    <<parm s "Situation">>
+    <b>Required.</b>  The numeric ID of any unresolved environmental
+    situation.
+    <</parm>>
+
+    <<parm resolver "Resolved By">>
+    <b>Optional.</b> The name of the group that the neighborhood
+    population will consider responsible for resolving this situation,
+    or <b>NONE</b> if none.  If specified, overrides the group name
+    given when the situation was 
+    <<cref /order/ensit/create created>>.
+    <</parm>>
+
+    <</parmlist>>
+
+    Resolves an unresolved environmental situation.  Any on-going
+    effects will be terminated, and the neighborhood population will
+    usually respond favorably.<p>
+
+
+    This order can be <<cref /command/send sent>>
+    or <<cref /command/sched scheduled>> by the
+    <<cref /object/tactic/executive>>.
+}
+
+

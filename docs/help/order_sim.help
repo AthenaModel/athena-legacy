@@ -1,0 +1,84 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    order_sim.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: SIM:* Orders
+#
+#    This file is included into order.help.
+#
+#-----------------------------------------------------------------------
+
+page /order sim "Simulation Control Orders" {
+    <<title>>
+
+    The orders in this set are used to control the simulation in
+    general.  Most of them are used implicitly, by various GUI
+    controls.  They are documented here for completeness.<p>
+
+    The full set of orders is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order SIM:STARTDATE "Set Start Date" {
+    <<parmlist>>
+    <<parm startdate "Start Date">>
+    <b>Required.</b>  A <<term zulu>> corresponding to 
+    simulation time 0.  By convention, the hours and minutes 
+    should be "0000".
+    <</parm>>
+
+    <</parmlist>>
+
+    <b><<term prep>> Only.</b>  Athena generally reports
+    simulation time as a number of integer days and as a zulu-time.
+    This order determines how simulation time is translated to zulu-time.
+}
+
+
+order SIM:RUN "Run Simulation" {
+    <<parmlist>>
+    <<parm days "Days to Run">>
+    <b>Optional.</b>  An integer number of days.  If 0, or not
+    specified, the simulation will run until explicitly paused by the
+    user.  If greater than 0, the simulation will run for the
+    specified number of days, and then halt.
+    <</parm>>
+
+    <<parm block "Block?">>
+    <b>Optional.</b>  A boolean flag.  If true, the order will
+    block--that is, the simulation will run for the specified number
+    of days and then the order handler will return.  If false (the
+    default) the order handler returns immediately, and the simulation
+    runs forward under the control of the Tcl event loop.<p>
+    <</parm>>
+
+    <</parmlist>>
+
+    Advances simulation time.  This order is usually triggered by the
+    "play" button in the GUI.<p>
+
+    If the simulation is in the <<term prep>> state, the order
+    does a sanity check on the scenario; time will not be allowed to
+    advance if the scenario is incomplete.
+}
+
+
+order SIM:PAUSE "Pause Simulation" {
+    Pauses the simulation at the next possible moment: immediately if
+    the simulation is waiting in the Tcl event loop between 
+    <<term tick>>s, and at the end of the current tick if it's in the 
+    middle of a tick.<p>
+
+    This order is usually triggered by the "pause" button in the GUI.
+}
+
+
+

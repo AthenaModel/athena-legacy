@@ -1,0 +1,126 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    order_report.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: REPORT:* Orders
+#
+#    This file is included into order.help.
+#
+#-----------------------------------------------------------------------
+
+page /order report "Report Orders" {
+    <<title>>
+
+    These orders are used to request specific reports.  The requested
+    report will appear in the Detail Browser.  Most reports are 
+    customized or filtered versions of standard Detail Browser pages.
+    The complete set of requested reports is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+order REPORT:DRIVER "Attitude Drivers Report" {
+    This report lists the events and situations which have driven 
+    changes in Athena's attitude model.<p>
+
+    <<parmlist>>
+
+    <<parm state "Driver State">>
+    <b>Required.</b>  The report will include only those drivers with the
+    given state.  The set of valid states is as follows:<p>
+
+    <ul>
+    <li> <b>all</b>: All drivers
+    <li> <b>active</b>:  Active drivers: those that are currently or have 
+         previously caused attitudes to change.
+    <li> <b>empty</b>: Empty drivers: those that have never caused
+         attitudes to change.
+    </ul>
+    <</parm>>
+
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+
+order REPORT:PARMDB "Model Parameters Report" {
+    This report lists each of Athena's model parameters with its current
+    and default values.<p>
+
+    The report's output can be filtered in two ways.  First, if
+    <b>CHANGED</b> is selected, the report will include only those
+    parameters whose values differ from their installation defaults.  
+    Second, the report will include only parameters whose names match
+    the specified wildcard pattern.  (Wildcard-matching is case-insensitive.)
+    For example, the wildcard "aam.UFvsNF.*" will limit the output to
+    the parameters governing uniformed vs. non-uniformed attrition.<p>
+
+    <<parmlist>>
+
+    <<parm state "Parameter State">>
+    <b>Required.</b>  The set of parameters to include in the report:<p>
+
+    <ul>
+    <li> <b>ALL</b>: All parameters
+    <li> <b>CHANGED</b>:  All parameters that have been changed from their 
+         default settings.
+    </ul>
+    <</parm>>
+
+    <<parm wildcard "Wildcard">>
+    <b>Optional.</b>  A wildcard pattern, e.g., the pattern "aam.*"
+    matches all of the attrition model parameters.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+
+order REPORT:SATCONTRIB "Contribution to Satisfaction Report" {
+    For a given satisfaction curve or group mood, this report lists
+    the top satisfaction drivers along with their total contributions
+    to satisfaction change.  The user can select the time interval,
+    and the maximum number of drivers to list.<p>
+
+    <<parmlist>>
+
+    <<parm g "Group">>
+    <b>Required.</b>  The name of the civilian group.
+    <</parm>>
+
+    <<parm c "Concern">>
+    <b>Required.</b>  The name of a concern, as chosen from the
+    following list, or "MOOD" for the group's mood:<p>
+
+    <<enumdoc ::projectlib::econcern>>
+    <</parm>>
+
+    <<parm top "Number">>
+    <b>Optional.</b>  The maximum number of drivers to include in the
+    list.  Defaults to 20.    
+    <</parm>>
+
+    <<parm start "Start Time">>
+    <b>Optional.</b>  The start time of the interval of interest, 
+    expressed as a <<term timespec>>.  Defaults to "T0", the start of
+    simulation time.
+    <</parm>>
+
+    <<parm end "End Time">>
+    <b>Optional.</b>  The end time of the interval of interest, 
+    expressed as a <<term timespec>>.  Defaults to "NOW", the current
+    simulation time.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+
