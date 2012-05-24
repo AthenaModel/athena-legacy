@@ -329,6 +329,13 @@ snit::widget appwin {
             script  {iombrowser %W}
         }
 
+        hooks {
+            label   "Semantic Hooks"
+            vistype scenario
+            parent  info
+            script  {hookbrowser %W}
+        }
+
         demogt {
             label   "Demog"
             vistype simulation

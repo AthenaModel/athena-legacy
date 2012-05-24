@@ -802,6 +802,35 @@ order define SIM:LOCK {
         }
     }
 
+    # NEXT, do the semantic hook sanity check
+    if {![hook sanity check]} {
+        app show my://app/sanity/hook
+
+        set answer \
+            [messagebox popup \
+                 -title         "Semantic Hook Sanity Check Failed"    \
+                 -icon          warning                          \
+                 -buttons       {ok "Continue" cancel "Cancel"}  \
+                 -default       cancel                           \
+                 -ignoretag     hook_check_failed                \
+                 -ignoredefault ok                               \
+                 -parent        [app topwin]                     \
+                 -message       [normalize {
+                     The semantic hook sanity check has failed; one or
+                     more topics are invalid.  See the 
+                     Detail Browser for details.  Press "Cancel" and
+                     fix the problems, or press "Continue" to 
+                     go ahead and lock the scenario, in which 
+                     case the invalid topics will be 
+                     ignored as the simulation runs.
+                 }]]
+
+        if {$answer eq "cancel"} {
+            # Don't do anything.
+            return
+        }
+    }
+
     # NEXT, lock scenario prep.
     lappend undo [sim mutate lock]
 

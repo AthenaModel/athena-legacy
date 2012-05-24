@@ -20,6 +20,145 @@ snit::type hook {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Sanity Check
+
+    # sanity check
+    #
+    # Hook topics can become invalid after they are created.
+    # For example, a bsystem topic referenced by a hook topic
+    # may be deleted. The sanity check looks for such problems and'
+    # highlights them. Invalid hook topics are so marked and the
+    # user is notified
+    #
+    # Returns 1 if the check is successful, and 0 otherwise
+
+    typemethod {sanity check} {} {
+        set edict [$type DoSanityCheck]
+
+        notifier send ::hook <Check>
+
+        # If there were no errors, the dictionary is empty
+        return [expr {[dict size $edict] == 0}]
+    }
+
+    # sanity report ht
+    #
+    # ht    - An htools buffer
+    #
+    # Computes the sanity check, and formats the results into the
+    # ht buffer for inclusion in an HTML page.  This command can 
+    # presume that the buffer is already initialized and ready to 
+    # receive the data.
+
+    typemethod {sanity report} {ht} {
+        return [$type DoSanityReport $ht [$type DoSanityCheck]]
+    }
+
+    # DoSanityCheck
+    #
+    # This routine does the actual sanity check, marking the hook
+    # topic records in the RDB and putting error messages in a 
+    # nested dictionary, hook_id -> hook/topic -> errmsg.
+    #
+    # Returns the dictionary, which will be empty if there were no
+    # errors.
+
+    typemethod DoSanityCheck {} {
+        # FIRST, create the dictionary
+        set edict [dict create]
+
+        # NEXT, clear the invalid states, since we're going to
+        # recompute them
+
+        rdb eval {
+            UPDATE hook_topics
+            SET state = 'normal'
+            WHERE state = 'invalid';
+        }
+
+        # NEXT, identify the invalid hook topics
+        set badlist [list]
+
+        rdb eval {
+            SELECT * FROM hook_topics_view
+        } row {
+            set result [hook topic check [array get row]]
+
+            if {$result ne ""} {
+                dict set edict $row(hook_id) $row(topic_id) $result
+                lappend badlist $row(hook_id) $row(topic_id)
+            }
+        }
+
+        # NEXT, mark the bad hook topics invalid
+        foreach {hook_id topic_id} $badlist {
+            rdb eval {
+                UPDATE hook_topics
+                SET state = 'invalid'
+                WHERE hook_id=$hook_id AND topic_id=$topic_id
+            }
+        }
+
+        return $edict
+    }
+
+    # DoSanityReport ht edict
+    #
+    # ht     - an htools buffer to receive the report
+    # edict  - A dictionary hook_id->topic_id->errmsg
+    #
+    # Writes HTML text of the results of the sanity check to the ht
+    # buffer.
+
+    typemethod DoSanityReport {ht edict} {
+        # FIRST, if theres nothing wrong, the report is simple
+        if {[dict size $edict] == 0} {
+            if {$ht ne ""} {
+                $ht putln "No sanity check failures were found."
+            }
+
+            return
+        }
+
+        # NEXT, build the report
+        $ht putln "Certain hook topics have been marked invalid in the "
+        # TBD: add semantic hook browser docs and put link here
+        $ht put "Semantic Hooks Browser.  Please fix them "
+        $ht put "or delete them."
+        $ht para
+
+        # Hooks with topic errors
+        $ht push
+        $ht h2 "Semantic Hooks with Topic Errors"
+        
+        $ht putln "The following semantic hooks have invalid topics "
+        $ht put   "attached."
+        $ht para
+
+        dict for {hook_id idict} $edict {
+            array set idata [hook get $hook_id]
+
+            $ht putln "<b>$hook_id: $idata(longname)</b>"
+            $ht ul
+
+            dict for {topic_id errmsg} $idict {
+                set pdict [hook topic get [list $hook_id $topic_id]]
+
+                dict with pdict {
+                    $ht li
+                    $ht put "$hook_id topic $topic_id: $narrative"
+                    $ht br
+                    $ht putln "==> <font color=red>$errmsg</font>"
+                }
+            }
+
+            $ht /ul
+        }
+
+        return
+    }
+
+    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -34,6 +173,28 @@ snit::type hook {
         set names [rdb eval {
             SELECT hook_id FROM hooks ORDER BY hook_id
         }]
+    }
+
+    # get hook_id ?parm?
+    #
+    # hook_id    - A hook ID 
+    # parm       - A column in the hooks table
+    #
+    # Retrieves a row dictionary, or a particular column value from
+    # hooks.
+
+    typemethod get {hook_id {parm ""}} {
+        # FIRST, get the data
+        rdb eval {SELECT * FROM hooks WHERE hook_id=$hook_id} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
     }
 
     # validate hook_id
@@ -112,17 +273,23 @@ snit::type hook {
         return $exists
     }
 
-    # get hook_id ?parm?
+    # topic get   id ?parm?
     #
-    # hook_id    - A hook ID 
-    # parm       - A column in the hooks table
+    # id      - a hook/topic pair that serves as an ID
+    # parm    - a column in the hook_topics table
     #
-    # Retrieves a row dictionary, or a particular column value, from
-    # hooks.
+    # Retreives a row dictionary, or a particular column value from
+    # hook_topics 
 
-    typemethod get {hook_id {parm ""}} {
-        # FIRST, get the data
-        rdb eval {SELECT * FROM hooks WHERE hook_id=$hook_id} row {
+    typemethod {topic get} {id {parm ""}} {
+        # FIRST, assign the ids to the appropriate columns
+        lassign $id hook_id topic_id
+
+        # NEXT, get the data
+        rdb eval {
+            SELECT * FROM hook_topics 
+            WHERE hook_id=$hook_id AND topic_id=$topic_id
+        } row {
             if {$parm ne ""} {
                 return $row($parm)
             } else {
@@ -134,6 +301,26 @@ snit::type hook {
         return ""
     }
 
+    # topic check    pdict
+    #
+    # pdict     A dictionary of hook topic data
+    #
+    # Looks at the topic corresponding to the data and checks that
+    # it is still valid. The belief system topic may be gone.
+
+    typemethod {topic check} {pdict} {
+        set errors [list]
+
+        dict with pdict {
+            if {$topic_id ni [bsystem topic names]} {
+                lappend errors \
+                    "Belief system topic $topic_id no longer exists."
+            }
+        }
+
+        return [join $errors "  "]
+    }
+            
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -222,13 +409,18 @@ snit::type hook {
 
     typemethod {mutate topic create} {parmdict} {
         dict with parmdict {
+
+            set narrative [hook ComputeNarrative $topic_id $position]
+
             rdb eval {
                 INSERT INTO 
                 hook_topics(hook_id,
                             topic_id,
+                            narrative,
                             position)
                 VALUES($hook_id,
                        $topic_id,
+                       $narrative,
                        $position)
             }
             
@@ -250,12 +442,16 @@ snit::type hook {
     typemethod {mutate topic update} {parmdict} {
         dict with parmdict {
             lassign $id hook_id topic_id
+
+            set narrative [hook ComputeNarrative $topic_id $position]
+
             set data [rdb grab \
                 hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
 
             rdb eval {
                 UPDATE hook_topics
-                SET position = nonempty($position, position)
+                SET position  = nonempty($position, position),
+                    narrative = nonempty($narrative, narrative)
                 WHERE hook_id=$hook_id AND topic_id=$topic_id
             }
 
@@ -279,8 +475,105 @@ snit::type hook {
         return [list rdb ungrab $data]
     }
 
-    typemethod refreshTopicCREATE {dlg fields fdict} {
-        # Placeholder
+    # mutate topic state id state
+    #
+    # id      The unique identifier for the hook/topic pair
+    # state   The state of the hook topic: normal
+    #
+    # Sets the state of the hook topic to one of:
+    #    normal, disabled, invalid
+
+    typemethod {mutate topic state} {id state} {
+        lassign $id hook_id topic_id
+
+        set data [rdb grab \
+            hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
+
+        rdb eval {
+            UPDATE hook_topics
+            SET state=$state
+            WHERE hook_id=$hook_id AND topic_id=$topic_id
+        }
+
+        return [list rdb ungrab $data]
+    }
+
+    # RefreshTopicCREATE dlg fields fdict
+    #
+    # dlg       The order dialog
+    # fields    The fields that have been changed
+    # fdict     The current fields and values
+    #
+    # This method updates the list of valid topics still
+    # available to be associated with a give semantic hook
+
+    typemethod RefreshTopicCREATE {dlg fields fdict} {
+        if {"hook_id" in $fields} {
+            dict with fdict {
+                set used [rdb eval {
+                            SELECT topic_id FROM hook_topics
+                            WHERE hook_id=$hook_id
+                        }]
+
+                set unused [list]
+
+                foreach topic [bsystem topic names] {
+                    if {$topic in $used} {
+                        continue
+                    }
+
+                    lappend unused $topic
+                }
+
+                $dlg field configure topic_id -values $unused
+            }
+        }
+    }
+
+    #
+    # dlg       The order dialog
+    # fields    The fields that have been changed
+    # fdict     The current fields and values
+    #
+    # This method sets the position in the position dropdown
+    # to the correct text value for display
+
+    typemethod RefreshTopicUPDATE {dlg fields fdict} {
+        if {"id" in $fields} {
+            dict with fdict {
+                set pos [rdb eval {
+                    SELECT position FROM gui_hook_topics
+                    WHERE id=$id
+                }]
+
+                $dlg set position [qposition name $pos]
+            }
+        }
+    }
+
+
+    # ComputeNarrative topic_id position
+    #
+    # topic_id   ID of a bsystem topic
+    # position   A qposition(n) value
+    #
+    # Given a topic and a position on that topic compute a narrative.
+
+    typemethod ComputeNarrative {topic_id position} {
+        # FIRST, get the text representation of the topic and position
+        set ptext [qposition longname $position]
+        set ttext [bsystem topic cget $topic_id -title]
+
+        # NEXT, compute the narrative
+        set narr "$ptext "
+
+        if {$ptext eq "Ambivalent"} {
+            append narr "Towards "
+        }
+
+        append narr "$ttext."
+
+        return $narr
     }
 }
 
@@ -302,7 +595,7 @@ order define HOOK:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare hook_id  -toupper -unused -required -type ident  
-    prepare longname -normalize       -required 
+    prepare longname -normalize       
 
     returnOnError -final
 
@@ -388,11 +681,11 @@ order define HOOK:TOPIC:CREATE {
 
     options \
         -sendstates PREP \
-        -refreshcmd {hook refreshTopicCREATE}
+        -refreshcmd {hook RefreshTopicCREATE}
 
-    parm hook_id    key  "Hook ID"   -table hooks -keys hook_id -context yes
-    parm topic_id   enum "Topic ID"  -table mam_topic -keys tid
-    parm position   text "Position"
+    parm hook_id    text "Hook ID"   -context yes
+    parm topic_id   enum "Topic ID"  
+    parm position   enum "Position"  -enumtype qposition -displaylong yes
 } {
     prepare hook_id  -toupper -required -type hook
     prepare topic_id -toupper -required -type {bsystem topic}
@@ -401,7 +694,7 @@ order define HOOK:TOPIC:CREATE {
     returnOnError 
 
     if {[hook topic exists [list $parms(hook_id) $parms(topic_id)]]} {
-        reject id "Hook/Topic pair already exists"
+        reject topic_id "Hook/Topic pair already exists"
     }
 
     returnOnError -final
@@ -439,15 +732,15 @@ order define HOOK:TOPIC:UPDATE {
 
     options \
         -sendstates PREP \
-        -refreshcmd {::orderdialog refreshForKey id *}
+        -refreshcmd {hook RefreshTopicUPDATE}
 
-    parm id key "Hook/Topic" -table gui_hook_topics    \
-                             -keys  {hook_id topic_id} \
-                             -labels {"Of" "On"}
-    parm position text "Position"
+    parm id       key  "Hook/Topic" -table gui_hook_topics    \
+                                    -keys  {hook_id topic_id} \
+                                    -labels {"Of" "On"}
+    parm position enum "Position" -enumtype qposition -displaylong yes
 } {
     prepare id       -toupper -required -type {hook topic}
-    prepare position                    -type qposition
+    prepare position          -required -type qposition
 
     returnOnError -final
 
@@ -465,12 +758,11 @@ order define HOOK:TOPIC:UPDATE:MULTI {
         -sendstates PREP \
         -refreshcmd {orderdialog refreshForMulti ids *}
 
-        parm ids multi "IDs"   -table gui_hook_topics 
-
-        parm position text "Position" 
+    parm ids      multi "IDs"      -table gui_hook_topics 
+    parm position enum  "Position" -enumtype qposition -displaylong yes
 } {
     prepare ids      -toupper -required -listof {hook topic}
-    prepare position -toupper           -type   qposition
+    prepare position          -required -type qposition 
 
     returnOnError -final
 
@@ -481,6 +773,31 @@ order define HOOK:TOPIC:UPDATE:MULTI {
 
         setundo [join $undo \n]
     }
+}
+
+# HOOK:TOPIC:STATE
+#
+# Updates the state of a hook topic
+
+order define HOOK:TOPIC:STATE {
+    title "Set Semantic Hook State"
+
+    options \
+        -sendstates {PREP} \
+        -refreshcmd {orderdialog refreshForKey id *}
+
+    parm id   key "Hook/Topic"   -context yes \
+                                 -table gui_hook_topics \
+                                 -keys {hook_id topic_id}
+
+    parm state text "State"
+} {
+    prepare id   -required     -type {hook topic}
+    prepare state -required -tolower -type etopic_state
+
+    returnOnError -final
+
+    setundo [hook mutate topic state $parms(id) $parms(state)]
 }
 
 

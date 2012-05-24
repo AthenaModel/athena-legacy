@@ -43,6 +43,7 @@ namespace eval ::projectlib:: {
         epayload_state   \
         esitstate        \
         etactic_state    \
+        etopic_state     \
         eurbanization    \
         eunitshape       \
         eunitsymbol      \
@@ -523,6 +524,13 @@ snit::type ::projectlib::typewrapper {
     invalid  "invalid"
 }
 
+# Topic State
+
+::marsutil::enum ::projectlib::etopic_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
 
 # Condition Type.  Conditions are attached to
 # tactics (and possibly other things).

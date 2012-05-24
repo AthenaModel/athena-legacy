@@ -83,10 +83,12 @@ WHERE orphan;
 ------------------------------------------------------------------------
 -- SEMANTIC HOOK VIEWS
 
-CREATE VIEW gui_hook_topics AS
+CREATE TEMPORARY VIEW gui_hook_topics AS
 SELECT hook_id || ' ' || topic_id  AS id,
        hook_id                     AS hook_id,
        topic_id                    AS topic_id,
+       narrative                   AS narrative,
+       state                       AS state,
        position                    AS position
 FROM hook_topics;
 

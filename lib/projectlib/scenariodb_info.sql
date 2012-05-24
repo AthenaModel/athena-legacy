@@ -114,27 +114,33 @@ CREATE TABLE hooks (
 -- operations to determine the topics and on which position a
 -- message takes with respect to those topics.
 
-    hook_id          TEXT PRIMARY KEY, -- ID of a semantic hook
+    hook_id    TEXT PRIMARY KEY, -- ID of a semantic hook
 
-    longname         TEXT,             -- Longname of the semantic hook
+    longname   TEXT,             -- Longname of the semantic hook
 
-    narrative        TEXT              -- A free form narrative
+    narrative  TEXT              -- A free form narrative
 );
 
 CREATE TABLE hook_topics (
 -- Semantic hook topics table.  A semantic hook must have topics
 -- and positions on those topics associated with it. This table 
 -- stores that information.
-    hook_id          TEXT              -- The semantic hook for this topic
-                     REFERENCES hooks(hook_id)
-                     ON DELETE CASCADE ON UPDATE CASCADE
-                     DEFERRABLE INITIALLY DEFERRED,
+    hook_id    TEXT              -- The semantic hook for this topic
+               REFERENCES hooks(hook_id)
+               ON DELETE CASCADE ON UPDATE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
 
-    topic_id         TEXT,             -- A topic of the semantic hook, 
+    topic_id   TEXT,                   -- A topic of the semantic hook, 
                                        -- this topic ID exists in the 
                                        -- mam_topic table
 
-    position         REAL DEFAULT 0.0, -- The position on the topic.
+    narrative  TEXT,                   -- Narrative describing the position
+                                       -- on the topic.
+
+    state      TEXT DEFAULT "normal",  -- Normal, disabled or invalid
+                                       -- (an etopic_state)
+
+    position   REAL DEFAULT 0.0,       -- The position on the topic.
 
     PRIMARY KEY (hook_id, topic_id)
 );
@@ -145,6 +151,8 @@ CREATE VIEW hook_topics_view AS
 SELECT hook_id || ' ' || topic_id AS id,
        hook_id                    AS hook_id,
        topic_id                   AS topic_id,
+       narrative                  AS narrative,
+       state                      AS state,
        position                   AS position
 FROM hook_topics;
 

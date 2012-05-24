@@ -352,6 +352,10 @@ snit::type appserver {
             text/html [myproc html_SanityOnTick]          \
             "Simulation On-Tick sanity check report."
 
+        $server register /sanity/hook {sanity/hook/?} \
+            text/html [myproc html_SanityHook]        \
+            "Sanity check report for Semantic Hooks."
+
         $server register /sanity/payload {sanity/payload/?} \
             text/html [myproc html_SanityPayload]           \
             "Sanity check report for IOM Payloads."
@@ -3358,6 +3362,32 @@ snit::type appserver {
 
             SigEvents -tags $ename -mark run
         }
+    }
+
+    #-------------------------------------------------------------------
+    # Sanity Checks: Semantic Hooks
+
+    # html_SanityHooks udict matchArray
+    #
+    # udict    - A dictionary containing the URL components
+    # matchArray - Array of matchec from the URL
+    #
+    # Formats the semantic hook sanity check report for
+    # /sanity/hook.  Note that sanity is checked by the 
+    # "hook check" command; this command simply reports on the
+    # results.
+
+    proc html_SanityHook {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # NEXT begin the page.
+        ht page "Sanity Check: Semantic Hook Topics" {
+            ht title "Semantic Hooks" "Sanity Check"
+
+            hook sanity report ::appserver::ht
+        }
+
+        return [ht get]
     }
 
     #-------------------------------------------------------------------
