@@ -538,7 +538,7 @@ snit::type payload {
 order define PAYLOAD:DELETE {
     # This order dialog isn't usually used.
 
-    title "Delete payload"
+    title "Delete Payload"
     options \
         -sendstates PREP
 
@@ -561,7 +561,7 @@ order define PAYLOAD:DELETE {
 # for use with a dialog.
 
 order define PAYLOAD:STATE {
-    title "Set payload State"
+    title "Set Payload State"
 
     options \
         -sendstates {PREP PAUSED} \

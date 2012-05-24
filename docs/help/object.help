@@ -41,9 +41,11 @@ macro sotitle {} {
 include object_actor.help
 include object_agent.help
 include object_cap.help
-include object_nbhood.help
-include object_group.help
-include object_goal.help
-include object_tactic.help
 include object_condition.help
+include object_iom.help
+include object_goal.help
+include object_group.help
+include object_nbhood.help
+include object_payload.help
+include object_tactic.help
 

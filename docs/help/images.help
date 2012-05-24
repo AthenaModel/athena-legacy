@@ -49,6 +49,8 @@ image button_play        "Button: Play"                img/button_play.png
 image button_plus        "Button: Plus"                img/button_plus.png
 image button_plusc       "Button: Plus C"              img/button_plusc.png
 image button_plusg       "Button: Plus G"              img/button_plusg.png
+image button_plusi       "Button: Plus I"              img/button_plusi.png
+image button_plusp       "Button: Plus P"              img/button_plusp.png
 image button_plust       "Button: Plus T"              img/button_plust.png
 image button_poly        "Button: Polygon"             img/button_poly.png
 image button_power       "Button: Power"               img/button_power.png

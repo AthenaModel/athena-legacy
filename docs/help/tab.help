@@ -2293,6 +2293,70 @@ tab "Info/Group Penetration" {
     <</topiclist>>
 }
 
+#-----------------------------------------------------------------------
+
+tab "Info/Info Ops Messages" {
+    The Info Ops Messages tab is where the analyst browses and edits
+    <<term iom>>'s and their <<term payload>>s.<p>
+
+    The browser consists of a tool bar containing controls used in
+    creating, editing, and manipulating IOMs and payloads, and an
+    outline view of the IOMs with the payloads attached to each IOM
+    indented underneath.  The user can expand or collapse each IOM to
+    show or hide the attached payloads.<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "IOM/Payload">>
+    A narrative description of each IOM and payload.  A button at the 
+    left margin allows IOMs to be expanded to reveal
+    their attached payloads.
+    <</topic>>
+
+    <<topic "Id">> The IOM or payload ID, a value that uniquely
+    identifies the IOM or payload.<p>
+    <</topic>>
+
+    <<topic "Type">> For payloads, the payload type.<p>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plusi]>>
+    Create a new IOM.
+    <</topic>>
+
+    <<topic [image button_plusp]>>
+    Create a new payload for the currently selected IOM.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the update dialog for the selected IOM or payload.
+    <</topic>>
+
+    <<topic [image button_power]>>
+    Toggles the selected payload on and off.  Disabled payloads are
+    grayed out with an overstrike.
+    <</topic>>
+
+    <<topic [image button_checktxt]>>
+    Force a sanity check of the payloads. 
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Deletes the selected IOM or payload.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+
+
 
 #=======================================================================
 # Demog

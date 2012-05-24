@@ -563,6 +563,10 @@ term influence "influence" {
 
 #-----------------------------------------------------------------------
 
+alias /term iom "IOM" /object/iom
+
+#-----------------------------------------------------------------------
+
 term local_economy "local economy" {
     Athena's Economics model concerns the economy of a region: a
     single country, part of that country, or perhaps several small
@@ -708,6 +712,10 @@ term parameter "parameter" {
     <b>2.</b> An input to a <<term condition>>, <<term order>>,
     or <<term tactic>>.
 }
+
+#-----------------------------------------------------------------------
+
+alias /term payload "payload" /object/payload
 
 #-----------------------------------------------------------------------
 
