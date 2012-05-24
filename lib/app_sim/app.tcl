@@ -507,7 +507,9 @@ snit::type app {
             -type        ::qmag                 \
             -showsymbols yes                    \
             -resetvalue  0.0                    \
-            -resolution  0.5
+            -resolution  0.5                    \
+            -min         -40.0                  \
+            -max         40.0
 
         # nlist -- listfield of appropriate size for nbhood selection
         form register nlist ::marsgui::listfield \
