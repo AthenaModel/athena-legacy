@@ -131,9 +131,11 @@ narrative
     } -cleanup {
         cleanup
     } -result {
-hook_id   PUPG
-topic_id  T1
-position  0.9
+hook_id    PUPG
+topic_id   T1
+narrative  Passionately For TBD.
+state      normal
+position   0.9
     }
 
     test createtopic-1.2 {Undo deletes the hook topic} -setup {
@@ -204,9 +206,11 @@ position  0.9
     } -cleanup {
         cleanup
     } -result {
-hook_id   PUPG
-topic_id  T1
-position  0.9
+hook_id    PUPG
+topic_id   T1
+narrative  Passionately For TBD.
+state      normal
+position   0.9
     }
 
     cleanupTests

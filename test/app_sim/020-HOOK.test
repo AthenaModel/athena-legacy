@@ -62,7 +62,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject HOOK:CREATE {}
     } -result {
         hook_id {required value}
-        longname {required value}
     }
 
     
@@ -156,9 +155,11 @@ narrative
     } -cleanup {
         cleanup
     } -result {
-hook_id   FOO
-topic_id  T1
-position  0.9
+hook_id    FOO
+topic_id   T1
+narrative  Passionately For Topic #1.
+state      normal
+position   0.9
     }
 
     test TOPIC:CREATE-2.2 {Effects} -setup {
@@ -354,6 +355,7 @@ narrative
         ted order -reject HOOK:TOPIC:UPDATE {}
     } -result {
         id {required value}
+        position {required value}
     }
 
     test TOPIC:UPDATE-1.2 {invalid hook_id} -body {
@@ -398,9 +400,11 @@ narrative
     } -cleanup {
         cleanup
     } -result {
-hook_id   FOO
-topic_id  T1
-position  0.0
+hook_id    FOO
+topic_id   T1
+narrative  Ambivalent Towards Topic #1.
+state      normal
+position   0.0
     }
 
     test TOPIC:UPDATE-2.2 {table monitor event} -setup {
