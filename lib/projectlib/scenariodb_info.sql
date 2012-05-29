@@ -177,9 +177,7 @@ CREATE TABLE ioms (
     longname   TEXT,                            -- Human-readable name
     hook_id    TEXT REFERENCES hooks(hook_id)   -- Semantic hook
                ON DELETE SET NULL
-               DEFERRABLE INITIALLY DEFERRED, 
-    narrative  TEXT DEFAULT ''                  -- Computed from the hook 
-                                                -- and payloads
+               DEFERRABLE INITIALLY DEFERRED 
 );
 
 ------------------------------------------------------------------------

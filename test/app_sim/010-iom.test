@@ -26,6 +26,11 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
+    # Setup
+    proc setup {} {
+        ted create BLUE HOOK1 HOOK2
+    }
+
     # Clean up after a test
     proc cleanup {} {
         # Clean up the test environment
@@ -33,13 +38,11 @@ namespace eval ::athena_test::tests:: {
     }
 
     # ioms
-    # TBD: Should test with real hooks, but there aren't any
-    # real hooks yet.
 
     set m1 {
         iom_id     M1
         longname   "IOM One"
-        hook_id    ""
+        hook_id    HOOK1
     }
 
     set m2 {
@@ -48,22 +51,45 @@ namespace eval ::athena_test::tests:: {
         hook_id    ""
     }
 
+    # payloads
+    set p1 {
+        payload_type COOP
+        iom_id       M1
+        g            BLUE
+        mag          1.0
+    }
+
     #-------------------------------------------------------------------
     # mutate create
 
-    test create-1.1 {iom is created} -body {
+    test create-1.1 {iom is created with hook} -setup {
+        setup
+    } -body {
         iom mutate create $m1
         ted querylist {SELECT * FROM ioms}
     } -cleanup {
         cleanup
     } -result {
-iom_id     M1
-longname   IOM One
-hook_id    
-narrative  
+iom_id    M1
+longname  IOM One
+hook_id   HOOK1
+    }
+
+    test create-1.2 {iom is created without hook} -setup {
+        setup
+    } -body {
+        iom mutate create $m2
+        ted querylist {SELECT * FROM ioms}
+    } -cleanup {
+        cleanup
+    } -result {
+iom_id    M2
+longname  IOM Two
+hook_id   
     }
 
     test create-2.1 {undo deletes the iom} -setup {
+        setup
         iom mutate create $m1
         set undo [iom mutate create $m2]
     } -body {
@@ -78,6 +104,7 @@ narrative
     # mutate delete
 
     test delete-1.1 {iom is deleted} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
     } -body {
@@ -90,6 +117,7 @@ narrative
     } -result {M2}
 
     test delete-1.2 {Undo restores iom} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
         set undo [iom mutate delete M1]
@@ -99,72 +127,73 @@ narrative
     } -cleanup {
         cleanup
     } -result {
-iom_id     M1
-longname   IOM One
-hook_id    
-narrative  
+iom_id    M1
+longname  IOM One
+hook_id   HOOK1
 
-iom_id     M2
-longname   IOM Two
-hook_id    
-narrative  
+iom_id    M2
+longname  IOM Two
+hook_id   
     }
 
-    test delete-2.1 {payload records are deleted} -constraints tbd -setup {
+    test delete-2.1 {payload records are deleted} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
+        payload mutate create $p1
     } -body {
         iom mutate delete M1
 
         rdb eval {
-            SELECT iom_id,part_number FROM iom_parts 
-            ORDER BY iom_id,part_number
+            SELECT iom_id,payload_num FROM payloads 
+            ORDER BY iom_id,payload_num
         }
     } -cleanup {
         cleanup
-    } -result {M2 1}
+    } -result {}
 
-    test delete-2.2 {Undo restores payload records} -constraints tbd -setup {
+    test delete-2.2 {Undo restores payload records} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
+        payload mutate create $p1
         
         set undo [iom mutate delete M1]
     } -body {
         namespace eval :: $undo
         rdb eval {
-            SELECT iom_id,part_number FROM iom_parts 
-            ORDER BY iom_id,part_number
+            SELECT iom_id,payload_num FROM payloads 
+            ORDER BY iom_id,payload_num
         }
     } -cleanup {
         cleanup
-    } -result {M1 1 M1 2 M2 1}
+    } -result {M1 1}
 
     #-------------------------------------------------------------------
     # mutate update
-    #
-    # TBD: Should have tests with real hooks, once we have real hooks.
 
     test update-1.1 {iom is updated} -setup {
+        setup
         iom mutate create $m1
     } -body {
         iom mutate update {
             iom_id   M1
             longname "Support the Govt"
-            hook_id  ""
+            hook_id  HOOK2
         }
 
         ted querylist {SELECT * FROM ioms}
     } -cleanup {
         cleanup
     } -result {
-iom_id     M1
-longname   Support the Govt
-hook_id    
-narrative  
+iom_id    M1
+longname  Support the Govt
+hook_id   HOOK2
     }
 
 
     test update-1.2 {identical values are OK} -setup {
+        setup
         iom mutate create $m1
     } -body {
         set a [ted query {SELECT * FROM ioms}]
@@ -180,6 +209,7 @@ narrative
 
 
     test update-1.3 {empty values are OK} -setup {
+        setup
         iom mutate create $m1
     } -body {
         set a [ted query {SELECT * FROM ioms}]
@@ -199,6 +229,7 @@ narrative
 
 
     test update-2.1 {undo undoes the change} -setup {
+        setup
         iom mutate create $m1
     } -body {
         set a [ted query {SELECT * FROM ioms}]
@@ -223,12 +254,14 @@ narrative
     # names
 
     test names-1.1 {Returns names: none defined} -body {
+        setup
         iom names
     } -cleanup {
         cleanup
     } -result {}
 
     test names-1.2 {Returns names} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
     } -body {
@@ -250,6 +283,7 @@ narrative
     } -result {Invalid IOM, none are defined}
 
     test validate-1.2 {Invalid name: some defined} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
     } -body {
@@ -261,6 +295,7 @@ narrative
     } -result {Invalid IOM, should be one of: M1, M2}
 
     test validate-2.1 {Valid name} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
     } -body {
@@ -273,6 +308,7 @@ narrative
     # exists
 
     test exists-1.1 {iom doesn't exist} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
     } -body {
@@ -282,6 +318,7 @@ narrative
     } -result {0}
 
     test exists-1.2 {iom exists} -setup {
+        setup
         iom mutate create $m1
         iom mutate create $m2
     } -body {
@@ -294,19 +331,21 @@ narrative
     # get
 
     test get-1.1 {get dict} -setup {
+        setup
         iom mutate create $m1
     } -body {
         ted pdict [iom get M1]
     } -cleanup {
         cleanup
     } -result {
-        narrative {}
-        hook_id   {}
+        narrative {IOM One  (Hook HOOK1: TBD)}
+        hook_id   HOOK1
         longname  {IOM One}
         iom_id    M1
     }
 
     test get-1.2 {get column} -setup {
+        setup
         iom mutate create $m1
     } -body {
         iom get M1 longname

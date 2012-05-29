@@ -322,18 +322,18 @@ snit::widget appwin {
             script  {cappenbrowser %W}
         }
 
-        ioms {
-            label   "Info Ops Messages"
-            vistype scenario
-            parent  info
-            script  {iombrowser %W}
-        }
-
         hooks {
             label   "Semantic Hooks"
             vistype scenario
             parent  info
             script  {hookbrowser %W}
+        }
+
+        ioms {
+            label   "Info Ops Messages"
+            vistype scenario
+            parent  info
+            script  {iombrowser %W}
         }
 
         demogt {

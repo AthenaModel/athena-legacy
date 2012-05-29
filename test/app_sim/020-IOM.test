@@ -90,10 +90,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-iom_id     M1
-longname   IOM One
-hook_id    
-narrative  
+iom_id    M1
+longname  IOM One
+hook_id   
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -199,10 +198,9 @@ narrative
     } -cleanup {
         cleanup
     } -result {
-iom_id     M1
-longname   New Name
-hook_id    
-narrative  
+iom_id    M1
+longname  New Name
+hook_id   
     }
 
 

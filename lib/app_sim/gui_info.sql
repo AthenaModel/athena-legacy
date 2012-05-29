@@ -92,6 +92,20 @@ SELECT hook_id || ' ' || topic_id  AS id,
        position                    AS position
 FROM hook_topics;
 
+-----------------------------------------------------------------------
+-- IOM VIEWS
+
+CREATE TEMPORARY VIEW gui_ioms AS
+SELECT I.iom_id                      AS iom_id,
+       I.longname                    AS longname,
+       I.hook_id                     AS hook_id,
+       CASE WHEN I.hook_id IS NULL
+       THEN I.longname || '  (no hook specified)'
+       ELSE I.longname || '  (' || 'Hook ' || I.hook_id || ': ' || 
+            coalesce(H.narrative, 'TBD') || ')'
+       END                           AS narrative
+FROM ioms AS I
+LEFT OUTER JOIN hooks AS H USING (hook_id);
        
 -----------------------------------------------------------------------
 -- PAYLOAD TYPE VIEWS

@@ -77,15 +77,17 @@ snit::widget iombrowser {
         bind $win <Map> [mymethod MapWindow]
 
         # Reload the content on various notifier events.
-        notifier bind ::sim      <DbSyncB> $self [mymethod ReloadOnEvent]
-        notifier bind ::sim      <Tick>    $self [mymethod ReloadOnEvent]
-        notifier bind ::payload  <Check>   $self [mymethod ReloadOnEvent]
+        notifier bind ::sim     <DbSyncB>     $self [mymethod ReloadOnEvent]
+        notifier bind ::sim     <Tick>        $self [mymethod ReloadOnEvent]
+        notifier bind ::payload <Check>       $self [mymethod ReloadOnEvent]
+        notifier bind ::rdb     <hooks>       $self [mymethod ReloadOnEvent]
+        notifier bind ::rdb     <hook_topics> $self [mymethod ReloadOnEvent]
 
         # Reload individual entities when they
         # are updated or deleted.
 
-        notifier bind ::rdb <ioms>       $self [mymethod MonIOMs]
-        notifier bind ::rdb <payloads>   $self [mymethod MonPayloads]
+        notifier bind ::rdb <ioms>        $self [mymethod MonIOMs]
+        notifier bind ::rdb <payloads>    $self [mymethod MonPayloads]
 
         # NEXT, schedule the first reload
         $self reload
@@ -384,7 +386,7 @@ snit::widget iombrowser {
 
         # NEXT, insert the ioms
         rdb eval {
-            SELECT * FROM ioms ORDER BY iom_id
+            SELECT * FROM gui_ioms ORDER BY iom_id
         } row {
             unset -nocomplain row(*)
             $self DrawIOM row
@@ -523,7 +525,7 @@ snit::widget iombrowser {
 
     method DrawIOM {idataVar} {
         upvar $idataVar idata
-        
+
         # FIRST, get the IOM item ID; if there is none,
         # create one.
         if {![info exists i2item($idata(iom_id))]} {
@@ -541,7 +543,7 @@ snit::widget iombrowser {
 
         # NEXT, set the text.
         $iptree item text $id                 \
-            0               $idata(longname)  \
+            0               $idata(narrative) \
             {tag id}        $idata(iom_id)    \
             {tag type}      ""
 
@@ -594,7 +596,7 @@ snit::widget iombrowser {
                        -values    $list                   \
                        -message   [normalize "
                            Select a payload type to add to
-                           iom $iom_id.
+                           IOM $iom_id.
                        "]]
 
         if {$title ne ""} {

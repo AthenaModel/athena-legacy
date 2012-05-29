@@ -351,18 +351,29 @@ snit::type ted {
             glist    {SUNN KURD}
         } BOB NB1 NB2 SUNN KURD
     
-        # IOMs (TBD: Need some hooks!)
+        # Hooks
+        defentity HOOK1 ::hook {
+            hook_id  HOOK1
+            longname "Hook One"
+        }
+
+        defentity HOOK2 ::hook {
+            hook_id  HOOK2
+            longname "Hook Two"
+        }
+
+        # IOMs 
         defentity IOM1 ::iom {
             iom_id   IOM1
             longname "IOM One"
-            hook_id  ""
-        }
+            hook_id  HOOK1
+        } HOOK1
 
         defentity IOM2 ::iom {
             iom_id   IOM2
             longname "IOM Two"
-            hook_id  ""
-        }
+            hook_id  HOOK2
+        } HOOK2
     }
 
     # defentity name module parmdict ?entity...?

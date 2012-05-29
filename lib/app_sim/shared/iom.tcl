@@ -76,12 +76,16 @@ snit::type iom {
     # parm     - An ioms column name
     #
     # Retrieves a row dictionary, or a particular column value, from
-    # ioms.
+    # gui_ioms.
+    #
+    # NOTE: This is unusual; usually, [get] would retrieve from the
+    # base table.  But we need the narrative, which is computed
+    # dynamically.
 
     typemethod get {iom_id {parm ""}} {
         # FIRST, get the data
         rdb eval {
-            SELECT * FROM ioms 
+            SELECT * FROM gui_ioms 
             WHERE iom_id=$iom_id
         } row {
             if {$parm eq ""} {
@@ -192,15 +196,12 @@ order define IOM:CREATE {
 
     parm iom_id      text  "Message ID"
     parm longname    text  "Description"      -width 60
-    parm hook_id     text  "Semantic Hook"
-    # TBD: should be enum with -enumtype hook.
+    parm hook_id     enum  "Semantic Hook"    -enumtype hook
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id      -toupper   -required -unused -type ident
     prepare longname    -normalize
-    # prepare hook_id     -toupper                     -type hook
-
-    # TBD: There are no hooks yet.  We'll add this in when there are.
+    prepare hook_id     -toupper                     -type hook
 
     returnOnError -final
 
@@ -269,15 +270,12 @@ order define IOM:UPDATE {
 
     parm iom_id    key   "Select Message"  -table ioms -keys iom_id 
     parm longname  text  "Description"     -width 60
-    parm hook_id   text  "Semantic Hook"
-    # TBD: should be enum with -enumtype hook.
+    parm hook_id   enum  "Semantic Hook"   -enumtype hook
 } {
     # FIRST, prepare the parameters
     prepare iom_id      -toupper   -required -type iom
     prepare longname    -normalize
-    # prepare hook_id     -toupper           -type hook
-
-    # TBD: There are no hooks yet.  We'll add this in when there are.
+    prepare hook_id     -toupper             -type hook
 
     returnOnError -final
 
