@@ -1,0 +1,121 @@
+<<manpage {projectgui(n) myhtmlpane(n)} "myserver(i) HTML Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectgui 1.0
+namespace import ::projectgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The myhtmlpane(n) widget is an <<xref htmlviewer3(n)>> configured to
+display one page from an <<xref myserver(i)>> as a tool for developing
+HTML-based GUIs.<p>
+
+<<section COMMANDS>>
+
+This module defines the following commands.<p>
+
+<<deflist commands>>
+
+<<defitem myhtmlpane {myhtmlpane <i>pathName</i> ?<i>options...</i>?}>>
+
+Creates a new <<iref myhtmlpane>> widget named <i>pathName</i>, and
+returns <i>pathName</i>.  The widget supports the following
+options, in addition to those provided by the underlying frame widget:<p>
+
+<<deflist options>>
+
+<<defopt {-defaultserver <i>name</i>}>>
+
+The browser will access the named server when given a URL with a
+missing server name.  Defaults to "app".<p>
+
+<<defopt {-url <i>url</i>}>>
+
+Specifies the URL that the pane should display.<p>
+
+<<defopt {-hyperlinkcmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called if the user clicks on a
+hyperlink. The command will be called with one additional argument,
+the link's URL.  It is up to the client to handle the link in some
+way.<p>
+
+<<defopt {-messagecmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called
+whenever the browser has a message to be displayed on the application
+window's message line.  This is usually used for displaying the linked
+URL when the mouse moves over a link.<p>
+
+<<defopt {-reloadon <i>dict</i>}>>
+
+Specifies a dictionary of notifier subject/event pairs.  The widget
+will bind to the given events, and reload its content when any of
+them is sent.<p>
+
+<<defopt {-shrink <i>flag</i>}>>
+<<defopt {-zoom <i>factor</i>}>>
+
+These options are delegated to the underlying 
+<<xref htmlviewer3(n)>> widget.<p>
+
+<</deflist options>>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+myhtmlpane(n) widgets have the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem cget {<i>pathName</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>pathName</i> configure <i>option value...</i>}>>
+
+Sets the value of one or more of the object's
+options.<p>
+
+<<defitem data {<i>pathName</i> data}>>
+Returns the raw data (e.g., the HTML source) of the URL currently
+displayed in the widget.<p>
+
+<<defitem reload {<i>pathName</i> reload}>>
+
+Causes the widget to reload its currently displayed URL.<p>
+
+<<defitem show {<i>pathName</i> show <i>url</i>}>>
+
+Asks the browser to display the given <i>url</i>.<p>
+
+<</deflist instance>>
+
+<<section ENVIRONMENT>>
+
+projectgui(n) requires Tcl 8.5 or later.
+
+To use projectgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
