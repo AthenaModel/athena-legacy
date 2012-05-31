@@ -264,6 +264,9 @@ snit::widget ::projectgui::mybrowser {
         install agent using myagent ${selfns}::agent \
             -contenttypes {text/html text/plain tk/image}
 
+        # NEXT, add a node handler for <object> tags.
+        $hv handler node object [mymethod ObjectCmd]
+
         # NEXT, get the options
         $self configurelist $args
 
@@ -293,8 +296,9 @@ snit::widget ::projectgui::mybrowser {
         }
     }
 
+    # HyperlinkCmd uri
     #
-    # uri     A URI of the form "<resource>#<anchor>"
+    # uri   - A URI of the form "<resource>#<anchor>"
     #
     # Displays the URI in the html viewer.  Note that either the
     # <resource> or the <anchor> can be empty, but not both.
@@ -363,6 +367,41 @@ snit::widget ::projectgui::mybrowser {
         $copy copy $img
 
         return $copy
+    }
+
+    # ObjectCmd node
+    # 
+    # node    - htmlviewer3 node handle
+    #
+    # An <object> tag was found in the input.  The data attribute is
+    # assumed to name a resource with content-type tk/widget.  The size of
+    # the widget can be controlled using width and height attributes with
+    # the usual HTML length units, e.g., "100%" for full width.
+
+    method ObjectCmd {node} {
+        # FIRST, get the attributes of the object.
+        set data [$node attribute -default "" data]
+
+        # NEXT, get the Tk widget command for the object.  This will throw
+        # NOTFOUND if the object is not found.
+
+        if {[catch {
+            set udict [$agent get $data tk/widget]
+            set cmd [dict get $udict content]
+        } result]} {
+            set cmd [list ttk::label %W -image ::marsgui::icon::question22]
+        }
+
+
+        # NEXT, get a unique widget name
+        set owin "$hv.o[incr info(counter)]"
+
+        # NEXT, create the widget
+        set cmd [string map [list %W $owin] $cmd]
+
+        namespace eval :: $cmd
+
+        $node replace $owin -deletecmd [list destroy $owin] 
     }
 
    

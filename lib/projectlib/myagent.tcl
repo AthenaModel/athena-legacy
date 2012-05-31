@@ -172,13 +172,14 @@ snit::type ::projectlib::myagent {
     delegate method isrelative   using ::uri::isrelative
     delegate method resolve      using {::projectlib::myagent %m}
 
-    # get url
+    # get url ?contentTypes?
     #
-    # url  - The URL to retrieve
+    # url          - The URL to retrieve
+    # contentTypes - Desired content types; defaults to -contenttypes.
     #
     # Attempts to retrieve the URL, which must have scheme "my".
 
-    method get {url} {
+    method get {url {contentTypes ""}} {
         # FIRST, parse the URL
         if {[catch {
             array set fields [uri::split $url my]
@@ -207,11 +208,15 @@ snit::type ::projectlib::myagent {
                 "Server \"$fields(host)\" not found."
         }
 
+        # NEXT, get the list of desired content types.
+        if {[llength $contentTypes] == 0} {
+            set contentTypes $options(-contenttypes)
+        }
+
         # NEXT, do the query
         set finalURL [uri::canonicalize [uri::join {*}[array get fields]]]
 
-        return [{*}$servers($fields(host)) get \
-                    $finalURL $options(-contenttypes)]
+        return [{*}$servers($fields(host)) get $finalURL $contentTypes]
 
         return $result
     }

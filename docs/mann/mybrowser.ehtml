@@ -14,6 +14,43 @@ namespace import ::projectgui::*
 The mybrowser(n) widget is a web-browser-like widget for browsing
 the contents of <<xref myserver(i)>> servers.<p>
 
+<<subsection "Content Types">>
+
+The browser knows how to display the following content types directly:<p>
+
+<dl>
+<dt><b>text/html</b>
+<dd> Normal HTML text.<p>
+
+<dt><b>text/plain</b>
+<dd> Plain text.<p>
+
+<dt><b>tk/image</b>
+<dd> Tk images.<p>
+</dl>
+
+<<subsection "Embedded Objects">>
+
+In addition, the <code>&lt;object&gt;</code> tag can be used to embed
+GUI objects identified by a URI with content type <b>tk/widget</b>.
+The tag's <code>data</code> attribute gives the URL, and the
+<code>width</code> and <code>height</code> attributes control the
+size.  For example:<p>
+
+<pre>
+    &lt;object width="100%" height="2in"
+               data="my://app/plot/time/mood.shia"&gt;
+    &lt;/object&gt;
+</pre>
+
+Note that it's important to include the closing
+<b>&lt;/object&gt;</b> tag.<p>
+
+The actual <b>tk/widget</b> content is a Tcl command that will create
+the widget in question.  The token <code>%W</code> will be replaced
+with a Tk window path name, and then the command will be evaluated in
+the gobal scope.<p>
+
 <<section COMMANDS>>
 
 This module defines the following commands.<p>

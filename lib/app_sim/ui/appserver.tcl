@@ -111,6 +111,55 @@ snit::type appserver {
         foreach name [lsort $minfo(names)] {
             $name init
         }
+
+
+        # NEXT, add test handler
+        $type register /test {test/?} \
+            text/html [myproc /test:html] { Test URL }
+    
+        $type register /hello {hello/?} \
+            tk/widget [myproc /hello:widget] { Test widget }
+    
+        $type register /plot/{var} {plot/([[:alnum:].]+)}  \
+            tk/widget [myproc /plot:widget] { Test Time Plot }
+    }
+
+    # /plot:widget
+
+    proc /plot:widget {udict matchArray} {
+        upvar 1 $matchArray ""
+        set tsvar $(1)
+
+        if {![view t exists $tsvar]} {
+            throw NOTFOUND \
+                "Unknown time series variable: [dict get $udict url]"
+        }
+        set tsvar [view t validate $tsvar]
+
+        list ::timechart %W -varnames $tsvar
+    }
+
+    # /hello:widget
+    proc /hello:widget {udict matchArray} {
+        list ::label %W -text "Hello!" -background red
+    }
+
+    # /test:html
+    #
+    # Test routine; creates an HTML form, with widgets.
+
+    proc /test:html {udict matchArray} {
+        ht page "Test Page" {
+            ht title "Test Page"
+
+            ht subtitle "Time Series Plot"
+            ht putln "<object width=100% height=2in data=\"my://app/plot/sat.peonu.qol\" standby=\"Time Series Plot\"></object>"
+            ht para
+            ht putln "Some more text."
+            ht para
+        }
+
+        return [ht get]
     }
 
     #===================================================================

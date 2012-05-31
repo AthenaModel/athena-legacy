@@ -88,12 +88,14 @@ snit::widget ::projectgui::myhtmlpane {
     # anchor      - The anchor from the current URI
     # data        - The data dict for the current page, or "".
     # base        - Base URL, used for resolving links
+    # counter     - Counter for creating object widget names.
 
     variable info -array {
         page      ""
         anchor    ""
         data      "" 
         base      ""
+        counter   0
     }
 
     #-------------------------------------------------------------------
@@ -129,6 +131,9 @@ snit::widget ::projectgui::myhtmlpane {
 
         grid propagate $win no
 
+        # NEXT, add a node handler for <object> tags.
+        $hv handler node object [mymethod ObjectCmd]
+
         # NEXT, update the htmlviewer's bindtags,
         # so that users can bind mouse events to $win.
         bindtags $hv [list $win {*}[bindtags $hv]]
@@ -149,6 +154,41 @@ snit::widget ::projectgui::myhtmlpane {
         foreach {subject event} $options(-reloadon) {
             notifier bind $subject $event $self [mymethod ReloadOnEvent]
         }
+    }
+
+    # ObjectCmd node
+    # 
+    # node    - htmlviewer3 node handle
+    #
+    # An <object> tag was found in the input.  The data attribute is
+    # assumed to name a resource with content-type tk/widget.  The size of
+    # the widget can be controlled using width and height attributes with
+    # the usual HTML length units, e.g., "100%" for full width.
+
+    method ObjectCmd {node} {
+        # FIRST, get the attributes of the object.
+        set data [$node attribute -default "" data]
+
+        # NEXT, get the Tk widget command for the object.  This will throw
+        # NOTFOUND if the object is not found.
+
+        if {[catch {
+            set udict [$agent get $data tk/widget]
+            set cmd [dict get $udict content]
+        } result]} {
+            set cmd [list ttk::label %W -image ::marsgui::icon::question22]
+        }
+
+
+        # NEXT, get a unique widget name
+        set owin "$hv.o[incr info(counter)]"
+
+        # NEXT, create the widget
+        set cmd [string map [list %W $owin] $cmd]
+
+        namespace eval :: $cmd
+
+        $node replace $owin -deletecmd [list destroy $owin] 
     }
 
     # HoverCmd otype text
@@ -193,6 +233,8 @@ snit::widget ::projectgui::myhtmlpane {
 
     #-------------------------------------------------------------------
     # Public Methods
+
+    delegate method * to hv
 
     # reload
     #

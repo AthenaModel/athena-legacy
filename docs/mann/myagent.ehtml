@@ -104,7 +104,7 @@ These subcommands are all delegated to the Tcllib module
 This is identical to <<iref myagent resolve>>; it is provided for
 convenience.<p>
 
-<<defitem get {<i>object</i> get <i>url</i>}>>
+<<defitem get {<i>object</i> get <i>url</i> ?<i>contentTypes</i>?}>>
 
 Retrieves the <i>url</i>'s content.  If the URL cannot be retrieved, the
 command will throw an error with error code <i>NOTFOUND</i>; the error
@@ -114,12 +114,11 @@ The <i>url</i>'s scheme will default to "<b>my:</b>" and the
 <i>url</i>'s server will default to the <code>-defaultserver</code>.
 At present only the "<b>my:</b>" scheme is supported.<p>
 
-The object will request the URL from the named server, and on success
-will return a content dictionary as described in
-<<xref myserver(i)>>.  The returned content will have one of the
-acceptable <code>-contenttypes</code>; if the requested <i>url</i> is
-not available with that content type, the server will throw
-<b>NOTFOUND</b>.<p>
+If one or more <i>contentTypes</i> are given, the returned content will
+have the first available content type in the list; if none of the the
+requested content types are available, the server will
+throw <b>NOTFOUND</b>.  If <i>contentTypes</i> is not given, it
+defaults to the value of the <code>-contenttypes</code> option.<p>
 
 <</deflist instance>>
 
