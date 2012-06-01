@@ -117,8 +117,8 @@ snit::type appserver {
         $type register /test {test/?} \
             text/html [myproc /test:html] { Test URL }
     
-        $type register /hello {hello/?} \
-            tk/widget [myproc /hello:widget] { Test widget }
+        $type register /test/hello {test/hello/?} \
+            tk/widget [myproc /test/hello:widget] { Test widget }
     
         $type register /plot/{var} {plot/([[:alnum:].]+)}  \
             tk/widget [myproc /plot:widget] { Test Time Plot }
@@ -139,8 +139,8 @@ snit::type appserver {
         list ::timechart %W -varnames $tsvar
     }
 
-    # /hello:widget
-    proc /hello:widget {udict matchArray} {
+    # /test/hello:widget
+    proc /test/hello:widget {udict matchArray} {
         list ::label %W -text "Hello!" -background red
     }
 
@@ -153,9 +153,15 @@ snit::type appserver {
             ht title "Test Page"
 
             ht subtitle "Time Series Plot"
-            ht putln "<object width=100% height=2in data=\"my://app/plot/sat.peonu.qol\" standby=\"Time Series Plot\"></object>"
+            ht object plot/sat.peonu.qol \
+                -width  100% \
+                -height 2in
             ht para
             ht putln "Some more text."
+            ht subtitle "A Label Widget"
+            ht object test/hello \
+                -width  100% \
+                -height 2in
             ht para
         }
 

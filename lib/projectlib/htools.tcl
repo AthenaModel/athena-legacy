@@ -573,7 +573,7 @@ snit::type ::projectlib::htools {
     # Adds a paragraph mark.
     
     method para {} {
-        $self put <p>
+        $self put "<p>\n"
     }
 
     # br
@@ -788,6 +788,28 @@ snit::type ::projectlib::htools {
 
     method image {name {align ""}} {
         $self put "<img src=\"/image/$name\" align=\"$align\">"
+    }
+
+    # object url ?options...?
+    #
+    # url     - The URL of a tk/widget resource
+    # options - Any number of options
+    #
+    # Adds an <object></object> tag.  The options are converted into
+    # attribute names and values.
+    
+    method object {url args} {
+        $self putln "<object data=\"$url\""
+
+        foreach {opt val} $args {
+            # FIRST, remove the hyphen
+            set opt [string trimleft $opt -]
+
+            # NEXT, add the attribute
+            $self put " $opt=\"$val\""
+        }
+
+        $self put "></object>"
     }
 }
 

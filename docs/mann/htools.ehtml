@@ -209,6 +209,17 @@ Specifies the text to generate if the link dict is empty; defaults to
 
 <</deflist options>>
 
+<<defitem object {<i>object</i> object <i>url</i> ?<i>options...</i>?}>>
+
+Embeds a <b>tk/widget</b> resource in the current page as an 
+<code>&lt;object&gt;</code> element.  The resource
+is found at the specified <i>url</i>.  The <i>options</i> consist of
+any number of option/value pairs with the usual syntax; they are
+converted directly into attributes and values on the
+<code>&lt;object&gt;</code> in the most naive possible way.<p>
+
+It is common to assign an <code>-id</code>, and to specify the 
+<code>-width</code> and <code>-height</code>.<p>
 
 <<defitem page {<i>object</i> page <i>title</i> ?<i>body</i>?}>>
 
