@@ -53,6 +53,7 @@ source [file join $::projectgui::library myhtmlpane.tcl      ]
 source [file join $::projectgui::library textwin.tcl         ]
 source [file join $::projectgui::library htmlviewer3.tcl     ]
 source [file join $::projectgui::library modaltextwin.tcl    ]
+source [file join $::projectgui::library htmlframe.tcl       ]
 
 
 
