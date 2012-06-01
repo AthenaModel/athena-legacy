@@ -18,7 +18,8 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
     #-------------------------------------------------------------------
     # Lookup tables
 
-    # default CSS styles
+    # default CSS styles; these are added to the Tkhtml 3 widget's own
+    # default styles.
     typevariable defStyles {
         /* Links */
         A[href] {
@@ -60,6 +61,20 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
 
         /* Inline image */
         IMG[align="middle"] {
+            vertical-align: middle;
+        }
+
+        /* Form input elements */
+        INPUT {
+            vertical-align: middle;
+        }
+        
+        INPUT[type="text"] {
+            border: 0px;
+        }
+
+        /* Object elements */
+        OBJECT {
             vertical-align: middle;
         }
 
@@ -362,6 +377,15 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
     option -isvisitedcmd \
         -default {}
     
+    # -styles css
+    #
+    # Specifies additional styles to be used as defaults by the widget, 
+    # overriding the widget defaults (but not an <style>...</style> 
+    # scripts in the input).  Changes to this option take places on
+    # the next [$hv set].
+
+    option -styles \
+        -default {}
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -474,7 +498,12 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
 
         # NEXT, add the default styles we prefer, on top of the
         # widget's own defaults.
-        $hull style -id agent.9999 $defStyles
+        $hull style -id agent.0001.9999 $defStyles
+
+        # NEXT, add the client's default styles.
+        if {$options(-styles) ne ""} {
+            $hull style -id agent.0002.9999 $options(-styles)
+        }
 
         # NEXT, if there's any HTML data, display it.
         if {$html ne ""} {

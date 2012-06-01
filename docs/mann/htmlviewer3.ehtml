@@ -41,9 +41,9 @@ This module defines the following command:<p>
 
 <<deflist commands>>
 
-<<defitem htmlviewer {htmlviewer <i>pathName ?options...?</i>}>>
+<<defitem htmlviewer3 {htmlviewer3 <i>pathName ?options...?</i>}>>
 
-Creates a new <<iref htmlviewer>> widget named <i>pathName</i>.  The
+Creates a new <<iref htmlviewer3>> widget named <i>pathName</i>.  The
 options are as described in the Tkhtml 3.0 man page, with the addition
 of the following:<p>
 
@@ -77,13 +77,20 @@ Relative URLs are <b>not</b> resolved; use
 <<xref myagent(n)>>'s <<xref myagent(n) resolve>> method or similar to
 produce an absolute URL.<p>
 
+<<defopt {-styles <i>css</i>}>>
+
+Specifies a CSS style sheet to add to the widget's default styles.
+This style sheet overrides the built-in defaults, and can be
+overridden by <code>&lt;style&gt;...&lt;/style&gt;</code> sheets and
+<code>style</code> attributes in the input.<p>
+
 <</deflist options>>
 
 <</deflist commands>>
 
 <<section "INSTANCE COMMAND">>
 
-Instances of <<xref htmlviewer(n)>> widget support all instance
+Instances of <<xref htmlviewer3(n)>> widget support all instance
 subcommands defined in the Tkhtml 3.0 man page.  In addition,
 the following commands are defined.<p>
 
