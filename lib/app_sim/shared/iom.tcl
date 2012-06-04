@@ -28,8 +28,18 @@ snit::type iom {
     # Returns the list of IOM IDs
 
     typemethod names {} {
-        set names [rdb eval {
+        return [rdb eval {
             SELECT iom_id FROM ioms 
+        }]
+    }
+
+    # longnames
+    #
+    # Returns the list of IOM long names
+
+    typemethod longnames {} {
+        return [rdb eval {
+            SELECT iom_id || ': ' || longname FROM ioms 
         }]
     }
 

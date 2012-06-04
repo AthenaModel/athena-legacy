@@ -35,6 +35,16 @@ snit::type cap {
     }
 
 
+    # longnames
+    #
+    # Returns the list of CAP long names
+
+    typemethod longnames {} {
+        return [rdb eval {
+            SELECT k || ': ' || longname FROM caps
+        }]
+    }
+
     # validate k
     #
     # k   - Possibly, a CAP short name.
@@ -68,6 +78,31 @@ snit::type cap {
         rdb exists {
             SELECT * FROM caps WHERE k=$k
         }
+    }
+
+    # get id ?parm?
+    #
+    # k     - An k
+    # parm  - An caps column name
+    #
+    # Retrieves a row dictionary, or a particular column value, from
+    # caps.
+
+    typemethod get {k {parm ""}} {
+        # FIRST, get the data
+        rdb eval {
+            SELECT * FROM caps 
+            WHERE k=$k
+        } row {
+            if {$parm eq ""} {
+                unset row(*)
+                return [array get row]
+            } else {
+                return $row($parm)
+            }
+        }
+
+        return ""
     }
 
     # nbcov validate id

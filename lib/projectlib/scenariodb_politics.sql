@@ -247,6 +247,10 @@ CREATE TABLE tactics (
     g            TEXT,
     glist        TEXT,   -- List of groups
 
+    -- Other Entities.
+    cap          TEXT,
+    iom          TEXT,
+
     -- Data items
     text1        TEXT,
     int1         INTEGER,

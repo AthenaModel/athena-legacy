@@ -606,6 +606,23 @@ CBS SHIA 0.5
 
 
     #-------------------------------------------------------------------
+    # longnames
+
+    test longnames-1.1 {Returns names: none defined} -body {
+        cap longnames
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test longnames-1.2 {Returns names} -setup {
+        ted create CBS CNN
+    } -body {
+        cap longnames
+    } -cleanup {
+        cleanup
+    } -result {{CBS: Columbia Broadcasting System} {CNN: Cable News Network}}
+
+    #-------------------------------------------------------------------
     # validate
 
     test validate-1.1 {Invalid name: none defined} -body {
@@ -652,6 +669,31 @@ CBS SHIA 0.5
     } -cleanup {
         cleanup
     } -result {1}
+
+    #-------------------------------------------------------------------
+    # get
+
+    test get-1.1 {get dict} -setup {
+        ted create CBS CNN
+    } -body {
+        ted pdict [cap get CBS]
+    } -cleanup {
+        cleanup
+    } -result {
+        cost     1000.0
+        longname {Columbia Broadcasting System}
+        capacity 0.8
+        owner    JOE
+        k        CBS
+    }
+
+    test get-1.2 {get column} -setup {
+        ted create CBS CNN
+    } -body {
+        cap get CBS longname
+    } -cleanup {
+        cleanup
+    } -result {Columbia Broadcasting System}
 
     #-------------------------------------------------------------------
     # nbcov validate

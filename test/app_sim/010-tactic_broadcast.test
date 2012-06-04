@@ -1,0 +1,220 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_broadcast.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_broadcast(sim) tests.
+#
+#    This test suite tests the tactic::BROADCAST ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB CBS CNN IOM1 IOM2
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    proc execute_setup {} {
+        setup
+        cash load
+        tactic::BROADCAST clear
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        ted cleanup
+        tactic::BROADCAST clear
+    }
+
+    set T1 {
+        tactic_type BROADCAST
+        owner       JOE
+        priority    top
+        cap         CBS
+        a           SELF
+        iom         IOM1
+        x1          500.0
+        on_lock     NO
+        once        YES
+    }
+
+    set T2 {
+        tactic_type BROADCAST
+        owner       BOB
+        priority    top
+        cap         CNN
+        a           NONE
+        iom         IOM2
+        x1          500.0
+        on_lock     YES
+        once        NO
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative, attributed to self} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::BROADCAST narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and attribute it to self.}
+
+    test narrative-1.2 {narrative, attributed to none} -setup {
+        setup
+        tactic mutate create [dict merge $T1 {a NONE}]
+    } -body {
+        tactic::BROADCAST narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and no attribution.}
+
+    test narrative-1.3 {narrative, attributed to other} -setup {
+        setup
+        tactic mutate create [dict merge $T1 {a BOB}]
+    } -body {
+        tactic::BROADCAST narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and attribute it to BOB.}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: cap no longer exists} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM caps}
+    } -body {
+        tactic::BROADCAST check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {CAP CBS no longer exists.}
+
+    test check-1.2 {check: a no longer exists} -setup {
+        setup
+        tactic mutate create [dict merge $T1 {a NONESUCH}]
+    } -body {
+        tactic::BROADCAST check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Actor NONESUCH no longer exists.}
+
+    test check-1.3 {check: IOM no longer exists.} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM ioms}
+    } -body {
+        tactic::BROADCAST check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {IOM IOM1 no longer exists.}
+
+    test check-1.4 {check: multiple failures} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM caps}
+        rdb eval {DELETE FROM ioms}
+    } -body {
+        tactic::BROADCAST check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {CAP CBS no longer exists.  IOM IOM1 no longer exists.}
+
+    #-------------------------------------------------------------------
+    # dollars
+
+    test dollars-1.1 {dollars, CAP + prep} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::BROADCAST dollars [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1,500.00}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {execute: insufficient funds} -setup {
+        execute_setup
+        tactic mutate create [dict merge $T1 {x1 20000.0}]
+    } -body {
+        tactic::BROADCAST execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test execute-1.2 {execute: 1 on success} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::BROADCAST execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test execute-1.3 {execute: money expended} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        set a [cash get JOE cash_on_hand]
+        tactic::BROADCAST execute [tactic get 1]
+        set b [cash get JOE cash_on_hand]
+
+        # Difference should be 1,500
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {10000.0 8500.0}
+
+    test execute-1.4 {execute: broadcast pending} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::BROADCAST execute [tactic get 1]
+        llength $::tactic::BROADCAST::pending
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

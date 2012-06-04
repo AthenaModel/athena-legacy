@@ -115,6 +115,8 @@ nlist        @
 f            @
 g            @
 glist        @
+cap          @
+iom          @
 text1        @
 int1         10
 x1           @
@@ -146,6 +148,8 @@ nlist        @
 f            @
 g            BRIT
 glist        @
+cap          @
+iom          @
 text1        HOLD_FIRE
 int1         @
 x1           @
@@ -265,6 +269,8 @@ nlist        @
 f            @
 g            BLUE
 glist        @
+cap          @
+iom          @
 text1        HOLD_FIRE
 int1         @
 x1           @
@@ -287,6 +293,8 @@ nlist        @
 f            @
 g            @
 glist        @
+cap          @
+iom          @
 text1        @
 int1         10
 x1           @
@@ -354,6 +362,8 @@ nlist        @
 f            @
 g            BLUE
 glist        @
+cap          @
+iom          @
 text1        FIRE_BACK_IMMEDIATELY
 int1         @
 x1           @
@@ -584,7 +594,9 @@ tactic_id state
         priority    1
         glist       @
         owner       JOE
+        cap         @
         tactic_id   1
+        iom         @
         m           @
         on_lock     0
         text1       HOLD_FIRE

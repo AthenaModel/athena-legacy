@@ -272,6 +272,27 @@ hook_id   HOOK2
 
 
     #-------------------------------------------------------------------
+    # longnames
+
+    test longnames-1.1 {Returns names: none defined} -body {
+        setup
+        iom longnames
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test longnames-1.2 {Returns names} -setup {
+        setup
+        iom mutate create $m1
+        iom mutate create $m2
+    } -body {
+        iom longnames
+    } -cleanup {
+        cleanup
+    } -result {{M1: IOM One} {M2: IOM Two}}
+
+
+    #-------------------------------------------------------------------
     # validate
 
     test validate-1.1 {Invalid name: none defined} -body {

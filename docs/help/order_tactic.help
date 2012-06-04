@@ -50,10 +50,16 @@ macro TACTIC.id {} {
     [/parm]
 }
 
-macro TACTIC.once {} {
+macro TACTIC.once {{opt ""}} {
+    if {$opt eq "-required"} {
+        set tag "Required."
+    } else {
+        set tag "Optional."
+    }
+} {
     |<--
     [parm once "Once?"]
-    A boolean value, "YES" or "NO".  If "YES", this tactic will be
+    <b>$tag</b> A boolean value, "YES" or "NO".  If "YES", this tactic will be
     disabled automatically after it executes, and hence will execute
     only once.  If "NO", the tactic will remain enabled, and hence may
     execute multiple times.
@@ -70,10 +76,16 @@ macro TACTIC.priority {} {
     [/parm]
 }
 
-macro TACTIC.on_lock {} {
+macro TACTIC.on_lock {{opt ""}} {
+    if {$opt eq "-required"} {
+        set tag "Required."
+    } else {
+        set tag "Optional."
+    }
+} {
     |<--
     [parm on_lock "Exec On Lock?"]
-    <b>Required.</b> A boolean value, "YES" or "NO". If "YES", this 
+    <b>$tag</b> A boolean value, "YES" or "NO". If "YES", this 
     tactic will be eligible to be executed when Athena is locked. The
     tactic will still be subject to resource constraints (ie. enough 
     troops, money, etc...). If "NO", the tactic will be treated in the
@@ -146,8 +158,8 @@ order TACTIC:ASSIGN:CREATE "Create Tactic: Assign Activity" {
     <<parmlist>>
     <<tactic_assign parms -required -tags create>>
     <<TACTIC.priority>>
-    <<TACTIC.on_lock>>
-    <<TACTIC.once>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
     <</parmlist>>
 }
 
@@ -191,6 +203,41 @@ order TACTIC:ATTROE:UPDATE "Update Tactic: Attacking ROE" {
     <<tactic_attroe parm tactic_id -required>>
     <<tactic_attroe parm owner -display>>
     <<tactic_attroe parms -optional -tags update>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: BROADCAST
+
+page /order/tactic broadcast TACTIC:BROADCAST:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/broadcast>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:BROADCAST:CREATE "Create Tactic: Broadcast IOM" {
+    Creates a <<cref /object/tactic/broadcast>>.<p>
+
+    <<parmlist>>
+    <<tactic_broadcast parms -required -tags create>>
+    <<TACTIC.priority>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
+    <</parmlist>>
+}
+
+order TACTIC:BROADCAST:UPDATE "Update Tactic: Broadcast IOM" {
+    Updates an existing <<cref /object/tactic/broadcast>>.<p>
+
+    <<parmlist>>
+    <<tactic_broadcast parm tactic_id -required>>
+    <<tactic_broadcast parm owner -display>>
+    <<tactic_broadcast parms -optional -tags update>>
+    <<TACTIC.on_lock>>
+    <<TACTIC.once>>
     <</parmlist>>
 }
 
@@ -276,8 +323,8 @@ order TACTIC:DEPLOY:CREATE "Create Tactic: Deploy Forces" {
     <<parmlist>>
     <<tactic_deploy parms -required -tags create>>
     <<TACTIC.priority>>
-    <<TACTIC.on_lock>>
-    <<TACTIC.once>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
     <</parmlist>>
 }
 
@@ -311,8 +358,8 @@ order TACTIC:DISPLACE:CREATE "Create Tactic: Displace Civilians" {
     <<parmlist>>
     <<tactic_displace parms -required -tags create>>
     <<TACTIC.priority>>
-    <<TACTIC.on_lock>>
-    <<TACTIC.once>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
     <</parmlist>>
 }
 
@@ -346,7 +393,8 @@ order TACTIC:EXECUTIVE:CREATE "Create Tactic: Executive Command" {
     <<parmlist>>
     <<tactic_executive parms -required -tags create>>
     <<TACTIC.priority>>
-    <<TACTIC.on_lock>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
     <</parmlist>>
 }
 
@@ -358,6 +406,7 @@ order TACTIC:EXECUTIVE:UPDATE "Update Tactic: Executive Command" {
     <<tactic_executive parm owner -display>>
     <<tactic_executive parms -optional -tags update>>
     <<TACTIC.on_lock>>
+    <<TACTIC.once>>
     <</parmlist>>
 }
 
@@ -412,8 +461,8 @@ order TACTIC:FUNDENI:CREATE "Create Tactic: Fund ENI Services" {
     <<parmlist>>
     <<tactic_fundeni parms -required -tags create>>
     <<TACTIC.priority>>
-    <<TACTIC.on_lock>>
-    <<TACTIC.once>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
     <</parmlist>>
 }
 
@@ -540,8 +589,8 @@ order TACTIC:SUPPORT:CREATE "Create Tactic: Support Actor" {
     <<parmlist>>
     <<tactic_support parms -required -tags create>>
     <<TACTIC.priority>>
-    <<TACTIC.on_lock>>
-    <<TACTIC.once>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
     <</parmlist>>
 }
 
