@@ -338,7 +338,7 @@ hook_id   HOOK2
     } -cleanup {
         cleanup
     } -result {
-        narrative {IOM One  (Hook HOOK1: TBD)}
+        narrative {IOM One  (Hook HOOK1: Hook One: No position on any topics)}
         hook_id   HOOK1
         longname  {IOM One}
         iom_id    M1

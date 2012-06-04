@@ -350,6 +350,14 @@ snit::type hook {
                        $longname) 
             }
 
+            # NEXT, set the initial narrative
+            set narrative [hook ComputeHookNarrative $hook_id]
+
+            rdb eval {
+                UPDATE hooks SET narrative=$narrative
+                WHERE hook_id=$hook_id
+            }
+
             # NEXT, Return undo command.
             return [mytypemethod mutate delete $hook_id]
         }
@@ -391,9 +399,56 @@ snit::type hook {
                 WHERE hook_id=$hook_id;
             } {}
 
+            # NEXT, compute the narrative
+            set narrative [$type ComputeHookNarrative $hook_id]
+
+            rdb eval {
+                UPDATE hooks
+                SET narrative = $narrative
+                WHERE hook_id=$hook_id;
+            }
+
             # NEXT, Return the undo command
             return [list rdb ungrab $data]
         }
+    }
+
+    # ComputeHookNarrative hook_id
+    #
+    # hook_id    The ID of a semantic hook
+    #
+    # This method recomputes the user friendly narrative for a semantic
+    # hook.
+    #
+    
+    typemethod ComputeHookNarrative {hook_id} {
+        # FIRST, get the longname of this hook from the rdb
+        set longname [rdb onecolumn {
+                         SELECT longname FROM hooks 
+                         WHERE hook_id=$hook_id
+                     }]
+
+        # NEXT, trim of any trailing punctuation and add a colon
+        set longname [string trimright $longname ".!;?,:"]
+
+        set narr "$longname: "
+
+        # NEXT, grab all positions on this topic and build the narrative
+        set positions [rdb eval {
+            SELECT narrative FROM hook_topics 
+            WHERE hook_id=$hook_id
+            AND   state='normal'
+        }]
+
+        if {[llength $positions] == 0} {
+            append narr "No position on any topics"
+
+            return $narr
+        }
+        
+        append narr [join $positions "; "]
+
+        return $narr
     }
 
     # mutate topic create parmdict
@@ -410,7 +465,7 @@ snit::type hook {
     typemethod {mutate topic create} {parmdict} {
         dict with parmdict {
 
-            set narrative [hook ComputeNarrative $topic_id $position]
+            set narrative [hook ComputeTopicNarrative $topic_id $position]
 
             rdb eval {
                 INSERT INTO 
@@ -424,6 +479,13 @@ snit::type hook {
                        $position)
             }
             
+            set narrative [hook ComputeHookNarrative $hook_id]
+
+            rdb eval {
+                UPDATE hooks SET narrative=$narrative
+                WHERE hook_id=$hook_id
+            }
+
             return \
                 [mytypemethod mutate topic delete [list $hook_id $topic_id]]
         }
@@ -443,19 +505,33 @@ snit::type hook {
         dict with parmdict {
             lassign $id hook_id topic_id
 
-            set narrative [hook ComputeNarrative $topic_id $position]
+            # FIRST, compute the hook topic narrative
+            set narrative [hook ComputeTopicNarrative $topic_id $position]
 
-            set data [rdb grab \
+            set tdata [rdb grab \
                 hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
 
             rdb eval {
                 UPDATE hook_topics
-                SET position  = nonempty($position, position),
+                SET position  = nonempty($position,  position),
                     narrative = nonempty($narrative, narrative)
                 WHERE hook_id=$hook_id AND topic_id=$topic_id
             }
 
-            return [list rdb ungrab $data]
+            # NEXT, grab the hook undo information should this
+            # topic go away
+            set hdata [rdb grab hooks {hook_id=$hook_id}]
+            
+            # NEXT, compute the hook narrative and update the hooks
+            # table
+            set narrative [hook ComputeHookNarrative $hook_id]
+
+            rdb eval {
+                UPDATE hooks SET narrative=$narrative
+                WHERE hook_id=$hook_id
+            }
+
+            return [list rdb ungrab [concat $tdata $hdata]]
         }
     }
 
@@ -469,10 +545,21 @@ snit::type hook {
     typemethod {mutate topic delete} {id} {
         lassign $id hook_id topic_id
 
-        set data [rdb delete \
+        # FIRST, grab the undo information
+        set tdata [rdb delete \
             -grab hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
 
-        return [list rdb ungrab $data]
+        set hdata [rdb grab hooks {hook_id=$hook_id}]
+
+        # NEXT, compute the new hook narrative, a topic has gone away
+        set narrative [hook ComputeHookNarrative $hook_id]
+
+        rdb eval {
+            UPDATE hooks SET narrative=$narrative
+            WHERE hook_id=$hook_id
+        }
+
+        return [list rdb ungrab [concat $tdata $hdata]]
     }
 
     # mutate topic state id state
@@ -486,8 +573,11 @@ snit::type hook {
     typemethod {mutate topic state} {id state} {
         lassign $id hook_id topic_id
 
-        set data [rdb grab \
+        # FIRST, grab the undo information
+        set tdata [rdb grab \
             hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
+
+        set hdata [rdb grab hooks {hook_id=$hook_id}]
 
         rdb eval {
             UPDATE hook_topics
@@ -495,7 +585,16 @@ snit::type hook {
             WHERE hook_id=$hook_id AND topic_id=$topic_id
         }
 
-        return [list rdb ungrab $data]
+        # NEXT, compute the new hook narrative, a topic has changed
+        # state
+        set narrative [hook ComputeHookNarrative $hook_id]
+
+        rdb eval {
+            UPDATE hooks SET narrative=$narrative
+            WHERE hook_id=$hook_id
+        }
+
+        return [list rdb ungrab [concat $tdata $hdata]]
     }
 
     # RefreshTopicCREATE dlg fields fdict
@@ -552,14 +651,14 @@ snit::type hook {
     }
 
 
-    # ComputeNarrative topic_id position
+    # ComputeTopicNarrative topic_id position
     #
     # topic_id   ID of a bsystem topic
     # position   A qposition(n) value
     #
     # Given a topic and a position on that topic compute a narrative.
 
-    typemethod ComputeNarrative {topic_id position} {
+    typemethod ComputeTopicNarrative {topic_id position} {
         # FIRST, get the text representation of the topic and position
         set ptext [qposition longname $position]
         set ttext [bsystem topic cget $topic_id -title]
@@ -571,7 +670,7 @@ snit::type hook {
             append narr "Towards "
         }
 
-        append narr "$ttext."
+        append narr "$ttext"
 
         return $narr
     }

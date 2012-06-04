@@ -75,7 +75,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 hook_id    FOO
 longname   Foo is good
-narrative  
+narrative  Foo is good: No position on any topics
     }
 
 
@@ -87,6 +87,7 @@ narrative
     } -cleanup {
         cleanup
     } -result {
+        {::rdb <hooks> update FOO}
         {::rdb <hooks> update FOO}
     }
 
@@ -157,7 +158,7 @@ narrative
     } -result {
 hook_id    FOO
 topic_id   T1
-narrative  Passionately For Topic #1.
+narrative  Passionately For Topic #1
 state      normal
 position   0.9
     }
@@ -315,7 +316,7 @@ position   0.9
     } -result {
 hook_id    FOO
 longname   Foo is still good
-narrative  
+narrative  Foo is still good: No position on any topics
     }
 
 
@@ -328,6 +329,7 @@ narrative
     } -cleanup {
         cleanup
     } -result {
+        {::rdb <hooks> update FOO}
         {::rdb <hooks> update FOO}
     }
 
@@ -402,7 +404,7 @@ narrative
     } -result {
 hook_id    FOO
 topic_id   T1
-narrative  Ambivalent Towards Topic #1.
+narrative  Ambivalent Towards Topic #1
 state      normal
 position   0.0
     }
