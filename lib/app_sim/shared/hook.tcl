@@ -370,11 +370,14 @@ snit::type hook {
     # Deletes the semantic hook.
 
     typemethod {mutate delete} {hook_id} {
-        # FIRST, remove it from the database
-        set data [rdb delete -grab hooks {hook_id=$hook_id}]
+        # FIRST, get undo information
+        set mdata [rdb grab ioms {hook_id=$hook_id}]
+
+        # NEXT, remove it from the database
+        set hdata [rdb delete -grab hooks {hook_id=$hook_id}]
 
         # NEXT, return the undo script
-        return [list rdb ungrab $data]
+        return [list rdb ungrab [concat $hdata $mdata]]
     }
 
     # mutate update parmdict

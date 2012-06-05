@@ -39,6 +39,10 @@ namespace eval ::athena_test::tests {
                 topic_id T1   \
                 position 0.9]
 
+    set m1 [dict create \
+                iom_id M1          \
+                longname "IOM One" \
+                hook_id PUPG]
 
     #-----------------------------------------------------------------
     # Semantic hook creation
@@ -119,6 +123,39 @@ longname   Puppies are good
 narrative  Puppies are good: No position on any topics
     }
 
+    test delete-1.3 {IOM reflects hook delete} -setup {
+        hook mutate create $h1
+        iom mutate create $m1
+    } -body {
+        set a [ted querylist {SELECT * FROM ioms}]
+        set hook_id [rdb onecolumn {SELECT hook_id FROM hooks}]
+        hook mutate delete $hook_id
+        set b [ted querylist {SELECT * FROM ioms}]
+        return $a$b
+    } -cleanup {
+        cleanup
+    } -result {
+iom_id    M1
+longname  IOM One
+hook_id   PUPG
+    
+iom_id    M1
+longname  IOM One
+hook_id   
+    }
+
+    test delete-1.4 {Undo restores hook in ioms} -setup {
+        hook mutate create $h1
+        iom mutate create $m1
+        set hook_id [rdb onecolumn {SELECT hook_id FROM hooks}]
+        set undo [hook mutate delete $hook_id]
+    } -body {
+        namespace eval :: $undo
+        expr {[rdb onecolumn {SELECT hook_id FROM ioms}] == $hook_id}
+    } -cleanup {
+        cleanup
+    } -result {1}
+        
     #---------------------------------------------------------------
     # Semantic hook topic create
 
