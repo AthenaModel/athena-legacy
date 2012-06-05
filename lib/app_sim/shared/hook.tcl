@@ -197,6 +197,25 @@ snit::type hook {
         return ""
     }
 
+    # getdict hook_id
+    #
+    # hook_id   - A hook ID
+    #
+    # Retrieves a dictionary of topics and positions defined
+    # for the semantic hook with the supplied ID. Only "normal"
+    # hook_topics are included.
+
+    typemethod getdict {hook_id} {
+        array set data [rdb eval {
+                     SELECT topic_id, position
+                     FROM hook_topics
+                     WHERE hook_id=$hook_id AND state='normal'
+                 }]
+
+        return [array get data]
+    }
+        
+
     # validate hook_id
     #
     # hook_id - Possibly, a hook ID.

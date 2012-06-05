@@ -428,6 +428,24 @@ position   0.9
     } -result {0.9}
 
 
+    # getdict
+    test getdict-1.1 {Nothing is returned} -setup {
+    } -body {
+        hook getdict FOO
+    } -result {}
+
+    test getdict-1.2 {dict is returned} -setup {
+        bsystem topic add T1
+        hook mutate create $h1
+        hook mutate topic create $t1
+    } -body {
+        set hook_id [rdb onecolumn {SELECT hook_id FROM hooks}]
+        hook getdict $hook_id
+    } -cleanup {
+        cleanup
+    } -result {T1 0.9}
+
+
     cleanupTests
 }
 
