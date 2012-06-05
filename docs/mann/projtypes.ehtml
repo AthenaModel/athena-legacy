@@ -193,6 +193,15 @@ check, and is currently unusable.<p>
 
 <<::projectlib::etactic_state html>>
 
+<<defitem etopic_state {etopic_state <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the current state of a
+semantic hook topic.  A "normal" topic is considered when computing 
+resonance of a message.  A "disabled" topic has been disabled by the 
+user and is not considered.  An "invalid" topic has failed its sanity 
+check, and is currently unusable.<p>
+
+<<::projectlib::etopic_state html>>
 
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
