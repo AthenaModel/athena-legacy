@@ -531,6 +531,13 @@ term gram "GRAM" {
 alias /term group "group" /object/group
 
 #-----------------------------------------------------------------------
+term hook "semantic hook" {
+    As part of an Information Operations Message or <<term iom>>, a 
+    semantic hook consists of a narrative and a position on one or more
+    <<term bsystem>> <<term topic>>s. Along with one or more
+    <<term payload>>s, a semantic hook is intended to change the 
+    attitudes of civilians one way or another by appealing to their beliefs.
+}
 
 term hrel "horizontal relationship" {
     The relationship between two <<term group>>s, expressed

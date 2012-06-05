@@ -52,7 +52,7 @@ object iom_ {
     attribute hook_id "Semantic Hook" {
         The message appeals to the belief systems of the targetted
         civilians by means of its <<term hook>>.  Semantic hooks are
-        created and edited on the <<cref /tab/info/hooks>> tab.<p>
+        created and edited on the <<cref /tab/info/semantic_hooks>> tab.<p>
         
         This parameter may remain unset during
         <<term prep>>, but must be specified before time can be

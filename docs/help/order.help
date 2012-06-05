@@ -109,6 +109,7 @@ include order_ensit.help
 include order_goal.help
 include order_group.help
 include order_hrel.help
+include order_hook.help
 include order_iom.help
 include order_mad.help
 include order_map.help

@@ -2295,6 +2295,64 @@ tab "Info/Group Penetration" {
 
 #-----------------------------------------------------------------------
 
+tab "Info/Semantic Hooks" {
+    The Semantic Hooks tab is where the analyst browses and edits 
+    <<term hook>>s and their <<term topic>>s.<p>
+
+    The browser consists of a tool bar containing controls used in 
+    creating, editing, and manipulating semantic hooks and topics, and
+    an outline view of the semantic hooks with associated topics
+    attached to each semantic hook underneath. The user can expand or
+    collapse each semantic hook to show or hide the attached topics.<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Hook/Topic">>
+    A narrative description of each semantic hook and hook topic. A
+    button at the left margin allows semantic hooks to be expanded to
+    reveal their attached topics.
+    <</topic>>
+
+    <<topic "Id">> The semantic hook or hook topic ID, a value that 
+    uniquely indentifies the semantic hook or topic.<p>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Controls:</a></b>  The browser's toolbar
+    contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<topic [image button_plush]>>
+    Create a new semantic hook.
+    <</topic>>
+
+    <<topic [image button_plust]>>
+    Add a topic and position on that topic for the selected semantic hook.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the update dialog for the selected semantic hook or topic.
+    <</topic>>
+
+    <<topic [image button_power]>>
+    Toggles the selected hook topic on and off.  Disabled topics are
+    grayed out with an overstrike.
+    <</topic>>
+
+    <<topic [image button_checktxt]>>
+    Force a sanity check of the semantic hooks. 
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Deletes the selected semantic hook or hook topic. 
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
 tab "Info/Info Ops Messages" {
     The Info Ops Messages tab is where the analyst browses and edits
     <<term iom>>'s and their <<term payload>>s.<p>
