@@ -961,6 +961,31 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.INDSPILL.nearFactor    0.0
         $ps setdefault dam.INDSPILL.farFactor     0.0
 
+        # Rule Set: IOM
+        $ps setdefault dam.IOM.cause         IOM
+        $ps setdefault dam.IOM.nearFactor    0.0
+        $ps setdefault dam.IOM.farFactor     0.0
+
+        # Additional parameters for IOM rule set.
+        $ps define dam.IOM.nominalCAPcov \
+            ::projectlib::parmdb_nomcoverage 0.66 {
+            The nominal CAP Coverage fraction for this rule set.  The effect
+            magnitudes entered by the user as part of the IOM are 
+            specified for this nominal coverage, i.e., if the effect is 
+            "M+" in the IOM, the value will be "M+" when the CAP Coverage
+            is the nominal coverage and will be scaled up and down from
+            there.  The valid range is 0.1 to 1.0.
+        }
+
+        $ps define dam.IOM.Zresonance ::marsutil::zcurve {0.0 0.0 0.6 1.0} {
+            A Z-curve for computing the "resonance" of an IOM's semantic
+            hook with a civilian group from the civilian group's affinity
+            for the hook.  The Z-curve has been chosen so that groups with a 
+            negative affinity receive no effect.  Some backfiring might be
+            reasonable, so the <i>lo</i> value could easily be decreased to,
+            say, -0.1. 
+        }
+
         # Rule Set: MINEFIELD
         $ps setdefault dam.MINEFIELD.cause        ORDNANCE
         $ps setdefault dam.MINEFIELD.nearFactor   0.2

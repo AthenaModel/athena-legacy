@@ -182,17 +182,23 @@ LEFT OUTER JOIN vrel_ga AS V ON (V.g = G.g AND V.a = A.a);
 ------------------------------------------------------------------------
 -- ATTITUDE DRIVERS
 
--- All attitude inputs to URAM are associated with an attitude 
--- driver: an event, situation, or magic driver.  Drivers are
--- identified by a unique integer ID.
-
 CREATE TABLE drivers (
-   driver_id INTEGER PRIMARY KEY,  -- Integer ID
-   dtype     TEXT,                 -- Driver type (usually a rule set name)
-   narrative TEXT,                 -- Narrative text
-   inputs    INTEGER DEFAULT 0     -- Number of inputs for this driver.
+    -- All attitude inputs to URAM are associated with an attitude 
+    -- driver: an event, situation, or magic driver.  Drivers are
+    -- identified by a unique integer ID.
+    --
+    -- For some driver types, the driver is associated with a signature
+    -- that is unique for that driver type.  This allows the rule set to
+    -- retrieve the driver ID given the driver type and signature.
+
+    driver_id INTEGER PRIMARY KEY,  -- Integer ID
+    dtype     TEXT,                 -- Driver type (usually a rule set name)
+    signature TEXT,                 -- Signature, by driver type.
+    narrative TEXT,                 -- Narrative text
+    inputs    INTEGER DEFAULT 0     -- Number of inputs for this driver.
 );
 
+CREATE INDEX drivers_signature_index ON drivers(dtype,signature);
 
 -- Magic inputs to URAM are associated with MADs for causality purposes.
 -- A MAD is similar to an event or situation.

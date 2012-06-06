@@ -42,7 +42,7 @@ namespace eval ::athena_test::tests:: {
 
     test create-1.1 {Drivers can be created} -body {
         driver create MAGIC "Adjustments"
-        driver create CIVCAS "Civilian Casualties"
+        driver create CIVCAS "Civilian Casualties" DummySig
 
         ted querylist {SELECT * FROM drivers}
     } -cleanup {
@@ -50,11 +50,13 @@ namespace eval ::athena_test::tests:: {
     } -result {
 driver_id  1000
 dtype      MAGIC
+signature  
 narrative  Adjustments
 inputs     0
 
 driver_id  1001
 dtype      CIVCAS
+signature  DummySig
 narrative  Civilian Casualties
 inputs     0
     }
@@ -64,6 +66,14 @@ inputs     0
     } -cleanup {
         cleanup
     } -result {1000}
+
+    test create-1.3 {With signature, retrieves existing id} -body {
+        set a [driver create CIVCAS "Civilian Casualties" MYSIG]
+        set b [driver create CIVCAS "Civilian Casualties" MYSIG]
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {1000 1000}
 
 
     #-------------------------------------------------------------------
@@ -80,6 +90,18 @@ inputs     0
     } -cleanup {
         cleanup
     } -result {1001}
+
+    #-------------------------------------------------------------------
+    # getid
+
+    test getid-1.1 {Get driver ID by dtype and signature} -setup {
+        driver create IOM "Info Ops Message" {JOE IOM1}
+        driver create IOM "Info Ops Message" {BOB IOM2}
+    } -body {
+        driver getid IOM {JOE IOM1}
+    } -cleanup {
+        cleanup
+    } -result {1000}
 
     #-------------------------------------------------------------------
     # narrative get
@@ -127,11 +149,13 @@ inputs     0
     } -result {
 driver_id  1000
 dtype      MAGIC
+signature  
 narrative  Attitude Adjustments
 inputs     0
 
 driver_id  1001
 dtype      CIVCAS
+signature  
 narrative  Civilian Casualties
 inputs     0
     }

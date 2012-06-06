@@ -105,6 +105,18 @@ snit::type cap {
         return ""
     }
 
+    # hasaccess k a
+    #
+    # k  - A CAP ID
+    # a  - An actor ID
+    #
+    # Returns 1 if a has access to k, and 0 otherwise.  At the moment,
+    # the actor has access only if it is the owner.
+
+    typemethod hasaccess {k a} {
+        expr {$a eq [$type get $k owner]}
+    }
+    
     # nbcov validate id
     #
     # id     A cap_kn ID, [list $k $n]

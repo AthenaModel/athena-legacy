@@ -386,6 +386,20 @@ snit::type dam {
         dam details [format $columns $label $value]
     }
 
+    # detailwrap label value
+    #
+    # label      Label text, max 22 characters wide
+    # value      Formatted value
+    #
+    # Adds the labeled value to the "details" part of the report.  This can be
+    # called any time after "ruleset".  The value will be wrapped and indented.
+    
+    typemethod detailwrap {label value} {
+        set value [textutil::adjust::adjust $value -length 55]
+        set value [textutil::adjust::indent $value [string repeat " " 23] 1]
+        dam details [format $columns $label $value]
+    }
+
     # isactive ruleset
     #
     # ruleset    a Rule Set name

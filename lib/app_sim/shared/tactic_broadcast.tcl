@@ -40,7 +40,7 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
     #-------------------------------------------------------------------
     # Public Methods
 
-    # clear
+    # reset
     # 
     # Clears any pending broadcasts.  This command is for use at the
     # beginning of strategy execution, to make sure that there are no
@@ -49,7 +49,7 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
     # Note that the [assess] typemethod should always leave the list
     # empty; nevertheless, it is better to be sure.
 
-    typemethod clear {} {
+    typemethod reset {} {
         set pending [list]
     }
 
@@ -62,7 +62,62 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
     # all actors have made their decisions and CAP access is clear.
 
     typemethod assess {} {
-        # TBD
+        # FIRST, assess each of the pending broadcasts
+        foreach tdict $pending {
+            dict with tdict {
+                # FIRST, does the owner have access to the CAP?
+                # If not, refund his money; we're through here.
+                if {![cap hasaccess $cap $owner]} {
+                    cash refund $owner $fullcost 
+
+                    # NEXT, log the event
+                    sigevent log 2 tactic "
+                        BROADCAST: Actor {actor:$owner} failed to broadcast
+                        IOM {iom:$iom} via CAP {cap:$cap}: access denied. 
+                    " $owner $iom $cap
+
+                    continue
+                }
+            
+                # NEXT, Get the entity tags, for when we log the sigevent.
+                set tags [list $owner $iom $cap]
+
+                if {$a eq "SELF"} {
+                    set attribution ", attributing it to self"
+                    set asource $owner
+                } elseif {$a eq "NONE"} {
+                    set attribution " without attribution"
+                    set asource ""
+                } else {
+                    set attribution ", attributing it to $a"
+                    set asource $a
+                    lappend tags $a
+                }
+
+                lappend tags [rdb eval {SELECT g FROM capcov WHERE capcov > 0.0}]
+                lappend tags [rdb eval {SELECT n FROM capcov WHERE capcov > 0.0}]
+
+                # NEXT, set up the dict needed by the IOM rule set.
+                set rdict [dict create]
+                dict set rdict tsource $owner
+                dict set rdict cap     $cap
+                dict set rdict iom     $iom
+                dict set rdict asource $asource
+
+                # NEXT, log the event
+                sigevent log 2 tactic "
+                    BROADCAST: Actor {actor:$owner} broadcast
+                    IOM {iom:$iom} via CAP {cap:$cap}$attribution. 
+                " {*}$tags
+
+                # NEXT, assess the broadcast.
+                iom_rules assess $rdict
+            }
+
+        }
+
+        # NEXT, clear the list.
+        $type reset
     }
 
     #-------------------------------------------------------------------
@@ -148,6 +203,10 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
         # CAP).
         dict set tdict fullcost [$type ComputeCost $tdict]
 
+
+        # NEXT, prepare to compute and save the sigevents tags.
+        dict set tdict tags [list]
+
         dict with tdict {
             # FIRST, If the tactic is valid the cost should never be "".
             assert {$fullcost ne ""}
@@ -159,27 +218,6 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
                 return 0
             }
 
-            # NEXT, log it.
-
-            # Get the entity tags
-            set tags [list $owner $iom $cap]
-
-            if {$a eq "SELF"} {
-                set attribution ", attributing it to self"
-            } elseif {$a eq "NONE"} {
-                set attribution " without attribution"
-            } else {
-                lappend tags $a
-                set attribution ", attributing it to $a"
-            }
-
-            set groups [rdb eval {SELECT g FROM capcov WHERE capcov > 0.0}]
-            set nbhoods [rdb eval {SELECT n FROM capcov WHERE capcov > 0.0}]
-
-            sigevent log 2 tactic "
-                BROADCAST: Actor {actor:$owner} attempts to broadcast
-                IOM {iom:$iom} via CAP {cap:$cap}$attribution. 
-            " {*}$tags {*}$groups {*}$nbhoods
         }
 
         # NEXT, Save the broadcast.  It can't take effect yet,
@@ -256,7 +294,8 @@ order define TACTIC:BROADCAST:UPDATE {
     parm a         enum  "Attr. Source"   -enumtype {ptype a+self+none} \
                                           -defval SELF
     parm iom       enum  "Message ID"     -enumtype iom \
-                                          -displaylong yes
+                                          -displaylong yes \
+                                          -width 40
     parm x1        text  "Prep. Cost"    
     parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
     parm once      enum  "Once Only?"     -enumtype eyesno 

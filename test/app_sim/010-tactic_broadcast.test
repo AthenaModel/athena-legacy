@@ -38,7 +38,7 @@ namespace eval ::athena_test::tests:: {
     proc execute_setup {} {
         setup
         cash load
-        tactic::BROADCAST clear
+        tactic::BROADCAST reset
     }
 
 
@@ -48,7 +48,7 @@ namespace eval ::athena_test::tests:: {
         # Clean up the test environment
         rdb nullvalue ""
         ted cleanup
-        tactic::BROADCAST clear
+        tactic::BROADCAST reset
     }
 
     set T1 {

@@ -89,6 +89,7 @@ snit::type strategy {
         service load
         tactic reset
         tactic::ATTROE reset
+        tactic::BROADCAST reset
         tactic::DEFROE reset
         unit reset
 
@@ -132,6 +133,9 @@ snit::type strategy {
 
         # NEXT, populate base units for all groups.
         unit makebase
+
+        # NEXT, assess all requested IOM broadcasts
+        tactic::BROADCAST assess
     }
 
 

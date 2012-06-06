@@ -265,6 +265,8 @@ snit::type ::projectlib::typewrapper {
     INDSPILL-1-2  "Industrial spill has not been cleaned up"
     INDSPILL-2-1  "Industrial spill is cleaned up by locals"
 
+    IOM-1-1       "Info Ops Message"
+
     MAGIC-1-1     "Magic Horizontal Relationship Input"
     MAGIC-2-1     "Magic Vertical Relationship Input"
     MAGIC-3-1     "Magic Satisfaction Input"
@@ -360,6 +362,7 @@ snit::type ::projectlib::typewrapper {
     GARBAGE   "Garbage in the Streets"
     GUARD     "Guard"
     INDSPILL  "Industrial Spill"
+    IOM       "Info Ops Message"
     MAGIC     "Magic Attitude Inputs"
     MINEFIELD "Minefield"
     MOOD      "Civilian Mood Changes"
@@ -411,6 +414,7 @@ snit::type ::projectlib::typewrapper {
     GUARD     "Guard"
     HUNGER    "Hunger"
     INDSPILL  "Industrial Spill"
+    IOM       "Info Ops Message"
     MOOD      "Mood"
     ORDNANCE  "Unexploded Ordnance/Minefield"
     ORGCAS    "Organization Casualties"

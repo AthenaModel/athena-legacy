@@ -77,15 +77,31 @@ snit::type driver {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # create dtype narrative
+    # create dtype narrative ?signature?
     #
     # dtype      - The driver type, usually a rule set name
     # narrative  - A brief human-readable string identifying the driver.
+    # signature  - A dtype-specific signature for this particular driver.
     #
-    # Creates a new driver, returning the driver ID.
+    # Creates a new driver, returning the driver ID.  If the signature
+    # is given, it must be unique for this driver type; it and the 
+    # driver type can then be used to retrieve the driver ID.  In 
+    # practice, driver types that use the signature usually only call
+    # [driver create]; if the signature is present, and there is already
+    # a driver with the required dtype and signature, it will be returned.
 
-    typemethod create {dtype narrative} {
-        # FIRST, get the driver ID
+    typemethod create {dtype narrative {signature ""}} {
+        # FIRST, if signature is not zero, and there's a driver with
+        # that signature return it.
+        if {$signature ne ""} {
+            set id [$type getid $dtype $signature]
+
+            if {$id ne ""} {
+                return $id
+            }
+        }
+
+        # NEXT, get a new driver ID
         rdb eval {
             SELECT coalesce(max(driver_id)+1, $initialID) 
             AS new_id FROM drivers
@@ -93,8 +109,8 @@ snit::type driver {
 
         # NEXT, create the entry
         rdb eval {
-            INSERT INTO drivers(driver_id, dtype, narrative)
-            VALUES($new_id, $dtype, $narrative);
+            INSERT INTO drivers(driver_id, dtype, narrative, signature)
+            VALUES($new_id, $dtype, $narrative, $signature);
         }
 
         return $new_id
@@ -110,6 +126,20 @@ snit::type driver {
 
     typemethod delete {driver_id} {
         rdb delete drivers "driver_id=$driver_id"
+    }
+
+    # getid dtype signature
+    #
+    # dtype    - The driver type
+    # signature  - A driver's signature
+    #
+    # Retrieves the driver's ID given its dtype and signature.
+
+    typemethod getid {dtype signature} {
+        rdb onecolumn {
+            SELECT driver_id FROM drivers
+            WHERE dtype=$dtype AND signature=$signature
+        }
     }
 
     # narrative get driver_id
