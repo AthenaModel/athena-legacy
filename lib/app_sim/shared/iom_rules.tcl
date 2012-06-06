@@ -167,7 +167,7 @@ snit::type iom_rules {
 
         rdb eval {
             SELECT * FROM payloads
-            WHERE iom_id = $data(iom)
+            WHERE iom_id = $data(iom) AND state='normal'
             ORDER BY payload_num
         } row {
             unset -nocomplain row(*)
