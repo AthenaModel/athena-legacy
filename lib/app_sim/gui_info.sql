@@ -66,7 +66,7 @@ SELECT k || ' ' || g                                       AS id,
        nbcov                                               AS raw_nbcov,
        pen                                                 AS raw_pen,
        capcov                                              AS raw_capcov,
-       CASE WHEN pen > 0 AND nbcov = 0.0 
+       CASE WHEN pen > 0.0 AND nbcov = 0.0 
        THEN 1 ELSE 0 END                                   AS orphan
 FROM capcov;
 

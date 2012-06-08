@@ -121,7 +121,9 @@ appserver module CAP {
         ht para
 
         ht put "Below is this CAP's coverage for each neighborhood "
-        ht put "and group."
+        ht put "and group. Combinations where group penetration is "
+        ht put "zero <b>and</b> neighborhood coverage is zero are "
+        ht put "omitted."
         
         ht para
 
@@ -131,7 +133,7 @@ appserver module CAP {
                    nbcov                       AS "Nbhood Coverage",
                    pen                         AS "Group Penetration",
                    "<b>" || capcov || "</b>"   AS "CAP Coverage"
-            FROM gui_capcov WHERE k=$k
+            FROM gui_capcov WHERE k=$k AND (raw_pen > 0.0 OR raw_nbcov > 0.0)
             ORDER BY n
         } -default "None." -align LLRRR
         
