@@ -45,6 +45,7 @@ snit::type tactic {
         on_lock  0
         a        ""
         b        ""
+        alist    ""
         m        ""
         n        ""
         nlist    ""
@@ -52,6 +53,7 @@ snit::type tactic {
         g        ""
         glist    ""
         cap      ""
+        klist    ""
         iom      ""
         text1    ""
         int1     ""
@@ -258,11 +260,13 @@ snit::type tactic {
     #    once           1 or 0 or ""; defaults to 0.
     #    on_lock        1 or 0, defaults to 0.
     #    a,b            Actors, or ""
+    #    alist          List of actors, or ""
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
     #    glist          Group list, or ""
     #    cap            CAP, or ""
+    #    klist          List of CAPs, or ""
     #    iom            IOM, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
@@ -295,6 +299,7 @@ snit::type tactic {
                         owner, narrative, priority, once, on_lock,
                         a,
                         b,
+                        alist,
                         m,
                         n,
                         nlist,
@@ -302,6 +307,7 @@ snit::type tactic {
                         g,
                         glist,
                         cap,
+                        klist,
                         iom,
                         text1,
                         int1,
@@ -310,6 +316,7 @@ snit::type tactic {
                        $owner, $narrative, 0, $once, $on_lock,
                        nullif($a,     ''),
                        nullif($b,     ''),
+                       nullif($alist, ''),
                        nullif($m,     ''),
                        nullif($n,     ''),
                        nullif($nlist, ''),
@@ -317,6 +324,7 @@ snit::type tactic {
                        nullif($g,     ''),
                        nullif($glist, ''),
                        nullif($cap,   ''),
+                       nullif($klist, ''),
                        nullif($iom,   ''),
                        nullif($text1, ''),
                        nullif($int1,  ''),
@@ -362,11 +370,14 @@ snit::type tactic {
     #    tactic_id      The tactic's ID
     #    once           Once flag, 1 or 0, or ""
     #    on_lock        On lock flag, 1 or 0
+    #    a,b            Actors, or ""
+    #    alist          List of actors, or ""
     #    m,n            Neighborhoods, or ""
     #    nlist          Neighborhood list, or ""
     #    f,g            Groups, or ""
     #    glist          Group list, or ""
     #    cap            CAP, or ""
+    #    klist          List of CAPs, or ""
     #    iom            IOM, or ""
     #    text1          Text string, or ""
     #    int1           Integer, or ""
@@ -395,6 +406,7 @@ snit::type tactic {
                     on_lock = nonempty($on_lock, on_lock),
                     a       = nullif(nonempty($a,     a),     ''),
                     b       = nullif(nonempty($b,     b),     ''),
+                    alist   = nullif(nonempty($alist, alist), ''),
                     m       = nullif(nonempty($m,     m),     ''),
                     n       = nullif(nonempty($n,     n),     ''),
                     nlist   = nullif(nonempty($nlist, nlist), ''),
@@ -402,6 +414,7 @@ snit::type tactic {
                     g       = nullif(nonempty($g,     g),     ''),
                     glist   = nullif(nonempty($glist, glist), ''),
                     cap     = nullif(nonempty($cap,   cap),   ''),
+                    klist   = nullif(nonempty($klist, klist), ''),
                     iom     = nullif(nonempty($iom,   iom),   ''),
                     text1   = nullif(nonempty($text1, text1), ''),
                     int1    = nullif(nonempty($int1,  int1),  ''),

@@ -106,6 +106,18 @@ JOIN cap_kn_view AS KN USING (k,n)
 JOIN caps        AS K  USING (k);
 
 
+CREATE TABLE cap_access (
+    -- Table showing which actors have access to each CAP.
+    k    TEXT REFERENCES caps(k)         -- CAP ID
+         ON DELETE CASCADE
+         DEFERRABLE INITIALLY DEFERRED, 
+    a    TEXT REFERENCES actors(a)       -- Actor ID
+         ON DELETE CASCADE
+         DEFERRABLE INITIALLY DEFERRED, 
+
+    PRIMARY KEY (k,a)
+);
+
 ------------------------------------------------------------------------
 -- SEMANTIC HOOKS
 

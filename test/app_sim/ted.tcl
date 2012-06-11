@@ -37,6 +37,7 @@ snit::type ted {
         attrit_nfg
         attroe_nfg
         caps
+        cap_access
         cap_kn
         cap_kg
         civgroups
@@ -207,6 +208,24 @@ snit::type ted {
             cash_on_hand 0
         }
 
+        defentity DAVE ::actor {
+            a            DAVE
+            longname     "Dave the Actor"
+            supports     SELF
+            cash_reserve 150000
+            income       5000
+            cash_on_hand 0
+        }
+
+        defentity BRIAN ::actor {
+            a            BRIAN
+            longname     "Brian the Actor"
+            supports     BOB
+            cash_reserve 150000
+            income       5000
+            cash_on_hand 0
+        }
+
         # Civ Groups
         
         defentity SHIA ::civgroup {
@@ -341,6 +360,26 @@ snit::type ted {
             glist    SHIA
         } JOE NB1 SHIA
 
+        defentity NBC ::cap {
+            k        NBC
+            longname "National Broadcasting Corp."
+            owner    JOE
+            capacity 0.8
+            cost     1000.0
+            nlist    NB1
+            glist    SHIA
+        } JOE NB1 SHIA
+
+        defentity ABC ::cap {
+            k        ABC
+            longname "American Broadcasting Corp."
+            owner    JOE
+            capacity 0.8
+            cost     1000.0
+            nlist    NB1
+            glist    SHIA
+        } JOE NB1 SHIA
+
         defentity CNN ::cap {
             k        CNN
             longname "Cable News Network"
@@ -351,6 +390,26 @@ snit::type ted {
             glist    {SUNN KURD}
         } BOB NB1 NB2 SUNN KURD
     
+        defentity FOX ::cap {
+            k        FOX
+            longname "Fox News"
+            owner    BOB
+            capacity 0.9
+            cost     500.0
+            nlist    {NB1 NB2}
+            glist    {SUNN KURD}
+        } BOB NB1 NB2 SUNN KURD
+
+        defentity PBS ::cap {
+            k        PBS
+            longname "Public Broadcasting System"
+            owner    BOB
+            capacity 0.8
+            cost     1000.0
+            nlist    NB1
+            glist    SHIA
+        } JOE NB1 SHIA
+
         # Hooks
         defentity HOOK1 ::hook {
             hook_id  HOOK1

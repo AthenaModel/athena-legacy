@@ -236,6 +236,7 @@ CREATE TABLE tactics (
     -- Actors; use a first.
     a            TEXT,   -- One actor
     b            TEXT,   -- One actor
+    alist        TEXT,   -- List of actors
 
     -- Neighborhoods; use n first.
     m            TEXT,   -- One neighborhood
@@ -248,8 +249,9 @@ CREATE TABLE tactics (
     glist        TEXT,   -- List of groups
 
     -- Other Entities.
-    cap          TEXT,
-    iom          TEXT,
+    cap          TEXT,   -- One CAP
+    klist        TEXT,   -- List of CAP IDs
+    iom          TEXT,   -- One IOM
 
     -- Data items
     text1        TEXT,

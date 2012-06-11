@@ -87,6 +87,7 @@ snit::type strategy {
         }
         personnel load
         service load
+        cap access load
         tactic reset
         tactic::ATTROE reset
         tactic::BROADCAST reset
@@ -130,6 +131,7 @@ snit::type strategy {
         }
         personnel save
         service save
+        cap access save
 
         # NEXT, populate base units for all groups.
         unit makebase

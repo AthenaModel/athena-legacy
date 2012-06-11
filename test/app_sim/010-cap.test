@@ -34,6 +34,7 @@ namespace eval ::athena_test::tests:: {
     # Clean up after a test
     proc cleanup {} {
         # Clean up the test environment
+        array unset ::cap::access
         array unset parms
         ted cleanup
     }
@@ -853,6 +854,75 @@ CBS SUNN NB1 JOE   0.8      1.0   0.0 0.0
 CNN SUNN NB1 BOB   0.9      1.0   1.0 0.9    
 CBS KURD NB2 JOE   0.8      0.0   0.0 0.0    
 CNN KURD NB2 BOB   0.9      1.0   1.0 0.9    
+    }
+
+    #-------------------------------------------------------------------
+    # access
+    #
+    # This section tests the access-related routines.
+    
+    test access-1.1 {No one has access until [access load]} -setup {
+        ted create JOE BOB CBS CNN 
+    } -body {
+        cap hasaccess CBS JOE
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test access-1.2 {On [access load], only actors have access} -setup {
+        ted create JOE BOB DAVE BRIAN CBS CNN 
+    } -body {
+        cap access load
+        list \
+            [cap hasaccess CBS JOE]   \
+            [cap hasaccess CBS BOB]   \
+            [cap hasaccess CBS DAVE]  \
+            [cap hasaccess CBS BRIAN] \
+            [cap hasaccess CNN JOE]   \
+            [cap hasaccess CNN BOB]   \
+            [cap hasaccess CNN DAVE]  \
+            [cap hasaccess CNN BRIAN]
+    } -cleanup {
+        cleanup
+    } -result {1 0 0 0 0 1 0 0}
+
+    test access-1.3 {can grant access} -setup {
+        ted create JOE BOB DAVE BRIAN CBS CNN 
+    } -body {
+        cap access load
+        cap access grant {CBS CNN} {DAVE BRIAN}
+        list \
+            [cap hasaccess CBS JOE]   \
+            [cap hasaccess CBS BOB]   \
+            [cap hasaccess CBS DAVE]  \
+            [cap hasaccess CBS BRIAN] \
+            [cap hasaccess CNN JOE]   \
+            [cap hasaccess CNN BOB]   \
+            [cap hasaccess CNN DAVE]  \
+            [cap hasaccess CNN BRIAN]
+    } -cleanup {
+        cleanup
+    } -result {1 0 1 1 0 1 1 1}
+
+    test access-1.4 {can save access to cap_access} -setup {
+        ted create JOE BOB DAVE BRIAN CBS CNN 
+    } -body {
+        cap access load
+        cap access grant {CBS CNN} {DAVE BRIAN}
+        cap access save
+
+        ted query {SELECT * FROM cap_access}
+    } -cleanup {
+        cleanup
+    } -result {
+k   a     
+--- ----- 
+CBS JOE   
+CBS DAVE  
+CBS BRIAN 
+CNN BOB   
+CNN DAVE  
+CNN BRIAN 
     }
 
     #-------------------------------------------------------------------

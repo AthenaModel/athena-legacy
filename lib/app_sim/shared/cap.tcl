@@ -18,6 +18,16 @@ snit::type cap {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Type Variables
+    
+    # access array: Array of access lists by CAP.  This array is used
+    # transiently between [cap access load]/[cap access save] to record
+    # who is being given access.
+
+    typevariable access -array {}
+
+
+    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -110,11 +120,10 @@ snit::type cap {
     # k  - A CAP ID
     # a  - An actor ID
     #
-    # Returns 1 if a has access to k, and 0 otherwise.  At the moment,
-    # the actor has access only if it is the owner.
+    # Returns 1 if a has access to k, and 0 otherwise.
 
     typemethod hasaccess {k a} {
-        expr {$a eq [$type get $k owner]}
+        expr {[info exists access($k)] && $a in $access($k)}
     }
     
     # nbcov validate id
@@ -173,6 +182,63 @@ snit::type cap {
 
         rdb exists {
             SELECT * FROM cap_kg WHERE k=$k AND g=$g
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Access
+    #
+    # The following routines are used to manage CAP access.
+
+    # access load
+    #
+    # Initializes the working_cap_access table at the beginning of strategy 
+    # execution.  By default, only the CAP actor has access.
+
+    typemethod {access load} {} {
+        # FIRST, clear the access list; then give each owner access to his
+        # CAPs.
+        array unset access
+        
+        array set access [rdb eval {
+            SELECT k, owner FROM caps
+        }]
+    }
+
+    # access grant klist alist
+    #
+    # klist   - A list of CAPs
+    # alist   - A list of actors
+    #
+    # Grants each listed actor access to each listed CAP.
+    # The access thus granted will be saved to the caps_access
+    # table by [access save].
+
+    typemethod {access grant} {klist alist} {
+        foreach k $klist {
+            foreach a $alist {
+                ladd access($k) $a
+            }
+        }
+    }
+
+    # access save
+    #
+    # Saves the contents of the access array into
+    # the cap_access table at the end of strategy execution.  The
+    # actors in the table will have access for the following week.
+    # Note that the access() array is the real control; the 
+    # cap_access exists so that it can be queried when paused at the
+    # end of the time step, and by conditions at the subsequent
+    # strategy execution.
+
+    typemethod {access save} {} {
+        rdb eval {DELETE FROM cap_access}
+
+        foreach k [array names access] {
+            foreach a $access($k) {
+                rdb eval {INSERT INTO cap_access(k,a) VALUES($k,$a)}
+            }
         }
     }
 

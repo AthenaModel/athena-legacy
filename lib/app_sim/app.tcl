@@ -466,6 +466,11 @@ snit::type app {
         orderdialog fieldopts agent \
             -db ::rdb
 
+        # alist -- listfield of appropriate size for actor selection
+        form register alist ::marsgui::listfield \
+            -height      8                       \
+            -width       40
+
         # command -- Executive Command
         form register command ::marsgui::textfield \
             -width 40
@@ -501,6 +506,11 @@ snit::type app {
         form register goals ::marsgui::listfield \
             -height      8                       \
             -width       30
+
+        # klist -- listfield of appropriate size for CAP selection
+        form register klist ::marsgui::listfield \
+            -height      8                       \
+            -width       40
 
         # mag -- qmag(n) values
         form register mag ::marsgui::rangefield \

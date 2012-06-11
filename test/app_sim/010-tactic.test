@@ -109,6 +109,7 @@ exec_ts      @
 exec_flag    0
 a            @
 b            @
+alist        @
 m            @
 n            @
 nlist        @
@@ -116,6 +117,7 @@ f            @
 g            @
 glist        @
 cap          @
+klist        @
 iom          @
 text1        @
 int1         10
@@ -142,6 +144,7 @@ exec_ts      @
 exec_flag    0
 a            @
 b            @
+alist        @
 m            @
 n            NB2
 nlist        @
@@ -149,6 +152,7 @@ f            @
 g            BRIT
 glist        @
 cap          @
+klist        @
 iom          @
 text1        HOLD_FIRE
 int1         @
@@ -263,6 +267,7 @@ exec_ts      @
 exec_flag    0
 a            @
 b            @
+alist        @
 m            @
 n            NB1
 nlist        @
@@ -270,6 +275,7 @@ f            @
 g            BLUE
 glist        @
 cap          @
+klist        @
 iom          @
 text1        HOLD_FIRE
 int1         @
@@ -287,6 +293,7 @@ exec_ts      @
 exec_flag    0
 a            @
 b            @
+alist        @
 m            @
 n            @
 nlist        @
@@ -294,6 +301,7 @@ f            @
 g            @
 glist        @
 cap          @
+klist        @
 iom          @
 text1        @
 int1         10
@@ -356,6 +364,7 @@ exec_ts      @
 exec_flag    0
 a            @
 b            @
+alist        @
 m            @
 n            NB1
 nlist        @
@@ -363,6 +372,7 @@ f            @
 g            BLUE
 glist        @
 cap          @
+klist        @
 iom          @
 text1        FIRE_BACK_IMMEDIATELY
 int1         @
@@ -586,6 +596,7 @@ tactic_id state
         exec_ts     @
         int1        @
         narrative   {Group BLUE defends in NB1 with ROE HOLD_FIRE}
+        alist       @
         once        0
         f           @
         g           BLUE
@@ -602,6 +613,7 @@ tactic_id state
         text1       HOLD_FIRE
         n           NB1
         exec_flag   0
+        klist       @
     }
 
     test get-1.2 {get parameter} -setup {
