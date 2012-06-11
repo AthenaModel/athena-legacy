@@ -11,6 +11,51 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.5, 11 June 2012</h3>
+
+This build contains the first set of Information Operations Message
+(IOM) code, including IOMs, semantic hooks, and the broadcast tactic.
+With this build, it is possible to create and broadcast an IOM,
+affecting civilian attitudes.<p>
+
+In addition, there are a number of bug fixes, and some enhancements to
+the detail browser infrastructure that we are not yet making use
+of.  The full set of changes is as follows:<p>
+
+<ul>
+<li> Bug 3388: htools(n): [query] bgerrors if the -align option has too many alignments.
+<li> Bug 3396: Detail browser not displaying required levels of ENI funding for each CIV group correctly
+<li> Bug 3401: athena(1): MAD:HREL:INPUT order dialog "g" pulldown includes the "f" group
+<li> Bug 3457: athena(1): appserver(sim) pages for CAPs
+<li> Bug 3466: athena(1): Use MAM -affinity flag instead of -relevance
+<li> Bug 3469: On-Lock default values should be yes
+<li> Bug 3473: athena(1): Split gui_views.sql up into multiple files
+<li> Bug 3481: scenariodb(n): Split scenariodb.sql into multiple files
+<li> Bug 3485: athena(1): IOMs and Payloads, Part I
+<li> Bug 3487: Move icons to marsicons(n)
+<li> Bug 3492: athena(1): IOM/Payload Editing
+<li> Bug 3493: athena(1): IOM and Payload Help
+<li> Bug 3494: athena(1): Payload sanity checks
+<li> Bug 3495: athena(1): hook/IOM integration
+<li> Bug 3498: athena(1): add semantic hooks for use in the Info Ops Messaging model.
+<li> Bug 3499: Split order.help into pieces
+<li> Bug 3501: athena(1): Change mag range to -40,+40
+<li> Bug 3502: athena(1): hook narratives are not populated.
+<li> Bug 3504: athena(1): ioms.hook_id not restored when HOOK:DELETE is undone.
+<li> Bug 3507: athena(1): Appserver Cleanup
+<li> Bug 3508: myhtmlpane(n) -- html page viewer
+<li> Bug 3510: mybrowser(n), myhtmlpane(n): <object> and tk/widget
+<li> Bug 3511: htmlviewer3(n): user styles, default style update, man page fix.
+<li> Bug 3512: htmlframe(n): HTML-based layout widget
+<li> Bug 3513: entitytree(n), modaltextwin(n): Obsolete
+<li> Bug 3514: htools(n): <object> entry
+<li> Bug 3516: BROADCAST tactic
+<li> Bug 3517: IOM Rule Set
+<li> Bug 3518: hook(sim): implement getdict method to public interface
+<li> Bug 3519: Too many groups in my://app/cap/<name>
+</ul><p>
+
+
 <h3>Build 4.0.4, 15 May 2012</h3>
 
 This build contains the first implementation of Communications Asset
