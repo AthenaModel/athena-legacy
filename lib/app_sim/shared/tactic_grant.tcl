@@ -152,17 +152,20 @@ tactic type define GRANT {klist alist on_lock} actor {
     # Refreshes the lists of CAPs and actors when the tactic_id changes.
 
     typemethod RefreshUPDATE {dlg fields fdict} {
+puts "fields=<$fields>"
         if {"tactic_id" in $fields} {
             $dlg loadForKey tactic_id *
             set fdict [$dlg get]
 
             dict with fdict {
+puts "owner=$owner"
                 set kdict [rdb eval {
                     SELECT k,longname FROM caps
                     WHERE owner=$owner
                     ORDER BY k
                 }]
                 
+puts "kdict=<$kdict>"
                 $dlg field configure klist -itemdict $kdict
 
                 set adict [rdb eval {
@@ -172,6 +175,7 @@ tactic type define GRANT {klist alist on_lock} actor {
                 }]
                 
                 $dlg field configure alist -itemdict $adict
+puts "adict=<$adict>"
             }
 
             $dlg loadForKey tactic_id *
@@ -235,7 +239,7 @@ order define TACTIC:GRANT:UPDATE {
     title "Update Tactic: Grant Access to CAP"
     options \
         -sendstates {PREP PAUSED}                  \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+        -refreshcmd {tactic::GRANT RefreshUPDATE}
 
     parm tactic_id key  "Tactic ID"       -context yes                \
                                           -table   gui_tactics_GRANT \
