@@ -186,7 +186,7 @@ template macro::parmlist {{h1 Field} {h2 Description}} {
 template macro::parm {parm field} {
     |<--
     <tr valign="baseline">
-    <td><b>$field</b><br>(<tt>$parm</tt>)</td>
+    <td style="white-space: nowrap"><b>$field</b><br>(<tt>$parm</tt>)</td>
     <td>
 }
 

@@ -479,6 +479,40 @@ order TACTIC:FUNDENI:UPDATE "Update Tactic: Fund ENI Services" {
 }
 
 #-----------------------------------------------------------------------
+# Tactic: GRANT
+
+page /order/tactic grant TACTIC:GRANT:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/grant>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:GRANT:CREATE "Create Tactic: Grant Access to CAP" {
+    Creates a <<cref /object/tactic/grant>>.<p>
+
+    <<parmlist>>
+    <<tactic_grant parms -required -tags create>>
+    <<TACTIC.priority>>
+    <<TACTIC.on_lock -required>>
+    <</parmlist>>
+}
+
+order TACTIC:GRANT:UPDATE "Update Tactic: Grant Access to CAP" {
+    Updates an existing <<cref /object/tactic/grant>>.<p>
+
+    <<parmlist>>
+    <<tactic_grant parm tactic_id -required>>
+    <<tactic_grant parm owner -display>>
+    <<tactic_grant parms -optional -tags update>>
+    <<TACTIC.on_lock>>
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # Tactic: MOBILIZE
 
 page /order/tactic mobilize TACTIC:MOBILIZE:* {
