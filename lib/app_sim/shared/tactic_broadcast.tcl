@@ -94,10 +94,12 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
                     lappend tags $a
                 }
 
-                lappend tags [rdb eval {SELECT g FROM capcov WHERE capcov > 0.0}]
-                lappend tags [rdb eval {SELECT n FROM capcov WHERE capcov > 0.0}]
                 lappend tags \
                     [rdb eval {SELECT hook_id FROM ioms WHERE iom_id=$iom}]
+                lappend tags \
+                    {*}[rdb eval {SELECT g FROM capcov WHERE capcov > 0.0}]
+                lappend tags \
+                    {*}[rdb eval {SELECT n FROM capcov WHERE capcov > 0.0}]
 
                 # NEXT, set up the dict needed by the IOM rule set.
                 set rdict [dict create]
@@ -198,7 +200,43 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
     }
 
     typemethod execute {tdict} {
-        # FIRST, compute the cost of this tactic.  Add a "fullcost"
+        # FIRST, make sure that the IOM has a valid hook and
+        # at least one valid payload.
+
+        dict with tdict {
+            # FIRST, does the IOM have any valid payloads?
+            # If not, we're through here.
+            if {![rdb onecolumn { 
+                SELECT count(payload_num) FROM payloads
+                WHERE iom_id=$iom AND state='normal'
+            }]} {
+                sigevent log warning tactic "
+                    BROADCAST: Actor {actor:$owner} failed to broadcast
+                    IOM {iom:$iom}: IOM has no valid payloads.
+                " $owner $iom
+
+                return 0
+            }
+        
+            # NEXT, does the IOM's hook have any valid topics?
+            # If not, we're through here.
+            if {![rdb onecolumn { 
+                SELECT count(HT.topic_id) 
+                FROM hook_topics AS HT
+                JOIN ioms AS I USING (hook_id)
+                WHERE I.iom_id=$iom AND HT.state='normal'
+            }]} {
+                sigevent log warning tactic "
+                    BROADCAST: Actor {actor:$owner} failed to broadcast
+                    IOM {iom:$iom}: IOM's hook has no valid topics.
+                " $owner $iom
+
+                return 0
+            }
+        }
+
+
+        # NEXT, compute the cost of this tactic.  Add a "fullcost"
         # item to the tactic dictionary, so that we can more easily
         # return the money to the owner if the message cannot be
         # broadcast (e.g., because the actor has no access to the
