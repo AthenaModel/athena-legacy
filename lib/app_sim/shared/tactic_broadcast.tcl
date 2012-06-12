@@ -30,7 +30,7 @@
 #-------------------------------------------------------------------
 # Tactic: BROADCAST
 
-tactic type define BROADCAST {cap a iom x1 on_lock once} {system actor} {
+tactic type define BROADCAST {cap a iom x1 on_lock once} actor {
     #-------------------------------------------------------------------
     # Type Variables
 
