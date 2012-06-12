@@ -630,15 +630,20 @@ snit::type ::projectlib::scenariodb {
         return "<a href=\"$url\">$label</a>"
     }
 
-    # Pair(a,b)
+    # Pair(long,short)
     #
-    # url   - The URL
-    # label - The link text
+    # long   - The longname of an object
+    # short  - The shortname of an object
     #
-    # Returns the concatenation of a and b, with b in parens.
+    # Returns the concatenation of short with long separated by a colon.
+    # If short equals long, return short.
 
-    proc Pair {a b} {
-        return "$a ($b)"
+    proc Pair {long short} {
+        if {$short eq $long} {
+            return $short
+        }
+
+        return "$short: $long"
     }
 
     # QFancyFmt(quality,value)

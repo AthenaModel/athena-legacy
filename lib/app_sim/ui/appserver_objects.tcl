@@ -48,6 +48,20 @@ appserver module OBJECTS {
             key      k
         }
 
+        /ioms   {
+            label    "IOMs"
+            listIcon ::projectgui::icon::message12
+            table    gui_ioms
+            key      iom_id
+        }
+
+        /hooks {
+            label    "Semantic Hooks"
+            listIcon ::projectgui::icon::hook12
+            table    gui_hooks
+            key      hook_id
+        }
+
         /groups {
             label    "Groups"
             listIcon ::projectgui::icon::group12
@@ -75,6 +89,7 @@ appserver module OBJECTS {
             table    gui_orggroups
             key      g
         }
+
         /nbhoods {
             label    "Neighborhoods"
             listIcon ::projectgui::icon::nbhood12
@@ -138,11 +153,13 @@ appserver module OBJECTS {
                 set subset {
                     /overview
                     /actors 
-                    /caps
                     /nbhoods 
                     /groups/civ 
                     /groups/frc 
                     /groups/org
+                    /caps
+                    /hooks
+                    /ioms
                     /parmdb
                 }
             }

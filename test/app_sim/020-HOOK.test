@@ -156,11 +156,12 @@ narrative  Foo is good: No position on any topics
     } -cleanup {
         cleanup
     } -result {
-hook_id    FOO
-topic_id   T1
-narrative  Passionately For Topic #1
-state      normal
-position   0.9
+hook_id     FOO
+topic_id    T1
+topic_text  Topic #1
+narrative   Passionately For Topic #1
+state       normal
+position    0.9
     }
 
     test TOPIC:CREATE-2.2 {Effects} -setup {
@@ -402,11 +403,12 @@ narrative  Foo is still good: No position on any topics
     } -cleanup {
         cleanup
     } -result {
-hook_id    FOO
-topic_id   T1
-narrative  Ambivalent Towards Topic #1
-state      normal
-position   0.0
+hook_id     FOO
+topic_id    T1
+topic_text  Topic #1
+narrative   Ambivalent Towards Topic #1
+state       normal
+position    0.0
     }
 
     test TOPIC:UPDATE-2.2 {table monitor event} -setup {

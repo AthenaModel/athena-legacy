@@ -360,9 +360,14 @@ hook_id   HOOK2
         cleanup
     } -result {
         narrative {IOM One  (Hook HOOK1: Hook One: No position on any topics)}
+        fancy     {M1: IOM One}
         hook_id   HOOK1
         longname  {IOM One}
         iom_id    M1
+        hlink     {<a href="my://app/hook/HOOK1">HOOK1</a>}
+        longlink  {<a href="my://app/iom/M1">M1</a>}
+        link      {<a href="my://app/iom/M1">M1</a>}
+        url       my://app/iom/M1
     }
 
     test get-1.2 {get column} -setup {

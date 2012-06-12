@@ -111,6 +111,34 @@ namespace eval ::projectgui::icon:: {
         ..X..X.
     } { . trans X black }
 
+    mkicon ::projectgui::icon::hook12 {
+        .........X
+        .........X
+        ......X..X
+        ..xxx.XX.X
+        .xxxxxX..X
+        .xxxxx.XX.
+        .xxxxx....
+        ..xxx.....
+        xxxxxxx...
+        xxxxxxxx..
+    } { . trans X black x #999999 }
+
+    mkicon ::projectgui::icon::message12 {
+        ........
+        ..XXXXXX
+        .X.X...X
+        XXXX...X
+        X......X
+        X.xxxx.X
+        X......X
+        X.xxx..X
+        X......X
+        X.xxxx.X
+        X......X
+        XXXXXXXX
+    } { . trans X black x #666666 } 
+
     mkicon ::projectgui::icon::cap12 {
         .X.xx.X.
         X.xxxx.X

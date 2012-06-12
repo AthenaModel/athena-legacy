@@ -83,22 +83,41 @@ WHERE orphan;
 ------------------------------------------------------------------------
 -- SEMANTIC HOOK VIEWS
 
+CREATE TEMPORARY VIEW gui_hooks AS
+SELECT hook_id                                                    AS hook_id,
+       longname                                                   AS longname,
+       pair(longname,hook_id)                                     AS fancy,
+       'my://app/hook/' || hook_id                                AS url,
+       link('my://app/hook/' || hook_id, hook_id)                 AS link,
+       link('my://app/hook/' || hook_id, pair(longname, hook_id)) AS longlink,
+       narrative                                                  AS narrative
+FROM hooks;
+
 CREATE TEMPORARY VIEW gui_hook_topics AS
-SELECT hook_id || ' ' || topic_id  AS id,
-       hook_id                     AS hook_id,
-       topic_id                    AS topic_id,
-       narrative                   AS narrative,
-       state                       AS state,
-       position                    AS position
+SELECT hook_id || ' ' || topic_id                   AS id,
+       link('my://app/hook/' || hook_id, hook_id)   AS hlink,
+       hook_id                                      AS hook_id,
+       topic_id                                     AS topic_id,
+       topic_text                                   AS topic_text,
+       pair(topic_text,topic_id)                    AS fancy,
+       narrative                                    AS narrative,
+       state                                        AS state,
+       format('%4.2f',position)                     AS position,
+       position                                     AS raw_position
 FROM hook_topics;
 
 -----------------------------------------------------------------------
 -- IOM VIEWS
 
 CREATE TEMPORARY VIEW gui_ioms AS
-SELECT I.iom_id                      AS iom_id,
-       I.longname                    AS longname,
-       I.hook_id                     AS hook_id,
+SELECT I.iom_id                                       AS iom_id,
+       I.longname                                     AS longname,
+       I.hook_id                                      AS hook_id,
+       pair(I.longname, I.iom_id)                     AS fancy,
+       'my://app/iom/' || I.iom_id                    AS url,
+       link('my://app/iom/'  || I.iom_id, I.iom_id)   AS link,
+       link('my://app/iom/'  || I.iom_id, I.iom_id)   AS longlink,
+       link('my://app/hook/' || I.hook_id, I.hook_id) AS hlink,
        CASE WHEN I.hook_id IS NULL
        THEN I.longname || '  (no hook specified)'
        ELSE I.longname || '  (' || 'Hook ' || I.hook_id || ': ' || 

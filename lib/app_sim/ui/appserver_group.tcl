@@ -111,21 +111,13 @@ appserver module GROUPS {
             set otype /groups/$(1)
         }
 
-        # NEXT, get the results
-        set result [dict create]
-
         dict with objectInfo $otype {
-            rdb eval "
-                SELECT g, longname 
-                FROM $table 
-                ORDER BY longname
-            " {
-                dict set result "/group/$g" \
-                    [dict create label "$longname ($g)" listIcon $listIcon]
-            }
+            return [objects:linkdict [dict create \
+                    label    $label               \
+                    listIcon $listIcon            \
+                    table    $table               \
+            ]]
         }
-
-        return $result
     }
 
 

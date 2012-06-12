@@ -488,15 +488,18 @@ snit::type hook {
         dict with parmdict {
 
             set narrative [hook ComputeTopicNarrative $topic_id $position]
+            set ttext     [bsystem topic cget $topic_id -title]
 
             rdb eval {
                 INSERT INTO 
                 hook_topics(hook_id,
                             topic_id,
+                            topic_text,
                             narrative,
                             position)
                 VALUES($hook_id,
                        $topic_id,
+                       $ttext,
                        $narrative,
                        $position)
             }
@@ -529,14 +532,16 @@ snit::type hook {
 
             # FIRST, compute the hook topic narrative
             set narrative [hook ComputeTopicNarrative $topic_id $position]
+            set ttext     [bsystem topic cget $topic_id -title]
 
             set tdata [rdb grab \
                 hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
 
             rdb eval {
                 UPDATE hook_topics
-                SET position  = nonempty($position,  position),
-                    narrative = nonempty($narrative, narrative)
+                SET position   = nonempty($position,  position),
+                    narrative  = nonempty($narrative, narrative),
+                    topic_text = nonempty($ttext,     topic_text)
                 WHERE hook_id=$hook_id AND topic_id=$topic_id
             }
 

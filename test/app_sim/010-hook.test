@@ -168,11 +168,12 @@ hook_id
     } -cleanup {
         cleanup
     } -result {
-hook_id    PUPG
-topic_id   T1
-narrative  Passionately For TBD
-state      normal
-position   0.9
+hook_id     PUPG
+topic_id    T1
+topic_text  TBD
+narrative   Passionately For TBD
+state       normal
+position    0.9
     }
 
     test createtopic-1.2 {Undo deletes the hook topic} -setup {
@@ -274,11 +275,12 @@ position   0.9
     } -cleanup {
         cleanup
     } -result {
-hook_id    PUPG
-topic_id   T1
-narrative  Passionately For TBD
-state      normal
-position   0.9
+hook_id     PUPG
+topic_id    T1
+topic_text  TBD
+narrative   Passionately For TBD
+state       normal
+position    0.9
     }
 
     #----------------------------------------------------------
@@ -414,7 +416,7 @@ position   0.9
         hook topic get $id
     } -cleanup {
         cleanup
-    } -result {narrative {Passionately For TBD} position 0.9 state normal hook_id PUPG topic_id T1}
+    } -result {narrative {Passionately For TBD} position 0.9 state normal hook_id PUPG topic_text TBD topic_id T1}
 
     test topic_get-1.2 {Get one field} -setup {
         bsystem topic add T1

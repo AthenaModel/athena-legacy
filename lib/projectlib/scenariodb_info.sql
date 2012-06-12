@@ -146,6 +146,10 @@ CREATE TABLE hook_topics (
                                        -- this topic ID exists in the 
                                        -- mam_topic table
 
+    topic_text TEXT,                   -- The text representation of 
+                                       -- the topic as it exists in the
+                                       -- mam_topic table
+
     narrative  TEXT,                   -- Narrative describing the position
                                        -- on the topic.
 
