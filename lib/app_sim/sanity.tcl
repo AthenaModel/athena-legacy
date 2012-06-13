@@ -27,21 +27,23 @@ snit::type sanity {
 
     # onlock check
     #
-    # Does a sanity check of the model: can we lock the scenario (leave 
-    # PREP for PAUSED?)
-    # 
-    # Returns 1 if sane and 0 otherwise.
+    # Does a sanity check of the model: can we lock the scenario?
+    #
+    # Returns an esanity value:
+    #
+    # OK      - Model is sane; go ahead and lock.
+    # WARNING - Problems were found and disabled; scenario can be locked.
+    # ERROR   - Problems were found and must be fixed.
 
     typemethod {onlock check} {} {
         set ht [htools %AUTO%]
 
-        set flag [$type DoOnLockCheck $ht]
+        set sev [$type DoOnLockCheck $ht]
 
         $ht destroy
 
-        return $flag
+        return $sev
     }
-
 
     # onlock report ht
     # 
@@ -53,23 +55,76 @@ snit::type sanity {
     # receive the data.
 
     typemethod {onlock report} {ht} {
+        # FIRST, do a check and find out what kind of problems we have.
+        set severity [$type onlock check]
+
+        # NEXT, put an appropriate message at the top of the page.  
+        # If we are OK, there's no need to add anything else.
+
+        if {$severity eq "OK"} {
+            $ht putln "No problems were found."
+            return
+        } elseif {$severity eq "WARNING"} {
+            $ht putln {
+                <b>The on-lock sanity check has failed with one or more
+                warnings</b>, as listed below.  Athena has marked the problem
+                objects (e.g., tactics, IOM payloads, etc.) invalid;
+                the scenario can be locked, but in a degraded state.
+            }
+
+            $ht para
+        } else {
+            $ht putln {
+                <b>The on-lock sanity check has failed with one or more
+                serious errors,</b> as listed below.  Therefore, the 
+                scenario cannot be locked.  Fix the errors, and try again.
+            }
+
+            $ht para
+        }
+
+        # NEXT, redo the checks, recording all of the problems.
         $type DoOnLockCheck $ht
     }
-
 
     # DoOnLockCheck ht
     #
     # ht   - An htools buffer
     #
-    # Does the sanity check, and returns 1 if sane and 0 otherwise;
-    # writes the report into the buffer.
+    # Does the on-lock sanity check, and returns an esanity value
+    # indicating the status.  Any warnings or errors are written into
+    # the buffer.
 
     typemethod DoOnLockCheck {ht} {
         # FIRST, presume that the model is sane.
-        set sane 1
+        set sev OK
+
+        # NEXT, call each of the on-lock checkers
+        savemax sev [$type ScenarioOnLockChecker $ht] 
+        savemax sev [payload checker $ht] 
+
+        # NEXT, return the severity
+        return $sev
+    }
+
+
+    # ScenarioOnLockChecker ht
+    #
+    # ht   - An htools buffer
+    #
+    # Does the sanity check, and returns an esanity value, writing
+    # any errors into the buffer.
+    #
+    # This routine detects only ERRORs, not WARNINGs.
+
+    typemethod ScenarioOnLockChecker {ht} {
+        # FIRST, presume that the model is sane.
+        set sev OK
 
         # NEXT, push a buffer onto the stack, for the problems.
         $ht push
+
+        $ht subtitle "Scenario Constraints"
 
         $ht putln "The following problems were found:"
         $ht para
@@ -78,9 +133,9 @@ snit::type sanity {
 
         # NEXT, Require at least one neighborhood:
         if {[llength [nbhood names]] == 0} {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "No neighborhoods are defined." {
+            $ht dlitem "<b>Error: No neighborhoods are defined.</b>" {
                 At least one neighborhood is required.
                 Create neighborhoods on the 
                 <a href="gui:/tab/viewer">Map</a> tab.
@@ -92,9 +147,9 @@ snit::type sanity {
             SELECT n, obscured_by FROM nbhoods
             WHERE obscured_by != ''
         } {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "Neighborhood Stacking Error." "
+            $ht dlitem "<b>Error: Neighborhood Stacking Error.</b>" "
                 Neighborhood $n is obscured by neighborhood $obscured_by.
                 Fix the stacking order on the 
                 <a href=\"gui:/tab/nbhoods\">Neighborhoods/Neighborhoods</a>
@@ -104,9 +159,9 @@ snit::type sanity {
 
         # NEXT, Require at least one force group
         if {[llength [frcgroup names]] == 0} {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "No force groups are defined." {
+            $ht dlitem "<b>Error: No force groups are defined.</b>" {
                 At least one force group is required.  Create force
                 groups on the 
                 <a href="gui:/tab/frcgroups">Groups/FrcGroups</a> tab.
@@ -117,9 +172,9 @@ snit::type sanity {
         set names [rdb eval {SELECT g FROM frcgroups WHERE a IS NULL}]
 
         if {[llength $names] > 0} {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "Some force groups have no owner." "
+            $ht dlitem "<b>Error: Some force groups have no owner.</b>" "
                 The following force groups have no owning actor:
                 [join $names {, }].  Assign owning actors to force
                 groups on the 
@@ -132,9 +187,9 @@ snit::type sanity {
         set names [rdb eval {SELECT g FROM orggroups WHERE a IS NULL}]
 
         if {[llength $names] > 0} {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "Some organization groups have no owner." "
+            $ht dlitem "<b>Error: Some organization groups have no owner.</b>" "
                 The following organization groups have no owning actor:
                 [join $names {, }].  Assign owning actors to
                 organization groups on the 
@@ -147,10 +202,11 @@ snit::type sanity {
         set names [rdb eval {SELECT k FROM caps WHERE owner IS NULL}]
 
         if {[llength $names] > 0} {
-            set sane 0
+            set sev ERROR
 
             $ht dlitem \
-                "Some Communication Asset Packages (CAPs) have no owner." "
+                "<b>Some Communication Asset Packages (CAPs) have no
+            owner.</b>" "
                 The following CAPs have no owning actor:
                 [join $names {, }].  Assign owning actors to CAPs on the
                 <a href=\"gui:/tab/caps\">Info/CAPs</a> tab.
@@ -159,9 +215,9 @@ snit::type sanity {
                 
         # NEXT, Require at least one civ group
         if {[llength [civgroup names]] == 0} {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "No civilian groups are defined." {
+            $ht dlitem "<b>Error: No civilian groups are defined.</b>" {
                 At least one civilian group is required.  Create civilian
                 groups on the 
                 <a href="gui:/tab/civgroups">Groups/CivGroups</a>
@@ -181,9 +237,9 @@ snit::type sanity {
         # that at least one neighborhood must have a group?
         foreach n [nbhood names] {
             if {![info exists gInN($n)]} {
-                set sane 0
+                set sev ERROR
 
-                $ht dlitem "Neighborhood has no residents" "
+                $ht dlitem "<b>Error: Neighborhood has no residents</b>" "
                     Neighborhood $n contains no civilian groups;
                     at least one is required.  Create civilian
                     groups and assign them to neighborhoods
@@ -201,11 +257,11 @@ snit::type sanity {
         }]
 
         if {[llength $ids] > 0} {
-            set sane 0
+            set sev ERROR
 
             set ids [join $ids ", "]
 
-            $ht dlitem "Homeless Environmental Situations" "
+            $ht dlitem "<b>Error: Homeless Environmental Situations</b>" "
                 The following ensits are outside any neighborhood: $ids.
                 Either add neighborhoods around them on the Map tab,
                 or delete them on the 
@@ -222,9 +278,9 @@ snit::type sanity {
             GROUP BY n, stype
             HAVING count > 1
         } {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "Duplicate Environmental Situations" "
+            $ht dlitem "<b>Error: Duplicate Environmental Situations</b>" "
                 There are duplicate ensits of type $stype in
                 neighborhood $n.  Delete all but one of them on the
                 <a href=\"gui:/tab/ensits\">Neighborhoods/Ensits</a>
@@ -240,9 +296,9 @@ snit::type sanity {
             FROM civgroups JOIN nbhoods USING (n)
             WHERE local AND sap < 100
         }]} {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "No consumers in local economy" {
+            $ht dlitem "<b>Error: No consumers in local economy</b>" {
                 There are no consumers in the local economy.  At least
                 one civilian group in a "local" neighborhood
                 needs to have non-subsistence
@@ -264,9 +320,9 @@ snit::type sanity {
         }
 
         if {$sum > 1.0} {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "Invalid Cobb-Douglas Parameters" {
+            $ht dlitem "<b>Error: Invalid Cobb-Douglas Parameters</b>" {
                 econ.f.goods.goods + econ.f.pop.goods > 1.0.  However,
                 Cobb-Douglas parameters must sum to 1.0.  Therefore,
                 the following must be the case:<p>
@@ -285,8 +341,8 @@ snit::type sanity {
         }
 
         if {$sum > 1.0} {
-            set sane 0
-            $ht dlitem "Invalid Cobb-Douglas Parameters" {
+            set sev ERROR
+            $ht dlitem "<b>Error: Invalid Cobb-Douglas Parameters</b>" {
                 econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,
                 Cobb-Douglas parameters must sum to 1.0.  Therefore,
                 the following must be the case:<p>
@@ -306,8 +362,8 @@ snit::type sanity {
         }
 
         if {$sum > 0.95} {
-            set sane 0
-            $ht dlitem "Invalid Cobb-Douglas Parameters" {
+            set sev ERROR
+            $ht dlitem "<b>Error: Invalid Cobb-Douglas Parameters</b>" {
                 econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,
                 Cobb-Douglas parameters must sum to 1.0.  Also, the
                 value of f.else.else cannot be 0.0.  Therefore,
@@ -323,16 +379,15 @@ snit::type sanity {
 
         $ht /dl
 
+        # NEXT, we only have content if there were errors.
         set html [$ht pop]
 
-        if {$sane} {
-            $ht putln "The scenario is sane."
-        } else {
+        if {$sev ne "OK"} {
             $ht put $html
         }
 
         # NEXT, return the result
-        return $sane
+        return $sev
     }
 
     #-------------------------------------------------------------------
@@ -340,9 +395,13 @@ snit::type sanity {
 
     # ontick check
     #
-    # Does a sanity check of the model: can we advance time?
+    # Does a sanity check of the model: can we advance time at this tick?
     # 
-    # Returns 1 if sane and 0 otherwise.
+    # Returns an esanity value:
+    #
+    # OK      - Model is sane; go ahead and advance time.
+    # WARNING - Problems were found and disabled; time can be advanced.
+    # ERROR   - Serious problems were found; time cannot be advanced.
 
     typemethod {ontick check} {} {
         set ht [htools %AUTO%]
@@ -365,6 +424,36 @@ snit::type sanity {
     # receive the data.
 
     typemethod {ontick report} {ht} {
+        # FIRST, do a check and find out what kind of problems we have.
+        set severity [$type onlock check]
+
+        # NEXT, put an appropriate message at the top of the page.  
+        # If we are OK, there's no need to add anything else.
+
+        if {$severity eq "OK"} {
+            $ht putln "No problems were found."
+            return
+        } elseif {$severity eq "WARNING"} {
+            $ht putln {
+                <b>The on-tick sanity check has failed with one or more
+                warnings</b>, as listed below.  Athena has marked the problem
+                objects (e.g., tactics, IOM payloads, etc.) invalid;
+                time can be advanced, but in a degraded state.
+            }
+
+            $ht para
+        } else {
+            $ht putln {
+                <b>The on-tick sanity check has failed with one or more
+                serious errors,</b> as listed below.  Therefore, 
+                time cannot be advanced.
+            }
+
+            $ht para
+        }
+
+        # NEXT, redo the checks, recording all of the problems.
+        
         $type DoOnTickCheck $ht
     }
 
@@ -373,22 +462,49 @@ snit::type sanity {
     #
     # ht   - An htools buffer
     #
-    # Does the sanity check, and returns 1 if sane and 0 otherwise;
-    # writes the report into the buffer.
+    # Does the on-tick sanity check, and returns an esanity value
+    # indicating the status.  Any warnings or errors are written into
+    # the buffer.
 
     typemethod DoOnTickCheck {ht} {
         # FIRST, presume that the model is sane.
-        set sane 1
+        set sev OK
+
+        # NEXT, call each of the on-lock checkers
+        savemax sev [$type EconOnTickChecker $ht] 
+
+        # NEXT, return the severity
+        return $sev
+    }
+
+    # EconOnTickChecker ht
+    #
+    # ht   - An htools buffer
+    #
+    # Does the sanity check, and returns an esanity value, writing
+    # the report into the buffer.  This routine detects only ERRORs.
+    #
+    # TBD: This routine should probably live in econ.tcl.
+
+    typemethod EconOnTickChecker {ht} {
+        # FIRST, if the econ model is disabled, there are no errors to
+        # find.
+        if {[parmdb get econ.disable]} {
+            return OK
+        }
+
+        # NEXT, presume that the model is sane.
+        set sev OK
 
         # NEXT, push a buffer onto the stack, for the problems.
         $ht push
 
         # NEXT, Some help for the reader
-        $ht putln "<b>Sanity Check(s) Failed.</b>" 
+        $ht subtitle "Economic On-Tick Constraints</b>" 
         $ht putln {
-            One or more of Athena's on-tick sanity checks has failed; the
-            entries below give complete details.  Most checks depend on 
-            the economic model; hence, setting the 
+            One or more of Athena's economic on-tick sanity checks has 
+            failed; the entries below give complete details.  These checks
+            involve the economic model; hence, setting the 
             <a href="my://help/parmdb/econ/disable">econ.disable</a> parameter
             to "yes" will disable them and allow the simulation to proceed,
             at the cost of ignoring the economy.  
@@ -401,14 +517,11 @@ snit::type sanity {
 
         $ht dl
 
-        # NEXT, has the econ model been disabled?
-        let gotEcon {![parmdb get econ.disable]}
-
         # NEXT, Check econ CGE convergence.
-        if {$gotEcon && ![econ ok]} {
-            set sane 0
+        if {![econ ok]} {
+            set sev ERROR
 
-            $ht dlitem "Economy: Diverged" {
+            $ht dlitem "<b>Error: Economy: Diverged</b>" {
                 The economic model uses a system of equations called
                 a CGE.  The system of equations could not be solved.
                 This might be an error in the CGE; alternatively, the
@@ -420,10 +533,10 @@ snit::type sanity {
         array set cells [econ get]
         array set start [econ getstart]
 
-        if {$gotEcon && $cells(Out::SUM.QS) == 0.0} {
-            set sane 0
+        if {$cells(Out::SUM.QS) == 0.0} {
+            set sev ERROR
 
-            $ht dlitem "Economy: Zero Production" {
+            $ht dlitem "<b>Error: Economy: Zero Production</b>" {
                 The economy has converged to the zero point, i.e., there
                 is no consumption or production, and hence no economy.
                 Enter 
@@ -434,10 +547,10 @@ snit::type sanity {
             }
         }
 
-        if {$gotEcon && !$cells(Out::FLAG.QS.NONNEG)} {
-            set sane 0
+        if {!$cells(Out::FLAG.QS.NONNEG)} {
+            set sev ERROR
 
-            $ht dlitem "Economy: Negative Quantity Supplied" {
+            $ht dlitem "<b>Error: Economy: Negative Quantity Supplied</b>" {
                 One of the QS.i cells has a negative value; this implies
                 an error in the CGE.  Enter 
                 <tt><a href="my://help/command/dump/econ">dump econ</a></tt>
@@ -450,10 +563,10 @@ snit::type sanity {
             }
         }
 
-        if {$gotEcon && !$cells(Out::FLAG.P.POS)} {
-            set sane 0
+        if {!$cells(Out::FLAG.P.POS)} {
+            set sev ERROR
 
-            $ht dlitem "Economy: Non-Positive Prices" {
+            $ht dlitem "<b>Error: Economy: Non-Positive Prices</b>" {
                 One of the P.i price cells is negative or zero; this implies
                 an error in the CGE.  Enter 
                 <tt><a href="my://help/command/dump/econ">dump econ</a></tt>
@@ -466,10 +579,10 @@ snit::type sanity {
             }
         }
 
-        if {$gotEcon && !$cells(Out::FLAG.DELTAQ.ZERO)} {
-            set sane 0
+        if {!$cells(Out::FLAG.DELTAQ.ZERO)} {
+            set sev ERROR
 
-            $ht dlitem "Economy: Delta-Q non-zero" {
+            $ht dlitem "<b>Error: Economy: Delta-Q non-zero</b>" {
                 One of the deltaQ.i cells is negative or zero; this implies
                 an error in the CGE.
                 Enter 
@@ -484,12 +597,13 @@ snit::type sanity {
         }
 
         set limit [parmdb get econ.check.MinConsumerFrac]
-        if {$gotEcon && 
+
+        if {
             $cells(In::Consumers) < $limit * $start(In::Consumers)
         } {
-            set sane 0
+            set sev ERROR
 
-            $type dlitem "Number of consumers has declined alarmingly" "
+            $type dlitem "<b>Error: Number of consumers has declined alarmingly</b>" "
                 The current number of consumers in the local economy,
                 $cells(In::Consumers),
                 is less than 
@@ -502,12 +616,14 @@ snit::type sanity {
         }
 
         set limit [parmdb get econ.check.MinLaborFrac]
-        if {$gotEcon && 
+
+        if {
             $cells(In::WF) < $limit * $start(In::WF)
         } {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "Number of workers has declined alarmingly" "
+            $ht dlitem "<b>Error: Number of workers has declined
+            alarmingly</b>" "
                 The current number of workers in the local labor force,
                 $cells(In::WF), 
                 is less than
@@ -520,10 +636,11 @@ snit::type sanity {
         }
 
         set limit [parmdb get econ.check.MaxUR]
-        if {$gotEcon && $cells(Out::UR) > $limit} {
-            set sane 0
 
-            $ht dlitem "Unemployment skyrockets" "
+        if {$cells(Out::UR) > $limit} {
+            set sev ERROR
+
+            $ht dlitem "<b>Error: Unemployment skyrockets</b>" "
                 The unemployment rate, 
                 [format {%.1f%%,} $cells(Out::UR)]
                 exceeds the limit of 
@@ -535,12 +652,13 @@ snit::type sanity {
         }
 
         set limit [parmdb get econ.check.MinDgdpFrac]
-        if {$gotEcon && 
+
+        if {
             $cells(Out::DGDP) < $limit * $start(Out::DGDP)
         } {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "DGDP Plummets" "
+            $ht dlitem "<b>Error: DGDP Plummets</b>" "
                 The Deflated Gross Domestic Product (DGDP),
                 \$[moneyfmt $cells(Out::DGDP)],
                 is less than 
@@ -554,12 +672,13 @@ snit::type sanity {
 
         set min [parmdb get econ.check.MinCPI]
         set max [parmdb get econ.check.MaxCPI]
-        if {$gotEcon && $cells(Out::CPI) < $min || 
+
+        if {$cells(Out::CPI) < $min || 
             $cells(Out::CPI) > $max
         } {
-            set sane 0
+            set sev ERROR
 
-            $ht dlitem "CPI beyond limits" "
+            $ht dlitem "<b>Error: CPI beyond limits</b>" "
                 The Consumer Price Index (CPI), 
                 [format {%4.2f,} $cells(Out::CPI)]
                 is outside the expected range of
@@ -574,18 +693,36 @@ snit::type sanity {
 
         $ht /dl
 
+        # NEXT, we only have content if there were errors.
         set html [$ht pop]
 
-        if {$sane} {
-            $ht putln "Time can advance."
-        } else {
+        if {$sev ne "OK"} {
             $ht put $html
         }
         
 
         # NEXT, return the result
-        return $sane
+        return $sev
     }
+
+    #-------------------------------------------------------------------
+    # Helper Routines
+
+    # savemax varname errsym
+    #
+    # varname   - A variable containing an esanity value
+    # errsym    - An esanity value
+    #
+    # Sets the variable to the more severe of the two esanity values.
+
+    proc savemax {varname errsym} {
+        upvar 1 $varname maxsym
+
+        if {[esanity gt $errsym $maxsym]} {
+            set maxsym $errsym
+        }
+    }
+
 }
 
 

@@ -324,14 +324,14 @@ snit::widget appwin {
 
         hooks {
             label   "Semantic Hooks"
-            vistype scenario
+            vistype *
             parent  info
             script  {hookbrowser %W}
         }
 
         ioms {
             label   "Info Ops Messages"
-            vistype scenario
+            vistype *
             parent  info
             script  {iombrowser %W}
         }
@@ -1983,7 +1983,7 @@ snit::widget appwin {
     method PrepLock {} {
         # FIRST, if we're in PREP then it's time to leave it.
         if {[sim state] eq "PREP"} {
-            if {![sanity onlock check]} {
+            if {[sanity onlock check] eq "ERROR"} {
                 app show my://app/sanity/onlock
 
                 messagebox popup \
@@ -1991,9 +1991,10 @@ snit::widget appwin {
                     -icon    error              \
                     -title   "Not ready to run" \
                     -message [normalize {
-            Scenario sanity check failed; time cannot advance.
-            Fix the error, and try again.
-            Please see the On-Lock Sanity Check report for details.
+            The on-lock sanity check failed with one or more errors;
+            time cannot advance.  Fix the error, and try again.
+            Please see the On-lock Sanity Check Report in the 
+            Detail Browser for details.
                     }]
 
                 return

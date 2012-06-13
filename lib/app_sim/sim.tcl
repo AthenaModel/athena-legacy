@@ -574,7 +574,7 @@ snit::type sim {
         # NEXT, pause if it's the pause time, or checks failed.
         set stopping 0
 
-        if {![sanity ontick check]} {
+        if {[sanity ontick check] != "OK"} {
             app show my://app/sanity/ontick
 
             if {[winfo exists .main]} {
@@ -729,17 +729,48 @@ order define SIM:LOCK {
     title "Lock Scenario Preparation"
     options -sendstates {PREP}
 } {
-    # FIRST, do the scenario sanity check.
-    if {![sanity onlock check]} {
+    # FIRST, do the on-lock sanity check.
+    set sev [sanity onlock check]
+
+    if {$sev eq "ERROR"} {
         app show my://app/sanity/onlock
 
         reject * {
-            Scenario sanity check failed; time cannot advance.
-            Fix the error, and try again.
-            Please see the Detail Browser for details.
+            The on-lock sanity check failed with one or more errors; 
+            time cannot advance.  Fix the error, and try again.
+            Please see the On-lock Sanity Check Report in the 
+            Detail Browser for details.
         }
 
         returnOnError
+    }
+
+    if {$sev eq "WARNING"} {
+        app show my://app/sanity/onlock
+
+        set answer \
+            [messagebox popup \
+                 -title         "On-lock Sanity Check Failed"    \
+                 -icon          warning                          \
+                 -buttons       {ok "Continue" cancel "Cancel"}  \
+                 -default       cancel                           \
+                 -ignoretag     onlock_check_failed              \
+                 -ignoredefault ok                               \
+                 -parent        [app topwin]                     \
+                 -message       [normalize {
+                     The on-lock sanity check failed with warnings; 
+                     one or more simulation objects are invalid.  See the 
+                     Detail Browser for details.  Press "Cancel" and
+                     fix the problems, or press "Continue" to 
+                     go ahead and lock the scenario, in which 
+                     case the invalid simulation objects will be 
+                     ignored as the simulation runs.
+                 }]]
+
+        if {$answer eq "cancel"} {
+            # Don't do anything.
+            return
+        }
     }
 
     returnOnError -final
@@ -764,35 +795,6 @@ order define SIM:LOCK {
                      fix the problems, or press "Continue" to 
                      go ahead and lock the scenario, in which 
                      case the invalid tactics and conditions will be 
-                     ignored as the simulation runs.
-                 }]]
-
-        if {$answer eq "cancel"} {
-            # Don't do anything.
-            return
-        }
-    }
-
-    # NEXT, do the payload sanity check.
-    if {![payload sanity check]} {
-        app show my://app/sanity/payload
-
-        set answer \
-            [messagebox popup \
-                 -title         "Payload Sanity Check Failed"    \
-                 -icon          warning                          \
-                 -buttons       {ok "Continue" cancel "Cancel"}  \
-                 -default       cancel                           \
-                 -ignoretag     payload_check_failed             \
-                 -ignoredefault ok                               \
-                 -parent        [app topwin]                     \
-                 -message       [normalize {
-                     The IOM payload sanity check has failed; one or
-                     more IOM payloads are invalid.  See the 
-                     Detail Browser for details.  Press "Cancel" and
-                     fix the problems, or press "Continue" to 
-                     go ahead and lock the scenario, in which 
-                     case the invalid payloads will be 
                      ignored as the simulation runs.
                  }]]
 

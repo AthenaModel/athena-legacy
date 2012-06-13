@@ -491,7 +491,7 @@ snit::widget iombrowser {
     # Allows the user to check the sanity of the existing payloads. 
     
     method SanityCheck {} {
-        if {![payload sanity check]} {
+        if {[payload checker] ne "OK"} {
             app show my://app/sanity/payload
         }
     }

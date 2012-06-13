@@ -108,37 +108,27 @@ snit::type payload {
     #-------------------------------------------------------------------
     # Sanity Check
 
-    # sanity check
+    # checker ?ht?
     #
-    # Payloads can become invalid after they are created.
-    # For example, a group referenced by a payload might be deleted.
-    # The sanity check looks for such problems, and highlights them.  
-    # Invalid payloads are so marked, and the user is notified.
+    # ht - An htools buffer
     #
-    # Returns 1 if the check is successful, and 0 otherwise.
+    # Computes the sanity check, and formats the results into the buffer
+    # for inclusion into an HTML page.  Returns an esanity value, either
+    # OK or WARNING.
 
-    typemethod {sanity check} {} {
+    typemethod checker {{ht ""}} {
         set edict [$type DoSanityCheck]
 
-        notifier send ::payload <Check>
+        if {[dict size $edict] == 0} {
+            return OK
+        }
 
-        # If there were no errors, the dictionary is empty.
-        return [expr {[dict size $edict] == 0}] 
+        if {$ht ne ""} {
+            $type DoSanityReport $ht $edict
+        }
+
+        return WARNING
     }
-
-    # sanity report ht
-    #
-    # ht    - An htools buffer
-    #
-    # Computes the sanity check, and formats the results into the ht
-    # buffer for inclusion in an HTML page.  This command can presume
-    # that the buffer is already initialized and ready to receive the
-    # data.
-
-    typemethod {sanity report} {ht} {
-        return [$type DoSanityReport $ht [$type DoSanityCheck]]
-    }
-
 
     # DoSanityCheck
     #
@@ -185,6 +175,8 @@ snit::type payload {
             }
         }
 
+        notifier send ::payload <Check>
+
         return $edict
     }
 
@@ -195,40 +187,26 @@ snit::type payload {
     # edict     - A dictionary iom_id->payload_num->errmsg
     #
     # Writes HTML text of the results of the sanity check to the ht
-    # buffer.
+    # buffer.  This routine assumes that there are errors.
 
     typemethod DoSanityReport {ht edict} {
-        # FIRST, if there's nothing wrong, the report is simple.
-        if {[dict size $edict] == 0} {
-            if {$ht ne ""} {
-                $ht putln "No sanity check failures were found."
-            }
+        # FIRST, Build the report
+        $ht subtitle "IOM Payload Constraints"
 
-            return
-        }
-
-        # NEXT, Build the report
         $ht putln {
-            Certain IOM payloads checks and have been marked invalid in the
+            Certain IOM payloads failed their checks and have been 
+            marked invalid in the
         }
         
-        $ht link gui:/tab/ioms "Strategy Browser"
+        $ht link gui:/tab/ioms "IOM Browser"
 
-        $ht put " Please fix them or delete them."
+        $ht put ".  Please fix them or delete them."
         $ht para
 
-
-        # IOMs with payload errors
-        $ht push
-        $ht h2 "IOMs with Payload Errors"
-
-        $ht putln "The following IOMs have invalid payloads attached."
-        $ht para
-             
         dict for {iom_id idict} $edict {
             array set idata [iom get $iom_id]
 
-            $ht putln "<b>$iom_id: $idata(longname)</b>"
+            $ht putln "<b>IOM $iom_id: $idata(longname)</b>"
             $ht ul
 
             dict for {payload_num errmsg} $idict {
@@ -236,9 +214,9 @@ snit::type payload {
 
                 dict with pdict {
                     $ht li
-                    $ht put "$iom_id payload #$payload_num: $narrative"
+                    $ht put "Payload #$payload_num: $narrative"
                     $ht br
-                    $ht putln "==> <font color=red>$errmsg</font>"
+                    $ht putln "==> <font color=red>Warning: $errmsg</font>"
                 }
             }
             

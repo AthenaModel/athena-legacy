@@ -31,6 +31,13 @@ enum ePrioUpdate {
     bottom "To Bottom"
 }
 
+# esanity: Severity levels used by sanity checkers
+enum esanity {
+    OK      OK
+    WARNING Warning
+    ERROR   Error
+}
+
 # esimstate: The current simulation state
 
 enum esimstate {

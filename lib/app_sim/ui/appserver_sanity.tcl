@@ -153,7 +153,10 @@ appserver module SANITY {
         ht page "Sanity Check: IOM Payloads" {
             ht title "IOM Payloads" "Sanity Check"
             
-            payload sanity report ::appserver::ht
+            if {[payload checker ::appserver::ht] eq "OK"} {
+                ht putln "No problems were found."
+                ht para
+            }
         }
 
         return [ht get]
