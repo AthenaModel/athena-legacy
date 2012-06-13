@@ -131,7 +131,10 @@ appserver module SANITY {
         ht page "Sanity Check: Semantic Hook Topics" {
             ht title "Semantic Hooks" "Sanity Check"
 
-            hook sanity report ::appserver::ht
+            if {[hook checker ::appserver::ht] eq "OK"} {
+                ht putln "No problems were found."
+                ht para
+            }
         }
 
         return [ht get]

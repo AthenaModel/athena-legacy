@@ -458,7 +458,7 @@ snit::widget hookbrowser {
     # Allows the user to check the sanity of the existing hooks.
 
     method SanityCheck {} {
-        if {![hook sanity check]} {
+        if {[hook checker] ne "OK"} {
             app show my://app/sanity/hook
         }
     }

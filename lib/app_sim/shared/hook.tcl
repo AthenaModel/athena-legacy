@@ -22,36 +22,26 @@ snit::type hook {
     #-------------------------------------------------------------------
     # Sanity Check
 
-    # sanity check
+    # checker ?ht?
     #
-    # Hook topics can become invalid after they are created.
-    # For example, a bsystem topic referenced by a hook topic
-    # may be deleted. The sanity check looks for such problems and'
-    # highlights them. Invalid hook topics are so marked and the
-    # user is notified
+    # ht - An htools buffer
     #
-    # Returns 1 if the check is successful, and 0 otherwise
+    # Computes the sanity check, and formats the results into the buffer
+    # for inclusion into an HTML page.  Returns an esanity value, either
+    # OK or WARNING.
 
-    typemethod {sanity check} {} {
+    typemethod checker {{ht ""}} {
         set edict [$type DoSanityCheck]
 
-        notifier send ::hook <Check>
+        if {[dict size $edict] == 0} {
+            return OK
+        }
 
-        # If there were no errors, the dictionary is empty
-        return [expr {[dict size $edict] == 0}]
-    }
+        if {$ht ne ""} {
+            $type DoSanityReport $ht $edict
+        }
 
-    # sanity report ht
-    #
-    # ht    - An htools buffer
-    #
-    # Computes the sanity check, and formats the results into the
-    # ht buffer for inclusion in an HTML page.  This command can 
-    # presume that the buffer is already initialized and ready to 
-    # receive the data.
-
-    typemethod {sanity report} {ht} {
-        return [$type DoSanityReport $ht [$type DoSanityCheck]]
+        return WARNING
     }
 
     # DoSanityCheck
@@ -99,6 +89,8 @@ snit::type hook {
             }
         }
 
+        notifier send ::hook <Check>
+
         return $edict
     }
 
@@ -108,37 +100,24 @@ snit::type hook {
     # edict  - A dictionary hook_id->topic_id->errmsg
     #
     # Writes HTML text of the results of the sanity check to the ht
-    # buffer.
+    # buffer.  This routine assumes that there are errors.
 
     typemethod DoSanityReport {ht edict} {
-        # FIRST, if theres nothing wrong, the report is simple
-        if {[dict size $edict] == 0} {
-            if {$ht ne ""} {
-                $ht putln "No sanity check failures were found."
-            }
+        # FIRST, build the report
+        $ht subtitle "Semantic Hook Errors"
 
-            return
-        }
-
-        # NEXT, build the report
         $ht putln "Certain hook topics have been marked invalid in the "
-        # TBD: add semantic hook browser docs and put link here
-        $ht put "Semantic Hooks Browser.  Please fix them "
-        $ht put "or delete them."
-        $ht para
 
-        # Hooks with topic errors
-        $ht push
-        $ht h2 "Semantic Hooks with Topic Errors"
+        $ht link gui:/tab/hooks "Info/Semantic Hooks tab"
         
-        $ht putln "The following semantic hooks have invalid topics "
-        $ht put   "attached."
+        $ht put " because they have invalid topics attached."
+        $ht put " Please fix them or delete them."
         $ht para
 
         dict for {hook_id idict} $edict {
             array set idata [hook get $hook_id]
 
-            $ht putln "<b>$hook_id: $idata(longname)</b>"
+            $ht putln "<b>Hook $hook_id: $idata(longname)</b>"
             $ht ul
 
             dict for {topic_id errmsg} $idict {
@@ -148,7 +127,7 @@ snit::type hook {
                     $ht li
                     $ht put "$hook_id topic $topic_id: $narrative"
                     $ht br
-                    $ht putln "==> <font color=red>$errmsg</font>"
+                    $ht putln "==> <font color=red>Warning: $errmsg</font>"
                 }
             }
 
