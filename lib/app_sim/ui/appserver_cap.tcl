@@ -70,13 +70,86 @@ appserver module CAP {
         ht put "Communication Asset Packages (CAPs):"
         ht para
 
-        ht query {
-            SELECT longlink      AS "Name",
-                   owner         AS "Owner",
-                   capacity      AS "Capacity",
-                   cost          AS "Cost, $"
-            FROM gui_caps
-        } -default "None." -align LLRR
+        if {[locked]} {
+            # NEXT, if locked things are a bit more complicated.
+            # We want to get the access list as well and in a 
+            # particular order
+            ht push
+
+            rdb eval {
+                SELECT k             AS k,
+                       longlink      AS longlink,
+                       owner         AS owner,
+                       capacity      AS capacity,
+                       cost          AS cost
+                FROM gui_caps
+            } {
+                set alist [list]
+
+                # NEXT, owner first
+                lappend alist [rdb onecolumn {
+                    SELECT link FROM gui_actors WHERE a=$owner}]
+
+                # NEXT, everyone else in alphabetical order
+                rdb eval {
+                    SELECT A.link AS alink
+                    FROM gui_actors  AS A
+                    JOIN cap_access  AS C ON (C.a == A.a)
+                    WHERE C.k  = $k
+                    AND   C.a != $owner
+                    ORDER BY C.a
+                } {
+                    lappend alist $alink
+                }
+
+                ht putln "<tr>"
+
+                ht td left {
+                    ht put $longlink
+                }
+
+                ht td left {
+                    ht put $owner
+                }
+
+                ht td right {
+                    ht put $capacity
+                }
+
+                ht td right {
+                    ht put $cost
+                }
+
+                ht td left {
+                    ht put [join $alist ", "]
+                }
+
+                ht put "</tr>"
+            }
+
+            set text [ht pop]
+
+            ht table {"Name" "Owner" "Capcity" "Cost, $" "Accessible By"} {
+                ht putln $text
+            }
+
+        } else {
+            ht query {
+                SELECT longlink      AS "Name",
+                       owner         AS "Owner",
+                       capacity      AS "Capacity",
+                       cost          AS "Cost, $"
+                FROM gui_caps
+            } -default "None." -align LLRR
+            
+            ht para
+
+            ht tinyi {
+                More information will be available once the scenario has
+                been locked.
+            }
+
+        }
 
         ht /page
 
@@ -107,10 +180,39 @@ appserver module CAP {
         ht title $data(fancy) "CAP" 
 
         ht linkbar {
+            "#capaccess" "CAP Access"
             "#capcov"    "CAP Coverage"
             "#sigevents" "Significant Events"
         }
  
+        ht subtitle "CAP Access" capaccess
+
+        if {[locked -disclaimer]} {
+            ht put "The following actors have access to this cap (the owner "
+            ht put "is listed first):"
+            
+            ht para
+
+            # NEXT, grab the owner first
+            lappend alist [rdb onecolumn \
+                {SELECT link FROM gui_actors WHERE a=$data(owner)}]
+
+            # NEXT, the rest of the access list, excluding the owner
+            rdb eval {
+                SELECT A.link AS alink
+                FROM gui_actors  AS A
+                JOIN cap_access  AS C ON (C.a == A.a)
+                WHERE C.k  = $k
+                AND   C.a != $data(owner)
+                ORDER BY C.a
+            } {
+                lappend alist $alink
+            }
+
+            ht put [join $alist ", "]
+            ht para
+        }
+
         ht subtitle "CAP Coverage" capcov
         rdb eval {SELECT longname, capacity, cost FROM caps WHERE k=$k} data {}
 

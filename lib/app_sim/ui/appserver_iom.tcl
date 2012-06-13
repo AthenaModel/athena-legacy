@@ -148,6 +148,8 @@ appserver module IOM {
 
         ht push
 
+        # NEXT, may need to customize the table for disabled or invalid
+        # hook topics, so build it from scratch
         rdb eval {
             SELECT fancy      AS fancy,
                    position   AS position,
