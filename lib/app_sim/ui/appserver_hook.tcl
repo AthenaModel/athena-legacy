@@ -107,6 +107,7 @@ appserver module HOOK {
 
         ht linkbar {
             "#topics"    "Semantic Hook Topics"
+            "#ioms"      "IOMs"
             "#sigevents" "Significant Events"
         }
  
@@ -125,7 +126,7 @@ appserver module HOOK {
             SELECT fancy      AS fancy,
                    position   AS position,
                    state      AS state
-            FROM gui_hook_topics WHERE hook_id=$data(hook_id)
+            FROM gui_hook_topics WHERE hook_id=$hook_id
         } {
             if {$state eq "disabled"} {
                 ht putln "<tr bgcolor=lightgray>"
@@ -163,6 +164,24 @@ appserver module HOOK {
         } else {
             ht putln "None."
         }
+
+        ht para
+
+        ht subtitle "IOMs" ioms
+
+        ht putln "
+            The following Information Operations Messages (IOMs) currently
+            use this semantic hook:
+        "
+
+        ht para
+
+        ht query {
+            SELECT longlink AS "IOM",
+                   longname AS "Narrative"
+            FROM gui_ioms
+            WHERE hook_id=$hook_id
+        } -default "None." -align LL 
 
         ht para
 
