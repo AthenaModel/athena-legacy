@@ -79,7 +79,7 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
         }
 
         /* List indentation */
-        OL, UL {
+        OL, UL, DD {
             padding-left: 1em;
         }
     }

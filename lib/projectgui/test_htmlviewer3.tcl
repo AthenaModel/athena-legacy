@@ -9,7 +9,7 @@ package require marsgui
 package require projectgui
 namespace import marsutil::* marsgui::* projectgui::*
 
-bind all <F12> {debugger new}
+bind all <F1> {debugger new}
 
 proc gridscroll {w {opt -y}} {
     set p [winfo parent $w]
