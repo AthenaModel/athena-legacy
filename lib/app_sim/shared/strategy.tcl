@@ -292,39 +292,27 @@ snit::type strategy {
     #-------------------------------------------------------------------
     # Strategy Sanity Check
 
-    # sanity check
+    # checker ?ht?
     #
-    # Tactics and conditions can become invalid after they are created.
-    # For example, a group referenced by a tactic might be deleted,
-    # or assigned to a different owner.  The sanity check looks for
-    # such problems, and highlights them.  Invalid tactics and
-    # conditions are so marked, and the user is notified.
+    # ht - An htools buffer
     #
-    # Returns 1 if the check is successful, and 0 otherwise.
+    # Computes the sanity check, and formats the results into the buffer
+    # for inclusion into an HTML page.  Returns an esanity value, either
+    # OK or WARNING.
 
-    typemethod {sanity check} {} {
+    typemethod checker {{ht ""}} {
         set flag [$type DoSanityCheck cerror terror]
 
-        notifier send ::strategy <Check>
+        if {$flag} {
+            return OK
+        }
 
-        return $flag
+        if {$ht ne ""} {
+            $type DoSanityReport $ht cerror terror
+        }
+
+        return WARNING
     }
-
-    # sanity report ht
-    #
-    # ht    - An htools buffer
-    #
-    # Computes the sanity check, and formats the results into the ht
-    # buffer for inclusion in an HTML page.  This command can presume
-    # that the buffer is already initialized and ready to receive the
-    # data.
-
-    typemethod {sanity report} {ht} {
-        $type DoSanityCheck cerror terror
-        
-        return [$type DoSanityReport $ht cerror terror]
-    }
-
 
     # DoSanityCheck cerrorVar terrorVar
     #
@@ -403,6 +391,9 @@ snit::type strategy {
             }
         }
 
+        # NEXT, notify the application that a check has been done.
+        notifier send ::strategy <Check>
+
         # NEXT, if there's nothing wrong, we're done.
         if {[llength $badConditions] == 0 &&
             [llength $badTactics] == 0
@@ -427,34 +418,19 @@ snit::type strategy {
         upvar 1 $cerrorVar cerror
         upvar 1 $terrorVar terror
 
-        # FIRST, if there's nothing wrong, the report is simple.
-        if {[array size cerror] == 0 &&
-            [array size terror] == 0
-        } {
-            if {$ht ne ""} {
-                $ht putln "No sanity check failures were found."
-            }
+        # Goals with condition errors
+        $ht push
+        $ht subtitle "Goals with Condition Errors"
 
-            return
-        }
-
-        # NEXT, Build the report
         $ht putln {
-            Certain tactics or conditions have failed their sanity
-            checks and have been marked invalid in the
+            The following goals have invalid conditions attached.  The
+            conditions have failed their sanity checks and have
+            been marked invalid in the
         }
         
         $ht link gui:/tab/strategy "Strategy Browser"
 
-        $ht put " Please fix them or delete them."
-        $ht para
-
-
-        # Goals with condition errors
-        $ht push
-        $ht h2 "Goals with Condition Errors"
-
-        $ht putln "The following goals have invalid conditions attached."
+        $ht put ". Please fix them or delete them."
         $ht para
              
         # Get the errant conditions by agent and goal.
@@ -493,7 +469,7 @@ snit::type strategy {
                         $ht put $narrative
                         $ht tiny " (condition type=$condition_type, id=$cid)"
                         $ht br
-                        $ht putln "==> <font color=red>$cerror($cid)</font>"
+                        $ht putln "==> <font color=red>Warning: $cerror($cid)</font>"
                     }
                 }
                 
@@ -514,13 +490,18 @@ snit::type strategy {
 
         # Bad Tactics/Tactics with bad conditions
         $ht push
-        $ht h2 "Tactics Errors"
+        $ht subtitle "Tactics Errors"
 
         $ht putln {
-            The following tactics are invalid or have invalid 
-            conditions attached to them.
+            The following tactics are invalid or have invalid
+            conditions attached to them.  The invalid entities
+            failed their sanity checks and have
+            been marked invalid in the
         }
+        
+        $ht link gui:/tab/strategy "Strategy Browser"
 
+        $ht put ". Please fix them or delete them."
         $ht para
 
         # Dictionary: agent->tactic->condition
@@ -558,7 +539,7 @@ snit::type strategy {
 
                     if {$tactic_state eq "invalid"} {
                         $ht br
-                        $ht putln "==> <font color=red>$terror($tid)</font>"
+                        $ht putln "==> <font color=red>Warning: $terror($tid)</font>"
                     }
                 }
 
@@ -577,7 +558,7 @@ snit::type strategy {
                         $ht put $narrative
                         $ht tiny " (condition type=$condition_type, id=$cid)"
                         $ht br
-                        $ht putln "==> <font color=red>$cerror($cid)</font>"
+                        $ht putln "==> <font color=red>Warning: $cerror($cid)</font>"
                     }
                 }
 

@@ -710,7 +710,7 @@ snit::widget strategybrowser {
     # Allows the user to create a new goal.
     
     method GTreeSanityCheck {} {
-        if {![strategy sanity check]} {
+        if {[strategy checker] ne "OK"} {
             app show my://app/sanity/strategy
         }
     }

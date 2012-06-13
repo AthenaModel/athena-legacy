@@ -176,10 +176,13 @@ appserver module SANITY {
     # results.
 
     proc /sanity/strategy:html {udict matchArray} {
-        ht page "Sanity Check: Actor's Strategies" {
-            ht title "Actor's Strategies" "Sanity Check"
+        ht page "Sanity Check: Actors' Strategies" {
+            ht title "Actors' Strategies" "Sanity Check"
             
-            strategy sanity report ::appserver::ht
+            if {[strategy checker ::appserver::ht] eq "OK"} {
+                ht putln "No problems were found."
+                ht para
+            }
         }
 
         return [ht get]

@@ -102,6 +102,7 @@ snit::type sanity {
         # NEXT, call each of the on-lock checkers
         savemax sev [$type ScenarioOnLockChecker $ht] 
         savemax sev [payload checker $ht] 
+        savemax sev [strategy checker $ht] 
 
         # NEXT, return the severity
         return $sev
@@ -205,7 +206,7 @@ snit::type sanity {
             set sev ERROR
 
             $ht dlitem \
-                "<b>Some Communication Asset Packages (CAPs) have no
+                "<b>Error: Some Communication Asset Packages (CAPs) have no
             owner.</b>" "
                 The following CAPs have no owning actor:
                 [join $names {, }].  Assign owning actors to CAPs on the

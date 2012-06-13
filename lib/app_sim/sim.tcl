@@ -775,35 +775,6 @@ order define SIM:LOCK {
 
     returnOnError -final
 
-    # NEXT, do the strategy sanity check.
-    if {![strategy sanity check]} {
-        app show my://app/sanity/strategy
-
-        set answer \
-            [messagebox popup \
-                 -title         "Strategy Sanity Check Failed"   \
-                 -icon          warning                          \
-                 -buttons       {ok "Continue" cancel "Cancel"}  \
-                 -default       cancel                           \
-                 -ignoretag     strategy_check_failed            \
-                 -ignoredefault ok                               \
-                 -parent        [app topwin]                     \
-                 -message       [normalize {
-                     The Strategy sanity check has failed; one or
-                     more tactics or conditions are invalid.  See the 
-                     Detail Browser for details.  Press "Cancel" and
-                     fix the problems, or press "Continue" to 
-                     go ahead and lock the scenario, in which 
-                     case the invalid tactics and conditions will be 
-                     ignored as the simulation runs.
-                 }]]
-
-        if {$answer eq "cancel"} {
-            # Don't do anything.
-            return
-        }
-    }
-
     # NEXT, do the semantic hook sanity check
     if {![hook sanity check]} {
         app show my://app/sanity/hook
