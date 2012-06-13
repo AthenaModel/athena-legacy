@@ -58,6 +58,15 @@ object iom_ {
         <<term prep>>, but must be specified before time can be
         advanced.
     } -tags {create update browser}
+
+    attribute state "State" {
+        The IOM's state, one of <b>normal</b>, <b>disabled</b>, or 
+        <b>invalid</b>.  Both <b>disabled</b> and <b>invalid</b> IOMs
+        are ignored when the IOM is sent; the difference is 
+        that <b>disabled</b> IOMs are explicitly
+        disabled by the user, while <b>invalid</b> IOMs are disabled
+        due to failing a sanity check.
+    } -tags {object state}
 }
 
 page /object iom "IOM" {

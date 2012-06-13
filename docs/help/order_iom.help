@@ -69,3 +69,14 @@ order IOM:UPDATE "Update Info Ops Message" {
     <</parmlist>>
 }
 
+#-----------------------------------------------------------------------
+
+order IOM:STATE "Set IOM State" {
+    Sets the <<term iom>>'s state.  Note that this order is for 
+    internal use by the application; there is no associated order 
+    dialog.  The order parameters are as follows:<p>
+
+    <<parmlist>>
+    <<iom_ parms -required -tags state>>
+    <</parmlist>>
+}

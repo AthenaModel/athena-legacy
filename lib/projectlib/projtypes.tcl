@@ -37,6 +37,7 @@ namespace eval ::projectlib:: {
         efrcactivity     \
         egoal_state      \
         egoal_predicate  \
+        eiom_state       \
         eorgactivity     \
         eorgconcern      \
         eorgtype         \
@@ -514,6 +515,14 @@ snit::type ::projectlib::typewrapper {
 # Goal State.
 
 ::marsutil::enum ::projectlib::egoal_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
+
+# IOM State.
+
+::marsutil::enum ::projectlib::eiom_state {
     normal   "normal"
     disabled "disabled"
     invalid  "invalid"

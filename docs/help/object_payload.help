@@ -66,7 +66,7 @@ object payload_ {
     attribute state "State" {
         The payload's state, one of <b>normal</b>, <b>disabled</b>, or 
         <b>invalid</b>.  Both <b>disabled</b> and <b>invalid</b> payloads
-        are ignored when the <<term iom>> is sent; the difference is 
+        are ignored when the <<term iom>> is sent; the 
         difference is that <b>disabled</b> payloads are explicitly
         disabled by the user, while <b>invalid</b> payloads are disabled
         due to failing a sanity check.

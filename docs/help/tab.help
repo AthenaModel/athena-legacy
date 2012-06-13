@@ -2398,12 +2398,12 @@ tab "Info/Info Ops Messages" {
     <</topic>>
 
     <<topic [image button_power]>>
-    Toggles the selected payload on and off.  Disabled payloads are
+    Toggles the selected IOM or payload on and off.  Disabled items are
     grayed out with an overstrike.
     <</topic>>
 
     <<topic [image button_checktxt]>>
-    Force a sanity check of the payloads. 
+    Force a sanity check of the IOMs and payloads. 
     <</topic>>
 
     <<topic [image button_trash]>>

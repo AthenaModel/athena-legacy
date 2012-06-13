@@ -127,7 +127,8 @@ snit::type iom {
     #    hook_id  - The hook_id, or ""
     #
     # Creates an IOM given the parms, which are presumed to be
-    # valid.
+    # valid.  Note that you can't change the payload's state, which
+    # has its own mutator.
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
@@ -189,6 +190,29 @@ snit::type iom {
             return [list rdb ungrab $data]
         }
     }
+
+    # mutate state iom_id state
+    #
+    # iom_id - The IOM's ID
+    # state  - The iom's new eiom_state
+    #
+    # Updates a iom's state.
+
+    typemethod {mutate state} {iom_id state} {
+        # FIRST, get the undo information
+        set data [rdb grab ioms {iom_id=$iom_id}]
+
+        # NEXT, Update the iom.
+        rdb eval {
+            UPDATE ioms
+            SET state = $state
+            WHERE iom_id=$iom_id
+        }
+
+        # NEXT, Return the undo command
+        return [list rdb ungrab $data]
+    }
+
 }    
 
 #-------------------------------------------------------------------
@@ -294,4 +318,29 @@ order define IOM:UPDATE {
 }
 
 
+# IOM:STATE
+#
+# Sets a iom's state.  Note that this order isn't intended
+# for use with a dialog.
+
+order define IOM:STATE {
+    title "Set IOM State"
+
+    options \
+        -sendstates PREP \
+        -refreshcmd {orderdialog refreshForKey iom_id *}
+
+    parm iom_id    key  "IOM ID"    -context yes      \
+                                    -table   gui_ioms \
+                                    -keys    iom_id
+    parm state text "State"
+} {
+    # FIRST, prepare and validate the parameters
+    prepare iom_id -required          -type iom
+    prepare state  -required -tolower -type eiom_state
+
+    returnOnError -final
+
+    setundo [iom mutate state $parms(iom_id) $parms(state)]
+}
 

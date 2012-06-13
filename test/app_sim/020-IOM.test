@@ -93,6 +93,7 @@ namespace eval ::athena_test::tests:: {
 iom_id    M1
 longname  IOM One
 hook_id   
+state     normal
     }
 
     test CREATE-2.2 {longname defaults to ID} -setup {
@@ -201,6 +202,7 @@ hook_id
 iom_id    M1
 longname  New Name
 hook_id   
+state     normal
     }
 
 
@@ -223,6 +225,52 @@ hook_id
             iom_id   M1
             longname "New Name"
         }
+    } -body {
+        ted notifier bind ::rdb <ioms>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <ioms> update M1}
+    }
+
+    #-------------------------------------------------------------------
+    # IOM:STATE
+
+    test STATE-1.1 {required parms} -body {
+        ted order -reject IOM:STATE {}
+    } -result {
+        iom_id {required value}
+        state {required value}
+    }
+
+    
+    test STATE-1.2 {unknown iom id} -body {
+        ted order -reject IOM:STATE iom_id NONESUCH state disabled
+    } -result {
+        iom_id {Invalid IOM, none are defined}
+    }
+
+
+    test STATE-2.1 {Effects} -setup {
+        setup
+        ted order IOM:CREATE $m1
+    } -body {
+        ted notifier bind ::rdb <ioms>
+        ted order IOM:STATE iom_id M1 state disabled
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <ioms> update M1}
+    }
+
+
+    test STATE-3.1 {Undo effects} -setup {
+        setup
+        ted order IOM:CREATE $m1
+        ted order IOM:STATE iom_id M1 state disabled
     } -body {
         ted notifier bind ::rdb <ioms>
         cif undo -test

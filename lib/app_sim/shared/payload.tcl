@@ -542,7 +542,7 @@ order define PAYLOAD:STATE {
     title "Set Payload State"
 
     options \
-        -sendstates {PREP PAUSED} \
+        -sendstates PREP \
         -refreshcmd {orderdialog refreshForKey payload_id *}
 
     parm id    key  "Payload ID"    -context yes                  \

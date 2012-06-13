@@ -33,7 +33,7 @@ snit::widget iombrowser {
     component paddbtn        ;# Add Payload button
     component editbtn        ;# The "Edit" button
     component togglebtn      ;# The iom state toggle button
-    component checkbtn       ;# Payload sanity check button
+    component checkbtn       ;# Payload/IOM sanity check button
     component deletebtn      ;# The Delete button
 
     #-------------------------------------------------------------------
@@ -79,6 +79,7 @@ snit::widget iombrowser {
         # Reload the content on various notifier events.
         notifier bind ::sim     <DbSyncB>     $self [mymethod ReloadOnEvent]
         notifier bind ::sim     <Tick>        $self [mymethod ReloadOnEvent]
+        notifier bind ::iom     <Check>       $self [mymethod ReloadOnEvent]
         notifier bind ::payload <Check>       $self [mymethod ReloadOnEvent]
         notifier bind ::rdb     <hooks>       $self [mymethod ReloadOnEvent]
         notifier bind ::rdb     <hook_topics> $self [mymethod ReloadOnEvent]
@@ -262,13 +263,13 @@ snit::widget iombrowser {
 
         install togglebtn using mktoolbutton $bar.toggle   \
             ::marsgui::icon::onoff                         \
-            "Toggle Payload State"                         \
+            "Toggle State"                         \
             -state   disabled                              \
-            -command [mymethod TogglePayloadState]
+            -command [mymethod ToggleState]
 
         cond::simPrepPredicate control $togglebtn       \
             browser $win                                \
-            predicate {iptree validpayload}
+            predicate {iptree validitem}
 
         install checkbtn using ttk::button $bar.check   \
             -style   Toolbutton                         \
@@ -462,27 +463,39 @@ snit::widget iombrowser {
     }
 
 
-    # TogglePayloadState
+    # ToggleState
     #
-    # Toggles the payload's state from normal to disabled and back
+    # Toggles the item's state from normal to disabled and back
     # again.
 
-    method TogglePayloadState {} {
+    method ToggleState {} {
         # FIRST, there should be only one selected.
         set id [lindex [$iptree selection get] 0]
 
-        # NEXT, get its payload ID
-        set id [$iptree item text $id {tag id}]
+        # NEXT, get its entity ID
+        set oid   [$iptree item text $id {tag id}]
 
-        # NEXT, Get its state
-        set state [payload get $id state]
+        # NEXT, it's a iom or a payload.
+        if {"iom" in [$iptree item tag names $id]} {
+            set state [iom get $oid state]
 
-        if {$state eq "normal"} {
-            order send gui PAYLOAD:STATE id $id state disabled
-        } elseif {$state eq "disabled"} {
-            order send gui PAYLOAD:STATE id $id state normal
+            if {$state eq "normal"} {
+                order send gui IOM:STATE iom_id $oid state disabled
+            } elseif {$state eq "disabled"} {
+                order send gui IOM:STATE iom_id $oid state normal
+            } else {
+                # Do nothing (this should never happen anyway)
+            }
         } else {
-            # Do nothing (this should never happen anyway)
+            set state [payload get $oid state]
+
+            if {$state eq "normal"} {
+                order send gui PAYLOAD:STATE id $oid state disabled
+            } elseif {$state eq "disabled"} {
+                order send gui PAYLOAD:STATE id $oid state normal
+            } else {
+                # Do nothing (this should never happen anyway)
+            }
         }
     }
 
@@ -521,7 +534,6 @@ snit::widget iombrowser {
     # idataVar - Name of an array containing IOM attributes
     #
     # Adds/updates an IOMitem in the iptree.
-    # TBD: Needs to document the hook!
 
     method DrawIOM {idataVar} {
         upvar $idataVar idata
@@ -546,6 +558,9 @@ snit::widget iombrowser {
             0               $idata(narrative) \
             {tag id}        $idata(iom_id)    \
             {tag type}      ""
+
+        # NEXT, set the state
+        $self TreeItemState $iptree $id $idata(state)
 
         # NEXT, sort items by IOM ID
         $iptree item sort root -column {tag id}
@@ -823,21 +838,19 @@ snit::widget iombrowser {
         return [expr {"iom" in [$iptree item tag names $id]}]
     }
 
-    # iptree validpayload
+    # iptree validitem
     #
-    # Returns 1 if a valid (state != invalid) payload is selected in the
+    # Returns 1 if a valid (state != invalid) item is selected in the
     # iptree, and 0 otherwise.
     
-    method {iptree validpayload} {} {
+    method {iptree validitem} {} {
         if {[llength [$iptree selection get]] != 1} {
             return 0
         }
 
         set id [lindex [$iptree selection get] 0]
-        
-        if {"payload" in [$iptree item tag names $id] &&
-            ![$iptree item state get $id invalid]
-        } {
+       
+        if {![$iptree item state get $id invalid]} {
             return 1
         } else {
             return 0

@@ -122,7 +122,8 @@ SELECT I.iom_id                                       AS iom_id,
        THEN I.longname || '  (no hook specified)'
        ELSE I.longname || '  (' || 'Hook ' || I.hook_id || ': ' || 
             coalesce(H.narrative, 'TBD') || ')'
-       END                           AS narrative
+       END                                            AS narrative,
+       state                                          AS state
 FROM ioms AS I
 LEFT OUTER JOIN hooks AS H USING (hook_id);
        
