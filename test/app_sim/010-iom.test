@@ -392,6 +392,85 @@ state     disabled
     } -result {1}
 
     #-------------------------------------------------------------------
+    # normal names
+
+    test normal_names-1.1 {Returns normal names: none defined} -body {
+        setup
+        iom normal names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test normal_names-1.2 {Returns normal names} -setup {
+        setup
+        iom mutate create $m1
+        iom mutate create $m2
+        iom mutate state M2 disabled
+    } -body {
+        iom normal names
+    } -cleanup {
+        cleanup
+    } -result {M1}
+
+
+    #-------------------------------------------------------------------
+    # normal longnames
+
+    test normal_longnames-1.1 {Returns names: none defined} -body {
+        setup
+        iom normal longnames
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test normal_longnames-1.2 {Returns normal names} -setup {
+        setup
+        iom mutate create $m1
+        iom mutate create $m2
+        iom mutate state M2 disabled
+    } -body {
+        iom normal longnames
+    } -cleanup {
+        cleanup
+    } -result {{M1: IOM One}}
+
+
+    #-------------------------------------------------------------------
+    # normal validate
+
+    test normal_validate-1.1 {Invalid name: none defined} -body {
+        iom normal validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid IOM, no valid IOMs are defined}
+
+    test normal_validate-1.2 {Invalid name: some defined} -setup {
+        setup
+        iom mutate create $m1
+        iom mutate create $m2
+        iom mutate state M2 disabled
+    } -body {
+        iom normal validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid IOM, should be one of: M1}
+
+    test validate-2.1 {Valid name} -setup {
+        setup
+        iom mutate create $m1
+        iom mutate create $m2
+        iom mutate state M2 disabled
+    } -body {
+        iom validate M1
+    } -cleanup {
+        cleanup
+    } -result {M1}
+
+    #-------------------------------------------------------------------
     # get
 
     test get-1.1 {get dict} -setup {

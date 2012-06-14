@@ -281,7 +281,7 @@ order define TACTIC:BROADCAST:CREATE {
                                            -width 40
     parm a         enum  "Attr. Source"    -enumtype {ptype a+self+none} \
                                            -defval SELF
-    parm iom       enum  "Message ID"      -enumtype iom \
+    parm iom       enum  "Message ID"      -enumtype {iom normal} \
                                            -displaylong yes \
                                            -width 40
     parm x1        text  "Prep. Cost"    
@@ -297,7 +297,7 @@ order define TACTIC:BROADCAST:CREATE {
     prepare owner    -toupper   -required -type actor
     prepare cap      -toupper   -required -type cap
     prepare a        -toupper   -required -type {ptype a+self+none}
-    prepare iom      -toupper   -required -type iom
+    prepare iom      -toupper   -required -type {iom normal}
     prepare x1       -toupper   -required -type money
     prepare priority -tolower             -type ePrioSched
     prepare on_lock             -required -type boolean
@@ -330,7 +330,7 @@ order define TACTIC:BROADCAST:UPDATE {
                                           -displaylong yes
     parm a         enum  "Attr. Source"   -enumtype {ptype a+self+none} \
                                           -defval SELF
-    parm iom       enum  "Message ID"     -enumtype iom \
+    parm iom       enum  "Message ID"     -enumtype {iom normal} \
                                           -displaylong yes \
                                           -width 40
     parm x1        text  "Prep. Cost"    
@@ -341,7 +341,7 @@ order define TACTIC:BROADCAST:UPDATE {
     prepare tactic_id  -required -type tactic
     prepare cap        -toupper  -type cap
     prepare a          -toupper  -type {ptype a+self+none}
-    prepare iom        -toupper  -type iom
+    prepare iom        -toupper  -type {iom normal}
     prepare x1         -toupper  -type money
     prepare on_lock              -type boolean
     prepare once                 -type boolean

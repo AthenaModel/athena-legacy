@@ -109,6 +109,50 @@ snit::type iom {
         return ""
     }
 
+    # normal names
+    #
+    # Returns the list of IOM IDs with state=normal
+
+    typemethod {normal names} {} {
+        return [rdb eval {
+            SELECT iom_id FROM ioms WHERE state='normal'
+        }]
+    }
+
+    # normal longnames
+    #
+    # Returns the list of IOM long names with state=normal
+
+    typemethod {normal longnames} {} {
+        return [rdb eval {
+            SELECT iom_id || ': ' || longname FROM ioms
+            WHERE state='normal'
+        }]
+    }
+
+    # normal validate iom_id
+    #
+    # iom_id   - Possibly, an IOM ID with state=normal
+    #
+    # Validates an IOM ID, and ensures that state=normal
+
+    typemethod {normal validate} {iom_id} {
+        set names [iom normal names]
+
+        if {$iom_id ni $names} {
+            if {$names ne ""} {
+                set msg "should be one of: [join $names {, }]"
+            } else {
+                set msg "no valid IOMs are defined"
+            }
+
+            return -code error -errorcode INVALID \
+                "Invalid IOM, $msg"
+        }
+
+        return $iom_id
+    }
+
     #-------------------------------------------------------------------
     # Sanity Check
 
