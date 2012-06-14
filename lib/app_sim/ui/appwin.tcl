@@ -302,24 +302,10 @@ snit::widget appwin {
         }
 
         caps {
-            label   "CAPs"
+            label  "CAPs"
             vistype *
-            parent  info
-            script  {capbrowser %W}
-        }
-
-        caps_nbcov {
-            label   "Nbhood Coverage"
-            vistype *
-            parent  info
-            script  {capnbcovbrowser %W}
-        }
-
-        caps_pen {
-            label   "Group Penetration"
-            vistype *
-            parent  info
-            script  {cappenbrowser %W}
+            parent info
+            script {capbrowser %W}
         }
 
         hooks {
@@ -456,6 +442,29 @@ snit::widget appwin {
                         {m      0 yes}
                     }
             }
+        }
+    }
+
+    variable obetabs {
+        caps {
+            label   "CAPs"
+            vistype *
+            parent  info
+            script  {capbrowser %W}
+        }
+
+        caps_nbcov {
+            label   "Nbhood Coverage"
+            vistype *
+            parent  info
+            script  {capnbcovbrowser %W}
+        }
+
+        caps_pen {
+            label   "Group Penetration"
+            vistype *
+            parent  info
+            script  {cappenbrowser %W}
         }
     }
 
