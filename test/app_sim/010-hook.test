@@ -138,10 +138,12 @@ narrative  Puppies are good: No position on any topics
 iom_id    M1
 longname  IOM One
 hook_id   PUPG
+state     normal
     
 iom_id    M1
 longname  IOM One
 hook_id   
+state     normal
     }
 
     test delete-1.4 {Undo restores hook in ioms} -setup {
@@ -291,10 +293,10 @@ position    0.9
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
-        hook sanity check
+        hook checker
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {OK}
 
     test sanity-1.2 {Hook module is not sane} -setup {
         bsystem topic add T1
@@ -302,10 +304,10 @@ position    0.9
         hook mutate topic create $t1
     } -body {
         bsystem topic delete T1
-        hook sanity check
+        hook checker
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {WARNING}
 
     #----------------------------------------------------------
     # Public methods

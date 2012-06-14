@@ -188,12 +188,9 @@ tactic type define BROADCAST {cap a iom x1 on_lock once} actor {
             # iom
             if {$iom ni [iom names]} {
                 lappend errors "IOM $iom no longer exists."
+            } elseif {[iom get $iom state] ne "normal"} {
+                lappend errors "IOM $iom is not valid."
             }
-
-            # TBD: Should do more checking on IOM.  If it is invalid
-            # or disabled, the tactic is invalid or disabled.  Also,
-            # need to check for non-zero hook topics and IOM
-            # payloads.
         }
 
         return [join $errors "  "]

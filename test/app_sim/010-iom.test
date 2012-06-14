@@ -403,6 +403,7 @@ state     disabled
         cleanup
     } -result {
         narrative {IOM One  (Hook HOOK1: Hook One: No position on any topics)}
+        state     normal
         fancy     {M1: IOM One}
         hook_id   HOOK1
         longname  {IOM One}
