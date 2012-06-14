@@ -29,7 +29,8 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB CBS CNN IOM1 IOM2
+        ted create JOE BOB CBS CNN IOM1 IOM2 BLUE
+
 
         # Verify that unused columns contain NULL
         rdb nullvalue "@"
@@ -37,6 +38,23 @@ namespace eval ::athena_test::tests:: {
 
     proc execute_setup {} {
         setup
+
+        # We need a payload and a hook topic, or we can't execute.
+        bsystem topic add T1
+
+        payload mutate create {
+            iom_id       IOM1
+            payload_type COOP 
+            g            BLUE
+            mag          1.0
+        }
+
+        hook mutate topic create {
+            hook_id  HOOK1
+            topic_id T1
+            position 0.9
+        }
+
         cash load
         tactic::BROADCAST reset
     }
