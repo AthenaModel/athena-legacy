@@ -1,0 +1,107 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    projmisc.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for projectlib(n), projmisc(n)
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require projectlib 1.0
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::projectlib::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::marsutil::*
+    namespace import ::projectlib::*
+
+
+    #-------------------------------------------------------------------
+    # dict2urlquery
+
+    test dict2urlquery-1.1 {empty dict} -body {
+        dict2urlquery {}
+    } -result {}
+
+    test dict2urlquery-1.2 {one pair} -body {
+        dict2urlquery {p1 v1}
+    } -result {p1=v1}
+
+    test dict2urlquery-1.3 {multiple pairs} -body {
+        dict2urlquery {p1 v1 p2 v2 p3 v3}
+    } -result {p1=v1+p2=v2+p3=v3}
+
+    test dict2urlquery-1.4 {one empty parm} -body {
+        dict2urlquery {p1 ""}
+    } -result {p1}
+
+    test dict2urlquery-1.5 {multiple pairs, one empty} -body {
+        dict2urlquery {p1 v1 p2 "" p3 v3}
+    } -result {p1=v1+p2+p3=v3}
+
+
+
+    #-------------------------------------------------------------------
+    # urlquery2dict
+
+    test urlquery2dict-1.1 {empty query} -body {
+        urlquery2dict ""
+    } -result {}
+
+    test urlquery2dict-1.2 {one parm, no value} -body {
+        urlquery2dict "p1"
+    } -result {p1 {}}
+
+    test urlquery2dict-1.3 {one parm and value} -body {
+        urlquery2dict "p1=v1"
+    } -result {p1 v1}
+
+    test urlquery2dict-1.4 {multiple parms and values} -body {
+        urlquery2dict "p1=v1+p2=v2+p3=v3"
+    } -result {p1 v1 p2 v2 p3 v3}
+
+    test urlquery2dict-1.5 {multiple parms, one missing value} -body {
+        urlquery2dict "p1=v1+p2+p3=v3"
+    } -result {p1 v1 p2 {} p3 v3}
+
+    test urlquery2dict-1.6 {extra =} -body {
+        urlquery2dict "p1=v1=ex+p2=v2"
+    } -result {p1 v1 p2 v2}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::projectlib::test
+
+
+

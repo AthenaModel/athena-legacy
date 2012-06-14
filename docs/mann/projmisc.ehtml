@@ -1,0 +1,88 @@
+<<manpage {projectlib(n) projmisc(n)} "Athena Miscellaneous Utilities">>
+
+<<swallow {package require projectlib}>>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines utility commands used by the Athena code-base.<p>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem dict2urlquery {dict2urlquery <i>dict</i>}>>
+
+Converts a parameter dictionary into a form usables as a URL query
+string.  E.g., it converts the dictionary<p>
+
+<pre>
+    first John last Doe
+</pre>
+
+into the string<p>
+
+<pre>    first=John+last=Doe</pre><p>
+
+If a parameter's value is the empty string, the "=" portion is left
+out for that parameter.<p>
+
+Parameters and their values may not contain white space, "+", or
+"=".<p>
+
+<<defitem urlquery2dict {urlquery2dict <i>query</i>}>>
+
+Converts a URL query string into a parameter dictionary.  E.g., it
+converts the string<p>
+
+<pre>    first=John+last=Doe</pre><p>
+
+into the dictionary<p>
+
+<pre>
+    first John last Doe
+</pre>
+
+If a parameter has no "=" value, it goes into the dictionary with an
+empty value.  If a parameter has more than one "=", e.g.,
+
+<pre>    first=John=Doe</pre><p>
+
+then the second and any subsequent "=" values are ignored.<p>
+
+<</deflist commands>>
+
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+
