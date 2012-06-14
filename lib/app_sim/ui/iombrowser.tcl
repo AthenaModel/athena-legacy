@@ -80,7 +80,6 @@ snit::widget iombrowser {
         notifier bind ::sim     <DbSyncB>     $self [mymethod ReloadOnEvent]
         notifier bind ::sim     <Tick>        $self [mymethod ReloadOnEvent]
         notifier bind ::iom     <Check>       $self [mymethod ReloadOnEvent]
-        notifier bind ::payload <Check>       $self [mymethod ReloadOnEvent]
         notifier bind ::rdb     <hooks>       $self [mymethod ReloadOnEvent]
         notifier bind ::rdb     <hook_topics> $self [mymethod ReloadOnEvent]
 
@@ -504,8 +503,8 @@ snit::widget iombrowser {
     # Allows the user to check the sanity of the existing payloads. 
     
     method SanityCheck {} {
-        if {[payload checker] ne "OK"} {
-            app show my://app/sanity/payload
+        if {[iom checker] ne "OK"} {
+            app show my://app/sanity/iom
         }
     }
 

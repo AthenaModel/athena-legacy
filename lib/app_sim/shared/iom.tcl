@@ -109,6 +109,161 @@ snit::type iom {
         return ""
     }
 
+    #-------------------------------------------------------------------
+    # Sanity Check
+
+    # checker ?ht?
+    #
+    # ht - An htools buffer
+    #
+    # Computes the sanity check, and formats the results into the buffer
+    # for inclusion into an HTML page.  Returns an esanity value, either
+    # OK or WARNING.
+
+    typemethod checker {{ht ""}} {
+        # FIRST, do the payload check.
+        set psev [payload checker $ht]
+        assert {$psev ne "ERROR"}
+
+        set edict [$type DoSanityCheck]
+
+        if {$psev eq "OK" && [dict size $edict] == 0} {
+            return OK
+        }
+
+        if {$ht ne ""} {
+            $type DoSanityReport $ht $edict
+        }
+        
+        return WARNING
+    }
+
+    # DoSanityCheck
+    #
+    # This routine does the actual sanity check, marking the IOM
+    # records in the RDB and putting error messages in a 
+    # nested dictionary, iom_id -> msglist.  Note that a single
+    # IOM can have multiple messages.
+    #
+    # It is assumed that the payload checker has already been
+    # run.
+    #
+    # Returns the dictionary, which will be empty if there were no
+    # errors.
+
+    typemethod DoSanityCheck {} {
+        # FIRST, create the empty error dictionary.
+        set edict [dict create]
+
+        # NEXT, clear the invalid states, since we're going to 
+        # recompute them.
+
+        rdb eval {
+            UPDATE ioms
+            SET state = 'normal'
+            WHERE state = 'invalid';
+        }
+
+        # NEXT, identify the invalid IOMs.
+        set badlist [list]
+
+        # IOMs with no valid payloads
+        rdb eval {
+            SELECT I.iom_id             AS iom_id, 
+                   count(P.payload_num) AS num
+            FROM ioms AS I
+            LEFT OUTER JOIN payloads AS P 
+            ON P.iom_id = I.iom_id AND P.state = 'normal'
+            GROUP BY iom_id
+        } {
+            if {$num == 0} {
+                dict lappend edict $iom_id "IOM has no valid payloads."
+                ladd badlist $iom_id
+            }
+        }
+
+        # IOMs with no hook
+        rdb eval {
+            SELECT iom_id
+            FROM ioms 
+            WHERE hook_id IS NULL
+        } {
+            dict lappend edict $iom_id "IOM has no semantic hook."
+            ladd badlist $iom_id
+        }
+
+        # IOMs with hooks with no valid hook_topics
+        rdb eval {
+            SELECT iom_id, count(topic_id) AS num
+            FROM ioms AS I
+            LEFT OUTER JOIN hook_topics AS HT 
+            ON HT.hook_id = I.hook_id AND HT.state = 'normal'
+            WHERE I.hook_id IS NOT NULL
+            GROUP BY iom_id
+        } {
+            if {$num == 0} {
+                dict lappend edict $iom_id \
+                    "IOM's semantic hook has no valid topics."
+                ladd badlist $iom_id
+            }
+        }
+        
+
+        # NEXT, mark the bad IOMs invalid.
+        foreach iom_id $badlist {
+            rdb eval {
+                UPDATE ioms
+                SET state = 'invalid'
+                WHERE iom_id=$iom_id
+            }
+        }
+
+        notifier send ::iom <Check>
+
+        return $edict
+    }
+
+
+    # DoSanityReport ht edict
+    #
+    # ht        - An htools buffer to receive a report.
+    # edict     - A dictionary iom_id->msglist
+    #
+    # Writes HTML text of the results of the sanity check to the ht
+    # buffer.  This routine assumes that there are errors.
+
+    typemethod DoSanityReport {ht edict} {
+        # FIRST, Build the report
+        $ht subtitle "IOM Constraints"
+
+        $ht putln {
+            One or more IOMs failed their checks and have been 
+            marked invalid in the
+        }
+        
+        $ht link gui:/tab/ioms "IOM Browser"
+
+        $ht put ".  Please fix them or delete them."
+        $ht para
+
+        dict for {iom_id msglist} $edict {
+            array set idata [iom get $iom_id]
+
+            $ht ul
+            $ht li 
+            $ht put "<b>IOM $iom_id: $idata(longname)</b>"
+
+            foreach errmsg $msglist {
+                $ht br
+                $ht putln "==> <font color=red>Warning: $errmsg</font>"
+            }
+            
+            $ht /ul
+        }
+
+        return
+    }
+
 
     #-------------------------------------------------------------------
     # Mutators

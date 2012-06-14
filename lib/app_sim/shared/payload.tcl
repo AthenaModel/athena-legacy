@@ -115,6 +115,9 @@ snit::type payload {
     # Computes the sanity check, and formats the results into the buffer
     # for inclusion into an HTML page.  Returns an esanity value, either
     # OK or WARNING.
+    #
+    # Note: This checker is called from [iom checker], not from
+    # [sanity *].
 
     typemethod checker {{ht ""}} {
         set edict [$type DoSanityCheck]

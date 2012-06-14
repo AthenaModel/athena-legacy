@@ -37,9 +37,9 @@ appserver module SANITY {
             text/html [myproc /sanity/hook:html]        \
             "Sanity check report for Semantic Hooks."
 
-        appserver register /sanity/payload {sanity/payload/?} \
-            text/html [myproc /sanity/payload:html]           \
-            "Sanity check report for IOM Payloads."
+        appserver register /sanity/iom {sanity/iom/?} \
+            text/html [myproc /sanity/iom:html]       \
+            "Sanity check report for IOMs and their payloads."
 
         appserver register /sanity/strategy {sanity/strategy/?} \
             text/html [myproc /sanity/strategy:html]            \
@@ -141,22 +141,22 @@ appserver module SANITY {
     }
 
     #-------------------------------------------------------------------
-    # /sanity/payload: Payload sanity check reports
+    # /sanity/iom: IOM sanity check reports
     #
     # No match parameters
 
-    # /sanity/payload:html udict matchArray
+    # /sanity/iom:html udict matchArray
     #
-    # Formats the payload sanity check report for
-    # /sanity/payload.  Note that sanity is checked by the
-    # "payload sanity report" command; this command simply reports on the
+    # Formats the iom sanity check report for
+    # /sanity/iom.  Note that sanity is checked by the
+    # "iom sanity report" command; this command simply reports on the
     # results.
 
-    proc /sanity/payload:html {udict matchArray} {
-        ht page "Sanity Check: IOM Payloads" {
-            ht title "IOM Payloads" "Sanity Check"
+    proc /sanity/iom:html {udict matchArray} {
+        ht page "Sanity Check: IOMs" {
+            ht title "IOMs" "Sanity Check"
             
-            if {[payload checker ::appserver::ht] eq "OK"} {
+            if {[iom checker ::appserver::ht] eq "OK"} {
                 ht putln "No problems were found."
                 ht para
             }
