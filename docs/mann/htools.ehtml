@@ -139,6 +139,28 @@ stack. Note that this is done automatically by the <<iref page>> command.<p>
 Sets the value of one or more of the object's
 options.<p>
 
+<<defitem form {<i>object</i> form <i>action</i> ?<i>options...</i>?}>>
+
+Adds a <code>&lt;form&gt;</code> element to the buffer.  The element's 
+<b>action</b> attribute will be set to the given <i>action</i>, which
+is the URL to load when the form is submitted.  Any options and their
+values will be naively turned into additional attributes.  The
+following options are of particular interest:<p>
+
+<<deflist options>>
+<<defopt {-autosubmit <i>flag</i>}>>
+If the <i>flag</i> is true, then the form will be submitted
+automatically when form inputs change in particular ways, i.e., when
+a new enumerated value is chosen from a pulldown.  Otherwise, the
+form will only be submitted when the user presses the 
+<<iref submit>> button.
+<</deflist options>>
+
+<<defitem /form {/form}>>
+
+Adds a <code>&lt;/form&gt;</code> element to the buffer, terminating the current
+form.<p>
+
 <<defitem get {<i>object</i> get}>>
 
 Returns the content from the buffer at the top of the stack.<p>
@@ -153,6 +175,10 @@ Generates an HTML <code>&lt;h1&gt;</code>, <code>&lt;h2&gt;</code>, or
 the page in URLs from elsewhere in the page (or from other pages
 entirely).<p>
 
+<<defitem hr {<i>object</i> hr}>>
+
+Adds an <code>&lt;hr&gt;</code> tag to the buffer.<p>
+
 <<defitem image {<i>object</i> image <i>name</i> ?<i>align</i>?}>>
 
 Generates an <code>&lt;img&gt;</code> tag with "src" equal to
@@ -161,6 +187,48 @@ Generates an <code>&lt;img&gt;</code> tag with "src" equal to
 
 This command is for use with <<xref myserver(i)>> instances that
 support querying Tk images.<p>
+
+<<defitem input {<i>object</i> input <i>name itype value</i> ?<i>options...</i>?}>>
+
+Inserts an <code>&lt;input&gt;</code> element into the current
+<<iref form>>.  The input will have the given <i>name</i> and initial
+<i>value</i>; the <i>itype</i> must be one of the input types listed
+below.  Any provided options are passed along as attributes;
+different input types expect different options.<p>
+
+The input types are as follows:<p>
+
+<<deflist itypes>>
+
+<<defitem itype_enum {<b>enum</b>}>>
+
+An <<xref enumfield(n)>> widget.  The set of
+enumerated values comes from a URL specified as the
+<code>-src</code> option, which must provide the <b>tcl/enumlist</b> 
+or <b>tcl/enumdict</b> content type.  By default, the
+<<xref mybrowser(n)>> will look for a <b>tcl/enumlist</b>; to use a
+<b>tcl/enumdict</b>, pass the content type as the value of the
+<code>-content</code> option.<p>
+
+<<defitem itype_text {<b>text</b>}>>
+
+A <<xref textfield(n)>> widget.  Set the width in characters using
+the <code>-size</code> option.<p>
+<</deflist itypes>>
+
+<<defitem label {<i>object</i> label <i>for</i> ?<i>text</i>?}>>
+
+Inserts a <code>&lt;label&gt;</code> element into a <<iref form>>.  The element
+tags the label text associated with the <<iref input>> whose name
+is <i>for</i>.<p>
+
+If <i>text</i> is given, it will be inserted as the label text, and
+the <<iref /label>> element will be inserted automatically.<p>
+
+<<defitem /label {<i>object</i> /label}>>
+
+Inserts a <code>&lt;/label&gt;</code> element into a <<iref form>>, terminating
+the current <<iref label>>.<p>
 
 <<defitem li {<i>object</i> li ?<i>body</i>?}>>
 
@@ -324,6 +392,16 @@ Alternatively, <<iref query>> will use the column names in the result
 set.<p>
 
 <</deflist options>>
+
+<<defitem submit {<i>object</i> submit ?<i>label</i>?}>>
+
+Adds a "submit" button to the current <<iref form>>.  When pressed,
+the <<xref mybrowser(n)>> will add the form's <<iref input>> values
+to the form's <b>action</b> URL using standard query syntax, and
+display the resulting URL.<p>
+
+If <i>label</i> is given, it will be used as the label on the button;
+otherwise the button will say "Submit".<p>
 
 <<defitem subtitle {<i>object</i> subtitle <i>title</i>
 ?<i>anchor</i>? ?<i>link label</i> ?<i>link label...</i>??}>>

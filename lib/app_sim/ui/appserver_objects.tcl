@@ -106,6 +106,11 @@ appserver module OBJECTS {
             label "Model Parameters"
             listIcon ::marsgui::icon::pencil12
         }
+
+        /contribs {
+            label    "Contributions"
+            listIcon ::projectgui::icon::heart12
+        }
     }
 
     #-------------------------------------------------------------------
@@ -157,6 +162,7 @@ appserver module OBJECTS {
                     /groups/civ 
                     /groups/frc 
                     /groups/org
+                    /contribs
                     /caps
                     /hooks
                     /ioms

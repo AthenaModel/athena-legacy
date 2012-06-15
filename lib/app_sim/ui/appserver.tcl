@@ -152,6 +152,15 @@ snit::type appserver {
         ht page "Test Page" {
             ht title "Test Page"
 
+            ht putln "<form action=foo/bar autosubmit=yes>"
+            ht putln "<label for=a>Actor:</label>"
+            ht putln "<input name=a type=enum src=my://app/actors>"
+            ht putln "<label for=c>Concern:</label>"
+            ht putln "<input name=c type=enum src=enum/concerns value=AUAT>"
+            ht putln "<label for=g>Group:</label>"
+            ht putln "<input name=g type=enum src=groups/civ>"
+            ht putln "</form>"
+            ht para
             ht subtitle "Time Series Plot"
             ht object plot/sat.peonu.qol \
                 -width  100% \
@@ -197,9 +206,67 @@ snit::type appserver {
 
 
     #-------------------------------------------------------------------
+    # Content Handlers
+    #
+    # The following routines are full-fledged content handlers.  
+    # Server modules may register them as content handlers using the
+    # [asproc] call.
+    
+    # enum:enumlist enum udict matchArray
+    #
+    # enum  - An enum(n), or any command with a "names" subcommand.
+    # 
+    # Returns the "names" for an enum type (or equivalent).
+
+    proc enum:enumlist {enum udict matchArray} {
+        return [{*}$enum names]
+    }
+
+    # enum:enumdict enum udict matchArray
+    #
+    # enum  - An enum(n), or any command with "names" and "longnames"
+    #         subcommands.
+    # 
+    # Returns the names/longnames dictionary for an enum type (or equivalent).
+
+    proc enum:enumdict {enum udict matchArray} {
+        foreach short [{*}$enum names] long [{*}$enum longnames] {
+            lappend result $short $long
+        }
+
+        return $result
+    }
+
+    # type:html title command udict matchArray
+    # 
+    # Returns the HTML documentation for any type command with an
+    # "html" subtype, adding a title.
+
+    proc type:html {title command udict matchArray} {
+        ht page $title {
+            ht title $title
+            ht putln [{*}$command html]
+        }
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
     # Handler API
     #
     # These commands are defined for use within URL handlers.
+
+    # asproc command....
+    # 
+    # command   - A command or command prefix, optionally with arguments
+    #
+    # Returns the command and its arguments with the command name fully
+    # qualified as being defined in this type.  This makes it easy for
+    # appserver modules to use handlers defined herein.
+    
+    proc asproc {args} {
+        return [myproc {*}$args]
+    }
 
     # appfile:image path...
     #
@@ -335,34 +402,34 @@ snit::type appserver {
         return $result
     }
 
-    # restrict dict key vtype defval
+    # querydict udict parms
     #
-    # dict    A dictionary
-    # key     A dictionary key 
-    # vtype   A validation type
-    # defval  A default value
+    # udict  - A URL dictionary, as passed to a handler
+    # parms  - A list of parameter names
     #
-    # Restricts a parameter value to belong to the validation type.
-    #
-    # If the dict contains the key, and the key's value is not empty,
-    # and the key's value is valid, returns the canonicalized 
-    # value.  Otherwise, returns the default value.
+    # Uses urlquery2dict to parse the udict's query, and returns
+    # the resulting dictionary.  Only the listed parms will be
+    # included; and listed parms which do not appear in the query
+    # will have empty values.
 
-    proc restrict {dict key vtype defval} {
-        if {[dict exists $dict $key]} {
-            set value [dict get $dict $key]
+    proc querydict {udict parms} {
+        # FIRST, parse the query.
+        set in [urlquery2dict [dict get $udict query]]
 
-            if {$value ne "" &&
-                ![catch {{*}$vtype validate $value} result]
-            } {
-                # Allow the validation type to canonicalize the
-                # result.
-                return $result
+        # NEXT, build the output.
+        set out [dict create]
+
+        foreach p $parms {
+            if {[dict exists $in $p]} {
+                dict set out $p [dict get $in $p]
+            } else {
+                dict set out $p ""
             }
         }
 
-        return $defval
+        return $out
     }
+
 
     # sigevents ?options...?
     #
@@ -485,6 +552,7 @@ snit::type appserver {
             
         ht para
     }
+
 }
 
 

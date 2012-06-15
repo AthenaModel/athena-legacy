@@ -63,6 +63,17 @@ enum einputmode {
     persistent "Persistent"
 }
 
+# Top Items for contributions reports
+
+enum etopitems {
+    ALL    "All Items"
+    TOP5   "Top 5" 
+    TOP10  "Top 10"
+    TOP20  "Top 20"
+    TOP50  "Top 50"
+    TOP100 "Top 100"
+}
+
 
 # rgamma: The range for the belief system playbox gamma
 

@@ -76,6 +76,7 @@ appserver module GROUPS {
 
         appserver register /groups/{gtype} {groups/(civ|frc|org)/?} \
             tcl/linkdict [myproc /groups:linkdict]                  \
+            tcl/enumlist [myproc /groups:enumlist]                  \
             text/html    [myproc /groups:html] {
                 Links to the currently defined groups of type {gtype}
                 (civ, frc, or org).  The HTML content includes group
@@ -117,6 +118,24 @@ appserver module GROUPS {
                     listIcon $listIcon            \
                     table    $table               \
             ]]
+        }
+    }
+
+    # /groups:enumlist udict matchArray
+    #
+    # Returns tcl/enumlist for a group collection.
+
+    proc /groups:enumlist {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        switch -exact -- $(1) {
+            ""   { return [group names] }
+            civ  { return [civgroup names] }
+            frc  { return [frcgroup names] }
+            org  { return [orggroup names] }
+            default {
+                error "Unexpected group type: \"$(1)\""
+            }
         }
     }
 

@@ -916,7 +916,6 @@ snit::widget appwin {
         $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
 
         $self AddOrder $reportsmenu REPORT:DRIVER
-        $self AddOrder $reportsmenu REPORT:SATCONTRIB
         $self AddOrder $reportsmenu REPORT:PARMDB
 
         # Help menu

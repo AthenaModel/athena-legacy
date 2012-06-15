@@ -26,8 +26,9 @@ appserver module ACTOR {
 
     typemethod init {} {
         # FIRST, register the resource types
-        appserver register /actors {actors/?}      \
-            tcl/linkdict [myproc /actors:linkdict] \
+        appserver register /actors {actors/?}          \
+            tcl/linkdict [myproc /actors:linkdict]     \
+            tcl/enumlist [asproc enum:enumlist actor] \
             text/html    [myproc /actors:html] {
                 Links to all of the currently 
                 defined actors.  HTML content 

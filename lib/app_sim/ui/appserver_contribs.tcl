@@ -17,6 +17,20 @@
 
 appserver module CONTRIBS {
     #-------------------------------------------------------------------
+    # Look up tables
+
+    # Limit values
+
+    typevariable limit -array {
+        ALL    0
+        TOP5   5
+        TOP10  10
+        TOP20  20
+        TOP50  50
+        TOP100 100
+    }
+
+    #-------------------------------------------------------------------
     # Public methods
 
     # init
@@ -25,8 +39,9 @@ appserver module CONTRIBS {
 
     typemethod init {} {
         # FIRST, register the resource types
-        appserver register /contribs {contribs/?} \
-            text/html [myproc /contribs:html]   \
+        appserver register /contribs {contribs/?}    \
+            tcl/linkdict [myproc /contribs:linkdict] \
+            text/html [myproc /contribs:html]        \
             "Contributions to attitude curves."
 
         appserver register /contribs/coop {contribs/coop/?} \
@@ -37,19 +52,21 @@ appserver module CONTRIBS {
             text/html [myproc /contribs/hrel:html]          \
             "Contributions to horizontal relationships."
 
+        appserver register /contribs/mood {contribs/mood/?} \
+            text/html [myproc /contribs/mood:html]         \
+            "Contributions to civilian group mood."
+
+        appserver register /contribs/nbcoop {contribs/nbcoop/?} \
+            text/html [myproc /contribs/nbcoop:html]         \
+            "Contributions to neighborhood cooperation."
+
+        appserver register /contribs/nbmood {contribs/nbmood/?} \
+            text/html [myproc /contribs/nbmood:html]         \
+            "Contributions to neighborhood mood."
+
         appserver register /contribs/sat {contribs/sat/?} \
             text/html [myproc /contribs/sat:html]         \
             "Contributions to satisfaction curves."
-
-        appserver register /contribs/sat/{g} {contribs/sat/(\w+)/?} \
-            text/html [myproc /contribs/sat/g:html]                   \
-            "Contributions to civilian group {g}'s satisfaction curves."
-
-        appserver register /contribs/sat/{g}/{c} {contribs/sat/(\w+)/(\w+)?} \
-            text/html [myproc /contribs/sat/g/c:html] {
-                Contributions to civilian group {g}'s satisfaction with {c},
-                where {c} may be AUT, CUL, QOL, SFT, or "mood".
-            }
 
         appserver register /contribs/vrel {contribs/vrel/?} \
             text/html [myproc /contribs/vrel:html]          \
@@ -60,6 +77,43 @@ appserver module CONTRIBS {
     # /contribs: All defined attitude types.
     #
     # No match parameters
+
+    # /contribs:linkdict udict matchArray
+    #
+    # Returns a tcl/linkdict of contributions pages
+
+    proc /contribs:linkdict {udict matchArray} {
+        return {
+            /contribs/coop { 
+                label "Cooperation" 
+                listIcon ::projectgui::icon::heart12
+            }
+            /contribs/hrel { 
+                label "Horizontal Relationships" 
+                listIcon ::projectgui::icon::heart12
+            }
+            /contribs/mood { 
+                label "Group Mood" 
+                listIcon ::projectgui::icon::heart12
+            }
+            /contribs/nbcoop { 
+                label "Neighborhood Cooperation" 
+                listIcon ::projectgui::icon::heart12
+            }
+            /contribs/nbmood { 
+                label "Neighborhood Mood" 
+                listIcon ::projectgui::icon::heart12
+            }
+            /contribs/sat { 
+                label "Satisfaction" 
+                listIcon ::projectgui::icon::heart12
+            }
+            /contribs/vrel { 
+                label "Vertical Relationships" 
+                listIcon ::projectgui::icon::heart12
+            }
+        }
+    }
 
     # /contribs:html udict matchArray
     #
@@ -79,6 +133,18 @@ appserver module CONTRIBS {
                     ht link /contribs/hrel "Horizontal Relationships (TBD)"
                 }
 
+                ht li {
+                    ht link /contribs/mood "Civilian Group Mood (TBD)"
+                }
+                
+                ht li {
+                    ht link /contribs/nbcoop "Neighborhood Cooperation (TBD)"
+                }
+                
+                ht li {
+                    ht link /contribs/nbmood "Neighborhood Mood (TBD)"
+                }
+                
                 ht li {
                     ht link /contribs/sat "Satisfaction"
                 }
@@ -139,128 +205,137 @@ appserver module CONTRIBS {
     }
 
     #-------------------------------------------------------------------
-    # /contribs/sat:  All satisfaction curves.
+    # /contribs/mood:  Contributions to civilian group mood.
     #
     # No match parameters
 
+    # /contribs/mood:html udict matchArray
+    #
+    # TBD
+
+    proc /contribs/mood:html {udict matchArray} {
+        ht page "Contributions to Mood" {
+            ht title "Contributions to Mood"
+
+            ht putln {
+                The ability to query contributions to 
+                civilian group mood has
+                not yet been implemented.
+            }
+        }
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # /contribs/nbcoop: Contributions to nbhood cooperation
+    #
+    # No match parameters
+
+    # /contribs/nbcoop:html udict matchArray
+    #
+    # TBD
+
+    proc /contribs/nbcoop:html {udict matchArray} {
+        ht page "Contributions to Neighborhood Cooperation" {
+            ht title "Contributions to Neighborhood Cooperation"
+
+            ht putln {
+                The ability to query contributions to neighborhood 
+                cooperation has
+                not yet been implemented.
+            }
+        }
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # /contribs/nbmood:  Contributions to neighborhood mood.
+    #
+    # No match parameters
+
+    # /contribs/nbmood:html udict matchArray
+    #
+    # TBD
+
+    proc /contribs/nbmood:html {udict matchArray} {
+        ht page "Contributions to Neighborhood Mood" {
+            ht title "Contributions to Neighborhood Mood"
+
+            ht putln {
+                The ability to query contributions to 
+                neighborhood mood has
+                not yet been implemented.
+            }
+        }
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # /contribs/sat?query
+    #
+    # No match parameters
+
+
     # /contribs/sat:html udict matchArray
     #
-    # Returns a page that allows the user to drill down to the contributions
-    # for a specific satisfaction curve.
-
-    proc /contribs/sat:html {udict matchArray} {
-        ht page "Contributions to Satisfaction" {
-            ht title "Contributions to Satisfaction"
-
-            ht putln "Of group:"
-            ht para
-
-            ht ul {
-                foreach g [lsort [civgroup names]] {
-                    ht li {
-                        ht link /contribs/sat/$g $g
-                    }
-                }
-            }
-        }
-
-        return [ht get]
-    }
-
-    #-------------------------------------------------------------------
-    # /contribs/sat/{g}:  All satisfaction curves for a particular group,
-    # including mood.
-    #
-    # Match Parameters:
-    #
-    # {g} => $(1)    - The civilian group's short name
-
-    # /contribs/sat/g:html udict matchArray
-    #
-    # Returns a page that allows the user to drill down to the contributions
-    # for a specific satisfaction curve for a specific group.
-
-    proc /contribs/sat/g:html {udict matchArray} {
-        upvar 1 $matchArray ""
-
-        # FIRST, get the group
-        set g [string toupper $(1)]
-
-        if {[catch {civgroup validate $g} result]} {
-            return -code error -errorcode NOTFOUND \
-                $result
-        }
-
-        # NEXT, output the content
-        ht page "Contributions to Satisfaction of $g" {
-            ht title "Contributions to Satisfaction of $g"
-
-            ht putln "With respect to:"
-            ht para
-
-            ht ul {
-                ht li {
-                    ht link /contribs/sat/$g/mood Mood
-                }
-
-                foreach c [lsort [econcern names]] {
-                    ht li {
-                        ht link /contribs/sat/$g/$c $c
-                    }
-                }
-            }
-        }
-
-        return [ht get]
-    }
-
-    #-------------------------------------------------------------------
-    # /contribs/sat/{g}/{c}:  A particular satisfaction curve or 
-    # mood.
-    #
-    # Match Parameters:
-    #
-    # {g} => $(1)    - The civilian group's short name
-    # {c} => $(2)    - The concern name, or "mood"
-
-
-    # /contribs/sat/g/c:html udict matchArray
-    #
-    # Returns a page that allows the user to drill down to the contributions
-    # for a specific satisfaction curve for a specific group.
-    #
-    # Returns a page that documents the contributions to the given
-    # satisfaction curve.
+    # Returns a page that allows the user to see the contributions
+    # for a specific satisfaction curve for a specific group during
+    # a particular time interval.
     #
     # The udict query is a "parm=value[+parm=value]" string with the
     # following parameters:
     #
+    #    g      The civilian group
+    #    c      The concern
     #    top    Max number of top contributors to include.
     #    start  Start time in ticks
     #    end    End time in ticks
     #
     # Unknown query parameters and invalid query values are ignored.
 
-    proc /contribs/sat/g/c:html {udict matchArray} {
-        upvar 1 $matchArray ""
+    proc /contribs/sat:html {udict matchArray} {
+        # FIRST, get the query parameters 
+        set qdict [querydict $udict {g c top start end}]
 
-        # FIRST, get the group and concern
-        set g [string toupper $(1)]
-        set c [string toupper $(2)]
+        # NEXT, bring the query parms into scope
+        dict with qdict {}
 
-        if {[catch {civgroup validate $g} result]} {
-            return -code error -errorcode NOTFOUND \
-                $result
+        # NEXT, get the group and concern
+        set g [string toupper $g]
+        set c [string toupper $c]
+
+        if {$g ni [civgroup names]} {
+            set g "?"
         }
 
-        if {[catch {ptype c+mood validate $c} result]} {
-            return -code error -errorcode NOTFOUND \
-                $result
+        if {$c ni [econcern names]} {
+            set c "?"
         }
 
+        # NEXT, Make sure the other query parameters have valid
+        # values.
+        restrict top etopitems TOP20
+
+        # We don't want to overwrite the user's time specs.
+        set mystart $start
+        set myend   $end
+
+        restrict mystart {simclock timespec} 0
+        restrict myend   {simclock timespec} [simclock now]
+
+        # If they picked the defaults, clear their entries.
+        if {$mystart == 0             } { set start "" }
+        if {$myend   == [simclock now]} { set end   "" }
+
+        # NEXT, myend can't be later than mystart.
+        let myend {max($mystart,$myend)}
+        
         # NEXT, begin to format the report
-        ht page "Contributions to Satisfaction (to $c of $g)"
-        ht title "Contributions to Satisfaction (to $c of $g)"
+        ht page "Contributions to Satisfaction"
+        ht title "Contributions to Satisfaction"
 
         # NEXT, if we're not locked we're done.
         if {![locked -disclaimer]} {
@@ -268,38 +343,64 @@ appserver module CONTRIBS {
             return [ht get]
         }
 
-        # NEXT, get the query parameters
-        set q [split [dict get $udict query] "=+"]
+        # NEXT, insert subtitle, indicating the group and concern
+        ht subtitle "Of $g with $c"
 
-        set top   [restrict $q top   ipositive 20]
-        set start [restrict $q start iquantity 0]
-        set end   [restrict $q end   iquantity [simclock now]]
+        # NEXT, insert the control form.
+        ht hr
+        ht form contribs/satnew
+        ht label g "Group:"
+        ht input g enum $g -src groups/civ
+        ht label c "Concern:"
+        ht input c enum $c -src enum/concerns
+        ht label top "Show:"
+        ht input top enum $top -src enum/topitems -content tcl/enumdict
+        ht submit
+        ht br
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, if we don't have the group and concern, ask for them.
+        if {$g eq "?" || $c eq "?"} {
+            ht putln "Please select a group and concern."
+            ht /page
+            return [ht get]
+        }
 
         # NEXT, Get the drivers for this time period.
-        if {$c eq "MOOD"} {
-            aram contribs mood $g \
-                -start $start     \
-                -end   $end
-        } else {
-            aram contribs sat $g $c \
-                -start $start       \
-                -end   $end
-        }
+        aram contribs sat $g $c \
+            -start $mystart     \
+            -end   $myend
 
         # NEXT, pull them into a temporary table, in sorted order,
         # so that we can use the "rowid" as the rank.
         # Note: This query is passed as a string, because the LIMIT
         # is an integer, not an expression, so we can't use an SQL
         # variable.
-        rdb eval "
+        set query "
             DROP TABLE IF EXISTS temp_satcontribs;
     
             CREATE TEMP TABLE temp_satcontribs AS
             SELECT driver, contrib
             FROM uram_contribs
             ORDER BY abs(contrib) DESC
-            LIMIT $top
         "
+
+        if {$limit($top) != 0} {
+            append query "LIMIT $limit($top)"
+        }
+
+        rdb eval $query
 
         # NEXT, get the total contribution to this curve in this
         # time window.
@@ -329,12 +430,12 @@ appserver module CONTRIBS {
                 ht put "Concern: $c"
             }
             ht li {
-                ht put "Window: [simclock toZulu $start] to "
+                ht put "Window: [simclock toZulu $mystart] to "
 
                 if {$end == [simclock now]} {
                     ht put "now"
                 } else {
-                    ht put "[simclock toZulu $end]"
+                    ht put "[simclock toZulu $myend]"
                 }
             }
         }
@@ -366,7 +467,6 @@ appserver module CONTRIBS {
         }
 
         ht /page
-
 
         return [ht get]
     }

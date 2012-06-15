@@ -105,59 +105,6 @@ order define REPORT:PARMDB {
 
 
 
-# REPORT:SATCONTRIB
-#
-# Produces a Contribution to Satisfaction Report
-
-order define REPORT:SATCONTRIB {
-    title "Contribution to Satisfaction Report"
-    options \
-        -sendstates     PAUSED
-
-    parm g      enum  "Group"         -enumtype civgroup
-    parm c      enum  "Concern"       -enumtype {ptype c+mood} -defval "MOOD"
-    parm top    text  "Number"        -defval 20
-    parm start  text  "Start Time"    -defval "T0"
-    parm end    text  "End Time"      -defval "NOW"
-} {
-    # FIRST, prepare the parameters
-    prepare g      -toupper -required -type civgroup
-    prepare c      -toupper -required -type {ptype c+mood}
-    prepare top                       -type ipositive
-    prepare start  -toupper           -type {simclock past}
-    prepare end    -toupper           -type {simclock past}
-
-    returnOnError
-
-    # NEXT, validate the start and end times.
-
-    if {$parms(start) eq ""} {
-        set parms(start) 0
-    }
-
-    if {$parms(end) eq ""} {
-        set parms(end) [simclock now]
-    }
-
-
-    validate end {
-        if {$parms(end) < $parms(start)} {
-            reject end "End time is prior to start time"
-        }
-    }
-
-    returnOnError -final
-
-    # NEXT, convert the data
-    if {$parms(top) eq ""} {
-        set parms(top) 20
-    }
-
-    # NEXT, produce the report
-    set query "top=$parms(top)+start=$parms(start)+end=$parms(end)"
-    app show my://app/contribs/sat/$parms(g)/$parms(c)?$query
-}
-
 
 
 

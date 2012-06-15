@@ -136,6 +136,26 @@ snit::widget ::projectgui::mybrowser {
         base      ""
     }
 
+    # Transient Data
+    #
+    # This array contains data used by handlers while parsing the
+    # HTML input:
+    #
+    #     form    - The form currently being processed.
+
+    variable trans -array {
+        form ""
+    }
+
+    # Form Info: Dictionary of form data:
+    #
+    # <formNode> -> autosubmit                 - auto-submit flag
+    #            -> inputs                     - Inputs in this form
+    #            -> inputs -> <name>           - Input widget
+    #
+    
+    variable forms 
+    
     # Viewed: array of counts by page name.
 
     variable viewed -array { }
@@ -264,8 +284,10 @@ snit::widget ::projectgui::mybrowser {
         install agent using myagent ${selfns}::agent \
             -contenttypes {text/html text/plain tk/image}
 
-        # NEXT, add a node handler for <object> tags.
-        $hv handler node object [mymethod ObjectCmd]
+        # NEXT, add node handlers
+        $hv handler node  object [mymethod ObjectCmd]
+        $hv handler node  input  [mymethod InputCmd]
+        $hv handler parse form   [mymethod FormCmd]
 
         # NEXT, get the options
         $self configurelist $args
@@ -392,19 +414,209 @@ snit::widget ::projectgui::mybrowser {
             set cmd [list ttk::label %W -image ::marsgui::icon::question22]
         }
 
+        # NEXT, replace the node with the widget.
+        $self ReplaceNode $node $cmd
+    }
 
-        # NEXT, get a unique widget name
+    # FormCmd node offset
+    #
+    # node   - a <form> node
+    # offset - Unused
+    #
+    # Retrieves data about a form.
+
+    method FormCmd {node offset} {
+        # FIRST, clear the form.
+        set trans(form) ""
+
+        # NEXT, if this is an end tag, we're done.
+        if {$node eq ""} {
+            return
+        }
+
+        # NEXT, It's a start tag.  We need an action attribute.
+        set action [$node attribute -default "" action]
+
+        if {$action eq ""} {
+            return
+        }
+
+        # NEXT, save the form's node ID, so that inputs know what
+        # form they are associated with.
+        set trans(form) $node
+
+        # NEXT, set up the form dictionary.
+        dict set forms $node autosubmit 0
+        dict set forms $node inputs [dict create]
+        dict set forms $node action $action
+
+        # NEXT, Look for an "autosubmit" attribute.
+        set autosubmit [$node attribute -default "" autosubmit]
+        restrict autosubmit snit::boolean no
+
+        if {$autosubmit} {
+            dict set forms $node autosubmit 1
+        }
+    }
+    
+
+    # FormSubmit node args...
+    #
+    # The form's submit button has been pressed, or autosubmit is
+    # enabled, and an enum widget has been changed.
+    
+    method FormSubmit {node args} {
+        dict with forms $node {
+            set pdict ""
+            dict for {name w} $inputs {
+                dict set pdict $name [$w get]
+            }
+
+            $self show "$action?[dict2urlquery $pdict]"
+        }
+    }
+
+    # InputCmd node
+    # 
+    # node    - htmlviewer3 node handle
+    #
+    # An <input> tag was found in the input.  If the type= attribute
+    # corresponds to a supported type and has all of the required
+    # attributes, it will be replaced by the relevant kind of 
+    # Tk widget.
+
+    method InputCmd {node} {
+        # FIRST, get the type of the input.
+        array set attrs [$node attribute]
+
+        # NEXT, if the type and name are not defined, we're done.
+        if {$trans(form) eq ""         ||
+            ![info exists attrs(type)]
+        } {
+            $self HideNode $node
+            return
+        }
+
+        if {$attrs(type) ne "submit" &&
+            ![info exists attrs(name)]
+        } {
+            $self HideNode $node
+            return
+        }
+
+        # NEXT, handle it by type.
+        switch -exact -- $attrs(type) {
+            enum {
+                # src is required.
+                if {![info exists attrs(src)]} {
+                    $self HideNode $node
+                    return
+                }
+
+                # get the content type
+                if {![info exists attrs(content)]} {
+                    set attrs(content) tcl/enumlist
+                }
+
+                switch -exact -- $attrs(content) {
+                    tcl/enumdict { set longFlag yes }
+                    tcl/enumlist { set longFlag no  }
+                    default      { 
+                        set attrs(content) tcl/enumlist
+                        set longFlag no  
+                    }
+                }
+
+                # get the values
+                if {[catch {
+                    set udict [$agent get $attrs(src) $attrs(content)]
+                    set values [dict get $udict content]
+                }]} {
+                    $self HideNode $node
+                    return
+                }
+
+                set cmd [list enumfield %W \
+                    -values      $values   \
+                    -autowidth   yes       \
+                    -displaylong $longFlag]
+
+                set w [$self ReplaceNode $node $cmd]
+
+                if {[info exists attrs(value)]} {
+                    $w set $attrs(value)
+                }
+
+                dict set forms $trans(form) inputs $attrs(name) $w
+
+                if {[dict get $forms $trans(form) autosubmit]} {
+                    $w configure -changecmd [mymethod FormSubmit $trans(form)]
+                }
+                return
+            }
+
+            text {
+                set cmd [list textfield %W]
+
+                set w [$self ReplaceNode $node $cmd]
+
+                if {[info exists attrs(value)]} {
+                    $w set $attrs(value)
+                }
+
+                dict set forms $trans(form) inputs $attrs(name) $w
+            }
+
+            submit {
+                if {$attrs(value) eq ""} {
+                    set attrs(value) "Submit"
+                }
+
+                set cmd [list ttk::button %W -text $attrs(value)]
+                set w [$self ReplaceNode $node $cmd]
+
+                $w configure -command [mymethod FormSubmit $trans(form)]
+            }
+
+            default {
+                # Unsupported type
+                $self HideNode $node
+                return
+            }
+        }
+    }
+
+    # ReplaceNode node wcommand
+    #
+    # node      - An htmlviewer3 node
+    # wcommand  - A widget command with %W for the widget name.
+    #
+    # Creates the widget and replaces the node with it.  
+
+    method ReplaceNode {node wcommand} {
+        # FIRST, get a unique widget name
         set owin "$hv.o[incr info(counter)]"
 
         # NEXT, create the widget
-        set cmd [string map [list %W $owin] $cmd]
+        set cmd [string map [list %W $owin] $wcommand]
 
         namespace eval :: $cmd
 
+        # NEXT, replace the node with the widget; destroy the widget
+        # when the browser is reset.
         $node replace $owin -deletecmd [list destroy $owin] 
     }
 
-   
+    # Hide node
+    #
+    # node      - An htmlviewer3 node
+    #
+    # Hides the node.
+
+    method HideNode {node} {
+        $node attribute style "display:none"
+    }
+
     # ShowAddress
     #
     # Shows the page entered manually in the address bar.
@@ -481,6 +693,7 @@ snit::widget ::projectgui::mybrowser {
         # NEXT, if page and anchor are both "", then just clear the
         # html viewer; there's nothing else to do.
         if {$page eq "" && $anchor eq ""} {
+            set forms [dict create]
             $hv set ""
             return
         }
@@ -562,11 +775,8 @@ snit::widget ::projectgui::mybrowser {
             }
 
             # NEXT, show the page.
-            # TBD: Not needed.  Might need to add some logic to
-            # the -hyperlinkcmd.
-            
-            # $hv configure -base $url
             set info(base) $url
+            set forms [dict create]
             $hv set $content
             callwith $options(-loadedcmd) $url
         }

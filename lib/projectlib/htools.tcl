@@ -440,6 +440,14 @@ snit::type ::projectlib::htools {
         }
     }
 
+    # hr
+    #
+    # Inserts an <hr> tag.
+    
+    method hr {} {
+        $self putln <hr>
+    }
+
     # linkbar linkdict
     # 
     # linkdict   - A dictionary of URLs and labels
@@ -447,7 +455,7 @@ snit::type ::projectlib::htools {
     # Displays the links in a horizontal bar.
 
     method linkbar {linkdict} {
-        $self putln <hr>
+        $self hr
         set count 0
 
         foreach {link label} $linkdict {
@@ -460,7 +468,7 @@ snit::type ::projectlib::htools {
             incr count
         }
 
-        $self putln <hr>
+        $self hr
         $self para
     }
 
@@ -800,16 +808,100 @@ snit::type ::projectlib::htools {
     
     method object {url args} {
         $self putln "<object data=\"$url\""
+        $self InsertAttributes $args
+        $self put "></object>"
+    }
 
-        foreach {opt val} $args {
+    # form action ?options? 
+    #
+    # action   - The action URL
+    # options  - Any number of options
+    #
+    # Adds a <form> element.  The options are converted into 
+    # attribute names and values without error checking.
+    # Typical options include:
+    #
+    #   -autosubmit value   - If yes, the form autosubmits. 
+
+    method form {action args} {
+        $self putln "<form action=\"$action\""
+        $self InsertAttributes $args
+        $self put ">"
+    }
+
+    # /form
+    #
+    # Terminates <form>
+
+    method /form {} {
+        $self putln </form>
+    }
+
+    # label for ?text?
+    #
+    # for     - an input name
+    # text    - Label text
+    # 
+    # Inserts a <label> tag for the named input.  If text is given,
+    # the </label> is inserted automatically.
+    
+    method label {for {text ""}} {
+        $self putln "<label for=\"$for\">"
+
+        if {$text ne ""} {
+            $self put "$text</label>"
+        }
+    }
+
+    # /label
+    #
+    # Terminates </label>
+
+    method /label {} {
+        $self put "</label>"
+    }
+
+    # input name itype value ?options? 
+    #
+    # name     - The input's name
+    # itype    - The input's type, e.g., "enum", "text"
+    # value    - The input's initial value
+    # options  - Any number of options
+    #
+    # Adds an <input> element with the given name, type, and value
+    # attribute values.  The options are converted into 
+    # attribute names and values without error checking.
+
+    method input {name itype value args} {
+        $self putln "<input name=\"$name\" type=\"$itype\" value=\"$value\""
+        $self InsertAttributes $args
+        $self put ">"
+    }
+
+    # submit ?label?
+    #
+    # label   - A button label string
+    #
+    # Inserts a "submit" input into the current form.
+
+    method submit {{label "Submit"}} {
+        $self putln "<input type=\"submit\" value=\"$label\">"
+    }
+
+    # InsertAttributes optlist
+    #
+    # optlist   - Tcl-style option list
+    #
+    # Puts the option list into the buffer as HTML attributes.
+
+    method InsertAttributes {optlist} {
+        foreach {opt val} $optlist {
             # FIRST, remove the hyphen
             set opt [string trimleft $opt -]
 
             # NEXT, add the attribute
             $self put " $opt=\"$val\""
         }
-
-        $self put "></object>"
     }
 }
 

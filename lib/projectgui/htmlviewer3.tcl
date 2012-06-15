@@ -73,6 +73,11 @@ snit::widgetadaptor ::projectgui::htmlviewer3 {
             border: 0px;
         }
 
+        INPUT[type="submit"] {
+            padding: 0px;
+            border: 0px;
+        }
+
         /* Object elements */
         OBJECT {
             vertical-align: middle;
