@@ -11,6 +11,38 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.6, 18 June 2012</h3>
+
+This build contains the second set of Information Operations Message
+(IOM) code, fleshing out the implementation from Build 4.0.5.  It adds
+the GRANT tactic, which provides CAP access control; it adds detail
+browser pages for IOMs and Hooks; and it greatly improves the sanity
+checking for IOMs and the BROADCAST tactic.  In addition, it adds some
+new detail browser capabilities.   The full set of changes is as
+follows:<p>
+
+<ul>
+<li> Bug 3496: athena(1): Combine the three CAP tabs into one tab
+<li> Bug 3522: GRANT Tactic
+<li> Bug 3523: Add current access to my://app/cap/<name>
+<li> Bug 3525: athena(1): the broadcast tactic does not include the hook_id for sigevents
+<li> Bug 3526: athena(1): Add detail browser pages for hooks and IOMs
+<li> Bug 3527: BROADCAST tactic: empty hooks and IOMs
+<li> Bug 3528: SYSTEM shouldn't be able to send BROADCAST tactics
+<li> Bug 3530: athena_test(1): 010-tactic_broadcast test failures
+<li> Bug 3531: Sanity Check Redesign
+<li> Bug 3532: Integrate strategy sanity checks with new sanity checking architecture.
+<li> Bug 3533: Integrate hook sanity checks with new sanity checking architecture
+<li> Bug 3534: IOM States
+<li> Bug 3537: htmlviewer3(n): Default style update, <DD> tags
+<li> Bug 3538: IOM Sanity Checks
+<li> Bug 3540: BROADCAST tactic: sanity check
+<li> Bug 3541: BROADCAST Tactic: Require "normal" IOMs
+<li> Bug 3542: projmisc(n): dict2urlquery, urlquery2dict
+<li> Bug 3544: mybrowser(n) forms; revised contributions pages
+</ul><p>
+
+
 <h3>Build 4.0.5, 11 June 2012</h3>
 
 This build contains the first set of Information Operations Message

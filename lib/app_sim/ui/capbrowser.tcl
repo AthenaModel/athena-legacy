@@ -107,9 +107,7 @@ snit::widget capbrowser {
     }
 
     destructor {
-        notifier forget $caps
-        notifier forget $nbcov
-        notifier forget $capcov
+        notifier forget $self
     }
 
     #-------------------------------------------------------------------
