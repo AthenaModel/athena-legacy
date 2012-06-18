@@ -130,19 +130,19 @@ appserver module CONTRIBS {
                 }
 
                 ht li {
-                    ht link /contribs/hrel "Horizontal Relationships (TBD)"
+                    ht link /contribs/hrel "Horizontal Relationships"
                 }
 
                 ht li {
-                    ht link /contribs/mood "Civilian Group Mood (TBD)"
+                    ht link /contribs/mood "Civilian Group Mood"
                 }
                 
                 ht li {
-                    ht link /contribs/nbcoop "Neighborhood Cooperation (TBD)"
+                    ht link /contribs/nbcoop "Neighborhood Cooperation"
                 }
                 
                 ht li {
-                    ht link /contribs/nbmood "Neighborhood Mood (TBD)"
+                    ht link /contribs/nbmood "Neighborhood Mood"
                 }
                 
                 ht li {
@@ -150,7 +150,7 @@ appserver module CONTRIBS {
                 }
                 
                 ht li {
-                    ht link /contribs/vrel "Vertical Relationships (TBD)"
+                    ht link /contribs/vrel "Vertical Relationships"
                 }
             }
         }
@@ -187,7 +187,7 @@ appserver module CONTRIBS {
         # NEXT, bring the query parms into scope
         dict with qdict {}
 
-        # NEXT, get the group and concern
+        # NEXT, get the two groups
         set f [string toupper $f]
         set g [string toupper $g]
 
@@ -281,18 +281,111 @@ appserver module CONTRIBS {
 
     # /contribs/hrel:html udict matchArray
     #
-    # Returns a page that allows the user to drill down to the contributions
-    # for a specific horizontal relationship curve.
+    # Returns a page that allows the user to see the contributions
+    # for a specific horizontal relationships curve of one group
+    # with a second group during a particular time interval.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    f      The first group
+    #    g      The second group
+    #    top    Max number of top contributors to include.
+    #    start  Start time in ticks
+    #    end    End time in ticks
+    #
+    # Unknown query parameters and invalid query values are ignored.
 
     proc /contribs/hrel:html {udict matchArray} {
-        ht page "Contributions to Horizontal Relationships" {
-            ht title "Contributions to Horizontal Relationships"
+        # FIRST, get the query parameters 
+        set qdict [GetQueryParms $udict {f g}]
 
-            ht putln {
-                The ability to query contributions to horizontal
-                relationships has not yet been implemented.
+        # NEXT, bring the query parms into scope
+        dict with qdict {}
+
+        # NEXT, get the groups
+        set f [string toupper $f]
+        set g [string toupper $g]
+
+        if {$f ni [group names]} {
+            set f "?"
+        }
+
+        if {$g ni [group names]} {
+            set g "?"
+        }
+        
+        # NEXT, begin to format the report
+        ht page "Contributions to Horizontal Relationship"
+        ht title "Contributions to Horizontal Relationship"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, insert subtitle, indicating the two groups
+        ht subtitle "Of $f with $g"
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form contribs/hrel
+        ht label f "Of Group:"
+        ht input f enum $f -src groups
+        ht label g "With Group:"
+        ht input g enum $g -src groups
+        ht label top "Show:"
+        ht input top enum $top -src enum/topitems -content tcl/enumdict
+        ht para
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht submit
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, if we don't have the groups, ask for them.
+        if {$f eq "?" || $g eq "?"} {
+            ht putln "Please select the groups."
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, format the report header.
+
+        ht ul {
+            ht li {
+                ht put "Of Group: "
+                ht put [GroupLongLink $f]
+            }
+            ht li {
+                ht put "With Group: "
+                ht put [GroupLongLink $g]
+            }
+            ht li {
+                ht put [TimeWindow $start_ $end_]
             }
         }
+
+        ht para
+
+        # NEXT, Get the drivers for this time period.
+        aram contribs hrel $f $g \
+            -start $start_       \
+            -end   $end_
+
+        # NEXT, output the contribs table.
+        PutContribsTable $top_
+
+        ht /page
 
         return [ht get]
     }
@@ -304,44 +397,220 @@ appserver module CONTRIBS {
 
     # /contribs/mood:html udict matchArray
     #
-    # TBD
+    # Returns a page that allows the user to see the contributions
+    # for a specific group mood curve for a specific group during
+    # a particular time interval.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    g      The civilian group
+    #    top    Max number of top contributors to include.
+    #    start  Start time in ticks
+    #    end    End time in ticks
+    #
+    # Unknown query parameters and invalid query values are ignored.
 
     proc /contribs/mood:html {udict matchArray} {
-        ht page "Contributions to Mood" {
-            ht title "Contributions to Mood"
+        # FIRST, get the query parameters 
+        set qdict [GetQueryParms $udict {g}]
 
-            ht putln {
-                The ability to query contributions to 
-                civilian group mood has
-                not yet been implemented.
+        # NEXT, bring the query parms into scope
+        dict with qdict {}
+
+        # NEXT, get the group
+        set g [string toupper $g]
+
+        if {$g ni [civgroup names]} {
+            set g "?"
+        }
+
+        # NEXT, begin to format the report
+        ht page "Contributions to Group Mood"
+        ht title "Contributions to Group Mood"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, insert subtitle, indicating the group
+        ht subtitle "Of $g"
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form contribs/mood
+        ht label g "Group:"
+        ht input g enum $g -src groups/civ
+        ht label top "Show:"
+        ht input top enum $top -src enum/topitems -content tcl/enumdict
+        ht para
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht submit
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, if we don't have the group, ask for it.
+        if {$g eq "?"} {
+            ht putln "Please select a group."
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, format the report header.
+
+        ht ul {
+            ht li {
+                ht put "Group: "
+                ht put [GroupLongLink $g]
+            }
+            ht li {
+                ht put [TimeWindow $start_ $end_]
             }
         }
 
+        ht para
+
+        # NEXT, Get the drivers for this time period.
+        aram contribs mood $g \
+            -start $start_    \
+            -end   $end_
+
+        # NEXT, output the contribs table.
+        PutContribsTable $top_
+
+        ht /page
+
         return [ht get]
     }
+
 
     #-------------------------------------------------------------------
     # /contribs/nbcoop: Contributions to nbhood cooperation
     #
     # No match parameters
 
-    # /contribs/nbcoop:html udict matchArray
+    # /contribs/coop:nbhtml udict matchArray
     #
-    # TBD
+    # Returns a page that allows the user to see the contributions
+    # to the cooperation of the residents of a neighborhood with a
+    # particular force group during a particular time interval.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    n      The neighborhood
+    #    g      The force group
+    #    top    Max number of top contributors to include.
+    #    start  Start time in ticks
+    #    end    End time in ticks
+    #
+    # Unknown query parameters and invalid query values are ignored.
 
     proc /contribs/nbcoop:html {udict matchArray} {
-        ht page "Contributions to Neighborhood Cooperation" {
-            ht title "Contributions to Neighborhood Cooperation"
+        # FIRST, get the query parameters 
+        set qdict [GetQueryParms $udict {n g}]
 
-            ht putln {
-                The ability to query contributions to neighborhood 
-                cooperation has
-                not yet been implemented.
+        # NEXT, bring the query parms into scope
+        dict with qdict {}
+
+        # NEXT, get the indices
+        set n [string toupper $n]
+        set g [string toupper $g]
+
+        if {$n ni [nbhood names]} {
+            set n "?"
+        }
+
+        if {$g ni [frcgroup names]} {
+            set g "?"
+        }
+        
+        # NEXT, begin to format the report
+        ht page "Contributions to Neighborhood Cooperation"
+        ht title "Contributions to Neighborhood Cooperation"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, insert subtitle, indicating the two indices
+        ht subtitle "Of $n with $g"
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form contribs/nbcoop
+        ht label n "Neighborhood:"
+        ht input n enum $n -src nbhoods
+        ht label g "Frc. Group:"
+        ht input g enum $g -src groups/frc
+        ht label top "Show:"
+        ht input top enum $top -src enum/topitems -content tcl/enumdict
+        ht para
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht submit
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, if we don't have the indices, ask for them.
+        if {$n eq "?" || $g eq "?"} {
+            ht putln "Please select the neighborhood and group."
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, format the report header.
+
+        ht ul {
+            ht li {
+                ht put "Neighborhood: "
+                ht put [NbhoodLongLink $n]
+            }
+            ht li {
+                ht put "Frc. Group: "
+                ht put [GroupLongLink $g]
+            }
+            ht li {
+                ht put [TimeWindow $start_ $end_]
             }
         }
 
+        ht para
+
+        # NEXT, Get the drivers for this time period.
+        aram contribs nbcoop $n $g \
+            -start $start_       \
+            -end   $end_
+
+        # NEXT, output the contribs table.
+        PutContribsTable $top_
+
+        ht /page
+
         return [ht get]
     }
+
 
     #-------------------------------------------------------------------
     # /contribs/nbmood:  Contributions to neighborhood mood.
@@ -350,18 +619,99 @@ appserver module CONTRIBS {
 
     # /contribs/nbmood:html udict matchArray
     #
-    # TBD
+    # Returns a page that allows the user to see the contributions
+    # for a specific neighborhood mood curve during
+    # a particular time interval.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    n      The neighborhood
+    #    top    Max number of top contributors to include.
+    #    start  Start time in ticks
+    #    end    End time in ticks
+    #
+    # Unknown query parameters and invalid query values are ignored.
 
     proc /contribs/nbmood:html {udict matchArray} {
-        ht page "Contributions to Neighborhood Mood" {
-            ht title "Contributions to Neighborhood Mood"
+        # FIRST, get the query parameters 
+        set qdict [GetQueryParms $udict {n}]
 
-            ht putln {
-                The ability to query contributions to 
-                neighborhood mood has
-                not yet been implemented.
+        # NEXT, bring the query parms into scope
+        dict with qdict {}
+
+        # NEXT, get the neighborhood
+        set n [string toupper $n]
+
+        if {$n ni [nbhood names]} {
+            set n "?"
+        }
+
+        # NEXT, begin to format the report
+        ht page "Contributions to Neighborhood Mood"
+        ht title "Contributions to Neighborhood Mood"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, insert subtitle, indicating the neighborhood
+        ht subtitle "Of $n"
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form contribs/nbmood
+        ht label n "Neighborhood:"
+        ht input n enum $n -src nbhoods
+        ht label top "Show:"
+        ht input top enum $top -src enum/topitems -content tcl/enumdict
+        ht para
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht submit
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, if we don't have the neighborhood, ask for it.
+        if {$n eq "?"} {
+            ht putln "Please select a neighborhood."
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, format the report header.
+
+        ht ul {
+            ht li {
+                ht put "Neighborhood: "
+                ht put [NbhoodLongLink $n]
+            }
+            ht li {
+                ht put [TimeWindow $start_ $end_]
             }
         }
+
+        ht para
+
+        # NEXT, Get the drivers for this time period.
+        aram contribs nbmood $n \
+            -start $start_    \
+            -end   $end_
+
+        # NEXT, output the contribs table.
+        PutContribsTable $top_
+
+        ht /page
 
         return [ht get]
     }
@@ -430,8 +780,7 @@ appserver module CONTRIBS {
         ht input c enum $c -src enum/concerns
         ht label top "Show:"
         ht input top enum $top -src enum/topitems -content tcl/enumdict
-        ht submit
-        ht br
+        ht para
         ht label start 
         ht put "Time Interval &mdash; "
         ht link my://help/term/timespec "From:"
@@ -441,6 +790,7 @@ appserver module CONTRIBS {
         ht link my://help/term/timespec "To:"
         ht /label
         ht input end text $end -size 12
+        ht submit
         ht /form
         ht hr
         ht para
@@ -489,22 +839,114 @@ appserver module CONTRIBS {
 
     # /contribs/vrel:html udict matchArray
     #
-    # Returns a page that allows the user to drill down to the contributions
-    # for a specific horizontal relationship curve.
+    # Returns a page that allows the user to see the contributions
+    # for a specific vertical relationships curve of a group
+    # with an actor during a particular time interval.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    g      The group
+    #    a      The actor
+    #    top    Max number of top contributors to include.
+    #    start  Start time in ticks
+    #    end    End time in ticks
+    #
+    # Unknown query parameters and invalid query values are ignored.
 
     proc /contribs/vrel:html {udict matchArray} {
-        ht page "Contributions to Vertical Relationships" {
-            ht title "Contributions to Vertical Relationships"
+        # FIRST, get the query parameters 
+        set qdict [GetQueryParms $udict {g a}]
 
-            ht putln {
-                The ability to query contributions to vertical
-                relationships has not yet been implemented.
+        # NEXT, bring the query parms into scope
+        dict with qdict {}
+
+        # NEXT, get the group and actor
+        set g [string toupper $g]
+        set a [string toupper $a]
+
+        if {$g ni [group names]} {
+            set g "?"
+        }
+
+        if {$a ni [actor names]} {
+            set a "?"
+        }
+        
+        # NEXT, begin to format the report
+        ht page "Contributions to Vertical Relationship"
+        ht title "Contributions to Vertical Relationship"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, insert subtitle, indicating the group/actor pair
+        ht subtitle "Of $g with $a"
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form contribs/vrel
+        ht label g "Of Group:"
+        ht input g enum $g -src groups
+        ht label a "With Actor:"
+        ht input a enum $a -src actors
+        ht label top "Show:"
+        ht input top enum $top -src enum/topitems -content tcl/enumdict
+        ht para
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht submit
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, if we don't have the group or actor, ask for them.
+        if {$g eq "?" || $a eq "?"} {
+            ht putln "Please select the group and actor."
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, format the report header.
+
+        ht ul {
+            ht li {
+                ht put "Of Group: "
+                ht put [GroupLongLink $g]
+            }
+            ht li {
+                ht put "With Actor: "
+                ht put [ActorLongLink $a]
+            }
+            ht li {
+                ht put [TimeWindow $start_ $end_]
             }
         }
 
+        ht para
+
+        # NEXT, Get the drivers for this time period.
+        aram contribs vrel $g $a \
+            -start $start_       \
+            -end   $end_
+
+        # NEXT, output the contribs table.
+        PutContribsTable $top_
+
+        ht /page
+
         return [ht get]
     }
-
 
 
     #-------------------------------------------------------------------
@@ -555,6 +997,18 @@ appserver module CONTRIBS {
         return $qdict
     }
     
+    # ActorLongLink a
+    #
+    # a      A actor name
+    #
+    # Returns the actor's long link.
+
+    proc ActorLongLink {a} {
+        rdb onecolumn {
+            SELECT longlink FROM gui_actors WHERE a=$a
+        }
+    }
+    
     # GroupLongLink g
     #
     # g      A group name
@@ -564,6 +1018,18 @@ appserver module CONTRIBS {
     proc GroupLongLink {g} {
         rdb onecolumn {
             SELECT longlink FROM gui_groups WHERE g=$g
+        }
+    }
+
+    # NbhoodLongLink n
+    #
+    # n      A nbhood name
+    #
+    # Returns the nbhood's long link.
+
+    proc NbhoodLongLink {n} {
+        rdb onecolumn {
+            SELECT longlink FROM gui_nbhoods WHERE n=$n
         }
     }
 

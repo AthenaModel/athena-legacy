@@ -31,6 +31,7 @@ appserver module NBHOOD {
         # FIRST, register the resource types
         appserver register /nbhoods {nbhoods/?} \
             tcl/linkdict [myproc /nbhoods:linkdict] \
+            tcl/enumlist [asproc enum:enumlist nbhood] \
             text/html    [myproc /nbhoods:html]                 {
                 Links to the currently defined neighborhoods.  The
                 HTML content includes neighborhood attributes.

@@ -69,6 +69,7 @@ appserver module GROUPS {
         # FIRST, register the resource types
         appserver register /groups {groups/?}      \
             tcl/linkdict [myproc /groups:linkdict] \
+            tcl/enumlist [myproc /groups:enumlist] \
             text/html    [myproc /groups:html]     {
                 Links to the currently defined groups.  The HTML content
                 includes group attributes.
