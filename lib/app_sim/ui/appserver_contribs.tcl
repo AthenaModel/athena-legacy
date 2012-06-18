@@ -126,7 +126,7 @@ appserver module CONTRIBS {
 
             ht ul {
                 ht li {
-                    ht link /contribs/coop "Cooperation (TBD)"
+                    ht link /contribs/coop "Cooperation"
                 }
 
                 ht li {
@@ -165,18 +165,111 @@ appserver module CONTRIBS {
 
     # /contribs/coop:html udict matchArray
     #
-    # Returns a page that allows the user to drill down to the contributions
-    # for a specific cooperation curve.
+    # Returns a page that allows the user to see the contributions
+    # for a specific cooperation curve for a specific pair of groups during
+    # a particular time interval.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    f      The civilian group
+    #    g      The force group
+    #    top    Max number of top contributors to include.
+    #    start  Start time in ticks
+    #    end    End time in ticks
+    #
+    # Unknown query parameters and invalid query values are ignored.
 
     proc /contribs/coop:html {udict matchArray} {
-        ht page "Contributions to Cooperation" {
-            ht title "Contributions to Cooperation"
+        # FIRST, get the query parameters 
+        set qdict [GetQueryParms $udict {f g}]
 
-            ht putln {
-                The ability to query contributions to cooperation has
-                not yet been implemented.
+        # NEXT, bring the query parms into scope
+        dict with qdict {}
+
+        # NEXT, get the group and concern
+        set f [string toupper $f]
+        set g [string toupper $g]
+
+        if {$f ni [civgroup names]} {
+            set f "?"
+        }
+
+        if {$g ni [frcgroup names]} {
+            set g "?"
+        }
+        
+        # NEXT, begin to format the report
+        ht page "Contributions to Cooperation"
+        ht title "Contributions to Cooperation"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, insert subtitle, indicating the two groups
+        ht subtitle "Of $f with $g"
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form contribs/coop
+        ht label f "Civ. Group:"
+        ht input f enum $f -src groups/civ
+        ht label g "Frc. Group:"
+        ht input g enum $g -src groups/frc
+        ht label top "Show:"
+        ht input top enum $top -src enum/topitems -content tcl/enumdict
+        ht para
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht submit
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, if we don't have the groups, ask for them.
+        if {$f eq "?" || $g eq "?"} {
+            ht putln "Please select the groups."
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, format the report header.
+
+        ht ul {
+            ht li {
+                ht put "Civ. Group: "
+                ht put [GroupLongLink $f]
+            }
+            ht li {
+                ht put "Frc. Group: "
+                ht put [GroupLongLink $g]
+            }
+            ht li {
+                ht put [TimeWindow $start_ $end_]
             }
         }
+
+        ht para
+
+        # NEXT, Get the drivers for this time period.
+        aram contribs coop $f $g \
+            -start $start_       \
+            -end   $end_
+
+        # NEXT, output the contribs table.
+        PutContribsTable $top_
+
+        ht /page
 
         return [ht get]
     }
@@ -298,7 +391,7 @@ appserver module CONTRIBS {
 
     proc /contribs/sat:html {udict matchArray} {
         # FIRST, get the query parameters 
-        set qdict [querydict $udict {g c top start end}]
+        set qdict [GetQueryParms $udict {g c}]
 
         # NEXT, bring the query parms into scope
         dict with qdict {}
@@ -315,24 +408,6 @@ appserver module CONTRIBS {
             set c "?"
         }
 
-        # NEXT, Make sure the other query parameters have valid
-        # values.
-        restrict top etopitems TOP20
-
-        # We don't want to overwrite the user's time specs.
-        set mystart $start
-        set myend   $end
-
-        restrict mystart {simclock timespec} 0
-        restrict myend   {simclock timespec} [simclock now]
-
-        # If they picked the defaults, clear their entries.
-        if {$mystart == 0             } { set start "" }
-        if {$myend   == [simclock now]} { set end   "" }
-
-        # NEXT, myend can't be later than mystart.
-        let myend {max($mystart,$myend)}
-        
         # NEXT, begin to format the report
         ht page "Contributions to Satisfaction"
         ht title "Contributions to Satisfaction"
@@ -348,7 +423,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/satnew
+        ht form contribs/sat
         ht label g "Group:"
         ht input g enum $g -src groups/civ
         ht label c "Concern:"
@@ -377,49 +452,7 @@ appserver module CONTRIBS {
             return [ht get]
         }
 
-        # NEXT, Get the drivers for this time period.
-        aram contribs sat $g $c \
-            -start $mystart     \
-            -end   $myend
-
-        # NEXT, pull them into a temporary table, in sorted order,
-        # so that we can use the "rowid" as the rank.
-        # Note: This query is passed as a string, because the LIMIT
-        # is an integer, not an expression, so we can't use an SQL
-        # variable.
-        set query "
-            DROP TABLE IF EXISTS temp_satcontribs;
-    
-            CREATE TEMP TABLE temp_satcontribs AS
-            SELECT driver, contrib
-            FROM uram_contribs
-            ORDER BY abs(contrib) DESC
-        "
-
-        if {$limit($top) != 0} {
-            append query "LIMIT $limit($top)"
-        }
-
-        rdb eval $query
-
-        # NEXT, get the total contribution to this curve in this
-        # time window.
-        # for.
-
-        set totContrib [rdb onecolumn {
-            SELECT total(abs(contrib))
-            FROM uram_contribs
-        }]
-
-        # NEXT, get the total contribution represented by the report.
-
-        set totReported [rdb onecolumn {
-            SELECT total(abs(contrib)) 
-            FROM temp_satcontribs
-        }]
-
-
-        # NEXT, format the body of the report.
+        # NEXT, format the report header.
 
         ht ul {
             ht li {
@@ -430,41 +463,19 @@ appserver module CONTRIBS {
                 ht put "Concern: $c"
             }
             ht li {
-                ht put "Window: [simclock toZulu $mystart] to "
-
-                if {$end == [simclock now]} {
-                    ht put "now"
-                } else {
-                    ht put "[simclock toZulu $myend]"
-                }
+                ht put [TimeWindow $start_ $end_]
             }
         }
 
         ht para
 
-        # NEXT, format the body of the report.
-        ht query {
-            SELECT format('%4d', temp_satcontribs.rowid) AS "Rank",
-                   format('%8.3f', contrib)              AS "Actual",
-                   driver                                AS "Driver",
-                   dtype                                 AS "Type",
-                   narrative                             AS "Narrative"
-            FROM temp_satcontribs
-            JOIN drivers ON (driver = driver_id);
+        # NEXT, Get the drivers for this time period.
+        aram contribs sat $g $c \
+            -start $start_      \
+            -end   $end_
 
-            DROP TABLE temp_satcontribs;
-        }  -default "None known." -align "RRRLL"
-
-        ht para
-
-        if {$totContrib > 0.0} {
-            set pct [percent [expr {$totReported / $totContrib}]]
-
-            ht putln "Reported events and situations represent"
-            ht putln "$pct of the contributions made to this curve"
-            ht putln "during the specified time window."
-            ht para
-        }
+        # NEXT, output the contribs table.
+        PutContribsTable $top_
 
         ht /page
 
@@ -498,6 +509,51 @@ appserver module CONTRIBS {
 
     #-------------------------------------------------------------------
     # Utilities
+
+    # GetQueryParms udict parms
+    #
+    # udict    - The URL dictionary, as passed to the handler
+    # parms    - The list of expected parameter names, except for
+    #            top, start, and end.
+    #
+    # Retrieves the parameter names using [querydict]; then
+    # does the required validation and processing on the
+    # shared top, start, and end parms.  Returns the parameter
+    # dictionary, with "start_", "end_", and "top_" containing the
+    # "cooked" versions of "start", "end", and "top".
+    
+    proc GetQueryParms {udict parms} {
+        # FIRST, get the query parameter dictionary.
+        set qdict [querydict $udict [concat $parms {top start end}]]
+
+        # NEXT, do the standard parameend_r processing.
+        dict set qdict start_ ""
+        dict set qdict end_   ""
+        dict set qdict top_   ""
+
+        dict with qdict {
+            # FIRST, get the top number of items
+            restrict top etopitems TOP20
+
+            set top_ $limit($top)
+
+            # NEXT, get the user's time specs in ticks, or "".
+            set start_ $start
+            set end_   $end
+
+            restrict start_ {simclock timespec} 0
+            restrict end_   {simclock timespec} [simclock now]
+
+            # If they picked the defaults, clear their entries.
+            if {$start_ == 0             } { set start "" }
+            if {$end_   == [simclock now]} { set end   "" }
+
+            # NEXT, end_ can't be later than mystart.
+            let end_ {max($start_,$end_)}
+        }
+
+        return $qdict
+    }
     
     # GroupLongLink g
     #
@@ -508,6 +564,93 @@ appserver module CONTRIBS {
     proc GroupLongLink {g} {
         rdb onecolumn {
             SELECT longlink FROM gui_groups WHERE g=$g
+        }
+    }
+
+    # TimeWindow start end
+    #
+    # start    - The start time, in ticks
+    # end      - The end time in ticks
+    #
+    # Converts the start and end time into a time window string.
+
+    proc TimeWindow {start end} {
+        set text "Window: [simclock toZulu $start] to "
+
+        if {$end == [simclock now]} {
+            append text "now"
+        } else {
+            append text "[simclock toZulu $end]"
+        }
+
+        return $text
+    }
+
+    # PutContribsTable top
+    #
+    # top - Max number of entries in table, or 0 for all.
+    #
+    # Converts the data in uram_contribs into a ranked contributions
+    # table, and puts it into the htools buffer.
+
+    proc PutContribsTable {top} {
+        # FIRST, pull the contribs into a temporary table, in sorted order,
+        # so that we can use the "rowid" as the rank.
+        # Note: This query is passed as a string, because the LIMIT
+        # is an integer, not an expression, so we can't use an SQL
+        # variable.
+        set query "
+            DROP TABLE IF EXISTS temp_contribs;
+    
+            CREATE TEMP TABLE temp_contribs AS
+            SELECT driver, contrib
+            FROM uram_contribs
+            ORDER BY abs(contrib) DESC
+        "
+
+        if {$top != 0} {
+            append query "LIMIT $top"
+        }
+
+        rdb eval $query
+
+        # NEXT, get the total contribution to this curve in this
+        # time window.
+
+        set totContrib [rdb onecolumn {
+            SELECT total(abs(contrib))
+            FROM uram_contribs
+        }]
+
+        # NEXT, get the total contribution represented by the report.
+
+        set totReported [rdb onecolumn {
+            SELECT total(abs(contrib)) 
+            FROM temp_contribs
+        }]
+
+        # NEXT, format the body of the report.
+        ht query {
+            SELECT format('%4d', temp_contribs.rowid) AS "Rank",
+                   format('%8.3f', contrib)           AS "Actual",
+                   driver                             AS "Driver",
+                   dtype                              AS "Type",
+                   narrative                          AS "Narrative"
+            FROM temp_contribs
+            JOIN drivers ON (driver = driver_id);
+
+            DROP TABLE temp_contribs;
+        }  -default "None known." -align "RRRLL"
+
+        ht para
+
+        if {$totContrib > 0.0} {
+            set pct [percent [expr {$totReported / $totContrib}]]
+
+            ht putln "Reported events and situations represent"
+            ht putln "$pct of the contributions made to this curve"
+            ht putln "during the specified time window."
+            ht para
         }
     }
 }
