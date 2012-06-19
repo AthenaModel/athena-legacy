@@ -53,6 +53,7 @@ snit::type hist {
             DELETE FROM hist_security   WHERE t > $t;
             DELETE FROM hist_support    WHERE t > $t;
             DELETE FROM hist_volatility WHERE t > $t;
+            DELETE FROM hist_hrel       WHERE t > $t;
             DELETE FROM hist_vrel       WHERE t > $t;
         }
     }
@@ -73,8 +74,8 @@ snit::type hist {
 
         if {[parm get hist.coop]} {
             rdb eval {
-                INSERT INTO hist_coop
-                SELECT now() AS t, f, g, coop
+                INSERT INTO hist_coop(t,f,g,coop,base,nat)
+                SELECT now() AS t, f, g, coop, bvalue, cvalue
                 FROM uram_coop;
             }
         }
@@ -104,8 +105,8 @@ snit::type hist {
 
         if {[parm get hist.sat]} {
             rdb eval {
-                INSERT INTO hist_sat
-                SELECT now() AS t, g, c, sat 
+                INSERT INTO hist_sat(t,g,c,sat,base,nat)
+                SELECT now() AS t, g, c, sat, bvalue, cvalue 
                 FROM uram_sat;
             }
         }
@@ -134,10 +135,18 @@ snit::type hist {
             }
         }
 
+        if {[parm get hist.hrel]} {
+            rdb eval {
+                INSERT INTO hist_hrel(t,f,g,hrel,base,nat)
+                SELECT now(), f, g, hrel, bvalue, cvalue
+                FROM uram_hrel;
+            }
+        }
+
         if {[parm get hist.vrel]} {
             rdb eval {
-                INSERT INTO hist_vrel
-                SELECT now(), g, a, vrel
+                INSERT INTO hist_vrel(t,g,a,vrel,base,nat)
+                SELECT now(), g, a, vrel, bvalue, cvalue
                 FROM uram_vrel;
             }
         }

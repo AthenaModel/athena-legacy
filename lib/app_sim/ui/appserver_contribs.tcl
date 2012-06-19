@@ -261,6 +261,17 @@ appserver module CONTRIBS {
 
         ht para
 
+        # NEXT, insert the plot.
+        set vars [list basecoop.$f.$g coop.$f.$g]
+
+        # If the URAM gamma for this attitude is non-zero, include the
+        # natural level.
+        if {[lindex [parm get uram.factors.COOP] 1] > 0.0} {
+            lappend vars natcoop.$f.$g
+        }
+
+        PutPlot hist.coop $start_ $end_ $vars
+
         # NEXT, Get the drivers for this time period.
         aram contribs coop $f $g \
             -start $start_       \
@@ -377,6 +388,17 @@ appserver module CONTRIBS {
 
         ht para
 
+        # NEXT, insert the plot.
+        set vars [list basehrel.$f.$g hrel.$f.$g]
+
+        # If the URAM gamma for this attitude is non-zero, include the
+        # natural level.
+        if {[lindex [parm get uram.factors.HREL] 1] > 0.0} {
+            lappend vars nathrel.$f.$g
+        }
+
+        PutPlot hist.hrel $start_ $end_ $vars
+
         # NEXT, Get the drivers for this time period.
         aram contribs hrel $f $g \
             -start $start_       \
@@ -481,6 +503,15 @@ appserver module CONTRIBS {
 
         ht para
 
+        # NEXT, insert the plot: all four concerns, plus mood.
+        set vars [list]
+        foreach c [econcern names] {
+            lappend vars sat.$g.$c
+        }
+        lappend vars mood.$g
+
+        PutPlot hist.sat $start_ $end_ $vars
+
         # NEXT, Get the drivers for this time period.
         aram contribs mood $g \
             -start $start_    \
@@ -500,7 +531,7 @@ appserver module CONTRIBS {
     #
     # No match parameters
 
-    # /contribs/coop:nbhtml udict matchArray
+    # /contribs/nbcoop:html udict matchArray
     #
     # Returns a page that allows the user to see the contributions
     # to the cooperation of the residents of a neighborhood with a
@@ -597,6 +628,15 @@ appserver module CONTRIBS {
         }
 
         ht para
+
+        # NEXT, insert the plot.
+        set vars [list]
+        rdb eval {SELECT g AS f FROM civgroups WHERE n=$n} {
+            lappend vars coop.$f.$g
+        }
+        lappend vars nbcoop.$n.$g
+
+        PutPlot hist.nbcoop $start_ $end_ $vars
 
         # NEXT, Get the drivers for this time period.
         aram contribs nbcoop $n $g \
@@ -702,6 +742,15 @@ appserver module CONTRIBS {
         }
 
         ht para
+
+        # NEXT, insert the plot.
+        set vars [list] 
+        rdb eval {SELECT g FROM civgroups WHERE n=$n} {
+            lappend vars mood.$g
+        }
+        lappend vars nbmood.$n
+
+        PutPlot hist.nbmood $start_ $end_ $vars
 
         # NEXT, Get the drivers for this time period.
         aram contribs nbmood $n \
@@ -819,6 +868,17 @@ appserver module CONTRIBS {
 
         ht para
 
+        # NEXT, insert the plot.
+        set vars [list basesat.$g.$c sat.$g.$c]
+
+        # If the URAM gamma for this concern is non-zero, include the
+        # natural level.
+        if {[lindex [parm get uram.factors.$c] 1] > 0.0} {
+            lappend vars natsat.$g.$c
+        }
+
+        PutPlot hist.sat $start_ $end_ $vars
+
         # NEXT, Get the drivers for this time period.
         aram contribs sat $g $c \
             -start $start_      \
@@ -935,6 +995,17 @@ appserver module CONTRIBS {
 
         ht para
 
+        # NEXT, insert the plot.
+        set vars [list basevrel.$g.$a vrel.$g.$a]
+
+        # If the URAM gamma for this attitude is non-zero, include the
+        # natural level.
+        if {[lindex [parm get uram.factors.VREL] 1] > 0.0} {
+            lappend vars natvrel.$g.$a
+        }
+
+        PutPlot hist.vrel $start_ $end_ $vars
+
         # NEXT, Get the drivers for this time period.
         aram contribs vrel $g $a \
             -start $start_       \
@@ -1012,7 +1083,7 @@ appserver module CONTRIBS {
     # GroupLongLink g
     #
     # g      A group name
-    #
+    #,
     # Returns the group's long link.
 
     proc GroupLongLink {g} {
@@ -1052,9 +1123,39 @@ appserver module CONTRIBS {
         return $text
     }
 
+    # PutPlot histparm start end vars
+    #
+    # histparm - hist.* parm governing whether data is available
+    # start    - Start time in ticks
+    # end      - End time in ticks
+    # vars     - List of time series display variables
+    #
+    # Adds a plot of the listed variables to the ht buffer.
+
+    proc PutPlot {histparm start end vars} {
+        if {![parm get $histparm]} {
+            ht putln {
+                <b>Note:</b> Athena is not currently saving some or
+                all of the historical data required for the following 
+                plot.  To plot the data, unlock the scenario,
+                set the model parameter
+            }
+
+            ht link "my://app/parmdb?$histparm" <b>$histparm</b>
+
+            ht putln "to on, and re-run the scenario."
+            ht para
+        }
+
+        ht object plot/time?start=$start+end=$end+vars=[join $vars ,] \
+            -width  100% \
+            -height 3in
+        ht para
+    }
+
     # PutContribsTable top
     #
-    # top - Max number of entries in table, or 0 for all.
+    # top   - Max number of entries in table, or 0 for all.
     #
     # Converts the data in uram_contribs into a ranked contributions
     # table, and puts it into the htools buffer.

@@ -172,7 +172,19 @@ var t consumers {
 
 var t coop {
     <<vartitle f g>>
-    The <<term cooperation>> of civilian group <i>f</i> with force
+    The actual <<term cooperation>> of civilian group <i>f</i> with force
+    group <i>g</i> over time.
+}
+
+var t basecoop {
+    <<vartitle f g>>
+    The baseline <<term cooperation>> of civilian group <i>f</i> with force
+    group <i>g</i> over time.
+}
+
+var t natcoop {
+    <<vartitle f g>>
+    The natural <<term cooperation>> of civilian group <i>f</i> with force
     group <i>g</i> over time.
 }
 
@@ -186,6 +198,24 @@ var t dgdp {
     <<vartitle>>
     The Deflated Gross Domestic Product (DGDP) of the economy, 
     measured at each update of the economic model.
+}
+
+var t hrel {
+    <<vartitle f g>>
+    The actual <<term hrel>> of group <i>f</i> with 
+    group <i>g</i> over time.
+}
+
+var t basehrel {
+    <<vartitle f g>>
+    The baseline <<term hrel>> of group <i>f</i> with 
+    group <i>g</i> over time.
+}
+
+var t nathrel {
+    <<vartitle f g>>
+    The natural <<term hrel>> of group <i>f</i> with 
+    group <i>g</i> over time.
 }
 
 var t labor {
@@ -243,7 +273,19 @@ var t rev {
 
 var t sat {
     <<vartitle g c>>
-    The <<term satisfaction>> of group <i>g</i> with respect to
+    The actual <<term satisfaction>> of group <i>g</i> with respect to
+    <<term concern>> <i>c</i> over time.
+}
+
+var t basesat {
+    <<vartitle g c>>
+    The baseline <<term satisfaction>> of group <i>g</i> with respect to
+    <<term concern>> <i>c</i> over time.
+}
+
+var t natsat {
+    <<vartitle g c>>
+    The natural <<term satisfaction>> of group <i>g</i> with respect to
     <<term concern>> <i>c</i> over time.
 }
 
@@ -251,6 +293,24 @@ var t ur {
     <<vartitle>>
     The unemployment rate as a percentage of the labor force,
     measured at each update of the economic model.
+}
+
+var t vrel {
+    <<vartitle g a>>
+    The actual <<term vrel>> of group <i>g</i> with 
+    actor <i>a</i> over time.
+}
+
+var t basevrel {
+    <<vartitle g a>>
+    The baseline <<term vrel>> of group <i>g</i> with 
+    actor <i>a</i> over time.
+}
+
+var t natvrel {
+    <<vartitle g a>>
+    The natural <<term vrel>> of group <i>g</i> with 
+    actor <i>a</i> over time.
 }
 
 var t x {

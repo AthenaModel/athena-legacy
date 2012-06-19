@@ -60,6 +60,15 @@
     -midlevel 0.0               \
     -maxlevel 100.0
 
+# relgradient: A fill color gradient for affinities and relationships
+
+::marsgui::gradient relgradient \
+    -mincolor \#FF0000          \
+    -midcolor \#FFFFFF          \
+    -maxcolor \#00FF00          \
+    -minlevel -1.0              \
+    -midlevel 0.0               \
+    -maxlevel 1.0
 
 
 

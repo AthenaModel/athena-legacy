@@ -89,6 +89,14 @@ snit::type view {
             decimals 2
         }
 
+        rel {
+            rmin     -1.0
+            rmax     1.0
+            gradient relgradient
+            units    Relationship 
+            decimals 2
+        }
+
         qcoop {
             rmin     0.0
             rmax     100.0
@@ -306,6 +314,30 @@ snit::type view {
             }
         }
 
+        t,basecoop {
+            indices {f g}
+            validation fg_coop
+            rtype qcoop
+            query {
+                SELECT t    AS t,
+                       base AS x0
+                FROM hist_coop
+                WHERE f='$1' AND g='$2'
+            }
+        }
+        
+        t,natcoop {
+            indices {f g}
+            validation fg_coop
+            rtype qcoop
+            query {
+                SELECT t   AS t,
+                       nat AS x0
+                FROM hist_coop
+                WHERE f='$1' AND g='$2'
+            }
+        }
+
         t,cpi {
             indices {}
             validation {}
@@ -328,6 +360,42 @@ snit::type view {
             }
         }
 
+
+        t,hrel {
+            indices {f g}
+            validation fg_rel
+            rtype rel
+            query {
+                SELECT t    AS t,
+                       hrel AS x0
+                FROM hist_hrel
+                WHERE f='$1' AND g='$2'
+            }
+        }
+
+        t,basehrel {
+            indices {f g}
+            validation fg_rel
+            rtype rel
+            query {
+                SELECT t    AS t,
+                       base AS x0
+                FROM hist_hrel
+                WHERE f='$1' AND g='$2'
+            }
+        }
+
+        t,nathrel {
+            indices {f g}
+            validation fg_rel
+            rtype rel
+            query {
+                SELECT t   AS t,
+                       nat AS x0
+                FROM hist_hrel
+                WHERE f='$1' AND g='$2'
+            }
+        }
 
         t,labor {
             indices {}
@@ -447,6 +515,30 @@ snit::type view {
             }
         }
 
+        t,basesat {
+            indices {g c}
+            validation gc_sat
+            rtype qsat
+            query {
+                SELECT t    AS t,
+                       base AS x0
+                FROM hist_sat
+                WHERE g='$1' AND c='$2'
+            }
+        }
+
+        t,natsat {
+            indices {g c}
+            validation gc_sat
+            rtype qsat
+            query {
+                SELECT t   AS t,
+                       nat AS x0
+                FROM hist_sat
+                WHERE g='$1' AND c='$2'
+            }
+        }
+
         t,ur {
             indices {}
             validation {}
@@ -455,6 +547,42 @@ snit::type view {
                 SELECT t    AS t,
                        ur   AS x0
                 FROM hist_econ
+            }
+        }
+
+        t,vrel {
+            indices {g a}
+            validation ga
+            rtype rel
+            query {
+                SELECT t    AS t,
+                       vrel AS x0
+                FROM hist_vrel
+                WHERE g='$1' AND a='$2'
+            }
+        }
+
+        t,basevrel {
+            indices {g a}
+            validation ga
+            rtype rel
+            query {
+                SELECT t    AS t,
+                       base AS x0
+                FROM hist_vrel
+                WHERE g='$1' AND a='$2'
+            }
+        }
+
+        t,natvrel {
+            indices {g a}
+            validation ga
+            rtype rel
+            query {
+                SELECT t   AS t,
+                       nat AS x0
+                FROM hist_vrel
+                WHERE g='$1' AND a='$2'
             }
         }
 
@@ -903,6 +1031,15 @@ snit::type view {
         ValidateIndex $domain $vartype g $g {frcgroup validate $g}
     }
 
+    # Proc: fg_rel
+    #
+    # Validates {f g} for horizontal relationships
+    
+    proc fg_rel {domain vartype f g} {
+        ValidateIndex $domain $vartype f $f {group validate $f}
+        ValidateIndex $domain $vartype g $g {group validate $g}
+    }
+
     # Proc: ga
     #
     # Validates {g a} where is an activity.
@@ -1005,6 +1142,15 @@ snit::type view {
     proc ng_coop {domain vartype n g} {
         ValidateIndex $domain $vartype n $n {nbhood   validate $n}
         ValidateIndex $domain $vartype g $g {frcgroup validate $g}
+    }
+
+    # Proc: ga
+    #
+    # Validates {g a} for vrel
+    
+    proc ga {domain vartype g a} {
+        ValidateIndex $domain $vartype g $g {group validate $g}
+        ValidateIndex $domain $vartype a $a {actor validate $a}
     }
 
     # Proc: gc_sat

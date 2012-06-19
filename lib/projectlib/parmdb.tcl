@@ -1462,6 +1462,14 @@ snit::type ::projectlib::parmdb {
             to the hist_coop table.
         }
 
+        $ps define hist.hrel ::snit::boolean off {
+            If on, Athena will save, each week, the horizontal
+            relationship between each pair of groups to this
+            hist_hrel table.  Horizontal relationships are only
+            affected by magic inputs, and the amount of data can
+            be quite large; hence, this flag is off by default.
+        }
+
         $ps define hist.nbcoop ::snit::boolean on {
             If on, Athena will save, each week, the cooperation of
             each neighborhood with each force group

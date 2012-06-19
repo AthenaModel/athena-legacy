@@ -120,24 +120,8 @@ snit::type appserver {
         $type register /test/hello {test/hello/?} \
             tk/widget [myproc /test/hello:widget] { Test widget }
     
-        $type register /plot/{var} {plot/([[:alnum:].]+)}  \
-            tk/widget [myproc /plot:widget] { Test Time Plot }
     }
 
-    # /plot:widget
-
-    proc /plot:widget {udict matchArray} {
-        upvar 1 $matchArray ""
-        set tsvar $(1)
-
-        if {![view t exists $tsvar]} {
-            throw NOTFOUND \
-                "Unknown time series variable: [dict get $udict url]"
-        }
-        set tsvar [view t validate $tsvar]
-
-        list ::timechart %W -varnames $tsvar
-    }
 
     # /test/hello:widget
     proc /test/hello:widget {udict matchArray} {
@@ -152,19 +136,10 @@ snit::type appserver {
         ht page "Test Page" {
             ht title "Test Page"
 
-            ht putln "<form action=foo/bar autosubmit=yes>"
-            ht putln "<label for=a>Actor:</label>"
-            ht putln "<input name=a type=enum src=my://app/actors>"
-            ht putln "<label for=c>Concern:</label>"
-            ht putln "<input name=c type=enum src=enum/concerns value=AUAT>"
-            ht putln "<label for=g>Group:</label>"
-            ht putln "<input name=g type=enum src=groups/civ>"
-            ht putln "</form>"
-            ht para
             ht subtitle "Time Series Plot"
-            ht object plot/sat.peonu.qol \
+            ht object plot/time?vars=sat.peonu.aut,sat.peonu.cul,sat.peonu.qol,sat.peonu.sft,mood.peonu+start=2+end=7 \
                 -width  100% \
-                -height 2in
+                -height 4in
             ht para
             ht putln "Some more text."
             ht subtitle "A Label Widget"

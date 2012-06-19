@@ -16,12 +16,14 @@
 -- one table might contain multiple variables; in that case it will
 -- be named after the primary one.
 
--- sat.g.c
 CREATE TABLE hist_sat (
-    t   INTEGER,
-    g   TEXT,
-    c   TEXT,
-    sat DOUBLE,
+    -- History: sat.g.c
+    t    INTEGER,
+    g    TEXT,
+    c    TEXT,
+    sat  DOUBLE, -- Current level of satisfaction
+    base DOUBLE, -- Baseline level of satisfaction
+    nat  DOUBLE, -- Natural level of satisfaction
 
     PRIMARY KEY (t,g,c)
 );
@@ -46,10 +48,13 @@ CREATE TABLE hist_nbmood (
 
 -- coop.f.g
 CREATE TABLE hist_coop (
+    -- History: coop.f.g
     t    INTEGER,
     f    TEXT,
     g    TEXT,
-    coop DOUBLE,
+    coop DOUBLE, -- Current level of cooperation
+    base DOUBLE, -- Baseline level of cooperation
+    nat  DOUBLE, -- Natural level of cooperation
 
     PRIMARY KEY (t,f,g)
 );
@@ -137,12 +142,26 @@ CREATE TABLE hist_volatility (
     PRIMARY KEY (t,n)
 );
 
--- vrel.g.a
+CREATE TABLE hist_hrel (
+    -- History: hrel.f.g
+    t      INTEGER,
+    f      TEXT,    -- First group
+    g      TEXT,    -- Second group
+    hrel   REAL,    -- Horizontal relationship of f with g.
+    base   REAL,    -- Base Horizontal relationship of f with g.
+    nat    REAL,    -- Natural Horizontal relationship of f with g.
+
+    PRIMARY KEY (t,f,g)
+);
+
 CREATE TABLE hist_vrel (
+    -- History: vrel.g.a
     t      INTEGER,
     g      TEXT,    -- Civilian group
     a      TEXT,    -- Actor
     vrel   REAL,    -- Vertical relationship of g with a.
+    base   REAL,    -- Base Vertical relationship of g with a.
+    nat    REAL,    -- Natural Vertical relationship of g with a.
 
     PRIMARY KEY (t,g,a)
 );
