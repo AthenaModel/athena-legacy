@@ -1852,6 +1852,11 @@ snit::widget appwin {
 
     method SaveUnsavedData {} {
         if {[scenario unsaved]} {
+            # FIRST, deiconify the window, this gives the message box
+            # a parent to popup over.
+            wm deiconify $win
+
+            # NEXT, popup the message box for the user
             set name [file tail [scenario dbfile]]
 
             set message [tsubst {
