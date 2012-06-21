@@ -604,6 +604,15 @@ snit::type app {
             [::order available $order]
         }
 
+        # One browser entry is selected.  The
+        # browser should call update for its widgets.
+        #
+        # Objdict:   browser   The browser window
+
+        statecontroller ::cond::single -condition {
+            [llength [$browser curselection]] == 1
+        }
+
         # Order is available, one browser entry is selected.  The
         # browser should call update for its widgets.
         #

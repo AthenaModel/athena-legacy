@@ -42,6 +42,7 @@ snit::widget ::projectgui::mybrowser {
     component fwdbtn    ;# Forward one page button
     component homebtn   ;# Home button
     component reloadbtn ;# Reload button
+    component bookbtn   ;# Bookmark Button
     component address   ;# Address box
     component searchbox ;# Search box
 
@@ -98,6 +99,14 @@ snit::widget ::projectgui::mybrowser {
 
     option -loadedcmd
 
+    # -bookmarkcmd
+    #
+    # A command to call when the "bookmark this page" button is
+    # pushed.  The button only exists if the command is defined.
+
+    option -bookmarkcmd \
+        -readonly yes
+
     # -searchcmd
     #
     # A command that returns a search URL given one additional
@@ -118,6 +127,7 @@ snit::widget ::projectgui::mybrowser {
     # uri         - The URI of the current page, including any anchor
     # page        - The page name from the current URI
     # anchor      - The anchor from the current URI
+    # title       - The title of the current page, or "".
     # data        - The data dict for the current page, or "".
     # history     - The history stack: a list of page refs
     # future      - The future stack: a list of page refs
@@ -212,6 +222,13 @@ snit::widget ::projectgui::mybrowser {
 
         DynamicHelp::add $reloadbtn -text "Reload current page"
 
+        install bookbtn using ttk::button $bar.bookmark      \
+            -style   Toolbutton                              \
+            -image   [list                                   \
+                                   ::marsgui::icon::plus22   \
+                          disabled ::marsgui::icon::plus22d] \
+            -command [mymethod BookmarkCmd]
+        DynamicHelp::add $bookbtn -text "Bookmark current page"
 
         install address using ttk::entry $bar.address \
             -textvariable [myvar info(address)]
@@ -230,6 +247,7 @@ snit::widget ::projectgui::mybrowser {
         pack $fwdbtn    -side left                      -padx 1 -pady 1
         pack $homebtn   -side left                      -padx 1 -pady 1
         pack $reloadbtn -side left                      -padx 1 -pady 1
+        pack $bookbtn   -side left                      -padx 1 -pady 1
         pack $address   -side left -fill x -expand yes  -padx 1 -pady {1 3}
 
         # Separator
@@ -291,6 +309,11 @@ snit::widget ::projectgui::mybrowser {
 
         # NEXT, get the options
         $self configurelist $args
+
+        # NEXT, remove the bookmark button if we have no command
+        if {$options(-bookmarkcmd) eq ""} {
+            pack forget $bookbtn
+        }
 
         # NEXT, display the searchbox if we have a search command
         if {$options(-searchcmd) ne ""} {
@@ -364,6 +387,14 @@ snit::widget ::projectgui::mybrowser {
         } else {
             return 0
         }
+    }
+
+    # BookmarkCmd
+    #
+    # Calls the user's -bookmarkcmd when the bookmark button is pressed.
+
+    method BookmarkCmd {} {
+        callwith $options(-bookmarkcmd)
     }
 
     # ImageCmd src
@@ -644,6 +675,22 @@ snit::widget ::projectgui::mybrowser {
     #-------------------------------------------------------------------
     # Public Methods
 
+    # url
+    #
+    # Returns the URL of the currently displayed page.
+
+    method url {} {
+        return $info(address)
+    }
+
+    # title
+    #
+    # Returns the title fo the currently displayed page.
+
+    method title {} {
+        return $info(title)
+    }
+
     # data 
     #
     # Returns the data for the currently displayed page.
@@ -783,6 +830,18 @@ snit::widget ::projectgui::mybrowser {
 
         # NEXT, save the content, so that it can be queried.
         set info(data) $result
+
+        # NEXT, extract the title.
+        set info(title) ""
+
+        set titleElement [lindex [$hv search title] 0]
+        if {$titleElement ne ""} {
+            set textNode [lindex [$titleElement children] 0]
+
+            if {$textNode ne ""} {
+                set info(title) [$textNode text] 
+            }
+        }
 
         # NEXT, update idle tasks; otherwise scrolling to anchors,
         # etc., won't work.

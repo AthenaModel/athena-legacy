@@ -100,6 +100,7 @@ macro parm.ids {entity} {
 
 include order_actor.help
 include order_attrit.help
+include order_bookmark.help
 include order_bsystem.help
 include order_cap.help
 include order_condition.help

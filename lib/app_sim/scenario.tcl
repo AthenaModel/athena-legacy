@@ -75,6 +75,7 @@ snit::type scenario {
         # NEXT, monitor tables. 
         rdb monitor add actors        {a}
         rdb monitor add attroe_nfg    {n f g}
+        rdb monitor add bookmarks     {bookmark_id}
         rdb monitor add caps          {k}
         rdb monitor add cap_kn        {k n}
         rdb monitor add cap_kg        {k g}
@@ -343,7 +344,7 @@ snit::type scenario {
     # snapshot save ?-prep?
     #
     # Saves a snapshot as of the current sim time.  The snapshot is
-    # a Tcl string of everything but the "maps" and "snapshots" tables.
+    # a Tcl string of everything but "maps" and "snapshots" tables.
     # The "maps" are excluded because of the size, and the "snapshots"
     # are excluded for obvious reasons.
     #
@@ -352,6 +353,9 @@ snit::type scenario {
     # anyway) and the URAM history table entries never change after they
     # are written.  We can leave them in place, and truncate the tables
     # if we re-enter the time-stream.
+    #
+    # Finally, the bookmarks table is excluded; bookmarks do not affect
+    # the simulation, and can be edited at any time.
     #
     # If the -prep flag is given, then the snapshot is saved for
     # time "-1", indicating that it's a PREP-state snapshot.
@@ -371,6 +375,7 @@ snit::type scenario {
         set snapshot [rdb tclexport -exclude {
             snapshots 
             maps 
+            bookmarks
             hist_control
             hist_coop
             hist_econ

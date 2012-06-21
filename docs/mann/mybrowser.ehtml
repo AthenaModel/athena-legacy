@@ -65,6 +65,14 @@ options, in addition to those provided by the underlying frame widget:<p>
 
 <<deflist options>>
 
+<<defopt {-bookmarkcmd <i>cmd</i>}>>
+
+Specifies a <i>command</i> to be called whenever the user has
+pushed the "bookmark this page" button on the browser toolbar.<p>
+
+This option is read-only after widget creation; and note that the
+button is displayed only if this option has a non-empty value.<p>
+
 <<defopt {-defaultserver <i>name</i>}>>
 
 The browser will access the named server when given a URL with a
@@ -161,6 +169,13 @@ Returns a <b>ttk::frame</b> widget into which the application can add
 its own components.  The sidebar appears on the left hand side of the
 browser, separated from the main browser pane by a user-adjustable sash.<p>
 
+<<defitem title {<i>pathName</i> title}>>
+
+Returns the title of the currently displayed page, or "" if none.<p>
+
+<<defitem url {<i>pathName</i> url}>>
+
+Returns the URL of the currently displayed page, or "" if none.<p>
 
 <</deflist instance>>
 

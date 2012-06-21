@@ -36,6 +36,7 @@ snit::type ted {
         attrit_nf
         attrit_nfg
         attroe_nfg
+        bookmarks
         caps
         cap_access
         cap_kn

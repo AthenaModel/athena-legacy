@@ -103,6 +103,13 @@ SELECT event_id                                        AS event_id,
 FROM sigevents_view
 ORDER BY event_id ASC;
      
+-----------------------------------------------------------------------
+-- BOOKMARKS VIEWS
+
+-- gui_bookmarks
+CREATE TEMPORARY VIEW gui_bookmarks AS
+SELECT * FROM bookmarks
+ORDER BY rank ASC;
 
 -----------------------------------------------------------------------
 -- End of File

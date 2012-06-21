@@ -75,10 +75,11 @@ snit::widget detailbrowser {
 
     constructor {args} {
         # FIRST, Install the browser
-        install browser using mybrowser $win.browser \
-            -home         my://app/                  \
-            -hyperlinkcmd [mymethod GuiLinkCmd]      \
-            -searchcmd    [mymethod FormatSearchURL] \
+        install browser using mybrowser $win.browser  \
+            -home         my://app/                   \
+            -hyperlinkcmd [mymethod GuiLinkCmd]       \
+            -searchcmd    [mymethod FormatSearchURL]  \
+            -bookmarkcmd  [mymethod BookmarkThisPage] \
             -messagecmd   {app puts}
 
         # NEXT, create the sidebar.
@@ -363,6 +364,16 @@ snit::widget detailbrowser {
         }
     }
 
+    # BookmarkThisPage
+    #
+    # Pops up a BOOKMARK:CREATE dialog for the currently displayed page.
+
+    method BookmarkThisPage {} {
+        order enter BOOKMARK:CREATE \
+            url   [$self url]       \
+            title [$self title]
+    }
+    
     #-------------------------------------------------------------------
     # Public Methods
 

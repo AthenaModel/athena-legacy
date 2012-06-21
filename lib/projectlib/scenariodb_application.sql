@@ -143,6 +143,16 @@ CREATE TABLE maps (
     data     BLOB
 );
 
+------------------------------------------------------------------------
+-- BOOKMARKS
+
+CREATE TABLE bookmarks (
+    -- Detail Browser bookmarks.
+    bookmark_id INTEGER PRIMARY KEY,
+    url         TEXT,
+    title       TEXT,
+    rank        INTEGER  -- Used to order bookmarks in Bookmarks Manager
+);
 
 ------------------------------------------------------------------------
 -- End of File
