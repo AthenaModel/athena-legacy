@@ -83,49 +83,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {}
 
-
-    #-------------------------------------------------------------------
-    # REPORT:PARMDB
-
-    test PARMDB-1.1 {required parms} -setup {
-        setup
-    } -body {
-        ted order -reject REPORT:PARMDB {}
-    } -cleanup {
-        cleanup
-    } -result {
-        state {required value}
-    }
-
-
-    test PARMDB-1.2 {invalid state} -setup {
-        setup
-    } -body {
-        ted order -reject REPORT:PARMDB state NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        state {invalid value "NONESUCH", should be one of: ALL, CHANGED}
-    }
-
-
-    test PARMDB-2.1 {can be sent, no wildcard} -setup {
-        setup
-    } -body {
-        ted order REPORT:PARMDB state ALL
-    } -cleanup {
-        cleanup
-    } -result {}
-
-
-    test PARMDB-2.2 {can be sent with wildcard} -setup {
-        setup
-    } -body {
-        ted order REPORT:PARMDB state ALL wildcard "sim.*"
-    } -cleanup {
-        cleanup
-    } -result {}
-
     #-------------------------------------------------------------------
     # Cleanup
 

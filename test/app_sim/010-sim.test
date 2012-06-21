@@ -298,18 +298,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {PREP}
 
-    test mutate_unlock-1.3 {Restores PREP snapshot} -setup {
-        ted create NB1 BLUE SHIA
-        sim mutate lock
-        ted order REPORT:PARMDB state ALL wildcard "sim.*"
-    } -body {
-        sim mutate unlock
-        rdb eval {SELECT count(*) FROM reports}
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    test mutate_unlock-1.4 {Purges future snapshots} -setup {
+    test mutate_unlock-1.3 {Purges future snapshots} -setup {
         ted create NB1 BLUE SHIA
         sim mutate lock
         sim mutate run -ticks 1 -block yes

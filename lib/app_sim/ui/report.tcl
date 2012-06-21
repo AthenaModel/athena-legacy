@@ -28,11 +28,6 @@ snit::type ::report {
             active    "Active Drivers"
             empty     "Empty Drivers"
         }
-
-        enum eparmstate { 
-            ALL       "All Parameters"
-            CHANGED   "Changed Parameters"
-        }
     }
 }
 
@@ -70,38 +65,6 @@ order define REPORT:DRIVER {
 }
 
 
-# REPORT:PARMDB
-#
-# Produces a parmdb(5) report.
-
-order define REPORT:PARMDB {
-    title "Model Parameters Report"
-    options \
-        -sendstates     {PREP PAUSED}
-
-    parm state    enum "Parameter State" -enumtype ::report::eparmstate \
-                                         -defval   ALL
-    parm wildcard text "Wild Card"
-} {
-    # FIRST, prepare the parameters
-    prepare state     -required -type ::report::eparmstate
-    prepare wildcard
-
-    returnOnError -final
-
-    # NEXT, produce the report
-    if {$parms(state) eq "ALL"} {
-        set url "my://app/parmdb"
-    } else {
-        set url "my://app/parmdb/changed"
-    }
-
-    if {$parms(wildcard) ne ""} {
-        append url "?$parms(wildcard)"
-    }
-
-    app show $url
-}
 
 
 

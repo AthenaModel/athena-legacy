@@ -74,6 +74,13 @@ enum etopitems {
     TOP100 "Top 100"
 }
 
+# parmdb Parameter state
+
+enum eparmstate { 
+    all       "All Parameters"
+    changed   "Changed Parameters"
+}
+
 
 # rgamma: The range for the belief system playbox gamma
 

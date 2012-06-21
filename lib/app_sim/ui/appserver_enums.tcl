@@ -32,16 +32,22 @@ appserver module ENUMS {
 
     typemethod init {} {
         # FIRST, register the resource types
-        appserver register /enum/concerns {enum/concerns}                    \
-            tcl/enumlist [asproc enum:enumlist econcern]                     \
-            tcl/enumdict [asproc enum:enumdict econcern]                     \
-            text/html    [asproc type:html "Enumeration: Concerns" econcern] \
+        appserver register /enum/concerns {enum/concerns}             \
+            tcl/enumlist [asproc enum:enumlist econcern]              \
+            tcl/enumdict [asproc enum:enumdict econcern]              \
+            text/html    [asproc type:html "Enum: Concerns" econcern] \
             "Enumeration: Concerns"
 
-        appserver register /enum/topitems {enum/topitems}                    \
-            tcl/enumlist [asproc enum:enumlist etopitems]                    \
-            tcl/enumdict [asproc enum:enumdict etopitems]                    \
-            text/html    [asproc type:html "Enumeration: etopitems" etopitems] \
+        appserver register /enum/parmstate {enum/parmstate}               \
+            tcl/enumlist [asproc enum:enumlist eparmstate]                \
+            tcl/enumdict [asproc enum:enumdict eparmstate]                \
+            text/html    [asproc type:html "Enum: eparmstate" eparmstate] \
+            "Enumeration: Model Parameter State"
+
+        appserver register /enum/topitems {enum/topitems}               \
+            tcl/enumlist [asproc enum:enumlist etopitems]               \
+            tcl/enumdict [asproc enum:enumdict etopitems]               \
+            text/html    [asproc type:html "Enum: etopitems" etopitems] \
             "Enumeration: Top Item Limit"
     }
 }

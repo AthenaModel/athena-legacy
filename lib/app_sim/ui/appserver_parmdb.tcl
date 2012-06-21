@@ -29,34 +29,16 @@ appserver module PARMDB {
             tcl/linkdict [myproc /parmdb:linkdict] \
             text/html [myproc /parmdb:html] {
                 An editable table displaying the contents of the
-                model parameter database.  This resource can take a parameter,
-                a wildcard pattern; the table will contain only
-                parameters that match the pattern.
+                model parameter database.  This resource can take 
+                a query with two parameters; "pattern" is a wildcard
+                pattern, and "subset" can be "all" or "changed".
             }
-
-        appserver register /parmdb/{subset} {parmdb/(\w+)/?} \
-            text/html [myproc /parmdb:html] {
-                An editable table displaying the contents of the given
-                subset of the model parameter database.  The subsets
-                are the top-level divisions of the database, e.g.,
-                "sim", "aam", "force", etc.  In addition, the subset
-                "changed" will return all parameters with non-default
-                values.
-                This resource can take a parameter,
-                a wildcard pattern; the table will contain only
-                parameters that match the pattern.
-            }
-
-        
     }
 
     #-------------------------------------------------------------------
     # /parmdb
-    # /parmdb/{subset}
     #
-    # Match Parameters:
-    #
-    # {subset} => $(1)   - The subset, or "" for all, or "changed".
+    # No match parameters.
     
     # /parmdb:linkdict udict matcharray
     #
@@ -64,8 +46,14 @@ appserver module PARMDB {
     # subsets or queries.
 
     proc /parmdb:linkdict {udict matchArray} {
-        dict set result /parmdb/changed label "Changed"
-        dict set result /parmdb/changed listIcon ::marsgui::icon::pencil12
+        # FIRST, if there's a query we do nothing.
+        if {[dict get $udict query] ne ""} {
+            throw NOTFOUND "Resource not found"           
+        }
+
+        # NEXT, set up the linkdict.
+        dict set result /parmdb?subset=changed label "Changed"
+        dict set result /parmdb?subset=changed listIcon ::marsgui::icon::pencil12
 
         foreach subset {
             sim
@@ -85,7 +73,7 @@ appserver module PARMDB {
             service
             strategy
         } {
-            set url /parmdb/$subset
+            set url /parmdb?pattern=$subset.*
 
             dict set result $url label "$subset.*"
             dict set result $url listIcon ::marsgui::icon::pencil12
@@ -96,25 +84,24 @@ appserver module PARMDB {
 
     # /parmdb:html udict matchArray
     #
-    # Matches:
-    #   $(1) - The major subset, or "changed".
-    #
     # Returns a page that documents the current parmdb(5) values.
-    # There can be a query; if so, it is treated as a glob-pattern,
-    # and only parameters that match are included.
+    # There can be a query, in "parm=value+..." format; the following
+    # parameters are allowed:
+    #
+    #   pattern  - A glob pattern to match
+    #   subset   - "changed" or "all".  Defaults to all.
 
     proc /parmdb:html {udict matchArray} {
-        upvar 1 $matchArray ""
+        # FIRST, get the query parms and bring them into scope.
+        set qdict [querydict $udict {pattern subset}]
+        dict with qdict {}
 
-        # FIRST, are we looking at all parms or only changed parms?
-        if {$(1) eq "changed"} {
+        # NEXT, are we looking at all parms or only changed parms?
+        if {$subset eq "changed"} {
             set initialSet nondefaults
         } else {
             set initialSet names
         }
-
-        # NEXT, get the pattern, if any.
-        set pattern [dict get $udict query]
 
         # NEXT, get the base set of parms.
         if {$pattern eq ""} {
@@ -123,34 +110,16 @@ appserver module PARMDB {
             set parms [parm $initialSet $pattern]
         }
 
-        # NEXT, if some subset other than "changed" was given, find
-        # only those that match.
-
-        if {$(1) ne "" && $(1) ne "changed"} {
-            set subset "$(1).*"
-            
-            set allParms $parms
-            set parms [list]
-
-            foreach parm $allParms {
-                if {[string match $subset $parm]} {
-                    lappend parms $parm
-                }
-            }
-        }
-
         # NEXT, get the title
 
-        set parts ""
-
-        if {$(1) eq "changed"} {
-            lappend parts "Changed"
-        } elseif {$(1) ne ""} {
-            lappend parts "$(1).*"
-        }
+        set parts [list] 
 
         if {$pattern ne ""} {
             lappend parts [htools escape $pattern]
+        }
+
+        if {$subset eq "changed"} {
+            lappend parts "Changed"
         }
 
         set title "Model Parameters: "
@@ -163,6 +132,18 @@ appserver module PARMDB {
 
         ht page $title
         ht title $title
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form parmdb 
+        ht label pattern "Wildcard Pattern:"
+        ht input pattern text $pattern -size 20
+        ht label subset "Subset:"
+        ht input subset enum $subset -src enum/parmstate -content tcl/enumdict
+        ht submit
+        ht /form
+        ht hr
+        ht para
 
         # NEXT, if no parameters are found, note it and return.
         if {[llength $parms] == 0} {
