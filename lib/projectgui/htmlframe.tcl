@@ -45,7 +45,7 @@ snit::widgetadaptor ::projectgui::htmlframe {
 
     constructor {args} {
         # FIRST, create the hull.
-        installhull using htmlviewer3 \
+        installhull using htmlviewer \
             -shrink yes
 
         # NEXT, add a node handler for <input> tags.
@@ -57,7 +57,7 @@ snit::widgetadaptor ::projectgui::htmlframe {
 
     # InputCmd node
     # 
-    # node    - htmlviewer3 node handle
+    # node    - htmlviewer node handle
     #
     # An <input> element was found in the input.  This callback replaces the
     # element with the child widget having the same name as the element,
@@ -125,5 +125,6 @@ snit::widgetadaptor ::projectgui::htmlframe {
         return [$node attribute $attribute]
     }
 }
+
 
 

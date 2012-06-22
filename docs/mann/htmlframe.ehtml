@@ -11,7 +11,7 @@ namespace import ::projectgui::*
 
 <<section DESCRIPTION>>
 
-The htmlframe(n) widget is an <<xref htmlviewer3(n)>> widget configured 
+The htmlframe(n) widget is an <<xref htmlviewer(n)>> widget configured 
 for use as a layout manager.  The client creates any number of widgets
 as children of the htmlframe(n), and then specifies the layout as an
 HTML string.<p>
@@ -94,7 +94,7 @@ This module defines the following commands.<p>
 
 Creates a new <<iref htmlframe>> widget named <i>pathName</i>, and
 returns <i>pathName</i>.  The widget supports all of the 
-<<xref htmlviewer3(n)>> options; however, the ones most likely to be
+<<xref htmlviewer(n)>> options; however, the ones most likely to be
 of interest are the following:<p>
 
 <<deflist options>>
@@ -125,7 +125,7 @@ overridden by <code>&lt;style&gt;...&lt;/style&gt;</code> sheets and
 <<section "INSTANCE COMMAND">>
 
 The htmlframe(n) widget has all of the subcommands of the 
-<<xref htmlviewer3(n)>> widget, and adds the following:<p>
+<<xref htmlviewer(n)>> widget, and adds the following:<p>
 
 <<deflist instance>>
 
@@ -150,7 +150,7 @@ element with the given <i>id</i>.  If there is no element with that
 ID, the command looks for an element whose <code>name</code> matches
 the <i>id</i>.  If neither is found, the command throws an error.<p>
 
-This is convenience wrapper around <<xref htmlviewer3(n)>>'s 
+This is convenience wrapper around <<xref htmlviewer(n)>>'s 
 <code>search</code> and <code>attribute</code> subcommands.<p>
 
 <<defitem get {<i>pathName</i> get <i>id attribute</i>}>>
@@ -160,7 +160,7 @@ element with the given <i>id</i>.  If there is no element with that
 ID, the command looks for an element whose <code>name</code> matches
 the <i>id</i>.  If neither is found, the command throws an error.<p>
 
-This is convenience wrapper around <<xref htmlviewer3(n)>>'s 
+This is convenience wrapper around <<xref htmlviewer(n)>>'s 
 <code>search</code> and <code>attribute</code> subcommands.<p>
 
 
@@ -183,6 +183,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 

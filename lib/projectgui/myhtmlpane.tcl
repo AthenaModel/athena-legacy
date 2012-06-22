@@ -35,7 +35,7 @@ snit::widget ::projectgui::myhtmlpane {
     # Components
 
     component agent     ;# The myagent(n)
-    component hv        ;# The htmlviewer3(n)
+    component hv        ;# The htmlviewer(n)
     component lazy      ;# The lazyupdater(n)
     
     #-------------------------------------------------------------------
@@ -109,7 +109,7 @@ snit::widget ::projectgui::myhtmlpane {
 
         # NEXT, create the widgets
 
-        install hv using htmlviewer3 $win.hv             \
+        install hv using htmlviewer $win.hv             \
             -hovercmd            [mymethod HoverCmd]     \
             -imagecmd            [mymethod ImageCmd]     \
             -xscrollcommand      [list $win.xscroll set] \
@@ -158,7 +158,7 @@ snit::widget ::projectgui::myhtmlpane {
 
     # ObjectCmd node
     # 
-    # node    - htmlviewer3 node handle
+    # node    - htmlviewer node handle
     #
     # An <object> tag was found in the input.  The data attribute is
     # assumed to name a resource with content-type tk/widget.  The size of
@@ -223,7 +223,7 @@ snit::widget ::projectgui::myhtmlpane {
             set img [dict get $cdict content]
         }
 
-        # NEXT, make a copy of the image, since htmlviewer3 will delete
+        # NEXT, make a copy of the image, since htmlviewer will delete
         # it when it is done with it.
         set copy [image create photo]
         $copy copy $img
@@ -419,5 +419,6 @@ snit::widget ::projectgui::myhtmlpane {
         set info(anchor)  $anchor
     }
 }
+
 
 

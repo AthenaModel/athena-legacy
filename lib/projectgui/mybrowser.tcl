@@ -37,7 +37,7 @@ snit::widget ::projectgui::mybrowser {
     component agent     ;# The myagent(n)
     component bar       ;# The tool bar
     component sidebar   ;# The sidebar ttk::frame(n)
-    component hv        ;# The htmlviewer3(n)
+    component hv        ;# The htmlviewer(n)
     component backbtn   ;# Back one page button
     component fwdbtn    ;# Forward one page button
     component homebtn   ;# Home button
@@ -263,7 +263,7 @@ snit::widget ::projectgui::mybrowser {
         ttk::frame $win.paner.frm
         $win.paner add $win.paner.frm -weight 1
         
-        install hv using htmlviewer3 $win.paner.frm.hv             \
+        install hv using htmlviewer $win.paner.frm.hv             \
             -hovercmd            [mymethod HoverCmd]               \
             -hyperlinkcmd        [mymethod HyperlinkCmd]           \
             -imagecmd            [mymethod ImageCmd]               \
@@ -414,7 +414,7 @@ snit::widget ::projectgui::mybrowser {
             set img [dict get $cdict content]
         }
 
-        # NEXT, make a copy of the image, since htmlviewer3 will delete
+        # NEXT, make a copy of the image, since htmlviewer will delete
         # it when it is done with it.
         set copy [image create photo]
         $copy copy $img
@@ -424,7 +424,7 @@ snit::widget ::projectgui::mybrowser {
 
     # ObjectCmd node
     # 
-    # node    - htmlviewer3 node handle
+    # node    - htmlviewer node handle
     #
     # An <object> tag was found in the input.  The data attribute is
     # assumed to name a resource with content-type tk/widget.  The size of
@@ -509,7 +509,7 @@ snit::widget ::projectgui::mybrowser {
 
     # InputCmd node
     # 
-    # node    - htmlviewer3 node handle
+    # node    - htmlviewer node handle
     #
     # An <input> tag was found in the input.  If the type= attribute
     # corresponds to a supported type and has all of the required
@@ -619,7 +619,7 @@ snit::widget ::projectgui::mybrowser {
 
     # ReplaceNode node wcommand
     #
-    # node      - An htmlviewer3 node
+    # node      - An htmlviewer node
     # wcommand  - A widget command with %W for the widget name.
     #
     # Creates the widget and replaces the node with it.  
@@ -640,7 +640,7 @@ snit::widget ::projectgui::mybrowser {
 
     # Hide node
     #
-    # node      - An htmlviewer3 node
+    # node      - An htmlviewer node
     #
     # Hides the node.
 
@@ -1022,5 +1022,6 @@ snit::widget ::projectgui::mybrowser {
         return $ref
     }
 }
+
 
 

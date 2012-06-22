@@ -50,8 +50,8 @@ source [file join $::projectgui::library linktree.tcl        ]
 source [file join $::projectgui::library mybrowser.tcl       ]
 source [file join $::projectgui::library myhtmlpane.tcl      ]
 source [file join $::projectgui::library textwin.tcl         ]
-source [file join $::projectgui::library htmlviewer3.tcl     ]
 source [file join $::projectgui::library htmlframe.tcl       ]
+
 
 
 

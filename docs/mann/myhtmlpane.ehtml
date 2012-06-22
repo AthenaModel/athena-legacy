@@ -11,7 +11,7 @@ namespace import ::projectgui::*
 
 <<section DESCRIPTION>>
 
-The myhtmlpane(n) widget is an <<xref htmlviewer3(n)>> configured to
+The myhtmlpane(n) widget is an <<xref htmlviewer(n)>> configured to
 display one page from an <<xref myserver(i)>> as a tool for developing
 HTML-based GUIs.<p>
 
@@ -100,7 +100,7 @@ them is sent.<p>
 <<defopt {-zoom <i>factor</i>}>>
 
 These options are delegated to the underlying 
-<<xref htmlviewer3(n)>> widget.<p>
+<<xref htmlviewer(n)>> widget.<p>
 
 <</deflist options>>
 
@@ -152,6 +152,7 @@ Will Duquette<p>
 Original package.
 
 <</manpage>>
+
 
 
 
