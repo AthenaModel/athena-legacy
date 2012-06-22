@@ -25,57 +25,77 @@ appserver module DRIVERS {
 
     typemethod init {} {
         # FIRST, register the resource types
-        appserver register /drivers {drivers/?} \
-            text/html [myproc /drivers:html] {
+        appserver register /drivers {drivers/?}     \
+            tcl/linkdict [myproc /drivers:linkdict] \
+            text/html    [myproc /drivers:html]     {
                 A table displaying all of the attitude drivers to date.
             }
 
-        appserver register /drivers/{subset} {drivers/(\w+)/?} \
+        appserver register /drivers/{dtype} {drivers/(\w+)/?} \
             text/html [myproc /drivers:html] {
-                A table displaying all of the attitude drivers in the
-                specified subset: "active", "inactive", "empty".
+                A table displaying all of the attitude drivers of
+                the specified type.
             }
 
     }
 
     #-------------------------------------------------------------------
-    # /drivers:           All defined drivers
-    # /drivers/{subset}:  A particular subset of drivers
+    # /drivers:          All defined drivers
+    # /drivers/{dtype}:  Drivers of a particular type 
     #
     # Match Parameters:
     #
-    # {subset} ==> $(1)     - Driver subset (optional)
+    # {dtype} ==> $(1)     - Driver type (optional)
 
+
+    # /drivers:linkdict udict matcharray
+    #
+    # Returns a /drivers resource as a tcl/linkdict.  Only driver
+    # types with inputs are included.  Does not handle
+    # subsets or queries.
+
+    proc /drivers:linkdict {udict matchArray} {
+        set result [dict create]
+
+        rdb eval {
+            SELECT dtype FROM drivers
+            WHERE inputs > 0
+            GROUP BY dtype
+            ORDER BY dtype
+        } {
+            set url /drivers/$dtype
+
+            dict set result $url label $dtype
+            dict set result $url listIcon ::projectgui::icon::blackheart12
+        }
+
+        return $result
+    }
 
     # /drivers:html udict matchArray
     #
-    # udict      - A dictionary containing the URL components
-    # matchArray - Array of pattern matches.
-    #
-    # Matches:
-    #   $(1) - The drivers subset: active, empty, or "" 
-    #          for all.
-    #
-    # Returns a page that documents the current attitude
-    # drivers.
+    # Returns a page that lists the current attitude
+    # drivers, possibly by driver type.
 
     proc /drivers:html {udict matchArray} {
         upvar 1 $matchArray ""
 
         # FIRST, get the driver state
-        if {$(1) eq ""} {
-            set state "all"
+        set dtype [string trim [string toupper $(1)]]
+
+        if {$dtype ne ""} {
+            if {$dtype ni [edamruleset names]} {
+                throw NOTFOUND "Unknown driver type: \"$dtype\""
+            }
+
+            set label $dtype
         } else {
-            set state $(1)
+            set label "All"
         }
 
         # NEXT, set the page title
-        ht page "Attitude Drivers ($state)"
-        ht title "Attitude Drivers ($state)"
-
-        ht putln "The following drivers are affecting or have affected"
-        ht putln "attitudes in the playbox."
-        ht para
+        ht page "Attitude Drivers ($label)"
+        ht title "Attitude Drivers ($label)"
 
         # NEXT, get summary statistics
         rdb eval {
@@ -84,9 +104,6 @@ appserver module DRIVERS {
 
             CREATE TEMPORARY TABLE temp_report_driver_contribs AS
             SELECT driver_id, 
-                   CASE WHEN min(t) IS NULL 
-                        THEN 0
-                        ELSE 1 END                  AS has_contribs,
                    CASE WHEN min(t) NOT NULL    
                         THEN tozulu(min(t)) 
                         ELSE '' END                 AS ts,
@@ -100,14 +117,11 @@ appserver module DRIVERS {
             SELECT drivers.driver_id AS driver_id, 
                    dtype, 
                    narrative,
-                   CASE WHEN has_contribs THEN 'active'
-                        ELSE 'empty'
-                        END AS state,
+                   inputs,
                    ts,
                    te
             FROM drivers
-            JOIN temp_report_driver_contribs USING (driver_id)
-            ORDER BY driver_id DESC;
+            JOIN temp_report_driver_contribs USING (driver_id);
         }
 
         # NEXT, produce the query.
@@ -115,20 +129,22 @@ appserver module DRIVERS {
             SELECT driver_id   AS "Driver",
                    dtype       AS "Type",
                    narrative   AS "Narrative",
-                   state       AS "State",
+                   inputs      AS "No. of Inputs",
                    ts          AS "Start Time",
                    te          AS "End Time"
             FROM temp_report_driver_view
         }
 
-        if {$state ne "all"} {
-            append query "WHERE state = '$state'"
+        if {$dtype ne ""} {
+            append query "WHERE dtype=\$dtype\n"
         }
+
+        append query "ORDER BY driver_id ASC"
 
         # NEXT, generate the report text
         ht query $query \
             -default "No drivers found." \
-            -align   RLLLLL
+            -align   RLLRLL
 
         rdb eval {
             DROP VIEW  temp_report_driver_view;

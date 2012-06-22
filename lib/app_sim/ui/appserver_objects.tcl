@@ -107,6 +107,11 @@ appserver module OBJECTS {
             listIcon ::marsgui::icon::pencil12
         }
 
+        /drivers {
+            label    "Drivers"
+            listIcon ::projectgui::icon::blackheart12
+        }
+
         /contribs {
             label    "Contributions"
             listIcon ::projectgui::icon::heart12
@@ -162,6 +167,7 @@ appserver module OBJECTS {
                     /groups/civ 
                     /groups/frc 
                     /groups/org
+                    /drivers
                     /contribs
                     /caps
                     /hooks

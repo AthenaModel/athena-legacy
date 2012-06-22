@@ -921,12 +921,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu ECON:UPDATE
 
-        # Reports menu
-        set reportsmenu [menu $menubar.reports]
-        $menubar add cascade -label "Reports" -underline 0 -menu $reportsmenu
-
-        $self AddOrder $reportsmenu REPORT:DRIVER
-
         # Help menu
         set helpmenu [menu $menubar.helpmenu]
         $menubar add cascade -label "Help" -underline 0 -menu $helpmenu

@@ -119,7 +119,6 @@ include order_nbrel.help
 include order_order.help
 include order_parm.help
 include order_payload.help
-include order_report.help
 include order_sat.help
 include order_sim.help
 include order_tactic.help
