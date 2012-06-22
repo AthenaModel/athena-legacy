@@ -552,7 +552,7 @@ snit::type view {
 
         t,vrel {
             indices {g a}
-            validation ga
+            validation ga_vrel
             rtype rel
             query {
                 SELECT t    AS t,
@@ -564,7 +564,7 @@ snit::type view {
 
         t,basevrel {
             indices {g a}
-            validation ga
+            validation ga_vrel
             rtype rel
             query {
                 SELECT t    AS t,
@@ -576,7 +576,7 @@ snit::type view {
 
         t,natvrel {
             indices {g a}
-            validation ga
+            validation ga_vrel
             rtype rel
             query {
                 SELECT t   AS t,
@@ -1144,11 +1144,11 @@ snit::type view {
         ValidateIndex $domain $vartype g $g {frcgroup validate $g}
     }
 
-    # Proc: ga
+    # Proc: ga_vrel
     #
     # Validates {g a} for vrel
     
-    proc ga {domain vartype g a} {
+    proc ga_vrel {domain vartype g a} {
         ValidateIndex $domain $vartype g $g {group validate $g}
         ValidateIndex $domain $vartype a $a {actor validate $a}
     }
