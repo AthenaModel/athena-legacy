@@ -48,6 +48,10 @@
 
 <<changelog>>
 
+<<change 6/25/2012 Updated will>>
+Athena now builds against Mars 2.x; updated document accordingly.
+<</change>>
+
 <<change 2/29/2012 Updated will>>
 Updated the procedures for creating and checking out release
 branches.  Updated the example version numbers.
@@ -1089,7 +1093,7 @@ desired, link it with some other version of Mars.
 <</step/>>
 <pre>
 $ cd ~/athena
-$ mars link 1.65
+$ mars link 2.3
 $ mars link save
 </pre>
 <</step>>
@@ -1150,7 +1154,7 @@ necessary (that is, if anything has changed since the previous Athena
 build).
 <</step/>>
 See the <<xref marscm>>.  We'll assume that the
-resulting Mars build is Mars 1.65.
+resulting Mars build is Mars 2.3.
 <</step>>
 
 <<step>>
@@ -1192,21 +1196,21 @@ If your <code>PATH</code> environment variable contains
 
 <pre>
 $ cd ~/athena_pkgs/athena_4.0.1
-$ mars link 1.65
+$ mars link 2.3
 </pre>
 
 Otherwise,<p>
 
 <pre>
 $ cd ~/athena_pkgs/athena_4.0.1
-$ ./mars/bin/mars link 1.65
+$ ./mars/bin/mars link 2.3
 </pre>
 
 This is equivalent to:<p>
 
 <pre>
 $ cd ~/athena_pkgs/athena_4.0.1
-$ svn switch <i>repository</i>/mars/tags/mars_1.65 mars
+$ svn switch <i>repository</i>/mars/tags/mars_2.3 mars
 </pre>
 
 <</step>>
@@ -1248,7 +1252,7 @@ embedded version of Mars back to the Mars trunk.<p>
 <</step/>>
 <pre>
 $ cd ~/athena_pkgs/athena_4.0.1
-$ mars link 1.65
+$ mars link 2.3
 $ mars link save
 </pre>
 
@@ -1256,10 +1260,10 @@ This is equivalent to:<p>
 
 <pre>
 $ cd ~/athena_pkgs/athena_4.0.1
-$ svn switch <i>repository</i>/mars/tags/mars_1.65 mars
+$ svn switch <i>repository</i>/mars/tags/mars_2.3 mars
 $ svn propset svn:externals \
-    "mars <i>repository</i>/mars/tags/mars_1.65" .
-$ svn commit -m"Permanently link with Mars 1.65" .
+    "mars <i>repository</i>/mars/tags/mars_2.3" .
+$ svn commit -m"Permanently link with Mars 2.3" .
 </pre>
 
 <</step>>
