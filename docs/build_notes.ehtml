@@ -11,6 +11,35 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.7, 25 June 2012</h3>
+
+This package contains bug fixes, and improvements to the data
+displayed to the analyst.  It provides the contribution reports for 
+all four attitude types, plus group mood, neighborhood mood, and
+neighborhood cooperation; it adds attitude curve plots to the
+contribution pages; it replaces all remaining "reports" on the Reports
+menu with detail pages in the detail browser's Objects Tree, with
+in-line controls; and it provides the ability to bookmark important
+detail pages.<p>
+
+The full set of changes is as follows:<p>
+
+<ul>
+<li> Bug 3464: Cannot plot cov.&lt;g&gt;.CHECKPOINT
+<li> Bug 3484: Closing Athena when minimized does not work
+<li> Bug 3547: Cooperation Contributions: my://app/contribs/coop
+<li> Bug 3548: Contributions to Satisfaction table not found
+<li> Bug 3550: Additional Contribution Reports
+<li> Bug 3553: Attitude Plots
+<li> Bug 3558: Detail browser bookmarks
+<li> Bug 3559: Replace REPORT:PARMDB with embedded form.
+<li> Bug 3560: Replace REPORT:DRIVERS with a detail browser page
+<li> Bug 3564: athena(1): view module has duplicate validator
+<li> Bug 3568: Use htmlviewer(n) from Mars, and remove htmlviewer3(n) from projectgui(n).
+<li> Bug 3570: Update CM plan to Mars 2.x
+</ul><p>
+
+
 <h3>Build 4.0.6, 18 June 2012</h3>
 
 This build contains the second set of Information Operations Message
