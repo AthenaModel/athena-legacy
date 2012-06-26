@@ -217,7 +217,7 @@ order define BOOKMARK:CREATE {
 
 order define BOOKMARK:DELETE {
     title "Delete Bookmark"
-    options -sendstates PREP
+    options -sendstates {PREP PAUSED}
 
     parm bookmark_id  key  "Bookmark" -table bookmarks \
                                       -keys  bookmark_id

@@ -1466,7 +1466,7 @@ snit::widget appwin {
 
             # NEXT, if it's one of the optional tabs, set its visibility
             # flags.
-            if {$vistype in {orders log}} {
+            if {$vistype in {orders bookmarks log}} {
                 set visibility($vistype) 1
                 $self MakeTabsVisible
             }
