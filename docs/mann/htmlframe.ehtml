@@ -30,7 +30,7 @@ created like this, for example,<p>
 then the "hello" widget is layed out like this:<p>
 
 <pre>
-    &lt;item name="hello"&gt;
+    &lt;input name="hello"&gt;
 </pre>
 
 The size of the widget can be set explicitly in the usual way, when
@@ -46,9 +46,16 @@ The client may also wish to set the <code>id</code>,
 The layout can be changed at any time, simply by passing a new HTML
 string to the <<iref layout>> method.  Display of particular elements
 can be changed dynamically by using the <<iref set>> method to set the 
-<code>class</code> or <code>style</code> of particular elements
-identified by their <code>id</code> or <code>name</code> attribute
-values.<p>
+<code>class</code> or <code>style</code> of particular elements.
+Elements are identified by an ID string defined as an element
+attribute.  The widget's <<iref set>> and <<iref get>> method look
+for an <i>id</i> as follows:<p>
+
+<ul>
+<li> A <code>&lt;label&gt;</code> element with <code>for="<i>id</i>"</code> 
+<li> Any element with <code>id="<i>id</i>"</code>
+<li> Any element with <code>name="<i>id</i>"</code>
+</ul>
 
 In this regard, it is often useful to define new CSS classes using the
 <code>-style</code> option.  For example, suppose certain element
@@ -71,7 +78,7 @@ for the elements you want to affect dynamically.<p>
 <pre>
     &lt;span id="element1"&gt;
     I can say hello:
-    &lt;item name="hello"&gt;
+    &lt;input name="hello"&gt;
     &lt;/span&gt;
 </pre>
 
@@ -141,14 +148,21 @@ options.<p>
 <<defitem layout {<i>pathName</i> layout <i>html</i>}>>
 
 Lays out the children of the widget using the HTML layout.  Any 
-<code>&lt;item&gt;</code>'s without matching child widgets are ignored.<p>
+<code>&lt;input&gt;</code>'s without matching child widgets are ignored.<p>
 
 <<defitem set {<i>pathName</i> set <i>id attribute value</i>}>>
 
-Sets the <i>value</i> of the named <i>attribute</i> for the HTML
-element with the given <i>id</i>.  If there is no element with that
-ID, the command looks for an element whose <code>name</code> matches
-the <i>id</i>.  If neither is found, the command throws an error.<p>
+Sets the <i>value</i> of the named <i>attribute</i> for the first HTML
+element found with the given <i>id</i>, where the element is found
+as follows:<p>
+
+<ul>
+<li> A <code>&lt;label&gt;</code> element with <code>for="<i>id</i>"</code> 
+<li> Any element with <code>id="<i>id</i>"</code>
+<li> Any element with <code>name="<i>id</i>"</code>
+</ul>
+
+If no such element is found, the command throws an error.<p>
 
 This is convenience wrapper around <<xref htmlviewer(n)>>'s 
 <code>search</code> and <code>attribute</code> subcommands.<p>
@@ -156,9 +170,9 @@ This is convenience wrapper around <<xref htmlviewer(n)>>'s
 <<defitem get {<i>pathName</i> get <i>id attribute</i>}>>
 
 Gets the <i>value</i> of the named <i>attribute</i> for the HTML
-element with the given <i>id</i>.  If there is no element with that
-ID, the command looks for an element whose <code>name</code> matches
-the <i>id</i>.  If neither is found, the command throws an error.<p>
+element with the given <i>id</i>, where the element is found as for
+the <<iref set>> command.  If no element is found, the command throws 
+an error.<p>
 
 This is convenience wrapper around <<xref htmlviewer(n)>>'s 
 <code>search</code> and <code>attribute</code> subcommands.<p>

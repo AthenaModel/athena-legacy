@@ -57,8 +57,8 @@ set layouts(table) {
     <h3> Sample Data Entry Form</h3>
     <form>
     <table>
-    <tr id="a">
-    <td><b>Actor:</b></td>
+    <tr>
+    <td><b><label for="a">Actor:</label></b></td>
     <td><input name="a" type="text" size=10></td>
     </tr>
     

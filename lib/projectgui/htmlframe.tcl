@@ -85,7 +85,7 @@ snit::widgetadaptor ::projectgui::htmlframe {
 
     # set id attribute value
     #
-    # id         - An element id, set using the "id" or "name" attribute
+    # id         - An element id, set using the "for", "id" or "name" attribute
     # attribute  - An attribute name
     # value      - A new attribute value
     #
@@ -93,11 +93,7 @@ snit::widgetadaptor ::projectgui::htmlframe {
     # or NAME.  Looks for ID first.
 
     method set {id attribute value} {
-        set node [lindex [$hull search "#$id"] 0]
-
-        if {$node eq ""} {
-            set node [lindex [$hull search "\[name=\"$id\"\]"] 0]
-        }
+        set node [$self FindNode $id]
 
         require {$node ne ""} "unknown element id: \"$id\""
 
@@ -114,15 +110,35 @@ snit::widgetadaptor ::projectgui::htmlframe {
     # the given ID or NAME.  Looks for ID first.
 
     method get {id attribute} {
-        set node [lindex [$hull search "#$id"] 0]
+        set node [$self FindNode $id]
+
+        require {$node ne ""} "unknown element id: \"$id\""
+
+        return [$node attribute $attribute]
+    }
+
+    # FindNode id
+    #
+    # id    - Value of a "for", "id", or "name" attribute.
+    #
+    # Returns a node identified by "id".  It looks in this order:
+    #
+    # * For a <label for=$id>.
+    # * For any element with id=$id
+    # * For any element with name=$id
+
+    method FindNode {id} {
+        set node [lindex [$hull search "label\[for=\"$id\"\]"] 0]
+
+        if {$node eq ""} {
+            set node [lindex [$hull search "#$id"] 0]
+        }
 
         if {$node eq ""} {
             set node [lindex [$hull search "\[name=\"$id\"\]"] 0]
         }
 
-        require {$node ne ""} "unknown element id: \"$id\""
-
-        return [$node attribute $attribute]
+        return $node
     }
 }
 
