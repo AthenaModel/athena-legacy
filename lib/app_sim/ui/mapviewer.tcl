@@ -916,10 +916,6 @@ snit::widget mapviewer {
     method NbhoodUpdateFillTags {} {
         set standards $defaultFills
 
-        foreach g [civgroup names] {
-            lappend standards "mood.$g"
-        }
-
         foreach g [frcgroup names] {
             lappend standards "nbcoop.$g"
         }
