@@ -58,7 +58,7 @@ for an <i>id</i> as follows:<p>
 </ul>
 
 In this regard, it is often useful to define new CSS classes using the
-<code>-style</code> option.  For example, suppose certain element
+<code>-styles</code> option.  For example, suppose certain element
 contains an error, and so should be rendered with red text; or suppose
 that a certain element should sometimes be hidden.  These can easily
 be handled, as follows.<p>
@@ -66,7 +66,7 @@ be handled, as follows.<p>
 First, add the relevant CSS classes:<p>
 
 <pre>
-    $hf configure -style {
+    $hf configure -styles {
         .hidden { display: none; }
         .error  { color: red; }
     }
@@ -105,6 +105,11 @@ returns <i>pathName</i>.  The widget supports all of the
 of interest are the following:<p>
 
 <<deflist options>>
+
+<<defopt {-background <i>color</i>}>>
+
+Sets the background <i>color</i> of the widget; the background
+defaults to the default GUI background color.<p>
 
 <<defopt {-hyperlinkcmd <i>command</i>}>>
 

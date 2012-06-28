@@ -35,6 +35,32 @@ snit::widgetadaptor ::projectgui::htmlframe {
     # Delegate all options to the hull frame
     delegate option * to hull
 
+    # -styles css
+    #
+    # Sets the user's styles.
+
+    option -styles \
+        -configuremethod ConfigureStyles
+
+    # -background
+    #
+    # Sets the background color of the frame.  Defaults to the usual
+    # marsgui(n) background color, which derives from the OS default.
+
+    option -background \
+        -configuremethod ConfigureStyles
+
+    method ConfigureStyles {opt val} {
+        set options($opt) $val
+
+        set fullStyles \
+            "BODY { background-color: $options(-background) }\n"
+
+        append fullStyles $options(-styles)
+
+        $hull configure -styles $fullStyles
+    }
+    
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -51,7 +77,10 @@ snit::widgetadaptor ::projectgui::htmlframe {
         # NEXT, add a node handler for <input> tags.
         $hull handler node input [mymethod InputCmd]
 
-        # NEXT, get the options
+        # NEXT, set the default background color
+        $self configure -background $::marsgui::defaultBackground
+
+        # NEXT, get the user's options
         $self configurelist $args
     }
 
