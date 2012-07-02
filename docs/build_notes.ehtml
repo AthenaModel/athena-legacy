@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.8, 2 July 2012</h3>
+
+<b>TRISA Engineering Build!</b> This package contains two minor
+bugfixes, and two infrastructure changes in support of future work.<p>
+
+<ul>
+<li> Bug 3571: Bookmarks not deleting
+<li> Bug 3576: htmlframe(n): support for "label for=" IDs
+<li> Bug 3578: Obsolete neighborhood display variables in Map tab pulldown
+<li> Bug 3581: htmlframe(n): Background should default to the normal GUI background
+</ul><p>
+
+
 <h3>Build 4.0.7, 25 June 2012</h3>
 
 This package contains bug fixes, and improvements to the data
