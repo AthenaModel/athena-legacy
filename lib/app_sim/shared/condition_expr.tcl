@@ -66,10 +66,20 @@ order define CONDITION:EXPR:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm cc_id     key   "Tactic/Goal ID" -context yes              \
-                                          -table   cond_collections \
-                                          -keys    cc_id
-    parm text1     expr  "Expression"     
+    form {
+        rcc "Tactic/Goal ID:" -for cc_id
+        condcc cc_id
+
+        rcc "" -width 3in
+        label {
+            This condition is met when the following Boolean
+            expression is true.  See the help for the syntax,
+            as well as for useful functions to use within it.
+        }
+
+        rcc "Expression:" -for text1
+        expr text1
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -90,15 +100,22 @@ order define CONDITION:EXPR:CREATE {
 
 order define CONDITION:EXPR:UPDATE {
     title "Update Condition: Group Expr"
-    options \
-        -sendstates {PREP PAUSED}                              \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id key   "Condition ID"  -context yes          \
-                                            -table   conditions   \
-                                            -keys    condition_id
-    parm text1        expr  "Expression"
-                
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc "" -width 3in
+        label {
+            This condition is met when the following Boolean
+            expression is true.  See the help for the syntax,
+            as well as for useful functions to use within it.
+        }
+
+        rcc "Expression:" -for text1
+        expr text1
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition

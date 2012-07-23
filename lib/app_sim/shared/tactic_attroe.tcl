@@ -207,99 +207,20 @@ tactic type define ATTROE {n f g text1 int1} actor {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshCREATE fields fdict
+    # OppositeTo f
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # f   - A force group
     #
-    # Refreshes the TACTIC:ATTROE:CREATE dialog fields when field values
-    # change.
+    # Returns a list of the groups whose uniformed flag is opposite that
+    # of f.
 
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"owner" in $fields} {
-                set fgroups [rdb eval {
-                    SELECT g FROM frcgroups
-                    WHERE a=$owner
-                }]
-                
-                $dlg field configure f -values $fgroups
-            }
+    typemethod OppositeTo {f} {
+        rdb eval {SELECT uniformed FROM frcgroups WHERE g=$f} {}
 
-            if {"f" in $fields && $f ne ""} {
-                rdb eval {SELECT uniformed FROM frcgroups WHERE g=$f} {}
-
-                set ggroups [rdb eval {
-                    SELECT g FROM frcgroups
-                    WHERE uniformed != $uniformed
-                }]
-                
-                $dlg field configure g -values $ggroups
-
-                if {$uniformed} {
-                    $dlg field configure text1 -values [eattroeuf names]
-                } else {
-                    $dlg field configure text1 -values [eattroenf names]
-                }
-            }
-        }
-    }
-
-    # RefreshUPDATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:ATTROE:CREATE dialog fields when field values
-    # change.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        # FIRST, get the latest data from the RDB if the tactic_id has
-        # changed.
-        if {"tactic_id" in $fields} {
-            # FIRST, set up the enum -values so that all possible values
-            # are valid; this means that loadForKey can do its job.
-            $dlg field configure f -values [frcgroup names]
-            $dlg field configure g -values [frcgroup names]
-            $dlg field configure text1 -values [eattroe names]
-            
-            # NEXT, load the data.
-            $dlg loadForKey tactic_id *
-
-            # NEXT, refresh the fdict with the loaded data.
-            set fdict [$dlg get]
-        }
-
-        # NEXT, update the field enums as appropriate.
-        dict with fdict {
-            if {"owner" in $fields} {
-                set fgroups [rdb eval {
-                    SELECT g FROM frcgroups
-                    WHERE a=$owner
-                }]
-                
-                $dlg field configure f -values $fgroups
-            }
-
-            if {"f" in $fields && $f ne ""} {
-                rdb eval {SELECT uniformed FROM frcgroups WHERE g=$f} {}
-
-                set ggroups [rdb eval {
-                    SELECT g FROM frcgroups
-                    WHERE uniformed != $uniformed
-                }]
-                
-                $dlg field configure g -values $ggroups
-
-                if {$uniformed} {
-                    $dlg field configure text1 -values [eattroeuf names]
-                } else {
-                    $dlg field configure text1 -values [eattroenf names]
-                }
-            }
-        }
+        return [rdb eval {
+            SELECT g FROM frcgroups
+            WHERE uniformed != $uniformed
+        }]
     }
 }
 
@@ -310,19 +231,35 @@ tactic type define ATTROE {n f g text1 int1} actor {
 order define TACTIC:ATTROE:CREATE {
     title "Create Tactic: Attacking ROE"
 
-    options \
-        -sendstates {PREP PAUSED}       \
-        -refreshcmd {tactic::ATTROE RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm owner    actor "Owner"            -context yes
-    parm f        enum  "Attacking Group"   
-    parm g        enum  "Defending Group"   
-    parm n        enum  "In Neighborhood"  -enumtype nbhood
-    parm text1    enum  "ROE"              -defval DO_NOT_ATTACK
-    parm int1     text  "Max Attacks"      -defval 1
-    parm priority enum  "Priority"         -enumtype ePrioSched  \
-                                           -displaylong yes      \
-                                           -defval bottom
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Attacking Group:" -for f
+        enum f -listcmd {group ownedby $owner}
+
+        rcc "Defending Group:" -for g
+        enum g -listcmd {tactic::ATTROE OppositeTo $f}
+
+        rcc "In Neighborhood:" -for n
+        nbhood n
+       
+        rcc "ROE" -for text1
+        when {$f in [frcgroup uniformed names]} {
+            enumlong text1 -dictcmd {eattroeuf deflist} -defvalue DO_NOT_ATTACK
+        } else {
+            enumlong text1 -dictcmd {eattroenf deflist} -defvalue DO_NOT_ATTACK
+        }
+
+        rcc "Max Attacks" -for int1
+        text int1 -defvalue 1
+        label "per week"
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -374,19 +311,37 @@ order define TACTIC:ATTROE:CREATE {
 
 order define TACTIC:ATTROE:UPDATE {
     title "Update Tactic: Attacking ROE"
-    options \
-        -sendstates {PREP PAUSED}                  \
-        -refreshcmd {tactic::ATTROE RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_ATTROE \
-                                          -keys    tactic_id
-    parm owner     disp "Owner"
-    parm f         enum "Attacking Group"
-    parm g         enum "Defending Group"
-    parm n         enum "In Neighborhood"  -enumtype nbhood
-    parm text1     enum "ROE"             
-    parm int1      text "Max Attacks"
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_ATTROE -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Attacking Group:" -for f
+        enum f -listcmd {group ownedby $owner}
+
+        rcc "Defending Group:" -for g
+        enum g -listcmd {tactic::ATTROE OppositeTo $f}
+
+        rcc "In Neighborhood:" -for n
+        nbhood n
+       
+        rcc "ROE" -for text1
+        when {$f in [frcgroup uniformed names]} {
+            enumlong text1 -dictcmd {eattroeuf deflist}
+        } else {
+            enumlong text1 -dictcmd {eattroenf deflist}
+        }
+
+        rcc "Max Attacks" -for int1
+        text int1
+        label "per week"
+
+    }
 } {
     # FIRST, validate the tactic ID.
     prepare tactic_id  -required           -type tactic

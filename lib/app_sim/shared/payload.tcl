@@ -520,12 +520,12 @@ order define PAYLOAD:DELETE {
     # This order dialog isn't usually used.
 
     title "Delete Payload"
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm id   key  "Payload ID"    -context yes                  \
-                                   -table   gui_payloads         \
-                                   -keys    {iom_id payload_num}
+    form {
+        rcc "Payload ID:" -for id
+        payload id -context yes
+    }
 } {
     # FIRST, prepare the parameters
     prepare id -toupper -required -type payload
@@ -544,14 +544,15 @@ order define PAYLOAD:DELETE {
 order define PAYLOAD:STATE {
     title "Set Payload State"
 
-    options \
-        -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey payload_id *}
+    options -sendstates PREP
 
-    parm id    key  "Payload ID"    -context yes                  \
-                                    -table   gui_payloads         \
-                                    -keys    {iom_id payload_num}
-    parm state text "State"
+    form {
+        rcc "Payload ID:" -for id
+        payload id -context yes
+
+        rcc "State:" -for state
+        text state
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare id     -required          -type payload

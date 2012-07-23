@@ -48,11 +48,24 @@ order define CONDITION:DURING:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm cc_id     key   "Tactic/Goal ID" -context yes         \
-                                          -table   cond_collections \
-                                          -keys    cc_id
-    parm t1        text  "Start Week"          
-    parm t2        text  "End Week"
+    form {
+        rcc "Tactic/Goal ID:" -for cc_id
+        condcc cc_id
+
+        rcc "" -width 3in
+        label {
+            This condition is met when the current simulation time
+            is between
+        }
+
+        rcc "Start Week:" -for t1
+        text t1
+        label "and"
+
+        rcc "End Week:" -for t2
+        text t2
+        label ", inclusive."
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -82,15 +95,26 @@ order define CONDITION:DURING:CREATE {
 
 order define CONDITION:DURING:UPDATE {
     title "Update Condition: During"
-    options \
-        -sendstates {PREP PAUSED}                              \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id key   "Condition ID"  -context yes          \
-                                            -table   conditions   \
-                                            -keys    condition_id
-    parm t1           text  "Start Week"          
-    parm t2           text  "End Week"
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc "" -width 3in
+        label {
+            This condition is met when the current simulation time
+            is between
+        }
+
+        rcc "Start Week:" -for t1
+        text t1
+        label "and"
+
+        rcc "End Week:" -for t2
+        text t2
+        label ", inclusive."
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required  -type condition

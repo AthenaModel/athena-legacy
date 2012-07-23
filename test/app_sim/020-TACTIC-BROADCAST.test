@@ -74,8 +74,8 @@ namespace eval ::athena_test::tests:: {
         a {required value}
         iom {required value}
         x1 {required value}
-        on_lock {required value}
         once {required value}
+        on_lock {required value}
     }
 
     test CREATE-1.2 {owner is unknown} -setup {
@@ -189,6 +189,8 @@ cap          CNN
 a            NONE
 iom          IOM2
 x1           500.0
+once         0
+on_lock      1
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -351,6 +353,8 @@ cap          CNN
 a            NONE
 iom          IOM2
 x1           150.0
+once         0
+on_lock      1
     }
 
     test UPDATE-2.2 {Effects} -setup {

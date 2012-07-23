@@ -177,8 +177,10 @@ SELECT G.id                                             AS id,
        F.forcetype                                      AS forcetype,
        F.base_personnel                                 AS base_personnel,
        moneyfmt(F.attack_cost)                          AS attack_cost,
-       CASE F.uniformed WHEN 1 THEN 'YES' ELSE 'NO' END AS uniformed,
-       CASE F.local     WHEN 1 THEN 'YES' ELSE 'NO' END AS local
+       uniformed                                        AS uniformed,
+       CASE F.uniformed WHEN 1 THEN 'Yes' ELSE 'No' END AS pretty_uniformed,
+       local                                            AS local,
+       CASE F.local     WHEN 1 THEN 'Yes' ELSE 'No' END AS pretty_local
 FROM gui_groups  AS G
 JOIN frcgroups   AS F USING (g)
 LEFT OUTER JOIN personnel_g AS P USING (g);

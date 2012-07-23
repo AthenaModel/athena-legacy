@@ -226,7 +226,9 @@ order define MAP:IMPORT {
 
     # NOTE: Dialog is not usually used.  Could define a "filepicker"
     # -editcmd, though.
-    parm filename   text "Map File"
+    form {
+        text filename
+    }
 } {
     # FIRST, prepare the parameters
     prepare filename -required 

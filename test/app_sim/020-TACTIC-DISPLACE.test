@@ -48,6 +48,7 @@ namespace eval ::athena_test::tests:: {
         n           NB2
         text1       DISPLACED
         int1        100
+        once        NO
         on_lock     NO
     }
 
@@ -58,6 +59,7 @@ namespace eval ::athena_test::tests:: {
         n           NB1
         text1       IN_CAMP
         int1        200
+        once        NO
         on_lock     NO
     }
 
@@ -173,6 +175,8 @@ g            SHIA
 n            NB2
 text1        DISPLACED
 int1         100
+once         0
+on_lock      0
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -314,6 +318,8 @@ g            SHIA
 n            NB2
 text1        DISPLACED
 int1         150
+once         0
+on_lock      0
     }
 
     test UPDATE-2.2 {Effects} -setup {

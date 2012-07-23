@@ -82,96 +82,6 @@ snit::type nbrel {
             return [list rdb ungrab $data]
         }
     }
-
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-    # Refresh_NRU dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    Names of fields that changed
-    # fdict     Current field values
-    #
-    # Refreshes the data in the NBREL:UPDATE dialog
-    # when field values change.
-    #
-    # NOTE: The gui_nbrel_mn view is now defined such
-    # that m != n.
-
-    typemethod Refresh_NRU {dlg fields fdict} {
-        # FIRST, if the id changed, refresh the fields.
-        dict with fdict {
-            if {"id" in $fields} {
-                lassign $id m n
-                set disabled [list]
-
-                # NEXT, refresh proximity
-                if {$m eq $n} {
-                    $dlg field configure proximity -values HERE
-                    lappend disabled proximity
-                } else {
-                    set values [lrange [eproximity names] 1 end]
-                    $dlg field configure proximity -values $values
-                }
-                
-                $dlg disabled $disabled
-
-                # NEXT, load the current data.
-                $dlg loadForKey id
-            }
-        }
-    }
-
-    # Refresh_NRUM dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    Names of fields that changed
-    # fdict     Current field values
-    #
-    # Refreshes the data in the NBREL:UPDATE:MULTI dialog
-    # when field values change.
-
-    typemethod Refresh_NRUM {dlg fields fdict} {
-        if {"ids" ni $fields} {
-            return
-        }
-
-        set disabled [list]
-
-        set same 0
-        set diff 0
-
-        foreach id [dict get $fdict ids] {
-            lassign $id m n
-
-            if {$m eq $n} {
-                incr same
-            } else {
-                incr diff
-            }
-        }
-
-        if {$same > 0 && $diff > 0} {
-            # Mixed bag
-            # $dlg set proximity ""
-            lappend disabled proximity
-        } elseif {$same > 0} {
-            # All are HERE
-            $dlg field configure proximity -values HERE
-            # $dlg set proximity HERE
-            lappend disabled proximity
-        } else {
-            # None are HERE
-            set values [lrange [eproximity names] 1 end]
-            $dlg field configure proximity -values $values
-
-            # $dlg set proximity ""
-        }
-
-        $dlg disabled $disabled
-
-        $dlg loadForMulti ids
-    }
 }
 
 
@@ -185,14 +95,16 @@ snit::type nbrel {
 
 order define NBREL:UPDATE {
     title "Update Neighborhood Relationship"
-    options \
-        -sendstates PREP                               \
-        -refreshcmd {::orderdialog refreshForKey id *}
+    options -sendstates PREP
 
-    parm id            key  "Neighborhood"         -table    gui_nbrel_mn  \
-                                                   -keys     {m n}         \
-                                                   -labels   {"Of" "With"}
-    parm proximity     enum "Proximity"            -enumtype {ptype prox-HERE}
+    form {
+        rcc "Neighborhood:" -for id
+        key id -table gui_nbrel_mn -keys {m n} -labels {"Of" "With"} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Proximity:" -for proximity
+        enum proximity -listcmd {ptype prox-HERE names}
+    }
 } {
     # FIRST, prepare the parameters
     prepare id            -toupper  -required -type nbrel
@@ -220,14 +132,16 @@ order define NBREL:UPDATE {
 
 order define NBREL:UPDATE:MULTI {
     title "Update Multiple Neighborhood Relationships"
-    options \
-        -sendstates PREP                                  \
-        -refreshcmd {::orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids           multi  "IDs"                 -table gui_nbrel_mn \
-                                                    -key   id
+    form {
+        rcc "IDs:" -for ids
+        multi ids -table gui_nbrel_mn -key id \
+            -loadcmd {orderdialog multiload ids *}
 
-    parm proximity     enum   "Proximity"           -enumtype {ptype prox-HERE}
+        rcc "Proximity:" -for proximity
+        enum proximity -listcmd {ptype prox-HERE names}
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids           -toupper  -required -listof nbrel

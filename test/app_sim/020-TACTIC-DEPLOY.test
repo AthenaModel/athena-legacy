@@ -48,6 +48,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       SOME
         int1        100
+        once        NO
         on_lock     NO
     }
 
@@ -58,6 +59,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       SOME
         int1        100
+        once        YES
         on_lock     NO
     }
 
@@ -67,6 +69,7 @@ namespace eval ::athena_test::tests:: {
         nlist       NB1
         g           BLUE
         text1       ALL
+        once        NO
         on_lock     NO
     }
 
@@ -203,6 +206,8 @@ g            BLUE
 text1        SOME
 int1         100
 nlist        NB1 NB2
+once         1
+on_lock      0
     }
 
 
@@ -227,6 +232,8 @@ g            BLUE
 text1        ALL
 int1         
 nlist        NB1
+once         0
+on_lock      0
     }
 
 
@@ -381,6 +388,8 @@ g            BLUE
 text1        SOME
 int1         150
 nlist        NB1 NB2
+once         1
+on_lock      0
     }
 
     test DEPLOY:UPDATE-2.2 {tactic is updated} -setup {
@@ -406,6 +415,8 @@ g            BLUE
 text1        SOME
 int1         150
 nlist        NB1
+once         0
+on_lock      0
     }
 
 

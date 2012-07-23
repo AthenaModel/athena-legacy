@@ -124,7 +124,7 @@ SELECT s                                              AS id,
        resolver                                       AS resolver,
        rduration                                      AS rduration,
        tozulu(ts+rduration)                           AS tr,
-       CASE inception WHEN 1 THEN 'YES' ELSE 'NO' END AS inception
+       inception                                      AS inception
 FROM ensits;
 
 -- gui_ensits subview: ensits in INITIAL state

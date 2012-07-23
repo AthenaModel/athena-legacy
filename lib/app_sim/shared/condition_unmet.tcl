@@ -94,38 +94,28 @@ condition type define UNMET {list1} -attachto tactic {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshCREATE dlg fields fdict
+    # GoalDict mode id
     #
-    # Populates the Goals field when the order dialog is popped up.
+    # mode   - cc_id or condition_id
+    # id     - The cc_id or condition_id
+    #
+    # Retrieves a dictionary of goal IDs and narratives owned by the 
+    # actor that owns the condition.
 
-    typemethod RefreshCREATE {dlg fields fdict} {
-        # FIRST, load the goals.
-        if {"cc_id" in $fields} {
-            set cc_id [dict get $fdict cc_id]
-            $type SetItemDict $dlg $cc_id
+    typemethod GoalDict {mode id} {
+        if {$mode eq "condition_id"} { 
+            set cc_id [condition get $id cc_id]
+        } else {
+            set cc_id $id
         }
-    }
 
-    # RefreshUPDATE dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the CONDITION:*:UPDATE dialog fields when field values
-    # change, and disables the condition_id field; they can't pick
-    # new ones.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        # FIRST, load the list1 field's -itemdict
-        if {"condition_id" in $fields} {
-            set condition_id [dict get $fdict condition_id]
-            set cc_id [condition get $condition_id cc_id]
-            $type SetItemDict $dlg $cc_id
-        }
-        
-        # NEXT, refresh the fields from the RDB
-        orderdialog refreshForKey condition_id * $dlg $fields $fdict
+        set owner [tactic get $cc_id owner]
+            
+        return [rdb eval {
+            SELECT goal_id, narrative
+            FROM goals
+            WHERE owner=$owner
+        }]
     }
 
     # SetItemDict dlg cid
@@ -192,16 +182,24 @@ condition type define UNMET {list1} -attachto tactic {
 order define CONDITION:UNMET:CREATE {
     title "Create Condition: Goal is Unmet"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {condition::UNMET RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm cc_id  key   "Tactic ID"  -context yes         \
-                                   -table   cond_collections \
-                                   -keys    cc_id
-    parm list1  goals "Goals"     
+    form {
+        rcc "Tactic ID:" -for cc_id
+        condcc cc_id
+
+        rcc ""
+        label {
+            This condition is met when at least one of the following
+            goals is not met.
+        }
+
+        rcc "Goals:" -for list1
+        enumlonglist list1 -width 30 -height 8 \
+            -dictcmd {condition::UNMET GoalDict cc_id $cc_id}
+    }
 } {
-    # FIRST, prepare and validate the paraunmeters
+    # FIRST, prepare and validate the parameters
     prepare cc_id     -required -type   tactic
     prepare list1     -required -listof goal
 
@@ -229,16 +227,24 @@ order define CONDITION:UNMET:CREATE {
 
 order define CONDITION:UNMET:UPDATE {
     title "Update Condition: Goal is Unmet"
-    options \
-        -sendstates {PREP PAUSED}                   \
-        -refreshcmd {condition::UNMET RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id key  "Condition ID"  -context yes          \
-                                           -table   conditions   \
-                                           -keys    condition_id
-    parm list1        goals "Goals"
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc ""
+        label {
+            This condition is met when at least one of the following
+            goals is not met.
+        }
+
+        rcc "Goals:" -for list1
+        enumlonglist list1 -width 30 -height 8 \
+            -dictcmd {condition::UNMET GoalDict condition_id $condition_id}
+    }
 } {
-    # FIRST, prepare the paraunmeters
+    # FIRST, prepare the parameters
     prepare condition_id  -required  -type   condition
     prepare list1                    -listof goal
 

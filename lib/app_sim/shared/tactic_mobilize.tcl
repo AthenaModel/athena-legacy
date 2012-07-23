@@ -74,59 +74,6 @@ tactic type define MOBILIZE {g int1 once} actor {
 
         return 1
     }
-
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-
-    # RefreshCREATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:MOBILIZE:CREATE dialog fields when field values
-    # change.
-
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"owner" in $fields} {
-                set groups [rdb eval {
-                    SELECT g FROM frcgroups
-                    WHERE a=$owner
-                }]
-                
-                $dlg field configure g -values $groups
-            }
-        }
-    }
-
-    # RefreshUPDATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:MOBILIZE:UPDATE dialog fields when field values
-    # change.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        if {"tactic_id" in $fields} {
-            $dlg loadForKey tactic_id *
-            set fdict [$dlg get]
-
-            dict with fdict {
-                set groups [rdb eval {
-                    SELECT g FROM frcgroups
-                    WHERE a=$owner
-                }]
-                
-                $dlg field configure g -values $groups
-            }
-
-            $dlg loadForKey tactic_id *
-        }
-    }
 }
 
 # TACTIC:MOBILIZE:CREATE
@@ -136,18 +83,24 @@ tactic type define MOBILIZE {g int1 once} actor {
 order define TACTIC:MOBILIZE:CREATE {
     title "Create Tactic: Mobilize Forces"
 
-    options \
-        -sendstates {PREP PAUSED}       \
-        -refreshcmd {tactic::MOBILIZE RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     actor "Owner"           -context yes
-    parm g         enum  "Group"   
-    parm int1      text  "Personnel"
-    parm once      enum  "Once Only?"      -enumtype eyesno      \
-                                           -defval   YES
-    parm priority  enum  "Priority"        -enumtype ePrioSched  \
-                                           -displaylong yes      \
-                                           -defval bottom
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Group:" -for g
+        enum g -listcmd {group ownedby $owner}
+
+        rcc "Personnel:" -for int1
+        text int1
+
+        rcc "Once Only?" -for once
+        yesno once -defvalue 1
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
@@ -182,17 +135,25 @@ order define TACTIC:MOBILIZE:CREATE {
 
 order define TACTIC:MOBILIZE:UPDATE {
     title "Update Tactic: Mobilize Forces"
-    options \
-        -sendstates {PREP PAUSED}                  \
-        -refreshcmd {tactic::MOBILIZE RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes                  \
-                                          -table   gui_tactics_MOBILIZE \
-                                          -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm g         enum  "Group"
-    parm int1      text  "Personnel"
-    parm once      enum  "Once Only?"     -enumtype eyesno 
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_MOBILIZE -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Group:" -for g
+        enum g -listcmd {group ownedby $owner}
+
+        rcc "Personnel:" -for int1
+        text int1
+
+        rcc "Once Only?" -for once
+        yesno once
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic

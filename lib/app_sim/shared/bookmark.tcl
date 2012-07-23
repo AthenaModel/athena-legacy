@@ -200,8 +200,13 @@ order define BOOKMARK:CREATE {
     title "Create Bookmark"
     options -sendstates {PREP PAUSED}
 
-    parm url   text "URL"         -width 40
-    parm title text "Title"       -width 40
+    form {
+        rcc "URL:" -for url
+        text url -width 40
+
+        rcc "Title:" -for title
+        text title -width 40
+    }
 } {
     # FIRST, prepare the parameters
     prepare url    -required
@@ -219,8 +224,10 @@ order define BOOKMARK:DELETE {
     title "Delete Bookmark"
     options -sendstates {PREP PAUSED}
 
-    parm bookmark_id  key  "Bookmark" -table bookmarks \
-                                      -keys  bookmark_id
+    form {
+        rcc "Bookmark:" -for bookmark_id
+        enum bookmark_id -listcmd {bookmark names}
+    }
 } {
     # FIRST, prepare the parameters
     prepare bookmark_id  -required -type bookmark
@@ -237,14 +244,19 @@ order define BOOKMARK:DELETE {
 
 order define BOOKMARK:UPDATE {
     title "Update Bookmark"
-    options \
-        -sendstates {PREP PAUSED}                       \
-        -refreshcmd {::orderdialog refreshForKey bookmark_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm bookmark_id  key   "Select Bookmark" -table bookmarks   \
-                                              -keys  bookmark_id
-    parm url          text  "URL"             -width 40
-    parm title        text  "Title"           -width 40
+    form {
+        rcc "Select Bookmark:" -for bookmark_id
+        key bookmark_id -table bookmarks -keys bookmark_id \
+            -loadcmd {orderdialog keyload bookmark_id *}
+
+        rcc "URL:" -for url
+        text url -width 40
+
+        rcc "Title:" -for title
+        text title -width 40
+    }
 } {
     # FIRST, prepare the parameters
     prepare bookmark_id   -required   -type bookmark
@@ -265,14 +277,15 @@ order define BOOKMARK:RANK {
     # This order dialog isn't usually used.
     title "Change Bookmark Rank"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {orderdialog refreshForKey bookmark_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm bookmark_id  key  "Bookmark ID"   -context yes         \
-                                           -table   bookmarks   \
-                                           -keys    bookmark_id
-    parm rank         enum "Rank Change"   -type    ePrioUpdate
+    form {
+        rcc "Bookmark:" -for bookmark_id
+        enum bookmark_id -listcmd {bookmark names}
+
+        rcc "Rank Change:" -for rank
+        enumlong rank -dictcmd {ePrioUpdate deflist}
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare bookmark_id -required          -type bookmark

@@ -101,26 +101,18 @@ tactic type define DEFROE {n g text1} actor {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshCREATE fields fdict
+    # OwnedAndUniformed a
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # a   - An actor
     #
-    # Refreshes the TACTIC:DEFROE:CREATE dialog fields when field values
-    # change.
-
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"owner" in $fields} {
-                set groups [rdb eval {
-                    SELECT g FROM frcgroups
-                    WHERE a=$owner AND uniformed=1
-                }]
-                
-                $dlg field configure g -values $groups
-            }
-        }
+    # Returns a list of the uniformed force groups owned by the 
+    # actor.
+    
+    typemethod OwnedAndUniformed {a} { 
+        return [rdb eval {
+            SELECT g FROM frcgroups
+            WHERE a=$a AND uniformed=1
+        }]
     }
 }
 
@@ -131,18 +123,25 @@ tactic type define DEFROE {n g text1} actor {
 order define TACTIC:DEFROE:CREATE {
     title "Create Tactic: Defensive ROE"
 
-    options \
-        -sendstates {PREP PAUSED}       \
-        -refreshcmd {tactic::DEFROE RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm owner    actor "Owner"            -context yes
-    parm g        enum  "Defending Group"   
-    parm n        enum  "In Neighborhood"  -enumtype nbhood
-    parm text1    enum  "ROE"              -enumtype edefroeuf \
-                                           -defval FIRE_BACK_IMMEDIATELY
-    parm priority enum "Priority"          -enumtype ePrioSched  \
-                                           -displaylong yes      \
-                                           -defval bottom
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Defending Group:" -for g
+        enum g -listcmd {tactic::DEFROE OwnedAndUniformed $owner}
+
+        rcc "In Neighborhood:" -for n
+        nbhood n
+
+        rcc "ROE:" -for text1
+        enumlong text1 -dictcmd {edefroeuf deflist} \
+            -defvalue FIRE_BACK_IMMEDIATELY
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -177,21 +176,31 @@ order define TACTIC:DEFROE:CREATE {
 
 order define TACTIC:DEFROE:UPDATE {
     title "Update Tactic: Defensive ROE"
-    options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_DEFROE \
-                                          -keys    tactic_id
-    parm owner     disp "Owner"
-    parm g         disp "Defending Group"
-    parm n         disp "In Neighborhood"
-    parm text1     enum "ROE"             -enumtype edefroeuf
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_DEFROE -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Defending Group:" -for g
+        enum g -listcmd {tactic::DEFROE OwnedAndUniformed $owner}
+
+        rcc "In Neighborhood:" -for n
+        nbhood n
+
+        rcc "ROE:" -for text1
+        enumlong text1 -dictcmd {edefroeuf deflist}
+    }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required           -type tactic
-    prepare text1      -required -toupper  -type edefroeuf
+    prepare tactic_id  -required -type tactic
+    prepare g          -toupper  -type frcgroup
+    prepare n          -toupper  -type nbhood
+    prepare text1      -toupper  -type edefroeuf
 
     returnOnError
 

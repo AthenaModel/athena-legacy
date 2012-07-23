@@ -582,88 +582,45 @@ snit::type ensit {
     #-------------------------------------------------------------------
     # Order Helpers
 
-
-    # Refresh_SEC dlg fields fdict
+    # AbsentTypes location
     #
-    # dlg       The order dialog
-    # fields    A list of the fields that have changed.
-    # fdict     The current field values.
+    # location  - A map location
     #
-    # Refreshes the ENSIT:CREATE dialog.
+    # Returns a list of the ensit types that are not represented in 
+    # the neighborhood containing the given location.
 
-    typemethod Refresh_SEC {dlg fields fdict} {
-        # FIRST, if the location changed, determine the valid ensit
-        # types
-        if {"location" in $fields} {
-            # NEXT, update the list of valid situation types.
-            dict with fdict {
-                if {$location ne "" && 
-                    ![catch {
-                        set mxy [map ref2m $location]
-                        set n [nbhood find {*}$mxy]
-                    }]
-                } {
-                    set stypes [$type absentFromNbhood $n]
-
-                    if {[llength $stypes] > 0} {
-                        $dlg field configure stype \
-                            -values [lsort $stypes]
-
-                        $dlg disabled {}
-                        return
-                    }
-                }
-            }
-
-            # NEXT, there's no valid location, or all ensits have
-            # been created.  SO disable the stype
-            $dlg set stype ""
-            $dlg disabled stype
+    typemethod AbsentTypes {location} {
+        if {$location ne "" && 
+            ![catch {
+                set mxy [map ref2m $location]
+                set n [nbhood find {*}$mxy]
+            }]
+        } {
+            return [$type absentFromNbhood $n]
         }
+
+        return [list]
     }
 
-    # Refresh_SEU dlg fields fdict
+    # AbsentTypesBySit s
     #
-    # dlg       The order dialog
-    # fields    A list of the fields that have changed.
-    # fdict     The current field values.
+    # s  - A situation ID
     #
-    # Refreshes the ENSIT:UPDATE dialog.
+    # Returns a list of the ensit types that are not represented in 
+    # the neighborhood containing the situation, plus the situation's
+    # own type.
 
-    typemethod Refresh_SEU {dlg fields fdict} {
-        # FIRST, if the selected situation changed, load the 
-        # rest of the fields.
-        if {"s" in $fields} {
-            # FIRST, set the list of valid values for the stype
-            # field; if it's empty, we won't be able to load this
-            # situation's stype.
-            $dlg field configure stype -values [eensit names]
+    typemethod AbsentTypesBySit {s} {
+        if {$s ne ""} {
+            set sit [situation get $s]
 
-            # NEXT, load the ensit's data.
-            $dlg loadForKey s
+            set stypes [$type absentFromNbhood [$sit get n]]
+            lappend stypes [$sit get stype]
+
+            return [lsort $stypes]
         }
 
-        # NEXT, update the list of valid situation types.
-        dict with fdict {
-            if {$s ne ""} {
-                set sit [situation get $s]
-
-                set stypes [$type absentFromNbhood [$sit get n]]
-
-                if {[llength $stypes] > 0} {
-                    $dlg field configure stype \
-                        -values [lsort [concat [$sit get stype] $stypes]]
-                    $dlg disabled {}
-
-                    return
-                }
-            }
-        }
-
-        # There is no situation selected, or there are no valid
-        # stypes remaining.
-        $dlg field configure stype -values {}
-        $dlg disabled stype
+        return [list]
     }
 }
 
@@ -774,20 +731,35 @@ eventq define ensitAutoResolve {s} {
 
 order define ENSIT:CREATE {
     title "Create Environmental Situation"
-    options \
-        -schedulestates {PREP PAUSED TACTIC}         \
-        -sendstates     {PREP PAUSED TACTIC}         \
-        -refreshcmd     {::ensit Refresh_SEC}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm location   text  "Location"      -tags nbpoint
-    parm stype      enum  "Type"          -schedwheninvalid yes
-    parm coverage   frac  "Coverage"      -defval 1.0
-    parm inception  enum  "Inception?"    -enumtype eyesno -defval "YES"
-    parm g          enum  "Caused By"     -enumtype {ptype g+none} \
-        -defval NONE
-    parm resolver   enum  "Resolved By"   -enumtype {ptype g+none} \
-        -defval NONE
-    parm rduration  text  "Duration"      -defval 1
+    form {
+        rcc "Location:" -for location
+        text location
+
+        rcc "Type:" -for stype
+        enum stype -listcmd {ensit AbsentTypes $location}
+
+        # TBD: Could make the rest appear only when the type is
+        # selected.
+        rcc "Coverage:" -for coverage
+        frac coverage -defvalue 1.0
+
+        rcc "Inception?" -for inception
+        yesno inception -defvalue 1
+
+        rcc "Caused By:" -for g
+        enum g -listcmd {ptype g+none names} -defvalue NONE
+
+        rcc "Resolver:" -for resolver
+        enum resolver -listcmd {ptype g+none names} -defvalue NONE
+
+        rcc "Duration:" -for duration
+        text rduration -defvalue 1
+        label "weeks"
+    }
+
+    parmtags location nbpoint
 } {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
@@ -840,13 +812,14 @@ order define ENSIT:CREATE {
 
 order define ENSIT:DELETE {
     title "Delete Environmental Situation"
-    options \
-        -sendstates {PREP PAUSED}
+    options -sendstates {PREP PAUSED}
 
-    parm s  key  "Situation"  -table    gui_ensits_initial \
-                              -keys     s                  \
-                              -dispcols longid             \
-                              -tags     situation
+    form {
+        rcc "Situation:" -for s
+        key s -table gui_ensits_initial -keys s -dispcols longid
+    }
+
+    parmtags s situation
 } {
     # FIRST, prepare the parameters
     prepare s -required -type {ensit initial}
@@ -888,22 +861,38 @@ order define ENSIT:DELETE {
 
 order define ENSIT:UPDATE {
     title "Update Environmental Situation"
-    options \
-        -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {ensit Refresh_SEU}
+    options -sendstates {PREP PAUSED TACTIC} 
 
-    parm s          key  "Situation"    -table    gui_ensits_initial \
-                                        -keys     s                  \
-                                        -dispcols longid             \
-                                        -tags     situation
-    parm location   text  "Location"    -tags     nbpoint
-    parm stype      enum  "Type"
-    parm coverage   frac  "Coverage"
-    parm inception  enum  "Inception?"  -enumtype eyesno
-    parm g          enum  "Caused By"   -enumtype {ptype g+none}
-    parm resolver   enum  "Resolved By" -enumtype {ptype g+none}
-    parm rduration  text  "Duration"    
+    form {
+        rcc "Situation:" -for s
+        key s -table gui_ensits_initial -keys s -dispcols longid \
+            -loadcmd {orderdialog keyload s *}
 
+        rcc "Location:" -for location
+        text location
+
+        rcc "Type:" -for stype
+        enum stype -listcmd {ensit AbsentTypesBySit $s}
+
+        rcc "Coverage:" -for coverage
+        frac coverage
+
+        rcc "Inception?" -for inception
+        yesno inception
+
+        rcc "Caused By:" -for g
+        enum g -listcmd {ptype g+none names}
+
+        rcc "Resolver:" -for resolver
+        enum resolver -listcmd {ptype g+none names}
+
+        rcc "Duration:" -for duration
+        text rduration
+        label "weeks"
+    }
+
+    parmtags s situation
+    parmtags location nbpoint
 } {
     # FIRST, check the situation
     prepare s                    -required -type {ensit initial}
@@ -967,11 +956,16 @@ order define ENSIT:MOVE {
     options \
         -sendstates {PREP PAUSED}
 
-    parm s          key   "Situation"   -table    gui_ensits \
-                                        -keys     s          \
-                                        -dispcols longid     \
-                                        -tags     situation
-    parm location   text  "Location"    -tags     nbpoint
+    form {
+        rcc "Situation:" -for s
+        key s -table gui_ensits -keys s -dispcols longid
+
+        rcc "Location:" -for location
+        text location
+    }
+
+    parmtags s situation
+    parmtags location nbpoint
 } {
     # FIRST, check the situation
     prepare s                    -required -type ensit
@@ -1037,16 +1031,18 @@ order define ENSIT:MOVE {
 
 order define ENSIT:RESOLVE {
     title "Resolve Environmental Situation"
-    options \
-        -schedulestates {PREP PAUSED TACTIC}              \
-        -sendstates     {PREP PAUSED TACTIC}              \
-        -refreshcmd     {orderdialog refreshForKey s *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm s          key  "Situation"    -table    gui_ensits \
-                                        -keys     s          \
-                                        -dispcols longid     \
-                                        -tags     situation
-    parm resolver  enum  "Resolved By"  -enumtype {ptype g+none}
+    form {
+        rcc "Situation:" -for s
+        key s -table gui_ensits -keys s -dispcols longid \
+            -loadcmd {orderdialog keyload s *}
+
+        rcc "Resolved By:" -for resolver
+        enum resolver -listcmd {ptype g+none names}
+    }
+
+    parmtags s situation
 } {
     # FIRST, prepare the parameters
     prepare s         -required -type {ensit live}

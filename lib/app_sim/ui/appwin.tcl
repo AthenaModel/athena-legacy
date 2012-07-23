@@ -398,26 +398,10 @@ snit::widget appwin {
             }
         }
 
-        orderst {
+        orders {
             label   "Orders"
             vistype orders
             parent  ""
-            script  ""
-        }
-
-        ordsched {
-            label   "Scheduled"
-            vistype orders
-            parent  orderst
-            script  { 
-                orderbrowser %W
-            }
-        }
-
-        ordhist {
-            label   "Sent"
-            vistype orders
-            parent  orderst
             script  { 
                 ordersentbrowser %W
             }

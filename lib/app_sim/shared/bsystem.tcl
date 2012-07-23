@@ -232,18 +232,21 @@ snit::type bsystem {
 # Updates playbox-wide parameters
 #
 # TBD: It would be nice to populate the gamma parameter from the RDB,
-# but there's no good way to do it using a -refreshcmd.  We can't 
-# distinguish between the -refreshcmd being called on entry to the 
-# dialog, and being called as the value is edited.  We only want to 
-# populate it on entry.
+# but there's no good way to do it using a -loadcmd.  We need an
+# order option, -entercmd, that can modify the parmdict given with
+# [order enter].
+
 
 order define BSYSTEM:PLAYBOX:UPDATE {
     title "Update Playbox-wide Belief System Parameters"
 
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm gamma text   "Playbox Commonality"
+    form {
+        # NOTE: dialog is not used
+        rcc "Playbox Commonality:" -for gamma
+        text gamma
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare gamma  -required -type ::simlib::rmagnitude
@@ -265,12 +268,16 @@ order define BSYSTEM:PLAYBOX:UPDATE {
 order define BSYSTEM:ENTITY:UPDATE {
     title "Update Belief System Entity"
 
-    options \
-        -sendstates PREP                              \
-        -refreshcmd {orderdialog refreshForKey eid *}
+    options -sendstates PREP
 
-    parm eid         key    "Entity" -table mam_entity -keys eid
-    parm commonality text   "Commonality Fraction"
+    form {
+        # NOTE: Form is not used.
+        rcc "Entity:" -for eid
+        key eid -table mam_entity -keys eid
+
+        rcc "Commonality Fraction:" -for commonality
+        text commonality 
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare eid          -toupper -required -type {bsystem entity}
@@ -297,10 +304,16 @@ order define BSYSTEM:TOPIC:CREATE {
     options \
         -sendstates PREP
 
-    parm tid       text   "Topic ID"
-    parm title     text   "Title"
-    parm affinity  enum   "Affinity?"  -enumtype eyesno \
-                                       -defval   YES
+    form {
+        rcc "Topic ID:" -for tid
+        text tid
+        
+        rcc "Title:" -for title
+        text title -width 40
+
+        rcc "Affinity?" -for affinity
+        yesno affinity -defvalue yes
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare tid       -toupper   -unused -required -type ident
@@ -327,7 +340,11 @@ order define BSYSTEM:TOPIC:DELETE {
     options \
         -sendstates PREP
 
-    parm tid   key  "Topic" -table mam_topic -keys tid
+    form { 
+        # TBD: Form isn't used.
+        rcc "Topic:" -for tid
+        key tid -table mam_topic -keys tid
+    }
 } {
     # FIRST, prepare the parameters
     prepare tid -required -type {bsystem topic}
@@ -369,12 +386,19 @@ order define BSYSTEM:TOPIC:DELETE {
 
 order define BSYSTEM:TOPIC:UPDATE {
     title "Update Belief System Topic"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey tid *}
+    options -sendstates PREP
 
-    parm tid       key   "Select Topic" -table gui_mam_topic -keys tid
-    parm title     text  "Title"
-    parm affinity  enum  "Affinity?"    -enumtype eyesno
+    form {
+        rcc "Topic:" -for tid
+        key tid -table mam_topic -keys tid \
+            -loadcmd {orderdialog keyload id *}
+       
+        rcc "Title:" -for title
+        text title -width 40
+        
+        rcc "Affinity?" -for affinity
+        yesno affinity
+    }
 } {
     # FIRST, prepare the parameters
     prepare tid       -toupper    -required -type {bsystem topic}
@@ -399,13 +423,21 @@ order define BSYSTEM:TOPIC:UPDATE {
 
 order define BSYSTEM:BELIEF:UPDATE {
     title "Update Belief"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey bid *}
+    options -sendstates PREP
 
-    parm id        key   "Select Belief" -table gui_mam_belief \
-                                         -keys  {eid tid}
-    parm position  text  "Position"
-    parm emphasis  text  "Emphasis is On"
+    form {
+        # NOTE: dialog is not used.
+        rcc "Select Belief:" -for id
+        key id -table gui_mam_belief -keys {eid tid} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Position:" -for position
+        text position
+
+        rcc "Emphasis is On:" -for emphasis
+        text emphasis
+
+    }
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type {bsystem belief}

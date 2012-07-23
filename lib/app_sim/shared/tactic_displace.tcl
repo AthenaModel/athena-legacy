@@ -29,7 +29,7 @@
 #-------------------------------------------------------------------
 # Tactic: DISPLACE
 
-tactic type define DISPLACE {g n text1 int1 on_lock once} system {
+tactic type define DISPLACE {g n text1 int1 once on_lock} system {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -95,22 +95,33 @@ tactic type define DISPLACE {g n text1 int1 on_lock once} system {
 order define TACTIC:DISPLACE:CREATE {
     title "Create Tactic: Displace Civilians"
 
-    options \
-        -sendstates {PREP PAUSED}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     enum   "Owner"           -enumtype {agent system} \
-                                            -context yes
-    parm g         enum   "Group"           -enumtype civgroup
-    parm n         enum   "Neighborhood"    -enumtype nbhood
-    parm text1     enum   "Activity"        -enumtype {activity civ}
-    parm int1      text   "Personnel"
-    parm priority  enum   "Priority"        -enumtype ePrioSched  \
-                                            -displaylong yes      \
-                                            -defval bottom
-    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno      \
-                                            -defval NO
-    parm once      enum  "Once Only?"       -enumtype eyesno      \
-                                            -defval   NO
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Group:" -for g
+        civgroup g
+
+        rcc "Neighborhood:" -for n
+        nbhood n
+
+        rcc "Activity:" -for n
+        enum text1 -listcmd {activity civ names}
+
+        rcc "Personnel:" -for int1
+        text int1
+
+        rcc "Once Only?" -for once
+        yesno once -defvalue 0
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock -defvalue 0
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
@@ -119,8 +130,8 @@ order define TACTIC:DISPLACE:CREATE {
     prepare text1    -toupper   -required -type {activity civ}
     prepare int1                -required -type ingpopulation
     prepare priority -tolower             -type ePrioSched
-    prepare on_lock                       -type boolean
     prepare once                          -type boolean
+    prepare on_lock                       -type boolean
 
     returnOnError -final
 
@@ -137,20 +148,34 @@ order define TACTIC:DISPLACE:CREATE {
 
 order define TACTIC:DISPLACE:UPDATE {
     title "Update Tactic: Displace Activity"
-    options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes                  \
-                                          -table   gui_tactics_DISPLACE \
-                                          -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm g         enum  "Group"          -enumtype civgroup
-    parm n         enum  "Neighborhood"   -enumtype nbhood
-    parm text1     enum  "Activity"       -enumtype {activity civ}
-    parm int1      text  "Personnel"
-    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
-    parm once      enum  "Once Only?"     -enumtype eyesno
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_DISPLACE -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Group:" -for g
+        civgroup g
+
+        rcc "Neighborhood:" -for n
+        nbhood n
+
+        rcc "Activity:" -for n
+        enum text1 -listcmd {activity civ names}
+
+        rcc "Personnel:" -for int1
+        text int1
+
+        rcc "Once Only?" -for once
+        yesno once
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -158,8 +183,8 @@ order define TACTIC:DISPLACE:UPDATE {
     prepare n          -toupper  -type nbhood
     prepare text1      -toupper  -type {activity civ}
     prepare int1                 -type ingpopulation
-    prepare on_lock              -type boolean
     prepare once                 -type boolean
+    prepare on_lock              -type boolean
 
     returnOnError
 

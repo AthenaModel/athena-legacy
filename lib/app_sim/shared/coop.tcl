@@ -108,13 +108,16 @@ snit::type coop {
 
 order define COOP:UPDATE {
     title "Update Initial Cooperation"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey id *}
+    options -sendstates PREP 
 
-    parm id     key   "Curve"           -table  gui_coop_view  \
-                                        -keys   {f g}          \
-                                        -labels {"Of" "With"}
-    parm base   coop  "Baseline"
+    form {
+        rcc "Curve:" -for id
+        key id -table gui_coop_view -keys {f g} -labels {"Of" "With"} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Baseline:" -for base
+        coop base
+    }
 } {
     # FIRST, prepare the parameters
     prepare id      -toupper  -required -type coop
@@ -134,13 +137,16 @@ order define COOP:UPDATE {
 
 order define COOP:UPDATE:MULTI {
     title "Update Baseline Cooperation (Multi)"
-    options \
-        -sendstates PREP                                  \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP
  
-    parm ids    multi  "IDs"              -table gui_coop_view \
-                                          -key id
-    parm base   coop   "Baseline"
+    form {
+        rcc "IDs:" -for ids
+        multi ids -table gui_coop_view -key id \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Baseline:" -for base
+        coop base
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids     -toupper  -required -listof coop

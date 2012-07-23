@@ -101,14 +101,19 @@ snit::type sat {
 
 order define SAT:UPDATE {
     title "Update Baseline Satisfaction"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey id *}
+    options -sendstates PREP 
 
-    parm id        key   "Curve"            -table  gui_sat_view  \
-                                            -keys   {g c}         \
-                                            -labels {"Grp" "Con"}
-    parm base      sat   "Baseline"
-    parm saliency  frac  "Saliency"
+    form {
+        rcc "Curve:" -for id
+        key id -table gui_sat_view -keys {g c} -labels {"Grp" "Con"} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Baseline:" -for base
+        sat base
+        
+        rcc "Saliency:" -for saliency
+        frac saliency
+    }
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type ::sat
@@ -131,14 +136,19 @@ order define SAT:UPDATE {
 
 order define SAT:UPDATE:MULTI {
     title "Update Baseline Satisfaction (Multi)"
-    options \
-        -sendstates PREP                                  \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids       multi  "Curves"           -table gui_sat_view \
-                                             -key id
-    parm base      sat    "Baseline"
-    parm saliency  frac   "Saliency"
+    form {
+        rcc "Curves:" -for id
+        multi ids -table gui_sat_view -key id \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Baseline:" -for base
+        sat base
+        
+        rcc "Saliency:" -for saliency
+        frac saliency
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat

@@ -59,12 +59,19 @@ payload type define VREL {a mag} {
 order define PAYLOAD:VREL:CREATE {
     title "Create Payload: Vertical Relationship"
 
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm iom_id    text  "Message ID"      -context yes
-    parm a         enum  "Actor"           -enumtype actor
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Message ID:" -for iom_id
+        text iom_id -context yes
+
+        rcc "With Actor:" -for a
+        actor a
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
@@ -86,15 +93,21 @@ order define PAYLOAD:VREL:CREATE {
 
 order define PAYLOAD:VREL:UPDATE {
     title "Update Payload: Vertical Relationship"
-    options \
-        -sendstates PREP \
-        -refreshcmd {::orderdialog refreshForKey id *}
+    options -sendstates PREP 
 
-    parm id        key   "Payload"      -context  yes                  \
-                                        -table    gui_payloads_VREL    \
-                                        -keys     {iom_id payload_num}
-    parm a         enum  "Actor"        -enumtype actor
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Payload:" -for id
+        key id -context yes -table gui_payloads_VREL \
+            -keys {iom_id payload_num} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "With Actor:" -for a
+        actor a
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type payload

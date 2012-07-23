@@ -501,17 +501,21 @@ snit::type condition {
 # CONDITION:DELETE
 #
 # Deletes an existing condition, of whatever type.
+#
+# TBD: The form spec could be much simpler.
 
 order define CONDITION:DELETE {
     title "Delete Condition"
-    options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id   key  "Condition ID"   -context yes          \
-                                              -table   conditions   \
-                                              -keys    condition_id
-    parm condition_type disp "Condition Type"
+    form {
+        rcc "Condition ID:" -for condition_id
+        key condition_id -context yes -table conditions -keys condition_id \
+            -loadcmd {orderdialog keyload condition_id *}
+
+        rcc "Condition Type:" -for condition_type
+        disp condition_type
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id -toupper -required -type condition
@@ -526,18 +530,22 @@ order define CONDITION:DELETE {
 #
 # Sets a condition's state.  Note that this order isn't intended
 # for use with a dialog.
+#
+# TBD: The form spec could be much simpler.
 
 order define CONDITION:STATE {
     title "Set Condition State"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+    options -sendstates {PREP PAUSED} 
 
-    parm condition_id   key  "Condition ID"  -context yes          \
-                                             -table   conditions   \
-                                             -keys    condition_id
-    parm state          text "State"
+    form {
+        rcc "Condition ID:" -for condition_id
+        key condition_id -context yes -table conditions -keys condition_id \
+            -loadcmd {orderdialog keyload condition_id *}
+
+        rcc "State:" -for state
+        text state
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare condition_id -required          -type condition

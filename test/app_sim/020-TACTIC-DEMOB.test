@@ -199,6 +199,7 @@ exec_flag    0
 g            BLUE
 text1        SOME
 int1         100
+once         1
     }
 
 
@@ -222,6 +223,7 @@ exec_flag    0
 g            BLUE
 text1        ALL
 int1         
+once         0
     }
 
 
@@ -375,6 +377,7 @@ exec_flag    0
 g            BLUE
 text1        SOME
 int1         150
+once         0
     }
 
     test DEMOB:UPDATE-2.2 {tactic is updated} -setup {
@@ -399,6 +402,7 @@ exec_flag    0
 g            BLUE
 text1        SOME
 int1         150
+once         0
     }
 
 

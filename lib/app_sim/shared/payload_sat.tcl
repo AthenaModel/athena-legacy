@@ -47,12 +47,19 @@ payload type define SAT {c mag} {
 order define PAYLOAD:SAT:CREATE {
     title "Create Payload: Satisfaction"
 
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm iom_id    text  "Message ID"      -context yes
-    parm c         enum  "Concern"         -enumtype econcern
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Message ID:" -for iom_id
+        text iom_id -context yes
+
+        rcc "With Concern:" -for c
+        concern c
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
@@ -74,15 +81,21 @@ order define PAYLOAD:SAT:CREATE {
 
 order define PAYLOAD:SAT:UPDATE {
     title "Update Payload: Satisfaction"
-    options \
-        -sendstates PREP \
-        -refreshcmd {::orderdialog refreshForKey id *}
+    options -sendstates PREP 
 
-    parm id        key   "Payload"      -context  yes                  \
-                                        -table    gui_payloads_SAT     \
-                                        -keys     {iom_id payload_num}
-    parm c         enum  "Concern"      -enumtype econcern
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Payload:" -for id
+        key id -context yes -table gui_payloads_SAT \
+            -keys {iom_id payload_num} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "With Concern:" -for c
+        concern c
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type payload

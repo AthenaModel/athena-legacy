@@ -22,7 +22,7 @@
 #-------------------------------------------------------------------
 # Tactic: EXECUTIVE
 
-tactic type define EXECUTIVE {text1 on_lock once} {actor system} {
+tactic type define EXECUTIVE {text1 once on_lock} {actor system} {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -34,17 +34,7 @@ tactic type define EXECUTIVE {text1 on_lock once} {actor system} {
 
     typemethod narrative {tdict} {
         dict with tdict {
-            set msg "Executive command: $text1"
-            if {$on_lock} {
-                append msg " (on lock"
-                if {$once} {
-                    append msg " and once only"
-                }
-                append msg ")"
-            } elseif {$once} {
-                append msg " (once only)"
-            }
-            return $msg
+            return  "Executive command: $text1"
         }
     }
 
@@ -110,25 +100,30 @@ tactic type define EXECUTIVE {text1 on_lock once} {actor system} {
 order define TACTIC:EXECUTIVE:CREATE {
     title "Create Tactic: Executive Command"
 
-    options \
-        -sendstates {PREP PAUSED}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     enum    "Owner"         -enumtype agent       \
-                                           -context yes
-    parm text1     command "Command"       -width 40
-    parm once      enum    "Once Only?"    -enumtype eyesno      \
-                                           -defval   YES
-    parm priority  enum    "Priority"      -enumtype ePrioSched  \
-                                           -displaylong yes      \
-                                           -defval bottom
-    parm on_lock   enum    "Exec On Lock?" -enumtype eyesno      \
-                                           -defval NO
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Command:" -for text1
+        text text1 -width 40
+        
+        rcc "Once Only?" -for once
+        yesno once -defvalue 1
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock -defvalue 0
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type   agent
+    prepare owner    -toupper   -required -type agent
     prepare text1
-    prepare once     -toupper   -required -type   boolean
-    prepare priority -tolower             -type   ePrioSched
+    prepare priority -tolower             -type ePrioSched
+    prepare once     -toupper   -required -type boolean
     prepare on_lock                       -type boolean
 
     returnOnError -final
@@ -146,17 +141,25 @@ order define TACTIC:EXECUTIVE:CREATE {
 
 order define TACTIC:EXECUTIVE:UPDATE {
     title "Update Tactic: Executive Command"
-    options \
-        -sendstates {PREP PAUSED}                            \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"         -context yes                   \
-                                            -table   gui_tactics_EXECUTIVE \
-                                            -keys    tactic_id
-    parm owner     disp    "Owner"
-    parm text1     command "Command"        -width 40
-    parm once      enum    "Once Only?"     -enumtype eyesno
-    parm on_lock   enum    "Exec On Lock?"  -enumtype eyesno 
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_EXECUTIVE -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Command:" -for text1
+        text text1 -width 40
+        
+        rcc "Once Only?" -for once
+        yesno once
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -174,5 +177,6 @@ order define TACTIC:EXECUTIVE:UPDATE {
     # NEXT, modify the tactic
     setundo [tactic mutate update [array get parms]]
 }
+
 
 

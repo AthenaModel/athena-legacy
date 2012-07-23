@@ -307,23 +307,45 @@ order define FRCGROUP:CREATE {
     
     options -sendstates PREP
 
-    parm g              text  "Group"
-    parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"     -enumtype actor
-    parm color          color "Color"            -defval   "#3B61FF"
-    parm shape          enum  "Unit Shape"       -enumtype eunitshape \
-                                                 -defval   NEUTRAL
-    parm forcetype      enum  "Force Type"       -enumtype eforcetype \
-                                                 -defval  REGULAR
-    parm base_personnel text  "Base Personnel"   -defval  0
-    parm demeanor       enum  "Demeanor"         -enumtype edemeanor  \
-                                                 -defval   AVERAGE
-    parm cost        text  "Cost, $/person/week" -defval   0
-    parm attack_cost text  "Cost, $/attack"      -defval   0
-    parm uniformed   enum  "Uniformed?"          -enumtype eyesno     \
-                                                 -defval   YES
-    parm local       enum  "Local Group?"        -enumtype eyesno     \
-                                                 -defval   NO
+    form {
+        rcc "Group:" -for g
+        text g
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Owning Actor:" -for a
+        actor a
+
+        rcc "Color:" -for color
+        color color -defvalue #3B61FF
+
+        rcc "Unit Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist} -defvalue NEUTRAL
+        
+        rcc "Force Type" -for forcetype
+        enumlong forcetype -dictcmd {eforcetype deflist} -defvalue REGULAR
+
+        rcc "Base Personnel:" -for base_personnel
+        text base_personnel -defvalue 0
+
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist} -defvalue AVERAGE
+
+        rcc "Cost:" -for cost
+        text cost -defvalue 0
+        label "$/person/week"
+
+        rcc "Attack Cost:" -for attack_cost
+        text attack_cost -defvalue 0
+        label "$/attack"
+
+        rcc "Uniformed?" -for uniformed
+        yesno uniformed -defvalue 1
+
+        rcc "Local Group?" -for local
+        yesno local -defvalue 0
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
@@ -358,7 +380,10 @@ order define FRCGROUP:DELETE {
     title "Delete Force Group"
     options -sendstates PREP
 
-    parm g  key "Group" -tags group -table gui_frcgroups -keys g
+    form {
+        rcc "Group:" -for g
+        frcgroup g
+    }
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type frcgroup
@@ -401,23 +426,48 @@ order define FRCGROUP:DELETE {
 
 order define FRCGROUP:UPDATE {
     title "Update Force Group"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey g *}
+    options -sendstates PREP
 
-    parm g              key   "Select Group"        -table gui_frcgroups \
-                                                    -keys g              \
-                                                    -tags group 
-    parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"        -enumtype actor
-    parm color          color "Color"
-    parm shape          enum  "Unit Shape"          -enumtype eunitshape
-    parm forcetype      enum  "Force Type"          -enumtype eforcetype
-    parm base_personnel text  "Personnel Mobilized" 
-    parm demeanor       enum  "Demeanor"            -enumtype edemeanor
-    parm cost           text  "Cost, $/person/week"
-    parm attack_cost    text  "Cost, $/attack"
-    parm uniformed      enum  "Uniformed?"          -enumtype eyesno
-    parm local          enum  "Local Group?"        -enumtype eyesno
+    form {
+        rcc "Group:" -for g
+        key g -table gui_frcgroups -keys g \
+            -loadcmd {orderdialog keyload g *}
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Owning Actor:" -for a
+        actor a
+
+        rcc "Color:" -for color
+        color color
+
+        rcc "Unit Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist}
+        
+        rcc "Force Type" -for forcetype
+        enumlong forcetype -dictcmd {eforcetype deflist}
+
+        rcc "Base Personnel:" -for base_personnel
+        text base_personnel
+
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist}
+
+        rcc "Cost:" -for cost
+        text cost
+        label "$/person/week"
+
+        rcc "Attack Cost:" -for attack_cost
+        text attack_cost
+        label "$/attack"
+
+        rcc "Uniformed?" -for uniformed
+        yesno uniformed
+
+        rcc "Local Group?" -for local
+        yesno local
+    }
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper   -required -type frcgroup
@@ -448,22 +498,45 @@ order define FRCGROUP:UPDATE {
 
 order define FRCGROUP:UPDATE:MULTI {
     title "Update Multiple Force Groups"
-    options \
-        -sendstates PREP                                  \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids            multi "Groups"               -table gui_frcgroups \
-                                                     -key g
-    parm a              enum  "Owning Actor"         -enumtype actor
-    parm color          color "Color"
-    parm shape          enum  "Unit Shape"           -enumtype eunitshape
-    parm forcetype      enum  "Force Type"           -enumtype eforcetype
-    parm base_personnel text  "Personnel Mobilized" 
-    parm demeanor       enum  "Demeanor"             -enumtype edemeanor
-    parm cost           text  "Cost, $/person/week"
-    parm attack_cost    text  "Cost, $/attack"
-    parm uniformed      enum  "Uniformed?"           -enumtype eyesno
-    parm local          enum  "Local Group?"         -enumtype eyesno
+    form {
+        rcc "Groups:" -for ids
+        multi ids -table gui_frcgroups -key g \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Owning Actor:" -for a
+        actor a
+
+        rcc "Color:" -for color
+        color color
+
+        rcc "Unit Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist}
+        
+        rcc "Force Type" -for forcetype
+        enumlong forcetype -dictcmd {eforcetype deflist}
+
+        rcc "Base Personnel:" -for base_personnel
+        text base_personnel
+
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist}
+
+        rcc "Cost:" -for cost
+        text cost
+        label "$/person/week"
+
+        rcc "Attack Cost:" -for attack_cost
+        text attack_cost
+        label "$/attack"
+
+        rcc "Uniformed?" -for uniformed
+        yesno uniformed
+
+        rcc "Local Group?" -for local
+        yesno local
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof frcgroup

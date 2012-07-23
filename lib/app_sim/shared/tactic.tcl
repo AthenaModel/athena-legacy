@@ -573,7 +573,7 @@ snit::type tactic {
 
 
     #-------------------------------------------------------------------
-    # Order Helpers
+    # Order Helpers: Private
 
     # RequireType tactic_type id
     #
@@ -590,6 +590,7 @@ snit::type tactic {
                 "Tactic $id is not a $tactic_type tactic"
         }
     }
+
 }
 
 
@@ -604,15 +605,11 @@ order define TACTIC:DELETE {
     # This order dialog isn't usually used.
 
     title "Delete Tactic"
-    options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id   key  "Tactic ID"    -context yes     \
-                                         -table   tactics \
-                                         -keys    tactic_id
-    parm owner       disp "Owner"
-    parm tactic_type disp "Tactic Type"
+    form {
+        key tactic_id -table tactics -keys tactic_id
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id -toupper -required -type tactic
@@ -631,14 +628,12 @@ order define TACTIC:DELETE {
 order define TACTIC:STATE {
     title "Set Tactic State"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id   key  "Tactic ID"  -context yes       \
-                                       -table   tactics   \
-                                       -keys    tactic_id
-    parm state       text "State"
+    form {
+        key tactic_id -table tactics -keys tactic_id
+        text state
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare tactic_id -required          -type tactic
@@ -657,16 +652,12 @@ order define TACTIC:PRIORITY {
     # This order dialog isn't usually used.
     title "Prioritize Tactic Activity"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id   key  "Tactic ID"   -context yes       \
-                                        -table   tactics   \
-                                        -keys    tactic_id
-    parm owner       disp "Owner"
-    parm tactic_type disp "Tactic Type"
-    parm priority    enum "Priority"    -type ePrioUpdate
+    form {
+        key tactic_id -table tactics -keys tactic_id
+        enum priority -listcmd {ePrioUpdate names}
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare tactic_id -required          -type tactic

@@ -59,7 +59,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # narrative
 
-    test narrative-1.1 {narrative: repeated} -setup {
+    test narrative-1.1 {narrative} -setup {
         setup
         tactic mutate create $T1
     } -body {
@@ -67,15 +67,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {Executive command: sigevent "Tactic T1"}
-
-    test narrative-1.2 {narrative: once only} -setup {
-        setup
-        tactic mutate create $T2
-    } -body {
-        tactic::EXECUTIVE narrative [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {Executive command: error "Simulated Error" (once only)}
 
     #-------------------------------------------------------------------
     # check

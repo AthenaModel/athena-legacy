@@ -47,6 +47,10 @@ namespace import ::marsutil::* ::simlib::* ::projectlib::*
 #-----------------------------------------------------------------------
 # Load app_sim_shared(n) modules
 
+# FIRST, load modules that must be defined before the rest.
+source [file join $::app_sim_shared::library field_types.tcl        ]
+
+# NEXT, define the remaining modules in alphabetical order.
 source [file join $::app_sim_shared::library aam.tcl                ]
 source [file join $::app_sim_shared::library aam_rules.tcl          ]
 source [file join $::app_sim_shared::library activity.tcl           ]

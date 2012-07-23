@@ -51,17 +51,6 @@ SELECT tid        AS id, 'topic'    AS etype FROM mam_topic;
 ------------------------------------------------------------------------
 -- ORDER VIEWS 
 
--- gui_orders:  All scheduled orders
-CREATE TEMPORARY VIEW gui_orders AS
-SELECT id        AS id,
-       t         AS tick,
-       tozulu(t) AS zulu,
-       name      AS name,
-       narrative AS narrative,
-       parmdict  AS parmdict
-FROM eventq_queue_order_execute;
-
-
 -- gui_cif: All orders in the CIF, with undo stack data.
 CREATE TEMPORARY VIEW gui_cif AS
 SELECT id                                            AS id,

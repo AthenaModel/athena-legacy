@@ -482,7 +482,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-1.1 {required parms}   -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:HREL:INPUT {}
+        ted order -reject MAD:HREL:INPUT {}
     } -cleanup {
         cleanup
     } -result {
@@ -496,7 +496,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-1.2 {invalid driver_id} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:HREL:INPUT \
+        ted order -reject MAD:HREL:INPUT \
             [dict merge $hrelinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -508,7 +508,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-1.3 {invalid mode} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:HREL:INPUT \
+        ted order -reject MAD:HREL:INPUT \
             [dict merge $hrelinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -519,7 +519,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-1.4 {invalid f} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:HREL:INPUT \
+        ted order -reject MAD:HREL:INPUT \
             [dict merge $hrelinput {f NONESUCH}]
     } -cleanup {
         cleanup
@@ -531,7 +531,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-1.5 {invalid g} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:HREL:INPUT \
+        ted order -reject MAD:HREL:INPUT \
             [dict merge $hrelinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -542,7 +542,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-1.6 {f=g} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:HREL:INPUT \
+        ted order -reject MAD:HREL:INPUT \
             [dict merge $hrelinput {g SHIA}]
     } -cleanup {
         cleanup
@@ -553,7 +553,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-1.7 {invalid mag} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:HREL:INPUT \
+        ted order -reject MAD:HREL:INPUT \
             [dict merge $hrelinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -564,7 +564,7 @@ driver_id dtype narrative     cause s   p   q
     test HREL:INPUT-2.1 {Order is accepted} -setup {
         lock
     } -body {
-        ted schedule +1 MAD:HREL:INPUT $hrelinput
+        ted order MAD:HREL:INPUT $hrelinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
@@ -675,7 +675,7 @@ driver_id dtype narrative     cause s   p   q
     test VREL:INPUT-1.1 {required parms}   -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:VREL:INPUT {}
+        ted order -reject MAD:VREL:INPUT {}
     } -cleanup {
         cleanup
     } -result {
@@ -689,7 +689,7 @@ driver_id dtype narrative     cause s   p   q
     test VREL:INPUT-1.2 {invalid driver_id} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:VREL:INPUT \
+        ted order -reject MAD:VREL:INPUT \
             [dict merge $vrelinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -701,7 +701,7 @@ driver_id dtype narrative     cause s   p   q
     test VREL:INPUT-1.3 {invalid mode} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:VREL:INPUT \
+        ted order -reject MAD:VREL:INPUT \
             [dict merge $vrelinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -712,7 +712,7 @@ driver_id dtype narrative     cause s   p   q
     test VREL:INPUT-1.4 {invalid f} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:VREL:INPUT \
+        ted order -reject MAD:VREL:INPUT \
             [dict merge $vrelinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -724,7 +724,7 @@ driver_id dtype narrative     cause s   p   q
     test VREL:INPUT-1.5 {invalid a} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:VREL:INPUT \
+        ted order -reject MAD:VREL:INPUT \
             [dict merge $vrelinput {a NONESUCH}]
     } -cleanup {
         cleanup
@@ -735,7 +735,7 @@ driver_id dtype narrative     cause s   p   q
     test VREL:INPUT-1.6 {invalid mag} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:VREL:INPUT \
+        ted order -reject MAD:VREL:INPUT \
             [dict merge $vrelinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -746,7 +746,7 @@ driver_id dtype narrative     cause s   p   q
     test VREL:INPUT-2.1 {Order is accepted} -setup {
         lock
     } -body {
-        ted schedule +1 MAD:VREL:INPUT $vrelinput
+        ted order MAD:VREL:INPUT $vrelinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
@@ -832,7 +832,7 @@ driver_id dtype narrative     cause s   p   q
     test SAT:INPUT-1.1 {required parms}  -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:INPUT {}
+        ted order -reject MAD:SAT:INPUT {}
     } -cleanup {
         cleanup
     } -result {
@@ -847,7 +847,7 @@ driver_id dtype narrative     cause s   p   q
     test SAT:INPUT-1.2 {invalid driver_id}  -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:INPUT \
+        ted order -reject MAD:SAT:INPUT \
             [dict merge $satinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -858,7 +858,7 @@ driver_id dtype narrative     cause s   p   q
     test SAT:INPUT-1.3 {invalid mode}  -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:INPUT \
+        ted order -reject MAD:SAT:INPUT \
             [dict merge $satinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -870,7 +870,7 @@ driver_id dtype narrative     cause s   p   q
     test SAT:INPUT-1.4 {invalid g}  -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:INPUT \
+        ted order -reject MAD:SAT:INPUT \
             [dict merge $satinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -882,7 +882,7 @@ driver_id dtype narrative     cause s   p   q
     test SAT:INPUT-1.5 {invalid c}  -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:INPUT \
+        ted order -reject MAD:SAT:INPUT \
             [dict merge $satinput {c NONESUCH}]
     } -cleanup {
         cleanup
@@ -893,7 +893,7 @@ driver_id dtype narrative     cause s   p   q
     test SAT:INPUT-1.6 {invalid mag}  -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:SAT:INPUT \
+        ted order -reject MAD:SAT:INPUT \
             [dict merge $satinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -904,7 +904,7 @@ driver_id dtype narrative     cause s   p   q
     test SAT:INPUT-2.1 {Order is accepted}  -setup {
         lock
     } -body {
-        ted schedule +1 MAD:SAT:INPUT $satinput
+        ted order MAD:SAT:INPUT $satinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
@@ -991,7 +991,7 @@ driver_id dtype narrative     cause s   p   q
     test COOP:INPUT-1.1 {required parms}   -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:INPUT {}
+        ted order -reject MAD:COOP:INPUT {}
     } -cleanup {
         cleanup
     } -result {
@@ -1005,7 +1005,7 @@ driver_id dtype narrative     cause s   p   q
     test COOP:INPUT-1.2 {invalid driver_id} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:INPUT \
+        ted order -reject MAD:COOP:INPUT \
             [dict merge $coopinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -1017,7 +1017,7 @@ driver_id dtype narrative     cause s   p   q
     test COOP:INPUT-1.3 {invalid mode} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:INPUT \
+        ted order -reject MAD:COOP:INPUT \
             [dict merge $coopinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -1028,7 +1028,7 @@ driver_id dtype narrative     cause s   p   q
     test COOP:INPUT-1.4 {invalid f} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:INPUT \
+        ted order -reject MAD:COOP:INPUT \
             [dict merge $coopinput {f NONESUCH}]
     } -cleanup {
         cleanup
@@ -1040,7 +1040,7 @@ driver_id dtype narrative     cause s   p   q
     test COOP:INPUT-1.5 {invalid g} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:INPUT \
+        ted order -reject MAD:COOP:INPUT \
             [dict merge $coopinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -1052,7 +1052,7 @@ driver_id dtype narrative     cause s   p   q
     test COOP:INPUT-1.6 {invalid mag} -setup {
         lock
     } -body {
-        ted schedule -reject +1 MAD:COOP:INPUT \
+        ted order -reject MAD:COOP:INPUT \
             [dict merge $coopinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -1063,7 +1063,7 @@ driver_id dtype narrative     cause s   p   q
     test COOP:INPUT-2.1 {Order is accepted} -setup {
         lock
     } -body {
-        ted schedule +1 MAD:COOP:INPUT $coopinput
+        ted order MAD:COOP:INPUT $coopinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup

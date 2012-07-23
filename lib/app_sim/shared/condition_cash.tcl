@@ -62,13 +62,26 @@ order define CONDITION:CASH:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm cc_id     key   "Tactic/Goal ID" -context yes         \
-                                          -table   cond_collections \
-                                          -keys    cc_id
-    parm a         actor "Actor"
-    parm op1       enum  "Comparison"     -enumtype ecomparator \
-                                          -displaylong yes
-    parm x1        text  "Amount"
+    form {
+        rcc "Tactic/Goal ID:" -for cc_id
+        condcc cc_id
+
+        rcc ""
+        label {
+            This condition is met when 
+        }
+
+        rcc "Actor:" -for a
+        actor a
+        label "'s cash reserve"
+
+        rcc "Is:" -for op1
+        enumlong op1 -dictcmd {ecomparator deflist}
+
+        rcc "Amount:" -for x1
+        text x1
+        label "dollars."
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -92,17 +105,28 @@ order define CONDITION:CASH:CREATE {
 order define CONDITION:CASH:UPDATE {
     title "Update Condition: Cash Reserve"
     options \
-        -sendstates {PREP PAUSED}                              \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+        -sendstates {PREP PAUSED}
 
-    parm condition_id key   "Condition ID"  -context yes          \
-                                            -table   conditions   \
-                                            -keys    condition_id
-    parm a            actor "Actor"         -table actors -keys a
-    parm op1          enum  "Comparison"    -enumtype ecomparator \
-                                            -displaylong yes
-    parm x1           text  "Amount"
-                
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc ""
+        label {
+            This condition is met when 
+        }
+
+        rcc "Actor:" -for a
+        actor a
+        label "'s cash reserve"
+
+        rcc "Is:" -for op1
+        comparator op1
+
+        rcc "Amount:" -for x1
+        text x1
+        label "dollars."
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition

@@ -30,7 +30,7 @@
 #-------------------------------------------------------------------
 # Tactic: BROADCAST
 
-tactic type define BROADCAST {cap a iom x1 on_lock once} actor {
+tactic type define BROADCAST {cap a iom x1 once on_lock} actor {
     #-------------------------------------------------------------------
     # Type Variables
 
@@ -275,23 +275,32 @@ order define TACTIC:BROADCAST:CREATE {
     options \
         -sendstates {PREP PAUSED}
 
-    parm owner     actor "Owner"           -context yes
-    parm cap       enum  "CAP"             -enumtype cap \
-                                           -displaylong yes \
-                                           -width 40
-    parm a         enum  "Attr. Source"    -enumtype {ptype a+self+none} \
-                                           -defval SELF
-    parm iom       enum  "Message ID"      -enumtype {iom normal} \
-                                           -displaylong yes \
-                                           -width 40
-    parm x1        text  "Prep. Cost"    
-    parm priority  enum  "Priority"        -enumtype ePrioSched  \
-                                           -displaylong yes      \
-                                           -defval bottom
-    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno      \
-                                           -defval YES
-    parm once      enum  "Once Only?"      -enumtype eyesno      \
-                                           -defval NO
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "CAP:" -for cap
+        cap cap
+        
+        rcc "Attr. Source:" -for a
+        enum a -listcmd {ptype a+self+none names} -defvalue SELF
+
+        rcc "Message ID:" -for iom
+        enum iom -listcmd {iom normal names}
+
+        rcc "Prep. Cost:"
+        text x1
+        label "$/week"
+
+        rcc "Once Only?" -for once
+        yesno once -defvalue 0
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock -defvalue 1
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -299,9 +308,9 @@ order define TACTIC:BROADCAST:CREATE {
     prepare a        -toupper   -required -type {ptype a+self+none}
     prepare iom      -toupper   -required -type {iom normal}
     prepare x1       -toupper   -required -type money
-    prepare priority -tolower             -type ePrioSched
-    prepare on_lock             -required -type boolean
     prepare once                -required -type boolean
+    prepare on_lock             -required -type boolean
+    prepare priority -tolower             -type ePrioSched
 
     returnOnError -final
 
@@ -318,24 +327,35 @@ order define TACTIC:BROADCAST:CREATE {
 
 order define TACTIC:BROADCAST:UPDATE {
     title "Update Tactic: Broadcast IOM"
-    options \
-        -sendstates {PREP PAUSED}                  \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes                \
-                                          -table   gui_tactics_BROADCAST \
-                                          -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm cap       enum  "CAP"            -enumtype cap \
-                                          -displaylong yes
-    parm a         enum  "Attr. Source"   -enumtype {ptype a+self+none} \
-                                          -defval SELF
-    parm iom       enum  "Message ID"     -enumtype {iom normal} \
-                                          -displaylong yes \
-                                          -width 40
-    parm x1        text  "Prep. Cost"    
-    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
-    parm once      enum  "Once Only?"     -enumtype eyesno 
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_BROADCAST -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "CAP:" -for cap
+        cap cap
+        
+        rcc "Attr. Source:" -for a
+        enum a -listcmd {ptype a+self+none names}
+
+        rcc "Message ID:" -for iom
+        enum iom -listcmd {iom normal names}
+
+        rcc "Prep. Cost:"
+        text x1
+        label "$/week"
+
+        rcc "Once Only?" -for once
+        yesno once
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -343,8 +363,8 @@ order define TACTIC:BROADCAST:UPDATE {
     prepare a          -toupper  -type {ptype a+self+none}
     prepare iom        -toupper  -type {iom normal}
     prepare x1         -toupper  -type money
-    prepare on_lock              -type boolean
     prepare once                 -type boolean
+    prepare on_lock              -type boolean
 
     returnOnError
 

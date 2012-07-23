@@ -187,18 +187,35 @@ order define ORGGROUP:CREATE {
     title "Create Organization Group"
     options -sendstates PREP
 
-    parm g              text  "Group"
-    parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"        -enumtype actor
-    parm color          color "Color"               -defval   \#10DDD7
-    parm shape          enum  "Unit Shape"          -enumtype eunitshape \
-                                                    -defval   NEUTRAL
-    parm orgtype        enum  "Organization Type"   -enumtype eorgtype   \
-                                                    -defval   NGO
-    parm base_personnel text  "Personnel Mobilized" -defval   0
-    parm demeanor       enum  "Demeanor"            -enumtype edemeanor  \
-                                                    -defval   AVERAGE
-    parm cost           text  "Cost, $/person/week" -defval   0
+    form {
+        rcc "Group:" -for g
+        text g
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Owning Actor:" -for a
+        actor a
+
+        rcc "Color:" -for color
+        color color -defvalue #10DDD7
+
+        rcc "Unit Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist} -defvalue NEUTRAL
+        
+        rcc "Organization Type" -for orgtype
+        enumlong orgtype -dictcmd {eorgtype deflist} -defvalue NGO
+
+        rcc "Base Personnel:" -for base_personnel
+        text base_personnel -defvalue 0
+
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist} -defvalue AVERAGE
+
+        rcc "Cost:" -for cost
+        text cost -defvalue 0
+        label "$/person/week"
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare g              -toupper   -required -unused -type ident
@@ -230,7 +247,10 @@ order define ORGGROUP:DELETE {
     title "Delete Organization Group"
     options -sendstates PREP
 
-    parm g  key "Group" -tags group -table gui_orggroups -keys g
+    form {
+        rcc "Group:" -for g
+        orggroup g
+    }
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type orggroup
@@ -273,20 +293,38 @@ order define ORGGROUP:DELETE {
 
 order define ORGGROUP:UPDATE {
     title "Update Organization Group"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey g *}
+    options -sendstates PREP
 
-    parm g              key   "Select Group"        -table gui_orggroups \
-                                                    -keys  g             \
-                                                    -tags group 
-    parm longname       text  "Long Name"
-    parm a              enum  "Owning Actor"        -enumtype actor
-    parm color          color "Color" 
-    parm shape          enum  "Unit Shape"          -enumtype eunitshape
-    parm orgtype        enum  "Organization Type"   -enumtype eorgtype
-    parm base_personnel text  "Personnel Mobilized"
-    parm demeanor       enum  "Demeanor"            -enumtype edemeanor
-    parm cost           text  "Cost, $/person/week"
+    form {
+        rcc "Group:" -for g
+        key g -table gui_orggroups -keys g \
+            -loadcmd {orderdialog keyload g *}
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Owning Actor:" -for a
+        actor a
+
+        rcc "Color:" -for color
+        color color
+
+        rcc "Unit Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist}
+        
+        rcc "Organization Type" -for orgtype
+        enumlong orgtype -dictcmd {eorgtype deflist}
+
+        rcc "Base Personnel:" -for base_personnel
+        text base_personnel
+
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist}
+
+        rcc "Cost:" -for cost
+        text cost
+        label "$/person/week"
+    }
 } {
     # FIRST, prepare the parameters
     prepare g              -toupper   -required -type orggroup
@@ -312,18 +350,35 @@ order define ORGGROUP:UPDATE {
 
 order define ORGGROUP:UPDATE:MULTI {
     title "Update Multiple Organization Groups"
-    options \
-        -sendstates PREP                                  \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids            multi "Groups"              -table gui_orggroups -key g
-    parm a              enum  "Owning Actor"        -enumtype actor
-    parm color          color "Color"
-    parm shape          enum  "Unit Shape"          -enumtype eunitshape
-    parm orgtype        enum  "Organization Type"   -enumtype eorgtype
-    parm base_personnel text  "Personnel Mobilized"
-    parm demeanor       enum  "Demeanor"            -enumtype edemeanor
-    parm cost           text  "Cost, $/person/week"
+    form {
+        rcc "Groups:" -for ids
+        multi ids -table gui_orggroups -key g \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Owning Actor:" -for a
+        actor a
+
+        rcc "Color:" -for color
+        color color
+
+        rcc "Unit Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist}
+        
+        rcc "Organization Type" -for orgtype
+        enumlong orgtype -dictcmd {eorgtype deflist}
+
+        rcc "Base Personnel:" -for base_personnel
+        text base_personnel
+
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist}
+
+        rcc "Cost:" -for cost
+        text cost
+        label "$/person/week"
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids            -toupper  -required -listof orggroup

@@ -178,9 +178,10 @@ order define HREL:RESTORE {
     options \
         -sendstates PREP
 
-    parm id   key   "Groups"         -table  gui_hrel_view \
-                                     -keys   {f g}      \
-                                     -labels {Of With}
+    form {
+        # Form not used in dialog.
+        key id -table gui_hrel_view -keys {f g} -labels {Of With}
+    }
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type hrel
@@ -197,14 +198,16 @@ order define HREL:RESTORE {
 
 order define HREL:OVERRIDE {
     title "Override Baseline Horizontal Relationship"
-    options \
-        -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey id *}
+    options -sendstates PREP
 
-    parm id   key   "Groups"         -table  gui_hrel_view \
-                                     -keys   {f g}         \
-                                     -labels {Of With}
-    parm base rel   "Baseline"
+    form {
+        rcc "Groups:" -for id
+        key id -table gui_hrel_view -keys {f g} -labels {Of With} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Baseline:" -for base
+        rel base
+    }
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type hrel
@@ -227,13 +230,16 @@ order define HREL:OVERRIDE {
 
 order define HREL:OVERRIDE:MULTI {
     title "Override Multiple Baseline Horizontal Relationships"
-    options \
-        -sendstates PREP \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP 
 
-    parm ids  multi  "IDs"           -table gui_hrel_view \
-                                     -key   id
-    parm base rel    "Baseline"
+    form {
+        rcc "IDs:" -for ids
+        multi ids -table gui_hrel_view -key id \
+            -loadcmd {orderdialog multiload id *}
+
+        rcc "Baseline:" -for base
+        rel base
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof hrel

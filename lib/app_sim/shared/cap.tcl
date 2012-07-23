@@ -39,8 +39,18 @@ snit::type cap {
     # Returns the list of CAP names
 
     typemethod names {} {
-        set names [rdb eval {
+        return [rdb eval {
             SELECT k FROM caps 
+        }]
+    }
+
+    # namedict
+    #
+    # Returns the ID/longname dictionary.
+
+    typemethod namedict {} {
+        return [rdb eval {
+            SELECT k, longname FROM caps ORDER BY k
         }]
     }
 
@@ -498,35 +508,6 @@ snit::type cap {
             return [list rdb ungrab $data]
         }
     }
-    
-    # RefreshCREATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the CAP:CREATE dialog fields when field values
-    # change.
-
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"k" in $fields} {
-                set gdict [rdb eval {
-                    SELECT g,g FROM civgroups
-                    ORDER BY g
-                }]
-                
-                $dlg field configure glist -itemdict $gdict
-
-                set ndict [rdb eval {
-                    SELECT n,n FROM nbhoods
-                    ORDER BY n
-                }]
-                
-                $dlg field configure nlist -itemdict $ndict
-            }
-        }
-    }
 }    
 
 #-------------------------------------------------------------------
@@ -539,17 +520,31 @@ snit::type cap {
 order define CAP:CREATE {
     title "Create Comm. Asset Package"
     
-    options \
-        -sendstates PREP \
-        -refreshcmd {cap RefreshCREATE}
+    options -sendstates PREP 
 
-    parm k           text  "CAP"
-    parm longname    text  "Long Name"
-    parm owner       enum  "Owning Actor"         -enumtype actor
-    parm capacity    frac  "Capacity"             -defval   1.0
-    parm cost        text  "Cost, $/message/week" -defval   0
-    parm nlist       nlist "Neighborhoods"        
-    parm glist       glist "Civ. Groups"
+    form {
+        rcc "CAP:" -for k
+        text k
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Owning Actor:" -for owner
+        actor owner
+
+        rcc "Capacity:" -for capacity
+        frac capacity -defvalue 1.0
+
+        rcc "Cost:" -for cost
+        text cost -defvalue 0
+        label "$/message/week"
+
+        rcc "Neighborhoods:" -for nlist
+        nlist nlist
+
+        rcc "Civ. Groups:" -for glist
+        civlist glist
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare k           -toupper   -required -unused -type ident
@@ -579,7 +574,11 @@ order define CAP:DELETE {
     title "Delete Comm. Asset Package"
     options -sendstates PREP
 
-    parm k  key "CAP" -table gui_caps -keys k
+    form {
+        # This form is not usually used.
+        rcc "CAP:" -for k
+        cap k
+    }
 } {
     # FIRST, prepare the parameters
     prepare k -toupper -required -type cap
@@ -621,15 +620,26 @@ order define CAP:DELETE {
 
 order define CAP:UPDATE {
     title "Update Comm. Asset Package"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey k *}
+    options -sendstates PREP 
 
-    parm k           key   "Select CAP"            -table    gui_caps \
-                                                   -keys     k
-    parm longname    text  "Long Name"
-    parm owner       enum  "Owning Actor"          -enumtype actor
-    parm capacity    frac  "Capacity"
-    parm cost        text  "Cost, $/message/week"
+    form {
+        rcc "Select CAP:" -for k
+        key k -table gui_caps -keys k \
+            -loadcmd {orderdialog keyload k *}
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Owning Actor:" -for owner
+        actor owner
+
+        rcc "Capacity:" -for capacity
+        frac capacity
+
+        rcc "Cost:" -for cost
+        text cost
+        label "$/message/week"
+    }
 } {
     # FIRST, prepare the parameters
     prepare k           -toupper   -required -type cap
@@ -653,15 +663,23 @@ order define CAP:UPDATE {
 
 order define CAP:UPDATE:MULTI {
     title "Update Multiple CAPs"
-    options \
-        -sendstates PREP                                  \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids         multi "CAPs"                 -table    gui_caps \
-                                                  -key      k
-    parm owner       enum  "Owning Actor"         -enumtype actor
-    parm capacity    frac  "Capacity"
-    parm cost        text  "Cost, $/message/week"
+    form {
+        rcc "CAPs:" -for ids
+        multi ids -table gui_caps -key k \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Owning Actor:" -for owner
+        actor owner
+
+        rcc "Capacity:" -for capacity
+        frac capacity
+
+        rcc "Cost:" -for cost
+        text cost
+        label "$/message/week"
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids         -toupper  -required -listof cap
@@ -690,11 +708,16 @@ order define CAP:UPDATE:MULTI {
 
 order define CAP:CAPACITY {
     title "Set CAP Capacity"
-    options -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {orderdialog refreshForKey k *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm k           key   "Select CAP"  -table gui_caps -keys k
-    parm capacity    frac  "Capacity"
+    form {
+        rcc "Select CAP:" -for k
+        key k -table gui_caps -keys k \
+            -loadcmd {orderdialog keyload k *}
+
+        rcc "Capacity:" -for capacity
+        frac capacity
+    }
 } {
     # FIRST, prepare the parameters
     prepare k           -toupper   -required -type cap
@@ -720,12 +743,16 @@ order define CAP:CAPACITY {
 
 order define CAP:CAPACITY:MULTI {
     title "Set Multiple CAP Capacities"
-    options \
-        -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm ids       multi "CAPs"      -table gui_caps -key k
-    parm capacity  frac  "Capacity"
+    form {
+        rcc "CAPs:" -for ids 
+        multi ids -table gui_caps -key k \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Capacity:" -for capacity
+        frac capacity
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids         -toupper  -required -listof cap
@@ -753,14 +780,16 @@ order define CAP:CAPACITY:MULTI {
 
 order define CAP:NBCOV:SET {
     title "Set CAP Neighborhood Coverage"
-    options \
-        -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {orderdialog refreshForKey id *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm id    key   "CAP/Nbhood"     -table  gui_cap_kn    \
-                                      -keys   {k n}         \
-                                      -labels {Of In}
-    parm nbcov frac  "Coverage"
+    form {
+        rcc "CAP/Nbhood:" -for id
+        key id -table gui_cap_kn -keys {k n} -labels {Of In} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Coverage:" -for nbcov
+        frac nbcov
+    }
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type {cap nbcov}
@@ -787,13 +816,16 @@ order define CAP:NBCOV:SET {
 
 order define CAP:NBCOV:SET:MULTI {
     title "Set Multiple CAP Neighborhood Coverages"
-    options \
-        -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm ids   multi "IDs"           -table gui_cap_kn \
-                                     -key   id
-    parm nbcov frac  "Coverage"
+    form {
+        rcc "IDs:" -for ids
+        multi ids -table gui_cap_kn -key id \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Coverage:" -for nbcov
+        frac nbcov
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof {cap nbcov}
@@ -825,14 +857,16 @@ order define CAP:NBCOV:SET:MULTI {
 
 order define CAP:PEN:SET {
     title "Set CAP Group Penetration"
-    options \
-        -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {orderdialog refreshForKey id *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm id  key   "CAP/Group"        -table  gui_capcov    \
-                                      -keys   {k g}         \
-                                      -labels {Of Into}
-    parm pen frac  "Penetration"
+    form {
+        rcc "CAP/Group:" -for id
+        key id -table gui_capcov -keys {k g} -labels {Of Into} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Penetration:" -for pen
+        frac pen
+    }
 } {
     # FIRST, prepare the parameters
     prepare id     -toupper  -required -type {cap pen}
@@ -860,12 +894,16 @@ order define CAP:PEN:SET {
 order define CAP:PEN:SET:MULTI {
     title "Set Multiple CAP Group Penetrations"
     options \
-        -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+        -sendstates {PREP PAUSED TACTIC}
 
-    parm ids multi "IDs"           -table gui_capcov \
-                                   -key   id
-    parm pen frac  "Penetration"
+    form {
+        rcc "IDs:" -for ids
+        multi ids -table gui_capcov -key id \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Penetration:" -for pen
+        frac pen
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids  -toupper  -required -listof {cap pen}

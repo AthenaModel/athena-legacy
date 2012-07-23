@@ -502,13 +502,16 @@ snit::type econ {
 
 order define ECON:UPDATE {
     title "Update Neighborhood Economic Inputs"
-    options -sendstates {PREP PAUSED TACTIC} \
-        -refreshcmd {orderdialog refreshForKey n *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm n    key  "Neighborhood"            -table gui_econ_n \
-                                             -keys  n          \
-                                             -tags  nbhood
-    parm pcf  text "Prod. Capacity Factor"
+    form {
+        rcc "Neighborhood:" -for n
+        key n -table gui_econ_n -keys n \
+            -loadcmd {orderdialog keyload n *}
+
+        rcc "Proc. Capacity Factor" -for pcf
+        text pcf
+    }
 } {
     # FIRST, prepare the parameters
     prepare n   -toupper  -required -type nbhood
@@ -536,13 +539,16 @@ order define ECON:UPDATE {
 
 order define ECON:UPDATE:MULTI {
     title "Update Economic Inputs for Multiple Neighborhoods"
-    options -sendstates {PREP PAUSED}  \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates {PREP PAUSED}
 
+    form {
+        rcc "IDs:" -for ids
+        multi ids -table gui_econ_n -key n \
+            -loadcmd {orderdialog multiload ids *}
 
-    parm ids  multi "IDs"                    -table gui_econ_n \
-                                             -key   n
-    parm pcf  text  "Prod. Capacity Factor"
+        rcc "Proc. Capacity Factor" -for pcf
+        text pcf
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids -toupper  -required -listof nbhood

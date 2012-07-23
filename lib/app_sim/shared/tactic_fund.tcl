@@ -83,15 +83,23 @@ tactic type define FUND {a x1} actor {
 order define TACTIC:FUND:CREATE {
     title "Create Tactic: Fund Actor"
 
-    options \
-        -sendstates {PREP PAUSED}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     actor "Owner"             -context yes
-    parm a         actor "Actor"  
-    parm x1        text  "Amount, $/week"
-    parm priority  enum  "Priority"          -enumtype ePrioSched  \
-                                             -displaylong yes      \
-                                             -defval bottom
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        # TBD: Could limit it to everyone but the owner.
+        rcc "Actor:" -for a
+        actor a
+
+        rcc "Amount:" -for x1
+        text x1
+        label "$/week"
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
@@ -114,16 +122,23 @@ order define TACTIC:FUND:CREATE {
 
 order define TACTIC:FUND:UPDATE {
     title "Update Tactic: Fund ENI Services"
-    options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes            \
-                                          -table   tactics_FUND \
-                                          -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm a         actor "Actor"  
-    parm x1        text  "Amount, $/week"
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_FUND -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Actor:" -for a
+        actor a
+
+        rcc "Amount:" -for x1
+        text x1
+        label "$/week"
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic

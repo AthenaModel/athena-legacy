@@ -59,12 +59,19 @@ payload type define COOP {g mag} {
 order define PAYLOAD:COOP:CREATE {
     title "Create Payload: Cooperation"
 
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm iom_id    text  "Message ID"      -context yes
-    parm g         enum  "Force Group"     -enumtype frcgroup
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Message ID:" -for iom_id
+        text iom_id -context yes
+
+        rcc "With Force Group:" -for g
+        frcgroup g
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
@@ -86,15 +93,21 @@ order define PAYLOAD:COOP:CREATE {
 
 order define PAYLOAD:COOP:UPDATE {
     title "Update Payload: Cooperation"
-    options \
-        -sendstates PREP \
-        -refreshcmd {::orderdialog refreshForKey id *}
+    options -sendstates PREP 
 
-    parm id        key   "Payload"      -context  yes                  \
-                                        -table    gui_payloads_COOP    \
-                                        -keys     {iom_id payload_num}
-    parm g         enum  "Force Group"  -enumtype frcgroup
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Payload:" -for id
+        key id -context yes -table gui_payloads_COOP \
+            -keys {iom_id payload_num} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "With Force Group:" -for g
+        frcgroup g
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type payload

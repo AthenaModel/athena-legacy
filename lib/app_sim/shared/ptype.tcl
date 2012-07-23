@@ -166,7 +166,7 @@ snit::type ptype {
 
     # c
     #
-    # Concern names, CIV and ORG
+    # Concern names
 
     typemethod {c names} {} {
         rdb eval {SELECT c FROM concerns}

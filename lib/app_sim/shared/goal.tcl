@@ -199,8 +199,13 @@ order define GOAL:CREATE {
 
     options -sendstates {PREP}
 
-    parm owner     agent  "Owner"      -context yes
-    parm narrative text   "Narrative"
+    form {
+        rcc "Owner:" -for owner
+        agent owner -context yes
+
+        rcc "Narrative:" -for narrative
+        text narrative -width 40
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner     -toupper   -required -type agent
@@ -220,12 +225,11 @@ order define GOAL:DELETE {
     # TBD: This order dialog is not usually used.
 
     title "Delete Goal"
-    options \
-        -sendstates {PREP}                           \
-        -refreshcmd {orderdialog refreshForKey goal_id *}
+    options -sendstates {PREP}
 
-    parm goal_id goal "Goal ID"
-    parm owner   disp "Owner"
+    form {
+        goal goal_id
+    }
 } {
     # FIRST, prepare the parameters
     prepare goal_id -toupper -required -type goal
@@ -242,13 +246,19 @@ order define GOAL:DELETE {
 
 order define GOAL:UPDATE {
     title "Update Goal"
-    options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey goal_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm goal_id   goal "Goal ID"    -context yes
-    parm owner     disp "Owner"
-    parm narrative text "Narrative"
+    form {
+        rcc "Goal ID:" -for goal_id
+        goal goal_id -context yes \
+            -loadcmd {orderdialog keyload goal_id *}
+        
+        rcc "Owner:" -for owner
+        disp owner
+
+        rcc "Narrative:" -for narrative
+        text narrative -width 40
+    }
 } {
     # FIRST, prepare the parameters
     prepare goal_id              -required -type goal
@@ -269,12 +279,15 @@ order define GOAL:STATE {
 
     title "Set Goal State"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {orderdialog refreshForKey goal_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm goal_id goal "Goal ID" -context yes
-    parm state   text "State"
+    form {
+        rcc "Goal ID:" -for goal_id
+        goal goal_id
+        
+        rcc "State:" -for state
+        text state
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare goal_id  -required          -type goal

@@ -250,26 +250,18 @@ snit::type parm {
     #-------------------------------------------------------------------
     # Order helpers
 
-    # RefreshParmSet dlg fields fdict
+    # LoadValue idict parm
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # idict - "parm" item definition dictionary
+    # parm  - Chosen parameter name
     #
-    # Refreshes the value when the parameter changes.
+    # Returns the value for the parameter.
 
-    typemethod RefreshParmSet {dlg fields fdict} {
-        if {"parm" in $fields} {
-            dict with fdict {
-                if {![catch {parm get $parm} result]} {
-                    $dlg set value $result
-                }
-            }
+    proc LoadValue {idict parm} {
+        if {$parm ne ""} {
+            dict create value [parm get $parm]
         }
     }
-
-
-
 }
 
 #-----------------------------------------------------------------------
@@ -285,8 +277,11 @@ order define PARM:IMPORT {
     options -sendstates {PREP PAUSED}
 
     # NOTE: Dialog is not usually used.  Could define a "filepicker"
-    # -editcmd, though.
-    parm filename   text "Parameter File"
+    # -editcmd or field type, though.
+    form {
+        rcc "Parameter File:" -for filename
+        text filename
+    }
 } {
     # FIRST, prepare the parameters
     prepare filename -required 
@@ -335,12 +330,16 @@ order define PARM:RESET {
 order define PARM:SET {
     title "Set Parameter Value"
 
-    options \
-        -sendstates {PREP PAUSED}          \
-        -refreshcmd {parm RefreshParmSet}
+    options -sendstates {PREP PAUSED}
 
-    parm parm   enum "Parameter"     -enumtype parm -width 30
-    parm value  text "Value"
+    form {
+        rcc "Parameter:" -for parm
+        enum parm -listcmd {parm names} \
+            -loadcmd {parm::LoadValue}
+
+        rcc "Value:" -for value
+        text value -width 40
+    }
 } {
     # FIRST, prepare the parameters
     prepare parm  -required  -type parm

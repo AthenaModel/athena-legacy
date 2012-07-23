@@ -170,12 +170,12 @@ snit::type vrel {
 
 order define VREL:RESTORE {
     title "Restore Baseline Vertical Relationship"
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm id   key   "Group/Actor"    -table  gui_vrel_view \
-                                     -keys   {g a}      \
-                                     -labels {Of With}
+    form {
+        # Form not used in dialog.
+        key id -table gui_vrel_view -keys {g a} -labels {Of With}
+    }
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type vrel
@@ -192,14 +192,16 @@ order define VREL:RESTORE {
 
 order define VREL:OVERRIDE {
     title "Override Baseline Vertical Relationship"
-    options \
-        -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey id *}
+    options -sendstates PREP 
 
-    parm id   key   "Group/Actor"    -table  gui_vrel_view \
-                                     -keys   {g a}         \
-                                     -labels {Of With}
-    parm base rel   "Baseline"
+    form {
+        rcc "Group/Actor:" -for id
+        key id -table gui_vrel_view -keys {g a} -labels {Of With} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "Baseline:" -for base
+        rel base
+    }
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type vrel
@@ -222,13 +224,16 @@ order define VREL:OVERRIDE {
 
 order define VREL:OVERRIDE:MULTI {
     title "Override Multiple Baseline Vertical Relationships"
-    options \
-        -sendstates PREP \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids  multi  "IDs"           -table gui_vrel_view \
-                                     -key   id
-    parm base rel    "Baseline"
+    form {
+        rcc "IDs:" -for id
+        multi ids -table gui_vrel_view -key id \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Baseline:" -for base
+        rel base
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof vrel

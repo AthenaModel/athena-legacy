@@ -26,7 +26,7 @@
 #-------------------------------------------------------------------
 # Tactic: ASSIGN
 
-tactic type define ASSIGN {g n text1 int1 on_lock once} actor {
+tactic type define ASSIGN {g n text1 int1 once on_lock} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -123,90 +123,19 @@ tactic type define ASSIGN {g n text1 int1 on_lock once} actor {
     #-------------------------------------------------------------------
     # Order Helpers
 
-
-    # RefreshCREATE fields fdict
+    # ActivitiesFor g
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # g  - A force or organization group
     #
-    # Refreshes the TACTIC:ASSIGN:CREATE dialog fields when field values
-    # change.
+    # Returns a list of the valid activities for this group.
 
-    typemethod RefreshCREATE {dlg fields fdict} {
-        set disabled [list]
-        
-        dict with fdict {
-            if {"owner" in $fields} {
-                set groups [rdb eval {
-                    SELECT g FROM agroups
-                    WHERE a=$owner
-                }]
-                
-                $dlg field configure g -values $groups
-            }
-
-            if {$g ne ""} {
-                set gtype [string tolower [group gtype $g]]
-                $dlg field configure text1 -values [activity $gtype names]
-            } else {
-                lappend disabled text1
-                $dlg set text1 ""
-            }
+    typemethod ActivitiesFor {g} {
+        if {$g ne ""} {
+            set gtype [string tolower [group gtype $g]]
+            return [::activity $gtype names]
+        } else {
+            return ""
         }
-
-        $dlg disabled $disabled
-    }
-
-    # RefreshUPDATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:ASSIGN:UPDATE dialog fields when field values
-    # change.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        set disabled [list]
-        
-        if {"tactic_id" in $fields} {
-            # Expand the enums to every conceivable value, so that
-            # loadForKey won't fail.  We'll narrow it down in a moment.
-            $dlg field configure g -values [group names]
-            $dlg field configure text1 -values [activity frc names]
-
-            $dlg loadForKey tactic_id *
-            set fdict [$dlg get]
-
-            dict with fdict {
-                set groups [rdb eval {
-                    SELECT g FROM agroups
-                    WHERE a=$owner
-                }]
-                
-                $dlg field configure g -values $groups
-
-                if {$g ne ""} {
-                    set gtype [string tolower [group gtype $g]]
-                    $dlg field configure text1 -values [activity $gtype names]
-                }
-            }
-        }
-
-        if {"g" in $fields && "tactic_id" ni $fields} {
-            dict with fdict {
-                if {$g ne ""} {
-                    set gtype [string tolower [group gtype $g]]
-                    $dlg field configure text1 -values [activity $gtype names]
-                } else {
-                    lappend disabled text1
-                    $dlg set text1 ""
-                }
-            }
-        }
-
-        $dlg disabled $disabled
     }
 }
 
@@ -217,22 +146,33 @@ tactic type define ASSIGN {g n text1 int1 on_lock once} actor {
 order define TACTIC:ASSIGN:CREATE {
     title "Create Tactic: Assign Activity"
 
-    options \
-        -sendstates {PREP PAUSED}       \
-        -refreshcmd {tactic::ASSIGN RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     actor "Owner"           -context yes
-    parm g         enum  "Group"   
-    parm n         enum  "Neighborhood"    -enumtype nbhood
-    parm text1     enum  "Activity"    
-    parm int1      text  "Personnel"
-    parm priority  enum  "Priority"        -enumtype ePrioSched  \
-                                           -displaylong yes      \
-                                           -defval bottom
-    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno      \
-                                           -defval YES
-    parm once      enum  "Once Only?"      -enumtype eyesno      \
-                                           -defval NO
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Group:" -for g
+        enum g -listcmd {group ownedby $owner}
+
+        rcc "Neighborhood:" -for n
+        nbhood n
+
+        rcc "Activity:" -for n
+        enum text1 -listcmd {tactic::ASSIGN ActivitiesFor $g}
+
+        rcc "Personnel:" -for int1
+        text int1
+
+        rcc "Once Only?" -for once
+        yesno once -defvalue 0
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock -defvalue 1
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -240,9 +180,9 @@ order define TACTIC:ASSIGN:CREATE {
     prepare n        -toupper   -required -type nbhood
     prepare text1    -toupper   -required -type {activity asched}
     prepare int1                -required -type ingpopulation
-    prepare priority -tolower             -type ePrioSched
-    prepare on_lock             -required -type boolean
     prepare once                -required -type boolean
+    prepare on_lock             -required -type boolean
+    prepare priority -tolower             -type ePrioSched
 
     returnOnError
 
@@ -275,20 +215,34 @@ order define TACTIC:ASSIGN:CREATE {
 
 order define TACTIC:ASSIGN:UPDATE {
     title "Update Tactic: Assign Activity"
-    options \
-        -sendstates {PREP PAUSED}                  \
-        -refreshcmd {tactic::ASSIGN RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes                \
-                                          -table   gui_tactics_ASSIGN \
-                                          -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm g         enum  "Group"
-    parm n         enum  "Neighborhood"   -enumtype nbhood
-    parm text1     enum  "Activity"
-    parm int1      text  "Personnel"
-    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
-    parm once      enum  "Once Only?"     -enumtype eyesno 
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_ASSIGN -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Group:" -for g
+        enum g -listcmd {group ownedby $owner}
+
+        rcc "Neighborhood:" -for n
+        nbhood n
+
+        rcc "Activity:" -for n
+        enum text1 -listcmd {tactic::ASSIGN ActivitiesFor $g}
+
+        rcc "Personnel:" -for int1
+        text int1
+
+        rcc "Once Only?" -for once
+        yesno once
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
@@ -296,8 +250,8 @@ order define TACTIC:ASSIGN:UPDATE {
     prepare n          -toupper  -type nbhood
     prepare text1      -toupper  -type {activity asched}
     prepare int1                 -type ingpopulation
-    prepare on_lock              -type boolean
     prepare once                 -type boolean
+    prepare on_lock              -type boolean
 
     returnOnError
 

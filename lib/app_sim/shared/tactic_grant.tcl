@@ -111,75 +111,32 @@ tactic type define GRANT {klist alist on_lock} actor {
     #-------------------------------------------------------------------
     # Order Helpers
 
-
-    # RefreshCREATE fields fdict
+    # CapsOwnedBy a
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # a     - An actor
     #
-    # Refreshes the lists of CAPs and actors when the owner field changes. 
-
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"owner" in $fields} {
-                set kdict [rdb eval {
-                    SELECT k,longname FROM caps
-                    WHERE owner=$owner
-                    ORDER BY k
-                }]
-                
-                $dlg field configure klist -itemdict $kdict
-
-                set adict [rdb eval {
-                    SELECT a,longname FROM actors
-                    WHERE a != $owner
-                    ORDER BY a
-                }]
-                
-                $dlg field configure alist -itemdict $adict
-            }
-
-        }
+    # Returns a namedict of CAPs owned by a.
+    
+    typemethod CapsOwnedBy {a} {
+        return [rdb eval {
+            SELECT k,longname FROM caps
+            WHERE owner=$a
+            ORDER BY k
+        }]
     }
 
-    # RefreshUPDATE fields fdict
+    # ActorsOtherThan a
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # a   - An actor
     #
-    # Refreshes the lists of CAPs and actors when the tactic_id changes.
+    # Returns a namedict of actors other than a.
 
-    typemethod RefreshUPDATE {dlg fields fdict} {
-puts "fields=<$fields>"
-        if {"tactic_id" in $fields} {
-            $dlg loadForKey tactic_id *
-            set fdict [$dlg get]
-
-            dict with fdict {
-puts "owner=$owner"
-                set kdict [rdb eval {
-                    SELECT k,longname FROM caps
-                    WHERE owner=$owner
-                    ORDER BY k
-                }]
-                
-puts "kdict=<$kdict>"
-                $dlg field configure klist -itemdict $kdict
-
-                set adict [rdb eval {
-                    SELECT a,longname FROM actors
-                    WHERE a != $owner
-                    ORDER BY a
-                }]
-                
-                $dlg field configure alist -itemdict $adict
-puts "adict=<$adict>"
-            }
-
-            $dlg loadForKey tactic_id *
-        }
+    typemethod ActorsOtherThan {a} {
+        return [rdb eval {
+            SELECT a,longname FROM actors
+            WHERE a != $a
+            ORDER BY a
+        }]
     }
 }
 
@@ -191,25 +148,37 @@ puts "adict=<$adict>"
 order define TACTIC:GRANT:CREATE {
     title "Create Tactic: Grant Access to CAP"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {tactic::GRANT RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     actor "Owner"           -context yes
-    parm klist     klist "CAP List" 
-    parm alist     alist "Actor List"
-    parm priority  enum  "Priority"        -enumtype ePrioSched  \
-                                           -displaylong yes      \
-                                           -defval bottom
-    parm on_lock   enum  "Exec On Lock?"   -enumtype eyesno      \
-                                           -defval YES
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+    
+        rcc "CAP List:" -for klist
+        enumlonglist klist \
+            -dictcmd {tactic::GRANT CapsOwnedBy $owner} \
+            -width   40 \
+            -height  8
+
+        rcc "Actor List:" -for alist
+        enumlonglist alist \
+            -dictcmd {tactic::GRANT ActorsOtherThan $owner} \
+            -width   40 \
+            -height  8
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock -defvalue 1
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare klist    -toupper   -required -listof cap
     prepare alist    -toupper   -required -listof actor
-    prepare priority -tolower             -type   ePrioSched
     prepare on_lock             -required -type   boolean
+    prepare priority -tolower             -type   ePrioSched
 
     returnOnError
 
@@ -237,17 +206,31 @@ order define TACTIC:GRANT:CREATE {
 
 order define TACTIC:GRANT:UPDATE {
     title "Update Tactic: Grant Access to CAP"
-    options \
-        -sendstates {PREP PAUSED}                  \
-        -refreshcmd {tactic::GRANT RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes                \
-                                          -table   gui_tactics_GRANT \
-                                          -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm klist     klist "CAP List"
-    parm alist     alist "Actor List"
-    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_GRANT -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "CAP List:" -for klist
+        enumlonglist klist \
+            -dictcmd {tactic::GRANT CapsOwnedBy $owner} \
+            -width   40 \
+            -height  8
+
+        rcc "Actor List:" -for alist
+        enumlonglist alist \
+            -dictcmd {tactic::GRANT ActorsOtherThan $owner} \
+            -width   40 \
+            -height  8
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic

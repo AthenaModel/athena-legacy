@@ -67,14 +67,28 @@ order define CONDITION:NBCOOP:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm cc_id     key   "Tactic/Goal ID" -context yes              \
-                                          -table   cond_collections \
-                                          -keys    cc_id
-    parm n         enum  "Neighborhood"   -enumtype nbhood
-    parm g         enum  "Group"          -enumtype frcgroup
-    parm op1       enum  "Comparison"     -enumtype ecomparator \
-                                          -displaylong yes
-    parm x1        text  "Amount"
+    form {
+        rcc "Tactic/Goal ID:" -for cc_id
+        condcc cc_id
+
+        rcc ""
+        label {
+            This condition is met when
+        }
+
+        rcc "Neighborhood:" -for n
+        nbhood n
+        label "'s cooperation with"
+
+        rcc "Group:" -for g
+        frcgroup g
+
+        rcc "Is:" -for op1
+        comparator op1
+
+        rcc "Amount:" -for x1
+        coop x1
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -98,19 +112,30 @@ order define CONDITION:NBCOOP:CREATE {
 
 order define CONDITION:NBCOOP:UPDATE {
     title "Update Condition: Neighborhood Cooperation"
-    options \
-        -sendstates {PREP PAUSED}                              \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id key   "Condition ID"  -context yes          \
-                                            -table   conditions   \
-                                            -keys    condition_id
-    parm n            enum  "Neighborhood"  -enumtype nbhood
-    parm g            enum  "Group"         -enumtype frcgroup
-    parm op1          enum  "Comparison"    -enumtype ecomparator \
-                                            -displaylong yes
-    parm x1           text  "Amount"
-                
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc ""
+        label {
+            This condition is met when
+        }
+
+        rcc "Neighborhood:" -for n
+        nbhood n
+        label "'s cooperation with"
+
+        rcc "Group:" -for g
+        frcgroup g
+
+        rcc "Is:" -for op1
+        comparator op1
+
+        rcc "Amount:" -for x1
+        coop x1
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition

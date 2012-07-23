@@ -352,13 +352,18 @@ snit::type unit {
 
 order define UNIT:MOVE {
     title "Move Unit"
-    options \
-        -sendstates {PREP PAUSED}                     \
-        -refreshcmd {::orderdialog refreshForKey u *}
+    options -sendstates {PREP PAUSED}
 
-    parm u          key   "Unit"       -table gui_units \
-                                       -keys  u
-    parm location   text  "Location"   -tags point
+    form {
+        rcc "Unit" -for u
+        key u -table gui_units -keys u \
+            -loadcmd {::orderdialog keyload u *}
+
+        rcc "Location" -for location
+        text location
+    }
+
+    parmtags location point
 } {
     # FIRST, prepare the parameters
     prepare u          -toupper -required -type unit

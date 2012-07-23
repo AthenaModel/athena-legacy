@@ -59,12 +59,19 @@ payload type define HREL {g mag} {
 order define PAYLOAD:HREL:CREATE {
     title "Create Payload: Horizontal Relationship"
 
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm iom_id    text  "Message ID"      -context yes
-    parm g         enum  "Group"           -enumtype group
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Message ID:" -for iom_id
+        text iom_id -context yes
+
+        rcc "With Group:" -for g
+        group g
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
@@ -86,15 +93,21 @@ order define PAYLOAD:HREL:CREATE {
 
 order define PAYLOAD:HREL:UPDATE {
     title "Update Payload: Horizontal Relationship"
-    options \
-        -sendstates PREP \
-        -refreshcmd {::orderdialog refreshForKey id *}
+    options -sendstates PREP 
 
-    parm id        key   "Payload"      -context  yes                  \
-                                        -table    gui_payloads_HREL    \
-                                        -keys     {iom_id payload_num}
-    parm g         enum  "Group"        -enumtype group
-    parm mag       mag   "Magnitude"
+    form {
+        rcc "Payload:" -for id
+        key id -context yes -table gui_payloads_HREL \
+            -keys {iom_id payload_num} \
+            -loadcmd {orderdialog keyload id *}
+
+        rcc "With Group:" -for g
+        group g
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type payload

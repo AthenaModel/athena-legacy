@@ -29,11 +29,21 @@ snit::type civgroup {
     # Returns the list of neighborhood names
 
     typemethod names {} {
-        set names [rdb eval {
+        return [rdb eval {
             SELECT g FROM civgroups_view
         }]
     }
 
+
+    # namedict
+    #
+    # Returns ID/longname dictionary
+
+    typemethod namedict {} {
+        return [rdb eval {
+            SELECT g, longname FROM civgroups_view ORDER BY g
+        }]
+    }
 
     # validate g
     #
@@ -276,16 +286,33 @@ order define CIVGROUP:CREATE {
 
     options -sendstates PREP
 
-    parm g         text   "Group"
-    parm longname  text   "Long Name"
-    parm n         enum   "Nbhood"          -enumtype nbhood
-    parm color     color  "Color"           -defval   \#45DD11
-    parm shape     enum   "Unit Shape"      -enumtype eunitshape \
-                                            -defval   NEUTRAL
-    parm demeanor  enum   "Demeanor"        -enumtype edemeanor \
-                                            -defval   AVERAGE
-    parm basepop   text   "Base Pop."       -defval   10000
-    parm sap       pct    "Subs. Agri. %"   -defval   0
+    form {
+        rcc "Group:" -for g
+        text g
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Nbhood:" -for n
+        nbhood n
+
+        rcc "Color:" -for color
+        color color -defvalue #45DD11
+
+        rcc "Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist} -defvalue NEUTRAL
+        
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist} -defvalue AVERAGE
+
+        rcc "Base Pop.:" -for basepop
+        text basepop -defvalue 10000
+        label "people"
+
+        rcc "Subs. Agri. %" -for sap
+        percent sap -defvalue 0
+
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare g        -toupper   -required -unused -type ident
@@ -316,7 +343,10 @@ order define CIVGROUP:DELETE {
     title "Delete Civilian Group"
     options -sendstates PREP
 
-    parm g  key  "Group"  -tags group -table civgroups_view -keys g
+    form {
+        rcc "Group:" -for g
+        civgroup g
+    }
 } {
     # FIRST, prepare the parameters
     prepare g -toupper -required -type civgroup
@@ -359,20 +389,35 @@ order define CIVGROUP:DELETE {
 
 order define CIVGROUP:UPDATE {
     title "Update Civilian Group"
-    options \
-        -sendstates PREP                             \
-        -refreshcmd {orderdialog refreshForKey g *}
+    options -sendstates PREP
 
-    parm g         key    "Select Group"     -table    civgroups_view \
-                                             -keys     g              \
-                                             -tags     group
-    parm longname  text   "Long Name"
-    parm n         enum   "Nbhood"           -enumtype nbhood
-    parm color     color  "Color"
-    parm shape     enum   "Unit Shape"       -enumtype eunitshape
-    parm demeanor  enum   "Demeanor"         -enumtype edemeanor
-    parm basepop   text   "Base Population"
-    parm sap       pct    "Subs. Agri. %"  
+    form {
+        rcc "Select Group:" -for g
+        key g -table civgroups_view -keys g \
+            -loadcmd {orderdialog keyload g *}
+
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Nbhood:" -for n
+        nbhood n
+
+        rcc "Color:" -for color
+        color color
+
+        rcc "Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist}
+        
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist}
+
+        rcc "Base Pop.:" -for basepop
+        text basepop
+        label "people"
+
+        rcc "Subs. Agri. %" -for sap
+        percent sap
+    }
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper   -required -type civgroup
@@ -396,16 +441,32 @@ order define CIVGROUP:UPDATE {
 
 order define CIVGROUP:UPDATE:MULTI {
     title "Update Multiple Civilian Groups"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids      multi  "Groups"          -table    gui_civgroups -key g
-    parm n        enum   "Nbhood"          -enumtype nbhood
-    parm color    color  "Color"
-    parm shape    enum   "Unit Shape"      -enumtype eunitshape
-    parm demeanor enum   "Demeanor"        -enumtype edemeanor
-    parm basepop  text   "Base Population"
-    parm sap      pct    "Subs. Agri. %"  
+    form {
+        rcc "Groups:" -for ids
+        multi ids -table gui_civgroups -key g \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Nbhood:" -for n
+        nbhood n
+
+        rcc "Color:" -for color
+        color color
+
+        rcc "Shape:" -for shape
+        enumlong shape -dictcmd {eunitshape deflist}
+        
+        rcc "Demeanor:" -for demeanor
+        enumlong demeanor -dictcmd {edemeanor deflist}
+
+        rcc "Base Pop.:" -for basepop
+        text basepop
+        label "people"
+
+        rcc "Subs. Agri. %" -for sap
+        percent sap
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper -required -listof civgroup
@@ -437,13 +498,16 @@ order define CIVGROUP:UPDATE:MULTI {
 
 order define CIVGROUP:UPDATE:POSTPREP {
     title "Update Civilian Group (Post-PREP)"
-    options \
-        -sendstates {PREP PAUSED TACTIC}            \
-        -refreshcmd {orderdialog refreshForKey g *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm g   key "Select Group"    -table civgroups_view -keys g \
-                                   -tags  group
-    parm sap pct "Subs. Agri. %"  
+    form {
+        rcc "Select Group:" -for g
+        key g -table civgroups_view -keys g \
+            -loadcmd {orderdialog keyload g *}
+
+        rcc "Subs. Agri. %" -for sap
+        percent sap
+    }
 } {
     # FIRST, prepare the parameters
     prepare g         -toupper  -required -type civgroup
@@ -461,11 +525,16 @@ order define CIVGROUP:UPDATE:POSTPREP {
 
 order define CIVGROUP:UPDATE:MULTI:POSTPREP {
     title "Update Multiple Civilian Groups (Post-PREP)"
-    options -sendstates {PREP PAUSED} \
-        -refreshcmd {orderdialog refreshForMulti ids *}
+    options -sendstates {PREP PAUSED}
 
-    parm ids multi  "Groups"         -table gui_civgroups -key g
-    parm sap pct    "Subs. Agri. %"  
+    form {
+        rcc "Groups:" -for ids
+        multi ids -table gui_civgroups -key g \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Subs. Agri. %" -for sap
+        percent sap
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper -required -listof civgroup

@@ -25,7 +25,7 @@
 #-------------------------------------------------------------------
 # Tactic: SUPPORT
 
-tactic type define SUPPORT {a nlist on_lock once} actor {
+tactic type define SUPPORT {a nlist once on_lock} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -104,55 +104,6 @@ tactic type define SUPPORT {a nlist on_lock once} actor {
 
         return 1
     }
-
-    # RefreshCREATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:SUPPORT:CREATE dialog fields when field values
-    # change.
-
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"owner" in $fields} {
-                set ndict [rdb eval {
-                    SELECT n,n FROM nbhoods
-                    ORDER BY n
-                }]
-                
-                $dlg field configure nlist -itemdict $ndict
-            }
-        }
-    }
-
-    # RefreshUPDATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:SUPPORT:UPDATE dialog fields when field values
-    # change.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        if {"tactic_id" in $fields} {
-            $dlg loadForKey tactic_id *
-            set fdict [$dlg get]
-
-            dict with fdict {
-                set ndict [rdb eval {
-                    SELECT n,n FROM nbhoods
-                    ORDER BY n
-                }]
-                
-                $dlg field configure nlist -itemdict $ndict
-            }
-
-            $dlg loadForKey tactic_id *
-        }
-    }
 }
 
 # TACTIC:SUPPORT:CREATE
@@ -162,29 +113,35 @@ tactic type define SUPPORT {a nlist on_lock once} actor {
 order define TACTIC:SUPPORT:CREATE {
     title "Create Tactic: Support Actor"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {tactic::SUPPORT RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     actor "Owner"            -context yes
-    parm a         enum  "Supported Actor"  -enumtype {ptype a+self+none} \
-                                            -defval SELF          
-    parm nlist     nlist "In Neighborhoods"
-    parm priority  enum  "Priority"         -enumtype ePrioSched  \
-                                            -displaylong yes      \
-                                            -defval bottom
-    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno \
-                                            -defval YES
-    parm once      enum  "Once Only?"       -enumtype eyesno      \
-                                            -defval   NO
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Supported Actor:" -for a
+        enum a -listcmd {ptype a+self+none names} -defvalue SELF
+
+        rcc "In Neighborhoods:" -for nlist
+        nlist nlist
+
+        rcc "Once Only?" -for once
+        yesno once -defvalue 0
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock -defvalue 1
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare a        -toupper   -required -type   {ptype a+self+none}
     prepare nlist    -toupper   -required -listof nbhood
-    prepare priority -tolower             -type   ePrioSched
-    prepare on_lock                       -type   boolean
     prepare once                          -type   boolean
+    prepare on_lock                       -type   boolean
+    prepare priority -tolower             -type   ePrioSched
 
     returnOnError -final
 
@@ -201,25 +158,35 @@ order define TACTIC:SUPPORT:CREATE {
 
 order define TACTIC:SUPPORT:UPDATE {
     title "Update Tactic: Support Actor"
-    options \
-        -sendstates {PREP PAUSED}                    \
-        -refreshcmd {tactic::SUPPORT RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"         -context yes                 \
-                                            -table   gui_tactics_SUPPORT \
-                                            -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm a         enum  "Supported Actor"  -enumtype {ptype a+self+none}
-    parm nlist     nlist "In Neighborhoods"
-    parm on_lock   enum  "Exec On Lock?"    -enumtype eyesno 
-    parm once      enum  "Once Only?"       -enumtype eyesno
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_SUPPORT -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Supported Actor:" -for a
+        enum a -listcmd {ptype a+self+none names}
+
+        rcc "In Neighborhoods:" -for nlist
+        nlist nlist
+
+        rcc "Once Only?" -for once
+        yesno once
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
     prepare a          -toupper  -type   {ptype a+self+none}
     prepare nlist      -toupper  -listof nbhood
-    prepare on_lock              -type   boolean
     prepare once                 -type   boolean
+    prepare on_lock              -type   boolean
 
     returnOnError
 
@@ -231,5 +198,6 @@ order define TACTIC:SUPPORT:UPDATE {
     # NEXT, modify the tactic
     setundo [tactic mutate update [array get parms]]
 }
+
 
 

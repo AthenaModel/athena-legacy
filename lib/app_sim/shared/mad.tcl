@@ -665,34 +665,12 @@ snit::type mad {
     #------------------------------------------------------------------
     # Order Helpers
 
-    # Refresh_FG dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current value of the various fields.
-    #
-    # Refreshes the MAD:HREL:INPUT dialog so that when "Of Group" is
-    # selected "With Group" no longer has that group in the list and
-    # vice-versa.
-
-    typemethod Refresh_FG {dlg fields fdict} {
-        dict with fdict {
-            if {"f" in $fields} {
-                set glist [rdb eval {
-                    SELECT g FROM groups
-                    WHERE g != $f
-                }]
-                $dlg field configure g -values $glist
-            }
-
-            if {"g" in $fields} {
-                set glist [rdb eval {
-                    SELECT g FROM groups
-                    WHERE g != $g
-                }]
-                $dlg field configure f -values $glist
-            }
-        }
+    proc AllGroupsBut {g} {
+        return [rdb eval {
+            SELECT g FROM groups
+            WHERE g != $g
+            ORDER BY g
+        }]
     }
 }
 
@@ -708,13 +686,22 @@ order define MAD:CREATE {
 
     options -sendstates {PREP PAUSED TACTIC}
 
-    parm narrative text  "Narrative" 
-    parm cause     enum  "Cause"         -enumtype {ptype ecause+unique} \
-                                         -defval   UNIQUE
-    parm s         frac  "Here Factor"   -defval   1.0
-    parm p         frac  "Near Factor"   -defval   0.0
-    parm q         frac  "Far Factor"    -defval   0.0
+    form {
+        rcc "Narrative:" -for narrative
+        text narrative -width 40
 
+        rcc "Cause:" -for cause
+        enum cause -listcmd {ptype ecause+unique names} -defvalue UNIQUE
+
+        rcc "Here Factor:" -for s
+        frac s -defvalue 1.0
+
+        rcc "Near Factor:" -for p
+        frac p -defvalue 0.0
+
+        rcc "Far Factor:" -for q
+        frac q -defvalue 0.0
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare narrative          -required
@@ -741,10 +728,12 @@ order define MAD:DELETE {
     options \
         -sendstates {PREP PAUSED}
 
-
-    parm driver_id key "MAD ID" -table    gui_mads_initial \
-                                -keys     driver_id        \
-                                -dispcols longid
+    form {
+        rcc "MAD ID:" -for driver_id
+        # Can't use "mad" field type, since only unused MADs can be
+        # deleted.
+        key driver_id -table gui_mads_initial -keys driver_id -dispcols longid
+    }
 } {
     # FIRST, prepare the parameters
     prepare driver_id -toupper -required -type {mad initial}
@@ -786,18 +775,29 @@ order define MAD:DELETE {
 
 order define MAD:UPDATE {
     title "Update Magic Attitude Driver"
-    options \
-        -sendstates  {PREP PAUSED TACTIC}      \
-        -refreshcmd {orderdialog refreshForKey driver_id *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm driver_id key   "MAD ID"        -table    gui_mads  \
-                                         -keys     driver_id \
-                                         -dispcols longid
-    parm narrative text  "Narrative"
-    parm cause     enum  "Cause"         -enumtype {ptype ecause+unique}
-    parm s         frac  "Here Factor"
-    parm p         frac  "Near Factor"
-    parm q         frac  "Far Factor" 
+    form {
+        rcc "MAD ID:" -for driver_id
+        mad driver_id \
+            -loadcmd {orderdialog keyload driver_id *}
+
+        rcc "Narrative:" -for narrative
+        text narrative -width 40
+
+        rcc "Cause:" -for cause
+        enum cause -listcmd {ptype ecause+unique names}
+
+        rcc "Here Factor:" -for s
+        frac s
+
+        rcc "Near Factor:" -for p
+        frac p
+
+        rcc "Far Factor:" -for q
+        frac q
+
+    }
 } {
     # FIRST, prepare the parameters
     prepare driver_id -required -type mad
@@ -821,17 +821,18 @@ order define MAD:UPDATE {
 
 order define MAD:HREL:ADJUST {
     title "Magic Adjust Horizontal Relationship Baseline"
-    options \
-        -sendstates     {PAUSED TACTIC}         \
-        -schedulestates {PREP PAUSED TACTIC}
+    options -sendstates {PAUSED TACTIC}
 
-    parm id        key   "Curve"     -table    gui_uram_hrel   \
-                                     -keys     {f g}           \
-                                     -labels   {"Of" "With"}
-    parm driver_id key   "MAD ID"    -table    gui_mads        \
-                                     -keys     driver_id       \
-                                     -dispcols longid
-    parm delta     text  "Delta"
+    form {
+        rcc "Curve:" -for id
+        key id -table gui_uram_hrel -keys {f g} -labels {"Of" "With"}
+
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Delta:" -for delta
+        text delta
+    }
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type hrel
@@ -850,20 +851,25 @@ order define MAD:HREL:ADJUST {
 
 order define MAD:HREL:INPUT {
     title "Magic Horizontal Relationship Input"
-    options \
-        -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC} \
-        -refreshcmd     [list ::mad Refresh_FG]
+    options -sendstates {PAUSED TACTIC}
 
-    parm driver_id key   "MAD ID"              -table       gui_mads   \
-                                               -keys        driver_id  \
-                                               -dispcols    longid
-    parm mode      enum  "Mode"                -enumtype    einputmode \
-                                               -displaylong yes        \
-                                               -defval      transient
-    parm f         enum  "Of Group"            
-    parm g         enum  "With Group"          
-    parm mag       text  "Magnitude"
+    form {
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Mode:" -for mode
+        enumlong mode -dictcmd {einputmode deflist} -defvalue transient
+
+        rcc "Of Group:" -for f
+        group f
+
+        rcc "With Group:" -for g
+        enum g -listcmd {mad::AllGroupsBut $f}
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare driver_id          -required -type mad
@@ -894,17 +900,18 @@ order define MAD:HREL:INPUT {
 
 order define MAD:VREL:ADJUST {
     title "Magic Adjust Vertical Relationship Baseline"
-    options \
-        -sendstates     {PAUSED TACTIC}         \
-        -schedulestates {PREP PAUSED TACTIC}
+    options -sendstates {PAUSED TACTIC}
 
-    parm id        key   "Curve"     -table    gui_vrel_view   \
-                                     -keys     {g a}           \
-                                     -labels   {"Of" "With"}
-    parm driver_id key   "MAD ID"    -table    gui_mads        \
-                                     -keys     driver_id       \
-                                     -dispcols longid
-    parm delta     text  "Delta"
+    form {
+        rcc "Curve:" -for id
+        key id -table gui_uram_vrel -keys {g a} -labels {"Of" "With"}
+
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Delta:" -for delta
+        text delta
+    }
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type vrel
@@ -923,19 +930,25 @@ order define MAD:VREL:ADJUST {
 
 order define MAD:VREL:INPUT {
     title "Magic Vertical Relationship Input"
-    options \
-        -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC}
+    options -sendstates {PAUSED TACTIC}
 
-    parm driver_id key   "MAD ID"              -table       gui_mads   \
-                                               -keys        driver_id  \
-                                               -dispcols    longid
-    parm mode      enum  "Mode"                -enumtype    einputmode \
-                                               -displaylong yes        \
-                                               -defval      transient
-    parm g         enum  "Of Group"            -enumtype group
-    parm a         enum  "With Actor"          -enumtype actor
-    parm mag       text  "Magnitude"
+    form {
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Mode:" -for mode
+        enumlong mode -dictcmd {einputmode deflist} -defvalue transient
+
+        rcc "Of Group:" -for g
+        group g
+
+        rcc "With Actor:" -for a
+        actor a
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare driver_id          -required -type mad
@@ -958,17 +971,18 @@ order define MAD:VREL:INPUT {
 
 order define MAD:SAT:ADJUST {
     title "Magic Adjust Satisfaction Baseline"
-    options \
-        -sendstates     {PAUSED TACTIC}         \
-        -schedulestates {PREP PAUSED TACTIC}
+    options -sendstates {PAUSED TACTIC}
 
-    parm id        key   "Curve"     -table    gui_uram_sat    \
-                                     -keys     {g c}           \
-                                     -labels   {"Grp" "Con"}
-    parm driver_id key   "MAD ID"    -table    gui_mads        \
-                                     -keys     driver_id       \
-                                     -dispcols longid
-    parm delta     text  "Delta"
+    form {
+        rcc "Curve:" -for id
+        key id -table gui_uram_sat -keys {g c} -labels {"Grp" "Con"}
+
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Delta:" -for delta
+        text delta
+    }
 } {
     # FIRST, prepare the parameters
     prepare id         -toupper -required -type sat
@@ -987,19 +1001,25 @@ order define MAD:SAT:ADJUST {
 
 order define MAD:SAT:INPUT {
     title "Magic Satisfaction Input"
-    options \
-        -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC}
+    options -sendstates {PAUSED TACTIC}
 
-    parm driver_id key   "MAD ID"              -table       gui_mads   \
-                                               -keys        driver_id  \
-                                               -dispcols    longid
-    parm mode      enum  "Mode"                -enumtype    einputmode \
-                                               -displaylong yes        \
-                                               -defval      transient
-    parm g         enum  "Group"               -enumtype    civgroup
-    parm c         enum  "Concern"             -enumtype    {ptype c}
-    parm mag       text  "Magnitude"
+    form {
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Mode:" -for mode
+        enumlong mode -dictcmd {einputmode deflist} -defvalue transient
+
+        rcc "Of Group:" -for g
+        civgroup g
+
+        rcc "With Concern:" -for c
+        enum c -listcmd {ptype c names}
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare driver_id          -required -type mad
@@ -1024,17 +1044,18 @@ order define MAD:SAT:INPUT {
 
 order define MAD:COOP:ADJUST {
     title "Magic Adjust Cooperation Baseline"
-    options \
-        -sendstates     {PAUSED TACTIC}         \
-        -schedulestates {PREP PAUSED TACTIC}
+    options -sendstates {PAUSED TACTIC}
 
-    parm id        key   "Curve"     -table    gui_uram_coop   \
-                                     -keys     {f g}           \
-                                     -labels   {"Of" "With"}
-    parm driver_id key   "MAD ID"    -table    gui_mads        \
-                                     -keys     driver_id       \
-                                     -dispcols longid
-    parm delta     text  "Delta"
+    form {
+        rcc "Curve:" -for id
+        key id -table gui_uram_coop -keys {f g} -labels {"Of" "With"}
+
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Delta:" -for delta
+        text delta
+    }
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type coop
@@ -1053,19 +1074,25 @@ order define MAD:COOP:ADJUST {
 
 order define MAD:COOP:INPUT {
     title "Magic Cooperation Input"
-    options \
-        -sendstates     {TACTIC}             \
-        -schedulestates {PREP PAUSED TACTIC}
+    options -sendstates {PAUSED TACTIC}
 
-    parm driver_id key   "MAD ID"              -table       gui_mads   \
-                                               -keys        driver_id  \
-                                               -dispcols    longid
-    parm mode      enum  "Mode"                -enumtype    einputmode \
-                                               -displaylong yes        \
-                                               -defval      transient
-    parm f         enum  "Of Group"            -enumtype civgroup
-    parm g         enum  "With Group"          -enumtype frcgroup
-    parm mag       text  "Magnitude"
+    form {
+        rcc "MAD ID:" -for driver_id
+        mad driver_id
+
+        rcc "Mode:" -for mode
+        enumlong mode -dictcmd {einputmode deflist} -defvalue transient
+
+        rcc "Of Group:" -for f
+        civgroup f 
+
+        rcc "With Group:" -for g
+        frcgroup g
+
+        rcc "Magnitude:" -for mag
+        mag mag
+        label "points of change"
+    }
 } {
     # FIRST, prepare the parameters
     prepare driver_id          -required -type mad

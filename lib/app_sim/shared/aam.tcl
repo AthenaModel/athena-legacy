@@ -830,87 +830,32 @@ snit::type aam {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # Refresh_AN dlg fields fdict
+    # AllButG1 g1
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # g1 - A force group
     #
-    # Refreshes g2 when g1 changes, so that g2 doesn't
-    # contain the value of g1.
+    # Returns a list of all force groups but g1.
 
-    typemethod Refresh_AN {dlg fields fdict} {
-        if {"g1" in $fields} {
-            dict with fdict {
-                if {$g1 eq ""} {
-                    $dlg disabled g2
-                    $dlg set g2 ""
-                } else {
-                    set groups [frcgroup names]
-                    ldelete groups $g1
-                    
-                    $dlg field configure g2 -values $groups
-                    $dlg disabled {}
-                }
-            }
-        }
+    typemethod AllButG1 {g1} {
+        set groups [frcgroup names]
+        ldelete groups $g1
+
+        return $groups
     }
 
-    # Refresh_AG dlg fields fdict
+    # GroupsInN n
     #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
+    # n   - A neighborhood
     #
-    # Refreshes the ATTRIT:GROUP dialog fields when field values
-    # change.
-
-    typemethod Refresh_AG {dlg fields fdict} {
-        set disabled [list]
-
-        dict with fdict {
-            if {"n" in $fields} {
-                # Update the list of groups to attrit
-                set groups [rdb eval {
-                    SELECT DISTINCT g
-                    FROM units
-                    WHERE n=$n
-                    ORDER BY g
-                }]
-                
-                $dlg field configure f -values $groups
-
-                if {[llength $groups] == 0} {
-                    lappend disabled f
-                }
-
-                # Get value, as it might have changed.
-                set f [$dlg field get f]
-                ladd fields f
-            }
-
-            if {"f" in $fields} {
-                # Update g1
-                if {$f eq "" || [group gtype $f] ne "CIV"} {
-                    lappend disabled g1
-                    set g1 ""
-                    $dlg set g1 $g1
-                }
-            }
-
-            # Update g2
-            if {$g1 eq ""} {
-                lappend disabled g2
-                $dlg set g2 ""
-            } else {
-                set groups [frcgroup names]
-                ldelete groups $g1
-                
-                $dlg field configure g2 -values $groups
-            }
-        }
-
-        $dlg disabled $disabled
+    # Returns a list of the groups with personnel in n.
+    
+    typemethod GroupsInN {n} {
+        return [rdb eval {
+            SELECT DISTINCT g
+            FROM units
+            WHERE n=$n
+            ORDER BY g
+        }]
     }
 }
 
@@ -924,18 +869,23 @@ snit::type aam {
 
 order define ATTRIT:NBHOOD {
     title "Magic Attrit Neighborhood"
-    options \
-        -schedulestates {PAUSED TACTIC}    \
-        -sendstates     {PAUSED TACTIC}    \
-        -refreshcmd     [list ::aam Refresh_AN]
+    options -sendstates {PAUSED TACTIC}
 
-    parm n          key  "Neighborhood"      -table  nbhoods   \
-                                             -keys   n         \
-                                             -tags   nbhood
-    parm casualties text "Casualties"        -defval 1
-    parm g1         key  "Responsible Group" -table  frcgroups -keys g \
-                                             -tags   group
-    parm g2         enum "Responsible Group" -tags   group
+    form {
+        rcc "Neighborhood:" -for n
+        nbhood n
+        
+        rcc "Casualties:" -for casualties
+        text casualties -defvalue 1
+
+        rcc "Responsible Group:" -for g1
+        frcgroup g1
+
+        when {$g1 ne ""} {
+            rcc "Responsible Group 2:" -for g2
+            enum g2 -listcmd {::aam AllButG1 $g1}
+        }
+    }
 } {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood
@@ -965,18 +915,28 @@ order define ATTRIT:NBHOOD {
 
 order define ATTRIT:GROUP {
     title "Magic Attrit Group"
-    options \
-        -schedulestates {PAUSED TACTIC}    \
-        -sendstates     {PAUSED TACTIC}    \
-        -refreshcmd     [list ::aam Refresh_AG]
+    options -sendstates {PAUSED TACTIC}
 
-    parm n          key   "Neighborhood"      -table  nbhoods -keys n \
-                                              -tags   nbhood
-    parm f          enum  "To Group"          -tags   group 
-    parm casualties text  "Casualties"        -defval 1
-    parm g1         key   "Responsible Group" -table  frcgroups -keys g \
-                                              -tags   group
-    parm g2         enum  "Responsible Group" -tags   group
+    form {
+        rcc "Neighborhood:" -for n
+        nbhood n
+        
+        rcc "Group:" -for f
+        enum f -listcmd {::aam GroupsInN $n}
+
+        rcc "Casualties:" -for casualties
+        text casualties -defvalue 1
+
+        when {$f in [::civgroup names]} {
+            rcc "Responsible Group:" -for g1
+            frcgroup g1
+
+            when {$g1 ne ""} {
+                rcc "Responsible Group 2:" -for g2
+                enum g2 -listcmd {::aam AllButG1 $g1}
+            }
+        }
+    }
 } {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood

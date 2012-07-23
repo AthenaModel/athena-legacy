@@ -211,10 +211,8 @@ snit::type app {
         view      init
         cif       init
         order     init \
-            -cancelstates {PREP PAUSED}          \
             -subject      ::order                \
             -rdb          ::rdb                  \
-            -clock        ::simclock             \
             -usedtable    entities               \
             -logcmd       ::log                  \
             -ordercmd     [myproc AddOrderToCIF]
@@ -286,9 +284,6 @@ snit::type app {
         # NEXT, bind components together
         notifier bind ::sim <State> ::order {::order state [::sim state]}
         notifier bind ::app <Puck>  ::order {::order puck}
-
-        # NEXT, define custom field types for use in order dialogs.
-        $type RegisterCustomFieldTypes
 
         # NEXT, create state controllers, to enable and disable
         # GUI components as application state changes.
@@ -442,106 +437,6 @@ snit::type app {
         }
 
         return [join $out \n]
-    }
-
-    # RegisterCustomFieldTypes
-    #
-    # Registers custom field types with form(n)/orderdialog(n),
-    # for use in order dialogs.
-
-    typemethod RegisterCustomFieldTypes {} {
-        # actor -- Actor IDs
-        form register actor ::marsgui::keyfield \
-            -table actors                       \
-            -keys  a
-
-        orderdialog fieldopts actor \
-            -db ::rdb
-
-        # agent -- Agent IDs
-        form register agent ::marsgui::keyfield \
-            -table agents                       \
-            -keys  agent_id
-
-        orderdialog fieldopts agent \
-            -db ::rdb
-
-        # alist -- listfield of appropriate size for actor selection
-        form register alist ::marsgui::listfield \
-            -height      8                       \
-            -width       40
-
-        # command -- Executive Command
-        form register command ::marsgui::textfield \
-            -width 40
-
-        # coop -- Cooperation Values
-        form register coop ::marsgui::rangefield \
-            -type        ::qcooperation          \
-            -showsymbols yes                     \
-            -resetvalue  50
-
-        # expr -- Expression
-        form register expr ::marsgui::textfield \
-            -width 60
-
-        # frac -- Fractions, 0.0 to 1.0
-        form register frac ::marsgui::rangefield \
-            -type        ::rfraction
-
-        # glist -- listfield of appropriate size for group selection
-        form register glist ::marsgui::listfield \
-            -height      8                       \
-            -width       30
-
-        # goal -- Goal IDs
-        form register goal ::marsgui::keyfield \
-            -table goals                       \
-            -keys  goal_id
-
-        orderdialog fieldopts goal \
-            -db ::rdb
-
-        # goals -- listfield of appropriate size for goal selection
-        form register goals ::marsgui::listfield \
-            -height      8                       \
-            -width       30
-
-        # klist -- listfield of appropriate size for CAP selection
-        form register klist ::marsgui::listfield \
-            -height      8                       \
-            -width       40
-
-        # mag -- qmag(n) values
-        form register mag ::marsgui::rangefield \
-            -type        ::qmag                 \
-            -showsymbols yes                    \
-            -resetvalue  0.0                    \
-            -resolution  0.5                    \
-            -min         -40.0                  \
-            -max         40.0
-
-        # nlist -- listfield of appropriate size for nbhood selection
-        form register nlist ::marsgui::listfield \
-            -height      8                       \
-            -width       50
-
-        # pct -- Percentages, 0 to 100
-        form register pct ::marsgui::rangefield \
-            -type        ::ipercent             
-
-        orderdialog fieldopts pct \
-            -resetvalue %?-defval
-
-        # rel -- Relationships, -1.0 to 1.0
-        form register rel ::marsgui::rangefield \
-            -type        ::qrel                 \
-            -resolution  0.1
-
-        # sat -- Satisfaction values
-        form register sat ::marsgui::rangefield \
-            -type        ::qsat                 \
-            -showsymbols yes
     }
 
     # CreateStateControllers

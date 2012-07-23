@@ -603,58 +603,6 @@ snit::type hook {
         return [list rdb ungrab [concat $tdata $hdata]]
     }
 
-    # RefreshTopicCREATE dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that have been changed
-    # fdict     The current fields and values
-    #
-    # This method updates the list of valid topics still
-    # available to be associated with a give semantic hook
-
-    typemethod RefreshTopicCREATE {dlg fields fdict} {
-        if {"hook_id" in $fields} {
-            dict with fdict {
-                set used [rdb eval {
-                            SELECT topic_id FROM hook_topics
-                            WHERE hook_id=$hook_id
-                        }]
-
-                set unused [list]
-
-                foreach topic [bsystem topic names] {
-                    if {$topic in $used} {
-                        continue
-                    }
-
-                    lappend unused $topic
-                }
-
-                $dlg field configure topic_id -values $unused
-            }
-        }
-    }
-
-    #
-    # dlg       The order dialog
-    # fields    The fields that have been changed
-    # fdict     The current fields and values
-    #
-    # This method sets the position in the position dropdown
-    # to the correct text value for display
-
-    typemethod RefreshTopicUPDATE {dlg fields fdict} {
-        if {"id" in $fields} {
-            dict with fdict {
-                set pos [rdb eval {
-                    SELECT position FROM gui_hook_topics
-                    WHERE id=$id
-                }]
-
-                $dlg set position [qposition name $pos]
-            }
-        }
-    }
 
 
     # ComputeTopicNarrative topic_id position
@@ -680,6 +628,53 @@ snit::type hook {
 
         return $narr
     }
+
+    #-------------------------------------------------------------------
+    # Order Helpers
+
+    # UnusedTopics hook_id
+    #
+    # hook_id   - An existing semantic hook ID
+    #
+    # Returns a list of the belief system topics not currently used
+    # by this hook.
+
+    typemethod UnusedTopics {hook_id} {
+        set used [rdb eval {
+            SELECT topic_id FROM hook_topics
+            WHERE hook_id=$hook_id
+        }]
+
+        set unused [list]
+
+        foreach topic [bsystem topic names] {
+            if {$topic ni $used} {
+                lappend unused $topic
+            }
+        }
+
+        return $unused
+    }
+
+    # LoadPosition idict id
+    #
+    # idict - Item dictionary
+    # id    - hook_topics ID
+    #
+    # This method returns the position as a symbol.
+
+    typemethod LoadPosition {idict id} {
+        set pos [rdb onecolumn {
+            SELECT position FROM gui_hook_topics
+            WHERE id=$id
+        }]
+
+        if {$pos ne ""} {
+            return [dict create position [qposition name $pos]]
+        } else {
+            return ""
+        }
+    }
 }
 
 #-----------------------------------------------------------------------
@@ -692,11 +687,15 @@ snit::type hook {
 order define HOOK:CREATE {
     title "Create Semantic Hook"
 
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm hook_id      text  "Hook ID"
-    parm longname     text  "Long Name"
+    form {
+        rcc "Hook ID:" -for hook_id
+        text hook_id
+
+        rcc "Long Name:" -for longname
+        text longname -width 40
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare hook_id  -toupper -unused -required -type ident  
@@ -721,7 +720,10 @@ order define HOOK:DELETE {
     title "Delete Semantic Hook"
     options -sendstates PREP
 
-    parm hook_id  key  "Hook ID" -table hooks -keys hook_id
+    form {
+        rcc "Hook ID:" -for hook_id
+        hook hook_id
+    }
 } {
     # FIRST, prepare the parameters
     prepare hook_id -toupper -required -type hook
@@ -760,12 +762,16 @@ order define HOOK:DELETE {
 
 order define HOOK:UPDATE {
     title "Update Semantic Hook"
-    options \
-        -sendstates PREP                             \
-        -refreshcmd {orderdialog refreshForKey hook_id *}
+    options -sendstates PREP
 
-    parm hook_id      key    "Select Hook"    -table hooks -keys hook_id
-    parm longname     text   "Long Name"
+    form {
+        rcc "Select Hook:" -for hook_id
+        hook hook_id \
+            -loadcmd {orderdialog keyload hook_id *}
+
+        rcc "Long Name:"
+        text longname -width 40
+    }
 } {
     # FIRST, prepare the parameters
     prepare hook_id      -toupper   -required -type hook
@@ -784,13 +790,18 @@ order define HOOK:UPDATE {
 order define HOOK:TOPIC:CREATE {
     title "Create Semantic Hook Topic"
 
-    options \
-        -sendstates PREP \
-        -refreshcmd {hook RefreshTopicCREATE}
+    options -sendstates PREP
 
-    parm hook_id    text "Hook ID"   -context yes
-    parm topic_id   enum "Topic ID"  
-    parm position   enum "Position"  -enumtype qposition -displaylong yes
+    form {
+        rcc "Hook ID:" -for hook_id
+        hook hook_id -context yes
+
+        rcc "Topic ID:" -for topic_id
+        enum topic_id -listcmd {hook UnusedTopics $hook_id}
+        
+        rcc "Position:" -for position
+        enumlong position -dictcmd {qposition namedict}
+    }
 } {
     prepare hook_id  -toupper -required -type hook
     prepare topic_id -toupper -required -type {bsystem topic}
@@ -814,12 +825,13 @@ order define HOOK:TOPIC:CREATE {
 order define HOOK:TOPIC:DELETE {
     title "Delete Semantic Hook Topic"
 
-    options \
-        -sendstates PREP
-        
-    parm id  key  "Hook/Topic"  -table gui_hook_topics   \
-                                -keys {hook_id topic_id} \
-                                -labels {"Of" "On"}
+    options -sendstates PREP
+    
+    form {
+        rcc "Hook/Topic:" -for id
+        key id -table gui_hook_topics -keys {hook_id topic_id} \
+            -labels {"Of" "On"}
+    }
 } {
     prepare id   -toupper -required -type {hook topic}
 
@@ -835,14 +847,17 @@ order define HOOK:TOPIC:DELETE {
 order define HOOK:TOPIC:UPDATE {
     title "Update Semantic Hook Topic"
 
-    options \
-        -sendstates PREP \
-        -refreshcmd {hook RefreshTopicUPDATE}
+    options -sendstates PREP 
 
-    parm id       key  "Hook/Topic" -table gui_hook_topics    \
-                                    -keys  {hook_id topic_id} \
-                                    -labels {"Of" "On"}
-    parm position enum "Position" -enumtype qposition -displaylong yes
+    form {
+        rcc "Hook/Topic:" -for id
+        key id -table gui_hook_topics -keys {hook_id topic_id} \
+            -labels {"Of" "On"} \
+            -loadcmd {hook LoadPosition}
+
+        rcc "Position:" -for position
+        enumlong position -dictcmd {qposition namedict}
+    }
 } {
     prepare id       -toupper -required -type {hook topic}
     prepare position          -required -type qposition
@@ -852,33 +867,6 @@ order define HOOK:TOPIC:UPDATE {
     setundo [hook mutate topic update [array get parms]]
 }
 
-# HOOK:TOPIC:UPDATE:MULTI
-#
-# Updates multiple hook/topic pairs
-
-order define HOOK:TOPIC:UPDATE:MULTI {
-    title "Update Semantic Hook Topic (Multi)"
-
-    options \
-        -sendstates PREP \
-        -refreshcmd {orderdialog refreshForMulti ids *}
-
-    parm ids      multi "IDs"      -table gui_hook_topics 
-    parm position enum  "Position" -enumtype qposition -displaylong yes
-} {
-    prepare ids      -toupper -required -listof {hook topic}
-    prepare position          -required -type qposition 
-
-    returnOnError -final
-
-    set undo [list]
-
-    foreach parms(id) $parms(ids) {
-        lappend undo [hook mutate topic update [array get parms]]
-
-        setundo [join $undo \n]
-    }
-}
 
 # HOOK:TOPIC:STATE
 #
@@ -887,15 +875,12 @@ order define HOOK:TOPIC:UPDATE:MULTI {
 order define HOOK:TOPIC:STATE {
     title "Set Semantic Hook State"
 
-    options \
-        -sendstates {PREP} \
-        -refreshcmd {orderdialog refreshForKey id *}
+    options -sendstates {PREP}
 
-    parm id   key "Hook/Topic"   -context yes \
-                                 -table gui_hook_topics \
-                                 -keys {hook_id topic_id}
-
-    parm state text "State"
+    form {
+        key id -table gui_hook_topics -keys {hook_id topic_id} 
+        text state
+    }
 } {
     prepare id   -required     -type {hook topic}
     prepare state -required -tolower -type etopic_state

@@ -149,6 +149,7 @@ exec_ts
 exec_flag    0
 klist        CNN
 alist        DAVE BRIAN
+on_lock      0
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -278,6 +279,7 @@ exec_ts
 exec_flag    0
 klist        CNN
 alist        BRIAN
+on_lock      0
     }
 
     test UPDATE-2.2 {Effects} -setup {

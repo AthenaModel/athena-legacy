@@ -475,18 +475,6 @@ snit::type ::projectlib::typewrapper {
     AGGRESSIVE "Aggressive"
 }
 
-# DEMOB mode
-::marsutil::enum ::projectlib::edemobmode {
-    SOME "Demobilize some of the group's personnel"
-    ALL  "Demobilize all of the group's remaining personnel"
-}
-
-# DEPLOY mode
-::marsutil::enum ::projectlib::edeploymode {
-    SOME "Deploy some of the group's personnel"
-    ALL  "Deploy all of the group's remaining personnel"
-}
-
 # Force Group Type
 ::marsutil::enum ::projectlib::eforcetype {
     REGULAR        "Regular Military"

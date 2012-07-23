@@ -96,6 +96,18 @@ snit::type group {
         }
     }
 
+    # ownedby a
+    #
+    # a - An actor
+    #
+    # Returns a list of the force/org groups owned by actor a.
+
+    typemethod ownedby {a} {
+        return [rdb eval {
+            SELECT g FROM agroups
+            WHERE a=$a
+        }]
+    }
 }
 
 

@@ -65,11 +65,17 @@ order define TACTIC:SAVE:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm owner    actor "Owner"                -context yes
-    parm int1     text  "Percentage of Income" -defval 10
-    parm priority enum  "Priority"             -enumtype ePrioSched \
-                                               -displaylong yes     \
-                                               -defval bottom
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Percentage:"
+        percent int1 -defvalue 10
+        label "% of income"
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
@@ -91,15 +97,20 @@ order define TACTIC:SAVE:CREATE {
 
 order define TACTIC:SAVE:UPDATE {
     title "Update Tactic: Save Money"
-    options \
-        -sendstates {PREP PAUSED}                           \
-        -refreshcmd {orderdialog refreshForKey tactic_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"            -context yes          \
-                                               -table   tactics_SAVE \
-                                               -keys    tactic_id
-    parm owner     disp "Owner"
-    parm int1      text "Percentage of Income"
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_SAVE -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Percentage:"
+        percent int1 -defvalue 10
+        label "% of income"
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id   -required -type tactic

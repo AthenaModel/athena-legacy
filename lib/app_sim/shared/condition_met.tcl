@@ -103,68 +103,28 @@ condition type define MET {list1} -attachto tactic {
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # RefreshCREATE dlg fields fdict
+    # GoalDict mode id
     #
-    # Populates the Goals field when the order dialog is popped up.
+    # mode   - cc_id or condition_id
+    # id     - The cc_id or condition_id
+    #
+    # Retrieves a dictionary of goal IDs and narratives owned by the 
+    # actor that owns the condition.
 
-    typemethod RefreshCREATE {dlg fields fdict} {
-        # FIRST, load the goals.
-        if {"cc_id" in $fields} {
-            set cc_id [dict get $fdict cc_id]
-            $type SetItemDict $dlg $cc_id
+    typemethod GoalDict {mode id} {
+        if {$mode eq "condition_id"} { 
+            set cc_id [condition get $id cc_id]
+        } else {
+            set cc_id $id
         }
-    }
 
-    # RefreshUPDATE dlg fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the CONDITION:*:UPDATE dialog fields when field values
-    # change, and disables the condition_id field; they can't pick
-    # new ones.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        # FIRST, load the list1 field's -itemdict
-        if {"condition_id" in $fields} {
-            set condition_id [dict get $fdict condition_id]
-            set cc_id [condition get $condition_id cc_id]
-            $type SetItemDict $dlg $cc_id
-        }
-        
-        # NEXT, refresh the fields from the RDB
-        orderdialog refreshForKey condition_id * $dlg $fields $fdict
-    }
-
-    # SetItemDict dlg cid
-    #
-    # dlg    - The order dialog
-    # cc_id  - The tactic ID
-    #
-    # Retrieves the owning agent for the tactic, and then the
-    # dictionary of goal IDs and narratives for the owning agent.
-    # These are loaded into the list1 field's -itemdict, so that
-    # the user can choose from the required goals.
-
-    typemethod SetItemDict {dlg cc_id} {
-        
         set owner [tactic get $cc_id owner]
             
-        set itemdict [rdb eval {
+        return [rdb eval {
             SELECT goal_id, narrative
             FROM goals
             WHERE owner=$owner
         }]
-
-        $dlg field configure list1 \
-            -itemdict $itemdict
-
-        if {[dict size $itemdict] == 0} {
-            $dlg disabled list1
-        } else {
-            $dlg disabled {}
-        }
     }
 
     # ValidateGoals owner gids
@@ -201,14 +161,22 @@ condition type define MET {list1} -attachto tactic {
 order define CONDITION:MET:CREATE {
     title "Create Condition: Goal is Met"
 
-    options \
-        -sendstates {PREP PAUSED} \
-        -refreshcmd {condition::MET RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm cc_id  key   "Tactic ID"  -context yes         \
-                                   -table   cond_collections \
-                                   -keys    cc_id
-    parm list1  goals "Goals"     
+    form {
+        rcc "Tactic ID:" -for cc_id
+        condcc cc_id
+
+        rcc ""
+        label {
+            This condition is met when all of the following
+            goals are met.
+        }
+
+        rcc "Goals:" -for list1
+        enumlonglist list1 -width 30 -height 8 \
+            -dictcmd {condition::MET GoalDict cc_id $cc_id}
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id     -required -type   tactic
@@ -238,14 +206,22 @@ order define CONDITION:MET:CREATE {
 
 order define CONDITION:MET:UPDATE {
     title "Update Condition: Goal is Met"
-    options \
-        -sendstates {PREP PAUSED}                   \
-        -refreshcmd {condition::MET RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id key  "Condition ID"  -context yes          \
-                                           -table   conditions   \
-                                           -keys    condition_id
-    parm list1        goals "Goals"
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc ""
+        label {
+            This condition is met when all of the following
+            goals are met.
+        }
+
+        rcc "Goals:" -for list1
+        enumlonglist list1 -width 30 -height 8 \
+            -dictcmd {condition::MET GoalDict condition_id $condition_id}
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required  -type   condition

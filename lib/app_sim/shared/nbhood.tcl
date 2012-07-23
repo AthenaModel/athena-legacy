@@ -121,10 +121,21 @@ snit::type nbhood {
     # Returns the list of neighborhood names
 
     typemethod names {} {
-        set names [rdb eval {
+        return [rdb eval {
             SELECT n FROM nbhoods ORDER BY n
         }]
     }
+
+    # namedict
+    #
+    # Returns ID/longname dictionary
+
+    typemethod namedict {} {
+        return [rdb eval {
+            SELECT n, longname FROM nbhoods ORDER BY n
+        }]
+    }
+
 
 
     # validate n
@@ -448,17 +459,36 @@ order define NBHOOD:CREATE {
     title "Create Neighborhood"
     options -sendstates PREP
 
-    parm n            text "Neighborhood"
-    parm longname     text "Long Name"
-    parm local        enum "Local Neighborhood?" -enumtype eyesno \
-                                                 -defval   YES
-    parm urbanization enum "Urbanization"        -enumtype eurbanization \
-                                                 -defval   URBAN
-    parm controller   enum "Controller"          -enumtype {ptype a+none} \
-                                                 -defval   NONE
-    parm vtygain      text "Volatility Gain"     -defval   1.0
-    parm refpoint     text "Reference Point"     -tags     point
-    parm polygon      text "Polygon"             -tags     polygon
+    form {
+        rcc "Neighborhood:" -for n
+        text n
+
+        rcc "Long Name:" -for longname
+        longname longname 
+
+        rcc "Local Neighborhood?" -for local
+        # TBD: replace eyesno with a "bool" field that maps 0,1 to
+        # nice long names.
+        enum local -listcmd {eyesno names} -defvalue YES
+
+        rcc "Urbanization:" -for urbanization
+        enum urbanization -listcmd {eurbanization names} -defvalue URBAN
+
+        rcc "Controller:" -for controller
+        enum controller -listcmd {ptype a+none names} -defvalue NONE
+
+        rcc "Volatility Gain:" -for vtygain
+        text vtygain -defvalue 1.0
+
+        rcc "Reference Point:" -for refpoint
+        text refpoint
+
+        rcc "Polygon:" -for polygon
+        text polygon -width 40
+    }
+
+    parmtags refpoint point
+    parmtags polygon polygon
 } {
     # FIRST, prepare the parameters
     prepare n             -toupper            -required -unused -type ident
@@ -524,9 +554,10 @@ order define NBHOOD:DELETE {
     title "Delete Neighborhood"
     options -sendstates PREP
 
-    parm n  key  "Neighborhood"   -table nbhoods \
-                                  -keys  n       \
-                                  -tags  nbhood
+    form {
+        rcc "Neighborhood:" -for n
+        nbhood n
+    }
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -568,9 +599,10 @@ order define NBHOOD:LOWER {
     title "Lower Neighborhood"
     options -sendstates PREP
 
-    parm n  key  "Neighborhood"   -table nbhoods \
-                                  -keys  n       \
-                                  -tags  nbhood
+    form {
+        rcc "Neighborhood:" -for n
+        nbhood n
+    }
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -590,9 +622,10 @@ order define NBHOOD:RAISE {
     title "Raise Neighborhood"
     options -sendstates PREP
 
-    parm n  key  "Neighborhood"   -table nbhoods \
-                                  -keys  n       \
-                                  -tags  nbhood
+    form {
+        rcc "Neighborhood:" -for n
+        nbhood n
+    }
 } {
     # FIRST, prepare the parameters
     prepare n  -toupper -required -type nbhood
@@ -612,20 +645,37 @@ order define NBHOOD:RAISE {
 
 order define NBHOOD:UPDATE {
     title "Update Neighborhood"
-    options \
-        -sendstates PREP                              \
-        -refreshcmd {::orderdialog refreshForKey n *}
+    options -sendstates PREP
 
-    parm n            key   "Select Neighborhood" -table    gui_nbhoods \
-                                                  -keys     n           \
-                                                  -tags     nbhood
-    parm longname     text  "Long Name"
-    parm local        enum  "Local Neighborhood?" -enumtype eyesno
-    parm urbanization enum  "Urbanization"        -enumtype eurbanization
-    parm controller   enum  "Controller"          -enumtype {ptype a+none}
-    parm vtygain      text  "Volatility Gain"
-    parm refpoint     text  "Reference Point"     -tags     point
-    parm polygon      text  "Polygon"             -tags     polygon
+    form {
+        rcc "Select Neighborhood:" -for n
+        key n -table gui_nbhoods -keys n \
+            -loadcmd {orderdialog keyload n *}
+        
+        rcc "Long Name:" -for longname
+        longname longname
+        
+        rcc "Local Neighborhood?" -for local
+        enum local -listcmd {eyesno names}
+
+        rcc "Urbanization:" -for urbanization
+        enum urbanization -listcmd {eurbanization names}
+
+        rcc "Controller:" -for controller
+        enum controller -listcmd {ptype a+none names}
+
+        rcc "Volatility Gain:" -for vtygain
+        text vtygain
+
+        rcc "Reference Point:" -for refpoint
+        text refpoint
+
+        rcc "Polygon:" -for polygon
+        text polygon -width 40
+    }
+
+    parmtags refpoint point
+    parmtags polygon polygon
 } {
     # FIRST, prepare the parameters
     prepare n            -toupper   -required -type nbhood
@@ -705,16 +755,25 @@ order define NBHOOD:UPDATE {
 
 order define NBHOOD:UPDATE:MULTI {
     title "Update Multiple Neighborhoods"
-    options \
-        -sendstates PREP                              \
-        -refreshcmd {::orderdialog refreshForMulti ids *}
+    options -sendstates PREP
 
-    parm ids          multi "Neighborhoods"       -table    gui_nbhoods \
-                                                  -key      id
-    parm local        enum  "Local Neighborhood?" -enumtype eyesno
-    parm urbanization enum  "Urbanization"        -enumtype eurbanization
-    parm controller   enum  "Controller"          -enumtype {ptype a+none}
-    parm vtygain      text  "Volatility Gain"
+    form {
+        rcc "Neighborhoods:" -for ids
+        multi ids -table gui_nbhoods -key id -context yes \
+            -loadcmd {orderdialog multiload ids *}
+
+        rcc "Local Neighborhood?" -for local
+        enum local -listcmd {eyesno names}
+
+        rcc "Urbanization:" -for urbanization
+        enum urbanization -listcmd {eurbanization names}
+
+        rcc "Controller:" -for controller
+        enum controller -listcmd {ptype a+none names}
+
+        rcc "Volatility Gain:" -for vtygain
+        text vtygain
+    }
 } {
     # FIRST, prepare the parameters
     prepare ids          -toupper -required -listof nbhood

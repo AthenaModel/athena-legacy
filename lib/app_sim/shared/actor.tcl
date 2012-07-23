@@ -252,13 +252,25 @@ order define ACTOR:CREATE {
     options \
         -sendstates PREP
 
-    parm a            text  "Actor"
-    parm longname     text  "Long Name"
-    parm supports     enum  "Supports"       -enumtype {ptype a+self+none} \
-                                             -defval SELF
-    parm cash_reserve text  "Cash Reserve $"        -defval 0
-    parm income       text  "Income $/week"         -defval 0
-    parm cash_on_hand text  "Cash On Hand $"        -defval 0
+    form {
+        rcc "Actor:" -for a
+        text a
+        
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Supports:" -for supports
+        enum supports -defvalue SELF -listcmd {ptype a+self+none names}
+
+        rcc "Cash Reserve, $:" -for cash_reserve
+        text cash_reserve -defvalue 0
+
+        rcc "Income, $/week:" -for income
+        text income -defvalue 0
+
+        rcc "Cash On Hand, $:" -for cash_on_hand
+        text cash_on_hand -defvalue 0
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare a            -toupper   -required -unused -type ident
@@ -285,7 +297,10 @@ order define ACTOR:DELETE {
     title "Delete Actor"
     options -sendstates PREP
 
-    parm a  key  "Actor"  -tags actor -table actors -keys a
+    form {
+        rcc "Actor:" -for a
+        actor a
+    }
 } {
     # FIRST, prepare the parameters
     prepare a -toupper -required -type actor
@@ -320,6 +335,10 @@ order define ACTOR:DELETE {
     setundo [actor mutate delete $parms(a)]
 }
 
+proc DummyLoadCommand {args} {
+    puts stderr "DummyLoadCommand: [list $args]"
+    return [dict create]
+}
 
 # ACTOR:UPDATE
 #
@@ -327,17 +346,28 @@ order define ACTOR:DELETE {
 
 order define ACTOR:UPDATE {
     title "Update Actor"
-    options \
-        -sendstates PREP                             \
-        -refreshcmd {orderdialog refreshForKey a *}
+    options -sendstates PREP
 
-    parm a            key    "Select Actor"    -table gui_actors -keys a \
-                                               -tags actor
-    parm longname     text   "Long Name"
-    parm supports     enum   "Supports"        -enumtype {ptype a+self+none}
-    parm cash_reserve text   "Cash Reserve $"
-    parm income       text   "Income $/week"
-    parm cash_on_hand text   "Cash On Hand $"
+    form {
+        rcc "Select Actor:" -for a
+        key a -table gui_actors -keys a \
+            -loadcmd {::orderdialog keyload a *} 
+        
+        rcc "Long Name:" -for longname
+        longname longname
+
+        rcc "Supports:" -for supports
+        enum supports -listcmd {ptype a+self+none names}
+
+        rcc "Cash Reserve, $:" -for cash_reserve
+        text cash_reserve
+
+        rcc "Income, $/week:" -for income
+        text income
+
+        rcc "Cash On Hand, $:" -for cash_on_hand
+        text cash_on_hand
+    }
 } {
     # FIRST, prepare the parameters
     prepare a            -toupper   -required -type actor
@@ -359,13 +389,17 @@ order define ACTOR:UPDATE {
 
 order define ACTOR:INCOME {
     title "Update Actor Income"
-    options \
-        -sendstates {PREP PAUSED TACTIC}            \
-        -refreshcmd {orderdialog refreshForKey a *}
+    options -sendstates {PREP PAUSED TACTIC}
 
-    parm a            key    "Select Actor"    -table gui_actors -keys a \
-                                               -tags actor
-    parm income       text   "Income $/week"
+    form {
+        rcc "Select Actor:" -for a
+        key a -table gui_actors -keys a \
+            -loadcmd {::orderdialog keyload a *} 
+        
+        rcc "Income, $/week:" -for income
+        text income
+
+    }
 } {
     # FIRST, prepare the parameters
     prepare a            -toupper   -required -type actor
@@ -391,13 +425,16 @@ order define ACTOR:INCOME {
 
 order define ACTOR:SUPPORTS {
     title "Update Actor Supports"
-    options \
-        -sendstates {PREP PAUSED TACTICS}           \
-        -refreshcmd {orderdialog refreshForKey a *}
+    options -sendstates {PREP PAUSED TACTICS}
 
-    parm a            key    "Select Actor"    -table gui_actors -keys a \
-                                               -tags actor
-    parm supports     enum   "Supports"        -enumtype {ptype a+self+none}
+    form {
+        rcc "Select Actor:" -for a
+        key a -table gui_actors -keys a \
+            -loadcmd {::orderdialog keyload a *} 
+        
+        rcc "Supports:" -for supports
+        enum supports -listcmd {ptype a+self+none names}
+    }
 } {
     # FIRST, prepare the parameters
     prepare a            -toupper   -required -type actor

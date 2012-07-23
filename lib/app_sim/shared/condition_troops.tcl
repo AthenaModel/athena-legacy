@@ -67,13 +67,26 @@ order define CONDITION:TROOPS:CREATE {
 
     options -sendstates {PREP PAUSED}
 
-    parm cc_id     key   "Tactic/Goal ID" -context yes         \
-                                          -table   cond_collections \
-                                          -keys    cc_id
-    parm g         enum  "Group"          -enumtype {ptype fog}
-    parm op1       enum  "Comparison"     -enumtype ecomparator \
-                                          -displaylong yes
-    parm int1      text  "Amount"
+    form {
+        rcc "Tactic/Goal ID:" -for cc_id
+        condcc cc_id
+
+        rcc "" -width 3in
+        label {
+            This condition is met when the number of troops 
+            deployed by
+        }
+
+        rcc "Group:" -for g
+        enum g -listcmd {ptype fog names}
+        label "in the playbox"
+        
+        rcc "Is:" -for op1
+        comparator op1
+
+        rcc "Amount:" -for int1
+        text int1
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type cond_collection
@@ -96,18 +109,28 @@ order define CONDITION:TROOPS:CREATE {
 
 order define CONDITION:TROOPS:UPDATE {
     title "Update Condition: Troops"
-    options \
-        -sendstates {PREP PAUSED}                              \
-        -refreshcmd {orderdialog refreshForKey condition_id *}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id key   "Condition ID"  -context yes          \
-                                            -table   conditions   \
-                                            -keys    condition_id
-    parm g            enum  "Group"         -enumtype {ptype fog}
-    parm op1          enum  "Comparison"    -enumtype ecomparator \
-                                            -displaylong yes
-    parm int1         text  "Amount"
-                
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc "" -width 3in
+        label {
+            This condition is met when the number of troops 
+            deployed by
+        }
+
+        rcc "Group:" -for g
+        enum g -listcmd {ptype fog names}
+        label "in the playbox"
+        
+        rcc "Is:" -for op1
+        comparator op1
+
+        rcc "Amount:" -for int1
+        text int1
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition

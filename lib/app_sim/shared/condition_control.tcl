@@ -62,53 +62,6 @@ condition type define CONTROL {a list1} {
             return [expr {$count == 0}]
         }
     }
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-
-    # RefreshCREATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the CREATE dialog fields when field values
-    # change.
-
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"cc_id" in $fields} {
-                set ndict [rdb eval {
-                    SELECT n,n FROM nbhoods
-                    ORDER BY n
-                }]
-
-                $dlg field configure list1 -itemdict $ndict
-            }
-        }
-    }
-
-    # RefreshUPDATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:DEPLOY:UPDATE dialog fields when field values
-    # change.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        if {"condition_id" in $fields} {
-            set ndict [rdb eval {
-                SELECT n,n FROM nbhoods
-                ORDER BY n
-            }]
-            
-            $dlg field configure list1 -itemdict $ndict
-
-            $dlg loadForKey condition_id *
-        }
-    }
 }
 
 
@@ -119,15 +72,22 @@ condition type define CONTROL {a list1} {
 order define CONDITION:CONTROL:CREATE {
     title "Create Condition: Control"
 
-    options \
-        -sendstates {PREP PAUSED}                      \
-        -refreshcmd {condition::CONTROL RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm cc_id     key   "Tactic/Goal ID" -context yes         \
-                                          -table   cond_collections \
-                                          -keys    cc_id
-    parm a         actor "Actor"
-    parm list1     nlist "Neighborhoods"
+    form {
+        rcc "Tactic/Goal ID:" -for cc_id
+        condcc cc_id
+
+        rcc "" 
+        label { This condition is met when }
+
+        rcc "Actor:" -for a
+        actor a
+        label "controls"
+
+        rcc "Neighborhoods:" -for list1
+        nlist list1
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare cc_id                -required -type   cond_collection
@@ -149,15 +109,22 @@ order define CONDITION:CONTROL:CREATE {
 
 order define CONDITION:CONTROL:UPDATE {
     title "Update Condition: Control"
-    options \
-        -sendstates {PREP PAUSED}                      \
-        -refreshcmd {condition::CONTROL RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm condition_id key   "Condition ID"  -context yes          \
-                                            -table   conditions   \
-                                            -keys    condition_id
-    parm a            actor "Actor"         -table actors -keys a
-    parm list1        nlist "Neighborhoods"
+    form {
+        rcc "Condition ID:" -for condition_id
+        cond condition_id
+
+        rcc "" 
+        label { This condition is met when }
+
+        rcc "Actor:" -for a
+        actor a
+        label "controls"
+
+        rcc "Neighborhoods:" -for list1
+        nlist list1
+    }
 } {
     # FIRST, prepare the parameters
     prepare condition_id  -required           -type condition

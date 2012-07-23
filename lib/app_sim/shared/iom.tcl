@@ -424,12 +424,18 @@ snit::type iom {
 order define IOM:CREATE {
     title "Create Info Ops Message"
     
-    options \
-        -sendstates PREP
+    options -sendstates PREP
 
-    parm iom_id      text  "Message ID"
-    parm longname    text  "Description"      -width 60
-    parm hook_id     enum  "Semantic Hook"    -enumtype hook
+    form {
+        rcc "Message ID:" -for iom_id
+        text iom_id
+
+        rcc "Description:" -for longname
+        text longname -width 60
+
+        rcc "Semantic Hook:" -for hook_id
+        hook hook_id
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id      -toupper   -required -unused -type ident
@@ -457,7 +463,10 @@ order define IOM:DELETE {
     title "Delete Info Ops Message"
     options -sendstates PREP
 
-    parm iom_id  key "Message ID" -table ioms -keys iom_id
+    form {
+        rcc "Message ID:" -for iom_id
+        key iom_id -table ioms -keys iom_id
+    }
 } {
     # FIRST, prepare the parameters
     prepare iom_id -toupper -required -type iom
@@ -498,12 +507,19 @@ order define IOM:DELETE {
 
 order define IOM:UPDATE {
     title "Update Info Ops Message"
-    options -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey iom_id *}
+    options -sendstates PREP
 
-    parm iom_id    key   "Select Message"  -table ioms -keys iom_id 
-    parm longname  text  "Description"     -width 60
-    parm hook_id   enum  "Semantic Hook"   -enumtype hook
+    form {
+        rcc "Message ID" -for iom_id
+        key iom_id -table ioms -keys iom_id \
+            -loadcmd {orderdialog keyload iom_id *}
+
+        rcc "Description:" -for longname
+        text longname -width 60
+
+        rcc "Semantic Hook:" -for hook_id
+        hook hook_id
+    }
 } {
     # FIRST, prepare the parameters
     prepare iom_id      -toupper   -required -type iom
@@ -525,14 +541,13 @@ order define IOM:UPDATE {
 order define IOM:STATE {
     title "Set IOM State"
 
-    options \
-        -sendstates PREP \
-        -refreshcmd {orderdialog refreshForKey iom_id *}
+    options -sendstates PREP 
 
-    parm iom_id    key  "IOM ID"    -context yes      \
-                                    -table   gui_ioms \
-                                    -keys    iom_id
-    parm state text "State"
+    form {
+        # Not used for dialog.
+        key iom_id -table ioms -keys iom_id
+        text state
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare iom_id -required          -type iom

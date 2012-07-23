@@ -701,14 +701,22 @@ snit::type sim {
 
 # SIM:STARTDATE
 #
-# Sets the zulu-time corresponding to time 0
+# Sets the zulu-time corresponding to time 0.
+#
+# TBD: It would be nice if the startdate field was pre-populated with the
+# current start date.  This would require adding an "-entercmd" as an
+# order option; on "order enter" it would get the parms and values passed
+# by the application, and would return the parms and values to populate
+# the dialog with.
 
 order define SIM:STARTDATE {
     title "Set Start Date"
-    options -sendstates PREP \
-        -refreshcmd {::sim Refresh_SS}
+    options -sendstates PREP
 
-    parm startdate  text "Start Date"
+    form {
+        rcc "Start Date:" -for startdate
+        text startdate
+    }
 } {
     # FIRST, prepare the parameters
     prepare startdate -toupper -required -type zulu
@@ -809,10 +817,13 @@ order define SIM:RUN {
     title "Run Simulation"
     options -sendstates {PAUSED}
 
-    parm weeks text "Weeks to Run"
-    parm block enum "Block?"         -enumtype eyesno -defval NO
+    form {
+        rcc "Weeks to Run:" -for weeks
+        text weeks
 
-    # TBD Need to indicate valid states
+        rcc "Block?" -for block
+        yesno block -defvalue 0
+    }
 } {
     # FIRST, prepare the parameters
     prepare weeks -toupper -type iticks

@@ -24,7 +24,7 @@
 #-------------------------------------------------------------------
 # Tactic: FUNDENI
 
-tactic type define FUNDENI {x1 glist on_lock once} actor {
+tactic type define FUNDENI {x1 glist once on_lock} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -152,60 +152,6 @@ tactic type define FUNDENI {x1 glist on_lock once} actor {
             AND   g $inClause 
         "
     }
-
-
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-
-    # RefreshCREATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:FUNDENI:CREATE dialog fields when field values
-    # change.
-
-    typemethod RefreshCREATE {dlg fields fdict} {
-        dict with fdict {
-            if {"owner" in $fields} {
-                set gdict [rdb eval {
-                    SELECT g,longname FROM civgroups_view
-                    ORDER BY g
-                }]
-                
-                $dlg field configure glist -itemdict $gdict
-            }
-        }
-    }
-
-    # RefreshUPDATE fields fdict
-    #
-    # dlg       The order dialog
-    # fields    The fields that changed.
-    # fdict     The current values of the various fields.
-    #
-    # Refreshes the TACTIC:FUNDENI:UPDATE dialog fields when field values
-    # change.
-
-    typemethod RefreshUPDATE {dlg fields fdict} {
-        if {"tactic_id" in $fields} {
-            $dlg loadForKey tactic_id *
-            set fdict [$dlg get]
-
-            dict with fdict {
-                set gdict [rdb eval {
-                    SELECT g,longname FROM civgroups_view
-                    ORDER BY g
-                }]
-                
-                $dlg field configure glist -itemdict $gdict
-            }
-
-            $dlg loadForKey tactic_id *
-        }
-    }
 }
 
 # TACTIC:FUNDENI:CREATE
@@ -215,28 +161,36 @@ tactic type define FUNDENI {x1 glist on_lock once} actor {
 order define TACTIC:FUNDENI:CREATE {
     title "Create Tactic: Fund ENI Services"
 
-    options \
-        -sendstates {PREP PAUSED}       \
-        -refreshcmd {tactic::FUNDENI RefreshCREATE}
+    options -sendstates {PREP PAUSED}
 
-    parm owner     actor "Owner"             -context yes
-    parm glist     glist "Groups"  
-    parm x1        text  "Amount, $/week"
-    parm priority  enum  "Priority"          -enumtype ePrioSched  \
-                                             -displaylong yes      \
-                                             -defval bottom
-    parm on_lock   enum  "Exec On Lock?"     -enumtype eyesno      \
-                                             -defval YES
-    parm once      enum  "Once Only?"        -enumtype eyesno      \
-                                             -defval   NO
+    form {
+        rcc "Owner:" -for owner
+        text owner -context yes
+
+        rcc "Groups:" -for glist
+        civlist glist
+
+        rcc "Amount:" -for x1
+        text x1
+        label "$/week"
+
+        rcc "Once Only?" -for once
+        yesno once -defvalue 0
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock -defvalue 1
+
+        rcc "Priority:" -for priority
+        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+    }
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare glist    -toupper   -required -listof civgroup
     prepare x1                  -required -type   money
-    prepare priority -tolower             -type   ePrioSched
-    prepare on_lock                       -type   boolean
     prepare once                          -type   boolean
+    prepare on_lock                       -type   boolean
+    prepare priority -tolower             -type   ePrioSched
  
     returnOnError -final
 
@@ -253,25 +207,36 @@ order define TACTIC:FUNDENI:CREATE {
 
 order define TACTIC:FUNDENI:UPDATE {
     title "Update Tactic: Fund ENI Services"
-    options \
-        -sendstates {PREP PAUSED}                  \
-        -refreshcmd {tactic::FUNDENI RefreshUPDATE}
+    options -sendstates {PREP PAUSED}
 
-    parm tactic_id key  "Tactic ID"       -context yes                 \
-                                          -table   gui_tactics_FUNDENI \
-                                          -keys    tactic_id
-    parm owner     disp  "Owner"
-    parm glist     glist "Groups"  
-    parm x1        text  "Amount, $/week"
-    parm on_lock   enum  "Exec On Lock?"  -enumtype eyesno 
-    parm once      enum  "Once Only?"     -enumtype eyesno
+    form {
+        rcc "Tactic ID" -for tactic_id
+        key tactic_id -context yes -table tactics_FUNDENI -keys tactic_id \
+            -loadcmd {orderdialog keyload tactic_id *}
+
+        rcc "Owner" -for owner
+        disp owner
+
+        rcc "Groups:" -for glist
+        civlist glist
+
+        rcc "Amount:" -for x1
+        text x1
+        label "$/week"
+
+        rcc "Once Only?" -for once
+        yesno once
+
+        rcc "Exec On Lock?" -for on_lock
+        yesno on_lock
+    }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
     prepare glist      -toupper  -listof civgroup
     prepare x1                   -type   money
-    prepare on_lock              -type   boolean
     prepare once                 -type   boolean
+    prepare on_lock              -type   boolean
 
     returnOnError
 
@@ -283,5 +248,6 @@ order define TACTIC:FUNDENI:UPDATE {
     # NEXT, modify the tactic
     setundo [tactic mutate update [array get parms]]
 }
+
 
 

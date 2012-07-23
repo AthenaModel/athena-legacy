@@ -205,7 +205,6 @@ text1        HOLD_FIRE
         ted order -reject TACTIC:DEFROE:UPDATE {}
     } -result {
         tactic_id {required value}
-        text1 {required value}
     }
 
     

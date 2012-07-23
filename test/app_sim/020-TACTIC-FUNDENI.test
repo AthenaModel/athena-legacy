@@ -46,6 +46,7 @@ namespace eval ::athena_test::tests:: {
         priority    bottom
         x1          2000.0
         glist       SHIA
+        once        NO
         on_lock     NO
     }
 
@@ -54,6 +55,7 @@ namespace eval ::athena_test::tests:: {
         priority    bottom
         x1          7000.0
         glist       {SHIA SUNN KURD}
+        once        NO
         on_lock     NO
     }
 
@@ -143,6 +145,8 @@ exec_ts
 exec_flag    0
 x1           7000.0
 glist        SHIA SUNN KURD
+once         0
+on_lock      0
     }
 
 
@@ -263,6 +267,8 @@ exec_ts
 exec_flag    0
 x1           5000.0
 glist        SHIA SUNN
+once         0
+on_lock      0
     }
 
     test FUNDENI:UPDATE-2.2 {Effects} -setup {
