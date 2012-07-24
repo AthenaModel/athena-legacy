@@ -2,6 +2,8 @@
 # FILE: econ.tcl
 #
 #   Athena Economics Model singleton
+#   This is an experimental econ model for integrating the 6x6 cell
+#   model. It will be THE econ model once it is stable and working
 #
 # PACKAGE:
 #   app_sim(n) -- athena_sim(1) implementation package
@@ -11,6 +13,7 @@
 #
 # AUTHOR:
 #    Will Duquette
+#    Dave Hanks
 #
 #-----------------------------------------------------------------------
 
@@ -39,6 +42,8 @@ snit::type econ {
     # This is the cellmodel(n) instance containing the CGE model.
 
     typecomponent cge
+
+    typecomponent sam
 
     #-------------------------------------------------------------------
     # Group: Non-Checkpointed Type Variables
@@ -74,17 +79,33 @@ snit::type econ {
     typemethod init {} {
         log normal econ "init"
 
-        # FIRST, create the CGE.
+        # FIRST, create the SAM
+        set sam [cellmodel sam \
+                     -epsilon 0.000001 \
+                     -maxiters 1       \
+                     -tracecmd [mytypemethod TraceCM]]
+
+        sam load \
+            [readfile [file join $::app_sim_shared::library SAMtoCGEshape.cm]]
+
+        require {[sam sane]} "The econ model's SAM is not sane."
+
+        set result [sam solve]
+
+        # NEXT, handle failures.
+        if {$result ne "ok"} {
+            log warning econ "Failed to calibrate"
+            error "Failed to calibrate economic model."
+        }
+
+        # NEXT, create the CGE.
         set cge [cellmodel cge \
                      -epsilon  0.000001 \
                      -maxiters 1000     \
-                     -tracecmd [mytypemethod TraceCGE]]
-        cge load [readfile [file join $::app_sim_shared::library eco3x3.cm]]
+                     -tracecmd [mytypemethod TraceCM]]
+        cge load [readfile [file join $::app_sim_shared::library eco6x6.cm]]
         
-        require {[cge sane]} "The econ model's CGE (eco3x3.cm) is not sane."
-
-        # NEXT, bind to set shape parameters during Prep
-        notifier bind ::parm <Update> ::econ [mytypemethod UpdateShape]
+        require {[cge sane]} "The econ model's CGE (eco6x6.cm) is not sane."
 
         # NEXT, register this type as a saveable
         scenario register ::econ
@@ -93,12 +114,12 @@ snit::type econ {
         log normal econ "init complete"
     }
 
-    # Type Method: TraceCGE
+    # Type Method: TraceCM
     #
-    # The cellmodel(n) -tracecmd for the <cge> component.  It simply
-    # logs its arguments.
+    # The cellmodel(n) -tracecmd for the cell model components.  It simply
+    # logs arguments.
 
-    typemethod TraceCGE {args} {
+    typemethod TraceCM {args} {
         if {[lindex $args 0] eq "converge"} {
             log detail econ "solve trace: $args"
         } else {
@@ -382,6 +403,29 @@ snit::type econ {
         cge dump $page
     }
 
+    # Type Method: sam
+    #
+    # Returns the cellmodel object for the SAM, for use by 
+    # browsers.
+
+    typemethod sam {{copy {0}}} {
+        # FIRST, create the SAM
+        if {$copy} {
+            set samcopy [cellmodel samcopy \
+                         -epsilon 0.000001 \
+                         -maxiters 1       \
+                         -tracecmd [mytypemethod TraceCM]]
+
+            samcopy load \
+                [readfile \
+                    [file join $::app_sim_shared::library SAMtoCGEshape.cm]]
+
+            return $samcopy
+        }
+
+        return $sam
+    }
+
     # Type Method: cge
     #
     # Returns the cellmodel object for the CGE, for use by 
@@ -409,7 +453,7 @@ snit::type econ {
 
     # mutate update parmdict
     #
-    # parmdict     A dictionary of group parms
+    # parmdict     A dictionary of order parms
     #
     #    n                Neighborhood ID
     #    pcf              Production capacity factor for n
@@ -439,6 +483,33 @@ snit::type econ {
         }
     }
 
+    # mutate cell parmdict
+    #
+    # parmdict   A dictionary of order parms
+    #
+    #   id       Cell ID in cellmodel(n) format (ie. BX.actors.actors)
+    #   val      The new value for the cellmodel to assume at that cell ID
+    #
+    # Updates the cell model given the parms, which are presumed to be valid
+
+    typemethod {mutate cell} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the old value, this is for undo
+            set oldval [dict get [sam get] $id]
+
+            # NEXT, update the cell model and notify that the cell has been
+            # updated
+            sam set [list $id $val]
+            notifier send ::econ <CellUpdate> $id $val
+
+            # NEXT, return the undo command
+            return [list econ mutate cell [list id $id val $oldval]]
+        }
+    }
+
+    typemethod Trace {sub evt args objs} {
+        puts "Trace: $sub $evt $args $objs"
+    }
     #-------------------------------------------------------------------
     # Group: saveable(i) interface
 
@@ -456,7 +527,7 @@ snit::type econ {
             set info(changed) 0
         }
 
-        return [list cge [cge get] startdict $startdict]
+        return [list sam [sam get] cge [cge get] startdict $startdict]
     }
 
     # Type Method: restore
@@ -472,6 +543,7 @@ snit::type econ {
     
     typemethod restore {checkpoint {option ""}} {
         # FIRST, restore the checkpoint data
+        sam set [dict get $checkpoint sam]
         cge set [dict get $checkpoint cge]
         set startdict [dict get $checkpoint startdict]
 
@@ -498,7 +570,6 @@ snit::type econ {
 # ECON:UPDATE
 #
 # Updates existing neighborhood economic inputs
-
 
 order define ECON:UPDATE {
     title "Update Neighborhood Economic Inputs"
@@ -573,4 +644,28 @@ order define ECON:UPDATE:MULTI {
     }
 
     setundo [join $undo \n]
+}
+
+# ECON:SAM:UPDATE 
+#
+# Updates a single cell in the Social Accounting Matrix (SAM)
+
+order define ECON:SAM:UPDATE {
+    title "Update SAM Cell Value"
+    options -sendstates {PREP} 
+
+    form {
+        rcc "Cell ID:" -for id
+        text id
+
+        rcc "Value:" -for val
+        text val
+    }
+} {
+    prepare id           -required
+    prepare val -toupper -required
+
+    returnOnError
+
+    setundo [econ mutate cell [array get parms]]
 }

@@ -2548,8 +2548,6 @@ tab "Demog/Nbhoods" {
 # Econ
 
 tab "Econ" {
-    <b>Simulation Mode only.</b><p>
-
     The subtabs of the Econ tab display various data related to the 
     Economics model.  The full set of subtabs is as follows:<p>
 
@@ -2557,35 +2555,56 @@ tab "Econ" {
 }
 
 tab "Econ/Overview" {
-    <b>Simulation Mode only.</b><p>
 
     This tab displays an overview of the economy in spreadsheet form.
     There are four major areas:<p>
 
     <ul>
-    <li> <b><<cref /tab/econ/overview/sam     "Current Economy">></b>
-    <li> <b><<cref /tab/econ/overview/current "Current Inputs">></b>
-    <li> <b><<cref /tab/econ/overview/outputs "Other Outputs">></b>
+    <li> <b><<cref /tab/econ/overview/sam     "Social Accounting Matrix">></b>
+    <li> <b><<cref /tab/econ/overview/cge     "Current Economy">></b>
     <li> <b><<cref /tab/econ/overview/shape   "Shape Inputs">></b>
+    <li> <b><<cref /tab/econ/overview/outputs "Other Outputs">></b>
     </ul><p>
 }
 
-page /tab/econ/overview sam "Econ Overview: Current Economy" {
+page /tab/econ/overview sam "Econ Overview: Social Accouting Matrix" {
     <<title>>
 
     <<image econ_sam>><p>
 
-    This area shows the current state of the
-    economy, sector by sector.  Quantities in dollars are shown with a
-    green background, and quantities in units of production are shown
-    with an orange background.  Select "$" or "Qty" at the upper left
-    to show the social accounting matrix as one or the other.  In
-    addition, this area shows the current prices and quantities
-    produced for each sector, along with latent demand and idle
-    capacity.<p>
+    This area shows the Social Accounting Matrix (SAM), sector by sector,
+    and related inputs.  The values in the cells of the SAM Inputs matrix
+    reflect the flows of money between the various sectors. Green cells
+    are editable and grey cells are computed from the green cells. Base
+    revenues and base expenditures are computed from the rows and columns of 
+    the matrix respectively and then, given base prices in the goods, 
+    black and population sectors, base quantities (or more precisely, base 
+    demand) is computed.
+    For the goods sector, a goods basket (goodsBKT) is the unit of measurement.
+    A goods basket is simply a notional set of goods that the population
+    buys and it's associated price (defaulted to 1 USD per basket).
+    For the black sector, a metric ton (tonne) is the unit of measurement
+    and the demand is simply the revenue divided by the price per tonne.
+    For the population sector, base demand is labor output of the workforce
+    in work-years given the average annual income of a typical person in
+    the area of interest.<p>
+
+    The Other Input section allows the user to supply, in order, remittances
+    and foreign aid to the economy, the net revenues (profit) in the black
+    market sector, the feedstock price in the black market (for example, the
+    price of the poppies from which opium is manufactured) and the feedstock
+    per unit of black market product (for example, if it takes 1.05 tons of
+    poppies to make 1 ton of opium, then this value would be 1.05).<p>
+
+    The SAM outputs section contains two values that already are in the SAM
+    but have a special meaning to the economy. The Foreign Aid to Actors is
+    the same as the BX.actors.world cell in the SAM and Foreign Aid to 
+    Region is the same as the BX.region.world cell. These values are used
+    in the solution of the CGE. Refer to the CGE documentation for how they
+    are used.<p>
 }
 
-page /tab/econ/overview current "Econ Overview: Current Inputs" {
+page /tab/econ/overview cge "Econ Overview: Current Economy" {
     <<title>>
 
     <<image econ_current>><p>
@@ -2598,6 +2617,12 @@ page /tab/econ/overview current "Econ Overview: Current Inputs" {
     inputs.<p>
 }
 
+page /tab/econ/overview shape "Econ Overview: Shape Inputs" {
+    <<title>>
+
+    This section is TBD.
+}
+
 page /tab/econ/overview outputs "Econ Overview: Other Outputs" {
     <<title>>
 
@@ -2606,16 +2631,6 @@ page /tab/econ/overview outputs "Econ Overview: Other Outputs" {
     This area shows additional outputs,
     including the Gross Domestic Product (GDP), the unemployment rate,
     and the number of unemployed workers in the playbox.<p>
-}
-
-page /tab/econ/overview shape "Econ Overview: Shape Inputs" {
-    <<title>>
-
-    <<image econ_shape>><p>
-
-    This area shows the "shape" inputs used to
-    initially calibrate the economy.  See the <i>Athena User's
-    Guide</i> for more information on calibrating the economy.<p>
 }
 
 tab "Econ/Capacity" {

@@ -1,0 +1,250 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    SAMtoCGEshape.cm, version d
+# 
+# AUTHOR:
+#    Bob Chamberlain
+#    Dave Hanks
+#
+# DESCRIPTION:
+#    This cell model computes shape parameters for the six-sector CGE 
+#    Athena Economics Model from SAM input. It is intended to be run before 
+#    eco6x6.cm, either stand-alone or from within Athena, perhaps as part
+#    of the eco6x6.cm model's null page.
+#
+#    There is also a cell model for calibration of actor parameters for 
+#    use in actor management.
+#
+# INPUT: SAM data, prices, RFN, and NR.black for a base case.
+#
+# OUTPUT: CGE shape parameters and sector-by-sector demands,
+#         sector revenues & expenses, production & export quantities, and
+#         FAA & FAR for the base case.
+#
+# PAGES:
+#    The model consists of a single page. 
+#
+# HISTORY:
+#    Version d: Simplified the SAM definition.
+#               BX.ab in the SAM does not include BNR.b.
+#                X.ab in the CGE does include NR.b.
+#               BX.aw in the SAM does not include graft*FAR.
+#                X.aw in the CGE does include graft*FAR.
+#               BX.rw in the SAM has all of FAR.
+#                X.rw in the CGE has lost graft*FAR.
+#               BX.pw in the SAM does not include BRFN.
+#                X.pw in the CGE does include RFN.
+#               BX.wb in the SAM does not include the cost of feedstocks:
+#                   PF.wb * AF.wb * BQD.b
+#                X.wb in the CGE does include the cost of feedstocks:
+#                   PF.wb * AF.wb * QD.b
+#
+#    Version c: Fixed an equation that caused the cell model to act
+#               cyclically. Updated SAM inputs from the latest 6 sector
+#               tableau. 
+#
+#    Version b: Model is sane (passes cmtool "check"). Initial SAM values
+#               are included, cleaned up the syntax and added price of
+#               black market feedstock and feedstock required from world
+#
+#    Version a: Initial version, based on the calibration equations in Section 
+#               4.5.i.6 (where i = the sectors of the model) of the CGE 
+#               derivation document, Athena's Computable General 
+#               Equilibrium Model by Robert G. Chamberlain and 
+#               William H. Duquette.
+#
+#=======================================================================
+#
+# The required input data is:
+#
+#   BX.i.j     The payment in $/year from sector j to sector i. The indices
+#                i and j take the values from the set (black goods pop actors 
+#                region world). Strictly speaking, this and only this is 
+#                the social accounting matrix (SAM).
+#
+#   BP.j       The price, in $/unit of the product of sector j, where j takes
+#                values only for the sectors with products: (black, goods, 
+#                pop).
+#
+#   BRFN       Payments from outside the region directly to the populace, 
+#                consisting of remittances, some of the foreign aid, and 
+#                all of the NGO aid, in $/year. 
+#
+#   BNR.black  Net revenue for the black sector, in $/year.
+#
+#   AF.i.j     Amount of feedstock needed per unit of product. In this SAM
+#              this is used only for i=world and j=black
+#
+#-----------------------------------------------------------------------
+#
+# Indices
+
+index i   {goods black pop actors region world} ;# all receiving sectors
+index j   {goods black pop actors region world} ;# all paying sectors
+index il  {goods black pop}                     ;# sectors in the local 
+                                                ;# economy that have product
+
+# All BX.i.j values are from a SAM
+let BX.goods.goods  = 8.13e8
+let BX.goods.black  = 2.0e7
+let BX.goods.pop    = 2.8e9
+let BX.goods.actors = 2.2e9
+let BX.goods.region = 2.5e9
+let BX.goods.world  = 1.13e8
+
+let BX.black.goods = 0.0
+let BX.black.black = 0.0
+let BX.black.pop   = 3.0e6
+let BX.black.actors = 1.4e9
+let BX.black.region = 9.06e8
+let BX.black.world  = 23.800e9
+
+let BX.pop.goods    = 4.4e9
+let BX.pop.black    = 2.2e7
+let BX.pop.pop      = 3.6e7
+let BX.pop.actors   = 1.0e8
+let BX.pop.region   = 4.53e8
+let BX.pop.world    = 7.0e7
+
+let BX.actors.goods = 8.45e8
+let BX.actors.black = 2.611e9
+let BX.actors.pop   = 7.62e8
+let BX.actors.actors = 6.02e8
+let BX.actors.region = 1.2e9
+let BX.actors.world  = 3.0e6
+
+let BX.region.goods  = 1.123e9
+let BX.region.black  = 2.611e9
+let BX.region.pop    = 7.62e8
+let BX.region.actors = 1.205e9
+let BX.region.region = 8.0e8
+let BX.region.world  = 1.5e9
+
+let BX.world.goods   = 1.267e9
+let BX.world.black   = 2.611e9
+let BX.world.pop     = 1.524e9
+let BX.world.actors  = 2.409e9
+let BX.world.region  = 9.6e8
+let BX.world.world   = 0.0
+
+
+let BP.black = 500000  ;# Base price in the black sector $/ton
+let BP.pop   = 400     ;# Base price in the pop sector $/work-year
+let BP.goods = 1       ;# Base price in the goods sector $/goodsBKT
+let BP.actors = 0
+let BP.region = 0
+let BP.world  = 0
+
+let BRFN = 5.0e8            
+let RFN = {[BRFN]}
+let BNR.black = 18.234e9
+
+let PF.world.black = 62.0e4
+let AF.world.black = 1.05
+
+# Macro definitions
+
+define t.i.j {i j} {[BX.$i.$j] / [BREV.$j]}
+define k.j {j} {1.0 - ([t.actors.$j] + [t.region.$j] + [t.world.$j])}
+define f.i.j {i j} {[BX.$i.$j] / ([k.$j] * [BREV.$j])}
+define A.i.j {i j} {[BX.$i.$j] / ([BP.$i] * [BQD.$j])}
+
+
+#
+#-----------------------------------------------------------------------
+#
+# The sector revenues and expenses are computed by:
+
+foreach i {goods black pop actors region world} {
+    let BREV.$i = {<:sum j {[BX.$i.$j]}:>}   ;# Sector revenues sum the row
+}
+
+# Base case SAM cell definitions do not include transfer of cash flows of the 
+# black sector's net revenue or the graft portion of FAR to the actors sector.
+
+foreach j {goods black pop actors region world} {
+    let BEXP.$j = {<:sum i {[BX.$i.$j]}:>} ;# Sector expenditures sum the column
+}
+
+# Sector-by-sector demands for all i and j are given by:
+foreach i {goods black pop} {
+    foreach j {goods black pop actors region world} {
+        let BQD.$i.$j = {[BX.$i.$j]/[BP.$i]}
+    }
+}
+# Exports are obtained by:
+
+let EXPORTS.black = {[BX.black.world] / [BP.black]}
+let EXPORTS.goods = {[BX.goods.world] / [BP.goods]}
+let EXPORTS.pop   = {[BX.pop.world]   / [BP.pop]}
+
+# Production quantities for all producers i are a simple sum of the 
+# sector-by-sector demands:
+
+foreach i {goods black pop} {
+    let BQD.$i = {<:sum j {[BQD.$i.$j]}:>}
+}
+
+# Finally, the shape parameter equations from the derivation document are:
+
+# For the goods sector
+
+let t.actors.goods = {<:t.i.j actors goods:>}
+let t.region.goods = {<:t.i.j region goods:>}
+let t.world.goods  = {<:t.i.j world goods:>}
+let k.goods = {<:k.j goods:>}
+
+let f.goods.goods = {<:f.i.j goods goods:>}
+let f.black.goods = 0.0  ;# bullet proofing: f.black.goods is not defined
+let f.pop.goods   = {<:f.i.j pop goods:>}
+
+# For the black sector
+
+let A.goods.black = {<:A.i.j goods black:>}
+let A.black.black = {<:A.i.j black black:>}
+let A.pop.black   = {<:A.i.j pop black:>}
+
+let t.actors.black = {[BX.actors.black] / [BREV.black]}
+
+let t.region.black = {<:t.i.j region black:>}
+
+let t.world.black = {[BX.world.black] / [BREV.black]}
+
+# For the pop sector
+
+let f.pop.black = 0.0 ;# need to have a value for display purposes
+let f.pop.world = 0.0 ;# need to have a value for display purposes
+
+let k.pop = {<:k.j pop:>}
+let BATI.pop = {[RFN] + [k.pop] * [BP.pop] * [BQD.pop]}
+
+foreach i {goods black pop} {
+    let f.$i.pop = {[BX.$i.pop] / [BATI.pop]}
+}
+
+foreach i {actors region world} {
+    let t.$i.pop = {[BX.$i.pop] / ([BREV.pop] - [RFN])}
+}
+
+# For the actors sector
+
+foreach i {goods black pop actors region world} {
+    let f.$i.actors = {[BX.$i.actors] / [BREV.actors]}
+}
+
+# For the region sector
+
+foreach i {goods black pop actors region world} {
+    let f.$i.region = {[BX.$i.region] / [BREV.region]}
+}
+
+# For the world sector
+# Foreign aid to actors and to the region are separate SAM cells:
+
+let FAA = {[BX.actors.world]}
+let FAR = {[BX.region.world]}
+
+# Everything that was computed is of interest to the CGE except the 
+# intermediate variable BATI.pop .
+

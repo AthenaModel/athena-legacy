@@ -75,7 +75,7 @@ snit::type engine {
         service start        ;# Populates service tables.
         nbstat start         ;# Computes initial security and coverage
         control_model start  ;# Computes initial support and influence
-        econ start           ;# Initializes the econ CGE.
+        econ start           ;# Initializes the econ model.
 
         # NEXT, Advance time to 0.  What we get here is a pseudo-tick,
         # in which we execute the on-lock strategy and provide transient

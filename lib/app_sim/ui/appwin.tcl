@@ -346,16 +346,23 @@ snit::widget appwin {
 
         econt {
             label   "Econ"
-            vistype simulation
+            vistype *
             parent  ""
             script  ""
         }
 
-        econov {
-            vistype simulation
-            label   "Overview"
+        econsam {
+            vistype scenario
+            label   "SAM"
             parent  "econt"
-            script  { econsheet %W }
+            script  { samsheet %W }
+        }
+
+        econcge {
+            vistype simulation
+            label   "CGE"
+            parent  "econt"
+            script  { cgesheet %W }
         }
 
         econcap {
