@@ -2990,71 +2990,6 @@ tab "Firings" {
 # Orders
 
 tab "Orders" {
-    <b>This tab and its subtabs can be made visible by selecting the
-    <<menu "View/Order History">> menu item.</b><p>
-
-    The subtabs of this tab are related to the <<term order>>s sent or 
-    scheduled by the user.  The full set of subtabs are as follows:
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Orders/Scheduled" {
-    <b>This tab can be made visible by selecting the
-    <<menu "View/Order History">> menu item.</b><p>
-
-
-    This tab shows the <<term order>>s that have been scheduled 
-    and are waiting to be executed.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "ID">>The ID of the scheduled order.<</topic>>
-
-    <<topic "Day">>The simulation <<term day>> on which the order will
-    execute.
-    <</topic>>
-
-    <<topic "Zulu">>The <<term zulu>> at which the order will execute.
-    <</topic>>
-
-    <<topic "Narrative">>A human-readable description of the order.
-    Often this is just the order's title-string; in some cases, it
-    will describe the order's action in terms of its significant
-    parameters.
-    <</topic>>
-
-    <<topic "Order">>The symbolic name of the order.  Symbolic names
-    are shown on each <<cref /order "order's help page">>.
-    <</topic>>
-
-    <<topic "Parameters">>A list of the parameter names and values
-    entered by the user when the order was scheduled.  Symbolic
-    parameter names are shown on each <<cref /order "order's help page">>.
-    <</topic>>
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_trash]>>
-    If a single order is selected, cancels it
-    using the <<cref /order/order/cancel>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Orders/Sent" {
     <b>This tab can be made visible by selecting the
     <<menu "View/Order History">> menu item.</b><p>
 
@@ -3066,7 +3001,7 @@ tab "Orders/Sent" {
 
     <<topic "ID">>The ID of the sent order.<</topic>>
 
-    <<topic "Day">>The simulation <<term day>> on which the order was sent.
+    <<topic "Week">>The simulation <<term week>> at which the order was sent.
     <</topic>>
 
     <<topic "Zulu">>The <<term zulu>> at which the order was sent.

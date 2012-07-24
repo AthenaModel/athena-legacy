@@ -96,15 +96,7 @@ page / release "Release Notes" {
     overview of the changes.<p>
 
     <ul>
-    <li> Athena is now an MS Windows application.
-    <li> Added the notion of <<term actor>>s and their 
-         strategies.
-    <li> Actors have <<term support>> and <<term influence>> 
-         in neighborhoods, and can <<term control>> neighborhoods.
-    <li> Added <<term bsystem>>s.
-    <li> Added Essential Non-Infrastructure (ENI) services.
-    <li> Added the Detail Browser as a new way of browsing Athena
-         inputs and outputs.
+    <li> TBD
     </ul>
 }
 

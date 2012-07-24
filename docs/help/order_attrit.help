@@ -17,13 +17,8 @@ page /order attrit "Attrition Orders" {
     <<title>>
 
     Athena assesses attrition due to conflict between groups
-    periodically; the period is nominally one week.  In addition,
-    the analyst can cause magic attrition to unit personnel and to the 
-    civilian population at any time.<p>
-
-    <b>Note:</b> Magic attrition takes effect immediately; however, the
-    attitude effects resulting from magic attrition are assessed as
-    part of the regular weekly attrition assessment.<p>
+    each week; in addition, the analyst can cause magic attrition using these
+    orders.<p>
 
     <<childlinks>>
 }
@@ -60,11 +55,8 @@ macro ATTRIT.general {} {
     responsible groups.<p>
 
     <b>Use in [cref /object/tactic/executive]:</b>
-    This order can be scheduled for execution by the EXECUTIVE tactic
-    using the [cref /command/sched] executive command.  It cannot be
-    sent immediately by the EXECUTIVE tactic using the
+    This order can be sent by the EXECUTIVE tactic using the
     [cref /command/send] executive command.
-    
 }
 
 

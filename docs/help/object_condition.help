@@ -182,7 +182,7 @@ object condition_cash {
         The name of the actor whose cash reserve is being compared.
     } -tags {create update}
 
-    attribute op1 "Comparison" {
+    attribute op1 "Is" {
         The kind of comparison being done: a value from
         the following table:<p>
 
@@ -345,7 +345,7 @@ object condition_influence {
         might have influence.
     } -tags {create update}
 
-    attribute op1 "Comparison" {
+    attribute op1 "Is" {
         The kind of comparison being done: a value from
         the following table:<p>
 
@@ -428,7 +428,7 @@ object condition_mood {
         being compared.
     } -tags {create update}
 
-    attribute op1 "Comparison" {
+    attribute op1 "Is" {
         The kind of comparison being done: a value from
         the following table:<p>
 
@@ -476,7 +476,7 @@ object condition_nbcoop {
         is being compared.
     } -tags {create update}
 
-    attribute op1 "Comparison" {
+    attribute op1 "Is" {
         The kind of comparison being done: a value from
         the following table:<p>
 
@@ -518,7 +518,7 @@ object condition_nbmood {
         being compared.
     } -tags {create update}
 
-    attribute op1 "Comparison" {
+    attribute op1 "Is" {
         The kind of comparison being done: a value from
         the following table:<p>
 
@@ -570,7 +570,7 @@ object condition_troops {
         <<term orggroup>> whose troop numbers are being compared.
     } -tags {create update}
 
-    attribute op1 "Comparison" {
+    attribute op1 "Is" {
         The kind of comparison being done: a value from
         the following table:<p>
 

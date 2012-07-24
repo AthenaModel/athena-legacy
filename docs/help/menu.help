@@ -164,7 +164,7 @@ menu "Edit" {
 
 menuitem "Edit/Undo" {
     Undoes the most recent order, if possible.  The 
-    <<tab Orders/Sent>> shows the orders that can be
+    <<tab Orders>> shows the orders that can be
     undone (among other things).<p>
 
     The undo stack is cleared when the scenario is saved, and when 
@@ -274,14 +274,6 @@ menu "Orders" {
     information on Athena's orders.<p>
 }
 
-
-#=======================================================================
-# Reports Menu
-
-menu "Reports" {
-    This menu provides access to Athena's user-requested reports; for
-    the complete list, see the <<cref /order/report>>.<p>
-}
 
 #=======================================================================
 # Help Menu

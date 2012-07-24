@@ -215,8 +215,7 @@ order MAD:HREL:ADJUST "Magic Adjust Horizontal Relationship Baseline" {
     baseline by the specified amount, clamping the curve's value to
     the range 0.0, 100.0 if need be.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 
@@ -246,15 +245,13 @@ order MAD:HREL:INPUT "Magic Horizontal Relationship Input" {
     <</parm>>
     <</parmlist>>
 
-    <b>This order must be scheduled in advance.</b>
     Enters a magic horizontal relationship input into URAM.   The input will
     be persistent or transient, and will the specified curve's value 
     by <i>mag</i> nominal points at the next time advance.
     The input will be attributed to the
     specified MAD.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 
@@ -300,8 +297,7 @@ order MAD:VREL:ADJUST "Magic Adjust Vertical Relationship Baseline" {
     by the specified amount, clamping the curve's value to the range 0.0,
     100.0 if need be.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 
@@ -331,15 +327,13 @@ order MAD:VREL:INPUT "Magic Vertical Relationship Input" {
     <</parm>>
     <</parmlist>>
 
-    <b>This order must be scheduled in advance.</b>
     Enters a magic vertical relationship input into URAM.   The input will
     be persistent or transient, and will the specified curve's value 
     by <i>mag</i> nominal points at the next time advance.
     The input will be attributed to the
     specified MAD.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 
@@ -383,8 +377,7 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
     baseline by the specified amount, clamping the curve's value to 
     the range -100.0, 100.0 if need be.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 
@@ -415,15 +408,13 @@ order MAD:SAT:INPUT "Magic Satisfaction Input" {
 
     <</parmlist>>
 
-    <b>This order must be scheduled in advance.</b>
     Enters a magic satisfaction input into URAM.  The input will
     be persistent or transient, and will the specified curve's value 
     by <i>mag</i> nominal points at the next time advance.
     The input will be attributed to the
     specified MAD.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 
@@ -468,8 +459,7 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
     by the specified amount, clamping the curve's value to the range 0.0,
     100.0 if need be.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 
@@ -499,15 +489,13 @@ order MAD:COOP:INPUT "Magic Cooperation Input" {
     <</parm>>
     <</parmlist>>
 
-    <b>This order must be scheduled in advance.</b>
     Enters a magic cooperation input into URAM.   The input will
     be persistent or transient, and will the specified curve's value 
     by <i>mag</i> nominal points at the next time advance.
     The input will be attributed to the
     specified MAD.<p>
 
-    This order can be <<cref /command/send sent>>
-    or <<cref /command/sched scheduled>> by the
+    This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
 

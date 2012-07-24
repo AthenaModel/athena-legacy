@@ -254,7 +254,7 @@ command "errtrace" {
 command "export" {
     <<syntax <i>scriptFile</i> >>
 
-    Exports the orders shown on <<tab orders/sent>> to a script file
+    Exports the orders shown on <<tab orders>> to a script file
     that can be executed to reproduce the current scenario at the
     current simulation time.  Execute the script in a new, empty 
     scenario using the <<command call>> command.<p>
@@ -301,7 +301,7 @@ command "last_mad" {
     Driver (MAD).  A script can create a MAD by 
     <<cref /command/send>>ing the <<cref /order/mad/create>> order,
     and then retrieve the ID of the new MAD using this command, for use
-    when sending or scheduling other <<cref /order/mad>> orders.
+    when sending other <<cref /order/mad>> orders.
 }
 
 #=======================================================================
@@ -696,22 +696,6 @@ command "save" {
     results if the scenario is <<cref /command/lock>>ed,
     using the given <i>filename</i>.  The saved scenario 
     can be loaded again using the <<cref /command/load>> command.<p>
-}
-
-#=======================================================================
-# sched command
-
-command "sched" {
-    <<syntax <i>t order</i> ?<i>option value...</i>? >>
-
-    Schedules the named <i>order</i> to be executed at time <i>t</i>,
-    given the set of options and values.  The <<term timespec>>
-    <i>t</i> must be no earlier than <b>NOW+1</b>.
-    The option names are simply the parameter
-    names as documented on the relevant <<cref /order>> page,
-    <b>prefixed with a hyphen (-)</b>.  The order parameters are
-    validated at the time the order is scheduled; if any are invalid,
-    the order is rejected.
 }
 
 #=======================================================================

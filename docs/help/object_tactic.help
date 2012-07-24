@@ -409,10 +409,7 @@ object tactic_demob {
     } -tags {create update}
 
     attribute text1 "Mode" {
-        The demobilization mode, as indicated by the following
-        enumeration:<p>
-
-        <<enumdoc ::projectlib::edemobmode>>
+        The demobilization mode, "SOME" or "ALL".<p>
 
         If "SOME", the tactic demobilizes a specific number of personnel, as
         given by the <i>int1</i> parameter.  If there are insufficient
@@ -483,9 +480,7 @@ object tactic_deploy {
     } -tags {create update}
 
     attribute text1 "Mode" {
-        The deployment mode, as indicated by the following enumeration:<p>
-
-        <<enumdoc ::projectlib::edeploymode>>
+        The deployment mode, "SOME" or "ALL".<p>
 
         If "SOME", the tactic deploys a specific number of personnel, as
         given by the <i>int1</i> parameter.  If there are insufficient

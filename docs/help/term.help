@@ -317,28 +317,6 @@ term damrules "DAM Rules" {
     defined in the Athena Rules document, delivered with the software.
 }
 
-term day "day" {
-    Athena measures simulation time in integer days; each day
-    represents one day of simulated calendar time.<p>
-
-    Athena does not track any time interval shorter than one day;
-    however, it is often convenient to speak of the sequence of
-    events during a simulated day in terms of <<term morning>>,
-    <<term noon>>, and <<term evening>>:<p>
-
-    Time can be thought to advance at midnight.  After the time
-    advance, in the "morning", Athena executes all scheduled orders,
-    and staffs <<term activity "activities">> from the available
-    personnel.  At "noon", if Athena enters the <b>PAUSED</b> state,
-    the user has the opportunity to send <<cref /order>>.  In the
-    "evening", the current state of affairs is assessed: 
-    <<term security>> and <<term coverage>> are computed, 
-    <<term dam>> rules fire, and so forth.  Then, at midnight,
-    time advances, and the cycle continues.<p>
-
-    See also <<term tick>>.
-}
-
 #-----------------------------------------------------------------------
 
 term demsit "demographic situation" {
@@ -420,14 +398,6 @@ term ensit "environmental situation" {
     Environmental situations can be created and positioned using the 
     controls on the <<tab Map>>.  
 }
-
-#-----------------------------------------------------------------------
-
-term evening "evening" {
-    The end of a simulated <<term day>>, when the current state of affairs 
-    is assessed.
-}
-
 
 
 #-----------------------------------------------------------------------
@@ -667,25 +637,9 @@ term mood "mood" {
     all groups in the neighborhood with things in general.
 }
 
-#-------------------------------------------------------------------
-
-term morning "morning" {
-    The beginning of a simulated <<term day>>, when scheduled orders are
-    executed and <<term activity "activities">> are staffed.  
-}
-
-
 #-----------------------------------------------------------------------
 
 alias /term nbhood "neighborhood" /object/nbhood
-
-#-------------------------------------------------------------------
-
-term noon "noon" {
-    The middle of a simulated <<term day>>, when (if the simulation enters
-    the <b>PAUSED</b> state) the user has the opportunity to enter
-    <<cref /order>>.
-}
 
 #-----------------------------------------------------------------------
 
@@ -697,12 +651,7 @@ term order "order" {
     of methods; such orders can usually be 
     <<menu Edit/Undo undone>>.  The complete history of orders
     sent interactively to Athena is shown on the 
-    <<tab Orders/Sent>>.<p>
-
-    In addition, orders can be scheduled in advance.  Scheduled orders are
-    execute as time advances, and consequently cannot be undone.  The
-    full set of orders that are waiting for execution is shown on the 
-    <<tab Orders/Scheduled>>.
+    <<tab Orders>>.<p>
 }
 
 
@@ -1007,19 +956,26 @@ alias /term tactic "tactic" /object/tactic
 #-----------------------------------------------------------------------
 
 term tick "tick" {
-    Athena advances time <<term day>> by day; the processing done
-    for each day as the simulation runs is referred to as happening at or 
+    Athena advances time <<term week>> by week; the processing done
+    for each week as the simulation runs is referred to as happening at or 
     on the "tick".<p>
 
-    Some processing, such as computing attrition, happens every so
-    many times (typically seven days, or one week); this weekly
-    interval is sometimes referred to as the "tock", e.g., "attrition
-    is assessed every attrition tock".<p>
+    Processing that occurs every so many ticks is said to happen on the
+    "tock"; in earlier versions of Athena, for example, the tick size was one
+    day and the economics model was updated once a week.  Thus, it was said
+    that the economics model was updated every economics tock, which was every
+    seven ticks.<p>
+
+    In Athena 4, everything that happens happens on the tick.<p>
 }
 
 #-----------------------------------------------------------------------
 
 term timespec "time specification string" {
+    TBD: This time spec syntax is not terribly helpful now that 
+    Athena advances time <<term week>> by week.  This needs to be
+    looked at.<p>
+
     A time specification string identifies a particular simulation
     time.  It has the form "<i>baseTime</i> +/- <i>offset</i>", where
     the offset is some number of days and the base time has one of
@@ -1053,9 +1009,6 @@ term timespec "time specification string" {
 term tock "tock" {
     See <<term tick>>.
 }
-
-#-----------------------------------------------------------------------
-
 
 #-----------------------------------------------------------------------
 
@@ -1153,6 +1106,13 @@ term volatility "volatility" {
 
     Volatility is a major component of a <<term group>>'s 
     <<term security>>.
+}
+
+#-----------------------------------------------------------------------
+
+term week "week" {
+    The basic unit of time in Athena is one week.
+    See <<term tick>>.
 }
 
 #-----------------------------------------------------------------------
