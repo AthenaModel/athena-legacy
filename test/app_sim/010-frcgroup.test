@@ -56,6 +56,7 @@ rel_entity      JOE
 gtype           FRC
 a               JOE
 forcetype       REGULAR
+training        PROFICIENT
 base_personnel  5000
 attack_cost     0.0
 uniformed       1
@@ -81,6 +82,7 @@ rel_entity
 gtype           FRC
 a               
 forcetype       REGULAR
+training        PROFICIENT
 base_personnel  5000
 attack_cost     0.0
 uniformed       1
@@ -154,6 +156,7 @@ rel_entity      JOE
 gtype           FRC
 a               JOE
 forcetype       REGULAR
+training        PROFICIENT
 base_personnel  5000
 attack_cost     0.0
 uniformed       1
@@ -245,6 +248,7 @@ local           0
             color        "#ff0000"
             shape        NEUTRAL
             forcetype    POLICE
+            training     NONE
             demeanor     AGGRESSIVE
             cost         10.0
             attack_cost  20.0
@@ -267,6 +271,7 @@ rel_entity      BOB
 gtype           FRC
 a               BOB
 forcetype       POLICE
+training        NONE
 base_personnel  5000
 attack_cost     20.0
 uniformed       0
@@ -300,6 +305,7 @@ local           1
             a            ""
             color        ""
             forcetype    ""
+            training     ""
             demeanor     ""
             cost         ""
             attack_cost  ""
@@ -327,6 +333,7 @@ local           1
             a            ""
             color        ""
             forcetype    ""
+            training     ""
             demeanor     ""
             cost         ""
             attack_cost  ""
@@ -494,9 +501,4 @@ local           1
 }
 
 namespace delete ::athena_test::tests::
-
-
-
-
-
 

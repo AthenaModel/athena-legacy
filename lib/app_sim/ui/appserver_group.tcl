@@ -215,6 +215,7 @@ appserver module GROUPS {
                 SELECT longlink     AS "Group",
                        a            AS "Owner",
                        forcetype    AS "Force Type",
+                       training     AS "Training Level",
                        demeanor     AS "Demeanor",
                        personnel    AS "Personnel",
                        cost         AS "Cost, $/person/week",
@@ -643,6 +644,42 @@ appserver module GROUPS {
             "#defense"    "Defense Status"
             "#sigevents"  "Significant Events"
         }
+
+        # General information
+        ht putln "$data(longname) ($g) is a"
+
+        if {$data(uniformed)} {
+            ht put " uniformed "
+        } else {
+            ht put " non-uniformed "
+        }
+
+        ht putln "force group of type"
+        ht putln "$data(forcetype) belonging to actor "
+        ht link /actor/$data(a) $data(a)
+        ht put ".  It is "
+
+        if {!$data(local)} {
+            ht put "not"
+        }
+        ht put " local to the playbox."
+
+        ht putln "It has a training level of $data(training) and a"
+        ht putln "demeanor of $data(demeanor)."
+
+        ht putln "It has a deployment cost of [moneyfmt $data(cost)]"
+        ht putln "$/week/person, and may conduct attacks on"
+
+        if {$data(uniformed)} {
+            ht put " non-uniformed "
+        } else {
+            ht put " uniformed "
+        }
+
+        ht putln "personnel at a cost of [moneyfmt $data(attack_cost)]"
+        ht putln "$/attack."
+
+        ht para
 
         # Deployment; anchor is "deployment".
         GroupDeployment:html $g

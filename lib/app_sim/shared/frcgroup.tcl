@@ -169,6 +169,7 @@ snit::type frcgroup {
     #    color          The group's color
     #    shape          The group's unit shape (eunitshape(n))
     #    forcetype      The group's eforcetype
+    #    training       The group's training level (etraining(n))
     #    base_personnel The group's base personnel
     #    demeanor       The group's demeanor (edemeanor(n))
     #    cost           The group's maintenance cost, $/person/week
@@ -183,42 +184,45 @@ snit::type frcgroup {
     # frcgroups tables.
 
     typemethod {mutate create} {parmdict} {
-        dict with parmdict {
-            # FIRST, get the symbol
-            set symbol $symbols($forcetype)
+        # FIRST, bring the parameters into scope.
+        dict with parmdict {}
 
-            # NEXT, Put the group in the database
-            rdb eval {
-                INSERT INTO 
-                groups(g, longname, color, shape, symbol, demeanor, 
-                       cost, rel_entity, gtype)
-                VALUES($g,
-                       $longname,
-                       $color,
-                       $shape,
-                       $symbol,
-                       $demeanor,
-                       $cost,
-                       nullif($a,''),
-                       'FRC');
+        # NEXT, get the symbol
+        set symbol $symbols($forcetype)
 
-                INSERT INTO frcgroups(g,a,forcetype,base_personnel,attack_cost,
-                                      uniformed,local)
-                VALUES($g,
-                       nullif($a,''),
-                       $forcetype,
-                       $base_personnel,
-                       $attack_cost,
-                       $uniformed,
-                       $local);
+        # NEXT, Put the group in the database
+        rdb eval {
+            INSERT INTO 
+            groups(g, longname, color, shape, symbol, demeanor, 
+                   cost, rel_entity, gtype)
+            VALUES($g,
+                   $longname,
+                   $color,
+                   $shape,
+                   $symbol,
+                   $demeanor,
+                   $cost,
+                   nullif($a,''),
+                   'FRC');
 
-                INSERT INTO coop_fg(f,g)
-                SELECT g, $g FROM civgroups;
-            }
+            INSERT INTO frcgroups(g, a, forcetype, training,
+                                  base_personnel, attack_cost,
+                                  uniformed, local)
+            VALUES($g,
+                   nullif($a,''),
+                   $forcetype,
+                   $training,
+                   $base_personnel,
+                   $attack_cost,
+                   $uniformed,
+                   $local);
 
-            # NEXT, Return the undo command
-            return [mytypemethod mutate delete $g]
+            INSERT INTO coop_fg(f,g)
+            SELECT g, $g FROM civgroups;
         }
+
+        # NEXT, Return the undo command
+        return [mytypemethod mutate delete $g]
     }
 
     # mutate delete g
@@ -245,6 +249,7 @@ snit::type frcgroup {
     #    color          A new color, or ""
     #    shape          A new shape, or ""
     #    forcetype      A new eforcetype, or ""
+    #    training       A new training level, or ""
     #    base_personnel A new base personnel, or ""
     #    demeanor       A new demeanor, or ""
     #    cost           A new cost, or ""
@@ -256,42 +261,44 @@ snit::type frcgroup {
     # valid.
 
     typemethod {mutate update} {parmdict} {
-        dict with parmdict {
-            # FIRST, grab the group data that might change.
-            set data [rdb grab groups {g=$g} frcgroups {g=$g}]
+        # FIRST, bring the parameters into scope.
+        dict with parmdict {}
 
-            # NEXT, get the new unit symbol, if need be.
-            if {$forcetype ne ""} {
-                set symbol $symbols($forcetype)
-            } else {
-                set symbol ""
-            }
+        # NEXT, grab the group data that might change.
+        set data [rdb grab groups {g=$g} frcgroups {g=$g}]
 
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE groups
-                SET longname   = nonempty($longname,     longname),
-                    color      = nonempty($color,        color),
-                    shape      = nonempty($shape,        shape),
-                    symbol     = nonempty($symbol,       symbol),
-                    demeanor   = nonempty($demeanor,     demeanor),
-                    cost       = nonempty($cost,         cost),
-                    rel_entity = coalesce(nullif($a,''), rel_entity)
-                WHERE g=$g;
-
-                UPDATE frcgroups
-                SET a              = coalesce(nullif($a,''),   a),
-                    forcetype      = nonempty($forcetype,      forcetype),
-                    base_personnel = nonempty($base_personnel, base_personnel),
-                    attack_cost    = nonempty($attack_cost,    attack_cost),
-                    uniformed      = nonempty($uniformed,      uniformed),
-                    local          = nonempty($local,          local)
-                WHERE g=$g
-            } {}
-
-            # NEXT, Return the undo command
-            return [list rdb ungrab $data]
+        # NEXT, get the new unit symbol, if need be.
+        if {$forcetype ne ""} {
+            set symbol $symbols($forcetype)
+        } else {
+            set symbol ""
         }
+
+        # NEXT, Update the group
+        rdb eval {
+            UPDATE groups
+            SET longname   = nonempty($longname,     longname),
+                color      = nonempty($color,        color),
+                shape      = nonempty($shape,        shape),
+                symbol     = nonempty($symbol,       symbol),
+                demeanor   = nonempty($demeanor,     demeanor),
+                cost       = nonempty($cost,         cost),
+                rel_entity = coalesce(nullif($a,''), rel_entity)
+            WHERE g=$g;
+
+            UPDATE frcgroups
+            SET a              = coalesce(nullif($a,''),   a),
+                forcetype      = nonempty($forcetype,      forcetype),
+                training       = nonempty($training,       training),
+                base_personnel = nonempty($base_personnel, base_personnel),
+                attack_cost    = nonempty($attack_cost,    attack_cost),
+                uniformed      = nonempty($uniformed,      uniformed),
+                local          = nonempty($local,          local)
+            WHERE g=$g
+        } {}
+
+        # NEXT, Return the undo command
+        return [list rdb ungrab $data]
     }
 }
 
@@ -326,6 +333,9 @@ order define FRCGROUP:CREATE {
         rcc "Force Type" -for forcetype
         enumlong forcetype -dictcmd {eforcetype deflist} -defvalue REGULAR
 
+        rcc "Training" -for training
+        enumlong training -dictcmd {etraining deflist} -defvalue FULL
+
         rcc "Base Personnel:" -for base_personnel
         text base_personnel -defvalue 0
 
@@ -354,6 +364,7 @@ order define FRCGROUP:CREATE {
     prepare color          -tolower   -required -type hexcolor
     prepare shape          -toupper   -required -type eunitshape
     prepare forcetype      -toupper   -required -type eforcetype
+    prepare training       -toupper   -required -type etraining
     prepare base_personnel -toupper   -required -type iquantity
     prepare demeanor       -toupper   -required -type edemeanor
     prepare cost           -toupper   -required -type money
@@ -448,6 +459,9 @@ order define FRCGROUP:UPDATE {
         rcc "Force Type" -for forcetype
         enumlong forcetype -dictcmd {eforcetype deflist}
 
+        rcc "Training" -for training
+        enumlong training -dictcmd {etraining deflist}
+
         rcc "Base Personnel:" -for base_personnel
         text base_personnel
 
@@ -476,6 +490,7 @@ order define FRCGROUP:UPDATE {
     prepare color          -tolower   -type hexcolor
     prepare shape          -toupper   -type eunitshape
     prepare forcetype      -toupper   -type eforcetype
+    prepare training       -toupper   -type etraining
     prepare base_personnel -toupper   -type iquantity
     prepare demeanor       -toupper   -type edemeanor
     prepare cost           -toupper   -type money
@@ -517,6 +532,9 @@ order define FRCGROUP:UPDATE:MULTI {
         rcc "Force Type" -for forcetype
         enumlong forcetype -dictcmd {eforcetype deflist}
 
+        rcc "Training" -for training
+        enumlong training -dictcmd {etraining deflist}
+
         rcc "Base Personnel:" -for base_personnel
         text base_personnel
 
@@ -544,6 +562,7 @@ order define FRCGROUP:UPDATE:MULTI {
     prepare color          -tolower            -type   hexcolor
     prepare shape          -toupper            -type   eunitshape
     prepare forcetype      -toupper            -type   eforcetype
+    prepare training       -toupper            -type   etraining
     prepare base_personnel -toupper            -type   iquantity
     prepare demeanor       -toupper            -type   edemeanor
     prepare cost           -toupper            -type   money

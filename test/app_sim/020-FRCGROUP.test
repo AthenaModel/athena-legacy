@@ -35,6 +35,7 @@ namespace eval ::athena_test::tests:: {
         color          #0000ff
         shape          FRIEND
         forcetype      REGULAR
+        training       PROFICIENT
         base_personnel 1000
         demeanor       AVERAGE
         cost           0.0
@@ -50,6 +51,7 @@ namespace eval ::athena_test::tests:: {
         color          #00ffff
         shape          FRIEND
         forcetype      REGULAR
+        training       FULL
         base_personnel 1000
         demeanor       AVERAGE
         cost           0.0
@@ -76,6 +78,7 @@ namespace eval ::athena_test::tests:: {
         color {required value}
         shape {required value}
         forcetype {required value}
+        training {required value}
         base_personnel {required value}
         demeanor {required value}
         cost {required value}
@@ -155,7 +158,31 @@ namespace eval ::athena_test::tests:: {
         forcetype {invalid value "NONESUCH", should be one of: REGULAR, PARAMILITARY, POLICE, IRREGULAR, CRIMINAL}
     }
 
-    test CREATE-1.8 {invalid demeanor} -setup {
+    test CREATE-1.8 {invalid training} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
+            training NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        training {invalid value "NONESUCH", should be one of: PROFICIENT, FULL, PARTIAL, NONE}
+    }
+
+    test CREATE-1.9 {invalid base_personnel} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject FRCGROUP:CREATE [dict merge $blue {
+            base_personnel NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        base_personnel {invalid value "NONESUCH", expected integer}
+    }
+
+    test CREATE-1.10 {invalid demeanor} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -167,7 +194,7 @@ namespace eval ::athena_test::tests:: {
         demeanor {invalid value "NONESUCH", should be one of: APATHETIC, AVERAGE, AGGRESSIVE}
     }
 
-    test CREATE-1.10 {invalid cost} -setup {
+    test CREATE-1.11 {invalid cost} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -179,7 +206,7 @@ namespace eval ::athena_test::tests:: {
         cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test CREATE-1.11 {invalid attack_cost} -setup {
+    test CREATE-1.12 {invalid attack_cost} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -191,7 +218,7 @@ namespace eval ::athena_test::tests:: {
         attack_cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test CREATE-1.12 {invalid uniformed} -setup {
+    test CREATE-1.13 {invalid uniformed} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -203,7 +230,7 @@ namespace eval ::athena_test::tests:: {
         uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-1.13 {invalid local} -setup {
+    test CREATE-1.14 {invalid local} -setup {
         ted create JOE
     } -body {
         ted order -reject FRCGROUP:CREATE [dict merge $blue {
@@ -235,6 +262,7 @@ rel_entity      JOE
 gtype           FRC
 a               JOE
 forcetype       REGULAR
+training        PROFICIENT
 base_personnel  1000
 attack_cost     0.0
 uniformed       1
@@ -372,8 +400,28 @@ local           0
         forcetype {invalid value "NONESUCH", should be one of: REGULAR, PARAMILITARY, POLICE, IRREGULAR, CRIMINAL}
     }
 
+    test UPDATE-1.6 {invalid training} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE g BLUE training NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        training {invalid value "NONESUCH", should be one of: PROFICIENT, FULL, PARTIAL, NONE}
+    }
 
-    test UPDATE-1.6 {invalid demeanor} -setup {
+    test UPDATE-1.7 {invalid base_personnel} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE g BLUE base_personnel NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        base_personnel {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE-1.8 {invalid demeanor} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE demeanor NONESUCH
@@ -384,7 +432,7 @@ local           0
     }
 
 
-    test UPDATE-1.8 {invalid cost} -setup {
+    test UPDATE-1.9 {invalid cost} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE cost NONESUCH
@@ -395,7 +443,7 @@ local           0
     }
 
 
-    test UPDATE-1.9 {invalid attack_cost} -setup {
+    test UPDATE-1.10 {invalid attack_cost} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE attack_cost NONESUCH
@@ -406,7 +454,7 @@ local           0
     }
 
 
-    test UPDATE-1.10 {invalid uniformed} -setup {
+    test UPDATE-1.11 {invalid uniformed} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE uniformed NONESUCH
@@ -417,7 +465,7 @@ local           0
     }
 
 
-    test UPDATE-1.11 {invalid local} -setup {
+    test UPDATE-1.12 {invalid local} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE g BLUE local NONESUCH
@@ -432,17 +480,19 @@ local           0
         ted create BOB BLUE
     } -body {
         ted order FRCGROUP:UPDATE {
-            g            BLUE
-            longname     "Blue Angels"
-            a            BOB
-            color        "#ff0000"
-            shape        NEUTRAL
-            forcetype    POLICE
-            demeanor     AGGRESSIVE
-            cost         10.0
-            attack_cost  20.0
-            uniformed    no
-            local        yes
+            g              BLUE
+            longname       "Blue Angels"
+            a              BOB
+            color          "#ff0000"
+            shape          NEUTRAL
+            forcetype      POLICE
+            training       NONE
+            base_personnel 10000
+            demeanor       AGGRESSIVE
+            cost           10.0
+            attack_cost    20.0
+            uniformed      no
+            local          yes
         }
 
         ted querylist {SELECT * FROM frcgroups_view}
@@ -460,7 +510,8 @@ rel_entity      BOB
 gtype           FRC
 a               BOB
 forcetype       POLICE
-base_personnel  5000
+training        NONE
+base_personnel  10000
 attack_cost     20.0
 uniformed       0
 local           1
@@ -483,16 +534,18 @@ local           1
     test UPDATE-3.1 {undo undoes the change} -setup {
         ted create BOB BLUE
         ted order FRCGROUP:UPDATE {
-            g            BLUE
-            longname     "Blue Angels"
-            a            BOB
-            color        "#ff0000"
-            forcetype    POLICE
-            demeanor     AGGRESSIVE
-            cost         10.0
-            attack_cost  20.0
-            local        yes
-            uniformed    no
+            g              BLUE
+            longname       "Blue Angels"
+            a              BOB
+            color          "#ff0000"
+            forcetype      POLICE
+            training       NONE
+            base_personnel 10000
+            demeanor       AGGRESSIVE
+            cost           10.0
+            attack_cost    20.0
+            local          yes
+            uniformed      no
         }
     } -body {
         ted notifier bind ::rdb <frcgroups>
@@ -575,7 +628,28 @@ local           1
     }
 
 
-    test UPDATE:MULTI-1.8 {invalid demeanor} -setup {
+    test UPDATE:MULTI-1.8 {invalid training} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE training NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        training {invalid value "NONESUCH", should be one of: PROFICIENT, FULL, PARTIAL, NONE}
+    }
+
+    test UPDATE:MULTI-1.9 {invalid base_personnel} -setup {
+        ted create BLUE
+    } -body {
+        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE base_personnel NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        base_personnel {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test UPDATE:MULTI-1.10 {invalid demeanor} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE demeanor NONESUCH
@@ -586,7 +660,7 @@ local           1
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid cost} -setup {
+    test UPDATE:MULTI-1.11 {invalid cost} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE cost NONESUCH
@@ -597,7 +671,7 @@ local           1
     }
 
 
-    test UPDATE:MULTI-1.11 {invalid attack_cost} -setup {
+    test UPDATE:MULTI-1.12 {invalid attack_cost} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE attack_cost NONESUCH
@@ -608,7 +682,7 @@ local           1
     }
 
 
-    test UPDATE:MULTI-1.12 {invalid uniformed} -setup {
+    test UPDATE:MULTI-1.13 {invalid uniformed} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE uniformed NONESUCH
@@ -619,7 +693,7 @@ local           1
     }
 
 
-    test UPDATE:MULTI-1.13 {invalid local} -setup {
+    test UPDATE:MULTI-1.14 {invalid local} -setup {
         ted create BLUE
     } -body {
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE local NONESUCH
@@ -636,16 +710,18 @@ local           1
         ted notifier bind ::rdb <frcgroups>
 
         ted order FRCGROUP:UPDATE:MULTI {
-            ids         BLUE 
-            a           BOB
-            color       "#ff0000"
-            shape       NEUTRAL
-            forcetype   POLICE
-            demeanor    AGGRESSIVE
-            cost        10.0
-            attack_cost 20.0
-            uniformed   no
-            local       yes
+            ids            BLUE 
+            a              BOB
+            color          "#ff0000"
+            shape          NEUTRAL
+            forcetype      POLICE
+            training       NONE
+            base_personnel 10000
+            demeanor       AGGRESSIVE
+            cost           10.0
+            attack_cost    20.0
+            uniformed      no
+            local          yes
         }
 
         ted notifier received
@@ -662,16 +738,18 @@ local           1
         ted notifier bind ::rdb <frcgroups>
 
         ted order FRCGROUP:UPDATE:MULTI {
-            ids         {BLUE BRIT}
-            a           BOB
-            color       "#ff0000"
-            shape       NEUTRAL
-            forcetype   POLICE
-            demeanor    AGGRESSIVE
-            cost        10.0
-            attack_cost 20.0
-            uniformed   no
-            local       yes
+            ids            {BLUE BRIT}
+            a              BOB
+            color          "#ff0000"
+            shape          NEUTRAL
+            forcetype      POLICE
+            training       NONE
+            base_personnel 10000
+            demeanor       AGGRESSIVE
+            cost           10.0
+            attack_cost    20.0
+            uniformed      no
+            local          yes
         }
 
         ted notifier received
@@ -708,10 +786,5 @@ local           1
 }
 
 namespace delete ::athena_test::tests::
-
-
-
-
-
 
 

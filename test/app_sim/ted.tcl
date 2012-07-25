@@ -271,6 +271,7 @@ snit::type ted {
             color          "#f00001"
             shape          FRIEND
             forcetype      REGULAR
+            training       PROFICIENT
             base_personnel 5000
             demeanor       AVERAGE
             cost           0.0
@@ -286,6 +287,7 @@ snit::type ted {
             color          "#f00002"
             shape          FRIEND
             forcetype      REGULAR
+            training       PROFICIENT
             base_personnel 5000
             demeanor       AVERAGE
             cost           0.0
@@ -301,6 +303,7 @@ snit::type ted {
             color          "#f00003"
             shape          ENEMY
             forcetype      IRREGULAR
+            training       PARTIAL
             base_personnel 1000
             demeanor       AGGRESSIVE
             cost           0.0
@@ -316,6 +319,7 @@ snit::type ted {
             color          "#f00004"
             shape          ENEMY
             forcetype      IRREGULAR
+            training       PARTIAL
             base_personnel 1000
             demeanor       AGGRESSIVE
             cost           0.0

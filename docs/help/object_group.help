@@ -169,6 +169,17 @@ object group_frc {
         <<enumdoc ::projectlib::eforcetype>>
     } -tags {create update multi}
 
+    attribute training "Training Level" {
+        The group's training level, which effects discipline, skill, and so
+        forth.  The possible training levels are as follows:<p>
+
+        <<enumdoc ::projectlib::etraining>>
+    } -tags {create update multi}
+
+    attribute base_personnel "Base Personnel" {
+        The number of group personnel in the playbox on scenario lock.
+    } -tags {create update multi}
+
     include group_ -attrs demeanor \
         -tags {create update multi}
 
@@ -257,6 +268,10 @@ object group_org {
         The organization type<p>
 
         <<enumdoc ::projectlib::eorgtype>>
+    } -tags {create update multi}
+
+    attribute base_personnel "Base Personnel" {
+        The number of group personnel in the playbox on scenario lock.
     } -tags {create update multi}
 
     include group_ -attrs demeanor \

@@ -210,6 +210,9 @@ CREATE TABLE frcgroups (
     -- Force Type
     forcetype      TEXT,
 
+    -- Training Level
+    training       TEXT,
+
     -- The base number personnel 
     base_personnel INTEGER DEFAULT 0,
 

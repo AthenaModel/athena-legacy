@@ -30,8 +30,6 @@ namespace eval ::projectlib:: {
         edamruleset      \
         edefroeuf        \
         edemeanor        \
-        edemobmode       \
-        edeploymode      \
         eensit           \
         eforcetype       \
         efrcactivity     \
@@ -44,6 +42,7 @@ namespace eval ::projectlib:: {
         epayload_state   \
         esitstate        \
         etactic_state    \
+        etraining        \
         etopic_state     \
         eurbanization    \
         eunitshape       \
@@ -439,6 +438,13 @@ snit::type ::projectlib::typewrapper {
     UNEMP     "Unemployment"
 }
 
+# Training Levels
+::marsutil::enum ::projectlib::etraining {
+    PROFICIENT  "Proficient"
+    FULL        "Fully Trained"
+    PARTIAL     "Partially Trained"
+    NONE        "Not Trained"
+}
 
 # Unit icon shape (per MIL-STD-2525B)
 ::marsutil::enum ::projectlib::eunitshape {

@@ -31,22 +31,23 @@ snit::widgetadaptor frcgroupbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g                "ID"                               }
-        { longname         "Long Name"                        }
-        { a                "Owner"                            }
-        { color            "Color"                            }
-        { shape            "Unit Shape"                       }
-        { forcetype        "Force Type"                       }
-        { base_personnel   "Base Personnel"                   }
-        { demeanor         "Demeanor"                         }
-        { cost             "Cost, $/person/week" 
+        { g                "\nID"                               }
+        { longname         "\nLong Name"                        }
+        { a                "\nOwner"                            }
+        { color            "\nColor"                            }
+        { shape            "Unit\nShape"                       }
+        { forcetype        "Force\nType"                       }
+        { training         "Training\nLevel"                  }
+        { base_personnel   "Base\nPersonnel"                   }
+        { demeanor         "\nDemeanor"                         }
+        { cost             "Cost,\n$/person/week" 
                            -sortmode command 
                            -sortcommand ::marsutil::moneysort }
-        { attack_cost      "Cost, $/attack"               
+        { attack_cost      "Cost,\n$/attack"               
                            -sortmode command 
                            -sortcommand ::marsutil::moneysort }
-        { pretty_uniformed "Uniformed?"                       }
-        { pretty_local     "Local?"                           }
+        { pretty_uniformed "\nUniformed?"                       }
+        { pretty_local     "\nLocal?"                           }
     }
 
     #-------------------------------------------------------------------
