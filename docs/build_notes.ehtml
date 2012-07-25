@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.9, 25 July 2012</h3>
+
+This build contains the beginning of the integration of the 6x6 CGE,
+as well as a complete scrub of the Athena order dialogs, which are all
+now based on dynaform(n)/dynaview(n).<p>
+
+<ul>
+<li> Bug 3592: dynaform(n)-related order updates
+<li> Bug 3593: Dynaform-related help changes
+<li> Bug 3596: athena(1): Add SAM and CGE cell models and sheets to GUI
+</ul><p>
+
+
 <h3>Build 4.0.8, 2 July 2012</h3>
 
 <b>TRISA Engineering Build!</b> This package contains two minor
