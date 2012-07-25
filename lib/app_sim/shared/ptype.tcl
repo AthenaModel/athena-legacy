@@ -261,6 +261,30 @@ snit::type ptype {
         EnumVal "proximity" [$type prox-HERE names] $value
     }
 
+    # sam 
+    #
+    # All Social Accounting Matrix (SAM) cell names
+
+    typemethod {sam names} {} {
+        econ samcells
+    }
+
+    typemethod {sam validate} {value} {
+        EnumVal "SAM cell" [$type sam names] $value
+    }
+
+    # cge
+    #
+    # All Computible General Equilibrim (CGE) cell names
+
+    typemethod {cge names} {} {
+        econ cgecells
+    }
+
+    typemethod {cge validate} {value} {
+        EnumVal "CGE cell" [$type cge names] $value
+    }
+
     #-------------------------------------------------------------------
     # Helper Routines
 

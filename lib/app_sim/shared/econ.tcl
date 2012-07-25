@@ -386,6 +386,22 @@ snit::type econ {
     delegate typemethod value to cge
     delegate typemethod eval  to cge
 
+    # samcells
+    #
+    # Returns the names of all cells found in the SAM
+
+    typemethod samcells {} {
+        return [$sam cells]
+    }
+
+    # cgecells
+    #
+    # Returns the names of all the cells found in the CGE
+
+    typemethod cgecells {} {
+        return [$cge cells]
+    }
+
     # Type Method: dump
     #
     # Dumps the cell values and formulas for one or all pages.  If 
@@ -662,10 +678,10 @@ order define ECON:SAM:UPDATE {
         text val
     }
 } {
-    prepare id           -required
-    prepare val -toupper -required
+    prepare id           -required -type {ptype sam}
+    prepare val -toupper -required -type money
 
-    returnOnError
+    returnOnError -final
 
     setundo [econ mutate cell [array get parms]]
 }
