@@ -391,7 +391,7 @@ order define BSYSTEM:TOPIC:UPDATE {
     form {
         rcc "Topic:" -for tid
         key tid -table mam_topic -keys tid \
-            -loadcmd {orderdialog keyload id *}
+            -loadcmd {orderdialog keyload tid *}
        
         rcc "Title:" -for title
         text title -width 40
