@@ -150,6 +150,18 @@ snit::type frcgroup {
         return $g
     }
 
+    # ownedby a
+    #
+    # a - An actor
+    #
+    # Returns a list of the force groups owned by actor a.
+
+    typemethod ownedby {a} {
+        return [rdb eval {
+            SELECT g FROM frcgroups
+            WHERE a=$a
+        }]
+    }
 
     #-------------------------------------------------------------------
     # Mutators

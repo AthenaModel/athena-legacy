@@ -891,6 +891,29 @@ term snapshot "snapshot" {
 
 #-----------------------------------------------------------------------
 
+term stance "stance" {
+    A force group's <i>stance</i> toward another group is a designated
+    relationship value established by the force group's owner that
+    indicates how the force group is supposed to behave toward the
+    other group.<p>
+
+    For example, a force group given peace-keeping duties in a 
+    neighborhood should be given a strongly positive stance toward
+    the groups that reside in the neighborhood, indicate that the
+    group is to treat the residents well.  This will increase the
+    security of the residents.<p>
+
+    How well a force group succeeds in behaving according to its 
+    designated stance depends on the group's training level and 
+    on the difference between the stance and the group's actual 
+    relationship with the designated groups.  If the force group is
+    poorly trained, and has a hatred for the designated groups, 
+    the increase in security will be much less than if the force
+    group is highly trained or better disposed toward the residents.
+}
+
+#-----------------------------------------------------------------------
+
 term state "state" {
     <b>1.</b> The complete state of the simulation at a given time: all
     data associated with the simulation.  This is what is saved in the

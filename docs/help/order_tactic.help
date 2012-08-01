@@ -606,6 +606,39 @@ order TACTIC:SPEND:UPDATE "Update Tactic: Spend Money" {
 }
 
 #-----------------------------------------------------------------------
+# Tactic: STANCE
+
+page /order/tactic stance TACTIC:STANCE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/stance>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:STANCE:CREATE "Create Tactic: Force Group Stance" {
+    Creates a <<cref /object/tactic/stance>>.<p>
+
+    <<parmlist>>
+    <<tactic_stance parms -required -tags create>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:STANCE:UPDATE "Update Tactic: Force Group Stance" {
+    Updates an existing <<cref /object/tactic/stance>>.<p>
+
+    <<parmlist>>
+    <<tactic_stance parm tactic_id -required>>
+    <<tactic_stance parm owner -display>>
+    <<tactic_stance parms -optional -tags update>>
+    <<TACTIC.on_lock>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # Tactic: SUPPORT
 
 page /order/tactic support TACTIC:SUPPORT:* {

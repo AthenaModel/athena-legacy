@@ -108,6 +108,19 @@ snit::type group {
             WHERE a=$a
         }]
     }
+
+    # otherthan glist
+    #
+    # glist - A list of groups
+    #
+    # Returns a list of all groups other than those in glist.
+
+    typemethod otherthan {glist} {
+        return [rdb eval "
+            SELECT g FROM groups
+            WHERE g NOT IN ('[join $glist {','}]')
+        "]
+    }
 }
 
 

@@ -857,6 +857,71 @@ page /object/tactic spend "SPEND tactic" {
 }
 
 #-----------------------------------------------------------------------
+# STANCE
+
+object tactic_stance {
+    noun "STANCE tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to 
+        tell his force groups to adopt a particular 
+        <<term stance>> towards other groups.  This stance is a 
+        relationship value that indicates how the force group is expected 
+        to behave toward the designated groups.  How well the force group
+        succeeds in this depends on the force group's training level,
+        and on its actual relationships toward the designated groups.<p>
+
+        An actor can execute multiple STANCE tactics during a single week.
+        If two such tactics affect the same relationship, the higher priority 
+        tactic determines the outcome.<p>
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+
+    attribute f "Force Group" {
+        The force group whose stance is being set.
+    } -tags {create update}
+
+    attribute text1 "Mode" {
+        This parameter determines how the designated groups are specified:
+        as an explicit list of groups (<b>GROUP</b>) or as all civilians
+        living in a particular list of neighborhoods (<b>NBHOOD</b>).
+    }  -tags {create update}
+
+    attribute glist "Groups" {
+        When the mode is <b>GROUP</b>, this parameter is the list of 
+        groups for which force group <i>f</i>'s relationship is 
+        being designated.
+    } -tags {create update}
+
+    attribute nlist "Neighborhoods" {
+        When the mode is <b>NBHOOD</b>, this parameter is the list of 
+        neighborhoods for which force group <i>f</i>'s relationship 
+        is being designated.
+    } -tags {create update}
+
+    attribute x1 "Designated Rel." {
+        The relationship which force group <i>f</i> is required to adopt
+        toward the designated groups, expressed as a value from the following
+        scaled:<p>
+
+        <<::simlib::qaffinity html>>
+    } -tags {create update}
+
+    include tactic_ -attrs {on_lock state priority}
+}
+
+page /object/tactic stance "STANCE tactic" {
+    <<sotitle>>
+
+    <<tactic_stance overview>><p>
+
+    STANCE tactics have the following attributes:<p>
+
+    <<tactic_stance parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # SUPPORT
 
 object tactic_support {

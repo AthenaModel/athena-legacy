@@ -495,6 +495,25 @@ local           1
     } -result {ALQ}
 
     #-------------------------------------------------------------------
+    # ownedby
+
+    test ownedby-1.1 {No groups owned by actor} -setup {
+        ted create JOE BOB BLUE BRIT  
+    } -body {
+        frcgroup ownedby BOB
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test ownedby-1.2 {Some groups owned by actor} -setup {
+        ted create JOE BOB ALQ TAL BLUE BRIT
+    } -body {
+        frcgroup ownedby JOE
+    } -cleanup {
+        cleanup
+    } -result {BLUE BRIT}
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests
