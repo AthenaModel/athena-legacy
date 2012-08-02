@@ -99,6 +99,215 @@ CREATE INDEX units_ngap_index ON
 units(n,g,a,personnel);
 
 
+------------------------------------------------------------------------
+-- ATTRITION 
+
+-- Attacking ROE table: Uniformed and Non-uniformed Forces
+
+CREATE TABLE attroe_nfg (
+    -- Neighborhood in which to attack
+    n           TEXT REFERENCES nbhoods(n)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
+
+    -- Attacking force group
+    f           TEXT REFERENCES frcgroups(g)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
+
+    -- Attacked force group
+    g           TEXT REFERENCES frcgroups(g)
+                ON DELETE CASCADE
+                DEFERRABLE INITIALLY DEFERRED,
+
+    -- 1 if f is uniformed, and 0 otherwise.
+    uniformed   INTEGER,
+
+    -- ROE: eattroenf for non-uniformed forces, eattroeuf for uniformed
+    -- forces.  Note: a missing record for n,f,g is equivalent to an
+    -- ROE of DO_NOT_ATTACK.
+    roe         TEXT DEFAULT 'DO_NOT_ATTACK',
+
+    -- Maximum number of attacks per week.
+    max_attacks INTEGER DEFAULT 0,
+
+    -- Actual number of attacks
+    attacks     INTEGER DEFAULT 0,
+
+    PRIMARY KEY (n,f,g)
+);
+
+
+-- Defending ROE table: overrides defending ROE for
+-- Uniformed Forces only.
+
+CREATE TABLE defroe_ng (
+    -- Neighborhood in which to defend
+    n          TEXT REFERENCES nbhoods(n)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
+
+    -- Defending force group
+    g          TEXT REFERENCES frcgroups(g)
+               ON DELETE CASCADE
+               DEFERRABLE INITIALLY DEFERRED,
+
+    -- ROE: edefroeuf.
+    roe        TEXT,
+
+    PRIMARY KEY (n,g)
+);
+
+-- Defending ROE view
+--
+-- This view computes the current defending ROE for every 
+-- uniformed force group.
+--
+-- * The ROE defaults to FIRE_BACK_IF_PRESSED...
+-- * ...unless there's an overriding entry in defroe_ng.
+
+CREATE VIEW defroe_view AS
+SELECT nbhoods.n                             AS n,
+       frcgroups.g                           AS g,
+       COALESCE(roe, 'FIRE_BACK_IF_PRESSED') AS roe,
+       CASE WHEN defroe_ng.roe IS NOT NULL 
+            THEN 1
+            ELSE 0 END                       AS override
+       
+FROM nbhoods
+JOIN frcgroups
+LEFT OUTER JOIN defroe_ng USING (n,g)
+WHERE frcgroups.uniformed;
+
+
+-- An instance of magic attrition to a group or a neighborhood.
+-- These records are accumulated while the sim is paused and then applied 
+-- during attrition assessment.
+
+CREATE TABLE magic_attrit (
+    -- Unique ID, assigned automatically.
+    id         INTEGER PRIMARY KEY,
+
+    -- Mode of the magic attrtion: NBHOOD or GROUP
+    mode       TEXT,    
+
+    -- For NBHOOD or GROUP mode, the neighborhood suffering attrition
+    n          TEXT,
+
+    -- For GROUP mode, the group suffering attrition
+    f          TEXT,
+
+    -- The number of casualties to apply
+    casualties INTEGER,
+
+    -- A responsible group or ""
+    g1         TEXT,
+
+    -- A responsible group or ""
+    g2         TEXT
+);
+
+    
+-- An instance of attrition to a group in a neighborhood.  These records
+-- are accumulated between attrition tocks and are used to assess 
+-- satisfaction implications.
+
+CREATE TABLE attrit_nf (
+    -- Unique ID, assigned automatically.
+    id         INTEGER PRIMARY KEY,
+
+    -- Neighborhood.  For ORG's the nbhood which the attrition occurred.
+    -- For CIV's, the nbhood of origin (which is usually the same thing).
+    n          TEXT,
+   
+    -- Group to which the attrition occurred
+    f          TEXT,
+
+    -- Total attrition (in personnel) to group f.
+    casualties INTEGER
+);
+
+CREATE INDEX attrit_nf_index_nf ON attrit_nf(n,f);
+
+-- Total attrition to a CIV group in a neighborhood by responsible group, 
+-- as accumulated between attrition tocks.  Note that multiple groups
+-- can be responsible for the same casualty, e.g., in a fire fight
+-- between two force groups, both can be blamed for collateral damage.
+-- This is used to assess cooperation implications.
+
+CREATE TABLE attrit_nfg (
+    -- Unique ID, assigned automatically.
+    id         INTEGER PRIMARY KEY,
+
+    -- Neighborhood of origin of the attrited personnel.
+    n          TEXT,
+   
+    -- CIV group to which the attrition occurred
+    f          TEXT,
+
+    -- Responsible group.
+    g          TEXT,
+
+    -- Total attrition (in personnel) to group f.
+    casualties INTEGER
+);
+
+CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
+
+
+------------------------------------------------------------------------
+-- STANCE
+
+CREATE TABLE stance_fg (
+    -- Contains the stance (designated relationship) of force group f
+    -- toward group g, as specified by a STANCE tactic.  Rows exist only
+    -- when stance has been explicitly set.
+
+    f      TEXT,    -- Force group f
+    g      TEXT,    -- Other group g
+
+    stance DOUBLE,  -- stance.fg
+
+    PRIMARY KEY (f,g)
+);
+
+CREATE TABLE stance_nfg (
+    -- Contains neighborhood-specific overrides to stance.fg.  For example,
+    -- if group f is attacking group g in neighborhood n, it has a maximum
+    -- stance toward g as set by force.maxAttackingStance.  This table
+    -- contains all such overrides.
+
+    n      TEXT,    -- Neighborhood n
+    f      TEXT,    -- Force group f
+    g      TEXT,    -- Other group g
+
+    stance DOUBLE,  -- stance.nfg
+
+    PRIMARY KEY (n,f,g)
+);
+
+-- stance_nfg_view:  Group f's stance toward g in n.  Defaults to 
+-- hrel.fg.  The default can be overridden by an explicit stance, as
+-- contained in stance_fg, and that can be overridden by neighborhood,
+-- as contained in stance_nfg.
+CREATE VIEW stance_nfg_view AS
+SELECT N.n                                           AS n,
+       F.g                                           AS f,
+       G.g                                           AS g,
+       coalesce(SN.stance,S.stance,UH.hrel)          AS stance,
+       CASE WHEN SN.stance IS NOT NULL THEN 'ATTROE'
+            WHEN S.stance  IS NOT NULL THEN 'ACTOR'
+            ELSE 'DEFAULT' END                       AS source
+FROM nbhoods   AS N
+JOIN frcgroups AS F
+JOIN groups    AS G
+LEFT OUTER JOIN stance_nfg AS SN ON (SN.n=N.n AND SN.f=F.g AND SN.g=G.g)
+LEFT OUTER JOIN stance_fg  AS S  ON (S.f=F.g AND S.g=G.g)
+LEFT OUTER JOIN uram_hrel  AS UH ON (UH.f=F.g AND UH.g=G.g);
+
+------------------------------------------------------------------------
+-- FORCE AND SECURITY STATISTICS
+
 -- nbstat Table: Total Force and Volatility in neighborhoods
 CREATE TABLE force_n (
     -- Symbolic nbhood name
@@ -317,161 +526,6 @@ SELECT * FROM situations JOIN demsits_t USING (s);
 CREATE VIEW demsits_current AS
 SELECT * FROM situations JOIN demsits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
-
-------------------------------------------------------------------------
--- ATTRITION 
-
--- Attacking ROE table: Uniformed and Non-uniformed Forces
-
-CREATE TABLE attroe_nfg (
-    -- Neighborhood in which to attack
-    n           TEXT REFERENCES nbhoods(n)
-                ON DELETE CASCADE
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Attacking force group
-    f           TEXT REFERENCES frcgroups(g)
-                ON DELETE CASCADE
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Attacked force group
-    g           TEXT REFERENCES frcgroups(g)
-                ON DELETE CASCADE
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- 1 if f is uniformed, and 0 otherwise.
-    uniformed   INTEGER,
-
-    -- ROE: eattroenf for non-uniformed forces, eattroeuf for uniformed
-    -- forces.  Note: a missing record for n,f,g is equivalent to an
-    -- ROE of DO_NOT_ATTACK.
-    roe         TEXT DEFAULT 'DO_NOT_ATTACK',
-
-    -- Maximum number of attacks per week.
-    max_attacks INTEGER DEFAULT 0,
-
-    -- Actual number of attacks
-    attacks     INTEGER DEFAULT 0,
-
-    PRIMARY KEY (n,f,g)
-);
-
-
--- Defending ROE table: overrides defending ROE for
--- Uniformed Forces only.
-
-CREATE TABLE defroe_ng (
-    -- Neighborhood in which to defend
-    n          TEXT REFERENCES nbhoods(n)
-               ON DELETE CASCADE
-               DEFERRABLE INITIALLY DEFERRED,
-
-    -- Defending force group
-    g          TEXT REFERENCES frcgroups(g)
-               ON DELETE CASCADE
-               DEFERRABLE INITIALLY DEFERRED,
-
-    -- ROE: edefroeuf.
-    roe        TEXT,
-
-    PRIMARY KEY (n,g)
-);
-
--- Defending ROE view
---
--- This view computes the current defending ROE for every 
--- uniformed force group.
---
--- * The ROE defaults to FIRE_BACK_IF_PRESSED...
--- * ...unless there's an overriding entry in defroe_ng.
-
-CREATE VIEW defroe_view AS
-SELECT nbhoods.n                             AS n,
-       frcgroups.g                           AS g,
-       COALESCE(roe, 'FIRE_BACK_IF_PRESSED') AS roe,
-       CASE WHEN defroe_ng.roe IS NOT NULL 
-            THEN 1
-            ELSE 0 END                       AS override
-       
-FROM nbhoods
-JOIN frcgroups
-LEFT OUTER JOIN defroe_ng USING (n,g)
-WHERE frcgroups.uniformed;
-
-
--- An instance of magic attrition to a group or a neighborhood.
--- These records are accumulated while the sim is paused and then applied 
--- during attrition assessment.
-
-CREATE TABLE magic_attrit (
-    -- Unique ID, assigned automatically.
-    id         INTEGER PRIMARY KEY,
-
-    -- Mode of the magic attrtion: NBHOOD or GROUP
-    mode       TEXT,    
-
-    -- For NBHOOD or GROUP mode, the neighborhood suffering attrition
-    n          TEXT,
-
-    -- For GROUP mode, the group suffering attrition
-    f          TEXT,
-
-    -- The number of casualties to apply
-    casualties INTEGER,
-
-    -- A responsible group or ""
-    g1         TEXT,
-
-    -- A responsible group or ""
-    g2         TEXT
-);
-
-    
--- An instance of attrition to a group in a neighborhood.  These records
--- are accumulated between attrition tocks and are used to assess 
--- satisfaction implications.
-
-CREATE TABLE attrit_nf (
-    -- Unique ID, assigned automatically.
-    id         INTEGER PRIMARY KEY,
-
-    -- Neighborhood.  For ORG's the nbhood which the attrition occurred.
-    -- For CIV's, the nbhood of origin (which is usually the same thing).
-    n          TEXT,
-   
-    -- Group to which the attrition occurred
-    f          TEXT,
-
-    -- Total attrition (in personnel) to group f.
-    casualties INTEGER
-);
-
-CREATE INDEX attrit_nf_index_nf ON attrit_nf(n,f);
-
--- Total attrition to a CIV group in a neighborhood by responsible group, 
--- as accumulated between attrition tocks.  Note that multiple groups
--- can be responsible for the same casualty, e.g., in a fire fight
--- between two force groups, both can be blamed for collateral damage.
--- This is used to assess cooperation implications.
-
-CREATE TABLE attrit_nfg (
-    -- Unique ID, assigned automatically.
-    id         INTEGER PRIMARY KEY,
-
-    -- Neighborhood of origin of the attrited personnel.
-    n          TEXT,
-   
-    -- CIV group to which the attrition occurred
-    f          TEXT,
-
-    -- Responsible group.
-    g          TEXT,
-
-    -- Total attrition (in personnel) to group f.
-    casualties INTEGER
-);
-
-CREATE INDEX attrit_nfg_index_nfg ON attrit_nfg(n,f,g);
 
 
 ------------------------------------------------------------------------

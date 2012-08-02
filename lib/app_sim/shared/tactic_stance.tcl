@@ -32,6 +32,46 @@ tactic type define STANCE {f text1 glist nlist x1 on_lock} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
+    # reset
+    #
+    # Clears the stance_* tables prior to the beginning of strategy
+    # execution.
+
+    typemethod reset {} {
+        rdb eval {
+            DELETE FROM stance_fg;
+            DELETE FROM stance_nfg;
+        }
+    }
+
+    # assess
+    #
+    # This command overrides the actor-specified/default stance
+    # on a neighborhood by neighborhood basis.
+    #
+    # At present, if group f is attacking group g in n, the maximum
+    # stance is force.maxAttackingStance.
+
+    typemethod assess {} {
+        # FIRST, get the max stance
+        set maxStance [parm get force.maxAttackingStance]
+
+        # NEXT, add overrides to stance_nfg.
+        foreach {n f g stance} [rdb eval {
+            SELECT n, f, g, stance
+            FROM stance_nfg_view
+            JOIN attroe_nfg USING (n,f,g)
+            WHERE roe != 'DO_NOT_ATTACK'
+        }] {
+            if {$maxStance < $stance} {
+                rdb eval {
+                    INSERT INTO stance_nfg(n,f,g,stance)
+                    VALUES($n,$f,$g,$maxStance)
+                }
+            }
+        }
+    }
+
     #-------------------------------------------------------------------
     # tactic(i) subcommands
     #
@@ -103,47 +143,64 @@ tactic type define STANCE {f text1 glist nlist x1 on_lock} actor {
     }
 
     typemethod execute {tdict} {
-        return 0
-
         dict with tdict {}
 
         # FIRST, get the groups.
         if {$text1 eq "NBHOOD"} {
+            set glist [list]
             foreach n $nlist {
                 set glist [concat $glist [civgroup gIn $n]]
             }
         }
 
+        # NEXT, determine which groups to ignore.
+        set gIgnored [rdb eval "
+            SELECT g 
+            FROM stance_fg
+            WHERE f=\$f AND g IN ('[join $glist ',']')
+        "]
+
         # NEXT, set f's designated relationship with each g
+        set gSet [list]
+
         foreach g $glist {
-            # TBD: Need a new table, drel_fg.
-            # TBD: Cleared at the beginning of every strategy tock.
-            # If entry already present, do not set it; but make a note.
+            if {$g ni $gIgnored} {
+                lappend gSet $g
 
-            # gset: groups for which drel_fg is set
-            # gignored: groups for which drel_fg is not set
-
-            set gset $glist ;# Until infrastructure is in place
+                rdb eval {
+                    INSERT OR IGNORE INTO stance_fg(f,g,stance)
+                    VALUES($f,$g,$x1)
+                }
+            }
         }
 
         # NEXT, log what happened.
-        set logIds [concat $nlist $glist] 
+        set logIds [concat $nlist $gSet] 
+
+        if {[llength $gSet] == 0} {
+            set msg "
+                STANCE: Actor {actor:$owner} directed group {group:$f} to 
+                adopt a stance of [format %.2f $x1] ([qaffinity longname $x1])
+                toward a number of groups; however, $f's stances toward these
+                groups were already set by higher-priority tactics.
+            "
+
+            sigevent log 2 tactic $msg $owner {*}$logIds
+
+            return 0
+        }
 
         set msg "
             STANCE: Actor {actor:$owner}'s group {group:$f} adopts stance
             of [format %.2f $x1] ([qaffinity longname $x1]) toward 
         "
 
-        if {$mode eq "GROUP"} {
-            append msg "group(s): [join $gset {, }]."
-        } else {
-            append msg "civilians in: [join $nlist {, }]."
-        }
+        append msg "group(s): [join $gSet {, }]."
 
-        if {[llength $gignored] > 0} {
+        if {[llength $gIgnored] > 0} {
             append msg " 
                 Group {group:$f}'s stance toward these group(s) was
-                set by a prior tactic: [join $gignored {, }].
+                already set by a prior tactic: [join $gIgnored {, }].
             "
         }
 

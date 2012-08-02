@@ -69,6 +69,8 @@ snit::type ted {
         sigevent_tags
         sigevent_marks
         situations
+        stance_fg
+        stance_nfg
         tactics
         units
         vrel_ga

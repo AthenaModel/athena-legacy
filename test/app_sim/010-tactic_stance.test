@@ -30,9 +30,6 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
-
-        # Verify that unused columns contain NULL
-        rdb nullvalue "@"
     }
 
     # Clean up after a test
@@ -192,16 +189,56 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # execute
 
-    test execute-1.1 {execute} -constraints tbd -setup {
-        # TBD: Execution not implemented yet!
-        execute_setup
-        tactic mutate create [dict merge $T1 {int1 20000}]
+    test execute-1.1 {normally successful} -setup {
+        setup
+        tactic mutate create $T1
     } -body {
         tactic::STANCE execute [tactic get 1]
     } -cleanup {
         cleanup
+    } -result {1}
+
+    test execute-1.2 {unsuccessful when stances already set} -setup {
+        setup
+        tactic mutate create $T1
+        tactic mutate create $T1
+    } -body {
+        tactic::STANCE execute [tactic get 1]
+        tactic::STANCE execute [tactic get 2]
+    } -cleanup {
+        cleanup
     } -result {0}
 
+    test execute-2.1 {GROUP mode} -setup {
+        setup
+        tactic mutate create $T2
+    } -body {
+        tactic::STANCE execute [tactic get 1]
+        ted query {SELECT * FROM stance_fg}
+    } -cleanup {
+        cleanup
+    } -result {
+f    g    stance 
+---- ---- ------ 
+BLUE SUNN 0.6    
+BLUE KURD 0.6    
+    }
+
+    test execute-2.2 {NBHOOD mode} -setup {
+        setup
+        tactic mutate create $T4
+    } -body {
+        tactic::STANCE execute [tactic get 1]
+        ted query {SELECT * FROM stance_fg}
+    } -cleanup {
+        cleanup
+    } -result {
+f    g    stance 
+---- ---- ------ 
+BLUE SHIA 0.8    
+BLUE SUNN 0.8    
+BLUE KURD 0.8    
+    }
 
     #-------------------------------------------------------------------
     # Cleanup

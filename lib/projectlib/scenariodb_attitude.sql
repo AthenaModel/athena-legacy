@@ -97,7 +97,6 @@ JOIN groups AS G
 JOIN mam_affinity AS A ON (A.f = F.rel_entity AND A.g = G.rel_entity)
 LEFT OUTER JOIN hrel_fg AS R ON (R.f = F.g AND R.g = G.g);
 
-
 ------------------------------------------------------------------------
 -- SATISFACTION: INITIAL DATA
 

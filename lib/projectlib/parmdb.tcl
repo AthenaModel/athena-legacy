@@ -1350,6 +1350,17 @@ snit::type ::projectlib::parmdb {
             Parameters which affect the neighborhood force analysis models.
         }
 
+        $ps define force.maxAttackingStance ::simlib::qaffinity -0.5 {
+            A group's stance toward another group is set by the STANCE
+            tactic, and defaults to the group's horizontal relationship
+            toward the other group.  If, however, the group has been given
+            an attacking ROE toward the other group via the ATTROE tactic,
+            this implies a negative stance toward that group.  This parameter
+            specifies that maximum stance a group can have toward another
+            group in a neighborhood in which it has been directed to attack
+            that group.
+        }
+
         $ps define force.mood ::simlib::rfraction 0.2 {
             Dial that controls the extent to which a civilian group's mood 
             in a neighborhood affects its force in that neighborhood.

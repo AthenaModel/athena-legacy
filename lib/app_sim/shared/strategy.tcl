@@ -92,6 +92,7 @@ snit::type strategy {
         tactic::ATTROE reset
         tactic::BROADCAST reset
         tactic::DEFROE reset
+        tactic::STANCE reset
         unit reset
 
         # NEXT, determine whether the goals are met or unmet.
@@ -132,6 +133,10 @@ snit::type strategy {
         personnel save
         service save
         cap access save
+
+        # NEXT, determine the actual stance of each group based on the
+        # effects of the STANCE and ATTROE tactics.
+        tactic::STANCE assess
 
         # NEXT, populate base units for all groups.
         unit makebase
