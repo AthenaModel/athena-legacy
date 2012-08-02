@@ -11,6 +11,20 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.10, 2 August 2012</h3>
+
+This build contains preliminary work for the updated Security model:
+training levels for force groups, and the new "STANCE" tactic.  Note
+that the "stance", or "designated relationship", can now be specified, 
+but it isn't yet used for anything.<p>
+
+<ul>
+<li> Bug 3600: Update Belief System Topic Bgerror
+<li> Bug 3601: Force Group Training Level
+<li> Bug 3610: STANCE tactic data handling
+<li> Bug 3611: STANCE tactic: Execution
+</ul><p>
+
 <h3>Build 4.0.9, 25 July 2012</h3>
 
 This build contains the beginning of the integration of the 6x6 CGE,
