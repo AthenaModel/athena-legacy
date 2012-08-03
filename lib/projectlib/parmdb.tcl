@@ -1396,6 +1396,56 @@ snit::type ::projectlib::parmdb {
             (This value is denoted "v" in the Athena Analyst Guide.)
         }
 
+        $ps subset force.alpha {
+            Alpha is the force multiplier applied to force group personnel
+            performing a particular activity when computing the group's
+            "own force" in a neighborhood.
+        }
+
+        foreach a {
+            NONE
+            CHECKPOINT
+            CMO_CONSTRUCTION
+            CMO_DEVELOPMENT
+            CMO_EDUCATION
+            CMO_EMPLOYMENT
+            CMO_HEALTHCARE
+            CMO_INDUSTRY
+            CMO_INFRASTRUCTURE
+            CMO_LAW_ENFORCEMENT
+            CMO_OTHER
+            COERCION
+            CRIMINAL_ACTIVITIES
+            CURFEW
+            GUARD
+            PATROL
+            PSYOP
+        } {
+            $ps define force.alpha.$a ::projectlib::rgain 1.0 {
+                Force multiplier for force group personnel assigned the
+                specified activity.  Must be no less than 0.0; the average
+                value is 1.0.
+            }
+        }
+
+        $ps setdefault force.alpha.NONE                1.0
+        $ps setdefault force.alpha.CHECKPOINT          1.5
+        $ps setdefault force.alpha.CMO_CONSTRUCTION    0.8
+        $ps setdefault force.alpha.CMO_DEVELOPMENT     0.8
+        $ps setdefault force.alpha.CMO_EDUCATION       0.8
+        $ps setdefault force.alpha.CMO_EMPLOYMENT      0.8
+        $ps setdefault force.alpha.CMO_HEALTHCARE      0.8
+        $ps setdefault force.alpha.CMO_INDUSTRY        0.8
+        $ps setdefault force.alpha.CMO_INFRASTRUCTURE  0.8
+        $ps setdefault force.alpha.CMO_LAW_ENFORCEMENT 1.5
+        $ps setdefault force.alpha.CMO_OTHER           0.8
+        $ps setdefault force.alpha.COERCION            1.2
+        $ps setdefault force.alpha.CRIMINAL_ACTIVITIES 0.8
+        $ps setdefault force.alpha.CURFEW              1.2
+        $ps setdefault force.alpha.GUARD               1.7
+        $ps setdefault force.alpha.PATROL              2.0
+        $ps setdefault force.alpha.PSYOP               1.0
+
         $ps subset force.demeanor {
             Dial that determines the effect of demeanor on a group's
             force.  Must be no less than 0; set to 1.0 if demeanor should

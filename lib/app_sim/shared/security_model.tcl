@@ -133,26 +133,29 @@ snit::type security_model {
         #---------------------------------------------------------------
         # FRC Groups
 
-        # The relevant personnel is just the PRESENCE.
+        # We break down the group's personnel by activity.
         rdb eval {
-            SELECT n,
-                   g,
-                   total(personnel) AS P,
-                   demeanor,
-                   forcetype
-            FROM units JOIN frcgroups_view USING (g)
-            WHERE personnel > 0
-            GROUP BY n, g 
+            SELECT U.n                AS n,
+                   U.g                AS g,
+                   U.a                AS a,
+                   total(U.personnel) AS P,
+                   G.demeanor         AS demeanor,
+                   G.forcetype        AS forcetype
+            FROM units AS U 
+            JOIN frcgroups_view AS G USING (g)
+            WHERE U.personnel > 0
+            GROUP BY n, g, a
         } {
             set D [parmdb get force.demeanor.$demeanor]
             set E [parmdb get force.forcetype.$forcetype]
+            set A [parmdb get force.alpha.$a]
 
-            let own_force {int(ceil($E*$D*$P))}
+            let own_force_by_a {int(ceil($A*$E*$D*$P))}
 
             rdb eval {
                 UPDATE force_ng
-                SET own_force=$own_force,
-                    personnel=$P
+                SET own_force = own_force + $own_force_by_a,
+                    personnel = personnel + $P
                 WHERE n = $n AND g = $g
             }
         }
