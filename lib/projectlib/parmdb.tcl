@@ -1464,6 +1464,25 @@ snit::type ::projectlib::parmdb {
             "
         }
 
+        $ps subset force.discipline {
+            Dial that determines a force group's level of discipline as
+            a function of its training level.  Set all values to  1.0 if
+            training should have no effect on discipline.
+        }
+
+        foreach {name value} {
+            PROFICIENT 1.0
+            FULL       0.9
+            PARTIAL    0.7
+            NONE       0.4
+        } {
+            $ps define force.discipline.$name ::projectlib::rfraction $value "
+                Dial that determines a force group's level of discipline
+                given a training level of $name; a number between 0.0 and
+                1.0.
+            "
+        }
+
         $ps subset force.forcetype {
             For units belonging to force groups, this set of dials
             determines the contribution to force of each person in the unit,

@@ -204,13 +204,25 @@ snit::type security_model {
                    NF.g         AS f,
                    NF.own_force AS f_own_force,
                    G.g          AS g,
-                   FG.hrel      AS hrel
+                   FG.hrel      AS hrel,
+                   FRC.training AS training,
+                   S.stance     AS stance
             FROM force_ng AS NF
             JOIN groups AS G
             JOIN uram_hrel AS FG ON (FG.f = NF.g AND FG.g = G.g)
+            LEFT OUTER JOIN frcgroups AS FRC ON (FRC.g=NF.g)
+            LEFT OUTER JOIN stance_nfg_view AS S
+            ON S.n=NF.n AND S.f=NF.g AND S.g=G.g
             WHERE hrel != 0.0 AND NF.own_force > 0
             
         } {
+            # FIRST, compute the effective relationship.
+            if {$stance ne ""} {
+                set D [parm get force.discipline.$training]
+                let hrel {$hrel + ($stance - $hrel)*$D}
+            }
+
+            # NEXT, compute friends and enemies.
             if {$hrel > 0} {
                 let friends {int(ceil($f_own_force*$hrel))}
 
