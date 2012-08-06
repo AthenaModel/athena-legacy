@@ -104,6 +104,23 @@ tactic type define SUPPORT {a nlist once on_lock} actor {
 
         return 1
     }
+
+    #-------------------------------------------------------------------
+    # Order Helpers
+
+    # AllButMe a
+    #
+    # Returns a list of SELF, NONE, and all actor names but a (because
+    # a is represented by SELF)
+
+    typemethod AllButMe {a} {
+        set list [list SELF NONE {*}[actor names]]
+
+        ldelete list $a
+
+        return $list
+    }
+
 }
 
 # TACTIC:SUPPORT:CREATE
@@ -120,7 +137,7 @@ order define TACTIC:SUPPORT:CREATE {
         text owner -context yes
 
         rcc "Supported Actor:" -for a
-        enum a -listcmd {ptype a+self+none names} -defvalue SELF
+        enum a -listcmd {tactic::SUPPORT AllButMe $owner} -defvalue SELF
 
         rcc "In Neighborhoods:" -for nlist
         nlist nlist
@@ -169,7 +186,7 @@ order define TACTIC:SUPPORT:UPDATE {
         disp owner
 
         rcc "Supported Actor:" -for a
-        enum a -listcmd {ptype a+self+none names}
+        enum a -listcmd {tactic::SUPPORT AllButMe $owner}
 
         rcc "In Neighborhoods:" -for nlist
         nlist nlist
