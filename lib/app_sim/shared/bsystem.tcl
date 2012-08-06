@@ -312,7 +312,7 @@ order define BSYSTEM:TOPIC:CREATE {
         text title -width 40
 
         rcc "Affinity?" -for affinity
-        yesno affinity -defvalue yes
+        yesno affinity -defvalue 1
     }
 } {
     # FIRST, prepare and validate the parameters
