@@ -278,7 +278,7 @@ appserver module CONTRIBS {
             -end   $end_
 
         # NEXT, output the contribs table.
-        PutContribsTable $top_
+        PutContribsTable $start_ $end_ $top_
 
         ht /page
 
@@ -405,7 +405,7 @@ appserver module CONTRIBS {
             -end   $end_
 
         # NEXT, output the contribs table.
-        PutContribsTable $top_
+        PutContribsTable $start_ $end_ $top_
 
         ht /page
 
@@ -518,7 +518,7 @@ appserver module CONTRIBS {
             -end   $end_
 
         # NEXT, output the contribs table.
-        PutContribsTable $top_
+        PutContribsTable $start_ $end_ $top_
 
         ht /page
 
@@ -644,7 +644,7 @@ appserver module CONTRIBS {
             -end   $end_
 
         # NEXT, output the contribs table.
-        PutContribsTable $top_
+        PutContribsTable $start_ $end_ $top_
 
         ht /page
 
@@ -758,7 +758,7 @@ appserver module CONTRIBS {
             -end   $end_
 
         # NEXT, output the contribs table.
-        PutContribsTable $top_
+        PutContribsTable $start_ $end_ $top_
 
         ht /page
 
@@ -885,7 +885,7 @@ appserver module CONTRIBS {
             -end   $end_
 
         # NEXT, output the contribs table.
-        PutContribsTable $top_
+        PutContribsTable $start_ $end_ $top_
 
         ht /page
 
@@ -1012,7 +1012,7 @@ appserver module CONTRIBS {
             -end   $end_
 
         # NEXT, output the contribs table.
-        PutContribsTable $top_
+        PutContribsTable $start_ $end_ $top_
 
         ht /page
 
@@ -1153,15 +1153,20 @@ appserver module CONTRIBS {
         ht para
     }
 
-    # PutContribsTable top
+    # PutContribsTable start end top
     #
+    # start - Time tick of first week in interval
+    # end   - Time tick of last week in interval
     # top   - Max number of entries in table, or 0 for all.
     #
     # Converts the data in uram_contribs into a ranked contributions
     # table, and puts it into the htools buffer.
 
-    proc PutContribsTable {top} {
-        # FIRST, pull the contribs into a temporary table, in sorted order,
+    proc PutContribsTable {start end top} {
+        # FIRST, compute the number of weeks.
+        let weeks {$end - $start + 1}
+
+        # NEXT, pull the contribs into a temporary table, in sorted order,
         # so that we can use the "rowid" as the rank.
         # Note: This query is passed as a string, because the LIMIT
         # is an integer, not an expression, so we can't use an SQL
@@ -1170,7 +1175,9 @@ appserver module CONTRIBS {
             DROP TABLE IF EXISTS temp_contribs;
     
             CREATE TEMP TABLE temp_contribs AS
-            SELECT driver, contrib
+            SELECT driver            AS driver,
+                   contrib           AS contrib,
+                   contrib/\$weeks   AS avgcontrib
             FROM uram_contribs
             ORDER BY abs(contrib) DESC
         "
@@ -1199,7 +1206,7 @@ appserver module CONTRIBS {
         # NEXT, format the body of the report.
         ht query {
             SELECT format('%4d', temp_contribs.rowid) AS "Rank",
-                   format('%8.3f', contrib)           AS "Actual",
+                   format('%8.3f', avgcontrib)        AS "Actual",
                    driver                             AS "Driver",
                    dtype                              AS "Type",
                    narrative                          AS "Narrative"
@@ -1214,9 +1221,18 @@ appserver module CONTRIBS {
         if {$totContrib > 0.0} {
             set pct [percent [expr {$totReported / $totContrib}]]
 
-            ht putln "Reported events and situations represent"
+            ht putln "The listed drivers represent"
             ht putln "$pct of the contributions made to this curve"
             ht putln "during the specified time window."
+            ht para
+
+            ht putln {
+                The <b>Actual</b> contribution displayed for each
+                driver is the average contribution per week during
+                the requested time interval.  Remember that driver
+                contributions are not accumulated from week to week.
+            }
+
             ht para
         }
     }
