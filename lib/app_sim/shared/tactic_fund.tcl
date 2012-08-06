@@ -74,6 +74,21 @@ tactic type define FUND {a x1} actor {
 
         return 1
     }
+
+    #-------------------------------------------------------------------
+    # Order Helpers
+
+    # AllButMe a
+    #
+    # Returns a list of all actor names but a.
+
+    typemethod AllButMe {a} {
+        set list [actor names]
+
+        ldelete list $a
+
+        return $list
+    }
 }
 
 # TACTIC:FUND:CREATE
@@ -91,7 +106,7 @@ order define TACTIC:FUND:CREATE {
 
         # TBD: Could limit it to everyone but the owner.
         rcc "Actor:" -for a
-        actor a
+        enum a -listcmd {tactic::FUND AllButMe $owner}
 
         rcc "Amount:" -for x1
         text x1
@@ -133,7 +148,7 @@ order define TACTIC:FUND:UPDATE {
         disp owner
 
         rcc "Actor:" -for a
-        actor a
+        enum a -listcmd {tactic::FUND AllButMe $owner}
 
         rcc "Amount:" -for x1
         text x1
