@@ -1345,6 +1345,32 @@ snit::widget appwin {
             }
         }
 
+        # NEXT, for each parent tab, if no child is selected, select
+        # the first one.
+        foreach tab [dict keys $tabs] {
+            # FIRST, parent tabs have no script
+            if {[dict get $tabs $tab script] ne ""} {
+                continue
+            }
+
+            # NEXT, get the parent tab's window, which is a 
+            # ttk::notebook.
+            set tabwin [dict get $tabs $tab tabwin]
+
+            # NEXT, if no tab is selected, select the first one that
+            # isn't hidden.
+            if {[$tabwin select] ne ""} {
+                continue
+            }
+
+            for {set i 0} {$i < [$tabwin index end]} {incr i} {
+                if {[$tabwin tab $i -state] ne "hidden"} {
+                    $tabwin select $i
+                    break
+                }
+            }
+        }
+
         # NEXT, add the View menu items for the visible tabs.
         $self AddTabMenuItems
     }
