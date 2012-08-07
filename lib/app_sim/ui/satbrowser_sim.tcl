@@ -45,7 +45,6 @@ snit::widgetadaptor satbrowser_sim {
     #-------------------------------------------------------------------
     # Components
 
-    component adjustbtn     ;# The "Adjust" button
     component inputbtn      ;# The "Input" button
 
     #--------------------------------------------------------------------
@@ -71,18 +70,8 @@ snit::widgetadaptor satbrowser_sim {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install adjustbtn using mktoolbutton $bar.adjust    \
-            ::marsgui::icon::pencila22                   \
-            "Magic Adjust Satisfaction Baseline"            \
-            -state   disabled                               \
-            -command [mymethod AdjustSelected]
-
-        cond::availableSingle control $adjustbtn \
-            order   MAD:SAT:ADJUST               \
-            browser $win
-
         install inputbtn using mktoolbutton $bar.input \
-            ::marsgui::icon::pencili22              \
+            ::marsgui::icon::pencil22                  \
             "Magic Satisfaction Input"                 \
             -state   disabled                          \
             -command [mymethod InputForSelected]
@@ -91,7 +80,6 @@ snit::widgetadaptor satbrowser_sim {
             order   MAD:SAT:INPUT               \
             browser $win
 
-        pack $adjustbtn -side left
         pack $inputbtn  -side left
 
         # NEXT, update individual entities when they change.
@@ -114,17 +102,7 @@ snit::widgetadaptor satbrowser_sim {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::availableSingle update [list $adjustbtn $inputbtn]
-    }
-
-    # AdjustSelected
-    #
-    # Called when the user wants to adjust the selected entity.
-
-    method AdjustSelected {} {
-        set id [lindex [$hull uid curselection] 0]
-
-        order enter MAD:SAT:ADJUST id $id
+        cond::availableSingle update [list $inputbtn]
     }
 
     # InputForSelected

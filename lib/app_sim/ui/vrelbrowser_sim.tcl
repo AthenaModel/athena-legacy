@@ -45,7 +45,6 @@ snit::widgetadaptor vrelbrowser_sim {
     #-------------------------------------------------------------------
     # Components
 
-    component adjustbtn     ;# The "Adjust" button
     component inputbtn      ;# The "Input" button
 
     #--------------------------------------------------------------------
@@ -71,19 +70,9 @@ snit::widgetadaptor vrelbrowser_sim {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install adjustbtn using mktoolbutton $bar.adjust    \
-            ::marsgui::icon::pencila22                   \
-            "Magic Adjust Vertical Relationship Baseline" \
-            -state   disabled                               \
-            -command [mymethod AdjustSelected]
-
-        cond::availableSingle control $adjustbtn \
-            order   MAD:VREL:ADJUST              \
-            browser $win
-
         install inputbtn using mktoolbutton $bar.input \
-            ::marsgui::icon::pencili22              \
-            "Magic Vertical Relationship Input"      \
+            ::marsgui::icon::pencil22                  \
+            "Magic Vertical Relationship Input"        \
             -state   disabled                          \
             -command [mymethod InputForSelected]
 
@@ -91,7 +80,6 @@ snit::widgetadaptor vrelbrowser_sim {
             order   MAD:VREL:INPUT               \
             browser $win
 
-        pack $adjustbtn -side left
         pack $inputbtn  -side left
 
         # NEXT, update individual entities when they change.
@@ -114,17 +102,7 @@ snit::widgetadaptor vrelbrowser_sim {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::availableSingle update [list $adjustbtn $inputbtn]
-    }
-
-    # AdjustSelected
-    #
-    # Called when the user wants to adjust the selected entity.
-
-    method AdjustSelected {} {
-        set id [lindex [$hull uid curselection] 0]
-
-        order enter MAD:VREL:ADJUST id $id
+        cond::availableSingle update [list $inputbtn]
     }
 
     # InputForSelected

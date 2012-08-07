@@ -797,12 +797,6 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:SAT:INPUT
         $self AddOrder $submenu MAD:COOP:INPUT
 
-        
-        $self AddOrder $submenu MAD:HREL:ADJUST
-        $self AddOrder $submenu MAD:VREL:ADJUST
-        $self AddOrder $submenu MAD:SAT:ADJUST
-        $self AddOrder $submenu MAD:COOP:ADJUST
-
         # Orders/Actors
         set submenu [menu $ordersmenu.actor]
         $ordersmenu add cascade -label "Actors" \
@@ -862,7 +856,6 @@ snit::widget appwin {
         $self AddOrder $submenu HREL:OVERRIDE
         $self AddOrder $submenu HREL:RESTORE
         $self AddOrder $submenu MAD:HREL:INPUT
-        $self AddOrder $submenu MAD:HREL:ADJUST
     
         # Orders/Vert. Relationship Menu
         set submenu [menu $ordersmenu.vrel]
@@ -872,7 +865,6 @@ snit::widget appwin {
         $self AddOrder $submenu VREL:OVERRIDE
         $self AddOrder $submenu VREL:RESTORE
         $self AddOrder $submenu MAD:VREL:INPUT
-        $self AddOrder $submenu MAD:VREL:ADJUST
     
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]
@@ -881,7 +873,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu SAT:UPDATE
         $self AddOrder $submenu MAD:SAT:INPUT
-        $self AddOrder $submenu MAD:SAT:ADJUST
 
         # Orders/Cooperation Menu
         set submenu [menu $ordersmenu.coop]
@@ -890,7 +881,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu COOP:UPDATE
         $self AddOrder $submenu MAD:COOP:INPUT
-        $self AddOrder $submenu MAD:COOP:ADJUST
 
         # Orders/Comm. Asset Package Menu
         set submenu [menu $ordersmenu.cap]

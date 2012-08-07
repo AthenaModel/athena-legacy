@@ -44,7 +44,6 @@ snit::widgetadaptor coopbrowser_sim {
     #-------------------------------------------------------------------
     # Components
 
-    component adjustbtn     ;# The "Adjust" button
     component inputbtn      ;# The "Input" button
 
     #--------------------------------------------------------------------
@@ -70,18 +69,8 @@ snit::widgetadaptor coopbrowser_sim {
         # NEXT, create the toolbar buttons
         set bar [$hull toolbar]
 
-        install adjustbtn using mktoolbutton $bar.adjust    \
-            ::marsgui::icon::pencila22                      \
-            "Magic Adjust Coooperation Baseline"            \
-            -state   disabled                               \
-            -command [mymethod AdjustSelected]
-
-        cond::availableSingle control $adjustbtn \
-            order   MAD:COOP:ADJUST              \
-            browser $win
-
         install inputbtn using mktoolbutton $bar.input \
-            ::marsgui::icon::pencili22                 \
+            ::marsgui::icon::pencil22                  \
             "Magic Cooperation Input"                  \
             -state   disabled                          \
             -command [mymethod InputForSelected]
@@ -90,7 +79,6 @@ snit::widgetadaptor coopbrowser_sim {
             order   MAD:COOP:INPUT              \
             browser $win
 
-        pack $adjustbtn -side left
         pack $inputbtn  -side left
 
         # NEXT, update individual entities when they change.
@@ -112,17 +100,7 @@ snit::widgetadaptor coopbrowser_sim {
 
     method SelectionChanged {} {
         # FIRST, update buttons
-        cond::availableSingle update [list $adjustbtn $inputbtn]
-    }
-
-    # AdjustSelected
-    #
-    # Called when the user wants to adjust the selected entity.
-
-    method AdjustSelected {} {
-        set id [lindex [$hull uid curselection] 0]
-
-        order enter MAD:COOP:ADJUST id $id
+        cond::availableSingle update [list $inputbtn]
     }
 
     # InputForSelected

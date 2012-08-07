@@ -21,7 +21,7 @@ page /order mad "Magic Attitude Driver Orders" {
     situations.  The set of drivers is not all encompassing, and so
     Athena allows the analyst to create <i>Magic Attitude Drivers</i>
     (MADs).  Once a MAD is created, the analyst may associate with it a
-    variety of attitude adjustments and inputs; and the effects of
+    variety of attitude inputs; and the effects of
     these inputs will be associated with the MAD when viewing the history.<p>
 
     The following orders are used to create and manipulate MADs:<p>
@@ -114,12 +114,12 @@ order MAD:CREATE "Create Magic Attitude Driver" {
 
     Creates a new Magic Attitude Driver (MAD).  The narrative need
     not be unique, but should remind the analyst of the reason for the
-    attitude inputs and adjustments associated with the MAD.<p>
+    attitude inputs associated with the MAD.<p>
 
     All magic inputs associated with this MAD will use
     the specified cause, near factor, and far factor.<p>
 
-    <b>Note:</b> Once any attitude inputs or adjustments have been
+    <b>Note:</b> Once any attitude inputs have been
     associated with this MAD, it can no longer be deleted.<p>
 
     This order can be <<cref /command/send sent>> by the
@@ -137,7 +137,7 @@ order MAD:DELETE "Delete Magic Attitude Driver" {
     <</parmlist>>
 
     Deletes the specified MAD.  Note that a MAD cannot be deleted once
-    any attitude inputs or adjustments have been associated with it.
+    any attitude inputs have been associated with it.
 }
 
 #-------------------------------------------------------------------
@@ -181,7 +181,7 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
 page /order/mad hrel "Magic Horizontal Relationship Orders" {
     <<title>>
 
-    These orders are used to adjust and otherwise influence 
+    These orders are used to influence 
     horizontal relationship levels.  All such changes are attributes to
     some Magic Attitude Driver (MAD).<p>
 
@@ -193,6 +193,15 @@ page /order/mad hrel "Magic Horizontal Relationship Orders" {
 #-----------------------------------------------------------------------
 
 order MAD:HREL:ADJUST "Magic Adjust Horizontal Relationship Baseline" {
+    This order is primarily useful in testing via the
+    <<command send>> executive command.  It adjusts the value 
+    of the specified horizontal relationship curve's 
+    baseline by the specified amount, clamping the curve's value to
+    the range 0.0, 100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.<p>
+
     <<parmlist>>
     
     <<parm id "Curve">>
@@ -210,13 +219,6 @@ order MAD:HREL:ADJUST "Magic Adjust Horizontal Relationship Baseline" {
     number.
     <</parm>>
     <</parmlist>>
-
-    Adjusts the value of the specified horizontal relationship curve's 
-    baseline by the specified amount, clamping the curve's value to
-    the range 0.0, 100.0 if need be.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -261,7 +263,7 @@ order MAD:HREL:INPUT "Magic Horizontal Relationship Input" {
 page /order/mad vrel "Magic Vertical Relationship Orders" {
     <<title>>
 
-    These orders are used to adjust and otherwise influence 
+    These orders are used to influence 
     vertical relationship levels.  All such changes are attributes to
     some Magic Attitude Driver (MAD).<p>
 
@@ -274,6 +276,16 @@ page /order/mad vrel "Magic Vertical Relationship Orders" {
 #-----------------------------------------------------------------------
 
 order MAD:VREL:ADJUST "Magic Adjust Vertical Relationship Baseline" {
+    This order is primarily useful in testing via the
+    <<command send>> executive command.  It adjusts the value 
+    of the specified vertical relationship curve's 
+    baseline
+    by the specified amount, clamping the curve's value to the range 0.0,
+    100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.<p>
+
     <<parmlist>>
     
     <<parm id "Curve">>
@@ -292,13 +304,6 @@ order MAD:VREL:ADJUST "Magic Adjust Vertical Relationship Baseline" {
     <</parm>>
     <</parmlist>>
 
-    Adjusts the value of the specified vertical relationship curve's 
-    baseline
-    by the specified amount, clamping the curve's value to the range 0.0,
-    100.0 if need be.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -343,7 +348,7 @@ order MAD:VREL:INPUT "Magic Vertical Relationship Input" {
 page /order/mad sat "Magic Satisfaction Orders" {
     <<title>>
 
-    These orders are used to adjust and otherwise influence 
+    These orders are used to influence 
     satisfaction levels.  All such changes are attributes to
     some Magic Attitude Driver (MAD).<p>
 
@@ -355,6 +360,15 @@ page /order/mad sat "Magic Satisfaction Orders" {
 #-----------------------------------------------------------------------
 
 order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
+    This order is primarily useful in testing via the
+    <<command send>> executive command.  It adjusts the value 
+    of the specified satisfaction curve's
+    baseline by the specified amount, clamping the curve's value to 
+    the range -100.0, 100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.<p>
+
     <<parmlist>>
     
     <<parm id "Curve">>
@@ -372,13 +386,6 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
     number.
     <</parm>>
     <</parmlist>>
-
-    Immediately adjusts the value of the specified satisfaction curve's
-    baseline by the specified amount, clamping the curve's value to 
-    the range -100.0, 100.0 if need be.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -424,7 +431,7 @@ order MAD:SAT:INPUT "Magic Satisfaction Input" {
 page /order/mad coop "Magic Cooperation Orders" {
     <<title>>
 
-    These orders are used to adjust and otherwise influence 
+    These orders are used to influence 
     cooperation levels.  All such changes are attributes to
     some Magic Attitude Driver (MAD).<p>
 
@@ -436,6 +443,15 @@ page /order/mad coop "Magic Cooperation Orders" {
 #-----------------------------------------------------------------------
 
 order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
+    This order is primarily useful in testing via the
+    <<command send>> executive command.  It adjusts the value 
+    of the specified cooperation curve's baseline
+    by the specified amount, clamping the curve's value to the range 0.0,
+    100.0 if need be.<p>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.<p>
+
     <<parmlist>>
     
     <<parm id "Curve">>
@@ -454,13 +470,6 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
     number.
     <</parm>>
     <</parmlist>>
-
-    Adjusts the value of the specified cooperation curve's baseline
-    by the specified amount, clamping the curve's value to the range 0.0,
-    100.0 if need be.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
