@@ -1505,6 +1505,142 @@ snit::type ::projectlib::parmdb {
             "
         }
 
+        $ps subset force.law {
+            These parameters relate to the effect of law enforcement 
+            activities by force groups on the background level of
+            criminal activity, and hence on volatility.
+        }
+
+        $ps define force.law.suppfrac ::projectlib::rfraction 1.0 {
+            This is the fraction of a civilian group's criminal activity
+            that can be suppressed by law enforcement.
+        }
+
+        $ps subset force.law.beta {
+            These parameters indicate how effective force group activities 
+            are at reducing volatility in the neighborhood.
+        }
+
+        foreach a {
+            NONE
+            CHECKPOINT
+            CMO_CONSTRUCTION
+            CMO_DEVELOPMENT
+            CMO_EDUCATION
+            CMO_EMPLOYMENT
+            CMO_HEALTHCARE
+            CMO_INDUSTRY
+            CMO_INFRASTRUCTURE
+            CMO_LAW_ENFORCEMENT
+            CMO_OTHER
+            COERCION
+            CRIMINAL_ACTIVITIES
+            CURFEW
+            GUARD
+            PATROL
+            PSYOP
+        } {
+            $ps define force.law.beta.$a ::projectlib::rgain 1.0 {
+                How effective this activity is at reducing volatility
+                and criminal activities in the neighborhood.
+            }
+        }
+
+        $ps setdefault force.law.beta.NONE                0.0
+        $ps setdefault force.law.beta.CHECKPOINT          0.5
+        $ps setdefault force.law.beta.CMO_CONSTRUCTION    0.0
+        $ps setdefault force.law.beta.CMO_DEVELOPMENT     0.0
+        $ps setdefault force.law.beta.CMO_EDUCATION       0.0
+        $ps setdefault force.law.beta.CMO_EMPLOYMENT      0.0
+        $ps setdefault force.law.beta.CMO_HEALTHCARE      0.0
+        $ps setdefault force.law.beta.CMO_INDUSTRY        0.0
+        $ps setdefault force.law.beta.CMO_INFRASTRUCTURE  0.0
+        $ps setdefault force.law.beta.CMO_LAW_ENFORCEMENT 1.0
+        $ps setdefault force.law.beta.CMO_OTHER           0.3
+        $ps setdefault force.law.beta.COERCION            0.3
+        $ps setdefault force.law.beta.CRIMINAL_ACTIVITIES 0.0
+        $ps setdefault force.law.beta.CURFEW              1.2
+        $ps setdefault force.law.beta.GUARD               1.0
+        $ps setdefault force.law.beta.PATROL              1.0
+        $ps setdefault force.law.beta.PSYOP               0.3
+
+        $ps subset force.law.coverage {
+            These parameters are coverage functions for law enforcement
+            activities, in terms of the neighborhood's urbanization
+            level.  If coverage is 1.0, then background criminal activities
+            are completely suppressed.  The input is a complex measure of
+            personnel involved in activities that relate in some way to
+            law enforcement or suppression of crime.
+        }
+
+        foreach {urb func} {
+            ISOLATED {1.0 1000}
+            RURAL    {1.0 1000}
+            SUBURBAN {2.0 1000}
+            URBAN    {3.0 1000}
+        } { 
+            $ps define force.law.coverage.$urb ::simlib::coverage $func "
+                Law enforcement coverage function for $urb neighborhoods.
+            "
+        }
+
+        $ps subset force.law.efficiency {
+            This is set of multipliers indicating the efficiency of a
+            force group at law enforcement given its training level.
+        }
+
+        foreach {name val} {
+            PROFICIENT 1.0
+            FULL       0.9
+            PARTIAL    0.7
+            NONE       0.4
+        } {
+            $ps define force.law.efficiency.$name ::projectlib::rgain $val "
+                Given a training level of $name, a non-negative
+                multiplier indicating how efficient the force group 
+                will be at law enforcement.
+            "
+        }
+
+        $ps subset force.law.suitability {
+            A family of non-negative multipliers, by force type, indicating
+            how suitable a force of the given type is for performing
+            law enforcement activities.
+        }
+
+        foreach {name val} {
+            REGULAR       0.8
+            PARAMILITARY  0.6
+            POLICE        1.0
+            IRREGULAR     0.3
+            CRIMINAL      0.6
+        } {
+            $ps define force.law.suitability.$name ::projectlib::rgain $val {
+                A non-negative multiplier indicating how suitable a force
+                group of a given type is to performing law enforcement
+                activities.
+            }
+        }
+
+        $ps subset force.law.UnsuppCF {
+            A family of Z-curves indicating the fraction of a civilian
+            group that will engage in criminal activities as a function
+            of the group's unemployment per capita.
+        }
+
+        foreach {name zcurve} {
+            AGGRESSIVE  {0.05 4.0 20.0 0.20}
+            AVERAGE     {0.04 4.0 20.0 0.15}
+            APATHETIC   {0.03 4.0 20.0 0.10}
+        } {
+            $ps define force.law.UnsuppCF.$name ::marsutil::zcurve $zcurve "
+                A Z-curve, indicating the fraction of a civilian group
+                with demeanor $name that will engage in criminal
+                activities, as a function of group's unemployment per
+                capita percentage.
+            "
+        }
+
         $ps subset force.orgtype {
             For units belonging to organization groups, this set of dials
             determines the contribution to force of each person in the unit,

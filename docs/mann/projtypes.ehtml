@@ -185,6 +185,13 @@ check, and is currently unusable.<p>
 
 <<::projectlib::etopic_state html>>
 
+<<defitem etraining {etraining <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing force group training
+levels.<p>
+
+<<::projectlib::etraining html>>
+
 <<defitem eurbanization {eurbanization <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing neighborhood urbanization
