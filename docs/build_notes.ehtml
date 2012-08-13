@@ -11,6 +11,28 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.11, 13 August 2012</h3>
+
+This build continues the 6x6 CGE integration, and also includes the
+revised Security Model, including activity force multipliers,
+actor-specified force group stance, and background criminal activity.
+There are also a number of bug fixes.<p>
+
+<ul>
+<li> Bug 3549: Highlighting the Not Found message causes an error
+<li> Bug 3579: Contributions pages: display actual contribution as weekly average.
+<li> Bug 3602: Affinity? does not have a default value
+<li> Bug 3603: Econ tab not displaying info
+<li> Bug 3604: FUND tactic list of actors
+<li> Bug 3605: Support Actor tactic list of possible actors
+<li> Bug 3612: Activity Force Multipliers
+<li> Bug 3614: Stance effect on Security
+<li> Bug 3618: De-emphasize magic adjustments
+<li> Bug 3619: parmdb(5): Law Enforcement/Background Criminal Activity model parameters
+<li> Bug 3627: athena(1): update econ model to use 6x6 CGE
+<li> Bug 3628: Background Criminal Activity
+</ul><p>
+
 <h3>Build 4.0.10, 2 August 2012</h3>
 
 This build contains preliminary work for the updated Security model:
