@@ -26,6 +26,12 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version e: Changed default values for the BX.i.j to the ones found
+#               in the most recent version of the econ paper.
+#
+#               Normalized f.goods.goods and f.pop.goods to 1.0
+#               Normalized f.goods.pop, f.black.pop and f.pop.pop to 1.0
+#
 #    Version d: Simplified the SAM definition.
 #               BX.ab in the SAM does not include BNR.b.
 #                X.ab in the CGE does include NR.b.
@@ -87,49 +93,49 @@ index il  {goods black pop}                     ;# sectors in the local
 
 # All BX.i.j values are from a SAM
 let BX.goods.goods  = 8.13e8
-let BX.goods.black  = 2.0e7
-let BX.goods.pop    = 2.8e9
-let BX.goods.actors = 2.2e9
-let BX.goods.region = 2.5e9
-let BX.goods.world  = 1.13e8
+let BX.goods.black  = 5.0e6
+let BX.goods.pop    = 1.01e8
+let BX.goods.actors = 3.035e9
+let BX.goods.region = 2.719e9
+let BX.goods.world  = 1.02e8
 
 let BX.black.goods = 0.0
 let BX.black.black = 0.0
-let BX.black.pop   = 3.0e6
-let BX.black.actors = 1.4e9
+let BX.black.pop   = 1.0e6
+let BX.black.actors = 1.518e9
 let BX.black.region = 9.06e8
 let BX.black.world  = 23.800e9
 
-let BX.pop.goods    = 4.4e9
-let BX.pop.black    = 2.2e7
+let BX.pop.goods    = 3.252e9
+let BX.pop.black    = 2.1e7
 let BX.pop.pop      = 3.6e7
-let BX.pop.actors   = 1.0e8
+let BX.pop.actors   = 6.071e9
 let BX.pop.region   = 4.53e8
 let BX.pop.world    = 7.0e7
 
-let BX.actors.goods = 8.45e8
-let BX.actors.black = 2.611e9
-let BX.actors.pop   = 7.62e8
-let BX.actors.actors = 6.02e8
-let BX.actors.region = 1.2e9
+let BX.actors.goods = 1.355e9
+let BX.actors.black = 12.294e9
+let BX.actors.pop   = 7.0e6
+let BX.actors.actors = 1.518e9
+let BX.actors.region = 0.0
 let BX.actors.world  = 3.0e6
 
-let BX.region.goods  = 1.123e9
-let BX.region.black  = 2.611e9
-let BX.region.pop    = 7.62e8
-let BX.region.actors = 1.205e9
-let BX.region.region = 8.0e8
-let BX.region.world  = 1.5e9
+let BX.region.goods  = 6.77e8
+let BX.region.black  = 5.245e9
+let BX.region.pop    = 7.0e6
+let BX.region.actors = 3.035e9
+let BX.region.region = 9.062e9
+let BX.region.world  = 7.0e6
 
-let BX.world.goods   = 1.267e9
-let BX.world.black   = 2.611e9
-let BX.world.pop     = 1.524e9
-let BX.world.actors  = 2.409e9
-let BX.world.region  = 9.6e8
+let BX.world.goods   = 6.77e8
+let BX.world.black   = 8.659e9
+let BX.world.pop     = 2.8e7
+let BX.world.actors  = 0.0
+let BX.world.region  = 4.894e9
 let BX.world.world   = 0.0
 
 
-let BP.black = 500000  ;# Base price in the black sector $/ton
+let BP.black = 500000  ;# Base price in the black sector $/tonne
 let BP.pop   = 400     ;# Base price in the pop sector $/work-year
 let BP.goods = 1       ;# Base price in the goods sector $/goodsBKT
 let BP.actors = 0
@@ -149,7 +155,6 @@ define t.i.j {i j} {[BX.$i.$j] / [BREV.$j]}
 define k.j {j} {1.0 - ([t.actors.$j] + [t.region.$j] + [t.world.$j])}
 define f.i.j {i j} {[BX.$i.$j] / ([k.$j] * [BREV.$j])}
 define A.i.j {i j} {[BX.$i.$j] / ([BP.$i] * [BQD.$j])}
-
 
 #
 #-----------------------------------------------------------------------
@@ -195,9 +200,12 @@ let t.region.goods = {<:t.i.j region goods:>}
 let t.world.goods  = {<:t.i.j world goods:>}
 let k.goods = {<:k.j goods:>}
 
-let f.goods.goods = {<:f.i.j goods goods:>}
+# Ensure that f.goods.goods and f.pop.goods are normalized to 1.0
+# SUM.g is just an intermediate value to aid in normalization
+let SUM.g = {<:f.i.j goods goods:> + <:f.i.j pop goods:>}
+let f.goods.goods = {<:f.i.j goods goods:> / [SUM.g]}
 let f.black.goods = 0.0  ;# bullet proofing: f.black.goods is not defined
-let f.pop.goods   = {<:f.i.j pop goods:>}
+let f.pop.goods   = {<:f.i.j pop goods:> / [SUM.g]}
 
 # For the black sector
 
@@ -211,16 +219,19 @@ let t.region.black = {<:t.i.j region black:>}
 
 let t.world.black = {[BX.world.black] / [BREV.black]}
 
-# For the pop sector
-
 let f.pop.black = 0.0 ;# need to have a value for display purposes
-let f.pop.world = 0.0 ;# need to have a value for display purposes
+
+# For the pop sector
 
 let k.pop = {<:k.j pop:>}
 let BATI.pop = {[RFN] + [k.pop] * [BP.pop] * [BQD.pop]}
 
+# Ensure that f.goods.pop, f.black.pop and f.pop.pop are normalized to 1.0
+# SUM.p is just an intermediate value to aid in normalization
+let SUM.p = {([BX.goods.pop] + [BX.black.pop] + [BX.pop.pop]) / [BATI.pop]}
+
 foreach i {goods black pop} {
-    let f.$i.pop = {[BX.$i.pop] / [BATI.pop]}
+    let f.$i.pop = {([BX.$i.pop] / [BATI.pop]) / [SUM.p]}
 }
 
 foreach i {actors region world} {
@@ -234,9 +245,16 @@ foreach i {goods black pop actors region world} {
 }
 
 # For the region sector
+# Assume a balanced budget for the time being, in which case the f's should
+# be normalized to 1.0
+let SUM.r = {
+    ([BX.goods.region]  + [BX.black.region]  + [BX.pop.region] +
+     [BX.actors.region] + [BX.region.region] + [BX.world.region]) /
+     [BREV.region]
+}
 
 foreach i {goods black pop actors region world} {
-    let f.$i.region = {[BX.$i.region] / [BREV.region]}
+    let f.$i.region = {([BX.$i.region] / [BREV.region]) / [SUM.r]}
 }
 
 # For the world sector
@@ -245,6 +263,8 @@ foreach i {goods black pop actors region world} {
 let FAA = {[BX.actors.world]}
 let FAR = {[BX.region.world]}
 
+let f.pop.world = 0.0 ;# need to have a value for display purposes
+
 # Everything that was computed is of interest to the CGE except the 
-# intermediate variable BATI.pop .
+# intermediate variables BATI.pop, SUM.g, SUM.p and SUM.r.
 

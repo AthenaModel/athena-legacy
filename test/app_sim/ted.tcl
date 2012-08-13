@@ -559,6 +559,7 @@ snit::type ted {
         parm     reset
         eventq   restart
         bsystem  clear
+        econ     reset
         simclock reset
         aram     clear
 

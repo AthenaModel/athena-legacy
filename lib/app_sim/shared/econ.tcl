@@ -94,8 +94,8 @@ snit::type econ {
 
         # NEXT, handle failures.
         if {$result ne "ok"} {
-            log warning econ "Failed to calibrate"
-            error "Failed to calibrate economic model."
+            log warning econ "Failed to solve SAM"
+            error "Failed to solve SAM model."
         }
 
         # NEXT, create the CGE.
@@ -127,29 +127,81 @@ snit::type econ {
         }
     }
 
-    # Type Method: UpdateShape
+    # Type Method: reset
     #
-    # Updates the shape cells if the relevant parms are changed during
-    # prep.
+    # Resets the econ model to the initial state for both the SAM
+    # and the CGE
 
-    typemethod UpdateShape {} {
-        # FIRST, Skip if we're not in PREP.
-        if {[sim state] ne "PREP"} {
-            return
+    typemethod reset {} {
+        $sam reset
+        set result [sam solve]
+
+        if {$result ne "ok"} {
+            log warning econ "Failed to reset SAM"
+            error "Failed to reset SAM model"
         }
 
-        # NEXT, update the cge.
-        cge set [list \
-                     BP.pop        [parmdb get econ.BaseWage]         \
-                     A.goods.pop   [parmdb get econ.GBasketPerCapita] \
-                     f.goods.goods [parmdb get econ.f.goods.goods]    \
-                     f.pop.goods   [parmdb get econ.f.pop.goods]      \
-                     f.goods.pop   [parmdb get econ.f.goods.pop]      \
-                     f.pop.pop     [parmdb get econ.f.pop.pop]        \
-                     f.goods.else  [parmdb get econ.f.goods.else]     \
-                     f.pop.else    [parmdb get econ.f.pop.else]]
+        $cge reset
 
-        notifier send ::econ <Shape>
+        $type InitializeCGE
+    }
+
+    # Type Method: InitializeCGE
+    #
+    # Updates the shape cells of the CGE from the data in the SAM.
+
+    typemethod InitializeCGE {} {
+        # FIRST, get indices from the SAM, sectors is all sectors and
+        # lsectors is just the local sectors (goods, black and pop)
+        set sectors  [$sam index i]
+
+        # NEXT, base prices from the SAM
+        foreach i $sectors {
+            cge set [list BP.$i [dict get [$sam get] BP.$i]]
+        }
+
+        # NEXT, shape parameters for the economy
+        # The goods sector
+        foreach i {goods black pop} {
+            cge set [list f.$i.goods [dict get [$sam get] f.$i.goods]]
+        }
+       
+        foreach i {actors region world} {
+            cge set [list t.$i.goods [dict get [$sam get] t.$i.goods]]
+        }
+
+        cge set [list k.goods [dict get [$sam get] k.goods]]
+
+        # The black sector
+        foreach i {goods black pop} {
+            cge set [list A.$i.black [dict get [$sam get] A.$i.black]]
+        }
+
+        foreach i {actors region world} {
+            cge set [list t.$i.black [dict get [$sam get] t.$i.black]]
+        }
+
+        # The pop sector
+        cge set [list k.pop   [dict get [$sam get] k.pop]]
+
+        foreach i {goods black pop} {
+            cge set [list f.$i.pop [dict get [$sam get] f.$i.pop]]
+        }
+
+        foreach i {actors region world} {
+            cge set [list t.$i.pop [dict get [$sam get] t.$i.pop]]
+        }
+
+        # The actors and region sectors
+        foreach i $sectors {
+            cge set [list f.$i.actors [dict get [$sam get] f.$i.actors]]
+            cge set [list f.$i.region [dict get [$sam get] f.$i.region]]
+        }
+
+        # The world sector
+        cge set [list FAA [dict get [$sam get] FAA]]
+        cge set [list FAR [dict get [$sam get] FAR]]
+
     }
 
     #-------------------------------------------------------------------
@@ -171,10 +223,13 @@ snit::type econ {
     typemethod start {} {
         log normal econ "start"
 
+        $type InitializeCGE
+
         if {![parmdb get econ.disable]} {
             set info(econOK) [$type analyze -calibrate]
-        
+
             set startdict [$cge get]
+
             log normal econ "start complete"
         } else {
             log warning econ "disabled"
@@ -234,19 +289,15 @@ snit::type econ {
 
             array set data [demog getlocal]
 
+            $type InitializeCGE
+
             cge set [list \
-                         BP.pop        [parmdb get econ.BaseWage]         \
-                         A.goods.pop   [parmdb get econ.GBasketPerCapita] \
-                         f.goods.goods [parmdb get econ.f.goods.goods]    \
-                         f.pop.goods   [parmdb get econ.f.pop.goods]      \
-                         f.goods.pop   [parmdb get econ.f.goods.pop]      \
-                         f.pop.pop     [parmdb get econ.f.pop.pop]        \
-                         f.goods.else  [parmdb get econ.f.goods.else]     \
-                         f.pop.else    [parmdb get econ.f.pop.else]       \
-                         BaseConsumers $data(consumers)                   \
-                         In::Consumers $data(consumers)                   \
-                         In::WF        $data(labor_force)                 \
-                         In::LSF       $LSF]
+                         BaseConsumers $data(consumers)        \
+                         graft         [parmdb get econ.graft] \
+                         In::Consumers $data(consumers)        \
+                         In::LF        $data(labor_force)      \
+                         In::LSF       $LSF                    \
+                         A.goods.pop   [parmdb get econ.GBasketPerCapita]]
 
             # NEXT, calibrate the CGE.
             set result [cge solve]
@@ -256,8 +307,8 @@ snit::type econ {
 
             # NEXT, handle failures.
             if {$result ne "ok"} {
-                log warning econ "Failed to calibrate"
-                error "Failed to calibrate economic model."
+                log warning econ "Failed to calibrate: $result"
+                error "Failed to calibrate economic model: $result"
             }
 
             # NEXT, Compute the initial CAP.goods.
@@ -312,7 +363,7 @@ snit::type econ {
 
         cge set [list \
                      In::Consumers $data(consumers)   \
-                     In::WF        $data(labor_force) \
+                     In::LF        $data(labor_force) \
                      In::CAP.goods $CAPgoods          \
                      In::LSF       $LSF]
 
@@ -421,8 +472,9 @@ snit::type econ {
 
     # Type Method: sam
     #
-    # Returns the cellmodel object for the SAM, for use by 
-    # browsers.
+    # Returns either a copy of the SAM or the SAM read in during 
+    # initialization. The GUI uses a copy of the SAM for it's
+    # purposes.
 
     typemethod sam {{copy {0}}} {
         # FIRST, create the SAM
@@ -513,9 +565,10 @@ snit::type econ {
             # FIRST, get the old value, this is for undo
             set oldval [dict get [sam get] $id]
 
-            # NEXT, update the cell model and notify that the cell has been
-            # updated
+            # NEXT, update the cell model, solve it and notify that the 
+            # cell has been updated
             sam set [list $id $val]
+            sam solve
             notifier send ::econ <CellUpdate> $id $val
 
             # NEXT, return the undo command

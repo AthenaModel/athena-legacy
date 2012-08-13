@@ -91,12 +91,6 @@ snit::type parm {
         parmdb lock econ.ticksPerTock
         parmdb lock econ.BaseWage
         parmdb lock econ.GBasketPerCapita
-        parmdb lock econ.f.goods.goods
-        parmdb lock econ.f.pop.goods
-        parmdb lock econ.f.goods.pop
-        parmdb lock econ.f.pop.pop
-        parmdb lock econ.f.goods.else
-        parmdb lock econ.f.pop.else
     }
 
 

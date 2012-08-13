@@ -103,7 +103,7 @@ snit::widget samsheet {
             Double click a cell to edit. Press "Enter" to save, 
             press "Esc" to cancel editing.<p>
             <table>
-             <tr>
+              <tr>
                 <td colspan=2>
                   <b style="font-size:12px">SAM Inputs</b><p>
                   <input name="matrix">
@@ -166,18 +166,19 @@ snit::widget samsheet {
         let cdunits {$ncols - 2}
 
         # NEXT, create the cmsheet(n).
-        install matrix using cmsheet $w       \
-            -cellmodel   $sam                \
-            -state       normal              \
-            -rows        $nrows              \
-            -cols        $ncols              \
-            -roworigin   -1                  \
-            -colorigin   -1                  \
-            -titlerows   1                   \
-            -titlecols   1                   \
-            -validatecmd [mymethod ValidateMoney] \
-            -changecmd   [mymethod CellChanged]   \
-            -formatcmd   ::marsutil::moneyfmt
+        install matrix using cmsheet $w               \
+            -cellmodel     $sam                       \
+            -state         normal                     \
+            -rows          $nrows                     \
+            -cols          $ncols                     \
+            -roworigin     -1                         \
+            -colorigin     -1                         \
+            -titlerows     1                          \
+            -titlecols     1                          \
+            -browsecommand [mymethod BrowseCmd $w %C] \
+            -validatecmd   [mymethod ValidateMoney]   \
+            -changecmd     [mymethod CellChanged]     \
+            -formatcmd     ::marsutil::moneyfmt
 
 
         # NEXT, add titles and empty area
@@ -235,18 +236,19 @@ snit::widget samsheet {
 
     method CreateScalarInputs {w} {
         # FIRST, create the cmsheet(n), which is readonly
-        install inputs using cmsheet $w    \
-            -roworigin 0                   \
-            -colorigin 0                   \
-            -cellmodel $sam                \
-            -state     normal              \
-            -rows      4                   \
-            -cols      3                   \
-            -titlerows 0                   \
-            -titlecols 1                   \
-            -validatecmd [mymethod ValidateMoney] \
-            -changecmd   [mymethod CellChanged]   \
-            -formatcmd ::marsutil::moneyfmt
+        install inputs using cmsheet $w               \
+            -roworigin     0                          \
+            -colorigin     0                          \
+            -cellmodel     $sam                       \
+            -state         normal                     \
+            -rows          4                          \
+            -cols          3                          \
+            -titlerows     0                          \
+            -titlecols     1                          \
+            -browsecommand [mymethod BrowseCmd $w %C] \
+            -validatecmd   [mymethod ValidateMoney]   \
+            -changecmd     [mymethod CellChanged]     \
+            -formatcmd     ::marsutil::moneyfmt
 
         # NEXT, add titles 
         $inputs textcol 0,0 {
@@ -283,16 +285,17 @@ snit::widget samsheet {
 
     method CreateScalarOutputs {w} {
         # FIRST, create the cmsheet(n)
-        install outputs using cmsheet $w \
-            -roworigin 0                 \
-            -colorigin 0                 \
-            -cellmodel $sam              \
-            -state     disabled          \
-            -rows      2                 \
-            -cols      3                 \
-            -titlerows 0                 \
-            -titlecols 1                 \
-            -formatcmd ::marsutil::moneyfmt
+        install outputs using cmsheet $w              \
+            -roworigin     0                          \
+            -colorigin     0                          \
+            -cellmodel     $sam                       \
+            -state         disabled                   \
+            -rows          2                          \
+            -cols          3                          \
+            -titlerows     0                          \
+            -titlecols     1                          \
+            -browsecommand [mymethod BrowseCmd $w %C] \
+            -formatcmd     ::marsutil::moneyfmt
 
         $outputs textcol 0,0 {
             "Foreign Aid to Actors"
@@ -313,6 +316,29 @@ snit::widget samsheet {
 
     #-------------------------------------------------------------------
     # Event handlers
+
+    # BrowseCmd sheet rc
+    #
+    # sheet  - the cmsheet(n) object that contains the cells
+    # rc     - row,col index into the supplied cmsheet
+    #
+    # This method extracts the cell name from the supplied cmsheet
+    # object and then converts it to the cell name and extracts the 
+    # raw data and displays it in the app messageline(n) 
+    # using a comma formatted number
+
+    method BrowseCmd {sheet rc} {
+        # FIRST, extract the cell name, if it does not exist, done.
+        if {[$sheet cell $rc] ne ""} {
+            set cell [$sheet cell $rc]
+
+            # NEXT, convert and display in the app message line
+            set val [$sam value $cell]
+            if {[string is double $val]} {
+                app puts [commafmt $val -places 2]
+            } 
+        }
+    }
 
     # ValidateMoney cell new
     #

@@ -94,7 +94,5 @@ image control_weekday    "Control: Weekday"            img/control_weekday.png
 image control_zoom       "Control: Zoom"               img/control_zoom.png
 image econ_sam           "Econ SAM"                    img/econ_sam.png
 image econ_current       "Econ Current Inputs"         img/econ_current.png
-image econ_outputs       "Econ Other Outputs"          img/econ_outputs.png
-image econ_shape         "Econ Shape Inputs"           img/econ_shape.png
 image filterbox          "Filter Box"                  img/filterbox.png
 image viewbox            "View Box"                    img/viewbox.png

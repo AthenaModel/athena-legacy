@@ -609,6 +609,21 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
         $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
 
+        # app.* parameters
+        $ps subset app {
+            Parameters related to how the Athena application should behave
+            under certain circumstances. For now, this is limited to
+            only developer user.
+        }
+
+        $ps define app.dev ::projectlib::boolean no {
+            This flag indicates areas of Athena that should not be
+            accessed because they are under development
+            and should not be used in the course of running. This flag
+            also provides a way of marking the code clearly for these types
+            of areas.
+        }
+
         # attitude.* parameters
         $ps subset attitude {
             Parameters related to Athena's attitudes model.  Note that
@@ -1164,7 +1179,7 @@ snit::type ::projectlib::parmdb {
             Parameters which affect the Athena Economic Model.
         }
 
-        $ps define econ.disable ::projectlib::boolean yes {
+        $ps define econ.disable ::projectlib::boolean no {
             If yes, the Athena economic model is disabled.  The
             economy will not be computed, and economic results will not
             be used.
@@ -1188,42 +1203,15 @@ snit::type ::projectlib::parmdb {
             in the CGE as A.goods.pop.
         }
 
-        $ps subset econ.f {
-            Cobb-Douglas parameters for the CGE, except for the 
-            f.else.j parameters which are computed from the others.
-            Note that the sum over i of f.i.j must be 1.0.
-        }
-
-        foreach i {goods pop} {
-            $ps subset econ.f.$i "
-                Fraction of each sector's revenue spent in sector \"$i\".
-            "
-
-            foreach j {goods pop else} {
-                if {$i eq $j || ($i eq "goods" && $j eq "pop")} {
-                    set mytype ::projectlib::parmdb_posCD
-                } else {
-                    set mytype ::simlib::rfraction
-                }
-
-                $ps define econ.f.$i.$j $mytype 0.1 "
-                    Fraction of sector \"$j\"'s revenue that is spent in
-                    sector \"$i\".
-                "
-            }
-        }
-
-        $ps setdefault econ.f.goods.goods 0.2
-        $ps setdefault econ.f.pop.goods   0.4
-        $ps setdefault econ.f.goods.pop   0.75
-        $ps setdefault econ.f.pop.pop     0.1
-        $ps setdefault econ.f.goods.else  0.3
-        $ps setdefault econ.f.pop.else    0.05
-
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as
             a decimal fraction of the total production capacity.  This 
             value can range from 0.0 to 0.9.
+        }
+
+        $ps define econ.graft ::simlib::rfraction 0.3 {
+            The fraction of Foreign Aid to the region (FAR) that goes
+            to the actors.
         }
 
         $ps subset econ.secFactor {

@@ -360,7 +360,7 @@ snit::widget appwin {
 
         econcge {
             vistype simulation
-            label   "CGE"
+            label   "Overview"
             parent  "econt"
             script  { cgesheet %W }
         }

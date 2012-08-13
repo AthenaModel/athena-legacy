@@ -310,77 +310,6 @@ snit::type sanity {
             }
         }
 
-        # NEXT, The econ(sim) CGE Cobb-Douglas parameters must sum to 
-        # 1.0.  Therefore, econ.f.*.goods and econ.f.*.pop must sum to
-        # <= 1.0, since f.else.goods and f.else.pop can be 0.0, and
-        # f.*.else must sum to no more than 0.95, so that f.else.else
-        # isn't 0.0.
-
-        let sum {
-            [parmdb get econ.f.goods.goods] + 
-            [parmdb get econ.f.pop.goods]
-        }
-
-        if {$sum > 1.0} {
-            set sev ERROR
-
-            $ht dlitem "<b>Error: Invalid Cobb-Douglas Parameters</b>" {
-                econ.f.goods.goods + econ.f.pop.goods > 1.0.  However,
-                Cobb-Douglas parameters must sum to 1.0.  Therefore,
-                the following must be the case:<p>
-
-                econ.f.goods.goods + econ.f.pop.goods <= 1.0<p>
-
-                Use the
-                <a href="my://help/command/parm/set">parm set</a>
-                command to edit the parameter values.
-            }
-        }
-
-        let sum {
-            [parmdb get econ.f.goods.pop] + 
-            [parmdb get econ.f.pop.pop]
-        }
-
-        if {$sum > 1.0} {
-            set sev ERROR
-            $ht dlitem "<b>Error: Invalid Cobb-Douglas Parameters</b>" {
-                econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,
-                Cobb-Douglas parameters must sum to 1.0.  Therefore,
-                the following must be the case:<p>
-
-                econ.f.goods.pop + econ.f.pop.pop <= 1.0<p>
-
-                Use the
-                <a href="my://help/command/parm/set">parm set</a>
-                command to edit the parameter values.
-            }
-        }
-
-
-        let sum {
-            [parmdb get econ.f.goods.else] + 
-            [parmdb get econ.f.pop.else]
-        }
-
-        if {$sum > 0.95} {
-            set sev ERROR
-            $ht dlitem "<b>Error: Invalid Cobb-Douglas Parameters</b>" {
-                econ.f.goods.pop + econ.f.pop.pop > 1.0.  However,
-                Cobb-Douglas parameters must sum to 1.0.  Also, the
-                value of f.else.else cannot be 0.0.  Therefore,
-                the following must be the case:<p>
-
-                econ.f.goods.else + econ.f.pop.else <= 0.95<p>
-
-                Use the
-                <a href="my://help/command/parm/set">parm set</a>
-                command to edit the parameter values.
-            }
-        }
-
-        $ht /dl
-
         # NEXT, we only have content if there were errors.
         set html [$ht pop]
 
@@ -427,7 +356,7 @@ snit::type sanity {
 
     typemethod {ontick report} {ht} {
         # FIRST, do a check and find out what kind of problems we have.
-        set severity [$type onlock check]
+        set severity [$type ontick check]
 
         # NEXT, put an appropriate message at the top of the page.  
         # If we are OK, there's no need to add anything else.
@@ -581,7 +510,7 @@ snit::type sanity {
             }
         }
 
-        if {!$cells(Out::FLAG.DELTAQ.ZERO)} {
+        if {!$cells(Out::FLAG.DELTAQ.ZERO) && [parm get app.dev]} {
             set sev ERROR
 
             $ht dlitem "<b>Error: Economy: Delta-Q non-zero</b>" {
@@ -620,7 +549,7 @@ snit::type sanity {
         set limit [parmdb get econ.check.MinLaborFrac]
 
         if {
-            $cells(In::WF) < $limit * $start(In::WF)
+            $cells(In::LF) < $limit * $start(In::LF)
         } {
             set sev ERROR
 
