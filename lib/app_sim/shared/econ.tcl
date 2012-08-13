@@ -86,7 +86,7 @@ snit::type econ {
                      -tracecmd [mytypemethod TraceCM]]
 
         sam load \
-            [readfile [file join $::app_sim_shared::library SAMtoCGEshape.cm]]
+            [readfile [file join $::app_sim_shared::library sam6x6.cm]]
 
         require {[sam sane]} "The econ model's SAM is not sane."
 
@@ -486,7 +486,7 @@ snit::type econ {
 
             samcopy load \
                 [readfile \
-                    [file join $::app_sim_shared::library SAMtoCGEshape.cm]]
+                    [file join $::app_sim_shared::library sam6x6.cm]]
 
             return $samcopy
         }
