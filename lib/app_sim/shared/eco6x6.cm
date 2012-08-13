@@ -60,6 +60,22 @@
 #
 # HISTORY:
 #
+#    Version j: Introduced an index called "gbp" for the sectors that
+# have product. This is for use by the Athena GUI.
+#    Added some additional default values for some f.i.j that are either 
+# not defined or are always zero.
+#    Changed the deltaQ.i macro to use ediff when comparing to 0.0. This
+# ensures that convergence to within epsilon is reported correctly when
+# sanity checking the econ model.
+#    Changed the LSF to 0.9 from 0.1, the LSF is the fraction of the
+# labor force that is not afraid to work. This resulted in a change to
+# the equation for QS.pop in the short run page to use the LSF directly
+# rather than 1.0 - LSF.
+#    Added some default values for QD.i.j and QD.i on the Out page for GUI
+# purposes.
+#    Fixed an error in the computation for FLAG.P.POS to look at the black,
+# goods and pop sectors rather than just the black sector alone.
+#
 #    Version i: Had to add some zeroed out values to get this cellmodel
 # to load into Athena for display. It is a temporary fix, at least for
 # now until I get more familiarized with how Athena builds widgets from
@@ -141,10 +157,7 @@
 index i   {goods black pop actors region world} ;# all receiving sectors
 index j   {goods black pop actors region world} ;# all paying sectors
 index gp  {goods pop}                           ;# goods sector's suppliers
-
-# This index was put in to get the cmsheet(n) to build, this will need to
-# be replaced with something more appropriate
-index imost {black goods pop}
+index gbp {goods black pop}                     ;# sectors with product
 
 #=======================================================================
 # Null Page  ["page null" is implicit and does not have to be specified.]
@@ -290,6 +303,9 @@ let f.world.region  = {1 - [f.black.region] - [f.goods.region]
 # the cmsheet(n) object happy, this will need to be dealt with more
 # appropriately
 # The zeroed out values above are explained in the previous comment
+let f.black.goods = 0.0 ;# This is not defined
+let f.pop.black   = 0.0 ;# This is always zero
+let f.pop.world   = 0.0 ;# This is always zero
 
 # Base Exports
 let BEXPORTS.black = 47.6e3    ;# tons/year
@@ -465,6 +481,11 @@ let REV.goods = [REV.i goods] -value 2.92125e8
 
 let QD.goods.goods = {[k.goods] * <:CQD.i.j goods goods:>} -value 5.0e7
 let X.goods.goods  = [X.i.j goods goods]                   -value 5.0e7
+
+# Zeroes as place holders
+let QD.black.goods = 0
+let X.black.goods  = 0
+
 let QD.pop.goods   = {[k.goods] * <:CQD.i.j pop goods:>}   -value 1.0e6
 let X.pop.goods    = [X.i.j pop goods]                     -value 1.0e8
 
@@ -522,8 +543,6 @@ let REV.black = [REV.i black]    -value 100e6 ;# WAG to be updated
 # this as being on the S page as well
 let P.black = {[BP.black]} -value 500000
 
-let QD.black.goods = 0
-let X.black.goods  = 0
 let QD.black.black = [LQD.i.j black black]
 let X.black.black  = [X.i.j  black black]
 
@@ -738,7 +757,7 @@ let deltaQD.pop.pop   = {<:deltaQD.i.pop pop:>}
 # to a constrained case, it will not be assured on the CAL page, either.
 
 define deltaQ.i {i} {
-    1.0 - <:sum j {[QD.$i.$j]}:>/[QS.$i]
+    ediff (0.0, 1.0 - <:sum j {[QD.$i.$j]}:>/[QS.$i])
 }
 
 let deltaQ.black = {<:deltaQ.i black:>}
@@ -841,7 +860,7 @@ let CAP.pop = {[LF]*(1 - [TurFrac])}
 let CSF = 0.1
 
 # Demographics may also say that some laborers are afraid to go to work:
-let LSF = 0.1
+let LSF = 0.9
 
 #-----------------------------------------------------------------------
 # Long-Run Page
@@ -931,7 +950,7 @@ let QD.goods.pop = {
 } -value 1.14e8
 
 # The available labor force is now further limited by the LSF
-let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] * (1 - [In::LSF]) ))}
+let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] * [In::LSF] ))}
 
 
 #=======================================================================
@@ -944,10 +963,18 @@ let BQS.black = {[Cal::QS.black]}
 let BQS.goods = {[Cal::QS.goods]}
 let BQS.pop   = {[Cal::QS.pop]}
 
+# Default QD for actors, region and world to 0.0
+foreach i {actors region world} {
+    foreach j {goods black pop actors region world} {
+        let QD.$i.$j = 0.0
+    }
+}
+
 # Copy outputs from S
 foreach i {goods black pop} {
     let P.$i        = {[S::P.$i]}
     let QS.$i       = {[S::QS.$i]}
+    let QD.$i       = {[S::QD.$i]}
     let REV.$i      = {[S::REV.$i]}
     let EXP.$i      = {[S::EXP.$i]}
     let NR.$i       = {[S::NR.$i]}
@@ -1027,7 +1054,7 @@ let FLAG.QS.NONNEG = {
 }
 
 let FLAG.P.POS = {
-    [P.black] > 0.0 || [P.black] > 0.0 ||[P.black] > 0.0
+    [P.black] > 0.0 || [P.goods] > 0.0 || [P.pop] > 0.0
 }
 
 let FLAG.DELTAQ.ZERO = {
