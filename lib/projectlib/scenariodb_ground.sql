@@ -313,6 +313,11 @@ CREATE TABLE force_n (
     -- Symbolic nbhood name
     n                   TEXT    PRIMARY KEY,
 
+    -- Criminal suppression in neighborhood. This is the fraction of 
+    -- civilian criminal activity that is suppressed by law enforcement
+    -- activities.
+    suppression         DOUBLE DEFAULT 0.0,
+
     -- Total force in nbhood, including nearby.
     total_force         INTEGER DEFAULT 0,
 
@@ -328,29 +333,30 @@ CREATE TABLE force_n (
 
 -- nbstat Table: Group force in neighborhoods
 CREATE TABLE force_ng (
-    n           TEXT,         -- Symbolic nbhood name
-    g           TEXT,         -- Symbolic group name
+    n             TEXT,              -- Symbolic nbhood name
+    g             TEXT,              -- Symbolic group name
 
-    personnel     INTEGER     -- Group's personnel
-        DEFAULT 0,
-    own_force     INTEGER     -- Group's own force (Q.ng)
-        DEFAULT 0,
-    local_force   INTEGER     -- own_force + friends in n
-        DEFAULT 0,
-    local_enemy   INTEGER     -- enemies in n
-        DEFAULT 0,
-    force         INTEGER     -- own_force + friends nearby
-        DEFAULT 0,
-    pct_force     INTEGER     -- 100*force/total_force
-        DEFAULT 0,
-    enemy         INTEGER     -- enemies nearby
-        DEFAULT 0,
-    pct_enemy     INTEGER     -- 100*enemy/total_force
-        DEFAULT 0,
-    security      INTEGER     -- Group's security in n
-        DEFAULT 0,
+    personnel     INTEGER DEFAULT 0, -- Group's personnel
+    own_force     INTEGER DEFAULT 0, -- Group's own force (Q.ng)
+    crim_force    INTEGER DEFAULT 0, -- Civ group's criminal force.
+                                     -- 0.0 for non-civ groups.
+    noncrim_force INTEGER DEFAULT 0, -- Group's own force, less criminals
+    local_force   INTEGER DEFAULT 0, -- own_force + friends in n
+    local_enemy   INTEGER DEFAULT 0, -- enemies in n
+    force         INTEGER DEFAULT 0, -- own_force + friends nearby
+    pct_force     INTEGER DEFAULT 0, -- 100*force/total_force
+    enemy         INTEGER DEFAULT 0, -- enemies nearby
+    pct_enemy     INTEGER DEFAULT 0, -- 100*enemy/total_force
+    security      INTEGER DEFAULT 0, -- Group's security in n
 
     PRIMARY KEY (n, g)
+);
+
+-- nbstat Table: Civilian group statistics
+CREATE TABLE force_civg (
+    g          TEXT PRIMARY KEY,   -- Symbolic civ group name
+    nominal_cf DOUBLE,             -- Nominal Criminal Fraction
+    actual_cf  DOUBLE              -- Actual Criminal Fraction
 );
 
 

@@ -44,6 +44,14 @@ snit::type security_model {
         }
 
         rdb eval {
+            DELETE FROM force_civg;
+
+            INSERT INTO force_civg(g)
+            SELECT g
+            FROM civgroups;
+        }
+
+        rdb eval {
             DELETE FROM force_ng;
 
             INSERT INTO force_ng(n,g)
@@ -64,6 +72,8 @@ snit::type security_model {
     typemethod analyze {} {
         # FIRST, compute the "force" values for each group in each 
         # neighborhood.
+        profile 2 $type ComputeCrimeSuppression
+        profile 2 $type ComputeCriminalFraction
         profile 2 $type ComputeOwnForce
         profile 2 $type ComputeLocalFriendsAndEnemies
         profile 2 $type ComputeAllFriendsAndEnemies
@@ -78,6 +88,88 @@ snit::type security_model {
     }
 
 
+    # ComputeCrimeSuppression
+    #
+    # Computes suppression.n, the fraction of crime suppressed by 
+    # current law enforcements in neighborhood n.
+
+    typemethod ComputeCrimeSuppression {} {
+        # FIRST, we're accumulating effective law enforcement personnel 
+        # (LEP) by neighborhood.
+        foreach n [nbhood names] {
+            set LEP($n) 0 
+        }
+
+        # NEXT, accumulate the LEP for each group in each neighborhood.
+        rdb eval {
+            SELECT U.n                AS n,
+                   U.g                AS g,
+                   U.a                AS a,
+                   total(U.personnel) AS P,
+                   G.forcetype        AS forcetype,
+                   G.training         AS training
+            FROM units AS U
+            JOIN frcgroups AS G USING (g)
+            GROUP BY U.a
+        } {
+            set beta [parm get force.law.beta.$a]
+            set E    [parm get force.law.efficiency.$training]
+            set S    [parm get force.law.suitability.$forcetype]
+
+            set LEP($n) [expr {$LEP($n) + $beta*$E*$S*$P}]
+        }
+
+        # NEXT, for each neighborhood compute the suppression.
+        rdb eval {
+            SELECT n, urbanization, population
+            FROM nbhoods JOIN demog_n USING (n)
+        } {
+            set covfunc [parm get force.law.coverage.$urbanization]
+
+            set suppression [coverage eval $covfunc $LEP($n) $population]
+
+            rdb eval {
+                UPDATE force_n
+                SET suppression=$suppression
+                WHERE n=$n
+            }
+        }
+    }
+
+    # ComputeCriminalFraction
+    #
+    # Computes the nominal and actual criminal fraction for each
+    # civilian group.
+
+    typemethod ComputeCriminalFraction {} {
+        rdb eval {
+            SELECT G.g                AS g,
+                   G.n                AS n,
+                   G.demeanor         AS demeanor,
+                   FN.suppression     AS suppression,
+                   DG.upc             AS upc
+            FROM civgroups_view AS G
+            JOIN force_n AS FN ON (FN.n=G.n)
+            JOIN demog_g AS DG ON (DG.g=G.g)
+        } {
+            set Zcrimfrac [parm get force.law.crimfrac.$demeanor]
+            set suppfrac [parm get force.law.suppfrac]
+
+            set nomCF [zcurve eval $Zcrimfrac $upc]
+            set actCF [expr {
+                (1.0 - $suppression)*$suppfrac*$nomCF +
+                (1.0 - $suppfrac)*$nomCF
+            }]
+
+            rdb eval {
+                UPDATE force_civg
+                SET nominal_cf = $nomCF,
+                    actual_cf  = $actCF
+                WHERE g=$g
+            }
+        }
+    }
+
     # ComputeOwnForce
     #
     # Compute Q.ng, each group g's "own force" in neighborhood n,
@@ -86,8 +178,10 @@ snit::type security_model {
     typemethod ComputeOwnForce {} {
         rdb eval {
             UPDATE force_ng
-            SET own_force = 0,
-                personnel = 0
+            SET own_force     = 0,
+                crim_force    = 0,
+                noncrim_force = 0,
+                personnel     = 0
         }
 
         #---------------------------------------------------------------
@@ -184,6 +278,24 @@ snit::type security_model {
                 WHERE n = $n AND g = $g
             }
         }
+
+        # NEXT, compute criminal vs. non-criminal force.
+        # For non-civilian groups, it's just the own_force. For civilians,
+        # it is more complicated.
+        rdb eval { UPDATE force_ng SET noncrim_force = own_force }
+
+        foreach {n g actual_cf} [rdb eval {
+            SELECT n, g, actual_cf
+            FROM force_ng
+            JOIN force_civg USING (g)
+        }] {
+            rdb eval {
+                UPDATE force_ng
+                SET crim_force    = $actual_cf * own_force,
+                    noncrim_force = (1.0 - $actual_cf) * own_force
+                WHERE n=$n AND g=$g
+            }
+        }
     }
 
     # ComputeLocalFriendsAndEnemies
@@ -199,14 +311,18 @@ snit::type security_model {
         }
 
         # NEXT, iterate over all pairs of groups in each neighborhood.
+        # Note that for non-civilian groups, noncrim_force = own_force
+        # and crim_force = 0.
+
         rdb eval {
-            SELECT NF.n         AS n,
-                   NF.g         AS f,
-                   NF.own_force AS f_own_force,
-                   G.g          AS g,
-                   FG.hrel      AS hrel,
-                   FRC.training AS training,
-                   S.stance     AS stance
+            SELECT NF.n             AS n,
+                   NF.g             AS f,
+                   NF.noncrim_force AS f_noncrim_force,
+                   NF.crim_force    AS f_crim_force,
+                   G.g              AS g,
+                   FG.hrel          AS hrel,
+                   FRC.training     AS training,
+                   S.stance         AS stance
             FROM force_ng AS NF
             JOIN groups AS G
             JOIN uram_hrel AS FG ON (FG.f = NF.g AND FG.g = G.g)
@@ -224,7 +340,7 @@ snit::type security_model {
 
             # NEXT, compute friends and enemies.
             if {$hrel > 0} {
-                let friends {int(ceil($f_own_force*$hrel))}
+                let friends {int(ceil($f_noncrim_force*$hrel))}
 
                 rdb eval {
                     UPDATE force_ng
@@ -232,7 +348,9 @@ snit::type security_model {
                     WHERE n = $n AND g = $g
                 }
             } elseif {$hrel < 0} {
-                let enemies {int(ceil($f_own_force*abs($hrel)))}
+                let enemies {
+                    int(ceil($f_noncrim_force*abs($hrel) + $f_crim_force))
+                }
 
                 rdb eval {
                     UPDATE force_ng

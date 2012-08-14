@@ -1499,9 +1499,9 @@ snit::type ::projectlib::parmdb {
             criminal activity, and hence on volatility.
         }
 
-        $ps define force.law.suppfrac ::projectlib::rfraction 1.0 {
-            This is the fraction of a civilian group's criminal activity
-            that can be suppressed by law enforcement.
+        $ps define force.law.suppfrac ::projectlib::rfraction 0.6 {
+            Suppressible fraction: the fraction of a civilian group's 
+            criminal activity that can be suppressed by law enforcement.
         }
 
         $ps subset force.law.beta {
@@ -1610,7 +1610,7 @@ snit::type ::projectlib::parmdb {
             }
         }
 
-        $ps subset force.law.UnsuppCF {
+        $ps subset force.law.crimfrac {
             A family of Z-curves indicating the fraction of a civilian
             group that will engage in criminal activities as a function
             of the group's unemployment per capita.
@@ -1621,7 +1621,7 @@ snit::type ::projectlib::parmdb {
             AVERAGE     {0.04 4.0 20.0 0.15}
             APATHETIC   {0.03 4.0 20.0 0.10}
         } {
-            $ps define force.law.UnsuppCF.$name ::marsutil::zcurve $zcurve "
+            $ps define force.law.crimfrac.$name ::marsutil::zcurve $zcurve "
                 A Z-curve, indicating the fraction of a civilian group
                 with demeanor $name that will engage in criminal
                 activities, as a function of group's unemployment per
