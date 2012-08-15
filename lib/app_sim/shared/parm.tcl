@@ -90,7 +90,6 @@ snit::type parm {
     typemethod LockParms {} {
         parmdb lock econ.ticksPerTock
         parmdb lock econ.BaseWage
-        parmdb lock econ.GBasketPerCapita
     }
 
 

@@ -2559,19 +2559,22 @@ tab "Econ/SAM" {
     in work-years given the average annual income of a typical person in
     the area of interest.<p>
 
-    The Other Input section allows the user to supply, in order, remittances
+    The Other Inputs section allows the user to supply, in order, remittances
     and foreign aid to the economy, the net revenues (profit) in the black
     market sector, the feedstock price in the black market (for example, the
-    price of the poppies from which opium is manufactured) and the feedstock
+    price of the poppies from which opium is manufactured), the feedstock
     per unit of black market product (for example, if it takes 1.05 tons of
-    poppies to make 1 ton of opium, then this value would be 1.05).<p>
+    poppies to make 1 ton of opium, then this value would be 1.05) and the
+    number of consumers that the data in the SAM is based upon.<p>
 
-    The SAM outputs section contains two values that already are in the SAM
+    The SAM outputs section contains three values that already are in the SAM
     but have a special meaning to the economy. The Foreign Aid to Actors is
     the same as the BX.actors.world cell in the SAM and Foreign Aid to 
-    Region is the same as the BX.region.world cell. These values are used
-    in the solution of the CGE. Refer to the CGE documentation for how they
-    are used.<p>
+    Region is the same as the BX.region.world cell. The per capita demand
+    for goods in goodsBKT/year is computed from the BX.goods.pop cell in
+    the SAM and the Base Consumers cell in the other inputs section. These 
+    values are used in the solution of the CGE. Refer to the CGE 
+    documentation for how they are used.<p>
 
 }
 

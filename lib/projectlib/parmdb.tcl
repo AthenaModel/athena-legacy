@@ -1197,12 +1197,6 @@ snit::type ::projectlib::parmdb {
             appears in the CGE as BP.pop.
         }
 
-        $ps define econ.GBasketPerCapita ::projectlib::ipositive 114 {
-            The direct consumption of goods by the population, expressed
-            in GBaskets per capita per year.  This value appears
-            in the CGE as A.goods.pop.
-        }
-
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as
             a decimal fraction of the total production capacity.  This 

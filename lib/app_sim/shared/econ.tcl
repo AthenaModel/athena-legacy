@@ -43,6 +43,10 @@ snit::type econ {
 
     typecomponent cge
 
+    # Type Component: sam
+    #
+    # This is the cellmodel(n) instance containing the SAM model.
+
     typecomponent sam
 
     #-------------------------------------------------------------------
@@ -61,7 +65,7 @@ snit::type econ {
     }
 
     #-------------------------------------------------------------------
-    # Group: Checkpointed Type Variables
+    # Checkpointed Type Variables
 
     # Type Variable: startdict
     #
@@ -202,6 +206,9 @@ snit::type econ {
         cge set [list FAA [dict get [$sam get] FAA]]
         cge set [list FAR [dict get [$sam get] FAR]]
 
+        # A.goods.pop, the unconstrained base demand for goods in 
+        # goods basket per year per capita.
+        cge set [list A.goods.pop [dict get [$sam get] A.goods.pop]]
     }
 
     #-------------------------------------------------------------------
@@ -222,6 +229,7 @@ snit::type econ {
 
     typemethod start {} {
         log normal econ "start"
+
 
         $type InitializeCGE
 
@@ -296,8 +304,7 @@ snit::type econ {
                          graft         [parmdb get econ.graft] \
                          In::Consumers $data(consumers)        \
                          In::LF        $data(labor_force)      \
-                         In::LSF       $LSF                    \
-                         A.goods.pop   [parmdb get econ.GBasketPerCapita]]
+                         In::LSF       $LSF]
 
             # NEXT, calibrate the CGE.
             set result [cge solve]

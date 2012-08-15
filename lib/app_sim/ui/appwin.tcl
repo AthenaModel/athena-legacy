@@ -352,7 +352,7 @@ snit::widget appwin {
         }
 
         econsam {
-            vistype scenario
+            vistype *
             label   "SAM"
             parent  "econt"
             script  { samsheet %W }

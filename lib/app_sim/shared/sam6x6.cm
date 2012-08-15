@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    SAMtoCGEshape.cm, version d
+#    sam6x6.cm, version g
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -18,14 +18,22 @@
 #
 # INPUT: SAM data, prices, RFN, and NR.black for a base case.
 #
-# OUTPUT: CGE shape parameters and sector-by-sector demands,
-#         sector revenues & expenses, production & export quantities, and
-#         FAA & FAR for the base case.
+# OUTPUT: * CGE shape parameters and sector-by-sector demands
+#         * Sector revenues & expenses
+#         * Production & export quantities
+#         * FAA & FAR for the base case
+#         * Base case per capita demand for goods
 #
 # PAGES:
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version g: Added a cell for BaseConsumers. This represents the number
+#               of consumers on which the data in the SAM is based. It is
+#               used to compute A.goods.pop which is used by the CGE
+#
+#    Version f: Changed the name of the file to sam6x6.cm
+#
 #    Version e: Changed default values for the BX.i.j to the ones found
 #               in the most recent version of the econ paper.
 #
@@ -142,6 +150,8 @@ let BP.actors = 0
 let BP.region = 0
 let BP.world  = 0
 
+let BaseConsumers = 8.86e5
+
 let BRFN = 5.0e8            
 let RFN = {[BRFN]}
 let BNR.black = 18.234e9
@@ -244,17 +254,8 @@ foreach i {goods black pop actors region world} {
     let f.$i.actors = {[BX.$i.actors] / [BREV.actors]}
 }
 
-# For the region sector
-# Assume a balanced budget for the time being, in which case the f's should
-# be normalized to 1.0
-let SUM.r = {
-    ([BX.goods.region]  + [BX.black.region]  + [BX.pop.region] +
-     [BX.actors.region] + [BX.region.region] + [BX.world.region]) /
-     [BREV.region]
-}
-
 foreach i {goods black pop actors region world} {
-    let f.$i.region = {([BX.$i.region] / [BREV.region]) / [SUM.r]}
+    let f.$i.region = {[BX.$i.region] / [BREV.region]}
 }
 
 # For the world sector
@@ -264,6 +265,8 @@ let FAA = {[BX.actors.world]}
 let FAR = {[BX.region.world]}
 
 let f.pop.world = 0.0 ;# need to have a value for display purposes
+
+let A.goods.pop = {[BX.goods.pop] / [BaseConsumers]}
 
 # Everything that was computed is of interest to the CGE except the 
 # intermediate variables BATI.pop, SUM.g, SUM.p and SUM.r.

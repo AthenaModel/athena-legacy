@@ -55,10 +55,37 @@ snit::widget samsheet {
     #
     #  e - Color for editable cells
     #  r - Color for readonly cells
+    #  d - Color for editable cells when they are disabled
 
     typevariable color -array {
         e "#CCFF99"
         r "#BABABA"
+        d "#E3E3E3"
+    }
+
+    # Type Variable: layout
+    #
+    # The html layout of the cmsheet(n) objects on this tab
+
+    typevariable layout {
+        <table>
+          <tr>
+            <td colspan=2>
+              <b style="font-size:12px">SAM Inputs</b><p>
+              <input name="matrix">
+            </td>
+          </tr>
+          <tr>
+            <td valign="top">
+              <b style="font-size:12px">Other Inputs</b><p>
+              <input name="inputs">
+            </td>
+            <td valign="top">
+              <b style="font-size:12px">SAM Outputs</b><p>
+              <input name="outputs">
+            </td>
+          </tr>
+        </table>
     }
 
     #-------------------------------------------------------------------
@@ -99,28 +126,11 @@ snit::widget samsheet {
         $self CreateScalarOutputs $win.h.outputs
 
         # NEXT layout the components
-        $win.h layout {
-            Double click a cell to edit. Press "Enter" to save, 
-            press "Esc" to cancel editing.<p>
-            <table>
-              <tr>
-                <td colspan=2>
-                  <b style="font-size:12px">SAM Inputs</b><p>
-                  <input name="matrix">
-                </td>
-              </tr>
-              <tr>
-                <td valign="top">
-                  <b style="font-size:12px">Other Inputs</b><p>
-                  <input name="inputs">
-                </td>
-                <td valign="top">
-                  <b style="font-size:12px">SAM Outputs</b><p>
-                  <input name="outputs">
-                </td>
-              </tr>
-            </table>
-        }
+        $win.h layout "
+            Double click a cell to edit. Press \"Enter\" to save, 
+            press \"Esc\" to cancel editing.<p>
+            $layout
+        "
 
         # NEXT pack the html frame
         pack $win.h -expand 1 -fill both
@@ -128,6 +138,7 @@ snit::widget samsheet {
         # NEXT, prepare for updates.
         notifier bind ::sim  <DbSyncB>     $self [mymethod refresh]
         notifier bind ::sim  <Tick>        $self [mymethod refresh]
+        notifier bind ::sim  <State>       $self [mymethod SimState]
         notifier bind ::econ <Shape>       $self [mymethod refresh]
         notifier bind ::econ <CellUpdate>  $self [mymethod CellUpdate]
     }
@@ -241,7 +252,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         normal                     \
-            -rows          4                          \
+            -rows          5                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -256,12 +267,14 @@ snit::widget samsheet {
             "Black mkt Net Rev."
             "Black mkt Feedstock Price"
             "Feedstock per Unit Product"
+            "Base Consumers"
         }
 
         $inputs textcol 0,2 {
             "$/year"
             "$/year"
             "$/year"
+            ""
             ""
         } units -anchor w -relief flat
 
@@ -270,6 +283,7 @@ snit::widget samsheet {
         $inputs mapcell 1,1 BNR.black      e -background $color(e)
         $inputs mapcell 2,1 PF.world.black e -background $color(e)
         $inputs mapcell 3,1 AF.world.black e -background $color(e)
+        $inputs mapcell 4,1 BaseConsumers  e -background $color(e)
 
         $inputs width 0 25
 
@@ -290,7 +304,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         disabled                   \
-            -rows          2                          \
+            -rows          3                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -300,17 +314,21 @@ snit::widget samsheet {
         $outputs textcol 0,0 {
             "Foreign Aid to Actors"
             "Foreign Aid to Region"
+            "Per cap. demand for goods"
         }
 
         $outputs textcol 0,2 {
             "$/year"
             "$/year"
+            "goodsBKT/year"
         } units -anchor w -relief flat
 
-        $outputs mapcell 0,1 FAA  r -background $color(r)
-        $outputs mapcell 1,1 FAR  r -background $color(r)
+        $outputs mapcell 0,1 FAA         r -background $color(r)
+        $outputs mapcell 1,1 FAR         r -background $color(r)
+        $outputs mapcell 2,1 A.goods.pop r -background $color(r)
 
-        $outputs width 0 20
+        $outputs width 0 25
+        $outputs width 2 15
     }
 
 
@@ -396,6 +414,44 @@ snit::widget samsheet {
         $self refresh
     }
 
+    # SimState
+    #
+    # Responds to notifier events from the simulation that the state
+    # of the simulation has changed. If the sim is in PREP then the
+    # SAM is editable, otherwise it is not.
+
+    method SimState {} {
+        # FIRST, get the state
+        if {[sim state] eq "PREP"} {
+
+            # NEXT, we are in PREP set the SAM and inputs to normal 
+            # and display the layout with help text.
+            $matrix configure -state normal
+            $inputs configure -state normal
+            $matrix tag configure e -background $color(e)
+            $inputs tag configure e -background $color(e)
+
+            $win.h layout "
+                Double click a cell to edit. Press \"Enter\" to save, 
+                press \"Esc\" to cancel editing.<p>
+                $layout
+            "
+        } else {
+
+            # NEXT, we are not in PREP, disable the SAM and inputs and
+            # remove the help text.
+            $matrix configure -state disabled
+            $inputs configure -state disabled
+            $matrix tag configure e -background $color(d)
+            $inputs tag configure e -background $color(d)
+
+            $win.h layout "
+                <br>
+                $layout
+            "
+        }
+    }
+            
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -404,9 +460,9 @@ snit::widget samsheet {
     # Refreshes all components in the widget.
     
     method refresh {} {
-        $matrix refresh
-        $inputs   refresh
-        $outputs  refresh
+        $matrix  refresh
+        $inputs  refresh
+        $outputs refresh
     }
 }
 
