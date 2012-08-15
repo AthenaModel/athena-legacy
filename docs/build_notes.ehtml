@@ -11,6 +11,15 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.12, 15 August 2012</h3>
+
+Build 4.0.11 claimed to include Bug 3628, "Background Criminal
+Activity", but didn't.  This build does.<p>
+
+<ul>
+<li> Bug 3628: Background Criminal Activity
+</ul><p>
+
 <h3>Build 4.0.11, 13 August 2012</h3>
 
 This build continues the 6x6 CGE integration, and also includes the
