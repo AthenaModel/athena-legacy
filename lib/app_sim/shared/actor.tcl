@@ -92,6 +92,22 @@ snit::type actor {
         rdb eval {SELECT g FROM frcgroups WHERE a=$a}
     }
 
+    # income a
+    #
+    # a - An actor
+    #
+    # Returns the actor's most recent income.
+    #
+    # TBD: This will need to be updated when the link with the CGE is
+    # made.
+
+    typemethod income {a} {
+        return [rdb onecolumn {
+            SELECT income_goods+income_pop+income_black+income_graft
+            FROM actors WHERE a=$a
+        }]
+    }
+
     #-------------------------------------------------------------------
     # Mutators
     #
@@ -108,7 +124,10 @@ snit::type actor {
     #    longname       The actor's long name
     #    supports       Actor name, SELF, or NONE.
     #    cash_reserve   The actor's cash reserve (starting balance)
-    #    income         The actor's income per tactics tock
+    #    income_goods   The actor's income from the GOODS sector, $/week
+    #    income_pop     The actor's income from the POP sector, $/week
+    #    income_black   The actor's income from the BLACK sector, $/week
+    #    income_graft   The actor's income from graft, $/week
     #    cash_on_hand   The actor's cash-on-hand (starting balance)
     #
     # Creates an actor given the parms, which are presumed to be
@@ -128,13 +147,19 @@ snit::type actor {
                        longname,  
                        supports, 
                        cash_reserve, 
-                       income, 
+                       income_goods, 
+                       income_pop, 
+                       income_black, 
+                       income_graft, 
                        cash_on_hand)
                 VALUES($a, 
                        $longname, 
                        nullif($supports, 'NONE'),
                        $cash_reserve, 
-                       $income, 
+                       $income_goods, 
+                       $income_pop, 
+                       $income_black, 
+                       $income_graft, 
                        $cash_on_hand)
             }
 
@@ -206,7 +231,10 @@ snit::type actor {
     #    longname       A new long name, or ""
     #    supports       A new supports (SELF, NONE, actor), or ""
     #    cash_reserve   A new reserve amount, or ""
-    #    income         A new income, or ""
+    #    income_goods   A new income, or ""
+    #    income_pop     A new income, or ""
+    #    income_black   A new income, or ""
+    #    income_graft   A new income, or ""
     #    cash_on_hand   A new cash-on-hand amount, or ""
     #
     # Updates a actor given the parms, which are presumed to be
@@ -228,7 +256,10 @@ snit::type actor {
                 SET longname     = nonempty($longname,     longname),
                     supports     = nullif(nonempty($supports,supports),'NONE'),
                     cash_reserve = nonempty($cash_reserve, cash_reserve),
-                    income       = nonempty($income,       income),
+                    income_goods = nonempty($income_goods, income_goods),
+                    income_pop   = nonempty($income_pop,   income_pop),
+                    income_black = nonempty($income_black, income_black),
+                    income_graft = nonempty($income_graft, income_graft),
                     cash_on_hand = nonempty($cash_on_hand, cash_on_hand)
                 WHERE a=$a;
             } {}
@@ -265,8 +296,21 @@ order define ACTOR:CREATE {
         rcc "Cash Reserve, $:" -for cash_reserve
         text cash_reserve -defvalue 0
 
-        rcc "Income, $/week:" -for income
-        text income -defvalue 0
+        rcc "Income, GOODS Sector:" -for income_goods
+        text income_goods -defvalue 0
+        label "$/week"
+
+        rcc "Income, POP Sector:" -for income_pop
+        text income_pop -defvalue 0
+        label "$/week"
+
+        rcc "Income, BLACK Sector:" -for income_black
+        text income_black -defvalue 0
+        label "$/week"
+
+        rcc "Income, Graft:" -for income_graft
+        text income_graft -defvalue 0
+        label "$/week"
 
         rcc "Cash On Hand, $:" -for cash_on_hand
         text cash_on_hand -defvalue 0
@@ -277,7 +321,10 @@ order define ACTOR:CREATE {
     prepare longname     -normalize
     prepare supports     -toupper   -required         -type {ptype a+self+none}
     prepare cash_reserve -toupper                     -type money
-    prepare income       -toupper                     -type money
+    prepare income_goods -toupper                     -type money
+    prepare income_pop   -toupper                     -type money
+    prepare income_black -toupper                     -type money
+    prepare income_graft -toupper                     -type money
     prepare cash_on_hand -toupper                     -type money
 
     returnOnError -final
@@ -362,8 +409,21 @@ order define ACTOR:UPDATE {
         rcc "Cash Reserve, $:" -for cash_reserve
         text cash_reserve
 
-        rcc "Income, $/week:" -for income
-        text income
+        rcc "Income, GOODS Sector:" -for income_goods
+        text income_goods
+        label "$/week"
+
+        rcc "Income, POP Sector:" -for income_pop
+        text income_pop
+        label "$/week"
+
+        rcc "Income, BLACK Sector:" -for income_black
+        text income_black
+        label "$/week"
+
+        rcc "Income, Graft:" -for income_graft
+        text income_graft
+        label "$/week"
 
         rcc "Cash On Hand, $:" -for cash_on_hand
         text cash_on_hand
@@ -374,7 +434,10 @@ order define ACTOR:UPDATE {
     prepare longname     -normalize
     prepare supports     -toupper             -type {ptype a+self+none}
     prepare cash_reserve -toupper             -type money
-    prepare income       -toupper             -type money
+    prepare income_goods -toupper             -type money
+    prepare income_pop   -toupper             -type money
+    prepare income_black -toupper             -type money
+    prepare income_graft -toupper             -type money
     prepare cash_on_hand -toupper             -type money
 
     returnOnError -final
@@ -396,14 +459,29 @@ order define ACTOR:INCOME {
         key a -table gui_actors -keys a \
             -loadcmd {::orderdialog keyload a *} 
         
-        rcc "Income, $/week:" -for income
-        text income
+        rcc "Income, GOODS Sector:" -for income_goods
+        text income_goods
+        label "$/week"
 
+        rcc "Income, POP Sector:" -for income_pop
+        text income_pop
+        label "$/week"
+
+        rcc "Income, BLACK Sector:" -for income_black
+        text income_black
+        label "$/week"
+
+        rcc "Income, Graft:" -for income_graft
+        text income_graft
+        label "$/week"
     }
 } {
     # FIRST, prepare the parameters
     prepare a            -toupper   -required -type actor
-    prepare income       -toupper   -required -type money
+    prepare income_goods -toupper             -type money
+    prepare income_pop   -toupper             -type money
+    prepare income_black -toupper             -type money
+    prepare income_graft -toupper             -type money
 
     returnOnError -final
 
@@ -446,7 +524,10 @@ order define ACTOR:SUPPORTS {
     array set parms {
         longname     {}
         cash_reserve {}
-        income       {}
+        income_goods {}
+        income_pop   {}
+        income_black {}
+        income_graft {}
         cash_on_hand {}
     }
 

@@ -53,9 +53,11 @@ CREATE TABLE actors (
     -- Money saved for later, in $.
     cash_reserve DOUBLE DEFAULT 0,
 
-    -- Income/tactics tock, in $.
-    -- TBD: A present this is an input; later it will be computed.
-    income       DOUBLE DEFAULT 0,
+    -- Income from various sources, in $/week.
+    income_goods DOUBLE DEFAULT 0,
+    income_pop   DOUBLE DEFAULT 0,
+    income_black DOUBLE DEFAULT 0,
+    income_graft DOUBLE DEFAULT 0,
 
     -- Money available to be spent, in $.
     -- Unspent cash accumulates from tock to tock.

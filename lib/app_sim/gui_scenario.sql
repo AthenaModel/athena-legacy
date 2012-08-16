@@ -38,7 +38,12 @@ SELECT a                                               AS id,
             ELSE link('my://app/actor/' || supports, supports)
             END                                        AS supports_link,
        moneyfmt(cash_reserve)                          AS cash_reserve,
-       moneyfmt(income)                                AS income,
+       moneyfmt(income_goods)                          AS income_goods,
+       moneyfmt(income_pop)                            AS income_pop,
+       moneyfmt(income_black)                          AS income_black,
+       moneyfmt(income_graft)                          AS income_graft,
+       moneyfmt(income_goods + income_pop +
+                income_black + income_graft)           AS income,
        moneyfmt(cash_on_hand)                          AS cash_on_hand
 FROM actors;
 

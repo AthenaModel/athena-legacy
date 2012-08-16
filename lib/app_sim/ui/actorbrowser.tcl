@@ -31,16 +31,25 @@ snit::widgetadaptor actorbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { a            "ID"                                             }
-        { longname     "Long Name"                                      }
-        { supports     "Supports"                                       }
-        { cash_reserve "Cash Reserve, $"
+        { a            "\nID"                                           }
+        { longname     "\nLong Name"                                    }
+        { supports     "\nSupports"                                     }
+        { cash_reserve "Cash Reserve\n$"
                        -sortmode command 
                        -sortcommand ::marsutil::moneysort               }
-        { income       "Income, $/Week"
+        { income_goods "Income, GOODS\n$/Week"
                        -sortmode command 
                        -sortcommand ::marsutil::moneysort               }
-        { cash_on_hand "Cash on Hand, $"
+        { income_pop   "Income, POP\n$/Week"
+                       -sortmode command 
+                       -sortcommand ::marsutil::moneysort               }
+        { income_black "Income, BLACK\n$/Week"
+                       -sortmode command 
+                       -sortcommand ::marsutil::moneysort               }
+        { income_graft "Income, GRAFT\n$/Week"
+                       -sortmode command 
+                       -sortcommand ::marsutil::moneysort               }
+        { cash_on_hand "Cash on Hand\n$"
                        -sortmode command 
                        -sortcommand ::marsutil::moneysort               }
     }

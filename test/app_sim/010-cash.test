@@ -58,7 +58,10 @@ BOB 150000.0     5000.0  5000.0       0.0
         setup
     } -body {
         array set joe [actor get JOE]
-        let a {$joe(cash_on_hand) + $joe(income)}
+        let a {
+            $joe(cash_on_hand) + $joe(income_goods) + $joe(income_pop) +
+            $joe(income_black) + $joe(income_graft)
+        }
 
         cash load
         set b [rdb onecolumn {
@@ -252,14 +255,14 @@ BOB 150000.0     5000.0  5000.0       5000.0
         cash withdraw JOE 2000.0
     } -body {
         cash save
-        ted query {SELECT a, cash_reserve, income, cash_on_hand FROM actors}
+        ted query {SELECT a, cash_reserve, cash_on_hand FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a   cash_reserve income  cash_on_hand 
---- ------------ ------- ------------ 
-JOE 198000.0     10000.0 12000.0      
-BOB 150000.0     5000.0  5000.0       
+a   cash_reserve cash_on_hand 
+--- ------------ ------------ 
+JOE 198000.0     12000.0      
+BOB 150000.0     5000.0       
     }
 
     test save-1.2 {Adds gifts to cash_on_hand} -setup {
@@ -268,14 +271,14 @@ BOB 150000.0     5000.0  5000.0
         cash give JOE 5000.0
     } -body {
         cash save
-        ted query {SELECT a, cash_reserve, income, cash_on_hand FROM actors}
+        ted query {SELECT a, cash_reserve, cash_on_hand FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a   cash_reserve income  cash_on_hand 
---- ------------ ------- ------------ 
-JOE 200000.0     10000.0 15000.0      
-BOB 150000.0     5000.0  5000.0       
+a   cash_reserve cash_on_hand 
+--- ------------ ------------ 
+JOE 200000.0     15000.0      
+BOB 150000.0     5000.0       
     }
 
 

@@ -198,7 +198,10 @@ snit::type ted {
             longname     "Joe the Actor"
             supports     SELF
             cash_reserve 200000
-            income       10000
+            income_goods 10000
+            income_pop   0
+            income_black 0
+            income_graft 0
             cash_on_hand 0
         }
 
@@ -207,7 +210,10 @@ snit::type ted {
             longname     "Bob the Actor"
             supports     SELF
             cash_reserve 150000
-            income       5000
+            income_goods 5000
+            income_pop   0
+            income_black 0
+            income_graft 0
             cash_on_hand 0
         }
 
@@ -216,7 +222,10 @@ snit::type ted {
             longname     "Dave the Actor"
             supports     SELF
             cash_reserve 150000
-            income       5000
+            income_goods 5000
+            income_pop   0
+            income_black 0
+            income_graft 0
             cash_on_hand 0
         }
 
@@ -225,7 +234,10 @@ snit::type ted {
             longname     "Brian the Actor"
             supports     BOB
             cash_reserve 150000
-            income       5000
+            income_goods 5000
+            income_pop   0
+            income_black 0
+            income_graft 0
             cash_on_hand 0
         }
 

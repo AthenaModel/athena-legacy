@@ -29,7 +29,7 @@ tactic type define SAVE {int1} actor {
 
     typemethod dollars {tdict} {
         dict with tdict {
-            set income [actor get $owner income]
+            set income [actor income $owner]
             return [moneyfmt [expr {$income*$int1/100.0}]]
         }
     }
