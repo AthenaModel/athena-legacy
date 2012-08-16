@@ -477,7 +477,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr security("nb1","blue")
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {-6}
 
     #-------------------------------------------------------------------
     # support()
@@ -710,7 +710,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr volatility("nb1")
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {7}
 
 
     cleanupTests

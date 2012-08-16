@@ -341,10 +341,12 @@ snit::type security_model {
             # NEXT, compute friends and enemies.
             if {$hrel > 0} {
                 let friends {int(ceil($f_noncrim_force*$hrel))}
+                let enemies {int(ceil($f_crim_force))}
 
                 rdb eval {
                     UPDATE force_ng
-                    SET local_force = local_force + $friends
+                    SET local_force = local_force + $friends,
+                        local_enemy = local_enemy + $enemies
                     WHERE n = $n AND g = $g
                 }
             } elseif {$hrel < 0} {
