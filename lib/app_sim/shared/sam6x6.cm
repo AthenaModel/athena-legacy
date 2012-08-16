@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version g
+#    sam6x6.cm, version h
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,11 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version h: Updated the default BX.i.j values as provided by Bob. Also
+#               bullet proofed some of the equations to prevent divide by
+#               zero problems should money flows through the black sector
+#               stop.
+#
 #    Version g: Added a cell for BaseConsumers. This represents the number
 #               of consumers on which the data in the SAM is based. It is
 #               used to compute A.goods.pop which is used by the CGE
@@ -101,45 +106,45 @@ index il  {goods black pop}                     ;# sectors in the local
 
 # All BX.i.j values are from a SAM
 let BX.goods.goods  = 8.13e8
-let BX.goods.black  = 5.0e6
-let BX.goods.pop    = 1.01e8
-let BX.goods.actors = 3.035e9
-let BX.goods.region = 2.719e9
-let BX.goods.world  = 1.02e8
+let BX.goods.black  = 2.0e7
+let BX.goods.pop    = 2.80e9
+let BX.goods.actors = 14.00e9
+let BX.goods.region = 2.50e9
+let BX.goods.world  = 1.13e8
 
 let BX.black.goods = 0.0
 let BX.black.black = 0.0
-let BX.black.pop   = 1.0e6
-let BX.black.actors = 1.518e9
+let BX.black.pop   = 1.2e7
+let BX.black.actors = 1.40e9
 let BX.black.region = 9.06e8
 let BX.black.world  = 23.800e9
 
-let BX.pop.goods    = 3.252e9
-let BX.pop.black    = 2.1e7
+let BX.pop.goods    = 12.0e9
+let BX.pop.black    = 2.2e7
 let BX.pop.pop      = 3.6e7
-let BX.pop.actors   = 6.071e9
-let BX.pop.region   = 4.53e8
+let BX.pop.actors   = 4.64e9
+let BX.pop.region   = 4.54e8
 let BX.pop.world    = 7.0e7
 
-let BX.actors.goods = 1.355e9
-let BX.actors.black = 12.294e9
-let BX.actors.pop   = 7.0e6
-let BX.actors.actors = 1.518e9
-let BX.actors.region = 0.0
+let BX.actors.goods = 2.025e9
+let BX.actors.black = 2.612e9
+let BX.actors.pop   = 3.336e9
+let BX.actors.actors = 0.0
+let BX.actors.region = 2.593e9
 let BX.actors.world  = 3.0e6
 
-let BX.region.goods  = 6.77e8
-let BX.region.black  = 5.245e9
-let BX.region.pop    = 7.0e6
-let BX.region.actors = 3.035e9
-let BX.region.region = 9.062e9
-let BX.region.world  = 7.0e6
+let BX.region.goods  = 2.714e9
+let BX.region.black  = 2.612e9
+let BX.region.pop    = 5.853e9
+let BX.region.actors = 2.859e9
+let BX.region.region = 1.727e9
+let BX.region.world  = 1.502e9
 
-let BX.world.goods   = 6.77e8
-let BX.world.black   = 8.659e9
-let BX.world.pop     = 2.8e7
-let BX.world.actors  = 0.0
-let BX.world.region  = 4.894e9
+let BX.world.goods   = 2.695e9
+let BX.world.black   = 2.612e9
+let BX.world.pop     = 5.685e9
+let BX.world.actors  = 2.960e9
+let BX.world.region  = 8.635e9
 let BX.world.world   = 0.0
 
 
@@ -212,22 +217,40 @@ let k.goods = {<:k.j goods:>}
 
 # Ensure that f.goods.goods and f.pop.goods are normalized to 1.0
 # SUM.g is just an intermediate value to aid in normalization
+# The variables that end in ".r" are the raw, unnormalized values
 let SUM.g = {<:f.i.j goods goods:> + <:f.i.j pop goods:>}
-let f.goods.goods = {<:f.i.j goods goods:> / [SUM.g]}
+let f.goods.goods.r = {<:f.i.j goods goods:>}
+let f.goods.goods =  {[f.goods.goods.r] / [SUM.g]}
 let f.black.goods = 0.0  ;# bullet proofing: f.black.goods is not defined
-let f.pop.goods   = {<:f.i.j pop goods:> / [SUM.g]}
+let f.pop.goods.r   = {<:f.i.j pop goods:>}
+let f.pop.goods   = {[f.pop.goods.r] / [SUM.g]}
 
 # For the black sector
+# All values are checked for divide by zero in case money flows through
+# the black sector stop.
 
-let A.goods.black = {<:A.i.j goods black:>}
-let A.black.black = {<:A.i.j black black:>}
-let A.pop.black   = {<:A.i.j pop black:>}
+let A.goods.black = {
+    [BQD.black] > 0.0 ? [BX.goods.black] / ([BP.goods] * [BQD.black]) : 0.0
+}
+let A.black.black = {
+    [BQD.black] > 0.0 ? [BX.black.black] / ([BP.black] * [BQD.black]) : 0.0
+}
 
-let t.actors.black = {[BX.actors.black] / [BREV.black]}
+let A.pop.black   = {
+    [BQD.black] > 0.0 ? [BX.pop.black] / ([BP.pop] * [BQD.black]) : 0.0
+}
 
-let t.region.black = {<:t.i.j region black:>}
+let t.actors.black = {
+    [BREV.black] > 0.0 ? [BX.actors.black] / [BREV.black] : 0.0
+}
 
-let t.world.black = {[BX.world.black] / [BREV.black]}
+let t.region.black = {
+    [BREV.black] > 0.0 ? [BX.region.black] / [BREV.black] : 0.0 
+}
+
+let t.world.black = {
+    [BREV.black] > 0.0 ? [BX.world.black] / [BREV.black] : 0.0
+}
 
 let f.pop.black = 0.0 ;# need to have a value for display purposes
 
