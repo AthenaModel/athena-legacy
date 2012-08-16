@@ -136,7 +136,7 @@ snit::widget samsheet {
         pack $win.h -expand 1 -fill both
 
         # NEXT, prepare for updates.
-        notifier bind ::sim  <DbSyncB>     $self [mymethod refresh]
+        notifier bind ::sim  <DbSyncB>     $self [mymethod Restored]
         notifier bind ::sim  <Tick>        $self [mymethod refresh]
         notifier bind ::sim  <State>       $self [mymethod SimState]
         notifier bind ::econ <Shape>       $self [mymethod refresh]
@@ -452,6 +452,18 @@ snit::widget samsheet {
         }
     }
             
+    # Restored
+    #
+    # This is called when a <DbSyncB> notifier is received. The SAM
+    # data is copied from the econ module and the SAM solved before
+    # the cmsheet(n) objects are refreshed.
+
+    method Restored {} {
+        $sam set [[econ sam] get]
+        $sam solve
+        $self refresh
+    }
+
     #-------------------------------------------------------------------
     # Public Methods
 

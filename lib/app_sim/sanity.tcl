@@ -104,6 +104,7 @@ snit::type sanity {
         savemax sev [hook checker $ht] 
         savemax sev [iom checker $ht] 
         savemax sev [strategy checker $ht] 
+        savemax sev [econ checker $ht]
 
         # NEXT, return the severity
         return $sev

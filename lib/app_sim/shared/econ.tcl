@@ -74,6 +74,77 @@ snit::type econ {
     typevariable startdict {}
 
     #-------------------------------------------------------------------
+    # Sanity Check
+
+    # checker ?ht?
+    #
+    # ht - An htools buffer
+    #
+    # Computes the sanity check, and formats the results into the buffer
+    # for inclusion indo an HTML page. Returns an esanity value, either
+    # OK or WARNING.
+
+    typemethod checker {{ht ""}} {
+        set edict [$type DoSanityCheck]
+
+        if {[dict size $edict] == 0} {
+            return OK
+        }
+
+        if {$ht ne ""} {
+            $type DoSanityReport $ht $edict
+        }
+
+        return WARNING
+    }
+
+    # DoSanityCheck
+    #
+    # Performs a sanity check on the various parts of the econ module. 
+    # This primarily checks key cells in the SAM to see if there is data
+    # that just doesn't make sense. Problems are reported back in a
+    # dict, if there are any.
+
+    typemethod DoSanityCheck {} {
+        set edict [dict create]
+
+        array set cells [$sam get]
+
+        if {$cells(A.goods.pop) < 1.0} {
+            dict append edict A.goods.pop \
+                "Annual per capita demand for goods is less than 1 goods basket."
+        }
+
+        notifier send ::econ <Check>
+
+        return $edict
+    }
+
+    # DoSanityReport ht edict
+    #
+    # ht    - an htools(n) buffer
+    # edict - a dictionary of errors to be formatted for HTML output
+    #
+    # This method takes any errors from the sanity check and formats
+    # them for output to the htools buffer.
+
+    typemethod DoSanityReport {ht edict} {
+        $ht subtitle "Econ Model Errors"
+
+        $ht putln "Certain cells in the SAM have errors. This is likely "
+        $ht putln "due to incorrect data being entered in the SAM. Details "
+        $ht putln "are below."
+
+        $ht para
+
+        dict for {cell errmsg} $edict {
+            $ht put "$cell ==> $errmsg"
+        }
+
+        return
+    }
+
+
     # Group: Initialization
 
     # Type Method: init
@@ -621,6 +692,11 @@ snit::type econ {
         # FIRST, restore the checkpoint data
         sam set [dict get $checkpoint sam]
         cge set [dict get $checkpoint cge]
+
+        # NEXT, solve the SAM we need to have all computed values
+        # updated
+        sam solve
+
         set startdict [dict get $checkpoint startdict]
 
         if {$option eq "-saved"} {
