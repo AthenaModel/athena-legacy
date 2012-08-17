@@ -26,8 +26,9 @@ object actor_ {
         the <<tab Strategy>>.<p>
 
         Actors own <<term frcgroup>>s and <<term orggroup>>s,
-        and also have cash resources.<p>
-
+        and also receive income from the Economic model; this income is used
+        to support the actor's tactics.  Thus, one can attack an actor's
+        ability to act by attacking the actor's sources of income.<p>
     }
 
     attribute a "Actor ID" {
@@ -71,8 +72,50 @@ object actor_ {
         the simulation begins, the level of the reserve can fluctuate.
     } -tags {create update browser}
 
-    attribute income "Income, $/week" {
-        Every actor has a regular weekly income, in dollars/week.  The
+    attribute income_goods "Income, GOODS, $/week" {
+        The actor's income from the GOODS sector of the economy, in dollars
+        per week.  If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        from GOODS as of time 0; income in subsequent weeks will depend on 
+        the size of the GOODS sector.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create update browser}
+
+    attribute income_pop "Income, POP, $/week" {
+        The actor's income from the POP sector of the economy, in dollars
+        per week.  If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        from POP as of time 0; income in subsequent weeks will depend on 
+        the size of the POP sector.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create update browser}
+
+    attribute income_black "Income, BLACK, $/week" {
+        The actor's income from the BLACK sector of the economy, in dollars
+        per week.  If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        from BLACK as of time 0; income in subsequent weeks will depend on 
+        the size of the BLACK sector.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create update browser}
+
+    attribute income_graft "Income, Graft, $/week" {
+        The actor's income from graft on foreign aid, in dollars
+        per week.  If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        from graft as of time 0; income in subsequent weeks will depend on 
+        the amount of foreign aid coming into the region in those weeks.<p>
+
+        This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
         used to fund tactics.
     } -tags {create update browser}

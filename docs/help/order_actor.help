@@ -73,15 +73,24 @@ order ACTOR:UPDATE "Update Actor" {
 order ACTOR:INCOME "Update Actor Income" {
     This order modifies the income of an existing <<term actor>>.  
     It may be used interactively when the simulation is paused, and
-    by the <<cref /object/tactic/executive>>.  The order
-    parameters are as follows:<p>
+    by the <<cref /object/tactic/executive>>.<p>
+   
+    If the Economic model is in use, these income values are used to
+    initialize and calibration the Economy; the actor's income will then come
+    from the Economic model.  In this case, changing these parameters after
+    the scenario is locked will have no effect on the simulation.<p>
+    
+    The order parameters are as follows:<p>
 
     <<parmlist>>
     <<parm a "Select Actor">>
     <b>Required.</b> ID of an existing actor.
     <</parm>>
 
-    <<actor_ parm income -required>>
+    <<actor_ parm income_goods -optional>>
+    <<actor_ parm income_pop -optional>>
+    <<actor_ parm income_black -optional>>
+    <<actor_ parm income_graft -optional>>
 
     <</parmlist>>
 }
