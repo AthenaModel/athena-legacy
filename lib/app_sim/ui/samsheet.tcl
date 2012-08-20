@@ -304,7 +304,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         disabled                   \
-            -rows          3                          \
+            -rows          6                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -315,17 +315,26 @@ snit::widget samsheet {
             "Foreign Aid to Actors"
             "Foreign Aid to Region"
             "Per cap. demand for goods"
+            "Exports of goods"
+            "Exports from black market"
+            "Exports from workforce"
         }
 
         $outputs textcol 0,2 {
             "$/year"
             "$/year"
             "goodsBKT/year"
+            "goodsBKT/year"
+            "tonnes/year"
+            "work-years/year"
         } units -anchor w -relief flat
 
-        $outputs mapcell 0,1 FAA         r -background $color(r)
-        $outputs mapcell 1,1 FAR         r -background $color(r)
-        $outputs mapcell 2,1 A.goods.pop r -background $color(r)
+        $outputs mapcell 0,1 FAA           r -background $color(r)
+        $outputs mapcell 1,1 FAR           r -background $color(r)
+        $outputs mapcell 2,1 A.goods.pop   r -background $color(r)
+        $outputs mapcell 3,1 EXPORTS.goods r -background $color(r)
+        $outputs mapcell 4,1 EXPORTS.black r -background $color(r)
+        $outputs mapcell 5,1 EXPORTS.pop   r -background $color(r)
 
         $outputs width 0 25
         $outputs width 2 15
