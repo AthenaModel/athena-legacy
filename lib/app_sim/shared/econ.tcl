@@ -35,7 +35,7 @@ snit::type econ {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Group: Type Components
+    # Type Components
 
     # Type Component: cge
     #
@@ -50,18 +50,18 @@ snit::type econ {
     typecomponent sam
 
     #-------------------------------------------------------------------
-    # Group: Non-Checkpointed Type Variables
+    # Non-Checkpointed Type Variables
 
     # Type Variable: info
     #
     # Miscellaneous non-checkpointed scalar values.
     #
     # changed - 1 if there is unsaved data, and 0 otherwise.
-    # econOK  - 1 if the CGE converges, and 0 otherwise.
 
     typevariable info -array {
         changed 0
-        econOK  1
+        econStatus ok
+        econPage   null
     }
 
     #-------------------------------------------------------------------
@@ -144,10 +144,32 @@ snit::type econ {
         return
     }
 
+    # CGEFailure msg page
+    #
+    # msg    - the type of error: diverge or errors
+    # page   - the page in the CGE that the failure occurred
+    #
+    # This is called by the CGE cellmodel(n) if there is a failure
+    # when trying to solve. It will prompt the user to output an 
+    # initialization file that can be used with mars_cmtool(1) to 
+    # further analyze any problems.
 
-    # Group: Initialization
+    typemethod CGEFailure {msg page} {
+        # FIRST, log the warning
+        log warning econ "CGE Failed to solve: $msg $page"
+        
+        # NEXT, open a debug file for use in analyzing the problem
+        set filename [workdir join .. cgedebug.txt]
+        set f [open $filename w]
 
-    # Type Method: init
+        # NEXT, dump the CGE initial state
+        puts $f [$cge initial]
+        close $f
+    }
+
+    # Initialization
+
+    # init
     #
     # Initializes the module before the simulation first starts to run.
 
@@ -158,7 +180,7 @@ snit::type econ {
         set sam [cellmodel sam \
                      -epsilon 0.000001 \
                      -maxiters 1       \
-                     -tracecmd [mytypemethod TraceCM]]
+                     -tracecmd [mytypemethod TraceSAM]]
 
         sam load \
             [readfile [file join $::app_sim_shared::library sam6x6.cm]]
@@ -177,7 +199,8 @@ snit::type econ {
         set cge [cellmodel cge \
                      -epsilon  0.000001 \
                      -maxiters 1000     \
-                     -tracecmd [mytypemethod TraceCM]]
+                     -failcmd  [mytypemethod CGEFailure] \
+                     -tracecmd [mytypemethod TraceCGE]]
         cge load [readfile [file join $::app_sim_shared::library eco6x6.cm]]
         
         require {[cge sane]} "The econ model's CGE (eco6x6.cm) is not sane."
@@ -189,20 +212,126 @@ snit::type econ {
         log normal econ "init complete"
     }
 
-    # Type Method: TraceCM
+
+    # report ht
+    #
+    # ht   - an htools object used to build the report
+    #
+    # This method creates an HTML report that reports on the status of
+    # the econ model providing some insight if there has been a failure
+    # for some reason.
+
+    typemethod report {ht} {
+        # FIRST, if everything is fine, not much to report
+        if {$info(econStatus) eq "ok"} {
+            if {![parmdb get econ.disable]} {
+                $ht putln "The econ model is enabled and is operating without "
+                $ht putln "error."
+            } else {
+                $ht putln "The econ model has been disabled."
+            }
+        } else {
+            # NEXT, the CGE has either diverged or has errors, generate
+            # the appropriate report 
+
+            if {$info(econStatus) eq "diverge"} {
+                $ht putln "The econ model was not able to converge on the "
+                $ht put   "$info(econPage) page.  "
+            } elseif {$info(econStatus) eq "errors"} {
+                $ht putln "The econ model has encountered one or more errors. "
+                $ht putln "The list of cells and their problems are: "
+                
+                $ht para
+                
+                # NEXT, create a table of cells and their errors
+                $ht push
+
+                foreach {cell} [$cge cells error] {
+                    set err [$cge cellinfo error $cell]
+                    $ht tr {
+                        $ht td left {$ht put $cell}
+                        $ht td left {$ht put $err}
+                    }
+                }
+                set text [$ht pop]
+
+                $ht table {
+                    "Cell Name" "Error"
+                } {
+                    $ht putln $text
+                }
+            }
+
+            $ht para
+
+            $ht putln "Because of this the econ model has been disabled "
+            $ht put   "automatically. "
+
+            $ht para
+
+            $ht put   "A file called cgedebug.txt that contains the set "
+            $ht put   "of initial conditions that led to this problem "
+            $ht put   "is located in [file normalize [workdir join ..]] "
+            $ht put   "and can be used for debugging this problem."
+
+            $ht para
+
+            $ht putln "You can continue to run Athena with the model "
+            $ht put   "disabled or you can return to PREP and try to "
+            $ht put   "fix the problem."
+        }
+    }
+
+    # TraceCGE
     #
     # The cellmodel(n) -tracecmd for the cell model components.  It simply
     # logs arguments.
 
-    typemethod TraceCM {args} {
+    typemethod TraceCGE {args} {
         if {[lindex $args 0] eq "converge"} {
-            log detail econ "solve trace: $args"
+            log detail econ "cge solve trace: $args"
         } else {
-            log debug econ "solve trace: $args"
+            log debug econ "cge solve trace: $args"
         }
     }
 
-    # Type Method: reset
+    # TraceSAM
+    #
+    # The cellmodel(n) -tracecmd for the cell model components.  It simply
+    # logs arguments.
+
+    typemethod TraceSAM {args} {
+        if {[lindex $args 0] eq "converge"} {
+            log detail econ "sam solve trace: $args"
+        } else {
+            log debug econ "sam solve trace: $args"
+        }
+    }
+
+    # CGEFailure msg page
+    #
+    # msg    - the type of error: diverge or errors
+    # page   - the page in the CGE that the failure occurred
+    #
+    # This is called by the CGE cellmodel(n) if there is a failure
+    # when trying to solve. It will prompt the user to output an 
+    # initialization file that can be used with mars_cmtool(1) to 
+    # further analyze any problems.
+
+    typemethod CGEFailure {msg page} {
+        # FIRST, log the warning
+        log warning econ "CGE Failed to solve: $msg $page"
+        
+        # NEXT, open a debug file for use in analyzing the problem
+        set filename [workdir join .. cgedebug.txt]
+        set f [open $filename w]
+
+        # NEXT, dump the CGE initial state
+        puts $f [$cge initial]
+        close $f
+    }
+
+    # reset
     #
     # Resets the econ model to the initial state for both the SAM
     # and the CGE
@@ -221,13 +350,12 @@ snit::type econ {
         $type InitializeCGE
     }
 
-    # Type Method: InitializeCGE
+    # InitializeCGE
     #
     # Updates the shape cells of the CGE from the data in the SAM.
 
     typemethod InitializeCGE {} {
-        # FIRST, get indices from the SAM, sectors is all sectors and
-        # lsectors is just the local sectors (goods, black and pop)
+        # FIRST, get sectors from the SAM
         set sectors  [$sam index i]
 
         # NEXT, base prices from the SAM
@@ -235,7 +363,23 @@ snit::type econ {
             cge set [list BP.$i [dict get [$sam get] BP.$i]]
         }
 
+        # NEXT, base expenditures/revenues as a starting point for CGE X.i.j's
+        foreach i $sectors {
+            foreach j $sectors {
+                cge set [list Cal::X.$i.$j [dict get [$sam get] BX.$i.$j]]
+            }
+        }
+
+        # NEXT, base quantities demanded as a starting poing for CGE QD.i.j
+        foreach i {goods black pop} {
+            foreach j $sectors {
+                cge set [list Cal::QD.$i.$j [dict get [$sam get] BQD.$i.$j]]
+            }
+        }
+
         # NEXT, shape parameters for the economy
+        
+        #-------------------------------------------------------------
         # The goods sector
         foreach i {goods black pop} {
             cge set [list f.$i.goods [dict get [$sam get] f.$i.goods]]
@@ -247,6 +391,7 @@ snit::type econ {
 
         cge set [list k.goods [dict get [$sam get] k.goods]]
 
+        #-------------------------------------------------------------
         # The black sector
         foreach i {goods black pop} {
             cge set [list A.$i.black [dict get [$sam get] A.$i.black]]
@@ -256,6 +401,7 @@ snit::type econ {
             cge set [list t.$i.black [dict get [$sam get] t.$i.black]]
         }
 
+        #-------------------------------------------------------------
         # The pop sector
         cge set [list k.pop   [dict get [$sam get] k.pop]]
 
@@ -267,33 +413,42 @@ snit::type econ {
             cge set [list t.$i.pop [dict get [$sam get] t.$i.pop]]
         }
 
+        #-------------------------------------------------------------
         # The actors and region sectors
         foreach i $sectors {
             cge set [list f.$i.actors [dict get [$sam get] f.$i.actors]]
             cge set [list f.$i.region [dict get [$sam get] f.$i.region]]
         }
 
+        #-------------------------------------------------------------
         # The world sector
         cge set [list FAA [dict get [$sam get] FAA]]
         cge set [list FAR [dict get [$sam get] FAR]]
 
+        #-------------------------------------------------------------
+        # Base values for Exports
+        foreach i {goods black pop} {
+            cge set [list BEXPORTS.$i [dict get [$sam get] EXPORTS.$i]]
+        }
+
+        #-------------------------------------------------------------
         # A.goods.pop, the unconstrained base demand for goods in 
         # goods basket per year per capita.
         cge set [list A.goods.pop [dict get [$sam get] A.goods.pop]]
     }
 
     #-------------------------------------------------------------------
-    # Group: Assessment Routines
+    # Assessment Routines
 
     # ok
     #
-    # Returns 1 if the economy is "OK" and 0 if there's a problem.
+    # Returns 1 if the economy is "ok" and 0 otherwise.
 
     typemethod ok {} {
-        return $info(econOK)
+        return [expr {$info(econStatus) eq "ok"}]
     }
 
-    # Type Method: start
+    # start
     #
     # Calibrates the CGE.  This is done when the simulation leaves
     # the PREP state and enters time 0.
@@ -301,11 +456,10 @@ snit::type econ {
     typemethod start {} {
         log normal econ "start"
 
-
         $type InitializeCGE
 
         if {![parmdb get econ.disable]} {
-            set info(econOK) [$type analyze -calibrate]
+            $type analyze -calibrate
 
             set startdict [$cge get]
 
@@ -320,7 +474,7 @@ snit::type econ {
 
     }
 
-    # Type Method: tock
+    # tock
     #
     # Updates the CGE at each econ tock.  Returns 1 if the CGE
     # converged, and 0 otherwise.
@@ -329,22 +483,26 @@ snit::type econ {
         log normal econ "tock"
 
         if {![parmdb get econ.disable]} {
-            set info(econOK) [$type analyze]
+            $type analyze
 
             log normal econ "tock complete"
         } else {
             log warning econ "disabled"
-            set info(econOK) 1
+            return 1
         }
 
-        return $info(econOK)
+        if {$info(econStatus) ne "ok"} {
+            return 0
+        }
+
+        return 1
     }
 
     #-------------------------------------------------------------------
-    # Group: Analysis
+    # Analysis
 
 
-    # Type Method: analyze
+    # analyze
     #
     # Solves the CGE to convergence.  If the -calibrate flag is given,
     # then the CGE is first calibrated; this is normally only done during
@@ -352,8 +510,6 @@ snit::type econ {
     #
     # Returns 1 on success, and 0 otherwise.
     #
-    # Syntax:
-    #   analyze ?-calibrate?
 
     typemethod analyze {{opt ""}} {
         log detail econ "analyze $opt"
@@ -378,15 +534,24 @@ snit::type econ {
                          In::LSF       $LSF]
 
             # NEXT, calibrate the CGE.
-            set result [cge solve]
+            set status [cge solve]
+
+            set info(econStatus) [lindex $status 0]
+
+            if {$info(econStatus) ne "ok"} {
+                set info(econPage) [lindex $status 1]
+            } else {
+                set info(econPage) null
+            }
 
             # NEXT, the data has changed.
             set info(changed) 1
 
             # NEXT, handle failures.
-            if {$result ne "ok"} {
-                log warning econ "Failed to calibrate: $result"
-                error "Failed to calibrate economic model: $result"
+            if {$info(econStatus) ne "ok"} {
+                log warning econ "Failed to calibrate: $info(econPage)"
+                $type CgeError "CGE Calibration Error"
+                return 0
             }
 
             # NEXT, Compute the initial CAP.goods.
@@ -446,15 +611,22 @@ snit::type econ {
                      In::LSF       $LSF]
 
         # Update the CGE.
-        set result [cge solve In Out]
+        set status [cge solve In Out]
+        set info(econStatus) [lindex $status 0]
+
+        if {$info(econStatus) ne "ok"} {
+            set info(econPage) [lindex $status 1]
+        } else {
+            set info(econPage) null
+        }
 
         # The data has changed.
         set info(changed) 1
 
         # NEXT, handle failures
-        if {$result ne "ok"} {
+        if {$info(econStatus) ne "ok"} {
             log warning econ "Economic analysis failed"
-
+            $type CgeError "CGE Solution Error"
             return 0
         }
 
@@ -462,7 +634,7 @@ snit::type econ {
         return 1
     }
 
-    # Type Method: ComputeLaborSecurityFactor
+    # ComputeLaborSecurityFactor
     #
     # Computes the labor security factor given the security of
     # each local neighborhood group.
@@ -499,10 +671,33 @@ snit::type econ {
         return $LSF
     }
 
+    # CgeError title
+    #
+    # This method pops up a dialog to inform the user that because the CGE
+    # has failed to solve the econ model is disabled.
+
+    typemethod CgeError {title} {
+        append msg "Failure in the econ model caused it to be disabled."
+        append msg "\nSee the detail browser for more information."
+
+        parmdb set econ.disable 1
+        parmdb lock econ.disable
+
+        set answer [messagebox popup              \
+                        -icon warning             \
+                        -message $msg             \
+                        -parent [app topwin]      \
+                        -title  $title            \
+                        -buttons {ok "Ok" db "Go To Detail Browser"}]
+
+       if {$answer eq "db"} {
+           app show my://app/econ
+       }
+    }
 
 
     #-------------------------------------------------------------------
-    # Group: Queries
+    # Queries
 
     # Type Methods: Delegated
     #
@@ -531,7 +726,7 @@ snit::type econ {
         return [$cge cells]
     }
 
-    # Type Method: dump
+    # dump
     #
     # Dumps the cell values and formulas for one or all pages.  If 
     # no _page_ is specified, only the *out* page is included.
@@ -548,7 +743,7 @@ snit::type econ {
         cge dump $page
     }
 
-    # Type Method: sam
+    # sam
     #
     # Returns either a copy of the SAM or the SAM read in during 
     # initialization. The GUI uses a copy of the SAM for it's
@@ -560,7 +755,7 @@ snit::type econ {
             set samcopy [cellmodel samcopy \
                          -epsilon 0.000001 \
                          -maxiters 1       \
-                         -tracecmd [mytypemethod TraceCM]]
+                         -tracecmd [mytypemethod TraceSAM]]
 
             samcopy load \
                 [readfile \
@@ -572,7 +767,7 @@ snit::type econ {
         return $sam
     }
 
-    # Type Method: cge
+    # cge
     #
     # Returns the cellmodel object for the CGE, for use by 
     # browsers.
@@ -581,7 +776,7 @@ snit::type econ {
         return $cge
     }
 
-    # Type Method: getstart
+    # getstart
     #
     # Returns a dictionary of the starting values for the CGE cells.
 
@@ -590,7 +785,7 @@ snit::type econ {
     }
 
     #-------------------------------------------------------------------
-    # Group: Mutators
+    # Mutators
     #
     # Mutators are used to implement orders that change the scenario in
     # some way.  Mutators assume that their inputs are valid, and returns
@@ -658,16 +853,13 @@ snit::type econ {
         puts "Trace: $sub $evt $args $objs"
     }
     #-------------------------------------------------------------------
-    # Group: saveable(i) interface
+    # saveable(i) interface
 
-    # Type Method: checkpoint
+    # checkpoint
     #
     # Returns a checkpoint of the non-RDB simulation data.  If 
     # -saved is specified, the data is marked unchanged.
     #
-    # Syntax:
-    #   checkpoint ?-saved?
-
 
     typemethod checkpoint {{option ""}} {
         if {$option eq "-saved"} {
@@ -677,7 +869,7 @@ snit::type econ {
         return [list sam [sam get] cge [cge get] startdict $startdict]
     }
 
-    # Type Method: restore
+    # restore
     #
     # Restores the non-RDB state of the module to that contained
     # in the _checkpoint_.  If -saved is specified, the data is marked
@@ -704,7 +896,7 @@ snit::type econ {
         }
     }
 
-    # Type Method: changed
+    # changed
     #
     # Returns 1 if saveable(i) data has changed, and 0 otherwise.
     #

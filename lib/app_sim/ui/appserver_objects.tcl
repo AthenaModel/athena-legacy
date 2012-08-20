@@ -48,6 +48,11 @@ appserver module OBJECTS {
             key      k
         }
 
+        /econ   {
+            label    "Econ"
+            listIcon ::projectgui::icon::dollar12
+        }
+
         /ioms   {
             label    "IOMs"
             listIcon ::projectgui::icon::message12
@@ -169,6 +174,7 @@ appserver module OBJECTS {
                     /groups/org
                     /drivers
                     /contribs
+                    /econ
                     /caps
                     /hooks
                     /ioms
