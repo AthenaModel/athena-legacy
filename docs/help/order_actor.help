@@ -31,6 +31,7 @@ order ACTOR:CREATE "Create Actor" {
 
     <<parmlist>>
     <<actor_ parms -required -tags create>>
+    <<actor_ parms -optional -tags create_opt>>
     <</parmlist>>
 }
 
@@ -87,10 +88,7 @@ order ACTOR:INCOME "Update Actor Income" {
     <b>Required.</b> ID of an existing actor.
     <</parm>>
 
-    <<actor_ parm income_goods -optional>>
-    <<actor_ parm income_pop -optional>>
-    <<actor_ parm income_black -optional>>
-    <<actor_ parm income_graft -optional>>
+    <<actor_ parms -optional -tags income>>
 
     <</parmlist>>
 }
