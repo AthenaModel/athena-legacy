@@ -52,6 +52,7 @@ snit::widgetadaptor actorbrowser {
         { cash_on_hand "Cash on Hand\n$"
                        -sortmode command 
                        -sortcommand ::marsutil::moneysort               }
+        { overhead     "Overhead\n% of income" -sortmode integer        }
     }
 
     #-------------------------------------------------------------------

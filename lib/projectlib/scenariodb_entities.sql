@@ -61,7 +61,11 @@ CREATE TABLE actors (
 
     -- Money available to be spent, in $.
     -- Unspent cash accumulates from tock to tock.
-    cash_on_hand DOUBLE DEFAULT 0
+    cash_on_hand DOUBLE DEFAULT 0,
+
+    -- Overhead; percentage of income expended on
+    -- non-tactic expenditures.
+    overhead     INTEGER DEFAULT 0
 );
 
 CREATE TRIGGER actor_delete

@@ -129,6 +129,7 @@ snit::type actor {
     #    income_black   The actor's income from the BLACK sector, $/week
     #    income_graft   The actor's income from graft, $/week
     #    cash_on_hand   The actor's cash-on-hand (starting balance)
+    #    overhead       The actor's overhead fraction, 0.0 to 1.0
     #
     # Creates an actor given the parms, which are presumed to be
     # valid.
@@ -150,8 +151,9 @@ snit::type actor {
                        income_goods, 
                        income_pop, 
                        income_black, 
-                       income_graft, 
-                       cash_on_hand)
+                       income_graft,
+                       cash_on_hand,
+                       overhead)
                 VALUES($a, 
                        $longname, 
                        nullif($supports, 'NONE'),
@@ -160,7 +162,8 @@ snit::type actor {
                        $income_pop, 
                        $income_black, 
                        $income_graft, 
-                       $cash_on_hand)
+                       $cash_on_hand,
+                       $overhead)
             }
 
             # NEXT, create a matching bsystem entity
@@ -236,6 +239,7 @@ snit::type actor {
     #    income_black   A new income, or ""
     #    income_graft   A new income, or ""
     #    cash_on_hand   A new cash-on-hand amount, or ""
+    #    overhead       A new overhead amount, or ""
     #
     # Updates a actor given the parms, which are presumed to be
     # valid.
@@ -260,7 +264,8 @@ snit::type actor {
                     income_pop   = nonempty($income_pop,   income_pop),
                     income_black = nonempty($income_black, income_black),
                     income_graft = nonempty($income_graft, income_graft),
-                    cash_on_hand = nonempty($cash_on_hand, cash_on_hand)
+                    cash_on_hand = nonempty($cash_on_hand, cash_on_hand),
+                    overhead     = nonempty($overhead,     overhead)
                 WHERE a=$a;
             } {}
 
@@ -293,8 +298,9 @@ order define ACTOR:CREATE {
         rcc "Supports:" -for supports
         enum supports -defvalue SELF -listcmd {ptype a+self+none names}
 
-        rcc "Cash Reserve, $:" -for cash_reserve
+        rcc "Cash Reserve:" -for cash_reserve
         text cash_reserve -defvalue 0
+        label "$"
 
         rcc "Income, GOODS Sector:" -for income_goods
         text income_goods -defvalue 0
@@ -312,8 +318,13 @@ order define ACTOR:CREATE {
         text income_graft -defvalue 0
         label "$/week"
 
-        rcc "Cash On Hand, $:" -for cash_on_hand
+        rcc "Cash On Hand:" -for cash_on_hand
         text cash_on_hand -defvalue 0
+        label "$"
+
+        rcc "Overhead:" -for overhead
+        percent overhead -defvalue 0
+        label "% of income"
     }
 } {
     # FIRST, prepare and validate the parameters
@@ -326,6 +337,7 @@ order define ACTOR:CREATE {
     prepare income_black -toupper                     -type money
     prepare income_graft -toupper                     -type money
     prepare cash_on_hand -toupper                     -type money
+    prepare overhead     -toupper                     -type ipercent
 
     returnOnError -final
 
@@ -406,8 +418,9 @@ order define ACTOR:UPDATE {
         rcc "Supports:" -for supports
         enum supports -listcmd {ptype a+self+none names}
 
-        rcc "Cash Reserve, $:" -for cash_reserve
+        rcc "Cash Reserve:" -for cash_reserve
         text cash_reserve
+        label "$"
 
         rcc "Income, GOODS Sector:" -for income_goods
         text income_goods
@@ -425,8 +438,13 @@ order define ACTOR:UPDATE {
         text income_graft
         label "$/week"
 
-        rcc "Cash On Hand, $:" -for cash_on_hand
+        rcc "Cash On Hand:" -for cash_on_hand
         text cash_on_hand
+        label "$"
+
+        rcc "Overhead:" -for overhead
+        percent overhead -defvalue 0
+        label "% of income"
     }
 } {
     # FIRST, prepare the parameters
@@ -439,6 +457,7 @@ order define ACTOR:UPDATE {
     prepare income_black -toupper             -type money
     prepare income_graft -toupper             -type money
     prepare cash_on_hand -toupper             -type money
+    prepare overhead     -toupper             -type ipercent
 
     returnOnError -final
 
@@ -474,6 +493,10 @@ order define ACTOR:INCOME {
         rcc "Income, Graft:" -for income_graft
         text income_graft
         label "$/week"
+
+        rcc "Overhead:" -for overhead
+        percent overhead -defvalue 0
+        label "% of income"
     }
 } {
     # FIRST, prepare the parameters
@@ -482,6 +505,7 @@ order define ACTOR:INCOME {
     prepare income_pop   -toupper             -type money
     prepare income_black -toupper             -type money
     prepare income_graft -toupper             -type money
+    prepare overhead     -toupper             -type ipercent
 
     returnOnError -final
 
@@ -529,6 +553,7 @@ order define ACTOR:SUPPORTS {
         income_black {}
         income_graft {}
         cash_on_hand {}
+        overhead     {}
     }
 
     # NEXT, modify the actor

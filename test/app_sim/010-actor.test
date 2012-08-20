@@ -52,6 +52,7 @@ income_pop    0.0
 income_black  0.0
 income_graft  0.0
 cash_on_hand  0.0
+overhead      10
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -76,6 +77,7 @@ income_pop    0.0
 income_black  0.0
 income_graft  0.0
 cash_on_hand  0.0
+overhead      10
     }
 
 
@@ -131,6 +133,7 @@ income_pop    0.0
 income_black  0.0
 income_graft  0.0
 cash_on_hand  0.0
+overhead      10
     }
 
     test delete-3.1 {Bsystem entity deleted} -setup {
@@ -343,6 +346,7 @@ cash_on_hand  0.0
             income_black 7
             income_graft 8
             cash_on_hand 10
+            overhead     20
         }
 
         ted querylist {SELECT * FROM actors}
@@ -358,6 +362,7 @@ income_pop    6.0
 income_black  7.0
 income_graft  8.0
 cash_on_hand  10.0
+overhead      20
     }
 
 
@@ -376,6 +381,7 @@ cash_on_hand  10.0
             income_black ""
             income_graft ""
             cash_on_hand ""
+            overhead     ""
         }
 
         set b [ted querylist {SELECT * FROM actors}]
@@ -402,6 +408,7 @@ cash_on_hand  10.0
             income_black ""
             income_graft ""
             cash_on_hand ""
+            overhead     ""
         }]
 
         namespace eval :: $undo
@@ -477,6 +484,7 @@ cash_on_hand  10.0
         income_pop   0.0
         longname     {Joe the Actor}
         a            JOE
+        overhead     10
         income_graft 0.0
         income_goods 10000.0
         cash_reserve 200000.0
@@ -506,6 +514,7 @@ cash_on_hand  10.0
             income_black 10
             income_graft 1
             cash_on_hand ""
+            overhead     ""
         }
     } -body {
         actor income JOE

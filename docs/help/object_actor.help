@@ -43,7 +43,7 @@ object actor_ {
     attribute longname "Long Name" {
         The actor's long name, a human-readable equivalent to the
         actor's ID, e.g., "United States".
-    } -tags {create update browser}
+    } -tags {create_opt update browser}
 
     attribute supports "Supports" {
         The name of the actor that usually receives this actor's political
@@ -70,7 +70,7 @@ object actor_ {
         <<cref /object/tactic/spend>>.  The actor is given an initial 
         reserve as part of the scenario; once
         the simulation begins, the level of the reserve can fluctuate.
-    } -tags {create update browser}
+    } -tags {create_opt update browser}
 
     attribute income_goods "Income, GOODS, $/week" {
         The actor's income from the GOODS sector of the economy, in dollars
@@ -82,7 +82,7 @@ object actor_ {
         This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
         used to fund tactics.
-    } -tags {create update browser}
+    } -tags {create_opt update browser income}
 
     attribute income_pop "Income, POP, $/week" {
         The actor's income from the POP sector of the economy, in dollars
@@ -94,7 +94,7 @@ object actor_ {
         This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
         used to fund tactics.
-    } -tags {create update browser}
+    } -tags {create_opt update browser income}
 
     attribute income_black "Income, BLACK, $/week" {
         The actor's income from the BLACK sector of the economy, in dollars
@@ -106,7 +106,7 @@ object actor_ {
         This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
         used to fund tactics.
-    } -tags {create update browser}
+    } -tags {create_opt update browser income}
 
     attribute income_graft "Income, Graft, $/week" {
         The actor's income from graft on foreign aid, in dollars
@@ -118,7 +118,7 @@ object actor_ {
         This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
         used to fund tactics.
-    } -tags {create update browser}
+    } -tags {create_opt update browser income}
 
     attribute cash_on_hand "Cash-On-Hand, $" {
         An actor's cash-on-hand is the amount of the money the actor
@@ -133,7 +133,15 @@ object actor_ {
         of the scenario; this reflects carry-over from the previous
         week, and possibly funds received from other actors prior to
         the start of the simulation.<p>
-    } -tags {browser}
+    } -tags {create_opt browser}
+
+    attribute overhead "Overhead, % of income" {
+        An actor spends his income on tactics; however, actors also have
+        expenditures not yet modeled explicitly as tactics.  An actor's
+        overhead is the percentage of his income spent on these unmodeled
+        expenses.
+    } -tags {create_opt update browser income}
+
 }
 
 page /object actor "Actor" {

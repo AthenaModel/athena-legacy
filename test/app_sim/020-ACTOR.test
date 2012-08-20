@@ -38,6 +38,7 @@ namespace eval ::athena_test::tests:: {
         income_black 20000
         income_graft 10000
         cash_on_hand 0
+        overhead     10
     }
 
     set bob {
@@ -50,6 +51,7 @@ namespace eval ::athena_test::tests:: {
         income_black 15000
         income_graft 20000
         cash_on_hand 0
+        overhead     20
     }
 
     # Clean up after a test
@@ -160,6 +162,16 @@ namespace eval ::athena_test::tests:: {
         cash_on_hand {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
+    test CREATE-1.11 {invalid overhead} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            overhead NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        overhead {invalid value "NONESUCH", expected integer}
+    }
+
 
 
     test CREATE-2.1 {actor is created} -body {
@@ -178,6 +190,7 @@ income_pop    30000.0
 income_black  20000.0
 income_graft  10000.0
 cash_on_hand  0.0
+overhead      10
     }
 
 
@@ -197,6 +210,7 @@ income_pop    30000.0
 income_black  20000.0
 income_graft  10000.0
 cash_on_hand  0.0
+overhead      10
     }
 
     test CREATE-2.3 {effects} -body {
@@ -348,6 +362,16 @@ cash_on_hand  0.0
     }
 
 
+    test UPDATE-1.9 {invalid overhead} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE overhead NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        overhead {invalid value "NONESUCH", expected integer}
+    }
+
     test UPDATE-2.1 {actor is updated} -setup {
         ted create JOE BOB
     } -body {
@@ -361,6 +385,7 @@ cash_on_hand  0.0
             income_black  2
             income_graft  3
             cash_on_hand 20
+            overhead     25
         }
 
         ted querylist {SELECT * FROM actors}
@@ -376,6 +401,7 @@ income_pop    1.0
 income_black  2.0
 income_graft  3.0
 cash_on_hand  20.0
+overhead      25
 
 a             BOB
 longname      Bob the Actor
@@ -386,6 +412,7 @@ income_pop    0.0
 income_black  0.0
 income_graft  0.0
 cash_on_hand  0.0
+overhead      20
     }
 
 
@@ -468,6 +495,16 @@ cash_on_hand  0.0
         income_graft {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
+    test INCOME-1.6 {invalid overhead} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:INCOME a JOE overhead NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        overhead {invalid value "NONESUCH", expected integer}
+    }
+
     test INCOME-2.1 {actor is updated} -setup {
         ted create JOE
     } -body {
@@ -477,6 +514,7 @@ cash_on_hand  0.0
             income_pop   2
             income_black 3
             income_graft 4
+            overhead     5
         }
 
         ted querylist {SELECT * FROM actors}
@@ -492,6 +530,7 @@ income_pop    2.0
 income_black  3.0
 income_graft  4.0
 cash_on_hand  0.0
+overhead      5
     }
 
 
