@@ -1197,53 +1197,16 @@ snit::type ::projectlib::parmdb {
             appears in the CGE as BP.pop.
         }
 
-        $ps define econ.idleFrac ::simlib::rfraction 0.25 {
-            The idle production capacity for goods, expressed as
-            a decimal fraction of the total production capacity.  This 
-            value can range from 0.0 to 0.9.
-        }
-
         $ps define econ.graft ::simlib::rfraction 0.3 {
             The fraction of Foreign Aid to the region (FAR) that goes
             to the actors.
         }
 
-        $ps subset econ.secFactor {
-            Parameters relating to the effect of security on the economy.
+        $ps define econ.idleFrac ::simlib::rfraction 0.25 {
+            The idle production capacity for goods, expressed as
+            a decimal fraction of the total production capacity.  This 
+            value can range from 0.0 to 0.9.
         }
-
-        $ps subset econ.secFactor.consumption {
-            A set of factors that decrease a neighborhood group's
-            consumption due to the the group's current security level.
-        }
-
-        $ps subset econ.secFactor.labor {
-            A set of factors that decrease a neighborhood group's
-            contribution to the labor force to the the group's current
-            security level.
-        }
-
-        foreach level [qsecurity names] {
-            $ps define econ.secFactor.consumption.$level \
-                ::simlib::rfraction 1.0 "
-                    Fraction of consumption when a group's security
-                    level is $level.
-                "
-
-            $ps define econ.secFactor.labor.$level \
-                ::simlib::rfraction 1.0 "
-                    Fraction of labor force when a group's security
-                    level is $level.
-                "
-        }
-
-        $ps setdefault econ.secFactor.consumption.M 0.95
-        $ps setdefault econ.secFactor.consumption.L 0.5
-        $ps setdefault econ.secFactor.consumption.N 0.2
-
-        $ps setdefault econ.secFactor.labor.M 0.95
-        $ps setdefault econ.secFactor.labor.L 0.5
-        $ps setdefault econ.secFactor.labor.N 0.2
 
         $ps subset econ.check {
             Parameters that control Athena's on-going sanity checks for
@@ -1288,6 +1251,96 @@ snit::type ::projectlib::parmdb {
             above this value.  Set it to some large number (e.g., 100.0)
             to effectively disable the check.
         }
+
+        $ps subset econ.secFactor {
+            Parameters relating to the effect of security on the economy.
+        }
+
+        $ps subset econ.secFactor.consumption {
+            A set of factors that decrease a neighborhood group's
+            consumption due to the the group's current security level.
+        }
+
+        $ps subset econ.secFactor.labor {
+            A set of factors that decrease a neighborhood group's
+            contribution to the labor force to the the group's current
+            security level.
+        }
+
+        foreach level [qsecurity names] {
+            $ps define econ.secFactor.consumption.$level \
+                ::simlib::rfraction 1.0 "
+                    Fraction of consumption when a group's security
+                    level is $level.
+                "
+
+            $ps define econ.secFactor.labor.$level \
+                ::simlib::rfraction 1.0 "
+                    Fraction of labor force when a group's security
+                    level is $level.
+                "
+        }
+
+        $ps setdefault econ.secFactor.consumption.M 0.95
+        $ps setdefault econ.secFactor.consumption.L 0.5
+        $ps setdefault econ.secFactor.consumption.N 0.2
+
+        $ps setdefault econ.secFactor.labor.M 0.95
+        $ps setdefault econ.secFactor.labor.L 0.5
+        $ps setdefault econ.secFactor.labor.N 0.2
+
+
+        $ps subset econ.shares {
+            Allocations of expenditures to CGE sectors, by 
+            expenditure class and sector.  The allocations for each
+            expenditure class should sum to 1.0.
+        }
+
+        foreach class {overhead ASSIGN ATTROE BROADCAST DEPLOY FUNDENI} {
+            $ps subset econ.shares.$class "
+                Allocations of expenditures to CGE sectors for the
+                $class expenditure class.  The allocations for this
+                class should sum to 1.0.
+            "
+
+            foreach sector {goods pop black region world} {
+                $ps define econ.shares.$class.$sector ::simlib::rfraction 0.0 "
+                    Allocation of $class expenditures to the
+                    $sector CGE sector, a fraction from 0.0 to 1.0.
+                "
+            }
+        }
+
+        $ps setdefault econ.shares.overhead.goods    0.35
+        $ps setdefault econ.shares.overhead.pop      0.55
+        $ps setdefault econ.shares.overhead.black    0.0
+        $ps setdefault econ.shares.overhead.region   0.1
+        $ps setdefault econ.shares.overhead.world    0.0
+        $ps setdefault econ.shares.ASSIGN.goods      0.4
+        $ps setdefault econ.shares.ASSIGN.pop        0.6
+        $ps setdefault econ.shares.ASSIGN.black      0.0
+        $ps setdefault econ.shares.ASSIGN.region     0.0
+        $ps setdefault econ.shares.ASSIGN.world      0.0
+        $ps setdefault econ.shares.ATTROE.goods      0.4
+        $ps setdefault econ.shares.ATTROE.pop        0.6
+        $ps setdefault econ.shares.ATTROE.black      0.0
+        $ps setdefault econ.shares.ATTROE.region     0.0
+        $ps setdefault econ.shares.ATTROE.world      0.0
+        $ps setdefault econ.shares.BROADCAST.goods   0.4
+        $ps setdefault econ.shares.BROADCAST.pop     0.6
+        $ps setdefault econ.shares.BROADCAST.black   0.0
+        $ps setdefault econ.shares.BROADCAST.region  0.0
+        $ps setdefault econ.shares.BROADCAST.world   0.0
+        $ps setdefault econ.shares.DEPLOY.goods      0.4
+        $ps setdefault econ.shares.DEPLOY.pop        0.6
+        $ps setdefault econ.shares.DEPLOY.black      0.0
+        $ps setdefault econ.shares.DEPLOY.region     0.0
+        $ps setdefault econ.shares.DEPLOY.world      0.0
+        $ps setdefault econ.shares.FUNDENI.goods     0.4
+        $ps setdefault econ.shares.FUNDENI.pop       0.6
+        $ps setdefault econ.shares.FUNDENI.black     0.0
+        $ps setdefault econ.shares.FUNDENI.region    0.0
+        $ps setdefault econ.shares.FUNDENI.world     0.0
 
         # ensit.* parameters
         $ps subset ensit {
