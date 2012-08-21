@@ -11,6 +11,26 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.13, 21 August 2012</h3>
+
+This build contains many changes related to the integration of the 6x6
+CGE into Athena, as well as a couple of bug fixes related to
+Background Criminal Activities.<p>
+
+<ul>
+<li> Bug 3629: Criminals not being counted as enemies
+<li> Bug 3630: athena(1): Add base consumers and computation for A.goods.pop to econ SAM
+<li> Bug 3631: Random SAM values causes bgerror
+<li> Bug 3634: Law enforcement efficiency parameter value
+<li> Bug 3635: athena(1): bullet proofing of the SAM and updated defaults
+<li> Bug 3636: Multiple actor income sources
+<li> Bug 3640: athena(1): 6x6 CGE needs bullet proofing
+<li> Bug 3641: athena(1): the SAM browser should display EXPORTS for the goods, black and pop sectors.
+<li> Bug 3642: Add "overhead" attribute to actors table/orders
+<li> Bug 3643: parmdb(5): Actor expenditure shares
+<li> Bug 3646: athena(1): the econ model needs to do a better job of reporting it's problems
+</ul><p>
+
 <h3>Build 4.0.12, 15 August 2012</h3>
 
 Build 4.0.11 claimed to include Bug 3628, "Background Criminal
