@@ -75,6 +75,34 @@ AFTER DELETE ON actors BEGIN
     DELETE FROM conditions WHERE owner = old.a;
 END;
 
+CREATE TABLE income_a (
+    -- Actor a's current income, as computed by the Econ model.
+    -- If the Econ model is disabled, this table should be empty.
+    -- 
+    -- NOTE: This table is defined here, rather than in the Econ
+    -- area, so that it can be used in the actors_view.
+    
+    a         TEXT PRIMARY KEY,   -- Symbolic actor name
+    income    DOUBLE              -- Actor's current income
+);
+
+-- actors_view: Actor data, including computations
+
+CREATE VIEW actors_view AS
+SELECT a, 
+       longname,
+       supports,
+       cash_reserve,
+       income_goods,
+       income_pop,
+       income_black,
+       income_graft,
+       cash_on_hand,
+       overhead,
+       coalesce(income, income_goods + income_pop +
+                        income_black + income_graft) AS income
+FROM actors
+LEFT OUTER JOIN income_a USING (a);
 
 
 ------------------------------------------------------------------------

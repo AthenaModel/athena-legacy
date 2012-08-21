@@ -58,6 +58,7 @@ snit::type ted {
         hooks
         hook_topics
         hrel_fg
+        income_a
         ioms
         mads_t
         nbhoods

@@ -42,11 +42,10 @@ SELECT a                                               AS id,
        moneyfmt(income_pop)                            AS income_pop,
        moneyfmt(income_black)                          AS income_black,
        moneyfmt(income_graft)                          AS income_graft,
-       moneyfmt(income_goods + income_pop +
-                income_black + income_graft)           AS income,
        moneyfmt(cash_on_hand)                          AS cash_on_hand,
-       overhead                                        AS overhead
-FROM actors;
+       overhead                                        AS overhead,
+       moneyfmt(income)                                AS income
+FROM actors_view;
 
 
 ------------------------------------------------------------------------

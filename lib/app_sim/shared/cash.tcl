@@ -36,10 +36,9 @@ snit::type cash {
             INSERT INTO working_cash(a, cash_reserve, income, cash_on_hand)
             SELECT a, 
                    cash_reserve, 
-                   income_goods + income_black + income_pop + income_graft, 
-                   income_goods + income_black + income_pop + income_graft +
-                   cash_on_hand
-            FROM actors;
+                   income, 
+                   income + cash_on_hand
+            FROM actors_view;
         }
     }
 

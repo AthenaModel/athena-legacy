@@ -502,7 +502,7 @@ overhead      20
     #-------------------------------------------------------------------
     # income
 
-    test income-1.1 {get actor income} -setup {
+    test income-1.1 {get actor income, no income_a} -setup {
         ted create JOE
 
         actor mutate update {
@@ -522,6 +522,18 @@ overhead      20
         cleanup
     } -result {1111.0}
 
+    test income-1.2 {get actor income, income_a} -setup {
+        ted create JOE BOB
+
+        rdb eval {
+            INSERT INTO income_a(a, income) VALUES('JOE',12345.0)
+        }
+    } -body {
+        actor income JOE
+    } -cleanup {
+        cleanup
+    } -result {12345.0}
+    
     #-------------------------------------------------------------------
     # Cleanup
 

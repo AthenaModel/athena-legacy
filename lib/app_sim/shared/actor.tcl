@@ -103,8 +103,7 @@ snit::type actor {
 
     typemethod income {a} {
         return [rdb onecolumn {
-            SELECT income_goods+income_pop+income_black+income_graft
-            FROM actors WHERE a=$a
+            SELECT income FROM actors_view WHERE a=$a
         }]
     }
 
