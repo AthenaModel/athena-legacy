@@ -1625,7 +1625,7 @@ snit::type ::projectlib::parmdb {
         }
 
         foreach {name val} {
-            PROFICIENT 1.0
+            PROFICIENT 1.2
             FULL       0.9
             PARTIAL    0.7
             NONE       0.4
