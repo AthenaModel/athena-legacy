@@ -68,7 +68,7 @@ tactic type define BROADCAST {cap a iom x1 once on_lock} actor {
                 # FIRST, does the owner have access to the CAP?
                 # If not, refund his money; we're through here.
                 if {![cap hasaccess $cap $owner]} {
-                    cash refund $owner $fullcost 
+                    cash refund $owner BROADCAST $fullcost 
 
                     # NEXT, log the event
                     sigevent log 2 tactic "
@@ -251,7 +251,9 @@ tactic type define BROADCAST {cap a iom x1 once on_lock} actor {
             # NEXT, can we afford it?  We can always afford it on 
             # scenario lock.
 
-            if {![strategy locking] && ![cash spend $owner $fullcost]} {
+            if {![strategy locking] && 
+                ![cash spend $owner BROADCAST $fullcost]
+            } {
                 return 0
             }
 

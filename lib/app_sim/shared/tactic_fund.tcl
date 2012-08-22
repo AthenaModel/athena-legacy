@@ -59,7 +59,7 @@ tactic type define FUND {a x1} actor {
     typemethod execute {tdict} {
         dict with tdict {
             # FIRST, Consume the money, if we can.
-            if {![cash spend $owner $x1]} {
+            if {![cash spend $owner NONE $x1]} {
                 return 0
             }
 

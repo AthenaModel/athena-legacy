@@ -47,6 +47,9 @@ snit::type aam {
         # and magic attrition for this interval.
         $type AssessAttitudeImplications
         $type ClearAttitudeStatistics
+
+        # NEXT, Refund unspent attack funds to actors.
+        tactic::ATTROE refund
     }
 
     # ApplyAttrition

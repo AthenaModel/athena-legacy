@@ -151,7 +151,7 @@ tactic type define DEPLOY {g text1 int1 nlist once on_lock} actor {
             # is locking, no cost.
             let cost {$costPerPerson * $int1}
 
-            if {![strategy locking] && ![cash spend $owner $cost]} {
+            if {![strategy locking] && ![cash spend $owner DEPLOY $cost]} {
                 return 0
             }
 

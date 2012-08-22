@@ -32,11 +32,21 @@ tactic type define ATTROE {n f g text1 int1} actor {
     #-------------------------------------------------------------------
     # Public Methods
 
-    # clear
+    # reset
     #
     # Deletes all entries from attroe_nfg.
 
     typemethod reset {} {
+        # FIRST, delete the old ROEs in preparation for next time.
+        rdb eval { DELETE FROM attroe_nfg }
+    }
+
+    # refund
+    #
+    # Reimburses the owning actor for unused attacks.  This should
+    # be called at the end of the AAM assessment.
+
+    typemethod refund {} {
         # FIRST, reimburse the owning actor for the unused attacks
         rdb eval {
             SELECT F.a                                         AS a,
@@ -47,13 +57,9 @@ tactic type define ATTROE {n f g text1 int1} actor {
             AND   A.max_attacks > A.attacks
         } {
             log normal attroe "Return \$$extra to $a"
-            cash refund $a $extra
+            cash refund $a ATTROE $extra
         }
-
-        # NEXT, delete the old ROEs in preparation for next time.
-        rdb eval { DELETE FROM attroe_nfg }
     }
-
     #-------------------------------------------------------------------
     # tactic(i) subcommands
     #
@@ -177,7 +183,7 @@ tactic type define ATTROE {n f g text1 int1} actor {
             # FIRST, can we afford it?
             let cost {$attack_cost * $int1}
 
-            if {![cash spend $owner $cost]} {
+            if {![cash spend $owner ATTROE $cost]} {
                 return 0
             }
 

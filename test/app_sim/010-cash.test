@@ -73,6 +73,16 @@ BOB 150000.0     5000.0  5000.0       0.0
         cleanup
     } -result {1}
 
+    test load-1.3 {load clears adds income} -setup {
+        setup
+        cash spend JOE overhead 1000.0
+    } -body {
+        cash load
+        cash expenditures
+    } -cleanup {
+        cleanup
+    } -result {world 0.0 region 0.0 goods 0.0 black 0.0 pop 0.0}
+
     #-------------------------------------------------------------------
     # get
 
@@ -99,6 +109,109 @@ BOB 150000.0     5000.0  5000.0       0.0
     } -cleanup {
         cleanup
     } -result {200000.0}
+
+    #-------------------------------------------------------------------
+    # spend
+
+    test spend-1.1 {Return 0 if insufficient funds} -setup {
+        setup
+        cash load
+    } -body {
+        cash spend JOE overhead 1000000.0
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test spend-1.2 {Return 1 if sufficient funds} -setup {
+        setup
+        cash load
+    } -body {
+        cash spend JOE overhead 1.0
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test spend-1.3 {Money is spent} -setup {
+        setup
+        cash load
+    } -body {
+        cash spend JOE overhead 1000
+        ted query {SELECT * FROM working_cash}
+    } -cleanup {
+        cleanup
+    } -result {
+a   cash_reserve income  cash_on_hand gifts 
+--- ------------ ------- ------------ ----- 
+JOE 200000.0     10000.0 9000.0       0.0   
+BOB 150000.0     5000.0  5000.0       0.0   
+    }
+
+    test spend-1.4 {Money is allocated to sectors} -setup {
+        setup
+        cash load
+    } -body {
+        cash spend JOE overhead 1000
+        cash expenditures
+    } -cleanup {
+        cleanup
+    } -result {world 0.0 region 100.0 goods 350.0 black 0.0 pop 550.0}
+
+    test spend-1.5 {No allocation on NONE} -setup {
+        setup
+        cash load
+    } -body {
+        cash spend JOE NONE 1000
+        cash expenditures
+    } -cleanup {
+        cleanup
+    } -result {world 0.0 region 0.0 goods 0.0 black 0.0 pop 0.0}
+
+    #-------------------------------------------------------------------
+    # refund
+
+    test refund-1.1 {Refunds cash to actor's cash-on-hand.} -setup {
+        setup
+        cash load
+    } -body {
+        cash refund JOE overhead 2000.0
+        cash refund BOB overhead 5000.0
+        ted query {SELECT * FROM working_cash}
+    } -cleanup {
+        cleanup
+    } -result {
+a   cash_reserve income  cash_on_hand gifts 
+--- ------------ ------- ------------ ----- 
+JOE 200000.0     10000.0 12000.0      0.0   
+BOB 150000.0     5000.0  10000.0      0.0   
+    }
+
+    test refund-1.2 {Removes expenditures from sectors.} -setup {
+        setup
+        cash load
+        cash spend JOE overhead 1000.0
+    } -body {
+        cash refund JOE overhead 500.0
+        cash expenditures
+    } -cleanup {
+        cleanup
+    } -result {world 0.0 region 50.0 goods 175.0 black 0.0 pop 275.0}
+
+    test refund-1.3 {No deallocation on NONE} -setup {
+        setup
+        cash load
+        cash spend JOE overhead 1000.0
+    } -body {
+        cash refund JOE NONE 500.0
+        cash expenditures
+    } -cleanup {
+        cleanup
+    } -result {world 0.0 region 100.0 goods 350.0 black 0.0 pop 550.0}
+
+    #-------------------------------------------------------------------
+    # expenditures
+
+    # This command is tested in the tests for [cash load], [cash spend],
+    # and [cash refund].
 
     #-------------------------------------------------------------------
     # deposit
@@ -170,61 +283,6 @@ a   cash_reserve income  cash_on_hand gifts
 --- ------------ ------- ------------ ----- 
 JOE 199000.0     10000.0 11000.0      0.0   
 BOB 150000.0     5000.0  5000.0       0.0   
-    }
-
-    #-------------------------------------------------------------------
-    # spend
-
-    test spend-1.1 {Return 0 if insufficient funds} -setup {
-        setup
-        cash load
-    } -body {
-        cash spend JOE 1000000.0
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    test spend-1.2 {Return 1 if sufficient funds} -setup {
-        setup
-        cash load
-    } -body {
-        cash spend JOE 1.0
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test spend-1.3 {Money is spent} -setup {
-        setup
-        cash load
-    } -body {
-        cash spend JOE 1000
-        ted query {SELECT * FROM working_cash}
-    } -cleanup {
-        cleanup
-    } -result {
-a   cash_reserve income  cash_on_hand gifts 
---- ------------ ------- ------------ ----- 
-JOE 200000.0     10000.0 9000.0       0.0   
-BOB 150000.0     5000.0  5000.0       0.0   
-    }
-
-    #-------------------------------------------------------------------
-    # refund
-
-    test refund-1.1 {Refunds cash to actor's cash-on-hand.} -setup {
-        setup
-        cash load
-    } -body {
-        cash refund JOE 2000.0
-        cash refund BOB 5000.0
-        ted query {SELECT * FROM working_cash}
-    } -cleanup {
-        cleanup
-    } -result {
-a   cash_reserve income  cash_on_hand gifts 
---- ------------ ------- ------------ ----- 
-JOE 200000.0     10000.0 12000.0      0.0   
-BOB 150000.0     5000.0  10000.0      0.0   
     }
 
     #-------------------------------------------------------------------
