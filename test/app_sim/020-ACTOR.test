@@ -412,7 +412,7 @@ income_pop    0.0
 income_black  0.0
 income_graft  0.0
 cash_on_hand  0.0
-overhead      20
+overhead      0
     }
 
 

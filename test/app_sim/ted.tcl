@@ -204,7 +204,7 @@ snit::type ted {
             income_black 0
             income_graft 0
             cash_on_hand 0
-            overhead     10
+            overhead     0
         }
 
         defentity BOB ::actor {
@@ -217,7 +217,7 @@ snit::type ted {
             income_black 0
             income_graft 0
             cash_on_hand 0
-            overhead     20
+            overhead     0
         }
 
         defentity DAVE ::actor {
@@ -230,7 +230,7 @@ snit::type ted {
             income_black 0
             income_graft 0
             cash_on_hand 0
-            overhead     30
+            overhead     0
         }
 
         defentity BRIAN ::actor {
@@ -243,7 +243,7 @@ snit::type ted {
             income_black 0
             income_graft 0
             cash_on_hand 0
-            overhead     40
+            overhead     0
         }
 
         # Civ Groups

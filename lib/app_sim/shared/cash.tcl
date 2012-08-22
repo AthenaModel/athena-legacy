@@ -48,18 +48,30 @@ snit::type cash {
         }
 
         # NEXT, load up the working cash table, giving the actor his income.
+        # and expending his overhead.
         rdb eval {
             DELETE FROM working_cash;
-            INSERT INTO working_cash(a, cash_reserve, income, cash_on_hand)
+        }
+
+        rdb eval {
             SELECT a, 
                    cash_reserve, 
                    income, 
-                   income + cash_on_hand
+                   cash_on_hand,
+                   overhead
             FROM actors_view;
-        }
+        } {
+            let overheadDollars { $income * $overhead / 100.0 }
 
-        # NEXT, expend the overhead.
-        # TBD
+            $type Allocate overhead $overheadDollars
+
+            let cash_on_hand { $cash_on_hand + $income - $overheadDollars }
+
+            rdb eval {
+                INSERT INTO working_cash(a, cash_reserve, income, cash_on_hand)
+                VALUES($a, $cash_reserve, $income, $cash_on_hand)
+            }
+        }
     }
 
     # save
