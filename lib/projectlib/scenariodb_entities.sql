@@ -53,19 +53,22 @@ CREATE TABLE actors (
     -- Money saved for later, in $.
     cash_reserve DOUBLE DEFAULT 0,
 
-    -- Income from various sources, in $/week.
-    income_goods DOUBLE DEFAULT 0,
-    income_pop   DOUBLE DEFAULT 0,
-    income_black DOUBLE DEFAULT 0,
-    income_graft DOUBLE DEFAULT 0,
-
     -- Money available to be spent, in $.
     -- Unspent cash accumulates from tock to tock.
     cash_on_hand DOUBLE DEFAULT 0,
 
     -- Overhead; percentage of income expended on
     -- non-tactic expenditures.
-    overhead     INTEGER DEFAULT 0
+    overhead     INTEGER DEFAULT 0,
+
+    -- Income by income class, in $/week.  Ultimately, these should go
+    -- in a separate table.
+    income_goods     DOUBLE DEFAULT 0,
+    income_black_nr  DOUBLE DEFAULT 0,
+    income_black_tax DOUBLE DEFAULT 0,
+    income_pop       DOUBLE DEFAULT 0,
+    income_graft     DOUBLE DEFAULT 0,
+    income_world     DOUBLE DEFAULT 0
 );
 
 CREATE TRIGGER actor_delete
@@ -93,14 +96,16 @@ SELECT a,
        longname,
        supports,
        cash_reserve,
-       income_goods,
-       income_pop,
-       income_black,
-       income_graft,
        cash_on_hand,
        overhead,
-       coalesce(income, income_goods + income_pop +
-                        income_black + income_graft) AS income
+       income_goods,
+       income_black_nr,
+       income_black_tax,
+       income_pop,
+       income_graft,
+       income_world,
+       coalesce(income, income_goods + income_black_nr + income_black_tax +
+                        income_pop + income_graft + income_world) AS income
 FROM actors
 LEFT OUTER JOIN income_a USING (a);
 

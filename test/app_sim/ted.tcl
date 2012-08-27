@@ -195,55 +195,63 @@ snit::type ted {
         # Actors
         
         defentity JOE ::actor {
-            a            JOE
-            longname     "Joe the Actor"
-            supports     SELF
-            cash_reserve 200000
-            income_goods 10000
-            income_pop   0
-            income_black 0
-            income_graft 0
-            cash_on_hand 0
-            overhead     0
+            a                JOE
+            longname         "Joe the Actor"
+            supports         SELF
+            cash_reserve     200000
+            cash_on_hand     0
+            overhead         0
+            income_goods     10000
+            income_black_nr  0
+            income_black_tax 0
+            income_pop       0
+            income_graft     0
+            income_world     0
         }
 
         defentity BOB ::actor {
-            a            BOB
-            longname     "Bob the Actor"
-            supports     SELF
-            cash_reserve 150000
-            income_goods 5000
-            income_pop   0
-            income_black 0
-            income_graft 0
-            cash_on_hand 0
-            overhead     0
+            a                BOB
+            longname         "Bob the Actor"
+            supports         SELF
+            cash_reserve     150000
+            cash_on_hand     0
+            overhead         0
+            income_goods     5000
+            income_black_nr  0
+            income_black_tax 0
+            income_pop       0
+            income_graft     0
+            income_world     0
         }
 
         defentity DAVE ::actor {
-            a            DAVE
-            longname     "Dave the Actor"
-            supports     SELF
-            cash_reserve 150000
-            income_goods 5000
-            income_pop   0
-            income_black 0
-            income_graft 0
-            cash_on_hand 0
-            overhead     0
+            a                DAVE
+            longname         "Dave the Actor"
+            supports         SELF
+            cash_reserve     150000
+            cash_on_hand     0
+            overhead         0
+            income_goods     5000
+            income_black_nr  0
+            income_black_tax 0
+            income_pop       0
+            income_graft     0
+            income_world     0
         }
 
         defentity BRIAN ::actor {
-            a            BRIAN
-            longname     "Brian the Actor"
-            supports     BOB
-            cash_reserve 150000
-            income_goods 5000
-            income_pop   0
-            income_black 0
-            income_graft 0
-            cash_on_hand 0
-            overhead     0
+            a                BRIAN
+            longname         "Brian the Actor"
+            supports         BOB
+            cash_reserve     150000
+            cash_on_hand     0
+            overhead         0
+            income_goods     5000
+            income_black_nr  0
+            income_black_tax 0
+            income_pop       0
+            income_graft     0
+            income_world     0
         }
 
         # Civ Groups

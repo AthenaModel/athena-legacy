@@ -43,16 +43,18 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      Joe the Actor
-supports      JOE
-cash_reserve  200000.0
-income_goods  10000.0
-income_pop    0.0
-income_black  0.0
-income_graft  0.0
-cash_on_hand  0.0
-overhead      0
+a                 JOE
+longname          Joe the Actor
+supports          JOE
+cash_reserve      200000.0
+cash_on_hand      0.0
+overhead          0
+income_goods      10000.0
+income_black_nr   0.0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -68,16 +70,18 @@ overhead      0
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      Joe the Actor
-supports      
-cash_reserve  200000.0
-income_goods  10000.0
-income_pop    0.0
-income_black  0.0
-income_graft  0.0
-cash_on_hand  0.0
-overhead      0
+a                 JOE
+longname          Joe the Actor
+supports          
+cash_reserve      200000.0
+cash_on_hand      0.0
+overhead          0
+income_goods      10000.0
+income_black_nr   0.0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
     }
 
 
@@ -124,16 +128,18 @@ overhead      0
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      Joe the Actor
-supports      JOE
-cash_reserve  200000.0
-income_goods  10000.0
-income_pop    0.0
-income_black  0.0
-income_graft  0.0
-cash_on_hand  0.0
-overhead      0
+a                 JOE
+longname          Joe the Actor
+supports          JOE
+cash_reserve      200000.0
+cash_on_hand      0.0
+overhead          0
+income_goods      10000.0
+income_black_nr   0.0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
     }
 
     test delete-3.1 {Bsystem entity deleted} -setup {
@@ -337,32 +343,36 @@ overhead      0
         ted create JOE
     } -body {
         actor mutate update {
-            a            JOE
-            longname     "Joe the Actress"
-            supports     NONE
-            cash_reserve 0
-            income_goods 5
-            income_pop   6
-            income_black 7
-            income_graft 8
-            cash_on_hand 10
-            overhead     20
+            a                JOE
+            longname         "Joe the Actress"
+            supports         NONE
+            cash_reserve     0
+            cash_on_hand     10
+            overhead         20
+            income_goods     4
+            income_black_nr  5
+            income_black_tax 6
+            income_pop       7
+            income_graft     8
+            income_world     9
         }
 
         ted querylist {SELECT * FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      Joe the Actress
-supports      
-cash_reserve  0.0
-income_goods  5.0
-income_pop    6.0
-income_black  7.0
-income_graft  8.0
-cash_on_hand  10.0
-overhead      20
+a                 JOE
+longname          Joe the Actress
+supports          
+cash_reserve      0.0
+cash_on_hand      10.0
+overhead          20
+income_goods      4.0
+income_black_nr   5.0
+income_black_tax  6.0
+income_pop        7.0
+income_graft      8.0
+income_world      9.0
     }
 
 
@@ -372,16 +382,18 @@ overhead      20
         set a [ted querylist {SELECT * FROM actors}]
 
         actor mutate update  {
-            a            JOE
-            longname     ""
-            supports     ""
-            cash_reserve ""
-            income_goods ""
-            income_pop   ""
-            income_black ""
-            income_graft ""
-            cash_on_hand ""
-            overhead     ""
+            a                JOE
+            longname         ""
+            supports         ""
+            cash_reserve     ""
+            cash_on_hand     ""
+            overhead         ""
+            income_goods     ""
+            income_black_nr  ""
+            income_black_tax ""
+            income_pop       ""
+            income_graft     ""
+            income_world     ""
         }
 
         set b [ted querylist {SELECT * FROM actors}]
@@ -399,16 +411,18 @@ overhead      20
         set a [ted querylist {SELECT * FROM actors}]
 
         set undo [actor mutate update {
-            a            JOE
-            longname     "Joe the Actress"
-            supports     BOB
-            cash_reserve ""
-            income_goods ""
-            income_pop   ""
-            income_black ""
-            income_graft ""
-            cash_on_hand ""
-            overhead     ""
+            a                JOE
+            longname         "Joe the Actress"
+            supports         BOB
+            cash_reserve     ""
+            cash_on_hand     ""
+            overhead         ""
+            income_goods     ""
+            income_black_nr  ""
+            income_black_tax ""
+            income_pop       ""
+            income_graft     ""
+            income_world     ""
         }]
 
         namespace eval :: $undo
@@ -479,16 +493,18 @@ overhead      20
     } -cleanup {
         cleanup
     } -result {
-        supports     JOE
-        cash_on_hand 0.0
-        income_pop   0.0
-        longname     {Joe the Actor}
-        a            JOE
-        overhead     0
-        income_graft 0.0
-        income_goods 10000.0
-        cash_reserve 200000.0
-        income_black 0.0
+        supports         JOE
+        a                JOE
+        income_pop       0.0
+        cash_reserve     200000.0
+        overhead         0
+        income_black_nr  0.0
+        longname         {Joe the Actor}
+        income_world     0.0
+        income_black_tax 0.0
+        cash_on_hand     0.0
+        income_goods     10000.0
+        income_graft     0.0
     }
 
     test get-1.2 {get actor attribute} -setup {
@@ -506,21 +522,23 @@ overhead      20
         ted create JOE
 
         actor mutate update {
-            a            JOE
-            supports     ""
-            cash_reserve ""
-            income_goods 1000
-            income_pop   100
-            income_black 10
-            income_graft 1
-            cash_on_hand ""
-            overhead     ""
+            a                JOE
+            supports         ""
+            cash_reserve     ""
+            cash_on_hand     ""
+            overhead         ""
+            income_goods     1
+            income_black_nr  10
+            income_black_tax 100
+            income_pop       1000
+            income_graft     10000
+            income_world     100000
         }
     } -body {
         actor income JOE
     } -cleanup {
         cleanup
-    } -result {1111.0}
+    } -result {111111.0}
 
     test income-1.2 {get actor income, income_a} -setup {
         ted create JOE BOB

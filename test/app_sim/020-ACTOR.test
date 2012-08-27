@@ -29,29 +29,33 @@ namespace eval ::athena_test::tests:: {
     # Standard actors
 
     set joe {
-        a            JOE
-        longname     "Joe the Actor"
-        supports     SELF
-        cash_reserve 200000
-        income_goods 40000
-        income_pop   30000
-        income_black 20000
-        income_graft 10000
-        cash_on_hand 0
-        overhead     10
+        a                JOE
+        longname         "Joe the Actor"
+        supports         SELF
+        cash_reserve     200000
+        cash_on_hand     0
+        overhead         10
+        income_goods     60000
+        income_black_nr  50000
+        income_black_tax 40000
+        income_pop       30000
+        income_graft     20000
+        income_world     10000
     }
 
     set bob {
-        a            BOB
-        longname     "Bob the Actor"
-        supports     SELF
-        cash_reserve 150000
-        income_goods 5000
-        income_pop   10000
-        income_black 15000
-        income_graft 20000
-        cash_on_hand 0
-        overhead     20
+        a                BOB
+        longname         "Bob the Actor"
+        supports         SELF
+        cash_reserve     150000
+        cash_on_hand     0
+        overhead         20
+        income_goods     5000
+        income_black_nr  10000
+        income_black_tax 15000
+        income_pop       20000
+        income_graft     25000
+        income_world     30000
     }
 
     # Clean up after a test
@@ -112,47 +116,7 @@ namespace eval ::athena_test::tests:: {
         cash_reserve {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test CREATE-1.6 {invalid income_goods} -body {
-        ted order -reject ACTOR:CREATE [dict merge $joe {
-            income_goods NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        income_goods {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-    
-    test CREATE-1.7 {invalid income_pop} -body {
-        ted order -reject ACTOR:CREATE [dict merge $joe {
-            income_pop NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        income_pop {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-    
-    test CREATE-1.8 {invalid income_black} -body {
-        ted order -reject ACTOR:CREATE [dict merge $joe {
-            income_black NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        income_black {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-    
-    test CREATE-1.9 {invalid income_graft} -body {
-        ted order -reject ACTOR:CREATE [dict merge $joe {
-            income_graft NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        income_graft {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-    
-    test CREATE-1.10 {invalid cash_on_hand} -body {
+    test CREATE-1.6 {invalid cash_on_hand} -body {
         ted order -reject ACTOR:CREATE [dict merge $joe {
             cash_on_hand NONESUCH
         }]
@@ -162,7 +126,7 @@ namespace eval ::athena_test::tests:: {
         cash_on_hand {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test CREATE-1.11 {invalid overhead} -body {
+    test CREATE-1.7 {invalid overhead} -body {
         ted order -reject ACTOR:CREATE [dict merge $joe {
             overhead NONESUCH
         }]
@@ -172,8 +136,66 @@ namespace eval ::athena_test::tests:: {
         overhead {invalid value "NONESUCH", expected integer}
     }
 
-
-
+    test CREATE-1.8 {invalid income_goods} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            income_goods NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        income_goods {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
+    test CREATE-1.9 {invalid income_black_nr} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            income_black_nr NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        income_black_nr {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
+    test CREATE-1.10 {invalid income_black_tax} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            income_black_tax NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        income_black_tax {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
+    test CREATE-1.11 {invalid income_pop} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            income_pop NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        income_pop {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
+    test CREATE-1.12 {invalid income_graft} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            income_graft NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        income_graft {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
+    test CREATE-1.13 {invalid income_world} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            income_world NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        income_world {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
     test CREATE-2.1 {actor is created} -body {
         ted order ACTOR:CREATE $joe
         
@@ -181,16 +203,18 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      Joe the Actor
-supports      JOE
-cash_reserve  200000.0
-income_goods  40000.0
-income_pop    30000.0
-income_black  20000.0
-income_graft  10000.0
-cash_on_hand  0.0
-overhead      10
+a                 JOE
+longname          Joe the Actor
+supports          JOE
+cash_reserve      200000.0
+cash_on_hand      0.0
+overhead          10
+income_goods      60000.0
+income_black_nr   50000.0
+income_black_tax  40000.0
+income_pop        30000.0
+income_graft      20000.0
+income_world      10000.0
     }
 
 
@@ -201,16 +225,18 @@ overhead      10
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      JOE
-supports      JOE
-cash_reserve  200000.0
-income_goods  40000.0
-income_pop    30000.0
-income_black  20000.0
-income_graft  10000.0
-cash_on_hand  0.0
-overhead      10
+a                 JOE
+longname          JOE
+supports          JOE
+cash_reserve      200000.0
+cash_on_hand      0.0
+overhead          10
+income_goods      60000.0
+income_black_nr   50000.0
+income_black_tax  40000.0
+income_pop        30000.0
+income_graft      20000.0
+income_world      10000.0
     }
 
     test CREATE-2.3 {effects} -body {
@@ -309,49 +335,7 @@ overhead      10
         cash_reserve {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-
-    test UPDATE-1.4 {invalid income_goods} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ACTOR:UPDATE a JOE income_goods NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        income_goods {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-    test UPDATE-1.5 {invalid income_pop} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ACTOR:UPDATE a JOE income_pop NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        income_pop {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-    test UPDATE-1.6 {invalid income_black} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ACTOR:UPDATE a JOE income_black NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        income_black {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-    test UPDATE-1.7 {invalid income_graft} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ACTOR:UPDATE a JOE income_graft NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        income_graft {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-
-    test UPDATE-1.8 {invalid cash_on_hand} -setup {
+    test UPDATE-1.4 {invalid cash_on_hand} -setup {
         ted create JOE
     } -body {
         ted order -reject ACTOR:UPDATE a JOE cash_on_hand NONESUCH
@@ -362,7 +346,7 @@ overhead      10
     }
 
 
-    test UPDATE-1.9 {invalid overhead} -setup {
+    test UPDATE-1.5 {invalid overhead} -setup {
         ted create JOE
     } -body {
         ted order -reject ACTOR:UPDATE a JOE overhead NONESUCH
@@ -372,47 +356,115 @@ overhead      10
         overhead {invalid value "NONESUCH", expected integer}
     }
 
+
+    test UPDATE-1.6 {invalid income_goods} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE income_goods NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_goods {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test UPDATE-1.7 {invalid income_black_nr} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE income_black_nr NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_black_nr {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test UPDATE-1.8 {invalid income_black_tax} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE income_black_tax NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_black_tax {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test UPDATE-1.9 {invalid income_pop} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE income_pop NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_pop {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test UPDATE-1.10 {invalid income_graft} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE income_graft NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_graft {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test UPDATE-1.11 {invalid income_world} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE income_world NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_world {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+
     test UPDATE-2.1 {actor is updated} -setup {
         ted create JOE BOB
     } -body {
         ted order ACTOR:UPDATE {
-            a            JOE
-            longname     "Joe the Actress"
-            supports     BOB
-            cash_reserve 10
-            income_goods  0
-            income_pop    1
-            income_black  2
-            income_graft  3
-            cash_on_hand 20
-            overhead     25
+            a                JOE
+            longname         "Joe the Actress"
+            supports         BOB
+            cash_reserve     10
+            cash_on_hand     20
+            overhead         25
+            income_goods     0
+            income_black_nr  1
+            income_black_tax 2
+            income_pop       3
+            income_graft     4
+            income_world     5
         }
 
         ted querylist {SELECT * FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      Joe the Actress
-supports      BOB
-cash_reserve  10.0
-income_goods  0.0
-income_pop    1.0
-income_black  2.0
-income_graft  3.0
-cash_on_hand  20.0
-overhead      25
+a                 JOE
+longname          Joe the Actress
+supports          BOB
+cash_reserve      10.0
+cash_on_hand      20.0
+overhead          25
+income_goods      0.0
+income_black_nr   1.0
+income_black_tax  2.0
+income_pop        3.0
+income_graft      4.0
+income_world      5.0
 
-a             BOB
-longname      Bob the Actor
-supports      BOB
-cash_reserve  150000.0
-income_goods  5000.0
-income_pop    0.0
-income_black  0.0
-income_graft  0.0
-cash_on_hand  0.0
-overhead      0
+a                 BOB
+longname          Bob the Actor
+supports          BOB
+cash_reserve      150000.0
+cash_on_hand      0.0
+overhead          0
+income_goods      5000.0
+income_black_nr   0.0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
     }
 
 
@@ -454,7 +506,16 @@ overhead      0
         a {required value}
     }
 
-    
+    test INCOME-1.1 {invalid overhead} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:INCOME a JOE overhead NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        overhead {invalid value "NONESUCH", expected integer}
+    }
+
     test INCOME-1.2 {invalid income_goods} -setup {
         ted create JOE
     } -body {
@@ -465,7 +526,27 @@ overhead      0
         income_goods {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test INCOME-1.3 {invalid income_pop} -setup {
+    test INCOME-1.3 {invalid income_black_nr} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:INCOME a JOE income_black_nr NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_black_nr {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test INCOME-1.4 {invalid income_black_tax} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:INCOME a JOE income_black_tax NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        income_black_tax {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test INCOME-1.5 {invalid income_pop} -setup {
         ted create JOE
     } -body {
         ted order -reject ACTOR:INCOME a JOE income_pop NONESUCH
@@ -475,17 +556,7 @@ overhead      0
         income_pop {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test INCOME-1.4 {invalid income_black} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ACTOR:INCOME a JOE income_black NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        income_black {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-    test INCOME-1.5 {invalid income_graft} -setup {
+    test INCOME-1.6 {invalid income_graft} -setup {
         ted create JOE
     } -body {
         ted order -reject ACTOR:INCOME a JOE income_graft NONESUCH
@@ -495,42 +566,46 @@ overhead      0
         income_graft {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test INCOME-1.6 {invalid overhead} -setup {
+    test INCOME-1.7 {invalid income_world} -setup {
         ted create JOE
     } -body {
-        ted order -reject ACTOR:INCOME a JOE overhead NONESUCH
+        ted order -reject ACTOR:INCOME a JOE income_world NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        overhead {invalid value "NONESUCH", expected integer}
+        income_world {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
     test INCOME-2.1 {actor is updated} -setup {
         ted create JOE
     } -body {
         ted order ACTOR:INCOME {
-            a            JOE
-            income_goods 1
-            income_pop   2
-            income_black 3
-            income_graft 4
-            overhead     5
+            a                 JOE
+            overhead          25
+            income_goods      0
+            income_black_nr   1
+            income_black_tax  2
+            income_pop        3
+            income_graft      4
+            income_world      5
         }
 
         ted querylist {SELECT * FROM actors}
     } -cleanup {
         cleanup
     } -result {
-a             JOE
-longname      Joe the Actor
-supports      JOE
-cash_reserve  200000.0
-income_goods  1.0
-income_pop    2.0
-income_black  3.0
-income_graft  4.0
-cash_on_hand  0.0
-overhead      5
+a                 JOE
+longname          Joe the Actor
+supports          JOE
+cash_reserve      200000.0
+cash_on_hand      0.0
+overhead          25
+income_goods      0.0
+income_black_nr   1.0
+income_black_tax  2.0
+income_pop        3.0
+income_graft      4.0
+income_world      5.0
     }
 
 

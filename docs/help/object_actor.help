@@ -72,54 +72,6 @@ object actor_ {
         the simulation begins, the level of the reserve can fluctuate.
     } -tags {create_opt update browser}
 
-    attribute income_goods "Income, GOODS, $/week" {
-        The actor's income from the GOODS sector of the economy, in dollars
-        per week.  If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
-        from GOODS as of time 0; income in subsequent weeks will depend on 
-        the size of the GOODS sector.<p>
-
-        This is one component of the actor's regular weekly income.  The
-        actor's income flows into his cash-on-hand, where it may be
-        used to fund tactics.
-    } -tags {create_opt update browser income}
-
-    attribute income_pop "Income, POP, $/week" {
-        The actor's income from the POP sector of the economy, in dollars
-        per week.  If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
-        from POP as of time 0; income in subsequent weeks will depend on 
-        the size of the POP sector.<p>
-
-        This is one component of the actor's regular weekly income.  The
-        actor's income flows into his cash-on-hand, where it may be
-        used to fund tactics.
-    } -tags {create_opt update browser income}
-
-    attribute income_black "Income, BLACK, $/week" {
-        The actor's income from the BLACK sector of the economy, in dollars
-        per week.  If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
-        from BLACK as of time 0; income in subsequent weeks will depend on 
-        the size of the BLACK sector.<p>
-
-        This is one component of the actor's regular weekly income.  The
-        actor's income flows into his cash-on-hand, where it may be
-        used to fund tactics.
-    } -tags {create_opt update browser income}
-
-    attribute income_graft "Income, Graft, $/week" {
-        The actor's income from graft on foreign aid, in dollars
-        per week.  If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
-        from graft as of time 0; income in subsequent weeks will depend on 
-        the amount of foreign aid coming into the region in those weeks.<p>
-
-        This is one component of the actor's regular weekly income.  The
-        actor's income flows into his cash-on-hand, where it may be
-        used to fund tactics.
-    } -tags {create_opt update browser income}
-
     attribute cash_on_hand "Cash-On-Hand, $" {
         An actor's cash-on-hand is the amount of the money the actor
         has available to fund tactics.  The actor receives income
@@ -142,6 +94,99 @@ object actor_ {
         expenses.
     } -tags {create_opt update browser income}
 
+    attribute income_goods "Income, GOODS Sector, $/week" {
+        The actor's income from the Goods sector of the economy, in dollars
+        per week.  This is a tax-like income: genuine taxes, 
+        tolls, bribes, baksheesh, fees, and the like paid to the
+        actor during the production of goods.<p>
+        
+        If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        from GOODS as of time 0; income in subsequent weeks will depend on 
+        the size of the GOODS sector.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create_opt update browser income}
+
+    attribute income_black_nr "Income, BLACK Profits, $/week" {
+        The actor's income from the profits of the Black Market
+        sector of the economy, in dollars per week, e.g., because the 
+        actor is in some sense an owner of the means of the production
+        and distribution.<p>
+        
+        If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's
+        income from Black Market profits as of time 0; income in 
+        subsequent weeks will depend on the size of the BLACK sector.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create_opt update browser income}
+
+    attribute income_black_tax "Income, BLACK Tax, $/week" {
+        The actor's income from the Black Market sector of the economy, 
+        in dollars per week.  This is a tax-like income: genuine taxes, 
+        tolls, bribes, baksheesh, fees, and the like paid to the
+        actor during the production and sale of black market goods.<p>
+        
+        If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's 
+        income from Black Market tax-like payments as of time 0; income 
+        in subsequent weeks will depend on the size of the BLACK sector.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create_opt update browser income}
+
+    attribute income_pop "Income, POP Sector, $/week" {
+        The actor's income from the Pop sector of the economy, in dollars
+        per week.  This is a tax-like income: genuine taxes, 
+        tolls, bribes, baksheesh, fees, and the like paid by consumers
+        to the actor.<p>
+
+        If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        from POP as of time 0; income in subsequent weeks will depend on 
+        the size of the POP sector.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create_opt update browser income}
+
+    attribute income_graft "Income, Graft on FA, $/week" {
+        The actor's income from graft on foreign aid to the region, 
+        in dollars per week.<p>
+        
+        If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        from graft as of time 0; income in subsequent weeks will depend on 
+        the amount of foreign aid coming into the region in those weeks.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create_opt update browser income}
+
+    attribute income_world "Income, WORLD Sector, $/week" {
+        The actor's income from outside the playbox in dollars per 
+        week.  This includes foreign aid to local actors from actors outside
+        the playbox who are not modeled explicitly in the scenario, as well as
+        money used by foreign actors to fund their operations in the playbox.<p>
+        
+        If the Economics model is enabled 
+        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        as of time 0; income in subsequent weeks will depend on 
+        the amount of coming into the playbox in those weeks.<p>
+
+        This is one component of the actor's regular weekly income.  The
+        actor's income flows into his cash-on-hand, where it may be
+        used to fund tactics.
+    } -tags {create_opt update browser income}
 }
 
 page /object actor "Actor" {
