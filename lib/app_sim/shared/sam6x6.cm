@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version i
+#    sam6x6.cm, version j
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,8 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version j: Deleted a default for f.pop.black, it's not needed.
+#
 #    Version i: Revised the equations for f.i.j to allow for sector 
 #               revenues beyond those of the "simplified" SAM.  In 
 #               particular, the black sector loses both its cost of 
@@ -278,10 +280,6 @@ let t.region.black = {
 let t.world.black = {
     [BREV.black] > 0.0 ? [BX.world.black] / [BREV.black] : 0.0
 }
-
-let f.pop.black = 0.0 ;# need to have a value for display purposes
-# RGC: Dave, since there is a value for A.pop.black, won't it be 
-# misleading to show a value for f.pop.black too?
 
 # For the pop sector
 
