@@ -535,7 +535,7 @@ snit::type sanity {
         } {
             set sev ERROR
 
-            $type dlitem "<b>Error: Number of consumers has declined alarmingly</b>" "
+            $ht dlitem "<b>Error: Number of consumers has declined alarmingly</b>" "
                 The current number of consumers in the local economy,
                 $cells(In::Consumers),
                 is less than 
@@ -557,7 +557,7 @@ snit::type sanity {
             $ht dlitem "<b>Error: Number of workers has declined
             alarmingly</b>" "
                 The current number of workers in the local labor force,
-                $cells(In::WF), 
+                $cells(In::LF), 
                 is less than
                 $limit
                 of the starting number.  To change the limit, set the 
