@@ -81,9 +81,8 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
                 return 0
             }
 
-            # NEXT, Consume the money if we can but only if we are not
-            # locking the scenario
-            if {![strategy locking] && ![cash spend $owner FUNDENI $x1]} {
+            # NEXT, can we afford it?
+            if {![cash spend $owner FUNDENI $x1]} {
                 return 0
             }
 

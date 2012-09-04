@@ -147,11 +147,10 @@ tactic type define DEPLOY {g text1 int1 nlist once on_lock} actor {
                 }
             }
 
-            # NEXT, Pay the maintenance cost, if we can. When the scenario
-            # is locking, no cost.
+            # NEXT, Pay the maintenance cost, if we can.
             let cost {$costPerPerson * $int1}
 
-            if {![strategy locking] && ![cash spend $owner DEPLOY $cost]} {
+            if {![cash spend $owner DEPLOY $cost]} {
                 return 0
             }
 

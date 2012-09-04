@@ -127,11 +127,20 @@ snit::type cash {
     # dollars   - Some number of dollars
     #
     # Deducts dollars from cash_on_hand if there are sufficient funds;
-    # returns 1 on success and 0 on failure.  If the eclass is not NONE,
-    # then the expenditure is allocated to the sectors.
+    # returns 1 on success and 0 on failure.  If strategy is locking then
+    # only the allocation of funds is made as a baseline, no money is
+    # actually deducted.  If the eclass is not NONE, then the expenditure 
+    # is allocated to the sectors.
 
     typemethod spend {a eclass dollars} {
-        # FIRST, can he afford it?
+        # FIRST, if strategy is locking only allocate the money to
+        # the expenditure class as a baseline, and then we are done.
+        if {[strategy locking]} {
+            $type Allocate $eclass $dollars
+            return 1
+        }
+
+        # NEXT, can he afford it
         set cash_on_hand [cash get $a cash_on_hand]
 
         if {$dollars > $cash_on_hand} {
@@ -145,7 +154,7 @@ snit::type cash {
             WHERE a=$a
         }
 
-        # NEXT, allocate the expenditure to the sectors.
+        # NEXT, allocate the money to the expenditure class
         $type Allocate $eclass $dollars
 
         return 1

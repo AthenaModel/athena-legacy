@@ -248,15 +248,10 @@ tactic type define BROADCAST {cap a iom x1 once on_lock} actor {
             # FIRST, If the tactic is valid the cost should never be "".
             assert {$fullcost ne ""}
 
-            # NEXT, can we afford it?  We can always afford it on 
-            # scenario lock.
-
-            if {![strategy locking] && 
-                ![cash spend $owner BROADCAST $fullcost]
-            } {
+            # NEXT, can we afford it?
+            if {![cash spend $owner BROADCAST $fullcost]} {
                 return 0
             }
-
         }
 
         # NEXT, Save the broadcast.  It can't take effect yet,
