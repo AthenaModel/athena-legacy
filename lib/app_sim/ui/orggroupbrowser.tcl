@@ -31,16 +31,17 @@ snit::widgetadaptor orggroupbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g         "ID"                               }
-        { longname  "Long Name"                        }
-        { a         "Owner"                            }
-        { color     "Color"                            }
-        { shape     "Unit Shape"                       }
-        { orgtype   "Org Type"                         }
-        { demeanor  "Demeanor"                         }
-        { cost      "Cost, $/person/week"
-                    -sortmode command 
-                    -sortcommand ::marsutil::moneysort }
+        { g                "\nID"                             }
+        { longname         "\nLong Name"                      }
+        { a                "\nOwner"                          }
+        { color            "\nColor"                          }
+        { shape            "Unit\nShape"                      }
+        { orgtype          "Org\nType"                        }
+        { base_personnel   "Base\nPersonnel"                  }
+        { demeanor         "\nDemeanor"                       }
+        { cost             "Cost,\n$/person/week"
+                           -sortmode command 
+                           -sortcommand ::marsutil::moneysort }
     }
 
     #-------------------------------------------------------------------
