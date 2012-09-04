@@ -61,6 +61,10 @@ snit::type appserver {
         appserver register /page/{p} {page/(\w+)/?} \
             text/html [myproc /page:html]           \
             "Detail page for cell model page {p}."
+
+        appserver register /cell/{c} {cell/([[:alnum:]_.:]+)} \
+            text/html [myproc /cell:html]           \
+            "Detail page for cell model cell {c}."
     }
 
     #-------------------------------------------------------------------
@@ -156,32 +160,27 @@ snit::type appserver {
             ht putln "The following cells have serious errors:"
             ht para
 
-            ht putln "<dl>"
-
             foreach cell [cm cells invalid] {
-                ht putln "<dt>"
-                ht put "<b>$cell</b> = [normalize [cm formula $cell]]"
+                set line [cm cellinfo line $cell]
 
-                set out [list]
+                ht link my://app/cell/$cell $cell
+                ht put " (Line "
+                ht link gui://editor/$line $line
+                ht put ")"
+                ht put " = "
+                ht put [normalize [FormulaWithLinks $cell]]
+                ht para 
 
-                if {[cm cellinfo error $cell] ne ""} {
-                    lappend out "=> [normalize [cm cellinfo error $cell]"
+                ht ul {
+                    foreach message [CellErrors $cell] {
+                        ht li {
+                            ht put $message
+                        }
+                    }
                 }
 
-                foreach rcell [cm cellinfo unknown $cell] {
-                    lappend out "=> References undefined cell: $rcell"
-                }
-
-                foreach rcell [cm cellinfo badpage $cell] {
-                    lappend out "=> References cell on later page: $rcell"
-                }
-
-                ht putln "<dd>"
-                ht put [join $out "<br>\n"]
                 ht para
             }
-
-            ht putln "</dl>"
         }
 
         # FINALLY, complete the page
@@ -236,22 +235,89 @@ snit::type appserver {
         ht putln "in the cell model file."
         ht para
 
-        ht table {"Line#" "Cell" "Value" "Formula"} {
-            foreach cell [cm cells $page] {
-                ht tr valign top {
-                    ht td right {
-                        set line [cm cellinfo line $cell]
-                        ht link gui://editor/$line $line
-                    }
-                    ht td left { ht put [namespace tail $cell] }
-                    ht td left { ht put [cm value $cell] }
-                    ht td left {
-                        ht put <code>
-                        ht put [cm cellinfo formula $cell] 
-                        ht put </code>
+        CellTable [cm cells $page] $page
+
+        # FINALLY, complete the page
+        ht /page
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # /cell/{c}:    Model page details
+    #
+    # {c} => $(1)  - The cell name
+
+    # /cell:html udict matchArray
+    #
+    # Formats and displays the details for a particular model cell.
+
+    proc /cell:html {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        set cell $(1)
+
+        if {$cell ni [cm cells]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: [dict get $udict url]."
+        }
+
+        ht page "Model Cell: $cell"
+        ht putln "<h1>Model Cell: "
+
+        set page [cm cellinfo page $cell]
+
+        if {$page ne "null"} {
+            ht link my://app/page/$page "${page}::" 
+        }
+
+        ht put [cm cellinfo bare $cell]
+        ht put "</h1>"
+
+        # NEXT, put in the cell itself.
+        ht subtitle "Definition"
+
+        ht table {"Line#" "Value" "Formula"} {
+            ht tr valign top {
+                ht td right {
+                    set line [cm cellinfo line $cell]
+                    ht link gui://editor/$line $line
+                }
+                ht td left { ht put [cm value $cell] }
+                ht td left {
+                    ht put <code>
+                    ht put [FormulaWithLinks $cell] 
+                    ht put </code>
+                }
+            }
+        }
+        
+        ht para
+
+        # NEXT, put in errors.
+        if {$cell in [cm cells invalid]} {
+            ht subtitle "Errors in definition:"
+
+            ht ul {
+                foreach message [CellErrors $cell] {
+                    ht li {
+                        ht put $message
                     }
                 }
             }
+        }
+
+        # NEXT, put in dependencies.
+        if {[llength [cm cellinfo uses $cell]] > 0} {
+            ht subtitle "$cell uses these cells:"
+            CellTable [cm cellinfo uses $cell] $page
+            ht para
+        }
+
+        if {[llength [cm cellinfo usedby $cell]] > 0} {
+            ht subtitle "$cell is used by these cells:"
+            CellTable [cm cellinfo usedby $cell] $page
+            ht para
         }
 
         # FINALLY, complete the page
@@ -267,6 +333,132 @@ snit::type appserver {
     # The following code relates to particular resources or kinds
     # of content.
 
+    # CellTable cells ?page?
+    #
+    # cells    - List of cells
+    # page     - Page whose name should be omitted from cell names
+    #
+    # Adds an HTML table of cell definitions and links to the output.
+    # Cells are written with their fully-qualified names unless they
+    # are on the named page.
+
+    proc CellTable {cells {page ""}} {
+        ht table {"Line#" "Cell" "Value" "Formula"} {
+            foreach c $cells {
+                # Cell might be undefined
+                if {$c ni [cm cells]} {
+                    ht tr valign top {
+                        ht td right { ht put "n/a" }
+                        ht td left  { ht put $c }
+                        ht td left  { ht put "n/a" }
+                        ht td left  { ht put "Cell is undefined" }
+                    }
+                    continue
+                }
+
+                set bare [cm cellinfo bare $c]
+
+                ht tr valign top {
+                    ht td right {
+                        set line [cm cellinfo line $c]
+                        ht link gui://editor/$line $line
+                    }
+                    ht td left {
+                        if {[cm cellinfo page $c] ne $page} {
+                            ht link my://app/cell/$c $c 
+                        } else {
+                            ht link my://app/cell/$c $bare 
+                        }
+
+                    }
+                    ht td left { 
+                        ht put [cm value $c] 
+                    }
+                    ht td left {
+                        ht put <code>
+                        ht put [FormulaWithLinks $c] 
+                        ht put </code>
+                    }
+                }
+            }
+        }
+
+    }
+
+    # CellErrors cell
+    #
+    # cell   - A cell with errors
+    #
+    # Returns a list of the error messages.
+
+    proc CellErrors {cell} {
+        set out [list]
+
+        if {[cm cellinfo error $cell] ne ""} {
+            lappend out [normalize [cm cellinfo error $cell]]
+        }
+
+        foreach rcell [cm cellinfo unknown $cell] {
+            lappend out "References undefined cell: $rcell"
+        }
+
+        foreach rcell [cm cellinfo badpage $cell] {
+            lappend out \
+                "References cell on later page: <a href=\"my://app/cell/$rcell\">$rcell</a>"
+        }
+
+        return $out
+    }
+
+    # FormulaWithLinks cell ?root?
+    #
+    # cell   - A fully-qualified cell name
+    # root   - Root URL for cell links
+    #
+    # Returns the cell's formula with cell links.  The cells display
+    # as themselves; the link URL is "${root}$cell", allowing the 
+    # routine to be used for more than one kind of link.
+
+    proc FormulaWithLinks {cell {root my://app/cell/}} {
+        # FIRST, if there's no such cell then there's no formula.
+        if {$cell ni [cm cells]} {
+            return ""
+        }
+
+        # NEXT, get this cell's page and formula
+        set thisPage [cm cellinfo page $cell]
+        set formula  [cm formula $cell]
+
+        # NEXT, build a [string map] table to interpolate the links
+        # into the formula:
+        #
+        # * Cells on the same page appear both with and without their
+        #   namespace.
+        # * Cells on other pages appear only with their namespace.
+
+        set table [list]
+        
+        foreach c [cm cellinfo uses $cell] {
+            # The cell might be referenced but not defined.
+            if {$c ni [cm cells]} {
+                continue
+            }
+
+            lappend table "\[$c\]" "\[<a href=\"$root$c\">$c</a>\]"
+
+            if {$thisPage ne "null" &&
+                [cm cellinfo page $c] eq $thisPage
+            } {
+                set bare [cm cellinfo bare $c]
+
+                lappend table "\[$bare\]" "\[<a href=\"$root$c\">$bare</a>\]"
+            }
+        }
+
+        # NEXT, do the mapping, and return the formula
+        return [string map $table $formula]
+    }
+
     # FooterCmd
     #
     # Standard Page Footer
@@ -279,7 +471,6 @@ snit::type appserver {
 
         ht put "</i></font>"
     }
-
 
     #-------------------------------------------------------------------
     # Content Handlers
