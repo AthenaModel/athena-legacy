@@ -154,7 +154,7 @@ snit::widget ctexteditor {
             copypage define -except forall foreach function
             index initfrom let letsym page -value
         }
-        $self hclass regexp    cell     #558822 {\[[[:alnum:]_.$]+\]}
+        $self hclass regexp    cell     #558822 {\[[[:alnum:]_.:$]+\]}
         $self hclass startchar var      #9900FF \$
         $self hclass regexp    comments #BB0000 {#[^\n\r]*}
     }
