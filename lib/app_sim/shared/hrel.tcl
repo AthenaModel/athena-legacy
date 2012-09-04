@@ -211,7 +211,7 @@ order define HREL:OVERRIDE {
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type hrel
-    prepare base     -toupper            -type qaffinity
+    prepare base     -toupper  -num      -type qaffinity
 
     returnOnError -final
 
@@ -243,7 +243,7 @@ order define HREL:OVERRIDE:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof hrel
-    prepare base     -toupper            -type qaffinity
+    prepare base     -toupper  -num      -type qaffinity
 
     returnOnError -final
 

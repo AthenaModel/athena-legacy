@@ -352,7 +352,7 @@ order define ACTOR:CREATE {
     prepare supports         -toupper  -required        -type {ptype a+self+none}
     prepare cash_reserve     -toupper                   -type money
     prepare cash_on_hand     -toupper                   -type money
-    prepare overhead         -toupper                   -type ipercent
+    prepare overhead         -num                       -type ipercent
     prepare income_goods     -toupper                   -type money
     prepare income_black_nr  -toupper                   -type money
     prepare income_black_tax -toupper                   -type money
@@ -482,7 +482,7 @@ order define ACTOR:UPDATE {
     prepare supports         -toupper             -type {ptype a+self+none}
     prepare cash_reserve     -toupper             -type money
     prepare cash_on_hand     -toupper             -type money
-    prepare overhead         -toupper             -type ipercent
+    prepare overhead         -num                 -type ipercent
     prepare income_goods     -toupper             -type money
     prepare income_black_nr  -toupper             -type money
     prepare income_black_tax -toupper             -type money
@@ -540,7 +540,7 @@ order define ACTOR:INCOME {
 } {
     # FIRST, prepare the parameters
     prepare a                -toupper   -required -type actor
-    prepare overhead         -toupper             -type ipercent
+    prepare overhead         -num                 -type ipercent
     prepare income_goods     -toupper             -type money
     prepare income_black_nr  -toupper             -type money
     prepare income_black_tax -toupper             -type money

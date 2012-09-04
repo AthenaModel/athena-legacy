@@ -87,7 +87,7 @@ order define CONDITION:NBMOOD:CREATE {
     prepare cc_id                -required -type cond_collection
     prepare n          -toupper  -required -type nbhood
     prepare op1        -toupper  -required -type ecomparator
-    prepare x1         -toupper  -required -type qsat
+    prepare x1    -num -toupper  -required -type qsat
 
     returnOnError -final
 
@@ -130,7 +130,7 @@ order define CONDITION:NBMOOD:UPDATE {
     prepare condition_id  -required           -type condition
     prepare n                       -toupper  -type nbhood
     prepare op1                     -toupper  -type ecomparator
-    prepare x1                      -toupper  -type qsat
+    prepare x1            -num      -toupper  -type qsat
 
     returnOnError
 

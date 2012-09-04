@@ -93,7 +93,7 @@ order define CONDITION:INFLUENCE:CREATE {
     prepare a          -toupper  -required -type actor
     prepare n          -toupper  -required -type nbhood
     prepare op1        -toupper  -required -type ecomparator
-    prepare x1         -toupper  -required -type rfraction
+    prepare x1         -num      -required -type rfraction
 
     returnOnError -final
 
@@ -140,7 +140,7 @@ order define CONDITION:INFLUENCE:UPDATE {
     prepare a                       -toupper  -type actor
     prepare n                       -toupper  -type nbhood
     prepare op1                     -toupper  -type ecomparator
-    prepare x1                      -toupper  -type rfraction     
+    prepare x1                      -num      -type rfraction     
 
     returnOnError
 

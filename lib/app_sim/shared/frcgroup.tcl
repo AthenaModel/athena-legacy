@@ -377,7 +377,7 @@ order define FRCGROUP:CREATE {
     prepare shape          -toupper   -required -type eunitshape
     prepare forcetype      -toupper   -required -type eforcetype
     prepare training       -toupper   -required -type etraining
-    prepare base_personnel -toupper   -required -type iquantity
+    prepare base_personnel -num       -required -type iquantity
     prepare demeanor       -toupper   -required -type edemeanor
     prepare cost           -toupper   -required -type money
     prepare attack_cost    -toupper   -required -type money
@@ -503,7 +503,7 @@ order define FRCGROUP:UPDATE {
     prepare shape          -toupper   -type eunitshape
     prepare forcetype      -toupper   -type eforcetype
     prepare training       -toupper   -type etraining
-    prepare base_personnel -toupper   -type iquantity
+    prepare base_personnel -num       -type iquantity
     prepare demeanor       -toupper   -type edemeanor
     prepare cost           -toupper   -type money
     prepare attack_cost    -toupper   -type money
@@ -575,7 +575,7 @@ order define FRCGROUP:UPDATE:MULTI {
     prepare shape          -toupper            -type   eunitshape
     prepare forcetype      -toupper            -type   eforcetype
     prepare training       -toupper            -type   etraining
-    prepare base_personnel -toupper            -type   iquantity
+    prepare base_personnel -num                -type   iquantity
     prepare demeanor       -toupper            -type   edemeanor
     prepare cost           -toupper            -type   money
     prepare attack_cost    -toupper            -type   money

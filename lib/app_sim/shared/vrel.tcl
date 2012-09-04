@@ -204,8 +204,8 @@ order define VREL:OVERRIDE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare id       -toupper  -required -type vrel
-    prepare base     -toupper            -type qaffinity
+    prepare id        -toupper  -required -type vrel
+    prepare base -num -toupper            -type qaffinity
 
     returnOnError -final
 
@@ -236,8 +236,8 @@ order define VREL:OVERRIDE:MULTI {
     }
 } {
     # FIRST, prepare the parameters
-    prepare ids      -toupper  -required -listof vrel
-    prepare base     -toupper            -type qaffinity
+    prepare ids       -toupper  -required -listof vrel
+    prepare base -num -toupper            -type qaffinity
 
     returnOnError -final
 

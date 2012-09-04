@@ -64,7 +64,7 @@ order define PAYLOAD:SAT:CREATE {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
     prepare c        -toupper   -required -type econcern
-    prepare mag      -toupper   -required -type qmag
+    prepare mag -num -toupper   -required -type qmag
 
     returnOnError -final
 
@@ -100,7 +100,7 @@ order define PAYLOAD:SAT:UPDATE {
     # FIRST, prepare the parameters
     prepare id         -required -type payload
     prepare c          -toupper  -type econcern
-    prepare mag        -toupper  -type qmag
+    prepare mag   -num -toupper  -type qmag
 
     returnOnError -final
 

@@ -706,9 +706,9 @@ order define MAD:CREATE {
     # FIRST, prepare and validate the parameters
     prepare narrative          -required
     prepare cause     -toupper -required -type {ptype ecause+unique}
-    prepare s                  -required -type rfraction
-    prepare p                  -required -type rfraction
-    prepare q                  -required -type rfraction
+    prepare s         -num     -required -type rfraction
+    prepare p         -num     -required -type rfraction
+    prepare q         -num     -required -type rfraction
 
     returnOnError -final
 
@@ -803,9 +803,9 @@ order define MAD:UPDATE {
     prepare driver_id -required -type mad
     prepare narrative
     prepare cause     -toupper  -type {ptype ecause+unique}
-    prepare s                   -type rfraction
-    prepare p                   -type rfraction
-    prepare q                   -type rfraction
+    prepare s         -num      -type rfraction
+    prepare p         -num      -type rfraction
+    prepare q         -num      -type rfraction
 
     returnOnError -final
 
@@ -837,7 +837,7 @@ order define MAD:HREL:ADJUST {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type hrel
     prepare driver_id          -required -type mad
-    prepare delta     -toupper -required -type snit::double
+    prepare delta     -num     -required -type snit::double
 
     returnOnError -final
 
@@ -876,7 +876,7 @@ order define MAD:HREL:INPUT {
     prepare mode      -tolower -required -type einputmode
     prepare f         -toupper -required -type group
     prepare g         -toupper -required -type group
-    prepare mag       -toupper -required -type qmag -xform [list qmag value]
+    prepare mag  -num -toupper -required -type qmag
 
     returnOnError
 
@@ -914,9 +914,9 @@ order define MAD:VREL:ADJUST {
     }
 } {
     # FIRST, prepare the parameters
-    prepare id        -toupper -required -type vrel
-    prepare driver_id          -required -type mad
-    prepare delta     -toupper -required -type snit::double
+    prepare id             -toupper -required -type vrel
+    prepare driver_id               -required -type mad
+    prepare delta     -num -toupper -required -type snit::double
 
     returnOnError -final
 
@@ -955,7 +955,7 @@ order define MAD:VREL:INPUT {
     prepare mode      -tolower -required -type einputmode
     prepare g         -toupper -required -type group
     prepare a         -toupper -required -type actor
-    prepare mag       -toupper -required -type qmag -xform [list qmag value]
+    prepare mag  -num -toupper -required -type qmag
 
     returnOnError -final
 
@@ -987,7 +987,7 @@ order define MAD:SAT:ADJUST {
     # FIRST, prepare the parameters
     prepare id         -toupper -required -type sat
     prepare driver_id           -required -type mad
-    prepare delta      -toupper -required -type snit::double
+    prepare delta      -num     -required -type snit::double
 
     returnOnError -final
 
@@ -1026,7 +1026,7 @@ order define MAD:SAT:INPUT {
     prepare mode      -tolower -required -type einputmode
     prepare g         -toupper -required -type civgroup
     prepare c         -toupper -required -type {ptype c}
-    prepare mag       -toupper -required -type qmag -xform [list qmag value]
+    prepare mag  -num -toupper -required -type qmag
 
     returnOnError -final
 
@@ -1060,7 +1060,7 @@ order define MAD:COOP:ADJUST {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type coop
     prepare driver_id          -required -type mad
-    prepare delta     -toupper -required -type snit::double
+    prepare delta     -num     -required -type snit::double
 
     returnOnError -final
 
@@ -1099,7 +1099,7 @@ order define MAD:COOP:INPUT {
     prepare mode      -tolower -required -type einputmode
     prepare f         -toupper -required -type civgroup
     prepare g         -toupper -required -type frcgroup
-    prepare mag       -toupper -required -type qmag -xform [list qmag value]
+    prepare mag  -num -toupper -required -type qmag
 
     returnOnError -final
 

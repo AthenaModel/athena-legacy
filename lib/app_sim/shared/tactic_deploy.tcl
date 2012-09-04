@@ -228,7 +228,7 @@ order define TACTIC:DEPLOY:CREATE {
     prepare owner    -toupper   -required -type   actor
     prepare g        -toupper   -required -type   {ptype fog}
     prepare text1    -toupper   -required -selector
-    prepare int1                          -type   ingpopulation
+    prepare int1     -num                 -type   ingpopulation
     prepare nlist    -toupper   -required -listof nbhood
     prepare priority -tolower             -type   ePrioSched
     prepare once                          -type   boolean
@@ -302,7 +302,7 @@ order define TACTIC:DEPLOY:UPDATE {
     prepare tactic_id  -required -type   tactic
     prepare g          -toupper  -type   {ptype fog}
     prepare text1      -toupper  -selector
-    prepare int1                 -type   ingpopulation
+    prepare int1       -num      -type   ingpopulation
     prepare nlist      -toupper  -listof nbhood
     prepare once                 -type   boolean
     prepare on_lock              -type   boolean

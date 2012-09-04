@@ -803,9 +803,9 @@ order define HOOK:TOPIC:CREATE {
         enumlong position -dictcmd {qposition namedict}
     }
 } {
-    prepare hook_id  -toupper -required -type hook
-    prepare topic_id -toupper -required -type {bsystem topic}
-    prepare position -toupper -required -type qposition 
+    prepare hook_id       -toupper -required -type hook
+    prepare topic_id      -toupper -required -type {bsystem topic}
+    prepare position -num -toupper -required -type qposition 
 
     returnOnError 
 
@@ -859,8 +859,8 @@ order define HOOK:TOPIC:UPDATE {
         enumlong position -dictcmd {qposition namedict}
     }
 } {
-    prepare id       -toupper -required -type {hook topic}
-    prepare position          -required -type qposition
+    prepare id            -toupper -required -type {hook topic}
+    prepare position -num -toupper -required -type qposition
 
     returnOnError -final
 
@@ -882,7 +882,7 @@ order define HOOK:TOPIC:STATE {
         text state
     }
 } {
-    prepare id   -required     -type {hook topic}
+    prepare id    -required          -type {hook topic}
     prepare state -required -tolower -type etopic_state
 
     returnOnError -final

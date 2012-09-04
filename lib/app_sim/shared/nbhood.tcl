@@ -496,7 +496,7 @@ order define NBHOOD:CREATE {
     prepare local         -toupper            -required -type boolean
     prepare urbanization  -toupper            -required -type eurbanization
     prepare controller    -toupper            -required -type {ptype a+none}
-    prepare vtygain                           -required -type rgain
+    prepare vtygain       -num                -required -type rgain
     prepare refpoint      -toupper            -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
 
@@ -683,7 +683,7 @@ order define NBHOOD:UPDATE {
     prepare local        -toupper             -type boolean
     prepare urbanization -toupper             -type eurbanization
     prepare controller   -toupper             -type {ptype a+none}
-    prepare vtygain                           -type rgain
+    prepare vtygain      -num                 -type rgain
     prepare refpoint     -toupper             -type refpoint
     prepare polygon      -normalize -toupper  -type refpoly
 
@@ -780,7 +780,7 @@ order define NBHOOD:UPDATE:MULTI {
     prepare local        -toupper           -type   boolean
     prepare urbanization -toupper           -type   eurbanization
     prepare controller   -toupper           -type   {ptype a+none}
-    prepare vtygain                         -type   rgain
+    prepare vtygain      -num               -type   rgain
 
     returnOnError -final
 

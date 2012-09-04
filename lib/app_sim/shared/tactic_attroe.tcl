@@ -273,7 +273,7 @@ order define TACTIC:ATTROE:CREATE {
     prepare g        -toupper   -required -type frcgroup
     prepare n        -toupper   -required -type nbhood
     prepare text1    -toupper   -required
-    prepare int1                -required -type ipositive
+    prepare int1     -num       -required -type ipositive
     prepare priority -tolower             -type ePrioSched
 
     returnOnError
@@ -365,7 +365,7 @@ order define TACTIC:ATTROE:UPDATE {
     prepare g                     -toupper -type frcgroup
     prepare n                     -toupper -type nbhood
     prepare text1                 -toupper
-    prepare int1                           -type ipositive
+    prepare int1                  -num     -type ipositive
 
     returnOnError
 

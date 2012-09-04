@@ -321,8 +321,8 @@ order define CIVGROUP:CREATE {
     prepare color    -tolower   -required         -type hexcolor
     prepare shape    -toupper   -required         -type eunitshape
     prepare demeanor -toupper   -required         -type edemeanor
-    prepare basepop             -required         -type ingpopulation
-    prepare sap                 -required         -type ipercent
+    prepare basepop  -num       -required         -type ingpopulation
+    prepare sap      -num       -required         -type ipercent
 
     returnOnError -final
 
@@ -426,8 +426,8 @@ order define CIVGROUP:UPDATE {
     prepare color     -tolower   -type hexcolor
     prepare shape     -toupper   -type eunitshape
     prepare demeanor  -toupper   -type edemeanor
-    prepare basepop              -type ingpopulation
-    prepare sap                  -type ipercent
+    prepare basepop   -num       -type ingpopulation
+    prepare sap       -num       -type ipercent
 
     returnOnError -final
 
@@ -474,8 +474,8 @@ order define CIVGROUP:UPDATE:MULTI {
     prepare color    -tolower           -type hexcolor
     prepare shape    -toupper           -type eunitshape
     prepare demeanor -toupper           -type edemeanor
-    prepare basepop                     -type ingpopulation
-    prepare sap                         -type ipercent
+    prepare basepop  -num               -type ingpopulation
+    prepare sap      -num               -type ipercent
 
     returnOnError -final
 
@@ -510,8 +510,8 @@ order define CIVGROUP:UPDATE:POSTPREP {
     }
 } {
     # FIRST, prepare the parameters
-    prepare g         -toupper  -required -type civgroup
-    prepare sap                 -type ipercent
+    prepare g   -toupper  -required -type civgroup
+    prepare sap -num                -type ipercent
 
     returnOnError -final
 
@@ -538,7 +538,7 @@ order define CIVGROUP:UPDATE:MULTI:POSTPREP {
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper -required -listof civgroup
-    prepare sap                         -type ipercent
+    prepare sap      -num               -type ipercent
 
     returnOnError -final
 

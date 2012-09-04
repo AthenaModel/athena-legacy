@@ -286,7 +286,7 @@ order define TACTIC:STANCE:CREATE {
         prepare nlist -toupper -listof nbhood
     }
 
-    prepare x1       -toupper -required -type   qaffinity
+    prepare x1  -num -toupper -required -type   qaffinity
     prepare on_lock                     -type   boolean
     prepare priority -tolower           -type   ePrioSched
 
@@ -360,7 +360,7 @@ order define TACTIC:STANCE:UPDATE {
         prepare nlist -toupper -listof nbhood
     }
 
-    prepare x1 -toupper -required -type qaffinity
+    prepare x1 -num -toupper -required -type qaffinity
     prepare on_lock -type boolean
 
     returnOnError -final

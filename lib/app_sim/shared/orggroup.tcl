@@ -224,7 +224,7 @@ order define ORGGROUP:CREATE {
     prepare color          -tolower   -required -type hexcolor
     prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
-    prepare base_personnel -toupper   -required -type iquantity
+    prepare base_personnel -num       -required -type iquantity
     prepare demeanor       -toupper   -required -type edemeanor
     prepare cost           -toupper   -required -type money
 
@@ -333,7 +333,7 @@ order define ORGGROUP:UPDATE {
     prepare color          -tolower   -type hexcolor
     prepare shape          -toupper   -type eunitshape
     prepare orgtype        -toupper   -type eorgtype
-    prepare base_personnel -toupper   -type iquantity
+    prepare base_personnel -num       -type iquantity
     prepare demeanor       -toupper   -type edemeanor
     prepare cost           -toupper   -type money
 
@@ -386,7 +386,7 @@ order define ORGGROUP:UPDATE:MULTI {
     prepare color          -tolower            -type   hexcolor
     prepare shape          -toupper            -type   eunitshape
     prepare orgtype        -toupper            -type   eorgtype
-    prepare base_personnel -toupper            -type   iquantity
+    prepare base_personnel -num                -type   iquantity
     prepare demeanor       -toupper            -type   edemeanor
     prepare cost           -toupper            -type   money
 

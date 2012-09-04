@@ -76,7 +76,7 @@ order define PAYLOAD:VREL:CREATE {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
     prepare a        -toupper   -required -type actor
-    prepare mag      -toupper   -required -type qmag
+    prepare mag -num -toupper   -required -type qmag
 
     returnOnError -final
 
@@ -112,7 +112,7 @@ order define PAYLOAD:VREL:UPDATE {
     # FIRST, prepare the parameters
     prepare id         -required -type payload
     prepare a          -toupper  -type actor
-    prepare mag        -toupper  -type qmag
+    prepare mag  -num  -toupper  -type qmag
 
     returnOnError -final
 

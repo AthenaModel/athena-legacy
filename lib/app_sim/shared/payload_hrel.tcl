@@ -76,7 +76,7 @@ order define PAYLOAD:HREL:CREATE {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
     prepare g        -toupper   -required -type group
-    prepare mag      -toupper   -required -type qmag
+    prepare mag -num -toupper   -required -type qmag
 
     returnOnError -final
 
@@ -112,7 +112,7 @@ order define PAYLOAD:HREL:UPDATE {
     # FIRST, prepare the parameters
     prepare id         -required -type payload
     prepare g          -toupper  -type group
-    prepare mag        -toupper  -type qmag
+    prepare mag   -num -toupper  -type qmag
 
     returnOnError -final
 

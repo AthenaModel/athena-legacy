@@ -79,7 +79,7 @@ order define TACTIC:SAVE:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
-    prepare int1                -required -type ipercent
+    prepare int1     -num       -required -type ipercent
     prepare priority -tolower             -type ePrioSched
 
     returnOnError -final
@@ -113,8 +113,8 @@ order define TACTIC:SAVE:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id   -required -type tactic
-    prepare int1        -required -type ipercent
+    prepare tactic_id        -required -type tactic
+    prepare int1        -num -required -type ipercent
 
     returnOnError
 

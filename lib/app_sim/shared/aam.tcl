@@ -892,7 +892,7 @@ order define ATTRIT:NBHOOD {
 } {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood
-    prepare casualties -toupper -required -type iquantity
+    prepare casualties -num     -required -type iquantity
     prepare g1         -toupper           -type frcgroup
     prepare g2         -toupper           -type frcgroup
 
@@ -944,7 +944,7 @@ order define ATTRIT:GROUP {
     # FIRST, prepare the parameters
     prepare n          -toupper -required -type nbhood
     prepare f          -toupper -required -type group
-    prepare casualties -toupper -required -type iquantity
+    prepare casualties -num     -required -type iquantity
     prepare g1         -toupper           -type frcgroup
     prepare g2         -toupper           -type frcgroup
 

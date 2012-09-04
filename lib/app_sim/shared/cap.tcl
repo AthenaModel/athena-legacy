@@ -550,7 +550,7 @@ order define CAP:CREATE {
     prepare k           -toupper   -required -unused -type ident
     prepare longname    -normalize
     prepare owner       -toupper   -required -type actor
-    prepare capacity               -required -type rfraction
+    prepare capacity    -num       -required -type rfraction
     prepare cost        -toupper   -required -type money
     prepare nlist       -toupper   -required -listof nbhood
     prepare glist       -toupper   -required -listof civgroup
@@ -645,7 +645,7 @@ order define CAP:UPDATE {
     prepare k           -toupper   -required -type cap
     prepare longname    -normalize
     prepare owner       -toupper             -type actor
-    prepare capacity                         -type rfraction
+    prepare capacity    -num                 -type rfraction
     prepare cost        -toupper             -type money
 
     returnOnError -final
@@ -684,7 +684,7 @@ order define CAP:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids         -toupper  -required -listof cap
     prepare owner       -toupper            -type   actor
-    prepare capacity                        -type   rfraction
+    prepare capacity    -num                -type   rfraction
     prepare cost        -toupper            -type   money
 
     returnOnError -final
@@ -721,7 +721,7 @@ order define CAP:CAPACITY {
 } {
     # FIRST, prepare the parameters
     prepare k           -toupper   -required -type cap
-    prepare capacity                         -type rfraction
+    prepare capacity    -num                 -type rfraction
 
     returnOnError -final
 
@@ -756,7 +756,7 @@ order define CAP:CAPACITY:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids         -toupper  -required -listof cap
-    prepare capacity                        -type   rfraction
+    prepare capacity    -num                -type   rfraction
 
     returnOnError -final
 
@@ -793,7 +793,7 @@ order define CAP:NBCOV:SET {
 } {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type {cap nbcov}
-    prepare nbcov    -toupper            -type rfraction
+    prepare nbcov    -num                -type rfraction
 
     returnOnError -final
 
@@ -829,7 +829,7 @@ order define CAP:NBCOV:SET:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof {cap nbcov}
-    prepare nbcov    -toupper            -type rfraction
+    prepare nbcov    -num                -type rfraction
 
     returnOnError -final
 
@@ -870,7 +870,7 @@ order define CAP:PEN:SET {
 } {
     # FIRST, prepare the parameters
     prepare id     -toupper  -required -type {cap pen}
-    prepare pen    -toupper            -type rfraction
+    prepare pen    -num                -type rfraction
 
     returnOnError -final
 
@@ -907,7 +907,7 @@ order define CAP:PEN:SET:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids  -toupper  -required -listof {cap pen}
-    prepare pen  -toupper            -type rfraction
+    prepare pen  -num                -type rfraction
 
     returnOnError -final
 

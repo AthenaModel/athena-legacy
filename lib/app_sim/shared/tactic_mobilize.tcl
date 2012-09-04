@@ -105,7 +105,7 @@ order define TACTIC:MOBILIZE:CREATE {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type   actor
     prepare g        -toupper   -required -type   {ptype fog}
-    prepare int1                          -type   ingpopulation
+    prepare int1     -num                 -type   ingpopulation
     prepare once     -toupper   -required -type   boolean
     prepare priority -tolower             -type   ePrioSched
 
@@ -158,7 +158,7 @@ order define TACTIC:MOBILIZE:UPDATE {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
     prepare g          -toupper  -type {ptype fog}
-    prepare int1                 -type ingpopulation
+    prepare int1       -num      -type ingpopulation
     prepare once       -toupper  -type boolean
 
     returnOnError

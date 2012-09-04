@@ -86,7 +86,7 @@ order define CONDITION:MOOD:CREATE {
     prepare cc_id                -required -type cond_collection
     prepare g          -toupper  -required -type civgroup
     prepare op1        -toupper  -required -type ecomparator
-    prepare x1         -toupper  -required -type qsat
+    prepare x1    -num -toupper  -required -type qsat
 
     returnOnError -final
 
@@ -129,7 +129,7 @@ order define CONDITION:MOOD:UPDATE {
     prepare condition_id  -required           -type condition
     prepare g                       -toupper  -type civgroup
     prepare op1                     -toupper  -type ecomparator
-    prepare x1                      -toupper  -type qsat
+    prepare x1            -num      -toupper  -type qsat
 
     returnOnError
 

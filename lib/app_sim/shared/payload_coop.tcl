@@ -76,7 +76,7 @@ order define PAYLOAD:COOP:CREATE {
     # FIRST, prepare and validate the parameters
     prepare iom_id   -toupper   -required -type iom
     prepare g        -toupper   -required -type frcgroup
-    prepare mag      -toupper   -required -type qmag
+    prepare mag -num -toupper   -required -type qmag
 
     returnOnError -final
 
@@ -112,7 +112,7 @@ order define PAYLOAD:COOP:UPDATE {
     # FIRST, prepare the parameters
     prepare id         -required -type payload
     prepare g          -toupper  -type frcgroup
-    prepare mag        -toupper  -type qmag
+    prepare mag   -num -toupper  -type qmag
 
     returnOnError -final
 

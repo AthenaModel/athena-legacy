@@ -764,11 +764,11 @@ order define ENSIT:CREATE {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
     prepare stype     -toupper   -required -type eensit
-    prepare coverage             -required -type rfraction
+    prepare coverage  -num       -required -type rfraction
     prepare inception -toupper   -required -type boolean
     prepare g         -toupper   -required -type {ptype g+none}
     prepare resolver  -toupper   -required -type {ptype g+none}
-    prepare rduration                      -type iticks
+    prepare rduration -num                 -type iticks
 
     returnOnError
 
@@ -905,11 +905,11 @@ order define ENSIT:UPDATE {
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -type refpoint 
     prepare stype     -toupper  -type eensit   -oldvalue [$sit get stype]
-    prepare coverage            -type rfraction
+    prepare coverage  -num      -type rfraction
     prepare inception -toupper  -type boolean
     prepare g         -toupper  -type {ptype g+none}
     prepare resolver  -toupper  -type {ptype g+none}
-    prepare rduration           -type iticks
+    prepare rduration -num      -type iticks
 
     returnOnError
 

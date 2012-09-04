@@ -92,7 +92,7 @@ order define CONDITION:TROOPS:CREATE {
     prepare cc_id                -required -type cond_collection
     prepare g          -toupper  -required -type {ptype fog}
     prepare op1        -toupper  -required -type ecomparator
-    prepare int1       -toupper  -required -type count
+    prepare int1       -num      -required -type count
 
     returnOnError -final
 
@@ -136,7 +136,7 @@ order define CONDITION:TROOPS:UPDATE {
     prepare condition_id  -required           -type condition
     prepare g                       -toupper  -type {ptype fog}
     prepare op1                     -toupper  -type ecomparator
-    prepare int1                    -toupper  -type count
+    prepare int1                    -num      -type count
 
     returnOnError
 

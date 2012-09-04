@@ -95,7 +95,7 @@ order define CONDITION:NBCOOP:CREATE {
     prepare n          -toupper  -required -type nbhood
     prepare g          -toupper  -required -type frcgroup
     prepare op1        -toupper  -required -type ecomparator
-    prepare x1         -toupper  -required -type qcooperation
+    prepare x1    -num -toupper  -required -type qcooperation
 
     returnOnError -final
 
@@ -142,7 +142,7 @@ order define CONDITION:NBCOOP:UPDATE {
     prepare n                       -toupper  -type nbhood
     prepare g                       -toupper  -type frcgroup
     prepare op1                     -toupper  -type ecomparator
-    prepare x1                      -toupper  -type qcooperation
+    prepare x1            -num      -toupper  -type qcooperation
 
     returnOnError
 

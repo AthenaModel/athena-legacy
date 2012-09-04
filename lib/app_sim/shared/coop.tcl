@@ -121,8 +121,7 @@ order define COOP:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare id      -toupper  -required -type coop
-    prepare base    -toupper            -type qcooperation \
-        -xform [list qcooperation value]
+    prepare base    -toupper  -num      -type qcooperation
 
     returnOnError -final
 
@@ -150,8 +149,7 @@ order define COOP:UPDATE:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids     -toupper  -required -listof coop
-    prepare base    -toupper            -type qcooperation \
-        -xform [list qcooperation value]
+    prepare base    -toupper  -num      -type qcooperation
 
     returnOnError -final
 

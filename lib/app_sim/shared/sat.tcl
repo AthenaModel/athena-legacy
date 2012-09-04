@@ -118,10 +118,8 @@ order define SAT:UPDATE {
     # FIRST, prepare the parameters
     prepare id       -toupper  -required -type ::sat
 
-    # TBD: the -xform might no longer be needed; I believe that validate
-    # now returns the value for quality data types.
-    prepare base     -toupper -type qsat      -xform [list qsat value]
-    prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
+    prepare base     -num -toupper -type qsat
+    prepare saliency -num -toupper -type qsaliency
 
     returnOnError -final
 
@@ -153,8 +151,8 @@ order define SAT:UPDATE:MULTI {
     # FIRST, prepare the parameters
     prepare ids      -toupper  -required -listof sat
 
-    prepare base     -toupper -type qsat      -xform [list qsat value]
-    prepare saliency -toupper -type qsaliency -xform [list qsaliency value]
+    prepare base     -num -toupper -type qsat
+    prepare saliency -num -toupper -type qsaliency
 
     returnOnError -final
 

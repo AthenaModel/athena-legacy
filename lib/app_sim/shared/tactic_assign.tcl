@@ -179,7 +179,7 @@ order define TACTIC:ASSIGN:CREATE {
     prepare g        -toupper   -required -type {ptype fog}
     prepare n        -toupper   -required -type nbhood
     prepare text1    -toupper   -required -type {activity asched}
-    prepare int1                -required -type ingpopulation
+    prepare int1     -num       -required -type ingpopulation
     prepare once                -required -type boolean
     prepare on_lock             -required -type boolean
     prepare priority -tolower             -type ePrioSched
@@ -249,7 +249,7 @@ order define TACTIC:ASSIGN:UPDATE {
     prepare g          -toupper  -type {ptype fog}
     prepare n          -toupper  -type nbhood
     prepare text1      -toupper  -type {activity asched}
-    prepare int1                 -type ingpopulation
+    prepare int1       -num      -type ingpopulation
     prepare once                 -type boolean
     prepare on_lock              -type boolean
 

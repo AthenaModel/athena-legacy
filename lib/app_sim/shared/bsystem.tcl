@@ -249,7 +249,7 @@ order define BSYSTEM:PLAYBOX:UPDATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare gamma  -required -type ::simlib::rmagnitude
+    prepare gamma  -required -num -type ::simlib::rmagnitude
 
     returnOnError -final
 
@@ -281,7 +281,7 @@ order define BSYSTEM:ENTITY:UPDATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare eid          -toupper -required -type {bsystem entity}
-    prepare commonality           -required -type ::simlib::rfraction
+    prepare commonality  -num     -required -type ::simlib::rfraction
 
     returnOnError -final
 
@@ -441,8 +441,8 @@ order define BSYSTEM:BELIEF:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper -required -type {bsystem belief}
-    prepare position  -type qposition  -xform {qposition value}
-    prepare emphasis  -type qemphasis  -xform {qemphasis value}
+    prepare position  -num -type qposition
+    prepare emphasis  -num -type qemphasis
 
     returnOnError -final
 
