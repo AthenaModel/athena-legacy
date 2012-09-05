@@ -58,13 +58,19 @@ snit::type appserver {
             text/html [myproc /:html] \
             "Model Overview"
         
-        appserver register /page/{p} {page/(\w+)/?} \
-            text/html [myproc /page:html]           \
-            "Detail page for cell model page {p}."
-
         appserver register /cell/{c} {cell/([[:alnum:]_.:]+)} \
             text/html [myproc /cell:html]           \
             "Detail page for cell model cell {c}."
+
+        appserver register /enum/sortcellby {enum/sortcellby}                 \
+            tcl/enumlist [asproc enum:enumlist esortcellby]                   \
+            tcl/enumdict [asproc enum:enumdict esortcellby]                   \
+            text/html    [asproc type:html "Enum: Sort Cells By" esortcellby] \
+            "Enumeration: Sort Cells By"
+
+        appserver register /page/{p} {page/(\w+)/?} \
+            text/html [myproc /page:html]           \
+            "Detail page for cell model page {p}."
     }
 
     #-------------------------------------------------------------------
@@ -207,10 +213,18 @@ snit::type appserver {
     # /page:html udict matchArray
     #
     # Formats and displays the details for a particular model page.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    sortby - The column to sort the cells by: one of line, name.
+    #
+    # Unknown query parameters and invalid query values are ignored.
 
     proc /page:html {udict matchArray} {
         upvar 1 $matchArray ""
 
+        # FIRST, get the page
         set page $(1)
 
         if {$page ni [cm pages]} {
@@ -218,8 +232,25 @@ snit::type appserver {
                 "Unknown entity: [dict get $udict url]."
         }
 
+        # NEXT, get the query parameters
+        set qdict [querydict $udict {sortby}]
+        dict with qdict {
+            restrict sortby esortcellby name
+        }
+
+        # NEXT, format the output
         ht page "Model Page: $page"
         ht title "Model Page: $page"
+
+        ht hr
+        ht form my://app/page/$page -autosubmit yes
+        ht label sortby "Sort Cells By:"
+        ht input sortby enum $sortby \
+            -src     enum/sortcellby \
+            -content tcl/enumdict
+        ht /form
+        ht hr
+        ht para
 
         ht putln "<b>$page</b> is a "
         if {[cm pageinfo cyclic $page]} {
@@ -235,7 +266,13 @@ snit::type appserver {
         ht putln "in the cell model file."
         ht para
 
-        CellTable [lsort [cm cells $page]] $page
+        set cells [cm cells $page]
+
+        if {$sortby eq "name"} {
+            set cells [lsort -dictionary $cells]
+        }
+
+        CellTable $cells $page
 
         # FINALLY, complete the page
         ht /page

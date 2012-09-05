@@ -58,6 +58,7 @@ namespace import ::projectgui::*
 # Load app_cell(n) submodules
 
 source [file join $::app_cell::library app.tcl           ]
+source [file join $::app_cell::library app_types.tcl     ]
 source [file join $::app_cell::library cmscript.tcl      ]
 
 source [file join $::app_cell::library appserver.tcl     ]

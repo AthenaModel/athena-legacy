@@ -159,9 +159,7 @@
 </node>
 </node>
 <node TEXT="Next" POSITION="right" ID="ID_1459946860" CREATED="1345760892431" MODIFIED="1345760894228">
-<node TEXT="Consider doing instrumentation of the cellmodel script to get line numbers for cell definitions." ID="ID_945152224" CREATED="1346090298808" MODIFIED="1346090320479">
-<node TEXT="See SeApp.tcl for example" ID="ID_1860154453" CREATED="1346090325137" MODIFIED="1346090329479"/>
-</node>
+<node TEXT="Sort cell tables by line or by name" ID="ID_1294903663" CREATED="1346865499945" MODIFIED="1346865512351"/>
 </node>
 </node>
 </map>
