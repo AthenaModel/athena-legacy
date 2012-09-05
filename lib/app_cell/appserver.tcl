@@ -235,7 +235,7 @@ snit::type appserver {
         ht putln "in the cell model file."
         ht para
 
-        CellTable [cm cells $page] $page
+        CellTable [lsort [cm cells $page]] $page
 
         # FINALLY, complete the page
         ht /page
@@ -266,12 +266,13 @@ snit::type appserver {
         ht putln "<h1>Model Cell: "
 
         set page [cm cellinfo page $cell]
+        set bare [cm cellinfo bare $cell]
 
         if {$page ne "null"} {
             ht link my://app/page/$page "${page}::" 
         }
 
-        ht put [cm cellinfo bare $cell]
+        ht put $bare
         ht put "</h1>"
 
         # NEXT, put in the cell itself.
@@ -317,6 +318,28 @@ snit::type appserver {
         if {[llength [cm cellinfo usedby $cell]] > 0} {
             ht subtitle "$cell is used by these cells:"
             CellTable [cm cellinfo usedby $cell] $page
+            ht para
+        }
+
+        # NEXT, do cells with this name appear on other pages.
+        set cells [list]
+        foreach p [cm pages] {
+            if {$p eq $page} {
+                continue
+            }
+
+            set pcell ${p}::$bare
+
+            set pcells [cm cells $p]
+
+            if {$pcell in [cm cells $p]} {
+                lappend cells $pcell
+            }
+        }
+
+        if {[llength $cells] > 0} {
+            ht subtitle "Cells with the same name on other pages:"
+            CellTable $cells 
             ht para
         }
 
