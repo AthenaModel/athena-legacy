@@ -130,7 +130,9 @@
 <node TEXT="that can validate the cell model source code, taking me to the line that is in error" ID="ID_22106532" CREATED="1345748031914" MODIFIED="1346084871008">
 <icon BUILTIN="button_ok"/>
 </node>
-<node TEXT="that can let me explore the content of valid cell models" ID="ID_248058343" CREATED="1345748057116" MODIFIED="1345748072451"/>
+<node TEXT="that can let me explore the content of valid cell models" ID="ID_248058343" CREATED="1345748057116" MODIFIED="1346882637943">
+<icon BUILTIN="button_ok"/>
+</node>
 <node TEXT="that can help me run the model and examine the root of runtime errors" ID="ID_1122750597" CREATED="1345748117816" MODIFIED="1345748134883"/>
 <node TEXT="that can let me import and edit the input values, distinct from those in the cellmodel(5) script" ID="ID_37886187" CREATED="1345748199639" MODIFIED="1345748216581"/>
 </node>
@@ -151,7 +153,7 @@
 <node TEXT="Possibly embedded in detail browser tab" ID="ID_543064630" CREATED="1345748288115" MODIFIED="1345748299815"/>
 </node>
 </node>
-<node TEXT="cmscript module" ID="ID_1465916911" CREATED="1345748397370" MODIFIED="1345748399804">
+<node TEXT="cmscript module" FOLDED="true" ID="ID_1465916911" CREATED="1345748397370" MODIFIED="1345748399804">
 <node TEXT="For managing the currently loaded cellmodel(5) script" ID="ID_1759192769" CREATED="1345748400077" MODIFIED="1345748408064"/>
 <node TEXT="Associated with the editor window" ID="ID_1722054661" CREATED="1345748409008" MODIFIED="1345748417494"/>
 <node TEXT="Replaced project/projectdb." ID="ID_553789273" CREATED="1345748422923" MODIFIED="1345748428570"/>
@@ -159,7 +161,14 @@
 </node>
 </node>
 <node TEXT="Next" POSITION="right" ID="ID_1459946860" CREATED="1345760892431" MODIFIED="1345760894228">
-<node TEXT="Sort cell tables by line or by name" ID="ID_1294903663" CREATED="1346865499945" MODIFIED="1346865512351"/>
+<node TEXT="States the model can be in" ID="ID_1440560457" CREATED="1346882786849" MODIFIED="1346882791518">
+<node TEXT="Model has not been loaded" ID="ID_659632823" CREATED="1346882797050" MODIFIED="1346882917041"/>
+<node TEXT="Model is known to have syntax errors" ID="ID_1316903258" CREATED="1346882805794" MODIFIED="1346882822856"/>
+<node TEXT="Model is known to be insane" ID="ID_1221429918" CREATED="1346882823211" MODIFIED="1346882832176"/>
+<node TEXT="Model is sane but not solved" ID="ID_645187884" CREATED="1346882832955" MODIFIED="1346882877353"/>
+<node TEXT="Model could not be solved" ID="ID_1164126366" CREATED="1346882877852" MODIFIED="1346882892178"/>
+<node TEXT="Model was solved" ID="ID_804857471" CREATED="1346882930069" MODIFIED="1346882933690"/>
+</node>
 </node>
 </node>
 </map>

@@ -54,26 +54,25 @@ snit::widget cmscripteditor {
 
     delegate method * to editor
 
-    # new
-    #
-    # Deletes all content from the editor.
-
-    method new {} {
-        $editor fastdelete 1.0 end
-    }
-
-    # set text
+    # new ?text?
     #
     # text   - New text for the widget
     #
-    # Puts the text in the widget, replacing previous content, and scrolls
-    # to the top.
+    # Puts a new document in the widget with the given text, replacing
+    # any previous content, and scrolls to the top.  Clears the undo 
+    # stack, and marks the content unmodified.
 
-    method set {text} {
-        $self new
-        $editor fastinsert 1.0 $text
-        $editor highlight 1.0 end
-        $editor yview moveto 0.0
+    method new {{text ""}} {
+        $editor fastdelete 1.0 end
+
+        if {$text ne ""} {
+            $editor fastinsert 1.0 $text
+            $editor highlight 1.0 end
+            $editor yview moveto 0.0
+        }
+
+        $editor edit reset
+        $editor edit modified no
     }
 
     # getall

@@ -96,7 +96,7 @@ snit::type cmscript {
     typemethod open {filename} {
         # FIRST, load the file.
         if {[catch {
-            $editor set [readfile $filename]
+            $editor new [readfile $filename]
         } result]} {
             $type MakeNew
 
