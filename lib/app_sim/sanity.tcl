@@ -511,23 +511,6 @@ snit::type sanity {
             }
         }
 
-        if {!$cells(Out::FLAG.DELTAQ.ZERO) && [parm get app.dev]} {
-            set sev ERROR
-
-            $ht dlitem "<b>Error: Economy: Delta-Q non-zero</b>" {
-                One of the deltaQ.i cells is negative or zero; this implies
-                an error in the CGE.
-                Enter 
-                <tt><a href="my://help/command/dump/econ">dump econ</a></tt>
-                at the CLI to
-                see the full list of CGE outputs.  Consider setting
-                the 
-                <a href="my://help/parmdb/econ/disable">econ.disable</a>
-                parameter to "yes", since the
-                economic model is clearly malfunctioning.
-            }
-        }
-
         set limit [parmdb get econ.check.MinConsumerFrac]
 
         if {
