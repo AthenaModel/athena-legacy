@@ -116,7 +116,7 @@
 <node TEXT="Modal!" ID="ID_1204389036" CREATED="1345744932588" MODIFIED="1345744937190"/>
 </node>
 </node>
-<node TEXT="Simplest Thing" POSITION="right" ID="ID_1079068103" CREATED="1345747988054" MODIFIED="1345747991596">
+<node TEXT="Simplest Thing" FOLDED="true" POSITION="right" ID="ID_1079068103" CREATED="1345747988054" MODIFIED="1345747991596">
 <node TEXT="What&apos;s the simplest thing that I can do that would be somewhat useful?" ID="ID_1092497164" CREATED="1345747992134" MODIFIED="1345748021252">
 <icon BUILTIN="idea"/>
 </node>
@@ -160,15 +160,9 @@
 </node>
 </node>
 </node>
-<node TEXT="Next" POSITION="right" ID="ID_1459946860" CREATED="1345760892431" MODIFIED="1345760894228">
-<node TEXT="States the model can be in" ID="ID_1440560457" CREATED="1346882786849" MODIFIED="1346882791518">
-<node TEXT="Model has not been loaded" ID="ID_659632823" CREATED="1346882797050" MODIFIED="1346882917041"/>
-<node TEXT="Model is known to have syntax errors" ID="ID_1316903258" CREATED="1346882805794" MODIFIED="1346882822856"/>
-<node TEXT="Model is known to be insane" ID="ID_1221429918" CREATED="1346882823211" MODIFIED="1346882832176"/>
-<node TEXT="Model is sane but not solved" ID="ID_645187884" CREATED="1346882832955" MODIFIED="1346882877353"/>
-<node TEXT="Model could not be solved" ID="ID_1164126366" CREATED="1346882877852" MODIFIED="1346882892178"/>
-<node TEXT="Model was solved" ID="ID_804857471" CREATED="1346882930069" MODIFIED="1346882933690"/>
-</node>
+<node TEXT="Problems" POSITION="right" ID="ID_1459946860" CREATED="1345760892431" MODIFIED="1347396461516">
+<node TEXT="After editing the file, the checkstate is unchanged.  It&apos;s supposed to go back to &quot;unchecked&quot;." ID="ID_352119609" CREATED="1347396461878" MODIFIED="1347396487181"/>
+<node TEXT="Executing &quot;check&quot; (or, eventually, &quot;solve&quot;) should cause the detail browser to refresh." ID="ID_1382632313" CREATED="1347396498920" MODIFIED="1347396527326"/>
 </node>
 </node>
 </map>

@@ -54,6 +54,7 @@ snit::widget ::projectgui::mybrowser {
 
     delegate option -width to hv
     delegate option -height to hv
+    delegate option -styles to hv
 
     delegate option -defaultserver to agent
 

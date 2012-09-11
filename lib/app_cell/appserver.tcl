@@ -50,6 +50,7 @@ snit::type appserver {
         # NEXT, create the buffer for generating HTML.
         htools ${type}::ht \
             -rdb       ::rdb              \
+            -headercmd [myproc HeaderCmd] \
             -footercmd [myproc FooterCmd]
 
 
@@ -87,11 +88,19 @@ snit::type appserver {
         ht title "Model Overview"
 
         # FIRST, Check the current model.
-        lassign [cmscript check] code line errmsg
+        if {[cmscript checkstate] eq "unchecked"} {
+            cmscript check
+        }
+        set code [cmscript checkstate]
 
         # NEXT, handle syntax errors
-        if {$code eq "SYNTAX"} {
-            ht putln "The cell model has a syntax error at line $line:"
+        if {$code eq "syntax"} {
+            set errmsg [dict get [cmscript errinfo] msg]
+            set line [dict get [cmscript errinfo] line]
+
+            ht putln "The cell model has a syntax error at line "
+            ht link gui://editor/$line $line
+            ht put ":"
             ht para
             ht putln "<b>$errmsg</b>"
             ht para
@@ -103,7 +112,7 @@ snit::type appserver {
             return [ht get]
         }
         
-        if {$code eq "SANE"} {
+        if {$code eq "checked"} {
             ht putln "The cell model is sane, and contains the following pages:"
             ht para
 
@@ -228,6 +237,12 @@ snit::type appserver {
         set page $(1)
 
         if {$page ni [cm pages]} {
+            if {[cmscript checkstate] in {unchecked syntax}} {
+                # Show the error, which will describe the status.
+                ht page "Model Page: $page" {}
+                return [ht get]
+            }
+            
             return -code error -errorcode NOTFOUND \
                 "Unknown entity: [dict get $udict url]."
         }
@@ -295,6 +310,11 @@ snit::type appserver {
         set cell $(1)
 
         if {$cell ni [cm cells]} {
+            if {[cmscript checkstate] in {unchecked syntax}} {
+                ht page "Model Cell: $cell" {}
+                return [ht get]
+            }
+
             return -code error -errorcode NOTFOUND \
                 "Unknown entity: [dict get $udict url]."
         }
@@ -517,6 +537,52 @@ snit::type appserver {
 
         # NEXT, do the mapping, and return the formula
         return [string map $table $formula]
+    }
+
+    # HeaderCmd
+    #
+    # Standard Page Header
+
+    proc HeaderCmd {title} {
+        switch -exact -- [cmscript checkstate] {
+            unchecked {
+                ht putln {
+                    <div class="warning">
+                    The model text has changed.  Press the Checkmark icon
+                    to parse it and check for errors.
+                    </div>
+                }
+            }
+            syntax {
+                if {$title eq "Model Overview"} {
+                    return
+                }
+                set errdict [cmscript errinfo]
+                dict with errdict {
+                    ht putln {<div class="warning">}
+                    ht putln "The model contains a syntax error at line "
+                    ht link gui://editor/$line $line
+                    ht put ": $msg." 
+                    ht putln </div>
+                }
+            }
+            insane {
+                if {$title eq "Model Overview"} {
+                    return
+                }
+                ht putln {
+                    <div class="warning">
+                    The model is not sane as written.  Click on the 
+                    Home button on the toolbar to see a list of the 
+                    problems.
+                    </div>
+                }
+            }
+            default {
+                # No problems
+                return
+            }
+        }
     }
 
     # FooterCmd

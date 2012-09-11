@@ -74,7 +74,7 @@ snit::widget appwin {
         # NEXT, Prepare to receive window events
 
         # NEXT, Exit the app when this window is closed.
-        wm protocol $win WM_DELETE_WINDOW {app exit}
+        wm protocol $win WM_DELETE_WINDOW [mymethod FileExit]
 
         # NEXT, Allow the developer to pop up the debugger.
         bind all <Control-F9> [list debugger new]
@@ -100,10 +100,10 @@ snit::widget appwin {
         $win configure -menu $menubar
 
         # NEXT, create the File menu
-        set filemenu [menu $menubar.file]
-        $menubar add cascade -label "File" -underline 0 -menu $filemenu
+        set menu [menu $menubar.file]
+        $menubar add cascade -label "File" -underline 0 -menu $menu
 
-        $filemenu add command \
+        $menu add command \
             -label       "New File" \
             -underline   0 \
             -accelerator "Ctrl+N" \
@@ -111,7 +111,7 @@ snit::widget appwin {
         bind $win <Control-n> [mymethod FileNew]
         bind $win <Control-N> [mymethod FileNew]
 
-        $filemenu add command \
+        $menu add command \
             -label       "Open File..." \
             -underline   0              \
             -accelerator "Ctrl+O"       \
@@ -119,7 +119,7 @@ snit::widget appwin {
         bind $win <Control-o> [mymethod FileOpen]
         bind $win <Control-O> [mymethod FileOpen]
 
-        $filemenu add command \
+        $menu add command \
             -label       "Save File" \
             -underline   0           \
             -accelerator "Ctrl+S"    \
@@ -127,14 +127,14 @@ snit::widget appwin {
         bind $win <Control-s> [mymethod FileSave]
         bind $win <Control-S> [mymethod FileSave]
 
-        $filemenu add command \
+        $menu add command \
             -label     "Save File As..." \
             -underline 10                \
             -command   [mymethod FileSaveAs]
 
-        $filemenu add separator
+        $menu add separator
 
-        $filemenu add command \
+        $menu add command \
             -label       "Quit"   \
             -underline   0        \
             -accelerator "Ctrl+Q" \
@@ -177,6 +177,20 @@ snit::widget appwin {
             -underline 0 \
             -accelerator "Ctrl+Shift+A" \
             -command {event generate [focus] <<SelectAll>>}
+
+        # NEXT, create the Model menu
+        set menu [menu $menubar.model]
+        $menubar add cascade -label "Model" -underline 0 -menu $menu
+
+        $menu add command \
+            -label       "Check"  \
+            -underline   0        \
+            -command     [mymethod ModelCheck]
+
+        $menu add command \
+            -label       "Solve..."     \
+            -underline   0              \
+            -command     [mymethod ModelSolve]
     }
 
     #-------------------------------------------------------------------
@@ -227,18 +241,25 @@ snit::widget appwin {
             -command [mymethod FileSave]
         DynamicHelp::add $toolbar.save -text "Save File"
         
-        # Check File
+        # Check Model
         ttk::button $toolbar.check \
             -style   Toolbutton               \
             -image   ::marsgui::icon::check22 \
-            -command [mymethod FileCheck]
-        DynamicHelp::add $toolbar.check -text "Check File"
+            -command [mymethod ModelCheck]
+        DynamicHelp::add $toolbar.check -text "Check Model"
         
+        # Solve Model
+        ttk::button $toolbar.solve \
+            -style   Toolbutton            \
+            -image   ::marsgui::icon::step \
+            -command [mymethod ModelSolve]
+        DynamicHelp::add $toolbar.solve -text "Solve Model"
 
         pack $toolbar.new   -side left
         pack $toolbar.open  -side left
         pack $toolbar.save  -side left
         pack $toolbar.check -side left -padx {10 0}
+        pack $toolbar.solve -side left
 
         # ROW 2, add a separator between the tool bar and the content
         # window.
@@ -432,31 +453,32 @@ snit::widget appwin {
     }
 
 
-    # FileCheck
+    # ModelCheck
     #
     # Checks the syntax of the current model.
 
-    method FileCheck {} {
-        lassign [cmscript check] code line errmsg
+    method ModelCheck {} {
+        set state [cmscript check]
 
-        if {$code eq "SYNTAX"} {
-            $self ShowFileSyntaxError $line $errmsg
-        } elseif {$code eq "INSANE"} {
-            $self ShowFileSanityError
+        if {$state eq "syntax"} {
+            $self ModelSyntaxError
+        } elseif {$state eq "insane"} {
+            $self ModelSanityError
         } else {
             $self puts "The model loaded successfully, and appears to be sane."
         }
     }
 
-    # ShowFileSyntaxError line errmsg
-    #
-    # line    - The line number
-    # errmsg  - The error message
+    # ModelSyntaxError
     #
     # Jumps to the line with the error in the editor, and displays an
     # error dialog.
 
-    method ShowFileSyntaxError {line errmsg} {
+    method ModelSyntaxError {} {
+        set errinfo [cmscript errinfo]
+        set line [dict get $errinfo line]
+        set msg  [dict get $errinfo msg]
+
         # FIRST, jump to the error.
         $cmeditor mark set insert $line.0
         $cmeditor see insert
@@ -466,7 +488,7 @@ snit::widget appwin {
             |<--
             The cell model has an error at line $line:
 
-            $errmsg
+            $msg
         }]
 
         messagebox popup                \
@@ -481,11 +503,11 @@ snit::widget appwin {
         $cmeditor focus
     }
 
-    # ShowFileSanityError
+    # ModelSanityError
     #
     # Displays a message if the file is not sane.
 
-    method ShowFileSanityError {} {
+    method ModelSanityError {} {
         set message [normalize {
             The cell model syntax is OK, but the model is not sane.
             Press the "Model Overview" button, below, to see the details.

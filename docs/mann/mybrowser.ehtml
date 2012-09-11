@@ -123,6 +123,12 @@ results for the string.<p>
 This option is read-only after widget creation; and note that the
 search box is displayed only if this option has a non-empty value.<p>
 
+<<defopt {-styles <i>css</i>}>>
+
+Gives a set of CSS styles to the underlying 
+<<xref mars:htmlviewer(n)>>.<p>
+
+
 <</deflist options>>
 
 <</deflist commands>>

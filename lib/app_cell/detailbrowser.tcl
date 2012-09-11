@@ -18,6 +18,21 @@
 
 snit::widget detailbrowser {
     #-------------------------------------------------------------------
+    # Type Variables
+    
+    # browserStyles: CSS for use in this browser and application.
+
+    typevariable browserStyles {
+        /* A paragraph with a box around it. */
+        DIV.warning {
+            border-style: solid;
+            border-width: 1px;
+            border-color: black;
+            background-color: #ffcf57;
+        }
+    }
+
+    #-------------------------------------------------------------------
     # Options
 
     # Options delegated to the hull
@@ -38,7 +53,8 @@ snit::widget detailbrowser {
         install browser using mybrowser $win.browser  \
             -home         my://app/                   \
             -hyperlinkcmd [mymethod GuiLinkCmd]       \
-            -messagecmd   {app puts}
+            -messagecmd   {app puts}                  \
+            -styles       $browserStyles 
 
         # NEXT, create the lazy updater
         install lazy using lazyupdater ${selfns}::lazy \
@@ -51,8 +67,8 @@ snit::widget detailbrowser {
         $self configurelist $args
 
         # NEXT, bind to events that are likely to cause reloads.
-        notifier bind ::project <DbSync> $win [mymethod reload]
-        notifier bind ::rdb <Monitor>    $win [mymethod reload]
+        notifier bind ::project  <DbSync> $win [mymethod reload]
+        notifier bind ::cmscript <Update> $win [mymethod reload]
 
         # NEXT, create the browser context menu
         bind $win.browser <3>         [mymethod MainContextMenu %X %Y]

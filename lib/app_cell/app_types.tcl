@@ -20,3 +20,13 @@ enum esortcellby {
     name "Cell Name"
     line "Line Number"
 }
+
+# echeckstate: Has the model been checked or not, and to what effect?
+
+enum echeckstate {
+    unchecked "Unchecked"
+    syntax    "Syntax Error"
+    insane    "Sanity Error"
+    checked   "Checked"
+}
+

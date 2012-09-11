@@ -67,22 +67,6 @@ snit::type app {
         # NEXT, get the application directory
         appdir init
 
-        # NEXT, create the working directory, so we can put working files
-        # there, and purge old working directories.
-
-        if {[catch {workdir init} result]} {
-            app exit {
-                |<--
-                Error, could not create working directory: 
-
-                    [workdir join]
-
-                Reason: $result
-            }
-        }
-
-        workdir purge 0
-
         # NEXT, initialize the non-GUI modules
         cmscript init
 

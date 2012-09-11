@@ -32,10 +32,22 @@ snit::type cmscript {
 
     # Info Array: most scalars are stored here
     #
-    # cmfile  - Name of the current cellmodel(5) file
+    # cmfile     - Name of the current cellmodel(5) file
+    # unsaved    - 1 if file needs to be saved, and 0 otherwise.
+    # checkstate - An echeckstate value; status of last check.  Set
+    #              to unchecked when file is edited.
+    # errinfo    - A dictionary of syntax error information, when
+    #              checkstate is "syntax":
+    #
+    #              line - The line number at which the syntax error 
+    #                     is located.
+    #              msg  - The error message
 
     typevariable info -array {
-        cmfile  ""
+        cmfile     ""
+        saved      0
+        checkstate unchecked
+        errinfo    {}
     }
 
     #-------------------------------------------------------------------
@@ -61,6 +73,61 @@ snit::type cmscript {
     }
 
     #-------------------------------------------------------------------
+    # State Routines
+    
+    # unsaved
+    #
+    # Returns 1 if there are unsaved changes, and 0 otherwise.
+
+    typemethod unsaved {} {
+        $type DetermineStates
+
+        return $info(unsaved) 
+    }
+
+    # DetermineStates
+    #
+    # This routine is a mini-expert system that fills out the state
+    # vector.
+
+    typemethod DetermineStates {} {
+        # FIRST, Are there unsaved changes or not? 
+        set modified [$editor edit modified]
+
+        # NEXT, if there are unsaved changes, the model is unsaved,
+        # unchecked, and unsolved.
+        if {$modified} {
+            set info(unsaved) 1 
+            set info(checkstate) unchecked
+            set info(errinfo)    {}
+            set info(solvestate) unsolved
+        }
+
+        # NEXT, clear the editor's modified flag, so that we can
+        # detect further changes.
+        $editor edit modified no
+    }
+    
+    # checkstate
+    #
+    # Returns the check state
+
+    typemethod checkstate {} {
+        $type DetermineStates
+
+        return $info(checkstate)
+    }
+
+    # errinfo
+    #
+    # Returns the syntax errinfo dictionary when checkstate is
+    # "syntax".  Otherwise, returns the empty string.
+
+    typemethod errinfo {} {
+        return $info(errinfo)
+    }
+
+    #-------------------------------------------------------------------
     # Script Management Methods
 
     # new
@@ -80,10 +147,17 @@ snit::type cmscript {
     # "cmscript new", and when "cmscript open" tries and fails.
 
     typemethod MakeNew {} {
-        set info(cmfile)  ""
-
+        # FIRST, clear the editor.
         $editor new
 
+        # NEXT, set the states and save the file name
+        set info(cmfile)     ""
+        set info(unsaved)    0
+        set info(checkstate) unchecked
+        set info(errinfo)    {}
+        set info(solvestate) unsolved
+
+        # NEXT, notify the application
         notifier send ::cmscript <Update>
     }
 
@@ -112,8 +186,14 @@ snit::type cmscript {
             return
         }
 
-        set info(cmfile) $filename
+        # NEXT, set the states and save the file name
+        set info(cmfile)     $filename
+        set info(unsaved)    0
+        set info(checkstate) unchecked
+        set info(errinfo)    {}
+        set info(solvestate) unsolved
 
+        # NEXT, notify the application.
         notifier send ::cmscript <Update>
 
         app puts "Opened file [file tail $filename]"
@@ -172,16 +252,16 @@ snit::type cmscript {
         }
 
         # NEXT, mark it saved, and save the file name
+        set info(cmfile)  $cmfile
         set info(unsaved) 0
-        set info(cmfile) $cmfile
 
-        app puts "Saved file [file tail $info(cmfile)]"
 
         # NEXT, set the current working directory to the cmscript
         # file location.
         catch {cd [file dirname [file normalize $filename]]}
 
         # NEXT, notify the application
+        app puts "Saved file [file tail $info(cmfile)]"
         notifier send ::cmscript <Update>
         notifier send ::cmscript <Saved>
 
@@ -205,35 +285,27 @@ snit::type cmscript {
         return [$editor getall]
     }
 
-    # unsaved
-    #
-    # Returns 1 if there are unsaved changes, and 0 otherwise.
-
-    typemethod unsaved {} {
-        return [$editor edit modified]  
-    }
-
     # check
     #
-    # Checks the content of the current model.  Returns one of the
-    # following:
-    #
-    # SANE
-    #     The model appears to be sane.
-    #
-    # INSANE
-    #     The model appears to be insane: e.g., missing cell
-    #
-    # SYNTAX <line> <errmsg>
-    #     There's a syntax error at <line>
+    # Checks the content of the current model.  Returns an 
+    # echeckstate value; if the result is "syntax", then 
+    # [syntaxerr] returns the line number and error message
 
     typemethod check {} {
+        # FIRST, clear the state data.
+        set info(errinfo) [dict create]
+
         # FIRST, check the syntax.
         if {[catch {cm load [$editor getall]} result eopts]} {
             set ecode [dict get $eopts -errorcode]
 
             if {[lindex $ecode 0] eq "SYNTAX"} {
-                return [list SYNTAX [lindex $ecode 1] $result]
+                dict set info(errinfo) line [lindex $ecode 1]
+                dict set info(errinfo) msg  $result
+                set info(checkstate) syntax
+
+                notifier send ::cmscript <Update>
+                return $info(checkstate)
             }
 
             # It's an unexpected error; rethrow
@@ -242,12 +314,17 @@ snit::type cmscript {
 
         # NEXT, if there were other problems, let them know about
         # that.
-        if {$result == 0} {
-            return INSANE
+        if {$result == 1} {
+            set info(checkstate) checked
+        } else {
+            set info(checkstate) insane
         }
 
+        # NEXT, notify the application
+        notifier send ::cmscript <Update>
+
         # FINALLY, all is good.
-        return SANE
+        return $info(checkstate)
     }
 }
 

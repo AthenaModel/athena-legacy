@@ -66,6 +66,9 @@ dynaform fieldtype alias condcc key \
     -table   cond_collections \
     -keys    cc_id
 
+# contextkey: key fields should get -db automatically.
+dynaform fieldtype alias contextkey contextkey -db ::rdb
+
 # coop: Pick a cooperation level
 dynaform fieldtype alias coop range \
     -datatype    ::qcooperation     \
