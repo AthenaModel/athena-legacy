@@ -1142,10 +1142,3 @@ let FLAG.P.POS = {
     [P.black] > 0.0 || [P.goods] > 0.0 || [P.pop] > 0.0
 }
 
-# deltaQ.black will not necessarily be zero. The price of black market 
-# goods is exogenous and is, therefore, not subject to market fluctuation.
-# The result of this being that supply will not necessarily match demand.
-let FLAG.DELTAQ.ZERO = {
-    [deltaQ.goods] == 0.0 && [deltaQ.pop] == 0.0
-}
-
