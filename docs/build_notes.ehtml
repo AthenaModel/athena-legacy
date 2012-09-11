@@ -11,6 +11,38 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.14, 11 September 2012</h3>
+
+This build continues the integration of the 6x6 CGE into Athena.  It
+also includes work on athena_cell(1), the new cellmodel(5) IDE, and a
+number of minor bug fixes.<p>
+
+<ul>
+<li> Bug 3632: athena(1): econ model needs more robust sanity checking
+<li> Bug 3633: Org Groups tab does not display base personnel
+<li> Bug 3639: athena(1): econ model should output a debug file when the CGE fails to solve
+<li> Bug 3644: Actor Expenditures
+<li> Bug 3645: Expend Actor Overhead at each tick
+<li> Bug 3648: Actor incomes: income_a, actors_view tables
+<li> Bug 3650: SAM image in the help needs to be updated
+<li> Bug 3651: Revision i to sam6x6.cm
+<li> Bug 3655: last_mad: query error: no such column: id
+<li> Bug 3656: Actor Income Classes
+<li> Bug 3658: athena(1): SAM cell model no longer needs default for f.pop.black
+<li> Bug 3659: athena_cell(1): Cell Model IDE
+<li> Bug 3660: athena(1): sanity on tick check bgerror in econ model checks
+<li> Bug 3662: athena(1): cash module needs to allocate expenditures on scenario lock
+<li> Bug 3664: Use [prepare -num] in order handlers
+<li> Bug 3665: athena(1): Add computation of consumer security factor to econ model
+<li> Bug 3666: athena_cell(1): Cell pages
+<li> Bug 3667: athena_cell(1): Qualified cell names are not syntax-colored.
+<li> Bug 3669: athena(1): econ model 6x6 CGE updates
+<li> Bug 3671: athena_cell(1): Cells with the same name
+<li> Bug 3672: athena_cell(1): User-settable cell sort order
+<li> Bug 3674: athena_cell(1): Change detection isn't working right.
+<li> Bug 3676: athena(1): implement connection of actors to the econ model
+</ul>
+
 <h3>Build 4.0.13, 21 August 2012</h3>
 
 This build contains many changes related to the integration of the 6x6
