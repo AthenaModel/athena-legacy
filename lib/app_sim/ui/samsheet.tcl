@@ -35,8 +35,6 @@ snit::widget samsheet {
     # These variables contain constant data used in building and
     # operating the GUI.
 
-    # Type Variable: units
-    #
     # This variable serves two purposes: its keys are the sector names,
     # and its values are the units for each sector.
     #
@@ -49,43 +47,68 @@ snit::widget samsheet {
         pop   workyear/yr
     }
 
-    # Type Variable: color
-    #
     # Look-up table for colors of various kinds.
     #
     #  e - Color for editable cells
     #  r - Color for readonly cells
     #  d - Color for editable cells when they are disabled
+    #  a - Color for "A" shape parameters (Leontief production function)
+    #  f - Color for "f" shape parameters (Cobb-Douglas parameter)
+    #  t - Color for "t" shape parameters (tax-like rates)
 
     typevariable color -array {
         e "#CCFF99"
         r "#BABABA"
         d "#E3E3E3"
+        a "#C16610"
+        f "#8BAE56"
+        t "#40ABB0"
     }
 
-    # Type Variable: layout
-    #
     # The html layout of the cmsheet(n) objects on this tab
 
     typevariable layout {
         <table>
           <tr>
-            <td colspan=2>
+            <td colspan="3">
               <b style="font-size:12px">SAM Inputs</b><p>
-              <input name="matrix">
+              <input name="mmatrix">
             </td>
           </tr>
           <tr>
-            <td valign="top">
+            <td colspan="2">
               <b style="font-size:12px">Other Inputs</b><p>
               <input name="inputs">
             </td>
-            <td valign="top">
+            <td>
               <b style="font-size:12px">SAM Outputs</b><p>
               <input name="outputs">
             </td>
           </tr>
+          <tr>
+            <td valign="top">
+              <b style="font-size:12px">Shape Parameters</b><p>
+              <input name="smatrix">
+            </td>
+            <td valign="center">
+              <p class="leglbl" style="background-color:#C16610">A.i.j</p>
+              <p class="leglbl" style="background-color:#8BAE56">f.i.j</p>
+              <p class="leglbl" style="background-color:#40ABB0">t.i.j</p>
+            </td>
+            <td valign="center">
+              <p class="legtxt">- Leontief coefficients</p>
+              <p class="legtxt">- Cobb-Douglas coefficients</p>
+              <p class="legtxt">- tax-like rates</p>
+            </td>
+          </tr>
         </table>
+    }
+
+    # CSS for the legend in the layout
+
+    typevariable css {
+        p.leglbl {margin: 0px 0px 1px 0px; width: 30px}
+        p.legtxt {margin: 0px 0px 1px 0px}
     }
 
     #-------------------------------------------------------------------
@@ -101,7 +124,8 @@ snit::widget samsheet {
 
     # The cmsheet(n) widgets used to display the SAM data.
 
-    component matrix
+    component mmatrix
+    component smatrix
     component inputs
     component outputs
 
@@ -118,29 +142,35 @@ snit::widget samsheet {
         set sam [econ sam 1]
         $sam solve
 
-        htmlframe $win.h
+        htmlframe $win.h \
+            -yscrollcommand [list $win.yscroll set]
+
+        $win.h configure -styles $css
 
         # NEXT, Create the GUI components
-        $self CreateMatrix        $win.h.matrix
+        $self CreateMoneyMatrix   $win.h.mmatrix
+        $self CreateShapeMatrix   $win.h.smatrix
         $self CreateScalarInputs  $win.h.inputs
         $self CreateScalarOutputs $win.h.outputs
 
-        # NEXT layout the components
-        $win.h layout "
-            Double click a cell to edit. Press \"Enter\" to save, 
-            press \"Esc\" to cancel editing.<p>
-            $layout
-        "
+        ttk::scrollbar $win.yscroll \
+            -command [list $win.h yview]
 
-        # NEXT pack the html frame
-        pack $win.h -expand 1 -fill both
+        # NEXT grid the html frame and scrollbar
+        # Note that the widgets in the html frame are layed out once
+        # sim state is determined. See the SimState typemethod below
+        grid $win.h       -row 0 -column 0 -sticky nsew
+        grid $win.yscroll -row 0 -column 1 -sticky ns
+
+        grid rowconfigure    $win 0 -weight 1
+        grid columnconfigure $win 0 -weight 1
 
         # NEXT, prepare for updates.
-        notifier bind ::sim  <DbSyncB>     $self [mymethod Restored]
+        notifier bind ::sim  <DbSyncB>     $self [mymethod SyncSheet]
         notifier bind ::sim  <Tick>        $self [mymethod refresh]
         notifier bind ::sim  <State>       $self [mymethod SimState]
-        notifier bind ::econ <Shape>       $self [mymethod refresh]
         notifier bind ::econ <CellUpdate>  $self [mymethod CellUpdate]
+        notifier bind ::econ <SyncSheet>   $self [mymethod SyncSheet]
     }
 
     # Constructor: Destructor
@@ -151,14 +181,65 @@ snit::widget samsheet {
         notifier forget $self
     }
 
-    # CreateMatrix w
+    # CreateShapeMatrix w
     #
     # w - The frame widget
     #
-    # Creates the "matrix" component, which displays the 
-    # SAM matrix inputs and computed values
+    # Creates the matrix component for displaying the shape parameters
+    # of the economy as specified in the SAM.
 
-    method CreateMatrix {w} {
+    method CreateShapeMatrix {w} {
+        set sectors [$sam index i]
+        set ns [llength $sectors]
+        let nrows {$ns + 1}
+        let ncols {$ns + 1}
+
+
+        install smatrix using cmsheet $w    \
+            -cellmodel $sam                 \
+            -state     disabled             \
+            -rows      $nrows               \
+            -cols      $ncols               \
+            -roworigin -1                   \
+            -colorigin -1                   \
+            -titlerows 1                    \
+            -titlecols 1                    \
+            -formatcmd {format "%.4f"}
+
+        set titlecol [concat "i,j" $sectors] 
+        $smatrix textrow -1,-1 $titlecol
+        $smatrix textcol 0,-1  $sectors
+        $smatrix textcol 0,5 {
+            "n/a"
+            "n/a"
+            "n/a"
+            "n/a"
+            "n/a"
+            "n/a"
+        } 
+
+        $smatrix mapcol 0,0 il  f.%il.goods   f -background $color(f)
+        $smatrix mapcol 3,0 inp t.%inp.goods  t -background $color(t)
+
+        $smatrix mapcol 0,1 il  A.%il.black   a -background $color(a)
+        $smatrix mapcol 3,1 inp t.%inp.black  t -background $color(t)
+
+        $smatrix mapcol 0,2 il  f.%il.pop     f -background $color(f)
+        $smatrix mapcol 3,2 inp t.%inp.pop    t -background $color(t)
+
+        $smatrix mapcol 0,3 i   f.%i.actors   f -background $color(f)
+
+        $smatrix mapcol 0,4 i   f.%i.region   f -background $color(f)
+    }
+
+    # CreateMoneyMatrix w
+    #
+    # w - The frame widget
+    #
+    # Creates the "matrix" component for displaying monetary flows in 
+    # the SAM.
+
+    method CreateMoneyMatrix {w} {
         # FIRST, get some important values
         set sectors [$sam index i]
         set ns      [llength $sectors]
@@ -177,7 +258,7 @@ snit::widget samsheet {
         let cdunits {$ncols - 2}
 
         # NEXT, create the cmsheet(n).
-        install matrix using cmsheet $w               \
+        install mmatrix using cmsheet $w              \
             -cellmodel     $sam                       \
             -state         normal                     \
             -rows          $nrows                     \
@@ -196,12 +277,12 @@ snit::widget samsheet {
         set titlecol [concat "BX.i.j" $sectors {"Base Rev"} \
                       {"Base Price"} {""} {"Base Demand"}]
 
-        $matrix textrow -1,-1 $titlecol        
-        $matrix textcol 0,-1  [concat $sectors {"Base Exp"}]
+        $mmatrix textrow -1,-1 $titlecol        
+        $mmatrix textcol 0,-1  [concat $sectors {"Base Exp"}]
 
-        $matrix width -1 8
+        $mmatrix width -1 8
 
-        $matrix textcol 0,$cpunits {
+        $mmatrix textcol 0,$cpunits {
             "$/goodsBKT"
             "$/tonne"
             "$/work-year"
@@ -211,7 +292,7 @@ snit::widget samsheet {
             ""
         } units -anchor w -relief flat
 
-        $matrix textcol 0,$cdunits {
+        $mmatrix textcol 0,$cdunits {
             "goodsBKTs"
             "tonnes"
             "work-years"
@@ -221,21 +302,21 @@ snit::widget samsheet {
             ""
         } units -anchor w -relief flat
 
-        $matrix empty $ractors,$cbp $nrows,$ncols
-        $matrix empty $rbe,$cbr $rbe,$cbr
-        $matrix width $cpunits 15
-        $matrix width $cdunits 15
-        $matrix width $cbd     13
+        $mmatrix empty $ractors,$cbp $nrows,$ncols
+        $mmatrix empty $rbe,$cbr $rbe,$cbr
+        $mmatrix width $cpunits 15
+        $mmatrix width $cdunits 15
+        $mmatrix width $cbd     13
 
 
         # NEXT, Set up the cells
-        $matrix map    0,0    i j BX.%i.%j e -background $color(e)
-        $matrix maprow $cbr,0 j   BEXP.%j  r -background $color(r)
-        $matrix mapcol 0,$cbr i   BREV.%i  r -background $color(r)
-        $matrix mapcol 0,$cbp il  BP.%il   e -background $color(e)
-        $matrix mapcol 0,$cbd il  BQD.%il  r -background $color(r)
+        $mmatrix map    0,0    i j BX.%i.%j e -background $color(e)
+        $mmatrix maprow $cbr,0 j   BEXP.%j  r -background $color(r)
+        $mmatrix mapcol 0,$cbr i   BREV.%i  r -background $color(r)
+        $mmatrix mapcol 0,$cbp il  BP.%il   e -background $color(e)
+        $mmatrix mapcol 0,$cbd il  BQD.%il  r -background $color(r)
 
-        $matrix tag configure e -state normal
+        $mmatrix tag configure e -state normal
     }
 
     # CreateScalarInputs   w
@@ -263,29 +344,30 @@ snit::widget samsheet {
 
         # NEXT, add titles 
         $inputs textcol 0,0 {
-            "Remittances and Aid"
-            "Black mkt Net Rev."
+            "Remittances"
             "Black mkt Feedstock Price"
             "Feedstock per Unit Product"
+            "Max Feedstock Avail."
             "Base Consumers"
         }
 
         $inputs textcol 0,2 {
             "$/year"
             "$/year"
-            "$/year"
             ""
+            "tonnes/year"
             ""
         } units -anchor w -relief flat
 
         # NEXT, add data
         $inputs mapcell 0,1 BRFN           e -background $color(e)
-        $inputs mapcell 1,1 BNR.black      e -background $color(e)
-        $inputs mapcell 2,1 PF.world.black e -background $color(e)
-        $inputs mapcell 3,1 AF.world.black e -background $color(e)
+        $inputs mapcell 1,1 PF.world.black e -background $color(e)
+        $inputs mapcell 2,1 AF.world.black e -background $color(e)
+        $inputs mapcell 3,1 MF.world.black e -background $color(e)
         $inputs mapcell 4,1 BaseConsumers  e -background $color(e)
 
         $inputs width 0 25
+        $inputs width 2 15
 
         $inputs tag configure e -state normal
     }
@@ -304,7 +386,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         disabled                   \
-            -rows          6                          \
+            -rows          7                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -314,10 +396,11 @@ snit::widget samsheet {
         $outputs textcol 0,0 {
             "Foreign Aid to Actors"
             "Foreign Aid to Region"
-            "Per cap. demand for goods"
-            "Exports of goods"
-            "Exports from black market"
-            "Exports from workforce"
+            "Per cap. Demand for Goods"
+            "Exports of Goods"
+            "Exports from Black Market"
+            "Exported jobs "
+            "Black Market Net Revenue"
         }
 
         $outputs textcol 0,2 {
@@ -327,6 +410,7 @@ snit::widget samsheet {
             "goodsBKT/year"
             "tonnes/year"
             "work-years/year"
+            "$/year"
         } units -anchor w -relief flat
 
         $outputs mapcell 0,1 FAA           r -background $color(r)
@@ -335,6 +419,7 @@ snit::widget samsheet {
         $outputs mapcell 3,1 EXPORTS.goods r -background $color(r)
         $outputs mapcell 4,1 EXPORTS.black r -background $color(r)
         $outputs mapcell 5,1 EXPORTS.pop   r -background $color(r)
+        $outputs mapcell 6,1 BNR.black     r -background $color(r)
 
         $outputs width 0 25
         $outputs width 2 15
@@ -435,23 +520,26 @@ snit::widget samsheet {
 
             # NEXT, we are in PREP set the SAM and inputs to normal 
             # and display the layout with help text.
-            $matrix configure -state normal
+            $mmatrix configure -state normal
             $inputs configure -state normal
-            $matrix tag configure e -background $color(e)
+            $mmatrix tag configure e -background $color(e)
             $inputs tag configure e -background $color(e)
 
             $win.h layout "
                 Double click a cell to edit. Press \"Enter\" to save, 
                 press \"Esc\" to cancel editing.<p>
+                Actual actors revenue and expenses will be determined from
+                the actor definitions and their strategies once the scenario
+                is locked.<p>
                 $layout
             "
         } else {
 
             # NEXT, we are not in PREP, disable the SAM and inputs and
             # remove the help text.
-            $matrix configure -state disabled
+            $mmatrix configure -state disabled
             $inputs configure -state disabled
-            $matrix tag configure e -background $color(d)
+            $mmatrix tag configure e -background $color(d)
             $inputs tag configure e -background $color(d)
 
             $win.h layout "
@@ -461,13 +549,13 @@ snit::widget samsheet {
         }
     }
             
-    # Restored
+    # SyncSheet
     #
     # This is called when a <DbSyncB> notifier is received. The SAM
     # data is copied from the econ module and the SAM solved before
     # the cmsheet(n) objects are refreshed.
 
-    method Restored {} {
+    method SyncSheet {} {
         $sam set [[econ sam] get]
         $sam solve
         $self refresh
@@ -481,9 +569,10 @@ snit::widget samsheet {
     # Refreshes all components in the widget.
     
     method refresh {} {
-        $matrix  refresh
-        $inputs  refresh
-        $outputs refresh
+        $mmatrix  refresh
+        $smatrix  refresh
+        $inputs   refresh
+        $outputs  refresh
     }
 }
 

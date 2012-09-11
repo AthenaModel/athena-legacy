@@ -50,7 +50,7 @@ cash_reserve      200000.0
 cash_on_hand      0.0
 overhead          0
 income_goods      10000.0
-income_black_nr   0.0
+shares_black_nr   0
 income_black_tax  0.0
 income_pop        0.0
 income_graft      0.0
@@ -77,7 +77,7 @@ cash_reserve      200000.0
 cash_on_hand      0.0
 overhead          0
 income_goods      10000.0
-income_black_nr   0.0
+shares_black_nr   0
 income_black_tax  0.0
 income_pop        0.0
 income_graft      0.0
@@ -135,7 +135,7 @@ cash_reserve      200000.0
 cash_on_hand      0.0
 overhead          0
 income_goods      10000.0
-income_black_nr   0.0
+shares_black_nr   0
 income_black_tax  0.0
 income_pop        0.0
 income_graft      0.0
@@ -350,7 +350,7 @@ income_world      0.0
             cash_on_hand     10
             overhead         20
             income_goods     4
-            income_black_nr  5
+            shares_black_nr  5
             income_black_tax 6
             income_pop       7
             income_graft     8
@@ -368,7 +368,7 @@ cash_reserve      0.0
 cash_on_hand      10.0
 overhead          20
 income_goods      4.0
-income_black_nr   5.0
+shares_black_nr   5
 income_black_tax  6.0
 income_pop        7.0
 income_graft      8.0
@@ -389,7 +389,7 @@ income_world      9.0
             cash_on_hand     ""
             overhead         ""
             income_goods     ""
-            income_black_nr  ""
+            shares_black_nr  ""
             income_black_tax ""
             income_pop       ""
             income_graft     ""
@@ -418,7 +418,7 @@ income_world      9.0
             cash_on_hand     ""
             overhead         ""
             income_goods     ""
-            income_black_nr  ""
+            shares_black_nr  ""
             income_black_tax ""
             income_pop       ""
             income_graft     ""
@@ -498,8 +498,8 @@ income_world      9.0
         income_pop       0.0
         cash_reserve     200000.0
         overhead         0
-        income_black_nr  0.0
         longname         {Joe the Actor}
+        shares_black_nr  0
         income_world     0.0
         income_black_tax 0.0
         cash_on_hand     0.0
@@ -528,17 +528,16 @@ income_world      9.0
             cash_on_hand     ""
             overhead         ""
             income_goods     1
-            income_black_nr  10
-            income_black_tax 100
-            income_pop       1000
-            income_graft     10000
-            income_world     100000
+            income_black_tax 10
+            income_pop       100
+            income_graft     1000
+            income_world     10000
         }
     } -body {
         actor income JOE
     } -cleanup {
         cleanup
-    } -result {111111.0}
+    } -result {11111.0}
 
     test income-1.2 {get actor income, income_a} -setup {
         ted create JOE BOB
@@ -559,6 +558,7 @@ income_world      9.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

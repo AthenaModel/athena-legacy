@@ -2,8 +2,6 @@
 # FILE: econ.tcl
 #
 #   Athena Economics Model singleton
-#   This is an experimental econ model for integrating the 6x6 cell
-#   model. It will be THE econ model once it is stable and working
 #
 # PACKAGE:
 #   app_sim(n) -- athena_sim(1) implementation package
@@ -61,7 +59,7 @@ snit::type econ {
     typevariable info -array {
         changed 0
         econStatus ok
-        econPage   null
+        econPage   {}
     }
 
     #-------------------------------------------------------------------
@@ -110,9 +108,45 @@ snit::type econ {
 
         array set cells [$sam get]
 
+        # FIRST, per capita demand for goods must be reasonable
         if {$cells(A.goods.pop) < 1.0} {
             dict append edict A.goods.pop \
                 "Annual per capita demand for goods is less than 1 goods basket."
+        }
+
+        # NEXT, Cobb-Douglas coefficients in the goods sector must add up 
+        # to 1.0 within a reasonable epsilon and cannot be greater than 1.0. 
+        # The black sector is assumed to never have money flow into it from
+        # the goods sector, thus f.black.goods == 0.0
+        let f_goods {$cells(f.goods.goods) + $cells(f.pop.goods)}
+
+        if {![Within $f_goods 1.0 0.001]} {
+            dict append edict f.goods \
+                "The Cobb-Douglas coefficients in the goods sector do not sum to 1.0"
+        }
+
+        # NEXT, Cobb-Douglas coefficients in the pop sector must add up to 1.0
+        # within a reasonable epsilon
+        let f_pop {
+            $cells(f.goods.pop) + $cells(f.black.pop) + $cells(f.pop.pop)
+        }
+
+        if {![Within $f_pop 1.0 0.001]} {
+            dict append edict f.pop \
+                "The Cobb-Douglas coefficients in the pop sector do not sum to 1.0"
+        }
+
+        # NEXT, Cobb-Douglas coefficients in the actors sector must add up to
+        # 1.0 within a reasonable epsilon
+        let f_actors {
+            $cells(f.goods.actors) + $cells(f.black.actors) +
+            $cells(f.pop.actors)   + $cells(f.region.actors) +
+            $cells(f.world.actors)
+        }
+
+        if {![Within $f_actors 1.0 0.001]} {
+            dict append edict f.actors \
+                "The Cobb-Douglas coefficients in the actors sector do not sum to 1.0"
         }
 
         notifier send ::econ <Check>
@@ -138,33 +172,10 @@ snit::type econ {
         $ht para
 
         dict for {cell errmsg} $edict {
-            $ht put "$cell ==> $errmsg"
+            $ht put "$cell ==> $errmsg\n"
         }
 
         return
-    }
-
-    # CGEFailure msg page
-    #
-    # msg    - the type of error: diverge or errors
-    # page   - the page in the CGE that the failure occurred
-    #
-    # This is called by the CGE cellmodel(n) if there is a failure
-    # when trying to solve. It will prompt the user to output an 
-    # initialization file that can be used with mars_cmtool(1) to 
-    # further analyze any problems.
-
-    typemethod CGEFailure {msg page} {
-        # FIRST, log the warning
-        log warning econ "CGE Failed to solve: $msg $page"
-        
-        # NEXT, open a debug file for use in analyzing the problem
-        set filename [workdir join .. cgedebug.txt]
-        set f [open $filename w]
-
-        # NEXT, dump the CGE initial state
-        puts $f [$cge initial]
-        close $f
     }
 
     # Initialization
@@ -198,7 +209,7 @@ snit::type econ {
         # NEXT, create the CGE.
         set cge [cellmodel cge \
                      -epsilon  0.000001 \
-                     -maxiters 1000     \
+                     -maxiters 10000    \
                      -failcmd  [mytypemethod CGEFailure] \
                      -tracecmd [mytypemethod TraceCGE]]
         cge load [readfile [file join $::app_sim_shared::library eco6x6.cm]]
@@ -346,16 +357,181 @@ snit::type econ {
         }
 
         $cge reset
+    }
 
-        $type InitializeCGE
+    # InitializeActorIncomeTables
+    #
+    # This method sets up the tables used to track total income as the sum of
+    # all income sources and sector by sector tax and tax like rates.
+
+    typemethod InitializeActorIncomeTables {} {
+        # FIRST, the total income by actor. A sum of all income sources.
+        rdb eval {
+            SELECT a FROM actors
+        } {
+            rdb eval {
+                INSERT INTO income_a(a, income)
+                VALUES($a, 0.0);
+            }
+        }
+    }
+
+    # ComputeActorsSector
+    #
+    # The flow of money to and from the actors in Athena is mediated by the
+    # definition of the actors themselves. This method grabs the income
+    # amounts from the individual actors and aggregates that income into
+    # money flows from all other sectors. Using those income
+    # values, it recomputes the revenue in the actor sector and allocates
+    # the revenue per sector depending on how much overhead is spent on
+    # each sector.
+    # Finally, it sums the total amount of graft for each actor and computes
+    # a graft fraction based upon the amount of Foreign Aid for the Region,
+    # the FAR cell (which is the same as the BX.region.world cell).
+
+    typemethod ComputeActorsSector {} {
+        array set sdata [$sam get]
+        # FIRST, determine the ratio of actual consumers to the BaseConsumers
+        # specified in the SAM, we will scale the income to this
+        array set data [demog getlocal]
+        let scaled {$data(consumers)/$sdata(BaseConsumers)}
+
+        set Xag 0.0
+        set Xap 0.0
+        set Xab 0.0
+        set Xar 0.0
+        set Xaw 0.0
+
+        # NEXT, get the totals of actor income by sector, scaled by the actual
+        # number of consumers, income from black market net revenues is 
+        # handled differently. Revenue from the region is the graft that
+        # is received.
+        rdb eval {
+            SELECT total(income_goods)     AS ig,
+                   total(income_pop)       AS ip,
+                   total(income_black_tax) AS ibt,
+                   total(income_world)     AS iw,
+                   total(income_graft)     AS igr
+            FROM actors_view 
+        } {
+            let Xag {$ig  * $scaled}
+            let Xap {$ip  * $scaled}
+            let Xab {$ibt * $scaled}
+            let Xaw {$iw  * $scaled}
+            let Xar {$igr * $scaled}
+        }
+
+        set BNRb $sdata(BNR.black)
+
+        # NEXT, revenue is the sum of all the sources of money
+        let BREVa {$Xag + $Xap + $Xab + $Xaw + $Xar + $BNRb}
+
+        # NEXT, given the revenue in the actor sector compute the
+        # base expenditures using the overhead fractions
+        let Xga {[parmdb get econ.shares.overhead.goods]  * $BREVa}
+        let Xpa {[parmdb get econ.shares.overhead.pop]    * $BREVa}
+        let Xba {[parmdb get econ.shares.overhead.black]  * $BREVa}
+        let Xra {[parmdb get econ.shares.overhead.region] * $BREVa}
+        let Xwa {[parmdb get econ.shares.overhead.world]  * $BREVa}
+
+        # NEXT, extract the pertinent data from the SAM 
+        set BPg   $sdata(BP.goods)
+        set BQDg  $sdata(BQD.goods)
+        set BPb   $sdata(BP.black)
+        set BQDb  $sdata(BQD.black)
+        set BPp   $sdata(BP.pop)
+        set BQDp  $sdata(BQD.pop)
+        set BREVw $sdata(BREV.world)
+        set FAR   $sdata(FAR)
+
+        # NEXT, the total number of black market net revenue shares owned
+        # by actors. If this is zero, then no actor is getting any income
+        # from the black market net revenues
+        set totalBNRShares \
+            [rdb onecolumn {SELECT total(shares_black_nr) FROM actors_view;}]
+
+        set Xwb $sdata(BX.world.black)
+        if {$totalBNRShares == 0} {
+            let Xwb {$Xwb + $BNRb}
+        }
+
+        # NEXT compute the rates based on the base case data and
+        # fill in the income_a table rates
+        rdb eval {
+            SELECT * FROM actors
+        } data {
+            let t_goods      {$data(income_goods)     / ($BPg * $BQDg)}
+            let t_black      {$data(income_black_tax) / ($BPb * $BQDb)}
+            let t_pop        {$data(income_pop)       / ($BPp * $BQDp)}
+            let t_world      {$data(income_world)     / $BREVw}
+            let graft_region {$data(income_graft)     / $FAR}
+            if {$totalBNRShares > 0} {
+                let cut_black {$data(shares_black_nr)  / $totalBNRShares}
+            } else {
+                set cut_black 0.0
+            }
+
+            let income_tot_black {
+                $data(income_black_tax) + ($cut_black * $BNRb)
+            }
+
+            let total_income {
+                $data(income_goods) + $income_tot_black   + 
+                $data(income_pop)   + $data(income_world) +
+                $data(income_graft) 
+            }
+
+            rdb eval {
+                UPDATE income_a 
+                SET t_goods      = $t_goods,
+                    t_black      = $t_black,
+                    t_pop        = $t_pop,
+                    t_world      = $t_world,
+                    graft_region = $graft_region,
+                    cut_black    = $cut_black,
+                    income       = $total_income
+                WHERE a=$data(a)
+            }
+        }
+
+        # NEXT, Set the SAM values from the actor data and solve
+        $sam set [list BX.goods.actors  $Xga]
+        $sam set [list BX.pop.actors    $Xpa]
+        $sam set [list BX.black.actors  $Xba]
+        $sam set [list BX.region.actors $Xra]
+        $sam set [list BX.world.actors  $Xwa]
+
+        $sam set [list BX.actors.goods  $Xag]
+        $sam set [list BX.actors.pop    $Xap]
+        $sam set [list BX.actors.black  $Xab]
+        $sam set [list BX.actors.region $Xar]
+        $sam set [list BX.actors.world  $Xaw]
+
+        # NEXT, set the flow of money from the black market to the
+        # world. It may have changed if no actor is getting a cut.
+        $sam set [list BX.world.black   $Xwb]
+
+        set graft_frac \
+            [rdb onecolumn {SELECT total(graft_region) FROM income_a;}]
+
+        $sam set [list graft $graft_frac]
+
+        $sam solve
+
+        # NEXT, notify the GUI to sync to the latest data
+        notifier send ::econ <SyncSheet> 
     }
 
     # InitializeCGE
     #
-    # Updates the shape cells of the CGE from the data in the SAM.
+    # Updates the actors sector in the SAM and then initializes the CGE
+    # from the SAM
 
     typemethod InitializeCGE {} {
-        # FIRST, get sectors from the SAM
+        # FIRST, deal with the actors sector in the SAM
+        $type ComputeActorsSector
+
+        # NEXT, get sectors from the SAM
         set sectors  [$sam index i]
 
         # NEXT, base prices from the SAM
@@ -363,17 +539,19 @@ snit::type econ {
             cge set [list BP.$i [dict get [$sam get] BP.$i]]
         }
 
-        # NEXT, base expenditures/revenues as a starting point for CGE X.i.j's
+        # NEXT, base expenditures/revenues as a starting point for 
+        # CGE BX.i.j's
         foreach i $sectors {
             foreach j $sectors {
-                cge set [list Cal::X.$i.$j [dict get [$sam get] BX.$i.$j]]
+                cge set [list BX.$i.$j [dict get [$sam get] BX.$i.$j]]
             }
         }
 
-        # NEXT, base quantities demanded as a starting poing for CGE QD.i.j
+        # NEXT, base quantities demanded as a starting point for 
+        # CGE BQD.i.j's
         foreach i {goods black pop} {
             foreach j $sectors {
-                cge set [list Cal::QD.$i.$j [dict get [$sam get] BQD.$i.$j]]
+                cge set [list BQD.$i.$j [dict get [$sam get] BQD.$i.$j]]
             }
         }
 
@@ -435,6 +613,10 @@ snit::type econ {
         # A.goods.pop, the unconstrained base demand for goods in 
         # goods basket per year per capita.
         cge set [list A.goods.pop [dict get [$sam get] A.goods.pop]]
+
+        #-------------------------------------------------------------
+        # graft, the percentage skimmed off FAR by all actors
+        $cge set [list Bgraft [dict get [$sam get] graft]]
     }
 
     #-------------------------------------------------------------------
@@ -456,9 +638,17 @@ snit::type econ {
     typemethod start {} {
         log normal econ "start"
 
-        $type InitializeCGE
+        # FIRST, clear out actor income tables.
+        rdb eval {DELETE FROM income_a;}
 
         if {![parmdb get econ.disable]} {
+            # FIRST, reset the CGE
+            cge reset
+
+            $type InitializeActorIncomeTables
+
+            $type InitializeCGE
+
             $type analyze -calibrate
 
             set startdict [$cge get]
@@ -514,24 +704,57 @@ snit::type econ {
     typemethod analyze {{opt ""}} {
         log detail econ "analyze $opt"
 
-        # FIRST, get labor security factor
+        # FIRST, get labor and consumer security factors
         set LSF [$type ComputeLaborSecurityFactor]
+        set CSF [$type ComputeConsumerSecurityFactor]
 
         # NEXT, calibrate if requested.
         if {$opt eq "-calibrate"} {
-            # FIRST, set the input parameters
-            cge reset
-
+            # FIRST, demographics
             array set data [demog getlocal]
-
-            $type InitializeCGE
-
             cge set [list \
                          BaseConsumers $data(consumers)        \
-                         graft         [parmdb get econ.graft] \
                          In::Consumers $data(consumers)        \
                          In::LF        $data(labor_force)      \
-                         In::LSF       $LSF]
+                         In::LSF       $LSF                    \
+                         In::CSF       $CSF]
+
+            # NEXT, actors expenditures
+            array set cash [cash expenditures]
+            cge set [list \
+                         In::X.world.actors  $cash(world)      \
+                         In::X.region.actors $cash(region)     \
+                         In::X.goods.actors  $cash(goods)      \
+                         In::X.black.actors  $cash(black)      \
+                         In::X.pop.actors    $cash(pop)]        
+
+            # NEXT, actors revenue
+            set Xag [dict get [$sam get] BX.actors.goods]
+            set Xab [dict get [$sam get] BX.actors.black]
+            set Xap [dict get [$sam get] BX.actors.pop]
+            set Xar [dict get [$sam get] BX.actors.region]
+            set Xaw [dict get [$sam get] BX.actors.world]
+
+            cge set [list \
+                         In::X.actors.goods  $Xag \
+                         In::X.actors.black  $Xab \
+                         In::X.actors.pop    $Xap \
+                         In::X.actors.region $Xar \
+                         In::X.actors.world  $Xaw]
+
+            # NEXT, black market feedstocks
+            set AFwb [dict get [$sam get] AF.world.black]
+            set MFwb [dict get [$sam get] MF.world.black]
+            set PFwb [dict get [$sam get] PF.world.black]
+
+            cge set [list \
+                        AF.world.black $AFwb \
+                        MF.world.black $MFwb \
+                        PF.world.black $PFwb]
+
+            # NOTE: if income from graft is ever allowed to change
+            # over time, then In::graft should be computed and set
+            # here
 
             # NEXT, calibrate the CGE.
             set status [cge solve]
@@ -541,7 +764,7 @@ snit::type econ {
             if {$info(econStatus) ne "ok"} {
                 set info(econPage) [lindex $status 1]
             } else {
-                set info(econPage) null
+                set info(econPage) {}
             }
 
             # NEXT, the data has changed.
@@ -555,6 +778,7 @@ snit::type econ {
             }
 
             # NEXT, Compute the initial CAP.goods.
+            # NOTE: Should econ.idleFrac come from the CGE?
             array set out [cge get Out -bare]
 
             let CAPgoods {
@@ -593,11 +817,11 @@ snit::type econ {
             }
         }
 
-        # NEXT, Recompute In through Out given the initial
-        # goods capacity.
+        # NEXT, Recompute In through Out
 
         # Set the input parameters
         array set data [demog getlocal]
+        array set cash [cash expenditures]
 
         set CAPgoods [rdb onecolumn {
             SELECT total(pcf*ccf)
@@ -605,12 +829,24 @@ snit::type econ {
         }]
 
         cge set [list \
-                     In::Consumers $data(consumers)   \
-                     In::LF        $data(labor_force) \
-                     In::CAP.goods $CAPgoods          \
-                     In::LSF       $LSF]
+                     In::Consumers $data(consumers)    \
+                     In::LF        $data(labor_force)  \
+                     In::CAP.goods $CAPgoods           \
+                     In::LSF       $LSF                \
+                     In::CSF       $CSF]
 
-        # Update the CGE.
+        cge set [list \
+                     In::X.world.actors  $cash(world)      \
+                     In::X.region.actors $cash(region)     \
+                     In::X.goods.actors  $cash(goods)      \
+                     In::X.black.actors  $cash(black)      \
+                     In::X.pop.actors    $cash(pop)]        
+
+        # NOTE: if income from graft is ever allowed to change
+        # over time, then In::graft should be computed and set
+        # here
+
+        # Solve the CGE.
         set status [cge solve In Out]
         set info(econStatus) [lindex $status 0]
 
@@ -628,6 +864,34 @@ snit::type econ {
             log warning econ "Economic analysis failed"
             $type CgeError "CGE Solution Error"
             return 0
+        }
+
+        # NEXT, use sector revenues to determine actor
+        # income
+        array set out [$cge get Out -bare]
+        
+        rdb eval {
+            SELECT a            AS actor, 
+                   t_goods      AS tg,
+                   t_black      AS tb,
+                   t_pop        AS tp,
+                   t_world      AS tw,
+                   graft_region AS gr,
+                   cut_black    AS cut
+           FROM income_a
+        } {
+            let total_a {($out(REV.goods) * $tg)  + 
+                         ($out(REV.black) * $tb)  +
+                         ($out(NR.black)  * $cut) +
+                         ($out(REV.pop)   * $tp)  +
+                         ($out(REV.world) * $tw)  +
+                         ($out(FAR)       * $gr)}
+
+            rdb eval {
+                UPDATE income_a
+                SET income = $total_a
+                WHERE a = $actor
+            }
         }
 
         log detail econ "analysis complete"
@@ -671,6 +935,44 @@ snit::type econ {
         return $LSF
     }
 
+    # ComputeConsumerSecurityFactor
+    #
+    # Computes the consumer security factor given the security of
+    # each local neighborhood group.
+
+    typemethod ComputeConsumerSecurityFactor {} {
+        # FIRST get the total number of consumers
+        set totalCons [rdb onecolumn {
+            SELECT consumers FROM demog_local
+        }]
+
+        # NEXT, get the number of consumers who are buying things
+        # given the security levels.
+
+        set numerator 0.0
+
+        rdb eval {
+            SELECT consumers, 
+                   security
+            FROM demog_g
+            JOIN civgroups using (g)
+            JOIN force_ng  using (g)
+            JOIN nbhoods   using (n)
+            WHERE force_ng.n = civgroups.n
+            AND   nbhoods.local
+        } {
+            set security [qsecurity name $security]
+            set factor   [parmdb get econ.secFactor.consumption.$security]
+            let numerator {$numerator + $factor*$consumers}
+        }
+
+        # NEXT, compute the CSF
+        let CSF {$numerator/$totalCons}
+
+        return $CSF
+    }
+
+
     # CgeError title
     #
     # This method pops up a dialog to inform the user that because the CGE
@@ -688,9 +990,9 @@ snit::type econ {
                         -message $msg             \
                         -parent [app topwin]      \
                         -title  $title            \
-                        -buttons {ok "Ok" db "Go To Detail Browser"}]
+                        -buttons {ok "Ok" browser "Go To Detail Browser"}]
 
-       if {$answer eq "db"} {
+       if {$answer eq "browser"} {
            app show my://app/econ
        }
     }
@@ -906,6 +1208,11 @@ snit::type econ {
     typemethod changed {} {
         return $info(changed)
     }
+
+    proc Within {num val eps} {
+        let diff {abs($num-$val)}
+        return [expr {$diff < $eps}]
+    }
 }
 
 #-------------------------------------------------------------------
@@ -930,7 +1237,7 @@ order define ECON:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare n   -toupper  -required -type nbhood
-    prepare pcf -toupper            -type rnonneg
+    prepare pcf -toupper  -num      -type rnonneg
 
     returnOnError
 
@@ -967,7 +1274,7 @@ order define ECON:UPDATE:MULTI {
 } {
     # FIRST, prepare the parameters
     prepare ids -toupper  -required -listof nbhood
-    prepare pcf -toupper            -type   rnonneg
+    prepare pcf -toupper  -num      -type   rnonneg 
 
     returnOnError
 

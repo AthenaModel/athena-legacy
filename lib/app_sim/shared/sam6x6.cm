@@ -115,6 +115,8 @@ index i   {goods black pop actors region world} ;# all receiving sectors
 index j   {goods black pop actors region world} ;# all paying sectors
 index il  {goods black pop}                     ;# sectors in the local 
                                                 ;# economy that have product
+index inp {actors region world}                 ;# sectors with no product or
+                                                 # outside the local economy
 
 # All BX.i.j values are from a SAM.
 # SAM cell definitions do not include cash flows of black feedstock costs
@@ -171,22 +173,22 @@ let BP.actors = 0
 let BP.region = 0
 let BP.world  = 0
 
-let BaseConsumers = 8.86e5
+let BaseConsumers = 2.2e7
 
 let BRFN           = 5.0e8            
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
                              # goes to actors.
 let PF.world.black = 62.0e3
 let AF.world.black = 1.05
+let MF.world.black = 35e3
 
 
 # Macro definitions
 
 define t.i.j {i j} {[BX.$i.$j] / [BREV.$j]}
 define k.j {j} {1.0 - ([t.actors.$j] + [t.region.$j] + [t.world.$j])}
-define f.i.j {i j} {[BX.$i.$j] / ([k.$j] * [BALLOC.$j])}
+define f.i.j {i j} {[BX.$i.$j] / ([CDEXP.$j])}
 define A.i.j {i j} {[BX.$i.$j] / ([BP.$i] * [BQD.$j])}
-
 
 #-----------------------------------------------------------------------
 #
@@ -200,6 +202,11 @@ foreach i {goods black pop actors region world} {
 foreach j {goods black pop actors region world} {
     # Sector expenditures sum the column 
     let BEXP.$j = {<:sum i {[BX.$i.$j]}:>} 
+}
+
+foreach j {goods black pop} {
+    # Sectors with Cobb-Douglas coefficientst that must add to 1.0
+    let CDEXP.$j = {<:sum il {[BX.$il.$j]}:>}
 }
 
 # Sector-by-sector demands for all i and j are given by:
@@ -225,10 +232,10 @@ let FAR = {[BX.region.world]}
 
 # The allocatable income for each sector is computed by:
 
-let BALLOC.goods  = {[BREV.goods]}
+let BALLOC.goods  = {[BEXP.goods]}
 let BALLOC.black  = {[BEXP.black]}
-let BALLOC.pop    = {[BREV.pop] + [BRFN]}
-let BALLOC.actors = {[BREV.actors] + [BNR.black] + [FAA] + [graft]*[FAR]}
+let BALLOC.pop    = {[BEXP.pop] + [BRFN]}
+let BALLOC.actors = {[BEXP.actors]}
 let BALLOC.region = {[BREV.region] - [graft]*[FAR]}
 let BALLOC.world  = {[BREV.world] - [BRFN] + [FEED.black]}
 
@@ -287,8 +294,10 @@ foreach i {actors region world} {
     let t.$i.pop = {[BX.$i.pop] / [BREV.pop]}
 }
 
+# Using BEXP.pop instead of BALLOC.pop because BRFN is not subject to
+# the taxes imposed on regular income.
 let k.pop = {<:k.j pop:>}
-let BATI.pop = {[BRFN] + [k.pop] * [BP.pop] * [BQD.pop]}
+let BATI.pop = {[CDEXP.pop]}
 
 foreach i {goods black pop} {
     let f.$i.pop = {[BX.$i.pop] / [BATI.pop]}
@@ -307,11 +316,7 @@ foreach i {goods black pop actors region world} {
     let f.$i.region = {[BX.$i.region] / [BALLOC.region]}
 }
 
-# For the world sector
-# Foreign aid to actors and to the region are separate SAM cells:
-
-let f.pop.world = {[BRFN] / [BEXP.world]}
-
+# The per capita demand for goods 
 let A.goods.pop = {[BX.goods.pop] / [BaseConsumers]}
 
 # Everything that was computed is of interest to the CGE except the 

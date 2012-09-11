@@ -31,34 +31,32 @@ snit::widgetadaptor actorbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { a                "\nID"                                     }
-        { longname         "\nLong Name"                              }
-        { supports         "\nSupports"                               }
+        { a                "\nID"                                      }
+        { longname         "\nLong Name"                               }
+        { supports         "\nSupports"                                }
         { cash_reserve     "Cash Reserve\n$"
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
+                           -sortcommand ::marsutil::moneysort          }
         { cash_on_hand     "Cash on Hand\n$"
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
-        { overhead         "Overhead\n% of income" -sortmode integer  }
+                           -sortcommand ::marsutil::moneysort          }
+        { overhead         "Overhead\n% of income" -sortmode integer   }
         { income_goods     "Income, GOODS\n$/Week"
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
-        { income_black_nr  "Income, BLACK NR\n$/Week"
-                           -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
+                           -sortcommand ::marsutil::moneysort          }
+        { shares_black_nr  "Income, BLACK NR\nShares" -sortmode integer}
         { income_black_tax "Income, BLACK Tax\n$/Week"
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
+                           -sortcommand ::marsutil::moneysort          }
         { income_pop       "Income, POP\n$/Week"
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
+                           -sortcommand ::marsutil::moneysort          }
         { income_graft     "Income, Graft\n$/Week"
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
+                           -sortcommand ::marsutil::moneysort          }
         { income_world     "Income, WORLD\n$/Week"
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort         }
+                           -sortcommand ::marsutil::moneysort          }
     }
 
     #-------------------------------------------------------------------

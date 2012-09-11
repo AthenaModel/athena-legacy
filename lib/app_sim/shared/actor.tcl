@@ -126,7 +126,7 @@ snit::type actor {
     #    cash_on_hand      Cash-on-hand (starting balance)
     #    overhead          Overhead fraction, 0.0 to 1.0
     #    income_goods      Income from "goods" sector, $/week
-    #    income_black_nr   Income, net revenues from "black" sector, $/week
+    #    shares_black_nr   Income, shares of net revenues from "black" sector
     #    income_black_tax  Income, "taxes" on "black" sector, $/week
     #    income_pop        Income from "pop" sector, $/week
     #    income_graft      Income, graft on foreign aid to "region", $/week
@@ -152,7 +152,7 @@ snit::type actor {
                        cash_on_hand,
                        overhead,
                        income_goods, 
-                       income_black_nr, 
+                       shares_black_nr, 
                        income_black_tax, 
                        income_pop, 
                        income_graft,
@@ -164,7 +164,7 @@ snit::type actor {
                        $cash_on_hand,
                        $overhead,
                        $income_goods, 
-                       $income_black_nr, 
+                       $shares_black_nr, 
                        $income_black_tax, 
                        $income_pop, 
                        $income_graft, 
@@ -242,7 +242,7 @@ snit::type actor {
     #    cash_on_hand       A new cash-on-hand amount, or ""
     #    overhead           A new overhead amount, or ""
     #    income_goods       A new income, or ""
-    #    income_black_nr    A new income, or ""
+    #    shares_black_nr    A new share of revenue, or ""
     #    income_black_tax   A new income, or ""
     #    income_pop         A new income, or ""
     #    income_graft       A new income, or ""
@@ -270,8 +270,8 @@ snit::type actor {
                     cash_on_hand = nonempty($cash_on_hand, cash_on_hand),
                     overhead     = nonempty($overhead,     overhead),
                     income_goods = nonempty($income_goods, income_goods),
-                    income_black_nr = 
-                        nonempty($income_black_nr, income_black_nr),
+                    shares_black_nr = 
+                        nonempty($shares_black_nr, shares_black_nr),
                     income_black_tax = 
                         nonempty($income_black_tax, income_black_tax),
                     income_pop   = nonempty($income_pop,   income_pop),
@@ -325,9 +325,9 @@ order define ACTOR:CREATE {
         text income_goods -defvalue 0
         label "$/week"
 
-        rcc "Income, BLACK Profits:" -for income_black_nr
-        text income_black_nr -defvalue 0
-        label "$/week"
+        rcc "Income, BLACK Profits:" -for shares_black_nr
+        text shares_black_nr -defvalue 0
+        label "shares"
 
         rcc "Income, BLACK Taxes:" -for income_black_tax
         text income_black_tax -defvalue 0
@@ -354,7 +354,7 @@ order define ACTOR:CREATE {
     prepare cash_on_hand     -toupper                   -type money
     prepare overhead         -num                       -type ipercent
     prepare income_goods     -toupper                   -type money
-    prepare income_black_nr  -toupper                   -type money
+    prepare shares_black_nr  -num                       -type iquantity
     prepare income_black_tax -toupper                   -type money
     prepare income_pop       -toupper                   -type money
     prepare income_graft     -toupper                   -type money
@@ -455,9 +455,9 @@ order define ACTOR:UPDATE {
         text income_goods
         label "$/week"
 
-        rcc "Income, BLACK Profits:" -for income_black_nr
-        text income_black_nr
-        label "$/week"
+        rcc "Income, BLACK Profits:" -for shares_black_nr
+        text shares_black_nr
+        label "shares"
 
         rcc "Income, BLACK Taxes:" -for income_black_tax
         text income_black_tax
@@ -484,7 +484,7 @@ order define ACTOR:UPDATE {
     prepare cash_on_hand     -toupper             -type money
     prepare overhead         -num                 -type ipercent
     prepare income_goods     -toupper             -type money
-    prepare income_black_nr  -toupper             -type money
+    prepare shares_black_nr  -num                 -type iquantity
     prepare income_black_tax -toupper             -type money
     prepare income_pop       -toupper             -type money
     prepare income_graft     -toupper             -type money
@@ -517,9 +517,9 @@ order define ACTOR:INCOME {
         text income_goods
         label "$/week"
 
-        rcc "Income, BLACK Profits:" -for income_black_nr
-        text income_black_nr
-        label "$/week"
+        rcc "Income, BLACK Profits:" -for shares_black_nr
+        text shares_black_nr
+        label "shares"
 
         rcc "Income, BLACK Taxes:" -for income_black_tax
         text income_black_tax
@@ -542,7 +542,7 @@ order define ACTOR:INCOME {
     prepare a                -toupper   -required -type actor
     prepare overhead         -num                 -type ipercent
     prepare income_goods     -toupper             -type money
-    prepare income_black_nr  -toupper             -type money
+    prepare shares_black_nr  -num                 -type iquantity
     prepare income_black_tax -toupper             -type money
     prepare income_pop       -toupper             -type money
     prepare income_graft     -toupper             -type money
@@ -592,7 +592,7 @@ order define ACTOR:SUPPORTS {
         cash_on_hand     {}
         overhead         {}
         income_goods     {}
-        income_black_nr  {}
+        shares_black_nr  {}
         income_black_tax {}
         income_pop       {}
         income_graft     {}

@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version l
+#    eco6x6.cm, version m
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -59,10 +59,16 @@
 #
 # HISTORY:
 #
+#    Version m: Changed the default for the max feedstock available. Fixed
+# the equation for QS.black on the L page to use MF.world.black instead of
+# QF.world.black in the numerator. Removed the equation to compute the
+# price of labor, it lead to convergence problems. Shortage of labor should
+# be used to determine labor price outside the cellmodel.
+#
 #    Version l: Attempts to fix supply equaling demand when the supply is
 # constrained in the medium and short run cases. The price of wages is
 # allowed to float based upon demand. Changed "goodsBKT" to "GoodsBKT"
-# globally.
+# and changed RFN to REM globally.
 #
 #    Version k: Added some logic to bullet proof against the case that the
 # black sector goes away (ie. Revenues and Expenditures go to zero).
@@ -286,16 +292,16 @@ let BaseSA        = 1e7     ;# Value of regional subsistence
 # Exogenous prices not used to calibrate Cobb-Douglas coefficients
 let BP.black = 500000       ;# $/ton black market goods FOB export dock
 
-let PF.world.black = 62e3   ;# $/ton price of black market feedstock
+let PF.world.black  = 62e3   ;# $/ton price of black market feedstock
 
 #  f.i.j - fraction of sector j's revenue that is spent in sector i.
 #  A.i.j - amount of i's product used per unit of j's product produced.
 #  t.i.j - tax or tax-like fraction of j's sales that is paid to i.
 
 # Updated this at Bob's suggestion to be 0.0 (but not as an identity)
-let A.black.black  = 0.0    ;# tons/ton
-let AF.world.black = 1.05   ;# tons/ton  feedstock req't (when from world)
-let MF.world.black = 100e3  ;# tons/year max black market feedstock available 
+let A.black.black   = 0.0   ;# tons/ton
+let AF.world.black  = 1.05  ;# tons/ton  feedstock req't (when from world)
+let MF.world.black  = 35e3  ;# tons/year max black market feedstock available 
                             ;#   from outside the region (i.e.: from "the 
                             ;#   rest of the world")
 
@@ -867,6 +873,9 @@ page In
 # Number of consumers currently in the population.
 let Consumers = 1e6          ;# people.
 
+# The minimum wage
+let MinP.pop = {[BP.pop]}
+
 # GDP contribution of people engaged in subsistence agriculture.
 let SA = 1e7                 ;# $/year
 
@@ -952,8 +961,9 @@ copypage Cal -except {
 
 # QD.goods.pop is now computed from the current number of consumers, not
 # from the base number of consumers.
-
 let QD.goods.pop = {[A.goods.pop]*[In::Consumers]} -value 1.14e8
+
+# Actors expenditures are input from Athena
 let X.black.actors  = {[In::X.black.actors]}
 let X.goods.actors  = {[In::X.goods.actors]} 
 let X.pop.actors    = {[In::X.pop.actors]}
@@ -965,7 +975,7 @@ let X.world.actors  = {[In::X.world.actors]}
 #-----------------------------------------------------------------------
 # Medium-Run Page
 #
-# This page runs the CGE for the medium-run solution. I
+# This page runs the CGE for the medium-run solution. It
 # takes the current labor force and production capacity into account and
 # may therefore impose limits on the Quantity Supplied (QS.i) by the 
 # black, goods, and pop sectors, as compared with the long-run solution.
@@ -987,8 +997,8 @@ let QF.world.black = {
 }
 
 let QS.black = {
-    max(0, min([QD.black], \
-               [In::CAP.black], [QF.world.black] / [AF.world.black] ))
+    max(0, min([QD.black],
+               [In::CAP.black], [MF.world.black] / [AF.world.black] ))
 }
 
 # QS.goods is now limited by demand or capacity
@@ -997,14 +1007,6 @@ let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
 # QS.pop, which is the number of jobs, is now limited by demand 
 # or the available labor force
 let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] ))}
-
-let P.pop = {
-        ([k.goods]*[f.pop.goods]*[REV.goods] + [f.pop.pop]*[REM] +
-         [f.pop.actors]*[REV.actors] + [f.pop.region]*[REV.region]) /
-         ([In::CAP.pop] - ([QD.pop.black] + [f.pop.pop]*[k.pop]*[QS.pop] +
-                       [QD.pop.world]))
-}
-
 
 #=======================================================================
 

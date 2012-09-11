@@ -202,7 +202,7 @@ snit::type ted {
             cash_on_hand     0
             overhead         0
             income_goods     10000
-            income_black_nr  0
+            shares_black_nr  0
             income_black_tax 0
             income_pop       0
             income_graft     0
@@ -217,7 +217,7 @@ snit::type ted {
             cash_on_hand     0
             overhead         0
             income_goods     5000
-            income_black_nr  0
+            shares_black_nr  0
             income_black_tax 0
             income_pop       0
             income_graft     0
@@ -232,7 +232,7 @@ snit::type ted {
             cash_on_hand     0
             overhead         0
             income_goods     5000
-            income_black_nr  0
+            shares_black_nr  0
             income_black_tax 0
             income_pop       0
             income_graft     0
@@ -247,7 +247,7 @@ snit::type ted {
             cash_on_hand     0
             overhead         0
             income_goods     5000
-            income_black_nr  0
+            shares_black_nr  0
             income_black_tax 0
             income_pop       0
             income_graft     0

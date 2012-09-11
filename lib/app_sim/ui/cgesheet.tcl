@@ -160,8 +160,6 @@ snit::widget cgesheet {
         pack $win.frm.yscroll -side left  -expand 1 -fill y -anchor e
         pack $win.frm                     -expand 1 -fill both
 
-        # NEXT, bind to click events
-
         # NEXT, prepare for updates.
         notifier bind ::sim <DbSyncB> $self [mymethod refresh]
         notifier bind ::sim <Tick>    $self [mymethod refresh]
@@ -341,7 +339,7 @@ snit::widget cgesheet {
             -colorigin     0                          \
             -cellmodel     $cge                       \
             -state         disabled                   \
-            -rows          3                          \
+            -rows          5                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -353,23 +351,29 @@ snit::widget cgesheet {
         # NEXT, add titles
         $inputs textcol 0,0 {
             "Consumers"
+            "Consumer Sec. Factor"
             "Labor Force"
             "Labor Sec. Factor"
+            "Graft Factor"
         }
 
         $inputs textcol 0,2 {
             "People"
+            ""
             "People"
+            ""
             ""
         } units -anchor w -relief flat
         
         # NEXT, add data
         $inputs mapcell 0,1 In::Consumers q -background $color(q)
-        $inputs mapcell 1,1 In::LF        q
-        $inputs mapcell 2,1 In::LSF       q
+        $inputs mapcell 1,1 In::CSF       q
+        $inputs mapcell 2,1 In::LF        q
+        $inputs mapcell 3,1 In::LSF       q
+        $inputs mapcell 4,1 In::graft     q -formatcmd {format "%.3f"}
 
         # NEXT, expand widths
-        $inputs width 0 18
+        $inputs width 0 21
     }
 
     # Type Method: CreateScalarOutputs
@@ -389,7 +393,7 @@ snit::widget cgesheet {
             -colorigin     0                          \
             -cellmodel     $cge                       \
             -state         disabled                   \
-            -rows          5                          \
+            -rows          8                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -403,9 +407,12 @@ snit::widget cgesheet {
             "Deflated GDP"
             "Unemployment"
             "Unemp. Rate"
+            "Goods Shortage"
+            "Black Mkt Shortage"
+            "Labor Shortage"
         }
 
-        $outputs width 0 14
+        $outputs width 0 18
 
         $outputs textcol 0,2 {
             "$/Year"
@@ -413,16 +420,22 @@ snit::widget cgesheet {
             "$/Year, Deflated"
             "work-years"
             "%"
+            "GoodsBKT/year"
+            "tonne/year"
+            "work-years"
         } units -anchor w -relief flat
 
         $outputs width 2 17
         
         # NEXT, add data
-        $outputs mapcell 0,1 Out::GDP          x -background $color(x)
-        $outputs mapcell 1,1 Out::CPI          q -background $color(q)
-        $outputs mapcell 2,1 Out::DGDP         x
-        $outputs mapcell 3,1 Out::Unemployment q
-        $outputs mapcell 4,1 Out::UR           q
+        $outputs mapcell 0,1 Out::GDP            x -background $color(x)
+        $outputs mapcell 1,1 Out::CPI            q -background $color(q)
+        $outputs mapcell 2,1 Out::DGDP           x
+        $outputs mapcell 3,1 Out::Unemployment   q
+        $outputs mapcell 4,1 Out::UR             q
+        $outputs mapcell 5,1 Out::SHORTAGE.goods q
+        $outputs mapcell 6,1 Out::SHORTAGE.black q
+        $outputs mapcell 7,1 Out::SHORTAGE.pop   q
     }
 
     #------------------------------------------------------------------

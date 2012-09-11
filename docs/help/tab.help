@@ -2542,14 +2542,24 @@ tab "Econ/SAM" {
     <<image econ_sam>><p>
 
     The SAM Inputs area shows the Social Accounting Matrix (SAM), sector 
-    by sector,and related inputs.<p>  
-    The values in the cells of the SAM Inputs matrix
-    reflect the flows of money between the various sectors. Green cells
-    are editable and grey cells are computed from the green cells. Base
+    by sector,and related inputs and outputs. The SAM is displayed in
+    two forms: the presumed size given the number of consumers and the
+    resultant shape. The former is displayed a the top of the tab and
+    contains monetary values, the latter at the bottom and contains the
+    coefficients and rates that are used in the Econ model's Computable
+    Equilibrium Model (CGE) matrix.<p>
+
+    Cells that are a light green color are editable and it is these cells
+    that the analyst should use when defining the money flows between 
+    the sectors of the economy. Each time a cell is updated the shape
+    parameters are automatically recomputed and displayed.<p>
+
+    The grey cells in the upper matrix are computed from the green cells. Base
     revenues and base expenditures are computed from the rows and columns of 
     the matrix respectively and then, given base prices in the goods, 
     black and population sectors, base quantities (or more precisely, base 
     demand) is computed.<p>
+
     For the goods sector, a goods basket (goodsBKT) is the unit of measurement.
     A goods basket is simply a notional set of goods that the population
     buys and it's associated price (defaulted to 1 USD per basket).
@@ -2560,47 +2570,74 @@ tab "Econ/SAM" {
     the area of interest.<p>
 
     The Other Inputs section allows the user to supply, in order, remittances
-    and foreign aid to the economy, the net revenues (profit) in the black
-    market sector, the feedstock price in the black market (for example, the
-    price of the poppies from which opium is manufactured), the feedstock
-    per unit of black market product (for example, if it takes 1.05 tons of
-    poppies to make 1 ton of opium, then this value would be 1.05) and the
+    to the economy, the black market feedstock price in dollars per year,
+    the feedstock per unit of black market product (for example, if it takes 
+    1.05 tons of poppies to make 1 ton of opium, then this value would be 
+    1.05), the maximum amount of black market feedstock available and the 
     number of consumers that the data in the SAM is based upon.<p>
 
-    The SAM outputs section contains three values that already are in the SAM
-    but have a special meaning to the economy. The Foreign Aid to Actors is
+    When Athena is locked, all the cells on the SAM remain visible, but are
+    no longer editable unless the user returns to the PREP state.<p>
+
+    The SAM outputs section contains values that are either already in the 
+    SAM but have a special meaning to the economy or are computed from other
+    values in the SAM. The Foreign Aid to Actors is
     the same as the BX.actors.world cell in the SAM and Foreign Aid to 
     Region is the same as the BX.region.world cell. The per capita demand
     for goods in goodsBKT/year is computed from the BX.goods.pop cell in
-    the SAM and the Base Consumers cell in the other inputs section. These 
-    values are used in the solution of the CGE. Refer to the CGE 
+    the SAM and the Base Consumers cell in the other inputs section. The base
+    amount of goods exported is the ratio of the BX.goods.world cell and the
+    price of goods. The amount of exports from the black market is the ratio
+    of the BX.black.world cell and the price in the black market. The number
+    of exported jobs is the ratio of BX.pop.world and the price of labor.
+    These values are used in the solution of the CGE. Refer to the CGE 
     documentation for how they are used.<p>
 
+    Finally, the shape parameters are computed from the size of the economy.
+    These values are used with other key values, such as the price of black
+    market feedstock to compute the actual flows of money between sectors as
+    Athena runs forward in time.<p>
+
+    <b>Note:</b> The definition of actors and where they get their income, 
+    along with their strategies and Athena parameters that define how actors
+    spend their income will result in the actors sector money flows being
+    recomputed when Athena is locked. 
 }
 
 tab "Econ/Overview" {
+    <b>Simulation Mode only.</b><p>
 
     This tab displays the current state of the economy in two ways: in the
-    "Money" matrix, as flows of money between the sectors of the economy and
+    "Dollars" matrix, as flows of money between the sectors of the economy and
     in the "Quantities" matrix as flows of product between the applicable 
     sectors of the economy. The actors, region and world sectors either do
     not have product (actors) or do not produce a product that matters to
     the local economy (region and world).<p>
 
-    Below the "Money" and "Quantities" matrices are inputs to the economy
+    Below the "Dollars" and "Quantities" matrices are inputs to the economy
     that size it and the most salient outputs.<p>
 
     <<image econ_current>><p>
 
     The size of the economy is driven by the
-    number of consumers, the number of workers in the labor force, and
-    the Labor Security Factor, or LSF, which determines how many of
-    the workers are actually willing to go to work under current
-    conditions.<p> 
+    number of consumers and the size of the labor force.  The Consumer 
+    Security Factor (or CSF) is the fraction of the consumers that are 
+    willing to go out and buy things and the Labor Security Factor, 
+    or LSF, determines how many of the workers are actually willing 
+    to go to work under current conditions. Lastly, the graft factor as
+    computed by how much money the actors are receiving from skimming off
+    foreign aid to the region. Increasing the amount of income from graft
+    in the actor definitions will increase this factor.<p>
 
     The most salient outputs consist of the Gross Domestic Product (GDP),
-    the Consumer Price Index (CPI), the Deflated GDP, the unemployment 
-    rate, and the number of unemployed workers in the playbox.<p>
+    the Consumer Price Index (CPI), the Deflated GDP, the number of 
+    unemployed workers in the playbox along with the unemployment rate.  
+    Below that, shortages are displayed:  the shortage in the goods sector
+    is determined by the unconstrained demand for goods and the constrained
+    supply, the shortage in the black market is determined by the 
+    unconstrained demand for black market goods and the constrained supply,
+    and the shortage of labor as defined by the unconstrained demand in the 
+    population sector and the available (constrained) work force.<p>
 }
 
 tab "Econ/Capacity" {

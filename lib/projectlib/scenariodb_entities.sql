@@ -63,12 +63,12 @@ CREATE TABLE actors (
 
     -- Income by income class, in $/week.  Ultimately, these should go
     -- in a separate table.
-    income_goods     DOUBLE DEFAULT 0,
-    income_black_nr  DOUBLE DEFAULT 0,
-    income_black_tax DOUBLE DEFAULT 0,
-    income_pop       DOUBLE DEFAULT 0,
-    income_graft     DOUBLE DEFAULT 0,
-    income_world     DOUBLE DEFAULT 0
+    income_goods     DOUBLE  DEFAULT 0,
+    shares_black_nr  INTEGER DEFAULT 0,
+    income_black_tax DOUBLE  DEFAULT 0,
+    income_pop       DOUBLE  DEFAULT 0,
+    income_graft     DOUBLE  DEFAULT 0,
+    income_world     DOUBLE  DEFAULT 0
 );
 
 CREATE TRIGGER actor_delete
@@ -86,7 +86,17 @@ CREATE TABLE income_a (
     -- area, so that it can be used in the actors_view.
     
     a         TEXT PRIMARY KEY,   -- Symbolic actor name
-    income    DOUBLE              -- Actor's current income
+    income    DOUBLE,             -- Actor's current income
+
+    -- Tax like rates
+    t_goods        DOUBLE DEFAULT 0,  -- From goods sector
+    t_black        DOUBLE DEFAULT 0,  -- From black sector
+    t_pop          DOUBLE DEFAULT 0,  -- From pop sector
+    t_world        DOUBLE DEFAULT 0,  -- From world sector
+
+    -- Other income, treated as tax like rates
+    graft_region   DOUBLE DEFAULT 0,  -- rate skimmed from region
+    cut_black      DOUBLE DEFAULT 0   -- rate from black market revenue
 );
 
 -- actors_view: Actor data, including computations
@@ -99,12 +109,12 @@ SELECT a,
        cash_on_hand,
        overhead,
        income_goods,
-       income_black_nr,
+       shares_black_nr,
        income_black_tax,
        income_pop,
        income_graft,
        income_world,
-       coalesce(income, income_goods + income_black_nr + income_black_tax +
+       coalesce(income, income_goods + income_black_tax +
                         income_pop + income_graft + income_world) AS income
 FROM actors
 LEFT OUTER JOIN income_a USING (a);
