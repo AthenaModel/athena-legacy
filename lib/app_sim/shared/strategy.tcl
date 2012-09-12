@@ -84,6 +84,8 @@ snit::type strategy {
         control load
         if {!$onlock} { 
             cash load
+        } else {
+            cash reset
         }
         personnel load
         service load

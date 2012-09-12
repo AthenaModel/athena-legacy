@@ -42,10 +42,8 @@ snit::type cash {
         # FIRST, we should not be locking the scenario
         assert {![strategy locking]}
 
-        # NEXT, clear the expenditures array.
-        foreach sector [array names allocations] {
-            set allocations($sector) 0.0
-        }
+        # NEXT, clear expenditures
+        $type reset
 
         # NEXT, load up the working cash table, giving the actor his income.
         # and expending his overhead.
@@ -95,6 +93,16 @@ snit::type cash {
 
         rdb eval {
             DELETE FROM working_cash
+        }
+    }
+
+    # reset
+    #
+    # Clear cash expenditures 
+
+    typemethod reset {} {
+        foreach sector [array names allocations] {
+            set allocations($sector) 0.0
         }
     }
 
