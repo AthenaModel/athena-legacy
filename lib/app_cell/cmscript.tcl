@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(n) cmscript Ensemble
+#    app_cell(n) cmscript Ensemble
 #
 #    This module manages the cellmodel(5) script for the application.
 #    It knows whether the current script has been saved or not, and owns
@@ -138,6 +138,8 @@ snit::type cmscript {
         # NEXT, Create a blank cmscript
         $type MakeNew
 
+        # NEXT, notify the application
+        notifier send ::cmscript <New>
         app puts "New cell model created"
     }
 
@@ -157,8 +159,6 @@ snit::type cmscript {
         set info(errinfo)    {}
         set info(solvestate) unsolved
 
-        # NEXT, notify the application
-        notifier send ::cmscript <Update>
     }
 
     # open filename
@@ -194,7 +194,7 @@ snit::type cmscript {
         set info(solvestate) unsolved
 
         # NEXT, notify the application.
-        notifier send ::cmscript <Update>
+        notifier send ::cmscript <Open>
 
         app puts "Opened file [file tail $filename]"
 
@@ -262,7 +262,6 @@ snit::type cmscript {
 
         # NEXT, notify the application
         app puts "Saved file [file tail $info(cmfile)]"
-        notifier send ::cmscript <Update>
         notifier send ::cmscript <Saved>
 
         return 1
@@ -304,7 +303,7 @@ snit::type cmscript {
                 dict set info(errinfo) msg  $result
                 set info(checkstate) syntax
 
-                notifier send ::cmscript <Update>
+                notifier send ::cmscript <Check>
                 return $info(checkstate)
             }
 
@@ -321,12 +320,13 @@ snit::type cmscript {
         }
 
         # NEXT, notify the application
-        notifier send ::cmscript <Update>
+        notifier send ::cmscript <Check>
 
         # FINALLY, all is good.
         return $info(checkstate)
     }
 }
+
 
 
 

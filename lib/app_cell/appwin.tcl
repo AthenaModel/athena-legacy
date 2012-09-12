@@ -69,7 +69,9 @@ snit::widget appwin {
         grid propagate $win off
 
         # NEXT, Prepare to receive notifier events.
-        notifier bind ::cmscript <Update> $self [mymethod SetWindowTitle]
+        notifier bind ::cmscript <New>   $self [mymethod SetWindowTitle]
+        notifier bind ::cmscript <Open>  $self [mymethod SetWindowTitle]
+        notifier bind ::cmscript <Saved> $self [mymethod SetWindowTitle]
 
         # NEXT, Prepare to receive window events
 
@@ -191,6 +193,20 @@ snit::widget appwin {
             -label       "Solve..."     \
             -underline   0              \
             -command     [mymethod ModelSolve]
+
+        # NEXT, create the Snapshot menu
+        set menu [menu $menubar.snapshot]
+        $menubar add cascade -label "Snapshot" -underline 0 -menu $menu
+
+        $menu add command \
+            -label       "Import..." \
+            -underline   0           \
+            -command     [mymethod SnapshotImport]
+
+        $menu add command \
+            -label       "Export..." \
+            -underline   1           \
+            -command     [mymethod SnapshotExport]
     }
 
     #-------------------------------------------------------------------
@@ -453,6 +469,20 @@ snit::widget appwin {
     }
 
 
+    # FileExit
+    #
+    # Verifies that the user has saved data before exiting.
+
+    method FileExit {} {
+        # FIRST, Allow the user to save unsaved data.
+        if {![$self SaveUnsavedData]} {
+            return
+        }
+
+        # NEXT, the data has been saved if it's going to be; so exit.
+        app exit
+    }
+
     # ModelCheck
     #
     # Checks the syntax of the current model.
@@ -529,18 +559,87 @@ snit::widget appwin {
         }
     }
 
-    # FileExit
+    # SnapshotImport
     #
-    # Verifies that the user has saved data before exiting.
+    # Allows the user to import a snapshot from disk.
 
-    method FileExit {} {
-        # FIRST, Allow the user to save unsaved data.
-        if {![$self SaveUnsavedData]} {
+    method SnapshotImport {} {
+        # FIRST, query for the file name.
+        set filename [tk_getOpenFile         \
+            -parent $win                     \
+            -title "Import Snapshot..."   \
+            -filetypes {
+                {{cellmodel(5) snapshot} {.cmsnap}}
+                {{Text file}             {.txt}}
+            }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
             return
         }
 
-        # NEXT, the data has been saved if it's going to be; so exit.
-        app exit
+        if {[file extension $filename] eq ""} {
+            append filename ".cmsnap"
+        }
+
+        # NEXT, import the file
+        if {[catch {
+            set snapshot [snapshot longname [snapshot import $filename]]
+        } result]} {
+             app error {
+                 Could not import snapshot file \"$filename\":
+             
+                 $result
+             }
+             return
+        }
+
+        app puts "Imported snapshot $snapshot from $filename"
+
+
+    }
+
+    # SnapshotExport
+    #
+    # Allows the user to pick a snapshot and saves it to disk.
+
+    method SnapshotExport {} {
+        # FIRST, get the snapshot to save.
+        set parms [dynabox popup          \
+            -formtype  SnapshotExport     \
+            -initvalue {snapshot current} \
+            -oktext    "Export"           \
+            -parent    $win               \
+            -title     "Select Snapshot"]
+
+        if {[dict size $parms] == 0} {
+            return
+        }
+
+        set snapshot [dict get $parms snapshot]
+
+        # NEXT, query for the file name.
+        set filename [tk_getSaveFile         \
+            -parent $win                     \
+            -title "Export Snapshot As..."   \
+            -filetypes {
+                {{cellmodel(5) snapshot} {.cmsnap}}
+                {{Text file}             {.txt}}
+            }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        if {[file extension $filename] eq ""} {
+            append filename ".cmsnap"
+        }
+
+        # NEXT, export the file
+        snapshot export $snapshot $filename
+
+        app puts "Exported snapshot $snapshot to $filename"
     }
 
     #-------------------------------------------------------------------

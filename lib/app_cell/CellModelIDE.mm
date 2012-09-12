@@ -160,9 +160,77 @@
 </node>
 </node>
 </node>
-<node TEXT="Problems" POSITION="right" ID="ID_1459946860" CREATED="1345760892431" MODIFIED="1347396461516">
-<node TEXT="After editing the file, the checkstate is unchanged.  It&apos;s supposed to go back to &quot;unchecked&quot;." ID="ID_352119609" CREATED="1347396461878" MODIFIED="1347396487181"/>
-<node TEXT="Executing &quot;check&quot; (or, eventually, &quot;solve&quot;) should cause the detail browser to refresh." ID="ID_1382632313" CREATED="1347396498920" MODIFIED="1347396527326"/>
+<node TEXT="Snapshots" POSITION="right" ID="ID_1346380049" CREATED="1347471655190" MODIFIED="1347471702949">
+<node TEXT="" ID="ID_925766383" CREATED="1347471718596" MODIFIED="1347471722605">
+<icon BUILTIN="idea"/>
+<node TEXT="A snapshot is a set of cell names and values." ID="ID_261236904" CREATED="1347471659856" MODIFIED="1347471713118"/>
+<node TEXT="Can be partial or complete" ID="ID_1132700068" CREATED="1347471761443" MODIFIED="1347472251308">
+<node TEXT="Partial is relative to the cellmodel&apos;s initial values" ID="ID_1844377334" CREATED="1347471732005" MODIFIED="1347471786849"/>
+<node TEXT="Complete is all cells and values" ID="ID_1095665370" CREATED="1347471787236" MODIFIED="1347471791183"/>
+</node>
+<node TEXT="Each has a distinct URL" ID="ID_298496632" CREATED="1347472295818" MODIFIED="1347472300842"/>
+</node>
+<node TEXT="Kinds of Snapshot" ID="ID_166813697" CREATED="1347471713689" MODIFIED="1347472161810">
+<node TEXT="Aliases" ID="ID_1714378054" CREATED="1347472164101" MODIFIED="1347472172241">
+<node TEXT="&quot;Model&quot;" ID="ID_1924670570" CREATED="1347471802898" MODIFIED="1347477139820">
+<node TEXT="Initial values from cellmodel text." ID="ID_1617065530" CREATED="1347471806419" MODIFIED="1347471816337"/>
+</node>
+<node TEXT="&quot;Current&quot;" ID="ID_1808419671" CREATED="1347471817162" MODIFIED="1347472077632">
+<node TEXT="Whatever is currently in the cellmodel(n) object" ID="ID_966196162" CREATED="1347471819099" MODIFIED="1347471831344"/>
+</node>
+<node TEXT="&quot;Last Solution&quot;" ID="ID_988085033" CREATED="1347471832771" MODIFIED="1347472081319">
+<node TEXT="The output of the last &quot;solve&quot; operation" ID="ID_1806078333" CREATED="1347471840084" MODIFIED="1347471851361"/>
+<node TEXT="Alias to &quot;Solution &lt;timestamp&gt;&quot; for the most recent successful solution" ID="ID_276396676" CREATED="1347472084516" MODIFIED="1347472096281"/>
+</node>
+</node>
+<node TEXT="Auto-Generated" ID="ID_1638953415" CREATED="1347472172646" MODIFIED="1347472176163">
+<node TEXT="Solutions" ID="ID_885318786" CREATED="1347471901045" MODIFIED="1347471914369">
+<node TEXT="When the model is solved, the solution is saved as a snapshot." ID="ID_1671418431" CREATED="1347471915013" MODIFIED="1347471928043"/>
+<node TEXT="&quot;Solution &lt;timestamp&gt;&quot;" ID="ID_382233738" CREATED="1347471949847" MODIFIED="1347471960964"/>
+<node TEXT="Might be linked to information about the solution specs" ID="ID_846647701" CREATED="1347471961984" MODIFIED="1347471969076"/>
+</node>
+<node TEXT="Failures" ID="ID_532760745" CREATED="1347471929078" MODIFIED="1347472027982">
+<node TEXT="If the &quot;solve&quot; operation fails, save the resulting cell values as a &quot;failure&quot; snapshot instead of a solution snapshot" ID="ID_1270954214" CREATED="1347471971328" MODIFIED="1347472007958"/>
+<node TEXT="&quot;Failure &lt;timestamp&gt;&quot;" ID="ID_1628951751" CREATED="1347472008778" MODIFIED="1347472017574"/>
+<node TEXT="Might be linked to failure details." ID="ID_592533529" CREATED="1347472018026" MODIFIED="1347472022399"/>
+</node>
+<node TEXT="Iterations" ID="ID_1860376912" CREATED="1347472028795" MODIFIED="1347472033215">
+<node TEXT="Save the iterations associated with the last solution." ID="ID_1700342143" CREATED="1347472033730" MODIFIED="1347472058900"/>
+<node TEXT="&quot;Iteration &lt;n&gt;" ID="ID_1037586060" CREATED="1347472059235" MODIFIED="1347472067659"/>
+<node TEXT="Wouldn&apos;t usually use these as basis for solution." ID="ID_186529754" CREATED="1347472069087" MODIFIED="1347472137075"/>
+</node>
+</node>
+<node TEXT="Manually Created" ID="ID_336826599" CREATED="1347472177101" MODIFIED="1347472184651">
+<node TEXT="Imports" ID="ID_781957104" CREATED="1347471859850" MODIFIED="1347471864764">
+<node TEXT="Snapshots can be imported; the cgedebug.txt file from athena_sim is a snapshot." ID="ID_1349660695" CREATED="1347471865240" MODIFIED="1347471884218"/>
+<node TEXT="Imported snapshots are called &quot;Imported &lt;timestamp&quot;" ID="ID_433977784" CREATED="1347471884733" MODIFIED="1347471899227"/>
+</node>
+<node TEXT="Hand Edits" ID="ID_933616425" CREATED="1347472214271" MODIFIED="1347472216835">
+<node TEXT="&quot;User Edit &lt;timestamp&gt;" ID="ID_842888867" CREATED="1347472222047" MODIFIED="1347472232970"/>
+</node>
+</node>
+</node>
+<node TEXT="Uses for snapshots" ID="ID_815072536" CREATED="1347472255344" MODIFIED="1347472258548">
+<node TEXT="Basis for &quot;solve&quot; operation; user specifies the snapshot to use as the initial values." ID="ID_1681002679" CREATED="1347472258983" MODIFIED="1347472278229"/>
+<node TEXT="Can be exported" ID="ID_1529460766" CREATED="1347472278767" MODIFIED="1347472282355"/>
+<node TEXT="Can be compared" ID="ID_918977824" CREATED="1347472282784" MODIFIED="1347472290725">
+<node TEXT="E.g., run three different ways, compare the last three solutions" ID="ID_1242963678" CREATED="1347472313296" MODIFIED="1347472327249"/>
+</node>
+</node>
+<node TEXT="Interaction Patterns" ID="ID_813708611" CREATED="1347472336819" MODIFIED="1347472340704">
+<node TEXT="Snapshots are not saved by default; they are an artifact of the current session." ID="ID_24609613" CREATED="1347472341055" MODIFIED="1347472361226"/>
+<node TEXT="User can export snapshots to disk if desired, and import them later." ID="ID_228716774" CREATED="1347472362367" MODIFIED="1347472380190"/>
+<node TEXT="Most snapshots are saved automatically, as a byproduct of normal operation." ID="ID_1525500129" CREATED="1347472382545" MODIFIED="1347472395068"/>
+</node>
+</node>
+<node TEXT="Next" POSITION="right" ID="ID_1459946860" CREATED="1345760892431" MODIFIED="1347471654901">
+<node TEXT="Add snapshots module" ID="ID_1553368798" CREATED="1347474815148" MODIFIED="1347474819033"/>
+<node TEXT="Save snapshots when appropriate." ID="ID_367825222" CREATED="1347474819412" MODIFIED="1347486466817"/>
+<node TEXT="Import/Export of snapshots" ID="ID_817228212" CREATED="1347486467261" MODIFIED="1347486472042"/>
+<node TEXT="Import/Export should only be available on menu when checkstate is &quot;checked&quot;." ID="ID_308167985" CREATED="1347486472436" MODIFIED="1347486495907"/>
+<node TEXT="Add control to page and cell pages: from which snapshot should the cell values be taken?" ID="ID_1192780855" CREATED="1347474845734" MODIFIED="1347474876692">
+<node TEXT="Need tcl/enumdict URL for snapshots" ID="ID_1758720951" CREATED="1347474894632" MODIFIED="1347474900726"/>
+</node>
 </node>
 </node>
 </map>

@@ -69,6 +69,7 @@ snit::type app {
 
         # NEXT, initialize the non-GUI modules
         cmscript init
+        snapshot init
 
         # NEXT, initialize the appserver
         appserver init

@@ -60,6 +60,7 @@ namespace import ::projectgui::*
 source [file join $::app_cell::library app.tcl           ]
 source [file join $::app_cell::library app_types.tcl     ]
 source [file join $::app_cell::library cmscript.tcl      ]
+source [file join $::app_cell::library snapshot.tcl      ]
 
 source [file join $::app_cell::library appserver.tcl     ]
 
@@ -67,4 +68,4 @@ source [file join $::app_cell::library appwin.tcl        ]
 source [file join $::app_cell::library cmscripteditor.tcl]
 source [file join $::app_cell::library detailbrowser.tcl ]
 source [file join $::app_cell::library ctexteditor.tcl   ]
-
+source [file join $::app_cell::library dynaforms.tcl     ]

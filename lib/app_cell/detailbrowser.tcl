@@ -67,8 +67,10 @@ snit::widget detailbrowser {
         $self configurelist $args
 
         # NEXT, bind to events that are likely to cause reloads.
-        notifier bind ::project  <DbSync> $win [mymethod reload]
-        notifier bind ::cmscript <Update> $win [mymethod reload]
+        notifier bind ::cmscript <New>   $win [mymethod reload]
+        notifier bind ::cmscript <Open>  $win [mymethod reload]
+        notifier bind ::cmscript <Check> $win [mymethod reload]
+        notifier bind ::cmscript <Solve> $win [mymethod reload]
 
         # NEXT, create the browser context menu
         bind $win.browser <3>         [mymethod MainContextMenu %X %Y]

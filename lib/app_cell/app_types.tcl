@@ -30,3 +30,11 @@ enum echeckstate {
     checked   "Checked"
 }
 
+# esnapshottype: Kinds of snapshot saved by the snapshot model.
+
+enum esnapshottype {
+    import   "Import"
+    model    "Model"
+    solution "Solution"
+}
+
