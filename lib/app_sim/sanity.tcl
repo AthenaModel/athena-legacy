@@ -525,7 +525,7 @@ snit::type sanity {
                 $limit
                 of the starting number.  To change the limit, set the
                 value of the 
-                <a href=\"my://help/parmdb/econ/check.MinConsumerFrac\">econ.check.MinConsumerFrac</a>
+                <a href=\"my://help/parmdb/econ/check/minconsumerfrac\">econ.check.MinConsumerFrac</a>
                 model parameter.
             "
         }
@@ -545,7 +545,7 @@ snit::type sanity {
                 $limit
                 of the starting number.  To change the limit, set the 
                 value of the 
-                <a href=\"my://help/parmdb/econ/check.MinLaborFrac\">econ.check.MinLaborFrac</a>
+                <a href=\"my://help/parmdb/econ/check/minlaborfrac\">econ.check.MinLaborFrac</a>
                 model parameter.
             "
         }
@@ -561,7 +561,7 @@ snit::type sanity {
                 exceeds the limit of 
                 [format {%.1f%%.} $limit]
                 To change the limit, set the value of the 
-                <a href=\"my://help/parmdb/econ/check.MaxUR\">econ.check.MaxUR</a>
+                <a href=\"my://help/parmdb/econ/check/maxur\">econ.check.MaxUR</a>
                 model parameter.
             "
         }
@@ -580,7 +580,7 @@ snit::type sanity {
                 $limit
                 of its starting value.  To change the limit, set the
                 value of the 
-                <a href=\"my://help/parmdb/econ/check.MinDgdpFrac\">econ.check.MinDgdpFrac</a>
+                <a href=\"my://help/parmdb/econ/check/mindgdpfrac\">econ.check.MinDgdpFrac</a>
                 model parameter.
             "
         }
@@ -599,9 +599,9 @@ snit::type sanity {
                 is outside the expected range of
                 [format {(%4.2f, %4.2f).} $min $max]
                 To change the bounds, set the values of the 
-                <a href=\"my://help/parmdb/econ/check.MinCPI\">econ.check.MinCPI</a>
+                <a href=\"my://help/parmdb/econ/check/mincpi\">econ.check.MinCPI</a>
                 and 
-                <a href=\"my://help/parmdb/econ/check.MaxCPI\">econ.check.MaxCPI</a>
+                <a href=\"my://help/parmdb/econ/check/maxcpi\">econ.check.MaxCPI</a>
                 model parameters.
             "
         }
