@@ -480,10 +480,17 @@ snit::type econ {
             SELECT * FROM actors
         } data {
             let t_goods      {$data(income_goods)     / ($BPg * $BQDg)}
-            let t_black      {$data(income_black_tax) / ($BPb * $BQDb)}
             let t_pop        {$data(income_pop)       / ($BPp * $BQDp)}
             let t_world      {$data(income_world)     / $BREVw}
             let graft_region {$data(income_graft)     / $FAR}
+
+            # NEXT, the black market may not have any product
+            if {$BQDb > 0.0} {
+                let t_black {$data(income_black_tax) / ($BPb * $BQDb)}
+            } else {
+                set t_black 0.0
+                set data(income_black_tax) 0.0
+            }
 
             # NEXT, distribute black market net revenue shares. If there
             # aren't any, then no actor is getting a cut.
