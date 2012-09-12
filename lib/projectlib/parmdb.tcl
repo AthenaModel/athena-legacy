@@ -1292,55 +1292,63 @@ snit::type ::projectlib::parmdb {
 
         $ps subset econ.shares {
             Allocations of expenditures to CGE sectors, by 
-            expenditure class and sector.  The allocations for each
-            expenditure class should sum to 1.0.
+            expenditure class and sector.  The allocations are
+            specified as shares per sector.  The fraction of money
+            allocated to a sector is determined by dividing its
+            designated number of shares by the total number of shares
+            for this expenditure class.
         }
 
         foreach class {overhead ASSIGN ATTROE BROADCAST DEPLOY FUNDENI} {
             $ps subset econ.shares.$class "
                 Allocations of expenditures to CGE sectors for the
-                $class expenditure class.  The allocations for this
-                class should sum to 1.0.
+                $class expenditure class.  The allocations are
+                specified as shares per sector.  The fraction of money
+                allocated to a sector is determined by dividing its
+                designated number of shares by the total number of shares
+                for the $class expenditure class.
             "
 
             foreach sector {goods pop black region world} {
-                $ps define econ.shares.$class.$sector ::simlib::rfraction 0.0 "
-                    Allocation of $class expenditures to the
-                    $sector CGE sector, a fraction from 0.0 to 1.0.
-                "
+                $ps define econ.shares.$class.$sector \
+                    ::projectlib::iquantity 0 "
+                        Allocation of $class expenditures to the
+                        $sector CGE sector, a number of shares greater
+                        than or equal to 0. 
+                    "
             }
         }
 
-        $ps setdefault econ.shares.overhead.goods    0.35
-        $ps setdefault econ.shares.overhead.pop      0.55
-        $ps setdefault econ.shares.overhead.black    0.0
-        $ps setdefault econ.shares.overhead.region   0.1
-        $ps setdefault econ.shares.overhead.world    0.0
-        $ps setdefault econ.shares.ASSIGN.goods      0.4
-        $ps setdefault econ.shares.ASSIGN.pop        0.6
-        $ps setdefault econ.shares.ASSIGN.black      0.0
-        $ps setdefault econ.shares.ASSIGN.region     0.0
-        $ps setdefault econ.shares.ASSIGN.world      0.0
-        $ps setdefault econ.shares.ATTROE.goods      0.4
-        $ps setdefault econ.shares.ATTROE.pop        0.6
-        $ps setdefault econ.shares.ATTROE.black      0.0
-        $ps setdefault econ.shares.ATTROE.region     0.0
-        $ps setdefault econ.shares.ATTROE.world      0.0
-        $ps setdefault econ.shares.BROADCAST.goods   0.4
-        $ps setdefault econ.shares.BROADCAST.pop     0.6
-        $ps setdefault econ.shares.BROADCAST.black   0.0
-        $ps setdefault econ.shares.BROADCAST.region  0.0
-        $ps setdefault econ.shares.BROADCAST.world   0.0
-        $ps setdefault econ.shares.DEPLOY.goods      0.4
-        $ps setdefault econ.shares.DEPLOY.pop        0.6
-        $ps setdefault econ.shares.DEPLOY.black      0.0
-        $ps setdefault econ.shares.DEPLOY.region     0.0
-        $ps setdefault econ.shares.DEPLOY.world      0.0
-        $ps setdefault econ.shares.FUNDENI.goods     0.4
-        $ps setdefault econ.shares.FUNDENI.pop       0.6
-        $ps setdefault econ.shares.FUNDENI.black     0.0
-        $ps setdefault econ.shares.FUNDENI.region    0.0
-        $ps setdefault econ.shares.FUNDENI.world     0.0
+        $ps setdefault econ.shares.overhead.goods    35
+        $ps setdefault econ.shares.overhead.pop      55
+        $ps setdefault econ.shares.overhead.black    0
+        $ps setdefault econ.shares.overhead.region   10
+        $ps setdefault econ.shares.overhead.world    0
+        $ps setdefault econ.shares.ASSIGN.goods      4
+        $ps setdefault econ.shares.ASSIGN.pop        6
+        $ps setdefault econ.shares.ASSIGN.black      0
+        $ps setdefault econ.shares.ASSIGN.region     0
+        $ps setdefault econ.shares.ASSIGN.world      0
+        $ps setdefault econ.shares.ATTROE.goods      4
+        $ps setdefault econ.shares.ATTROE.pop        6
+        $ps setdefault econ.shares.ATTROE.black      0
+        $ps setdefault econ.shares.ATTROE.region     0
+        $ps setdefault econ.shares.ATTROE.world      0
+        $ps setdefault econ.shares.BROADCAST.goods   4
+        $ps setdefault econ.shares.BROADCAST.pop     6
+        $ps setdefault econ.shares.BROADCAST.black   0
+        $ps setdefault econ.shares.BROADCAST.region  0
+        $ps setdefault econ.shares.BROADCAST.world   0
+        $ps setdefault econ.shares.DEPLOY.goods      4
+        $ps setdefault econ.shares.DEPLOY.pop        6
+        $ps setdefault econ.shares.DEPLOY.black      0
+        $ps setdefault econ.shares.DEPLOY.region     0
+        $ps setdefault econ.shares.DEPLOY.world      0
+        $ps setdefault econ.shares.FUNDENI.goods     4
+        $ps setdefault econ.shares.FUNDENI.pop       6
+        $ps setdefault econ.shares.FUNDENI.black     0
+        $ps setdefault econ.shares.FUNDENI.region    0
+        $ps setdefault econ.shares.FUNDENI.world     0
 
         # ensit.* parameters
         $ps subset ensit {

@@ -390,8 +390,10 @@ snit::type econ {
     # the FAR cell (which is the same as the BX.region.world cell).
 
     typemethod ComputeActorsSector {} {
+        # FIRST, get the cells from the SAM
         array set sdata [$sam get]
-        # FIRST, determine the ratio of actual consumers to the BaseConsumers
+
+        # NEXT, determine the ratio of actual consumers to the BaseConsumers
         # specified in the SAM, we will scale the income to this
         array set data [demog getlocal]
         let scaled {$data(consumers)/$sdata(BaseConsumers)}
@@ -427,12 +429,25 @@ snit::type econ {
         let BREVa {$Xag + $Xap + $Xab + $Xaw + $Xar + $BNRb}
 
         # NEXT, given the revenue in the actor sector compute the
-        # base expenditures using the overhead fractions
-        let Xga {[parmdb get econ.shares.overhead.goods]  * $BREVa}
-        let Xpa {[parmdb get econ.shares.overhead.pop]    * $BREVa}
-        let Xba {[parmdb get econ.shares.overhead.black]  * $BREVa}
-        let Xra {[parmdb get econ.shares.overhead.region] * $BREVa}
-        let Xwa {[parmdb get econ.shares.overhead.world]  * $BREVa}
+        # base expenditures using the computed overhead fractions
+        set ovShares 0.0
+        foreach sector {goods pop black region world} {
+            let ovShares {
+                $ovShares + [parmdb get econ.shares.overhead.$sector]
+            }
+        }
+        
+        foreach sector {goods pop black region world} {
+            let ovFrac($sector) {
+                [parmdb get econ.shares.overhead.$sector] / $ovShares
+            }
+        }
+
+        let Xga {$ovFrac(goods)  * $BREVa}
+        let Xpa {$ovFrac(pop)    * $BREVa}
+        let Xba {$ovFrac(black)  * $BREVa}
+        let Xra {$ovFrac(region) * $BREVa}
+        let Xwa {$ovFrac(world)  * $BREVa}
 
         # NEXT, extract the pertinent data from the SAM 
         set BPg   $sdata(BP.goods)
@@ -450,13 +465,17 @@ snit::type econ {
         set totalBNRShares \
             [rdb onecolumn {SELECT total(shares_black_nr) FROM actors_view;}]
 
+        # NEXT, if no actor is getting income from black market net revenue,
+        # then ALL of the net revenue goes into the world sector.
         set Xwb $sdata(BX.world.black)
+
         if {$totalBNRShares == 0} {
             let Xwb {$Xwb + $BNRb}
         }
 
         # NEXT compute the rates based on the base case data and
-        # fill in the income_a table rates
+        # fill in the income_a table rates and set each actors
+        # initial income
         rdb eval {
             SELECT * FROM actors
         } data {
@@ -465,22 +484,30 @@ snit::type econ {
             let t_pop        {$data(income_pop)       / ($BPp * $BQDp)}
             let t_world      {$data(income_world)     / $BREVw}
             let graft_region {$data(income_graft)     / $FAR}
+
+            # NEXT, distribute black market net revenue shares. If there
+            # aren't any, then no actor is getting a cut.
             if {$totalBNRShares > 0} {
                 let cut_black {$data(shares_black_nr)  / $totalBNRShares}
             } else {
                 set cut_black 0.0
             }
 
+            # NEXT, total income from the black sector is the tax rate
+            # income plus the cut of the black market profit (aka net
+            # revenue)
             let income_tot_black {
                 $data(income_black_tax) + ($cut_black * $BNRb)
             }
 
+            # NEXT, total income for this actor
             let total_income {
                 $data(income_goods) + $income_tot_black   + 
                 $data(income_pop)   + $data(income_world) +
                 $data(income_graft) 
             }
 
+            # NEXT, set this actors rates and initial income
             rdb eval {
                 UPDATE income_a 
                 SET t_goods      = $t_goods,
@@ -511,12 +538,18 @@ snit::type econ {
         # world. It may have changed if no actor is getting a cut.
         $sam set [list BX.world.black   $Xwb]
 
+        # NEXT, compute the composte graft fraction
         set graft_frac \
             [rdb onecolumn {SELECT total(graft_region) FROM income_a;}]
 
         $sam set [list graft $graft_frac]
 
-        $sam solve
+        set result [$sam solve]
+        # NEXT, handle failures.
+        if {$result ne "ok"} {
+            log warning econ "Failed to solve SAM"
+            error "Failed to solve SAM model after actor data was loaded."
+        }
 
         # NEXT, notify the GUI to sync to the latest data
         notifier send ::econ <SyncSheet> 
@@ -531,19 +564,20 @@ snit::type econ {
         # FIRST, deal with the actors sector in the SAM
         $type ComputeActorsSector
 
-        # NEXT, get sectors from the SAM
+        # NEXT, get sectors and data from the SAM
         set sectors  [$sam index i]
+        array set samdata [$sam get]
 
         # NEXT, base prices from the SAM
         foreach i $sectors {
-            cge set [list BP.$i [dict get [$sam get] BP.$i]]
+            cge set [list BP.$i $samdata(BP.$i)]
         }
 
         # NEXT, base expenditures/revenues as a starting point for 
         # CGE BX.i.j's
         foreach i $sectors {
             foreach j $sectors {
-                cge set [list BX.$i.$j [dict get [$sam get] BX.$i.$j]]
+                cge set [list BX.$i.$j $samdata(BX.$i.$j)]
             }
         }
 
@@ -551,7 +585,7 @@ snit::type econ {
         # CGE BQD.i.j's
         foreach i {goods black pop} {
             foreach j $sectors {
-                cge set [list BQD.$i.$j [dict get [$sam get] BQD.$i.$j]]
+                cge set [list BQD.$i.$j $samdata(BQD.$i.$j)]
             }
         }
 
@@ -560,63 +594,63 @@ snit::type econ {
         #-------------------------------------------------------------
         # The goods sector
         foreach i {goods black pop} {
-            cge set [list f.$i.goods [dict get [$sam get] f.$i.goods]]
+            cge set [list f.$i.goods $samdata(f.$i.goods)]
         }
        
         foreach i {actors region world} {
-            cge set [list t.$i.goods [dict get [$sam get] t.$i.goods]]
+            cge set [list t.$i.goods $samdata(t.$i.goods)]
         }
 
-        cge set [list k.goods [dict get [$sam get] k.goods]]
+        cge set [list k.goods $samdata(k.goods)]
 
         #-------------------------------------------------------------
         # The black sector
         foreach i {goods black pop} {
-            cge set [list A.$i.black [dict get [$sam get] A.$i.black]]
+            cge set [list A.$i.black $samdata(A.$i.black)]
         }
 
         foreach i {actors region world} {
-            cge set [list t.$i.black [dict get [$sam get] t.$i.black]]
+            cge set [list t.$i.black $samdata(t.$i.black)]
         }
 
         #-------------------------------------------------------------
         # The pop sector
-        cge set [list k.pop   [dict get [$sam get] k.pop]]
+        cge set [list k.pop $samdata(k.pop)]
 
         foreach i {goods black pop} {
-            cge set [list f.$i.pop [dict get [$sam get] f.$i.pop]]
+            cge set [list f.$i.pop $samdata(f.$i.pop)]
         }
 
         foreach i {actors region world} {
-            cge set [list t.$i.pop [dict get [$sam get] t.$i.pop]]
+            cge set [list t.$i.pop $samdata(t.$i.pop)]
         }
 
         #-------------------------------------------------------------
         # The actors and region sectors
         foreach i $sectors {
-            cge set [list f.$i.actors [dict get [$sam get] f.$i.actors]]
-            cge set [list f.$i.region [dict get [$sam get] f.$i.region]]
+            cge set [list f.$i.actors $samdata(f.$i.actors)]
+            cge set [list f.$i.region $samdata(f.$i.region)]
         }
 
         #-------------------------------------------------------------
         # The world sector
-        cge set [list FAA [dict get [$sam get] FAA]]
-        cge set [list FAR [dict get [$sam get] FAR]]
+        cge set [list FAA $samdata(FAA)]
+        cge set [list FAR $samdata(FAR)]
 
         #-------------------------------------------------------------
         # Base values for Exports
         foreach i {goods black pop} {
-            cge set [list BEXPORTS.$i [dict get [$sam get] EXPORTS.$i]]
+            cge set [list BEXPORTS.$i $samdata(EXPORTS.$i)]
         }
 
         #-------------------------------------------------------------
         # A.goods.pop, the unconstrained base demand for goods in 
         # goods basket per year per capita.
-        cge set [list A.goods.pop [dict get [$sam get] A.goods.pop]]
+        cge set [list A.goods.pop $samdata(A.goods.pop)]
 
         #-------------------------------------------------------------
         # graft, the percentage skimmed off FAR by all actors
-        $cge set [list Bgraft [dict get [$sam get] graft]]
+        $cge set [list Bgraft $samdata(graft)]
     }
 
     #-------------------------------------------------------------------

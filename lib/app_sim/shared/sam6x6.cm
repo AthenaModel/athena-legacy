@@ -205,7 +205,7 @@ foreach j {goods black pop actors region world} {
 }
 
 foreach j {goods black pop} {
-    # Sectors with Cobb-Douglas coefficientst that must add to 1.0
+    # Sectors with Cobb-Douglas coefficients that must add to 1.0
     let CDEXP.$j = {<:sum il {[BX.$il.$j]}:>}
 }
 

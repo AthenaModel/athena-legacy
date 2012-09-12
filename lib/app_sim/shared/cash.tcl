@@ -198,8 +198,19 @@ snit::type cash {
             return
         }
 
+        # FIRST, determine the total number of shares for this expenditure
+        # class
+        set eclassSum 0.0
         foreach sector [array names allocations] {
-            set frac [parm get econ.shares.$eclass.$sector]
+            let eclassSum {$eclassSum + [parm get econ.shares.$eclass.$sector]}
+        }
+
+        # NEXT, determine what fraction of the expenditure goes to each
+        # sector
+        foreach sector [array names allocations] {
+            let frac {
+                [parm get econ.shares.$eclass.$sector] / $eclassSum
+            }
 
             let allocations($sector) {$allocations($sector) + $frac*$dollars}
         }
