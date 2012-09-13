@@ -117,6 +117,7 @@ appserver module ACTOR {
         ht title $data(fancy) "Actor" 
 
         ht linkbar {
+            "#asset"     "Income/Assets"
             "#goals"     "Goals"
             "#sphere"    "Sphere of Influence"
             "#base"      "Power Base"
@@ -128,14 +129,9 @@ appserver module ACTOR {
             "#sigevents" "Significant Events"
         }
         
-        # Asset Summary
-        ht putln "Fiscal assets: \$$data(income) per week, with "
-        ht put "\$$data(cash_on_hand) cash on hand and "
-        ht put "\$$data(cash_reserve) in reserve."
-
         ht putln "Groups owned: "
 
-        ht linklist [rdb eval {
+        ht linklist -default "None" [rdb eval {
             SELECT url, g FROM gui_agroups 
             WHERE a=$a
             ORDER BY g
@@ -144,7 +140,33 @@ appserver module ACTOR {
         ht put "."
 
         ht para
+        # Asset Summary
+        ht subtitle "Income/Assets" asset
 
+        ht putln "Fiscal assets: \$$data(income) per week, with "
+        ht put "\$$data(cash_on_hand) cash on hand and "
+        ht put "\$$data(cash_reserve) in reserve."
+        ht para
+
+        if {[locked -disclaimer] && ![parm get econ.disable]} {
+            ht putln "The following table shows this actors income levels "
+            ht put   "from the various sectors."
+            ht para
+
+            ht query {
+                SELECT "$" || income_goods        AS "goods",
+                       "$" || income_black_t      AS "black market (tax)",
+                       "$" || income_black_nr     AS "black market (profits)",
+                       "$" || income_pop          AS "pop",
+                       "$" || income_world        AS "world",
+                       "$" || income_graft        AS "graft"
+                FROM gui_econ_income_a
+                WHERE a=$a
+            } -default "None." -align RRRRRR
+
+            ht para
+        }
+                
         # Goals
         ht subtitle "Goals" goals
 

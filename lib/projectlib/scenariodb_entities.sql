@@ -96,7 +96,16 @@ CREATE TABLE income_a (
 
     -- Other income, treated as tax like rates
     graft_region   DOUBLE DEFAULT 0,  -- rate skimmed from region
-    cut_black      DOUBLE DEFAULT 0   -- rate from black market revenue
+    cut_black      DOUBLE DEFAULT 0,  -- rate from black market profits
+
+    -- The current actual income sector by sector, these added together
+    -- make the income column above
+    inc_goods      DOUBLE DEFAULT 0,
+    inc_black_t    DOUBLE DEFAULT 0, -- Income from tax-like rate
+    inc_black_nr   DOUBLE DEFAULT 0, -- Income from black market profits
+    inc_pop        DOUBLE DEFAULT 0,
+    inc_world      DOUBLE DEFAULT 0,
+    inc_region     DOUBLE DEFAULT 0
 );
 
 -- actors_view: Actor data, including computations

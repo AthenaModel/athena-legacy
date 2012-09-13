@@ -49,6 +49,18 @@ SELECT * FROM gui_civgroups
 JOIN nbhoods USING (n)
 WHERE nbhoods.local;
 
+-- gui_econ_income_a: Actor specific income from all sources
+CREATE TEMPORARY VIEW gui_econ_income_a AS
+SELECT a                                  AS id,
+       a                                  AS a,
+       moneyfmt(inc_goods)                AS income_goods,
+       moneyfmt(inc_black_t)              AS income_black_t,
+       moneyfmt(inc_black_nr)             AS income_black_nr,
+       moneyfmt(inc_black_nr+inc_black_t) AS income_black_tot,
+       moneyfmt(inc_pop)                  AS income_pop,
+       moneyfmt(inc_world)                AS income_world,
+       moneyfmt(inc_region)               AS income_graft
+FROM income_a;
 
 
 -----------------------------------------------------------------------

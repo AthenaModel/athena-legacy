@@ -922,7 +922,7 @@ snit::type econ {
         }
 
         # NEXT, use sector revenues to determine actor
-        # income
+        # income sector by sector
         array set out [$cge get Out -bare]
         
         rdb eval {
@@ -935,16 +935,27 @@ snit::type econ {
                    cut_black    AS cut
            FROM income_a
         } {
-            let total_a {($out(REV.goods) * $tg)  + 
-                         ($out(REV.black) * $tb)  +
-                         ($out(NR.black)  * $cut) +
-                         ($out(REV.pop)   * $tp)  +
-                         ($out(REV.world) * $tw)  +
-                         ($out(FAR)       * $gr)}
+           let inc_goods    {$out(REV.goods) * $tg}
+           let inc_black_t  {$out(REV.black) * $tb}
+           let inc_black_nr {$out(NR.black)  * $cut}
+           let inc_pop      {$out(REV.pop)   * $tp}
+           let inc_region   {$out(FAR)       * $gr}
+           let inc_world    {$out(REV.world) * $tw}
+
+            let inc_total {
+                $inc_goods + $inc_black_t + $inc_black_nr +
+                $inc_pop   + $inc_region  + $inc_world
+            }
 
             rdb eval {
                 UPDATE income_a
-                SET income = $total_a
+                SET income       = $inc_total,
+                    inc_goods    = $inc_goods,
+                    inc_black_t  = $inc_black_t,
+                    inc_black_nr = $inc_black_nr,
+                    inc_pop      = $inc_pop,
+                    inc_region   = $inc_region,
+                    inc_world    = $inc_world
                 WHERE a = $actor
             }
         }
