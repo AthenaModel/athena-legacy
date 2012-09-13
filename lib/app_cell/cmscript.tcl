@@ -45,7 +45,7 @@ snit::type cmscript {
 
     typevariable info -array {
         cmfile     ""
-        saved      0
+        unsaved    0
         checkstate unchecked
         errinfo    {}
     }
