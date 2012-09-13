@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version j
+#    sam6x6.cm, version k
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,9 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version k: Added some bullet proofing in case the actors defined
+#               in Athena have no income.
+#
 #    Version j: Deleted a default for f.pop.black, it's not needed.
 #
 #    Version i: Revised the equations for f.i.j to allow for sector 
@@ -307,7 +310,9 @@ foreach i {goods black pop} {
 # For the actors sector
 
 foreach i {goods black pop actors region world} {
-    let f.$i.actors = {[BX.$i.actors] / [BALLOC.actors]}
+    let f.$i.actors = {
+        [BALLOC.actors] > 0 ? [BX.$i.actors] / [BALLOC.actors] : 0.0
+    }
 }
 
 # For the region sector
@@ -321,4 +326,6 @@ let A.goods.pop = {[BX.goods.pop] / [BaseConsumers]}
 
 # Everything that was computed is of interest to the CGE except the 
 # intermediate variable BATI.pop
+
+
 

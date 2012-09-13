@@ -213,6 +213,11 @@ snit::type cash {
             let eclassSum {$eclassSum + [parm get econ.shares.$eclass.$sector]}
         }
 
+        # NEXT, if there are no shares to allocate then we are done
+        if {$eclassSum == 0.0} {
+            return
+        }
+
         # NEXT, determine what fraction of the expenditure goes to each
         # sector
         foreach sector [array names allocations] {

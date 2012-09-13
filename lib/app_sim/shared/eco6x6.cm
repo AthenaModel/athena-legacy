@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version m
+#    eco6x6.cm, version n
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,9 @@
 #    Out pages.
 #
 # HISTORY:
+#
+#    Version n: Introduced a flag for Athena to use if there are no actors
+# who receive any income from black market revenues.
 #
 #    Version m: Changed the default for the max feedstock available. Fixed
 # the equation for QS.black on the L page to use MF.world.black instead of
@@ -399,8 +402,11 @@ let BP.pop   = 400      ;# $/work-year - the unchanging numeraire
 # Ultimately,the "size" of the economy depends on A.goods.pop and the 
 # number of consumers.
 
-let A.goods.pop = 114   ;# Direct consumption of goods, 
-                        ;# in GoodsBKT/year per capita
+let A.goods.pop = 114    ;# Direct consumption of goods, 
+                         ;# in GoodsBKT/year per capita
+
+# Flags: These provide an interface to the models in Athena
+let Flag.ActorsGetBNR = 1 ;# Do actors get black market net revenue
 
 #----------------------------------------------------------------------
 # Non-iterative Computations
@@ -604,14 +610,17 @@ let X.goods.black  = [X.i.j  goods black] -value 1.197e8
 let QD.pop.black = [LQD.i.j pop black]
 let X.pop.black  = [X.i.j  pop black]
 
-let X.actors.black = {<:TAX.i.j actors black:> + [NR.black]}
+let X.actors.black = {
+    <:TAX.i.j actors black:> + fif([Flag.ActorsGetBNR] == 1,[NR.black])
+}
 
 let X.region.black = [TAX.i.j region black]
 
 let QF.world.black = {[AF.world.black] * [QS.black]}
 
 let X.world.black = {
-    <:TAX.i.j world black:> + [PF.world.black] * [QF.world.black]
+    <:TAX.i.j world black:> + [PF.world.black] * [QF.world.black] +
+    fif([Flag.ActorsGetBNR] == 0, [NR.black])
 }
 
 let C.black = {
@@ -1141,4 +1150,5 @@ let FLAG.QS.NONNEG = {
 let FLAG.P.POS = {
     [P.black] > 0.0 || [P.goods] > 0.0 || [P.pop] > 0.0
 }
+
 

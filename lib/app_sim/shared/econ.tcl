@@ -423,10 +423,31 @@ snit::type econ {
             let Xar {$igr * $scaled}
         }
 
+        # NEXT, revenue is the sum of all the sources of money
+        let BREVa {$Xag + $Xap + $Xab + $Xaw + $Xar}
+
+        # NEXT, deal with black market net revenue
         set BNRb $sdata(BNR.black)
 
-        # NEXT, revenue is the sum of all the sources of money
-        let BREVa {$Xag + $Xap + $Xab + $Xaw + $Xar + $BNRb}
+        # NEXT, the total number of black market net revenue shares owned
+        # by actors. If this is zero, then no actor is getting any income
+        # from the black market net revenues
+        set totalBNRShares \
+            [rdb onecolumn {SELECT total(shares_black_nr) FROM actors_view;}]
+
+        # NEXT, if no actor is getting income from black market net revenue,
+        # then ALL of the net revenue goes into the world sector. We also
+        # need to tell the CGE that actors are not getting any black market
+        # profits
+        set Xwb $sdata(BX.world.black)
+
+        if {$totalBNRShares == 0} {
+            let Xwb {$Xwb + $BNRb}
+            $cge set [list Flag.ActorsGetBNR 0]
+        } else {
+            let BREVa {$BREVa + $BNRb}
+            $cge set [list Flag.ActorsGetBNR 1]
+        }
 
         # NEXT, given the revenue in the actor sector compute the
         # base expenditures using the computed overhead fractions
@@ -437,9 +458,15 @@ snit::type econ {
             }
         }
         
+        # NEXT, if overhead shares are distributed amongst the sectors
+        # then set up the fractions. Otherwise, the fractions are zero.
         foreach sector {goods pop black region world} {
-            let ovFrac($sector) {
-                [parmdb get econ.shares.overhead.$sector] / $ovShares
+            if {$ovShares > 0.0} {
+                let ovFrac($sector) {
+                    [parmdb get econ.shares.overhead.$sector] / $ovShares
+                }
+            } else {
+                set ovFrac($sector) 0.0
             }
         }
 
@@ -459,19 +486,6 @@ snit::type econ {
         set BREVw $sdata(BREV.world)
         set FAR   $sdata(FAR)
 
-        # NEXT, the total number of black market net revenue shares owned
-        # by actors. If this is zero, then no actor is getting any income
-        # from the black market net revenues
-        set totalBNRShares \
-            [rdb onecolumn {SELECT total(shares_black_nr) FROM actors_view;}]
-
-        # NEXT, if no actor is getting income from black market net revenue,
-        # then ALL of the net revenue goes into the world sector.
-        set Xwb $sdata(BX.world.black)
-
-        if {$totalBNRShares == 0} {
-            let Xwb {$Xwb + $BNRb}
-        }
 
         # NEXT compute the rates based on the base case data and
         # fill in the income_a table rates and set each actors
