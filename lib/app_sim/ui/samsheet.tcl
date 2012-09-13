@@ -254,6 +254,7 @@ snit::widget samsheet {
         set cbr     $ns
         let cbp     {$ns + 1}
         let cbd     {$ns + 3}
+        let cactors {$ns - 3}
         let cpunits {$ncols - 4}
         let cdunits {$ncols - 2}
 
@@ -317,6 +318,13 @@ snit::widget samsheet {
         $mmatrix mapcol 0,$cbd il  BQD.%il  r -background $color(r)
 
         $mmatrix tag configure e -state normal
+        
+        # NEXT, disable the actor sector row and column, these are 
+        # computed from the actor definitions and strategies
+        $mmatrix maprow $ractors,0 j BX.actors.%j a -background $color(d)
+        $mmatrix mapcol 0,$cactors i BX.%i.actors a -background $color(d)
+
+        $mmatrix tag configure a -state disabled
     }
 
     # CreateScalarInputs   w
