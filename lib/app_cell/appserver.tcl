@@ -63,6 +63,10 @@ snit::type appserver {
             text/html [myproc /cell:html]           \
             "Detail page for cell model cell {c}."
 
+        appserver register /enum/snapshots {enum/snapshots}                   \
+            tcl/enumdict [myproc /enum/snapshots:enumdict]                    \
+            "Enumeration: Snapshots"
+
         appserver register /enum/sortcellby {enum/sortcellby}                 \
             tcl/enumlist [asproc enum:enumlist esortcellby]                   \
             tcl/enumdict [asproc enum:enumdict esortcellby]                   \
@@ -248,8 +252,9 @@ snit::type appserver {
         }
 
         # NEXT, get the query parameters
-        set qdict [querydict $udict {sortby}]
+        set qdict [querydict $udict {snapshot sortby}]
         dict with qdict {
+            restrict snapshot snapshot current
             restrict sortby esortcellby name
         }
 
@@ -259,10 +264,14 @@ snit::type appserver {
 
         ht hr
         ht form my://app/page/$page -autosubmit yes
+        ht label snapshot "Values From:"
+        ht input snapshot enum $snapshot \
+            -content tcl/enumdict        \
+            -src     enum/snapshots
         ht label sortby "Sort Cells By:"
         ht input sortby enum $sortby \
-            -src     enum/sortcellby \
-            -content tcl/enumdict
+            -content tcl/enumdict    \
+            -src     enum/sortcellby 
         ht /form
         ht hr
         ht para
@@ -287,7 +296,7 @@ snit::type appserver {
             set cells [lsort -dictionary $cells]
         }
 
-        CellTable $cells $page
+        CellTable $cells $snapshot $page
 
         # FINALLY, complete the page
         ht /page
@@ -332,6 +341,9 @@ snit::type appserver {
         ht put $bare
         ht put "</h1>"
 
+        ht putln "All values shown are from the text of the model."
+        ht para
+
         # NEXT, put in the cell itself.
         ht subtitle "Definition"
 
@@ -368,13 +380,13 @@ snit::type appserver {
         # NEXT, put in dependencies.
         if {[llength [cm cellinfo uses $cell]] > 0} {
             ht subtitle "$cell uses these cells:"
-            CellTable [cm cellinfo uses $cell] $page
+            CellTable [cm cellinfo uses $cell] model $page
             ht para
         }
 
         if {[llength [cm cellinfo usedby $cell]] > 0} {
             ht subtitle "$cell is used by these cells:"
-            CellTable [cm cellinfo usedby $cell] $page
+            CellTable [cm cellinfo usedby $cell] model $page
             ht para
         }
 
@@ -396,7 +408,7 @@ snit::type appserver {
 
         if {[llength $cells] > 0} {
             ht subtitle "Cells with the same name on other pages:"
-            CellTable $cells 
+            CellTable $cells model 
             ht para
         }
 
@@ -407,22 +419,38 @@ snit::type appserver {
     }
 
 
+    #-------------------------------------------------------------------
+    # /enum/snapshots:    Enumeration
+    #
+    # No match parameters
+
+    # /enum/snapshots:enumdict udict matchArray
+    #
+    # Returns the snapshots EnumDict.
+
+    proc /enum/snapshots:enumdict {udict matchArray} {
+        return [snapshot namedict]
+    }
+
     #===================================================================
     # Other Content Routines
     #
     # The following code relates to particular resources or kinds
     # of content.
 
-    # CellTable cells ?page?
+    # CellTable cells snapshot ?page?
     #
     # cells    - List of cells
+    # snapshot - Snapshot from which to get cells.
     # page     - Page whose name should be omitted from cell names
     #
     # Adds an HTML table of cell definitions and links to the output.
     # Cells are written with their fully-qualified names unless they
     # are on the named page.
 
-    proc CellTable {cells {page ""}} {
+    proc CellTable {cells snapshot {page ""}} {
+        array set values [snapshot get $snapshot]
+
         ht table {"Line#" "Cell" "Value" "Formula"} {
             foreach c $cells {
                 # Cell might be undefined
@@ -452,7 +480,11 @@ snit::type appserver {
 
                     }
                     ht td left { 
-                        ht put [cm value $c] 
+                        if {![info exists values($c)]} {
+                            ht put [cm value $c]
+                        } else {
+                            ht put $values($c)
+                        }
                     }
                     ht td left {
                         ht put <code>

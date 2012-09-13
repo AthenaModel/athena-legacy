@@ -586,12 +586,12 @@ snit::widget appwin {
         if {[catch {
             set snapshot [snapshot longname [snapshot import $filename]]
         } result]} {
-             app error {
-                 Could not import snapshot file \"$filename\":
-             
-                 $result
-             }
-             return
+            app error {
+                Could not import snapshot file \"$filename\":
+
+                $result
+            }
+            return
         }
 
         app puts "Imported snapshot $snapshot from $filename"

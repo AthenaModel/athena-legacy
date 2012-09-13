@@ -29,6 +29,9 @@ snit::type snapshot {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # timeFmt: Time stamp display format
+    typevariable timeFmt "%I:%M:%S %p"
+
     # info array: Miscellaneous data
     #
     # impCounter  - Counter used to generate import IDs
@@ -93,11 +96,9 @@ snit::type snapshot {
     # Returns the ID of the saved snapshot
 
     typemethod save {stype vdict} {
-        puts "snapshot save $stype"
-
         set sdict [dict create]
         set t     [clock seconds]
-        set stamp [clock format $t -format "%I:%M:%S %p"] 
+        set stamp [clock format $t -format $timeFmt] 
 
         dict set sdict stype $stype
         dict set sdict t     [clock seconds]
@@ -197,6 +198,18 @@ snit::type snapshot {
         return $names
     }
 
+    # validate id
+    #
+    # Validates a snapshot ID.
+
+    typemethod validate {id} {
+        if {$id ni [$type names]} {
+            throw INVALID "Unknown snapshot: \"$id\""
+        }
+
+        return $id
+    }
+
     # namedict
     #
     # Returns an id/longname dictionary.
@@ -219,7 +232,8 @@ snit::type snapshot {
 
     typemethod longname {id} {
         if {$id eq "current"} {
-            return "Current Values"
+            set t [clock seconds]
+            return "Current Values ([clock format $t -format $timeFmt])"
         }
 
         if {![dict exists $snapshots $id]} {
@@ -285,7 +299,11 @@ snit::type snapshot {
         }
 
         # Save the snapshot
-        $type save import $vdict
+        set id [$type save import $vdict]
+
+        notifier send ::snapshot <Import>
+
+        return $id
     }
 
     #-------------------------------------------------------------------
