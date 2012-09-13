@@ -198,15 +198,15 @@ snit::widget appwin {
         set menu [menu $menubar.snapshot]
         $menubar add cascade -label "Snapshot" -underline 0 -menu $menu
 
-        $menu add command \
-            -label       "Import..." \
-            -underline   0           \
-            -command     [mymethod SnapshotImport]
+        sc::gotModel control \
+            [menuitem $menu command "Import..." \
+                -underline   0           \
+                -command     [mymethod SnapshotImport]]
 
-        $menu add command \
-            -label       "Export..." \
-            -underline   1           \
-            -command     [mymethod SnapshotExport]
+        sc::gotModel control \
+            [menuitem $menu command "Export..." \
+                -underline   0           \
+                -command     [mymethod SnapshotExport]]
     }
 
     #-------------------------------------------------------------------

@@ -71,6 +71,18 @@ snit::type app {
         cmscript init
         snapshot init
 
+        # NEXT, create statecontrollers.
+        namespace eval ::sc {}
+
+        # Have a syntactically correct model
+        statecontroller ::sc::gotModel -events {
+            ::cmscript <New>
+            ::cmscript <Open>
+            ::cmscript <Check>
+        } -condition {
+            [::cmscript checkstate] ni {unchecked syntax}
+        }
+
         # NEXT, initialize the appserver
         appserver init
         myagent register app ::appserver
