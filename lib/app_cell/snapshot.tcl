@@ -73,7 +73,6 @@ snit::type snapshot {
         notifier bind ::cmscript <New>   $type [mytypemethod SnapshotClear]
         notifier bind ::cmscript <Open>  $type [mytypemethod SnapshotClear]
         notifier bind ::cmscript <Check> $type [mytypemethod SnapshotCheck]
-        notifier bind ::cmscript <Solve> $type [mytypemethod SnapshotSolve]
     }
 
     # save stype vdict
@@ -304,6 +303,22 @@ snit::type snapshot {
         notifier send ::snapshot <Import>
 
         return $id
+    }
+
+    # last_import
+    #
+    # Returns the ID of the most recent import snapshot
+
+    typemethod last_import {} {
+        return [lindex $info(imports) end]
+    }
+
+    # last_solution
+    #
+    # Returns the ID of the most recent solution snapshot
+
+    typemethod last_solution {} {
+        return [lindex $info(solution) end]
     }
 
     #-------------------------------------------------------------------

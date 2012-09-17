@@ -30,6 +30,16 @@ snit::type appserver {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Look-up Tables
+
+    typevariable linkInfo {
+        /pages {
+            label "Pages"
+            listIcon ::marsgui::icon::folder12
+        }
+    }
+
+    #-------------------------------------------------------------------
     # Type Components
 
     typecomponent server   ;# The myserver(n) instance.
@@ -53,7 +63,6 @@ snit::type appserver {
             -headercmd [myproc HeaderCmd] \
             -footercmd [myproc FooterCmd]
 
-
         # NEXT, register the resource types
         appserver register / {/?} \
             text/html [myproc /:html] \
@@ -73,8 +82,18 @@ snit::type appserver {
             text/html    [asproc type:html "Enum: Sort Cells By" esortcellby] \
             "Enumeration: Sort Cells By"
 
+        appserver register /links {links/?}               \
+            tcl/linkdict [myproc /links:linkdict]       \
+            "Top-level application links."
+
+        appserver register /pages {pages/?}     \
+            tcl/linkdict [myproc /pages:linkdict]  \
+            text/html    [myproc /pages:html]  \
+            "Page links"
+
         appserver register /page/{p} {page/(\w+)/?} \
-            text/html [myproc /page:html]           \
+            tcl/linkdict [myproc /page:linkdict]    \
+            text/html    [myproc /page:html]        \
             "Detail page for cell model page {p}."
     }
 
@@ -125,31 +144,7 @@ snit::type appserver {
             ht putln "The cell model is sane, and contains the following pages:"
             ht para
 
-            ht table {"Line" "Page" "# of Cells" "Cyclic?"} {
-                foreach page [cm pages] {
-                    set pcount [llength [cm cells $page]]
-
-                    ht tr {
-                        ht td right {
-                            set line [cm pageinfo pline $page]
-                            ht link gui://editor/$line $line
-                        }
-                        ht td left { 
-                            ht put <b>
-                            ht link page/$page $page
-                            ht put </b>
-                        }
-                        ht td right { ht put $pcount }
-                        ht td left  {
-                            if {[cm pageinfo cyclic $page]} {
-                                ht put "Yes"
-                            } else {
-                                ht put "No"
-                            }
-                        }
-                    }
-                }
-            }
+            PageTable
         } else {
             ht putln "The cell model is insane."
             ht para
@@ -176,7 +171,6 @@ snit::type appserver {
 
         # Cells with serious errors
         # TBD: add dl/dd/dt to htools
-
 
         if {[llength [cm cells invalid]] > 0} {
             ht subtitle "Invalid Cells"
@@ -221,92 +215,6 @@ snit::type appserver {
         ht putln "The model contains the following pages:"
         ht para
 
-    }
-
-    #-------------------------------------------------------------------
-    # /page/{p}:    Model page details
-    #
-    # {p} => $(1)  - The page name
-
-    # /page:html udict matchArray
-    #
-    # Formats and displays the details for a particular model page.
-    #
-    # The udict query is a "parm=value[+parm=value]" string with the
-    # following parameters:
-    #
-    #    sortby - The column to sort the cells by: one of line, name.
-    #
-    # Unknown query parameters and invalid query values are ignored.
-
-    proc /page:html {udict matchArray} {
-        upvar 1 $matchArray ""
-
-        # FIRST, get the page
-        set page $(1)
-
-        if {$page ni [cm pages]} {
-            if {[cmscript checkstate] in {unchecked syntax}} {
-                # Show the error, which will describe the status.
-                ht page "Model Page: $page" {}
-                return [ht get]
-            }
-            
-            return -code error -errorcode NOTFOUND \
-                "Unknown entity: [dict get $udict url]."
-        }
-
-        # NEXT, get the query parameters
-        set qdict [querydict $udict {snapshot sortby}]
-        dict with qdict {
-            restrict snapshot snapshot current
-            restrict sortby esortcellby name
-        }
-
-        # NEXT, format the output
-        ht page "Model Page: $page"
-        ht title "Model Page: $page"
-
-        ht hr
-        ht form my://app/page/$page -autosubmit yes
-        ht label snapshot "Values From:"
-        ht input snapshot enum $snapshot \
-            -content tcl/enumdict        \
-            -src     enum/snapshots
-        ht label sortby "Sort Cells By:"
-        ht input sortby enum $sortby \
-            -content tcl/enumdict    \
-            -src     enum/sortcellby 
-        ht /form
-        ht hr
-        ht para
-
-        ht putln "<b>$page</b> is a "
-        if {[cm pageinfo cyclic $page]} {
-            ht put "Cyclic"
-        } else {
-            ht put "Acyclic"
-        }
-
-        set pline [cm pageinfo pline $page]
-        ht put " page containing [llength [cm cells $page]] cells."
-        ht putln "It is defined starting at line "
-        ht link gui://editor/$pline $pline
-        ht putln "in the cell model file."
-        ht para
-
-        set cells [cm cells $page]
-
-        if {$sortby eq "name"} {
-            set cells [lsort -dictionary $cells]
-        }
-
-        CellTable $cells $snapshot $page
-
-        # FINALLY, complete the page
-        ht /page
-
-        return [ht get]
     }
 
     #-------------------------------------------------------------------
@@ -437,11 +345,221 @@ snit::type appserver {
         return [snapshot namedict]
     }
 
+    #-------------------------------------------------------------------
+    # /links                 - All link types
+    #
+    # Match Parameters: None
+
+    # /links:linkdict udict matchArray
+    #
+    # Returns a /links resource as a tcl/linkdict.
+
+    proc /links:linkdict {udict matchArray} {
+        return $linkInfo
+    }
+
+    #-------------------------------------------------------------------
+    # /pages                 - All page links
+    #
+    # Match Parameters: None
+
+    # /pages:linkdict udict matchArray
+    #
+    # Returns a /pages resource as a tcl/linkdict.
+
+    proc /pages:linkdict {udict matchArray} {
+        if {[cmscript checkstate] in {unchecked syntax}} {
+            return
+        }
+
+        set result [dict create]
+        foreach page [cm pages] {
+            dict set result my://app/page/$page \
+                label $page 
+
+            dict set result my://app/page/$page \
+                listIcon ::marsgui::icon::folder12 
+        }
+
+        return $result
+    }
+
+    # /pages:html udict matchArray
+    #
+    # Formats and displays the pages index.
+
+    proc /pages:html {udict matchArray} {
+        ht page "Model Pages"
+        ht title "Model Pages"
+
+        PageTable
+
+        # FINALLY, complete the page
+        ht /page
+
+        return [ht get]
+    }
+    #-------------------------------------------------------------------
+    # /page/{p}:    Model page details
+    #
+    # {p} => $(1)  - The page name
+
+    # /page:linkdict udict matchArray
+    #
+    # Links to the cells on the page.
+
+    proc /page:linkdict {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the page
+        set page $(1)
+
+        if {$page ni [cm pages]} {
+            if {[cmscript checkstate] in {unchecked syntax}} {
+                return
+            }
+            
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: [dict get $udict url]."
+        }
+   
+        foreach cell [lsort -dictionary [cm cells $page]] {
+            dict set result my://app/cell/$cell \
+                label $cell 
+
+            dict set result my://app/cell/$cell \
+                listIcon ::marsgui::icon::page12 
+        }
+
+        return $result
+    }
+
+    # /page:html udict matchArray
+    #
+    # Formats and displays the details for a particular model page.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    sortby - The column to sort the cells by: one of line, name.
+    #
+    # Unknown query parameters and invalid query values are ignored.
+
+    proc /page:html {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the page
+        set page $(1)
+
+        if {$page ni [cm pages]} {
+            if {[cmscript checkstate] in {unchecked syntax}} {
+                # Show the error, which will describe the status.
+                ht page "Model Page: $page" {}
+                return [ht get]
+            }
+            
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: [dict get $udict url]."
+        }
+
+        # NEXT, get the query parameters
+        set qdict [querydict $udict {snapshot sortby}]
+        dict with qdict {
+            restrict snapshot snapshot current
+            restrict sortby esortcellby name
+        }
+
+        # NEXT, format the output
+        ht page "Model Page: $page"
+        ht title "Model Page: $page"
+
+        ht hr
+        ht form my://app/page/$page -autosubmit yes
+        ht label snapshot "Values From:"
+        ht input snapshot enum $snapshot \
+            -content tcl/enumdict        \
+            -src     enum/snapshots
+        ht label sortby "Sort Cells By:"
+        ht input sortby enum $sortby \
+            -content tcl/enumdict    \
+            -src     enum/sortcellby 
+        ht /form
+        ht hr
+        ht para
+
+        ht putln "<b>$page</b> is a "
+        if {[cm pageinfo cyclic $page]} {
+            ht put "Cyclic"
+        } else {
+            ht put "Acyclic"
+        }
+
+        set pline [cm pageinfo pline $page]
+        ht put " page containing [llength [cm cells $page]] cells."
+        ht putln "It is defined starting at line "
+        ht link gui://editor/$pline $pline
+        ht putln "in the cell model file."
+        ht para
+
+        set cells [cm cells $page]
+
+        if {$sortby eq "name"} {
+            set cells [lsort -dictionary $cells]
+        }
+
+        CellTable $cells $snapshot $page
+
+        # FINALLY, complete the page
+        ht /page
+
+        return [ht get]
+    }
+
     #===================================================================
     # Other Content Routines
     #
     # The following code relates to particular resources or kinds
     # of content.
+
+    # PageTable
+    #
+    # Formats a table of the pages in the model.
+
+    proc PageTable {} {
+        if {[cmscript checkstate] in {unchecked syntax}} {
+            ht putln "No pages defined."
+            return
+        } 
+
+        ht table {"Line" "Page" "# of Cells" "Cyclic?"} {
+            foreach page [cm pages] {
+                set pcount [llength [cm cells $page]]
+
+                ht tr {
+                    ht td right {
+                        set line [cm pageinfo pline $page]
+                        ht link gui://editor/$line $line
+                    }
+                    ht td left { 
+                        ht put <b>
+                        ht link page/$page $page
+                        ht put </b>
+                    }
+                    ht td right { ht put $pcount }
+                    ht td left  {
+                        if {[cm pageinfo cyclic $page]} {
+                            ht put "Yes"
+                        } else {
+                            ht put "No"
+                        }
+                    }
+                }
+            }
+        }
+
+        return
+    }
+
 
     # CellTable cells snapshot ?page?
     #

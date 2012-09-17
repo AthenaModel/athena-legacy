@@ -42,6 +42,7 @@ snit::widget detailbrowser {
     # Components
 
     component browser ;# The mybrowser(n)
+    component ltree   ;# The linktree(n)
     component lazy    ;# The lazyupdater(n)
     component context ;# The context menu
 
@@ -55,6 +56,31 @@ snit::widget detailbrowser {
             -hyperlinkcmd [mymethod GuiLinkCmd]       \
             -messagecmd   {app puts}                  \
             -styles       $browserStyles 
+
+        # NEXT, create the sidebar
+        set sidebar [$browser sidebar]
+
+        ttk::notebook $sidebar.tabs \
+            -takefocus 0 \
+            -padding   2
+
+        install ltree using linktree $sidebar.tabs.ltree \
+            -url       my://app/links      \
+            -lazy      yes                 \
+            -width     150                 \
+            -height    400                 \
+            -changecmd [mymethod ShowLink] \
+            -errorcmd  [list app error]
+
+        $sidebar.tabs add $sidebar.tabs.ltree    \
+            -sticky  nsew                        \
+            -padding 2                           \
+            -text "Links"
+
+        $browser configure \
+            -reloadcmd [mymethod RefreshLinks]
+
+        pack $sidebar.tabs -fill both -expand yes
 
         # NEXT, create the lazy updater
         install lazy using lazyupdater ${selfns}::lazy \
@@ -226,6 +252,25 @@ snit::widget detailbrowser {
 
         app show $url
         return 1
+    }
+
+    # RefreshLinks
+    #
+    # Called on browser reload; refreshes the links tree
+    
+    method RefreshLinks {} {
+        $ltree refresh
+    }
+
+    # ShowLink url
+    #
+    # Shows whatever is selected in the tree, if it's different than
+    # what we already have.
+
+    method ShowLink {url} {
+        if {$url ne ""} {
+            $browser show $url
+        }
     }
 
     #-------------------------------------------------------------------

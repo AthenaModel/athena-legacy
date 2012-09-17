@@ -37,7 +37,7 @@ enum echeckstate {
 
 enum esolvestate {
     unsolved "Unsolved"
-    diverged "Diverged"
+    diverge  "Diverged"
     errors   "Math Errors"
     ok       "Solved"
 }

@@ -44,6 +44,19 @@ snit::type cmscript {
     #              msg  - The error message
     # solvestate - An esolvestate value; status of last solution.
     #              Set to "unsolved" when file is edited.
+    # solveinfo  - A dictionary of solution information.  The content
+    #              depends on the solve state.
+    #
+    #              diverge:
+    #                  page   - The name of the page that diverged.
+    #
+    #              errors:
+    #                  page   - The name of the page on which the math
+    #                           errors occurred.
+    #
+    #              ok:
+    #                  TBD
+    #
 
     typevariable info -array {
         cmfile     ""
@@ -138,6 +151,10 @@ snit::type cmscript {
         $type DetermineStates
 
         return $info(solvestate)
+    }
+
+    typemethod solveinfo {} {
+        return $info(solveinfo)
     }
 
     #-------------------------------------------------------------------
@@ -361,7 +378,7 @@ snit::type cmscript {
     typemethod solve {args} {
         # FIRST, clear the state info
         $type DetermineStates
-        set info(solveinfo) ""
+        set info(solveinfo) [dict create]
 
         # NEXT, get the option values.
         set opts(-snapshot) model
@@ -386,10 +403,17 @@ snit::type cmscript {
         # NEXT, put in the initial set of values
         cm set [snapshot get $opts(-snapshot)]
 
-        # NEXT, solve the model
+        # NEXT, solve the model and save the solution information
         set result [cm solve]
 
         set info(solvestate) [lindex $result 0]
+
+        dict set info(solveinfo) initial $opts(-snapshot)
+        dict set info(solveinfo) solution [snapshot save solution [cm get]]
+
+        if {$info(solvestate) in {diverge errors}} {
+            dict set info(solveinfo) page [lindex $result 1]
+        }
 
         # NEXT, notify the application that we've tried to solve the model.
         notifier send ::cmscript <Solve>
