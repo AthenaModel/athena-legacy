@@ -307,8 +307,8 @@ snit::type cmscript {
     # [syntaxerr] returns the line number and error message
 
     typemethod check {} {
-        puts "cmscript check"
         # FIRST, clear the state data.
+        $type DetermineStates
         set info(checkinfo) [dict create]
 
         # FIRST, check the syntax.
@@ -359,8 +359,11 @@ snit::type cmscript {
     # be caught by cellmodel(n).
 
     typemethod solve {args} {
-        puts "cmscript solve"
-        # FIRST, get the option values.
+        # FIRST, clear the state info
+        $type DetermineStates
+        set info(solveinfo) ""
+
+        # NEXT, get the option values.
         set opts(-snapshot) model
         set opts(-epsilon)  0.0001
         set opts(-maxiters) 100

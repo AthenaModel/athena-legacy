@@ -91,11 +91,16 @@ snit::type appserver {
         ht page "Model Overview"
         ht title "Model Overview"
 
-        # FIRST, Check the current model.
-        if {[cmscript checkstate] eq "unchecked"} {
-            cmscript check
-        }
+        # FIRST, Has the model been checked?
         set code [cmscript checkstate]
+
+        if {$code eq "unchecked"} {
+            ht putln {
+                The cell model has not yet been checked.
+                Select the "Check" or "Solve" buttons on the
+                toolbar.
+            }
+        }
 
         # NEXT, handle syntax errors
         if {$code eq "syntax"} {
