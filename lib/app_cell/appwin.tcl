@@ -505,9 +505,9 @@ snit::widget appwin {
     # error dialog.
 
     method ModelSyntaxError {} {
-        set errinfo [cmscript errinfo]
-        set line [dict get $errinfo line]
-        set msg  [dict get $errinfo msg]
+        set checkinfo [cmscript checkinfo]
+        set line [dict get $checkinfo line]
+        set msg  [dict get $checkinfo msg]
 
         # FIRST, jump to the error.
         $cmeditor mark set insert $line.0
@@ -557,6 +557,78 @@ snit::widget appwin {
             $content select $detail
             $detail show my://app
         }
+    }
+
+    # ModelSolve
+    #
+    # Called when Model/Solve is selected.  Allows the user to enter
+    # solution parameters, and then solves the model.
+
+    method ModelSolve {} {
+        # FIRST, Check the model.  This will notify the user if there are
+        # any problems.
+        $self ModelCheck
+
+        # NEXT, we do nothing if the model isn't know to be sane.
+        if {[cmscript checkstate] ne "checked"} {
+            return
+        }
+
+        # NEXT, get the solution parameters.
+        set pdict [dynabox popup \
+            -formtype    ModelSolve \
+            -oktext      "Solve" \
+            -title       "Solve Model..." \
+            -parent      $win \
+            -validatecmd [myproc ModelSolveValidate]]
+
+        if {[dict size $pdict] == 0} {
+            # Cancel
+            return
+        }
+
+        dict with pdict {
+            set state [cmscript solve \
+                -snapshot $snapshot   \
+                -epsilon  $epsilon    \
+                -maxiters $maxiters]
+        }
+
+        if {$state eq "ok"} {
+            app puts "The model ran to completion."
+        } else {
+            app puts "There's a problem; see overview page."
+        }
+    }
+
+    # ModelSolveValidate pdict
+    #
+    # pdict - Parameter dictionary
+    #
+    # Validation Command for the model solution parameters
+
+    proc ModelSolveValidate {pdict} {
+        set errdict [dict create]
+
+        dict with pdict {}
+
+        if {$snapshot eq ""} {
+            dict set errdict snapshot "Please select a snapshot."
+        }
+
+        if {[catch {repsilon validate $epsilon} result]} {
+            dict set errdict epsilon $result
+        }
+
+        if {[catch {iiterations validate $maxiters} result]} {
+            dict set errdict maxiters $result
+        }
+
+        if {[dict size $errdict] > 0} {
+            throw REJECTED $errdict
+        }
+
+        return
     }
 
     # SnapshotImport

@@ -99,8 +99,8 @@ snit::type appserver {
 
         # NEXT, handle syntax errors
         if {$code eq "syntax"} {
-            set errmsg [dict get [cmscript errinfo] msg]
-            set line [dict get [cmscript errinfo] line]
+            set errmsg [dict get [cmscript checkinfo] msg]
+            set line [dict get [cmscript checkinfo] line]
 
             ht putln "The cell model has a syntax error at line "
             ht link gui://editor/$line $line
@@ -589,7 +589,7 @@ snit::type appserver {
                 if {$title eq "Model Overview"} {
                     return
                 }
-                set errdict [cmscript errinfo]
+                set errdict [cmscript checkinfo]
                 dict with errdict {
                     ht putln {<div class="warning">}
                     ht putln "The model contains a syntax error at line "

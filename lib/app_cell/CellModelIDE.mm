@@ -224,13 +224,7 @@
 </node>
 </node>
 <node TEXT="Next" POSITION="right" ID="ID_1459946860" CREATED="1345760892431" MODIFIED="1347471654901">
-<node TEXT="Add snapshots module" ID="ID_1553368798" CREATED="1347474815148" MODIFIED="1347474819033"/>
-<node TEXT="Save snapshots when appropriate." ID="ID_367825222" CREATED="1347474819412" MODIFIED="1347486466817"/>
-<node TEXT="Import/Export of snapshots" ID="ID_817228212" CREATED="1347486467261" MODIFIED="1347486472042"/>
-<node TEXT="Import/Export should only be available on menu when checkstate is &quot;checked&quot;." ID="ID_308167985" CREATED="1347486472436" MODIFIED="1347486495907"/>
-<node TEXT="Add control to page and cell pages: from which snapshot should the cell values be taken?" ID="ID_1192780855" CREATED="1347474845734" MODIFIED="1347474876692">
-<node TEXT="Need tcl/enumdict URL for snapshots" ID="ID_1758720951" CREATED="1347474894632" MODIFIED="1347474900726"/>
-</node>
+<node TEXT="Need a ::cmscript &lt;CheckState&gt; event, to trigger statecontrollers" ID="ID_331373726" CREATED="1347574831036" MODIFIED="1347574870839"/>
 </node>
 </node>
 </map>

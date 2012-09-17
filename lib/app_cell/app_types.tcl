@@ -14,6 +14,9 @@
 #
 #-----------------------------------------------------------------------
 
+#-----------------------------------------------------------------------
+# Enumerations
+
 # esortcellby: Options for sorting tables of cells
 
 enum esortcellby {
@@ -30,6 +33,15 @@ enum echeckstate {
     checked   "Checked"
 }
 
+# esolvestate: Has the model been solved, and to what effect?
+
+enum esolvestate {
+    unsolved "Unsolved"
+    diverged "Diverged"
+    errors   "Math Errors"
+    ok       "Solved"
+}
+
 # esnapshottype: Kinds of snapshot saved by the snapshot model.
 
 enum esnapshottype {
@@ -38,3 +50,14 @@ enum esnapshottype {
     solution "Solution"
 }
 
+#-----------------------------------------------------------------------
+# Integer Types
+
+# A number of interations
+snit::integer iiterations -min 1
+
+#-----------------------------------------------------------------------
+# Real Types
+
+# An epsilon value
+snit::double repsilon -min 0.000001

@@ -337,7 +337,7 @@ snit::type snapshot {
     # Save the default initial conditions when the model is checked.
 
     typemethod SnapshotSolve {} {
-        if {[cmscript solvestate] eq "solved"} {
+        if {[cmscript solvestate] eq "ok"} {
             $type save solution [cm get]
             return
         }

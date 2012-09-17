@@ -32,6 +32,12 @@ snit::widget ctexteditor {
     # Options delegated to hull
     delegate option * to ctext
 
+    # -modifiedcmd cmd
+    #
+    # Called when the ctext widget sends <<Modified>>
+
+    option -modifiedcmd
+
     # -messagecmd cmd
     #
     # The cmd is a command prefix taking one additional argument, a
@@ -76,6 +82,7 @@ snit::widget ctexteditor {
         # TBD: Perhaps we should create a new set of bindings.
         bind $ctext <Tab>         [mymethod EditorTab]
         bind $ctext <<SelectAll>> [mymethod EditorSelectAll]
+        bind $ctext <<Modified>>  [mymethod EditorModified]
     }
 
     #-------------------------------------------------------------------
@@ -101,6 +108,14 @@ snit::widget ctexteditor {
     
     method EditorSelectAll {} {
         $win tag add sel 1.0 end
+    }
+
+    # EditorModified
+    #
+    # Sends -modifiedcmd when <<Modified>>
+
+    method EditorModified {} {
+        callwith $options(-modifiedcmd)
     }
     
     # Message text

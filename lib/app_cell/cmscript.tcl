@@ -36,18 +36,21 @@ snit::type cmscript {
     # unsaved    - 1 if file needs to be saved, and 0 otherwise.
     # checkstate - An echeckstate value; status of last check.  Set
     #              to unchecked when file is edited.
-    # errinfo    - A dictionary of syntax error information, when
+    # checkinfo  - A dictionary of syntax error information, when
     #              checkstate is "syntax":
     #
     #              line - The line number at which the syntax error 
     #                     is located.
     #              msg  - The error message
+    # solvestate - An esolvestate value; status of last solution.
+    #              Set to "unsolved" when file is edited.
 
     typevariable info -array {
         cmfile     ""
         unsaved    0
         checkstate unchecked
-        errinfo    {}
+        checkinfo  {}
+        solvestate unsolved
     }
 
     #-------------------------------------------------------------------
@@ -59,7 +62,7 @@ snit::type cmscript {
 
     typemethod init {} {
         # FIRST, create a clean cellmodel(n) object
-        cellmodel ::cm 
+        cellmodel ::cm
     }
 
     # register ed
@@ -99,7 +102,7 @@ snit::type cmscript {
         if {$modified} {
             set info(unsaved) 1 
             set info(checkstate) unchecked
-            set info(errinfo)    {}
+            set info(checkinfo)  {}
             set info(solvestate) unsolved
         }
 
@@ -118,13 +121,23 @@ snit::type cmscript {
         return $info(checkstate)
     }
 
-    # errinfo
+    # checkinfo
     #
-    # Returns the syntax errinfo dictionary when checkstate is
+    # Returns the syntax checkinfo dictionary when checkstate is
     # "syntax".  Otherwise, returns the empty string.
 
-    typemethod errinfo {} {
-        return $info(errinfo)
+    typemethod checkinfo {} {
+        return $info(checkinfo)
+    }
+
+    # solvestate
+    #
+    # Returns the solution state
+
+    typemethod solvestate {} {
+        $type DetermineStates
+
+        return $info(solvestate)
     }
 
     #-------------------------------------------------------------------
@@ -156,7 +169,7 @@ snit::type cmscript {
         set info(cmfile)     ""
         set info(unsaved)    0
         set info(checkstate) unchecked
-        set info(errinfo)    {}
+        set info(checkinfo)  {}
         set info(solvestate) unsolved
 
     }
@@ -190,7 +203,7 @@ snit::type cmscript {
         set info(cmfile)     $filename
         set info(unsaved)    0
         set info(checkstate) unchecked
-        set info(errinfo)    {}
+        set info(checkinfo)  {}
         set info(solvestate) unsolved
 
         # NEXT, notify the application.
@@ -284,6 +297,9 @@ snit::type cmscript {
         return [$editor getall]
     }
 
+    #-------------------------------------------------------------------
+    # Model Checking
+
     # check
     #
     # Checks the content of the current model.  Returns an 
@@ -291,16 +307,17 @@ snit::type cmscript {
     # [syntaxerr] returns the line number and error message
 
     typemethod check {} {
+        puts "cmscript check"
         # FIRST, clear the state data.
-        set info(errinfo) [dict create]
+        set info(checkinfo) [dict create]
 
         # FIRST, check the syntax.
         if {[catch {cm load [$editor getall]} result eopts]} {
             set ecode [dict get $eopts -errorcode]
 
             if {[lindex $ecode 0] eq "SYNTAX"} {
-                dict set info(errinfo) line [lindex $ecode 1]
-                dict set info(errinfo) msg  $result
+                dict set info(checkinfo) line [lindex $ecode 1]
+                dict set info(checkinfo) msg  $result
                 set info(checkstate) syntax
 
                 notifier send ::cmscript <Check>
@@ -325,16 +342,57 @@ snit::type cmscript {
         # FINALLY, all is good.
         return $info(checkstate)
     }
+
+    #-------------------------------------------------------------------
+    # Model Solving
+
+    # solve ?options?
+    #
+    # -snapshot   - Snapshot to use as starting point for solution.
+    # -epsilon    - Epsilon for iteration termination.
+    # -maxiters   - Max number of iterations.
+    #
+    # Attempts to solve the model given the parameters, saving solution
+    # details for later display.
+    #
+    # Note: the option values are presumed to be right.  If not, they'll
+    # be caught by cellmodel(n).
+
+    typemethod solve {args} {
+        puts "cmscript solve"
+        # FIRST, get the option values.
+        set opts(-snapshot) model
+        set opts(-epsilon)  0.0001
+        set opts(-maxiters) 100
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            if {[info exists opts($opt)]} {
+                set opts($opt) [lshift args]
+            } else {
+                error "Unknown option: \"$opt\""
+            }
+        }
+
+        # NEXT, configure for solution
+        cm configure \
+            -epsilon  $opts(-epsilon)  \
+            -maxiters $opts(-maxiters)
+
+        # NEXT, put in the initial set of values
+        cm set [snapshot get $opts(-snapshot)]
+
+        # NEXT, solve the model
+        set result [cm solve]
+
+        set info(solvestate) [lindex $result 0]
+
+        # NEXT, notify the application that we've tried to solve the model.
+        notifier send ::cmscript <Solve>
+
+        # FINALLY, return the solution state
+        return $info(solvestate)
+    }
 }
-
-
-
-
-
-
-
-
-
-
-
 
