@@ -354,7 +354,7 @@ snit::widget cgesheet {
             "Consumer Sec. Factor"
             "Labor Force"
             "Labor Sec. Factor"
-            "Graft Factor"
+            "FAR Graft Factor"
         }
 
         $inputs textcol 0,2 {
