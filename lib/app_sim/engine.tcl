@@ -40,7 +40,7 @@ snit::type engine {
 
         # NEXT, create an instance of URAM and register it as a saveable
         # TBD: wart needed.  Register only in main thread.
-        uram ::aram \
+        profile uram ::aram \
             -rdb          ::rdb                   \
             -loadcmd      [mytypemethod LoadAram] \
             -undo         on                      \
@@ -65,39 +65,39 @@ snit::type engine {
     typemethod start {} {
         # FIRST, Set up the attitudes model: initialize URAM and relate all
         # existing MADs to URAM drivers.
-        aram init -reload
+        profile aram init -reload
 
         # NEXT, initialize all modules, and do basic analysis, in preparation
         # for executing the on-lock tactics.
 
-        personnel start      ;# Initial deployments and base units.
-        demog start          ;# Computes population statistics
-        service start        ;# Populates service tables.
-        nbstat start         ;# Computes initial security and coverage
-        control_model start  ;# Computes initial support and influence
-        econ start           ;# Initializes the econ model.
+        profile personnel start      ;# Initial deployments and base units.
+        profile demog start          ;# Computes population statistics
+        profile service start        ;# Populates service tables.
+        profile nbstat start         ;# Computes initial security and coverage
+        profile control_model start  ;# Computes initial support and influence
+        profile econ start           ;# Initializes the econ model.
 
         # NEXT, Advance time to 0.  What we get here is a pseudo-tick,
         # in which we execute the on-lock strategy and provide transient
         # effects to URAM.
 
-        strategy start       ;# Execute on-lock strategies
-        eventq advance 0     ;# Execute any scheduled orders.
+        profile strategy start       ;# Execute on-lock strategies
+        profile eventq advance 0     ;# Execute any scheduled orders.
 
         # NEXT, do analysis and assessment, of transient effects only.
         # There will be no attrition and no shifts in neighborhood control.
 
-        demog analyze pop
-        ensit assess
-        nbstat analyze
-        control_model analyze
-        actsit assess
-        service assess
+        profile demog analyze pop
+        profile ensit assess
+        profile nbstat analyze
+        profile control_model analyze
+        profile actsit assess
+        profile service assess
         set econOK [econ tock]
         if {$econOK} {
-            demog analyze econ
+            profile demog analyze econ
         }
-        demsit assess
+        profile demsit assess
 
         # NEXT, set natural attitude levels for those attitudes whose
         # natural level varies with time.
@@ -105,11 +105,11 @@ snit::type engine {
 
         # NEXT, advance URAM to time 0, applying the transient inputs
         # entered above.
-        aram advance 0
+        profile aram advance 0
 
         # NEXT,  Save time 0 history!
-        hist tick
-        hist econ
+        profile hist tick
+        profile hist econ
     }
 
 

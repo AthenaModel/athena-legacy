@@ -53,11 +53,11 @@ snit::type coverage_model {
     # effectiveness. Must follow [security analyze].
 
     typemethod analyze {} {
-        $type InitializeActivityTable
-        $type ComputeActivityPersonnel
-        $type ComputeForceActivityFlags
-        $type ComputeOrgActivityFlags
-        $type ComputeCoverage
+        profile 2 $type InitializeActivityTable
+        profile 2 $type ComputeActivityPersonnel
+        profile 2 $type ComputeForceActivityFlags
+        profile 2 $type ComputeOrgActivityFlags
+        profile 2 $type ComputeCoverage
     }
 
     # InitializeActivityTable

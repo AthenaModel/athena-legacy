@@ -738,7 +738,9 @@ order define SIM:STARTDATE {
 
 order define SIM:LOCK {
     title "Lock Scenario Preparation"
-    options -sendstates {PREP}
+    options \
+        -sendstates {PREP} \
+        -monitor    no
 } {
     # FIRST, do the on-lock sanity check.
     set sev [sanity onlock check]
@@ -818,7 +820,9 @@ order define SIM:UNLOCK {
 
 order define SIM:RUN {
     title "Run Simulation"
-    options -sendstates {PAUSED}
+    options \
+        -sendstates {PAUSED} \
+        -monitor    no
 
     form {
         rcc "Weeks to Run:" -for weeks

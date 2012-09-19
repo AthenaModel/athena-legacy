@@ -160,10 +160,10 @@ snit::type service {
 
     typemethod {assess} {} {
         # FIRST, compute each actor's credit.
-        $type ComputeCredit
+        profile 1 $type ComputeCredit
 
         # NEXT, allow the rules to fire.
-        service_rules monitor
+        profile 1 service_rules monitor
     }
 
 
