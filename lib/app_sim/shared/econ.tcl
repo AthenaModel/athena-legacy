@@ -345,7 +345,7 @@ snit::type econ {
     # reset
     #
     # Resets the econ model to the initial state for both the SAM
-    # and the CGE
+    # and the CGE and notifies the GUI
 
     typemethod reset {} {
         $sam reset
@@ -357,6 +357,8 @@ snit::type econ {
         }
 
         $cge reset
+
+        notifier send ::econ <SyncSheet> 
     }
 
     # InitializeActorIncomeTables

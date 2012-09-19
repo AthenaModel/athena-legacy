@@ -124,6 +124,9 @@ snit::type sim {
         # NEXT, clear the belief system
         bsystem clear
 
+        # NEXT, reset the econ model
+        econ reset
+
         # NEXT, set the simulation status
         set info(changed) 0
         set info(state)   PREP
