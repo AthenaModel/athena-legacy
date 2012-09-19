@@ -393,7 +393,7 @@ snit::widget cgesheet {
             -colorigin     0                          \
             -cellmodel     $cge                       \
             -state         disabled                   \
-            -rows          8                          \
+            -rows          9                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -407,12 +407,13 @@ snit::widget cgesheet {
             "Deflated GDP"
             "Unemployment"
             "Unemp. Rate"
+            "Unsecure Labor Force"
             "Goods Shortage"
             "Black Mkt Shortage"
             "Labor Shortage"
         }
 
-        $outputs width 0 18
+        $outputs width 0 20
 
         $outputs textcol 0,2 {
             "$/Year"
@@ -420,6 +421,7 @@ snit::widget cgesheet {
             "$/Year, Deflated"
             "work-years"
             "%"
+            "work-years"
             "GoodsBKT/year"
             "tonne/year"
             "work-years"
@@ -433,9 +435,10 @@ snit::widget cgesheet {
         $outputs mapcell 2,1 Out::DGDP           x
         $outputs mapcell 3,1 Out::Unemployment   q
         $outputs mapcell 4,1 Out::UR             q
-        $outputs mapcell 5,1 Out::SHORTAGE.goods q
-        $outputs mapcell 6,1 Out::SHORTAGE.black q
-        $outputs mapcell 7,1 Out::SHORTAGE.pop   q
+        $outputs mapcell 5,1 Out::LFU            q
+        $outputs mapcell 6,1 Out::SHORTAGE.goods q
+        $outputs mapcell 7,1 Out::SHORTAGE.black q
+        $outputs mapcell 8,1 Out::SHORTAGE.pop   q
     }
 
     #------------------------------------------------------------------

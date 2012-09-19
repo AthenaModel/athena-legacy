@@ -2631,13 +2631,17 @@ tab "Econ/Overview" {
 
     The most salient outputs consist of the Gross Domestic Product (GDP),
     the Consumer Price Index (CPI), the Deflated GDP, the number of 
-    unemployed workers in the playbox along with the unemployment rate.  
+    unemployed workers in the playbox along with the unemployment rate.
+    The amount of the labor force afraid to go to work due to not enough
+    security is the Unsecure Labor Force. This number is part of 
+    Unemployment.<p>
+
     Below that, shortages are displayed:  the shortage in the goods sector
     is determined by the unconstrained demand for goods and the constrained
     supply, the shortage in the black market is determined by the 
     unconstrained demand for black market goods and the constrained supply,
     and the shortage of labor as defined by the unconstrained demand in the 
-    population sector and the available (constrained) work force.<p>
+    population sector and the available (constrained) labor force.<p>
 }
 
 tab "Econ/Capacity" {

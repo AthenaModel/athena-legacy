@@ -1055,7 +1055,11 @@ let BQS.black = {[Cal::QS.black]}
 let BQS.goods = {[Cal::QS.goods]}
 let BQS.pop   = {[Cal::QS.pop]}
 
+# Copy Foreign aid to the region
 let FAR = {[In::FAR]}
+
+# The amount of the labor force afraid to work, Labor Force Unsecure
+let LFU = {[In::CAP.pop] * (1.0 - [In::LSF])}
 
 # Default QD for actors, region and world to 0.0
 foreach i {actors region world} {
@@ -1150,5 +1154,6 @@ let FLAG.QS.NONNEG = {
 let FLAG.P.POS = {
     [P.black] > 0.0 || [P.goods] > 0.0 || [P.pop] > 0.0
 }
+
 
 
