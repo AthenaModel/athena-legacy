@@ -43,12 +43,24 @@ application.<p>
 
 <<deflist commands>>
 
-<<defitem myserver {myserver <i>name</i>}>>
+<<defitem myserver {myserver <i>name</i> ?<i>option value...</i>?}>>
 
 Creates a new instance of myserver(n) called <i>name</i>; returns the
 fully-qualified command name.<p>
 
-At present, myserver(n) has no options.<p>
+Instances of myserver(n) take the following options:<p>
+
+<<deflist options>>
+<<defopt {-logcmd <i>cmd</i>}>>
+Defines a command prefix to be called with three additional arguments
+when the instance wishes to write to the debugging log: a verbosity
+level, a module name, and a log message.  Note that <i>cmd</i> will
+often be a <<xref mars:logger(n)>> instances.<p>
+
+The most important thing logged by myserver(n) are the requested URLs
+and the time (in microseconds) required to produce the content.<p>
+
+<</deflist options>>
 
 <</deflist commands>>
 

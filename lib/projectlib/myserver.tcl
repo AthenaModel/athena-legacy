@@ -36,6 +36,13 @@ snit::type ::projectlib::myserver {
     component ht   ;# htools instance
 
     #-------------------------------------------------------------------
+    # Options
+
+    # -logcmd: Command called to log activity
+
+    option -logcmd
+
+    #-------------------------------------------------------------------
     # Instance Variables
 
     # URL Schema dictionary
@@ -82,7 +89,7 @@ snit::type ::projectlib::myserver {
 
     constructor {args} {
         # FIRST, save options
-        # TBD: There are none, yet
+        $self configurelist $args
 
         # NEXT, create the htools buffer.
         install ht using htools ${selfns}::ht \
@@ -213,6 +220,38 @@ snit::type ::projectlib::myserver {
     # If the requested resource is not found, throws NOTFOUND.
 
     method get {url {contentTypes ""}} {
+        # Gets the content for the URL, timing the result.
+        set msec [lindex [time {
+            set result [$self GetContent $url $contentTypes]
+        } 1] 0]
+
+        set ctype [dict get $result contentType]
+        callwith $options(-logcmd) detail $self "msec $msec: $ctype $url"
+
+        return $result
+    }
+
+    # GetContent url contentTypes
+    #
+    # url         - The URL of the resource to get.
+    # contentType - The list of accepted content types.  Wildcards are
+    #               allowed, e.g., text/*, */*
+    #
+    # Retrieves the given resource, or throws an error.  If the 
+    # contentTypes list is omitted, returns the resource's 
+    # preferred content type (usually text/html); otherwise it returns
+    # the first content type in contentTypes that matches an available
+    # content type.  If there is none, throws NOTFOUND.
+    #
+    # Returns a dictionary:
+    #
+    #    url          - The URL
+    #    contentType  - The returned content type
+    #    content      - The returned content
+    #
+    # If the requested resource is not found, throws NOTFOUND.
+
+    method GetContent {url contentTypes} {
         # FIRST, parse the URL.  We will ignore the scheme and host.
         set u [uri::split $url]
 

@@ -100,7 +100,7 @@ snit::type appserver {
 
     typemethod init {} {
         # FIRST, create the server
-        set server [myserver ${type}::server]
+        set server [myserver ${type}::server -logcmd ::log]
 
         # NEXT, create the buffer for generating HTML.
         htools ${type}::ht \
