@@ -373,7 +373,7 @@ let BEXPORTS.pop   = 50e3      ;# work-years/year
 
 # There are no exports from the actors, region, or world sectors
 
-let REM           = 50e6      ;# $/year Remittances 
+let BREM          = 50e6      ;# $/year Remittances 
                               ;# that goes directly to the populace
 let BFAR          = 10e6      ;# $/year  Foreign aid that goes directly to 
                               ;# the region, a fraction of which (graft)
@@ -679,8 +679,8 @@ let SA = {[BaseSA]}                 ;# $/year
 # We will redefine QD.goods.pop using Consumers in the L page.
 let QD.goods.pop = {[A.goods.pop] * [BaseConsumers]}
 
-let REV.pop = {[P.pop] * [QS.pop] + [REM]}             -value 1.52e8
-let ATI.pop = {[k.pop] * [P.pop] * [QS.pop] + [REM]}   -value 50.0e6
+let REV.pop = {[P.pop] * [QS.pop] + [BREM]}            -value 1.52e8
+let ATI.pop = {[k.pop] * [P.pop] * [QS.pop] + [BREM]}  -value 50.0e6
 
 let X.black.pop = {[f.black.pop] * [ATI.pop]}          -value 50.0e6
 let QD.black.pop = {[X.black.pop] / [P.black]}         -value 50000
@@ -785,7 +785,7 @@ let QD.pop.world   = {[BEXPORTS.pop]}
 
 let X.black.world  = {[P.black] * [QD.black.world]}
 let X.goods.world  = {[P.goods] * [QD.goods.world]}
-let X.pop.world    = {[P.pop]   * [QD.pop.world]   + [REM]}
+let X.pop.world    = {[P.pop]   * [QD.pop.world]   + [BREM]}
 let X.actors.world = {[FAA] + [BFAR] * [Bgraft]}
 let X.region.world = {[BFAR] * (1.0 - [Bgraft])}
 let X.world.world   = 0
@@ -901,7 +901,7 @@ let CAP.black = 40000
 
 # Remittances, foreign aid, NGO aid (Government transfers are now
 # explicit) directly to pop
-# let REM = 50e6              ; $/year
+let REM = {[BREM]}            ;# $/year
 
 # Foreign aid
 let FAR = {[BFAR]}            ;# $/year

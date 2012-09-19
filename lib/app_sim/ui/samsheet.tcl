@@ -368,7 +368,7 @@ snit::widget samsheet {
         } units -anchor w -relief flat
 
         # NEXT, add data
-        $inputs mapcell 0,1 BRFN           e -background $color(e)
+        $inputs mapcell 0,1 BREM           e -background $color(e)
         $inputs mapcell 1,1 PF.world.black e -background $color(e)
         $inputs mapcell 2,1 AF.world.black e -background $color(e)
         $inputs mapcell 3,1 MF.world.black e -background $color(e)

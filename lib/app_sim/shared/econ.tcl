@@ -672,6 +672,10 @@ snit::type econ {
         #-------------------------------------------------------------
         # graft, the percentage skimmed off FAR by all actors
         $cge set [list Bgraft $samdata(graft)]
+
+        #-------------------------------------------------------------
+        # remittances to the populace
+        $cge set [list BREM $samdata(BREM)]
     }
 
     #-------------------------------------------------------------------

@@ -16,7 +16,7 @@
 #    There is also a cell model for calibration of actor parameters for 
 #    use in actor management.
 #
-# INPUT: SAM data, prices, RFN, and NR.black for a base case.
+# INPUT: SAM data, prices, REM, and NR.black for a base case.
 #
 # OUTPUT: * CGE shape parameters and sector-by-sector demands
 #         * Sector revenues & expenses
@@ -36,11 +36,11 @@
 #    Version i: Revised the equations for f.i.j to allow for sector 
 #               revenues beyond those of the "simplified" SAM.  In 
 #               particular, the black sector loses both its cost of 
-#               feedstock and its net revenues, the populace gets RFN,
+#               feedstock and its net revenues, the populace gets REM,
 #               the actors get the black market net revenues and the
 #               graft portion of foreign aid to the rest of the region,
 #               the region sector loses that graft, and the world gets
-#               the cost of black feedstock and loses RFN.  Normalization
+#               the cost of black feedstock and loses REM.  Normalization
 #               of the f.i.j.
 #
 #    Version h: Updated the default BX.i.j values as provided by Bob. Also
@@ -67,8 +67,8 @@
 #                X.aw in the CGE does include graft*FAR.
 #               BX.rw in the SAM has all of FAR.
 #                X.rw in the CGE has lost graft*FAR.
-#               BX.pw in the SAM does not include BRFN.
-#                X.pw in the CGE does include RFN.
+#               BX.pw in the SAM does not include BREM.
+#                X.pw in the CGE does include REM.
 #               BX.wb in the SAM does not include the cost of feedstocks:
 #                   PF.wb * AF.wb * BQD.b
 #                X.wb in the CGE does include the cost of feedstocks:
@@ -101,9 +101,8 @@
 #              takes values only for the sectors with products: (black, 
 #              goods, pop).
 #
-#   BRFN       Payments from outside the region directly to the populace, 
-#              consisting of remittances, some of the foreign aid, and 
-#              all of the NGO aid, in $/year. 
+#   BREM       Payments from outside the region directly to the populace, 
+#              consisting of remittances in $/year. 
 #
 #   BNR.black  Net revenue for the black sector, in $/year.
 #
@@ -178,7 +177,7 @@ let BP.world  = 0
 
 let BaseConsumers = 2.2e7
 
-let BRFN           = 5.0e8            
+let BREM           = 5.0e8            
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
                              # goes to actors.
 let PF.world.black = 62.0e3
@@ -237,10 +236,10 @@ let FAR = {[BX.region.world]}
 
 let BALLOC.goods  = {[BEXP.goods]}
 let BALLOC.black  = {[BEXP.black]}
-let BALLOC.pop    = {[BEXP.pop] + [BRFN]}
+let BALLOC.pop    = {[BEXP.pop] + [BREM]}
 let BALLOC.actors = {[BEXP.actors]}
 let BALLOC.region = {[BREV.region] - [graft]*[FAR]}
-let BALLOC.world  = {[BREV.world] - [BRFN] + [FEED.black]}
+let BALLOC.world  = {[BREV.world] - [BREM] + [FEED.black]}
 
 # Exports are obtained by:
 
@@ -297,7 +296,7 @@ foreach i {actors region world} {
     let t.$i.pop = {[BX.$i.pop] / [BREV.pop]}
 }
 
-# Using BEXP.pop instead of BALLOC.pop because BRFN is not subject to
+# Using BEXP.pop instead of BALLOC.pop because BREM is not subject to
 # the taxes imposed on regular income.
 let k.pop = {<:k.j pop:>}
 let BATI.pop = {[CDEXP.pop]}
