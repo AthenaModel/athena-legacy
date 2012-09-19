@@ -259,6 +259,10 @@ snit::type dam {
         } {
             incr got($atype)
 
+            if {$mag == 0.0} {
+                continue
+            }
+
             # FIRST, prepare to give the input to URAM
             if {$atype in {sat coop}} {
                 set opts [list -s $s -p $p -q $q]
