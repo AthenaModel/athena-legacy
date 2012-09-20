@@ -487,15 +487,18 @@ snit::type appserver {
         ht hr
         ht para
 
-        ht putln "<b>$page</b> is a "
-        if {[cm pageinfo cyclic $page]} {
-            ht put "Cyclic"
+        if {[cm sane]} {
+            ht putln "<b>$page</b> is a [Cyclic $page] containing"
         } else {
-            ht put "Acyclic"
+            ht putln "It is unknown whether <b>$page</b> is cyclic or acyclic; "
+            ht put "this cannot be checked until the model is sane."
+
+            ht para
+            ht putln "<b>$page</b> contains"
         }
 
         set pline [cm pageinfo pline $page]
-        ht put " page containing [llength [cm cells $page]] cells."
+        ht put " [llength [cm cells $page]] cells."
         ht putln "It is defined starting at line "
         ht link gui://editor/$pline $pline
         ht putln "in the cell model file."
@@ -520,6 +523,20 @@ snit::type appserver {
     #
     # The following code relates to particular resources or kinds
     # of content.
+
+    # Cyclic page
+    #
+    # Returns "Cyclic", "Acyclic", or "Not Sane".
+
+    proc Cyclic {page} {
+        if {![cm sane]} {
+            return "Not Sane"
+        } elseif {[cm pageinfo cyclic $page]} {
+            return "Cyclic"
+        } else {
+            return "Acyclic"
+        }
+    }
 
     # PageTable
     #
@@ -546,13 +563,7 @@ snit::type appserver {
                         ht put </b>
                     }
                     ht td right { ht put $pcount }
-                    ht td left  {
-                        if {[cm pageinfo cyclic $page]} {
-                            ht put "Yes"
-                        } else {
-                            ht put "No"
-                        }
-                    }
+                    ht td left  { ht put [Cyclic $page] }
                 }
             }
         }
