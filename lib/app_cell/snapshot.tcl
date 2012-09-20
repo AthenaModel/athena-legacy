@@ -161,7 +161,7 @@ snit::type snapshot {
 
         # FIRST, if the model hasn't been successfully checked, there are
         # no valid snapshots.
-        if {[cmscript checkstate] ne "checked"} {
+        if {[cmscript checkstate] ni {insane checked}} {
             return ""
         }
 
@@ -341,7 +341,7 @@ snit::type snapshot {
     # Save the default initial conditions when the model is checked.
 
     typemethod SnapshotCheck {} {
-        if {[cmscript checkstate] eq "checked"} {
+        if {[cmscript checkstate] in {insane checked}} {
             $type save model [cm get]
             return
         }
