@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version n
+#    eco6x6.cm, version o
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,11 @@
 #    Out pages.
 #
 # HISTORY:
+#
+#    Version o: Protect against a negative NR.black from being added to 
+# either the actors sector or the world sector. That would amount to either 
+# the actors or the world subsidizing the black sector, which doesn't make 
+# sense.
 #
 #    Version n: Introduced a flag for Athena to use if there are no actors
 # who receive any income from black market revenues.
@@ -611,7 +616,8 @@ let QD.pop.black = [LQD.i.j pop black]
 let X.pop.black  = [X.i.j  pop black]
 
 let X.actors.black = {
-    <:TAX.i.j actors black:> + fif([Flag.ActorsGetBNR] == 1,[NR.black])
+    <:TAX.i.j actors black:> + 
+    fif([Flag.ActorsGetBNR] == 1, max(0.0,[NR.black]))
 }
 
 let X.region.black = [TAX.i.j region black]
@@ -620,7 +626,7 @@ let QF.world.black = {[AF.world.black] * [QS.black]}
 
 let X.world.black = {
     <:TAX.i.j world black:> + [PF.world.black] * [QF.world.black] +
-    fif([Flag.ActorsGetBNR] == 0, [NR.black])
+    fif([Flag.ActorsGetBNR] == 0, max(0.0, [NR.black]))
 }
 
 let C.black = {

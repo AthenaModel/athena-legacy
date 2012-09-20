@@ -151,6 +151,11 @@ snit::type econ {
 
         notifier send ::econ <Check>
 
+        if {$cells(BNR.black) < 0.0} {
+            dict append edict NR.black \
+                "Net Rev. in the black sector is negative. Either the feedstock price is too high or the unit price is too low."
+        }
+
         return $edict
     }
 
@@ -163,16 +168,17 @@ snit::type econ {
     # them for output to the htools buffer.
 
     typemethod DoSanityReport {ht edict} {
-        $ht subtitle "Econ Model Errors"
+        $ht subtitle "Econ Model Warnings/Errors"
 
-        $ht putln "Certain cells in the SAM have errors. This is likely "
+        $ht putln "Certain cells in the SAM have problems. This is likely "
         $ht putln "due to incorrect data being entered in the SAM. Details "
         $ht putln "are below."
 
         $ht para
 
         dict for {cell errmsg} $edict {
-            $ht put "$cell ==> $errmsg\n"
+            $ht br
+            $ht putln "$cell ==> $errmsg"
         }
 
         return
@@ -209,7 +215,7 @@ snit::type econ {
         # NEXT, create the CGE.
         set cge [cellmodel cge \
                      -epsilon  0.000001 \
-                     -maxiters 10000    \
+                     -maxiters 1000     \
                      -failcmd  [mytypemethod CGEFailure] \
                      -tracecmd [mytypemethod TraceCGE]]
         cge load [readfile [file join $::app_sim_shared::library eco6x6.cm]]
@@ -429,7 +435,7 @@ snit::type econ {
         let BREVa {$Xag + $Xap + $Xab + $Xaw + $Xar}
 
         # NEXT, deal with black market net revenue
-        set BNRb $sdata(BNR.black)
+        let BNRb {max(0.0, $sdata(BNR.black))}
 
         # NEXT, the total number of black market net revenue shares owned
         # by actors. If this is zero, then no actor is getting any income
@@ -520,7 +526,7 @@ snit::type econ {
             # income plus the cut of the black market profit (aka net
             # revenue)
             let income_tot_black {
-                $data(income_black_tax) + ($cut_black * $BNRb)
+                $data(income_black_tax) + max(0.0, ($cut_black * $BNRb))
             }
 
             # NEXT, total income for this actor
@@ -941,12 +947,17 @@ snit::type econ {
                    cut_black    AS cut
            FROM income_a
         } {
-           let inc_goods    {$out(REV.goods) * $tg}
-           let inc_black_t  {$out(REV.black) * $tb}
-           let inc_black_nr {$out(NR.black)  * $cut}
-           let inc_pop      {$out(REV.pop)   * $tp}
-           let inc_region   {$out(FAR)       * $gr}
-           let inc_world    {$out(REV.world) * $tw}
+
+            let inc_goods    {$out(REV.goods) * $tg}
+            let inc_black_t  {$out(REV.black) * $tb}
+            let inc_black_nr {$out(NR.black)  * $cut}
+            let inc_pop      {$out(REV.pop)   * $tp}
+            let inc_region   {$out(FAR)       * $gr}
+            let inc_world    {$out(REV.world) * $tw}
+
+            # NEXT, protect against negative net revenue in the
+            # black sector
+            let inc_black_nr {max(0.0, $inc_black_nr)}
 
             let inc_total {
                 $inc_goods + $inc_black_t + $inc_black_nr +
