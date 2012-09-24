@@ -96,10 +96,10 @@ tactic type define BROADCAST {cap a iom x1 once on_lock} actor {
 
                 lappend tags \
                     [rdb eval {SELECT hook_id FROM ioms WHERE iom_id=$iom}]
-                lappend tags \
-                    {*}[rdb eval {SELECT g FROM capcov WHERE capcov > 0.0}]
-                lappend tags \
-                    {*}[rdb eval {SELECT n FROM capcov WHERE capcov > 0.0}]
+                lappend tags {*}[rdb eval {
+                    SELECT g,n FROM capcov 
+                    WHERE k=$cap AND capcov > 0.0
+                }]
 
                 # NEXT, set up the dict needed by the IOM rule set.
                 set rdict [dict create]

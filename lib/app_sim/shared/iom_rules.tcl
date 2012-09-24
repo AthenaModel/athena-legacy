@@ -51,6 +51,18 @@ snit::type iom_rules {
         # NEXT, get the model parameters we need.
         set nomCapCov [parm get dam.IOM.nominalCAPcov]
 
+        # NEXT, get the payload data for this IOM.
+        set pdict [dict create]
+
+        rdb eval {
+            SELECT * FROM payloads
+            WHERE iom_id = $data(iom) AND state='normal'
+            ORDER BY payload_num
+        } row {
+            unset -nocomplain row(*)
+            dict set pdict $row(payload_num) [array get row]
+        }
+
         # NEXT, determine the covered groups, and the CAPcov for each.
         rdb eval {
             SELECT g      AS f,
@@ -76,7 +88,7 @@ snit::type iom_rules {
             let data(accept) {$data(resonance) * $data(regard)}
 
             # NEXT, call the rule set for this iom and civilian group.
-            $type IOM [array get data]
+            $type IOM $pdict [array get data]
         }
     }
 
@@ -135,9 +147,11 @@ snit::type iom_rules {
     # Event.  This rule set determines the effect of an IOM on
     # a particular civilian group.
 
-    # IOM dict
+    # IOM pdict dict
     #
-    # dict - Dictionary of input parameters:
+    # pdict - Dictionary of payload data
+    #
+    # dicti - Dictionary of input parameters:
     #
     #     tsource     - The actor who executed the BROADCAST tactic
     #     cap         - The CAP by which the IOM was broadcast.
@@ -153,7 +167,7 @@ snit::type iom_rules {
     #
     # Assesses the effect of the IOM on a particular civilian group f.
 
-    typemethod IOM {dict} {
+    typemethod IOM {pdict dict} {
         # FIRST, retrieve the payload
         array set data $dict
        
@@ -161,18 +175,6 @@ snit::type iom_rules {
         set dsig [list $data(tsource) $data(iom)]
         dam ruleset IOM [driver create IOM "Info Ops Message" $dsig] \
             -s 0.0
-
-        # NEXT, get the payload data
-        set pdict [dict create]
-
-        rdb eval {
-            SELECT * FROM payloads
-            WHERE iom_id = $data(iom) AND state='normal'
-            ORDER BY payload_num
-        } row {
-            unset -nocomplain row(*)
-            dict set pdict $row(payload_num) [array get row]
-        }
 
         # NEXT, put down the general details
         AddIomDetails data $pdict

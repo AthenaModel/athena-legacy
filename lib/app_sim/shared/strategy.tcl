@@ -81,24 +81,24 @@ snit::type strategy {
         # FIRST, Set up working tables.  This includes giving
         # the actors their incomes, unless we are locking, in which
         # case no cash moves
-        control load
+        profile 1 control load
         if {!$onlock} { 
             cash load
         } else {
             cash reset
         }
-        personnel load
-        service load
-        cap access load
-        tactic reset
-        tactic::ATTROE reset
-        tactic::BROADCAST reset
-        tactic::DEFROE reset
-        tactic::STANCE reset
-        unit reset
+        profile 1 personnel load
+        profile 1 service load
+        profile 1 cap access load
+        profile 1 tactic reset
+        profile 1 tactic::ATTROE reset
+        profile 1 tactic::BROADCAST reset
+        profile 1 tactic::DEFROE reset
+        profile 1 tactic::STANCE reset
+        profile 1 unit reset
 
         # NEXT, determine whether the goals are met or unmet.
-        $type ComputeGoalFlags
+        profile 1 $type ComputeGoalFlags
 
         # NEXT, examine each agent's tactic in priority order.  If the
         # tactic is eligible, attempt to execute it. If it is a tactic
@@ -114,12 +114,12 @@ snit::type strategy {
                 if {$on_lock} {
                     log normal strategy \
                         "Tactic $tactic_id IS eligible on lock"
-                    $type ExecuteTactic $tactic_id
+                    profile 1 $type ExecuteTactic $tactic_id
                 }
             } else {
                 if {[$type IsEligible $tactic_id]} {
                     log normal strategy "Tactic $tactic_id IS eligible"
-                    $type ExecuteTactic $tactic_id
+                    profile 1 $type ExecuteTactic $tactic_id
                 } else {
                     log normal strategy "Tactic $tactic_id IS NOT eligible"
                 }
@@ -128,23 +128,23 @@ snit::type strategy {
 
         # NEXT, save working data. If we are on lock, no cash has been used
         # so we don't want to save it
-        control save
+        profile 1 control save
         if {!$onlock} {
-            cash save
+            profile 1 cash save
         }
-        personnel save
-        service save
-        cap access save
+        profile 1 personnel save
+        profile 1 service save
+        profile 1 cap access save
 
         # NEXT, determine the actual stance of each group based on the
         # effects of the STANCE and ATTROE tactics.
-        tactic::STANCE assess
+        profile 1 tactic::STANCE assess
 
         # NEXT, populate base units for all groups.
-        unit makebase
+        profile 1 unit makebase
 
         # NEXT, assess all requested IOM broadcasts
-        tactic::BROADCAST assess
+        profile 1 tactic::BROADCAST assess
     }
 
 
