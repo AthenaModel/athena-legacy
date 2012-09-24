@@ -161,8 +161,9 @@ snit::widget cgesheet {
         pack $win.frm                     -expand 1 -fill both
 
         # NEXT, prepare for updates.
-        notifier bind ::sim <DbSyncB> $self [mymethod refresh]
-        notifier bind ::sim <Tick>    $self [mymethod refresh]
+        notifier bind ::sim  <DbSyncB>   $self [mymethod refresh]
+        notifier bind ::sim  <Tick>      $self [mymethod refresh]
+        notifier bind ::econ <CgeUpdate> $self [mymethod refresh]
     }
 
     # Constructor: Destructor

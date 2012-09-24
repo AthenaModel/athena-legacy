@@ -169,7 +169,7 @@ snit::widget samsheet {
         notifier bind ::sim  <DbSyncB>     $self [mymethod SyncSheet]
         notifier bind ::sim  <Tick>        $self [mymethod refresh]
         notifier bind ::sim  <State>       $self [mymethod SimState]
-        notifier bind ::econ <CellUpdate>  $self [mymethod CellUpdate]
+        notifier bind ::econ <SamUpdate>   $self [mymethod SamUpdate]
         notifier bind ::econ <SyncSheet>   $self [mymethod SyncSheet]
     }
 
@@ -494,7 +494,7 @@ snit::widget samsheet {
         order send gui ECON:SAM:UPDATE id $cell val $new
     }
 
-    # CellUpdate index value
+    # SamUpdate index value
     #
     #  index - the cell index as a cellmodel(n) value (ie. BX.actors.actors)
     #  value - the new value represented as a number (not a moneyfmt)
@@ -506,7 +506,7 @@ snit::widget samsheet {
     # TBD: Need to deal with conversion between money format and number
     #      better, there could be a loss of precision.
 
-    method CellUpdate {index value} {
+    method SamUpdate {index value} {
         # FIRST, set the cell, solve the updated SAM and refresh the
         # sheet
         $sam set [list $index $value]

@@ -291,14 +291,15 @@ NB2 1.0
     test SAM:UPDATE-2.2 {monitor cell update event} -setup {
         setup
     } -body {
-        ted notifier bind ::econ <CellUpdate>
+        ted notifier bind ::econ <SamUpdate>
         ted order ECON:SAM:UPDATE id BX.world.world val 10000
         ted notifier received
     } -cleanup {
         cleanup
         ::econ::sam reset
+        ::econ::sam solve
     } -result {
-        {::econ <CellUpdate> BX.world.world 10000.0}
+        {::econ <SamUpdate> BX.world.world 10000.0}
     }
 
     test SAM:UPDATE-3.1 {undo undoes the change} -setup {
@@ -309,14 +310,102 @@ NB2 1.0
             val 100000
         }
     } -body {
-        ted notifier bind ::econ <CellUpdate>
+        ted notifier bind ::econ <SamUpdate>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
         ::econ::sam reset
+        ::econ::sam solve
     } -result {
-        {::econ <CellUpdate> BX.world.world 0.0}
+        {::econ <SamUpdate> BX.world.world 0.0}
+    }
+
+    #-------------------------------------------------------------------
+    # ECON:CGE:UPDATE
+
+    test CGE:UPDATE-1.1 {required parms} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted order -reject ECON:CGE:UPDATE {}
+    } -cleanup {
+        cleanup
+    } -result {
+        id {required value}
+        val {required value}
+    }
+    
+    test CGE:UPDATE-1.2 {invalid id} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted order -reject ECON:CGE:UPDATE \
+            id NONESUCH val 100000
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid CGE cell "NONESUCH", should be one of: *}
+    } -match glob
+
+    test CGE:UPDATE-1.3 {invalid val: negative} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted order -reject ECON:CGE:UPDATE \
+            id PF.world.black val -1
+    } -cleanup {
+        cleanup
+    } -result {
+        val {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test CGE:UPDATE-2.1 {valid order} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted order ECON:CGE:UPDATE id PF.world.black val 10000
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test CGE:UPDATE-2.2 {monitor cell update event} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted notifier bind ::econ <CgeUpdate>
+        ted order ECON:CGE:UPDATE id PF.world.black val 10000
+        ted notifier received
+    } -cleanup {
+        cleanup
+        ::econ::cge reset
+    } -result {
+        {::econ <CgeUpdate>}
+    }
+
+    test CGE:UPDATE-3.1 {undo undoes the change} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+
+        ted order ECON:CGE:UPDATE {
+            id  PF.world.black
+            val 100000
+        }
+    } -body {
+        ted notifier bind ::econ <CgeUpdate>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+        ::econ::cge reset
+    } -result {
+        {::econ <CgeUpdate>}
     }
 
     #-------------------------------------------------------------------

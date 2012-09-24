@@ -901,6 +901,7 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu ECON:UPDATE
+        $self AddOrder $submenu ECON:CGE:UPDATE
 
         # Help menu
         set helpmenu [menu $menubar.helpmenu]

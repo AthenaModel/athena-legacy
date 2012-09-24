@@ -36,6 +36,11 @@ macro ECON.pcf {} {
     seriously damaged as the scenario begins.
 }
 
+macro ECON.cell {} {
+    |<--
+    The name of a valid cell in the underlying cell model.
+}
+
 
 order ECON:UPDATE "Update Neighborhood Economic Inputs" {
     <<parmlist>>
@@ -59,7 +64,7 @@ order ECON:UPDATE+MULTI "Update Economic Inputs for Multiple Neighborhoods" {
     <b>Required.</b>  <<parm.ids neighborhood>>
     <</parm>>
 
-    <<parm pcf "Proc. Capacity Factor">>
+    <<parm pcf "Prod. Capacity Factor">>
     <b>Optional.</b>  <<ECON.pcf>>
     <</parm>>
     <</parmlist>>
@@ -67,5 +72,32 @@ order ECON:UPDATE+MULTI "Update Economic Inputs for Multiple Neighborhoods" {
     Updates the economic inputs for multiple neighborhoods.
 }
 
+#-----------------------------------------------------------------------
+
+order ECON:SAM+UPDATE "Update Cell Values in the Social Accounting Matrix" {
+    <<parmlist>>
+
+    <<parm id "Cell Name">>
+    <b>Required.</b> <<ECON.cell>><p>
+    <</parm>>
+
+    <<parm val "Cell Value">>
+    <b>Required.</b>  The value the cell should take, any valid money format.
+    <</parm>>
+}
+
+#-----------------------------------------------------------------------
+
+order ECON:CGE+UPDATE "Update Cell Values in the 6x6 CGE" {
+    <<parmlist>>
+
+    <<parm id "Cell Name">>
+    <b>Required.</b> <<ECON.cell>><p>
+    <</parm>>
+
+    <<parm val "Cell Value">>
+    <b>Required.</b>  The value the cell should take, any valid money format.
+    <</parm>>
+}
 
 

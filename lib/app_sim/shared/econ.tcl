@@ -1209,16 +1209,17 @@ snit::type econ {
         }
     }
 
-    # mutate cell parmdict
+    # mutate samcell parmdict
     #
     # parmdict   A dictionary of order parms
     #
     #   id       Cell ID in cellmodel(n) format (ie. BX.actors.actors)
     #   val      The new value for the cellmodel to assume at that cell ID
     #
-    # Updates the cell model given the parms, which are presumed to be valid
+    # Updates the SAM cell model given the parms, which are presumed to be 
+    # valid
 
-    typemethod {mutate cell} {parmdict} {
+    typemethod {mutate samcell} {parmdict} {
         dict with parmdict {
             # FIRST, get the old value, this is for undo
             set oldval [dict get [sam get] $id]
@@ -1227,10 +1228,37 @@ snit::type econ {
             # cell has been updated
             sam set [list $id $val]
             sam solve
-            notifier send ::econ <CellUpdate> $id $val
+            notifier send ::econ <SamUpdate> $id $val
 
             # NEXT, return the undo command
-            return [list econ mutate cell [list id $id val $oldval]]
+            return [list econ mutate samcell [list id $id val $oldval]]
+        }
+    }
+
+    # mutate cgecell parmdict
+    #
+    # parmdict   A dictionary of order parms
+    #
+    #   id       Cell ID in cellmodel(n) format (ie. BX.actors.actors)
+    #   val      The new value for the cellmodel to assume at that cell ID
+    #
+    # Updates the CGE cell model given the parms, which are presumed to be 
+    # valid
+
+    typemethod {mutate cgecell} {parmdict} {
+        dict with parmdict {
+            # FIRST, get the old value, this is for undo
+            set oldval [dict get [cge get] $id]
+
+            # NEXT, update the cell model, solve it and notify that the 
+            # cell has been updated
+            cge set [list $id $val]
+            cge solve
+
+            notifier send ::econ <CgeUpdate>
+
+            # NEXT, return the undo command
+            return [list econ mutate cgecell [list id $id val $oldval]]
         }
     }
 
@@ -1291,6 +1319,15 @@ snit::type econ {
     typemethod changed {} {
         return $info(changed)
     }
+
+    # Within num val eps
+    #
+    # num  - some number
+    # val  - some value to compare num to
+    # eps  - an epsilon to use to see if num is close to val
+    #
+    # Helper proc that checks to see if a number is within an epsilon of
+    # a value. Returns 1 if it is, otherwise 0
 
     proc Within {num val eps} {
         let diff {abs($num-$val)}
@@ -1401,5 +1438,30 @@ order define ECON:SAM:UPDATE {
 
     returnOnError -final
 
-    setundo [econ mutate cell [array get parms]]
+    setundo [econ mutate samcell [array get parms]]
 }
+ 
+# ECON:CGE:UPDATE 
+#
+# Updates a single cell in the CGE
+
+order define ECON:CGE:UPDATE {
+    title "Update CGE Cell Value"
+    options -sendstates {PAUSED TACTIC}
+
+    form {
+        rcc "Cell ID:" -for id
+        text id
+
+        rcc "Value:" -for val
+        text val
+    }
+} {
+    prepare id           -required -type {ptype cge}
+    prepare val -toupper -required -type money
+
+    returnOnError -final
+
+    setundo [econ mutate cgecell [array get parms]]
+}
+
