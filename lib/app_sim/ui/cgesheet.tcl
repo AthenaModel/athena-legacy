@@ -408,7 +408,7 @@ snit::widget cgesheet {
             "Deflated GDP"
             "Unemployment"
             "Unemp. Rate"
-            "Unsecure Labor Force"
+            "Insecure Labor Force"
             "Goods Shortage"
             "Black Mkt Shortage"
             "Labor Shortage"
