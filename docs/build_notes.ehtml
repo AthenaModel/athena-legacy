@@ -11,6 +11,40 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.15, 24 September 2012 -- TRISA Engineering Build
+Candidate</h3>
+
+This build concludes the integration of the 6x6 CGE into Athena for
+the September 30 engineering build.  It also includes a small amount
+of performance optimization work, and further work on
+athena_cell(1).<p>
+
+<ul>
+<li> Bug 3647: Link to econ.check.MaxUR is broken
+<li> Bug 3680: Actors expenditures not recomputed when scenario is unlocked
+<li> Bug 3681: Black sector row of SAM bgerror
+<li> Bug 3682: athena_cell(1): Import/export of cellmodel snapshots
+<li> Bug 3683: athena(1): actors sector row and column in the SAM should not be editable
+<li> Bug 3684: Display current incomes from each sector
+<li> Bug 3685: athena_cell(1): no such variable "info(unsaved)"
+<li> Bug 3686: athena(1): fixes to some problems with the actors sector
+<li> Bug 3687: athena_cell(1): /page HTML page includes control to select snapshot
+<li> Bug 3690: athena_cell(1): Solve Model
+<li> Bug 3691: athena_cell(1): State Bug
+<li> Bug 3693: athena_cell(1): Link Tree
+<li> Bug 3695: athena(1): link from SAM to CGE for remittances not there
+<li> Bug 3696: athena(1): output the amount of the labor force that is afraid to go to work
+<li> Bug 3697: myserver(n): Logging of requests
+<li> Bug 3698: athena(1): econ module not resetting cell models when requesting a new scenario
+<li> Bug 3699: Disable RDB monitoring on lock and during time ticks
+<li> Bug 3700: Don't give zero inputs to URAM
+<li> Bug 3701: athena_cell(1): "model" snapshot not found on /app/cell/<cell> page
+<li> Bug 3702: athena(1): need econ module to handle negative net revenue in the black sector
+<li> Bug 3704: athena_cell(1): Error on my://app/page/<page> when model is not sane.
+<li> Bug 3706: athena(1): provide order handler for updating cells in the CGE
+</ul><p>
+
+
 <h3>Build 4.0.14, 11 September 2012</h3>
 
 This build continues the integration of the 6x6 CGE into Athena.  It
