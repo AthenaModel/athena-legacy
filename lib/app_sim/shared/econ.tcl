@@ -136,26 +136,12 @@ snit::type econ {
                 "The Cobb-Douglas coefficients in the pop sector do not sum to 1.0"
         }
 
-        # NEXT, Cobb-Douglas coefficients in the actors sector must add up to
-        # 1.0 within a reasonable epsilon
-        let f_actors {
-            $cells(f.goods.actors) + $cells(f.black.actors) +
-            $cells(f.pop.actors)   + $cells(f.region.actors) +
-            $cells(f.world.actors)
-        }
-
-        if {![Within $f_actors 1.0 0.001]} {
-            dict append edict f.actors \
-                "The Cobb-Douglas coefficients in the actors sector do not sum to 1.0"
-        }
-
-        notifier send ::econ <Check>
-
         if {$cells(BNR.black) < 0.0} {
             dict append edict NR.black \
                 "Net Rev. in the black sector is negative. Either the feedstock price is too high or the unit price is too low."
         }
 
+        notifier send ::econ <Check>
         return $edict
     }
 
@@ -443,18 +429,8 @@ snit::type econ {
         set totalBNRShares \
             [rdb onecolumn {SELECT total(shares_black_nr) FROM actors_view;}]
 
-        # NEXT, if no actor is getting income from black market net revenue,
-        # then ALL of the net revenue goes into the world sector. We also
-        # need to tell the CGE that actors are not getting any black market
-        # profits
-        set Xwb $sdata(BX.world.black)
-
-        if {$totalBNRShares == 0} {
-            let Xwb {$Xwb + $BNRb}
-            $cge set [list Flag.ActorsGetBNR 0]
-        } else {
+        if {$totalBNRShares > 0} {
             let BREVa {$BREVa + $BNRb}
-            $cge set [list Flag.ActorsGetBNR 1]
         }
 
         # NEXT, given the revenue in the actor sector compute the
@@ -484,7 +460,8 @@ snit::type econ {
         let Xra {$ovFrac(region) * $BREVa}
         let Xwa {$ovFrac(world)  * $BREVa}
 
-        # NEXT, extract the pertinent data from the SAM 
+        # NEXT, extract the pertinent data from the SAM in preparation for
+        # the computation of shape parameters.
         set BPg   $sdata(BP.goods)
         set BQDg  $sdata(BQD.goods)
         set BPb   $sdata(BP.black)
@@ -493,8 +470,7 @@ snit::type econ {
         set BQDp  $sdata(BQD.pop)
         set BREVw $sdata(BREV.world)
         set FAR   $sdata(FAR)
-
-
+ 
         # NEXT compute the rates based on the base case data and
         # fill in the income_a table rates and set each actors
         # initial income
@@ -563,9 +539,22 @@ snit::type econ {
         $sam set [list BX.actors.region $Xar]
         $sam set [list BX.actors.world  $Xaw]
 
-        # NEXT, set the flow of money from the black market to the
-        # world. It may have changed if no actor is getting a cut.
-        $sam set [list BX.world.black   $Xwb]
+        # NEXT, if no actor is getting income from black market net revenue,
+        # then ALL of the net revenue goes into the world sector. We also
+        # need to tell the CGE that actors are not getting any black market
+        # profits
+        set Xwb $sdata(BX.world.black)
+
+        if {$totalBNRShares == 0} {
+            # NEXT, need to subtract out Xab since it was just computed we
+            # do not want to double count when the SAM is solved
+            let Xwb {$Xwb + $BNRb - $Xab}
+            cge set [list Flag.ActorsGetBNR 0]
+        } else {
+            cge set [list Flag.ActorsGetBNR 1]
+        }
+
+        $sam set [list BX.world.black $Xwb]
 
         # NEXT, compute the composte graft fraction
         set graft_frac \

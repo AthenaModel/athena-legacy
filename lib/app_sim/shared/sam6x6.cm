@@ -128,42 +128,42 @@ index inp {actors region world}                 ;# sectors with no product or
 let BX.goods.goods  = 8.13e8
 let BX.goods.black  = 2.0e7
 let BX.goods.pop    = 2.80e9
-let BX.goods.actors = 14.00e9
+let BX.goods.actors = 0.0
 let BX.goods.region = 2.50e9
 let BX.goods.world  = 1.13e8
 
 let BX.black.goods = 0.0
 let BX.black.black = 0.0
 let BX.black.pop   = 1.2e7
-let BX.black.actors = 1.40e9
+let BX.black.actors = 0.0
 let BX.black.region = 9.06e8
 let BX.black.world  = 23.800e9
 
 let BX.pop.goods    = 12.0e9
 let BX.pop.black    = 2.2e7
 let BX.pop.pop      = 3.6e7
-let BX.pop.actors   = 4.64e9
+let BX.pop.actors   = 0.0
 let BX.pop.region   = 4.54e8
 let BX.pop.world    = 7.0e7
 
-let BX.actors.goods = 2.025e9
-let BX.actors.black = 2.612e9
-let BX.actors.pop   = 3.336e9
+let BX.actors.goods = 0.0
+let BX.actors.black = 0.0
+let BX.actors.pop   = 0.0
 let BX.actors.actors = 0.0
-let BX.actors.region = 2.593e9
-let BX.actors.world  = 3.0e6
+let BX.actors.region = 0.0
+let BX.actors.world  = 0.0
 
 let BX.region.goods  = 2.714e9
 let BX.region.black  = 2.612e9
 let BX.region.pop    = 5.853e9
-let BX.region.actors = 2.859e9
+let BX.region.actors = 0.0
 let BX.region.region = 1.727e9
 let BX.region.world  = 1.502e9
 
 let BX.world.goods   = 2.695e9
 let BX.world.black   = 2.612e9
 let BX.world.pop     = 5.685e9
-let BX.world.actors  = 2.960e9
+let BX.world.actors  = 0.0
 let BX.world.region  = 8.635e9
 let BX.world.world   = 0.0
 
@@ -325,6 +325,9 @@ let A.goods.pop = {[BX.goods.pop] / [BaseConsumers]}
 
 # Everything that was computed is of interest to the CGE except the 
 # intermediate variable BATI.pop
+
+
+
 
 
 
