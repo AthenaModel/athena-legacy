@@ -17,6 +17,15 @@ snit::type coverage_model {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Type Variables
+
+    # minFrcSecurity requirement as an integer, by activity 
+    typevariable minFrcSecurity -array {}
+
+    # strictSecurity: caches strict security level by security level
+    typevariable strictSecurity -array {}
+
+    #-------------------------------------------------------------------
     # Initialization
 
     # start
@@ -27,6 +36,21 @@ snit::type coverage_model {
         # FIRST, Initialize activity_nga.
         rdb eval {
             DELETE FROM activity_nga;
+        }
+
+        # NEXT, remember minFrcSecurity
+        rdb eval {
+            SELECT a
+            FROM activity_gtype
+            WHERE gtype = 'FRC' AND a != 'NONE'
+        } {
+            set minFrcSecurity($a) \
+                [qsecurity value [parmdb get activity.FRC.$a.minSecurity]]
+        }
+
+        # NEXT, remember strict security.
+        for {set i -100} {$i <= 100} {incr i} {
+            set strictSecurity($i) [qsecurity strictvalue $i]
         }
 
         # NEXT, Add groups and activities for each neighborhood.
@@ -137,7 +161,7 @@ snit::type coverage_model {
 
     typemethod ComputeForceActivityFlags {} {
         # FIRST, clear security flags when security is too low
-        rdb eval {
+        rdb explain {
             SELECT activity_nga.n      AS n,
                    activity_nga.g      AS g,
                    activity_nga.a      AS a,
@@ -146,13 +170,8 @@ snit::type coverage_model {
             JOIN force_ng USING (n, g)
             JOIN frcgroups USING (g)
         } {
-            set minSecurity \
-                [qsecurity value [parmdb get activity.FRC.$a.minSecurity]]
-
             # Compare using the symbolic values.
-            set security [qsecurity strictvalue $security]
-
-            if {$security >= $minSecurity} {
+            if {$strictSecurity($security) >= $minFrcSecurity($a)} {
                 set security_flag 1
             } else {
                 set security_flag 0
