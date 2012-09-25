@@ -67,8 +67,11 @@ snit::type scenario {
         }
 
         # NEXT, create a clean working RDB.
-        set rdb [scenariodb ::rdb \
-                    -clock ::marsutil::simclock]
+        scenariodb ::rdb \
+            -clock      ::marsutil::simclock \
+            -explaincmd [mytypemethod ExplainCmd]
+        set rdb ::rdb
+
         rdb register ::dam
         rdb register ::service
 
@@ -113,6 +116,17 @@ snit::type scenario {
         InitializeRuntimeData
 
         log normal scenario "init complete"
+    }
+
+    # ExplainCmd query explanation
+    #
+    # query       - An sql query
+    # explanation -  Result of calling EXPLAIN QUERY PLAN on the query.
+    #
+    # Logs the query and its explanation.
+
+    typemethod ExplainCmd {query explanation} {
+        log normal rdb "EXPLAIN QUERY PLAN {$query}\n---\n$explanation"
     }
 
     #-------------------------------------------------------------------

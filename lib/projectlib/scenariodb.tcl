@@ -308,7 +308,8 @@ snit::type ::projectlib::scenariodb {
     #-------------------------------------------------------------------
     # Options
 
-    delegate option -clock to db
+    delegate option -clock      to db
+    delegate option -explaincmd to db
 
 
     #-------------------------------------------------------------------
@@ -334,6 +335,9 @@ snit::type ::projectlib::scenariodb {
                     -clock     [from args -clock] \
                     -autotrans off                \
                     -rollback  on]
+
+        # NEXT, pass along any other options
+        $db configurelist $args
 
         # NEXT, register the schema sections
         $db register ::marsutil::eventq
@@ -485,6 +489,7 @@ snit::type ::projectlib::scenariodb {
     method marksaved {} {
         set info(savedChanges) [$db total_changes]
     }
+
 
     #-------------------------------------------------------------------
     # Tcl Import/Export
