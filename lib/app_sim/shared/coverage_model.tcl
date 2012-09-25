@@ -93,7 +93,7 @@ snit::type coverage_model {
         # FIRST, clear the previous results.
         rdb eval {
             UPDATE activity_nga
-            SET security_flag = 1,
+            SET security_flag = 0,
                 can_do        = 1,
                 nominal       = 0,
                 active        = 0,
@@ -169,6 +169,7 @@ snit::type coverage_model {
             FROM activity_nga 
             JOIN force_ng USING (n, g)
             JOIN frcgroups USING (g)
+            WHERE activity_nga.nominal > 0
         } {
             # Compare using the symbolic values.
             if {$strictSecurity($security) >= $minFrcSecurity($a)} {
