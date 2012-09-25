@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version k
+#    sam6x6.cm, version l
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,9 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version l: Zeroed out the actors sector, it is going to get computed
+#               by Athena when the scenario is locked.
+#
 #    Version k: Added some bullet proofing in case the actors defined
 #               in Athena have no income.
 #
