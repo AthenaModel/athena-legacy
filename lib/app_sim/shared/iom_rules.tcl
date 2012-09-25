@@ -21,6 +21,12 @@ snit::type iom_rules {
     pragma -hasinstances 0
 
     #-------------------------------------------------------------------
+    # Public Type Variables
+
+    # resonanceCache: iom,f,asource -> resonance 
+    typevariable resonanceCache -array {}
+
+    #-------------------------------------------------------------------
     # Public Typemethods
 
     # assess dict
@@ -104,6 +110,11 @@ snit::type iom_rules {
     # the Zresonance curve.
     
     proc ComputeResonance {iom f asource} {
+        # FIRST, return it if we already have it.
+        if {[info exists resonanceCache($iom,$f,$asource)]} {
+            return $resonanceCache($iom,$f,$asource)
+        }
+
         # FIRST, get the semantic hook
         set hook [hook getdict [iom get $iom hook_id]]
 
@@ -121,7 +132,10 @@ snit::type iom_rules {
         # NEXT, compute the resonance
         set Zresonance [parm get dam.IOM.Zresonance]
 
-        return [zcurve eval $Zresonance $congruence]
+        set result [zcurve eval $Zresonance $congruence]
+        set resonanceCache($iom,$f,$asource) $result
+
+        return $result
     }
 
     # ComputeRegard f asource
