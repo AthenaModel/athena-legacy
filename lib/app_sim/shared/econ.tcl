@@ -775,6 +775,9 @@ snit::type econ {
                          In::LSF       $LSF                    \
                          In::CSF       $CSF]
 
+            # NEXT, subsistence wage, the poverty level
+            cge set [list BaseSubWage [dict get [$sam get] BaseSubWage]]
+
             # NEXT, actors expenditures
             array set cash [cash expenditures]
             cge set [list \
@@ -884,12 +887,15 @@ snit::type econ {
             FROM econ_n
         }]
 
+        let subsisters {$data(population) - $data(consumers)}
+
         cge set [list \
-                     In::Consumers $data(consumers)    \
-                     In::LF        $data(labor_force)  \
-                     In::CAP.goods $CAPgoods           \
-                     In::LSF       $LSF                \
-                     In::CSF       $CSF]
+                     In::Consumers  $data(consumers)    \
+                     In::Subsisters $subsisters         \
+                     In::LF         $data(labor_force)  \
+                     In::CAP.goods  $CAPgoods           \
+                     In::LSF        $LSF                \
+                     In::CSF        $CSF]
 
         cge set [list \
                      In::X.world.actors  $cash(world)      \

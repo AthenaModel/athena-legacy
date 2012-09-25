@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version l
+#    sam6x6.cm, version m
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,9 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version m: Added base subsistence wage to be passed through to the
+#               CGE.
+#
 #    Version l: Zeroed out the actors sector, it is going to get computed
 #               by Athena when the scenario is locked.
 #
@@ -179,6 +182,7 @@ let BP.region = 0
 let BP.world  = 0
 
 let BaseConsumers = 2.2e7
+let BaseSubWage   = 200     ;# Subsistence wage (aka poverty level) $/work-year
 
 let BREM           = 5.0e8            
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
@@ -328,6 +332,7 @@ let A.goods.pop = {[BX.goods.pop] / [BaseConsumers]}
 
 # Everything that was computed is of interest to the CGE except the 
 # intermediate variable BATI.pop
+
 
 
 

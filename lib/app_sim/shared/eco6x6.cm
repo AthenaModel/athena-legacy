@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version o
+#    eco6x6.cm, version p
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,11 @@
 #    Out pages.
 #
 # HISTORY:
+#
+#    Version p: Added base subsistence wage as an input to compute the
+# contribution of subsistence agriculture to the GDP. Added the number
+# of subsisters as an input. Added per capita deflated GDP as an output.
+# Simplified the computation of P.goods.
 #
 #    Version o: Protect against a negative NR.black from being added to 
 # either the actors sector or the world sector. That would amount to either 
@@ -211,6 +216,7 @@ let TurFrac = 0.04 ;# Average fraction of workforce "merely between jobs"
 #               Note that if sector j has no product, BP.j is irrelevant
 #               (e.g., zero)
 #   BaseConsumers This is the size datum, in persons
+#   BaseSubWage   This is the base wage of subsiters (aka the poverty level)
 #
 # This data is used to compute the shape parameters by:
 #
@@ -296,6 +302,9 @@ let BaseSA        = 1e7     ;# Value of regional subsistence
                             ;# agriculture, in $/year; the model 
                             ;# (in Demographics) is the number of 
                             ;# people times the poverty level wage
+
+let BaseSubWage  = 200      ;# The level of annual per capita wages for
+                             # subsistence farmers (poverty level)
 
 # Exogenous prices not used to calibrate Cobb-Douglas coefficients
 let BP.black = 500000       ;# $/ton black market goods FOB export dock
@@ -571,8 +580,9 @@ let QS.goods = {[QD.goods]} -value 1.14e8
 let EXP.goods = [EXP.j goods] -value 2.92125e8
 
 let P.goods = {
-    (([C.goods] / [BP.goods]) ** [f.goods.goods] *
-     ([P.pop] / [BP.pop]) ** [f.pop.goods]) * [BP.goods]
+    ((([P.pop] / [f.pop.goods]) ** [f.pop.goods]) /
+      ([A.goods] * [k.goods] * [f.goods.goods] ** [f.goods.goods])) **
+      (1.0 / (1.0 - [f.goods.goods]))
 } -value 1
 
 let NR.goods = {([P.goods] - [C.goods]) * [QS.goods]}
@@ -724,13 +734,6 @@ let NR.pop = {[REV.pop] - [EXP.pop]}
 # Behavior is determined by the political model.
 
 let REV.actors      = {<:sum j {[X.actors.$j]}:>}
-
-#let X.black.actors  = {[f.black.actors]  * [REV.actors]}
-#let X.goods.actors  = {[f.goods.actors]  * [REV.actors]} 
-#let X.pop.actors    = {[f.pop.actors]    * [REV.actors]}
-#let X.actors.actors = {[f.actors.actors] * [REV.actors]}
-#let X.region.actors = {[f.region.actors] * [REV.actors]}
-#let X.world.actors  = {[f.world.actors]  * [REV.actors]}
 
 let X.black.actors  = {[BX.black.actors]}
 let X.goods.actors  = {[BX.goods.actors]} 
@@ -888,11 +891,15 @@ page In
 # Number of consumers currently in the population.
 let Consumers = 1e6          ;# people.
 
-# The minimum wage
-let MinP.pop = {[BP.pop]}
+let Subsisters = 380000      ;# people.
+
+# The subsisters wage (if they actually worked) aka poverty level
+let SubWage = {[BaseSubWage]}
 
 # GDP contribution of people engaged in subsistence agriculture.
-let SA = 1e7                 ;# $/year
+let SA = {[Subsisters]*[SubWage]} -value 1e7  ;# $/year
+
+let Population = {[Consumers]+[Subsisters]}
 
 # Exports
 # If exports are specified in $/year instead of (product units)/year,
@@ -986,6 +993,7 @@ let X.actors.actors = {[In::X.actors.actors]}
 let X.region.actors = {[In::X.region.actors]}
 let X.world.actors  = {[In::X.world.actors]}
 
+let SA = {[In::Subsisters]*[In::SubWage]}
 
 #-----------------------------------------------------------------------
 # Medium-Run Page
@@ -1145,8 +1153,9 @@ let GDP = {
   + [In::SA] - [PF.world.black] * [S::QF.world.black]
 }
 
-# Deflated GDP
+# Deflated GDP and Deflated per capita GDP
 let DGDP = {[GDP] / [CPI]}
+let PerCapDGDP = {[DGDP]/[In::Population]}
 
 #Sanity Check Values
 let SUM.QS = {
@@ -1160,6 +1169,9 @@ let FLAG.QS.NONNEG = {
 let FLAG.P.POS = {
     [P.black] > 0.0 || [P.goods] > 0.0 || [P.pop] > 0.0
 }
+
+
+
 
 
 

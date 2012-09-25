@@ -2573,8 +2573,11 @@ tab "Econ/SAM" {
     to the economy, the black market feedstock price in dollars per year,
     the feedstock per unit of black market product (for example, if it takes 
     1.05 tons of poppies to make 1 ton of opium, then this value would be 
-    1.05), the maximum amount of black market feedstock available and the 
-    number of consumers that the data in the SAM is based upon.<p>
+    1.05), the maximum amount of black market feedstock available, the 
+    number of consumers that the data in the SAM is based upon and the
+    subsistence farmer wage, which is also the poverty level.  The 
+    subsistence wage is used to compute the contribution of subsistence
+    agriculture to the GDP.<p>
 
     When Athena is locked, all the cells on the SAM remain visible, but are
     no longer editable unless the user returns to the PREP state.<p>
@@ -2630,11 +2633,11 @@ tab "Econ/Overview" {
     in the actor definitions will increase this factor.<p>
 
     The most salient outputs consist of the Gross Domestic Product (GDP),
-    the Consumer Price Index (CPI), the Deflated GDP, the number of 
-    unemployed workers in the playbox along with the unemployment rate.
-    The amount of the labor force afraid to go to work due to not enough
-    security is the Unsecure Labor Force. This number is part of 
-    Unemployment.<p>
+    the Consumer Price Index (CPI), the Deflated GDP, the per capita 
+    Deflated GDP, the number of unemployed workers in the playbox along 
+    with the unemployment rate.  The amount of the labor force afraid to 
+    go to work due to not enough security is the Unsecure Labor Force. 
+    This number is part of Unemployment.<p>
 
     Below that, shortages are displayed:  the shortage in the goods sector
     is determined by the unconstrained demand for goods and the constrained

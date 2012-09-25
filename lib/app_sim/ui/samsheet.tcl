@@ -341,7 +341,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         normal                     \
-            -rows          5                          \
+            -rows          6                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -357,6 +357,7 @@ snit::widget samsheet {
             "Feedstock per Unit Product"
             "Max Feedstock Avail."
             "Base Consumers"
+            "Subsistence Wage"
         }
 
         $inputs textcol 0,2 {
@@ -365,6 +366,7 @@ snit::widget samsheet {
             ""
             "tonnes/year"
             ""
+            "$/year"
         } units -anchor w -relief flat
 
         # NEXT, add data
@@ -373,6 +375,7 @@ snit::widget samsheet {
         $inputs mapcell 2,1 AF.world.black e -background $color(e)
         $inputs mapcell 3,1 MF.world.black e -background $color(e)
         $inputs mapcell 4,1 BaseConsumers  e -background $color(e)
+        $inputs mapcell 5,1 BaseSubWage    e -background $color(e)
 
         $inputs width 0 25
         $inputs width 2 15
