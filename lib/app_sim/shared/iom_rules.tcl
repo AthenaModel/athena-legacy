@@ -180,7 +180,7 @@ snit::type iom_rules {
         AddIomDetails data $pdict
 
         # NEXT, get the final factor.
-        let factor {$data(adjcov)*$data(accept)}
+        set factor [expr {$data(adjcov)*$data(accept)}]
 
         # IOM-1-1
         #
@@ -191,7 +191,7 @@ snit::type iom_rules {
         } {
             dict for {num prec} $pdict {
                 dict with prec {
-                    let fmag {$factor * $mag }
+                    set fmag [expr {$factor * $mag }]
                     switch -exact -- $payload_type {
                         COOP { dam coop T $data(f) $g $fmag }
                         HREL { dam hrel T $data(f) $g $fmag }

@@ -400,7 +400,11 @@ snit::widget appwin {
             vistype firings
             parent  ""
             script  { 
-                reportbrowser %W -db ::rdb
+                reportbrowser %W \
+                    -db ::rdb \
+                    -reloadon {
+                        ::firings <Report>
+                    }
                 %W refresh
             }
         }
@@ -1122,7 +1126,6 @@ snit::widget appwin {
         set viewer [$self tab win viewer]
 
         # Firings browser
-        notifier bind ::firings <Report> $self [mymethod FiringsCB]
         notifier bind ::firings <Update> $self [mymethod FiringsUpdateCB] 
 
         # Scrolling log
@@ -2308,17 +2311,6 @@ snit::widget appwin {
                 $cli configure -maxlines [prefs get cli.maxlines]
             }
         }
-    }
-
-    # FiringsCB dict
-    #
-    # dict     A dictionary of firings report options
-    #
-    # Called when a firings report is produced.  Asks the firings
-    # browser to display the latest reports.
-
-    method FiringsCB {dict} {
-        [$self tab win firings] update
     }
 
     # FiringsUpdateCB id
