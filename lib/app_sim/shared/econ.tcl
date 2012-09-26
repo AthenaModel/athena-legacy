@@ -83,6 +83,12 @@ snit::type econ {
     # OK or WARNING.
 
     typemethod checker {{ht ""}} {
+        # FIRST, if econ is disabled, always return OK
+        if {[parmdb get econ.disable]} {
+            return OK
+        }
+
+        # NEXT, perform the checks and return status
         set edict [$type DoSanityCheck]
 
         if {[dict size $edict] == 0} {
