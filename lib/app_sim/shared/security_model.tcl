@@ -303,11 +303,19 @@ snit::type security_model {
     # Computes LocalFriends.ng and LocalEnemies.ng for each n and g.
 
     typemethod ComputeLocalFriendsAndEnemies {} {
-        # FIRST, initialize the accumulators
+        # FIRST, cache the discipline parms.
+        foreach training [etraining names] {
+            set disc($training) [parm get force.discipline.$training]
+        }
+
+        # NEXT, prepare to accumulate the local force and local enemy
+        # for each n,g
         rdb eval {
-            UPDATE force_ng
-            SET local_force = 0,
-                local_enemy = 0
+            SELECT n,g FROM force_ng
+        } {
+            set id [list $n $g]
+            set local_force($id) 0
+            set local_enemy($id) 0
         }
 
         # NEXT, iterate over all pairs of groups in each neighborhood.
@@ -332,33 +340,39 @@ snit::type security_model {
             WHERE hrel != 0.0 AND NF.own_force > 0
             
         } {
+            set id [list $n $g]
+
             # FIRST, compute the effective relationship.
             if {$stance ne ""} {
-                set D [parm get force.discipline.$training]
-                let hrel {$hrel + ($stance - $hrel)*$D}
+                set hrel [expr {$hrel + ($stance - $hrel)*$disc($training)}]
             }
 
             # NEXT, compute friends and enemies.
             if {$hrel > 0} {
-                let friends {int(ceil($f_noncrim_force*$hrel))}
-                let enemies {int(ceil($f_crim_force))}
+                set friends [expr {int(ceil($f_noncrim_force*$hrel))}]
+                set enemies [expr {int(ceil($f_crim_force))}]
 
-                rdb eval {
-                    UPDATE force_ng
-                    SET local_force = local_force + $friends,
-                        local_enemy = local_enemy + $enemies
-                    WHERE n = $n AND g = $g
-                }
+                incr local_force($id) $friends
+                incr local_enemy($id) $enemies
             } elseif {$hrel < 0} {
-                let enemies {
+                set enemies [expr {
                     int(ceil($f_noncrim_force*abs($hrel) + $f_crim_force))
-                }
+                }]
 
-                rdb eval {
-                    UPDATE force_ng
-                    SET local_enemy = local_enemy + $enemies
-                    WHERE n = $n AND g = $g
-                }
+                incr local_enemy($id) $enemies
+            }
+        }
+
+        foreach id [array names local_force] {
+            lassign $id n g
+            set force $local_force($id)
+            set enemy $local_enemy($id)
+            
+            rdb eval {
+                UPDATE force_ng
+                SET local_force = $force,
+                    local_enemy = $enemy
+                WHERE n = $n AND g = $g
             }
         }
     }
