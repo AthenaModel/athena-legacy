@@ -161,7 +161,7 @@ snit::type coverage_model {
 
     typemethod ComputeForceActivityFlags {} {
         # FIRST, clear security flags when security is too low
-        rdb explain {
+        rdb eval {
             SELECT activity_nga.n      AS n,
                    activity_nga.g      AS g,
                    activity_nga.a      AS a,
