@@ -329,16 +329,14 @@ snit::type security_model {
                    NF.g             AS f,
                    NF.noncrim_force AS f_noncrim_force,
                    NF.crim_force    AS f_crim_force,
-                   G.g              AS g,
+                   FG.g             AS g,
                    FG.hrel          AS hrel,
                    S.stance         AS stance
             FROM force_ng AS NF
-            JOIN groups AS G
-            JOIN uram_hrel AS FG ON (FG.f = NF.g AND FG.g = G.g)
+            JOIN uram_hrel AS FG ON (FG.f = NF.g)
             LEFT OUTER JOIN stance_nfg_view AS S
-            ON S.n=NF.n AND S.f=NF.g AND S.g=G.g
+            ON S.n=NF.n AND S.f=NF.g AND S.g=FG.g
             WHERE hrel != 0.0 AND NF.own_force > 0
-            
         } {
             set id [list $n $g]
 
