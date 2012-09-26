@@ -334,13 +334,16 @@ snit::type security_model {
                    S.stance         AS stance
             FROM force_ng AS NF
             JOIN uram_hrel AS FG ON (FG.f = NF.g)
-            LEFT OUTER JOIN stance_nfg_view AS S
+            LEFT OUTER JOIN stance_nfg_only_view AS S
             ON S.n=NF.n AND S.f=NF.g AND S.g=FG.g
             WHERE hrel != 0.0 AND NF.own_force > 0
         } {
             set id [list $n $g]
 
-            # FIRST, compute the effective relationship.
+            # FIRST, compute the effective relationship, if f is a
+            # force group, and has a stance specified. Otherwise,
+            # the effective relationship is simply the normal
+            # relationship.
             if {$stance ne ""} {
                 set hrel [expr {$hrel + ($stance - $hrel)*$disc($f)}]
             }
