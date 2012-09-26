@@ -11,6 +11,27 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.16, 26 September 2012 -- TRISA Engineering Build
+Candidate</h3>
+
+This package contains a number of economics model-related bug fixes,
+and a handful of small performance improvements.  The full set of
+packages is as follows:<p>
+
+<ul>
+<li> Bug 3694: Athena Help: actor income from black sector should include shares
+<li> Bug 3707: athena(1): label on Econ/Overview tab should be "Insecure Labor Force"
+<li> Bug 3708: athena_sim(1): IOM optimizations
+<li> Bug 3709: profiler(n): Command profiling package
+<li> Bug 3711: athena_sim(1): Support for "rdb explain"
+<li> Bug 3712: athena(1): Actors sector should be initialized to zero in SAM
+<li> Bug 3714: athena(1): Add subsistence wage and per capita GDP to econ model
+<li> Bug 3715: athena_sim(1): Firings report optimization
+<li> Bug 3716: athena_sim(1): Resonance Caching
+<li> Bug 3717: athena_sim(1): optimize ComputeForceActivityFlags
+<li> Bug 3718: athena(1): econ on lock sanity checks are executed when econ.disable = yes
+</ul><p>
+
 <h3>Build 4.0.15, 24 September 2012 -- TRISA Engineering Build
 Candidate</h3>
 
