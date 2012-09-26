@@ -311,10 +311,7 @@ CREATE VIEW stance_nfg_only_view AS
 SELECT N.n                                           AS n,
        F.g                                           AS f,
        G.g                                           AS g,
-       coalesce(SN.stance,S.stance)                  AS stance,
-       CASE WHEN SN.stance IS NOT NULL THEN 'ATTROE'
-            WHEN S.stance  IS NOT NULL THEN 'ACTOR'
-            ELSE 'DEFAULT' END                       AS source
+       coalesce(SN.stance,S.stance)                  AS stance
 FROM nbhoods   AS N
 JOIN frcgroups AS F
 JOIN groups    AS G
