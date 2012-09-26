@@ -303,9 +303,11 @@ snit::type security_model {
     # Computes LocalFriends.ng and LocalEnemies.ng for each n and g.
 
     typemethod ComputeLocalFriendsAndEnemies {} {
-        # FIRST, cache the discipline parms.
-        foreach training [etraining names] {
-            set disc($training) [parm get force.discipline.$training]
+        # FIRST, Get the discipline level for each force group.
+        rdb eval {
+            SELECT g, training FROM frcgroups
+        } {
+            set disc($g) [parm get force.discipline.$training]
         }
 
         # NEXT, prepare to accumulate the local force and local enemy
@@ -329,12 +331,10 @@ snit::type security_model {
                    NF.crim_force    AS f_crim_force,
                    G.g              AS g,
                    FG.hrel          AS hrel,
-                   FRC.training     AS training,
                    S.stance         AS stance
             FROM force_ng AS NF
             JOIN groups AS G
             JOIN uram_hrel AS FG ON (FG.f = NF.g AND FG.g = G.g)
-            LEFT OUTER JOIN frcgroups AS FRC ON (FRC.g=NF.g)
             LEFT OUTER JOIN stance_nfg_view AS S
             ON S.n=NF.n AND S.f=NF.g AND S.g=G.g
             WHERE hrel != 0.0 AND NF.own_force > 0
@@ -344,7 +344,7 @@ snit::type security_model {
 
             # FIRST, compute the effective relationship.
             if {$stance ne ""} {
-                set hrel [expr {$hrel + ($stance - $hrel)*$disc($training)}]
+                set hrel [expr {$hrel + ($stance - $hrel)*$disc($f)}]
             }
 
             # NEXT, compute friends and enemies.
