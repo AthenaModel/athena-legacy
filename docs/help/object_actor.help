@@ -110,16 +110,21 @@ object actor_ {
         used to fund tactics.
     } -tags {create_opt update browser income}
 
-    attribute income_black_nr "Income, BLACK Profits, $/week" {
+    attribute income_black_nr "Income, BLACK Profits, shares" {
         The actor's income from the profits of the Black Market
-        sector of the economy, in dollars per week, e.g., because the 
+        sector of the economy, in shares of the profit, e.g., because the 
         actor is in some sense an owner of the means of the production
-        and distribution.<p>
+        and distribution.  If only one actor has shares then he gets all of
+        the black market profits.  If more than one has shares then the
+        profit is divvied up according to the shares each has.  If no actor
+        has any shares of the black market profits, then all profits go to 
+        the world sector.<p>
         
         If the Economics model is enabled 
         (See <<cref /parmdb/econ/disable>>), then this is the actor's
         income from Black Market profits as of time 0; income in 
-        subsequent weeks will depend on the size of the BLACK sector.<p>
+        subsequent weeks will depend on the difference between revenue and
+        expenditures of the BLACK sector.<p>
 
         This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
