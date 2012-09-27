@@ -103,8 +103,8 @@ snit::type ::projectlib::profiler {
 
     typemethod reset {} {
         foreach proc $data(procs) {
-            trace remove execution $proc enter [myproc Enter]
-            trace remove execution $proc leave [myproc Leave]
+            trace remove execution $proc enter [myproc Enter $proc]
+            trace remove execution $proc leave [myproc Leave $proc]
         }
 
         array unset data
