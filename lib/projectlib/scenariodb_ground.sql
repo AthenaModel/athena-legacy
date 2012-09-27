@@ -305,19 +305,6 @@ LEFT OUTER JOIN stance_nfg AS SN ON (SN.n=N.n AND SN.f=F.g AND SN.g=G.g)
 LEFT OUTER JOIN stance_fg  AS S  ON (S.f=F.g AND S.g=G.g)
 LEFT OUTER JOIN uram_hrel  AS UH ON (UH.f=F.g AND UH.g=G.g);
 
--- stance_nfg_only_view:  Group f's stance toward g in n; differs
--- from stance_nfg_view in containing only the overrides to uram_hrel.
-CREATE VIEW stance_nfg_only_view AS
-SELECT N.n                                           AS n,
-       F.g                                           AS f,
-       G.g                                           AS g,
-       coalesce(SN.stance,S.stance)                  AS stance
-FROM nbhoods   AS N
-JOIN frcgroups AS F
-JOIN groups    AS G
-LEFT OUTER JOIN stance_nfg AS SN ON (SN.n=N.n AND SN.f=F.g AND SN.g=G.g)
-LEFT OUTER JOIN stance_fg  AS S  ON (S.f=F.g AND S.g=G.g);
-
 ------------------------------------------------------------------------
 -- FORCE AND SECURITY STATISTICS
 

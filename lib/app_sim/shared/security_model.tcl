@@ -325,17 +325,19 @@ snit::type security_model {
         # and crim_force = 0.
 
         rdb eval {
-            SELECT NF.n             AS n,
-                   NF.g             AS f,
-                   NF.noncrim_force AS f_noncrim_force,
-                   NF.crim_force    AS f_crim_force,
-                   FG.g             AS g,
-                   FG.hrel          AS hrel,
-                   S.stance         AS stance
+            SELECT NF.n                         AS n,
+                   NF.g                         AS f,
+                   NF.noncrim_force             AS f_noncrim_force,
+                   NF.crim_force                AS f_crim_force,
+                   FG.g                         AS g,
+                   FG.hrel                      AS hrel,
+                   coalesce(SN.stance,S.stance) AS stance
             FROM force_ng AS NF
             JOIN uram_hrel AS FG ON (FG.f = NF.g)
-            LEFT OUTER JOIN stance_nfg_only_view AS S
-            ON S.n=NF.n AND S.f=NF.g AND S.g=FG.g
+            LEFT OUTER JOIN stance_nfg AS SN 
+                ON (SN.n=NF.n AND SN.f=NF.g AND SN.g=FG.g)
+            LEFT OUTER JOIN stance_fg  AS S  
+                ON (S.f=NF.g AND S.g=FG.g)
             WHERE hrel != 0.0 AND NF.own_force > 0
         } {
             set id [list $n $g]
