@@ -484,19 +484,19 @@ snit::type executive {
     #---------------------------------------------------------------
     # Procs
 
-    # advance days
+    # advance weeks
     #
-    # days    - An integer number of days
+    # weeks    - An integer number of weeks
     #
-    # advances time by the specified number of days.  Locks the
+    # advances time by the specified number of weeks.  Locks the
     # scenario if necessary.
 
-    proc advance {days} {
+    proc advance {weeks} {
         if {[sim state] eq "PREP"} {
             lock
         }
 
-        send SIM:RUN -days $days -block YES
+        send SIM:RUN -weeks $weeks -block YES
     }
 
     # controls a n ?n...?

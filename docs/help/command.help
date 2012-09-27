@@ -126,9 +126,9 @@ command "=" {
 # advance command
 
 command "advance" {
-    <<syntax <i>days</i> >>
+    <<syntax <i>weeks</i> >>
 
-    Advances simulation time by the specified number of integer <i>days</i>,
+    Advances simulation time by the specified number of integer <i>weeks</i>,
     <<cref /command/lock>>ing the scenario first if necessary.
 }
 

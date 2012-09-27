@@ -45,17 +45,17 @@ order SIM:STARTDATE "Set Start Date" {
 
 order SIM:RUN "Run Simulation" {
     <<parmlist>>
-    <<parm days "Days to Run">>
-    <b>Optional.</b>  An integer number of days.  If 0, or not
+    <<parm weeks "Weeks to Run">>
+    <b>Optional.</b>  An integer number of weeks.  If 0, or not
     specified, the simulation will run until explicitly paused by the
     user.  If greater than 0, the simulation will run for the
-    specified number of days, and then halt.
+    specified number of weeks, and then halt.
     <</parm>>
 
     <<parm block "Block?">>
     <b>Optional.</b>  A boolean flag.  If true, the order will
     block--that is, the simulation will run for the specified number
-    of days and then the order handler will return.  If false (the
+    of weeks and then the order handler will return.  If false (the
     default) the order handler returns immediately, and the simulation
     runs forward under the control of the Tcl event loop.<p>
     <</parm>>
