@@ -56,13 +56,15 @@ tactic type define STANCE {f text1 glist nlist x1 on_lock} actor {
         # FIRST, get the max stance
         set maxStance [parm get force.maxAttackingStance]
 
-        # NEXT, add overrides to stance_nfg.
-        foreach {n f g stance} [rdb eval {
-            SELECT n, f, g, stance
-            FROM stance_nfg_view
-            JOIN attroe_nfg USING (n,f,g)
-            WHERE roe != 'DO_NOT_ATTACK'
-        }] {
+        rdb eval {
+            SELECT A.n                        AS n,
+                   A.f                        AS f,
+                   A.g                        AS g,
+                   coalesce(S.stance, H.hrel) AS stance
+            FROM attroe_nfg AS A
+            JOIN uram_hrel  AS H USING (f,g)
+            LEFT OUTER JOIN stance_fg AS S USING (f,g)
+        } {
             if {$maxStance < $stance} {
                 rdb eval {
                     INSERT INTO stance_nfg(n,f,g,stance)
