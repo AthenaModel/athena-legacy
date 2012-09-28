@@ -121,7 +121,7 @@ snit::type ::projectlib::profiler {
             return "No commands are being profiled."
         }
 
-        set result [format "%30s %8s %8s\n" "Command" "Count" "Usecs"]
+        set result [format "%10s %8s  %s\n" "Usecs" "Count" "Command"]
 
         foreach proc $data(procs) {
             if {[llength $data(times-$proc)] > 0} {
@@ -130,10 +130,10 @@ snit::type ::projectlib::profiler {
                 set total 0
             }
 
-            append result [format "%30s %8d %8d\n" \
-                $data(pretty-$proc) \
-                $data(count-$proc)  \
-                $total]
+            append result [format "%10d %8d  %s\n" \
+                $total                             \
+                $data(count-$proc)                 \
+                $data(pretty-$proc)]
         }
 
         return $result

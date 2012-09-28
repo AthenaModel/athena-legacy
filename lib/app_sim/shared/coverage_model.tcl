@@ -28,17 +28,12 @@ snit::type coverage_model {
     #-------------------------------------------------------------------
     # Initialization
 
-    # start
+    # init
     #
-    # Initializes the module before the simulation first starts to run.
+    # Initializes some lookup tables.
 
-    typemethod start {} {
-        # FIRST, Initialize activity_nga.
-        rdb eval {
-            DELETE FROM activity_nga;
-        }
-
-        # NEXT, remember minFrcSecurity
+    typemethod init {} {
+        # FIRST, remember minFrcSecurity
         rdb eval {
             SELECT a
             FROM activity_gtype
@@ -51,6 +46,17 @@ snit::type coverage_model {
         # NEXT, remember strict security.
         for {set i -100} {$i <= 100} {incr i} {
             set strictSecurity($i) [qsecurity strictvalue $i]
+        }
+    }
+
+    # start
+    #
+    # Initializes the module before the simulation first starts to run.
+
+    typemethod start {} {
+        # FIRST, Initialize activity_nga.
+        rdb eval {
+            DELETE FROM activity_nga;
         }
 
         # NEXT, Add groups and activities for each neighborhood.

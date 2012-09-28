@@ -222,6 +222,8 @@ snit::type app {
         nbhood    init
         sim       init
 
+        coverage_model init
+
         # NEXT, register my:// servers with myagent.
         appserver init
         myagent register app ::appserver
