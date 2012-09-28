@@ -76,8 +76,7 @@ SELECT event_id                                        AS event_id,
        tozulu(t)                                       AS zulu,
        component                                       AS component,
        mklinks(narrative)                              AS narrative
-FROM sigevents
-ORDER BY event_id ASC;
+FROM sigevents;
 
 
 -- gui_sigevents_wtag: significant events with tags.
@@ -89,8 +88,7 @@ SELECT event_id                                        AS event_id,
        component                                       AS component,
        mklinks(narrative)                              AS narrative,
        tag                                             AS tag
-FROM sigevents_view
-ORDER BY event_id ASC;
+FROM sigevents_view;
      
 -----------------------------------------------------------------------
 -- BOOKMARKS VIEWS
