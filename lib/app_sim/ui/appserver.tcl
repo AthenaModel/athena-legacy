@@ -458,7 +458,7 @@ snit::type appserver {
                 FROM gui_sigevents
                 WHERE event_id >= $mark
             }
-        } elseif {[llength $opts(-tags)] == 0} {
+        } elseif {[llength $opts(-tags)] == 1} {
             set tag [lindex $opts(-tags) 0]
 
             set query {
