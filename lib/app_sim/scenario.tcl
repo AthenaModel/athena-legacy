@@ -393,7 +393,9 @@ snit::type scenario {
             hist_control
             hist_coop
             hist_econ
+            hist_econ_i
             hist_econ_ij
+            hist_hrel
             hist_mood
             hist_nbcoop
             hist_nbmood
@@ -402,14 +404,15 @@ snit::type scenario {
             hist_support
             hist_volatility
             hist_vrel
+            reports
             sigevents
             sigevent_tags
+            ucurve_adjustments_t
             ucurve_contribs_t
+            ucurve_effects_t
             uram_civrel_t
             uram_frcrel_t
         }]
-
-        log detail scenario "Snapshot size=[string length $snapshot]"
 
         # NEXT, save it into the RDB
         if {$opt eq "-prep"} {
@@ -424,7 +427,8 @@ snit::type scenario {
             VALUES($tick,$snapshot)
         }
 
-        log normal scenario "snapshot saved"
+        log normal scenario "snapshot saved: [string length $snapshot] bytes"
+        log normal scenario "snapshot tables: [lsort [dict keys $snapshot]]"
     }
 
 
@@ -452,7 +456,8 @@ snit::type scenario {
         }]
 
         # NEXT, import it.
-        log normal scenario "Loading snapshot for tick $tick"
+        log normal scenario \
+            "Loading snapshot for tick $tick: [string length $snapshot] bytes"
         rdb tclimport $snapshot
 
         # NEXT, restore the saveables
@@ -492,6 +497,7 @@ snit::type scenario {
 
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
+            DELETE FROM reports WHERE time > $hist_t;
             DELETE FROM ucurve_contribs_t WHERE t > $t;
         }
 
