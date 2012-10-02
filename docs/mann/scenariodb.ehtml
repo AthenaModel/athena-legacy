@@ -193,28 +193,6 @@ Saves the current contents of the database to the file with name
 <i>filename</i>, which conventionally should have a
 "<code>.ath</code>" extension.  Clears the <<iref unsaved>> flag.<p>
 
-<<defitem tclexport {<i>obj</i> tclexport ?-exclude? ?<i>tables</i>?}>>
-
-Exports the contents of the permanent database tables as a
-Tcl-formatted text
-string.  The text can be imported into a scenariodb(n) using
-<<iref tclimport>>.  If <i>tables</i> is specified, it should be a list
-of the names of the tables to export.  If <code>-exclude</code> is
-given with <i>tables</i>, then <i>tables</i> is a list of tables that
-should <i>not</i> be exported.<p>
-
-<<defitem tclimport {<i>obj</i> tclimport <i>data</i> ?<i>options...</i>?}>>
-
-Imports <i>data</i> saved by <<iref tclexport>> into the database.
-
-<<deflist options>>
-
-<<defopt {-clear}>>
-
-Clears the RDB, defining the current schema, prior to importing.<p.
-
-<</deflist options>>
-
 <<defitem unsaved {<i>obj</i> unsaved}>>
 
 Returns 1 if changes have been made to the database since the last

@@ -28,6 +28,44 @@ snit::type scenario {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # nonSnapshotTables
+    #
+    # A list of the tables that are excluded from snapshots.
+    #
+    # WARNING: The excluded tables should not define foreign key 
+    # constraints with cascading deletes on non-excluded tables.
+    # On import, all tables in the exported data will be cleared 
+    # before being re-populated, and cascading deletes would 
+    # depopulated the excluded tables.
+
+    typevariable nonSnapshotTables {
+        snapshots 
+        maps 
+        bookmarks
+        hist_control
+        hist_coop
+        hist_econ
+        hist_econ_i
+        hist_econ_ij
+        hist_hrel
+        hist_mood
+        hist_nbcoop
+        hist_nbmood
+        hist_sat
+        hist_security
+        hist_support
+        hist_volatility
+        hist_vrel
+        reports
+        sigevents
+        sigevent_tags
+        ucurve_adjustments_t
+        ucurve_contribs_t
+        ucurve_effects_t
+        uram_civrel_t
+        uram_frcrel_t
+    }
+    
     # Info Array: most scalars are stored here
     #
     # dbfile              Name of the current scenario file
@@ -378,43 +416,7 @@ snit::type scenario {
         # FIRST, save the saveables
         $type SaveSaveables
 
-        # NEXT, get the snapshot text
-        #
-        # WARNING: The excluded tables should not define foreign key 
-        # constraints with cascading deletes on non-excluded tables.
-        # On import, all tables in the exported data will be cleared 
-        # before being re-populated, and cascading deletes would 
-        # depopulated the excluded tables.
-
-        set snapshot [rdb tclexport -exclude {
-            snapshots 
-            maps 
-            bookmarks
-            hist_control
-            hist_coop
-            hist_econ
-            hist_econ_i
-            hist_econ_ij
-            hist_hrel
-            hist_mood
-            hist_nbcoop
-            hist_nbmood
-            hist_sat
-            hist_security
-            hist_support
-            hist_volatility
-            hist_vrel
-            reports
-            sigevents
-            sigevent_tags
-            ucurve_adjustments_t
-            ucurve_contribs_t
-            ucurve_effects_t
-            uram_civrel_t
-            uram_frcrel_t
-        }]
-
-        # NEXT, save it into the RDB
+        # NEXT, get the tick
         if {$opt eq "-prep"} {
             assert {[sim now] == 0}
             set tick -1
@@ -422,15 +424,53 @@ snit::type scenario {
             set tick [sim now]
         }
 
+        # NEXT, get the snapshot text
+        set snapshot [GrabAllBut $nonSnapshotTables]
+
+        # NEXT, save it into the RDB
         rdb eval {
             INSERT OR REPLACE INTO snapshots(tick,snapshot)
             VALUES($tick,$snapshot)
         }
 
         log normal scenario "snapshot saved: [string length $snapshot] bytes"
-        log normal scenario "snapshot tables: [lsort [dict keys $snapshot]]"
     }
 
+    # GrabAllBut exclude
+    #
+    # exclude  - Names of tables to exclude from the snapshot. 
+    #
+    # Grabs all but the named tables.
+     
+    proc GrabAllBut {exclude} {
+        # FIRST, Get the list of tables to include
+        set tables [list]
+
+        rdb eval {
+            SELECT name FROM sqlite_master WHERE type='table'
+        } {
+            if {$name ni $exclude} {
+                lappend tables $name
+            }
+        }
+        
+        # NEXT, export each of the required tables.
+        set snapshot [list]
+
+        foreach name $tables {
+            lassign [rdb grab $name {}] grabbedName content
+
+            # grab returns the empty list if there was nothing to
+            # grab; we want to have the table name present with
+            # an empty content string, indicated that the table
+            # should be empty.  Adds the INSERT tag, so that
+            # ungrab will do the right thing.
+            lappend snapshot [list $name INSERT] $content
+        }
+        
+        # NEXT, return the document
+        return $snapshot
+    }
 
     # snapshot load tick
     #
@@ -458,7 +498,17 @@ snit::type scenario {
         # NEXT, import it.
         log normal scenario \
             "Loading snapshot for tick $tick: [string length $snapshot] bytes"
-        rdb tclimport $snapshot
+
+        rdb transaction {
+            # NEXT, clear the tables being loaded.
+            foreach {tableSpec content} $snapshot {
+                lassign $tableSpec table tag
+                rdb eval "DELETE FROM $table;"                
+            }
+
+            # NEXT, import the tables
+            rdb ungrab $snapshot
+        }
 
         # NEXT, restore the saveables
         $type RestoreSaveables
