@@ -11,6 +11,25 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.17, 3 October 2012 -- Performance</h3>
+
+This build contains minor bug fixes and more performance improvements.
+<b>Warning:</b> this build will load Athena 4.0.16 scenario files, but
+only if the scenario was saved in the Scenario Prep state.  If you
+load into 4.0.17 a 4.0.16 scenario saved with the scenario locked, 
+you will not be able to return it to the Scenario Prep state.<p>
+
+<ul>
+<li> Bug 3719: athena_sim(1): Security Model optimization
+<li> Bug 3720: Standard Scenarios
+<li> Bug 3721: SIM:RUN order/advance executive command
+<li> Bug 3722: profiler(n): reset doesn't cancel existing traces
+<li> Bug 3724: athena_sim(1): generating sigevents table is slow in detail browser.
+<li> Bug 3725: athena_sim(1): Can't load and run "locked" scenario.
+<li> Bug 3727: athena_sim(1): snapshot optimization
+</ul>
+
+
 <h3>Build 4.0.16, 26 September 2012 -- TRISA Engineering Build
 Candidate</h3>
 
