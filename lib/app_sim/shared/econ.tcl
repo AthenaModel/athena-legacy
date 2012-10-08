@@ -99,7 +99,7 @@ snit::type econ {
             $type DoSanityReport $ht $edict
         }
 
-        return WARNING
+        return ERROR
     }
 
     # DoSanityCheck
@@ -124,6 +124,21 @@ snit::type econ {
         if {$cells(BaseConsumers) < 100} {
             dict append edict BaseConsumers \
                 "Base number of consumers must not be less than 100."
+        }
+
+        if {$cells(BP.goods) == 0.0} {
+            dict append edict BP.goods \
+                "Base price of goods must not be zero."
+        }
+
+        if {$cells(BP.black) == 0.0} {
+            dict append edict BP.black \
+                "Base price in black market must not be zero."
+        }
+
+        if {$cells(BP.pop) == 0.0} {
+            dict append edict BP.pop \
+                "Base price in the pop sector must not be zero."
         }
 
         # NEXT, Cobb-Douglas coefficients in the goods sector must add up 
