@@ -126,6 +126,7 @@ snit::type econ {
                 "Base number of consumers must not be less than 100."
         }
 
+        # NEXT, no base prices can be zero.
         if {$cells(BP.goods) == 0.0} {
             dict append edict BP.goods \
                 "Base price of goods must not be zero."
@@ -507,7 +508,11 @@ snit::type econ {
             let t_goods      {$data(income_goods)     / ($BPg * $BQDg)}
             let t_pop        {$data(income_pop)       / ($BPp * $BQDp)}
             let t_world      {$data(income_world)     / $BREVw}
-            let graft_region {$data(income_graft)     / $FAR}
+            if {$FAR > 0.0} {
+                let graft_region {$data(income_graft) / $FAR}
+            } else {
+                set graft_region 0.0
+            }
 
             # NEXT, the black market may not have any product
             if {$BQDb > 0.0} {
@@ -592,6 +597,7 @@ snit::type econ {
         set result [$sam solve]
         # NEXT, handle failures.
         if {$result ne "ok"} {
+            puts $result
             log warning econ "Failed to solve SAM"
             error "Failed to solve SAM model after actor data was loaded."
         }
