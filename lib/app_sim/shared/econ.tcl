@@ -120,6 +120,12 @@ snit::type econ {
                 "Annual per capita demand for goods is less than 1 goods basket."
         }
 
+        # NEXT, base consumers must not be zero.
+        if {$cells(BaseConsumers) < 100} {
+            dict append edict BaseConsumers \
+                "Base number of consumers must not be less than 100."
+        }
+
         # NEXT, Cobb-Douglas coefficients in the goods sector must add up 
         # to 1.0 within a reasonable epsilon and cannot be greater than 1.0. 
         # The black sector is assumed to never have money flow into it from
