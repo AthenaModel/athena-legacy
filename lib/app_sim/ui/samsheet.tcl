@@ -426,7 +426,7 @@ snit::widget samsheet {
 
         $outputs mapcell 0,1 FAA           r -background $color(r)
         $outputs mapcell 1,1 FAR           r -background $color(r)
-        $outputs mapcell 2,1 A.goods.pop   r -background $color(r)
+        $outputs mapcell 2,1 BA.goods.pop  r -background $color(r)
         $outputs mapcell 3,1 EXPORTS.goods r -background $color(r)
         $outputs mapcell 4,1 EXPORTS.black r -background $color(r)
         $outputs mapcell 5,1 EXPORTS.pop   r -background $color(r)

@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version m
+#    sam6x6.cm, version n
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,11 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version n: Changed A.goods.pop to BA.goods.pop, the base per capita
+#               demand for goods. This will be the starting point for
+#               the CGE but A.goods.pop may change over time depending on
+#               the number of consumers and remittances.
+#
 #    Version m: Added base subsistence wage to be passed through to the
 #               CGE.
 #
@@ -181,8 +186,8 @@ let BP.actors = 0
 let BP.region = 0
 let BP.world  = 0
 
-let BaseConsumers = 2.2e7
-let BaseSubWage   = 200     ;# Subsistence wage (aka poverty level) $/work-year
+let BaseConsumers  = 2.2e7
+let BaseSubWage    = 200     ;# Subsistence wage (aka poverty level) $/work-year
 
 let BREM           = 5.0e8            
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
@@ -328,7 +333,7 @@ foreach i {goods black pop actors region world} {
 }
 
 # The per capita demand for goods 
-let A.goods.pop = {[BX.goods.pop] / [BaseConsumers]}
+let BA.goods.pop = {[BX.goods.pop] / ([BP.goods] * [BaseConsumers])}
 
 # Everything that was computed is of interest to the CGE except the 
 # intermediate variable BATI.pop

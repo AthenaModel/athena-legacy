@@ -115,12 +115,12 @@ snit::type econ {
         array set cells [$sam get]
 
         # FIRST, per capita demand for goods must be reasonable
-        if {$cells(A.goods.pop) < 1.0} {
-            dict append edict A.goods.pop \
+        if {$cells(BA.goods.pop) < 1.0} {
+            dict append edict BA.goods.pop \
                 "Annual per capita demand for goods is less than 1 goods basket."
         }
 
-        # NEXT, base consumers must not be zero.
+        # NEXT, base consumers must not be too low.
         if {$cells(BaseConsumers) < 100} {
             dict append edict BaseConsumers \
                 "Base number of consumers must not be less than 100."
@@ -697,7 +697,7 @@ snit::type econ {
         #-------------------------------------------------------------
         # A.goods.pop, the unconstrained base demand for goods in 
         # goods basket per year per capita.
-        cge set [list A.goods.pop $samdata(A.goods.pop)]
+        cge set [list BA.goods.pop $samdata(BA.goods.pop)]
 
         #-------------------------------------------------------------
         # graft, the percentage skimmed off FAR by all actors
@@ -808,6 +808,9 @@ snit::type econ {
                          In::LSF       $LSF                    \
                          In::CSF       $CSF]
 
+            # NEXT, per capita demand for goods
+            cge set [list In::A.goods.pop [dict get [$sam get] BA.goods.pop]]
+
             # NEXT, subsistence wage, the poverty level
             cge set [list BaseSubWage [dict get [$sam get] BaseSubWage]]
 
@@ -843,6 +846,16 @@ snit::type econ {
                         AF.world.black $AFwb \
                         MF.world.black $MFwb \
                         PF.world.black $PFwb]
+
+            # NEXT, exports
+            set Eg [dict get [$sam get] EXPORTS.goods]
+            set Eb [dict get [$sam get] EXPORTS.black]
+            set Ep [dict get [$sam get] EXPORTS.pop]
+
+            cge set [list \
+                        In::EXPORTS.goods $Eg \
+                        In::EXPORTS.black $Eb \
+                        In::EXPORTS.pop   $Ep]
 
             # NOTE: if income from graft is ever allowed to change
             # over time, then In::graft should be computed and set

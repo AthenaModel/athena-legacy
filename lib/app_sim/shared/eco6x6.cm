@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version p
+#    eco6x6.cm, version q
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,14 @@
 #    Out pages.
 #
 # HISTORY:
+#    Version q: Changed A.goods.pop on the null page to BA.goods.pop, the
+# base per capita demand for goods. The base value is used for calibration.
+# Added a computation of A.goods.pop to page "L". This will take into account
+# the fact that the money flowing into the goods sector from the pop sector
+# may change because revenue in the pop sector has change (ie. increase or
+# decrease in remittances). It will also take into account that the number
+# of consumers may have changed. That computed value is then used in the
+# "M" and "S" pages.
 #
 #    Version p: Added base subsistence wage as an input to compute the
 # contribution of subsistence agriculture to the GDP. Added the number
@@ -215,8 +223,8 @@ let TurFrac = 0.04 ;# Average fraction of workforce "merely between jobs"
 #   BP.j       The price in $/unit of the product of sector j
 #               Note that if sector j has no product, BP.j is irrelevant
 #               (e.g., zero)
-#   BaseConsumers This is the size datum, in persons
-#   BaseSubWage   This is the base wage of subsiters (aka the poverty level)
+#   BaseConsumers  This is the size datum, in persons
+#   BaseSubWage    This is the base wage of subsiters (aka the poverty level)
 #
 # This data is used to compute the shape parameters by:
 #
@@ -416,8 +424,8 @@ let BP.pop   = 400      ;# $/work-year - the unchanging numeraire
 # Ultimately,the "size" of the economy depends on A.goods.pop and the 
 # number of consumers.
 
-let A.goods.pop = 114    ;# Direct consumption of goods, 
-                         ;# in GoodsBKT/year per capita
+let BA.goods.pop = 114    ;# Direct consumption of goods, 
+                          ;# in GoodsBKT/year per capita
 
 # Flags: These provide an interface to the models in Athena
 let Flag.ActorsGetBNR = 1 ;# Do actors get black market net revenue
@@ -444,7 +452,7 @@ let k.pop   = {1.0 - [t.actors.pop]   - [t.region.pop]   - [t.world.pop]}
 # The BQD.i.pop's are used in the equation for P.goods.  
 
 let BQD.goods.pop  =  {
-    [BaseConsumers]*[A.goods.pop]
+    [BaseConsumers]*[BA.goods.pop]
 } -value 1.14e8    ;# GoodsBKT/year
 
 let BREV.black     =  {
@@ -693,7 +701,7 @@ let EXP.black = [EXP.j black]
 let SA = {[BaseSA]}                 ;# $/year
 
 # We will redefine QD.goods.pop using Consumers in the L page.
-let QD.goods.pop = {[A.goods.pop] * [BaseConsumers]}
+let QD.goods.pop = {[BA.goods.pop] * [BaseConsumers]}
 
 let REV.pop = {[P.pop] * [QS.pop] + [BREM]}            -value 1.52e8
 let ATI.pop = {[k.pop] * [P.pop] * [QS.pop] + [BREM]}  -value 50.0e6
@@ -919,6 +927,9 @@ let REM = {[BREM]}            ;# $/year
 # Foreign aid
 let FAR = {[BFAR]}            ;# $/year
 
+# Per capita demand for goods ;# goodsBKT/year
+let A.goods.pop = {[BA.goods.pop]}
+
 # Fraction of foreign aid to region that winds up in the pockets of 
 # the actors
 let graft = {[Bgraft]}
@@ -981,6 +992,12 @@ copypage Cal -except {
     deltaQD.pop.pop
 }
 
+# A.goods.pop may have changed if the number of consumers has changed or the
+# amount of money flowing to the pop sector has changed
+let A.goods.pop = {
+    [X.goods.pop] / ([P.goods] * [In::Consumers])
+}
+
 # QD.goods.pop is now computed from the current number of consumers, not
 # from the base number of consumers.
 let QD.goods.pop = {[A.goods.pop]*[In::Consumers]} -value 1.14e8
@@ -1010,6 +1027,9 @@ let SA = {[In::Subsisters]*[In::SubWage]}
 page M 
 copypage L 
 initfrom L
+
+# Initialize A.goods.pop
+let A.goods.pop = {[L::A.goods.pop]}
 
 # Replace the following equations
 
@@ -1068,6 +1088,8 @@ page Out
 let BQS.black = {[Cal::QS.black]}
 let BQS.goods = {[Cal::QS.goods]}
 let BQS.pop   = {[Cal::QS.pop]}
+
+let A.goods.pop = {[L::A.goods.pop]}
 
 # Copy Foreign aid to the region
 let FAR = {[In::FAR]}

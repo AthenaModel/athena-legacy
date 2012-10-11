@@ -2634,7 +2634,8 @@ tab "Econ/Overview" {
 
     The most salient outputs consist of the Gross Domestic Product (GDP),
     the Consumer Price Index (CPI), the Deflated GDP, the per capita 
-    Deflated GDP, the number of unemployed workers in the playbox along 
+    Deflated GDP, the average per capita demand for goods, the number of 
+    unemployed workers in the playbox along 
     with the unemployment rate.  The amount of the labor force afraid to 
     go to work due to not enough security is the Unsecure Labor Force. 
     This number is part of Unemployment.<p>
