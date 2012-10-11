@@ -11,6 +11,22 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.18, 11 October 2012</h3>
+
+This build contains a number of fixes and modifications to Athena's
+Economic model in support of TRISA's current study.  <b>Note:</b> This
+build should load scenarios saved by build 4.0.17 without any extra
+work.<p>
+
+<ul>
+<li> Bug 3732: Setting Base Consumers to 0 causes bgerror
+<li> Bug 3733: Setting $/goodsBKT, $/tonne, or $/work-year to 0 causes bgerror
+<li> Bug 3736: athena_sim(1): zeroing out FAR causes bgerror
+<li> Bug 3739: athena_sim(1): exports not getting from SAM to CGE
+<li> Bug 3740: athena(1): restore modaltextwin(n) to codebase
+<li> Bug 3741: athena_sim(1): change in remittances do not cause a change in consumer demand in econ model
+</ul><p>
+
 <h3>Build 4.0.17, 3 October 2012 -- Performance</h3>
 
 This build contains minor bug fixes and more performance improvements.
