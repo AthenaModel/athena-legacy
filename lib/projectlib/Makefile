@@ -18,6 +18,9 @@ include $(TOP_DIR)/MakeDefs
 test:
 	$(TCLSH) projectlib.test
 
+test_week:
+	$(TCLSH) week.test
+
 include $(TOP_DIR)/MakeRules
 
 
