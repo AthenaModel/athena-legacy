@@ -62,24 +62,24 @@ namespace eval ::athena_test::tests:: {
             [sim now]         \
             [sim state]       \
             [sim stoptime]    \
-            [simclock asZulu]
+            [simclock asString]
         
-    } -result {0 PREP 0 100000ZJAN10}
+    } -result {0 PREP 0 2012W01}
 
     #-------------------------------------------------------------------
     # mutate startdate
 
     test mutate_startdate-1.1 {Sets the simclock's start date} -body {
-        sim mutate startdate 230000ZMAR09
+        sim mutate startdate 2014W26
         simclock cget -t0
     } -cleanup {
         cleanup
-    } -result {230000ZMAR09}
+    } -result {2014W26}
 
     
     test mutate_startdate-1.2 {Sends <Time>} -body {
         ted notifier bind ::sim <Time>
-        sim mutate startdate 230000ZMAR09
+        sim mutate startdate 2014W26
         ted notifier received
     } -cleanup {
         cleanup
@@ -89,14 +89,14 @@ namespace eval ::athena_test::tests:: {
 
 
     test mutate_startdate-1.3 {Returns undo script} -body {
-        sim mutate startdate 230000ZMAR09
+        sim mutate startdate 2014W26
     } -cleanup {
         cleanup
-    } -result {::sim mutate startdate 100000ZJAN10}
+    } -result {::sim mutate startdate 2012W01}
 
 
     test mutate_startdate-1.4 {Sets "changed"} -body {
-        sim mutate startdate 230000ZMAR09
+        sim mutate startdate 2014W26
         sim changed
     } -cleanup {
         cleanup
@@ -383,7 +383,7 @@ namespace eval ::athena_test::tests:: {
         sim mutate run
         simclock advance 5
         sim mutate pause
-        sim mutate startdate 240000ZMAR09
+        sim mutate startdate 2014W26
         # TBD: Should schedule something in the event queue
     } -body {
         sim restart
@@ -395,7 +395,7 @@ namespace eval ::athena_test::tests:: {
             [simclock cget -t0]
     } -cleanup {
         cleanup
-    } -result {PREP 0 1 100000ZJAN10}
+    } -result {PREP 0 1 2012W01}
     
 
     #-------------------------------------------------------------------
@@ -405,6 +405,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

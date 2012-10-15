@@ -106,7 +106,7 @@ snit::type scenario {
 
         # NEXT, create a clean working RDB.
         scenariodb ::rdb \
-            -clock      ::marsutil::simclock \
+            -clock      ::simclock \
             -explaincmd [mytypemethod ExplainCmd]
         set rdb ::rdb
 

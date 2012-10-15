@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
         condition::AT narrative [condition get 1]
     } -cleanup {
         cleanup
-    } -result {The current simulation time is week 2, i.e., 240000ZJAN10.}
+    } -result {The current simulation time is week 2, i.e., 2012W03.}
 
     #-------------------------------------------------------------------
     # check
@@ -86,7 +86,7 @@ namespace eval ::athena_test::tests:: {
     proc AtEval {now} {
         simclock reset
         if {$now > 0} {
-            simclock step $now
+            simclock advance $now
         }
 
         return [condition::AT eval [condition get 1]]

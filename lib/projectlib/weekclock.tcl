@@ -87,6 +87,15 @@ snit::type ::projectlib::weekclock {
         return
     }
 
+    # tick
+    #
+    # Advances sim time by one tick.
+    
+    method tick {} {
+        incr info(tsim)
+        return
+    }
+
     # reset
     #
     # Resets sim time to 0.

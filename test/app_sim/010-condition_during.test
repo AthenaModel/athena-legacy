@@ -64,7 +64,7 @@ namespace eval ::athena_test::tests:: {
         condition::DURING narrative [condition get 1]
     } -cleanup {
         cleanup
-    } -result {The current simulation time is between week 1 and week 4, inclusive, i.e., from 170000ZJAN10 to 070000ZFEB10.}
+    } -result {The current simulation time is between week 1 and week 4, inclusive, i.e., from 2012W02 to 2012W05.}
 
     #-------------------------------------------------------------------
     # check
@@ -87,7 +87,7 @@ namespace eval ::athena_test::tests:: {
     proc DuringEval {now} {
         simclock reset
         if {$now > 0} {
-            simclock step $now
+            simclock advance $now
         }
 
         return [condition::DURING eval [condition get 1]]
@@ -116,6 +116,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

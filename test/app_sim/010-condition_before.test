@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
         condition::BEFORE narrative [condition get 1]
     } -cleanup {
         cleanup
-    } -result {The current simulation time is earlier than week 2, i.e., before 240000ZJAN10.}
+    } -result {The current simulation time is earlier than week 2, i.e., before 2012W03.}
 
     #-------------------------------------------------------------------
     # check
@@ -86,7 +86,7 @@ namespace eval ::athena_test::tests:: {
     proc BeforeEval {now} {
         simclock reset
         if {$now > 0} {
-            simclock step $now
+            simclock advance $now
         }
 
         return [condition::BEFORE eval [condition get 1]]
@@ -113,6 +113,8 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

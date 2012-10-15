@@ -441,10 +441,10 @@ snit::widget appwin {
                     -rootdir       [workdir join log]  \
                     -defaultappdir app_sim             \
                     -format        {
-                        {zulu  12 yes}
-                        {v      7 yes}
-                        {c      9 yes}
-                        {m      0 yes}
+                        {week 7 yes}
+                        {v    7 yes}
+                        {c    9 yes}
+                        {m    0 yes}
                     }
             }
         }
@@ -455,14 +455,14 @@ snit::widget appwin {
     #
     # mode        Window mode, scenario or simulation
     # simstate    Current simulation state
-    # tick        Current sim time as a four-digit tick (a day)
-    # zulutime    Current sim time as a zulu time string
+    # tick        Current sim time as a four-digit tick 
+    # date        Current sim time as a week(n) string.
 
     variable info -array {
         mode           scenario
         simstate       ""
         tick           "0000"
-        zulutime       ""
+        date           ""
     }
 
     # Visibility Array: this array determines whether or not various 
@@ -1053,29 +1053,29 @@ snit::widget appwin {
         ttk::label $toolbar.state                  \
             -text "State:"
 
-        ttk::label $toolbar.simstate               \
-            -font               codefont               \
-            -width              26                     \
-            -anchor             w                      \
-            -textvariable       [myvar info(simstate)]
+        ttk::label $toolbar.simstate             \
+            -font         codefont               \
+            -width        26                     \
+            -anchor       w                      \
+            -textvariable [myvar info(simstate)]
 
-        # Zulu time
-        ttk::label $toolbar.time                   \
-            -text "Time:"
+        # Date 
+        ttk::label $toolbar.datelab \
+            -text "Date:"
 
-        ttk::label $toolbar.zulutime               \
-            -font               codefont               \
-            -width              12                     \
-            -textvariable       [myvar info(zulutime)]
+        ttk::label $toolbar.date                 \
+            -font         codefont               \
+            -width        7                      \
+            -textvariable [myvar info(date)]
 
         # Tick
-        ttk::label $toolbar.ticklab                \
+        ttk::label $toolbar.ticklab              \
             -text "Week:"
 
-        ttk::label $toolbar.tick                   \
-            -font               codefont               \
-            -width              4                      \
-            -textvariable       [myvar info(tick)]
+        ttk::label $toolbar.tick                 \
+            -font         codefont               \
+            -width        4                      \
+            -textvariable [myvar info(tick)]
 
         pack $simtools.runpause  -side left    
         pack $simtools.duration  -side left -padx {0 15}
@@ -1087,8 +1087,8 @@ snit::widget appwin {
         pack $toolbar.preplock  -side left
         pack $toolbar.tick      -side right -padx 2 
         pack $toolbar.ticklab   -side right
-        pack $toolbar.zulutime  -side right -padx 2 
-        pack $toolbar.time      -side right
+        pack $toolbar.date      -side right -padx 2 
+        pack $toolbar.datelab   -side right
         pack $toolbar.simstate  -side right -padx 2 
         pack $toolbar.state     -side right -padx {15 0}
 
@@ -2294,8 +2294,8 @@ snit::widget appwin {
 
     method SimTime {} {
         # Display current sim time.
-        set info(tick)     [format "%04d" [simclock now]]
-        set info(zulutime) [simclock asString]
+        set info(tick) [format "%04d" [simclock now]]
+        set info(date) [simclock asString]
     }
 
     # AppPrefs parm

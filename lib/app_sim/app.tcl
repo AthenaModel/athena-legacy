@@ -199,9 +199,10 @@ snit::type app {
         # NEXT, enable notifier(n) tracing
         notifier trace [myproc NotifierTrace]
 
-        # NEXT, configure the simclock with a default tick size of
-        # one week
-        ::simclock configure -tick {7 days}
+        # NEXT, create the weekclock, replacing the default Mars 
+        # simclock(n) object.
+        simclock destroy
+        weekclock ::simclock
 
         # NEXT, Create the working scenario RDB and initialize simulation
         # components

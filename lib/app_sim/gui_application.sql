@@ -55,7 +55,7 @@ SELECT tid        AS id, 'topic'    AS etype FROM mam_topic;
 CREATE TEMPORARY VIEW gui_cif AS
 SELECT id                                            AS id,
        time                                          AS tick,
-       timestr(time)                                  AS zulu,
+       timestr(time)                                  AS week,
        name                                          AS name,
        narrative                                     AS narrative,
        parmdict                                      AS parmdict,
@@ -73,7 +73,7 @@ CREATE TEMPORARY VIEW gui_sigevents AS
 SELECT event_id                                        AS event_id,
        level                                           AS level,
        t                                               AS t,
-       timestr(t)                                       AS zulu,
+       timestr(t)                                       AS week,
        component                                       AS component,
        mklinks(narrative)                              AS narrative
 FROM sigevents;
@@ -84,7 +84,7 @@ CREATE TEMPORARY VIEW gui_sigevents_wtag AS
 SELECT event_id                                        AS event_id,
        level                                           AS level,
        t                                               AS t,
-       timestr(t)                                       AS zulu,
+       timestr(t)                                       AS week,
        component                                       AS component,
        mklinks(narrative)                              AS narrative,
        tag                                             AS tag
@@ -101,5 +101,6 @@ ORDER BY rank ASC;
 -----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------
+
 
 

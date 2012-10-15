@@ -454,7 +454,7 @@ snit::type appserver {
 
         if {$opts(-tags) eq ""} {
             set query {
-                SELECT level, t, zulu, component, narrative
+                SELECT level, t, week, component, narrative
                 FROM gui_sigevents
                 WHERE event_id >= $mark
             }
@@ -462,7 +462,7 @@ snit::type appserver {
             set tag [lindex $opts(-tags) 0]
 
             set query {
-                SELECT level, t, zulu, component, narrative
+                SELECT level, t, week, component, narrative
                 FROM gui_sigevents_wtag
                 WHERE event_id >= $mark
                 AND tag = $tag
@@ -471,7 +471,7 @@ snit::type appserver {
             set tags "('[join $opts(-tags) ',']')"
 
             set query "
-                SELECT DISTINCT level, t, zulu, component, narrative
+                SELECT DISTINCT level, t, week, component, narrative
                 FROM gui_sigevents_wtag
                 WHERE event_id >= \$mark
                 AND tag IN $tags
@@ -491,7 +491,7 @@ snit::type appserver {
                 }
 
                 ht td left {
-                    ht put $zulu
+                    ht put $week
                 }
 
                 ht td left {
@@ -518,7 +518,7 @@ snit::type appserver {
         set text [ht pop]
 
         if {$text ne ""} {
-            ht table {"Week" "Zulu Time" "Model" "Narrative"} {
+            ht table {"Week" "Date" "Model" "Narrative"} {
                 ht putln $text
             }
         } else {

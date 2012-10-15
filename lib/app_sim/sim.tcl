@@ -34,7 +34,7 @@ snit::type sim {
     # tickDelay - The delay between ticks
     
     typevariable constants -array {
-        startdate 100000ZJAN10
+        startdate 2012W01
         tickDelay 50
     }
 
@@ -83,8 +83,6 @@ snit::type sim {
 
         order state $info(state)
 
-        # NEXT, configure the simclock.
-        # TBD: The tick size and the start date should be parmdb parms.
         simclock configure -t0 $constants(startdate)
 
         notifier send ::sim <Time>
@@ -347,7 +345,7 @@ snit::type sim {
 
     # mutate startdate startdate
     #
-    # startdate   The date of T0 as a zulu-time string
+    # startdate   The date of T0 as a week(n) string
     #
     # Sets the simclock's -t0 start date
 
@@ -704,7 +702,7 @@ snit::type sim {
 
 # SIM:STARTDATE
 #
-# Sets the zulu-time corresponding to time 0.
+# Sets the calendar week corresponding to time 0.
 #
 # TBD: It would be nice if the startdate field was pre-populated with the
 # current start date.  This would require adding an "-entercmd" as an
@@ -722,7 +720,7 @@ order define SIM:STARTDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare startdate -toupper -required -type zulu
+    prepare startdate -toupper -required -type week
 
     returnOnError -final
 

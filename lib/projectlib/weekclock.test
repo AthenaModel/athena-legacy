@@ -123,6 +123,19 @@ namespace eval ::projectlib::test {
     } -result {0}
 
     #-------------------------------------------------------------------
+    # tick
+
+    test tick-1.1 {advance time by one tick} -setup {
+        setup
+        myclock advance 9
+    } -body {
+        myclock tick
+        myclock now
+    } -cleanup {
+        cleanup
+    } -result {10}
+
+    #-------------------------------------------------------------------
     # reset
 
     test reset-1.1 {Resetting sets time back to 0} -setup {

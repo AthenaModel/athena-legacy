@@ -77,7 +77,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a week string}
     }
 
     test AFTER:CREATE-2.1 {condition is created} -setup {
@@ -92,7 +92,7 @@ namespace eval ::athena_test::tests:: {
 condition_id    1
 condition_type  AFTER
 cc_id           1
-narrative       The current simulation time is later than week 10, i.e., after 210000ZMAR10.
+narrative       The current simulation time is later than week 10, i.e., after 2012W11.
 state           normal
 flag            
 t1              10
@@ -160,7 +160,7 @@ t1              10
     } -cleanup {
         cleanup
     } -result {
-        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a week string}
     }
 
     test AFTER:UPDATE-1.4 {wrong flavor of condition} -setup {
@@ -186,7 +186,7 @@ t1              10
 condition_id    1
 condition_type  AFTER
 cc_id           1
-narrative       The current simulation time is later than week 2, i.e., after 240000ZJAN10.
+narrative       The current simulation time is later than week 2, i.e., after 2012W03.
 state           normal
 flag            
 t1              2
@@ -228,6 +228,9 @@ t1              2
 }
 
 namespace delete ::athena_test::tests::
+
+
+
 
 
 

@@ -79,7 +79,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a week string}
     }
 
     test DURING:CREATE-1.4 {t2 is not timespec} -setup {
@@ -90,7 +90,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        t2 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+        t2 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a week string}
     }
 
     test DURING:CREATE-1.5 {t2 < t1} -setup {
@@ -117,7 +117,7 @@ namespace eval ::athena_test::tests:: {
 condition_id    1
 condition_type  DURING
 cc_id           1
-narrative       The current simulation time is between week 1 and week 10, inclusive, i.e., from 170000ZJAN10 to 210000ZMAR10.
+narrative       The current simulation time is between week 1 and week 10, inclusive, i.e., from 2012W02 to 2012W11.
 state           normal
 flag            
 t1              1
@@ -185,7 +185,7 @@ t2              10
     } -cleanup {
         cleanup
     } -result {
-        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+        t1 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a week string}
     }
 
     test DURING:UPDATE-1.4 {t2 is not timespec} -setup {
@@ -195,7 +195,7 @@ t2              10
     } -cleanup {
         cleanup
     } -result {
-        t2 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a zulu-time string}
+        t2 {invalid time spec "NONESUCH", base time should be "NOW", "T0", an integer tick, or a week string}
     }
 
     test DURING:UPDATE-1.5 {t2 < t1} -setup {
@@ -254,7 +254,7 @@ t2              10
 condition_id    1
 condition_type  DURING
 cc_id           1
-narrative       The current simulation time is between week 2 and week 20, inclusive, i.e., from 240000ZJAN10 to 300000ZMAY10.
+narrative       The current simulation time is between week 2 and week 20, inclusive, i.e., from 2012W03 to 2012W21.
 state           normal
 flag            
 t1              2
@@ -297,6 +297,9 @@ t2              20
 }
 
 namespace delete ::athena_test::tests::
+
+
+
 
 
 

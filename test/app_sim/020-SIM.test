@@ -74,21 +74,21 @@ namespace eval ::athena_test::tests:: {
     test STARTDATE-1.2 {invalid startdate} -body {
         ted order -reject SIM:STARTDATE startdate NONESUCH
     } -result {
-        startdate {invalid Zulu-time string: "NONESUCH"}
+        startdate {Invalid week string: "NONESUCH"}
     }
 
 
     test STARTDATE-2.1 {startdate is set} -body {
-        ted order SIM:STARTDATE startdate 240000ZMAR09
+        ted order SIM:STARTDATE startdate 2014W26
         simclock cget -t0
     } -cleanup {
         cleanup
-    } -result {240000ZMAR09}
+    } -result {2014W26}
 
 
     test STARTDATE-2.2 {<Time> is sent} -body {
         ted notifier bind ::sim <Time>
-        ted order SIM:STARTDATE startdate 240000ZMAR09
+        ted order SIM:STARTDATE startdate 2014W26
         ted notifier received
     } -cleanup {
         cleanup
@@ -97,7 +97,7 @@ namespace eval ::athena_test::tests:: {
     }
     
     test STARTDATE-3.1 {<Time> is sent on undo} -setup {
-        set undo [ted order SIM:STARTDATE startdate 240000ZMAR09]
+        set undo [ted order SIM:STARTDATE startdate 2014W26]
 
     } -body {
         ted notifier bind ::sim <Time>

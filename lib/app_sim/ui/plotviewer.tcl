@@ -269,9 +269,8 @@ snit::widget plotviewer {
         set tick ""
 
         if {$spec ne ""} {
-            if {![catch {simclock timespec validate $spec}]} {
+            if {![catch {simclock timespec validate $spec} tick]} {
                 $w configure -foreground black
-                set tick [simclock fromTimeSpec $spec]
             } else {
                 $w configure -foreground red
             }

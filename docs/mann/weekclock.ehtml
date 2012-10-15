@@ -133,7 +133,11 @@ the returned time.<p>
 
 Resets simulation time to 0 ticks.<p>
 
-<<defitem toString {$weekclock toString <i>ticks</i> ?<i>offset</i>?}>>
+<<defitem tick {$weekclock tick}>>
+
+Advances simulation time by one tick.<p>
+
+<<<defitem toString {$weekclock toString <i>ticks</i> ?<i>offset</i>?}>>
 
 Converts a simulation time in integer <i>ticks</i> into a
 <<xref week(n)>> time string.  If given,
