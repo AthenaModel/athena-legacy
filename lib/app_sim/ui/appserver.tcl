@@ -171,7 +171,7 @@ snit::type appserver {
             ht put "Scenario is unlocked."
         } else {
             ht put [format "Simulation time: Week %04d, %s." \
-                      [simclock now] [simclock asZulu]]
+                      [simclock now] [simclock asString]]
         }
 
         ht put [format " -- Wall Clock: %s" [clock format [clock seconds]]]
@@ -529,6 +529,7 @@ snit::type appserver {
     }
 
 }
+
 
 
 

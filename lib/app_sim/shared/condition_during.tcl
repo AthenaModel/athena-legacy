@@ -20,8 +20,8 @@
 condition type define DURING {t1 t2} {
     typemethod narrative {cdict} {
         dict with cdict {
-            set z1 [simclock toZulu $t1]
-            set z2 [simclock toZulu $t2]
+            set z1 [simclock toString $t1]
+            set z2 [simclock toString $t2]
 
             return [normalize "
                 The current simulation time is between week $t1 and week $t2,
@@ -154,6 +154,7 @@ order define CONDITION:DURING:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

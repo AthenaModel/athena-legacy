@@ -32,8 +32,8 @@ SELECT s                        AS id,
        g                        AS g,
        format('%4.2f',ngfactor) AS ngfactor,
        format('%4.2f',nfactor)  AS nfactor,
-       tozulu(ts)               AS ts,
-       tozulu(tc)               AS tc
+       timestr(ts)               AS ts,
+       timestr(tc)               AS tc
 FROM demsits;
 
 -- gui_demsits subview: current demsits (live or freshly ended)
@@ -50,3 +50,4 @@ SELECT * FROM gui_demsits WHERE state == 'ENDED';
 -----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------
+

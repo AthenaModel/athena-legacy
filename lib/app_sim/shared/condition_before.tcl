@@ -20,7 +20,7 @@
 condition type define BEFORE {t1} {
     typemethod narrative {cdict} {
         dict with cdict {
-            set z1 [simclock toZulu $t1]
+            set z1 [simclock toString $t1]
 
             return [normalize "
                 The current simulation time is earlier than week $t1,
@@ -110,6 +110,7 @@ order define CONDITION:BEFORE:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

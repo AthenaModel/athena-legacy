@@ -247,7 +247,7 @@ snit::type sim {
 
         # NEXT, log the change
         set message \
-            "Loaded snapshot [scenario snapshot current] at [simclock asZulu] (tick [simclock now])"
+            "Loaded snapshot [scenario snapshot current] at [simclock asString] (tick [simclock now])"
 
         log normal sim $message
         app puts $message
@@ -279,7 +279,7 @@ snit::type sim {
         log newlog latest
         
         set message \
-       "Re-entered the timestream at [simclock asZulu] (tick [simclock now])"
+       "Re-entered the timestream at [simclock asString] (tick [simclock now])"
 
         log normal sim $message
         app puts $message
@@ -879,5 +879,6 @@ order define SIM:PAUSE {
 
     setundo [join $undo \n]
 }
+
 
 

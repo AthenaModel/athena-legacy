@@ -1311,7 +1311,7 @@ snit::widget strategybrowser {
 
         # NEXT, get the execution timestamp
         if {$tdata(exec_ts) ne ""} {
-            set timestamp [simclock toZulu $tdata(exec_ts)]
+            set timestamp [simclock toString $tdata(exec_ts)]
         } else {
             set timestamp ""
         }
@@ -1777,6 +1777,7 @@ snit::widget strategybrowser {
         $reloader schedule -nocomplain
     }
 }
+
 
 
 

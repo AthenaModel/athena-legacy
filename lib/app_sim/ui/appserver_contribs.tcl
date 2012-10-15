@@ -1112,12 +1112,12 @@ appserver module CONTRIBS {
     # Converts the start and end time into a time window string.
 
     proc TimeWindow {start end} {
-        set text "Window: [simclock toZulu $start] to "
+        set text "Window: [simclock toString $start] to "
 
         if {$end == [simclock now]} {
             append text "now"
         } else {
-            append text "[simclock toZulu $end]"
+            append text "[simclock toString $end]"
         }
 
         return $text
@@ -1237,6 +1237,7 @@ appserver module CONTRIBS {
         }
     }
 }
+
 
 
 

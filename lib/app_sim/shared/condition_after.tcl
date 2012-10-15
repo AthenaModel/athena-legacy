@@ -20,7 +20,7 @@
 condition type define AFTER {t1} {
     typemethod narrative {cdict} {
         dict with cdict {
-            set z1 [simclock toZulu $t1]
+            set z1 [simclock toString $t1]
 
             return [normalize "
                 The current simulation time is later than week $t1,
@@ -112,6 +112,7 @@ order define CONDITION:AFTER:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

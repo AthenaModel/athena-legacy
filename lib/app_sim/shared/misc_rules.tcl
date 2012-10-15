@@ -115,7 +115,7 @@ snit::type misc_rules {
             dam detail "Controlled By:"   \
                 [expr {$controller ne "" ? $controller : "no one"}]
             dam detail "Last Control Shift:"  \
-                [format "%s (%d)" [simclock toZulu $tc] $tc]
+                [format "%s (%d)" [simclock toString $tc] $tc]
             dam detail "Mood Then:"       [qsat format $moodThen]
             dam detail "Mood Now:"        [qsat format $moodNow]
 
@@ -168,6 +168,7 @@ snit::type misc_rules {
 
 
 }
+
 
 
 

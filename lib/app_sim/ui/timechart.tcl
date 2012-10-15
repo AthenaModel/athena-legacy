@@ -112,7 +112,7 @@ snit::widgetadaptor timechart {
         # FIRST, Install the hull
         installhull using stripchart     \
             -xtext       "Time"          \
-            -xformatcmd  [myproc tozulu] \
+            -xformatcmd  [myproc timestr] \
             -yformatcmd  moneyfmt
         
         # NEXT, create the lazy updater
@@ -438,8 +438,8 @@ snit::widgetadaptor timechart {
     # Group: Utility Procs
 
 
-    proc tozulu {t} {
-        simclock toZulu [tcl::mathfunc::int $t]
+    proc timestr {t} {
+        simclock toString [tcl::mathfunc::int $t]
     }
    
 
@@ -449,5 +449,7 @@ snit::widgetadaptor timechart {
     delegate method *      to hull
     delegate method update to lu
 }
+
+
 
 

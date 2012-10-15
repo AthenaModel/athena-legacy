@@ -66,7 +66,7 @@ SELECT N.n                                                    AS id,
        N.urbanization                                         AS urbanization,
        COALESCE(C.controller,N.controller, 'NONE')            AS controller,
        COALESCE(C.since, 0)                                   AS since_ticks,
-       tozulu(COALESCE(C.since, 0))                           AS since,
+       timestr(COALESCE(C.since, 0))                           AS since,
        format('%4.1f',N.vtygain)                              AS vtygain,
        N.stacking_order                                       AS stacking_order,
        N.obscured_by                                          AS obscured_by,
@@ -233,4 +233,5 @@ FROM gui_orggroups;
 -----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------
+
 

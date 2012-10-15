@@ -45,7 +45,6 @@ namespace eval ::projectgui:: {
 # Load projectgui(n) submodules
 
 source [file join $::projectgui::library icons.tcl           ]
-source [file join $::projectgui::library zulufield.tcl       ]
 source [file join $::projectgui::library linktree.tcl        ]
 source [file join $::projectgui::library mybrowser.tcl       ]
 source [file join $::projectgui::library myhtmlpane.tcl      ]

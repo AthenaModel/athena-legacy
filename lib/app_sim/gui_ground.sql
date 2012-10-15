@@ -88,8 +88,8 @@ SELECT s                        AS id,
        g                        AS g,
        a                        AS a,
        format('%6.4f',coverage) AS coverage,
-       tozulu(ts)               AS ts,
-       tozulu(tc)               AS tc
+       timestr(ts)               AS ts,
+       timestr(tc)               AS tc
 FROM actsits;
 
 -- gui_actsits subview: current actsits (live or freshly ended)
@@ -117,13 +117,13 @@ SELECT s                                              AS id,
        n                                              AS n,
        g                                              AS g,
        format('%6.4f',coverage)                       AS coverage,
-       tozulu(ts)                                     AS ts,
-       tozulu(tc)                                     AS tc,
+       timestr(ts)                                     AS ts,
+       timestr(tc)                                     AS tc,
        m2ref(location)                                AS location,
        flist                                          AS flist,
        resolver                                       AS resolver,
        rduration                                      AS rduration,
-       tozulu(ts+rduration)                           AS tr,
+       timestr(ts+rduration)                           AS tr,
        inception                                      AS inception
 FROM ensits;
 
@@ -266,4 +266,5 @@ JOIN gui_nbhoods   AS N ON (G.n = N.n);
 -----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------
+
 

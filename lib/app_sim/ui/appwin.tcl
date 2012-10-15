@@ -2181,7 +2181,7 @@ snit::widget appwin {
                 set info(simstate) "$prefix until paused"
             } else {
                 set info(simstate) \
-                    "$prefix until [simclock toZulu [sim stoptime]]"
+                    "$prefix until [simclock toString [sim stoptime]]"
             }
         } elseif {[sim state] eq "SNAPSHOT"} {
             set info(simstate) \
@@ -2295,7 +2295,7 @@ snit::widget appwin {
     method SimTime {} {
         # Display current sim time.
         set info(tick)     [format "%04d" [simclock now]]
-        set info(zulutime) [simclock asZulu]
+        set info(zulutime) [simclock asString]
     }
 
     # AppPrefs parm
@@ -2407,3 +2407,5 @@ snit::widget appwin {
     }
 
 }
+
+

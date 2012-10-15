@@ -20,7 +20,7 @@
 condition type define AT {t1} {
     typemethod narrative {cdict} {
         dict with cdict {
-            set z1 [simclock toZulu $t1]
+            set z1 [simclock toString $t1]
 
             return [normalize "
                 The current simulation time is week $t1,
@@ -110,6 +110,7 @@ order define CONDITION:AT:UPDATE {
     # NEXT, modify the condition
     setundo [condition mutate update [array get parms]]
 }
+
 
 
 

@@ -105,10 +105,10 @@ appserver module DRIVERS {
             CREATE TEMPORARY TABLE temp_report_driver_contribs AS
             SELECT driver_id, 
                    CASE WHEN min(t) NOT NULL    
-                        THEN tozulu(min(t)) 
+                        THEN timestr(min(t)) 
                         ELSE '' END                 AS ts,
                    CASE WHEN max(t) NOT NULL    
-                        THEN tozulu(max(t)) 
+                        THEN timestr(max(t)) 
                         ELSE '' END                 AS te
             FROM drivers LEFT OUTER JOIN ucurve_contribs_t USING (driver_id)
             GROUP BY driver_id;
@@ -156,6 +156,7 @@ appserver module DRIVERS {
         return [ht get]
     }
 }
+
 
 
 
