@@ -21,6 +21,9 @@ test:
 test_week:
 	$(TCLSH) week.test
 
+test_weekclock:
+	$(TCLSH) weekclock.test
+
 include $(TOP_DIR)/MakeRules
 
 
