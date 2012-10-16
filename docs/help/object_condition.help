@@ -70,8 +70,8 @@ object condition_after {
 
     include condition_ 
 
-    attribute t1 "Day" {
-        The day after which the condition is met,
+    attribute t1 "Week" {
+        The week after which the condition is met,
         specified as a <<term timespec>>.
     } -tags {create update}
 }
@@ -98,8 +98,8 @@ object condition_at {
 
     include condition_ 
 
-    attribute t1 "Day" {
-        The day on which the condition is met,
+    attribute t1 "Week" {
+        The week at which the condition is met,
         specified as a <<term timespec>>.
     } -tags {create update}
 }
@@ -126,8 +126,8 @@ object condition_before {
 
     include condition_ 
 
-    attribute t1 "Day" {
-        The day on which the condition is no longer met,
+    attribute t1 "Week" {
+        The week on which the condition is no longer met,
         specified as a <<term timespec>>.
     } -tags {create update}
 }
@@ -253,13 +253,13 @@ object condition_during {
 
     include condition_ 
 
-    attribute t1 "Start Day" {
-        The day which begins the interval, specified
+    attribute t1 "Start Week" {
+        The week which begins the interval, specified
         as a <<term timespec>>.
     } -tags {create update}
 
-    attribute t2 "End Day" {
-        The day which ends the interval, specified
+    attribute t2 "End Week" {
+        The week which ends the interval, specified
         as a <<term timespec>>.
     } -tags {create update}
 }

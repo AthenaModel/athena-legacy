@@ -28,18 +28,18 @@ page /order sim "Simulation Control Orders" {
 #-----------------------------------------------------------------------
 
 order SIM:STARTDATE "Set Start Date" {
+    <b><<term prep>> Only.</b>  Athena generally reports
+    simulation time as a number of integer weeks and as a 
+    <<term jweek>> string.<p>
+
     <<parmlist>>
     <<parm startdate "Start Date">>
-    <b>Required.</b>  A <<term zulu>> corresponding to 
-    simulation time 0.  By convention, the hours and minutes 
-    should be "0000".
+    <b>Required.</b>  A <<term jweek>> string corresponding to 
+    simulation time 0.  If time 0 is the 17th week of 2014, the
+    start date is "2014W17".<p>
     <</parm>>
 
     <</parmlist>>
-
-    <b><<term prep>> Only.</b>  Athena generally reports
-    simulation time as a number of integer days and as a zulu-time.
-    This order determines how simulation time is translated to zulu-time.
 }
 
 

@@ -544,6 +544,35 @@ alias /term iom "IOM" /object/iom
 
 #-----------------------------------------------------------------------
 
+term jweek "Julian week number" {
+    Athena maps simulation times to calendar dates using Julian week 
+    numbers. In this scheme, each year has exactly 52 weeks, numbered 1 to
+    52. Week 1 begins on January 1st; week 52 ends on December
+    31st.<p>
+
+    For data entry, Julian weeks are represented by a week string, 
+    "<i>yyyy</i>W<i>ww</i>", where <i>yyyy</i> is the 4-digit year
+    and <i>ww</i> is the week number.  Thus, the first week of 2014 is
+    represented as <b>2014W01</b> and the last week as
+    <b>2014W52</b>.<p>
+    
+    Of course, 52 seven-day weeks adds up to a 364-day year.
+    Therefore, the final week of the year always has eight days, and
+    in leap years the week containing February 28th also has eight
+    days.  Note that Athena doesn't care about this, as it doesn't
+    deal with durations smaller than one week.<p>
+
+    In real world use, Julian week numbers have been replaced by
+    the ISO8601 week numbering scheme.  In this scheme, every week
+    begins on a Monday, and all of the weeks have seven days.  On the
+    other hand, the first day of the first week of the year will
+    usually be in December of the previous year.  As Athena doesn't
+    need this level of detail, we stick with a simple, 52-week Julian
+    numbering scheme.<p>
+}
+
+#-----------------------------------------------------------------------
+
 term local_economy "local economy" {
     Athena's Economics model concerns the economy of a region: a
     single country, part of that country, or perhaps several small
@@ -995,10 +1024,6 @@ term tick "tick" {
 #-----------------------------------------------------------------------
 
 term timespec "time specification string" {
-    TBD: This time spec syntax is not terribly helpful now that 
-    Athena advances time <<term week>> by week.  This needs to be
-    looked at.<p>
-
     A time specification string identifies a particular simulation
     time.  It has the form "<i>baseTime</i> +/- <i>offset</i>", where
     the offset is some number of days and the base time has one of
@@ -1007,9 +1032,12 @@ term timespec "time specification string" {
     <ul>
     <li> <b>T0</b>: Time zero, the beginning of the simulation.
     <li> <b>NOW</b>: The current simulation time.
-    <li> <b><i>days</i></b>: The time as some number of days since
+    <li> <b><i>weeks</i></b>: The time as some number of weeks since
          <b>T0</b>.
-    <li> <b><i>zulu</i></b>: A <<term zulu>>.
+    <li> <b><i>weekString</i></b>: A specific calendar week, specified as
+         "<i>yyyy</i>W<i>ww</i>", where <i>yyyy</i> is the four-digit 
+         year and <i>ww</i> is the <<term jweek>>, 1 to 52.  Thus, the weeks
+         of 2014 range from <b>2014W01</b> to <b>2014W52</b>.
     </ul><p>
 
     Either the base time or the offset may be omitted.  If the base
@@ -1018,11 +1046,11 @@ term timespec "time specification string" {
 
     <ul>
     <li> <b>NOW</b>: The current simulation time.
-    <li> <b>NOW+30</b>: 30 days from now.
-    <li> <b>200000ZFEB10+7</b>: 7 days after 20 February 2010.
-    <li> <b>-5</b>: Five days ago
-    <li> <b>+5</b>: Five days from now 
-    <li> <b>5</b>: Day five.
+    <li> <b>NOW+10</b>: 10 weeks from now.
+    <li> <b>2014W26+5</b>: 5 weeks after the middle of 2014.
+    <li> <b>-5</b>: Five weeks ago
+    <li> <b>+5</b>: Five weeks from now 
+    <li> <b>5</b>: Week five.
     </ul>
 }
 
@@ -1144,41 +1172,5 @@ term worker "worker" {
     A member of the labor force, as determined by the
     Demographics model.  All workers are 
     <<term consumer>>s.
-}
-
-#-----------------------------------------------------------------------
-
-term zulu "zulu-time" {
-    A zulu-time string, or date-time group, represents a particular
-    date and time in this format:<p>
-
-    <b><i>ddhhmm</i>Z<i>mmmyy</i></b><p>
-
-    where<p>
-
-    <<topiclist>>
-    <<topic "<i>dd</i>">>
-    The day of the month.
-    <</topic>>
-
-    <<topic "<i>hhmm</i>">>
-    The time of day in hours and minutes, using a 24-hour clock, UTC
-    (Greenwich Mean Time).  (The "Z" indicates the time zone.)<p>
-
-    Because Athena measures time in days, this field is conventionally
-    set to "0000" in all cases.
-    <</topic>>
-
-    <<topic "<i>mmm</i>">>
-    The month of the year, specified as the first three letters of the
-    month's name, e.g., "JAN", "FEB", etc.
-    <</topic>>
-
-    <<topic "<i>yy</i>">>
-    The year, represented as the last two digits of the year, e.g.,
-    "09".
-    <</topic>>
-
-    <</topiclist>>
 }
 

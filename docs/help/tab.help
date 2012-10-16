@@ -417,7 +417,7 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     <</topic>>
 
     <<topic "Last Exec">>
-    <b>Tactics only.</b> The <<term zulu>> at which the tactic last
+    <b>Tactics only.</b> The <<term jweek>> string at which the tactic last
     executed.
     <</topic>>
 
@@ -3004,7 +3004,7 @@ tab "Firings" {
     <<seebelow hotlist "Hot List">>.<p>
 
     <b><a name="replist">The Report List:</a></b> This pane lists the
-    report ID number, <<term zulu>> and title of each report in the
+    report ID number, <<term jweek>> and title of each report in the
     current bin.  Click on a report title to display it in the
     browser; double-click it to pop up a separate report viewer
     window.<p>
@@ -3034,7 +3034,7 @@ tab "Orders" {
     <<topic "Week">>The simulation <<term week>> at which the order was sent.
     <</topic>>
 
-    <<topic "Zulu">>The <<term zulu>> at which the order was sent.
+    <<topic "Date">>The <<term jweek>> at which the order was sent.
     <</topic>>
 
     <<topic "Undo">><b>Yes</b> if the order can be 
@@ -3152,7 +3152,7 @@ tab "Log" {
 
     <b><a name="contents">Log Contents:</a></b>  A log file contains a
     sequence of log entries.  Each log entry begins with the 
-    <<term zulu>> at which it was logged.  This is followed by the 
+    <<term jweek>> string at which it was logged.  This is followed by the 
     <<term loglevel>>, and then by the name of the application module
     that wrote the entry to the log, e.g., <b>sim</b>.  Finally comes
     the log text proper, which might wrap onto multiple lines if
