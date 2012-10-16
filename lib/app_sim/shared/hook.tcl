@@ -154,6 +154,16 @@ snit::type hook {
         }]
     }
 
+    # namedict
+    #
+    # Returns the shortname/longname dictionary.
+
+    typemethod namedict {} {
+        return [rdb eval {
+            SELECT hook_id, longname FROM hooks ORDER BY hook_id
+        }]
+    }
+
     # get hook_id ?parm?
     #
     # hook_id    - A hook ID 
@@ -649,7 +659,8 @@ snit::type hook {
 
         foreach topic [bsystem topic names] {
             if {$topic ni $used} {
-                lappend unused $topic
+                set topic_text [bsystem topic cget $topic -title]
+                lappend unused $topic $topic_text
             }
         }
 
@@ -796,8 +807,11 @@ order define HOOK:TOPIC:CREATE {
         rcc "Hook ID:" -for hook_id
         hook hook_id -context yes
 
+        rcc "Description:" -for longname
+        disp longname -width 40
+
         rcc "Topic ID:" -for topic_id
-        enum topic_id -listcmd {hook UnusedTopics $hook_id}
+        enumlong topic_id -dictcmd {hook UnusedTopics $hook_id} -showkeys 1
         
         rcc "Position:" -for position
         enumlong position -dictcmd {qposition namedict}

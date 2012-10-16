@@ -555,7 +555,9 @@ snit::widget hookbrowser {
             set hook_id [hook topic get $oid hook_id]
         }
 
-        order enter HOOK:TOPIC:CREATE hook_id $hook_id
+        set longname [hook get $hook_id longname]
+
+        order enter HOOK:TOPIC:CREATE hook_id $hook_id longname $longname
     }
 
     # DrawTopic tdataVar

@@ -65,6 +65,9 @@ order define PAYLOAD:COOP:CREATE {
         rcc "Message ID:" -for iom_id
         text iom_id -context yes
 
+        rcc "Description:" -for longname
+        disp longname -width 60
+
         rcc "With Force Group:" -for g
         frcgroup g
 
@@ -99,7 +102,10 @@ order define PAYLOAD:COOP:UPDATE {
         rcc "Payload:" -for id
         key id -context yes -table gui_payloads_COOP \
             -keys {iom_id payload_num} \
-            -loadcmd {orderdialog keyload id *}
+            -loadcmd {orderdialog keyload id {g mag}}
+
+        rcc "Description:" -for longname
+        disp longname -width 60
 
         rcc "With Force Group:" -for g
         frcgroup g

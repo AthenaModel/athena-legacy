@@ -53,6 +53,9 @@ order define PAYLOAD:SAT:CREATE {
         rcc "Message ID:" -for iom_id
         text iom_id -context yes
 
+        rcc "Description:" -for longname
+        disp longname -width 60
+
         rcc "With Concern:" -for c
         concern c
 
@@ -87,7 +90,10 @@ order define PAYLOAD:SAT:UPDATE {
         rcc "Payload:" -for id
         key id -context yes -table gui_payloads_SAT \
             -keys {iom_id payload_num} \
-            -loadcmd {orderdialog keyload id *}
+            -loadcmd {orderdialog keyload id {c mag}}
+
+        rcc "Description:" -for longname
+        disp longname -width 60
 
         rcc "With Concern:" -for c
         concern c

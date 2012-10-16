@@ -36,7 +36,7 @@ snit::widget capbrowser {
         { k              "ID"                               }
         { longname       "Long Name"                        }
         { owner          "Owner"                            }
-        { capacity       "Capacity"                         }
+        { capacity       "Capacity" -sortmode real          }
         { cost           "Cost, $/message/week" 
                          -sortmode command 
                          -sortcommand ::marsutil::moneysort }

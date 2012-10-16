@@ -65,6 +65,9 @@ order define PAYLOAD:VREL:CREATE {
         rcc "Message ID:" -for iom_id
         text iom_id -context yes
 
+        rcc "Description:" -for longname
+        disp longname -width 60
+
         rcc "With Actor:" -for a
         actor a
 
@@ -99,7 +102,10 @@ order define PAYLOAD:VREL:UPDATE {
         rcc "Payload:" -for id
         key id -context yes -table gui_payloads_VREL \
             -keys {iom_id payload_num} \
-            -loadcmd {orderdialog keyload id *}
+            -loadcmd {orderdialog keyload id {a mag}}
+
+        rcc "Description:" -for longname
+        disp longname -width 60
 
         rcc "With Actor:" -for a
         actor a

@@ -434,7 +434,7 @@ order define IOM:CREATE {
         text longname -width 60
 
         rcc "Semantic Hook:" -for hook_id
-        hook hook_id
+        enumlong hook_id -dictcmd {::hook namedict} -showkeys yes
     }
 } {
     # FIRST, prepare and validate the parameters
@@ -518,7 +518,7 @@ order define IOM:UPDATE {
         text longname -width 60
 
         rcc "Semantic Hook:" -for hook_id
-        hook hook_id
+        enumlong hook_id -dictcmd {::hook namedict} -showkeys yes
     }
 } {
     # FIRST, prepare the parameters

@@ -449,7 +449,9 @@ snit::widget iombrowser {
         if {"iom" in [$iptree item tag names $id]} {
             order enter IOM:UPDATE iom_id $oid
         } else {
-            order enter PAYLOAD:$otype:UPDATE id $oid
+            set iom_id [payload get $oid iom_id]
+            set longname [iom get $iom_id longname]
+            order enter PAYLOAD:$otype:UPDATE id $oid longname $longname
         }
     }
 
@@ -602,6 +604,8 @@ snit::widget iombrowser {
             set iom_id [payload get $oid iom_id]
         }
 
+        set longname [iom get $iom_id longname]
+
         # NEXT, let them pick one
         set title [messagebox pick \
                        -parent    [app topwin]            \
@@ -614,7 +618,8 @@ snit::widget iombrowser {
                        "]]
 
         if {$title ne ""} {
-            order enter [dict get $odict $title ] iom_id $iom_id
+            order enter [dict get $odict $title] \
+                iom_id $iom_id longname $longname
         }
     }
 
