@@ -50,6 +50,34 @@ namespace import ::simlib::*
 namespace import ::projectlib::*
 namespace import ::projectgui::*
 
+# Patch to tablelist 5.6 bug
+if {[package require tablelist] eq "5.6"} {
+proc tablelist::reconfigWindows win {
+    #
+    # Force any geometry manager calculations to be completed first
+    #
+    update idletasks
+    if {![namespace exists ::tablelist::ns${win}]} {
+	return ""
+    }
+
+    #
+    # Reconfigure the cells specified in the list data(cellsToReconfig)
+    #
+    upvar ::tablelist::ns${win}::data data
+    foreach cellIdx $data(cellsToReconfig) {
+	foreach {row col} [split $cellIdx ","] {}
+	set key [lindex $data(keyList) $row]
+	if {[info exists data($key,$col-window)]} {
+	    doCellConfig $row $col $win -window $data($key,$col-window)
+	}
+    }
+
+    unset data(reconfigId)
+    set data(cellsToReconfig) {}
+}
+}
+
 #-----------------------------------------------------------------------
 # Load app_sim_ui(n) modules
 
