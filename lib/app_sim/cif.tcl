@@ -143,7 +143,7 @@ snit::type cif {
 
         rdb eval {
             SELECT narrative,
-                   undo == '' AS noUndo
+                   coalesce(undo,'') == '' AS noUndo
             FROM cif 
             WHERE id=$top
         } {
