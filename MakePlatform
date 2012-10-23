@@ -35,19 +35,19 @@ ifeq "$(UNAME)" "Linux i686"
     MARS_OS        = linux
     MARS_ARCH      = i686
     MARS_LIBSUFFIX = so
-    export MARS_TCL_HOME  = /usr/local/ActiveTclEE-2011Q3
+    export MARS_TCL_HOME  = /usr/local/ActiveTclEE-2012Q3
 else ifeq "$(UNAME)" "Linux x86_64"
     MARS_PLATFORM  = linux64
     MARS_OS        = linux
     MARS_ARCH      = x86_64
     MARS_LIBSUFFIX = so
-    export MARS_TCL_HOME = /usr/local/ActiveTclEE-2011Q3-x86_64
+    export MARS_TCL_HOME = /usr/local/ActiveTclEE-2012Q3-x86_64
 else ifeq "$(UNAME)" "MINGW32_NT-6.1 unknown"
     MARS_PLATFORM  = win32
     MARS_OS        = win
     MARS_ARCH      = i686
     MARS_LIBSUFFIX = dll
-    export MARS_TCL_HOME = C:/ATEE/2011Q3
+    export MARS_TCL_HOME = C:/ATEE/2012Q3
 else
     MARS_PLATFORM  = unknown
     MARS_OS        = unknown
