@@ -42,7 +42,7 @@ package require ctext
 # From Mars
 package require marsutil
 package require marsgui
-package require simlib 2.0
+package require simlib 
 
 # From Athena
 package require projectlib

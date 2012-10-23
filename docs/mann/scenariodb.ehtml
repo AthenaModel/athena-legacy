@@ -8,7 +8,7 @@
         return {
             ::marsutil::eventq
             ::marsutil::reporter
-            ::simlib::gram
+            ::simlib::uram
             ::projectlib::scenariodb
         }
     }
