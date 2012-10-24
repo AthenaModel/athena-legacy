@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version q
+#    eco6x6.cm, version r
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,11 @@
 #    Out pages.
 #
 # HISTORY:
+#    Version r: Changed the computation for GDP to be a function of the 
+# quantities of product supplied (QS.i) instead of the quantity
+# demanded (QD.i.j) since it's not necessarily true that demand is 
+# being met.
+#
 #    Version q: Changed A.goods.pop on the null page to BA.goods.pop, the
 # base per capita demand for goods. The base value is used for calibration.
 # Added a computation of A.goods.pop to page "L". This will take into account
@@ -1164,15 +1169,26 @@ let BasketValue = {[S::P.black] * [BQD.black.pop] + [S::P.goods] *
                    [BQD.goods.pop] + [S::P.pop] * [BQD.pop.pop]}
 let CPI = {[BasketValue] / [BaseBasketValue]}
 
-# Gross Domestic Product = value of all final products
+# The contribution of goods, black and pop sectors to total GDP
+let QGDP.goods = {
+    max(0, (1.0 - [k.goods]*[f.goods.goods])*[S::QS.goods] - 
+            [A.goods.black] * [S::QS.black])
+}
+
+let QGDP.black = {
+    max(0, (1.0 - [A.black.black]) * [S::QS.black])
+}
+
+let QGDP.pop = {
+    max(0, 
+        [S::QS.pop] - [P.goods]/[P.pop]*[k.goods]*[f.pop.goods]*[S::QS.goods]
+        - [A.pop.black]*[S::QS.black])
+}
+
+# Gross Domestic Product = value of all final products supplied
 let GDP = {
-    [S::P.black] * ([S::QD.black.pop]    + [S::QD.black.actors] + 
-                    [S::QD.black.region] + [In::EXPORTS.black]) 
-  + [S::P.goods] * ([S::QD.goods.pop]    + [S::QD.goods.actors] + 
-                    [S::QD.goods.region] + [In::EXPORTS.goods]) 
-  + [S::P.pop]   * ([S::QD.pop.pop]    + [S::QD.pop.actors] + 
-                    [S::QD.pop.region] + [In::EXPORTS.pop]) - [REV.world]
-  + [In::SA] - [PF.world.black] * [S::QF.world.black]
+    [QGDP.goods] + [QGDP.black] + [QGDP.pop] - [REV.world] +
+    [In::SA] - [PF.world.black] * [S::QF.world.black]
 }
 
 # Deflated GDP and Deflated per capita GDP
