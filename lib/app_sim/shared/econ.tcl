@@ -429,7 +429,8 @@ snit::type econ {
         # NEXT, get the totals of actor income by sector, scaled by the actual
         # number of consumers, income from black market net revenues is 
         # handled differently. Revenue from the region is the graft that
-        # is received.
+        # is received. Income is multiplied by 52 weeks since the user 
+        # specifies income in weeks, but the SAM and CGE have it in years
         rdb eval {
             SELECT total(income_goods)     AS ig,
                    total(income_pop)       AS ip,
@@ -438,11 +439,11 @@ snit::type econ {
                    total(income_graft)     AS igr
             FROM actors_view 
         } {
-            let Xag {$ig  * $scaled}
-            let Xap {$ip  * $scaled}
-            let Xab {$ibt * $scaled}
-            let Xaw {$iw  * $scaled}
-            let Xar {$igr * $scaled}
+            let Xag {$ig  * $scaled * 52.0}
+            let Xap {$ip  * $scaled * 52.0}
+            let Xab {$ibt * $scaled * 52.0}
+            let Xaw {$iw  * $scaled * 52.0}
+            let Xar {$igr * $scaled * 52.0}
         }
 
         # NEXT, revenue is the sum of all the sources of money
@@ -501,22 +502,24 @@ snit::type econ {
  
         # NEXT compute the rates based on the base case data and
         # fill in the income_a table rates and set each actors
-        # initial income
+        # initial income. NOTE: mulitiplication by 52 because amounts in
+        # the SAM are in years and actors in athena get income in
+        # weeks.
         rdb eval {
             SELECT * FROM actors
         } data {
-            let t_goods      {$data(income_goods)     / ($BPg * $BQDg)}
-            let t_pop        {$data(income_pop)       / ($BPp * $BQDp)}
-            let t_world      {$data(income_world)     / $BREVw}
+            let t_goods      {$data(income_goods) * 52.0 / ($BPg * $BQDg)}
+            let t_pop        {$data(income_pop)   * 52.0 / ($BPp * $BQDp)}
+            let t_world      {$data(income_world) * 52.0 / $BREVw}
             if {$FAR > 0.0} {
-                let graft_region {$data(income_graft) / $FAR}
+                let graft_region {$data(income_graft) * 52.0 / $FAR}
             } else {
                 set graft_region 0.0
             }
 
             # NEXT, the black market may not have any product
             if {$BQDb > 0.0} {
-                let t_black {$data(income_black_tax) / ($BPb * $BQDb)}
+                let t_black {$data(income_black_tax) * 52.0 / ($BPb * $BQDb)}
             } else {
                 set t_black 0.0
                 set data(income_black_tax) 0.0
@@ -532,9 +535,10 @@ snit::type econ {
 
             # NEXT, total income from the black sector is the tax rate
             # income plus the cut of the black market profit (aka net
-            # revenue)
+            # revenue). NOTE: since net revenue is in years in the SAM we
+            # divide by 52 to get actor income in weeks.
             let income_tot_black {
-                $data(income_black_tax) + max(0.0, ($cut_black * $BNRb))
+                $data(income_black_tax) + max(0.0, ($cut_black * $BNRb / 52.0))
             }
 
             # NEXT, total income for this actor
@@ -814,14 +818,22 @@ snit::type econ {
             # NEXT, subsistence wage, the poverty level
             cge set [list BaseSubWage [dict get [$sam get] BaseSubWage]]
 
-            # NEXT, actors expenditures
-            array set cash [cash expenditures]
+            # NEXT, actors expenditures. Multiplication by 52 because the
+            # CGE has money flows in years.
+            array set exp [cash expenditures]
+
+            let Xwa {$exp(world)  * 52.0}
+            let Xra {$exp(region) * 52.0}
+            let Xga {$exp(goods)  * 52.0}
+            let Xba {$exp(black)  * 52.0}
+            let Xpa {$exp(pop)    * 52.0}
+
             cge set [list \
-                         In::X.world.actors  $cash(world)      \
-                         In::X.region.actors $cash(region)     \
-                         In::X.goods.actors  $cash(goods)      \
-                         In::X.black.actors  $cash(black)      \
-                         In::X.pop.actors    $cash(pop)]        
+                         In::X.world.actors  $Xwa \
+                         In::X.region.actors $Xra \
+                         In::X.goods.actors  $Xga \
+                         In::X.black.actors  $Xba \
+                         In::X.pop.actors    $Xpa]       
 
             # NEXT, actors revenue
             set Xag [dict get [$sam get] BX.actors.goods]
@@ -926,7 +938,15 @@ snit::type econ {
 
         # Set the input parameters
         array set data [demog getlocal]
-        array set cash [cash expenditures]
+        array set exp  [cash expenditures]
+
+        # NEXT, multiply expenditures by 52 since the CGE money flows are
+        # in years, but actors expenses are weekly
+        let Xwa {$exp(world)  * 52.0}
+        let Xra {$exp(region) * 52.0}
+        let Xga {$exp(goods)  * 52.0}
+        let Xba {$exp(black)  * 52.0}
+        let Xpa {$exp(pop)    * 52.0}
 
         set CAPgoods [rdb onecolumn {
             SELECT total(pcf*ccf)
@@ -944,11 +964,11 @@ snit::type econ {
                      In::CSF        $CSF]
 
         cge set [list \
-                     In::X.world.actors  $cash(world)      \
-                     In::X.region.actors $cash(region)     \
-                     In::X.goods.actors  $cash(goods)      \
-                     In::X.black.actors  $cash(black)      \
-                     In::X.pop.actors    $cash(pop)]        
+                     In::X.world.actors  $Xwa \
+                     In::X.region.actors $Xra \
+                     In::X.goods.actors  $Xga \
+                     In::X.black.actors  $Xba \
+                     In::X.pop.actors    $Xpa]        
 
         # NOTE: if income from graft is ever allowed to change
         # over time, then In::graft should be computed and set
@@ -975,7 +995,9 @@ snit::type econ {
         }
 
         # NEXT, use sector revenues to determine actor
-        # income sector by sector
+        # income sector by sector. NOTE: division by 52 since
+        # CGE money flows are in years, but actors get incomes
+        # based on a week.
         array set out [$cge get Out -bare]
         
         rdb eval {
@@ -989,12 +1011,12 @@ snit::type econ {
            FROM income_a
         } {
 
-            let inc_goods    {$out(REV.goods) * $tg}
-            let inc_black_t  {$out(REV.black) * $tb}
-            let inc_black_nr {$out(NR.black)  * $cut}
-            let inc_pop      {$out(REV.pop)   * $tp}
-            let inc_region   {$out(FAR)       * $gr}
-            let inc_world    {$out(REV.world) * $tw}
+            let inc_goods    {$out(REV.goods) * $tg  / 52.0}
+            let inc_black_t  {$out(REV.black) * $tb  / 52.0}
+            let inc_black_nr {$out(NR.black)  * $cut / 52.0}
+            let inc_pop      {$out(REV.pop)   * $tp  / 52.0}
+            let inc_region   {$out(FAR)       * $gr  / 52.0}
+            let inc_world    {$out(REV.world) * $tw  / 52.0}
 
             # NEXT, protect against negative net revenue in the
             # black sector
