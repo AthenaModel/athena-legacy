@@ -12,7 +12,7 @@ send ACTOR:CREATE -a GOV -longname {Elitian Government} -income_goods 1M
 send ACTOR:CREATE -a PELF -longname {Peonian Liberation Front} -income_goods 250K
 send ACTOR:CREATE -a EPP -longname {Elitian People's Party} -income_goods 1M
 send ACTOR:UPDATE -a GOV -longname {Elitian Government} -cash_reserve 0.00 -income_goods 5.000M -cash_on_hand 0.00
-send ACTOR:UPDATE -a PELF -longname {Peonian Liberation Front} -cash_reserve 0.00 -income_goods 250,000 -cash_on_hand 250K
+send ACTOR:UPDATE -a PELF -longname {Peonian Liberation Front} -cash_reserve 0.00 -income_goods 250,000 -cash_on_hand 250K -shares_black_nr 1
 send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -shape FRIEND -base_personnel 20000 -cost 5000 -attack_cost 3000 -local 1
 send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -shape ENEMY -forcetype IRREGULAR -base_personnel 6000 -demeanor AGGRESSIVE -cost 1000 -attack_cost 500 -uniformed 0 -local 1
 send ACTOR:UPDATE -a PELF -longname {Peonian Liberation Front} -cash_reserve 0.00 -income_goods 250,000 -cash_on_hand 500k
