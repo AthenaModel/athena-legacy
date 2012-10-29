@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version n
+#    sam6x6.cm, version o
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,10 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version o: Changed the default for BREM and BaseConsumers. The CGE
+#               was getting negative GDP with the old defaults since the
+#               GDP calculation changed in it.
+#
 #    Version n: Changed A.goods.pop to BA.goods.pop, the base per capita
 #               demand for goods. This will be the starting point for
 #               the CGE but A.goods.pop may change over time depending on
@@ -186,10 +190,10 @@ let BP.actors = 0
 let BP.region = 0
 let BP.world  = 0
 
-let BaseConsumers  = 2.2e7
+let BaseConsumers  = 2.0e6
 let BaseSubWage    = 200     ;# Subsistence wage (aka poverty level) $/work-year
 
-let BREM           = 5.0e8            
+let BREM           = 16e9            
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
                              # goes to actors.
 let PF.world.black = 62.0e3

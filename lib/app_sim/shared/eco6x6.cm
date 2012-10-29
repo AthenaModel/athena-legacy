@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version r
+#    eco6x6.cm, version s
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,12 @@
 #    Out pages.
 #
 # HISTORY:
+#    Version s: Changed the output page to indicate long term (or 
+# unconstrained) demand for the goods, pop and black sectors. This
+# makes the shortages displayed make more sense for the
+# goods and black sectors. It also makes the reasons for unemployment
+# more apparent.
+#
 #    Version r: Changed the computation for GDP to be a function of the 
 # quantities of product supplied (QS.i) instead of the quantity
 # demanded (QD.i.j) since it's not necessarily true that demand is 
@@ -1109,11 +1115,15 @@ foreach i {actors region world} {
     }
 }
 
-# Copy outputs from S
+# Copy outputs from constrained and unconstrained pages.
+# For quantities demanded, we want the long term demand 
+# (aka unconstrained) from the L page. For available 
+# supply we want the short term supply (aka constrained)
+# from the S page.
 foreach i {goods black pop} {
     let P.$i        = {[S::P.$i]}
     let QS.$i       = {[S::QS.$i]}
-    let QD.$i       = {[S::QD.$i]}
+    let QD.$i       = {[L::QD.$i]}
     let REV.$i      = {[S::REV.$i]}
     let EXP.$i      = {[S::EXP.$i]}
     let NR.$i       = {[S::NR.$i]}
