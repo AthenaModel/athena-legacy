@@ -1192,11 +1192,6 @@ snit::type ::projectlib::parmdb {
             state of the economy.
         }
 
-        $ps define econ.BaseWage ::projectlib::ipositive 400 {
-            The base wage, in dollars per work-year.  This value
-            appears in the CGE as BP.pop.
-        }
-
         $ps define econ.graft ::simlib::rfraction 0.3 {
             The fraction of Foreign Aid to the region (FAR) that goes
             to the actors.
