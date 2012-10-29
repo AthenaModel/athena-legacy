@@ -140,26 +140,26 @@ index inp {actors region world}                 ;# sectors with no product or
 # nor of the black sector's net revenue or the graft portion of the FAR
 # to the actors sector.
 
-let BX.goods.goods  = 8.13e8
-let BX.goods.black  = 2.0e7
-let BX.goods.pop    = 2.80e9
+let BX.goods.goods  = 1.087e9
+let BX.goods.black  = 3.0e6
+let BX.goods.pop    = 96.145e9
 let BX.goods.actors = 0.0
-let BX.goods.region = 2.50e9
-let BX.goods.world  = 1.13e8
+let BX.goods.region = 776.0e6
+let BX.goods.world  = 23.390e9
 
 let BX.black.goods = 0.0
 let BX.black.black = 0.0
-let BX.black.pop   = 1.2e7
+let BX.black.pop   = 93.0e6
 let BX.black.actors = 0.0
-let BX.black.region = 9.06e8
-let BX.black.world  = 23.800e9
+let BX.black.region = 0.0
+let BX.black.world  = 1.653e9
 
-let BX.pop.goods    = 12.0e9
-let BX.pop.black    = 2.2e7
-let BX.pop.pop      = 3.6e7
+let BX.pop.goods    = 97.198e9
+let BX.pop.black    = 43.0e6
+let BX.pop.pop      = 0.0
 let BX.pop.actors   = 0.0
-let BX.pop.region   = 4.54e8
-let BX.pop.world    = 7.0e7
+let BX.pop.region   = 302.0e6
+let BX.pop.world    = 216.0e6
 
 let BX.actors.goods = 0.0
 let BX.actors.black = 0.0
@@ -168,18 +168,18 @@ let BX.actors.actors = 0.0
 let BX.actors.region = 0.0
 let BX.actors.world  = 0.0
 
-let BX.region.goods  = 2.714e9
-let BX.region.black  = 2.612e9
-let BX.region.pop    = 5.853e9
+let BX.region.goods  = 0.0
+let BX.region.black  = 0.0
+let BX.region.pop    = 0.0
 let BX.region.actors = 0.0
-let BX.region.region = 1.727e9
-let BX.region.world  = 1.502e9
+let BX.region.region = 0.0
+let BX.region.world  = 1.079e9
 
-let BX.world.goods   = 2.695e9
-let BX.world.black   = 2.612e9
-let BX.world.pop     = 5.685e9
+let BX.world.goods   = 18.391e9
+let BX.world.black   = 1.222e9
+let BX.world.pop     = 11.688e9
 let BX.world.actors  = 0.0
-let BX.world.region  = 8.635e9
+let BX.world.region  = 0.0
 let BX.world.world   = 0.0
 
 
@@ -190,7 +190,7 @@ let BP.actors = 0
 let BP.region = 0
 let BP.world  = 0
 
-let BaseConsumers  = 2.0e6
+let BaseConsumers  = 130.0e6
 let BaseSubWage    = 200     ;# Subsistence wage (aka poverty level) $/work-year
 
 let BREM           = 16e9            
