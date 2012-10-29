@@ -11,6 +11,28 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.19, 29 October 2012</h3>
+
+This build makes the "Julian week string" the Athena time format,
+replacing Zulu-time strings, and fixes a number of problems with the
+economic model.  In also fixes a number of other bugs, and
+moves Athena to the 2012Q3 build of ActiveTcl Enterprise Edition.<p>
+
+<ul>
+<li> Bug 3613: Messaging GUI Changes
+<li> Bug 3744: athena(1): Use simclock(i) interface
+<li> Bug 3745: weekclock(n): Week-based simulation clock
+<li> Bug 3746: athena(1): Show dates as week strings
+<li> Bug 3747: Change the Future Bgerror
+<li> Bug 3751: athena_sim(1): tablelist 5.6 bug patch needs to be applied
+<li> Bug 3755: Remove dependence on simlib 2.0
+<li> Bug 3756: Set MARS_TCL_HOME in MakePlatform
+<li> Bug 3757: athena_sim(1): update GDP calculation in 6x6 CGE
+<li> Bug 3761: athena_sim(1): 6x6 cell model should use L page for QD outputs
+<li> Bug 3762: athena_sim(1): remove econ.BaseWage from Athena
+<li> Bug 3763: athena_sim(1): multiple test suite failures
+</ul><p>
+
 <h3>Build 4.0.18, 11 October 2012</h3>
 
 This build contains a number of fixes and modifications to Athena's
