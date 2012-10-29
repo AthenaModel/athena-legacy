@@ -24,7 +24,7 @@ sim times in ticks and <<xref week(n)>> strings.<p>
 <<subsection "Advancing Time">>
 
 Time is advanced manually by calling the weekclock(n)'s 
-<<iref advance>> method.  Use <<xref reset>> to reset the clock to
+<<iref advance>> method.  Use <<iref reset>> to reset the clock to
 time 0.<p>
 
 <<subsection "Time Specification Strings">>
@@ -137,7 +137,7 @@ Resets simulation time to 0 ticks.<p>
 
 Advances simulation time by one tick.<p>
 
-<<<defitem toString {$weekclock toString <i>ticks</i> ?<i>offset</i>?}>>
+<<defitem toString {$weekclock toString <i>ticks</i> ?<i>offset</i>?}>>
 
 Converts a simulation time in integer <i>ticks</i> into a
 <<xref week(n)>> time string.  If given,
