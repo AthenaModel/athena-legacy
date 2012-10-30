@@ -690,7 +690,7 @@ snit::type econ {
         #-------------------------------------------------------------
         # The world sector
         cge set [list FAA $samdata(FAA)]
-        cge set [list FAR $samdata(FAR)]
+        cge set [list BFAR $samdata(FAR)]
 
         #-------------------------------------------------------------
         # Base values for Exports

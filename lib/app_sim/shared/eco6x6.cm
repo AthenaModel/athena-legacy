@@ -1197,7 +1197,10 @@ let QGDP.pop = {
 
 # Gross Domestic Product = value of all final products supplied
 let GDP = {
-    [QGDP.goods] + [QGDP.black] + [QGDP.pop] - [REV.world] +
+    [S::P.goods]*[QGDP.goods] + 
+    [S::P.black]*[QGDP.black] + 
+    [S::P.pop]*[QGDP.pop]     - 
+    [REV.world] +
     [In::SA] - [PF.world.black] * [S::QF.world.black]
 }
 
