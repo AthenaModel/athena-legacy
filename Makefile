@@ -135,7 +135,6 @@ bin: check_env src
 		-pkgref "tablelist -require 5.1"            \
 		-pkgref "textutil::expander"                \
 		-pkgref "textutil::adjust"                  \
-		-pkgref "Plotchart"                         \
 		-pkgref "Tkhtml    -require 3.0"            \
 		-pkgref "uri"                               \
 		-pkgref "fileutil"
