@@ -11,6 +11,15 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.20, 31 October 2012</h3>
+
+This build contains a major fix to the computation of GDP by the 
+Athena economic model.<p>
+
+<ul>
+<li> Bug 3767: athena_sim(1): GDP calculation in 6x6 CGE is incorrect
+</ul><p>
+
 <h3>Build 4.0.19, 29 October 2012</h3>
 
 This build makes the "Julian week string" the Athena time format,
