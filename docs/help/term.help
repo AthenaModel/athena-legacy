@@ -45,16 +45,15 @@ macro term.header {} {
 #-----------------------------------------------------------------------
 
 term activity "activity" {
-    An <i>activity</i> is an action that a <<term group>> can
-    perform in a <<term nbhood>>, as initiated by a <<term tactic>>.
-    Activities are staffed by personnel deployed to neighborhoods during
-    <<term strategy>> execution.  Personnel assigned to an activity
-    appear as a <<term unit>> on the <<tab Map>>; the unit is said to 
-    perform the activity. There are different sets of activities for the
-    different group types: <<term frcgroup>>s, <<term orggroup>>s, and 
-    <<term civgroup>>s.  For the full list of activities, and the
-    meaning and effect of each, see the <i>Athena Rules</i> document, which
-    is delivered with the software.
+    An <i>activity</i> is an action that a <<term group>> can perform in a
+    <<term nbhood>>, as initiated by a <<term tactic>>.  Activities are
+    staffed by group <<term personnel>> <<term deployment deployed>> to
+    neighborhoods during <<term strategy>> execution.  Personnel assigned to
+    an activity appear as a <<term unit>> on the <<tab Map>>; the unit is said
+    to perform the activity.  Different kinds of group can perform different
+    kinds of activity.  For the full list of activities, and the meaning and
+    effect of each, see the <i>Athena Rules</i> document, which is delivered
+    with the software.
 }
 
 #-----------------------------------------------------------------------
@@ -64,11 +63,11 @@ alias /term actor "actor" /object/actor
 #-----------------------------------------------------------------------
 
 term affinity "affinity" {
-    The affinity of one group or actor for another is a measure of the 
-    depth of feeling or support of the one for the other.  Affinity
-    is a number from +1.0 to -1.0; it is computed by comparing the
-    <<term bsystem>>s of the two entities, and is the basis for
-    group and group/actor relationships.<p>
+    The <i>affinity</i> of one <<term group>> or <<term actor>> for another is
+    a measure of the natural depth of feeling or support of the one for the
+    other.  Affinity is a number from +1.0 to -1.0; it is computed by
+    comparing the <<term bsystem>>s of the two <<term entity entities>>, and
+    is the basis for group and group/actor <<term relationship>>s.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -79,26 +78,34 @@ alias /term agent "agent" /object/agent
 
 term attitude "attitude" {
     An <i>attitude</i> of a particular <<term group>> toward
-    something  Attitudes include 
-    group <<term satisfaction>> and the <<term cooperation>> of
-    <<term civgroup>>s with <<term frcgroup>>s, the <<term hrel>>s between
-    all pairs of groups, and the <<term vrel>>s between groups and 
-    <<term actor>>s.
+    something.  Attitudes include:<p>
+
+    <ul>
+    <li> Group <<term satisfaction>> with various <<term concern>>s
+    <li> The <<term cooperation>> of <<term civgroup>>s with 
+         <<term frcgroup>>s 
+    <li> The <<term hrel>>s between all pairs of groups
+    <li> The <<term vrel>>s between groups and <<term actor>>s.
+    </ul><p>
+
+    Attitudes change over time in response to attitude
+    <<term driver>>s: <<term event>>s and <<term situation>>s in the
+    simulated world that affect attitudes.<p>
 }
 
 
 #-----------------------------------------------------------------------
 
 term bsystem "belief system" {
-    Every <<term civgroup>> and <<term actor>> has a belief system, which
-    is a set of beliefs with regard to a number of <<term topic>>s.  Each
-    belief consists of a <<term position>> for or against the topic,
-    along with a <<term emphasis>> on agreement or disagreement for that
-    position.<p>
+    Every <<term civgroup>> and <<term actor>> has a <i>belief 
+    system</i>, which is a set of beliefs with regard to a number of 
+    <<term topic>>s.  Each belief consists of a <<term position>> for 
+    or against the topic, along with an <<term emphasis>> on agreement 
+    or disagreement for that position.<p>
 
     Belief systems are used to compute <<term affinity affinities>>,
-    which in turn are the basis for group and group/actor 
-    relationships.<p>
+    which in turn are the basis for <<term group>> and group/actor 
+    <<term relationship>>s.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -138,10 +145,10 @@ term bgerror "bgerror" {
 #-----------------------------------------------------------------------
 
 term calibration "calibration" {
-    Athena's models can be calibrated for a particular setting by 
-    tweaking Athena's <<cref /parmdb>>.  This is particularly important
-    for the Economics model; see the <i>Athena User's
-    Guide</i> for the steps to calibrate the economy.
+    Athena's models can be calibrated and adjusted by 
+    tweaking Athena's <<cref /parmdb>>.  The model descriptions in the 
+    <i>Athena Analyst's Guide</i>, <i>Mars Analyst's Guide</i>, and so 
+    forth, call out relevant model parameters in the footnotes. 
 }
 
 #-----------------------------------------------------------------------
@@ -151,9 +158,15 @@ alias /term cap "CAP" /object/cap
 #-----------------------------------------------------------------------
 
 term capacity "capacity" {
-    Each <<term sector>> in the Economics model has a maximum
-    size, or <i>capacity</i>.  The size of the <b>pop</b> sector is 
-    limited by the size of the labor force, for example.<p>
+    The term <i>capacity</i> is used in several contexts in Athena.<p>
+
+    <b>Communications Asset Packages.</b>  Each <<term cap>> has a
+    capacity, a measure of the CAP's level of repair.  When operating at
+    full capacity, the CAP reaches its full audience.<p>
+
+    <b>Economics.</b> Each <<term sector>> in the Economics model has 
+    a maximum size, or <i>capacity</i>.  The size of the <b>pop</b> 
+    sector is limited by the size of the labor force, for example.<p>
 
     Usually when we speak of capacity, however, we mean the
     capacity of the <b>goods</b> sector: the ability of the economy 
@@ -166,15 +179,15 @@ term capacity "capacity" {
 #-----------------------------------------------------------------------
 
 term cause "cause" {
-    Every <<term gram>> <<term driver>> has an associated
-    <i>cause</i>.  All inputs to GRAM for the driver will be tagged
-    with this cause; for example, the <b>DISEASE</b> and
+    Every <<term attitude>> <<term driver>> has an associated
+    <i>cause</i>.  All inputs to <<term uram>> for the driver will be 
+    tagged with this cause; for example, the <b>DISEASE</b> and
     <b>EPIDEMIC</b> <<term ensit>>s both have the cause
     <b>SICKNESS</b>.<p>
 
     The purpose of causes is to prevent multiple inputs of a similar
     type from piling on in an unreasonable way.  For example, suppose
-    that there is a serious epidemic in neighborhood A which then
+    that there is a serious epidemic in <<term nbhood>> A which then
     spreads to nearby neighborhood B.  While the epidemic remained in
     A, the folks in B were somewhat unhappy about it (because it might
     spread, and because they care about some or all of the people in
@@ -186,19 +199,18 @@ term cause "cause" {
     The spread of the epidemic to B might heighten their alarm
     somewhat, but it shouldn't double their alarm.<p>
 
-    In these cases, where there are multiple inputs to GRAM for a
-    given curve (say, group G's SFT in neighborhood C), the smaller
-    inputs get swamped by the larger rather than adding to them.<p>
+    In these cases, where there are multiple inputs to URAM for a
+    given curve (say, <<term civgroup>> G's SFT in neighborhood C), 
+    the smaller inputs get swamped by the larger rather than adding to 
+    them.<p>
 
     The cause associated with each kind of driver can be found in the
-    Athena Rules document, delivered with the software.
+    <i>Athena Rules</i> document, delivered with the software.
 }
 
 #-----------------------------------------------------------------------
 
 alias /term civgroup "civilian group" /object/group/civ
-
-
 
 #-----------------------------------------------------------------------
 
@@ -274,6 +286,12 @@ term control "control" {
     An <<term actor>> with sufficient <<term support>> in a 
     <<term nbhood>> can gain <<term influence>> in that neighborhood;
     and given sufficient influence, may take control of the neighborhood.
+    The model is sufficiently general to account for both peaceful and
+    violent transfers of control.<p>
+
+    The actor seen as being in control of the neighborhood will receive
+    credit or blame form the civilians in the neighborhood for current
+    conditions.
 }
 
 #-----------------------------------------------------------------------
@@ -281,7 +299,11 @@ term control "control" {
 term cooperation "cooperation" {
     A cooperation level is an <<term attitude>> that represents
     the likelihood that a member of a <<term civgroup>> will give
-    information to a member of a particular <<term frcgroup>>.
+    information to a member of a particular <<term frcgroup>> when
+    asked.  (Whether a member of the civilian group would give actual 
+    help to a member of the force group is a different question, and 
+    one not addressed by the Athena cooperation model.)<p>
+
     Cooperation levels are represented using the following scale:<p>
 
     <<::simlib::qcooperation html>><p>
@@ -299,7 +321,7 @@ term cooperation "cooperation" {
 
 term coverage "coverage" {
     Coverage is a measure of the fraction of a <<term nbhood>> that
-    is affected by something--a group <<term activity>>, an
+    is affected by something--a <<term group>> <<term activity>>, an
     <<term ensit>>, etc.--expressed as a number between 0.0 and 1.0.
     It is a common input to the <<term damrules>>.
 }
@@ -309,20 +331,22 @@ term coverage "coverage" {
 #-----------------------------------------------------------------------
 
 term damrules "DAM Rules" {
-    Athena assesses the affect of simulation <<term driver>>s using a
-    collection of rule sets that belong to Athena's 
+    Athena assesses the affect of <<term attitude>> <<term driver>>s 
+    using a collection of rule sets that belong to Athena's 
     <<term dam>> (DAM); the rule sets are collectively
-    known as the 
-    <i>DAM Rules</i>.  The full set of rules and their effects are
-    defined in the Athena Rules document, delivered with the software.
+    known as the <i>DAM Rules</i>.  The full set of rules and their 
+    effects are defined in the <i>Athena Rules</i> document, delivered 
+    with the software.
 }
 
 #-----------------------------------------------------------------------
 
 term demsit "demographic situation" {
-    A <i>demographic situation</i> is an on-going situation involving
+    A <i>demographic situation</i> is an on-going 
+    <<term situation>> involving
     the residents of a neighborhood as detected by the 
-    Demographics model.  It is an attitude <<term driver>>.
+    Demographics model.  It is an 
+    <<term attitude>> <<term driver>>.
     At present, there is only one type of demographic situation, the
     Unemployment (UNEMP) situation; see the <i>Athena Rules</i>
     document for details.<p>
@@ -334,18 +358,19 @@ term demsit "demographic situation" {
 #-----------------------------------------------------------------------
 
 term driver "driver" {
-    <b>1.</b> Any event or situation occuring in the
-    <<term playbox>> that causes a change in the <<term attitude>>s
-    of members of one or more <<term civgroup>>s.<p>
+    <b>1.</b> Any <<term event>> or <<term situation>> occuring in the
+    <<term playbox>> that causes a change in 
+    one or more <<term attitude>>s.<p>
 
     Examples of drivers include casualties to 
     <<term civgroup>>s, the presence
     and activities of <<term frcgroup>> in <<term nbhood>>s, 
-    <<term ensit>>s, <<term demsit>>s, and <<term mad>>s.<p>
+    <<term ensit>>s, <<term demsit>>s, <<term iom>>s, 
+    and <<term mad>>s.<p>
 
     <b>2.</b> A <<term mad>>.<p>
 
-    <b>3.</b> A <<term gram>> driver ID.
+    <b>3.</b> A <<term uram>> driver ID.
 }
 
 #-----------------------------------------------------------------------
@@ -360,14 +385,15 @@ term dam "Driver Assessment Model" {
 #-----------------------------------------------------------------------
 
 term emphasis "emphasis" {
-    A <<term civgroup>> or <<term actor>>'s belief about a 
+    A <<term civgroup>> or <<term actor>>'s 
+    <<term bsystem belief>> about a 
     <<term topic>> is represented as a <<term position>> and an
     emphasis on agreement or disagreement with that position.
     The emphasis is a number from 0.0 to 1.0; 0.0 indicates that when
     computing affinity, disagreement counts entirely and agreement not
     at all, and 1.0 indicates that agreement counts entirely and
     disagreement not at all.  In general, the lower the emphasis, the
-    the lower the <<term affinity affinities>>.<p>
+    the lower the resulting <<term affinity affinities>>.<p>
 
     <b>Note:</b> the 
     extreme values of 0.0 and 1.0 represent extreme pathological cases
@@ -383,16 +409,17 @@ term emphasis "emphasis" {
 #-----------------------------------------------------------------------
 
 term ensit "environmental situation" {
-    An <i>environmental situation</i> is an on-going situation within
-    a <<term nbhood>>; it is an attitude <<term driver>>, and affects
+    An <i>environmental situation</i> or <i>ensit</i> is an on-going 
+    <<term situation>> within a <<term nbhood>>; it is an 
+    <<term attitude>> <<term driver>>, and affects
     all of the people living in the neighborhood.  It may also affect
     surrounding neighborhoods.  For a complete list of situation
-    types, and the effect of each, see the <i>Athena Rules</i> document
+    types, and the effect of each, see the <i>Athena Rules</i> document,
     delivered with the software.<p>
 
     <b>Note:</b> Athena tracks the neighborhood in which each 
     environmental situation is
-    located.  The precise location of a situation within a neighborhood
+    located.  The precise location of an ensit within a neighborhood
     is meaningless.<p>
 
     Environmental situations can be created and positioned using the 
@@ -489,28 +516,12 @@ alias /term goal "goal" /object/goal
 
 #-----------------------------------------------------------------------
 
-term gram "GRAM" {
-    The Generalized Regional Attitude Model (GRAM) is that part of
-    Athena that tracks <<term cooperation>> and <<term satisfaction>>
-    levels, and the spread of the <<term damrules>>' inputs across the 
-    <<term playbox>>.
-}
-
-#-----------------------------------------------------------------------
-
 alias /term group "group" /object/group
 
 #-----------------------------------------------------------------------
-term hook "semantic hook" {
-    As part of an Information Operations Message or <<term iom>>, a 
-    semantic hook consists of a narrative and a position on one or more
-    <<term bsystem>> <<term topic>>s. Along with one or more
-    <<term payload>>s, a semantic hook is intended to change the 
-    attitudes of civilians one way or another by appealing to their beliefs.
-}
 
 term hrel "horizontal relationship" {
-    The relationship between two <<term group>>s, expressed
+    The <<term relationship>> between two <<term group>>s, expressed
     using the following scale:<p>
 
     <<::simlib::qaffinity html>><p>
@@ -518,8 +529,9 @@ term hrel "horizontal relationship" {
     Horizontal relationships have effects throughout the Athena models.  
     Every group has a relationship of 1.0 with itself and by default a
     relationship with every other group equal to its affinity with
-    that group.  Realistic
-    relationships between groups range from +0.6 to -0.3 or -0.4.<p>
+    that group.  Horizontal relationships can vary over time in response
+    to <<term attitude>> <<term driver>>s, and specifically in response
+    to <<term iom>>s and <<term mad>>s.<p>
 
     The initial relationship can be overridden on the 
     <<tab Attitudes/HRel>>, using the 
@@ -576,10 +588,11 @@ term jweek "Julian week number" {
 term local_economy "local economy" {
     Athena's Economics model concerns the economy of a region: a
     single country, part of that country, or perhaps several small
-    countries taken together.  Athena's <<term nbhood>>s can be 
+    countries taken together.  Each of Athena's <<term nbhood>>s can be 
     "local", i.e., part of the economic region of interest, or
     non-local, outside the region.  The <i>local economy</i> is then
-    the economy of this local region of interest.
+    the economy of this local region of interest, which is a subset 
+    of the <<term playbox>>.
 }
 
 #-----------------------------------------------------------------------
@@ -587,7 +600,8 @@ term local_economy "local economy" {
 term lock "lock" {
     To "lock" the scenario is to leave the <<term prep>> state,
     initialize the simulation, and make it possible for simulation
-    time to advance.  See also <<term unlock>>.
+    time to advance.  Many scenario inputs are fixed once the 
+    scenario is locked.  See also <<term unlock>>.
 }
 
 #-----------------------------------------------------------------------
@@ -597,7 +611,7 @@ term loglevel "log level" {
     level</i>, as follows:<p>
 
     <ul>
-    <li> <b>fatal</b>:    Used when the program is about to halt.
+    <li> <b>fatal</b>:    Used when the prouram is about to halt.
                           Displayed with a red background.
     <li> <b>error</b>:    Used only for <<term bgerror>>s. Displayed
                           with an orange background.
@@ -617,7 +631,8 @@ term loglevel "log level" {
 
 term mad "magic attitude driver" {
     A <i>magic attitude driver</i> (MAD) is a "magic" 
-    <<term driver>> (event or situation) defined by the user; it
+    <<term driver>> (<<term event>> or <<term situation>>) 
+    defined by the user; it
     affects attitudes in any way the user determines, via the 
     <<cref /order/mad>>.<p>
 }
@@ -658,9 +673,9 @@ term mapref "map reference string" {
 term mood "mood" {
     <b>1.</b> A <<term civgroup>>'s
     <<term satisfaction>> averaged across its 
-    <<term concern>>s, and taking <<term saliency>> into account.  In
-    other words, how satisfied or dissatisfied the group is with
-    things in general.<p>
+    <<term concern>>s, taking <<term saliency>> into account.  In
+    other words, a group's mood is how satisfied or dissatisfied the 
+    group is with things in general.<p>
 
     <b>2.</b> A <<term nbhood>>'s mood, i.e., the satisfaction of
     all groups in the neighborhood with things in general.
@@ -674,7 +689,7 @@ alias /term nbhood "neighborhood" /object/nbhood
 
 term order "order" {
     Inputs to the Athena scenario and models are presented to Athena
-    as <<cref /order>>.<p>
+    as <<cref /order orders>>.<p>
 
     Orders may be sent interactively by a variety
     of methods; such orders can usually be 
@@ -714,7 +729,8 @@ term playbox "playbox" {
 #-----------------------------------------------------------------------
 
 term position "position" {
-    A <<term civgroup>> or <<term actor>>'s belief about a 
+    A <<term civgroup>> or <<term actor>>'s 
+    <<term bsystem belief>> about a 
     <<term topic>> is represented as a position and an
     <<term emphasis>> on agreement or disagreement with that position.
     The position is a number from 1.0 to
@@ -738,8 +754,8 @@ term prep "Prep" {
     The "Scenario Preparation" <<term state>>, or "Prep" for short, is
     the simulation state in which scenarios are defined, edited, and
     changed.  When it is time to run the simulation, the scenario is
-    <<term lock>>ed; and then, in order to change the scenario it must
-    first be <<term unlock>>ed.
+    <<term lock locked>>; and then, in order to change the scenario it must
+    first be <<term unlock unlocked>>.
 }
 
 #-----------------------------------------------------------------------
@@ -750,7 +766,13 @@ term proximity "proximity" {
     <b>NEAR</b>, <b>FAR</b>, and <b>REMOTE</b>, where <b>HERE</b>
     represents the proximity of a neighborhood to itself.<p>
 
-    The attitudes of a <<term civgroup>> can be affected by 
+    Proximity is assigned by the analyst, and can take into
+    account physical distance, physical obstacles, psychological
+    distance, and so forth.  Further, it need not be symmetric:
+    neighborhood A might regard neighborhood B as <b>NEAR</b> while B
+    regards A as <b>FAR</b>, or even as <b>REMOTE</b>.<p>
+
+    The attitudes of a <<term group>> can be affected by 
     <<term driver>>s that occur <b>HERE</b> in the same neighborhood; to a
     lesser degree by drivers occuring in a <b>NEAR</b>
     neighborhood, even less by drivers in a <b>FAR</b>
@@ -758,13 +780,8 @@ term proximity "proximity" {
     neighborhood.<p>
 
     The extent to which <b>NEAR</b> and <b>FAR</b> drivers have an
-    effect <b>HERE</b> varies from one kind of driver to another.<p>
-
-    Note that proximity is assigned by the analyst, and can take into
-    account physical distance, physical obstacles, psychological
-    distance, and so forth.  Further, it need not be symmetric:
-    neighborhood A might regard neighborhood B as <b>NEAR</b> while B
-    regards A as <b>FAR</b>, or even as <b>REMOTE</b>.<p>
+    effect <b>HERE</b> varies from one kind of driver to another; see
+    the <i>Athena Rules</i> document for details.<p>
 
     The proximity between two neighborhoods is edited on the
     <<tab Neighborhoods/Relationships>>, using the
@@ -775,7 +792,8 @@ term proximity "proximity" {
 
 term relationship "relationship" {
     The <<term attitude>> a group has toward another group
-    (the <<term hrel>>) or toward an actor (the <<term vrel>>).
+    (the <<term hrel>>) or toward an actor (the <<term vrel>>).  
+    Relationships play a part in many of the Athena models.
 }
 
 #-----------------------------------------------------------------------
@@ -785,7 +803,8 @@ term roe "ROE" {
     the rules given to them in their orders that determine when they
     may engage the enemy.  In Athena, ROEs apply to a <<term frcgroup>>
     in a <<term nbhood>> and determine when and how the group can 
-    engage other groups.  There will be no armed conflict, and hence
+    engage other <<term group groups>>.  There will be no armed 
+    conflict, and hence
     no attrition or civilian casualties, unless the user creates
     the appropriate ROEs.<p>
 
@@ -794,17 +813,15 @@ term roe "ROE" {
     tactics.
 }
 
-
-
 #-----------------------------------------------------------------------
 
 term saliency "saliency" {
     The <i>saliency</i> of a <<term concern>> to a 
-    <<term group>> is the importance of that concern to the group.
+    <<term civgroup>> is the importance of that concern to the group.
     Some groups will value quality of life more than autonomy; for
     others, culture will trump quality of life.  This comes into play
     when computing a group or <<term nbhood>>'s <<term mood>>, and
-    when comparing  <<term satisfaction>> levels across groups.<p>
+    when comparing <<term satisfaction>> levels across groups.<p>
     
     Saliency is represented using the following scale:<p>
 
@@ -816,22 +833,22 @@ term saliency "saliency" {
 }
 
 
-
 #-----------------------------------------------------------------------
 
 term satisfaction "satisfaction" {
     A satisfaction level is an <<term attitude>> that
-    represents a <<term group>>'s satisfaction with respect to some
+    represents a <<term civgroup>>'s satisfaction with respect to some
     <<term concern>>.  Satisfaction
     levels are represented using the following scale:<p>
 
     <<::simlib::qsat html>><p>
 
     Athena creates the required satisfaction curves automatically as 
-    groups and <<term nbhood>>s are created.  A group's satisfaction
-    is viewed and modified on the <<tab Attitudes/Satisfaction>>
-    using the <<cref /order/sat>> and <<cref /order/mad/sat>>.  Satisfaction can
-    also be changed by <<term driver>>s that trigger Athena's
+    civilian groups are created.  A group's initial baseline 
+    satisfaction levels are viewed and modified on the 
+    <<tab Attitudes/Satisfaction>> using the <<cref /order/sat>>.  Once
+    the simulation is running, satisfaction can be changed by
+    <<term attitude>> <<term driver>>s that trigger Athena's
     <<term damrules>>.
 }
 
@@ -842,62 +859,57 @@ term scenariofile "scenario file" {
     processor or spreadsheet application.  An Athena "document" is
     called an <i>Athena scenario file</i>.  The scenario file contains
     the scenario data, the map image (if any),
-    reports, <<term snapshot>>s, and in general everything
+    <<term snapshot>>s, and in general everything
     to do with the scenario.<p>
 
-    Athena scenario files have a ".adb" file type.<p>
+    Athena scenario files have an ".adb" file type.<p>
 }
 
 
 #-----------------------------------------------------------------------
 
 term sector "sector" {
-    Athena's Economic Model divides the economy into three sectors:
+    Athena's Economic Model divides the economy into six sectors:
 
-    <<topiclist>>
-    <<topic "goods">>
-    Production of goods and services in the local economy, in 
-    "Goods Baskets" (GBasket).  The unit of production is
-    a basket of goods and services with a price of approximately
-    $1.
-    <</topic>>
-
-    <<topic "pop">>
-    Provision of labor by the population.  The unit of production is
-    a work-year of an "average" worker.
-    <</topic>>
-
-    <<topic "else">>
-    Everything else: imports, exports, etc., in "Else Baskets" (EBasket).
-    The unit of production is a basket of goods and services
-    traded outside the region.
-    <</topic>>
-  
-    <</topiclist>>
+    <<cref /tbd>>: Update per AAG.<p>
 }
 
 #-----------------------------------------------------------------------
 
 term security "security" {
-    A <<term group>>'s <i>security</i> is computed by the 
-    Security model.  It is a number that indicates
+    A <<term group>>'s <i>security</i> is a number that indicates
     how safe members of the group are in a <<term nbhood>>, as opposed to
-    how satisfied they are with their safety.  <p>
+    how satisfied they are with their safety.<p>
 
     Security is represented
     by the following scale:<p>
 
     <<::projectlib::qsecurity html>>
 
-    A group's security is affected by the <<term volatility>> of the
-    neighborhood.
+    A group's security is affected by its size and by its 
+    <<term hrel>>s with other groups present in the neighborhood.  See
+    the <i>Athena Analyst's Guide</i> for a complete description of how
+    security is computed.  Many Athena models (and notably the model
+    of <<term actor>> <<term support>>, <<term influence>>, and 
+    <<term control>>) depend on security.
+}
+
+#-----------------------------------------------------------------------
+
+term hook "semantic hook" {
+    As part of an Information Operations Message or <<term iom>>, a 
+    semantic hook consists of a narrative and a position on one or more
+    <<term bsystem>> <<term topic>>s. The hook is used to catch the 
+    audience of the IOM by appealing to their beliefs, so that the IOM's 
+    <<term payload>>s can take affect.
 }
 
 #-----------------------------------------------------------------------
 
 term servsit "service situation" {
     An <<term attitude>> <<term driver>> that involves the provision
-    of some service to the civilian population.  At present, the only
+    of some service to the <<term civgroup>>s in a 
+    <<term nbhood>>.  At present, the only
     service situation is the Essential Non-infrastructure (ENI)
     services situation.
 }
@@ -909,28 +921,26 @@ term snapshot "snapshot" {
     Run Simulation button, the
     simulation saves a snapshot of its current <<term state>>.  When the 
     simulation is paused, the user can use the VCR buttons on the
-    main toolbar to return to any previous snapshot.  This is called
+    main toolbar to return to any previous snapshot and view the
+    state of the simulation.  This is called
     being in "snapshot mode".  While in snapshot mode, the user can
     browse the various <<cref /tab>> freely.<p>
-
-    The most important snapshot is that taken at time 0; by 
-    returning to this snapshot and "re-entering the time stream", the
-    simulation returns to the <<term prep>> state.<p>
 }
 
 #-----------------------------------------------------------------------
 
 term stance "stance" {
-    A force group's <i>stance</i> toward another group is a designated
-    relationship value established by the force group's owner that
+    A <<term frcgroup>>'s <i>stance</i> toward another 
+    <<term group>> is a designated <<term hrel>> value established 
+    by the force group's owning <<term actor>> that
     indicates how the force group is supposed to behave toward the
     other group.<p>
 
     For example, a force group given peace-keeping duties in a 
-    neighborhood should be given a strongly positive stance toward
-    the groups that reside in the neighborhood, indicate that the
+    <<term nbhood>> should be given a strongly positive stance toward
+    the groups that reside in the neighborhood, indicating that the
     group is to treat the residents well.  This will increase the
-    security of the residents.<p>
+    <<term security>> of the residents.<p>
 
     How well a force group succeeds in behaving according to its 
     designated stance depends on the group's training level and 
@@ -988,10 +998,11 @@ term sapop "subsistence agriculture population" {
 
 term support "support" {
     An <<term actor>>'s <i>support</i> in a <<term nbhood>> is the
-    degree to which the people (including force and organization
-    group personnel) in the neighborhood will do his bidding.
-    Support is based on the vertical relationship
-    between local groups and the actor, on each group's security, and
+    degree to which the people (including <<term frcgroup>> and
+    <<term orggroup>> personnel) in the neighborhood will do his bidding.
+    Support is based on the <<term vrel>>s
+    between local groups and the actor, on each group's 
+    <<term security>>, and
     on the number of people in each group.<p>
 
     Support is used to compute <<term influence>>.
@@ -1084,13 +1095,14 @@ term topic "topic" {
 #-----------------------------------------------------------------------
 
 term unit "unit" {
-    A <i>unit</i> is a collection of personnel belonging to some
+    A <i>unit</i> is a collection of <<term personnel>> belonging to some
     <<term group>> that can be positioned in the <<term playbox>>
     and displayed on the <<tab Map>>.<p>
 
     Units come into existence automatically to represent the
-    neighborhood population; to represent force and organization group
-    personnel deployed to neighborhoods by the 
+    civilian population of the <<term nbhood>>, and to represent 
+    <<term frcgroup>> and <<term orggroup>> 
+    personnel <<term deployment deployed>> to neighborhoods by the 
     <<cref /object/tactic/deploy>>;
     and also to represent personnel assigned to particular activities
     by the <<cref /object/tactic/assign>>.  Thus, every unit belongs to 
@@ -1107,7 +1119,7 @@ term unit "unit" {
     Organization and Equipment (TOE); thus, a unit might be Company A
     of such-and-such a battalion.  In Athena, a unit is simply
     an allocation of personnel to some purpose over a period of time, 
-    e.g., an allocation of members of a <<term frcgroup>> to the 
+    e.g., an allocation of members of a force group to the 
     <<term activity>> of law enforcement.<p>
 
     Units can be positioned using the controls on the
@@ -1119,11 +1131,22 @@ term unit "unit" {
 #-----------------------------------------------------------------------
 
 term unlock "unlock" {
-    To "unlock" the scenario is to termiante a simulation run and
+    To "unlock" the scenario is to terminate a simulation run and
     re-enter the <<term prep>> state, thus making it possible to edit
     the scenario inputs.  Unlocking the scenario erases the simulation
     results from the current run; to retain them, save a copy of the
     scenario file prior to unlocking the scenario.
+}
+
+#-----------------------------------------------------------------------
+
+term uram "URAM" {
+    The Unified Regional Attitude Model (URAM) is that part of
+    Athena that tracks changes to <<term cooperation>> levels, 
+    to <<term satisfaction>> levels, and to <<term hrel>>s and 
+    <<term vrel>>s.  It is given inputs by the <<term damrules>>,
+    which fire in response to <<term attitude>> <<term driver>>s
+    as described in the <i>Athena Rules</i> document.
 }
 
 #-----------------------------------------------------------------------

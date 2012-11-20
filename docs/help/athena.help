@@ -49,6 +49,9 @@ page "" "" "Athena Help" {
 page / changelog "Change Log" {
     <<title>>
     <<changelog>>
+    <<change 11/15/2012 New whd>>
+    Final scrub for Athena 4.
+    <</change>>
     <<change 2/6/2012 New whd>>
     Final scrub for Athena 3.
     <</change>>
@@ -96,7 +99,22 @@ page / release "Release Notes" {
     overview of the changes.<p>
 
     <ul>
-    <li> TBD
+    <li>The simulation time step (also known as the tick size) is one week 
+        rather than one day.
+    <li>The GRAM attitude model has been replaced by the Unified Regional 
+        Attitude Model (URAM), which is specifically designed for Athena's 
+        longer time horizons.  URAM tracks changes to horizontal and vertical 
+        relationships in addition to satisfaction and cooperation.
+    <li>Actors can broadcast Information Operations Messages (IOMs) to 
+        affect civilian attitudes.
+    <li>The security model has been enhanced to take into account a 
+        force group's stance (whether positive or negative) towards other 
+        groups, as well as the effect of law enforcement on background 
+        criminal activity among the civilian groups.
+    <li>The Economic model has been increased to six sectors from three, and 
+        now takes into account both the international black market and 
+        monetary flows to and from actors.  This change fixes a number of 
+        shortcomings of the three-sector model.
     </ul>
 }
 
