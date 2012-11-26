@@ -341,6 +341,14 @@ term damrules "DAM Rules" {
 
 #-----------------------------------------------------------------------
 
+term demobilize "demobilize" {
+    To <i>demobilize</i> <<term frcgroup>> or <<term orggroup>>
+    personnel is to remove them from the playbox.
+    See <<term personnel>>.<p>
+}
+
+#-----------------------------------------------------------------------
+
 term demsit "demographic situation" {
     A <i>demographic situation</i> is an on-going 
     <<term situation>> involving
@@ -353,6 +361,23 @@ term demsit "demographic situation" {
 
     Existing demographic situations can be seen on the 
     <<tab Neighborhoods/DemSits>>.
+}
+
+#-----------------------------------------------------------------------
+
+term deployment "deployment" {
+    <<term actor Actors>> own <<term frcgroup>>s and 
+    <<term orggroup>>s, and can make use of their 
+    <<term mobilize "mobilized">> <<term personnel>>.  To do useful work,
+    such personnel must be 
+    <<cref /object/tactic/deploy deployed>> into neighborhoods.  A particular
+    group's <i>deployment</i> is simply the number of personnel allocated
+    to each neighborhood.<p>
+
+    In particular, deployed personnel can be assigned to do 
+    <<term activity "activities">>, and can be 
+    <<term demobilize "demobilized">>, thus removing them from the
+    playbox.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -426,6 +451,32 @@ term ensit "environmental situation" {
     controls on the <<tab Map>>.  
 }
 
+#-----------------------------------------------------------------------
+
+term entity "entity" {
+    A simulation <i>entity</i> is simply some object in the simulation
+    that has identity: an <<term actor>>, a <<term group>>, a
+    <<term nbhood>>, etc.  In the context of the 
+    <<term bsystem>> model, <<term actor>>s and <<term civgroup>>s are
+    sometimes referred to as "belief system entities".<p>
+}
+
+#-----------------------------------------------------------------------
+
+term event "event" {
+    <b>1.</b> An <<term attitude>> <<term driver>> that takes place once,
+    at some particular time, e.g., civilian casualties due to combat, as
+    opposed to an on-going <<term situation>>.  The terms "event" and
+    "situation" come from JNEM, but the distinction between 
+    events and situations is considerably muddier in Athena than it was
+    in JNEM.<p>
+
+    <b>2.</b> A significant event, as included in the 
+    Significant Events log.<p>
+
+    <b>3.</b> More generally, any thing that happens in the simulation 
+    (a <i>simulation event</i>).<p>
+}
 
 #-----------------------------------------------------------------------
 
@@ -670,6 +721,14 @@ term mapref "map reference string" {
 
 #-----------------------------------------------------------------------
 
+term mobilize "mobilize" {
+    A <<term frcgroup>> or <<term orggroup>>'s <i>mobilized</i>
+    personnel are the group's personnel actually present in
+    the playbox.  See <<term personnel>>.<p>
+}
+
+#-----------------------------------------------------------------------
+
 term mood "mood" {
     <b>1.</b> A <<term civgroup>>'s
     <<term satisfaction>> averaged across its 
@@ -719,6 +778,32 @@ alias /term payload "payload" /object/payload
 
 #-----------------------------------------------------------------------
 
+term personnel "personnel" {
+    In Athena, <<term frcgroup>>s and <<term orggroup>>s exist to 
+    provide manpower to <<term actor>>s.  The people who make up a 
+    group are called the group's <i>personnel</i>.<p>
+
+    <b><<term mobilize "Mobilized">> Personnel:</b>  Group personnel
+    who are currently present in the <<term playbox>>.  Personnel may 
+    exist in the playbox at time zero, or be mobilized later using the
+    <<cref /object/tactic/mobilize>>.<p>
+
+    <b><<term deployment "Deployed">> Personnel:</b>  Once mobilized, 
+    personnel must be deployed to neighborhoods 
+    via the <<cref /object/tactic/deploy>> before they can be used. 
+    Personnel remaining undeployed at the end of strategy execution
+    are automatically demobilized.<p>
+
+    <b><<term demobilize "Demobilization">>:</b>  Troops can be
+    demobilized, i.e., removed from the playbox, using the 
+    <<cref /object/tactic/demob>>, or simply by not deploying them.<p>
+
+    Once deployed, personnel can be assigned to 
+    <<term activity activities>> and used in a variety of other ways.<p>
+}
+
+#-----------------------------------------------------------------------
+
 term playbox "playbox" {
     The <i>playbox</i> is the region of interest to the analyst in 
     the current scenario, i.e., the region for which
@@ -734,7 +819,7 @@ term position "position" {
     <<term topic>> is represented as a position and an
     <<term emphasis>> on agreement or disagreement with that position.
     The position is a number from 1.0 to
-    -1.0 that represents not only whether the entity is for or against
+    -1.0 that represents not only whether the <<term entity>> is for or against
     the topic, but also the strength of that position: the greater the
     absolute magnitude of the number, the more likely the entity is to
     take political action in support of its belief.  Note that
@@ -809,7 +894,7 @@ term roe "ROE" {
     the appropriate ROEs.<p>
 
     There are several kinds of ROE; they are created using the
-    <<cref /order/tactic/defroe>> and <<cref /order/tactic/attroe>>
+    <<cref /object/tactic/defroe>> and <<cref /object/tactic/attroe>>
     tactics.
 }
 
@@ -871,7 +956,25 @@ term scenariofile "scenario file" {
 term sector "sector" {
     Athena's Economic Model divides the economy into six sectors:
 
-    <<cref /tbd>>: Update per AAG.<p>
+    <ul>
+    <li> <b>goods:</b> Production of goods and services.
+
+    <li> <b>black:</b> International black market in drugs, guns,
+    human trafficking, and the like.
+
+    <li> <b>pop:</b> All labor, and all personal consumption.<p>
+
+    <li> <b>actors:</b> All income flowing to <<term actor>>s, and
+    all expenditures by actors.
+
+    <li> <b>region:</b> Everything in the local economy that isn't
+    covered by the first four sectors.
+
+    <li> <b>world:</b> The rest of world, outside the local economy.
+    </ul><p>
+
+    See the <i>Athena User's Guide</i> and the 
+    <i>Athena Analyst's Guide</i> for more detail.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -912,6 +1015,17 @@ term servsit "service situation" {
     <<term nbhood>>.  At present, the only
     service situation is the Essential Non-infrastructure (ENI)
     services situation.
+}
+
+#-----------------------------------------------------------------------
+
+term situation "situation" {
+    An <<term attitude>> <<term driver>> that takes place over
+    time, e.g., an epidemic or the provision of ENI services, as 
+    opposed to a one-time <<term event>>.  The terms "event" and
+    "situation" come from JNEM, but the distinction between 
+    events and situations is considerably muddier in Athena than it was
+    in JNEM.<p>
 }
 
 #-----------------------------------------------------------------------
