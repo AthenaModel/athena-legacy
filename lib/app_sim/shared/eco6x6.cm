@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version s
+#    eco6x6.cm, version t
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,17 @@
 #    Out pages.
 #
 # HISTORY:
+#    Version t: Changed the equation for after tax income in the pop
+# sector (ATI.pop) to make remittances subject to tax-like payments:
+#    
+#        ATI.pop = k.pop * REV.pop
+# where
+#
+#        REV.pop = P.pop * QS.pop + BREM
+#
+# Previously, BREM was simply added to ATI.pop without being subject 
+# to k.pop.
+#
 #    Version s: Changed the output page to indicate long term (or 
 # unconstrained) demand for the goods, pop and black sectors. This
 # makes the shortages displayed make more sense for the
@@ -715,7 +726,7 @@ let SA = {[BaseSA]}                 ;# $/year
 let QD.goods.pop = {[BA.goods.pop] * [BaseConsumers]}
 
 let REV.pop = {[P.pop] * [QS.pop] + [BREM]}            -value 1.52e8
-let ATI.pop = {[k.pop] * [P.pop] * [QS.pop] + [BREM]}  -value 50.0e6
+let ATI.pop = {[k.pop] * [REV.pop]}                    -value 50.0e6
 
 let X.black.pop = {[f.black.pop] * [ATI.pop]}          -value 50.0e6
 let QD.black.pop = {[X.black.pop] / [P.black]}         -value 50000
