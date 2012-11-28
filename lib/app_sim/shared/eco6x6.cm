@@ -426,7 +426,7 @@ let BFAR          = 10e6      ;# $/year  Foreign aid that goes directly to
 # If FAR is not input, it is equal to BX.region.world
 
 let Bgraft        = 0.3       ;# fraction of FAR that goes to the actors
-let FAA           = 10e6      ;# $/year  Foreign aid that goes directly to
+let BFAA          = 10e6      ;# $/year  Foreign aid that goes directly to
                               ;# actors.
 # If FAA is not input, it is equal to BX.actors.world
 
@@ -825,7 +825,7 @@ let QD.pop.world   = {[BEXPORTS.pop]}
 let X.black.world  = {[P.black] * [QD.black.world]}
 let X.goods.world  = {[P.goods] * [QD.goods.world]}
 let X.pop.world    = {[P.pop]   * [QD.pop.world]   + [BREM]}
-let X.actors.world = {[FAA] + [BFAR] * [Bgraft]}
+let X.actors.world = {[BFAA] + [BFAR] * [Bgraft]}
 let X.region.world = {[BFAR] * (1.0 - [Bgraft])}
 let X.world.world   = 0
 
@@ -924,11 +924,12 @@ let Consumers = 1e6          ;# people.
 let Subsisters = 380000      ;# people.
 
 # The subsisters wage (if they actually worked) aka poverty level
-let SubWage = {[BaseSubWage]}
+let SubWage = 200
 
 # GDP contribution of people engaged in subsistence agriculture.
 let SA = {[Subsisters]*[SubWage]} -value 1e7  ;# $/year
 
+# Total population, the sum of consumers and subsisters
 let Population = {[Consumers]+[Subsisters]}
 
 # Exports
@@ -944,20 +945,17 @@ let CAP.black = 40000
 
 # Remittances, foreign aid, NGO aid (Government transfers are now
 # explicit) directly to pop
-let REM = {[BREM]}            ;# $/year
+let REM = 50e6            ;# $/year
 
 # Foreign aid
-let FAR = {[BFAR]}            ;# $/year
+let FAR = 10e6            ;# $/year
 
 # Per capita demand for goods ;# goodsBKT/year
-let A.goods.pop = {[BA.goods.pop]}
+let A.goods.pop = 114
 
 # Fraction of foreign aid to region that winds up in the pockets of 
 # the actors
-let graft = {[Bgraft]}
-
-# Foreign aid directly to actors
-# FAA = 10e6
+let graft = 0.3
 
 # Max capacity for each sector.  These are set by Athena; the initial
 # values are intended to be effectively infinite.
@@ -1111,10 +1109,8 @@ let BQS.black = {[Cal::QS.black]}
 let BQS.goods = {[Cal::QS.goods]}
 let BQS.pop   = {[Cal::QS.pop]}
 
+# Per capita demand for goods
 let A.goods.pop = {[L::A.goods.pop]}
-
-# Copy Foreign aid to the region
-let FAR = {[In::FAR]}
 
 # The amount of the labor force afraid to work, Labor Force Unsecure
 let LFU = {[In::CAP.pop] * (1.0 - [In::LSF])}

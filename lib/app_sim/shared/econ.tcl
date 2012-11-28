@@ -687,9 +687,23 @@ snit::type econ {
             cge set [list f.$i.region $samdata(f.$i.region)]
         }
 
+        cge set [list \
+                     BX.actors.goods  $samdata(BX.actors.goods)  \
+                     BX.actors.black  $samdata(BX.actors.black)  \
+                     BX.actors.pop    $samdata(BX.actors.pop)    \
+                     BX.actors.region $samdata(BX.actors.region) \
+                     BX.actors.world  $samdata(BX.actors.world)]
+
+        cge set [list \
+                     BX.world.actors  $samdata(BX.world.actors)  \
+                     BX.region.actors $samdata(BX.region.actors) \
+                     BX.goods.actors  $samdata(BX.goods.actors)  \
+                     BX.black.actors  $samdata(BX.black.actors)  \
+                     BX.pop.actors    $samdata(BX.pop.actors)]       
+
         #-------------------------------------------------------------
         # The world sector
-        cge set [list FAA $samdata(FAA)]
+        cge set [list BFAA $samdata(FAA)]
         cge set [list BFAR $samdata(FAR)]
 
         #-------------------------------------------------------------
@@ -710,6 +724,10 @@ snit::type econ {
         #-------------------------------------------------------------
         # remittances to the populace
         $cge set [list BREM $samdata(BREM)]
+
+        #-------------------------------------------------------------
+        # subsistence agriculture wages, at or near poverty level
+        $cge set [list BaseSubWage $samdata(BaseSubWage)]
     }
 
     #-------------------------------------------------------------------
@@ -804,19 +822,23 @@ snit::type econ {
         # NEXT, calibrate if requested.
         if {$opt eq "-calibrate"} {
             # FIRST, demographics
-            array set data [demog getlocal]
+            array set demdata [demog getlocal]
+
+            # NEXT, SAM data
+            array set samdata [$sam get]
+
             cge set [list \
-                         BaseConsumers $data(consumers)        \
-                         In::Consumers $data(consumers)        \
-                         In::LF        $data(labor_force)      \
+                         BaseConsumers $demdata(consumers)     \
+                         In::Consumers $demdata(consumers)     \
+                         In::LF        $demdata(labor_force)   \
                          In::LSF       $LSF                    \
                          In::CSF       $CSF]
 
             # NEXT, per capita demand for goods
-            cge set [list In::A.goods.pop [dict get [$sam get] BA.goods.pop]]
+            cge set [list In::A.goods.pop $samdata(BA.goods.pop)]
 
             # NEXT, subsistence wage, the poverty level
-            cge set [list BaseSubWage [dict get [$sam get] BaseSubWage]]
+            cge set [list In::SubWage $samdata(BaseSubWage)]
 
             # NEXT, actors expenditures. Multiplication by 52 because the
             # CGE has money flows in years.
@@ -836,38 +858,24 @@ snit::type econ {
                          In::X.pop.actors    $Xpa]       
 
             # NEXT, actors revenue
-            set Xag [dict get [$sam get] BX.actors.goods]
-            set Xab [dict get [$sam get] BX.actors.black]
-            set Xap [dict get [$sam get] BX.actors.pop]
-            set Xar [dict get [$sam get] BX.actors.region]
-            set Xaw [dict get [$sam get] BX.actors.world]
-
             cge set [list \
-                         In::X.actors.goods  $Xag \
-                         In::X.actors.black  $Xab \
-                         In::X.actors.pop    $Xap \
-                         In::X.actors.region $Xar \
-                         In::X.actors.world  $Xaw]
+                         In::X.actors.goods  $samdata(BX.actors.goods)  \
+                         In::X.actors.black  $samdata(BX.actors.black)  \
+                         In::X.actors.pop    $samdata(BX.actors.pop)    \
+                         In::X.actors.region $samdata(BX.actors.region) \
+                         In::X.actors.world  $samdata(BX.actors.world)]
 
             # NEXT, black market feedstocks
-            set AFwb [dict get [$sam get] AF.world.black]
-            set MFwb [dict get [$sam get] MF.world.black]
-            set PFwb [dict get [$sam get] PF.world.black]
-
             cge set [list \
-                        AF.world.black $AFwb \
-                        MF.world.black $MFwb \
-                        PF.world.black $PFwb]
+                        AF.world.black $samdata(AF.world.black) \
+                        MF.world.black $samdata(MF.world.black) \
+                        PF.world.black $samdata(PF.world.black)]
 
             # NEXT, exports
-            set Eg [dict get [$sam get] EXPORTS.goods]
-            set Eb [dict get [$sam get] EXPORTS.black]
-            set Ep [dict get [$sam get] EXPORTS.pop]
-
             cge set [list \
-                        In::EXPORTS.goods $Eg \
-                        In::EXPORTS.black $Eb \
-                        In::EXPORTS.pop   $Ep]
+                        In::EXPORTS.goods $samdata(EXPORTS.goods) \
+                        In::EXPORTS.black $samdata(EXPORTS.black) \
+                        In::EXPORTS.pop   $samdata(EXPORTS.pop)]
 
             # NOTE: if income from graft is ever allowed to change
             # over time, then In::graft should be computed and set
@@ -937,7 +945,7 @@ snit::type econ {
         # NEXT, Recompute In through Out
 
         # Set the input parameters
-        array set data [demog getlocal]
+        array set demdata [demog getlocal]
         array set exp  [cash expenditures]
 
         # NEXT, multiply expenditures by 52 since the CGE money flows are
@@ -953,14 +961,14 @@ snit::type econ {
             FROM econ_n
         }]
 
-        let subsisters {$data(population) - $data(consumers)}
+        let subsisters {$demdata(population) - $demdata(consumers)}
 
         cge set [list \
-                     In::Consumers  $data(consumers)    \
-                     In::Subsisters $subsisters         \
-                     In::LF         $data(labor_force)  \
-                     In::CAP.goods  $CAPgoods           \
-                     In::LSF        $LSF                \
+                     In::Consumers  $demdata(consumers)   \
+                     In::Subsisters $subsisters           \
+                     In::LF         $demdata(labor_force) \
+                     In::CAP.goods  $CAPgoods             \
+                     In::LSF        $LSF                  \
                      In::CSF        $CSF]
 
         cge set [list \
@@ -972,7 +980,7 @@ snit::type econ {
 
         # NOTE: if income from graft is ever allowed to change
         # over time, then In::graft should be computed and set
-        # here
+        # here, same thing for remittances
 
         # Solve the CGE.
         set status [cge solve In Out]
