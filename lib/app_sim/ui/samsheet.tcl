@@ -362,7 +362,7 @@ snit::widget samsheet {
 
         $inputs textcol 0,2 {
             "$/year"
-            "$/year"
+            "$/tonne"
             ""
             "tonnes/year"
             ""

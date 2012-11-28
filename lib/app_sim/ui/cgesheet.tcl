@@ -44,7 +44,7 @@ snit::widget cgesheet {
     # complicated.
 
     typevariable units {
-        goods GBaskets/yr
+        goods goodsBKT/yr
         black tonnes/yr
         pop   work-years/yr
     }
@@ -423,11 +423,11 @@ snit::widget cgesheet {
             ""
             "$/Year, Deflated"
             "$/Year, Deflated"
-            "GoodsBKT/year"
+            "goodsBKT/year"
             "work-years"
             "%"
             "work-years"
-            "GoodsBKT/year"
+            "goodsBKT/year"
             "tonne/year"
             "work-years"
         } units -anchor w -relief flat
