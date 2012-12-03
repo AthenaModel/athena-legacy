@@ -142,6 +142,28 @@ snit::type econ {
                 "Base price in the pop sector must not be zero."
         }
 
+        # The goods sector and pop sectors must have revenue and expenditures,
+        # otherwise what's the point
+        if {$cells(BREV.goods) == 0.0} {
+            dict append edict BREV.goods \
+                "There must be revenue in the goods sector."
+        }
+
+        if {$cells(BREV.pop) == 0.0} {
+            dict append edict BREV.pop \
+                "There must be revenue in the pop sector."
+        }
+
+        if {$cells(BEXP.goods) == 0.0} {
+            dict append edict BEXP.goods \
+                "There must be expenditures in the goods sector."
+        }
+
+        if {$cells(BEXP.pop) == 0.0} {
+            dict append edict BEXP.pop \
+                "There must be expenditures in the pop sector."
+        }
+
         # NEXT, Cobb-Douglas coefficients in the goods sector must add up 
         # to 1.0 within a reasonable epsilon and cannot be greater than 1.0. 
         # The black sector is assumed to never have money flow into it from
@@ -510,7 +532,14 @@ snit::type econ {
         } data {
             let t_goods      {$data(income_goods) * 52.0 / ($BPg * $BQDg)}
             let t_pop        {$data(income_pop)   * 52.0 / ($BPp * $BQDp)}
-            let t_world      {$data(income_world) * 52.0 / $BREVw}
+
+            if {$BREVw > 0.0} {
+                let t_world  {$data(income_world) * 52.0 / $BREVw}
+            } else {
+                set t_world 0.0
+                set data(income_world) 0.0
+            }
+
             if {$FAR > 0.0} {
                 let graft_region {$data(income_graft) * 52.0 / $FAR}
             } else {
