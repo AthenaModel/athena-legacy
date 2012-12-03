@@ -774,6 +774,16 @@ term parameter "parameter" {
 
 #-----------------------------------------------------------------------
 
+term paused "Paused" {
+    The "Paused" <<term state>>, or "Paused" for short, is
+    the simulation state in which course-corrections can be made and
+    time can be advanced.  To make major changes to the scenario, it is
+    necessary to return to the <<term prep>> state by 
+    <<term unlock unlocking>> the scenario.
+}
+
+#-----------------------------------------------------------------------
+
 alias /term payload "payload" /object/payload
 
 #-----------------------------------------------------------------------
@@ -835,11 +845,14 @@ term position "position" {
     <<::simlib::qposition html>>
 }
 
+#-----------------------------------------------------------------------
+
 term prep "Prep" {
     The "Scenario Preparation" <<term state>>, or "Prep" for short, is
     the simulation state in which scenarios are defined, edited, and
     changed.  When it is time to run the simulation, the scenario is
-    <<term lock locked>>; and then, in order to change the scenario it must
+    <<term lock locked>>, and enters the <<term paused>> state; and then, 
+    in order to change the scenario it must
     first be <<term unlock unlocked>>.
 }
 

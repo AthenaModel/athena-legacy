@@ -27,6 +27,50 @@ page /order sim "Simulation Control Orders" {
 
 #-----------------------------------------------------------------------
 
+order SIM:LOCK "Lock Scenario Preparation" {
+    <b><<term prep>> Only.</b>  Locks scenario preparation and places 
+    the simulation in the <<term paused>> state, ready for time to be
+    advanced.  A detailed sanity check
+    is performed as part of the locking process; if their are failures they
+    are displayed to the user, and the simulation remains in the 
+    <<term prep>> state.
+}
+
+order SIM:PAUSE "Pause Simulation" {
+    Returns the running simulation to the <<term paused>> state at the
+    next possible moment: immediately if
+    the simulation is waiting in the Tcl event loop between 
+    <<term tick>>s, and at the end of the current tick if it is in the 
+    middle of a tick.<p>
+
+    This order is usually triggered by the "pause" button in the GUI.
+}
+
+order SIM:RUN "Run Simulation" {
+    <b><<term paused>> only.</b>  Advances simulation time.  This order
+    is usually triggered by the "play" button in the GUI.<p>
+
+    <<parmlist>>
+    <<parm weeks "Weeks to Run">>
+    <b>Optional.</b>  An integer number of weeks.  If 0, or not
+    specified, the simulation will run until explicitly paused by the
+    user.  If greater than 0, the simulation will run for the
+    specified number of weeks, and then halt.
+    <</parm>>
+
+    <<parm block "Block?">>
+    <b>Optional.</b>  A boolean flag.  If true, the order will
+    block--that is, the simulation will run for the specified number
+    of weeks and then the order handler will return.  If false (the
+    default) the order handler returns immediately, and the simulation
+    runs forward under the control of the Tcl event loop.  Blocking
+    mode is intended for using during testing, and while advancing
+    time under the control of an executive script.<p>
+    <</parm>>
+
+    <</parmlist>>
+}
+
 order SIM:STARTDATE "Set Start Date" {
     <b><<term prep>> Only.</b>  Athena generally reports
     simulation time as a number of integer weeks and as a 
@@ -42,43 +86,10 @@ order SIM:STARTDATE "Set Start Date" {
     <</parmlist>>
 }
 
-
-order SIM:RUN "Run Simulation" {
-    <<parmlist>>
-    <<parm weeks "Weeks to Run">>
-    <b>Optional.</b>  An integer number of weeks.  If 0, or not
-    specified, the simulation will run until explicitly paused by the
-    user.  If greater than 0, the simulation will run for the
-    specified number of weeks, and then halt.
-    <</parm>>
-
-    <<parm block "Block?">>
-    <b>Optional.</b>  A boolean flag.  If true, the order will
-    block--that is, the simulation will run for the specified number
-    of weeks and then the order handler will return.  If false (the
-    default) the order handler returns immediately, and the simulation
-    runs forward under the control of the Tcl event loop.<p>
-    <</parm>>
-
-    <</parmlist>>
-
-    Advances simulation time.  This order is usually triggered by the
-    "play" button in the GUI.<p>
-
-    If the simulation is in the <<term prep>> state, the order
-    does a sanity check on the scenario; time will not be allowed to
-    advance if the scenario is incomplete.
+order SIM:UNLOCK "Unlock Scenario Preparation" {
+    <b><<term paused>> only.</b> Unlocks the scenario, returning to the
+    <<term prep>> state and allowing the user
+    to edit actors, groups, neighborhoods, and other starting conditions
+    once again.  If time has been advanced, the related history is thrown
+    away.
 }
-
-
-order SIM:PAUSE "Pause Simulation" {
-    Pauses the simulation at the next possible moment: immediately if
-    the simulation is waiting in the Tcl event loop between 
-    <<term tick>>s, and at the end of the current tick if it's in the 
-    middle of a tick.<p>
-
-    This order is usually triggered by the "pause" button in the GUI.
-}
-
-
-
