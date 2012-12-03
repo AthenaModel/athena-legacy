@@ -283,7 +283,7 @@ order define TACTIC:BROADCAST:CREATE {
         enum a -listcmd {ptype a+self+none names} -defvalue SELF
 
         rcc "Message ID:" -for iom
-        enum iom -listcmd {iom normal names}
+        enumlong iom -showkeys yes -dictcmd {iom normal namedict}
 
         rcc "Prep. Cost:"
         text x1
@@ -341,7 +341,7 @@ order define TACTIC:BROADCAST:UPDATE {
         enum a -listcmd {ptype a+self+none names}
 
         rcc "Message ID:" -for iom
-        enum iom -listcmd {iom normal names}
+        enumlong iom -showkeys yes -dictcmd {iom normal namedict}
 
         rcc "Prep. Cost:"
         text x1

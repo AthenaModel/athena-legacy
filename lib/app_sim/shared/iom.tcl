@@ -119,6 +119,16 @@ snit::type iom {
         }]
     }
 
+    # normal namedict
+    #
+    # Returns the list of IOM ID/long name pairs with state=normal
+
+    typemethod {normal namedict} {} {
+        return [rdb eval {
+            SELECT iom_id, longname FROM ioms WHERE state='normal'
+            ORDER BY iom_id
+        }]
+    }
     # normal longnames
     #
     # Returns the list of IOM long names with state=normal

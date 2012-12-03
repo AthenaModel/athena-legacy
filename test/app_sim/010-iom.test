@@ -414,6 +414,27 @@ state     disabled
 
 
     #-------------------------------------------------------------------
+    # normal namedict
+
+    test normal_namedict-1.1 {Returns normal namedict: none defined} -body {
+        setup
+        iom normal namedict
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test normal_namedict-1.2 {Returns normal namedict} -setup {
+        setup
+        iom mutate create $m1
+        iom mutate create $m2
+        iom mutate state M2 disabled
+    } -body {
+        iom normal namedict
+    } -cleanup {
+        cleanup
+    } -result {M1 {IOM One}}
+
+    #-------------------------------------------------------------------
     # normal longnames
 
     test normal_longnames-1.1 {Returns names: none defined} -body {
