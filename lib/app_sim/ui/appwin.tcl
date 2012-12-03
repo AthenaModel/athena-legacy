@@ -1151,11 +1151,11 @@ snit::widget appwin {
 
     method ToggleCLI {} {
         if {$visibility(cli)} {
-            if {![winfo ismapped $cli]} {
+            if {$cli ni [$win.paner panes]} {
                 $win.paner add $cli
             }
         } else {
-            if {[winfo ismapped $cli]} {
+            if {$cli in [$win.paner panes]} {
                 $win.paner forget $cli
             }
         }
