@@ -340,7 +340,7 @@ snit::widget cgesheet {
             -colorigin     0                          \
             -cellmodel     $cge                       \
             -state         disabled                   \
-            -rows          5                          \
+            -rows          6                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -356,6 +356,7 @@ snit::widget cgesheet {
             "Labor Force"
             "Labor Sec. Factor"
             "FAR Graft Factor"
+            "Remittances"
         }
 
         $inputs textcol 0,2 {
@@ -364,6 +365,7 @@ snit::widget cgesheet {
             "People"
             ""
             ""
+            "$/year"
         } units -anchor w -relief flat
         
         # NEXT, add data
@@ -371,7 +373,8 @@ snit::widget cgesheet {
         $inputs mapcell 1,1 In::CSF       q
         $inputs mapcell 2,1 In::LF        q
         $inputs mapcell 3,1 In::LSF       q
-        $inputs mapcell 4,1 In::graft     q -formatcmd {format "%.3f"}
+        $inputs mapcell 4,1 graft         q -formatcmd {format "%.3f"}
+        $inputs mapcell 5,1 In::REM       q 
 
         # NEXT, expand widths
         $inputs width 0 21

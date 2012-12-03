@@ -719,7 +719,7 @@ snit::type econ {
 
         #-------------------------------------------------------------
         # graft, the percentage skimmed off FAR by all actors
-        $cge set [list Bgraft $samdata(graft)]
+        $cge set [list graft $samdata(graft)]
 
         #-------------------------------------------------------------
         # remittances to the populace
@@ -840,6 +840,16 @@ snit::type econ {
             # NEXT, subsistence wage, the poverty level
             cge set [list In::SubWage $samdata(BaseSubWage)]
 
+            # NEXT, foreign aid to the region
+            cge set [list In::FAR $samdata(FAR)]
+
+            # NEXT, remittances
+            cge set [list In::REM $samdata(BREM)]
+
+            # NEXT, number engaged in subsistence agriculture
+            let subsisters {$demdata(population) - $demdata(consumers)}
+            cge set [list In::Subsisters $subsisters]
+
             # NEXT, actors expenditures. Multiplication by 52 because the
             # CGE has money flows in years.
             array set exp [cash expenditures]
@@ -870,12 +880,6 @@ snit::type econ {
                         AF.world.black $samdata(AF.world.black) \
                         MF.world.black $samdata(MF.world.black) \
                         PF.world.black $samdata(PF.world.black)]
-
-            # NEXT, exports
-            cge set [list \
-                        In::EXPORTS.goods $samdata(EXPORTS.goods) \
-                        In::EXPORTS.black $samdata(EXPORTS.black) \
-                        In::EXPORTS.pop   $samdata(EXPORTS.pop)]
 
             # NOTE: if income from graft is ever allowed to change
             # over time, then In::graft should be computed and set
@@ -1324,7 +1328,7 @@ snit::type econ {
             # NEXT, update the cell model, solve it and notify that the 
             # cell has been updated
             cge set [list $id $val]
-            cge solve
+            cge solve In Out
 
             notifier send ::econ <CgeUpdate>
 

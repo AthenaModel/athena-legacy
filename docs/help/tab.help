@@ -2627,10 +2627,12 @@ tab "Econ/Overview" {
     Security Factor (or CSF) is the fraction of the consumers that are 
     willing to go out and buy things and the Labor Security Factor, 
     or LSF, determines how many of the workers are actually willing 
-    to go to work under current conditions. Lastly, the graft factor as
+    to go to work under current conditions. The graft factor as
     computed by how much money the actors are receiving from skimming off
-    foreign aid to the region. Increasing the amount of income from graft
-    in the actor definitions will increase this factor.<p>
+    foreign aid to the region appears next. Increasing the amount of 
+    income from graft in the actor definitions will increase this factor.
+    Lastly, the amount of remittances as specified in the 
+    <<cref /tab/econ/sam>> appears.<p>
 
     The most salient outputs consist of the Gross Domestic Product (GDP),
     the Consumer Price Index (CPI), the Deflated GDP, the per capita 

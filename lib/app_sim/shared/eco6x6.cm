@@ -425,7 +425,7 @@ let BFAR          = 10e6      ;# $/year  Foreign aid that goes directly to
                               ;#   (but not to the populace)
 # If FAR is not input, it is equal to BX.region.world
 
-let Bgraft        = 0.3       ;# fraction of FAR that goes to the actors
+let graft         = 0.3       ;# fraction of FAR that goes to the actors
 let BFAA          = 10e6      ;# $/year  Foreign aid that goes directly to
                               ;# actors.
 # If FAA is not input, it is equal to BX.actors.world
@@ -825,8 +825,8 @@ let QD.pop.world   = {[BEXPORTS.pop]}
 let X.black.world  = {[P.black] * [QD.black.world]}
 let X.goods.world  = {[P.goods] * [QD.goods.world]}
 let X.pop.world    = {[P.pop]   * [QD.pop.world]   + [BREM]}
-let X.actors.world = {[BFAA] + [BFAR] * [Bgraft]}
-let X.region.world = {[BFAR] * (1.0 - [Bgraft])}
+let X.actors.world = {[BFAA] + [BFAR] * [graft]}
+let X.region.world = {[BFAR] * (1.0 - [graft])}
 let X.world.world   = 0
 
 let EXP.world  = [EXP.j world] -value 3.99e8
@@ -932,19 +932,11 @@ let SA = {[Subsisters]*[SubWage]} -value 1e7  ;# $/year
 # Total population, the sum of consumers and subsisters
 let Population = {[Consumers]+[Subsisters]}
 
-# Exports
-# If exports are specified in $/year instead of (product units)/year,
-# the quantities = the $/year amounts divided by the prices.
-let EXPORTS.black = 47.6e3    ;# tons/year
-let EXPORTS.goods = 100e6     ;# GoodsBKT/year
-let EXPORTS.pop   = 50e3      ;# work-years/year
-
 # Using a number small enough to matter in the medium and short run
 # pages
 let CAP.black = 40000
 
-# Remittances, foreign aid, NGO aid (Government transfers are now
-# explicit) directly to pop
+# Remittances
 let REM = 50e6            ;# $/year
 
 # Foreign aid
@@ -952,10 +944,6 @@ let FAR = 10e6            ;# $/year
 
 # Per capita demand for goods ;# goodsBKT/year
 let A.goods.pop = 114
-
-# Fraction of foreign aid to region that winds up in the pockets of 
-# the actors
-let graft = 0.3
 
 # Max capacity for each sector.  These are set by Athena; the initial
 # values are intended to be effectively infinite.
@@ -1017,6 +1005,10 @@ copypage Cal -except {
 let A.goods.pop = {
     [X.goods.pop] / ([P.goods] * [In::Consumers])
 }
+
+# Remittances may have changed
+let X.pop.world = {[P.pop] * [QD.pop.world] + [In::REM]}
+let REV.pop     = {[P.pop] * [QS.pop] + [In::REM]} 
 
 # QD.goods.pop is now computed from the current number of consumers, not
 # from the base number of consumers.
@@ -1114,6 +1106,9 @@ let A.goods.pop = {[L::A.goods.pop]}
 
 # The amount of the labor force afraid to work, Labor Force Unsecure
 let LFU = {[In::CAP.pop] * (1.0 - [In::LSF])}
+
+# This is needed by the actor definitions in Athena
+let FAR = {[In::FAR]}
 
 # Default QD for actors, region and world to 0.0
 foreach i {actors region world} {
