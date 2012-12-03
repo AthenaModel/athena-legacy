@@ -127,24 +127,6 @@ menuitem "File/Parameters/Export..." {
     This menu item is equivalent to the <<command parm export>> command.
 }
 
-menuitem "File/Parameters/Save as Default..." {
-    Saves the scenario's current <<cref /parmdb "model parameter">>
-    settings as the user's default settings for new scenarios.<p>
-
-    This menu item is equivalent to the <<command parm defaults save>>
-    command.
-}
-
-menuitem "File/Parameters/Clear Defaults..." {
-    Clears the user's default <<cref /parmdb "model parameter">>
-    settings; new scenarios will be created using the installation
-    defaults instead.  <b>Note:</b> Using this menu item will have no
-    effect on the current scenario.<p>
-
-    This menu item is equivalent to the <<command parm defaults clear>>
-    command.
-}
-
 menuitem "File/Exit" {
     Exits the application, first prompting the user to save any
     unsaved changes.<p>

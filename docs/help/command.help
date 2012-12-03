@@ -379,40 +379,6 @@ command "parm" {
 
 #-----------------------------------------------------------------------
 
-command "parm defaults" {
-    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
-    
-    This command allows the user to manage his own customized set of
-    default <<cref /parmdb "model parameters">>, and share them among 
-    different Athena scenarios.  Saved defaults are used for all new
-    scenarios; also, a scenario's parameter settings can be reset to
-    the user's default using the <<command parm reset>> command.
-    It has the following subcommands:<p>
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-
-command "parm defaults clear" {
-    <<syntax>>
-    
-    This command deletes the user's own default settings for the 
-    Athena <<cref /parmdb "model parameters">>.  New scenarios will
-    then use the installation defaults rather than the user's.<p>
-}
-
-#-----------------------------------------------------------------------
-
-command "parm defaults save" {
-    <<syntax>>
-    
-    This command saves the current <<cref /parmdb "model parameter">> 
-    settings as the user's defaults for new scenarios.
-}
-
-#-----------------------------------------------------------------------
-
 command "parm export" {
     <<syntax <i>filename</i> >>
     
@@ -489,9 +455,7 @@ command "parm reset" {
     <<syntax>>
     
     Resets all <<cref /parmdb "model parameters">> to their default
-    values.  If the user has saved their own default settings using
-    the <<command parm defaults>> command, these will be used;
-    otherwise the installation defaults will be used.<p>
+    values.<p>
 
     Note that some parameters are 
     <<cref /parmdb/locked "locked">> once time advances past the

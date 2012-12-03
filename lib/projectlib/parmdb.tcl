@@ -65,12 +65,6 @@ snit::type ::projectlib::parmdb {
     typecomponent ps ;# The parmset(n) object
 
     #-------------------------------------------------------------------
-    # Type Variables
-
-    # Name of the defaults file; set by init
-    typevariable defaultsFile
-
-    #-------------------------------------------------------------------
     # Public typemethods
 
     delegate typemethod * to ps
@@ -85,10 +79,7 @@ snit::type ::projectlib::parmdb {
             return
         }
 
-        # FIRST, set the defaults file name
-        set defaultsFile [file join ~ .athena defaults.parmdb]
-
-        # NEXT, create the parmset.
+        # FIRST, create the parmset.
         set ps [parmset %AUTO%]
 
         # NEXT, create an "in-memory" scenariodb, for concerns
@@ -1888,42 +1879,6 @@ snit::type ::projectlib::parmdb {
 
         # NEXT, destroy tempdb
         $tempdb destroy
-    }
-
-    # defaults save
-    #
-    # Saves the current parameters as the default for future
-    # scenarios, by saving ~/.athena/defaults.parmdb.
-
-    typemethod {defaults save} {} {
-        $ps save $defaultsFile
-        return
-    }
-
-    # defaults clear
-    #
-    # Clears the saved defaults by deleting ~/.athena/defaults.parmdb.
-
-    typemethod {defaults clear} {} {
-        if {[file exists $defaultsFile]} {
-            file delete $defaultsFile
-        }
-        return "New scenarios will be created with installation defaults."
-    }
-
-    # defaults load
-    #
-    # Loads the parameters from the defaults file, if any.  Otherwise,
-    # the parameters are reset to the normal defaults.
-
-    typemethod {defaults load} {} {
-        if {[file exists $defaultsFile]} {
-            $ps load $defaultsFile -safe
-        } else {
-            $ps reset
-        }
-
-        return
     }
 }
 

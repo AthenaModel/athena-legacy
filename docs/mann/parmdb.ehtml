@@ -36,29 +36,6 @@ subcommands; in addition, it adds the following.<p>
 
 <<deflist commands>>
 
-<<defitem "parmdb defaults" {parmdb defaults <i>subcommand</i>}>>
-
-This family of commands is used to manage the user's default
-parameters file.<p>
-
-<<deflist defaults>>
-
-<<defitem "parmdb defaults clear" {parmdb defaults clear}>>
-
-Deletes the user's default parameters file; new scenarios will use the
-programmatic defaults.<p>
-
-<<defitem "parmdb defaults load" {parmdb defaults load}>>
-
-Loads the user's default parameters file, replacing the previous values.<p>
-
-<<defitem "parmdb defaults save" {parmdb defaults save}>>
-
-Saves the current set of parameters to the user's default parameters
-file.  New scenarios will begin with this set of parameters.<p>
-
-<</deflist defaults>>
-
 <<defitem "parmdb init" {parmdb init}>>
 
 Initializes the module.  This should be called once, at application

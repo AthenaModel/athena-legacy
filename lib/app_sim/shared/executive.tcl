@@ -257,17 +257,6 @@ snit::type executive {
         # parm
         $interp ensemble parm
 
-        # parm defaults
-        $interp ensemble {parm defaults}
-
-        # parm defaults clear
-        $interp smartalias {parm defaults clear} 0 0 {} \
-            [list ::parm defaults clear]
-
-        # parm defaults save
-        $interp smartalias {parm defaults save} 0 0 {} \
-            [list ::parm defaults save]
-
         # parm export
         $interp smartalias {parm export} 1 1 {filename} \
             [list ::parm save]

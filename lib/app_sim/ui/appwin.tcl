@@ -640,16 +640,6 @@ snit::widget appwin {
             -underline 0                               \
             -command   [mymethod FileParametersExport]
         
-        $submenu add command \
-            -label     "Save as Default..."                   \
-            -underline 0                                      \
-            -command   [mymethod FileParametersSaveAsDefault]
-        
-        $submenu add command \
-            -label     "Clear Defaults..."                    \
-            -underline 0                                      \
-            -command   [mymethod FileParametersClearDefaults]
-
         $mnu add separator
 
         $mnu add command                          \
@@ -1830,60 +1820,6 @@ snit::widget appwin {
         # NEXT, Save the scenario using this name
         return [parm save $filename]
     }
-
-
-    # FileParametersSaveAsDefault
-    #
-    # Saves the current model parameters to a default parameter file.
-
-    method FileParametersSaveAsDefault {} {
-        set message [normalize {
-            Save the current model parameter settings as the
-            default for new scenarios?
-        }]
-
-        set answer [messagebox popup                \
-                        -icon    question           \
-                        -message $message           \
-                        -parent  $win               \
-                        -title   "Athena [version]" \
-                        -buttons {
-                            ok      "Save"
-                            cancel  "Cancel"
-                        }]
-
-        if {$answer eq "ok"} {
-            parm defaults save
-        }
-    }
-
-    # FileParametersClearDefaults
-    #
-    # Deletes any default parameter file.
-
-    method FileParametersClearDefaults {} {
-        set message [normalize {
-            Clear the default model parameter settings for new
-            scenarios to their original values?  (This will
-            have no effect on the current scenario.)
-        }]
-
-        set answer [messagebox popup                \
-                        -icon    question           \
-                        -message $message           \
-                        -parent  $win               \
-                        -title   "Athena [version]" \
-                        -buttons {
-                            ok      "Clear"
-                            cancel  "Cancel"
-                        }]
-
-        if {$answer eq "ok"} {
-            parm defaults clear
-        }
-    }
-
-
 
     # FileExit
     #

@@ -217,8 +217,7 @@ snit::type app {
             -usedtable    entities               \
             -logcmd       ::log                  \
             -ordercmd     [myproc AddOrderToCIF]
-        scenario  init \
-            -ignoredefaultparms $opts(-ignoreuser)
+        scenario  init
         firings   init
         nbhood    init
         sim       init

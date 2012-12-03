@@ -70,41 +70,23 @@ snit::type scenario {
     #
     # dbfile              Name of the current scenario file
     # saveable            List of saveables.
-    # ignoreDefaultParms  If yes, won't load defaults.parmdb when 
-    #                     creating a new scenario.
 
     typevariable info -array {
         dbfile             ""
         saveables          {}
-        ignoreDefaultParms no
     }
 
     #-------------------------------------------------------------------
     # Singleton Initializer
 
-    # init ?-ignoredefaultparms flag?
+    # init 
     #
     # Initializes the scenario RDB.
 
-    typemethod init {args} {
+    typemethod init {} {
         log normal scenario "init"
 
-        # FIRST, process options
-        while {[llength $args] > 0} {
-            set opt [lshift args]
-
-            switch -exact -- $opt {
-                -ignoredefaultparms { 
-                    set info(ignoreDefaultParms) [lshift args]
-                }
-
-                default { 
-                    error "Unknown option \"$opt\""  
-                }
-            }
-        }
-
-        # NEXT, create a clean working RDB.
+        # FIRST, create a clean working RDB.
         scenariodb ::rdb \
             -clock      ::simclock \
             -explaincmd [mytypemethod ExplainCmd]
@@ -610,14 +592,9 @@ snit::type scenario {
             q         0.0
         }
 
-        # NEXT, if there's a default parameter file, load it; and
-        # mark the parameters saved.
-
-        if {$info(ignoreDefaultParms)} {
-            parm reset
-        } else {
-            parm defaults load
-        }
+        # NEXT, Reset the model parameters to their defaults, and
+        # mark them saved.
+        parm reset
 
         parm checkpoint -saved
 

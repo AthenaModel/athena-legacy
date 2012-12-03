@@ -187,8 +187,8 @@ snit::type parm {
 
         $ps unlock *
 
-        # NEXT, try to load the defaults
-        $type defaults load
+        # NEXT, reset values to defaults.
+        $type reset
 
         # NEXT, put the locked parameters back
         set unreset [list]
