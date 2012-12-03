@@ -1192,11 +1192,6 @@ snit::type ::projectlib::parmdb {
             state of the economy.
         }
 
-        $ps define econ.graft ::simlib::rfraction 0.3 {
-            The fraction of Foreign Aid to the region (FAR) that goes
-            to the actors.
-        }
-
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as
             a decimal fraction of the total production capacity.  This 
