@@ -164,6 +164,11 @@ snit::type econ {
                 "There must be expenditures in the pop sector."
         }
 
+        if {$cells(BX.pop.goods) == 0.0} {
+            dict append edict BX.pop.goods \
+                "There must be a money flow from the goods sector to the pop sector."
+        }
+
         # NEXT, Cobb-Douglas coefficients in the goods sector must add up 
         # to 1.0 within a reasonable epsilon and cannot be greater than 1.0. 
         # The black sector is assumed to never have money flow into it from
