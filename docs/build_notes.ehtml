@@ -11,6 +11,30 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.21, 4 December 2012</h3>
+
+This build contains mainly bug fixes, most of which are to the Econ model.
+There is also a handful of minor functional enhacements and some fairly 
+substantial documentation updates to both the User's Guide and Analyst's Guide. 
+
+<ul>
+  <li> Bug 3451: rules document typo ENI vertical relationship effects
+  <li> Bug 3734: Zeroing out any sector (except black) causes bgerror
+  <li> Bug 3760: athena_sim(1): actors revenue and expenses are not scaled to a year
+  <li> Bug 3769: Update AUG with section on economic model
+  <li> Bug 3776: athena_sim(1): remove econ.graft from econ model
+  <li> Bug 3778: athena_sim(1): remittances need to appear on the Econ > Overview tab
+  <li> Bug 3780: athena_sim(1): tablelist patch no longer needed
+  <li> Bug 3782: athena(1): update the AAG with econ model stuff
+  <li> Bug 3783: athena_sim(1): some labels on SAM and Overview tabs are wrong
+  <li> Bug 3784: athena_sim(1): CGE cellmodel should have remittances subject to taxation when computing after tax income
+  <li> Bug 3785: athena_sim(1): remittances on the In page of the CGE cell model should not reference base remittances
+  <li> Bug 3728: SIM:RUN help page
+  <li> Bug 3737: athena_sim(1): bgerror when CLI pane is fully minimized and scenario locked
+  <li> Bug 3758: athena_sim(1): saving parameters as new defaults causes bgerror
+  <li> Bug 3766: Message ID pulldown should show "ID: title" 
+</ul>
+
 <h3>Build 4.0.20, 31 October 2012</h3>
 
 This build contains a major fix to the computation of GDP by the 
