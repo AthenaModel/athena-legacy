@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version t
+#    eco6x6.cm, version u
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,13 @@
 #    Out pages.
 #
 # HISTORY:
+#    Version u: Made the variable REM on the In page independent of BREM,
+# the base remittances on the null page. Had to add the equations that use
+# remittances to the L page so that they would be recomputed whenever 
+# the remittances change. Removed EXPORTS.i for i=g,b,p from the In page
+# since they do not change, yet. If they do they'll have to be put back.
+# Renamed Bgraft to just graft, it doesn't change after calibration.
+#
 #    Version t: Changed the equation for after tax income in the pop
 # sector (ATI.pop) to make remittances subject to tax-like payments:
 #    
