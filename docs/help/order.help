@@ -103,22 +103,25 @@ include order_attrit.help
 include order_bookmark.help
 include order_bsystem.help
 include order_cap.help
+include order_group.help      ;# Macros for *GROUP:* orders.
+include order_civgroup.help
 include order_condition.help
 include order_coop.help
 include order_econ.help
 include order_ensit.help
+include order_frcgroup.help
 include order_goal.help
-include order_group.help
 include order_hrel.help
-include order_hook.help
 include order_iom.help
 include order_mad.help
 include order_map.help
+include order_parm.help       ;# Sort as "Model Parameter"
 include order_nbhood.help
 include order_nbrel.help
-include order_parm.help
+include order_orggroup.help
 include order_payload.help
 include order_sat.help
+include order_hook.help       ;# Sort as "Semantic Hook"
 include order_sim.help
 include order_tactic.help
 include order_unit.help
