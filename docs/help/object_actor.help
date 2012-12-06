@@ -85,7 +85,7 @@ object actor_ {
         of the scenario; this reflects carry-over from the previous
         week, and possibly funds received from other actors prior to
         the start of the simulation.<p>
-    } -tags {create_opt browser}
+    } -tags {create_opt update browser}
 
     attribute overhead "Overhead, % of income" {
         An actor spends his income on tactics; however, actors also have
