@@ -611,6 +611,7 @@ snit::type scenario {
         # FIRST, define SQL functions
         # TBD: qsecurity should be added to scenariodb(n).
         # TBD: moneyfmt should be added to sqldocument(n).
+        rdb function locked               [myproc Locked]
         rdb function m2ref                [myproc M2Ref]
         rdb function qsecurity            ::projectlib::qsecurity
         rdb function moneyfmt             ::marsutil::moneyfmt
@@ -669,6 +670,14 @@ snit::type scenario {
 
     #-------------------------------------------------------------------
     # SQL Functions
+
+    # Locked
+    #
+    # Returns 1 if the scenario is locked, and 0 otherwise.
+
+    proc Locked {} {
+        expr {[sim state] ne "PREP"}
+    }
 
     # M2Ref args
     #

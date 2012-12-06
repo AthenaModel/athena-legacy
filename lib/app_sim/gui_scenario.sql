@@ -64,9 +64,12 @@ SELECT N.n                                                    AS id,
        N.longname                                             AS longname,
        CASE N.local WHEN 1 THEN 'YES' ELSE 'NO' END           AS local,
        N.urbanization                                         AS urbanization,
-       COALESCE(C.controller,N.controller, 'NONE')            AS controller,
+       CASE WHEN locked()
+        THEN COALESCE(C.controller, 'NONE')
+        ELSE COALESCE(N.controller, 'NONE')
+       END                                                    AS controller,
        COALESCE(C.since, 0)                                   AS since_ticks,
-       timestr(COALESCE(C.since, 0))                           AS since,
+       timestr(COALESCE(C.since, 0))                          AS since,
        format('%4.1f',N.vtygain)                              AS vtygain,
        N.stacking_order                                       AS stacking_order,
        N.obscured_by                                          AS obscured_by,
