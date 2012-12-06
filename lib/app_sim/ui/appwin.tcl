@@ -1860,7 +1860,8 @@ snit::widget appwin {
                             -icon    warning             \
                             -message $message            \
                             -parent  $win                \
-                            -title   "Athena [version]" \
+                            -title   "Athena [version]"  \
+                            -onclose cancel              \
                             -buttons {
                                 save    "Save"
                                 discard "Discard"
@@ -1963,6 +1964,7 @@ snit::widget appwin {
                             -icon      peabody               \
                             -title     "Are you sure?"       \
                             -ignoretag "sim_snapshot_enter"  \
+                            -onclose   cancel                \
                             -buttons   {
                                 ok      "Change the Future"
                                 cancel  "Look, But Don't Touch"
@@ -2017,6 +2019,7 @@ snit::widget appwin {
                         -default       cancel                \
                         -ignoretag     "sim_unlock"          \
                         -ignoredefault ok                    \
+                        -onclose       cancel                \
                         -buttons       {
                             ok      "Return to Prep"
                             cancel  "Cancel"
