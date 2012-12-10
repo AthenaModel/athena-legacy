@@ -1,0 +1,176 @@
+<html>
+<head>
+<title>Mars <<version>> Simulation Infrastructure Library</title>
+</head>
+
+<body bgcolor="#F5F5F5" alink="Blue" link="Blue">
+<h1 style="background: red;">&nbsp;Mars <<version>>: Simulation Infrastructure
+Library</h1>
+
+<h2>Build Notes</h2>
+
+<h3>Build 2.12, 31 October 2012</h3>
+
+This build removes the obsolete module timeline(n), and the related
+dependency on the Plotchart package.<p>
+
+<h3>Build 2.11, 29 October 2012</h3>
+
+This build contains changes required to move Athena from using
+Zulu-time strings to Julian week strings as its human-readable time
+format.  In addition, the underlying Tcl infrastructure was updated to
+the 2012Q3 build of ActiveTcl Enterprise Edition, and code was added
+to make it possible to use geo-registered maps in Athena.<p>
+
+<ul>
+<li> Bug 3729: geotiff(n): geotiff reader for Mars
+<li> Bug 3731: geotiff(n): geotiff reader should give proper error message if file is not found
+<li> Bug 3735: geotiff(n): read GEOGRAPHIC model type from GeoTIFF file.
+<li> Bug 3743: simclock(i) interface
+<li> Bug 3753: Remove gram2(n) and related software
+<li> Bug 3754: Set MARS_TCL_HOME in MakePlatform
+</ul><p>
+
+<h3>Build 2.10, 3 October 2012</h3>
+
+This build contains performance improvements to URAM and to Mars'
+SQLite3 infrastructure.<p>
+
+<ul>
+<li> Bug 3723: uram(n): Optimizations
+<li> Bug 3726: sqlib(n): grab/ungrab
+</ul><p>
+
+
+<h3>Build 2.9, 26 September 2012</h3>
+
+This build contains a performance optimization to the marsutil(n)
+report handling code, and an enhancement to sqldocument(n) to aid
+performance optimization of SQL queries.  The full set of packages is
+as follows:<p>
+
+<ul>
+<li> Bug 3710: sqldocument(n): explain, -explaincmd
+<li> Bug 3713: reporter(n)/reportbrowser(n) optimization
+</ul><p>
+
+<h3>Build 2.8, 24 September 2012</h3>
+
+This build contains minor fixes to dynabox(n) and cellmodel(n).<p>
+
+<ul>
+<li> Bug 3689: dynabox(n): Error flags not cleared when all fields contain valid data.
+<li> Bug 3703: cellmodel(n): pageinfo cyclic and pageinfo order fail if model is not sane.
+</ul><p>
+
+<h3>Build 2.7, 11 September 2012</h3>
+
+The build contains some minor bug fixes and some cellmodel(n) changes
+in support of the new athena_cell(1) tool.<p>
+
+<ul>
+<li> Bug 3649: mars_cmtool(1): Error when called with no arguments
+<li> Bug 3653: isearch(n): Ctrl-S for searching conflicts with Ctrl-S for saving documents
+<li> Bug 3654: cellmodel(n): Improved reporting of syntax errors in cellmodel(5) input
+<li> Bug 3657: cellmodel(n): Instrument cellmodel(5) commands with line numbers
+<li> Bug 3661: order(n): prepare -num
+<li> Bug 3663: moneyscan: leading zeroes treated as octal
+<li> Bug 3670: cellmodel(n): [cellinfo uses] can miss some cells
+<li> Bug 3675: dynaform(n): contextkey field type.
+</ul><p>
+
+
+<h3>Build 2.6, 21 August 2012</h3>
+
+This build contains two changes to the cellmodel(5) tools in support
+of debugging Athena's 6x6 CGE.<p>
+
+<ul>
+    <li> Bug 3637: cellmodel(n): add a -failcmd option that calls back to users with some information about a failure
+    <li> Bug 3638: mars_cmtool(1): add -initfrom option to allow cell models to be initialized from outside data
+</ul><p>
+
+<h3>Build 2.5, 13 August 2012</h3>
+
+This build contains bug fixes and some improvements to marsgui(n)'s
+ability to display  monetary spreadsheet data.<p>
+
+<ul>
+    <li> Bug 3616: htmlviewer(n): "submit" elements have visible border
+    <li> Bug 3620: dynabox(n): Dynaform-based modal dialog
+    <li> Bug 3621: marsmisc(n): commafmt command should use wide() not int()
+    <li> Bug 3623: marsmisc(n): add option to commafmt command to specify decimal places
+    <li> Bug 3624: cmsheet(n): add -browsecommand option
+</ul><p>
+
+<h3>Build 2.4, 2 August 2012</h3>
+
+This build contains two additions to marsutil(n)'s order(n) module's
+[prepare] command, the -oneof and -someof options.  These allow 
+[prepare] to validate that a particular parameter's value is within
+a set of values, or is a subset of a set of values, where the set of
+values is specified as a list rather than as the name of a validation
+type.<p>
+
+<ul>
+    <li> Bug 3607: order(n): prepare -oneof, -someof
+</ul><p>
+
+
+<h3>Build 2.3, 25 July 2012</h3>
+
+This build integrates the dynaform(n)/dynaview(n) data entry form
+infrastructure into Mars and specifically into
+order(n)/orderdialog(n).  In addition, order(n)/orderdialog(n) are no
+longer integrated with the eventq(n) mechanism; orders can no longer
+be scheduled in advance.  (We've learned that that's the wrong
+abstraction; orders are about user input right now.  Scheduling
+applies to other entities.)<p>
+
+In addition, there are significant updates to the cmsheet(n) module,
+allowing much improved user input via a cmsheet(n).<p>
+
+The complete set of changes is as follows:<p>
+
+<ul>
+    <li> Bug 3591: dynaform(n)/dynaview(n)
+    <li> Bug 3594: dynaform(n)/order(n): Improved validation of selector cases
+    <li> Bug 3595: cmsheet(n): change behavior and add -changecmd option
+    <li> Bug 3598: dynaform(n) test suite
+</ul><p>
+
+
+<h3>Build 2.2, 2 July 2012</h3>
+
+This build is in support of the Athena 4.0.8 Engineering Release to
+TRISA. It contains the following minor change:<p>
+
+<ul>
+<li> Bug 3580: htmlviewer(n): INPUT elements should have border: 1px.
+</ul>
+
+<h3>Build 2.1, 25 June 2012</h3>
+
+This build contains the following changes:<p>
+
+<ul>
+    <li> Bug 3557: sqlbrowser(n): disable column-label sorting
+    <li> Bug 3565: Remove TkHTML 2.0 and related software
+    <li> Bug 3566: Move htmllviewer3(n) from projectgui(n) to marsgui(n) as htmlviewer(n).
+    <li> Bug 3569: Update CM plan to Mars 2.0
+</ul><p>
+
+<h3>Build 2.0, 21 June 2012</h3>
+
+Build 2.0 is the first Mars 2.x build; Mars has been split, with Mars
+1.x continuing to support JNEM maintenance and Mars 2.x supporting
+Athena 4.0.x development.  This will allow the TkHTML 2.0 widget
+currently used in Mars to be replaced by the TkHTML 3.0 widget now
+used in Athena.<p>
+
+Build 2.0 contains no changes except for those required to identify it
+as Mars 2.x.  In terms of the Mars code, it is identical to Mars
+1.70.<p>
+
+</body>
+</html>

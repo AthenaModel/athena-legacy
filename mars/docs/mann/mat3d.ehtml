@@ -1,0 +1,143 @@
+<<manpage {marsutil(n) mat3d(n)} "3-D Matrix Operations">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require util 0.1
+namespace import ::marsutil::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+mat3d(n) defines a number of operations on three-dimensional matrices.
+A 3-D matrix is a list of "sheets", each of which is a normal
+2-dimensional matrix (see <<xref mat(n)>>).
+Thus, the following code defines an initialized 3-D matrix of
+2 sheets, 3 rows and 3 columns:
+
+<pre>
+set mat3d {
+    {{1 2 3}
+     {4 5 6}
+     {7 8 9}}
+    
+    {{9 8 7}
+     {6 5 4}
+     {3 2 1}}
+}
+</pre>
+
+3-D matrices can be entered explicitly, as shown; alternatively, the
+<<iref mat3d new>> command can create a matrix of arbitrary size.
+The elements of a 3-D matrix can be of any type.<p>
+
+The elements of a 3-D matrix are accessed using the standard Tcl commands
+<code>lindex</code> and <code>lset</code>:<p>
+
+<pre>
+# Print element i,j,k
+puts [lindex $mat $i $j $k]
+
+# Set element i,j,k to 7
+lset mat $i $j $k 7
+</pre>
+
+Note that Tcl lists are represented internally as extensible arrays;
+consequently, access to matrix elements is reasonably quick.<p>
+
+<<section COMMANDS>>
+
+<<deflist>>
+
+<<defitem "mat3d new" {mat3d new <i>s m n ?initval?</i>}>>
+
+Returns a new matrix of <i>s</i> sheets by <i>m</i> rows by
+<i>n</i> columns.  If
+<i>initval</i> is given, all elements will be set to it; otherwise all
+elements will contain the empty string.  For example, the following
+code creates a 2*3*4 matrix of zeroes:<p>
+
+<pre>
+set matrix [mat3d new 2 3 4 0]
+</pre>
+
+<<defitem "mat3d sheets" {mat3d sheets <i>mat</i>}>>
+
+Returns the number of sheets in the matrix.<p>
+
+<<defitem "mat3d rows" {mat3d rows <i>mat</i>}>>
+
+Returns the number of rows in the matrix.<p>
+
+<<defitem "mat3d cols" {mat3d cols <i>mat</i>}>>
+
+Returns the number of columns in the matrix.<p>
+
+<<defitem "mat3d equal" {mat3d equal <i>a b</i>}>>
+
+Returns 1 if the two matrices have the same dimensions and
+corresponding elements are numerically equal, and 0 otherwise.<p>
+
+<<defitem "mat3d add" {mat3d add <i>a b</i>}>>
+
+Returns the element-wise sum of the two matrices <i>a</i> and <i>b</i>.<p>
+
+<<defitem "mat3d sub" {mat3d sub <i>a b</i>}>>
+
+Returns the element-wise difference of the two matrices <i>a</i> and
+<i>b</i>.<p>
+
+<<defitem "mat3d scalarmul" {mat3d scalarmul <i>a k</i>}>>
+
+Returns the product of each element of matrix <i>a</i> with with a
+scalar constant <i>k</i>.<p>
+
+<<defitem "mat3d format" {mat3d format <i>a</i> <i>fmtstring</i>}>>
+
+Returns a copy of 3-D matrix <i>a</i> with each element formatted using
+the standard Tcl <tt>format</tt> command and the given format string.<p>
+
+<<defitem "mat3d pprint" {mat3d pprint <i>a ?slabels? ?rlabels? ?clabels?</i>}>>
+<<defitem "mat3d pprintf" {mat3d pprintf <i>a format ?slabels? ?rlabels? ?clabels?</i>}>>
+<<defitem "mat3d pprintq" {mat3d pprintq <i>a qual ?slabels? ?rlabels? ?clabels?</i>}>>
+
+These are straightforward extensions of the
+<<xref mat(n) "mat pprint">>, <<xref mat(n) "mat pprintf">>,
+<<xref mat(n) "mat pprintq">> commands that print the sheets from
+3-D matrix <i>a</i> sequentially
+with sheet labels.  If specified, <i>slabels</i> is a list of
+<<iref mat3d sheets>> sheet labels, <i>rlabels</i> is a list of
+<<iref mat3d rows>> row labels, and <i>clabels</i> is a list of
+<<iref mat3d cols>> column labels; otherwise, the labels are defaulted.<p>
+
+<</deflist commands>>
+
+<<section "SEE ALSO">>
+
+<<xref mat(n)>>, <<xref vec(n)>>.
+
+<<section ENVIRONMENT>>
+
+mat3d(n) requires Tcl 8.5 or later.
+
+To use mat3d(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the marsutil(n)
+library directory.
+
+<<section AUTHOR>>
+
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

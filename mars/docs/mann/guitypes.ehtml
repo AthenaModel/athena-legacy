@@ -1,0 +1,60 @@
+<<manpage {marsgui(n) guitypes(n)} "GUI Validation Types">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref guitypes(n)>> provides validation types explicitly related to
+Tk GUIs.<p>
+
+<<section TYPES>>
+
+The following types are defined for use in input validation.  Each has
+a <b>validate</b> method which throws error code <b>INVALID</b> if the
+value is not of the desired type.<p>
+
+<<deflist types>>
+
+<<defitem hexcolor {hexcolor validate <i>value</i>}>>
+
+Validates the <i>value</i> as an acceptable Tk color using
+the standard <b>winfo rgb</b> command; then converts and returns
+the value as a 24-bit hexadecimal color specifier of the form
+"<code>#<i>rrggbb</i></code>".<p>
+
+<</deflist types>>
+
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl/Tk 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+

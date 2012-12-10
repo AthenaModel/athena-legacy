@@ -1,0 +1,136 @@
+<<manpage {marsgui(n) pwinman(n)} "Pseudo-window Manager Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require gui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The pwinman(n) widget manages a vertical list of zero or more
+subwindows, similar to a ttk::panedwindow widget.
+Each subwindow is as wide as the pwinman(n) widget, and the user can
+resize the height of each.  In addition, though, each subwindow has a
+special frame, defined by <<xref pwin(n)>>.  The frame contains three
+buttons, which allow the user to move a subwindow up or down in the
+list, or close it, deleting it from the list.<p>
+
+The pwinman(n) window generally has no content when it is first
+created; it's usually up to the user to open and close subwindows
+interactively.  Thus, the window takes on whatever size the
+application gives it; it does not derive its size from its contents.<p>
+
+<<section OPTIONS>>
+
+The widget has the following options.<p>
+
+<<deflist options>>
+
+<<defopt {-height <i>pixels</i>}>>
+
+Specifies the height of the pwinman(n) window.<p>
+
+<<defopt {-width <i>pixels</i>}>>
+
+Specifies the widget of the pwinman(n) window.<p>
+
+<</deflist>>
+
+<<section POSITIONS>>
+
+Most of the instance subcommands of the pwinman(n) widget take a
+subwindow position as an argument.  Subwindow positions may be
+expressed in one of three ways:<p>
+
+<ul>
+  <li> As a numeric index, starting at 0.
+  <li> As the literal string <b>end</b>, denoting the last window or
+       the position after the last window, as appropriate.
+  <li> As a subwindow name, as returned by <<iref add>> or
+       <<iref insert>>.
+</ul>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem pwinman {pwinman <i>pathName</i> ?<i>options...</i>?}>>
+
+Creates a new pwin widget named <i>pathName</i>.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+<<deflist instance>>
+
+<<defitem add {<i>win</i> add}>>
+
+Adds a new <<xref pwin(n)>> at the bottom of the window, and returns
+its name.<p>
+
+<<defitem cget {<i>win</i> cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem configure {<i>win</i> configure <i>option value...</i>}>>
+
+Sets the values of the specified <i>options</i>.<p>
+
+<<defitem insert {<i>win</i> insert <i>pos</i>}>>
+
+Inserts a new <<xref pwin(n)>> at the specified position, returning
+its name.  Note that <<iref add>> is equivalent to calling
+<<iref insert>> with a <i>pos</i> of <b>end</b>.<p>
+
+<<defitem index {<i>win</i> index <i>pos</i>}>>
+
+Returns the numeric index corresponding to <i>pos</i>.<p>
+
+<<defitem pwin {<i>win</i> pwin <i>pos</i>}>>
+
+Returns the name of the <<xref pwin(n)>> at the specified position.<p>
+
+<<defitem delete {<i>win</i> delete <i>pos</i>}>>
+
+Deletes the <<xref pwin(n)>> at the specified position, just as if the
+user had pressed its close button.<p>
+
+<<defitem move {<i>win</i> move <i>start dest</i>}>>
+
+Moves the <<xref pwin(n)>> at position <i>start</i> to position
+<i>dest</i>.  In addition to the usual <<xref POSITIONS>>, <i>dest</i>
+can also be <b>up</b> or <b>down</b>; these move the
+<<xref pwin(n)>> one place up or down respectively.<p>
+
+
+<</deflist>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl/Tk 8.5 or later.
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

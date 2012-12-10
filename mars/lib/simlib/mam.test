@@ -1,0 +1,1877 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    mam.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for mam(n)
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2
+    eval ::tcltest::configure $argv
+}
+
+# Define a constraint to comment out tests which shouldn't
+# or haven't been updated yet:
+
+::tcltest::testConstraint tbd
+
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require simlib    ;# mam(n) is part of simlib(n)
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::simlib::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import marsutil(n), for use in the test cases.
+    namespace import ::marsutil::*
+
+    # Import the code to be tested
+    namespace import ::simlib::*
+
+    #-------------------------------------------------------------------
+    # Scenario Definitions
+
+    # Create a run-time database in memory
+    sqldocument rdb \
+        -autotrans no \
+        -rollback on
+    rdb open :memory:
+    rdb register ::simlib::mam
+    rdb clear
+
+
+    # pprint block
+    #
+    # Pretty-prints a result block so that the test looks nice
+    
+    proc pprint {block} {
+        set block [string map [list \" \'] $block]
+        return "\n$block    "
+    }
+
+    proc create {} {
+        # Create a mam.
+        mam mymam \
+            -rdb [namespace current]::rdb
+    }
+
+    proc cleanup {} {
+        mymam destroy
+    }
+
+    #-------------------------------------------------------------------
+    # Object Creation
+
+    test creation-1.1 {can't create two mam's on one RDB} -setup {
+        create
+    } -body {
+        mam badmam \
+            -rdb [namespace current]::rdb
+    } -cleanup {
+        cleanup
+    } -returnCodes {
+        error
+    } -result {Error in constructor: RDB ::simlib::test::rdb already in use by MAM ::simlib::test::mymam}
+
+    #-------------------------------------------------------------------
+    # Object Destruction
+
+    test destruction-1.1 {rdb clean up} -setup {
+        create
+        mymam topic  add T1
+        mymam entity add E1
+    } -body {
+        # FIRST, destroy the object
+        cleanup
+
+        # NEXT, verify that none of the MAM tables have entries
+        # for the object.
+        set badTables {}
+
+        foreach table [rdb tables] {
+            if {![string match "mam_*" $table]} {
+                continue
+            }
+
+            if {[rdb onecolumn "SELECT count(rowid) FROM $table"] > 0} {
+                lappend badTables $table
+            }
+        }
+
+        set badTables
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # playbox configure
+
+    test playbox_configure-1.1 {Invalid option} -setup {
+        create
+    } -body {
+        mymam playbox configure -nonesuch ""
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_playbox option: "-nonesuch"}
+
+    test playbox_configure-1.2 {Invalid -gamma: non-numeric} -setup {
+        create
+    } -body {
+        mymam playbox configure -gamma NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_playbox -gamma: constraint failed}
+
+    test playbox_configure-1.3 {Invalid -gamma: out-of-range} -setup {
+        create
+    } -body {
+        mymam playbox configure -gamma -0.1
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_playbox -gamma: constraint failed}
+
+    test playbox_configure-2.1 {Default -gamma} -setup {
+        create
+    } -body {
+        pprint [rdb query {SELECT * FROM mam_playbox}]
+    } -cleanup {
+        cleanup
+    } -result {
+pid gamma 
+--- ----- 
+1   1.0   
+    }
+
+    test playbox_configure-2.2 {-gamma updates RDB} -setup {
+        create
+    } -body {
+        mymam playbox configure -gamma 0.5
+        pprint [rdb query {SELECT * FROM mam_playbox}]
+    } -cleanup {
+        cleanup
+    } -result {
+pid gamma 
+--- ----- 
+1   0.5   
+    }
+
+    test playbox_configure-3.1 {undo undoes changes} -setup {
+        create
+        mymam playbox configure -gamma 0.1
+        mymam playbox configure -gamma 0.2
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_playbox}]
+    } -cleanup {
+        cleanup
+    } -result {
+pid gamma 
+--- ----- 
+1   0.1   
+    }
+
+
+    #-------------------------------------------------------------------
+    # playbox cget
+
+    test playbox_cget-1.1 {Invalid option} -setup {
+        create
+    } -body {
+        mymam playbox cget -nonesuch
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_playbox option: "-nonesuch"}
+
+    test playbox_cget-2.1 {playbox cget retrieves values} -setup {
+        create
+    } -body {
+        mymam playbox configure -gamma 0.5
+        mymam playbox cget -gamma
+    } -cleanup {
+        cleanup
+    } -result {0.5}
+
+    #-------------------------------------------------------------------
+    # entity add
+
+    test entity_add-1.1 {Add an entity into empty mam} -setup {
+        create
+    } -body {
+        mymam entity add E1
+
+        pprint [rdb query {SELECT * FROM mam_entity}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid commonality 
+--- ----------- 
+E1  1.0         
+    }
+
+
+    test entity_add-1.2 {Can't add a duplicate entity} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity add E1
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {column eid is not unique}
+
+
+    test entity_add-1.3 {Affinity table is extended} -setup {
+        create
+    } -body {
+        mymam entity add E1
+        mymam entity add E2
+        mymam entity add E3
+
+        pprint [rdb query {
+            SELECT * FROM mam_affinity
+            ORDER BY f,g
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+f  g  affinity 
+-- -- -------- 
+E1 E1 0.0      
+E1 E2 0.0      
+E1 E3 0.0      
+E2 E1 0.0      
+E2 E2 0.0      
+E2 E3 0.0      
+E3 E1 0.0      
+E3 E2 0.0      
+E3 E3 0.0      
+    }
+
+    test entity_add-1.4 {Beliefs table is extended} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam entity add E1
+        mymam entity add E2
+
+        pprint [rdb query {
+            SELECT * FROM mam_belief
+            ORDER BY eid,tid
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.0      0.5      
+E1  T2  0.0      0.5      
+E2  T1  0.0      0.5      
+E2  T2  0.0      0.5      
+    }
+
+    test entity_add-1.5 {Can set options} -setup {
+        create
+    } -body {
+        mymam entity add E1 \
+            -commonality 0.0
+
+        pprint [rdb query {
+            SELECT * FROM mam_entity
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+eid commonality 
+--- ----------- 
+E1  0.0         
+    }
+
+    test entity_add-1.6 {No rdb change on option error} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        # Commonality must be numeric
+        catch {mymam entity add E2 -commonality NONESUCH}
+
+        # Only E1 should be represented.
+        pprint [rdb query {
+            SELECT * FROM mam_entity
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+eid commonality 
+--- ----------- 
+E1  1.0         
+    }
+
+    test entity_add-1.7 {For Bug 2856: Only one undo entry} -setup {
+        create
+        mymam entity add E1 -commonality 0.0
+    } -body {
+        rdb eval {SELECT COUNT(rowid) FROM mam_undo}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    # Options are handled by [entity configure], and option error messages
+    # will be tested there
+
+    test entity_add-2.1 {undo of entity add removes entity} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam edit undo
+        rdb eval {SELECT eid FROM mam_entity}
+    } -cleanup {
+        cleanup
+    } -result {E1}
+
+    test entity_add-2.2 {undo of entity add removes beliefs} -setup {
+        create
+        mymam topic add T1
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_belief}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.0      0.5      
+    }
+
+    test entity_add-2.3 {undo of entity add removes affinities} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_affinity}]
+    } -cleanup {
+        cleanup
+    } -result {
+f  g  affinity 
+-- -- -------- 
+E1 E1 0.0      
+    }
+
+
+
+    #-------------------------------------------------------------------
+    # entity names
+
+    test entity_names-1.1 {No entities initially} -setup {
+        create
+    } -body {
+        mymam entity names
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    test entity_names-1.2 {Names appear in sorted order} -setup {
+        create
+        mymam entity add E3
+        mymam entity add E2
+        mymam entity add E1
+    } -body {
+        mymam entity names
+    } -cleanup {
+        cleanup
+    } -result {E1 E2 E3}
+
+
+    #-------------------------------------------------------------------
+    # entity delete
+
+    test entity_delete-1.1 {No error on non-existent entity} -setup {
+        create
+    } -body {
+        mymam entity delete E1
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test entity_delete-1.2 {entity table updated} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam entity delete E1
+
+        pprint [rdb query {SELECT * FROM mam_entity}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid commonality 
+--- ----------- 
+E2  1.0         
+    }
+
+    test entity_delete-1.3 {affinity table updated} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam entity delete E1
+
+        pprint [rdb query {SELECT * FROM mam_affinity}]
+    } -cleanup {
+        cleanup
+    } -result {
+f  g  affinity 
+-- -- -------- 
+E2 E2 0.0      
+    }
+
+    test entity_delete-1.4 {belief table updated} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam entity delete E1
+
+        pprint [rdb query {SELECT * FROM mam_belief}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E2  T1  0.0      0.5      
+E2  T2  0.0      0.5      
+    }
+
+    test entity_delete-2.1 {undo of delete restores entity} -setup {
+        create
+        mymam entity add E1 -commonality 0.1
+        mymam entity add E2 -commonality 0.2
+        mymam entity delete E1
+    } -body {
+        mymam edit undo
+        rdb eval {SELECT * FROM mam_entity ORDER BY eid}
+    } -cleanup {
+        cleanup
+    } -result {E1 0.1 E2 0.2}
+
+    test entity_delete-2.2 {undo of delete restores beliefs} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam belief configure E1 T1 -position 0.1 -emphasis 0.2
+        mymam belief configure E1 T2 -position 0.3 -emphasis 0.4
+        mymam entity delete E1
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_belief ORDER BY eid,tid}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.1      0.2      
+E1  T2  0.3      0.4      
+E2  T1  0.0      0.5      
+E2  T2  0.0      0.5      
+    }
+
+    test entity_delete-2.3 {undo of delete restores affinities} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        rdb eval {
+            UPDATE mam_affinity
+            SET affinity = 0.5
+            WHERE f='E1' and g='E2'
+        }
+
+        mymam entity delete E1
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_affinity ORDER BY f,g}]
+    } -cleanup {
+        cleanup
+    } -result {
+f  g  affinity 
+-- -- -------- 
+E1 E1 0.0      
+E1 E2 0.5      
+E2 E1 0.0      
+E2 E2 0.0      
+    }
+
+    #-------------------------------------------------------------------
+    # entity configure
+
+    test entity_configure-1.1 {Invalid entity} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity configure E2 -commonality 0.5
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_entity key: "E2"}
+
+    test entity_configure-1.2 {Invalid option} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity configure E1 -nonesuch ""
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_entity option: "-nonesuch"}
+
+    test entity_configure-1.3 {Invalid -commonality: non-numeric} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity configure E1 -commonality NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_entity -commonality: constraint failed}
+
+    test entity_configure-1.4 {Invalid -commonality: out-of-range} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity configure E1 -commonality 2
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_entity -commonality: constraint failed}
+
+    test entity_configure-2.1 {-commonality updates RDB} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity configure E1 -commonality 0.5
+        pprint [rdb query {SELECT * FROM mam_entity}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid commonality 
+--- ----------- 
+E1  0.5         
+    }
+
+    test entity_configure-3.1 {undo undoes changes} -setup {
+        create
+        mymam entity add E1 -commonality 0.1
+        mymam entity configure E1 -commonality 0.2
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_entity}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid commonality 
+--- ----------- 
+E1  0.1         
+    }
+
+
+    #-------------------------------------------------------------------
+    # entity cget
+
+    test entity_cget-1.1 {Invalid entity} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity cget E2 -commonality
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_entity key: "E2"}
+
+    test entity_cget-1.2 {Invalid option} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity cget E1 -nonesuch
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_entity option: "-nonesuch"}
+
+    test entity_cget-2.1 {entity cget retrieves values} -setup {
+        create
+        mymam entity add E1
+    } -body {
+        mymam entity configure E1 -commonality 0.5
+        mymam entity cget E1 -commonality
+    } -cleanup {
+        cleanup
+    } -result {0.5}
+
+    #-------------------------------------------------------------------
+    # entity rename
+
+    test entity_rename-1.1 {Error on non-existent entity} -setup {
+        create
+    } -body {
+        mymam entity rename E1 E3
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_entity key: "E1"}
+
+    test entity_rename-1.2 {New ID is a duplicate} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam entity rename E1 E2
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Could not rename entity "E1" to "E2": column eid is not unique}
+
+    test entity_rename-2.1 {entity table updated} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam entity rename E1 E3
+        rdb eval {SELECT eid FROM mam_entity ORDER BY eid}
+    } -cleanup {
+        cleanup
+    } -result {E2 E3}
+
+    test entity_rename-2.2 {affinity table updated} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam entity rename E1 E3
+
+        pprint [rdb query {
+            SELECT * FROM mam_affinity
+            ORDER BY f,g
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+f  g  affinity 
+-- -- -------- 
+E2 E2 0.0      
+E2 E3 0.0      
+E3 E2 0.0      
+E3 E3 0.0      
+    }
+
+    test entity_rename-2.3 {belief table updated} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam entity rename E1 E3
+
+        pprint [rdb query {
+            SELECT * FROM mam_belief
+            ORDER BY eid,tid
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E2  T1  0.0      0.5      
+E2  T2  0.0      0.5      
+E3  T1  0.0      0.5      
+E3  T2  0.0      0.5      
+    }
+
+    test entity_rename-3.1 {undo of rename restores entity} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+        mymam entity rename E1 E3
+    } -body {
+        mymam edit undo
+        rdb eval {SELECT eid FROM mam_entity ORDER BY eid}
+    } -cleanup {
+        cleanup
+    } -result {E1 E2}
+
+    test entity_rename-3.2 {undo of rename restores beliefs} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam belief configure E1 T1 -position 0.1 -emphasis 0.2
+        mymam belief configure E1 T2 -position 0.3 -emphasis 0.4
+        mymam entity rename E1 E3
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_belief ORDER BY eid,tid}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.1      0.2      
+E1  T2  0.3      0.4      
+E2  T1  0.0      0.5      
+E2  T2  0.0      0.5      
+    }
+
+    test entity_rename-2.3 {undo of rename restores affinities} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        rdb eval {
+            UPDATE mam_affinity
+            SET affinity = 0.5
+            WHERE f='E1' and g='E2'
+        }
+
+        mymam entity rename E1 E3
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_affinity ORDER BY f,g}]
+    } -cleanup {
+        cleanup
+    } -result {
+f  g  affinity 
+-- -- -------- 
+E1 E1 0.0      
+E1 E2 0.5      
+E2 E1 0.0      
+E2 E2 0.0      
+    }
+
+
+
+    #-------------------------------------------------------------------
+    # topic add
+
+    test topic_add-1.1 {Add a topic into empty mam} -setup {
+        create
+    } -body {
+        mymam topic add T1
+
+        pprint [rdb query {SELECT * FROM mam_topic}]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title relevance affinity 
+--- ----- --------- -------- 
+T1  TBD   1.0       1        
+    }
+
+
+    test topic_add-1.2 {Can't add a duplicate topic} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic add T1
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {column tid is not unique}
+
+
+    test topic_add-1.3 {Beliefs table is extended} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam topic add T1
+        mymam topic add T2
+
+        pprint [rdb query {
+            SELECT * FROM mam_belief
+            ORDER BY eid,tid
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.0      0.5      
+E1  T2  0.0      0.5      
+E2  T1  0.0      0.5      
+E2  T2  0.0      0.5      
+    }
+
+    test topic_add-1.4 {Can set options} -setup {
+        create
+    } -body {
+        mymam topic add T1 \
+            -title     "My Topic" \
+            -relevance 0.5        \
+            -affinity  0
+
+        pprint [rdb query {
+            SELECT * FROM mam_topic
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title    relevance affinity 
+--- -------- --------- -------- 
+T1  My Topic 0.5       0        
+    }
+
+    test topic_add-1.5 {No rdb change on option error} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        # Titles can't be the empty string
+        catch {mymam topic add T2 -title ""}
+
+        # Only T1 should be represented.
+        pprint [rdb query {
+            SELECT * FROM mam_topic
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title relevance affinity 
+--- ----- --------- -------- 
+T1  TBD   1.0       1        
+    }
+
+    test topic_add-1.6 {For Bug 2856: Only one undo entry} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        rdb eval {SELECT COUNT(rowid) FROM mam_undo}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    # Options are handled by [topic configure], and option error messages
+    # will be tested there
+
+    test topic_add-2.1 {undo of add removes topic} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam edit undo
+        rdb eval {SELECT tid FROM mam_topic}
+    } -cleanup {
+        cleanup
+    } -result {T1}
+
+    test topic_add-2.2 {undo of add removes beliefs} -setup {
+        create
+        mymam entity add E1
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_belief}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.0      0.5      
+    }
+
+    #-------------------------------------------------------------------
+    # topic names
+
+    test topic_names-1.1 {No topics initially} -setup {
+        create
+    } -body {
+        mymam topic names
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    test topic_names-1.2 {Names appear in sorted order} -setup {
+        create
+        mymam topic add T3
+        mymam topic add T2
+        mymam topic add T1
+    } -body {
+        mymam topic names
+    } -cleanup {
+        cleanup
+    } -result {T1 T2 T3}
+
+    #-------------------------------------------------------------------
+    # topic delete
+
+    test topic_delete-1.1 {No error on non-existent topic} -setup {
+        create
+    } -body {
+        mymam topic delete T1
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test topic_delete-1.2 {topic table updated} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam topic delete T1
+
+        pprint [rdb query {SELECT * FROM mam_topic}]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title relevance affinity 
+--- ----- --------- -------- 
+T2  TBD   1.0       1        
+    }
+
+    test topic_delete-1.3 {belief table updated} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam topic delete T1
+
+        pprint [rdb query {SELECT * FROM mam_belief}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T2  0.0      0.5      
+E2  T2  0.0      0.5      
+    }
+
+    test topic_delete-2.1 {undo of delete restores topic} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2 -title "Topic 2" -relevance 0
+        mymam topic delete T2
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_topic ORDER BY tid}]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title   relevance affinity 
+--- ------- --------- -------- 
+T1  TBD     1.0       1        
+T2  Topic 2 0.0       1        
+    }
+
+    test topic_delete-2.2 {undo of delete restores beliefs} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam belief configure E1 T1 -position 0.1 -emphasis 0.2
+        mymam belief configure E2 T1 -position 0.3 -emphasis 0.4
+        mymam topic delete T1
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_belief ORDER BY eid,tid}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.1      0.2      
+E1  T2  0.0      0.5      
+E2  T1  0.3      0.4      
+E2  T2  0.0      0.5      
+    }
+
+
+    #-------------------------------------------------------------------
+    # topic configure
+
+    test topic_configure-1.1 {Invalid topic} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T2 -title "My Title"
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_topic key: "T2"}
+
+    test topic_configure-1.2 {Invalid option} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -nonesuch ""
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_topic option: "-nonesuch"}
+
+    test topic_configure-1.3 {Invalid -title} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -title ""
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_topic -title: constraint failed}
+
+    test topic_configure-1.4 {Invalid -relevance: non-numeric} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -relevance NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_topic -relevance: constraint failed}
+
+    test topic_configure-1.5 {Invalid -relevance: out-of-range} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -relevance 2
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_topic -relevance: constraint failed}
+
+    test topic_configure-1.6 {Invalid -affinity: non-numeric} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -affinity NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_topic -affinity: constraint failed}
+
+    test topic_configure-1.7 {Invalid -affinity: out-of-range} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -affinity 2
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_topic -affinity: constraint failed}
+
+    test topic_configure-2.1 {-title updates RDB} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -title "My title"
+        pprint [rdb query {SELECT * FROM mam_topic}]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title    relevance affinity 
+--- -------- --------- -------- 
+T1  My title 1.0       1        
+    }
+
+    test topic_configure-2.2 {-relevance updates RDB} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -relevance 0.5
+        pprint [rdb query {SELECT * FROM mam_topic}]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title relevance affinity 
+--- ----- --------- -------- 
+T1  TBD   0.5       1        
+    }
+
+    test topic_configure-2.3 {-affinity updates RDB} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 -affinity 0
+        pprint [rdb query {SELECT * FROM mam_topic}]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title relevance affinity 
+--- ----- --------- -------- 
+T1  TBD   1.0       0        
+    }
+
+    test topic_configure-3.1 {undo undoes changes} -setup {
+        create
+        mymam topic add T1 -title "No Title"
+        mymam topic configure T1 \
+            -title      "Good Title" \
+            -relevance  0.5          \
+            -affinity   0
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_topic}]
+    } -cleanup {
+        cleanup
+    } -result {
+tid title    relevance affinity 
+--- -------- --------- -------- 
+T1  No Title 1.0       1        
+    }
+
+
+    #-------------------------------------------------------------------
+    # topic cget
+
+    test topic_cget-1.1 {Invalid topic} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic cget T2 -title
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_topic key: "T2"}
+
+    test topic_cget-1.2 {Invalid option} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic cget T1 -nonesuch
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_topic option: "-nonesuch"}
+
+    test topic_cget-2.1 {topic cget retrieves values} -setup {
+        create
+        mymam topic add T1
+    } -body {
+        mymam topic configure T1 \
+            -title      "My Title" \
+            -relevance  0.5        \
+            -affinity   0
+
+        list \
+            [mymam topic cget T1 -title]     \
+            [mymam topic cget T1 -relevance] \
+            [mymam topic cget T1 -affinity]
+    } -cleanup {
+        cleanup
+    } -result {{My Title} 0.5 0}
+
+
+    #-------------------------------------------------------------------
+    # topic rename
+
+    test topic_rename-1.1 {Error on non-existent topic} -setup {
+        create
+    } -body {
+        mymam topic rename T1 T3
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_topic key: "T1"}
+
+    test topic_rename-1.2 {New ID is a duplicate} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam topic rename T1 T2
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Could not rename topic "T1" to "T2": column tid is not unique}
+
+    test topic_rename-2.1 {topic table updated} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam topic rename T1 T3
+        rdb eval {SELECT tid FROM mam_topic ORDER BY tid}
+    } -cleanup {
+        cleanup
+    } -result {T2 T3}
+
+    test topic_rename-2.2 {belief table updated} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+        mymam topic add T1
+        mymam topic add T2
+    } -body {
+        mymam topic rename T1 T3
+
+        pprint [rdb query {
+            SELECT * FROM mam_belief
+            ORDER BY eid,tid
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T2  0.0      0.5      
+E1  T3  0.0      0.5      
+E2  T2  0.0      0.5      
+E2  T3  0.0      0.5      
+    }
+
+    test topic_rename-3.1 {undo of rename restores topic} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+        mymam topic rename T1 T3
+    } -body {
+        mymam edit undo
+        rdb eval {SELECT tid FROM mam_topic ORDER BY tid}
+    } -cleanup {
+        cleanup
+    } -result {T1 T2}
+
+    test topic_rename-3.2 {undo of rename restores beliefs} -setup {
+        create
+        mymam topic add T1
+        mymam topic add T2
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam belief configure E1 T1 -position 0.1 -emphasis 0.2
+        mymam belief configure E1 T2 -position 0.3 -emphasis 0.4
+        mymam topic rename T1 T3
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_belief ORDER BY eid,tid}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.1      0.2      
+E1  T2  0.3      0.4      
+E2  T1  0.0      0.5      
+E2  T2  0.0      0.5      
+    }
+
+    #-------------------------------------------------------------------
+    # belief configure
+
+    test belief_configure-1.1 {Invalid entity} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E2 T1 -position 1.0
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_belief key: "E2 T1"}
+
+    test belief_configure-1.2 {Invalid topic} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T2 -position 1.0
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_belief key: "E1 T2"}
+
+    test belief_configure-1.3 {Invalid option} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T1 -nonesuch ""
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_belief option: "-nonesuch"}
+
+    test belief_configure-1.4 {Invalid -position: non-numeric} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T1 -position NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_belief -position: constraint failed}
+
+    test belief_configure-1.5 {Invalid -position: out-of-range} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T1 -position 1.1
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_belief -position: constraint failed}
+
+    test belief_configure-1.6 {Invalid -emphasis: non-numeric} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T1 -emphasis NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_belief -emphasis: constraint failed}
+
+    test belief_configure-1.7 {Invalid -emphasis: out-of-range} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T1 -emphasis -0.1
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid mam_belief -emphasis: constraint failed}
+
+    test belief_configure-1.8 {No partial changes on error} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        catch {mymam belief configure E1 T1 -position 1.0 -emphasis -0.1}
+        pprint [rdb query {SELECT * FROM mam_belief}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.0      0.5      
+    }
+
+    test belief_configure-2.1 {options update RDB} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T1 \
+            -position  0.5           \
+            -emphasis 0.75
+        pprint [rdb query {SELECT * FROM mam_belief}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.5      0.75     
+    }
+
+    test belief_configure-3.1 {undo undoes changes} -setup {
+        create
+        mymam entity add E1
+        mymam topic add T1
+        mymam topic add T2
+
+        mymam belief configure E1 T1 -position 0.1 -emphasis 0.2
+        mymam belief configure E1 T1 -position 0.3 -emphasis 0.4
+    } -body {
+        mymam edit undo
+        pprint [rdb query {SELECT * FROM mam_belief ORDER BY eid,tid}]
+    } -cleanup {
+        cleanup
+    } -result {
+eid tid position emphasis 
+--- --- -------- -------- 
+E1  T1  0.1      0.2      
+E1  T2  0.0      0.5      
+    }
+
+    #-------------------------------------------------------------------
+    # belief cget
+
+    test belief_cget-1.1 {Invalid entity} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief cget E2 T1 -position
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_belief key: "E2 T1"}
+
+    test belief_cget-1.2 {Invalid topic} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief cget E1 T2 -position
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_belief key: "E1 T2"}
+
+    test belief_cget-1.3 {Invalid option} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief cget E1 T1 -nonesuch
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown mam_belief option: "-nonesuch"}
+
+    test belief_cget-2.1 {belief cget retrieves values} -setup {
+        create
+        mymam entity add E1
+        mymam topic  add T1
+    } -body {
+        mymam belief configure E1 T1 \
+            -position  0.5           \
+            -emphasis 0.75
+        list [mymam belief cget E1 T1 -position]    \
+            [mymam belief cget E1 T1 -emphasis]
+    } -cleanup {
+        cleanup
+    } -result {0.5 0.75}
+
+    #-------------------------------------------------------------------
+    # clear
+
+    test clear-1.1 {rdb clean up} -setup {
+        create
+        mymam topic  add T1
+        mymam entity add E1
+    } -body {
+        # FIRST, clear the data
+        mymam clear
+
+        # NEXT, verify that none of the MAM tables have entries
+        # for the object (except mam_playbox)
+        set badTables {}
+
+        foreach table [rdb tables] {
+            if {![string match "mam_*" $table] ||
+                $table eq "mam_playbox"
+            } {
+                continue
+            }
+
+            if {[rdb onecolumn "SELECT count(rowid) FROM $table"] > 0} {
+                lappend badTables $table
+            }
+        }
+
+        set badTables
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test clear-1.2 {Can't undo after clear} -setup {
+        create
+        mymam topic  add T1
+        mymam entity add E1
+    } -body {
+        mymam clear
+
+        mymam edit canundo
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test clear-1.3 {Clear will populate mam_playbox if need be.} -setup {
+        create
+    } -body {
+        rdb eval { DELETE FROM mam_playbox; }
+        mymam clear
+        rdb eval {SELECT * FROM mam_playbox }
+    } -cleanup {
+        cleanup
+    } -result {1 1.0}
+    
+    #-------------------------------------------------------------------
+    # compute
+
+    # 1.*: Defaults, general results
+    test compute-1.1 {No topics; all affinities are 0} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT count(*) FROM mam_affinity WHERE affinity = 0.0
+        }
+    } -cleanup {
+        cleanup
+    } -result {4}
+
+    test compute-1.2 {Default settings; all affinities are 1.0} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1
+    } -body {
+        mymam compute
+
+        # All are 1.0 because the beliefs contribute nothing and 
+        # playbox commonality is 1.0; hence, there is commonality.
+        rdb onecolumn {
+            SELECT count(*) FROM mam_affinity WHERE affinity = 1.0
+        }
+    } -cleanup {
+        cleanup
+    } -result {4}
+
+    test compute-1.3 {No affinity topics; all affinities are 0} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1 -affinity 0
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT count(*) FROM mam_affinity WHERE affinity = 0.0
+        }
+    } -cleanup {
+        cleanup
+    } -result {4}
+
+
+
+    # 2.*: Verify each special case in the computation
+    test compute-2.1 {Case A: No zeal, commonality, or zero-emphasis} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1
+        mymam topic add T2
+        
+        mymam playbox configure -gamma 0.0
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT format('%.2f',affinity) FROM mam_affinity 
+            WHERE f='E1' and g='E2'
+        }
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test compute-2.2 {Case B: Zero emph., but no zeal or commonality} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1
+        mymam topic add T2
+        
+        mymam playbox configure -gamma 0.0
+        mymam belief configure E1 T1 -emphasis 0.0
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT format('%.2f',affinity) FROM mam_affinity 
+            WHERE f='E1' and g='E2'
+        }
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test compute-2.3 {Case C: Pathological disagreement} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1
+        mymam topic add T2
+
+        # E1 and E2 disagree on a topic for which E1 has emphasis 0
+        mymam belief configure E1 T1 -position 0.1 -emphasis 0.0
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT format('%.2f',affinity) FROM mam_affinity 
+            WHERE f='E1' and g='E2'
+        }
+    } -cleanup {
+        cleanup
+    } -result {-1.00}
+
+    test compute-2.4 {Case D: zero-emphasis with positive agreement} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1
+        mymam topic add T2
+
+        # E1 and E2 agree on all topics for which E1 has emphasis 0,
+        # and the zeals are positive
+        mymam belief configure E1 T1 -position 0.2 -emphasis 0.0
+        mymam belief configure E2 T1 -position 0.2
+        mymam belief configure E1 T2 -position 0.1
+        mymam belief configure E2 T2 -position -0.1
+
+        # Assume no commonality.
+        mymam playbox configure -gamma 0.0
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT format('%.2f',affinity) FROM mam_affinity 
+            WHERE f='E1' and g='E2'
+        }
+    } -cleanup {
+        cleanup
+    } -result {0.20}
+
+    test compute-2.5 {Case E: The normal case} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1
+        mymam topic add T2
+
+        # E1 has positions on some topics, and has zero emphasis on no
+        # topics.  The normal equation is used.
+        mymam belief configure E1 T1 -position 0.2
+
+        # Assume no commonality.
+        mymam playbox configure -gamma 0.0
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT format('%.2f',affinity) FROM mam_affinity 
+            WHERE f='E1' and g='E2'
+        }
+    } -cleanup {
+        cleanup
+    } -result {-0.09}
+
+    # 3.*: Relevance
+
+    test compute-3.1 {No relevant topics; all affinities are 0} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1 -relevance 0.0
+    } -body {
+        mymam compute
+        rdb onecolumn {
+            SELECT count(*) FROM mam_affinity WHERE affinity = 0.0
+        }
+    } -cleanup {
+        cleanup
+    } -result {4}
+
+    test compute-3.2 {partial relevance} -setup {
+        create
+        mymam entity add E1
+        mymam entity add E2
+
+        mymam topic add T1
+        mymam topic add T2
+
+        # E1 has positions on some topics, and has zero emphasis on no
+        # topics.  The normal equation is used.
+        mymam belief configure E1 T1 -position 1.0
+    } -body {
+        mymam compute
+        set a [rdb onecolumn {
+            SELECT affinity FROM mam_affinity WHERE f='E1' AND g='E2'
+        }]
+
+        # Now, reduce the relevance of T1
+        mymam topic configure T1 -relevance 0.5
+        mymam compute
+
+        set b [rdb onecolumn {
+            SELECT affinity FROM mam_affinity WHERE f='E1' AND g='E2'
+        }]
+
+        # With two topics, setting the relevance of T1 to 0.5 is equivalent
+        # to cutting the positions on T1 in half, and reducing the 
+        # playbox commonality dial to 0.75.  This was done using MAM
+        # interactively; the interactive results match the computed 
+        # results shown below.
+        format "%.3f %.3f" $a $b
+    } -cleanup {
+        cleanup
+    } -result {0.429 0.647}
+
+    #-------------------------------------------------------------------
+    # congruence
+    
+    proc congruenceSetup {} {
+        create
+
+        # Two entities, so we can be sure we're getting the right one.
+        mymam entity add E1
+        mymam entity add E2
+
+        # Three topics
+        mymam topic add T1
+        mymam topic add T2
+        mymam topic add T3
+       
+        # E2's beliefs don't matter; set up E1's.
+        mymam belief configure E1 T1 -position 1.0
+        mymam belief configure E1 T2 -position 0.5
+        mymam belief configure E1 T3 -position -0.5
+    }
+
+    test congruence-1.1 {single topics} -setup {
+        congruenceSetup
+    } -body {
+        set a [mymam congruence E1 1.0 {T1 0.5}]
+        set b [mymam congruence E1 1.0 {T2 0.5}]
+        set c [mymam congruence E1 1.0 {T3 0.5}]
+
+        format "%.2f %.2f %.2f" $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0.65 0.83 0.43}
+
+    test congruence-1.2 {single topics, theta=0} -setup {
+        congruenceSetup
+    } -body {
+        set a [mymam congruence E1 0.0 {T1 0.5}]
+        set b [mymam congruence E1 0.0 {T2 0.5}]
+        set c [mymam congruence E1 0.0 {T3 0.5}]
+
+        format "%.2f %.2f %.2f" $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0.37 0.50 -0.33}
+
+    test congruence-1.3 {single topics, relevance=0.5} -setup {
+        congruenceSetup
+        mymam topic configure T1 -relevance 0.5
+        mymam topic configure T2 -relevance 0.5
+        mymam topic configure T3 -relevance 0.5
+    } -body {
+        set a [mymam congruence E1 1.0 {T1 0.5}]
+        set b [mymam congruence E1 1.0 {T2 0.5}]
+        set c [mymam congruence E1 1.0 {T3 0.5}]
+
+        format "%.2f %.2f %.2f" $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0.58 0.75 0.54}
+
+    test congruence-1.4 {multiple topics} -setup {
+        congruenceSetup
+    } -body {
+        set a [mymam congruence E1 1.0 {T1 0.5 T3 0.5}]
+
+        format "%.2f" $a 
+    } -cleanup {
+        cleanup
+    } -result {0.55}
+
+    test congruence-1.5 {multiple topics, theta=0} -setup {
+        congruenceSetup
+    } -body {
+        set a [mymam congruence E1 0.0 {T1 0.5 T3 0.5}]
+
+        format "%.2f" $a 
+    } -cleanup {
+        cleanup
+    } -result {0.10}
+
+    test congruence-1.6 {multiple topics, relevance=0.5} -setup {
+        congruenceSetup
+        mymam topic configure T1 -relevance 0.5
+    } -body {
+        set a [mymam congruence E1 1.0 {T1 0.5 T3 0.5}]
+
+        format "%.2f" $a 
+    } -cleanup {
+        cleanup
+    } -result {0.49}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::simlib::test

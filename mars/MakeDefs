@@ -1,0 +1,40 @@
+# -*-Makefile-*-
+#---------------------------------------------------------------------
+# TITLE:
+#    MakeDefs -- Standard Make Definitions
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    The following definitions are used in all Mars Makefiles.
+#
+#---------------------------------------------------------------------
+
+#---------------------------------------------------------------------
+# Settings
+
+include $(TOP_DIR)/MakePlatform
+
+# TCLLIBPATH for code run during the build process (including tests!)
+export TCLLIBPATH = $(TOP_DIR)/lib
+
+# Set MARS_VERSION for development if it isn't set.
+export MARS_VERSION_DEFAULT = 2.x
+export VERSION_FILE         = $(TOP_DIR)/lib/marsutil/version.txt
+
+ifndef MARS_VERSION
+    export MARS_VERSION = $(strip $(shell cat $(VERSION_FILE)))
+endif
+
+# Directories
+DOC_ROOT = $(TOP_DIR)/docs
+
+# Tools
+MAN_ROOTS = :     $(TOP_DIR)/docs/man%s/%n.html \
+            tcl:n http://www.tcl.tk/man/tcl8.5/TclCmd/%n.htm \
+            tk:n  http://www.tcl.tk/man/tcl8.5/TkCmd/%n.htm
+
+MAN_TOOL = $(TOP_DIR)/bin/mars man -manroots "$(MAN_ROOTS)" -version $(MARS_VERSION)
+DOC_TOOL = $(TOP_DIR)/bin/mars doc -manroots "$(MAN_ROOTS)" -version $(MARS_VERSION)
+

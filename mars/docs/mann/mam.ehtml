@@ -1,0 +1,388 @@
+<<manpage {simlib(n) mam(n)} "Mars Affinity Model">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require simlib
+namespace import ::simlib::*
+</pre>
+
+<<swallow {
+    # So that schema is available.
+    package require simlib
+}>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref mam(n)>> is the Tcl API for the Mars Affinity Model
+(MAM), which computed the affinity between political entities based on
+their belief systems.  A belief system is a collection of beliefs;
+a belief is a position for against a particular topic, along with
+an emphasis on agreement or disagreement with that position.<p>
+
+The application may define any number of topics and any number of
+entities, and record the belief systems of each entity.  Then,
+the model will compute the affinity between each pair of entities.<p>
+
+See the <i>Mars Analyst's Guide</i> for a complete description of the
+model.<p>
+
+<<section "DATABASE SCHEMA">>
+
+mam(n) stores all of its working data in an
+<<xref sqldocument(n)>> "run-time database", or RDB.  
+The names of all of the tables, views, indices, and so forth defined
+by MAM begin with the string "mam_".<p>
+
+Other modules may query any of the tables as needed, but
+should not alter them. Some relevant semantics:<p>
+
+<ul>
+  <li> Playbox data, entities, topics, and beliefs are stored in the
+       <b>mam_playbox</b>, <b>mam_entity</b>, <b>mam_topic</b>, and
+       <b>mam_belief</b> tables.<p>
+
+  <li> The subscripts <i>f</i> and <i>g</i> are used for referring to
+       individual entities, especially when referring to them in pairs.<p>
+
+  <li> Affinities are stored in the <b>mam_affinity</b> table when the
+       <i>compute</i> method is called.  Clients are expected to
+       retrieve affinities directly from this table.<p>
+
+  <li> The <b>mam_acompare_view</b> is useful for comparing entity F's
+       affinity for other entities with their affinities for entity F.<p>
+</ul><p>
+
+mam(n) registers the following schema definitions with
+<<xref sqldocument(n)>>:<p>
+
+<pre>
+<<::simlib::mam sqlsection schema>>
+</pre>
+
+<<section "THE UNDO STACK">>
+
+When the object's <i>-undo</i> option is set to <b>on</b>, the object
+maintains an undo stack for all instance methods marked as
+<b>Undoable</b> below.  Calling the <<iref edit undo>> command will
+undo them one at a time; <<iref edit canundo>> indicates whether or
+not there's anything to undo; <<iref edit reset>> deletes all saved
+undo information.<p>
+
+Commands marked <b>Not Undoable</b> cannot be undone; in addition,
+they clear the undo stack.<p>
+
+There is no automatic redo capability; to redo an operation, call it
+again.<p>
+
+Note that affinities are not computed automatically as beliefs change;
+rather, affinities are computed on demand via the <<iref compute>>
+method.  From this point of view, undoing an operation is no different
+than any other change, and will not modify the computed set of
+affinities in any way.<p>
+
+In short, call <<iref compute>> if before referencing the computed
+affinities if the model inputs might have changed.<p>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem mam {mam <i>name ?options...?</i>}>>
+
+Creates a new <<iref mam>> object called <i>name</i>. The object is
+represented as a new Tcl command in the caller's scope;
+<<iref mam>> returns the fully-qualified form of the
+<i>name</i>.  The object is initially empty.<p>
+
+<<iref mam>> takes the following options:<p>
+
+<<deflist mam options>>
+
+<<defopt {-rdb <i>name</i>}>>
+
+Specifies the name of an <<xref sqldocument(n)>> object
+which mam(n) will use to store its data.
+See <<xref "DATABASE SCHEMA">>.<p>
+
+Multiple instances of mam(n) must be created in distinct RDBs.<p>
+
+This option must be set at creation time, and cannot be changed
+thereafter.<p>
+
+<<defopt {-undo <i>flag</i>}>>
+
+If <b>on</b> (the default) then undo information is saved and the
+<<iref edit undo>> command is available.  Otherwise, no undo
+information is saved, and changes cannot be undone.<p>
+
+<</deflist mam options>>
+
+<<defitem {mam sqlsection} {mam sqlsection <i>subcommand</i>}>>
+
+mam(n) is an <<xref sqlsection(i)>>, as it defines
+schema entities (see <<xref "DATABASE SCHEMA">>).
+See <<xref sqlsection(i)>> for a description
+of this method's subcommands.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+<<deflist instance>>
+
+<<defitem belief {$obj belief <i>subcommand</i> ?<i>args...</i>?}>>
+
+This subcommand is used to modify beliefs.<p>
+
+<<deflist belief>>
+
+<<defitem "belief cget" {$obj belief cget <i>eid tid option</i>}>>
+
+Returns the value of the specified option for entity
+<i>eid</i>'s belief about topic <i>tid</i>.<p>
+
+<<defitem "belief configure" {$obj belief configure <i>eid tid option value...</i>}>>
+
+<b>Undoable.</b> Sets the value of one or more options for
+entity <i>eid</i>'s belief about topic <i>tid</i>:<p>
+
+<<deflist options>>
+
+<<defopt {-position <i>number</i>}>>
+
+Specifies the entity's position with respect to the topic, a real
+number from -1.0 to +1.0.  Defaults to 0.0.  The client can use
+<<xref simtypes(n) qposition>> to validate position values.<p>
+
+<<defopt {-emphasis <i>number</i>}>>
+
+Specifies the entity's emphasis on agreement or disagreement with
+respect to this topic, where 0.0 represents a complete emphasis on
+disagreement and 1.0 represents a complete emphasis on agreement.
+The default is 0.5.  Note that the endpoints result in pathological
+results; clients will usually want to pick from the
+<<xref simtypes(n) qemphasis>> symbols.  Note that
+<<xref simtypes(n) qemphasis>> can be used to validate emphasis values.<p>
+
+<</deflist options>>
+
+<</deflist belief>>
+
+<<defitem cget {$obj cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem clear {$obj clear}>>
+
+<b>Not Undoable.</b> Removes all data from the model, leaving it empty of entities and topics.<p>
+
+<<defitem compute {$obj compute}>>
+
+Recomputes all affinities given the current set of model inputs, using only
+topics whose <code>-affinity</code> flag is set.  Call
+this explicitly before referencing the <b>mam_affinity</b> table if
+model inputs might have changed.<p>
+
+<<defitem configure {$obj configure <i>option value</i>}>>
+
+Sets the <i>value</i> of the specified <i>option</i> (if the option is
+not read-only).<p>
+
+<<defitem congruence {$obj congruence <i>eid theta hook</i>}>>
+
+This command returns the congruence of a semantic <i>hook</i> with
+entity <i>eid</i> given the <i>hook</i>'s perceived commonality
+<i>theta</i>, an entity commonality fraction from 0.0 to 1.0.  The
+<i>hook</i> is a dictionary of topic IDs and 
+<<xref simtypes(n) qposition>> values.<p>
+
+The congruence is essentially the affinity of the entity for the hook
+using only and exactly the topics given in the hook.  Topic
+<code>-relevance</code>, the playbox <code>-gamma</code> setting, and
+the entity's own <code>-commonality</code> setting are all taken into
+account.<p>
+
+<<defitem edit {$obj edit <i>subcommand</i> ?<i>args...</i>?}>>
+
+This family of routines controls mam(n)'s undo capability.<p>
+
+<<deflist edit>>
+
+<<defitem "edit canundo" {$obj edit canundo}>>
+
+Returns 1 if there's anything to undo, and 0 otherwise.<p>
+
+<<defitem "edit reset" {$obj edit reset}>>
+
+Deletes all saved undo information, if any.<p>
+
+<<defitem "edit undo" {$obj edit undo}>>
+
+Undoes the previous operation, if any.  Note that each call to an
+<b>Undoable</b> subcommand places an entry on the undo stack; thus,
+each call must be undone individually.<p>
+
+<</deflist edit>>
+
+<<defitem entity {$obj entity <i>subcommand</i> ?<i>args...</i>?}>>
+
+This subcommand is used to create and modify entities.<p>
+
+<<deflist entity>>
+
+<<defitem "entity add" {$obj entity add <i>eid option value...</i>}>>
+
+<b>Undoable.</b>  Creates a new entity with ID <i>eid</i>, along with
+all related <<iref belief>> and affinity records.  See
+<<iref entity configure>> for the available options.<p>
+
+<<defitem "entity cget" {$obj entity cget <i>eid option</i>}>>
+
+Returns the value of the specified entity option.<p>
+
+<<defitem "entity configure" {$obj entity configure <i>eid option value...</i>}>>
+<b>Undoable.</b> Sets the value of one or more entity options:<p>
+
+<<deflist options>>
+
+<<defopt {-commonality <i>value</i>}>>
+
+Specifies the extent of the entity's participation in the dominant
+culture in the playbox.  If 1.0, the entity shares all of the implicit
+cultural commonality; if 0.0, none of it.  Defaults to 1.0.  Note that
+the effect of this option depends on the playbox <code>-gamma</code>
+value; see <<iref playbox configure>>.<p>
+
+<</deflist options>>
+
+<<defitem "entity delete" {$obj entity delete <i>eid</i>}>>
+
+<b>Undoable.</b> Deletes the entity with ID <i>eid</i>, along with all
+dependent <<iref belief>> and affinity records.<p>
+
+<<defitem "entity names" {$obj entity names}>>
+
+Returns a list of the entity IDs in the model.<p>
+
+<<defitem "entity rename" {$obj entity rename <i>old new</i>}>>
+
+<b>Undoable.</b> Renames the entity with ID <i>old</i> to have
+ID <i>new</i>.<p>
+
+<</deflist entity>>
+
+<<defitem playbox {$obj playbox <i>subcommand</i> ?<i>args...</i>?}>>
+
+This subcommand is used to create and modify playbox-wide settings.<p>
+
+<<deflist playbox>>
+
+<<defitem "playbox cget" {$obj playbox cget <i>option</i>}>>
+
+Returns the value of the specified playbox option.<p>
+
+<<defitem "playbox configure" {$obj playbox configure <i>option value...</i>}>>
+
+<b>Undoable.</b> Sets the value of one or more playbox options:<p>
+
+<<deflist options>>
+
+<<defopt {-gamma <i>value</i>}>>
+
+This is the "commonality" dial; it controls the degree of implicit
+commonality among the entities in the playbox, that is, the number of
+implicit topics about which there is general (and passionate)
+agreement in the playbox.  If <code>-gamma</code>
+is 0, there is no implicit commonality; only explicit topics are
+considered.  If <code>-gamma</code> is 1.0 there are as many implicit
+topics as explicit topics; if 0.5, half as many; if 2.0, twice as
+many.  The <i>value</i> can range from 0.0 to 100.0, and defaults to 1.0.<p>
+
+<</deflist options>>
+
+<</deflist playbox>>
+
+<<defitem topic {$obj topic <i>subcommand</i> ?<i>args...</i>?}>>
+
+This subcommand is used to create and modify topics.<p>
+
+<<deflist topic>>
+
+<<defitem "topic add" {$obj topic add <i>tid option value...</i>}>>
+
+<b>Undoable.</b>  Creates a new topic with ID <i>tid</i>, along with
+all related <<iref belief>> records.  See <<iref topic configure>>
+for the available options.<p>
+
+<<defitem "topic cget" {$obj topic cget <i>tid option</i>}>>
+
+Returns the value of the specified topic option.<p>
+
+<<defitem "topic configure" {$obj topic configure <i>tid option value...</i>}>>
+<b>Undoable.</b> Sets the value of one or more topic options:<p>
+
+<<deflist options>>
+
+<<defopt {-title <i>text</i>}>>
+
+Specifies the topic's title, a short human-readable name.  Defaults to
+"TBD".<p>
+
+<<defopt {-relevance <i>fraction</i>}>>
+
+Specifies the relevance of the topic as a fraction from 0.0 to 1.0 
+(the default).  Positions on a topic have decreasing effect as their 
+relevance declines.<p>
+
+<<defopt {-affinity <i>flag</i>}>>
+
+Specifies a numeric flag, 0 or 1.  If 1 (the default), this topic
+will be included in the computation of affinity; if 0,
+then it will be excluded.<p>
+
+<</deflist options>>
+
+<<defitem "topic delete" {$obj topic delete <i>tid</i>}>>
+
+<b>Undoable.</b> Deletes the topic with ID <i>tid</i>, along with all
+dependent <<iref belief>> records.<p>
+
+<<defitem "topic names" {$obj topic names}>>
+
+Returns a list of the topic IDs in the model.<p>
+
+<<defitem "topic rename" {$obj topic rename <i>old new</i>}>>
+
+<b>Undoable.</b> Renames the topic with ID <i>old</i> to have
+ID <i>new</i>.<p>
+
+
+<</deflist topic>>
+
+
+<</deflist instance>>
+
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.
+
+To use the package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
