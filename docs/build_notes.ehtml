@@ -11,6 +11,16 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.23, 10 December 2012</h3>
+
+This is the final 4.0.x build; this same codebase will be the basis
+for both Athena 4.1.x and Athena 5.0.x.  It contains an update to the
+<i>Athena User's Guide</i>.<p>
+
+<ul>
+<li> Bug 3795: Tabs missing from AUG
+</ul><p>
+
 <h3>Build 4.0.22, 10 December 2012</h3>
 
 This build contains a number of small bug fixes and changes to
