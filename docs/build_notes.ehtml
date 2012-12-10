@@ -11,6 +11,12 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.1.0, 10 December 2012</h3>
+
+This is the first release candidate for Athena 4.1.  The code is
+identical to Athena 4.0.23, except that the version number has been
+updated.<p>
+
 <h3>Build 4.0.23, 10 December 2012</h3>
 
 This is the final 4.0.x build; this same codebase will be the basis
@@ -48,7 +54,7 @@ substantial documentation updates to both the User's Guide and Analyst's Guide.
   <li> Bug 3760: athena_sim(1): actors revenue and expenses are not scaled to a year
   <li> Bug 3769: Update AUG with section on economic model
   <li> Bug 3776: athena_sim(1): remove econ.graft from econ model
-  <li> Bug 3778: athena_sim(1): remittances need to appear on the Econ > Overview tab
+  <li> Bug 3778: athena_sim(1): remittances need to appear on the Econ/Overview tab
   <li> Bug 3780: athena_sim(1): tablelist patch no longer needed
   <li> Bug 3782: athena(1): update the AAG with econ model stuff
   <li> Bug 3783: athena_sim(1): some labels on SAM and Overview tabs are wrong
