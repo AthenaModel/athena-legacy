@@ -11,6 +11,21 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 4.0.22, 10 December 2012</h3>
+
+This build contains a number of small bug fixes and changes to
+documentation.  If no serious bugs are found, this will be the final
+4.0.x build.<p>
+
+<ul>
+<li> Bug 3334: Select Destination suggests wrong version number
+<li> Bug 3363: Clicking the x when asking to unlock doesn't cancel
+<li> Bug 3450: detail browser displays controller at T0 when neighborhood is in chaos
+<li> Bug 3524: Order Help should be listed alphabetically
+<li> Bug 3779: Athena Help Scrub for V4
+<li> Bug 3786: Failed to solve SAM model after actor data was loaded
+</ul><p>
+
 <h3>Build 4.0.21, 4 December 2012</h3>
 
 This build contains mainly bug fixes, most of which are to the Econ model.
