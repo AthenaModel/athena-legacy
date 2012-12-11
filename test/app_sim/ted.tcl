@@ -263,7 +263,7 @@ snit::type ted {
             shape    NEUTRAL
             n        NB1
             basepop  1000
-            sap      10
+            sa_flag  0
             demeanor AVERAGE
         } NB1
 
@@ -274,7 +274,7 @@ snit::type ted {
             shape    NEUTRAL
             n        NB1
             basepop  1000
-            sap      0
+            sa_flag  0
             demeanor AGGRESSIVE
         } NB1
 
@@ -285,7 +285,7 @@ snit::type ted {
             shape    NEUTRAL
             n        NB2
             basepop  1000
-            sap      0
+            sa_flag  1
             demeanor AGGRESSIVE
         } NB2
 

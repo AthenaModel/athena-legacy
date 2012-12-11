@@ -43,9 +43,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sap 
----- -------- ------- ------- -------- -------- ------- ---------- ----- --- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10  
+g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sa_flag 
+---- -------- ------- ------- -------- -------- ------- ---------- ----- --- ------- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 0       
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -135,9 +135,9 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sap 
----- -------- ------- ------- -------- -------- ------- ---------- ----- --- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10  
+g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sa_flag 
+---- -------- ------- ------- -------- -------- ------- ---------- ----- --- ------- 
+SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 0       
     }
 
     test delete-3.1 {Bsystem entity is deleted} -setup {
@@ -295,9 +295,9 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 10
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape  symbol   demeanor basepop rel_entity gtype n   sap 
----- --------- ------- ------ -------- -------- ------- ---------- ----- --- --- 
-SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  1000    SHIA       CIV   NB1 10  
+g    longname  color   shape  symbol   demeanor basepop rel_entity gtype n   sa_flag 
+---- --------- ------- ------ -------- -------- ------- ---------- ----- --- ------- 
+SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  1000    SHIA       CIV   NB1 0       
     }
 
 
@@ -443,7 +443,7 @@ SHIA Shia Folk #ff0000 FRIEND civilian AVERAGE  1000    SHIA       CIV   NB1 10
         civgroup getg SHIA
     } -cleanup {
         cleanup
-    } -result "shape NEUTRAL basepop 1000 demeanor AVERAGE g SHIA rel_entity SHIA longname Shia gtype CIV sap 10 symbol civilian n NB1 color #c00001"
+    } -result "shape NEUTRAL basepop 1000 demeanor AVERAGE g SHIA rel_entity SHIA longname Shia gtype CIV sa_flag 0 symbol civilian n NB1 color #c00001"
 
     test getg-1.2 {get group attribute} -setup {
         ted create NB1 SHIA

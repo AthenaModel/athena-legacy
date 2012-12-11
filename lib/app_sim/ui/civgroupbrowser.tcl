@@ -31,14 +31,14 @@ snit::widgetadaptor civgroupbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g          "ID"                                             }
-        { longname   "Long Name"                                      }
-        { n          "Nbhood"                                         }
-        { color      "Color"                                          }
-        { shape      "Unit Shape"                                     }
-        { demeanor   "Demeanor"                                       }
-        { basepop    "BasePop"       -sortmode integer                }
-        { sap        "SA%"           -sortmode integer                }
+        { g              "\nID"                                        }
+        { longname       "\nLong Name"                                 }
+        { n              "\nNbhood"                                    }
+        { color          "\nColor"                                     }
+        { shape          "\nUnit Shape"                                }
+        { demeanor       "\nDemeanor"                                  }
+        { basepop        "Base\nPopulation"          -sortmode integer }
+        { pretty_sa_flag "Subsistence\nAgriculture"                    }
     }
 
     #-------------------------------------------------------------------
@@ -83,8 +83,8 @@ snit::widgetadaptor civgroupbrowser {
             -state   disabled                                              \
             -command [mymethod EditSelected]
 
-        cond::availableMulti control $editbtn   \
-            order   CIVGROUP:UPDATE:POSTPREP \
+        cond::availableMulti control $editbtn \
+            order   CIVGROUP:UPDATE           \
             browser $win
 
 
@@ -162,17 +162,9 @@ snit::widgetadaptor civgroupbrowser {
         if {[llength $ids] == 1} {
             set id [lindex $ids 0]
 
-            if {[order state] eq "PREP"} {
-                order enter CIVGROUP:UPDATE g $id
-            } else {
-                order enter CIVGROUP:UPDATE:POSTPREP g $id
-            }
+            order enter CIVGROUP:UPDATE g $id
         } else {
-            if {[order state] eq "PREP"} {
-                order enter CIVGROUP:UPDATE:MULTI ids $ids
-            } else {
-                order enter CIVGROUP:UPDATE:MULTI:POSTPREP ids $ids
-            }
+            order enter CIVGROUP:UPDATE:MULTI ids $ids
         }
     }
 

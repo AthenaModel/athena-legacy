@@ -809,7 +809,6 @@ snit::widget appwin {
         
         $self AddOrder $submenu CIVGROUP:CREATE
         $self AddOrder $submenu CIVGROUP:UPDATE
-        $self AddOrder $submenu CIVGROUP:UPDATE:POSTPREP
         $self AddOrder $submenu CIVGROUP:DELETE
 
         # Orders/Force Group

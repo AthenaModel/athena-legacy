@@ -141,7 +141,7 @@ snit::type civgroup {
     #    shape          The group's unit shape (eunitshape(n))
     #    demeanor       The group's demeanor (edemeanor(n))
     #    basepop        The group's base population
-    #    sap            The group's subsistence agriculture percentage 
+    #    sa_flag        The group's subsistence agriculture flag. 
     #
     # Creates a civilian group given the parms, which are presumed to be
     # valid.
@@ -168,11 +168,11 @@ snit::type civgroup {
                        'CIV');
 
                 INSERT INTO
-                civgroups(g,n,basepop,sap)
+                civgroups(g,n,basepop,sa_flag)
                 VALUES($g,
                        $n,
                        $basepop,
-                       $sap);
+                       $sa_flag);
 
                 INSERT INTO demog_g(g)
                 VALUES($g);
@@ -241,7 +241,7 @@ snit::type civgroup {
     #    shape          A new shape, or ""
     #    demeanor       The group's demeanor (edemeanor(n))
     #    basepop        A new basepop, or ""
-    #    sap            A new sap, or ""
+    #    sa_flag        A new sa_flag, or ""
     #
     # Updates a civgroup given the parms, which are presumed to be
     # valid.
@@ -263,7 +263,7 @@ snit::type civgroup {
                 UPDATE civgroups
                 SET n       = nonempty($n, n),
                     basepop = nonempty($basepop,  basepop),
-                    sap     = nonempty($sap, sap)
+                    sa_flag = nonempty($sa_flag, sa_flag)
                 WHERE g=$g
 
             } {}
@@ -309,8 +309,8 @@ order define CIVGROUP:CREATE {
         text basepop -defvalue 10000
         label "people"
 
-        rcc "Subs. Agri. %" -for sap
-        percent sap -defvalue 0
+        rcc "Subs. Agri. Flag" -for sa_flag
+        yesno sa_flag -defvalue 0
 
     }
 } {
@@ -322,7 +322,7 @@ order define CIVGROUP:CREATE {
     prepare shape    -toupper   -required         -type eunitshape
     prepare demeanor -toupper   -required         -type edemeanor
     prepare basepop  -num       -required         -type ingpopulation
-    prepare sap      -num       -required         -type ipercent
+    prepare sa_flag             -required         -type boolean
 
     returnOnError -final
 
@@ -415,8 +415,8 @@ order define CIVGROUP:UPDATE {
         text basepop
         label "people"
 
-        rcc "Subs. Agri. %" -for sap
-        percent sap
+        rcc "Subs. Agri. Flag" -for sa_flag
+        yesno sa_flag
     }
 } {
     # FIRST, prepare the parameters
@@ -427,7 +427,7 @@ order define CIVGROUP:UPDATE {
     prepare shape     -toupper   -type eunitshape
     prepare demeanor  -toupper   -type edemeanor
     prepare basepop   -num       -type ingpopulation
-    prepare sap       -num       -type ipercent
+    prepare sa_flag              -type boolean
 
     returnOnError -final
 
@@ -464,8 +464,8 @@ order define CIVGROUP:UPDATE:MULTI {
         text basepop
         label "people"
 
-        rcc "Subs. Agri. %" -for sap
-        percent sap
+        rcc "Subs. Agri. Flag" -for sa_flag
+        yesno sa_flag
     }
 } {
     # FIRST, prepare the parameters
@@ -475,7 +475,7 @@ order define CIVGROUP:UPDATE:MULTI {
     prepare shape    -toupper           -type eunitshape
     prepare demeanor -toupper           -type edemeanor
     prepare basepop  -num               -type ingpopulation
-    prepare sap      -num               -type ipercent
+    prepare sa_flag                     -type boolean
 
     returnOnError -final
 
@@ -492,64 +492,5 @@ order define CIVGROUP:UPDATE:MULTI {
     setundo [join $undo \n]
 }
 
-# CIVGROUP:UPDATE:POSTPREP
-#
-# Updates existing groups.
-
-order define CIVGROUP:UPDATE:POSTPREP {
-    title "Update Civilian Group (Post-PREP)"
-    options -sendstates {PREP PAUSED TACTIC}
-
-    form {
-        rcc "Select Group:" -for g
-        key g -table civgroups_view -keys g \
-            -loadcmd {orderdialog keyload g *}
-
-        rcc "Subs. Agri. %" -for sap
-        percent sap
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare g   -toupper  -required -type civgroup
-    prepare sap -num                -type ipercent
-
-    returnOnError -final
-
-    # NEXT, modify the group
-    setundo [civgroup mutate update [array get parms]]
-}
-
-# CIVGROUP:UPDATE:MULTI:POSTPREP
-#
-# Updates existing groups.
-
-order define CIVGROUP:UPDATE:MULTI:POSTPREP {
-    title "Update Multiple Civilian Groups (Post-PREP)"
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Groups:" -for ids
-        multi ids -table gui_civgroups -key g \
-            -loadcmd {orderdialog multiload ids *}
-
-        rcc "Subs. Agri. %" -for sap
-        percent sap
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare ids      -toupper -required -listof civgroup
-    prepare sap      -num               -type ipercent
-
-    returnOnError -final
-
-    # NEXT, modify the group
-    set undo [list]
-
-    foreach parms(g) $parms(ids) {
-        lappend undo [civgroup mutate update [array get parms]]
-    }
-
-    setundo [join $undo \n]
-}
 
 

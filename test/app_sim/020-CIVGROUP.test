@@ -36,7 +36,7 @@ namespace eval ::athena_test::tests:: {
         shape     NEUTRAL
         demeanor  AVERAGE
         basepop   10000
-        sap       0
+        sa_flag   0
     }
 
     set sunn {
@@ -47,7 +47,7 @@ namespace eval ::athena_test::tests:: {
         shape     ENEMY
         demeanor  AGGRESSIVE
         basepop   20000
-        sap       1
+        sa_flag   1
     }
 
 
@@ -70,7 +70,7 @@ namespace eval ::athena_test::tests:: {
         shape {required value}
         demeanor {required value}
         basepop {required value}
-        sap {required value}
+        sa_flag {required value}
     }
     
     test CREATE-1.2 {Duplicate g} -setup {
@@ -168,28 +168,16 @@ namespace eval ::athena_test::tests:: {
         basepop {invalid value "0", expected integer no less than 1}
     }
 
-    test CREATE-1.10 {invalid sap 1} -setup {
+    test CREATE-1.10 {invalid sa_flag 1} -setup {
         ted create NB1
     } -body {
         ted order -reject CIVGROUP:CREATE [dict merge $shia {
-            sap NONESUCH
+            sa_flag NONESUCH
         }]
     } -cleanup {
         cleanup
     } -result {
-        sap {invalid value "NONESUCH", expected integer}
-    }
-
-    test CREATE-1.11 {invalid sap 2} -setup {
-        ted create NB1
-    } -body {
-        ted order -reject CIVGROUP:CREATE [dict merge $shia {
-            sap -1
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        sap {invalid value "-1", expected integer in range 0, 100}
+        sa_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
     test CREATE-2.1 {group is created} -body {
@@ -200,9 +188,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol   demeanor basepop rel_entity gtype n   sap 
----- ----------- ------- ------- -------- -------- ------- ---------- ----- --- --- 
-SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0   
+g    longname    color   shape   symbol   demeanor basepop rel_entity gtype n   sa_flag 
+---- ----------- ------- ------- -------- -------- ------- ---------- ----- --- ------- 
+SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0       
     }
 
 
@@ -214,9 +202,9 @@ SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sap 
----- -------- ------- ------- -------- -------- ------- ---------- ----- --- --- 
-SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0   
+g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sa_flag 
+---- -------- ------- ------- -------- -------- ------- ---------- ----- --- ------- 
+SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0       
     }
 
     test CREATE-2.3 {effects} -body {
@@ -364,25 +352,14 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0
     }
 
 
-    test UPDATE-1.10 {invalid sap 1} -setup {
+    test UPDATE-1.10 {invalid sa_flag 1} -setup {
         ted create NB1 SHIA
     } -body {
-        ted order -reject CIVGROUP:UPDATE g SHIA sap NONESUCH
+        ted order -reject CIVGROUP:UPDATE g SHIA sa_flag NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        sap {invalid value "NONESUCH", expected integer}
-    }
-
-
-    test UPDATE-1.11 {invalid sap 2} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE g SHIA sap -1
-    } -cleanup {
-        cleanup
-    } -result {
-        sap {invalid value "-1", expected integer in range 0, 100}
+        sa_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
 
@@ -397,16 +374,16 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0
             shape        ENEMY
             demeanor     APATHETIC
             basepop      5000
-            sap          50
+            sa_flag      YES
         }
 
         ted query {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape symbol   demeanor  basepop rel_entity gtype n   sap 
----- --------- ------- ----- -------- --------- ------- ---------- ----- --- --- 
-SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    SHIA       CIV   NB2 50  
+g    longname  color   shape symbol   demeanor  basepop rel_entity gtype n   sa_flag 
+---- --------- ------- ----- -------- --------- ------- ---------- ----- --- ------- 
+SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    SHIA       CIV   NB2 1       
     }
 
 
@@ -430,77 +407,6 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    SHIA       CIV   NB2 50
             longname     "Shia Folk"
             color        "#ff0000"
         }
-    } -body {
-        ted notifier bind ::rdb <civgroups>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <civgroups> update SHIA}
-    }
-
-    #-------------------------------------------------------------------
-    # CIVGROUP:UPDATE:POSTPREP
-
-    test UPDATE:POSTPREP-1.1 {required parms} -body {
-        ted order -reject CIVGROUP:UPDATE:POSTPREP {}
-    } -result {
-        g {required value}
-    }
-
-    
-    test UPDATE:POSTPREP-1.2 {Undefined group} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE:POSTPREP g SUNN sap 5
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid civilian group, should be one of: SHIA}
-    }
-
-    test UPDATE:POSTPREP-1.3 {invalid sap} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE:POSTPREP g SHIA sap NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        sap {invalid value "NONESUCH", expected integer}
-    }
-
-
-    test UPDATE:POSTPREP-2.1 {civgroup is updated} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order CIVGROUP:UPDATE:POSTPREP g SHIA sap 5
-
-        ted query {SELECT * FROM civgroups_view}
-    } -cleanup {
-        cleanup
-    } -result {
-g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sap 
----- -------- ------- ------- -------- -------- ------- ---------- ----- --- --- 
-SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 5   
-    }
-
-    test UPDATE:POSTPREP-2.2 {table monitor event} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted notifier bind ::rdb <civgroups>
-        ted order CIVGROUP:UPDATE:POSTPREP g SHIA sap 5
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <civgroups> update SHIA}
-    }
-
-
-    test UPDATE:POSTPREP-3.1 {undo effects} -setup {
-        ted create NB1 SHIA
-        ted order CIVGROUP:UPDATE:POSTPREP g SHIA sap 5
     } -body {
         ted notifier bind ::rdb <civgroups>
         cif undo -test
@@ -606,24 +512,12 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 5
     test UPDATE:MULTI-1.10 {invalid sap 1} -setup {
         ted create NB1 SHIA
     } -body {
-        ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA sap NONESUCH
+        ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA sa_flag NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        sap {invalid value "NONESUCH", expected integer}
+        sa_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
-
-
-    test UPDATE:MULTI-1.11 {invalid sap 2} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA sap -1
-    } -cleanup {
-        cleanup
-    } -result {
-        sap {invalid value "-1", expected integer in range 0, 100}
-    }
-
 
     test UPDATE:MULTI-2.1 {one civgroup of several is updated} -setup {
         ted create NB1 SHIA SUNN
@@ -655,99 +549,6 @@ SHIA Shia     #c00001 NEUTRAL civilian AVERAGE  1000    SHIA       CIV   NB1 5
     test UPDATE:MULTI-3.1 {undo effects} -setup {
         ted create NB1 SHIA SUNN
         ted order CIVGROUP:UPDATE:MULTI ids {SHIA SUNN} color "#ff0000"
-    } -body {
-        ted notifier bind ::rdb <civgroups>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <civgroups> update SHIA}
-        {::rdb <civgroups> update SUNN}
-    }
-
-    #-------------------------------------------------------------------
-    # CIVGROUP:UPDATE:MULTI:POSTPREP
-
-    test UPDATE:MULTI:POSTPREP-1.1 {required parms} -body {
-        ted order -reject CIVGROUP:UPDATE:MULTI:POSTPREP {}
-    } -result {
-        ids {required value}
-    }
-    
-    test UPDATE:MULTI:POSTPREP-1.2 {invalid ids, no groups} -body {
-        ted order -reject CIVGROUP:UPDATE:MULTI:POSTPREP ids NONESUCH
-    } -result {
-        ids {Invalid civilian group, none are defined}
-    }
-
-    test UPDATE:MULTI:POSTPREP-1.3 {invalid ids, groups} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE:MULTI:POSTPREP ids NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        ids {Invalid civilian group, should be one of: SHIA}
-    }
-
-
-    test UPDATE:MULTI:POSTPREP-1.4 {invalid sap 1} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE:MULTI:POSTPREP \
-            ids SHIA sap NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        sap {invalid value "NONESUCH", expected integer}
-    }
-
-
-    test UPDATE:MULTI:POSTPREP-1.5 {invalid sap 2} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE:MULTI:POSTPREP \
-            ids SHIA sap -1
-    } -cleanup {
-        cleanup
-    } -result {
-        sap {invalid value "-1", expected integer in range 0, 100}
-    }
-
-
-    test UPDATE:MULTI:POSTPREP-2.1 {one civgroup of several is updated} -setup {
-        ted create NB1 SHIA SUNN
-    } -body {
-        ted notifier bind ::rdb <civgroups>
-        ted order CIVGROUP:UPDATE:MULTI:POSTPREP ids SHIA sap 5
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <civgroups> update SHIA}
-    }
-
-
-    test UPDATE:MULTI:POSTPREP-2.2 {several civgroups are updated} -setup {
-        ted create NB1 SHIA SUNN
-    } -body {
-        ted notifier bind ::rdb <civgroups>
-        ted order CIVGROUP:UPDATE:MULTI:POSTPREP \
-            ids {SHIA SUNN} sap 5
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <civgroups> update SHIA}
-        {::rdb <civgroups> update SUNN}
-    }
-
-
-    test UPDATE:MULTI:POSTPREP-3.1 {undo effects} -setup {
-        ted create NB1 SHIA SUNN
-        ted order CIVGROUP:UPDATE:MULTI:POSTPREP \
-            ids {SHIA SUNN} sap 5
     } -body {
         ted notifier bind ::rdb <civgroups>
         cif undo -test

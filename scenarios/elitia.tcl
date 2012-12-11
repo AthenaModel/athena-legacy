@@ -16,12 +16,12 @@ send ACTOR:UPDATE -a PELF -longname {Peonian Liberation Front} -cash_reserve 0.0
 send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -shape FRIEND -base_personnel 20000 -cost 5000 -attack_cost 3000 -local 1
 send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -shape ENEMY -forcetype IRREGULAR -base_personnel 6000 -demeanor AGGRESSIVE -cost 1000 -attack_cost 500 -uniformed 0 -local 1
 send ACTOR:UPDATE -a PELF -longname {Peonian Liberation Front} -cash_reserve 0.00 -income_goods 250,000 -cash_on_hand 500k
-send CIVGROUP:CREATE -g PEONR -longname {Rural Peons} -n PE -demeanor AGGRESSIVE -sap 20
+send CIVGROUP:CREATE -g PEONR -longname {Rural Peons} -n PE -demeanor AGGRESSIVE
 send CIVGROUP:CREATE -g PEONU -longname {Urban Peons} -n CITY -color #AA7744
-send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 10000 -sap 20
-send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 40000 -sap 20
-send CIVGROUP:CREATE -g ELR -longname {Rural Elitians} -n EL -basepop 50000 -sap 10
-send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 40000 -sap 40
+send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 10000
+send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 40000
+send CIVGROUP:CREATE -g ELR -longname {Rural Elitians} -n EL -basepop 50000
+send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 40000
 send CIVGROUP:CREATE -g ELU -longname {Urban Elitians} -n CITY -basepop 30000
 send BSYSTEM:TOPIC:CREATE -tid PI -title {Peonian Independence}
 send BSYSTEM:TOPIC:CREATE -tid DEM -title Democracy
@@ -62,11 +62,11 @@ send BSYSTEM:BELIEF:UPDATE -id {ELR DEM} -position W+
 send BSYSTEM:BELIEF:UPDATE -id {ELR DEM} -emphasis AWEAK
 send BSYSTEM:BELIEF:UPDATE -id {ELR PI} -position P-
 send BSYSTEM:BELIEF:UPDATE -id {ELR PI} -emphasis DSTRONG
-send CIVGROUP:UPDATE -g ELU -longname {Urban Elitians} -n CITY -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000 -sap 0
-send CIVGROUP:UPDATE -g PEONU -longname {Urban Peons} -n CITY -color #AA7744 -shape NEUTRAL -demeanor AVERAGE -basepop 50000 -sap 0
-send CIVGROUP:UPDATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000 -sap 10
-send CIVGROUP:UPDATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 600000 -sap 10
-send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 800000 -sap 40
+send CIVGROUP:UPDATE -g ELU -longname {Urban Elitians} -n CITY -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000
+send CIVGROUP:UPDATE -g PEONU -longname {Urban Peons} -n CITY -color #AA7744 -shape NEUTRAL -demeanor AVERAGE -basepop 50000
+send CIVGROUP:UPDATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000
+send CIVGROUP:UPDATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 600000
+send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 800000
 send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller GOV -vtygain { 1.0} -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
 send NBHOOD:UPDATE -n EL -longname Elitia -local YES -urbanization RURAL -controller GOV -vtygain { 1.0} -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
 send NBHOOD:UPDATE -n PE -longname Peonia -local YES -urbanization RURAL -controller GOV -vtygain { 1.0} -refpoint G21D98 -polygon {F17C28 F63D50 G31E58 H69E28 H57D10 G51C22}

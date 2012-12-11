@@ -85,43 +85,6 @@ order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
     <</parmlist>>
 }
 
-#-----------------------------------------------------------------------
-
-order CIVGROUP:UPDATE+POSTPREP "Update Civilian Group (Post-PREP)" {
-    This order updates an existing <<term civgroup>>
-    after leaving <<term prep>>.  Only a subset of the
-    group attributes can be edited.<p>
-
-    This order can be sent by an 
-    <<cref /object/tactic/executive>> script using the 
-    <<cref /command/send>> executive command.<p>
-
-    <<parmlist>>
-    <<parm g "Select Group">>
-    <b>Required.</b> <<GROUP.g civilian>>
-    <</parm>>
-
-    <<group_civ parms -required -tags postprep>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-
-order CIVGROUP:UPDATE+POSTPREP+MULTI "Update Multiple Civilian Groups (Post-PREP)" {
-    This order updates two or more existing <<term civgroup>>s,
-    as selected in the GUI, 
-    after leaving <<term prep>>.  Only a subset of the
-    group attributes can be edited.<p>
-
-    <<parmlist>>
-
-    <<parm ids "Groups">>
-    <b>Required.</b>  <<parm.ids "civilian group">>
-    <</parm>>
-
-    <<group_civ parms -required -tags postprep>>
-    <</parmlist>>
-}
 
 
 

@@ -292,24 +292,26 @@ snit::type sanity {
         }
 
         # NEXT, there must be at least 1 local consumer; and hence, there
-        # must be at least one local civ group with a sap less than 100.
+        # must be at least one local civ group with sa_flag=0.
 
         if {![rdb exists {
-            SELECT sap 
+            SELECT sa_flag 
             FROM civgroups JOIN nbhoods USING (n)
-            WHERE local AND sap < 100
+            WHERE local AND NOT sa_flag
         }]} {
             set sev ERROR
 
             $ht dlitem "<b>Error: No consumers in local economy</b>" {
                 There are no consumers in the local economy.  At least
-                one civilian group in a "local" neighborhood
+                one civilian group in some "local" neighborhood
                 needs to have non-subsistence
                 population.  Add or edit civilian groups on the
                 <a href="gui:/tab/civgroups">Groups/CivGroups</a>
                 tab.
             }
         }
+
+        $ht /dl
 
         # NEXT, we only have content if there were errors.
         set html [$ht pop]

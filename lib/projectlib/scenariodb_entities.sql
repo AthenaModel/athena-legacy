@@ -236,8 +236,10 @@ CREATE TABLE civgroups (
     -- Base Population/Personnel for this group
     basepop     INTEGER DEFAULT 0,
 
-    -- Subsistence Agriculture Percentage in n.
-    sap            INTEGER DEFAULT 0
+    -- Subsistence Agriculture Flag: if 1, the group does 
+    -- subsistence agriculture and does not participate in the
+    -- cash economy.  If 0, they do.
+    sa_flag      INTEGER DEFAULT 0
 );
 
 -- Civ Groups View: joins groups with civgroups.
@@ -252,7 +254,7 @@ SELECT g,
        rel_entity,
        gtype,
        n,
-       sap 
+       sa_flag 
 FROM groups JOIN civgroups USING (g);
 
 -- Force Groups

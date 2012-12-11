@@ -55,7 +55,7 @@ snit::type demog {
     # Syntax:
     #   analyze pop
 
-    typemethod "analyze pop" {} {
+    typemethod {analyze pop} {} {
         $type ComputePopG
         $type ComputePopN
         $type ComputePopLocal
@@ -78,7 +78,7 @@ snit::type demog {
         rdb eval {
             SELECT civgroups.n            AS n,
                    civgroups.g            AS g,
-                   civgroups.sap          AS sap,
+                   civgroups.sa_flag      AS sa_flag,
                    total(units.personnel) AS population
             FROM civgroups
             JOIN units
@@ -86,8 +86,13 @@ snit::type demog {
             WHERE units.n = units.origin AND units.personnel > 0
             GROUP BY civgroups.g
         } {
-            let subsistence {int($population*$sap/100.0)}
-            let consumers   {$population - $subsistence}
+            if {$sa_flag} {
+                let consumers   0
+                let subsistence $population
+            } else {
+                set consumers   $population
+                set subsistence 0
+            }
 
             rdb eval {
                 UPDATE demog_g
@@ -117,12 +122,11 @@ snit::type demog {
         rdb eval {
             SELECT civgroups.n             AS n,
                    civgroups.g             AS g, 
-                   civgroups.sap           AS sap, 
                    units.a                 AS a, 
                    total(units.personnel)  AS personnel
             FROM civgroups 
             JOIN units ON (civgroups.n=units.origin AND civgroups.g=units.g)
-            WHERE units.n=units.origin
+            WHERE NOT civgroups.sa_flag AND units.n=units.origin
             GROUP BY g,a
         } {
             set LFF [parm get demog.laborForceFraction.$a]
@@ -131,8 +135,7 @@ snit::type demog {
                 continue
             }
 
-
-            let LF {round($LFF* $personnel * (100 - $sap)/100.0)}
+            let LF {round($LFF * $personnel)}
 
             rdb eval {
                 UPDATE demog_g
@@ -236,7 +239,7 @@ snit::type demog {
     # Syntax:
     #   analyze econ
 
-    typemethod "analyze econ" {} {
+    typemethod {analyze econ} {} {
         # FIRST, get the unemployment rate and the Unemployment
         # Factor Z-curve.  Assume no unemployment if the econ
         # model is disabled.

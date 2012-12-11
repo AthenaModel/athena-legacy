@@ -1108,7 +1108,7 @@ tab "Groups/CivGroups" {
     <<group_civ parm shape    -label "Unit Shape">>
     <<group_civ parm demeanor -label "Demeanor">>
     <<group_civ parm basepop  -label "BasePop">>
-    <<group_civ parm sap      -label "SA%">>
+    <<group_civ parm sa_flag  -label "Subsistence Agriculture">>
 
     <</parmlist>>
 
@@ -2779,10 +2779,6 @@ tab "Econ/Groups" {
 
     <<topic Population>>The current population of the group in the
     neighborhood.
-    <</topic>>
-
-    <<topic SA%>>The subsistence agriculture percentage (SAP) for this 
-    civilian group.
     <</topic>>
 
     <<topic Subsist.>>The number of people in the group that support

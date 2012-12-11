@@ -108,11 +108,12 @@ object group_civ {
         attrition.  An integer number no less than 1.
     } -tags {create update multi browser}
 
-    attribute sap "Subsistence Agriculture Percentage" {
-        The percentage of the group's population that supports itself by 
-        subsistence agriculture, and hence does not participate in the
-        regional economy.  An integer number from 0 to 100.
-    } -tags {create update multi postprep browser}
+    attribute sa_flag "Subsistence Agriculture Flag" {
+        If true, the group supports itself by means of subsistence
+        agriculture, and does not participate in the regional
+        economy.  If false, it's a normal group with consumers and
+        workers.
+    } -tags {create update multi browser}
 }
 
 page /object/group civ "Civilian Group" {

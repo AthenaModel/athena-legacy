@@ -179,27 +179,27 @@ appserver module GROUPS {
 
             if {[sim state] eq "PREP"} {
                 ht query {
-                    SELECT longlink     AS "Group",
-                           n            AS "Nbhood",
-                           demeanor     AS "Demeanor",
-                           basepop      AS "Population",
-                           sap          AS "SA%",
-                           req_funding  AS "Req. ENI<br>funding, $/wk",
-                           sat_funding  AS "Sat. ENI<br>funding, $/wk"
+                    SELECT longlink       AS "Group",
+                           n              AS "Nbhood",
+                           demeanor       AS "Demeanor",
+                           basepop        AS "Population",
+                           pretty_sa_flag AS "Subsist. Agric. Flag",
+                           req_funding    AS "Req. ENI<br>funding, $/wk",
+                           sat_funding    AS "Sat. ENI<br>funding, $/wk"
                     FROM gui_civgroups 
                     ORDER BY longlink
                 } -default "None." -align LLLRRRR
             } else {
                 ht query {
-                    SELECT longlink     AS "Group",
-                           n            AS "Nbhood",
-                           demeanor     AS "Demeanor",
-                           population   AS "Population",
-                           sap          AS "SA%",
-                           req_funding  AS "Req. ENI<br>funding, $/wk",
-                           sat_funding  AS "Sat. ENI<br>funding, $/wk",
-                           mood0        AS "Mood at T0",
-                           mood         AS "Mood Now"
+                    SELECT longlink       AS "Group",
+                           n              AS "Nbhood",
+                           demeanor       AS "Demeanor",
+                           population     AS "Population",
+                           pretty_sa_flag AS "Subsist. Agric. Flag",
+                           req_funding    AS "Req. ENI<br>funding, $/wk",
+                           sat_funding    AS "Sat. ENI<br>funding, $/wk",
+                           mood0          AS "Mood at T0",
+                           mood           AS "Mood Now"
                     FROM gui_civgroups 
                     ORDER BY longlink
                 } -default "None." -align LLLRRRRRR
@@ -346,15 +346,18 @@ appserver module GROUPS {
 
         if {[locked]} {
             # NEXT, the rest of the summary
-            let lf {double($data(labor_force))/$data(population)}
-            let sa {double($data(subsistence))/$data(population)}
-            let ur {double($data(unemployed))/$data(labor_force)}
-        
-            ht putln "[percent $lf] of the group is in the labor force, "
-            ht put   "and [percent $sa] of the group is engaged in "
-            ht put   "subsistence agriculture."
-        
-            ht putln "The unemployment rate is [percent $ur]."
+            if {$data(sa_flag)} {
+                ht putln {
+                    The group members support themselves by means of
+                    subsistence agriculture.
+                }
+            } else {
+                let lf {double($data(labor_force))/$data(population)}
+                let ur {double($data(unemployed))/$data(labor_force)}
+            
+                ht putln "[percent $lf] of the group is in the labor force, "
+                ht putln "and the unemployment rate is [percent $ur]."
+            }
 
             ht putln "The group is receiving "
 

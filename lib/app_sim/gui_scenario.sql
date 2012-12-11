@@ -130,37 +130,38 @@ FROM groups;
 
 -- gui_civgroups: Civilian group data collected from all over.
 CREATE TEMPORARY VIEW gui_civgroups AS
-SELECT G.id                                         AS id,
-       G.g                                          AS g,
-       G.url                                        AS url,
-       G.fancy                                      AS fancy,
-       G.link                                       AS link,
-       G.longlink                                   AS longlink,
-       G.gtype                                      AS gtype,
-       G.longname                                   AS longname,
-       G.color                                      AS color,
-       G.shape                                      AS shape,
-       G.demeanor                                   AS demeanor,
-       CG.basepop                                   AS basepop,
-       CG.n                                         AS n,
-       CG.sap                                       AS sap,
-       DG.population                                AS population,
-       DG.displaced                                 AS displaced,
-       DG.attrition                                 AS attrition,
-       DG.subsistence                               AS subsistence,
-       DG.consumers                                 AS consumers,
-       DG.labor_force                               AS labor_force,
-       DG.unemployed                                AS unemployed,
+SELECT G.id                                            AS id,
+       G.g                                             AS g,
+       G.url                                           AS url,
+       G.fancy                                         AS fancy,
+       G.link                                          AS link,
+       G.longlink                                      AS longlink,
+       G.gtype                                         AS gtype,
+       G.longname                                      AS longname,
+       G.color                                         AS color,
+       G.shape                                         AS shape,
+       G.demeanor                                      AS demeanor,
+       CG.basepop                                      AS basepop,
+       CG.n                                            AS n,
+       CASE CG.sa_flag WHEN 1 THEN 'Yes' ELSE 'No' END AS pretty_sa_flag,
+       CG.sa_flag                                      AS sa_flag,
+       DG.population                                   AS population,
+       DG.displaced                                    AS displaced,
+       DG.attrition                                    AS attrition,
+       DG.subsistence                                  AS subsistence,
+       DG.consumers                                    AS consumers,
+       DG.labor_force                                  AS labor_force,
+       DG.unemployed                                   AS unemployed,
        CASE WHEN SR.req_funding IS NULL
             THEN 'N/A' 
-            ELSE moneyfmt(SR.req_funding) END       AS req_funding, 
+            ELSE moneyfmt(SR.req_funding) END          AS req_funding, 
        CASE WHEN SR.sat_funding IS NULL
             THEN 'N/A' 
-            ELSE moneyfmt(SR.sat_funding) END       AS sat_funding, 
-       format('%.1f', DG.upc)                       AS upc,
-       format('%.2f', DG.uaf)                       AS uaf,
-       format('%.3f', coalesce(UM.mood0, 0.0))      AS mood0,
-       format('%.3f', coalesce(UM.mood, 0.0))       AS mood
+            ELSE moneyfmt(SR.sat_funding) END          AS sat_funding, 
+       format('%.1f', DG.upc)                          AS upc,
+       format('%.2f', DG.uaf)                          AS uaf,
+       format('%.3f', coalesce(UM.mood0, 0.0))         AS mood0,
+       format('%.3f', coalesce(UM.mood, 0.0))          AS mood
 FROM gui_groups AS G
 JOIN civgroups  AS CG USING (g)
 JOIN demog_g    AS DG USING (g)
