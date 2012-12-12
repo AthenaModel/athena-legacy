@@ -36,6 +36,7 @@ namespace eval ::athena_test::tests:: {
         shape     NEUTRAL
         demeanor  AVERAGE
         basepop   10000
+        pop_cr    0.0
         sa_flag   0
     }
 
@@ -47,6 +48,7 @@ namespace eval ::athena_test::tests:: {
         shape     ENEMY
         demeanor  AGGRESSIVE
         basepop   20000
+        pop_cr    0.0
         sa_flag   1
     }
 
@@ -70,6 +72,7 @@ namespace eval ::athena_test::tests:: {
         shape {required value}
         demeanor {required value}
         basepop {required value}
+        pop_cr {required value}
         sa_flag {required value}
     }
     
@@ -188,9 +191,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol   demeanor basepop rel_entity gtype n   sa_flag 
----- ----------- ------- ------- -------- -------- ------- ---------- ----- --- ------- 
-SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0       
+g    longname    color   shape   symbol   demeanor basepop pop_cr rel_entity gtype n   sa_flag 
+---- ----------- ------- ------- -------- -------- ------- ------ ---------- ----- --- ------- 
+SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  10000   0.0    SHIA       CIV   NB1 0       
     }
 
 
@@ -202,9 +205,9 @@ SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor basepop rel_entity gtype n   sa_flag 
----- -------- ------- ------- -------- -------- ------- ---------- ----- --- ------- 
-SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0       
+g    longname color   shape   symbol   demeanor basepop pop_cr rel_entity gtype n   sa_flag 
+---- -------- ------- ------- -------- -------- ------- ------ ---------- ----- --- ------- 
+SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   0.0    SHIA       CIV   NB1 0       
     }
 
     test CREATE-2.3 {effects} -body {
@@ -374,6 +377,7 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0
             shape        ENEMY
             demeanor     APATHETIC
             basepop      5000
+            pop_cr       2.5
             sa_flag      YES
         }
 
@@ -381,9 +385,9 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   SHIA       CIV   NB1 0
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape symbol   demeanor  basepop rel_entity gtype n   sa_flag 
----- --------- ------- ----- -------- --------- ------- ---------- ----- --- ------- 
-SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    SHIA       CIV   NB2 1       
+g    longname  color   shape symbol   demeanor  basepop pop_cr rel_entity gtype n   sa_flag 
+---- --------- ------- ----- -------- --------- ------- ------ ---------- ----- --- ------- 
+SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   NB2 1       
     }
 
 

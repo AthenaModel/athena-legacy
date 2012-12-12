@@ -183,6 +183,7 @@ appserver module GROUPS {
                            n              AS "Nbhood",
                            demeanor       AS "Demeanor",
                            basepop        AS "Population",
+                           pop_cr         AS "Pop. Change Rate, %/year",
                            pretty_sa_flag AS "Subsist. Agric. Flag",
                            req_funding    AS "Req. ENI<br>funding, $/wk",
                            sat_funding    AS "Sat. ENI<br>funding, $/wk"
@@ -358,6 +359,9 @@ appserver module GROUPS {
                 ht putln "[percent $lf] of the group is in the labor force, "
                 ht putln "and the unemployment rate is [percent $ur]."
             }
+
+            ht putln "The population of the group is changing by "
+            ht putln "$data(pop_cr)% per year."
 
             ht putln "The group is receiving "
 

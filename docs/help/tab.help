@@ -1108,6 +1108,7 @@ tab "Groups/CivGroups" {
     <<group_civ parm shape    -label "Unit Shape">>
     <<group_civ parm demeanor -label "Demeanor">>
     <<group_civ parm basepop  -label "BasePop">>
+    <<group_civ parm pop_cr   -label "Population Change Rate">>
     <<group_civ parm sa_flag  -label "Subsistence Agriculture">>
 
     <</parmlist>>

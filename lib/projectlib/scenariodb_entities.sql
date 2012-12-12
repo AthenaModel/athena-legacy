@@ -228,18 +228,22 @@ CREATE TABLE groups (
 -- Civ Groups
 CREATE TABLE civgroups (
     -- Symbolic group name
-    g           TEXT PRIMARY KEY,
+    g        TEXT PRIMARY KEY,
 
     -- Symbolic neighborhood name for neighborhood of residence.
-    n              TEXT,
+    n        TEXT,
 
     -- Base Population/Personnel for this group
-    basepop     INTEGER DEFAULT 0,
+    basepop  INTEGER DEFAULT 0,
+
+    -- Population Change Rate for this group in percent per year.
+    -- This could be a negative number
+    pop_cr   DOUBLE DEFAULT 0.0,
 
     -- Subsistence Agriculture Flag: if 1, the group does 
     -- subsistence agriculture and does not participate in the
     -- cash economy.  If 0, they do.
-    sa_flag      INTEGER DEFAULT 0
+    sa_flag  INTEGER DEFAULT 0
 );
 
 -- Civ Groups View: joins groups with civgroups.
@@ -251,6 +255,7 @@ SELECT g,
        symbol,
        demeanor,
        basepop,
+       pop_cr,
        rel_entity,
        gtype,
        n,

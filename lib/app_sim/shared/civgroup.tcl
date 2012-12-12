@@ -141,6 +141,7 @@ snit::type civgroup {
     #    shape          The group's unit shape (eunitshape(n))
     #    demeanor       The group's demeanor (edemeanor(n))
     #    basepop        The group's base population
+    #    pop_cr         The group's population change rate
     #    sa_flag        The group's subsistence agriculture flag. 
     #
     # Creates a civilian group given the parms, which are presumed to be
@@ -168,10 +169,11 @@ snit::type civgroup {
                        'CIV');
 
                 INSERT INTO
-                civgroups(g,n,basepop,sa_flag)
+                civgroups(g,n,basepop,pop_cr,sa_flag)
                 VALUES($g,
                        $n,
                        $basepop,
+                       $pop_cr,
                        $sa_flag);
 
                 INSERT INTO demog_g(g)
@@ -241,6 +243,7 @@ snit::type civgroup {
     #    shape          A new shape, or ""
     #    demeanor       The group's demeanor (edemeanor(n))
     #    basepop        A new basepop, or ""
+    #    pop_cr         A new pop change rate, or ""
     #    sa_flag        A new sa_flag, or ""
     #
     # Updates a civgroup given the parms, which are presumed to be
@@ -262,7 +265,8 @@ snit::type civgroup {
 
                 UPDATE civgroups
                 SET n       = nonempty($n, n),
-                    basepop = nonempty($basepop,  basepop),
+                    basepop = nonempty($basepop, basepop),
+                    pop_cr  = nonempty($pop_cr,  pop_cr),
                     sa_flag = nonempty($sa_flag, sa_flag)
                 WHERE g=$g
 
@@ -309,20 +313,25 @@ order define CIVGROUP:CREATE {
         text basepop -defvalue 10000
         label "people"
 
+        rcc "Pop. Change Rate:" -for pop_cr
+        text pop_cr -defvalue 0.0
+        label "% per year"
+
         rcc "Subs. Agri. Flag" -for sa_flag
         yesno sa_flag -defvalue 0
 
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare g        -toupper   -required -unused -type ident
-    prepare longname -normalize
-    prepare n        -toupper   -required         -type nbhood
-    prepare color    -tolower   -required         -type hexcolor
-    prepare shape    -toupper   -required         -type eunitshape
-    prepare demeanor -toupper   -required         -type edemeanor
-    prepare basepop  -num       -required         -type ingpopulation
-    prepare sa_flag             -required         -type boolean
+    prepare g         -toupper   -required -unused -type ident
+    prepare longname  -normalize
+    prepare n         -toupper   -required         -type nbhood
+    prepare color     -tolower   -required         -type hexcolor
+    prepare shape     -toupper   -required         -type eunitshape
+    prepare demeanor  -toupper   -required         -type edemeanor
+    prepare basepop   -num       -required         -type ingpopulation
+    prepare pop_cr    -num       -required         -type rpercent
+    prepare sa_flag              -required         -type boolean
 
     returnOnError -final
 
@@ -415,6 +424,10 @@ order define CIVGROUP:UPDATE {
         text basepop
         label "people"
 
+        rcc "Pop. Change Rate:" -for pop_cr
+        text pop_cr -defvalue 0.0
+        label "% per year"
+
         rcc "Subs. Agri. Flag" -for sa_flag
         yesno sa_flag
     }
@@ -427,6 +440,7 @@ order define CIVGROUP:UPDATE {
     prepare shape     -toupper   -type eunitshape
     prepare demeanor  -toupper   -type edemeanor
     prepare basepop   -num       -type ingpopulation
+    prepare pop_cr    -num       -type rpercent
     prepare sa_flag              -type boolean
 
     returnOnError -final
@@ -464,18 +478,23 @@ order define CIVGROUP:UPDATE:MULTI {
         text basepop
         label "people"
 
+        rcc "Pop. Change Rate:" -for pop_cr
+        text pop_cr -defvalue 0.0
+        label "% per year"
+
         rcc "Subs. Agri. Flag" -for sa_flag
         yesno sa_flag
     }
 } {
     # FIRST, prepare the parameters
-    prepare ids      -toupper -required -listof civgroup
-    prepare n        -toupper           -type nbhood
-    prepare color    -tolower           -type hexcolor
-    prepare shape    -toupper           -type eunitshape
-    prepare demeanor -toupper           -type edemeanor
-    prepare basepop  -num               -type ingpopulation
-    prepare sa_flag                     -type boolean
+    prepare ids       -toupper -required -listof civgroup
+    prepare n         -toupper           -type nbhood
+    prepare color     -tolower           -type hexcolor
+    prepare shape     -toupper           -type eunitshape
+    prepare demeanor  -toupper           -type edemeanor
+    prepare basepop   -num               -type ingpopulation
+    prepare pop_cr    -num               -type rpercent
+    prepare sa_flag                      -type boolean
 
     returnOnError -final
 

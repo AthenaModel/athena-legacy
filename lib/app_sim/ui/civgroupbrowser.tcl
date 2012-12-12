@@ -38,6 +38,7 @@ snit::widgetadaptor civgroupbrowser {
         { shape          "\nUnit Shape"                                }
         { demeanor       "\nDemeanor"                                  }
         { basepop        "Base\nPopulation"          -sortmode integer }
+        { pop_cr         "Pop. Change Rate\n% per year"                }
         { pretty_sa_flag "Subsistence\nAgriculture"                    }
     }
 

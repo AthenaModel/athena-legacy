@@ -66,6 +66,7 @@ namespace eval ::projectlib:: {
         rgain            \
         rnomcoverage     \
         rnonneg          \
+        rpercent         \
         rrate            \
         typewrapper      \
         unitname         \
@@ -695,6 +696,11 @@ snit::type ::projectlib::typewrapper {
 ::projectlib::typewrapper ::projectlib::rfraction snit::double \
     -min 0.0 \
     -max 1.0
+
+# Positive or negative percentage
+::projectlib::typewrapper ::projectlib::rpercent snit::double \
+    -min -100.0  \
+    -max  100.0 
 
 # Gain setting
 ::marsutil::range ::projectlib::rgain -min 0.0

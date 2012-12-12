@@ -108,6 +108,11 @@ object group_civ {
         attrition.  An integer number no less than 1.
     } -tags {create update multi browser}
 
+    attribute pop_cr "Population Change Rate" {
+        The population change in percent per year that the group will 
+        have. The rate can be positive, negative or zero.
+    } -tags {create update multi browser}
+
     attribute sa_flag "Subsistence Agriculture Flag" {
         If true, the group supports itself by means of subsistence
         agriculture, and does not participate in the regional
