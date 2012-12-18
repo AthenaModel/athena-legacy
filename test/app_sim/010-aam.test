@@ -474,31 +474,23 @@ SUNN/NB1 950
     }
 
     test attritn-1.4 {nbhood, displaced units attrit origin} -setup {
-        ted create NB1 NB2 BLUE SHIA KURD
+        ted create NB1 BLUE SHIA 
         ted order TACTIC:DISPLACE:CREATE \
-            owner SYSTEM g KURD n NB1 text1 DISPLACED int1 100 on_lock YES once YES
+            owner SYSTEM g SHIA text1 DISPLACED int1 100 on_lock YES once YES
         ted lock
     } -body {
         aam mutate attrit [list mode NBHOOD n NB1 casualties 100 g1 "" g2 ""]
         aam assess
         demog analyze pop
 
-        set a [pprint_demog_g]
         set b [ted query {SELECT u,personnel FROM units ORDER BY u}]
-        set c "$a$b"
     } -cleanup {
         cleanup
     } -result {
-g    attrition displaced population 
----- --------- --------- ---------- 
-SHIA 91        0         909        
-KURD 9         91        900        
-    
 u        personnel 
 -------- --------- 
-KURD/NB2 900       
-SHIA/NB1 909       
-UT0001   91        
+SHIA/NB1 810       
+UT0001   90        
     }
 
     test attritn-1.5 {nbhood, force, org units not attrited} -setup {

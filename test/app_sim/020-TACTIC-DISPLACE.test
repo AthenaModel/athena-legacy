@@ -45,7 +45,6 @@ namespace eval ::athena_test::tests:: {
         owner       SYSTEM
         priority    top
         g           SHIA
-        n           NB2
         text1       DISPLACED
         int1        100
         once        NO
@@ -56,7 +55,6 @@ namespace eval ::athena_test::tests:: {
         owner       SYSTEM
         priority    top
         g           KURD
-        n           NB1
         text1       IN_CAMP
         int1        200
         once        NO
@@ -71,7 +69,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         owner {required value}
         g {required value}
-        n {required value}
         text1 {required value}
         int1 {required value}
     }
@@ -98,18 +95,7 @@ namespace eval ::athena_test::tests:: {
         g {Invalid civilian group, should be one of: SHIA, KURD}
     }
 
-    test CREATE-1.4 {n is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:DISPLACE:CREATE \
-            [dict merge $T1 [list n NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-    test CREATE-1.5 {text1 is invalid} -setup {
+    test CREATE-1.4 {text1 is invalid} -setup {
         setup
     } -body {
         ted order -reject TACTIC:DISPLACE:CREATE \
@@ -120,7 +106,7 @@ namespace eval ::athena_test::tests:: {
         text1 {Invalid activity, should be one of: DISPLACED, IN_CAMP}
     }
 
-    test CREATE-1.6 {int1 is non-integer} -setup {
+    test CREATE-1.5 {int1 is non-integer} -setup {
         setup
     } -body {
         ted order -reject TACTIC:DISPLACE:CREATE \
@@ -131,7 +117,7 @@ namespace eval ::athena_test::tests:: {
         int1 {invalid value "NONESUCH", expected integer}
     }
 
-    test CREATE-1.7 {int1 is non-positive} -setup {
+    test CREATE-1.6 {int1 is non-positive} -setup {
         setup
     } -body {
         ted order -reject TACTIC:DISPLACE:CREATE \
@@ -142,7 +128,7 @@ namespace eval ::athena_test::tests:: {
         int1 {invalid value "0", expected integer no less than 1}
     }
 
-    test CREATE-1.8 {priority is invalid} -setup {
+    test CREATE-1.7 {priority is invalid} -setup {
         setup
     } -body {
         ted order -reject TACTIC:DISPLACE:CREATE [dict merge $T1 {
@@ -166,13 +152,12 @@ namespace eval ::athena_test::tests:: {
 tactic_id    1
 tactic_type  DISPLACE
 owner        SYSTEM
-narrative    Displace 100 SHIA personnel to NB2 with activity DISPLACED.
+narrative    100 SHIA personnel have the activity of DISPLACED in NB1.
 priority     1
 state        normal
 exec_ts      
 exec_flag    0
 g            SHIA
-n            NB2
 text1        DISPLACED
 int1         100
 once         0
@@ -245,17 +230,7 @@ on_lock      0
         g {Invalid civilian group, should be one of: SHIA, KURD}
     }
 
-    test UPDATE-1.4 {n is invalid} -setup {
-        update_setup
-    } -body {
-        ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 n NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-    test UPDATE-1.5 {text1 is invalid} -setup {
+    test UPDATE-1.4 {text1 is invalid} -setup {
         update_setup
     } -body {
         ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 text1 NONESUCH
@@ -265,7 +240,7 @@ on_lock      0
         text1 {Invalid activity, should be one of: DISPLACED, IN_CAMP}
     }
 
-    test UPDATE-1.6 {int1 is non-integer} -setup {
+    test UPDATE-1.5 {int1 is non-integer} -setup {
         update_setup
     } -body {
         ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 int1 NONESUCH
@@ -275,7 +250,7 @@ on_lock      0
         int1 {invalid value "NONESUCH", expected integer}
     }
 
-    test UPDATE-1.7 {int1 is non-positive} -setup {
+    test UPDATE-1.6 {int1 is non-positive} -setup {
         update_setup
     } -body {
         ted order -reject TACTIC:DISPLACE:UPDATE tactic_id 1 int1 0
@@ -285,7 +260,7 @@ on_lock      0
         int1 {invalid value "0", expected integer no less than 1}
     }
 
-    test UPDATE-1.8 {wrong flavor of tactic} -setup {
+    test UPDATE-1.7 {wrong flavor of tactic} -setup {
         update_setup
         rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
     } -body {
@@ -300,7 +275,7 @@ on_lock      0
         update_setup
     } -body {
         ted order TACTIC:DISPLACE:UPDATE \
-            tactic_id 1 g SHIA n NB2 text1 DISPLACED int1 150
+            tactic_id 1 g SHIA text1 DISPLACED int1 150
 
         ted querylist {SELECT * FROM tactics_DISPLACE}
     } -cleanup {
@@ -309,13 +284,12 @@ on_lock      0
 tactic_id    1
 tactic_type  DISPLACE
 owner        SYSTEM
-narrative    Displace 150 SHIA personnel to NB2 with activity DISPLACED.
+narrative    150 SHIA personnel have the activity of DISPLACED in NB1.
 priority     1
 state        normal
 exec_ts      
 exec_flag    0
 g            SHIA
-n            NB2
 text1        DISPLACED
 int1         150
 once         0

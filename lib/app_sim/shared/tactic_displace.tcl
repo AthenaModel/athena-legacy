@@ -18,7 +18,6 @@
 # PARAMETER MAPPING:
 #
 #    g       <= g
-#    n       <= n
 #    text1   <= activity; DISPLACED or IN_CAMP
 #    int1    <= personnel
 #    on_lock <= on_lock
@@ -29,7 +28,7 @@
 #-------------------------------------------------------------------
 # Tactic: DISPLACE
 
-tactic type define DISPLACE {g n text1 int1 once on_lock} system {
+tactic type define DISPLACE {g text1 int1 once on_lock} system {
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -41,7 +40,9 @@ tactic type define DISPLACE {g n text1 int1 once on_lock} system {
 
     typemethod narrative {tdict} {
         dict with tdict {
-            return "Displace $int1 $g personnel to $n with activity $text1."
+            set n [civgroup getg $g n]
+            
+            return "$int1 $g personnel have the activity of $text1 in $n."
         }
     }
 
@@ -49,11 +50,6 @@ tactic type define DISPLACE {g n text1 int1 once on_lock} system {
         set errors [list]
 
         dict with tdict {
-            # n
-            if {$n ni [nbhood names]} {
-                lappend errors "Neighborhood $n no longer exists."
-            }
-
             # g
             if {$g ni [civgroup names]} {
                 lappend errors "Civilian group $g no longer exists."
@@ -66,8 +62,8 @@ tactic type define DISPLACE {g n text1 int1 once on_lock} system {
     typemethod execute {tdict} {
         dict with tdict {
             # FIRST, retrieve relevant data.
-            set origin [civgroup getg $g n]
-            set unassigned [personnel unassigned $origin $g]
+            set n [civgroup getg $g n]
+            set unassigned [personnel unassigned $n $g]
 
             # NEXT, are there enough people available?
             if {$int1 > $unassigned} {
@@ -75,13 +71,13 @@ tactic type define DISPLACE {g n text1 int1 once on_lock} system {
             }
 
             # NEXT, displace them.
-            personnel assign $tactic_id $g $origin $n $text1 $int1
+            personnel assign $tactic_id $g $n $n $text1 $int1
 
             sigevent log 2 tactic "
-                DISPLACE: The $owner displaces
-                $int1 {group:$g} personnel to {nbhood:$n} 
+                DISPLACE: The $owner assigns 
+                $int1 {group:$g} personnel in {nbhood:$n} 
                 with activity $text1
-            " $origin $n $g
+            " $n $g
         }
 
         return 1
@@ -104,10 +100,7 @@ order define TACTIC:DISPLACE:CREATE {
         rcc "Group:" -for g
         civgroup g
 
-        rcc "Neighborhood:" -for n
-        nbhood n
-
-        rcc "Activity:" -for n
+        rcc "Activity:" -for text1
         enum text1 -listcmd {activity civ names}
 
         rcc "Personnel:" -for int1
@@ -126,7 +119,6 @@ order define TACTIC:DISPLACE:CREATE {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
     prepare g        -toupper   -required -type civgroup
-    prepare n        -toupper   -required -type nbhood
     prepare text1    -toupper   -required -type {activity civ}
     prepare int1     -num       -required -type ingpopulation
     prepare priority -tolower             -type ePrioSched
@@ -137,6 +129,8 @@ order define TACTIC:DISPLACE:CREATE {
 
     # NEXT, put tactic_type in the parmdict
     set parms(tactic_type) DISPLACE
+
+    set parms(n) [civgroup getg n $parms(g)]
 
     # NEXT, create the tactic
     setundo [tactic mutate create [array get parms]]
@@ -161,10 +155,7 @@ order define TACTIC:DISPLACE:UPDATE {
         rcc "Group:" -for g
         civgroup g
 
-        rcc "Neighborhood:" -for n
-        nbhood n
-
-        rcc "Activity:" -for n
+        rcc "Activity:" -for text1
         enum text1 -listcmd {activity civ names}
 
         rcc "Personnel:" -for int1
@@ -180,7 +171,6 @@ order define TACTIC:DISPLACE:UPDATE {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
     prepare g          -toupper  -type civgroup
-    prepare n          -toupper  -type nbhood
     prepare text1      -toupper  -type {activity civ}
     prepare int1       -num      -type ingpopulation
     prepare once                 -type boolean
@@ -192,6 +182,9 @@ order define TACTIC:DISPLACE:UPDATE {
     validate tactic_id { tactic RequireType DISPLACE $parms(tactic_id) }
 
     returnOnError -final
+
+    # NEXT, get the neighborhood
+    set n [civgroup getg n $parms(g)]
 
     # NEXT, modify the tactic
     setundo [tactic mutate update [array get parms]]
