@@ -525,9 +525,9 @@ page /object/tactic deploy "DEPLOY tactic" {
 object tactic_displace {
     noun "DISPLACE tactic"
     overview {
-        This <<term tactic>> displaces personnel belonging to a
-        <<term civgroup>> from their homes to a particular
-        <<term nbhood>>.  Athena will create a <<term unit>> containing
+        This <<term tactic>> causes personnel belonging to a
+        <<term civgroup>> to be displaced from their homes. 
+        Athena will create a <<term unit>> containing
         the displaced personnel; the unit will be visible on the
         <<tab Map>>.  Displaced personnel can be dispersed among the
         existing neighborhood population, or segregated in camps.<p>
@@ -545,11 +545,6 @@ object tactic_displace {
 
     attribute g "Group" {
         The ID of a <<term civgroup>>.
-    } -tags {create update}
-
-    attribute n "Neighborhood" {
-        A <<term nbhood>> ID.  The personnel will be displaced into
-        this neighborhood from their neighborhood of residence.
     } -tags {create update}
 
     attribute text1 "Activity" {
