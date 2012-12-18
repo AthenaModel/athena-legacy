@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    eco6x6.cm, version u
+#    cge6x6.cm, version v
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -58,6 +58,8 @@
 #    Out pages.
 #
 # HISTORY:
+#    Version v: Changed the name of the file from eco6x6.cm to cge6x6.cm
+#
 #    Version u: Made the variable REM on the In page independent of BREM,
 # the base remittances on the null page. Had to add the equations that use
 # remittances to the L page so that they would be recomputed whenever 

@@ -243,6 +243,8 @@ snit::type econ {
         sam load \
             [readfile [file join $::app_sim_shared::library sam6x6.cm]]
 
+        log detail econ "Read SAM from [file join $::app_sim_shared::library sam6x6.cm]"
+
         require {[sam sane]} "The econ model's SAM is not sane."
 
         set result [sam solve]
@@ -259,9 +261,11 @@ snit::type econ {
                      -maxiters 1000     \
                      -failcmd  [mytypemethod CGEFailure] \
                      -tracecmd [mytypemethod TraceCGE]]
-        cge load [readfile [file join $::app_sim_shared::library eco6x6.cm]]
+        cge load [readfile [file join $::app_sim_shared::library cge6x6.cm]]
+
+        log detail econ "Read CGE from [file join $::app_sim_shared::library cge6x6.cm]"
         
-        require {[cge sane]} "The econ model's CGE (eco6x6.cm) is not sane."
+        require {[cge sane]} "The econ model's CGE (cge6x6.cm) is not sane."
 
         # NEXT, register this type as a saveable
         scenario register ::econ
