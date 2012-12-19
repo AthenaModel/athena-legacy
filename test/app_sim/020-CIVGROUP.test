@@ -159,16 +159,16 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.9 {zero basepop} -setup {
+    test CREATE-1.9 {negative basepop} -setup {
         ted create NB1
     } -body {
         ted order -reject CIVGROUP:CREATE [dict merge $shia {
-            basepop 0
+            basepop -1
         }]
     } -cleanup {
         cleanup
     } -result {
-        basepop {invalid value "0", expected integer no less than 1}
+        basepop {invalid value "-1", expected integer no less than 0}
     }
 
     test CREATE-1.10 {invalid sa_flag 1} -setup {
@@ -210,7 +210,29 @@ g    longname color   shape   symbol   demeanor basepop pop_cr rel_entity gtype 
 SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   0.0    SHIA       CIV   NB1 0       
     }
 
-    test CREATE-2.3 {effects} -body {
+    test CREATE-2.3 {basepop can be zero} -body {
+        ted create NB1
+        ted order CIVGROUP:CREATE [dict merge $shia {basepop 0}]
+        
+        ted querylist {SELECT * FROM civgroups_view}
+    } -cleanup {
+        cleanup
+    } -result {
+g           SHIA
+longname    Shia Locals
+color       #FFFF00
+shape       NEUTRAL
+symbol      civilian
+demeanor    AVERAGE
+basepop     0
+pop_cr      0.0
+rel_entity  SHIA
+gtype       CIV
+n           NB1
+sa_flag     0
+    }
+
+    test CREATE-2.4 {effects} -body {
         ted create NB1
         ted notifier bind ::rdb <civgroups>
         ted order CIVGROUP:CREATE $sunn
@@ -343,15 +365,15 @@ SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   0.0    SHIA       CIV   
     }
 
 
-    test UPDATE-1.9 {invalid population 2} -setup {
+    test UPDATE-1.9 {basepop can't be negative} -setup {
         ted create NB1 SHIA
     } -body {
         ted order -reject CIVGROUP:UPDATE \
-            g SHIA basepop 0
+            g SHIA basepop -1
     } -cleanup {
         cleanup
     } -result {
-        basepop {invalid value "0", expected integer no less than 1}
+        basepop {invalid value "-1", expected integer no less than 0}
     }
 
 
@@ -505,11 +527,11 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   
         ted create NB1 SHIA
     } -body {
         ted order -reject CIVGROUP:UPDATE:MULTI \
-            ids SHIA basepop 0
+            ids SHIA basepop -1
     } -cleanup {
         cleanup
     } -result {
-        basepop {invalid value "0", expected integer no less than 1}
+        basepop {invalid value "-1", expected integer no less than 0}
     }
 
 

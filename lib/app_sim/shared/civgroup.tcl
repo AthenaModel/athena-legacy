@@ -329,7 +329,7 @@ order define CIVGROUP:CREATE {
     prepare color     -tolower   -required         -type hexcolor
     prepare shape     -toupper   -required         -type eunitshape
     prepare demeanor  -toupper   -required         -type edemeanor
-    prepare basepop   -num       -required         -type ingpopulation
+    prepare basepop   -num       -required         -type iquantity
     prepare pop_cr    -num       -required         -type rpercent
     prepare sa_flag              -required         -type boolean
 
@@ -439,7 +439,7 @@ order define CIVGROUP:UPDATE {
     prepare color     -tolower   -type hexcolor
     prepare shape     -toupper   -type eunitshape
     prepare demeanor  -toupper   -type edemeanor
-    prepare basepop   -num       -type ingpopulation
+    prepare basepop   -num       -type iquantity
     prepare pop_cr    -num       -type rpercent
     prepare sa_flag              -type boolean
 
@@ -492,7 +492,7 @@ order define CIVGROUP:UPDATE:MULTI {
     prepare color     -tolower           -type hexcolor
     prepare shape     -toupper           -type eunitshape
     prepare demeanor  -toupper           -type edemeanor
-    prepare basepop   -num               -type ingpopulation
+    prepare basepop   -num               -type iquantity
     prepare pop_cr    -num               -type rpercent
     prepare sa_flag                      -type boolean
 

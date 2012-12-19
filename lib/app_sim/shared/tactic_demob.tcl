@@ -132,7 +132,7 @@ order define TACTIC:DEMOB:CREATE {
     prepare owner    -toupper   -required -type   actor
     prepare g        -toupper   -required -type   {ptype fog}
     prepare text1    -toupper   -required -selector
-    prepare int1     -num                 -type   ingpopulation
+    prepare int1     -num                 -type   ipositive
     prepare once     -toupper   -required -type   boolean
     prepare priority -tolower             -type   ePrioSched
 
@@ -198,7 +198,7 @@ order define TACTIC:DEMOB:UPDATE {
     prepare tactic_id  -required -type tactic
     prepare g          -toupper  -type {ptype fog}
     prepare text1      -toupper  -selector
-    prepare int1       -num      -type ingpopulation
+    prepare int1       -num      -type ipositive
     prepare once       -toupper  -type boolean
 
     returnOnError

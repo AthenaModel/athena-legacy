@@ -103,9 +103,11 @@ object group_civ {
         -tags {create update multi browser}
 
     attribute basepop "Base Population" {
-        The initial population of the group.  This population
-        can be reduced by displacement to other neighborhoods, and by
-        attrition.  An integer number no less than 1.
+        The initial population of the group.  This population can be 
+        changed at run-time by normal population growth or decline, 
+        by explicit transfers to and from other groups, and by 
+        attrition.  It will usually be positive, but can be zero, to
+        allow for initially empty "placeholder" groups.
     } -tags {create update multi browser}
 
     attribute pop_cr "Population Change Rate" {

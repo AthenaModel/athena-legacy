@@ -120,7 +120,7 @@ order define TACTIC:DISPLACE:CREATE {
     prepare owner    -toupper   -required -type {agent system}
     prepare g        -toupper   -required -type civgroup
     prepare text1    -toupper   -required -type {activity civ}
-    prepare int1     -num       -required -type ingpopulation
+    prepare int1     -num       -required -type ipositive
     prepare priority -tolower             -type ePrioSched
     prepare once                          -type boolean
     prepare on_lock                       -type boolean
@@ -172,7 +172,7 @@ order define TACTIC:DISPLACE:UPDATE {
     prepare tactic_id  -required -type tactic
     prepare g          -toupper  -type civgroup
     prepare text1      -toupper  -type {activity civ}
-    prepare int1       -num      -type ingpopulation
+    prepare int1       -num      -type ipositive
     prepare once                 -type boolean
     prepare on_lock              -type boolean
 
