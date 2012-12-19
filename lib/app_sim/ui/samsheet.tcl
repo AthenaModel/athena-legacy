@@ -341,7 +341,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         normal                     \
-            -rows          6                          \
+            -rows          7                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -357,6 +357,7 @@ snit::widget samsheet {
             "Feedstock per Unit Product"
             "Max Feedstock Avail."
             "Base Consumers"
+            "Base Subsisters"
             "Subsistence Wage"
         }
 
@@ -365,6 +366,7 @@ snit::widget samsheet {
             "$/tonne"
             ""
             "tonnes/year"
+            ""
             ""
             "$/year"
         } units -anchor w -relief flat
@@ -375,7 +377,8 @@ snit::widget samsheet {
         $inputs mapcell 2,1 AF.world.black e -background $color(e)
         $inputs mapcell 3,1 MF.world.black e -background $color(e)
         $inputs mapcell 4,1 BaseConsumers  e -background $color(e)
-        $inputs mapcell 5,1 BaseSubWage    e -background $color(e)
+        $inputs mapcell 5,1 BaseSubsisters e -background $color(e)
+        $inputs mapcell 6,1 BaseSubWage    e -background $color(e)
 
         $inputs width 0 25
         $inputs width 2 15
@@ -397,7 +400,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         disabled                   \
-            -rows          7                          \
+            -rows          10                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -405,32 +408,41 @@ snit::widget samsheet {
             -formatcmd     ::marsutil::moneyfmt
 
         $outputs textcol 0,0 {
+            "Base GDP"
+            "Base Labor Force Capacity"
+            "Per cap. Demand for Goods"
             "Foreign Aid to Actors"
             "Foreign Aid to Region"
-            "Per cap. Demand for Goods"
+            "Base Sub. Agriculture"
             "Exports of Goods"
             "Exports from Black Market"
-            "Exported jobs "
+            "Exported labor"
             "Black Market Net Revenue"
         }
 
         $outputs textcol 0,2 {
             "$/year"
-            "$/year"
+            "work-years/year"
             "goodsBKT/year"
+            "$/year"
+            "$/year"
+            "$/year"
             "goodsBKT/year"
             "tonnes/year"
             "work-years/year"
             "$/year"
         } units -anchor w -relief flat
 
-        $outputs mapcell 0,1 FAA           r -background $color(r)
-        $outputs mapcell 1,1 FAR           r -background $color(r)
+        $outputs mapcell 0,1 BaseGDP       r -background $color(r)
+        $outputs mapcell 1,1 BaseCAP.pop   r -background $color(r)
         $outputs mapcell 2,1 BA.goods.pop  r -background $color(r)
-        $outputs mapcell 3,1 EXPORTS.goods r -background $color(r)
-        $outputs mapcell 4,1 EXPORTS.black r -background $color(r)
-        $outputs mapcell 5,1 EXPORTS.pop   r -background $color(r)
-        $outputs mapcell 6,1 BNR.black     r -background $color(r)
+        $outputs mapcell 3,1 FAA           r -background $color(r)
+        $outputs mapcell 4,1 FAR           r -background $color(r)
+        $outputs mapcell 5,1 BaseSA        r -background $color(r)
+        $outputs mapcell 6,1 EXPORTS.goods r -background $color(r)
+        $outputs mapcell 7,1 EXPORTS.black r -background $color(r)
+        $outputs mapcell 8,1 EXPORTS.pop   r -background $color(r)
+        $outputs mapcell 9,1 BNR.black     r -background $color(r)
 
         $outputs width 0 25
         $outputs width 2 15

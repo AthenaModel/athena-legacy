@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version o
+#    sam6x6.cm, version p
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -28,6 +28,10 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version p: Added computation of the BaseGDP. 
+#               Added BaseSubsisters and BaseSA to the base case 
+#               description
+#
 #    Version o: Changed the default for BREM and BaseConsumers. The CGE
 #               was getting negative GDP with the old defaults since the
 #               GDP calculation changed in it.
@@ -191,7 +195,11 @@ let BP.region = 0
 let BP.world  = 0
 
 let BaseConsumers  = 130.0e6
-let BaseSubWage    = 200     ;# Subsistence wage (aka poverty level) $/work-year
+let BaseSubsisters = 50.0e6
+let BaseSubWage    = 200                     ;# Subsistence wage 
+                                              # (aka poverty level) $/work-year
+let BaseSA         = {[BaseSubsisters] * [BaseSubWage]}
+let BaseCAP.pop    = {[BREV.pop] / [BP.pop]} ;# Number of base case jobs
 
 let BREM           = 16e9            
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
@@ -336,14 +344,33 @@ foreach i {goods black pop actors region world} {
     let f.$i.region = {[BX.$i.region] / [BALLOC.region]}
 }
 
-# The per capita demand for goods 
+# Base case per capita demand for goods 
 let BA.goods.pop = {[BX.goods.pop] / ([BP.goods] * [BaseConsumers])}
 
-# Everything that was computed is of interest to the CGE except the 
-# intermediate variable BATI.pop
+# Base case GDP
+let BGDP.goods = {
+    [BP.goods] * ([BQD.goods.pop]    + [BQD.goods.actors] + 
+                  [BQD.goods.region] + [EXPORTS.goods])
+}
 
+let BGDP.black = {
+    [BP.black] * ([BQD.black.pop]    + [BQD.black.actors] +
+                  [BQD.black.region] + [EXPORTS.black])
+}
 
+let BGDP.pop = {
+    [BP.pop] * ([BQD.pop.pop]    + [BQD.pop.actors] +
+                [BQD.pop.region] + [EXPORTS.pop])
+}
 
+let BaseGDP = {
+    [BGDP.goods] + [BGDP.black] + [BGDP.pop] -
+    [BREV.world] +
+    [BaseSA] - [FEED.black]
+}
+
+# Diagnostics
+# TBD
 
 
 
