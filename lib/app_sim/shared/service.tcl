@@ -99,13 +99,16 @@ snit::type service {
 
         # NEXT, do the query and fill in the required and saturation 
         # service table
-        rdb eval "
-            $rdbQuery
-        " {
-            set Sr [parm get service.ENI.saturationCost.$urb]
-            let Sf {$pop * $Sr}
-            set Rr [parm get service.ENI.required.$urb]
-            let Rf {$Sf * $Rr}
+        rdb eval $rdbQuery {
+            if {$pop > 0} {
+                set Sr [parm get service.ENI.saturationCost.$urb]
+                let Sf {$pop * $Sr}
+                set Rr [parm get service.ENI.required.$urb]
+                let Rf {$Sf * $Rr}
+            } else {
+                let Sf 0.0
+                let Rf 0.0
+            }
 
             rdb eval {
                 INSERT INTO sr_service(g, req_funding, sat_funding)
@@ -265,6 +268,8 @@ snit::type service {
     # This routine is called by the FUNDENI tactic.  It allocates
     # the funding to the listed groups in proportion to their
     # population.
+    #
+    # Returns 1 on success and 0 if all of the groups were empty.
 
     typemethod fundeni {a amount glist} {
         require {$amount >= 0} \
@@ -282,8 +287,10 @@ snit::type service {
             WHERE $gclause
         "]
 
-        require {$total > 0} \
-            "Attempt to fund ENI for zero population"
+        # NEXT, can't fund 0 people.
+        if {$total == 0} {
+            return 0
+        }
 
         # NEXT, get the proportion of people in each group:
         set fracs [rdb eval "
@@ -302,6 +309,8 @@ snit::type service {
                 WHERE g=$g AND a=$a
             }
         }
+
+        return 1
     }
 
     # Saves the working data back to the persistent tables,
@@ -356,51 +365,61 @@ snit::type service {
             JOIN service_g  AS SG  ON (SG.g = G.g)
             GROUP BY G.g
         }] {
-            # Compute the actual value
-            set Sr   [parm get service.ENI.saturationCost.$urb]
-            let Pg   {$pop * $Sr}
-            set Rg   [parm get service.ENI.required.$urb]
-            set beta [parm get service.ENI.beta.$urb]
+            if {$pop > 0} {
+                # Compute the actual value
+                set Sr   [parm get service.ENI.saturationCost.$urb]
+                let Pg   {$pop * $Sr}
+                set Rg   [parm get service.ENI.required.$urb]
+                set beta [parm get service.ENI.beta.$urb]
 
-            let Ag   {($Fg/$Pg)**$beta}
+                let Ag   {($Fg/$Pg)**$beta}
 
-            # The status quo expected value is the same as the
-            # status quo actual value (but not more than 1.0).
-            if {[strategy locking]} {
-                let oldX {min(1.0,$Ag)}
-            }
+                # The status quo expected value is the same as the
+                # status quo actual value (but not more than 1.0).
+                if {[strategy locking]} {
+                    let oldX {min(1.0,$Ag)}
+                }
 
-            # Get the smoothing constant.
-            if {$Ag > $oldX} {
-                set alpha [parm get service.ENI.alphaA]
+                # Get the smoothing constant.
+                if {$Ag > $oldX} {
+                    set alpha [parm get service.ENI.alphaA]
+                } else {
+                    set alpha [parm get service.ENI.alphaX]
+                }
+
+                # Compute the expected value
+                let Xg {$oldX + $alpha*(min(1.0,$Ag) - $oldX)}
+
+                # Compute the expectations factor
+                let expectf {$gainExpect * (min(1.0,$Ag) - $Xg)}
+
+                if {abs($expectf) < 0.01} {
+                    set expectf 0.0
+                }
+
+                # Compute the needs factor
+                if {$Ag >= $Rg} {
+                    set needs 0.0
+                } elseif {$Ag == 0.0} {
+                    set needs 1.0
+                } else {
+                    # $Ag < $Rg
+                    let needs {($Rg - $Ag)/$Rg}
+                } 
+
+                let needs {$needs * $gainNeeds}
+
+                if {abs($needs) < 0.01} {
+                    set needs 0.0
+                }
             } else {
-                set alpha [parm get service.ENI.alphaX]
-            }
-
-            # Compute the expected value
-            let Xg {$oldX + $alpha*(min(1.0,$Ag) - $oldX)}
-
-            # Compute the expectations factor
-            let expectf {$gainExpect * (min(1.0,$Ag) - $Xg)}
-
-            if {abs($expectf) < 0.01} {
-                set expectf 0.0
-            }
-
-            # Compute the needs factor
-            if {$Ag >= $Rg} {
-                set needs 0.0
-            } elseif {$Ag == 0.0} {
-                set needs 1.0
-            } else {
-                # $Ag < $Rg
-                let needs {($Rg - $Ag)/$Rg}
-            } 
-
-            let needs {$needs * $gainNeeds}
-
-            if {abs($needs) < 0.01} {
-                set needs 0.0
+                let Pg 0.0
+                let Rg 0.0
+                let Fg 0.0
+                let Ag 0.0
+                let Xg 0.0
+                let expectf 0.0
+                let needs 0.0
             }
 
             # Save the new values

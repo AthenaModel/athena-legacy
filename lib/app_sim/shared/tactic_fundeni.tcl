@@ -86,17 +86,7 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
                 return 0
             }
 
-            # NEXT, fund the service
-            service fundeni $owner $x1 $glist
-
-            # NEXT, get the related neighborhoods.
-            set nbhoods [rdb eval "
-                SELECT DISTINCT n 
-                FROM civgroups
-                WHERE g IN ('[join $glist ',']')
-            "]
-
-            # NEXT, Log it.
+            # NEXT, Compute strings needed for logging.
             if {[llength $glist] == 1} {
                 set gtext "{group:[lindex $glist 0]}"
             } else {
@@ -110,6 +100,26 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
             }
 
             
+            # NEXT, try to fund the service.  This will fail if
+            # all of the groups are empty.
+            if {![service fundeni $owner $x1 $glist]} {
+                cash refund $x1
+                sigevent log 2 tactic "
+                    FUNDENI: Actor {actor:$owner} could not fund
+                    \$[moneyfmt $x1] worth of Essential Non-Infrastructure 
+                    services to $gtext, because all of those groups 
+                    are empty.
+                " $owner {*}$glist {*}$nbhoods
+                return 0
+            }
+
+            # NEXT, get the related neighborhoods.
+            set nbhoods [rdb eval "
+                SELECT DISTINCT n 
+                FROM civgroups
+                WHERE g IN ('[join $glist ',']')
+            "]
+
 
             # TBD: Do I need to include neighborhoods in here?
             sigevent log 2 tactic "

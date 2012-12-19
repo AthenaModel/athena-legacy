@@ -96,8 +96,10 @@ snit::type service_rules {
         # NEXT, call the ENI rule set.
         rdb eval {
             SELECT * FROM civgroups 
+            JOIN demog_g USING (g)
             JOIN service_g USING (g)
             JOIN control_n ON (civgroups.n = control_n.n)
+            WHERE demog_g.population > 0
             ORDER BY g
         } gdata {
             unset -nocomplain gdata(*)
