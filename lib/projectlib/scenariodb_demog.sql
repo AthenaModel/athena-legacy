@@ -118,6 +118,7 @@ CREATE TABLE demog_g (
 CREATE VIEW demog_context AS
 SELECT CG.n              AS n,
        DG.g              AS g,
+       DG.population     AS population,
        DG.uaf            AS ngfactor,
        DG.s              AS s,
        DN.uaf            AS nfactor

@@ -72,11 +72,13 @@ snit::type demsit {
         # FIRST, don't look for new situations if demsits are
         # disabled.
         if {!$disabled} {
-            # FIRST, look for new UNEMP situations.
+            # FIRST, look for new UNEMP situations, skipping
+            # over groups that are currently empty.
             rdb eval {
                 SELECT * FROM demog_context
                 WHERE s = 0
-                AND   (ngfactor > 0.0 OR nfactor > 0.0)
+                AND population > 0
+                AND (ngfactor > 0.0 OR nfactor > 0.0)
             } row {
                 # FIRST, Create the situation
                 set s [situation create $type       \
@@ -119,6 +121,7 @@ snit::type demsit {
         # live demsits.
         rdb eval {
             SELECT s                              AS s,
+                   demog_context.population       AS population,
                    demog_context.ngfactor         AS ngfactor,
                    demog_context.nfactor          AS nfactor
             FROM demsits JOIN demog_context USING (s)
@@ -132,8 +135,9 @@ snit::type demsit {
                 continue
             }
 
-            # NEXT, if demsits are disabled set the factors to zero
-            if {$disabled} {
+            # NEXT, if the group has become empty, or demsits are disabled,
+            # then set the factors to zero
+            if {$population == 0 || $disabled} {
                 set ngfactor 0.0
                 set nfactor  0.0
             }

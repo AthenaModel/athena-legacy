@@ -15,7 +15,7 @@
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# Module: demog
+# demog
 #
 # athena_sim(1): Demographic Model, main module.
 #
@@ -46,14 +46,11 @@ snit::type demog {
     #-------------------------------------------------------------------
     # Group: Analysis of Population
 
-    # Type Method: analyze pop
+    # analyze pop
     #
     # Computes the population statistics in demog_g(g), demog_n(n), 
     # and demog_local for all n, g.  This routine depends on the
     # units staffed by activity(sim).
-    #
-    # Syntax:
-    #   analyze pop
 
     typemethod {analyze pop} {} {
         $type ComputePopG
@@ -66,12 +63,9 @@ snit::type demog {
         return
     }
 
-    # Type Method: ComputePopG
+    # ComputePopG
     #
     # Computes the population statistics for each civilian group.
-    #
-    # Syntax:
-    #   ComputePopG
 
     typemethod ComputePopG {} {
         # FIRST, get resident and subsistence population
@@ -145,13 +139,10 @@ snit::type demog {
         }
     }
 
-    # Type Method: ComputePopN
+    # ComputePopN
     #
     # Computes the population statistics and labor force for each
     # neighborhood.
-    #
-    # Syntax:
-    #   ComputePopN
 
     typemethod ComputePopN {} {
         # FIRST, compute the displaced populationa and displaced 
@@ -205,13 +196,10 @@ snit::type demog {
         return
     }
 
-    # Type Method: ComputePopLocal
+    # ComputePopLocal
     #
     # Computes the population statistics and labor force for the
     # local region of interest.
-    #
-    # Syntax:
-    #   ComputePopLocal
 
     typemethod ComputePopLocal {} {
         # FIRST, compute and save the total population and
@@ -230,14 +218,11 @@ snit::type demog {
 
 
     #-------------------------------------------------------------------
-    # Group: Analysis of Economic Effects on the Population
+    # Analysis of Economic Effects on the Population
 
-    # Type Method: analyze econ
+    # analyze econ
     #
     # Computes the effects of the economy on the population.
-    #
-    # Syntax:
-    #   analyze econ
 
     typemethod {analyze econ} {} {
         # FIRST, get the unemployment rate and the Unemployment
@@ -261,14 +246,20 @@ snit::type demog {
             WHERE nbhoods.local
             GROUP BY g
         }] {
-            # number of unemployed workers
-            let unemployed {round($labor_force * $ur / 100.0)}
+            if {$population > 0} {
+                # number of unemployed workers
+                let unemployed {round($labor_force * $ur / 100.0)}
 
-            # unemployed per capita
-            let upc {100.0 * $unemployed / $population}
+                # unemployed per capita
+                let upc {100.0 * $unemployed / $population}
 
-            # Unemployment Attitude Factor
-            set uaf [zcurve eval $zuaf $upc]
+                # Unemployment Attitude Factor
+                set uaf [zcurve eval $zuaf $upc]
+            } else {
+                let unemployed 0
+                let upc        0.0
+                let uaf        0.0
+            }
 
             # Save results
             rdb eval {
@@ -299,10 +290,9 @@ snit::type demog {
                 # Unemployment Attitude Factor
                 set uaf [zcurve eval $zuaf $upc]
             } else {
-                set unemployed 0
-                set upc        0.0
-                set uaf        0.0
-                
+                let unemployed 0
+                let upc        0.0
+                let uaf        0.0
             }
 
             # Save results
@@ -323,18 +313,14 @@ snit::type demog {
     }
 
     #-------------------------------------------------------------------
-    # Group: Queries
+    # Queries
 
-    # Type Method: getg
-    #
-    # Retrieves a row dictionary, or a particular column value, from
-    # demog_g.
-    #
-    # Syntax:
-    #   getg _g ?parm?_
+    # getg g ?parm?
     #
     #   g    - A group in the neighborhood
     #   parm - A demog_g column name
+    # Retrieves a row dictionary, or a particular column value, from
+    # demog_g.
 
     typemethod getg {g {parm ""}} {
         # FIRST, get the data
@@ -351,16 +337,13 @@ snit::type demog {
     }
 
 
-    # Type Method: getn
-    #
-    # Retrieves a row dictionary, or a particular column value, from
-    # demog_n.
-    #
-    # Syntax:
-    #   getn _n ?parm?_
+    # getn n ?parm?
     #
     #   n    - A neighborhood
     #   parm - A demog_n column name
+    #
+    # Retrieves a row dictionary, or a particular column value, from
+    # demog_n.
 
     typemethod getn {n {parm ""}} {
         # FIRST, get the data
@@ -376,15 +359,12 @@ snit::type demog {
         return ""
     }
 
-    # Type Method: getlocal
+    # getlocal ?parm?
+    #
+    #   parm - A demog_local column name
     #
     # Retrieves a row dictionary, or a particular column value, from
     # demog_local.
-    #
-    # Syntax:
-    #   getlocal _?parm?_
-    #
-    #   parm - A demog_local column name
 
     typemethod getlocal {{parm ""}} {
         # FIRST, get the data
