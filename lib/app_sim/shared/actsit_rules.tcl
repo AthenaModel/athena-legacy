@@ -153,7 +153,7 @@ snit::type actsit_rules {
             # While there is a DISPLACED situation
             #     with COVERAGE > 0.0
             # Then for each CIV group f in the nbhood,
-            satinput [civgroup gIn $n] $g $cov ""  \
+            satinput [demog gIn $n] $g $cov ""  \
                     AUT enmore   S-   \
                     SFT enmore   L-   \
                     CUL enquad   S-   \
@@ -194,7 +194,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset PRESENCE [$sit get driver_id]
         
@@ -241,7 +241,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset CHKPOINT [$sit get driver_id]
 
@@ -298,7 +298,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset CMOCONST [$sit get driver_id]
@@ -351,7 +351,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset CMODEV [$sit get driver_id]
 
@@ -392,7 +392,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset CMOEDU [$sit get driver_id]
@@ -445,7 +445,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset CMOEMP [$sit get driver_id]
@@ -498,7 +498,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset CMOIND [$sit get driver_id]
@@ -551,7 +551,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset CMOINF [$sit get driver_id]
@@ -604,7 +604,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset CMOLAW [$sit get driver_id]
 
@@ -643,7 +643,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset CMOMED [$sit get driver_id]
@@ -695,7 +695,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset CMOOTHER [$sit get driver_id]
@@ -749,7 +749,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset COERCION [$sit get driver_id]
 
@@ -791,7 +791,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset CRIMINAL [$sit get driver_id]
 
@@ -829,7 +829,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset CURFEW [$sit get driver_id]
 
@@ -887,7 +887,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset GUARD [$sit get driver_id]
 
@@ -929,7 +929,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset PATROL [$sit get driver_id]
 
@@ -970,7 +970,7 @@ snit::type actsit_rules {
         set g     [$sit get g]
         set n     [$sit get n]
         set cov   [$sit get coverage]
-        set flist [civgroup gIn $n]
+        set flist [demog gIn $n]
 
         dam ruleset PSYOP [$sit get driver_id]
 
@@ -1040,7 +1040,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
  
         dam ruleset ORGCONST [$sit get driver_id]
@@ -1091,7 +1091,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset ORGEDU [$sit get driver_id]
@@ -1142,7 +1142,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset ORGEMP [$sit get driver_id]
@@ -1193,7 +1193,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset ORGIND [$sit get driver_id]
@@ -1244,7 +1244,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset ORGINF [$sit get driver_id]
@@ -1295,7 +1295,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset ORGMED [$sit get driver_id]
@@ -1346,7 +1346,7 @@ snit::type actsit_rules {
         set g            [$sit get g]
         set n            [$sit get n]
         set cov          [$sit get coverage]
-        set flist        [civgroup gIn $n]
+        set flist        [demog gIn $n]
         set stops        0
 
         dam ruleset ORGOTHER [$sit get driver_id]

@@ -68,10 +68,12 @@ snit::type misc_rules {
                    C.controller       AS controller,
                    C.since            AS tc
             FROM civgroups AS G
+            JOIN demog_g   AS D
             JOIN control_n AS C  ON (C.n = G.n)
             JOIN uram_mood AS UM ON (G.g = UM.g)
             JOIN hist_mood AS HM ON (HM.g = G.g AND HM.t = C.since)
-            WHERE abs(UM.mood - HM.mood) >= CAST ($threshold AS REAL)
+            WHERE D.population > 0
+            AND abs(UM.mood - HM.mood) >= CAST ($threshold AS REAL)
         } row {
             unset -nocomplain row(*)
             set row(driver_id) $driver_id

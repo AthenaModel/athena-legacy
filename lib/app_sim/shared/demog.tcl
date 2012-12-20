@@ -381,6 +381,23 @@ snit::type demog {
 
         return ""
     }
+    
+    # gIn n
+    #
+    # n  - A neighborhood ID
+    #
+    # Returns a list of the NON-EMPTY civ groups that reside 
+    # in the neighborhood.
+
+    typemethod gIn {n} {
+        rdb eval {
+            SELECT g 
+            FROM demog_g 
+            JOIN civgroups USING (g)
+            WHERE n=$n AND population > 0
+            ORDER BY g
+        }
+    }
 
     #-------------------------------------------------------------------
     # Mutators

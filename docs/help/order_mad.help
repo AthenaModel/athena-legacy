@@ -199,6 +199,9 @@ order MAD:HREL:ADJUST "Magic Adjust Horizontal Relationship Baseline" {
     baseline by the specified amount, clamping the curve's value to
     the range 0.0, 100.0 if need be.<p>
 
+    The order will be ignored if either group is an empty civilian
+    group.<p>
+
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.<p>
 
@@ -253,6 +256,9 @@ order MAD:HREL:INPUT "Magic Horizontal Relationship Input" {
     The input will be attributed to the
     specified MAD.<p>
 
+    The order will be ignored if either group is an empty civilian
+    group.<p>
+
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
@@ -282,6 +288,9 @@ order MAD:VREL:ADJUST "Magic Adjust Vertical Relationship Baseline" {
     baseline
     by the specified amount, clamping the curve's value to the range 0.0,
     100.0 if need be.<p>
+
+    The order will be ignored if the group is an empty civilian
+    group.<p>
 
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.<p>
@@ -338,6 +347,9 @@ order MAD:VREL:INPUT "Magic Vertical Relationship Input" {
     The input will be attributed to the
     specified MAD.<p>
 
+    The order will be ignored if the group is an empty civilian
+    group.<p>
+
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
@@ -365,6 +377,9 @@ order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
     of the specified satisfaction curve's
     baseline by the specified amount, clamping the curve's value to 
     the range -100.0, 100.0 if need be.<p>
+
+    The order will be ignored if the group is an empty civilian
+    group.<p>
 
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.<p>
@@ -421,6 +436,9 @@ order MAD:SAT:INPUT "Magic Satisfaction Input" {
     The input will be attributed to the
     specified MAD.<p>
 
+    The order will be ignored if the group is an empty civilian
+    group.<p>
+
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.
 }
@@ -448,6 +466,8 @@ order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
     of the specified cooperation curve's baseline
     by the specified amount, clamping the curve's value to the range 0.0,
     100.0 if need be.<p>
+
+    The order will be ignored if the civilian group is empty.<p>
 
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.<p>
@@ -503,6 +523,8 @@ order MAD:COOP:INPUT "Magic Cooperation Input" {
     by <i>mag</i> nominal points at the next time advance.
     The input will be attributed to the
     specified MAD.<p>
+
+    The order will be ignored if the civilian group is empty.<p>
 
     This order can be <<cref /command/send sent>> by the
     <<cref /object/tactic/executive>>.

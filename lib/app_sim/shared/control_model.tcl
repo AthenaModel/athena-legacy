@@ -370,14 +370,15 @@ snit::type control_model {
                            "Shift in control of nbhood $n"]
 
         # NEXT, set the vrel baseline to the current level for 
-        # all civ groups in n.
+        # all non-empty civ groups in n.
         foreach {g a vrel} [rdb eval {
             SELECT V.g,
             V.a,
             V.vrel
             FROM uram_vrel AS V
             JOIN civgroups AS C USING (g)
-            WHERE C.n=$n
+            JOIN demog_g AS D USING (g)
+            WHERE C.n=$n AND D.population > 0
         }] {
             # TBD: We might want a routine to do this in bulk.
             aram vrel bset $driver_id $g $a $vrel

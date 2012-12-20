@@ -117,7 +117,9 @@ snit::type ensit_rules {
     # sit       Ensit object
     #
     # Rule set setup.  This is the default setup; specific rule sets
-    # can override it.
+    # can override it (but they don't).
+    #
+    # If the affected neighborhood is empty, the rule set won't fire.
 
     typemethod setup {calltype sit} {
         set ruleset  [$sit get stype]
@@ -148,6 +150,14 @@ snit::type ensit_rules {
         if {![dam isactive $ruleset]} {
             log warning envr \
                 "ensit monitor $ruleset: ruleset has been deactivated"
+            return
+        }
+
+        set n [$sit get n]
+
+        if {[demog getn $n population] == 0} {
+            log normal envr \
+                "ensit monitor $ruleset: skipping, nbhood $n is empty."
             return
         }
 
@@ -205,7 +215,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule BADFOOD-1-1 {
             $inception
@@ -236,7 +246,7 @@ snit::type ensit_rules {
         log detail envr [list BADFOOD-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule BADFOOD-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -257,7 +267,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule BADWATER-1-1 {
             $inception
@@ -283,7 +293,7 @@ snit::type ensit_rules {
         log detail envr [list BADWATER-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule BADWATER-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -304,7 +314,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule COMMOUT-1-1 {
             $inception
@@ -338,7 +348,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule CULSITE-1-1 {
             $inception
@@ -367,7 +377,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule DISASTER-1-1 {
             $inception
@@ -391,7 +401,7 @@ snit::type ensit_rules {
         log detail envr [list DISASTER-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule DISASTER-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -413,7 +423,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule DISEASE-1-1 {
             $inception
@@ -439,7 +449,7 @@ snit::type ensit_rules {
         log detail envr [list DISEASE-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule DISEASE-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -460,7 +470,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule EPIDEMIC-1-1 {
             $inception
@@ -486,7 +496,7 @@ snit::type ensit_rules {
         log detail envr [list EPIDEMIC-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule EPIDEMIC-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -509,7 +519,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule FOODSHRT-1-1 {
             $inception
@@ -533,7 +543,7 @@ snit::type ensit_rules {
         log detail envr [list FOODSHRT-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule FOODSHRT-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -555,7 +565,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule FUELSHRT-1-1 {
             $inception
@@ -579,7 +589,7 @@ snit::type ensit_rules {
         log detail envr [list FUELSHRT-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule FUELSHRT-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -601,7 +611,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule GARBAGE-1-1 {
             $inception
@@ -627,7 +637,7 @@ snit::type ensit_rules {
         log detail envr [list GARBAGE-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule GARBAGE-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -651,7 +661,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule INDSPILL-1-1 {
             $inception
@@ -677,7 +687,7 @@ snit::type ensit_rules {
         log detail envr [list INDSPILL-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule INDSPILL-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -700,7 +710,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule MINEFIELD-1-1 {
             $inception
@@ -726,7 +736,7 @@ snit::type ensit_rules {
         log detail envr [list MINEFIELD-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule MINEFIELD-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -750,7 +760,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule NOWATER-1-1 {
             $inception
@@ -774,7 +784,7 @@ snit::type ensit_rules {
         log detail envr [list NOWATER-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule NOWATER-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -798,7 +808,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule ORDNANCE-1-1 {
             $inception
@@ -824,7 +834,7 @@ snit::type ensit_rules {
         log detail envr [list ORDNANCE-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule ORDNANCE-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -848,7 +858,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule PIPELINE-1-1 {
             $inception
@@ -874,7 +884,7 @@ snit::type ensit_rules {
         log detail envr [list PIPELINE-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule PIPELINE-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -897,7 +907,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule POWEROUT-1-1 {
             $inception
@@ -923,7 +933,7 @@ snit::type ensit_rules {
         log detail envr [list POWEROUT-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule POWEROUT-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -946,7 +956,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule REFINERY-1-1 {
             $inception
@@ -972,7 +982,7 @@ snit::type ensit_rules {
         log detail envr [list REFINERY-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule REFINERY-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -996,7 +1006,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule RELSITE-1-1 {
             $inception
@@ -1024,7 +1034,7 @@ snit::type ensit_rules {
         log detail envr [list RELSITE-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule RELSITE-2-1 {
             [resolverIsLocal [$sit get resolver]]
@@ -1046,7 +1056,7 @@ snit::type ensit_rules {
 
         set inception [$sit get inception]
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule SEWAGE-1-1 {
             $inception
@@ -1070,7 +1080,7 @@ snit::type ensit_rules {
         log detail envr [list SEWAGE-2 [$sit get s]]
 
         set cov       [$sit get coverage]
-        set flist     [civgroup gIn [$sit get n]]
+        set flist     [demog gIn [$sit get n]]
 
         dam rule SEWAGE-2-1 {
             [resolverIsLocal [$sit get resolver]]

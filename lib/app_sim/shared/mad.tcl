@@ -225,46 +225,61 @@ snit::type mad {
     # which are presumed to be valid.
 
     typemethod {mutate hreladjust} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id f g
+        # FIRST, get the dict contents. 
+        dict with parmdict {}
 
-            # FIRST, get the narrative text
-            set narrative [driver narrative get $driver_id]
+        lassign $id f g
 
-            # NEXT, Adjust the baseline
-            aram edit mark
-            aram hrel badjust $driver_id $f $g $delta
-            driver inputs incr $driver_id
-
-            # NEXT, send ADJUST-1-1 report
-            set text [edamrule longname ADJUST-1-1]
-            append text "\n\n"
-
-            set fmt "%-22s %s\n"
-
-            append text [format $fmt "Magic Attitude Driver:" $driver_id]
-            append text [format $fmt "Narrative:"             $narrative]
-            append text [format $fmt "Group F:"               $f]
-            append text [format $fmt "Group G:"               $g]
-
-            set deltaText [format "%.3f" $delta]
-            append text [format $fmt "Delta:"                 $deltaText]
-
-            set reportid \
-                [firings save \
-                     -rtype   DAM                                          \
-                     -subtype ADJUST                                       \
-                     -meta1   ADJUST-1-1                                   \
-                     -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
-                     -text    $text]
-
-            # NEXT, notify application
-            notifier send ::mad <Hrel> update $id
-
-            # NEXT, Return the undo command
-            return [mytypemethod UndoAdjust $driver_id $reportid <Hrel> $id]
+        if {$f in [civgroup names]} {
+            if {[demog getg $f population] == 0} {
+                log normal mad "Skipping hreladjust; group $f is empty"
+                return "# Nothing to undo"
+            }
         }
+
+        if {$g in [civgroup names]} {
+            if {[demog getg $g population] == 0} {
+                log normal mad "Skipping hreladjust; group $g is empty"
+                return "# Nothing to undo"
+            }
+        }
+        
+
+        # FIRST, get the narrative text
+        set narrative [driver narrative get $driver_id]
+
+        # NEXT, Adjust the baseline
+        aram edit mark
+        aram hrel badjust $driver_id $f $g $delta
+        driver inputs incr $driver_id
+
+        # NEXT, send ADJUST-1-1 report
+        set text [edamrule longname ADJUST-1-1]
+        append text "\n\n"
+
+        set fmt "%-22s %s\n"
+
+        append text [format $fmt "Magic Attitude Driver:" $driver_id]
+        append text [format $fmt "Narrative:"             $narrative]
+        append text [format $fmt "Group F:"               $f]
+        append text [format $fmt "Group G:"               $g]
+
+        set deltaText [format "%.3f" $delta]
+        append text [format $fmt "Delta:"                 $deltaText]
+
+        set reportid \
+            [firings save \
+                 -rtype   DAM                                          \
+                 -subtype ADJUST                                       \
+                 -meta1   ADJUST-1-1                                   \
+                 -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
+                 -text    $text]
+
+        # NEXT, notify application
+        notifier send ::mad <Hrel> update $id
+
+        # NEXT, Return the undo command
+        return [mytypemethod UndoAdjust $driver_id $reportid <Hrel> $id]
     }
 
     # mutate hrelinput parmdict
@@ -280,36 +295,52 @@ snit::type mad {
     # Makes the MAGIC-1-1 rule fire for the given input.
     
     typemethod {mutate hrelinput} {parmdict} {
-        dict with parmdict {
-            # FIRST, get the Driver Data
-            rdb eval {
-                SELECT narrative, cause FROM mads 
-                WHERE driver_id=$driver_id
-            } {}
+        # FIRST, get the dict data.
+        dict with parmdict {}
 
-            # NEXT, get the cause.  Passing "" will cause URAM to 
-            # use the numeric driver ID as the numeric cause ID.
-            if {$cause eq "UNIQUE"} {
-                set cause ""
+        # NEXT, skip empty civilian groups
+        if {$f in [civgroup names]} {
+            if {[demog getg $f population] == 0} {
+                log normal mad "Skipping hrelinput; group $f is empty"
+                return
             }
+        }
 
-            dam ruleset MAGIC $driver_id \
-                -cause $cause
-
-            dam detail "Magic Attitude Driver:" $driver_id
-            dam detail "Narrative:"             $narrative
-            dam detail "Group F:"               $f
-            dam detail "Group G:"               $g
-
-            if {$mode eq "persistent"} {
-                set mode P
-            } else {
-                set mode T
+        if {$g in [civgroup names]} {
+            if {[demog getg $g population] == 0} {
+                log normal mad "Skipping hrelnput; group $g is empty"
+                return
             }
+        }
+        
+        # NEXT, get the Driver Data
+        rdb eval {
+            SELECT narrative, cause FROM mads 
+            WHERE driver_id=$driver_id
+        } {}
 
-            dam rule MAGIC-1-1 {1} {
-                dam hrel $mode $f $g $mag
-            }
+        # NEXT, get the cause.  Passing "" will cause URAM to 
+        # use the numeric driver ID as the numeric cause ID.
+        if {$cause eq "UNIQUE"} {
+            set cause ""
+        }
+
+        dam ruleset MAGIC $driver_id \
+            -cause $cause
+
+        dam detail "Magic Attitude Driver:" $driver_id
+        dam detail "Narrative:"             $narrative
+        dam detail "Group F:"               $f
+        dam detail "Group G:"               $g
+
+        if {$mode eq "persistent"} {
+            set mode P
+        } else {
+            set mode T
+        }
+
+        dam rule MAGIC-1-1 {1} {
+            dam hrel $mode $f $g $mag
         }
 
         # NEXT, cannot be undone.
@@ -328,46 +359,54 @@ snit::type mad {
     # which are presumed to be valid.
 
     typemethod {mutate vreladjust} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id g a
+        # FIRST, get the dict parameters
+        dict with parmdict {}
 
-            # FIRST, get the narrative text
-            set narrative [driver narrative get $driver_id]
+        lassign $id g a
 
-            # NEXT, Adjust the baseline
-            aram edit mark
-            aram vrel badjust $driver_id $g $a $delta
-            driver inputs incr $driver_id
-
-            # NEXT, send ADJUST-2-1 report
-            set text [edamrule longname ADJUST-2-1]
-            append text "\n\n"
-
-            set fmt "%-22s %s\n"
-
-            append text [format $fmt "Magic Attitude Driver:" $driver_id]
-            append text [format $fmt "Narrative:"             $narrative]
-            append text [format $fmt "Group:"                 $g]
-            append text [format $fmt "Actor:"                 $a]
-
-            set deltaText [format "%.3f" $delta]
-            append text [format $fmt "Delta:"                 $deltaText]
-
-            set reportid \
-                [firings save \
-                     -rtype   DAM                                          \
-                     -subtype ADJUST                                       \
-                     -meta1   ADJUST-2-1                                   \
-                     -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
-                     -text    $text]
-
-            # NEXT, notify application
-            notifier send ::mad <Vrel> update $id
-
-            # NEXT, Return the undo command
-            return [mytypemethod UndoAdjust $driver_id $reportid <Vrel> $id]
+        # NEXT, skip empty civilian groups
+        if {$g in [civgroup names]} {
+            if {[demog getg $g population] == 0} {
+                log normal mad "Skipping vreladjust; group $g is empty"
+                return "# Nothing to undo"
+            }
         }
+        
+        # NEXT, get the narrative text
+        set narrative [driver narrative get $driver_id]
+
+        # NEXT, Adjust the baseline
+        aram edit mark
+        aram vrel badjust $driver_id $g $a $delta
+        driver inputs incr $driver_id
+
+        # NEXT, send ADJUST-2-1 report
+        set text [edamrule longname ADJUST-2-1]
+        append text "\n\n"
+
+        set fmt "%-22s %s\n"
+
+        append text [format $fmt "Magic Attitude Driver:" $driver_id]
+        append text [format $fmt "Narrative:"             $narrative]
+        append text [format $fmt "Group:"                 $g]
+        append text [format $fmt "Actor:"                 $a]
+
+        set deltaText [format "%.3f" $delta]
+        append text [format $fmt "Delta:"                 $deltaText]
+
+        set reportid \
+            [firings save \
+                 -rtype   DAM                                          \
+                 -subtype ADJUST                                       \
+                 -meta1   ADJUST-2-1                                   \
+                 -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
+                 -text    $text]
+
+        # NEXT, notify application
+        notifier send ::mad <Vrel> update $id
+
+        # NEXT, Return the undo command
+        return [mytypemethod UndoAdjust $driver_id $reportid <Vrel> $id]
     }
 
     # mutate vrelinput parmdict
@@ -383,36 +422,45 @@ snit::type mad {
     # Makes the MAGIC-2-1 rule fire for the given input.
     
     typemethod {mutate vrelinput} {parmdict} {
-        dict with parmdict {
-            # FIRST, get the Driver Data
-            rdb eval {
-                SELECT narrative, cause FROM mads 
-                WHERE driver_id=$driver_id
-            } {}
+        # FIRST, get the dict parameters
+        dict with parmdict {}
 
-            # NEXT, get the cause.  Passing "" will cause URAM to 
-            # use the numeric driver ID as the numeric cause ID.
-            if {$cause eq "UNIQUE"} {
-                set cause ""
+        # NEXT, skip empty civilian groups
+        if {$g in [civgroup names]} {
+            if {[demog getg $g population] == 0} {
+                log normal mad "Skipping vrelinput; group $g is empty"
+                return
             }
+        }
+        
+        # NEXT, get the Driver Data
+        rdb eval {
+            SELECT narrative, cause FROM mads 
+            WHERE driver_id=$driver_id
+        } {}
 
-            dam ruleset MAGIC $driver_id \
-                -cause $cause
+        # NEXT, get the cause.  Passing "" will cause URAM to 
+        # use the numeric driver ID as the numeric cause ID.
+        if {$cause eq "UNIQUE"} {
+            set cause ""
+        }
 
-            dam detail "Magic Attitude Driver:" $driver_id
-            dam detail "Narrative:"             $narrative
-            dam detail "Group:"                 $g
-            dam detail "Actor:"                 $a
+        dam ruleset MAGIC $driver_id \
+            -cause $cause
 
-            if {$mode eq "persistent"} {
-                set mode P
-            } else {
-                set mode T
-            }
+        dam detail "Magic Attitude Driver:" $driver_id
+        dam detail "Narrative:"             $narrative
+        dam detail "Group:"                 $g
+        dam detail "Actor:"                 $a
 
-            dam rule MAGIC-2-1 {1} {
-                dam vrel $mode $g $a $mag
-            }
+        if {$mode eq "persistent"} {
+            set mode P
+        } else {
+            set mode T
+        }
+
+        dam rule MAGIC-2-1 {1} {
+            dam vrel $mode $g $a $mag
         }
 
         # NEXT, cannot be undone.
@@ -431,48 +479,56 @@ snit::type mad {
     # which are presumed to be valid.
 
     typemethod {mutate satadjust} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id g c
-            set n [civgroup getg $g n]
+        # FIRST, get the dict parameters
+        dict with parmdict {}
 
-            # FIRST, get the narrative text
-            set narrative [driver narrative get $driver_id]
+        lassign $id g c
+        set n [civgroup getg $g n]
 
-            # NEXT, Adjust the baseline
-            aram edit mark
-            aram sat badjust $driver_id $g $c $delta
-            driver inputs incr $driver_id
-
-            # NEXT, send ADJUST-3-1 report
-            set text [edamrule longname ADJUST-3-1]
-            append text "\n\n"
-
-            set fmt "%-22s %s\n"
-
-            append text [format $fmt "Magic Attitude Driver:" $driver_id]
-            append text [format $fmt "Description:"           $narrative]
-            append text [format $fmt "Neighborhood:"          $n]
-            append text [format $fmt "Group:"                 $g]
-            append text [format $fmt "Concern:"               $c]
-
-            set deltaText [format "%.3f" $delta]
-            append text [format $fmt "Delta:"                 $deltaText]
-
-            set reportid \
-                [firings save \
-                     -rtype   DAM                                          \
-                     -subtype ADJUST                                       \
-                     -meta1   ADJUST-3-1                                   \
-                     -title   "ADJUST-3-1: [edamrule longname ADJUST-3-1]" \
-                     -text    $text]
-
-            # NEXT, notify application
-            notifier send ::mad <Sat> update $id
-
-            # NEXT, Return the undo command
-            return [mytypemethod UndoAdjust $driver_id $reportid <Sat> $id]
+        # NEXT, skip empty civilian groups
+        if {$g in [civgroup names]} {
+            if {[demog getg $g population] == 0} {
+                log normal mad "Skipping satadjust; group $g is empty"
+                return "# Nothing to undo"
+            }
         }
+        
+        # NEXT, get the narrative text
+        set narrative [driver narrative get $driver_id]
+
+        # NEXT, Adjust the baseline
+        aram edit mark
+        aram sat badjust $driver_id $g $c $delta
+        driver inputs incr $driver_id
+
+        # NEXT, send ADJUST-3-1 report
+        set text [edamrule longname ADJUST-3-1]
+        append text "\n\n"
+
+        set fmt "%-22s %s\n"
+
+        append text [format $fmt "Magic Attitude Driver:" $driver_id]
+        append text [format $fmt "Description:"           $narrative]
+        append text [format $fmt "Neighborhood:"          $n]
+        append text [format $fmt "Group:"                 $g]
+        append text [format $fmt "Concern:"               $c]
+
+        set deltaText [format "%.3f" $delta]
+        append text [format $fmt "Delta:"                 $deltaText]
+
+        set reportid \
+            [firings save \
+                 -rtype   DAM                                          \
+                 -subtype ADJUST                                       \
+                 -meta1   ADJUST-3-1                                   \
+                 -title   "ADJUST-3-1: [edamrule longname ADJUST-3-1]" \
+                 -text    $text]
+
+        # NEXT, notify application
+        notifier send ::mad <Sat> update $id
+
+        # NEXT, Return the undo command
+        return [mytypemethod UndoAdjust $driver_id $reportid <Sat> $id]
     }
 
     # mutate satinput parmdict
@@ -488,42 +544,50 @@ snit::type mad {
     # Makes the MAGIC-3-1 rule fire for the given input.
     
     typemethod {mutate satinput} {parmdict} {
-        dict with parmdict {
-            set n [civgroup getg $g n]
+        # FIRST, get the dict parameters.
+        dict with parmdict {}
+        set n [civgroup getg $g n]
 
-            # FIRST, get the Driver Data
-            rdb eval {
-                SELECT narrative, cause, s, p, q FROM mads 
-                WHERE driver_id=$driver_id
-            } {}
-
-            # NEXT, get the cause.  Passing "" will cause URAM to 
-            # use the numeric driver ID as the numeric cause ID.
-            if {$cause eq "UNIQUE"} {
-                set cause ""
+        # NEXT, skip empty civilian groups
+        if {$g in [civgroup names]} {
+            if {[demog getg $g population] == 0} {
+                log normal mad "Skipping satinput; group $g is empty"
+                return
             }
+        }
+        
+        # NEXT, get the Driver Data
+        rdb eval {
+            SELECT narrative, cause, s, p, q FROM mads 
+            WHERE driver_id=$driver_id
+        } {}
 
-            dam ruleset MAGIC $driver_id \
-                -cause $cause         \
-                -s     $s             \
-                -p     $p             \
-                -q     $q
+        # NEXT, get the cause.  Passing "" will cause URAM to 
+        # use the numeric driver ID as the numeric cause ID.
+        if {$cause eq "UNIQUE"} {
+            set cause ""
+        }
 
-            dam detail "Magic Attitude Driver:" $driver_id
-            dam detail "Narrative:"             $narrative
-            dam detail "In Neighborhood:"       $n
-            dam detail "Civilian Group:"        $g
-            dam detail "Concern:"               $c
+        dam ruleset MAGIC $driver_id \
+            -cause $cause         \
+            -s     $s             \
+            -p     $p             \
+            -q     $q
 
-            if {$mode eq "persistent"} {
-                set mode P
-            } else {
-                set mode T
-            }
+        dam detail "Magic Attitude Driver:" $driver_id
+        dam detail "Narrative:"             $narrative
+        dam detail "In Neighborhood:"       $n
+        dam detail "Civilian Group:"        $g
+        dam detail "Concern:"               $c
 
-            dam rule MAGIC-3-1 {1} {
-                dam sat $mode $g $c $mag
-            }
+        if {$mode eq "persistent"} {
+            set mode P
+        } else {
+            set mode T
+        }
+
+        dam rule MAGIC-3-1 {1} {
+            dam sat $mode $g $c $mag
         }
 
         # NEXT, cannot be undone.
@@ -542,48 +606,55 @@ snit::type mad {
     # which are presumed to be valid.
 
     typemethod {mutate coopadjust} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            lassign $id f g
-            set n [civgroup getg $f n]
+        # FIRST, get the dictionary parameters
+        dict with parmdict {}
+        lassign $id f g
+        set n [civgroup getg $f n]
 
-            # FIRST, get the narrative text
-            set narrative [driver narrative get $driver_id]
-
-            # NEXT, Adjust the baseline
-            aram edit mark
-            aram coop badjust $driver_id $f $g $delta
-            driver inputs incr $driver_id
-
-            # NEXT, send ADJUST-4-1 report
-            set text [edamrule longname ADJUST-4-1]
-            append text "\n\n"
-
-            set fmt "%-22s %s\n"
-
-            append text [format $fmt "Magic Attitude Driver:" $driver_id]
-            append text [format $fmt "Narrative:"             $narrative]
-            append text [format $fmt "Neighborhood:"          $n]
-            append text [format $fmt "Civ Group:"             $f]
-            append text [format $fmt "Frc Group:"             $g]
-
-            set deltaText [format "%.3f" $delta]
-            append text [format $fmt "Delta:"                 $deltaText]
-
-            set reportid \
-                [firings save \
-                     -rtype   DAM                                          \
-                     -subtype ADJUST                                       \
-                     -meta1   ADJUST-4-1                                   \
-                     -title   "ADJUST-4-1: [edamrule longname ADJUST-4-1]" \
-                     -text    $text]
-
-            # NEXT, notify application
-            notifier send ::mad <Coop> update $id
-
-            # NEXT, Return the undo command
-            return [mytypemethod UndoAdjust $driver_id $reportid <Coop> $id]
+        # NEXT, skip empty civilian groups
+        if {$f in [civgroup names]} {
+            if {[demog getg $f population] == 0} {
+                log normal mad "Skipping coopadjust; group $f is empty"
+                return "# Nothing to undo" 
+            }
         }
+        
+        # NEXT, get the narrative text
+        set narrative [driver narrative get $driver_id]
+
+        # NEXT, Adjust the baseline
+        aram edit mark
+        aram coop badjust $driver_id $f $g $delta
+        driver inputs incr $driver_id
+
+        # NEXT, send ADJUST-4-1 report
+        set text [edamrule longname ADJUST-4-1]
+        append text "\n\n"
+
+        set fmt "%-22s %s\n"
+
+        append text [format $fmt "Magic Attitude Driver:" $driver_id]
+        append text [format $fmt "Narrative:"             $narrative]
+        append text [format $fmt "Neighborhood:"          $n]
+        append text [format $fmt "Civ Group:"             $f]
+        append text [format $fmt "Frc Group:"             $g]
+
+        set deltaText [format "%.3f" $delta]
+        append text [format $fmt "Delta:"                 $deltaText]
+
+        set reportid \
+            [firings save \
+                 -rtype   DAM                                          \
+                 -subtype ADJUST                                       \
+                 -meta1   ADJUST-4-1                                   \
+                 -title   "ADJUST-4-1: [edamrule longname ADJUST-4-1]" \
+                 -text    $text]
+
+        # NEXT, notify application
+        notifier send ::mad <Coop> update $id
+
+        # NEXT, Return the undo command
+        return [mytypemethod UndoAdjust $driver_id $reportid <Coop> $id]
     }
 
     # mutate coopinput parmdict
@@ -599,42 +670,50 @@ snit::type mad {
     # Makes the MAGIC-4-1 rule fire for the given input.
     
     typemethod {mutate coopinput} {parmdict} {
-        dict with parmdict {
-            set n [civgroup getg $f n]
+        # FIRST, get the dict parameters
+        dict with parmdict {}
+        set n [civgroup getg $f n]
 
-            # FIRST, get the Driver Data
-            rdb eval {
-                SELECT narrative, cause, s, p, q FROM mads 
-                WHERE driver_id=$driver_id
-            } {}
-
-            # NEXT, get the cause.  Passing "" will cause URAM to 
-            # use the numeric driver ID as the numeric cause ID.
-            if {$cause eq "UNIQUE"} {
-                set cause ""
+        # NEXT, skip empty civilian groups
+        if {$f in [civgroup names]} {
+            if {[demog getg $f population] == 0} {
+                log normal mad "Skipping coopinput; group $f is empty"
+                return
             }
+        }
+        
+        # NEXT, get the Driver Data
+        rdb eval {
+            SELECT narrative, cause, s, p, q FROM mads 
+            WHERE driver_id=$driver_id
+        } {}
 
-            dam ruleset MAGIC $driver_id \
-                -cause $cause            \
-                -s     $s                \
-                -p     $p                \
-                -q     $q
+        # NEXT, get the cause.  Passing "" will cause URAM to 
+        # use the numeric driver ID as the numeric cause ID.
+        if {$cause eq "UNIQUE"} {
+            set cause ""
+        }
 
-            dam detail "Magic Attitude Driver:" $driver_id
-            dam detail "Narrative:"             $narrative
-            dam detail "In Neighborhood:"       $n
-            dam detail "Civilian Group:"        $f
-            dam detail "Force Group:"           $g
+        dam ruleset MAGIC $driver_id \
+            -cause $cause            \
+            -s     $s                \
+            -p     $p                \
+            -q     $q
 
-            if {$mode eq "persistent"} {
-                set mode P
-            } else {
-                set mode T
-            }
+        dam detail "Magic Attitude Driver:" $driver_id
+        dam detail "Narrative:"             $narrative
+        dam detail "In Neighborhood:"       $n
+        dam detail "Civilian Group:"        $f
+        dam detail "Force Group:"           $g
 
-            dam rule MAGIC-4-1 {1} {
-                dam coop $mode $f $g $mag
-            }
+        if {$mode eq "persistent"} {
+            set mode P
+        } else {
+            set mode T
+        }
+
+        dam rule MAGIC-4-1 {1} {
+            dam coop $mode $f $g $mag
         }
 
         # NEXT, cannot be undone.

@@ -159,7 +159,16 @@ snit::type control_rules {
 
         if {![dam isactive CONTROL]} {
             log warning controlr \
-                "event CONTROL-1: ruleset has been deactivated"
+                "event CONTROL: ruleset has been deactivated"
+            return
+        }
+
+        set n [dict get $dict n]
+
+        # Skip if the neighborhood is empty.
+        if {[demog getn $n population] == 0} {
+            log normal controlr \
+                "event CONTROL: skipping, nbhood $n is empty." 
             return
         }
 
@@ -189,7 +198,7 @@ snit::type control_rules {
 
     typemethod CONTROL-1 {dict} {
         dict with dict {
-            set flist [civgroup gIn $n]
+            set flist [demog gIn $n]
 
             dam ruleset CONTROL $driver_id
 
@@ -321,7 +330,7 @@ snit::type control_rules {
         set ag [dict get $dict b]
         set al [dict get $dict a]
 
-        set glist [civgroup gIn [dict get $dict n]]
+        set glist [demog gIn [dict get $dict n]]
         set alist [actor names]
 
         dam ruleset CONTROL [dict get $dict driver_id]

@@ -70,11 +70,14 @@ snit::type iom_rules {
         }
 
         # NEXT, determine the covered groups, and the CAPcov for each.
+        # Skip empty civilian groups.
         rdb eval {
-            SELECT g      AS f,
-                   capcov AS capcov
-            FROM capcov
-            WHERE k=$data(cap) AND capcov > 0.0
+            SELECT C.g      AS f,
+                   C.capcov AS capcov
+            FROM capcov AS C
+            JOIN demog_g AS D ON (D.g = C.g)
+            WHERE D.population > 0 
+            AND C.k=$data(cap) AND C.capcov > 0.0
         } {
             # FIRST, scale the capcov given the nominal CAPcov.
             set data(f)      $f

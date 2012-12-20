@@ -71,6 +71,14 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
+    # empty g
+    #
+    # Makes g an empty group.
+
+    proc empty {g} {
+        rdb eval {UPDATE demog_g SET population=0 WHERE g=$g}
+    }
+
     # Do an initial clean-up; this will remove the Adjustments
     # MAD.
     cleanup
@@ -276,6 +284,35 @@ inputs     1
     }
 
 
+    test hreladjust-1.4 {f is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate hreladjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_hrel_adjustments}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test hreladjust-1.5 {g is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate hreladjust {
+            id {BLUE SHIA} driver_id 1000 delta 0.1
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_hrel_adjustments}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
     test hreladjust-2.1 {Undo removes effect.} -setup {
         lock
         mad mutate create $m1   ;# 1000
@@ -392,6 +429,35 @@ driver_id pflag cause f    g    mag
     } -result {DAM MAGIC {MAGIC-1-1: Magic Horizontal Relationship Input}}
 
 
+    test hrelinput-1.3 {f is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate hrelinput {
+            driver_id 1000 mode persistent f SHIA g BLUE mag 5
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_hrel_effects}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test hrelinput-1.4 {g is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate hrelinput {
+            driver_id 1000 mode persistent f BLUE g SHIA mag 5
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_hrel_effects}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
     #-------------------------------------------------------------------
     # vreladjust
 
@@ -451,6 +517,21 @@ inputs     1
     } -result {
         {::mad <Vrel> update {SHIA JOE}}
     }
+
+
+    test vreladjust-1.4 {g is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate vreladjust {
+            id {SHIA JOE} driver_id 1000 delta 0.1
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_vrel_adjustments}
+    } -cleanup {
+        cleanup
+    } -result {0}
 
 
     test vreladjust-2.1 {Undo removes effect.} -setup {
@@ -568,6 +649,19 @@ driver_id pflag cause g    a   mag
         cleanup
     } -result {DAM MAGIC {MAGIC-2-1: Magic Vertical Relationship Input}}
 
+    test vrelinput-1.3 {g is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate vrelinput {
+            driver_id 1000 mode persistent g SHIA a JOE mag 5
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_vrel_effects}
+    } -cleanup {
+        cleanup
+    } -result {0}
 
 
     #-------------------------------------------------------------------
@@ -631,6 +725,21 @@ inputs     1
     } -result {
         {::mad <Sat> update {SHIA AUT}}
     }
+
+
+    test satadjust-1.4 {g is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate satadjust {
+            id {SHIA AUT} driver_id 1000 delta 0.1
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_sat_adjustments}
+    } -cleanup {
+        cleanup
+    } -result {0}
 
 
     test satadjust-2.1 {Undo removes effect.} -setup {
@@ -750,6 +859,20 @@ driver_id pflag cause g    c   mag
         cleanup
     } -result {DAM MAGIC {MAGIC-3-1: Magic Satisfaction Input}}
 
+    test satinput-1.3 {g is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate satinput {
+            driver_id 1000 mode persistent g SHIA c AUT mag 5
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_sat_effects}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
 
 
     #-------------------------------------------------------------------
@@ -811,6 +934,21 @@ inputs     1
     } -result {
         {::mad <Coop> update {SHIA BLUE}}
     }
+
+    test coopadjust-1.4 {f is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate coopadjust {
+            id {SHIA BLUE} driver_id 1000 delta 0.1
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_coop_adjustments}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
 
 
     test coopadjust-2.1 {Undo removes effect.} -setup {
@@ -927,6 +1065,21 @@ driver_id pflag cause f    g    mag
     } -cleanup {
         cleanup
     } -result {DAM MAGIC {MAGIC-4-1: Magic Cooperation Input}}
+
+    test coopinput-1.3 {f is empty civilian group} -setup {
+        lock
+        mad mutate create $m1  ;# 1000
+        empty SHIA
+    } -body {
+        mad mutate coopinput {
+            driver_id 1000 mode persistent f SHIA g BLUE mag 5
+        }
+        
+        rdb onecolumn {SELECT count(*) FROM uram_coop_effects}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
 
 
     #-------------------------------------------------------------------
