@@ -331,7 +331,7 @@ snit::type econ {
 
             $ht para
 
-            $ht put   "A file called cgedebug.txt that contains the set "
+            $ht put   "A file called cgedebug.cmsnap that contains the set "
             $ht put   "of initial conditions that led to this problem "
             $ht put   "is located in [file normalize [workdir join ..]] "
             $ht put   "and can be used for debugging this problem."
@@ -385,11 +385,14 @@ snit::type econ {
         log warning econ "CGE Failed to solve: $msg $page"
         
         # NEXT, open a debug file for use in analyzing the problem
-        set filename [workdir join .. cgedebug.txt]
+        set filename [workdir join .. cgedebug.cmsnap]
         set f [open $filename w]
 
         # NEXT, dump the CGE initial state
-        puts $f [$cge initial]
+        set vdict [$cge initial]
+        dict for {cell value} $vdict {
+            puts $f "$cell $value"
+        }
         close $f
     }
 
