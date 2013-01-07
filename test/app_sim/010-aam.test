@@ -291,7 +291,7 @@ SUNN 0         0         1000
     }
 
 
-    test attrit-2.3 {f is CIV, no units in n, overkill leaves 1} -setup {
+    test attrit-2.3 {f is CIV, resident in n, overkill leaves 0} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
@@ -305,40 +305,17 @@ SUNN 0         0         1000
     } -result {
 g    attrition displaced population 
 ---- --------- --------- ---------- 
-SHIA 999       0         1          
+SHIA 999       0         0          
 SUNN 0         0         1000       
     }
 
-
-    test attrit-2.4 {f is CIV, no units in n, implicit = 1} -setup {
-        ted create NB1 BLUE SHIA SUNN
-        ted lock
-        # use overkill to get down to that point
-        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 2000 g1 "" g2 ""]
-        aam assess
-        demog analyze pop
-    } -body {
-        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 20 g1 "" g2 ""]
-        aam assess
-        demog analyze pop
-
-        # No change
-        pprint_demog_g
-    } -cleanup {
-        cleanup
-    } -result {
-g    attrition displaced population 
----- --------- --------- ---------- 
-SHIA 999       0         1          
-SUNN 0         0         1000       
-    }
 
     test attrit-2.5 {f is CIV, overkill, attrition is saved} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
-        # There are only 1000 in the nbgroup, and 1 should remain.  However,
-        # we'll count the 1 as a casualty anyway.
+        # There are only 1000 in the group, so we should get 1000
+        # casualties.
         aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 2000 g1 "" g2 ""]
         
         aam assess
@@ -351,8 +328,6 @@ u        personnel
 SHIA/NB1 0         
 SUNN/NB1 1000      
     }
-
-
 
     test attrit-2.6 {f is CIV, overkill, g1, g2 are saved} -setup {
         ted create NB1 BLUE BRIT SHIA SUNN
