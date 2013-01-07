@@ -774,12 +774,7 @@ snit::type aam {
                 # FIRST, attrit the group of origin
                 set parms [list n $origin g $g casualties $casualties]
 
-                # TBD: these no longer need to be mutators
-                if {$n eq $origin} {
-                    demog mutate attritResident $parms
-                } else {
-                    demog mutate attritDisplaced $parms
-                }
+                demog attrit $parms
 
                 # NEXT, save the attrition for attitude assessment
                 $type SaveCivAttrition $origin $g $casualties $g1 $g2

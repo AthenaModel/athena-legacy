@@ -402,7 +402,7 @@ snit::type demog {
     #-------------------------------------------------------------------
     # Mutators
 
-    # mutate attritResident parmdict
+    # attrit parmdict
     #
     # parmdict     A dictionary of group parms
     #
@@ -411,8 +411,11 @@ snit::type demog {
     #
     # Updates a demog_g record given the parms, which are presumed to be
     # valid.
+    #
+    # This is not an order mutator, in the usual sense; it cannot
+    # be undone.
 
-    typemethod {mutate attritResident} {parmdict} {
+    typemethod attrit {parmdict} {
         # FIRST, use the dict
         dict with parmdict {
             # FIRST, get the undo information
@@ -421,13 +424,10 @@ snit::type demog {
                 WHERE g=$g
             } {}
 
-            if {$casualties >= 0} {
-                let casualties {min($casualties, $population - 1)}
-                let undoCasualties {-$casualties}
-                set undoing 0
-            } else {
-                set undoing 1
-            }
+            assert {$casualties >= 0}
+            let casualties {min($casualties, $population)}
+            let undoCasualties {-$casualties}
+            set undoing 0
 
             # NEXT, Update the group
             rdb eval {
@@ -439,62 +439,6 @@ snit::type demog {
 
             # NEXT, notify the app.
             notifier send ::demog <Update>
-
-            # NEXT, If we're not undoing, return the undo command.
-            if {!$undoing} {
-                return [mytypemethod mutate attritResident \
-                        [list g $g casualties $undoCasualties]]
-            } else {
-                return
-            }
-        }
-    }
-    
-    # mutate attritDisplaced parmdict
-    #
-    # parmdict     A dictionary of group parms
-    #
-    #    g                Group ID
-    #    casualties       A number of casualites to attrit
-    #
-    # Updates a demog_g record given the parms, which are presumed to be
-    # valid.
-
-    typemethod {mutate attritDisplaced} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            # FIRST, get the undo information
-            rdb eval {
-                SELECT displaced,attrition FROM demog_g
-                WHERE g=$g
-            } {}
-
-            if {$casualties >= 0} {
-                let casualties {min($casualties, $displaced)}
-                let undoCasualties {-$casualties}
-                set undoing 0
-            } else {
-                set undoing 1
-            }
-
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE demog_g
-                SET attrition = attrition + $casualties,
-                    displaced = displaced - $casualties
-                WHERE g=$g
-            } {}
-
-            # NEXT, notify the app.
-            notifier send ::demog <Update>
-
-            # NEXT, If we're not undoing, return the undo command.
-            if {!$undoing} {
-                return [mytypemethod mutate attritDisplaced \
-                        [list g $g casualties $undoCasualties]]
-            } else {
-                return
-            }
         }
     }
 }

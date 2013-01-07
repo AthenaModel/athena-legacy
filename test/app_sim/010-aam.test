@@ -305,7 +305,7 @@ SUNN 0         0         1000
     } -result {
 g    attrition displaced population 
 ---- --------- --------- ---------- 
-SHIA 999       0         0          
+SHIA 1000      0         0          
 SUNN 0         0         1000       
     }
 
@@ -379,6 +379,27 @@ SUNN/NB1 1000
     
     }
 
+    test attrit-2.8 {f is empty CIV group} -setup {
+        ted create NB1 BLUE SHIA SUNN
+        ted lock
+        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        aam assess
+    } -body {
+        # Attriting an empty civilian group causes no problems.
+        aam mutate attrit [list mode GROUP n NB1 f SHIA casualties 2000 g1 "" g2 ""]
+        aam assess
+        demog analyze pop
+
+        pprint_demog_g
+    } -cleanup {
+        cleanup
+    } -result {
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 1000      0         0          
+SUNN 0         0         1000       
+    }  
+    
     #-------------------------------------------------------------------
     # mutate attritn
 
@@ -404,7 +425,7 @@ SUNN 10        0         990
     }
 
 
-    test attritn-1.2 {nbhood, overkill leaves 1 per resident} -setup {
+    test attritn-1.2 {nbhood, overkill leaves 0 per resident} -setup {
         ted create NB1 BLUE SHIA SUNN
         ted lock
     } -body {
@@ -418,8 +439,8 @@ SUNN 10        0         990
     } -result {
 g    attrition displaced population 
 ---- --------- --------- ---------- 
-SHIA 999       0         1          
-SUNN 999       0         1          
+SHIA 1000      0         0          
+SUNN 1000      0         0          
     }
 
 
@@ -448,25 +469,7 @@ SHIA/NB1 950
 SUNN/NB1 950       
     }
 
-    test attritn-1.4 {nbhood, displaced units attrit origin} -setup {
-        ted create NB1 BLUE SHIA 
-        ted order TACTIC:DISPLACE:CREATE \
-            owner SYSTEM g SHIA text1 DISPLACED int1 100 on_lock YES once YES
-        ted lock
-    } -body {
-        aam mutate attrit [list mode NBHOOD n NB1 casualties 100 g1 "" g2 ""]
-        aam assess
-        demog analyze pop
-
-        set b [ted query {SELECT u,personnel FROM units ORDER BY u}]
-    } -cleanup {
-        cleanup
-    } -result {
-u        personnel 
--------- --------- 
-SHIA/NB1 810       
-UT0001   90        
-    }
+    # attritn-1.4 deleted, obsolete
 
     test attritn-1.5 {nbhood, force, org units not attrited} -setup {
         ted create JOE NB1 BLUE USAID BRIT SHIA SUNN
@@ -518,6 +521,26 @@ u        personnel
 -------- --------- 
 SHIA/NB1 1000      
 SUNN/NB1 1000      
+    }
+
+        test attritn-1.7 {attriting empty neighborhood is OK} -setup {
+        ted create NB1 BLUE SHIA SUNN
+        ted lock
+        aam mutate attrit [list mode NBHOOD n NB1 casualties 3000  g1 "" g2 ""]
+        aam assess
+    } -body {
+        aam mutate attrit [list mode NBHOOD n NB1 casualties 3000  g1 "" g2 ""]
+        aam assess
+        demog analyze pop
+
+        pprint_demog_g
+    } -cleanup {
+        cleanup
+    } -result {
+g    attrition displaced population 
+---- --------- --------- ---------- 
+SHIA 1000      0         0          
+SUNN 1000      0         0          
     }
 
     #-------------------------------------------------------------------
