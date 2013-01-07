@@ -542,17 +542,20 @@ snit::type security_model {
         set v [parmdb get force.volatility]
 
         rdb eval {
-            SELECT n, g, pct_force, pct_enemy, volatility
+            SELECT n, g, pct_force, pct_enemy, personnel, volatility
             FROM force_ng AS NG
             JOIN force_n USING (n)
-            WHERE personnel > 0
         } {
-            let vol {$v*$volatility}
-            let realSecurity {
-                100.0*($pct_force - $pct_enemy - $vol)/(100.0 + $vol)
-            }
+            if {$personnel > 0} {
+                let vol {$v*$volatility}
+                let realSecurity {
+                    100.0*($pct_force - $pct_enemy - $vol)/(100.0 + $vol)
+                }
             
-            let security {int(ceil($realSecurity))}
+                let security {int(ceil($realSecurity))}
+            } else {
+                let security {0}
+            }
             
             rdb eval {
                 UPDATE force_ng
