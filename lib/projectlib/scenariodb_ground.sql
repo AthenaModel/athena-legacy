@@ -355,8 +355,8 @@ CREATE TABLE force_ng (
 -- nbstat Table: Civilian group statistics
 CREATE TABLE force_civg (
     g          TEXT PRIMARY KEY,   -- Symbolic civ group name
-    nominal_cf DOUBLE,             -- Nominal Criminal Fraction
-    actual_cf  DOUBLE              -- Actual Criminal Fraction
+    nominal_cf DOUBLE DEFAULT 0.0, -- Nominal Criminal Fraction
+    actual_cf  DOUBLE DEFAULT 0.0  -- Actual Criminal Fraction
 );
 
 

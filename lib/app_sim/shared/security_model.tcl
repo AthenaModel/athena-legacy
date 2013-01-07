@@ -139,7 +139,7 @@ snit::type security_model {
     # ComputeCriminalFraction
     #
     # Computes the nominal and actual criminal fraction for each
-    # civilian group.
+    # non-empty civilian group.
 
     typemethod ComputeCriminalFraction {} {
         rdb eval {
@@ -151,6 +151,7 @@ snit::type security_model {
             FROM civgroups_view AS G
             JOIN force_n AS FN ON (FN.n=G.n)
             JOIN demog_g AS DG ON (DG.g=G.g)
+            WHERE DG.population > 0
         } {
             set Zcrimfrac [parm get force.law.crimfrac.$demeanor]
             set suppfrac [parm get force.law.suppfrac]
@@ -188,13 +189,6 @@ snit::type security_model {
         # CIV Groups
 
         # Population force.
-        #
-        # TBD: Note that "displaced civilian personnel", i.e., civilian
-        # personnel assigned to activities outside their neighborhood of 
-        # origin, are excluded from this calculation.
-        # It's not clear what to do with them.  They have "own" force,
-        # but nowhere to put it; it certainly isn't clear that they
-        # belong to the corresponding group in this neighborhood, if any.
 
         rdb eval {
             SELECT civgroups.n             AS n,
@@ -549,7 +543,9 @@ snit::type security_model {
 
         rdb eval {
             SELECT n, g, pct_force, pct_enemy, volatility
-            FROM force_ng JOIN force_n USING (n)
+            FROM force_ng AS NG
+            JOIN force_n USING (n)
+            WHERE personnel > 0
         } {
             let vol {$v*$volatility}
             let realSecurity {

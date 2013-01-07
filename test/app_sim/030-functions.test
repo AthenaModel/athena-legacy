@@ -474,10 +474,10 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
-        ted sendex expr security("nb1","blue")
+        ted sendex expr security("nb1","sunn")
     } -cleanup {
         cleanup
-    } -result {-6}
+    } -result {82}
 
     #-------------------------------------------------------------------
     # support()

@@ -54,6 +54,7 @@ SELECT n || ' ' || g                  AS id,
        volatility_gain                AS volatility_gain,
        nominal_volatility             AS nominal_volatility
 FROM force_ng JOIN force_n USING (n)
+WHERE personnel > 0
 ORDER BY n, g;
 
 
