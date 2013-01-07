@@ -201,7 +201,6 @@ let BaseSubWage    = 200                     ;# Subsistence wage
 let BaseSA         = {[BaseSubsisters] * [BaseSubWage]}
 let BaseCAP.pop    = {[BREV.pop] / [BP.pop]} ;# Number of base case jobs
 
-let BREM           = 16e9            
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
                              # goes to actors.
 let PF.world.black = 62.0e3
@@ -241,6 +240,8 @@ foreach i {goods black pop} {
         let BQD.$i.$j = {[BX.$i.$j]/[BP.$i]}
     }
 }
+
+let BREM = {max(0, [BEXP.pop] - [BREV.pop])}
 
 # Production quantities for all producers i are a simple sum of the 
 # sector-by-sector demands:

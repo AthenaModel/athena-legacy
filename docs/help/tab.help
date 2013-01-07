@@ -2570,37 +2570,51 @@ tab "Econ/SAM" {
     in work-years given the average annual income of a typical person in
     the area of interest.<p>
 
-    The Other Inputs section allows the user to supply, in order, remittances
-    to the economy, the black market feedstock price in dollars per year,
+    The Other Inputs section allows the user to supply, in order,
+    the black market feedstock price in dollars per year,
     the feedstock per unit of black market product (for example, if it takes 
     1.05 tons of poppies to make 1 ton of opium, then this value would be 
     1.05), the maximum amount of black market feedstock available, the 
-    number of consumers that the data in the SAM is based upon and the
-    subsistence farmer wage, which is also the poverty level.  The 
-    subsistence wage is used to compute the contribution of subsistence
-    agriculture to the GDP.<p>
+    number of consumers and the number of subsisters that the data in the 
+    SAM is based upon and the subsistence farmer wage, which is also the 
+    poverty level.  The subsistence wage is used to compute the contribution 
+    of subsistence agriculture to the GDP.<p>
 
     When Athena is locked, all the cells on the SAM remain visible, but are
     no longer editable unless the user returns to the PREP state.<p>
 
-    The SAM outputs section contains values that are either already in the 
-    SAM but have a special meaning to the economy or are computed from other
-    values in the SAM. The Foreign Aid to Actors is
-    the same as the BX.actors.world cell in the SAM and Foreign Aid to 
-    Region is the same as the BX.region.world cell. The per capita demand
-    for goods in goodsBKT/year is computed from the BX.goods.pop cell in
-    the SAM and the Base Consumers cell in the other inputs section. The base
-    amount of goods exported is the ratio of the BX.goods.world cell and the
-    price of goods. The amount of exports from the black market is the ratio
-    of the BX.black.world cell and the price in the black market. The number
-    of exported jobs is the ratio of BX.pop.world and the price of labor.
-    These values are used in the solution of the CGE. Refer to the CGE 
-    documentation for how they are used.<p>
+    The SAM outputs are divided up into three sections: <b>Size Outputs</b>,
+    <b>Exports/Foreign Aid Outputs</b> and <b>Misc. Outputs</b>.<p>
 
-    Finally, the shape parameters are computed from the size of the economy.
-    These values are used with other key values, such as the price of black
-    market feedstock to compute the actual flows of money between sectors as
-    Athena runs forward in time.<p>
+
+    The <b>Size Outputs</b> section contains values that aid the analyst in 
+    determining the overall size of the economy given the inputs provided.
+    These outputs include the base value for GDP,
+    the size of the labor force, the per capita demand for goods and the 
+    base contribution to GDP that subsistence agriculture makes.<p>
+
+    The <b>Exports/Foreign Aid Outputs</b> section contains values from the
+    SAM that have special meaning. Aid to Actors corresponds to the SAM's
+    BX.actors.world cell. Likewise, Aid to Region is the same as the 
+    BX.region.world cell. Exports are computed from the money flow to the
+    goods, black and pop sectors from the world sector and the base price
+    in each of those sectors that have product.<p>
+
+    The <b>Misc. Outputs</b> section contains three outputs. First is 
+    remittances which is the difference between the Base Revenue and the Base 
+    Expenditures in the pop sector.  The SAM assumes that any expenditures
+    by the populace over their revenue must be due to remittances.  Next
+    is black market profit which is the difference between Base Revenue and
+    Base Expenditures in the black sector.  It is required that base revenue
+    be higher than expenditures in the black sector.  The last miscellaneous
+    output is the cost of feedstock in dollars per year, it is the product
+    of the base demand of black market product, the price of black market
+    feedstock and the feedstock required for one unit of product.<p>
+
+    Lastly, the shape parameters appear in a matrix tableau.  These values
+    are computed from the base size of the economy and are used to calibrate
+    the actual economy when the scenario is locked and to compute the
+    current state of the actual economy when Athena is run forward.<p>
 
     <b>Note:</b> The definition of actors and where they get their income, 
     along with their strategies and Athena parameters that define how actors
