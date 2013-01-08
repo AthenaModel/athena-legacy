@@ -715,7 +715,6 @@ snit::type aam {
                    gtype                               AS gtype,
                    personnel                           AS personnel,
                    n                                   AS n,
-                   origin                              AS origin,
                    $actual*(CAST (personnel AS REAL)/$total) 
                                                        AS share
             FROM units
@@ -751,12 +750,7 @@ snit::type aam {
     # casualties (all of which are kills); also decrements
     # the unit's staffing pool.  This is the fundamental attrition
     # routine; the others all flow down to this.
-    #
-    # CIV Attrition
-    #
-    # If u is a CIV unit, the attrition is counted against the
-    # unit's neighborhood of origin.
-
+ 
     typemethod AttritUnit {parmdict} {
         dict with parmdict {
             # FIRST, log the attrition
@@ -769,20 +763,20 @@ snit::type aam {
             unit mutate personnel $u $personnel
 
             # NEXT, if this is a CIV unit, attrit the unit's
-            # group of origin.
+            # group.
             if {$gtype eq "CIV"} {
-                # FIRST, attrit the group of origin
-                set parms [list n $origin g $g casualties $casualties]
+                # FIRST, attrit the group 
+                set parms [list n $n g $g casualties $casualties]
 
                 demog attrit $parms
 
                 # NEXT, save the attrition for attitude assessment
-                $type SaveCivAttrition $origin $g $casualties $g1 $g2
+                $type SaveCivAttrition $n $g $casualties $g1 $g2
             } else {
                 # FIRST, It's a force or org unit.  Attrit its pool in
-                # its neighborhood of origin.
+                # its neighborhood.
                 # TBD: this no longer needs to be a mutator
-                personnel mutate attrit $origin $g $casualties
+                personnel mutate attrit $n $g $casualties
             }
         }
 

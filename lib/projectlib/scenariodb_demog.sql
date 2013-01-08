@@ -32,25 +32,16 @@ CREATE TABLE demog_n (
                  ON DELETE CASCADE
                  DEFERRABLE INITIALLY DEFERRED,
 
-    -- Total displaced population in the neighborhood at the current time.
-    displaced    INTEGER DEFAULT 0,
-
-    -- Total displaced labor force in the neighborhood at the current time.
-    displaced_labor_force INTEGER DEFAULT 0,
-
     -- Total population in the neighborhood at the current time
-    -- (nbgroups + displaced)
     population   INTEGER DEFAULT 0,
 
     -- Total subsistence population in the neighborhood at the current time
     subsistence  INTEGER DEFAULT 0,
 
     -- Total consumers in the neighborhood at the current time
-    -- (nbgroups + displaced)
     consumers    INTEGER DEFAULT 0,
 
     -- Total labor force in the neighborhood at the current time
-    -- (nbgroups + displaced)
     labor_force  INTEGER DEFAULT 0,
 
     -- Unemployed workers in the neighborhood.
@@ -71,9 +62,6 @@ CREATE TABLE demog_g (
 
     -- Attrition to this group (total killed)
     attrition      INTEGER DEFAULT 0,
-
-    -- Displaced population: personnel in units in other neighborhoods
-    displaced      INTEGER DEFAULT 0,
 
     -- Total residents of this group in its home neighborhood at the
     -- current time.

@@ -193,12 +193,11 @@ snit::type personnel {
         }
     }
 
-    # assign tactic_id g origin n a personnel
+    # assign tactic_id g n a personnel
     #
     # tactic_id   - The tactic ID for which the personnel are being
     #               assigned.
     # g           - The group providing the personnel
-    # origin      - The nbhood in which the personnel are deployed.
     # n           - The nbhood in which the personnel will be assigned
     # a           - The activity to which they will be assigned
     # personnel   - The number of personnel to assign.
@@ -207,9 +206,9 @@ snit::type personnel {
     # "unassigned" count.  If there's no unit already existing, 
     # creates it.  Otherwise, updates the unit's personnel.
 
-    typemethod assign {tactic_id g origin n a personnel} {
+    typemethod assign {tactic_id g n a personnel} {
         # FIRST, ensure that enough personnel remain.
-        set unassigned [$type unassigned $origin $g]
+        set unassigned [$type unassigned $n $g]
 
         require {$personnel <= $unassigned} \
             "Insufficient unassigned personnel: $personnel > $unassigned"
@@ -218,11 +217,11 @@ snit::type personnel {
         rdb eval {
             UPDATE working_deployment
             SET unassigned = unassigned - $personnel
-            WHERE n=$origin AND g=$g
+            WHERE n=$n AND g=$g
         }
 
         # NEXT, assign the tactic unit to this activity.
-        return [unit assign $tactic_id $g $origin $n $a $personnel]
+        return [unit assign $tactic_id $g $n $a $personnel]
     }
 
     # save

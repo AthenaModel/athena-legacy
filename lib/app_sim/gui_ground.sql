@@ -66,7 +66,6 @@ SELECT u                                                AS id,
        n                                                AS n,
        g                                                AS g,
        gtype                                            AS gtype,
-       origin                                           AS origin,
        a                                                AS a,
        personnel                                        AS personnel,
        m2ref(location)                                  AS location

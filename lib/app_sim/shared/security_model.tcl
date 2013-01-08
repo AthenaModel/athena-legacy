@@ -198,8 +198,7 @@ snit::type security_model {
                    total(units.personnel)  AS P
             FROM civgroups_view AS civgroups
             JOIN uram_mood USING (g)
-            JOIN units ON (units.origin=civgroups.n AND units.g=civgroups.g)
-            WHERE units.n = units.origin
+            JOIN units USING (g)
             GROUP BY civgroups.n,civgroups.g
         } {
             set a [parmdb get force.population]

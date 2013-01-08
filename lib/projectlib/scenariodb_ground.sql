@@ -76,9 +76,6 @@ CREATE TABLE units (
     -- Group type
     gtype            TEXT,
 
-    -- Neighborhood of Origin
-    origin           TEXT,
-
     -- Unit activity: eactivity(n) value, or NONE if this is a base unit
     a                TEXT,
 
@@ -91,9 +88,6 @@ CREATE TABLE units (
     -- Attrition Flag: 1 if the unit is about to be attrited.
     attrit_flag      INTEGER DEFAULT 0
 );
-
-CREATE INDEX units_ngoa_index ON
-units(n,g,origin,a);
 
 CREATE INDEX units_ngap_index ON
 units(n,g,a,personnel);
@@ -216,8 +210,7 @@ CREATE TABLE attrit_nf (
     -- Unique ID, assigned automatically.
     id         INTEGER PRIMARY KEY,
 
-    -- Neighborhood.  For ORG's the nbhood which the attrition occurred.
-    -- For CIV's, the nbhood of origin (which is usually the same thing).
+    -- Neighborhood.
     n          TEXT,
    
     -- Group to which the attrition occurred
@@ -239,7 +232,7 @@ CREATE TABLE attrit_nfg (
     -- Unique ID, assigned automatically.
     id         INTEGER PRIMARY KEY,
 
-    -- Neighborhood of origin of the attrited personnel.
+    -- Neighborhood of the attrited personnel.
     n          TEXT,
    
     -- CIV group to which the attrition occurred

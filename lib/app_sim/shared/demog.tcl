@@ -74,10 +74,8 @@ snit::type demog {
                    civgroups.g            AS g,
                    civgroups.sa_flag      AS sa_flag,
                    total(units.personnel) AS population
-            FROM civgroups
-            JOIN units
-            ON (civgroups.n=units.origin AND civgroups.g=units.g)
-            WHERE units.n = units.origin AND units.personnel > 0
+            FROM civgroups JOIN units USING (g)
+            WHERE units.personnel > 0
             GROUP BY civgroups.g
         } {
             if {$sa_flag} {
@@ -98,32 +96,18 @@ snit::type demog {
             }
         }
 
-        # NEXT, get displaced population.
-        rdb eval {
-            SELECT origin, g, total(personnel) AS displaced
-            FROM units
-            WHERE gtype='CIV' AND n != origin AND personnel > 0
-            GROUP BY origin, g
-        } {
-            rdb eval {
-                UPDATE demog_g
-                SET displaced  = $displaced
-                WHERE g=$g;
-            }
-        }
-
         # NEXT, accumulate labor force.
+        # TBD: Once groups can be displaced, we'll need to
+        # retrieve it and use the correct LFF here.
         rdb eval {
             SELECT civgroups.n             AS n,
                    civgroups.g             AS g, 
-                   units.a                 AS a, 
                    total(units.personnel)  AS personnel
-            FROM civgroups 
-            JOIN units ON (civgroups.n=units.origin AND civgroups.g=units.g)
-            WHERE NOT civgroups.sa_flag AND units.n=units.origin
-            GROUP BY g,a
+            FROM civgroups JOIN units USING (g)
+            WHERE NOT civgroups.sa_flag
+            GROUP BY g
         } {
-            set LFF [parm get demog.laborForceFraction.$a]
+            set LFF [parm get demog.laborForceFraction.NONE]
 
             if {$LFF == 0} {
                 continue
@@ -133,7 +117,7 @@ snit::type demog {
 
             rdb eval {
                 UPDATE demog_g
-                SET labor_force = labor_force + $LF
+                SET labor_force = $LF
                 WHERE g=$g;
             }
         }
@@ -145,34 +129,8 @@ snit::type demog {
     # neighborhood.
 
     typemethod ComputePopN {} {
-        # FIRST, compute the displaced populationa and displaced 
-        # labor force for each neighborhood.
-        rdb eval {
-            UPDATE demog_n
-            SET displaced             = 0,
-                displaced_labor_force = 0;
-        }
-
-        rdb eval {
-            SELECT n, a, total(personnel) AS personnel
-            FROM units
-            WHERE gtype='CIV' AND n != origin
-            GROUP BY n, a
-        } {
-            set LFF [parm get demog.laborForceFraction.$a]
-
-            rdb eval {
-                UPDATE demog_n
-                SET displaced = displaced + $personnel,
-                    displaced_labor_force = 
-                        displaced_labor_force + $LFF*$personnel
-                WHERE n=$n
-            }
-        }
-
-        # NEXT, compute neighborhood population, consumers, and
-        # labor force given the neighborhood groups and the
-        # displaced personnel.
+        # FIRST, compute neighborhood population, consumers, and
+        # labor force given the neighborhood groups.
         rdb eval {
             SELECT n,
                    total(population)  AS population,
@@ -185,10 +143,10 @@ snit::type demog {
         } {
             rdb eval {
                 UPDATE demog_n
-                SET population  = displaced + $population,
+                SET population  = $population,
                     subsistence = $subsistence,
-                    consumers   = displaced + $consumers,
-                    labor_force = displaced_labor_force + $labor_force
+                    consumers   = $consumers,
+                    labor_force = $labor_force
                 WHERE n=$n
             }
         }
@@ -271,9 +229,7 @@ snit::type demog {
             }
         }
 
-        # NEXT, compute the neighborhood statistics.  These aren't
-        # simply a roll-up of the civgroup stats because the nbhood
-        # might contain displaced personnel.
+        # NEXT, compute the neighborhood statistics.
         foreach {n population labor_force} [rdb eval {
             SELECT n, population, labor_force
             FROM demog_n

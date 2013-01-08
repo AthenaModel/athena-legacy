@@ -106,9 +106,8 @@ tactic type define ASSIGN {g n text1 int1 once on_lock} actor {
                 return 0
             }
 
-            # NEXT, assign them.  All assignments are currently
-            # into the neighborhood of origin.
-            personnel assign $tactic_id $g $n $n $text1 $int1
+            # NEXT, assign them.
+            personnel assign $tactic_id $g $n $text1 $int1
 
             sigevent log 2 tactic "
                 ASSIGN: Actor {actor:$owner} assigns

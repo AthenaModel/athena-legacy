@@ -37,8 +37,6 @@ snit::widgetadaptor demognbrowser {
         { subsistence "Subsistence" -sortmode integer -foreground %D }
         { consumers   "Consumers"   -sortmode integer -foreground %D }
         { labor_force "LaborForce"  -sortmode integer -foreground %D }
-        { displaced   "Displaced"   -sortmode integer -foreground %D }
-        { dlf         "DispLF"      -sortmode integer -foreground %D }
     }
 
     #--------------------------------------------------------------------

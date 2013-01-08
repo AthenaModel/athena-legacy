@@ -155,14 +155,13 @@ snit::type unit {
 
             # NEXT, save the unit in the database.
             rdb eval {
-                INSERT INTO units(u,active,n,g,gtype,origin,a,
+                INSERT INTO units(u,active,n,g,gtype,a,
                                   personnel,location)
                 VALUES($u,
                        1,
                        $n,
                        $g,
                        $gtype,
-                       $n,
                        'NONE',
                        $personnel,
                        $location);
@@ -172,13 +171,12 @@ snit::type unit {
 
     
 
-    # assign tactic_id g origin n a personnel
+    # assign tactic_id g n a personnel
     #
     # tactic_id   - The tactic ID for which the personnel are being
     #               assigned.
     # g           - The group providing the personnel
-    # origin      - The nbhood in which the personnel are deployed.
-    # n           - The nbhood in which the personnel will be assigned
+    # n           - The nbhood in which the personnel are assigned
     # a           - The activity to which they will be assigned
     # personnel   - The number of personnel to assign.
     #
@@ -192,7 +190,7 @@ snit::type unit {
     #
     # Returns the unit name.
 
-    typemethod assign {tactic_id g origin n a personnel} {
+    typemethod assign {tactic_id g n a personnel} {
         # FIRST, try to retrieve the unit data.
         set unit(u) ""
 
@@ -207,7 +205,7 @@ snit::type unit {
 
             # NEXT, save the unit in the database.
             rdb eval {
-                INSERT INTO units(u,tactic_id,active,n,g,gtype,origin,a,
+                INSERT INTO units(u,tactic_id,active,n,g,gtype,a,
                                   personnel,location)
                 VALUES($unit(u),
                        $tactic_id,
@@ -215,7 +213,6 @@ snit::type unit {
                        $n,
                        $g,
                        $gtype,
-                       $origin,
                        $a,
                        $personnel,
                        $location);
@@ -237,7 +234,6 @@ snit::type unit {
                     n         = $n,
                     g         = $g,
                     gtype     = $gtype,
-                    origin    = $origin,
                     a         = $a,
                     personnel = $personnel,
                     location  = $unit(location)

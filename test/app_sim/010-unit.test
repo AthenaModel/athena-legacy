@@ -52,7 +52,7 @@ namespace eval ::athena_test::tests:: {
         unit makebase
 
         ted query {
-            SELECT u,n,g,gtype,origin,a,personnel,active 
+            SELECT u,n,g,gtype,a,personnel,active 
             FROM units
             WHERE active
             ORDER BY u
@@ -60,11 +60,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-u         n   g     gtype origin a    personnel active 
---------- --- ----- ----- ------ ---- --------- ------ 
-BLUE/NB1  NB1 BLUE  FRC   NB1    NONE 100       1      
-SHIA/NB1  NB1 SHIA  CIV   NB1    NONE 1000      1      
-USAID/NB2 NB2 USAID ORG   NB2    NONE 100       1      
+u         n   g     gtype a    personnel active 
+--------- --- ----- ----- ---- --------- ------ 
+BLUE/NB1  NB1 BLUE  FRC   NONE 100       1      
+SHIA/NB1  NB1 SHIA  CIV   NONE 1000      1      
+USAID/NB2 NB2 USAID ORG   NONE 100       1      
     }
 
 
@@ -74,19 +74,19 @@ USAID/NB2 NB2 USAID ORG   NB2    NONE 100       1
     test assign-1.1 {units are created} -setup {
         setup
     } -body {
-        unit assign 1 BLUE NB1 NB2 PATROL 50
+        unit assign 1 BLUE NB2 PATROL 50
 
         ted query {
-            SELECT tactic_id,u,n,g,gtype,origin,a,personnel,active 
+            SELECT tactic_id,u,n,g,gtype,a,personnel,active 
             FROM units
             WHERE active
         }
     } -cleanup {
         cleanup
     } -result {
-tactic_id u      n   g    gtype origin a      personnel active 
---------- ------ --- ---- ----- ------ ------ --------- ------ 
-1         UT0001 NB2 BLUE FRC   NB1    PATROL 50        1      
+tactic_id u      n   g    gtype a      personnel active 
+--------- ------ --- ---- ----- ------ --------- ------ 
+1         UT0001 NB2 BLUE FRC   PATROL 50        1      
     }
 
     #-------------------------------------------------------------------
@@ -95,22 +95,22 @@ tactic_id u      n   g    gtype origin a      personnel active
     test reset-1.1 {units are reset} -setup {
         setup
         unit makebase
-        unit assign 1 BLUE NB1 NB2 PATROL 50
+        unit assign 1 BLUE NB1 PATROL 50
     } -body {
         unit reset
         ted query {
-            SELECT tactic_id,u,n,g,gtype,origin,a,personnel,active 
+            SELECT tactic_id,u,n,g,gtype,a,personnel,active 
             FROM units
             ORDER BY u
         }
     } -cleanup {
         cleanup
     } -result {
-tactic_id u         n   g     gtype origin a    personnel active 
---------- --------- --- ----- ----- ------ ---- --------- ------ 
-          BLUE/NB1  NB1 BLUE  FRC   NB1    NONE 0         0      
-          SHIA/NB1  NB1 SHIA  CIV   NB1    NONE 0         0      
-          USAID/NB2 NB2 USAID ORG   NB2    NONE 0         0      
+tactic_id u         n   g     gtype a    personnel active 
+--------- --------- --- ----- ----- ---- --------- ------ 
+          BLUE/NB1  NB1 BLUE  FRC   NONE 0         0      
+          SHIA/NB1  NB1 SHIA  CIV   NONE 0         0      
+          USAID/NB2 NB2 USAID ORG   NONE 0         0      
     }
 
     #-------------------------------------------------------------------
@@ -119,7 +119,7 @@ tactic_id u         n   g     gtype origin a    personnel active
 
     test personnel-1.1 {unit is updated} -setup {
         setup
-        unit assign 1 BLUE NB1 NB2 PATROL 50
+        unit assign 1 BLUE NB1 PATROL 50
     } -body {
         unit personnel UT0001 3
 
@@ -312,16 +312,15 @@ USAID/NB2 0         0
     } -cleanup {
         cleanup
     } -result {
-        origin      NB1
-        a           NONE
         active      1
-        u           BLUE/NB1
-        g           BLUE
-        gtype       FRC
-        attrit_flag 0
         tactic_id   {}
-        n           NB1
+        attrit_flag 0
+        a           NONE
+        gtype       FRC
+        u           BLUE/NB1
         personnel   100
+        n           NB1
+        g           BLUE
     }
 
 
