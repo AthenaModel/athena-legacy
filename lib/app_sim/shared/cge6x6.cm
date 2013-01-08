@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cge6x6.cm, version v
+#    cge6x6.cm, version w 
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -36,6 +36,8 @@
 #           derived from SAM data), and non-iterative calibration 
 #           calculations.
 #    Cal    Iterative calibration based on data from the null page.
+#           Determines the values of A.goods.pop and TBD that make
+#           Cal::GDP = BaseGDP and Cal::Unemployment = BaseUnemployment.
 #
 #    Dynamic Pages - run each tock
 #    In     Athena-set inputs for the L, M, and S pages.
@@ -44,20 +46,28 @@
 #           latent demands for shortage computation on the Out page.
 #    M      Medium-run model; production further limited by production 
 #           capacity and feedstock constraints (CAP.black, CAP.goods, 
-#           MF.world.black). If necessary, prices increase to reduce demand
-#           to supply. Provides the number of jobs for unemployment
+#           MF.world.black). Provides the number of jobs for unemployment
 #           computation on the Out page.
 #    S      Short-run model; the populace responds to current conditions: 
-#           Labor supply is reduced by the LSF and the number of consumers 
-#           is reduced by the CSF. Prices may increase or decrease (re the 
-#           M page result) to equate demand to supply.
+#           Labor supply is less than that of the medium-run reduced by the 
+#           LSF and the number of consumers is reduced by the CSF. 
 #    Out    Output page: computes overages, shortages, and idle capacities
-#           (e.g., unemployment).
+#           (e.g., unemployment). Since the six-sector model has only one
+#           competitively priced good and only one factor of production,
+#           prices are completely determined by the goods production
+#           function and the numeraire.
 #
 #    NOTE: The Athena application is aware only of the "null", Cal, In, and 
 #    Out pages.
 #
 # HISTORY:
+#    Version w: Required sam6x6.cm to provide additional base case data via
+# non-computed assignments on the null page.  Changed the Cal page equations
+# to those of the short-run model. Made the L, M and S pages each deltas 
+# from the Cal page instead of from each other.  Scaling is still controlled 
+# by the In page.  Also, updated the narrative description of what goes on 
+# in the program.
+#
 #    Version v: Changed the name of the file from eco6x6.cm to cge6x6.cm
 #
 #    Version u: Made the variable REM on the In page independent of BREM,
@@ -232,7 +242,7 @@ index gbp {goods black pop}                     ;# sectors with product
 # inputs to the model; others are computed from those inputs and should 
 # not be changed.
 #
-# Miscellaneous Parameters
+# Model Parameter
 #
 # Normal turbulence in employment:
 
@@ -240,22 +250,31 @@ let TurFrac = 0.04 ;# Average fraction of workforce "merely between jobs"
 
 # SAM-based Parameters
 #
-# A Social Accounting Matrix (SAM) can, in principle, be used to 
-# calibrate the model, as described here.  HOWEVER,  from Athena's 
-# point of view, the SAM data should be used only to determine the 
-# "shape" of the economy; i.e., the f.i.j's, A.i.j's, and t.i.j's. 
-# The "size" of the economy must be driven by the number of consumers
-# and the per capita consumption provided by the Ground and Demographic
+# A Social Accounting Matrix (SAM) is used in the cell model sam6x6.cm to
+# compute the parameters the describe the shape of the economy in a base
+# case; i.e., the f.i.j's, A.i.j's, and t.i.j's. The base case is also used
+# to calibrate the parameters that drive the GDP and umemployment. During
+# simulation, the "size" of the economy must be must be driven by the labor
+# force, the number of consumes, the per capita consumption and the labor
+# and consumer security factors provided by the Ground and Demographic
 # models. 
 #
-# If there is SAM data, it is:
+# The Base Case data from sam6x6.cm is:
 #
 #   BX.i.j     The payment in $/year from sector j to sector i
 #   BP.j       The price in $/unit of the product of sector j
-#               Note that if sector j has no product, BP.j is irrelevant
-#               (e.g., zero)
-#   BaseConsumers  This is the size datum, in persons
-#   BaseSubWage    This is the base wage of subsiters (aka the poverty level)
+#   Note that if sector j has no product, BP.j is irrelevant (e.g., zero)
+#
+#   BaseConsumers    This is the size datum, in persons
+#   BaseSubsisters   This is the number of people who are engaged in 
+#                    subsistence agriculture and are not part of the cash
+#                    economy
+#   BaseSubWage      This is the base wage of subsiters (aka the poverty level)
+#   BaseLF           This is the available labor force in the base case.
+#   BaseUnemployment This is the number of people who want to work but are
+#                    not currently employed, including those who are merely
+#                    between jobs (turbulence).
+#   BaseGDP          The gross domestic product.
 #
 # This data is used to compute the shape parameters by:
 #
@@ -272,20 +291,12 @@ let TurFrac = 0.04 ;# Average fraction of workforce "merely between jobs"
 #   
 #   A.goods.pop = BQD.goods.pop/BaseConsumers
 #
-# If there is no SAM, we need to input BaseConsumers, A.goods.pop, 
-# EXPORTS.black, EXPORTS.goods, EXPORTS.pop, A.i.black, f.i.goods, 
-# f.i.pop, t.i.j, and BP.j.
-#
-# Since the SAM specifies both "size" and "shape", whereas the A.i.j's,
-# f.i.j's, and t.i.j's specify only "shape", and since we must 
-# determine the "size" from the Ground and Demographic models, we 
-# prefer to input the A.i.j's, f.i.j's, and t.i.j's rather than the 
-# BX.i.j's.  The A.i.j's, f.i.j's, and t.i.j's can, of course, be 
-# computed from a SAM ahead of time. 
-#
-# For the 6x6 CGE, there is a cell model that does these computations. 
-# It is called sam6x6.cm, but we must define them here since they are
-# inputs from the SAM.
+# The SAM cell model, sam6x6.cm, does these computations. But we must 
+# define the variables here since they are inputs from the SAM.
+
+# During execution, the following values are obtained from sam6x6.cm, as 
+# are all values that do not have computations on the right hand side of
+# the equals sign.
 
 let BX.goods.goods  = 8.13e8
 let BX.goods.black  = 2.0e7
@@ -337,24 +348,26 @@ let BX.world.world   = 0.0
 
 let BaseConsumers = 1e6     ;# Number of consumers in the initial 
                             ;# population.
-let BaseSA        = 1e7     ;# Value of regional subsistence 
-                            ;# agriculture, in $/year; the model 
-                            ;# (in Demographics) is the number of 
-                            ;# people times the poverty level wage
-
+let BaseSubsisters = 5e4    ;# number of people engaged in subsistence
+                            ;# agriculture
 let BaseSubWage  = 200      ;# The level of annual per capita wages for
                              # subsistence farmers (poverty level)
 
-# Exogenous prices not used to calibrate Cobb-Douglas coefficients
+let BaseLF = 5e5            ;# Size of the labor force
+let BaseUnemployment = 5e4  ;# Number of unemployed
+let BaseGDP = 1.01e8        ;# Gross domestic product
+
+# Exogenous prices 
 let BP.black = 500000       ;# $/ton black market goods FOB export dock
 
 let PF.world.black  = 62e3   ;# $/ton price of black market feedstock
 
+# Shape parameters
 #  f.i.j - fraction of sector j's revenue that is spent in sector i.
 #  A.i.j - amount of i's product used per unit of j's product produced.
 #  t.i.j - tax or tax-like fraction of j's sales that is paid to i.
 
-# Updated this at Bob's suggestion to be 0.0 (but not as an identity)
+# Black sector
 let A.black.black   = 0.0   ;# tons/ton
 let AF.world.black  = 1.05  ;# tons/ton  feedstock req't (when from world)
 let MF.world.black  = 35e3  ;# tons/year max black market feedstock available 
@@ -370,6 +383,7 @@ let t.world.black  = 0.2    ;# black market imports from the world as a
                             ;# fraction of revenues (does not include
                             ;# feedstocks)
 
+# Goods sector
 let f.goods.goods   = 0.2   ;# fraction of goods after-tax revenue spent on 
                             ;# goods
 let f.pop.goods     = {1.0 - [f.goods.goods]}   ;# fraction of goods after-tax
@@ -380,7 +394,7 @@ let t.region.goods  = 0.1   ;# regional tax-like rate for goods
 let t.world.goods   = 0.1   ;# goods sector imports from the world as a
                             ;# fraction of revenues
 
-
+# Pop sector
 let f.black.pop   = 0.005   ;# fraction of pop's utility obtained from black
 let f.goods.pop   = 0.75    ;# fraction of pop's utility obtained from goods
 let f.pop.pop     = {1 - [f.black.pop] - [f.goods.pop]}
@@ -391,6 +405,7 @@ let t.region.pop  = 0.05    ;# regional tax-like rate for pop
 let t.world.pop   = 0.20    ;# pop sector imports from the world as a 
                             ;# fraction of revenues
 
+# Actors sector
 let f.black.actors  = 0.1   ;# actors' budget fraction for black 
 let f.goods.actors  = 0.2   ;# actors' budget fraction for goods
 let f.pop.actors    = 0.4   ;# actors' budget fraction for pop
@@ -401,6 +416,7 @@ let f.world.actors  = {max(0.0, 1 - [f.black.actors] - [f.goods.actors]
                        - [f.region.actors])}
                             ;# actors' budget fraction for world
 
+# (Rest of the) Region sector
 let f.black.region  = 0.1   ;# region's budget fraction for black
 let f.goods.region  = 0.3   ;# region's budget fraction for goods
 let f.pop.region    = 0.05  ;# region's budget fraction for pop
@@ -411,13 +427,13 @@ let f.world.region  = {1 - [f.black.region] - [f.goods.region]
                        - [f.region.region]}
                             ;# region's budget fraction for world
 
-# The zeroed out valued from here to the next comment are in only to keep
-# the cmsheet(n) object happy, this will need to be dealt with more
-# appropriately
-# The zeroed out values above are explained in the previous comment
+# World sector has no shape parameters
+
+# The zeroed out values below are in only to keep the Athena GUI from
+# having errors.
 let f.black.goods = 0.0 ;# This is not defined
-let f.pop.black   = 0.0 ;# This is always zero
-let f.pop.world   = 0.0 ;# This is always zero
+let f.pop.black   = 0.0 ;# This is not defined
+let f.pop.world   = 0.0 ;# This is not defined
 
 # Base Exports
 let BEXPORTS.black = 47.6e3    ;# tons/year
@@ -427,17 +443,16 @@ let BEXPORTS.pop   = 50e3      ;# work-years/year
 # There are no exports from the actors, region, or world sectors
 
 let BREM          = 50e6      ;# $/year Remittances 
-                              ;# that goes directly to the populace
+                              ;# which go directly to the populace
 let BFAR          = 10e6      ;# $/year  Foreign aid that goes directly to 
                               ;# the region, a fraction of which (graft)
                               ;# is taken by actors 
-                              ;#   (but not to the populace)
-# If FAR is not input, it is equal to BX.region.world
+# If FAR is equal to BX.region.world
 
 let graft         = 0.3       ;# fraction of FAR that goes to the actors
 let BFAA          = 10e6      ;# $/year  Foreign aid that goes directly to
                               ;# actors.
-# If FAA is not input, it is equal to BX.actors.world
+# If FAA is equal to BX.actors.world
 
 
 # Base prices: These are the prices of sector products used to 
@@ -446,14 +461,17 @@ let BFAA          = 10e6      ;# $/year  Foreign aid that goes directly to
 let BP.goods =   1      ;# $/GoodsBKT  - the size of the GoodsBKT
 let BP.pop   = 400      ;# $/work-year - the unchanging numeraire
 
-# For the sake of simplicity, we assume there is no general inflation.
+# The following will be relevant in future versions of the CGE in
+# which there are more sectors, so that prices are not completely
+# determinedc by the labor production function and the numeraire.
 # Changes in the economy will lead to changes in purchasing power, 
 # which is captured by the consumer price index, CPI. Changes in the 
 # economy as a whole are captured by the gross domestic product, GDP. 
 # The GDP Deflator is approximated by the quotient GDP/CPI.
 
 # Ultimately,the "size" of the economy depends on A.goods.pop and the 
-# number of consumers.
+# number of consumers.  A.goods.pop is modified during calibration to
+# match the computed GDP to the BaseGDP
 
 let BA.goods.pop = 114    ;# Direct consumption of goods, 
                           ;# in GoodsBKT/year per capita
@@ -575,9 +593,10 @@ let P.pop = {[BP.pop]} -value 400
 
 # Note: The equations in this version are organized by sector to 
 # parallel the derivation document ("Athena's Computable General Equilibrium
-# Model" by Chamberlain and Duquette).
+# Model" by Chamberlain, Duquette, and Kahovec).
 
-#SECTOR: goods  is all other goods in the region.
+#SECTOR: goods  is all goods produced in the region other than by the
+# black market.
 # Product: All the goods produced in the region (except black market 
 #  goods), in fixed ratios.
 # Unit of measure: GoodsBKT per year.
@@ -606,12 +625,13 @@ let X.region.goods = [TAX.i.j region goods] -value 1.0e8
 let X.world.goods  = [TAX.i.j world goods]  -value 1.0e8
 
 let COST.goods = [EXP.j goods]
-let C.goods = {[COST.goods] / [QS.goods]}
+let C.goods = {[COST.goods] / [QS.goods]} -value 1.0
 
 let QD.goods = {<:sum j {[QD.goods.$j]}:>}
 
-# In the base case, a long-run equilibrium is sought, so production capacity 
-# is unlimited:
+# To calibrate the model to the base case, a medium-run equilibrium is 
+# sought, but production capacity is assumed to equal current base case
+# production. The equation is QS = min(QD, CAP), but QD = CAP, so:
 let QS.goods = {[QD.goods]} -value 1.14e8
  
 # EXP.goods is used only as an output, if removed it will cause the Out page
@@ -698,8 +718,10 @@ let QD.black = {<:sum j {[QD.black.$j]}:>}
 # be afraid to go out, causing further disruption to prices and 
 # quantities.
 #
-# In the base case, a long-run equilibrium is sought, so neither the
-# availability of feedstock nor the production capacity are limited:
+# To calibrate the model to the base case, a medium-run equilibrium is
+# sought, but production capacity is assumed to equal current base case
+# production. The equation is QS = min(QD, CAP), but QD = CAP. Furthermore,
+# feedstock availability is assumed to be unrestricted, so:
 
 let QS.black = {[QD.black]}   -value 1e6   ;# tons/year
 
@@ -729,7 +751,7 @@ let EXP.black = [EXP.j black]
 # We have chosen to size the economy (in the unconstrained case) by the
 # per-capita demand for goods, which is A.goods.pop. Hence:
 
-let SA = {[BaseSA]}                 ;# $/year
+let SA = {[BaseSubsisters]*[BaseSubWage]}                 ;# $/year
 
 # We will redefine QD.goods.pop using Consumers in the L page.
 let QD.goods.pop = {[BA.goods.pop] * [BaseConsumers]}
@@ -754,9 +776,9 @@ let X.pop.pop    = {[f.pop.pop]    * [ATI.pop]}
 
 let QD.pop = {<:sum j {[QD.pop.$j]}:>}
 
-# In the base case, a long-run equilibrium is sought and, to find the 
-# potential number of jobs, the work force is not constrained
-
+# To calibrate the model to the base case, a medium-run equilibrium is 
+# sought, but the available workforce is to be constrained by the 
+# demand for jobs, so:
 let QS.pop = {[QD.pop]}
 
 let EXP.pop   = [EXP.j pop] -value 1.52e8
@@ -1033,6 +1055,11 @@ let X.world.actors  = {[In::X.world.actors]}
 
 let SA = {[In::Subsisters]*[In::SubWage]}
 
+# In the long run, production quantities are unconstrained
+let QS.goods = {[QD.goods]}
+let QS.black = {[QD.black]}
+let QS.pop   = {[QD.pop]}
+
 #-----------------------------------------------------------------------
 # Medium-Run Page
 #
@@ -1046,11 +1073,12 @@ let SA = {[In::Subsisters]*[In::SubWage]}
 # Otherwise, the model is the same as on the L page.
 
 page M 
-copypage L 
+copypage Cal -except {
+    deltaQD.black.pop
+    deltaQD.goods.pop
+    deltaQD.pop.pop
+}
 initfrom L
-
-# Initialize A.goods.pop
-let A.goods.pop = {[L::A.goods.pop]}
 
 # Replace the following equations
 
@@ -1072,6 +1100,29 @@ let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
 # or the available labor force
 let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] ))}
 
+# A.goods.pop may have changed if the number of consumers has changed or the
+# amount of money flowing to the pop sector has changed
+let A.goods.pop = {
+    [X.goods.pop] / ([P.goods] * [In::Consumers])
+}
+# Remittances may have changed
+let X.pop.world = {[P.pop] * [QD.pop.world] + [In::REM]}
+let REV.pop     = {[P.pop] * [QS.pop] + [In::REM]} 
+
+# QD.goods.pop is now computed from the current number of consumers, not
+# from the base number of consumers.
+let QD.goods.pop = {[A.goods.pop]*[In::Consumers]} -value 1.14e8
+
+# Actors expenditures are input from Athena
+let X.black.actors  = {[In::X.black.actors]}
+let X.goods.actors  = {[In::X.goods.actors]} 
+let X.pop.actors    = {[In::X.pop.actors]}
+let X.actors.actors = {[In::X.actors.actors]}
+let X.region.actors = {[In::X.region.actors]}
+let X.world.actors  = {[In::X.world.actors]}
+
+let SA = {[In::Subsisters]*[In::SubWage]}
+
 #=======================================================================
 
 
@@ -1086,7 +1137,11 @@ let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] ))}
 # Otherwise, the model is the same as on the M page.
 
 page S
-copypage M
+copypage Cal -except {
+    deltaQD.black.pop
+    deltaQD.goods.pop
+    deltaQD.pop.pop
+}
 initfrom M
 
 # Replace the following equations
@@ -1096,9 +1151,35 @@ let QD.goods.pop = {
     [A.goods.pop]*[In::Consumers] * [In::CSF]
 } -value 1.14e8
 
+let QS.black = {
+    max(0, min([QD.black],
+               [In::CAP.black], [MF.world.black] / [AF.world.black] ))
+}
+
+# QS.goods is now limited by demand or capacity
+let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
+
 # The available labor force is now further limited by the LSF
 let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] * [In::LSF] ))}
 
+# A.goods.pop may have changed if the number of consumers has changed or the
+# amount of money flowing to the pop sector has changed
+let A.goods.pop = {
+    [X.goods.pop] / ([P.goods] * [In::Consumers])
+}
+# Remittances may have changed
+let X.pop.world = {[P.pop] * [QD.pop.world] + [In::REM]}
+let REV.pop     = {[P.pop] * [QS.pop] + [In::REM]} 
+
+# Actors expenditures are input from Athena
+let X.black.actors  = {[In::X.black.actors]}
+let X.goods.actors  = {[In::X.goods.actors]} 
+let X.pop.actors    = {[In::X.pop.actors]}
+let X.actors.actors = {[In::X.actors.actors]}
+let X.region.actors = {[In::X.region.actors]}
+let X.world.actors  = {[In::X.world.actors]}
+
+let SA = {[In::Subsisters]*[In::SubWage]}
 
 #=======================================================================
 # Page Out: The outputs.
