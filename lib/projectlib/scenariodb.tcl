@@ -72,8 +72,6 @@ snit::type ::projectlib::scenariodb {
             { a PATROL               longname "Patrol"                     }
             { a PRESENCE             longname "Presence"                   }
             { a PSYOP                longname "PSYOP"                      }
-            { a DISPLACED            longname "Displaced Person/Refugee"   }
-            { a IN_CAMP              longname "In Camp"                    }
         }
 
         activity_gtype {
@@ -82,16 +80,6 @@ snit::type ::projectlib::scenariodb {
                 assignable   0 
                 stype        {}       
                 attrit_order 0}
-            { a DISPLACED            
-                gtype        CIV 
-                assignable   1 
-                stype        DISPLACED       
-                attrit_order 1}
-            { a IN_CAMP              
-                gtype        CIV 
-                assignable   1 
-                stype        {}       
-                attrit_order 2}
 
             { a NONE                 
                 gtype        FRC 

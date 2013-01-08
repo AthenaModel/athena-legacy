@@ -321,11 +321,6 @@ snit::type ::projectlib::parmdb {
             coverage.
         }
 
-        $ps subset activity.CIV {
-            Parameters which affect the computation of civilian group 
-            activity coverage.
-        }
-
         $ps subset activity.FRC {
             Parameters which affect the computation of force group 
             activity coverage.
@@ -334,41 +329,6 @@ snit::type ::projectlib::parmdb {
         $ps subset activity.ORG {
             Parameters which affect the computation of organization group 
             activity coverage.
-        }
-
-        # CIV activities
-        foreach a {
-            DISPLACED
-        } {
-            $ps subset activity.CIV.$a {
-                Parameters relating to this civilian activity.
-            }
-
-            $ps define activity.CIV.$a.minSecurity ::projectlib::qsecurity N {
-                Minimum security level required to conduct this
-                activity.
-            }
-
-            $ps define activity.CIV.$a.shifts \
-                ::projectlib::ipositive 1 {
-                    Number of personnel which must be assigned to the
-                    activity to yield one person actively performing the
-                    activity given a typical schedule, i.e., the number
-                    of shifts.  For example, a 24x7 activity will 
-                    require the assigned personnel to work three or
-                    four shifts. 
-                }
-
-            $ps define activity.CIV.$a.coverage ::simlib::coverage {
-                25.0 1000
-            } {
-                The parameters (c, d) that determine the
-                coverage fraction function for this force activity.  Coverage
-                depends on the asset density, which is the number
-                of active personnel per d people in the population.  If the 
-                density is 0, the coverage is 0.  The coverage 
-                fraction increases to 2/3 when density is c.
-            }
         }
 
         # FRC activities
@@ -928,6 +888,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.DISEASE.farFactor      0.0
 
         # Rule Set: DISPLACED
+        $ps setdefault dam.DISPLACED.active       0
         $ps setdefault dam.DISPLACED.cause        DISPLACED
         $ps setdefault dam.DISPLACED.nearFactor   0.25
         $ps setdefault dam.DISPLACED.farFactor    0.0
@@ -1144,17 +1105,19 @@ snit::type ::projectlib::parmdb {
             civilian activity.
         }
 
-        $tempdb eval {
-            SELECT a FROM activity_gtype WHERE gtype = 'CIV'
-        } {
-            $ps define demog.laborForceFraction.$a ::simlib::rfraction 0.6 "
-                Fraction of civilians doing activity $a that
-                are in the labor force.
-            "
+        $ps define demog.laborForceFraction.NONE ::simlib::rfraction 0.6 {
+            Fraction of normal consumers who are in the labor force.
         }
 
-        $ps setdefault demog.laborForceFraction.DISPLACED 0.4
-        $ps setdefault demog.laborForceFraction.IN_CAMP   0.0
+        $ps define demog.laborForceFraction.DISPLACED ::simlib::rfraction 0.4 {
+            Fraction of displaced civilians not living in camps
+            who are in the labor force.
+        }
+
+        $ps define demog.laborForceFraction.IN_CAMP ::simlib::rfraction 0.0 {
+            Fraction of displaced civilians living in camps
+            who are in the labor force.
+        }
 
         $ps define demog.Zuaf ::marsutil::zcurve {0.0 5.0 15.0 2.0} {
             Z-curve for the unemployment attitude factor (UAF).  

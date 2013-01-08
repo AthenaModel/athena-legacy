@@ -2444,13 +2444,6 @@ tab "Demog/Groups" {
     attrition.
     <</topic>>
 
-    <<topic Displaced>>The displaced population of the group in the
-    neighborhood: those members of the base population who are
-    currently assigned to activities (e.g., <b>DISPLACED</b>) in other
-    neighborhoods.  Displaced personnel do not count toward the 
-    current population of this group in this neighborhood.
-    <</topic>>
-
     <<topic Attrition>>The number of personnel lost to this 
     civilian group through attrition since time 0.
     <</topic>>

@@ -126,7 +126,12 @@ snit::type actsit_rules {
     #
     # Activity Situation: Units belonging to a civilian group have
     # been displaced from their homes.
-
+    #
+    # TBD: This rule set has been marked inactive in parmdb(5);
+    # the civilian activity it models is obsolete.  Later in
+    # Later in Athena 5 development, it will become the basis
+    # for a new demsit rule set.
+    
     # DISPLACED sit
     #
     # sit       The actsit object for this situation
