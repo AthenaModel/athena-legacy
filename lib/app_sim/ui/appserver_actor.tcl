@@ -345,7 +345,7 @@ appserver module ACTOR {
         # Deployment
         ht subtitle "Force Deployment" forces
 
-        if {[locked]} {
+        if {[locked -disclaimer]} {
             ht query {
                 SELECT N.longlink              AS 'Neighborhood',
                        P.personnel             AS 'Personnel',

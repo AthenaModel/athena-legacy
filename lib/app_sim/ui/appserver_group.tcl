@@ -326,26 +326,39 @@ appserver module GROUPS {
             "#drivers"    "Drivers"
             "#sigevents"  "Significant Events"
         }
-
-        ht putln "$data(longname) ($g) resides in neighborhood "
-        ht link  /nbhood/$data(n) "$nb(longname) ($data(n))"
-        ht put   " and has a population of "
-
+        
+        # NEXT, determine the population.
         # TBD: Once demog_g is populated only when the simulation is locked,
         # we can update gui_civgroups to coalesce basepop into population,
         # and just use the one column.
         if {$locked} {
-            ht put [commafmt $data(population)]
+            set population $data(population)
         } else {
-            ht put [commafmt $data(basepop)]
+            set population $data(basepop)
         }
-
-        ht put "."        
+        
+        if {$population == 0} {
+            ht put {
+                <b>Note:</b> This group is <i>empty</i>, that is,
+                it has a population of 0.
+                It might have had population and lost all of it, or
+                it might be expected to gain population later.  At
+                the moment, <b>it doesn't really exist.</b>  The
+                data in this page describe what the group will
+                be like should it gain population. 
+            }
+            ht para
+            ht hr
+        }
+        
+        ht putln "$data(longname) ($g) resides in neighborhood "
+        ht link  /nbhood/$data(n) "$nb(longname) ($data(n))"
+        ht put   " and has a population of [commafmt $population]."
 
         ht putln "The group's demeanor is "
         ht put   [edemeanor longname $data(demeanor)].
 
-        if {[locked]} {
+        if {[locked] && $population > 0} {
             # NEXT, the rest of the summary
             if {$data(sa_flag)} {
                 ht putln {
@@ -434,31 +447,62 @@ appserver module GROUPS {
         ht subtitle "Relationships with Actors" actors 
 
         if {[locked -disclaimer]} {
-            ht query {
-                SELECT A.longlink                  AS 'Actor',
-                       qaffinity('format',V.vrel)  AS 'Vertical<br>Rel.',
-                       V.g || ' ' || qaffinity('longname', V.vrel) 
-                           || ' ' || V.a           AS 'Narrative',
-                       format('%.2f',S.direct_support) 
-                                                   AS 'Direct<br>Support',
-                       format('%.2f',S.support)    AS 'Actual<br>Support',
-                       format('%.2f',S.influence)  AS 'Contributed<br>Influence'
-                FROM gui_uram_vrel AS V 
-                JOIN support_nga AS S USING (g,a)
-                JOIN gui_actors AS A USING (a)
-                WHERE V.g=$g
-                ORDER BY V.vrel DESC
-            } -align LRLRRR
+            if {$population == 0} {
+                ht putln {
+                    If this group had any population, its initial
+                    base relationships with the actors would be
+                    as follows, based on the group's belief system.
+                }
+                
+                ht para
+
+                ht query {
+                    SELECT A.longlink                  AS 'Actor',
+                           qaffinity('format',V.vrel)  AS 'Vertical<br>Rel.',
+                           V.g || ' ' || qaffinity('longname', V.vrel) 
+                               || ' ' || V.a           AS 'Narrative'
+                    FROM gui_uram_vrel AS V 
+                    JOIN gui_actors AS A USING (a)
+                    WHERE V.g=$g
+                    ORDER BY V.vrel DESC
+                } -align LRL
+            } else {
+                ht query {
+                    SELECT A.longlink                  AS 'Actor',
+                           qaffinity('format',V.vrel)  AS 'Vertical<br>Rel.',
+                           V.g || ' ' || qaffinity('longname', V.vrel) 
+                               || ' ' || V.a           AS 'Narrative',
+                           format('%.2f',S.direct_support) 
+                                                       AS 'Direct<br>Support',
+                           format('%.2f',S.support)    AS 'Actual<br>Support',
+                           format('%.2f',S.influence)  AS 'Contributed<br>Influence'
+                    FROM gui_uram_vrel AS V 
+                    JOIN support_nga AS S USING (g,a)
+                    JOIN gui_actors AS A USING (a)
+                    WHERE V.g=$g
+                    ORDER BY V.vrel DESC
+                } -align LRLRRR
+            }
         }
         
         ht subtitle "Friends and Enemies" rel
 
-        ht put {
-            Friends and enemies have a non-zero horizontal relationship
-            (HRel) with each other.  The HRel can vary over time, but
-            (in the absence of significant drivers) will regress back to
-            its natural level, which depends on the affinity between
-            the groups.
+        if {$population == 0} {
+            ht putln {
+                If this group had any population, its initial
+                base relationships with other groups would be
+                as follows, based on the group's belief system.
+            }
+            
+            ht para
+        } else {
+            ht putln {
+                Friends and enemies have a non-zero horizontal relationship
+                (HRel) with each other.  The HRel can vary over time, but
+                (in the absence of significant drivers) will regress back to
+                its natural level, which depends on the affinity between
+                the groups.
+            }
         }
 
         ht para
@@ -473,7 +517,8 @@ appserver module GROUPS {
                        nat                                 AS 'Nat. HRel'
                 FROM gui_hrel_view
                 JOIN gui_groups AS G USING (g)
-                WHERE f=$g AND qaffinity('name',base) != 'INDIFF'
+                WHERE f=$g
+                AND qaffinity('name',base) != 'INDIFF'
                 ORDER BY base DESC
             } -align LLRLR
         } else {
@@ -492,9 +537,15 @@ appserver module GROUPS {
             } -align LLRLR
         }
 
-        ht subtitle "ENI Services" eni
+       ht subtitle "ENI Services" eni
 
-        if {[locked]} {
+       if {$population == 0} {
+            ht putln {
+                This information is not available for this group
+                at this time.
+            }
+            ht para        
+       } elseif {[locked]} {
             ht putln "$g can receive Essential Non-Infrastructure (ENI) "
             ht put   "services from actors. At present, $g is receiving "
             ht put   "\$$eni(funding)/week worth of "
@@ -536,9 +587,17 @@ appserver module GROUPS {
             }
             ht para
         }
-
+        
         ht subtitle "CAP Coverage" cap
 
+        if {$population == 0} {
+            ht putln {
+                If this group gains population, it will be covered by
+                CAPs as described below.
+            }
+            ht para
+        }
+        
         set hascapcov [rdb eval {
                            SELECT count(*) FROM capcov
                            WHERE g=$g
@@ -577,7 +636,10 @@ appserver module GROUPS {
                        
         ht subtitle "Satisfaction Levels" sat
 
-        if {[locked -disclaimer]} {
+        if {$population == 0} {
+            ht putln {This group is empty, and hence has no attitudes.}
+            ht para
+        } elseif {[locked -disclaimer]} {
             ht putln "$g's overall mood is [qsat format $data(mood)] "
             ht put   "([qsat longname $data(mood)]).  $g's satisfactions "
             ht put   "with the various concerns are as follows."
@@ -596,7 +658,10 @@ appserver module GROUPS {
 
         ht subtitle "Satisfaction Drivers" drivers
 
-        if {[locked -disclaimer]} {
+        if {$population == 0} {
+            ht putln {This group is empty, and hence has no attitudes.}
+            ht para
+        } elseif {[locked -disclaimer]} {
             ht putln "The most important satisfaction drivers for this group "
             ht put   "at the present time are as follows:"
             ht para

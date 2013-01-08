@@ -193,7 +193,7 @@ appserver module NBHOOD {
         }
 
         ht para
-
+        
         # Non-local?
         if {!$data(local)} {
             ht putln "$n is located outside of the main playbox."
@@ -204,7 +204,10 @@ appserver module NBHOOD {
             ht putln "Resident groups: "
 
             ht linklist -default "None" [rdb eval {
-                SELECT url,g FROM gui_civgroups WHERE n=$n
+                SELECT url, g
+                FROM gui_civgroups
+                WHERE n=$n
+                AND basepop > 0 
             }]
 
             ht put ". "
@@ -221,39 +224,46 @@ appserver module NBHOOD {
 
         # Population, groups.
         if {[locked -disclaimer]} {
-            set urb    [eurbanization longname $data(urbanization)]
-            let labPct {double($data(labor_force))/$data(population)}
-            let sagPct {double($data(subsistence))/$data(population)}
-            set mood   [qsat name $data(mood)]
-    
-            ht putln "$data(fancy) is "
-            ht putif {$urb eq "Urban"} "an " "a "
-            ht put "$urb neighborhood with a population of "
-            ht put [commafmt $data(population)]
-            ht put ", [percent $labPct] of which are in the labor force and "
-            ht put "[percent $sagPct] of which are engaged in subsistence "
-            ht put "agriculture."
-    
-            ht putln "The population belongs to the following groups: "
-    
-            ht linklist -default "None" [rdb eval {
-                SELECT url,g FROM gui_civgroups WHERE n=$n
-            }]
-            
-            ht put "."
-    
-            ht putln "Their overall mood is [qsat format $data(mood)] "
-            ht put "([qsat longname $data(mood)])."
-    
-            if {$data(local)} {
-                if {$data(labor_force) > 0} {
-                    let rate {double($data(unemployed))/$data(labor_force)}
-                    ht putln "The unemployment rate is [percent $rate]."
+            if {$data(population) > 0} {
+                set urb    [eurbanization longname $data(urbanization)]
+                let labPct {double($data(labor_force))/$data(population)}
+                let sagPct {double($data(subsistence))/$data(population)}
+                set mood   [qsat name $data(mood)]
+        
+                ht putln "$data(fancy) is "
+                ht putif {$urb eq "Urban"} "an " "a "
+                ht put "$urb neighborhood with a population of "
+                ht put [commafmt $data(population)]
+                ht put ", [percent $labPct] of which are in the labor force and "
+                ht put "[percent $sagPct] of which are engaged in subsistence "
+                ht put "agriculture."
+        
+                ht putln "The population belongs to the following groups: "
+        
+                ht linklist -default "None" [rdb eval {
+                    SELECT url,g
+                    FROM gui_civgroups
+                    WHERE n=$n AND population > 0
+                }]
+                
+                ht put "."
+        
+                ht putln "Their overall mood is [qsat format $data(mood)] "
+                ht put "([qsat longname $data(mood)])."
+        
+                if {$data(local)} {
+                    if {$data(labor_force) > 0} {
+                        let rate {double($data(unemployed))/$data(labor_force)}
+                        ht putln "The unemployment rate is [percent $rate]."
+                    }
+                    ht putln "$n's production capacity is [percent $econ(pcf)]."
                 }
-                ht putln "$n's production capacity is [percent $econ(pcf)]."
+                ht para
+            } else {
+                ht putln "The neighborhood currently has no civilian population."
+                ht para
             }
-            ht para
-
+            
             # Actors
             if {$data(controller) eq "NONE"} {
                 ht putln "$n is currently in a state of chaos: "
@@ -325,7 +335,7 @@ appserver module NBHOOD {
                            AS 'Security'
                 FROM gui_civgroups AS G
                 JOIN force_ng      AS S USING (g)
-                WHERE G.n=$n AND S.n=$n
+                WHERE G.n=$n AND S.n=$n AND population > 0
                 ORDER BY G.g
             }
         }
@@ -361,7 +371,13 @@ appserver module NBHOOD {
         # ENI Services
         ht subtitle "ENI Services" eni
 
-        if {[locked -disclaimer]} {
+        if {$data(population) == 0} {
+            ht putln {
+                This neighborhood has no population to require
+                services.
+            }
+            ht para
+        } elseif {[locked -disclaimer]} {
             ht putln {
                 Actors can provide Essential Non-Infrastructure (ENI) 
                 services to the civilians in this neighborhood.  The level
@@ -386,7 +402,8 @@ appserver module NBHOOD {
                            pct_actual, pct_expected 
                     FROM gui_service_g
                     JOIN nbhoods USING (n)
-                    WHERE n = $n
+                    JOIN demog_g USING (g)
+                    WHERE n = $n AND demog_g.population > 0
                     ORDER BY g
                 } row {
                     if {![info exists funders($row(g))]} {
@@ -430,7 +447,8 @@ appserver module NBHOOD {
             ht putln {
                 Some groups in this neighborhood can be reached by 
                 Communication Asset Packages (CAPs). The following is 
-                a list of CAPs that have coverage in this neighborhood.
+                a list of the groups resident in this neighborhood
+                with the CAPs cover them.
             }
 
             ht para
@@ -443,9 +461,12 @@ appserver module NBHOOD {
                        CC.nbcov                     AS "Nbhood Coverage",
                        CC.pen                       AS "Group Penetration",
                        "<b>" || CC.capcov || "</b>" AS "CAP Coverage"
-                FROM gui_caps AS C JOIN gui_capcov AS CC USING(k)
+                FROM gui_caps AS C
+                JOIN gui_capcov AS CC USING( k)
+                JOIN demog_g AS G USING (g)
                 WHERE CC.n = $n
                 AND CC.raw_nbcov > 0.0
+                AND G.population > 0
             } -default "None." -align LLRLRRR
         } else {
             ht putln "This neighborhood is not covered by any"
