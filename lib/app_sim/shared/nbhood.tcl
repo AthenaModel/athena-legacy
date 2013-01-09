@@ -244,7 +244,6 @@ snit::type nbhood {
                 INSERT INTO nbrel_mn(m,n,proximity)
                 VALUES($n,$n,'HERE');
 
-                INSERT INTO demog_n(n) VALUES($n);
                 INSERT INTO econ_n(n)  VALUES($n);
             } {}
 
@@ -314,7 +313,7 @@ snit::type nbhood {
         rdb ungrab $grabData
 
         # NEXT, resync with the RDB: this will update the geoset and the 
-        # stacking order, as well as the demog_n and econ_n changes.
+        # stacking order, as well as the econ_n changes.
         $type dbsync
     }
 

@@ -176,9 +176,6 @@ snit::type civgroup {
                        $pop_cr,
                        $sa_flag);
 
-                INSERT INTO demog_g(g)
-                VALUES($g);
-
                 INSERT INTO sat_gc(g,c)
                 SELECT $g, c FROM concerns;
 
@@ -198,7 +195,7 @@ snit::type civgroup {
     # Undoes creation of the group.
 
     typemethod UndoCreate {g} {
-        rdb delete groups {g=$g} civgroups {g=$g} demog_g {g=$g}
+        rdb delete groups {g=$g} civgroups {g=$g}
         bsystem edit undo
     }
 
@@ -210,8 +207,7 @@ snit::type civgroup {
 
     typemethod {mutate delete} {g} {
         # FIRST, delete the group, grabbing the undo information
-        set data [rdb delete -grab \
-                      groups {g=$g} civgroups {g=$g} demog_g {g=$g}]
+        set data [rdb delete -grab groups {g=$g} civgroups {g=$g}]
 
         # NEXT, delete the bsystem entity.
         bsystem entity delete $g

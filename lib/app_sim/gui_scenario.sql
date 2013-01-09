@@ -85,7 +85,7 @@ SELECT N.n                                                    AS id,
        format('%.3f',COALESCE(UN.nbmood0, 0.0))               AS mood0,
        format('%.3f',COALESCE(UN.nbmood, 0.0))                AS mood
 FROM nbhoods              AS N
-JOIN demog_n              AS D  USING (n)
+LEFT OUTER JOIN demog_n   AS D  USING (n)
 LEFT OUTER JOIN force_n   AS F  USING (n)
 LEFT OUTER JOIN uram_n    AS UN USING (n)
 LEFT OUTER JOIN control_n AS C  USING (n);
@@ -144,7 +144,7 @@ SELECT G.id                                            AS id,
        CASE CG.sa_flag WHEN 1 THEN 'Yes' ELSE 'No' END AS pretty_sa_flag,
        CG.sa_flag                                      AS sa_flag,
        format('%.1f', CG.pop_cr)                       AS pop_cr,
-       DG.population                                   AS population,
+       coalesce(DG.population, CG.basepop)             AS population,
        DG.attrition                                    AS attrition,
        DG.subsistence                                  AS subsistence,
        DG.consumers                                    AS consumers,
@@ -156,13 +156,13 @@ SELECT G.id                                            AS id,
        CASE WHEN SR.sat_funding IS NULL
             THEN 'N/A' 
             ELSE moneyfmt(SR.sat_funding) END          AS sat_funding, 
-       format('%.1f', DG.upc)                          AS upc,
-       format('%.2f', DG.uaf)                          AS uaf,
+       format('%.1f', coalesce(DG.upc, 0.0))           AS upc,
+       format('%.2f', coalesce(DG.uaf, 0.0))           AS uaf,
        format('%.3f', coalesce(UM.mood0, 0.0))         AS mood0,
        format('%.3f', coalesce(UM.mood, 0.0))          AS mood
 FROM gui_groups AS G
 JOIN civgroups  AS CG USING (g)
-JOIN demog_g    AS DG USING (g)
+LEFT OUTER JOIN demog_g    AS DG USING (g)
 LEFT OUTER JOIN sr_service AS SR USING (g)
 LEFT OUTER JOIN uram_mood  AS UM USING (g);
 

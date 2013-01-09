@@ -48,6 +48,7 @@ snit::type ted {
         defroe_ng
         demog_g
         demog_local
+        demog_n
         demsits_t
         deploy_ng
         drivers

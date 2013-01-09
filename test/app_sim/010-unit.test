@@ -27,7 +27,8 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     proc setup {} {
-        ted create NB1 NB2 BLUE USAID SHIA 
+        ted create NB1 NB2 BLUE USAID SHIA
+        demog start
         personnel start
         unit reset
         personnel load

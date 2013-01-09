@@ -35,6 +35,7 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
+        demog start
         rdb eval {
             UPDATE demog_g SET population=10000 WHERE g='SHIA';
             UPDATE demog_g SET population=20000 WHERE g='SUNN';
@@ -60,9 +61,9 @@ KURD 20.0        100.0
     }
 
     test srcompute-1.2 {srcompute populates sr_service on LOCK} -setup {
-        setup
-    } -body {
+        ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
         ted order SIM:LOCK
+    } -body {
         service srcompute
         ted query {SELECT * FROM sr_service}
     } -cleanup {

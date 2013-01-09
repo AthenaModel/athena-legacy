@@ -28,9 +28,7 @@ CREATE TABLE demog_local (
 
 CREATE TABLE demog_n (
     -- Symbolic neighborhood name
-    n            TEXT PRIMARY KEY REFERENCES nbhoods(n)
-                 ON DELETE CASCADE
-                 DEFERRABLE INITIALLY DEFERRED,
+    n            TEXT PRIMARY KEY,
 
     -- Total population in the neighborhood at the current time
     population   INTEGER DEFAULT 0,
@@ -60,9 +58,6 @@ CREATE TABLE demog_g (
     -- Symbolic civgroup name
     g              TEXT PRIMARY KEY,
 
-    -- Attrition to this group (total killed)
-    attrition      INTEGER DEFAULT 0,
-
     -- Total residents of this group in its home neighborhood at the
     -- current time.
     population     INTEGER DEFAULT 0,
@@ -85,6 +80,11 @@ CREATE TABLE demog_g (
 
     -- Unemployment Attitude Factor
     uaf            DOUBLE DEFAULT 0.0,
+
+    -- Attrition to this group (total killed to date).
+    -- This is an output only; it is no longer used to
+    -- compute population week to week.
+    attrition      INTEGER DEFAULT 0,
 
     -- Demographic Situation ID.  This is the ID of the
     -- demsit associated with this record, if

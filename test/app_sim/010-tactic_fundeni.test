@@ -31,6 +31,7 @@ namespace eval ::athena_test::tests:: {
     proc setup {} {
         ted create JOE BOB NB1 NB2 SHIA SUNN KURD
 
+        demog start
         rdb eval {
             UPDATE demog_g SET population=10000 WHERE g='SHIA';
             UPDATE demog_g SET population=20000 WHERE g='SUNN';

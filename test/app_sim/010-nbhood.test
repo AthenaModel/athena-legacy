@@ -145,25 +145,7 @@ m   n   proximity
 NB1 NB1 HERE      
     }
 
-    test create-4.1 {demog_n records are created} -body {
-        nbhood mutate create [ted entity NB1]
-        rdb eval {SELECT n FROM demog_n}
-    } -cleanup {
-        cleanup
-    } -result {NB1}
-
-    test create-4.2 {undo deletes the demog_n record} -setup {
-        nbhood mutate create [ted entity NB1]
-    } -body {
-        set undo [nbhood mutate create [ted entity NB2]]
-        namespace eval :: $undo
-
-        # Is NB2 gone?
-        rdb eval {SELECT n FROM demog_n}
-    } -cleanup {
-        cleanup
-    } -result {NB1}
-
+    # create-4.*, demog_n effects, deleted as obsolete.
 
     test create-5.1 {econ_n records are created} -body {
         nbhood mutate create [ted entity NB1]
@@ -271,26 +253,7 @@ m   n   proximity
 NB1 NB1 HERE      
     }
 
-
-    test delete-4.1 {demog_n records are deleted} -setup {
-        ted create NB1 NB2
-    } -body {
-        nbhood mutate delete NB2
-        rdb eval {SELECT n FROM demog_n}
-    } -cleanup {
-        cleanup
-    } -result {NB1}
-
-    test delete-4.2 {Undo restores demog_n} -setup {
-        ted create NB1
-        set undo [nbhood mutate delete NB1]
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT n FROM demog_n ORDER BY n}
-    } -cleanup {
-        cleanup
-    } -result {NB1}
-
+    # delete-4.*, demog_n effects, deleted as obsolete.
 
     test delete-5.1 {econ_n records are deleted} -setup {
         ted create NB1 NB2

@@ -40,6 +40,14 @@ snit::type demog {
     # Computes population statistics at scenario lock.
 
     typemethod start {} {
+        # FIRST, populate the demog_g and demog_n tables.
+
+        rdb eval {
+            INSERT INTO demog_g(g) SELECT g FROM civgroups;
+            INSERT INTO demog_n(n) SELECT n FROM nbhoods;
+        }
+        
+        # NEXT, do the initial population analysis
         $type analyze pop
     }
 
