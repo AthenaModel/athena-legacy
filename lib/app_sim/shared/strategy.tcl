@@ -82,11 +82,7 @@ snit::type strategy {
         # the actors their incomes, unless we are locking, in which
         # case no cash moves
         profile 1 control load
-        if {!$onlock} { 
-            cash load
-        } else {
-            cash reset
-        }
+        profile 1 cash load
         profile 1 personnel load
         profile 1 service load
         profile 1 cap access load

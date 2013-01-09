@@ -496,32 +496,14 @@ snit::type econ {
             let BREVa {$BREVa + $BNRb}
         }
 
-        # NEXT, given the revenue in the actor sector compute the
-        # base expenditures using the computed overhead fractions
-        set ovShares 0.0
-        foreach sector {goods pop black region world} {
-            let ovShares {
-                $ovShares + [parmdb get econ.shares.overhead.$sector]
-            }
-        }
-        
-        # NEXT, if overhead shares are distributed amongst the sectors
-        # then set up the fractions. Otherwise, the fractions are zero.
-        foreach sector {goods pop black region world} {
-            if {$ovShares > 0.0} {
-                let ovFrac($sector) {
-                    [parmdb get econ.shares.overhead.$sector] / $ovShares
-                }
-            } else {
-                set ovFrac($sector) 0.0
-            }
-        }
+        # NEXT, get the baseline expenditures from the cash module
+        array set exp [cash expenditures]
 
-        let Xga {$ovFrac(goods)  * $BREVa}
-        let Xpa {$ovFrac(pop)    * $BREVa}
-        let Xba {$ovFrac(black)  * $BREVa}
-        let Xra {$ovFrac(region) * $BREVa}
-        let Xwa {$ovFrac(world)  * $BREVa}
+        let Xwa {$exp(world)  * 52.0}
+        let Xra {$exp(region) * 52.0}
+        let Xga {$exp(goods)  * 52.0}
+        let Xba {$exp(black)  * 52.0}
+        let Xpa {$exp(pop)    * 52.0}
 
         # NEXT, extract the pertinent data from the SAM in preparation for
         # the computation of shape parameters.

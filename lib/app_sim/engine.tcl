@@ -75,13 +75,14 @@ snit::type engine {
         profile service start        ;# Populates service tables.
         profile nbstat start         ;# Computes initial security and coverage
         profile control_model start  ;# Computes initial support and influence
-        profile econ start           ;# Initializes the econ model.
 
         # NEXT, Advance time to 0.  What we get here is a pseudo-tick,
         # in which we execute the on-lock strategy and provide transient
         # effects to URAM.
 
         profile strategy start       ;# Execute on-lock strategies
+        profile econ start           ;# Initializes the econ model taking 
+                                      # into account on-lock strategies
         profile eventq advance 0     ;# Execute any scheduled orders.
 
         # NEXT, do analysis and assessment, of transient effects only.

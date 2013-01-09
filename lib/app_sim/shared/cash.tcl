@@ -35,15 +35,33 @@ snit::type cash {
 
     # load
     #
-    # Loads every actors' cash balances into working_cash for use
-    # during strategy execution.  It also gives each actor his income.
+    # If the strategy module is locking, this method simply accounts
+    # for the status quo expenditures on overhead. No cash is actually
+    # spent. Otherwise, it loads every actors' cash balances into 
+    # working_cash for use during strategy execution.  It also gives 
+    # each actor his income.
 
     typemethod load {} {
-        # FIRST, we should not be locking the scenario
-        assert {![strategy locking]}
-
-        # NEXT, clear expenditures
+        # FIRST, clear expenditures
         $type reset
+
+        # NEXT, if locking the scenario, just account for overhead so
+        # the econ module gets the data
+        if {[strategy locking]} {
+            rdb eval {
+                SELECT a, 
+                       income, 
+                       overhead
+                FROM actors_view;
+            } {
+                let overheadDollars { $income * $overhead / 100.0 }
+
+                $type Allocate overhead $overheadDollars
+            }
+
+            # NEXT, done
+            return
+        }
 
         # NEXT, load up the working cash table, giving the actor his income.
         # and expending his overhead.
