@@ -43,8 +43,11 @@ snit::type demog {
         # FIRST, populate the demog_g and demog_n tables.
 
         rdb eval {
-            INSERT INTO demog_g(g) SELECT g FROM civgroups;
-            INSERT INTO demog_n(n) SELECT n FROM nbhoods;
+            INSERT INTO demog_g(g,population)
+            SELECT g, basepop FROM civgroups;
+            
+            INSERT INTO demog_n(n)
+            SELECT n FROM nbhoods;
         }
         
         # NEXT, do the initial population analysis
@@ -57,8 +60,9 @@ snit::type demog {
     # analyze pop
     #
     # Computes the population statistics in demog_g(g), demog_n(n), 
-    # and demog_local for all n, g.  This routine depends on the
-    # units staffed by activity(sim).
+    # and demog_local for all n, g.
+    #
+    # NOTE: This routine no longer depends on civilian units.
 
     typemethod {analyze pop} {} {
         $type ComputePopG
@@ -76,56 +80,29 @@ snit::type demog {
     # Computes the population statistics for each civilian group.
 
     typemethod ComputePopG {} {
-        # FIRST, get resident and subsistence population
-        rdb eval {
-            SELECT civgroups.n            AS n,
-                   civgroups.g            AS g,
-                   civgroups.sa_flag      AS sa_flag,
-                   total(units.personnel) AS population
-            FROM civgroups JOIN units USING (g)
-            WHERE units.personnel > 0
-            GROUP BY civgroups.g
-        } {
+        # FIRST, get the labor force fraction.
+        set LFF [parm get demog.laborForceFraction.NONE]
+   
+        # NEXT, compute the breakdown for all groups.
+        foreach {g population sa_flag} [rdb eval {
+            SELECT g, population, sa_flag
+            FROM demog_g JOIN civgroups USING (g)
+        }] {
             if {$sa_flag} {
-                let consumers   0
                 let subsistence $population
+                let consumers   0
+                let labor_force 0
             } else {
-                set consumers   $population
-                set subsistence 0
+                let subsistence 0
+                let consumers   $population
+                let labor_force {round($LFF * $consumers)}
             }
 
             rdb eval {
                 UPDATE demog_g
-                SET population  = $population,
-                    subsistence = $subsistence,
+                SET subsistence = $subsistence,
                     consumers   = $consumers,
-                    labor_force = 0
-                WHERE g=$g;
-            }
-        }
-
-        # NEXT, accumulate labor force.
-        # TBD: Once groups can be displaced, we'll need to
-        # retrieve it and use the correct LFF here.
-        rdb eval {
-            SELECT civgroups.n             AS n,
-                   civgroups.g             AS g, 
-                   total(units.personnel)  AS personnel
-            FROM civgroups JOIN units USING (g)
-            WHERE NOT civgroups.sa_flag
-            GROUP BY g
-        } {
-            set LFF [parm get demog.laborForceFraction.NONE]
-
-            if {$LFF == 0} {
-                continue
-            }
-
-            let LF {round($LFF * $personnel)}
-
-            rdb eval {
-                UPDATE demog_g
-                SET labor_force = $LF
+                    labor_force = $labor_force
                 WHERE g=$g;
             }
         }
@@ -365,44 +342,55 @@ snit::type demog {
 
     #-------------------------------------------------------------------
     # Mutators
-
-    # attrit parmdict
     #
-    # parmdict     A dictionary of group parms
+    # Note: these are not mutators in the sense of an order mutator.
+
+    # adjust g delta
     #
-    #    g                Group ID
-    #    casualties       A number of casualites to attrit
+    # g      - Group ID
+    # delta  - Some change to population
     #
-    # Updates a demog_g record given the parms, which are presumed to be
-    # valid.
+    # Adjusts a population figure by some amount, which may be positive
+    # or negative.  Note that it doesn't recompute all of the breakdowns
+    # and roll-ups; call [demog analyze pop] as needed.
+
+    typemethod adjust {g delta} {
+        rdb eval {
+            UPDATE demog_g
+            SET population = max(0, population + $delta)
+            WHERE g=$g
+        } {}
+    }
+
+    # attrit g casualties
     #
-    # This is not an order mutator, in the usual sense; it cannot
-    # be undone.
+    # g           - Group ID
+    # casualties  - A number of casualites to attrit
+    #
+    # Attrits a civilian group's population.  Note that it doesn't
+    # recompute all of the breakdowns and roll-ups; call
+    # [demog analyze pop] as needed.
+    #
+    # TBD: This routine could be simplified
 
-    typemethod attrit {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            # FIRST, get the undo information
-            rdb eval {
-                SELECT population,attrition FROM demog_g
-                WHERE g=$g
-            } {}
+    typemethod attrit {g casualties} {
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT population,attrition FROM demog_g
+            WHERE g=$g
+        } {}
 
-            assert {$casualties >= 0}
-            let casualties {min($casualties, $population)}
-            let undoCasualties {-$casualties}
-            set undoing 0
+        assert {$casualties >= 0}
+        let casualties {min($casualties, $population)}
+        let undoCasualties {-$casualties}
+        set undoing 0
 
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE demog_g
-                SET attrition = attrition + $casualties,
-                    population = population - $casualties
-                WHERE g=$g
-            } {}
-
-            # NEXT, notify the app.
-            notifier send ::demog <Update>
+        # NEXT, Update the group
+        rdb eval {
+            UPDATE demog_g
+            SET attrition = attrition + $casualties,
+                population = population - $casualties
+            WHERE g=$g
         }
     }
 }

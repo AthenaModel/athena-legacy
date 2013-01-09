@@ -766,9 +766,7 @@ snit::type aam {
             # group.
             if {$gtype eq "CIV"} {
                 # FIRST, attrit the group 
-                set parms [list n $n g $g casualties $casualties]
-
-                demog attrit $parms
+                demog attrit $g $casualties
 
                 # NEXT, save the attrition for attitude assessment
                 $type SaveCivAttrition $n $g $casualties $g1 $g2

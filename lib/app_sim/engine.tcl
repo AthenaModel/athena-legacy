@@ -70,8 +70,8 @@ snit::type engine {
         # NEXT, initialize all modules, and do basic analysis, in preparation
         # for executing the on-lock tactics.
 
-        profile personnel start      ;# Initial deployments and base units.
         profile demog start          ;# Computes population statistics
+        profile personnel start      ;# Initial deployments and base units.
         profile service start        ;# Populates service tables.
         profile nbstat start         ;# Computes initial security and coverage
         profile control_model start  ;# Computes initial support and influence
@@ -128,6 +128,7 @@ snit::type engine {
         # NEXT, execute strategies; this changes the situation
         # on the ground.  It may also schedule events to be executed
         # immediately.
+        profile demog analyze pop
         profile strategy tock
 
         # NEXT, execute eventq events

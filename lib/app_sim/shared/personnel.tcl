@@ -47,8 +47,8 @@ snit::type personnel {
 
             -- Status quo civilian population.
             INSERT INTO deploy_ng(n,g,personnel,unassigned)
-            SELECT n, g, basepop, basepop
-            FROM civgroups_view;
+            SELECT n, g, population, population
+            FROM demog_g JOIN civgroups USING (g);
         }
 
         # NEXT, make the base units.

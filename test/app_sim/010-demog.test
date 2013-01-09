@@ -1,0 +1,223 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-demog.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    econ(sim) tests.
+#
+#    This test suite tests the demog(sim) analysis and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Setup
+    proc setup {} {
+        ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
+        ted lock
+    }
+    
+    # Clean up after a test
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # start
+    #
+    # NOTE: This tests [demog analyze pop] as well
+
+    test start-1.1 {demog_g is populated} -setup {
+        ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
+    } -body {
+        demog start
+        ted query {SELECT * FROM demog_g}
+    } -cleanup {
+        cleanup
+    } -result {
+g    population subsistence consumers labor_force unemployed upc uaf attrition s 
+---- ---------- ----------- --------- ----------- ---------- --- --- --------- - 
+SHIA 1000       0           1000      600         0          0.0 0.0 0         0 
+SUNN 1000       0           1000      600         0          0.0 0.0 0         0 
+KURD 1000       1000        0         0           0          0.0 0.0 0         0 
+    }
+
+    test start-1.2 {demog_n is populated} -setup {
+        ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
+    } -body {
+        demog start
+        ted query {SELECT * FROM demog_n}
+    } -cleanup {
+        cleanup
+    } -result {
+n   population subsistence consumers labor_force unemployed upc uaf 
+--- ---------- ----------- --------- ----------- ---------- --- --- 
+NB1 2000       0           2000      1200        0          0.0 0.0 
+NB2 1000       1000        0         0           0          0.0 0.0 
+    }
+
+    #-------------------------------------------------------------------
+    # getg
+
+    test getg-1.1 {can get all data} -setup {
+        setup
+    } -body {
+        demog getg SHIA
+    } -cleanup {
+        cleanup
+    } -result {uaf 0.0 upc 2.4 subsistence 0 attrition 0 unemployed 24 labor_force 600 s 0 consumers 1000 population 1000 g SHIA}
+    
+    test getg-1.2 {can get one parameter} -setup {
+        setup
+    } -body {
+        demog getg SHIA labor_force
+    } -cleanup {
+        cleanup
+    } -result {600}
+    
+    test getg-1.3 {returns "" if not found} -setup {
+        setup
+    } -body {
+        demog getg NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    #-------------------------------------------------------------------
+    # getn
+
+    test getn-1.1 {can get all data} -setup {
+        setup
+    } -body {
+        demog getn NB1
+    } -cleanup {
+        cleanup
+    } -result {uaf 0.0 upc 2.4 subsistence 0 unemployed 48 labor_force 1200 n NB1 consumers 2000 population 2000}
+    
+    test getn-1.2 {can get one parameter} -setup {
+        setup
+    } -body {
+        demog getn NB1 labor_force
+    } -cleanup {
+        cleanup
+    } -result {1200}
+    
+    test getn-1.3 {returns "" if not found} -setup {
+        setup
+    } -body {
+        demog getn NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    #-------------------------------------------------------------------
+    # getlocal
+
+    test getlocal-1.1 {can get all data} -setup {
+        setup
+    } -body {
+        demog getlocal
+    } -cleanup {
+        cleanup
+    } -result {labor_force 1200 consumers 2000 population 3000}
+    
+    test getlocal-1.2 {can get one parameter} -setup {
+        setup
+    } -body {
+        demog getlocal labor_force
+    } -cleanup {
+        cleanup
+    } -result {1200}
+ 
+    #-------------------------------------------------------------------
+    # adjust
+
+     test adjust-1.1 {adds to population} -setup {
+        setup
+    } -body {
+        demog adjust SHIA 100
+        demog getg SHIA population
+    } -cleanup {
+        cleanup
+    } -result {1100}
+    
+     test adjust-1.2 {subtracts from population} -setup {
+        setup
+    } -body {
+        demog adjust SHIA -100
+        demog getg SHIA population
+    } -cleanup {
+        cleanup
+    } -result {900}
+    
+     test adjust-1.3 {subtracts but not less than 0} -setup {
+        setup
+    } -body {
+        demog adjust SHIA -1100
+        demog getg SHIA population
+    } -cleanup {
+        cleanup
+    } -result {0}
+    
+    #-------------------------------------------------------------------
+    # attrit
+
+     test attrit-1.1 {subtracts from population} -setup {
+        setup
+    } -body {
+        demog attrit SHIA 100
+        list [demog getg SHIA population] [demog getg SHIA attrition]
+    } -cleanup {
+        cleanup
+    } -result {900 100}
+    
+     test attrit-1.2 {attrition is accumulated} -setup {
+        setup
+    } -body {
+        demog attrit SHIA 100
+        demog attrit SHIA 200
+        list [demog getg SHIA population] [demog getg SHIA attrition]
+    } -cleanup {
+        cleanup
+    } -result {700 300}
+
+     test attrit-1.3 {subtracts but not less than 0} -setup {
+        setup
+    } -body {
+        demog attrit SHIA 1100
+        list [demog getg SHIA population] [demog getg SHIA attrition]
+    } -cleanup {
+        cleanup
+    } -result {0 1000}
+    
+   
+    
+    
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
