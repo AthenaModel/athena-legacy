@@ -293,6 +293,18 @@ snit::type ted {
             demeanor AGGRESSIVE
         } NB2
 
+        defentity NO_ONE ::civgroup {
+            g        NO_ONE
+            longname "Nobody"
+            color    "#c00004"
+            shape    NEUTRAL
+            n        NB2
+            basepop  0
+            pop_cr   0.0
+            sa_flag  1
+            demeanor AGGRESSIVE
+        } NB2
+
         # Force Groups
 
         defentity BLUE ::frcgroup {

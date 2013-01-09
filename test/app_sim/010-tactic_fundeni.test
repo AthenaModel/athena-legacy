@@ -29,7 +29,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 SHIA SUNN KURD
+        ted create JOE BOB NB1 NB2 SHIA SUNN KURD NO_ONE
 
         demog start
         rdb eval {
@@ -81,6 +81,16 @@ namespace eval ::athena_test::tests:: {
         glist       {SHIA SUNN KURD}
         on_lock     NO
     }
+
+    set T3 {
+        tactic_type FUNDENI
+        owner       JOE
+        priority    top
+        x1          7000.0
+        glist       NO_ONE
+        on_lock     NO
+    }
+       
 
 
     #-------------------------------------------------------------------
@@ -163,7 +173,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0}
 
-    test execute-1.3 {execute: 1 on success} -setup {
+    test execute-1.3 {execute: funding empty group} -setup {
+        execute_setup
+        tactic mutate create $T3
+    } -body {
+        tactic::FUNDENI execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test execute-1.4 {execute: 1 on success} -setup {
         execute_setup
         tactic mutate create $T1
     } -body {
@@ -172,7 +191,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1}
 
-    test execute-1.4 {execute: 1 group} -setup {
+    test execute-1.5 {execute: 1 group} -setup {
         execute_setup
         tactic mutate create $T1
     } -body {
@@ -181,17 +200,19 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    a   funding 
----- --- ------- 
-SHIA JOE 2000.0  
-SHIA BOB 0.0     
-SUNN JOE 0.0     
-SUNN BOB 0.0     
-KURD JOE 0.0     
-KURD BOB 0.0     
+g      a   funding 
+------ --- ------- 
+SHIA   JOE 2000.0  
+SHIA   BOB 0.0     
+SUNN   JOE 0.0     
+SUNN   BOB 0.0     
+KURD   JOE 0.0     
+KURD   BOB 0.0     
+NO_ONE JOE 0.0     
+NO_ONE BOB 0.0     
     }
 
-    test execute-1.5 {execute: 3 group} -setup {
+    test execute-1.6 {execute: 3 group} -setup {
         execute_setup
         tactic mutate create $T2
     } -body {
@@ -200,17 +221,19 @@ KURD BOB 0.0
     } -cleanup {
         cleanup
     } -result {
-g    a   funding 
----- --- ------- 
-SHIA JOE 1000.0  
-SHIA BOB 0.0     
-SUNN JOE 2000.0  
-SUNN BOB 0.0     
-KURD JOE 4000.0  
-KURD BOB 0.0     
+g      a   funding 
+------ --- ------- 
+SHIA   JOE 1000.0  
+SHIA   BOB 0.0     
+SUNN   JOE 2000.0  
+SUNN   BOB 0.0     
+KURD   JOE 4000.0  
+KURD   BOB 0.0     
+NO_ONE JOE 0.0     
+NO_ONE BOB 0.0     
     }
 
-    test execute-1.6 {execute: deduct cost from cash_on_hand} -setup {
+    test execute-1.7 {execute: deduct cost from cash_on_hand} -setup {
         execute_setup
         tactic mutate create $T1
         rdb eval {

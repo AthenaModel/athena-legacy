@@ -103,13 +103,13 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
             # NEXT, try to fund the service.  This will fail if
             # all of the groups are empty.
             if {![service fundeni $owner $x1 $glist]} {
-                cash refund $x1
+                cash refund $owner FUNDENI $x1
                 sigevent log 2 tactic "
                     FUNDENI: Actor {actor:$owner} could not fund
                     \$[moneyfmt $x1] worth of Essential Non-Infrastructure 
                     services to $gtext, because all of those groups 
                     are empty.
-                " $owner {*}$glist {*}$nbhoods
+                " $owner {*}$glist
                 return 0
             }
 
