@@ -71,8 +71,7 @@ snit::widget samsheet {
         <table>
           <tr>
             <td colspan="3">
-              <b style="font-size:12px">SAM Inputs</b><p>
-              <input name="mmatrix">
+              <input name="mmatrix"><p>
             </td>
           </tr>
           <tr>
@@ -119,6 +118,20 @@ snit::widget samsheet {
     typevariable css {
         p.leglbl {margin: 0px 0px 1px 0px; width: 30px}
         p.legtxt {margin: 0px 0px 1px 0px}
+    }
+
+    # info
+    #
+    # array of scalars
+    # 
+    # mode - INPUT, BAL, BASE, indicating how the SAM data is displayed:
+    #    
+    #    INPUT - the input money flows from one sector to another
+    #    BAL   - the balancing flows computed from inputs
+    #    BASE  - the base SAM; sum of INPUT and BAL
+
+    variable info -array {
+        mode BASE
     }
 
     #-------------------------------------------------------------------
@@ -171,6 +184,14 @@ snit::widget samsheet {
         ttk::scrollbar $win.yscroll \
             -command [list $win.h yview]
 
+        install hbar using ttk::frame $win.h.hbar
+
+        $self AddMode INPUT "Input Flows"
+        $self AddMode BAL   "Balancing Flows"
+        $self AddMode BASE  "Base SAM"
+
+        set info(mode) BASE 
+
         # NEXT grid the html frame and scrollbar
         # Note that the widgets in the html frame are layed out once
         # sim state is determined. See the SimState typemethod below
@@ -194,6 +215,24 @@ snit::widget samsheet {
     
     destructor {
         notifier forget $self
+    }
+
+    # AddMode mode lbl
+    #
+    # Adds a radio button to the set of radio buttons that allow the user
+    # to switch between input flows, balancing flows and base SAM views
+    # of the input data. 
+
+    method AddMode {mode lbl} {
+        set btn [string tolower $mode]
+
+        ttk::radiobutton $win.h.hbar.$btn  \
+            -variable [myvar info(mode)]   \
+            -text     $lbl                 \
+            -value    $mode                \
+            -command  [mymethod DisplayMode $mode]
+
+        pack $win.h.hbar.$btn -side left 
     }
 
     # CreateShapeMatrix w
@@ -326,11 +365,11 @@ snit::widget samsheet {
 
 
         # NEXT, Set up the cells
-        $mmatrix map    0,0    i j BX.%i.%j e -background $color(e)
-        $mmatrix maprow $cbr,0 j   BEXP.%j  r -background $color(r)
-        $mmatrix mapcol 0,$cbr i   BREV.%i  r -background $color(r)
-        $mmatrix mapcol 0,$cbp il  BP.%il   e -background $color(e)
-        $mmatrix mapcol 0,$cbd il  BQD.%il  r -background $color(r)
+        $mmatrix map    0,0     i j BX.%i.%j e -background $color(e)
+        $mmatrix maprow $rexp,0 j   BEXP.%j  r -background $color(r)
+        $mmatrix mapcol 0,$cbr  i   BREV.%i  r -background $color(r)
+        $mmatrix mapcol 0,$cbp  il  BP.%il   e -background $color(e)
+        $mmatrix mapcol 0,$cbd  il  BQD.%il  r -background $color(r)
 
         $mmatrix tag configure e -state normal
         
@@ -554,6 +593,94 @@ snit::widget samsheet {
         $miscout width 2 15
     }
 
+    # DisplayMode mode
+    #
+    # mode - The new mode to display, one of "INPUT", "BAL" or "BASE"
+    #
+    # INPUT - the money flows input by the analyst, including the actors
+    #         sector
+    # BAL   - the balancing flows computed from input values
+    # BASE  - the base case SAM; sum of INPUT and BAL matrices
+
+    method DisplayMode {mode} {
+        # FIRST, get some important values
+        set sectors [$sam index i]
+        set ns      [llength $sectors]
+        
+        # Main area
+        let rpop    {$ns - 4}
+        let ractors {$ns - 3}
+        let rregion {$ns - 2}
+        let rworld  {$ns - 1}
+        let cblack  {$ns - 5}
+        let cactors {$ns - 3}
+        let cworld  {$ns - 1}
+        set rexp    $ns
+        set crev    $ns
+
+        if {$mode eq "INPUT"} {
+            # NEXT, map the main area of the matrix to the BX values which
+            # are from the X-matrix
+            $mmatrix map 0,0 i j BX.%i.%j e 
+            $mmatrix maprow $ractors,0 j BX.actors.%j a -background $color(d)
+            $mmatrix mapcol 0,$cactors i BX.%i.actors a -background $color(d)
+
+            $mmatrix maprow $rexp,0    j BEXP.%j  r -background $color(r)
+            $mmatrix mapcol 0,$crev    i BREV.%i  r -background $color(r) 
+
+            $mmatrix tag configure a -state disabled
+            $mmatrix tag configure e -background $color(d)
+
+        } elseif {$mode eq "BAL"} {
+            # NEXT, show zeroes in the main area
+            $mmatrix map 0,0 i j ZED.%i.%j t 
+
+            # NEXT, override some of the zeroes with balancing factors
+            # from the T-matrix
+            $mmatrix mapcell $ractors,$cblack T.actors.black t
+            $mmatrix mapcell $rworld,$cblack  T.world.black  t
+            $mmatrix mapcell $rpop,$cworld    T.pop.world    t
+            $mmatrix mapcell $ractors,$cworld T.actors.world t 
+            $mmatrix mapcell $rregion,$cworld T.region.world t
+
+            $mmatrix maprow $rexp,0 j NA r \
+                -formatcmd {format "%s"} -background $color(r)
+            $mmatrix mapcol 0,$crev i NA r \
+                -formatcmd {format "%s"} -background $color(r)
+
+            $mmatrix tag configure t -background $color(d)
+        } elseif {$mode eq "BASE"} {
+            # NEXT, set the main area to the BX values
+            $mmatrix map 0,0 i j BX.%i.%j xt 
+            $mmatrix maprow $rexp,0    j BEXP.%j  r -background $color(r) 
+            $mmatrix mapcol 0,$crev    i BREV.%i  r -background $color(r) 
+
+            # NEXT, override some cells that may have changed from
+            # the addtion of T-matrix cells to the X-matrix cells
+            $mmatrix mapcell $ractors,$cblack XT.actors.black xt
+            $mmatrix mapcell $rworld,$cblack  XT.world.black  xt
+            $mmatrix mapcell $rpop,$cworld    XT.pop.world    xt
+            $mmatrix mapcell $ractors,$cworld XT.actors.world xt
+            $mmatrix mapcell $rregion,$cworld XT.region.world xt
+
+            $mmatrix mapcell $rpop,$crev    XTREV.pop r    \
+                -background $color(r)
+            $mmatrix mapcell $ractors,$crev XTREV.actors r \
+                -background $color(r)
+            $mmatrix mapcell $rregion,$crev XTREV.region r \
+                -background $color(r)
+
+            $mmatrix mapcell $rexp,$cblack XTEXP.black r \
+                -background $color(r)
+            $mmatrix mapcell $rexp,$cworld XTEXP.world r \
+                -background $color(r)
+
+            $mmatrix tag configure xt -background $color(d)
+        } else {
+            error "Invalid mode for samsheet: $mode"
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Event handlers
@@ -647,6 +774,9 @@ snit::widget samsheet {
         # FIRST, get the state
         if {[sim state] eq "PREP"} {
 
+            set info(mode) INPUT
+            $self DisplayMode INPUT
+
             # NEXT, we are in PREP set the SAM and inputs to normal 
             # and display the layout with help text.
             $mmatrix configure -state normal
@@ -660,9 +790,13 @@ snit::widget samsheet {
                 Actual actors revenue and expenses will be determined from
                 the actor definitions and their strategies once the scenario
                 is locked.<p>
+                <b style=\"font-size:12px\">SAM Inputs</b><p>
                 $layout
             "
         } else {
+
+            set info(mode) BASE
+            $self DisplayMode BASE
 
             # NEXT, we are not in PREP, disable the SAM and inputs and
             # remove the help text.
@@ -673,6 +807,8 @@ snit::widget samsheet {
 
             $win.h layout "
                 <br>
+                <b style=\"font-size:12px\">SAM Inputs</b><p>
+                <input name=\"hbar\">
                 $layout
             "
         }

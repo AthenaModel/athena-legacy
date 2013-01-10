@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version p
+#    sam6x6.cm, version q
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -10,24 +10,29 @@
 # DESCRIPTION:
 #    This cell model computes shape parameters for the six-sector CGE 
 #    Athena Economics Model from SAM input. It is intended to be run before 
-#    eco6x6.cm, either stand-alone or from within Athena, perhaps as part
-#    of the eco6x6.cm model's null page.
+#    cge6x6.cm, either stand-alone or from within Athena, perhaps as part
+#    of the cge6x6.cm model's null page.
 #
-#    There is also a cell model for calibration of actor parameters for 
-#    use in actor management.
-#
-# INPUT: SAM data, prices, REM, and NR.black for a base case.
+# INPUT: X-matrix data (aka input flows or unbalanced SAM), prices, 
+#        and NR.black for a base case.
 #
 # OUTPUT: * CGE shape parameters and sector-by-sector demands
 #         * Sector revenues & expenses
+#         * Remittances (REM)
 #         * Production & export quantities
 #         * FAA & FAR for the base case
 #         * Base case per capita demand for goods
+#         * The T-matrix data (aka the balancing flows)
+#         * The X+T matrix data (aka the Base SAM)
 #
 # PAGES:
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version q: Added T-matrix values and X+T matrix values. These, along
+#               with the input flows (the BX.i.j), can each be displayed
+#               in the Athena GUI.
+#
 #    Version p: Added computation of the BaseGDP. 
 #               Added BaseSubsisters and BaseSA to the base case 
 #               description
@@ -368,6 +373,51 @@ let BaseGDP = {
     [BGDP.goods] + [BGDP.black] + [BGDP.pop] -
     [BREV.world] +
     [BaseSA] - [FEED.black]
+}
+
+#----------------------------------------------------------------
+# Balancing Matrix values (aka T-matrix)
+let T.actors.black = {[BNR.black]}
+let T.world.black  = {[FEED.black]}
+let T.pop.world    = {[BREM]}
+let T.actors.world = {[graft]*[BX.region.world]}
+# Prevent "-0.0" from being displayed in the GUI
+let T.region.world = {
+    [T.actors.world] == 0.0 ? 0.0 : -1.0*[T.actors.world]
+}
+
+#----------------------------------------------------------------
+# X+T matrix values (aka Base SAM values)
+# These are the only cells affected by the T-matrix, the other cells
+# are from the BX.i.j
+let XT.actors.black = {[BX.actors.black] + [T.actors.black]}
+let XT.world.black  = {[BX.world.black]  + [T.world.black]}
+let XT.pop.world    = {[BX.pop.world]    + [T.pop.world]}
+let XT.actors.world = {[BX.actors.world] + [T.actors.world]}
+let XT.region.world = {[BX.region.world] + [T.region.world]}
+
+# Revenues affected by the T-matrix, all others are from BREV.i
+let XTREV.pop    = {[BREV.pop] + [T.pop.world]}
+let XTREV.actors = {[BREV.actors] + [T.actors.black] + [T.actors.world]}
+let XTREV.region = {[BREV.region] + [T.region.world]}
+
+# Expenditures affected by the T-matrix, all other are from BEXP.j
+let XTEXP.black = {[BEXP.black] + [T.actors.black] + [T.world.black]}
+let XTEXP.world = {
+    [BEXP.world] + [T.pop.world] + [T.actors.world] + [T.region.world]
+}
+
+#----------------------------------------------------------------
+# Misc. items for use by the Athena GUI
+# Symbol for "not-applicable" 
+letsym NA = {"n/a"}
+
+# Zero matrix used when displaying the T-matrix. The zero matrix is 
+# overlayed by the values in the T-matrix
+foreach i {goods black pop actors region world} {
+    foreach j {goods black pop actors region world} {
+        let ZED.$i.$j = 0.0
+    }
 }
 
 # Diagnostics

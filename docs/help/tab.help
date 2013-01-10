@@ -2536,7 +2536,7 @@ tab "Econ/SAM" {
     <<image econ_sam>><p>
 
     The SAM Inputs area shows the Social Accounting Matrix (SAM), sector 
-    by sector,and related inputs and outputs. The SAM is displayed in
+    by sector, and related inputs and outputs. The SAM is displayed in
     two forms: the presumed size given the number of consumers and the
     resultant shape. The former is displayed a the top of the tab and
     contains monetary values, the latter at the bottom and contains the
@@ -2576,9 +2576,35 @@ tab "Econ/SAM" {
     When Athena is locked, all the cells on the SAM remain visible, but are
     no longer editable unless the user returns to the PREP state.<p>
 
+    <<image econ_sam_locked>><p>
+
+    After lock, there are three views of the SAM data available: the input
+    flows, the balancing flows and the Base SAM.<p>
+
+    The input flows are those that were provided by the analyst either through
+    direct input into the matrix or, in the case of the actors sector, by
+    the actor and strategy definitions.<p>
+
+    The balancing flows (or T-matrix as it is referenced in the Economic 
+    Model paper included with Athena) consists of values computed from other
+    inputs. These are as follows:<p>
+
+    <ul>
+      <li>T.actors.black - Actors revenue from black market profits (if any).
+      <li>T.world.black  - Total cost of feedstock for black market product.
+      <li>T.pop.world - The amount of remittances
+      <li>T.actors.world - Actors revenue due to graft on foreign aid
+      <li>T.region.world - Reduction in revenue due to actors graft on aid
+    </ul><p>
+
+    Where the <i>T.i.j</i> simply indicate that it is the T-matrix and for
+    which sectors the money flows.<p>
+
+    The Base SAM is the sum of the input flows and the balancing flows. 
+    These values are the ones used to initialize the CGE.<p>
+
     The SAM outputs are divided up into three sections: <b>Size Outputs</b>,
     <b>Exports/Foreign Aid Outputs</b> and <b>Misc. Outputs</b>.<p>
-
 
     The <b>Size Outputs</b> section contains values that aid the analyst in 
     determining the overall size of the economy given the inputs provided.

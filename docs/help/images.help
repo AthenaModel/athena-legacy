@@ -93,6 +93,7 @@ image control_totime     "Control: To Time"            img/control_totime.png
 image control_weekday    "Control: Weekday"            img/control_weekday.png
 image control_zoom       "Control: Zoom"               img/control_zoom.png
 image econ_sam           "Econ SAM"                    img/econ_sam.png
+image econ_sam_locked    "Econ SAM (locked)"           img/econ_sam_locked.png
 image econ_current       "Econ Current Inputs"         img/econ_current.png
 image filterbox          "Filter Box"                  img/filterbox.png
 image viewbox            "View Box"                    img/viewbox.png
