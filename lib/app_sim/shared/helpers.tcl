@@ -12,6 +12,24 @@
 #
 #-----------------------------------------------------------------------
 
+# lexcept list element
+#
+# list      - A list
+# element   - some element
+#
+# Returns the list with the element removed (if it was present).
+
+proc lexcept {list element} {
+    set idx [lsearch -exact $list $element]
+    
+    if {$idx >= 0} {
+        return [lreplace $list $idx $idx]
+    } else {
+        return $list
+    }
+}
+
+
 # lprio list item prio
 #
 # list    A list of unique items

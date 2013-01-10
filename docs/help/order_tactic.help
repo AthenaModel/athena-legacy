@@ -377,6 +377,39 @@ order TACTIC:EXECUTIVE:UPDATE "Update Tactic: Executive Command" {
 }
 
 #-----------------------------------------------------------------------
+# Tactic: FLOW
+
+page /order/tactic flow TACTIC:FLOW:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/flow>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:FLOW:CREATE "Create Tactic: Flow Population" {
+    Creates a <<cref /object/tactic/flow>>.<p>
+
+    <<parmlist>>
+    <<tactic_flow parms -required -tags create>>
+    <<TACTIC.priority>>
+    <<TACTIC.once -required>>
+    <</parmlist>>
+}
+
+order TACTIC:FLOW:UPDATE "Update Tactic: Flow Population" {
+    Updates an existing <<cref /object/tactic/flow>>.<p>
+
+    <<parmlist>>
+    <<tactic_flow parm tactic_id -required>>
+    <<tactic_flow parm owner -display>>
+    <<tactic_flow parms -optional -tags update>>
+    <<TACTIC.once>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # Tactic: FUND
 
 page /order/tactic fund TACTIC:FUND:* {

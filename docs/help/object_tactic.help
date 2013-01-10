@@ -557,6 +557,79 @@ page /object/tactic executive "EXECUTIVE tactic" {
 }
 
 #-----------------------------------------------------------------------
+# FLOW
+
+object tactic_flow {
+    noun "FLOW tactic"
+    overview {
+        This SYSTEM <<term tactic>> causes population to flow from
+        one civilian group to another.  There are three ways to specify
+        the number of people to transfer between the groups:
+        the entire population, a specific
+        number, or as at a given rate.  The transfer is permanent.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once}
+
+    attribute f "Source Group" {
+        The ID of the <<term civgroup>> from which the population
+        will flow.
+    } -tags {create update}
+
+    attribute g "Destination Group" {
+        The ID of the <<term civgroup>> to which the population will
+        flow.
+    } -tags {create update}
+
+    attribute text1 "Mode" {
+        How the number of people to transfer is determined:
+        "ALL", "NUMBER", or "RATE".<p>
+
+        If the mode is "ALL", all of the remaining people in the source
+        group will be transferred to the destination group.<p>
+        
+        If the mode is "NUMBER", then a specific number of people will
+        be transferred, as determined by the <i>int1</i> parameter.
+        If the chosen number exceeds the number remaining,
+        then all of the people in the source group will be transferred.<p>
+        
+        If the mode is "RATE", then population will flow from the
+        source group at a given rate, determined by the
+        <i>x1</i> parameter.<p>
+    } -tags {create update}
+
+    attribute int1 "Personnel" {
+        The number of personnel to be transferred when the mode
+        (<i>text1</i>) is "NUMBER".  If
+        there are insufficient personnel available, then
+        all remaining personnel are transferred.<p>
+        
+        If the mode is "ALL" or "RATE", the parameter is ignored.
+    } -tags {create update}
+
+    attribute x1 "Rate" {
+        The rate at which personnel are to be transferred when the
+        mode (<i>text1</i>) is "RATE", expressed as a yearly percentage,
+        e.g., 5%/year.<p>
+        
+        If the mode is "ALL" or "NUMBER", the parameter is ignored.
+    } -tags {create update}
+
+}
+
+page /object/tactic flow "FLOW tactic" {
+    <<sotitle>>
+
+    <<tactic_flow overview>><p>
+
+    FLOW tactics have the following attributes:<p>
+
+    <<tactic_flow parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # FUND
 
 object tactic_fund {

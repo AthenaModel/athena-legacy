@@ -37,6 +37,6 @@ page /object/agent system "SYSTEM agent" {
     parts of the simulation that are not owned by 
     <<term actor>>s.  For example, the SYSTEM can make things happen 
     at pre-determined times, or use the
-    <<cref /object/tactic/displace>> to displace civilians from their
-    home neighborhoods.
+    <<cref /object/tactic/flow>> to move civilian populations
+    around the playbox.
 }
