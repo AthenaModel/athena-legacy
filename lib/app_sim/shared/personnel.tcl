@@ -1,18 +1,16 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    personnel.tcl
+#   personnel.tcl
 #
 # AUTHOR:
-#    Will Duquette
+#   Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Personnel Manager
+#   athena_sim(1): Personnel Manager
 #
-#    This module is responsible for managing the deployment of 
-#    personnel in neighborhoods and the assignment of activities
-#    to deployed personnel.  The focus is on FRC and ORG groups,
-#    since CIV groups are not deployed as such; however, CIV
-#    groups can also be assigned.
+#   This module is responsible for managing the deployment of 
+#   FRC and ORG personnel in neighborhoods and the assignment of
+#   activities to deployed personnel.
 #
 #-----------------------------------------------------------------------
 
@@ -26,13 +24,12 @@ snit::type personnel {
     # start
     #
     # This routine is called when the scenario is locked and the 
-    # simulation starts.  It populates the population_g and deploy_ng
+    # simulation starts.  It populates the personnel_g and deploy_ng
     # tables.
 
     typemethod start {} {
         # FIRST, populate the personnel_g and deploy_ng tables from
-        # the status quo FRC/ORG deployments and the base civilian
-        # population figures.
+        # the status quo FRC/ORG deployments.
         rdb eval {
             -- Populate personnel_g table.
             INSERT INTO personnel_g(g,personnel)
@@ -44,11 +41,6 @@ snit::type personnel {
             INSERT INTO deploy_ng(n,g,personnel,unassigned)
             SELECT n, g, 0, 0
             FROM agroups JOIN nbhoods;
-
-            -- Status quo civilian population.
-            INSERT INTO deploy_ng(n,g,personnel,unassigned)
-            SELECT n, g, population, population
-            FROM demog_g JOIN civgroups USING (g);
         }
 
         # NEXT, make the base units.
@@ -69,13 +61,6 @@ snit::type personnel {
 
             INSERT INTO working_deployment(n,g)
             SELECT n,g FROM deploy_ng JOIN agroups USING (g);
-
-            INSERT INTO working_deployment(n,g,personnel,unassigned)
-            SELECT n,
-                   g,
-                   basepop - attrition,
-                   basepop - attrition
-            FROM gui_civgroups;
         }
     }
 

@@ -122,12 +122,21 @@ snit::type unit {
     # to create base units for all unassigned personnel.
 
     typemethod makebase {} {
+        # FIRST, make base units for all FRC and ORG personnel
         rdb eval {
             SELECT n, g, unassigned 
             FROM deploy_ng
             WHERE personnel > 0
         } {
             $type PositionBaseUnit $n $g $unassigned
+        }
+        
+        # NEXT, make base units for the civilians
+        rdb eval {
+            SELECT g, n, population
+            FROM demog_g JOIN civgroups USING (g)
+        } {
+            $type PositionBaseUnit $n $g $population
         }
     }
 
