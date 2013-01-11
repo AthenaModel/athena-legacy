@@ -90,6 +90,7 @@ snit::type strategy {
         profile 1 tactic::ATTROE reset
         profile 1 tactic::BROADCAST reset
         profile 1 tactic::DEFROE reset
+        profile 1 tactic::FLOW reset
         profile 1 tactic::STANCE reset
         profile 1 unit reset
 
@@ -129,6 +130,7 @@ snit::type strategy {
             profile 1 cash save
         }
         profile 1 personnel save
+        profile 1 tactic::FLOW save
         profile 1 service save
         profile 1 cap access save
 

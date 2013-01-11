@@ -166,6 +166,27 @@ CREATE TABLE hist_vrel (
     PRIMARY KEY (t,g,a)
 );
 
+CREATE TABLE hist_pop (
+    -- History: pop.g (civilian group population)
+    t           INTEGER,
+    g           TEXT,       -- Civilian group
+    population  INTEGER,    -- Population
+    
+    PRIMARY KEY (t,g)
+);
+
+CREATE TABLE hist_flow (
+    -- History: flow.f.g (population flow from f to g)
+    -- This table is sparse; only positive flows are included.
+    -- Unlike the other tables, it is not saved by [hist], but
+    -- by [demog].
+    t       INTEGER,
+    f       TEXT,
+    g       TEXT,
+    flow    INTEGER DEFAULT 0,
+    
+    PRIMARY KEY (t,f,g)
+);
 
 ------------------------------------------------------------------------
 -- End of File

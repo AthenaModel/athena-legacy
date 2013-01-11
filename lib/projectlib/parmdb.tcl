@@ -1684,6 +1684,12 @@ snit::type ::projectlib::parmdb {
             each neighborhood to the hist_nbmood table.
         }
 
+        $ps define hist.pop ::snit::boolean on {
+            If on, Athena will save, each week, the population
+            of each civilian group, and also all flows of population
+            from one group to another.
+        }
+        
         $ps define hist.sat ::snit::boolean on {
             If on, Athena will save, each week, the satisfaction of
             each civilian group with each concern to the hist_sat table.

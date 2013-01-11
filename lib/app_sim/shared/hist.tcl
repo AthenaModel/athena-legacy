@@ -55,6 +55,8 @@ snit::type hist {
             DELETE FROM hist_volatility WHERE t > $t;
             DELETE FROM hist_hrel       WHERE t > $t;
             DELETE FROM hist_vrel       WHERE t > $t;
+            DELETE FROM hist_pop        WHERE t > $t;
+            DELETE FROM hist_flow       WHERE t > $t;
         }
     }
 
@@ -148,6 +150,14 @@ snit::type hist {
                 INSERT INTO hist_vrel(t,g,a,vrel,base,nat)
                 SELECT now(), g, a, vrel, bvalue, cvalue
                 FROM uram_vrel;
+            }
+        }
+    
+        if {[parm get hist.pop]} {
+            rdb eval {
+                INSERT INTO hist_pop(t,g,population)
+                SELECT now(), g, population
+                FROM demog_g
             }
         }
     }

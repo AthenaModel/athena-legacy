@@ -28,8 +28,30 @@
 # Tactic: FLOW
 
 tactic type define FLOW {f g text1 int1 x1 once} system {
+    # A list of pending flows: f g delta ...
+    typevariable pending {}
+    
     #-------------------------------------------------------------------
     # Public Methods
+    
+    # reset
+    #
+    # Clears the list of pending flows prior to the beginning of
+    # strategy execution.
+    
+    typemethod reset {} {
+        set pending [list]
+    }
+    
+    # save
+    #
+    # Adjusts civilian population according to the pending flows.
+    
+    typemethod save {} {
+        foreach {f g delta} $pending {
+            demog flow $f $g $delta
+        }
+    }
 
     #-------------------------------------------------------------------
     # tactic(i) subcommands
@@ -84,7 +106,50 @@ tactic type define FLOW {f g text1 int1 x1 once} system {
         # FIRST, Bring the attributes into scope.
         dict with tdict {}
         
-        # TBD
+        # NEXT, get the current population of group f.  If none,
+        # the tactic fails.
+        set population [demog getg $f population]
+        
+        if {$population == 0} {
+            return 0
+        }
+        
+        # NEXT, determine the number of people to move.
+        switch -exact -- $text1 {
+            ALL {
+                set delta $population
+            }
+            NUMBER {
+                set delta $int1
+            }
+            RATE {
+                # The given rate is a percentage where we need a fraction,
+                # so we need to divide by 100; and it's a yearly rate when
+                # we need a weekly rate, so we need to divide by 52.
+                #
+                # Note: We could use the compound interest formula to
+                # determine the weekly rate, but for our purposes the
+                # difference turns out to be negligible.
+                let weeklyRate {$x1/5200.0}
+                let delta {round(ceil($population*$weeklyRate))}
+                
+            }
+            default {
+                error "Unknown mode: \"$text1\""
+            }
+        }
+
+        # NEXT, add the adjustment to the pending list.
+        lappend pending $f $g $delta
+        
+        # NEXT, log the changes.
+        set m [civgroup getg $f n]
+        set n [civgroup getg $g n]
+        
+        sigevent log 2 tactic "
+            FLOW: up to $delta people moved from {group:$f} in {nbhood:$m}
+            to {group:$g} in {nbhood:$n}
+        " $f $g $m $n
 
         return 1
     }

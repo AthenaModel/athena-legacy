@@ -362,6 +362,36 @@ snit::type demog {
         } {}
     }
 
+    # flow f g delta
+    #
+    # f     - A civilian group
+    # g     - Another civilian group
+    # delta - Some number of people
+    #
+    # Flows up to delta people from group f to group g.
+    
+    typemethod flow {f g delta} {
+        # FIRST, Make sure delta's not too big.
+        set fpop [demog getg $f population]
+        let delta {min($fpop, $delta)}
+        
+        # NEXT, Adjust the two groups
+        demog adjust $f -$delta
+        demog adjust $g $delta
+    
+        # NEXT, Record the change
+        if {[parm get hist.pop]} {
+            rdb eval {
+                INSERT OR IGNORE INTO hist_flow(t,f,g)
+                VALUES(now(), $f, $g);
+                
+                UPDATE hist_flow
+                SET flow = flow + $delta
+                WHERE t=now() AND f=$f AND g=$g;
+            }
+        }
+    }
+    
     # attrit g casualties
     #
     # g           - Group ID
