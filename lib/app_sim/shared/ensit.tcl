@@ -68,8 +68,9 @@ snit::type ensit {
 
             # NEXT, create a driver if it lacks one.
             if {[$sit get driver_id] == -1} {
+                set sig "I [$sit get n]"
                 $sit set driver_id \
-                    [driver create [$sit get stype] [$sit oneliner]]
+                    [driver create [$sit get stype] [$sit oneliner] $sig]
             }
 
             # NEXT, either it's ended or it's on-going.  If it's on-going,
@@ -82,9 +83,10 @@ snit::type ensit {
             } else {
                 # We need a driver; that's how we knew that we
                 # hadn't already run the resolution rules.
+                set sig "R [$sit get n]"
                 $sit set rdriver_id \
                     [driver create [$sit get stype] \
-                         "Resolution of [$sit oneliner]"]
+                         "Resolution of [$sit oneliner]" $sig]
 
                 ensit_rules resolution $sit
             }

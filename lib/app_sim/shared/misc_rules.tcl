@@ -46,14 +46,9 @@ snit::type misc_rules {
             return
         }
 
-        # NEXT, get a driver ID if we don't have one yet.
-        set driver_id [rdb onecolumn {
-            SELECT driver_ID FROM drivers WHERE dtype='MOOD'
-        }]
-
-        if {$driver_id eq ""} {
-            set driver_id [driver create MOOD "Group mood changes"]
-        }
+        # NEXT, get a driver ID.  Use signature "MOOD", so that we
+        # always get the same one.
+        set driver_id [driver create MOOD "Group mood changes" MOOD]
 
         # NEXT, look for groups for which the rule set should fire.
 

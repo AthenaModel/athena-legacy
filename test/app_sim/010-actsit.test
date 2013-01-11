@@ -98,7 +98,7 @@ namespace eval ::athena_test::tests:: {
 s          1
 kind       ::actsit
 stype      PRESENCE
-driver_id  1001
+driver_id  1000
 n          NB1
 coverage   0.4827181420282134
 state      ACTIVE
@@ -144,7 +144,7 @@ s change
 s          1
 kind       ::actsit
 stype      PRESENCE
-driver_id  1001
+driver_id  1000
 n          NB1
 coverage   0.7324194794132565
 state      ACTIVE
@@ -172,7 +172,7 @@ a          PRESENCE
 s          1
 kind       ::actsit
 stype      PRESENCE
-driver_id  1001
+driver_id  1000
 n          NB1
 coverage   0.0
 state      ENDED
@@ -209,21 +209,21 @@ a          PRESENCE
     } -result {
 s kind     stype    driver_id n   coverage           state  ts tc change flist g    a        
 - -------- -------- --------- --- ------------------ ------ -- -- ------ ----- ---- -------- 
-1 ::actsit GUARD    1001      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE GUARD    
-2 ::actsit PATROL   1002      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE PATROL   
-3 ::actsit PRESENCE 1003      NB1 0.7324194794132565 ACTIVE 0  0  NEW    ALL   BLUE PRESENCE 
+1 ::actsit GUARD    1000      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE GUARD    
+2 ::actsit PATROL   1001      NB1 0.4827181420282134 ACTIVE 0  0  NEW    ALL   BLUE PATROL   
+3 ::actsit PRESENCE 1002      NB1 0.7324194794132565 ACTIVE 0  0  NEW    ALL   BLUE PRESENCE 
     
 s kind     stype    driver_id n   coverage           state  ts tc change flist g    a        
 - -------- -------- --------- --- ------------------ ------ -- -- ------ ----- ---- -------- 
-1 ::actsit GUARD    1001      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE GUARD    
-2 ::actsit PATROL   1002      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE PATROL   
-3 ::actsit PRESENCE 1003      NB1 0.7324194794132565 ACTIVE 0  0         ALL   BLUE PRESENCE 
+1 ::actsit GUARD    1000      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE GUARD    
+2 ::actsit PATROL   1001      NB1 0.4827181420282134 ACTIVE 0  0         ALL   BLUE PATROL   
+3 ::actsit PRESENCE 1002      NB1 0.7324194794132565 ACTIVE 0  0         ALL   BLUE PRESENCE 
     
 s kind     stype    driver_id n   coverage state ts tc change flist g    a        
 - -------- -------- --------- --- -------- ----- -- -- ------ ----- ---- -------- 
-1 ::actsit GUARD    1001      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE GUARD    
-2 ::actsit PATROL   1002      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE PATROL   
-3 ::actsit PRESENCE 1003      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE PRESENCE 
+1 ::actsit GUARD    1000      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE GUARD    
+2 ::actsit PATROL   1001      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE PATROL   
+3 ::actsit PRESENCE 1002      NB1 0.0      ENDED 0  2  ENDED  ALL   BLUE PRESENCE 
     }
 
     #-------------------------------------------------------------------

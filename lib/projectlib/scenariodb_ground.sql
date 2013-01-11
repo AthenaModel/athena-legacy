@@ -589,10 +589,7 @@ CREATE TABLE service_g (
 
     -- Needs Factor: measures degree to which actual exceeds required
     -- (or vice versa) for use in ENI rule set.
-    needs               REAL DEFAULT 0.0,
-
-    -- URAM Driver ID for satisfaction inputs
-    driver_id           INTEGER
+    needs               REAL DEFAULT 0.0
 );
 
 ------------------------------------------------------------------------

@@ -102,7 +102,8 @@ snit::type demsit {
                 set sit [situation get $s]
                 
                 # NEXT, create a URAM driver for this situation
-                $sit set driver_id [driver create UNEMP [$sit oneliner]]
+                $sit set driver_id \
+                    [driver create UNEMP [$sit oneliner] $row(g)]
                 
                 # NEXT, link it to the demog_ng object.
                 rdb eval {

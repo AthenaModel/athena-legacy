@@ -134,9 +134,10 @@ snit::type service_rules {
         set cdict [GetCreditDict [dict get $gdict g]]
 
         dict with gdict {
-            log detail servr [list ENI g]
-
-            dam ruleset ENI $driver_id
+            log detail servr [list ENI $g]
+            
+            dam ruleset ENI \
+                [driver create ENI "Provision of ENI services to $g"]
 
             dam detail "Civilian Group:"      $g
             dam detail "In Neighborhood:"     $n

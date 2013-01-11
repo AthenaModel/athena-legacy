@@ -132,17 +132,14 @@ snit::type service {
             JOIN actors    AS A;
         }
 
-        # NEXT, populate the service_g table, assigning driver IDs
+        # NEXT, populate the service_g table
         rdb eval {
             SELECT g FROM civgroups
         } {
-            set driver_id [driver create ENI \
-                               "Provision of ENI services to $g"]
-            
             rdb eval {
                 -- Populate service_g table
-                INSERT INTO service_g(g,driver_id) 
-                VALUES($g, $driver_id);
+                INSERT INTO service_g(g) 
+                VALUES($g);
             }
         }
     }

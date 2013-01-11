@@ -365,9 +365,9 @@ snit::type control_model {
             WHERE n=$n;
         }
 
-        # NEXT, Get a driver ID for this event.
+        # NEXT, Get a driver ID for this event with signature $n.
         set driver_id [driver create CONTROL \
-                           "Shift in control of nbhood $n"]
+                           "Shift in control of nbhood $n" $n]
 
         # NEXT, set the vrel baseline to the current level for 
         # all non-empty civ groups in n.
