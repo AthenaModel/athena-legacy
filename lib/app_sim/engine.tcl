@@ -88,7 +88,7 @@ snit::type engine {
         # NEXT, do analysis and assessment, of transient effects only.
         # There will be no attrition and no shifts in neighborhood control.
 
-        profile demog analyze pop
+        profile demog stats
         profile ensit assess
         profile nbstat analyze
         profile control_model analyze
@@ -96,7 +96,7 @@ snit::type engine {
         profile service assess
         set econOK [econ tock]
         if {$econOK} {
-            profile demog analyze econ
+            profile demog econstats
         }
         profile demsit assess
 
@@ -125,17 +125,21 @@ snit::type engine {
         notifier send $type <Time>
         log normal engine "Tick [simclock now]"
 
+        # NEXT, allow the population to grow or shrink
+        # according to its growth rate.
+        profile demog growth
+        profile demog stats
+        
         # NEXT, execute strategies; this changes the situation
         # on the ground.  It may also schedule events to be executed
         # immediately.
-        profile demog analyze pop
         profile strategy tock
 
         # NEXT, execute eventq events
         profile eventq advance [simclock now]
 
         # FIRST, do analysis and assessment
-        profile demog analyze pop
+        profile demog stats
         profile ensit assess
         profile nbstat analyze
         profile misc_rules assess
@@ -148,7 +152,7 @@ snit::type engine {
             set econOK [profile econ tock]
 
             if {$econOK} {
-                profile demog analyze econ
+                profile demog econstats
             }
         }
 
@@ -182,8 +186,8 @@ snit::type engine {
     # data values used by strategy conditions.
 
     typemethod analysis {} {
-        profile demog   analyze pop
-        profile nbstat  analyze
+        profile demog stats
+        profile nbstat analyze
         profile control_model analyze
     }
 

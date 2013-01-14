@@ -130,8 +130,13 @@ tactic type define FLOW {f g text1 int1 x1 once} system {
                 # Note: We could use the compound interest formula to
                 # determine the weekly rate, but for our purposes the
                 # difference turns out to be negligible.
+                #
+                # Note that [demog adjust] allows and will accumulate
+                # fractional people; this is so that small rates of
+                # change will still have effect given enough time.
+                
                 let weeklyRate {$x1/5200.0}
-                let delta {round(ceil($population*$weeklyRate))}
+                let delta {$population*$weeklyRate}
                 
             }
             default {

@@ -59,8 +59,12 @@ CREATE TABLE demog_g (
     g              TEXT PRIMARY KEY,
 
     -- Total residents of this group in its home neighborhood at the
-    -- current time.
+    -- current time.  This is always the integer part of real_pop.
     population     INTEGER DEFAULT 0,
+    
+    -- Total residents including fractional part (due to rate-based
+    -- change).  This column should be ignored by other modules.
+    real_pop       DOUBLE DEFAULT 0.0,
 
     -- Subsistence population: population doing subsistence agriculture
     -- and outside the regional economy.

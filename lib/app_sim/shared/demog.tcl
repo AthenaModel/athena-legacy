@@ -43,28 +43,28 @@ snit::type demog {
         # FIRST, populate the demog_g and demog_n tables.
 
         rdb eval {
-            INSERT INTO demog_g(g,population)
-            SELECT g, basepop FROM civgroups;
+            INSERT INTO demog_g(g,real_pop,population)
+            SELECT g, basepop, basepop FROM civgroups;
             
             INSERT INTO demog_n(n)
             SELECT n FROM nbhoods;
         }
         
         # NEXT, do the initial population analysis
-        $type analyze pop
+        $type stats
     }
 
     #-------------------------------------------------------------------
-    # Group: Analysis of Population
+    # Population Stats
 
-    # analyze pop
+    # stats
     #
-    # Computes the population statistics in demog_g(g), demog_n(n), 
-    # and demog_local for all n, g.
+    # Computes the population statistics, both breakdowns and
+    # rollups, in demog_g(g), demog_n(n), and demog_local for all n, g.
     #
-    # NOTE: This routine no longer depends on civilian units.
+    # This routine can be called at any time after scenario lock.
 
-    typemethod {analyze pop} {} {
+    typemethod stats {} {
         $type ComputePopG
         $type ComputePopN
         $type ComputePopLocal
@@ -161,13 +161,37 @@ snit::type demog {
 
 
     #-------------------------------------------------------------------
+    # Population Growth/Change
+    
+    # growth
+    #
+    # Computes the adjustment to each civilian group's population
+    # based on its change rate.
+    
+    typemethod growth {} {
+        foreach {g real_pop pop_cr} [rdb eval {
+            SELECT g, real_pop, pop_cr
+            FROM civgroups JOIN demog_g USING (g)
+            WHERE pop_cr != 0.0
+        }] {
+            # FIRST, compute the delta.  Note that pop_cr is an
+            # annual rate expressed as a percentage; we need a
+            # weekly fraction.  Thus, we divide by 100*52.
+            let delta {$real_pop * $pop_cr/5200.0}
+            log detail demog "Group $g's population changes by $delta"
+            demog adjust $g $delta
+        }
+    }
+    
+    
+    #-------------------------------------------------------------------
     # Analysis of Economic Effects on the Population
 
-    # analyze econ
+    # econstats
     #
     # Computes the effects of the economy on the population.
 
-    typemethod {analyze econ} {} {
+    typemethod econstats {} {
         # FIRST, get the unemployment rate and the Unemployment
         # Factor Z-curve.  Assume no unemployment if the econ
         # model is disabled.
@@ -351,13 +375,30 @@ snit::type demog {
     # delta  - Some change to population
     #
     # Adjusts a population figure by some amount, which may be positive
-    # or negative.  Note that it doesn't recompute all of the breakdowns
-    # and roll-ups; call [demog analyze pop] as needed.
+    # or negative, and may include a fractional part.  Fractional
+    # parts are accumulated over time.  The integer population is
+    # the rounded "real_pop".  If the "real_pop" is less than 1,
+    # it is set to zero.
+    #
+    # Note that this routine doesn't recompute all of the breakdowns
+    # and roll-ups; call [demog stats] as needed.
 
     typemethod adjust {g delta} {
+        set real_pop [$type getg $g real_pop]
+        
+        let real_pop {max(0.0, $real_pop + $delta)}
+        
+        # If it's less than 1.0, make it zero
+        if {$real_pop < 1.0} {
+            let real_pop {0.0}
+        }
+        
+        let population {floor(round($real_pop))}
+        
         rdb eval {
             UPDATE demog_g
-            SET population = max(0, population + $delta)
+            SET population = $population,
+                real_pop   = $real_pop
             WHERE g=$g
         } {}
     }
@@ -368,7 +409,8 @@ snit::type demog {
     # g     - Another civilian group
     # delta - Some number of people
     #
-    # Flows up to delta people from group f to group g.
+    # Flows up to delta people from group f to group g.  The
+    # delta can include fractional flows.
     
     typemethod flow {f g delta} {
         # FIRST, Make sure delta's not too big.
@@ -399,7 +441,8 @@ snit::type demog {
     #
     # Attrits a civilian group's population.  Note that it doesn't
     # recompute all of the breakdowns and roll-ups; call
-    # [demog analyze pop] as needed.
+    # [demog stats] as needed.  Casualties never have a fractional
+    # part.
     #
     # TBD: This routine could be simplified
 
@@ -419,7 +462,8 @@ snit::type demog {
         rdb eval {
             UPDATE demog_g
             SET attrition = attrition + $casualties,
-                population = population - $casualties
+                population = population - $casualties,
+                real_pop = real_pop - $casualties
             WHERE g=$g
         }
     }

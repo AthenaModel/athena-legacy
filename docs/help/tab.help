@@ -2425,25 +2425,35 @@ tab "Demog/Groups" {
 
     <<topiclist Column Description>>
 
-    <<topic Nbhood>>A neighborhood name.<</topic>>
-
-    <<topic CivGroup>>The name of a civilian group that's resident in
-    the neighborhood.<</topic>>
+    <<topic "Group">>
+    The name of a civilian group that's resident in
+    the neighborhood.
+    <</topic>>
     
-    <<topic "Local Name">>The local name of the group within the
-    neighborhood.
+    <<topic "Nbhood">>
+    A neighborhood name.
     <</topic>>
 
-    <<topic BasePop>>The base population of the group in the
+    <<topic "Base Population">>
+    The base population of the group in the
     neighborhood, i.e., the number of group members resident in the
     neighborhood at time 0, as set by the 
-    <<cref /order/civgroup/create>> order.<</topic>>
+    <<cref /order/civgroup/create>> order.
+    <</topic>>
     
-    <<topic CurrPop>>The current population of the group in the
-    neighborhood: the base population less displaced population and
-    attrition.
+    <<topic "Current Population">>
+    The current population of the group in the
+    neighborhood, the base population as affected by normal
+    population change, attrition, and flows to and from other
+    groups.
     <</topic>>
 
+    <<topic "Change Rate">>
+    The normal rate of population change due to births and
+    natural deaths, stated as a percentage change per year.
+    The rate may be positive, negative, or zero.
+    <</topic>>
+    
     <<topic Attrition>>The number of personnel lost to this 
     civilian group through attrition since time 0.
     <</topic>>
