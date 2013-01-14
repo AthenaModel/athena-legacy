@@ -11,6 +11,57 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.1, 14 January 2013</h3>
+
+The focus of this build is the new requirement to allow civilian 
+population to flow from one group to another, with the derived
+requirement that civilian groups can now be "empty", i.e., have a
+population of zero.  This change leads to a number of significant
+functional differences.  In a nutshell:
+
+<ul>
+<li> Civilian groups now either live by subsistence agriculture or
+     they don't.  There is no SA fraction.
+<li> The civilian activities DISPLACED and IN_CAMP have been removed.
+     To displace members of a group, flow them into a group in another
+     neighborhood.
+<li> The DAM rule sets (and the rest of the models) now ignore empty groups.
+<li> The new FLOW tactic is used to move population around.
+</ul><p>
+
+In addition there have been many changes to the Econ model, including
+new views on the data, though this work is on-going.<p>
+
+The full set of changes is as follows:<p>
+
+<ul>
+<li> Bug 3798: Subsistence agriculture flag
+<li> Bug 3804: athena_sim(1): DISPLACE tactic should no longer allow specifying a neighborhood
+<li> Bug 3805: athena_sim(1): change cell model file name from eco6x6 to cge6x6
+<li> Bug 3806: athena_sim(1): include calculation of Base GDP in SAM sheet
+<li> Bug 3807: athena(1): Civilian groups can have a basepop of 0
+<li> Bug 3808: athena(1): ENI Service and Empty Civilian Groups
+<li> Bug 3809: athena(1): [demog analyze econ] bgerror's on empty group.
+<li> Bug 3811: athena_sim(1): have econ model output the cmsnap(5) format rather than just a dump of cells when an error occurs
+<li> Bug 3812: athena(1): Empty groups and ensits, actsits, CONTROL, MOOD, IOMs, and MADs
+<li> Bug 3813: athena(1): Attrition and Empty Civilian Groups
+<li> Bug 3814: athena(1): Empty Groups and appserver pages
+<li> Bug 3817: athena_sim(1): refactor Econ/SAM tab
+<li> Bug 3818: athena_test fails when TCLLIBPATH doesn't exist
+<li> Bug 3819: Empty civilian groups and security
+<li> Bug 3820: athena_sim(1): updated CGE cell model
+<li> Bug 3821: Remove DISPLACED and IN_CAMPS activities
+<li> Bug 3822: Remove unit-based displacement from the Demographics Model
+<li> Bug 3823: athena_sim(1): strategy initialization must take place before econ initialization when locking
+<li> Bug 3824: Demographics tables are initialized during PREP
+<li> Bug 3825: athena_sim(1): FUNDENI tactic fails to refund money correctly when trying to fund empty groups
+<li> Bug 3826: Demog allows population adjustments
+<li> Bug 3827: athena_sim(1): Add new views for T matrix and X+T matrix to Econ/SAM tab
+<li> Bug 3828: FLOW Tactic: Data Editing
+<li> Bug 3829: FLOW Tactic: Execution
+<li> Bug 3830: Simplified Driver Signatures
+</ul>
+
 <h3>Build 5.0.0, 10 December 2012</h3>
 
 This is the initial 5.0.x baseline; it is based on the same code as
