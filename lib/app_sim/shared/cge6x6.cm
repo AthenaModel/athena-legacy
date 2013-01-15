@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cge6x6.cm, version w 
+#    cge6x6.cm, version x
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -61,6 +61,11 @@
 #    Out pages.
 #
 # HISTORY:
+#    Version x: Introduced a "Global" page to store variables that are not
+# necessarily used by the cell model, but are germane to it. The first 
+# variable is a change rate for remittances. The rate is used outside of
+# the cell model to compute a new value for remittances.
+#
 #    Version w: Required sam6x6.cm to provide additional base case data via
 # non-computed assignments on the null page.  Changed the Cal page equations
 # to those of the short-run model. Made the L, M and S pages each deltas 
@@ -544,6 +549,17 @@ let A.goods = {
 # other sectors that had products with endogenous prices, we would 
 # need another equation here for each of them.)
 
+#=======================================================================
+# Global econ model parameters that may change during an Athena run
+# These are used by Athena proper to compute other values that are then
+# input to the CGE
+page Global
+
+# Annual change rate in remittances
+# This is used by Athena to compute a new value for In::REM. If it stays
+# at 0.0 then remittances to not change. If it's positive, remittances go
+# up; if negative, they go down.
+let REMChangeRate = 0.0
 
 #=======================================================================
 # Calibration

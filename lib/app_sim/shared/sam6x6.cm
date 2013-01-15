@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version q
+#    sam6x6.cm, version r
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -29,6 +29,14 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version r: Added BaseUnemp and BaseUR (Unemployment Rate). These values
+#               are input by the analyst. Also added a global variable 
+#               section with the first global variable: REMChangeRate. These
+#               sorts of variables are used outside the scope of the cell
+#               model but need to be kept somewhere. This first variable
+#               is used by Athena to increase (or decrease) remittances as
+#               Athena runs.
+#
 #    Version q: Added T-matrix values and X+T matrix values. These, along
 #               with the input flows (the BX.i.j), can each be displayed
 #               in the Athena GUI.
@@ -201,10 +209,11 @@ let BP.world  = 0
 
 let BaseConsumers  = 130.0e6
 let BaseSubsisters = 50.0e6
-let BaseSubWage    = 200                     ;# Subsistence wage 
-                                              # (aka poverty level) $/work-year
-let BaseSA         = {[BaseSubsisters] * [BaseSubWage]}
 let BaseCAP.pop    = {[BREV.pop] / [BP.pop]} ;# Number of base case jobs
+let BaseSubWage    = 200       ;# Subsistence wage $/work-year
+let BaseUnemp      = 5.0e6
+let BaseUR         = {100.0 * [BaseUnemp] / [BaseCAP.pop]}
+let BaseSA         = {[BaseSubsisters] * [BaseSubWage]}
 
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
                              # goes to actors.
@@ -212,6 +221,8 @@ let PF.world.black = 62.0e3
 let AF.world.black = 1.05
 let MF.world.black = 35e3
 
+# Global variables used by Athena at runtime
+let REMChangeRate  = 0.0
 
 # Macro definitions
 

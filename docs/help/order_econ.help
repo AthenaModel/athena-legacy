@@ -88,6 +88,20 @@ order ECON:SAM+UPDATE "Update Cell Values in the Social Accounting Matrix" {
 
 #-----------------------------------------------------------------------
 
+order ECON:SAM+GLOBAL "Update Global Values in the Social Accounting Matrix" {
+    <<parmlist>>
+
+    <<parm id "Cell Name">>
+    <b>Required.</b> <<ECON.cell>><p>
+    <</parm>>
+
+    <<parm val "Cell Value">>
+    <b>Required.</b>  The value the cell should take.
+    <</parm>>
+}
+
+#-----------------------------------------------------------------------
+
 order ECON:CGE+UPDATE "Update Cell Values in the 6x6 CGE" {
     <<parmlist>>
 
@@ -100,4 +114,13 @@ order ECON:CGE+UPDATE "Update Cell Values in the 6x6 CGE" {
     <</parm>>
 }
 
+#-----------------------------------------------------------------------
+
+order ECON:UPDATE+REMRATE "Update Remittance Change Rate in Economy" {
+    <<parmlist>>
+
+    <<parm val "Value">>
+    <b>Required.</b>  The new annual percentage change. Can be negative.
+    <</parm>>
+}
 

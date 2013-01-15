@@ -395,7 +395,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         normal                     \
-            -rows          6                          \
+            -rows          8                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -410,8 +410,10 @@ snit::widget samsheet {
             "Feedstock per Unit Product"
             "Max Feedstock Avail."
             "Base Consumers"
+            "Base Unemployed"
             "Base Subsisters"
             "Subsistence Wage"
+            "REM Change Rate"
         }
 
         $inputs textcol 0,2 {
@@ -419,22 +421,29 @@ snit::widget samsheet {
             ""
             "tonnes/year"
             ""
+            "work-yrs/yr"
             ""
             "$/year"
+            "%/year"
         } units -anchor w -relief flat
 
         # NEXT, add data
-        $inputs mapcell 0,1 PF.world.black e -background $color(e)
-        $inputs mapcell 1,1 AF.world.black e -background $color(e)
-        $inputs mapcell 2,1 MF.world.black e -background $color(e)
-        $inputs mapcell 3,1 BaseConsumers  e -background $color(e)
-        $inputs mapcell 4,1 BaseSubsisters e -background $color(e)
-        $inputs mapcell 5,1 BaseSubWage    e -background $color(e)
+        $inputs mapcell 0,1 PF.world.black e 
+        $inputs mapcell 1,1 AF.world.black e
+        $inputs mapcell 2,1 MF.world.black e
+        $inputs mapcell 3,1 BaseConsumers  e
+        $inputs mapcell 4,1 BaseUnemp      e
+        $inputs mapcell 5,1 BaseSubsisters e
+        $inputs mapcell 6,1 BaseSubWage    e
+        $inputs mapcell 7,1 REMChangeRate  e        \
+            -formatcmd {format "%.1f"}              \
+            -validatecmd [mymethod ValidatePercent] \
+            -changecmd [mymethod GlobalChanged]
 
         $inputs width 0 25
         $inputs width 2 15
 
-        $inputs tag configure e -state normal
+        $inputs tag configure e -state normal -background $color(e)
     }
 
     # CreateScalarOutputs   w
@@ -465,7 +474,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         disabled                   \
-            -rows          4                          \
+            -rows          5                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -477,6 +486,7 @@ snit::widget samsheet {
         $sizeout textcol 0,0 {
             "Base GDP"
             "Base Labor Force"
+            "Base Unemp. Rate"
             "Base Per Cap. Demand"
             "Base Sub. Agriculture"
         }
@@ -484,6 +494,7 @@ snit::widget samsheet {
         $sizeout textcol 0,2 {
             "$/year"
             "work-years/year"
+            "%"
             "goodsBKT/year"
             "$/year"
         } units -anchor w -relief flat
@@ -491,8 +502,9 @@ snit::widget samsheet {
         # NEXT, map the cells and set the label widths
         $sizeout mapcell  0,1 BaseGDP       r -background $color(r)
         $sizeout mapcell  1,1 BaseCAP.pop   r -background $color(r)
-        $sizeout mapcell  2,1 BA.goods.pop  r -background $color(r)
-        $sizeout mapcell  3,1 BaseSA        r -background $color(r)
+        $sizeout mapcell  2,1 BaseUR        r -background $color(r)
+        $sizeout mapcell  3,1 BA.goods.pop  r -background $color(r)
+        $sizeout mapcell  4,1 BaseSA        r -background $color(r)
 
         $sizeout width 0 20
         $sizeout width 2 20
@@ -722,6 +734,20 @@ snit::widget samsheet {
         return $value
     }
     
+    # ValidatePercent cell val
+    #
+    # cell - The cell that has a new value
+    # val  - The new value that is a percentage.
+    #
+    # This method validates an entry that has been edited and if its
+    # valid returns the new value. If it's invalid, it
+    # throws an error and the cell remains in edit mode until fixed.
+
+    method ValidatePercent {cell val} {
+        set value [snit::double validate $val]
+        return $value
+    }
+
     # CellChanged cell new
     #
     #  cell - The name of the cell in the underlying cellmodel(n)
@@ -740,6 +766,20 @@ snit::widget samsheet {
 
         # NEXT, send the order to the econ model
         order send gui ECON:SAM:UPDATE id $cell val $new
+    }
+
+    # GlobalChanged cell new
+    #
+    # cell - The name of the cell that corresponds to a global variable
+    #        in the cell model
+    # new  - The new value
+    #
+    # This method is called when the user has successfully edited a 
+    # cell that corresponds to a global variable with a valid value. 
+    # The new value is sent to the order processor.
+
+    method GlobalChanged {cell new} {
+        order send gui ECON:SAM:GLOBAL id $cell val $new
     }
 
     # SamUpdate index value

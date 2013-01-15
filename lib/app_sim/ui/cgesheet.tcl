@@ -1,8 +1,7 @@
 #-----------------------------------------------------------------------
 # FILE: cgesheet.tcl
 #
-#   Economics CGE Spreadsheet view (new for 6x6)
-#   This is an experimental sheet for now
+#   Economics CGE Spreadsheet view for the 6 sector model.
 #
 # PACKAGE:
 #   app_sim(n) -- athena_sim(1) implementation package
@@ -340,7 +339,7 @@ snit::widget cgesheet {
             -colorigin     0                          \
             -cellmodel     $cge                       \
             -state         disabled                   \
-            -rows          6                          \
+            -rows          7                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -357,6 +356,7 @@ snit::widget cgesheet {
             "Labor Sec. Factor"
             "FAR Graft Factor"
             "Remittances"
+            "REM Chage Rate"
         }
 
         $inputs textcol 0,2 {
@@ -366,15 +366,20 @@ snit::widget cgesheet {
             ""
             ""
             "$/year"
+            "%/year"
         } units -anchor w -relief flat
         
         # NEXT, add data
-        $inputs mapcell 0,1 In::Consumers q -background $color(q)
-        $inputs mapcell 1,1 In::CSF       q
-        $inputs mapcell 2,1 In::LF        q
-        $inputs mapcell 3,1 In::LSF       q
-        $inputs mapcell 4,1 graft         q -formatcmd {format "%.3f"}
-        $inputs mapcell 5,1 In::REM       q 
+        $inputs mapcell 0,1 In::Consumers         q \
+            -background $color(q)
+        $inputs mapcell 1,1 In::CSF               q
+        $inputs mapcell 2,1 In::LF                q
+        $inputs mapcell 3,1 In::LSF               q
+        $inputs mapcell 4,1 graft                 q \
+            -formatcmd {format "%.3f"}
+        $inputs mapcell 5,1 In::REM               q 
+        $inputs mapcell 6,1 Global::REMChangeRate q \
+            -formatcmd {format "%.1f"}
 
         # NEXT, expand widths
         $inputs width 0 21

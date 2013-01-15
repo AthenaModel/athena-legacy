@@ -850,6 +850,11 @@ snit::type econ {
             # NEXT, SAM data
             array set samdata [$sam get]
 
+            # NEXT, some globals. These only need to get set during
+            # calibration
+            cge set [list Global::REMChangeRate $samdata(REMChangeRate)]
+
+            # NEXT, demographic data
             cge set [list \
                          BaseConsumers $demdata(consumers)     \
                          In::Consumers $demdata(consumers)     \
@@ -990,13 +995,17 @@ snit::type econ {
 
         let subsisters {$demdata(population) - $demdata(consumers)}
 
+        # NEXT, compute an updated value for REM
+        set REM [$type ComputeREM]
+
         cge set [list \
                      In::Consumers  $demdata(consumers)   \
                      In::Subsisters $subsisters           \
                      In::LF         $demdata(labor_force) \
                      In::CAP.goods  $CAPgoods             \
                      In::LSF        $LSF                  \
-                     In::CSF        $CSF]
+                     In::CSF        $CSF                  \
+                     In::REM        $REM]
 
         cge set [list \
                      In::X.world.actors  $Xwa \
@@ -1153,6 +1162,31 @@ snit::type econ {
         return $CSF
     }
 
+
+    # ComputeREM 
+    #
+    # Given the global remittance change rate in the CGE
+    # compute a new value for remittances and return it.
+
+    typemethod ComputeREM {} {
+        array set cgeGlobals [$cge get Global -bare]
+        array set cgeInputs  [$cge get In -bare]
+
+        set changeRate $cgeGlobals(REMChangeRate)
+        set currRem $cgeInputs(REM)
+
+        # NEXT, no change case 
+        # TBD: is this really necessary?
+        if {$changeRate == 0.0} {
+            return $currRem
+        }
+
+        # NEXT, return new REM, protect against going negative
+        # and convert to a weekly fraction from an annual percentage.
+        return [expr {
+            max(0.0, $currRem + $currRem * ($changeRate/100.0/52.0))
+        }]
+    }
 
     # CgeError title
     #
@@ -1538,6 +1572,30 @@ order define ECON:SAM:UPDATE {
 
     setundo [econ mutate samcell [array get parms]]
 }
+
+# ECON:SAM:GLOBAL
+#
+# Updates a cell but with less restrictive validation
+
+order define ECON:SAM:GLOBAL {
+    title "Update SAM Global Value"
+    options -sendstates {PREP}
+
+    form {
+        rcc "Cell ID:" -for id
+        text id
+
+        rcc "Value:" -for val
+        text val
+    }
+} {
+    prepare id -required -type {ptype sam}
+    prepare val -toupper -type snit::double
+
+    returnOnError -final
+
+    setundo [econ mutate samcell [array get parms]]
+}
  
 # ECON:CGE:UPDATE 
 #
@@ -1559,6 +1617,29 @@ order define ECON:CGE:UPDATE {
     prepare val -toupper -required -type money
 
     returnOnError -final
+
+    setundo [econ mutate cgecell [array get parms]]
+}
+
+# ECON:UPDATE:REMRATE
+#
+# Updates the change rate for remittances
+
+order define ECON:UPDATE:REMRATE {
+    title "Update Remittance Change Rate"
+    options -sendstates {PAUSED TACTIC}
+
+    form {
+        rcc "Value:" -for val
+        text val
+        label "%"
+    }
+} {
+    prepare val -toupper -required -type snit::double
+
+    returnOnError -final
+
+    set parms(id) "Global::REMChangeRate"
 
     setundo [econ mutate cgecell [array get parms]]
 }
