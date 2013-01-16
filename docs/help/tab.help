@@ -2541,7 +2541,8 @@ tab "Econ" {
 tab "Econ/SAM" {
 
     This tab displays a social accounting matrix (SAM) of the economy
-    in spreadsheet form.<p>
+    in spreadsheet form. The diagram below shows this tab when Athena
+    is in <<term prep>> mode.<p>
 
     <<image econ_sam>><p>
 
@@ -2584,7 +2585,8 @@ tab "Econ/SAM" {
     of subsistence agriculture to the GDP.<p>
 
     When Athena is locked, all the cells on the SAM remain visible, but are
-    no longer editable unless the user returns to the PREP state.<p>
+    no longer editable unless the user returns to the <<term prep>> state.
+    The diagram below shows this tab when Athena is <<term lock>>ed.<p>
 
     <<image econ_sam_locked>><p>
 
