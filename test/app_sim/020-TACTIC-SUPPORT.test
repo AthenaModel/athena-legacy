@@ -138,13 +138,13 @@ tactic_type  SUPPORT
 owner        JOE
 narrative    Support actor BOB in neighborhoods NB1, NB2
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 a            BOB
 nlist        NB1 NB2
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -162,13 +162,13 @@ tactic_type  SUPPORT
 owner        JOE
 narrative    Support no one in neighborhood NB1
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 a            NONE
 nlist        NB1
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -274,13 +274,13 @@ tactic_type  SUPPORT
 owner        JOE
 narrative    Support no one in neighborhood NB1
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 a            NONE
 nlist        NB1
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test SUPPORT:UPDATE-2.2 {tactic is updated} -setup {
@@ -299,13 +299,13 @@ tactic_type  SUPPORT
 owner        JOE
 narrative    Support self in neighborhood NB1
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 a            SELF
 nlist        NB1
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -319,7 +319,6 @@ on_lock      0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

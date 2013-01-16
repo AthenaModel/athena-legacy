@@ -106,10 +106,10 @@ tactic_type  SPEND
 owner        JOE
 narrative    Spend 10% of cash reserve
 priority     1
+int1         10
 state        normal
 exec_ts      
 exec_flag    0
-int1         10
     }
 
 
@@ -205,10 +205,10 @@ tactic_type  SPEND
 owner        JOE
 narrative    Spend 20% of cash reserve
 priority     1
+int1         20
 state        normal
 exec_ts      
 exec_flag    0
-int1         20
     }
 
 
@@ -221,7 +221,6 @@ int1         20
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

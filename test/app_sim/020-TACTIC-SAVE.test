@@ -106,10 +106,10 @@ tactic_type  SAVE
 owner        JOE
 narrative    Save 10% of income for later use
 priority     1
+int1         10
 state        normal
 exec_ts      
 exec_flag    0
-int1         10
     }
 
     test SAVE:CREATE-2.2 {Effects} -setup {
@@ -204,10 +204,10 @@ tactic_type  SAVE
 owner        JOE
 narrative    Save 20% of income for later use
 priority     1
+int1         20
 state        normal
 exec_ts      
 exec_flag    0
-int1         20
     }
 
 
@@ -220,7 +220,6 @@ int1         20
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

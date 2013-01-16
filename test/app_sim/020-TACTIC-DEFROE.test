@@ -154,12 +154,12 @@ tactic_type  DEFROE
 owner        JOE
 narrative    Group BLUE defends in NB1 with ROE HOLD_FIRE
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 n            NB1
 g            BLUE
 text1        HOLD_FIRE
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -255,12 +255,12 @@ tactic_type  DEFROE
 owner        JOE
 narrative    Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 n            NB1
 g            BLUE
 text1        FIRE_BACK_IMMEDIATELY
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -273,7 +273,6 @@ text1        FIRE_BACK_IMMEDIATELY
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

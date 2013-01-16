@@ -107,21 +107,7 @@ on_lock      0
 state        normal
 exec_ts      @
 exec_flag    0
-a            @
-b            @
-alist        @
-m            @
-n            @
-nlist        @
-f            @
-g            @
-glist        @
-cap          @
-klist        @
-iom          @
-text1        @
-int1         10
-x1           @
+pdict        int1 10
     }
 
     test create-1.2 {tactic is created: once=1} -setup {
@@ -142,21 +128,7 @@ on_lock      0
 state        normal
 exec_ts      @
 exec_flag    0
-a            @
-b            @
-alist        @
-m            @
-n            NB2
-nlist        @
-f            @
-g            BRIT
-glist        @
-cap          @
-klist        @
-iom          @
-text1        HOLD_FIRE
-int1         @
-x1           @
+pdict        n NB2 g BRIT text1 HOLD_FIRE
     }
 
     test create-1.3 {priority is set} -setup {
@@ -265,21 +237,7 @@ on_lock      0
 state        normal
 exec_ts      @
 exec_flag    0
-a            @
-b            @
-alist        @
-m            @
-n            NB1
-nlist        @
-f            @
-g            BLUE
-glist        @
-cap          @
-klist        @
-iom          @
-text1        HOLD_FIRE
-int1         @
-x1           @
+pdict        n NB1 g BLUE text1 HOLD_FIRE
 
 tactic_id    1
 tactic_type  SAVE
@@ -291,21 +249,7 @@ on_lock      0
 state        normal
 exec_ts      @
 exec_flag    0
-a            @
-b            @
-alist        @
-m            @
-n            @
-nlist        @
-f            @
-g            @
-glist        @
-cap          @
-klist        @
-iom          @
-text1        @
-int1         10
-x1           @
+pdict        int1 10
     }
 
     test delete-3.1 {Condition is deleted} -setup {
@@ -362,21 +306,7 @@ on_lock      0
 state        normal
 exec_ts      @
 exec_flag    0
-a            @
-b            @
-alist        @
-m            @
-n            NB1
-nlist        @
-f            @
-g            BLUE
-glist        @
-cap          @
-klist        @
-iom          @
-text1        FIRE_BACK_IMMEDIATELY
-int1         @
-x1           @
+pdict        n NB1 g BLUE text1 FIRE_BACK_IMMEDIATELY
     }
 
     test update-1.2 {empty values are OK} -setup {
@@ -590,30 +520,19 @@ tactic_id state
         cleanup
     } -result {
         state       normal
-        a           @
-        nlist       @
-        b           @
         exec_ts     @
-        int1        @
         narrative   {Group BLUE defends in NB1 with ROE HOLD_FIRE}
-        alist       @
         once        0
-        f           @
-        g           BLUE
-        x1          @
         tactic_type DEFROE
         priority    1
-        glist       @
         owner       JOE
-        cap         @
         tactic_id   1
-        iom         @
-        m           @
+        pdict       {n NB1 g BLUE text1 HOLD_FIRE}
         on_lock     0
-        text1       HOLD_FIRE
-        n           NB1
         exec_flag   0
-        klist       @
+        n           NB1
+        g           BLUE
+        text1       HOLD_FIRE
     }
 
     test get-1.2 {get parameter} -setup {
@@ -656,7 +575,46 @@ tactic_id state
     }
 
 
-
+    #-------------------------------------------------------------------
+    # tempschema
+    
+    test tempschema-1.1 {temp view defined} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        ted querylist {SELECT * FROM tactics_SAVE}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SAVE
+owner        JOE
+narrative    Save 10% of income for later use
+priority     1
+int1         10
+state        normal
+exec_ts      @
+exec_flag    0
+    }
+    
+    #-------------------------------------------------------------------
+    # delta
+    
+    test delta-1.1 {retrieve data} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        set p(tactic_id) 1
+        set p(int1)      20
+        tactic delta p
+        ted pdict [array get p]
+    } -cleanup {
+        cleanup
+    } -result {
+        int1      20
+        tactic_id 1
+        owner     JOE
+    }
 
     #-------------------------------------------------------------------
     # Cleanup

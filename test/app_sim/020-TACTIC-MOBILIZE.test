@@ -152,12 +152,12 @@ tactic_type  MOBILIZE
 owner        JOE
 narrative    Mobilize 100 new BLUE personnel.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 int1         100
 once         1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -282,12 +282,12 @@ tactic_type  MOBILIZE
 owner        JOE
 narrative    Mobilize 150 new BLUE personnel.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 int1         150
 once         0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -301,7 +301,6 @@ once         0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

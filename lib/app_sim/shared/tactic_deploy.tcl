@@ -315,26 +315,20 @@ order define TACTIC:DEPLOY:UPDATE {
     returnOnError
 
     # NEXT, cross-checks
+    tactic delta parms
+    
     validate g {
-        set owner [rdb onecolumn {
-            SELECT owner FROM tactics WHERE tactic_id = $parms(tactic_id)
-        }]
-
         set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
 
-        if {$a ne $owner} {
-            reject g "Group $parms(g) is not owned by actor $owner."
+        if {$a ne $parms(owner)} {
+            reject g "Group $parms(g) is not owned by actor $parms(owner)."
         }
     }
 
     # If text1 is now SOME, then int1 must be defined, either by
     # this order or in the RDB.
-    set oldInt1 [rdb onecolumn {
-        SELECT int1 FROM tactics WHERE tactic_id = $parms(tactic_id)
-    }]
-
     if {$parms(text1) eq "SOME"} {
-        if {$parms(int1) eq "" && $oldInt1 eq ""} {
+        if {$parms(int1) eq ""} {
             reject int1 "Required value when mode is SOME."
         }
     }

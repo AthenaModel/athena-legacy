@@ -629,19 +629,9 @@ snit::type scenario {
         RdbEvalFile gui_application.sql ;# Application Views
 
         # NEXT, define tactic and condition type views
-        set sql ""
+        set sql [tactic tempschema]
 
-        foreach ttype [tactic type names] {
-            set parms [join [tactic type parms $ttype] ", "]
-
-            append sql "
-                CREATE VIEW tactics_$ttype AS
-                SELECT tactic_id, tactic_type, owner, narrative, priority,
-                       state, exec_ts, exec_flag, $parms
-                FROM tactics WHERE tactic_type='$ttype';
-            "
-        }
-
+        # TBD: Move this bit to [condition tempschema]           
         foreach ctype [condition type names] {
             set parms [join [condition type parms $ctype] ", "]
 

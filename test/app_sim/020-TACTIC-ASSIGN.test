@@ -192,15 +192,15 @@ tactic_type  ASSIGN
 owner        JOE
 narrative    In NB2, assign 100 USAID personnel to do CMO_HEALTHCARE.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            USAID
 n            NB2
 text1        CMO_HEALTHCARE
 int1         100
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -345,15 +345,15 @@ tactic_type  ASSIGN
 owner        JOE
 narrative    In NB2, assign 150 USAID personnel to do CMO_HEALTHCARE.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            USAID
 n            NB2
 text1        CMO_HEALTHCARE
 int1         150
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test UPDATE-2.2 {Effects} -setup {
@@ -366,7 +366,6 @@ on_lock      0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

@@ -174,15 +174,15 @@ tactic_type  STANCE
 owner        JOE
 narrative    Group BLUE adopts a stance of 0.75 (Supports) toward these groups: BRIT, USAID.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 f            BLUE
 text1        GROUP
 glist        BRIT USAID
 nlist        
 x1           0.75
 on_lock      1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test CREATE-2.2 {tactic is created: NBHOOD} -setup {
@@ -199,15 +199,15 @@ tactic_type  STANCE
 owner        BOB
 narrative    Group ALQ adopts a stance of 0.65 (Supports) toward the civilians in this neighborhood: NB1.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 f            ALQ
 text1        NBHOOD
 glist        
 nlist        NB1
 x1           0.65
 on_lock      1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test CREATE-2.3 {Effects} -setup {
@@ -354,15 +354,15 @@ tactic_type  STANCE
 owner        BOB
 narrative    Group ALQ adopts a stance of 0.65 (Supports) toward these groups: SUNN, SHIA.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 f            ALQ
 text1        GROUP
 glist        SUNN SHIA
 nlist        NB1
 x1           0.65
 on_lock      1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test UPDATE-2.2 {Effects} -setup {
@@ -375,7 +375,6 @@ on_lock      1
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

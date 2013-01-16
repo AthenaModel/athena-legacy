@@ -1109,12 +1109,12 @@ snit::widget strategybrowser {
 
         # NEXT, insert the tactics
         rdb eval {
-            SELECT *
+            SELECT tactic_id
             FROM tactics
             WHERE owner=$info(agent)
             ORDER BY priority
-        } row {
-            unset -nocomplain row(*)
+        } {
+            array set row [tactic get $tactic_id]
             $self TTreeTacticDraw row
         }
 

@@ -228,35 +228,10 @@ CREATE TABLE tactics (
     -- tock, and 0 otherwise.
     exec_flag    INTEGER DEFAULT 0,
 
-    -- Type-specific Parameters: These columns are used in different
-    -- ways by different tactics; all are NULL if unused.  No
-    -- foreign key constraints; errors are checked by tactic-type
-    -- sanity checker, to give the user more flexibility.
-
-    -- Actors; use a first.
-    a            TEXT,   -- One actor
-    b            TEXT,   -- One actor
-    alist        TEXT,   -- List of actors
-
-    -- Neighborhoods; use n first.
-    m            TEXT,   -- One neighborhood
-    n            TEXT,   -- One neighborhood
-    nlist        TEXT,   -- List of neighborhoods
-
-    -- Groups; use g first.
-    f            TEXT,
-    g            TEXT,
-    glist        TEXT,   -- List of groups
-
-    -- Other Entities.
-    cap          TEXT,   -- One CAP
-    klist        TEXT,   -- List of CAP IDs
-    iom          TEXT,   -- One IOM
-
-    -- Data items
-    text1        TEXT,
-    int1         INTEGER,
-    x1           REAL
+    -- Parameter Dictionary: a Tcl dictionary of optional parameters
+    -- and their values.  Errors in the pdict are checked by the
+    -- tactic-type's sanity checker.
+    pdict        TEXT
 );
 
 -- A tactic is a condition owner; thus, we need a trigger to delete

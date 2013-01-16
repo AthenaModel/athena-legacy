@@ -369,13 +369,14 @@ snit::type strategy {
         set badTactics [list]
 
         rdb eval {
-            SELECT * FROM tactics
-        } row {
-            set result [tactic call check [array get row]]
+            SELECT tactic_id FROM tactics
+        } {
+            set tdict [tactic get $tactic_id]
+            set result [tactic call check $tdict]
 
             if {$result ne ""} {
-                set terror($row(tactic_id)) $result
-                lappend badTactics $row(tactic_id)
+                set terror($tactic_id) $result
+                lappend badTactics $tactic_id
             }
         }
 

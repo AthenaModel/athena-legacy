@@ -213,14 +213,14 @@ tactic_type  ATTROE
 owner        JOE
 narrative    Group BLUE attacks ALQ in NB1 up to 5 times/week.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 n            NB1
 f            BLUE
 g            ALQ
 text1        ATTACK
 int1         5
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -238,14 +238,14 @@ tactic_type  ATTROE
 owner        BOB
 narrative    Group ALQ attacks BLUE in NB1 with ROE HIT_AND_RUN up to 10 times/week.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 n            NB1
 f            ALQ
 g            BLUE
 text1        HIT_AND_RUN
 int1         10
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test CREATE-2.3 {Effects} -setup {
@@ -428,14 +428,14 @@ tactic_type  ATTROE
 owner        JOE
 narrative    Group BLUE attacks ALQ in NB1 up to 7 times/week.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 n            NB1
 f            BLUE
 g            ALQ
 text1        ATTACK
 int1         7
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -448,7 +448,6 @@ int1         7
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

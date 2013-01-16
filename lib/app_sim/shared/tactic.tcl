@@ -33,34 +33,6 @@ snit::type tactic {
     pragma -hasinstances no
 
     #===================================================================
-    # Lookup tables
-
-    # optParms: This variable is a dictionary of all optional parameters
-    # with empty values.  The create and update mutators can merge the
-    # input parmdict with this to get a parmdict with the full set of
-    # parameters.
-
-    typevariable optParms {
-        once     0
-        on_lock  0
-        a        ""
-        b        ""
-        alist    ""
-        m        ""
-        n        ""
-        nlist    ""
-        f        ""
-        g        ""
-        glist    ""
-        cap      ""
-        klist    ""
-        iom      ""
-        text1    ""
-        int1     ""
-        x1       ""
-    }
-
-    #===================================================================
     # Tactic Types: Definition and Query interface.
 
     #-------------------------------------------------------------------
@@ -68,10 +40,13 @@ snit::type tactic {
 
     # tinfo array: Type Info
     #
-    # names         - List of the names of the tactic types.
-    # parms-$ttype  - List of the optional parms used by the tactic type.
-    # atypes-$ttype - Agent types that can use this tactic type.
-    # ttypes-$atype - Tactic types that can be used by this agent type
+    # names          - List of the names of the tactic types.
+    # parms-$ttype   - List of the type-specific parms used by the tactic
+    #                  type.
+    # once-$ttype    - 1 if the tactic takes the "once" parameter.
+    # on_lock-$ttype - 1 if the tactic takes the "on_lock" parameters.
+    # atypes-$ttype  - Agent types that can use this tactic type.
+    # ttypes-$atype  - Tactic types that can be used by this agent type
 
     typevariable tinfo -array {
         names {}
@@ -104,17 +79,39 @@ snit::type tactic {
 
     # type parms ttype
     #
-    # Returns a list of the names of the optional parameters used by
+    # ttype - A tactic type
+    #
+    # Returns a list of the names of the type-specific parameters used by
     # the tactic.
     
     typemethod {type parms} {ttype} {
         return $tinfo(parms-$ttype)
     }
+    
+    # type hasOnce ttype
+    #
+    # ttype - A tactic type
+    #
+    # Returns 1 if the tactic type takes the "once" parameter
+    
+    typemethod {type hasOnce} {ttype} {
+        return $tinfo(once-$ttype)
+    }
 
-    # type define name optparms agent_types defscript
+    # type hasOnLock ttype
+    #
+    # ttype - A tactic type
+    #
+    # Returns 1 if the tactic type takes the "on_lock" parameter
+    
+    typemethod {type hasOnLock} {ttype} {
+        return $tinfo(on_lock-$ttype)
+    }
+
+    # type define name parms agent_types defscript
     #
     # name        - The tactic name
-    # optparms    - List of optional parameters used by this tactic type.
+    # parms       - List of type-specific parameters, plus on_lock and once.
     # agent_types - List of agent types that can use this tactic_type.
     # defscript   - The definition script (a snit::type script)
     #
@@ -122,7 +119,7 @@ snit::type tactic {
     # defined in the defscript.  See tactic(i) for documentation of the
     # expected typemethods.
 
-    typemethod {type define} {name optparms agent_types defscript} {
+    typemethod {type define} {name parms agent_types defscript} {
         # FIRST, define the type.
         set header {
             # Make it a singleton
@@ -136,14 +133,70 @@ snit::type tactic {
 
         # NEXT, save the type metadata
         ladd tinfo(names) $name
-        set tinfo(parms-$name) $optparms
+        
+        if {"once" in $parms} {
+            set tinfo(once-$name) 1
+            ldelete parms once
+        } else {
+            set tinfo(once-$name) 0
+        }
+        
+        if {"on_lock" in $parms} {
+            set tinfo(on_lock-$name) 1
+            ldelete parms on_lock
+        } else {
+            set tinfo(on_lock-$name) 0
+        }
+        
+        set tinfo(parms-$name) $parms
         set tinfo(atypes-$name) $agent_types
         
         foreach atype $agent_types {
             lappend tinfo(ttypes-$atype) $name
         }
+        
+        # TBD: make sure that the type-specific parms don't conflict
+        # with the tactic table columns.  This is difficult, as at
+        # this point in the processing, the RDB is not yet open.
     }
 
+    # tempschema
+    #
+    # Returns the temporary view definitions for the currently
+    # defined tactics.
+    
+    typemethod tempschema {} {
+        set sql ""
+        foreach ttype [tactic type names] {
+            set opt ""
+            if {[tactic type hasOnce $ttype]} {
+                append opt "once, "
+            }
+            
+            if {[tactic type hasOnLock $ttype]} {
+                append opt "on_lock, "
+            }
+            
+            set tparms ""
+            
+            foreach parm [tactic type parms $ttype] {
+                append tparms "dictget(pdict,'$parm') AS $parm, "
+            }
+
+            append sql "
+                CREATE VIEW tactics_$ttype AS
+                SELECT tactic_id, tactic_type, owner, narrative, priority,
+                       $tparms
+                       $opt
+                       state, exec_ts, exec_flag
+                FROM tactics WHERE tactic_type='$ttype';
+            "
+        }
+        
+        return $sql
+    }
+    
+    
     #===================================================================
     # Simulation
 
@@ -200,17 +253,20 @@ snit::type tactic {
     # id   - A tactic_id
     # parm - A tactics column name
     #
-    # Retrieves a row dictionary, or a particular column value, from
-    # tactics.
+    # Retrieves an unpacked tactic dictionary, or a particular
+    # parameter value, from tactics.
 
     typemethod get {id {parm ""}} {
         # FIRST, get the data
         rdb eval {SELECT * FROM tactics WHERE tactic_id=$id} row {
+            # FIRST, pull in the pdict
+            unset row(*)
+            set tdict [unpackData [array get row]]
+            
             if {$parm eq ""} {
-                unset row(*)
-                return [array get row]
+                return $tdict
             } else {
-                return $row($parm)
+                return [dict get $tdict $parm]
             }
         }
 
@@ -228,18 +284,17 @@ snit::type tactic {
     typemethod delta {varname} {
         upvar 1 $varname parms
 
-        rdb eval {
-            SELECT * FROM tactics WHERE tactic_id=$parms(tactic_id)
-        } tdata {}
-
-        foreach parm $tinfo(parms-$tdata(tactic_type)) {
+        set tdict [$type get $parms(tactic_id)]
+        set ttype [dict get $tdict tactic_type]
+        
+        foreach parm $tinfo(parms-$ttype) {
             if {![info exists parms($parm)] || $parms($parm) eq ""} {
-                set parms($parm) $tdata($parm)
+                set parms($parm) [dict get $tdict $parm]
             }
         }
 
         # Retrieve the owner
-        set parms(owner) $tdata(owner)
+        set parms(owner) [dict get $tdict owner]
     }
 
     #-------------------------------------------------------------------
@@ -259,93 +314,62 @@ snit::type tactic {
     #    priority       "top" or "bottom" or ""; defaults to "bottom".
     #    once           1 or 0 or ""; defaults to 0.
     #    on_lock        1 or 0, defaults to 0.
-    #    a,b            Actors, or ""
-    #    alist          List of actors, or ""
-    #    m,n            Neighborhoods, or ""
-    #    nlist          Neighborhood list, or ""
-    #    f,g            Groups, or ""
-    #    glist          Group list, or ""
-    #    cap            CAP, or ""
-    #    klist          List of CAPs, or ""
-    #    iom            IOM, or ""
-    #    text1          Text string, or ""
-    #    int1           Integer, or ""
-    #    x1             Real, or ""
+    #
+    #    type-specific parms
     #
     # Creates a tactic given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate create} {parmdict} {
-        # FIRST, make sure the parm dict is complete
-        set parmdict [dict merge $optParms $parmdict]
-
+        # FIRST, get the pdata into an array.
+        set tdata(on_lock) 0
+        set tdata(once) 0
+        array set tdata $parmdict
+                
         # NEXT, ensure that this agent can own this tactic.
-        dict with parmdict {
-            require {$tactic_type in [$type type names_by_agent $owner]} \
-                "Agent $owner cannot own $tactic_type tactics"
-        }
+        set validTypes [$type type names_by_agent $tdata(owner)]
+        
+        require {$tdata(tactic_type) in $validTypes} \
+            "Agent $tdata(owner) cannot own $tdata(tactic_type) tactics"
 
         # NEXT, compute the narrative string.
         set narrative [$type call narrative $parmdict]
+        
+        # NEXT, pack the type-specific parms
+        array set tdata [packData [array get tdata]]
 
         # NEXT, put the tactic in the database.
-        dict with parmdict {
-            # FIRST, Put the tactic in the database
-            rdb eval {
-                INSERT INTO cond_collections(cc_type) VALUES('tactic');
+        rdb eval {
+            INSERT INTO cond_collections(cc_type) VALUES('tactic');
 
-                INSERT INTO 
-                tactics(tactic_id, tactic_type, 
-                        owner, narrative, priority, once, on_lock,
-                        a,
-                        b,
-                        alist,
-                        m,
-                        n,
-                        nlist,
-                        f,
-                        g,
-                        glist,
-                        cap,
-                        klist,
-                        iom,
-                        text1,
-                        int1,
-                        x1)
-                VALUES(last_insert_rowid(), $tactic_type, 
-                       $owner, $narrative, 0, $once, $on_lock,
-                       nullif($a,     ''),
-                       nullif($b,     ''),
-                       nullif($alist, ''),
-                       nullif($m,     ''),
-                       nullif($n,     ''),
-                       nullif($nlist, ''),
-                       nullif($f,     ''),
-                       nullif($g,     ''),
-                       nullif($glist, ''),
-                       nullif($cap,   ''),
-                       nullif($klist, ''),
-                       nullif($iom,   ''),
-                       nullif($text1, ''),
-                       nullif($int1,  ''),
-                       nullif($x1,    ''));
-            }
-
-            set id [rdb last_insert_rowid]
-
-            lappend undo [list rdb delete tactics "tactic_id=$id"]
-
-            # NEXT, set the priority.
-            if {$priority eq ""} {
-                set priority "bottom"
-            }
-
-            lappend undo [$type mutate priority $id $priority]
-
-            # NEXT, Return undo command.
-            return [join $undo \n]
+            INSERT INTO 
+            tactics(tactic_id, tactic_type, 
+                    owner, narrative, priority, once, on_lock, pdict)
+            VALUES(last_insert_rowid(),
+                   $tdata(tactic_type), 
+                   $tdata(owner),
+                   $narrative,
+                   0,
+                   $tdata(once),
+                   $tdata(on_lock),
+                   $tdata(pdict));
         }
+
+        set id [rdb last_insert_rowid]
+
+        lappend undo [list rdb delete tactics "tactic_id=$id"]
+
+        # NEXT, set the priority.
+        if {$tdata(priority) eq ""} {
+            set tdata(priority) "bottom"
+        }
+
+        lappend undo [$type mutate priority $id $tdata(priority)]
+
+        # NEXT, Return undo command.
+        return [join $undo \n]
     }
+
 
     # mutate delete id
     #
@@ -370,73 +394,47 @@ snit::type tactic {
     #    tactic_id      The tactic's ID
     #    once           Once flag, 1 or 0, or ""
     #    on_lock        On lock flag, 1 or 0
-    #    a,b            Actors, or ""
-    #    alist          List of actors, or ""
-    #    m,n            Neighborhoods, or ""
-    #    nlist          Neighborhood list, or ""
-    #    f,g            Groups, or ""
-    #    glist          Group list, or ""
-    #    cap            CAP, or ""
-    #    klist          List of CAPs, or ""
-    #    iom            IOM, or ""
-    #    text1          Text string, or ""
-    #    int1           Integer, or ""
-    #    x1             Real, or ""
+    #
+    #    type-specific parameters
     #
     # Updates a tactic given the parms, which are presumed to be
     # valid.  Note that you can't change the tactic's agent or
     # type, and the priority is set by a different mutator.
 
     typemethod {mutate update} {parmdict} {
-        # FIRST, make sure the parm dict is complete
-        set parmdict [dict merge $optParms $parmdict]
-
-        # NEXT, save the changed data.
-        dict with parmdict {
-            # FIRST, get the undo information
-            set data [rdb grab tactics {tactic_id=$tactic_id}]
-
-            # NEXT, Update the tactic.  The nullif(nonempty()) pattern
-            # is so that the old value of the column will be used
-            # if the input is empty, and that empty columns will be
-            # NULL rather than "".
-            rdb eval {
-                UPDATE tactics
-                SET once    = nonempty($once,  once),
-                    on_lock = nonempty($on_lock, on_lock),
-                    a       = nullif(nonempty($a,     a),     ''),
-                    b       = nullif(nonempty($b,     b),     ''),
-                    alist   = nullif(nonempty($alist, alist), ''),
-                    m       = nullif(nonempty($m,     m),     ''),
-                    n       = nullif(nonempty($n,     n),     ''),
-                    nlist   = nullif(nonempty($nlist, nlist), ''),
-                    f       = nullif(nonempty($f,     f),     ''),
-                    g       = nullif(nonempty($g,     g),     ''),
-                    glist   = nullif(nonempty($glist, glist), ''),
-                    cap     = nullif(nonempty($cap,   cap),   ''),
-                    klist   = nullif(nonempty($klist, klist), ''),
-                    iom     = nullif(nonempty($iom,   iom),   ''),
-                    text1   = nullif(nonempty($text1, text1), ''),
-                    int1    = nullif(nonempty($int1,  int1),  ''),
-                    x1      = nullif(nonempty($x1,    x1),    '')
-                WHERE tactic_id=$tactic_id;
-            } {}
-
-            # NEXT, compute and set the narrative
-            set tdict [$type get $tactic_id]
-
-            set narrative [$type call narrative $tdict]
-
-            rdb eval {
-                UPDATE tactics
-                SET   narrative = $narrative,
-                      exec_flag = 0
-                WHERE tactic_id=$tactic_id
+        # FIRST, get the undo information
+        set tactic_id [dict get $parmdict tactic_id]
+        set data [rdb grab tactics {tactic_id=$tactic_id}]
+        
+        # NEXT, get the unpacked type data
+        array set tdata [$type get $tactic_id]
+        
+        # NEXT, add in the new parameter values.
+        foreach {parm value} $parmdict {
+            if {$value ne ""} {
+                set tdata($parm) $value
             }
-
-            # NEXT, Return the undo command
-            return [list rdb ungrab $data]
         }
+
+        # NEXT, re-pack the data into pdict
+        array set tdata [packData [array get tdata]]
+        
+        # NEXT, Update the tactic.  Note that tdata contains all the
+        # values, so we'll update all of them.
+        set tdata(narrative) [$type call narrative [array get tdata]]
+        
+        rdb eval {
+            UPDATE tactics
+            SET narrative = $tdata(narrative),
+                once      = $tdata(once),
+                on_lock   = $tdata(on_lock),
+                pdict     = $tdata(pdict),
+                exec_flag = 0
+            WHERE tactic_id=$tactic_id;
+        } {}
+
+        # NEXT, Return the undo command
+        return [list rdb ungrab $data]
     }
 
     # mutate state tactic_id state
@@ -518,13 +516,47 @@ snit::type tactic {
         }
     }
 
+    # packData tdict
+    #
+    # tdict   - A dictionary of tactic data
+    #
+    # Given a dictionary of tactic data with the type-specific parms
+    # broken out, returns a new tactic dictionary with the
+    # type-specific parms packed into pdict.
+    
+    proc packData {tdict} {
+        dict set $tdict pdict [dict create]
+        
+        foreach parm $tinfo(parms-[dict get $tdict tactic_type]) {
+            if (![dict exists $tdict $parm]) {
+                dict set tdict $parm ""
+            }
+            dict set tdict pdict $parm [dict get $tdict $parm]
+        }
+        
+        return $tdict
+    }
+    
+    # unpackData tdict
+    #
+    # tdict   - A dictionary of tactic data
+    #
+    # Given a dictionary of tactic data with the type-specific parms
+    # packed into pdict, extracts them out as entries in their own right.
+    # Returns the new tdict.
+    
+    proc unpackData {tdict} {
+        set tdict [dict merge $tdict [dict get $tdict pdict]]
+    }
+    
+    
     #-------------------------------------------------------------------
     # Tactic Ensemble Interface
 
     # call op tdict ?args...?
     #
     # op    - One of the above tactic type subcommands
-    # tdict - A tactic parameter dictionary
+    # tdict - An unpacked tactic parameter dictionary
     #
     # This is a convenience command that calls the relevant subcommand
     # for the tactic.

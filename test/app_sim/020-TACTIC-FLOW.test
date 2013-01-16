@@ -201,15 +201,15 @@ tactic_type  FLOW
 owner        SYSTEM
 narrative    Flow all remaining members of SHIA into KURD.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 f            SHIA
 g            KURD
 text1        ALL
 int1         
 x1           
 once         1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -227,15 +227,15 @@ tactic_type  FLOW
 owner        SYSTEM
 narrative    Flow 500 members of SHIA into KURD.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 f            SHIA
 g            KURD
 text1        NUMBER
 int1         500
 x1           
 once         1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test FLOW:CREATE-2.3 {tactic is created: RATE} -setup {
@@ -252,15 +252,15 @@ tactic_type  FLOW
 owner        SYSTEM
 narrative    Flow population from SHIA to KURD at a rate of 5.0%/year.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 f            SHIA
 g            KURD
 text1        RATE
 int1         
 x1           5.0
 once         1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -437,15 +437,15 @@ tactic_type  FLOW
 owner        SYSTEM
 narrative    Flow 150 members of SHIA into KURD.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 f            SHIA
 g            KURD
 text1        NUMBER
 int1         150
 x1           
 once         1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test FLOW:UPDATE-2.2 {Effects} -setup {
@@ -458,7 +458,6 @@ once         1
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

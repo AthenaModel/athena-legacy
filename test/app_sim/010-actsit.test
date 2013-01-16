@@ -45,9 +45,8 @@ namespace eval ::athena_test::tests:: {
     proc redeploy {n g personnel} {
         rdb eval {
             SELECT tactic_id
-            FROM tactics
-            WHERE tactic_type = 'DEPLOY'
-            AND   nlist=$n
+            FROM tactics_DEPLOY
+            WHERE nlist=$n
             AND   g=$g
         } {}
 
@@ -58,9 +57,8 @@ namespace eval ::athena_test::tests:: {
     proc undeploy {n g} {
         rdb eval {
             SELECT tactic_id
-            FROM tactics
-            WHERE tactic_type = 'DEPLOY'
-            AND   nlist=$n
+            FROM tactics_DEPLOY
+            WHERE nlist=$n
             AND   g=$g
         } {}
 

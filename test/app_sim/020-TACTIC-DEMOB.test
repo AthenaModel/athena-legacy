@@ -193,13 +193,13 @@ tactic_type  DEMOB
 owner        JOE
 narrative    Demobilize 100 of group BLUE's available personnel.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        SOME
 int1         100
 once         1
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -217,13 +217,13 @@ tactic_type  DEMOB
 owner        JOE
 narrative    Demobilize all of group BLUE's available personnel.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        ALL
 int1         
 once         0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -371,13 +371,13 @@ tactic_type  DEMOB
 owner        JOE
 narrative    Demobilize 150 of group BLUE's available personnel.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        SOME
 int1         150
 once         0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test DEMOB:UPDATE-2.2 {tactic is updated} -setup {
@@ -396,13 +396,13 @@ tactic_type  DEMOB
 owner        JOE
 narrative    Demobilize 150 of group BLUE's available personnel.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        SOME
 int1         150
 once         0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -416,7 +416,6 @@ once         0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

@@ -199,15 +199,15 @@ tactic_type  DEPLOY
 owner        JOE
 narrative    Deploy 100 of group BLUE's personnel into neighborhoods NB1, NB2.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        SOME
 int1         100
 nlist        NB1 NB2
 once         1
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -225,15 +225,15 @@ tactic_type  DEPLOY
 owner        JOE
 narrative    Deploy all of group BLUE's remaining personnel into neighborhood NB1.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        ALL
 int1         
 nlist        NB1
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -381,15 +381,15 @@ tactic_type  DEPLOY
 owner        JOE
 narrative    Deploy 150 of group BLUE's personnel into neighborhoods NB1, NB2.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        SOME
 int1         150
 nlist        NB1 NB2
 once         1
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test DEPLOY:UPDATE-2.2 {tactic is updated} -setup {
@@ -408,15 +408,15 @@ tactic_type  DEPLOY
 owner        JOE
 narrative    Deploy 150 of group BLUE's personnel into neighborhood NB1.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 g            BLUE
 text1        SOME
 int1         150
 nlist        NB1
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -430,7 +430,6 @@ on_lock      0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 

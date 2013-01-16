@@ -140,13 +140,13 @@ tactic_type  FUNDENI
 owner        JOE
 narrative    Fund $7,000.00 worth of Essential Non-Infrastructure services for civilian groups SHIA, SUNN, KURD.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 x1           7000.0
 glist        SHIA SUNN KURD
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
 
@@ -262,13 +262,13 @@ tactic_type  FUNDENI
 owner        JOE
 narrative    Fund $5,000.00 worth of Essential Non-Infrastructure services for civilian groups SHIA, SUNN.
 priority     1
-state        normal
-exec_ts      
-exec_flag    0
 x1           5000.0
 glist        SHIA SUNN
 once         0
 on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
     }
 
     test FUNDENI:UPDATE-2.2 {Effects} -setup {
@@ -281,7 +281,6 @@ on_lock      0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <tactics> update 1}
         {::rdb <tactics> update 1}
     }
 
