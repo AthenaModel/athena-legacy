@@ -36,8 +36,8 @@ namespace eval ::athena_test::tests:: {
         ted order GOAL:CREATE owner BOB narrative "Bob's Goal 3"
 
         # tactic_id: 4, 5
-        ted order TACTIC:SAVE:CREATE owner JOE int1 10
-        ted order TACTIC:SAVE:CREATE owner BOB int1 10
+        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
+        ted order TACTIC:DEPOSIT:CREATE owner BOB amount 10
 
     }
 

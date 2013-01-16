@@ -520,6 +520,39 @@ page /object/tactic deploy "DEPLOY tactic" {
 }
 
 #-----------------------------------------------------------------------
+# DEPOSIT
+
+object tactic_deposit {
+    noun "DEPOSIT tactic"
+    overview {
+        This <<term tactic>> allows the <<term actor>> to deposit
+        a sum of money from his cash-on-hand into his cash reserve.
+        The funds can then be withdrawn for spending using the
+        <<cref /object/tactic/withdraw>>.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute amount "Amount" {
+        The amount of money to deposit, in dollars.  If there
+        are insufficient funds in the actor's cash-on-hand, all
+        remaining cash will be deposited.
+    } -tags {create update}
+}
+
+page /object/tactic deposit "DEPOSIT tactic" {
+    <<sotitle>>
+
+    <<tactic_deposit overview>><p>
+
+    DEPOSIT tactics have the following attributes:<p>
+
+    <<tactic_deposit parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # EXECUTIVE
 
 object tactic_executive {
@@ -804,70 +837,6 @@ page /object/tactic mobilize "MOBILIZE tactic" {
 }
 
 #-----------------------------------------------------------------------
-# SAVE
-
-object tactic_save {
-    noun "SAVE tactic"
-    overview {
-        This <<term tactic>> allows the <<term actor>> to save a 
-        percentage of his weekly income to his cash reserve for later
-        use.  The funds can then be released for spending using the
-        <<cref /object/tactic/spend>>.
-    }
-
-    include tactic_ -attrs tactic_id
-    include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority}
-
-    attribute int1 "Percentage of Income" {
-        The percentage of the <<term actor>>'s income to save, as
-        an integer from 0 to 100.
-    } -tags {create update}
-}
-
-page /object/tactic save "SAVE tactic" {
-    <<sotitle>>
-
-    <<tactic_save overview>><p>
-
-    SAVE tactics have the following attributes:<p>
-
-    <<tactic_save parmlist>>
-}
-
-#-----------------------------------------------------------------------
-# SPEND
-
-object tactic_spend {
-    noun "SPEND tactic"
-    overview {
-        This <<term tactic>> allows the <<term actor>> to release a
-        percentage of his cash reserve so that it can be spent on
-        other tactics.  Funds are saved into the cash reserve using
-        the <<cref /object/tactic/save>>.
-    }
-
-    include tactic_ -attrs tactic_id
-    include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority}
-
-    attribute int1 "Percentage of Reserve" {
-        The percentage of the <<term actor>>'s cash reserve to release
-        for spending, as an integer from 0 to 100.
-    }  -tags {create update}
-}
-
-page /object/tactic spend "SPEND tactic" {
-    <<sotitle>>
-
-    <<tactic_spend overview>><p>
-
-    SPEND tactics have the following attributes:<p>
-
-    <<tactic_spend parmlist>>
-}
-
-#-----------------------------------------------------------------------
 # STANCE
 
 object tactic_stance {
@@ -981,3 +950,43 @@ page /object/tactic support "SUPPORT tactic" {
     <<tactic_support parmlist>>
 }
  
+#-----------------------------------------------------------------------
+# WITHDRAW
+
+object tactic_withdraw {
+    noun "WITHDRAW tactic"
+    overview {
+        This <<term tactic>> allows the <<term actor>> to withdraw
+        a sum of money from his cash reserve into his cash-on-hand
+        so that it can be spent on other tactics.  Funds are deposited
+        into the cash reserve using the <<cref /object/tactic/deposit>>.<p>
+        
+        Actors are frequently in the position of borrowing money.  Athena
+        does not explicitly model any kind of banking system; as a work
+        around, however, the cash reserve is allowed to be negative,
+        reflecting debt rather than savings.  In short, the actor
+        may withdraw as much money as he likes.  It is up to the
+        analyst to ensure that this doesn't get out of hand.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute amount "Amount" {
+        The amount of money to withdraw from the cash reserve,
+        in dollars.
+    }  -tags {create update}
+}
+
+page /object/tactic withdraw "WITHDRAW tactic" {
+    <<sotitle>>
+
+    <<tactic_withdraw overview>><p>
+
+    WITHDRAW tactics have the following attributes:<p>
+
+    <<tactic_withdraw parmlist>>
+}
+
+

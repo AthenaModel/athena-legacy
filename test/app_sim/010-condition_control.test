@@ -35,7 +35,7 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {args} {
         ted create JOE BOB NB1 NB2 NB3 NB4
-        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
 
         foreach n [nbhood names] {
             if {$n in $args} {

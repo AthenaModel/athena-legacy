@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tactic_spend.test
+#    010-tactic_withdraw.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tactic_spend(sim) tests.
+#    tactic_withdraw(sim) tests.
 #
-#    This test suite tests the tactic_spend(sim) tactic ensemble.
+#    This test suite tests the tactic_withdraw(sim) tactic ensemble.
 #
 #-----------------------------------------------------------------------
 
@@ -50,10 +50,10 @@ namespace eval ::athena_test::tests:: {
     # Standard Tactics
     
     set T1 {
-        tactic_type SPEND
+        tactic_type WITHDRAW
         owner       JOE
         priority    top
-        int1        10
+        amount      1000.0
         on_lock     NO
     }
 
@@ -64,10 +64,10 @@ namespace eval ::athena_test::tests:: {
         setup
         tactic mutate create $T1
     } -body {
-        tactic::SPEND narrative [tactic get 1]
+        tactic::WITHDRAW narrative [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {Spend 10% of cash reserve}
+    } -result {Withdraw $1,000.00 from the cash reserve.}
 
     #-------------------------------------------------------------------
     # check
@@ -76,7 +76,7 @@ namespace eval ::athena_test::tests:: {
         setup
         tactic mutate create $T1
     } -body {
-        tactic::SPEND check [tactic get 1]
+        tactic::WITHDRAW check [tactic get 1]
     } -cleanup {
         cleanup
     } -result {}
@@ -91,7 +91,7 @@ namespace eval ::athena_test::tests:: {
         setup
         tactic mutate create $T1
     } -body {
-        tactic::SPEND dollars [tactic get 1]
+        tactic::WITHDRAW dollars [tactic get 1]
     } -cleanup {
         cleanup
     } -result {n/a}
@@ -107,7 +107,7 @@ namespace eval ::athena_test::tests:: {
         rdb eval { UPDATE working_cash SET cash_reserve=0.0 }
     } -body {
         array set a [cash get JOE]
-        set flag [tactic::SPEND execute [tactic get 1]]
+        set flag [tactic::WITHDRAW execute [tactic get 1]]
         array set b [cash get JOE]
 
         list $flag \
@@ -115,16 +115,16 @@ namespace eval ::athena_test::tests:: {
             $b(cash_on_hand) $b(cash_reserve)
     } -cleanup {
         cleanup
-    } -result {0 10000.0 0.0 10000.0 0.0}
+    } -result {1 10000.0 0.0 11000.0 -1000.0}
 
     test execute-1.2 {execute: ample reserve} -setup {
         setup
         tactic mutate create $T1
 
-        rdb eval { UPDATE working_cash SET cash_on_hand=0.0 }
+        rdb eval {UPDATE working_cash SET cash_on_hand=0.0 }
     } -body {
         array set a [cash get JOE]
-        set flag [tactic::SPEND execute [tactic get 1]]
+        set flag [tactic::WITHDRAW execute [tactic get 1]]
         array set b [cash get JOE]
 
         list $flag \
@@ -132,7 +132,7 @@ namespace eval ::athena_test::tests:: {
             $b(cash_on_hand) $b(cash_reserve)
     } -cleanup {
         cleanup
-    } -result {1 0.0 200000.0 20000.0 180000.0}
+    } -result {1 0.0 200000.0 1000.0 199000.0}
 
     #-------------------------------------------------------------------
     # Cleanup

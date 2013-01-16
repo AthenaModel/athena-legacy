@@ -29,7 +29,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
     proc setup {} {
         ted create JOE
-        ted order TACTIC:SAVE:CREATE owner JOE int1 10
+        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
     }
 
 

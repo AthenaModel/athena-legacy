@@ -285,15 +285,12 @@ snit::type cash {
     # a       - An actor
     # dollars - A positive number of dollars
     #
-    # Moves dollars from cash_reserve to cash_on_hand, if there's
-    # sufficient funds.  Returns 1 on success and 0 on failure.
+    # Moves dollars from cash_reserve to cash_on_hand.  We do not
+    # worry about whether there are sufficient funds or not;
+    # cash_reserve is allowed to go negative.
 
     typemethod withdraw {a dollars} {
         set cash_reserve [cash get $a cash_reserve]
-
-        if {$dollars > $cash_reserve} {
-            return 0
-        }
 
         rdb eval {
             UPDATE working_cash 

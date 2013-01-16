@@ -340,6 +340,37 @@ order TACTIC:DEPLOY:UPDATE "Update Tactic: Deploy Forces" {
     <</parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# Tactic: DEPOSIT
+
+page /order/tactic deposit TACTIC:DEPOSIT:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/deposit>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:DEPOSIT:CREATE "Create Tactic: Deposit Money" {
+    Creates a <<cref /object/tactic/deposit>>.<p>
+
+    <<parmlist>>
+    <<tactic_deposit parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:DEPOSIT:UPDATE "Update Tactic: Deposit Money" {
+    Updates an existing <<cref /object/tactic/deposit>>.<p>
+
+    <<parmlist>>
+    <<tactic_deposit parm tactic_id -required>>
+    <<tactic_deposit parm owner -display>>
+    <<tactic_deposit parms -optional -tags update>>
+    <</parmlist>>
+}
+
 
 #-----------------------------------------------------------------------
 # Tactic: EXECUTIVE
@@ -543,68 +574,6 @@ order TACTIC:MOBILIZE:UPDATE "Update Tactic: Mobilize Forces" {
 }
 
 #-----------------------------------------------------------------------
-# Tactic: SAVE
-
-page /order/tactic save TACTIC:SAVE:* {
-    <<title>>
-
-    The following orders are used to create and update
-    <<cref /object/tactic/save>>s.<p>
-
-    <<childlinks>>
-}
-
-order TACTIC:SAVE:CREATE "Create Tactic: Save Money" {
-    Creates a <<cref /object/tactic/save>>.<p>
-
-    <<parmlist>>
-    <<tactic_save parms -required -tags create>>
-    <<TACTIC.priority>>
-    <</parmlist>>
-}
-
-order TACTIC:SAVE:UPDATE "Update Tactic: Save Money" {
-    Updates an existing <<cref /object/tactic/save>>.<p>
-
-    <<parmlist>>
-    <<tactic_save parm tactic_id -required>>
-    <<tactic_save parm owner -display>>
-    <<tactic_save parms -optional -tags update>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-# Tactic: SPEND
-
-page /order/tactic spend TACTIC:SPEND:* {
-    <<title>>
-
-    The following orders are used to create and update
-    <<cref /object/tactic/spend>>s.<p>
-
-    <<childlinks>>
-}
-
-order TACTIC:SPEND:CREATE "Create Tactic: Spend Money" {
-    Creates a <<cref /object/tactic/spend>>.<p>
-
-    <<parmlist>>
-    <<tactic_spend parms -required -tags create>>
-    <<TACTIC.priority>>
-    <</parmlist>>
-}
-
-order TACTIC:SPEND:UPDATE "Update Tactic: Spend Money" {
-    Updates an existing <<cref /object/tactic/spend>>.<p>
-
-    <<parmlist>>
-    <<tactic_spend parm tactic_id -required>>
-    <<tactic_spend parm owner -display>>
-    <<tactic_spend parms -optional -tags update>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
 # Tactic: STANCE
 
 page /order/tactic stance TACTIC:STANCE:* {
@@ -669,6 +638,37 @@ order TACTIC:SUPPORT:UPDATE "Update Tactic: Support Actor" {
     <<tactic_support parms -optional -tags update>>
     <<TACTIC.on_lock>>
     <<TACTIC.once>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# Tactic: WITHDRAW
+
+page /order/tactic withdraw TACTIC:WITHDRAW:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/withdraw>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:WITHDRAW:CREATE "Create Tactic: Withdraw Money" {
+    Creates a <<cref /object/tactic/withdraw>>.<p>
+
+    <<parmlist>>
+    <<tactic_withdraw parms -required -tags create>>
+    <<TACTIC.priority>>
+    <</parmlist>>
+}
+
+order TACTIC:WITHDRAW:UPDATE "Update Tactic: Withdraw Money" {
+    Updates an existing <<cref /object/tactic/withdraw>>.<p>
+
+    <<parmlist>>
+    <<tactic_withdraw parm tactic_id -required>>
+    <<tactic_withdraw parm owner -display>>
+    <<tactic_withdraw parms -optional -tags update>>
     <</parmlist>>
 }
 

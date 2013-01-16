@@ -150,8 +150,8 @@ object condition_cash {
     overview {
         This <<term condition>> compares an actor's cash reserve with a 
         user-specified amount.  The actor manages his cash reserve
-        using the <<cref /order/tactic/save SAVE>> and
-        <<cref /order/tactic/spend SPEND>> tactics.  Using this
+        using the <<cref /order/tactic/deposit DEPOSIT>> and
+        <<cref /order/tactic/withdraw WITHDRAW>> tactics.  Using this
         condition, the actor can undertake tactics when enough
         money has been saved, or when the reserve is low.<p>
 

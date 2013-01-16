@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-TACTIC-SAVE.test
+#    020-TACTIC-WITHDRAW.test
 #
 # AUTHOR:
 #    Will Duquette
@@ -9,7 +9,7 @@
 # DESCRIPTION:
 #    app_sim(1) TACTIC:* order tests.
 #
-#    This test suite tests the TACTIC:SAVE:* orders.
+#    This test suite tests the TACTIC:WITHDRAW:* orders.
 #
 #-----------------------------------------------------------------------
 
@@ -41,49 +41,49 @@ namespace eval ::athena_test::tests:: {
 
     # Standard items
 
-    set SAVE1 {
+    set WITHDRAW1 {
         owner       JOE
         priority    bottom
-        int1        10
+        amount      1000.0
     }
 
     #-------------------------------------------------------------------
-    # TACTIC:SAVE:CREATE
+    # TACTIC:WITHDRAW:CREATE
 
-    test SAVE:CREATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:SAVE:CREATE {}
+    test WITHDRAW:CREATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:WITHDRAW:CREATE {}
     } -result {
         owner {required value}
-        int1 {required value}
+        amount {required value}
     }
 
     
-    test SAVE:CREATE-1.2 {a is unknown} -setup {
+    test WITHDRAW:CREATE-1.2 {a is unknown} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:SAVE:CREATE \
-            [dict merge $SAVE1 [list owner NONESUCH]]
+        ted order -reject TACTIC:WITHDRAW:CREATE \
+            [dict merge $WITHDRAW1 [list owner NONESUCH]]
     } -cleanup {
         cleanup
     } -result {
         owner {Invalid actor, should be one of: JOE}
     }
 
-    test SAVE:CREATE-1.3 {int1 is invalid} -setup {
+    test WITHDRAW:CREATE-1.3 {amount is invalid} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:SAVE:CREATE \
-            [dict merge $SAVE1 [list int1 NONESUCH]]
+        ted order -reject TACTIC:WITHDRAW:CREATE \
+            [dict merge $WITHDRAW1 [list amount NONESUCH]]
     } -cleanup {
         cleanup
     } -result {
-        int1 {invalid value "NONESUCH", expected integer}
+        amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test SAVE:CREATE-1.4 {priority is invalid} -setup {
+    test WITHDRAW:CREATE-1.4 {priority is invalid} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:SAVE:CREATE [dict merge $SAVE1 {
+        ted order -reject TACTIC:WITHDRAW:CREATE [dict merge $WITHDRAW1 {
             priority NONESUCH
         }]
     } -cleanup {
@@ -92,31 +92,32 @@ namespace eval ::athena_test::tests:: {
         priority {invalid value "nonesuch", should be one of: top, bottom}
     }
 
-    test SAVE:CREATE-2.1 {tactic is created} -setup {
+    test WITHDRAW:CREATE-2.1 {tactic is created} -setup {
         setup
     } -body {
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
 
-        ted querylist {SELECT * FROM tactics_SAVE}
+        ted querylist {SELECT * FROM tactics_WITHDRAW}
     } -cleanup {
         cleanup
     } -result {
 tactic_id    1
-tactic_type  SAVE
+tactic_type  WITHDRAW
 owner        JOE
-narrative    Save 10% of income for later use
+narrative    Withdraw $1,000.00 from the cash reserve.
 priority     1
-int1         10
+amount       1000.0
 state        normal
 exec_ts      
 exec_flag    0
     }
 
-    test SAVE:CREATE-2.2 {Effects} -setup {
+
+    test WITHDRAW:CREATE-2.2 {Effects} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <tactics>
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
         ted notifier received
 
         # NOTE: Two updates, because of priority setting.
@@ -128,9 +129,9 @@ exec_flag    0
     }
 
 
-    test SAVE:CREATE-3.1 {undo effects} -setup {
+    test WITHDRAW:CREATE-3.1 {undo effects} -setup {
         setup
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
     } -body {
         ted notifier bind ::rdb <tactics>
         cif undo -test
@@ -143,79 +144,79 @@ exec_flag    0
 
 
     #-------------------------------------------------------------------
-    # TACTIC:SAVE:UPDATE
+    # TACTIC:WITHDRAW:UPDATE
 
-    proc setup_update_savemoney {} {
-        variable SAVE1
+    proc setup_update_withdrawmoney {} {
+        variable WITHDRAW1
         setup
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
     }
 
-    test SAVE:UPDATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:SAVE:UPDATE {}
+    test WITHDRAW:UPDATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:WITHDRAW:UPDATE {}
     } -result {
         tactic_id {required value}
-        int1 {required value}
+        amount {required value}
     }
 
     
-    test SAVE:UPDATE-1.2 {tactic_id is unknown} -setup {
-        setup_update_savemoney
+    test WITHDRAW:UPDATE-1.2 {tactic_id is unknown} -setup {
+        setup_update_withdrawmoney
     } -body {
-        ted order -reject TACTIC:SAVE:UPDATE tactic_id NONESUCH int1 10
+        ted order -reject TACTIC:WITHDRAW:UPDATE tactic_id NONESUCH amount 10
     } -cleanup {
         cleanup
     } -result {
         tactic_id {Invalid tactic ID: "NONESUCH"}
     }
 
-    test SAVE:UPDATE-1.3 {int1 is invalid} -setup {
-        setup_update_savemoney
+    test WITHDRAW:UPDATE-1.3 {amount is invalid} -setup {
+        setup_update_withdrawmoney
     } -body {
-        ted order -reject TACTIC:SAVE:UPDATE tactic_id 1 int1 NONESUCH
+        ted order -reject TACTIC:WITHDRAW:UPDATE tactic_id 1 amount NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        int1 {invalid value "NONESUCH", expected integer}
+        amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test SAVE:UPDATE-1.4 {wrong flavor of tactic} -setup {
-        setup_update_savemoney
+    test WITHDRAW:UPDATE-1.4 {wrong flavor of tactic} -setup {
+        setup_update_withdrawmoney
         rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
     } -body {
-        ted order -reject TACTIC:SAVE:UPDATE tactic_id 1 int1 5
+        ted order -reject TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 5
     } -cleanup {
         cleanup
     } -result {
-        tactic_id {Tactic 1 is not a SAVE tactic}
+        tactic_id {Tactic 1 is not a WITHDRAW tactic}
     }
 
-    test SAVE:UPDATE-2.1 {activities are updated} -setup {
-        setup_update_savemoney
+    test WITHDRAW:UPDATE-2.1 {activities are updated} -setup {
+        setup_update_withdrawmoney
     } -body {
-        ted order TACTIC:SAVE:UPDATE tactic_id 1 int1 20
+        ted order TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 20
 
-        ted querylist {SELECT * FROM tactics_SAVE}
+        ted querylist {SELECT * FROM tactics_WITHDRAW}
     } -cleanup {
         cleanup
     } -result {
 tactic_id    1
-tactic_type  SAVE
+tactic_type  WITHDRAW
 owner        JOE
-narrative    Save 20% of income for later use
+narrative    Withdraw $20.00 from the cash reserve.
 priority     1
-int1         20
+amount       20.0
 state        normal
 exec_ts      
 exec_flag    0
     }
 
 
-    test SAVE:UPDATE-2.2 {Effects} -setup {
-        setup_update_savemoney
+    test WITHDRAW:UPDATE-2.2 {Effects} -setup {
+        setup_update_withdrawmoney
     } -body {
         ted notifier bind ::rdb <tactics>
-        ted order TACTIC:SAVE:UPDATE tactic_id 1 int1 20
+        ted order TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 20
         ted notifier received
     } -cleanup {
         cleanup
@@ -224,9 +225,9 @@ exec_flag    0
     }
 
 
-    test SAVE:UPDATE-3.1 {undo effects} -setup {
-        setup_update_savemoney
-        ted order TACTIC:SAVE:UPDATE tactic_id 1 int1 20
+    test WITHDRAW:UPDATE-3.1 {undo effects} -setup {
+        setup_update_withdrawmoney
+        ted order TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 20
     } -body {
         ted notifier bind ::rdb <tactics>
         cif undo -test

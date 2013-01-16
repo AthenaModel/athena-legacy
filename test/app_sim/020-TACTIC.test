@@ -41,18 +41,10 @@ namespace eval ::athena_test::tests:: {
 
     # Standard items
 
-    set SAVE1 {
+    set T1 {
         owner       JOE
         priority    bottom
-        int1        10
-    }
-
-    set D1 {
-        owner       JOE
-        priority    bottom
-        n           NB1
-        g           BLUE
-        text1       HOLD_FIRE
+        amount      10
     }
 
     #-------------------------------------------------------------------
@@ -79,7 +71,7 @@ namespace eval ::athena_test::tests:: {
 
     test DELETE-2.1 {Effects} -setup {
         setup
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:DEPOSIT:CREATE $T1
     } -body {
         ted notifier bind ::rdb <tactics>
         ted order TACTIC:DELETE tactic_id 1
@@ -93,7 +85,7 @@ namespace eval ::athena_test::tests:: {
 
     test DELETE-3.1 {Undo effects} -setup {
         setup
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:DEPOSIT:CREATE $T1
         ted order TACTIC:DELETE tactic_id 1
     } -body {
         ted notifier bind ::rdb <tactics>
@@ -126,7 +118,7 @@ namespace eval ::athena_test::tests:: {
 
     test STATE-2.1 {Effects} -setup {
         setup
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:DEPOSIT:CREATE $T1
     } -body {
         ted notifier bind ::rdb <tactics>
         ted order TACTIC:STATE tactic_id 1 state disabled
@@ -140,7 +132,7 @@ namespace eval ::athena_test::tests:: {
 
     test STATE-3.1 {Undo effects} -setup {
         setup
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:DEPOSIT:CREATE $T1
         ted order TACTIC:STATE tactic_id 1 state disabled
     } -body {
         ted notifier bind ::rdb <tactics>
@@ -156,11 +148,11 @@ namespace eval ::athena_test::tests:: {
     # TACTIC:PRIORITY
 
     proc priority_setup {} {
-        variable SAVE1
+        variable T1
         setup
-        ted order TACTIC:SAVE:CREATE $SAVE1
-        ted order TACTIC:SAVE:CREATE $SAVE1
-        ted order TACTIC:SAVE:CREATE $SAVE1
+        ted order TACTIC:DEPOSIT:CREATE $T1
+        ted order TACTIC:DEPOSIT:CREATE $T1
+        ted order TACTIC:DEPOSIT:CREATE $T1
     }
 
     test PRIORITY-1.1 {required parms} -body {

@@ -33,7 +33,7 @@ namespace eval ::athena_test::tests:: {
         variable tid
 
         ted create JOE BOB NB1 NB2 BLUE BRIT
-        ted order TACTIC:SAVE:CREATE owner JOE int1 10 
+        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10 
         ted order GOAL:CREATE owner BOB narrative "Sample Goal"
 
         set gid [lindex [goal names]   0]

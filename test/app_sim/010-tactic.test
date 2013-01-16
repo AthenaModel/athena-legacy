@@ -60,10 +60,10 @@ namespace eval ::athena_test::tests:: {
     # Standard Tactics
     
     set T1 {
-        tactic_type SAVE
+        tactic_type DEPOSIT
         owner       JOE
         priority    top
-        int1        10
+        amount      10
         once        0
     }
 
@@ -98,16 +98,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
 tactic_id    1
-tactic_type  SAVE
+tactic_type  DEPOSIT
 owner        JOE
-narrative    Save 10% of income for later use
+narrative    Deposit $10.00 to the cash reserve.
 priority     1
 once         0
 on_lock      0
 state        normal
 exec_ts      @
 exec_flag    0
-pdict        int1 10
+pdict        amount 10
     }
 
     test create-1.2 {tactic is created: once=1} -setup {
@@ -145,7 +145,7 @@ pdict        n NB2 g BRIT text1 HOLD_FIRE
 tactic_id tactic_type owner priority 
 --------- ----------- ----- -------- 
 2         DEFROE      JOE   1        
-1         SAVE        JOE   2        
+1         DEPOSIT     JOE   2        
     }
 
     test create-1.4 {priority defaults to bottom if unset} -setup {
@@ -160,7 +160,7 @@ tactic_id tactic_type owner priority
     } -result {
 tactic_id tactic_type owner priority 
 --------- ----------- ----- -------- 
-1         SAVE        JOE   1        
+1         DEPOSIT     JOE   1        
 2         DEFROE      JOE   2        
     }
 
@@ -188,7 +188,7 @@ tactic_id tactic_type owner priority
     } -result {
 tactic_id tactic_type owner priority 
 --------- ----------- ----- -------- 
-1         SAVE        JOE   1        
+1         DEPOSIT     JOE   1        
     }
 
     test create-3.1 {tactic type must match agent type} -setup {
@@ -199,7 +199,7 @@ tactic_id tactic_type owner priority
         error
     } -cleanup {
         cleanup
-    } -result {Agent SYSTEM cannot own SAVE tactics}
+    } -result {Agent SYSTEM cannot own DEPOSIT tactics}
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -240,16 +240,16 @@ exec_flag    0
 pdict        n NB1 g BLUE text1 HOLD_FIRE
 
 tactic_id    1
-tactic_type  SAVE
+tactic_type  DEPOSIT
 owner        JOE
-narrative    Save 10% of income for later use
+narrative    Deposit $10.00 to the cash reserve.
 priority     2
 once         0
 on_lock      0
 state        normal
 exec_ts      @
 exec_flag    0
-pdict        int1 10
+pdict        amount 10
     }
 
     test delete-3.1 {Condition is deleted} -setup {
@@ -582,16 +582,16 @@ tactic_id state
         setup
         tactic mutate create $T1
     } -body {
-        ted querylist {SELECT * FROM tactics_SAVE}
+        ted querylist {SELECT * FROM tactics_DEPOSIT}
     } -cleanup {
         cleanup
     } -result {
 tactic_id    1
-tactic_type  SAVE
+tactic_type  DEPOSIT
 owner        JOE
-narrative    Save 10% of income for later use
+narrative    Deposit $10.00 to the cash reserve.
 priority     1
-int1         10
+amount       10
 state        normal
 exec_ts      @
 exec_flag    0
@@ -605,13 +605,13 @@ exec_flag    0
         tactic mutate create $T1
     } -body {
         set p(tactic_id) 1
-        set p(int1)      20
+        set p(amount)    10
         tactic delta p
         ted pdict [array get p]
     } -cleanup {
         cleanup
     } -result {
-        int1      20
+        amount    10
         tactic_id 1
         owner     JOE
     }
