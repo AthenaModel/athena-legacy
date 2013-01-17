@@ -837,6 +837,84 @@ page /object/tactic mobilize "MOBILIZE tactic" {
 }
 
 #-----------------------------------------------------------------------
+# SPEND
+
+object tactic_spend {
+    noun "SPEND tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to spend
+        his cash-on-hand on expenses not explicitly modeled by
+        Athena.  The tactic specifies the amount of money to be
+        spent, and the Economic sectors on which it will be spent.<p>
+        
+        There are two spending modes, "SOME" and "ALL".  The first
+        spends a specific amount of money, expressed in dollars; the
+        second expends all remaining cash-on-hand.<p>
+        
+        The tactic allocates the money to sectors by means of shares.
+        If the <b>goods</b> sector gets 2 shares, and the <b>pop</b>
+        sector gets 1 share, then <b>goods</b> gets 2/3rds of the money
+        and <b>pop</b> gets 1/3rd.  These shares can be expressed as
+        percentages if that seems clearer.<p>
+        
+        Multiple SPEND tactics are cumulative.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority on_lock once}
+
+    attribute mode "Mode" {
+        The spending mode, "SOME" (spend some cash-on-hand) or
+        "ALL" (spend all remaining cash-on-hand).
+    } -tags {create update}
+
+    attribute amount "amount" {
+        The amount of money to be spent when the mode is "SOME".  If
+        there are insufficient funds available, the tactic will not
+        execute.<p>
+    
+        If the mode is "ALL", this parameter is ignored.
+    } -tags {create update}
+
+    attribute goods "Goods Shares" {
+        The number of shares of the money allocated to the
+        <b>goods</b> sector.
+    } -tags {create update}
+
+    attribute black "Black Shares" {
+        The number of shares of the money allocated to the
+        <b>black</b> sector.
+    } -tags {create update}
+    
+    attribute pop "Pop Shares" {
+        The number of shares of the money allocated to the
+        <b>pop</b> sector.
+    } -tags {create update}
+    
+    attribute region "Region Shares" {
+        The number of shares of the money allocated to the
+        <b>region</b> sector.
+    } -tags {create update}
+    
+    attribute world "World Shares" {
+        The number of shares of the money allocated to the
+        <b>world</b> sector.
+    } -tags {create update}
+}
+
+page /object/tactic spend "SPEND tactic" {
+    <<sotitle>>
+
+    <<tactic_spend overview>><p>
+
+    SPEND tactics have the following attributes:<p>
+
+    <<tactic_spend parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # STANCE
 
 object tactic_stance {

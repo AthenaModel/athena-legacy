@@ -1,0 +1,489 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-TACTIC-SPEND.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(1) TACTIC:SPEND:* order tests.
+#
+#    This test suite tests the SPEND tactic's orders.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 BLUE BRIT ALQ
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        ted cleanup
+    }
+
+    # Standard items
+
+    set T1 {
+        owner       JOE
+        priority    top
+        mode        ALL
+        amount      ""
+        goods       1
+        black       0
+        pop         1
+        region      0
+        world       0
+        on_lock     NO
+        once        NO
+    }
+
+    set T2 {
+        owner       JOE
+        priority    top
+        mode        SOME
+        amount      1000.0
+        goods       1
+        black       0
+        pop         1
+        region      0
+        world       0
+        on_lock     NO
+        once        NO
+    }
+
+    #-------------------------------------------------------------------
+    # TACTIC:SPEND:CREATE
+
+    test SPEND:CREATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:SPEND:CREATE {}
+    } -result {
+        owner {required value}
+        mode {required value}
+    }
+
+    test SPEND:CREATE-1.2 {owner is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list owner NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        owner {Invalid actor, should be one of: JOE, BOB}
+    }
+
+    test SPEND:CREATE-1.3 {mode is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list mode NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "NONESUCH", should be one of: SOME, ALL}
+    }
+
+    test SPEND:CREATE-1.4 {amount is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T2 [list amount NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test SPEND:CREATE-1.5 {amount is missing} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T2 [list amount ""]]
+    } -cleanup {
+        cleanup
+    } -result {
+        amount {Required value when mode is SOME.}
+    }
+
+
+    test SPEND:CREATE-1.6 {goods is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list goods -1]]
+    } -cleanup {
+        cleanup
+    } -result {
+        goods {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:CREATE-1.7 {black is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list black -1]]
+    } -cleanup {
+        cleanup
+    } -result {
+        black {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:CREATE-1.8 {pop is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list pop -1]]
+    } -cleanup {
+        cleanup
+    } -result {
+        pop {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:CREATE-1.9 {region is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list region -1]]
+    } -cleanup {
+        cleanup
+    } -result {
+        region {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:CREATE-1.10 {world is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list world -1]]
+    } -cleanup {
+        cleanup
+    } -result {
+        world {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:CREATE-1.11 {all shares are zero} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE \
+            [dict merge $T1 [list goods 0 pop 0]]
+    } -cleanup {
+        cleanup
+    } -result {
+        goods {At least one sector must have a positive share.}
+    }
+
+
+    test SPEND:CREATE-1.12 {priority is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:SPEND:CREATE [dict merge $T1 {
+            priority NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        priority {invalid value "nonesuch", should be one of: top, bottom}
+    }
+
+    test SPEND:CREATE-2.1 {tactic is created: ALL} -setup {
+        setup
+    } -body {
+        ted order TACTIC:SPEND:CREATE $T1
+
+        ted querylist {SELECT * FROM tactics_SPEND}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SPEND
+owner        JOE
+narrative    Spend all remaining cash-on-hand according to the following profile: goods: 50%; pop: 50%
+priority     1
+mode         ALL
+amount       
+goods        1
+black        0
+pop          1
+region       0
+world        0
+once         0
+on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
+    }
+
+
+    test SPEND:CREATE-2.2 {tactic is created: SOME} -setup {
+        setup
+    } -body {
+        ted order TACTIC:SPEND:CREATE $T2
+
+        ted querylist {SELECT * FROM tactics_SPEND}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SPEND
+owner        JOE
+narrative    Spend 1,000.00 according to the following profile: goods: 50%; pop: 50%
+priority     1
+mode         SOME
+amount       1000.0
+goods        1
+black        0
+pop          1
+region       0
+world        0
+once         0
+on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
+    }
+
+
+    test SPEND:CREATE-2.3 {Effects} -setup {
+        setup
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        ted order TACTIC:SPEND:CREATE $T1
+        ted notifier received
+
+        # NOTE: Two updates, because of priority setting.
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+        {::rdb <tactics> update 1}
+    }
+
+
+    test SPEND:CREATE-3.1 {undo effects} -setup {
+        setup
+        ted order TACTIC:SPEND:CREATE $T1
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> delete 1}
+    }
+
+    #-------------------------------------------------------------------
+    # TACTIC:SPEND:UPDATE
+
+    proc setup_update_spend {} {
+        variable T2
+        setup
+        ted order TACTIC:SPEND:CREATE $T2
+    }
+
+    test SPEND:UPDATE-1.1 {required parms} -body {
+        ted order -reject TACTIC:SPEND:UPDATE {}
+    } -result {
+        tactic_id {required value}
+    }
+
+    
+    test SPEND:UPDATE-1.2 {tactic_id is unknown} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE \
+            tactic_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {Invalid tactic ID: "NONESUCH"}
+    }
+
+    test SPEND:UPDATE-1.3 {mode is unknown} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 mode NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "NONESUCH", should be one of: SOME, ALL}
+    }
+
+    test SPEND:UPDATE-1.4 {amount is invalid} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 amount NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+
+    test SPEND:UPDATE-1.5 {amount is missing} -setup {
+        setup
+        ted order TACTIC:SPEND:CREATE $T1
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 mode SOME
+    } -cleanup {
+        cleanup
+    } -result {
+        amount {Required value when mode is SOME.}
+    }
+
+    test SPEND:UPDATE-1.6 {goods is negative} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 goods -1
+    } -cleanup {
+        cleanup
+    } -result {
+        goods {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:UPDATE-1.7 {black is negative} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 black -1
+    } -cleanup {
+        cleanup
+    } -result {
+        black {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:UPDATE-1.8 {pop is negative} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 pop -1
+    } -cleanup {
+        cleanup
+    } -result {
+        pop {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:UPDATE-1.9 {region is negative} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 region -1
+    } -cleanup {
+        cleanup
+    } -result {
+        region {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:UPDATE-1.10 {world is negative} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 world -1
+    } -cleanup {
+        cleanup
+    } -result {
+        world {invalid value "-1", expected integer no less than 0}
+    }
+
+    test SPEND:UPDATE-1.11 {all shares are zero} -setup {
+        setup_update_spend
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1 goods 0 pop 0
+    } -cleanup {
+        cleanup
+    } -result {
+        goods {At least one sector must have a positive share.}
+    }
+
+    test SPEND:UPDATE-1.12 {wrong flavor of tactic} -setup {
+        setup_update_spend
+        rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
+    } -body {
+        ted order -reject TACTIC:SPEND:UPDATE tactic_id 1
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {Tactic 1 is not a SPEND tactic}
+    }
+
+    test SPEND:UPDATE-2.1 {tactic is updated} -setup {
+        setup_update_spend
+    } -body {
+        ted order TACTIC:SPEND:UPDATE tactic_id 1 black 2
+
+        ted querylist {SELECT * FROM tactics_SPEND}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id    1
+tactic_type  SPEND
+owner        JOE
+narrative    Spend 1,000.00 according to the following profile: goods: 25%; black: 50%; pop: 25%
+priority     1
+mode         SOME
+amount       1000.0
+goods        1
+black        2
+pop          1
+region       0
+world        0
+once         0
+on_lock      0
+state        normal
+exec_ts      
+exec_flag    0
+    }
+
+    test SPEND:UPDATE-2.2 {Effects} -setup {
+        setup_update_spend
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        ted order TACTIC:SPEND:UPDATE tactic_id 1 black 2
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+    }
+
+
+    test SPEND:UPDATE-3.1 {undo effects} -setup {
+        setup_update_spend
+        ted order TACTIC:SPEND:UPDATE tactic_id 1 black 2
+    } -body {
+        ted notifier bind ::rdb <tactics>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <tactics> update 1}
+    }
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

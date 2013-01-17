@@ -186,6 +186,46 @@ snit::type cash {
         return 1
     }
 
+    # spendon a dollars profile
+    #
+    # a         - An actor
+    # dollars   - Some number of dollars
+    # profile   - A spending profile
+    #
+    # Deducts dollars from cash_on_hand if there are sufficient funds;
+    # returns 1 on success and 0 on failure.  If strategy is locking then
+    # only the allocation of funds is made as a baseline, no money is
+    # actually deducted.  The expenditure is allocated to the sectors
+    # according to the profile, which is a dictionary of sectors and
+    # fractions.
+
+    typemethod spendon {a dollars profile} {
+        # FIRST, if strategy is locking only allocate the money to
+        # the expenditure class as a baseline, and then we are done.
+        if {![strategy locking]} {
+            # NEXT, can he afford it
+            set cash_on_hand [cash get $a cash_on_hand]
+    
+            if {$dollars > $cash_on_hand} {
+                return 0
+            }
+    
+            # NEXT, expend it.
+            rdb eval {
+                UPDATE working_cash 
+                SET cash_on_hand = cash_on_hand - $dollars
+                WHERE a=$a
+            }
+        }
+
+        # NEXT, allocate the money to the expenditure class
+        dict for {sector frac} $profile {
+            let allocations($sector) {$allocations($sector) + $frac*$dollars}
+        }
+
+        return 1
+    }
+
     # refund a eclass dollars
     #
     # a         - An actor
