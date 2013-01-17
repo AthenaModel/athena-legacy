@@ -158,25 +158,25 @@ index inp {actors region world}                 ;# sectors with no product or
 # to the actors sector.
 
 let BX.goods.goods  = 1.087e9
-let BX.goods.black  = 3.0e6
-let BX.goods.pop    = 96.145e9
+let BX.goods.black  = 6.5e5
+let BX.goods.pop    = 209.0e9
 let BX.goods.actors = 0.0
-let BX.goods.region = 776.0e6
-let BX.goods.world  = 23.390e9
+let BX.goods.region = 785.0e6
+let BX.goods.world  = 21.410e9
 
 let BX.black.goods = 0.0
 let BX.black.black = 0.0
-let BX.black.pop   = 93.0e6
+let BX.black.pop   = 80.0e6
 let BX.black.actors = 0.0
 let BX.black.region = 0.0
-let BX.black.world  = 1.653e9
+let BX.black.world  = 800.0e6 
 
-let BX.pop.goods    = 97.198e9
-let BX.pop.black    = 43.0e6
+let BX.pop.goods    = 212.0e9
+let BX.pop.black    = 8.0e6
 let BX.pop.pop      = 0.0
 let BX.pop.actors   = 0.0
-let BX.pop.region   = 302.0e6
-let BX.pop.world    = 216.0e6
+let BX.pop.region   = 0.0
+let BX.pop.world    = 0.0
 
 let BX.actors.goods = 0.0
 let BX.actors.black = 0.0
@@ -190,36 +190,36 @@ let BX.region.black  = 0.0
 let BX.region.pop    = 0.0
 let BX.region.actors = 0.0
 let BX.region.region = 0.0
-let BX.region.world  = 1.079e9
+let BX.region.world  = 1.5e9
 
-let BX.world.goods   = 18.391e9
-let BX.world.black   = 1.222e9
-let BX.world.pop     = 11.688e9
+let BX.world.goods   = 20.092e9
+let BX.world.black   = 480.0e6
+let BX.world.pop     = 13.0e9
 let BX.world.actors  = 0.0
 let BX.world.region  = 0.0
 let BX.world.world   = 0.0
 
 
-let BP.black = 500000  ;# Base price in the black sector $/tonne
-let BP.pop   = 400     ;# Base price in the pop sector $/work-year
+let BP.black = 4.0e6   ;# Base price in the black sector $/tonne
+let BP.pop   = 2550    ;# Base price in the pop sector $/work-year
 let BP.goods = 1       ;# Base price in the goods sector $/goodsBKT
 let BP.actors = 0
 let BP.region = 0
 let BP.world  = 0
 
-let BaseConsumers  = 130.0e6
-let BaseSubsisters = 50.0e6
+let BaseConsumers  = 160.0e6
+let BaseSubsisters = 40.0e6
 let BaseCAP.pop    = {[BREV.pop] / [BP.pop]} ;# Number of base case jobs
-let BaseSubWage    = 200       ;# Subsistence wage $/work-year
+let BaseSubWage    = 0       ;# Subsistence wage $/work-year
 let BaseUnemp      = 5.0e6
 let BaseUR         = {100.0 * [BaseUnemp] / [BaseCAP.pop]}
 let BaseSA         = {[BaseSubsisters] * [BaseSubWage]}
 
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
                              # goes to actors.
-let PF.world.black = 62.0e3
+let PF.world.black = 0.0
 let AF.world.black = 1.05
-let MF.world.black = 35e3
+let MF.world.black = 240.0
 
 # Global variables used by Athena at runtime
 let REMChangeRate  = 0.0

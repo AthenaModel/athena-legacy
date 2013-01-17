@@ -857,10 +857,14 @@ snit::type econ {
             # NEXT, demographic data
             cge set [list \
                          BaseConsumers $demdata(consumers)     \
+                         BaseUnemp     $samdata(BaseUnemp)     \
+                         BaseCAP.pop   $samdata(BaseCAP.pop)   \
                          In::Consumers $demdata(consumers)     \
                          In::LF        $demdata(labor_force)   \
                          In::LSF       $LSF                    \
                          In::CSF       $CSF]
+
+
 
             # NEXT, per capita demand for goods
             cge set [list In::A.goods.pop $samdata(BA.goods.pop)]
