@@ -87,13 +87,6 @@ object actor_ {
         the start of the simulation.<p>
     } -tags {create_opt update browser}
 
-    attribute overhead "Overhead, % of income" {
-        An actor spends his income on tactics; however, actors also have
-        expenditures not yet modeled explicitly as tactics.  An actor's
-        overhead is the percentage of his income spent on these unmodeled
-        expenses.
-    } -tags {create_opt update browser income}
-
     attribute income_goods "Income, GOODS Sector, $/week" {
         The actor's income from the Goods sector of the economy, in dollars
         per week.  This is a tax-like income: genuine taxes, 

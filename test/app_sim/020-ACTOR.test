@@ -34,7 +34,6 @@ namespace eval ::athena_test::tests:: {
         supports         SELF
         cash_reserve     200000
         cash_on_hand     0
-        overhead         10
         income_goods     60000
         shares_black_nr  50000
         income_black_tax 40000
@@ -49,7 +48,6 @@ namespace eval ::athena_test::tests:: {
         supports         SELF
         cash_reserve     150000
         cash_on_hand     0
-        overhead         20
         income_goods     5000
         shares_black_nr  10000
         income_black_tax 15000
@@ -126,16 +124,6 @@ namespace eval ::athena_test::tests:: {
         cash_on_hand {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test CREATE-1.7 {invalid overhead} -body {
-        ted order -reject ACTOR:CREATE [dict merge $joe {
-            overhead NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        overhead {invalid value "NONESUCH", expected integer}
-    }
-
     test CREATE-1.8 {invalid income_goods} -body {
         ted order -reject ACTOR:CREATE [dict merge $joe {
             income_goods NONESUCH
@@ -208,7 +196,6 @@ longname          Joe the Actor
 supports          JOE
 cash_reserve      200000.0
 cash_on_hand      0.0
-overhead          10
 income_goods      60000.0
 shares_black_nr   50000
 income_black_tax  40000.0
@@ -230,7 +217,6 @@ longname          JOE
 supports          JOE
 cash_reserve      200000.0
 cash_on_hand      0.0
-overhead          10
 income_goods      60000.0
 shares_black_nr   50000
 income_black_tax  40000.0
@@ -346,17 +332,6 @@ income_world      10000.0
     }
 
 
-    test UPDATE-1.5 {invalid overhead} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ACTOR:UPDATE a JOE overhead NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        overhead {invalid value "NONESUCH", expected integer}
-    }
-
-
     test UPDATE-1.6 {invalid income_goods} -setup {
         ted create JOE
     } -body {
@@ -427,7 +402,6 @@ income_world      10000.0
             supports         BOB
             cash_reserve     10
             cash_on_hand     20
-            overhead         25
             income_goods     0
             shares_black_nr  1
             income_black_tax 2
@@ -445,7 +419,6 @@ longname          Joe the Actress
 supports          BOB
 cash_reserve      10.0
 cash_on_hand      20.0
-overhead          25
 income_goods      0.0
 shares_black_nr   1
 income_black_tax  2.0
@@ -458,7 +431,6 @@ longname          Bob the Actor
 supports          BOB
 cash_reserve      150000.0
 cash_on_hand      0.0
-overhead          0
 income_goods      5000.0
 shares_black_nr   0
 income_black_tax  0.0
@@ -504,16 +476,6 @@ income_world      0.0
         ted order -reject ACTOR:INCOME {}
     } -result {
         a {required value}
-    }
-
-    test INCOME-1.1 {invalid overhead} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ACTOR:INCOME a JOE overhead NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        overhead {invalid value "NONESUCH", expected integer}
     }
 
     test INCOME-1.2 {invalid income_goods} -setup {
@@ -581,7 +543,6 @@ income_world      0.0
     } -body {
         ted order ACTOR:INCOME {
             a                 JOE
-            overhead          25
             income_goods      0
             shares_black_nr   1
             income_black_tax  2
@@ -599,7 +560,6 @@ longname          Joe the Actor
 supports          JOE
 cash_reserve      200000.0
 cash_on_hand      0.0
-overhead          25
 income_goods      0.0
 shares_black_nr   1
 income_black_tax  2.0

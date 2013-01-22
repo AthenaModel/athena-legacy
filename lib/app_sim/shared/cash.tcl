@@ -37,9 +37,9 @@ snit::type cash {
 
     # load
     #
-    # If the strategy module is locking, this method simply accounts
-    # for the status quo expenditures on overhead. No cash is actually
-    # spent. Otherwise, it loads every actors' cash balances into 
+    # If the strategy module is locking, this method simply clears
+    # the expenditures data; no cash will actually be spent.
+    # Otherwise, it loads every actors' cash balances into 
     # working_cash for use during strategy execution.  It also gives 
     # each actor his income.
 
@@ -47,26 +47,13 @@ snit::type cash {
         # FIRST, clear expenditures
         $type reset
         
-        # NEXT, if locking the scenario, just account for overhead so
-        # the econ module gets the data
+        # NEXT, if locking the scenario, just return; there's nothing
+        # more to do.
         if {[strategy locking]} {
-            rdb eval {
-                SELECT a, 
-                       income, 
-                       overhead
-                FROM actors_view;
-            } {
-                let overheadDollars { $income * $overhead / 100.0 }
-
-                $type AllocateByClass $a overhead $overheadDollars
-            }
-
-            # NEXT, done
             return
         }
 
         # NEXT, load up the working cash table, giving the actor his income.
-        # and expending his overhead.
         rdb eval {
             DELETE FROM working_cash;
         }
@@ -75,16 +62,10 @@ snit::type cash {
             SELECT a, 
                    cash_reserve, 
                    income, 
-                   cash_on_hand,
-                   overhead
+                   cash_on_hand
             FROM actors_view;
         } {
-            let overheadDollars { $income * $overhead / 100.0 }
-
-            $type AllocateByClass $a overhead $overheadDollars
-
-            let cash_on_hand { $cash_on_hand + $income - $overheadDollars }
-
+            let cash_on_hand { $cash_on_hand + $income }
             rdb eval {
                 INSERT INTO working_cash(a, cash_reserve, income, cash_on_hand)
                 VALUES($a, $cash_reserve, $income, $cash_on_hand)

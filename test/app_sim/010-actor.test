@@ -48,7 +48,6 @@ longname          Joe the Actor
 supports          JOE
 cash_reserve      200000.0
 cash_on_hand      0.0
-overhead          0
 income_goods      10000.0
 shares_black_nr   0
 income_black_tax  0.0
@@ -75,7 +74,6 @@ longname          Joe the Actor
 supports          
 cash_reserve      200000.0
 cash_on_hand      0.0
-overhead          0
 income_goods      10000.0
 shares_black_nr   0
 income_black_tax  0.0
@@ -133,7 +131,6 @@ longname          Joe the Actor
 supports          JOE
 cash_reserve      200000.0
 cash_on_hand      0.0
-overhead          0
 income_goods      10000.0
 shares_black_nr   0
 income_black_tax  0.0
@@ -348,7 +345,6 @@ income_world      0.0
             supports         NONE
             cash_reserve     0
             cash_on_hand     10
-            overhead         20
             income_goods     4
             shares_black_nr  5
             income_black_tax 6
@@ -366,7 +362,6 @@ longname          Joe the Actress
 supports          
 cash_reserve      0.0
 cash_on_hand      10.0
-overhead          20
 income_goods      4.0
 shares_black_nr   5
 income_black_tax  6.0
@@ -387,7 +382,6 @@ income_world      9.0
             supports         ""
             cash_reserve     ""
             cash_on_hand     ""
-            overhead         ""
             income_goods     ""
             shares_black_nr  ""
             income_black_tax ""
@@ -416,7 +410,6 @@ income_world      9.0
             supports         BOB
             cash_reserve     ""
             cash_on_hand     ""
-            overhead         ""
             income_goods     ""
             shares_black_nr  ""
             income_black_tax ""
@@ -497,7 +490,6 @@ income_world      9.0
         a                JOE
         income_pop       0.0
         cash_reserve     200000.0
-        overhead         0
         longname         {Joe the Actor}
         shares_black_nr  0
         income_world     0.0
@@ -526,7 +518,6 @@ income_world      9.0
             supports         ""
             cash_reserve     ""
             cash_on_hand     ""
-            overhead         ""
             income_goods     1
             income_black_tax 10
             income_pop       100

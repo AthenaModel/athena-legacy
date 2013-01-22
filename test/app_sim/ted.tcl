@@ -201,7 +201,6 @@ snit::type ted {
             supports         SELF
             cash_reserve     200000
             cash_on_hand     0
-            overhead         0
             income_goods     10000
             shares_black_nr  0
             income_black_tax 0
@@ -216,7 +215,6 @@ snit::type ted {
             supports         SELF
             cash_reserve     150000
             cash_on_hand     0
-            overhead         0
             income_goods     5000
             shares_black_nr  0
             income_black_tax 0
@@ -231,7 +229,6 @@ snit::type ted {
             supports         SELF
             cash_reserve     150000
             cash_on_hand     0
-            overhead         0
             income_goods     5000
             shares_black_nr  0
             income_black_tax 0
@@ -246,7 +243,6 @@ snit::type ted {
             supports         BOB
             cash_reserve     150000
             cash_on_hand     0
-            overhead         0
             income_goods     5000
             shares_black_nr  0
             income_black_tax 0

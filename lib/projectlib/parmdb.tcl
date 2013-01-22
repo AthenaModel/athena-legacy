@@ -1243,7 +1243,7 @@ snit::type ::projectlib::parmdb {
             for this expenditure class.
         }
 
-        foreach class {overhead ASSIGN ATTROE BROADCAST DEPLOY FUNDENI} {
+        foreach class {ASSIGN ATTROE BROADCAST DEPLOY FUNDENI} {
             $ps subset econ.shares.$class "
                 Allocations of expenditures to CGE sectors for the
                 $class expenditure class.  The allocations are
@@ -1263,11 +1263,6 @@ snit::type ::projectlib::parmdb {
             }
         }
 
-        $ps setdefault econ.shares.overhead.goods    35
-        $ps setdefault econ.shares.overhead.pop      55
-        $ps setdefault econ.shares.overhead.black    0
-        $ps setdefault econ.shares.overhead.region   10
-        $ps setdefault econ.shares.overhead.world    0
         $ps setdefault econ.shares.ASSIGN.goods      4
         $ps setdefault econ.shares.ASSIGN.pop        6
         $ps setdefault econ.shares.ASSIGN.black      0

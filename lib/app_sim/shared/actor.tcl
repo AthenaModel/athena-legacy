@@ -124,7 +124,6 @@ snit::type actor {
     #    supports          Actor name, SELF, or NONE.
     #    cash_reserve      Cash reserve (starting balance)
     #    cash_on_hand      Cash-on-hand (starting balance)
-    #    overhead          Overhead fraction, 0.0 to 1.0
     #    income_goods      Income from "goods" sector, $/week
     #    shares_black_nr   Income, shares of net revenues from "black" sector
     #    income_black_tax  Income, "taxes" on "black" sector, $/week
@@ -150,7 +149,6 @@ snit::type actor {
                        supports, 
                        cash_reserve, 
                        cash_on_hand,
-                       overhead,
                        income_goods, 
                        shares_black_nr, 
                        income_black_tax, 
@@ -162,7 +160,6 @@ snit::type actor {
                        nullif($supports, 'NONE'),
                        $cash_reserve, 
                        $cash_on_hand,
-                       $overhead,
                        $income_goods, 
                        $shares_black_nr, 
                        $income_black_tax, 
@@ -240,7 +237,6 @@ snit::type actor {
     #    supports           A new supports (SELF, NONE, actor), or ""
     #    cash_reserve       A new reserve amount, or ""
     #    cash_on_hand       A new cash-on-hand amount, or ""
-    #    overhead           A new overhead amount, or ""
     #    income_goods       A new income, or ""
     #    shares_black_nr    A new share of revenue, or ""
     #    income_black_tax   A new income, or ""
@@ -268,7 +264,6 @@ snit::type actor {
                     supports     = nullif(nonempty($supports,supports),'NONE'),
                     cash_reserve = nonempty($cash_reserve, cash_reserve),
                     cash_on_hand = nonempty($cash_on_hand, cash_on_hand),
-                    overhead     = nonempty($overhead,     overhead),
                     income_goods = nonempty($income_goods, income_goods),
                     shares_black_nr = 
                         nonempty($shares_black_nr, shares_black_nr),
@@ -317,10 +312,6 @@ order define ACTOR:CREATE {
         text cash_on_hand -defvalue 0
         label "$"
 
-        rcc "Overhead:" -for overhead
-        percent overhead -defvalue 0
-        label "% of income"
-
         rcc "Income, GOODS Sector:" -for income_goods
         text income_goods -defvalue 0
         label "$/week"
@@ -352,7 +343,6 @@ order define ACTOR:CREATE {
     prepare supports         -toupper  -required        -type {ptype a+self+none}
     prepare cash_reserve     -toupper                   -type money
     prepare cash_on_hand     -toupper                   -type money
-    prepare overhead         -num                       -type ipercent
     prepare income_goods     -toupper                   -type money
     prepare shares_black_nr  -num                       -type iquantity
     prepare income_black_tax -toupper                   -type money
@@ -447,10 +437,6 @@ order define ACTOR:UPDATE {
         text cash_on_hand
         label "$"
 
-        rcc "Overhead:" -for overhead
-        percent overhead -defvalue 0
-        label "% of income"
-
         rcc "Income, GOODS Sector:" -for income_goods
         text income_goods
         label "$/week"
@@ -482,7 +468,6 @@ order define ACTOR:UPDATE {
     prepare supports         -toupper             -type {ptype a+self+none}
     prepare cash_reserve     -toupper             -type money
     prepare cash_on_hand     -toupper             -type money
-    prepare overhead         -num                 -type ipercent
     prepare income_goods     -toupper             -type money
     prepare shares_black_nr  -num                 -type iquantity
     prepare income_black_tax -toupper             -type money
@@ -508,10 +493,6 @@ order define ACTOR:INCOME {
         rcc "Select Actor:" -for a
         key a -table gui_actors -keys a \
             -loadcmd {::orderdialog keyload a *} 
-
-        rcc "Overhead:" -for overhead
-        percent overhead -defvalue 0
-        label "% of income"
 
         rcc "Income, GOODS Sector:" -for income_goods
         text income_goods
@@ -540,7 +521,6 @@ order define ACTOR:INCOME {
 } {
     # FIRST, prepare the parameters
     prepare a                -toupper   -required -type actor
-    prepare overhead         -num                 -type ipercent
     prepare income_goods     -toupper             -type money
     prepare shares_black_nr  -num                 -type iquantity
     prepare income_black_tax -toupper             -type money
@@ -590,7 +570,6 @@ order define ACTOR:SUPPORTS {
         longname         {}
         cash_reserve     {}
         cash_on_hand     {}
-        overhead         {}
         income_goods     {}
         shares_black_nr  {}
         income_black_tax {}

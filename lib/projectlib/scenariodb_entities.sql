@@ -57,10 +57,6 @@ CREATE TABLE actors (
     -- Unspent cash accumulates from tock to tock.
     cash_on_hand DOUBLE DEFAULT 0,
 
-    -- Overhead; percentage of income expended on
-    -- non-tactic expenditures.
-    overhead     INTEGER DEFAULT 0,
-
     -- Income by income class, in $/week.  Ultimately, these should go
     -- in a separate table.
     income_goods     DOUBLE  DEFAULT 0,
@@ -116,7 +112,6 @@ SELECT a,
        supports,
        cash_reserve,
        cash_on_hand,
-       overhead,
        income_goods,
        shares_black_nr,
        income_black_tax,
