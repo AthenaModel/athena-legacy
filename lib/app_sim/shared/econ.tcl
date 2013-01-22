@@ -497,7 +497,7 @@ snit::type econ {
         }
 
         # NEXT, get the baseline expenditures from the cash module
-        array set exp [cash expenditures]
+        array set exp [cash allocations]
 
         let Xwa {$exp(world)  * 52.0}
         let Xra {$exp(region) * 52.0}
@@ -884,7 +884,7 @@ snit::type econ {
 
             # NEXT, actors expenditures. Multiplication by 52 because the
             # CGE has money flows in years.
-            array set exp [cash expenditures]
+            array set exp [cash allocations]
 
             let Xwa {$exp(world)  * 52.0}
             let Xra {$exp(region) * 52.0}
@@ -982,7 +982,7 @@ snit::type econ {
 
         # Set the input parameters
         array set demdata [demog getlocal]
-        array set exp  [cash expenditures]
+        array set exp  [cash allocations]
 
         # NEXT, multiply expenditures by 52 since the CGE money flows are
         # in years, but actors expenses are weekly

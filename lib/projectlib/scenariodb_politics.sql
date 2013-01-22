@@ -286,6 +286,21 @@ CREATE TABLE conditions (
     x1            REAL     -- A number
 );
 
+------------------------------------------------------------------------
+-- ACTOR EXPENDITURES
+
+CREATE TABLE expenditures (
+    -- The actor
+    a   TEXT PRIMARY KEY,
+    
+    -- The expenditures
+    goods  REAL default 0.0,
+    black  REAL default 0.0,
+    pop    REAL default 0.0,
+    actor  REAL default 0.0,
+    region REAL default 0.0,
+    world  REAL default 0.0
+);
 
 ------------------------------------------------------------------------
 -- End of File

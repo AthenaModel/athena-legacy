@@ -21,6 +21,8 @@ snit::type cash {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # Total expenditures on the various sectors, to be given to the
+    # Economics model
     typevariable allocations -array {
         goods  0.0
         black  0.0
@@ -44,7 +46,7 @@ snit::type cash {
     typemethod load {} {
         # FIRST, clear expenditures
         $type reset
-
+        
         # NEXT, if locking the scenario, just account for overhead so
         # the econ module gets the data
         if {[strategy locking]} {
@@ -56,7 +58,7 @@ snit::type cash {
             } {
                 let overheadDollars { $income * $overhead / 100.0 }
 
-                $type Allocate overhead $overheadDollars
+                $type AllocateByClass $a overhead $overheadDollars
             }
 
             # NEXT, done
@@ -79,7 +81,7 @@ snit::type cash {
         } {
             let overheadDollars { $income * $overhead / 100.0 }
 
-            $type Allocate overhead $overheadDollars
+            $type AllocateByClass $a overhead $overheadDollars
 
             let cash_on_hand { $cash_on_hand + $income - $overheadDollars }
 
@@ -119,8 +121,15 @@ snit::type cash {
     # Clear cash expenditures 
 
     typemethod reset {} {
+        # FIRST, clear the sector allocations
         foreach sector [array names allocations] {
             set allocations($sector) 0.0
+        }
+        
+        # NEXT, initialize the actors' expenditures table.
+        rdb eval {
+            DELETE FROM expenditures;
+            INSERT INTO expenditures(a) SELECT a FROM actors;
         }
     }
 
@@ -162,7 +171,7 @@ snit::type cash {
         # FIRST, if strategy is locking only allocate the money to
         # the expenditure class as a baseline, and then we are done.
         if {[strategy locking]} {
-            $type Allocate $eclass $dollars
+            $type AllocateByClass $a $eclass $dollars
             return 1
         }
 
@@ -181,7 +190,7 @@ snit::type cash {
         }
 
         # NEXT, allocate the money to the expenditure class
-        $type Allocate $eclass $dollars
+        $type AllocateByClass $a $eclass $dollars
 
         return 1
     }
@@ -219,9 +228,7 @@ snit::type cash {
         }
 
         # NEXT, allocate the money to the expenditure class
-        dict for {sector frac} $profile {
-            let allocations($sector) {$allocations($sector) + $frac*$dollars}
-        }
+        $type Allocate $a $profile $dollars
 
         return 1
     }
@@ -244,11 +251,51 @@ snit::type cash {
         }
 
         # NEXT, the money no longer flows into the other sectors.
-        $type Allocate $eclass [expr {-1.0*$dollars}]
+        $type AllocateByClass $a $eclass [expr {-1.0*$dollars}]
     }
 
-    # Allocate eclass dollars
+    # Allocate a profile dollars
     #
+    # eclass   - An expenditure class, or NONE
+    # profile  - An expenditure profile dictionary (shares by sector)
+    # dollars  - Some number of dollars.
+    #
+    # Allocates an expenditure of dollars to the CGE sectors.  If
+    # the number of dollars is negative, the dollars are removed from
+    # the sectors.  In any case, the dollars are allocated according
+    # to the profile.
+
+    typemethod Allocate {a profile dollars} {
+        # FIRST, determine the total number of shares for this expenditure
+        # profile
+        set denom 0.0
+        dict for {sector share} $profile {
+            let denom {$denom + $share}
+        }
+
+        # NEXT, if there are no shares to allocate then we are done
+        if {$denom == 0.0} {
+            return
+        }
+
+        # NEXT, allocate fractions of the expenditure to each
+        # sector
+        dict for {sector share} $profile {
+            let frac {$share/$denom}
+            let amount {$frac*$dollars}
+            let allocations($sector) {$allocations($sector) + $amount}
+            
+            rdb eval "
+                UPDATE expenditures
+                SET $sector = $sector + \$amount
+                WHERE a = \$a
+            "
+        }
+    }
+
+    # AllocateByClass a eclass dollars
+    #
+    # a        - The actor spending the money
     # eclass   - An expenditure class, or NONE
     # dollars  - Some number of dollars.
     #
@@ -259,39 +306,27 @@ snit::type cash {
     # 
     # If the eclass is NONE, this call is a no-op.
 
-    typemethod Allocate {eclass dollars} {
+    typemethod AllocateByClass {a eclass dollars} {
+        # FIRST, if we don't care we don't care.
         if {$eclass eq "NONE"} {
             return
         }
 
-        # FIRST, determine the total number of shares for this expenditure
-        # class
-        set eclassSum 0.0
+        # NEXT, retrieve the profile.
+        set profile [dict create]
         foreach sector [array names allocations] {
-            let eclassSum {$eclassSum + [parm get econ.shares.$eclass.$sector]}
+            dict set profile $sector [parm get econ.shares.$eclass.$sector]
         }
 
-        # NEXT, if there are no shares to allocate then we are done
-        if {$eclassSum == 0.0} {
-            return
-        }
-
-        # NEXT, determine what fraction of the expenditure goes to each
-        # sector
-        foreach sector [array names allocations] {
-            let frac {
-                [parm get econ.shares.$eclass.$sector] / $eclassSum
-            }
-
-            let allocations($sector) {$allocations($sector) + $frac*$dollars}
-        }
+        # NEXT, allocate it.
+        $type Allocate $a $profile $dollars
     }
 
-    # expenditures
+    # allocations
     #
     # Returns a dictionary of the expenditures by sector.
 
-    typemethod expenditures {} {
+    typemethod allocations {} {
         return [array get allocations]
     }
 

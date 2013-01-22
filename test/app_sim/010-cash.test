@@ -70,12 +70,12 @@ BOB 150000.0     5000.0  5000.0       0.0
         cleanup
     } -result {1}
 
-    test load-1.3 {load clears expenditures} -setup {
+    test load-1.3 {load clears allocations} -setup {
         setup
         cash spend JOE overhead 1000.0
     } -body {
         cash load
-        cash expenditures
+        cash allocations
     } -cleanup {
         cleanup
     } -result {world 0.0 region 0.0 goods 0.0 black 0.0 pop 0.0}
@@ -85,11 +85,26 @@ BOB 150000.0     5000.0  5000.0       0.0
         rdb eval {UPDATE actors SET overhead=10}
     } -body {
         cash load
-        cash expenditures
+        cash allocations
     } -cleanup {
         cleanup
     } -result {world 0.0 region 150.0 goods 525.0 black 0.0 pop 825.0}
 
+    test load-1.5 {load clears expenditures} -setup {
+        setup
+        cash spend JOE overhead 1000.0
+    } -body {
+        cash load
+        ted query {SELECT * FROM expenditures}
+    } -cleanup {
+        cleanup
+    } -result {
+a   goods black pop actor region world 
+--- ----- ----- --- ----- ------ ----- 
+JOE 0.0   0.0   0.0 0.0   0.0    0.0   
+BOB 0.0   0.0   0.0 0.0   0.0    0.0   
+    }
+    
     #-------------------------------------------------------------------
     # get
 
@@ -158,7 +173,7 @@ BOB 150000.0     5000.0  5000.0       0.0
         cash load
     } -body {
         cash spend JOE overhead 1000
-        cash expenditures
+        cash allocations
     } -cleanup {
         cleanup
     } -result {world 0.0 region 100.0 goods 350.0 black 0.0 pop 550.0}
@@ -168,10 +183,25 @@ BOB 150000.0     5000.0  5000.0       0.0
         cash load
     } -body {
         cash spend JOE NONE 1000
-        cash expenditures
+        cash allocations
     } -cleanup {
         cleanup
     } -result {world 0.0 region 0.0 goods 0.0 black 0.0 pop 0.0}
+
+    test spend-1.6 {Money is saved by actor and sector} -setup {
+        setup
+        cash load
+    } -body {
+        cash spend JOE overhead 1000
+        ted query {SELECT * FROM expenditures}
+    } -cleanup {
+        cleanup
+    } -result {
+a   goods black pop   actor region world 
+--- ----- ----- ----- ----- ------ ----- 
+JOE 350.0 0.0   550.0 0.0   100.0  0.0   
+BOB 0.0   0.0   0.0   0.0   0.0    0.0   
+    }
 
     #-------------------------------------------------------------------
     # spendon
@@ -214,10 +244,25 @@ BOB 150000.0     5000.0  5000.0       0.0
         cash load
     } -body {
         cash spendon JOE 1000 {goods .35 pop .55 region .1}
-        cash expenditures
+        cash allocations
     } -cleanup {
         cleanup
     } -result {world 0.0 region 100.0 goods 350.0 black 0.0 pop 550.0}
+
+    test spendon-1.5 {Money is saved by actor and sector} -setup {
+        setup
+        cash load
+    } -body {
+        cash spendon JOE 1000 {goods .35 pop .55 region .1}
+        ted query {SELECT * FROM expenditures}
+    } -cleanup {
+        cleanup
+    } -result {
+a   goods black pop   actor region world 
+--- ----- ----- ----- ----- ------ ----- 
+JOE 350.0 0.0   550.0 0.0   100.0  0.0   
+BOB 0.0   0.0   0.0   0.0   0.0    0.0   
+    }
 
     #-------------------------------------------------------------------
     # refund
@@ -238,13 +283,13 @@ JOE 200000.0     10000.0 12000.0      0.0
 BOB 150000.0     5000.0  10000.0      0.0   
     }
 
-    test refund-1.2 {Removes expenditures from sectors.} -setup {
+    test refund-1.2 {Removes allocations from sectors.} -setup {
         setup
         cash load
         cash spend JOE overhead 1000.0
     } -body {
         cash refund JOE overhead 500.0
-        cash expenditures
+        cash allocations
     } -cleanup {
         cleanup
     } -result {world 0.0 region 50.0 goods 175.0 black 0.0 pop 275.0}
@@ -255,13 +300,29 @@ BOB 150000.0     5000.0  10000.0      0.0
         cash spend JOE overhead 1000.0
     } -body {
         cash refund JOE NONE 500.0
-        cash expenditures
+        cash allocations
     } -cleanup {
         cleanup
     } -result {world 0.0 region 100.0 goods 350.0 black 0.0 pop 550.0}
 
+    test refund-1.4 {Refund is saved by actor and sector} -setup {
+        setup
+        cash load
+        cash spend JOE overhead 1000.0
+    } -body {
+        cash refund JOE overhead 500.0
+        ted query {SELECT * FROM expenditures}
+    } -cleanup {
+        cleanup
+    } -result {
+a   goods black pop   actor region world 
+--- ----- ----- ----- ----- ------ ----- 
+JOE 175.0 0.0   275.0 0.0   50.0   0.0   
+BOB 0.0   0.0   0.0   0.0   0.0    0.0   
+    }
+
     #-------------------------------------------------------------------
-    # expenditures
+    # allocations
 
     # This command is tested in the tests for [cash load], [cash spend],
     # and [cash refund].
@@ -411,9 +472,3 @@ BOB 150000.0     5000.0
 }
 
 namespace delete ::athena_test::tests::
-
-
-
-
-
-
