@@ -54,6 +54,8 @@ snit::type cash {
         }
 
         # NEXT, load up the working cash table, giving the actor his income.
+        # Note that for BUDGET actors, actors_view.income IS the actor's
+        # budget.
         rdb eval {
             DELETE FROM working_cash;
         }
@@ -76,6 +78,10 @@ snit::type cash {
     # save
     #
     # Save every actors' cash balances back into the actors table.
+    #
+    # Note that budget actors don't get to keep their unspent cash.
+    # They won't usually touch their cash_reserve, but if they do we
+    # preserve it.
 
     typemethod save {} {
         # FIRST, we should not be locking the scenario
@@ -88,7 +94,13 @@ snit::type cash {
                 UPDATE actors
                 SET cash_reserve = $cash_reserve,
                     cash_on_hand = $cash_on_hand + $gifts
-                WHERE a=$a
+                WHERE a=$a AND atype='INCOME';
+                
+                -- Budget actors don't get to keep unspent cash.
+                UPDATE actors
+                SET cash_reserve = $cash_reserve,
+                    cash_on_hand = 0
+                WHERE a=$a AND atype='BUDGET';
             }
         }
 

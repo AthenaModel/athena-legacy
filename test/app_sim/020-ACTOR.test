@@ -32,6 +32,7 @@ namespace eval ::athena_test::tests:: {
         a                JOE
         longname         "Joe the Actor"
         supports         SELF
+        atype            INCOME
         cash_reserve     200000
         cash_on_hand     0
         income_goods     60000
@@ -40,12 +41,14 @@ namespace eval ::athena_test::tests:: {
         income_pop       30000
         income_graft     20000
         income_world     10000
+        budget           0
     }
 
     set bob {
         a                BOB
         longname         "Bob the Actor"
         supports         SELF
+        atype            INCOME
         cash_reserve     150000
         cash_on_hand     0
         income_goods     5000
@@ -54,8 +57,25 @@ namespace eval ::athena_test::tests:: {
         income_pop       20000
         income_graft     25000
         income_world     30000
+        budget           0
     }
 
+    set DAVE {
+        a                DAVE
+        longname         "Dave the Actor"
+        supports         SELF
+        atype            BUDGET
+        cash_reserve     0
+        cash_on_hand     0
+        income_goods     0
+        shares_black_nr  0
+        income_black_tax 0
+        income_pop       0
+        income_graft     0
+        income_world     0
+        budget           250
+    }
+    
     # Clean up after a test
 
     proc cleanup {} {
@@ -103,8 +123,17 @@ namespace eval ::athena_test::tests:: {
         supports {Invalid actor "NONESUCH", should be one of: SELF, NONE}
     }
 
+    test CREATE-1.5 {invalid atype} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            atype "NONESUCH"
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        atype {invalid value "NONESUCH", should be one of: INCOME, BUDGET}
+    }
 
-    test CREATE-1.5 {invalid cash_reserve} -body {
+    test CREATE-1.6 {invalid cash_reserve} -body {
         ted order -reject ACTOR:CREATE [dict merge $joe {
             cash_reserve NONESUCH
         }]
@@ -114,7 +143,7 @@ namespace eval ::athena_test::tests:: {
         cash_reserve {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test CREATE-1.6 {invalid cash_on_hand} -body {
+    test CREATE-1.7 {invalid cash_on_hand} -body {
         ted order -reject ACTOR:CREATE [dict merge $joe {
             cash_on_hand NONESUCH
         }]
@@ -184,6 +213,16 @@ namespace eval ::athena_test::tests:: {
         income_world {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
     
+    test CREATE-1.14 {invalid budget} -body {
+        ted order -reject ACTOR:CREATE [dict merge $joe {
+            budget NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        budget {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+    
     test CREATE-2.1 {actor is created} -body {
         ted order ACTOR:CREATE $joe
         
@@ -194,6 +233,7 @@ namespace eval ::athena_test::tests:: {
 a                 JOE
 longname          Joe the Actor
 supports          JOE
+atype             INCOME
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      60000.0
@@ -202,6 +242,7 @@ income_black_tax  40000.0
 income_pop        30000.0
 income_graft      20000.0
 income_world      10000.0
+budget            0.0
     }
 
 
@@ -215,6 +256,7 @@ income_world      10000.0
 a                 JOE
 longname          JOE
 supports          JOE
+atype             INCOME
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      60000.0
@@ -223,6 +265,7 @@ income_black_tax  40000.0
 income_pop        30000.0
 income_graft      20000.0
 income_world      10000.0
+budget            0.0
     }
 
     test CREATE-2.3 {effects} -body {
@@ -311,7 +354,17 @@ income_world      10000.0
         supports {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE, BOB}
     }
 
-    test UPDATE-1.3 {invalid cash_reserve} -setup {
+    test UPDATE-1.3 {invalid atype} -setup {
+        ted create JOE BOB
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE atype NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        atype {invalid value "NONESUCH", should be one of: INCOME, BUDGET}
+    }
+
+    test UPDATE-1.4 {invalid cash_reserve} -setup {
         ted create JOE
     } -body {
         ted order -reject ACTOR:UPDATE a JOE cash_reserve NONESUCH
@@ -321,7 +374,7 @@ income_world      10000.0
         cash_reserve {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test UPDATE-1.4 {invalid cash_on_hand} -setup {
+    test UPDATE-1.5 {invalid cash_on_hand} -setup {
         ted create JOE
     } -body {
         ted order -reject ACTOR:UPDATE a JOE cash_on_hand NONESUCH
@@ -392,6 +445,16 @@ income_world      10000.0
         income_world {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
+    test UPDATE-1.12 {invalid budget} -setup {
+        ted create JOE
+    } -body {
+        ted order -reject ACTOR:UPDATE a JOE budget NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        budget {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
 
     test UPDATE-2.1 {actor is updated} -setup {
         ted create JOE BOB
@@ -400,6 +463,7 @@ income_world      10000.0
             a                JOE
             longname         "Joe the Actress"
             supports         BOB
+            atype            BUDGET
             cash_reserve     10
             cash_on_hand     20
             income_goods     0
@@ -408,6 +472,7 @@ income_world      10000.0
             income_pop       3
             income_graft     4
             income_world     5
+            budget           6
         }
 
         ted querylist {SELECT * FROM actors}
@@ -417,18 +482,21 @@ income_world      10000.0
 a                 JOE
 longname          Joe the Actress
 supports          BOB
-cash_reserve      10.0
-cash_on_hand      20.0
+atype             BUDGET
+cash_reserve      0.0
+cash_on_hand      0.0
 income_goods      0.0
-shares_black_nr   1
-income_black_tax  2.0
-income_pop        3.0
-income_graft      4.0
-income_world      5.0
+shares_black_nr   0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
+budget            6.0
 
 a                 BOB
 longname          Bob the Actor
 supports          BOB
+atype             INCOME
 cash_reserve      150000.0
 cash_on_hand      0.0
 income_goods      5000.0
@@ -437,6 +505,7 @@ income_black_tax  0.0
 income_pop        0.0
 income_graft      0.0
 income_world      0.0
+budget            0.0
     }
 
 
@@ -549,6 +618,7 @@ income_world      0.0
             income_pop        3
             income_graft      4
             income_world      5
+            budget            6
         }
 
         ted querylist {SELECT * FROM actors}
@@ -558,6 +628,7 @@ income_world      0.0
 a                 JOE
 longname          Joe the Actor
 supports          JOE
+atype             INCOME
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      0.0
@@ -566,10 +637,46 @@ income_black_tax  2.0
 income_pop        3.0
 income_graft      4.0
 income_world      5.0
+budget            0.0
+    }
+
+    test INCOME-2.3 {can't change atype} -setup {
+        ted create JOE
+    } -body {
+        ted order ACTOR:INCOME {
+            a                 JOE
+            atype             BUDGET
+            income_goods      0
+            shares_black_nr   1
+            income_black_tax  2
+            income_pop        3
+            income_graft      4
+            income_world      5
+            budget            6
+        }
+
+        ted querylist {SELECT * FROM actors}
+    } -cleanup {
+        cleanup
+    } -result {
+a                 JOE
+longname          Joe the Actor
+supports          JOE
+atype             INCOME
+cash_reserve      200000.0
+cash_on_hand      0.0
+income_goods      0.0
+shares_black_nr   1
+income_black_tax  2.0
+income_pop        3.0
+income_graft      4.0
+income_world      5.0
+budget            0.0
     }
 
 
-    test INCOME-2.2 {table monitor event} -setup {
+
+    test INCOME-2.4 {table monitor event} -setup {
         ted create JOE
     } -body {
         ted notifier bind ::rdb <actors>

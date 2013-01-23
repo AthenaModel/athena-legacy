@@ -50,21 +50,28 @@ CREATE TABLE actors (
                  ON DELETE SET NULL
                  DEFERRABLE INITIALLY DEFERRED,
 
-    -- Money saved for later, in $.
+    -- Actor type, INCOME or BUDGET
+    atype        TEXT DEFAULT 'INCOME',
+
+    -- Money saved for later, in $.  Usually only INCOME actors
+    -- will use this.
     cash_reserve DOUBLE DEFAULT 0,
 
     -- Money available to be spent, in $.
-    -- Unspent cash accumulates from tock to tock.
+    -- For INCOME actors, unspent cash accumulates from tock to tock.
     cash_on_hand DOUBLE DEFAULT 0,
 
-    -- Income by income class, in $/week.  Ultimately, these should go
-    -- in a separate table.
+    -- Income by income class, in $/week, for INCOME actors.
+    -- Ultimately, these should go in a separate table.
     income_goods     DOUBLE  DEFAULT 0,
     shares_black_nr  INTEGER DEFAULT 0,
     income_black_tax DOUBLE  DEFAULT 0,
     income_pop       DOUBLE  DEFAULT 0,
     income_graft     DOUBLE  DEFAULT 0,
-    income_world     DOUBLE  DEFAULT 0
+    income_world     DOUBLE  DEFAULT 0,
+
+    -- Budget in $/week, for BUDGET actors.
+    budget           DOUBLE  DEFAULT 0
 );
 
 CREATE TRIGGER actor_delete
@@ -80,6 +87,8 @@ CREATE TABLE income_a (
     -- 
     -- NOTE: This table is defined here, rather than in the Econ
     -- area, so that it can be used in the actors_view.
+    --
+    -- NOTE: Only INCOME actors have income.
     
     a         TEXT PRIMARY KEY,   -- Symbolic actor name
     income    DOUBLE,             -- Actor's current income
@@ -110,6 +119,7 @@ CREATE VIEW actors_view AS
 SELECT a, 
        longname,
        supports,
+       atype,
        cash_reserve,
        cash_on_hand,
        income_goods,
@@ -118,8 +128,14 @@ SELECT a,
        income_pop,
        income_graft,
        income_world,
-       coalesce(income, income_goods + income_black_tax +
-                        income_pop + income_graft + income_world) AS income
+       budget,
+       -- For INCOME actors, get the income from the income_a table,
+       -- if it exists, otherwise the sum of the income_* columns.
+       -- For BUDGET actors, get the actor's budget.
+       CASE WHEN atype == 'INCOME' THEN
+           coalesce(income, income_goods + income_black_tax +
+                        income_pop + income_graft + income_world)
+           ELSE budget END  AS income
 FROM actors
 LEFT OUTER JOIN income_a USING (a);
 

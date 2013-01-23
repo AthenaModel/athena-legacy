@@ -422,8 +422,10 @@ snit::type econ {
 
     typemethod InitializeActorIncomeTables {} {
         # FIRST, the total income by actor. A sum of all income sources.
+        # Only INCOME actors are represented.
         rdb eval {
             SELECT a FROM actors
+            WHERE atype='INCOME'
         } {
             rdb eval {
                 INSERT INTO income_a(a, income)
@@ -523,6 +525,7 @@ snit::type econ {
         # weeks.
         rdb eval {
             SELECT * FROM actors
+            WHERE atype = 'INCOME'
         } data {
             let t_goods      {$data(income_goods) * 52.0 / ($BPg * $BQDg)}
             let t_pop        {$data(income_pop)   * 52.0 / ($BPp * $BQDp)}
@@ -1078,6 +1081,9 @@ snit::type econ {
                 $inc_pop   + $inc_region  + $inc_world
             }
 
+            # TBD: Not supposed to update a table during a
+            # query on the table.  The [rdb eval] above should
+            # use a foreach to do the looping.
             rdb eval {
                 UPDATE income_a
                 SET income       = $inc_total,

@@ -64,7 +64,17 @@ object actor_ {
     } -tags {create update browser}
 
 
+    attribute atype "Funding Type" {
+        The actor's funding type, either "<b>INCOME</b>", e.g., income
+        from the local economy, or "<b>BUDGET</b>", e.g., income from
+        some foreign source outside of the local economy.<p>
+        
+        The significant difference is that a "<b>BUDGET</b>" actor's
+        money does not enter the local economy unless it is spent.
+    } -tags {create update browser}
+    
     attribute cash_reserve "Cash Reserve, $" {
+        <b>INCOME actors only!</b>
         Every actor has some amount of cash in reserve for future needs
         that can be released for use via the 
         <<cref /object/tactic/withdraw>>.  The actor is given an initial 
@@ -73,6 +83,7 @@ object actor_ {
     } -tags {create_opt update browser}
 
     attribute cash_on_hand "Cash-On-Hand, $" {
+        <b>INCOME actors only!</b>
         An actor's cash-on-hand is the amount of the money the actor
         has available to fund tactics.  The actor receives income
         into his cash-on-hand every week, and may also move money
@@ -88,6 +99,7 @@ object actor_ {
     } -tags {create_opt update browser}
 
     attribute income_goods "Income, GOODS Sector, $/week" {
+        <b>INCOME actors only!</b>
         The actor's income from the Goods sector of the economy, in dollars
         per week.  This is a tax-like income: genuine taxes, 
         tolls, bribes, baksheesh, fees, and the like paid to the
@@ -104,6 +116,7 @@ object actor_ {
     } -tags {create_opt update browser income}
 
     attribute income_black_nr "Income, BLACK Profits, shares" {
+        <b>INCOME actors only!</b>
         The actor's income from the profits of the Black Market
         sector of the economy, in shares of the profit, e.g., because the 
         actor is in some sense an owner of the means of the production
@@ -125,6 +138,7 @@ object actor_ {
     } -tags {create_opt update browser income}
 
     attribute income_black_tax "Income, BLACK Tax, $/week" {
+        <b>INCOME actors only!</b>
         The actor's income from the Black Market sector of the economy, 
         in dollars per week.  This is a tax-like income: genuine taxes, 
         tolls, bribes, baksheesh, fees, and the like paid to the
@@ -141,6 +155,7 @@ object actor_ {
     } -tags {create_opt update browser income}
 
     attribute income_pop "Income, POP Sector, $/week" {
+        <b>INCOME actors only!</b>
         The actor's income from the Pop sector of the economy, in dollars
         per week.  This is a tax-like income: genuine taxes, 
         tolls, bribes, baksheesh, fees, and the like paid by consumers
@@ -157,6 +172,7 @@ object actor_ {
     } -tags {create_opt update browser income}
 
     attribute income_graft "Income, Graft on FA, $/week" {
+        <b>INCOME actors only!</b>
         The actor's income from graft on foreign aid to the region, 
         in dollars per week.<p>
         
@@ -171,6 +187,7 @@ object actor_ {
     } -tags {create_opt update browser income}
 
     attribute income_world "Income, WORLD Sector, $/week" {
+        <b>INCOME actors only!</b>
         The actor's income from outside the playbox in dollars per 
         week.  This includes foreign aid to local actors from actors outside
         the playbox who are not modeled explicitly in the scenario, as well as
@@ -184,6 +201,14 @@ object actor_ {
         This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
         used to fund tactics.
+    } -tags {create_opt update browser income}
+    
+    attribute budget "Weekly Budget, $/week" {
+        <b>BUDGET actors only!</b>
+        The actor's weekly budget from his home country or other
+        foreign source.  It flows into his cash-on-hand, where it may
+        be used to fund tactics.  Note that unspent cash-on-hand is
+        <b>not</b> carried over to the next week; it simply vanishes.<p>
     } -tags {create_opt update browser income}
 }
 

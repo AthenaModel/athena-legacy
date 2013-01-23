@@ -37,6 +37,7 @@ SELECT a                                               AS id,
             WHEN supports IS NULL  THEN 'NONE'
             ELSE link('my://app/actor/' || supports, supports)
             END                                        AS supports_link,
+       atype                                           AS atype,
        moneyfmt(cash_reserve)                          AS cash_reserve,
        moneyfmt(cash_on_hand)                          AS cash_on_hand,
        moneyfmt(income_goods)                          AS income_goods,
@@ -45,6 +46,7 @@ SELECT a                                               AS id,
        moneyfmt(income_pop)                            AS income_pop,
        moneyfmt(income_graft)                          AS income_graft,
        moneyfmt(income_world)                          AS income_world,
+       moneyfmt(budget)                                AS budget,
        moneyfmt(income)                                AS income
 FROM actors_view;
 

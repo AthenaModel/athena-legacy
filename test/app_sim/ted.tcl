@@ -199,6 +199,7 @@ snit::type ted {
             a                JOE
             longname         "Joe the Actor"
             supports         SELF
+            atype            INCOME
             cash_reserve     200000
             cash_on_hand     0
             income_goods     10000
@@ -207,12 +208,14 @@ snit::type ted {
             income_pop       0
             income_graft     0
             income_world     0
+            budget           0
         }
 
         defentity BOB ::actor {
             a                BOB
             longname         "Bob the Actor"
             supports         SELF
+            atype            INCOME
             cash_reserve     150000
             cash_on_hand     0
             income_goods     5000
@@ -221,12 +224,14 @@ snit::type ted {
             income_pop       0
             income_graft     0
             income_world     0
+            budget           0
         }
 
         defentity DAVE ::actor {
             a                DAVE
             longname         "Dave the Actor"
             supports         SELF
+            atype            INCOME
             cash_reserve     150000
             cash_on_hand     0
             income_goods     5000
@@ -235,12 +240,14 @@ snit::type ted {
             income_pop       0
             income_graft     0
             income_world     0
+            budget           0
         }
 
         defentity BRIAN ::actor {
             a                BRIAN
             longname         "Brian the Actor"
             supports         BOB
+            atype            INCOME
             cash_reserve     150000
             cash_on_hand     0
             income_goods     5000
@@ -249,6 +256,23 @@ snit::type ted {
             income_pop       0
             income_graft     0
             income_world     0
+            budget           0
+        }
+
+        defentity WILL ::actor {
+            a                WILL
+            longname         "Will the Actor"
+            supports         SELF
+            atype            BUDGET
+            cash_reserve     0
+            cash_on_hand     0
+            income_goods     0
+            shares_black_nr  0
+            income_black_tax 0
+            income_pop       0
+            income_graft     0
+            income_world     0
+            budget           10000
         }
 
         # Civ Groups

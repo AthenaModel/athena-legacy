@@ -46,6 +46,7 @@ namespace eval ::athena_test::tests:: {
 a                 JOE
 longname          Joe the Actor
 supports          JOE
+atype             INCOME
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      10000.0
@@ -54,6 +55,7 @@ income_black_tax  0.0
 income_pop        0.0
 income_graft      0.0
 income_world      0.0
+budget            0.0
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -72,6 +74,7 @@ income_world      0.0
 a                 JOE
 longname          Joe the Actor
 supports          
+atype             INCOME
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      10000.0
@@ -80,6 +83,7 @@ income_black_tax  0.0
 income_pop        0.0
 income_graft      0.0
 income_world      0.0
+budget            0.0
     }
 
 
@@ -129,6 +133,7 @@ income_world      0.0
 a                 JOE
 longname          Joe the Actor
 supports          JOE
+atype             INCOME
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      10000.0
@@ -137,6 +142,7 @@ income_black_tax  0.0
 income_pop        0.0
 income_graft      0.0
 income_world      0.0
+budget            0.0
     }
 
     test delete-3.1 {Bsystem entity deleted} -setup {
@@ -259,7 +265,9 @@ income_world      0.0
 
     test delete-8.1 {actors.supports set to NULL} -setup {
         ted create JOE BOB
-        actor mutate update [list a JOE supports BOB]
+        rdb eval {
+            UPDATE actors SET supports = 'BOB' WHERE a = 'JOE'
+        }
     } -body {
         actor mutate delete BOB
 
@@ -270,7 +278,9 @@ income_world      0.0
 
     test delete-8.2 {Undo restores actors.supports} -setup {
         ted create JOE BOB
-        actor mutate update [list a JOE supports BOB]
+        rdb eval {
+            UPDATE actors SET supports = 'BOB' WHERE a = 'JOE'
+        }
     } -body {
         set a [rdb eval {SELECT a,supports FROM actors}]
 
@@ -339,10 +349,13 @@ income_world      0.0
     test update-1.1 {actor is updated} -setup {
         ted create JOE
     } -body {
+        # NOTE: Because the atype changes, the
+        # INPUT-atype-specific columns are zeroed.
         actor mutate update {
             a                JOE
             longname         "Joe the Actress"
             supports         NONE
+            atype            BUDGET
             cash_reserve     0
             cash_on_hand     10
             income_goods     4
@@ -351,6 +364,7 @@ income_world      0.0
             income_pop       7
             income_graft     8
             income_world     9
+            budget           10
         }
 
         ted querylist {SELECT * FROM actors}
@@ -360,14 +374,16 @@ income_world      0.0
 a                 JOE
 longname          Joe the Actress
 supports          
+atype             BUDGET
 cash_reserve      0.0
-cash_on_hand      10.0
-income_goods      4.0
-shares_black_nr   5
-income_black_tax  6.0
-income_pop        7.0
-income_graft      8.0
-income_world      9.0
+cash_on_hand      0.0
+income_goods      0.0
+shares_black_nr   0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
+budget            10.0
     }
 
 
@@ -380,6 +396,7 @@ income_world      9.0
             a                JOE
             longname         ""
             supports         ""
+            atype            ""
             cash_reserve     ""
             cash_on_hand     ""
             income_goods     ""
@@ -388,6 +405,7 @@ income_world      9.0
             income_pop       ""
             income_graft     ""
             income_world     ""
+            budget           ""
         }
 
         set b [ted querylist {SELECT * FROM actors}]
@@ -408,6 +426,7 @@ income_world      9.0
             a                JOE
             longname         "Joe the Actress"
             supports         BOB
+            atype            BUDGET
             cash_reserve     ""
             cash_on_hand     ""
             income_goods     ""
@@ -416,6 +435,7 @@ income_world      9.0
             income_pop       ""
             income_graft     ""
             income_world     ""
+            budget           10.0
         }]
 
         namespace eval :: $undo
@@ -490,6 +510,8 @@ income_world      9.0
         a                JOE
         income_pop       0.0
         cash_reserve     200000.0
+        budget           0.0
+        atype            INCOME
         longname         {Joe the Actor}
         shares_black_nr  0
         income_world     0.0
@@ -516,6 +538,7 @@ income_world      9.0
         actor mutate update {
             a                JOE
             supports         ""
+            atype            ""
             cash_reserve     ""
             cash_on_hand     ""
             income_goods     1
@@ -523,6 +546,7 @@ income_world      9.0
             income_pop       100
             income_graft     1000
             income_world     10000
+            budget           ""
         }
     } -body {
         actor income JOE
@@ -542,6 +566,28 @@ income_world      9.0
         cleanup
     } -result {12345.0}
     
+    test income-1.3 {get actor income, budget} -setup {
+        ted create JOE
+
+        actor mutate update {
+            a                JOE
+            supports         ""
+            atype            BUDGET
+            cash_reserve     ""
+            cash_on_hand     ""
+            income_goods     ""
+            income_black_tax ""
+            income_pop       ""
+            income_graft     ""
+            income_world     ""
+            budget           12345.0
+        }
+    } -body {
+        actor income JOE
+    } -cleanup {
+        cleanup
+    } -result {12345.0}
+
     #-------------------------------------------------------------------
     # Cleanup
 
