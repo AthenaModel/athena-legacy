@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cge6x6.cm, version y 
+#    cge6x6.cm, version z 
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -63,6 +63,32 @@
 #    In, and Out pages.
 #
 # HISTORY:
+#    Version z: 
+#    * Changed a few more defaults to be in line with the latest
+# study. Fixed a bug in the GDP calculation: cost of feedstock was being
+# subtracted out twice. Moved the GDP calculation to the Cal page and
+# now uses the ratio of BaseGDP to GDP to find a P.pop that will make that
+# ratio 1.0.
+#    * Introduced a variable on the Cal page called BPp which is iterated
+# over in order to get a calibration of the GDP to match the BaseGDP from
+# the SAM.
+#    * Added a symbol to be used for displaying the string "n/a" on the GUI.
+#    * Changed the calculation for P.goods to a more simpler version based
+# on the ratio of BP.goods to the newly introduced BPp.
+#    * QS.pop is now limited by BaseCAP.pop on the Cal page. It is also
+# limited by In::CAP.pop on the L page.
+#    * Introduced GDPratio, which is the ratio of BaseGDP to a computed GDP.
+# It is iterated over in order to determine P.pop, the wage (and numeraire).
+# Convergence is achieved when that ratio is within an epsilon of 1.0.
+# Simplified the GDP calculation on the Cal page to match the calculation in
+# the SAM. This makes the GDPratio behave nicer during convergence.
+#    * Introduced some variables as the symbol "n/a" on the Cal page. This 
+# is for GUI display purposes, some displayed outputs cannot be calculated 
+# on the Cal page, so they are shown as "n/a" when showing calibrated data 
+# on the GUI.
+#    * The L, M and S pages now copy the calibrated P.goods and P.pop from
+# the Cal page.
+#
 #    Version y: Calibrated the value of A.goods.pop for the base case on 
 # the Cal page by adjusting the value of a new variable, Agp, until 
 # Cal::Unemp equals BaseUnemp. Agp is used as the basis for A.goods.pop on
@@ -315,6 +341,7 @@ let TurFrac = 0.04 ;# Average fraction of workforce "merely between jobs"
 let BX.goods.goods  = 1.087e9
 let BX.goods.black  = 6.5e5
 let BX.goods.pop    = 209.0e9
+#let BX.goods.actors = 9.135e9
 let BX.goods.actors = 0.0
 let BX.goods.region = 785.0e6
 let BX.goods.world  = 21.410e9
@@ -329,21 +356,26 @@ let BX.black.world  = 800.0e6
 let BX.pop.goods    = 212.0e9
 let BX.pop.black    = 8.0e6
 let BX.pop.pop      = 0.0
+#let BX.pop.actors   = 13.835e9
 let BX.pop.actors   = 0.0
 let BX.pop.region   = 0.0
 let BX.pop.world    = 0.0
 
+#let BX.actors.goods = 4.669e9
 let BX.actors.goods = 0.0
 let BX.actors.black = 0.0
+#let BX.actors.pop   = 19.664e9
 let BX.actors.pop   = 0.0
 let BX.actors.actors = 0.0
 let BX.actors.region = 0.0
+#let BX.actors.world  = 2.167e9
 let BX.actors.world  = 0.0
 
 let BX.region.goods  = 0.0
 let BX.region.black  = 0.0
 let BX.region.pop    = 0.0
 let BX.region.actors = 0.0
+#let BX.region.actors = 530.0e6
 let BX.region.region = 0.0
 let BX.region.world  = 1.5e9
 
@@ -472,8 +504,8 @@ let BFAA          = 0.0       ;# $/year  Foreign aid that goes directly to
 # Base prices: These are the prices of sector products used to 
 # calibrate the Cobb-Douglas coefficients. (See above for BP.black.)
 
-let BP.goods =    1     ;# $/GoodsBKT  - the size of the GoodsBKT
-let BP.pop   = 600     ;# $/work-year - the unchanging numeraire
+let BP.goods = 1      ;# $/GoodsBKT  - the size of the GoodsBKT
+let BP.pop   = 2550   ;# $/work-year - the unchanging numeraire
 
 # The following will be relevant in future versions of the CGE in
 # which there are more sectors, so that prices are not completely
@@ -570,6 +602,9 @@ page Global
 # up; if negative, they go down.
 let REMChangeRate = 0.0
 
+# Symbol for "n/a" to be displayed on the Athena GUI
+letsym NA = {"n/a"}
+
 #=======================================================================
 # Calibration
 #
@@ -614,7 +649,6 @@ define CQD.i.j {i j} {
 }                                                 ;# Cobb-Douglas demand
 define EXP.j {j} {<:sum i {[X.$i.$j]}:>}          ;# Expenses as column sum
 
-let P.pop = {[BP.pop]} -value 2550
 
 # Note: The equations in this version are organized by sector to 
 # parallel the derivation document ("Athena's Computable General Equilibrium
@@ -642,7 +676,7 @@ let X.goods.goods  = [X.i.j goods goods]                   -value 1.087e9
 let QD.black.goods = 0
 let X.black.goods  = 0
 
-let QD.pop.goods   = {[k.goods] * <:CQD.i.j pop goods:>}   -value 1.0e6
+let QD.pop.goods   = {[k.goods] * <:CQD.i.j pop goods:>}   -value 7.0e7
 let X.pop.goods    = [X.i.j pop goods]                     -value 83.1e6
 
 let X.actors.goods = [TAX.i.j actors goods] -value 1.0e8
@@ -663,11 +697,7 @@ let QS.goods = {[QD.goods]} -value 232.283e9
 # to have an error
 let EXP.goods = [EXP.j goods] -value 233.179e9
 
-let P.goods = {
-    ((([P.pop] / [f.pop.goods]) ** [f.pop.goods]) /
-      ([A.goods] * [k.goods] * [f.goods.goods] ** [f.goods.goods])) **
-      (1.0 / (1.0 - [f.goods.goods]))
-} -value 1
+let P.goods = {[P.pop]*([BP.goods]/[BPp])} -value 1
 
 let NR.goods = {([P.goods] - [C.goods]) * [QS.goods]}
 # Returns on equity, executive salaries, etc. that are necessary to stay in 
@@ -804,8 +834,9 @@ let QD.pop = {<:sum j {[QD.pop.$j]}:>}
 
 # To calibrate the model to the base case, a medium-run equilibrium is 
 # sought, but the number of jobs is constrained by the demand for jobs, 
-# so:
-let QS.pop = {[QD.pop]}
+# and the supply of labor, so:
+let QS.pop = {max(0.0, min([QD.pop], [BaseCAP.pop]))}
+#let QS.pop = {[QD.pop]}
 
 let EXP.pop   = [EXP.j pop] -value 222.08e9
 
@@ -873,6 +904,8 @@ let NR.region = {[REV.region] - [EXP.region]}
 #  pop sectors.
 # Note: Expenditures do not necessarily balance revenues.
 
+# REV.world accounts for the cost of black market feedstock (as part of
+# X.world.black)
 let REV.world      = {<:sum j {[X.world.$j]}:>}
 
 let QD.black.world = {[BEXPORTS.black]}
@@ -890,7 +923,6 @@ let EXP.world  = [EXP.j world] -value 23.7e9
 
 let NR.world = {[REV.world] - [EXP.world]}
 
-
 #Unemployment Statistics
 let RealUnemp = {max(0.0, ediff([BaseCAP.pop], [QS.pop]))}
 let Turb      = {[TurFrac] * [BaseCAP.pop]}
@@ -898,6 +930,7 @@ let Unemp     = {[RealUnemp] + [Turb]}
 let RealUR    = {100.0 * [RealUnemp] / [BaseCAP.pop]}
 let UR        = {100.0 * [Unemp] / [BaseCAP.pop]}
 
+#GDP, wages and consumption
 # Increasing A.goods.pop increases the demand for goods, QD.goods.pop,
 # which increases the production of goods, QS.goods, which increases the
 # demand for labor, QD.pop, which should decrease unemployment - and 
@@ -907,9 +940,46 @@ let BaseEmployment = {[BaseCAP.pop] - [BaseUnemp]}
 let Ratio   = {pow([BaseEmployment] / [QS.pop], 0.2)} -value 1.0
 let Agp     = {[Agp] * [Ratio]} -value 1300.0
 
+let GDPratio = {[BaseGDP] / [GDP]} -value 1
+let BPp = {[BPp] * pow([GDPratio], 0.075)} -value 2550
+
+let P.pop = {[BPp]} -value 2550
+
+# The contribution of goods, black and pop sectors to total GDP
+let GDP.goods = {
+     [X.goods.pop] + [X.goods.actors] + [X.goods.region] + [X.goods.world]
+} -value 2.2e11
+
+let GDP.black = {
+     [X.black.pop] + [X.black.actors] + [X.black.region] + [X.black.world]
+} -value 8.8e8
+
+let GDP.pop = {
+     [X.pop.pop] + [X.pop.actors] + [X.pop.region] + [X.pop.world]
+} -value 1.0e10
+
+# Gross Domestic Product = value of all final products supplied
+# The cost of feedstock is accounted for in REV.world
+let GDP = {
+    [GDP.goods] + [GDP.black] + [GDP.pop] - [REV.world] + [SA]
+} -value 1.98e11
+
 # The calibrated final value of Cal::Agp is used as the basis for A.goods.pop
 # on the L, M and S pages, where it is adjusted byt the current values of
 # X.goods.pop/P.goods and the number of Consumers.
+
+# Some outputs for display in the Athena GUI
+# Some of these (ie. A.goods.pop) are recomputed on the L, M and S pages.
+# Others are computed only on the Out page (ie. SHORTAGE.i).
+letsym CPI            = {"n/a"}
+letsym DGDP           = {"n/a"}
+letsym PerCapDGDP     = {"n/a"}
+let A.goods.pop       = {[Agp]}
+let Unemployment      = {[Unemp]}
+letsym LFU            = {"n/a"}
+letsym SHORTAGE.goods = {"n/a"}
+letsym SHORTAGE.black = {"n/a"}
+letsym SHORTAGE.pop   = {"n/a"}
 
 #-----------------------------------------------------------------------
 # Diagnostics
@@ -996,12 +1066,12 @@ let deltaNR.goods = {1 - ([P.goods]/[C.goods])}
 page In
 
 # Number of consumers currently in the population.
-let Consumers = 1e6          ;# people.
+let Consumers = 1.6e8          ;# people.
 
-let Subsisters = 380000      ;# people.
+let Subsisters = 4.0e7      ;# people.
 
 # The subsisters wage (if they actually worked) aka poverty level
-let SubWage = 200
+let SubWage = 0
 
 # GDP contribution of people engaged in subsistence agriculture.
 let SA = {[Subsisters]*[SubWage]} -value 1e7  ;# $/year
@@ -1014,22 +1084,22 @@ let Population = {[Consumers]+[Subsisters]}
 let CAP.black = 40000
 
 # Remittances
-let REM = 50e6            ;# $/year
+let REM = 1.0e10            ;# $/year
 
 # Foreign aid
-let FAR = 10e6            ;# $/year
+let FAR = 1.5e9            ;# $/year
 
-# Per capita demand for goods ;# goodsBKT/year
-let A.goods.pop = 114
+# Per capita demand for goods ;# GoodsBKT/year
+let A.goods.pop = 1300
 
 # Max capacity for each sector.  These are set by Athena; the initial
 # values are intended to be effectively infinite.
 
 # Max production rate for goods
-let CAP.goods  = 5e9         ;# GoodsBKT/year, small enough to matter
+let CAP.goods  = 298.0e9         ;# GoodsBKT/year, small enough to matter
 
 # Labor Force: Number of people who want to be employed
-let LF         = 800000       ;# work-years/year
+let LF         = 9.6e7       ;# work-years/year
 
 # Due to the normal turbulence, some of those in the Labor Force
 # are temporarily unemployed and hence not available to work. Thus,
@@ -1038,25 +1108,25 @@ let CAP.pop = {[LF]*(1 - [TurFrac])}
 
 # Due to low security, the demographics model may say that some 
 # consumers are afraid to go shopping:
-let CSF = 0.9
+let CSF = 1.0
 
 # Demographics may also say that some laborers are afraid to go to work:
-let LSF = 0.9
+let LSF = 1.0
 
 # Actors expenditures
-let X.goods.actors  = 14.00e9
-let X.black.actors  = 1.40e9
-let X.pop.actors    = 4.64e9
+let X.goods.actors  = 9.135e9
+let X.black.actors  = 0.0
+let X.pop.actors    = 13.835e9
 let X.actors.actors = 0.0
-let X.region.actors = 2.859e9
-let X.world.actors  = 2.960e9
+let X.region.actors = 530.0e6
+let X.world.actors  = 0.0
 
 # Actors Income
-let X.actors.goods = 2.025e9
-let X.actors.black = 2.612e9
-let X.actors.pop   = 3.336e9
-let X.actors.region = 2.593e9
-let X.actors.world  = 3.0e6
+let X.actors.goods = 3.535e9
+let X.actors.black = 0.0
+let X.actors.pop   = 15.425e9
+let X.actors.region = 0.0
+let X.actors.world  = 2.167e9
 
 #-----------------------------------------------------------------------
 # Long-Run Page
@@ -1072,25 +1142,34 @@ let X.actors.world  = 3.0e6
 
 page L 
 copypage Cal -except {
+    diffQD.goods.pop
+    deltaNR.goods
     deltaQD.black.pop
     deltaQD.goods.pop
     deltaQD.pop.pop
     BaseEmployment
     Ratio
     Agp
+    BPp
+    P.pop
+    P.goods
+    GDPratio
+    GDP.goods
+    GDP.black
+    GDP.pop
+    GDP
 }
+
+# Copy the calibrated wages and price of GoodsBKT
+let P.pop = {[Cal::P.pop]}
+let P.goods = {[Cal::P.goods]}
 
 # A.goods.pop may have changed if the number of consumers has changed or the
 # amount of money flowing to the pop sector has changed
 let A.goods.pop = {
     [Cal::Agp] * ([X.goods.pop]/[BX.goods.pop]) / 
     ([BP.goods]/[P.goods] * [BaseConsumers]/[In::Consumers])
-}
-
-# Old method
-#let A.goods.pop = {
-#    [X.goods.pop] / ([P.goods] * [In::Consumers])
-#}
+} -value 1300
 
 # Remittances may have changed
 let X.pop.world = {[P.pop] * [QD.pop.world] + [In::REM]}
@@ -1108,12 +1187,12 @@ let X.actors.actors = {[In::X.actors.actors]}
 let X.region.actors = {[In::X.region.actors]}
 let X.world.actors  = {[In::X.world.actors]}
 
-let SA = {[In::Subsisters]*[In::SubWage]}
-
-# In the long run, production quantities are unconstrained
+# In the long run, production quantities are constrained only by labor
 let QS.goods = {[QD.goods]}
 let QS.black = {[QD.black]}
-let QS.pop   = {[QD.pop]}
+let QS.pop   = {max(0.0, min([QD.pop], [In::CAP.pop]))}
+
+letsym GDP = {"n/a"}
 
 #-----------------------------------------------------------------------
 # Medium-Run Page
@@ -1129,14 +1208,28 @@ let QS.pop   = {[QD.pop]}
 
 page M 
 copypage Cal -except {
+    diffQD.goods.pop
+    deltaNR.goods
     deltaQD.black.pop
     deltaQD.goods.pop
     deltaQD.pop.pop
     BaseEmployment
     Ratio
     Agp
+    BPp
+    P.pop
+    P.goods
+    GDPratio
+    GDP.goods
+    GDP.black
+    GDP.pop
+    GDP
 }
 initfrom L
+
+# Copy the calibrated wages and price of GoodsBKT
+let P.pop = {[Cal::P.pop]}
+let P.goods = {[Cal::P.goods]}
 
 # Replace the following equations
 
@@ -1154,7 +1247,7 @@ let QS.black = {
 # QS.goods is now limited by demand or capacity
 let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
 
-# QS.pop, which is the number of jobs, is now limited by demand 
+# QS.pop, which is the number of jobs, is still limited by demand 
 # or the available labor force
 let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] ))}
 
@@ -1164,11 +1257,6 @@ let A.goods.pop = {
     [Cal::Agp] * ([X.goods.pop]/[BX.goods.pop]) / 
     ([BP.goods]/[P.goods] * [BaseConsumers]/[In::Consumers])
 }
-
-# Old method
-#let A.goods.pop = {
-#    [X.goods.pop] / ([P.goods] * [In::Consumers])
-#}
 
 # Remittances may have changed
 let X.pop.world = {[P.pop] * [QD.pop.world] + [In::REM]}
@@ -1186,7 +1274,7 @@ let X.actors.actors = {[In::X.actors.actors]}
 let X.region.actors = {[In::X.region.actors]}
 let X.world.actors  = {[In::X.world.actors]}
 
-let SA = {[In::Subsisters]*[In::SubWage]}
+letsym GDP = {"n/a"}
 
 #=======================================================================
 
@@ -1203,14 +1291,28 @@ let SA = {[In::Subsisters]*[In::SubWage]}
 
 page S
 copypage Cal -except {
+    diffQD.goods.pop
+    deltaNR.goods
     deltaQD.black.pop
     deltaQD.goods.pop
     deltaQD.pop.pop
     BaseEmployment
     Ratio
     Agp
+    BPp
+    P.pop
+    P.goods
+    GDPratio
+    GDP.goods
+    GDP.black
+    GDP.pop
+    GDP
 }
 initfrom M
+
+# Copy the calibrated wages and price of GoodsBKT
+let P.pop = {[Cal::P.pop]}
+let P.goods = {[Cal::P.goods]}
 
 # Replace the following equations
 
@@ -1237,11 +1339,6 @@ let A.goods.pop = {
     ([BP.goods]/[P.goods] * [BaseConsumers]/[In::Consumers])
 }
 
-# Old method
-#let A.goods.pop = {
-#    [X.goods.pop] / ([P.goods] * [In::Consumers])
-#}
-
 # Remittances may have changed
 let X.pop.world = {[P.pop] * [QD.pop.world] + [In::REM]}
 let REV.pop     = {[P.pop] * [QS.pop] + [In::REM]} 
@@ -1254,7 +1351,7 @@ let X.actors.actors = {[In::X.actors.actors]}
 let X.region.actors = {[In::X.region.actors]}
 let X.world.actors  = {[In::X.world.actors]}
 
-let SA = {[In::Subsisters]*[In::SubWage]}
+letsym GDP = {"n/a"}
 
 #=======================================================================
 # Page Out: The outputs.
@@ -1267,7 +1364,7 @@ let BQS.goods = {[Cal::QS.goods]}
 let BQS.pop   = {[Cal::QS.pop]}
 
 # Per capita demand for goods
-let A.goods.pop = {[L::A.goods.pop]}
+let A.goods.pop = {[S::A.goods.pop]}
 
 # The amount of the labor force afraid to work, Labor Force Unsecure
 let LFU = {[In::CAP.pop] * (1.0 - [In::LSF])}
@@ -1367,12 +1464,13 @@ let GDP = {
     [S::P.goods]*[QGDP.goods] + 
     [S::P.black]*[QGDP.black] + 
     [S::P.pop]*[QGDP.pop]     - 
-    [REV.world] +
-    [In::SA] - [PF.world.black] * [S::QF.world.black]
+    [S::REV.world] +
+    [S::SA]
 }
 
 # Deflated GDP and Deflated per capita GDP
 let DGDP = {[GDP] / [CPI]}
+
 let PerCapDGDP = {[DGDP]/[In::Population]}
 
 #Sanity Check Values
