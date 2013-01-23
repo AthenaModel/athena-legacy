@@ -77,11 +77,15 @@ NB2 1000       1000        0         0           0          0.0 0.0
 
     test getg-1.1 {can get all data} -setup {
         setup
+        # Remove any dependancy on econ model
+        rdb eval {
+            UPDATE demog_g SET unemployed=24,uaf=0.0,upc=2.4 WHERE g='SHIA'
+        }
     } -body {
         demog getg SHIA
     } -cleanup {
         cleanup
-    } -result {subsistence 0 unemployed 24 population 1000 s 0 uaf 0.0 labor_force 600 attrition 0 g SHIA consumers 1000 upc 2.4 real_pop 1000.0}
+    } -result {subsistence 0 unemployed 24 population 1000 s 1 uaf 0.0 labor_force 600 attrition 0 g SHIA consumers 1000 upc 2.4 real_pop 1000.0}
     
     test getg-1.2 {can get one parameter} -setup {
         setup
@@ -104,6 +108,10 @@ NB2 1000       1000        0         0           0          0.0 0.0
 
     test getn-1.1 {can get all data} -setup {
         setup
+        # Remove any dependancy on econ model
+        rdb eval {
+            UPDATE demog_n SET uaf=0.0,upc=2.4,unemployed=48 WHERE n='NB1'
+        }
     } -body {
         demog getn NB1
     } -cleanup {

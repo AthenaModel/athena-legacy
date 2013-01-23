@@ -31,6 +31,7 @@ namespace eval ::athena_test::tests:: {
     # Set up to run
 
     proc setup {} {
+        parm set econ.disable yes
         ted create NB1 BLUE SHIA
         ted lock
     }
