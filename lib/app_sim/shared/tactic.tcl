@@ -184,7 +184,7 @@ snit::type tactic {
             }
 
             append sql "
-                CREATE VIEW tactics_$ttype AS
+                CREATE TEMP VIEW tactics_$ttype AS
                 SELECT tactic_id, tactic_type, owner, narrative, priority,
                        $tparms
                        $opt
