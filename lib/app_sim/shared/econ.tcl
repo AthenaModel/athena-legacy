@@ -667,6 +667,9 @@ snit::type econ {
             }
         }
 
+        # NEXT, the base GDP
+        cge set [list BaseGDP $samdata(BaseGDP)]
+
         # NEXT, shape parameters for the economy
         
         #-------------------------------------------------------------
