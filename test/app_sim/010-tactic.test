@@ -605,7 +605,7 @@ exec_flag    0
         tactic mutate create $T1
     } -body {
         set p(tactic_id) 1
-        set p(amount)    10
+        set p(amount)    ""
         tactic delta p
         ted pdict [array get p]
     } -cleanup {

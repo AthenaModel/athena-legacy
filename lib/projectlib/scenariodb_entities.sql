@@ -254,7 +254,15 @@ CREATE TABLE civgroups (
     -- Subsistence Agriculture Flag: if 1, the group does 
     -- subsistence agriculture and does not participate in the
     -- cash economy.  If 0, they do.
-    sa_flag  INTEGER DEFAULT 0
+    sa_flag  INTEGER DEFAULT 0,
+    
+    -- Labor Force percentages: the fraction of the consumers
+    -- in the labor force.
+    lfp      INTEGER DEFAULT 60,
+    
+    -- Housing: is the group AT_HOME, DISPLACED (but mingling
+    -- with the population) or IN_CAMP?
+    housing  TEXT DEFAULT 'AT_HOME'
 );
 
 -- Civ Groups View: joins groups with civgroups.
@@ -270,7 +278,9 @@ SELECT g,
        rel_entity,
        gtype,
        n,
-       sa_flag 
+       sa_flag,
+       lfp,
+       housing
 FROM groups JOIN civgroups USING (g);
 
 -- Force Groups

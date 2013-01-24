@@ -151,6 +151,17 @@ An "invalid" goal is ignored, and should be fixed.<p>
 <<::projectlib::egoal_state html>>
 
 
+<<defitem ehousing {ehousing <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing a civilian group's
+housing status: are they living in their normal homes? Are they
+displaced from their normal homes, living among the settled population
+in their neighborhood?  Or are they isolated from the settled population
+in some kind of refugee or displaced persons camp?<p>
+
+<<::projectlib::ehousing html>>
+
+
 <<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing organization group types.<p>

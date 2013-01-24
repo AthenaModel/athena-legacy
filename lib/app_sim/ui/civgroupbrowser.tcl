@@ -40,6 +40,8 @@ snit::widgetadaptor civgroupbrowser {
         { basepop        "Base\nPopulation"          -sortmode integer }
         { pop_cr         "Pop. Change Rate\n% per year"                }
         { pretty_sa_flag "Subsistence\nAgriculture"                    }
+        { lfp            "\nLabor Force%"            -sortmode integer }
+        { housing        "\nHousing"                                   }
     }
 
     #-------------------------------------------------------------------

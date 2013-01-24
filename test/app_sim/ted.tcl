@@ -287,6 +287,8 @@ snit::type ted {
             pop_cr   0.0
             sa_flag  0
             demeanor AVERAGE
+            lfp      60
+            housing  AT_HOME
         } NB1
 
         defentity SUNN ::civgroup {
@@ -299,6 +301,8 @@ snit::type ted {
             pop_cr   0.0
             sa_flag  0
             demeanor AGGRESSIVE
+            lfp      60
+            housing  AT_HOME
         } NB1
 
         defentity KURD ::civgroup {
@@ -311,6 +315,8 @@ snit::type ted {
             pop_cr   0.0
             sa_flag  1
             demeanor AGGRESSIVE
+            lfp      0
+            housing  AT_HOME
         } NB2
 
         defentity NO_ONE ::civgroup {
@@ -323,6 +329,8 @@ snit::type ted {
             pop_cr   0.0
             sa_flag  1
             demeanor AGGRESSIVE
+            lfp      0
+            housing  DISPLACED
         } NB2
 
         # Force Groups

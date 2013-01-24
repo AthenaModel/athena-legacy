@@ -35,6 +35,7 @@ namespace eval ::projectlib:: {
         efrcactivity     \
         egoal_state      \
         egoal_predicate  \
+        ehousing         \
         eiom_state       \
         eorgactivity     \
         eorgconcern      \
@@ -437,6 +438,13 @@ snit::type ::projectlib::typewrapper {
     SICKNESS  "Sickness"
     THIRST    "Thirst"
     UNEMP     "Unemployment"
+}
+
+# Civ group housing
+::marsutil::enum ::projectlib::ehousing {
+    AT_HOME    "At Home"
+    DISPLACED  "Displaced"
+    IN_CAMP    "In Camp"
 }
 
 # Training Levels

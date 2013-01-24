@@ -38,6 +38,8 @@ namespace eval ::athena_test::tests:: {
         basepop   10000
         pop_cr    0.0
         sa_flag   0
+        lfp       60
+        housing   AT_HOME
     }
 
     set sunn {
@@ -50,6 +52,8 @@ namespace eval ::athena_test::tests:: {
         basepop   20000
         pop_cr    0.0
         sa_flag   1
+        lfp       0
+        housing   AT_HOME
     }
 
 
@@ -74,8 +78,10 @@ namespace eval ::athena_test::tests:: {
         basepop {required value}
         pop_cr {required value}
         sa_flag {required value}
+        lfp {required value}
+        housing {required value}
     }
-    
+
     test CREATE-1.2 {Duplicate g} -setup {
         ted create NB1
         ted order CIVGROUP:CREATE $shia
@@ -108,7 +114,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
         n {Invalid neighborhood, should be one of: NB1}
     }
-    
+
 
     test CREATE-1.5 {invalid color} -body {
         ted create NB1
@@ -171,7 +177,7 @@ namespace eval ::athena_test::tests:: {
         basepop {invalid value "-1", expected integer no less than 0}
     }
 
-    test CREATE-1.10 {invalid sa_flag 1} -setup {
+    test CREATE-1.10 {invalid sa_flag} -setup {
         ted create NB1
     } -body {
         ted order -reject CIVGROUP:CREATE [dict merge $shia {
@@ -183,37 +189,119 @@ namespace eval ::athena_test::tests:: {
         sa_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test CREATE-2.1 {group is created} -body {
+    test CREATE-1.11 {invalid lfp, non-numeric} -setup {
         ted create NB1
-        ted order CIVGROUP:CREATE $shia
-        
-        ted query {SELECT * FROM civgroups_view}
+    } -body {
+        ted order -reject CIVGROUP:CREATE [dict merge $shia {
+            lfp NONESUCH
+        }]
     } -cleanup {
         cleanup
     } -result {
-g    longname    color   shape   symbol   demeanor basepop pop_cr rel_entity gtype n   sa_flag 
----- ----------- ------- ------- -------- -------- ------- ------ ---------- ----- --- ------- 
-SHIA Shia Locals #FFFF00 NEUTRAL civilian AVERAGE  10000   0.0    SHIA       CIV   NB1 0       
+        lfp {invalid value "NONESUCH", expected integer}
+    }
+
+    test CREATE-1.12 {invalid lfp, out-of-range} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject CIVGROUP:CREATE [dict merge $shia {
+            lfp 101
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {invalid value "101", expected integer in range 0, 100}
+    }
+
+    test CREATE-1.13 {positive lfp, but sa_flag} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject CIVGROUP:CREATE [dict merge $sunn {
+            lfp 60
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {subsistence agriculture requires labor force % = 0}
+    }
+
+    test CREATE-1.14 {invalid housing} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject CIVGROUP:CREATE [dict merge $shia {
+            housing NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        housing {invalid value "NONESUCH", should be one of: AT_HOME, DISPLACED, IN_CAMP}
+    }
+
+    test CREATE-1.15 {not at home, but sa_flag} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject CIVGROUP:CREATE [dict merge $sunn {
+            housing DISPLACED
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        housing {subsistence agriculture can only be done "at home"}
+    }
+
+    test CREATE-2.1 {group is created} -body {
+        ted create NB1
+        ted order CIVGROUP:CREATE $shia
+
+        ted querylist {SELECT * FROM civgroups_view}
+    } -cleanup {
+        cleanup
+    } -result {
+g           SHIA
+longname    Shia Locals
+color       #FFFF00
+shape       NEUTRAL
+symbol      civilian
+demeanor    AVERAGE
+basepop     10000
+pop_cr      0.0
+rel_entity  SHIA
+gtype       CIV
+n           NB1
+sa_flag     0
+lfp         60
+housing     AT_HOME
     }
 
 
     test CREATE-2.2 {longname defaults to ID} -body {
         ted create NB1
         ted order CIVGROUP:CREATE [dict merge $shia {longname ""}]
-        
-        ted query {SELECT * FROM civgroups_view}
+
+        ted querylist {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname color   shape   symbol   demeanor basepop pop_cr rel_entity gtype n   sa_flag 
----- -------- ------- ------- -------- -------- ------- ------ ---------- ----- --- ------- 
-SHIA SHIA     #FFFF00 NEUTRAL civilian AVERAGE  10000   0.0    SHIA       CIV   NB1 0       
+g           SHIA
+longname    SHIA
+color       #FFFF00
+shape       NEUTRAL
+symbol      civilian
+demeanor    AVERAGE
+basepop     10000
+pop_cr      0.0
+rel_entity  SHIA
+gtype       CIV
+n           NB1
+sa_flag     0
+lfp         60
+housing     AT_HOME
     }
 
     test CREATE-2.3 {basepop can be zero} -body {
         ted create NB1
         ted order CIVGROUP:CREATE [dict merge $shia {basepop 0}]
-        
+
         ted querylist {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
@@ -230,6 +318,8 @@ rel_entity  SHIA
 gtype       CIV
 n           NB1
 sa_flag     0
+lfp         60
+housing     AT_HOME
     }
 
     test CREATE-2.4 {effects} -body {
@@ -265,7 +355,7 @@ sa_flag     0
     } -result {
         g {required value}
     }
-    
+
 
     test DELETE-1.2 {unknown g} -body {
         ted order -reject CIVGROUP:DELETE g NONESUCH
@@ -309,7 +399,7 @@ sa_flag     0
         g {required value}
     }
 
-    
+
     test UPDATE-1.4 {invalid neighborhood} -setup {
         ted create NB1 SHIA
     } -body {
@@ -377,7 +467,7 @@ sa_flag     0
     }
 
 
-    test UPDATE-1.10 {invalid sa_flag 1} -setup {
+    test UPDATE-1.10 {invalid sa_flag} -setup {
         ted create NB1 SHIA
     } -body {
         ted order -reject CIVGROUP:UPDATE g SHIA sa_flag NONESUCH
@@ -385,6 +475,58 @@ sa_flag     0
         cleanup
     } -result {
         sa_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test UPDATE-1.11 {invalid lfp, non-numeric} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE g SHIA lfp NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {invalid value "NONESUCH", expected integer}
+    }
+
+    test UPDATE-1.12 {invalid lfp, out-of-range} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE g SHIA lfp 101
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {invalid value "101", expected integer in range 0, 100}
+    }
+
+    test UPDATE-1.13 {positive lfp, but sa_flag} -setup {
+        ted create NB1 NB2
+        ted order CIVGROUP:CREATE $sunn
+    } -body {
+        ted order -reject CIVGROUP:UPDATE g SUNN lfp 60
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {subsistence agriculture requires labor force % = 0}
+    }
+
+    test UPDATE-1.14 {invalid housing} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE g SHIA housing NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        housing {invalid value "NONESUCH", should be one of: AT_HOME, DISPLACED, IN_CAMP}
+    }
+
+    test UPDATE-1.15 {not at home, but sa_flag} -setup {
+        ted create NB1 NB2
+        ted order CIVGROUP:CREATE $sunn
+    } -body {
+        ted order -reject CIVGROUP:UPDATE g SUNN housing DISPLACED
+    } -cleanup {
+        cleanup
+    } -result {
+        housing {subsistence agriculture can only be done "at home"}
     }
 
 
@@ -401,15 +543,27 @@ sa_flag     0
             basepop      5000
             pop_cr       2.5
             sa_flag      YES
+            lfp          0
         }
 
-        ted query {SELECT * FROM civgroups_view}
+        ted querylist {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
     } -result {
-g    longname  color   shape symbol   demeanor  basepop pop_cr rel_entity gtype n   sa_flag 
----- --------- ------- ----- -------- --------- ------- ------ ---------- ----- --- ------- 
-SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   NB2 1       
+g           SHIA
+longname    Shia Folk
+color       #FF0000
+shape       ENEMY
+symbol      civilian
+demeanor    APATHETIC
+basepop     5000
+pop_cr      2.5
+rel_entity  SHIA
+gtype       CIV
+n           NB2
+sa_flag     1
+lfp         0
+housing     AT_HOME
     }
 
 
@@ -451,7 +605,7 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   
     } -result {
         ids {required value}
     }
-    
+
     test UPDATE:MULTI-1.2 {invalid ids, no groups} -body {
         ted order -reject CIVGROUP:UPDATE:MULTI ids NONESUCH
     } -result {
@@ -535,7 +689,7 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   
     }
 
 
-    test UPDATE:MULTI-1.10 {invalid sap 1} -setup {
+    test UPDATE:MULTI-1.10 {invalid sa_flag} -setup {
         ted create NB1 SHIA
     } -body {
         ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA sa_flag NONESUCH
@@ -543,6 +697,57 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   
         cleanup
     } -result {
         sa_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test UPDATE:MULTI-1.11 {invalid lfp, non-numeric} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA lfp NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {invalid value "NONESUCH", expected integer}
+    }
+
+    test UPDATE:MULTI-1.12 {invalid lfp, out-of-range} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA lfp 101
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {invalid value "101", expected integer in range 0, 100}
+    }
+
+    test UPDATE:MULTI-1.13 {positive lfp, but sa_flag} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA sa_flag 1 lfp 60
+    } -cleanup {
+        cleanup
+    } -result {
+        lfp {subsistence agriculture requires labor force % = 0}
+    }
+
+    test UPDATE:MULTI-1.14 {invalid housing} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE:MULTI ids SHIA housing NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        housing {invalid value "NONESUCH", should be one of: AT_HOME, DISPLACED, IN_CAMP}
+    }
+
+    test UPDATE:MULTI-1.15 {not at home, but sa_flag} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE:MULTI \
+            ids SHIA sa_flag 1 housing DISPLACED
+    } -cleanup {
+        cleanup
+    } -result {
+        housing {subsistence agriculture can only be done "at home"}
     }
 
     test UPDATE:MULTI-2.1 {one civgroup of several is updated} -setup {
@@ -571,6 +776,61 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   
         {::rdb <civgroups> update SUNN}
     }
 
+    test UPDATE:MULTI-2.3 {setting sa_flag clears lpf and housing} -setup {
+        ted create NB1 SHIA
+        ted order CIVGROUP:UPDATE g SHIA lfp 40 housing DISPLACED
+    } -body {
+        ted order CIVGROUP:UPDATE:MULTI ids SHIA sa_flag 1
+        ted querylist {SELECT * FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+g        SHIA
+n        NB1
+basepop  1000
+pop_cr   0.0
+sa_flag  1
+lfp      0
+housing  AT_HOME
+    }
+
+
+    test UPDATE:MULTI-2.4 {setting lpf clears sa_flag} -setup {
+        ted create NB1 SHIA
+        ted order CIVGROUP:UPDATE g SHIA sa_flag 1 lfp 0
+    } -body {
+        ted order CIVGROUP:UPDATE:MULTI ids SHIA lfp 60
+        ted querylist {SELECT * FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+g        SHIA
+n        NB1
+basepop  1000
+pop_cr   0.0
+sa_flag  0
+lfp      60
+housing  AT_HOME
+    }
+
+    test UPDATE:MULTI-2.6 {setting housing clears sa_flag} -setup {
+        ted create NB1 SHIA
+        ted order CIVGROUP:UPDATE g SHIA sa_flag 1 lfp 0 housing AT_HOME
+    } -body {
+        ted order CIVGROUP:UPDATE:MULTI ids SHIA housing DISPLACED
+        ted querylist {SELECT * FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+g        SHIA
+n        NB1
+basepop  1000
+pop_cr   0.0
+sa_flag  0
+lfp      0
+housing  DISPLACED
+    }
+
 
     test UPDATE:MULTI-3.1 {undo effects} -setup {
         ted create NB1 SHIA SUNN
@@ -593,10 +853,3 @@ SHIA Shia Folk #FF0000 ENEMY civilian APATHETIC 5000    2.5    SHIA       CIV   
 }
 
 namespace delete ::athena_test::tests::
-
-
-
-
-
-
-

@@ -25,8 +25,8 @@ object group_ {
         The group ID.  It may contain letters and digits, and
         must begin with a letter.  It should usually be short,
         between 2 and 8 characters in length.<p>
-        
-        A group ID cannot be the same as the ID of any other group, actor, 
+
+        A group ID cannot be the same as the ID of any other group, actor,
         neighborhood, etc.
     } -tags {create}
 
@@ -46,7 +46,7 @@ object group_ {
         #<i>rrrgggbbb</i><br>
         #<i>rrrrggggbbbb</i><p>
 
-        where <i>r</i>, <i>g</i> and <i>b</i> are hexadecimal digits 
+        where <i>r</i>, <i>g</i> and <i>b</i> are hexadecimal digits
         expressing a shade of red, green, or blue.  Thus, "#000000" is
         black, and "#FFFFFF" is white.<p>
     } -tags {create update}
@@ -56,7 +56,7 @@ object group_ {
         are drawn differently by the <<tab Map>>.  This parameter
         determines whether the group's units are drawn as friendly,
         neutral, or enemy.  The possible values are as follows:<p>
-        
+
         <<enumdoc ::projectlib::eunitshape>>
     } -tags {create update}
 
@@ -103,15 +103,15 @@ object group_civ {
         -tags {create update multi browser}
 
     attribute basepop "Base Population" {
-        The initial population of the group.  This population can be 
-        changed at run-time by normal population growth or decline, 
-        by explicit transfers to and from other groups, and by 
+        The initial population of the group.  This population can be
+        changed at run-time by normal population growth or decline,
+        by explicit transfers to and from other groups, and by
         attrition.  It will usually be positive, but can be zero, to
         allow for initially empty "placeholder" groups.
     } -tags {create update multi browser}
 
     attribute pop_cr "Population Change Rate" {
-        The population change in percent per year that the group will 
+        The population change in percent per year that the group will
         have. The rate can be positive, negative or zero.
     } -tags {create update multi browser}
 
@@ -120,6 +120,19 @@ object group_civ {
         agriculture, and does not participate in the regional
         economy.  If false, it's a normal group with consumers and
         workers.
+    } -tags {create update multi browser}
+
+    attribute lfp "Labor Force %" {
+        The percentage of the group that belongs to the labor force.
+        Note that this must be zero for subsistence agriculture groups.
+    } -tags {create update multi browser}
+
+    attribute housing "Housing" {
+        The status of the group's housing: are they <b>AT_HOME</b>,
+        <b>DISPLACED</b> from their homes but mingling with the
+        neighborhood population, or isolated from the neighborhood
+        population <b>IN_CAMP</b>.  Note that subsistence agriculture
+        groups must be <b>AT_HOME</b>.
     } -tags {create update multi browser}
 }
 
@@ -143,14 +156,14 @@ object group_frc {
         A <i>force <<term group>></i> is a group or organization that
         exists to implement policy through the application of force.
         Examples include the regular army, the local police, and
-        organized crime.  Force groups are owned by 
+        organized crime.  Force groups are owned by
         <<term actor>>s, who may use them to achieve their
         <<term goal>>s.<p>
 
-        Force groups are created on the 
-        <<tab Groups/FrcGroups>> using the <<cref /order/frcgroup>>.  
+        Force groups are created on the
+        <<tab Groups/FrcGroups>> using the <<cref /order/frcgroup>>.
         In order to apply force, force group
-        personnel must be deployed to neighborhoods and assigned 
+        personnel must be deployed to neighborhoods and assigned
         duties using <<term tactic>>s.<p>
     }
 
@@ -192,10 +205,10 @@ object group_frc {
         -tags {create update multi}
 
     attribute cost "Cost $/person/week" {
-        The cost to the owning actor of 
+        The cost to the owning actor of
         maintaining one member of the group in the playbox for one week,
         in dollars.
-        Costs incurred outside the playbox should be excluded, e.g., 
+        Costs incurred outside the playbox should be excluded, e.g.,
         wages for U.S. troops.  The cost is expressed as a decimal number
         with an optional "K", "M", or "B" suffix, e.g.,
         "1K" is 1,000 dollars.
@@ -205,7 +218,7 @@ object group_frc {
         The cost of one attack on another force group, in dollars.<p>
 
         Force groups can be authorized to attack other force groups in
-        specific neighborhoods via the 
+        specific neighborhoods via the
         <<cref /object/tactic/attroe>>.  The ROE specifies some
         maximum number of attacks in a given week; this parameter gives
         the cost of one such attack.
@@ -245,15 +258,15 @@ object group_org {
         <<term playbox>>.  Organization groups include Non-Governmental
         Organizations (NGOs) such as the Red Cross, Inter-Governmental
         Organizations (IGOs) such as UNESCO, and contractors such as
-        Haliburton.  Organization groups are owned by 
+        Haliburton.  Organization groups are owned by
         <<term actor>>s, who may use them to achieve their
         <<term goal>>s.<p>
 
-        Organization groups are created on the 
+        Organization groups are created on the
         <<tab Groups/OrgGroups>> using the
         <<cref /order/orggroup>>.
         In order to work, organization group
-        personnel must be deployed to neighborhoods and assigned 
+        personnel must be deployed to neighborhoods and assigned
         duties using <<term tactic>>s.<p>
     }
 
@@ -286,7 +299,7 @@ object group_org {
         -tags {create update multi}
 
     attribute cost "Cost $/person/week" {
-        The cost to the owning actor of 
+        The cost to the owning actor of
         maintaining one member of the group in the playbox for one week,
         in dollars.
         Costs incurred outside the playbox should be excluded.  The
@@ -304,5 +317,3 @@ page /object/group org "Organization Group" {
 
     <<group_org parmlist>>
 }
-
-

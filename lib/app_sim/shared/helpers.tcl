@@ -12,6 +12,27 @@
 #
 #-----------------------------------------------------------------------
 
+# fillparms order parmsVar parmdict
+#
+# order    - The name of the order
+# parmsVar - An order parms dictionary
+# parmdict - An entity attribute dictionary
+#
+# This command is for use in *:UPDATE order bodies; given the order
+# parms and the data for the entity being updated, it fills in the
+# empty parameter values in the parmsVar with the existing data.
+# this allows for easier cross-validation of parameters.
+
+proc fillparms {order parmsVar parmdict} {
+    upvar 1 $parmsVar parms
+    
+    foreach parm [order parms $order] {
+        if {![info exists parms($parm)] || $parms($parm) eq ""} {
+            set parms($parm) [dict get $parmdict $parm]
+        }
+    }
+}
+
 # lexcept list element
 #
 # list      - A list

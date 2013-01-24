@@ -142,51 +142,57 @@ snit::type civgroup {
     #    demeanor       The group's demeanor (edemeanor(n))
     #    basepop        The group's base population
     #    pop_cr         The group's population change rate
-    #    sa_flag        The group's subsistence agriculture flag. 
+    #    sa_flag        The group's subsistence agriculture flag
+    #    lfp            The group's labor force percentage
+    #    housing        The group's housing (ehousing(n))
     #
     # Creates a civilian group given the parms, which are presumed to be
-    # valid.
+    # valid.  Creating a civilian group requires adding entries to the
+    # groups table.
     #
-    # Creating a civilian group requires adding entries to the groups table.
+    # NOTE: If sa_flag is true, then lfp is necessarily 0.
 
     typemethod {mutate create} {parmdict} {
-        dict with parmdict {
-            # FIRST, create a bsystem entity
-            bsystem entity add $g
+        # FIRST, bring the dictionary entries into scope.
+        dict with parmdict {}
 
-            # NEXT, Put the group in the database
-            rdb eval {
-                INSERT INTO 
-                groups(g, longname, color, shape, symbol, demeanor,
-                       rel_entity, gtype)
-                VALUES($g,
-                       $longname,
-                       $color,
-                       $shape,
-                       'civilian',
-                       $demeanor,
-                       $g,
-                       'CIV');
+        # NEXT, create a bsystem entity
+        bsystem entity add $g
 
-                INSERT INTO
-                civgroups(g,n,basepop,pop_cr,sa_flag)
-                VALUES($g,
-                       $n,
-                       $basepop,
-                       $pop_cr,
-                       $sa_flag);
+        # NEXT, Put the group in the database
+        rdb eval {
+            INSERT INTO
+            groups(g, longname, color, shape, symbol, demeanor,
+                   rel_entity, gtype)
+            VALUES($g,
+                   $longname,
+                   $color,
+                   $shape,
+                   'civilian',
+                   $demeanor,
+                   $g,
+                   'CIV');
 
-                INSERT INTO sat_gc(g,c)
-                SELECT $g, c FROM concerns;
+            INSERT INTO
+            civgroups(g,n,basepop,pop_cr,sa_flag,lfp,housing)
+            VALUES($g,
+                   $n,
+                   $basepop,
+                   $pop_cr,
+                   $sa_flag,
+                   $lfp,
+                   $housing);
 
-                INSERT INTO coop_fg(f,g)
-                SELECT $g, g FROM frcgroups;
-            }
+            INSERT INTO sat_gc(g,c)
+            SELECT $g, c FROM concerns;
 
-            # NEXT, Return undo command.
-            return [mytypemethod UndoCreate $g]
+            INSERT INTO coop_fg(f,g)
+            SELECT $g, g FROM frcgroups;
         }
-    }
+
+        # NEXT, Return undo command.
+        return [mytypemethod UndoCreate $g]
+}
 
     # UndoCreate g
     #
@@ -221,7 +227,7 @@ snit::type civgroup {
     # data - An RDB grab data set
     #
     # Restores the data into the RDB, and undoes the bsystem change.
-    
+
     typemethod UndoDelete {data} {
         bsystem edit undo
         rdb ungrab $data
@@ -237,10 +243,12 @@ snit::type civgroup {
     #    longname       A new long name, or ""
     #    color          A new color, or ""
     #    shape          A new shape, or ""
-    #    demeanor       The group's demeanor (edemeanor(n))
+    #    demeanor       A new demeanor, or "" (edemeanor(n))
     #    basepop        A new basepop, or ""
     #    pop_cr         A new pop change rate, or ""
     #    sa_flag        A new sa_flag, or ""
+    #    lfp            A new labor force percentage, or ""
+    #    housing        A new housing, or "" (ehousing(n))
     #
     # Updates a civgroup given the parms, which are presumed to be
     # valid.
@@ -260,10 +268,12 @@ snit::type civgroup {
                 WHERE g=$g;
 
                 UPDATE civgroups
-                SET n       = nonempty($n, n),
+                SET n       = nonempty($n,       n),
                     basepop = nonempty($basepop, basepop),
                     pop_cr  = nonempty($pop_cr,  pop_cr),
-                    sa_flag = nonempty($sa_flag, sa_flag)
+                    sa_flag = nonempty($sa_flag, sa_flag),
+                    lfp     = nonempty($lfp,     lfp),
+                    housing = nonempty($housing, housing)
                 WHERE g=$g
 
             } {}
@@ -301,7 +311,7 @@ order define CIVGROUP:CREATE {
 
         rcc "Shape:" -for shape
         enumlong shape -dictcmd {eunitshape deflist} -defvalue NEUTRAL
-        
+
         rcc "Demeanor:" -for demeanor
         enumlong demeanor -dictcmd {edemeanor deflist} -defvalue AVERAGE
 
@@ -316,6 +326,11 @@ order define CIVGROUP:CREATE {
         rcc "Subs. Agri. Flag" -for sa_flag
         yesno sa_flag -defvalue 0
 
+        rcc "Labor Force %" -for lfp
+        text lfp -defvalue 60
+
+        rcc "Housing" -for housing
+        enumlong housing -dictcmd {ehousing deflist} -defvalue AT_HOME
     }
 } {
     # FIRST, prepare and validate the parameters
@@ -328,6 +343,25 @@ order define CIVGROUP:CREATE {
     prepare basepop   -num       -required         -type iquantity
     prepare pop_cr    -num       -required         -type rpercent
     prepare sa_flag              -required         -type boolean
+    prepare lfp       -num       -required         -type ipercent
+    prepare housing   -toupper   -required         -type ehousing
+
+    returnOnError
+
+    # NEXT, cross-validation
+    validate lfp {
+        if {$parms(sa_flag) && $parms(lfp) != 0} {
+            reject lfp \
+                {subsistence agriculture requires labor force % = 0}
+        }
+    }
+
+    validate housing {
+        if {$parms(sa_flag) && $parms(housing) ne "AT_HOME"} {
+            reject housing \
+                {subsistence agriculture can only be done "at home"}
+        }
+    }
 
     returnOnError -final
 
@@ -412,7 +446,7 @@ order define CIVGROUP:UPDATE {
 
         rcc "Shape:" -for shape
         enumlong shape -dictcmd {eunitshape deflist}
-        
+
         rcc "Demeanor:" -for demeanor
         enumlong demeanor -dictcmd {edemeanor deflist}
 
@@ -426,6 +460,12 @@ order define CIVGROUP:UPDATE {
 
         rcc "Subs. Agri. Flag" -for sa_flag
         yesno sa_flag
+
+        rcc "Labor Force %" -for lfp
+        text lfp
+
+        rcc "Housing" -for housing
+        enumlong housing -dictcmd {ehousing deflist}
     }
 } {
     # FIRST, prepare the parameters
@@ -438,6 +478,27 @@ order define CIVGROUP:UPDATE {
     prepare basepop   -num       -type iquantity
     prepare pop_cr    -num       -type rpercent
     prepare sa_flag              -type boolean
+    prepare lfp       -num       -type ipercent
+    prepare housing   -toupper   -type ehousing
+
+    returnOnError
+
+    # NEXT, do cross validation
+    fillparms CIVGROUP:UPDATE parms [civgroup getg $parms(g)]
+
+    validate lfp {
+        if {$parms(sa_flag) && $parms(lfp) != 0} {
+            reject lfp \
+                {subsistence agriculture requires labor force % = 0}
+        }
+    }
+
+    validate housing {
+        if {$parms(sa_flag) && $parms(housing) ne "AT_HOME"} {
+            reject housing \
+                {subsistence agriculture can only be done "at home"}
+        }
+    }
 
     returnOnError -final
 
@@ -466,7 +527,7 @@ order define CIVGROUP:UPDATE:MULTI {
 
         rcc "Shape:" -for shape
         enumlong shape -dictcmd {eunitshape deflist}
-        
+
         rcc "Demeanor:" -for demeanor
         enumlong demeanor -dictcmd {edemeanor deflist}
 
@@ -480,6 +541,12 @@ order define CIVGROUP:UPDATE:MULTI {
 
         rcc "Subs. Agri. Flag" -for sa_flag
         yesno sa_flag
+
+        rcc "Labor Force %" -for lfp
+        text lfp
+
+        rcc "Housing" -for housing
+        enumlong housing -dictcmd {ehousing deflist}
     }
 } {
     # FIRST, prepare the parameters
@@ -491,6 +558,55 @@ order define CIVGROUP:UPDATE:MULTI {
     prepare basepop   -num               -type iquantity
     prepare pop_cr    -num               -type rpercent
     prepare sa_flag                      -type boolean
+    prepare lfp       -num               -type ipercent
+    prepare housing   -toupper           -type ehousing
+
+    returnOnError
+
+    # NEXT, do cross validation.  Can't easily do normal fillparms,
+    # since there are multiple groups.  Therefore:
+    #
+    # * If sa_flag is set, and lfp and housing are not, set them
+    #   accordingly.
+    # * If lfp or housing are set, and sa_flag is not, set it accordingly.
+    #
+    # Then validate as usual.
+
+    if {$parms(sa_flag) ne "" && $parms(sa_flag)} {
+        if {$parms(lfp) eq ""} {
+            set parms(lfp) 0
+        }
+
+        if {$parms(housing) eq ""} {
+            set parms(housing) AT_HOME
+        }
+    }
+
+    if {$parms(lfp) ne "" && $parms(lfp) > 0} {
+        if {$parms(sa_flag) eq ""} {
+            set parms(sa_flag) 0
+        }
+    }
+
+    if {$parms(housing) ne "" && $parms(housing) ne "AT_HOME"} {
+        if {$parms(sa_flag) eq ""} {
+            set parms(sa_flag) 0
+        }
+    }
+
+    validate lfp {
+        if {$parms(sa_flag) && $parms(lfp) != 0} {
+            reject lfp \
+                {subsistence agriculture requires labor force % = 0}
+        }
+    }
+
+    validate housing {
+        if {$parms(sa_flag) && $parms(housing) ne "AT_HOME"} {
+            reject housing \
+                {subsistence agriculture can only be done "at home"}
+        }
+    }
 
     returnOnError -final
 
@@ -506,6 +622,3 @@ order define CIVGROUP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
-
-
-
