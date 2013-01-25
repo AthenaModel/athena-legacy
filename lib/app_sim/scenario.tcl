@@ -32,15 +32,15 @@ snit::type scenario {
     #
     # A list of the tables that are excluded from snapshots.
     #
-    # WARNING: The excluded tables should not define foreign key 
+    # WARNING: The excluded tables should not define foreign key
     # constraints with cascading deletes on non-excluded tables.
-    # On import, all tables in the exported data will be cleared 
-    # before being re-populated, and cascading deletes would 
+    # On import, all tables in the exported data will be cleared
+    # before being re-populated, and cascading deletes would
     # depopulated the excluded tables.
 
     typevariable nonSnapshotTables {
-        snapshots 
-        maps 
+        snapshots
+        maps
         bookmarks
         hist_control
         hist_coop
@@ -65,7 +65,7 @@ snit::type scenario {
         uram_civrel_t
         uram_frcrel_t
     }
-    
+
     # Info Array: most scalars are stored here
     #
     # dbfile              Name of the current scenario file
@@ -79,7 +79,7 @@ snit::type scenario {
     #-------------------------------------------------------------------
     # Singleton Initializer
 
-    # init 
+    # init
     #
     # Initializes the scenario RDB.
 
@@ -95,7 +95,7 @@ snit::type scenario {
         rdb register ::dam
         rdb register ::service
 
-        # NEXT, monitor tables. 
+        # NEXT, monitor tables.
         rdb monitor add actors        {a}
         rdb monitor add attroe_nfg    {n f g}
         rdb monitor add bookmarks     {bookmark_id}
@@ -171,13 +171,13 @@ snit::type scenario {
         # NEXT, log it.
         log newlog new
         log normal scenario "New Scenario: Untitled"
-        
+
         app puts "New scenario created"
     }
 
     # MakeBlankScenario
     #
-    # Creates a new, blank, scenario.  This is used on 
+    # Creates a new, blank, scenario.  This is used on
     # "scenario new", and when "scenario open" tries and fails.
 
     typemethod MakeBlankScenario {} {
@@ -213,7 +213,7 @@ snit::type scenario {
             app error {
                 |<--
                 Could not open scenario
-                
+
                     $filename
 
                 $result
@@ -298,7 +298,7 @@ snit::type scenario {
         # NEXT, save the saveables
         $type SaveSaveables -saved
 
-        # NEXT, notify the simulation that we're saving, so other 
+        # NEXT, notify the simulation that we're saving, so other
         # modules can prepare.
         notifier send ::scenario <Saving>
 
@@ -315,7 +315,7 @@ snit::type scenario {
             app error {
                 |<--
                 Could not save as
-                
+
                     $dbfile
 
                 $result
@@ -361,7 +361,7 @@ snit::type scenario {
         if {[rdb unsaved]} {
             return 1
         }
-        
+
         foreach saveable $info(saveables) {
             if {[{*}$saveable changed]} {
                 return 1
@@ -371,7 +371,7 @@ snit::type scenario {
         return 0
     }
 
-    
+
     #-------------------------------------------------------------------
     # Snapshot Management
 
@@ -420,10 +420,10 @@ snit::type scenario {
 
     # GrabAllBut exclude
     #
-    # exclude  - Names of tables to exclude from the snapshot. 
+    # exclude  - Names of tables to exclude from the snapshot.
     #
     # Grabs all but the named tables.
-     
+
     proc GrabAllBut {exclude} {
         # FIRST, Get the list of tables to include
         set tables [list]
@@ -435,7 +435,7 @@ snit::type scenario {
                 lappend tables $name
             }
         }
-        
+
         # NEXT, export each of the required tables.
         set snapshot [list]
 
@@ -449,7 +449,7 @@ snit::type scenario {
             # ungrab will do the right thing.
             lappend snapshot [list $name INSERT] $content
         }
-        
+
         # NEXT, return the document
         return $snapshot
     }
@@ -473,7 +473,7 @@ snit::type scenario {
         }
 
         set snapshot [rdb onecolumn {
-            SELECT snapshot FROM snapshots 
+            SELECT snapshot FROM snapshots
             WHERE tick=$t
         }]
 
@@ -485,7 +485,7 @@ snit::type scenario {
             # NEXT, clear the tables being loaded.
             foreach {tableSpec content} $snapshot {
                 lassign $tableSpec table tag
-                rdb eval "DELETE FROM $table;"                
+                rdb eval "DELETE FROM $table;"
             }
 
             # NEXT, import the tables
@@ -510,7 +510,7 @@ snit::type scenario {
         }
     }
 
-    
+
     # snapshot purge t
     #
     # t     A sim time in ticks, or "-unlock"
@@ -560,7 +560,7 @@ snit::type scenario {
     # InitializeRuntimeData
     #
     # Clears the RDB, inserts the schema, and loads initial data:
-    # 
+    #
     # * Blank map
 
     proc InitializeRuntimeData {} {
@@ -585,7 +585,7 @@ snit::type scenario {
 
         # NEXT, create the "Adjustments" MAD.
         mad mutate create {
-            narrative "Adjustments" 
+            narrative "Adjustments"
             cause     UNIQUE
             s         1.0
             p         0.0
@@ -629,22 +629,9 @@ snit::type scenario {
         RdbEvalFile gui_application.sql ;# Application Views
 
         # NEXT, define tactic and condition type views
-        set sql [tactic tempschema]
+        rdb eval [tactic tempschema]
+        rdb eval [condition tempschema]
 
-        # TBD: Move this bit to [condition tempschema]           
-        foreach ctype [condition type names] {
-            set parms [join [condition type parms $ctype] ", "]
-
-            append sql "
-                CREATE VIEW conditions_$ctype AS
-                SELECT condition_id, condition_type, cc_id, narrative,
-                       state, flag, $parms
-                FROM conditions WHERE condition_type='$ctype';
-            "
-        }
-        
-
-        rdb eval $sql
     }
 
     # RdbEvalFile filename
@@ -690,7 +677,7 @@ snit::type scenario {
     #
     # Returns the "gamma" parameter for curves of that type from
     # parmdb(5).
-    
+
     proc UramGamma {ctype} {
         # The [expr] converts it to a number.
         return [expr [lindex [parm get uram.factors.$ctype] 1]]
@@ -703,7 +690,7 @@ snit::type scenario {
     #
     # saveable     A saveable(i) command or command prefix
     #
-    # Registers the saveable(i); its data will be included in 
+    # Registers the saveable(i); its data will be included in
     # the scenario and restored as appropriate.
 
     typemethod register {saveable} {
@@ -728,7 +715,7 @@ snit::type scenario {
             set checkpoint [{*}$saveable checkpoint $option]
 
             rdb eval {
-                INSERT OR REPLACE 
+                INSERT OR REPLACE
                 INTO saveables(saveable,checkpoint)
                 VALUES($saveable,$checkpoint)
             }
@@ -753,14 +740,3 @@ snit::type scenario {
         }
     }
 }
-
-
-
-
-
-
-
-
-
-
-

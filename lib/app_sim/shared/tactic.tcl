@@ -11,16 +11,16 @@
 #    This module is responsible for managing tactics and operations
 #    upon them.  As such, it is a type ensemble.
 #
-#    There are a number of different tactic types.  
+#    There are a number of different tactic types.
 #
 #    * All are stored in the tactics table.
 #
-#    * The data inheritance is handled by defining a number of 
-#      generic columns to hold type-specific parameters.
+#    * The data inheritance is handled by putting the type-specific
+#      parameters in a Tcl dictionary in the "pdict" column.
 #
 #    * The mutators work for all tactic types.
 #
-#    * Each tactic type has its own CREATE and UPDATE orders; the 
+#    * Each tactic type has its own CREATE and UPDATE orders; the
 #      DELETE and PRIORITY orders are common to all.
 #
 #    * scenariodb(sim) defines a view for each tactic type,
@@ -31,6 +31,25 @@
 snit::type tactic {
     # Make it a singleton
     pragma -hasinstances no
+
+    #===================================================================
+    # Lookup Tables
+
+    # A list of the table columns in the tactics table, to avoid
+    # name conflicts.
+    typevariable tableColumns {
+        tactic_id
+        tactic_type
+        owner
+        narrative
+        priority
+        once
+        on_lock
+        state
+        exec_ts
+        exec_flag
+        pdict
+    }
 
     #===================================================================
     # Tactic Types: Definition and Query interface.
@@ -55,7 +74,7 @@ snit::type tactic {
     # type names
     #
     # Returns the tactic type names.
-    
+
     typemethod {type names} {} {
         return [lsort $tinfo(names)]
     }
@@ -66,10 +85,10 @@ snit::type tactic {
     #
     # Returns the tactic type names that can be used by the given
     # agent.
-    
+
     typemethod {type names_by_agent} {agent} {
         set atype [agent type $agent]
-        
+
         if {[info exists tinfo(ttypes-$atype)]} {
             return [lsort $tinfo(ttypes-$atype)]
         } else {
@@ -83,17 +102,17 @@ snit::type tactic {
     #
     # Returns a list of the names of the type-specific parameters used by
     # the tactic.
-    
+
     typemethod {type parms} {ttype} {
         return $tinfo(parms-$ttype)
     }
-    
+
     # type hasOnce ttype
     #
     # ttype - A tactic type
     #
     # Returns 1 if the tactic type takes the "once" parameter
-    
+
     typemethod {type hasOnce} {ttype} {
         return $tinfo(once-$ttype)
     }
@@ -103,7 +122,7 @@ snit::type tactic {
     # ttype - A tactic type
     #
     # Returns 1 if the tactic type takes the "on_lock" parameter
-    
+
     typemethod {type hasOnLock} {ttype} {
         return $tinfo(on_lock-$ttype)
     }
@@ -133,38 +152,42 @@ snit::type tactic {
 
         # NEXT, save the type metadata
         ladd tinfo(names) $name
-        
+
         if {"once" in $parms} {
             set tinfo(once-$name) 1
             ldelete parms once
         } else {
             set tinfo(once-$name) 0
         }
-        
+
         if {"on_lock" in $parms} {
             set tinfo(on_lock-$name) 1
             ldelete parms on_lock
         } else {
             set tinfo(on_lock-$name) 0
         }
-        
+
         set tinfo(parms-$name) $parms
         set tinfo(atypes-$name) $agent_types
-        
+
         foreach atype $agent_types {
             lappend tinfo(ttypes-$atype) $name
         }
-        
-        # TBD: make sure that the type-specific parms don't conflict
-        # with the tactic table columns.  This is difficult, as at
-        # this point in the processing, the RDB is not yet open.
+
+        # NEXT, make sure the parm names don't conflict with the
+        # tactics table.
+        foreach parm $parms {
+            if {$parm in $tableColumns} {
+                error "Parameter/table column conflict: \"$parm\""
+            }
+        }
     }
 
     # tempschema
     #
     # Returns the temporary view definitions for the currently
     # defined tactics.
-    
+
     typemethod tempschema {} {
         set sql ""
         foreach ttype [tactic type names] {
@@ -172,13 +195,13 @@ snit::type tactic {
             if {[tactic type hasOnce $ttype]} {
                 append opt "once, "
             }
-            
+
             if {[tactic type hasOnLock $ttype]} {
                 append opt "on_lock, "
             }
-            
+
             set tparms ""
-            
+
             foreach parm [tactic type parms $ttype] {
                 append tparms "dictget(pdict,'$parm') AS $parm, "
             }
@@ -192,11 +215,11 @@ snit::type tactic {
                 FROM tactics WHERE tactic_type='$ttype';
             "
         }
-        
+
         return $sql
     }
-    
-    
+
+
     #===================================================================
     # Simulation
 
@@ -262,7 +285,7 @@ snit::type tactic {
             # FIRST, pull in the pdict
             unset row(*)
             set tdict [unpackData [array get row]]
-            
+
             if {$parm eq ""} {
                 return $tdict
             } else {
@@ -286,7 +309,7 @@ snit::type tactic {
 
         set tdict [$type get $parms(tactic_id)]
         set ttype [dict get $tdict tactic_type]
-        
+
         foreach parm $tinfo(parms-$ttype) {
             if {![info exists parms($parm)] || $parms($parm) eq ""} {
                 set parms($parm) [dict get $tdict $parm]
@@ -325,16 +348,16 @@ snit::type tactic {
         set tdata(on_lock) 0
         set tdata(once) 0
         array set tdata $parmdict
-                
+
         # NEXT, ensure that this agent can own this tactic.
         set validTypes [$type type names_by_agent $tdata(owner)]
-        
+
         require {$tdata(tactic_type) in $validTypes} \
             "Agent $tdata(owner) cannot own $tdata(tactic_type) tactics"
 
         # NEXT, compute the narrative string.
         set narrative [$type call narrative $parmdict]
-        
+
         # NEXT, pack the type-specific parms
         array set tdata [packData [array get tdata]]
 
@@ -342,11 +365,11 @@ snit::type tactic {
         rdb eval {
             INSERT INTO cond_collections(cc_type) VALUES('tactic');
 
-            INSERT INTO 
-            tactics(tactic_id, tactic_type, 
+            INSERT INTO
+            tactics(tactic_id, tactic_type,
                     owner, narrative, priority, once, on_lock, pdict)
             VALUES(last_insert_rowid(),
-                   $tdata(tactic_type), 
+                   $tdata(tactic_type),
                    $tdata(owner),
                    $narrative,
                    0,
@@ -375,7 +398,7 @@ snit::type tactic {
     #
     # id     a tactic ID
     #
-    # Deletes the tactic.  Note that deleting a tactic leaves a 
+    # Deletes the tactic.  Note that deleting a tactic leaves a
     # gap in the priority order, but doesn't change the order of
     # the remaining tactics; hence, we don't need to worry about it.
 
@@ -405,10 +428,10 @@ snit::type tactic {
         # FIRST, get the undo information
         set tactic_id [dict get $parmdict tactic_id]
         set data [rdb grab tactics {tactic_id=$tactic_id}]
-        
+
         # NEXT, get the unpacked type data
         array set tdata [$type get $tactic_id]
-        
+
         # NEXT, add in the new parameter values.
         foreach {parm value} $parmdict {
             if {$value ne ""} {
@@ -418,11 +441,11 @@ snit::type tactic {
 
         # NEXT, re-pack the data into pdict
         array set tdata [packData [array get tdata]]
-        
+
         # NEXT, Update the tactic.  Note that tdata contains all the
         # values, so we'll update all of them.
         set tdata(narrative) [$type call narrative [array get tdata]]
-        
+
         rdb eval {
             UPDATE tactics
             SET narrative = $tdata(narrative),
@@ -494,7 +517,7 @@ snit::type tactic {
             }
             incr prio
         }
-        
+
         # NEXT, return the undo script
         return [mytypemethod RestorePriority $oldRanking]
     }
@@ -502,7 +525,7 @@ snit::type tactic {
     # RestorePriority ranking
     #
     # ranking  The ranking to restore
-    # 
+    #
     # Restores an old ranking
 
    typemethod RestorePriority {ranking} {
@@ -523,20 +546,20 @@ snit::type tactic {
     # Given a dictionary of tactic data with the type-specific parms
     # broken out, returns a new tactic dictionary with the
     # type-specific parms packed into pdict.
-    
+
     proc packData {tdict} {
         dict set $tdict pdict [dict create]
-        
+
         foreach parm $tinfo(parms-[dict get $tdict tactic_type]) {
             if (![dict exists $tdict $parm]) {
                 dict set tdict $parm ""
             }
             dict set tdict pdict $parm [dict get $tdict $parm]
         }
-        
+
         return $tdict
     }
-    
+
     # unpackData tdict
     #
     # tdict   - A dictionary of tactic data
@@ -544,12 +567,12 @@ snit::type tactic {
     # Given a dictionary of tactic data with the type-specific parms
     # packed into pdict, extracts them out as entries in their own right.
     # Returns the new tdict.
-    
+
     proc unpackData {tdict} {
         set tdict [dict merge $tdict [dict get $tdict pdict]]
     }
-    
-    
+
+
     #-------------------------------------------------------------------
     # Tactic Ensemble Interface
 
@@ -699,5 +722,3 @@ order define TACTIC:PRIORITY {
 
     setundo [tactic mutate priority $parms(tactic_id) $parms(priority)]
 }
-
-

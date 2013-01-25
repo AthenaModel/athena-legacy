@@ -113,7 +113,7 @@ order define CONDITION:TROOPS:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_TROOPS
 
         rcc "" -width 3in
         label {

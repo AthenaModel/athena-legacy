@@ -116,7 +116,7 @@ order define CONDITION:NBCOOP:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_NBCOOP
 
         rcc ""
         label {

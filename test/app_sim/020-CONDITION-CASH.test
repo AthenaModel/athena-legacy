@@ -253,7 +253,6 @@ x1              20.0
         cleanup
     } -result {
         {::rdb <conditions> update 1}
-        {::rdb <conditions> update 1}
     }
 
 

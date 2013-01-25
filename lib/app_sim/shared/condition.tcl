@@ -13,16 +13,16 @@
 #    responsible for managing conditions and operations upon them.  As
 #    such, it is a type ensemble.
 #
-#    There are a number of different condition types.  
+#    There are a number of different condition types.
 #
 #    * All are stored in the conditions table.
 #
-#    * The data inheritance is handled by defining a number of 
-#      generic columns to hold type-specific parameters.
+#    * The data inheritance is handled by putting the type-specific
+#      parameters in a Tcl dictionary in the "pdict" column.
 #
 #    * The mutators work for all condition types.
 #
-#    * Each condition type has its own CREATE and UPDATE orders; the 
+#    * Each condition type has its own CREATE and UPDATE orders; the
 #      DELETE order is common to all.
 #
 #    * scenario.tcl defines a view for each condition type,
@@ -35,26 +35,20 @@ snit::type condition {
     pragma -hasinstances no
 
     #===================================================================
-    # Lookup tables
+    # Lookup Tables
 
-    # optParms: This variable is a dictionary of all optional parameters
-    # with empty values.  The create and update mutators can merge the
-    # input parmdict with this to get a parmdict with the full set of
-    # parameters.
-
-    typevariable optParms {
-        a     ""
-        g     ""
-        n     ""
-        op1   ""
-        t1    ""
-        t2    ""
-        text1 ""
-        list1 ""
-        int1  ""
-        x1    ""
+    # A list of the table columns in the conditions table, to avoid
+    # name conflicts.
+    typevariable tableColumns {
+        condition_id
+        condition_type
+        cc_id
+        owner
+        narrative
+        state
+        flag
+        pdict
     }
-
 
     #===================================================================
     # Condition Types: Definition and Query interface.
@@ -67,7 +61,7 @@ snit::type condition {
     # all           - List of the names of all condition types.
     # goal          - List of the names of goal conditions
     # tactic        - List of the names of tactic conditions
-    # parms-$ctype  - List of the optional parms used by the condition
+    # parms-$ctype  - List of the type-specific parms used by the condition
     #                 type
 
     typevariable tinfo -array {
@@ -79,7 +73,7 @@ snit::type condition {
     # type names ?-all|-goal|-tactic?
     #
     # Returns the tactic type names.
-    
+
     typemethod {type names} {{opt -all}} {
         switch -exact -- $opt {
             -all    { return [lsort $tinfo(all)]       }
@@ -91,17 +85,17 @@ snit::type condition {
 
     # type parms ctype
     #
-    # Returns a list of the names of the optional parameters used by
+    # Returns a list of the names of the type-specific parameters used by
     # the condition.
-    
+
     typemethod {type parms} {ctype} {
         return $tinfo(parms-$ctype)
     }
 
-    # type define name optparms ?options...? defscript
+    # type define name parms ?options...? defscript
     #
     # name       - The condition name
-    # optparms   - The optional condition parms used by this condition
+    # parms      - The type-specific parms defined by this condition
     # options... - Options; see below.
     # defscript  - The definition script (a snit::type script)
     #
@@ -112,13 +106,13 @@ snit::type condition {
     #                be attached to.
     #
     # Defines condition::$name as a type ensemble given the typemethods
-    # defined in the defscript.  See condition(i) for documentation of 
+    # defined in the defscript.  See condition(i) for documentation of
     # the expected typemethods.
 
-    typemethod {type define} {name optparms args} {
+    typemethod {type define} {name parms args} {
         # FIRST, get the defscript.
         if {[llength $args] == 0} {
-            error "wrong \# args, should be: $type type define ?options...? defscript"
+            error "wrong \# args, should be: $type type define parms ?options...? defscript"
         }
 
         set defscript [lindex $args end]
@@ -131,7 +125,7 @@ snit::type condition {
 
         while {[llength $args] > 0} {
             set opt [lshift args]
-            
+
             switch -exact -- $opt {
                 -attachto {
                     set val [lshift args]
@@ -159,6 +153,14 @@ snit::type condition {
 
         snit::type ${type}::${name} "$header\n$defscript"
 
+        # NEXT, make sure the parm names don't conflict with the
+        # conditions table.
+        foreach parm $parms {
+            if {$parm in $tableColumns} {
+                error "Parameter/table column conflict: \"$parm\""
+            }
+        }
+
         # NEXT, save the type name.
         ladd tinfo(all) $name
 
@@ -170,7 +172,37 @@ snit::type condition {
             ladd tinfo(tactic) $name
         }
 
-        set tinfo(parms-$name) $optparms
+        set tinfo(parms-$name) $parms
+    }
+
+    # tempschema
+    #
+    # Returns the temporary view definitions for the currently defined
+    # condition types.
+
+    typemethod tempschema {} {
+        set sql ""
+        foreach ctype [condition type names] {
+            set parms [list]
+            foreach parm $tinfo(parms-$ctype) {
+                lappend parms "dictget(pdict,'$parm') AS $parm"
+            }
+
+            if {[llength $parms] > 0} {
+                set clause ",[join $parms ,]"
+            } else {
+                set clause ""
+            }
+
+            append sql "
+                CREATE TEMP VIEW conditions_$ctype AS
+                SELECT condition_id, condition_type, cc_id, narrative,
+                       state, flag $clause
+                FROM conditions WHERE condition_type='$ctype';
+            "
+        }
+
+        return $sql
     }
 
     #===================================================================
@@ -216,20 +248,22 @@ snit::type condition {
     # id   - A condition_id
     # parm - A conditions column name
     #
-    # Retrieves a row dictionary, or a particular column value, from
-    # conditions.
+    # Retrieves an unpacked condition dictionary, or a particular
+    # parameter value, from conditions.
 
     typemethod get {id {parm ""}} {
         # FIRST, get the data
         rdb eval {SELECT * FROM conditions WHERE condition_id=$id} row {
+            # FIRST, pull in the pdict
+            unset row(*)
+            set cdict [unpackData [array get row]]
+
             if {$parm eq ""} {
-                unset row(*)
-                return [array get row]
+                return $cdict
             } else {
-                return $row($parm)
+                return [dict get $cdict $parm]
             }
         }
-
         return ""
     }
 
@@ -239,7 +273,7 @@ snit::type condition {
     # condition call sub cdict ?args...?
     #
     # sub   - One of the above condition type subcommands
-    # cdict - A condition parameter dictionary
+    # cdict - An unpacked condition parameter dictionary
     #
     # This is a convenience command that calls the relevant subcommand
     # for the condition.
@@ -259,7 +293,7 @@ snit::type condition {
     # comp       - An ecomparator
     # y          - A numeric value
     #
-    # Compares x and y using the comparator, and returns 1 if the 
+    # Compares x and y using the comparator, and returns 1 if the
     # comparison is true and 0 otherwise.
 
     typemethod compare {x comp y} {
@@ -284,72 +318,43 @@ snit::type condition {
 
     # mutate create parmdict
     #
-    # parmdict     A dictionary of condition parms
+    # parmdict     An unpacked dictionary of condition parms
     #
     #    condition_type - The condition type (econditiontype)
     #    cc_id          - The owning tactic or goal
-    #    a              - Actor, or ""
-    #    g              - Group, or ""
-    #    n              - Nbhood, or ""
-    #    op1            - Operation, or ""
-    #    t1             - A time in ticks, or ""
-    #    t2             - A time in ticks, or ""
-    #    text1          - Text string, or ""
-    #    list1          - List of items, or ""
-    #    int1           - Integer, or ""
-    #    x1             - Real number, or ""
+    #
+    #    type-specific parms
     #
     # Creates a condition given the parms, which are presumed to be
     # valid.
-    #
-    # Missing values are filled in with blanks.
 
     typemethod {mutate create} {parmdict} {
-        # FIRST, make sure the parm dict is complete
-        set parmdict [dict merge $optParms $parmdict]
-
-        # NEXT, get the owning actor
+        # FIRST, get the owning actor
         dict set parmdict owner [$type GetOwner [dict get $parmdict cc_id]]
 
         # NEXT, compute the narrative string.
         set narrative [condition call narrative $parmdict]
 
+        # NEXT, pack the type-specific parms
+        array set cdata [packData $parmdict]
+
         # NEXT, put the condition in the database.
-        dict with parmdict {
-            # FIRST, Put the condition in the database
-            rdb eval {
-                INSERT INTO 
-                conditions(condition_type, cc_id, owner, narrative,
-                           a,
-                           g,
-                           n,
-                           op1,
-                           t1,
-                           t2,
-                           text1,
-                           list1,
-                           int1,
-                           x1)
-                VALUES($condition_type, $cc_id, $owner, $narrative, 
-                       nullif($a,      ''),
-                       nullif($g,      ''),
-                       nullif($n,      ''),
-                       nullif($op1,    ''),
-                       nullif($t1,     ''),
-                       nullif($t2,     ''),
-                       nullif($text1,  ''),
-                       nullif($list1,  ''),
-                       nullif($int1,   ''),
-                       nullif($x1,     ''));
-            }
-
-            set id [rdb last_insert_rowid]
-
-            lappend undo [list rdb delete conditions "condition_id=$id"]
-
-            # NEXT, Return undo command.
-            return [join $undo \n]
+        rdb eval {
+            INSERT INTO
+            conditions(condition_type, cc_id, owner, narrative, pdict)
+            VALUES($cdata(condition_type),
+                   $cdata(cc_id),
+                   $cdata(owner),
+                   $narrative,
+                   $cdata(pdict));
         }
+
+        set id [rdb last_insert_rowid]
+
+        lappend undo [list rdb delete conditions "condition_id=$id"]
+
+        # NEXT, Return undo command.
+        return [join $undo \n]
     }
 
     # GetOwner cc_id
@@ -386,70 +391,48 @@ snit::type condition {
 
     # mutate update parmdict
     #
-    # parmdict     A dictionary of condition parms
+    # parmdict     An unpacked dictionary of condition parms
     #
     #    condition_id   The condition's ID
-    #    a              Actor ID, or ""
-    #    g              Group ID, or ""
-    #    n              Nbhood ID, or ""
-    #    op1            Operation, or ""
-    #    t1             Time in ticks, or ""
-    #    t2             Time in ticks, or ""
-    #    text1          Text string, or ""
-    #    list1          List of items, or ""
-    #    int1           Integer, or ""
-    #    x1             Real number, or ""
+    #
+    #    type-specific parms
     #
     # Updates a condition given the parms, which are presumed to be
     # valid.  Note that you can't change the condition's cc_id or
     # type.
-    #
-    # Missing values are filled in with blanks.
 
     typemethod {mutate update} {parmdict} {
-        # FIRST, make sure the parm dict is complete
-        set parmdict [dict merge $optParms $parmdict]
+        # FIRST, get the undo information
+        set condition_id [dict get $parmdict condition_id]
+        set data [rdb grab conditions {condition_id=$condition_id}]
 
-        # NEXT, save the changed data.
-        dict with parmdict {
-            # FIRST, get the undo information
-            set data [rdb grab conditions {condition_id=$condition_id}]
+        # NEXT, get the previous condition data, and merge in the
+        # changed values.
+        set cdict [$type get $condition_id]
 
-            # NEXT, Update the condition.  The nullif(nonempty()) pattern
-            # is so that the old value of the column will be used
-            # if the input is empty, and that empty columns will be
-            # NULL rather than "".
-            rdb eval {
-                UPDATE conditions
-                SET flag  = NULL,
-                    a     = nullif(nonempty($a,     a),      ''),
-                    g     = nullif(nonempty($g,     g),      ''),
-                    n     = nullif(nonempty($n,     n),      ''),
-                    op1   = nullif(nonempty($op1,   op1),    ''),
-                    t1    = nullif(nonempty($t1,    t1),     ''),
-                    t2    = nullif(nonempty($t2,    t2),     ''),
-                    text1 = nullif(nonempty($text1, text1),  ''),
-                    list1 = nullif(nonempty($list1, list1),  ''),
-                    int1  = nullif(nonempty($int1,  int1),   ''),
-                    x1    = nullif(nonempty($x1,    x1),     '')
-                WHERE condition_id=$condition_id;
-            } {}
-
-            # NEXT, compute and set the narrative
-            set cdict [$type get $condition_id]
-
-            set narrative \
-                [condition call narrative $cdict]
-
-            rdb eval {
-                UPDATE conditions
-                SET   narrative=$narrative
-                WHERE condition_id=$condition_id
+        dict for {parm value} $parmdict {
+            if {$value ne ""} {
+                dict set cdict $parm $value
             }
-
-            # NEXT, Return the undo command
-            return [list rdb ungrab $data]
         }
+
+        # NEXT, compute and set the narrative
+        set narrative [condition call narrative $cdict]
+
+        # NEXT, pack up the updated condition data.
+        array set cdata [packData $cdict]
+
+        # NEXT, Update the condition.
+        rdb eval {
+            UPDATE conditions
+            SET flag      = NULL,
+                pdict     = $cdata(pdict),
+                narrative = $narrative
+            WHERE condition_id=$condition_id;
+        }
+
+        # NEXT, Return the undo command
+        return [list rdb ungrab $data]
     }
 
     # mutate state condition_id state
@@ -473,6 +456,41 @@ snit::type condition {
         # NEXT, Return the undo command
         return [list rdb ungrab $data]
     }
+
+    # packData cdict
+    #
+    # cdict   - A dictionary of condition data
+    #
+    # Given a dictionary of condition data with the type-specific parms
+    # broken out, returns a new condition dictionary with the
+    # type-specific parms packed into pdict.
+
+    proc packData {cdict} {
+        dict set cdict pdict [dict create]
+
+        foreach parm $tinfo(parms-[dict get $cdict condition_type]) {
+            if {![dict exists $cdict $parm]} {
+                dict set cdict $parm ""
+            }
+            dict set cdict pdict $parm [dict get $cdict $parm]
+        }
+
+        return $cdict
+    }
+
+    # unpackData cdict
+    #
+    # cdict   - A dictionary of condition data
+    #
+    # Given a dictionary of condition data with the type-specific parms
+    # packed into pdict, extracts them out as entries in their own right.
+    # Returns the new pdict.
+
+    proc unpackData {cdict} {
+        return [dict merge $cdict [dict get $cdict pdict]]
+    }
+
+
 
     #-------------------------------------------------------------------
     # Order Helpers
@@ -536,7 +554,7 @@ order define CONDITION:DELETE {
 order define CONDITION:STATE {
     title "Set Condition State"
 
-    options -sendstates {PREP PAUSED} 
+    options -sendstates {PREP PAUSED}
 
     form {
         rcc "Condition ID:" -for condition_id
@@ -555,5 +573,3 @@ order define CONDITION:STATE {
 
     setundo [condition mutate state $parms(condition_id) $parms(state)]
 }
-
-

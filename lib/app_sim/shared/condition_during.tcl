@@ -99,7 +99,7 @@ order define CONDITION:DURING:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_DURING
 
         rcc "" -width 3in
         label {
@@ -130,19 +130,8 @@ order define CONDITION:DURING:UPDATE {
 
     # NEXT, make sure this is a valid interval.  Retrieve the previous
     # values of t1 and t2 if they are needed.
-
-    if {$parms(t1) eq ""} {
-        set parms(t1) [rdb onecolumn {
-            SELECT t1 FROM conditions WHERE condition_id=$parms(condition_id)
-        }]
-    }
-
-    if {$parms(t2) eq ""} {
-        set parms(t2) [rdb onecolumn {
-            SELECT t2 FROM conditions WHERE condition_id=$parms(condition_id)
-        }]
-    }
-
+    fillparms CONDITION:DURING:UPDATE parms [condition get $parms(condition_id)]
+    
     validate t2 {
         if {$parms(t2) < $parms(t1)} {
             reject t2 "End week must be no earlier than start week."

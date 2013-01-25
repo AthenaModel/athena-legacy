@@ -280,7 +280,6 @@ x1              0.3
         cleanup
     } -result {
         {::rdb <conditions> update 1}
-        {::rdb <conditions> update 1}
     }
 
 

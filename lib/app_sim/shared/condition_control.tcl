@@ -113,7 +113,7 @@ order define CONDITION:CONTROL:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_CONTROL
 
         rcc "" 
         label { This condition is met when }

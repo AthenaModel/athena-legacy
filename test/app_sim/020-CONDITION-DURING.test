@@ -272,7 +272,6 @@ t2              20
         cleanup
     } -result {
         {::rdb <conditions> update 1}
-        {::rdb <conditions> update 1}
     }
 
 

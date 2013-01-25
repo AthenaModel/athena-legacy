@@ -231,7 +231,7 @@ order define CONDITION:UNMET:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_UNMET
 
         rcc ""
         label {

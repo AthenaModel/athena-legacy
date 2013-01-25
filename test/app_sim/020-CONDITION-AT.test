@@ -84,7 +84,6 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted order CONDITION:AT:CREATE $C1
-
         ted querylist {SELECT * FROM conditions_AT}
     } -cleanup {
         cleanup
@@ -202,7 +201,6 @@ t1              2
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <conditions> update 1}
         {::rdb <conditions> update 1}
     }
 

@@ -34,7 +34,7 @@ namespace eval ::athena_test::tests:: {
 
         ted create JOE BOB NB1 NB2 BLUE BRIT
         ted order GOAL:CREATE owner BOB narrative "Sample Goal"
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10 
+        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
 
         set gid [lindex [goal names]   0]
         set tid [lindex [tactic names] 0]
@@ -66,7 +66,7 @@ namespace eval ::athena_test::tests:: {
     # Standard Conditions.
     # These are not real conditions; they are used for exercising
     # the mutators.
-    
+
     set S1 {
         cc_id          1
         condition_type CASH
@@ -105,16 +105,7 @@ owner           BOB
 narrative       Actor JOE's cash reserve is greater than $10,000
 state           normal
 flag            @
-a               JOE
-g               @
-n               @
-op1             GT
-t1              @
-t2              @
-text1           FOO
-list1           A B C
-int1            @
-x1              10000.0
+pdict           a JOE op1 GT x1 10000
     }
 
     test create-2.1 {undo deletes the condition} -setup {
@@ -160,16 +151,7 @@ owner           BOB
 narrative       Actor JOE's cash reserve is greater than $10,000
 state           normal
 flag            @
-a               JOE
-g               @
-n               @
-op1             GT
-t1              @
-t2              @
-text1           FOO
-list1           A B C
-int1            @
-x1              10000.0
+pdict           a JOE op1 GT x1 10000
 
 condition_id    2
 condition_type  CASH
@@ -178,16 +160,7 @@ owner           BOB
 narrative       Actor BOB's cash reserve is less than $20,000
 state           normal
 flag            @
-a               BOB
-g               @
-n               @
-op1             LT
-t1              @
-t2              @
-text1           BAR
-list1           D E F
-int1            @
-x1              20000.0
+pdict           a BOB op1 LT x1 20000
     }
 
     #-------------------------------------------------------------------
@@ -214,16 +187,7 @@ owner           BOB
 narrative       Actor BOB's cash reserve is less than $5,000.00
 state           normal
 flag            @
-a               BOB
-g               @
-n               @
-op1             LT
-t1              @
-t2              @
-text1           BAR
-list1           D E F
-int1            @
-x1              5000.0
+pdict           a BOB op1 LT x1 5000
     }
 
     test update-1.2 {empty values are OK} -setup {
@@ -359,23 +323,17 @@ condition_id state
     } -cleanup {
         cleanup
     } -result {
-        condition_type CASH
-        op1            LT
-        state          normal
-        a              BOB
-        cc_id          1
-        flag           @
-        condition_id   1
-        int1           @
+        pdict          {a BOB op1 LT x1 20000}
         narrative      {Actor BOB's cash reserve is less than $20,000}
-        list1          {D E F}
-        t1             @
-        t2             @
-        g              @
-        x1             20000.0
+        condition_type CASH
+        state          normal
+        flag           @
+        cc_id          1
         owner          BOB
-        text1          BAR
-        n              @
+        condition_id   1
+        a              BOB
+        op1            LT
+        x1             20000
     }
 
     test get-1.2 {get parameter} -setup {
@@ -440,10 +398,3 @@ condition_id state
 }
 
 namespace delete ::athena_test::tests::
-
-
-
-
-
-
-

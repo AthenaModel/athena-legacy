@@ -53,7 +53,6 @@ dynaform fieldtype alias concern enum \
 dynaform fieldtype alias cond key \
     -context yes          \
     -db      ::rdb        \
-    -table   conditions   \
     -keys    condition_id \
     -loadcmd {orderdialog keyload condition_id *}
 

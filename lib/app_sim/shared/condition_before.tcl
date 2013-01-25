@@ -83,7 +83,7 @@ order define CONDITION:BEFORE:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_BEFORE
 
         rcc "" -width 3in
         label {

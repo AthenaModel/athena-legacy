@@ -236,7 +236,6 @@ list1           NB1 NB2
         cleanup
     } -result {
         {::rdb <conditions> update 1}
-        {::rdb <conditions> update 1}
     }
 
 

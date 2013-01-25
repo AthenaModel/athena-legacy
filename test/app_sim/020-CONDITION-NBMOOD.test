@@ -239,7 +239,7 @@ state           normal
 flag            
 n               NB1
 op1             EQ
-x1              20.0
+x1              20
     }
 
 
@@ -252,7 +252,6 @@ x1              20.0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <conditions> update 1}
         {::rdb <conditions> update 1}
     }
 

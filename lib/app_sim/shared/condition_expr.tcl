@@ -104,7 +104,7 @@ order define CONDITION:EXPR:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_EXPR
 
         rcc "" -width 3in
         label {

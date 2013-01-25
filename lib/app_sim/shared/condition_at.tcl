@@ -83,7 +83,7 @@ order define CONDITION:AT:UPDATE {
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id
+        cond condition_id -table conditions_AT
 
         rcc "" -width 3in
         label {

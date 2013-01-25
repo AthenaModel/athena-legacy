@@ -84,7 +84,7 @@ CREATE TABLE support_nga (
 
 -- influence_na table: Actor's influence in neighborhood.
 --
--- Note: We don't cascade deletions, as this table is populated only 
+-- Note: We don't cascade deletions, as this table is populated only
 -- during simulation, when the referenced entities aren't being deleted.
 
 CREATE TABLE influence_na (
@@ -115,7 +115,7 @@ CREATE TABLE influence_na (
 
 CREATE TABLE control_n (
     -- Symbolic group name
-    n          TEXT PRIMARY KEY 
+    n          TEXT PRIMARY KEY
                REFERENCES nbhoods(n)
                ON DELETE CASCADE
                DEFERRABLE INITIALLY DEFERRED,
@@ -133,8 +133,8 @@ CREATE TABLE control_n (
 ------------------------------------------------------------------------
 -- GOALS, TACTICS, AND CONDITIONS
 
--- An agent is an entity that can own goals and tactics.  In theory, any 
--- kind of entity can be an agent.  At present there are two kinds, actors 
+-- An agent is an entity that can own goals and tactics.  In theory, any
+-- kind of entity can be an agent.  At present there are two kinds, actors
 -- and the SYSTEM.
 
 CREATE VIEW agents AS
@@ -162,8 +162,8 @@ CREATE TABLE goals (
     -- reference it explicitly because the cond_collections record is
     -- deleted when a tactics or goals row is deleted, not the
     -- other way around.
-    goal_id      INTEGER PRIMARY KEY, 
-    
+    goal_id      INTEGER PRIMARY KEY,
+
     -- Owning agent; see agents
     owner        TEXT,
 
@@ -195,18 +195,18 @@ CREATE TABLE tactics (
     -- reference it explicitly because the cond_collections record is
     -- deleted when a tactics or goals row is deleted, not the
     -- other way around.
-    tactic_id    INTEGER PRIMARY KEY, 
+    tactic_id    INTEGER PRIMARY KEY,
     tactic_type  TEXT,
-    
+
     -- Owning agent; see agents
     owner        TEXT,
 
-    -- Narrative: different tactics use different sets of parameters, 
-    -- so a conventional browser of all of the columns is 
+    -- Narrative: different tactics use different sets of parameters,
+    -- so a conventional browser of all of the columns is
     -- user-unfriendly.  Instead, we compute a narrative string.
     narrative    TEXT,
 
-    -- Priority: This is used to place each actor's tactics in 
+    -- Priority: This is used to place each actor's tactics in
     -- order of execution.
     priority     INTEGER,
 
@@ -214,7 +214,7 @@ CREATE TABLE tactics (
     -- on successful execution.
     once         INTEGER DEFAULT 0,
 
-    -- On-lock flag, 1 or 0. If 1, the tactic will be executed on lock 
+    -- On-lock flag, 1 or 0. If 1, the tactic will be executed on lock
     -- regardless of any other condition
     on_lock      INTEGER DEFAULT 0,
 
@@ -224,7 +224,7 @@ CREATE TABLE tactics (
     -- time of last execution, in ticks
     exec_ts      INTEGER,
 
-    -- Flag: 1 if tactic was selected for execution at the last tactics 
+    -- Flag: 1 if tactic was selected for execution at the last tactics
     -- tock, and 0 otherwise.
     exec_flag    INTEGER DEFAULT 0,
 
@@ -251,17 +251,17 @@ END;
 CREATE TABLE conditions (
     condition_id   INTEGER PRIMARY KEY,
     condition_type TEXT, -- econdition_type(n)
-    
+
     -- Condition collection (a goal or tactic)
     cc_id          INTEGER REFERENCES cond_collections(cc_id)
                    ON DELETE CASCADE
-                   DEFERRABLE INITIALLY DEFERRED, 
+                   DEFERRABLE INITIALLY DEFERRED,
 
     -- Owning agent; see agents
     owner          TEXT,
 
-    -- Narrative: different conditions use different sets of parameters, 
-    -- so a conventional browser of all of the columns is 
+    -- Narrative: different conditions use different sets of parameters,
+    -- so a conventional browser of all of the columns is
     -- user-unfriendly.  Instead, we compute a narrative string.
     narrative     TEXT,
 
@@ -271,19 +271,10 @@ CREATE TABLE conditions (
     -- Flag: 1 (met), 0 (unmet), or NULL (unknown)
     flag         INTEGER,
 
-    -- Type-specific Parameters: These columns are used in different
-    -- ways by different conditions; all are NULL if unused.
-
-    a             TEXT,    -- An actor
-    g             TEXT,    -- An group
-    n             TEXT,    -- A neighborhood
-    op1           TEXT,    -- An operation
-    t1            INTEGER, -- A time in ticks
-    t2            INTEGER, -- A time in ticks
-    text1         TEXT,    -- A text string
-    list1         TEXT,    -- A list
-    int1          INTEGER, -- An integer
-    x1            REAL     -- A number
+    -- Parameter Dictionary: a Tcl dictionary of optional parameters
+    -- and their values.  Errors in the pdict are checked by the
+    -- tactic-type's sanity checker.
+    pdict        TEXT
 );
 
 ------------------------------------------------------------------------
@@ -292,7 +283,7 @@ CREATE TABLE conditions (
 CREATE TABLE expenditures (
     -- The actor
     a   TEXT PRIMARY KEY,
-    
+
     -- The expenditures
     goods  REAL default 0.0,
     black  REAL default 0.0,
