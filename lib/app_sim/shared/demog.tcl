@@ -22,7 +22,7 @@
 # This module is responsible for computing demographics for neighborhoods
 # and neighborhood groups.  The data is stored in the demog_g, demog_n,
 # and demog_local tables.  Entries in the demog_n and demog_g tables
-# are created and deleted by nbhood(sim) and civgroups(sim) respectively, 
+# are created and deleted by nbhood(sim) and civgroups(sim) respectively,
 # as neighborhoods and civilian groups come and go.  The (single)
 # entry in the demog_local table is created/replaced on <analyze pop>.
 #
@@ -36,7 +36,7 @@ snit::type demog {
     # Initialization
 
     # start
-    # 
+    #
     # Computes population statistics at scenario lock.
 
     typemethod start {} {
@@ -45,11 +45,11 @@ snit::type demog {
         rdb eval {
             INSERT INTO demog_g(g,real_pop,population)
             SELECT g, basepop, basepop FROM civgroups;
-            
+
             INSERT INTO demog_n(n)
             SELECT n FROM nbhoods;
         }
-        
+
         # NEXT, do the initial population analysis
         $type stats
     }
@@ -80,12 +80,9 @@ snit::type demog {
     # Computes the population statistics for each civilian group.
 
     typemethod ComputePopG {} {
-        # FIRST, get the labor force fraction.
-        set LFF [parm get demog.laborForceFraction.NONE]
-   
-        # NEXT, compute the breakdown for all groups.
-        foreach {g population sa_flag} [rdb eval {
-            SELECT g, population, sa_flag
+        # FIRST, compute the breakdown for all groups.
+        foreach {g population sa_flag lfp} [rdb eval {
+            SELECT g, population, sa_flag, lfp
             FROM demog_g JOIN civgroups USING (g)
         }] {
             if {$sa_flag} {
@@ -95,7 +92,7 @@ snit::type demog {
             } else {
                 let subsistence 0
                 let consumers   $population
-                let labor_force {round($LFF * $consumers)}
+                let labor_force {round($lfp * $consumers/100.0)}
             }
 
             rdb eval {
@@ -120,7 +117,7 @@ snit::type demog {
             SELECT n,
                    total(population)  AS population,
                    total(subsistence) AS subsistence,
-                   total(consumers)   AS consumers, 
+                   total(consumers)   AS consumers,
                    total(labor_force) AS labor_force
             FROM demog_g
             JOIN civgroups USING (g)
@@ -162,12 +159,12 @@ snit::type demog {
 
     #-------------------------------------------------------------------
     # Population Growth/Change
-    
+
     # growth
     #
     # Computes the adjustment to each civilian group's population
     # based on its change rate.
-    
+
     typemethod growth {} {
         foreach {g real_pop pop_cr} [rdb eval {
             SELECT g, real_pop, pop_cr
@@ -182,8 +179,8 @@ snit::type demog {
             demog adjust $g $delta
         }
     }
-    
-    
+
+
     #-------------------------------------------------------------------
     # Analysis of Economic Effects on the Population
 
@@ -346,18 +343,18 @@ snit::type demog {
 
         return ""
     }
-    
+
     # gIn n
     #
     # n  - A neighborhood ID
     #
-    # Returns a list of the NON-EMPTY civ groups that reside 
+    # Returns a list of the NON-EMPTY civ groups that reside
     # in the neighborhood.
 
     typemethod gIn {n} {
         rdb eval {
-            SELECT g 
-            FROM demog_g 
+            SELECT g
+            FROM demog_g
             JOIN civgroups USING (g)
             WHERE n=$n AND population > 0
             ORDER BY g
@@ -385,16 +382,16 @@ snit::type demog {
 
     typemethod adjust {g delta} {
         set real_pop [$type getg $g real_pop]
-        
+
         let real_pop {max(0.0, $real_pop + $delta)}
-        
+
         # If it's less than 1.0, make it zero
         if {$real_pop < 1.0} {
             let real_pop {0.0}
         }
-        
+
         let population {floor(round($real_pop))}
-        
+
         rdb eval {
             UPDATE demog_g
             SET population = $population,
@@ -411,29 +408,29 @@ snit::type demog {
     #
     # Flows up to delta people from group f to group g.  The
     # delta can include fractional flows.
-    
+
     typemethod flow {f g delta} {
         # FIRST, Make sure delta's not too big.
         set fpop [demog getg $f population]
         let delta {min($fpop, $delta)}
-        
+
         # NEXT, Adjust the two groups
         demog adjust $f -$delta
         demog adjust $g $delta
-    
+
         # NEXT, Record the change
         if {[parm get hist.pop]} {
             rdb eval {
                 INSERT OR IGNORE INTO hist_flow(t,f,g)
                 VALUES(now(), $f, $g);
-                
+
                 UPDATE hist_flow
                 SET flow = flow + $delta
                 WHERE t=now() AND f=$f AND g=$g;
             }
         }
     }
-    
+
     # attrit g casualties
     #
     # g           - Group ID
@@ -468,4 +465,3 @@ snit::type demog {
         }
     }
 }
-

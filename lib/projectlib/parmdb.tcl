@@ -97,7 +97,7 @@ snit::type ::projectlib::parmdb {
         $ps define sim.tickTransaction ::snit::boolean yes {
             If yes, the time advance (or tick) activities are wrapped
             in an SQL transaction, which makes them considerably
-            faster, but means that RDB changes made during the tick 
+            faster, but means that RDB changes made during the tick
             are lost if tick code throws an unexpected error.  If no,
             no enclosing transaction is used; the tick activities will
             be much slower, but the data required for debugging will
@@ -139,7 +139,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define aam.UFvsNF.UF.nominalCooperation \
             ::projectlib::parmdb_nomcoop 35.0 {
-            The nominal cooperation of the neighborhood population 
+            The nominal cooperation of the neighborhood population
             with the Uniformed Force.  When the actual cooperation is
             equal to this value, the time-to-find an NF cell will tend
             to be <tt>aam.UFvsNF.UF.timeToFind</tt>.
@@ -147,7 +147,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define aam.UFvsNF.UF.timeToFind \
             ::projectlib::parmdb_posdays 5.0 {
-            The average time for the Uniformed Force to find a 
+            The average time for the Uniformed Force to find a
             Non-uniformed Force cell, in weeks.
         }
 
@@ -174,7 +174,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define aam.UFvsNF.NF.cellSize \
             ::projectlib::ipositive 7 {
-            The average number of Non-uniformed Force personnel per 
+            The average number of Non-uniformed Force personnel per
             NF cell.  Ultimately, this might be allowed to vary by
             group and neighborhood.
         }
@@ -190,7 +190,7 @@ snit::type ::projectlib::parmdb {
             $ps define aam.UFvsNF.ECDA.$ul ::projectlib::parmdb_rquantity 0.0 {
                 The ECDA for this urbanization level, i.e., the
                 expected number of civilians killed per non-uniformed cell
-                attacked by a uniformed force.            
+                attacked by a uniformed force.
             }
         }
 
@@ -322,12 +322,12 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps subset activity.FRC {
-            Parameters which affect the computation of force group 
+            Parameters which affect the computation of force group
             activity coverage.
         }
 
         $ps subset activity.ORG {
-            Parameters which affect the computation of organization group 
+            Parameters which affect the computation of organization group
             activity coverage.
         }
 
@@ -372,9 +372,9 @@ snit::type ::projectlib::parmdb {
                     Number of personnel which must be assigned to the
                     activity to yield one person actively performing the
                     activity given a typical schedule, i.e., the number
-                    of shifts.  For example, a 24x7 activity will 
+                    of shifts.  For example, a 24x7 activity will
                     require the assigned personnel to work three or
-                    four shifts. 
+                    four shifts.
                 }
 
             $ps define activity.FRC.$a.coverage ::simlib::coverage {
@@ -383,8 +383,8 @@ snit::type ::projectlib::parmdb {
                 The parameters (c, d) that determine the
                 coverage fraction function for this force activity.  Coverage
                 depends on the asset density, which is the number
-                of active personnel per d people in the population.  If the 
-                density is 0, the coverage is 0.  The coverage 
+                of active personnel per d people in the population.  If the
+                density is 0, the coverage is 0.  The coverage
                 fraction increases to 2/3 when density is c.
             }
         }
@@ -428,20 +428,20 @@ snit::type ::projectlib::parmdb {
                     Number of personnel which must be assigned to the
                     activity to yield one person actively performing the
                     activity given a typical schedule, i.e., the number
-                    of shifts.  For example, a 24x7 activity will 
+                    of shifts.  For example, a 24x7 activity will
                     require the assigned personnel to work three or
-                    four shifts. 
+                    four shifts.
                 }
 
- 
+
             $ps define activity.ORG.$a.coverage ::simlib::coverage {
                 25.0 1000
             } {
                 The parameters (c, d) that determine the
                 coverage fraction function for this activity.  Coverage
                 depends on the asset density, which is the number
-                of active personnel per d people in the population.  If the 
-                density is 0, the coverage is 0.  The coverage 
+                of active personnel per d people in the population.  If the
+                density is 0, the coverage is 0.  The coverage
                 fraction increases to 2/3 when density is c.
             }
          }
@@ -599,7 +599,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define attitude.SFT.Znatural ::marsutil::zcurve \
             {-100.0 -100.0 100.0 100.0} {
-                A Z-curve for computing the natural level of 
+                A Z-curve for computing the natural level of
                 SFT satisfaction curves from the civilian group's
                 security.  The default curve simply equates the two.
                 The output may not exceed the range (-100.0, +100.0).
@@ -613,7 +613,7 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps subset control.support {
-            Parameters related to the computation of the support of a 
+            Parameters related to the computation of the support of a
             neighborhood for a particular actor.
         }
 
@@ -659,10 +659,10 @@ snit::type ::projectlib::parmdb {
         $ps define dam.actsit.nominalCoverage \
             ::projectlib::parmdb_nomcoverage 0.66 \
             {
-                The nominal coverage fraction for activity rule sets.  
-                Input magnitudes are specified for this nominal coverage, 
-                i.e., if a change is specified as "cov * M+" the input 
-                will be "M+" when "cov" equals the nominal coverage.  The 
+                The nominal coverage fraction for activity rule sets.
+                Input magnitudes are specified for this nominal coverage,
+                i.e., if a change is specified as "cov * M+" the input
+                will be "M+" when "cov" equals the nominal coverage.  The
                 valid range is 0.1 to 1.0.
         }
 
@@ -676,9 +676,9 @@ snit::type ::projectlib::parmdb {
             {
                 The nominal coverage fraction for environmental
                 situation rule sets.
-                Input magnitudes are specified for this nominal coverage, 
-                i.e., if a change is specified as "cov * M+" the input 
-                will be "M+" when "cov" equals the nominal coverage.  The 
+                Input magnitudes are specified for this nominal coverage,
+                i.e., if a change is specified as "cov * M+" the input
+                will be "M+" when "cov" equals the nominal coverage.  The
                 valid range is 0.1 to 1.0.
         }
 
@@ -784,8 +784,8 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CMOCONST.nearFactor    0.75
         $ps setdefault dam.CMOCONST.farFactor     0.25
         $ps setdefault dam.CMOCONST.mitigates     {
-            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE  
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
+            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
             NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE   SEWAGE
         }
 
@@ -841,9 +841,9 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CMOOTHER.nearFactor    0.25
         $ps setdefault dam.CMOOTHER.farFactor     0.1
         $ps setdefault dam.CMOOTHER.mitigates     {
-            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE  
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
-            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE   
+            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
+            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
             SEWAGE
         }
 
@@ -937,8 +937,8 @@ snit::type ::projectlib::parmdb {
         $ps define dam.IOM.nominalCAPcov \
             ::projectlib::parmdb_nomcoverage 0.66 {
             The nominal CAP Coverage fraction for this rule set.  The effect
-            magnitudes entered by the user as part of the IOM are 
-            specified for this nominal coverage, i.e., if the effect is 
+            magnitudes entered by the user as part of the IOM are
+            specified for this nominal coverage, i.e., if the effect is
             "M+" in the IOM, the value will be "M+" when the CAP Coverage
             is the nominal coverage and will be scaled up and down from
             there.  The valid range is 0.1 to 1.0.
@@ -947,10 +947,10 @@ snit::type ::projectlib::parmdb {
         $ps define dam.IOM.Zresonance ::marsutil::zcurve {0.0 0.0 0.6 1.0} {
             A Z-curve for computing the "resonance" of an IOM's semantic
             hook with a civilian group from the civilian group's affinity
-            for the hook.  The Z-curve has been chosen so that groups with a 
+            for the hook.  The Z-curve has been chosen so that groups with a
             negative affinity receive no effect.  Some backfiring might be
             reasonable, so the <i>lo</i> value could easily be decreased to,
-            say, -0.1. 
+            say, -0.1.
         }
 
         # Rule Set: MINEFIELD
@@ -966,7 +966,7 @@ snit::type ::projectlib::parmdb {
         # Add additional parameters for MOOD rule set
         $ps define dam.MOOD.threshold ::projectlib::parmdb_rquantity 5.0 {
             Delta-mood threshold; changes in civilian mood will only
-            affect vertical relationships if the absolute change 
+            affect vertical relationships if the absolute change
             in mood meets or exceeds this threshold.
         }
 
@@ -986,7 +986,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.ORGCONST.farFactor     0.25
         $ps setdefault dam.ORGCONST.mitigates     {
             BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
             NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
             SEWAGE
         }
@@ -1034,7 +1034,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.ORGOTHER.farFactor     0.1
         $ps setdefault dam.ORGOTHER.mitigates     {
             BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD 
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
             NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
             SEWAGE
         }
@@ -1100,27 +1100,8 @@ snit::type ::projectlib::parmdb {
             Demographics Model parameters.
         }
 
-        $ps subset demog.laborForceFraction {
-            Labor force as a fraction of the population, by 
-            civilian activity.
-        }
-
-        $ps define demog.laborForceFraction.NONE ::simlib::rfraction 0.6 {
-            Fraction of normal consumers who are in the labor force.
-        }
-
-        $ps define demog.laborForceFraction.DISPLACED ::simlib::rfraction 0.4 {
-            Fraction of displaced civilians not living in camps
-            who are in the labor force.
-        }
-
-        $ps define demog.laborForceFraction.IN_CAMP ::simlib::rfraction 0.0 {
-            Fraction of displaced civilians living in camps
-            who are in the labor force.
-        }
-
         $ps define demog.Zuaf ::marsutil::zcurve {0.0 5.0 15.0 2.0} {
-            Z-curve for the unemployment attitude factor (UAF).  
+            Z-curve for the unemployment attitude factor (UAF).
             The input is the unemployed per capita (UPC), which is
             expressed as a percentage of the total population.
             The output is a coefficient used in the
@@ -1140,7 +1121,7 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps define econ.ticksPerTock ::projectlib::ipositive 1 {
-            Defines the size of the economic model "tock", in ticks.  
+            Defines the size of the economic model "tock", in ticks.
             At each tock, Athena updates the economic model with the
             latest demographic data, etc., and computes the new
             state of the economy.
@@ -1148,7 +1129,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as
-            a decimal fraction of the total production capacity.  This 
+            a decimal fraction of the total production capacity.  This
             value can range from 0.0 to 0.9.
         }
 
@@ -1159,16 +1140,16 @@ snit::type ::projectlib::parmdb {
 
         $ps define econ.check.MinConsumerFrac ::simlib::rfraction 0.4 {
             The on-tick sanity check will fail if the total number of
-            consumers in the local economy drops to below this 
-            fraction of its starting value.  Set it to 0.0 to disable 
+            consumers in the local economy drops to below this
+            fraction of its starting value.  Set it to 0.0 to disable
             the check.
-            
+
         }
 
         $ps define econ.check.MinLaborFrac ::simlib::rfraction 0.4 {
             The on-tick sanity check will fail if the total number of
-            workers in the local labor force drops to below this 
-            fraction of its starting value.  Set it to 0.0 to disable 
+            workers in the local labor force drops to below this
+            fraction of its starting value.  Set it to 0.0 to disable
             the check.
         }
 
@@ -1179,7 +1160,7 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps define econ.check.MinDgdpFrac ::simlib::rfraction 0.5 {
-            The on-tick sanity check will fail if the DGDP 
+            The on-tick sanity check will fail if the DGDP
             (Deflated Gross Domestic Product) falls drops to below
             this fraction of its starting value.  Set it to 0.0 to
             disable the check.
@@ -1189,7 +1170,7 @@ snit::type ::projectlib::parmdb {
             The on-tick sanity check will fail if the CPI drops
             to below this value.  Set it to 0.0 to disable the check.
         }
-        
+
         $ps define econ.check.MaxCPI ::projectlib::parmdb_rquantity 1.5 {
             The on-tick sanity check will fail if the CPI rises to
             above this value.  Set it to some large number (e.g., 100.0)
@@ -1235,7 +1216,7 @@ snit::type ::projectlib::parmdb {
 
 
         $ps subset econ.shares {
-            Allocations of expenditures to CGE sectors, by 
+            Allocations of expenditures to CGE sectors, by
             expenditure class and sector.  The allocations are
             specified as shares per sector.  The fraction of money
             allocated to a sector is determined by dividing its
@@ -1258,7 +1239,7 @@ snit::type ::projectlib::parmdb {
                     ::projectlib::iquantity 0 "
                         Allocation of $class expenditures to the
                         $sector CGE sector, a number of shares greater
-                        than or equal to 0. 
+                        than or equal to 0.
                     "
             }
         }
@@ -1296,7 +1277,7 @@ snit::type ::projectlib::parmdb {
 
         foreach name [eensit names] {
             $ps subset ensit.$name "
-                Parameters for environmental situation type 
+                Parameters for environmental situation type
                 [eensit longname $name].
             "
 
@@ -1344,29 +1325,29 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps define force.mood ::simlib::rfraction 0.2 {
-            Dial that controls the extent to which a civilian group's mood 
+            Dial that controls the extent to which a civilian group's mood
             in a neighborhood affects its force in that neighborhood.
             At 0.0, mood has no effect.  At 1.0, the group's force will
-            be doubled if the mood is -100.0 (perfectly dissatisfied) and 
+            be doubled if the mood is -100.0 (perfectly dissatisfied) and
             zeroed  if the mood is +100 (perfectly satisfied).  At the
-            default value of 0.2, the effect changes from 1.2 
+            default value of 0.2, the effect changes from 1.2
             when perfectly dissatisfied to 0.8 when perfectly satisfied.
             (This value is denoted "b" in the Athena Analyst Guide.)
         }
 
         $ps define force.population ::simlib::rfraction 0.01 {
-            Dial that controls the fraction of a civilian group's 
-            population in a neighborhood  
-            that counts toward that group's force in the 
-            neighborhood.  Must be no less than 0. (This value is denoted 
+            Dial that controls the fraction of a civilian group's
+            population in a neighborhood
+            that counts toward that group's force in the
+            neighborhood.  Must be no less than 0. (This value is denoted
             "a" in the Athena Analyst Guide.)
         }
 
         $ps define force.proximity ::projectlib::rgain 0.1 {
-            Dial that controls the extent to which nearby 
+            Dial that controls the extent to which nearby
             neighborhoods contribute to a group's force in a neighborhood.
             This dial should be larger if neighborhoods are small, and
-            smaller if neighborhoods are large.  Set it to 0.0 if 
+            smaller if neighborhoods are large.  Set it to 0.0 if
             nearby neighborhoods have no effect.  Must be no less than
             0.  (This value is denoted "h" in the Athena Analyst Guide.)
         }
@@ -1440,8 +1421,8 @@ snit::type ::projectlib::parmdb {
             AGGRESSIVE 1.5
         } {
             $ps define force.demeanor.$name ::projectlib::rgain $value "
-                Dial that determines the effect of $name demeanor 
-                on a group's force.  Must be no less than 0; set to 1.0 
+                Dial that determines the effect of $name demeanor
+                on a group's force.  Must be no less than 0; set to 1.0
                 if demeanor should have no effect.
             "
         }
@@ -1468,7 +1449,7 @@ snit::type ::projectlib::parmdb {
         $ps subset force.forcetype {
             For units belonging to force groups, this set of dials
             determines the contribution to force of each person in the unit,
-            based on the group's force type.  Must be no less 
+            based on the group's force type.  Must be no less
             than 0.
         }
 
@@ -1488,18 +1469,18 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps subset force.law {
-            These parameters relate to the effect of law enforcement 
+            These parameters relate to the effect of law enforcement
             activities by force groups on the background level of
             criminal activity, and hence on volatility.
         }
 
         $ps define force.law.suppfrac ::projectlib::rfraction 0.6 {
-            Suppressible fraction: the fraction of a civilian group's 
+            Suppressible fraction: the fraction of a civilian group's
             criminal activity that can be suppressed by law enforcement.
         }
 
         $ps subset force.law.beta {
-            These parameters indicate how effective force group activities 
+            These parameters indicate how effective force group activities
             are at reducing volatility in the neighborhood.
         }
 
@@ -1560,7 +1541,7 @@ snit::type ::projectlib::parmdb {
             RURAL    {1.0 1000}
             SUBURBAN {2.0 1000}
             URBAN    {3.0 1000}
-        } { 
+        } {
             $ps define force.law.coverage.$urb ::simlib::coverage $func "
                 Law enforcement coverage function for $urb neighborhoods.
             "
@@ -1579,7 +1560,7 @@ snit::type ::projectlib::parmdb {
         } {
             $ps define force.law.efficiency.$name ::projectlib::rgain $val "
                 Given a training level of $name, a non-negative
-                multiplier indicating how efficient the force group 
+                multiplier indicating how efficient the force group
                 will be at law enforcement.
             "
         }
@@ -1626,7 +1607,7 @@ snit::type ::projectlib::parmdb {
         $ps subset force.orgtype {
             For units belonging to organization groups, this set of dials
             determines the contribution to force of each person in the unit,
-            based on the group's organization type.  Must be no less 
+            based on the group's organization type.  Must be no less
             than 0.
         }
 
@@ -1684,7 +1665,7 @@ snit::type ::projectlib::parmdb {
             of each civilian group, and also all flows of population
             from one group to another.
         }
-        
+
         $ps define hist.sat ::snit::boolean on {
             If on, Athena will save, each week, the satisfaction of
             each civilian group with each concern to the hist_sat table.
@@ -1698,7 +1679,7 @@ snit::type ::projectlib::parmdb {
         $ps define hist.support ::snit::boolean on {
             If on, Athena will save, each week, the direct
             support, total support, and influence of each actor in
-            each neighborhood to the hist_support table. 
+            each neighborhood to the hist_support table.
         }
 
         $ps define hist.volatility ::snit::boolean on {
@@ -1708,7 +1689,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define hist.vrel ::snit::boolean on {
             If on, Athena will save, each week, the vertical
-            relationship of each civilian group with each actor 
+            relationship of each civilian group with each actor
             to the hist_vrel table.
         }
 
@@ -1728,7 +1709,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define service.ENI.alphaA ::simlib::rfraction 0.50 {
             Smoothing constant for computing the expected level of
-            service <b>when the average amount of service has been 
+            service <b>when the average amount of service has been
             higher than the expectation</b>.  If 1.0, the expected
             level of service will just be the current level of service
             (expectations change instantly); if 0.0, the expected
@@ -1763,7 +1744,7 @@ snit::type ::projectlib::parmdb {
 
         $ps define service.ENI.delta ::simlib::rfraction 0.1 {
             An actual service level A is presumed to be approximately
-            equal to the expected service level X if 
+            equal to the expected service level X if
             abs(A-X) <= delta*X.
         }
 
@@ -1845,6 +1826,3 @@ snit::type ::projectlib::parmdb {
         $tempdb destroy
     }
 }
-
-
-
