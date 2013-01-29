@@ -175,8 +175,6 @@ snit::type strategy {
 
             if {$row(condition_id) ne ""} {
                 lappend gconds($row(goal_id)) $row(condition_id)
-
-                set cdicts($row(condition_id)) [array get row]
             }
         }
 
@@ -190,13 +188,14 @@ snit::type strategy {
             set gflag 1
 
             foreach cid $gconds($gid) {
-                set cstate [dict get $cdicts($cid) state]
+                set cdict [condition get $cid]
+                set cstate [dict get $cdict state]
 
                 # FIRST, if compute the flag if the condition's
                 # state is normal; otherwise, ignore the condition
                 # (which means pretending that it's true).
                 if {$cstate eq "normal"} {
-                    set flag [condition call eval $cdicts($cid)]
+                    set flag [condition call eval $cdict]
                     set gflag [expr {$gflag && $flag}]
                 } else {
                     set flag ""
@@ -351,17 +350,18 @@ snit::type strategy {
         set badConditions [list]
 
         rdb eval {
-            SELECT *
+            SELECT condition_id
             FROM conditions
             JOIN cond_collections USING (cc_id)
             WHERE state != 'disabled'
-        } row {
+        } {
             # FIRST, Check and skip valid conditions
-            set result [condition call check [array get row]]
+            set cdict [condition get $condition_id]
+            set result [condition call check $cdict]
 
             if {$result ne ""} {
-                set cerror($row(condition_id)) $result
-                lappend badConditions $row(condition_id)
+                set cerror($condition_id) $result
+                lappend badConditions $condition_id
             }
         }
 
