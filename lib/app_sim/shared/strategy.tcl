@@ -240,14 +240,13 @@ snit::type strategy {
         set badlist [list]
 
         rdb eval {
-            SELECT *
+            SELECT condition_id
             FROM conditions
             WHERE cc_id = $tid
             AND   state = 'normal'
-        } row {
-            unset -nocomplain row(*)
-
-            set flag [condition call eval [array get row]]
+        } {
+            set cdict [condition get $condition_id]
+            set flag [condition call eval $cdict]
 
             # If an attached condition has no value, the tactic shouldn't
             # execute.  At the same time, we don't want to flag such a
@@ -255,7 +254,7 @@ snit::type strategy {
             if {$flag eq ""} {
                 set flag 0
             } else {
-                lappend cflags $row(condition_id) $flag
+                lappend cflags $condition_id $flag
             }
 
             if {!$flag} {

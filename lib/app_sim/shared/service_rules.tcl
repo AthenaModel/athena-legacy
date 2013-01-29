@@ -137,7 +137,7 @@ snit::type service_rules {
             log detail servr [list ENI $g]
             
             dam ruleset ENI \
-                [driver create ENI "Provision of ENI services to $g"]
+                [driver create ENI "Provision of ENI services to $g" $g]
 
             dam detail "Civilian Group:"      $g
             dam detail "In Neighborhood:"     $n
