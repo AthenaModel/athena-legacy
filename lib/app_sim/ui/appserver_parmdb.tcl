@@ -62,7 +62,6 @@ appserver module PARMDB {
             attitude
             control
             dam
-            demsit
             demog
             econ
             ensit

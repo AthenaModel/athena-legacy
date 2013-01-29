@@ -33,27 +33,39 @@ snit::type demsit_rules {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # monitor sit
+    # assess
     #
-    # sit     demsit object
-    #
-    # A demsit's status has changed; run its monitor rule set.
+    # Assesses any existing demographic situations, which it finds for
+    # itself.
     
-    typemethod {monitor} {sit} {
-        set ruleset [$sit get stype]
+    typemethod assess {} {
+        # FIRST, UNEMPloyment situations
+        rdb eval {
+            SELECT n, g, ngfactor, nfactor
+            FROM demog_context
+            WHERE population > 0
+            AND (ngfactor > 0.0 OR nfactor > 0.0)
+        } row {
+            unset -nocomplain row(*)
+            
+            set sit [array get row]
+            dict with sit {}
+            
+            if {![dam isactive UNEMP]} {
+                log warning actr \
+                    "monitor UNEMP: ruleset has been deactivated"
+                return
+            }
 
-        if {![dam isactive $ruleset]} {
-            log warning actr \
-                "monitor $ruleset: ruleset has been deactivated"
-            return
-        }
-
-        bgcatch {
-            # Run the monitor rule set.
-            demsit_rules $ruleset $sit
+            dict set sit driver_id \
+                [driver create UNEMP "$g UNEMP in $n" $g]
+            
+            bgcatch {
+                demsit_rules UNEMP $sit
+            }
         }
     }
-
+    
     #===================================================================
     # Demographic Situations
     #
@@ -66,20 +78,17 @@ snit::type demsit_rules {
 
     # UNEMP sit
     #
-    # sit       The demsit object for this situation
+    # sit       The demsit dict for this situation
     #
     # This method is called when unemployment significantly affects
     # a group g in neighborhood n.
 
     typemethod UNEMP {sit} {
-        log detail demr [list UNEMP [$sit id]]
+        # FIRST unpack the dict data
+        dict with sit {}
+        log detail demr [list UNEMP $driver_id]
 
-        set g        [$sit get g]
-        set n        [$sit get n]
-        set ngfactor [$sit get ngfactor]
-        set nfactor  [$sit get nfactor]
-
-        dam ruleset UNEMP [$sit get driver_id]
+        dam ruleset UNEMP $driver_id
 
         dam detail "Civilian Group:"  $g
         dam detail "In Neighborhood:" $n

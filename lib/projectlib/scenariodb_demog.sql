@@ -88,17 +88,7 @@ CREATE TABLE demog_g (
     -- Attrition to this group (total killed to date).
     -- This is an output only; it is no longer used to
     -- compute population week to week.
-    attrition      INTEGER DEFAULT 0,
-
-    -- Demographic Situation ID.  This is the ID of the
-    -- demsit associated with this record, if
-    -- any, and 0 otherwise.
-    --
-    -- NOTE: This implementation is fine so long as we have
-    -- only *one* kind of demsit.  If we add more, we'll need
-    -- to do something different.  The right answer depends on
-    -- what demsits turn out to have in common.
-    s              INTEGER  DEFAULT 0
+    attrition      INTEGER DEFAULT 0
 );
 
 
@@ -112,7 +102,6 @@ SELECT CG.n              AS n,
        DG.g              AS g,
        DG.population     AS population,
        DG.uaf            AS ngfactor,
-       DG.s              AS s,
        DN.uaf            AS nfactor
 FROM demog_g   AS DG
 JOIN civgroups AS CG USING (g)

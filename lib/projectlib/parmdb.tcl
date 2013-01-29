@@ -1084,17 +1084,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.SEWAGE.nearFactor      0.2
         $ps setdefault dam.SEWAGE.farFactor       0.0
 
-        # demsit.* parameters
-        $ps subset demsit {
-            Demographic Situation Module parameters.
-        }
-
-        $ps define demsit.disable ::projectlib::boolean no {
-            If "yes", demographic situations are disabled.  If set to
-            yes during the run, all existing demsits will be removed
-            at the next demsit assess.
-        }
-
         # demog.* parameters
         $ps subset demog {
             Demographics Model parameters.

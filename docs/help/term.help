@@ -1,4 +1,3 @@
-# -*-tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
 #    term.help
@@ -358,9 +357,6 @@ term demsit "demographic situation" {
     At present, there is only one type of demographic situation, the
     Unemployment (UNEMP) situation; see the <i>Athena Rules</i>
     document for details.<p>
-
-    Existing demographic situations can be seen on the 
-    <<tab Neighborhoods/DemSits>>.
 }
 
 #-----------------------------------------------------------------------

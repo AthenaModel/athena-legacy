@@ -478,30 +478,6 @@ CREATE VIEW ensits_current AS
 SELECT * FROM situations JOIN ensits_t USING (s)
 WHERE state != 'ENDED' OR change != '';
 
--- Demographic Situations
-CREATE TABLE demsits_t (
-    -- Situation ID
-    s         INTEGER PRIMARY KEY,
-
-    -- Factors
-
-    -- Neighborhood factor
-    nfactor   DOUBLE,
-
-    -- Neighborhood group factor
-    ngfactor  DOUBLE
-);
-
--- Demographic Situations View
-CREATE VIEW demsits AS
-SELECT * FROM situations JOIN demsits_t USING (s);
-
--- Current Demographic Situations View: i.e., situations of current
--- interest to the analyst
-CREATE VIEW demsits_current AS
-SELECT * FROM situations JOIN demsits_t USING (s)
-WHERE state != 'ENDED' OR change != '';
-
 
 ------------------------------------------------------------------------
 -- SERVICES

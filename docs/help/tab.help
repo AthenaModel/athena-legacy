@@ -752,90 +752,6 @@ tab "Neighborhoods/Activity" {
 
 #-----------------------------------------------------------------------
 
-tab "Neighborhoods/DemSits" {
-    <b>Simulation Mode Only.</b><p>
-
-    This tab shows the demographic situations created in response to 
-    population effects. This browser is populated only
-    after Athena leaves <<term prep>>.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "ID">>The ID of the situation.<</topic>>
-
-    <<topic "Change">>This field indicates the situations that changed
-    during the last major time step, and how they changed, i.e., were
-    they created, did they end, and so forth.
-    <</topic>>
-
-    <<topic "State">>The state of the situation, one of <b>ACTIVE</b>,
-    or <b>ENDED</b>.  An <b>ACTIVE</b> situation is
-    currently affecting attitudes in the neighborhood.
-    A situation is <b>ENDED</b> when it is no longer affecting
-    attitudes in the neighborhood.<p>
-
-    Note that a new situation is always <b>ACTIVE</b>; no situation
-    will be created until attitudes are affected.
-    <</topic>>
-
-    <<topic "Type">>The situation type.  At present, there is only one kind 
-    of demographic situation: Unemployment, which is abbreviated "UNEMP".
-    <</topic>>
-
-    <<topic "Nbhood">>The ID of the neighborhood in which the situation
-    is taking place.<</topic>>
-
-    <<topic "Group">>The ID of the civilian group affected by the
-    situation.<</topic>>
-    
-    <<topic "G UAF">>The Unemployment Attitude Factor for the affected
-    group.  This is a number from 0.0 to 2.0 used as 
-    a multiplier in the UNEMP rule set.<</topic>>
-
-    <<topic "N UAF">>The Unemployment Attitude Factor for the neighborhood
-    as a whole.  This is a number from 0.0 to 2.0 used as 
-    a multiplier in the UNEMP rule set.<</topic>>
-
-    <<topic "Began At">>The simulation time at which the situation
-    began to affect attitudes.
-    <</topic>>
-
-    <<topic "Changed At">>The simulation time at which the situation
-    last changed.
-    <</topic>>
-
-    <<topic "Driver">>The GRAM driver ID associated with the situation.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image viewbox]>>
-    The view box determines which set of entities is to be displayed.
-    The following sets may be selected from the pulldown:<p>
-
-    <ul>
-    <li> <b>All</b>: All situations, whether <b>Current</b> or
-    <b>Ended</b>.
-    <li> <b>Current</b>: Situations which are currently <b>ACTIVE</b>
-    or have <b>ENDED</b> during the last major
-    time step.
-    <li> <b>Ended</b>: Situations which have <b>ENDED</b>.
-    </ul>
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
 tab "Neighborhoods/EnSits" {
     This tab shows the environmental situations present in the
     playbox.  The browser controls are
@@ -2411,21 +2327,11 @@ tab "Demog/Nbhoods" {
 
     <<topic Consumers>>The number of people in the neighborhood that
     consume goods and services, and hence <i>do</i>
-    participate in its regional economy,  including
-    both civilian groups and displaced personnel.
+    participate in its regional economy.
     <</topic>>
 
     <<topic LaborForce>>The number of people in the neighborhood that
-    seek paid employment (though they might not find it) including
-    both civilian groups and displaced personnel.
-    <</topic>>
-
-    <<topic Displaced>>The total personnel in units that are displaced
-    into this neighborhood from their neighborhood of origin.
-    <</topic>>
-
-    <<topic DispLF>>The number of people in displaced units in this
-    neighborhood that seek paid employment.
+    seek paid employment (though they might not find it).
     <</topic>>
 
     <</topiclist>>

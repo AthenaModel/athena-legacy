@@ -51,11 +51,11 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    population real_pop subsistence consumers labor_force unemployed upc uaf attrition s 
----- ---------- -------- ----------- --------- ----------- ---------- --- --- --------- - 
-SHIA 1000       1000.0   0           1000      600         0          0.0 0.0 0         0 
-SUNN 1000       1000.0   0           1000      600         0          0.0 0.0 0         0 
-KURD 1000       1000.0   1000        0         0           0          0.0 0.0 0         0 
+g    population real_pop subsistence consumers labor_force unemployed upc uaf attrition 
+---- ---------- -------- ----------- --------- ----------- ---------- --- --- --------- 
+SHIA 1000       1000.0   0           1000      600         0          0.0 0.0 0         
+SUNN 1000       1000.0   0           1000      600         0          0.0 0.0 0         
+KURD 1000       1000.0   1000        0         0           0          0.0 0.0 0         
     }
 
     test start-1.2 {demog_n is populated} -setup {
@@ -85,7 +85,7 @@ NB2 1000       1000        0         0           0          0.0 0.0
         demog getg SHIA
     } -cleanup {
         cleanup
-    } -result {subsistence 0 unemployed 24 population 1000 s 1 uaf 0.0 labor_force 600 attrition 0 g SHIA consumers 1000 upc 2.4 real_pop 1000.0}
+    } -result {uaf 0.0 upc 2.4 subsistence 0 attrition 0 unemployed 24 labor_force 600 real_pop 1000.0 consumers 1000 population 1000 g SHIA}
     
     test getg-1.2 {can get one parameter} -setup {
         setup

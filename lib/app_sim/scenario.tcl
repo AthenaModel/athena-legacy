@@ -621,7 +621,6 @@ snit::type scenario {
         # NEXT, define the GUI Views
         RdbEvalFile gui_scenario.sql    ;# Scenario Entities
         RdbEvalFile gui_attitude.sql    ;# Attitude Area
-        RdbEvalFile gui_demog.sql       ;# Demographics Area
         RdbEvalFile gui_econ.sql        ;# Economics Area
         RdbEvalFile gui_ground.sql      ;# Ground Area
         RdbEvalFile gui_info.sql        ;# Information Area

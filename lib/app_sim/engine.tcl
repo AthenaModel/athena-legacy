@@ -98,7 +98,7 @@ snit::type engine {
         if {$econOK} {
             profile demog econstats
         }
-        profile demsit assess
+        profile demsit_rules assess
 
         # NEXT, set natural attitude levels for those attitudes whose
         # natural level varies with time.
@@ -156,7 +156,7 @@ snit::type engine {
             }
         }
 
-        profile demsit assess
+        profile demsit_rules assess
         profile control_model assess
 
         # NEXT, advance URAM, first giving it the latest population data
