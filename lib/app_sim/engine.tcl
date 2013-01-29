@@ -92,7 +92,7 @@ snit::type engine {
         profile ensit assess
         profile nbstat analyze
         profile control_model analyze
-        profile actsit assess
+        profile actsit_rules assess
         profile service assess
         set econOK [econ tock]
         if {$econOK} {
@@ -144,7 +144,7 @@ snit::type engine {
         profile nbstat analyze
         profile misc_rules assess
         profile control_model analyze
-        profile actsit assess
+        profile actsit_rules assess
         profile service assess
         profile aam assess
 

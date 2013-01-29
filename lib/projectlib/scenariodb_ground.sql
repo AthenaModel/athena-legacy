@@ -387,12 +387,6 @@ CREATE TABLE activity_nga (
     -- Type of activity situation associated with this activity
     stype               TEXT,
 
-    -- Activity Situation ID.  This is the ID of the
-    -- Activity Situation associated with this activity, if
-    -- any, and 0 otherwise.
-    s                   INTEGER  DEFAULT 0,
-
-
     PRIMARY KEY (n,g,a)
 );
 
@@ -410,7 +404,7 @@ CREATE TABLE situations (
     s             INTEGER PRIMARY KEY,
 
     -- Situation Kind: the singleton command of the situation kind,
-    -- e.g., ::actsit
+    -- e.g., ::ensit
     kind      TEXT,
  
     -- Situation Type (the rule set name)
@@ -443,24 +437,6 @@ CREATE TABLE situations (
     -- Causing Group, or 'NONE'
     g         TEXT DEFAULT 'NONE'
 );
-
--- Activity Situations
-CREATE TABLE actsits_t (
-    -- Situation ID
-    s         INTEGER PRIMARY KEY,
-
-    -- Activity
-    a         TEXT
-);
-
--- Activity Situations View
-CREATE VIEW actsits AS
-SELECT * FROM situations JOIN actsits_t USING (s);
-
--- Current Activity Situations View
-CREATE VIEW actsits_current AS
-SELECT * FROM situations JOIN actsits_t USING (s)
-WHERE state != 'ENDED' OR change != '';
 
 -- Environmental Situations
 CREATE TABLE ensits_t (

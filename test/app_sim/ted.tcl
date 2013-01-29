@@ -32,7 +32,6 @@ snit::type ted {
     typevariable cleanupTables {
         activity_nga
         actors
-        actsits_t
         attrit_nf
         attrit_nfg
         attroe_nfg

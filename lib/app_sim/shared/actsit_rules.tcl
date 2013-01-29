@@ -34,24 +34,41 @@ snit::type actsit_rules {
     #------------------------------------------------------------------
     # Public Typemethods
 
-    # monitor sit
+    # assess
     #
-    # sit     actsit object
-    #
-    # An actsit's status has changed; run its monitor rule set.
+    # Assess all activities, and run the relevant rule sets as needed.
     
-    typemethod {monitor} {sit} {
-        set ruleset [$sit get stype]
-
-        if {![dam isactive $ruleset]} {
-            log warning actr \
-                "monitor $ruleset: ruleset has been deactivated"
-            return
-        }
-
-        bgcatch {
-            # Run the monitor rule set.
-            actsit_rules $ruleset $sit
+    typemethod assess {} {
+        # FIRST, find the activities with coverage greater than 0.
+        rdb eval {
+            SELECT stype AS ruleset,
+                   n,
+                   g,
+                   coverage
+            FROM activity_nga
+            WHERE coverage > 0.0
+        } row {
+            unset -nocomplain row(*)
+            
+            set sit [array get row]
+            dict with sit {}
+    
+            if {![dam isactive $ruleset]} {
+                log warning actr \
+                    "monitor $ruleset: ruleset has been deactivated"
+                return
+            }
+            
+            set oneliner "$g $ruleset in $n"
+            set signature [list $n $g]
+            
+            dict set sit driver_id \
+                [driver create $ruleset $oneliner $signature]
+    
+            bgcatch {
+                # Run the monitor rule set.
+                actsit_rules $ruleset $sit
+            }
         }
     }
 
@@ -134,19 +151,19 @@ snit::type actsit_rules {
     
     # DISPLACED sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring civilian units
     # with an activity of DISPLACED in a neighborhood.
 
     typemethod DISPLACED {sit} {
-        log detail actr [list DISPLACED [$sit id]]
+        log detail actr [list DISPLACED [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
 
-        dam ruleset DISPLACED [$sit get driver_id]
+        dam ruleset DISPLACED [dict get $sit driver_id]
 
         dam detail "Civ. Group:"    $g
         dam detail "Displaced in:"  $n
@@ -174,10 +191,10 @@ snit::type actsit_rules {
     # on the unit's stated ACTIVITY.
 
     proc frcdetails {sit} {
-        dam detail "Force Group:"   [$sit get g]
-        dam detail "Acting In:"     [$sit get n]
+        dam detail "Force Group:"   [dict get $sit g]
+        dam detail "Acting In:"     [dict get $sit n]
         dam detail "With Coverage:" \
-            [string trim [percent [$sit get coverage]]]
+            [string trim [percent [dict get $sit coverage]]]
     }
 
     #-------------------------------------------------------------------
@@ -188,20 +205,20 @@ snit::type actsit_rules {
 
     # PRESENCE sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring the PRESENCE of a force
     # group's units in a neighborhood.
 
     typemethod PRESENCE {sit} {
-        log detail actr [list PRESENCE [$sit id]]
+        log detail actr [list PRESENCE [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset PRESENCE [$sit get driver_id]
+        dam ruleset PRESENCE [dict get $sit driver_id]
         
         frcdetails $sit
 
@@ -235,20 +252,20 @@ snit::type actsit_rules {
 
     # CHKPOINT sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of CHECKPOINT in a neighborhood.
 
     typemethod CHKPOINT {sit} {
-        log detail actr [list CHKPOINT [$sit id]]
+        log detail actr [list CHKPOINT [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset CHKPOINT [$sit get driver_id]
+        dam ruleset CHKPOINT [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -292,21 +309,21 @@ snit::type actsit_rules {
 
     # CMOCONST sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring FRC group units
     # with an activity of CMOCONST in a neighborhood.
 
     typemethod CMOCONST {sit} {
-        log detail actr [list CMOCONST [$sit id]]
+        log detail actr [list CMOCONST [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset CMOCONST [$sit get driver_id]
+        dam ruleset CMOCONST [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -345,20 +362,20 @@ snit::type actsit_rules {
 
     # CMODEV sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of CMO_DEVELOPMENT in a neighborhood.
 
     typemethod CMODEV {sit} {
-        log detail actr [list CMODEV [$sit id]]
+        log detail actr [list CMODEV [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset CMODEV [$sit get driver_id]
+        dam ruleset CMODEV [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -386,21 +403,21 @@ snit::type actsit_rules {
 
     # CMOEDU sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring FRC group units
     # with an activity of CMOEDU in a neighborhood.
 
     typemethod CMOEDU {sit} {
-        log detail actr [list CMOEDU [$sit id]]
+        log detail actr [list CMOEDU [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset CMOEDU [$sit get driver_id]
+        dam ruleset CMOEDU [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -439,21 +456,21 @@ snit::type actsit_rules {
 
     # CMOEMP sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring FRC group units
     # with an activity of CMOEMP in a neighborhood.
 
     typemethod CMOEMP {sit} {
-        log detail actr [list CMOEMP [$sit id]]
+        log detail actr [list CMOEMP [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset CMOEMP [$sit get driver_id]
+        dam ruleset CMOEMP [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -492,21 +509,21 @@ snit::type actsit_rules {
 
     # CMOIND sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring FRC group units
     # with an activity of CMOIND in a neighborhood.
 
     typemethod CMOIND {sit} {
-        log detail actr [list CMOIND [$sit id]]
+        log detail actr [list CMOIND [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset CMOIND [$sit get driver_id]
+        dam ruleset CMOIND [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -545,21 +562,21 @@ snit::type actsit_rules {
 
     # CMOINF sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring FRC group units
     # with an activity of CMOINF in a neighborhood.
 
     typemethod CMOINF {sit} {
-        log detail actr [list CMOINF [$sit id]]
+        log detail actr [list CMOINF [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset CMOINF [$sit get driver_id]
+        dam ruleset CMOINF [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -598,20 +615,20 @@ snit::type actsit_rules {
 
     # CMOLAW sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of CMO_LAW_ENFORCEMENT in a neighborhood.
 
     typemethod CMOLAW {sit} {
-        log detail actr [list CMOLAW [$sit id]]
+        log detail actr [list CMOLAW [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset CMOLAW [$sit get driver_id]
+        dam ruleset CMOLAW [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -637,21 +654,21 @@ snit::type actsit_rules {
 
     # CMOMED sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring FRC group units
     # with an activity of CMO_HEALTHCARE in a neighborhood.
 
     typemethod CMOMED {sit} {
-        log detail actr [list CMOMED [$sit id]]
+        log detail actr [list CMOMED [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset CMOMED [$sit get driver_id]
+        dam ruleset CMOMED [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -689,21 +706,21 @@ snit::type actsit_rules {
 
     # CMOOTHER sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring FRC group units
     # with an activity of CMOOTHER in a neighborhood.
 
     typemethod CMOOTHER {sit} {
-        log detail actr [list CMOOTHER [$sit id]]
+        log detail actr [list CMOOTHER [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset CMOOTHER [$sit get driver_id]
+        dam ruleset CMOOTHER [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -743,20 +760,20 @@ snit::type actsit_rules {
 
     # COERCION sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of COERCION in a neighborhood.
 
     typemethod COERCION {sit} {
-        log detail actr [list COERCION [$sit id]]
+        log detail actr [list COERCION [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset COERCION [$sit get driver_id]
+        dam ruleset COERCION [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -785,20 +802,20 @@ snit::type actsit_rules {
 
     # CRIMINAL sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of CRIMINAL in a neighborhood.
 
     typemethod CRIMINAL {sit} {
-        log detail actr [list CRIMINAL [$sit id]]
+        log detail actr [list CRIMINAL [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset CRIMINAL [$sit get driver_id]
+        dam ruleset CRIMINAL [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -823,20 +840,20 @@ snit::type actsit_rules {
 
     # CURFEW sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of CURFEW in a neighborhood.
 
     typemethod CURFEW {sit} {
-        log detail actr [list CURFEW [$sit id]]
+        log detail actr [list CURFEW [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset CURFEW [$sit get driver_id]
+        dam ruleset CURFEW [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -881,20 +898,20 @@ snit::type actsit_rules {
 
     # GUARD sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of GUARD in a neighborhood.
 
     typemethod GUARD {sit} {
-        log detail actr [list GUARD [$sit id]]
+        log detail actr [list GUARD [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset GUARD [$sit get driver_id]
+        dam ruleset GUARD [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -923,20 +940,20 @@ snit::type actsit_rules {
 
     # PATROL sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of PATROL in a neighborhood.
 
     typemethod PATROL {sit} {
-        log detail actr [list PATROL [$sit id]]
+        log detail actr [list PATROL [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset PATROL [$sit get driver_id]
+        dam ruleset PATROL [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -964,20 +981,20 @@ snit::type actsit_rules {
 
     # PSYOP sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring force group units
     # with an activity of PSYOP in a neighborhood.
 
     typemethod PSYOP {sit} {
-        log detail actr [list PSYOP [$sit id]]
+        log detail actr [list PSYOP [dict get $sit driver_id]]
 
-        set g     [$sit get g]
-        set n     [$sit get n]
-        set cov   [$sit get coverage]
+        set g     [dict get $sit g]
+        set n     [dict get $sit n]
+        set cov   [dict get $sit coverage]
         set flist [demog gIn $n]
 
-        dam ruleset PSYOP [$sit get driver_id]
+        dam ruleset PSYOP [dict get $sit driver_id]
 
         frcdetails $sit
 
@@ -1020,10 +1037,10 @@ snit::type actsit_rules {
     # on the stated ACTIVITY of ORG units.
 
     proc orgdetails {sit} {
-        dam detail "Org. Group:"    [$sit get g]
-        dam detail "Acting In:"     [$sit get n]
+        dam detail "Org. Group:"    [dict get $sit g]
+        dam detail "Acting In:"     [dict get $sit n]
         dam detail "With Coverage:" \
-            [string trim [percent [$sit get coverage]]]
+            [string trim [percent [dict get $sit coverage]]]
     }
 
     #-------------------------------------------------------------------
@@ -1034,21 +1051,21 @@ snit::type actsit_rules {
 
     # ORGCONST sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring ORG group units
     # with an activity of ORGCONST in a neighborhood.
 
     typemethod ORGCONST {sit} {
-        log detail actr [list ORGCONST [$sit id]]
+        log detail actr [list ORGCONST [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
  
-        dam ruleset ORGCONST [$sit get driver_id]
+        dam ruleset ORGCONST [dict get $sit driver_id]
 
         orgdetails $sit
 
@@ -1085,21 +1102,21 @@ snit::type actsit_rules {
 
     # ORGEDU sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring ORG group units
     # with an activity of ORGEDU in a neighborhood.
 
     typemethod ORGEDU {sit} {
-        log detail actr [list ORGEDU [$sit id]]
+        log detail actr [list ORGEDU [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset ORGEDU [$sit get driver_id]
+        dam ruleset ORGEDU [dict get $sit driver_id]
 
         orgdetails $sit
 
@@ -1136,21 +1153,21 @@ snit::type actsit_rules {
 
     # ORGEMP sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring ORG group units
     # with an activity of ORGEMP in a neighborhood.
 
     typemethod ORGEMP {sit} {
-        log detail actr [list ORGEMP [$sit id]]
+        log detail actr [list ORGEMP [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset ORGEMP [$sit get driver_id]
+        dam ruleset ORGEMP [dict get $sit driver_id]
 
         orgdetails $sit
 
@@ -1187,21 +1204,21 @@ snit::type actsit_rules {
 
     # ORGIND sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring ORG group units
     # with an activity of ORGIND in a neighborhood.
 
     typemethod ORGIND {sit} {
-        log detail actr [list ORGIND [$sit id]]
+        log detail actr [list ORGIND [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset ORGIND [$sit get driver_id]
+        dam ruleset ORGIND [dict get $sit driver_id]
 
         orgdetails $sit
 
@@ -1238,21 +1255,21 @@ snit::type actsit_rules {
 
     # ORGINF sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring ORG group units
     # with an activity of ORGINF in a neighborhood.
 
     typemethod ORGINF {sit} {
-        log detail actr [list ORGINF [$sit id]]
+        log detail actr [list ORGINF [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset ORGINF [$sit get driver_id]
+        dam ruleset ORGINF [dict get $sit driver_id]
 
         orgdetails $sit
 
@@ -1289,21 +1306,21 @@ snit::type actsit_rules {
 
     # ORGMED sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring ORG group units
     # with an activity of ORGMED in a neighborhood.
 
     typemethod ORGMED {sit} {
-        log detail actr [list ORGMED [$sit id]]
+        log detail actr [list ORGMED [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset ORGMED [$sit get driver_id]
+        dam ruleset ORGMED [dict get $sit driver_id]
 
         orgdetails $sit
 
@@ -1340,21 +1357,21 @@ snit::type actsit_rules {
 
     # ORGOTHER sit
     #
-    # sit       The actsit object for this situation
+    # sit       The actsit dict for this situation
     #
     # This method is called when monitoring ORG group units
     # with an activity of ORGOTHER in a neighborhood.
 
     typemethod ORGOTHER {sit} {
-        log detail actr [list ORGOTHER [$sit id]]
+        log detail actr [list ORGOTHER [dict get $sit driver_id]]
 
-        set g            [$sit get g]
-        set n            [$sit get n]
-        set cov          [$sit get coverage]
+        set g            [dict get $sit g]
+        set n            [dict get $sit n]
+        set cov          [dict get $sit coverage]
         set flist        [demog gIn $n]
         set stops        0
 
-        dam ruleset ORGOTHER [$sit get driver_id]
+        dam ruleset ORGOTHER [dict get $sit driver_id]
 
         orgdetails $sit
 

@@ -32,8 +32,7 @@ SELECT n || ' ' || g || ' ' || a     AS id,
        nominal                       AS nominal,
        active                        AS active,
        effective                     AS effective,
-       stype                         AS stype,
-       s                             AS s
+       stype                         AS stype
 FROM activity_nga
 WHERE nominal > 0
 ORDER BY n,g,a;
@@ -71,35 +70,6 @@ SELECT u                                                AS id,
        m2ref(location)                                  AS location
 FROM units
 WHERE active;
-
-
-------------------------------------------------------------------------
--- ACTIVITY SITUATION VIEWS
-
--- gui_actsits: All activity situations
-CREATE TEMPORARY VIEW gui_actsits AS
-SELECT s                        AS id,
-       s                        AS s,
-       change                   AS change,
-       state                    AS state,
-       driver_id                AS driver_id,
-       stype                    AS stype,
-       n                        AS n,
-       g                        AS g,
-       a                        AS a,
-       format('%6.4f',coverage) AS coverage,
-       timestr(ts)               AS ts,
-       timestr(tc)               AS tc
-FROM actsits;
-
--- gui_actsits subview: current actsits (live or freshly ended)
-CREATE TEMPORARY VIEW gui_actsits_current AS
-SELECT * FROM gui_actsits 
-WHERE state != 'ENDED' OR change != '';
-       
--- gui_actsits subview: ended actsits
-CREATE TEMPORARY VIEW gui_actsits_ended AS
-SELECT * FROM gui_actsits WHERE state == 'ENDED';
 
 
 ------------------------------------------------------------------------

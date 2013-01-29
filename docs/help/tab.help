@@ -734,12 +734,8 @@ tab "Neighborhoods/Activity" {
 
     <<topic "SitType">>Situation type: If the activity has a coverage
     greater than 0.0 it will engender an activity situation of this
-    type.  See the <<tab Neighborhoods/ActSits>>.
-    <</topic>>
-
-    <<topic "Situation">>A positive integer identifying the activity
-    situation created for this activity, or 0 if no such situation has
-    been created.  See the <<tab Neighborhoods/ActSits>>.
+    type, resulting in a variety of attitude effects; see the
+    <i>Athena Rules Document</i> for details.
     <</topic>>
 
     <</topiclist>>
@@ -753,90 +749,6 @@ tab "Neighborhoods/Activity" {
     <</topiclist>>
 }
 
-#-----------------------------------------------------------------------
-
-tab "Neighborhoods/ActSits" {
-    <b>Simulation Mode Only.</b><p>
-
-    This tab shows the activity situations created in response to the
-    activities listed in the <<tab Neighborhoods/Activity>>.
-    This browser is populated only
-    after Athena leaves <<term prep>>.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "ID">>The ID of the situation.<</topic>>
-
-    <<topic "Change">>This field indicates the situations that changed
-    during the last major time step, and how they changed, i.e., were
-    they created, did they end, and so forth.
-    <</topic>>
-
-    <<topic "State">>The state of the situation, one of <b>ACTIVE</b>,
-    <b>INACTIVE</b>, or <b>ENDED</b>.  An <b>ACTIVE</b> situation is
-    currently affecting attitudes in the neighborhood.  An 
-    <b>INACTIVE</b> situation has previously been affecting attitudes,
-    and might do so again; it currently cannot, probably because of
-    <<term security>> concerns.  A situation is <b>ENDED</b> when
-    there are no longer any units attempting to perform the related
-    activity in the neighborhood.<p>
-
-    Note that a new situation is always <b>ACTIVE</b>; no situation
-    will be created until the activity begins to affect attitudes.
-    <</topic>>
-
-    <<topic "Type">>The situation type.<</topic>>
-
-    <<topic "Nbhood">>The ID of the neighborhood in which the activity
-    is taking place.<</topic>>
-
-    <<topic "Group">>The ID of the civilian, force, or organization 
-    group performing the activity.<</topic>>
-    
-    <<topic Activity>>The activity being performed.<</topic>>
-
-    <<topic Coverage>>The coverage of the activity, as a number
-    between 0.0 and 1.0: the fraction of the neighborhood population
-    affected by the activity.
-    <</topic>>
-
-    <<topic "Began At">>The simulation time at which the activity
-    began to affect attitudes.
-    <</topic>>
-
-    <<topic "Changed At">>The simulation time at which the group's activity
-    last changed coverage or state.
-    <</topic>>
-
-    <<topic "Driver">>The GRAM driver ID associated with the situation.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image viewbox]>>
-    The view box determines which set of entities is to be displayed.
-    The following sets may be selected from the pulldown:<p>
-
-    <ul>
-    <li> <b>All</b>: All situations, whether <b>Current</b> or
-    <b>Ended</b>.
-    <li> <b>Current</b>: Situations which are currently <b>ACTIVE</b>
-    or <b>INACTIVE</b>, or have <b>ENDED</b> during the last major
-    time step.
-    <li> <b>Ended</b>: Situations which have <b>ENDED</b>.
-    </ul>
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
 
 #-----------------------------------------------------------------------
 

@@ -40,7 +40,6 @@ snit::widgetadaptor activitybrowser {
         {active         "ActPers"   -sortmode integer -foreground %D }
         {effective      "EffPers"   -sortmode integer -foreground %D }
         {stype          "SitType"                     -foreground %D }
-        {s              "Situation" -sortmode integer -foreground %D }
     }
 
     #--------------------------------------------------------------------

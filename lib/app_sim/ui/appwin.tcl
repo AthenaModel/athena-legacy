@@ -148,13 +148,6 @@ snit::widget appwin {
             script  { activitybrowser %W }
         }
 
-        actsit {
-            label   "ActSits"
-            vistype simulation
-            parent  nbhoodst
-            script  { actsitbrowser %W }
-        }
-
         demsit {
             label   "DemSits"
             vistype simulation

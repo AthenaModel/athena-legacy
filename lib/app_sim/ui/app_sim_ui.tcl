@@ -55,7 +55,6 @@ namespace import ::projectgui::*
 
 source [file join $::app_sim_ui::library activitybrowser.tcl    ]
 source [file join $::app_sim_ui::library actorbrowser.tcl       ]
-source [file join $::app_sim_ui::library actsitbrowser.tcl      ]
 source [file join $::app_sim_ui::library appserver.tcl          ]
 source [file join $::app_sim_ui::library appserver_actor.tcl    ]
 source [file join $::app_sim_ui::library appserver_cap.tcl      ]
