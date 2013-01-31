@@ -47,16 +47,11 @@ snit::type actsit_rules {
                    coverage
             FROM activity_nga
             WHERE coverage > 0.0
-        } row {
-            unset -nocomplain row(*)
-            
-            set sit [array get row]
-            dict with sit {}
-    
+        } {
             if {![dam isactive $ruleset]} {
                 log warning actr \
                     "monitor $ruleset: ruleset has been deactivated"
-                return
+                continue
             }
             
             set oneliner "$g $ruleset in $n"
@@ -64,9 +59,10 @@ snit::type actsit_rules {
             
             set driver_id [driver create $ruleset $oneliner $signature]
     
+            set fdict [dict create n $n g $g coverage $coverage]            
             bgcatch {
                 # Run the monitor rule set.
-                actsit_rules $ruleset $driver_id $sit
+                actsit_rules $ruleset $driver_id $fdict
             }
         }
     }
@@ -694,7 +690,7 @@ snit::type actsit_rules {
     typemethod PSYOP {driver_id fdict} {
         dict with fdict {}
         log detail actr [list PSYOP $driver_id]
-
+        
         dam rule PSYOP-1-1 $driver_id $fdict {
             $coverage > 0.0
         } {

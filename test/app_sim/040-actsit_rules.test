@@ -1,0 +1,936 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    040-actsit_rules.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    actsit_rules(sim) tests
+#
+#    This test suite tests that the actsit rules fire when appropriate.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # setup ?ensit?
+    #
+    # ensit - An ensit type, or ""
+    #
+    # Sets up for tests, and deploys some all BLUE troops to NB1.
+    
+    proc setup {{ensit ""}} {
+        # FIRST, other rule sets shouldn't muddy the waters.
+        parm set dam.PRESENCE.active no
+        parm set dam.UNEMP.active no
+        parm set dam.ENI.active no
+        rdb eval {DELETE FROM drivers}
+        
+        # NEXT, create the entities
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+        
+        # NEXT, at least one group should be an enemy of BLUE
+        ted order HREL:OVERRIDE id {SHIA BLUE} base  1.0
+        ted order HREL:OVERRIDE id {SUNN BLUE} base -1.0
+        
+        # NEXT, deploy BLUE troops to NB1, so we can assign them.
+        ted order TACTIC:DEPLOY:CREATE owner JOE g BLUE nlist NB1 text1 ALL \
+            on_lock 1 once 0
+    
+        # NEXT, create an ensit on request.
+        if {$ensit ne ""} {
+            parm set dam.$ensit.active no
+            ted order ENSIT:CREATE location B00B00 stype $ensit \
+                coverage 1.0 inception 1 g NONE resolver NONE
+        }
+    }
+    
+    # assign a personnel
+    #
+    # a          - activity
+    # personnel  - Number of personnel doing the activity.
+    #
+    # Assigns BLUE troops do an an activity in NB1.
+    proc assign {a personnel} {
+        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 \
+            text1 $a int1 $personnel on_lock 1 once 0
+        ted lock
+    }
+    
+    # Clean up after a test
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # DISPLACED
+    
+    # Not tested; this will soon become a demsit.
+    
+    
+    #-------------------------------------------------------------------
+    # PRESENCE
+    
+    # Not tested; we've been asked to disable it for now.
+    
+    #-------------------------------------------------------------------
+    # CHKPOINT
+    
+    test CHKPOINT-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CHECKPOINT 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CHKPOINT
+rule       CHKPOINT-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CHKPOINT-1.2 {Rule 1-1 inputs} -setup {
+        setup
+    } -body {
+        assign CHECKPOINT 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note    
+----- ---- ---- --- ------- 
+sat        SHIA AUT friends 
+sat        SHIA SFT friends 
+sat        SHIA CUL friends 
+sat        SHIA QOL friends 
+sat        SUNN AUT enemies 
+sat        SUNN SFT enemies 
+sat        SUNN CUL enemies 
+sat        SUNN QOL enemies 
+coop  SHIA BLUE             
+coop  SUNN BLUE             
+    }
+
+    #-------------------------------------------------------------------
+    # CMOCONST
+    
+    test CMOCONST-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_CONSTRUCTION 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOCONST
+rule       CMOCONST-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOCONST-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_CONSTRUCTION 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    test CMOCONST-1.3 {Rule 1-1 inputs, mitigation} -setup {
+        setup DISEASE
+    } -body {
+        assign CMO_CONSTRUCTION 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note      
+----- ---- ---- --- --------- 
+sat        SHIA AUT mitigates 
+sat        SHIA SFT mitigates 
+sat        SHIA CUL mitigates 
+sat        SHIA QOL mitigates 
+sat        SUNN AUT mitigates 
+sat        SUNN SFT mitigates 
+sat        SUNN CUL mitigates 
+sat        SUNN QOL mitigates 
+coop  SHIA BLUE     mitigates 
+coop  SUNN BLUE     mitigates 
+    }
+
+    #-------------------------------------------------------------------
+    # CMODEV
+    
+    test CMODEV-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_DEVELOPMENT 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMODEV
+rule       CMODEV-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMODEV-1.2 {Rule 1-1 inputs} -setup {
+        setup
+    } -body {
+        assign CMO_DEVELOPMENT 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    #-------------------------------------------------------------------
+    # CMOEDU
+    
+    test CMOEDU-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_EDUCATION 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOEDU
+rule       CMOEDU-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOEDU-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_EDUCATION 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    test CMOEDU-1.3 {Rule 1-1 inputs, mitigation} -setup {
+        setup DISEASE
+        # By default, CMOEDU doesn't mitigate any ensits.
+        parm set dam.CMOEDU.mitigates DISEASE
+    } -body {
+        assign CMO_EDUCATION 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note      
+----- ---- ---- --- --------- 
+sat        SHIA AUT mitigates 
+sat        SHIA SFT mitigates 
+sat        SHIA CUL mitigates 
+sat        SHIA QOL mitigates 
+sat        SUNN AUT mitigates 
+sat        SUNN SFT mitigates 
+sat        SUNN CUL mitigates 
+sat        SUNN QOL mitigates 
+coop  SHIA BLUE     mitigates 
+coop  SUNN BLUE     mitigates 
+    }
+
+    
+    #-------------------------------------------------------------------
+    # CMOEMP
+    
+    test CMOEMP-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_EMPLOYMENT 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOEMP
+rule       CMOEMP-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOEMP-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_EMPLOYMENT 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    test CMOEMP-1.3 {Rule 1-1 inputs, mitigation} -setup {
+        setup DISEASE
+        # By default, CMOEMP doesn't mitigate any ensits.
+        parm set dam.CMOEMP.mitigates DISEASE
+    } -body {
+        assign CMO_EMPLOYMENT 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note      
+----- ---- ---- --- --------- 
+sat        SHIA AUT mitigates 
+sat        SHIA SFT mitigates 
+sat        SHIA CUL mitigates 
+sat        SHIA QOL mitigates 
+sat        SUNN AUT mitigates 
+sat        SUNN SFT mitigates 
+sat        SUNN CUL mitigates 
+sat        SUNN QOL mitigates 
+coop  SHIA BLUE     mitigates 
+coop  SUNN BLUE     mitigates 
+    }
+
+    
+    
+    #-------------------------------------------------------------------
+    # CMOIND
+    
+    test CMOIND-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_INDUSTRY 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOIND
+rule       CMOIND-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOIND-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_INDUSTRY 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    test CMOIND-1.3 {Rule 1-1 inputs, mitigation} -setup {
+        setup NOWATER
+    } -body {
+        assign CMO_INDUSTRY 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note      
+----- ---- ---- --- --------- 
+sat        SHIA AUT mitigates 
+sat        SHIA SFT mitigates 
+sat        SHIA CUL mitigates 
+sat        SHIA QOL mitigates 
+sat        SUNN AUT mitigates 
+sat        SUNN SFT mitigates 
+sat        SUNN CUL mitigates 
+sat        SUNN QOL mitigates 
+coop  SHIA BLUE     mitigates 
+coop  SUNN BLUE     mitigates 
+    }
+
+    
+    #-------------------------------------------------------------------
+    # CMOINF
+    
+    test CMOINF-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_INFRASTRUCTURE 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOINF
+rule       CMOINF-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOINF-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_INFRASTRUCTURE 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    test CMOINF-1.3 {Rule 1-1 inputs, mitigation} -setup {
+        setup NOWATER
+    } -body {
+        assign CMO_INFRASTRUCTURE 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note      
+----- ---- ---- --- --------- 
+sat        SHIA AUT mitigates 
+sat        SHIA SFT mitigates 
+sat        SHIA CUL mitigates 
+sat        SHIA QOL mitigates 
+sat        SUNN AUT mitigates 
+sat        SUNN SFT mitigates 
+sat        SUNN CUL mitigates 
+sat        SUNN QOL mitigates 
+coop  SHIA BLUE     mitigates 
+coop  SUNN BLUE     mitigates 
+    }
+
+    
+    #-------------------------------------------------------------------
+    # CMOLAW
+    
+    test CMOLAW-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_LAW_ENFORCEMENT 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOLAW
+rule       CMOLAW-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOLAW-1.2 {Rule 1-1 inputs} -setup {
+        setup
+    } -body {
+        assign CMO_LAW_ENFORCEMENT 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SUNN AUT      
+sat        SUNN SFT      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+     
+    #-------------------------------------------------------------------
+    # CMOMED
+    
+    test CMOMED-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_HEALTHCARE 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOMED
+rule       CMOMED-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOMED-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_HEALTHCARE 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    test CMOMED-1.3 {Rule 1-1 inputs, mitigation} -setup {
+        setup DISEASE
+    } -body {
+        assign CMO_HEALTHCARE 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note      
+----- ---- ---- --- --------- 
+sat        SHIA AUT mitigates 
+sat        SHIA SFT mitigates 
+sat        SHIA QOL mitigates 
+sat        SUNN AUT mitigates 
+sat        SUNN SFT mitigates 
+sat        SUNN QOL mitigates 
+coop  SHIA BLUE     mitigates 
+coop  SUNN BLUE     mitigates 
+    }
+
+   
+    #-------------------------------------------------------------------
+    # CMOOTHER
+    
+    test CMOOTHER-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CMO_OTHER 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CMOOTHER
+rule       CMOOTHER-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CMOOTHER-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_OTHER 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    test CMOOTHER-1.3 {Rule 1-1 inputs, mitigation} -setup {
+        setup DISEASE
+    } -body {
+        assign CMO_OTHER 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note      
+----- ---- ---- --- --------- 
+sat        SHIA AUT mitigates 
+sat        SHIA SFT mitigates 
+sat        SHIA CUL mitigates 
+sat        SHIA QOL mitigates 
+sat        SUNN AUT mitigates 
+sat        SUNN SFT mitigates 
+sat        SUNN CUL mitigates 
+sat        SUNN QOL mitigates 
+coop  SHIA BLUE     mitigates 
+coop  SUNN BLUE     mitigates 
+    }
+
+    
+    #-------------------------------------------------------------------
+    # COERCION
+    
+    test COERCION-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign COERCION 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    COERCION
+rule       COERCION-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test COERCION-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign COERCION 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    #-------------------------------------------------------------------
+    # CRIMINAL
+    
+    test CRIMINAL-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CRIMINAL_ACTIVITIES 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CRIMINAL
+rule       CRIMINAL-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CRIMINAL-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign CRIMINAL_ACTIVITIES 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f g    c   note 
+----- - ---- --- ---- 
+sat     SHIA AUT      
+sat     SHIA SFT      
+sat     SHIA QOL      
+sat     SUNN AUT      
+sat     SUNN SFT      
+sat     SUNN QOL      
+    }
+
+
+    #-------------------------------------------------------------------
+    # CURFEW
+    
+    test CURFEW-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign CURFEW 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CURFEW
+rule       CURFEW-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test CURFEW-1.2 {Rule 1-1 inputs} -setup {
+        setup
+    } -body {
+        assign CURFEW 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note    
+----- ---- ---- --- ------- 
+sat        SHIA AUT friends 
+sat        SHIA SFT friends 
+sat        SHIA CUL friends 
+sat        SHIA QOL friends 
+sat        SUNN AUT enemies 
+sat        SUNN SFT enemies 
+sat        SUNN CUL enemies 
+sat        SUNN QOL enemies 
+coop  SHIA BLUE             
+coop  SUNN BLUE             
+    }
+
+    
+    #-------------------------------------------------------------------
+    # GUARD
+    
+    test GUARD-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign GUARD 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    GUARD
+rule       GUARD-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test GUARD-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign GUARD 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    #-------------------------------------------------------------------
+    # PATROL
+    
+    test PATROL-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign PATROL 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    PATROL
+rule       PATROL-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test PATROL-1.2 {Rule 1-1 inputs, no mitigation} -setup {
+        setup
+    } -body {
+        assign PATROL 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note 
+----- ---- ---- --- ---- 
+sat        SHIA AUT      
+sat        SHIA SFT      
+sat        SHIA CUL      
+sat        SHIA QOL      
+sat        SUNN AUT      
+sat        SUNN SFT      
+sat        SUNN CUL      
+sat        SUNN QOL      
+coop  SHIA BLUE          
+coop  SUNN BLUE          
+    }
+    
+    #-------------------------------------------------------------------
+    # PSYOP
+    
+    test PSYOP-1.1 {Rule 1-1 fires} -setup {
+        setup
+    } -body {
+        assign PSYOP 2000
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    PSYOP
+rule       PSYOP-1-1
+fdict      n NB1 g BLUE coverage 1.0
+    }
+
+    test PSYOP-1.2 {Rule 1-1 inputs} -setup {
+        setup
+    } -body {
+        assign PSYOP 2000
+        
+        ted query {SELECT atype,f,g,c,note FROM rule_inputs}
+    } -cleanup {
+        cleanup
+    } -result {
+atype f    g    c   note    
+----- ---- ---- --- ------- 
+sat        SHIA AUT friends 
+sat        SHIA SFT friends 
+sat        SHIA CUL friends 
+sat        SHIA QOL friends 
+sat        SUNN AUT enemies 
+sat        SUNN SFT enemies 
+sat        SUNN CUL enemies 
+sat        SUNN QOL enemies 
+coop  SHIA BLUE             
+coop  SUNN BLUE             
+    }
+
+    
+    
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+
