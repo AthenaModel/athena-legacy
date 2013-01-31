@@ -171,37 +171,5 @@ snit::type driver {
             WHERE driver_id=$driver_id
         }
     }
-
-    # inputs get driver_id
-    #
-    # driver_id   - A driver ID
-    # 
-    # Returns the number of inputs created for this driver ID by
-    # DAM.
-
-    typemethod {inputs get} {driver_id} {
-        rdb onecolumn {
-            SELECT inputs FROM drivers
-            WHERE driver_id=$driver_id
-        }
-    }
-    
-    # inputs incr driver_id ?increment?
-    #
-    # driver_id   - A driver ID
-    # increment   - An integer increment; default is 1.
-    #
-    # Sets the narrative for the given driver.
-
-    typemethod {inputs incr} {driver_id {increment 1}} {
-        $type validate $driver_id
-
-        rdb eval {
-            UPDATE drivers
-            SET inputs=inputs + $increment
-            WHERE driver_id=$driver_id
-        }
-    }
-
 }
 

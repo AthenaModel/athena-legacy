@@ -174,59 +174,9 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
     Updates the MAD's definition.
 }
 
-
-#=======================================================================
-# Magic Horizontal Relationship Orders
-
-page /order/mad hrel "Magic Horizontal Relationship Orders" {
-    <<title>>
-
-    These orders are used to influence 
-    horizontal relationship levels.  All such changes are attributes to
-    some Magic Attitude Driver (MAD).<p>
-
-    The following orders are available:<p>
-
-    <<childlinks>>
-}
-
 #-----------------------------------------------------------------------
 
-order MAD:HREL:ADJUST "Magic Adjust Horizontal Relationship Baseline" {
-    This order is primarily useful in testing via the
-    <<command send>> executive command.  It adjusts the value 
-    of the specified horizontal relationship curve's 
-    baseline by the specified amount, clamping the curve's value to
-    the range 0.0, 100.0 if need be.<p>
-
-    The order will be ignored if either group is an empty civilian
-    group.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.<p>
-
-    <<parmlist>>
-    
-    <<parm id "Curve">>
-    <b>Required.</b>  A horizontal relationship curve ID, which is a list 
-    {<i>f g</i>} where <i>f</i> and <i>g</i> are two different groups.
-    <</parm>>
-
-    <<parm driver_id "MAD ID">>
-    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
-    the change will be attributed.
-    <</parm>>
-
-    <<parm delta "Delta">>
-    <b>Required.</b>  The magnitude of the change, expressed as a real
-    number.
-    <</parm>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-
-order MAD:HREL:INPUT "Magic Horizontal Relationship Input" {
+order MAD:HREL "Magic Horizontal Relationship Input" {
     <<parmlist>>
     
     <<parm driver_id "MAD ID">>
@@ -263,61 +213,9 @@ order MAD:HREL:INPUT "Magic Horizontal Relationship Input" {
     <<cref /object/tactic/executive>>.
 }
 
-#=======================================================================
-# Magic Vertical Relationship Orders
-
-page /order/mad vrel "Magic Vertical Relationship Orders" {
-    <<title>>
-
-    These orders are used to influence 
-    vertical relationship levels.  All such changes are attributes to
-    some Magic Attitude Driver (MAD).<p>
-
-    The following orders are available:<p>
-
-    <<childlinks>>
-}
-
-
 #-----------------------------------------------------------------------
 
-order MAD:VREL:ADJUST "Magic Adjust Vertical Relationship Baseline" {
-    This order is primarily useful in testing via the
-    <<command send>> executive command.  It adjusts the value 
-    of the specified vertical relationship curve's 
-    baseline
-    by the specified amount, clamping the curve's value to the range 0.0,
-    100.0 if need be.<p>
-
-    The order will be ignored if the group is an empty civilian
-    group.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.<p>
-
-    <<parmlist>>
-    
-    <<parm id "Curve">>
-    <b>Required.</b>  A vertical relationship curve ID, which is a list 
-    {<i>g a</i>} where <i>g</i> is a group and <i>a</i> is an actor.
-    <</parm>>
-
-    <<parm driver_id "MAD ID">>
-    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
-    the change will be attributed.
-    <</parm>>
-
-    <<parm delta "Delta">>
-    <b>Required.</b>  The magnitude of the change, expressed as a real
-    number.
-    <</parm>>
-    <</parmlist>>
-
-}
-
-#-----------------------------------------------------------------------
-
-order MAD:VREL:INPUT "Magic Vertical Relationship Input" {
+order MAD:VREL "Magic Vertical Relationship Input" {
     <<parmlist>>
     
     <<parm driver_id "MAD ID">>
@@ -354,58 +252,9 @@ order MAD:VREL:INPUT "Magic Vertical Relationship Input" {
     <<cref /object/tactic/executive>>.
 }
 
-#=======================================================================
-# Magic Satisfaction Orders
-
-page /order/mad sat "Magic Satisfaction Orders" {
-    <<title>>
-
-    These orders are used to influence 
-    satisfaction levels.  All such changes are attributes to
-    some Magic Attitude Driver (MAD).<p>
-
-    The following orders are available:<p>
-
-    <<childlinks>>
-}
-
 #-----------------------------------------------------------------------
 
-order MAD:SAT:ADJUST "Magic Adjust Satisfaction Baseline" {
-    This order is primarily useful in testing via the
-    <<command send>> executive command.  It adjusts the value 
-    of the specified satisfaction curve's
-    baseline by the specified amount, clamping the curve's value to 
-    the range -100.0, 100.0 if need be.<p>
-
-    The order will be ignored if the group is an empty civilian
-    group.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.<p>
-
-    <<parmlist>>
-    
-    <<parm id "Curve">>
-    <b>Required.</b>  A satisfaction curve ID, which is a list 
-    {<i>g c</i>} where <i>g</i> is a
-    civilian group and <i>c</i> is a concern.
-    <</parm>>
-
-    <<parm driver_id "MAD ID">>
-    <b>Required.</b>  <<MAD.mad>>
-    <</parm>>
-
-    <<parm delta "Delta">>
-    <b>Required.</b>  The magnitude of the change, expressed as a real
-    number.
-    <</parm>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-
-order MAD:SAT:INPUT "Magic Satisfaction Input" {
+order MAD:SAT "Magic Satisfaction Input" {
     <<parmlist>>
     
     <<parm driver_id "MAD ID">>
@@ -443,58 +292,9 @@ order MAD:SAT:INPUT "Magic Satisfaction Input" {
     <<cref /object/tactic/executive>>.
 }
 
-#=======================================================================
-# Magic Cooperation Orders
-
-page /order/mad coop "Magic Cooperation Orders" {
-    <<title>>
-
-    These orders are used to influence 
-    cooperation levels.  All such changes are attributes to
-    some Magic Attitude Driver (MAD).<p>
-
-    The following orders are available:<p>
-
-    <<childlinks>>
-}
-
 #-----------------------------------------------------------------------
 
-order MAD:COOP:ADJUST "Magic Adjust Cooperation Baseline" {
-    This order is primarily useful in testing via the
-    <<command send>> executive command.  It adjusts the value 
-    of the specified cooperation curve's baseline
-    by the specified amount, clamping the curve's value to the range 0.0,
-    100.0 if need be.<p>
-
-    The order will be ignored if the civilian group is empty.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.<p>
-
-    <<parmlist>>
-    
-    <<parm id "Curve">>
-    <b>Required.</b>  A cooperation curve ID, which is a list 
-    {<i>f g</i>} where <i>f</i> is a
-    civilian group and <i>g</i> is a force group.
-    <</parm>>
-
-    <<parm driver_id "MAD ID">>
-    <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to which
-    the change will be attributed.
-    <</parm>>
-
-    <<parm delta "Delta">>
-    <b>Required.</b>  The magnitude of the change, expressed as a real
-    number.
-    <</parm>>
-    <</parmlist>>
-}
-
-#-----------------------------------------------------------------------
-
-order MAD:COOP:INPUT "Magic Cooperation Input" {
+order MAD:COOP "Magic Cooperation Input" {
     <<parmlist>>
     
     <<parm driver_id "MAD ID">>

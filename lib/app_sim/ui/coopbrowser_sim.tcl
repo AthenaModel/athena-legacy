@@ -76,7 +76,7 @@ snit::widgetadaptor coopbrowser_sim {
             -command [mymethod InputForSelected]
 
         cond::availableSingle control $inputbtn \
-            order   MAD:COOP:INPUT              \
+            order   MAD:COOP                    \
             browser $win
 
         pack $inputbtn  -side left
@@ -112,7 +112,7 @@ snit::widgetadaptor coopbrowser_sim {
         set id [lindex [$hull uid curselection] 0]
         lassign $id f g
 
-        order enter MAD:COOP:INPUT f $f g $g
+        order enter MAD:COOP f $f g $g
     }
 }
 

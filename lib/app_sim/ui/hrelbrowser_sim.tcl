@@ -77,7 +77,7 @@ snit::widgetadaptor hrelbrowser_sim {
             -command [mymethod InputForSelected]
 
         cond::availableSingle control $inputbtn \
-            order   MAD:HREL:INPUT               \
+            order   MAD:HREL                    \
             browser $win
 
         pack $inputbtn  -side left
@@ -114,7 +114,7 @@ snit::widgetadaptor hrelbrowser_sim {
         set id [lindex [$hull uid curselection] 0]
         lassign $id f g
 
-        order enter MAD:HREL:INPUT f $f g $g
+        order enter MAD:HREL f $f g $g
     }
 }
 

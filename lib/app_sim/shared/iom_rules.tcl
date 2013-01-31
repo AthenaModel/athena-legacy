@@ -8,8 +8,7 @@
 # DESCRIPTION:
 #    Athena Driver Assessment Model (DAM): Info Ops Message (IOM) rule sets.
 #
-#    ::iom_rules is a singleton object implemented as a snit::type.  To
-#    initialize it, call "::iom_rules init".
+#    ::iom_rules is a singleton object implemented as a snit::type.
 #
 #-----------------------------------------------------------------------
 
@@ -190,20 +189,20 @@ snit::type iom_rules {
        
         # NEXT, begin the rule
         set dsig [list $data(tsource) $data(iom)]
-        dam ruleset IOM [driver create IOM "Info Ops Message" $dsig] \
-            -s 0.0
-
-        # NEXT, put down the general details
-        AddIomDetails data $pdict
+        set driver_id [driver create IOM "Info Ops Message" $dsig]
 
         # NEXT, get the final factor.
         set factor [expr {$data(adjcov)*$data(accept)}]
 
+        # NEXT, pack it up.
+        set fdict $dict
+        dict set fdict pdict $pdict
+        
         # IOM-1-1
         #
         # Actor tsource has sent an IOM with a factor that affects
         # CIV group g.
-        dam rule IOM-1-1 {
+        dam rule IOM-1-1 $driver_id $fdict -s 0.0 {
             $factor > 0.01
         } {
             dict for {num prec} $pdict {
@@ -221,44 +220,6 @@ snit::type iom_rules {
                 }
             }
         }
-    }
-
-    #------------------------------------------------------------------
-    # Helper Routines
-
-    # AddIomDetails dataVar pdict
-    #
-    # dataVar   - Name of array containing IOM data
-    # pdict     - Dictionary: payload_num => payload record
-    #
-    # Adds details to the rule firing report for this IOM and its 
-    # payloads.
-
-    proc AddIomDetails {dataVar pdict} {
-        upvar 1 $dataVar data
-
-        if {$data(asource) eq ""} {
-            set data(asource) "none"
-        }
-   
-        dam detailwrap "IOM $data(iom):" [iom get $data(iom) narrative]
-
-        dict for {num prec} $pdict {
-            dam detailwrap "  Payload $num:" [dict get $prec narrative] 
-        }
-        dam details "\n"
-    
-        dam detail "Affected Group:"  $data(f)
-        dam detail "In Neighborhood:" [civgroup getg $data(f) n]
-        dam detail "True Source:"     $data(tsource)
-        dam detail "CAP in use:"      $data(cap)
-        dam detail "Attr. Source:"    $data(asource)
-        dam detail "CAP Coverage:" \
-            [format "%.2f (scaled to %.2f)" $data(capcov) $data(adjcov)]
-        dam detail "Acceptability:" \
-            "[format %.2f $data(accept)] = Resonance * Regard"
-        dam detail "  Resonance:"     [format %.2f $data(resonance)]
-        dam detail "  Regard:"        [format %.2f $data(regard)]
     }
 }
 

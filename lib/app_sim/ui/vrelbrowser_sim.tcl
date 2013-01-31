@@ -77,7 +77,7 @@ snit::widgetadaptor vrelbrowser_sim {
             -command [mymethod InputForSelected]
 
         cond::availableSingle control $inputbtn \
-            order   MAD:VREL:INPUT               \
+            order   MAD:VREL                    \
             browser $win
 
         pack $inputbtn  -side left
@@ -114,7 +114,7 @@ snit::widgetadaptor vrelbrowser_sim {
         set id [lindex [$hull uid curselection] 0]
         lassign $id g a
 
-        order enter MAD:VREL:INPUT g $g a $a
+        order enter MAD:VREL g $g a $a
     }
 }
 

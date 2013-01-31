@@ -71,12 +71,11 @@ snit::type misc_rules {
             AND abs(UM.mood - HM.mood) >= CAST ($threshold AS REAL)
         } row {
             unset -nocomplain row(*)
-            set row(driver_id) $driver_id
 
             log normal miscr [array get row]
             bgcatch {
                 # Run the rule set.
-                misc_rules MOOD [array get row]
+                misc_rules MOOD $driver_id [array get row]
             }
         }
         
@@ -85,9 +84,9 @@ snit::type misc_rules {
     #-------------------------------------------------------------------
     # Rule Set: MOOD -- significant changes in mood
 
-    # MOOD gdict
+    # MOOD driver_id fdict
     #
-    # gdict - Dictionary containing group mood data:
+    # fdict - Dictionary containing group mood data:
     #
     #    g          - The civilian group
     #    n          - The group's neighborhood
@@ -96,52 +95,37 @@ snit::type misc_rules {
     #    moodThen   - The group's mood at time tc
     #    delta      - The difference between the two
     #    tc         - When control of n last shifted
-    #    driver_id  - The driver ID for MOOD changes
     #
     # This method is called each tick to assess changes in vertical
     # relationships due to group mood.
 
-    typemethod MOOD {gdict} {
-        log detail miscr [list MOOD [dict get $gdict g]]
+    typemethod MOOD {driver_id fdict} {
+        dict get $fdict
+        log detail miscr [list MOOD $g]
 
-        dict with gdict {
-            dam ruleset MOOD $driver_id
+        # We already know that delta exceeds the threshold; all
+        # we care about now is the sign.
 
-            dam detail "Civilian Group:"  $g
-            dam detail "In Neighborhood:" $n
-            dam detail "Controlled By:"   \
-                [expr {$controller ne "" ? $controller : "no one"}]
-            dam detail "Last Control Shift:"  \
-                [format "%s (%d)" [simclock toString $tc] $tc]
-            dam detail "Mood Then:"       [qsat format $moodThen]
-            dam detail "Mood Now:"        [qsat format $moodNow]
-
-            set alist [actor names]
-
-            # We already know that delta exceeds the threshold; all
-            # we care about now is the sign.
-
-            dam rule MOOD-1-1 {
-                $delta < 0.0
-            } {
-                foreach a $alist {
-                    if {$a eq $controller} {
-                        dam vrel T $g $a [mag/ $delta S-] "has control"
-                    } else {
-                        dam vrel T $g $a [mag/ $delta L+] "no control"
-                    }
+        dam rule MOOD-1-1 $driver_id $fdict {
+            $delta < 0.0
+        } {
+            foreach a [actor names] {
+                if {$a eq $controller} {
+                    dam vrel T $g $a [mag/ $delta S-] "has control"
+                } else {
+                    dam vrel T $g $a [mag/ $delta L+] "no control"
                 }
             }
+        }
 
-            dam rule MOOD-1-2 {
-                $delta > 0.0
-            } {
-                foreach a $alist {
-                    if {$a eq $controller} {
-                        dam vrel T $g $a [mag/ $delta S+] "has control"
-                    } else {
-                        dam vrel T $g $a [mag/ $delta L-] "no control"
-                    }
+        dam rule MOOD-1-2 $driver_id $fdict {
+            $delta > 0.0
+        } {
+            foreach a [actor names] {
+                if {$a eq $controller} {
+                    dam vrel T $g $a [mag/ $delta S+] "has control"
+                } else {
+                    dam vrel T $g $a [mag/ $delta L-] "no control"
                 }
             }
         }

@@ -95,7 +95,8 @@ snit::type service_rules {
 
         # NEXT, call the ENI rule set.
         rdb eval {
-            SELECT * FROM civgroups 
+            SELECT g, actual, required, expected, expectf, needs, controller
+            FROM civgroups 
             JOIN demog_g USING (g)
             JOIN service_g USING (g)
             JOIN control_n ON (civgroups.n = control_n.n)
@@ -104,10 +105,13 @@ snit::type service_rules {
         } gdata {
             unset -nocomplain gdata(*)
 
-            # TBD: Can we easily get all data here?
+            set g $gdata(g)
+            
+            set driver_id \
+                [driver create ENI "Provision of ENI services to $g" $g]
 
             bgcatch {
-                service_rules ENI [array get gdata]
+                service_rules ENI $driver_id [array get gdata]
             }
         }
     }
@@ -121,130 +125,115 @@ snit::type service_rules {
     # Service Situation: effect of provision/non-provision of service
     # on a civilian group.
 
-    # ENI gdict
-    #
-    # gdict - Array containing group service data.
-    #
-    # This method is called each strategy tock to assess the satisfaction
-    # effects of ENI services on group g.
-
-    typemethod ENI {gdict} {
+    typemethod ENI {driver_id fdict} {
+        dict with fdict {}
+        
         # FIRST, get some data
-        set case [GetCase $gdict]
-        set cdict [GetCreditDict [dict get $gdict g]]
+        set case [GetCase $fdict]
+        set cdict [GetCreditDict $g]
 
-        dict with gdict {
-            log detail servr [list ENI $g]
-            
-            dam ruleset ENI \
-                [driver create ENI "Provision of ENI services to $g" $g]
+        log detail servr [list ENI $g]
+        
+        dict set fdict case $case
+        
+        # ENI-1: Satisfaction Effects
+        dam rule ENI-1-1 $driver_id $fdict {
+            $case eq "R-"
+        } {
+            # While ENI is less than required for CIV group g
+            # Then for group g
+            dam sat T $g \
+                AUT [expr {[mag* $expectf XXS+] + [mag* $needs XXS-]}] \
+                QOL [expr {[mag* $expectf XXS+] + [mag* $needs XXS-]}]
 
-            dam detail "Civilian Group:"      $g
-            dam detail "In Neighborhood:"     $n
-            dam detail "Controlled By:"       $controller
-            dam detail "Service Case:"        $case
-            dam detail "Expectations Factor:" [format %4.2f $expectf]
-            dam detail "Needs Factor:"        [format %4.2f $needs]
-
-            # ENI-1: Satisfaction Effects
-            dam rule ENI-1-1 {
-                $case eq "R-"
-            } {
-                # While ENI is less than required for CIV group g
-                # Then for group g
-                dam sat T $g \
-                    AUT [expr {[mag* $expectf XXS+] + [mag* $needs XXS-]}] \
-                    QOL [expr {[mag* $expectf XXS+] + [mag* $needs XXS-]}]
-
-                # And for g with each actor a
-                dict for {a credit} $cdict {
-                    if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,R-,$credit) \
-                            "credit=$credit, has control"
-                    } else {
-                        dam vrel T $g $a $vmags(NC,R-,$credit) \
-                            "credit=$credit, no control"
-                    }
+            # And for g with each actor a
+            dict for {a credit} $cdict {
+                if {$a eq $controller} {
+                    dam vrel T $g $a $vmags(C,R-,$credit) \
+                        "credit=$credit, has control"
+                } else {
+                    dam vrel T $g $a $vmags(NC,R-,$credit) \
+                        "credit=$credit, no control"
                 }
             }
+        }
 
-            dam rule ENI-1-2 {
-                $case eq "E-"
-            } {
-                # While ENI is less than expected for CIV group g
-                # Then for group g
-                dam sat T $g \
-                    AUT [mag* $expectf XXS+] \
-                    QOL [mag* $expectf XXS+]
+        dam rule ENI-1-2 $driver_id $fdict {
+            $case eq "E-"
+        } {
+            # While ENI is less than expected for CIV group g
+            # Then for group g
+            dam sat T $g \
+                AUT [mag* $expectf XXS+] \
+                QOL [mag* $expectf XXS+]
 
-                # And for g with each actor a
-                dict for {a credit} $cdict {
-                    if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,E-,$credit) \
-                            "credit=$credit, has control"
-                    } else {
-                        dam vrel T $g $a $vmags(NC,E-,$credit) \
-                            "credit=$credit, no control"
-                    }
+            # And for g with each actor a
+            dict for {a credit} $cdict {
+                if {$a eq $controller} {
+                    dam vrel T $g $a $vmags(C,E-,$credit) \
+                        "credit=$credit, has control"
+                } else {
+                    dam vrel T $g $a $vmags(NC,E-,$credit) \
+                        "credit=$credit, no control"
                 }
             }
+        }
 
-            dam rule ENI-1-3 {
-                $case eq "E"
-            } {
-                # While ENI is as expected for CIV group g
-                # Then for group g
+        dam rule ENI-1-3 $driver_id $fdict {
+            $case eq "E"
+        } {
+            # While ENI is as expected for CIV group g
+            # Then for group g
 
-                # Nothing
+            # Nothing
 
-                # And for g with each actor a
-                dict for {a credit} $cdict {
-                    if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,E,$credit) \
-                            "credit=$credit, has control"
-                    } else {
-                        dam vrel T $g $a $vmags(NC,E,$credit) \
-                            "credit=$credit, no control"
-                    }
+            # And for g with each actor a
+            dict for {a credit} $cdict {
+                if {$a eq $controller} {
+                    dam vrel T $g $a $vmags(C,E,$credit) \
+                        "credit=$credit, has control"
+                } else {
+                    dam vrel T $g $a $vmags(NC,E,$credit) \
+                        "credit=$credit, no control"
                 }
             }
+        }
 
-            dam rule ENI-1-4 {
-                $case eq "E+"
-            } {
-                # While ENI is better than expected for CIV group g
-                # Then for group g
-                dam sat T $g \
-                    AUT [mag* $expectf XXS+] \
-                    QOL [mag* $expectf XXS+]
+        dam rule ENI-1-4 $driver_id $fdict {
+            $case eq "E+"
+        } {
+            # While ENI is better than expected for CIV group g
+            # Then for group g
+            dam sat T $g \
+                AUT [mag* $expectf XXS+] \
+                QOL [mag* $expectf XXS+]
 
-                # And for g with each actor a
-                dict for {a credit} $cdict {
-                    if {$a eq $controller} {
-                        dam vrel T $g $a $vmags(C,E+,$credit) \
-                            "credit=$credit, has control"
-                    } else {
-                        dam vrel T $g $a $vmags(NC,E+,$credit) \
-                            "credit=$credit, no control"
-                    }
+            # And for g with each actor a
+            dict for {a credit} $cdict {
+                if {$a eq $controller} {
+                    dam vrel T $g $a $vmags(C,E+,$credit) \
+                        "credit=$credit, has control"
+                } else {
+                    dam vrel T $g $a $vmags(NC,E+,$credit) \
+                        "credit=$credit, no control"
                 }
             }
         }
     }
 
-    # GetCase gdict
+    # GetCase fdict
     #
-    # gdict   - The civgroups/service_g group dictionary
+    # fdict   - The civgroups/service_g group dictionary
     #
     # Returns the case symbol, E+, E, E-, R-, for the provision
     # of service to the group.
     
-    proc GetCase {gdict} {
+    proc GetCase {fdict} {
         # FIRST, get the delta parameter
         set delta [parmdb get service.ENI.delta]
 
         # NEXT, compute the case
-        dict with gdict {
+        dict with fdict {
             if {$actual < $required} {
                 return R-
             } elseif {abs($actual - $expected) < $delta * $expected} {

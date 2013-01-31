@@ -62,6 +62,8 @@ namespace eval ::athena_test::tests:: {
         
         # Delete existing drivers, to make things simpler
         rdb eval {DELETE FROM drivers}
+        rdb eval {DELETE FROM rule_firings}
+        rdb eval {DELETE FROM rule_inputs}
     }
 
     # Clean up after a test
@@ -223,178 +225,16 @@ driver_id dtype narrative cause  s   p   q
         cleanup
     } -result {1}
 
-    #-------------------------------------------------------------------
-    # hreladjust
-
-    test hreladjust-1.1 {Adjustment takes effect.} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }
-
-        ted querylist {
-            SELECT f, g, driver_id, delta, inputs
-            FROM uram_hrel_adjustments JOIN drivers USING (driver_id)
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-f          SHIA
-g          BLUE
-driver_id  1000
-delta      0.1
-inputs     1
-    }
-
-
-    test hreladjust-1.2 {Adjustment sends report} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }
-
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {DAM ADJUST {ADJUST-1-1: Magic Horizontal Relationship Baseline Adjustment}}
-
-
-    test hreladjust-1.3 {Adjustment sends events} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        ted notifier bind ::mad <Hrel>
-
-        mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }
-        
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Hrel> update {SHIA BLUE}}
-    }
-
-
-    test hreladjust-1.4 {f is empty civilian group} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-        empty SHIA
-    } -body {
-        mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }
-        
-        rdb onecolumn {SELECT count(*) FROM uram_hrel_adjustments}
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    test hreladjust-1.5 {g is empty civilian group} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-        empty SHIA
-    } -body {
-        mad mutate hreladjust {
-            id {BLUE SHIA} driver_id 1000 delta 0.1
-        }
-        
-        rdb onecolumn {SELECT count(*) FROM uram_hrel_adjustments}
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test hreladjust-2.1 {Undo removes effect.} -setup {
-        lock
-        mad mutate create $m1   ;# 1000
-    } -body {
-        set undo [mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }]
-
-        eval $undo
-
-        rdb exists { 
-            SELECT * FROM uram_hrel_adjustments 
-            WHERE driver_id=1000
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test hreladjust-2.2 {Undo removes report} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-
-        set undo [mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }]
-    } -body {
-        eval $undo
-
-        rdb exists {
-            SELECT * FROM reports
-            WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test hreladjust-2.3 {Undo sends events} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-
-        set undo [mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }]
-    } -body {
-        ted notifier bind ::mad <Hrel>
-
-        eval $undo
-
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Hrel> update {SHIA BLUE}}
-    }
-
-    test hreladjust-2.4 {Undo decrements input count} -setup {
-        lock
-
-        mad mutate create $m1    ;# 1000
-
-        set undo [mad mutate hreladjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }]
-    } -body {
-        eval $undo
-
-        driver inputs get 1000
-    } -cleanup {
-        cleanup
-    } -result {0}
 
     #-------------------------------------------------------------------
-    # hrelinput
+    # hrel
 
-    test hrelinput-1.1 {input is created} -setup {
+    test hrel-1.1 {input is created} -setup {
         lock
 
         mad mutate create $m1  ;# 1000
     } -body {
-        mad mutate hrelinput {
+        mad mutate hrel {
             driver_id 1000 mode persistent f SHIA g BLUE mag 5
         }
 
@@ -411,30 +251,33 @@ driver_id pflag cause f    g    mag
     }
 
 
-    test hrelinput-1.2 {Level input sends report} -setup {
+    test hrel-1.2 {rule_firings created} -setup {
         lock
 
         mad mutate create $m1
     } -body {
-        mad mutate hrelinput {
+        mad mutate hrel {
             driver_id 1000 mode persistent f SHIA g BLUE mag 5
         }
 
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'MAGIC'
-        }
+        ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
-    } -result {DAM MAGIC {MAGIC-1-1: Magic Horizontal Relationship Input}}
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    MAGIC
+rule       MAGIC-1-1
+fdict      f SHIA g BLUE narrative {The First MAD}
+    }
 
-
-    test hrelinput-1.3 {f is empty civilian group} -setup {
+    test hrel-1.3 {f is empty civilian group} -setup {
         lock
         mad mutate create $m1  ;# 1000
         empty SHIA
     } -body {
-        mad mutate hrelinput {
+        mad mutate hrel {
             driver_id 1000 mode persistent f SHIA g BLUE mag 5
         }
         
@@ -443,12 +286,12 @@ driver_id pflag cause f    g    mag
         cleanup
     } -result {0}
 
-    test hrelinput-1.4 {g is empty civilian group} -setup {
+    test hrel-1.4 {g is empty civilian group} -setup {
         lock
         mad mutate create $m1  ;# 1000
         empty SHIA
     } -body {
-        mad mutate hrelinput {
+        mad mutate hrel {
             driver_id 1000 mode persistent f BLUE g SHIA mag 5
         }
         
@@ -459,163 +302,14 @@ driver_id pflag cause f    g    mag
 
 
     #-------------------------------------------------------------------
-    # vreladjust
+    # vrel
 
-    test vreladjust-1.1 {Adjustment takes effect.} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }
-
-        ted querylist {
-            SELECT g, a, driver_id, delta, inputs
-            FROM uram_vrel_adjustments JOIN drivers USING (driver_id)
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-g          SHIA
-a          JOE
-driver_id  1000
-delta      0.1
-inputs     1
-    }
-
-
-    test vreladjust-1.2 {Adjustment sends report} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }
-
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {DAM ADJUST {ADJUST-2-1: Magic Vertical Relationship Baseline Adjustment}}
-
-
-    test vreladjust-1.3 {Adjustment sends events} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        ted notifier bind ::mad <Vrel>
-
-        mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }
-        
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Vrel> update {SHIA JOE}}
-    }
-
-
-    test vreladjust-1.4 {g is empty civilian group} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-        empty SHIA
-    } -body {
-        mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }
-        
-        rdb onecolumn {SELECT count(*) FROM uram_vrel_adjustments}
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test vreladjust-2.1 {Undo removes effect.} -setup {
-        lock
-        mad mutate create $m1   ;# 1000
-    } -body {
-        set undo [mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }]
-
-        eval $undo
-
-        rdb exists { 
-            SELECT * FROM uram_vrel_adjustments 
-            WHERE driver_id=1000
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test vreladjust-2.2 {Undo removes report} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-
-        set undo [mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }]
-    } -body {
-        eval $undo
-
-        rdb exists {
-            SELECT * FROM reports
-            WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test vreladjust-2.3 {Undo sends events} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-
-        set undo [mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }]
-    } -body {
-        ted notifier bind ::mad <Vrel>
-
-        eval $undo
-
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Vrel> update {SHIA JOE}}
-    }
-
-    test vreladjust-2.4 {Undo decrements input count} -setup {
-        lock
-
-        mad mutate create $m1    ;# 1000
-
-        set undo [mad mutate vreladjust {
-            id {SHIA JOE} driver_id 1000 delta 0.1
-        }]
-    } -body {
-        eval $undo
-
-        driver inputs get 1000
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    #-------------------------------------------------------------------
-    # vrelinput
-
-    test vrelinput-1.1 {input is created} -setup {
+    test vrel-1.1 {input is created} -setup {
         lock
 
         mad mutate create $m1  ;# 1000
     } -body {
-        mad mutate vrelinput {
+        mad mutate vrel {
             driver_id 1000 mode persistent g SHIA a JOE mag 5
         }
 
@@ -632,29 +326,33 @@ driver_id pflag cause g    a   mag
     }
 
 
-    test vrelinput-1.2 {Level input sends report} -setup {
+    test vrel-1.2 {creates rule_firings entry} -setup {
         lock
 
         mad mutate create $m1
     } -body {
-        mad mutate vrelinput {
+        mad mutate vrel {
             driver_id 1000 mode persistent g SHIA a JOE mag 5
         }
 
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'MAGIC'
-        }
+        ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
-    } -result {DAM MAGIC {MAGIC-2-1: Magic Vertical Relationship Input}}
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    MAGIC
+rule       MAGIC-2-1
+fdict      g SHIA a JOE narrative {The First MAD}
+    }
 
-    test vrelinput-1.3 {g is empty civilian group} -setup {
+    test vrel-1.3 {g is empty civilian group} -setup {
         lock
         mad mutate create $m1  ;# 1000
         empty SHIA
     } -body {
-        mad mutate vrelinput {
+        mad mutate vrel {
             driver_id 1000 mode persistent g SHIA a JOE mag 5
         }
         
@@ -665,167 +363,14 @@ driver_id pflag cause g    a   mag
 
 
     #-------------------------------------------------------------------
-    # satadjust
+    # sat
 
-    test satadjust-1.1 {Adjustment takes effect.} -setup {
-        lock
-
-        mad mutate create $m1  ;# 1000
-    } -body {
-        mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }
-
-        ted querylist {
-            SELECT g, c, driver_id, delta, inputs
-            FROM uram_sat_adjustments JOIN drivers USING (driver_id)
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-g          SHIA
-c          AUT
-driver_id  1000
-delta      5.0
-inputs     1
-    }
-
-
-    test satadjust-1.2 {Adjustment sends report} -setup {
+    test sat-1.1 {input is created} -setup {
         lock
 
         mad mutate create $m1   ;# 1000
     } -body {
-        mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }
-
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {DAM ADJUST {ADJUST-3-1: Magic Satisfaction Baseline Adjustment}}
-
-    test satadjust-1.3 {Adjustment sends events} -setup {
-        lock
-
-        mad mutate create $m1  ;# 1000
-    } -body {
-        ted notifier bind ::mad <Sat>
-
-        mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }
-        
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Sat> update {SHIA AUT}}
-    }
-
-
-    test satadjust-1.4 {g is empty civilian group} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-        empty SHIA
-    } -body {
-        mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 0.1
-        }
-        
-        rdb onecolumn {SELECT count(*) FROM uram_sat_adjustments}
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test satadjust-2.1 {Undo removes effect.} -setup {
-        lock
-
-        mad mutate create $m1  ;# 1000
-    } -body {
-        set undo [mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }]
-
-        eval $undo
-
-        rdb exists {
-            SELECT * FROM uram_sat_adjustments 
-            WHERE driver_id = $driver_id
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test satadjust-2.2 {Undo removes report} -setup {
-        lock
-
-        mad mutate create $m1   ;# 1000
-
-        set undo [mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }]
-    } -body {
-        eval $undo
-
-        rdb exists {
-            SELECT * FROM reports WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test satadjust-2.3 {Undo sends events} -setup {
-        lock
-
-        mad mutate create $m1    ;# 1000
-
-        set undo [mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }]
-    } -body {
-        ted notifier bind ::mad <Sat>
-
-        eval $undo
-
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Sat> update {SHIA AUT}}
-    }
-
-    test satadjust-2.4 {Undo decrements input count} -setup {
-        lock
-
-        mad mutate create $m1    ;# 1000
-
-        set undo [mad mutate satadjust {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }]
-    } -body {
-        eval $undo
-
-        driver inputs get 1000
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    #-------------------------------------------------------------------
-    # satinput
-
-    test satinput-1.1 {input is created} -setup {
-        lock
-
-        mad mutate create $m1   ;# 1000
-    } -body {
-        mad mutate satinput {
+        mad mutate sat {
             driver_id 1000 mode T g SHIA c AUT mag 5 
         }
 
@@ -842,29 +387,33 @@ driver_id pflag cause g    c   mag
     }
 
 
-    test satinput-1.2 {input sends report} -setup {
+    test sat-1.2 {creates rule_firings entry} -setup {
         lock
 
         mad mutate create $m1  ;# 1000
     } -body {
-        mad mutate satinput {
+        mad mutate sat {
             driver_id 1000 mode T g SHIA c AUT mag 5 
         }
 
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'MAGIC'
-        }
+        ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
-    } -result {DAM MAGIC {MAGIC-3-1: Magic Satisfaction Input}}
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    MAGIC
+rule       MAGIC-3-1
+fdict      n NB1 g SHIA c AUT narrative {The First MAD}
+    }
 
-    test satinput-1.3 {g is empty civilian group} -setup {
+    test sat-1.3 {g is empty civilian group} -setup {
         lock
         mad mutate create $m1  ;# 1000
         empty SHIA
     } -body {
-        mad mutate satinput {
+        mad mutate sat {
             driver_id 1000 mode persistent g SHIA c AUT mag 5
         }
         
@@ -876,163 +425,14 @@ driver_id pflag cause g    c   mag
 
 
     #-------------------------------------------------------------------
-    # coopadjust
+    # coop
 
-    test coopadjust-1.1 {Adjustment takes effect.} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }
-
-        ted querylist {
-            SELECT f, g, driver_id, delta, inputs
-            FROM uram_coop_adjustments JOIN drivers USING (driver_id)
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-f          SHIA
-g          BLUE
-driver_id  1000
-delta      5.0
-inputs     1
-    }
-
-
-    test coopadjust-1.2 {Adjustment sends report} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }
-
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {DAM ADJUST {ADJUST-4-1: Magic Cooperation Baseline Adjustment}}
-
-
-    test coopadjust-1.3 {Adjustment sends events} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-    } -body {
-        ted notifier bind ::mad <Coop>
-
-        mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }
-        
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Coop> update {SHIA BLUE}}
-    }
-
-    test coopadjust-1.4 {f is empty civilian group} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-        empty SHIA
-    } -body {
-        mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 0.1
-        }
-        
-        rdb onecolumn {SELECT count(*) FROM uram_coop_adjustments}
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-
-    test coopadjust-2.1 {Undo removes effect.} -setup {
-        lock
-        mad mutate create $m1   ;# 1000
-    } -body {
-        set undo [mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }]
-
-        eval $undo
-
-        rdb exists { 
-            SELECT * FROM uram_coop_adjustments 
-            WHERE driver_id=1000
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test coopadjust-2.2 {Undo removes report} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-
-        set undo [mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }]
-    } -body {
-        eval $undo
-
-        rdb exists {
-            SELECT * FROM reports
-            WHERE subtype = 'ADJUST'
-        }
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-
-    test coopadjust-2.3 {Undo sends events} -setup {
-        lock
-        mad mutate create $m1  ;# 1000
-
-        set undo [mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }]
-    } -body {
-        ted notifier bind ::mad <Coop>
-
-        eval $undo
-
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Coop> update {SHIA BLUE}}
-    }
-
-    test coopadjust-2.4 {Undo decrements input count} -setup {
-        lock
-
-        mad mutate create $m1    ;# 1000
-
-        set undo [mad mutate coopadjust {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }]
-    } -body {
-        eval $undo
-
-        driver inputs get 1000
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    #-------------------------------------------------------------------
-    # coopinput
-
-    test coopinput-1.1 {input is created} -setup {
+    test coop-1.1 {input is created} -setup {
         lock
 
         mad mutate create $m1  ;# 1000
     } -body {
-        mad mutate coopinput {
+        mad mutate coop {
             driver_id 1000 mode persistent f SHIA g BLUE mag 5
         }
 
@@ -1049,29 +449,33 @@ driver_id pflag cause f    g    mag
     }
 
 
-    test coopinput-1.2 {Level input sends report} -setup {
+    test coop-1.2 {Level input sends report} -setup {
         lock
 
         mad mutate create $m1
     } -body {
-        mad mutate coopinput {
+        mad mutate coop {
             driver_id 1000 mode persistent f SHIA g BLUE mag 5
         }
 
-        rdb eval {
-            SELECT rtype,subtype,title FROM reports
-            WHERE subtype = 'MAGIC'
-        }
+        ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
-    } -result {DAM MAGIC {MAGIC-4-1: Magic Cooperation Input}}
-
-    test coopinput-1.3 {f is empty civilian group} -setup {
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    MAGIC
+rule       MAGIC-4-1
+fdict      n NB1 f SHIA g BLUE narrative {The First MAD}
+    }
+    
+    test coop-1.3 {f is empty civilian group} -setup {
         lock
         mad mutate create $m1  ;# 1000
         empty SHIA
     } -body {
-        mad mutate coopinput {
+        mad mutate coop {
             driver_id 1000 mode persistent f SHIA g BLUE mag 5
         }
         
@@ -1144,11 +548,15 @@ driver_id pflag cause f    g    mag
     } -result {1000 1001 1002}
 
     test initial_names-1.3 {Names with inputs are excluded} -setup {
+        lock
+
         mad mutate create $m1  ;# 1000
         mad mutate create $m2  ;# 1001
         mad mutate create $m3  ;# 1002
 
-        driver inputs incr 1001
+        mad mutate coop {
+            driver_id 1001 mode persistent f SHIA g BLUE mag 5
+        }
     } -body {
         mad initial names
     } -cleanup {
@@ -1168,11 +576,15 @@ driver_id pflag cause f    g    mag
     } -result {MAD does not exist or is not in initial state: "NONESUCH"}
 
     test initial_validate-1.2 {Not in initial state} -setup {
+        lock
+        
         mad mutate create $m1  ;# 1000
         mad mutate create $m2  ;# 1001
         mad mutate create $m3  ;# 1002
 
-        driver inputs incr 1001
+        mad mutate coop {
+            driver_id 1001 mode persistent f SHIA g BLUE mag 5
+        }
     } -body {
         mad initial validate 1001
     } -returnCodes {
@@ -1182,11 +594,15 @@ driver_id pflag cause f    g    mag
     } -result {MAD does not exist or is not in initial state: "1001"}
 
     test initial_validate-2.1 {Valid ID} -setup {
+        lock
+        
         mad mutate create $m1  ;# 1000
         mad mutate create $m2  ;# 1001
         mad mutate create $m3  ;# 1002
 
-        driver inputs incr 1001
+        mad mutate coop {
+            driver_id 1001 mode persistent f SHIA g BLUE mag 5
+        }
     } -body {
         mad initial validate 1002
     } -cleanup {

@@ -381,20 +381,6 @@ snit::widget appwin {
             }
         }
 
-        firings {
-            label   "Firings"
-            vistype firings
-            parent  ""
-            script  { 
-                reportbrowser %W \
-                    -db ::rdb \
-                    -reloadon {
-                        ::firings <Report>
-                    }
-                %W refresh
-            }
-        }
-
         orders {
             label   "Orders"
             vistype orders
@@ -459,7 +445,6 @@ snit::widget appwin {
     # *          - Used to tag tabs that are always visible.
     # scenario   - Visible in scenario mode
     # simulation - Visible in simulation mode
-    # firings    - Rule Firings tab; visible in -dev mode or on request.
     # orders     - Order tabs; visible in -dev mode or on request.
     # bookmarks  - Bookmarks Browser; visible on request
     # slog       - Scrolling log; visible in -dev mode, on request, or
@@ -471,7 +456,6 @@ snit::widget appwin {
         *           1
         scenario    1
         simulation  0
-        firings     0
         orders      0
         bookmarks   0
         slog        0
@@ -495,7 +479,6 @@ snit::widget appwin {
             -repetition no
 
         # NEXT, enable the development tabs
-        set visibility(firings) $options(-dev)
         set visibility(orders)  $options(-dev)
         set visibility(slog)    $options(-dev)
         set visibility(cli)     $options(-dev)
@@ -772,10 +755,10 @@ snit::widget appwin {
         $self AddOrder $submenu MAD:UPDATE
         $self AddOrder $submenu MAD:DELETE
 
-        $self AddOrder $submenu MAD:HREL:INPUT
-        $self AddOrder $submenu MAD:VREL:INPUT
-        $self AddOrder $submenu MAD:SAT:INPUT
-        $self AddOrder $submenu MAD:COOP:INPUT
+        $self AddOrder $submenu MAD:HREL
+        $self AddOrder $submenu MAD:VREL
+        $self AddOrder $submenu MAD:SAT
+        $self AddOrder $submenu MAD:COOP
 
         # Orders/Actors
         set submenu [menu $ordersmenu.actor]
@@ -834,7 +817,7 @@ snit::widget appwin {
         
         $self AddOrder $submenu HREL:OVERRIDE
         $self AddOrder $submenu HREL:RESTORE
-        $self AddOrder $submenu MAD:HREL:INPUT
+        $self AddOrder $submenu MAD:HREL
     
         # Orders/Vert. Relationship Menu
         set submenu [menu $ordersmenu.vrel]
@@ -843,7 +826,7 @@ snit::widget appwin {
         
         $self AddOrder $submenu VREL:OVERRIDE
         $self AddOrder $submenu VREL:RESTORE
-        $self AddOrder $submenu MAD:VREL:INPUT
+        $self AddOrder $submenu MAD:VREL
     
         # Orders/Satisfaction Menu
         set submenu [menu $ordersmenu.sat]
@@ -851,7 +834,7 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SAT:UPDATE
-        $self AddOrder $submenu MAD:SAT:INPUT
+        $self AddOrder $submenu MAD:SAT
 
         # Orders/Cooperation Menu
         set submenu [menu $ordersmenu.coop]
@@ -859,7 +842,7 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu COOP:UPDATE
-        $self AddOrder $submenu MAD:COOP:INPUT
+        $self AddOrder $submenu MAD:COOP
 
         # Orders/Comm. Asset Package Menu
         set submenu [menu $ordersmenu.cap]
@@ -1100,9 +1083,6 @@ snit::widget appwin {
 
         # Viewer
         set viewer [$self tab win viewer]
-
-        # Firings browser
-        notifier bind ::firings <Update> $self [mymethod FiringsUpdateCB] 
 
         # Scrolling log
         set slog   [$self tab win slog]
@@ -1395,11 +1375,6 @@ snit::widget appwin {
         $viewmenu add checkbutton                   \
             -label    "Bookmarks"                   \
             -variable [myvar visibility(bookmarks)] \
-            -command  [mymethod MakeTabsVisible]
-
-        $viewmenu add checkbutton                   \
-            -label    "Rule Firings"                \
-            -variable [myvar visibility(firings)]   \
             -command  [mymethod MakeTabsVisible]
 
         $viewmenu add checkbutton                   \
@@ -2081,9 +2056,6 @@ snit::widget appwin {
         # NEXT, set the status variables
         $self SimState
         $self SimTime
-
-        # NEXT, refresh the firings browser
-        [$self tab win firings] refresh
     }
 
     # SimState
@@ -2204,12 +2176,6 @@ snit::widget appwin {
                 $simtools.last configure -state disabled
             }
         }
-
-        # NEXT, set the -recentlimit on the firings browser, so that
-        # reports from this run are recent.
-        if {[sim state] eq "RUNNING"} {
-            [$self tab win firings] configure -recentlimit [simclock now]
-        }
     }
 
     # SimTime
@@ -2236,15 +2202,6 @@ snit::widget appwin {
                 $cli configure -maxlines [prefs get cli.maxlines]
             }
         }
-    }
-
-    # FiringsUpdateCB id
-    #
-    # Refreshes the firings report browser when an existing report or reports
-    # are updated or deleted.
-
-    method FiringsUpdateCB {id} {
-        [$self tab win firings] refresh
     }
 
     #-------------------------------------------------------------------

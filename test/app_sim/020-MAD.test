@@ -220,7 +220,7 @@ driver_id dtype narrative      cause  s   p   q
 
     test DELETE-1.3 {invalid MAD (not initial)} -body {
         ted order MAD:CREATE $m2   ;# 1000
-        driver inputs incr 1000
+        rdb eval {INSERT INTO rule_firings(driver_id) VALUES(1000)}
         ted order -reject MAD:DELETE driver_id 1000
     } -cleanup {
         cleanup
@@ -377,112 +377,14 @@ driver_id dtype narrative     cause s   p   q
         {::rdb <drivers> update 1000}
     }
 
-    #-------------------------------------------------------------------
-    # MAD:HREL:ADJUST
-
-    test HREL:ADJUST-1.1 {required parms} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:HREL:ADJUST {}
-    } -cleanup {
-        cleanup
-    } -result {
-        id {required value}
-        driver_id {required value}
-        delta {required value}
-    }
-    
-
-    test HREL:ADJUST-1.2 {invalid ID} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:HREL:ADJUST {
-            id {SHIA NONESUCH} driver_id 1000 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Invalid group, should be one of: BLUE, KURD, SHIA}
-    }
-
-    test HREL:ADJUST-1.3 {f=g} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:HREL:ADJUST {
-            id {SHIA SHIA} driver_id 1000 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {A group's relationship with itself cannot be overridden.}
-    }
-
-
-    test HREL:ADJUST-1.4 {invalid MAD} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:HREL:ADJUST {
-            id {SHIA BLUE} driver_id NONESUCH delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        driver_id {MAD does not exist: "NONESUCH"}
-    }
-
-
-    test HREL:ADJUST-1.5 {invalid delta} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:HREL:ADJUST {
-            id {SHIA BLUE} driver_id 1000 delta NONESUCH
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        delta {invalid value "NONESUCH", expected double}
-    }
-
-
-    test HREL:ADJUST-2.1 {table monitor events} -setup {
-        lock
-    } -body {
-        ted notifier bind ::mad <Hrel>
-        ted order MAD:HREL:ADJUST {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Hrel> update {SHIA BLUE}}
-    }
-
-
-    test HREL:ADJUST-3.1 {undo undoes the change} -setup {
-        lock
-
-        ted order MAD:HREL:ADJUST {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }
-    } -body {
-        ted notifier bind ::mad <Hrel>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Hrel> update {SHIA BLUE}}
-    }
-
 
     #-------------------------------------------------------------------
-    # MAD:HREL:INPUT
+    # MAD:HREL
 
-    test HREL:INPUT-1.1 {required parms}   -setup {
+    test HREL-1.1 {required parms}   -setup {
         lock
     } -body {
-        ted order -reject MAD:HREL:INPUT {}
+        ted order -reject MAD:HREL {}
     } -cleanup {
         cleanup
     } -result {
@@ -493,10 +395,10 @@ driver_id dtype narrative     cause s   p   q
         mag {required value}
     }
     
-    test HREL:INPUT-1.2 {invalid driver_id} -setup {
+    test HREL-1.2 {invalid driver_id} -setup {
         lock
     } -body {
-        ted order -reject MAD:HREL:INPUT \
+        ted order -reject MAD:HREL \
             [dict merge $hrelinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -505,10 +407,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test HREL:INPUT-1.3 {invalid mode} -setup {
+    test HREL-1.3 {invalid mode} -setup {
         lock
     } -body {
-        ted order -reject MAD:HREL:INPUT \
+        ted order -reject MAD:HREL \
             [dict merge $hrelinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -516,10 +418,10 @@ driver_id dtype narrative     cause s   p   q
         mode {invalid value "nonesuch", should be one of: transient, persistent}
     }
 
-    test HREL:INPUT-1.4 {invalid f} -setup {
+    test HREL-1.4 {invalid f} -setup {
         lock
     } -body {
-        ted order -reject MAD:HREL:INPUT \
+        ted order -reject MAD:HREL \
             [dict merge $hrelinput {f NONESUCH}]
     } -cleanup {
         cleanup
@@ -528,10 +430,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test HREL:INPUT-1.5 {invalid g} -setup {
+    test HREL-1.5 {invalid g} -setup {
         lock
     } -body {
-        ted order -reject MAD:HREL:INPUT \
+        ted order -reject MAD:HREL \
             [dict merge $hrelinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -539,10 +441,10 @@ driver_id dtype narrative     cause s   p   q
         g {Invalid group, should be one of: BLUE, KURD, SHIA}
     }
 
-    test HREL:INPUT-1.6 {f=g} -setup {
+    test HREL-1.6 {f=g} -setup {
         lock
     } -body {
-        ted order -reject MAD:HREL:INPUT \
+        ted order -reject MAD:HREL \
             [dict merge $hrelinput {g SHIA}]
     } -cleanup {
         cleanup
@@ -550,10 +452,10 @@ driver_id dtype narrative     cause s   p   q
         g {Cannot change a group's relationship with itself.}
     }
 
-    test HREL:INPUT-1.7 {invalid mag} -setup {
+    test HREL-1.7 {invalid mag} -setup {
         lock
     } -body {
-        ted order -reject MAD:HREL:INPUT \
+        ted order -reject MAD:HREL \
             [dict merge $hrelinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -561,10 +463,10 @@ driver_id dtype narrative     cause s   p   q
         mag {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, ZERO, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
     }
 
-    test HREL:INPUT-2.1 {Order is accepted} -setup {
+    test HREL-2.1 {Order is accepted} -setup {
         lock
     } -body {
-        ted order MAD:HREL:INPUT $hrelinput
+        ted order MAD:HREL $hrelinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
@@ -572,110 +474,12 @@ driver_id dtype narrative     cause s   p   q
 
 
     #-------------------------------------------------------------------
-    # MAD:VREL:ADJUST
+    # MAD:VREL
 
-    test VREL:ADJUST-1.1 {required parms} -setup {
+    test VREL-1.1 {required parms}   -setup {
         lock
     } -body {
-        ted order -reject MAD:VREL:ADJUST {}
-    } -cleanup {
-        cleanup
-    } -result {
-        id {required value}
-        driver_id {required value}
-        delta {required value}
-    }
-    
-
-    test VREL:ADJUST-1.2 {invalid g in ID} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:VREL:ADJUST {
-            id {NONESUCH JOE} driver_id 1000 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Invalid group, should be one of: BLUE, KURD, SHIA}
-    }
-
-    test VREL:ADJUST-1.3 {invalid a in ID} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:VREL:ADJUST {
-            id {SHIA NONESUCH} driver_id 1000 delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        id {Invalid actor, should be one of: JOE}
-    }
-
-    test VREL:ADJUST-1.4 {invalid MAD} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:VREL:ADJUST {
-            id {SHIA JOE} driver_id NONESUCH delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        driver_id {MAD does not exist: "NONESUCH"}
-    }
-
-
-    test VREL:ADJUST-1.4 {invalid delta} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:VREL:ADJUST {
-            id {SHIA JOE} driver_id 1000 delta NONESUCH
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        delta {invalid value "NONESUCH", expected double}
-    }
-
-
-    test VREL:ADJUST-2.1 {table monitor events} -setup {
-        lock
-    } -body {
-        ted notifier bind ::mad <Vrel>
-        ted order MAD:VREL:ADJUST {
-            id {SHIA JOE} driver_id 1000 delta 5
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Vrel> update {SHIA JOE}}
-    }
-
-
-    test VREL:ADJUST-3.1 {undo undoes the change} -setup {
-        lock
-
-        ted order MAD:VREL:ADJUST {
-            id {SHIA JOE} driver_id 1000 delta 5
-        }
-    } -body {
-        ted notifier bind ::mad <Vrel>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Vrel> update {SHIA JOE}}
-    }
-
-
-    #-------------------------------------------------------------------
-    # MAD:VREL:INPUT
-
-    test VREL:INPUT-1.1 {required parms}   -setup {
-        lock
-    } -body {
-        ted order -reject MAD:VREL:INPUT {}
+        ted order -reject MAD:VREL {}
     } -cleanup {
         cleanup
     } -result {
@@ -686,10 +490,10 @@ driver_id dtype narrative     cause s   p   q
         mag {required value}
     }
     
-    test VREL:INPUT-1.2 {invalid driver_id} -setup {
+    test VREL-1.2 {invalid driver_id} -setup {
         lock
     } -body {
-        ted order -reject MAD:VREL:INPUT \
+        ted order -reject MAD:VREL \
             [dict merge $vrelinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -698,10 +502,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test VREL:INPUT-1.3 {invalid mode} -setup {
+    test VREL-1.3 {invalid mode} -setup {
         lock
     } -body {
-        ted order -reject MAD:VREL:INPUT \
+        ted order -reject MAD:VREL \
             [dict merge $vrelinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -709,10 +513,10 @@ driver_id dtype narrative     cause s   p   q
         mode {invalid value "nonesuch", should be one of: transient, persistent}
     }
 
-    test VREL:INPUT-1.4 {invalid f} -setup {
+    test VREL-1.4 {invalid f} -setup {
         lock
     } -body {
-        ted order -reject MAD:VREL:INPUT \
+        ted order -reject MAD:VREL \
             [dict merge $vrelinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -721,10 +525,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test VREL:INPUT-1.5 {invalid a} -setup {
+    test VREL-1.5 {invalid a} -setup {
         lock
     } -body {
-        ted order -reject MAD:VREL:INPUT \
+        ted order -reject MAD:VREL \
             [dict merge $vrelinput {a NONESUCH}]
     } -cleanup {
         cleanup
@@ -732,10 +536,10 @@ driver_id dtype narrative     cause s   p   q
         a {Invalid actor, should be one of: JOE}
     }
 
-    test VREL:INPUT-1.6 {invalid mag} -setup {
+    test VREL-1.6 {invalid mag} -setup {
         lock
     } -body {
-        ted order -reject MAD:VREL:INPUT \
+        ted order -reject MAD:VREL \
             [dict merge $vrelinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -743,10 +547,10 @@ driver_id dtype narrative     cause s   p   q
         mag {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, ZERO, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
     }
 
-    test VREL:INPUT-2.1 {Order is accepted} -setup {
+    test VREL-2.1 {Order is accepted} -setup {
         lock
     } -body {
-        ted order MAD:VREL:INPUT $vrelinput
+        ted order MAD:VREL $vrelinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
@@ -754,85 +558,12 @@ driver_id dtype narrative     cause s   p   q
 
 
     #-------------------------------------------------------------------
-    # MAD:SAT:ADJUST
+    # MAD:SAT
 
-    test SAT:ADJUST-1.1 {required parms} -setup {
+    test SAT-1.1 {required parms}  -setup {
         lock
     } -body {
-        ted order -reject MAD:SAT:ADJUST {}
-    } -cleanup {
-        cleanup
-    } -result {
-        id {required value}
-        driver_id {required value}
-        delta {required value}
-    }
-    
-
-    test SAT:ADJUST-1.2 {invalid MAD} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:SAT:ADJUST {
-            id {SHIA AUT} driver_id NONESUCH delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        driver_id {MAD does not exist: "NONESUCH"}
-    }
-
-
-    test SAT:ADJUST-1.3 {invalid delta} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:SAT:ADJUST {
-            id {SHIA AUT} driver_id 1000 delta NONESUCH
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        delta {invalid value "NONESUCH", expected double}
-    }
-
-
-    test SAT:ADJUST-2.1 {table monitor events} -setup {
-        lock
-    } -body {
-        ted notifier bind ::mad <Sat>
-        ted order MAD:SAT:ADJUST {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Sat> update {SHIA AUT}}
-    }
-
-
-    test SAT:ADJUST-3.1 {undo undoes the change} -setup {
-        lock
-
-        ted order MAD:SAT:ADJUST {
-            id {SHIA AUT} driver_id 1000 delta 5
-        }
-    } -body {
-        ted notifier bind ::mad <Sat>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Sat> update {SHIA AUT}}
-    }
-
-    #-------------------------------------------------------------------
-    # MAD:SAT:INPUT
-
-    test SAT:INPUT-1.1 {required parms}  -setup {
-        lock
-    } -body {
-        ted order -reject MAD:SAT:INPUT {}
+        ted order -reject MAD:SAT {}
     } -cleanup {
         cleanup
     } -result {
@@ -844,10 +575,10 @@ driver_id dtype narrative     cause s   p   q
     }
     
 
-    test SAT:INPUT-1.2 {invalid driver_id}  -setup {
+    test SAT-1.2 {invalid driver_id}  -setup {
         lock
     } -body {
-        ted order -reject MAD:SAT:INPUT \
+        ted order -reject MAD:SAT \
             [dict merge $satinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -855,10 +586,10 @@ driver_id dtype narrative     cause s   p   q
         driver_id {MAD does not exist: "NONESUCH"}
     }
 
-    test SAT:INPUT-1.3 {invalid mode}  -setup {
+    test SAT-1.3 {invalid mode}  -setup {
         lock
     } -body {
-        ted order -reject MAD:SAT:INPUT \
+        ted order -reject MAD:SAT \
             [dict merge $satinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -867,10 +598,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test SAT:INPUT-1.4 {invalid g}  -setup {
+    test SAT-1.4 {invalid g}  -setup {
         lock
     } -body {
-        ted order -reject MAD:SAT:INPUT \
+        ted order -reject MAD:SAT \
             [dict merge $satinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -879,10 +610,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test SAT:INPUT-1.5 {invalid c}  -setup {
+    test SAT-1.5 {invalid c}  -setup {
         lock
     } -body {
-        ted order -reject MAD:SAT:INPUT \
+        ted order -reject MAD:SAT \
             [dict merge $satinput {c NONESUCH}]
     } -cleanup {
         cleanup
@@ -890,10 +621,10 @@ driver_id dtype narrative     cause s   p   q
         c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
     }
 
-    test SAT:INPUT-1.6 {invalid mag}  -setup {
+    test SAT-1.6 {invalid mag}  -setup {
         lock
     } -body {
-        ted order -reject MAD:SAT:INPUT \
+        ted order -reject MAD:SAT \
             [dict merge $satinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -901,10 +632,10 @@ driver_id dtype narrative     cause s   p   q
         mag {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, ZERO, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
     }
 
-    test SAT:INPUT-2.1 {Order is accepted}  -setup {
+    test SAT-2.1 {Order is accepted}  -setup {
         lock
     } -body {
-        ted order MAD:SAT:INPUT $satinput
+        ted order MAD:SAT $satinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup
@@ -912,86 +643,12 @@ driver_id dtype narrative     cause s   p   q
 
 
     #-------------------------------------------------------------------
-    # MAD:COOP:ADJUST
+    # MAD:COOP
 
-    test COOP:ADJUST-1.1 {required parms} -setup {
+    test COOP-1.1 {required parms}   -setup {
         lock
     } -body {
-        ted order -reject MAD:COOP:ADJUST {}
-    } -cleanup {
-        cleanup
-    } -result {
-        id {required value}
-        driver_id {required value}
-        delta {required value}
-    }
-    
-
-    test COOP:ADJUST-1.2 {invalid MAD} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:COOP:ADJUST {
-            id {SHIA BLUE} driver_id NONESUCH delta 5
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        driver_id {MAD does not exist: "NONESUCH"}
-    }
-
-
-    test COOP:ADJUST-1.3 {invalid delta} -setup {
-        lock
-    } -body {
-        ted order -reject MAD:COOP:ADJUST {
-            id {SHIA BLUE} driver_id 1000 delta NONESUCH
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-        delta {invalid value "NONESUCH", expected double}
-    }
-
-
-    test COOP:ADJUST-2.1 {table monitor events} -setup {
-        lock
-    } -body {
-        ted notifier bind ::mad <Coop>
-        ted order MAD:COOP:ADJUST {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Coop> update {SHIA BLUE}}
-    }
-
-
-    test COOP:ADJUST-3.1 {undo undoes the change} -setup {
-        lock
-
-        ted order MAD:COOP:ADJUST {
-            id {SHIA BLUE} driver_id 1000 delta 5
-        }
-    } -body {
-        ted notifier bind ::mad <Coop>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::mad <Coop> update {SHIA BLUE}}
-    }
-
-
-    #-------------------------------------------------------------------
-    # MAD:COOP:INPUT
-
-    test COOP:INPUT-1.1 {required parms}   -setup {
-        lock
-    } -body {
-        ted order -reject MAD:COOP:INPUT {}
+        ted order -reject MAD:COOP {}
     } -cleanup {
         cleanup
     } -result {
@@ -1002,10 +659,10 @@ driver_id dtype narrative     cause s   p   q
         mag {required value}
     }
     
-    test COOP:INPUT-1.2 {invalid driver_id} -setup {
+    test COOP-1.2 {invalid driver_id} -setup {
         lock
     } -body {
-        ted order -reject MAD:COOP:INPUT \
+        ted order -reject MAD:COOP \
             [dict merge $coopinput {driver_id NONESUCH}]
     } -cleanup {
         cleanup
@@ -1014,10 +671,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test COOP:INPUT-1.3 {invalid mode} -setup {
+    test COOP-1.3 {invalid mode} -setup {
         lock
     } -body {
-        ted order -reject MAD:COOP:INPUT \
+        ted order -reject MAD:COOP \
             [dict merge $coopinput {mode NONESUCH}]
     } -cleanup {
         cleanup
@@ -1025,10 +682,10 @@ driver_id dtype narrative     cause s   p   q
         mode {invalid value "nonesuch", should be one of: transient, persistent}
     }
 
-    test COOP:INPUT-1.4 {invalid f} -setup {
+    test COOP-1.4 {invalid f} -setup {
         lock
     } -body {
-        ted order -reject MAD:COOP:INPUT \
+        ted order -reject MAD:COOP \
             [dict merge $coopinput {f NONESUCH}]
     } -cleanup {
         cleanup
@@ -1037,10 +694,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test COOP:INPUT-1.5 {invalid g} -setup {
+    test COOP-1.5 {invalid g} -setup {
         lock
     } -body {
-        ted order -reject MAD:COOP:INPUT \
+        ted order -reject MAD:COOP \
             [dict merge $coopinput {g NONESUCH}]
     } -cleanup {
         cleanup
@@ -1049,10 +706,10 @@ driver_id dtype narrative     cause s   p   q
     }
 
 
-    test COOP:INPUT-1.6 {invalid mag} -setup {
+    test COOP-1.6 {invalid mag} -setup {
         lock
     } -body {
-        ted order -reject MAD:COOP:INPUT \
+        ted order -reject MAD:COOP \
             [dict merge $coopinput {mag NONESUCH}]
     } -cleanup {
         cleanup
@@ -1060,10 +717,10 @@ driver_id dtype narrative     cause s   p   q
         mag {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, ZERO, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
     }
 
-    test COOP:INPUT-2.1 {Order is accepted} -setup {
+    test COOP-2.1 {Order is accepted} -setup {
         lock
     } -body {
-        ted order MAD:COOP:INPUT $coopinput
+        ted order MAD:COOP $coopinput
         ted order SIM:RUN weeks 1 block yes
     } -cleanup {
         cleanup

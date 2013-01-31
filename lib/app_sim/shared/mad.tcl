@@ -213,76 +213,7 @@ snit::type mad {
     }
 
 
-    # mutate hreladjust parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    id               list {f g}
-    #    driver_id        MAD ID
-    #    delta            Delta to the baseline, a floating point value.
-    #
-    # Adjusts an hrel curve's baseline by a delta given the parms, 
-    # which are presumed to be valid.
-
-    typemethod {mutate hreladjust} {parmdict} {
-        # FIRST, get the dict contents. 
-        dict with parmdict {}
-
-        lassign $id f g
-
-        if {$f in [civgroup names]} {
-            if {[demog getg $f population] == 0} {
-                log normal mad "Skipping hreladjust; group $f is empty"
-                return "# Nothing to undo"
-            }
-        }
-
-        if {$g in [civgroup names]} {
-            if {[demog getg $g population] == 0} {
-                log normal mad "Skipping hreladjust; group $g is empty"
-                return "# Nothing to undo"
-            }
-        }
-        
-
-        # FIRST, get the narrative text
-        set narrative [driver narrative get $driver_id]
-
-        # NEXT, Adjust the baseline
-        aram edit mark
-        aram hrel badjust $driver_id $f $g $delta
-        driver inputs incr $driver_id
-
-        # NEXT, send ADJUST-1-1 report
-        set text [edamrule longname ADJUST-1-1]
-        append text "\n\n"
-
-        set fmt "%-22s %s\n"
-
-        append text [format $fmt "Magic Attitude Driver:" $driver_id]
-        append text [format $fmt "Narrative:"             $narrative]
-        append text [format $fmt "Group F:"               $f]
-        append text [format $fmt "Group G:"               $g]
-
-        set deltaText [format "%.3f" $delta]
-        append text [format $fmt "Delta:"                 $deltaText]
-
-        set reportid \
-            [firings save \
-                 -rtype   DAM                                          \
-                 -subtype ADJUST                                       \
-                 -meta1   ADJUST-1-1                                   \
-                 -title   "ADJUST-1-1: [edamrule longname ADJUST-1-1]" \
-                 -text    $text]
-
-        # NEXT, notify application
-        notifier send ::mad <Hrel> update $id
-
-        # NEXT, Return the undo command
-        return [mytypemethod UndoAdjust $driver_id $reportid <Hrel> $id]
-    }
-
-    # mutate hrelinput parmdict
+    # mutate hrel parmdict
     #
     # parmdict    A dictionary of order parameters
     #
@@ -294,14 +225,14 @@ snit::type mad {
     #
     # Makes the MAGIC-1-1 rule fire for the given input.
     
-    typemethod {mutate hrelinput} {parmdict} {
+    typemethod {mutate hrel} {parmdict} {
         # FIRST, get the dict data.
         dict with parmdict {}
 
         # NEXT, skip empty civilian groups
         if {$f in [civgroup names]} {
             if {[demog getg $f population] == 0} {
-                log normal mad "Skipping hrelinput; group $f is empty"
+                log normal mad "Skipping hrel; group $f is empty"
                 return
             }
         }
@@ -325,13 +256,7 @@ snit::type mad {
             set cause ""
         }
 
-        dam ruleset MAGIC $driver_id \
-            -cause $cause
-
-        dam detail "Magic Attitude Driver:" $driver_id
-        dam detail "Narrative:"             $narrative
-        dam detail "Group F:"               $f
-        dam detail "Group G:"               $g
+        set fdict [dict create f $f g $g narrative $narrative]
 
         if {$mode eq "persistent"} {
             set mode P
@@ -339,7 +264,7 @@ snit::type mad {
             set mode T
         }
 
-        dam rule MAGIC-1-1 {1} {
+        dam rule MAGIC-1-1 $driver_id $fdict -cause $cause {1} {
             dam hrel $mode $f $g $mag
         }
 
@@ -347,69 +272,8 @@ snit::type mad {
         return
     }
 
-    # mutate vreladjust parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    id               list {g a}
-    #    driver_id        MAD ID
-    #    delta            Delta to the baseline, a floating point value.
-    #
-    # Adjusts an vrel curve's baseline by a delta given the parms, 
-    # which are presumed to be valid.
 
-    typemethod {mutate vreladjust} {parmdict} {
-        # FIRST, get the dict parameters
-        dict with parmdict {}
-
-        lassign $id g a
-
-        # NEXT, skip empty civilian groups
-        if {$g in [civgroup names]} {
-            if {[demog getg $g population] == 0} {
-                log normal mad "Skipping vreladjust; group $g is empty"
-                return "# Nothing to undo"
-            }
-        }
-        
-        # NEXT, get the narrative text
-        set narrative [driver narrative get $driver_id]
-
-        # NEXT, Adjust the baseline
-        aram edit mark
-        aram vrel badjust $driver_id $g $a $delta
-        driver inputs incr $driver_id
-
-        # NEXT, send ADJUST-2-1 report
-        set text [edamrule longname ADJUST-2-1]
-        append text "\n\n"
-
-        set fmt "%-22s %s\n"
-
-        append text [format $fmt "Magic Attitude Driver:" $driver_id]
-        append text [format $fmt "Narrative:"             $narrative]
-        append text [format $fmt "Group:"                 $g]
-        append text [format $fmt "Actor:"                 $a]
-
-        set deltaText [format "%.3f" $delta]
-        append text [format $fmt "Delta:"                 $deltaText]
-
-        set reportid \
-            [firings save \
-                 -rtype   DAM                                          \
-                 -subtype ADJUST                                       \
-                 -meta1   ADJUST-2-1                                   \
-                 -title   "ADJUST-2-1: [edamrule longname ADJUST-2-1]" \
-                 -text    $text]
-
-        # NEXT, notify application
-        notifier send ::mad <Vrel> update $id
-
-        # NEXT, Return the undo command
-        return [mytypemethod UndoAdjust $driver_id $reportid <Vrel> $id]
-    }
-
-    # mutate vrelinput parmdict
+    # mutate vrel parmdict
     #
     # parmdict    A dictionary of order parameters
     #
@@ -421,14 +285,14 @@ snit::type mad {
     #
     # Makes the MAGIC-2-1 rule fire for the given input.
     
-    typemethod {mutate vrelinput} {parmdict} {
+    typemethod {mutate vrel} {parmdict} {
         # FIRST, get the dict parameters
         dict with parmdict {}
 
         # NEXT, skip empty civilian groups
         if {$g in [civgroup names]} {
             if {[demog getg $g population] == 0} {
-                log normal mad "Skipping vrelinput; group $g is empty"
+                log normal mad "Skipping vrel; group $g is empty"
                 return
             }
         }
@@ -445,21 +309,15 @@ snit::type mad {
             set cause ""
         }
 
-        dam ruleset MAGIC $driver_id \
-            -cause $cause
-
-        dam detail "Magic Attitude Driver:" $driver_id
-        dam detail "Narrative:"             $narrative
-        dam detail "Group:"                 $g
-        dam detail "Actor:"                 $a
-
+        set fdict [dict create g $g a $a narrative $narrative]
+        
         if {$mode eq "persistent"} {
             set mode P
         } else {
             set mode T
         }
 
-        dam rule MAGIC-2-1 {1} {
+        dam rule MAGIC-2-1 $driver_id $fdict -cause $cause {1} {
             dam vrel $mode $g $a $mag
         }
 
@@ -467,71 +325,7 @@ snit::type mad {
         return
     }
 
-    # mutate satadjust parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    id               list {g c}
-    #    driver_id        MAD ID
-    #    delta            Delta to the baseline, a floating point value.
-    #
-    # Adjusts a satisfaction curve's baseline by a delta given the parms, 
-    # which are presumed to be valid.
-
-    typemethod {mutate satadjust} {parmdict} {
-        # FIRST, get the dict parameters
-        dict with parmdict {}
-
-        lassign $id g c
-        set n [civgroup getg $g n]
-
-        # NEXT, skip empty civilian groups
-        if {$g in [civgroup names]} {
-            if {[demog getg $g population] == 0} {
-                log normal mad "Skipping satadjust; group $g is empty"
-                return "# Nothing to undo"
-            }
-        }
-        
-        # NEXT, get the narrative text
-        set narrative [driver narrative get $driver_id]
-
-        # NEXT, Adjust the baseline
-        aram edit mark
-        aram sat badjust $driver_id $g $c $delta
-        driver inputs incr $driver_id
-
-        # NEXT, send ADJUST-3-1 report
-        set text [edamrule longname ADJUST-3-1]
-        append text "\n\n"
-
-        set fmt "%-22s %s\n"
-
-        append text [format $fmt "Magic Attitude Driver:" $driver_id]
-        append text [format $fmt "Description:"           $narrative]
-        append text [format $fmt "Neighborhood:"          $n]
-        append text [format $fmt "Group:"                 $g]
-        append text [format $fmt "Concern:"               $c]
-
-        set deltaText [format "%.3f" $delta]
-        append text [format $fmt "Delta:"                 $deltaText]
-
-        set reportid \
-            [firings save \
-                 -rtype   DAM                                          \
-                 -subtype ADJUST                                       \
-                 -meta1   ADJUST-3-1                                   \
-                 -title   "ADJUST-3-1: [edamrule longname ADJUST-3-1]" \
-                 -text    $text]
-
-        # NEXT, notify application
-        notifier send ::mad <Sat> update $id
-
-        # NEXT, Return the undo command
-        return [mytypemethod UndoAdjust $driver_id $reportid <Sat> $id]
-    }
-
-    # mutate satinput parmdict
+    # mutate sat parmdict
     #
     # parmdict  - A dictionary of order parameters
     #
@@ -543,7 +337,7 @@ snit::type mad {
     #
     # Makes the MAGIC-3-1 rule fire for the given input.
     
-    typemethod {mutate satinput} {parmdict} {
+    typemethod {mutate sat} {parmdict} {
         # FIRST, get the dict parameters.
         dict with parmdict {}
         set n [civgroup getg $g n]
@@ -551,7 +345,7 @@ snit::type mad {
         # NEXT, skip empty civilian groups
         if {$g in [civgroup names]} {
             if {[demog getg $g population] == 0} {
-                log normal mad "Skipping satinput; group $g is empty"
+                log normal mad "Skipping sat; group $g is empty"
                 return
             }
         }
@@ -568,25 +362,15 @@ snit::type mad {
             set cause ""
         }
 
-        dam ruleset MAGIC $driver_id \
-            -cause $cause         \
-            -s     $s             \
-            -p     $p             \
-            -q     $q
-
-        dam detail "Magic Attitude Driver:" $driver_id
-        dam detail "Narrative:"             $narrative
-        dam detail "In Neighborhood:"       $n
-        dam detail "Civilian Group:"        $g
-        dam detail "Concern:"               $c
-
         if {$mode eq "persistent"} {
             set mode P
         } else {
             set mode T
         }
-
-        dam rule MAGIC-3-1 {1} {
+    
+        set fdict [dict create n $n g $g c $c narrative $narrative]
+        set opts [list -cause $cause -s $s -p $p -q $q]
+        dam rule MAGIC-3-1 $driver_id $fdict {*}$opts {1} {
             dam sat $mode $g $c $mag
         }
 
@@ -594,70 +378,7 @@ snit::type mad {
         return
     }
 
-    # mutate coopadjust parmdict
-    #
-    # parmdict    A dictionary of order parameters
-    #
-    #    id               list {f g}
-    #    driver_id        MAD ID
-    #    delta            Delta to the baseline, a floating point value.
-    #
-    # Adjusts a cooperation curve's baseline by a delta given the parms, 
-    # which are presumed to be valid.
-
-    typemethod {mutate coopadjust} {parmdict} {
-        # FIRST, get the dictionary parameters
-        dict with parmdict {}
-        lassign $id f g
-        set n [civgroup getg $f n]
-
-        # NEXT, skip empty civilian groups
-        if {$f in [civgroup names]} {
-            if {[demog getg $f population] == 0} {
-                log normal mad "Skipping coopadjust; group $f is empty"
-                return "# Nothing to undo" 
-            }
-        }
-        
-        # NEXT, get the narrative text
-        set narrative [driver narrative get $driver_id]
-
-        # NEXT, Adjust the baseline
-        aram edit mark
-        aram coop badjust $driver_id $f $g $delta
-        driver inputs incr $driver_id
-
-        # NEXT, send ADJUST-4-1 report
-        set text [edamrule longname ADJUST-4-1]
-        append text "\n\n"
-
-        set fmt "%-22s %s\n"
-
-        append text [format $fmt "Magic Attitude Driver:" $driver_id]
-        append text [format $fmt "Narrative:"             $narrative]
-        append text [format $fmt "Neighborhood:"          $n]
-        append text [format $fmt "Civ Group:"             $f]
-        append text [format $fmt "Frc Group:"             $g]
-
-        set deltaText [format "%.3f" $delta]
-        append text [format $fmt "Delta:"                 $deltaText]
-
-        set reportid \
-            [firings save \
-                 -rtype   DAM                                          \
-                 -subtype ADJUST                                       \
-                 -meta1   ADJUST-4-1                                   \
-                 -title   "ADJUST-4-1: [edamrule longname ADJUST-4-1]" \
-                 -text    $text]
-
-        # NEXT, notify application
-        notifier send ::mad <Coop> update $id
-
-        # NEXT, Return the undo command
-        return [mytypemethod UndoAdjust $driver_id $reportid <Coop> $id]
-    }
-
-    # mutate coopinput parmdict
+    # mutate coop parmdict
     #
     # parmdict    A dictionary of order parameters
     #
@@ -669,7 +390,7 @@ snit::type mad {
     #
     # Makes the MAGIC-4-1 rule fire for the given input.
     
-    typemethod {mutate coopinput} {parmdict} {
+    typemethod {mutate coop} {parmdict} {
         # FIRST, get the dict parameters
         dict with parmdict {}
         set n [civgroup getg $f n]
@@ -677,7 +398,7 @@ snit::type mad {
         # NEXT, skip empty civilian groups
         if {$f in [civgroup names]} {
             if {[demog getg $f population] == 0} {
-                log normal mad "Skipping coopinput; group $f is empty"
+                log normal mad "Skipping coop; group $f is empty"
                 return
             }
         }
@@ -694,51 +415,20 @@ snit::type mad {
             set cause ""
         }
 
-        dam ruleset MAGIC $driver_id \
-            -cause $cause            \
-            -s     $s                \
-            -p     $p                \
-            -q     $q
-
-        dam detail "Magic Attitude Driver:" $driver_id
-        dam detail "Narrative:"             $narrative
-        dam detail "In Neighborhood:"       $n
-        dam detail "Civilian Group:"        $f
-        dam detail "Force Group:"           $g
-
         if {$mode eq "persistent"} {
             set mode P
         } else {
             set mode T
         }
 
-        dam rule MAGIC-4-1 {1} {
+        set fdict [dict create n $n f $f g $g narrative $narrative]
+        set opts [list -cause $cause -s $s -p $p -q $q]
+        dam rule MAGIC-4-1 $driver_id $fdict {*}$opts {1} {
             dam coop $mode $f $g $mag
         }
 
         # NEXT, cannot be undone.
         return
-    }
-
-
-    #-------------------------------------------------------------------
-    # Helpers Methods and Procs
-
-    # UndoAdjust driver_id reportid event id
-    #
-    # driver_id  - The driver_id for the adjustment
-    # reportid   - The ID of the rule firing report.
-    # event      - Notifier event ID
-    # id         - Record ID, e.g., {$g $c}
-    #
-    # Undoes an attitude adjustment.
-
-    typemethod UndoAdjust {driver_id reportid event id} {
-        aram edit undo
-        firings delete $reportid
-        driver inputs incr $driver_id -1
-
-        notifier send ::mad $event update $id
     }
 
     #------------------------------------------------------------------
@@ -894,41 +584,11 @@ order define MAD:UPDATE {
     setundo [join $undo \n]
 }
 
-# MAD:HREL:ADJUST
-#
-# Adjusts a horizontal relationship curve's baseline by some delta.
-
-order define MAD:HREL:ADJUST {
-    title "Magic Adjust Horizontal Relationship Baseline"
-    options -sendstates {PAUSED TACTIC}
-
-    form {
-        rcc "Curve:" -for id
-        key id -table gui_uram_hrel -keys {f g} -labels {"Of" "With"}
-
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
-
-        rcc "Delta:" -for delta
-        text delta
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare id        -toupper -required -type hrel
-    prepare driver_id          -required -type mad
-    prepare delta     -num     -required -type snit::double
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    setundo [mad mutate hreladjust [array get parms]]
-}
-
-# MAD:HREL:INPUT
+# MAD:HREL
 #
 # Enters a magic horizontal relationship input.
 
-order define MAD:HREL:INPUT {
+order define MAD:HREL {
     title "Magic Horizontal Relationship Input"
     options -sendstates {PAUSED TACTIC}
 
@@ -968,46 +628,16 @@ order define MAD:HREL:INPUT {
     returnOnError -final
 
     # NEXT, modify the curve
-    mad mutate hrelinput [array get parms]
+    mad mutate hrel [array get parms]
 
     return
 }
 
-# MAD:VREL:ADJUST
-#
-# Adjusts a vertical relationship curve's baseline by some delta.
-
-order define MAD:VREL:ADJUST {
-    title "Magic Adjust Vertical Relationship Baseline"
-    options -sendstates {PAUSED TACTIC}
-
-    form {
-        rcc "Curve:" -for id
-        key id -table gui_uram_vrel -keys {g a} -labels {"Of" "With"}
-
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
-
-        rcc "Delta:" -for delta
-        text delta
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare id             -toupper -required -type vrel
-    prepare driver_id               -required -type mad
-    prepare delta     -num -toupper -required -type snit::double
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    setundo [mad mutate vreladjust [array get parms]]
-}
-
-# MAD:VREL:INPUT
+# MAD:VREL
 #
 # Enters a magic vertical relationship input.
 
-order define MAD:VREL:INPUT {
+order define MAD:VREL {
     title "Magic Vertical Relationship Input"
     options -sendstates {PAUSED TACTIC}
 
@@ -1039,46 +669,16 @@ order define MAD:VREL:INPUT {
     returnOnError -final
 
     # NEXT, modify the curve
-    mad mutate vrelinput [array get parms]
+    mad mutate vrel [array get parms]
 
     return
 }
 
-# MAD:SAT:ADJUST
-#
-# Adjusts a satisfaction curve's baseline by some delta.
-
-order define MAD:SAT:ADJUST {
-    title "Magic Adjust Satisfaction Baseline"
-    options -sendstates {PAUSED TACTIC}
-
-    form {
-        rcc "Curve:" -for id
-        key id -table gui_uram_sat -keys {g c} -labels {"Grp" "Con"}
-
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
-
-        rcc "Delta:" -for delta
-        text delta
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare id         -toupper -required -type sat
-    prepare driver_id           -required -type mad
-    prepare delta      -num     -required -type snit::double
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    setundo [mad mutate satadjust [array get parms]]
-}
-
-# MAD:SAT:INPUT
+# MAD:SAT
 #
 # Enters a magic satisfaction input.
 
-order define MAD:SAT:INPUT {
+order define MAD:SAT {
     title "Magic Satisfaction Input"
     options -sendstates {PAUSED TACTIC}
 
@@ -1111,47 +711,17 @@ order define MAD:SAT:INPUT {
 
     # NEXT, modify the curve
     # TBD: Need to support undo
-    mad mutate satinput [array get parms]
+    mad mutate sat [array get parms]
 
     return
 }
 
 
-# MAD:COOP:ADJUST
-#
-# Adjusts a cooperation curve's baseline by some delta.
-
-order define MAD:COOP:ADJUST {
-    title "Magic Adjust Cooperation Baseline"
-    options -sendstates {PAUSED TACTIC}
-
-    form {
-        rcc "Curve:" -for id
-        key id -table gui_uram_coop -keys {f g} -labels {"Of" "With"}
-
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
-
-        rcc "Delta:" -for delta
-        text delta
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare id        -toupper -required -type coop
-    prepare driver_id          -required -type mad
-    prepare delta     -num     -required -type snit::double
-
-    returnOnError -final
-
-    # NEXT, modify the curve
-    setundo [mad mutate coopadjust [array get parms]]
-}
-
-# MAD:COOP:INPUT
+# MAD:COOP
 #
 # Enters a magic cooperation input.
 
-order define MAD:COOP:INPUT {
+order define MAD:COOP {
     title "Magic Cooperation Input"
     options -sendstates {PAUSED TACTIC}
 
@@ -1183,7 +753,7 @@ order define MAD:COOP:INPUT {
     returnOnError -final
 
     # NEXT, modify the curve
-    mad mutate coopinput [array get parms]
+    mad mutate coop [array get parms]
 
     return
 }

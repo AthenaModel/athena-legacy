@@ -186,15 +186,14 @@ CREATE TABLE drivers (
     -- driver: an event, situation, or magic driver.  Drivers are
     -- identified by a unique integer ID.
     --
-    -- For some driver types, the driver is associated with a signature
+    -- For most driver types, the driver is associated with a signature
     -- that is unique for that driver type.  This allows the rule set to
     -- retrieve the driver ID given the driver type and signature.
 
     driver_id INTEGER PRIMARY KEY,  -- Integer ID
     dtype     TEXT,                 -- Driver type (usually a rule set name)
     signature TEXT,                 -- Signature, by driver type.
-    narrative TEXT,                 -- Narrative text
-    inputs    INTEGER DEFAULT 0     -- Number of inputs for this driver.
+    narrative TEXT                  -- Narrative text
 );
 
 CREATE INDEX drivers_signature_index ON drivers(dtype,signature);
@@ -229,6 +228,66 @@ SELECT M.driver_id AS driver_id,
        M.q         AS q
 FROM mads_t  AS M
 JOIN drivers AS D USING (driver_id);
+
+------------------------------------------------------------------------
+-- RULE FIRING HISTORY
+
+CREATE TABLE rule_firings (
+    -- Historical data about rule firings, used for later display.
+
+    firing_id INTEGER PRIMARY KEY,  -- Integer ID
+    t         INTEGER,              -- Sim time of rule firing, in ticks.
+    driver_id INTEGER,              -- Driver ID
+    ruleset   TEXT,                 -- Rule Set name (same as drivers.dtype)
+    rule      TEXT,                 -- Rule name
+    fdict     TEXT                  -- Dictionary of ruleset-specific data.
+);
+
+CREATE TABLE rule_inputs (
+    -- Historical data about rule inputs, used for later display
+    -- Theoretically, the sim time t column is not needed, but it makes
+    -- purging the data easier.
+    --
+    -- This table includes the attitude curve indices for all four kinds
+    -- of curve:
+    --
+    --     coop: (f,g) where f is a civilian group and g is a force group
+    --     hrel: (f,g) where f and g are groups
+    --     sat:  (g,c) where g is a civilian group and c is a concern
+    --     vrel: (g,a) where g is a group and a is an actor
+    --
+    -- Index columns which do not apply to a particular attitude type will
+    -- be NULL.
+    --
+    -- The s, p, and q columns apply only to coop and sat inputs, and will
+    -- be NULL for hrel and vrel inputs.
+    --
+    -- The "note" column is used by rule sets where a single rule is
+    -- implemented as a look-up table, and the specific case is not
+    -- obvious from the rule_firings.fdict.  The "note" will identify
+    -- which case applied.
+
+    firing_id INTEGER,  -- The input's rule firing
+    input_id  INTEGER,  -- Input no. for this rule firing
+    t         INTEGER,  -- Sim time of rule firing.
+    atype     TEXT,     -- Attitude type, coop, hrel, sat, vrel
+    mode      TEXT,     -- P, T (persistent, transient)
+    f         TEXT,     -- Group f (coop, vrel)
+    g         TEXT,     -- Group g (coop, hrel, sat)
+    c         TEXT,     -- Concern c (sat)
+    a         TEXT,     -- Actor a (vrel)
+    mag       DOUBLE,   -- Numeric magnitude
+    cause     TEXT,     -- Cause name
+    s         DOUBLE,   -- Here effects multiplier
+    p         DOUBLE,   -- Near effects multiplier
+    q         DOUBLE,   -- Far effects multiplier
+    note      TEXT,     -- Note on this input
+
+    PRIMARY KEY (firing_id, input_id)
+);
+
+
+
 
 
 ------------------------------------------------------------------------

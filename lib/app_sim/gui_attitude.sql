@@ -242,14 +242,16 @@ SELECT M.driver_id                         AS driver_id,
        format('%5.3f',M.s)                 AS s,
        format('%5.3f',M.p)                 AS p,
        format('%5.3f',M.q)                 AS q,
-       D.inputs                            AS inputs
-FROM mads    AS M
-JOIN drivers AS D USING (driver_id);
+       count(R.firing_id)                  AS firings
+FROM mads         AS M
+JOIN drivers      AS D USING (driver_id)
+LEFT OUTER JOIN rule_firings AS R USING (driver_id)
+GROUP BY driver_id;
 
 -- A gui_mads subview: MADs for which no inputs have yet been given 
 -- to URAM.
 CREATE TEMPORARY VIEW gui_mads_initial AS
-SELECT * FROM gui_mads WHERE inputs = 0;
+SELECT * FROM gui_mads WHERE firings = 0;
 
 
 -----------------------------------------------------------------------

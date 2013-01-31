@@ -57,6 +57,8 @@ snit::type scenario {
         hist_volatility
         hist_vrel
         reports
+        rule_firings
+        rule_inputs
         sigevents
         sigevent_tags
         ucurve_adjustments_t
@@ -92,7 +94,6 @@ snit::type scenario {
             -explaincmd [mytypemethod ExplainCmd]
         set rdb ::rdb
 
-        rdb register ::dam
         rdb register ::service
 
         # NEXT, monitor tables.
@@ -529,8 +530,9 @@ snit::type scenario {
 
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
-            DELETE FROM reports WHERE time > $hist_t;
             DELETE FROM ucurve_contribs_t WHERE t > $t;
+            DELETE FROM rule_firings WHERE t > $t;
+            DELETE FROM rule_inputs WHERE t > $t;
         }
 
         hist purge $hist_t

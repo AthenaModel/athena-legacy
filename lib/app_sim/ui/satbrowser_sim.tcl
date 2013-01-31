@@ -77,7 +77,7 @@ snit::widgetadaptor satbrowser_sim {
             -command [mymethod InputForSelected]
 
         cond::availableSingle control $inputbtn \
-            order   MAD:SAT:INPUT               \
+            order   MAD:SAT                     \
             browser $win
 
         pack $inputbtn  -side left
@@ -114,7 +114,7 @@ snit::widgetadaptor satbrowser_sim {
         set id [lindex [$hull uid curselection] 0]
         lassign $id g c
 
-        order enter MAD:SAT:INPUT g $g c $c
+        order enter MAD:SAT g $g c $c
     }
 }
 

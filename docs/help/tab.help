@@ -1401,7 +1401,7 @@ page /tab/attitudes/hrel simulation "HRel browser, Simulation Mode" {
     <<topiclist Control Description>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/hrel/input>> dialog for
+    Pops up the <<cref /order/mad/hrel>> dialog for
     the selected relationship.
     <</topic>>
 
@@ -1578,7 +1578,7 @@ page /tab/attitudes/vrel simulation "VRel browser, Simulation Mode" {
     <<topiclist Control Description>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/vrel/input>> dialog for
+    Pops up the <<cref /order/mad/vrel>> dialog for
     the selected relationship.
     <</topic>>
 
@@ -1710,7 +1710,7 @@ page /tab/attitudes/satisfaction simulation "Satisfaction browser, Simulation Mo
     <<topiclist Control Description>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/sat/input>> dialog for
+    Pops up the <<cref /order/mad/sat>> dialog for
     the selected curve.
     <</topic>>
 
@@ -1825,7 +1825,7 @@ page /tab/attitudes/cooperation simulation "Cooperation browser, Simulation Mode
     <<topiclist Control Description>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/coop/input>> dialog for
+    Pops up the <<cref /order/mad/coop>> dialog for
     the selected curve.
     <</topic>>
 

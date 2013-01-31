@@ -24,53 +24,6 @@ snit::type dam {
     # Make it an ensemble
     pragma -hastypedestroy 0 -hasinstances 0
 
-    #-------------------------------------------------------------------
-    # Type Constructor
-    
-    typeconstructor {
-        # Import needed commands
-        namespace import ::marsutil::* 
-        namespace import ::simlib::*
-        namespace import ::projectlib::* 
-    }
-
-    #-------------------------------------------------------------------
-    # sqlsection(i)
-    #
-    # The following variables and routines implement the module's 
-    # sqlsection(i) interface.
-
-    # sqlsection title
-    #
-    # Returns a human-readable title for the section
-
-    typemethod {sqlsection title} {} {
-        return "dam(sim)"
-    }
-
-    # sqlsection schema
-    #
-    # Returns the section's persistent schema definitions, if any.
-
-    typemethod {sqlsection schema} {} {
-        return ""
-    }
-
-    # sqlsection tempschema
-    #
-    # Returns the section's temporary schema definitions, if any.
-
-    typemethod {sqlsection tempschema} {} {
-        return [readfile [file join $::app_sim_shared::library dam_temp.sql]]
-    }
-
-    # sqlsection functions
-    #
-    # Returns a dictionary of function names and command prefixes
-
-    typemethod {sqlsection functions} {} {
-        return ""
-    }
 
     #-------------------------------------------------------------------
     # Non-Checkpointed Variables
@@ -78,159 +31,104 @@ snit::type dam {
     # These variables are used to accumulate the inputs resulting from
     # a single rule firing.  They do not need to be checkpointed, as
     # they contain only transient data.
+    
+    # Abbreviation Expansions
+    
+    typevariable abbrev -array {
+        P persistent
+        T transient
+    }
 
-    # Standard format for "details"
-    typevariable columns "%-22s %s\n"
-
-    # Input array: data related to the input currently under construction
+    # Input array: data related to the rule currently firing
     #
-    # Set by "ruleset":
+    # driver_id  - The driver ID
+    # firing_id  - The RDB ID of this rule firing
+    # count      - The count of inputs for the given rule
+    # opts       - Dictionary of options and values used as defaults for
+    #              the URAM inputs:
     #
-    # ruleset    The ruleset name
-    #
-    # driver_id  Driver ID
-    #
-    # setdefs    Dictionary of options and values used as defaults for
-    #            the rules:
-    #
-    #            -s         Here effects factor.
-    #            -p         Near effects factor.
-    #            -q         Far effects factor.
-    #            -cause     "Cause" (ecause(n)).
-    #
-    # Set by "rule":
-    #
-    # rule       The rule name
-    # ruledefs   Dictionary of options and values used as defaults by
-    #            the individual cooperation and satisfaction inputs:
-    #
-    #            -s        Here effects factor.
-    #            -p        As in setdefs, above
-    #            -q        As in setdefs, above
-    #            -cause    As in setdefs, above
-    #
-    # title      Title of DAM report
-    # header     Text that goes between the title and the details
-    # details    Text that goes between the header and the effects
+    #               -s       - Here effects factor.
+    #               -p       - Near effects factor.
+    #               -q       - Far effects factor.
+    #               -cause   - "Cause" (ecause(n)).
 
     typevariable input -array {
-        driver_id ""
+        firing_id ""
+        count     ""
+        opts      {}
     }
 
     #-------------------------------------------------------------------
-    # Management
-    #
-    # The following methods are used by the DAM Rules to bracket sets
-    # of related URAM inputs related to a single rule firing.
-    # The commands also save an DAM report.
+    # Public Typemethods
 
-    # ruleset ruleset driver_id options
+    # isactive ruleset
     #
-    # ruleset    - The rule set name
-    # driver_id  - The Driver ID
+    # ruleset - a Rule Set name
     #
-    # Options:
-    #           -cause             Cause, default from parmdb
-    #           -s                 Here effects factor, defaults to 1.0
-    #           -p                 Near effects factor, default from parmdb
-    #           -q                 Far effects factor, default from parmdb
-    #
-    # Begins accumulating data in preparation for a rule firing.
-    # The options establish the defaults for subsequent rule firings.
+    # Returns 1 if the result is active, and 0 otherwise.
 
-    typemethod ruleset {ruleset driver_id args} {
-        # FIRST, save the driver, and the options specific to this method
-        set input(ruleset)   $ruleset
-        set input(driver_id) $driver_id
-        set input(details)  ""
-
-        # NEXT, set the default option values for the rules and 
-        # inputs.
-        set input(setdefs) \
-            [dict create \
-                 -cause       [parmdb get dam.$ruleset.cause]      \
-                 -s           1.0                                  \
-                 -p           [parmdb get dam.$ruleset.nearFactor] \
-                 -q           [parmdb get dam.$ruleset.farFactor]]
-
-        # NEXT, get the passed in options.
-        # TBD: Should throw an error if there are any unknown dict keys.
-        foreach {opt val} $args { 
-            dict set input(setdefs) $opt $val 
-        }
+    typemethod isactive {ruleset} {
+        return [parmdb get dam.$ruleset.active]
     }
 
+    # rule rule driver_id fdict ?options? expr body
+    #
+    # rule       - The rule name
+    # driver_id  - The driver ID
+    # fdict      - The firing dictionary
+    # expr       - The logical expression; the rule fires if it is true
+    # body       - The rule's body
+    #
+    # The options determine the cause and here, near, and far factors
+    # to be used for this rule's URAM inputs.  By default they are read
+    # from the parmdb, based on the rule set name, but they can also be
+    # overridden by individual rules.
+    #
+    #   -cause  - The cause
+    #   -s      - The here factor, 0.0 to 1.0
+    #   -p      - The near factor, 0.0 to 1.0
+    #   -q      - The far factor, 0.0 to 1.0
 
-    # rule rule ?options? expr body
-    #
-    # rule      The rule name
-    # expr      The logical expression
-    # body      The rule's body
-    #
-    # The following options apply globally to this rule firing, and
-    # do not affect specific slope or level inputs.  All but the
-    # first default to the values established by the previous
-    # call to "ruleset":
-    #
-    #           -description    Rule description (defaults to
-    #                           edamrule longname)
-    #
-    # The following options specify defaults for the level and 
-    # slope inputs for this rule firing, but can be overridden by
-    # the individual inputs if need be:
-    #
-    #           -cause          See "ruleset"
-    #           -s              See "ruleset"
-    #           -p              See "ruleset"
-    #           -q              See "ruleset"
-    #
-    # Begins accumulating attitude inputs for a 
-    # given rule firing.
-
-    typemethod rule {rule args} {
-        # FIRST, save the rule and the options specific to this
-        # method:
-        set  input(rule)        $rule
-        set  input(description) [optval args -description]
-
-        if {$input(description) eq ""} {
-            set input(description) [edamrule longname $rule]
-            
-            if {$input(description) eq ""} {
-                error \
-                  "Rule $rule has no description (see projtypes(n) edamrule)"
-            }
-        }
-
-        # NEXT, get the body
+    typemethod rule {rule driver_id fdict args} {
+        # FIRST, get the firing condition and the body
         set expr [lindex $args end-1]
         set body [lindex $args end]
 
-        # NEXT, get the rule set defaults, and save the remaining
-        # options.
-        set opts $input(setdefs)
-
-        # TBD: Should check for invalid options.
-        foreach {opt val} [lrange $args 0 end-2] { 
-            dict set opts $opt $val 
-        }
-
         # NEXT, evaluate the expression.  If it's false, just return.
+        # The rule didn't fire.
         if {![uplevel 1 [list expr $expr]]} {
             return
         }
+        
+        # NEXT, get the ruleset name.
+        set ruleset [lindex [split $rule -] 0]
+        
+        # NEXT, get the default option values
+        set input(opts) [dict create]
+        dict set input(opts) -cause [parmdb get dam.$ruleset.cause]
+        dict set input(opts) -s     1.0
+        dict set input(opts) -p     [parmdb get dam.$ruleset.nearFactor]
+        dict set input(opts) -q     [parmdb get dam.$ruleset.farFactor]
+        
+        # TBD: Could check validity...but this is not a user API
+        foreach {opt val} $args {
+            dict set input(opts) $opt $val 
+        }
 
-        log normal dam "Driver $input(driver_id), $rule $input(description)"
-
-        # NEXT, save the rule defaults for the subsequent inputs.
-        set input(ruledefs) $opts
-
-        # NEXT, initialize the rest of the working data.
-        set input(title)   "$rule: $input(description)"
-        set input(header)  "$input(description)\n"
-
-        # NEXT, clear the temp table used to accumulate the inputs
-        rdb eval {DELETE FROM dam_inputs}
+        # NEXT, Create the rule_firings entry and get the firing_id.
+        rdb eval {
+            INSERT INTO rule_firings(t, driver_id, ruleset, rule, fdict)
+            VALUES(now(),
+                   $driver_id,
+                   $ruleset,
+                   $rule,
+                   $fdict);
+        }
+        
+        # NEXT, initialize the data needed by the input routines
+        set input(driver_id) $driver_id
+        set input(firing_id) [rdb last_insert_rowid]
+        set input(count) 0      
         
         # NEXT, evaluate the body
         set code [catch {uplevel 1 $body} result catchOpts]
@@ -239,85 +137,54 @@ snit::type dam {
         if {$code == 1} {
             return {*}$catchOpts $result
         }
-
-        # NEXT, the input is complete
-        dam Complete
     }
 
     # Complete
     #
     # The inputs are complete; enters them into URAM, and
     # saves an DAM report.
-
+    #
+    # TBD: This is no longer used; it's only here as an example
+    # when the Firings appserver page is designed.
+    
     typemethod Complete {} {
-        # FIRST, submit the accumulated inputs to URAM.
-        array set got {sat 0 coop 0 hrel 0 vrel 0}
-
-        rdb eval {
-            SELECT id, atype, mode, curve, mag, cause, s, p, q
-            FROM dam_inputs
-        } {
-            incr got($atype)
-
-            if {$mag == 0.0} {
-                continue
-            }
-
-            # FIRST, prepare to give the input to URAM
-            if {$atype in {sat coop}} {
-                set opts [list -s $s -p $p -q $q]
-            } else {
-                set opts [list]
-            } 
-
-            if {$mode eq "P"} {
-                set mode "persistent"
-            } else {
-                set mode "transient"
-            }
-
-            # NEXT, increment the inputs count for this driver, and
-            # give the input to URAM 
-            driver inputs incr $input(driver_id)
-            aram $atype $mode $input(driver_id) $cause {*}$curve $mag {*}$opts
-        }
-
         # NEXT, produce the rule firing report.
 
         # Add the gain settings:
 
-        if {$got(hrel)} {
-            set hrelgain [parm get attitude.HREL.gain] 
-
-            append input(header) \
-                [format $columns "Horiz. Rel. Gain:" \
-                     [format %.1f $hrelgain]]
+        if 0 {
+            if {$got(hrel)} {
+                set hrelgain [parm get attitude.HREL.gain] 
+    
+                append input(header) \
+                    [format $columns "Horiz. Rel. Gain:" \
+                         [format %.1f $hrelgain]]
+            }
+    
+            if {$got(vrel)} {
+                set vrelgain [parm get attitude.VREL.gain] 
+    
+                append input(header) \
+                    [format $columns "Vert. Rel. Gain:" \
+                         [format %.1f $vrelgain]]
+            }
+    
+            if {$got(sat)} {
+                set satgain [parm get attitude.SAT.gain] 
+    
+                append input(header) \
+                    [format $columns "Satisfaction Gain:" \
+                         [format %.1f $satgain]]
+            }
+    
+            if {$got(coop)} {
+                set coopgain [parm get attitude.COOP.gain] 
+    
+                append input(header) \
+                    [format $columns "Cooperation Gain:" \
+                         [format %.1f $coopgain]]
+            }
         }
-
-        if {$got(vrel)} {
-            set vrelgain [parm get attitude.VREL.gain] 
-
-            append input(header) \
-                [format $columns "Vert. Rel. Gain:" \
-                     [format %.1f $vrelgain]]
-        }
-
-        if {$got(sat)} {
-            set satgain [parm get attitude.SAT.gain] 
-
-            append input(header) \
-                [format $columns "Satisfaction Gain:" \
-                     [format %.1f $satgain]]
-        }
-
-        if {$got(coop)} {
-            set coopgain [parm get attitude.COOP.gain] 
-
-            append input(header) \
-                [format $columns "Cooperation Gain:" \
-                     [format %.1f $coopgain]]
-        }
-
 
         # Add the details
         if {$input(details) ne ""} {
@@ -349,71 +216,7 @@ snit::type dam {
         
         append input(header) "\nATTITUDE INPUTS\n\n"
         append input(header) $table
-
-        # Save the report to the firings tab
-        firings save                 \
-            -rtype    DAM            \
-            -subtype $input(ruleset) \
-            -meta1   $input(rule)    \
-            -title   $input(title)   \
-            -text    $input(header)
     }
-
-    # get name
-    #
-    # Gets data from the "input" array
-    
-    typemethod get {name} {
-        return $input($name)
-    }
-
-    # details text
-    #
-    # text       Arbitrary text
-    #
-    # Adds the text to the "details" part of the report.  This can be
-    # called any time after "ruleset".
-    
-    typemethod details {text} {
-        append input(details) $text
-    }
-
-    # detail label value
-    #
-    # label      Label text, max 22 characters wide
-    # value      Formatted value
-    #
-    # Adds the labeled value to the "details" part of the report.  This can be
-    # called any time after "ruleset".
-    
-    typemethod detail {label value} {
-        dam details [format $columns $label $value]
-    }
-
-    # detailwrap label value
-    #
-    # label      Label text, max 22 characters wide
-    # value      Formatted value
-    #
-    # Adds the labeled value to the "details" part of the report.  This can be
-    # called any time after "ruleset".  The value will be wrapped and indented.
-    
-    typemethod detailwrap {label value} {
-        set value [textutil::adjust::adjust $value -length 55]
-        set value [textutil::adjust::indent $value [string repeat " " 23] 1]
-        dam details [format $columns $label $value]
-    }
-
-    # isactive ruleset
-    #
-    # ruleset    a Rule Set name
-    #
-    # Returns 1 if the result is active, and 0 otherwise.
-
-    typemethod isactive {ruleset} {
-        return [parmdb get dam.$ruleset.active]
-    }
-
 
     #-------------------------------------------------------------------
     # Attitude Inputs
@@ -433,7 +236,7 @@ snit::type dam {
     typemethod hrel {mode flist glist mag {note ""}} {
         assert {$mode in {P T}}
 
-        array set opts $input(ruledefs)
+        array set opts $input(opts)
 
         # NEXT, get the input gain.
         set gain [parm get attitude.HREL.gain]
@@ -445,13 +248,18 @@ snit::type dam {
                     continue
                 }
 
-                set curve [list $f $g]
-
+                incr input(count)
+                
                 rdb eval {
-                    INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause, note)
-                    VALUES('hrel', $mode, $curve, $mag, $opts(-cause), $note)
+                    INSERT INTO rule_inputs(
+                        firing_id, input_id, t, atype, mode,
+                        f, g, mag, cause, note)
+                    VALUES($input(firing_id), $input(count), now(),
+                           'hrel', $mode, $f, $g, $mag, $opts(-cause), $note)
                 }
+            
+                aram hrel $abbrev($mode) $input(driver_id) $opts(-cause) \
+                    $f $g $mag 
             }
         }
     }
@@ -471,7 +279,7 @@ snit::type dam {
     typemethod vrel {mode glist alist mag {note ""}} {
         assert {$mode in {P T}}
 
-        array set opts $input(ruledefs)
+        array set opts $input(opts)
 
         # NEXT, get the input gain.
         set gain [parm get attitude.VREL.gain]
@@ -479,13 +287,18 @@ snit::type dam {
 
         foreach g $glist {
             foreach a $alist {
-                set curve [list $g $a]
+                incr input(count)
 
                 rdb eval {
-                    INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause, note)
-                    VALUES('vrel', $mode, $curve, $mag, $opts(-cause), $note)
+                    INSERT INTO rule_inputs(
+                        firing_id, input_id, t, atype, mode,
+                        g, a, mag, cause, note)
+                    VALUES($input(firing_id), $input(count), now(),
+                           'vrel', $mode, $g, $a, $mag, $opts(-cause), $note)
                 }
+                
+                aram vrel $abbrev($mode) $input(driver_id) $opts(-cause) \
+                    $g $a $mag 
             }
         }
     }
@@ -514,23 +327,27 @@ snit::type dam {
         }
 
         # NEXT, get the options.
-        array set opts $input(ruledefs)
+        array set opts $input(opts)
 
         # NEXT, get the input gain.
         set gain [parm get attitude.SAT.gain]
 
         foreach g $glist {
             foreach {c mag} $args {
+                incr input(count)
                 let mag {$gain * [qmag value $mag]}
-                
-                set curve [list $g $c]
 
                 rdb eval {
-                    INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause, s, p, q, note)
-                    VALUES('sat', $mode, $curve, $mag, $opts(-cause), 
-                            $opts(-s), $opts(-p), $opts(-q), $note)
+                    INSERT INTO rule_inputs(
+                        firing_id, input_id, t, atype, mode,
+                        g, c, mag, cause, s, p, q, note)
+                    VALUES($input(firing_id), $input(count), now(),
+                           'sat', $mode, $g, $a, $mag, $opts(-cause),
+                           $opts(-s), $opts(-p), $opts(-q), $note)
                 }
+                
+                aram sat $abbrev($mode) $input(driver_id) $opts(-cause) \
+                    $g $c $mag -s $opts(-s) -p $opts(-p) -q $opts(-q)
             }
         }
     }
@@ -549,7 +366,7 @@ snit::type dam {
     typemethod coop {mode flist glist mag {note ""}} {
         assert {$mode in {P T}}
 
-        array set opts $input(ruledefs)
+        array set opts $input(opts)
 
         # NEXT, get the input gain.
         set gain [parm get attitude.COOP.gain]
@@ -557,20 +374,20 @@ snit::type dam {
 
         foreach f $flist {
             foreach g $glist {
-                set curve [list $f $g]
+                incr input(count)
 
                 rdb eval {
-                    INSERT INTO dam_inputs(
-                        atype, mode, curve, mag, cause, s, p, q, note)
-                    VALUES('coop', $mode, $curve, $mag, $opts(-cause), 
-                            $opts(-s), $opts(-p), $opts(-q), $note)
+                    INSERT INTO rule_inputs(
+                        firing_id, input_id, t, atype, mode,
+                        g, c, mag, cause, s, p, q, note)
+                    VALUES($input(firing_id), $input(count), now(),
+                           'coop', $mode, $f, $g, $mag, $opts(-cause),
+                           $opts(-s), $opts(-p), $opts(-q), $note)
                 }
+                
+                aram coop $abbrev($mode) $input(driver_id) $opts(-cause) \
+                    $f $g $mag -s $opts(-s) -p $opts(-p) -q $opts(-q)
             }
         }
     }
 }
-
-
-
-
-

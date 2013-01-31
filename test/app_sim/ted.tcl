@@ -65,6 +65,8 @@ snit::type ted {
         orggroups
         payloads
         personnel_g
+        rule_firings
+        rule_inputs
         sigevents
         sigevent_tags
         sigevent_marks

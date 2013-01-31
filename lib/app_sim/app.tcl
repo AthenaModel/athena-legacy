@@ -218,7 +218,6 @@ snit::type app {
             -logcmd       ::log                  \
             -ordercmd     [myproc AddOrderToCIF]
         scenario  init
-        firings   init
         nbhood    init
         sim       init
 

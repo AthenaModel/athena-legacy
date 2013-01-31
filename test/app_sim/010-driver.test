@@ -52,13 +52,11 @@ driver_id  1000
 dtype      MAGIC
 signature  
 narrative  Adjustments
-inputs     0
 
 driver_id  1001
 dtype      CIVCAS
 signature  DummySig
 narrative  Civilian Casualties
-inputs     0
     }
 
     test create-1.2 {Returns new driver ID} -body {
@@ -151,83 +149,12 @@ driver_id  1000
 dtype      MAGIC
 signature  
 narrative  Attitude Adjustments
-inputs     0
 
 driver_id  1001
 dtype      CIVCAS
 signature  
 narrative  Civilian Casualties
-inputs     0
     }
-
-
-    #-------------------------------------------------------------------
-    # inputs get
-
-    test inputs_get-1.1 {No such driver} -setup {
-        driver create MAGIC "Adjustments"
-        driver create CIVCAS "Civilian Casualties"
-    } -body {
-        driver inputs get NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test inputs_get-1.2 {Valid driver} -setup {
-        driver create MAGIC "Adjustments"
-        driver create CIVCAS "Civilian Casualties"
-    } -body {
-        driver inputs get 1001
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    #-------------------------------------------------------------------
-    # inputs incr
-
-    test inputs_incr-1.1 {No such driver} -setup {
-        driver create MAGIC "Adjustments"
-        driver create CIVCAS "Civilian Casualties"
-    } -body {
-        driver inputs incr NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Driver does not exist: "NONESUCH"}
-
-    test inputs_incr-2.1 {incr default} -setup {
-        driver create MAGIC "Adjustments"
-        driver create CIVCAS "Civilian Casualties"
-    } -body {
-        driver inputs incr 1000
-        driver inputs get 1000
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test inputs_incr-2.2 {incr by number} -setup {
-        driver create MAGIC "Adjustments"
-        driver create CIVCAS "Civilian Casualties"
-    } -body {
-        driver inputs incr 1000 2
-        driver inputs get 1000
-    } -cleanup {
-        cleanup
-    } -result {2}
-
-    test inputs_incr-2.3 {incr by negative} -setup {
-        driver create MAGIC "Adjustments"
-        driver create CIVCAS "Civilian Casualties"
-    } -body {
-        driver inputs incr 1000
-        driver inputs incr 1000
-        driver inputs incr 1000 -1
-        driver inputs get 1000
-    } -cleanup {
-        cleanup
-    } -result {1}
-
 
 
     #-------------------------------------------------------------------

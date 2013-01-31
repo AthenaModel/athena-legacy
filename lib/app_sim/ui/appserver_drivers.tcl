@@ -51,15 +51,16 @@ appserver module DRIVERS {
     # /drivers:linkdict udict matcharray
     #
     # Returns a /drivers resource as a tcl/linkdict.  Only driver
-    # types with inputs are included.  Does not handle
+    # types for which rules have fired are included.  Does not handle
     # subsets or queries.
 
     proc /drivers:linkdict {udict matchArray} {
         set result [dict create]
 
         rdb eval {
-            SELECT dtype FROM drivers
-            WHERE inputs > 0
+            SELECT DISTINCT dtype
+            FROM drivers
+            JOIN rule_firings USING (driver_id)
             GROUP BY dtype
             ORDER BY dtype
         } {
@@ -117,11 +118,11 @@ appserver module DRIVERS {
             SELECT drivers.driver_id AS driver_id, 
                    dtype, 
                    narrative,
-                   inputs,
                    ts,
                    te
             FROM drivers
-            JOIN temp_report_driver_contribs USING (driver_id);
+            JOIN temp_report_driver_contribs USING (driver_id)
+            GROUP BY driver_id;
         }
 
         # NEXT, produce the query.
@@ -129,7 +130,6 @@ appserver module DRIVERS {
             SELECT driver_id   AS "Driver",
                    dtype       AS "Type",
                    narrative   AS "Narrative",
-                   inputs      AS "No. of Inputs",
                    ts          AS "Start Time",
                    te          AS "End Time"
             FROM temp_report_driver_view

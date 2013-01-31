@@ -122,7 +122,6 @@ snit::type aam {
         rdb eval {
             SELECT n,
                    f,
-                   gtype,
                    total(casualties) AS casualties
             FROM attrit_nf
             JOIN groups ON attrit_nf.f = groups.g
@@ -130,9 +129,6 @@ snit::type aam {
         } row {
             unset -nocomplain row(*)
 
-            # TBD: Consider defining a driver -name, using some kind of
-            # serial number, e.g., "Evt 1" or "Att 1" or "AAM 1"
-            set row(driver_id) [$type GetDriver $row(n) $row(f)]
             aam_rules civsat [array get row]
         }
 
@@ -147,23 +143,10 @@ snit::type aam {
         } row {
             unset -nocomplain row(*)
 
-            # Uses the same driver as for the satisfaction effects.
-            set row(driver_id) [$type GetDriver $row(n) $row(f)]
             aam_rules civcoop [array get row]
         }
     }
     
-    # typemethod GetDriver n f
-    #
-    # n - The neighborhood
-    # f - The civilian group
-    #
-    # Returns the driver ID, using signature "$f".
-    
-    typemethod GetDriver {n f} {
-        driver create CIVCAS "Casualties to group $f in $n" $f
-    }
-
     # ClearAttitudeStatistics
     #
     # Clears the tables used to store attrition for use in

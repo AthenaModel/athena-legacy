@@ -37,7 +37,7 @@ snit::widgetadaptor madbrowser {
         { s         "Here Factor (s)" -sortmode real                   }
         { p         "Near Factor (p)" -sortmode real                   }
         { q         "Far Factor (q)"  -sortmode real                   }
-        { inputs    "Inputs"          -sortmode integer -foreground %D }
+        { firings   "Firings"         -sortmode integer -foreground %D }
     }
 
     #-------------------------------------------------------------------

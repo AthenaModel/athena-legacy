@@ -142,20 +142,19 @@ snit::type control_rules {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # analyze dict
+    # analyze fdict
     #
-    # dict  Dictionary of aggregate event attributes:
+    # fdict  - Dictionary of aggregate event attributes:
     #
-    #       n            The neighborhood in which control shifted.
-    #       a            The actor that lost control, or "" if none.
-    #       b            The actor that gained control, or "" if none.
-    #       driver_id    The driver ID
+    #       n          - The neighborhood in which control shifted.
+    #       a          - The actor that lost control, or "" if none.
+    #       b          - The actor that gained control, or "" if none.
     #
     # Calls CONTROL-1 to assess the satisfaction and cooperation
     # implications of the event.
 
-    typemethod analyze {dict} {
-        log normal controlr "event CONTROL-1 [list $dict]"
+    typemethod analyze {fdict} {
+        log normal controlr "event CONTROL-1 [list $fdict]"
 
         if {![dam isactive CONTROL]} {
             log warning controlr \
@@ -163,17 +162,21 @@ snit::type control_rules {
             return
         }
 
-        set n [dict get $dict n]
-
+        dict get $fdict {}
+        
         # Skip if the neighborhood is empty.
         if {[demog getn $n population] == 0} {
             log normal controlr \
                 "event CONTROL: skipping, nbhood $n is empty." 
             return
         }
+        
+        # NEXT, Get a driver ID for this event with signature $n.
+        set driver_id [driver create CONTROL \
+                           "Shift in control of nbhood $n" $n]
 
-        control_rules CONTROL-1 $dict
-        control_rules CONTROL-2 $dict
+        control_rules CONTROL-1 $driver_id $fdict
+        control_rules CONTROL-2 $driver_id $fdict
     }
 
 
@@ -181,165 +184,124 @@ snit::type control_rules {
     # Rule Set: CONTROL: Shift in neighborhood control.
     #
     # Event.  This rule set determines the effect of a shift in
-    # control of a neighborhood.
+    # control of a neighborhood.  CONTROL-1 handles the satisfaction
+    # and cooperation effects, and CONTROL-2 handles the vertical
+    # relationship effects.
 
+    typemethod CONTROL-1 {driver_id fdict} {
+        dict with fdict {}
 
-    # CONTROL-1 dict
-    #
-    # dict  Dictionary of input parameters
-    #
-    #       n            The neighborhood in which control shifted.
-    #       a            The actor that lost control, or "" if none.
-    #       b            The actor that gained control, or "" if none.
-    #       driver_id    The driver ID
-    #
-    # Assesses the satisfaction and cooperation implications of the
-    # shift in control.
+        set flist [demog gIn $n]
 
-    typemethod CONTROL-1 {dict} {
-        dict with dict {
-            set flist [demog gIn $n]
+        # CONTROL-1-1
+        #
+        # If Actor b has taken control of nbhood n from Actor a,
+        # Then for each CIV pgroup f in the neighborhood
+        dam rule CONTROL-1-1 $driver_id $fdict {
+            $a ne "" && $b ne ""
+        } {
+            foreach f $flist {
+                # FIRST, get the vertical relationships
+                set Vfa [vrel.ga $f $a]
+                set Vfb [vrel.ga $f $b]
 
-            dam ruleset CONTROL $driver_id
+                # NEXT, get the satisfaction effects.
+                let Vdelta {$Vfb - $Vfa}
 
-            dam detail "In Neighborhood:" $n
+                if {$Vdelta > 0.0} {
+                    set sign "+"
+                } elseif {$Vdelta < 0.0} {
+                    set sign "-"
+                } else {
+                    set sign ""
+                }
 
-            # CONTROL-1-1
-            #
-            # If Actor b has taken control of nbhood n from Actor a,
-            # Then for each CIV pgroup f in the neighborhood
-            dam rule CONTROL-1-1 {
-                $a ne "" && $b ne ""
-            } {
-                dam detail "Lost Control:"   $a
-                dam detail "Gained Control:" $b
+                set mag 0
 
-                foreach f $flist {
-                    # FIRST, get the vertical relationships
-                    set Vfa [vrel.ga $f $a]
-                    set Vfb [vrel.ga $f $b]
+                dict for {bound sym} $C11sat {
+                    if {$bound < abs($Vdelta)} {
+                        set mag $sym$sign
+                        break
+                    }
+                }
+                
+                dam sat P $f AUT $mag
 
-                    # NEXT, get the satisfaction effects.
-                    let Vdelta {$Vfb - $Vfa}
+                # NEXT, get the cooperation effects with a's troops
+                set Vfa [qaffinity name $Vfa]
+                set Vfb [qaffinity name $Vfb]
 
-                    if {$Vdelta > 0.0} {
-                        set sign "+"
-                    } elseif {$Vdelta < 0.0} {
-                        set sign "-"
+                dam coop P $f [actor frcgroups $a] \
+                    $C11acoop($Vfa) "a's group, V.fa=$Vfa"
+                dam coop P $f [actor frcgroups $b] \
+                    $C11bcoop($Vfb) "b's group, V.fb=$Vfb"
+            }
+        }
+
+        # CONTROL-1-2
+        #
+        # If Actor a has lost control of nbhood n, which is now
+        # in chaos,
+        # Then for each CIV pgroup f in the neighborhood
+        dam rule CONTROL-1-2 $driver_id $fdict {
+            $a ne "" && $b eq ""
+        } {
+            foreach f $flist {
+                # FIRST, get the vertical relationships
+                set Vsym [qaffinity name [vrel.ga $f $a]]
+
+                dam sat P $f AUT $C12sat($Vsym)
+
+                # NEXT, get the cooperation effects with each
+                # actor's troops
+                foreach actor [actor names] {
+                    set glist [actor frcgroups $actor]
+
+                    if {$actor eq $a} {
+                        set mag $C12acoop($Vsym)
+                        set note "a's group, V.fa=$Vsym"
                     } else {
-                        set sign ""
+                        set Vc [qaffinity name [vrel.ga $f $actor]]
+                        set mag $C12ccoop($Vc)
+                        set note "c's group, V.fc=$Vc"
                     }
 
-                    set mag 0
-
-                    dict for {bound sym} $C11sat {
-                        if {$bound < abs($Vdelta)} {
-                            set mag $sym$sign
-                            break
-                        }
-                    }
-                    
-                    dam sat P $f AUT $mag
-
-                    # NEXT, get the cooperation effects with a's troops
-                    set Vfa [qaffinity name $Vfa]
-                    set Vfb [qaffinity name $Vfb]
-
-                    dam coop P $f [actor frcgroups $a] \
-                        $C11acoop($Vfa) "a's group, V.fa=$Vfa"
-                    dam coop P $f [actor frcgroups $b] \
-                        $C11bcoop($Vfb) "b's group, V.fb=$Vfb"
+                    dam coop P $f $glist $mag $note
                 }
             }
+        }
 
-            # CONTROL-1-2
-            #
-            # If Actor a has lost control of nbhood n, which is now
-            # in chaos,
-            # Then for each CIV pgroup f in the neighborhood
-            dam rule CONTROL-1-2 {
-                $a ne "" && $b eq ""
-            } {
-                dam detail "Lost Control:" $a
+        # CONTROL-1-3
+        #
+        # If Actor b has gained control of nbhood n, which was previously
+        # in chaos,
+        # Then for each CIV pgroup f in the neighborhood
+        dam rule CONTROL-1-3 $driver_id $fdict {
+            $a eq "" && $b ne ""
+        } {
+            foreach f $flist {
+                # FIRST, get the vertical relationships
+                set Vsym [qaffinity name [vrel.ga $f $b]]
 
-                foreach f $flist {
-                    # FIRST, get the vertical relationships
-                    set Vsym [qaffinity name [vrel.ga $f $a]]
+                dam sat P $f AUT $C13sat($Vsym)
 
-                    dam sat P $f AUT $C12sat($Vsym)
-
-                    # NEXT, get the cooperation effects with each
-                    # actor's troops
-                    foreach actor [actor names] {
-                        set glist [actor frcgroups $actor]
-
-                        if {$actor eq $a} {
-                            set mag $C12acoop($Vsym)
-                            set note "a's group, V.fa=$Vsym"
-                        } else {
-                            set Vc [qaffinity name [vrel.ga $f $actor]]
-                            set mag $C12ccoop($Vc)
-                            set note "c's group, V.fc=$Vc"
-                        }
-
-                        dam coop P $f $glist $mag $note
-                    }
-                }
+                # NEXT, get the cooperation effects with actor b's
+                # troops.
+                set glist [actor frcgroups $b]
+                set mag $C13bcoop($Vsym)
+                dam coop P $f $glist $mag "b's group, V.fb=$Vsym"
             }
-
-            # CONTROL-1-3
-            #
-            # If Actor b has gained control of nbhood n, which was previously
-            # in chaos,
-            # Then for each CIV pgroup f in the neighborhood
-            dam rule CONTROL-1-3 {
-                $a eq "" && $b ne ""
-            } {
-                dam detail "Gained Control:" $b
-
-                foreach f $flist {
-                    # FIRST, get the vertical relationships
-                    set Vsym [qaffinity name [vrel.ga $f $b]]
-
-                    dam sat P $f AUT $C13sat($Vsym)
-
-                    # NEXT, get the cooperation effects with actor b's
-                    # troops.
-                    set glist [actor frcgroups $b]
-                    set mag $C13bcoop($Vsym)
-                    dam coop P $f $glist $mag "b's group, V.fb=$Vsym"
-                }
-            }
-
         }
     }
 
-    # CONTROL-2 dict
-    #
-    # dict - Dictionary of input parameters
-    #
-    #   n          -  The neighborhood in which control shifted.
-    #   a          -  The actor that lost control, or "" if none.
-    #   b          -  The actor that gained control, or "" if none.
-    #   driver_id  -  The driver ID
-    #
-    # Assesses the vertical relationship implications of the
-    # shift in control.
-
-    typemethod CONTROL-2 {dict} {
-        set ag [dict get $dict b]
-        set al [dict get $dict a]
+    typemethod CONTROL-2 {driver fdict} {
+        set ag [dict get $fdict b]
+        set al [dict get $fdict a]
 
         set glist [demog gIn [dict get $dict n]]
         set alist [actor names]
 
-        dam ruleset CONTROL [dict get $dict driver_id]
-
-        dam detail "In Neighborhood:" [dict get $dict n]
-        dam detail "Lost control:"    [expr {$al ne "" ? $al : "none"}]
-        dam detail "Gained control:"  [expr {$ag ne "" ? $ag : "none"}]
-
-        dam rule CONTROL-2-1 {1} {
+        dam rule CONTROL-2-1 $driver_id $fdict {1} {
             foreach g $glist {
                 foreach a $alist {
                     # FIRST, get the vertical relationship

@@ -386,12 +386,11 @@ snit::type control_model {
 
 
         # NEXT, invoke the CONTROL rule set for this transition.
-        dict set rdict n $n
-        dict set rdict a $cOld
-        dict set rdict b $cNew
-        dict set rdict driver_id $driver_id
+        dict set fdict n $n
+        dict set fdict a $cOld
+        dict set fdict b $cNew
 
-        control_rules analyze $rdict
+        control_rules analyze $fdict
     }
 
 

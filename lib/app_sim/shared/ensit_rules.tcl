@@ -22,16 +22,6 @@ snit::type ensit_rules {
     pragma -hastypedestroy 0 -hasinstances 0
     
     #-------------------------------------------------------------------
-    # Type Constructor
-    
-    typeconstructor {
-        # Import needed commands
-
-        namespace import ::marsutil::* 
-        namespace import ::marsutil::* ::projectlib::* 
-    }
-
-    #-------------------------------------------------------------------
     # Lookup Tables
 
     # Ensit Rule Subsets
@@ -111,33 +101,6 @@ snit::type ensit_rules {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # setup calltype sit
-    #
-    # calltype  monitor|resolution
-    # sit       Ensit object
-    #
-    # Rule set setup.  This is the default setup; specific rule sets
-    # can override it (but they don't).
-    #
-    # If the affected neighborhood is empty, the rule set won't fire.
-
-    typemethod setup {calltype sit} {
-        set ruleset  [$sit get stype]
-        set n        [$sit get n]
-
-        dam detail "Nbhood Coverage:" \
-            [string trim [percent [$sit get coverage]]]
-
-        if {$calltype eq "resolution"} {
-            set driver_id [$sit get rdriver_id]
-            dam detail "Resolved By:"  [$sit get resolver]
-        } else {
-            set driver_id [$sit get driver_id]
-        }
-
-        dam ruleset $ruleset $driver_id
-    }
-
     # monitor sit
     #
     # sit     Ensit object
@@ -163,11 +126,16 @@ snit::type ensit_rules {
 
         bgcatch {
             # Set up the rule set
-            ensit_rules setup monitor $sit
+            set driver_id [$sit get driver_id]
+            set fdict [dict create]
+            dict set fdict s [$sit get s]
+            dict set fdict n $n
+            dict set fdict inception [$sit get inception]
+            dict set fdict coverage [$sit get coverage]
 
             # Run the monitor rule sets.
             foreach subset $subsets($ruleset.monitor) {
-                ensit_rules $subset $sit
+                ensit_rules $subset $driver_id $fdict
             }
         }
     }
@@ -189,11 +157,16 @@ snit::type ensit_rules {
 
         bgcatch {
             # Set up the rule set
-            ensit_rules setup resolution $sit
+            set driver_id [$sit get rdriver_id]
+            set fdict [dict create]
+            dict set fdict s [$sit get s]
+            dict set fdict n [$sit get n]
+            dict set fdict coverage [$sit get coverage]
+            dict set fdict resolver [$sit get resolver]
 
             # Run the resolve rule sets.
             foreach subset $subsets($ruleset.resolution) {
-                ensit_rules $subset $sit
+                ensit_rules $subset $driver_id $fdict
             }
         }
     }
@@ -204,54 +177,41 @@ snit::type ensit_rules {
     # Environmental Situation: The local food supply has been contaminated.
 
 
-    # BADFOOD-1 sit
-    #
-    # sit  - Ensit object
-    #
-    # On-going situation.
+    typemethod BADFOOD-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list BADFOOD-1 $s]
 
-    typemethod BADFOOD-1 {sit} {
-        log detail envr [list BADFOOD-1 [$sit get s]]
+        set flist [demog gIn $n]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
-
-        dam rule BADFOOD-1-1 {
+        dam rule BADFOOD-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-    \
                 SFT XXXS- \
                 QOL XXL-
         }
 
-        dam rule BADFOOD-1-2 {
+        dam rule BADFOOD-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-    \
                 SFT XXXS- \
                 QOL L-
         }
     }
 
-    # BADFOOD-2 sit
-    #
-    # sit   - Ensit object 
-    #
-    # Situation resolution
+    typemethod BADFOOD-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list BADFOOD-2 $s]
 
-    typemethod BADFOOD-2 {sit} {
-        log detail envr [list BADFOOD-2 [$sit get s]]
+        set flist [demog gIn $n]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
-
-        dam rule BADFOOD-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule BADFOOD-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
@@ -262,26 +222,25 @@ snit::type ensit_rules {
     # Environmental Situation: The local water supply has been contaminated.
  
     # monitor
-    typemethod BADWATER-1 {sit} {
-        log detail envr [list BADWATER-1 [$sit get s]]
+    typemethod BADWATER-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list BADWATER-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule BADWATER-1-1 {
+        dam rule BADWATER-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-    \
                 SFT XXXS- \
                 QOL XXL-
         }
 
-        dam rule BADWATER-1-2 {
+        dam rule BADWATER-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-    \
                 SFT XXXS- \
                 QOL L-
@@ -289,16 +248,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod BADWATER-2 {sit} {
-        log detail envr [list BADWATER-2 [$sit get s]]
+    typemethod BADWATER-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list BADWATER-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule BADWATER-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule BADWATER-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
@@ -309,26 +268,25 @@ snit::type ensit_rules {
     # Environmental Situation: Communications are out in the neighborhood.
  
     # monitor
-    typemethod COMMOUT-1 {sit} {
-        log detail envr [list COMMOUT-1 [$sit get s]]
+    typemethod COMMOUT-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list COMMOUT-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule COMMOUT-1-1 {
+        dam rule COMMOUT-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 SFT L-    \
                 CUL M-    \
                 QOL XXL-
         }
 
-        dam rule COMMOUT-1-2 {
+        dam rule COMMOUT-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 SFT S-    \
                 CUL S-    \
                 QOL XL-
@@ -343,25 +301,24 @@ snit::type ensit_rules {
     # damaged, presumably due to kinetic action.
  
     # monitor
-    typemethod CULSITE-1 {sit} {
-        log detail envr [list CULSITE-1 [$sit get s]]
+    typemethod CULSITE-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list CULSITE-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule CULSITE-1-1 {
+        dam rule CULSITE-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 CUL XXXXL- \
                 QOL XXXS-
         }
 
-        dam rule CULSITE-1-2 {
+        dam rule CULSITE-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 CUL XL-
         }
     }
@@ -372,41 +329,40 @@ snit::type ensit_rules {
     # Environmental Situation: Disaster
 
     # monitor
-    typemethod DISASTER-1 {sit} {
-        log detail envr [list DISASTER-1 [$sit get s]]
+    typemethod DISASTER-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list DISASTER-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule DISASTER-1-1 {
+        dam rule DISASTER-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 SFT XXL-   \
                 QOL XXXXL-
         }
 
-        dam rule DISASTER-1-2 {
+        dam rule DISASTER-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 SFT L-    \
                 QOL XXL-
         }
     }
 
     # resolve
-    typemethod DISASTER-2 {sit} {
-        log detail envr [list DISASTER-2 [$sit get s]]
+    typemethod DISASTER-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list DISASTER-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule DISASTER-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule DISASTER-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
@@ -418,26 +374,25 @@ snit::type ensit_rules {
     # Environmental Situation: General disease due to unhealthy conditions.
  
     # monitor
-    typemethod DISEASE-1 {sit} {
-        log detail envr [list DISEASE-1 [$sit get s]]
+    typemethod DISEASE-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list DISEASE-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule DISEASE-1-1 {
+        dam rule DISEASE-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-    \
                 SFT XXL-  \
                 QOL XXXL-
         }
 
-        dam rule DISEASE-1-2 {
+        dam rule DISEASE-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT S-    \
                 SFT L-    \
                 QOL XL-
@@ -445,16 +400,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod DISEASE-2 {sit} {
-        log detail envr [list DISEASE-2 [$sit get s]]
+    typemethod DISEASE-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list DISEASE-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule DISEASE-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule DISEASE-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT L+
         }
     }
@@ -465,26 +420,25 @@ snit::type ensit_rules {
     # Environmental Situation: Epidemic disease
  
     # monitor
-    typemethod EPIDEMIC-1 {sit} {
-        log detail envr [list EPIDEMIC-1 [$sit get s]]
+    typemethod EPIDEMIC-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list EPIDEMIC-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule EPIDEMIC-1-1 {
+        dam rule EPIDEMIC-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT XXL-   \
                 SFT XL-    \
                 QOL XXXXL-
         }
 
-        dam rule EPIDEMIC-1-2 {
+        dam rule EPIDEMIC-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-    \
                 SFT L-    \
                 QOL XXL-
@@ -492,16 +446,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod EPIDEMIC-2 {sit} {
-        log detail envr [list EPIDEMIC-2 [$sit get s]]
+    typemethod EPIDEMIC-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list EPIDEMIC-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule EPIDEMIC-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule EPIDEMIC-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT M+
         }
     }
@@ -514,41 +468,40 @@ snit::type ensit_rules {
     # Environmental Situation: There is a food shortage in the neighborhood.
  
     # monitor
-    typemethod FOODSHRT-1 {sit} {
-        log detail envr [list FOODSHRT-1 [$sit get s]]
+    typemethod FOODSHRT-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list FOODSHRT-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule FOODSHRT-1-1 {
+        dam rule FOODSHRT-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-  \
                 QOL XL-
         }
 
-        dam rule FOODSHRT-1-2 {
+        dam rule FOODSHRT-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-  \
                 QOL L-
         }
     }
 
     # resolve
-    typemethod FOODSHRT-2 {sit} {
-        log detail envr [list FOODSHRT-2 [$sit get s]]
+    typemethod FOODSHRT-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list FOODSHRT-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule FOODSHRT-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule FOODSHRT-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT L+
         }
     }
@@ -560,41 +513,40 @@ snit::type ensit_rules {
     # Environmental Situation: There is a fuel shortage in the neighborhood.
  
     # monitor
-    typemethod FUELSHRT-1 {sit} {
-        log detail envr [list FUELSHRT-1 [$sit get s]]
+    typemethod FUELSHRT-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list FUELSHRT-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule FUELSHRT-1-1 {
+        dam rule FUELSHRT-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-           \
                 QOL XXXL-
         }
 
-        dam rule FUELSHRT-1-2 {
+        dam rule FUELSHRT-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-  \
                 QOL XL-
         }
     }
 
     # resolve
-    typemethod FUELSHRT-2 {sit} {
-        log detail envr [list FUELSHRT-2 [$sit get s]]
+    typemethod FUELSHRT-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list FUELSHRT-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule FUELSHRT-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule FUELSHRT-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
@@ -606,26 +558,25 @@ snit::type ensit_rules {
     # Environmental Situation: Garbage is piling up in the streets.
  
     # monitor
-    typemethod GARBAGE-1 {sit} {
-        log detail envr [list GARBAGE-1 [$sit get s]]
+    typemethod GARBAGE-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list GARBAGE-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule GARBAGE-1-1 {
+        dam rule GARBAGE-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-   \
                 SFT XL-  \
                 QOL XL-
         }
 
-        dam rule GARBAGE-1-2 {
+        dam rule GARBAGE-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-   \
                 SFT M-   \
                 QOL L-
@@ -633,16 +584,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod GARBAGE-2 {sit} {
-        log detail envr [list GARBAGE-2 [$sit get s]]
+    typemethod GARBAGE-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list GARBAGE-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule GARBAGE-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule GARBAGE-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
@@ -656,26 +607,25 @@ snit::type ensit_rules {
     # possibly toxic substances into the surrounding area.
  
     # monitor
-    typemethod INDSPILL-1 {sit} {
-        log detail envr [list INDSPILL-1 [$sit get s]]
+    typemethod INDSPILL-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list INDSPILL-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule INDSPILL-1-1 {
+        dam rule INDSPILL-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-   \
                 SFT XL-  \
                 QOL XXL-
         }
 
-        dam rule INDSPILL-1-2 {
+        dam rule INDSPILL-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-   \
                 SFT S-   \
                 QOL L-
@@ -683,16 +633,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod INDSPILL-2 {sit} {
-        log detail envr [list INDSPILL-2 [$sit get s]]
+    typemethod INDSPILL-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list INDSPILL-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule INDSPILL-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule INDSPILL-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT M+
         }
     }
@@ -705,26 +655,25 @@ snit::type ensit_rules {
     # there is a minefield in the neighborhood.
  
     # monitor
-    typemethod MINEFIELD-1 {sit} {
-        log detail envr [list MINEFIELD-1 [$sit get s]]
+    typemethod MINEFIELD-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list MINEFIELD-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule MINEFIELD-1-1 {
+        dam rule MINEFIELD-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT XXL-    \
                 SFT XXXXL-  \
                 QOL XXXXL-
         }
 
-        dam rule MINEFIELD-1-2 {
+        dam rule MINEFIELD-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-    \
                 SFT XXL-  \
                 QOL XXL-
@@ -732,16 +681,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod MINEFIELD-2 {sit} {
-        log detail envr [list MINEFIELD-2 [$sit get s]]
+    typemethod MINEFIELD-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list MINEFIELD-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule MINEFIELD-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule MINEFIELD-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT XXL+
         }
     }
@@ -755,41 +704,40 @@ snit::type ensit_rules {
     # no water is available.
  
     # monitor
-    typemethod NOWATER-1 {sit} {
-        log detail envr [list NOWATER-1 [$sit get s]]
+    typemethod NOWATER-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list NOWATER-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule NOWATER-1-1 {
+        dam rule NOWATER-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT XXL-    \
                 QOL XXXXL-
         }
 
-        dam rule NOWATER-1-2 {
+        dam rule NOWATER-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-     \
                 QOL XXXL-
         }
     }
 
     # resolve
-    typemethod NOWATER-2 {sit} {
-        log detail envr [list NOWATER-2 [$sit get s]]
+    typemethod NOWATER-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list NOWATER-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule NOWATER-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule NOWATER-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT M+
         }
     }
@@ -803,26 +751,25 @@ snit::type ensit_rules {
     # in the neighborhood.
  
     # monitor
-    typemethod ORDNANCE-1 {sit} {
-        log detail envr [list ORDNANCE-1 [$sit get s]]
+    typemethod ORDNANCE-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list ORDNANCE-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule ORDNANCE-1-1 {
+        dam rule ORDNANCE-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT XL-    \
                 SFT XXXXL- \
                 QOL XXXL-
         }
 
-        dam rule ORDNANCE-1-2 {
+        dam rule ORDNANCE-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-   \
                 SFT XXL- \
                 QOL XXL-
@@ -830,16 +777,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod ORDNANCE-2 {sit} {
-        log detail envr [list ORDNANCE-2 [$sit get s]]
+    typemethod ORDNANCE-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list ORDNANCE-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule ORDNANCE-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule ORDNANCE-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
@@ -853,26 +800,25 @@ snit::type ensit_rules {
     # fire.
  
     # monitor
-    typemethod PIPELINE-1 {sit} {
-        log detail envr [list PIPELINE-1 [$sit get s]]
+    typemethod PIPELINE-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list PIPELINE-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule PIPELINE-1-1 {
+        dam rule PIPELINE-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-     \
                 SFT S-     \
                 QOL XXXXL-
         }
 
-        dam rule PIPELINE-1-2 {
+        dam rule PIPELINE-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-     \
                 SFT XXS-   \
                 QOL XXL-
@@ -880,16 +826,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod PIPELINE-2 {sit} {
-        log detail envr [list PIPELINE-2 [$sit get s]]
+    typemethod PIPELINE-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list PIPELINE-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule PIPELINE-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule PIPELINE-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
@@ -902,26 +848,25 @@ snit::type ensit_rules {
     # Environmental Situation: Electrical power is off in the local area.
  
     # monitor
-    typemethod POWEROUT-1 {sit} {
-        log detail envr [list POWEROUT-1 [$sit get s]]
+    typemethod POWEROUT-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list POWEROUT-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule POWEROUT-1-1 {
+        dam rule POWEROUT-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-   \
                 SFT M-   \
                 QOL XXL-
         }
 
-        dam rule POWEROUT-1-2 {
+        dam rule POWEROUT-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-   \
                 SFT S-   \
                 QOL L-
@@ -929,16 +874,15 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod POWEROUT-2 {sit} {
-        log detail envr [list POWEROUT-2 [$sit get s]]
+    typemethod POWEROUT-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list POWEROUT-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
 
-        dam rule POWEROUT-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule POWEROUT-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT L+
         }
     }
@@ -951,26 +895,25 @@ snit::type ensit_rules {
     # catch fire.
  
     # monitor
-    typemethod REFINERY-1 {sit} {
-        log detail envr [list REFINERY-1 [$sit get s]]
+    typemethod REFINERY-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list REFINERY-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule REFINERY-1-1 {
+        dam rule REFINERY-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT XXL-   \
                 SFT L-     \
                 QOL XXXXL-
         }
 
-        dam rule REFINERY-1-2 {
+        dam rule REFINERY-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-   \
                 SFT M-   \
                 QOL XXL-
@@ -978,16 +921,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod REFINERY-2 {sit} {
-        log detail envr [list REFINERY-2 [$sit get s]]
+    typemethod REFINERY-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list REFINERY-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule REFINERY-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule REFINERY-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT XL+
         }
     }
@@ -1001,27 +944,26 @@ snit::type ensit_rules {
     # damaged, presumably due to kinetic action.
  
     # monitor
-    typemethod RELSITE-1 {sit} {
-        log detail envr [list RELSITE-1 [$sit get s]]
+    typemethod RELSITE-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list RELSITE-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule RELSITE-1-1 {
+        dam rule RELSITE-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-    \
                 SFT XL-   \
                 CUL XXXL- \
                 QOL L-
         }
 
-        dam rule RELSITE-1-2 {
+        dam rule RELSITE-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT S-   \
                 SFT S-   \
                 CUL XL-  \
@@ -1030,16 +972,16 @@ snit::type ensit_rules {
     }
 
     # resolve
-    typemethod RELSITE-2 {sit} {
-        log detail envr [list RELSITE-2 [$sit get s]]
+    typemethod RELSITE-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list RELSITE-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule RELSITE-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule RELSITE-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT M+
         }
     }
@@ -1051,41 +993,40 @@ snit::type ensit_rules {
     # Environmental Situation: Sewage is pooling in the streets.
  
     # monitor
-    typemethod SEWAGE-1 {sit} {
-        log detail envr [list SEWAGE-1 [$sit get s]]
+    typemethod SEWAGE-1 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list SEWAGE-1 $s]
 
-        set inception [$sit get inception]
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule SEWAGE-1-1 {
+        dam rule SEWAGE-1-1 $driver_id $fdict {
             $inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT L-    \
                 QOL XXXL-
         }
 
-        dam rule SEWAGE-1-2 {
+        dam rule SEWAGE-1-2 $driver_id $fdict {
             !$inception
         } {
-            satinput $flist $cov \
+            satinput $flist $coverage \
                 AUT M-    \
                 QOL XL-
         }
     }
 
     # resolve
-    typemethod SEWAGE-2 {sit} {
-        log detail envr [list SEWAGE-2 [$sit get s]]
+    typemethod SEWAGE-2 {driver_id fdict} {
+        dict with fdict {}
+        log detail envr [list SEWAGE-2 $s]
 
-        set cov       [$sit get coverage]
-        set flist     [demog gIn [$sit get n]]
+        set flist [demog gIn $n]
 
-        dam rule SEWAGE-2-1 {
-            [resolverIsLocal [$sit get resolver]]
+        dam rule SEWAGE-2-1 $driver_id $fdict {
+            [resolverIsLocal $resolver]
         } {
-            satinput $flist $cov  \
+            satinput $flist $coverage  \
                 AUT S+
         }
     }
