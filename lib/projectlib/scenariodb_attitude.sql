@@ -276,6 +276,7 @@ CREATE TABLE rule_inputs (
     g         TEXT,     -- Group g (coop, hrel, sat)
     c         TEXT,     -- Concern c (sat)
     a         TEXT,     -- Actor a (vrel)
+    gain      DOUBLE,   -- Gain on magnitude
     mag       DOUBLE,   -- Numeric magnitude
     cause     TEXT,     -- Cause name
     s         DOUBLE,   -- Here effects multiplier

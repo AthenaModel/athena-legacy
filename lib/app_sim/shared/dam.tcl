@@ -139,85 +139,6 @@ snit::type dam {
         }
     }
 
-    # Complete
-    #
-    # The inputs are complete; enters them into URAM, and
-    # saves an DAM report.
-    #
-    # TBD: This is no longer used; it's only here as an example
-    # when the Firings appserver page is designed.
-    
-    typemethod Complete {} {
-        # NEXT, produce the rule firing report.
-
-        # Add the gain settings:
-
-        if 0 {
-            if {$got(hrel)} {
-                set hrelgain [parm get attitude.HREL.gain] 
-    
-                append input(header) \
-                    [format $columns "Horiz. Rel. Gain:" \
-                         [format %.1f $hrelgain]]
-            }
-    
-            if {$got(vrel)} {
-                set vrelgain [parm get attitude.VREL.gain] 
-    
-                append input(header) \
-                    [format $columns "Vert. Rel. Gain:" \
-                         [format %.1f $vrelgain]]
-            }
-    
-            if {$got(sat)} {
-                set satgain [parm get attitude.SAT.gain] 
-    
-                append input(header) \
-                    [format $columns "Satisfaction Gain:" \
-                         [format %.1f $satgain]]
-            }
-    
-            if {$got(coop)} {
-                set coopgain [parm get attitude.COOP.gain] 
-    
-                append input(header) \
-                    [format $columns "Cooperation Gain:" \
-                         [format %.1f $coopgain]]
-            }
-        }
-
-        # Add the details
-        if {$input(details) ne ""} {
-            append input(header) "\n"
-            append input(header) $input(details)
-        }
-
-        # Add the inputs table to the report.
-        set table \
-            [rdb query {
-                SELECT id,
-                       mode,
-                       atype,
-                       curve,
-                       CASE WHEN cause != '' THEN cause ELSE 'UNIQUE' END,
-                       format('%6.2f', mag),
-                       CASE WHEN s IS NOT NULL
-                       THEN format('%4.2f',s) ELSE 'n/a' END,
-                       CASE WHEN p IS NOT NULL
-                       THEN format('%4.2f',p) ELSE 'n/a' END,
-                       CASE WHEN q IS NOT NULL
-                       THEN format('%4.2f',q) ELSE 'n/a' END,
-                       note
-                FROM dam_inputs
-            } -labels {
-                "Input" "P/T" "Att" "Curve" "Cause" "Mag"
-                "Here" "Near" "Far" "Notes"
-            }]
-        
-        append input(header) "\nATTITUDE INPUTS\n\n"
-        append input(header) $table
-    }
-
     #-------------------------------------------------------------------
     # Attitude Inputs
 
@@ -240,7 +161,8 @@ snit::type dam {
 
         # NEXT, get the input gain.
         set gain [parm get attitude.HREL.gain]
-        let mag {$gain * [qmag value $mag]}
+        set mag [qmag value $mag]
+        let gmag {$gain * $mag}
 
         foreach f $flist {
             foreach g $glist {
@@ -253,13 +175,14 @@ snit::type dam {
                 rdb eval {
                     INSERT INTO rule_inputs(
                         firing_id, input_id, t, atype, mode,
-                        f, g, mag, cause, note)
+                        f, g, gain, mag, cause, note)
                     VALUES($input(firing_id), $input(count), now(),
-                           'hrel', $mode, $f, $g, $mag, $opts(-cause), $note)
+                           'hrel', $mode, $f, $g, $gain, $mag,
+                           $opts(-cause), $note)
                 }
             
                 aram hrel $abbrev($mode) $input(driver_id) $opts(-cause) \
-                    $f $g $mag 
+                    $f $g $gmag 
             }
         }
     }
@@ -283,7 +206,8 @@ snit::type dam {
 
         # NEXT, get the input gain.
         set gain [parm get attitude.VREL.gain]
-        let mag {$gain * [qmag value $mag]}
+        set mag [qmag value $mag]
+        let gmag {$gain * $mag}
 
         foreach g $glist {
             foreach a $alist {
@@ -292,13 +216,14 @@ snit::type dam {
                 rdb eval {
                     INSERT INTO rule_inputs(
                         firing_id, input_id, t, atype, mode,
-                        g, a, mag, cause, note)
+                        g, a, gain, mag, cause, note)
                     VALUES($input(firing_id), $input(count), now(),
-                           'vrel', $mode, $g, $a, $mag, $opts(-cause), $note)
+                           'vrel', $mode, $g, $a, $gain, $mag,
+                           $opts(-cause), $note)
                 }
                 
                 aram vrel $abbrev($mode) $input(driver_id) $opts(-cause) \
-                    $g $a $mag 
+                    $g $a $gmag 
             }
         }
     }
@@ -335,19 +260,20 @@ snit::type dam {
         foreach g $glist {
             foreach {c mag} $args {
                 incr input(count)
-                let mag {$gain * [qmag value $mag]}
+                set mag [qmag value $mag]
+                let gmag {$gain * $mag}
 
                 rdb eval {
                     INSERT INTO rule_inputs(
                         firing_id, input_id, t, atype, mode,
-                        g, c, mag, cause, s, p, q, note)
+                        g, c, gain, mag, cause, s, p, q, note)
                     VALUES($input(firing_id), $input(count), now(),
-                           'sat', $mode, $g, $a, $mag, $opts(-cause),
+                           'sat', $mode, $g, $c, $gain, $mag, $opts(-cause),
                            $opts(-s), $opts(-p), $opts(-q), $note)
                 }
                 
                 aram sat $abbrev($mode) $input(driver_id) $opts(-cause) \
-                    $g $c $mag -s $opts(-s) -p $opts(-p) -q $opts(-q)
+                    $g $c $gmag -s $opts(-s) -p $opts(-p) -q $opts(-q)
             }
         }
     }
@@ -370,7 +296,8 @@ snit::type dam {
 
         # NEXT, get the input gain.
         set gain [parm get attitude.COOP.gain]
-        let mag {$gain * [qmag value $mag]}
+        set mag [qmag value $mag]
+        let gmag {$gain * $mag}
 
         foreach f $flist {
             foreach g $glist {
@@ -379,14 +306,14 @@ snit::type dam {
                 rdb eval {
                     INSERT INTO rule_inputs(
                         firing_id, input_id, t, atype, mode,
-                        g, c, mag, cause, s, p, q, note)
+                        f, g, gain, mag, cause, s, p, q, note)
                     VALUES($input(firing_id), $input(count), now(),
-                           'coop', $mode, $f, $g, $mag, $opts(-cause),
+                           'coop', $mode, $f, $g, $gain, $mag, $opts(-cause),
                            $opts(-s), $opts(-p), $opts(-q), $note)
                 }
                 
                 aram coop $abbrev($mode) $input(driver_id) $opts(-cause) \
-                    $f $g $mag -s $opts(-s) -p $opts(-p) -q $opts(-q)
+                    $f $g $gmag -s $opts(-s) -p $opts(-p) -q $opts(-q)
             }
         }
     }

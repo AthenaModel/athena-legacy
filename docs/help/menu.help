@@ -207,10 +207,6 @@ menuitem "View/Bookmarks" {
     Selecting this time shows or hides the <<tab Bookmarks>>.
 }
 
-menuitem "View/Rule Firings" {
-    Selecting this item shows or hides the <<tab Firings>>.
-}
-
 menuitem "View/Order History" {
     Selecting this item shows or hides the <<tab Orders>>.
 }

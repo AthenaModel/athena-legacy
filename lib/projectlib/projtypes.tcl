@@ -177,11 +177,6 @@ snit::type ::projectlib::typewrapper {
 
 # DAM Rules
 ::marsutil::enum ::projectlib::edamrule {
-    ADJUST-1-1    "Magic Horizontal Relationship Baseline Adjustment"
-    ADJUST-2-1    "Magic Vertical Relationship Baseline Adjustment"
-    ADJUST-3-1    "Magic Satisfaction Baseline Adjustment"
-    ADJUST-4-1    "Magic Cooperation Baseline Adjustment"
-
     BADFOOD-1-1   "Food supply begins to be contaminated"
     BADFOOD-1-2   "Food supply continues to be contaminated"
     BADFOOD-2-1   "Food contamination is resolved by locals"
@@ -334,7 +329,6 @@ snit::type ::projectlib::typewrapper {
 
 # DAM Rule Sets
 ::marsutil::enum ::projectlib::edamruleset {
-    ADJUST    "Magic Adjustment"
     BADFOOD   "Contaminated Food Supply"
     BADWATER  "Contaminated Water Supply"
     CHKPOINT  "Checkpoint/Control Point"
@@ -417,6 +411,7 @@ snit::type ::projectlib::typewrapper {
     HUNGER    "Hunger"
     INDSPILL  "Industrial Spill"
     IOM       "Info Ops Message"
+    MAGIC     "Magic Input"
     MOOD      "Mood"
     ORDNANCE  "Unexploded Ordnance/Minefield"
     ORGCAS    "Organization Casualties"
