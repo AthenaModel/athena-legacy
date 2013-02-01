@@ -144,7 +144,6 @@ rdriver_id  0
     }
 
     test create-1.3 {If created while PAUSED, ts = now+1} -setup {
-        parm set econ.disable yes
         ted create JOE NB1 BLUE SHIA
     } -body {
         ted lock
@@ -867,7 +866,6 @@ id t etype            s
 
 
     test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -setup {
-        parm set econ.disable yes
         parm set dam.UNEMP.active no
         parm set dam.MOOD.active no
         ted create NB1 BLUE SHIA

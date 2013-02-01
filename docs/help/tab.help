@@ -2397,10 +2397,10 @@ tab "Econ/SAM" {
     the feedstock per unit of black market product (for example, if it takes 
     1.05 tons of poppies to make 1 ton of opium, then this value would be 
     1.05), the maximum amount of black market feedstock available, the 
-    number of consumers and the number of subsisters that the data in the 
-    SAM is based upon and the subsistence farmer wage, which is also the 
-    poverty level.  The subsistence wage is used to compute the contribution 
-    of subsistence agriculture to the GDP.<p>
+    number of consumers, the base case unemployment rate and the number of
+    subsisters that the data in the SAM is based upon and the subsistence 
+    farmer wage, which is also the poverty level.  The subsistence wage is
+    used to compute the contribution of subsistence agriculture to the GDP.<p>
 
     When Athena is locked, all the cells on the SAM remain visible, but are
     no longer editable unless the user returns to the <<term prep>> state.
@@ -2439,7 +2439,7 @@ tab "Econ/SAM" {
     The <b>Size Outputs</b> section contains values that aid the analyst in 
     determining the overall size of the economy given the inputs provided.
     These outputs include the base value for GDP,
-    the size of the labor force, the per capita demand for goods and the 
+    the per capita demand for goods and the 
     base contribution to GDP that subsistence agriculture makes.<p>
 
     The <b>Exports/Foreign Aid Outputs</b> section contains values from the
@@ -2481,6 +2481,18 @@ tab "Econ/Overview" {
     not have product (actors) or do not produce a product that matters to
     the local economy (region and world).<p>
 
+    There are multiple views of the economy available which can be selected
+    in the "Views:" dropdown menu at the upper right.  By default, the fully
+    constrained economy is shown.  This view reflects any labor and goods
+    constraints and the effects of security on the population's willingness
+    to go to work or go out shopping.  The other views available are
+    a capacity constrained view, which reflects the effects of only labor and
+    goods capacity, ignoring the effects of security, an unconstrained view
+    which ignores any capacity constraints and assumes everyone that can work
+    is working (except for the "between jobs" turbulence) and, lastly, a view
+    of the values calibrated by Athena.  The calibrated values are generally 
+    used by developers for debugging purposes.<p>
+
     Below the "Dollars" and "Quantities" matrices are inputs to the economy
     that size it and the most salient outputs.<p>
 
@@ -2495,7 +2507,7 @@ tab "Econ/Overview" {
     computed by how much money the actors are receiving from skimming off
     foreign aid to the region appears next. Increasing the amount of 
     income from graft in the actor definitions will increase this factor.
-    Lastly, the amount of remittances as specified in the 
+    Lastly, the amount of remittances as computed by the 
     <<cref /tab/econ/sam>> appears.<p>
 
     The most salient outputs consist of the Gross Domestic Product (GDP),

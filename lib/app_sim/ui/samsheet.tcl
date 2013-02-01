@@ -134,6 +134,9 @@ snit::widget samsheet {
         mode BASE
     }
 
+    # Dictionary of views available for the SAM sheet.
+    variable vdict
+
     #-------------------------------------------------------------------
     # Options
     #
@@ -142,8 +145,11 @@ snit::widget samsheet {
     delegate option * to hull
  
     # The economic model's SAM cellmodel(n).
-
     component sam
+
+    # The toolbar and it's components
+    component toolbar
+    component vmenu
 
     # The cmsheet(n) widgets used to display the SAM data.
 
@@ -166,6 +172,12 @@ snit::widget samsheet {
         # FIRST, get the options.
         $self configurelist $args
 
+        # NEXT the dropdown menu of views and their keys
+        set vdict [dict create       \
+            "Base SAM"        BASE  \
+            "Input Flows"     INPUT \
+            "Balancing Flows" BAL]
+
         # NEXT, get a copy of the sam and solve it
         set sam [econ sam 1]
         $sam solve
@@ -184,13 +196,9 @@ snit::widget samsheet {
         ttk::scrollbar $win.yscroll \
             -command [list $win.h yview]
 
-        install hbar using ttk::frame $win.h.hbar
+        install toolbar using ttk::frame $win.h.toolbar
 
-        $self AddMode INPUT "Input Flows"
-        $self AddMode BAL   "Balancing Flows"
-        $self AddMode BASE  "Base SAM"
-
-        set info(mode) BASE 
+        $self CreateViewMenu $win.h.toolbar
 
         # NEXT grid the html frame and scrollbar
         # Note that the widgets in the html frame are layed out once
@@ -207,6 +215,9 @@ snit::widget samsheet {
         notifier bind ::sim  <State>       $self [mymethod SimState]
         notifier bind ::econ <SamUpdate>   $self [mymethod SamUpdate]
         notifier bind ::econ <SyncSheet>   $self [mymethod SyncSheet]
+
+        # NEXT, populate the HTML frame based on view
+        $self DisplayCurrentView
     }
 
     # Constructor: Destructor
@@ -217,22 +228,29 @@ snit::widget samsheet {
         notifier forget $self
     }
 
-    # AddMode mode lbl
+    # CreateViewMenu m
     #
-    # Adds a radio button to the set of radio buttons that allow the user
-    # to switch between input flows, balancing flows and base SAM views
-    # of the input data. 
+    # w  - window in which the menu resides
+    #
+    # This method creates the drop down list of views available
+    # for the cmsheet(n).
 
-    method AddMode {mode lbl} {
-        set btn [string tolower $mode]
+    method CreateViewMenu {w} {
+        # FIRST, the label
+        ttk::label $w.viewlabel \
+            -text "View:"
 
-        ttk::radiobutton $win.h.hbar.$btn  \
-            -variable [myvar info(mode)]   \
-            -text     $lbl                 \
-            -value    $mode                \
-            -command  [mymethod DisplayMode $mode]
+        # NEXT, create the menu with an appropriate width
+        install vmenu using menubox $w.vmenu                   \
+            -width   [expr {[lmaxlen [dict keys $vdict]] + 2}] \
+            -values  [dict keys $vdict]                        \
+            -command [mymethod DisplayCurrentView] 
 
-        pack $win.h.hbar.$btn -side left 
+        pack $vmenu       -side right -fill y -padx {2 0}
+        pack $w.viewlabel -side right -fill y -padx {2 0}
+
+        # NEXT, set the menu to the first one in the dict
+        $vmenu set [lindex [dict keys $vdict] 0]
     }
 
     # CreateShapeMatrix w
@@ -410,7 +428,7 @@ snit::widget samsheet {
             "Feedstock per Unit Product"
             "Max Feedstock Avail."
             "Base Consumers"
-            "Base Unemployed"
+            "Base Unemployment Rate"
             "Base Subsisters"
             "Subsistence Wage"
             "REM Change Rate"
@@ -421,7 +439,7 @@ snit::widget samsheet {
             ""
             "tonnes/year"
             ""
-            "work-yrs/yr"
+            "%"
             ""
             "$/year"
             "%/year"
@@ -432,7 +450,7 @@ snit::widget samsheet {
         $inputs mapcell 1,1 AF.world.black e
         $inputs mapcell 2,1 MF.world.black e
         $inputs mapcell 3,1 BaseConsumers  e
-        $inputs mapcell 4,1 BaseUnemp      e
+        $inputs mapcell 4,1 BaseUR         e
         $inputs mapcell 5,1 BaseSubsisters e
         $inputs mapcell 6,1 BaseSubWage    e
         $inputs mapcell 7,1 REMChangeRate  e        \
@@ -474,7 +492,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         disabled                   \
-            -rows          5                          \
+            -rows          3                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -485,26 +503,20 @@ snit::widget samsheet {
         # cells
         $sizeout textcol 0,0 {
             "Base GDP"
-            "Base Labor Force"
-            "Base Unemp. Rate"
             "Base Per Cap. Demand"
             "Base Sub. Agriculture"
         }
 
         $sizeout textcol 0,2 {
             "$/year"
-            "work-years/year"
-            "%"
             "goodsBKT/year"
             "$/year"
         } units -anchor w -relief flat
 
         # NEXT, map the cells and set the label widths
         $sizeout mapcell  0,1 BaseGDP       r -background $color(r)
-        $sizeout mapcell  1,1 BaseCAP.pop   r -background $color(r)
-        $sizeout mapcell  2,1 BaseUR        r -background $color(r)
-        $sizeout mapcell  3,1 BA.goods.pop  r -background $color(r)
-        $sizeout mapcell  4,1 BaseSA        r -background $color(r)
+        $sizeout mapcell  1,1 BA.goods.pop  r -background $color(r)
+        $sizeout mapcell  2,1 BaseSA        r -background $color(r)
 
         $sizeout width 0 20
         $sizeout width 2 20
@@ -550,11 +562,11 @@ snit::widget samsheet {
         } units -anchor w -relief flat
 
         # NEXT, map the cells and set the label widths
-        $exfaout mapcell  0,1 FAA           r -background $color(r)
-        $exfaout mapcell  1,1 FAR           r -background $color(r)
-        $exfaout mapcell  2,1 EXPORTS.goods r -background $color(r)
-        $exfaout mapcell  3,1 EXPORTS.black r -background $color(r)
-        $exfaout mapcell  4,1 EXPORTS.pop   r -background $color(r)
+        $exfaout mapcell  0,1 BFAA           r -background $color(r)
+        $exfaout mapcell  1,1 BFAR           r -background $color(r)
+        $exfaout mapcell  2,1 BEXPORTS.goods r -background $color(r)
+        $exfaout mapcell  3,1 BEXPORTS.black r -background $color(r)
+        $exfaout mapcell  4,1 BEXPORTS.pop   r -background $color(r)
 
         $exfaout width 0 20
         $exfaout width 2 15
@@ -607,14 +619,15 @@ snit::widget samsheet {
 
     # DisplayMode mode
     #
-    # mode - The new mode to display, one of "INPUT", "BAL" or "BASE"
-    #
     # INPUT - the money flows input by the analyst, including the actors
     #         sector
     # BAL   - the balancing flows computed from input values
     # BASE  - the base case SAM; sum of INPUT and BAL matrices
 
-    method DisplayMode {mode} {
+    method DisplayCurrentView {} {
+        # FIRST, get the mode
+        set mode [dict get $vdict [$vmenu get]]
+
         # FIRST, get some important values
         set sectors [$sam index i]
         set ns      [llength $sectors]
@@ -691,6 +704,9 @@ snit::widget samsheet {
         } else {
             error "Invalid mode for samsheet: $mode"
         }
+
+        # NEXT, take focus off the menu
+        focus $win
     }
 
 
@@ -814,8 +830,7 @@ snit::widget samsheet {
         # FIRST, get the state
         if {[sim state] eq "PREP"} {
 
-            set info(mode) INPUT
-            $self DisplayMode INPUT
+            $self DisplayCurrentView 
 
             # NEXT, we are in PREP set the SAM and inputs to normal 
             # and display the layout with help text.
@@ -830,13 +845,18 @@ snit::widget samsheet {
                 Actual actors revenue and expenses will be determined from
                 the actor definitions and their strategies once the scenario
                 is locked.<p>
-                <b style=\"font-size:12px\">SAM Inputs</b><p>
+                <table>
+                  <tr>
+                    <td valign=top align=left>
+                      <b style=\"font-size:12px\">SAM Inputs</b><p>
+                    </td>
+                  </tr>
+                </table>
                 $layout
             "
         } else {
 
-            set info(mode) BASE
-            $self DisplayMode BASE
+            $self DisplayCurrentView
 
             # NEXT, we are not in PREP, disable the SAM and inputs and
             # remove the help text.
@@ -847,8 +867,16 @@ snit::widget samsheet {
 
             $win.h layout "
                 <br>
-                <b style=\"font-size:12px\">SAM Inputs</b><p>
-                <input name=\"hbar\">
+                <table width=\"80%\">
+                  <tr>
+                    <td colspan=2 valign=top align=left>
+                      <b style=\"font-size:12px\">SAM Inputs</b><p>
+                    </td>
+                    <td valign=top align=right>
+                      <input name=\"toolbar\"
+                    </td>
+                  </tr>
+                </table>
                 $layout
             "
         }

@@ -58,7 +58,7 @@ namespace eval ::athena_test::tests:: {
     
     proc lock {} {
         ted create JOE NB1 BLUE USAID SHIA
-        ted order SIM:LOCK
+        ted lock
         
         # Delete existing drivers, to make things simpler
         rdb eval {DELETE FROM drivers}

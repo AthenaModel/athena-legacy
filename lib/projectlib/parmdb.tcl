@@ -1107,6 +1107,19 @@ snit::type ::projectlib::parmdb {
             be used.
         }
 
+        $ps define econ.gdpExp ::projectlib::rnonneg 0.075 {
+            Used to change an exponent on the calibration page in the
+            six-by-six economic model.  It is used to tune the 
+            convergence of GDP to the base case GDP.
+        }
+
+        $ps define econ.empExp ::projectlib::rnonneg 0.2 {
+            Used to change an exponent on the calibration page in the
+            six-by-six economic model.  It is used to tune the
+            convergense of unemployment rate to the base case unemployment
+            rate.
+        }
+
         $ps define econ.ticksPerTock ::projectlib::ipositive 1 {
             Defines the size of the economic model "tock", in ticks.
             At each tock, Athena updates the economic model with the

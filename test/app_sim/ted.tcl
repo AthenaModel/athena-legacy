@@ -575,12 +575,20 @@ snit::type ted {
         }
     }
 
-    # lock
+    # lock ?-fullecon?
     #
+    # if the -fullecon option is supplied, the econ model
+    # is unomdified, otherwise some parameters are set to
+    # reduce it's effect
+    # 
     # Reconciles the scenario, so that all implied entities are
     # created, and sends SIM:LOCK.
 
-    typemethod lock {} {
+    typemethod lock {args} {
+        if {[lindex $args 0] ne "-fullecon"} {
+            parm set econ.gdpExp 0
+            parm set econ.empExp 0
+        }
         ensit mutate reconcile
         ted order SIM:LOCK
     }

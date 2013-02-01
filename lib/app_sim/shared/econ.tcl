@@ -516,7 +516,7 @@ snit::type econ {
         set BPp   $sdata(BP.pop)
         set BQDp  $sdata(BQD.pop)
         set BREVw $sdata(BREV.world)
-        set FAR   $sdata(FAR)
+        set FAR   $sdata(BFAR)
  
         # NEXT compute the rates based on the base case data and
         # fill in the income_a table rates and set each actors
@@ -732,13 +732,13 @@ snit::type econ {
 
         #-------------------------------------------------------------
         # The world sector
-        cge set [list BFAA $samdata(FAA)]
-        cge set [list BFAR $samdata(FAR)]
+        cge set [list BFAA $samdata(BFAA)]
+        cge set [list BFAR $samdata(BFAR)]
 
         #-------------------------------------------------------------
         # Base values for Exports
         foreach i {goods black pop} {
-            cge set [list BEXPORTS.$i $samdata(EXPORTS.$i)]
+            cge set [list BEXPORTS.$i $samdata(BEXPORTS.$i)]
         }
 
         #-------------------------------------------------------------
@@ -860,11 +860,19 @@ snit::type econ {
             # calibration
             cge set [list Global::REMChangeRate $samdata(REMChangeRate)]
 
+            # NEXT some calibration tuning parameters
+            cge set [list GDPExponent [parm get econ.gdpExp]]
+            cge set [list EmpExponent [parm get econ.empExp]]
+
+            # NEXT, the base unemployed
+            let baseUnemp {$demdata(labor_force) * $samdata(BaseUR) / 100.0}
+
             # NEXT, demographic data
             cge set [list \
                          BaseConsumers $demdata(consumers)     \
-                         BaseUnemp     $samdata(BaseUnemp)     \
-                         BaseCAP.pop   $samdata(BaseCAP.pop)   \
+                         BaseUnemp     $baseUnemp              \
+                         Cal::BPp      $samdata(BP.pop)        \
+                         BaseLF        $demdata(labor_force)   \
                          In::Consumers $demdata(consumers)     \
                          In::LF        $demdata(labor_force)   \
                          In::LSF       $LSF                    \
@@ -879,10 +887,18 @@ snit::type econ {
             cge set [list In::SubWage $samdata(BaseSubWage)]
 
             # NEXT, foreign aid to the region
-            cge set [list In::FAR $samdata(FAR)]
+            cge set [list In::FAR $samdata(BFAR)]
+
+            # NEXT, foreign aid to actors
+            cge set [list In::FAA $samdata(BFAA)]
 
             # NEXT, remittances
             cge set [list In::REM $samdata(BREM)]
+
+            # NEXT, exports
+            foreach i {goods black pop} {
+                cge set [list In::EXPORTS.$i $samdata(BEXPORTS.$i)]
+            }
 
             # NEXT, number engaged in subsistence agriculture
             let subsisters {$demdata(population) - $demdata(consumers)}

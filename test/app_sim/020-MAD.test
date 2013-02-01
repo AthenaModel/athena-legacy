@@ -91,7 +91,7 @@ namespace eval ::athena_test::tests:: {
         variable m1
         parm set econ.disable yes
         ted create JOE NB1 NB2 BLUE SHIA KURD
-        ted order SIM:LOCK
+        ted lock
 
         # Delete other drivers not needed for this test.
         rdb eval {DELETE FROM drivers}

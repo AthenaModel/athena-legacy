@@ -62,7 +62,7 @@ KURD 20.0        100.0
 
     test srcompute-1.2 {srcompute populates sr_service on LOCK} -setup {
         ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
-        ted order SIM:LOCK
+        ted lock
     } -body {
         service srcompute
         ted query {SELECT * FROM sr_service}
