@@ -250,7 +250,7 @@ snit::widget samsheet {
         pack $w.viewlabel -side right -fill y -padx {2 0}
 
         # NEXT, set the menu to the first one in the dict
-        $vmenu set [lindex [dict keys $vdict] 0]
+        $vmenu set [lindex [dict keys $vdict] 1]
     }
 
     # CreateShapeMatrix w
@@ -829,6 +829,8 @@ snit::widget samsheet {
     method SimState {} {
         # FIRST, get the state
         if {[sim state] eq "PREP"} {
+            # NEXT, set the view to input flows
+            $vmenu set [lindex [dict keys $vdict] 1]
 
             $self DisplayCurrentView 
 
@@ -855,6 +857,8 @@ snit::widget samsheet {
                 $layout
             "
         } else {
+            # NEXT, set the view to base SAM
+            $vmenu set [lindex [dict keys $vdict] 0]
 
             $self DisplayCurrentView
 
