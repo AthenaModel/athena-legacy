@@ -63,7 +63,7 @@ snit::type misc_rules {
                    C.controller       AS controller,
                    C.since            AS tc
             FROM civgroups AS G
-            JOIN demog_g   AS D
+            JOIN demog_g   AS D USING (g)
             JOIN control_n AS C  ON (C.n = G.n)
             JOIN uram_mood AS UM ON (G.g = UM.g)
             JOIN hist_mood AS HM ON (HM.g = G.g AND HM.t = C.since)
@@ -71,7 +71,7 @@ snit::type misc_rules {
             AND abs(UM.mood - HM.mood) >= CAST ($threshold AS REAL)
         } row {
             unset -nocomplain row(*)
-
+            
             log normal miscr [array get row]
             bgcatch {
                 # Run the rule set.
@@ -100,7 +100,7 @@ snit::type misc_rules {
     # relationships due to group mood.
 
     typemethod MOOD {driver_id fdict} {
-        dict get $fdict
+        dict with fdict {}
         log detail miscr [list MOOD $g]
 
         # We already know that delta exceeds the threshold; all
