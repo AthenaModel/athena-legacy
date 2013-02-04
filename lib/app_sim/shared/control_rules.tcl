@@ -162,7 +162,7 @@ snit::type control_rules {
             return
         }
 
-        dict get $fdict {}
+        dict with fdict {}
         
         # Skip if the neighborhood is empty.
         if {[demog getn $n population] == 0} {
@@ -225,7 +225,7 @@ snit::type control_rules {
                     }
                 }
                 
-                dam sat P $f AUT $mag
+                dam sat P $f AUT $mag [format "DV=%+4.1f" $Vdelta]
 
                 # NEXT, get the cooperation effects with a's troops
                 set Vfa [qaffinity name $Vfa]
@@ -250,7 +250,7 @@ snit::type control_rules {
                 # FIRST, get the vertical relationships
                 set Vsym [qaffinity name [vrel.ga $f $a]]
 
-                dam sat P $f AUT $C12sat($Vsym)
+                dam sat P $f AUT $C12sat($Vsym) "V.fa=$Vsym"
 
                 # NEXT, get the cooperation effects with each
                 # actor's troops
@@ -283,7 +283,7 @@ snit::type control_rules {
                 # FIRST, get the vertical relationships
                 set Vsym [qaffinity name [vrel.ga $f $b]]
 
-                dam sat P $f AUT $C13sat($Vsym)
+                dam sat P $f AUT $C13sat($Vsym) "V.fb=$Vsym"
 
                 # NEXT, get the cooperation effects with actor b's
                 # troops.
@@ -294,11 +294,11 @@ snit::type control_rules {
         }
     }
 
-    typemethod CONTROL-2 {driver fdict} {
+    typemethod CONTROL-2 {driver_id fdict} {
         set ag [dict get $fdict b]
         set al [dict get $fdict a]
 
-        set glist [demog gIn [dict get $dict n]]
+        set glist [demog gIn [dict get $fdict n]]
         set alist [actor names]
 
         dam rule CONTROL-2-1 $driver_id $fdict {1} {

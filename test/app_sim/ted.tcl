@@ -593,6 +593,18 @@ snit::type ted {
         ted order SIM:LOCK
     }
 
+    # step
+    #
+    # Steps time forward by one week, locking the scenario if need be.
+    
+    typemethod step {} {
+        if {[sim state] eq "PREP"} {
+            ted lock
+        }
+        
+        ted order SIM:RUN weeks 1 block 1
+    }
+    
     # cleanup
     #
     # Cleans up after a test:
