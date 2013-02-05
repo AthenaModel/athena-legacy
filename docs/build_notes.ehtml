@@ -11,6 +11,45 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.2, 5 February 2013</h3>
+
+There are four major areas of new functionality in this build: the 
+economics model has a significant overhaul, the SPEND tactic is changed
+to include a per sector spending profile (this means the overhead 
+percentage is gone) and DEPOSIT and WITHDRAW tactics are added, 
+the introduction of "budget" actors that don't have
+an income but rather a pool of money on which to draw, and an overhaul 
+to Athena's rule set infrastructure. There's also been some clean up of
+unnecessary objects: actsits and demsits are gone and a host of bug fixes
+and documentation updates. The full list is as follows:<p>
+
+<ul>
+<li> Bug 3834: Econ/SAM help page is confusing
+<li> Bug 3837: athena_sim(1): implement changing remittances over time
+<li> Bug 3841: athena_sim(1): CGE updates
+<li> Bug 3850: athena_sim(1): more CGE updates
+<li> Bug 3851: athena_sim(1): econ model not sending BaseGDP from SAM to CGE
+<li> Bug 3855: athena_test(1): test failures due to econ model updates
+<li> Bug 3856: athena_sim(1): econ model does not scale well
+<li> Bug 3871: athena_sim(1): cannot edit SAM
+<li> Bug 3831: athena(1): Population Change Rate
+<li> Bug 3839: Tactic Database Architecture
+<li> Bug 3840: DEPOSIT, WITHDRAW tactics
+<li> Bug 3843: Too many ENI Driver ids
+<li> Bug 3844: athena(1): New SPEND tactic
+<li> Bug 3846: athena(1): Save actor expenditures by sector
+<li> Bug 3847: athena(1): Remove overhead percentage
+<li> Bug 3849: athena(1): Can't save scenario
+<li> Bug 3857: athena(1): Budget Actors
+<li> Bug 3859: athena(1): civgroups get lfp and housing attributes
+<li> Bug 3860: athena(1): Use civgroups.lfp as the labor force percentage
+<li> Bug 3861: athena(1): Condition Database Architecture
+<li> Bug 3867: athena(1): Remove actsit objects
+<li> Bug 3868: athena(1): Remove demsit objects
+<li> Bug 3869: athena(1): Rule Set Overhaul
+<li> Bug 3872: athena(1): MOOD rule set test suite
+</ul>
+
 <h3>Build 5.0.1, 14 January 2013</h3>
 
 The focus of this build is the new requirement to allow civilian 
