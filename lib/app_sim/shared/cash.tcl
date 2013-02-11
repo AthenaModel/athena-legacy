@@ -37,22 +37,13 @@ snit::type cash {
 
     # load
     #
-    # If the strategy module is locking, this method simply clears
-    # the expenditures data; no cash will actually be spent.
-    # Otherwise, it loads every actors' cash balances into 
-    # working_cash for use during strategy execution.  It also gives 
-    # each actor his income.
+    # Loads every actor's cash balances into working_cash for use during
+    # strategy execution, and (except on lock) gives the actor his income.
 
     typemethod load {} {
         # FIRST, clear expenditures
         $type reset
         
-        # NEXT, if locking the scenario, just return; there's nothing
-        # more to do.
-        if {[strategy locking]} {
-            return
-        }
-
         # NEXT, load up the working cash table, giving the actor his income.
         # Note that for BUDGET actors, actors_view.income IS the actor's
         # budget.
@@ -67,7 +58,10 @@ snit::type cash {
                    cash_on_hand
             FROM actors_view;
         } {
-            let cash_on_hand { $cash_on_hand + $income }
+            if {![strategy locking]} {
+                let cash_on_hand { $cash_on_hand + $income }
+            }
+            
             rdb eval {
                 INSERT INTO working_cash(a, cash_reserve, income, cash_on_hand)
                 VALUES($a, $cash_reserve, $income, $cash_on_hand)
