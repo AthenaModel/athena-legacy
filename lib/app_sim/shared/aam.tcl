@@ -711,11 +711,11 @@ snit::type aam {
             ORDER BY share DESC
         } row {
             # FIRST, allocate the share to this body of people.
-            let kills     {int(min($remaining, ceil($row(share))))}
+            let kills     {entier(min($remaining, ceil($row(share))))}
             let remaining {$remaining - $kills}
 
             # NEXT, compute the attrition.
-            let take {int(min($row(personnel), $kills))}
+            let take {entier(min($row(personnel), $kills))}
 
             # NEXT, attrit the unit
             set row(g1)         $g1

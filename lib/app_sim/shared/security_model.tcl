@@ -85,7 +85,7 @@ snit::type security_model {
 
         # NEXT, compute the security for each group in each nbhood.
         profile 2 $type ComputeSecurity
-    }
+   }
 
 
     # ComputeCrimeSuppression
@@ -207,7 +207,7 @@ snit::type security_model {
             set b [parmdb get force.mood]
             let M {1.0 - $b*$mood/100.0}
 
-            let pop_force {int(ceil($a*$D*$M*$P))}
+            let pop_force {entier(ceil($a*$D*$M*$P))}
 
             rdb eval {
                 UPDATE force_ng
@@ -237,7 +237,7 @@ snit::type security_model {
             set E [parmdb get force.forcetype.$forcetype]
             set A [parmdb get force.alpha.$a]
 
-            let own_force_by_a {int(ceil($A*$E*$D*$P))}
+            let own_force_by_a {entier(ceil($A*$E*$D*$P))}
 
             rdb eval {
                 UPDATE force_ng
@@ -262,7 +262,7 @@ snit::type security_model {
         } {
             set D [parmdb get force.demeanor.$demeanor]
             set E [parmdb get force.orgtype.$orgtype]
-            let own_force {int(ceil($E*$D*$P))}
+            let own_force {entier(ceil($E*$D*$P))}
             
             rdb eval {
                 UPDATE force_ng
@@ -345,14 +345,14 @@ snit::type security_model {
 
             # NEXT, compute friends and enemies.
             if {$hrel > 0} {
-                set friends [expr {int(ceil($f_noncrim_force*$hrel))}]
-                set enemies [expr {int(ceil($f_crim_force))}]
+                set friends [expr {entier(ceil($f_noncrim_force*$hrel))}]
+                set enemies [expr {entier(ceil($f_crim_force))}]
 
                 incr local_force($id) $friends
                 incr local_enemy($id) $enemies
             } elseif {$hrel < 0} {
                 set enemies [expr {
-                    int(ceil($f_noncrim_force*abs($hrel) + $f_crim_force))
+                    entier(ceil($f_noncrim_force*abs($hrel) + $f_crim_force))
                 }]
 
                 incr local_enemy($id) $enemies
@@ -403,8 +403,8 @@ snit::type security_model {
             AND   nforce_ng.n = nbrel_mn.n
             AND   mforce_ng.g = nforce_ng.g
         } {
-            let friends {int(ceil($h*$m_friends))}
-            let enemies {int(ceil($h*$m_enemies))}
+            let friends {entier(ceil($h*$m_friends))}
+            let enemies {entier(ceil($h*$m_enemies))}
 
             rdb eval {
                 UPDATE force_ng
@@ -452,7 +452,7 @@ snit::type security_model {
             AND   nforce_ng.n = nbrel_mn.n
             AND   mforce_ng.g = nforce_ng.g
         } {
-            let force {int(ceil($h*$m_own_force))}
+            let force {entier(ceil($h*$m_own_force))}
 
             rdb eval {
                 UPDATE force_n
@@ -512,14 +512,14 @@ snit::type security_model {
 
             if {$tfSquared > 1.0} {
                 let nominal_volatility {
-                    int(ceil(100*$conflicts/$tfSquared))
+                    entier(ceil(100*$conflicts/$tfSquared))
                 }
             } else {
                 set nominal_volatility 0.0
             }
 
             let volatility {
-                min(100, int($vtygain * $nominal_volatility))
+                min(100, entier($vtygain * $nominal_volatility))
             }
             
             rdb eval {
@@ -551,7 +551,7 @@ snit::type security_model {
                     100.0*($pct_force - $pct_enemy - $vol)/(100.0 + $vol)
                 }
             
-                let security {int(ceil($realSecurity))}
+                let security {entier(ceil($realSecurity))}
             } else {
                 let security {0}
             }
