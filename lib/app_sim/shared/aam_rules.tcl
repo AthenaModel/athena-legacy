@@ -116,7 +116,7 @@ snit::type aam_rules {
         set rmult [rmf enmore [hrel.fg $f $g]]
         let mult {$cmult * $rmult}
 
-        dict set fdict mult $mult
+        dict set fdict mult $cmult
         
         # NEXT, The rule fires trivially
         dam rule CIVCAS-2-1 $driver_id $fdict {1} {
