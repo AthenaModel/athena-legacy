@@ -1065,17 +1065,11 @@ snit::type econ {
         # based on a week.
         array set out [$cge get Out -bare]
         
-        rdb eval {
-            SELECT a            AS actor, 
-                   t_goods      AS tg,
-                   t_black      AS tb,
-                   t_pop        AS tp,
-                   t_world      AS tw,
-                   graft_region AS gr,
-                   cut_black    AS cut
-           FROM income_a
-        } {
-
+        foreach {actor tg tb tp tw gr cut} [rdb eval {                   
+                SELECT a, t_goods, t_black, t_pop,
+                       t_world, graft_region, cut_black 
+                FROM income_a
+        }] {
             let inc_goods    {$out(REV.goods) * $tg  / 52.0}
             let inc_black_t  {$out(REV.black) * $tb  / 52.0}
             let inc_black_nr {$out(NR.black)  * $cut / 52.0}
