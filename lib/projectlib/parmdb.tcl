@@ -1120,6 +1120,11 @@ snit::type ::projectlib::parmdb {
             rate.
         }
 
+        $ps define econ.REMisTaxed ::projectlib::boolean yes {
+            If yes, then remittances are treated as before tax income
+            otherwise they are added to after tax income.
+        }
+
         $ps define econ.ticksPerTock ::projectlib::ipositive 1 {
             Defines the size of the economic model "tock", in ticks.
             At each tock, Athena updates the economic model with the

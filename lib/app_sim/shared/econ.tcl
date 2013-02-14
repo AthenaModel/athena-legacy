@@ -164,7 +164,7 @@ snit::type econ {
                 "There must be expenditures in the pop sector."
         }
 
-        if {$cells(BX.pop.goods) == 0.0} {
+        if {$cells(XT.pop.goods) == 0.0} {
             dict append edict BX.pop.goods \
                 "There must be a money flow from the goods sector to the pop sector."
         }
@@ -521,7 +521,7 @@ snit::type econ {
         # NEXT compute the rates based on the base case data and
         # fill in the income_a table rates and set each actors
         # initial income. NOTE: mulitiplication by 52 because amounts in
-        # the SAM are in years and actors in athena get income in
+        # the SAM are in years and actors in Athena get income in
         # weeks.
         rdb eval {
             SELECT * FROM actors
@@ -605,7 +605,7 @@ snit::type econ {
         # then ALL of the net revenue goes into the world sector. We also
         # need to tell the CGE that actors are not getting any black market
         # profits
-        set Xwb $sdata(BX.world.black)
+        set Xwb $sdata(XT.world.black)
 
         if {$totalBNRShares == 0} {
             # NEXT, need to subtract out Xab since it was just computed we
@@ -658,13 +658,13 @@ snit::type econ {
         # CGE BX.i.j's
         foreach i $sectors {
             foreach j $sectors {
-                cge set [list BX.$i.$j $samdata(BX.$i.$j)]
+                cge set [list BX.$i.$j $samdata(XT.$i.$j)]
             }
         }
 
         # NEXT, base quantities demanded as a starting point for 
         # CGE BQD.i.j's
-        foreach i {goods black pop} {
+        foreach i {black} {
             foreach j $sectors {
                 cge set [list BQD.$i.$j $samdata(BQD.$i.$j)]
             }
@@ -715,20 +715,6 @@ snit::type econ {
             cge set [list f.$i.actors $samdata(f.$i.actors)]
             cge set [list f.$i.region $samdata(f.$i.region)]
         }
-
-        cge set [list \
-                     BX.actors.goods  $samdata(BX.actors.goods)  \
-                     BX.actors.black  $samdata(BX.actors.black)  \
-                     BX.actors.pop    $samdata(BX.actors.pop)    \
-                     BX.actors.region $samdata(BX.actors.region) \
-                     BX.actors.world  $samdata(BX.actors.world)]
-
-        cge set [list \
-                     BX.world.actors  $samdata(BX.world.actors)  \
-                     BX.region.actors $samdata(BX.region.actors) \
-                     BX.goods.actors  $samdata(BX.goods.actors)  \
-                     BX.black.actors  $samdata(BX.black.actors)  \
-                     BX.pop.actors    $samdata(BX.pop.actors)]       
 
         #-------------------------------------------------------------
         # The world sector
@@ -784,6 +770,15 @@ snit::type econ {
         if {![parmdb get econ.disable]} {
             # FIRST, reset the CGE
             cge reset
+
+            # NEXT, convert flag to canonical form, the cell model 
+            # requires this.
+            # TBD: should cellmodel(n) be changed to handle symbolic 
+            # "yes" and "no"?
+            set flag \
+                [::projectlib::boolean validate [parm get econ.REMisTaxed]]
+
+            sam set [list Flag.REMisTaxed $flag]
 
             $type InitializeActorIncomeTables
 
@@ -848,21 +843,23 @@ snit::type econ {
         set LSF [$type ComputeLaborSecurityFactor]
         set CSF [$type ComputeConsumerSecurityFactor]
 
+        # NEXT, SAM data
+        array set samdata [$sam get]
+
         # NEXT, calibrate if requested.
         if {$opt eq "-calibrate"} {
             # FIRST, demographics
             array set demdata [demog getlocal]
-
-            # NEXT, SAM data
-            array set samdata [$sam get]
 
             # NEXT, some globals. These only need to get set during
             # calibration
             cge set [list Global::REMChangeRate $samdata(REMChangeRate)]
 
             # NEXT some calibration tuning parameters
-            cge set [list GDPExponent [parm get econ.gdpExp]]
-            cge set [list EmpExponent [parm get econ.empExp]]
+            cge set [list GDPExponent     [parm get econ.gdpExp]]
+            cge set [list EmpExponent     [parm get econ.empExp]]
+            cge set [list Flag.REMisTaxed \
+                [::projectlib::boolean validate [parm get econ.REMisTaxed]]]
 
             # NEXT, the base unemployed
             let baseUnemp {$demdata(labor_force) * $samdata(BaseUR) / 100.0}
@@ -879,9 +876,6 @@ snit::type econ {
                          In::CSF       $CSF]
 
 
-
-            # NEXT, per capita demand for goods
-            cge set [list In::A.goods.pop $samdata(BA.goods.pop)]
 
             # NEXT, subsistence wage, the poverty level
             cge set [list In::SubWage $samdata(BaseSubWage)]
@@ -902,6 +896,7 @@ snit::type econ {
 
             # NEXT, number engaged in subsistence agriculture
             let subsisters {$demdata(population) - $demdata(consumers)}
+            cge set [list BaseSubsisters $subsisters]
             cge set [list In::Subsisters $subsisters]
 
             # NEXT, actors expenditures. Multiplication by 52 because the
@@ -923,11 +918,11 @@ snit::type econ {
 
             # NEXT, actors revenue
             cge set [list \
-                         In::X.actors.goods  $samdata(BX.actors.goods)  \
-                         In::X.actors.black  $samdata(BX.actors.black)  \
-                         In::X.actors.pop    $samdata(BX.actors.pop)    \
-                         In::X.actors.region $samdata(BX.actors.region) \
-                         In::X.actors.world  $samdata(BX.actors.world)]
+                         In::X.actors.goods  $samdata(XT.actors.goods)  \
+                         In::X.actors.black  $samdata(XT.actors.black)  \
+                         In::X.actors.pop    $samdata(XT.actors.pop)    \
+                         In::X.actors.region $samdata(XT.actors.region) \
+                         In::X.actors.world  $samdata(XT.actors.world)]
 
             # NEXT, black market feedstocks
             cge set [list \
@@ -1204,9 +1199,9 @@ snit::type econ {
         set changeRate $cgeGlobals(REMChangeRate)
         set currRem $cgeInputs(REM)
 
-        # NEXT, no change case 
+        # NEXT, no change rate or first tick
         # TBD: is this really necessary?
-        if {$changeRate == 0.0} {
+        if {$changeRate == 0.0 || [simclock now] == 0} {
             return $currRem
         }
 

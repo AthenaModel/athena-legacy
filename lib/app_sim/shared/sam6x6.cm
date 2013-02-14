@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version s
+#    sam6x6.cm, version t
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -29,6 +29,16 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version t: Many of the shape parameters are now computed from the
+#               XT.i.j matrix instead of the BX.i.j matrix. This is because
+#               the BX.i.j are the Input Flows matrix, the T.i.j are the 
+#               sparse Balancing Flows matrix and the XT.i.j si the sum of
+#               the BX matrix and the T matrix. This sum is the Base SAM
+#               matrix which is used by the CGE to describe the base case
+#               of the economy being modeled. Thus, Athena uses the XT.i.j
+#               here to set the BX.i.j there. Removed BaseLF because Athena
+#               computes it. 
+#
 #    Version s: Added BaseLF, the number of base case workers, removed 
 #               BaseUnemp, it is computed in the CGE from BaseLF and BaseUR.
 #               Renamed a few cells to have 'B' in front of them. Updated
@@ -131,20 +141,59 @@
 #
 #   BX.i.j     The payment in $/year from sector j to sector i. The indices
 #              i and j take the values from the set (black goods pop actors 
-#              region world). Strictly speaking, this and only this is 
+#              region world). This is the Input Flows matrix and does not
+#              contain several balancing flows that are computed herein.
+#              After those flows have been added, the XT.i.j matrix is
 #              the social accounting matrix (SAM).
 #
 #   BP.j       The price, in $/unit of the product of sector j, where j 
 #              takes values only for the sectors with products: (black, 
 #              goods, pop).
 #
+# The following parameters are used to compute the elements fo the T.i.j:
+#
 #   BREM       Payments from outside the region directly to the populace, 
 #              consisting of remittances in $/year. 
 #
-#   BNR.black  Net revenue for the black sector, in $/year.
+#   graft      The fraction of foreign aid to the region, X.region.world,
+#              that winds up being used by the actors sector.
+#
+#   PF.world.black 
+#              Price of the feedstock required by the black sector.
 #
 #   AF.i.j     Amount of feedstock needed per unit of product. In this SAM
 #              this is used only for i=world and j=black
+#
+#   MF.world.black
+#              Maximum rate at which the black marker sector's feedstock
+#              can be obtained from foreign sources.
+#
+# In addition, the following parameters complete the description of the
+# base case and are passed through to the CGE cell model:
+#
+#   TurFrac    Turbulence fraction, the fraction of the labor force that
+#              is "between jobs". Nominally set to 0.04, this becomes part
+#              of the unemployment figure.
+#
+#   BaseConsumers
+#              The base number of consumers which should be commensurate with
+#              the size of the economy being modeled. This figure should
+#              not include members of the population engaged in subsistence
+#              agriculture.
+#
+#   BaseSubsisters
+#              The base number of people engaged in subsistence agriculture.
+#              They are neither consumers nor part of the labor force, but
+#              they do contribute to the GDP
+#
+#   BaseSubWage
+#              The base wage associated with subsistence agriculture. This
+#              wage is used only as a way to gauge the contribution of
+#              subsistence farmers to GDP. This can be set to zero.
+#
+#   BaseUR     The base unemployment rate, this is used to determine how
+#              many in the labor force actually have jobs and are earning
+#              wages.
 #
 #-----------------------------------------------------------------------
 #
@@ -157,10 +206,10 @@ index il  {goods black pop}                     ;# sectors in the local
 index inp {actors region world}                 ;# sectors with no product or
                                                  # outside the local economy
 
-# All BX.i.j values are from a SAM.
-# SAM cell definitions do not include cash flows of black feedstock costs
-# nor of the black sector's net revenue or the graft portion of the FAR
-# to the actors sector.
+# All BX.i.j values are from an input flows matrix. These flows do not 
+# include cash flows due to remittances, black feedstock costs, transfers
+# of the black sector's net revenue or the graft portion of the foreign
+# aid to the region (FAR) to the actors sector.
 
 let BX.goods.goods  = 1.087e9
 let BX.goods.black  = 6.5e5
@@ -215,9 +264,10 @@ let BP.world  = 0
 let TurFrac        = 0.04    ;# Fraction of people "between jobs"
 let BaseConsumers  = 160.0e6
 let BaseSubsisters = 40.0e6
-let BaseLF         = 96.0e6  ;# Number of base case jobs
 let BaseUR         = 10.0    ;# Unemployment rate
 let BaseSubWage    = 0       ;# Subsistence wage $/work-year
+
+# Here for reference; the CGE will recompute this.
 let BaseSA         = {[BaseSubsisters] * [BaseSubWage]}
 
 let graft          = 0.3    ;# Fraction of foreign aid to region that 
@@ -230,12 +280,9 @@ let MF.world.black = 240.0
 # Global variables used by Athena at runtime
 let REMChangeRate  = 0.0
 
-# Macro definitions
-
-define t.i.j {i j} {[BX.$i.$j] / [BREV.$j]}
-define k.j {j} {1.0 - ([t.actors.$j] + [t.region.$j] + [t.world.$j])}
-define f.i.j {i j} {[BX.$i.$j] / ([CDEXP.$j])}
-define A.i.j {i j} {[BX.$i.$j] / ([BP.$i] * [BQD.$j])}
+# Flags 
+# Whether remittances are treated as taxable income
+let Flag.REMisTaxed = 1
 
 #-----------------------------------------------------------------------
 #
@@ -251,11 +298,6 @@ foreach j {goods black pop actors region world} {
     let BEXP.$j = {<:sum i {[BX.$i.$j]}:>} 
 }
 
-foreach j {goods black pop} {
-    # Sectors with Cobb-Douglas coefficients that must add to 1.0
-    let CDEXP.$j = {<:sum il {[BX.$il.$j]}:>}
-}
-
 # Sector-by-sector demands for all i and j are given by:
 foreach i {goods black pop} {
     foreach j {goods black pop actors region world} {
@@ -265,8 +307,8 @@ foreach i {goods black pop} {
 
 let BREM = {max(0, [BEXP.pop] - [BREV.pop])}
 
-# Production quantities for all producers i are a simple sum of the 
-# sector-by-sector demands:
+# Production quantities for the goods, black and pop sectors are 
+# a simple sum of the sector-by-sector demands:
 
 foreach i {goods black pop} {
     let BQD.$i = {<:sum j {[BQD.$i.$j]}:>}
@@ -279,20 +321,17 @@ let BNR.black = {[BREV.black] - ([BEXP.black] + [FEED.black])}
 let BFAA = {[BX.actors.world]}
 let BFAR = {[BX.region.world]}
 
-# The allocatable income for each sector is computed by:
-
-let BALLOC.goods  = {[BEXP.goods]}
-let BALLOC.black  = {[BEXP.black]}
-let BALLOC.pop    = {[BEXP.pop] + [BREM]}
-let BALLOC.actors = {[BEXP.actors]}
-let BALLOC.region = {[BREV.region] - [graft]*[BFAR]}
-let BALLOC.world  = {[BREV.world] - [BREM] + [FEED.black]}
-
 # Exports are obtained by:
 
 let BEXPORTS.goods = {[BX.goods.world] / [BP.goods]}
 let BEXPORTS.black = {[BX.black.world] / [BP.black]}
 let BEXPORTS.pop   = {[BX.pop.world]   / [BP.pop]}
+
+# Shape parameter macro definitions
+
+define t.i.j {i j} {[XT.$i.$j] / [XTREV.$j]}
+define k.j {j} {1.0 - ([t.actors.$j] + [t.region.$j] + [t.world.$j])}
+define f.i.j {i j} {[XT.$i.$j] / ([k.$j] * [XTREV.$j])}
 
 # Finally, the shape parameter equations are:
 
@@ -308,48 +347,59 @@ let k.goods = {<:k.j goods:>}
 
 let f.goods.goods =  {<:f.i.j goods goods:>}
 let f.black.goods = 0.0  ;# bullet proofing: f.black.goods is not defined
-let f.pop.goods   = {<:f.i.j pop goods:>}
+let f.pop.goods   = {1.0 - [f.goods.goods]}
 
 # For the black sector
 # All values are checked for divide by zero in case money flows through
 # the black sector stop.
 
 let A.goods.black = {
-    [BQD.black] > 0.0 ? [BX.goods.black] / ([BP.goods] * [BQD.black]) : 0.0
+    [BQD.black] > 0.0 ? [XT.goods.black] / ([BP.goods] * [BQD.black]) : 0.0
 }
 let A.black.black = {
-    [BQD.black] > 0.0 ? [BX.black.black] / ([BP.black] * [BQD.black]) : 0.0
+    [BQD.black] > 0.0 ? [XT.black.black] / ([BP.black] * [BQD.black]) : 0.0
 }
 
 let A.pop.black   = {
-    [BQD.black] > 0.0 ? [BX.pop.black] / ([BP.pop] * [BQD.black]) : 0.0
+    [BQD.black] > 0.0 ? [XT.pop.black] / ([BP.pop] * [BQD.black]) : 0.0
 }
 
 let t.actors.black = {
-    [BREV.black] > 0.0 ? [BX.actors.black] / [BREV.black] : 0.0
+    [BREV.black] > 0.0 ? [XT.actors.black] / [BREV.black] : 0.0
 }
 
 let t.region.black = {
-    [BREV.black] > 0.0 ? [BX.region.black] / [BREV.black] : 0.0 
+    [BREV.black] > 0.0 ? [XT.region.black] / [BREV.black] : 0.0 
 }
 
 let t.world.black = {
-    [BREV.black] > 0.0 ? [BX.world.black] / [BREV.black] : 0.0
+    [XTREV.black] > 0.0 ? 
+    ([XT.world.black] - [FEED.black]) / [BREV.black] : 0.0
 }
 
 # For the pop sector
 
-foreach i {actors region world} {
-    let t.$i.pop = {[BX.$i.pop] / [BREV.pop]}
+# Before tax income
+let BBTI.pop = {[Flag.REMisTaxed] ? [XTREV.pop] : [XTREV.pop] - [BREM]}
+
+let k.pop = {<:k.j pop:>}
+
+# After tax income, may include untaxed remittances
+let BATI.pop = {
+    [Flag.REMisTaxed] ? [k.pop] * [BBTI.pop] : [k.pop] * [BBTI.pop] + [BREM]
 }
 
-# Using BEXP.pop instead of BALLOC.pop because BREM is not subject to
-# the taxes imposed on regular income.
-let k.pop = {<:k.j pop:>}
-let BATI.pop = {[CDEXP.pop]}
+foreach i {actors region world} {
+    let t.$i.pop = {[XT.$i.pop] / [BBTI.pop]}
+}
 
-foreach i {goods black pop} {
+foreach i {goods black} {
     let f.$i.pop = {[BX.$i.pop] / [BATI.pop]}
+}
+
+let f.pop.pop = {
+    [f.goods.pop] + [f.black.pop] == 1.0 ? 0.0 : 
+    1.0 - [f.goods.pop] - [f.black.pop]
 }
 
 
@@ -357,43 +407,43 @@ foreach i {goods black pop} {
 
 foreach i {goods black pop actors region world} {
     let f.$i.actors = {
-        [BALLOC.actors] > 0 ? [BX.$i.actors] / [BALLOC.actors] : 0.0
+        [XTREV.actors] > 0 ? [XT.$i.actors] / [XTREV.actors] : 0.0
     }
 }
 
 # For the region sector
 
 foreach i {goods black pop actors region world} {
-    let f.$i.region = {[BX.$i.region] / [BALLOC.region]}
+    let f.$i.region = {[XT.$i.region] / [XTREV.region]}
 }
 
 # Base case per capita demand for goods 
-let BA.goods.pop = {[BX.goods.pop] / ([BP.goods] * [BaseConsumers])}
+let BA.goods.pop = {[XT.goods.pop] / ([BP.goods] * [BaseConsumers])}
 
 # Base case GDP
 let BGDP.goods = {
-    [BX.goods.pop] + [BX.goods.actors] + [BX.goods.region] + [BX.goods.world]
+    [XT.goods.pop] + [XT.goods.actors] + [XT.goods.region] + [XT.goods.world]
 }
 
 let BGDP.black = {
-    [BX.black.pop] + [BX.black.actors] + [BX.black.region] + [BX.black.world]
+    [XT.black.pop] + [XT.black.actors] + [XT.black.region] + [XT.black.world]
 }
 
 let BGDP.pop = {
-    [BX.pop.pop] + [BX.pop.actors] + [BX.pop.region] + [BX.pop.world]
+    [XT.pop.pop] + [XT.pop.actors] + [XT.pop.region] + [XT.pop.world]
 }
 
 let BaseGDP = {
     [BGDP.goods] + [BGDP.black] + [BGDP.pop] -
-    [BREV.world] + [BaseSA] - [FEED.black]
+    [BREV.world] + [BaseSA]
 }
 
 #----------------------------------------------------------------
-# Balancing Matrix values (aka T-matrix)
+# Balancing Flows Matrix values (aka T-matrix)
 let T.actors.black = {[BNR.black]}
 let T.world.black  = {[FEED.black]}
 let T.pop.world    = {[BREM]}
-let T.actors.world = {[graft]*[BX.region.world]}
+let T.actors.world = {[graft]*[BFAR]}
 # Prevent "-0.0" from being displayed in the GUI
 let T.region.world = {
     [T.actors.world] == 0.0 ? 0.0 : -1.0*[T.actors.world]
@@ -409,15 +459,46 @@ let XT.pop.world    = {[BX.pop.world]    + [T.pop.world]}
 let XT.actors.world = {[BX.actors.world] + [T.actors.world]}
 let XT.region.world = {[BX.region.world] + [T.region.world]}
 
+# Fill out the rest of the XT.i.j, which are just the BX.i.j for
+# the applicable i and j
+
+# goods and black sector
+foreach i {goods black} {
+    foreach j {goods black pop actors region world} {
+        let XT.$i.$j = {[BX.$i.$j]}
+    }
+}
+
+# actors sector
+foreach j {goods pop actors region} {
+    let XT.actors.$j = {[BX.actors.$j]}
+}
+
+# world sector
+foreach j {goods pop actors region world} {
+    let XT.world.$j = {[BX.world.$j]}
+}
+
+# pop and region sector
+foreach i {pop region} {
+    foreach j {goods black pop actors region} {
+        let XT.$i.$j = {[BX.$i.$j]}
+    }
+}
+
+
 # Revenues affected by the T-matrix, all others are from BREV.i
+let XTREV.goods  = {[BREV.goods]} 
+let XTREV.black  = {[BREV.black]}
 let XTREV.pop    = {[BREV.pop] + [T.pop.world]}
 let XTREV.actors = {[BREV.actors] + [T.actors.black] + [T.actors.world]}
 let XTREV.region = {[BREV.region] + [T.region.world]}
+let XTREV.world  = {[BREV.world]}
 
-# Expenditures affected by the T-matrix, all other are from BEXP.j
-let XTEXP.black = {[BEXP.black] + [T.actors.black] + [T.world.black]}
-let XTEXP.world = {
-    [BEXP.world] + [T.pop.world] + [T.actors.world] + [T.region.world]
+# Expenditures 
+foreach j {goods black pop actors region world} {
+    # Sector expenditures sum the column 
+    let XTEXP.$j = {<:sum i {[XT.$i.$j]}:>} 
 }
 
 #----------------------------------------------------------------
@@ -426,7 +507,7 @@ let XTEXP.world = {
 letsym NA = {"n/a"}
 
 # Zero matrix used when displaying the T-matrix. The zero matrix is 
-# overlayed by the values in the T-matrix
+# overlaid by the values in the T-matrix
 foreach i {goods black pop actors region world} {
     foreach j {goods black pop actors region world} {
         let ZED.$i.$j = 0.0
@@ -434,8 +515,8 @@ foreach i {goods black pop actors region world} {
 }
 
 # Diagnostics
-# TBD
-
-
+# XTREV.i should equal XTEXP.i for all i
+# Note: this will only be true if an analyst is careful enough to 
+# define the actors so that XTREV.actors = XTEXP.actors 
 
 
