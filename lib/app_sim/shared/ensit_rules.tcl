@@ -878,6 +878,7 @@ snit::type ensit_rules {
         dict with fdict {}
         log detail envr [list POWEROUT-2 $s]
 
+        set flist [demog gIn $n]
 
         dam rule POWEROUT-2-1 $driver_id $fdict {
             [resolverIsLocal $resolver]
