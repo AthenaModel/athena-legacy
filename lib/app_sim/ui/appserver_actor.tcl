@@ -117,7 +117,7 @@ appserver module ACTOR {
         ht title $data(fancy) "Actor" 
 
         ht linkbar {
-            "#asset"     "Income/Assets"
+            "#money"     "Income/Assets/Expenditures"
             "#goals"     "Goals"
             "#sphere"    "Sphere of Influence"
             "#base"      "Power Base"
@@ -141,7 +141,7 @@ appserver module ACTOR {
 
         ht para
         # Asset Summary
-        ht subtitle "Income/Assets" asset
+        ht subtitle "Income/Assets/Expenditures" money
 
         ht putln "Fiscal assets: \$$data(income) per week, with "
         ht put "\$$data(cash_on_hand) cash on hand and "
@@ -149,7 +149,7 @@ appserver module ACTOR {
         ht para
 
         if {[locked -disclaimer] && ![parm get econ.disable]} {
-            ht putln "The following table shows this actors income levels "
+            ht putln "The following table shows this actors income per week "
             ht put   "from the various sectors."
             ht para
 
@@ -165,6 +165,23 @@ appserver module ACTOR {
             } -default "None." -align RRRRRR
 
             ht para
+
+            ht putln "The following tables show this actors expenditures "
+            ht put   "to the various sectors."
+            ht para
+
+            ht query {
+                SELECT lbl                 AS "",
+                       "$" || exp_goods    AS "goods",
+                       "$" || exp_black    AS "black market",
+                       "$" || exp_pop      AS "pop",
+                       "$" || exp_actor    AS "actors",
+                       "$" || exp_region   AS "region",
+                       "$" || exp_world    AS "world",
+                       "$" || tot_exp      AS "total"
+                FROM gui_econ_expense_a
+                WHERE a=$a
+            } -default "None." -align LRRRRRRR
         }
                 
         # Goals

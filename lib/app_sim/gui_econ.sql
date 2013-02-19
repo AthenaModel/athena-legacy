@@ -62,6 +62,82 @@ SELECT a                                  AS id,
        moneyfmt(inc_region)               AS income_graft
 FROM income_a;
 
+-- gui_econ_expense_a: Actor specific expenditures by sector
+-- First row is current, second row is totals to date.
+CREATE TEMPORARY VIEW gui_econ_expense_a AS
+SELECT a                                AS id,
+       a                                AS a,
+       '<b>Current<\b>'                 AS lbl,
+       moneyfmt(goods)                  AS exp_goods,
+       moneyfmt(black)                  AS exp_black,
+       moneyfmt(pop)                    AS exp_pop,
+       moneyfmt(actor)                  AS exp_actor,
+       moneyfmt(region)                 AS exp_region,
+       moneyfmt(world)                  AS exp_world,
+       moneyfmt(goods + black + pop + 
+                actor + region + world) AS tot_exp
+FROM expenditures
+UNION
+SELECT a                                AS id,
+       a                                AS a,
+       '<b>To Date<\b>'                 AS lbl,
+       moneyfmt(tot_goods)              AS tot_goods,
+       moneyfmt(tot_black)              AS tot_black,
+       moneyfmt(tot_pop)                AS tot_pop,
+       moneyfmt(tot_actor)              AS tot_actor,
+       moneyfmt(tot_region)             AS tot_region,
+       moneyfmt(tot_world)              AS tot_world,
+       moneyfmt(tot_goods + tot_black + tot_pop + 
+                tot_actor + tot_region + tot_world)
+                                        AS grand_tot_exp
+FROM expenditures;
+
+-- gui_econ_exp_now_a: Actor specific expenditures by sector
+-- at the current time.
+CREATE TEMPORARY VIEW gui_econ_exp_now_a AS
+SELECT a                                AS id,
+       a                                AS a,
+       moneyfmt(goods)                  AS exp_goods,
+       moneyfmt(black)                  AS exp_black,
+       moneyfmt(pop)                    AS exp_pop,
+       moneyfmt(actor)                  AS exp_actor,
+       moneyfmt(region)                 AS exp_region,
+       moneyfmt(world)                  AS exp_world,
+       moneyfmt(goods + black + pop + 
+                actor + region + world) AS tot_exp
+FROM expenditures;
+
+-- gui_econ_exp_year_a: Annualized actor specific expenditures by
+-- sector.
+CREATE TEMPORARY VIEW gui_econ_exp_year_a AS
+SELECT a                                AS id,
+       a                                AS a,
+       moneyfmt(goods  * 52.0)          AS exp_goods,
+       moneyfmt(black  * 52.0)          AS exp_black,
+       moneyfmt(pop    * 52.0)          AS exp_pop,
+       moneyfmt(actor  * 52.0)          AS exp_actor,
+       moneyfmt(region * 52.0)          AS exp_region,
+       moneyfmt(world  * 52.0)          AS exp_world,
+       moneyfmt((goods + black + pop + 
+                actor + region + world) * 52.0) 
+                                        AS tot_exp
+FROM expenditures;
+
+-- gui_econ_exp_tot_a: Total actor specific expenditures by sector
+-- to date.
+CREATE TEMPORARY VIEW gui_econ_exp_tot_a AS
+SELECT a                                AS id,
+       a                                AS a,
+       moneyfmt(tot_goods)              AS exp_goods,
+       moneyfmt(tot_black)              AS exp_black,
+       moneyfmt(tot_pop)                AS exp_pop,
+       moneyfmt(tot_actor)              AS exp_actor,
+       moneyfmt(tot_region)             AS exp_region,
+       moneyfmt(tot_world)              AS exp_world,
+       moneyfmt(tot_goods + tot_black + tot_pop + 
+                tot_actor + tot_region + tot_world) 
+                                       AS tot_exp
+FROM expenditures;
 
 -----------------------------------------------------------------------
 -- End of File

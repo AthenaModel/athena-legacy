@@ -35,6 +35,18 @@ snit::type cash {
     # Public Methods
 
 
+    # start
+    #
+    # Sets up the expenditures table in preparation for on-lock strategy 
+    # execution 
+
+    typemethod start {} {
+        rdb eval {
+            DELETE FROM expenditures;
+            INSERT INTO expenditures(a) SELECT a FROM actors;
+        }
+    }
+
     # load
     #
     # Loads every actor's cash balances into working_cash for use during
@@ -115,8 +127,9 @@ snit::type cash {
         
         # NEXT, initialize the actors' expenditures table.
         rdb eval {
-            DELETE FROM expenditures;
-            INSERT INTO expenditures(a) SELECT a FROM actors;
+            UPDATE expenditures 
+            SET goods = 0, black  = 0, pop   = 0,
+                actor = 0, region = 0, world = 0;
         }
     }
 
@@ -274,7 +287,8 @@ snit::type cash {
             
             rdb eval "
                 UPDATE expenditures
-                SET $sector = $sector + \$amount
+                SET $sector = $sector + \$amount,
+                    tot_$sector = tot_$sector + \$amount
                 WHERE a = \$a
             "
         }

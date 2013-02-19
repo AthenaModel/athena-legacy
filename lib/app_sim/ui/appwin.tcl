@@ -358,6 +358,13 @@ snit::widget appwin {
             script  { econcapbrowser %W }
         }
 
+        econexp {
+            label   "Actors"
+            vistype simulation
+            parent  "econt"
+            script  { econexpbrowser %W }
+        }
+
         econpop {
             label   "Population"
             vistype simulation

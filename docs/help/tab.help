@@ -2577,6 +2577,68 @@ tab "Econ/Capacity" {
     <</topiclist>>
 }
 
+tab "Econ/Actors" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the expenditures made be each actor to each of
+    the economic sectors.
+    The browser controls are described <<seebelow controls>>; 
+    the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Actor>>An actor's shortname<</topic>>
+
+    <<topic Total>>The total amount of money expended by the actor.
+    <</topic>>
+
+    <<topic Goods>>The amount of money expended to the
+    goods sector.
+    <</topic>>
+    
+    <<topic "Black Market">>The amount of money expended to 
+    the black market sector.
+    <</topic>>
+
+    <<topic Population>>The amount of money expended to
+    the population sector.
+    <</topic>>
+
+    <<topic Actors>>The amount of money expended to
+    other actors. 
+    <</topic>>
+
+    <<topic Region>>The amount of money expended to
+    the sector represented as the rest of the region.
+    <</topic>>
+
+    <<topic World>>The amount of money expended to
+    the sector represented as the rest of the world.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image viewbox]>>
+    The view box determines which view of expenditures is to be 
+    displayed. The following views may be selected from the 
+    pulldown:<p>
+
+    <ul>
+    <li> <b>This Week</b>: Expenditures made by each actor during the
+    current time step.
+    <li> <b>To Date</b>: Expenditures made to date by each actor.
+    <li> <b>Annualized</b>: Annualized expenditures made by each actor;
+    the current expenditures multiplied by 52.
+    </ul>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
 
 tab "Econ/Population" {
     <b>Simulation Mode only.</b><p>

@@ -80,6 +80,7 @@ snit::type engine {
         # in which we execute the on-lock strategy and provide transient
         # effects to URAM.
 
+        profile cash start           ;# Prepare cash for on-lock strategies
         profile strategy start       ;# Execute on-lock strategies
         profile econ start           ;# Initializes the econ model taking 
                                       # into account on-lock strategies

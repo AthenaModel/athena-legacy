@@ -51,6 +51,7 @@ snit::type ted {
         deploy_ng
         drivers
         ensits_t
+        expenditures
         frcgroups
         goals
         groups

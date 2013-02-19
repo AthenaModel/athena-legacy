@@ -284,13 +284,21 @@ CREATE TABLE expenditures (
     -- The actor
     a   TEXT PRIMARY KEY,
 
-    -- The expenditures
+    -- The expenditures at the current time step
     goods  REAL default 0.0,
     black  REAL default 0.0,
     pop    REAL default 0.0,
     actor  REAL default 0.0,
     region REAL default 0.0,
-    world  REAL default 0.0
+    world  REAL default 0.0,
+
+    -- The total expenditures up to the current time step
+    tot_goods  REAL default 0.0,
+    tot_black  REAL default 0.0,
+    tot_pop    REAL default 0.0,
+    tot_actor  REAL default 0.0,
+    tot_region REAL default 0.0,
+    tot_world  REAL default 0.0
 );
 
 ------------------------------------------------------------------------
