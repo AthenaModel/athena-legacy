@@ -1,0 +1,197 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#   040-demsit_rules.test
+#
+# AUTHOR:
+#   Will Duquette
+#
+# DESCRIPTION:
+#   demsit_rules(sim) tests
+#
+#   This test suite tests that the rules fire when appropriate.
+#
+# NOTE:
+#   This test suite differs from the other 040-* test suites.
+#
+#   The 040-* tests have the following purposes, in order of importance:
+#
+#   1. Elimination of lurking bgerrors.
+#   2. Verification that the correct rules fire, given the rule set inputs
+#   3. Verification that the rules provide the correct kinds of inputs to
+#      URAM.
+#   4. Verification that the other Athena models will give correct inputs
+#      to the rule sets.
+#
+#   In short, the 040-* test suites test not only the rule sets themselves,
+#   but (as noted in point #4) the models that drive the rule sets.
+#
+#   However, the both the CGE and the cellmodel used to initialize it are
+#   in a state of flux; if we use the CGE outputs to drive this test suite,
+#   we will be having to modify the tests on a weekly basis as the economic
+#   model changes.
+#
+#   Thus, in this test suite we will skip point #4, and focus narrowly
+#   on just the rule sets themselves.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # setup 
+    #
+    # Sets up for tests.
+    
+    proc setup {} {
+        # FIRST, disable the economic model.  (See above.)
+        parm set econ.disable yes
+        
+        # FIRST, other rule sets shouldn't muddy the waters.
+        parm set dam.PRESENCE.active no
+        parm set dam.ENI.active no
+        rdb eval {DELETE FROM drivers}
+        rdb eval {DELETE FROM mads_t}
+        
+        # NEXT, create the entities
+        ted create JOE BOB DAVE NB1 NB2 TAL SHIA SUNN KURD
+        
+        # NEXT, lock, so that URAM is ready to receive inputs.
+        ted lock
+    }
+    
+    # unemp nfactor ngfactor
+    #
+    # nfactor  - The neighborhood factor for NB1
+    # ngfactor - The neighborhood group factor for SHIA
+    #
+    # Sets up the demog_g and demog_n tables with the specified
+    # factors, all other factors being 0.0, and calls demsit_rules assess
+    # to assess the results.
+    
+    proc unemp {nfactor ngfactor} {
+        # FIRST, spoof the factors.
+        rdb eval {
+            UPDATE demog_g SET uaf = 0.0;
+            UPDATE demog_g SET uaf = $ngfactor
+            WHERE g='SHIA';
+            
+            UPDATE demog_n SET uaf = 0.0;
+            UPDATE demog_n SET uaf = $nfactor
+            WHERE n = 'NB1';
+        }
+        
+        # NEXT, execute the rule set.
+        demsit_rules assess
+    }
+    
+    # Clean up after a test
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # UNEMP
+    
+    test UNEMP-1.1 {Rule 1-1 fires, nfactor effects} -setup {
+        setup
+    } -body {
+        unemp 1.0 0.0
+        ted querylist {
+            SELECT * FROM rule_firings where ruleset='UNEMP'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    UNEMP
+rule       UNEMP-1-1
+fdict      ngfactor 0.0 nfactor 1.0 n NB1 g SHIA
+
+firing_id  2
+t          0
+driver_id  1001
+ruleset    UNEMP
+rule       UNEMP-1-1
+fdict      ngfactor 0.0 nfactor 1.0 n NB1 g SUNN
+    }
+    
+    test UNEMP-1.2 {Rule 1-2 fires, ngfactor effects} -setup {
+        setup
+    } -body {
+        unemp 0.0 1.0
+        ted querylist {
+            SELECT * FROM rule_firings where ruleset='UNEMP'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    UNEMP
+rule       UNEMP-1-1
+fdict      ngfactor 1.0 nfactor 0.0 n NB1 g SHIA
+    }
+    
+    test UNEMP-1.3 {Rule 1-1 inputs, nfactor effects} -setup {
+        setup
+    } -body {
+        unemp 1.0 0.0
+        ted query {
+            SELECT rule, g, c
+            FROM rule_firings JOIN rule_inputs USING (firing_id)
+            WHERE ruleset='UNEMP'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+rule      g    c   
+--------- ---- --- 
+UNEMP-1-1 SHIA SFT 
+UNEMP-1-1 SHIA AUT 
+UNEMP-1-1 SUNN SFT 
+UNEMP-1-1 SUNN AUT 
+    }
+    
+    test UNEMP-1.4 {Rule 1-1 inputs, ngfactor effects} -setup {
+        setup
+    } -body {
+        unemp 0.0 1.0
+        ted query {
+            SELECT rule, g, c
+            FROM rule_firings JOIN rule_inputs USING (firing_id)
+            WHERE ruleset='UNEMP'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+rule      g    c   
+--------- ---- --- 
+UNEMP-1-1 SHIA QOL 
+    }
+    
+    
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+
