@@ -62,8 +62,11 @@ tactic type define SPEND {
         
         # NEXT, do we have it?
         if {$mode eq "ALL"} {
-            set amount $cash_on_hand
-        } elseif {$amount > $cash_on_hand} {
+            # NEXT, cash on hand can be negative if we are locking
+            # this simply keeps a negative number from being 
+            # reported in the sigevent log
+            set amount [expr {max(0.0, $cash_on_hand)}]
+        } elseif {![strategy locking] && $amount > $cash_on_hand} {
             return 0
         }
         

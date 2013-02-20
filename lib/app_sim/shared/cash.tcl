@@ -41,6 +41,7 @@ snit::type cash {
     # execution 
 
     typemethod start {} {
+        # FIRST, initialize expenditures table
         rdb eval {
             DELETE FROM expenditures;
             INSERT INTO expenditures(a) SELECT a FROM actors;
@@ -70,14 +71,13 @@ snit::type cash {
                    cash_on_hand
             FROM actors_view;
         } {
-            if {![strategy locking]} {
-                let cash_on_hand { $cash_on_hand + $income }
-            }
-            
+            let cash_on_hand { $cash_on_hand + $income }
+
             rdb eval {
                 INSERT INTO working_cash(a, cash_reserve, income, cash_on_hand)
                 VALUES($a, $cash_reserve, $income, $cash_on_hand)
             }
+            
         }
     }
 
@@ -171,7 +171,23 @@ snit::type cash {
         # FIRST, if strategy is locking only allocate the money to
         # the expenditure class as a baseline, and then we are done.
         if {[strategy locking]} {
+
+            # NEXT, if dollars is negative, which can happen on lock,
+            # then nothing is expended from working cash. But the tactic 
+            # still executes and the money is allocated to sectors
+            # as if the full amount had been spent
+            if {$dollars < 0.0} {
+                set dollars 0.0
+            }
+
+            rdb eval {
+                UPDATE working_cash
+                SET cash_on_hand = cash_on_hand - $dollars
+                WHERE a=$a
+            }
+
             $type AllocateByClass $a $eclass $dollars
+
             return 1
         }
 
@@ -209,23 +225,42 @@ snit::type cash {
     # fractions.
 
     typemethod spendon {a dollars profile} {
-        # FIRST, if strategy is locking only allocate the money to
-        # the expenditure class as a baseline, and then we are done.
-        if {![strategy locking]} {
-            # NEXT, can he afford it
-            set cash_on_hand [cash get $a cash_on_hand]
-    
-            if {$dollars > $cash_on_hand} {
-                return 0
+        # FIRST, if strategy is locking, then the tactic needs to
+        # execute.
+        if {[strategy locking]} {
+
+            # NEXT, if dollars is negative, which can happen on lock,
+            # then nothing is expended from working cash. But the tactic 
+            # still executes and the money is allocated to sectors
+            # as if the full amount had been spent
+            if {$dollars < 0} {
+                set dollars 0
             }
-    
-            # NEXT, expend it.
+
             rdb eval {
-                UPDATE working_cash 
+                UPDATE working_cash
                 SET cash_on_hand = cash_on_hand - $dollars
                 WHERE a=$a
             }
+
+            $type Allocate $a $profile $dollars
+
+            return 1
         }
+
+        # NEXT, can he afford it
+        set cash_on_hand [cash get $a cash_on_hand]
+    
+        if {$dollars > $cash_on_hand} {
+            return 0
+        }
+    
+        # NEXT, expend it.
+        rdb eval {
+            UPDATE working_cash 
+            SET cash_on_hand = cash_on_hand - $dollars
+            WHERE a=$a
+         }
 
         # NEXT, allocate the money to the expenditure class
         $type Allocate $a $profile $dollars

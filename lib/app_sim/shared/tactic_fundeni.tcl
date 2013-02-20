@@ -69,10 +69,7 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
 
     typemethod execute {tdict} {
         dict with tdict {
-            # FIRST, retrieve relevant data.
-            set cash_on_hand [cash get $owner cash_on_hand]
-
-            # NEXT, Ensure that the group has influence in the
+            # FIRST, Ensure that the group has influence in the
             # relevant neighborhood, neighborhoods.  If insufficient
             # influence, don't execute.
             set glist [FilterForSupport $owner $glist]
