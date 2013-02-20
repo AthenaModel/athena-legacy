@@ -114,7 +114,15 @@ snit::type econ {
 
         array set cells [$sam get]
 
-        # FIRST, per capita demand for goods must be reasonable
+        let URfrac {$cells(BaseUR) / 100.0}
+
+        # FIRST, turbulence cannot be greater than the unemployment rate
+        if {$URfrac < [parmdb get econ.turFrac]} {
+            dict append edict BaseUR \
+                "The unemployment rate, $cells(BaseUR)%, must be greater than or equal to econ.turFrac."
+        }
+
+        # NEXT, per capita demand for goods must be reasonable
         if {$cells(BA.goods.pop) < 1.0} {
             dict append edict BA.goods.pop \
                 "Annual per capita demand for goods is less than 1 goods basket."
@@ -858,6 +866,7 @@ snit::type econ {
             # NEXT some calibration tuning parameters
             cge set [list GDPExponent     [parm get econ.gdpExp]]
             cge set [list EmpExponent     [parm get econ.empExp]]
+            cge set [list TurFrac         [parm get econ.turFrac]]
             cge set [list Flag.REMisTaxed \
                 [::projectlib::boolean validate [parm get econ.REMisTaxed]]]
 

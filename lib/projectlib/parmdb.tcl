@@ -1132,6 +1132,12 @@ snit::type ::projectlib::parmdb {
             state of the economy.
         }
 
+        $ps define econ.turFrac ::simlib::rfraction 0.04 {
+            The turbulence fraction of those in the labor force. This
+            fraction represents those individuals that are "between jobs"
+            and, thus, make up a portion of the unemployed.
+        }
+
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as
             a decimal fraction of the total production capacity.  This

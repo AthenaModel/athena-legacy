@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version t
+#    sam6x6.cm, version u
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -29,6 +29,8 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version u: Removed TurFrac from the cellmodel. It's not used here
+#
 #    Version t: Many of the shape parameters are now computed from the
 #               XT.i.j matrix instead of the BX.i.j matrix. This is because
 #               the BX.i.j are the Input Flows matrix, the T.i.j are the 
@@ -171,10 +173,6 @@
 # In addition, the following parameters complete the description of the
 # base case and are passed through to the CGE cell model:
 #
-#   TurFrac    Turbulence fraction, the fraction of the labor force that
-#              is "between jobs". Nominally set to 0.04, this becomes part
-#              of the unemployment figure.
-#
 #   BaseConsumers
 #              The base number of consumers which should be commensurate with
 #              the size of the economy being modeled. This figure should
@@ -261,7 +259,6 @@ let BP.actors = 0
 let BP.region = 0
 let BP.world  = 0
 
-let TurFrac        = 0.04    ;# Fraction of people "between jobs"
 let BaseConsumers  = 160.0e6
 let BaseSubsisters = 40.0e6
 let BaseUR         = 10.0    ;# Unemployment rate
