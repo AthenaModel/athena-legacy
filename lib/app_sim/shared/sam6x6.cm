@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version u
+#    sam6x6.cm, version v
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -29,7 +29,10 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
-#    Version u: Removed TurFrac from the cellmodel. It's not used here
+#    Version v: Added BaseCAP.black, which at this point is a pass thru
+#               to the CGE.
+#
+#    Version u: Removed TurFrac from the cellmodel; it's not used here.
 #
 #    Version t: Many of the shape parameters are now computed from the
 #               XT.i.j matrix instead of the BX.i.j matrix. This is because
@@ -193,6 +196,12 @@
 #              many in the labor force actually have jobs and are earning
 #              wages.
 #
+#   BaseCAP.black
+#              The production capacity of the black market in tonnes. 
+#              This is simply a pass thru to the CGE In page. If a model 
+#              of the black market production capacity is developed in 
+#              Athena, it will come from there.
+#
 #-----------------------------------------------------------------------
 #
 # Indices
@@ -272,6 +281,7 @@ let graft          = 0.3    ;# Fraction of foreign aid to region that
 let PF.world.black = 0.0
 let AF.world.black = 1.05
 let MF.world.black = 240.0
+let BaseCAP.black  = 40000   ;# tonnes of black market goods
 
 
 # Global variables used by Athena at runtime

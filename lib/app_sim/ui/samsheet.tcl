@@ -427,6 +427,7 @@ snit::widget samsheet {
             "Black mkt Feedstock Price"
             "Feedstock per Unit Product"
             "Max Feedstock Avail."
+            "Black mkt capacity"
             "Base Consumers"
             "Base Unemployment Rate"
             "Base Subsisters"
@@ -438,6 +439,7 @@ snit::widget samsheet {
             "$/tonne"
             ""
             "tonnes/year"
+            "tonnes"
             ""
             "%"
             ""
@@ -449,11 +451,12 @@ snit::widget samsheet {
         $inputs mapcell 0,1 PF.world.black e 
         $inputs mapcell 1,1 AF.world.black e
         $inputs mapcell 2,1 MF.world.black e
-        $inputs mapcell 3,1 BaseConsumers  e
-        $inputs mapcell 4,1 BaseUR         e
-        $inputs mapcell 5,1 BaseSubsisters e
-        $inputs mapcell 6,1 BaseSubWage    e
-        $inputs mapcell 7,1 REMChangeRate  e        \
+        $inputs mapcell 3,1 BaseCAP.black  e
+        $inputs mapcell 4,1 BaseConsumers  e
+        $inputs mapcell 5,1 BaseUR         e
+        $inputs mapcell 6,1 BaseSubsisters e
+        $inputs mapcell 7,1 BaseSubWage    e
+        $inputs mapcell 8,1 REMChangeRate  e        \
             -formatcmd {format "%.1f"}              \
             -validatecmd [mymethod ValidatePercent] \
             -changecmd [mymethod GlobalChanged]

@@ -903,6 +903,9 @@ snit::type econ {
                 cge set [list In::EXPORTS.$i $samdata(BEXPORTS.$i)]
             }
 
+            # NEXT, black market capacity
+            cge set [list In::CAP.black  $samdata(BaseCAP.black)]
+
             # NEXT, number engaged in subsistence agriculture
             let subsisters {$demdata(population) - $demdata(consumers)}
             cge set [list BaseSubsisters $subsisters]
@@ -1029,12 +1032,13 @@ snit::type econ {
         set REM [$type ComputeREM]
 
         cge set [list \
-                     In::Consumers  $demdata(consumers)   \
-                     In::Subsisters $subsisters           \
-                     In::LF         $demdata(labor_force) \
-                     In::CAP.goods  $CAPgoods             \
-                     In::LSF        $LSF                  \
-                     In::CSF        $CSF                  \
+                     In::Consumers  $demdata(consumers)     \
+                     In::Subsisters $subsisters             \
+                     In::LF         $demdata(labor_force)   \
+                     In::CAP.goods  $CAPgoods               \
+                     In::CAP.black  $samdata(BaseCAP.black) \
+                     In::LSF        $LSF                    \
+                     In::CSF        $CSF                    \
                      In::REM        $REM]
 
         cge set [list \
