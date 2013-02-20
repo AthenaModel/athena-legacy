@@ -413,7 +413,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         normal                     \
-            -rows          8                          \
+            -rows          9                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
