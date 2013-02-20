@@ -370,7 +370,7 @@ let t.region.black = {
 }
 
 let t.world.black = {
-    [XTREV.black] > 0.0 ? 
+    [BREV.black] > 0.0 ? 
     ([XT.world.black] - [FEED.black]) / [BREV.black] : 0.0
 }
 
@@ -484,7 +484,7 @@ foreach i {pop region} {
 }
 
 
-# Revenues affected by the T-matrix, all others are from BREV.i
+# Some revenues are affected by the T-matrix, all others are from BREV.i
 let XTREV.goods  = {[BREV.goods]} 
 let XTREV.black  = {[BREV.black]}
 let XTREV.pop    = {[BREV.pop] + [T.pop.world]}
