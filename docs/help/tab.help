@@ -2364,7 +2364,9 @@ tab "Econ/SAM" {
 
     <<image econ_sam>><p>
 
-    The SAM Inputs area shows the Social Accounting Matrix (SAM), sector 
+    <b>SAM Inputs</b><p>
+
+    This area shows the Social Accounting Matrix (SAM), sector 
     by sector, and related inputs and outputs. The SAM is displayed in
     two forms: the presumed size given the number of consumers and the
     resultant shape. The former is displayed a the top of the tab and
@@ -2392,15 +2394,18 @@ tab "Econ/SAM" {
     in work-years given the average annual income of a typical person in
     the area of interest.<p>
 
-    The Other Inputs section allows the user to supply, in order,
+    <b>Other Inputs</b><p>
+
+    This section allows the user to supply, in order,
     the black market feedstock price in dollars per year,
     the feedstock per unit of black market product (for example, if it takes 
     1.05 tons of poppies to make 1 ton of opium, then this value would be 
     1.05), the maximum amount of black market feedstock available, the 
-    number of consumers, the base case unemployment rate and the number of
-    subsisters that the data in the SAM is based upon and the subsistence 
-    farmer wage, which is also the poverty level.  The subsistence wage is
-    used to compute the contribution of subsistence agriculture to the GDP.<p>
+    production capacity of the black market, the number of consumers, the 
+    base case unemployment rate and the number of subsisters that the data 
+    in the SAM is based upon and the subsistence farmer wage, which is also 
+    the poverty level.  The subsistence wage is used to compute the 
+    contribution of subsistence agriculture to the GDP.<p>
 
     When Athena is locked, all the cells on the SAM remain visible, but are
     no longer editable unless the user returns to the <<term prep>> state.
@@ -2436,20 +2441,26 @@ tab "Econ/SAM" {
     The SAM outputs are divided up into three sections: <b>Size Outputs</b>,
     <b>Exports/Foreign Aid Outputs</b> and <b>Misc. Outputs</b>.<p>
 
-    The <b>Size Outputs</b> section contains values that aid the analyst in 
+    <b>Size Outputs</b><p>
+
+    This section contains values that aid the analyst in 
     determining the overall size of the economy given the inputs provided.
     These outputs include the base value for GDP,
     the per capita demand for goods and the 
     base contribution to GDP that subsistence agriculture makes.<p>
 
-    The <b>Exports/Foreign Aid Outputs</b> section contains values from the
+    <b>Exports/Foreign Aid Outputs</b><p>
+
+    This section contains values from the
     SAM that have special meaning. Aid to Actors corresponds to the SAM's
     BX.actors.world cell. Likewise, Aid to Region is the same as the 
     BX.region.world cell. Exports are computed from the money flow to the
     goods, black and pop sectors from the world sector and the base price
     in each of those sectors that have product.<p>
 
-    The <b>Misc. Outputs</b> section contains three outputs. First is 
+    <b>Misc. Outputs</b><p>
+
+    This section contains three outputs. First is 
     remittances which is the difference between the Base Revenue and the Base 
     Expenditures in the pop sector.  The SAM assumes that any expenditures
     by the populace over their revenue must be due to remittances.  Next
