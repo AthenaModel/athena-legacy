@@ -54,10 +54,10 @@ snit::type demsit_rules {
         
         # NEXT, look for and assess unemployment
         rdb eval {
-            SELECT n, g, ngfactor, nfactor
+            SELECT n, g, nuaf AS uaf
             FROM demog_context
             WHERE population > 0
-            AND (ngfactor > 0.0 OR nfactor > 0.0)
+            AND nuaf > 0
         } row {
             unset -nocomplain row(*)
             set fdict [array get row]
@@ -85,21 +85,14 @@ snit::type demsit_rules {
         log detail demr [list UNEMP $driver_id]
 
         dam rule UNEMP-1-1 $driver_id $fdict {
-            $ngfactor > 0.0 || $nfactor > 0.0
+            $uaf > 0.0
         } {
             # While there is an UNEMP situation affecting group g
-            #     with ngfactor > 0.0
+            #     with uaf > 0.0
             # Then for CIV group g in the nbhood,
-            if {$ngfactor > 0.0} {
-                dam sat T $g QOL [mag* $ngfactor L-]
-            }
-
-            # While there is an UNEMP situation affecting group g
-            #     with nfactor > 0.0
-            # Then for CIV group g in the nbhood,
-            if {$nfactor > 0.0} {
-                dam sat T $g SFT [mag* $nfactor M-]
-                dam sat T $g AUT [mag* $nfactor S-]
+            if {$uaf > 0.0} {
+                dam sat T $g SFT [mag* $uaf M-]
+                dam sat T $g AUT [mag* $uaf S-]
             }
         }
     }
