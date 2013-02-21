@@ -1086,7 +1086,82 @@ snit::type ::projectlib::parmdb {
         $ps subset demog {
             Demographics Model parameters.
         }
+        
+        $ps subset demog.consump {
+            Parameters related to the Demographics model's consumption
+            model.
+        }
+        
+        $ps define demog.consump.alphaA ::simlib::rfraction 0.50 {
+            Smoothing constant for revising the expected level of
+            consumption <b>when the actual level of consumption has been
+            higher than expected</b>.  If 1.0, the expected
+            level of consumption will just be the current level of
+            consumption; (expectations change instantly); if 0.0, the
+            expected level of consumption will never change at all.<p>
 
+            The value can be thought of as 1 over the average age of
+            the data in weeks.  Thus, the default value of 0.5 implies
+            that the data used for smoothing has an average age of 2
+            weeks.
+        }
+
+        $ps define demog.consump.alphaE ::simlib::rfraction 0.25 {
+            Smoothing constant for revising the expected level of
+            consumption <b>when the actual level of consumption has
+            been lower than expected.</b>.  If 1.0, the expected
+            level of consumption will just be the current level
+            (expectations change instantly); if 0.0, the expected
+            level of consumption will never change at all.  <p>
+
+            The value can be thought of as 1 over the average age of
+            the data in weeks.  Thus, the default value of 0.25 implies
+            that the data used for smoothing has an average age of 4
+            weeks.
+        }
+
+
+        $ps define demog.consump.expectfGain ::projectlib::rnonneg 3 {
+            The gain on the expectations factor.  The base factor
+            runs from -1.0 to +1.0; this gain stretches it to a wider
+            range so that the magnitude expressed in the rule is for a
+            nominal value rather than for an extreme value.
+        }
+        
+        $ps subset demog.consump.RGPC {
+            This set of parameters defines the required number of goods
+            baskets per capita (RGPC) to live without hardship, by
+            urbanization level.
+        }
+        
+        foreach urb [eurbanization names] {
+            $ps define demog.consump.RGPC.$urb ::projectlib::iquantity 0 {
+                The number of goods baskets per capita per year consumed
+                by those living at the poverty line, by urbanization
+                level.
+            }
+        }
+        
+        $ps setdefault demog.consump.RGPC.ISOLATED 0
+        $ps setdefault demog.consump.RGPC.RURAL    350
+        $ps setdefault demog.consump.RGPC.SUBURBAN 400
+        $ps setdefault demog.consump.RGPC.URBAN    450
+
+        $ps define demog.consump.Zpovf ::marsutil::zcurve {0.0 5.0 100.0 1.0} {
+            Z-curve for the poverty factor.  The input is the fraction
+            of a group that is living below the regional poverty line,
+            as defined by the demog.RGPC.* parameters.  The output
+            should range from 0.0 (no unusual poverty) to 1.0
+            (maximum poverty).
+        }
+        
+        $ps define demog.gini ::simlib::rfraction .3 {
+            The regional Gini coefficient.  The Gini coefficient
+            gives an estimate of the inequality of per capita income
+            in the region, and used to describe the Lorenz curve for
+            the region.  It is a number between 0.0 and 1.0
+        }
+        
         $ps define demog.Zuaf ::marsutil::zcurve {0.0 5.0 15.0 2.0} {
             Z-curve for the unemployment attitude factor (UAF).
             The input is the unemployed per capita (UPC), which is
@@ -1094,7 +1169,7 @@ snit::type ::projectlib::parmdb {
             The output is a coefficient used in the
             UNEMP rule set; it should range from 0.0 to 2.0.
         }
-
+        
         # Economic Model parameters
 
         $ps subset econ {

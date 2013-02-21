@@ -92,7 +92,7 @@ namespace eval ::athena_test::tests:: {
         }
         
         # NEXT, execute the rule set.
-        demsit_rules assess
+        demsit_rules monitor UNEMP
     }
     
     # Clean up after a test

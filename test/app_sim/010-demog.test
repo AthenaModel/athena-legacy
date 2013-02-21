@@ -47,15 +47,60 @@ namespace eval ::athena_test::tests:: {
         ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
     } -body {
         demog start
-        ted query {SELECT * FROM demog_g}
+        ted querylist {SELECT * FROM demog_g}
     } -cleanup {
         cleanup
     } -result {
-g    population real_pop subsistence consumers labor_force unemployed upc uaf attrition 
----- ---------- -------- ----------- --------- ----------- ---------- --- --- --------- 
-SHIA 1000       1000.0   0           1000      600         0          0.0 0.0 0         
-SUNN 1000       1000.0   0           1000      600         0          0.0 0.0 0         
-KURD 1000       1000.0   1000        0         0           0          0.0 0.0 0         
+g            SHIA
+population   1000
+real_pop     1000.0
+subsistence  0
+consumers    1000
+labor_force  600
+employed     0
+unemployed   0
+upc          0.0
+uaf          0.0
+tc           0.0
+aloc         0.0
+rloc         0.0
+eloc         0.0
+povfrac      0.0
+attrition    0
+
+g            SUNN
+population   1000
+real_pop     1000.0
+subsistence  0
+consumers    1000
+labor_force  600
+employed     0
+unemployed   0
+upc          0.0
+uaf          0.0
+tc           0.0
+aloc         0.0
+rloc         0.0
+eloc         0.0
+povfrac      0.0
+attrition    0
+
+g            KURD
+population   1000
+real_pop     1000.0
+subsistence  1000
+consumers    0
+labor_force  0
+employed     0
+unemployed   0
+upc          0.0
+uaf          0.0
+tc           0.0
+aloc         0.0
+rloc         0.0
+eloc         0.0
+povfrac      0.0
+attrition    0
     }
 
     test start-1.2 {demog_n is populated} -setup {
@@ -76,16 +121,13 @@ NB2 1000       1000        0         0           0          0.0 0.0
     # getg
 
     test getg-1.1 {can get all data} -setup {
+        parm set econ.disable yes
         setup
-        # Remove any dependancy on econ model
-        rdb eval {
-            UPDATE demog_g SET unemployed=24,uaf=0.0,upc=2.4 WHERE g='SHIA'
-        }
     } -body {
         demog getg SHIA
     } -cleanup {
         cleanup
-    } -result {uaf 0.0 upc 2.4 subsistence 0 attrition 0 unemployed 24 labor_force 600 real_pop 1000.0 consumers 1000 population 1000 g SHIA}
+    } -result {subsistence 0 povfrac 0.0 unemployed 0 eloc 0.0 population 1000 uaf 0.0 attrition 0 labor_force 600 g SHIA consumers 1000 employed 600 tc 0.0 rloc 0.0 upc 0.0 real_pop 1000.0 aloc 0.0}
     
     test getg-1.2 {can get one parameter} -setup {
         setup

@@ -2717,7 +2717,7 @@ tab "Econ/Groups" {
 
     <<topiclist Column Description>>
 
-    <<topic CivGroup>>The name of a civilian group that's resident in
+    <<topic "Civ Group">>The name of a civilian group that's resident in
     the neighborhood.<</topic>>
     
     <<topic "Long Name">>The local name of the group within the
@@ -2726,7 +2726,7 @@ tab "Econ/Groups" {
 
     <<topic Nbhood>>A neighborhood name.<</topic>>
 
-    <<topic Population>>The current population of the group in the
+    <<topic Pop.>>The current population of the group in the
     neighborhood.
     <</topic>>
 
@@ -2740,21 +2740,35 @@ tab "Econ/Groups" {
     <i>do</i> participate in the regional economy.
     <</topic>>
 
-    <<topic LaborForce>>The number of people in the group that
+    <<topic "Labor Force">>The number of people in the group that
     seek paid employment (though they might not find it).
     <</topic>>
 
     <<topic Unemployed>>The number of unemployed workers in the group.
     <</topic>>
 
-    <<topic UnempPerCap%>>The number of unemployed workers in the group, 
-    per capita (UPC), expressed as a percentage.
+    <<topic "Actual LOC">>The Actual Level of Consumption, i.e., the
+    number of goods baskets consumed by each consumer in the group
+    during the past week.
     <</topic>>
 
-    <<topic UAFactor>>The group's unemployment attitude factor, a 
-    multiplier used in the UNEMP rule set.  It is computed from the UPC.
+    <<topic "Expected LOC">>The Expected Level of Consumption, i.e., the
+    number of goods baskets each consumer in the group expects to
+    consume during the next week.
     <</topic>>
 
+    <<topic "Required LOC">>The Required Level of Consumption, i.e., the
+    number of goods baskets required per consumer to avoid hardship
+    during any given week.  The RLOC defines the poverty line; it
+    varies according to the urbanization of the neighborhood.
+    <</topic>>
+    
+    <<topic "Poverty%">>The percentage of the consumers in the group
+    who are living in poverty.  This value depends on the Gini coefficient
+    for the region, and the group's level of consumption relative to
+    the RLOC.
+    <</topic>>
+    
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's

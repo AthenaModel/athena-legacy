@@ -97,3 +97,5 @@ send IOM:UPDATE -iom_id PATRIOT -longname {Be a patriot!  Support our puppies!} 
 send PAYLOAD:COOP:CREATE -iom_id NOPUPPIES -g ARMY -mag -8.5
 send PAYLOAD:HREL:CREATE -iom_id PATRIOT -g ARMY -mag 7.0
 send PAYLOAD:VREL:CREATE -iom_id PATRIOT -a GOV -mag 13.0
+send CIVGROUP:CREATE -g SA -n PE -basepop 100000 -sa_flag 1 -lfp 0
+send CIVGROUP:CREATE -g NOBODY -n CITY -basepop 0

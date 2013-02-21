@@ -161,6 +161,12 @@ SELECT G.id                                            AS id,
             ELSE moneyfmt(SR.sat_funding) END          AS sat_funding, 
        format('%.1f', coalesce(DG.upc, 0.0))           AS upc,
        format('%.2f', coalesce(DG.uaf, 0.0))           AS uaf,
+       format('%.1f', coalesce(DG.tc, 0.0))            AS tc,
+       format('%.1f', coalesce(DG.aloc, 0.0))          AS aloc,
+       format('%.1f', coalesce(DG.eloc, 0.0))          AS eloc,
+       format('%.1f', coalesce(DG.rloc, 0.0))          AS rloc,
+       format('%.1f', coalesce(DG.povfrac, 0.0))       AS povfrac,
+       format('%.1f', coalesce(DG.povfrac*100, 0.0))   AS povpct,
        format('%.3f', coalesce(UM.mood0, 0.0))         AS mood0,
        format('%.3f', coalesce(UM.mood, 0.0))          AS mood
 FROM gui_groups AS G

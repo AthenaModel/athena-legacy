@@ -32,16 +32,18 @@ snit::widgetadaptor econngbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g           "CivGroup"                                       }
-        { longname    "Long Name"                                      }
-        { n           "Nbhood"                                         }
-        { population  "Population"    -sortmode integer -foreground %D }
-        { subsistence "Subsist."      -sortmode integer -foreground %D }
-        { consumers   "Consumers"     -sortmode integer -foreground %D }
-        { labor_force "LaborForce"    -sortmode integer -foreground %D }
-        { unemployed  "Unemployed"    -sortmode integer -foreground %D }
-        { upc         "UnempPerCap%"  -sortmode real    -foreground %D }
-        { uaf         "UAFactor"      -sortmode real    -foreground %D }
+        { g           "Civ\nGroup"                                       }
+        { longname    "Long\nName"                                      }
+        { n           "\nNbhood"                                         }
+        { population  "\nPop."           -sortmode integer -foreground %D }
+        { subsistence "\nSubsist."       -sortmode integer -foreground %D }
+        { consumers   "\nConsumers"      -sortmode integer -foreground %D }
+        { labor_force "Labor\nForce"     -sortmode integer -foreground %D }
+        { unemployed  "\nUnemployed"     -sortmode integer -foreground %D }
+        { aloc        "Actual\nLOC"      -sortmode real    -foreground %D }
+        { eloc        "Expected\nLOC"    -sortmode real    -foreground %D }
+        { rloc        "Required\nLOC"    -sortmode real    -foreground %D }
+        { povpct      "\nPoverty%"       -sortmode real    -foreground %D }
     }
 
     #--------------------------------------------------------------------

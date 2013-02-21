@@ -189,11 +189,30 @@ snit::type demog {
     # Computes the effects of the economy on the population.
 
     typemethod econstats {} {
+        # FIRST, compute the statistics
+        $type ComputeGroupEmployment
+        $type ComputeGroupConsumption
+        $type ComputeExpectedGroupConsumption
+        $type ComputeGroupPoverty
+        $type ComputeNbhoodEconStats
+
+
+        # NEXT, Notify the GUI that demographics may have changed.
+        notifier send $type <Update>
+
+        return
+    }
+    
+    # ComputeGroupEmployment
+    #
+    # Compute the group employment statistics for each group.
+    
+    typemethod ComputeGroupEmployment {} {
         # FIRST, get the unemployment rate and the Unemployment
         # Factor Z-curve.  Assume no unemployment if the econ
         # model is disabled.
 
-        if {![parmdb get econ.disable]} {
+        if {![parm get econ.disable]} {
             set ur [econ value Out::UR]
         } else {
             set ur 0
@@ -201,7 +220,7 @@ snit::type demog {
 
         set zuaf [parmdb get demog.Zuaf]
 
-        # NEXT, compute the neighborhood group statistics
+        # NEXT, compute the group employment statistics
         foreach {n g population labor_force} [rdb eval {
             SELECT n, g, population, labor_force
             FROM demog_g
@@ -211,8 +230,9 @@ snit::type demog {
             GROUP BY g
         }] {
             if {$population > 0} {
-                # number of unemployed workers
+                # number of employed and unemployed workers
                 let unemployed {round($labor_force * $ur / 100.0)}
+                let employed   {$labor_force - $unemployed}
 
                 # unemployed per capita
                 let upc {100.0 * $unemployed / $population}
@@ -221,6 +241,7 @@ snit::type demog {
                 set uaf [zcurve eval $zuaf $upc]
             } else {
                 let unemployed 0
+                let employed   0
                 let upc        0.0
                 let uaf        0.0
             }
@@ -228,14 +249,189 @@ snit::type demog {
             # Save results
             rdb eval {
                 UPDATE demog_g
-                SET unemployed = $unemployed,
+                SET employed   = $employed,
+                    unemployed = $unemployed,
                     upc        = $upc,
                     uaf        = $uaf
                 WHERE g=$g;
             }
         }
+    }
+    
+    # ComputeGroupConsumption
+    #
+    # Computes the actual consumption of goods by each group.
+    
+    typemethod ComputeGroupConsumption {} {
+        # FIRST, clear the values;
+        rdb eval {
+            UPDATE demog_g
+            SET tc   = 0,
+                aloc = 0,
+                rloc = 0;
+        }
+        
+        # NEXT, if the economic model is disabled, that's all we'll do.
+        if {[parm get econ.disable]} {
+            return            
+        }
+        
+        # NEXT, compute total employment
+        set totalEmployed [rdb onecolumn {
+            SELECT total(employed) FROM demog_g
+        }]
 
-        # NEXT, compute the neighborhood statistics.
+        # NEXT, disaggregate the consumption of goods to the groups.         
+        set QD [econ value Out::QD.goods.pop]
+        
+        foreach {g employed consumers urbanization} [rdb eval {
+            SELECT D.g            AS g,
+                   D.employed     AS employed,
+                   D.consumers    AS consumers,
+                   N.urbanization AS urbanization
+            FROM demog_g AS D
+            JOIN civgroups AS C USING (g)
+            JOIN nbhoods AS N USING (n)
+            WHERE D.consumers > 0
+        }] {
+            # QD is a yearly rate of consumption; divided by 52 to get
+            # weekly consumption.
+            let tc   {($QD/52.0)*($employed/$totalEmployed)}
+            let aloc {$tc/$consumers}
+            let rloc {[parm get demog.consump.RGPC.$urbanization]/52.0}
+            
+            rdb eval {
+                UPDATE demog_g
+                SET tc   = $tc,
+                    aloc = $aloc,
+                    rloc = $rloc
+                WHERE g = $g;
+            }
+        }
+    }
+    
+    # ComputeExpectedGroupConsumption
+    #
+    # Update the expected level of consumption of goods for all groups.
+    
+    typemethod ComputeExpectedGroupConsumption {} {
+        # FIRST, if the economic model is disabled, we're done.
+        if {[parm get econ.disable]} {
+            rdb eval {
+                UPDATE demog_g
+                SET eloc = 0;
+            }
+        
+            return            
+        }
+    
+        # NEXT, on lock the expected consumption is just the actual
+        # consumption.
+        if {[simclock now] == 0} {
+            rdb eval {
+                UPDATE demog_g
+                SET eloc = aloc;
+            }
+            
+            return            
+        }
+    
+        # NEXT, compute the new expected consumption from the old,
+        # along with the expectations factor.
+        set alphaA [parm get demog.consump.alphaA]
+        set alphaE [parm get demog.consump.alphaE]
+    
+        foreach {g aloc eloc} [rdb eval {
+            SELECT g, aloc, eloc
+            FROM demog_g
+            WHERE consumers > 0
+        }] {
+            # NOTE: eloc is the eloc from the previous week; aloc is
+            # newly computed.
+            
+            if {$aloc - $eloc >= 0.0} {
+                let eloc {$eloc + $alphaA*($aloc - $eloc)}
+            } else {
+                let eloc {$eloc + $alphaE*($aloc - $eloc)}
+            }
+        
+            rdb eval {
+                UPDATE demog_g
+                SET eloc = $eloc
+                WHERE g = $g
+            }
+        }
+    }
+    
+    # ComputeGroupPoverty
+    #
+    # Computes each group's poverty fraction given the group's consumption
+    # and the regional Gini coefficient.
+    
+    typemethod ComputeGroupPoverty {} {
+        # FIRST, clear the values.
+        rdb eval {
+            UPDATE demog_g
+            SET povfrac = 0;
+        }
+        
+        # NEXT, if the economic model is disabled we're done.
+        if {[parm get econ.disable]} {
+            return            
+        }
+    
+        # NEXT, if the Gini coefficient is 1.0 then effectively one
+        # person has all of the income and no one else has anything.
+        # Otherwise, compute the povfrac given the formula.
+        set gini [parm get demog.gini]
+        
+        if {$gini == 1.0} {
+            let povfrac 1.0
+        } else {
+            # The Lorenz curve can be approximated as x^n where
+            # n is a function of the Gini coefficient.
+            let n {(1 + $gini)/(1 - $gini)}
+            
+            # We want groups that are non-subsistence agriculture, and
+            # that have population.  Requiring consumers > 0 does this.
+            foreach {g tc rloc population} [rdb eval {
+                SELECT g, tc, rloc, population
+                FROM demog_g
+                WHERE consumers > 0
+            }] {
+                # FIRST, compute the full fraction.
+                let povfrac { (($rloc*$population)/($n*$tc))**(1/($n-1)) }
+                
+                # NEXT, clamp to 1.0 and round to two decimal places.
+                # NEXT, round to two decimal places
+                set povfrac [format %.2f [expr {min(1.0, $povfrac)}]]
+                
+                rdb eval {
+                    UPDATE demog_g
+                    SET povfrac = $povfrac
+                    WHERE g = $g
+                }
+            }
+        }
+    }
+    
+    # ComputeNbhoodEconStats
+    #
+    # Computes the neighborhood's economic statistics.
+    
+    typemethod ComputeNbhoodEconStats {} {
+        # FIRST, get the unemployment rate and the Unemployment
+        # Factor Z-curve.  Assume no unemployment if the econ
+        # model is disabled.
+
+        if {![parm get econ.disable]} {
+            set ur [econ value Out::UR]
+        } else {
+            set ur 0
+        }
+
+        set zuaf [parmdb get demog.Zuaf]
+
         foreach {n population labor_force} [rdb eval {
             SELECT n, population, labor_force
             FROM demog_n
@@ -266,12 +462,6 @@ snit::type demog {
                 WHERE n=$n;
             }
         }
-
-
-        # NEXT, Notify the GUI that demographics may have changed.
-        notifier send $type <Update>
-
-        return
     }
 
     #-------------------------------------------------------------------
@@ -279,8 +469,9 @@ snit::type demog {
 
     # getg g ?parm?
     #
-    #   g    - A group in the neighborhood
-    #   parm - A demog_g column name
+    # g    - A group in the neighborhood
+    # parm - A demog_g column name
+    #
     # Retrieves a row dictionary, or a particular column value, from
     # demog_g.
 

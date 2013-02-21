@@ -76,7 +76,10 @@ CREATE TABLE demog_g (
     -- Labor Force: workers available to the regional economy
     labor_force    INTEGER DEFAULT 0,
 
-    -- Unemployed workers in the home neighborhood.
+    -- Employed workers
+    employed       INTEGER DEFAULT 0,
+    
+    -- Unemployed workers
     unemployed     INTEGER DEFAULT 0,
 
     -- Unemployed per capita (percentage)
@@ -84,6 +87,22 @@ CREATE TABLE demog_g (
 
     -- Unemployment Attitude Factor
     uaf            DOUBLE DEFAULT 0.0,
+    
+    -- Total consumption of goods baskets this week
+    tc             DOUBLE DEFAULT 0.0,
+    
+    -- Actual Level of Consumption of goods baskets per capita
+    aloc           DOUBLE DEFAULT 0.0,
+    
+    -- Required Level of Consumption of goods baskets per capita
+    -- (this defines the poverty line)
+    rloc           DOUBLE DEFAULT 0.0,
+    
+    -- Expected Level of Consumption of goods baskets per capita
+    eloc           DOUBLE DEFAULT 0.0,
+    
+    -- Fraction of the group that is living in poverty
+    povfrac        DOUBLE DEFAULT 0.0,
 
     -- Attrition to this group (total killed to date).
     -- This is an output only; it is no longer used to
