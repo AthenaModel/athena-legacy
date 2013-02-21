@@ -70,6 +70,36 @@ namespace eval ::athena_test::tests:: {
         ted lock
     }
     
+    # consump emult povfrac ?controller?
+    #
+    # emult      - ELOC multiplier; ELOC = emult * ALOC
+    # povfrac    - The poverty fraction
+    # controller - The controller of neighborhood NB1
+    #
+    # Sets up the demog_g table, and assesses CONSUMP for group SHIA.
+    
+    proc consump {emult povfrac {controller ""}} {
+        set aloc 1000.0
+        let eloc {$emult * $aloc}
+    
+        rdb eval {
+            UPDATE control_n
+            SET controller = nullif($controller, '')
+            WHERE n = 'NB1';
+            
+            UPDATE demog_g
+            SET aloc = $aloc, eloc = $aloc, povfrac = 0;
+            
+            UPDATE demog_g
+            SET aloc    = $aloc,
+                eloc    = $eloc,
+                povfrac = $povfrac
+            WHERE g = 'SHIA'
+        }
+    
+        demsit_rules monitor CONSUMP
+    }
+    
     # unemp uaf
     #
     # uaf  - The unemployment attitude factor for NB1
@@ -95,6 +125,178 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
+    #-------------------------------------------------------------------
+    # CONSUMP
+    
+    test CONSUMP-1.1 {Rule 1-1 fires, effectf not zero} -setup {
+        setup
+    } -body {
+        consump 2.0 0.0
+        ted querylist {
+            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-1-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CONSUMP
+rule       CONSUMP-1-1
+fdict      a {} povfrac 0.0 n NB1 eloc 2000.0 aloc 1000.0 g SHIA expectf -1.5 povf 0.00
+    }
+    
+    test CONSUMP-1.2 {Rule 1-1 inputs, expectf not zero} -setup {
+        setup
+    } -body {
+        consump 2.0 0.0 
+        ted query {
+            SELECT rule, g, c
+            FROM rule_firings JOIN rule_inputs USING (firing_id)
+            WHERE rule GLOB 'CONSUMP-1-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+rule        g    c   
+----------- ---- --- 
+CONSUMP-1-1 SHIA AUT 
+CONSUMP-1-1 SHIA QOL 
+    }
+    
+    test CONSUMP-1.3 {Rule 1-1 fires, povf not zero} -setup {
+        setup
+    } -body {
+        consump 1.0 1.0
+        ted querylist {
+            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-1-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          0
+driver_id  1000
+ruleset    CONSUMP
+rule       CONSUMP-1-1
+fdict      a {} povfrac 1.0 n NB1 eloc 1000.0 aloc 1000.0 g SHIA expectf 0.0 povf 1.00
+    }
+    
+    test CONSUMP-1.4 {Rule 1-1 inputs, povf not zero} -setup {
+        setup
+    } -body {
+        consump 1.0 1.0 
+        ted query {
+            SELECT rule, g, c
+            FROM rule_firings JOIN rule_inputs USING (firing_id)
+            WHERE rule GLOB 'CONSUMP-1-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+rule        g    c   
+----------- ---- --- 
+CONSUMP-1-1 SHIA AUT 
+CONSUMP-1-1 SHIA QOL 
+    }
+    
+    test CONSUMP-2.1 {Rule 2-1 fires} -setup {
+        setup
+    } -body {
+        consump 1.0 1.0 JOE
+        
+        ted querylist {
+            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-2-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  2
+t          0
+driver_id  1000
+ruleset    CONSUMP
+rule       CONSUMP-2-1
+fdict      a JOE povfrac 1.0 n NB1 eloc 1000.0 aloc 1000.0 g SHIA expectf 0.0 povf 1.00
+    }
+    
+    test CONSUMP-2.2 {Rule 2-1 doesn't fire with no controller} -setup {
+        setup
+    } -body {
+        consump 1.0 1.0
+        
+        rdb eval {
+            SELECT rule FROM rule_firings
+        }
+    } -cleanup {
+        cleanup
+    } -result {CONSUMP-1-1}
+    
+    test CONSUMP-2.3 {Rule 2-1 inputs} -setup {
+        setup
+    } -body {
+        consump 1.0 1.0 JOE
+        ted query {
+            SELECT rule, g, a
+            FROM rule_firings JOIN rule_inputs USING (firing_id)
+            WHERE rule GLOB 'CONSUMP-2-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+rule        g    a   
+----------- ---- --- 
+CONSUMP-2-1 SHIA JOE 
+    }
+    
+    test CONSUMP-3.1 {Rule 2-2 fires} -setup {
+        setup
+    } -body {
+        consump 2.0 1.0 JOE
+        
+        ted querylist {
+            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-2-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  2
+t          0
+driver_id  1000
+ruleset    CONSUMP
+rule       CONSUMP-2-2
+fdict      a JOE povfrac 1.0 n NB1 eloc 2000.0 aloc 1000.0 g SHIA expectf -1.5 povf 1.00
+    }
+    
+    test CONSUMP-3.2 {Rule 2-2 doesn't fire with no controller} -setup {
+        setup
+    } -body {
+        consump 2.0 1.0
+        
+        rdb eval {
+            SELECT rule FROM rule_firings
+        }
+    } -cleanup {
+        cleanup
+    } -result {CONSUMP-1-1}
+    
+    test CONSUMP-3.3 {Rule 2-2 inputs} -setup {
+        setup
+    } -body {
+        consump 2.0 1.0 JOE
+        ted query {
+            SELECT rule, g, a
+            FROM rule_firings JOIN rule_inputs USING (firing_id)
+            WHERE rule GLOB 'CONSUMP-2-*'
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+rule        g    a   
+----------- ---- --- 
+CONSUMP-2-2 SHIA JOE 
+    }
+
+    
     #-------------------------------------------------------------------
     # UNEMP
     

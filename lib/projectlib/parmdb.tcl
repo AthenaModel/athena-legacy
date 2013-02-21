@@ -1147,7 +1147,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault demog.consump.RGPC.SUBURBAN 400
         $ps setdefault demog.consump.RGPC.URBAN    450
 
-        $ps define demog.consump.Zpovf ::marsutil::zcurve {0.0 5.0 100.0 1.0} {
+        $ps define demog.consump.Zpovf ::marsutil::zcurve {0.0 0.05 1.0 1.0} {
             Z-curve for the poverty factor.  The input is the fraction
             of a group that is living below the regional poverty line,
             as defined by the demog.RGPC.* parameters.  The output

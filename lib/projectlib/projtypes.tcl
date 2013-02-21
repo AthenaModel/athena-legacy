@@ -213,6 +213,10 @@ snit::type ::projectlib::typewrapper {
     COMMOUT-1-1   "Communications go out"
     COMMOUT-1-2   "Communications remain out"
 
+    CONSUMP-1-1   "Effect of Consumption on Satisfaction"
+    CONSUMP-2-1   "Consumption no worse than expected"
+    CONSUMP-2-2   "Consumption worse than expected"
+    
     CONTROL-1-1   "Neighborhood sees shift in control"
     CONTROL-1-2   "Neighborhood is now in chaos."
     CONTROL-1-3   "Neighborhood is no longer in chaos."
@@ -344,6 +348,7 @@ snit::type ::projectlib::typewrapper {
     CMOOTHER  "CMO -- Other"
     COERCION  "Coercion"
     COMMOUT   "Communications Outage"
+    CONSUMP   "Consumption of Goods"
     CONTROL   "Shift in Control of Neighborhood"
     CRIMINAL  "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
@@ -398,6 +403,7 @@ snit::type ::projectlib::typewrapper {
     CMOOTHER  "CMO -- Other"
     COERCION  "Coercion"
     COMMOUT   "Communications Outage"
+    CONSUMP   "Consumption of Goods"
     CONTROL   "Shift in Control of Neighborhood"
     CRIMINAL  "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
