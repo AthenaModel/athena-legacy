@@ -1041,6 +1041,12 @@ snit::type econ {
                      In::CSF        $CSF                    \
                      In::REM        $REM]
 
+
+        # NOTE: if income from graft is ever allowed to change
+        # over time, then In::graft should be computed and set
+        # here
+
+        # NEXT, actors expenditures
         cge set [list \
                      In::X.world.actors  $Xwa \
                      In::X.region.actors $Xra \
@@ -1048,9 +1054,7 @@ snit::type econ {
                      In::X.black.actors  $Xba \
                      In::X.pop.actors    $Xpa]        
 
-        # NOTE: if income from graft is ever allowed to change
-        # over time, then In::graft should be computed and set
-        # here, same thing for remittances
+
 
         # Solve the CGE.
         set status [cge solve In Out]
@@ -1099,9 +1103,7 @@ snit::type econ {
                 $inc_pop   + $inc_region  + $inc_world
             }
 
-            # TBD: Not supposed to update a table during a
-            # query on the table.  The [rdb eval] above should
-            # use a foreach to do the looping.
+            # NEXT, update the actor incomes
             rdb eval {
                 UPDATE income_a
                 SET income       = $inc_total,
@@ -1113,6 +1115,25 @@ snit::type econ {
                     inc_world    = $inc_world
                 WHERE a = $actor
             }
+        }
+
+        # NEXT, actors sector revenues from potentially new income
+        # rates, these will be used in the next time step
+        rdb eval {
+            SELECT total(inc_goods)    * 52.0 AS Xag,
+                   total(inc_black_t + 
+                         inc_black_nr) * 52.0 AS Xab,
+                   total(inc_pop)      * 52.0 AS Xap,
+                   total(inc_region)   * 52.0 AS Xar,
+                   total(inc_world)    * 52.0 AS Xaw
+            FROM income_a
+        } {
+            cge set [list \
+                        In::X.actors.goods  $Xag \
+                        In::X.actors.black  $Xab \
+                        In::X.actors.pop    $Xap \
+                        In::X.actors.region $Xar \
+                        In::X.actors.world  $Xaw] 
         }
 
         log detail econ "analysis complete"
