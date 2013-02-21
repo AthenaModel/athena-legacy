@@ -405,9 +405,9 @@ snit::widget cgesheet {
         
         # NEXT, add data
         $inputs mapcell 0,1 In::Consumers q -background $color(q)
-        $inputs mapcell 1,1 In::CSF       q
+        $inputs mapcell 1,1 In::CSF       q -formatcmd {format "%.3f"}
         $inputs mapcell 2,1 In::LF        q
-        $inputs mapcell 3,1 In::LSF       q
+        $inputs mapcell 3,1 In::LSF       q -formatcmd {format "%.3f"}
         $inputs mapcell 4,1 graft         q -formatcmd {format "%.3f"}
         $inputs mapcell 5,1 In::REM       q 
         $inputs mapcell 6,1 Global::REMChangeRate q -formatcmd {format "%.1f"}

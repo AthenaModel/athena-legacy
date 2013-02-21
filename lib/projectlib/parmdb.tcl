@@ -1217,13 +1217,13 @@ snit::type ::projectlib::parmdb {
                 "
         }
 
-        $ps setdefault econ.secFactor.consumption.M 0.95
-        $ps setdefault econ.secFactor.consumption.L 0.5
-        $ps setdefault econ.secFactor.consumption.N 0.2
+        $ps setdefault econ.secFactor.consumption.M 0.98
+        $ps setdefault econ.secFactor.consumption.L 0.92
+        $ps setdefault econ.secFactor.consumption.N 0.88
 
-        $ps setdefault econ.secFactor.labor.M 0.95
-        $ps setdefault econ.secFactor.labor.L 0.5
-        $ps setdefault econ.secFactor.labor.N 0.2
+        $ps setdefault econ.secFactor.labor.M 0.98
+        $ps setdefault econ.secFactor.labor.L 0.95
+        $ps setdefault econ.secFactor.labor.N 0.90
 
 
         $ps subset econ.shares {
