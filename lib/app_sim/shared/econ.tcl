@@ -330,6 +330,31 @@ snit::type econ {
                 } {
                     $ht putln $text
                 }
+
+                set solutions {}
+
+                # NEXT, look for some possible problems usually it is the
+                # actor's sector that causes problems.
+                array set cells [$cge get]
+                if {$cells(t.actors.goods) >= 1.0 ||
+                    $cells(t.region.goods) >= 1.0 ||
+                    $cells(t.world.goods)  >= 1.0} {
+                }
+
+                if {[llength $solutions] > 0} {
+
+                    $ht para
+                    $ht putln "Troubleshooting suggestions:"
+                    $ht para
+                    $ht put "<ul>"
+
+                    foreach solution $solutions {
+                        $ht put "<li> $solution"
+                    }
+
+                    $ht put "</ul>"
+                    $ht para
+                }
             }
 
             $ht para
