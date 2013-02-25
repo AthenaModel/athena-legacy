@@ -11,6 +11,41 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.3, 25 February 2013</h3>
+
+This build contains some functional changes to the Econ model related
+to the visibility of individual actor expenditures and a whole host of 
+bug fixes. Also, civilian groups now have expected, required and 
+actual levels of consumption to simulate whether they are getting enough
+goods. The CONSUMP rule set is implemented to keep track of the effects 
+of more or less than expected levels of consumption. The UNEMP rule set 
+has been simplified. Refer to the rules doc for details on both these 
+rule sets. The full list of changes is as follows:<p>
+
+<ul>
+<li> Bug 3777: athena_sim(1): actor expenditures should be visible to the user
+<li> Bug 3852: athena(1): update income_a nested in select on income_a
+<li> Bug 3853: athena(1): Budget actors' expenditures need to come from WORLD
+<li> Bug 3858: athena_sim(1): actors income not making it to In page in CGE
+<li> Bug 3874: Change in remittances is added when scenario is locked
+<li> Bug 3875: Econ/SAM help page scenario prep picture needs to be updated
+<li> Bug 3878: Unemployment Rate greater than 100%
+<li> Bug 3879: Too Many Civilians Bgerror
+<li> Bug 3884: athena_sim(1): Unemployment rate in CGE does not match SAM
+<li> Bug 3888: athena_sim(1): make TurFrac a model parameter
+<li> Bug 3890: athena_sim(1): black market production capacity needs to be an input
+<li> Bug 3891: athena_sim(1): actors need to get their income on scenario lock
+<li> Bug 3893: athena(1): change default econ security parameters in parmdb(5)
+<li> Bug 3894: athena(1): beef up econ report in detail browser when something goes wrong
+<li> Bug 3877: Condition Bgerror: BUDGET actor's cash reserve
+<li> Bug 3882: bgerror: can't read "strictSecurity"
+<li> Bug 3883: athena(1): 040-aam_rules.test
+<li> Bug 3886: athena(1): 040-ensit_rules.test
+<li> Bug 3889: athena(1): Consumption of Goods by Civilian Groups
+<li> Bug 3895: athena(1): Simplify UNEMP rule set
+<li> Bug 3896: athena(1): Add CONSUMP rule set 
+</ul>
+
 <h3>Build 5.0.2, 5 February 2013</h3>
 
 There are four major areas of new functionality in this build: the 
