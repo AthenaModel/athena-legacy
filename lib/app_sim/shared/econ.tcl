@@ -515,8 +515,17 @@ snit::type econ {
             let Xar {$igr * $scaled * 52.0}
         }
 
-        # NEXT, revenue is the sum of all the sources of money
-        let BREVa {$Xag + $Xap + $Xab + $Xaw + $Xar}
+        # NEXT, the expenditures made by budget actors are accounted for as
+        # revenue from the world since budget actors have no income
+        set budgetXaw [rdb onecolumn {
+            SELECT total(goods + black  + pop +
+                         actor + region + world)
+            FROM expenditures AS E
+            JOIN actors AS A ON (E.a = A.a)
+            WHERE A.atype = 'BUDGET'
+        }]
+
+        let Xaw {$Xaw + ($budgetXaw * 52.0)}
 
         # NEXT, deal with black market net revenue
         let BNRb {max(0.0, $sdata(BNR.black))}
@@ -527,10 +536,6 @@ snit::type econ {
         set totalBNRShares \
             [rdb onecolumn {SELECT total(shares_black_nr) FROM actors_view;}]
 
-        if {$totalBNRShares > 0} {
-            let BREVa {$BREVa + $BNRb}
-        }
-
         # NEXT, get the baseline expenditures from the cash module
         array set exp [cash allocations]
 
@@ -539,6 +544,7 @@ snit::type econ {
         let Xga {$exp(goods)  * 52.0}
         let Xba {$exp(black)  * 52.0}
         let Xpa {$exp(pop)    * 52.0}
+
 
         # NEXT, extract the pertinent data from the SAM in preparation for
         # the computation of shape parameters.
@@ -1152,16 +1158,29 @@ snit::type econ {
                    total(inc_region)   * 52.0 AS Xar,
                    total(inc_world)    * 52.0 AS Xaw
             FROM income_a
-        } {
-            cge set [list \
-                        In::X.actors.goods  $Xag \
-                        In::X.actors.black  $Xab \
-                        In::X.actors.pop    $Xap \
-                        In::X.actors.region $Xar \
-                        In::X.actors.world  $Xaw] 
-        }
+        } {}
+
+        # NEXT, the expenditures made by budget actors are accounted for as
+        # revenue from the world since budget actors have no income
+        set budgetXaw [rdb onecolumn {
+            SELECT total(goods + black  + pop +
+                         actor + region + world)
+            FROM expenditures AS E
+            JOIN actors AS A ON (E.a = A.a)
+            WHERE A.atype = 'BUDGET'
+        }]
+
+        let Xaw {$Xaw + ($budgetXaw * 52.0)}
+
+        cge set [list \
+                    In::X.actors.goods  $Xag \
+                    In::X.actors.black  $Xab \
+                    In::X.actors.pop    $Xap \
+                    In::X.actors.region $Xar \
+                    In::X.actors.world  $Xaw] 
 
         log detail econ "analysis complete"
+        
         return 1
     }
 

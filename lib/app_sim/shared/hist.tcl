@@ -182,19 +182,21 @@ snit::type hist {
             INSERT INTO hist_econ(t, consumers, labor, 
                                   lsf, cpi, dgdp, ur)
             VALUES(now(), 
-                   $inputs(Consumers), $inputs(WF), $inputs(LSF), 
+                   $inputs(Consumers), $inputs(LF), $inputs(LSF), 
                    $outputs(CPI), $outputs(DGDP), $outputs(UR));
         }
 
-        foreach i {goods pop else} {
-            rdb eval "
-                -- hist_econ_i
-                INSERT INTO hist_econ_i(t, i, p, qs, rev)
-                VALUES(now(), upper(\$i), \$outputs(P.$i), \$outputs(QS.$i), 
-                       \$outputs(REV.$i));
-            "
+        foreach i {goods pop black actors region world} {
+            if {$i in {goods pop black}} {
+                rdb eval "
+                    -- hist_econ_i
+                    INSERT INTO hist_econ_i(t, i, p, qs, rev)
+                    VALUES(now(), upper(\$i), \$outputs(P.$i), 
+                           \$outputs(QS.$i),\$outputs(REV.$i));
+                "
+            }
 
-            foreach j {goods pop else} {
+            foreach j {goods pop black actors region world} {
                 rdb eval "
                     -- hist_econ_ij
                     INSERT INTO hist_econ_ij(t, i, j, x, qd)
