@@ -866,6 +866,7 @@ id t etype            s
 
 
     test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -setup {
+        parm set dam.CONSUMP.active no
         parm set dam.UNEMP.active no
         parm set dam.MOOD.active no
         ted create NB1 BLUE SHIA

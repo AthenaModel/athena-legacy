@@ -38,6 +38,7 @@ snit::type demsit_rules {
         }
          
         $type monitor UNEMP
+        $type monitor CONSUMP
     }
     
     # monitor CONSUMP
