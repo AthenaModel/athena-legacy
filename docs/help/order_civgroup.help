@@ -70,20 +70,6 @@ order CIVGROUP:UPDATE "Update Civilian Group" {
 }
 
 
-#-----------------------------------------------------------------------
-
-order CIVGROUP:UPDATE+MULTI "Update Multiple Civilian Groups" {
-    <b><<term prep>> Only.</b>  This order modifies two or 
-    more <<term civgroup>>s, as selected in the GUI.<p>
-
-    <<parmlist>>
-    <<parm ids "Groups">>
-    <b>Required.</b>  <<parm.ids "civilian group">>
-    <</parm>>
-
-    <<group_civ parms -optional -tags multi>>
-    <</parmlist>>
-}
 
 
 

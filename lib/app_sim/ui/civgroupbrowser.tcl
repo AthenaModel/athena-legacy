@@ -86,7 +86,7 @@ snit::widgetadaptor civgroupbrowser {
             -state   disabled                                              \
             -command [mymethod EditSelected]
 
-        cond::availableMulti control $editbtn \
+        cond::availableSingle control $editbtn \
             order   CIVGROUP:UPDATE           \
             browser $win
 
@@ -141,7 +141,7 @@ snit::widgetadaptor civgroupbrowser {
     method SelectionChanged {} {
         # FIRST, update buttons
         cond::availableSingle update $deletebtn
-        cond::availableMulti  update $editbtn
+        cond::availableSingle update $editbtn
     }
 
 
@@ -160,15 +160,10 @@ snit::widgetadaptor civgroupbrowser {
     # Called when the user wants to edit the selected entity(s).
 
     method EditSelected {} {
-        set ids [$hull uid curselection]
+        # FIRST, there should be only one selected.
+        set id [lindex [$hull uid curselection] 0]
 
-        if {[llength $ids] == 1} {
-            set id [lindex $ids 0]
-
-            order enter CIVGROUP:UPDATE g $id
-        } else {
-            order enter CIVGROUP:UPDATE:MULTI ids $ids
-        }
+        order enter CIVGROUP:UPDATE g $id
     }
 
     # DeleteSelected

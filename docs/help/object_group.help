@@ -97,10 +97,10 @@ object group_civ {
     attribute n "Neighborhood" {
         The ID of an existing <<term nbhood>>, the group's
         neighborhood of residence.
-    } -tags {create update multi browser}
+    } -tags {create update browser}
 
     include group_ -attrs {color shape demeanor} \
-        -tags {create update multi browser}
+        -tags {create update browser}
 
     attribute basepop "Base Population" {
         The initial population of the group.  This population can be
@@ -108,24 +108,24 @@ object group_civ {
         by explicit transfers to and from other groups, and by
         attrition.  It will usually be positive, but can be zero, to
         allow for initially empty "placeholder" groups.
-    } -tags {create update multi browser}
+    } -tags {create update browser}
 
     attribute pop_cr "Population Change Rate" {
         The population change in percent per year that the group will
         have. The rate can be positive, negative or zero.
-    } -tags {create update multi browser}
+    } -tags {create update browser}
 
     attribute sa_flag "Subsistence Agriculture Flag" {
         If true, the group supports itself by means of subsistence
         agriculture, and does not participate in the regional
         economy.  If false, it's a normal group with consumers and
         workers.
-    } -tags {create update multi browser}
+    } -tags {create update browser}
 
     attribute lfp "Labor Force %" {
         The percentage of the group that belongs to the labor force.
         Note that this must be zero for subsistence agriculture groups.
-    } -tags {create update multi browser}
+    } -tags {create update browser}
 
     attribute housing "Housing" {
         The status of the group's housing: are they <b>AT_HOME</b>,
@@ -133,7 +133,7 @@ object group_civ {
         neighborhood population, or isolated from the neighborhood
         population <b>IN_CAMP</b>.  Note that subsistence agriculture
         groups must be <b>AT_HOME</b>.
-    } -tags {create update multi browser}
+    } -tags {create update browser}
 }
 
 page /object/group civ "Civilian Group" {
