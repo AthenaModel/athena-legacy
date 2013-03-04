@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.4, 4 March 2013</h3>
+
+This build contains two bug fixes, an update to the Athena Analyst's Guide 
+and an addition to the automated test suite for demsit rules. The list
+of packages is as follows:<p>
+
+<ul>
+<li> Bug 3887: athena(1): New 040-demsit_rules.test
+<li> Bug 3892: athena_sim(1): bgerror when editing multiple civ groups
+<li> Bug 3897: AAG: UNEMP and CONSUMP models
+<li> Bug 3898: CONSUMP rule set is not firing 
+</ul>
+
 <h3>Build 5.0.3, 25 February 2013</h3>
 
 This build contains some functional changes to the Econ model related
