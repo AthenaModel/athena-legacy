@@ -67,12 +67,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject ORGGROUP:CREATE {}
     } -result {
         g {required value}
-        color {required value}
-        shape {required value}
-        orgtype {required value}
-        base_personnel {required value}
-        demeanor {required value}
-        cost {required value}
     }
 
     

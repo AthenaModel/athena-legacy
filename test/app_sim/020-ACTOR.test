@@ -90,7 +90,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject ACTOR:CREATE {}
     } -result {
         a {required value}
-        supports {required value}
     }
     
     test CREATE-1.2 {Duplicate a} -setup {

@@ -76,7 +76,6 @@ namespace eval ::athena_test::tests:: {
         owner {required value}
         g {required value}
         text1 {required value}
-        once {required value}
     }
 
     test DEMOB:CREATE-1.2 {owner is unknown} -setup {

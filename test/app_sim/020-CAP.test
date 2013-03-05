@@ -67,8 +67,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         k {required value}
         owner {required value}
-        capacity {required value}
-        cost {required value}
         nlist {required value}
         glist {required value}
     }

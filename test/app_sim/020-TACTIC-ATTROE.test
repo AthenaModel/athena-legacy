@@ -71,8 +71,6 @@ namespace eval ::athena_test::tests:: {
         f {required value}
         g {required value}
         n {required value}
-        text1 {required value}
-        int1 {required value}
     }
 
     

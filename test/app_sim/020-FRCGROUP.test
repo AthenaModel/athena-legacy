@@ -75,16 +75,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject FRCGROUP:CREATE {}
     } -result {
         g {required value}
-        color {required value}
-        shape {required value}
-        forcetype {required value}
-        training {required value}
-        base_personnel {required value}
-        demeanor {required value}
-        cost {required value}
-        attack_cost {required value}
-        uniformed {required value}
-        local {required value}
     }
     
 

@@ -112,10 +112,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject MAD:CREATE {}
     } -result {
         narrative {required value}
-        cause {required value}
-        s {required value}
-        p {required value}
-        q {required value}
     }
 
 
@@ -389,7 +385,6 @@ driver_id dtype narrative     cause s   p   q
         cleanup
     } -result {
         driver_id {required value}
-        mode {required value}
         f {required value}
         g {required value}
         mag {required value}
@@ -484,7 +479,6 @@ driver_id dtype narrative     cause s   p   q
         cleanup
     } -result {
         driver_id {required value}
-        mode {required value}
         g {required value}
         a {required value}
         mag {required value}
@@ -568,7 +562,6 @@ driver_id dtype narrative     cause s   p   q
         cleanup
     } -result {
         driver_id {required value}
-        mode {required value}
         g {required value}
         c {required value}
         mag {required value}
@@ -653,7 +646,6 @@ driver_id dtype narrative     cause s   p   q
         cleanup
     } -result {
         driver_id {required value}
-        mode {required value}
         f {required value}
         g {required value}
         mag {required value}

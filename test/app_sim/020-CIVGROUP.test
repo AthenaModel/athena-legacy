@@ -72,14 +72,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         g {required value}
         n {required value}
-        color {required value}
-        shape {required value}
-        demeanor {required value}
-        basepop {required value}
-        pop_cr {required value}
-        sa_flag {required value}
-        lfp {required value}
-        housing {required value}
     }
 
     test CREATE-1.2 {Duplicate g} -setup {

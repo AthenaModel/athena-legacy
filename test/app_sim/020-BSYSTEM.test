@@ -177,7 +177,6 @@ JOE 0.5
     } -result {
         tid {required value}
         title {required value}
-        affinity {required value}
     }
     
     test TOPIC:CREATE-1.2 {Duplicate tid} -setup {

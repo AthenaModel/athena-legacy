@@ -63,7 +63,6 @@ namespace eval ::athena_test::tests:: {
         f {required value}
         g {required value}
         text1 {required value}
-        once {required value}
     }
 
     test FLOW:CREATE-1.2 {owner is unknown} -setup {
@@ -136,17 +135,7 @@ namespace eval ::athena_test::tests:: {
         int1 {invalid value "-1", expected integer no less than 0}
     }
 
-    test FLOW:CREATE-1.9 {text1=NUMBER, int1 is missing} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:FLOW:CREATE {*}$T1 text1 NUMBER int1 ""
-    } -cleanup {
-        cleanup
-    } -result {
-        int1 {Required value when mode is NUMBER.}
-    }
-
-    test FLOW:CREATE-1.10 {x1 is invalid} -setup {
+    test FLOW:CREATE-1.9 {x1 is invalid} -setup {
         setup
     } -body {
         ted order -reject TACTIC:FLOW:CREATE {*}$T1 x1 NONESUCH
@@ -156,18 +145,7 @@ namespace eval ::athena_test::tests:: {
         x1 {invalid value "NONESUCH", expected double}
     }
 
-    test FLOW:CREATE-1.11 {text1=RATE, x1 is missing} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:FLOW:CREATE {*}$T1 text1 RATE x1 ""
-    } -cleanup {
-        cleanup
-    } -result {
-        x1 {Required value when mode is RATE.}
-    }
-
-
-    test FLOW:CREATE-1.12 {once is invalid} -setup {
+    test FLOW:CREATE-1.10 {once is invalid} -setup {
         setup
     } -body {
         ted order -reject TACTIC:FLOW:CREATE {*}$T1 once NONESUCH
@@ -177,7 +155,7 @@ namespace eval ::athena_test::tests:: {
         once {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     }
 
-    test FLOW:CREATE-1.13 {priority is invalid} -setup {
+    test FLOW:CREATE-1.11 {priority is invalid} -setup {
         setup
     } -body {
         ted order -reject TACTIC:FLOW:CREATE {*}$T1 priority NONESUCH

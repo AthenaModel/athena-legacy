@@ -60,10 +60,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         location {required value}
         stype {required value}
-        coverage {required value}
-        inception {required value}
-        g {required value}
-        resolver {required value}
     }
 
     

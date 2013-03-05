@@ -74,8 +74,6 @@ namespace eval ::athena_test::tests:: {
         n {required value}
         text1 {required value}
         int1 {required value}
-        once {required value}
-        on_lock {required value}
     }
 
     test CREATE-1.2 {owner is unknown} -setup {

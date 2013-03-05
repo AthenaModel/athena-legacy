@@ -77,10 +77,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject NBHOOD:CREATE {}
     } -result {
         n {required value}
-        local {required value}
-        urbanization {required value}
-        controller {required value}
-        vtygain {required value}
         refpoint {required value}
         polygon {required value}
     }

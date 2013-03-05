@@ -57,7 +57,6 @@ namespace eval ::athena_test::tests:: {
     } -result {
         owner {required value}
         g {required value}
-        once {required value}
     }
 
     test CREATE-1.2 {owner is unknown} -setup {

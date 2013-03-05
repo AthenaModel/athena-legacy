@@ -75,7 +75,6 @@ namespace eval ::athena_test::tests:: {
         ted order -reject TACTIC:SUPPORT:CREATE {}
     } -result {
         owner {required value}
-        a {required value}
         nlist {required value}
     }
 
