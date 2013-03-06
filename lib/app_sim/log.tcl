@@ -52,19 +52,19 @@ snit::type log {
         if {$threads} {
             set marsDir   [file normalize [file join $::marsutil::library ..]]
             set athenaDir [file normalize [file join $::app_sim::library ..]]
-            set t0        [simclock cget -t0]
+            set week0     [simclock cget -week0]
 
             set tid [thread::create [format {
                 lappend auto_path %s %s
                 package require app_sim_logger
 
                 app init          \
-                    -t0        %s \
+                    -week0     %s \
                     -appthread %s \
                     -logdir    %s \
                     -newlogcmd [list ::log NewLog]
                 thread::wait
-            } $marsDir $athenaDir $t0 [thread::id] $logDir]]
+            } $marsDir $athenaDir $week0 [thread::id] $logDir]]
 
             # NEXT, prepare to keep time synchronized.
             notifier bind ::sim <Time>    $type [mytypemethod SimTime]
@@ -100,7 +100,7 @@ snit::type log {
     # simclock when time or startdate changes.
 
     typemethod SimTime {} {
-        set t0  [simclock cget -t0]
+        set t0  [simclock cget -week0]
         set now [simclock now]
 
         thread::send -async $tid [list app simtime $t0 $now]

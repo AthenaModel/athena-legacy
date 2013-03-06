@@ -26,7 +26,7 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    variable oldDate [simclock cget -t0]
+    variable oldDate [simclock cget -week0]
 
     # Set up to run
 
@@ -42,7 +42,7 @@ namespace eval ::athena_test::tests:: {
         variable oldDate
 
         # Clean up the test environment
-        simclock configure -t0 $oldDate
+        simclock configure -week0 $oldDate
 
         if {[sim state] eq "RUNNING"} {
             sim mutate pause
@@ -80,7 +80,7 @@ namespace eval ::athena_test::tests:: {
 
     test STARTDATE-2.1 {startdate is set} -body {
         ted order SIM:STARTDATE startdate 2014W26
-        simclock cget -t0
+        simclock cget -week0
     } -cleanup {
         cleanup
     } -result {2014W26}

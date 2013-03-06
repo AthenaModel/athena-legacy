@@ -42,8 +42,8 @@ namespace eval ::projectlib::test {
 
     # setup and cleanup 
 
-    proc setup {} {
-        weekclock myclock
+    proc setup {args} {
+        weekclock myclock {*}$args
     }
 
     proc cleanup {} {
@@ -53,15 +53,23 @@ namespace eval ::projectlib::test {
     #-------------------------------------------------------------------
     # Creation
 
-    test creation-1.1 {Default T0} -setup {
+    test creation-1.1 {Default -week0} -setup {
         setup
     } -body {
-        myclock cget -t0
+        myclock cget -week0
     } -cleanup {
         cleanup
     } -result {2012W01}
 
-    test creation-1.2 {Time starts at zero} -setup {
+    test creation-1.2 {Default -tick0} -setup {
+        setup
+    } -body {
+        myclock cget -tick0
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test creation-1.3 {Time normally starts at 0} -setup {
         setup
     } -body {
         myclock now
@@ -69,7 +77,15 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {0}
 
-    test creation-1.3 {Time string starts at -t0} -setup {
+    test creation-1.4 {Time starts at -tick0} -setup {
+        setup -tick0 100
+    } -body {
+        myclock now
+    } -cleanup {
+        cleanup
+    } -result {100}
+
+    test creation-1.5 {Time string starts at -week0} -setup {
         setup
     } -body {
         myclock asString
@@ -99,6 +115,16 @@ namespace eval ::projectlib::test {
     } -cleanup {
         cleanup
     } -result {expected t >= 0, got "-1"}
+
+    test advance-1.3 {Error on less than -tick0} -setup {
+        setup -tick0 100
+    } -body {
+        myclock advance 99
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {expected t >= 100, got "99"}
 
     test advance-2.1 {Time can advance by ticks.} -setup {
         setup
@@ -154,6 +180,22 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {0 60 0}
 
+    test reset-1.2 {Resetting sets time back to -tick0} -setup {
+        setup -tick0 100
+    } -body {
+        set t1 [myclock now]
+
+        myclock advance 160
+        set t2 [myclock now]
+
+        myclock reset
+        set t3 [myclock now]
+
+        list $t1 $t2 $t3
+    } -cleanup {
+        cleanup
+    } -result {100 160 100}
+
     #-------------------------------------------------------------------
     # now
 
@@ -177,6 +219,16 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {4}
 
+    test fromString-1.2 {fromString to ticks, non-zero -tick0} -setup {
+        setup -tick0 100
+    } -body {
+        # -week0 always corresponds to t=0, not to -tick0, so there
+        # should be no change.
+        myclock fromString 2012W05
+    } -cleanup {
+        cleanup
+    } -result {4}
+
     #-------------------------------------------------------------------
     # toString
 
@@ -188,6 +240,16 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {2012W11}
 
+    test toString-1.2 {ticks to string, non-zero -tick0} -setup {
+        setup -tick0 5
+    } -body {
+        # -week0 always corresponds to t=0, not to -tick0, so there
+        # should be no change.
+        myclock toString 10
+    } -cleanup {
+        cleanup
+    } -result {2012W11}
+    
     #-------------------------------------------------------------------
     # timespec
 
@@ -237,6 +299,14 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {30 0 10 40 20 40 20 10 29 24 34}
 
+    test timespec-2.2 {T0 == tick0} -setup {
+        setup -tick0 100
+    } -body {
+        set result [myclock timespec validate T0]
+    } -cleanup {
+        cleanup
+    } -result {100}
+    
     #-------------------------------------------------------------------
     # asString
 
@@ -250,17 +320,30 @@ namespace eval ::projectlib::test {
     } -result {2012W11 2012W41}
 
     #-------------------------------------------------------------------
-    # -t0
+    # -week0
 
-    test t0-1.1 {-t0 sets start time} -setup {
+    test week0-1.1 {-week0 sets start time} -setup {
         setup
     } -body {
-        myclock configure -t0 2010W20
+        myclock configure -week0 2010W20
         list [myclock now 5] [myclock asString 5]
     } -cleanup {
         cleanup
     } -result {5 2010W25}
 
+    #-------------------------------------------------------------------
+    # -tick0
+
+    test tick0-1.1 {configuring -tick0 resets clock} -setup {
+        setup
+    } -body {
+        myclock advance 10
+        myclock configure -tick0 100
+        myclock now
+    } -cleanup {
+        cleanup
+    } -result {100}
+    
     #-------------------------------------------------------------------
     # Cleanup
 

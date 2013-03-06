@@ -16,16 +16,23 @@ that tracks simulation in integer ticks, each tick corresponding to
 one week.  Simulation time is converted to julian calendar weeks
 using <<xref week(n)>>.<p>
 
-The <b>-t0</b> option specifies the "start date", a <<xref week(n)>>
+The <b>-tick0</b> option specifies the simulation time in ticks when
+the scenario is locked.  Normally this will be 0, but if a scenario is
+designed to follow on to a previous scenario it might be greater than 0.
+
+The <b>-week0</b> option specifies the "start week", a <<xref week(n)>>
 string for the specific calendar week corresponding to
-time 0.  Consequently, the weekclock(n) can convert between
-sim times in ticks and <<xref week(n)>> strings.<p>
+t=0.  Consequently, the weekclock(n) can convert between
+sim times in ticks and <<xref week(n)>> strings.  <b>Note:</b>
+it is not necessary to change <b>-week0</b> when changing <b>-tick0</b>;
+<b>-week0</b> is always tied to t=0, even if <b>-tick0</b> has
+been advanced.<p>
 
 <<subsection "Advancing Time">>
 
 Time is advanced manually by calling the weekclock(n)'s 
 <<iref advance>> method.  Use <<iref reset>> to reset the clock to
-time 0.<p>
+<b>-tick0</b>.<p>
 
 <<subsection "Time Specification Strings">>
 
@@ -40,7 +47,7 @@ The base time can be specified in the following ways:<p>
 <ul>
   <li> As a <<xref week(n)>> string.
   <li> As a sim time in integer ticks.
-  <li> As the string <b>T0,</b> which translates to 0 ticks.
+  <li> As the string <b>T0,</b> which translates to <b>-tick0</b>.
   <li> As the string <b>NOW</b>, which translates to the current simulation
        time in ticks.
 </ul><p>
@@ -79,10 +86,18 @@ The <<iref weekclock>> object may be created with the following options:<p>
 
 <<deflist options>>
 
-<<defopt {-t0 <i>wstring</i>}>>
+<<defopt {-tick0 <i>tick</i>}>>
 
-Sets the simulation start date to <i>wstring</i>.  The default start
-date ("T-zero") is "2012W01".<p>
+Sets the simulation start tick to <i>tick</i>, which should be
+greater than or equal to 0.  This would usually be used when running
+a sequence of scenarios, each beginning where its predecessor ends,
+so as to have a consistent set of times across the whole set of runs.
+The default start tick is 0.<p>
+
+<<defopt {-week0 <i>wstring</i>}>>
+
+Sets the calendar date corresponding to t=0 to <i>wstring</i>.
+The default date is "2012W01".<p>
 
 <</deflist options>>
 
@@ -97,7 +112,8 @@ Each instance of weekclock(n) has the following subcommands.<p>
 <<defitem advance {$weekclock advance <i>t</i>}>>
 
 Manually advances simulation time to <i>t</i>
-ticks in response to some external time update.<p>
+ticks in response to some external time update.  The value of <i>t</i>
+must be greater than <b>-tick0</b>.<p>
 
 <<defitem asString {$weekclock asString ?<i>offset</i>?}>>
 
@@ -131,7 +147,7 @@ the returned time.<p>
 
 <<defitem reset {$weekclock reset}>>
 
-Resets simulation time to 0 ticks.<p>
+Resets simulation time to <b>-tick0</b> ticks.<p>
 
 <<defitem tick {$weekclock tick}>>
 

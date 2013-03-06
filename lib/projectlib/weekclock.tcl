@@ -29,16 +29,28 @@ namespace eval ::projectlib:: {
 snit::type ::projectlib::weekclock {
     #-------------------------------------------------------------------
     # Options
+    
+    # -tick0
+    #
+    # The integer tick at the beginning of simulation, nominally 0.
+    # Configure -tick0 resets the clock.
+    
+    option -tick0 -default 0 -configuremethod CfgTick0
+    
+    method CfgTick0 {opt val} {
+        set options($opt) $val
+        $self reset
+    }
 
-    # -t0
+    # -week0
     #
     # A Zulu-time string representing the simulation start date.
     
-    option -t0 -default "2012W01" -configuremethod CfgT0
+    option -week0 -default "2012W01" -configuremethod CfgWeek0
 
-    method CfgT0 {opt val} {
-        # First, set t0 in absolute weeks.
-        set info(t0) [week toInteger $val]
+    method CfgWeek0 {opt val} {
+        # First, set week0 in absolute weeks.
+        set info(week0) [week toInteger $val]
 
         # Next, it's valid, so save it.
         set options($opt) $val
@@ -49,20 +61,21 @@ snit::type ::projectlib::weekclock {
     
     # info array
     #
-    # t0   - Integer value for -t0 start date.  Initially, 2012W01.
-    # tsim - The simulation time in ticks since T0
+    # week0 - Integer value for -week0 start date.  Initially, 2012W01.
+    # t     - The simulation time in ticks, where t >= tick0 and
+    #         tick0 corresponds to week0
 
     variable info -array {
-        t0   0
-        tsim 0
+        week0 0
+        t     0
     }
 
     #-------------------------------------------------------------------
     # Constructor
 
     constructor {args} {
-        # Save default -t0
-        $self configure -t0 $options(-t0)
+        # Save default -week0
+        $self configure -week0 $options(-week0)
 
         # Save user's input
         $self configurelist $args
@@ -73,17 +86,17 @@ snit::type ::projectlib::weekclock {
 
     # advance t
     #
-    # t    - A time in ticks no less than $info(tsim).
+    # t  - A time in ticks no less than -tick0.
     #
     # Advances sim time to time t. 
     
     method advance {t} {
         require {[string is integer -strict $t]} \
             "expected integer ticks: \"$t\""
-        require {$t >= 0} \
-            "expected t >= 0, got \"$t\""
+        require {$t >= $options(-tick0)} \
+            "expected t >= $options(-tick0), got \"$t\""
 
-        set info(tsim) $t
+        set info(t) $t
         return
     }
 
@@ -92,16 +105,16 @@ snit::type ::projectlib::weekclock {
     # Advances sim time by one tick.
     
     method tick {} {
-        incr info(tsim)
+        incr info(t)
         return
     }
 
     # reset
     #
-    # Resets sim time to 0.
+    # Resets sim time to tick0.
 
     method reset {} {
-        set info(tsim) 0
+        set info(t) $options(-tick0)
         return
     }
 
@@ -115,7 +128,7 @@ snit::type ::projectlib::weekclock {
     # Returns the current sim time (plus the offset) in ticks.
 
     method now {{offset 0}} {
-        return [expr {$info(tsim) + $offset}]
+        return [expr {$info(t) + $offset}]
     }
 
     # asString ?offset?
@@ -125,7 +138,7 @@ snit::type ::projectlib::weekclock {
     # Return the current time (plus the offset) as a time string.
 
     method asString {{offset 0}} {
-        $self toString $info(tsim) $offset
+        $self toString $info(t) $offset
     }
 
     #-------------------------------------------------------------------
@@ -139,7 +152,10 @@ snit::type ::projectlib::weekclock {
     # Converts the sim time plus offset to a time string.
 
     method toString {ticks {offset 0}} {
-        return [week toString [expr {$info(t0) + $ticks + $offset}]]
+        set week [expr {
+            $info(week0) + $ticks + $offset
+        }]
+        return [week toString $week]
     }
 
     # fromString wstring
@@ -149,7 +165,9 @@ snit::type ::projectlib::weekclock {
     # Converts the week string into a sim time in weeks.
 
     method fromString {wstring} {
-        return [expr {[week toInteger $wstring] - $info(t0)}]
+        return [expr {
+            [week toInteger $wstring] - $info(week0)
+        }]
     }
 
     # timespec validate spec
@@ -172,6 +190,8 @@ snit::type ::projectlib::weekclock {
     #    40+5           45
     #    T0+45          45
     #    T0             0
+    #
+    # Note that T0 is equivalent to -tick0.
 
     method {timespec validate} {spec} {
         # FIRST, split the spec into base time, op, and offset.
@@ -217,7 +237,7 @@ snit::type ::projectlib::weekclock {
         set basetime [string toupper $basetime]
 
         if {$basetime eq "T0"} {
-            set t 0
+            set t $options(-tick0)
         } elseif {$basetime eq "NOW" || $basetime eq ""} {
             set t [$self now]
         } elseif {[string is integer -strict $basetime]} {

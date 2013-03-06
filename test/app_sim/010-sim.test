@@ -27,16 +27,16 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     # Get initial time 0
-    set t0 [simclock cget -t0]
+    set week0 [simclock cget -week0]
     
     # Clean up after a test
 
     proc cleanup {} {
-        variable t0
+        variable week0
 
         # Clean up the test environment
         eventq restart
-        simclock configure -t0 $t0
+        simclock configure -week0 $week0
 
         if {[sim state] eq "RUNNING"} {
             sim mutate pause
@@ -71,7 +71,7 @@ namespace eval ::athena_test::tests:: {
 
     test mutate_startdate-1.1 {Sets the simclock's start date} -body {
         sim mutate startdate 2014W26
-        simclock cget -t0
+        simclock cget -week0
     } -cleanup {
         cleanup
     } -result {2014W26}
@@ -430,7 +430,7 @@ namespace eval ::athena_test::tests:: {
             [sim state]         \
             [sim now]           \
             [sim changed]       \
-            [simclock cget -t0]
+            [simclock cget -week0]
     } -cleanup {
         cleanup
     } -result {PREP 0 1 2012W01}

@@ -31,10 +31,12 @@ snit::type sim {
     # constants -- scalar array
     #
     # startdata - The initial date of time 0
+    # starttick - The initial simulation tick.
     # tickDelay - The delay between ticks
     
     typevariable constants -array {
         startdate 2012W01
+        starttick 0
         tickDelay 50
     }
 
@@ -83,7 +85,7 @@ snit::type sim {
 
         order state $info(state)
 
-        simclock configure -t0 $constants(startdate)
+        simclock configure -week0 $constants(startdate)
 
         notifier send ::sim <Time>
 
@@ -113,7 +115,7 @@ snit::type sim {
     typemethod new {} {
         # FIRST, configure the simclock.
         simclock reset
-        simclock configure -t0 $constants(startdate)
+        simclock configure -week0 $constants(startdate)
 
         # NEXT, clear the event queue
         # TBD: The engine should be doing this.
@@ -345,14 +347,14 @@ snit::type sim {
 
     # mutate startdate startdate
     #
-    # startdate   The date of T0 as a week(n) string
+    # startdate   The date of t=0 as a week(n) string
     #
-    # Sets the simclock's -t0 start date
+    # Sets the simclock's -week0 start date
 
     typemethod {mutate startdate} {startdate} {
-        set oldDate [simclock cget -t0]
+        set oldDate [simclock cget -week0]
 
-        simclock configure -t0 $startdate
+        simclock configure -week0 $startdate
 
         # NEXT, saveable(i) data has changed
         set info(changed) 1
@@ -366,7 +368,7 @@ snit::type sim {
 
     # mutate lock
     #
-    # Causes the simulation to transition from PREP to PAUSED in time 0.
+    # Causes the simulation to transition from PREP to PAUSED.
 
     typemethod {mutate lock} {} {
         assert {$info(state) eq "PREP"}
@@ -641,7 +643,8 @@ snit::type sim {
         set checkpoint [dict create]
         
         dict set checkpoint state $info(state)
-        dict set checkpoint t0    [simclock cget -t0]
+        dict set checkpoint week0 [simclock cget -week0]
+        dict set checkpoint tick0 [simclock cget -tick0]
         dict set checkpoint now   [simclock now]
 
         return $checkpoint
@@ -654,7 +657,8 @@ snit::type sim {
     typemethod restore {checkpoint {option ""}} {
         # FIRST, restore the checkpoint data
         dict with checkpoint {
-            simclock configure -t0 $t0
+            simclock configure -week0 $week0
+            simclock configure -tick0 $tick0
             simclock reset
             simclock advance $now
 
@@ -694,7 +698,7 @@ snit::type sim {
     typemethod Refresh_SS {dlg fields fdict} {
         dict with fdict {
             if {$startdate eq ""} {
-                $dlg set startdate [simclock cget -t0]
+                $dlg set startdate [simclock cget -week0]
             }
         }
     }
@@ -702,7 +706,7 @@ snit::type sim {
 
 # SIM:STARTDATE
 #
-# Sets the calendar week corresponding to time 0.
+# Sets the calendar week corresponding to t=0.
 #
 # TBD: It would be nice if the startdate field was pre-populated with the
 # current start date.  This would require adding an "-entercmd" as an
