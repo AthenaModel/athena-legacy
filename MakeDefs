@@ -31,7 +31,11 @@ endif
 # Set location of Athena documentation directory on AFS.
 ifeq "$(MARS_OS)" "win"
     # Assumes that AFS is mounted as K:
-    ATHENA_WEB_HOME = /k/group/athena/www
+    ifeq "$(USERNAME)" "dhanks"
+        ATHENA_WEB_HOME = /l/www
+    else
+        ATHENA_WEB_HOME = /k/group/athena/www
+    endif
     ATHENA_INSTALLER = $(TOP_DIR)/installer/Output/Athena$(ATHENA_VERSION)_Installer.exe
 else
     ATHENA_WEB_HOME = /afs/jpl/group/athena/www
