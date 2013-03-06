@@ -190,6 +190,42 @@ snit::type executive {
         $interp smartalias advance 1 1 {days} \
             [myproc advance]
 
+        # autogen
+        $interp ensemble autogen
+
+        # autogen scenario
+        $interp smartalias {autogen scenario} 0 - \
+            {?-nb n? ?-actors n? ?-frcg n? ?-civg n? ?-orgg n? ?-topics n?} \
+            [list autogen scenario]
+
+        # autogen actors
+        $interp smartalias {autogen actors} 0 1 {?num?} \
+            [list autogen actors]
+
+        # autogen nbhoods
+        $interp smartalias {autogen nbhoods} 0 1 {?num?} \
+            [list autogen nbhoods]
+
+        # autogen civgroups
+        $interp smartalias {autogen civgroups} 0 1 {?num?} \
+            [list autogen civgroups]
+
+        # autogen orggroups
+        $interp smartalias {autogen orggroups} 0 1 {?num?} \
+            [list autogen orggroups]
+
+        # autogen frcgroups
+        $interp smartalias {autogen frcgroups} 0 1 {?num?} \
+            [list autogen frcgroups]
+
+        # autogen bsystem 
+        $interp smartalias {autogen bsystem} 0 1 {?num?} \
+            [list autogen bsystem]
+
+        # autogen strategy
+        $interp smartalias {autogen strategy} 0 0 {} \
+            [list autogen strategy]
+
         # clear
         $interp smartalias clear 0 0 {} \
             [list .main cli clear]
@@ -960,7 +996,6 @@ snit::type executive {
 
         # NEXT, fill in default values.
         set userParms [dict keys $pdict]
-        set pdict [order fill $order $pdict]
 
         # NEXT, determine the order interface.
         if {[order state] eq "TACTIC"} {
