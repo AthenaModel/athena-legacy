@@ -345,6 +345,80 @@ namespace eval ::projectlib::test {
     } -result {100}
     
     #-------------------------------------------------------------------
+    # delta
+
+    test delta-1.1 {returns 0 on reset, -tick0 0} -setup {
+        setup
+        myclock reset
+    } -body {
+        myclock delta
+    } -cleanup {
+        cleanup
+    } -result {0}
+    
+    test delta-1.2 {returns 0 on reset, -tick0 > 0} -setup {
+        setup -tick0 100
+        myclock reset
+    } -body {
+        myclock delta
+    } -cleanup {
+        cleanup
+    } -result {0}
+    
+    
+    test delta-2.1 {returns t, -tick0 0} -setup {
+        setup
+        myclock advance 100
+    } -body {
+        myclock delta
+    } -cleanup {
+        cleanup
+    } -result {100}
+    
+    test delta-2.2 {returns t-tick0, -tick0 > 0} -setup {
+        setup -tick0 100
+        myclock advance 150
+    } -body {
+        myclock delta
+    } -cleanup {
+        cleanup
+    } -result {50}
+    
+    #-------------------------------------------------------------------
+    # checkpoint
+
+    test checkpoint-1.1 {returns clock state} -setup {
+        setup
+        myclock configure -tick0 100 -week0 2013W15
+        myclock advance 110
+    } -body {
+        myclock checkpoint
+    } -cleanup {
+        cleanup
+    } -result {{-tick0 100 -week0 2013W15} {t 110 week0 690}}
+    
+    #-------------------------------------------------------------------
+    # restore
+
+    test restore-1.1 {restores clock state} -setup {
+        setup
+        myclock configure -tick0 100 -week0 2013W15
+        myclock advance 110
+    } -body {
+        weekclock tempclock
+        tempclock restore [myclock checkpoint]
+        tempclock checkpoint
+    } -cleanup {
+        tempclock destroy
+        cleanup
+    } -result {{-tick0 100 -week0 2013W15} {t 110 week0 690}}
+    
+    
+    
+    
+    
+    
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

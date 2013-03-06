@@ -131,6 +131,16 @@ snit::type ::projectlib::weekclock {
         return [expr {$info(t) + $offset}]
     }
 
+    # delta
+    #
+    # returns the number of ticks since -tick0, i.e., the number of
+    # ticks since simulation began.  On lock, delta = 0.
+    
+    method delta {} {
+        expr {$info(t) - $options(-tick0)}
+    }
+    
+    
     # asString ?offset?
     #
     # offset  - Ticks; defaults to 0.
@@ -254,6 +264,33 @@ snit::type ::projectlib::weekclock {
         }
 
         return $t
+    }
+    
+    #-----------------------------------------------------------------
+    # Checkpoint/Restore
+    #
+    # This object doesn't implemement the full saveable(i)
+    # interface, as it's saved with the sim(sim) module.  However, it
+    # is convenient to be able to save and restore the clock's state,
+    # and these methods are used for that.
+    
+    # checkpoint
+    #
+    # returns the string containing the state of the object.
+    
+    method checkpoint {} {
+        list [array get options] [array get info]
+    }
+    
+    # restore checkpoint
+    #
+    # checkpoint - A checkpoint string returned by [checkpoint]
+    #
+    # Restores the state of the clock to the given checkpoint.
+    
+    method restore {checkpoint} {
+        array set options [lindex $checkpoint 0]
+        array set info    [lindex $checkpoint 1]
     }
 }
 

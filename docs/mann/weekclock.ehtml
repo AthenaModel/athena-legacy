@@ -125,9 +125,21 @@ added to the returned time.<p>
 
 Retrieve the value of any of the object's options.<p>
 
+<<defitem checkpoint {$weekclock checkpoint}>>
+
+Returns the state of the clock as a string.  The state can be restored in
+this or another <<xref weekclock(n)>> object using the <<iref restore>>
+subcommand.<p>
+
 <<defitem configure {$weekclock configure ?<i>option value...</i>?}>>
 
 Set any of the object's options.<p>
+
+<<defitem delta {$weekclock delta}>>
+
+Returns the number of ticks since the start of simulation, i.e., the
+time <<iref now>> minus <b>-tick0</b>.  The <<iref delta>> is always
+0 on <<iref reset>>.<p>
 
 <<defitem fromString {$weekclock fromString <i>wstring</i>}>>
 
@@ -148,6 +160,10 @@ the returned time.<p>
 <<defitem reset {$weekclock reset}>>
 
 Resets simulation time to <b>-tick0</b> ticks.<p>
+
+<<defitem restore {$weekclock restore <i>checkpoint</i>}>>
+
+Restores the state of the clock to the given <<iref checkpoint>>.<p>
 
 <<defitem tick {$weekclock tick}>>
 
