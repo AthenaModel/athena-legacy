@@ -327,7 +327,7 @@ snit::type demog {
     
         # NEXT, on lock the expected consumption is just the actual
         # consumption.
-        if {[simclock now] == 0} {
+        if {[simclock delta] == 0} {
             rdb eval {
                 UPDATE demog_g
                 SET eloc = aloc;

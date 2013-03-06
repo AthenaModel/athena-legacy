@@ -1054,7 +1054,7 @@ appserver module CONTRIBS {
             set start_ $start
             set end_   $end
 
-            restrict start_ {simclock timespec} 0
+            restrict start_ {simclock timespec} [simclock cget -tick0]
             restrict end_   {simclock timespec} [simclock now]
 
             # If they picked the defaults, clear their entries.

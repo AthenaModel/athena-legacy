@@ -86,6 +86,26 @@ order SIM:STARTDATE "Set Start Date" {
     <</parmlist>>
 }
 
+order SIM:STARTTICK "Set Start Tick" {
+    <b><<term prep>> Only.</b>  Athena measures simulation time
+    in integer ticks, where each tick is one week in length.  The
+    simulation time on scenario lock is usually 0; however, this
+    order specifies a different starting point.  This allows a
+    sequence of related scenarios to use one consistent time sequence
+    through out, beginning one scenario where its predecessor left off.<p>
+    
+    Note that the start date is always relative to time t=0, not to the
+    current start tick.<p>
+
+    <<parmlist>>
+    <<parm starttick "Start Tick">>
+    <b>Required.</b>  An integer, greater than or equal to zero,
+    representing the simulation time in ticks on scenario lock.<p>
+    <</parm>>
+
+    <</parmlist>>
+}
+
 order SIM:UNLOCK "Unlock Scenario Preparation" {
     <b><<term paused>> only.</b> Unlocks the scenario, returning to the
     <<term prep>> state and allowing the user

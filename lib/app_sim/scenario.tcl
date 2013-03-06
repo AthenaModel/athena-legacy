@@ -401,7 +401,7 @@ snit::type scenario {
 
         # NEXT, get the tick
         if {$opt eq "-prep"} {
-            assert {[sim now] == 0}
+            assert {[sim now] == [simclock cget -tick0]}
             set tick -1
         } else {
             set tick [sim now]

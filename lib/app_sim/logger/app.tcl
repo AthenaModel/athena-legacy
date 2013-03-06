@@ -54,13 +54,13 @@ snit::type app {
     # -logdir     - The absolute path of the log directory, which should
     #               already exist.
     # -newlogcmd  - App thread command to call when there's a new log file.
-    # -week0      - Simulation start date.
+    # -clockdata  - Simulation start date.
 
     typevariable opts -array {
         -appthread  ""
         -logdir     ""
         -newlogcmd  ""
-        -week0      ""
+        -clockdata  ""
     }
 
     #-------------------------------------------------------------------
@@ -82,7 +82,7 @@ snit::type app {
                 -appthread -
                 -logdir    -
                 -newlogcmd -
-                -week0     {
+                -clockdata {
                     set opts($opt) [lshift args]
                 }
                 
@@ -94,10 +94,10 @@ snit::type app {
 
         require {$opts(-appthread) ne ""} "-appthread not specified"
         require {$opts(-logdir) ne ""}    "-logdir not specified"
-        require {$opts(-week0) ne ""}     "-week0 not specified"
+        require {$opts(-clockdata) ne ""} "-clockdata not specified"
 
         # NEXT, configure the simclock.
-        simclock configure -week0 $opts(-week0)
+        simclock restore $opts(-clockdata)
         simclock reset
 
         # NEXT, open the debugging log.
@@ -112,17 +112,14 @@ snit::type app {
         log normal Logger "Opened new log file"
     }
 
-    # simtime t0 now
+    # simtime clockdata
     #
-    # t0     - The new startdate
-    # now    - The new simulation time
+    # clockdata - A weekclock(n) checkpoint string
     #
     # Resets the simclock to the App thread's current simulation time.
 
-    typemethod simtime {t0 now} {
-        simclock configure -week0 $week0
-        simclock reset
-        simclock advance $now
+    typemethod simtime {clockdata} {
+        simclock restore $clockdata
     }
 
     #-------------------------------------------------------------------

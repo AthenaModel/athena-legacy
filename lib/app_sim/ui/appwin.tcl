@@ -726,6 +726,7 @@ snit::widget appwin {
             -underline 0 -menu $submenu
         
         $self AddOrder $submenu SIM:STARTDATE
+        $self AddOrder $submenu SIM:STARTTICK
 
         # Orders/Unit
         set submenu [menu $ordersmenu.unit]

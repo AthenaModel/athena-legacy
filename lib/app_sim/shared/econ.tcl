@@ -1273,7 +1273,7 @@ snit::type econ {
 
         # NEXT, no change rate or first tick
         # TBD: is this really necessary?
-        if {$changeRate == 0.0 || [simclock now] == 0} {
+        if {$changeRate == 0.0 || [simclock delta] == 0} {
             return $currRem
         }
 

@@ -27,16 +27,16 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     # Get initial time 0
-    set week0 [simclock cget -week0]
+    set clockdata [simclock checkpoint]
     
     # Clean up after a test
 
     proc cleanup {} {
-        variable week0
+        variable clockdata
 
         # Clean up the test environment
         eventq restart
-        simclock configure -week0 $week0
+        simclock restore $clockdata
 
         if {[sim state] eq "RUNNING"} {
             sim mutate pause
@@ -97,6 +97,42 @@ namespace eval ::athena_test::tests:: {
 
     test mutate_startdate-1.4 {Sets "changed"} -body {
         sim mutate startdate 2014W26
+        sim changed
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # mutate starttick
+
+    test mutate_starttick-1.1 {Sets the simclock's start tick} -body {
+        sim mutate starttick 52
+        simclock cget -tick0
+    } -cleanup {
+        cleanup
+    } -result {52}
+
+    
+    test mutate_starttick-1.2 {Sends <Time>} -body {
+        ted notifier bind ::sim <Time>
+        sim mutate starttick 52
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <Time>}
+    }
+
+
+    test mutate_starttick-1.3 {Returns undo script} -body {
+        sim mutate starttick 52
+    } -cleanup {
+        cleanup
+    } -result {::sim mutate starttick 0}
+
+
+    test mutate_starttick-1.4 {Sets "changed"} -body {
+        sim mutate starttick 52
         sim changed
     } -cleanup {
         cleanup

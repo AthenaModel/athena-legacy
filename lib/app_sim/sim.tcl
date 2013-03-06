@@ -85,7 +85,9 @@ snit::type sim {
 
         order state $info(state)
 
-        simclock configure -week0 $constants(startdate)
+        simclock configure \
+            -week0 $constants(startdate) \
+            -tick0 $constants(starttick)
 
         notifier send ::sim <Time>
 
@@ -115,7 +117,9 @@ snit::type sim {
     typemethod new {} {
         # FIRST, configure the simclock.
         simclock reset
-        simclock configure -week0 $constants(startdate)
+        simclock configure \
+            -week0 $constants(startdate) \
+            -tick0 $constants(starttick)
 
         # NEXT, clear the event queue
         # TBD: The engine should be doing this.
@@ -364,6 +368,27 @@ snit::type sim {
 
         # NEXT, set the undo command
         return [mytypemethod mutate startdate $oldDate]
+    }
+
+    # mutate starttick starttick
+    #
+    # starttick   The integer tick as of SIM:LOCK
+    #
+    # Sets the simclock's -tick0 start tick
+
+    typemethod {mutate starttick} {starttick} {
+        set oldtick [simclock cget -tick0]
+
+        simclock configure -tick0 $starttick
+
+        # NEXT, saveable(i) data has changed
+        set info(changed) 1
+
+        # NEXT, notify the app
+        notifier send $type <Time>
+
+        # NEXT, set the undo command
+        return [mytypemethod mutate starttick $oldtick]
     }
 
     # mutate lock
@@ -643,9 +668,7 @@ snit::type sim {
         set checkpoint [dict create]
         
         dict set checkpoint state $info(state)
-        dict set checkpoint week0 [simclock cget -week0]
-        dict set checkpoint tick0 [simclock cget -tick0]
-        dict set checkpoint now   [simclock now]
+        dict set checkpoint clock [simclock checkpoint]
 
         return $checkpoint
     }
@@ -657,20 +680,8 @@ snit::type sim {
     typemethod restore {checkpoint {option ""}} {
         # FIRST, restore the checkpoint data
         dict with checkpoint {
-            simclock configure -week0 $week0
-            simclock configure -tick0 $tick0
-            simclock reset
-            simclock advance $now
-
-            if {[info exists state]} {
-                set info(state) $state
-            } elseif {$now == 0} {
-                # Fix up older scenario files, in which state was not
-                # checkpointed.
-                set info(state) PREP
-            } else {
-                set info(state) PAUSED
-            }
+            simclock restore $clock
+            set info(state) $state
         }
 
         if {$option eq "-saved"} {
@@ -684,23 +695,6 @@ snit::type sim {
 
     typemethod changed {} {
         return $info(changed)
-    }
-
-
-    #-------------------------------------------------------------------
-    # Order Helper Routines
-
-    # Refresh_SS dlg fields fdict
-    #
-    # Initializes the startdate parameter of SIM:STARTDATE when the
-    # the order is cleared.
-    
-    typemethod Refresh_SS {dlg fields fdict} {
-        dict with fdict {
-            if {$startdate eq ""} {
-                $dlg set startdate [simclock cget -week0]
-            }
-        }
     }
 }
 
@@ -730,6 +724,30 @@ order define SIM:STARTDATE {
 
     # NEXT, set the start date
     lappend undo [sim mutate startdate $parms(startdate)]
+
+    setundo [join $undo \n]
+}
+
+# SIM:STARTTICK
+#
+# Sets the integer time tick at which the simulation will be locked.
+
+order define SIM:STARTTICK {
+    title "Set Start Tick"
+    options -sendstates PREP
+
+    form {
+        rcc "Start Tick:" -for starttick
+        text starttick
+    }
+} {
+    # FIRST, prepare the parameters
+    prepare starttick -toupper -required -type iquantity
+
+    returnOnError -final
+
+    # NEXT, set the start tick
+    lappend undo [sim mutate starttick $parms(starttick)]
 
     setundo [join $undo \n]
 }

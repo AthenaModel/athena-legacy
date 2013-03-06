@@ -26,7 +26,7 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    variable oldDate [simclock cget -week0]
+    variable clockdata [simclock checkpoint]
 
     # Set up to run
 
@@ -39,10 +39,10 @@ namespace eval ::athena_test::tests:: {
     # Clean up after a test
 
     proc cleanup {} {
-        variable oldDate
+        variable clockdata
 
         # Clean up the test environment
-        simclock configure -week0 $oldDate
+        simclock restore $clockdata
 
         if {[sim state] eq "RUNNING"} {
             sim mutate pause
@@ -98,6 +98,54 @@ namespace eval ::athena_test::tests:: {
     
     test STARTDATE-3.1 {<Time> is sent on undo} -setup {
         set undo [ted order SIM:STARTDATE startdate 2014W26]
+
+    } -body {
+        ted notifier bind ::sim <Time>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <Time>}
+    }
+    
+    #-------------------------------------------------------------------
+    # SIM:STARTTICK
+
+    test STARTTICK-1.1 {required parms} -body {
+        ted order -reject SIM:STARTTICK {}
+    } -result {
+        starttick {required value}
+    }
+
+
+    test STARTTICK-1.2 {invalid starttick} -body {
+        ted order -reject SIM:STARTTICK starttick NONESUCH
+    } -result {
+        starttick {invalid value "NONESUCH", expected integer}
+    }
+
+
+    test STARTTICK-2.1 {starttick is set} -body {
+        ted order SIM:STARTTICK starttick 52
+        simclock cget -tick0
+    } -cleanup {
+        cleanup
+    } -result {52}
+
+
+    test STARTTICK-2.2 {<Time> is sent} -body {
+        ted notifier bind ::sim <Time>
+        ted order SIM:STARTTICK starttick 52
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <Time>}
+    }
+    
+    test STARTTICK-3.1 {<Time> is sent on undo} -setup {
+        set undo [ted order SIM:STARTTICK starttick 52]
 
     } -body {
         ted notifier bind ::sim <Time>
