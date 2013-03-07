@@ -447,7 +447,7 @@ let BaseGDP = {
 
 #----------------------------------------------------------------
 # Balancing Flows Matrix values (aka T-matrix)
-let T.actors.black = {[BNR.black]}
+let T.actors.black = {max(0.0,[BNR.black])}
 let T.world.black  = {[FEED.black]}
 let T.pop.world    = {[BREM]}
 let T.actors.world = {[graft]*[BFAR]}

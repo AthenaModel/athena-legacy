@@ -1490,9 +1490,62 @@ snit::type econ {
         }
     }
 
-    typemethod Trace {sub evt args objs} {
-        puts "Trace: $sub $evt $args $objs"
+    # mutate rebase
+    #
+    # This method takes the current state of the economy as it is
+    # in the "Capacity Constrained" case (aka 'M' page) and sets
+    # the appropriate cells in the SAM so that it can be used to
+    # initialize the economy back to the state it was in.
+
+    typemethod {mutate rebase} {} {
+        # FIRST, get the data from the CGE
+        set sectors [cge index i]
+        array set cgedata [cge get]
+
+        # NEXT, the base values
+        foreach i $sectors {
+            foreach j $sectors {
+                sam set [list BX.$i.$j $cgedata(M::X.$i.$j)]
+            }
+        }
+
+        # NEXT, adjust X.pop.world by the T-matrix value
+        set Tpw $cgedata(In::REM)
+
+        let Xpw {$cgedata(M::X.pop.world) - $Tpw}
+        sam set [list BX.pop.world $Xpw]
+
+        # NEXT, adjust X.world.black by the T-matrix value
+        let Twb {
+            $cgedata(PF.world.black) * $cgedata(AF.world.black) * \
+            $cgedata(M::QD.black)
+        }
+
+        let Xwb {$cgedata(M::X.world.black) - $Twb}
+
+        if {!$cgedata(Flag.ActorsGetBNR)} {
+            let Xwb {$Xwb - max(0.0,$cgedata(M::NR.black))}
+        }
+
+        sam set [list BX.world.black $Xwb]
+
+        # NEXT, base prices (this shouldn't have changed)
+        foreach i {goods black pop} {
+            sam set [list BP.$i $cgedata(M::P.$i)]
+        }
+
+        # Note: No need to do BQD's, they'll get recomputed in the SAM
+
+        # NEXT, base unemployment rate
+        sam set [list BaseUR $cgedata(M::UR)]
+
+        array set demdata [demog getlocal]
+
+        sam set [list BaseConsumers $demdata(consumers)]
+        let subsisters {$demdata(population) - $demdata(consumers)}
+        sam set [list BaseSubsisters $subsisters]
     }
+
     #-------------------------------------------------------------------
     # saveable(i) interface
 
