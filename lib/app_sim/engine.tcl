@@ -76,15 +76,26 @@ snit::type engine {
         profile nbstat start         ;# Computes initial security and coverage
         profile control_model start  ;# Computes initial support and influence
 
-        # NEXT, Advance time to 0.  What we get here is a pseudo-tick,
+        # NEXT, Advance time to tick0.  What we get here is a pseudo-tick,
         # in which we execute the on-lock strategy and provide transient
         # effects to URAM.
+
+        set t0 [simclock now]
 
         profile cash start           ;# Prepare cash for on-lock strategies
         profile strategy start       ;# Execute on-lock strategies
         profile econ start           ;# Initializes the econ model taking 
                                       # into account on-lock strategies
-        profile eventq advance 0     ;# Execute any scheduled orders.
+
+        # NEXT, the eventq requires special handling after a rebase, because
+        # it is already set to t0.  However, there shouldn't be any events
+        # scheduled for t0.
+        # TBD: We only use the eventq for resolving ensits, which the 
+        # ensit module could do equally well.  Thus, we should stop using 
+        # this mechanism altogether.
+        if {$t0 > [eventq now]} {
+            profile eventq advance $t0
+        }
 
         # NEXT, do analysis and assessment, of transient effects only.
         # There will be no attrition and no shifts in neighborhood control.
@@ -105,9 +116,9 @@ snit::type engine {
         # natural level varies with time.
         $type SetNaturalLevels
 
-        # NEXT, advance URAM to time 0, applying the transient inputs
+        # NEXT, advance URAM to t0, applying the transient inputs
         # entered above.
-        profile aram advance 0
+        profile aram advance $t0
 
         # NEXT,  Save time 0 history!
         profile hist tick

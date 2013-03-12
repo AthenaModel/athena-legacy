@@ -898,7 +898,46 @@ rduration   2
 rdriver_id  1002
     }
 
+    #-------------------------------------------------------------------
+    # rebase
 
+    test rebase-1.1 {Clean up ensits} -setup {
+        ted create NB1 JOE BLUE SHIA
+        ensit mutate create $s1
+        ensit mutate create $s2
+        ensit mutate create $s3
+        ted lock
+        ensit mutate resolve {s 1 resolver NONE}
+        ted step
+        ted step
+    } -body {
+        ensit rebase
+
+        # Ended ensits should be gone.  For those remaining,
+        # tc=ts=now (t=2); state is INITIAL; inception is 0;
+        # driver IDs are unassigned; duration is truncated.
+        ted querylist {SELECT * FROM ensits}
+    } -cleanup {
+        cleanup
+    } -result {
+s           3
+kind        ::ensit
+stype       INDSPILL
+driver_id   -1
+n           NB1
+coverage    1.0
+state       INITIAL
+ts          2
+tc          2
+change      NEW
+flist       ALL
+g           BLUE
+location    100 100
+inception   0
+resolver    NONE
+rduration   10
+rdriver_id  0
+    }    
 
     #-------------------------------------------------------------------
     # Cleanup

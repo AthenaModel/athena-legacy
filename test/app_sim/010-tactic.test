@@ -617,6 +617,68 @@ exec_flag    0
     }
 
     #-------------------------------------------------------------------
+    # rebase
+
+
+    test rebase-1.1 {rebase occurs properly} -setup {
+        ted create JOE BLUE BRIT SHIA
+
+        # Create a tactic that has:
+        # * the on_lock parameter
+        # * that will execute each tock
+        ted order TACTIC:DEPLOY:CREATE \
+            owner JOE g BLUE text1 ALL nlist NB1 on_lock 1
+
+        # Create a tactic that has:
+        # * the on_lock parameter
+        # * that will not execute without it (due to false condition)
+        ted order TACTIC:ASSIGN:CREATE \
+            owner JOE g BLUE n NB1 text1 PATROL int1 5 on_lock 1
+        ted order CONDITION:EXPR:CREATE \
+            cc_id 2 text1 0
+
+        # Create a tactic that:
+        # * does not have the on_lock parameter
+        # * that will execute each tock
+        ted order TACTIC:DEFROE:CREATE \
+            owner JOE g BLUE n NB1 text1 HOLD_FIRE
+
+        ted lock
+        ted step
+    } -body {
+        tactic rebase
+
+        # The following things should be true at this time:
+        #
+        # * tactics executed in the last go round get on_lock=1 if they
+        #   support on_lock.
+        #
+        # * tactics executed in the last go round get on_lock=0 if they do not
+        #   support on_lock.
+        #
+        # * tactics not executed in the last go round get on_lock=0
+        #
+        # * exec_flag = 0 for all tactics
+        #
+        # * exec_ts is NULL for all tactics. 
+        #
+        # Note, then, only tactic 1 should have its on_lock flag set.
+
+        ted query {
+            SELECT tactic_id, tactic_type, on_lock, exec_ts, exec_flag
+            FROM tactics
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id tactic_type on_lock exec_ts exec_flag 
+--------- ----------- ------- ------- --------- 
+1         DEPLOY      1               0         
+2         ASSIGN      0               0         
+3         DEFROE      0               0         
+    }
+    
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

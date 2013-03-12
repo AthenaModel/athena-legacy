@@ -18,11 +18,6 @@ snit::type frcgroup {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Type Components
-
-    # TBD
-
-    #-------------------------------------------------------------------
     # Type Variables
 
     # Unit Symbols, by force type
@@ -35,6 +30,28 @@ snit::type frcgroup {
         CRIMINAL      criminal
     }
 
+    #-------------------------------------------------------------------
+    # Scenario Control
+    
+    # rebase
+    #
+    # Create a new scenario prep baseline based on the current simulation
+    # state.
+    
+    typemethod rebase {} {
+        # FIRST, set force group base personnel to the current level.
+        rdb eval {
+            SELECT g, personnel
+            FROM personnel_g
+        } {
+            rdb eval {
+                UPDATE frcgroups
+                SET base_personnel = $personnel
+                WHERE g=$g
+            }
+        }
+    }
+    
     #-------------------------------------------------------------------
     # Queries
     #

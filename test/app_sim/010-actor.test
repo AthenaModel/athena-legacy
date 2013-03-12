@@ -589,6 +589,49 @@ budget            10.0
     } -result {12345.0}
 
     #-------------------------------------------------------------------
+    # rebase
+
+    test rebase-1.1 {rebase copies actor incomes} -setup {
+        ted create JOE WILL BLUE SHIA
+        ted lock
+        rdb eval {
+            UPDATE income_a
+            SET inc_goods   = 1.0,
+                inc_black_t = 2.0,
+                inc_pop     = 3.0,
+                inc_region  = 4.0,
+                inc_world   = 5.0;
+        }
+    } -body {
+        actor rebase
+
+        # Note that budget actors are not modified.
+        ted querylist {
+            SELECT a, income_goods, income_black_tax, income_pop,
+                   income_graft, income_world
+            FROM actors
+            ORDER BY a
+        } 
+    } -cleanup {
+        cleanup
+    } -result {
+a                 JOE
+income_goods      1.0
+income_black_tax  2.0
+income_pop        3.0
+income_graft      4.0
+income_world      5.0
+
+a                 WILL
+income_goods      0.0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
+    }
+    
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

@@ -355,7 +355,33 @@ namespace eval ::athena_test::tests:: {
         {::sim <State>}
     }
 
+    #-------------------------------------------------------------------
+    # SIM:REBASE
 
+    test REBASE-1.1 {rebases the scenario} -setup {
+        setup
+        ted step
+    } -body {
+        ted order SIM:REBASE
+        list [sim state] [simclock now]
+    } -cleanup {
+        cleanup
+    } -result {PREP 1}
+    
+    test REBASE-1.2 {Sends <State>} -setup {
+        setup
+    } -body {
+        ted notifier bind ::sim <State>
+        ted order SIM:REBASE
+        ted notifier received
+        # Event is sent twice, once when state is set, and then
+        # as part of "sim dbsync".
+    } -cleanup {
+        cleanup
+    } -result {
+        {::sim <State>}
+        {::sim <State>}
+    }
 
     #-------------------------------------------------------------------
     # Cleanup

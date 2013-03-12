@@ -27,6 +27,33 @@ snit::type coop {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Scenario Control
+    
+    # rebase
+    #
+    # Create a new scenario prep baseline based on the current simulation
+    # state.
+    #
+    # TBD: The natural level for coop curves is the base value at t=0.  This
+    # code, as currently defined, resets the base value and effectively
+    # the natural level as well.  Ideally, we need to add a "nat" column
+    # to the coop_fg table.  It can be null by default and set to the 
+    # "base at t=0" value on rebase.
+    
+    typemethod rebase {} {
+        # FIRST, set base to current values.
+        rdb eval {
+            SELECT f, g, bvalue as base FROM uram_coop;
+        } {
+            rdb eval {
+                UPDATE coop_fg
+                SET base=$base
+                WHERE f=$f AND g=$g
+            }
+        }
+    }
+ 
+    #-------------------------------------------------------------------
     # Queries
 
     # validate id

@@ -283,6 +283,22 @@ BRIT BRIT 1.0 1.0  0
     }
 
     #-------------------------------------------------------------------
+    # rebase
+
+    test rebase-1.1 {save current baseline hrels} -setup {
+        ted create JOE BLUE SHIA
+        ted lock
+        aram hrel bset 1 SHIA BLUE 0.9
+    } -body {
+        hrel rebase
+        rdb eval {SELECT f, g, base FROM hrel_fg WHERE f='SHIA' AND g='BLUE'}
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE 0.9}
+    
+    
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

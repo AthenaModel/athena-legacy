@@ -37,9 +37,48 @@ snit::type ensit {
     pragma -hasinstances 0
 
     #-------------------------------------------------------------------
+    # Scenario Control
+    
+    # rebase
+    #
+    # Create a new scenario prep baseline based on the current simulation
+    # state.
+    
+    typemethod rebase {} {
+        # FIRST, Delete all ensits that have ended.
+        foreach s [rdb eval {
+            SELECT s FROM ensits WHERE state == 'ENDED'
+        }] {
+            rdb eval {
+                DELETE FROM situations WHERE s=$s;
+                DELETE FROM ensits_t WHERE s=$s;
+            }
+        }
+
+        # NEXT, clean up remaining ensits
+        foreach {s ts} [rdb eval {
+            SELECT s, ts FROM ensits WHERE state != 'INITIAL'
+        }] {
+            rdb eval {
+                UPDATE situations
+                SET state='INITIAL',
+                    change='NEW',
+                    ts=now(),
+                    tc=now(),
+                    driver_id=-1;
+
+                UPDATE ensits_t
+                SET inception=0,
+                    rdriver_id=0,
+                    rduration=rduration+$ts-now();
+            }
+        }
+    }
+    
+    #-------------------------------------------------------------------
     # Assessment of Attitudinal Effects
 
-    # assess
+    # <assess></assess>
     #
     # Calls the DAM rule sets for each situation requiring assessment.
 
@@ -370,7 +409,7 @@ snit::type ensit {
     # parmdict     A dictionary of ensit parms
     #
     #    stype          The situation type
-    #    location       The situation's initial location (map coords)
+    #    location       The situation's initial <loc></loc>ation (map coords)
     #    coverage       The situation's coverage
     #    g              The group causing the situation, or ""
     #    inception      1 if there are inception effects, and 0 otherwise.
@@ -397,7 +436,7 @@ snit::type ensit {
             # right now.
 
             if {[sim state] eq "PREP"} {
-                set ts 0
+                set ts [simclock cget -tick0]
             } elseif {[sim state] eq "PAUSED"} {
                 set ts [simclock now 1]
             } else {

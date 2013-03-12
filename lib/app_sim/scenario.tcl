@@ -28,6 +28,59 @@ snit::type scenario {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # scenarioTables
+    #
+    # A list of the tables that are part of the scenario proper.
+    # All other (non-sqlite) tables will be purged as part of 
+    # doing a [scenario rebase].
+
+    typevariable scenarioTables {
+        activity
+        activity_gtype
+        actors
+        bookmarks
+        cap_kg
+        cap_kn
+        caps
+        cif
+        civgroups
+        concerns
+        cond_collections
+        conditions
+        coop_fg
+        demog_rebase_g
+        drivers
+        econ_n
+        ensits_t
+        eventq_etype_ensitAutoResolve
+        eventq_queue
+        frcgroups
+        goals
+        groups
+        hook_topics
+        hooks
+        hrel_fg
+        ioms
+        mads_t
+        mam_affinity
+        mam_belief
+        mam_entity
+        mam_playbox
+        mam_topic
+        mam_undo
+        maps
+        nbhoods
+        nbrel_mn
+        orggroups
+        payloads
+        sat_gc
+        scenario
+        situations
+        tactics
+        undostack_stack
+        vrel_ga
+    }
+
     # nonSnapshotTables
     #
     # A list of the tables that are excluded from snapshots.
@@ -556,6 +609,49 @@ snit::type scenario {
         lindex [scenario snapshot list] end
     }
 
+                            
+    #-------------------------------------------------------------------
+    # Save current simulation state as new baseline scenario.
+    
+    typemethod rebase {} {
+        # FIRST, allow all modules to rebase.
+        actor rebase
+        civgroup rebase
+        coop rebase
+        demog rebase
+        econ mutate rebase
+        ensit rebase
+        frcgroup rebase
+        hrel rebase
+        nbhood rebase
+        orggroup rebase
+        sat rebase
+        tactic rebase
+        vrel rebase
+        
+        # NEXT, purge history.  (Do this second, in case the modules
+        # needed the history to do their work.)
+        scenario snapshot purge -unlock
+        sigevent purge 0
+
+        # NEXT, update the clock
+        simclock configure -tick0 [simclock now]
+
+        # NEXT, reinitialize modules that depend on the time.
+
+        aram clear
+
+        # NEXT, purge simulation tables
+        foreach table [rdb tables] {
+            if {$table ni $scenarioTables} {
+                rdb eval "DELETE FROM $table"
+            } 
+        }
+        
+        # NEXT, this is a new scenario; it has no name.
+        set info(dbfile) ""
+    }
+    
     #-------------------------------------------------------------------
     # Configure RDB
 

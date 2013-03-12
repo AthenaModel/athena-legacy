@@ -727,6 +727,11 @@ snit::widget appwin {
         
         $self AddOrder $submenu SIM:STARTDATE
         $self AddOrder $submenu SIM:STARTTICK
+        
+        cond::available control \
+            [menuitem $submenu command [order title SIM:REBASE]... \
+                -command [list order send gui SIM:REBASE]]    \
+                order SIM:REBASE
 
         # Orders/Unit
         set submenu [menu $ordersmenu.unit]

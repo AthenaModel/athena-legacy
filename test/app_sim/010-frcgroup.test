@@ -498,7 +498,7 @@ local           1
     # ownedby
 
     test ownedby-1.1 {No groups owned by actor} -setup {
-        ted create JOE BOB BLUE BRIT  
+        ted create JOE BOB BLUE BRIT 
     } -body {
         frcgroup ownedby BOB
     } -cleanup {
@@ -512,6 +512,29 @@ local           1
     } -cleanup {
         cleanup
     } -result {BLUE BRIT}
+
+    #-------------------------------------------------------------------
+    # rebase
+
+    test rebase-1.1 {base_personnel == current personnel} -setup {
+        ted create JOE BLUE BRIT SHIA
+        ted lock
+        foreach {g p} {BLUE 1000 BRIT 2000} {
+            rdb eval {UPDATE personnel_g SET personnel=$p WHERE g=$g}
+        }
+    } -body {
+        frcgroup rebase
+        ted query {SELECT g, base_personnel FROM frcgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+g    base_personnel 
+---- -------------- 
+BLUE 1000           
+BRIT 2000           
+    }
+    
+    
 
     #-------------------------------------------------------------------
     # Cleanup

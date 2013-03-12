@@ -39,6 +39,26 @@ snit::type vrel {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Scenario Control
+    
+    # rebase
+    #
+    # Create a new scenario prep baseline based on the current simulation
+    # state.
+    
+    typemethod rebase {} {
+        # FIRST, set overrides to current relationships
+        rdb eval {
+            DELETE FROM vrel_ga;
+            
+            INSERT INTO vrel_ga
+            SELECT g, a, bvalue AS base
+            FROM uram_vrel 
+            WHERE bvalue != cvalue;
+        }
+    }
+    
+    #-------------------------------------------------------------------
     # Queries
 
     # validate id

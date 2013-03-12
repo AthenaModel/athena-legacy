@@ -453,6 +453,32 @@ snit::type sim {
         return ""
     }
 
+    # mutate rebase
+    #
+    # Causes the simulation to transition from PAUSED
+    # to PREP, retaining the current simulation state.
+
+    typemethod {mutate rebase} {} {
+        assert {$info(state) eq "PAUSED"}
+
+        # FIRST, save the current simulation state to the
+        # scenario tables
+        scenario rebase
+
+        # NEXT, set state
+        $type SetState PREP
+
+        # NEXT, log it.
+        log newlog prep
+        log normal sim "Unlocked Scenario Preparation"
+
+        # NEXT, resync the sim with the RDB
+        $type dbsync
+
+        # NEXT, return "", as this can't be undone.
+        return ""
+    }
+
     # mutate run ?options...?
     #
     # -ticks ticks       Run until now + ticks
@@ -817,7 +843,8 @@ order define SIM:LOCK {
 
 # SIM:UNLOCK
 #
-# Locks scenario preparation and transitions from PREP to PAUSED.
+# Unlocks the scenario, returning to the PREP state as it was before any
+# simulation was done.
 
 order define SIM:UNLOCK {
     title "Unlock Scenario Preparation"
@@ -831,6 +858,46 @@ order define SIM:UNLOCK {
     lappend undo [sim mutate unlock]
 
     setundo [join $undo \n]
+}
+
+# SIM:REBASE
+#
+# Unlocks the scenario and returns to the PREP state, first saving the
+# current simulation state as a new base scenario.
+
+order define SIM:REBASE {
+    title "Create New Scenario from Current State"
+    options \
+        -sendstates PAUSED \
+        -monitor    no
+} {
+    returnOnError -final
+    
+    # NEXT, make sure the user knows what he is getting into.
+    if {[sender] eq "gui"} {
+        set answer [messagebox popup \
+                        -title         "Are you sure?"                  \
+                        -icon          warning                          \
+                        -buttons       {ok "Rebase" cancel "Cancel"}    \
+                        -default       cancel                           \
+                        -ignoretag     SIM:REBASE                   \
+                        -ignoredefault ok                               \
+                        -parent        [app topwin]                     \
+                        -message       [normalize {
+                            By pressing "Rebase" you will be creating a
+                            new scenario based on the current simulation
+                            state.  This action cannot be undone, so be
+                            sure to save the old scenario before you do
+                            this.
+                        }]]
+
+        if {$answer eq "cancel"} {
+            cancel
+        }
+    }
+
+    # NEXT, rebase the scenario; this is not undoable.
+    sim mutate rebase
 }
 
 

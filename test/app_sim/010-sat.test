@@ -175,6 +175,20 @@ SHIA QOL 0.0  1.0
 
     
     #-------------------------------------------------------------------
+    # rebase
+
+    test rebase-1.1 {save current baseline sats} -setup {
+        ted create JOE BLUE SHIA
+        ted lock
+        aram sat bset 1 SHIA QOL 0.9
+    } -body {
+        sat rebase
+        rdb eval {SELECT g, c, base FROM sat_gc WHERE g='SHIA' AND c='QOL'}
+    } -cleanup {
+        cleanup
+    } -result {SHIA QOL 0.9}
+    
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

@@ -221,7 +221,7 @@ snit::type tactic {
 
 
     #===================================================================
-    # Simulation
+    # Scenario Control
 
     # reset
     #
@@ -232,6 +232,38 @@ snit::type tactic {
             UPDATE tactics SET exec_flag = 0
         }
     }
+
+    # rebase
+    #
+    # Create a new scenario prep baseline based on the current simulation
+    # state.
+    
+    typemethod rebase {} {
+        # FIRST, set on_lock flag if the tactic was executed at the 
+        # last tick.
+        foreach {tactic_id tactic_type exec_flag} [rdb eval {
+            SELECT tactic_id, tactic_type, exec_flag
+            FROM tactics
+        }] {
+            if {![tactic type hasOnLock $tactic_type]} {
+                continue
+            }
+
+            rdb eval {
+                UPDATE tactics
+                SET on_lock = $exec_flag
+                WHERE tactic_id = $tactic_id;
+            }
+        }
+
+        # NEXT, reset the other tactic data.
+        rdb eval {
+            UPDATE tactics
+            SET exec_flag = 0, 
+                exec_ts = NULL;
+        }
+    }
+ 
 
     #===================================================================
     # Tactic Instance: Modification and Query Interace

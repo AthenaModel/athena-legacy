@@ -501,6 +501,34 @@ housing     AT_HOME
         cleanup
     } -result {NB1}
 
+    #-------------------------------------------------------------------
+    # rebase
+
+    test rebase-1.1 {basepop is updated} -setup {
+        ted create SHIA SUNN KURD
+        foreach {g pop} {
+            SHIA 5000
+            SUNN 10000
+            KURD 20000
+        } {
+            rdb eval {
+                INSERT INTO demog_g(g, population) VALUES($g,$pop);
+            }
+        }
+    } -body {
+        civgroup rebase
+        ted query {SELECT g, basepop FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+g    basepop 
+---- ------- 
+SHIA 5000    
+SUNN 10000   
+KURD 20000   
+    }
+    
+
 
     #-------------------------------------------------------------------
     # Cleanup

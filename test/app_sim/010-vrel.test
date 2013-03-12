@@ -280,6 +280,20 @@ SHIA CIV   JOE 0.0 0.5  1
     }
 
     #-------------------------------------------------------------------
+    # rebase
+
+    test rebase-1.1 {save current baseline vrels} -setup {
+        ted create JOE BLUE SHIA
+        ted lock
+        aram vrel bset 1 SHIA JOE 0.9
+    } -body {
+        vrel rebase
+        rdb eval {SELECT g, a, base FROM vrel_ga WHERE g='SHIA' AND a='JOE'}
+    } -cleanup {
+        cleanup
+    } -result {SHIA JOE 0.9}
+    
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

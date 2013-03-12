@@ -126,6 +126,22 @@ FROM demog_g   AS DG
 JOIN civgroups AS CG USING (g)
 JOIN demog_n   AS DN USING (n);
 
+
+CREATE TABLE demog_rebase_g (
+    -- Table of rebase initialization data.  This table should be empty
+    -- in a normal scenario, and populated with the previous week's data
+    -- in a rebased scenario.  It will be used to initialize the demographic
+    -- model and make sure that the state of the rebased scenario on-lock
+    -- will match the state of the simulation prior to being rebased.
+
+    -- Symbolic civgroup name
+    g              TEXT PRIMARY KEY,
+
+    -- Unemployed per capita (percentage)
+    upc            DOUBLE DEFAULT 0.0
+);    
+
+
 ------------------------------------------------------------------------
 -- End of File
 ------------------------------------------------------------------------

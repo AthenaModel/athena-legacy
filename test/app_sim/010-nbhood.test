@@ -642,7 +642,21 @@ NB2 2
 
     # This is effectively tested by the lower and raise tests.
     
+    #-------------------------------------------------------------------
+    # rebase
 
+    test rebase-1.1 {initial controller = current} -setup {
+        ted create NB1 JOE BOB BLUE SHIA
+        ted lock
+        rdb eval {UPDATE control_n SET controller='JOE'}
+    } -body {
+        nbhood rebase
+        rdb eval {SELECT n, controller FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {NB1 JOE}
+    
+    
 
     #-------------------------------------------------------------------
     # Cleanup

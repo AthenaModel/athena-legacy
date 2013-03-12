@@ -33,7 +33,7 @@ snit::type demog {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Initialization
+    # Scenario Control
 
     # start
     #
@@ -43,8 +43,13 @@ snit::type demog {
         # FIRST, populate the demog_g and demog_n tables.
 
         rdb eval {
-            INSERT INTO demog_g(g,real_pop,population)
-            SELECT g, basepop, basepop FROM civgroups;
+            INSERT INTO demog_g(g,real_pop,population,upc)
+            SELECT g, 
+                   basepop, 
+                   basepop, 
+                   coalesce(upc, 0.0)
+            FROM civgroups
+            LEFT OUTER JOIN demog_rebase_g USING (g);
 
             INSERT INTO demog_n(n)
             SELECT n FROM nbhoods;
@@ -53,6 +58,22 @@ snit::type demog {
         # NEXT, do the initial population analysis
         $type stats
     }
+    
+    # rebase
+    #
+    # Create a new scenario prep baseline based on the current simulation
+    # state.
+    
+    typemethod rebase {} {
+        # FIRST, save demographic data to initialize the scenario
+        # after the rebase.
+        rdb eval {
+            DELETE FROM demog_rebase_g;
+            INSERT INTO demog_rebase_g
+            SELECT g, upc FROM demog_g ORDER BY g;
+        }
+    }
+    
 
     #-------------------------------------------------------------------
     # Population Stats

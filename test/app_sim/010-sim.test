@@ -471,6 +471,160 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {PREP 0 1 2012W01}
     
+    #-------------------------------------------------------------------
+    # rebase
+
+    # The following tables have problems, and are not included in the
+    # test at present
+
+    set problemTables {
+        demog_g
+        econ_n
+        force_civg
+        force_n
+        force_ng
+        influence_na
+        support_nga
+        ucurve_curves_t
+        units
+        uram_civ_g
+        uram_n
+        uram_nbcoop_t
+    }
+
+    set simTables {
+        activity_nga                  
+        actors                        
+        attroe_nfg                    
+        bookmarks                     
+        cap_access                    
+        cap_kg                        
+        cap_kn                        
+        caps                          
+        civgroups                     
+        cond_collections              
+        conditions                    
+        control_n                     
+        defroe_ng                     
+        demog_g                       
+        demog_local                   
+        demog_n                       
+        deploy_ng                     
+        econ_n                        
+        ensits_t                      
+        expenditures                  
+        force_civg                    
+        force_n                       
+        force_ng                      
+        frcgroups                     
+        goals                         
+        groups                        
+        hook_topics                   
+        hooks                         
+        hrel_fg                       
+        income_a                      
+        influence_na                  
+        ioms                          
+        mam_affinity                  
+        mam_belief                    
+        mam_entity                    
+        mam_playbox                   
+        mam_topic                     
+        mam_undo                      
+        nbhoods                       
+        nbrel_mn                      
+        orggroups                     
+        payloads                      
+        personnel_g                   
+        sat_gc                        
+        service_g                     
+        service_ga                    
+        situations                    
+        stance_fg                     
+        stance_nfg                    
+        support_nga                   
+        supports_na                   
+        tactics                       
+        ucurve_adjustments_t          
+        ucurve_ctypes_t               
+        ucurve_curves_t               
+        ucurve_effects_t              
+        undostack_stack               
+        units                         
+        uram_a                        
+        uram_c                        
+        uram_cause                    
+        uram_civ_g                    
+        uram_civrel_t                 
+        uram_coop_t                   
+        uram_frcrel_t                 
+        uram_g                        
+        uram_hrel_t                   
+        uram_mn                       
+        uram_n                        
+        uram_nbcoop_t                 
+        uram_sat_t                    
+        uram_vrel_t                   
+        vrel_ga   
+    }
+
+    set simTables force_civg ;# TBD: investigating problem
+
+    proc rebaseSetup {} {
+        autogen scenario -nb 3
+        ted lock
+        ted step
+        ted step
+    }
+
+    test rebase-1.1 {in prep after rebase} -setup {
+        ted create NB1 BLUE SHIA
+        ted lock
+        ted step
+        ted step
+    } -body {
+        sim mutate rebase
+        list \
+            [sim state] \
+            [simclock now] \
+            [simclock cget -tick0]
+    } -cleanup {
+        cleanup
+    } -result {PREP 2 2}
+    
+    test rebase-2.1 {table comparison} -body {
+        set count 0
+
+        foreach table $simTables {
+            # Skip known problems
+            if {$table in $problemTables} {
+                # continue
+            }
+
+
+            rebaseSetup
+            set a [rdb grab $table {}]
+            puts [rdb query "SELECT * FROM $table"]
+            sim mutate rebase
+            ted lock
+            puts [rdb query "SELECT * FROM $table"]
+            set b [rdb grab $table {}]
+
+            if {$a eq $b} {
+                puts "$table matches"
+                incr count
+            } else {
+                puts "$table doesn't match" 
+
+            }
+            cleanup
+        }
+             
+        set count   
+    } -cleanup {
+        cleanup
+    } -result {TBD}
+    
 
     #-------------------------------------------------------------------
     # Cleanup
