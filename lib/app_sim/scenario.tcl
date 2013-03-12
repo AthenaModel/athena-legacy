@@ -48,7 +48,6 @@ snit::type scenario {
         cond_collections
         conditions
         coop_fg
-        demog_rebase_g
         drivers
         econ_n
         ensits_t
@@ -618,7 +617,6 @@ snit::type scenario {
         actor rebase
         civgroup rebase
         coop rebase
-        demog rebase
         econ mutate rebase
         ensit rebase
         frcgroup rebase

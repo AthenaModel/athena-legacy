@@ -474,24 +474,6 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # rebase
 
-    # The following tables have problems, and are not included in the
-    # test at present
-
-    set problemTables {
-        demog_g
-        econ_n
-        force_civg
-        force_n
-        force_ng
-        influence_na
-        support_nga
-        ucurve_curves_t
-        units
-        uram_civ_g
-        uram_n
-        uram_nbcoop_t
-    }
-
     set simTables {
         activity_nga                  
         actors                        
@@ -516,12 +498,10 @@ namespace eval ::athena_test::tests:: {
         force_civg                    
         force_n                       
         force_ng                      
-        frcgroups                     
         goals                         
         groups                        
         hook_topics                   
         hooks                         
-        hrel_fg                       
         income_a                      
         influence_na                  
         ioms                          
@@ -533,10 +513,8 @@ namespace eval ::athena_test::tests:: {
         mam_undo                      
         nbhoods                       
         nbrel_mn                      
-        orggroups                     
         payloads                      
         personnel_g                   
-        sat_gc                        
         service_g                     
         service_ga                    
         situations                    
@@ -544,7 +522,6 @@ namespace eval ::athena_test::tests:: {
         stance_nfg                    
         support_nga                   
         supports_na                   
-        tactics                       
         ucurve_adjustments_t          
         ucurve_ctypes_t               
         ucurve_curves_t               
@@ -565,11 +542,24 @@ namespace eval ::athena_test::tests:: {
         uram_nbcoop_t                 
         uram_sat_t                    
         uram_vrel_t                   
-        vrel_ga   
     }
 
-    set simTables force_civg ;# TBD: investigating problem
+    # These are tables with problems that I'm focussing on at the moment.
+    set xsimTables {
+        demog_g
+        econ_n
+        force_n
+        force_ng
+        influence_na
+        support_nga
+        ucurve_curves_t
+        units
+        uram_civ_g
+        uram_n
+        uram_nbcoop_t
+    }
 
+    
     proc rebaseSetup {} {
         autogen scenario -nb 3
         ted lock
@@ -591,33 +581,30 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {PREP 2 2}
-    
-    test rebase-2.1 {table comparison} -body {
+        
+    test rebase-2.1 {table comparison} -constraints tbd -setup {
+        rebaseSetup
+    } -body {
         set count 0
 
         foreach table $simTables {
-            # Skip known problems
-            if {$table in $problemTables} {
-                # continue
-            }
-
-
-            rebaseSetup
-            set a [rdb grab $table {}]
+            set before($table) [rdb grab $table {}]
             puts [rdb query "SELECT * FROM $table"]
-            sim mutate rebase
-            ted lock
-            puts [rdb query "SELECT * FROM $table"]
-            set b [rdb grab $table {}]
+        }
 
-            if {$a eq $b} {
-                puts "$table matches"
+        sim mutate rebase
+        ted lock
+
+        foreach table $simTables {
+            puts [rdb query "SELECT * FROM $table"]
+            set after [rdb grab $table {}]
+
+            if {$before($table) eq $after} {
                 incr count
             } else {
                 puts "$table doesn't match" 
 
             }
-            cleanup
         }
              
         set count   

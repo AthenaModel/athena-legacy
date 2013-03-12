@@ -309,25 +309,7 @@ SHIA 981        980.7692307692307
 SUNN 981        980.7692307692307 
 KURD 981        980.7692307692307 
     }
-    
-
-    #-------------------------------------------------------------------
-    # rebase
-
-    test rebase-1.1 {verify rebase data was saved} -setup {
-        setup
-    } -body {
-        set a [rdb eval {SELECT g, upc FROM demog_g ORDER BY g}]
-        demog rebase
-        set b [rdb eval {SELECT g, upc FROM demog_rebase_g ORDER BY g}]
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-    
-    
-   
-    
+       
     
     #-------------------------------------------------------------------
     # Cleanup

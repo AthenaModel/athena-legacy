@@ -59,21 +59,6 @@ snit::type demog {
         $type stats
     }
     
-    # rebase
-    #
-    # Create a new scenario prep baseline based on the current simulation
-    # state.
-    
-    typemethod rebase {} {
-        # FIRST, save demographic data to initialize the scenario
-        # after the rebase.
-        rdb eval {
-            DELETE FROM demog_rebase_g;
-            INSERT INTO demog_rebase_g
-            SELECT g, upc FROM demog_g ORDER BY g;
-        }
-    }
-    
 
     #-------------------------------------------------------------------
     # Population Stats
