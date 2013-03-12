@@ -651,8 +651,10 @@ snit::type econ {
             # do not want to double count when the SAM is solved
             let Xwb {$Xwb + $BNRb - $Xab}
             cge set [list Flag.ActorsGetBNR 0]
+            sam set [list Flag.ActorsGetBNR 0]
         } else {
             cge set [list Flag.ActorsGetBNR 1]
+            sam set [list Flag.ActorsGetBNR 1]
         }
 
         $sam set [list BX.world.black $Xwb]
@@ -1523,13 +1525,9 @@ snit::type econ {
 
         let Xwb {$cgedata(M::X.world.black) - $Twb}
 
-        if {!$cgedata(Flag.ActorsGetBNR)} {
-            let Xwb {$Xwb - max(0.0,$cgedata(M::NR.black))}
-        }
-
         sam set [list BX.world.black $Xwb]
 
-        # NEXT, base prices (this shouldn't have changed)
+        # NEXT, base prices (only P.pop may have changed)
         foreach i {goods black pop} {
             sam set [list BP.$i $cgedata(M::P.$i)]
         }
@@ -1539,11 +1537,15 @@ snit::type econ {
         # NEXT, base unemployment rate
         sam set [list BaseUR $cgedata(M::UR)]
 
+        # NEXT, demographic data
         array set demdata [demog getlocal]
 
         sam set [list BaseConsumers $demdata(consumers)]
         let subsisters {$demdata(population) - $demdata(consumers)}
         sam set [list BaseSubsisters $subsisters]
+
+        # NEXT, the change rate of remittances may have changed
+        sam set [list REMChangeRate $cgedata(Global::REMChangeRate)] 
     }
 
     #-------------------------------------------------------------------

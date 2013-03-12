@@ -1,7 +1,7 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    sam6x6.cm, version v
+#    sam6x6.cm, version w
 # 
 # AUTHOR:
 #    Bob Chamberlain
@@ -29,6 +29,12 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version w: In support of scenario rebase, the SAM needs to be aware
+#               of whether actors are getting black market profits in order
+#               to set the T-matrix correctly. If no actor is getting any
+#               profit then it goes to T.world.black, otherwise it goes
+#               to T.actors.black.
+#
 #    Version v: Added BaseCAP.black, which at this point is a pass thru
 #               to the CGE.
 #
@@ -288,8 +294,8 @@ let BaseCAP.black  = 40000   ;# tonnes of black market goods
 let REMChangeRate  = 0.0
 
 # Flags 
-# Whether remittances are treated as taxable income
-let Flag.REMisTaxed = 1
+let Flag.REMisTaxed   = 1   ;# REM may or may not be taxed
+let Flag.ActorsGetBNR = 1   ;# No actor may get black market profit
 
 #-----------------------------------------------------------------------
 #
@@ -447,8 +453,12 @@ let BaseGDP = {
 
 #----------------------------------------------------------------
 # Balancing Flows Matrix values (aka T-matrix)
-let T.actors.black = {max(0.0,[BNR.black])}
-let T.world.black  = {[FEED.black]}
+let T.actors.black = {
+    fif([Flag.ActorsGetBNR] == 1, max(0.0,[BNR.black]))
+}
+let T.world.black  = {
+    [FEED.black] + fif([Flag.ActorsGetBNR] == 0, max(0.0,[BNR.black]))
+}
 let T.pop.world    = {[BREM]}
 let T.actors.world = {[graft]*[BFAR]}
 # Prevent "-0.0" from being displayed in the GUI

@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cge6x6.cm, version ab 
+#    cge6x6.cm, version ac
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -63,11 +63,18 @@
 #    In, and Out pages.
 #
 # HISTORY:
+#    Version ac: Fixed a bug related to the computation of expenditures 
+# in the pop sector for those that are computed using tax-like rates. It's 
+# possible that remittances are taxed, so X.actors.pop, X.region.pop and
+# X.world.pop now use BTI.pop instead of just wages. If remittances
+# are not taxed, then BTI.pop is equal to wages.
+#
 #    Version ab: Introduced a new flag called Flag.REMisTaxed which is
 # controlled by an Athena model parameter when the CGE is run in that 
 # context.  When set to 1, remittances are treated as before tax income
 # otherwise as after tax income.  Fixed up the Unemployment calculations
 # to use BaseLF (or In::LF) rather than BaseCAP.pop (or In::CAP.pop).
+#
 #    Version aa:
 #    * Fixed a problem with the BaseEmployment computation. It was using
 # BaseCAP.pop when it should have been using BaseLF.
@@ -86,6 +93,7 @@
 # on the L, M and S pages.
 #    * Changed the GDP calculation on the Out page to match that in the
 # SAM cellmodel file, and on the L, M an S pages.
+#
 #    Version z: 
 #    * Changed a few more defaults to be in line with the latest
 # study. Fixed a bug in the GDP calculation: cost of feedstock was being
@@ -851,12 +859,12 @@ let X.goods.pop = {[f.goods.pop] * [ATI.pop]}
 
 let QD.pop.pop = {[X.pop.pop] / [P.pop]}
 
-# Assume that taxes and tax-like payments are paid on wages only, not
-# REM:
+# Assume that taxes and tax-like payments are paid on before tax
+# income, that may or may not include remittances
+let X.actors.pop = {[t.actors.pop] * [BTI.pop]}
+let X.region.pop = {[t.region.pop] * [BTI.pop]}
+let X.world.pop  = {[t.world.pop]  * [BTI.pop]}
 
-let X.actors.pop = {[t.actors.pop] * [P.pop] * [QS.pop]}
-let X.region.pop = {[t.region.pop] * [P.pop] * [QS.pop]}
-let X.world.pop  = {[t.world.pop]  * [P.pop] * [QS.pop]}
 let X.pop.pop    = {[f.pop.pop]    * [ATI.pop]}
 
 let QD.pop = {<:sum j {[QD.pop.$j]}:>}
