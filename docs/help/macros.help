@@ -129,3 +129,37 @@ macro parmdb {parm {link ""}} {
     set path "/parmdb/[string tolower [string map $replist $parm]]"
 } {[cref $path $link]}
 
+# deflist args
+#
+# args   - not used, useful as a comment in help source
+#
+# Begins a definition list
+
+macro deflist {args} {
+    |<--
+    <dl>
+}
+
+# /deflist args
+#
+# args  - not used, useful as a comment in help source
+#
+# Ends a definition list
+
+macro /deflist {args} {
+    |<--
+    </dl>
+}
+
+# defopt text
+#
+# text   - Text defining an option, e.g., "-foo <i>bar</i>"
+#
+# An item in a list that defines an option to a command
+
+macro defopt {text} {
+    |<--
+    <dt><tt>$text</tt></dt>
+    <dd>
+}
+
