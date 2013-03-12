@@ -31,9 +31,10 @@ snit::widgetadaptor coopbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { f        "Of Group"                   }
-        { g        "With Group"                 }
-        { base     "Baseline"    -sortmode real }
+        { f        "\nOf Group"                        }
+        { g        "\nWith Group"                      }
+        { base     "Baseline\nLevel"    -sortmode real }
+        { natural  "Natural\nLevel"     -sortmode real }
     }
 
     #-------------------------------------------------------------------

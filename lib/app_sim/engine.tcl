@@ -263,7 +263,11 @@ snit::type engine {
 
         # Note: COOP natural levels are not being computed yet.
         $uram load coop {*}[rdb eval {
-            SELECT f, g, base, base FROM coop_fg
+            SELECT f, 
+                   g, 
+                   base, 
+                   CASE WHEN regress_to='BASELINE' THEN base ELSE natural END
+            FROM coop_fg
             ORDER BY f, g
         }]
     }

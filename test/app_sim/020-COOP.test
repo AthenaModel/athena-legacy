@@ -69,23 +69,44 @@ namespace eval ::athena_test::tests:: {
         base {invalid value "100.1", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
     }
 
+    test UPDATE-1.4 {invalid regress_to} -setup {
+        setup
+    } -body {
+        ted order -reject COOP:UPDATE id {SHIA BLUE} regress_to NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        regress_to {invalid value "NONESUCH", should be one of: BASELINE, NATURAL}
+    }
+
+    test UPDATE-1.5 {invalid natural} -setup {
+        setup
+    } -body {
+        ted order -reject COOP:UPDATE id {SHIA BLUE} natural NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        natural {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
+    }
 
     test UPDATE-2.1 {base is updated} -setup {
         setup
     } -body {
         ted order COOP:UPDATE {
-            id      {SHIA BLUE}
-            base    40.0
+            id          {SHIA BLUE}
+            base        40.0
+            regress_to  NATURAL
+            natural     70.0
         }
 
         ted query {SELECT * FROM coop_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    base 
----- ---- ---- 
-SHIA BLUE 40.0 
-SUNN BLUE 50.0 
+f    g    base regress_to natural 
+---- ---- ---- ---------- ------- 
+SHIA BLUE 40.0 NATURAL    70.0    
+SUNN BLUE 50.0 BASELINE   50.0    
     }
 
 
@@ -156,14 +177,38 @@ SUNN BLUE 50.0
     }
 
 
+    test UPDATE:MULTI-1.4 {invalid regress_to} -setup {
+        setup
+    } -body {
+        ted order -reject COOP:UPDATE:MULTI \
+            ids {{SHIA BLUE}} regress_to NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        regress_to {invalid value "NONESUCH", should be one of: BASELINE, NATURAL}
+    }
+
+    test UPDATE:MULTI-1.5 {invalid natural} -setup {
+        setup
+    } -body {
+        ted order -reject COOP:UPDATE:MULTI \
+            ids {{SHIA BLUE}} natural NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        natural {invalid value "NONESUCH", should be a real number in range 0.0, 100.0, or one of: AC, VC, C, MC, U, VU, NC}
+    }
+
     test UPDATE:MULTI-2.1 {one cooperation of several is updated} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <coop_fg>
 
         ted order COOP:UPDATE:MULTI {
-            ids       {{SHIA BLUE}}
-            base      40.0
+            ids         {{SHIA BLUE}}
+            base        41
+            regress_to  NATURAL
+            natural     70.0
         }
 
         ted notifier received
@@ -179,8 +224,10 @@ SUNN BLUE 50.0
     } -body {
         ted notifier bind ::rdb <coop_fg>
         ted order COOP:UPDATE:MULTI {
-            ids       {{SHIA BLUE} {SUNN BLUE}} 
-            base      40.0
+            ids         {{SHIA BLUE} {SUNN BLUE}} 
+            base        40.0
+            regress_to  NATURAL
+            natural     70.0
         }
         ted notifier received
     } -cleanup {
@@ -195,8 +242,10 @@ SUNN BLUE 50.0
         setup
 
         ted order COOP:UPDATE:MULTI {
-            ids       {{SHIA BLUE} {SUNN BLUE}}
-            base      40.0
+            ids         {{SHIA BLUE} {SUNN BLUE}}
+            base        40.0
+            regress_to  NATURAL
+            natural     70.0
         }
     } -body {
         ted notifier bind ::rdb <coop_fg>

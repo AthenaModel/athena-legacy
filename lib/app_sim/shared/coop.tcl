@@ -43,11 +43,13 @@ snit::type coop {
     typemethod rebase {} {
         # FIRST, set base to current values.
         rdb eval {
-            SELECT f, g, bvalue as base FROM uram_coop;
+            SELECT f, g, bvalue, cvalue FROM uram_coop;
         } {
             rdb eval {
                 UPDATE coop_fg
-                SET base=$base
+                SET base=$bvalue,
+                    regress_to = 'NATURAL',
+                    natural = $cvalue
                 WHERE f=$f AND g=$g
             }
         }
@@ -100,28 +102,36 @@ snit::type coop {
     #
     #    id              list {f g}
     #    base            Cooperation of f with g at time 0.
+    #    regress_to      BASELINE or NATURAL
+    #    natural         Natural level of cooperation of f with g
     #
     # Updates a cooperation given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate update} {parmdict} {
         # FIRST, use the dict
-        dict with parmdict {
-            lassign $id f g
+        dict with parmdict {}
+        lassign $id f g
 
-            # FIRST, get the undo information
-            set data [rdb grab coop_fg {f=$f AND g=$g}]
-
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE coop_fg
-                SET base = nonempty($base, base)
-                WHERE f=$f AND g=$g
-            } {}
-
-            # NEXT, Return the undo command
-            return [list rdb ungrab $data]
+        # NEXT, if base is given and natural isn't, set natural to base
+        if {$base ne "" && $natural eq ""} {
+            set natural $base
         }
+
+        # NEXT, get the undo information
+        set data [rdb grab coop_fg {f=$f AND g=$g}]
+
+        # NEXT, Update the group
+        rdb eval {
+            UPDATE coop_fg
+            SET base       = nonempty($base, base),
+                regress_to = nonempty($regress_to, regress_to),
+                natural    = nullif(nonempty($natural, natural), '')   
+            WHERE f=$f AND g=$g
+        } {}
+
+        # NEXT, Return the undo command
+        return [list rdb ungrab $data]
     }
 }
 
@@ -144,12 +154,23 @@ order define COOP:UPDATE {
 
         rcc "Baseline:" -for base
         coop base
+
+        rcc "Regress To:" -for regress_to
+        selector regress_to {
+            case BASELINE "The Initial Baseline" { }
+            case NATURAL  "A Specific Level" {
+                rcc "Natural:" -for natural
+                coop natural
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
-    prepare id      -toupper  -required -type coop
-    prepare base    -toupper  -num      -type qcooperation
-
+    prepare id         -toupper  -required -type coop
+    prepare base       -toupper  -num      -type qcooperation
+    prepare regress_to -toupper  -selector
+    prepare natural    -toupper  -num      -type qcooperation
+ 
     returnOnError -final
 
     # NEXT, modify the curve
@@ -172,11 +193,22 @@ order define COOP:UPDATE:MULTI {
 
         rcc "Baseline:" -for base
         coop base
+        
+        rcc "Regress To:" -for regress_to
+        selector regress_to {
+            case BASELINE "The Initial Baseline" { }
+            case NATURAL  "A Specific Level" {
+                rcc "Natural:" -for natural
+                coop natural
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
     prepare ids     -toupper  -required -listof coop
     prepare base    -toupper  -num      -type qcooperation
+    prepare regress_to -toupper  -selector
+    prepare natural    -toupper  -num      -type qcooperation
 
     returnOnError -final
 

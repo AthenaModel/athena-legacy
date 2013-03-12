@@ -41,40 +41,40 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE SHIA
     } -body {
         coop mutate update {
-            id      {SHIA BLUE}
-            base    40.0
+            id         {SHIA BLUE}
+            base       40.0
+            regress_to BASELINE
+            natural    {}
         }
 
         ted query {SELECT * FROM coop_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    base 
----- ---- ---- 
-SHIA BLUE 40.0 
+f    g    base regress_to natural 
+---- ---- ---- ---------- ------- 
+SHIA BLUE 40.0 BASELINE   40.0    
     }
 
 
-    test update-1.2 {identical values are OK} -setup {
+    test update-1.2 {coop is updated} -setup {
         ted create NB1 BLUE SHIA
-        set parmdict {
-            id      {SHIA BLUE}
-            base    40.0
+    } -body {
+        coop mutate update {
+            id         {SHIA BLUE}
+            base       40.0
+            regress_to NATURAL
+            natural    70.0
         }
 
-        coop mutate update $parmdict
-    } -body {
-        set a [ted query {SELECT * FROM coop_fg}]
-        
-        coop mutate update $parmdict
-
-        set b [ted query {SELECT * FROM coop_fg}]
-
-        expr {$a eq $b}
+        ted query {SELECT * FROM coop_fg}
     } -cleanup {
         cleanup
-    } -result {1}
-
+    } -result {
+f    g    base regress_to natural 
+---- ---- ---- ---------- ------- 
+SHIA BLUE 40.0 NATURAL    70.0    
+    }
 
     test update-1.3 {empty values are OK} -setup {
         ted create NB1 BLUE SHIA
@@ -82,8 +82,10 @@ SHIA BLUE 40.0
         set a [ted query {SELECT * FROM coop_fg}]
 
         coop mutate update  {
-            id      {SHIA BLUE}
-            base    ""
+            id         {SHIA BLUE}
+            base       ""
+            regress_to ""
+            natural    ""
         }
 
         set b [ted query {SELECT * FROM coop_fg}]
@@ -101,8 +103,10 @@ SHIA BLUE 40.0
         set a [ted query {SELECT * FROM coop_fg}]
 
         set undo [coop mutate update {
-            id      {SHIA BLUE}
-            base    40.0
+            id         {SHIA BLUE}
+            base       40.0
+            regress_to BASELINE
+            natural    {}
         }]
 
         eval $undo
@@ -166,6 +170,26 @@ SHIA BLUE 40.0
     } -cleanup {
         cleanup
     } -result {SHIA BLUE}
+
+
+    #-------------------------------------------------------------------
+    # rebase
+
+    test rebase-1.1 {save current coop levels} -setup {
+        ted create JOE BLUE SHIA
+        ted lock
+        aram coop bset 1 SHIA BLUE 80.0
+    } -body {
+        coop rebase
+        rdb eval {
+            SELECT f, g, base, regress_to, natural 
+            FROM coop_fg WHERE f='SHIA' AND g='BLUE' 
+        }
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE 80.0 NATURAL 50.0}
+
+    
 
     #-------------------------------------------------------------------
     # Cleanup

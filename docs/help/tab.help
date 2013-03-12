@@ -1745,11 +1745,16 @@ page /tab/attitudes/cooperation scenario "Cooperation browser, Scenario Mode" {
     <<topic "With Group">>The name of a force group.
     <</topic>>
 
-    <<topic "Baseline">>The initial baseline cooperation value for this
+    <<topic "Baseline Level">>The initial baseline cooperation value for this
     curve, as set during <<term prep>>.  It is a real number
     taken from the following scale:<p>
 
     <<::simlib::qcooperation html>>
+    <</topic>>
+    
+    <<topic "Natural Level">>The natural level for this
+    curve, as set during <<term prep>>.  The baseline will regress to 
+    this value over time, in the absence of other effects.
     <</topic>>
     
     <</topiclist>>

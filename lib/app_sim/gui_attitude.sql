@@ -56,10 +56,14 @@ FROM mam_acompare_view;
 -- gui_coop_view: A view used for editing baseline cooperation levels
 -- in Scenario Mode.
 CREATE TEMPORARY VIEW gui_coop_view AS
-SELECT f || ' ' || g                                     AS id,
-       f                                                 AS f,
-       g                                                 AS g,
-       format('%5.1f', base)                             AS base
+SELECT f || ' ' || g                            AS id,
+       f                                        AS f,
+       g                                        AS g,
+       format('%5.1f', base)                    AS base,
+       regress_to                               AS regress_to,
+       CASE WHEN regress_to='BASELINE' 
+            THEN format('%5.1f', base)
+            ELSE format('%5.1f', natural) END   AS natural
 FROM coop_fg
 ORDER BY f,g;
 

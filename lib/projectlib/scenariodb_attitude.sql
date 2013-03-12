@@ -38,6 +38,13 @@ CREATE TABLE coop_fg (
     -- initial baseline cooperation of f with g at time 0.
     base        DOUBLE DEFAULT 50.0,
 
+    -- if "BASELINE", regress to initial baseline; if "NATURAL",
+    -- regress to explicit natural level.
+    regress_to  STRING DEFAULT 'BASELINE',
+
+    --  Natural level, if regress_to is "NATURAL".
+    natural     DOUBLE DEFAULT 50.0,
+
     PRIMARY KEY (f, g)
 );
 
