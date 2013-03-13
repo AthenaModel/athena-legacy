@@ -148,24 +148,70 @@ command "autogen" {
 # autogen scenario
 
 command "autogen scenario" {
-    <<syntax ?<i>-nb n</i>? ?<i>-actors n</i>? ?<i>-frcg n</i>? ?<i>-civg n</i>? ?<i>-orgg n</i>? ?<i>-topics n</i>? ?<i>-nostrategy</i>?>>
+    <<syntax ?<i>options...</i>?>>
     
     Creates a scenario with a default number of each of Athena's entities
     or, if any of the options are supplied, the number of entities 
     requested by the user. If the <i>-nostrategy</i> flag is supplied then
     no tactics are created, otherwise a default set of tactics are created 
     for each actor.<p>
-    
-    The default number for each entity is as follows:
-    <ul>
-    <li> Actors: 3
-    <li> Neighborhoods: 10
-    <li> Force Groups: 3
-    <li> Civilian Groups: 6 (per neighborhood)
-    <li> Organization Groups: 2
-    <li> Belief System Topics: 3
-    </ul><p>
 
+    The available options are:<p>
+
+    <<deflist options>>
+
+    <<defopt {-nb <i>n</i>}>>
+    Specifies the number of neighborhoods to create. Each neighborhood is
+    a 10x10 pixel square. Neighborhoods are laid out in strips starting at
+    the top of the map. Defaults to 10.<p>
+
+    <<defopt {-actors <i>n</i>}>>
+    Specifies the number of actors to create. Defaults to 3.<p>
+
+    <<defopt {-frcg <i>n</i>}>>
+    Specifies the number of force groups to create. As they are created,
+    the force group type is cycled through each possible type. Each force 
+    group is given a base personnel of 100000. Defaults to 3.<p>
+
+    <<defopt {-civg <i>n</i>}>>
+    Specifies the number of civilian groups to create per neighborhood. The 
+    last group in each neighborhood is created with the subsistence 
+    agriculture flag set to true. The different types of housing are 
+    cycled through as each group is created. The exception to this are 
+    subsistence agriculture groups, which are always  
+    <code>AT_HOME</code>.  The population of every group in a neighborhood 
+    is some non-negative multiple of 10000. Thus, the first group in a 
+    neighborhood has a base population of zero and each group created 
+    after has a base population of 10000 more than the previous group.
+    Defaults to 6.<p>
+
+    <<defopt {-orgg <i>n</i>}>>
+    Specifies the number of organization groups to create. As groups are
+    created, the organization type is cycled through. Each group has a 
+    base personnel of 100000. Defaults to 2.<p>
+
+    <<defopt {-topics <i>n</i>}>>
+    Specifies the number of belief system topics to create.  Each actor and
+    civilian group created is assigned a belief to each topic.  The beliefs
+    assigned are cycled through four possibilities comprised of a position
+    and emphasis pair. They are:
+
+    <ul>
+    <li><b>Passionately For</b> and <b>Agreement--Strong</b>
+    <li><b>Passionately For</b> and <b>Disagreement--Extreme</b>
+    <li><b>Passionately Against</b> and <b>Agreement--Strong</b>
+    <li><b>Passionately Against</b> and <b>Disagreement--Extreme</b>
+    </ul>
+    
+    Note that if 4 topics are requested then all actors and
+    civilians will have identical belief systems resulting in affinities of
+    1 between all entity pairs. Defaults to 3.<p>
+
+    <<defopt {-nostrategy}>>
+    If specified, no tactics are employed by any actor.<p>
+
+    <</deflist options>>
+    
     To create a scenario with 8 neighborhoods and the default number of
     entities for all others, enter<p>
 
@@ -198,7 +244,9 @@ command "autogen nbhoods" {
     <<syntax ?<i>num</i>?>>
 
     Automatically generates the requested number of neighborhoods 
-    subject to certain constraints. If no argument is supplied, 
+    subject to certain constraints. Each neighborhood is
+    a 10x10 pixel square. Neighborhoods are laid out in strips starting at
+    the top of the map. If no argument is supplied, 
     ten neighborhoods are created. The constraints are as follows:<p> 
 
     <ul>
@@ -216,10 +264,20 @@ command "autogen nbhoods" {
 command "autogen civgroups" {
     <<syntax ?<i>num</i>?>>
 
-    Automatically generates the requested number of civilian groups 
-    in each neighborhood subject to certain constraints. If no argument
-    is supplied, six groups per neighborhood are created. The constraints
-    are as follows:<p> 
+    Automatically generates the requested number of civilian groups per
+    neighborhood. The last group in each neighborhood is created with 
+    the subsistence agriculture flag set to true. The different types 
+    of housing are cycled through as each group is created. The exception
+    to this are subsistence agriculture groups, which are
+    always <code>AT_HOME</code>. The population of every group in a 
+    neighborhood is some non-negative multiple of 10000. Thus, the first
+    group in a neighborhood has a base population of zero and each group 
+    created after has a base population of 10000 more than the previous 
+    group.<p>
+
+    The creation of civilian groups is subject to certain constraints. 
+    If no argument is supplied, six groups per neighborhood are created. 
+    The constraints are as follows:<p> 
 
     <ul>
     <li> Neighborhoods must exist
@@ -236,9 +294,13 @@ command "autogen civgroups" {
 command "autogen orggroups" {
     <<syntax ?<i>num</i>?>>
 
-    Automatically generates the requested number of organization groups 
-    subject to certain constraints. If no argument is supplied, 
-    two groups are created. The constraints are as follows:<p> 
+    Specifies the number of organization groups to create. As groups are
+    created, the organization type is cycled through. Each group has a 
+    base personnel of 100000.<p>
+
+    The creation of organization groups is subject to certain constraints. 
+    If no argument is supplied, two groups are created. The constraints 
+    are as follows:<p> 
 
     <ul>
     <li> At least one actor must exist
@@ -255,9 +317,13 @@ command "autogen orggroups" {
 command "autogen frcgroups" {
     <<syntax ?<i>num</i>?>>
 
-    Automatically generates the requested number of force groups 
-    subject to certain constraints. If no argument is supplied, 
-    three groups are created. The constraints are as follows:<p> 
+    Specifies the number of force groups to create. As they are created
+    force group type is cycled through each possible type. Each force 
+    group is given a base personnel of 100000.<p>
+
+    The creation of force groups is subject to certain constraints. 
+    If no argument is supplied, three groups are created. The 
+    constraints are as follows:<p> 
 
     <ul>
     <li> At least one actor must exist
@@ -274,18 +340,10 @@ command "autogen frcgroups" {
 command "autogen bsystem" {
     <<syntax ?<i>num</i>?>>
 
-    Automatically generates a belief system with the requested 
-    number of topics subject to certain constraints. If no argument
-    is supplied, three topics are created. The constraints are as follows:<p> 
-
-    <ul>
-    <li> At least one actor must exist
-    <li> Civilian groups must exist
-    <li> No topics exist
-    </ul><p>
-
-    Position and emphasis on each topic is cycled through four possible 
-    combinations:<p>
+    Specifies the number of belief system topics to create.  Each actor and
+    civilian group created is assigned a belief to each topic.  The beliefs
+    assigned are cycled through four possibilities comprised of a position
+    and emphasis pair. They are:
 
     <ul>
     <li><b>Passionately For</b> and <b>Agreement--Strong</b>
@@ -293,6 +351,17 @@ command "autogen bsystem" {
     <li><b>Passionately Against</b> and <b>Agreement--Strong</b>
     <li><b>Passionately Against</b> and <b>Disagreement--Extreme</b>
     </ul>
+
+    Creation of a belief system is subject to certain constraints. If 
+    no argument is supplied, three topics are created. The constraints
+    are as follows:<p> 
+
+    <ul>
+    <li> At least one actor must exist
+    <li> Civilian groups must exist
+    <li> No topics exist
+    </ul><p>
+
 
     To create a belief system with 5 topics, enter<p>
 
