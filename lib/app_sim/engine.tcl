@@ -244,19 +244,19 @@ snit::type engine {
         }]
 
         $uram load hrel {*}[rdb eval {
-            SELECT f, g, base, nat FROM hrel_view
+            SELECT f, g, base, base, nat FROM hrel_view
             ORDER BY f, g
         }]
 
         $uram load vrel {*}[rdb eval {
-            SELECT g, a, base, nat FROM vrel_view
+            SELECT g, a, base, base, nat FROM vrel_view
             ORDER BY g, a
         }]
 
         # Note: only SFT has a natural level, and it can't be computed
         # until later.
         $uram load sat {*}[rdb eval {
-            SELECT g, c, base, 0.0, saliency
+            SELECT g, c, base, base, 0.0, saliency
             FROM sat_gc
             ORDER BY g, c
         }]
@@ -264,7 +264,8 @@ snit::type engine {
         # Note: COOP natural levels are not being computed yet.
         $uram load coop {*}[rdb eval {
             SELECT f, 
-                   g, 
+                   g,
+                   base, 
                    base, 
                    CASE WHEN regress_to='BASELINE' THEN base ELSE natural END
             FROM coop_fg
