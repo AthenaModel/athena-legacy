@@ -596,7 +596,6 @@ let BQD.pop.pop    =  {
 # The value of the base-case basket of goods and services for the 
 # consumer price index, CPI
 
-let BaseBasketValue = {[BP.black] * [BQD.black.pop] + [BP.goods] * [BQD.goods.pop] + [BP.pop] * [BQD.pop.pop]}
 
 
 # Cobb-Douglas production function coefficients.  The following
@@ -1005,6 +1004,12 @@ let GDP = {
 # on the L, M and S pages, where it is adjusted but the current values of
 # X.goods.pop/P.goods and the number of Consumers.
 
+let BaseBasketValue = {
+    [P.black] * [BQD.black.pop] + 
+    [P.goods] * [BQD.goods.pop] + 
+    [P.pop]   * [BQD.pop.pop]
+}
+
 # Some outputs for display in the Athena GUI
 # Some of these (ie. A.goods.pop) are recomputed on the L, M and S pages.
 # Others are computed only on the Out page (ie. SHORTAGE.i).
@@ -1194,6 +1199,7 @@ copypage Cal -except {
     Agp
     BPp
     GDPratio
+    BaseBasketValue
 }
 
 # Copy the calibrated wages and price of GoodsBKT
@@ -1287,6 +1293,7 @@ copypage Cal -except {
     Agp
     BPp
     GDPratio
+    BaseBasketValue
 }
 
 # Copy the calibrated wages and price of GoodsBKT
@@ -1395,6 +1402,7 @@ copypage Cal -except {
     Agp
     BPp
     GDPratio
+    BaseBasketValue
 }
 
 # Copy the calibrated wages and price of GoodsBKT
@@ -1561,7 +1569,7 @@ let UR     = {[S::UR]}     ;# Percentage
 # and the consumer market basket defined on the null page)
 let BasketValue = {[S::P.black] * [BQD.black.pop] + [S::P.goods] * 
                    [BQD.goods.pop] + [S::P.pop] * [BQD.pop.pop]}
-let CPI = {[BasketValue] / [BaseBasketValue]}
+let CPI = {[BasketValue] / [Cal::BaseBasketValue]}
 
 # The contribution of goods, black and pop sectors to total GDP
 let GDP.goods = {
