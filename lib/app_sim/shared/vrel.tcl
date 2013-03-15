@@ -52,9 +52,9 @@ snit::type vrel {
             DELETE FROM vrel_ga;
             
             INSERT INTO vrel_ga
-            SELECT g, a, bvalue AS base
+            SELECT g, a, bvalue AS base, 1 AS hist_flag, avalue AS current
             FROM uram_vrel 
-            WHERE bvalue != cvalue;
+            WHERE bvalue != cvalue OR avalue != cvalue;
         }
     }
     
@@ -104,8 +104,10 @@ snit::type vrel {
     #
     # parmdict  - A dictionary of vrel parms
     #
-    #    id     - list {g a}
-    #    base   - The relationship of g with a
+    #    id        - list {g a}
+    #    base      - The relationship of g with a
+    #    hist_flag - 0 if new scenario, 1 if data from rebased scenario
+    #    current   - overridden current relationship if hist_flag=1.
     #
     # Creates a relationship record given the parms, which are presumed to be
     # valid.
@@ -119,11 +121,19 @@ snit::type vrel {
                 set base 0.0
             }
 
+            if {$hist_flag eq ""} {
+                set hist_flag 0
+            }
+
+            if {$current eq ""} {
+                set current $base
+            }
+
             # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                vrel_ga(g,a,base)
-                VALUES($g, $a, $base);
+                vrel_ga(g, a, base, hist_flag, current)
+                VALUES($g, $a, $base, $hist_flag, $current);
             }
 
             # NEXT, Return the undo command
@@ -153,8 +163,10 @@ snit::type vrel {
     #
     # parmdict  - A dictionary og aroup parms
     #
-    #    id     - list {g a}
-    #    base   - Relationship of g with a
+    #    id        - list {g a}
+    #    base      - Relationship of g with a
+    #    hist_flag - 0 if new scenario, 1 if data from rebased scenario
+    #    current   - overridden current relationship if hist_flag=1.
     #
     # Updates a relationship given the parms, which are presumed to be
     # valid.
@@ -170,7 +182,9 @@ snit::type vrel {
             # NEXT, Update the group
             rdb eval {
                 UPDATE vrel_ga
-                SET base = nonempty($base, base)
+                SET base      = nonempty($base,      base),
+                    hist_flag = nonempty($hist_flag, hist_flag),
+                    current   = nonempty($current,   current)
                 WHERE g=$g AND a=$a
             } {}
 
@@ -221,11 +235,22 @@ order define VREL:OVERRIDE {
 
         rcc "Baseline:" -for base
         rel base
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "Current:" -for current
+                rel current
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
     prepare id        -toupper  -required -type vrel
     prepare base -num -toupper            -type qaffinity
+    prepare hist_flag           -num      -type snit::boolean
+    prepare current   -toupper  -num      -type qaffinity 
 
     returnOnError -final
 
@@ -253,11 +278,22 @@ order define VREL:OVERRIDE:MULTI {
 
         rcc "Baseline:" -for base
         rel base
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "Current:" -for current
+                rel current
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
     prepare ids       -toupper  -required -listof vrel
     prepare base -num -toupper            -type qaffinity
+    prepare hist_flag           -num      -type snit::boolean
+    prepare current   -toupper  -num      -type qaffinity 
 
     returnOnError -final
 

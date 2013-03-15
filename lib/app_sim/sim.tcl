@@ -866,7 +866,7 @@ order define SIM:UNLOCK {
 # current simulation state as a new base scenario.
 
 order define SIM:REBASE {
-    title "Create New Scenario from Current State"
+    title "Rebase Simulation"
     options \
         -sendstates PAUSED \
         -monitor    no

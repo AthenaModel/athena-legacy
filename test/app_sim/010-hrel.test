@@ -26,6 +26,15 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
+    # Standard override
+
+    set H1 {
+        id        {SHIA BLUE}
+        base      0.5
+        hist_flag 0
+        current   0.0
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -38,21 +47,21 @@ namespace eval ::athena_test::tests:: {
     # mutate create
 
     test create-1.1 {override is created} -setup {
-        ted create BLUE SHIA
+        ted create SHIA BLUE
     } -body {
-        hrel mutate create {id {SHIA BLUE} base 0.5}
+        hrel mutate create $H1
         ted query {SELECT * FROM hrel_fg}
     } -cleanup {
         cleanup
     } -result {
-f    g    base 
----- ---- ---- 
-SHIA BLUE 0.5  
+f    g    base hist_flag current 
+---- ---- ---- --------- ------- 
+SHIA BLUE 0.5  0         0.0     
     }
 
     test create-2.1 {undo deletes the override} -setup {
-        ted create BLUE SHIA
-        set undo [hrel mutate create {id {SHIA BLUE} base 0.5}]
+        ted create SHIA BLUE
+        set undo [hrel mutate create $H1]
     } -body {
         namespace eval :: $undo
         rdb eval {SELECT * FROM hrel_fg}
@@ -64,8 +73,8 @@ SHIA BLUE 0.5
     # mutate delete
 
     test delete-1.1 {Record is deleted} -setup {
-        ted create BLUE SHIA
-        hrel mutate create {id {SHIA BLUE} base 0.5}
+        ted create SHIA BLUE
+        hrel mutate create $H1
     } -body {
         hrel mutate delete {SHIA BLUE}
 
@@ -76,8 +85,8 @@ SHIA BLUE 0.5
     } -result {}
 
     test delete-2.1 {Undo restores record} -setup {
-        ted create BLUE SHIA
-        hrel mutate create {id {SHIA BLUE} base 0.5}
+        ted create SHIA BLUE
+        hrel mutate create $H1 
         set undo [hrel mutate delete {SHIA BLUE}]
     } -body {
         namespace eval :: $undo
@@ -85,9 +94,9 @@ SHIA BLUE 0.5
     } -cleanup {
         cleanup
     } -result {
-f    g    base 
----- ---- ---- 
-SHIA BLUE 0.5  
+f    g    base hist_flag current 
+---- ---- ---- --------- ------- 
+SHIA BLUE 0.5  0         0.0     
     }
 
 
@@ -96,55 +105,37 @@ SHIA BLUE 0.5
 
 
     test update-1.1 {rel is updated} -setup {
-        ted create BLUE BRIT
-        hrel mutate create {id {BLUE BRIT} base 0.5}
+        ted create SHIA BLUE
+        hrel mutate create $H1 
     } -body {
         hrel mutate update {
-            id   {BLUE BRIT}
-            base  0.7
+            id        {SHIA BLUE}
+            base      0.7
+            hist_flag 1
+            current   0.6
         }
 
         ted query {SELECT * FROM hrel_fg ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    base 
----- ---- ---- 
-BLUE BRIT 0.7  
+f    g    base hist_flag current 
+---- ---- ---- --------- ------- 
+SHIA BLUE 0.7  1         0.6     
     }
 
 
-    test update-1.2 {identical values are OK} -setup {
-        ted create BLUE BRIT
-
-        set parmdict {
-            id   {BLUE BRIT}
-            base  0.5
-        }
-
-        hrel mutate create $parmdict
-    } -body {
-        set a [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
-        
-        hrel mutate update $parmdict
-
-        set b [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-
-    test update-1.3 {empty values are OK} -setup {
-        ted create BLUE BRIT
-        hrel mutate create {id {BLUE BRIT} base 0.5}
+    test update-1.2 {empty values are OK} -setup {
+        ted create SHIA BLUE
+        hrel mutate create $H1
     } -body {
         set a [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
 
         hrel mutate update  {
-            id   {BLUE BRIT}
-            base  ""
+            id        {SHIA BLUE}
+            base      ""
+            hist_flag ""
+            current   ""
         }
 
         set b [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
@@ -156,15 +147,17 @@ BLUE BRIT 0.7
 
 
     test update-2.1 {undo undoes the change} -setup {
-        ted create BLUE BRIT
-        hrel mutate create {id {BLUE BRIT} base 0.0}
+        ted create SHIA BLUE
+        hrel mutate create $H1
     } -body {
 
         set a [ted query {SELECT * FROM hrel_fg ORDER BY f,g}]
 
         set undo [hrel mutate update {
-            id   {BLUE BRIT}
-            base  0.5
+            id        {SHIA BLUE}
+            base      0.5
+            hist_flag 1
+            current   0.7
         }]
 
         eval $undo
@@ -188,17 +181,17 @@ BLUE BRIT 0.7
 
 
     test exists-1.2 {record does not exist} -body {
-        ted create BLUE BRIT
-        hrel exists {BLUE BRIT}
+        ted create SHIA BLUE
+        hrel exists {SHIA BLUE}
     } -cleanup {
         cleanup
     } -result {0}
 
     test exists-1.3 {record exists} -setup {
-        ted create BLUE BRIT
-        hrel mutate create {id {BLUE BRIT} base 0.5}
+        ted create SHIA BLUE
+        hrel mutate create $H1
     } -body {
-        hrel exists {BLUE BRIT}
+        hrel exists {SHIA BLUE}
     } -cleanup {
         cleanup
     } -result {1}
@@ -215,18 +208,18 @@ BLUE BRIT 0.7
 
 
     test validate-1.2 {Invalid group g} -setup {
-        ted create BLUE BRIT
+        ted create SHIA BLUE
     } -body {
         hrel validate {BLUE NONESUCH}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -result {Invalid group, should be one of: BLUE, BRIT}
+    } -result {Invalid group, should be one of: BLUE, SHIA}
 
 
     test validate-1.3 {f eq g} -setup {
-        ted create BLUE BRIT
+        ted create SHIA BLUE
     } -body {
         hrel validate {BLUE BLUE}
     } -returnCodes {
@@ -236,12 +229,12 @@ BLUE BRIT 0.7
     } -result {A group's relationship with itself cannot be overridden.}
 
     test validate-2.1 {Valid relationship} -setup {
-        ted create BLUE BRIT
+        ted create SHIA BLUE
     } -body {
-        hrel validate {BLUE BRIT}
+        hrel validate {SHIA BLUE}
     } -cleanup {
         cleanup
-    } -result {BLUE BRIT}
+    } -result {SHIA BLUE}
 
     #-------------------------------------------------------------------
     # hrel_view
@@ -252,50 +245,77 @@ BLUE BRIT 0.7
     # from hrel_fg, and it ought to be tested somewhere.
 
     test hrel_view-1.1 {Defaults to 1.0 and 0.0} -setup {
-        ted create BLUE BRIT
+        ted create SHIA BLUE
     } -body {
         ted query {SELECT * FROM hrel_view ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    nat base override 
----- ---- --- ---- -------- 
-BLUE BLUE 1.0 1.0  0        
-BLUE BRIT 0.0 0.0  0        
-BRIT BLUE 0.0 0.0  0        
-BRIT BRIT 1.0 1.0  0        
+f    g    nat base hist_flag current override 
+---- ---- --- ---- --------- ------- -------- 
+BLUE BLUE 1.0 1.0  0         1.0     0        
+BLUE SHIA 0.0 0.0  0         0.0     0        
+SHIA BLUE 0.0 0.0  0         0.0     0        
+SHIA SHIA 1.0 1.0  0         1.0     0        
     }
 
     test hrel_view-1.2 {hrel_fg overrides bsystem values} -setup {
-        ted create BLUE BRIT
+        ted create SHIA BLUE
     } -body {
-        hrel mutate create {id {BLUE BRIT} base 0.5}
+        hrel mutate create $H1 
         ted query {SELECT * FROM hrel_view ORDER BY f,g}
     } -cleanup {
         cleanup
     } -result {
-f    g    nat base override 
----- ---- --- ---- -------- 
-BLUE BLUE 1.0 1.0  0        
-BLUE BRIT 0.0 0.5  1        
-BRIT BLUE 0.0 0.0  0        
-BRIT BRIT 1.0 1.0  0        
+f    g    nat base hist_flag current override 
+---- ---- --- ---- --------- ------- -------- 
+BLUE BLUE 1.0 1.0  0         1.0     0        
+BLUE SHIA 0.0 0.0  0         0.0     0        
+SHIA BLUE 0.0 0.5  0         0.5     1        
+SHIA SHIA 1.0 1.0  0         1.0     0        
+    }
+
+    test hrel_view-1.3 {hrel_fg overrides hist_flag, current} -setup {
+        ted create SHIA BLUE
+    } -body {
+        hrel mutate create $H1 
+        hrel mutate update {id {SHIA BLUE} hist_flag 1 current 0.2}
+        ted query {SELECT * FROM hrel_view ORDER BY f,g}
+    } -cleanup {
+        cleanup
+    } -result {
+f    g    nat base hist_flag current override 
+---- ---- --- ---- --------- ------- -------- 
+BLUE BLUE 1.0 1.0  0         1.0     0        
+BLUE SHIA 0.0 0.0  0         0.0     0        
+SHIA BLUE 0.0 0.5  1         0.2     1        
+SHIA SHIA 1.0 1.0  0         1.0     0        
     }
 
     #-------------------------------------------------------------------
     # rebase
 
     test rebase-1.1 {save current baseline hrels} -setup {
-        ted create JOE BLUE SHIA
+        ted create JOE SHIA BLUE
         ted lock
         aram hrel bset 1 SHIA BLUE 0.9
     } -body {
         hrel rebase
-        rdb eval {SELECT f, g, base FROM hrel_fg WHERE f='SHIA' AND g='BLUE'}
+
+        # Note: rebase data is not saved when f=g.  Also, rebase
+        # data is not saved if current=base=nat, so as to save 
+        # disk space.
+        ted query {SELECT * FROM hrel_view ORDER BY f,g}
     } -cleanup {
         cleanup
-    } -result {SHIA BLUE 0.9}
-    
+    } -result {
+f    g    nat base hist_flag current override 
+---- ---- --- ---- --------- ------- -------- 
+BLUE BLUE 1.0 1.0  0         1.0     0        
+BLUE SHIA 0.0 0.0  0         0.0     0        
+SHIA BLUE 0.0 0.9  1         0.0     1        
+SHIA SHIA 1.0 1.0  0         1.0     0        
+    }
     
 
     #-------------------------------------------------------------------

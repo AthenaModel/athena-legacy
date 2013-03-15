@@ -47,14 +47,14 @@ snit::type hrel {
     # state.
     
     typemethod rebase {} {
-        # FIRST, set overrides to current relationships
+        # FIRST, set overrides to natural relationships
         rdb eval {
             DELETE FROM hrel_fg;
             
             INSERT INTO hrel_fg
-            SELECT f, g, bvalue AS base
+            SELECT f, g, bvalue AS base, 1 AS hist_flag, avalue AS current
             FROM uram_hrel 
-            WHERE bvalue != cvalue;
+            WHERE f != g AND (bvalue != cvalue OR avalue != cvalue);
         }
     }
     
@@ -109,8 +109,10 @@ snit::type hrel {
     #
     # parmdict  - A dictionary of hrel parms
     #
-    #    id     - list {f g}
-    #    base   - The overridden baseline relationship of f with g
+    #    id        - list {f g}
+    #    base      - The overridden baseline relationship of f with g
+    #    hist_flag - 0 if new scenario, 1 if data from rebased scenario
+    #    current   - overridden current relationship if hist_flag=1.
     #
     # Creates a relationship record given the parms, which are presumed to be
     # valid.
@@ -124,11 +126,19 @@ snit::type hrel {
                 set base 0.0
             }
 
+            if {$hist_flag eq ""} {
+                set hist_flag 0
+            }
+
+            if {$current eq ""} {
+                set current $base
+            }
+
             # NEXT, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                hrel_fg(f,g,base)
-                VALUES($f, $g, $base);
+                hrel_fg(f, g, base, hist_flag, current)
+                VALUES($f, $g, $base, $hist_flag, $current);
             }
 
             # NEXT, Return the undo command
@@ -158,8 +168,10 @@ snit::type hrel {
     #
     # parmdict  - A dictionary of group parms
     #
-    #    id     - list {f g}
-    #    base   - Modified baseline relationship of f with g
+    #    id        - list {f g}
+    #    base      - The overridden baseline relationship of f with g
+    #    hist_flag - 0 if new scenario, 1 if data from rebased scenario
+    #    current   - overridden current relationship if hist_flag=1.
     #
     # Updates a baseline relationship override given the parms, which
     # are presumed to be valid.
@@ -175,7 +187,9 @@ snit::type hrel {
             # NEXT, Update the group
             rdb eval {
                 UPDATE hrel_fg
-                SET base = nonempty($base, base)
+                SET base      = nonempty($base,      base),
+                    hist_flag = nonempty($hist_flag, hist_flag),
+                    current   = nonempty($current,   current)
                 WHERE f=$f AND g=$g
             } {}
 
@@ -227,11 +241,22 @@ order define HREL:OVERRIDE {
 
         rcc "Baseline:" -for base
         rel base
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "Current:" -for current
+                rel current
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
-    prepare id       -toupper  -required -type hrel
-    prepare base     -toupper  -num      -type qaffinity
+    prepare id        -toupper  -required -type hrel
+    prepare base      -toupper  -num      -type qaffinity
+    prepare hist_flag           -num      -type snit::boolean
+    prepare current   -toupper  -num      -type qaffinity 
 
     returnOnError -final
 
@@ -255,15 +280,26 @@ order define HREL:OVERRIDE:MULTI {
     form {
         rcc "IDs:" -for ids
         multi ids -table gui_hrel_view -key id \
-            -loadcmd {orderdialog multiload id *}
+            -loadcmd {orderdialog multiload ids *}
 
         rcc "Baseline:" -for base
         rel base
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "Current:" -for current
+                rel current
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
-    prepare ids      -toupper  -required -listof hrel
-    prepare base     -toupper  -num      -type qaffinity
+    prepare ids       -toupper  -required -listof hrel
+    prepare base      -toupper  -num      -type qaffinity
+    prepare hist_flag           -num      -type snit::boolean
+    prepare current   -toupper  -num      -type qaffinity 
 
     returnOnError -final
 

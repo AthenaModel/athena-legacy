@@ -30,11 +30,13 @@ snit::type sat {
     typemethod rebase {} {
         # FIRST, set base to current values.
         rdb eval {
-            SELECT g, c, bvalue as base FROM uram_sat;
+            SELECT g, c, avalue, bvalue FROM uram_sat;
         } {
             rdb eval {
                 UPDATE sat_gc
-                SET base=$base
+                SET base      = $bvalue,
+                    hist_flag = 1,
+                    current   = $avalue
                 WHERE g=$g AND c=$c
             }
         }
@@ -84,11 +86,13 @@ snit::type sat {
     #
     # parmdict     A dictionary of group parms
     #
-    #    id               list {g c}
-    #    base             A new initial satisfaction, or ""
-    #    saliency         A new saliency, or ""
+    #    id             - list {g c}
+    #    base           - A new initial satisfaction, or ""
+    #    saliency       - A new saliency, or ""
+    #    hist_flag      - History flag, or ""
+    #    current        - New initial current level, or ""
     #
-    # Updates a satisfaction level the parms, which are presumed to be
+    # Updates a satisfaction level given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate update} {parmdict} {
@@ -102,8 +106,10 @@ snit::type sat {
             # NEXT, Update the group
             rdb eval {
                 UPDATE sat_gc
-                SET base     = nonempty($base,     base),
-                    saliency = nonempty($saliency, saliency)
+                SET base      = nonempty($base,      base),
+                    saliency  = nonempty($saliency,  saliency),
+                    hist_flag = nonempty($hist_flag, hist_flag),
+                    current   = nonempty($current,   current)
                 WHERE g=$g AND c=$c
             } {}
 
@@ -134,13 +140,24 @@ order define SAT:UPDATE {
         
         rcc "Saliency:" -for saliency
         frac saliency
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "Current:" -for current
+                sat current
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
-    prepare id       -toupper  -required -type ::sat
+    prepare id        -toupper  -required -type ::sat
 
-    prepare base     -num -toupper -type qsat
-    prepare saliency -num -toupper -type qsaliency
+    prepare base      -num -toupper -type qsat
+    prepare saliency  -num -toupper -type qsaliency
+    prepare hist_flag -num          -type snit::boolean
+    prepare current   -num -toupper -type qsat 
 
     returnOnError -final
 
@@ -167,13 +184,24 @@ order define SAT:UPDATE:MULTI {
         
         rcc "Saliency:" -for saliency
         frac saliency
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "Current:" -for current
+                sat current
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
-    prepare ids      -toupper  -required -listof sat
+    prepare ids       -toupper  -required -listof sat
 
-    prepare base     -num -toupper -type qsat
-    prepare saliency -num -toupper -type qsaliency
+    prepare base      -num -toupper -type qsat
+    prepare saliency  -num -toupper -type qsaliency
+    prepare hist_flag -num          -type snit::boolean
+    prepare current   -num -toupper -type qsat 
 
     returnOnError -final
 

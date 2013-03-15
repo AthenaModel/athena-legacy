@@ -113,20 +113,15 @@ snit::type coop {
         dict with parmdict {}
         lassign $id f g
 
-        # NEXT, if base is given and natural isn't, set natural to base
-        if {$base ne "" && $natural eq ""} {
-            set natural $base
-        }
-
         # NEXT, get the undo information
         set data [rdb grab coop_fg {f=$f AND g=$g}]
 
         # NEXT, Update the group
         rdb eval {
             UPDATE coop_fg
-            SET base       = nonempty($base, base),
-                regress_to = nonempty($regress_to, regress_to),
-                natural    = nullif(nonempty($natural, natural), '')   
+            SET base       = nonempty($base,        base),
+                regress_to = nonempty($regress_to,  regress_to),
+                natural    = nonempty($natural,     natural)   
             WHERE f=$f AND g=$g
         } {}
 

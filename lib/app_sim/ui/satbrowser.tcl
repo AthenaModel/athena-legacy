@@ -35,6 +35,7 @@ snit::widgetadaptor satbrowser {
         { c        "Concern"                   }
         { n        "Nbhood"                    }
         { base     "Baseline"  -sortmode real  }
+        { current  "Current"   -sortmode real  }
         { saliency "Saliency"  -sortmode real  }
     }
 

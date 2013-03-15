@@ -35,6 +35,7 @@ snit::widgetadaptor hrelbrowser {
         {ftype    "F Type"                      }
         {gtype    "G Type"                      }
         {base     "Baseline"     -sortmode real }
+        {current  "Current"      -sortmode real }
         {nat      "Natural"      -sortmode real }
         {override "OV"           -hide 1        }
     }

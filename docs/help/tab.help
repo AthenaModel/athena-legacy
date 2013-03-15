@@ -1285,6 +1285,13 @@ page /tab/attitudes/hrel scenario "HRel browser, Scenario Mode" {
 
     <</topic>>
 
+    <<topic "Current">>
+    The initial current relationship, as set during
+    <<term prep>>.  It will usually be the same as the baseline value; but
+    see the discussion on the help page for the 
+    <<cref /order/hrel/override>> order.
+    <</topic>>
+    
     <<topic "Natural">> The natural relationship between group F and
     group G from F's point of view, as derived from the affinity
     between the two groups.  It will be the same as the baseline value
@@ -1465,6 +1472,13 @@ page /tab/attitudes/vrel scenario "VRel browser, Scenario Mode" {
 
     <</topic>>
 
+    <<topic "Current">>
+    The initial current relationship, as set during
+    <<term prep>>.  It will usually be the same as the baseline value; but
+    see the discussion on the help page for the 
+    <<cref /order/vrel/override>> order.
+    <</topic>>
+    
     <<topic "Natural">> The natural relationship between group G and
     actor A from A's point of view, as derived from the affinity
     between the group and the actor.  It will be the same as the 
@@ -1624,6 +1638,13 @@ page /tab/attitudes/satisfaction scenario "Satisfaction browser, Scenario Mode" 
     taken from the following scale:<p>
 
     <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic "Current">>
+    The initial current satisfaction value for this curve, as set during
+    <<term prep>>.  It will usually be the same as the baseline value; but
+    see the discussion on the help page for the 
+    <<cref /order/sat/update>> order.
     <</topic>>
     
     <<topic Saliency>>The importance of this concern to this group in

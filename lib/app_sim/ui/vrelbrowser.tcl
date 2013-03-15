@@ -35,6 +35,7 @@ snit::widgetadaptor vrelbrowser {
         {a        "With Actor A"                }
         {gtype    "G Type"                      }
         {base     "Baseline"     -sortmode real }
+        {current  "Current"      -sortmode real }
         {nat      "Natural"      -sortmode real }
         {override "OV"           -hide 1        }
     }

@@ -70,7 +70,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test UPDATE-1.4 {} -setup {
+    test UPDATE-1.4 {invalid base: out of range} -setup {
         setup
     } -body {
         ted order -reject SAT:UPDATE id {SHIA SFT} base 101.0
@@ -102,6 +102,27 @@ namespace eval ::athena_test::tests:: {
         saliency {invalid value "-0.1", should be a real number in range 0.0, 1.0, or one of: CR, VI, I, LI, UN, NG}
     }
 
+    test UPDATE-1.7 {invalid hist_flag} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE id {SHIA SFT} hist_flag NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        hist_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+    
+    test UPDATE-1.8 {invalid current} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE id {SHIA SFT} current NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        current {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+    }
+    
+
     test UPDATE-2.1 {sat is updated} -setup {
         setup
     } -body {
@@ -109,6 +130,8 @@ namespace eval ::athena_test::tests:: {
             id             {SHIA SFT}
             base           VS
             saliency       VI
+            hist_flag      1
+            current        75.0
         }
         ted query {
             SELECT * FROM sat_gc
@@ -116,16 +139,16 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-g    c   base saliency 
----- --- ---- -------- 
-SHIA AUT 0.0  1.0      
-SHIA SFT 80.0 0.85     
-SHIA CUL 0.0  1.0      
-SHIA QOL 0.0  1.0      
-SUNN AUT 0.0  1.0      
-SUNN SFT 0.0  1.0      
-SUNN CUL 0.0  1.0      
-SUNN QOL 0.0  1.0      
+g    c   base saliency hist_flag current 
+---- --- ---- -------- --------- ------- 
+SHIA AUT 0.0  1.0      0         0.0     
+SHIA SFT 80.0 0.85     1         75.0    
+SHIA CUL 0.0  1.0      0         0.0     
+SHIA QOL 0.0  1.0      0         0.0     
+SUNN AUT 0.0  1.0      0         0.0     
+SUNN SFT 0.0  1.0      0         0.0     
+SUNN CUL 0.0  1.0      0         0.0     
+SUNN QOL 0.0  1.0      0         0.0     
     }
 
 
@@ -149,6 +172,8 @@ SUNN QOL 0.0  1.0
             id             {SHIA SFT}
             base           VS
             saliency       VI
+            hist_flag      1
+            current        75.0
         }
     } -body {
         ted notifier bind ::rdb <sat_gc>
@@ -245,6 +270,30 @@ SUNN QOL 0.0  1.0
     }
 
 
+    test UPDATE:MULTI-1.9 {invalid hist_flag} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE:MULTI ids \
+            {{SHIA SFT}} hist_flag NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        hist_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+
+    test UPDATE:MULTI-1.10 {invalid current} -setup {
+        setup
+    } -body {
+        ted order -reject SAT:UPDATE:MULTI ids \
+            {{SHIA SFT}} current NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        current {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+    }
+
+
     test UPDATE:MULTI-2.1 {one curve of several is updated} -setup {
         setup
     } -body {
@@ -254,6 +303,8 @@ SUNN QOL 0.0  1.0
             ids       {{SHIA SFT}}
             base      VS
             saliency  VI
+            hist_flag 1
+            current   75.0
         }
 
         ted notifier received

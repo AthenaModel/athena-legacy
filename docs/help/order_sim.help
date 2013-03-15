@@ -46,6 +46,14 @@ order SIM:PAUSE "Pause Simulation" {
     This order is usually triggered by the "pause" button in the GUI.
 }
 
+order SIM:REBASE "Rebase Simulation" {
+    Creates a new scenario in the <<term prep>> state that reflects
+    the current state of the simulation.  This is used to create a sequence
+    of back-to-back scenarios; in each one, the analyst has the opportunity
+    to make structural changes, e.g., he can add actors, redefine groups, and
+    so forth.    
+}
+
 order SIM:RUN "Run Simulation" {
     <b><<term paused>> only.</b>  Advances simulation time.  This order
     is usually triggered by the "play" button in the GUI.<p>

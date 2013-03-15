@@ -75,6 +75,12 @@ CREATE TABLE hrel_fg (
     -- Initial baseline horizontal relationship, from f's point of view.
     base DOUBLE DEFAULT 0.0,
 
+    -- Historical data flag: if 0, no historical attitude data.
+    hist_flag   INTEGER DEFAULT 0,
+
+    -- Initial current level, only if hist_flag = 1
+    current     DOUBLE DEFAULT 0.0,
+
     PRIMARY KEY (f, g)
 );
 
@@ -96,6 +102,14 @@ SELECT F.g                                         AS f,
        CASE WHEN F.g = G.g
             THEN 1.0
             ELSE coalesce(R.base, A.affinity) END  AS base,
+       CASE WHEN F.g = G.g
+            THEN 0
+            ELSE coalesce(R.hist_flag, 0) END      AS hist_flag,
+       CASE WHEN F.g = G.g 
+            THEN 1.0
+            WHEN coalesce(R.hist_flag, 0)
+            THEN R.current
+            ELSE coalesce(R.base, A.affinity) END  AS current,
        CASE WHEN R.base IS NOT NULL 
             THEN 1
             ELSE 0 END                             AS override
@@ -124,6 +138,12 @@ CREATE TABLE sat_gc (
 
     -- Saliency of concern c to group g in nbhood n
     saliency   DOUBLE DEFAULT 1.0,
+
+    -- Historical data flag: if 0, no historical attitude data.
+    hist_flag   INTEGER DEFAULT 0,
+
+    -- Initial current satisfaction level, only if hist_flag = 1
+    current     DOUBLE DEFAULT 0.0,
 
     PRIMARY KEY (g, c)
 );
@@ -154,6 +174,12 @@ CREATE TABLE vrel_ga (
     -- Initial vertical relationship
     base DOUBLE DEFAULT 0.0,
 
+    -- Historical data flag: if 0, no historical attitude data.
+    hist_flag   INTEGER DEFAULT 0,
+
+    -- Initial current level, only if hist_flag = 1
+    current     DOUBLE DEFAULT 0.0,
+
     PRIMARY KEY (g, a)
 );
 
@@ -175,6 +201,12 @@ SELECT G.g                                          AS g,
        CASE WHEN G.rel_entity = A.a
             THEN coalesce(V.base, 1.0)
             ELSE coalesce(V.base, AF.affinity) END  AS base,
+       coalesce(V.hist_flag, 0)                     AS hist_flag,
+       CASE WHEN coalesce(V.hist_flag,0)
+            THEN V.current
+            WHEN G.rel_entity = A.a 
+            THEN coalesce(V.base, 1.0)
+            ELSE coalesce(V.base, AF.affinity) END  AS current,
        CASE WHEN V.base IS NOT NULL 
             THEN 1
             ELSE 0 END                              AS override

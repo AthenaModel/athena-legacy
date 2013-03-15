@@ -92,11 +92,11 @@ ORDER BY f,g;
 
 -- gui_coop_ng: Neighborhood cooperation levels.
 CREATE TEMPORARY VIEW gui_coop_ng AS
-SELECT n || ' ' || g            AS id,
-       n                        AS n,
-       g                        AS g,
-       format('%5.1f', nbcoop0) AS coop0,
-       format('%5.1f', nbcoop)  AS coop
+SELECT n || ' ' || g             AS id,
+       n                         AS n,
+       g                         AS g,
+       format('%5.1f', nbcoop0)  AS coop0,
+       format('%5.1f', nbcoop)   AS coop
 FROM uram_nbcoop;
 
 ------------------------------------------------------------------------
@@ -111,6 +111,8 @@ SELECT HV.f || ' ' || HV.g                           AS id,
        HV.g                                          AS g,
        G.gtype                                       AS gtype,
        format('%+4.1f', HV.base)                     AS base,
+       HV.hist_flag                                  AS hist_flag,
+       format('%+4.1f', HV.current)                  AS current,
        format('%+4.1f', HV.nat)                      AS nat,
        CASE WHEN override THEN 'Y' ELSE 'N' END      AS override
 FROM hrel_view AS HV
@@ -160,7 +162,11 @@ SELECT GC.g || ' ' || GC.c                          AS id,
        GC.c                                         AS c,
        G.n                                          AS n,
        format('%.3f', GC.base)                      AS base,
-       format('%.2f', GC.saliency)                  AS saliency
+       format('%.2f', GC.saliency)                  AS saliency,
+       hist_flag                                    AS hist_flag,
+       CASE WHEN hist_flag
+            THEN format('%.3f', GC.current)
+            ELSE format('%.3f', GC.base) END        AS current
 FROM sat_gc AS GC
 JOIN civgroups AS G ON (GC.g = G.g)
 ORDER BY g,c;
@@ -201,6 +207,8 @@ SELECT g || ' ' || a                              AS id,
        gtype                                      AS gtype,
        a                                          AS a,
        format('%+4.1f', base)                     AS base,
+       hist_flag                                  AS hist_flag,
+       format('%+4.1f', current)                  AS current,
        format('%+4.1f', nat)                      AS nat,
        CASE WHEN override THEN 'Y' ELSE 'N' END   AS override
 FROM vrel_view;
