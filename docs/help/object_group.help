@@ -134,6 +134,25 @@ object group_civ {
         population <b>IN_CAMP</b>.  Note that subsistence agriculture
         groups must be <b>AT_HOME</b>.
     } -tags {create update browser}
+
+    attribute hist_flag "Start Mode" {
+        The start mode indicates whether the group data is for a new
+        scenario, or if it was created to reflect an existing
+        time-advanced scenario via the <<cref /order/sim/rebase>> order.  
+        The value is either 0 ("New Scenario") or 1 ("From Previous 
+        Scenario").  If 1, the specified <i>upc</i> value
+        will be used.<p>
+    } -tags {create update}
+
+    attribute upc "Unemployment Per Capita" {
+        The percentage of unemployed workers in the group per group member
+        at the start of scenario lock.  This value affects the computation of
+        security during scenario lock, and is then overridden by the output
+        of the Economics and Demographics model.  It is set by 
+        <<cref /order/sim/rebase>> to increase the fidelity of a
+        rebased scenario on-lock; there is little reason to set it manually.
+    } -tags {create update browser}
+
 }
 
 page /object/group civ "Civilian Group" {

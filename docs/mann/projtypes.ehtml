@@ -303,6 +303,18 @@ A <<xref mars:range(n)>> representing a gain control
 setting: a non-negative floating-point value.   On error, throws
 an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
+<<defitem "rpercent validate" {rpercent validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> representing a non-negative percentage, e.g.,
+a non-negative floating-point value between 0.0 and 100.0, inclusive.
+On error, throws an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
+<<defitem "rpercentpm validate" {rpercentpm validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> representing a positive or negative percentage, e.g.,
+a floating-point value between -100.0 and 100.0, inclusive.
+On error, throws an error with <code>-errorcode</code> <b>INVALID</b>.<p>
+
 <<defitem "rrate validate" {rrate validate <i>value</i>}>>
 
 A <<xref mars:range(n)>> representing a rate, e.g.,

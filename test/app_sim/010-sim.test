@@ -474,97 +474,139 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # rebase
 
+    # Schema: each entry is a list {<table> <except> <orderby>}, where
+    #
+    # table    - The table name
+    # key      - Names of key columns
+    # except   - List of columns to exclude from the checkpoint
+    # orderby  - ORDER BY clause, if needed.
+
     set simTables {
-        activity_nga                  
-        actors                        
-        attroe_nfg                    
-        bookmarks                     
-        cap_access                    
-        cap_kg                        
-        cap_kn                        
-        caps                          
-        civgroups                     
-        cond_collections              
-        conditions                    
-        control_n                     
-        defroe_ng                     
-        demog_g                       
-        demog_local                   
-        demog_n                       
-        deploy_ng                     
-        econ_n                        
-        ensits_t                      
-        expenditures                  
-        force_civg                    
-        force_n                       
-        force_ng                      
-        goals                         
-        groups                        
-        hook_topics                   
-        hooks                         
-        income_a                      
-        influence_na                  
-        ioms                          
-        mam_affinity                  
-        mam_belief                    
-        mam_entity                    
-        mam_playbox                   
-        mam_topic                     
-        mam_undo                      
-        nbhoods                       
-        nbrel_mn                      
-        payloads                      
-        personnel_g                   
-        service_g                     
-        service_ga                    
-        situations                    
-        stance_fg                     
-        stance_nfg                    
-        support_nga                   
-        supports_na                   
-        ucurve_adjustments_t          
-        ucurve_ctypes_t               
-        ucurve_curves_t               
-        ucurve_effects_t              
-        undostack_stack               
-        units                         
-        uram_a                        
-        uram_c                        
-        uram_cause                    
-        uram_civ_g                    
-        uram_civrel_t                 
-        uram_coop_t                   
-        uram_frcrel_t                 
-        uram_g                        
-        uram_hrel_t                   
-        uram_mn                       
-        uram_n                        
-        uram_nbcoop_t                 
-        uram_sat_t                    
-        uram_vrel_t                   
+        {activity_nga {n g a}}                  
+        {attroe_nfg {n f g}}                    
+        {cap_access {k a}}                    
+        {cap_kg {k g}}                        
+        {cap_kn {k n}}                        
+        {caps {k}}                          
+        {control_n {n}}                     
+        {defroe_ng {n g}}
+        {demog_g {g}}          
+        {demog_local}                   
+        {demog_n {n}}                       
+        {deploy_ng {n g}}                     
+        {ensits_t {s}}                      
+        {expenditures {a}} 
+        {force_civg {g}}  
+        {force_n {n}}
+        {force_ng {n g}}               
+        {hook_topics}                   
+        {hooks {h}}                         
+        {income_a {a}}  
+        {influence_na {n a}}                    
+        {ioms}                          
+        {mam_affinity}                  
+        {mam_belief}                    
+        {mam_entity}                    
+        {mam_playbox}                   
+        {mam_topic}                     
+        {mam_undo}                      
+        {payloads}                      
+        {personnel_g}                   
+        {service_g}                     
+        {service_ga}                    
+        {situations}                    
+        {stance_fg}                     
+        {stance_nfg}        
+        {support_nga {n g a}}            
+        {supports_na}                   
+        {ucurve_adjustments_t}          
+        {ucurve_ctypes_t}    
+        {ucurve_curves_t {curve_id}}           
+        {ucurve_effects_t}              
+        {undostack_stack}               
+        {units {u} {location}}                         
+        {uram_a}                        
+        {uram_c}                        
+        {uram_cause}
+        {uram_civ_g g}                    
+        {uram_civrel_t}                 
+        {uram_coop_t}                   
+        {uram_frcrel_t}                 
+        {uram_g {g}}                        
+        {uram_hrel_t {f g}}                   
+        {uram_mn {m n}}     
+        {uram_n {n}}
+        {uram_nbcoop_t {n g}}                  
+        {uram_sat_t}                    
+        {uram_vrel_t}                   
     }
 
-    # These are tables with problems that I'm focussing on at the moment.
-    set xsimTables {
+    # These tables are known to have problems, and are excluded from the
+    # test at the moment.
+    set excludeSimTables {
         demog_g
-        econ_n
-        force_n
-        force_ng
         influence_na
         support_nga
         ucurve_curves_t
-        units
         uram_civ_g
-        uram_n
         uram_nbcoop_t
     }
 
-    
     proc rebaseSetup {} {
         autogen scenario -nb 3
         ted lock
         ted step
         ted step
+    }
+
+    proc grab {table {keys {}} {except {}} {orderby {}}} {
+        set list [list]
+        set names [list]
+
+        rdb eval "SELECT * FROM $table $orderby" row {
+            if {[info exists row(*)]} {
+                unset -nocomplain row(*)
+                foreach name [lsort [array names row]] {
+                    if {$name ni $except} {
+                        lappend names $name
+                    }
+                }
+            }
+
+            set dict [dict create]
+            foreach col $names {dict set dict $col $row($col)}
+            lappend list $dict 
+        }
+
+        return $list
+    }
+
+    proc diffgrab {keys before after} {
+        set result [list]
+
+        foreach bdict $before adict $after {
+            # FIRST, skip dicts that in fact match
+            if {$adict eq $bdict} {
+                continue
+            }
+            set rdict [dict create]
+
+            foreach key $keys {
+                dict set rdict $key [dict get $bdict $key]
+            }
+
+            foreach key [dict keys $bdict] {
+                set b [dict get $bdict $key]
+                set a [dict get $adict $key]
+                if {$a ne $b} {
+                    dict set rdict $key [list b:$b a:$a]
+                }
+            }
+
+            lappend result $rdict
+        }
+
+        puts [join $result \n]
     }
 
     test rebase-1.1 {in prep after rebase} -setup {
@@ -587,23 +629,29 @@ namespace eval ::athena_test::tests:: {
     } -body {
         set count 0
 
-        foreach table $simTables {
-            set before($table) [rdb grab $table {}]
-            puts [rdb query "SELECT * FROM $table"]
+        foreach tableRec $simTables {
+            set table [lindex $tableRec 0]
+            set before($table) [grab {*}$tableRec]
         }
 
         sim mutate rebase
         ted lock
 
-        foreach table $simTables {
-            puts [rdb query "SELECT * FROM $table"]
-            set after [rdb grab $table {}]
+        foreach tableRec $simTables {
+            lassign $tableRec table keys
+
+            if {$table in $excludeSimTables} {
+                continue
+            }
+
+            set after [grab {*}$tableRec]
 
             if {$before($table) eq $after} {
                 incr count
             } else {
                 puts "$table doesn't match" 
-
+                diffgrab $keys $before($table) $after
+                puts ""
             }
         }
              

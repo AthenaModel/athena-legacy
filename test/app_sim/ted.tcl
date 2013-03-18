@@ -279,59 +279,67 @@ snit::type ted {
         # Civ Groups
         
         defentity SHIA ::civgroup {
-            g        SHIA
-            longname "Shia"
-            color    "#c00001"
-            shape    NEUTRAL
-            n        NB1
-            basepop  1000
-            pop_cr   0.0
-            sa_flag  0
-            demeanor AVERAGE
-            lfp      60
-            housing  AT_HOME
+            g         SHIA
+            longname  "Shia"
+            color     "#c00001"
+            shape     NEUTRAL
+            n         NB1
+            basepop   1000
+            pop_cr    0.0
+            sa_flag   0
+            demeanor  AVERAGE
+            lfp       60
+            housing   AT_HOME
+            hist_flag 0
+            upc       0.0
         } NB1
 
         defentity SUNN ::civgroup {
-            g        SUNN
-            longname "Sunni"
-            color    "#c00002"
-            shape    NEUTRAL
-            n        NB1
-            basepop  1000
-            pop_cr   0.0
-            sa_flag  0
-            demeanor AGGRESSIVE
-            lfp      60
-            housing  AT_HOME
+            g         SUNN
+            longname  "Sunni"
+            color     "#c00002"
+            shape     NEUTRAL
+            n         NB1
+            basepop   1000
+            pop_cr    0.0
+            sa_flag   0
+            demeanor  AGGRESSIVE
+            lfp       60
+            housing   AT_HOME
+            hist_flag 0
+            upc       0.0
         } NB1
 
         defentity KURD ::civgroup {
-            g        KURD
-            longname "Kurd"
-            color    "#c00003"
-            shape    NEUTRAL
-            n        NB2
-            basepop  1000
-            pop_cr   0.0
-            sa_flag  1
-            demeanor AGGRESSIVE
-            lfp      0
-            housing  AT_HOME
+            g         KURD
+            longname  "Kurd"
+            color     "#c00003"
+            shape     NEUTRAL
+            n         NB2
+            basepop   1000
+            pop_cr    0.0
+            sa_flag   1
+            demeanor  AGGRESSIVE
+            lfp       0
+            housing   AT_HOME
+            hist_flag 0
+            upc       0.0
         } NB2
 
         defentity NO_ONE ::civgroup {
-            g        NO_ONE
-            longname "Nobody"
-            color    "#c00004"
-            shape    NEUTRAL
-            n        NB2
-            basepop  0
-            pop_cr   0.0
-            sa_flag  1
-            demeanor AGGRESSIVE
-            lfp      0
-            housing  DISPLACED
+            g         NO_ONE
+            longname  "Nobody"
+            color     "#c00004"
+            shape     NEUTRAL
+            n         NB2
+            basepop   0
+            pop_cr    0.0
+            sa_flag   1
+            demeanor  AGGRESSIVE
+            lfp       0
+            housing   DISPLACED
+            hist_flag 0
+            upc       0.0
         } NB2
 
         # Force Groups

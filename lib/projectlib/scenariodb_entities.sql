@@ -239,30 +239,37 @@ CREATE TABLE groups (
 -- Civ Groups
 CREATE TABLE civgroups (
     -- Symbolic group name
-    g        TEXT PRIMARY KEY,
+    g         TEXT PRIMARY KEY,
 
     -- Symbolic neighborhood name for neighborhood of residence.
-    n        TEXT,
+    n         TEXT,
 
     -- Base Population/Personnel for this group
-    basepop  INTEGER DEFAULT 0,
+    basepop   INTEGER DEFAULT 0,
 
     -- Population Change Rate for this group in percent per year.
     -- This could be a negative number
-    pop_cr   DOUBLE DEFAULT 0.0,
+    pop_cr    DOUBLE DEFAULT 0.0,
 
     -- Subsistence Agriculture Flag: if 1, the group does 
     -- subsistence agriculture and does not participate in the
     -- cash economy.  If 0, they do.
-    sa_flag  INTEGER DEFAULT 0,
+    sa_flag   INTEGER DEFAULT 0,
     
     -- Labor Force percentages: the fraction of the consumers
     -- in the labor force.
-    lfp      INTEGER DEFAULT 60,
+    lfp       INTEGER DEFAULT 60,
     
     -- Housing: is the group AT_HOME, DISPLACED (but mingling
     -- with the population) or IN_CAMP?
-    housing  TEXT DEFAULT 'AT_HOME'
+    housing   TEXT DEFAULT 'AT_HOME',
+
+        -- Historical data flag: if 0, no historical data.
+    hist_flag INTEGER DEFAULT 0,
+
+    -- Initial Unemployment Per Capita% (UPC), only if hist_flag = 1
+    upc       DOUBLE DEFAULT 0.0
+
 );
 
 -- Civ Groups View: joins groups with civgroups.
@@ -280,7 +287,10 @@ SELECT g,
        n,
        sa_flag,
        lfp,
-       housing
+       housing,
+       hist_flag,
+       CASE WHEN hist_flag
+            THEN upc ELSE 0.0 END AS upc
 FROM groups JOIN civgroups USING (g);
 
 -- Force Groups

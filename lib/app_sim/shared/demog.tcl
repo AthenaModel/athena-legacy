@@ -43,11 +43,12 @@ snit::type demog {
         # FIRST, populate the demog_g and demog_n tables.
 
         rdb eval {
-            INSERT INTO demog_g(g,real_pop,population)
+            INSERT INTO demog_g(g,real_pop,population,upc)
             SELECT g, 
                    basepop, 
-                   basepop 
-            FROM civgroups;
+                   basepop,
+                   upc
+            FROM civgroups_view;
 
             INSERT INTO demog_n(n)
             SELECT n FROM nbhoods;

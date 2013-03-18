@@ -40,6 +40,8 @@ namespace eval ::athena_test::tests:: {
         sa_flag   0
         lfp       60
         housing   AT_HOME
+        hist_flag 0
+        upc       0.0
     }
 
     set sunn {
@@ -54,6 +56,8 @@ namespace eval ::athena_test::tests:: {
         sa_flag   1
         lfp       0
         housing   AT_HOME
+        hist_flag 1
+        upc       5.0
     }
 
 
@@ -241,6 +245,26 @@ namespace eval ::athena_test::tests:: {
         housing {subsistence agriculture can only be done "at home"}
     }
 
+    test CREATE-1.16 {invalid hist_flag} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject CIVGROUP:CREATE {*}$sunn hist_flag NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        hist_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test CREATE-1.17 {invalid upc, non-numeric} -setup {
+        ted create NB1
+    } -body {
+        ted order -reject CIVGROUP:CREATE {*}$sunn upc NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        upc {invalid value "NONESUCH", expected double}
+    }
+
     test CREATE-2.1 {group is created} -body {
         ted create NB1
         ted order CIVGROUP:CREATE $shia
@@ -263,12 +287,14 @@ n           NB1
 sa_flag     0
 lfp         60
 housing     AT_HOME
+hist_flag   0
+upc         0.0
     }
 
 
     test CREATE-2.2 {longname defaults to ID} -body {
         ted create NB1
-        ted order CIVGROUP:CREATE [dict merge $shia {longname ""}]
+        ted order CIVGROUP:CREATE {*}$shia longname ""
 
         ted querylist {SELECT * FROM civgroups_view}
     } -cleanup {
@@ -288,11 +314,13 @@ n           NB1
 sa_flag     0
 lfp         60
 housing     AT_HOME
+hist_flag   0
+upc         0.0
     }
 
     test CREATE-2.3 {basepop can be zero} -body {
         ted create NB1
-        ted order CIVGROUP:CREATE [dict merge $shia {basepop 0}]
+        ted order CIVGROUP:CREATE {*}$shia basepop 0
 
         ted querylist {SELECT * FROM civgroups_view}
     } -cleanup {
@@ -312,6 +340,8 @@ n           NB1
 sa_flag     0
 lfp         60
 housing     AT_HOME
+hist_flag   0
+upc         0.0
     }
 
     test CREATE-2.4 {effects} -body {
@@ -521,6 +551,26 @@ housing     AT_HOME
         housing {subsistence agriculture can only be done "at home"}
     }
 
+    test UPDATE-1.16 {invalid hist_flag} -setup {
+        ted create NB1 NB2
+        ted order CIVGROUP:CREATE $sunn
+    } -body {
+        ted order -reject CIVGROUP:UPDATE g SUNN hist_flag NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        hist_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test UPDATE-1.17 {invalid upc} -setup {
+        ted create SHIA
+    } -body {
+        ted order -reject CIVGROUP:UPDATE g SHIA upc -1
+    } -cleanup {
+        cleanup
+    } -result {
+        upc {invalid value "-1", expected double in range 0.0, 100.0}
+    }
 
     test UPDATE-2.1 {civgroup is updated} -setup {
         ted create NB1 NB2 SHIA
@@ -536,6 +586,8 @@ housing     AT_HOME
             pop_cr       2.5
             sa_flag      YES
             lfp          0
+            hist_flag    1
+            upc          10.0
         }
 
         ted querylist {SELECT * FROM civgroups_view}
@@ -556,6 +608,8 @@ n           NB2
 sa_flag     1
 lfp         0
 housing     AT_HOME
+hist_flag   1
+upc         10.0
     }
 
 

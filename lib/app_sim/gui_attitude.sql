@@ -163,8 +163,8 @@ SELECT GC.g || ' ' || GC.c                          AS id,
        G.n                                          AS n,
        format('%.3f', GC.base)                      AS base,
        format('%.2f', GC.saliency)                  AS saliency,
-       hist_flag                                    AS hist_flag,
-       CASE WHEN hist_flag
+       GC.hist_flag                                 AS hist_flag,
+       CASE WHEN GC.hist_flag
             THEN format('%.3f', GC.current)
             ELSE format('%.3f', GC.base) END        AS current
 FROM sat_gc AS GC

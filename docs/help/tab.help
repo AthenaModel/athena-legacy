@@ -938,6 +938,9 @@ tab "Groups/CivGroups" {
     <<group_civ parm basepop  -label "BasePop">>
     <<group_civ parm pop_cr   -label "Population Change Rate">>
     <<group_civ parm sa_flag  -label "Subsistence Agriculture">>
+    <<group_civ parm lfp      -label "Labor Force%">>
+    <<group_civ parm housing  -label "Housing">>
+    <<group_civ parm upc      -label "Unemployment Per Capita">>
 
     <</parmlist>>
 

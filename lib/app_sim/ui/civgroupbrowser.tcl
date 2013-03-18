@@ -31,17 +31,18 @@ snit::widgetadaptor civgroupbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g              "\nID"                                        }
-        { longname       "\nLong Name"                                 }
-        { n              "\nNbhood"                                    }
-        { color          "\nColor"                                     }
-        { shape          "\nUnit Shape"                                }
-        { demeanor       "\nDemeanor"                                  }
-        { basepop        "Base\nPopulation"          -sortmode integer }
-        { pop_cr         "Pop. Change Rate\n% per year"                }
-        { pretty_sa_flag "Subsistence\nAgriculture"                    }
-        { lfp            "\nLabor Force%"            -sortmode integer }
-        { housing        "\nHousing"                                   }
+        { g              "\nID"                                           }
+        { longname       "\nLong Name"                                    }
+        { n              "\nNbhood"                                       }
+        { color          "\nColor"                                        }
+        { shape          "\nUnit Shape"                                   }
+        { demeanor       "\nDemeanor"                                     }
+        { basepop        "Base\nPopulation"             -sortmode integer }
+        { pop_cr         "Pop. Change Rate\n% per year" -sortmode real    }
+        { pretty_sa_flag "Subsistence\nAgriculture"                       }
+        { lfp            "\nLabor Force%"               -sortmode integer }
+        { housing        "\nHousing"                                      }
+        { upc            "Unemployment\nPer Capita%"    -sortmode real    }
     }
 
     #-------------------------------------------------------------------

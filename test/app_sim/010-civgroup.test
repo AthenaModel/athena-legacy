@@ -57,6 +57,8 @@ n           NB1
 sa_flag     0
 lfp         60
 housing     AT_HOME
+hist_flag   0
+upc         0.0
     }
 
     test create-1.2 {bsystem entity is created} -body {
@@ -160,6 +162,8 @@ n           NB1
 sa_flag     0
 lfp         60
 housing     AT_HOME
+hist_flag   0
+upc         0.0
     }
 
     test delete-3.1 {Bsystem entity is deleted} -setup {
@@ -311,6 +315,8 @@ housing     AT_HOME
             longname     "Shia Folk"
             color        "#ff0000"
             shape        FRIEND
+            hist_flag    1
+            upc          10.0
         }
 
         ted querylist {SELECT * FROM civgroups_view}
@@ -331,6 +337,8 @@ n           NB1
 sa_flag     0
 lfp         60
 housing     AT_HOME
+hist_flag   1
+upc         10.0
     }
 
 
@@ -477,12 +485,14 @@ housing     AT_HOME
     } -cleanup {
         cleanup
     } -result {
+        hist_flag  0
         shape      NEUTRAL
         lfp        60
         basepop    1000
         demeanor   AVERAGE
         g          SHIA
         rel_entity SHIA
+        upc        0.0
         longname   Shia
         gtype      CIV
         pop_cr     0.0
@@ -506,26 +516,26 @@ housing     AT_HOME
 
     test rebase-1.1 {basepop is updated} -setup {
         ted create SHIA SUNN KURD
-        foreach {g pop} {
-            SHIA 5000
-            SUNN 10000
-            KURD 20000
+        foreach {g pop upc} {
+            SHIA 5000   1.0
+            SUNN 10000  5.0
+            KURD 20000  10.0
         } {
             rdb eval {
-                INSERT INTO demog_g(g, population) VALUES($g,$pop);
+                INSERT INTO demog_g(g, population,upc) VALUES($g,$pop,$upc);
             }
         }
     } -body {
         civgroup rebase
-        ted query {SELECT g, basepop FROM civgroups}
+        ted query {SELECT g, basepop, hist_flag, upc FROM civgroups}
     } -cleanup {
         cleanup
     } -result {
-g    basepop 
----- ------- 
-SHIA 5000    
-SUNN 10000   
-KURD 20000   
+g    basepop hist_flag upc  
+---- ------- --------- ---- 
+SHIA 5000    1         1.0  
+SUNN 10000   1         5.0  
+KURD 20000   1         10.0 
     }
     
 

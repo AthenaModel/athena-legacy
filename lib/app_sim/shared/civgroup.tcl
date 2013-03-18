@@ -29,12 +29,14 @@ snit::type civgroup {
         # FIRST, set civilian group base population to the current
         # population.
         rdb eval {
-            SELECT g, population
+            SELECT g, population, upc
             FROM demog_g
         } {
             rdb eval {
                 UPDATE civgroups
-                SET basepop = $population
+                SET basepop   = $population,
+                    hist_flag = 1,
+                    upc       = $upc
                 WHERE g=$g
             }
         }
@@ -157,17 +159,19 @@ snit::type civgroup {
     #
     # parmdict     A dictionary of group parms
     #
-    #    g              The group's ID
-    #    n              The group's nbhood
-    #    longname       The group's long name
-    #    color          The group's color
-    #    shape          The group's unit shape (eunitshape(n))
-    #    demeanor       The group's demeanor (edemeanor(n))
-    #    basepop        The group's base population
-    #    pop_cr         The group's population change rate
-    #    sa_flag        The group's subsistence agriculture flag
-    #    lfp            The group's labor force percentage
-    #    housing        The group's housing (ehousing(n))
+    #    g          - The group's ID
+    #    n          - The group's nbhood
+    #    longname   - The group's long name
+    #    color      - The group's color
+    #    shape      - The group's unit shape (eunitshape(n))
+    #    demeanor   - The group's demeanor (edemeanor(n))
+    #    basepop    - The group's base population
+    #    pop_cr     - The group's population change rate
+    #    sa_flag    - The group's subsistence agriculture flag
+    #    lfp        - The group's labor force percentage
+    #    housing    - The group's housing (ehousing(n))
+    #    hist_flag  - Historical data flag
+    #    upc        - The group's initial unemployment per capita %.
     #
     # Creates a civilian group given the parms, which are presumed to be
     # valid.  Creating a civilian group requires adding entries to the
@@ -178,6 +182,14 @@ snit::type civgroup {
     typemethod {mutate create} {parmdict} {
         # FIRST, bring the dictionary entries into scope.
         dict with parmdict {}
+
+        if {$hist_flag eq ""} {
+            set hist_flag 0
+        }
+
+        if {$upc eq ""} {
+            set upc 0.0
+        }
 
         # NEXT, create a bsystem entity
         bsystem entity add $g
@@ -197,14 +209,16 @@ snit::type civgroup {
                    'CIV');
 
             INSERT INTO
-            civgroups(g,n,basepop,pop_cr,sa_flag,lfp,housing)
+            civgroups(g,n,basepop,pop_cr,sa_flag,lfp,housing, hist_flag, upc)
             VALUES($g,
                    $n,
                    $basepop,
                    $pop_cr,
                    $sa_flag,
                    $lfp,
-                   $housing);
+                   $housing,
+                   $hist_flag,
+                   $upc);
 
             INSERT INTO sat_gc(g,c)
             SELECT $g, c FROM concerns;
@@ -261,17 +275,19 @@ snit::type civgroup {
     #
     # parmdict     A dictionary of group parms
     #
-    #    g              A group short name
-    #    n              A new nbhood, or ""
-    #    longname       A new long name, or ""
-    #    color          A new color, or ""
-    #    shape          A new shape, or ""
-    #    demeanor       A new demeanor, or "" (edemeanor(n))
-    #    basepop        A new basepop, or ""
-    #    pop_cr         A new pop change rate, or ""
-    #    sa_flag        A new sa_flag, or ""
-    #    lfp            A new labor force percentage, or ""
-    #    housing        A new housing, or "" (ehousing(n))
+    #    g           - A group short name
+    #    n           - A new nbhood, or ""
+    #    longname    - A new long name, or ""
+    #    color       - A new color, or ""
+    #    shape       - A new shape, or ""
+    #    demeanor    - A new demeanor, or "" (edemeanor(n))
+    #    basepop     - A new basepop, or ""
+    #    pop_cr      - A new pop change rate, or ""
+    #    sa_flag     - A new sa_flag, or ""
+    #    lfp         - A new labor force percentage, or ""
+    #    housing     - A new housing, or "" (ehousing(n))
+    #    hist_flag   - A new hist_flag, or ""
+    #    upc         - A new upc, or ""
     #
     # Updates a civgroup given the parms, which are presumed to be
     # valid.
@@ -291,12 +307,14 @@ snit::type civgroup {
                 WHERE g=$g;
 
                 UPDATE civgroups
-                SET n       = nonempty($n,       n),
-                    basepop = nonempty($basepop, basepop),
-                    pop_cr  = nonempty($pop_cr,  pop_cr),
-                    sa_flag = nonempty($sa_flag, sa_flag),
-                    lfp     = nonempty($lfp,     lfp),
-                    housing = nonempty($housing, housing)
+                SET n         = nonempty($n,         n),
+                    basepop   = nonempty($basepop,   basepop),
+                    pop_cr    = nonempty($pop_cr,    pop_cr),
+                    sa_flag   = nonempty($sa_flag,   sa_flag),
+                    lfp       = nonempty($lfp,       lfp),
+                    housing   = nonempty($housing,   housing),
+                    hist_flag = nonempty($hist_flag, hist_flag),
+                    upc       = nonempty($upc,       upc)
                 WHERE g=$g
 
             } {}
@@ -354,6 +372,15 @@ order define CIVGROUP:CREATE {
 
         rcc "Housing" -for housing
         enumlong housing -dictcmd {ehousing deflist} -defvalue AT_HOME
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "UPC:" -for upc
+                text upc -defvalue 0.0
+            }
+        }
     }
 } {
     # FIRST, prepare and validate the parameters
@@ -364,10 +391,12 @@ order define CIVGROUP:CREATE {
     prepare shape     -toupper   -required         -type eunitshape
     prepare demeanor  -toupper   -required         -type edemeanor
     prepare basepop   -num       -required         -type iquantity
-    prepare pop_cr    -num       -required         -type rpercent
+    prepare pop_cr    -num       -required         -type rpercentpm
     prepare sa_flag              -required         -type boolean
     prepare lfp       -num       -required         -type ipercent
     prepare housing   -toupper   -required         -type ehousing
+    prepare hist_flag -num                         -type snit::boolean
+    prepare upc       -num                         -type rpercent
 
     returnOnError
 
@@ -489,6 +518,15 @@ order define CIVGROUP:UPDATE {
 
         rcc "Housing" -for housing
         enumlong housing -dictcmd {ehousing deflist}
+
+        rcc "Start Mode:" -for hist_flag
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "UPC:" -for upc
+                text upc -defvalue 0.0
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
@@ -499,10 +537,12 @@ order define CIVGROUP:UPDATE {
     prepare shape     -toupper   -type eunitshape
     prepare demeanor  -toupper   -type edemeanor
     prepare basepop   -num       -type iquantity
-    prepare pop_cr    -num       -type rpercent
+    prepare pop_cr    -num       -type rpercentpm
     prepare sa_flag              -type boolean
     prepare lfp       -num       -type ipercent
     prepare housing   -toupper   -type ehousing
+    prepare hist_flag -num       -type snit::boolean
+    prepare upc       -num       -type rpercent
 
     returnOnError
 
