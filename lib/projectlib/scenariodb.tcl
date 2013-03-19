@@ -243,6 +243,7 @@ snit::type ::projectlib::scenariodb {
             scenariodb_info.sql
             scenariodb_politics.sql
             scenariodb_history.sql
+            scenariodb_rebase.sql
             scenariodb_application.sql
         } {
             append out [readfile [file join $::projectlib::library $filename]]

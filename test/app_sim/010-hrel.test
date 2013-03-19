@@ -293,32 +293,6 @@ SHIA SHIA 1.0 1.0  0         1.0     0
     }
 
     #-------------------------------------------------------------------
-    # rebase
-
-    test rebase-1.1 {save current baseline hrels} -setup {
-        ted create JOE SHIA BLUE
-        ted lock
-        aram hrel bset 1 SHIA BLUE 0.9
-    } -body {
-        hrel rebase
-
-        # Note: rebase data is not saved when f=g.  Also, rebase
-        # data is not saved if current=base=nat, so as to save 
-        # disk space.
-        ted query {SELECT * FROM hrel_view ORDER BY f,g}
-    } -cleanup {
-        cleanup
-    } -result {
-f    g    nat base hist_flag current override 
----- ---- --- ---- --------- ------- -------- 
-BLUE BLUE 1.0 1.0  0         1.0     0        
-BLUE SHIA 0.0 0.0  0         0.0     0        
-SHIA BLUE 0.0 0.9  1         0.0     1        
-SHIA SHIA 1.0 1.0  0         1.0     0        
-    }
-    
-
-    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

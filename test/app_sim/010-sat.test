@@ -157,26 +157,6 @@ SHIA QOL 0.0  1.0      0         0.0
 
     
     #-------------------------------------------------------------------
-    # rebase
-
-    test rebase-1.1 {save current data} -setup {
-        ted create JOE BLUE SHIA
-        ted lock
-        aram sat bset 1 SHIA QOL 0.9
-    } -body {
-        sat rebase
-        ted query {
-            SELECT * FROM sat_gc WHERE g='SHIA' AND c='QOL'
-        }
-    } -cleanup {
-        cleanup
-    } -result {
-g    c   base saliency hist_flag current 
----- --- ---- -------- --------- ------- 
-SHIA QOL 0.9  1.0      1         -3.45   
-    }
-    
-    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

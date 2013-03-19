@@ -286,24 +286,6 @@ SHIA CIV   JOE 0.0 0.0  0         0.0     0
     }
 
     #-------------------------------------------------------------------
-    # rebase
-
-    test rebase-1.1 {save current baseline vrels} -setup {
-        ted create JOE BLUE SHIA
-        ted lock
-        aram vrel bset 1 SHIA JOE 0.9
-    } -body {
-        vrel rebase
-        ted query {SELECT * FROM vrel_ga}
-    } -cleanup {
-        cleanup
-    } -result {
-g    a   base hist_flag current 
----- --- ---- --------- ------- 
-SHIA JOE 0.9  1         0.0     
-    }
-    
-    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

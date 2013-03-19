@@ -38,26 +38,7 @@ snit::type vrel {
     # Make it a singleton
     pragma -hasinstances no
 
-    #-------------------------------------------------------------------
-    # Scenario Control
-    
-    # rebase
-    #
-    # Create a new scenario prep baseline based on the current simulation
-    # state.
-    
-    typemethod rebase {} {
-        # FIRST, set overrides to current relationships
-        rdb eval {
-            DELETE FROM vrel_ga;
-            
-            INSERT INTO vrel_ga
-            SELECT g, a, bvalue AS base, 1 AS hist_flag, avalue AS current
-            FROM uram_vrel 
-            WHERE bvalue != cvalue OR avalue != cvalue;
-        }
-    }
-    
+  
     #-------------------------------------------------------------------
     # Queries
 

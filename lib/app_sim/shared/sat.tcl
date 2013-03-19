@@ -20,29 +20,6 @@ snit::type sat {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Scenario Control
-    
-    # rebase
-    #
-    # Create a new scenario prep baseline based on the current simulation
-    # state.
-    
-    typemethod rebase {} {
-        # FIRST, set base to current values.
-        rdb eval {
-            SELECT g, c, avalue, bvalue FROM uram_sat;
-        } {
-            rdb eval {
-                UPDATE sat_gc
-                SET base      = $bvalue,
-                    hist_flag = 1,
-                    current   = $avalue
-                WHERE g=$g AND c=$c
-            }
-        }
-    }
- 
-    #-------------------------------------------------------------------
     # Queries
 
     # validate id

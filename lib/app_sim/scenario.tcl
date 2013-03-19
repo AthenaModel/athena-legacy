@@ -614,18 +614,7 @@ snit::type scenario {
     
     typemethod rebase {} {
         # FIRST, allow all modules to rebase.
-        actor rebase
-        civgroup rebase
-        coop rebase
-        econ mutate rebase
-        ensit rebase
-        frcgroup rebase
-        hrel rebase
-        nbhood rebase
-        orggroup rebase
-        sat rebase
-        tactic rebase
-        vrel rebase
+        rebase save
         
         # NEXT, purge history.  (Do this second, in case the modules
         # needed the history to do their work.)

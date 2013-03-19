@@ -67,6 +67,10 @@ snit::type engine {
         # existing MADs to URAM drivers.
         profile aram init -reload
 
+        # NEXT, prepare for an immediate rebase (silly though that would be
+        # to do).
+        rebase prepare
+
         # NEXT, initialize all modules, and do basic analysis, in preparation
         # for executing the on-lock tactics.
 
@@ -136,6 +140,9 @@ snit::type engine {
         simclock tick
         notifier send $type <Time>
         log normal engine "Tick [simclock now]"
+
+        # NEXT, prepare for a rebase at the end of this tick.
+        rebase prepare
 
         # NEXT, allow the population to grow or shrink
         # according to its growth rate.
