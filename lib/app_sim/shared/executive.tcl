@@ -223,8 +223,17 @@ snit::type executive {
             [list autogen bsystem]
 
         # autogen strategy
-        $interp smartalias {autogen strategy} 0 0 {} \
+        $interp smartalias {autogen strategy} 0 - \
+{?-tactics tlist? ?-actors alist? ?-frcg glist? ?-civg glist? ?-orgg glist?} \
             [list autogen strategy]
+
+        $interp smartalias {autogen assign} 1 - \
+            {owner ?-group g? ?-nbhood n? ?-activity act?} \
+            [list autogen assign]
+
+        $interp smartalias {autogen attroe} 1 - \
+            {owner ?-attackers glist? ?-max_attacks n?} \
+            [list autogen attroe]
 
         # clear
         $interp smartalias clear 0 0 {} \

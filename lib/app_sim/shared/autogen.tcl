@@ -175,7 +175,7 @@ snit::type autogen {
 
         # NEXT, if actor strategies are desired, create them
         if {$opts(-strategy)} {
-            autogen Strategy
+            autogen strategy
         }
     }
 
@@ -190,7 +190,7 @@ snit::type autogen {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, no actors can exist currently
-        if {[rdb eval {SELECT count(*) FROM actors}]} {
+        if {[llength [actor names]] > 0} {
             error "Actors already exist, must delete them first"
         }
 
@@ -217,11 +217,11 @@ snit::type autogen {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, no nbhoods can exists and we must already have actors
-        if {[rdb eval {SELECT count(*) FROM nbhoods}]} {
+        if {[llength [nbhood names]] > 0} {
             error "Nbhoods already exist, must delete them first"
         }
 
-        if {![rdb eval {SELECT count(*) FROM actors}]} {
+        if {[llength [actor names]] == 0} {
             error "Must create actors first"
         }
 
@@ -253,12 +253,12 @@ snit::type autogen {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, there must already be neighborhoods and no CIV groups
-        if {![rdb eval {SELECT count(*) FROM nbhoods}]} {
+        if {[llength [nbhood names]] == 0} {
             error "Must create nbhoods first"
         }
 
-        if {[rdb eval {SELECT count(*) FROM civgroups}]} {
-            error "CIV groups already exists, must delete them first"
+        if {[llength [civgroup names]] > 0} {
+            error "CIV groups already exist, must delete them first"
         }
 
         if {![string is integer -strict $num]} {
@@ -284,11 +284,11 @@ snit::type autogen {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, there can be no ORG groups and we must have actor(s)
-        if {[rdb eval {SELECT count(*) FROM orggroups}]} {
+        if {[llength [orggroup names]] > 0} {
             error "ORG groups already exist, must delete them first"
         }
 
-        if {![rdb eval {SELECT count(*) FROM actors}]} {
+        if {[llength [actor names]] == 0} {
             error "Must create actors first"
         }
 
@@ -315,11 +315,11 @@ snit::type autogen {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
         # FIRST, there must be no FRC groups and at least one actor
-        if {[rdb eval {SELECT count(*) FROM frcgroups}]} {
+        if {[llength [frcgroup names]] > 0} {
             error "FRC groups already exist, must delete them first"
         }
 
-        if {![rdb eval {SELECT count(*) FROM actors}]} {
+        if {[llength [actor names]] == 0} {
             error "Must create actors first"
         }
 
@@ -347,15 +347,15 @@ snit::type autogen {
 
         # FIRST, there must be no topics and we must have CIV groups and
         # actors defined
-        if {[rdb eval {SELECT count(*) FROM mam_topic}]} {
+        if {[llength [bsystem topic names]] > 0} {
             error "Belief system topics already exist, must delete them first"
         }
 
-        if {![rdb eval {SELECT count(*) FROM civgroups}]} {
+        if {[llength [civgroup names]] == 0} {
             error "Must create CIV groups first"
         }
 
-        if {![rdb eval {SELECT count(*) FROM actors}]} {
+        if {[llength [actor names]] == 0} {
             error "Must create actors first"
         }
 
@@ -373,27 +373,451 @@ snit::type autogen {
 
     # strategy
     #
-    # This method will create a default set of tactics for each actor.
+    # This method will create a  set of tactics for each supplied actor.
+    # If no arguments are supplied, then DEPLOY and FUNDENI tactics are
+    # created for all actors, force groups, org groups and neighborhoods.
+    #
+    # Arguments:
+    #    -actors   List of actors to create tactics for or "ALL"
+    #    -civg     CIV groups to consider when creating tactics or "ALL"
+    #    -frcg     FRC groups to consider when creating tactics or "ALL"
+    #    -frcact   FRC activities to consider when creating tactics or "ALL"
+    #    -orgg     ORG groups to consider when creating tactics or "ALL"
+    #    -orgact   ORG activities to consider when creating tactics or "ALL"
+    #    -nbhoods  Neighborhoods to consider when creating tactics or "ALL"
 
-    typemethod strategy {} {
+    typemethod strategy {args} {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
-        # FIRST, must have actors, and and least one FRC or ORG group
-        if {![rdb eval {SELECT count(*) FROM actors}]} {
+        # FIRST, default options
+        array set opts {
+            -tactics    {DEPLOY FUNDENI}
+            -actors     ALL
+            -civgroups  ALL
+            -frcgroups  ALL
+            -frcact     ALL
+            -orggroups  ALL
+            -orgact     ALL
+            -nbhoods    ALL
+        }
+
+        # NEXT, must have actors, nbhoods and and least one FRC 
+        # or ORG group
+        if {[llength [actor names]] == 0} {
             error "Must create actors first"
         }
 
-        if {![rdb eval {SELECT count(*) FROM nbhoods}]} {
+        if {[llength [nbhood names]] == 0} {
             error "Must create nbhoods first"
         }
 
-        if {![rdb eval {SELECT count(*) FROM frcgroups}] &&
-            ![rdb eval {SELECT count(*) FROM orggroups}]} {
+        if {[llength [frcgroup names]] == 0 &&
+            [llength [orgrooup names]] == 0} {
             error "Must have at least one FRC group or one ORG group"
         }
 
+        # NEXT, parse any arguments
+        while {[llength $args] != 0} {
+            set opt [lshift args]
+            switch -exact -- $opt {
+                -actors {
+                    set opts(-actors) [lshift args]
+
+                    # NEXT, get the list of actors 
+                    set alist [actor names]
+
+                    if {$opts(-actors) ne "ALL"} {
+                        foreach act $opts(-actors) {
+                            if {$act ni $alist} {
+                                error "Unrecognized actor: $act"
+                            }
+                        }
+                    }
+                }
+
+                -civg {
+                    set opts(-civgroups) [lshift args]
+
+                    set civg [civgroup names]
+
+                    if {$opts(-civgroups) ne "ALL"} {
+                        foreach grp $opts(-civgroups) {
+                            if {$grp ni $civg} {
+                                error "Unrecognized CIV group: $grp"
+                            }
+                        }
+                    }
+                }
+
+                -frcg {
+                    set opts(-frcgroups) [lshift args]
+
+                    set frcg [frcgroup names]
+
+                    if {$opts(-frcgroups) ne "ALL"} {
+                        foreach grp $opts(-frcgroups) {
+                            if {$grp ni $frcg} {
+                                error "Unrecognized FRC group: $grp"
+                            }
+                        }
+                    }
+                }
+
+                -orgg {
+                    set opts(-orggroups) [lshift args]
+                    
+                    set orgg [orggroup names]
+
+                    if {$opts(-orggroups) ne "ALL"} {
+                        foreach grp $opts(-orggroups) {
+                            if {$grp ni $orgg} {
+                                error "Unrecognized ORG group: $grp"
+                            }
+                        }
+                    }
+                }
+
+                -nbhoods {
+                    set opts(-nbhoods) [lshift args]
+
+                    set nbhoods [nbhood names]
+
+                    if {$opts(-nbhoods) ne "ALL"} {
+                        foreach nb $opts(-nbhoods) {
+                            if {$nb ni $nbhoods} {
+                                error "Unrecognized nbhood: $nb"
+                            }
+                        }
+                    }
+                }
+
+                -frcact {
+                    set opts(-frcact) [lshift args]
+
+                    set frcacts [activity frc names]
+
+                    if {$opts(-frcact) ne "ALL"} {
+                        foreach act $opts(-frcact) {
+                            if {$act ni $frcacts} {
+                                error "Unrecognized force activity: $act"
+                            }
+                        }
+                    }
+                }
+
+                -orgact {
+                    set opts(-orgact) [lshift args]
+
+                    set orgacts [activity org names]
+
+                    if {$opts(-orgact) ne "ALL"} {
+                        foreach act $opts(-orgact) {
+                            if {$act ni $orgacts} {
+                                error "Unrecognized org activity: $act"
+                            }
+                        }
+                    }
+                }
+
+                default {
+                    error "Unknown option: $opt"
+                }
+            }
+        }
+
         # NEXT, error checking passes, create strategies
-        autogen Strategy
+        autogen Strategy [array get opts]
+    }
+
+    # attroe owner ?args...?
+    #
+    # owner   - an actor
+    #
+    # Arguments:
+    #
+    # -attackers   - a force group or groups owned by owner
+    # -max         - maximum number of attacks per week
+    #
+    # This method creates ATTROE tactics for force groups 
+    # owned by the supplied actor. By default, all force groups
+    # owned by the actor are given an ATTROE tactic. If the -attacker
+    # argument is passed in, then only force groups in that list
+    # are given an ATTROE tactic.  The maximum number of tactics
+    # defaults to 1.
+    #
+    # For each neighborhood:
+    # For uniformed forces, they are given an ROE of "ATTACK" for
+    # non-uniformed forces, they are given an ROE of "STAND_AND_FIGHT"
+
+    typemethod attroe {owner args} {
+        # FIRST, default options
+        array set opts {
+            -attackers {}
+            -max 1
+        }
+
+        # NEXT, must have actors, nbhoods and and least one FRC 
+        # or ORG group
+        if {[llength [actor names]] == 0} {
+            error "Must create actors first"
+        }
+
+        if {[llength [nbhood names]] == 0} {
+            error "Must create nbhoods first"
+        }
+
+        if {[llength [frcgroup names]] == 0 &&
+            [llength [orgrooup names]] == 0} {
+            error "Must have at least one FRC group or one ORG group"
+        }
+
+        # NEXT, parse arguments
+        while {[llength $args] != 0} {
+            set opt [lshift args]
+            switch -exact -- $opt {
+                -attackers {
+                    set opts(-attackers) [lshift args]
+                }
+
+                -max_attacks {
+                    set opts(-max) [lshift args]
+                    if {![string is integer $opts(-max)]} {
+                        error "$opt must be integer > 0"
+                    }
+
+                    if {$opts(-max) < 1} {
+                        error "$opt must be integer > 0"
+                    }
+                }
+
+                default {
+                    error "Unknown option: $opt"
+                }
+            }
+        }
+
+        # NEXT, owner must have force groups at disposal
+        if {[frcgroup ownedby $owner] eq ""} {
+            error "$owner does not own any force groups"
+        }
+
+        # NEXT, if no list supplied, use all force owned by actor
+        if {$opts(-attackers) eq ""} {
+            set agrp [frcgroup ownedby $owner]
+        } else {
+            set agrp $opts(-attackers)
+        }
+
+        # NEXT, step through attackers and set ROE according to
+        # whether the force group is uniformed or not
+        foreach grp $agrp {
+            set grp [frcgroup validate $grp]
+
+            # NOTE: the orders will do further validation
+
+            # NEXT, each uniformed force against all other
+            # non-uniformed forces
+            if {$grp in [frcgroup uniformed names]} {
+                foreach dgrp [frcgroup nonuniformed names] {
+                    foreach n [nbhood names] {
+                        autogen AttroeTactic $owner   \
+                                             $grp     \
+                                             $dgrp    \
+                                             $n       \
+                                             "ATTACK" \
+                                             $opts(-max)
+                    }
+                }
+            } else {
+                # NEXT, each non-uniformed force against all
+                # other uniformed forces
+                foreach dgrp [frcgroup uniformed names] {
+                    foreach n [nbhood names] {
+                        autogen AttroeTactic $owner            \
+                                             $grp              \
+                                             $dgrp             \
+                                             $n                \
+                                             "STAND_AND_FIGHT" \
+                                             $opts(-max)
+                    }
+                }
+            }
+        }
+    }
+
+    # assign owner args
+    #
+    # owner   - an actor
+    # 
+    # Arguments:
+    #    -frcg     Force groups to be assigned activities
+    #    -orgg     Org groups to be assigned activities
+    #    -nbhoods  The nbhoods in which to do activities
+    #    -frcact   The type of force activities to do
+    #    -orgact   The type of org activities to do
+    #
+    # This method assigns activities to groups owned by owner in
+    # specified nbhoods. If no arguments are supplied then all groups
+    # owned by the owner are assigned appropriate activities in turn
+    # in each neighborhood.
+
+    typemethod assign {owner args} {
+        # FIRST, default opts and parse args
+        array set opts {
+            -frcg    {}
+            -orgg    {}
+            -nbhoods {}
+            -frcact  {}
+            -orgact  {}
+        }
+
+        # NEXT, must have actors, nbhoods and and least one FRC 
+        # or ORG group
+        if {[llength [actor names]] == 0} {
+            error "Must create actors first"
+        }
+
+        if {[llength [nbhood names]] == 0} {
+            error "Must create nbhoods first"
+        }
+
+        if {[llength [frcgroup names]] == 0 &&
+            [llength [orgrooup names]] == 0} {
+            error "Must have at least one FRC group or one ORG group"
+        }
+
+        # NEXT, parse the args
+        while {[llength $args] != 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -frcg {
+                    set opts(-frcg) [lshift args]
+                }
+
+                -orgg {
+                    set opts(-orgg) [lshift args]
+                }
+
+                -frcact {
+                    set opts(-frcact) [lshift args]
+                }
+
+                -orgact {
+                    set opts(-orgact) [lshift args]
+                }
+
+                -nbhoods {
+                    set opts(-nbhoods) [lshift args]
+                }
+
+                default {
+                    error "Unknown option: $opt"
+                }
+            }
+        }
+
+        # NEXT, error checking
+        if {$owner ni [actor names]} {
+                error "Unrecognized actor: $owner"
+        }
+
+        if {$opts(-frcg) eq ""} {
+            set opts(-frcg) [frcgroup ownedby $owner] 
+
+        } else {
+            foreach g $opts(-frcg) {
+                if {$g ni [frcgroup names]} {
+                    error "Unrecognized force group: $g"
+                }
+            }
+        }
+
+        if {$opts(-orgg) eq ""} {
+            set opts(-orgg) \
+                [rdb eval {SELECT g FROM orggroups WHERE a=$owner}]
+        } else {
+            foreach g $opts(-orgg) {
+                if {$g ni [orggroup names]} {
+                    error "Unrecognized org group: $g"
+                }
+            }
+        }
+
+        if {$opts(-frcg) eq "" && $opts(-orgg) eq ""} {
+            error "Actor $owner does not own any groups"
+        }
+
+        # NEXT, get appropriate nbhoods 
+        if {$opts(-nbhoods) eq ""} {
+            set opts(-nbhoods) [nbhood names]
+        } else {
+            foreach n $opts(-nbhoods) {
+                if {$n ni [nbhood names]} {
+                    error "Unrecognized nbhood: $opts(-nbhood)"
+                }
+            }
+        }
+
+        if {$opts(-frcact) eq ""} {
+            set opts(-frcact) [activity frc names]
+        } else {
+            foreach act $opts(-frcact) {
+                if {$act ni [activity frc names]} {
+                    error "$act is not a valid force activity"
+                }
+            }
+        }
+
+        if {$opts(-orgact) eq ""} {
+            set opts(-orgact) [activity org names]
+        } else {
+            foreach act $opts(-orgact) {
+                if {$act ni [activity org names]} {
+                    error "$act is not a valid force activity"
+                }
+            }
+        }
+
+        set aidx 0
+        # NEXT, create ASSIGN for force groups
+        foreach g $opts(-frcg) {
+            foreach n $opts(-nbhoods) {
+
+                set act [lindex $opts(-frcact) $aidx]
+                # NEXT, create the tactic
+                autogen AssignTactic $owner \
+                                     $g     \
+                                     $n     \
+                                     $act   \
+                                     100
+
+               incr aidx
+               if {[expr {$aidx % [llength $opts(-frcact)]}] == 0} {
+                   set aidx 0
+               }
+           }
+       }
+
+       set aidx 0
+       # NEXT, create assign for org groups
+       foreach g $opts(-orgg) {
+           foreach n $opts(-nbhoods) {
+               set act [lindex $opts(-orgact) $aidx]
+               # NEXT, create the tactic
+               autogen AssignTactic $owner \
+                                    $g     \
+                                    $n     \
+                                    $act   \
+                                    100
+
+               incr aidx
+               if {[expr {$aidx % [llength $opts(-orgact)]}] == 0} {
+                   set aidx 0
+               }
+           }
+       }
+
     }
 
     # Actors num
@@ -408,6 +832,7 @@ snit::type autogen {
         for {set i 0} {$i < $num} {incr i} {
             set parms(a) "A[format "%02d" $i]"
             set parms(supports) "SELF"
+            set parms(cash_on_hand) "500B"
 
             order send cli ACTOR:CREATE [array get parms]
         }
@@ -542,6 +967,8 @@ snit::type autogen {
         set nbhoods [rdb eval {SELECT n FROM nbhoods}]
 
         set numn [llength $nbhoods]
+        set housing [ehousing names]
+        set nhousing [llength $housing]
 
         # FIRST, step through number of civgroups per nbhood.
         for {set i 0} {$i < $num} {incr i} {
@@ -554,17 +981,21 @@ snit::type autogen {
             set parms(sa_flag) 0
             set parms(lfp) 60
 
+            set ctr 0
+
             # NEXT, step through neighborhoods creating groups as we go
             for {set j 0} {$j < $numn} {incr j} {
                 set parms(g) C$j$i
                 set parms(n) [lindex $nbhoods $j]
 
-                set parms(housing) AT_HOME
-                # NEXT, set housing for each third group
-                if {[expr {$j % 2}] == 0} {
-                    set parms(housing) DISPLACED
-                } elseif {[expr {$j % 3}] == 0} {
-                    set parms(housing) IN_CAMP
+                # NEXT set housing
+                set parms(housing) [lindex $housing $ctr]
+
+                # NEXT cycle to next housing index, returning to the
+                # first if necessary
+                incr ctr
+                if {[expr {$ctr % $nhousing}] == 0} {
+                    set ctr 0
                 }
 
                 # NEXT, last group in each neighborhood is subsistence 
@@ -614,6 +1045,7 @@ snit::type autogen {
             set parms(g) "O[format "%02d" $i]"
             set parms(orgtype) [eorgtype name $orgtype]
             set parms(base_personnel) 100000
+            set parms(cost) "1K"
 
             order send cli ORGGROUP:CREATE [array get parms]
 
@@ -659,6 +1091,8 @@ snit::type autogen {
             set parms(a)              [lindex $actors $j]
             set parms(forcetype)      [eforcetype name $frctype]
             set parms(base_personnel) 100000
+            set parms(cost)           "1K"
+            set parms(uniformed)      [expr {$i % 2}]
 
             order send cli FRCGROUP:CREATE [array get parms]
 
@@ -767,19 +1201,63 @@ snit::type autogen {
     # This method sets up a default set of tactics for each actor if 
     # the -strategy flag is set to 1
     
-    typemethod Strategy {} {
+    typemethod Strategy {args} {
+        array set opts [lindex $args 0]
 
-        # FIRST, get the list of actors 
-        set actors    [rdb eval {SELECT a FROM actors}]
+        if {$opts(-actors) eq "ALL"} {
+            set opts(-actors) [rdb eval {SELECT a FROM actors}]
+        }
+
+        if {$opts(-frcact) eq "ALL"} {
+            set opts(-frcact) [activity frc names]
+        }
+
+        if {$opts(-orgact) eq "ALL"} {
+            set opts(-orgact) [activity org names]
+        }
+
+        if {$opts(-nbhoods) eq "ALL"} {
+            set opts(-nbhoods) [rdb eval {SELECT n FROM nbhoods}]
+        }
 
         # NEXT, reset activity index
         set info(aidx) 0
 
         # NEXT, step through each actor setting up group strategy for
         # the groups each actor owns
-        foreach a $actors {
-            autogen GroupStrategy $a FRC
-            autogen GroupStrategy $a ORG
+        if {"DEPLOY" in $opts(-tactics)} {
+            foreach a $opts(-actors) {
+                set frcgroups \
+                    [rdb eval {SELECT g FROM frcgroups WHERE a=$a}]
+                set orggroups \
+                    [rdb eval {SELECT g FROM orggroups WHERE a=$a}]
+
+                if {$opts(-frcgroups) ne "ALL"} {
+                    set frcgroups $opts(-frcgroups)
+                }
+
+                autogen GroupStrategy \
+                    $a $frcgroups FRC $opts(-frcact) $opts(-nbhoods)
+
+                if {$opts(-orggroups) ne "ALL"} {
+                    set orggroups $opts(-orggroups)
+                }
+
+                autogen GroupStrategy \
+                    $a $orggroups ORG $opts(-orgact) $opts(-nbhoods)
+            }
+        }
+
+        if {"FUNDENI" in $opts(-tactics)} {
+            set civgroups [rdb eval {SELECT g FROM civgroups}]
+
+            if {$opts(-civgroups) ne "ALL"} {
+                set civgroups $opts(-civgroups)
+            }
+
+            foreach a $opts(-actors) {
+                autogen FundENITactic $a $civgroups
+            }
         }
     }
 
@@ -788,25 +1266,32 @@ snit::type autogen {
     # a        The actor who owns the groups
     # gtype    The type of groups; FRC or ORG
     #
-    # This method mobilizes, deploys and assigns appropriate activities
-    # to groups owned by actor a. Depending on the type of group activities
-    # are assigned in turn to each neighborood.
+    # This method deploys and assigns appropriate activities
+    # to groups owned by actor a. Activities are assigned in turn
+    # to each neighborood. The type of activities depend on whether
+    # gtype is FRC or ORG.
 
-    typemethod GroupStrategy {a gtype} {
+    typemethod GroupStrategy {a groups gtype activities nbhoods} {
 
         # FIRST, set the table name to look up the number of personnel
         set gtable "[string tolower $gtype]groups"
 
         # NEXT, see if this actor owns any groups of this group type
-        set groups [rdb eval "SELECT g FROM $gtable WHERE a=\$a"]
+        set ownedgroups [rdb eval "SELECT g FROM $gtable WHERE a=\$a"]
 
         # NEXT, no groups, get out
         if {[llength $groups] == 0} {
             return
         }
 
+        # NEXT, error if a group is not owned
+        foreach group $groups {
+            if {$group ni $ownedgroups} {
+                error "$a does not own $group"
+            }
+        }
+
         # NEXT, determine activities based on group type
-        set activities [activity [string tolower $gtype] names]
         set actlen [llength $activities]
         
         # NEXT, in case we've gone from a FRC group to an ORG group
@@ -824,12 +1309,10 @@ snit::type autogen {
                     WHERE g = \$g
                 "]
 
-            autogen MobilizeTactic $a $g $pers
             autogen DeployTactic $a $g
 
             # NEXT determine the number of personnel per neighborhood to
             # assign to an activity
-            set nbhoods [rdb eval {SELECT n FROM nbhoods}]
             set persPerN [expr {int(floor($pers / [llength $nbhoods]))}]
 
             # NEXT, go through neighborhoods assigning activities
@@ -846,6 +1329,30 @@ snit::type autogen {
                 }
             }
         }
+    }
+
+    # AttroeTactic a f g n roe max
+    #
+    # a    - an actor
+    # f    - an attacking group
+    # g    - a defending group
+    # n    - a neighborhood
+    # roe  - the ROE the attacking group should assume
+    # max  - the max number of attacks per week
+    #
+    # This method creates a parms array from the given arguments
+    # and sends an order to create an ATTROE tactic for the given
+    # actor. Error checking is assumed.
+
+    typemethod AttroeTactic {a f g n roe max} {
+        set parms(owner) $a
+        set parms(f)     $f
+        set parms(g)     $g
+        set parms(n)     $n
+        set parms(text1) $roe
+        set parms(int1)  $max
+    
+        order send cli TACTIC:ATTROE:CREATE [array get parms]
     }
 
     # AssignTactic a g n act pers
@@ -869,24 +1376,6 @@ snit::type autogen {
         order send cli TACTIC:ASSIGN:CREATE [array get parms]
     }
 
-    # MobilizeTactic a g pers
-    #
-    # a       the actor that owns the group
-    # g       the group being mobilized
-    # pers    the number of people being mobilized
-    #
-    # This helper method creates a MOBILIZE tactic with the supplied
-    # arguments as the parms. All other parms are defaulted.
-
-    typemethod MobilizeTactic {a g pers} {
-        set parms(owner)   $a
-        set parms(g)       $g
-        set parms(int1)    $pers
-        set parms(once)    0
-
-        order send cli TACTIC:MOBILIZE:CREATE [array get parms]
-    }
-
     # DeployTactic a g
     #
     # a    the actor that owns the group
@@ -906,4 +1395,23 @@ snit::type autogen {
         order send cli TACTIC:DEPLOY:CREATE [array get parms]
     }
 
+    # FundENITactic a grps
+    #
+    # a      - an actor
+    # grps   - the CIV groups to receive ENI funding
+    #
+    # This method creates a parms array and sends an order to create
+    # a FUNDENI tactic for the given actor and list of groups.
+    #
+    # Error checking has already been done.
+
+    typemethod FundENITactic {a grps} {
+        set parms(owner)   $a
+        set parms(glist)   $grps
+        set parms(x1)      "1K"
+        set parms(once)    NO
+        set parms(on_lock) YES
+
+        order send cli TACTIC:FUNDENI:CREATE [array get parms]
+    }
 }

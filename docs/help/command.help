@@ -376,7 +376,7 @@ command "autogen bsystem" {
 }
 
 command "autogen strategy" {
-    <<syntax>>
+    <<syntax ?<i>args...</i>?>>
 
     Automatically generates a set of tactics for each actor subject
     to certain constraints. The constraints are as follows:<p>
@@ -386,8 +386,120 @@ command "autogen strategy" {
     <li> Neighborhoods must exist
     <li> At least one force or organization group must exist
     </ul>
+
+    Currently there are only three tactic types automatically created.
+    They are the <<cref /object/tactic/deploy>>, the 
+    <<cref /object/tactic/assign>> and the <<cref /object/tactic/fundeni>>.  
+    In the future there may be more automatically generated tactics.<p>
+
+    By default, the <<cref /object/tactic/deploy>> is created for each
+    group owned by each actor in each neighborhood with the personnel in 
+    groups being evenly distributed among the several neighborhoods. Then,
+    for each deployed group, the <<cref /object/tactic/assign>> is used to 
+    assign activities in turn depending on whether the owned group is a 
+    force group or an organization group.<p>
+
+    Also by default, the <<cref /object/tactic/fundeni>> is created for
+    each actor to fund ENI for all civilians in every neighborhood.  The
+    amount of money spent for each tactic is one thousand dollars.<p>
+
+    The defaults can be changed by providing optional arguments. Every
+    option has the default of "ALL".
+    The available options are:<p>
+
+    <<deflist options>>
+
+    <<defopt {-actors <i>alist</i>}>>
+    Specifies a list of actors for which the default set of tactics should
+    be created.<p>
+
+    <<defopt {-civg <i>glist</i>}>>
+    The list of civilian groups to use when creating tactics. This
+    will only apply to the tactics that affect civilians.<p>
+
+    <<defopt {-frcg <i>glist</i>}>>
+    The list of force groups to use when creating tactics.  This
+    will only apply to tactics that require force groups.<p>
+
+    <<defopt {-frcact <i>actlist</i>}>>
+    The list of force group activities to use when creating 
+    tactics.  This will only apply to tactics that require force group
+    activities.<p>
+
+    <<defopt {-orgg <i>n</i>}>>
+    The list of organization groups to use when creating tactics. This will
+    only apply to tactics that require organization groups.<p>
+
+    <<defopt {-orgact <i>actlist</i>}>>
+    The list of organization group activities to use when creating 
+    tactics.  This will only apply to tactics that require organization 
+    group activities.<p>
+
+    <<defopt {-nbhoods <i>nlist</i>}>>
+    The list of neighborhoods to use when creating tactics.  Tactics will
+    only be created for neighborhoods in this list.
+
+    <</deflist options>>
 }
 
+command "autogen attroe" {
+    <<syntax <i>owner</i> ?<i>args...</i>?>>
+
+    This command automatically generates one or more 
+    <<cref /object/tactic/attroe>>s for force groups that belong to the
+    specified owner.  For uniformed forces, the ROE is "ATTACK" for 
+    non-uniformed forces it is "STAND_AND_FIGHT".  The tactic is created
+    against all other forces in each neighborhood. The list of available
+    options are:<p>
+
+    <<deflist options>>
+
+    <<defopt {-attackers <i>glist</i>}>>
+    The list of force groups that should get the tactic. Default to all
+    those that belong to <i>owner</i>.<p>
+
+    <<defopt {-max <i>n</i>}>>
+    The maximum number of attacks per week, defaults to 1.
+
+    <</deflist options>>
+}
+
+command "autogen assign" {
+    <<syntax <i>owner</i> ?<i>args...</i>?>>
+
+    This command automatically generates one or more 
+    <<cref /object/tactic/assign>>s for force or organization groups
+    that belong to the specified owner.  By default all activities are
+    assigned in turn for each neighborhood.  For each tactic created,
+    100 personnel are specified to be doing the activity.  The list
+    of available options are:<p>
+
+    <<deflist options>>
+
+    <<defopt {-frcg <i>glist</i>}>>
+    List of force groups owned by owner that should be assigned activities.
+    Defaults to all force groups owned by the owner.<p>
+
+    <<defopt {-orgg <i>glist</i>}>>
+    List of organization groups owned by owner that should be assigned
+    activities. Defaults to all organization groups owned by owner.<p>
+
+    <<defopt {-nbhoods <i>nlist</i>}>>
+    List of neighborhoods that activities should be assigned in.  Defaults
+    to all neighborhoods.<p>
+
+    <<defopt {-frcact <i>alist</i>}>>
+    List of force activities that should be assigned, in turn, to each
+    force group in each neighborhood.  Defaults to all force activities.<p>
+
+    <<defopt {-orgact <i>alist</i>}>>
+    List of organization activities that should be assigned, in turn, to each
+    organization group in each neighborhood.  Defaults to all organization
+    activities.<p>
+
+    <</deflist options>>
+
+}
 
 #=======================================================================
 # call command
