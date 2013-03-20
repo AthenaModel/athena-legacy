@@ -511,34 +511,6 @@ upc         10.0
         cleanup
     } -result {NB1}
 
-    #-------------------------------------------------------------------
-    # rebase
-
-    test rebase-1.1 {basepop is updated} -setup {
-        ted create SHIA SUNN KURD
-        foreach {g pop upc} {
-            SHIA 5000   1.0
-            SUNN 10000  5.0
-            KURD 20000  10.0
-        } {
-            rdb eval {
-                INSERT INTO demog_g(g, population,upc) VALUES($g,$pop,$upc);
-            }
-        }
-    } -body {
-        civgroup rebase
-        ted query {SELECT g, basepop, hist_flag, upc FROM civgroups}
-    } -cleanup {
-        cleanup
-    } -result {
-g    basepop hist_flag upc  
----- ------- --------- ---- 
-SHIA 5000    1         1.0  
-SUNN 10000   1         5.0  
-KURD 20000   1         10.0 
-    }
-    
-
 
     #-------------------------------------------------------------------
     # Cleanup

@@ -38,27 +38,6 @@ snit::type nbhood {
     }
 
     #-------------------------------------------------------------------
-    # Scenario Control
-    
-    # rebase
-    #
-    # Create a new scenario prep baseline based on the current simulation
-    # state.
-    
-    typemethod rebase {} {
-        # FIRST, set nbhood controller to current controller.
-        rdb eval {
-            SELECT n, controller FROM control_n
-        } {
-            rdb eval {
-                UPDATE nbhoods 
-                SET controller=nullif($controller,'')
-                WHERE n=$n
-            }
-        }
-    }
- 
-    #-------------------------------------------------------------------
     # Notifier Event Handlers
 
     # dbsync

@@ -18,31 +18,6 @@ snit::type civgroup {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
-    # Scenario Control
-    
-    # rebase
-    #
-    # Create a new scenario prep baseline based on the current simulation
-    # state.
-    
-    typemethod rebase {} {
-        # FIRST, set civilian group base population to the current
-        # population.
-        rdb eval {
-            SELECT g, population, upc
-            FROM demog_g
-        } {
-            rdb eval {
-                UPDATE civgroups
-                SET basepop   = $population,
-                    hist_flag = 1,
-                    upc       = $upc
-                WHERE g=$g
-            }
-        }
-    }
-    
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are

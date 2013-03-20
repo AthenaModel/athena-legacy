@@ -31,28 +31,6 @@ snit::type frcgroup {
     }
 
     #-------------------------------------------------------------------
-    # Scenario Control
-    
-    # rebase
-    #
-    # Create a new scenario prep baseline based on the current simulation
-    # state.
-    
-    typemethod rebase {} {
-        # FIRST, set force group base personnel to the current level.
-        rdb eval {
-            SELECT g, personnel
-            FROM personnel_g
-        } {
-            rdb eval {
-                UPDATE frcgroups
-                SET base_personnel = $personnel
-                WHERE g=$g
-            }
-        }
-    }
-    
-    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are

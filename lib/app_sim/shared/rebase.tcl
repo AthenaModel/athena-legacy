@@ -54,22 +54,112 @@ snit::type rebase {
     # rebase
     #
     # Save scenario prep data based on the current simulation
-    # state.
+    # state.  For some modules, we do the rebasing effort right here,
+    # because it is straightforward and it's more convenient to have it
+    # all in one place.  For others it's significantly tricky, and it's
+    # better to have it with its source module.
     
     typemethod save {} {
-        # TBD: These calls will be moved into this module.
-        actor rebase
-        civgroup rebase
-        coop rebase
+        # FIRST, do the tricky modules.
         econ mutate rebase
         ensit rebase
-        frcgroup rebase
-        RebaseHorizontalRelationships
-        nbhood rebase
-        orggroup rebase
-        RebaseSatisfaction
         tactic rebase
+
+        # NEXT, rebase the other scenario tables.
+        RebaseActors
+        RebaseCivgroups
+        RebaseCooperation
+        RebaseFrcgroups
+        RebaseHorizontalRelationships
+        RebaseNeighborhoods        
+        RebaseOrggroups
+        RebaseSatisfaction
         RebaseVerticalRelationships
+    }
+
+    # RebaseActors
+    #
+    # Save actor data on rebase.
+
+    proc RebaseActors {} {
+        # FIRST, set the income scenario inputs to the current income levels.
+        #
+        # NOTE: shares_black_nr is omitted because it doesn't actually change.
+        # Also, inc_region is de facto income from graft in the sense of
+        # actors.income_graft; however, we should keep an eye on that.
+        
+        rdb eval {
+            SELECT a, inc_goods, inc_black_t, inc_pop, inc_world, inc_region
+            FROM income_a
+        } {
+            rdb eval {
+                UPDATE actors
+                SET income_goods     = $inc_goods,
+                    income_black_tax = $inc_black_t,
+                    income_pop       = $inc_pop,
+                    income_graft     = $inc_region,
+                    income_world     = $inc_world
+                WHERE a=$a
+            }
+        }
+    }
+
+    # RebaseCivgroups
+    #
+    # Save civgroups data on rebase.
+
+    proc RebaseCivgroups {} {
+        # FIRST, set civilian group base population to the current
+        # population.
+        rdb eval {
+            SELECT g, population, upc
+            FROM demog_g
+        } {
+            rdb eval {
+                UPDATE civgroups
+                SET basepop   = $population,
+                    hist_flag = 1,
+                    upc       = $upc
+                WHERE g=$g
+            }
+        }
+    }
+
+    # RebaseCooperation
+    #
+    # Save coop_fg data on rebase.
+
+    proc RebaseCooperation {} {
+        # FIRST, set base to current values.
+        rdb eval {
+            SELECT f, g, bvalue, cvalue FROM uram_coop;
+        } {
+            rdb eval {
+                UPDATE coop_fg
+                SET base=$bvalue,
+                    regress_to = 'NATURAL',
+                    natural = $cvalue
+                WHERE f=$f AND g=$g
+            }
+        }
+    }
+
+    # RebaseFrcgroups
+    #
+    # Save frcgroups data on rebase.
+
+    proc RebaseFrcgroups {} {
+        # FIRST, set force group base personnel to the current level.
+        rdb eval {
+            SELECT g, personnel
+            FROM personnel_g
+        } {
+            rdb eval {
+                UPDATE frcgroups
+                SET base_personnel = $personnel
+                WHERE g=$g
+            }
+        }
     }
 
     # RebaseHorizontalRelationships
@@ -90,6 +180,41 @@ snit::type rebase {
             FROM uram_hrel AS H
             JOIN rebase_hrel AS R USING (f,g)
             WHERE f !=g AND (H.bvalue != H.cvalue OR R.current != H.cvalue)
+        }
+    }
+
+    # RebaseNeighborhoods
+    #
+    # Save nbhoods data on rebase.
+
+    proc RebaseNeighborhoods {} {
+        # FIRST, set nbhood controller to current controller.
+        rdb eval {
+            SELECT n, controller FROM control_n
+        } {
+            rdb eval {
+                UPDATE nbhoods 
+                SET controller=nullif($controller,'')
+                WHERE n=$n
+            }
+        }
+    }
+
+    # RebaseOrggroups
+    #
+    # Save orggroups data on rebase.
+
+    proc RebaseOrggroups {} {
+        # FIRST, set org group base personnel to the current level.
+        rdb eval {
+            SELECT g, personnel
+            FROM personnel_g
+        } {
+            rdb eval {
+                UPDATE orggroups
+                SET base_personnel = $personnel
+                WHERE g=$g
+            }
         }
     }
     
@@ -116,6 +241,7 @@ snit::type rebase {
             }
         }
     }
+
 
     # RebaseVerticalRelationships
     #

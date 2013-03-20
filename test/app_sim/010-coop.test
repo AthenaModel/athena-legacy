@@ -172,24 +172,6 @@ SHIA BLUE 40.0 NATURAL    70.0
     } -result {SHIA BLUE}
 
 
-    #-------------------------------------------------------------------
-    # rebase
-
-    test rebase-1.1 {save current coop levels} -setup {
-        ted create JOE BLUE SHIA
-        ted lock
-        aram coop bset 1 SHIA BLUE 80.0
-    } -body {
-        coop rebase
-        rdb eval {
-            SELECT f, g, base, regress_to, natural 
-            FROM coop_fg WHERE f='SHIA' AND g='BLUE' 
-        }
-    } -cleanup {
-        cleanup
-    } -result {SHIA BLUE 80.0 NATURAL 50.0}
-
-    
 
     #-------------------------------------------------------------------
     # Cleanup

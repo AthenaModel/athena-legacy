@@ -136,7 +136,114 @@ namespace eval ::athena_test::tests:: {
     #
     # This section tests that the proper data is saved on rebase.
 
-    test save-1.1 {hrel_fg data} -setup {
+    test save-1.1 {actors data} -setup {
+        ted create JOE WILL BLUE SHIA
+        ted lock
+        ted step
+        rdb eval {
+            UPDATE income_a
+            SET inc_goods   = 1.0,
+                inc_black_t = 2.0,
+                inc_pop     = 3.0,
+                inc_region  = 4.0,
+                inc_world   = 5.0;
+        }
+    } -body {
+        rebase save
+
+        # Note that budget actors are not modified.
+        ted querylist {
+            SELECT a, income_goods, income_black_tax, income_pop,
+                   income_graft, income_world
+            FROM actors
+            ORDER BY a
+        } 
+    } -cleanup {
+        cleanup
+    } -result {
+a                 JOE
+income_goods      1.0
+income_black_tax  2.0
+income_pop        3.0
+income_graft      4.0
+income_world      5.0
+
+a                 WILL
+income_goods      0.0
+income_black_tax  0.0
+income_pop        0.0
+income_graft      0.0
+income_world      0.0
+    }
+    
+    test save-1.2 {civgroups data} -setup {
+        ted create JOE BLUE SHIA SUNN KURD
+        ted lock
+        ted step
+
+        foreach {g pop upc} {
+            SHIA 5000   1.0
+            SUNN 10000  5.0
+            KURD 20000  10.0
+        } {
+            rdb eval {
+                UPDATE demog_g
+                SET population=$pop,
+                    upc       =$upc
+                WHERE g=$g
+            }
+        }
+    } -body {
+        rebase save
+        ted query {SELECT g, basepop, hist_flag, upc FROM civgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+g    basepop hist_flag upc  
+---- ------- --------- ---- 
+SHIA 5000    1         1.0  
+SUNN 10000   1         5.0  
+KURD 20000   1         10.0 
+    }
+    
+
+    test save-1.3 {coop_fg data} -setup {
+        ted create JOE BLUE SHIA
+        ted lock
+        ted step
+        aram coop bset 1 SHIA BLUE 80.0
+    } -body {
+        rebase save
+        rdb eval {
+            SELECT f, g, base, regress_to, natural 
+            FROM coop_fg WHERE f='SHIA' AND g='BLUE' 
+        }
+    } -cleanup {
+        cleanup
+    } -result {SHIA BLUE 80.0 NATURAL 50.0}
+
+    
+    test save-1.4 {frcgroups data} -setup {
+        ted create JOE BLUE BRIT SHIA
+        ted lock
+        ted step
+        foreach {g p} {BLUE 1000 BRIT 2000} {
+            rdb eval {UPDATE personnel_g SET personnel=$p WHERE g=$g}
+        }
+    } -body {
+        rebase save
+        ted query {SELECT g, base_personnel FROM frcgroups}
+    } -cleanup {
+        cleanup
+    } -result {
+g    base_personnel 
+---- -------------- 
+BLUE 1000           
+BRIT 2000           
+    }
+    
+    
+    test save-1.5 {hrel_fg data} -setup {
         ted create JOE SHIA BLUE
         ted lock
         ted step
@@ -159,7 +266,32 @@ SHIA BLUE 0.0 0.9  1         0.0     1
 SHIA SHIA 1.0 1.0  0         1.0     0        
     }
     
-    test save-1.2 {sat_gc data} -setup {
+    test save-1.6 {nbhoods data} -setup {
+        ted create NB1 JOE BOB BLUE SHIA
+        ted lock
+        ted step
+        rdb eval {UPDATE control_n SET controller='JOE'}
+    } -body {
+        rebase save
+        rdb eval {SELECT n, controller FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {NB1 JOE}
+    
+    test save-1.7 {orggroups data} -setup {
+        ted create JOE BLUE USAID SHIA
+        ted lock
+        ted step
+        rdb eval {UPDATE personnel_g SET personnel=100000 WHERE g='USAID'}
+    } -body {
+        rebase save
+        rdb eval {SELECT g, base_personnel FROM orggroups}
+    } -cleanup {
+        cleanup
+    } -result {USAID 100000}
+
+    
+    test save-1.8 {sat_gc data} -setup {
         ted create JOE BLUE SHIA
         ted lock
         ted step
@@ -177,7 +309,7 @@ g    c   base saliency hist_flag current
 SHIA QOL 0.9  1.0      1         -3.45   
     }
     
-    test save-1.3 {save current baseline vrels} -setup {
+    test save-1.9 {vrel_ga data} -setup {
         ted create JOE BLUE SHIA
         ted lock
         ted step

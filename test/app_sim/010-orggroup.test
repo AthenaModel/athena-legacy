@@ -332,20 +332,6 @@ base_personnel  1000
     } -result {HAL}
 
     #-------------------------------------------------------------------
-    # rebase
-
-    test rebase-1.1 {base_personnel == current personnel} -setup {
-        ted create JOE BLUE USAID SHIA
-        ted lock
-        rdb eval {UPDATE personnel_g SET personnel=100000 WHERE g='USAID'}
-    } -body {
-        orggroup rebase
-        rdb eval {SELECT g, base_personnel FROM orggroups}
-    } -cleanup {
-        cleanup
-    } -result {USAID 100000}
-
-    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests
