@@ -1690,6 +1690,11 @@ snit::type ::projectlib::parmdb {
             "
         }
 
+        $ps define force.law.crimrel ::simlib::qaffinity -0.5 {
+            The presumed relationship between criminals and 
+            all other groups when computing security.
+        }
+
         $ps subset force.orgtype {
             For units belonging to organization groups, this set of dials
             determines the contribution to force of each person in the unit,

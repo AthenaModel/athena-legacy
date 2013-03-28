@@ -296,7 +296,10 @@ snit::type security_model {
     # Computes LocalFriends.ng and LocalEnemies.ng for each n and g.
 
     typemethod ComputeLocalFriendsAndEnemies {} {
-        # FIRST, Get the discipline level for each force group.
+        # FIRST, get parmdb values.
+        set crel [parm get force.law.crimrel]
+
+        # NEXT, Get the discipline level for each force group.
         rdb eval {
             SELECT g, training FROM frcgroups
         } {
@@ -346,13 +349,14 @@ snit::type security_model {
             # NEXT, compute friends and enemies.
             if {$hrel > 0} {
                 set friends [expr {entier(ceil($f_noncrim_force*$hrel))}]
-                set enemies [expr {entier(ceil($f_crim_force))}]
+                set enemies [expr {entier(ceil($f_crim_force*abs($crel)))}]
 
                 incr local_force($id) $friends
                 incr local_enemy($id) $enemies
             } elseif {$hrel < 0} {
                 set enemies [expr {
-                    entier(ceil($f_noncrim_force*abs($hrel) + $f_crim_force))
+                    entier(ceil($f_noncrim_force*abs($hrel) + 
+                                $f_crim_force*abs($crel)))
                 }]
 
                 incr local_enemy($id) $enemies
