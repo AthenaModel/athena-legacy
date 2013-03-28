@@ -61,12 +61,11 @@ snit::type rebase {
     
     typemethod save {} {
         # FIRST, do the tricky modules.
-        econ mutate rebase
+        econ rebase
         ensit rebase
         tactic rebase
 
         # NEXT, rebase the other scenario tables.
-        RebaseActors
         RebaseCivgroups
         RebaseCooperation
         RebaseFrcgroups
@@ -75,33 +74,6 @@ snit::type rebase {
         RebaseOrggroups
         RebaseSatisfaction
         RebaseVerticalRelationships
-    }
-
-    # RebaseActors
-    #
-    # Save actor data on rebase.
-
-    proc RebaseActors {} {
-        # FIRST, set the income scenario inputs to the current income levels.
-        #
-        # NOTE: shares_black_nr is omitted because it doesn't actually change.
-        # Also, inc_region is de facto income from graft in the sense of
-        # actors.income_graft; however, we should keep an eye on that.
-        
-        rdb eval {
-            SELECT a, inc_goods, inc_black_t, inc_pop, inc_world, inc_region
-            FROM income_a
-        } {
-            rdb eval {
-                UPDATE actors
-                SET income_goods     = $inc_goods,
-                    income_black_tax = $inc_black_t,
-                    income_pop       = $inc_pop,
-                    income_graft     = $inc_region,
-                    income_world     = $inc_world
-                WHERE a=$a
-            }
-        }
     }
 
     # RebaseCivgroups

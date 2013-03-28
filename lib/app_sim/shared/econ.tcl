@@ -71,6 +71,20 @@ snit::type econ {
 
     typevariable startdict {}
 
+    # Type Variable: histdata
+    #
+    # Historical data that must be used in case of start from a
+    # rebase
+
+    typevariable histdata -array {
+        hist_flag       0
+        rem             0
+        rem_rate        0
+        base_consumers  0
+        base_ur         0
+        base_gdp        0
+    }
+
     #-------------------------------------------------------------------
     # Sanity Check
 
@@ -445,15 +459,44 @@ snit::type econ {
 
         $cge reset
 
+        # NEXT, no longer using any historical values
+        set histdata(hist_flag) 0
+
         notifier send ::econ <SyncSheet> 
     }
 
-    # InitializeActorIncomeTables
+    # PrepareSAM
+    #
+    # This method prepares the SAM for initialization with computed
+    # actor data.  It also sets pertinent historical data in the SAM
+    # if need be (ie. starting from a rebase).
+
+    typemethod PrepareSAM {} {
+        # FIRST, check and convert the parm that controls whether
+        # remittances are taxable.  The SAM requires the flag to
+        # be in canonical form.
+        #
+        # TBD: should cellmodel(n) be changed to handle symbolic 
+        # "yes" and "no"?
+        sam set [list Flag.REMisTaxed \
+            [::projectlib::boolean validate [parm get econ.REMisTaxed]]]
+
+        # NEXT, if we have historical data to deal with, set that in 
+        # the SAM. For now, just unemployment rate and the annual remittance
+        # change rate
+        if {$histdata(hist_flag)} {
+            sam set [list \
+                        BaseUR            $histdata(base_ur)    \
+                        REMChangeRate     $histdata(rem_rate)]
+        }
+    }
+
+    # InitActorTables
     #
     # This method sets up the tables used to track total income as the sum of
     # all income sources and sector by sector tax and tax like rates.
 
-    typemethod InitializeActorIncomeTables {} {
+    typemethod InitActorTables {} {
         # FIRST, the total income by actor. A sum of all income sources.
         # Only INCOME actors are represented.
         rdb eval {
@@ -467,27 +510,32 @@ snit::type econ {
         }
     }
 
-    # ComputeActorsSector
+    # SAMActorsSector
     #
     # The flow of money to and from the actors in Athena is mediated by the
     # definition of the actors themselves. This method grabs the income
     # amounts from the individual actors and aggregates that income into
     # money flows from all other sectors. Using those income
-    # values, it recomputes the revenue in the actor sector and allocates
-    # the revenue per sector depending on how much overhead is spent on
-    # each sector.
+    # values, it recomputes the revenue in the actor sector.
     # Finally, it sums the total amount of graft for each actor and computes
     # a graft fraction based upon the amount of Foreign Aid for the Region,
     # the FAR cell (which is the same as the BX.region.world cell).
 
-    typemethod ComputeActorsSector {} {
+    typemethod SAMActorsSector {} {
         # FIRST, get the cells from the SAM
         array set sdata [$sam get]
 
         # NEXT, determine the ratio of actual consumers to the BaseConsumers
-        # specified in the SAM, we will scale the income to this
+        # specified in the SAM, we will scale the income to this factor
         array set data [demog getlocal]
-        let scaled {$data(consumers)/$sdata(BaseConsumers)}
+        let scalef {$data(consumers)/$sdata(BaseConsumers)}
+
+        # NEXT, override scale factor if the hist flag is set, this is to
+        # get actors sectors shape parameters in line with the historical
+        # data.
+        if {$histdata(hist_flag)} {
+            let scalef {$histdata(base_consumers)/$sdata(BaseConsumers)}
+        } 
 
         set Xag 0.0
         set Xap 0.0
@@ -508,11 +556,11 @@ snit::type econ {
                    total(income_graft)     AS igr
             FROM actors_view 
         } {
-            let Xag {$ig  * $scaled * 52.0}
-            let Xap {$ip  * $scaled * 52.0}
-            let Xab {$ibt * $scaled * 52.0}
-            let Xaw {$iw  * $scaled * 52.0}
-            let Xar {$igr * $scaled * 52.0}
+            let Xag {$ig  * $scalef * 52.0}
+            let Xap {$ip  * $scalef * 52.0}
+            let Xab {$ibt * $scalef * 52.0}
+            let Xaw {$iw  * $scalef * 52.0}
+            let Xar {$igr * $scalef * 52.0}
         }
 
         # NEXT, the expenditures made by budget actors are accounted for as
@@ -640,16 +688,9 @@ snit::type econ {
         $sam set [list BX.actors.region $Xar]
         $sam set [list BX.actors.world  $Xaw]
 
-        # NEXT, if no actor is getting income from black market net revenue,
-        # then ALL of the net revenue goes into the world sector. We also
-        # need to tell the CGE that actors are not getting any black market
-        # profits
-        set Xwb $sdata(XT.world.black)
-
+        # NEXT, set flags in the SAM and CGE indicating whether actors
+        # are getting black market profits
         if {$totalBNRShares == 0} {
-            # NEXT, need to subtract out Xab since it was just computed we
-            # do not want to double count when the SAM is solved
-            let Xwb {$Xwb + $BNRb - $Xab}
             cge set [list Flag.ActorsGetBNR 0]
             sam set [list Flag.ActorsGetBNR 0]
         } else {
@@ -657,9 +698,7 @@ snit::type econ {
             sam set [list Flag.ActorsGetBNR 1]
         }
 
-        $sam set [list BX.world.black $Xwb]
-
-        # NEXT, compute the composte graft fraction
+        # NEXT, compute the composite graft fraction
         set graft_frac \
             [rdb onecolumn {SELECT total(graft_region) FROM income_a;}]
 
@@ -677,14 +716,17 @@ snit::type econ {
         notifier send ::econ <SyncSheet> 
     }
 
-    # InitializeCGE
+    # InitCGEFromSAM
     #
     # Updates the actors sector in the SAM and then initializes the CGE
     # from the SAM
 
-    typemethod InitializeCGE {} {
-        # FIRST, deal with the actors sector in the SAM
-        $type ComputeActorsSector
+    typemethod InitCGEFromSAM {} {
+        # FIRST, initialize actor income tables
+        $type InitActorTables
+
+        # NEXT, compute the actors sector in the SAM
+        $type SAMActorsSector
 
         # NEXT, get sectors and data from the SAM
         set sectors  [$sam index i]
@@ -713,6 +755,12 @@ snit::type econ {
 
         # NEXT, the base GDP
         cge set [list BaseGDP $samdata(BaseGDP)]
+
+        # NEXT, if we are loading from history, we need the historical
+        # GDP
+        if {$histdata(hist_flag)} {
+            cge set [list BaseGDP $histdata(base_gdp)]
+        }
 
         # NEXT, shape parameters for the economy
         
@@ -781,6 +829,12 @@ snit::type econ {
         # remittances to the populace
         $cge set [list BREM $samdata(BREM)]
 
+        # NEXT, if this is from history then we use the historical
+        # REM. This happens if we are initializing from a rebase.
+        if {$histdata(hist_flag)} {
+            cge set [list BREM $histdata(rem)]
+        }
+
         #-------------------------------------------------------------
         # subsistence agriculture wages, at or near poverty level
         $cge set [list BaseSubWage $samdata(BaseSubWage)]
@@ -812,19 +866,13 @@ snit::type econ {
             # FIRST, reset the CGE
             cge reset
 
-            # NEXT, convert flag to canonical form, the cell model 
-            # requires this.
-            # TBD: should cellmodel(n) be changed to handle symbolic 
-            # "yes" and "no"?
-            set flag \
-                [::projectlib::boolean validate [parm get econ.REMisTaxed]]
+            # NEXT, prepare the SAM with actor data
+            $type PrepareSAM
 
-            sam set [list Flag.REMisTaxed $flag]
+            # NEXT, initialize the CGE from the SAM
+            $type InitCGEFromSAM
 
-            $type InitializeActorIncomeTables
-
-            $type InitializeCGE
-
+            # NEXT, calibrate the CGE
             $type analyze -calibrate
 
             set startdict [$cge get]
@@ -910,14 +958,12 @@ snit::type econ {
             cge set [list \
                          BaseConsumers $demdata(consumers)     \
                          BaseUnemp     $baseUnemp              \
-                         Cal::BPp      $samdata(BP.pop)        \
                          BaseLF        $demdata(labor_force)   \
+                         Cal::BPp      $samdata(BP.pop)        \
                          In::Consumers $demdata(consumers)     \
                          In::LF        $demdata(labor_force)   \
                          In::LSF       $LSF                    \
                          In::CSF       $CSF]
-
-
 
             # NEXT, subsistence wage, the poverty level
             cge set [list In::SubWage $samdata(BaseSubWage)]
@@ -930,6 +976,11 @@ snit::type econ {
 
             # NEXT, remittances
             cge set [list In::REM $samdata(BREM)]
+
+            # NEXT, override remittances with historical data if necessary
+            if {$histdata(hist_flag)} {
+                cge set [list In::REM $histdata(rem)]
+            }
 
             # NEXT, exports
             foreach i {goods black pop} {
@@ -1271,7 +1322,7 @@ snit::type econ {
         array set cgeInputs  [$cge get In -bare]
 
         set changeRate $cgeGlobals(REMChangeRate)
-        set currRem $cgeInputs(REM)
+        set currRem    $cgeInputs(REM)
 
         # NEXT, no change rate or first tick
         # TBD: is this really necessary?
@@ -1492,60 +1543,79 @@ snit::type econ {
         }
     }
 
-    # mutate rebase
+    # mutate hist parmdict
     #
-    # This method takes the current state of the economy as it is
-    # in the "Capacity Constrained" case (aka 'M' page) and sets
-    # the appropriate cells in the SAM so that it can be used to
-    # initialize the economy back to the state it was in.
+    # parmdict   A dictionary of order parms
+    #
+    #    hist_flag       0 or 1; whether to use historical data
+    #    rem             The amount of remittances
+    #    rem_rate        The change rate of remittances; 
+    #                    can be positive or negative
+    #    base_consumers  The number of consumers to use in the base case
+    #    base_ur         The base case unemployment rate
+    #    base_gdp        The base case GDP
+    #
+    # Updates the histdata array given the parms, which are presumed to
+    # be valid. Returns a command to restore to the previous state of 
+    # the history data.
 
-    typemethod {mutate rebase} {} {
-        # FIRST, get the data from the CGE
-        set sectors [cge index i]
+    typemethod {mutate hist} {parmdict} {
+        # FIRST, get undo dict
+        set udict [dict create {*}[array get histdata]]
+
+        # NEXT, load new data
+        dict with parmdict {
+            set histdata(hist_flag)      $hist_flag 
+            set histdata(rem)            $rem 
+            set histdata(rem_rate)       $rem_rate 
+            set histdata(base_consumers) $base_consumers 
+            set histdata(base_ur)        $base_ur 
+            set histdata(base_gdp)       $base_gdp 
+        }
+
+        # NEXT, return undo information
+        return [list econ mutate hist $udict]
+    }
+
+    # hist 
+    #
+    # Returns a dictionary of the historical data 
+
+    typemethod hist {} {
+        return [dict create {*}[array get histdata]]
+    }
+
+    # rebase
+    #
+    # This method loads key values from the current state of the
+    # economy into the history array.  This data will be used to
+    # set up a calibration of the CGE on start to match the state
+    # of the CGE from a rebased scenario. 
+
+    typemethod rebase {} {
+        # FIRST, set the history flag
+        set histdata(hist_flag) 1
+
+        # NEXT, zero the actors sector, it'll get recomputed at the
+        # proper time from rebased actor data
+        set sectors [sam index i]
+
+        foreach i $sectors {
+            sam set [list BX.actors.$i 0.0]
+            sam set [list BX.$i.actors 0.0]
+        }
+
+        # NEXT, store pertinent history
         array set cgedata [cge get]
 
-        # NEXT, the base values
-        foreach i $sectors {
-            foreach j $sectors {
-                sam set [list BX.$i.$j $cgedata(M::X.$i.$j)]
-            }
-        }
-
-        # NEXT, adjust X.pop.world by the T-matrix value
-        set Tpw $cgedata(In::REM)
-
-        let Xpw {$cgedata(M::X.pop.world) - $Tpw}
-        sam set [list BX.pop.world $Xpw]
-
-        # NEXT, adjust X.world.black by the T-matrix value
-        let Twb {
-            $cgedata(PF.world.black) * $cgedata(AF.world.black) * \
-            $cgedata(M::QD.black)
-        }
-
-        let Xwb {$cgedata(M::X.world.black) - $Twb}
-
-        sam set [list BX.world.black $Xwb]
-
-        # NEXT, base prices (only P.pop may have changed)
-        foreach i {goods black pop} {
-            sam set [list BP.$i $cgedata(M::P.$i)]
-        }
-
-        # Note: No need to do BQD's, they'll get recomputed in the SAM
-
-        # NEXT, base unemployment rate
-        sam set [list BaseUR $cgedata(M::UR)]
-
-        # NEXT, demographic data
-        array set demdata [demog getlocal]
-
-        sam set [list BaseConsumers $demdata(consumers)]
-        let subsisters {$demdata(population) - $demdata(consumers)}
-        sam set [list BaseSubsisters $subsisters]
-
-        # NEXT, the change rate of remittances may have changed
-        sam set [list REMChangeRate $cgedata(Global::REMChangeRate)] 
+        set histdata(rem)        $cgedata(In::REM)
+        set histdata(rem_rate)   $cgedata(Global::REMChangeRate)
+        set histdata(base_ur)    $cgedata(M::UR)
+        set histdata(base_gdp)   $cgedata(M::GDP)
+        set histdata(base_consumers)  \
+            [rdb onecolumn {
+                SELECT sum(basepop) FROM civgroups WHERE sa_flag=0;
+            }]
     }
 
     #-------------------------------------------------------------------
@@ -1562,7 +1632,10 @@ snit::type econ {
             set info(changed) 0
         }
 
-        return [list sam [sam get] cge [cge get] startdict $startdict]
+        return [list sam [sam get] \
+                     cge [cge get] \
+                     startdict $startdict \
+                     histdata [array get histdata]]
     }
 
     # restore
@@ -1586,6 +1659,7 @@ snit::type econ {
         sam solve
 
         set startdict [dict get $checkpoint startdict]
+        array set histdata [dict get $checkpoint histdata]
 
         if {$option eq "-saved"} {
             set info(changed) 0
@@ -1621,6 +1695,53 @@ snit::type econ {
 #-------------------------------------------------------------------
 # Orders: ECON:*
 
+# ECON:UPDATE:HIST
+#
+# Updates historical values from rebased economic inputs including
+# not using historical values at all.
+
+order define ECON:UPDATE:HIST {
+    title "Update Rebased Economic Inputs"
+
+    options -sendstates {PREP}
+
+    form {
+        rcc "Start Mode:" -for hist_flag 
+        selector hist_flag {
+            case 0 "New Scenario" {}
+            case 1 "From Previous Scenario" {
+                rcc "REM:" -for rem
+                text rem -defvalue 0
+
+                rcc "REM Change Rate:" -for rem_rate
+                text rem_rate -defvalue 0
+                label "%"
+
+                rcc "Base Consumers:" -for base_consumers
+                text base_consumers -defvalue 160M
+
+                rcc "Base Unemp. Rate:" -for base_ur
+                text base_ur -defvalue 4
+                label "%"
+
+                rcc "Base GDP:" -for base_gdp
+                text base_gdp -defvalue 200B
+            }
+        }
+    }
+} {
+    prepare hist_flag -num -required -type snit::boolean
+    prepare rem            -toupper  -type money
+    prepare rem_rate       -toupper  -type snit::double 
+    prepare base_consumers -toupper  -type money 
+    prepare base_ur        -toupper  -type snit::double
+    prepare base_gdp       -toupper  -type money 
+
+    returnOnError -final
+
+    setundo [econ mutate hist [array get parms]]
+}
+
 # ECON:UPDATE
 #
 # Updates existing neighborhood economic inputs
@@ -1634,7 +1755,7 @@ order define ECON:UPDATE {
         key n -table gui_econ_n -keys n \
             -loadcmd {orderdialog keyload n *}
 
-        rcc "Proc. Capacity Factor" -for pcf
+        rcc "Prod. Capacity Factor" -for pcf
         text pcf
     }
 } {
@@ -1671,7 +1792,7 @@ order define ECON:UPDATE:MULTI {
         multi ids -table gui_econ_n -key n \
             -loadcmd {orderdialog multiload ids *}
 
-        rcc "Proc. Capacity Factor" -for pcf
+        rcc "Prod. Capacity Factor" -for pcf
         text pcf
     }
 } {
@@ -1740,8 +1861,8 @@ order define ECON:SAM:GLOBAL {
         text val
     }
 } {
-    prepare id -required -type {ptype sam}
-    prepare val -toupper -type snit::double
+    prepare id           -required -type {ptype sam}
+    prepare val -toupper -required -type snit::double
 
     returnOnError -final
 

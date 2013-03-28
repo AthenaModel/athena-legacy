@@ -879,6 +879,11 @@ snit::widget appwin {
         $self AddOrder $submenu ECON:UPDATE:REMRATE
         $self AddOrder $submenu ECON:CGE:UPDATE
 
+        cond::available control \
+            [menuitem $submenu command [order title ECON:UPDATE:HIST]... \
+            -command {order enter ECON:UPDATE:HIST [econ hist]}]    \
+            order ECON:UPDATE:HIST
+
         # Help menu
         set helpmenu [menu $menubar.helpmenu]
         $menubar add cascade -label "Help" -underline 0 -menu $helpmenu

@@ -47,7 +47,7 @@ order ECON:UPDATE "Update Neighborhood Economic Inputs" {
 
     <<NBHOOD.n>>
 
-    <<parm pcf "Proc. Capacity Factor">>
+    <<parm pcf "Prod. Capacity Factor">>
     <b>Optional.</b>  <<ECON.pcf>>
     <</parm>>
     <</parmlist>>
@@ -124,3 +124,40 @@ order ECON:UPDATE+REMRATE "Update Remittance Change Rate in Economy" {
     <</parm>>
 }
 
+#-----------------------------------------------------------------------
+
+order ECON:UPDATE+HIST "Update Historical Economic Data" {
+    <<parmlist>>
+
+    <<parm hist_flag "Start Mode">>
+    <b>Required.</b> Sets whether historical data from a previous scenario
+    should be used. 
+    <</parm>>
+
+    <<parm rem "REM">>
+    <b>Optional.</b> Used to change historical remittances to something 
+    different than from a rebased scenario.
+    <</parm>>
+
+    <<parm rem_rate "REM Change Rate">>
+    <b>Optional.</b> Used to change historical annual remittance percentage
+    change rate to something different thatn from a rebased scenario.
+    <</parm>>
+
+    <<parm base_consumers "Base Consumers">>
+    <b>Optional.</b> Used to change historical number of base consumers to
+    something different than from a rebased scenario. <b>Note</b>: Changing
+    this will cause certain economic shape parameters to be different than
+    from a previous run.
+    <</parm>>
+
+    <<parm base_ur "Base Unemp. Rate">>
+    <b>Optional.</b> Used to change the historical unemployment rate to 
+    something different than from a rebased scenario.
+    <</parm>>
+
+    <<parm base_gdp "Base GDP">>
+    <b>Optional.</b> Used to change the historical GDP to something 
+    different than from a rebased scenario.
+    <</parm>>
+}

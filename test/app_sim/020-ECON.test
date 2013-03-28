@@ -322,6 +322,68 @@ NB2 1.0
     }
 
     #-------------------------------------------------------------------
+    # ECON:SAM:GLOBAL
+
+    test SAM:GLOBAL-1.1 {required parms} -body {
+        ted order -reject ECON:SAM:GLOBAL {}
+    } -result {
+        id {required value}
+        val {required value}
+    }
+    
+    test SAM:GLOBAL-1.2 {invalid id} -setup {
+        setup
+    } -body {
+        ted order -reject ECON:SAM:GLOBAL \
+            id NONESUCH val 100000
+    } -cleanup {
+        cleanup
+    } -result {
+        id {Invalid SAM cell "NONESUCH", should be one of: *}
+    } -match glob
+
+    test SAM:GLOBAL-2.1 {valid order} -setup {
+        setup
+    } -body {
+        ted order ECON:SAM:GLOBAL id BaseUR val 10
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test SAM:GLOBAL-2.2 {monitor cell update event} -setup {
+        setup
+    } -body {
+        ted notifier bind ::econ <SamUpdate>
+        ted order ECON:SAM:GLOBAL id BaseUR val 10
+        ted notifier received
+    } -cleanup {
+        cleanup
+        ::econ::sam reset
+        ::econ::sam solve
+    } -result {
+        {::econ <SamUpdate> BaseUR 10}
+    }
+
+    test SAM:GLOBAL-3.1 {undo undoes the change} -setup {
+        setup
+
+        ted order ECON:SAM:GLOBAL {
+            id  BaseUR
+            val 20
+        }
+    } -body {
+        ted notifier bind ::econ <SamUpdate>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+        ::econ::sam reset
+        ::econ::sam solve
+    } -result {
+        {::econ <SamUpdate> BaseUR 10.0}
+    }
+
+    #-------------------------------------------------------------------
     # ECON:CGE:UPDATE
 
     test CGE:UPDATE-1.1 {required parms} -setup {
@@ -407,6 +469,124 @@ NB2 1.0
     } -result {
         {::econ <CgeUpdate>}
     }
+
+    #-------------------------------------------------------------------
+    # ECON:UPDATE:REMRATE
+
+    test UPDATE:REMRATE-1.1 {required parms} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted order -reject ECON:UPDATE:REMRATE {}
+    } -cleanup {
+        cleanup
+    } -result {
+        val {required value}
+    }
+    
+    test UPDATE:REMRATE-2.1 {values are updated} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted order ECON:UPDATE:REMRATE val 5.0
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test UPDATE:REMRATE-2.2 {monitor cell update event} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted notifier bind ::econ <CgeUpdate>
+        ted order ECON:UPDATE:REMRATE val 5.0
+        ted notifier received
+    } -cleanup {
+        cleanup
+        ::econ::cge reset
+    } -result {
+        {::econ <CgeUpdate>}
+    }
+
+    test UPDATE:REMRATE-3.1 {undo undoes the change} -setup {
+        setup
+        ted create BLUE SHIA KURD
+        ted lock
+
+        ted order ECON:UPDATE:REMRATE val 5.0
+    } -body {
+        ted notifier bind ::econ <CgeUpdate>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+        ::econ::cge reset
+    } -result {
+        {::econ <CgeUpdate>}
+    }
+
+    #-------------------------------------------------------------------
+    # ECON:HIST:UPDATE
+
+    test HIST:UPDATE-1.1 {required parms} -body {
+        ted order -reject ECON:HIST:UPDATE {}
+    } -cleanup {
+        cleanup
+    } -result {
+        hist_flag {required value}
+    }
+    
+    test HIST:UPDATE-1.2 {invalid hist_flag} -body {
+        ted order -reject ECON:HIST:UPDATE hist_flag NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        hist_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    } -match glob
+
+    test HIST:UPDATE-1.3 {invalid rem: negative} -body {
+        ted order -reject ECON:HIST:UPDATE hist_flag 1 rem -1
+    } -cleanup {
+        cleanup
+    } -result {
+        rem {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test HIST:UPDATE-1.4 {invalid base_consumers: negative} -body {
+        ted order -reject ECON:HIST:UPDATE hist_flag 1 base_consumers -1
+    } -cleanup {
+        cleanup
+    } -result {
+        base_consumers {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test HIST:UPDATE-1.5 {invalid base_gdp: negative} -body {
+        ted order -reject ECON:HIST:UPDATE hist_flag 1 base_gdp -1
+    } -cleanup {
+        cleanup
+    } -result {
+        base_gdp {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test HIST:UPDATE-2.1 {valid order} -body {
+        ted order ECON:HIST:UPDATE hist_flag 1 rem 10B
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test HIST:UPDATE-3.1 {undo undoes the change} -setup {
+        ted order ECON:HIST:UPDATE hist_flag 1 base_gdp 1T
+    } -body {
+        cif undo -test
+        set pdict [::econ hist]
+        dict with pdict {
+            expr {$base_gdp == 200000000000.0}
+        }
+    } -cleanup {
+        cleanup
+    } -result {1}
 
     #-------------------------------------------------------------------
     # Cleanup

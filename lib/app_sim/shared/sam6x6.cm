@@ -295,7 +295,7 @@ let REMChangeRate  = 0.0
 
 # Flags 
 let Flag.REMisTaxed   = 1   ;# REM may or may not be taxed
-let Flag.ActorsGetBNR = 1   ;# No actor may get black market profit
+let Flag.ActorsGetBNR = 0   ;# No actor may get black market profit
 
 #-----------------------------------------------------------------------
 #
