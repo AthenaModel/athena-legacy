@@ -11,6 +11,44 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.5, 28 March 2013</h3>
+
+This build contains quite a bit of new functionality.  A majority of the
+work done is for 'rebasing' an Athena run.  This means that when Athena
+is PAUSED there is an order that can be executed that will automatically 
+take the current state of the simulation and set Athena back to the PREP
+state with necessary data set as if an analyst had created an Athena scenario
+using the final state of that run.  Athena then can be saved to a new scenario.
+This should be useful for studies where it is necessary to have a series 
+of successive Athena runs where the current run is some delta from the 
+previous run.  Rebasing is available in the Orders > Simulation menu.  
+Automatic generation of Athena scenarios is now also available to aid in 
+testing.  See the 'autogen' family of commands in the helps.  There's also
+a host of bug fixes and such in the list of packages:<p>
+
+<ul>
+<li> Bug 3905: athena(1): implement automatic scenario generation
+<li> Bug 3907: athena(1): implement rebase mutator in econ model
+<li> Bug 3909: athena(1): CGE and SAM rebase bug fixes
+<li> Bug 3910: help(5): add macros to support construction of option lists
+<li> Bug 3912: athena(1): update the autogen executive command helps
+<li> Bug 3913: athena(1): BaseBasketValue on null page in CGE not being computed correctly
+<li> Bug 3924: athena(1): autogen enhancements
+<li> Bug 3933: athena(1): econ rebase not working right
+<li> Bug 3903: weekclock(n): support for start tick
+<li> Bug 3904: weekclock(n): checkpoint, restore, delta
+<li> Bug 3906: athena(1): SIM:STARTTICK order
+<li> Bug 3908: athena(1): SIM:REBASE order
+<li> Bug 3911: athena(1): User can edit natural cooperation level
+<li> Bug 3915: athena(1): Changes for uram(n) bug 3914
+<li> Bug 3917: athena(1): attitude curve "start mode"
+<li> Bug 3920: athena(1): civgroups.upc
+<li> Bug 3921: athena(1): current levels not given to URAM on rebase lock
+<li> Bug 3922: athena(1): Revised rebase architecture
+<li> Bug 3923: athena(1): Revised rebase architecture, part II
+<li> Bug 3927: parmdb(5): force.law.crimrel 
+</ul>
+
 <h3>Build 5.0.4, 4 March 2013</h3>
 
 This build contains two bug fixes, an update to the Athena Analyst's Guide 
