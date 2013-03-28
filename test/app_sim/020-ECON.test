@@ -528,56 +528,56 @@ NB2 1.0
     }
 
     #-------------------------------------------------------------------
-    # ECON:HIST:UPDATE
+    # ECON:UPDATE:HIST
 
-    test HIST:UPDATE-1.1 {required parms} -body {
-        ted order -reject ECON:HIST:UPDATE {}
+    test UPDATE:HIST-1.1 {required parms} -body {
+        ted order -reject ECON:UPDATE:HIST {}
     } -cleanup {
         cleanup
     } -result {
         hist_flag {required value}
     }
     
-    test HIST:UPDATE-1.2 {invalid hist_flag} -body {
-        ted order -reject ECON:HIST:UPDATE hist_flag NONESUCH
+    test UPDATE:HIST-1.2 {invalid hist_flag} -body {
+        ted order -reject ECON:UPDATE:HIST hist_flag NONESUCH
     } -cleanup {
         cleanup
     } -result {
         hist_flag {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
     } -match glob
 
-    test HIST:UPDATE-1.3 {invalid rem: negative} -body {
-        ted order -reject ECON:HIST:UPDATE hist_flag 1 rem -1
+    test UPDATE:HIST-1.3 {invalid rem: negative} -body {
+        ted order -reject ECON:UPDATE:HIST hist_flag 1 rem -1
     } -cleanup {
         cleanup
     } -result {
         rem {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test HIST:UPDATE-1.4 {invalid base_consumers: negative} -body {
-        ted order -reject ECON:HIST:UPDATE hist_flag 1 base_consumers -1
+    test UPDATE:HIST-1.4 {invalid base_consumers: negative} -body {
+        ted order -reject ECON:UPDATE:HIST hist_flag 1 base_consumers -1
     } -cleanup {
         cleanup
     } -result {
         base_consumers {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test HIST:UPDATE-1.5 {invalid base_gdp: negative} -body {
-        ted order -reject ECON:HIST:UPDATE hist_flag 1 base_gdp -1
+    test UPDATE:HIST-1.5 {invalid base_gdp: negative} -body {
+        ted order -reject ECON:UPDATE:HIST hist_flag 1 base_gdp -1
     } -cleanup {
         cleanup
     } -result {
         base_gdp {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test HIST:UPDATE-2.1 {valid order} -body {
-        ted order ECON:HIST:UPDATE hist_flag 1 rem 10B
+    test UPDATE:HIST-2.1 {valid order} -body {
+        ted order ECON:UPDATE:HIST hist_flag 1 rem 10B
     } -cleanup {
         cleanup
     } -result {}
 
-    test HIST:UPDATE-3.1 {undo undoes the change} -setup {
-        ted order ECON:HIST:UPDATE hist_flag 1 base_gdp 1T
+    test UPDATE:HIST-3.1 {undo undoes the change} -setup {
+        ted order ECON:UPDATE:HIST hist_flag 1 base_gdp 1T
     } -body {
         cif undo -test
         set pdict [::econ hist]
