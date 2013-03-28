@@ -233,11 +233,15 @@ snit::type engine {
             ORDER BY n
         }]
 
-        $uram load prox {*}[rdb eval {
-            SELECT m, n, proximity 
-            FROM nbrel_mn
-            ORDER BY m, n
-        }]
+        # TBD: See about saving proximity in nbrel_mn in numeric form.
+        set data [list]
+        rdb eval {
+            SELECT m, n, proximity FROM nbrel_mn
+            ORDER BY m,n
+        } {
+            lappend data $m $n [eproximity index $proximity]
+        }
+        $uram load prox {*}$data
 
         $uram load civg {*}[rdb eval {
             SELECT g,n,basepop FROM civgroups_view
