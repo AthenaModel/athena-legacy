@@ -583,8 +583,8 @@ snit::type scenario {
         rdb eval {
             DELETE FROM snapshots WHERE tick >= $t;
             DELETE FROM ucurve_contribs_t WHERE t > $t;
-            DELETE FROM rule_firings WHERE t > $t;
-            DELETE FROM rule_inputs WHERE t > $t;
+            DELETE FROM rule_firings WHERE t > $hist_t;
+            DELETE FROM rule_inputs WHERE t > $hist_t;
         }
 
         hist purge $hist_t
