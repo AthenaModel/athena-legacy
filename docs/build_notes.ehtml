@@ -11,6 +11,16 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.6, 1 April 2013</h3>
+
+This build contains two bug fixes.  In particular, it fixes a bug seen at TRISA
+with regard to indirect effects.<p>
+
+<ul>
+<li> Bug 3937: athena(1): rule_firings, rule_inputs not purged on unlock
+<li> Bug 3938: athena(1): URAM initialized with string proximity constants
+</ul><p>
+
 <h3>Build 5.0.5, 28 March 2013</h3>
 
 This build contains quite a bit of new functionality.  A majority of the
