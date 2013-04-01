@@ -634,7 +634,21 @@ appserver module CONTRIBS {
         rdb eval {SELECT g AS f FROM civgroups WHERE n=$n} {
             lappend vars coop.$f.$g
         }
+
         lappend vars nbcoop.$n.$g
+
+        # NOTE: there's a limit of 10 plots.  If the groups would overflow
+        # that, don't include them.
+        if {[llength $vars] > 10} {
+            set vars [lindex $vars end]
+            ht putln "
+                <b>NOTE:</b> There are too many civilian groups in this
+                neighborhood to display the cooperation of each with
+                group $g.  Hence, the plot shows only the average cooperation 
+                of the neighborhood with $g. 
+            "
+        }
+
 
         PutPlot hist.nbcoop $start_ $end_ $vars
 
@@ -749,6 +763,18 @@ appserver module CONTRIBS {
             lappend vars mood.$g
         }
         lappend vars nbmood.$n
+
+        # NOTE: there's a limit of 10 plots.  If the groups would overflow
+        # that, don't include them.
+        if {[llength $vars] > 10} {
+            set vars [lindex $vars end]
+            ht putln "
+                <b>NOTE:</b> There are too many civilian groups in this
+                neighborhood to display the mood of each.  Hence, the plot 
+                shows only the neighborhood's mood. 
+            "
+        }
+
 
         PutPlot hist.nbmood $start_ $end_ $vars
 
