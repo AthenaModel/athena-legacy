@@ -117,7 +117,7 @@ appserver module DRIVERS {
             CREATE TEMPORARY VIEW temp_report_driver_view AS
             SELECT drivers.driver_id AS driver_id, 
                    dtype, 
-                   narrative,
+                   signature,
                    ts,
                    te
             FROM drivers
@@ -127,11 +127,11 @@ appserver module DRIVERS {
 
         # NEXT, produce the query.
         set query {
-            SELECT driver_id   AS "Driver",
-                   dtype       AS "Type",
-                   narrative   AS "Narrative",
-                   ts          AS "Start Time",
-                   te          AS "End Time"
+            SELECT driver_id                AS "Driver",
+                   dtype                    AS "Type",
+                   sigline(dtype,signature) AS "Signature",
+                   ts                       AS "Start Time",
+                   te                       AS "End Time"
             FROM temp_report_driver_view
         }
 

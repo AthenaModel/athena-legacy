@@ -33,12 +33,7 @@ snit::type engine {
     typemethod init {} {
         log normal engine "init"
 
-        # FIRST, initialize the event queue
-        # TBD: wart needed.  Register only in main thread.
-        eventq init ::rdb
-        scenario register ::marsutil::eventq
-
-        # NEXT, create an instance of URAM and register it as a saveable
+        # FIRST, create an instance of URAM and register it as a saveable
         # TBD: wart needed.  Register only in main thread.
         profile uram ::aram \
             -rdb          ::rdb                   \
@@ -51,8 +46,8 @@ snit::type engine {
         scenario register [list ::aram saveable]
 
         # NEXT, initialize the simulation modules
-        econ      init ;# TBD: Proxy needed, but not a simple forwarding proxy.
-        situation init ;# TBD: What initialization is needed here?
+        econ init ;# TBD: Proxy needed, but not a simple forwarding proxy.
+        driver::IOM init
 
         log normal engine "init complete"
     }
@@ -91,16 +86,6 @@ snit::type engine {
         profile econ start           ;# Initializes the econ model taking 
                                       # into account on-lock strategies
 
-        # NEXT, the eventq requires special handling after a rebase, because
-        # it is already set to t0.  However, there shouldn't be any events
-        # scheduled for t0.
-        # TBD: We only use the eventq for resolving ensits, which the 
-        # ensit module could do equally well.  Thus, we should stop using 
-        # this mechanism altogether.
-        if {$t0 > [eventq now]} {
-            profile eventq advance $t0
-        }
-
         # NEXT, do analysis and assessment, of transient effects only.
         # There will be no attrition and no shifts in neighborhood control.
 
@@ -108,13 +93,14 @@ snit::type engine {
         profile ensit assess
         profile nbstat analyze
         profile control_model analyze
-        profile actsit_rules assess
+        profile driver::actsit assess
         profile service assess
         set econOK [econ tock]
         if {$econOK} {
             profile demog econstats
         }
-        profile demsit_rules assess
+        profile driver::CONSUMP assess
+        profile driver::UNEMP assess
 
         # NEXT, set natural attitude levels for those attitudes whose
         # natural level varies with time.
@@ -154,16 +140,13 @@ snit::type engine {
         # immediately.
         profile strategy tock
 
-        # NEXT, execute eventq events
-        profile eventq advance [simclock now]
-
-        # FIRST, do analysis and assessment
+        # NEXT, do analysis and assessment
         profile demog stats
         profile ensit assess
         profile nbstat analyze
-        profile misc_rules assess
+        profile driver::MOOD assess
         profile control_model analyze
-        profile actsit_rules assess
+        profile driver::actsit assess
         profile service assess
         profile aam assess
 
@@ -175,7 +158,8 @@ snit::type engine {
             }
         }
 
-        profile demsit_rules assess
+        profile driver::CONSUMP assess
+        profile driver::UNEMP assess
         profile control_model assess
 
         # NEXT, advance URAM, first giving it the latest population data
@@ -306,6 +290,7 @@ snit::type engine {
         aram sat cset {*}$values
     }
 }
+
 
 
 

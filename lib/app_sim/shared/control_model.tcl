@@ -19,7 +19,7 @@
 #
 #    In addition, this module is responsible for the bookkeeping when
 #    control of a neighborhood shifts.  The relevant DAM rules are 
-#    found in control_rules.tcl.
+#    found in driver_control.tcl.
 #
 #-----------------------------------------------------------------------
 
@@ -366,8 +366,10 @@ snit::type control_model {
         }
 
         # NEXT, Get a driver ID for this event with signature $n.
-        set driver_id [driver create CONTROL \
-                           "Shift in control of nbhood $n" $n]
+        # TBD: This vrel change is unique; no other drivers do this
+        # kind of thing.  But we should probably move it to the 
+        # driver_control module anyway.
+        set driver_id [driver getid [list dtype CONTROL n $n]]
 
         # NEXT, set the vrel baseline to the current level for 
         # all non-empty civ groups in n.
@@ -390,7 +392,7 @@ snit::type control_model {
         dict set fdict a $cOld
         dict set fdict b $cNew
 
-        control_rules analyze $fdict
+        driver::CONTROL assess $fdict
     }
 
 
@@ -440,3 +442,4 @@ snit::type control_model {
 
 
 }
+

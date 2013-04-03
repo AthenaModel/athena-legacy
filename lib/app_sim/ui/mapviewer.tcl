@@ -517,8 +517,7 @@ snit::widget mapviewer {
         notifier bind ::rdb      <nbhoods>     $self [mymethod EntityNbhood]
         notifier bind ::nbhood   <Stack>       $self [mymethod NbhoodStack]
         notifier bind ::rdb      <units>       $self [mymethod EntityUnit]
-        notifier bind ::rdb      <ensit_t>     $self [mymethod EntityEnsit]
-        notifier bind ::rdb      <situations>  $self [mymethod EntityEnsit]
+        notifier bind ::rdb      <ensits>      $self [mymethod EntityEnsit]
         notifier bind ::rdb      <groups>      $self [mymethod EntityGroup]
         notifier bind ::rdb      <econ_n>      $self [mymethod EntityEcon]
 
@@ -1422,7 +1421,7 @@ snit::widget mapviewer {
 
     method EnsitDrawAll {} {
         rdb eval {
-            SELECT * FROM ensits_current
+            SELECT * FROM ensits
         } row {
             $self EnsitDraw [array get row]
         } 
@@ -1449,7 +1448,7 @@ snit::widget mapviewer {
             if {$state eq "INITIAL"} {
                 $canvas icon configure $cid -foreground red
                 $canvas icon configure $cid -background white
-            } elseif {$state eq "ENDED"} {
+            } elseif {$state eq "RESOLVED"} {
                 $canvas icon configure $cid -foreground "#009900"
                 $canvas icon configure $cid -background white
             } else {
@@ -1477,7 +1476,7 @@ snit::widget mapviewer {
     method EnsitDrawSingle {s} {
         # FIRST, draw it, if it's current.
         rdb eval {
-            SELECT * FROM ensits_current
+            SELECT * FROM ensits
             WHERE s=$s
         } row {
             $self EnsitDraw [array get row]

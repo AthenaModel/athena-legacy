@@ -672,7 +672,7 @@ appserver module GROUPS {
             ht query {
                 SELECT format('%8.3f', contrib) AS 'Delta',
                        driver                   AS 'Driver',
-                       narrative                AS 'Description'
+                       sigline(dtype,signature) As 'Signature'
                 FROM uram_contribs
                 JOIN drivers ON (driver_id = driver)
                 ORDER BY abs(contrib) DESC

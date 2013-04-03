@@ -29,18 +29,14 @@ snit::widgetadaptor ensitbrowser {
 
     typevariable layout {
         { id        "ID"          -sortmode integer                }
-        { change    "Change"                        -foreground %D }
         { state     "State"                         -foreground %D }
         { stype     "Type"                                         }
         { n         "Nbhood"                        -foreground %D }
         { location  "Location"                                     }
         { coverage  "Coverage"    -sortmode real    -foreground %D }
         { ts        "Began At"                      -foreground %D }
-        { tc        "Changed At"                    -foreground %D }
-        { g         "Caused By"                                    }
         { resolver  "Resolved By"                                  }
         { tr        "Resolve At"                    -foreground %D }
-        { driver_id "Driver"      -sortmode integer -foreground %D }
     }
 
     #-------------------------------------------------------------------
@@ -58,7 +54,7 @@ snit::widgetadaptor ensitbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_ensits_current          \
+            -view         gui_ensits                  \
             -uid          id                          \
             -titlecolumns 1                           \
             -selectioncmd [mymethod SelectionChanged] \
@@ -67,9 +63,10 @@ snit::widgetadaptor ensitbrowser {
                 ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout] \
             -views {
-                gui_ensits         "All"
-                gui_ensits_current "Current"
-                gui_ensits_ended   "Ended"
+                gui_ensits          "All"
+                gui_ensits_initial  "Unassessed"
+                gui_ensits_ongoing  "Ongoing"
+                gui_ensits_resolved "Resolved"
             }
 
         # NEXT, get the options.
@@ -122,8 +119,7 @@ snit::widgetadaptor ensitbrowser {
         pack $resolvebtn -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::rdb <situations> $self [mymethod uid]
-        notifier bind ::rdb <ensit_t>    $self [mymethod uid]
+        notifier bind ::rdb <ensits> $self [mymethod uid]
     }
 
     destructor {

@@ -47,11 +47,10 @@ snit::type ensit {
     typemethod rebase {} {
         # FIRST, Delete all ensits that have ended.
         foreach s [rdb eval {
-            SELECT s FROM ensits WHERE state == 'ENDED'
+            SELECT s FROM ensits WHERE state == 'RESOLVED'
         }] {
             rdb eval {
-                DELETE FROM situations WHERE s=$s;
-                DELETE FROM ensits_t WHERE s=$s;
+                DELETE FROM ensits WHERE s=$s;
             }
         }
 
@@ -60,17 +59,12 @@ snit::type ensit {
             SELECT s, ts FROM ensits WHERE state != 'INITIAL'
         }] {
             rdb eval {
-                UPDATE situations
+                UPDATE ensits
                 SET state='INITIAL',
-                    change='NEW',
                     ts=now(),
-                    tc=now(),
-                    driver_id=-1;
-
-                UPDATE ensits_t
-                SET inception=0,
-                    rdriver_id=0,
-                    rduration=rduration+$ts-now();
+                    inception=0,
+                    rduration=CASE WHEN rduration = 0 THEN 0 
+                                   ELSE rduration+$ts-now() END;
             }
         }
     }
@@ -78,91 +72,68 @@ snit::type ensit {
     #-------------------------------------------------------------------
     # Assessment of Attitudinal Effects
 
-    # <assess></assess>
+    # assess
     #
     # Calls the DAM rule sets for each situation requiring assessment.
+    #
+    # TBD: Make this [ensit tick]
 
     typemethod assess {} {
-        # FIRST, get a list of the IDs of ensits that need to be
-        # assessed: those that are "live", and those that have
-        # been resolved but the resolution has not yet been assessed.
-        set ids [rdb eval {
-            SELECT s FROM ensits 
-            WHERE state != 'ENDED' OR rdriver_id=0
-        }]
-        
-        foreach s $ids {
-            # FIRST, get the situation.
-            set sit [$type get $s]
+        # FIRST, delete ensits that were resolved during past ticks.
+        rdb eval {
+            DELETE FROM ensits
+            WHERE state == 'RESOLVED' AND tr < now()
+        }
 
-            # NEXT, if it's in the initial state, make it active.
-            # As part of this, schedule related events.
-            if {[$sit get state] eq "INITIAL"} {
+        # NEXT, Determine the correct state for each ensit.  Those in the
+        # INITIAL state are now ONGOING, and those ONGOING whose resolution 
+        # time has been reached are now RESOLVED.
+        set now [simclock now]
+
+        foreach {s state rduration tr} [rdb eval {
+            SELECT s, state, rduration, tr FROM ensits
+        }] {
+            # FIRST, put it in the correct state.
+            if {$state eq "INITIAL"} {
                 # FIRST, set the state
-                $sit set state ACTIVE
-
-                # NEXT, if it auto-resolves, schedule the auto-resolution.
-                $sit ScheduleAutoResolve
-            }
-
-            # NEXT, create a driver if it lacks one.
-            if {[$sit get driver_id] == -1} {
-                set sig "I [$sit get n]"
-                $sit set driver_id \
-                    [driver create [$sit get stype] [$sit oneliner] $sig]
-            }
-
-            # NEXT, either it's ended or it's on-going.  If it's on-going,
-            # monitor its coverage and clear the inception flag so that 
-            # we only get inception once.  If it is ENDED, call the
-            # resolution rules.
-            if {[$sit get state] ne "ENDED"} {
-                ensit_rules monitor $sit
-                $sit set inception 0
-            } else {
-                # We need a driver; that's how we knew that we
-                # hadn't already run the resolution rules.
-                set sig "R [$sit get n]"
-                $sit set rdriver_id \
-                    [driver create [$sit get stype] \
-                         "Resolution of [$sit oneliner]" $sig]
-
-                ensit_rules resolution $sit
+                rdb eval {UPDATE ensits SET state='ONGOING' WHERE s=$s}
+            } elseif {$rduration > 0 && $tr == $now} {
+                rdb eval {UPDATE ensits SET state='RESOLVED' WHERE s=$s}
             }
         }
+
+        # NEXT, assess all ensits.
+        driver::ensit assess
+
+        # NEXT, clear all inception flags.
+        rdb eval {UPDATE ensits SET inception=0}
     }
 
     #-------------------------------------------------------------------
     # Queries
 
-    # table
+    # get s ?parm?
     #
-    # Return the name of the RDB table for this type.
-
-    typemethod table {} {
-        return "ensits_t"
-    }
-
-
-    # get s -all|-live
+    # s     - A situation ID
+    # parm  - An ensits column name
     #
-    # s               The situation ID
-    #
-    # -all   Default.  All situations are included
-    # -live  Only live situations are included.
-    #
-    # Returns the object associated with the ID.  A record must already
-    # exist in the RDB.
+    # Retrieves a row dictionary, or a particular column value, from
+    # ensits.
 
-    typemethod get {s {opt -all}} {
-        set sit [situation get $s $opt]
-
-        if {$sit ne "" && [$sit kind] ne $type} {
-            error "no such situation: \"$s\""
+    typemethod get {s {parm ""}} {
+        # FIRST, get the data
+        rdb eval {SELECT * FROM ensits WHERE s=$s} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
         }
 
-        return $sit
+        return ""
     }
+
 
 
     # existsInNbhood n ?stype?
@@ -179,13 +150,13 @@ snit::type ensit {
             return [rdb eval {
                 SELECT stype FROM ensits
                 WHERE n     =  $n
-                AND   state != 'ENDED'
+                AND   state != 'RESOLVED'
             }]
         } else {
             return [rdb exists {
                 SELECT stype FROM ensits
                 WHERE n     =  $n
-                AND   state != 'ENDED'
+                AND   state != 'RESOLVED'
                 AND   stype =  $stype
             }]
         }
@@ -279,7 +250,7 @@ snit::type ensit {
 
     typemethod {live names} {} {
         return [rdb eval {
-            SELECT s FROM ensits WHERE state != 'ENDED'
+            SELECT s FROM ensits WHERE state != 'RESOLVED'
         }]
     }
 
@@ -312,50 +283,25 @@ snit::type ensit {
     #
     # Updates ensits as neighborhoods and groups change:
     #
-    # *  If the "g" or "resolver" group no longer exists, that
+    # *  If the "resolver" group no longer exists, that
     #    field is set to "NONE".
     #
     # *  Updates every ensit's "n" attribute to reflect the
     #    current state of the neighborhood.
     #
     # TBD: In the long run, I want to get rid of this routine.
-    # Doing so at the moment would be a big job, for the following
-    # reasons:
+    # But that's a big job.  Ensits can be created in PREP, and an 
+    # ensit's neighborhood depends on its location.  As neighborhoods come 
+    # and go, an ensit's neighborhood really can change; and this needs
+    # to be updated at that time.  This routine handles this.
     #
-    # 1. I would need to use ON DELETE SET NULL to clear the "g" and 
-    #    "resolver" columns when a group was deleted.  BUT,
-    #
-    #    a. The "active object" code is not set up to handle NULLs.
-    #
-    #    b. Setting "g" or "resolver" in this way would invalidate the 
-    #       situation cache without flushing it, which is a bug.
-    #
-    # 2. Ensits can be created in PREP, and an ensit's neighborhood
-    #    depends on its location.  As neighborhoods come and go,
-    #    an ensit's neighborhood really can change; and this needs
-    #    to be updated at that time.  This routine handles this.
-    #
-    # In short, getting rid of this routine means re-architecting
-    # the situation code (including that for actsits and demsits)
-    # and changing how ensits are defined during PREP.  These are
-    # large topics that I don't want to get into at the moment.
+    # Ultimately, ensit neighborhood should be primary, and location should
+    # be only for visualization.
 
     typemethod {mutate reconcile} {} {
         set undo [list]
 
-        # FIRST, set g to NONE if g doesn't exist.
-        rdb eval {
-            SELECT *
-            FROM ensits LEFT OUTER JOIN groups USING (g)
-            WHERE ensits.g != 'NONE'
-            AND   longname IS NULL
-        } row {
-            set row(g) NONE
-
-            lappend undo [$type mutate update [array get row]]
-        }
-
-        # NEXT, set resolver to NONE if resolver doesn't exist.
+        # FIRST, set resolver to NONE if resolver doesn't exist.
         rdb eval {
             SELECT *
             FROM ensits LEFT OUTER JOIN groups 
@@ -369,16 +315,17 @@ snit::type ensit {
         }
 
         # NEXT, set n for all ensits
-        rdb eval {
-            SELECT s, n, location 
-            FROM ensits
-        } { 
+        foreach {s n location} [rdb eval {
+            SELECT s, n, location FROM ensits
+        }] { 
             set newNbhood [nbhood find {*}$location]
 
             if {$newNbhood ne $n} {
-                set sit [ensit get $s]
 
-                $sit set n $newNbhood
+                rdb eval {
+                    UPDATE ensits SET n=$newNbhood
+                    WHERE s=$s;
+                }
 
                 lappend undo [mytypemethod RestoreNbhood $s $n]
             }
@@ -397,9 +344,7 @@ snit::type ensit {
 
     typemethod RestoreNbhood {s n} {
         # FIRST, save it
-        set sit [ensit get $s]
-
-        $sit set n $n
+        rdb eval { UPDATE ensits SET n=$n WHERE s=$s; }
     }
 
 
@@ -411,56 +356,61 @@ snit::type ensit {
     #    stype          The situation type
     #    location       The situation's initial <loc></loc>ation (map coords)
     #    coverage       The situation's coverage
-    #    g              The group causing the situation, or ""
     #    inception      1 if there are inception effects, and 0 otherwise.
     #    resolver       The group that will resolve the situation, or ""
-    #    rduration      Auto-resolution duration, in days
+    #    rduration      Auto-resolution duration, in weeks
     #
     # Creates an ensit given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate create} {parmdict} {
-        dict with parmdict {
-            # FIRST, get the remaining attribute values
-            set n [nbhood find {*}$location]
-            assert {$n ne ""}
+        dict with parmdict {}
 
-            if {$rduration eq ""} {
-                set rduration [parmdb get ensit.$stype.duration]
-            }
+        # FIRST, get the remaining attribute values
+        set n [nbhood find {*}$location]
+        assert {$n ne ""}
 
-            # NEXT, Create the situation.  The start time is the 
-            # time of the first assessment. In PREP, that will be t=0; while
-            # PAUSED, it will be t+1, i.e., the next time tick; if created
-            # by a tactic or by a scheduled order, it will be t, i.e., 
-            # right now.
-
-            if {[sim state] eq "PREP"} {
-                set ts [simclock cget -tick0]
-            } elseif {[sim state] eq "PAUSED"} {
-                set ts [simclock now 1]
-            } else {
-                set ts [simclock now]
-            }
-
-            set s [situation create $type  \
-                       ts        $ts       \
-                       stype     $stype    \
-                       n         $n        \
-                       coverage  $coverage \
-                       g         $g]
-
-            rdb eval {
-                INSERT INTO ensits_t(s,location,inception,resolver,rduration)
-                VALUES($s,$location,$inception,$resolver,$rduration)
-            }
-
-            # NEXT, inform all clients about the new object.
-            log detail ensit "$s: created for $n,$stype,$coverage"
-
-            # NEXT, Return the undo command
-            return [mytypemethod mutate delete $s]
+        if {$rduration eq ""} {
+            set rduration [parmdb get ensit.$stype.duration]
         }
+
+
+        # NEXT, Create the situation.  The start time is the 
+        # time of the first assessment. In PREP, that will be t=0; while
+        # PAUSED, it will be t+1, i.e., the next time tick; if created
+        # by a tactic or by a scheduled order, it will be t, i.e., 
+        # right now.
+
+        if {[sim state] eq "PREP"} {
+            set ts [simclock cget -tick0]
+        } elseif {[sim state] eq "PAUSED"} {
+            set ts [simclock now 1]
+        } else {
+            set ts [simclock now]
+        }
+
+        if {$rduration ne ""} {
+            let tr {$ts + $rduration}
+        } else {
+            set tr ""
+        }
+
+        rdb eval {
+            INSERT INTO 
+            ensits(stype, location, n, coverage, inception, 
+                   state, ts, resolver, rduration, tr)
+            VALUES($stype, $location, $n, $coverage, $inception,
+                   'INITIAL', $ts, $resolver, $rduration,
+                   nullif($tr,''))
+        }
+
+        set s [rdb last_insert_rowid]
+
+        # NEXT, inform all clients about the new object.
+        log detail ensit "$s: created for $n,$stype,$coverage"
+
+        # NEXT, Return the undo command
+        return [mytypemethod mutate delete $s]
     }
 
     # mutate delete s
@@ -471,11 +421,8 @@ snit::type ensit {
     # situation is in the INITIAL state.
 
     typemethod {mutate delete} {s} {
-        # FIRST, remove it from the object cache
-        situation uncache $s
-
-        # NEXT, delete the records, grabbing the undo information
-        set data [rdb delete -grab situations {s=$s} ensits_t {s=$s}]
+        # FIRST, delete the records, grabbing the undo information
+        set data [rdb delete -grab ensits {s=$s}]
 
         # NEXT, Return the undo script
         return [list rdb ungrab $data]
@@ -485,15 +432,14 @@ snit::type ensit {
     #
     # parmdict     A dictionary of entity parms
     #
-    #    s              The situation ID
-    #    stype          A new situation type, or ""
-    #    location       A new location (map coords), or ""
-    #                   (Must be in same neighborhood.)
-    #    coverage       A new coverage, or ""
-    #    inception      A new inception, or ""
-    #    g              A new causing group, or ""
-    #    resolver       A new resolving group, or ""
-    #    rduration      A new auto-resolution duration, or ""
+    #    s           - The situation ID
+    #    stype       - A new situation type, or ""
+    #    location    - A new location (map coords), or ""
+    #                  (Must be in same neighborhood.)
+    #    coverage    - A new coverage, or ""
+    #    inception   - A new inception, or ""
+    #    resolver    - A new resolving group, or ""
+    #    rduration   - A new auto-resolution duration, or ""
     #
     # Updates a situation given the parms, which are presumed to be
     # valid.
@@ -502,62 +448,41 @@ snit::type ensit {
     # INITIAL.
 
     typemethod {mutate update} {parmdict} {
-        dict with parmdict {
-            # FIRST, get the undo information
-            rdb eval {SELECT * FROM situations WHERE s=$s} row1 {unset row1(*)}
-            rdb eval {SELECT * FROM ensits_t  WHERE s=$s} row2 {unset row2(*)}
+        dict with parmdict {}
 
-            # NEXT, Update the entity
-            set sit [$type get $s]
+        # FIRST, get the undo information
+        set data [rdb grab ensits {s=$s}]
 
-            if {[$sit get change] eq ""} {
-                $sit set change UPDATED
-            }
-
-            if {$stype ne ""} { 
-                $sit set stype $stype
-            }
-
-            if {$g ne ""} { 
-                $sit set g $g
-            }
-
-            if {$resolver ne ""} { 
-                $sit set resolver $resolver
-            }
-
-            if {$rduration ne ""} {
-                $sit set rduration $rduration
-            }
-
-            if {$inception ne ""} {
-                $sit set inception $inception
-            }
-
-            if {$location ne ""} { 
-                $sit set location $location 
-                $sit set n [nbhood find {*}$location]
-            }
-
-            if {$coverage ne "" && $coverage ne [$sit get coverage]} {
-                $sit set coverage $coverage
-                $sit set tc       [simclock now]
-
-                # Set state to ACTIVE/INACTIVE based on coverage,
-                # unless we're still in the INITIAL state.
-                if {[$sit get state] ne "INITIAL"} {
-                    if {$coverage > 0.0} {
-                        $sit set state ACTIVE
-                    } else {
-                        # NOTE: At this time, coverage can't be set to 0.
-                        $sit set state INACTIVE
-                    }
-                }
-            }
-
-            # NEXT, Return the undo command
-            return [mytypemethod Replace [array get row1] [array get row2]]
+        # NEXT, get the new neighborhood if the location changed.
+        if {$location ne ""} { 
+            set n [nbhood find {*}$location]
+        } else {
+            set n ""
         }
+
+        if {$rduration ne ""} {
+            set ts [$type get $s ts]
+            let tr {$ts + $rduration}
+        } else {
+            set tr ""
+        }
+
+        # NEXT, update the situation
+        rdb eval {
+            UPDATE ensits
+            SET stype     = nonempty($stype,     stype),
+                location  = nonempty($location,  location),
+                n         = nonempty($n,         n),
+                coverage  = nonempty($coverage,  coverage),
+                inception = nonempty($inception, inception),
+                resolver  = nonempty($resolver,  resolver),
+                rduration = nonempty($rduration, rduration),
+                tr        = nonempty($tr,        tr)
+            WHERE s=$s;
+        }
+
+        # NEXT, Return the undo command
+        return [list rdb ungrab $data] 
     }
 
 
@@ -565,59 +490,30 @@ snit::type ensit {
     #
     # parmdict     A dictionary of order parms
     #
-    #    s              The situation ID
-    #    resolver       Group responsible for resolving the situation, or "NONE"
-    #                   or "".
+    #    s         - The situation ID
+    #    resolver  - Group responsible for resolving the situation, or "NONE"
+    #                or "".
     #
     # Resolves the situation, assigning credit where credit is due.
 
     typemethod {mutate resolve} {parmdict} {
-        dict with parmdict {
-            # FIRST, get the undo information
-            rdb eval {SELECT * FROM situations WHERE s=$s} row1 {unset row1(*)}
-            rdb eval {SELECT * FROM ensits_t  WHERE s=$s} row2 {unset row2(*)}
-        
-            # NEXT, Update the entity
-            set sit [$type get $s]
+        dict with parmdict {}
 
-            $sit set change     RESOLVED
+        # FIRST, get the undo information
+        set data [rdb grab ensits {s=$s}]
 
-            if {$resolver ne ""} {
-                $sit set resolver   $resolver
-            }
-
-            $sit set state      ENDED
-            $sit set tc         [simclock now]
-
-            # NEXT, cancel pending events
-            $sit CancelAutoResolve
-
+        # NEXT, update the situation
+        rdb eval {
+            UPDATE ensits
+            SET state     = 'RESOLVED',
+                resolver  = nonempty($resolver, resolver),
+                tr        = now(),
+                rduration = now() - ts
+            WHERE s=$s;
         }
 
         # NEXT, Return the undo script
-        return [mytypemethod Replace [array get row1] [array get row2]]
-    }
-
-    # Replace bdict ddict
-    #
-    # bdict    row dict for base entity
-    # ddict    row dict for derived entity
-    #
-    # Restores the rows to the database.
-
-    typemethod Replace {bdict ddict} {
-        set s [dict get $bdict s]
-        situation uncache $s
-        
-        rdb replace situations $bdict
-        rdb replace ensits_t  $ddict
-
-        set sit [situation get $s]
-
-        if {[$sit get state] eq "ACTIVE"} {
-            # Reschedule events, if any.
-            $sit ScheduleAutoResolve
-        }
+        return [list rdb ungrab $data] 
     }
 
     #-------------------------------------------------------------------
@@ -653,10 +549,10 @@ snit::type ensit {
 
     typemethod AbsentTypesBySit {s} {
         if {$s ne ""} {
-            set sit [situation get $s]
+            set n [ensit get $s n]
 
-            set stypes [$type absentFromNbhood [$sit get n]]
-            lappend stypes [$sit get stype]
+            set stypes [$type absentFromNbhood $n]
+            lappend stypes [ensit get $s stype]
 
             return [lsort $stypes]
         }
@@ -664,104 +560,6 @@ snit::type ensit {
         return [list]
     }
 }
-
-#-----------------------------------------------------------------------
-# ensitType
-
-snit::type ensitType {
-    #-------------------------------------------------------------------
-    # Components
-
-    component base   ;# situationType instance
-
-
-    #-------------------------------------------------------------------
-    # Instance Variables
-
-    # base and derived info arrays, aliased to the matching
-    # situationType arrays.
-    variable binfo
-    variable dinfo
-
-    #-------------------------------------------------------------------
-    # Constructor
-
-    constructor {s} {
-        # FIRST, create the base situation object; this will retrieve
-        # the data from disk.
-        set base [situationType ${selfns}::base ::ensit $s]
-
-        # NEXT, alias our arrays to the base arrays.
-        upvar 0 [$base info vars binfo] ${selfns}::binfo
-        upvar 0 [$base info vars dinfo] ${selfns}::dinfo
-    }
-
-    #-------------------------------------------------------------------
-    # Public Methods
-
-    delegate method * to base
-
-    #-------------------------------------------------------------------
-    # Private Methods
-
-    # ScheduleAutoResolve
-    #
-    # If this situation auto-resolves, schedules the resolution
-
-    method ScheduleAutoResolve {} {
-        # FIRST, cancel any previous event, since evidently it is 
-        # changing.
-        $self CancelAutoResolve
-
-        # NEXT, does it auto-resolve?  If not, we're done.
-        if {$dinfo(rduration) == 0} {
-            return
-        }
-
-        # NEXT, get the time at which the resolution should occur:
-        # rduration after the ensit first begins to take effect.  
-        let t {$binfo(ts) + $dinfo(rduration)}
-        eventq schedule ensitAutoResolve $t $binfo(s)
-    }
-
-
-    # CancelAutoResolve
-    #
-    # If this situation type has a scheduled auto-resolution,
-    # cancel it.
-
-    method CancelAutoResolve {} {
-        log detail ensit "CancelAutoResolve s=$binfo(s)"
-        rdb eval {
-            SELECT id FROM eventq_etype_ensitAutoResolve 
-            WHERE CAST (s AS INTEGER) = $binfo(s)
-        } {
-            log detail ensit "Cancelling eventq event $id"
-
-            eventq cancel $id
-        }
-    }
-}
-
-# ensitAutoResolve s
-#
-# s     An ensit ID
-#
-# Ensit s is auto-resolved, provided that s is still alive
-
-eventq define ensitAutoResolve {s} {
-    # FIRST, is is still "live"?  If not, nothing to do.
-    set sit [ensit get $s]
-
-    if {![$sit islive]} {
-        # TBD: This should probably be an assertion, really.
-        return
-    }
-
-    # NEXT, resolve the situation, using the preset resolver.
-    ensit mutate resolve [list s $s resolver ""]
-}
-
 
 #-------------------------------------------------------------------
 # Orders
@@ -781,16 +579,11 @@ order define ENSIT:CREATE {
         rcc "Type:" -for stype
         enum stype -listcmd {ensit AbsentTypes $location}
 
-        # TBD: Could make the rest appear only when the type is
-        # selected.
         rcc "Coverage:" -for coverage
         frac coverage -defvalue 1.0
 
         rcc "Inception?" -for inception
         yesno inception -defvalue 1
-
-        rcc "Caused By:" -for g
-        enum g -listcmd {ptype g+none names} -defvalue NONE
 
         rcc "Resolver:" -for resolver
         enum resolver -listcmd {ptype g+none names} -defvalue NONE
@@ -807,7 +600,6 @@ order define ENSIT:CREATE {
     prepare stype     -toupper   -required -type eensit
     prepare coverage  -num       -required -type rfraction
     prepare inception -toupper   -required -type boolean
-    prepare g         -toupper   -required -type {ptype g+none}
     prepare resolver  -toupper   -required -type {ptype g+none}
     prepare rduration -num                 -type iticks
 
@@ -921,9 +713,6 @@ order define ENSIT:UPDATE {
         rcc "Inception?" -for inception
         yesno inception
 
-        rcc "Caused By:" -for g
-        enum g -listcmd {ptype g+none names}
-
         rcc "Resolver:" -for resolver
         enum resolver -listcmd {ptype g+none names}
 
@@ -940,23 +729,20 @@ order define ENSIT:UPDATE {
 
     returnOnError
 
-    # NEXT, get the situation object
-    set sit [ensit get $parms(s)]
+    set stype [ensit get $parms(s) stype]
 
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -type refpoint 
-    prepare stype     -toupper  -type eensit   -oldvalue [$sit get stype]
+    prepare stype     -toupper  -type eensit -oldvalue $stype
     prepare coverage  -num      -type rfraction
     prepare inception -toupper  -type boolean
-    prepare g         -toupper  -type {ptype g+none}
     prepare resolver  -toupper  -type {ptype g+none}
     prepare rduration -num      -type iticks
 
     returnOnError
 
     # NEXT, get the old neighborhood
-    set n [$sit get n]
-
+    set n [ensit get $parms(s) n]
 
     # NEXT, validate the other parameters.
     validate location {
@@ -1013,24 +799,17 @@ order define ENSIT:MOVE {
 
     returnOnError
 
-    # NEXT, get the situation object
-    set sit [ensit get $parms(s)]
-
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -required -type refpoint 
 
     returnOnError
-
-    # NEXT, get the old neighborhood
-    set n [$sit get n]
-
 
     # NEXT, validate the other parameters.  In the INITIAL state, the
     # ensit can be moved to any neighborhood; in any other state it
     # can only be moved within the neighborhood.
     # location can be changed.
 
-    if {[$sit get state] eq "INITIAL"} {
+    if {[ensit get $parms(s) state] eq "INITIAL"} {
         validate location {
             set n [nbhood find {*}$parms(location)]
             
@@ -1043,7 +822,7 @@ order define ENSIT:MOVE {
         validate location {
             set n [nbhood find {*}$parms(location)]
 
-            if {$n ne [$sit get n]} {
+            if {$n ne [ensit get $parms(s) n]} {
                 reject location "Cannot remove situation from its neighborhood"
             }
         }
@@ -1056,7 +835,6 @@ order define ENSIT:MOVE {
         stype     ""
         coverage  ""
         inception ""
-        g         ""
         resolver  ""
         rduration ""
     }
@@ -1096,6 +874,7 @@ order define ENSIT:RESOLVE {
     
     setundo [join $undo \n]
 }
+
 
 
 

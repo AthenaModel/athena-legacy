@@ -89,10 +89,13 @@ snit::type dam {
     #   -p      - The near factor, 0.0 to 1.0
     #   -q      - The far factor, 0.0 to 1.0
 
-    typemethod rule {rule driver_id fdict args} {
+    typemethod rule {rule fdict args} {
         # FIRST, get the firing condition and the body
         set expr [lindex $args end-1]
         set body [lindex $args end]
+
+        # NEXT, get the driver ID
+        set driver_id [driver getid $fdict]
 
         # NEXT, evaluate the expression.  If it's false, just return.
         # The rule didn't fire.
@@ -138,6 +141,7 @@ snit::type dam {
             return {*}$catchOpts $result
         }
     }
+
 
     #-------------------------------------------------------------------
     # Attitude Inputs
@@ -318,3 +322,5 @@ snit::type dam {
         }
     }
 }
+
+

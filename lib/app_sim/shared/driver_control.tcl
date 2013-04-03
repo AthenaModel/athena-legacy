@@ -1,25 +1,19 @@
 #------------------------------------------------------------------------
 # TITLE:
-#    control_rules.tcl
+#    driver_control.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Athena Driver Assessment Model (DAM): Neighborhood Control rule sets
-#
-#    ::control_rules is a singleton object implemented as a snit::type.  To
-#    initialize it, call "::control_rules init".
+#   Athena Driver Assessment Model (DAM): CONTROL rules
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
 # control_rules
 
-snit::type control_rules {
-    # Make it an ensemble
-    pragma -hasinstances 0
-
+driver type define CONTROL {n} {
     #-------------------------------------------------------------------
     # Look-up tables
 
@@ -142,7 +136,7 @@ snit::type control_rules {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # analyze fdict
+    # assess fdict
     #
     # fdict  - Dictionary of aggregate event attributes:
     #
@@ -150,15 +144,18 @@ snit::type control_rules {
     #       a          - The actor that lost control, or "" if none.
     #       b          - The actor that gained control, or "" if none.
     #
-    # Calls CONTROL-1 to assess the satisfaction and cooperation
-    # implications of the event.
+    # This call adds "dtype" to the dictionary before passing it to the
+    # rule sets.
+    #
+    # Assesses the satisfaction and cooperation implications of the event.
 
-    typemethod analyze {fdict} {
-        log normal controlr "event CONTROL-1 [list $fdict]"
+    typemethod assess {fdict} {
+        set dtype CONTROL
+        dict set fdict dtype $dtype
 
-        if {![dam isactive CONTROL]} {
-            log warning controlr \
-                "event CONTROL: ruleset has been deactivated"
+        if {![dam isactive $dtype]} {
+            log warning $dtype \
+                "driver type has been deactivated"
             return
         }
 
@@ -166,17 +163,88 @@ snit::type control_rules {
         
         # Skip if the neighborhood is empty.
         if {[demog getn $n population] == 0} {
-            log normal controlr \
-                "event CONTROL: skipping, nbhood $n is empty." 
+            log normal $dtype \
+                "skipping, nbhood $n is empty." 
             return
         }
         
-        # NEXT, Get a driver ID for this event with signature $n.
-        set driver_id [driver create CONTROL \
-                           "Shift in control of nbhood $n" $n]
+        bgcatch {
+            log detail $dtype $fdict
+            $type ruleset1 $fdict
+            $type ruleset2 $fdict
+        }
+    }
 
-        control_rules CONTROL-1 $driver_id $fdict
-        control_rules CONTROL-2 $driver_id $fdict
+    #-------------------------------------------------------------------
+    # Narrative Type Methods
+
+    # sigline signature
+    #
+    # signature - The driver signature
+    #
+    # Returns a one-line description of the driver given its signature
+    # values.
+
+    typemethod sigline {signature} {
+        set n $signature
+        return "Shift in control of nbhood $n"
+    }
+
+    # narrative fdict
+    #
+    # fdict - Firing dictionary; see rulesets, below.
+    #
+    # Produces a one-line narrative text string for a given rule firing
+
+    typemethod narrative {fdict} {
+        dict with fdict {}
+
+        if {$a eq ""} {
+            set a "NONE"
+        } else {
+            set a "{actor:$a}"
+        }
+
+        if {$b eq ""} {
+            set b "NONE"
+        } else {
+            set b "{actor:$b}"
+        }
+
+        return "Control of {nbhood:$n} shifted from $a to $b"
+    }
+    
+    # detail fdict 
+    #
+    # fdict - Firing dictionary; see rulesets, below.
+    # ht    - An htools(n) buffer
+    #
+    # Produces a narrative HTML paragraph including all fdict information.
+
+    typemethod detail {fdict ht} {
+        dict with fdict {}
+
+        if {$b ne ""} {
+            $ht putln "Actor "
+            $ht link my://app/actor/$b $b
+            $ht putln "has taken control of neighborhood\n"
+            $ht link my://app/nbhood/$n $n
+
+            if {$a ne ""} {
+                $ht putln "from "
+                $ht link my://app/actor/$a $a
+                $ht put "."
+            }
+        } else {
+            $ht putln "Actor "
+            $ht link my://app/actor/$a $a
+            $ht putln "has lost control of neighborhood\n"
+            $ht link my://app/nbhood/$n $n
+            $ht put ","
+            $ht putln "which is now in a state of chaos."
+        }
+
+        $ht para
     }
 
 
@@ -188,7 +256,7 @@ snit::type control_rules {
     # and cooperation effects, and CONTROL-2 handles the vertical
     # relationship effects.
 
-    typemethod CONTROL-1 {driver_id fdict} {
+    typemethod ruleset1 {fdict} {
         dict with fdict {}
 
         set flist [demog gIn $n]
@@ -197,7 +265,7 @@ snit::type control_rules {
         #
         # If Actor b has taken control of nbhood n from Actor a,
         # Then for each CIV pgroup f in the neighborhood
-        dam rule CONTROL-1-1 $driver_id $fdict {
+        dam rule CONTROL-1-1 $fdict {
             $a ne "" && $b ne ""
         } {
             foreach f $flist {
@@ -243,7 +311,7 @@ snit::type control_rules {
         # If Actor a has lost control of nbhood n, which is now
         # in chaos,
         # Then for each CIV pgroup f in the neighborhood
-        dam rule CONTROL-1-2 $driver_id $fdict {
+        dam rule CONTROL-1-2 $fdict {
             $a ne "" && $b eq ""
         } {
             foreach f $flist {
@@ -276,7 +344,7 @@ snit::type control_rules {
         # If Actor b has gained control of nbhood n, which was previously
         # in chaos,
         # Then for each CIV pgroup f in the neighborhood
-        dam rule CONTROL-1-3 $driver_id $fdict {
+        dam rule CONTROL-1-3 $fdict {
             $a eq "" && $b ne ""
         } {
             foreach f $flist {
@@ -294,14 +362,14 @@ snit::type control_rules {
         }
     }
 
-    typemethod CONTROL-2 {driver_id fdict} {
+    typemethod ruleset2 {fdict} {
         set ag [dict get $fdict b]
         set al [dict get $fdict a]
 
         set glist [demog gIn [dict get $fdict n]]
         set alist [actor names]
 
-        dam rule CONTROL-2-1 $driver_id $fdict {1} {
+        dam rule CONTROL-2-1 $fdict {1} {
             foreach g $glist {
                 foreach a $alist {
                     # FIRST, get the vertical relationship
@@ -326,5 +394,7 @@ snit::type control_rules {
         }
     }
 }
+
+
 
 

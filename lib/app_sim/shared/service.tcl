@@ -163,7 +163,7 @@ snit::type service {
         profile 1 $type ComputeCredit
 
         # NEXT, allow the rules to fire.
-        profile 1 service_rules monitor
+        profile 1 driver::ENI assess
     }
 
 
@@ -468,3 +468,4 @@ snit::type service {
         }
     }
 }
+

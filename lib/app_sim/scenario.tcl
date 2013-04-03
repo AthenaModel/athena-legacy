@@ -50,9 +50,7 @@ snit::type scenario {
         coop_fg
         drivers
         econ_n
-        ensits_t
-        eventq_etype_ensitAutoResolve
-        eventq_queue
+        ensits
         frcgroups
         goals
         groups
@@ -60,7 +58,7 @@ snit::type scenario {
         hooks
         hrel_fg
         ioms
-        mads_t
+        mads
         mam_affinity
         mam_belief
         mam_entity
@@ -74,7 +72,6 @@ snit::type scenario {
         payloads
         sat_gc
         scenario
-        situations
         tactics
         undostack_stack
         vrel_ga
@@ -162,7 +159,7 @@ snit::type scenario {
         rdb monitor add deploy_ng     {n g}
         rdb monitor add drivers       {driver_id}
         rdb monitor add econ_n        {n}
-        rdb monitor add ensits_t      {s}
+        rdb monitor add ensits        {s}
         rdb monitor add frcgroups     {g}
         rdb monitor add goals         {goal_id}
         rdb monitor add groups        {g}
@@ -170,7 +167,7 @@ snit::type scenario {
         rdb monitor add hook_topics   {hook_id topic_id}
         rdb monitor add hrel_fg       {f g}
         rdb monitor add ioms          {iom_id}
-        rdb monitor add mads_t        {driver_id}
+        rdb monitor add mads          {mad_id}
         rdb monitor add magic_attrit  {id}
         rdb monitor add mam_playbox   {pid}
         rdb monitor add mam_belief    {eid tid}
@@ -181,7 +178,6 @@ snit::type scenario {
         rdb monitor add orggroups     {g}
         rdb monitor add payloads      {iom_id payload_num}
         rdb monitor add sat_gc        {g c}
-        rdb monitor add situations    {s}
         rdb monitor add tactics       {tactic_id}
         rdb monitor add units         {u}
         rdb monitor add vrel_ga       {g a}
@@ -297,16 +293,6 @@ snit::type scenario {
 
         # NEXT, restore the saveables
         $type RestoreSaveables -saved
-
-        # NEXT, An Egregiously Ugly Hack.  In Bug 2399, eventq
-        # was modified so that the initial time was -1, allowing
-        # events to be scheduled at time 0.  But older scenario files
-        # have it checkpointed as 0.  If the scenario is in
-        # the PREP state, this hack puts the eventq time to -1.
-
-        if {[sim state] eq "PREP"} {
-            set ::marsutil::eventq::info(time) -1
-        }
 
         # NEXT, save the name.
         set info(dbfile) $filename
@@ -668,15 +654,6 @@ snit::type scenario {
         # NEXT, load the blank map
         map load [file join $::app_sim::library blank.png]
 
-        # NEXT, create the "Adjustments" MAD.
-        mad mutate create {
-            narrative "Adjustments"
-            cause     UNIQUE
-            s         1.0
-            p         0.0
-            q         0.0
-        }
-
         # NEXT, Reset the model parameters to their defaults, and
         # mark them saved.
         parm reset
@@ -702,6 +679,7 @@ snit::type scenario {
         rdb function moneyfmt             ::marsutil::moneyfmt
         rdb function mklinks              [list ::sigevent mklinks]
         rdb function uram_gamma           [myproc UramGamma]
+        rdb function sigline              [myproc Sigline]
 
         # NEXT, define the GUI Views
         RdbEvalFile gui_scenario.sql    ;# Scenario Entities
@@ -765,6 +743,17 @@ snit::type scenario {
     proc UramGamma {ctype} {
         # The [expr] converts it to a number.
         return [expr [lindex [parm get uram.factors.$ctype] 1]]
+    }
+
+    # Sigline dtype signature
+    #
+    # dtype     - A driver type
+    # signature - The driver's signature
+    #
+    # Returns the driver's signature line.
+
+    proc Sigline {dtype signature} {
+        driver::$dtype sigline $signature
     }
 
     #-------------------------------------------------------------------

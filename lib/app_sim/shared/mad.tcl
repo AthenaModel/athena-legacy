@@ -18,6 +18,15 @@ snit::type mad {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Type Variables
+
+    # modeChar: The mode character used by [dam]
+    typevariable modeChar -array {
+        persistent P
+        transient  T
+    }
+    
+    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -29,7 +38,7 @@ snit::type mad {
     # Returns the list of MAD ids
 
     typemethod names {} {
-        rdb eval {SELECT driver_id FROM mads}
+        rdb eval {SELECT mad_id FROM mads}
     }
 
 
@@ -38,7 +47,7 @@ snit::type mad {
     # Returns the list of extended MAD ids
 
     typemethod longnames {} {
-        rdb eval {SELECT driver_id || ' - ' || narrative FROM mads}
+        rdb eval {SELECT mad_id || ' - ' || narrative FROM mads}
     }
 
 
@@ -49,7 +58,7 @@ snit::type mad {
     # Validates a MAD id
 
     typemethod validate {id} {
-        if {![rdb exists {SELECT driver_id FROM mads WHERE driver_id=$id}]} {
+        if {![rdb exists {SELECT mad_id FROM mads WHERE mad_id=$id}]} {
             return -code error -errorcode INVALID \
                 "MAD does not exist: \"$id\""
         }
@@ -62,7 +71,7 @@ snit::type mad {
     # Returns the list of MAD ids for MADs in the initial state
 
     typemethod {initial names} {} {
-        rdb eval {SELECT driver_id FROM gui_mads_initial}
+        rdb eval {SELECT mad_id FROM gui_mads_initial}
     }
 
 
@@ -74,7 +83,7 @@ snit::type mad {
 
     typemethod {initial validate} {id} {
         if {![rdb exists {
-            SELECT driver_id FROM gui_mads_initial WHERE driver_id=$id
+            SELECT mad_id FROM gui_mads_initial WHERE mad_id=$id
         }]} {
             return -code error -errorcode INVALID \
                 "MAD does not exist or is not in initial state: \"$id\""
@@ -96,29 +105,28 @@ snit::type mad {
     #
     # parmdict  -  A dictionary of MAD parms
     #
-    #    narrative       The MAD's description.
-    #    cause          "UNIQUE", or an ecause(n) value
-    #    s              A fraction
-    #    p              A fraction
-    #    q              A fraction
+    #    narrative    - The MAD's description.
+    #    cause        - "UNIQUE", or an ecause(n) value
+    #    s            - A fraction
+    #    p            - A fraction
+    #    q            - A fraction
     #
     # Creates a MAD given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate create} {parmdict} {
         dict with parmdict {
-            # FIRST, get the next ID.
-            set id [driver create MAGIC $narrative]
-
-            # NEXT, Put the MAD in the database
+            # FIRST, Put the MAD in the database
             rdb eval {
-                INSERT INTO mads_t(driver_id,cause,s,p,q)
-                VALUES($id,
+                INSERT INTO mads(narrative,cause,s,p,q)
+                VALUES($narrative,
                        $cause,
                        $s,
                        $p,
                        $q);
             }
+
+            set id [rdb last_insert_rowid]
 
             # NEXT, Return the undo command
             lappend undo [mytypemethod mutate delete $id]
@@ -135,40 +143,32 @@ snit::type mad {
 
     typemethod {mutate delete} {id} {
         # FIRST, get the undo information
-        rdb eval {SELECT * FROM mads_t WHERE driver_id=$id} row1 { 
-            unset row1(*) 
-        }
-
-        rdb eval {SELECT * FROM drivers WHERE driver_id=$id} row2 { 
-            unset row2(*) 
+        rdb eval {SELECT * FROM mads WHERE mad_id=$id} row { 
+            unset row(*) 
         }
 
         # NEXT, delete it.
-        rdb eval {DELETE FROM mads_t WHERE driver_id=$id}
-        driver delete $id
+        rdb eval {DELETE FROM mads WHERE mad_id=$id}
 
         # NEXT, Return the undo script
-        return [mytypemethod RestoreDeletedMAD \
-                    [array get row1] [array get row2]]
+        return [mytypemethod RestoreDeletedMAD [array get row]]
     }
 
-    # RestoreDeletedMAD dict1 dict2
+    # RestoreDeletedMAD dict
     #
-    # dict1    row dict for deleted entity in mads
-    # dict2    row dict for deleted entity in drivers
+    # dict  - row dict for deleted entity in mads
     #
     # Restores the row to the database
 
-    typemethod RestoreDeletedMAD {dict1 dict2} {
-        rdb insert mads_t  $dict1
-        rdb insert drivers $dict2
+    typemethod RestoreDeletedMAD {dict} {
+        rdb insert mads  $dict
     }
 
     # mutate update parmdict
     #
     # parmdict   - A dictionary of order parms
     #
-    #   driver_id  - The MAD's ID
+    #   mad_id     - The MAD's ID
     #   narrative  - A new description, or ""
     #   cause      - "UNIQUE", or an ecause(n) value, or ""
     #   s          - A fraction, or ""
@@ -186,25 +186,20 @@ snit::type mad {
             # FIRST, get the undo information
             rdb eval {
                 SELECT * FROM mads
-                WHERE driver_id=$driver_id
+                WHERE mad_id=$mad_id
             } row {
                 unset row(*)
             }
             
-            set row(narrative) [driver narrative get $driver_id]
-
             # NEXT, Update the MAD
             rdb eval {
-                UPDATE mads_t
-                SET cause    = nonempty($cause,    cause),
-                    s        = nonempty($s,        s),
-                    p        = nonempty($p,        p),
-                    q        = nonempty($q,        q)
-                WHERE driver_id=$driver_id
-            }
-
-            if {$narrative ne ""} {
-                driver narrative set $driver_id $narrative
+                UPDATE mads
+                SET cause     = nonempty($cause,     cause),
+                    narrative = nonempty($narrative, narrative),
+                    s         = nonempty($s,         s),
+                    p         = nonempty($p,         p),
+                    q         = nonempty($q,         q)
+                WHERE mad_id=$mad_id
             }
 
             # NEXT, Return the undo command
@@ -217,11 +212,11 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    driver_id  - The MAD ID
-    #    mode       - An einputmode value
-    #    f          - A Group
-    #    g          - Another Group
-    #    mag        - A qmag(n) value
+    #    mad_id  - The MAD ID
+    #    mode    - An einputmode value
+    #    f       - A Group
+    #    g       - Another Group
+    #    mag     - A qmag(n) value
     #
     # Makes the MAGIC-1-1 rule fire for the given input.
     
@@ -229,44 +224,18 @@ snit::type mad {
         # FIRST, get the dict data.
         dict with parmdict {}
 
-        # NEXT, skip empty civilian groups
-        if {$f in [civgroup names]} {
-            if {[demog getg $f population] == 0} {
-                log normal mad "Skipping hrel; group $f is empty"
-                return
-            }
-        }
+        # NEXT, set up the firing data
+        set fdict [dict create       \
+            dtype   MAGIC            \
+            mad_id  $mad_id          \
+            atype   hrel             \
+            mode    $modeChar($mode) \
+            mag     $mag             \
+            f       $f               \
+            g       $g               ]
 
-        if {$g in [civgroup names]} {
-            if {[demog getg $g population] == 0} {
-                log normal mad "Skipping hrelnput; group $g is empty"
-                return
-            }
-        }
-        
-        # NEXT, get the Driver Data
-        rdb eval {
-            SELECT narrative, cause FROM mads 
-            WHERE driver_id=$driver_id
-        } {}
-
-        # NEXT, get the cause.  Passing "" will cause URAM to 
-        # use the numeric driver ID as the numeric cause ID.
-        if {$cause eq "UNIQUE"} {
-            set cause ""
-        }
-
-        set fdict [dict create f $f g $g narrative $narrative]
-
-        if {$mode eq "persistent"} {
-            set mode P
-        } else {
-            set mode T
-        }
-
-        dam rule MAGIC-1-1 $driver_id $fdict -cause $cause {1} {
-            dam hrel $mode $f $g $mag
-        }
+        # NEXT, call the rule set.
+        driver::MAGIC assess $fdict
 
         # NEXT, cannot be undone.
         return
@@ -277,7 +246,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    driver_id  - The MAD ID
+    #    mad_id  - The MAD ID
     #    mode       - An einputmode value
     #    g          - A group
     #    a          - An actor
@@ -289,37 +258,18 @@ snit::type mad {
         # FIRST, get the dict parameters
         dict with parmdict {}
 
-        # NEXT, skip empty civilian groups
-        if {$g in [civgroup names]} {
-            if {[demog getg $g population] == 0} {
-                log normal mad "Skipping vrel; group $g is empty"
-                return
-            }
-        }
-        
-        # NEXT, get the Driver Data
-        rdb eval {
-            SELECT narrative, cause FROM mads 
-            WHERE driver_id=$driver_id
-        } {}
+        # NEXT, set up the firing data
+        set fdict [dict create       \
+            dtype   MAGIC            \
+            mad_id  $mad_id          \
+            atype   vrel             \
+            mode    $modeChar($mode) \
+            mag     $mag             \
+            g       $g               \
+            a       $a               ]
 
-        # NEXT, get the cause.  Passing "" will cause URAM to 
-        # use the numeric driver ID as the numeric cause ID.
-        if {$cause eq "UNIQUE"} {
-            set cause ""
-        }
-
-        set fdict [dict create g $g a $a narrative $narrative]
-        
-        if {$mode eq "persistent"} {
-            set mode P
-        } else {
-            set mode T
-        }
-
-        dam rule MAGIC-2-1 $driver_id $fdict -cause $cause {1} {
-            dam vrel $mode $g $a $mag
-        }
+        # NEXT, call the rule set.
+        driver::MAGIC assess $fdict
 
         # NEXT, cannot be undone.
         return
@@ -329,7 +279,7 @@ snit::type mad {
     #
     # parmdict  - A dictionary of order parameters
     #
-    #    driver_id  - The MAD ID
+    #    mad_id  - The MAD ID
     #    mode       - An einputmode value
     #    g          - Group ID
     #    c          - Concern
@@ -340,39 +290,19 @@ snit::type mad {
     typemethod {mutate sat} {parmdict} {
         # FIRST, get the dict parameters.
         dict with parmdict {}
-        set n [civgroup getg $g n]
 
-        # NEXT, skip empty civilian groups
-        if {$g in [civgroup names]} {
-            if {[demog getg $g population] == 0} {
-                log normal mad "Skipping sat; group $g is empty"
-                return
-            }
-        }
-        
-        # NEXT, get the Driver Data
-        rdb eval {
-            SELECT narrative, cause, s, p, q FROM mads 
-            WHERE driver_id=$driver_id
-        } {}
+        # NEXT, set up the firing data
+        set fdict [dict create       \
+            dtype   MAGIC            \
+            mad_id  $mad_id          \
+            atype   sat              \
+            mode    $modeChar($mode) \
+            mag     $mag             \
+            g       $g               \
+            c       $c               ]
 
-        # NEXT, get the cause.  Passing "" will cause URAM to 
-        # use the numeric driver ID as the numeric cause ID.
-        if {$cause eq "UNIQUE"} {
-            set cause ""
-        }
-
-        if {$mode eq "persistent"} {
-            set mode P
-        } else {
-            set mode T
-        }
-    
-        set fdict [dict create n $n g $g c $c narrative $narrative]
-        set opts [list -cause $cause -s $s -p $p -q $q]
-        dam rule MAGIC-3-1 $driver_id $fdict {*}$opts {1} {
-            dam sat $mode $g $c $mag
-        }
+        # NEXT, call the rule set.
+        driver::MAGIC assess $fdict
 
         # NEXT, cannot be undone.
         return
@@ -382,7 +312,7 @@ snit::type mad {
     #
     # parmdict    A dictionary of order parameters
     #
-    #    driver_id  - The MAD ID
+    #    mad_id  - The MAD ID
     #    mode       - An einputmode value
     #    f          - Civilian Group
     #    g          - Force Group
@@ -393,39 +323,19 @@ snit::type mad {
     typemethod {mutate coop} {parmdict} {
         # FIRST, get the dict parameters
         dict with parmdict {}
-        set n [civgroup getg $f n]
 
-        # NEXT, skip empty civilian groups
-        if {$f in [civgroup names]} {
-            if {[demog getg $f population] == 0} {
-                log normal mad "Skipping coop; group $f is empty"
-                return
-            }
-        }
-        
-        # NEXT, get the Driver Data
-        rdb eval {
-            SELECT narrative, cause, s, p, q FROM mads 
-            WHERE driver_id=$driver_id
-        } {}
+        # NEXT, set up the firing data
+        set fdict [dict create       \
+            dtype   MAGIC            \
+            mad_id  $mad_id          \
+            atype   coop             \
+            mode    $modeChar($mode) \
+            mag     $mag             \
+            f       $f               \
+            g       $g               ]
 
-        # NEXT, get the cause.  Passing "" will cause URAM to 
-        # use the numeric driver ID as the numeric cause ID.
-        if {$cause eq "UNIQUE"} {
-            set cause ""
-        }
-
-        if {$mode eq "persistent"} {
-            set mode P
-        } else {
-            set mode T
-        }
-
-        set fdict [dict create n $n f $f g $g narrative $narrative]
-        set opts [list -cause $cause -s $s -p $p -q $q]
-        dam rule MAGIC-4-1 $driver_id $fdict {*}$opts {1} {
-            dam coop $mode $f $g $mag
-        }
+        # NEXT, call the rule set.
+        driver::MAGIC assess $fdict
 
         # NEXT, cannot be undone.
         return
@@ -498,14 +408,14 @@ order define MAD:DELETE {
         -sendstates {PREP PAUSED}
 
     form {
-        rcc "MAD ID:" -for driver_id
+        rcc "MAD ID:" -for mad_id
         # Can't use "mad" field type, since only unused MADs can be
         # deleted.
-        key driver_id -table gui_mads_initial -keys driver_id -dispcols longid
+        key mad_id -table gui_mads_initial -keys mad_id -dispcols longid
     }
 } {
     # FIRST, prepare the parameters
-    prepare driver_id -toupper -required -type {mad initial}
+    prepare mad_id -toupper -required -type {mad initial}
 
     returnOnError -final
 
@@ -532,7 +442,7 @@ order define MAD:DELETE {
     }
 
     # NEXT, Delete the mad
-    lappend undo [mad mutate delete $parms(driver_id)]
+    lappend undo [mad mutate delete $parms(mad_id)]
 
     setundo [join $undo \n]
 }
@@ -547,9 +457,9 @@ order define MAD:UPDATE {
     options -sendstates {PREP PAUSED TACTIC}
 
     form {
-        rcc "MAD ID:" -for driver_id
-        mad driver_id \
-            -loadcmd {orderdialog keyload driver_id *}
+        rcc "MAD ID:" -for mad_id
+        mad mad_id \
+            -loadcmd {orderdialog keyload mad_id *}
 
         rcc "Narrative:" -for narrative
         text narrative -width 40
@@ -569,7 +479,7 @@ order define MAD:UPDATE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare driver_id -required -type mad
+    prepare mad_id    -required -type mad
     prepare narrative
     prepare cause     -toupper  -type {ptype ecause+unique}
     prepare s         -num      -type rfraction
@@ -593,8 +503,8 @@ order define MAD:HREL {
     options -sendstates {PAUSED TACTIC}
 
     form {
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
+        rcc "MAD ID:" -for mad_id
+        mad mad_id
 
         rcc "Mode:" -for mode
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
@@ -611,7 +521,7 @@ order define MAD:HREL {
     }
 } {
     # FIRST, prepare the parameters
-    prepare driver_id          -required -type mad
+    prepare mad_id             -required -type mad
     prepare mode      -tolower -required -type einputmode
     prepare f         -toupper -required -type group
     prepare g         -toupper -required -type group
@@ -642,8 +552,8 @@ order define MAD:VREL {
     options -sendstates {PAUSED TACTIC}
 
     form {
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
+        rcc "MAD ID:" -for mad_id
+        mad mad_id
 
         rcc "Mode:" -for mode
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
@@ -660,7 +570,7 @@ order define MAD:VREL {
     }
 } {
     # FIRST, prepare the parameters
-    prepare driver_id          -required -type mad
+    prepare mad_id             -required -type mad
     prepare mode      -tolower -required -type einputmode
     prepare g         -toupper -required -type group
     prepare a         -toupper -required -type actor
@@ -683,8 +593,8 @@ order define MAD:SAT {
     options -sendstates {PAUSED TACTIC}
 
     form {
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
+        rcc "MAD ID:" -for mad_id
+        mad mad_id
 
         rcc "Mode:" -for mode
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
@@ -701,7 +611,7 @@ order define MAD:SAT {
     }
 } {
     # FIRST, prepare the parameters
-    prepare driver_id          -required -type mad
+    prepare mad_id             -required -type mad
     prepare mode      -tolower -required -type einputmode
     prepare g         -toupper -required -type civgroup
     prepare c         -toupper -required -type {ptype c}
@@ -710,7 +620,6 @@ order define MAD:SAT {
     returnOnError -final
 
     # NEXT, modify the curve
-    # TBD: Need to support undo
     mad mutate sat [array get parms]
 
     return
@@ -726,8 +635,8 @@ order define MAD:COOP {
     options -sendstates {PAUSED TACTIC}
 
     form {
-        rcc "MAD ID:" -for driver_id
-        mad driver_id
+        rcc "MAD ID:" -for mad_id
+        mad mad_id
 
         rcc "Mode:" -for mode
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
@@ -744,7 +653,7 @@ order define MAD:COOP {
     }
 } {
     # FIRST, prepare the parameters
-    prepare driver_id          -required -type mad
+    prepare mad_id             -required -type mad
     prepare mode      -tolower -required -type einputmode
     prepare f         -toupper -required -type civgroup
     prepare g         -toupper -required -type frcgroup
@@ -757,4 +666,5 @@ order define MAD:COOP {
 
     return
 }
+
 

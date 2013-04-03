@@ -108,7 +108,7 @@ dynaform fieldtype alias longname text -width 30
 dynaform fieldtype alias mad key \
     -db       ::rdb     \
     -table    gui_mads  \
-    -keys     driver_id \
+    -keys     mad_id    \
     -dispcols longid    \
     -widths   40
 

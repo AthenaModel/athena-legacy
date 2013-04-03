@@ -741,7 +741,7 @@ snit::type executive {
 
     proc last_mad {} {
         return [rdb onecolumn {
-            SELECT driver_id FROM mads ORDER BY driver_id DESC LIMIT 1;
+            SELECT mad_id FROM mads ORDER BY mad_id DESC LIMIT 1;
         }]
     }
 

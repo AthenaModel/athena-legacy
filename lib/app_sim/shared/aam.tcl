@@ -45,7 +45,7 @@ snit::type aam {
 
         # NEXT, assess the attitude implications of all normal
         # and magic attrition for this interval.
-        $type AssessAttitudeImplications
+        driver::CIVCAS assess
         $type ClearAttitudeStatistics
 
         # NEXT, Refund unspent attack funds to actors.
@@ -112,41 +112,6 @@ snit::type aam {
         }
     }
 
-    # AssessAttitudeImplications
-    #
-    # Assess the satisfaction and cooperation implications of all
-    # magic and normal attrition for this attrition interval.
-
-    typemethod AssessAttitudeImplications {} {
-        # FIRST, assess the satisfaction implications
-        rdb eval {
-            SELECT n,
-                   f,
-                   total(casualties) AS casualties
-            FROM attrit_nf
-            JOIN groups ON attrit_nf.f = groups.g
-            GROUP BY n,f
-        } row {
-            unset -nocomplain row(*)
-
-            aam_rules civsat [array get row]
-        }
-
-        # NEXT, assess the cooperation implications
-        rdb eval {
-            SELECT n,
-                   f,
-                   g,
-                   total(casualties) AS casualties
-            FROM attrit_nfg
-            GROUP BY n,f,g
-        } row {
-            unset -nocomplain row(*)
-
-            aam_rules civcoop [array get row]
-        }
-    }
-    
     # ClearAttitudeStatistics
     #
     # Clears the tables used to store attrition for use in
@@ -956,6 +921,7 @@ order define ATTRIT:GROUP {
 
     setundo [join $undo \n]
 }
+
 
 
 

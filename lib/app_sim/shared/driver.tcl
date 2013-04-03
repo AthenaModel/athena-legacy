@@ -1,23 +1,46 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    driver.tcl
+#   driver.tcl
 #
 # AUTHOR:
-#    Will Duquette
+#   Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Driver Manager
+#   NOTE: This is currently called "driver"; eventually it should 
+#   replace the existing "driver" module.
 #
-#    This module is responsible for managing the creation of
-#    attitude drivers.  Each driver has an integer ID, a type, and
-#    a narrative text string that describes it.  Driver IDs are given
-#    to URAM.
+#   athena_sim(1): Experimental Driver Manager
+#
+#   This module is responsible for managing drivers and operations
+#   upon them.  As such, it is a type ensemble.
+#
+#   There are a number of different driver types, each associated
+#   with a rule set.  The driver type is responsible for:
+#
+#   * Specifying the signature parms for the driver (used to assign the
+#     driver IDs).
+#
+#   * Producing different kinds of narrative text given the current state 
+#     of the driver.
+#
+#   * The driver's rule set.
+#
+#   The driver has associated with it a firing dictionary 
+#
+#   This module is responsible for:
+#
+#   * Providing the basic infrastructure for driver types.
+#
+#   * Assigning driver IDs and saving driver records to the RDB.
+#
+# Driver types should adhere to the driver(i) interface.
+#
 #-----------------------------------------------------------------------
 
 snit::type driver {
     # Make it a singleton
     pragma -hasinstances no
-
+    
     #-------------------------------------------------------------------
     # Type Variables
 
@@ -29,79 +52,87 @@ snit::type driver {
 
     typevariable initialID 1000
 
-    #-------------------------------------------------------------------
-    # Queries
-    #
-    # These routines query information about the entities; they are
-    # not allowed to modify them.
 
-
-    # names
-    #
-    # Returns the list of DRIVER ids
-
-    typemethod names {} {
-        rdb eval {SELECT driver_id FROM drivers}
-    }
-
-    # validate id
-    #
-    # id  - Possibly, a driver ID.
-    #
-    # Validates a driver id
-
-    typemethod validate {id} {
-        if {![rdb exists {
-            SELECT driver_id FROM drivers WHERE driver_id=$id
-        }]} {
-            return -code error -errorcode INVALID \
-                "Driver does not exist: \"$id\""
-        }
-
-        return $id
-    }
-
-
-
-    # longnames
-    #
-    # Returns the list of extended DRIVER ids
-
-    typemethod longnames {} {
-        rdb eval {
-            SELECT driver_id || ' - ' || narrative AS longid 
-            FROM drivers
-        }
-    }
+    #===================================================================
+    # driver Types: Definition and Query interface.
 
     #-------------------------------------------------------------------
-    # Public Typemethods
+    # Uncheckpointed Type variables
 
-    # create dtype narrative ?signature?
+    # tinfo array: Type Info
     #
-    # dtype      - The driver type, usually a rule set name
-    # narrative  - A brief human-readable string identifying the driver.
-    # signature  - A dtype-specific signature for this particular driver.
+    # names           - List of the names of the driver types.
+    # sigparms-$ttype - Signature parameters in a driver's fdict.
+
+    typevariable tinfo -array {
+        names {}
+    }
+
+    # type names
     #
-    # Creates a new driver, returning the driver ID.  If the signature
-    # is given, it must be unique for this driver type; it and the 
-    # driver type can then be used to retrieve the driver ID.  In 
-    # practice, driver types that use the signature usually only call
-    # [driver create]; if the signature is present, and there is already
-    # a driver with the required dtype and signature, it will be returned.
+    # Returns the driver type names.
 
-    typemethod create {dtype narrative {signature ""}} {
-        # FIRST, if signature is not zero, and there's a driver with
-        # that signature return it.
-        if {$signature ne ""} {
-            set id [$type getid $dtype $signature]
+    typemethod {type names} {} {
+        return [lsort $tinfo(names)]
+    }
 
-            if {$id ne ""} {
-                return $id
-            }
+    # type define name sigparms defscript
+    #
+    # name        - The driver name
+    # sigparms    - List of fdict parms that determine the signature.
+    # defscript   - The definition script (a snit::type script)
+    #
+    # Defines driver::$name as a type ensemble given the typemethods
+    # defined in the defscript.  See driver(i) for documentation of the
+    # expected typemethods.
+
+    typemethod {type define} {name sigparms defscript} {
+        # FIRST, define the type.
+        set header "
+            # Make it a singleton
+            pragma -hasinstances no
+
+            delegate typemethod getid using {driver getid $name}
+        "
+
+        snit::type ${type}::${name} "$header\n$defscript"
+
+        # NEXT, save the type metadata
+        ladd tinfo(names) $name
+        set tinfo(sigparms-$name) $sigparms
+    }
+
+
+    #-------------------------------------------------------------------
+    # driver Ensemble Interface
+
+    # getid fdict
+    #
+    # fdict - A rule firing dictionary
+    #
+    # Retrieves the driver ID for the firing dict. 
+
+    typemethod getid {fdict} {
+        # FIRST, compute the signature from the fdict given the
+        # sigparms.
+        set signature [list]
+        set dtype [dict get $fdict dtype]
+
+        foreach key $tinfo(sigparms-$dtype) {
+            lappend signature [dict get $fdict $key]
         }
 
-        # NEXT, get a new driver ID
+        # NEXT, if there's a driver with that signature return it.
+        set id [rdb onecolumn {
+            SELECT driver_id FROM drivers
+            WHERE dtype=$dtype AND signature=$signature
+        }]
+
+        if {$id ne ""} {
+            return $id
+        }
+
+        # NEXT, this is a new get a new driver ID
         rdb eval {
             SELECT coalesce(max(driver_id)+1, $initialID) 
             AS new_id FROM drivers
@@ -109,67 +140,26 @@ snit::type driver {
 
         # NEXT, create the entry
         rdb eval {
-            INSERT INTO drivers(driver_id, dtype, narrative, signature)
-            VALUES($new_id, $dtype, $narrative, $signature);
+            INSERT INTO drivers(driver_id, dtype, signature)
+            VALUES($new_id, $dtype, $signature);
         }
 
         return $new_id
     }
 
-    # delete driver_id
+    # call op fdict ?args...?
     #
-    # driver_id   - A driver ID
+    # op    - A driver type subcommands
+    # fdict - A rule firing dictionary.
+    # args  - Any additional arguments.
     #
-    # Deletes the given driver ID from the drivers table.
-    # No attempt is made to clean up URAM.  Note that the driver ID
-    # might be re-used.
+    # This is a convenience command that calls the relevant subcommand
+    # for the driver.
 
-    typemethod delete {driver_id} {
-        rdb delete drivers "driver_id=$driver_id"
-    }
-
-    # getid dtype signature
-    #
-    # dtype    - The driver type
-    # signature  - A driver's signature
-    #
-    # Retrieves the driver's ID given its dtype and signature.
-
-    typemethod getid {dtype signature} {
-        rdb onecolumn {
-            SELECT driver_id FROM drivers
-            WHERE dtype=$dtype AND signature=$signature
-        }
-    }
-
-    # narrative get driver_id
-    #
-    # driver_id   - A driver ID
-    #
-    # Returns the narrative for the given driver.
-
-    typemethod {narrative get} {driver_id} {
-        rdb onecolumn {
-            SELECT narrative FROM drivers
-            WHERE driver_id=$driver_id
-        }
-    }
-
-    # narrative set driver_id text
-    #
-    # driver_id   - A driver ID
-    # text        - A new narrative string
-    #
-    # Sets the narrative for the given driver.
-
-    typemethod {narrative set} {driver_id text} {
-        $type validate $driver_id
-
-        rdb eval {
-            UPDATE drivers
-            SET narrative=$text
-            WHERE driver_id=$driver_id
-        }
+    typemethod call {op fdict args} {
+        [dict get $fdict dtype] $op $fdict {*}$args
     }
 }
+
+
 

@@ -1235,7 +1235,7 @@ appserver module CONTRIBS {
                    format('%8.3f', avgcontrib)        AS "Actual",
                    driver                             AS "Driver",
                    dtype                              AS "Type",
-                   narrative                          AS "Narrative"
+                   sigline(dtype,signature)           AS "Signature"
             FROM temp_contribs
             JOIN drivers ON (driver = driver_id);
 

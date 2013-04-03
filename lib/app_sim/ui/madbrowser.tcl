@@ -31,13 +31,13 @@ snit::widgetadaptor madbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { driver_id "ID"              -sortmode integer                }
+        { mad_id    "ID"              -sortmode integer                }
         { narrative "Narrative"                                        }
         { cause     "Cause "                                           }
         { s         "Here Factor (s)" -sortmode real                   }
         { p         "Near Factor (p)" -sortmode real                   }
         { q         "Far Factor (q)"  -sortmode real                   }
-        { firings   "Firings"         -sortmode integer -foreground %D }
+        { driver_id "Driver ID"       -sortmode integer -foreground %D }
     }
 
     #-------------------------------------------------------------------
@@ -55,12 +55,13 @@ snit::widgetadaptor madbrowser {
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
             -view         gui_mads                    \
-            -uid          driver_id                   \
+            -uid          mad_id                      \
             -titlecolumns 1                           \
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
                 ::sim <Tick>
+                ::rdb <drivers>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.
@@ -103,8 +104,7 @@ snit::widgetadaptor madbrowser {
         pack $deletebtn  -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::rdb <mads_t>  $self [mymethod uid]
-        notifier bind ::rdb <drivers> $self [mymethod uid]
+        notifier bind ::rdb <mads>    $self [mymethod uid]
     }
 
     destructor {
@@ -171,7 +171,7 @@ snit::widgetadaptor madbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
-        order enter MAD:UPDATE driver_id $id
+        order enter MAD:UPDATE mad_id $id
     }
 
 
@@ -184,7 +184,7 @@ snit::widgetadaptor madbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the delete order.
-        order send gui MAD:DELETE driver_id $id
+        order send gui MAD:DELETE mad_id $id
     }
 
 }

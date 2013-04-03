@@ -1,24 +1,19 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    service_rules.tcl
+#    driver_eni.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(n): Athena Driver Assessment, Service Sets
-#
-#    ::service_rules is a singleton object implemented as a snit::type.
+#    Athena Driver Assessment Model (DAM): ENI
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# service_rules
+# ENI
 
-snit::type service_rules {
-    # Make it an ensemble
-    pragma -hastypedestroy 0 -hasinstances 0
-
+driver type define ENI {g} {
     #-------------------------------------------------------------------
     # Look-up tables
 
@@ -82,14 +77,26 @@ snit::type service_rules {
     #-------------------------------------------------------------------
     # Public Typemethods
 
-    # monitor
+    # assess
     #
-    # Monitors the level of service provided to civilian groups.
+    # Monitors the level of service provided to civilian groups.  The
+    # rule firing dictionary contains the following data:
+    #
+    #   dtype       - The driver type (ENI)
+    #   g           - The civilian group receiving the services
+    #   actual      - The actual level of service (ALOS)
+    #   required    - The required level of service (RLOS)
+    #   expected    - The expected level of service (ELOS)
+    #   expectf     - The expectations factor
+    #   needs       - The needs factor
+    #   controller  - The actor controlling g's neighborhood
+    #   case        - The case: E+, E, E-, R-
     
-    typemethod monitor {} {
-        if {![parmdb get dam.ENI.active]} {
-            log warning servr \
-                "monitor ENI: ruleset has been deactivated"
+    typemethod assess {} {
+        set dtype ENI
+
+        if {![dam isactive $dtype]} {
+            log warning $dtype "driver type has been deactivated"
             return
         }
 
@@ -105,19 +112,91 @@ snit::type service_rules {
         } gdata {
             unset -nocomplain gdata(*)
 
-            set g $gdata(g)
-            
-            set driver_id \
-                [driver create ENI "Provision of ENI services to $g" $g]
+            set fdict [array get gdata]
+            dict set fdict dtype $dtype
 
             bgcatch {
-                service_rules ENI $driver_id [array get gdata]
+                log detail $dtype $fdict
+                $type ruleset $fdict
             }
         }
     }
 
-    #===================================================================
-    # Service Situations
+    #-------------------------------------------------------------------
+    # Narrative Type Methods
+
+    # sigline signature
+    #
+    # signature - The driver signature
+    #
+    # Returns a one-line description of the driver given its signature
+    # values.
+
+    typemethod sigline {signature} {
+        set g $signature
+        return "Provision of ENI services to $g"
+    }
+
+    # narrative fdict
+    #
+    # fdict - Firing dictionary; see rulesets, below.
+    #
+    # Produces a one-line narrative text string for a given rule firing
+
+    typemethod narrative {fdict} {
+        dict with fdict {}
+
+        return "{group:$g} receives ENI services (case $case)"
+    }
+    
+    # detail fdict 
+    #
+    # fdict - Firing dictionary; see rulesets, below.
+    # ht    - An htools(n) buffer
+    #
+    # Produces a narrative HTML paragraph including all fdict information.
+
+    typemethod detail {fdict ht} {
+        dict with fdict {}
+
+        $ht putln "Civilian group\n"
+        $ht link my://app/group/$g $g
+        $ht putln "received ENI services at an actual level of"
+        $ht putln "[format %.2f $actual], that is, at"
+        $ht putln "[string trim [percent $actual]] of the saturation level"
+        $ht putln "of service.  Group $g requires a level of at least"
+        $ht putln "[format %.2f $required], and expected a level of"
+        $ht putln "[format %.2f $expected]."
+        $ht para
+
+        $ht putln "The case is therefore $case, that is, $g received"
+        switch -exact -- $case {
+            R- { $ht putln "less than it required."}
+            E- { $ht putln "less than expected."}
+            E  { $ht putln "what was expected."}
+            E+ { $ht putln "more than expected."}
+            default { error "Unknown case: \"$case\""}
+        }
+
+        $ht putln "These values led to the following rule set inputs:"
+        $ht para
+        $ht putln "<i>expectf</i> = [format %.2f $expectf]<br>"
+        $ht putln "<i>needs</i> = [format %.2f $needs]"
+
+        $ht para
+
+        $ht putln "Group $g's neighborhood was controlled by"
+
+        if {$controller ne ""} {
+            $ht putln "actor "
+            $ht link my://app/actor/$controller $controller
+            $ht put "."
+        } else {
+            $ht putln "no actor."
+        }
+
+        $ht para
+    }
 
     #-------------------------------------------------------------------
     # Rule Set: ENI:  Essential Non-Infrastructure Services
@@ -125,19 +204,17 @@ snit::type service_rules {
     # Service Situation: effect of provision/non-provision of service
     # on a civilian group.
 
-    typemethod ENI {driver_id fdict} {
+    typemethod ruleset {fdict} {
         dict with fdict {}
         
         # FIRST, get some data
         set case [GetCase $fdict]
         set cdict [GetCreditDict $g]
 
-        log detail servr [list ENI $g]
-        
         dict set fdict case $case
         
         # ENI-1: Satisfaction Effects
-        dam rule ENI-1-1 $driver_id $fdict {
+        dam rule ENI-1-1 $fdict {
             $case eq "R-"
         } {
             # While ENI is less than required for CIV group g
@@ -158,7 +235,7 @@ snit::type service_rules {
             }
         }
 
-        dam rule ENI-1-2 $driver_id $fdict {
+        dam rule ENI-1-2 $fdict {
             $case eq "E-"
         } {
             # While ENI is less than expected for CIV group g
@@ -179,7 +256,7 @@ snit::type service_rules {
             }
         }
 
-        dam rule ENI-1-3 $driver_id $fdict {
+        dam rule ENI-1-3 $fdict {
             $case eq "E"
         } {
             # While ENI is as expected for CIV group g
@@ -199,7 +276,7 @@ snit::type service_rules {
             }
         }
 
-        dam rule ENI-1-4 $driver_id $fdict {
+        dam rule ENI-1-4 $fdict {
             $case eq "E+"
         } {
             # While ENI is better than expected for CIV group g
@@ -221,6 +298,9 @@ snit::type service_rules {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Helper Routines
+    
     # GetCase fdict
     #
     # fdict   - The civgroups/service_g group dictionary
@@ -264,7 +344,10 @@ snit::type service_rules {
 
         return $cdict
     }
+
 }
+
+
 
 
 

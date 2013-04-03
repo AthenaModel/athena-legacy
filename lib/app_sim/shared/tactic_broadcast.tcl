@@ -115,7 +115,7 @@ tactic type define BROADCAST {cap a iom x1 once on_lock} actor {
                 " {*}$tags
 
                 # NEXT, assess the broadcast.
-                iom_rules assess $rdict
+                driver::IOM assess $rdict
             }
 
         }
@@ -373,5 +373,6 @@ order define TACTIC:BROADCAST:UPDATE {
     # NEXT, modify the tactic
     setundo [tactic mutate update [array get parms]]
 }
+
 
 

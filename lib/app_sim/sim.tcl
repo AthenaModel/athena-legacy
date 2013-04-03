@@ -121,10 +121,6 @@ snit::type sim {
             -week0 $constants(startdate) \
             -tick0 $constants(starttick)
 
-        # NEXT, clear the event queue
-        # TBD: The engine should be doing this.
-        eventq restart
-
         # NEXT, clear the belief system
         bsystem clear
 

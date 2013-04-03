@@ -80,20 +80,15 @@ CREATE TEMPORARY VIEW gui_ensits AS
 SELECT s                                              AS id,
        s || ' -- ' || stype || ' in '|| n             AS longid,
        s                                              AS s,
-       change                                         AS change,
        state                                          AS state,
-       driver_id                                      AS driver_id,
        stype                                          AS stype,
        n                                              AS n,
-       g                                              AS g,
        format('%6.4f',coverage)                       AS coverage,
-       timestr(ts)                                     AS ts,
-       timestr(tc)                                     AS tc,
+       timestr(ts)                                    AS ts,
        m2ref(location)                                AS location,
-       flist                                          AS flist,
        resolver                                       AS resolver,
        rduration                                      AS rduration,
-       timestr(ts+rduration)                           AS tr,
+       timestr(tr)                                    AS tr,
        inception                                      AS inception
 FROM ensits;
 
@@ -102,15 +97,15 @@ CREATE TEMPORARY VIEW gui_ensits_initial AS
 SELECT * FROM gui_ensits
 WHERE state = 'INITIAL';
 
--- gui_ensits subview: current ensits (live or freshly ended)
-CREATE TEMPORARY VIEW gui_ensits_current AS
+-- gui_ensits subview: ONGOING 
+CREATE TEMPORARY VIEW gui_ensits_ongoing AS
 SELECT * FROM gui_ensits
-WHERE state != 'ENDED' OR change != '';
-       
--- gui_ensits subview: ended ensits
-CREATE TEMPORARY VIEW gui_ensits_ended AS
-SELECT * FROM gui_ensits WHERE state = 'ENDED';
+WHERE state = 'ONGOING';
 
+-- gui_ensits subview: RESOLVED 
+CREATE TEMPORARY VIEW gui_ensits_resolved AS
+SELECT * FROM gui_ensits
+WHERE state = 'RESOLVED';
 
 ------------------------------------------------------------------------
 -- ATTRITION MODEL VIEWS
