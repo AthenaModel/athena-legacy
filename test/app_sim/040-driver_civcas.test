@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    040-aam_rules.test
+#    040-driver_civcas.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    aam_rules(sim) tests
+#    CIVCAS rules tests
 #
 #    This test suite tests that the rules fire when appropriate.
 #
@@ -26,6 +26,19 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
+    # Define an htools buffer for tests
+    htools ht
+
+    # pprint text
+    #
+    # text  - block text
+    #
+    # Prints it so that it looks nice in a -result option.
+
+    proc pprint {text} {
+        return "\n[string trim $text]\n    "
+    }
+
     # setup
     #
     # Sets up for tests.
@@ -37,7 +50,7 @@ namespace eval ::athena_test::tests:: {
         parm set dam.UNEMP.active no
         parm set dam.ENI.active no
         rdb eval {DELETE FROM drivers}
-        rdb eval {DELETE FROM mads_t}
+        rdb eval {DELETE FROM mads}
         
         # NEXT, create the entities
         ted create JOE BOB NB1 BLUE BRIT SHIA SUNN
@@ -61,13 +74,14 @@ namespace eval ::athena_test::tests:: {
     
     # Clean up after a test
     proc cleanup {} {
+        ht clear
         ted cleanup
     }
 
     #-------------------------------------------------------------------
-    # CIVCAS
-    
-    test CIVCAS-1.1 {Rule 1-1 fires} -setup {
+    # assess
+
+    test assess-1.1 {Rule 1-1 fires} -setup {
         setup
     } -body {
         attrit 1000
@@ -79,20 +93,20 @@ namespace eval ::athena_test::tests:: {
     } -result {
 firing_id  1
 t          1
-driver_id  1001
+driver_id  1000
 ruleset    CIVCAS
 rule       CIVCAS-1-1
-fdict      casualties 500.0 f SHIA n NB1 mult 2.0
+fdict      casualties 500.0 f SHIA dtype CIVCAS mult 2.0
 
 firing_id  2
 t          1
-driver_id  1002
+driver_id  1001
 ruleset    CIVCAS
 rule       CIVCAS-1-1
-fdict      casualties 500.0 f SUNN n NB1 mult 2.0
+fdict      casualties 500.0 f SUNN dtype CIVCAS mult 2.0
     }
     
-    test CIVCAS-1.2 {Rule 1-1 inputs} -setup {
+    test assess-1.2 {Rule 1-1 inputs} -setup {
         setup
     } -body {
         attrit 1000
@@ -114,7 +128,7 @@ CIVCAS-1-1 SUNN SFT
 CIVCAS-1-1 SUNN QOL      
     }
     
-    test CIVCAS-2.1 {Rule 2-1 does not fire without groups} -setup {
+    test assess-2.1 {Rule 2-1 does not fire without groups} -setup {
         setup
     } -body {
         attrit 1000
@@ -125,7 +139,7 @@ CIVCAS-1-1 SUNN QOL
         cleanup
     } -result {0}
     
-    test CIVCAS-2.2 {Rule 2-1 fires with one group} -setup {
+    test assess-2.2 {Rule 2-1 fires with one group} -setup {
         setup
     } -body {
         attrit 1000 BLUE
@@ -137,20 +151,20 @@ CIVCAS-1-1 SUNN QOL
     } -result {
 firing_id  3
 t          1
-driver_id  1001
+driver_id  1000
 ruleset    CIVCAS
 rule       CIVCAS-2-1
-fdict      casualties 500.0 f SHIA n NB1 g BLUE mult 2.0
+fdict      casualties 500.0 f SHIA dtype CIVCAS g BLUE mult 2.0
 
 firing_id  4
 t          1
-driver_id  1002
+driver_id  1001
 ruleset    CIVCAS
 rule       CIVCAS-2-1
-fdict      casualties 500.0 f SUNN n NB1 g BLUE mult 2.0
+fdict      casualties 500.0 f SUNN dtype CIVCAS g BLUE mult 2.0
     }
     
-    test CIVCAS-2.3 {Rule 2-1 fires with two groups} -setup {
+    test assess-2.3 {Rule 2-1 fires with two groups} -setup {
         setup
     } -body {
         attrit 1000 BLUE BRIT
@@ -162,35 +176,35 @@ fdict      casualties 500.0 f SUNN n NB1 g BLUE mult 2.0
     } -result {
 firing_id  3
 t          1
-driver_id  1001
+driver_id  1000
 ruleset    CIVCAS
 rule       CIVCAS-2-1
-fdict      casualties 500.0 f SHIA n NB1 g BLUE mult 2.0
+fdict      casualties 500.0 f SHIA dtype CIVCAS g BLUE mult 2.0
 
 firing_id  4
 t          1
-driver_id  1001
+driver_id  1000
 ruleset    CIVCAS
 rule       CIVCAS-2-1
-fdict      casualties 500.0 f SHIA n NB1 g BRIT mult 2.0
+fdict      casualties 500.0 f SHIA dtype CIVCAS g BRIT mult 2.0
 
 firing_id  5
 t          1
-driver_id  1002
+driver_id  1001
 ruleset    CIVCAS
 rule       CIVCAS-2-1
-fdict      casualties 500.0 f SUNN n NB1 g BLUE mult 2.0
+fdict      casualties 500.0 f SUNN dtype CIVCAS g BLUE mult 2.0
 
 firing_id  6
 t          1
-driver_id  1002
+driver_id  1001
 ruleset    CIVCAS
 rule       CIVCAS-2-1
-fdict      casualties 500.0 f SUNN n NB1 g BRIT mult 2.0
+fdict      casualties 500.0 f SUNN dtype CIVCAS g BRIT mult 2.0
     }
     
     
-    test CIVCAS-2.4 {Rule 2-1 inputs} -setup {
+    test assess-2.4 {Rule 2-1 inputs} -setup {
         setup
     } -body {
         attrit 1000 BLUE
@@ -209,14 +223,99 @@ CIVCAS-2-1 SUNN BLUE
     }
     
     
+    #-------------------------------------------------------------------
+    # sigline
+
+    test sigline-1.1 {sigline output} -setup {
+        setup
+    } -body {
+        driver::CIVCAS sigline SHIA 
+    } -cleanup {
+        cleanup
+    } -result {Casualties to group SHIA}
+         
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative output: CIVCAS-1} -setup {
+        setup
+    } -body {
+        driver::CIVCAS narrative {
+            dtype      CIVCAS
+            f          SHIA
+            casualties 100
+        } 
+    } -cleanup {
+        cleanup
+    } -result {{group:SHIA} took 100 casualties}
+
+    test narrative-1.2 {narrative output: CIVCAS-2} -setup {
+        setup
+    } -body {
+        driver::CIVCAS narrative {
+            dtype      CIVCAS
+            f          SHIA
+            g          BLUE
+            casualties 50
+        } 
+    } -cleanup {
+        cleanup
+    } -result {{group:SHIA} took 50 casualties from {group:BLUE}}
+         
+    #-------------------------------------------------------------------
+    # detail
+
+    test detail-1.1 {detail, CIVCAS-1} -setup {
+        setup
+    } -body {
+        driver::CIVCAS detail {
+            dtype      CIVCAS
+            f          SHIA
+            casualties 100
+            mult       2.0
+        } [namespace current]::ht
+
+        pprint [ht get] 
+    } -cleanup {
+        cleanup
+    } -result {
+Civilian group <a href="my://app/group/SHIA">SHIA</a>
+took a total of 100 casualties this week
+from incidents of all kinds.
+The Z-curve multiplier is <i>mult</i>=2.00.<p>
+    }
     
-    
+    test detail-1.2 {detail, CIVCAS-2} -setup {
+        setup
+    } -body {
+        driver::CIVCAS detail {
+            dtype      CIVCAS
+            f          SHIA
+            g          BLUE
+            casualties 50
+            mult       1.5
+        } [namespace current]::ht
+
+        pprint [ht get] 
+    } -cleanup {
+        cleanup
+    } -result {
+Civilian group <a href="my://app/group/SHIA">SHIA</a>
+took a total of 50 casualties this week
+as collateral damage in incidents in which
+<a href="my://app/group/BLUE">BLUE</a>
+was involved.
+The Z-curve multiplier is <i>mult</i>=1.50.<p>
+    }
     
     
     cleanupTests
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

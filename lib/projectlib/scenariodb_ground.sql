@@ -392,92 +392,48 @@ CREATE TABLE activity_nga (
 
 
 ------------------------------------------------------------------------
--- SITUATIONS
+-- ENVIRONMENTAL SITUATIONS
 
--- Base situation data is stored in the situations table; then, 
--- Derived situation data is stored in the kind-specific table.
+CREATE TABLE ensits (
+    -- Environmental Situations
 
--- situations: base situation data
-
-CREATE TABLE situations (
     -- Situation ID
-    s             INTEGER PRIMARY KEY,
-
-    -- Situation Kind: the singleton command of the situation kind,
-    -- e.g., ::ensit
-    kind      TEXT,
+    s         INTEGER PRIMARY KEY,
  
-    -- Situation Type (the rule set name)
+    -- Situation type (this is also the driver type)
     stype     TEXT,
 
-    -- URAM Driver ID
-    driver_id INTEGER DEFAULT -1,
-
-    -- Neighborhood
-    n         TEXT,
+    -- Location, in map coordinates
+    location  TEXT,
 
     -- Coverage: fraction of neighborhood affected.
     coverage  DOUBLE DEFAULT 1.0,
 
+    -- Inception Flag: 1 if this is a new situation, and inception 
+    -- effects should be assessed, and 0 otherwise.  (This will be set 
+    -- to 0 for situations that are on-going at time 0.)
+    inception INTEGER,
+
+    -- Resolving group: name of the group that resolved/will resolve
+    -- the situation, or 'NONE'
+    resolver  TEXT DEFAULT 'NONE',
+
+    -- Auto-resolution duration: 0 if the situation will not auto-resolve,
+    -- and a duration in ticks otherwise.
+    rduration INTEGER DEFAULT 0,
+
+    -- Neighborhood in which the situation exists
+    n         TEXT,
+
     -- State: esitstate
-    state     TEXT,
+    state     TEXT DEFAULT 'INITIAL',
 
     -- Start Time, in ticks
     ts        INTEGER,
 
-    -- Change Time, in ticks
-    tc        INTEGER,
-
-    -- Change: nature of last change
-    change    TEXT DEFAULT '',
-
-    -- List of affected groups, or 'ALL' for all
-    flist     TEXT DEFAULT 'ALL',
-
-    -- Causing Group, or 'NONE'
-    g         TEXT DEFAULT 'NONE'
+    -- Resolution time, in ticks; null if unresolved and not auto-resolving.
+    tr        INTEGER
 );
-
--- Environmental Situations
-CREATE TABLE ensits_t (
-    -- Situation ID
-    s          INTEGER PRIMARY KEY,
-
-    -- Location, in map coordinates
-    location   TEXT,
-
-    --------------------------------------------------------------------
-    -- The following columns are set when the URAM implications of the
-    -- situation need to be assessed at the next time tick.
-
-    -- Inception Flag: 1 if this is a new situation, and inception 
-    -- effects should be assessed, and 0 otherwise.  (This will be set 
-    -- to 0 for situations that are on-going at time 0.)
-    inception  INTEGER,
-
-    -- Resolving group: name of the group that resolved/will resolve
-    -- the situation, or 'NONE'
-    resolver   TEXT DEFAULT 'NONE',
-
-    -- Auto-resolution duration: 0 if the situation will not auto-resolve,
-    -- and a duration in ticks otherwise.
-    rduration  INTEGER DEFAULT 0,
-
-    -- Resolution Driver; 0 if the situation's resolution has not been
-    -- assessed, and a URAM driver ID if it has.
-    rdriver_id INTEGER DEFAULT 0
-);
-
--- Environmental Situations View
-CREATE VIEW ensits AS
-SELECT * FROM situations JOIN ensits_t USING (s);
-
--- Current Environmental Situations View: i.e., situations of current
--- interest to the analyst
-CREATE VIEW ensits_current AS
-SELECT * FROM situations JOIN ensits_t USING (s)
-WHERE state != 'ENDED' OR change != '';
-
 
 ------------------------------------------------------------------------
 -- SERVICES

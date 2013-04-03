@@ -26,6 +26,19 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
+    # Define an htools buffer for tests
+    htools ht
+
+    # pprint text
+    #
+    # text  - block text
+    #
+    # Prints it so that it looks nice in a -result option.
+
+    proc pprint {text} {
+        return "\n[string trim $text]\n    "
+    }
+
     # setup 
     #
     # Sets up for tests
@@ -63,7 +76,6 @@ namespace eval ::athena_test::tests:: {
             stype     $etype \
             coverage  1.0 \
             inception $inception \
-            g         NONE \
             resolver  $resolver \
             rduration 2
         
@@ -103,8 +115,145 @@ namespace eval ::athena_test::tests:: {
     
     # Clean up after a test
     proc cleanup {} {
+        ht clear
         ted cleanup
     }
+
+    #-------------------------------------------------------------------
+    # sigline
+    #
+    # All situation types delegate to the same method in the same way,
+    # so we'll test just one.
+
+    test sigline-1.1 {sigline text} -setup {
+        # none needed
+    } -body {
+        driver::DISEASE sigline {ONGOING NB1}
+    } -cleanup {
+        cleanup
+    } -result {DISEASE ongoing in NB1}
+
+    #-------------------------------------------------------------------
+    # narrative
+    #
+    # All situation types delegate to the same method in the same way,
+    # so we'll test just one.
+
+
+    test narrative-1.1 {narrative text: ongoing} -setup {
+        # none needed
+    } -body {
+        driver::DISEASE narrative {
+            dtype       DISEASE
+            s           1
+            state       ONGOING
+            n           NB1
+            inception   1
+            coverage    0.25
+            resolver    BLUE
+        }
+    } -cleanup {
+        cleanup
+    } -result {DISEASE ongoing in {nbhood:NB1} (25%)}
+    
+    test narrative-1.2 {narrative text: resolved, resolver} -setup {
+        # none needed
+    } -body {
+        driver::DISEASE narrative {
+            dtype       DISEASE
+            s           1
+            state       RESOLVED
+            n           NB1
+            inception   1
+            coverage    0.25
+            resolver    BLUE
+        }
+    } -cleanup {
+        cleanup
+    } -result {DISEASE resolved by {group:BLUE} in {nbhood:NB1}}
+    
+    test narrative-1.3 {narrative text: resolved, no resolver} -setup {
+        # none needed
+    } -body {
+        driver::DISEASE narrative {
+            dtype       DISEASE
+            s           1
+            state       RESOLVED
+            n           NB1
+            inception   1
+            coverage    0.25
+            resolver    NONE
+        }
+    } -cleanup {
+        cleanup
+    } -result {DISEASE resolved in {nbhood:NB1}}
+
+    #-------------------------------------------------------------------
+    # detail
+    #
+    # All situation types delegate to the same method in the same way,
+    # so we'll test just one.
+
+    test detail-1.1 {detail text, inception} -setup {
+        setup 
+    } -body {
+        ensit DISEASE TAL
+        
+        set fdict [rdb onecolumn {
+            SELECT fdict FROM rule_firings WHERE firing_id = 1
+        }]
+
+        driver::DISEASE detail $fdict [namespace current]::ht
+        pprint [ht get]
+    } -cleanup {
+        cleanup
+    } -result {
+An environmental situation of type DISEASE
+has begun
+in neighborhood
+<a href="my://app/nbhood/NB1">NB1</a> with 100% coverage.<p>
+    }
+    
+    test detail-1.2 {detail text, ongoing} -setup {
+        setup 
+    } -body {
+        ensit DISEASE TAL
+
+        set fdict [rdb onecolumn {
+            SELECT fdict FROM rule_firings WHERE firing_id = 2
+        }]
+
+        driver::DISEASE detail $fdict [namespace current]::ht
+        pprint [ht get]
+    } -cleanup {
+        cleanup
+    } -result {
+An environmental situation of type DISEASE
+is ongoing
+in neighborhood
+<a href="my://app/nbhood/NB1">NB1</a> with 100% coverage.<p>
+    }
+    
+    test detail-1.3 {detail text, resolved by local} -setup {
+        setup 
+    } -body {
+        ensit DISEASE TAL
+
+        set fdict [rdb onecolumn {
+            SELECT fdict FROM rule_firings WHERE firing_id = 3
+        }]
+
+        driver::DISEASE detail $fdict [namespace current]::ht
+        pprint [ht get]
+    } -cleanup {
+        cleanup
+    } -result {
+An environmental situation of type DISEASE
+has been resolved
+by group <a href="my://app/group/TAL">TAL</a>
+in neighborhood <a href="my://app/nbhood/NB1">NB1</a>.<p>
+    }
+
 
     #-------------------------------------------------------------------
     # BADFOOD
@@ -122,21 +271,21 @@ t          1
 driver_id  1000
 ruleset    BADFOOD
 rule       BADFOOD-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype BADFOOD s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    BADFOOD
 rule       BADFOOD-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype BADFOOD s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    BADFOOD
 rule       BADFOOD-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype BADFOOD s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test BADFOOD-1.2 {firings: no inception, non-local resolver} -setup {
@@ -152,14 +301,14 @@ t          1
 driver_id  1000
 ruleset    BADFOOD
 rule       BADFOOD-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype BADFOOD s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    BADFOOD
 rule       BADFOOD-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype BADFOOD s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test BADFOOD-1.3 {inputs: inception, local resolver} -setup {
@@ -207,21 +356,21 @@ t          1
 driver_id  1000
 ruleset    BADWATER
 rule       BADWATER-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype BADWATER s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    BADWATER
 rule       BADWATER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype BADWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    BADWATER
 rule       BADWATER-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype BADWATER s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test BADWATER-1.2 {firings: no inception, non-local resolver} -setup {
@@ -237,14 +386,14 @@ t          1
 driver_id  1000
 ruleset    BADWATER
 rule       BADWATER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype BADWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    BADWATER
 rule       BADWATER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype BADWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test BADWATER-1.3 {inputs: inception, local resolver} -setup {
@@ -293,14 +442,14 @@ t          1
 driver_id  1000
 ruleset    COMMOUT
 rule       COMMOUT-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype COMMOUT s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    COMMOUT
 rule       COMMOUT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype COMMOUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test COMMOUT-1.2 {firings: no inception, non-local resolver} -setup {
@@ -316,14 +465,14 @@ t          1
 driver_id  1000
 ruleset    COMMOUT
 rule       COMMOUT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype COMMOUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    COMMOUT
 rule       COMMOUT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype COMMOUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test COMMOUT-1.3 {inputs: inception, local resolver} -setup {
@@ -373,14 +522,14 @@ t          1
 driver_id  1000
 ruleset    CULSITE
 rule       CULSITE-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype CULSITE s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    CULSITE
 rule       CULSITE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype CULSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test CULSITE-1.2 {firings: no inception, non-local resolver} -setup {
@@ -396,14 +545,14 @@ t          1
 driver_id  1000
 ruleset    CULSITE
 rule       CULSITE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype CULSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    CULSITE
 rule       CULSITE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype CULSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test CULSITE-1.3 {inputs: inception, local resolver} -setup {
@@ -451,21 +600,21 @@ t          1
 driver_id  1000
 ruleset    DISASTER
 rule       DISASTER-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype DISASTER s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    DISASTER
 rule       DISASTER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype DISASTER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    DISASTER
 rule       DISASTER-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype DISASTER s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test DISASTER-1.2 {firings: no inception, non-local resolver} -setup {
@@ -481,14 +630,14 @@ t          1
 driver_id  1000
 ruleset    DISASTER
 rule       DISASTER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype DISASTER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    DISASTER
 rule       DISASTER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype DISASTER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test DISASTER-1.3 {inputs: inception, local resolver} -setup {
@@ -536,21 +685,21 @@ t          1
 driver_id  1000
 ruleset    DISEASE
 rule       DISEASE-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype DISEASE s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    DISEASE
 rule       DISEASE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype DISEASE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    DISEASE
 rule       DISEASE-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype DISEASE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test DISEASE-1.2 {firings: no inception, non-local resolver} -setup {
@@ -566,14 +715,14 @@ t          1
 driver_id  1000
 ruleset    DISEASE
 rule       DISEASE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype DISEASE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    DISEASE
 rule       DISEASE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype DISEASE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test DISEASE-1.3 {inputs: inception, local resolver} -setup {
@@ -621,21 +770,21 @@ t          1
 driver_id  1000
 ruleset    EPIDEMIC
 rule       EPIDEMIC-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype EPIDEMIC s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    EPIDEMIC
 rule       EPIDEMIC-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype EPIDEMIC s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    EPIDEMIC
 rule       EPIDEMIC-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype EPIDEMIC s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test EPIDEMIC-1.2 {firings: no inception, non-local resolver} -setup {
@@ -651,14 +800,14 @@ t          1
 driver_id  1000
 ruleset    EPIDEMIC
 rule       EPIDEMIC-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype EPIDEMIC s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    EPIDEMIC
 rule       EPIDEMIC-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype EPIDEMIC s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test EPIDEMIC-1.3 {inputs: inception, local resolver} -setup {
@@ -706,21 +855,21 @@ t          1
 driver_id  1000
 ruleset    FOODSHRT
 rule       FOODSHRT-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype FOODSHRT s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    FOODSHRT
 rule       FOODSHRT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype FOODSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    FOODSHRT
 rule       FOODSHRT-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype FOODSHRT s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test FOODSHRT-1.2 {firings: no inception, non-local resolver} -setup {
@@ -736,14 +885,14 @@ t          1
 driver_id  1000
 ruleset    FOODSHRT
 rule       FOODSHRT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype FOODSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    FOODSHRT
 rule       FOODSHRT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype FOODSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test FOODSHRT-1.3 {inputs: inception, local resolver} -setup {
@@ -791,21 +940,21 @@ t          1
 driver_id  1000
 ruleset    FUELSHRT
 rule       FUELSHRT-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype FUELSHRT s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    FUELSHRT
 rule       FUELSHRT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype FUELSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    FUELSHRT
 rule       FUELSHRT-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype FUELSHRT s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test FUELSHRT-1.2 {firings: no inception, non-local resolver} -setup {
@@ -821,14 +970,14 @@ t          1
 driver_id  1000
 ruleset    FUELSHRT
 rule       FUELSHRT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype FUELSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    FUELSHRT
 rule       FUELSHRT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype FUELSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test FUELSHRT-1.3 {inputs: inception, local resolver} -setup {
@@ -876,21 +1025,21 @@ t          1
 driver_id  1000
 ruleset    GARBAGE
 rule       GARBAGE-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype GARBAGE s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    GARBAGE
 rule       GARBAGE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype GARBAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    GARBAGE
 rule       GARBAGE-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype GARBAGE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test GARBAGE-1.2 {firings: no inception, non-local resolver} -setup {
@@ -906,14 +1055,14 @@ t          1
 driver_id  1000
 ruleset    GARBAGE
 rule       GARBAGE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype GARBAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    GARBAGE
 rule       GARBAGE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype GARBAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test GARBAGE-1.3 {inputs: inception, local resolver} -setup {
@@ -962,21 +1111,21 @@ t          1
 driver_id  1000
 ruleset    INDSPILL
 rule       INDSPILL-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype INDSPILL s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    INDSPILL
 rule       INDSPILL-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype INDSPILL s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    INDSPILL
 rule       INDSPILL-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype INDSPILL s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test INDSPILL-1.2 {firings: no inception, non-local resolver} -setup {
@@ -992,14 +1141,14 @@ t          1
 driver_id  1000
 ruleset    INDSPILL
 rule       INDSPILL-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype INDSPILL s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    INDSPILL
 rule       INDSPILL-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype INDSPILL s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test INDSPILL-1.3 {inputs: inception, local resolver} -setup {
@@ -1047,21 +1196,21 @@ t          1
 driver_id  1000
 ruleset    MINEFIELD
 rule       MINEFIELD-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype MINEFIELD s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    MINEFIELD
 rule       MINEFIELD-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype MINEFIELD s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    MINEFIELD
 rule       MINEFIELD-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype MINEFIELD s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test MINEFIELD-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1077,14 +1226,14 @@ t          1
 driver_id  1000
 ruleset    MINEFIELD
 rule       MINEFIELD-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype MINEFIELD s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    MINEFIELD
 rule       MINEFIELD-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype MINEFIELD s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test MINEFIELD-1.3 {inputs: inception, local resolver} -setup {
@@ -1132,21 +1281,21 @@ t          1
 driver_id  1000
 ruleset    NOWATER
 rule       NOWATER-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype NOWATER s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    NOWATER
 rule       NOWATER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype NOWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    NOWATER
 rule       NOWATER-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype NOWATER s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test NOWATER-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1162,14 +1311,14 @@ t          1
 driver_id  1000
 ruleset    NOWATER
 rule       NOWATER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype NOWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    NOWATER
 rule       NOWATER-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype NOWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test NOWATER-1.3 {inputs: inception, local resolver} -setup {
@@ -1218,21 +1367,21 @@ t          1
 driver_id  1000
 ruleset    ORDNANCE
 rule       ORDNANCE-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype ORDNANCE s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    ORDNANCE
 rule       ORDNANCE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype ORDNANCE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    ORDNANCE
 rule       ORDNANCE-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype ORDNANCE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test ORDNANCE-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1248,14 +1397,14 @@ t          1
 driver_id  1000
 ruleset    ORDNANCE
 rule       ORDNANCE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype ORDNANCE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    ORDNANCE
 rule       ORDNANCE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype ORDNANCE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test ORDNANCE-1.3 {inputs: inception, local resolver} -setup {
@@ -1303,21 +1452,21 @@ t          1
 driver_id  1000
 ruleset    PIPELINE
 rule       PIPELINE-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype PIPELINE s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    PIPELINE
 rule       PIPELINE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype PIPELINE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    PIPELINE
 rule       PIPELINE-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype PIPELINE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test PIPELINE-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1333,14 +1482,14 @@ t          1
 driver_id  1000
 ruleset    PIPELINE
 rule       PIPELINE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype PIPELINE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    PIPELINE
 rule       PIPELINE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype PIPELINE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test PIPELINE-1.3 {inputs: inception, local resolver} -setup {
@@ -1388,21 +1537,21 @@ t          1
 driver_id  1000
 ruleset    POWEROUT
 rule       POWEROUT-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype POWEROUT s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    POWEROUT
 rule       POWEROUT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype POWEROUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    POWEROUT
 rule       POWEROUT-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype POWEROUT s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test POWEROUT-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1418,14 +1567,14 @@ t          1
 driver_id  1000
 ruleset    POWEROUT
 rule       POWEROUT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype POWEROUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    POWEROUT
 rule       POWEROUT-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype POWEROUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test POWEROUT-1.3 {inputs: inception, local resolver} -setup {
@@ -1473,21 +1622,21 @@ t          1
 driver_id  1000
 ruleset    REFINERY
 rule       REFINERY-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype REFINERY s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    REFINERY
 rule       REFINERY-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype REFINERY s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    REFINERY
 rule       REFINERY-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype REFINERY s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test REFINERY-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1503,14 +1652,14 @@ t          1
 driver_id  1000
 ruleset    REFINERY
 rule       REFINERY-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype REFINERY s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    REFINERY
 rule       REFINERY-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype REFINERY s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test REFINERY-1.3 {inputs: inception, local resolver} -setup {
@@ -1558,21 +1707,21 @@ t          1
 driver_id  1000
 ruleset    RELSITE
 rule       RELSITE-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype RELSITE s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    RELSITE
 rule       RELSITE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype RELSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    RELSITE
 rule       RELSITE-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype RELSITE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test RELSITE-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1588,14 +1737,14 @@ t          1
 driver_id  1000
 ruleset    RELSITE
 rule       RELSITE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype RELSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    RELSITE
 rule       RELSITE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype RELSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test RELSITE-1.3 {inputs: inception, local resolver} -setup {
@@ -1643,21 +1792,21 @@ t          1
 driver_id  1000
 ruleset    SEWAGE
 rule       SEWAGE-1-1
-fdict      s 1 n NB1 inception 1 coverage 1.0
+fdict      dtype SEWAGE s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    SEWAGE
 rule       SEWAGE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype SEWAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
 
 firing_id  3
 t          3
 driver_id  1001
 ruleset    SEWAGE
 rule       SEWAGE-2-1
-fdict      s 1 n NB1 coverage 1.0 resolver TAL
+fdict      dtype SEWAGE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolver TAL
     }
 
     test SEWAGE-1.2 {firings: no inception, non-local resolver} -setup {
@@ -1673,14 +1822,14 @@ t          1
 driver_id  1000
 ruleset    SEWAGE
 rule       SEWAGE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype SEWAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
 
 firing_id  2
 t          2
 driver_id  1000
 ruleset    SEWAGE
 rule       SEWAGE-1-2
-fdict      s 1 n NB1 inception 0 coverage 1.0
+fdict      dtype SEWAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver BLUE
     }
 
     test SEWAGE-1.3 {inputs: inception, local resolver} -setup {
@@ -1723,3 +1872,4 @@ t rule       aut        cul qol        sft
 }
 
 namespace delete ::athena_test::tests::
+

@@ -512,9 +512,8 @@ snit::type ::projectlib::typewrapper {
 # Situation State
 ::marsutil::enum ::projectlib::esitstate {
     INITIAL  Initial
-    ACTIVE   Active
-    INACTIVE Inactive
-    ENDED    Ended
+    ONGOING  Ongoing
+    RESOLVED Resolved
 }
 
 # Goal State.

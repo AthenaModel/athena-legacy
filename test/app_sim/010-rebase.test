@@ -43,7 +43,6 @@ namespace eval ::athena_test::tests:: {
         variable clockdata
 
         # Clean up the test environment
-        eventq restart
         simclock restore $clockdata
 
         if {[sim state] eq "RUNNING"} {

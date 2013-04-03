@@ -231,8 +231,7 @@ CREATE TABLE drivers (
 
     driver_id INTEGER PRIMARY KEY,  -- Integer ID
     dtype     TEXT,                 -- Driver type (usually a rule set name)
-    signature TEXT,                 -- Signature, by driver type.
-    narrative TEXT                  -- Narrative text
+    signature TEXT                  -- Signature, by driver type.
 );
 
 CREATE INDEX drivers_signature_index ON drivers(dtype,signature);
@@ -240,9 +239,12 @@ CREATE INDEX drivers_signature_index ON drivers(dtype,signature);
 -- Magic inputs to URAM are associated with MADs for causality purposes.
 -- A MAD is similar to an event or situation.
 
-CREATE TABLE mads_t (
-   -- Driver ID
-   driver_id     INTEGER PRIMARY KEY,
+CREATE TABLE mads (
+   -- MAD ID
+   mad_id        INTEGER PRIMARY KEY,
+
+   -- Narrative Text
+   narrative     TEXT DEFAULT '',
    
    -- Cause: an ecause(n) value, or NULL
    cause         TEXT DEFAULT '',
@@ -256,17 +258,6 @@ CREATE TABLE mads_t (
    -- Near Factor (q), a real fraction (0.0 to 1.0)
    q             DOUBLE DEFAULT 0.0
 );
-
-CREATE VIEW mads AS
-SELECT M.driver_id AS driver_id,
-       D.dtype     AS dtype,
-       D.narrative AS narrative,
-       M.cause     AS cause,
-       M.s         AS s,
-       M.p         AS p,
-       M.q         AS q
-FROM mads_t  AS M
-JOIN drivers AS D USING (driver_id);
 
 ------------------------------------------------------------------------
 -- RULE FIRING HISTORY

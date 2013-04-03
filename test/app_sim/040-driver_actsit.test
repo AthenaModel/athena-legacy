@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    040-actsit_rules.test
+#    040-driver_actsit.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    actsit_rules(sim) tests
+#    driver_actsit(sim) tests
 #
 #    This test suite tests that the actsit rules fire when appropriate.
 #
@@ -25,6 +25,19 @@ namespace eval ::athena_test::tests:: {
 
     # Import tcltest(n)
     namespace import ::tcltest::*
+
+    # Define an htools buffer for tests
+    htools ht
+
+    # pprint text
+    #
+    # text  - block text
+    #
+    # Prints it so that it looks nice in a -result option.
+
+    proc pprint {text} {
+        return "\n[string trim $text]\n    "
+    }
 
     # setup ?ensit?
     #
@@ -58,7 +71,7 @@ namespace eval ::athena_test::tests:: {
         if {$ensit ne ""} {
             parm set dam.$ensit.active no
             ted order ENSIT:CREATE location B00B00 stype $ensit \
-                coverage 1.0 inception 1 g NONE resolver NONE
+                coverage 1.0 inception 1 resolver NONE
         }
     }
     
@@ -92,9 +105,100 @@ namespace eval ::athena_test::tests:: {
     
     # Clean up after a test
     proc cleanup {} {
+        ht clear
         ted cleanup
     }
 
+    #-------------------------------------------------------------------
+    # sigline
+    #
+    # All situation types delegate to the same method in the same way,
+    # so we'll test just one.
+
+    test sigline-1.1 {sigline text} -setup {
+        # none needed
+    } -body {
+        driver::PATROL sigline {N1 BLUE}
+    } -cleanup {
+        cleanup
+    } -result {BLUE PATROL in N1}
+
+    #-------------------------------------------------------------------
+    # narrative
+    #
+    # All situation types delegate to the same method in the same way,
+    # so we'll test just one.
+
+
+    test narrative-1.1 {narrative text} -setup {
+        # none needed
+    } -body {
+        driver::PATROL narrative {
+            dtype       PATROL
+            n           N1
+            g           BLUE
+            coverage    0.25
+        }
+    } -cleanup {
+        cleanup
+    } -result {{group:BLUE} PATROL in {nbhood:N1} (25%)}
+    
+    #-------------------------------------------------------------------
+    # detail
+    #
+    # All situation types delegate to the same method in the same way,
+    # so we'll test just one.
+
+    test detail-1.1 {detail text, no mitigation} -setup {
+        setup
+    } -body {
+        assign CMO_CONSTRUCTION 2000
+        
+        set fdict [rdb onecolumn {SELECT fdict FROM rule_firings}]
+
+        driver::CMOCONST detail $fdict [namespace current]::ht
+        pprint [ht get]
+    } -cleanup {
+        cleanup
+    } -result {
+Group <a href="my://app/group/BLUE">BLUE</a>
+is performing the CMO_CONSTRUCTION activity
+in neighborhood
+<a href="my://app/nbhood/NB1">NB1</a>
+with 2000 effective personnel.
+yielding 100% coverage.<p>
+
+Note: The coverage function is 20/1000
+(2/3rds coverage at 20 personnel per 1000 in the population).<p>
+    }
+    
+    test detail-1.2 {detail text, mitigation} -setup {
+        setup DISEASE
+    } -body {
+        assign CMO_CONSTRUCTION 2000
+        
+        set fdict [rdb onecolumn {SELECT fdict FROM rule_firings}]
+
+        driver::CMOCONST detail $fdict [namespace current]::ht
+        pprint [ht get]
+    } -cleanup {
+        cleanup
+    } -result {
+Group <a href="my://app/group/BLUE">BLUE</a>
+is performing the CMO_CONSTRUCTION activity
+in neighborhood
+<a href="my://app/nbhood/NB1">NB1</a>
+with 2000 effective personnel.
+yielding 100% coverage.<p>
+
+The activity is mitigating the following ensits:
+DISEASE.<p>
+
+Note: The coverage function is 20/1000
+(2/3rds coverage at 20 personnel per 1000 in the population).<p>
+    }
+    
+ 
     #-------------------------------------------------------------------
     # DISPLACED
     
@@ -122,7 +226,7 @@ t          0
 driver_id  1000
 ruleset    CHKPOINT
 rule       CHKPOINT-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CHKPOINT n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test CHKPOINT-1.2 {Rule 1-1 inputs} -setup {
@@ -152,7 +256,7 @@ coop  SUNN BLUE
     # CMOCONST
     
     test CMOCONST-1.1 {Rule 1-1 fires} -setup {
-        setup
+        setup DISEASE
     } -body {
         assign CMO_CONSTRUCTION 2000
         ted querylist {SELECT * FROM rule_firings}
@@ -164,7 +268,7 @@ t          0
 driver_id  1000
 ruleset    CMOCONST
 rule       CMOCONST-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOCONST n NB1 g BLUE personnel 2000 coverage 1.0 mitigates DISEASE
     }
 
     test CMOCONST-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -229,7 +333,7 @@ t          0
 driver_id  1000
 ruleset    CMODEV
 rule       CMODEV-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMODEV n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test CMODEV-1.2 {Rule 1-1 inputs} -setup {
@@ -271,7 +375,7 @@ t          0
 driver_id  1000
 ruleset    CMOEDU
 rule       CMOEDU-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOEDU n NB1 g BLUE personnel 2000 coverage 1.0 mitigates {}
     }
 
     test CMOEDU-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -339,7 +443,7 @@ t          0
 driver_id  1000
 ruleset    CMOEMP
 rule       CMOEMP-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOEMP n NB1 g BLUE personnel 2000 coverage 1.0 mitigates {}
     }
 
     test CMOEMP-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -396,7 +500,7 @@ coop  SUNN BLUE     mitigates
     # CMOIND
     
     test CMOIND-1.1 {Rule 1-1 fires} -setup {
-        setup
+        setup NOWATER
     } -body {
         assign CMO_INDUSTRY 2000
         ted querylist {SELECT * FROM rule_firings}
@@ -408,7 +512,7 @@ t          0
 driver_id  1000
 ruleset    CMOIND
 rule       CMOIND-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOIND n NB1 g BLUE personnel 2000 coverage 1.0 mitigates NOWATER
     }
 
     test CMOIND-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -462,7 +566,7 @@ coop  SUNN BLUE     mitigates
     # CMOINF
     
     test CMOINF-1.1 {Rule 1-1 fires} -setup {
-        setup
+        setup NOWATER
     } -body {
         assign CMO_INFRASTRUCTURE 2000
         ted querylist {SELECT * FROM rule_firings}
@@ -474,7 +578,7 @@ t          0
 driver_id  1000
 ruleset    CMOINF
 rule       CMOINF-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOINF n NB1 g BLUE personnel 2000 coverage 1.0 mitigates NOWATER
     }
 
     test CMOINF-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -540,7 +644,7 @@ t          0
 driver_id  1000
 ruleset    CMOLAW
 rule       CMOLAW-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOLAW n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test CMOLAW-1.2 {Rule 1-1 inputs} -setup {
@@ -567,7 +671,7 @@ coop  SUNN BLUE
     # CMOMED
     
     test CMOMED-1.1 {Rule 1-1 fires} -setup {
-        setup
+        setup DISEASE
     } -body {
         assign CMO_HEALTHCARE 2000
         ted querylist {SELECT * FROM rule_firings}
@@ -579,7 +683,7 @@ t          0
 driver_id  1000
 ruleset    CMOMED
 rule       CMOMED-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOMED n NB1 g BLUE personnel 2000 coverage 1.0 mitigates DISEASE
     }
 
     test CMOMED-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -629,7 +733,7 @@ coop  SUNN BLUE     mitigates
     # CMOOTHER
     
     test CMOOTHER-1.1 {Rule 1-1 fires} -setup {
-        setup
+        setup DISEASE
     } -body {
         assign CMO_OTHER 2000
         ted querylist {SELECT * FROM rule_firings}
@@ -641,7 +745,7 @@ t          0
 driver_id  1000
 ruleset    CMOOTHER
 rule       CMOOTHER-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CMOOTHER n NB1 g BLUE personnel 2000 coverage 1.0 mitigates DISEASE
     }
 
     test CMOOTHER-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -707,7 +811,7 @@ t          0
 driver_id  1000
 ruleset    COERCION
 rule       COERCION-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype COERCION n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test COERCION-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -749,7 +853,7 @@ t          0
 driver_id  1000
 ruleset    CRIMINAL
 rule       CRIMINAL-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CRIMINAL n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test CRIMINAL-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -788,7 +892,7 @@ t          0
 driver_id  1000
 ruleset    CURFEW
 rule       CURFEW-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype CURFEW n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test CURFEW-1.2 {Rule 1-1 inputs} -setup {
@@ -831,7 +935,7 @@ t          0
 driver_id  1000
 ruleset    GUARD
 rule       GUARD-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype GUARD n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test GUARD-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -873,7 +977,7 @@ t          0
 driver_id  1000
 ruleset    PATROL
 rule       PATROL-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype PATROL n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test PATROL-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -915,7 +1019,7 @@ t          0
 driver_id  1000
 ruleset    PSYOP
 rule       PSYOP-1-1
-fdict      n NB1 g BLUE coverage 1.0
+fdict      dtype PSYOP n NB1 g BLUE personnel 2000 coverage 1.0
     }
 
     test PSYOP-1.2 {Rule 1-1 inputs} -setup {
@@ -958,7 +1062,7 @@ t          0
 driver_id  1000
 ruleset    ORGCONST
 rule       ORGCONST-1-1
-fdict      n NB1 g HAL coverage 1.0
+fdict      dtype ORGCONST n NB1 g HAL personnel 2000 coverage 1.0 mitigates {}
     }
 
     test ORGCONST-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -1020,7 +1124,7 @@ t          0
 driver_id  1000
 ruleset    ORGEDU
 rule       ORGEDU-1-1
-fdict      n NB1 g HAL coverage 1.0
+fdict      dtype ORGEDU n NB1 g HAL personnel 2000 coverage 1.0 mitigates {}
     }
 
     test ORGEDU-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -1084,7 +1188,7 @@ t          0
 driver_id  1000
 ruleset    ORGEMP
 rule       ORGEMP-1-1
-fdict      n NB1 g HAL coverage 1.0
+fdict      dtype ORGEMP n NB1 g HAL personnel 2000 coverage 1.0 mitigates {}
     }
 
     test ORGEMP-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -1149,7 +1253,7 @@ t          0
 driver_id  1000
 ruleset    ORGIND
 rule       ORGIND-1-1
-fdict      n NB1 g HAL coverage 1.0
+fdict      dtype ORGIND n NB1 g HAL personnel 2000 coverage 1.0 mitigates {}
     }
 
     test ORGIND-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -1211,7 +1315,7 @@ t          0
 driver_id  1000
 ruleset    ORGINF
 rule       ORGINF-1-1
-fdict      n NB1 g HAL coverage 1.0
+fdict      dtype ORGINF n NB1 g HAL personnel 2000 coverage 1.0 mitigates {}
     }
 
     test ORGINF-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -1274,7 +1378,7 @@ t          0
 driver_id  1000
 ruleset    ORGMED
 rule       ORGMED-1-1
-fdict      n NB1 g HAL coverage 1.0
+fdict      dtype ORGMED n NB1 g HAL personnel 2000 coverage 1.0 mitigates {}
     }
 
     test ORGMED-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -1337,7 +1441,7 @@ t          0
 driver_id  1000
 ruleset    ORGOTHER
 rule       ORGOTHER-1-1
-fdict      n NB1 g HAL coverage 1.0
+fdict      dtype ORGOTHER n NB1 g HAL personnel 2000 coverage 1.0 mitigates {}
     }
 
     test ORGOTHER-1.2 {Rule 1-1 inputs, no mitigation} -setup {
@@ -1389,6 +1493,7 @@ sat   SUNN QOL mitigates
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

@@ -329,7 +329,6 @@ snit::type ::projectlib::scenariodb {
         $db configurelist $args
 
         # NEXT, register the schema sections
-        $db register ::marsutil::eventq
         $db register ::marsutil::undostack
         $db register ::simlib::mam
         $db register ::simlib::ucurve

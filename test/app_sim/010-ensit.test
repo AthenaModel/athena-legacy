@@ -58,13 +58,6 @@ namespace eval ::athena_test::tests:: {
                 rduration ""] 
 
     #-------------------------------------------------------------------
-    # table
-  
-    test table-1.1 {Check return value} -body {
-        ensit table
-    } -result {ensits_t}
-
-    #-------------------------------------------------------------------
     # mutate create
 
     test create-1.1 {Ensit is created} -setup {
@@ -77,41 +70,29 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       INITIAL
-ts          0
-tc          0
-change      NEW
-flist       ALL
-g           BLUE
-location    100 100
-inception   1
-resolver    NONE
-rduration   1
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   NONE
+rduration  1
+n          NB1
+state      INITIAL
+ts         0
+tr         1
 
-s           2
-kind        ::ensit
-stype       COMMOUT
-driver_id   -1
-n           NB1
-coverage    0.5
-state       INITIAL
-ts          0
-tc          0
-change      NEW
-flist       ALL
-g           NONE
-location    100 100
-inception   0
-resolver    BLUE
-rduration   1
-rdriver_id  0
+s          2
+stype      COMMOUT
+location   100 100
+coverage   0.5
+inception  0
+resolver   BLUE
+rduration  1
+n          NB1
+state      INITIAL
+ts         0
+tr         1
     }
     
 
@@ -124,23 +105,17 @@ rdriver_id  0
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       INITIAL
-ts          0
-tc          0
-change      NEW
-flist       ALL
-g           BLUE
-location    100 100
-inception   1
-resolver    NONE
-rduration   20
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   NONE
+rduration  20
+n          NB1
+state      INITIAL
+ts         0
+tr         20
     }
 
     test create-1.3 {If created while PAUSED, ts = now+1} -setup {
@@ -153,23 +128,17 @@ rdriver_id  0
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       INITIAL
-ts          1
-tc          0
-change      NEW
-flist       ALL
-g           BLUE
-location    100 100
-inception   1
-resolver    NONE
-rduration   1
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   NONE
+rduration  1
+n          NB1
+state      INITIAL
+ts         1
+tr         2
     }
 
     
@@ -212,23 +181,17 @@ rdriver_id  0
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       INITIAL
-ts          0
-tc          0
-change      NEW
-flist       ALL
-g           BLUE
-location    100 100
-inception   1
-resolver    NONE
-rduration   1
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   NONE
+rduration  1
+n          NB1
+state      INITIAL
+ts         0
+tr         1
     }
 
 
@@ -255,23 +218,17 @@ rdriver_id  0
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADFOOD
-driver_id   -1
-n           NB1
-coverage    0.5
-state       INITIAL
-ts          0
-tc          0
-change      NEW
-flist       ALL
-g           NONE
-location    101 101
-inception   0
-resolver    BLUE
-rduration   10
-rdriver_id  0
+s          1
+stype      BADFOOD
+location   101 101
+coverage   0.5
+inception  0
+resolver   BLUE
+rduration  10
+n          NB1
+state      INITIAL
+ts         0
+tr         10
     }
 
     test update-1.2 {identical values are OK} -setup {
@@ -376,23 +333,17 @@ s n
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       ENDED
-ts          0
-tc          0
-change      RESOLVED
-flist       ALL
-g           BLUE
-location    100 100
-inception   1
-resolver    NONE
-rduration   1
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   NONE
+rduration  0
+n          NB1
+state      RESOLVED
+ts         0
+tr         0
     }
 
 
@@ -420,41 +371,7 @@ rdriver_id  0
     #-------------------------------------------------------------------
     # mutate reconcile
 
-    # g set to NONE if g doesn't exist
-
-    test reconcile-1.1 {g set to NONE if g doesn't exist} -setup {
-        ted create NB1
-        ensit mutate create [dict merge $s1 [list g NONESUCH]]
-    } -body {
-        ensit mutate reconcile
-
-        ted querylist {SELECT * FROM ensits}
-    } -cleanup {
-        cleanup
-    } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       INITIAL
-ts          0
-tc          0
-change      NEW
-flist       ALL
-g           NONE
-location    100 100
-inception   1
-resolver    NONE
-rduration   1
-rdriver_id  0
-    }
-
-
-    # resolver set to NONE if resolver doesn't exist
-
-    test reconcile-2.1 {resolver set to NONE if resolver doesn't exist} -setup {
+    test reconcile-1.1 {resolver set to NONE if resolver doesn't exist} -setup {
         ted create NB1
         ensit mutate create [dict merge $s1 [list g NONE]]
         ensit mutate resolve [list s 1 resolver BLUE]
@@ -465,29 +382,23 @@ rdriver_id  0
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       ENDED
-ts          0
-tc          0
-change      RESOLVED
-flist       ALL
-g           NONE
-location    100 100
-inception   1
-resolver    NONE
-rduration   1
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   NONE
+rduration  0
+n          NB1
+state      RESOLVED
+ts         0
+tr         0
     }
 
 
     # n reset
 
-    test reconcile-3.1 {n reset} -setup {
+    test reconcile-2.1 {n reset} -setup {
         ted create NB1 BLUE
         ensit mutate create $s1
         nbhood mutate delete NB1
@@ -498,29 +409,23 @@ rdriver_id  0
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           
-coverage    1.0
-state       INITIAL
-ts          0
-tc          0
-change      NEW
-flist       ALL
-g           BLUE
-location    100 100
-inception   1
-resolver    NONE
-rduration   1
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   NONE
+rduration  1
+n          
+state      INITIAL
+ts         0
+tr         1
     }
 
 
     # Undo restores everything
 
-    test reconcile-4.1 {Undo restores everything} -setup {
+    test reconcile-3.1 {Undo restores everything} -setup {
         ted create NB1
         ensit mutate create $s1
         ensit mutate resolve [list s 1 resolver BRIT]
@@ -534,57 +439,55 @@ rdriver_id  0
     } -cleanup {
         cleanup
     } -result {
-s           1
-kind        ::ensit
-stype       BADWATER
-driver_id   -1
-n           NB1
-coverage    1.0
-state       ENDED
-ts          0
-tc          0
-change      RESOLVED
-flist       ALL
-g           BLUE
-location    100 100
-inception   1
-resolver    BRIT
-rduration   1
-rdriver_id  0
+s          1
+stype      BADWATER
+location   100 100
+coverage   1.0
+inception  1
+resolver   BRIT
+rduration  0
+n          NB1
+state      RESOLVED
+ts         0
+tr         0
     }
 
 
     #-------------------------------------------------------------------
     # get
 
-    test get-1.1 {get -all} -setup {
+    test get-1.1 {get all} -setup {
         ted create NB1 BLUE
         ensit mutate create $s1
         ensit mutate create $s2
     } -body {
-        set sit [ensit get 1]
-        $sit oneliner
+        ted pdict [ensit get 1]
+        
     } -cleanup {
         cleanup
-    } -result {BADWATER in NB1}
+    } -result {
+        rduration 1
+        state     INITIAL
+        resolver  NONE
+        s         1
+        stype     BADWATER
+        tr        1
+        ts        0
+        location  {100 100}
+        inception 1
+        coverage  1.0
+        n         NB1
+    }
 
-
-    test get-1.2 {get -live} -setup {
+    test get-1.2 {get parm} -setup {
         ted create NB1 BLUE
         ensit mutate create $s1
         ensit mutate create $s2
-        ensit mutate resolve { 
-            s        1 
-            resolver NONE
-        }
     } -body {
-        set sit [ensit get 1 -live]
-    } -returnCodes {
-        error
+        ensit get 1 n
     } -cleanup {
         cleanup
-    } -result {no such live situation: "1"}
-
+    } -result {NB1}
 
     #-------------------------------------------------------------------
     # existsInNbhood
@@ -593,6 +496,7 @@ rdriver_id  0
         ted create NB1 BLUE
         ensit mutate create $s1
         ensit mutate create $s2
+
         ensit mutate resolve {
             s        2
             resolver NONE
@@ -643,7 +547,7 @@ rdriver_id  0
     #-------------------------------------------------------------------
     # names/validate
     #
-    # enum(n)-like subcommands for all ensits, live and ended.
+    # enum(n)-like subcommands for all ensits, live and RESOLVED.
 
     test names-1.1 {get list of ensit IDs} -setup {
         ted create NB1 BLUE
@@ -715,7 +619,7 @@ rdriver_id  0
     } -result {1}
     
 
-    test initial_names-1.3 {validate ended ID} -setup {
+    test initial_names-1.3 {validate RESOLVED ID} -setup {
         ted create NB1 BLUE
         ensit mutate create $s1
         ensit mutate create $s2
@@ -736,7 +640,7 @@ rdriver_id  0
         ted create NB1 BLUE
         ensit mutate create $s1
         ensit mutate create $s2
-        [ensit get 2] set state ACTIVE
+        rdb eval {UPDATE ensits SET state='ONGOING' WHERE s=2}
     } -body {
         ensit initial validate 2
     } -returnCodes {
@@ -798,107 +702,6 @@ rdriver_id  0
 
 
     #-------------------------------------------------------------------
-    # auto-resolve
-
-    test auto-resolve-1.1 {Auto-Resolve is not yet scheduled on create} -setup {
-        ted create NB1 BLUE SHIA
-    } -body {
-        ensit mutate create $s1
-        ted query {SELECT * FROM eventq_queue_ensitAutoResolve}
-    } -cleanup {
-        cleanup
-    } -result {
-    }
-
-
-    test auto-resolve-1.2 {Auto-Resolve is scheduled on first assess} -setup {
-        ted create NB1 BLUE SHIA
-        ensit mutate create $s1
-    } -body {
-        ted lock
-        ted query {SELECT * FROM eventq_queue_ensitAutoResolve}
-    } -cleanup {
-        cleanup
-    } -result {
-id t etype            s 
--- - ---------------- - 
-1  1 ensitAutoResolve 1 
-    }
-
-
-    test auto-resolve-1.3 {auto-resolve is canceled on resolve} -setup {
-        ted create NB1 BLUE SHIA
-        ensit mutate create $s1
-        ted lock
-        ted order SIM:RUN weeks 1 block yes
-    } -body {
-        ensit mutate resolve {
-            s        1
-            resolver NONE
-        }
-
-        ted query {SELECT * FROM eventq_queue_ensitAutoResolve}
-    } -cleanup {
-        cleanup
-    } -result {
-    }
-
-
-    test auto-resolve-1.4 {undo restores scheduled auto-resolve} -setup {
-        ted create NB1 BLUE SHIA
-        ensit mutate create $s1
-        ted lock
-        set undo [ensit mutate resolve {
-            s        1
-            resolver NONE
-        }]
-    } -body {
-        {*}$undo
-
-        ted query {SELECT * FROM eventq_queue_ensitAutoResolve}
-    } -cleanup {
-        cleanup
-    } -result {
-id t etype            s 
--- - ---------------- - 
-2  1 ensitAutoResolve 1 
-    }
-
-
-    test auto-resolve-1.5 {Ensits auto-resolve at auto-resolve time} -setup {
-        parm set dam.CONSUMP.active no
-        parm set dam.UNEMP.active no
-        parm set dam.MOOD.active no
-        ted create NB1 BLUE SHIA
-        ensit mutate create [dict merge $s2 [list rduration 2]]
-    } -body {
-        ted lock
-        ted order SIM:RUN weeks 4 block yes
-
-        ted querylist {SELECT * FROM ensits}
-    } -cleanup {
-        cleanup
-    } -result {
-s           1
-kind        ::ensit
-stype       COMMOUT
-driver_id   1000
-n           NB1
-coverage    0.5
-state       ENDED
-ts          0
-tc          2
-change      RESOLVED
-flist       ALL
-g           NONE
-location    100 100
-inception   0
-resolver    BLUE
-rduration   2
-rdriver_id  1002
-    }
-
-    #-------------------------------------------------------------------
     # rebase
 
     test rebase-1.1 {Clean up ensits} -setup {
@@ -913,30 +716,24 @@ rdriver_id  1002
     } -body {
         ensit rebase
 
-        # Ended ensits should be gone.  For those remaining,
+        # RESOLVED ensits should be gone.  For those remaining,
         # tc=ts=now (t=2); state is INITIAL; inception is 0;
         # driver IDs are unassigned; duration is truncated.
         ted querylist {SELECT * FROM ensits}
     } -cleanup {
         cleanup
     } -result {
-s           3
-kind        ::ensit
-stype       INDSPILL
-driver_id   -1
-n           NB1
-coverage    1.0
-state       INITIAL
-ts          2
-tc          2
-change      NEW
-flist       ALL
-g           BLUE
-location    100 100
-inception   0
-resolver    NONE
-rduration   10
-rdriver_id  0
+s          3
+stype      INDSPILL
+location   100 100
+coverage   1.0
+inception  0
+resolver   NONE
+rduration  10
+n          NB1
+state      INITIAL
+ts         2
+tr         12
     }    
 
     #-------------------------------------------------------------------

@@ -711,22 +711,16 @@ snit::type ::projectlib::parmdb {
                 which the rule set fires.
             }
 
-            # Add standard parameters for Activity rule sets
+            # Add mitigates parm for activities that support mitigation
+            # of ensits. 
             if {$name in {
-                CHKPOINT
                 CMOCONST
-                CMODEV
                 CMOEDU
                 CMOEMP
                 CMOIND
                 CMOINF
-                CMOLAW
                 CMOMED
                 CMOOTHER
-                COERCION
-                CRIMINAL
-                CURFEW
-                GUARD
                 ORGCONST
                 ORGEDU
                 ORGEMP
@@ -734,8 +728,6 @@ snit::type ::projectlib::parmdb {
                 ORGINF
                 ORGMED
                 ORGOTHER
-                PATROL
-                PSYOP
             }} {
                 $ps define dam.$name.mitigates ::projectlib::leensit {} {
                     List of environmental situation types mitigated by this
@@ -1058,6 +1050,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.POWEROUT.farFactor     0.0
 
         # Rule Set: PRESENCE
+        $ps setdefault dam.PRESENCE.active        0
         $ps setdefault dam.PRESENCE.cause         PRESENCE
         $ps setdefault dam.PRESENCE.nearFactor    0.25
         $ps setdefault dam.PRESENCE.farFactor     0.0

@@ -26,5 +26,5 @@ the order of execution.
 010:     Scenario and Simulation modules
 020:     Simulation orders
 030:     Athena Executive commands and functions
-040:     Rule Sets
+040:     Driver Types (I.e., rule sets)
 050:     appserver pages

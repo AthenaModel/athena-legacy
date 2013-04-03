@@ -121,7 +121,9 @@ SELECT CG.n              AS n,
        DG.g              AS g,
        DG.population     AS population,
        DG.uaf            AS guaf,
-       DN.uaf            AS nuaf
+       DG.upc            AS gupc,
+       DN.uaf            AS nuaf,
+       DN.upc            AS nupc
 FROM demog_g   AS DG
 JOIN civgroups AS CG USING (g)
 JOIN demog_n   AS DN USING (n);

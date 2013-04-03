@@ -50,7 +50,7 @@ snit::type ted {
         demog_n
         deploy_ng
         drivers
-        ensits_t
+        ensits
         expenditures
         frcgroups
         goals
@@ -60,7 +60,7 @@ snit::type ted {
         hrel_fg
         income_a
         ioms
-        mads_t
+        mads
         nbhoods
         nbrel_mn
         orggroups
@@ -71,7 +71,6 @@ snit::type ted {
         sigevents
         sigevent_tags
         sigevent_marks
-        situations
         stance_fg
         stance_nfg
         tactics
@@ -89,7 +88,6 @@ snit::type ted {
 
     typevariable cleanupModules {
         nbhood
-        situation
     }
 
     #-------------------------------------------------------------------
@@ -624,7 +622,6 @@ snit::type ted {
     # * Resyncs the $cleanupModules with the RDB
     # * Clears the CIF
     # * Resets the parms
-    # * Restarts the eventq(n) queue
     
     typemethod cleanup {} {
         set createdEntities {}
@@ -655,12 +652,10 @@ snit::type ted {
 
         cif      clear
         parm     reset
-        eventq   restart
         bsystem  clear
         econ     reset
         simclock reset
         aram     clear
-
     }
 
     # sendex ?-error? command...
@@ -1019,4 +1014,5 @@ snit::type ted {
     }
 
 }
+
 
