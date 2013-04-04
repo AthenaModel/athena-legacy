@@ -147,12 +147,12 @@ snit::type sim {
 
     # snapshot first
     #
-    # Loads the tick 0 snapshot, which resets the simulation as a 
+    # Loads the first snapshot, which resets the simulation as a 
     # whole to the moment before it first 
     # transitioned from PAUSED to RUNNING.
 
     typemethod {snapshot first} {} {
-        $type LoadSnapshot 0
+        $type LoadSnapshot [lindex [scenario snapshot list] 0]
 
         return
     }
