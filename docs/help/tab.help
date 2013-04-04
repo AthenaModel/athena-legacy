@@ -761,23 +761,20 @@ tab "Neighborhoods/EnSits" {
 
     <<topic "ID">>The ID of the situation.<</topic>>
 
-    <<topic "Change">>This field indicates the situations that changed
-    during the last major time step, and how they changed, i.e., were
-    they new, were they resolved, and so forth.
-    <</topic>>
-
     <<topic "State">>The state of the situation, one of
-    <b>INITIAL</b>, <b>ACTIVE</b>, or <b>ENDED</b>.<p>
+    <b>INITIAL</b>, <b>ONGOING</b>, or <b>RESOLVED</b>.<p>
 
     An <b>INITIAL</b> situation
     has just been created; its attitude implications have not yet been
     assessed.  <b>INITIAL</b> situations may be modified as desired,
     and move from one neighborhood to another.<p>
 
-    An <b>ACTIVE</b> situation is currently affecting attitudes in the
+    An <b>ONGOING</b> situation is currently affecting attitudes in the
     neighborhood.<p>
 
-    An <b>ENDED</b> situation has been resolved.
+    A <b>RESOLVED</b> situation has been resolved. Note that 
+    resolved situations are deleted automatically on the tick after 
+    they were resolved.
     <</topic>>
 
     <<topic "Type">>The situation type.<</topic>>
@@ -798,14 +795,6 @@ tab "Neighborhoods/EnSits" {
     began to affect attitudes.
     <</topic>>
 
-    <<topic "Changed At">>The simulation time at which the situation
-    last changed.
-    <</topic>>
-
-    <<topic "Caused By">>The group, if any, that caused the situation,
-    or <b>NONE</b>.
-    <</topic>>
-
     <<topic "Resolved By">>The group, if any, that will automatically
     resolve the situation at the scheduled resolution time, or <b>NONE</b>.
     <</topic>>
@@ -813,9 +802,6 @@ tab "Neighborhoods/EnSits" {
     <<topic "Resolve At">>The time at which the situation should be
     automatically resolved.  Note that the analyst may resolve the 
     situation manually prior to that time.
-    <</topic>>
-
-    <<topic "Driver">>The GRAM driver ID associated with the situation.
     <</topic>>
 
     <</topiclist>>
@@ -850,12 +836,10 @@ tab "Neighborhoods/EnSits" {
     The following sets may be selected from the pulldown:<p>
 
     <ul>
-    <li> <b>All</b>: All situations, whether <b>Current</b> or
-    <b>Ended</b>.
-    <li> <b>Current</b>: Situations which are currently <b>INITIAL</b>
-    or <b>ACTIVE</b>, or have <b>ENDED</b> during the last major
-    time step.
-    <li> <b>Ended</b>: Situations which have <b>ENDED</b>.
+    <li> <b>All</b>: All situations
+    <li> <b>Unassessed</b>: Situations in the <b>INITIAL</b> state.
+    <li> <b>Ongoing</b>: Situations in the <b>ONGOING</b> state.
+    <li> <b>Resolved</b>: Situations in the <b>RESOLVED</b> state.
     </ul>
     <</topic>>
 
@@ -1072,7 +1056,7 @@ tab "Groups/OrgGroups" {
 
 tab "Attitudes" {
     The subtabs of the Attitudes tab display various data related to the 
-    GRAM attitude model.  The full set of subtabs is as follows:<p>
+    URAM attitude model.  The full set of subtabs is as follows:<p>
 
     <<childlinks>>
 }
@@ -1917,43 +1901,42 @@ tab "Attitudes/Magic Attitude Drivers" {
 
     <<topic "ID">>The ID of the Magic Attitude Driver<</topic>>
 
-    <<topic "Description">>A short one-line description of the driver,
+    <<topic "Narrative">>A short one-line description of the driver,
     e.g., as a memory-jogger for the analyst.
     <</topic>>
 
     <<topic "Cause">>The <<term cause>> associated with the driver.  Every
-    input to GRAM is associated with a cause; inputs with different
+    input to URAM is associated with a cause; inputs with different
     causes are independent of one another.  The cause may be any of
     the causes supported by Athena's Driver Assessment Model rule
     sets, or <b>UNIQUE</b>, indicating that this driver's effects are
     independent of all other drivers.
     <</topic>>
 
-    <<topic "Here Factor (s)">>A GRAM input can have indirect effects
+    <<topic "Here Factor (s)">>A URAM input can have indirect effects
     in the same neighborhood, i.e., <b>HERE</b>.  The here factor is a
     real number between 0.0 and 1.0 and determines the strength of
     these indirect effects.  If 0.0, there will be no <b>HERE</b>
     effects.  The here factor is usually 1.0.
     <</topic>>
 
-    <<topic "Near Factor (p)">>A GRAM input can have indirect effects
+    <<topic "Near Factor (p)">>A URAM input can have indirect effects
     in <b>NEAR</b> neighborhoods.  The near factor is a real number
     between 0.0 and 1.0 and determines the strength of these indirect
     effects.  If 0.0, there will be no <b>NEAR</b> effects.
     <</topic>>
 
-    <<topic "Far Factor (q)">>A GRAM input can have indirect effects
+    <<topic "Far Factor (q)">>A URAM input can have indirect effects
     in <b>FAR</b> neighborhoods.  The far factor is a real number
     between 0.0 and 1.0 and determines the strength of these indirect
     effects.  If 0.0, there will be no <b>FAR</b> effects.
     <</topic>>
 
-    <<topic "Driver">>The GRAM Driver ID associated with this MAD, or
-    -1 during <<term prep>>. <</topic>>
-
-    <<topic "Inputs">>The number of satisfaction and cooperation
-    inputs and adjustments associated with this MAD.
+    <<topic "Driver ID">>The URAM Driver ID associated with this MAD.  
+    There will be no driver ID until the first time magic inputs 
+    associated with the MAD are assessed.
     <</topic>>
+
     <</topiclist>>
 
     <b><a name="controls">Browser Controls:</a></b>  The browser's
@@ -2387,7 +2370,7 @@ tab "Econ" {
 tab "Econ/SAM" {
 
     This tab displays a social accounting matrix (SAM) of the economy
-    in spreadsheet form. The diagram below shows this tab when Athena
+    in spreadsheet form. The diaURAM below shows this tab when Athena
     is in <<term prep>> mode.<p>
 
     <<image econ_sam>><p>
@@ -2437,7 +2420,7 @@ tab "Econ/SAM" {
 
     When Athena is locked, all the cells on the SAM remain visible, but are
     no longer editable unless the user returns to the <<term prep>> state.
-    The diagram below shows this tab when Athena is <<term lock>>ed.<p>
+    The diaURAM below shows this tab when Athena is <<term lock>>ed.<p>
 
     <<image econ_sam_locked>><p>
 
