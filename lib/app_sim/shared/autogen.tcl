@@ -969,6 +969,7 @@ snit::type autogen {
         set numn [llength $nbhoods]
         set housing [ehousing names]
         set nhousing [llength $housing]
+        set civ_id 0
 
         # FIRST, step through number of civgroups per nbhood.
         for {set i 0} {$i < $num} {incr i} {
@@ -985,7 +986,7 @@ snit::type autogen {
 
             # NEXT, step through neighborhoods creating groups as we go
             for {set j 0} {$j < $numn} {incr j} {
-                set parms(g) C$j$i
+                set parms(g) "C[format "%04d" $civ_id]"
                 set parms(n) [lindex $nbhoods $j]
 
                 # NEXT set housing
@@ -994,6 +995,8 @@ snit::type autogen {
                 # NEXT cycle to next housing index, returning to the
                 # first if necessary
                 incr ctr
+                incr civ_id
+
                 if {[expr {$ctr % $nhousing}] == 0} {
                     set ctr 0
                 }
