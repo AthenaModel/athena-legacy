@@ -74,6 +74,16 @@ enum etopitems {
     TOP100 "Top 100"
 }
 
+# Page Sizes for paged appserver tables
+
+enum epagesize {
+    ALL   "All items"
+    PS10  "10 items per page"
+    PS20  "20 items per page"
+    PS50  "50 items per page"
+    PS100 "100 items per page"
+}
+
 # parmdb Parameter state
 
 enum eparmstate { 

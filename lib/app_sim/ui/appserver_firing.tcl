@@ -1,0 +1,358 @@
+#-----------------------------------------------------------------------
+# TITLE:
+#    appserver_firing.tcl
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    app_sim(n), appserver(sim) module: firings
+#
+#    my://app/firings
+#    my://app/firing/{id}
+#
+#-----------------------------------------------------------------------
+
+
+#-----------------------------------------------------------------------
+# appserver module
+
+appserver module firing {
+
+    #-------------------------------------------------------------------
+    # Look up tables
+
+    # Number of items by page size symbol.
+    # TBD: We really need an enum that does this properly.
+    typevariable sizes -array {
+        ALL   0
+        PS5   5
+        PS10  10
+        PS20  20
+        PS50  50
+        PS100 100
+    }
+
+    #-------------------------------------------------------------------
+    # Public methods
+
+    # init
+    #
+    # Initializes the appserver module.
+
+    typemethod init {} {
+        # FIRST, register the resource types
+        appserver register /firings {firings/?}          \
+            text/html    [myproc /firings:html] {
+                Links to all of the rule firings to date, with
+                filtering.
+            }
+
+        appserver register /firing/{id} {firing/(\w+)/?} \
+            text/html [myproc /firing:html]            \
+            "Detail page for rule firing {id}."
+    }
+
+
+
+    #-------------------------------------------------------------------
+    # /firings: All defined firings
+    #
+    # No match parameters
+
+    # /firings:html udict matchArray
+    #
+    # Tabular display of firing data; content depends on 
+    # simulation state.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    start       - Start time in ticks
+    #    end         - End time in ticks
+    #    page_size   - The number of items on a single page
+    #    page        - The page number, 1 to N
+    #
+    # Unknown query parameters and invalid query values are ignored.
+
+
+    proc /firings:html {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # FIRST, get the query parameters and bring them into scope.
+        set qdict [GetFiringParms $udict]
+        dict with qdict {}
+
+        
+        # Begin the page
+        ht page "DAM Rule Firings"
+        ht title "DAM Rule Firings"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        # NEXT, insert the control form.
+        ht hr
+        ht form
+        ht label page_size "Page Size:"
+        ht input page_size enum $page_size -src enum/pagesize -content tcl/enumdict
+        ht label start 
+        ht put "Time Interval &mdash; "
+        ht link my://help/term/timespec "From:"
+        ht /label
+        ht input start text $start -size 12
+        ht label end
+        ht link my://help/term/timespec "To:"
+        ht /label
+        ht input end text $end -size 12
+        ht submit
+        ht /form
+        ht hr
+        ht para
+
+        # NEXT, get output stats
+        set items [rdb onecolumn {SELECT count(*) FROM gui_firings}]
+        set psize $sizes($page_size)
+
+        if {$psize == 0} {
+            set psize $items
+        }
+
+        let pages {entier(ceil(double($items)/$psize))}
+
+        if {$page > $pages} {
+            set page 1
+        }
+
+        let offset {($page - 1)*$psize}
+
+        ht putln "The selected time interval contains the following rule firings:"
+        ht para
+
+        # NEXT, show the page navigation
+        ht pager $qdict $page $pages
+
+        ht query {
+            SELECT link                     AS "ID",
+                   t                        AS "Tick",
+                   timestr(t)               AS "Week",
+                   driver_id                AS "Driver",
+                   rule                     AS "Rule",
+                   narrative                AS "Narrative"
+            FROM gui_firings
+            WHERE t >= $start_ AND t <= $end_
+            ORDER BY firing_id
+            LIMIT $psize OFFSET $offset
+        } -default "None." -align RRLRLL
+
+        ht para
+
+        ht pager $qdict $page $pages
+
+        ht /page
+
+        return [ht get]
+    }
+
+    # PageLinks qdict page pages
+    #
+    # qdict   - The current query dictionary
+    # page    - The page currently displayed
+    # pages   - The total number of pages
+
+    proc PageLinks {qdict page pages} {
+        ht tinyb "Page: "
+
+        if {$page > 1} {
+            PageLink $qdict [expr {$page - 1}] "Prev"
+            ht put " "
+        } else {
+            ht put "Prev "
+        }
+
+        foreach i [PageSequence $page $pages] {
+            if {$i == $page} {
+                ht put "<b>$i</b>"
+            } elseif {$i eq "..."} {
+                ht put $i
+            } else {
+                PageLink $qdict $i
+            }
+
+            ht put " "
+        }
+
+        if {$page < $pages} {
+            PageLink $qdict [expr {$page + 1}] "Next"
+        } else {
+            ht put "Next"
+        }
+
+        ht para
+    }
+
+    # PageSequence page pages 
+    #
+    # page    - A page number, 1 to N
+    # pages   - The total number of pages N 
+    #
+    # Returns a list of ordered page numbers, possibly with "...".
+
+    proc PageSequence {page pages} {
+        set result [list]
+        set last 0
+
+        for {set i 1} {$i <= $pages} {incr i} {
+            if {$i <= 3 || 
+                $i >= $pages - 2 ||
+                ($i >= $page - 2 && $i <= $page + 2)
+            } {
+                if {$i - 1 != $last} {
+                    lappend result "..."
+                }
+                lappend result $i
+                set last $i                
+            }
+        }
+
+        return $result
+    }
+
+    # PageLink qdict page ?label?
+    #
+    # qdict   - The current query dictionary
+    # page    - The page to link to
+    # label   - The link label; defaults to the page number.
+    #
+    # Creates a link to the named page.
+
+    proc PageLink {qdict page {label ""}} {
+        if {$label eq ""} {
+            set label $page
+        }
+
+        dict set qdict page $page
+
+        ht link "?[dict2urlquery $qdict]" $label
+    }
+
+    # GetFiringParms udict
+    #
+    # udict    - The URL dictionary, as passed to the handler
+    #
+    # Retrieves the parameter names using [querydict]; then
+    # does the required validation and processing.
+    # Where appropriate, cooked parameter values appear in the output
+    # with a "_" suffix.
+    
+    proc GetFiringParms {udict} {
+        # FIRST, get the query parameter dictionary.
+        set qdict [querydict $udict {page_size page start end}]
+
+        # NEXT, do the standard validation.
+        dict set qdict start_ ""
+        dict set qdict end_ ""
+
+        dict with qdict {
+            restrict page_size epagesize PS20
+            restrict page      ipositive 1
+
+            # NEXT, get the user's time specs in ticks, or "".
+            set start_ $start
+            set end_   $end
+
+            restrict start_ {simclock timespec} [simclock cget -tick0]
+            restrict end_   {simclock timespec} [simclock now]
+
+            # If they picked the defaults, clear their entries.
+            if {$start_ == [simclock cget -tick0]} { set start "" }
+            if {$end_   == [simclock now]} { set end   "" }
+
+            # NEXT, end_ can't be later than mystart.
+            let end_ {max($start_,$end_)}
+        }
+
+        return $qdict
+    }
+
+
+    #-------------------------------------------------------------------
+    # /firing/{id}: A single firing {id}
+    #
+    # Match Parameters:
+    #
+    # {id} => $(1)    - The firing's short name
+
+    # /firing:html udict matchArray
+    #
+    # Detail page for a single firing {id}
+
+    proc /firing:html {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Accumulate data
+        set id $(1)
+
+        if {![rdb exists {SELECT * FROM rule_firings WHERE firing_id=$id}]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: [dict get $udict url]."
+        }
+
+        # Begin the page
+        rdb eval {SELECT * FROM gui_firings WHERE firing_id=$id} data {}
+        set sigline [rdb onecolumn {
+            SELECT sigline(dtype,signature)
+            FROM drivers
+            WHERE driver_id = $data(driver_id)
+        }]
+
+        ht page "Rule Firing: $id"
+        ht title "Rule Firing: $id" 
+
+        ht record {
+            ht field "Rule:" {
+                ht put "<b>$data(rule)</b> -- $data(narrative)"
+            }
+            ht field "Driver:" { 
+                ht put "$data(driver_id) -- $sigline"
+            }
+            ht field "Week:"   { 
+                ht put "[simclock toString $data(t)] (Tick $data(t))"
+            }
+        }
+
+        ht para
+
+        driver call detail $data(fdict) [namespace origin ht]
+
+        ht para
+
+        ht putln "The rule firing produced the following inputs:"
+        ht para
+
+        ht query {
+            SELECT input_id AS "ID",
+                   curve    AS "Curve",
+                   mode     AS "P/T",
+                   mag      AS "Mag",
+                   note     AS "Note",
+                   cause    AS "Cause",
+                   s        AS "Here",
+                   p        AS "Near",
+                   q        AS "Far"
+            FROM gui_inputs
+            WHERE firing_id = $id
+            ORDER BY input_id;
+        } -align RLLRLLRRR
+
+        ht /page
+
+        return [ht get]
+    }
+}
+
+
+

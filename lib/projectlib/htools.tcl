@@ -665,12 +665,15 @@ snit::type ::projectlib::htools {
 
     method table {headers {body ""}} {
         $self putln "<table border=1 cellpadding=2 cellspacing=0>"
-        $self putln "<tr align=left>"
 
-        foreach header $headers {
-            $self put "<th align=left>$header</th>"
+        if {[llength $headers] > 0} {
+            $self putln "<tr align=left>"
+
+            foreach header $headers {
+                $self put "<th align=left>$header</th>"
+            }
+            $self put </tr>
         }
-        $self put </tr>
 
         if {$body ne ""} {
             uplevel 1 $body
@@ -747,6 +750,51 @@ snit::type ::projectlib::htools {
         $self put </table>
     }
 
+    # record ?body?
+    #
+    # Begins a record list: a borderless table in which the first column
+    # contains labels and the second contains values.  If the body is given
+    # it is executed and the /namelist is done automatically.
+
+    method record {{body ""}} {
+        $self putln "<table border=0 cellpadding=2 cellspacing=0>"
+
+        if {$body ne ""} {
+            uplevel 1 $body
+            $self /record
+        }
+    }
+
+    # field label ?body?
+    #
+    # label   - The field label
+    #
+    # Begins a new field to a record; if the body is given, it is executed
+    # and the /field as added automatically.
+
+    method field {label {body ""}} {
+        $self putln "<tr><td align=left><b>$label</b></td> <td>" 
+        if {$body ne ""} {
+            uplevel 1 $body
+            $self /field
+        }
+    }
+    
+    # /field
+    #
+    # Terminates a field in a record
+
+    method /field {} {
+        $self put "</td></tr>"
+    }
+
+    # /record
+    #
+    # Ends a named list.
+
+    method /record {} {
+        $self putln "</table>"
+    }
 
     # dl ?body?
     #
@@ -812,9 +860,9 @@ snit::type ::projectlib::htools {
         $self put "></object>"
     }
 
-    # form action ?options? 
+    # form ?action? ?options? 
     #
-    # action   - The action URL
+    # action   - The action URL, or "" for the same page.
     # options  - Any number of options
     #
     # Adds a <form> element.  The options are converted into 
@@ -823,7 +871,7 @@ snit::type ::projectlib::htools {
     #
     #   -autosubmit value   - If yes, the form autosubmits. 
 
-    method form {action args} {
+    method form {{action ""} args} {
         $self putln "<form action=\"$action\""
         $self InsertAttributes $args
         $self put ">"
@@ -902,6 +950,110 @@ snit::type ::projectlib::htools {
             # NEXT, add the attribute
             $self put " $opt=\"$val\""
         }
+    }
+
+    #-------------------------------------------------------------------
+    # Output Paging
+
+    # pager qdict page pages
+    #
+    # qdict   - The current query dictionary
+    # page    - The page currently displayed
+    # pages   - The total number of pages
+    #
+    # This command inserts a "Pages:" controller with a (carefully pruned)
+    # list of page numbers, as one sees on search web pages when the 
+    # search returns too many results to display at once.  It is intended
+    # for use on myserver(n) pages that use a query dictionary, e.g.,
+    # the URL ends with "?parm=value+parm=value...".
+    #
+    # The qdict parameter contains the current query dictionary; it may be
+    # empty.  The parameters contained in it will be put in the URL that
+    # the page numbers link to.
+    #
+    # The page number will be included in these URLs as a query
+    # parameter, "page=<num>".  
+    #
+    # If the number of pages is less than 2, no output will appear.
+
+    method pager {qdict page pages} {
+        if {$pages <= 1} {
+            return
+        }
+
+        $self tinyb "Page: "
+
+        if {$page > 1} {
+            $self PageLink $qdict [expr {$page - 1}] "Prev"
+            $self put " "
+        } else {
+            $self put "Prev "
+        }
+
+        foreach i [$self PageSequence $page $pages] {
+            if {$i == $page} {
+                $self put "<b>$i</b>"
+            } elseif {$i eq "..."} {
+                $self put $i
+            } else {
+                $self PageLink $qdict $i
+            }
+
+            $self put " "
+        }
+
+        if {$page < $pages} {
+            $self PageLink $qdict [expr {$page + 1}] "Next"
+        } else {
+            $self put "Next"
+        }
+
+        $self para
+    }
+
+    # PageSequence page pages 
+    #
+    # page    - A page number, 1 to N
+    # pages   - The total number of pages N 
+    #
+    # Returns a list of ordered page numbers, possibly with "...".
+
+    method PageSequence {page pages} {
+        set result [list]
+        set last 0
+
+        for {set i 1} {$i <= $pages} {incr i} {
+            if {$i <= 3 || 
+                $i >= $pages - 2 ||
+                ($i >= $page - 2 && $i <= $page + 2)
+            } {
+                if {$i - 1 != $last} {
+                    lappend result "..."
+                }
+                lappend result $i
+                set last $i                
+            }
+        }
+
+        return $result
+    }
+
+    # PageLink qdict page ?label?
+    #
+    # qdict   - The current query dictionary
+    # page    - The page to link to
+    # label   - The link label; defaults to the page number.
+    #
+    # Creates a link to the named page.
+
+    method PageLink {qdict page {label ""}} {
+        if {$label eq ""} {
+            set label $page
+        }
+
+        dict set qdict page $page
+
+        $self link "?[dict2urlquery $qdict]" $label
     }
 }
 

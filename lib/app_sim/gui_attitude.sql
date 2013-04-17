@@ -247,14 +247,18 @@ JOIN groups AS G ON (G.g = UV.g);
 
 -- gui_mads: All magic attitude drivers
 CREATE TEMPORARY VIEW gui_mads AS
-SELECT M.mad_id                            AS mad_id,
-       M.mad_id || ' - ' || M.narrative    AS longid,
-       M.narrative                         AS narrative,
-       M.cause                             AS cause,
-       format('%5.3f',M.s)                 AS s,
-       format('%5.3f',M.p)                 AS p,
-       format('%5.3f',M.q)                 AS q,
-       D.driver_id                         AS driver_id
+SELECT M.mad_id                                  AS mad_id,
+       M.mad_id || ' - ' || M.narrative          AS longid,
+       M.narrative                               AS narrative,
+       M.cause                                   AS cause,
+       format('%5.3f',M.s)                       AS s,
+       format('%5.3f',M.p)                       AS p,
+       format('%5.3f',M.q)                       AS q,
+       D.driver_id                               AS driver_id,
+       pair(M.narrative, M.mad_id)               AS fancy,
+       'my://app/mad/' || mad_id                 AS url,
+       link('my://app/mad/' || mad_id, mad_id)    AS link,
+       link('my://app/mad/' || mad_id, narrative) AS longlink
 FROM mads AS M
 LEFT OUTER JOIN drivers AS D ON (dtype='MAGIC' AND signature=mad_id)
 GROUP BY mad_id;
@@ -264,6 +268,62 @@ GROUP BY mad_id;
 CREATE TEMPORARY VIEW gui_mads_initial AS
 SELECT * FROM gui_mads WHERE driver_id IS NULL;
 
+-----------------------------------------------------------------------
+-- RULE FIRING VIEWS
+
+-- gui_firings:  All rule firings
+CREATE TEMPORARY VIEW gui_firings AS
+SELECT firing_id                                        AS firing_id,
+       t                                                AS t,
+       driver_id                                        AS driver_id,
+       ruleset                                          AS ruleset,
+       rule                                             AS rule,
+       fdict                                            AS fdict,
+       mklinks(firing_narrative(fdict))                 AS narrative,
+       'my://app/firing/' || firing_id                  AS url,
+       link('my://app/firing/' || firing_id, firing_id) AS link
+FROM rule_firings;
+
+-- gui_inputs: All rule inputs
+CREATE TEMPORARY VIEW gui_inputs AS
+SELECT F.t                                              AS t,
+       F.firing_id                                      AS firing_id,
+       I.input_id                                       AS input_id,
+       F.driver_id                                      AS driver_id,
+       F.ruleset                                        AS ruleset,
+       F.rule                                           AS rule,
+       F.fdict                                          AS fdict,
+       F.narrative                                      AS narrative,
+       F.url                                            AS url,
+       F.link                                           AS link,
+       I.atype                                          AS atype,
+       I.mode                                           AS mode,
+       CASE WHEN I.mode = 'P' THEN 'persistent'
+                              ELSE 'transient' END      AS longmode,
+       I.f                                              AS f,
+       I.g                                              AS g,
+       I.c                                              AS c,
+       I.a                                              AS a,
+       atype || '.' ||
+       CASE WHEN I.atype='coop' OR I.atype='hrel'
+            THEN elink('group',I.f) || '.' || elink('group',I.g)
+            WHEN I.atype='sat'
+            THEN elink('group',I.g) || '.' || I.c
+            WHEN I.atype='vrel'
+            THEN elink('group',I.g) || '.' || elink('actor',I.a)
+            END                                         AS curve, 
+       format('%.2f',I.gain)                            AS gain,
+       format('%.2f',I.mag)                             AS mag,
+       I.cause                                          AS cause,
+       CASE WHEN I.atype IN ('sat', 'coop')
+            THEN format('%.2f',I.s) ELSE 'n/a' END      AS s,
+       CASE WHEN I.atype IN ('sat', 'coop')
+            THEN format('%.2f',I.p) ELSE 'n/a' END      AS p,
+       CASE WHEN I.atype IN ('sat', 'coop')
+            THEN format('%.2f',I.q) ELSE 'n/a' END      AS q,
+       I.note                                           AS note
+FROM rule_inputs AS I
+JOIN gui_firings AS F USING (firing_id);
 
 -----------------------------------------------------------------------
 -- End of File

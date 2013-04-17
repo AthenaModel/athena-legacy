@@ -94,14 +94,14 @@ snit::type dam {
         set expr [lindex $args end-1]
         set body [lindex $args end]
 
-        # NEXT, get the driver ID
-        set driver_id [driver getid $fdict]
-
         # NEXT, evaluate the expression.  If it's false, just return.
         # The rule didn't fire.
         if {![uplevel 1 [list expr $expr]]} {
             return
         }
+
+        # NEXT, get the driver ID
+        set driver_id [driver getid $fdict]
         
         # NEXT, get the ruleset name.
         set ruleset [lindex [split $rule -] 0]

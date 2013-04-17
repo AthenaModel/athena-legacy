@@ -38,6 +38,12 @@ appserver module ENUMS {
             text/html    [asproc type:html "Enum: Concerns" econcern] \
             "Enumeration: Concerns"
 
+        appserver register /enum/pagesize {enum/pagesize}               \
+            tcl/enumlist [asproc enum:enumlist epagesize]               \
+            tcl/enumdict [asproc enum:enumdict epagesize]               \
+            text/html    [asproc type:html "Enum: epagesize" epagesize] \
+            "Enumeration: Page Size (Items per Page)"
+
         appserver register /enum/parmstate {enum/parmstate}               \
             tcl/enumlist [asproc enum:enumlist eparmstate]                \
             tcl/enumdict [asproc enum:enumdict eparmstate]                \

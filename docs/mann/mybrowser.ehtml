@@ -51,6 +51,64 @@ the widget in question.  The token <code>%W</code> will be replaced
 with a Tk window path name, and then the command will be evaluated in
 the gobal scope.<p>
 
+<<subsection "Forms">>
+
+mybrowser(n) supports HTML forms, within particular constraints.<p>
+
+The <code>&lt;form&gt;</code> tag can take the following attributes:<p>
+
+<<deflist attributes>>
+<<defopt {action=<i>url</i>}>>
+
+The action is the URL that is sent on submit with the form parameters
+attached.  <b>TBD:</b> If empty, the same page is loaded with the new
+form parameters.<p>
+
+<<defopt {autosubmit=<i>flag</i>}>>
+
+If the <i>flag</i> is 1, any 
+change to the form's fields will be submitted immediately on user input.
+Otherwise, the user must press the "Submit" button to submit the form.<p>
+
+Note that changes to <b>text</b> inputs do not trigger auto-submit.<p>
+
+<</deflist attributes>>
+
+Forms can contain the following kinds of <code>&lt;input&gt;</code> tag, 
+each of which must have a <b>type</b> and <b>name</b> attribute.  The <b>type</b> 
+attribute should be one of the following:<p>
+
+<<deflist inputs>>
+
+<<defopt {enum}>>
+
+Adds an <<xref enumfield(n)>> widget to the form.  There are a number of
+important attributes.<p>
+
+The field's drop down list is populated by querying the URL given as the
+<b>src</b> attribute (required).  The content type is assumed to be 
+<code>tcl/enumlist</code>, in which case the drop down list contains
+exactly the enumerated values.<p>
+
+If the <b>content</b> attribute is set to <code>tcl/enumdict</code>, then
+the long form of the enumeration is retrieved and used for the drop-down values
+in the usual way.<p>
+
+The field's content is
+initialized with the value of the <b>value</b> attribute, if present.<p>
+
+<<defopt {text}>>
+
+Adds a <<xref textfield(n)>> widget to the form.  The field's content is
+initialized with the value of the <b>value</b> attribute, if present.<p>
+
+<<defopt {submit}>>
+
+Adds a "Submit" button to the form.  If the <b>value</b> attribute is present, 
+its value is used as the button text.<p>
+
+<</deflist inputs>>
+
 <<section COMMANDS>>
 
 This module defines the following commands.<p>

@@ -56,6 +56,11 @@ performance and to keep the user interface responsive while the
 simulation is working.  This option enables the experimental
 multi-threaded mode; it is not recommended for general use.<p>
 
+<<defopt {-url <i>url</i>}>>
+
+If given, Athena will show the <i>url</i> in the Detail Browser on
+start-up.<p>
+
 <</deflist options>>
 
 The application has extensive on-line help; invoke the application

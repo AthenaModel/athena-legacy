@@ -67,6 +67,7 @@ snit::type app {
     #
     # -script filename - The name of a script to execute at start-up,
     #                    after loading the scenario file (if any).
+    # -url url         - A URL to load into the detail browser.
 
     typevariable opts -array {
         -batch      0
@@ -74,6 +75,7 @@ snit::type app {
         -ignoreuser 0
         -threads    0
         -script     {}
+        -url        {}
     }
 
     #-------------------------------------------------------------------
@@ -124,7 +126,8 @@ snit::type app {
                     }
                 }
 
-                -script {
+                -script -
+                -url    {
                     set opts($opt) [lshift argv]
                 }
                 
@@ -360,6 +363,11 @@ snit::type app {
         # NEXT, if we're in batch mode, exit; we're done.
         if {$opts(-batch)} {
             app exit
+        }
+
+        # NEXT, if there's a URL, load it.
+        if {$opts(-url) ne ""} {
+            app show $opts(-url)
         }
     }
 

@@ -680,6 +680,8 @@ snit::type scenario {
         rdb function mklinks              [list ::sigevent mklinks]
         rdb function uram_gamma           [myproc UramGamma]
         rdb function sigline              [myproc Sigline]
+        rdb function firing_narrative     [myproc FiringNarrative]
+        rdb function elink                [myproc EntityLink]
 
         # NEXT, define the GUI Views
         RdbEvalFile gui_scenario.sql    ;# Scenario Entities
@@ -756,6 +758,29 @@ snit::type scenario {
         driver::$dtype sigline $signature
     }
 
+    # FiringNarrative fdict
+    #
+    # fdict   - A rule firing dictionary
+    #
+    # Returns the rule firing's narrative string.
+
+    proc FiringNarrative {fdict} {
+        driver call narrative $fdict
+    }
+
+    # EntityLink etype name
+    #
+    # etype   - An entity type, e.g., "group"
+    # name    - An entity name
+    #
+    # Translates the args into 
+    #
+    #   <a href="my://app/$etype/$name">$name</a>
+
+    proc EntityLink {etype name} {
+        return "<a href=\"my://app/$etype/$name\">$name</a>"
+    }
+ 
     #-------------------------------------------------------------------
     # Registration of saveable objects
 

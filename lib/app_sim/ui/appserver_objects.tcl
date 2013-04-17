@@ -112,6 +112,11 @@ appserver module OBJECTS {
             listIcon ::marsgui::icon::pencil12
         }
 
+        /mads {
+            label    "Magic Attitude Drivers"
+            listIcon ::projectgui::icon::blueheart12
+        }
+
         /drivers {
             label    "Drivers"
             listIcon ::projectgui::icon::blackheart12
@@ -172,6 +177,7 @@ appserver module OBJECTS {
                     /groups/civ 
                     /groups/frc 
                     /groups/org
+                    /mads
                     /drivers
                     /contribs
                     /econ
