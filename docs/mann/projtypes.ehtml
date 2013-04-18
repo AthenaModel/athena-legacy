@@ -161,6 +161,13 @@ in some kind of refugee or displaced persons camp?<p>
 
 <<::projectlib::ehousing html>>
 
+<<defitem epagesize {epagesize <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref mars:enum(n)>> type, representing the number of results to 
+display on one page of output.<p>
+
+<<::projectlib::epagesize html>>
+
 
 <<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>
 

@@ -20,20 +20,6 @@
 appserver module firing {
 
     #-------------------------------------------------------------------
-    # Look up tables
-
-    # Number of items by page size symbol.
-    # TBD: We really need an enum that does this properly.
-    typevariable sizes -array {
-        ALL   0
-        PS5   5
-        PS10  10
-        PS20  20
-        PS50  50
-        PS100 100
-    }
-
-    #-------------------------------------------------------------------
     # Public methods
 
     # init
@@ -70,7 +56,7 @@ appserver module firing {
     #
     #    start       - Start time in ticks
     #    end         - End time in ticks
-    #    page_size   - The number of items on a single page
+    #    page_size   - The number of items on a single page, or ALL.
     #    page        - The page number, 1 to N
     #
     # Unknown query parameters and invalid query values are ignored.
@@ -82,7 +68,6 @@ appserver module firing {
         # FIRST, get the query parameters and bring them into scope.
         set qdict [GetFiringParms $udict]
         dict with qdict {}
-
         
         # Begin the page
         ht page "DAM Rule Firings"
@@ -96,7 +81,7 @@ appserver module firing {
 
         # NEXT, insert the control form.
         ht hr
-        ht form ""
+        ht form firings
         ht label page_size "Page Size:"
         ht input page_size enum $page_size -src enum/pagesize -content tcl/enumdict
         ht label start 
@@ -115,19 +100,18 @@ appserver module firing {
 
         # NEXT, get output stats
         set items [rdb onecolumn {SELECT count(*) FROM gui_firings}]
-        set psize $sizes($page_size)
-
-        if {$psize == 0} {
-            set psize $items
+     
+        if {$page_size eq "ALL"} {
+            set page_size $items
         }
 
-        let pages {entier(ceil(double($items)/$psize))}
+        let pages {entier(ceil(double($items)/$page_size))}
 
         if {$page > $pages} {
             set page 1
         }
 
-        let offset {($page - 1)*$psize}
+        let offset {($page - 1)*$page_size}
 
         ht putln "The selected time interval contains the following rule firings:"
         ht para
@@ -145,7 +129,7 @@ appserver module firing {
             FROM gui_firings
             WHERE t >= $start_ AND t <= $end_
             ORDER BY firing_id
-            LIMIT $psize OFFSET $offset
+            LIMIT $page_size OFFSET $offset
         } -default "None." -align RRLRLL
 
         ht para
@@ -168,14 +152,15 @@ appserver module firing {
     
     proc GetFiringParms {udict} {
         # FIRST, get the query parameter dictionary.
-        set qdict [urlquery get $udict {page_size page start end}]
+        set query [dict get $udict query]
+        set qdict [urlquery get $query {page_size page start end}]
 
         # NEXT, do the standard validation.
         dict set qdict start_ ""
         dict set qdict end_ ""
 
         dict with qdict {
-            restrict page_size epagesize PS20
+            restrict page_size epagesize 20
             restrict page      ipositive 1
 
             # NEXT, get the user's time specs in ticks, or "".

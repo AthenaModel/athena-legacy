@@ -40,6 +40,7 @@ namespace eval ::projectlib:: {
         eorgactivity     \
         eorgconcern      \
         eorgtype         \
+        epagesize        \
         epayload_state   \
         esitstate        \
         etactic_state    \
@@ -642,6 +643,15 @@ snit::type ::projectlib::typewrapper {
     VREL  "Vertical relationship with actor"
 }
 
+# Page Sizes for paged myserver tables
+
+::marsutil::enum ::projectlib::epagesize {
+    ALL "All items"
+    10  "10 items per page"
+    20  "20 items per page"
+    50  "50 items per page"
+    100 "100 items per page"
+} -noindex
 
 #-------------------------------------------------------------------
 # Qualities
