@@ -112,12 +112,8 @@ snit::type ::projectlib::rdbserver {
             text/html [mymethod html_Content]            {
                 Content for database table or view {name}.  The URL 
                 may include a query string of the form 
-                "{column}={value}+{column}={value}..."; the {column}
-                is the name of a column within the table or view, and
-                the {value} is a wildcard-pattern to be matched.  E.g.,
-                "/content/mytable?c1=*FOO*+c2=*BAR*" will display all rows
-                where column c1's value contains "FOO" and column c2's 
-                value contains "BAR".  Queries are case-sensitive.
+                "{parm}={value}+{parm}={value}..."; the parameters
+                are "page_size" and "page".
             }
 
     }
@@ -297,12 +293,14 @@ snit::type ::projectlib::rdbserver {
     # matchArray - Array of pattern matches
     # 
     # Produces an HTML page with the content of a particular 
-    # table or view.
+    # table or view.  
     #
-    # TBD: Support query parameters.  This will require sanitizing
-    # the input carefully; we need to make sure before we do the
-    # query that the columns exist, and the values need to go into
-    # an array, so that we're accessing them as variables.
+    # The following query parameters may be used:
+    #
+    #   page_size    - The number of rows to display on one page.
+    #   page         - The page number, 1 to N, to display
+    #
+    # 
 
     method html_Content {udict matchArray} {
         upvar 1 $matchArray ""
@@ -323,48 +321,62 @@ snit::type ::projectlib::rdbserver {
             }]
         }
 
-        # NEXT, Get the WHERE clause, if any.
+        # NEXT, get the query parameters
         set query [dict get $udict query]
+        set qdict [urlquery get $query {page_size page}]
 
-        if {$query eq ""} {
-            set where ""
-        } else {
-            set validCols [$rdb columns $name]
-
-            set qlist [split $query "=+"]
-
-            if {[llength $qlist] % 2 != 0} {
-                return -code error -errorcode NOTFOUND \
-                    "Malformed query: \"$query\""
-            }
-
-            array set qvalues $qlist
-
-            set qcols [list]
-
-            foreach cname [array names qvalues] {
-                if {$cname ni $validCols} {
-                    return -code error -errorcode NOTFOUND \
-                        "Unknown column in query: \"$cname\""
-                }
-
-                lappend qcols "$cname GLOB \$qvalues($cname)"
-            }
-
-            set where "WHERE [join $qcols { AND }]"
+        dict with qdict {
+            restrict page_size epagesize 20
+            restrict page      ipositive 1
         }
 
-        # NEXT, do the query.
+        # NOTE: The qdict field values are now visible.
 
-        $ht page "Database Content: $rdb, $name" {
-            $ht h1 "Database Content: $rdb, $name"
-            $ht linkbar [list \
-                             /schema/$name  "View Schema"        \
-                             /              "Database Overview"]
+        # NEXT, begin the page.
 
-            $ht query "SELECT * FROM $name $where ORDER BY rowid" \
-                -escape yes
+        $ht page "Database Content: $rdb, $name"
+        $ht h1 "Database Content: $rdb, $name"
+        $ht linkbar [list \
+                         /schema/$name  "View Schema"        \
+                         /              "Database Overview"]
+
+        # NEXT, insert the control form.
+        $ht hr
+        $ht form my://rdb/content/$name -autosubmit 1
+        $ht label page_size "Page Size:"
+        $ht input page_size enum $page_size -src enum/pagesize -content tcl/enumdict
+        $ht /form
+        $ht hr
+        $ht para
+
+        # NEXT, get output stats
+        set items [rdb onecolumn "SELECT count(*) FROM $name"]
+     
+        if {$page_size eq "ALL"} {
+            set page_size $items
         }
+
+        let pages {entier(ceil(double($items)/$page_size))}
+
+        if {$page > $pages} {
+            set page 1
+        }
+
+        let offset {($page - 1)*$page_size}
+
+        $ht pager $qdict $page $pages
+
+        $ht query "
+            SELECT * FROM $name 
+            ORDER BY rowid
+            LIMIT \$page_size OFFSET \$offset 
+        " -escape yes
+
+        $ht para
+        $ht pager $qdict $page $pages
+
+
+        $ht /page
 
         return [$ht get]
     }
