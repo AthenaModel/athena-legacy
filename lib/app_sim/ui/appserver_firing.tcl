@@ -96,7 +96,7 @@ appserver module firing {
 
         # NEXT, insert the control form.
         ht hr
-        ht form
+        ht form ""
         ht label page_size "Page Size:"
         ht input page_size enum $page_size -src enum/pagesize -content tcl/enumdict
         ht label start 
@@ -157,89 +157,7 @@ appserver module firing {
         return [ht get]
     }
 
-    # PageLinks qdict page pages
-    #
-    # qdict   - The current query dictionary
-    # page    - The page currently displayed
-    # pages   - The total number of pages
-
-    proc PageLinks {qdict page pages} {
-        ht tinyb "Page: "
-
-        if {$page > 1} {
-            PageLink $qdict [expr {$page - 1}] "Prev"
-            ht put " "
-        } else {
-            ht put "Prev "
-        }
-
-        foreach i [PageSequence $page $pages] {
-            if {$i == $page} {
-                ht put "<b>$i</b>"
-            } elseif {$i eq "..."} {
-                ht put $i
-            } else {
-                PageLink $qdict $i
-            }
-
-            ht put " "
-        }
-
-        if {$page < $pages} {
-            PageLink $qdict [expr {$page + 1}] "Next"
-        } else {
-            ht put "Next"
-        }
-
-        ht para
-    }
-
-    # PageSequence page pages 
-    #
-    # page    - A page number, 1 to N
-    # pages   - The total number of pages N 
-    #
-    # Returns a list of ordered page numbers, possibly with "...".
-
-    proc PageSequence {page pages} {
-        set result [list]
-        set last 0
-
-        for {set i 1} {$i <= $pages} {incr i} {
-            if {$i <= 3 || 
-                $i >= $pages - 2 ||
-                ($i >= $page - 2 && $i <= $page + 2)
-            } {
-                if {$i - 1 != $last} {
-                    lappend result "..."
-                }
-                lappend result $i
-                set last $i                
-            }
-        }
-
-        return $result
-    }
-
-    # PageLink qdict page ?label?
-    #
-    # qdict   - The current query dictionary
-    # page    - The page to link to
-    # label   - The link label; defaults to the page number.
-    #
-    # Creates a link to the named page.
-
-    proc PageLink {qdict page {label ""}} {
-        if {$label eq ""} {
-            set label $page
-        }
-
-        dict set qdict page $page
-
-        ht link "?[dict2urlquery $qdict]" $label
-    }
-
-    # GetFiringParms udict
+     # GetFiringParms udict
     #
     # udict    - The URL dictionary, as passed to the handler
     #
@@ -250,7 +168,7 @@ appserver module firing {
     
     proc GetFiringParms {udict} {
         # FIRST, get the query parameter dictionary.
-        set qdict [querydict $udict {page_size page start end}]
+        set qdict [urlquery get $udict {page_size page start end}]
 
         # NEXT, do the standard validation.
         dict set qdict start_ ""

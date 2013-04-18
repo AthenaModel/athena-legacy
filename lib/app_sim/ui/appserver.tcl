@@ -382,14 +382,16 @@ snit::type appserver {
     # udict  - A URL dictionary, as passed to a handler
     # parms  - A list of parameter names
     #
-    # Uses urlquery2dict to parse the udict's query, and returns
+    # Uses urlquery todict to parse the udict's query, and returns
     # the resulting dictionary.  Only the listed parms will be
     # included; and listed parms which do not appear in the query
     # will have empty values.
+    #
+    # TBD: Use [urlquery get] instead.
 
     proc querydict {udict parms} {
         # FIRST, parse the query.
-        set in [urlquery2dict [dict get $udict query]]
+        set in [urlquery todict [dict get $udict query]]
 
         # NEXT, build the output.
         set out [dict create]

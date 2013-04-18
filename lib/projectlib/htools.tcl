@@ -268,7 +268,7 @@ snit::type ::projectlib::htools {
         $self tr {
             foreach name $qnames align [split $alignstr ""] {
                 if {$qopts(-escape)} {
-                    set qrow($name) <pre>[$type escape $qrow($name)]</pre>
+                    set qrow($name) <code>[$type escape $qrow($name)]</code>
                 }
 
                 $self td $alignments($align) {
@@ -1053,7 +1053,7 @@ snit::type ::projectlib::htools {
 
         dict set qdict page $page
 
-        $self link "?[dict2urlquery $qdict]" $label
+        $self link "?[urlquery fromdict $qdict]" $label
     }
 }
 

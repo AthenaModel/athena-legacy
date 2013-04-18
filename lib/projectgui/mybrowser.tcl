@@ -504,7 +504,7 @@ snit::widget ::projectgui::mybrowser {
                 dict set pdict $name [$w get]
             }
 
-            $self show "$action?[dict2urlquery $pdict]"
+            $self show "$action?[urlquery fromdict $pdict]"
         }
     }
 
