@@ -561,16 +561,21 @@ snit::type scenario {
     typemethod {snapshot purge} {t} {
         if {$t ne "-unlock"} {
             set hist_t $t
+            profile rdb eval {
+                DELETE FROM snapshots WHERE tick >= $t;
+                DELETE FROM ucurve_contribs_t WHERE t > $t;
+                DELETE FROM rule_firings WHERE t > $t;
+                DELETE FROM rule_inputs WHERE t > $t;
+            }
         } else {
-            set t      0
+            # On unlock, it's quicker to leave out the WHERE clause
             set hist_t -1
-        }
-
-        rdb eval {
-            DELETE FROM snapshots WHERE tick >= $t;
-            DELETE FROM ucurve_contribs_t WHERE t > $t;
-            DELETE FROM rule_firings WHERE t > $hist_t;
-            DELETE FROM rule_inputs WHERE t > $hist_t;
+            profile rdb eval {
+                DELETE FROM snapshots;
+                DELETE FROM ucurve_contribs_t;
+                DELETE FROM rule_firings;
+                DELETE FROM rule_inputs;
+            }
         }
 
         hist purge $hist_t

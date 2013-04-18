@@ -374,7 +374,7 @@ namespace eval ::athena_test::tests:: {
         rdb eval {SELECT tick FROM snapshots}
     } -cleanup {
         cleanup
-    } -result {-1}
+    } -result {}
 
     #-------------------------------------------------------------------
     # now

@@ -37,26 +37,48 @@ snit::type hist {
     # history is behind us.  So purge everything later.
     #
     # On unlock, this will be used to purge all history, including
-    # time 0 history, by setting t to -1.
+    # time 0 history, by setting t to -1. NOTE: in the case of t = -1
+    # its *much* quicker to leave out the WHERE clause
 
     typemethod purge {t} {
-        rdb eval {
-            DELETE FROM hist_sat        WHERE t > $t;
-            DELETE FROM hist_mood       WHERE t > $t;
-            DELETE FROM hist_nbmood     WHERE t > $t;
-            DELETE FROM hist_coop       WHERE t > $t;
-            DELETE FROM hist_nbcoop     WHERE t > $t;
-            DELETE FROM hist_econ       WHERE t > $t;
-            DELETE FROM hist_econ_i     WHERE t > $t;
-            DELETE FROM hist_econ_ij    WHERE t > $t;
-            DELETE FROM hist_control    WHERE t > $t;
-            DELETE FROM hist_security   WHERE t > $t;
-            DELETE FROM hist_support    WHERE t > $t;
-            DELETE FROM hist_volatility WHERE t > $t;
-            DELETE FROM hist_hrel       WHERE t > $t;
-            DELETE FROM hist_vrel       WHERE t > $t;
-            DELETE FROM hist_pop        WHERE t > $t;
-            DELETE FROM hist_flow       WHERE t > $t;
+        if {$t == -1} {
+            rdb eval {
+                DELETE FROM hist_sat;
+                DELETE FROM hist_mood;
+                DELETE FROM hist_nbmood;
+                DELETE FROM hist_coop;
+                DELETE FROM hist_nbcoop;
+                DELETE FROM hist_econ;
+                DELETE FROM hist_econ_i;
+                DELETE FROM hist_econ_ij;
+                DELETE FROM hist_control;
+                DELETE FROM hist_security;
+                DELETE FROM hist_support;
+                DELETE FROM hist_volatility;
+                DELETE FROM hist_hrel;
+                DELETE FROM hist_vrel;
+                DELETE FROM hist_pop;
+                DELETE FROM hist_flow;
+            }
+        } else {
+            rdb eval {
+                DELETE FROM hist_sat        WHERE t > $t;
+                DELETE FROM hist_mood       WHERE t > $t;
+                DELETE FROM hist_nbmood     WHERE t > $t;
+                DELETE FROM hist_coop       WHERE t > $t;
+                DELETE FROM hist_nbcoop     WHERE t > $t;
+                DELETE FROM hist_econ       WHERE t > $t;
+                DELETE FROM hist_econ_i     WHERE t > $t;
+                DELETE FROM hist_econ_ij    WHERE t > $t;
+                DELETE FROM hist_control    WHERE t > $t;
+                DELETE FROM hist_security   WHERE t > $t;
+                DELETE FROM hist_support    WHERE t > $t;
+                DELETE FROM hist_volatility WHERE t > $t;
+                DELETE FROM hist_hrel       WHERE t > $t;
+                DELETE FROM hist_vrel       WHERE t > $t;
+                DELETE FROM hist_pop        WHERE t > $t;
+                DELETE FROM hist_flow       WHERE t > $t;
+            }
         }
     }
 
