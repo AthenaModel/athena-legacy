@@ -598,6 +598,7 @@ snit::type app {
             "                    the CLI and scrolling log)\n"          \
             "-ignoreuser         Ignore preference settings.\n"         \
             "-threads            Run Athena multi-threaded.\n"          \
+            "-url url            Load the URL in the detail browser.\n" \
             "\n"                                                        \
             "See athena(1) for more information.\n"
     }

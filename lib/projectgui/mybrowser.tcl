@@ -466,12 +466,9 @@ snit::widget ::projectgui::mybrowser {
             return
         }
 
-        # NEXT, It's a start tag.  We need an action attribute.
+        # NEXT, It's a start tag.  Get the action attribute.  If
+        # action="", we'll simply reload the current page on submit.
         set action [$node attribute -default "" action]
-
-        if {$action eq ""} {
-            return
-        }
 
         # NEXT, save the form's node ID, so that inputs know what
         # form they are associated with.
@@ -498,14 +495,24 @@ snit::widget ::projectgui::mybrowser {
     # enabled, and an enum widget has been changed.
     
     method FormSubmit {node args} {
-        dict with forms $node {
-            set pdict ""
-            dict for {name w} $inputs {
-                dict set pdict $name [$w get]
-            }
+        dict with forms $node {}
 
-            $self show "$action?[urlquery fromdict $pdict]"
+        set pdict ""
+        dict for {name w} $inputs {
+            dict set pdict $name [$w get]
         }
+
+        # NEXT, The action is the URL of the page to load on submit.
+        # It's most likely a relative URL (and probably ""), and so
+        # it needs to be resolved.  BUT: if the base URL includes a
+        # query we need to replace it with the proper query.
+        set url [$agent resolve $info(base) $action]
+
+        array set parts [uri::split $url]
+        set parts(query) [urlquery fromdict $pdict]
+        set url [uri::join {*}[array get parts]]
+
+        $self show $url
     }
 
     # InputCmd node

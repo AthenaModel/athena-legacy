@@ -474,7 +474,7 @@ snit::type appserver {
         ht title "Model Page: $page"
 
         ht hr
-        ht form my://app/page/$page -autosubmit yes
+        ht form -autosubmit yes
         ht label snapshot "Values From:"
         ht input snapshot enum $snapshot \
             -content tcl/enumdict        \

@@ -214,7 +214,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/coop
+        ht form
         ht label f "Civ. Group:"
         ht input f enum $f -src groups/civ
         ht label g "Frc. Group:"
@@ -341,7 +341,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/hrel
+        ht form
         ht label f "Of Group:"
         ht input f enum $f -src groups
         ht label g "With Group:"
@@ -462,7 +462,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/mood
+        ht form
         ht label g "Group:"
         ht input g enum $g -src groups/civ
         ht label top "Show:"
@@ -582,7 +582,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/nbcoop
+        ht form
         ht label n "Neighborhood:"
         ht input n enum $n -src nbhoods
         ht label g "Frc. Group:"
@@ -716,7 +716,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/nbmood
+        ht form
         ht label n "Neighborhood:"
         ht input n enum $n -src nbhoods
         ht label top "Show:"
@@ -848,7 +848,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/sat
+        ht form
         ht label g "Group:"
         ht input g enum $g -src groups/civ
         ht label c "Concern:"
@@ -974,7 +974,7 @@ appserver module CONTRIBS {
 
         # NEXT, insert the control form.
         ht hr
-        ht form contribs/vrel
+        ht form
         ht label g "Of Group:"
         ht input g enum $g -src groups
         ht label a "With Actor:"

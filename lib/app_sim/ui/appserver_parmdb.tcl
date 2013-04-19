@@ -134,7 +134,7 @@ appserver module PARMDB {
 
         # NEXT, insert the control form.
         ht hr
-        ht form parmdb 
+        ht form 
         ht label pattern "Wildcard Pattern:"
         ht input pattern text $pattern -size 20
         ht label subset "Subset:"

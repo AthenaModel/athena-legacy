@@ -342,7 +342,7 @@ snit::type ::projectlib::rdbserver {
 
         # NEXT, insert the control form.
         $ht hr
-        $ht form my://rdb/content/$name -autosubmit 1
+        $ht form -autosubmit 1
         $ht label page_size "Page Size:"
         $ht input page_size enum $page_size -src enum/pagesize -content tcl/enumdict
         $ht /form

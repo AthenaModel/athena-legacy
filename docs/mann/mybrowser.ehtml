@@ -61,8 +61,9 @@ The <code>&lt;form&gt;</code> tag can take the following attributes:<p>
 <<defopt {action=<i>url</i>}>>
 
 The action is the URL that is sent on submit with the form parameters
-attached.  <b>TBD:</b> If empty, the same page is loaded with the new
-form parameters.<p>
+attached.  The URL can be relative to the current page; and if it is
+empty, the same page is loaded with the new
+form parameters.  Any query parameters in the action <i>url</i> are ignored.<p>
 
 <<defopt {autosubmit=<i>flag</i>}>>
 

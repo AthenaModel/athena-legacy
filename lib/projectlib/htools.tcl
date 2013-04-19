@@ -860,19 +860,19 @@ snit::type ::projectlib::htools {
         $self put "></object>"
     }
 
-    # form ?action? ?options? 
+    # form ?options? 
     #
-    # action   - The action URL, or "" for the same page.
     # options  - Any number of options
     #
     # Adds a <form> element.  The options are converted into 
     # attribute names and values without error checking.
     # Typical options include:
     #
+    #   -action url         - The URL to load (defaults to current page).
     #   -autosubmit value   - If yes, the form autosubmits. 
 
-    method form {{action ""} args} {
-        $self putln "<form action=\"$action\""
+    method form {args} {
+        $self putln "<form "
         $self InsertAttributes $args
         $self put ">"
     }

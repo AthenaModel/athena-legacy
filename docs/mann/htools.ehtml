@@ -206,16 +206,26 @@ terminated by the <<iref /field>> command.<p>
 
 Terminates a <<iref field>> in a <<iref record>>.<p>
 
-<<defitem form {<i>object</i> form ?<i>action</i> <i>options...</i>?}>>
+<<defitem form {<i>object</i> form ?<i>options...</i>?}>>
 
-Adds a <code>&lt;form&gt;</code> element to the buffer.  The element's 
-<b>action</b> attribute will be set to the given <i>action</i>, which
-is the URL to load when the form is submitted.  (If it is omitted, submitting
-the form will reload the same page.) Any options and their
-values will be naively turned into additional attributes.  The
-following options are of particular interest:<p>
+Adds a <code>&lt;form&gt;</code> element to the buffer; any options and
+their values are naively turned into element attributes.<p>
+
+By default, submitting the form will reload the same page with the form's 
+parameters as the query.  To load a different page, specify the URL explicitly
+using the <b>-action</b> option (i.e., the "action" attribute).<p>
+
+The form's entries are defined by <<iref label>> and <<iref input>> elements,
+possibly along with other HTML.<p>
+
+The following options are of particular interest:<p>
 
 <<deflist options>>
+<<defopt {-action <i>url</i>}>>
+The action URL can be absolute, relative to the current page, or "" to simply
+reload the current page.  Note that any query in the <i>url</i> will be 
+ignored.<p>
+
 <<defopt {-autosubmit <i>flag</i>}>>
 If the <i>flag</i> is true, then the form will be submitted
 automatically when form inputs change in particular ways, i.e., when
