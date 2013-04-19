@@ -81,7 +81,7 @@ appserver module DRIVERS {
     proc /drivers:html {udict matchArray} {
         upvar 1 $matchArray ""
 
-        # FIRST, get the driver state
+        # FIRST, get the driver type
         set dtype [string trim [string toupper $(1)]]
 
         if {$dtype ne ""} {

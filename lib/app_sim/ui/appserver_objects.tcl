@@ -122,6 +122,11 @@ appserver module OBJECTS {
             listIcon ::projectgui::icon::blackheart12
         }
 
+        /firings {
+            label    "Rule Firings"
+            listIcon ::projectgui::icon::orangeheart12
+        }
+
         /contribs {
             label    "Contributions"
             listIcon ::projectgui::icon::heart12
@@ -179,6 +184,7 @@ appserver module OBJECTS {
                     /groups/org
                     /mads
                     /drivers
+                    /firings
                     /contribs
                     /econ
                     /caps

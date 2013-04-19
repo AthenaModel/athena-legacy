@@ -29,10 +29,13 @@ appserver module firing {
     typemethod init {} {
         # FIRST, register the resource types
         appserver register /firings {firings/?}          \
-            text/html    [myproc /firings:html] {
-                Links to all of the rule firings to date, with
-                filtering.
-            }
+            tcl/linkdict [myproc /firings:linkdict]      \
+            text/html    [myproc /firings:html]          \
+            "Links to all of the rule firings to date, with filtering."
+
+        appserver register /firings/{dtype} {firings/(\w+)/?}  \
+            text/html    [myproc /firings:html]                \
+            "Links to all of the rule firings by rule set, with filtering."
 
         appserver register /firing/{id} {firing/(\w+)/?} \
             text/html [myproc /firing:html]            \
@@ -42,9 +45,36 @@ appserver module firing {
 
 
     #-------------------------------------------------------------------
-    # /firings: All defined firings
+    # /firings:           All rule firings
+    # /firings/{dtype}:   Firings by rule set
     #
-    # No match parameters
+    # Match Parameters:
+    #
+    # {dtype} ==> $(1)     - Driver type, i.e., rule set (optional)
+
+    # /firings:linkdict udict matcharray
+    #
+    # Returns a /firings resource as a tcl/linkdict.  Only rule sets
+    # for which rules have fired are included.  Does not handle
+    # subsets or queries.
+
+    proc /firings:linkdict {udict matchArray} {
+        set result [dict create]
+
+        rdb eval {
+            SELECT DISTINCT ruleset
+            FROM rule_firings
+            ORDER BY ruleset
+        } {
+            set url /firings/$ruleset
+
+            dict set result $url label $ruleset
+            dict set result $url listIcon ::projectgui::icon::orangeheart12
+        }
+
+        return $result
+    }
+
 
     # /firings:html udict matchArray
     #
@@ -65,13 +95,26 @@ appserver module firing {
     proc /firings:html {udict matchArray} {
         upvar 1 $matchArray ""
 
-        # FIRST, get the query parameters and bring them into scope.
+        # FIRST, get the rule set, if any.
+        set ruleset [string trim [string toupper $(1)]]
+
+        if {$ruleset ne ""} {
+            if {$ruleset ni [edamruleset names]} {
+                throw NOTFOUND "Unknown rule set: \"$ruleset\""
+            }
+
+            set label "$ruleset"
+        } else {
+            set label "All Rule Sets"
+        }
+
+        # NEXT, get the query parameters and bring them into scope.
         set qdict [GetFiringParms $udict]
         dict with qdict {}
         
         # Begin the page
-        ht page "DAM Rule Firings"
-        ht title "DAM Rule Firings"
+        ht page "DAM Rule Firings ($label)"
+        ht title "DAM Rule Firings ($label)"
 
         # NEXT, if we're not locked we're done.
         if {![locked -disclaimer]} {
@@ -99,7 +142,14 @@ appserver module firing {
         ht para
 
         # NEXT, get output stats
-        set items [rdb onecolumn {SELECT count(*) FROM gui_firings}]
+        if {$ruleset eq ""} {
+            set items [rdb onecolumn {SELECT count(*) FROM gui_firings}]
+        } else {
+            set items [rdb onecolumn {
+                SELECT count(*) FROM gui_firings
+                WHERE ruleset=$ruleset
+            }]
+        }
      
         if {$page_size eq "ALL"} {
             set page_size $items
@@ -119,7 +169,7 @@ appserver module firing {
         # NEXT, show the page navigation
         ht pager $qdict $page $pages
 
-        ht query {
+        set query {
             SELECT link                     AS "ID",
                    t                        AS "Tick",
                    timestr(t)               AS "Week",
@@ -128,9 +178,20 @@ appserver module firing {
                    narrative                AS "Narrative"
             FROM gui_firings
             WHERE t >= $start_ AND t <= $end_
+        }
+
+        if {$ruleset ne ""} {
+            append query {
+                AND ruleset=$ruleset
+            }
+        }
+
+        append query {
             ORDER BY firing_id
             LIMIT $page_size OFFSET $offset
-        } -default "None." -align RRLRLL
+        }
+
+        ht query $query -default "None." -align RRLRLL
 
         ht para
 
