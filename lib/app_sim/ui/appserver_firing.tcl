@@ -96,22 +96,20 @@ appserver module firing {
         upvar 1 $matchArray ""
 
         # FIRST, get the rule set, if any.
-        set ruleset [string trim [string toupper $(1)]]
+        set vars(ruleset) [string trim [string toupper $(1)]]
 
-        if {$ruleset ne ""} {
-            if {$ruleset ni [edamruleset names]} {
-                throw NOTFOUND "Unknown rule set: \"$ruleset\""
+        if {$vars(ruleset) ne ""} {
+            if {$vars(ruleset) ni [edamruleset names]} {
+                throw NOTFOUND "Unknown rule set: \"$vars(ruleset)\""
             }
 
-            set label "$ruleset"
+            set label "$vars(ruleset)"
+            set where {ruleset = $vars(ruleset)}
         } else {
             set label "All Rule Sets"
+            set where ""
         }
 
-        # NEXT, get the query parameters and bring them into scope.
-        set qdict [GetFiringParms $udict]
-        dict with qdict {}
-        
         # Begin the page
         ht page "DAM Rule Firings ($label)"
         ht title "DAM Rule Firings ($label)"
@@ -122,9 +120,42 @@ appserver module firing {
             return [ht get]
         }
 
+        appserver::firing query $udict vars $where
+
+        ht /page
+
+        return [ht get]
+    }
+
+    # query qdict whereArray whereExpr
+    #
+    # udict       - The udict dictionary
+    # varsArray   - The name of an array of variables required by the whereExpr.
+    # wher        - An SQL expression to be ANDed into the WHERE clause.
+    #
+    # Writes a paged table of rule firings into the htools buffer.  The
+    # firings will be limited by the where expression.
+    #
+    # The udict query is a "parm=value[+parm=value]" string with the
+    # following parameters:
+    #
+    #    start       - Start time in ticks
+    #    end         - End time in ticks
+    #    page_size   - The number of items on a single page, or ALL.
+    #    page        - The page number, 1 to N
+    #
+    # Unknown query parameters and invalid query values are ignored.
+
+    typemethod query {udict varsArray where} {
+        upvar 1 $varsArray vars
+
+        # NEXT, get the query parameters and bring them into scope.
+        set qdict [GetFiringParms $udict]
+        dict with qdict {}
+        
         # NEXT, insert the control form.
         ht hr
-        ht form
+        ht form -autosubmit 1
         ht label page_size "Page Size:"
         ht input page_size enum $page_size -src enum/pagesize -content tcl/enumdict
         ht label start 
@@ -142,15 +173,16 @@ appserver module firing {
         ht para
 
         # NEXT, get output stats
-        if {$ruleset eq ""} {
-            set items [rdb onecolumn {SELECT count(*) FROM gui_firings}]
-        } else {
-            set items [rdb onecolumn {
-                SELECT count(*) FROM gui_firings
-                WHERE ruleset=$ruleset
-            }]
+        set query {
+            SELECT count(*) FROM gui_firings
         }
-     
+
+        if {$where ne ""} {
+            append query "WHERE $where"
+        }
+
+        set items [rdb onecolumn $query]
+
         if {$page_size eq "ALL"} {
             set page_size $items
         }
@@ -170,20 +202,21 @@ appserver module firing {
         ht pager $qdict $page $pages
 
         set query {
-            SELECT link                     AS "ID",
-                   t                        AS "Tick",
-                   timestr(t)               AS "Week",
-                   driver_id                AS "Driver",
-                   rule                     AS "Rule",
-                   narrative                AS "Narrative"
-            FROM gui_firings
+            SELECT F.link                     AS "ID",
+                   F.t                        AS "Tick",
+                   timestr(F.t)               AS "Week",
+                   D.link                     AS "Driver",
+                   F.rule                     AS "Rule",
+                   F.narrative                AS "Narrative"
+            FROM gui_firings AS F
+            JOIN gui_drivers AS D USING (driver_id)
             WHERE t >= $start_ AND t <= $end_
         }
 
-        if {$ruleset ne ""} {
-            append query {
-                AND ruleset=$ruleset
-            }
+        if {$where ne ""} {
+            append query "
+                AND $where
+            "
         }
 
         append query {
@@ -196,13 +229,9 @@ appserver module firing {
         ht para
 
         ht pager $qdict $page $pages
-
-        ht /page
-
-        return [ht get]
     }
 
-     # GetFiringParms udict
+    # GetFiringParms udict
     #
     # udict    - The URL dictionary, as passed to the handler
     #
@@ -267,11 +296,10 @@ appserver module firing {
 
         # Begin the page
         rdb eval {SELECT * FROM gui_firings WHERE firing_id=$id} data {}
-        set sigline [rdb onecolumn {
-            SELECT sigline(dtype,signature)
-            FROM drivers
+        rdb eval {
+            SELECT * FROM gui_drivers
             WHERE driver_id = $data(driver_id)
-        }]
+        } ddata {}
 
         ht page "Rule Firing: $id"
         ht title "Rule Firing: $id" 
@@ -281,7 +309,7 @@ appserver module firing {
                 ht put "<b>$data(rule)</b> -- $data(narrative)"
             }
             ht field "Driver:" { 
-                ht put "$data(driver_id) -- $sigline"
+                ht put "$ddata(link) -- $ddata(sigline)"
             }
             ht field "Week:"   { 
                 ht put "[simclock toString $data(t)] (Tick $data(t))"

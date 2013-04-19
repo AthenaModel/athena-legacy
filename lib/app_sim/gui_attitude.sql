@@ -241,6 +241,21 @@ SELECT UV.g || ' ' || UV.a                           AS id,
 FROM uram_vrel AS UV
 JOIN groups AS G ON (G.g = UV.g);
 
+------------------------------------------------------------------------
+-- DRIVER VIEWS
+
+-- gui_drivers: All Drivers
+CREATE TEMPORARY VIEW gui_drivers AS
+SELECT driver_id                                        AS driver_id,
+       driver_id || ' - ' || 
+       sigline(dtype, signature)                        AS longid,
+       sigline(dtype, signature)                        AS sigline,
+       dtype                                            AS dtype,
+       signature                                        AS signature,
+       'my://app/driver/' || driver_id                  AS url,
+       link('my://app/driver/' || driver_id, driver_id) AS link
+FROM drivers;
+
 
 ------------------------------------------------------------------------
 -- MAGIC ATTITUDE DRIVER VIEWS 

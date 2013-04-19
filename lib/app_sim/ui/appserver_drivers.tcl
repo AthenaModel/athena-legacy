@@ -37,6 +37,9 @@ appserver module DRIVERS {
                 the specified type.
             }
 
+        appserver register /driver/{id} {driver/(\w+)/?} \
+            text/html [myproc /driver:html] \
+            "Details on the given driver and its rule firings"
     }
 
     #-------------------------------------------------------------------
@@ -100,43 +103,33 @@ appserver module DRIVERS {
 
         # NEXT, get summary statistics
         rdb eval {
-            DROP VIEW IF EXISTS temp_report_driver_view;
             DROP TABLE IF EXISTS temp_report_driver_contribs;
 
             CREATE TEMPORARY TABLE temp_report_driver_contribs AS
-            SELECT driver_id, 
+            SELECT driver_id                                        AS driver_id, 
                    CASE WHEN min(t) NOT NULL    
                         THEN timestr(min(t)) 
-                        ELSE '' END                 AS ts,
+                        ELSE '' END                                 AS ts,
                    CASE WHEN max(t) NOT NULL    
                         THEN timestr(max(t)) 
-                        ELSE '' END                 AS te
+                        ELSE '' END                                 AS te
             FROM drivers LEFT OUTER JOIN ucurve_contribs_t USING (driver_id)
-            GROUP BY driver_id;
-
-            CREATE TEMPORARY VIEW temp_report_driver_view AS
-            SELECT drivers.driver_id AS driver_id, 
-                   dtype, 
-                   signature,
-                   ts,
-                   te
-            FROM drivers
-            JOIN temp_report_driver_contribs USING (driver_id)
             GROUP BY driver_id;
         }
 
         # NEXT, produce the query.
         set query {
-            SELECT driver_id                AS "Driver",
-                   dtype                    AS "Type",
-                   sigline(dtype,signature) AS "Signature",
-                   ts                       AS "Start Time",
-                   te                       AS "End Time"
-            FROM temp_report_driver_view
+            SELECT D.link       AS "Driver",
+                   D.dtype      AS "Type",
+                   D.sigline    AS "Signature",
+                   T.ts         AS "Start Time",
+                   T.te         AS "End Time"
+            FROM gui_drivers AS D
+            JOIN temp_report_driver_contribs AS T USING (driver_id)
         }
 
         if {$dtype ne ""} {
-            append query "WHERE dtype=\$dtype\n"
+            append query "WHERE D.dtype=\$dtype\n"
         }
 
         append query "ORDER BY driver_id ASC"
@@ -147,9 +140,54 @@ appserver module DRIVERS {
             -align   RLLRLL
 
         rdb eval {
-            DROP VIEW  temp_report_driver_view;
             DROP TABLE temp_report_driver_contribs;
         }
+
+        ht /page
+
+        return [ht get]
+    }
+
+    #-------------------------------------------------------------------
+    # /driver/{id}: A single driver {id}
+    #
+    # Match Parameters:
+    #
+    # {id} => $(1)    - The driver's id
+
+    # /driver:html udict matchArray
+    #
+    # Detail page for a single driver {id}
+
+    proc /driver:html {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        # Accumulate data
+        set id $(1)
+
+        if {![rdb exists {SELECT * FROM drivers WHERE driver_id=$id}]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: [dict get $udict url]."
+        }
+
+        # Begin the page
+        rdb eval {SELECT * FROM gui_drivers WHERE driver_id=$id} data {}
+
+        ht page "Driver: $id"
+        ht title "Driver: $id, $data(dtype) -- $data(sigline)"
+
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            ht /page
+            return [ht get]
+        }
+
+        set vars(driver_id) $id
+        set where {driver_id=$vars(driver_id)}
+
+        appserver::firing query $udict vars $where
+
+        ht para
 
         ht /page
 
