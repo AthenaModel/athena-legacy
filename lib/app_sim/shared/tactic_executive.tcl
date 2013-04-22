@@ -107,7 +107,7 @@ order define TACTIC:EXECUTIVE:CREATE {
         text owner -context yes
 
         rcc "Command:" -for text1
-        text text1 -width 40
+        text text1 -width 80
         
         rcc "Once Only?" -for once
         yesno once -defvalue 1
@@ -152,7 +152,7 @@ order define TACTIC:EXECUTIVE:UPDATE {
         disp owner
 
         rcc "Command:" -for text1
-        text text1 -width 40
+        text text1 -width 80
         
         rcc "Once Only?" -for once
         yesno once
