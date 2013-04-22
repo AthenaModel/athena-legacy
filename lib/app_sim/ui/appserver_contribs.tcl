@@ -1233,11 +1233,11 @@ appserver module CONTRIBS {
         ht query {
             SELECT format('%4d', temp_contribs.rowid) AS "Rank",
                    format('%8.3f', avgcontrib)        AS "Actual",
-                   driver                             AS "Driver",
+                   link                               AS "Driver",
                    dtype                              AS "Type",
-                   sigline(dtype,signature)           AS "Signature"
+                   sigline                            AS "Signature"
             FROM temp_contribs
-            JOIN drivers ON (driver = driver_id);
+            JOIN gui_drivers ON (driver = driver_id);
 
             DROP TABLE temp_contribs;
         }  -default "None known." -align "RRRLL"
