@@ -11,6 +11,37 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.7, 22 April 2013</h3>
+This build contains a significant change to the architecture of drivers. 
+Essentially rule sets are now associated with "driver types". The purpose
+of this architecture change is to enable display of rule firings in user
+friendly forms in the detail browser. Thus, the detail browser now contains
+rule firings in it's object tree. There is also a number of bug fixes that
+came out of a visit to TRISA in early April and some bug fixes related to
+the recent rebasing work. The complete list of packages:<p>
+
+<ul>
+<li> Bug 3916: athena(1): SAT:UPDATE order dialog needs a combobox for saliency
+<li> Bug 3960: athena(1): Allow "g" parameter in ENSIT:CREATE, ENSIT:UPDATE
+<li> Bug 3961: athena(1): in orders with "Start Mode", the default should be New Scenario.
+<li> Bug 3962: athena(1): Lengthen EXECUTIVE tactic's parameter to 80 characters
+<li> Bug 3964: athena(1): Save neighborhood population history
+<li> Bug 3965: athena(1): autogen of large scenarios fails
+<li> Bug 3970: athena(1): long run, large scenarios take a long time to return to PREP
+<li> Bug 3939: athena(1): my://app/contribs/nbmood bgerrors with too many groups
+<li> Bug 3944: SIM:STARTTICK bgerror
+<li> Bug 3945: Rebase, change start tick causes bgerror
+<li> Bug 3947: athena(1): Driver Type Architecture
+<li> Bug 3952: athena(1): Help on Ensits, MAD browsers
+<li> Bug 3966: athena(1): Rule Firing Pages
+<li> Bug 3967: urlquery(n) replaces projmisc(n)
+<li> Bug 3969: epagesize(n) type in projtypes(n)
+<li> Bug 3971: athena(1): Page my://rdb/content pages
+<li> Bug 3972: mybrowser(n): form action processing
+<li> Bug 3973: athena(1): Add firings to detail browser's object tree
+<li> Bug 3974: athena(1): my://app/driver/{id} page
+</ul><p>
+
 <h3>Build 5.0.6, 1 April 2013</h3>
 
 This build contains two bug fixes.  In particular, it fixes a bug seen at TRISA
