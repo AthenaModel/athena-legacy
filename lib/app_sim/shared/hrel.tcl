@@ -223,7 +223,7 @@ order define HREL:OVERRIDE {
         rel base
 
         rcc "Start Mode:" -for hist_flag
-        selector hist_flag {
+        selector hist_flag -defvalue 0 {
             case 0 "New Scenario" {}
             case 1 "From Previous Scenario" {
                 rcc "Current:" -for current
@@ -266,7 +266,7 @@ order define HREL:OVERRIDE:MULTI {
         rel base
 
         rcc "Start Mode:" -for hist_flag
-        selector hist_flag {
+        selector hist_flag -defvalue 0 {
             case 0 "New Scenario" {}
             case 1 "From Previous Scenario" {
                 rcc "Current:" -for current

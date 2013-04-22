@@ -119,7 +119,7 @@ order define SAT:UPDATE {
         frac saliency
 
         rcc "Start Mode:" -for hist_flag
-        selector hist_flag {
+        selector hist_flag -defvalue 0 {
             case 0 "New Scenario" {}
             case 1 "From Previous Scenario" {
                 rcc "Current:" -for current
@@ -163,7 +163,7 @@ order define SAT:UPDATE:MULTI {
         frac saliency
 
         rcc "Start Mode:" -for hist_flag
-        selector hist_flag {
+        selector hist_flag -defvalue 0 {
             case 0 "New Scenario" {}
             case 1 "From Previous Scenario" {
                 rcc "Current:" -for current

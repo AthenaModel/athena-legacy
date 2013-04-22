@@ -349,13 +349,13 @@ order define CIVGROUP:CREATE {
         enumlong housing -dictcmd {ehousing deflist} -defvalue AT_HOME
 
         rcc "Start Mode:" -for hist_flag
-        selector hist_flag {
+        selector hist_flag -defvalue 0 {
             case 0 "New Scenario" {}
             case 1 "From Previous Scenario" {
                 rcc "UPC:" -for upc
                 text upc -defvalue 0.0
             }
-        }
+        } 
     }
 } {
     # FIRST, prepare and validate the parameters
@@ -495,7 +495,7 @@ order define CIVGROUP:UPDATE {
         enumlong housing -dictcmd {ehousing deflist}
 
         rcc "Start Mode:" -for hist_flag
-        selector hist_flag {
+        selector hist_flag -defvalue 0 {
             case 0 "New Scenario" {}
             case 1 "From Previous Scenario" {
                 rcc "UPC:" -for upc
