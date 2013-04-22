@@ -591,6 +591,8 @@ order define ENSIT:CREATE {
         rcc "Duration:" -for duration
         text rduration -defvalue 1
         label "weeks"
+
+        text g -invisible yes
     }
 
     parmtags location nbpoint
@@ -602,6 +604,7 @@ order define ENSIT:CREATE {
     prepare inception -toupper   -required -type boolean
     prepare resolver  -toupper   -required -type {ptype g+none}
     prepare rduration -num                 -type iticks
+    prepare g
 
     returnOnError
 
@@ -719,6 +722,8 @@ order define ENSIT:UPDATE {
         rcc "Duration:" -for duration
         text rduration
         label "weeks"
+
+        text g -invisible yes
     }
 
     parmtags s situation
@@ -738,6 +743,7 @@ order define ENSIT:UPDATE {
     prepare inception -toupper  -type boolean
     prepare resolver  -toupper  -type {ptype g+none}
     prepare rduration -num      -type iticks
+    prepare g
 
     returnOnError
 

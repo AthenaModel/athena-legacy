@@ -89,7 +89,9 @@ SELECT s                                              AS id,
        resolver                                       AS resolver,
        rduration                                      AS rduration,
        timestr(tr)                                    AS tr,
-       inception                                      AS inception
+       inception                                      AS inception,
+       -- Null for g since it's deprecated
+       NULL                                           AS g
 FROM ensits;
 
 -- gui_ensits subview: ensits in INITIAL state
