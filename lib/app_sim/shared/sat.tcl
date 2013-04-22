@@ -116,7 +116,7 @@ order define SAT:UPDATE {
         sat base
         
         rcc "Saliency:" -for saliency
-        frac saliency
+        sal saliency
 
         rcc "Start Mode:" -for hist_flag
         selector hist_flag -defvalue 0 {
@@ -160,7 +160,7 @@ order define SAT:UPDATE:MULTI {
         sat base
         
         rcc "Saliency:" -for saliency
-        frac saliency
+        sal saliency
 
         rcc "Start Mode:" -for hist_flag
         selector hist_flag -defvalue 0 {

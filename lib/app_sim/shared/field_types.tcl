@@ -158,6 +158,11 @@ dynaform fieldtype alias sat range \
     -showsymbols yes    \
     -resetvalue  0.0
 
+dynaform fieldtype alias sal range \
+    -datatype    ::qsaliency \
+    -showsymbols yes         \
+    -resetvalue  1.0 
+
 # yesno: Boolean entry field, compatible with [boolean]
 dynaform fieldtype alias yesno enumlong -dict {
     1 Yes
