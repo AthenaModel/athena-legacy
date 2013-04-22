@@ -175,6 +175,15 @@ CREATE TABLE hist_pop (
     PRIMARY KEY (t,g)
 );
 
+CREATE TABLE hist_npop (
+    -- History: pop.n (civilian neighborhood population)
+    t           INTEGER,
+    n           TEXT,      -- Neighborhood
+    population  INTEGER,   -- Population
+
+    PRIMARY KEY (t,n)
+);
+
 CREATE TABLE hist_flow (
     -- History: flow.f.g (population flow from f to g)
     -- This table is sparse; only positive flows are included.

@@ -1746,8 +1746,9 @@ snit::type ::projectlib::parmdb {
 
         $ps define hist.pop ::snit::boolean on {
             If on, Athena will save, each week, the population
-            of each civilian group, and also all flows of population
-            from one group to another.
+            of each civilian group, the civilian population of each 
+            neighborhood and all flows of population from one group 
+            to another.
         }
 
         $ps define hist.sat ::snit::boolean on {

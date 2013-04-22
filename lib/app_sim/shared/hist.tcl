@@ -58,6 +58,7 @@ snit::type hist {
                 DELETE FROM hist_hrel;
                 DELETE FROM hist_vrel;
                 DELETE FROM hist_pop;
+                DELETE FROM hist_npop;
                 DELETE FROM hist_flow;
             }
         } else {
@@ -77,6 +78,7 @@ snit::type hist {
                 DELETE FROM hist_hrel       WHERE t > $t;
                 DELETE FROM hist_vrel       WHERE t > $t;
                 DELETE FROM hist_pop        WHERE t > $t;
+                DELETE FROM hist_npop       WHERE t > $t;
                 DELETE FROM hist_flow       WHERE t > $t;
             }
         }
@@ -180,6 +182,12 @@ snit::type hist {
                 INSERT INTO hist_pop(t,g,population)
                 SELECT now(), g, population
                 FROM demog_g
+            }
+
+            rdb eval {
+                INSERT INTO hist_npop(t,n,population)
+                SELECT now(), n, population
+                FROM demog_n
             }
         }
     }
