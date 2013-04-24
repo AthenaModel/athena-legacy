@@ -393,6 +393,35 @@ g    attrition population
 SHIA 1000      0          
 SUNN 0         1000       
     }  
+
+
+    test attrit-3.1 {attrits deploy_tng} -setup {
+        ted create NB1 BLUE BRIT SHIA
+        deploy NB1 BLUE 100
+        deploy NB1 BLUE 200
+        deploy NB1 BRIT 200
+        ted lock
+    } -body {
+        aam mutate attrit {
+            mode        GROUP 
+            n           NB1 
+            f           BLUE 
+            casualties  150 
+            g1          "" 
+            g2          ""
+        }
+        aam ApplyAttrition
+        ted query {select * from deploy_tng}
+    } -cleanup {
+        cleanup
+    } -result {
+tactic_id n   g    personnel 
+--------- --- ---- --------- 
+1         NB1 BLUE 50        
+2         NB1 BLUE 100       
+3         NB1 BRIT 200       
+    }
+    
     
     #-------------------------------------------------------------------
     # mutate attritn

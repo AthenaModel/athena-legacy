@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): DEPLOY(g,mode,personnel,nlist) tactic
+#    athena_sim(1): DEPLOY(g,mode,personnel,nlist,reinforce) tactic
 #
 #    This module implements the DEPLOY tactic, which deploys a 
 #    force or ORG group's personnel into one or more neighborhoods.
@@ -20,21 +20,37 @@
 #
 # PARAMETER MAPPING:
 #
-#    g        <= g
-#    text1    <= mode: ALL|SOME
-#    int1     <= personnel
-#    nlist    <= nlist
-#    on_lock  <= on_lock
-#    once     <= once
+#    g         <= g
+#    text1     <= mode: ALL|SOME
+#    int1      <= personnel
+#    nlist     <= nlist
+#    reinforce <= reinforce
+#    on_lock   <= on_lock
+#    once      <= once
 #
 #-----------------------------------------------------------------------
 
 #-------------------------------------------------------------------
 # Tactic: DEPLOY
 
-tactic type define DEPLOY {g text1 int1 nlist once on_lock} actor {
+tactic type define DEPLOY {g text1 int1 nlist reinforce once on_lock} actor {
     #-------------------------------------------------------------------
     # Public Methods
+
+    # reset
+    #
+    # Prepares the module to support strategy execution.  The last
+    # tick's deployments are pulled into the past() array, and the
+    # deploy_tng table is cleared.
+
+    typemethod reset {} {
+        rdb eval {
+            DROP TABLE IF EXISTS working_deploy_tng;
+
+            CREATE TABLE working_deploy_tng AS SELECT * FROM deploy_tng;
+            DELETE FROM deploy_tng;
+        }
+    }
 
     #-------------------------------------------------------------------
     # tactic(i) subcommands
@@ -43,19 +59,28 @@ tactic type define DEPLOY {g text1 int1 nlist once on_lock} actor {
     # description of each subcommand.
 
     typemethod narrative {tdict} {
-        dict with tdict {
-            if {[llength $nlist] == 1} {
-                set ntext "neighborhood [lindex $nlist 0]"
-            } else {
-                set ntext "neighborhoods [join $nlist {, }]"
-            }
+        dict with tdict {}
 
-            if {$text1 eq "ALL"} {
-                return \
-                 "Deploy all of group $g's remaining personnel into $ntext."
+        if {$text1 eq "ALL"} {
+            set output "Deploy all of group $g's remaining personnel"
+        } else {
+            set output "Deploy $int1 of group $g's personnel"
+        }
+
+        if {[llength $nlist] == 1} {
+            append output " into neighborhood [lindex $nlist 0]"
+        } else {
+            append output " into neighborhoods [join $nlist {, }]"
+        }
+
+        if {$text1 eq "SOME"} {
+            if {$reinforce} {
+                append output " with reinforcement."
             } else {
-                return "Deploy $int1 of group $g's personnel into $ntext."
+                append output " without reinforcement."
             }
+        } else {
+            append output "."
         }
     }
 
@@ -108,60 +133,77 @@ tactic type define DEPLOY {g text1 int1 nlist once on_lock} actor {
     }
 
     typemethod execute {tdict} {
-        dict with tdict {
-            # FIRST, retrieve relevant data.
-            set available    [personnel available $g]
-            set cash_on_hand [cash get $owner cash_on_hand]
+        dict with tdict {}
 
-            set costPerPerson [rdb onecolumn {
-                SELECT cost FROM agroups WHERE g=$g
-            }]
+        # FIRST, retrieve relevant data.
+        set available    [personnel available $g]
+        set cash_on_hand [cash get $owner cash_on_hand]
 
-            # NEXT, if they want ALL personnel, we'll take as many as
-            # we can afford.  If they want SOME, we'll take the 
-            # requested amount, *if* we can afford it.
-            if {$text1 eq "ALL"} {
-                # FIRST, how many troops can we afford? All of them if we
-                # are locking or they are free.
-                if {[strategy locking] || $costPerPerson == 0.0} {
-                    set int1 $available
-                } else {
-                    let maxTroops {double($cash_on_hand)/$costPerPerson}
+        set costPerPerson [rdb onecolumn {
+            SELECT cost FROM agroups WHERE g=$g
+        }]
 
-                    # int1 needs to be an integer.  int() truncates to
-                    # machine integer, not a bignum.  round() rounds to
-                    # a bignum; but we want to truncate.  Hence, 
-                    # round(floor(x)).
-                    let int1 {round(floor(min($available,$maxTroops)))}
-                }
+        if {$text1 eq "ALL" || $reinforce} {
+            set alreadyDeployed 0
+        } else {
+            rdb eval {
+                SELECT count(*)                        AS alreadyDeployed,
+                       coalesce(sum(personnel), $int1) AS int1
+                       FROM working_deploy_tng
+                       WHERE tactic_id = $tactic_id
+            } {}
+        }
 
-                # NEXT, if there are no troops left, we're done.
-                if {$int1 == 0} {
-                    return 0
-                }
+
+        # NEXT, if they want ALL personnel, we'll take as many as
+        # we can afford.  If they want SOME, we'll take the 
+        # requested amount, *if* we can afford it.
+        if {$text1 eq "ALL"} {
+            # FIRST, how many troops can we afford? All of them if we
+            # are locking or they are free.
+            if {[strategy locking] || $costPerPerson == 0.0} {
+                set int1 $available
             } else {
-                # FIRST, if there are insufficient troops available,
-                # we're done.
-                if {$int1 > $available} {
-                    return 0
-                }
+                let maxTroops {double($cash_on_hand)/$costPerPerson}
+
+                # int1 needs to be an integer.  int() truncates to
+                # machine integer, not a bignum.  round() rounds to
+                # a bignum; but we want to truncate.  Hence, 
+                # round(floor(x)).
+                let int1 {round(floor(min($available,$maxTroops)))}
             }
 
-            # NEXT, Pay the maintenance cost, if we can.
-            let cost {$costPerPerson * $int1}
-
-            if {![cash spend $owner DEPLOY $cost]} {
+            # NEXT, if there are no troops left, we're done.
+            if {$int1 == 0} {
                 return 0
             }
+        } else {
+            # FIRST, we're only deploying SOME.  If there are 
+            # insufficient troops available, we're done.
+            if {$int1 > $available} {
+                return 0
+            }
+        }
 
-            # NEXT, compute the number of troops to put in each
-            # neighborhood: np($n -> $personnel).
+        # NEXT, Pay the maintenance cost, if we can.
+        let cost {$costPerPerson * $int1}
 
+        if {![cash spend $owner DEPLOY $cost]} {
+            return 0
+        }
+
+        # NEXT, determine the deployment to each neighborhood.
+        if {$alreadyDeployed} {
+            array set byNbhood [rdb eval {
+                SELECT n, personnel 
+                FROM working_deploy_tng
+                WHERE tactic_id=$tactic_id
+            }]
+        } else {
             set num       [llength $nlist]
             let each      {$int1 / $num}
             let remainder {$int1 % $num}
 
-            # NEXT, deploy the troops to those neighborhoods.
             set count 0
             foreach n $nlist {
                 set troops $each
@@ -170,15 +212,25 @@ tactic type define DEPLOY {g text1 int1 nlist once on_lock} actor {
                     incr troops
                 }
 
-                set avail [personnel available $g]
-
-                personnel deploy $n $g $troops
-                
-                sigevent log 2 tactic "
-                    DEPLOY: Actor {actor:$owner} deploys $troops {group:$g} 
-                    personnel to {nbhood:$n}
-                " $owner $n $g
+                set byNbhood($n) $troops
             }
+        }
+
+        # NEXT, deploy the troops to those neighborhoods.
+        foreach n $nlist {
+            set troops $byNbhood($n)
+
+            personnel deploy $n $g $troops
+
+            rdb eval {
+                INSERT INTO deploy_tng(tactic_id, n, g, personnel)
+                VALUES($tactic_id, $n, $g, $troops)
+            }
+            
+            sigevent log 2 tactic "
+                DEPLOY: Actor {actor:$owner} deploys $troops {group:$g} 
+                personnel to {nbhood:$n}
+            " $owner $n $g
         }
 
         return 1
@@ -206,6 +258,9 @@ order define TACTIC:DEPLOY:CREATE {
             case SOME "Deploy some of the group's personnel" {
                 rcc "Personnel:" -for int1
                 text int1
+
+                rcc "Reinforce?" -for reinforce
+                yesno reinforce -defvalue 0
             }
 
             case ALL "Deploy all of the group's remaining personnel" {}
@@ -225,14 +280,15 @@ order define TACTIC:DEPLOY:CREATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type   actor
-    prepare g        -toupper   -required -type   {ptype fog}
-    prepare text1    -toupper   -required -selector
-    prepare int1     -num                 -type   ipositive
-    prepare nlist    -toupper   -required -listof nbhood
-    prepare priority -tolower             -type   ePrioSched
-    prepare once                          -type   boolean
-    prepare on_lock                       -type   boolean
+    prepare owner     -toupper   -required -type   actor
+    prepare g         -toupper   -required -type   {ptype fog}
+    prepare text1     -toupper   -required -selector
+    prepare int1      -num                 -type   ipositive
+    prepare nlist     -toupper   -required -listof nbhood
+    prepare reinforce                      -type   boolean
+    prepare priority  -tolower             -type   ePrioSched
+    prepare once                           -type   boolean
+    prepare on_lock                        -type   boolean
 
     returnOnError
 
@@ -254,6 +310,11 @@ order define TACTIC:DEPLOY:CREATE {
 
     # NEXT, put tactic_type in the parmdict
     set parms(tactic_type) DEPLOY
+
+    # And make sure we have a reinforce flag.
+    if {$parms(reinforce) eq ""} {
+        set parms(reinforce) 0
+    }
 
     # NEXT, create the tactic
     setundo [tactic mutate create [array get parms]]
@@ -283,6 +344,9 @@ order define TACTIC:DEPLOY:UPDATE {
             case SOME "Deploy some of the group's personnel" {
                 rcc "Personnel:" -for int1
                 text int1
+
+                rcc "Reinforce?" -for reinforce
+                yesno reinforce
             }
 
             case ALL "Deploy all of the group's remaining personnel" {}
@@ -304,6 +368,7 @@ order define TACTIC:DEPLOY:UPDATE {
     prepare text1      -toupper  -selector
     prepare int1       -num      -type   ipositive
     prepare nlist      -toupper  -listof nbhood
+    prepare reinforce            -type   boolean
     prepare once                 -type   boolean
     prepare on_lock              -type   boolean
 

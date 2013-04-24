@@ -51,6 +51,22 @@ CREATE TABLE deploy_ng (
     PRIMARY KEY (n,g)
 );
 
+-- Deployment Table: FRC and ORG personnel deployed into neighborhoods,
+-- by deploying tactic.  This table is used to implement non-reinforcing
+-- deployments.
+CREATE TABLE deploy_tng (
+    tactic_id  INTEGER,               -- DEPLOY tactic
+    n          TEXT,                  -- Neighborhood
+    g          TEXT,                  -- FRC/ORG group
+    personnel  INTEGER DEFAULT 0,     -- Personnel currently deployed
+
+    -- A single tactic can deploy one group to one or more neighborhoods.
+    PRIMARY KEY (tactic_id, n)
+);
+
+-- Index so that attrition is efficient.
+CREATE INDEX deploy_tng_index ON deploy_tng(n,g);
+
 
 -- General unit data
 CREATE TABLE units (

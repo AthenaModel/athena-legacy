@@ -575,6 +575,8 @@ snit::type aam {
     # by the specified number of casualties (all of which are kills).
     #
     # The group's units are attrited in proportion to their size.
+    # For FRC/ORG groups, their deployments in deploy_tng are
+    # attrited as well, to support deployment without reinforcement.
     #
     # g1 and g2 are used only for attrition to a civilian group.
 
@@ -595,6 +597,11 @@ snit::type aam {
 
         # NEXT, attrit the units
         $type AttritUnits $casualties $g1 $g2
+
+        # NEXT, attrit FRC/ORG deployments.
+        if {[group gtype $f] in {FRC ORG}} {
+            $type AttritDeployments $n $f $casualties
+        }
     }
 
     # AttritNbhood n casualties g1 g2
@@ -735,6 +742,67 @@ snit::type aam {
         return
     }
 
+    # AttritDeployments n g casualties
+    #
+    # n           The neighborhood in which the attrition took place.
+    # g           The FRC or ORG group that was attrited.
+    # casualties  Number of casualties taken by the group.
+    #
+    # Attrits the deployment of the given group in the given neighborhood, 
+    # spreading the attrition across all DEPLOY tactics active during
+    # the current tick.
+    #
+    # This is to support DEPLOY without reinforcement.  The deploy_tng
+    # table lists the actual troops deployed during the last
+    # tick by each DEPLOY tactic, broken down by neighborhood and group.
+    # This routine removes casualties from this table, so that the 
+    # attrited troop levels can inform the next round of deployments.
+
+    typemethod AttritDeployments {n g casualties} {
+        # FIRST, determine the number of personnel in the attrited units
+        set total [rdb eval {
+            SELECT total(personnel) FROM deploy_tng
+            WHERE n=$n AND g=$g
+        }]
+
+        # NEXT, compute the actual number of casualties.
+        let actual {min($casualties, $total)}
+
+        if {$actual == 0} {
+            return 
+        }
+
+        # NEXT, apply attrition to the tactics, in order of size.
+        set remaining $actual
+
+        foreach {tactic_id personnel share} [rdb eval {
+            SELECT tactic_id,
+                   personnel,
+                   $actual*(CAST (personnel AS REAL)/$total) AS share
+            FROM deploy_tng
+            WHERE n=$n AND g=$g
+            ORDER BY share DESC
+        }] {
+            # FIRST, allocate the share to this body of troops.
+            let kills     {entier(min($remaining, ceil($share)))}
+            let remaining {$remaining - $kills}
+
+            # NEXT, compute the attrition.
+            let take {entier(min($personnel, $kills))}
+
+            # NEXT, attrit the tactic's deployment.
+            rdb eval {
+                UPDATE deploy_tng
+                SET personnel = personnel - $take
+                WHERE tactic_id = $tactic_id AND n = $n AND g = $g
+            }
+
+            # NEXT, we might have finished early
+            if {$remaining == 0} {
+                break
+            }
+        }
+    }
     
     # SaveCivAttrition n f casualties g1 g2
     #

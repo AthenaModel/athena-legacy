@@ -466,8 +466,26 @@ object tactic_deploy {
         their bases.  Note that all personnel must be deployed somewhere;
         undeployed personnel are automatically demobilized.<p>
 
+        When deploying "SOME" troops, the troops can be deployed with
+        or without reinforcement.  When deploying with reinforcement, the
+        full number of troops is deployed each week; if troops were lost
+        to attrition, they are replaced by troops from the lowest priority
+        deployment.<p>
+
+        When deploying without reinforcement (the default), the tactic
+        always deploys the same number of troops as it deployed the
+        previous week, less attrition.  Thus, if the tactic initially
+        deploys 1000 troops, and 10 are lost this week, then next week
+        the tactic will deploy 990 troops instead of 1000.  (Note that
+        the tactic parameter doesn't change; Athena simply keeps track 
+        of things for the analyst.)<p>
+
+        Deploying without reinforcement is new in Athena 5, and is now
+        the default method of deployment.<p>
+
         Multiple DEPLOY tactics are cumulative.  The deployment lasts
-        until the next strategy tock.
+        until the next week, when troops are automatically withdrawn in
+        preparation for that week's deployment.
     }
 
     include tactic_ -attrs tactic_id
@@ -497,9 +515,17 @@ object tactic_deploy {
         The number of personnel to be deployed when the mode
         (<i>text1</i>) is "SOME".  If
         there are insufficient personnel available, the tactic will not
-        execute.
+        execute.<p>
 
         If the mode is "ALL", the parameter is ignored.
+    } -tags {create update}
+
+    attribute reinforce "Reinforce?" {
+        If true, then attrited troops will be replaced in subsequent
+        weeks (the default behavior in Athena 4 and prior).  If false,
+        attrited troops will not be replaced in subsequent weeks.<p>
+
+        The the mode is "ALL", the parameter is ignored.
     } -tags {create update}
 
     attribute nlist "In Neighborhoods" {

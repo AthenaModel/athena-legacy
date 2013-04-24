@@ -49,6 +49,7 @@ snit::type ted {
         demog_local
         demog_n
         deploy_ng
+        deploy_tng
         drivers
         ensits
         expenditures

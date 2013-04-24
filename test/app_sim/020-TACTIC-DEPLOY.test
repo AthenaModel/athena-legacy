@@ -48,6 +48,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       SOME
         int1        100
+        reinforce   YES
         once        NO
         on_lock     NO
     }
@@ -59,6 +60,7 @@ namespace eval ::athena_test::tests:: {
         g           BLUE
         text1       SOME
         int1        100
+        reinforce   NO
         once        YES
         on_lock     NO
     }
@@ -69,6 +71,7 @@ namespace eval ::athena_test::tests:: {
         nlist       NB1
         g           BLUE
         text1       ALL
+        reinforce   YES
         once        NO
         on_lock     NO
     }
@@ -173,7 +176,18 @@ namespace eval ::athena_test::tests:: {
         nlist {Invalid neighborhood, should be one of: NB1, NB2}
     }
 
-    test DEPLOY:CREATE-1.10 {priority is invalid} -setup {
+    test DEPLOY:CREATE-1.10 {reinforce is invalid} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DEPLOY:CREATE \
+            [dict merge $D1 [list reinforce NONESUCH]]
+    } -cleanup {
+        cleanup
+    } -result {
+        reinforce {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test DEPLOY:CREATE-1.11 {priority is invalid} -setup {
         setup
     } -body {
         ted order -reject TACTIC:DEPLOY:CREATE [dict merge $D1 {
@@ -197,12 +211,13 @@ namespace eval ::athena_test::tests:: {
 tactic_id    1
 tactic_type  DEPLOY
 owner        JOE
-narrative    Deploy 100 of group BLUE's personnel into neighborhoods NB1, NB2.
+narrative    Deploy 100 of group BLUE's personnel into neighborhoods NB1, NB2 without reinforcement.
 priority     1
 g            BLUE
 text1        SOME
 int1         100
 nlist        NB1 NB2
+reinforce    0
 once         1
 on_lock      0
 state        normal
@@ -229,6 +244,7 @@ g            BLUE
 text1        ALL
 int1         
 nlist        NB1
+reinforce    1
 once         0
 on_lock      0
 state        normal
@@ -355,7 +371,17 @@ exec_flag    0
         nlist {Invalid neighborhood, should be one of: NB1, NB2}
     }
 
-    test DEPLOY:UPDATE-1.9 {wrong flavor of tactic} -setup {
+    test DEPLOY:UPDATE-1.9 {reinforce is invalid} -setup {
+        setup_update_deploy
+    } -body {
+        ted order -reject TACTIC:DEPLOY:UPDATE tactic_id 1 reinforce NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        reinforce {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+    test DEPLOY:UPDATE-1.10 {wrong flavor of tactic} -setup {
         setup_update_deploy
         rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
     } -body {
@@ -379,12 +405,13 @@ exec_flag    0
 tactic_id    1
 tactic_type  DEPLOY
 owner        JOE
-narrative    Deploy 150 of group BLUE's personnel into neighborhoods NB1, NB2.
+narrative    Deploy 150 of group BLUE's personnel into neighborhoods NB1, NB2 without reinforcement.
 priority     1
 g            BLUE
 text1        SOME
 int1         150
 nlist        NB1 NB2
+reinforce    0
 once         1
 on_lock      0
 state        normal
@@ -406,12 +433,13 @@ exec_flag    0
 tactic_id    1
 tactic_type  DEPLOY
 owner        JOE
-narrative    Deploy 150 of group BLUE's personnel into neighborhood NB1.
+narrative    Deploy 150 of group BLUE's personnel into neighborhood NB1 with reinforcement.
 priority     1
 g            BLUE
 text1        SOME
 int1         150
 nlist        NB1
+reinforce    1
 once         0
 on_lock      0
 state        normal
