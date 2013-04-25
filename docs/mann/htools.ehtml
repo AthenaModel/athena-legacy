@@ -380,10 +380,8 @@ If <i>body</i> is given, it will be executed as a Tcl script; then,
 
 <<defitem /page {<i>object</i> /page}>>
 
-Adds the standard HTML footer boilerplate.  If the
-<code>-footercmd</code> is defined, it will be called; the content it
-generates will appear immediately before the
-<code>&lt;/body&gt;</code> tag.<p>
+Terminates the page, calling <code>-footercmd</code> to add any 
+standard HTML footer boilerplate, and returning the formatted HTML.<p>
 
 <<defitem pager {<i>object</i> pager <i>qdict page pages</i>}>>
 

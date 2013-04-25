@@ -75,10 +75,8 @@ appserver module MADS {
                    s                AS "Here",
                    p                AS "Near",
                    q                AS "Far",
-                   count(firing_id) AS "Inputs"
+                   count            AS "Inputs"
             FROM gui_mads
-            LEFT OUTER JOIN rule_firings USING (driver_id)
-            GROUP BY mad_id
         } -default "None." -align LLLRRRR
 
         ht /page
@@ -115,10 +113,38 @@ appserver module MADS {
         ht page "Magic Attitude Driver: $id"
         ht title $data(fancy) "MAD" 
 
-        ht putln "TBD: The following magic inputs have been made."
-        ht /page
+        # NEXT, if we're not locked we're done.
+        if {![locked -disclaimer]} {
+            return [ht /page]
+        }
 
-        return [ht get]
+        # NEXT, get the driver ID
+        set driver_id [driver get MAGIC $id]
+
+        if {$driver_id eq ""} {
+            ht putln "No magic inputs have yet been made for this MAD."
+            ht para
+            return [ht /page]
+        }
+
+        # NEXT, get the driver data
+        rdb eval {SELECT * FROM gui_drivers WHERE driver_id=$driver_id} ddata {}
+
+
+        ht putln \
+            "$data(count) magic inputs have been made relative to this MAD," \
+            "all relative to driver $ddata(link).  The inputs are as follows:"
+
+        ht para
+
+        set vars(driver_id) $driver_id
+        set where {driver_id=$vars(driver_id)}
+
+        appserver::firing query $udict vars $where
+
+        ht para
+
+        return [ht /page]
     }
 }
 

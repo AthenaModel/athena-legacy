@@ -106,11 +106,27 @@ snit::type driver {
     #-------------------------------------------------------------------
     # driver Ensemble Interface
 
+    # get dtype signature
+    #
+    # dtype      - A driver type
+    # signature  - A driver signature
+    #
+    # Returns the driver_id for the driver type and signature, if one
+    # exists, and "" otherwise.
+
+    typemethod get {dtype signature} {
+        return [rdb onecolumn {
+            SELECT driver_id FROM drivers
+            WHERE dtype=$dtype AND signature=$signature
+        }]
+    }
+
     # getid fdict
     #
     # fdict - A rule firing dictionary
     #
-    # Retrieves the driver ID for the firing dict. 
+    # Retrieves the driver ID for the firing dict, creating a new
+    # driver if necessary.
 
     typemethod getid {fdict} {
         # FIRST, compute the signature from the fdict given the
@@ -123,10 +139,7 @@ snit::type driver {
         }
 
         # NEXT, if there's a driver with that signature return it.
-        set id [rdb onecolumn {
-            SELECT driver_id FROM drivers
-            WHERE dtype=$dtype AND signature=$signature
-        }]
+        set id [$type get $dtype $signature]
 
         if {$id ne ""} {
             return $id

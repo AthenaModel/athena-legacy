@@ -308,12 +308,15 @@ snit::type ::projectlib::htools {
 
     # /page
     #
-    # Adds the standard footer boilerplate
+    # Adds the standard footer boilerplate, and returns the
+    # formatted page.
 
     method /page {} {
         callwith $options(-footercmd)
 
         $self putln "</body></html>"
+
+        return [$self get]
     }
 
     # title title ?over? ?under?
