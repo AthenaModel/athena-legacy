@@ -319,7 +319,19 @@ snit::type app {
 
         # NEXT, if there's a script, execute it.
         if {$opts(-script) ne ""} {
-            if {[catch {
+            set script [file normalize $opts(-script)]
+
+            if {![file exists $script]} {
+                set message {
+                    |<--
+                    -script $opts(-script) does not exist.
+                    The full path is:
+
+                    $script
+                }
+
+                app error $message
+            } elseif {[catch {
                 executive eval [list call $opts(-script)]
             } result eopts]} {
                 if {[dict get $eopts -errorcode] eq "REJECT"} {
