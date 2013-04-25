@@ -8,9 +8,9 @@
 This page gives an overview of the data available through this browser:<p>
 
 <ul>
-  <li> <a href="my://app/sigevents">Recent Significant Events</a>
+  <li> <a href="my://app/sigevents?start=RUN">Recent Significant Events</a>
        <ul>
-         <li> <a href="my://app/sigevents/all">All Significant Events</a>
+         <li> <a href="my://app/sigevents">All Significant Events</a>
        </ul>
   <li> <a href="my://app/actors">Actors</a>
   <li> <a href="my://app/groups">Groups</a>

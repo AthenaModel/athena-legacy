@@ -188,13 +188,7 @@ appserver module HOOK {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln "
-                The following are the most recent significant events 
-                involving this semantic hook, oldest first.
-            "
-
-            ht para
-            sigevents -tags $hook_id -mark run
+            appserver::SIGEVENTS recent $hook_id
         }
 
         ht /page

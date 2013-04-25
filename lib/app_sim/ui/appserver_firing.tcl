@@ -207,7 +207,7 @@ appserver module firing {
         ht para
 
         # NEXT, show the page navigation
-        ht pager $qdict $page $pages
+        ht pager [dict remove $qdict start_ end_] $page $pages
 
         set query {
             SELECT F.link                     AS "ID",
@@ -231,7 +231,7 @@ appserver module firing {
 
         ht para
 
-        ht pager $qdict $page $pages
+        ht pager [dict remove $qdict start_ end_] $page $pages
     }
 
     # GetFiringParms udict

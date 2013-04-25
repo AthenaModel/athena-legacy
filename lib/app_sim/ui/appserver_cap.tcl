@@ -243,14 +243,7 @@ appserver module CAP {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln "
-                The following are the most recent significant events 
-                involving this CAP, oldest first.
-            "
-
-            ht para
-            
-            sigevents -tags $k -mark run
+            appserver::SIGEVENTS recent $k
         }
 
         ht /page

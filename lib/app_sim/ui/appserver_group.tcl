@@ -682,14 +682,7 @@ appserver module GROUPS {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln {
-                The following are the most recent significant events 
-                involving this group, oldest first.
-            }
-
-            ht para
-
-            sigevents -tags [list $g $data(n)] -mark run
+            appserver::SIGEVENTS recent $g
         }
 
         ht /page
@@ -840,14 +833,7 @@ appserver module GROUPS {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln "
-                The following are the most recent significant events 
-                involving this group, oldest first.
-            "
-
-            ht para
-            
-            sigevents -tags $g -mark run
+            appserver::SIGEVENTS recent $g
         }
 
         ht /page
@@ -878,14 +864,7 @@ appserver module GROUPS {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln "
-                The following are the most recent significant events 
-                involving this group, oldest first.
-            "
-
-            ht para
-            
-            sigevents -tags $g -mark run
+            appserver::SIGEVENTS recent $g
         }
 
         ht /page

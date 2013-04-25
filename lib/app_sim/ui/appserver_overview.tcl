@@ -61,11 +61,11 @@ appserver module OVERVIEW {
 
     proc /overview:linkdict {udict matchArray} {
         return {
-            /sigevents { 
+            /sigevents?start=RUN { 
                 label "Sig. Events: Recent" 
                 listIcon ::projectgui::icon::eye12
             }
-            /sigevents/all { 
+            /sigevents { 
                 label "Sig. Events: All" 
                 listIcon ::projectgui::icon::eye12
             }

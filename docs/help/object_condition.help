@@ -292,7 +292,7 @@ object condition_expr {
         If the expression contains an error, e.g., a syntax error,
         that will be discovered when Athena evaluates the condition
         during <<term strategy>> execution.  The error will be logged
-        in the <a href="my://app/sigevents/all">Significant Events</a>
+        in the <a href="my://app/sigevents">Significant Events</a>
         log.<p>
 
         A condition whose expression contains an error has no value.

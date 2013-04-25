@@ -198,13 +198,7 @@ appserver module IOM {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln "
-                The following are the most recent significant events 
-                involving this IOM, oldest first.
-            "
-
-            ht para
-            sigevents -tags $iom_id -mark run
+            appserver::SIGEVENTS recent $iom_id
         }
 
         ht /page

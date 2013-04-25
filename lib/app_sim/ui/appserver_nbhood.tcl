@@ -561,14 +561,7 @@ appserver module NBHOOD {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln {
-                The following are the most recent significant events 
-                involving this neighborhood, oldest first.
-            }
-    
-            ht para
-    
-            sigevents -tags $n -mark run
+            appserver::SIGEVENTS recent $n
         }
 
         ht /page

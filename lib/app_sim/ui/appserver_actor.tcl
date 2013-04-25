@@ -466,14 +466,7 @@ appserver module ACTOR {
         ht subtitle "Significant Events" sigevents
 
         if {[locked -disclaimer]} {
-            ht putln "
-                The following are the most recent significant events 
-                involving this actor, oldest first.
-            "
-
-            ht para
-            
-            sigevents -tags $a -mark run
+            appserver::SIGEVENTS recent $a
         }
 
         ht /page
