@@ -100,21 +100,6 @@ CREATE TABLE sigevent_tags (
     PRIMARY KEY (event_id, tag)
 );
 
--- Marks table.  An event can be marked to indicate the beginning of
--- a new sequence of events, e.g., events related to a particular 
--- game turn.  This allows a portion of the log to be displayed,
--- relative to a particular kind of mark.
-
-CREATE TABLE sigevent_marks (
-    event_id INTEGER REFERENCES sigevents(event_id)
-                     ON DELETE CASCADE
-                     DEFERRABLE INITIALLY DEFERRED,
-
-    mark     TEXT,
-
-    PRIMARY KEY (event_id, mark)
-);
-
 CREATE VIEW sigevents_view AS
 SELECT *
 FROM sigevents JOIN sigevent_tags USING (event_id);

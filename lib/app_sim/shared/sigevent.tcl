@@ -33,51 +33,6 @@ snit::type sigevent {
         }
     }
 
-    # mark mark narrative 
-    #
-    # mark         - The mark type
-    # narrative    - The mark narrative
-    #
-    # Adds a log entry and a related mark to the sigevents table
-    # and sigevent_marks table.
-
-    typemethod mark {mark narrative} {
-        set narrative [normalize $narrative]
-
-        rdb eval {
-            INSERT INTO sigevents(t,level,component,narrative)
-            VALUES(now(), 1, 'mark', $narrative);
-        }
-
-        set id [rdb last_insert_rowid]
-
-        rdb eval {
-            INSERT INTO sigevent_marks(event_id, mark)
-            VALUES($id,$mark)
-        }
-    }
-
-    # lastmark mark
-    #
-    # mark         - A mark type
-    #
-    # Returns the event_id of the most recent mark of the given type,
-    # or 0.
-
-    typemethod lastmark {mark} {
-        rdb eval {
-            SELECT event_id 
-            FROM sigevent_marks
-            WHERE mark=$mark
-            ORDER BY event_id DESC
-            LIMIT 1
-        } {
-            return $event_id
-        }
-
-        return 0
-    }
-
     # log level component narrative ?tags...?
     #
     # level        - error, warning, or 1-N

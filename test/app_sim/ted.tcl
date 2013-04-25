@@ -71,7 +71,6 @@ snit::type ted {
         rule_inputs
         sigevents
         sigevent_tags
-        sigevent_marks
         stance_fg
         stance_nfg
         tactics

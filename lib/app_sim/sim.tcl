@@ -542,7 +542,6 @@ snit::type sim {
 
         # NEXT, mark the start of the run.
         simclock mark set RUN 1
-        sigevent mark run "Beginning to advance time."
 
         # NEXT, we have been paused, and the user might have made
         # changes.  Run necessary analysis before the first tick.
