@@ -59,7 +59,8 @@ snit::type econ {
     typevariable info -array {
         changed 0
         econStatus ok
-        econPage   {}
+        econCellModel {}
+        econPage      {}
     }
 
     #-------------------------------------------------------------------
@@ -199,7 +200,7 @@ snit::type econ {
 
         if {![Within $f_goods 1.0 0.001]} {
             dict append edict f.goods \
-                "The Cobb-Douglas coefficients in the goods sector do not sum to 1.0"
+                "The Cobb-Douglas coefficients in the goods column do not sum to 1.0"
         }
 
         # NEXT, Cobb-Douglas coefficients in the pop sector must add up to 1.0
@@ -210,7 +211,18 @@ snit::type econ {
 
         if {![Within $f_pop 1.0 0.001]} {
             dict append edict f.pop \
-                "The Cobb-Douglas coefficients in the pop sector do not sum to 1.0"
+                "The Cobb-Douglas coefficients in the pop column do not sum to 1.0"
+        }
+
+        let f_region {
+            $cells(f.goods.region) + $cells(f.black.region) + 
+            $cells(f.pop.region)   + $cells(f.actors.region) +
+            $cells(f.region.region) + $cells(f.world.region)
+        }
+
+        if {$f_region > 1.0} {
+            dict append edict f.region \
+                "The Cobb-Douglas coefficients in the region column sum to a number > 1.0"
         }
 
         if {$cells(BNR.black) < 0.0} {
@@ -260,6 +272,7 @@ snit::type econ {
         set sam [cellmodel sam \
                      -epsilon 0.000001 \
                      -maxiters 1       \
+                     -failcmd  [mytypemethod CellModelFailure] \
                      -tracecmd [mytypemethod TraceSAM]]
 
         sam load \
@@ -281,7 +294,7 @@ snit::type econ {
         set cge [cellmodel cge \
                      -epsilon  0.000001 \
                      -maxiters 1000     \
-                     -failcmd  [mytypemethod CGEFailure] \
+                     -failcmd  [mytypemethod CellModelFailure] \
                      -tracecmd [mytypemethod TraceCGE]]
         cge load [readfile [file join $::app_sim_shared::library cge6x6.cm]]
 
@@ -315,7 +328,7 @@ snit::type econ {
                 $ht putln "The econ model has been disabled."
             }
         } else {
-            # NEXT, the CGE has either diverged or has errors, generate
+            # NEXT, a cell model has either diverged or has errors, generate
             # the appropriate report 
 
             if {$info(econStatus) eq "diverge"} {
@@ -330,8 +343,8 @@ snit::type econ {
                 # NEXT, create a table of cells and their errors
                 $ht push
 
-                foreach {cell} [$cge cells error] {
-                    set err [$cge cellinfo error $cell]
+                foreach {cell} [$info(econCellModel) cells error] {
+                    set err [$info(econCellModel) cellinfo error $cell]
                     $ht tr {
                         $ht td left {$ht put $cell}
                         $ht td left {$ht put $err}
@@ -347,14 +360,9 @@ snit::type econ {
 
                 set solutions {}
 
+                # TBD ----------------------------------------------------
                 # NEXT, look for some possible problems usually it is the
                 # actor's sector that causes problems.
-                array set cells [$cge get]
-                if {$cells(t.actors.goods) >= 1.0 ||
-                    $cells(t.region.goods) >= 1.0 ||
-                    $cells(t.world.goods)  >= 1.0} {
-                }
-
                 if {[llength $solutions] > 0} {
 
                     $ht para
@@ -378,7 +386,7 @@ snit::type econ {
 
             $ht para
 
-            $ht put   "A file called cgedebug.cmsnap that contains the set "
+            $ht put   "A file called econdebug.cmsnap that contains the set "
             $ht put   "of initial conditions that led to this problem "
             $ht put   "is located in [file normalize [workdir join ..]] "
             $ht put   "and can be used for debugging this problem."
@@ -417,7 +425,7 @@ snit::type econ {
         }
     }
 
-    # CGEFailure msg page
+    # CellModelFailure msg page
     #
     # msg    - the type of error: diverge or errors
     # page   - the page in the CGE that the failure occurred
@@ -427,16 +435,16 @@ snit::type econ {
     # initialization file that can be used with mars_cmtool(1) to 
     # further analyze any problems.
 
-    typemethod CGEFailure {msg page} {
+    typemethod CellModelFailure {cm msg page} {
         # FIRST, log the warning
-        log warning econ "CGE Failed to solve: $msg $page"
+        log warning econ "Cell model ailed to solve: $msg $page"
         
         # NEXT, open a debug file for use in analyzing the problem
-        set filename [workdir join .. cgedebug.cmsnap]
+        set filename [workdir join .. econdebug.cmsnap]
         set f [open $filename w]
 
         # NEXT, dump the CGE initial state
-        set vdict [$cge initial]
+        set vdict [$cm initial]
         dict for {cell value} $vdict {
             puts $f "$cell $value"
         }
@@ -488,25 +496,6 @@ snit::type econ {
             sam set [list \
                         BaseUR            $histdata(base_ur)    \
                         REMChangeRate     $histdata(rem_rate)]
-        }
-    }
-
-    # InitActorTables
-    #
-    # This method sets up the tables used to track total income as the sum of
-    # all income sources and sector by sector tax and tax like rates.
-
-    typemethod InitActorTables {} {
-        # FIRST, the total income by actor. A sum of all income sources.
-        # Only INCOME actors are represented.
-        rdb eval {
-            SELECT a FROM actors
-            WHERE atype='INCOME'
-        } {
-            rdb eval {
-                INSERT INTO income_a(a, income)
-                VALUES($a, 0.0);
-            }
         }
     }
 
@@ -705,15 +694,29 @@ snit::type econ {
         $sam set [list graft $graft_frac]
 
         set result [$sam solve]
+
+        set info(econStatus) [lindex $result 0]
+
+        # NEXT, deal with possible errors in the SAM
+        if {$info(econStatus) ne "ok"} {
+            set info(econCellModel) $sam
+            set info(econPage) [lindex $result 1]
+        } else {
+            set info(econCellModel) ""
+            set info(econPage) ""
+        }
+
         # NEXT, handle failures.
-        if {$result ne "ok"} {
-            puts $result
-            log warning econ "Failed to solve SAM"
-            error "Failed to solve SAM model after actor data was loaded."
+        if {$info(econStatus) ne "ok"} {
+            log warning econ "Failed to initialize SAM"
+            $type SamError "SAM Error"
+            return 0
         }
 
         # NEXT, notify the GUI to sync to the latest data
         notifier send ::econ <SyncSheet> 
+
+        return 1
     }
 
     # InitCGEFromSAM
@@ -722,11 +725,6 @@ snit::type econ {
     # from the SAM
 
     typemethod InitCGEFromSAM {} {
-        # FIRST, initialize actor income tables
-        $type InitActorTables
-
-        # NEXT, compute the actors sector in the SAM
-        $type SAMActorsSector
 
         # NEXT, get sectors and data from the SAM
         set sectors  [$sam index i]
@@ -859,8 +857,18 @@ snit::type econ {
     typemethod start {} {
         log normal econ "start"
 
-        # FIRST, clear out actor income tables.
+        # FIRST, clear out and initialize actor income tables.
         rdb eval {DELETE FROM income_a;}
+
+        rdb eval {
+            SELECT a FROM actors
+            WHERE atype='INCOME'
+        } {
+            rdb eval {
+                INSERT INTO income_a(a, income)
+                VALUES($a, 0.0);
+            }
+        }
 
         if {![parmdb get econ.disable]} {
             # FIRST, reset the CGE
@@ -868,6 +876,12 @@ snit::type econ {
 
             # NEXT, prepare the SAM with actor data
             $type PrepareSAM
+
+            # NEXT, compute the actors sector in the SAM, return if 
+            # there is a problem
+            if {![$type SAMActorsSector]} {
+                return
+            }
 
             # NEXT, initialize the CGE from the SAM
             $type InitCGEFromSAM
@@ -1036,9 +1050,11 @@ snit::type econ {
             set info(econStatus) [lindex $status 0]
 
             if {$info(econStatus) ne "ok"} {
+                set info(econCellModel) $cge
                 set info(econPage) [lindex $status 1]
             } else {
-                set info(econPage) {}
+                set info(econCellModel) ""
+                set info(econPage) ""
             }
 
             # NEXT, the data has changed.
@@ -1145,9 +1161,11 @@ snit::type econ {
         set info(econStatus) [lindex $status 0]
 
         if {$info(econStatus) ne "ok"} {
+            set info(econCellModel) $cge
             set info(econPage) [lindex $status 1]
         } else {
-            set info(econPage) null
+            set info(econCellModel) ""
+            set info(econPage) ""
         }
 
         # The data has changed.
@@ -1343,6 +1361,30 @@ snit::type econ {
     # has failed to solve the econ model is disabled.
 
     typemethod CgeError {title} {
+        append msg "Failure in the econ model caused it to be disabled."
+        append msg "\nSee the detail browser for more information."
+
+        parmdb set econ.disable 1
+        parmdb lock econ.disable
+
+        set answer [messagebox popup              \
+                        -icon warning             \
+                        -message $msg             \
+                        -parent [app topwin]      \
+                        -title  $title            \
+                        -buttons {ok "Ok" browser "Go To Detail Browser"}]
+
+       if {$answer eq "browser"} {
+           app show my://app/econ
+       }
+    }
+
+    # SamError title
+    #
+    # This method pops up a dialog to inform the user that because the CGE
+    # has failed to solve the econ model is disabled.
+
+    typemethod SamError {title} {
         append msg "Failure in the econ model caused it to be disabled."
         append msg "\nSee the detail browser for more information."
 
