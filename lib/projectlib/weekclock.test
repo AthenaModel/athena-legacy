@@ -249,6 +249,61 @@ namespace eval ::projectlib::test {
     } -cleanup {
         cleanup
     } -result {2012W11}
+
+    #-------------------------------------------------------------------
+    # mark set/get/names
+
+    test mark-1.1 {no names initially} -setup {
+        setup
+    } -body {
+        myclock mark names
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    test mark-1.2 {returns defined names} -setup {
+        setup
+    } -body {
+        myclock mark set TEST1
+        myclock mark set TEST2
+        myclock mark names
+    } -cleanup {
+        cleanup
+    } -result {TEST1 TEST2}
+    
+    test mark-1.3 {can retrieve marked time.} -setup {
+        setup
+        myclock advance 10
+    } -body {
+        myclock mark set TEST
+        myclock advance 20
+        myclock mark get TEST
+    } -cleanup {
+        cleanup
+    } -result {10}
+
+    test mark-1.4 {marks are cleared on reset} -setup {
+        setup
+        myclock advance 10
+        myclock mark set TEST
+    } -body {
+        myclock reset
+        myclock mark names
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    test mark-1.5 {can mark time with offset} -setup {
+        setup
+        myclock advance 10
+    } -body {
+        myclock mark set TEST 2
+        myclock advance 20
+        myclock mark get TEST
+    } -cleanup {
+        cleanup
+    } -result {12}
+
     
     #-------------------------------------------------------------------
     # timespec
@@ -273,8 +328,23 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {invalid time spec "NOW++10", should be <basetime><+/-><offset>}
 
+    test timespec-1.3 {invalid spec 3, with marks} -setup {
+        setup
+    } -body {
+        myclock mark set TEST1
+        myclock mark set TEST2
+        myclock timespec validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid time spec "NONESUCH", base time should be "NOW", "T0", "TEST1", "TEST2", an integer tick, or a week string}
+
+
     test timespec-2.1 {valid specs} -setup {
         setup
+        myclock advance 10
+        myclock mark set THEN
         myclock advance 30
     } -body {
         set result [list]
@@ -290,6 +360,9 @@ namespace eval ::projectlib::test {
             2012W30
             2012W30-5
             2012W30+5
+            THEN-5
+            THEN
+            THEN+5
         } {
             lappend result [myclock timespec validate $spec]
         }
@@ -297,7 +370,7 @@ namespace eval ::projectlib::test {
         set result
     } -cleanup {
         cleanup
-    } -result {30 0 10 40 20 40 20 10 29 24 34}
+    } -result {30 0 10 40 20 40 20 10 29 24 34 5 10 15}
 
     test timespec-2.2 {T0 == tick0} -setup {
         setup -tick0 100
@@ -306,6 +379,7 @@ namespace eval ::projectlib::test {
     } -cleanup {
         cleanup
     } -result {100}
+
     
     #-------------------------------------------------------------------
     # asString
@@ -395,7 +469,7 @@ namespace eval ::projectlib::test {
         myclock checkpoint
     } -cleanup {
         cleanup
-    } -result {{-tick0 100 -week0 2013W15} {t 110 week0 690}}
+    } -result {{-tick0 100 -week0 2013W15} {t 110 week0 690 marks {}}}
     
     #-------------------------------------------------------------------
     # restore
@@ -411,7 +485,7 @@ namespace eval ::projectlib::test {
     } -cleanup {
         tempclock destroy
         cleanup
-    } -result {{-tick0 100 -week0 2013W15} {t 110 week0 690}}
+    } -result {{-tick0 100 -week0 2013W15} {t 110 week0 690 marks {}}}
     
     
     

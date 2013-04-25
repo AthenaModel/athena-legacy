@@ -127,11 +127,11 @@ appserver module firing {
         return [ht get]
     }
 
-    # query qdict whereArray whereExpr
+    # query qdict whereArray expr
     #
     # udict       - The udict dictionary
     # varsArray   - The name of an array of variables required by the whereExpr.
-    # wher        - An SQL expression to be ANDed into the WHERE clause.
+    # expr        - An SQL expression to be ANDed into the WHERE clause.
     #
     # Writes a paged table of rule firings into the htools buffer.  The
     # firings will be limited by the where expression.
@@ -146,7 +146,7 @@ appserver module firing {
     #
     # Unknown query parameters and invalid query values are ignored.
 
-    typemethod query {udict varsArray where} {
+    typemethod query {udict varsArray expr} {
         upvar 1 $varsArray vars
 
         # NEXT, get the query parameters and bring them into scope.
@@ -172,14 +172,22 @@ appserver module firing {
         ht hr
         ht para
 
+        # NEXT, determine the WHERE clause for queries.
+        set where {
+            WHERE t >= $start_ AND t <= $end_
+        }
+
+        if {$expr ne ""} {
+            append where "AND $expr\n"
+        }
+
+
         # NEXT, get output stats
         set query {
             SELECT count(*) FROM gui_firings
         }
 
-        if {$where ne ""} {
-            append query "WHERE $where"
-        }
+        append query $where
 
         set items [rdb onecolumn $query]
 
@@ -210,15 +218,10 @@ appserver module firing {
                    F.narrative                AS "Narrative"
             FROM gui_firings AS F
             JOIN gui_drivers AS D USING (driver_id)
-            WHERE t >= $start_ AND t <= $end_
         }
 
-        if {$where ne ""} {
-            append query "
-                AND $where
-            "
-        }
-
+        append query $where
+  
         append query {
             ORDER BY firing_id
             LIMIT $page_size OFFSET $offset

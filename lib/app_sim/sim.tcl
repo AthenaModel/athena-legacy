@@ -410,6 +410,10 @@ snit::type sim {
         # NEXT, start the engine
         engine start
 
+        # NEXT, mark the time
+        simclock mark set LOCK
+        simclock mark set RUN
+
         # NEXT, set the state to PAUSED
         $type SetState PAUSED
 
@@ -537,6 +541,7 @@ snit::type sim {
         $type SetState RUNNING
 
         # NEXT, mark the start of the run.
+        simclock mark set RUN 1
         sigevent mark run "Beginning to advance time."
 
         # NEXT, we have been paused, and the user might have made

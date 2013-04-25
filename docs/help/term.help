@@ -1164,10 +1164,13 @@ term timespec "time specification string" {
     the following forms:<p>
 
     <ul>
-    <li> <b>T0</b>: Time zero, the beginning of the simulation.
+    <li> <b>LOCK</b>: The time at which the scenario was locked.  Note that
+        this will not be t=0 if the start tick has been changed.
+    <li> <b>RUN</b>: The time at which the most recent run began.  If
+        the Run button was pressed while paused at t=10, then RUN
+        will be t=11, the first time tick of the run.
     <li> <b>NOW</b>: The current simulation time.
-    <li> <b><i>weeks</i></b>: The time as some number of weeks since
-         <b>T0</b>.
+    <li> <b><i>weeks</i></b>: A specific time in ticks.
     <li> <b><i>weekString</i></b>: A specific calendar week, specified as
          "<i>yyyy</i>W<i>ww</i>", where <i>yyyy</i> is the four-digit 
          year and <i>ww</i> is the <<term jweek>>, 1 to 52.  Thus, the weeks

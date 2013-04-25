@@ -34,6 +34,15 @@ Time is advanced manually by calling the weekclock(n)'s
 <<iref advance>> method.  Use <<iref reset>> to reset the clock to
 <b>-tick0</b>.<p>
 
+<<subsection "Marks">>
+
+Significant points in time in the life of the simulation can be "marked"
+with a name, so that they can be used  
+<<xref "Time Specification Strings">>.  For example, the "RUN" mark can
+be set to the time at which the analyst last pressed the simulation's
+RUN button.  The "RUN" mark will then indicate the beginning of the
+most recent run.<p> 
+
 <<subsection "Time Specification Strings">>
 
 To ease user input, weekclock(n) supports time specification strings,
@@ -50,6 +59,7 @@ The base time can be specified in the following ways:<p>
   <li> As the string <b>T0,</b> which translates to <b>-tick0</b>.
   <li> As the string <b>NOW</b>, which translates to the current simulation
        time in ticks.
+  <li> As a named mark.
 </ul><p>
 
 Thus, the following are all valid time specs:<p>
@@ -159,7 +169,7 @@ the returned time.<p>
 
 <<defitem reset {$weekclock reset}>>
 
-Resets simulation time to <b>-tick0</b> ticks.<p>
+Resets simulation time to <b>-tick0</b> ticks, clearing all marks<p>
 
 <<defitem restore {$weekclock restore <i>checkpoint</i>}>>
 
@@ -175,6 +185,29 @@ Converts a simulation time in integer <i>ticks</i> into a
 <<xref week(n)>> time string.  If given,
 <i>offset</i> should be an offset in ticks; it is added to
 the specified time.<p>
+
+<<defitem mark {$weekclock mark <i>subcommand</i> ?<i>args...</i>?}>>
+
+This command manages "marks", named points in time.  See 
+<<xref "Marks">>.  The subcommands are as follows:<p>
+
+<<deflist mark>>
+
+<<defitem "mark set" {$weekclock mark set <i>name</i> ?<i>offset</i>?}>>
+
+Marks the current time (plus the <i>offset</i>, if any) 
+with the given <i>name</i>.<p>
+
+<<defitem "mark get" {$weekclock mark get <i>name</i>}>>
+
+Returns the time tick associated with the named mark, or "" if the mark
+is undefined.<p>
+
+<<defitem "mark names" {$weekclock mark names}>>
+
+Returns the names of all currently defined marks.<p>
+
+<</deflist mark>>
 
 <</deflist instance command>>
 

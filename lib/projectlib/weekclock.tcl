@@ -64,10 +64,12 @@ snit::type ::projectlib::weekclock {
     # week0 - Integer value for -week0 start date.  Initially, 2012W01.
     # t     - The simulation time in ticks, where t >= tick0 and
     #         tick0 corresponds to week0
+    # marks - A dictionary of mark names and time ticks.
 
     variable info -array {
         week0 0
         t     0
+        marks {}
     }
 
     #-------------------------------------------------------------------
@@ -115,7 +117,45 @@ snit::type ::projectlib::weekclock {
 
     method reset {} {
         set info(t) $options(-tick0)
+        set info(marks) {}
         return
+    }
+
+    # mark set mark ?offset?
+    #
+    # mark   - A named mark
+    # offset - An offset to the current time.
+    #
+    # Associates the named mark with now+offset.  The mark name
+    # can be used as a base time in timespec strings.
+
+    method {mark set} {mark {offset 0}} {
+        dict set info(marks) [string toupper $mark] [$self now $offset]
+    }
+
+    # mark get mark
+    #
+    # mark  - A named mark
+    #
+    # Retrieves the time tick associated with the named mark, or "" if
+    # none.
+
+    method {mark get} {mark} {
+        set mark [string toupper $mark]
+        
+        if {[dict exists $info(marks) $mark]} {
+            return [dict get $info(marks) $mark]
+        } else {
+            return ""
+        }
+    }
+
+    # mark names
+    #
+    # Retrieves the names of the currently defined marks.
+
+    method {mark names} {} {
+        return [dict keys $info(marks)]
     }
 
     #-------------------------------------------------------------------
@@ -189,8 +229,8 @@ snit::type ::projectlib::weekclock {
     # A time-spec string specifies a time in ticks as a base time 
     # optionally plus or minus an offset.  The offset is always in ticks;
     # the base time can be a time in ticks, a week time-string, or
-    # a "named" time, e.g., "T0" or "NOW".  If the base time is omitted, 
-    # "NOW" is assumed.  For example,
+    # a "named" time, e.g., "T0" or "NOW" or a mark name.  If the base time 
+    # is omitted, "NOW" is assumed.  For example,
     #
     #    +5             simclock now 5
     #    -5             simclock now -5
@@ -248,6 +288,8 @@ snit::type ::projectlib::weekclock {
 
         if {$basetime eq "T0"} {
             set t $options(-tick0)
+        } elseif {[dict exists $info(marks) $basetime]} {
+            set t [dict get $info(marks) $basetime]
         } elseif {$basetime eq "NOW" || $basetime eq ""} {
             set t [$self now]
         } elseif {[string is integer -strict $basetime]} {
@@ -255,8 +297,17 @@ snit::type ::projectlib::weekclock {
         } elseif {![catch {$self fromString $basetime} result]} {
             set t $result
         } else {
-            throw INVALID \
-                "invalid time spec \"$spec\", base time should be \"NOW\", \"T0\", an integer tick, or a week string"
+            if {[dict size $info(marks)] > 0} {
+                set marks "\"[join [lsort [dict keys $info(marks)]] {", "}]\", "
+            } else {
+                set marks ""
+            }
+
+            append error \
+                "invalid time spec \"$spec\", base time should be " \
+                "\"NOW\", \"T0\", ${marks}an integer tick, or a week string"
+
+            throw INVALID $error
         }
 
         if {$offset ne ""} {
