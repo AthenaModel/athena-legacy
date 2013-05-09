@@ -342,7 +342,7 @@ let BEXPORTS.pop   = {[BX.pop.world]   / [BP.pop]}
 
 # Shape parameter macro definitions
 
-define t.i.j {i j} {[XT.$i.$j] / [XTREV.$j]}
+define t.i.j {i j} {[XTREV.$j] > 0.0 ? [XT.$i.$j] / [XTREV.$j] : 0.0}
 define k.j {j} {1.0 - ([t.actors.$j] + [t.region.$j] + [t.world.$j])}
 define f.i.j {i j} {[XT.$i.$j] / ([k.$j] * [XTREV.$j])}
 
@@ -427,7 +427,9 @@ foreach i {goods black pop actors region world} {
 # For the region sector
 
 foreach i {goods black pop actors region world} {
-    let f.$i.region = {[XT.$i.region] / [XTREV.region]}
+    let f.$i.region = {
+        [XTREV.region] > 0 ? [XT.$i.region] / [XTREV.region] : 0.0
+    }
 }
 
 # Base case per capita demand for goods 

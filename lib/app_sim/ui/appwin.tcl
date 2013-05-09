@@ -281,6 +281,13 @@ snit::widget appwin {
             script  {madbrowser %W}
         }
         
+        curses {
+            label   "CURSEs"
+            vistype scenario
+            parent att
+            script {cursebrowser %W}
+        }
+
         info {
             label   "Info"
             vistype *

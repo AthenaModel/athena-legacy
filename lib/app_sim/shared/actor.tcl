@@ -35,6 +35,16 @@ snit::type actor {
     }
 
 
+    # namedict
+    #
+    # Returns the dict of actor names/longnames
+
+    typemethod namedict {} {
+        return [rdb eval {
+            SELECT a, longname FROM actors
+        }]
+    }
+
     # validate a
     #
     # a - Possibly, an actor short name.

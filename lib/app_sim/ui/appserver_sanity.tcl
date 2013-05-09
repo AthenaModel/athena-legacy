@@ -45,6 +45,9 @@ appserver module SANITY {
             text/html [myproc /sanity/strategy:html]            \
             "Sanity check report for actor strategies."
 
+        appserver register /sanity/curse {sanity/curse/?} \
+            text/html [myproc /sanity/curse:html]            \
+            "Sanity check report for CURSEs and their injects."
     }
 
     #-------------------------------------------------------------------
@@ -190,6 +193,32 @@ appserver module SANITY {
 
         return [ht get]
     }
+
+    #-------------------------------------------------------------------
+    # /sanity/curse: CURSE sanity check reports
+    #
+    # No match parameters
+
+    # /sanity/curse:html udict matchArray
+    #
+    # Formats the curse sanity check report for
+    # /sanity/curse.  Note that sanity is checked by the
+    # "curse sanity report" command; this command simply reports on the
+    # results.
+
+    proc /sanity/curse:html {udict matchArray} {
+        ht page "Sanity Check: CURSEs" {
+            ht title "CURSEs" "Sanity Check"
+            
+            if {[curse checker ::appserver::ht] eq "OK"} {
+                ht putln "No problems were found."
+                ht para
+            }
+        }
+
+        return [ht get]
+    }
+
 }
 
 

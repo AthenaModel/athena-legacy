@@ -326,6 +326,7 @@ term coverage "coverage" {
 }
 
 
+alias /term curse "curse" /object/curse
 
 #-----------------------------------------------------------------------
 
@@ -596,6 +597,10 @@ term influence "influence" {
     general, an actor takes <<term control>> of a neighborhood by
     having an influence greater than 0.5.
 }
+
+#-----------------------------------------------------------------------
+
+alias /term inject "inject" /object/inject
 
 #-----------------------------------------------------------------------
 
@@ -906,6 +911,36 @@ term roe "ROE" {
     <<cref /object/tactic/defroe>> and <<cref /object/tactic/attroe>>
     tactics.
 }
+
+#-----------------------------------------------------------------------
+
+term role "Role" {
+    Roles are used to specify one or more <<term group>>s or 
+    <<term actor>>s as part of an <<term inject>> associated with a 
+    <<term curse>>.  Roles can be thought of as user-defined variables
+    that will be filled in with lists of IDs when the CURSE tactic
+    is added to a strategy.  When the CURSE tactic executes, those groups 
+    and/or actors are the ones effected by the injects.  Note that all
+    roles begin with the "at" sign (@).<p>
+    For example, say an <<term inject>>
+    is associated with a flood that occurs because actors within
+    the regional government did not take appropriate actions to either
+    mitigate or prevent the flood from happening.  It would be appropriate
+    to have a change to vertical relationships in this case between those
+    actors and the groups adversely affected by the flood.  One role could
+    be defined as <b>@GOVT</b> and the other as <b>@FLOOD_VICTIMS</b>.  Then
+    when the CURSE tactic is added as part of the SYSTEM agent's strategy
+    those roles get filled in with the appropriate IDs.  In this case, say
+    the responsible actors have IDs <b>LOCAL_GOVT</b> and <b>FEDERAL_GOVT</b>
+    and that the civilians affected by the flood have IDs <b>CIV1</b>, 
+    <b>CIV2</b> and <b>CIV3</b>.  Then the <b>@GOVT</b> role would be filled
+    in with the responsible government actors: <b>LOCAL_GOVT</b> and 
+    <b>FEDERAL_GOVT</b> and the <b>@FLOOD_VICTIMS</b> role with the list
+    of civilians affected by the flood: <b>CIV1</b>, <b>CIV2</b> and 
+    <b>CIV3</b>.
+}
+
+#-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
 

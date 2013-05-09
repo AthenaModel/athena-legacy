@@ -36,6 +36,15 @@ snit::type group {
         }]
     }
 
+    # namedict
+    #
+    # Returns ID/longname dictionary
+
+    typemethod namedict {} {
+        return [rdb eval {
+            SELECT g, longname FROM groups ORDER BY g
+        }]
+    }
 
     # validate g
     #
@@ -121,6 +130,21 @@ snit::type group {
             WHERE g NOT IN ('[join $glist {','}]')
         "]
     }
+
+    # otherthandict glist
+    #
+    # glist - A list of groups
+    #
+    # Returns a dict of group ID/longname pairs other than those 
+    # in glist.
+
+    typemethod otherthandict {glist} {
+        return [rdb eval "
+            SELECT g, longname FROM groups
+            WHERE g NOT IN ('[join $glist {','}]')
+        "]
+    }
+
 }
 
 

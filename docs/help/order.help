@@ -107,6 +107,7 @@ include order_group.help      ;# Macros for *GROUP:* orders.
 include order_civgroup.help
 include order_condition.help
 include order_coop.help
+include order_curse.help
 include order_econ.help
 include order_ensit.help
 include order_frcgroup.help

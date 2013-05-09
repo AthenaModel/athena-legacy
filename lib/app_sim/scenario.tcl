@@ -155,6 +155,7 @@ snit::type scenario {
         rdb monitor add civgroups     {g}
         rdb monitor add conditions    {condition_id}
         rdb monitor add coop_fg       {f g}
+        rdb monitor add curses        {curse_id}
         rdb monitor add defroe_ng     {n g}
         rdb monitor add deploy_ng     {n g}
         rdb monitor add drivers       {driver_id}
@@ -166,6 +167,7 @@ snit::type scenario {
         rdb monitor add hooks         {hook_id}
         rdb monitor add hook_topics   {hook_id topic_id}
         rdb monitor add hrel_fg       {f g}
+        rdb monitor add curse_injects {curse_id inject_num}
         rdb monitor add ioms          {iom_id}
         rdb monitor add mads          {mad_id}
         rdb monitor add magic_attrit  {id}
@@ -694,6 +696,7 @@ snit::type scenario {
         RdbEvalFile gui_econ.sql        ;# Economics Area
         RdbEvalFile gui_ground.sql      ;# Ground Area
         RdbEvalFile gui_info.sql        ;# Information Area
+        RdbEvalFile gui_curses.sql      ;# User-defined CURSEs Area
         RdbEvalFile gui_politics.sql    ;# Politics Area
         RdbEvalFile gui_application.sql ;# Application Views
 

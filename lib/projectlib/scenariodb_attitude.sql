@@ -259,6 +259,54 @@ CREATE TABLE mads (
    q             DOUBLE DEFAULT 0.0
 );
 
+CREATE TABLE curses (
+    -- CURSE ID
+    curse_id     TEXT PRIMARY KEY,
+
+    -- Description of the CURSE
+    longname     TEXT DEFAULT '',
+
+    -- ecause
+    cause        TEXT DEFAULT '',
+
+    -- Here Factor (s), a real fraction (0.0 to 1.0)
+    s             DOUBLE DEFAULT 1.0,
+ 
+    -- Near Factor (p), a real fraction (0.0 to 1.0)
+    p             DOUBLE DEFAULT 0.0,
+ 
+    -- Near Factor (q), a real fraction (0.0 to 1.0)
+    q             DOUBLE DEFAULT 0.0,
+
+    -- State: normal, disabled, invalid (ecurse_state)
+    state        TEXT DEFAULT 'normal'
+);
+
+CREATE TABLE curse_injects (
+    curse_id     TEXT REFERENCES curses(curse_id)
+                 ON DELETE CASCADE
+                 DEFERRABLE INITIALLY DEFERRED,
+
+    inject_num   INTEGER,
+
+    inject_type  TEXT,   -- ecinjectpart(n) value
+
+    narrative    TEXT,
+
+    state        TEXT DEFAULT 'normal',
+
+    -- CURSE Type parameters.  The use of these varies by type;
+    -- all are NULL if unused.  There are no foreign key constraints;
+    -- errors are checked by the curse input type's "check" method.
+    a        TEXT,  -- Actor roles for VREL
+    c        TEXT,  -- A concern, for SAT
+    f        TEXT,  -- Group roles, type depends on inject_type
+    g        TEXT,  -- Group roles, type depends on inject_type
+    mag      REAL,  -- Numeric qmag(n) value
+
+    PRIMARY KEY (curse_id, inject_num)
+);
+
 ------------------------------------------------------------------------
 -- RULE FIRING HISTORY
 

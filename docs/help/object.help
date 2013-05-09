@@ -42,7 +42,9 @@ include object_actor.help
 include object_agent.help
 include object_cap.help
 include object_condition.help
+include object_curse.help
 include object_hook.help
+include object_inject.help
 include object_iom.help
 include object_goal.help
 include object_group.help

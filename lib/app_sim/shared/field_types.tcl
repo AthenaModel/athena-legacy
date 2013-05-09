@@ -20,6 +20,12 @@
 # actor: pick an actor by name.
 dynaform fieldtype alias actor enum -listcmd {::actor names}
 
+# actorlist: pick a list of actors by name
+dynaform fieldtype alias actorlist enumlonglist \
+    -showkeys yes \
+    -width    30  \
+    -dictcmd {::actor namedict}
+
 # agent: pick an agent by name.
 dynaform fieldtype alias agent enum -listcmd {::agent names}
 
@@ -46,6 +52,11 @@ dynaform fieldtype alias comparator enumlong \
 # concern: An econcern value
 dynaform fieldtype alias concern enum \
     -listcmd {econcern names}
+
+dynaform fieldtype alias concernlist enumlonglist \
+    -showkeys yes \
+    -width 30     \
+    -dictcmd {econcern deflist}
 
 # cond: Condition ID.  NOTE: This is not really a general-purpose 
 # field type; but it is complicated, and appears in every 
@@ -83,6 +94,12 @@ dynaform fieldtype alias frac range -datatype ::rfraction
 # frcgroup: Pick a force group by name.
 dynaform fieldtype alias frcgroup enum -listcmd {::frcgroup names}
 
+# frclist: Pick from a list of force groups; longname shown
+dynaform fieldtype alias frclist enumlonglist \
+    -showkeys yes \
+    -width    30  \
+    -dictcmd {::frcgroup namedict}
+
 # goal: Pick a goal ID
 dynaform fieldtype alias goal key \
     -db    ::rdb  \
@@ -92,11 +109,23 @@ dynaform fieldtype alias goal key \
 # group: Pick a group by name.
 dynaform fieldtype alias group enum -listcmd {::group names}
 
+# grouplist: Pick a list of groups; longname shown
+dynaform fieldtype alias grouplist enumlonglist \
+    -showkeys yes \
+    -width    30  \
+    -dictcmd  {::group namedict}
+
 # hook: Pick a hook ID
 dynaform fieldtype alias hook key \
     -db    ::rdb \
     -table hooks \
     -keys  hook_id
+
+# inject: Pick an inject by its ID.
+dynaform fieldtype alias inject key \
+    -db    ::rdb        \
+    -table gui_injects  \
+    -keys  {curse_id inject_num}
 
 # key: key fields should get -db automatically.
 dynaform fieldtype alias key key -db ::rdb

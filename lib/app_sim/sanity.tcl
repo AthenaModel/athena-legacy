@@ -103,6 +103,7 @@ snit::type sanity {
         savemax sev [$type ScenarioOnLockChecker $ht] 
         savemax sev [hook checker $ht] 
         savemax sev [iom checker $ht] 
+        savemax sev [curse checker $ht]
         savemax sev [strategy checker $ht] 
         savemax sev [econ checker $ht]
 

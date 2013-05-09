@@ -26,6 +26,7 @@ namespace eval ::projectlib:: {
         econcern         \
         econdition_type  \
         econdition_state \
+        ecurse_state     \
         edamrule         \
         edamruleset      \
         edefroeuf        \
@@ -36,6 +37,7 @@ namespace eval ::projectlib:: {
         egoal_state      \
         egoal_predicate  \
         ehousing         \
+        einject_state    \
         eiom_state       \
         eorgactivity     \
         eorgconcern      \
@@ -68,6 +70,7 @@ namespace eval ::projectlib:: {
         rgain            \
         rnomcoverage     \
         rnonneg          \
+        roleid           \
         rpercent         \
         rpercentpm       \
         rrate            \
@@ -584,6 +587,22 @@ snit::type ::projectlib::typewrapper {
     LT "less than"
 }
 
+# CURSE State.
+
+::marsutil::enum ::projectlib::ecurse_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
+
+# CURSE Inject State
+
+::marsutil::enum ::projectlib::einject_state {
+    normal   "normal"
+    disabled "disabled"
+    invalid  "invalid"
+}
+
 # IOM Payload State
 
 ::marsutil::enum ::projectlib::epayload_state {
@@ -637,6 +656,14 @@ snit::type ::projectlib::typewrapper {
 
 # Payload Part Types
 ::marsutil::enum ::projectlib::epayloadpart {
+    COOP  "Cooperation with force group"
+    HREL  "Horizontal relationship with group"
+    SAT   "Satisfaction with concern"
+    VREL  "Vertical relationship with actor"
+}
+
+# Curse Input Part Types
+::marsutil::enum ::projectlib::cinputpart {
     COOP  "Cooperation with force group"
     HREL  "Horizontal relationship with group"
     SAT   "Satisfaction with concern"
@@ -776,7 +803,7 @@ snit::type ::projectlib::ident {
     # name    Possibly, an identifier
     #
     # Identifiers should begin with a letter, and contain only letters
-    # and digits
+    # and digits. Identifiers that begin with "@" are allowed.
 
     typemethod validate {name} {
         if {![regexp {^[A-Z][A-Z0-9]*$} $name]} {
@@ -787,6 +814,34 @@ snit::type ::projectlib::ident {
         return $name
     }
 }
+
+#-----------------------------------------------------------------------
+# roleid type
+
+snit::type ::projectlib::roleid {
+    # Make it a singleton
+    pragma -hasinstances no
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+
+    # validate name
+    #
+    # name    Possibly, a role identifier
+    #
+    # Role identifiers should begin with "@", and contain only letters
+    # and digits. 
+
+    typemethod validate {name} {
+        if {![regexp {^[@][A-Z]+[A-Z0-9]*$} $name]} {
+            return -code error -errorcode INVALID \
+  "Role identifiers begin with \"@\" followed by a letter and contain only letters and digits."
+        }
+
+        return $name
+    }
+}
+
 
 snit::type ::projectlib::unitname {
     # Make it a singleton

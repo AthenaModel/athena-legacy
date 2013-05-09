@@ -48,6 +48,17 @@ snit::type frcgroup {
     }
 
 
+    # namedict
+    #
+    # Returns a dictionary of force groups short/long names
+
+    typemethod namedict {} {
+        return [rdb eval {
+            SELECT g, longname FROM groups
+            WHERE gtype='FRC'
+        }]
+    }
+
     # validate g
     #
     # g         Possibly, a force group short name.
