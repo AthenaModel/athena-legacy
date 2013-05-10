@@ -99,3 +99,6 @@ send PAYLOAD:HREL:CREATE -iom_id PATRIOT -g ARMY -mag 7.0
 send PAYLOAD:VREL:CREATE -iom_id PATRIOT -a GOV -mag 13.0
 send CIVGROUP:CREATE -g SA -n PE -basepop 100000 -sa_flag 1 -lfp 0
 send CIVGROUP:CREATE -g NOBODY -n CITY -basepop 0
+send CURSE:CREATE -curse_id FLOOD -longname {Flood in Peonia} -s 1.00 -p 0.50 -q 0.10
+send INJECT:SAT:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g @VICTIMS -c QOL -mag -4.5
+send INJECT:VREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g @VICTIMS -a @GOVT -mag -3.5
