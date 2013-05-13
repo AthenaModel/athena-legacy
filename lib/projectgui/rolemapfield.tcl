@@ -15,6 +15,12 @@
 #    generic dictionary of lists editor, where the collection of 
 #    roles and valid lists is dynamically configurable.
 #
+#    The field contains a form(n) containing one label and one
+#    textfield for each role; these are configured when the -rolespec
+#    is changed.  The text fields contain whitespace delimited lists;
+#    each has an edit button which calls [messagebox listselect] to 
+#    allow the user to edit the list of items.
+#
 #    In addition, this module defines a "rolemap" dynaform_field(i) type,
 #    so that "rolemap" fields can be used in dynaforms.
 #
@@ -36,8 +42,9 @@ snit::widget ::projectgui::rolemapfield {
     #-------------------------------------------------------------------
     # Components
 
-    component form       ;# a form(n) containing the listfields and their
-                         ;# labels.
+    component form       ;# a form(n) containing the labels and fields
+                          # for each specific role.
+
     #-------------------------------------------------------------------
     # Options
 
@@ -69,18 +76,23 @@ snit::widget ::projectgui::rolemapfield {
         }
     }
 
+    # -textwidth num
+    #
+    # Width of the textfields in characters
+
+    option -textwidth \
+        -default 30
+
     # -listheight num
     #
-    # Number of rows to display in each listfield.  Changes take effect 
-    # when the -rolespec is changed.
+    # Number of rows to display in the listselect box.
     
     option -listheight \
-        -default         5
+        -default         10
 
     # -liststripe flag
     #
-    # If 1, the lists are striped; otherwise not. Changes take effect 
-    # when the -rolespec is changed.
+    # If 1, the lists in the listselect box are striped; otherwise not.
 
     option -liststripe \
         -default         1
@@ -88,8 +100,7 @@ snit::widget ::projectgui::rolemapfield {
 
     # -listwidth num
     #
-    # Width in characters of each listfield's list boxes.  Changes take effect 
-    # when the -rolespec is changed.
+    # Width in characters of the listselect box's lists.
     
     option -listwidth \
         -default         10
@@ -121,8 +132,10 @@ snit::widget ::projectgui::rolemapfield {
     #
     # field   A field in the form, i.e., a role name.
     #
-    # Called when the form's content changes.  This routine 
-    # sets the invalid flag, and calls the client's change command
+    # Called when the form's content changes.  
+    #
+    # * Sets the invalid flag for roles with no entities selected.
+    # * Calls the client's change command
 
     method FormChangeCmd {field} {
         set fields [list]
@@ -138,13 +151,15 @@ snit::widget ::projectgui::rolemapfield {
         callwith $options(-changecmd) [$form get]
     }
 
-    # UpdateDisplay
+    # OldUpdateDisplay
+    #
+    # TBD: Delete this before committing.
     #
     # This method is called when a new -rolespec 
     # value is given.  It clears any included values, and resets the
     # display.
 
-    method UpdateDisplay {} {
+    method OldUpdateDisplay {} {
         # FIRST, delete any existing content.
         $form clear
 
@@ -172,6 +187,67 @@ snit::widget ::projectgui::rolemapfield {
         $form invalid [dict keys $options(-rolespec)]
     }
 
+    # UpdateDisplay
+    #
+    # This method is called when a new -rolespec 
+    # value is given.  It clears any included values, and resets the
+    # display.
+
+    method UpdateDisplay {} {
+        # FIRST, delete any existing content.
+        $form clear
+
+        # NEXT, add listfields for each role
+        foreach {role values} $options(-rolespec) {
+            # NEXT, create the textfield
+            $form field create $role $role text \
+                -width    $options(-textwidth) \
+                -editcmd  [mymethod EditRole $role]
+        }
+
+        # NEXT, layout the widget.
+        $form layout
+
+        # NEXT, all roles are initially invalid (no items are selected)
+        $form invalid [dict keys $options(-rolespec)]
+    }
+
+    # EditRole role w current
+    #
+    # role     - The role to edit
+    # w        - The textfield widget
+    # current  - The current list of values
+
+    method EditRole {role w current} {
+        # FIRST, get the item dict for this role
+        set itemdict [dict create]
+        foreach value [dict get $options(-rolespec) $role] {
+            dict set itemdict $value $value
+        }
+
+        # NEXT, pop up the listselect box.
+        set result [messagebox listselect                     \
+            -initvalue $current                               \
+            -message   [normalize "
+                Select the entities you wish to map to the
+                $role role.
+            "]                                                \
+            -parent    [winfo toplevel $w]                    \
+            -title     "Map entities to $role"                \
+            -itemdict  $itemdict                              \
+            -stripe    $options(-liststripe)                  \
+            -listrows  $options(-listheight)                  \
+            -listwidth $options(-listwidth)]
+
+        if {$result ne ""} {
+            # They pressed OK
+            return $result 
+        } else {
+            # They pressed Cancel
+            return $current
+        }
+    }    
+
     #-------------------------------------------------------------------
     # Public Methods
 
@@ -186,6 +262,7 @@ snit::widget ::projectgui::rolemapfield {
     typemethod attributes {} {
         return {
             rolespeccmd 
+            textwidth
             listheight
             liststripe
             listwidth
@@ -203,7 +280,7 @@ snit::widget ::projectgui::rolemapfield {
 
         rolemapfield $w \
             -state [expr {$context ? "disabled" : "normal"}] \
-            {*}[asoptions $idict listheight liststripe listwidth]
+            {*}[asoptions $idict textwidth listheight liststripe listwidth]
     }
 
     typemethod reconfigure {w idict vdict} {

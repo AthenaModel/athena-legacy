@@ -29,7 +29,7 @@ handling is identical for each role:<p>
 
 The rolemapfield(n) widget handles this use case.  It is a thin wrapper around
 the <<xref mars:form(n)>> widget that displays a configurable set of labels
-and list fields given a <b>-rolespec</b>, which is a dictionary with this form:<p>
+and edit fields given a <b>-rolespec</b>, which is a dictionary with this form:<p>
 
 <i>role-name</i> <i>valid-list</i> ...<p>
 
@@ -37,16 +37,21 @@ The value of the widget is a similar dictionary,<p>
 
 <i>role-name</i> <i>selected-list</i> ...<p>
 
-The Athena simulation defines a custom field type, <b>rolemap</b>, that creates
-a rolemapfield(n).  Use the <b>rolemap</b>'s <b>-rolespeccmd</b> option to
-compute the appropriate set of roles and valid lists given the prior field
-values in the order dialog.<p>
+<<subsection "Implementation">>
+
+When configured with a <b>-rolespec</b>, the widget populates its 
+<<xref mars:form(n)>> widget with a label and a 
+<<xref mars:textfield(n)>> widget for each role.  Each text field is
+read-only with an "Edit" button; displays a whitespace-delimited list
+of the currently chosen entities for that role.  Pressing the "Edit" button
+pops up a <<xref mars:messagebox(n)>> list selector.<p>
 
 <<section "FIELD TYPE">>
 
 The rolemapfield(n) module also defines a
 <<xref mars:dynaform_field(i)>> field type called <b>rolemap</b>.  The field
-type takes the <b>-listheight</b>, <b>-liststripe</b>, and <b>-listwidth</b>
+type takes the <b>-textwidth</b>, <b>-listheight</b>, <b>-liststripe</b>, and
+<b>-listwidth</b>
 options as the widget, and requires the <b>-rolespeccmd</b> option.  The value
 of this option is a command that returns a <b>-rolespec</b>; it may reference
 the values of the fields preceding it in the form by using their field names
@@ -79,10 +84,8 @@ entity's name is appended to the <i>command</i> as an argument.<p>
 <<defopt {-liststripe <i>flag</i>}>>
 <<defopt {-listwidth <i>num</i>}>>
 
-The rolemapfield(n) widget will create a <<xref mars:listfield(n)>> 
-widget for each role in the <b>-rolespec</b>.  These options are used to 
-set the <b>-height</b>, <b>-stripe</b>, and <b>-width</b> options when 
-these widgets are created.<p>
+These options are used to configure the <<xref mars:messagebox(n)>>
+list selector when a role's mapping is being edited.<p>
 
 <<defopt {-rolespec <i>spec</i>}>>
 
@@ -92,6 +95,10 @@ widget.  See <<xref DESCRIPTION>>.<p>
 <<defopt {-state <i>state</i>}>>
 
 Sets the field's state to <b>normal</b> or <b>disabled</b>.<p>
+
+<<defopt {-textwidth <i>num</i>}>>
+
+The width of the role text fields, in characters.<p>
 
 <</deflist options>>
 
