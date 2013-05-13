@@ -49,16 +49,16 @@ namespace eval ::athena_test::tests:: {
             current        20.0
         }
 
-        ted query {SELECT * FROM sat_gc}
+        ted query {SELECT * FROM sat_gc ORDER BY g, c}
     } -cleanup {
         cleanup
     } -result {
 g    c   base saliency hist_flag current 
 ---- --- ---- -------- --------- ------- 
 SHIA AUT 10.0 0.5      1         20.0    
-SHIA SFT 0.0  1.0      0         0.0     
 SHIA CUL 0.0  1.0      0         0.0     
 SHIA QOL 0.0  1.0      0         0.0     
+SHIA SFT 0.0  1.0      0         0.0     
     }
 
 

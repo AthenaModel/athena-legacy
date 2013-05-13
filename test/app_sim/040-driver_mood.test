@@ -115,15 +115,16 @@ fdict      controller JOE delta -100.0 moodThen 0.0 n NB1 dtype MOOD tc 0 moodNo
             SELECT rule, g, a, note
             FROM rule_firings JOIN rule_inputs USING (firing_id)
             WHERE ruleset='MOOD'
+            ORDER BY g,a
         }
     } -cleanup {
         cleanup
     } -result {
 rule     g    a    note        
 -------- ---- ---- ----------- 
-MOOD-1-1 SHIA JOE  has control 
 MOOD-1-1 SHIA BOB  no control  
 MOOD-1-1 SHIA DAVE no control  
+MOOD-1-1 SHIA JOE  has control 
     }
     
     
@@ -157,15 +158,16 @@ fdict      controller JOE delta 100.0 moodThen 0.0 n NB1 dtype MOOD tc 0 moodNow
             SELECT rule, g, a, note
             FROM rule_firings JOIN rule_inputs USING (firing_id)
             WHERE ruleset='MOOD'
+            ORDER BY g,a
         }
     } -cleanup {
         cleanup
     } -result {
 rule     g    a    note        
 -------- ---- ---- ----------- 
-MOOD-1-2 SHIA JOE  has control 
 MOOD-1-2 SHIA BOB  no control  
 MOOD-1-2 SHIA DAVE no control  
+MOOD-1-2 SHIA JOE  has control 
     }
     
     #-------------------------------------------------------------------

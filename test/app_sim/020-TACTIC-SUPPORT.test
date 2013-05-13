@@ -86,7 +86,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        owner {Invalid actor, should be one of: JOE, BOB}
+        owner {Invalid actor, should be one of: BOB, JOE}
     }
 
     test SUPPORT:CREATE-1.3 {a is unknown} -setup {
@@ -97,7 +97,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE, BOB}
+        a {Invalid actor "NONESUCH", should be one of: SELF, NONE, BOB, JOE}
     }
 
     test SUPPORT:CREATE-1.4 {nlist is invalid} -setup {
@@ -234,7 +234,7 @@ exec_flag    0
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE, BOB}
+        a {Invalid actor "NONESUCH", should be one of: SELF, NONE, BOB, JOE}
     }
 
     test SUPPORT:UPDATE-1.4 {nlist is invalid} -setup {

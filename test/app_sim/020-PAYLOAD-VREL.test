@@ -81,7 +81,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid actor, should be one of: JOE, BOB}
+        a {Invalid actor, should be one of: BOB, JOE}
     }
 
     test CREATE-1.4 {mag is invalid} -setup {
@@ -182,7 +182,7 @@ mag           5.0
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid actor, should be one of: JOE, BOB}
+        a {Invalid actor, should be one of: BOB, JOE}
     }
 
     test UPDATE-1.5 {mag is invalid} -setup {

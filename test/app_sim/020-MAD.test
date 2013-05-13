@@ -601,7 +601,7 @@ mad_id narrative     cause s   p   q
     } -cleanup {
         cleanup
     } -result {
-        c {Invalid concern "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
+        c {Invalid concern "NONESUCH", should be one of: AUT, CUL, QOL, SFT}
     }
 
     test SAT-1.6 {invalid mag}  -setup {

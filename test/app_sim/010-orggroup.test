@@ -299,7 +299,7 @@ base_personnel  1000
         orggroup names
     } -cleanup {
         cleanup
-    } -result {USAID HAL}
+    } -result {HAL USAID}
 
 
     #-------------------------------------------------------------------
@@ -321,7 +321,7 @@ base_personnel  1000
         error
     } -cleanup {
         cleanup
-    } -result {Invalid organization group, should be one of: USAID, HAL}
+    } -result {Invalid organization group, should be one of: HAL, USAID}
 
     test validate-2.1 {Valid name} -setup {
         ted create USAID HAL

@@ -69,7 +69,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        owner {Invalid actor, should be one of: JOE, BOB}
+        owner {Invalid actor, should be one of: BOB, JOE}
     }
 
     test DEFROE:CREATE-1.3 {g is unknown} -setup {
@@ -80,7 +80,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid force group, should be one of: BLUE, BRIT, ALQ}
+        g {Invalid force group, should be one of: ALQ, BLUE, BRIT}
     }
 
     test DEFROE:CREATE-1.4 {g is not owned by owner} -setup {

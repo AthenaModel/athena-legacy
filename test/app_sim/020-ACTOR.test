@@ -350,7 +350,7 @@ budget            0.0
     } -cleanup {
         cleanup
     } -result {
-        supports {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE, BOB}
+        supports {Invalid actor "NONESUCH", should be one of: SELF, NONE, BOB, JOE}
     }
 
     test UPDATE-1.3 {invalid atype} -setup {
@@ -722,7 +722,7 @@ budget            0.0
     } -cleanup {
         cleanup
     } -result {
-        supports {Invalid actor "NONESUCH", should be one of: SELF, NONE, JOE, BOB}
+        supports {Invalid actor "NONESUCH", should be one of: SELF, NONE, BOB, JOE}
     }
 
 

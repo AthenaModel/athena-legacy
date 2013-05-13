@@ -227,6 +227,7 @@ CONTROL-1-2 SUNN AUT V.fa=DISLIKE
             SELECT rule, f, g, note
             FROM rule_firings JOIN rule_inputs USING (firing_id)
             WHERE rule GLOB 'CONTROL-1-*' AND atype='coop'
+            ORDER BY f,g
         }
     } -cleanup {
         cleanup
@@ -234,11 +235,11 @@ CONTROL-1-2 SUNN AUT V.fa=DISLIKE
 rule        f    g    note                    
 ----------- ---- ---- ----------------------- 
 CONTROL-1-2 SHIA BLUE c's group, V.fc=INDIFF  
-CONTROL-1-2 SHIA TAL  a's group, V.fa=INDIFF  
 CONTROL-1-2 SHIA BRIT c's group, V.fc=INDIFF  
+CONTROL-1-2 SHIA TAL  a's group, V.fa=INDIFF  
 CONTROL-1-2 SUNN BLUE c's group, V.fc=INDIFF  
-CONTROL-1-2 SUNN TAL  a's group, V.fa=DISLIKE 
 CONTROL-1-2 SUNN BRIT c's group, V.fc=INDIFF  
+CONTROL-1-2 SUNN TAL  a's group, V.fa=DISLIKE 
     }
     
     
@@ -346,18 +347,19 @@ fdict      n NB1 a BOB b JOE dtype CONTROL
             SELECT rule, g, a, note
             FROM rule_firings JOIN rule_inputs USING (firing_id)
             WHERE rule GLOB 'CONTROL-2-*'
+            ORDER BY g,a
         }
     } -cleanup {
         cleanup
     } -result {
 rule        g    a    note                        
 ----------- ---- ---- --------------------------- 
-CONTROL-2-1 SHIA JOE  V.ga=LIKE, gained control   
 CONTROL-2-1 SHIA BOB  V.ga=INDIFF, lost control   
 CONTROL-2-1 SHIA DAVE V.ga=INDIFF, neither        
-CONTROL-2-1 SUNN JOE  V.ga=INDIFF, gained control 
+CONTROL-2-1 SHIA JOE  V.ga=LIKE, gained control   
 CONTROL-2-1 SUNN BOB  V.ga=LIKE, lost control     
 CONTROL-2-1 SUNN DAVE V.ga=INDIFF, neither        
+CONTROL-2-1 SUNN JOE  V.ga=INDIFF, gained control 
     }
     
     #-------------------------------------------------------------------

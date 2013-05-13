@@ -352,10 +352,10 @@ CBS NB2 0.5
         cap mutate nbcov delete {CBS NB1}
 
         # Is CBS NB1 gone?
-        rdb eval {SELECT k,n FROM cap_kn}
+        rdb eval {SELECT k,n FROM cap_kn ORDER BY k,n}
     } -cleanup {
         cleanup
-    } -result {CNN NB1 CNN NB2 CBS NB2}
+    } -result {CBS NB2 CNN NB1 CNN NB2}
 
     test nbcov_delete-1.2 {Undo restores record} -setup {
         ted create CBS CNN
@@ -490,10 +490,10 @@ CBS SUNN 0.5
         cap mutate pen delete {CBS SHIA}
 
         # Is CBS SHIA gone?
-        rdb eval {SELECT k,g FROM cap_kg}
+        rdb eval {SELECT k,g FROM cap_kg ORDER BY k, g}
     } -cleanup {
         cleanup
-    } -result {CNN SUNN CNN KURD CBS SUNN}
+    } -result {CBS SUNN CNN KURD CNN SUNN}
 
     test pen_delete-1.2 {Undo restores record} -setup {
         ted create CBS CNN
@@ -804,7 +804,7 @@ CBS SHIA 0.5
     test cap_kn_view-1.1 {with overrides} -setup {
         ted create CBS CNN
     } -body {
-        ted query {SELECT * FROM cap_kn_view}
+        ted query {SELECT * FROM cap_kn_view ORDER BY k,n}
     } -cleanup {
         cleanup
     } -result {
@@ -911,18 +911,18 @@ CNN KURD NB2 BOB   0.9      1.0   1.0 0.9
         cap access grant {CBS CNN} {DAVE BRIAN}
         cap access save
 
-        ted query {SELECT * FROM cap_access}
+        ted query {SELECT * FROM cap_access ORDER BY k, a}
     } -cleanup {
         cleanup
     } -result {
 k   a     
 --- ----- 
-CBS JOE   
-CBS DAVE  
 CBS BRIAN 
+CBS DAVE  
+CBS JOE   
 CNN BOB   
-CNN DAVE  
 CNN BRIAN 
+CNN DAVE  
     }
 
     #-------------------------------------------------------------------

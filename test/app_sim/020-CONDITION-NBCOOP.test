@@ -94,7 +94,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid force group, should be one of: BLUE, BRIT, ALQ}
+        g {Invalid force group, should be one of: ALQ, BLUE, BRIT}
     }
 
     test CREATE-1.5 {op1 is invalid} -setup {
@@ -212,7 +212,7 @@ x1              45.0
     } -cleanup {
         cleanup
     } -result {
-        g {Invalid force group, should be one of: BLUE, BRIT, ALQ}
+        g {Invalid force group, should be one of: ALQ, BLUE, BRIT}
     }
 
     test UPDATE-1.5 {op1 is invalid} -setup {

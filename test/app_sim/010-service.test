@@ -84,28 +84,37 @@ KURD 20.0        100.0
         setup
     } -body {
         service start
-        ted query {SELECT * FROM service_ga}
+        ted query {SELECT * FROM service_ga ORDER BY g, a}
     } -cleanup {
         cleanup
     } -result {
 g    a   funding credit 
 ---- --- ------- ------ 
-SHIA JOE 0.0     0.0    
-SHIA BOB 0.0     0.0    
-SUNN JOE 0.0     0.0    
-SUNN BOB 0.0     0.0    
-KURD JOE 0.0     0.0    
 KURD BOB 0.0     0.0    
+KURD JOE 0.0     0.0    
+SHIA BOB 0.0     0.0    
+SHIA JOE 0.0     0.0    
+SUNN BOB 0.0     0.0    
+SUNN JOE 0.0     0.0    
     }
 
     test start-1.2 {start populates service_g} -setup {
         setup
     } -body {
         service start
-        ted querylist {SELECT * FROM service_g}
+        ted querylist {SELECT * FROM service_g ORDER BY g}
     } -cleanup {
         cleanup
     } -result {
+g                   KURD
+saturation_funding  0.0
+required            0.0
+funding             0.0
+actual              0.0
+expected            0.0
+expectf             0.0
+needs               0.0
+
 g                   SHIA
 saturation_funding  0.0
 required            0.0
@@ -123,15 +132,6 @@ actual              0.0
 expected            0.0
 expectf             0.0
 needs               0.0
-
-g                   KURD
-saturation_funding  0.0
-required            0.0
-funding             0.0
-actual              0.0
-expected            0.0
-expectf             0.0
-needs               0.0
     }
 
     #-------------------------------------------------------------------
@@ -142,18 +142,18 @@ needs               0.0
         service start
     } -body {
         service load
-        ted query {SELECT * FROM working_service_ga}
+        ted query {SELECT * FROM working_service_ga ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
 g    a   funding 
 ---- --- ------- 
-SHIA JOE 0.0     
-SHIA BOB 0.0     
-SUNN JOE 0.0     
-SUNN BOB 0.0     
-KURD JOE 0.0     
 KURD BOB 0.0     
+KURD JOE 0.0     
+SHIA BOB 0.0     
+SHIA JOE 0.0     
+SUNN BOB 0.0     
+SUNN JOE 0.0     
     }
 
 
@@ -166,18 +166,18 @@ KURD BOB 0.0
         service load
     } -body {
         service fundeni JOE 2000 SHIA
-        ted query {SELECT * FROM working_service_ga}
+        ted query {SELECT * FROM working_service_ga ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
 g    a   funding 
 ---- --- ------- 
-SHIA JOE 2000.0  
-SHIA BOB 0.0     
-SUNN JOE 0.0     
-SUNN BOB 0.0     
-KURD JOE 0.0     
 KURD BOB 0.0     
+KURD JOE 0.0     
+SHIA BOB 0.0     
+SHIA JOE 2000.0  
+SUNN BOB 0.0     
+SUNN JOE 0.0     
     }
 
     test fundeni-1.2 {Increments for groups in proportion to pop} -setup {
@@ -186,18 +186,18 @@ KURD BOB 0.0
         service load
     } -body {
         service fundeni BOB 3000 {SHIA SUNN}
-        ted query {SELECT * FROM working_service_ga}
+        ted query {SELECT * FROM working_service_ga ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
 g    a   funding 
 ---- --- ------- 
-SHIA JOE 0.0     
-SHIA BOB 1000.0  
-SUNN JOE 0.0     
-SUNN BOB 2000.0  
-KURD JOE 0.0     
 KURD BOB 0.0     
+KURD JOE 0.0     
+SHIA BOB 1000.0  
+SHIA JOE 0.0     
+SUNN BOB 2000.0  
+SUNN JOE 0.0     
     }
 
     test fundeni-1.3 {Fund one group several times} -setup {
@@ -207,18 +207,18 @@ KURD BOB 0.0
     } -body {
         service fundeni JOE 2000 SHIA
         service fundeni JOE 3000 SHIA
-        ted query {SELECT * FROM working_service_ga}
+        ted query {SELECT * FROM working_service_ga ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
 g    a   funding 
 ---- --- ------- 
-SHIA JOE 5000.0  
-SHIA BOB 0.0     
-SUNN JOE 0.0     
-SUNN BOB 0.0     
-KURD JOE 0.0     
 KURD BOB 0.0     
+KURD JOE 0.0     
+SHIA BOB 0.0     
+SHIA JOE 5000.0  
+SUNN BOB 0.0     
+SUNN JOE 0.0     
     }
 
     #-------------------------------------------------------------------
@@ -245,18 +245,18 @@ KURD BOB 0.0
     } -body {
         service save
 
-        ted query {SELECT * FROM service_ga}
+        ted query {SELECT * FROM service_ga ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
 g    a   funding credit 
 ---- --- ------- ------ 
-SHIA JOE 1000.0  0.0    
-SHIA BOB 0.0     0.0    
-SUNN JOE 2000.0  0.0    
-SUNN BOB 0.0     0.0    
-KURD JOE 4000.0  0.0    
 KURD BOB 0.0     0.0    
+KURD JOE 4000.0  0.0    
+SHIA BOB 0.0     0.0    
+SHIA JOE 1000.0  0.0    
+SUNN BOB 0.0     0.0    
+SUNN JOE 2000.0  0.0    
     }
 
 
@@ -270,15 +270,15 @@ KURD BOB 0.0     0.0
         # saturation_funding is population.g * S.urb;
         # NB1.urb = URBAN, S.URBAN = 0.2 (SHIA, SUNN)
         # NB2.urb = RURAL, S.RURAL = 0.1 (KURD)
-        ted query {SELECT g, saturation_funding FROM service_g}
+        ted query {SELECT g, saturation_funding FROM service_g ORDER BY g}
     } -cleanup {
         cleanup
     } -result {
 g    saturation_funding 
 ---- ------------------ 
+KURD 4000.0             
 SHIA 4000.0             
 SUNN 8000.0             
-KURD 4000.0             
     }
     
     test save-3.2 {Retrieves required fraction} -setup {
@@ -288,15 +288,15 @@ KURD 4000.0
     } -body {
         service save
 
-        ted query {SELECT g, required FROM service_g}
+        ted query {SELECT g, required FROM service_g ORDER BY g}
     } -cleanup {
         cleanup
     } -result {
 g    required 
 ---- -------- 
+KURD 0.2      
 SHIA 0.6      
 SUNN 0.6      
-KURD 0.2      
     }
 
     test save-3.3 {Computes funding: zero funding} -setup {
@@ -306,15 +306,15 @@ KURD 0.2
     } -body {
         service save
 
-        ted query {SELECT g, funding FROM service_g}
+        ted query {SELECT g, funding FROM service_g ORDER BY g}
     } -cleanup {
         cleanup
     } -result {
 g    funding 
 ---- ------- 
+KURD 0.0     
 SHIA 0.0     
 SUNN 0.0     
-KURD 0.0     
     }
 
     test save-3.4 {Computes funding: JOE and BOB fund} -setup {
@@ -329,15 +329,15 @@ KURD 0.0
         # Groups get funding in proportion to their size.
         # So from JOE the groups get 100, 200, and 400
         # and from BOB, they get 200, 400, and 800
-        ted query {SELECT g, funding FROM service_g}
+        ted query {SELECT g, funding FROM service_g ORDER BY g}
     } -cleanup {
         cleanup
     } -result {
 g    funding 
 ---- ------- 
+KURD 1200.0  
 SHIA 300.0   
 SUNN 600.0   
-KURD 1200.0  
     }
 
     test save-3.5 {Computes actual level of service fraction} -setup {
@@ -355,16 +355,16 @@ KURD 1200.0
                    saturation_funding,
                    funding/saturation_funding,
                    actual 
-            FROM service_g
+            FROM service_g ORDER BY g
         }
     } -cleanup {
         cleanup
     } -result {
 g    funding saturation_funding funding/saturation_funding actual 
 ---- ------- ------------------ -------------------------- ------ 
+KURD 1200.0  4000.0             0.3                        0.3    
 SHIA 300.0   4000.0             0.075                      0.075  
 SUNN 600.0   8000.0             0.075                      0.075  
-KURD 1200.0  4000.0             0.3                        0.3    
     }
 
     test save-3.6 {Computes expected LOS fraction at time 0} -setup {
@@ -379,16 +379,16 @@ KURD 1200.0  4000.0             0.3                        0.3
 
         # The expected will be between 0 and actual
         ted query {
-            SELECT g, actual, expected FROM service_g
+            SELECT g, actual, expected FROM service_g ORDER BY g
         }
     } -cleanup {
         cleanup
     } -result {
 g    actual expected 
 ---- ------ -------- 
+KURD 0.3    0.15     
 SHIA 0.075  0.0375   
 SUNN 0.075  0.0375   
-KURD 0.3    0.15     
     }
 
 

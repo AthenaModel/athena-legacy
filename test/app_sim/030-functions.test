@@ -340,7 +340,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr pctcontrol("NONESUCH")
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: JOE, BOB}
+    } -result {Invalid actor, should be one of: BOB, JOE}
 
     test pctcontrol-1.2 {2 actors, invalid} -setup {
         ted create JOE BOB NB1 NB2
@@ -348,7 +348,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr pctcontrol("JOE","NONESUCH")
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: JOE, BOB}
+    } -result {Invalid actor, should be one of: BOB, JOE}
 
     test pctcontrol-2.1 {Zero control when no neighborhoods} -setup {
         ted create JOE BOB

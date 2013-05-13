@@ -134,7 +134,7 @@ namespace eval ::athena_test::tests:: {
             current        75.0
         }
         ted query {
-            SELECT * FROM sat_gc
+            SELECT * FROM sat_gc ORDER BY g,c
         }
     } -cleanup {
         cleanup
@@ -142,13 +142,13 @@ namespace eval ::athena_test::tests:: {
 g    c   base saliency hist_flag current 
 ---- --- ---- -------- --------- ------- 
 SHIA AUT 0.0  1.0      0         0.0     
-SHIA SFT 80.0 0.85     1         75.0    
 SHIA CUL 0.0  1.0      0         0.0     
 SHIA QOL 0.0  1.0      0         0.0     
+SHIA SFT 80.0 0.85     1         75.0    
 SUNN AUT 0.0  1.0      0         0.0     
-SUNN SFT 0.0  1.0      0         0.0     
 SUNN CUL 0.0  1.0      0         0.0     
 SUNN QOL 0.0  1.0      0         0.0     
+SUNN SFT 0.0  1.0      0         0.0     
     }
 
 

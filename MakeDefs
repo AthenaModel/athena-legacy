@@ -15,7 +15,7 @@
 #---------------------------------------------------------------------
 # Settings
 
-include $(TOP_DIR)/MakePlatform
+include $(TOP_DIR)/mars/MakePlatform
 
 # Location of Tcl Libraries
 export ATHENA_TCL_HOME = $(MARS_TCL_HOME)

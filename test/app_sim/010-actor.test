@@ -464,7 +464,7 @@ budget            10.0
         actor names
     } -cleanup {
         cleanup
-    } -result {JOE BOB}
+    } -result {BOB JOE}
 
 
     #-------------------------------------------------------------------
@@ -486,7 +486,7 @@ budget            10.0
         error
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: JOE, BOB}
+    } -result {Invalid actor, should be one of: BOB, JOE}
 
     test validate-2.1 {Valid name} -setup {
         ted create JOE BOB

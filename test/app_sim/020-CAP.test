@@ -101,7 +101,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        owner {Invalid actor, should be one of: JOE, BOB}
+        owner {Invalid actor, should be one of: BOB, JOE}
     }
 
     test CREATE-1.5 {invalid capacity} -body {

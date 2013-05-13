@@ -85,7 +85,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid actor, should be one of: JOE, BOB}
+        a {Invalid actor, should be one of: BOB, JOE}
     }
 
     test CONTROL:CREATE-1.4 {nbhood is invalid} -setup {
@@ -180,7 +180,7 @@ list1           NB1 NB2 NB3
     } -cleanup {
         cleanup
     } -result {
-        a {Invalid actor, should be one of: JOE, BOB}
+        a {Invalid actor, should be one of: BOB, JOE}
     }
 
     test CONTROL:UPDATE-1.4 {list1 is invalid} -setup {
