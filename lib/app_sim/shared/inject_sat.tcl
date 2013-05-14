@@ -6,10 +6,10 @@
 #    Dave Hanks
 #
 # DESCRIPTION:
-#    athena_sim(1): SAT(glist, clist, mag) inject
+#    athena_sim(1): SAT(g, c, mag) inject
 #
 #    This module implements the SAT inject, which affects the satisfaction
-#    level of each group in glist with each concern in clist.
+#    level of each group in the g role with concern c.
 #
 # PARAMETER MAPPING:
 #
@@ -36,7 +36,7 @@ inject type define SAT {g c mag} {
         dict with pdict {
             set points [format "%.1f" $mag]
             set symbol [qmag name $mag]
-            return "Change satisfaction of $g with $c by $points points ($symbol)."
+            return "Change satisfaction of civlians in $g with $c by $points points ($symbol)."
         }
     }
 
@@ -61,35 +61,40 @@ order define INJECT:SAT:CREATE {
         rcc "CURSE ID:" -for curse_id
         text curse_id -context yes
 
-        rcc "Description:" -for longname
+        rcc "Description:" -for longname -span 4
         disp longname -width 60
+
+        rcc "Mode:" -for mode -span 4
+        enumlong mode -dictcmd {einputmode deflist} -defvalue transient
 
         rcc "Civ Group Role:" -for rtype
         selector rtype -defvalue "NEW" {
             case NEW "Define new role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
+                label "@"
                 text g
             }
 
             case EXISTING "Use existing role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
                 enum g -listcmd {::inject rolenames SAT g}
             }
         }
 
-        rcc "With:" -for c
+        rcc "With:" -for c -span 4
         concern c 
 
-        rcc "Magnitude:" -for mag
+        rcc "Magnitude:" -for mag -span 4
         mag mag
         label "points of change"
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare curse_id -toupper   -required -type curse
-    prepare g        -toupper   -required -type roleid
-    prepare c        -toupper   -required -type econcern
-    prepare mag -num -toupper   -required -type qmag
+    prepare curse_id   -toupper   -required -type curse
+    prepare mode       -tolower   -required -type einputmode
+    prepare g          -toupper   -required -type roleid
+    prepare c          -toupper   -required -type econcern
+    prepare mag -num   -toupper   -required -type qmag
 
     returnOnError -final
 
@@ -112,37 +117,42 @@ order define INJECT:SAT:UPDATE {
         rcc "Inject:" -for id
         key id -context yes -table gui_injects_SAT \
             -keys {curse_id inject_num} \
-            -loadcmd {orderdialog keyload id {g c mag}}
+            -loadcmd {orderdialog keyload id {g c mode mag}}
 
-        rcc "Description:" -for longname
+        rcc "Description:" -for longname -span 4
         disp longname -width 60
+
+        rcc "Mode:" -for mode -span 4
+        enumlong mode -dictcmd {einputmode deflist} 
 
         rcc "Civ Group Role:" -for rtype
         selector rtype -defvalue "EXISTING" {
             case NEW "Rename role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
+                label "@"
                 text g
             }
 
             case EXISTING "Use existing role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
                 enum g -listcmd {::inject rolenames SAT g}
             }
         }
 
-        rcc "With:" -for c
+        rcc "With:" -for c -span 4
         concern c
 
-        rcc "Magnitude:" -for mag
+        rcc "Magnitude:" -for mag -span 4
         mag mag
         label "points of change"
     }
 } {
     # FIRST, prepare the parameters
-    prepare id         -required           -type  inject
-    prepare g          -required -toupper  -type  roleid
-    prepare c                    -toupper  -type  econcern
-    prepare mag   -num           -toupper  -type  qmag
+    prepare id    -required           -type  inject
+    prepare mode            -tolower  -type  einputmode
+    prepare g     -required -toupper  -type  roleid
+    prepare c               -toupper  -type  econcern
+    prepare mag   -num      -toupper  -type  qmag
 
     returnOnError -final
 

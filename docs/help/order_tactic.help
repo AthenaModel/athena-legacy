@@ -242,6 +242,41 @@ order TACTIC:BROADCAST:UPDATE "Update Tactic: Broadcast IOM" {
 }
 
 #-----------------------------------------------------------------------
+# Tactic: CURSE 
+
+page /order/tactic curse TACTIC:CURSE:* {
+    <<title>>
+
+    The following orders are used to create and update
+    <<cref /object/tactic/curse>>s.<p>
+
+    <<childlinks>>
+}
+
+order TACTIC:CURSE:CREATE "Create Tactic: Cause a CURSE" {
+    Creates a <<cref /object/tactic/curse>>.<p>
+
+    <<parmlist>>
+    <<tactic_curse parms -required -tags create>>
+    <<TACTIC.priority>>
+    <<TACTIC.on_lock -required>>
+    <<TACTIC.once -required>>
+    <</parmlist>>
+}
+
+order TACTIC:CURSE:UPDATE "Update Tactic: Cause a CURSE" {
+    Updates an existing <<cref /object/tactic/curse>>.<p>
+
+    <<parmlist>>
+    <<tactic_curse parm tactic_id -required>>
+    <<tactic_curse parm owner -display>>
+    <<tactic_curse parms -optional -tags update>>
+    <<TACTIC.on_lock>>
+    <<TACTIC.once>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # Tactic: DEFROE
 
 page /order/tactic defroe TACTIC:DEFROE:* {

@@ -315,13 +315,103 @@ snit::type inject {
         return ""
     }
 
-    typemethod rolenames {rtype col} {
-        return \
-        [rdb eval "
-            SELECT $col FROM curse_injects
-            WHERE inject_type='$rtype'
-            GROUP BY $col
-        "]
+    # rolenames itype col
+    #
+    # itype    - inject type: HREL, VREL, SAT or COOP
+    # col      - the column in the curse_injects for which valid roles
+    #            can be made available
+    #
+    # This method returns the list of roles that can possibly be assigned
+    # to a particular CURSE role given the inject type. Restriction 
+    # of exactly which groups can be assigned to a role takes place when 
+    # the CURSE tactic is created.
+
+    typemethod rolenames {itype col} {
+        switch -exact -- $itype {
+            HREL {
+                # HREL: f and g can be any group role and not actor roles
+                set roles [rdb eval {
+                    SELECT DISTINCT f FROM curse_injects
+                    WHERE f != ''
+                }]
+
+                lmerge roles  [rdb eval {
+                    SELECT DISTINCT g FROM curse_injects
+                    WHERE g != ''
+                }]
+
+            }
+
+            SAT {
+            # SAT: Only roles that could possibly contain
+            # civilians
+                set roles [rdb eval {
+                    SELECT DISTINCT g FROM curse_injects
+                    WHERE g != ''
+                    AND inject_type IN ('HREL','VREL','SAT')
+                }]
+
+                lmerge roles [rdb eval {
+                    SELECT DISTINCT f FROM curse_injects
+                    WHERE f != ''
+                    AND inject_type IN ('HREL','COOP')
+                }]
+            }
+
+            COOP {
+            # COOP: For "f" only roles that could possibly contain
+            # civilians, for "g" only roles that could possibly
+            # contain forces
+                if {$col eq "f"} {
+                    set roles [rdb eval {
+                        SELECT DISTINCT f FROM curse_injects
+                        WHERE f != ''
+                        AND inject_type IN ('HREL','COOP')
+                    }]
+
+                    lmerge roles [rdb eval {
+                        SELECT DISTINCT g FROM curse_injects
+                        WHERE g != ''
+                        AND inject_type IN ('HREL','SAT')
+                    }]
+                } elseif {$col eq "g"} {
+                    set roles [rdb eval {
+                        SELECT DISTINCT f FROM curse_injects
+                        WHERE f != ''
+                        AND inject_type = 'HREL'
+                    }]
+
+                    lmerge roles [rdb eval {
+                        SELECT DISTINCT g FROM curse_injects
+                        WHERE g != ''
+                        AND inject_type IN ('HREL','VREL','COOP)
+                    }]
+                }
+            }
+
+            VREL {
+            # VREL: If col is 'a' then any actor role, if 'g' then
+            # any group role
+                if {$col eq "a"} {
+                    set roles [rdb eval {
+                        SELECT DISTINCT a FROM curse_injects
+                        WHERE a != ''
+                    }]
+                } elseif {$col eq "g"} {
+                    set roles [rdb eval {
+                        SELECT DISTINCT g FROM curse_injects
+                        WHERE g != ''
+                    }]
+
+                    lmerge roles [rdb eval {
+                        SELECT DISTINCT f FROM curse_injects
+                        WHERE f != ''
+                    }]
+                }
+            }
+        }
+
+        return $roles
     }
 
     #-------------------------------------------------------------------
@@ -366,13 +456,15 @@ snit::type inject {
             # NEXT, Put the inject in the database
             rdb eval {
                 INSERT INTO 
-                curse_injects(curse_id, inject_num, inject_type, narrative,
+                curse_injects(curse_id, inject_num, inject_type,
+                         mode, narrative,
                          a,
                          c,
                          f,
                          g,
                          mag)
-                VALUES($curse_id, $inject_num, $inject_type, $narrative,
+                VALUES($curse_id, $inject_num, $inject_type,
+                       $mode, $narrative,
                        nullif($a,   ''),
                        nullif($c,   ''),
                        nullif($f,   ''),
@@ -438,11 +530,12 @@ snit::type inject {
             # NULL rather than "".
             rdb eval {
                 UPDATE curse_injects 
-                SET a   = nullif(nonempty($a, a), ''),
-                    c   = nullif(nonempty($c, c), ''),
-                    f   = nullif(nonempty($f, f), ''),
-                    g   = nullif(nonempty($g, g), ''),
-                    mag = nullif(nonempty($mag,   mag),   '')
+                SET a    = nullif(nonempty($a, a), ''),
+                    c    = nullif(nonempty($c, c), ''),
+                    f    = nullif(nonempty($f, f), ''),
+                    g    = nullif(nonempty($g, g), ''),
+                    mode = nullif(nonempty($mode, mode), ''),
+                    mag  = nullif(nonempty($mag,   mag), '')
                 WHERE curse_id=$curse_id AND inject_num=$inject_num
             } {}
 
@@ -503,6 +596,33 @@ snit::type inject {
 
     #-------------------------------------------------------------------
     # Order Helpers
+
+    # roleInOtherThan inject_type role
+    #
+    # inject_type     - one of SAT, COOP, HREL or VREL
+    # role            - a role that exists in an inject of inject_type
+    #
+    # This method checks to see if the role provided already exists
+    # an injects of other inject types. It's used to prevent the creation
+    # of a roles for other inject types.
+
+    typemethod roleInOtherThan {inject_type role} {
+
+        # FIRST, grab the list of roles from all other
+        # inject types
+        set others [rdb eval {
+            SELECT a, g, f FROM curse_injects
+            WHERE inject_type != $inject_type
+        }]
+
+        # NEXT, if the role is already in one of the other types then
+        # return that it is.
+        if {$role in $others} {
+            return 1
+        }
+
+        return 0
+    }
 
     # RequireType inject_type id
     #

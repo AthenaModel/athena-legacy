@@ -260,6 +260,10 @@ CREATE TABLE mads (
 );
 
 CREATE TABLE curses (
+    -- The curses table holds data associated with every CURSE
+    -- defined by the user. The curse_injects table then references
+    -- the CURSE each inject is associated with.
+
     -- CURSE ID
     curse_id     TEXT PRIMARY KEY,
 
@@ -283,16 +287,25 @@ CREATE TABLE curses (
 );
 
 CREATE TABLE curse_injects (
+    -- CURSE ID
     curse_id     TEXT REFERENCES curses(curse_id)
                  ON DELETE CASCADE
                  DEFERRABLE INITIALLY DEFERRED,
 
+    -- Unique inject number
     inject_num   INTEGER,
 
+    -- Inject type: SAT, COOP, HREL, or VREL
     inject_type  TEXT,   -- ecinjectpart(n) value
 
+    -- Mode: Persistent (P) or Transient (T)
+    mode         TEXT,
+
+    -- Narrative built by the inject object based on the inject
+    -- type
     narrative    TEXT,
 
+    -- normal, disabled or invalid
     state        TEXT DEFAULT 'normal',
 
     -- CURSE Type parameters.  The use of these varies by type;
@@ -300,8 +313,10 @@ CREATE TABLE curse_injects (
     -- errors are checked by the curse input type's "check" method.
     a        TEXT,  -- Actor roles for VREL
     c        TEXT,  -- A concern, for SAT
-    f        TEXT,  -- Group roles, type depends on inject_type
-    g        TEXT,  -- Group roles, type depends on inject_type
+    f        TEXT,  -- SAT -> n/a, HREL -> groups, 
+                    -- VREL -> n/a, COOP -> civgroups
+    g        TEXT,  -- SAT -> civgroups, HREL -> groups, 
+                    -- VREL -> groups, COOP -> frcgroups
     mag      REAL,  -- Numeric qmag(n) value
 
     PRIMARY KEY (curse_id, inject_num)

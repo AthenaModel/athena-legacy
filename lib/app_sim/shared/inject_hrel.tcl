@@ -6,10 +6,11 @@
 #    Dave Hanks
 #
 # DESCRIPTION:
-#    athena_sim(1): HREL(flist, glist, mag) inject
+#    athena_sim(1): HREL(f, g, mag) inject
 #
 #    This module implements the HREL inject, which affects the horizontal
-#    relationship of each group in flist with each group in glist.
+#    relationship of each group in the f fole with each group in the g
+#    role.
 #
 # PARAMETER MAPPING:
 #
@@ -36,7 +37,7 @@ inject type define HREL {f g mag} {
         dict with pdict {
             set points [format "%.1f" $mag]
             set symbol [qmag name $mag]
-            return "Change horizontal relationships of $f with $g by $points points ($symbol)."
+            return "Change horizontal relationships of groups in $f with groups in $g by $points points ($symbol)."
         }
     }
 
@@ -58,21 +59,25 @@ order define INJECT:HREL:CREATE {
     options -sendstates PREP
 
     form {
-        rcc "CURSE ID:" -for curse_id
+        rcc "CURSE ID:" -for curse_id 
         text curse_id -context yes
 
-        rcc "Description:" -for longname
+        rcc "Description:" -for longname -span 4
         disp longname -width 60
+
+        rcc "Mode:" -for mode -span 4
+        enumlong mode -dictcmd {einputmode deflist} -defvalue transient
 
         rcc "Of Group Role:" -for f
         selector rtype -defvalue "NEW" {
             case NEW "Define new role" {
-                rcc "Role:" -for f
+                cc "Role:" -for f
+                label "@"
                 text f
             }
 
             case EXISTING "Use existing role" {
-                rcc "Role:" -for f
+                cc "Role:" -for f
                 enum f -listcmd {::inject rolenames HREL f}
             }
         }
@@ -80,26 +85,35 @@ order define INJECT:HREL:CREATE {
         rcc "With Group Role:" -for g 
         selector rtype -defvalue "NEW" {
             case NEW "Define new role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
+                label "@"
                 text g
             }
 
             case EXISTING "Use existing role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
                 enum g -listcmd {::inject rolenames HREL g}
             }
         }
 
-        rcc "Magnitude:" -for mag
+        rcc "Magnitude:" -for mag -span 4
         mag mag
         label "points of change"
     }
 } {
     # FIRST, prepare and validate the parameters
     prepare curse_id -toupper   -required -type curse
+    prepare mode     -tolower   -required -type einputmode
     prepare f        -toupper   -required -type roleid
     prepare g        -toupper   -required -type roleid
     prepare mag -num -toupper   -required -type qmag
+
+    validate g {
+        if {$parms(f) eq $parms(g)} {
+            reject g \
+                "Cannot have the same roles for horizontal relationship inject"
+        }
+    }
 
     returnOnError -final
 
@@ -122,20 +136,24 @@ order define INJECT:HREL:UPDATE {
         rcc "Inject:" -for id
         key id -context yes -table gui_injects_HREL \
             -keys {curse_id inject_num} \
-            -loadcmd {orderdialog keyload id {f g mag}}
+            -loadcmd {orderdialog keyload id {f g mag mode}}
 
-        rcc "Description:" -for longname
+        rcc "Description:" -for longname -span 4
         disp longname -width 60
+
+        rcc "Mode:" -for mode -span 4
+        enumlong mode -dictcmd {einputmode deflist}
 
         rcc "Of Group Role:" -for f
         selector rtype -defvalue "EXISTING" {
             case NEW "Rename role" {
-                rcc "Role:" -for f
+                cc "Role:" -for f
+                label "@"
                 text f
             }
 
             case EXISTING "Use existing role" {
-                rcc "Role:" -for f
+                cc "Role:" -for f
                 enum f -listcmd {::inject rolenames HREL f}
             }
         }
@@ -143,26 +161,35 @@ order define INJECT:HREL:UPDATE {
         rcc "With Group Role:" -for g 
         selector rtype -defvalue "EXISTING" {
             case NEW "Rename role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
+                label "@"
                 text g
             }
 
             case EXISTING "Use existing role" {
-                rcc "Role:" -for g
+                cc "Role:" -for g
                 enum g -listcmd {::inject rolenames HREL g}
             }
         }
 
-        rcc "Magnitude:" -for mag
+        rcc "Magnitude:" -for mag -span 4
         mag mag
         label "points of change"
     }
 } {
     # FIRST, prepare the parameters
     prepare id         -required -type inject
+    prepare mode       -tolower  -type einputmode
     prepare f          -toupper  -type roleid
     prepare g          -toupper  -type roleid
     prepare mag   -num -toupper  -type qmag
+
+    validate g {
+        if {$parms(f) eq $parms(g)} {
+            reject g \
+                "Cannot have the same roles for horizontal relationship inject"
+        }
+    }
 
     returnOnError -final
 

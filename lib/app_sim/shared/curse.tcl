@@ -141,13 +141,13 @@ snit::type curse {
         }]
     }
 
-    # normal validate iom_id
+    # normal validate curse_id
     #
     # curse_id   - Possibly, a CURSE ID with state=normal
     #
     # Validates a CURSE ID, and ensures that state=normal
 
-    typemethod {normal validate} {iom_id} {
+    typemethod {normal validate} {curse_id} {
         set names [curse normal names]
 
         if {$curse_id ni $names} {
@@ -164,6 +164,18 @@ snit::type curse {
         return $curse_id
     }
 
+
+    # validRoles curse_id roles
+    #
+    # curse_id    - CURSE ID
+    # roles       - a mapping of roles to groups to check
+    #
+    # This is TBD. It may belong in the tactic::CURSE namespace.
+
+    typemethod validRoles {curse_id roles} {
+        #TBD
+        return 1
+    }
     #-------------------------------------------------------------------
     # Sanity Check
 

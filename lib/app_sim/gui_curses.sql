@@ -6,7 +6,7 @@
 --    Dave Hanks
 --
 -- DESCRIPTION:
---    SQL Schema: Application-specific views, Information area
+--    SQL Schema: Application-specific views, CURSEs area
 --
 --    This file is loaded by scenario.tcl!
 --
@@ -23,14 +23,14 @@
 
 -- gui_curses: All CURSEs
 CREATE TEMPORARY VIEW gui_curses AS
-SELECT curse_id                                  AS curse_id,
-       longname                                  AS longname, 
-       cause                                     AS cause,
-       pair(longname, curse_id)                  AS fancy,
-       longname || ' (Here factor: ' || s || 
-                   ' Near factor: '  || p ||
-                   ' Far factor: '   || q || ')' AS narrative,
-       state                                     AS state
+SELECT curse_id                             AS curse_id,
+       longname                             AS longname, 
+       cause                                AS cause,
+       pair(longname, curse_id)             AS fancy,
+       longname || ' (s: ' || s || 
+                    ' p: ' || p ||
+                    ' q: ' || q || ')'      AS narrative,
+       state                                AS state
 FROM curses;
 
 CREATE TEMPORARY VIEW gui_injects AS
@@ -38,6 +38,10 @@ SELECT curse_id || ' ' || inject_num        AS id,
        curse_id                             AS curse_id,
        inject_num                           AS inject_num,
        inject_type                          AS inject_type,
+       mode                                 AS mode,
+       CASE WHEN mode = 'p'
+       THEN 'persistent' ELSE 'transient' 
+       END                                  AS longmode,
        narrative                            AS narrative,
        state                                AS state,
        a                                    AS a,
@@ -51,6 +55,10 @@ CREATE TEMPORARY VIEW gui_injects_SAT AS
 SELECT curse_id || ' ' || inject_num        AS id,
        curse_id                             AS curse_id,
        inject_num                           AS inject_num,
+       mode                                 AS mode,
+       CASE WHEN mode = 'p'
+       THEN 'persistent' ELSE 'transient' 
+       END                                  AS longmode,
        narrative                            AS narrative,
        state                                AS state,
        g                                    AS g,
@@ -62,6 +70,10 @@ CREATE TEMPORARY VIEW gui_injects_COOP AS
 SELECT curse_id || ' ' || inject_num        AS id,
        curse_id                             AS curse_id,
        inject_num                           AS inject_num,
+       mode                                 AS mode,
+       CASE WHEN mode = 'p'
+       THEN 'persistent' ELSE 'transient' 
+       END                                  AS longmode,
        narrative                            AS narrative,
        state                                AS state,
        f                                    AS f,
@@ -73,6 +85,10 @@ CREATE TEMPORARY VIEW gui_injects_VREL AS
 SELECT curse_id || ' ' || inject_num        AS id,
        curse_id                             AS curse_id,
        inject_num                           AS inject_num,
+       mode                                 AS mode,
+       CASE WHEN mode = 'p'
+       THEN 'persistent' ELSE 'transient' 
+       END                                  AS longmode,
        narrative                            AS narrative,
        state                                AS state,
        g                                    AS g,
@@ -81,12 +97,16 @@ SELECT curse_id || ' ' || inject_num        AS id,
 FROM curse_injects;
 
 CREATE TEMPORARY VIEW gui_injects_HREL AS
-SELECT curse_id || ' ' || inject_num       AS id,
-       curse_id                            AS curse_id,
-       inject_num                          AS inject_num,
-       narrative                           AS narrative,
-       state                               AS state,
-       f                                   AS f,
-       g                                   AS g,
-       format('%.1f',mag)                  AS mag
+SELECT curse_id || ' ' || inject_num        AS id,
+       curse_id                             AS curse_id,
+       inject_num                           AS inject_num,
+       mode                                 AS mode,
+       CASE WHEN mode = 'p'
+       THEN 'persistent' ELSE 'transient' 
+       END                                  AS longmode,
+       narrative                            AS narrative,
+       state                                AS state,
+       f                                    AS f,
+       g                                    AS g,
+       format('%.1f',mag)                   AS mag
 FROM curse_injects;

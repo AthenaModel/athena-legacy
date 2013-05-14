@@ -341,6 +341,12 @@ snit::widget cursebrowser {
             -itemstyle   textStyle         \
             -tags        type
 
+        # Tree column 4: mode
+        $citree column create {*}$colopts  \
+            -text        "Mode"            \
+            -itemstyle   textStyle         \
+            -tags        mode
+
         # NEXT, grid them all in place
         grid $bar          -row 0 -column 0 -sticky ew -columnspan 2
         grid $pane.sep1    -row 1 -column 0 -sticky ew -columnspan 2
@@ -565,7 +571,8 @@ snit::widget cursebrowser {
             0               $cdata(narrative) \
             1               $cdata(cause)     \
             {tag id}        $cdata(curse_id)  \
-            {tag type}      ""
+            {tag type}      ""                \
+            {tag mode}      ""
 
         # NEXT, set the state
         $self TreeItemState $citree $id $cdata(state)
@@ -661,7 +668,8 @@ snit::widget cursebrowser {
         $citree item text $id                \
             0           $idata(narrative)    \
             {tag id}    $idata(id)           \
-            {tag type}  $idata(inject_type)
+            {tag type}  $idata(inject_type)  \
+            {tag mode}  $idata(mode)
 
         # NEXT, set the state
         $self TreeItemState $citree $id $idata(state)

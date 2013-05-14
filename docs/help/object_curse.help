@@ -67,19 +67,19 @@ object curse_ {
         Indirect effects of injects for this CURSE in the same
         neighborhood as the CURSE are multiplied by this factor.  
         If it is 0.0, there will be no such indirect effects.
-    }
+    } -tags {create update browser}
 
     attribute p "Near Factor" {
         Indirect effects of injects for this CURSE in <b>NEAR</b>
         neighborhoods are multiplied by this factor.  
         If it is 0.0, there will be no such indirect effects.
-    }
+    } -tags {create update browser}
 
-    attribute q "Near Factor" {
+    attribute q "Far Factor" {
         Indirect effects of injects for this CURSE in <b>FAR</b>
         neighborhoods are multiplied by this factor.  
         If it is 0.0, there will be no such indirect effects.
-    }
+    } -tags {create update browser}
 
     attribute state "State" {
         The CURSE's state, one of <b>normal</b>, <b>disabled</b>, or 

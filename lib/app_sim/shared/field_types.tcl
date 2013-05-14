@@ -85,6 +85,9 @@ dynaform fieldtype alias coop range \
     -showsymbols yes                \
     -resetvalue  50
 
+# curse: pick a curse by name.
+dynaform fieldtype alias curse enum -listcmd {::curse names}
+
 # expr: A text field for editing expressions.
 dynaform fieldtype alias expr text -width 60
 
@@ -180,6 +183,12 @@ dynaform fieldtype alias percent range -datatype ::ipercent
 dynaform fieldtype alias rel range \
     -datatype   ::qaffinity \
     -resolution 0.1
+
+# roles: Pick one or more roles to group(s) mapping
+dynaform fieldtype alias roles rolemap \
+    -listheight 6 \
+    -liststripe 1 \
+    -listwidth  20
 
 # sat: Pick a satisfaction level
 dynaform fieldtype alias sat range \

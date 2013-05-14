@@ -833,9 +833,13 @@ snit::type ::projectlib::roleid {
     # and digits. 
 
     typemethod validate {name} {
-        if {![regexp {^[@][A-Z]+[A-Z0-9]*$} $name]} {
+        if {![regexp {[@]?[A-Z]+[A-Z0-9]*$} $name]} {
             return -code error -errorcode INVALID \
-  "Role identifiers begin with \"@\" followed by a letter and contain only letters and digits."
+  "Role identifiers begin with optional \"@\" followed by a letter and contain only letters and digits."
+        }
+
+        if {[string range $name 0 0] ne "@"} {
+            return "@$name"
         }
 
         return $name
