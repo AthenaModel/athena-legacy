@@ -173,8 +173,8 @@ order define INJECT:VREL:UPDATE {
     # FIRST, prepare the parameters
     prepare id    -required           -type inject
     prepare mode            -tolower  -type  einputmode
-    prepare g     -required -toupper  -type roleid
-    prepare a     -required -toupper  -type roleid
+    prepare g               -toupper  -type roleid
+    prepare a               -toupper  -type roleid
     prepare mag   -num      -toupper  -type qmag
 
     returnOnError -final

@@ -23,14 +23,17 @@
 
 -- gui_curses: All CURSEs
 CREATE TEMPORARY VIEW gui_curses AS
-SELECT curse_id                             AS curse_id,
-       longname                             AS longname, 
-       cause                                AS cause,
-       pair(longname, curse_id)             AS fancy,
+SELECT curse_id                                        AS curse_id,
+       longname                                        AS longname, 
+       cause                                           AS cause,
+       pair(longname, curse_id)                        AS fancy,
+       'my://app/curse/' || curse_id                   AS url,
+       link('my://app/curse/' || curse_id, curse_id)   AS link,
+       link('my://app/curse/' || curse_id, longname)   AS longlink,
        longname || ' (s: ' || s || 
                     ' p: ' || p ||
-                    ' q: ' || q || ')'      AS narrative,
-       state                                AS state
+                    ' q: ' || q || ')'                 AS narrative,
+       state                                           AS state
 FROM curses;
 
 CREATE TEMPORARY VIEW gui_injects AS

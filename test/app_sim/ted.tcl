@@ -44,6 +44,8 @@ snit::type ted {
         conditions
         cond_collections
         coop_fg
+        curses
+        curse_injects
         defroe_ng
         demog_g
         demog_local

@@ -432,6 +432,7 @@ snit::type inject {
     #    c             A Concern, or ""
     #    f             Group role name, or ""
     #    g             Group role name, or ""
+    #    mode          transient or persistent
     #    mag           numeric qmag(n) value, or ""
     #
     # Creates an inject given the parms, which are presumed to be
@@ -506,6 +507,7 @@ snit::type inject {
     #    c          A Concern, or ""
     #    f          Group role name, or ""
     #    g          Group role name, or ""
+    #    mode       transient or persistent
     #    mag        Numeric qmag(n) value, or ""
     #
     # Updates an inject given the parms, which are presumed to be

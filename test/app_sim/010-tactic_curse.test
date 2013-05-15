@@ -1,0 +1,165 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_flow.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_flow(sim) tests.
+#
+#    This test suite tests the tactic::FLOW ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 SHIA SUNN KURD BLUE
+
+        ted order CURSE:CREATE curse_id C1
+
+        ted order INJECT:COOP:CREATE \
+            curse_id C1          \
+            mode     transient   \
+            f        @C1         \
+            g        @F1         \
+            mag      1.0
+
+        ted order INJECT:HREL:CREATE \
+            curse_id C1          \
+            mode     transient   \
+            f        @C1         \
+            g        @F1         \
+            mag      1.0
+
+        ted order INJECT:VREL:CREATE \
+            curse_id C1          \
+            mode     transient   \
+            g        @C1         \
+            a        @A1         \
+            mag      1.0
+
+        ted order INJECT:SAT:CREATE \
+            curse_id C1          \
+            mode     transient   \
+            g        @C2         \
+            c        SFT         \
+            mag      1.0
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+    }
+
+    proc execute_setup {} {
+        setup
+        aram init
+        demog start
+    }
+
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        # Clean up the test environment
+        rdb nullvalue ""
+        array unset parms
+        ted cleanup
+    }
+
+    set T1 {
+        tactic_type CURSE
+        owner       SYSTEM
+        priority    top
+        curse       C1
+        roles       {@C1 SHIA @C2 SUNN @F1 BLUE @A1 JOE}
+        once        YES
+    }
+
+    set T2 {
+        tactic_type FLOW
+        owner       SYSTEM
+        priority    top
+        f           SHIA
+        g           KURD
+        text1       NUMBER
+        int1        500
+        x1          ""
+        once        YES
+    }
+
+    set T3 {
+        tactic_type FLOW
+        owner       SYSTEM
+        priority    top
+        f           SHIA
+        g           KURD
+        text1       RATE
+        int1        ""
+        x1          5.0
+        once        NO
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative: ALL} -setup {
+        setup
+        tactic mutate create $T1
+    } -body {
+        tactic::CURSE narrative [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {C1 (C1) causes XXXS+ Coop. change of @C1 = (SHIA) with @F1 = (BLUE)  XXXS+ Horiz. rel. change of @C1 = (SHIA) with @F1 = (BLUE)  XXXS+ Vert. rel. change of @C1 = (SHIA) with @A1 = (JOE) XXXS+ Sat. change of @C2 = (SUNN) with SFT}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: role no longer exists} -setup {
+        setup
+        tactic mutate create $T1
+        rdb eval {DELETE FROM curse_injects WHERE inject_type='VREL'}
+    } -body {
+        tactic::CURSE check [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {Role @A1 no longer exists.}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {ALL, success} -setup {
+        execute_setup
+        tactic mutate create $T1
+    } -body {
+        tactic::CURSE execute [tactic get 1]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

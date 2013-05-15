@@ -165,16 +165,17 @@ snit::type curse {
     }
 
 
-    # validRoles curse_id roles
+    # rolenames curse_id 
     #
     # curse_id    - CURSE ID
-    # roles       - a mapping of roles to groups to check
     #
-    # This is TBD. It may belong in the tactic::CURSE namespace.
+    # Returns a list of recognized rolenames given a CURSE ID
 
-    typemethod validRoles {curse_id roles} {
-        #TBD
-        return 1
+    typemethod rolenames {curse_id} {
+        return [rdb eval {
+            SELECT f, g, a FROM curse_injects
+            WHERE curse_id=$curse_id
+        }]
     }
     #-------------------------------------------------------------------
     # Sanity Check

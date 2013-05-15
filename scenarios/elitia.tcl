@@ -104,3 +104,15 @@ send INJECT:COOP:CREATE -curse_id FLOOD -longname {Flood in Peonia} -f CIV1 -g F
 send INJECT:HREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -f GRP1 -g GRP2 -mag 4.0
 send INJECT:SAT:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g CIV2 -c SFT -mag 6.5
 send INJECT:VREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g GRP3 -a ACT1 -mag 6.5
+send INJECT:DELETE -id {FLOOD 2}
+send INJECT:DELETE -id {FLOOD 3}
+send INJECT:DELETE -id {FLOOD 4}
+send INJECT:HREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -rtype EXISTING -f @FRC1 -g @CIV1 -mag -11.0
+send INJECT:SAT:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g CIV2 -c SFT -mag -4.5
+send INJECT:VREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g GRP1 -a ACT1 -mag -8.0
+send TACTIC:CURSE:CREATE -owner SYSTEM -curse FLOOD -roles {@FRC1 {ARMY PELFM} @CIV1 {PEONR PEONU ELR ELU SA} @GRP1 {ARMY ELR ELU} @ACT1 {GOV PELF} @CIV2 {PEONR PEONU ELR}} -on_lock 1
+send TACTIC:DELETE -tactic_id 5
+send TACTIC:CURSE:CREATE -owner SYSTEM -curse FLOOD -roles {@FRC1 ARMY @CIV1 {PEONR PEONU ELR} @GRP1 {ARMY ELR ELU NOBODY PELFM PEONR PEONU SA} @ACT1 GOV @CIV2 {PEONR PEONU}} -on_lock 1
+send CURSE:CREATE -curse_id FIRE -longname {Fire in Elitia} -s 1.00 -p 0.20 -q 0.05
+send INJECT:SAT:CREATE -curse_id FIRE -longname {Fire in Elitia} -g CIVGRP2 -c QOL -mag -10.5
+send TACTIC:CURSE:CREATE -owner SYSTEM -curse FIRE -roles {@CIVGRP2 {PEONR PEONU ELR}} -on_lock 1

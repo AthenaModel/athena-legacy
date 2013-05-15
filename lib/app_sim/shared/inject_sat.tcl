@@ -36,7 +36,7 @@ inject type define SAT {g c mag} {
         dict with pdict {
             set points [format "%.1f" $mag]
             set symbol [qmag name $mag]
-            return "Change satisfaction of civlians in $g with $c by $points points ($symbol)."
+            return "Change satisfaction of civilians in $g with $c by $points points ($symbol)."
         }
     }
 
@@ -150,7 +150,7 @@ order define INJECT:SAT:UPDATE {
     # FIRST, prepare the parameters
     prepare id    -required           -type  inject
     prepare mode            -tolower  -type  einputmode
-    prepare g     -required -toupper  -type  roleid
+    prepare g               -toupper  -type  roleid
     prepare c               -toupper  -type  econcern
     prepare mag   -num      -toupper  -type  qmag
 

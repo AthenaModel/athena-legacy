@@ -6,7 +6,8 @@
 #    Dave Hanks
 #
 # DESCRIPTION:
-#    athena_sim(1): CURSE(TBD) tactic
+#    athena_sim(1): Complex User-defined Role-based Situation and
+#                   Events (CURSE) tactic
 #
 #    This module implements the CURSE tactic. 
 #
@@ -22,30 +23,18 @@
 #-------------------------------------------------------------------
 # Tactic: CURSE
 
-tactic type define CURSE {curse once on_lock} system {
+tactic type define CURSE {curse roles once on_lock} system {
     #-------------------------------------------------------------------
     # Type Variables
 
+    # modeChar: The mode character used by [curse]
+    typevariable modeChar -array {
+        persistent P
+        transient  T
+    }
 
     #-------------------------------------------------------------------
     # Public Methods
-
-    # reset
-    # 
-
-    typemethod reset {} {
-    }
-
-    # assess
-    #
-    # Assesses the attitude effects of all pending broadcasts by
-    # calling the IOM rule set for each pending broadcast.
-    #
-    # This command is called at the end of strategy execution, once
-    # all actors have made their decisions and CAP access is clear.
-
-    typemethod assess {} {
-    }
 
     #-------------------------------------------------------------------
     # tactic(i) subcommands
@@ -55,21 +44,250 @@ tactic type define CURSE {curse once on_lock} system {
 
     typemethod narrative {tdict} {
         dict with tdict {}
-        set narr [curse get $curse longname]
+        set narr "[curse get $curse longname] ($curse) causes"
 
-        set itypes [rdb eval {
-            SELECT inject_type FROM curse_injects
+        rdb eval {
+            SELECT * FROM curse_injects
             WHERE curse_id=$curse
-        }]
+        } idata {
+            append narr \
+    " [qmag name $idata(mag)] [einjectpart longname $idata(inject_type)] of "
+            switch -exact -- $idata(inject_type) {
+                COOP -
+                HREL {
+                    append narr "$idata(f) = ("
+                    append narr [join [dict get $roles $idata(f)] ", "]
+                    append narr ")"
+                    append narr " with $idata(g) = ("
+                    append narr [join [dict get $roles $idata(g)] ", "]
+                    append narr ") "
+                }
 
+                VREL {
+                    append narr "$idata(g) = ("
+                    append narr [join [dict get $roles $idata(g)] ", "]
+                    append narr ")"
+                    append narr " with $idata(a) = ("
+                    append narr [join [dict get $roles $idata(a)] ", "]
+                    append narr ")"
+                }
 
-        return "$narr ($curse) with inject types: [join $itypes {, }]"
+                SAT {
+                    append narr "$idata(g) = ("
+                    append narr [join [dict get $roles $idata(g)] ", "]
+                    append narr ")"
+                    append narr " with $idata(c)"
+                }
+
+                default {
+                    # Should never happen
+                    error "Unrecognized inject type: $idata(inject_type)"
+                }
+            }
+        }
+
+        return $narr
     }
 
     typemethod check {tdict} {
+        # FIRST, bring all attributes into scope
+        dict with tdict {}
+        dict with pdict {}
+
+        set errors [list]
+
+        # NEXT, roles this tactic uses may have been deleted
+        foreach role [dict keys $roles] {
+            if {$role ni [curse rolenames $curse]} {
+                lappend errors "Role $role no longer exists."
+            }
+        }
+
+        return [join $errors ", "]
     }
 
     typemethod execute {tdict} {
+        # FIRST, bring all attributes into scope
+        dict with tdict {}
+        dict with pdict {}
+
+        set parms(curse_id) $curse
+
+        # NEXT, go through each inject associated with this CURSE
+        # firing rules as we go
+        rdb eval {
+            SELECT * FROM curse_injects
+            WHERE curse_id=$curse
+        } idata {
+            switch -exact -- $idata(inject_type) {
+                HREL {
+                    # Change to horizontal relationships of group(s) in
+                    # f with group(s) in g
+                    set parms(f)    [dict get $roles $idata(f)]
+                    set parms(g)    [dict get $roles $idata(g)]
+                    set parms(mode) $modeChar($idata(mode))
+                    set parms(mag)  $idata(mag)
+
+                    tactic::CURSE hrel [array get parms]
+                }
+
+                VREL {
+                    # Change to verticl relationships of group(s) in
+                    # g with actor(s) in a
+                    set parms(g)    [dict get $roles $idata(g)]
+                    set parms(a)    [dict get $roles $idata(a)]
+                    set parms(mode) $modeChar($idata(mode))
+                    set parms(mag)  $idata(mag)
+
+                    tactic::CURSE vrel [array get parms]
+                }
+
+                COOP {
+                    # Change to cooperation of CIV group(s) in f
+                    # with FRC group(s) in g
+                    set parms(f)    [dict get $roles $idata(f)]
+                    set parms(g)    [dict get $roles $idata(g)]
+                    set parms(mode) $modeChar($idata(mode))
+                    set parms(mag)  $idata(mag)
+
+                    tactic::CURSE coop [array get parms]
+                }
+
+                SAT {
+                    # Change of satisfaction of CIV group(s) in g
+                    # with concern c
+                    set parms(g)    [dict get $roles $idata(g)]
+                    set parms(c)    $idata(c)
+                    set parms(mode) $modeChar($idata(mode))
+                    set parms(mag)  $idata(mag)
+
+                    tactic::CURSE sat [array get parms]
+                }
+
+                default {
+                    #Should never happen
+                    error "Unrecognized inject type: $idata(inject_type)"
+                }
+            }
+        }
+
+        return 1
+    }
+
+    # hrel parmdict
+    #
+    # Causes an assessment of horizontal relationship among
+    # group(s).
+    #
+    # parmdict:
+    #   curse_id   - ID of the CURSE causing the change
+    #   mode       - P (persistent) or T (transient)
+    #   mag        - qmag(n) value of the change
+    #   f          - One or more groups
+    #   g          - One or more groups
+
+    typemethod hrel {parmdict} {
+        dict with parmdict {}
+
+        set fdict [dict create \
+            dtype    CURSE     \
+            curse_id $curse_id \
+            atype    hrel      \
+            mode     $mode     \
+            mag      $mag      \
+            f        $f        \
+            g        $g        ]
+
+            driver::CURSE assess $fdict
+
+        return
+    }
+
+    # vrel parmdict
+    #
+    # Causes an assessment vertical relationship among
+    # group(s).
+    #
+    # parmdict:
+    #   curse_id   - ID of the CURSE causing the change
+    #   mode       - P (persistent) or T (transient)
+    #   mag        - qmag(n) value of the change
+    #   g          - One or more groups
+    #   a          - One or more actors
+
+    typemethod vrel {parmdict} {
+        dict with parmdict {}
+
+        set fdict [dict create  \
+            dtype    CURSE      \
+            curse_id $curse_id  \
+            atype    vrel       \
+            mode     $mode      \
+            mag      $mag       \
+            g        $g         \
+            a        $a         ]
+
+            driver::CURSE assess $fdict
+
+        return
+    }
+
+    # sat parmdict
+    #
+    # Causes an assessment of satsifaction change of
+    # group(s) with a concern
+    #
+    # parmdict:
+    #   curse_id   - ID of the CURSE causing the change
+    #   mode       - P (persistent) or T (transient)
+    #   mag        - qmag(n) value of the change
+    #   g          - One or more groups
+    #   c          - AUT, SFT, CUL or QOL
+
+    typemethod sat {parmdict} {
+        dict with parmdict {}
+
+        set fdict [dict create \
+            dtype    CURSE     \
+            curse_id $curse_id \
+            atype    sat       \
+            mode     $mode     \
+            mag      $mag      \
+            c        $c        \
+            g        $g        ]
+
+        driver::CURSE assess $fdict
+
+        return
+    }
+
+    # coop parmdict
+    #
+    # Causes an assessment of cooperation change of 
+    # CIV group(s) with FRC groups(s)
+    #
+    # parmdict:
+    #   curse_id   - ID of the CURSE causing the change
+    #   mode       - P (persistent) or T (transient)
+    #   mag        - qmag(n) value of the change
+    #   f          - One or more CIV groups
+    #   g          - One or more FRC groups
+
+    typemethod coop {parmdict} {
+        dict with parmdict {}
+
+        set fdict [dict create \
+            dtype    CURSE     \
+            curse_id $curse_id \
+            atype    coop      \
+            mode     $mode     \
+            mag      $mag      \
+            f        $f        \
+            g        $g        ]
+
+        driver::CURSE assess $fdict
+
+        return
     }
 
     # RoleSpec curse_id
@@ -78,11 +296,10 @@ tactic type define CURSE {curse once on_lock} system {
     #
     # Given a CURSE ID, this method figures out what each role defined
     # for that CURSE can contain in terms of particular groups and
-    # actors.  The order in which this takes place is from least
-    # restrictive roles to most restrictive.  Thus, a role for an HREL
-    # inject can contain any group, but if that role is also used in
-    # a COOP inject, then it is restricted to just those groups that
-    # make sense.
+    # actors.  The order in which this takes place, which matters, is 
+    # from least restrictive roles to most restrictive.  For example, 
+    # a role for an HREL inject can contain any group, but if that role 
+    # is also used in a COOP inject, then it is restricted more.
 
     typemethod RoleSpec {curse_id} {
         # FIRST, if there's no curse specified, then nothing to
@@ -91,8 +308,7 @@ tactic type define CURSE {curse once on_lock} system {
             return {}
         }
 
-        # NEXT, create the role spec dictionary and fill in with
-        # default empty values
+        # NEXT, create the role spec dictionary
         set roleSpec [dict create]
 
         # NEXT, build up the rolespec based upon the injects associated
@@ -108,8 +324,7 @@ tactic type define CURSE {curse once on_lock} system {
             dict set roleSpec $row(g) [::group names]
         }
 
-        # VREL, is not any more restrictive, but is the only inject
-        # with an actors role
+        # VREL is not any more restrictive group wise
         rdb eval {
             SELECT * FROM curse_injects
             WHERE curse_id=$curse_id
@@ -161,7 +376,7 @@ order define TACTIC:CURSE:CREATE {
         text owner -context yes
 
         rcc "CURSE:" -for curse
-        curse curse 
+        curse curse
 
         rc "" -for roles -span 2
         roles roles -rolespeccmd {::tactic::CURSE RoleSpec $curse}
@@ -179,15 +394,10 @@ order define TACTIC:CURSE:CREATE {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
     prepare curse               -required -type curse
+    prepare roles               -required -type rolemap
     prepare once                -required -type boolean
     prepare on_lock             -required -type boolean
     prepare priority -tolower             -type ePrioSched
-
-    validate roles {
-        if {![curse validRoles $parms(curse) $parms(roles)]} {
-            reject roles "Roles $parms(roles) are not valid for $parms(curse)."
-        }
-    }
 
     returnOnError -final
 
@@ -218,7 +428,7 @@ order define TACTIC:CURSE:UPDATE {
         disp curse
 
         rc "" -for roles -span 2
-        roles roles -rolespeccmd {::tactico::CURSE RoleSpec $curse}
+        roles roles -rolespeccmd {::tactic::CURSE RoleSpec $curse}
 
         rcc "Once Only?" -for once
         yesno once
@@ -229,7 +439,6 @@ order define TACTIC:CURSE:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
-    prepare roles                -type roles
     prepare once                 -type boolean
     prepare on_lock              -type boolean
 
@@ -237,15 +446,6 @@ order define TACTIC:CURSE:UPDATE {
 
     # NEXT, make sure this is the right kind of tactic
     validate tactic_id { tactic RequireType CURSE $parms(tactic_id) }
-
-    returnOnError
-
-    # NEXT, make sure the role(s) to group(s) mapping is good
-    validate roles {
-        if {![curse validRoles $parms(curse) $parms(roles)]} {
-            reject roles "Roles $parms(roles) are not valid for $parms(curse)."
-        }
-    }
 
     returnOnError -final
 

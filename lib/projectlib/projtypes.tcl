@@ -37,6 +37,7 @@ namespace eval ::projectlib:: {
         egoal_state      \
         egoal_predicate  \
         ehousing         \
+        einjectpart      \
         einject_state    \
         eiom_state       \
         eorgactivity     \
@@ -71,6 +72,7 @@ namespace eval ::projectlib:: {
         rnomcoverage     \
         rnonneg          \
         roleid           \
+        rolemap          \
         rpercent         \
         rpercentpm       \
         rrate            \
@@ -234,6 +236,11 @@ snit::type ::projectlib::typewrapper {
 
     CURFEW-1-1    "Force is enforcing a curfew"
 
+    CURSE-1-1     "CURSE Horizontal Relationship Inject"
+    CURSE-2-1     "CURSE Vertical Relationship Inject"
+    CURSE-3-1     "CURSE Satisfaction Inject"
+    CURSE-4-1     "CURSE Cooperation Inject"
+
     DISASTER-1-1  "Disaster occurred in the neighborhood"
     DISASTER-1-2  "Disaster continues"
     DISASTER-2-1  "Disaster resolved by locals"
@@ -358,6 +365,7 @@ snit::type ::projectlib::typewrapper {
     CRIMINAL  "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
     CURFEW    "Curfew"
+    CURSE     "CURSE Attitude Injects"
     DISASTER  "Disaster"
     DISEASE   "Disease"
     DISPLACED "Displaced Persons"
@@ -663,11 +671,11 @@ snit::type ::projectlib::typewrapper {
 }
 
 # Curse Input Part Types
-::marsutil::enum ::projectlib::cinputpart {
-    COOP  "Cooperation with force group"
-    HREL  "Horizontal relationship with group"
-    SAT   "Satisfaction with concern"
-    VREL  "Vertical relationship with actor"
+::marsutil::enum ::projectlib::einjectpart {
+    COOP  "Coop. change"
+    HREL  "Horiz. rel. change"
+    SAT   "Sat. change"
+    VREL  "Vert. rel. change"
 }
 
 # Page Sizes for paged myserver tables
@@ -833,7 +841,7 @@ snit::type ::projectlib::roleid {
     # and digits. 
 
     typemethod validate {name} {
-        if {![regexp {[@]?[A-Z]+[A-Z0-9]*$} $name]} {
+        if {![regexp {^[@]?[A-Z]+[A-Z0-9]*$} $name]} {
             return -code error -errorcode INVALID \
   "Role identifiers begin with optional \"@\" followed by a letter and contain only letters and digits."
         }
@@ -994,6 +1002,14 @@ snit::type ::projectlib::weight {
     }
 }
 
+snit::type ::projectlib::rolemap {
+    pragma -hasinstances no
+
+    typemethod validate {value} {
+
+        return $value
+    }
+}
 
 #-----------------------------------------------------------------------
 # Money type

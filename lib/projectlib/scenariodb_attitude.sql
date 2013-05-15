@@ -270,17 +270,17 @@ CREATE TABLE curses (
     -- Description of the CURSE
     longname     TEXT DEFAULT '',
 
-    -- ecause
+    -- ecause(n) value, or NULL
     cause        TEXT DEFAULT '',
 
     -- Here Factor (s), a real fraction (0.0 to 1.0)
-    s             DOUBLE DEFAULT 1.0,
+    s            DOUBLE DEFAULT 1.0,
  
     -- Near Factor (p), a real fraction (0.0 to 1.0)
-    p             DOUBLE DEFAULT 0.0,
+    p            DOUBLE DEFAULT 0.0,
  
     -- Near Factor (q), a real fraction (0.0 to 1.0)
-    q             DOUBLE DEFAULT 0.0,
+    q            DOUBLE DEFAULT 0.0,
 
     -- State: normal, disabled, invalid (ecurse_state)
     state        TEXT DEFAULT 'normal'
@@ -303,7 +303,7 @@ CREATE TABLE curse_injects (
 
     -- Narrative built by the inject object based on the inject
     -- type
-    narrative    TEXT,
+    narrative    TEXT DEFAULT 'TBD',
 
     -- normal, disabled or invalid
     state        TEXT DEFAULT 'normal',

@@ -180,8 +180,8 @@ order define INJECT:COOP:UPDATE {
     # FIRST, prepare the parameters
     prepare id  -required           -type inject
     prepare mode          -tolower  -type einputmode
-    prepare f   -required -toupper  -type roleid
-    prepare g   -required -toupper  -type roleid
+    prepare f             -toupper  -type roleid
+    prepare g             -toupper  -type roleid
     prepare mag -num      -toupper  -type qmag
 
     validate g {
