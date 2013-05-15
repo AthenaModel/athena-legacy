@@ -49,8 +49,8 @@ namespace eval ::athena_test::tests:: {
     } -result {
 a   goods black pop actor region world tot_goods tot_black tot_pop tot_actor tot_region tot_world 
 --- ----- ----- --- ----- ------ ----- --------- --------- ------- --------- ---------- --------- 
-BOB 0.0   0.0   0.0 0.0   0.0    0.0   0.0       0.0       0.0     0.0       0.0        0.0       
 JOE 0.0   0.0   0.0 0.0   0.0    0.0   0.0       0.0       0.0     0.0       0.0        0.0       
+BOB 0.0   0.0   0.0 0.0   0.0    0.0   0.0       0.0       0.0     0.0       0.0        0.0       
     }
 
     #-------------------------------------------------------------------
@@ -463,8 +463,8 @@ BOB 150000.0     5000.0  5000.0       0.0
         setup
         cash load
     } -body {
-        cash give JOE 2000.0
-        cash give BOB 5000.0
+        cash give BOB JOE 2000.0
+        cash give JOE BOB 5000.0
         ted query {SELECT * FROM working_cash}
     } -cleanup {
         cleanup
@@ -497,7 +497,7 @@ BOB 150000.0     5000.0
     test save-1.2 {Adds gifts to cash_on_hand} -setup {
         setup
         cash load
-        cash give JOE 5000.0
+        cash give BOB JOE 5000.0
     } -body {
         cash save
         ted query {SELECT a, cash_reserve, cash_on_hand FROM actors}

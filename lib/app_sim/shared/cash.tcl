@@ -415,7 +415,8 @@ snit::type cash {
 
     # give a dollars
     #
-    # a         - An actor
+    # owner     - The funding actor
+    # a         - The funded actor
     # dollars   - Some number of dollars
     #
     # Adds dollars to the actor's "gifts" balance; this will
@@ -423,12 +424,26 @@ snit::type cash {
     # is saved.  This allows us to give money to the actor that 
     # should only be available after this strategy execution is
     # complete.
+    # If the fuding actor is a BUDGET actor and the funded actor
+    # an INCOME actor, then the money is entering the economy and
+    # must appear as an expenditure to the actor sector by the 
+    # funding actor.
 
-    typemethod give {a dollars} {
+    typemethod give {owner a dollars} {
         rdb eval {
             UPDATE working_cash 
             SET gifts = gifts + $dollars
             WHERE a=$a
+        }
+        
+        if {[actor get $owner atype] eq "BUDGET" &&
+            [actor get $a     atype] eq "INCOME"} {
+                rdb eval {
+                    UPDATE expenditures
+                    SET actor=actor+$dollars,
+                        tot_actor=tot_actor+$dollars
+                    WHERE a=$owner
+                }
         }
     }
 }

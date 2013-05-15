@@ -64,7 +64,7 @@ tactic type define FUND {a x1} actor {
             }
 
             # NEXT, give the money to the other actor.
-            cash give $a $x1
+            cash give $owner $a $x1
            
             sigevent log 2 tactic "
                 FUND: Actor {actor:$owner} funds {actor:$a}
