@@ -108,6 +108,20 @@ snit::type executive {
             return [rdb query $query]
         }
 
+        $interp proc csv {args} {
+            set query "SELECT $args"
+            
+            return [rdb query $query -mode csv]
+        }
+
+        $interp proc selectfile {filename args} {
+            return [tofile $filename [select {*}$args]]
+        }
+
+        $interp proc csvfile {filename args} {
+            return [tofile $filename [csv {*}$args]]
+        }
+
         # NEXT, install the executive functions
 
         # ainfluence(n,a)
@@ -235,6 +249,91 @@ snit::type executive {
             {owner ?-attackers glist? ?-max_attacks n?} \
             [list autogen attroe]
 
+        # axdb 
+        $interp ensemble axdb
+
+        # axdb case
+        $interp ensemble {axdb case}
+
+        # axdb case add
+        $interp smartalias {axdb case add} 0 - {parm value...} \
+            [list axdb case add]
+
+        # axdb case dump
+        $interp smartalias {axdb case dump} 1 1 {id} \
+            [list axdb case dump]
+
+        # axdb case list
+        $interp smartalias {axdb case list} 0 0 {} \
+            [list axdb case list]
+
+        # axdb clear
+        $interp smartalias {axdb clear} 0 0 {} \
+            [list axdb clear]
+
+        # axdb close
+        $interp smartalias {axdb close} 0 0 {} \
+            [list axdb close]
+
+        # axdb create
+        $interp smartalias {axdb create} 1 1 {filename} \
+            [list axdb create]
+
+        # axdb csv
+        $interp smartalias {axdb csv} 1 - {query...} \
+            [myproc AxdbQuery csv ""]
+
+        # axdb csvfile
+        $interp smartalias {axdb csvfile} 1 - {filename query...} \
+            [myproc AxdbQuery csv]
+
+        # axdb open
+        $interp smartalias {axdb open} 1 1 {filename} \
+            [list axdb open]
+            
+        # axdb parm
+        $interp ensemble {axdb parm}
+
+        # axdb parm define
+        $interp smartalias {axdb parm define} 3 3 {name docstring script} \
+            [list axdb parm define]
+
+        # axdb parm dump
+        $interp smartalias {axdb parm dump} 0 1 {?name?} \
+            [list axdb parm dump]
+
+        # axdb parm list
+        $interp smartalias {axdb parm list} 0 0 {} \
+            [list axdb parm list]
+
+        # axdb parm names
+        $interp smartalias {axdb parm names} 0 0 {} \
+            [list axdb parm names]
+
+        # axdb prepare
+        $interp smartalias {axdb prepare} 1 1 {case_id} \
+            [list axdb prepare]
+
+        # axdb run
+        $interp smartalias {axdb run} 0 - {?option value...?} \
+            [list axdb run]
+
+        # axdb runcase
+        $interp smartalias {axdb runcase} 1 - {case_id ?option value...?} \
+            [list axdb runcase]
+
+        # axdb script
+        $interp smartalias {axdb script} 1 1 {script} \
+            [list axdb script]
+
+        # axdb select
+        $interp smartalias {axdb select} 1 - {query...} \
+            [myproc AxdbQuery mc ""]
+
+        # axdb selectfile
+        $interp smartalias {axdb selectfile} 1 - {filename query...} \
+            [myproc AxdbQuery mc]
+            
         # clear
         $interp smartalias clear 0 0 {} \
             [list .main cli clear]
@@ -365,7 +464,7 @@ snit::type executive {
             [list ::rdb safeeval]
 
         # rdb query
-        $interp smartalias {rdb query} 1 1 {sql} \
+        $interp smartalias {rdb query} 1 - {sql ?option value...?} \
             [list ::rdb safequery]
 
         # rdb schema
@@ -403,6 +502,10 @@ snit::type executive {
         # unlock
         $interp smartalias unlock 0 0 {} \
             [myproc unlock]
+
+        # tofile
+        $interp smartalias tofile 2 2 {filename text} \
+            [myproc tofile]
 
         # usermode
         $interp smartalias {usermode} 0 1 {?mode?} \
@@ -531,6 +634,27 @@ snit::type executive {
         }
 
         send SIM:RUN -weeks $weeks -block YES
+    }
+
+    # AxdbQuery mode filename query...
+    #
+    # mode      - query -mode
+    # filename  - Name of file to save result in, or ""
+    # query     - All of the select query, as arguments on the command line,
+    #             except the "SELECT" keyword.
+    #
+    # Handles the four [axdb] query subcommands.
+
+    proc AxdbQuery {mode filename args} {
+        set query "SELECT $args"
+
+        set result [axdb safequery $query -mode $mode]
+
+        if {$filename ne ""} {
+            return [tofile $filename $result]
+        } else {
+            return $result
+        }
     }
 
     # controls a n ?n...?
@@ -1153,6 +1277,28 @@ snit::type executive {
         } else {
             return 0
         }
+    }
+
+    # tofile filename text
+    #
+    # filename   - A filename
+    # text       - Text
+    #
+    # Writes the text to the filename
+
+    proc tofile {filename text} {
+        # FIRST, open the file.  On error, the executive will pass
+        # the error message to the user.
+        set f [open $filename w]
+
+        # NEXT, try to write to it.
+        try {
+            puts $f $text
+        } finally {
+            close $f   
+        }
+
+        return "saved $filename"
     }
 
     # troops g ?n...?

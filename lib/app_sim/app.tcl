@@ -223,6 +223,7 @@ snit::type app {
         scenario  init
         nbhood    init
         sim       init
+        axdb      init
 
         coverage_model init
 
@@ -238,9 +239,9 @@ snit::type app {
 
         # NEXT, define order interfaces
 
-        # app: For internal orders
-        order interface configure app \
-            -errorcmd  [myproc UnexpectedOrderError]
+        # app: For internal orders.  No tracing, and the app has to
+        # do the error handling.
+        order interface configure app
 
         # gui: For user orders from the GUI
         order interface configure gui \

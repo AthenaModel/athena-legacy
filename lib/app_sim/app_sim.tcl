@@ -67,6 +67,7 @@ source [file join $::app_sim::library log.tcl      ]
 source [file join $::app_sim::library cif.tcl      ]
 source [file join $::app_sim::library map.tcl      ]
 source [file join $::app_sim::library sanity.tcl   ]
+source [file join $::app_sim::library axdb.tcl     ]
 
 
 

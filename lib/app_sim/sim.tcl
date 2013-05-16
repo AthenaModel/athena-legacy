@@ -42,16 +42,23 @@ snit::type sim {
 
     # info -- scalar info array
     #
-    # changed        - 1 if saveable(i) data has changed, and 0 
-    #                  otherwise.
-    # state          - The current simulation state, a simstate value
-    # stoptime       - The time tick at which the simulation should 
-    #                  pause, or 0 if there's no limit.
+    # changed   - 1 if saveable(i) data has changed, and 0 
+    #             otherwise.
+    # state     - The current simulation state, a simstate value
+    # stoptime  - The time tick at which the simulation should 
+    #             pause, or 0 if there's no limit.
+    # reason    - A code indicating why the run stopped:
+    # 
+    #             OK        - Normal termination
+    #             FAILURE   - On-tick sanity check failure
+    #             ""        - Abnormal
+
 
     typevariable info -array {
-        changed        0
-        state          PREP
-        stoptime       0
+        changed    0
+        state      PREP
+        stoptime   0
+        reason     ""
     }
 
     # trans -- transient data array
@@ -335,6 +342,18 @@ snit::type sim {
         return $info(stoptime)
     }
 
+    # stopreason
+    #
+    # returns the reason why the sim returned from RUNNING to PAUSED:
+    #
+    # OK       - Normal termination
+    # FAILURE  - on-tick sanity check failure
+    # ""       - No reason assigned, hence an unexpected error.
+    #            Use [catch] to get these.
+    
+    typemethod stopreason {} {
+        return $info(reason)
+    }
 
     #-------------------------------------------------------------------
     # Mutators
@@ -499,7 +518,10 @@ snit::type sim {
     typemethod {mutate run} {args} {
         assert {$info(state) eq "PAUSED"}
 
-        # FIRST, get the pause time
+        # FIRST, clear the stop reason.
+        set info(reason) ""
+
+        # NEXT, get the pause time
         set info(stoptime) 0
         set blocking 0
 
@@ -558,16 +580,28 @@ snit::type sim {
             if {$info(state) eq "RUNNING"} {
                 $ticker schedule
             }
-        } else {
-            while {$info(state) eq "RUNNING"} {
-                $type Tick
-            }
 
-            set info(stoptime) 0
+            # NEXT, return "", as this can't be undone.
+            return ""
+        }
+
+        # NEXT, handle a blocking run.  On error, set state to PAUSED
+        # since it didn't get done automatically.
+        if {[catch {$type BlockingRun} result eopts]} {
+            $type SetState PAUSED
+            return {*}$eopts $result
         }
 
         # NEXT, return "", as this can't be undone.
         return ""
+    }
+
+    typemethod BlockingRun {} {
+        while {$info(state) eq "RUNNING"} {
+            $type Tick
+        }
+
+        set info(stoptime) 0
     }
 
     # mutate pause
@@ -642,6 +676,7 @@ snit::type sim {
                     }]
             }
 
+            set info(reason) FAILURE
             set stopping 1
         }
 
@@ -649,6 +684,7 @@ snit::type sim {
             [simclock now] >= $info(stoptime)
         } {
             log normal sim "Stop time reached"
+            set info(reason) "OK"
             set stopping 1
         }
 

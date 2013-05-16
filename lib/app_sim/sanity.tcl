@@ -87,6 +87,19 @@ snit::type sanity {
         $type DoOnLockCheck $ht
     }
 
+    # onlock text
+    #
+    # Returns the onlock report text.
+
+    typemethod {onlock text} {} {
+        set ht [htools %AUTO%]
+        $type onlock report $ht
+        set text [$ht get]
+        $ht destroy
+
+        return $text
+    }
+
     # DoOnLockCheck ht
     #
     # ht   - An htools buffer
@@ -392,6 +405,18 @@ snit::type sanity {
         $type DoOnTickCheck $ht
     }
 
+    # ontick text
+    #
+    # Returns the ontick report text.
+
+    typemethod {ontick text} {} {
+        set ht [htools %AUTO%]
+        $type ontick report $ht
+        set text [$ht get]
+        $ht destroy
+
+        return $text
+    }
 
     # DoOnTickCheck ht
     #

@@ -92,7 +92,7 @@ snit::type hist {
     typemethod tick {} {
         if {[parm get hist.control]} {
             rdb eval {
-                INSERT INTO hist_control
+                INSERT INTO hist_control(t,n,a)
                 SELECT now(),n,controller
                 FROM control_n;
             }
@@ -108,14 +108,14 @@ snit::type hist {
 
         # We always save mood; it's needed by the MOOD rule set.
         rdb eval {
-            INSERT INTO hist_mood
+            INSERT INTO hist_mood(t,g,mood)
             SELECT now() AS t, g, mood
             FROM uram_mood;
         }
 
         if {[parm get hist.nbcoop]} {
             rdb eval {
-                INSERT INTO hist_nbcoop
+                INSERT INTO hist_nbcoop(t,n,g,nbcoop)
                 SELECT now() AS t, n, g, nbcoop
                 FROM uram_nbcoop;
             }
@@ -123,7 +123,7 @@ snit::type hist {
 
         if {[parm get hist.nbmood]} {
             rdb eval {
-                INSERT INTO hist_nbmood
+                INSERT INTO hist_nbmood(t,n,nbmood)
                 SELECT now() AS t, n, nbmood
                 FROM uram_n;
             }
@@ -139,7 +139,7 @@ snit::type hist {
 
         if {[parm get hist.security]} {
             rdb eval {
-                INSERT INTO hist_security
+                INSERT INTO hist_security(t,n,g,security)
                 SELECT now(), n, g, security
                 FROM force_ng;
             }
@@ -147,7 +147,7 @@ snit::type hist {
 
         if {[parm get hist.support]} {
             rdb eval {
-                INSERT INTO hist_support
+                INSERT INTO hist_support(t,n,a,direct_support,support,influence)
                 SELECT now(), n, a, direct_support, support, influence
                 FROM influence_na;
             }
@@ -155,7 +155,7 @@ snit::type hist {
 
         if {[parm get hist.volatility]} {
             rdb eval {
-                INSERT INTO hist_volatility
+                INSERT INTO hist_volatility(t,n,volatility)
                 SELECT now(), n, volatility
                 FROM force_n;
             }

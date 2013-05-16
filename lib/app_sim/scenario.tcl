@@ -309,6 +309,15 @@ snit::type scenario {
         sim dbsync
     }
 
+    # revert
+    #
+    # Revert to the last saved scenario.
+
+    typemethod revert {} {
+        require {$info(dbfile) != ""} "No scenario to which to revert"
+        $type open $info(dbfile)
+    }
+
     # save ?filename?
     #
     # filename       Name for the new save file
