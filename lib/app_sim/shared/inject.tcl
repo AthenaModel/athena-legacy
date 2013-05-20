@@ -42,6 +42,7 @@ snit::type inject {
 
     typevariable optParms {
         mag  ""
+        mode ""
         a    ""
         c    ""
         f    ""
