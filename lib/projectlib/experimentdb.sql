@@ -34,7 +34,7 @@ CREATE TABLE cases (
     -- TBD: It's not clear what the full set of outcomes should be,
     -- but it should certainly include the following:
     --
-    -- NORMAL  - The case ran to completion normally, and the results
+    -- OK      - The case ran to completion normally, and the results
     --           are presumed to be of interest.
     -- FAILURE - The case halted due to some sanity-check failure.
     --           The case has some undesirable property such that
@@ -65,15 +65,6 @@ CREATE TABLE case_parms (
     -- parameter.  The script can assume that there is a Tcl variable
     -- with the parameter's name and value.
     script      TEXT
-);
-
-
-CREATE TABLE scripts (
-    -- Scripts Table: arbitrary scripts to be loaded into the executive
-    -- prior to making case-specific changes, i.e., to define procs used
-    -- by the parm scripts.
-    script_id INTEGER PRIMARY KEY,
-    script    TEXT
 );
 
 ------------------------------------------------------------------------

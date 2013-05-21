@@ -335,10 +335,6 @@ snit::type executive {
         $interp smartalias {axdb runcase} 1 - {case_id ?option value...?} \
             [list axdb runcase]
 
-        # axdb script
-        $interp smartalias {axdb script} 1 1 {script} \
-            [list axdb script]
-
         # axdb select
         $interp smartalias {axdb select} 1 - {query...} \
             [myproc AxdbQuery mc ""]

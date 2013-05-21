@@ -798,21 +798,6 @@ command "axdb runcase" {
 }
 
 #-----------------------------------------------------------------------
-# axdb script command
-
-command "axdb script" {
-    <<syntax <i>script</i> >>
-
-    This command defines an executive <i>script</i> that will be
-    executed as part of preparing to run each case, before calling
-    any of the experiment parameter scripts.  Any number of such 
-    scripts can be defined; they will be executed in sequence.<p>
-
-    Such scripts are usually used to define convenience procedures
-    used by the experiment parameter scripts.<p>
-}
-
-#-----------------------------------------------------------------------
 # axdb select command
 
 command "axdb select" {

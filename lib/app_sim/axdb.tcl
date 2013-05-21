@@ -21,17 +21,6 @@ snit::type axdb {
     
 
     #-------------------------------------------------------------------
-    # Uncheckpointed Type Variables
-
-    # info  -- scalar data
-    #
-    # TBD
-
-    typevariable info -array {
-    }
-
-
-    #-------------------------------------------------------------------
     # Initialization
 
     typemethod init {} {
@@ -275,14 +264,6 @@ snit::type axdb {
         }]
     }
 
-    # script script
-    #
-    # script - The body of the script
-
-    typemethod script {script} {
-        $db eval {INSERT INTO scripts(script) VALUES($script)}
-    }
-
     #-------------------------------------------------------------------
     # Experiment Execution
 
@@ -313,17 +294,9 @@ snit::type axdb {
             sim mutate unlock
         }
 
-        # NEXT, set up the executive
+        # NEXT, reset the executive, giving us a clean starting point
+        # and loading any necessary executive scripts.
         executive reset
-
-        $db eval {
-            SELECT script_id, script FROM scripts ORDER BY script_id
-        } {
-            if {[catch {executive eval $script} result eopts]} {
-                puts "Error in $parm script: $result"
-                return -code error {*}$eopts "Error in experiment script #$script_id: $result"
-            }
-        }
 
         # NEXT, run the case parm scripts
         array set cpscripts [$db eval {
