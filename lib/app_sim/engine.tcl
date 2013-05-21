@@ -58,7 +58,10 @@ snit::type engine {
     # Engine activities on simulation start.
 
     typemethod start {} {
-        # FIRST, Set up the attitudes model: initialize URAM and relate all
+        # FIRST, reset the executive so that it's clean
+        executive reset
+        
+        # NEXT, Set up the attitudes model: initialize URAM and relate all
         # existing MADs to URAM drivers.
         profile aram init -reload
 

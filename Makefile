@@ -137,7 +137,8 @@ bin: check_env src
 		-pkgref "textutil::adjust"                  \
 		-pkgref "Tkhtml    -require 3.0"            \
 		-pkgref "uri"                               \
-		-pkgref "fileutil"
+		-pkgref "fileutil"                          \
+		-pkgref "ctext"
 	@ cat tclapp.log
 
 #---------------------------------------------------------------------

@@ -483,7 +483,15 @@ term executive "executive" {
     in Athena executive scripts.  In addition, it is responsible for
     executing <<cref /object/tactic/executive>>s and for evaluating
     the boolean expressions entered for the
-    <<cref /object/condition/expr>>.
+    <<cref /object/condition/expr>>.<p>
+
+    Executive scripts can be executed from the host computer's 
+    file system using the <<command call>> command; alternatively,
+    scripts can be defined and saved as part of the scenario using
+    Athena's built-in script editor.  The <<command reset>>
+    command resets the executive interpreter to its initial state,
+    and loads any saved scripts.  See <<tab Scripts>> or the
+    <i>Athena User's Guide</i> for more information.
 }
 
 #-----------------------------------------------------------------------

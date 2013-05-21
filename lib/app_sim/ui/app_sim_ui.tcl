@@ -36,6 +36,7 @@ package provide app_sim_ui 1.0
 
 # From ActiveTclEE
 package require snit 2.2
+package require ctext
 
 # From Mars
 package require marsutil
@@ -88,6 +89,7 @@ source [file join $::app_sim_ui::library capbrowser.tcl         ]
 source [file join $::app_sim_ui::library cgesheet.tcl           ]
 source [file join $::app_sim_ui::library coopbrowser.tcl        ]
 source [file join $::app_sim_ui::library coopbrowser_sim.tcl    ]
+source [file join $::app_sim_ui::library ctexteditor.tcl        ]
 source [file join $::app_sim_ui::library cursebrowser.tcl       ]
 source [file join $::app_sim_ui::library demogbrowser.tcl       ]
 source [file join $::app_sim_ui::library demognbrowser.tcl      ]
@@ -118,6 +120,7 @@ source [file join $::app_sim_ui::library plotviewer.tcl         ]
 source [file join $::app_sim_ui::library samsheet.tcl           ]
 source [file join $::app_sim_ui::library satbrowser.tcl         ]
 source [file join $::app_sim_ui::library satbrowser_sim.tcl     ]
+source [file join $::app_sim_ui::library scriptbrowser.tcl      ]
 source [file join $::app_sim_ui::library securitybrowser.tcl    ]
 source [file join $::app_sim_ui::library strategybrowser.tcl    ]
 source [file join $::app_sim_ui::library timechart.tcl          ]

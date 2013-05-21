@@ -99,6 +99,15 @@ CREATE TEMPORARY VIEW gui_bookmarks AS
 SELECT * FROM bookmarks
 ORDER BY rank ASC;
 
+------------------------------------------------------------------------
+-- SCRIPTS VIEWS
+
+-- gui_scripts: order by sequence
+CREATE TEMPORARY VIEW gui_scripts AS
+SELECT * FROM scripts
+ORDER BY seq ASC;
+
+
 -----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------

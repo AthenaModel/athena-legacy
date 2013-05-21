@@ -413,6 +413,15 @@ snit::widget appwin {
             }
         }
 
+        scripts {
+            label "Scripts"
+            vistype scripts
+            parent ""
+            script {
+                scriptbrowser %W
+            }
+        }
+
         slog {
             label   "Log"
             vistype slog
@@ -463,6 +472,7 @@ snit::widget appwin {
     # bookmarks  - Bookmarks Browser; visible on request
     # slog       - Scrolling log; visible in -dev mode, on request, or
     #              on error.
+    # scripts    - Scripts editor tab; visible in -dev mode or on request.
     # cli        - Command-line Interface; visible in -dev mode or on
     #              request.
 
@@ -473,6 +483,7 @@ snit::widget appwin {
         orders      0
         bookmarks   0
         slog        0
+        scripts     0
         cli         0
     }
 
@@ -495,6 +506,7 @@ snit::widget appwin {
         # NEXT, enable the development tabs
         set visibility(orders)  $options(-dev)
         set visibility(slog)    $options(-dev)
+        set visibility(scripts) $options(-dev)
         set visibility(cli)     $options(-dev)
 
         # NEXT, Exit the app when this window is closed.
@@ -1410,6 +1422,11 @@ snit::widget appwin {
         $viewmenu add checkbutton                   \
             -label    "Scrolling Log"               \
             -variable [myvar visibility(slog)]      \
+            -command  [mymethod MakeTabsVisible]
+
+        $viewmenu add checkbutton                   \
+            -label    "Scripts Editor"              \
+            -variable [myvar visibility(scripts)]   \
             -command  [mymethod MakeTabsVisible]
 
         $viewmenu add checkbutton                   \

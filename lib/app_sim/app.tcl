@@ -477,7 +477,12 @@ snit::type app {
             [::sim state] eq "PREP"
         }
 
-        # Simulation state is PREP, plus browser predicate
+        # browser predicate
+
+        statecontroller ::cond::predicate -condition {
+            [$browser {*}$predicate]
+        }
+
 
         statecontroller ::cond::simPrepPredicate -events {
             ::sim <State>

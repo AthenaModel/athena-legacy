@@ -140,6 +140,20 @@ CREATE TABLE bookmarks (
 );
 
 ------------------------------------------------------------------------
+-- EXECUTIVE SCRIPTS
+
+CREATE TABLE scripts (
+    -- Scripts Table: Executive scripts, maintained as part of the
+    -- scenario.  Scripts are identified by name, and executed in
+    -- in the order defined by their sequence numbers.
+    
+    name     TEXT PRIMARY KEY,
+    seq      INTEGER,
+    body     TEXT DEFAULT ''
+);
+
+
+------------------------------------------------------------------------
 -- End of File
 ------------------------------------------------------------------------
 

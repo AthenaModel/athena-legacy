@@ -65,11 +65,24 @@ snit::type executive {
         $interp destroy
         set interp ""
 
+        log normal exec "reset starting"
         $type InitializeInterp
+
+        set out ""
+
+        foreach name [$type script names] {
+            log normal exec "loading: $name"
+            append out "Loading script: $name\n"
+            if {[catch {$type script load $name} result]} {
+                log normal exec "failed: $result"
+                append out "   *** Failed: $result\n"
+            }
+        }
 
         log normal exec "reset complete"
 
-        return "Executive has been reset."
+        append out "Executive has been reset.\n"
+        return $out
     }
 
     # InitializeInterp
@@ -483,6 +496,41 @@ snit::type executive {
         $interp smartalias save 1 1 {filename} \
             [myproc save]
 
+        # script
+        $interp ensemble script
+
+        # script delete
+        $interp smartalias {script delete} 1 1 {name} \
+            [mytypemethod script delete]
+
+        # script exists
+        $interp smartalias {script exists} 1 1 {name} \
+            [mytypemethod script exists]
+
+        # script get
+        $interp smartalias {script get} 1 1 {name} \
+            [mytypemethod script get]
+
+        # script list
+        $interp smartalias {script list} 0 0 {} \
+            [mytypemethod script list]
+
+        # script load
+        $interp smartalias {script load} 1 1 {name} \
+            [mytypemethod script load]
+
+        # script names
+        $interp smartalias {script names} 0 0 {} \
+            [mytypemethod script names]
+
+        # script save
+        $interp smartalias {script save} 2 2 {name script} \
+            [mytypemethod script save]
+
+        # script sequence
+        $interp smartalias {script sequence} 2 2 {name priority} \
+            [mytypemethod script sequence]
+
         # send
         $interp smartalias send 1 - {order ?option value...?} \
             [myproc send]
@@ -617,6 +665,247 @@ snit::type executive {
         # return the mode in this case, so don't.
         return
     }
+
+    #-----------------------------------------------------------------------
+    # Script API
+
+    # script names
+    #
+    # Returns a list of the names of the defined executive scripts
+    # in sequence order.
+
+    typemethod {script names} {} {
+        return [rdb eval {
+            SELECT name FROM scripts ORDER BY seq;
+        }]
+    }
+
+    # script list
+    #
+    # Returns a human-readable list of the names of the defined executive 
+    # scripts, in sequence order, one per line.  The result is not a
+    # proper Tcl list if the names contain whitespace.
+
+    typemethod {script list} {} {
+        set out ""
+        rdb eval {
+            SELECT name FROM scripts ORDER BY seq;
+        } {
+            append out "$name\n"
+        }
+
+        return $out
+    }
+
+    # script get name
+    #
+    # name    - The name of the script
+    #
+    # Retrieves the body of the script given its name.
+
+    typemethod {script get} {name} {
+        rdb eval {
+            SELECT body FROM scripts WHERE name=$name
+        } {
+            return $body
+        }
+
+        error "No such script: $name"
+    }
+
+    # script exists name
+    #
+    # name    - The putative script name
+    #
+    # Determines whether there is a script with the given name or not.
+
+    typemethod {script exists} {name} {
+        return [rdb exists {SELECT body FROM scripts WHERE name=$name}]
+    }
+
+    # script delete name
+    #
+    # name  - The script name
+    #
+    # Deletes any script with the given name.
+
+    typemethod {script delete} {name} {
+        rdb eval {
+            DELETE FROM scripts WHERE name=$name
+        }
+
+        notifier send ::executive <Scripts> delete $name
+        return
+    }
+
+    # script load name
+    #
+    # name   - The script name
+    #
+    # Loads the script into the executive interpreter.  No error
+    # handling is done; it's presumed that the caller will handle
+    # any errors.
+
+    typemethod {script load} {name} {
+        set body [$type script get $name]
+
+        return [$type eval $body]
+    }
+
+    # script save name ?body? ?-silent?
+    #
+    # name   - The script name
+    # body   - The body of the script
+    #
+    # Saves the script to disk.  If it already exists, it will be
+    # saved back to its own place.  If it does not exist, it will
+    # be put at the end of the list.
+    #
+    # If the body is omitted or "", a comment with the script's
+    # name will be used.
+    #
+    # if "-silent" is included, then no notification will be sent
+    # to the application.
+
+    typemethod {script save} {name {body ""} {opt ""}} {
+        # FIRST, get the body.
+        if {$body eq ""} {
+            set body "# $name\n"
+        } else {
+            set body [outdent $body]
+        }
+
+        # NEXT, if it already exists, just save it.
+        if {[$type script exists $name]} {
+            rdb eval {
+                UPDATE scripts SET body=$body WHERE name=$name
+            }
+
+            if {$opt ne "-silent"} {
+                notifier send ::executive <Scripts> update $name
+            }
+            return
+        }
+
+        # NEXT, get the sequence number, and insert it.
+        set seq [rdb onecolumn {
+            SELECT coalesce(max(seq) + 1, 1) FROM scripts    
+        }]
+
+        rdb eval {
+            INSERT INTO scripts(name, seq, body)
+            VALUES($name, $seq, $body)
+        }
+
+        if {$opt ne "-silent"} {
+            notifier send ::executive <Scripts> update $name
+        }
+
+        return
+    }
+
+    # script import filename
+    #
+    # filename  - The name of the script file to import
+    #
+    # If the file can be read, imports a script whose name is the
+    # filename minus its extension.  If the name is duplicated, adds
+    # a "-<index>" to the end.  Returns the name.
+
+    typemethod {script import} {filename} {
+        # FIRST, get the text; any error will be handled by the client.
+        set text [readfile $filename]
+
+        # NEXT, get the name
+        set name [file rootname [file tail $filename]]
+
+        if {[$type script exists $name]} {
+            set name [$type GetUniqueScriptName $name]
+        }
+
+        $type script save $name $text
+
+       notifier send ::executive <Scripts> update $name
+
+        return $name
+    }
+
+    # GetUniqueScriptName name 
+    #
+    # name   - A script name
+    #
+    # Adds numeric indices to the end of the script name until a 
+    # unique name is found.
+
+    typemethod GetUniqueScriptName {name} {
+        set base $name
+        set count 0
+        while {[$type script exists $name]} {
+            set name "$base-[incr count]"
+        }
+
+        return $name
+    }
+
+    # script rename oldName newName
+    #
+    # oldName   - The old script name
+    # newName   - The new script name
+    #
+    # Renames the script as desired.
+
+    typemethod {script rename} {oldName newName} {
+        # FIRST, if the script doesn't exist, that's an error.
+        if {![$type script exists $oldName]} {
+            error "No such script: $oldName"
+        }
+
+        rdb eval {
+            UPDATE scripts SET name=$newName WHERE name=$oldName
+        }
+
+        notifier send ::executive <Scripts> update ""
+    }
+
+    # script sequence name priority
+    #
+    # name      - The script name
+    # priority  - An ePrioUpdate value (top, raise, lower, bottom)
+    #
+    # Moves the script to the desired spot in the sequence.
+    
+    typemethod {script sequence} {name priority} {
+        # FIRST, if the script doesn't exist, that's an error.
+        if {![$type script exists $name]} {
+            error "No such script: $name"
+        } 
+
+        # NEXT, get the old sequence
+        set oldSequence [rdb eval {
+            SELECT name, seq FROM scripts ORDER BY seq    
+        }]
+
+        # NEXT, reposition this script in the sequence.
+        set sequence [lprio [dict keys $oldSequence] $name $priority]
+
+        # NEXT, assign new sequence numbers
+        set seq 1
+
+        foreach name $sequence {
+            rdb eval {
+                UPDATE scripts
+                SET seq=$seq
+                WHERE name=$name
+            }
+
+            incr seq
+        }
+
+        notifier send ::executive <Scripts> update ""
+
+        return
+    }
+        
 
     #---------------------------------------------------------------
     # Procs
@@ -792,9 +1081,9 @@ snit::type executive {
             lappend orders [list $name $parmdict]
         }
 
-        # NEXT, if there are no orders, do nothing.
-        if {[llength $orders] == 0} {
-            error "no orders to export"
+        # NEXT, if there are no orders or scripts to save, do nothing.
+        if {[llength $orders] == 0 && [llength [executive script names]] == 0} {
+            error "nothing to export"
         }
 
         # NEXT, get file handle.  We'll throw an error if they
@@ -803,6 +1092,13 @@ snit::type executive {
 
         set f [open $fullname w]
 
+        # NEXT, write a header
+        puts $f "# Exporting [scenario dbfile] @ [clock format [clock seconds]]"
+
+        # NEXT, save all of the scripts in sequence order
+        foreach name [executive script names] {
+            puts $f [list script save $name [executive script get $name]]
+        }
 
         # NEXT, turn the orders into commands, and save them.
         foreach entry $orders {
@@ -1383,7 +1679,7 @@ snit::type executive {
     }
 }
 
-#-------------------------------------------------------------------
+#-----------------------------------------------------------------------
 # Commands defined in ::, for use when usermode is super
 
 # usermode ?mode?
@@ -1393,4 +1689,5 @@ snit::type executive {
 proc usermode {{mode ""}} {
     executive usermode $mode
 }
+
 

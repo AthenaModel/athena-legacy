@@ -215,6 +215,10 @@ menuitem "View/Scrolling Log" {
     Selecting this item shows or hides the <<tab Log>>.
 }
 
+menuitem "View/Scripts Editor" {
+    Selecting this item shows or hides the <<tab Scripts>>.
+}
+
 menuitem "View/Command Line" {
     Selecting this item shows or hides the <<term cli>>.
 }

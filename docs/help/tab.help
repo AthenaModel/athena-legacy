@@ -3016,10 +3016,160 @@ tab "Bookmarks" {
 }
 
 #=======================================================================
+# Scripts
+
+tab "Scripts" {
+    <b>This tab can be made visible by selecting the
+    <<menu "View/Scripts Editor">> menu item.</b><p>
+
+    <b>Background</b><p>
+
+    Athena's <<term executive>>
+    can execute individual <<cref /command commands>>, and also longer
+    scripts of commands.  It is exposed by the <<term cli>>, and is also
+    used by the <<cref /object/tactic/executive>> and the
+    <<cref /object/condition/expr>>.
+    The scripts are written in the TCL programming
+    language; see the <i>Athena User's Guide</i> for a brief introduction.<p>
+
+    Prior to Athena 5, it was usual to use the 
+    <<cref /object/tactic/executive>> by writing executive scripts as
+    ".tcl" files in the host file system.  The tactic would then execute
+    an executive command like this one:<p>
+
+    <pre>
+        call myscript.tcl
+    </pre>
+
+    This was effective but troublesome, as the .tcl scripts needed to be
+    kept with the scenario's .adb file, and edited in a different 
+    application.<p>
+
+    Athena 5 adds the ability to store executive scripts within the
+    scenario itself, and edit them within the Athena application.  These
+    scripts are loaded automatically, and will usually define Tcl
+    procedures (see <<command proc>>) for use by the
+    <<cref /object/tactic/executive>> and <<cref /object/condition/expr>>.<p>
+
+    <b>User Interface</b>
+
+    The Script Editor's user interface is divided into three areas: the
+    Script List, the Editor proper, and the Output area.<p>
+
+    The Script List contains a list of the names of the currently defined
+    scripts.  To create a new script, press the <<image button_plus>>
+    or <<image button_import>> buttons.  To edit or browse a particular
+    script, select it in the list.<p>
+
+    The body of the selected script is shown in the Editor, to the
+    right of the script list.  This is a normal text editor, with 
+    syntax-highlighting.  To save an edited script, press the "Save"
+    button.  <b>NOTE:</b> Pressing "Save" saves your edits into the
+    scenario, i.e., the edited script will now be saved with the rest of the
+    scenario.  The scenario itself must still be saved in the usual way.<p>
+
+    There are many controls; read the following table carefully.<p>
+
+    <<topiclist Control Description>>
+    <<topic [image button_plus]>>
+    Create a new script.  Athena will prompt you for the script's name, and
+    will add the script to the script list.  Edit the script's body in the
+    Editor.
+    <</topic>>
+
+    <<topic [image button_import]>>
+    Imports a script from the disk into the scenario.  Athena will prompt
+    you to select a ".tcl" file from the disk; the new stored script's
+    name will be the name of the disk file minus the ".tcl" extension.
+    If a script of that name already exists, Athena will add a suffix 
+    (e.g., "-1") to the name.<p>
+
+    <b>NOTE:</b> Most existing script files are designed to be 
+    used with the <<command call>> command, and do their work as soon as
+    they are loaded; i.e., a script file designed for use with the
+    <<cref /object/tactic/executive>> expects to be called only by
+    the tactic.  Stored scripts are expected to define Tcl procedures
+    using the <<command proc>> command; these procedures can then be
+    used by the <<cref /object/tactic/executive>> tactic.  Thus, most
+    imported scripts will probably require some editing to be useful.
+    <</topic>>
+
+    <<topic [image button_export]>>
+    Prompts the user to save the selected script as a disk file.
+    <</topic>>
+
+    <<topic [image button_totop]>>
+    Moves the selected script to the top of the list; it will be executed
+    first on executive <<command reset>>.
+    <</topic>>
+
+    <<topic [image button_raise]>>
+    Moves the selected script one spot up in the execution sequence;
+    it will be executed earlier on executive <<command reset>>.
+    <</topic>>
+
+    <<topic [image button_lower]>>
+    Moves the selected script one slot down in the execution sequence;
+    it will be executed later on executive <<command reset>>.
+    <</topic>>
+
+    <<topic [image button_tobottom]>>
+    Moves the selected script to the end of the list; it will be
+    executed last on executive <<command reset>>.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Deletes the selected script.
+    <</topic>>
+
+    <<topic "Rename">>
+    Prompts the user to enter a new name for the selected script.
+    <</topic>>
+
+    <<topic "Revert">>
+    Throws away any unsaved edits for the selected
+    script.
+    <</topic>>
+
+    <<topic "Reset">>
+    Resets the executive, which loads all of the stored executive scripts.
+    The status of each is displayed in the Output area; the effect is the
+    same as entering the <<command reset>> in the <<term cli>>.<p>
+
+    This is a useful last step after editing a script, as it leaves the
+    executive in a clean state, and also allows the user to verify that
+    the changes are accepted by the executive and have not cause problems
+    with any of the other scripts.
+    <</topic>>
+
+    <<topic "Execute">>
+    Executes the script in the Editor, showing the results in the 
+    Output area.  If there are unsaved changes, they remain unsaved.
+    This is a useful step, as it does a simple check of the
+    script before saving it.<p>
+
+    <b>Note:</b> Programming is tricky.  Executing the script will
+    define any Tcl procedures included within it; but it does not
+    verify that those procedures are error-free or will do what the
+    user wants.  Always test scripts carefully!
+    <</topic>>
+
+    <<topic "Save">>
+    Saves the script into the scenario, so that it will be used on
+    <<command reset>> and saved to disk with the rest of the scenario.
+    In addition, executes the command, showing the results in the
+    Output area.
+    <</topic>>
+
+    <</topiclist>>
+
+}
+
+#=======================================================================
 # Log
 
 tab "Log" {
-    <b>This tab and its subtabs can be made visible by selecting the
+    <b>This tab can be made visible by selecting the
     <<menu "View/Scrolling Log">> menu item.</b><p>
 
     As Athena runs, it produces a detailed log of its operation.  This

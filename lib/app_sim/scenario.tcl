@@ -72,6 +72,7 @@ snit::type scenario {
         payloads
         sat_gc
         scenario
+        scripts
         tactics
         undostack_stack
         vrel_ga
@@ -108,6 +109,7 @@ snit::type scenario {
         reports
         rule_firings
         rule_inputs
+        scripts
         sigevents
         sigevent_tags
         ucurve_adjustments_t
@@ -223,6 +225,10 @@ snit::type scenario {
         log newlog new
         log normal scenario "New Scenario: Untitled"
 
+        # NEXT, reset the executive, getting rid of any script
+        # definitions from the previous scenario.
+        executive reset
+
         app puts "New scenario created"
     }
 
@@ -304,6 +310,9 @@ snit::type scenario {
         log normal scenario "Open Scenario: $filename"
 
         app puts "Opened Scenario [file tail $filename]"
+
+        # NEXT, reset the executive, loading any user scripts.
+        executive reset
 
         # NEXT, Resync the app with the RDB.
         sim dbsync

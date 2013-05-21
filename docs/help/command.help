@@ -1309,6 +1309,26 @@ command "prefs set" {
 }
 
 #=======================================================================
+# proc command
+
+command "proc" {
+    <<syntax <i>name arglist body</i> >>
+
+    Defines a new executive command as a Tcl procedure, e.g.,
+
+    <pre>
+        # Set the base population of group g
+        proc setpop {g pop} {
+            send CIVGROUP:UPDATE -g $g -basepop $pop
+        }
+    </pre>
+
+    This "setpop" command can then be used during scenario prep to
+    set a civilian group's base population, in place of the longer
+    <<command send>> command in the procedure's body.
+}
+
+#=======================================================================
 # rdb commands
 
 command "rdb" {
@@ -1437,7 +1457,9 @@ command "reset" {
     <<syntax>>
 
     Resets the executive interpreter.  Any user-defined variables or 
-    Tcl procedures are deleted.
+    Tcl procedures are deleted, and then any stored executive scripts
+    are loaded.  See <<command script>> and the <i>Athena User's Guide</i>
+    for more about executive scripting.
 }
 
 
@@ -1452,6 +1474,101 @@ command "save" {
     using the given <i>filename</i>.  The saved scenario 
     can be loaded again using the <<cref /command/load>> command.<p>
 }
+
+#=======================================================================
+# script commands
+
+command "script" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    The <<command script>> commands are used to create, modify, and 
+    manage stored <<term executive>> scripts--scripts stored as part of the
+    scenario, and always loaded into the <<term executive>>.  See the
+    <i>Athena User's Guide</i> for details.<p>
+
+    This command has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "script delete" {
+    <<syntax <i>name</i> >>
+
+    Deletes the script with the given name.
+}
+
+#-----------------------------------------------------------------------
+
+command "script exists" {
+    <<syntax <i>name</i> >>
+
+    Returns 1 if the script exists, and 0 otherwise.
+}
+
+#-----------------------------------------------------------------------
+
+command "script get" {
+    <<syntax <i>name</i> >>
+
+    Returns the body of the named script.
+}
+
+#-----------------------------------------------------------------------
+
+command "script list" {
+    <<syntax>>
+
+    Outputs the names of the currently defined scripts, one name per
+    line, in the order
+    in which they will be executed when the <<term executive>> is
+    <<command reset>>.
+}
+
+#-----------------------------------------------------------------------
+
+command "script load" {
+    <<syntax <i>name</i> >>
+
+    Loads (i.e., executes) the named script in the <<term executive>>.  Note that
+    this is done automatically for all stored scripts on
+    scenario load, on scenario lock, on <<command reset>>, and by
+    all <<command axdb>> commands that prepare or run cases.
+}
+
+#-----------------------------------------------------------------------
+
+command "script names" {
+    <<syntax>>
+
+    Returns a Tcl list of the names of the currently defined scripts,
+    in the order in which they will be executed when the <<term executive>> is
+    <<command reset>>. 
+}
+
+#-----------------------------------------------------------------------
+
+command "script save" {
+    <<syntax <i>name</i> <i>script</i> >>
+
+    Saves an <<term executive>> <i>script</i> under the given <i>name</i>.
+}
+
+
+#-----------------------------------------------------------------------
+
+command "script sequence" {
+    <<syntax <i>name priority</i> >>
+
+    Modifies the position of the named script in the execution
+    sequence.  The <i>priority</i> can be <b>top</b>, <b>bottom</b>,
+    <b>raise</b>, or <b>lower</b>, to move the script to the top of the
+    sequence, to the bottom of the sequence, or to move it up or down by
+    one spot.
+}
+
+
 
 #=======================================================================
 # select command
@@ -1569,7 +1686,7 @@ command "super" {
     <<caution.debugging>>
     Concatenates its arguments into a single command, and executes
     that command in the context of the application rather than in the
-    Athena Executive.
+    Athena <<term executive>>.
 }
 
 #=======================================================================
