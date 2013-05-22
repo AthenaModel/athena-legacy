@@ -11,6 +11,49 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.8, 22 May 2013</h3>
+
+This build has a number of significant enhancements over previous
+versions of Athena.  In particular:
+
+<ul>
+<li> Troops can now be deployed to a neighborhood without reinforcement: 
+as troops are attrited week by the week, the number of troops deployed 
+to the neighborhood decreases accordingly.
+<li> The new CURSE tactic is an experimental GUI replacement for the
+use of EXECUTIVE tactics to drive Magic Attitude Drivers.  It is already
+quite capable, and is expected to become even more powerful in the next
+few months.
+<li> It is now possible to store executive scripts as part of the scenario,
+and to edit them within Athena.  See Section 10 of the <i>Athena User's Guide</i>.
+<li> It is now possible, using the "axdb" family of executive commands, to 
+define an "experiment" consisting of many cases produced by varying some
+number of "case parameters", and run the cases as one operation and save
+the results to an experiment file for further analysis.
+</ul><p>
+
+In addition, there were a number of bug fixes.  The complete set of 
+changes are as follows:<p>
+
+<ul>
+<li> Bug 3979: athena(1): DEPLOY without reinforcements
+<li> Bug 3981: athena(1): better error handling when the actors sector has problems in the SAM
+<li> Bug 3982: athena(1): Content for my://app/mad/{id} pages
+<li> Bug 3983: athena(1): Allow timespec strings to refer to "RUN" and "LOCK".
+<li> Bug 3984: athena(1): bgerror on start-up when -script doesn't exist.
+<li> Bug 3985: athena(1): Paging for my://apps/sigvents
+<li> Bug 3986: athena(1): simplification of sigevents(sim)
+<li> Bug 3988: rolemapfield(n): A field for editing curse role mappings
+<li> Bug 3993: athena(1): add CURSE/injects to athena
+<li> Bug 3997: Update Athena 5 to ATEE 2013Q2
+<li> Bug 3998: athena(1): FUND tactic dollars from BUDGET to INCOME actors not accounted for in CGE
+<li> Bug 3999: athena(1): finish adding automated tests/docs for the CURSE/Inject functionality
+<li> Bug 4003: 010-inject.test: test failures
+<li> Bug 4004: Athena Experiment Database API
+<li> Bug 4005: athena(1): Script Editor
+<li> Bug 4006: athena(1): Remove [axdb script]
+</ul>
+
 <h3>Build 5.0.7, 22 April 2013</h3>
 This build contains a significant change to the architecture of drivers. 
 Essentially rule sets are now associated with "driver types". The purpose
