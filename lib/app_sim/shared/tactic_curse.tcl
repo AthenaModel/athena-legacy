@@ -376,7 +376,7 @@ order define TACTIC:CURSE:CREATE {
         text owner -context yes
 
         rcc "CURSE:" -for curse
-        curse curse
+        curse curse 
 
         rc "" -for roles -span 2
         roles roles -rolespeccmd {::tactic::CURSE RoleSpec $curse}
@@ -393,7 +393,7 @@ order define TACTIC:CURSE:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
-    prepare curse               -required -type curse
+    prepare curse               -required -type {curse normal}
     prepare roles               -required -type rolemap
     prepare once                -required -type boolean
     prepare on_lock             -required -type boolean
@@ -439,6 +439,8 @@ order define TACTIC:CURSE:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
+    prepare curse                -type {curse normal}
+    prepare roles                -type rolemap
     prepare once                 -type boolean
     prepare on_lock              -type boolean
 

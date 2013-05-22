@@ -47,6 +47,15 @@ SELECT curse_id || ' ' || inject_num        AS id,
        END                                  AS longmode,
        narrative                            AS narrative,
        state                                AS state,
+       CASE WHEN inject_type = 'HREL'
+            THEN 'Groups in '      || f || ' with groups in '      || g
+            WHEN inject_type = 'VREL'
+            THEN 'Groups in '      || g || ' with actors in '      || a
+            WHEN inject_type = 'COOP' 
+            THEN 'Civ. Groups in ' || f || ' with Frc. Groups in ' || g
+            WHEN inject_type = 'SAT'
+            THEN 'Civ. Groups in ' || g || ' with '                || c
+            END                             AS desc,    
        a                                    AS a,
        c                                    AS c,
        f                                    AS f,

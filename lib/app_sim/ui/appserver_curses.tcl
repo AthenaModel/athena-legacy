@@ -73,9 +73,7 @@ appserver module CURSES {
             SELECT link             AS "ID",
                    longlink         AS "Narrative",
                    cause            AS "Cause",
-                   s                AS "Here",
-                   p                AS "Near",
-                   q                AS "Far"
+                   state            AS "State"
             FROM gui_curses
         } -default "None." -align LLLRRR
 
@@ -113,16 +111,31 @@ appserver module CURSES {
         ht page "CURSE Attitude Driver: $id"
         ht title $data(fancy) "CURSE" 
 
+        ht putln "This CURSE includes the following injects:"
+        ht para
+        
+        ht query {
+            SELECT inject_num       AS "Num",
+                   inject_type      AS "Type",
+                   mode             AS "Mode",
+                   desc             AS "Description",
+                   state            AS "State"
+            FROM gui_injects
+        } -default "None." -align RLLLL
+        
+
         # NEXT, if we're not locked we're done.
-        #if {![locked -disclaimer]} {
-        #    return [ht /page]
-        #}
+        if {![locked -disclaimer]} {
+            return [ht /page]
+        }
 
         # NEXT, get the driver ID
         set driver_id [driver get CURSE $id]
 
+        ht para
+
         if {$driver_id eq ""} {
-            ht putln "No injects have yet been made for this CURSE."
+            ht putln "No injects have yet been executed for this CURSE."
             ht para
             return [ht /page]
         }
@@ -132,8 +145,8 @@ appserver module CURSES {
 
 
         ht putln \
-            "Injects have been made relative to this CURSE," \
-            "all relative to driver $ddata(link).  The inputs are as follows:"
+            "Injects have been executed relative to this CURSE," \
+            "all relative to driver $ddata(link).  The injects are as follows:"
 
         ht para
 
