@@ -1444,9 +1444,9 @@ command "rdb tables" {
 command "reset" {
     <<syntax>>
 
-    Resets the executive interpreter.  Any user-defined variables or 
-    Tcl procedures are deleted, and then any stored executive scripts
-    are loaded.  See <<command script>> and the <i>Athena User's Guide</i>
+    Resets the executive interpreter to its initial state, and then
+    executes any stored executive scripts whose auto-execute flag
+    is set.  See <<command script>> and the <i>Athena User's Guide</i>
     for more about executive scripting.
 }
 
@@ -1477,6 +1477,17 @@ command "script" {
     This command has the following subcommands:<p>
 
     <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "script auto" {
+    <<syntax <i>name</i> ?<i>flag</i>? >>
+
+    Retrieves the "auto-execute" flag for the named script, first 
+    setting the <i>flag</i> if it is given.  Scripts with their
+    auto-execute flag set are executed automatically when the
+    executive is reset.
 }
 
 #-----------------------------------------------------------------------

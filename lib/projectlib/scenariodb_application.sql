@@ -144,11 +144,14 @@ CREATE TABLE bookmarks (
 
 CREATE TABLE scripts (
     -- Scripts Table: Executive scripts, maintained as part of the
-    -- scenario.  Scripts are identified by name, and executed in
-    -- in the order defined by their sequence numbers.
+    -- scenario.  Scripts are identified by name.  Scripts with
+    -- the auto flag set (auto=1) are executed automatically on
+    -- executive reset, in order of their sequence numbers.  Other
+    -- scripts can be executed on demand.
     
     name     TEXT PRIMARY KEY,
     seq      INTEGER,
+    auto     INTEGER DEFAULT 0,
     body     TEXT DEFAULT ''
 );
 

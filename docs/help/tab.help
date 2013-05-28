@@ -3047,7 +3047,8 @@ tab "Scripts" {
 
     Athena 5 adds the ability to store executive scripts within the
     scenario itself, and edit them within the Athena application.  These
-    scripts are loaded automatically, and will usually define Tcl
+    scripts can be called exactly like external script files, and can also be
+    executed automatically.  Auto-executed scripts will often define Tcl
     procedures (see <<command proc>>) for use by the
     <<cref /object/tactic/executive>> and <<cref /object/condition/expr>>.<p>
 
@@ -3059,7 +3060,8 @@ tab "Scripts" {
     The Script List contains a list of the names of the currently defined
     scripts.  To create a new script, press the <<image button_plus>>
     or <<image button_import>> buttons.  To edit or browse a particular
-    script, select it in the list.<p>
+    script, select it in the list.  To make the selected script auto-executing, 
+    press the <<image button_power>> button.<p>
 
     The body of the selected script is shown in the Editor, to the
     right of the script list.  This is a normal text editor, with 
@@ -3098,6 +3100,10 @@ tab "Scripts" {
     Prompts the user to save the selected script as a disk file.
     <</topic>>
 
+    <<topic [image button_power]>>
+    Toggles the selected script's auto-execute flag.
+    <</topic>>
+
     <<topic [image button_totop]>>
     Moves the selected script to the top of the list; it will be executed
     first on executive <<command reset>>.
@@ -3132,14 +3138,12 @@ tab "Scripts" {
     <</topic>>
 
     <<topic "Reset">>
-    Resets the executive, which loads all of the stored executive scripts.
+    Resets the executive, which loads all of the auto-executing scripts.
     The status of each is displayed in the Output area; the effect is the
     same as entering the <<command reset>> in the <<term cli>>.<p>
 
     This is a useful last step after editing a script, as it leaves the
-    executive in a clean state, and also allows the user to verify that
-    the changes are accepted by the executive and have not cause problems
-    with any of the other scripts.
+    executive in a clean state.
     <</topic>>
 
     <<topic "Execute">>
@@ -3155,10 +3159,9 @@ tab "Scripts" {
     <</topic>>
 
     <<topic "Save">>
-    Saves the script into the scenario, so that it will be used on
-    <<command reset>> and saved to disk with the rest of the scenario.
-    In addition, executes the command, showing the results in the
-    Output area.
+    Saves the script into the scenario, so that it will be saved to disk 
+    with the rest of the scenario.
+    If the script's auto-execute flag is set, it will also execute the command, showing the results in the Output area.
     <</topic>>
 
     <</topiclist>>

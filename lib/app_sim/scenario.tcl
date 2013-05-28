@@ -707,6 +707,7 @@ snit::type scenario {
         rdb function sigline              [myproc Sigline]
         rdb function firing_narrative     [myproc FiringNarrative]
         rdb function elink                [myproc EntityLink]
+        rdb function yesno                [myproc YesNo]
 
         # NEXT, define the GUI Views
         RdbEvalFile gui_scenario.sql    ;# Scenario Entities
@@ -806,6 +807,21 @@ snit::type scenario {
     proc EntityLink {etype name} {
         return "<a href=\"my://app/$etype/$name\">$name</a>"
     }
+
+    # YesNo value
+    #
+    # value - An integer flag
+    #
+    # Returns "YES" or "NO".
+
+    proc YesNo {value} {
+        if {$value} {
+            return "YES"
+        } else {
+            return "NO"
+        }
+    }
+
  
     #-------------------------------------------------------------------
     # Registration of saveable objects

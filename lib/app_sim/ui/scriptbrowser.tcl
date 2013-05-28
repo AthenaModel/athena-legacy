@@ -36,6 +36,7 @@ snit::widget scriptbrowser {
     component sl_addbtn      ;# Add Script
     component sl_impbtn      ;# Import Script button
     component sl_expbtn      ;# Export Script button
+    component sl_togglebtn   ;# Toggle Auto button
     component sl_topbtn      ;# To Top button
     component sl_raisebtn    ;# Raise button
     component sl_lowerbtn    ;# Lower button
@@ -251,6 +252,16 @@ snit::widget scriptbrowser {
             browser $win                                         \
             predicate singleSaved
 
+        install sl_togglebtn using mktoolbutton $sl_bar.sl_toggle \
+            ::marsgui::icon::onoff                                \
+            "Toggle Auto Flag"                                    \
+            -state   normal                                       \
+            -command [mymethod SListScriptToggleAuto]
+
+        cond::predicate control $sl_togglebtn                    \
+            browser $win                                         \
+            predicate singleSaved
+
         install sl_topbtn using mktoolbutton $sl_bar.top         \
             ::marsgui::icon::totop                               \
             "Execute First"                                      \
@@ -303,6 +314,7 @@ snit::widget scriptbrowser {
         pack $sl_addbtn    -side left
         pack $sl_impbtn    -side left
         pack $sl_expbtn    -side left
+        pack $sl_togglebtn -side left
         pack $sl_topbtn    -side left
         pack $sl_raisebtn  -side left
         pack $sl_lowerbtn  -side left
@@ -327,6 +339,7 @@ snit::widget scriptbrowser {
             -selectioncmd  [mymethod SListScriptSelect] \
             -layout {
                 {name "Script" -stretchable yes} 
+                {auto "Auto"                   }
             } 
 
         # NEXT, grid them all in place
@@ -522,7 +535,15 @@ snit::widget scriptbrowser {
         app puts "Exported script to [file tail $filename]"
 
         return
- 
+    }
+
+    # SListScriptToggleAuto
+    #
+    # Toggles the auto flag for the selected script.
+
+    method SListScriptToggleAuto {} {
+        set auto [executive script auto $info(sname)]
+        executive script auto $info(sname) [expr {!$auto}]
     }
 
     # SListDelete
@@ -683,6 +704,7 @@ snit::widget scriptbrowser {
             $sl_addbtn    \
             $sl_impbtn    \
             $sl_expbtn    \
+            $sl_togglebtn \
             $sl_topbtn    \
             $sl_raisebtn  \
             $sl_lowerbtn  \
@@ -786,21 +808,29 @@ snit::widget scriptbrowser {
         $self SetButtonState
 
         set output "Saved Script: $info(sname)\n"
-        append output "Checking Script: $info(sname)\n"
 
-        if {[catch {
-            executive script load $info(sname)
-        } result eopts]} {
-            append output "Error: $result\n\n"
-            append output "Full Info:\n"
-            append output [dict get $eopts -errorinfo]
+        if {[executive script auto $info(sname)]} {
+            append output "Checking Script: $info(sname)\n"
 
-            $self OutlogShow $output error
-            return
+            if {[catch {
+                executive script load $info(sname)
+            } result eopts]} {
+                append output "Error: $result\n\n"
+                append output "Full Info:\n"
+                append output [dict get $eopts -errorinfo]
+
+                $self OutlogShow $output error
+                return
+            }
+
+            append output "OK\n\n"
+            append output $result
+        } else {
+            append output "No check done (auto flag not set).\n"
+            append output "Press \"Execute\" to check manually.\n"
         }
 
-        append output "OK\n\n"
-        append output $result
+
         $self OutlogShow $output
     }
 

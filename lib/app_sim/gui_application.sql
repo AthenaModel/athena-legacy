@@ -104,7 +104,11 @@ ORDER BY rank ASC;
 
 -- gui_scripts: order by sequence
 CREATE TEMPORARY VIEW gui_scripts AS
-SELECT * FROM scripts
+SELECT name                       AS name,
+       seq                        AS seq,
+       yesno(auto)                AS auto,
+       body                       AS body
+FROM scripts
 ORDER BY seq ASC;
 
 

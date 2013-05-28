@@ -70,7 +70,13 @@ snit::type executive {
 
         set out ""
 
-        foreach name [$type script names] {
+        set autoScripts [rdb eval {
+            SELECT name FROM scripts
+            WHERE auto=1
+            ORDER BY seq
+        }]
+
+        foreach name $autoScripts {
             log normal exec "loading: $name"
             append out "Loading script: $name\n"
             if {[catch {$type script load $name} result]} {
@@ -503,6 +509,10 @@ snit::type executive {
         # script
         $interp ensemble script
 
+        # script auto
+        $interp smartalias {script auto} 1 2 {name ?flag?} \
+            [mytypemethod script auto]
+
         # script delete
         $interp smartalias {script delete} 1 1 {name} \
             [mytypemethod script delete]
@@ -693,9 +703,14 @@ snit::type executive {
     typemethod {script list} {} {
         set out ""
         rdb eval {
-            SELECT name FROM scripts ORDER BY seq;
+            SELECT name, auto 
+            FROM scripts ORDER BY seq;
         } {
-            append out "$name\n"
+            if {$auto} {
+                append out "$name (auto-execute)\n"
+            } else {
+                append out "$name"
+            }
         }
 
         return $out
@@ -806,6 +821,40 @@ snit::type executive {
         }
 
         return
+    }
+
+    # script auto name ?flag?
+    #
+    # name   - A script name
+    # flag   - A boolean flag
+    #
+    # Returns the value of the auto flag for the named script, first
+    # setting the flag if a new value is given.
+
+    typemethod {script auto} {name {flag ""}} {
+        # FIRST, if the script doesn't exist, that's an error.
+        require {[$type script exists $name]} \
+            "No such script: $name"
+
+        # NEXT, set the flag if given.
+        if {$flag ne ""} {
+            snit::boolean validate $flag
+
+            if {$flag} {
+                set auto 1
+            } else {
+                set auto 0
+            }
+
+            rdb eval {
+                UPDATE scripts SET auto=$auto
+                WHERE name=$name
+            }
+
+            notifier send ::executive <Scripts> update $name
+        }
+
+        return [rdb eval {SELECT auto FROM scripts WHERE name=$name}]
     }
 
     # script import filename
