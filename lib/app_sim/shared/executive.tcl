@@ -107,11 +107,19 @@ snit::type executive {
 
         # NEXT, add commands that need to be defined in the slave itself.
         $interp proc call {script args} {
+            # FIRST, load the args into the executive.
+            uplevel 1 [list set argv $args]
+
+            # NEXT, if the script is an internal script, load it.
+            if {[script exists $script]} {
+                return [uplevel 1 [list script load $script]]
+            }
+
+            # NEXT, try to load it from disk.
             if {[file extension $script] eq ""} {
                 append script ".tcl"
             }
 
-            uplevel 1 [list set argv $args]
             uplevel 1 [list source [file join [pwd] $script]]
         }
 

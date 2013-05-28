@@ -826,8 +826,11 @@ command "axdb selectfile" {
 command "call" {
     <<syntax <i>script</i> ?<i>args...</i>? >>
 
-    Calls the named <i>script</i>, which is assumed to be in the current
-    working directory unless an absolute path is specified. The ".tcl"
+    Calls the named <i>script</i>, which is assumed to be either
+    an internal script, as created in the <<tab Scripts>>, or an external
+    script stored in a disk file.  In the latter case, the script file is
+    assumed to be in the current
+    working directory unless an absolute path is specified, and the ".tcl"
     extension may be omitted; <b>call</b> will add it automatically.<p>
 
     An executive script is a Tcl script containing <<cref /command>>.  A
