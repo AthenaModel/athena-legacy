@@ -1,0 +1,152 @@
+<<manpage {smart_type(i)} "Smart Type Interface">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+A smart type is a data validation type whose values are rules used to compute
+other values, e.g., "All non-empty civilian groups residing in neighborhood
+<i>n</i>."  A smart type for lists of civilian groups, for example, might 
+define any number of parameterized rules for selecting lists of civilian
+groups.  The value of the smart type itself, then, is a dictionary with a 
+<b>rule</b> key that determines the specific rule to use, and other keys used 
+to parameterize the chosen rule.<p>
+
+The important thing about smart types is that their values are rules for 
+acquiring data; and those rules can be applied at any time.  Thus, a
+tactic parameter might use a smart type to specify a list of affected
+groups--and the specific list of groups can be retrieved when the tactic
+executes rather than when it is defined.  Thus, a smart type might have
+the rule "all groups that support actor <i>a</i>".  The value of this list
+can vary over time, and by evaluating it on tactic execution we always use
+the correct list of groups.<p>
+
+Smart type values can be edited by using the <b>smart</b> field type
+in <<xref dynaform(n)>> scripts.<p>
+
+Smart types are defined using the <<xref smart_type(n)>> command:<p>
+
+<pre>
+    ::projectlib::smart_type mytype {
+        <i>dynaform specification</i>
+    } {
+        <i>type specification</i>
+    }
+</pre>
+
+This man page defines the required behavior of each smart type.<p>
+
+<<section "DYNAFORM SPECIFICATION">>
+
+Each smart type has a <<xref dynaform(n)>> script that will be used to
+edit its values in a <<xref dynabox(n)>>.  The script should make it clear
+what the type does, and should always begin with a <b>rule</b> selector.
+Each specific rule supported by the type should have a case within the
+selector.  For example:<p>
+
+<pre>
+    rc "" -width 3in -span 3
+    label {
+        Enter a rule for selecting a set of civilian groups.
+    }
+
+    rc "" -for rule
+    selector rule {
+        case by_name "By name" {
+            cc "  " -for glist
+            enumlonglist glist -dictcmd {::civgroup namedict} \
+                -width 30 -height 10 
+        }
+        .
+        .
+        .
+    }
+</pre>
+
+Because this dynaform will appear by itself in a <<xref dynabox(n)>>
+dialog, it's OK to use a spacious layout with lots of explanatory
+text.<p>
+
+<<section "SUBCOMMANDS">>
+
+Each <<xref smart_type(i)>> ensemble must implement at least the following
+subcommands, some of which are provided automatically by 
+<<xref smart_type(n)>>.<p>
+
+<<deflist subcommands>>
+
+<<defitem dynaform {dynaform}>>
+
+This subcommand is implemented automatically by <<xref smart_type(n)>>.
+It returns the name of the type's <<xref dynaform(n)>>.<p>
+
+<<defitem eval {eval <i>vdict</i>}>>
+
+Evaluates the <i>vdict</i> to produce the desired set of data, i.e., 
+a particular list of civilian groups.  Depending on the smart type, the
+chosen rule, and the current circumstances, the result might be the empty
+string; users of smart types must take this into account.<p>
+    
+<<defitem narrative {narrative <i>vdict</i> ?-brief?}>>
+
+Returns a human-readable narrative description of the chosen rule.
+The narrative should include all of the relevant parameters, and should
+be stated as a noun phrase so that it can be included in other strings
+(e.g., in <<xref tactic(i)>> narratives).<p>
+
+If the <b>-brief</b> option is included, then the length of the narrative
+should be constrained in cases where the full narrative could be 
+arbitrarily long.  In the example shown above, the first rule is
+<b>by_name</b>; its <b>glist</b> a parameter that is
+an arbitrarily long list of group names.  It can be constrained by 
+replacing the end of list with an ellipsis ("...") when the list is 
+too long.<p>
+
+Typical brief narratives can be up to about 120 characters.<p>
+
+<<defitem validate {validate <i>vdict</i>}>>
+
+Validates the <i>vdict</i>, returning it in canonical form, and throwing
+<b>INVALID</b> on any error.  Canonical form for a <i>vdict</i> is as 
+follows:<p>
+
+<ul>
+    <li> The rule name is in lower case.
+    <li> Only keys that are used by the selected rule are included.
+    <li> Their values are in canonical form given their types.
+</ul><p>
+
+<</deflist subcommands>>
+
+<<section "RULE CONSTRUCTORS">>
+
+The author of a smart type might elect to define additional subcommands called
+"rule constructors".  These create a valid <i>vdict</i> for a given rule.
+The example shown above has a <b>by_name</b> rule with a <b>glist</b> parameter.
+This type could define a <b>by_name</b> constructor like this:<p>
+
+<pre>
+    set vdict [smart_civgroups by_name $mylist]
+</pre>
+
+This is more concise, more maintainable, and potentially much less fragile 
+than the alternative:
+
+<pre>
+    set vdict [dict create rule by_name glist $mylist]
+</pre>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original interface.
+
+<</manpage>>
+
+
+

@@ -548,12 +548,18 @@ snit::type demog {
     # in the neighborhood.
 
     typemethod gIn {n} {
-        rdb eval {
-            SELECT g
-            FROM demog_g
-            JOIN civgroups USING (g)
-            WHERE n=$n AND population > 0
-            ORDER BY g
+        if {[sim state] eq "PREP"} {
+            return [rdb eval {
+                SELECT g FROM civgroups WHERE n=$n AND basepop > 0 ORDER BY g
+            }]
+        } else {
+            return [rdb eval {
+                SELECT g
+                FROM demog_g
+                JOIN civgroups USING (g)
+                WHERE n=$n AND population > 0
+                ORDER BY g
+            }]
         }
     }
 

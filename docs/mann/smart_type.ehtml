@@ -1,0 +1,56 @@
+<<manpage {projectlib(n) smart_type(n)} "Smart Type Constructor">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The <<xref smart_type(n)>> command is used to define smart types,
+as defined by <<xref smart_type(i)>>.
+
+<<section COMMANDS>>
+
+This module defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "smart_type" {smart_type <i>name dynaform body</i>}>>
+
+Creates a <<xref smart_type(i)>> command with the given <i>name</i>
+in the caller's scope.  The type will have an associated 
+<<xref dynaform(n)>> with script <i>dynaform</i>; the type's subcommands
+are defined as type methods in the <i>body</i>.  See 
+<<xref smart_type(i)>> for the syntax and semantics of the required 
+subcommands.<p>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.
+
+To use the package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.<p>
+
+<</manpage>>
+
+
+
+
+
+
