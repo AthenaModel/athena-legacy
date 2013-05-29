@@ -174,6 +174,96 @@ tactic type define CURSE {curse roles once on_lock} system {
         return 1
     }
 
+    # checkRolemap rolemap curse
+    #
+    # rolemap   - a mapping of roles to entities
+    # curse     - ID of a CURSE for which the checking is done
+    #
+    # This method looks at a mapping of entities to roles and checks
+    # that given the inject in which the role exists whether the mapping
+    # of the entities to that role makes sense. For instance, in a COOP
+    # inject, the 'f' role must be all CIV groups. If a group is not
+    # mapped properly to a role a validation error occurs.
+
+    typemethod checkRolemap {rolemap curse} {
+        # FIRST, extract all the roles from the injects in the supplied
+        # CURSE, building up a map of role/entity types.
+        rdb eval {
+            SELECT * FROM curse_injects
+            WHERE curse_id=$curse
+        } idata {
+            switch -exact -- $idata(inject_type) {
+                HREL {
+                    # f, any groups; g, any groups
+                    set validmap($idata(f)) GRP
+                    set validmap($idata(g)) GRP
+                }
+
+                VREL {
+                    # g, any groups; a, any actors
+                    set validmap($idata(g)) GRP
+                    set validmap($idata(a)) ACT
+                }
+
+                COOP {
+                    # f, CIV groups; g, FRC groups
+                    set validmap($idata(f)) CIV
+                    set validmap($idata(g)) FRC
+                }
+
+                SAT {
+                    # g, CIV groups
+                    set validmap($idata(g)) CIV
+                }
+
+                default {
+                    # Should never happen
+                    error "Unrecognized inject type: $idata(inject_type)"
+                }
+            }
+        }
+        
+        # NEXT, traverse the mapping of groups to roles checking for
+        # validation errors along the way
+        foreach {role entities} $rolemap {
+            # NEXT, validate that the role exists for this CURSE
+            inject role validate $curse $role
+
+            switch -exact -- $validmap($role) {
+                GRP {
+                    # Must be a valid group
+                    foreach entity $entities {
+                        ::group validate $entity
+                    }
+                }
+
+                CIV {
+                    # Must be a valid CIV group
+                    foreach entity $entities {
+                        ::civgroup validate $entity
+                    }
+                }
+              
+                FRC {
+                    # Must be a valid FRC group
+                    foreach entity $entities {
+                        ::frcgroup validate $entity
+                    }
+                }
+                
+                ACT {
+                    # Must be a valid actor
+                    foreach entity $entities {
+                        ::actor validate $entity
+                    }
+                } 
+            }
+        } 
+
+        # NEXT, if no validation errors the rolemap checks out
+        return $rolemap
+    }
+
     # hrel parmdict
     #
     # Causes an assessment of horizontal relationship among
@@ -393,11 +483,17 @@ order define TACTIC:CURSE:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
-    prepare curse               -required -type {curse normal}
-    prepare roles               -required -type rolemap
+    prepare curse    -toupper   -required -type {curse normal}
+    prepare roles    -toupper   -required -type rolemap
     prepare once                -required -type boolean
     prepare on_lock             -required -type boolean
     prepare priority -tolower             -type ePrioSched
+
+    returnOnError 
+
+    validate roles {
+        tactic::CURSE checkRolemap $parms(roles) $parms(curse)
+    }
 
     returnOnError -final
 
@@ -425,7 +521,7 @@ order define TACTIC:CURSE:UPDATE {
         disp owner
 
         rcc "CURSE" -for curse
-        disp curse
+        curse curse
 
         rc "" -for roles -span 2
         roles roles -rolespeccmd {::tactic::CURSE RoleSpec $curse}
@@ -439,10 +535,22 @@ order define TACTIC:CURSE:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
-    prepare curse                -type {curse normal}
-    prepare roles                -type rolemap
+    prepare curse      -toupper  -type {curse normal}
+    prepare roles      -toupper  -type rolemap
     prepare once                 -type boolean
     prepare on_lock              -type boolean
+
+    returnOnError
+
+    # NEXT, cross check
+    validate roles {
+        set curse [rdb onecolumn {
+                      SELECT curse FROM tactics_CURSE 
+                      WHERE tactic_id=$parms(tactic_id)
+                  }]
+
+        tactic::CURSE checkRolemap $parms(roles) $curse
+    }
 
     returnOnError
 

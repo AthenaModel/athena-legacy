@@ -274,6 +274,59 @@ snit::type inject {
         return $id
     }
 
+    # role validate curse_id role_id
+    #
+    # curse_id    - An ID of a CURSE
+    # role_id     - The role that should be in an inject associated with
+    #               the CURSE that has curse_id
+    #
+    # This method validates that the supplied role_id indeed exists in an
+    # inject associated with a CURSE that has the supplied curse_id. If
+    # the role does not exist in any of the injects associated with the
+    # CURSE, an error is returned, otherwise the role_id is returned
+
+    typemethod {role validate} {curse_id role_id} {
+        # FIRST, get all roles defined for the CURSE
+        set validroles [inject AllRoles $curse_id]
+
+        # NEXT, if the supplied role_id does not exist in this curse
+        # error. Otherwise, return the role_id
+        if {$role_id ni $validroles} {
+            if {[llength $validroles] == 0} {
+                set msg "no roles are defined for $curse_id."
+            } else {
+                set msg "role should be one of: [join $validroles {, }]"
+            }
+
+            return -code error -errorcode INVALID \
+                "Invalid role \"$role_id\", $msg"
+        }
+
+        return $role_id
+    }
+
+    # AllRoles curse_id
+    #
+    # curse_id   - ID of a CURSE
+    #
+    # This method returns all roles in injects associated with the
+    # CURSE with the supplied curse_id. It is a helper typemethod for
+    # role validation.
+
+    typemethod AllRoles {curse_id} {
+        set rnames {}
+        rdb eval {
+            SELECT f, g, a FROM curse_injects
+            WHERE curse_id=$curse_id
+         } idata {
+            if {$idata(f) ne ""} {lappend rnames $idata(f)}
+            if {$idata(g) ne ""} {lappend rnames $idata(g)}
+            if {$idata(a) ne ""} {lappend rnames $idata(a)}
+         }
+         
+         return $rnames
+    }
+
     # exists id
     #
     # id   - Possibly, an inject id, {curse_id inject_num}
@@ -599,33 +652,6 @@ snit::type inject {
 
     #-------------------------------------------------------------------
     # Order Helpers
-
-    # roleInOtherThan inject_type role
-    #
-    # inject_type     - one of SAT, COOP, HREL or VREL
-    # role            - a role that exists in an inject of inject_type
-    #
-    # This method checks to see if the role provided already exists
-    # an injects of other inject types. It's used to prevent the creation
-    # of a roles for other inject types.
-
-    typemethod roleInOtherThan {inject_type role} {
-
-        # FIRST, grab the list of roles from all other
-        # inject types
-        set others [rdb eval {
-            SELECT a, g, f FROM curse_injects
-            WHERE inject_type != $inject_type
-        }]
-
-        # NEXT, if the role is already in one of the other types then
-        # return that it is.
-        if {$role in $others} {
-            return 1
-        }
-
-        return 0
-    }
 
     # RequireType inject_type id
     #

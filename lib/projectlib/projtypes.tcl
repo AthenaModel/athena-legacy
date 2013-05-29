@@ -1002,10 +1002,26 @@ snit::type ::projectlib::weight {
     }
 }
 
+#-----------------------------------------------------------------------
+# Rolemap type
+#
+# A rolemap must be a list with an even number of members. Cross checking
+# must be done by the application
+
 snit::type ::projectlib::rolemap {
+    # Singleton
     pragma -hasinstances no
 
+    # validate value
+    #
+    # value    Possibly, a rolemap dictionary
+    #
+    # Returns an error on failure, the value on success
+
     typemethod validate {value} {
+        if {[llength $value] % 2 != 0} {
+            return -code error -errorcode INVALID "$value: not a dictionary"
+        }
 
         return $value
     }
