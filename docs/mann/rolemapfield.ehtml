@@ -46,19 +46,6 @@ read-only with an "Edit" button; displays a whitespace-delimited list
 of the currently chosen entities for that role.  Pressing the "Edit" button
 pops up a <<xref mars:messagebox(n)>> list selector.<p>
 
-<<section "FIELD TYPE">>
-
-The rolemapfield(n) module also defines a
-<<xref mars:dynaform_field(i)>> field type called <b>rolemap</b>.  The field
-type takes the <b>-textwidth</b>, <b>-listheight</b>, <b>-liststripe</b>, and
-<b>-listwidth</b>
-options as the widget, and requires the <b>-rolespeccmd</b> option.  The value
-of this option is a command that returns a <b>-rolespec</b>; it may reference
-the values of the fields preceding it in the form by using their field names
-as Tcl variables, e.g.,<p>
-
-<pre>    -rolespeccmd {::MyRoleSpec $curse_id}</pre>
-
 <<section COMMANDS>>
 
 This module defines the following commands.<p>

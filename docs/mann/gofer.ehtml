@@ -21,6 +21,14 @@ various rules; the implementor simply needs to define the rules as
 <<xref gofer_rule(i)>> objects, and then tell the gofer type which rules
 it uses.<p>
 
+<<section "FIELD TYPE">>
+
+The gofer(n) module also defines a
+<<xref mars:dynaform_field(i)>> field type called <b>gofer</b>.  The field
+type takes the same <b>-typename</b>, <b>-width</b>, and <b>-wraplength</b>
+options as the <<xref goferfield(n)>> widget; the 
+<b>-typename</b> option is required.<p>
+
 <<section COMMANDS>>
 
 This module defines the following commands:<p>

@@ -21,9 +21,6 @@
 #    each has an edit button which calls [messagebox listselect] to 
 #    allow the user to edit the list of items.
 #
-#    In addition, this module defines a "rolemap" dynaform_field(i) type,
-#    so that "rolemap" fields can be used in dynaforms.
-#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -253,50 +250,6 @@ snit::widget ::projectgui::rolemapfield {
 
     delegate method get to form
     delegate method set to form
-}
-
-#-----------------------------------------------------------------------
-# rolemap field type
-
-::marsutil::dynaform fieldtype define rolemap {
-    typemethod attributes {} {
-        return {
-            rolespeccmd 
-            textwidth
-            listheight
-            liststripe
-            listwidth
-        }
-    }
-
-    typemethod validate {idict} {
-        dict with idict {}
-        require {$rolespeccmd ne ""} \
-            "No role specification command given"
-    }
-
-    typemethod create {w idict} {
-        set context [dict get $idict context]
-
-        rolemapfield $w \
-            -state [expr {$context ? "disabled" : "normal"}] \
-            {*}[asoptions $idict textwidth listheight liststripe listwidth]
-    }
-
-    typemethod reconfigure {w idict vdict} {
-        # If the field has a -rolespeccmd, call it and apply the
-        # results (note that rolemapfield will properly do nothing
-        # if the resulting spec hasn't changed.)
-        dict with idict {}
-
-        if {$rolespeccmd ne ""} {
-            $w configure -rolespec [formcall $vdict $rolespeccmd] 
-        }
-    }
-
-    typemethod ready {w idict} {
-        return [expr {[llength [$w cget -rolespec]] > 0}]
-    }
 }
 
 

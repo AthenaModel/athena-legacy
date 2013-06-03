@@ -19,13 +19,6 @@ up a <<xref dynabox(n)>> displaying the type's <<xref dynaform(n)>>.<p>
 Note that the <b>-brief</b> form of the value's narrative string is 
 displayed.<p>
 
-<<section "FIELD TYPE">>
-
-The goferfield(n) module also defines a
-<<xref mars:dynaform_field(i)>> field type called <b>gofer</b>.  The field
-type takes the same <b>-typename</b>, <b>-width</b>, and <b>-wraplength</b>
-options as the widget; the <b>-typename</b> option is required.<p>
-
 <<section COMMANDS>>
 
 This module defines the following commands.<p>

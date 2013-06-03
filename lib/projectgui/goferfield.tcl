@@ -11,10 +11,6 @@
 #    A goferfield is a data entry field that displays the narrative for
 #    a gofer type value, and has an Edit button popping up a dynabox for
 #    the gofer type.
-#
-#    In addition to the widget, this file also defines the "gofer"
-#    dynaform_field(i) type.
-#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -217,38 +213,4 @@ snit::widget ::projectgui::goferfield {
     }
 }
 
-#-----------------------------------------------------------------------
-# gofer field type
-#
-# This is a dynaform field type to use with gofer types.
-
-::marsutil::dynaform fieldtype define gofer {
-    typemethod attributes {} {
-        return {
-            typename wraplength width
-        }
-    }
-
-    typemethod validate {idict} {
-        dict with idict {}
-        require {$typename ne ""} \
-            "No gofer type name command given"
-    }
-
-    typemethod create {w idict} {
-        set context [dict get $idict context]
-
-        set wid [dict get $idict width]
-
-        # This widget works better if the width is negative, setting a
-        # minimum size.  Then it can widen to the wraplength.
-        if {$wid ne "" && $wid > 0} {
-            dict set idict width [expr {-$wid}]
-        }
-
-        goferfield $w \
-            -state [expr {$context ? "disabled" : "normal"}] \
-            {*}[asoptions $idict typename wraplength width]
-    }
-}
 

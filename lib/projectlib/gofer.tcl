@@ -23,8 +23,8 @@
 #    See gofer(i) for the methods that a gofer object must 
 #    implement.
 #
-#    This module defines a constructor for gofers.  Each gofer
-#    has an ensemble command
+#    In addition to the gofer type, this file also defines the "gofer"
+#    dynaform_field(i) type.
 
 namespace eval ::projectlib:: {
     namespace export gofer
@@ -405,6 +405,41 @@ snit::type ::projectlib::gofer {
                 }
             }
         }
+    }
+}
+
+#-----------------------------------------------------------------------
+# gofer field type
+#
+# This is a dynaform field type to use with gofer types.
+
+::marsutil::dynaform fieldtype define gofer {
+    typemethod attributes {} {
+        return {
+            typename wraplength width
+        }
+    }
+
+    typemethod validate {idict} {
+        dict with idict {}
+        require {$typename ne ""} \
+            "No gofer type name command given"
+    }
+
+    typemethod create {w idict} {
+        set context [dict get $idict context]
+
+        set wid [dict get $idict width]
+
+        # This widget works better if the width is negative, setting a
+        # minimum size.  Then it can widen to the wraplength.
+        if {$wid ne "" && $wid > 0} {
+            dict set idict width [expr {-$wid}]
+        }
+
+        goferfield $w \
+            -state [expr {$context ? "disabled" : "normal"}] \
+            {*}[asoptions $idict typename wraplength width]
     }
 }
 
