@@ -138,10 +138,10 @@ namespace eval ::athena_test::tests:: {
 tactic_id    1
 tactic_type  FUNDENI
 owner        JOE
-narrative    Fund $7,000.00 worth of Essential Non-Infrastructure services for civilian groups SHIA, SUNN, KURD.
+narrative    Fund $7,000.00 worth of Essential Non-Infrastructure services for these groups (SHIA, SUNN, KURD).
 priority     1
 x1           7000.0
-glist        SHIA SUNN KURD
+glist        _rule by_value raw_value {SHIA SUNN KURD}
 once         0
 on_lock      0
 state        normal
@@ -260,10 +260,10 @@ exec_flag    0
 tactic_id    1
 tactic_type  FUNDENI
 owner        JOE
-narrative    Fund $5,000.00 worth of Essential Non-Infrastructure services for civilian groups SHIA, SUNN.
+narrative    Fund $5,000.00 worth of Essential Non-Infrastructure services for these groups (SHIA, SUNN).
 priority     1
 x1           5000.0
-glist        SHIA SUNN
+glist        _rule by_value raw_value {SHIA SUNN}
 once         0
 on_lock      0
 state        normal

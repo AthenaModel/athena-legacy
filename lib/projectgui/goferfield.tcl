@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    smartfield.tcl
+#    goferfield.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -8,11 +8,11 @@
 # DESCRIPTION:
 #    projectgui(n) package: Smart type data entry field
 #
-#    A smartfield is a data entry field that displays the narrative for
-#    a smart type value, and has an Edit button popping up a dynabox for
-#    the smart type.
+#    A goferfield is a data entry field that displays the narrative for
+#    a gofer type value, and has an Edit button popping up a dynabox for
+#    the gofer type.
 #
-#    In addition to the widget, this file also defines the "smart"
+#    In addition to the widget, this file also defines the "gofer"
 #    dynaform_field(i) type.
 #
 #-----------------------------------------------------------------------
@@ -21,13 +21,13 @@
 # Export public commands
 
 namespace eval ::projectgui:: {
-    namespace export smartfield
+    namespace export goferfield
 }
 
 #-------------------------------------------------------------------
-# smartfield
+# goferfield
 
-snit::widget ::projectgui::smartfield {
+snit::widget ::projectgui::goferfield {
     #-------------------------------------------------------------------
     # Components
 
@@ -41,9 +41,9 @@ snit::widget ::projectgui::smartfield {
     delegate option -borderwidth to hull
     delegate option *               to nlabel
 
-    # -typename smart_type
+    # -typename gofer_type
     #
-    # Name of the smart type being edited.
+    # Name of the gofer type being edited.
 
     option -typename
 
@@ -202,6 +202,11 @@ snit::widget ::projectgui::smartfield {
             return
         }
 
+        # NEXT, if it doesn't begin with _rule, assume it's a raw value.
+        if {[lindex $value 0] ne "_rule"} {
+            set value [dict create _rule by_value raw_value $value]
+        }
+
         # NEXT, save the value
         set info(value) $value
 
@@ -213,11 +218,11 @@ snit::widget ::projectgui::smartfield {
 }
 
 #-----------------------------------------------------------------------
-# smart field type
+# gofer field type
 #
-# This is a dynaform field type to use with smart types.
+# This is a dynaform field type to use with gofer types.
 
-::marsutil::dynaform fieldtype define smart {
+::marsutil::dynaform fieldtype define gofer {
     typemethod attributes {} {
         return {
             typename wraplength width
@@ -227,7 +232,7 @@ snit::widget ::projectgui::smartfield {
     typemethod validate {idict} {
         dict with idict {}
         require {$typename ne ""} \
-            "No smart type name command given"
+            "No gofer type name command given"
     }
 
     typemethod create {w idict} {
@@ -241,7 +246,7 @@ snit::widget ::projectgui::smartfield {
             dict set idict width [expr {-$wid}]
         }
 
-        smartfield $w \
+        goferfield $w \
             -state [expr {$context ? "disabled" : "normal"}] \
             {*}[asoptions $idict typename wraplength width]
     }

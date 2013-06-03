@@ -1,0 +1,227 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-gofer.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    gofer(n) tests.
+#
+#    This test suite tests the gofer type.  It makes use of the
+#    gofer_civgroups type to test the generic code.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    proc valgood {value} {
+        return [string toupper $value]
+    }
+
+    proc valbad {value} {
+        error "Invalid value: \"$value\""
+    }
+
+    #-------------------------------------------------------------------
+    # Sanity Check
+    #
+    # This test calls gofer's sanity checker, which sanity checks
+    # all of the defined gofers, i.e., that each has the by_value
+    # rule, and that the type's form is consistent with its rules.
+
+    test sanity_check-1.1 {runs the sanity check} -body {
+        gofer check
+    } -result {OK}
+
+    #-------------------------------------------------------------------
+    # join
+    
+    test join-1.1 {defaults} -body {
+        gofer join {a b c d e f g h i j}  
+    } -result {a, b, c, d, e, f, g, h, i, j}
+    
+    test join-1.2 {maxlen} -body {
+        gofer join {a b c d e f g h i j} 4  
+    } -result {a, b, c, d, ...}
+    
+    test join-1.3 {delim} -body {
+        gofer join {a b c d} "" .  
+    } -result {a.b.c.d}
+    
+    
+    #-------------------------------------------------------------------
+    # listval
+    
+    test listval-1.1 {canonicalizes when valid} -body {
+        gofer listval "items" [namespace current]::valgood {a b c}  
+    } -result {A B C}
+    
+    test listval-1.2 {no items} -body {
+        gofer listval "items" [namespace current]::valgood {}
+    } -returnCodes {
+        error 
+    } -result {No items selected}
+    
+    test listval-1.3 {bad item} -body {
+        gofer listval "items" [namespace current]::valbad {a b c}
+    } -returnCodes {
+        error 
+    } -result {Invalid value: "a"}
+    
+
+    #-------------------------------------------------------------------
+    # listnar
+    
+    test listnar-1.1 {single with single noun} -body {
+        gofer listnar "item" "items" a  
+    } -result {item a}
+    
+    test listnar-1.2 {single with no noun} -body {
+        gofer listnar "" "items" a  
+    } -result {a}
+
+    test listnar-1.3 {multiple, no -brief} -body {
+        gofer listnar "item" "items" {a b c d e f g h i j}  
+    } -result {items (a, b, c, d, e, f, g, h, i, j)}
+
+    test listnar-1.4 {multiple, -brief} -body {
+        gofer listnar "item" "items" {a b c d e f g h i j} -brief 
+    } -result {items (a, b, c, d, e, f, g, h, ...)}
+
+    #-------------------------------------------------------------------
+    # dynaform
+
+    test dynaform-1.1 {dynaform value is returned} -body {
+        gofer_civgroups dynaform
+    } -cleanup {
+        cleanup
+    } -result {::gofer_civgroups.form}
+    
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {if no leading _rule, assume raw} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups validate {SUNN SHIA KURD}
+    } -cleanup {
+        cleanup
+    } -result {_rule by_value raw_value {SUNN SHIA KURD}}
+
+    test validate-1.2 {canonicalizes _rule} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups validate {_rule BY_VALUE raw_value SUNN}
+    } -cleanup {
+        cleanup
+    } -result {_rule by_value raw_value SUNN}
+
+    test validate-1.3 {invalid rule} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups validate {_rule NONESUCH raw_value NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown rule: "nonesuch"}
+
+    test validate-1.4 {invalid rule parms} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups validate {_rule by_value raw_value NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SUNN, SHIA, KURD}
+
+    #-------------------------------------------------------------------
+    # eval
+
+    test eval-1.1 {no rule, assume raw} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups eval {SUNN SHIA}
+    } -cleanup {
+        cleanup
+    } -result {SUNN SHIA}
+    
+    test eval-1.2 {unknown rule} -body {
+        gofer_civgroups eval {_rule NONESUCH raw_value {SUNN SHIA}}
+    } -returnCodes {
+        error
+    } -result {Unknown rule: "NONESUCH"}
+
+    test eval-1.3 {successful evaluation} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups eval {_rule by_value raw_value {SUNN SHIA}}
+    } -cleanup {
+        cleanup
+    } -result {SUNN SHIA}
+    
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {no rule} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups narrative {SUNN SHIA}
+    } -cleanup {
+        cleanup
+    } -result {these groups (SUNN, SHIA)}
+    
+    test narrative-1.2 {unknown rule} -body {
+        gofer_civgroups narrative {_rule NONESUCH raw_value {SUNN SHIA}}
+    } -result {Unknown rule: "NONESUCH"}
+
+    test narrative-1.3 {brief output} -body {
+        gofer_civgroups narrative {A B C D E F G H I J} -brief
+    } -result {these groups (A, B, C, D, E, F, G, H, ...)}
+
+    #-------------------------------------------------------------------
+    # Rule Constructors
+    #
+    # Every rule should have a constructor subcommand automatically
+    # defined.
+
+    test construct-1.1 {rule constructor is defined} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer_civgroups by_value {SUNN SHIA}
+    } -cleanup {
+        cleanup
+    } -result {_rule by_value raw_value {SUNN SHIA}}
+    
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

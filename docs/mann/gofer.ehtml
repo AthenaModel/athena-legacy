@@ -1,0 +1,211 @@
+<<manpage {projectlib(n) gofer(n)} "Gofer Type">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+Instances of the <<xref gofer(n)>> type are gofer types, as defined 
+by <<xref gofer(i)>>.  Briefly, a gofer type allows a user to select
+one of a number of rules for producing a particular kind of output value,
+and then can produce the desired output on demand.<p>
+
+The <<xref gofer(n)>> object does all of the work of managing the 
+various rules; the implementor simply needs to define the rules as
+<<xref gofer_rule(i)>> objects, and then tell the gofer type which rules
+it uses.<p>
+
+<<section COMMANDS>>
+
+This module defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "gofer create" {gofer create <i>name ruledict formspec</i>}>>
+
+Creates a gofer type command with the given <i>name</i>
+in the caller's scope. <b>NOTE:</b> Unlike most types, gofer(n) requires
+that the <b>create</b> subcommand be used explicitly.  <p>
+
+The <i>ruledict</i> specifies the rules that make up the type as a mapping
+from symbolic constants to <<xref gofer_rule(i)>> objects.  For example,<p>
+
+<pre>
+    by_value  ::gofer_civgroup::by_value
+    by_nbhood ::gofer_civgroups::resident_in
+</pre>
+
+Every gofer type must have a <b>by_value</b> rule.<p>
+
+The <i>formspec</i> is a <<xref dynaform(n)>> form specification; it tells
+the application how to display and edit the type's values.  The <i>formspec</i>
+must have a selector called <b>_rule</b> with one case for each rule in the
+<i>ruledict</i>.  The case names must match the symbolic constants in the
+<i>ruledict</i>.  Each case must have fields for each of the rule's keys.<p>
+
+In addition, the form may contain appropriate labels, prose, and formatting.<p>
+
+For example,<p>
+
+<pre>
+    rc "" -width 3in -span 3
+    label {
+        Enter a rule for selecting a set of civilian groups.
+    }
+
+    rc "" -for _rule
+    selector _rule {
+        case by_value "By name" {
+            cc "  " -for raw_value
+            enumlonglist raw_value -dictcmd {::civgroup namedict} \
+                -width 30 -height 10 
+        }
+
+        case resident_in "Resident in" {
+            cc "  " -for nlist
+            enumlonglist nlist -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+    }
+</pre> 
+
+<<defitem "gofer check" {gofer check}>>
+
+This command, intended for use by the Athena test suite, does a sanity
+check of all defined gofer types.  For each gofer type, it verifies that:<p>
+
+<ul>
+    <li> The type has a <b>by_value</b> rule with one
+         key, <b>raw_value</b> 
+    <li> The type's dynaform has a <b>_rule</b> selector as its first
+         field.
+    <li> The <b>_rule</b> selector cases are one-to-one with the type's
+         rules.
+    <li> The case fields are one-to-one with the matching rule's keys.
+</ul><p>
+
+It will throw an error for the first problem it finds; if no problems are
+found, it returns "OK".<p>
+
+<<defitem "gofer join" {gofer join <i>list</i> ?<i>maxlen</i>? ?<i>delim</i>?}>>
+
+Joins the elements of a list together using a delimeter string <i>delimi</i>,
+which defaults to "<code>, </code>".  If <i>maxlen</i> is the empty string
+(the default) then all of the list elements will be included in the output.
+If <i>maxlen</i> is an integer, then it is the maximum number of list elements
+to include in the output.  The remainder will be truncated and replaced by 
+an ellipsis ("<code>...</code>").<p>
+
+<<defitem "gofer listval" {gofer listval <i>noun vcmd list</i>}>>
+
+Gofer rules often have parameters whose value is a list of entities, e.g..,
+a list of groups or actors or neighborhoods.  In this case, the rule's 
+<code>validate</code> method must validate each of the elements, putting it
+in canonical form, and throwing an error if the list is empty.<p>
+
+The command handles the bulk of the work for this pattern.  Given a <i>list</i>
+of elements, it validates each of them using a validation command <i>vcmd</i>,
+where <i>vcmd</i> is a command prefix taking one additional argument, a 
+list element.  The command must validate the element, throwing
+<b>INVALID</b> on error and returning the element in canonical form on 
+success.<p>
+
+If the <i>list</i> is empty, <<iref gofer listval>> throws <b>INVALID</b>
+with an error message that includes <i>noun</i>, which should be a plural
+noun.<p>
+
+On success, <<iref gofer listval>> returns the canonicalized list.<p>
+
+<<defitem "gofer listnar" {gofer listnar <i>snoun pnoun list</i> ?-brief?}>>
+
+Returns a narrative string for a <i>list</i> of items, where
+<i>snoun</i> is a singular noun or noun phrase for a list item and 
+<i>pnoun</i> is a plural noun or noun phrase for a list of items.  
+Thise inputs are used as follows.<p>
+
+If <i>list</i> contains one item, the string is "<i>snoun</i> <i>item</i>",
+e.g., "group SHIA".  The <i>snoun</i> can be the empty string, in which
+case the result is simply "<i>item</i>", e.g., "SHIA".<p>
+
+If <i>list</i> contains more than one item, the string is 
+"<i>pnoun</i> (<i>items...</i>)", e.g., "these groups (SUNN, SHIA)".<p>
+
+If the <b>-brief</b> option is included, then the list will be truncated
+to no more than 8 items using <<iref gofer join>>.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+gofer(n) objects have the following subcommands:<p>
+
+<<deflist instance>>
+
+<<defitem dynaform {<i>type</i> dynaform}>>
+
+Returns the name of the type's <<xref dynaform(n)>>.<p>
+
+<<defitem eval {<i>type</i> eval <i>gdict</i>}>>
+
+Evaluates the <i>gdict</i> to produce the desired output value, e.g., 
+a particular list of civilian groups.<p>
+
+<<defitem narrative {<i>type</i> narrative <i>gdict</i> ?-brief?}>>
+
+Returns a human-readable narrative description of the rule given the
+parameters in the <i>gdict</i>.  The narrative is stated as a noun phrase 
+so that it can be included in other strings (e.g., in 
+<<xref tactic(i)>> narratives).<p>
+
+If the <b>-brief</b> option is included, then the length of the narrative
+is constrained in cases where the full narrative could be 
+arbitrarily long, e.g., rule parameters whose values are lists are
+truncated with an ellipsis.  There is no hard constraint, but 
+typical brief narratives should be no more than about 120 characters.<p>
+
+<<defitem validate {<i>type</i> validate <i>gdict</i>}>>
+
+Validates the <i>gdict</i>, throwing <b>INVALID</b> on error and returning
+the <i>gdict</i> in canonical form on success.  See 
+<<xref gofer(i)>> for a description of canonical form.<p>
+
+<</deflist instance>>
+
+<<section "RULE CONSTRUCTORS">>
+
+In addition to the subcommands listed above, the type will have a
+subcommand for each rule which constructs a value with the right keys
+for that type.  The subcommand will have the same name as the rule,
+e.g., <b>by_value</b>, and will take one argument for each key, in the
+order they are listed by the rule's <code>keys</code> method.<p> 
+
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.
+
+To use the package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.<p>
+
+<</manpage>>
+
+
+
+
+
+

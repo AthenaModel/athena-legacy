@@ -1,4 +1,4 @@
-<<manpage {projectgui(n) smartfield(n)} "Smart Field Widget">>
+<<manpage {projectgui(n) goferfield(n)} "Gofer Field Widget">>
 
 <<section SYNOPSIS>>
 
@@ -11,8 +11,8 @@ namespace import ::projectgui::*
 
 <<section DESCRIPTION>>
 
-The smartfield(n) widget is used to edit values of 
-<<xref smart_type(i)>> types.  It displays the current value's
+The goferfield(n) widget is used to edit values of 
+<<xref gofer(i)>> types.  It displays the current value's
 narrative string and an "Edit" button; pressing the "Edit" button pops
 up a <<xref dynabox(n)>> displaying the type's <<xref dynaform(n)>>.<p>
 
@@ -21,8 +21,8 @@ displayed.<p>
 
 <<section "FIELD TYPE">>
 
-The smartfield(n) module also defines a
-<<xref mars:dynaform_field(i)>> field type called <b>smart</b>.  The field
+The goferfield(n) module also defines a
+<<xref mars:dynaform_field(i)>> field type called <b>gofer</b>.  The field
 type takes the same <b>-typename</b>, <b>-width</b>, and <b>-wraplength</b>
 options as the widget; the <b>-typename</b> option is required.<p>
 
@@ -32,9 +32,9 @@ This module defines the following commands.<p>
 
 <<deflist commands>>
 
-<<defitem smartfield {smartfield <i>pathName</i> ?<i>options...</i>?}>>
+<<defitem goferfield {goferfield <i>pathName</i> ?<i>options...</i>?}>>
 
-Creates a new <<iref smartfield>> widget named <i>pathName</i>, and
+Creates a new <<iref goferfield>> widget named <i>pathName</i>, and
 returns <i>pathName</i>.  The widget supports the following
 options, in addition to those provided by the underlying frame widget:<p>
 
@@ -49,7 +49,7 @@ entity's name is appended to the <i>command</i> as an argument.<p>
 
 <<defopt {-typename <i>typename</i>}>>
 
-Specifies the name of the <<xref smart_type(i)>> type being edited.<p>
+Specifies the name of the <<xref gofer(i)>> type being edited.<p>
 
 <<defopt {-state <i>state</i>}>>
 
@@ -71,7 +71,7 @@ Defaults to 30.<p>
 
 <<section "INSTANCE COMMAND">>
 
-smartfield(n) widgets have the following subcommands:<p>
+goferfield(n) widgets have the following subcommands:<p>
 
 <<deflist instance>>
 
@@ -85,12 +85,12 @@ Sets the value of one or more of the object's options.<p>
 
 <<defitem get {<i>pathName</i> get}>>
 
-Returns the current value of the field.<p> 
+Returns the current value of the field, i.e., the <i>gdict</i>.<p> 
 
 <<defitem set {<i>pathName</i> set <i>value</i>}>>
 
-Sets the current value of the field.  The value's <b>-brief</b> 
-narrative will be displayed.<p>
+Sets the current <i>value</i> (i.e., the <i>gdict</i>) of the field.  
+The value's <b>-brief</b> narrative will be displayed.<p>
 
 <</deflist instance>>
 

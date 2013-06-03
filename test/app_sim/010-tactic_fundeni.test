@@ -103,7 +103,7 @@ namespace eval ::athena_test::tests:: {
         tactic::FUNDENI narrative [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {Fund $2,000.00 worth of Essential Non-Infrastructure services for civilian group SHIA.}
+    } -result {Fund $2,000.00 worth of Essential Non-Infrastructure services for group SHIA.}
 
     test narrative-1.2 {narrative: three groups} -setup {
         setup
@@ -112,7 +112,7 @@ namespace eval ::athena_test::tests:: {
         tactic::FUNDENI narrative [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {Fund $7,000.00 worth of Essential Non-Infrastructure services for civilian groups SHIA, SUNN, KURD.}
+    } -result {Fund $7,000.00 worth of Essential Non-Infrastructure services for these groups (SHIA, SUNN, KURD).}
 
     #-------------------------------------------------------------------
     # check
@@ -125,7 +125,7 @@ namespace eval ::athena_test::tests:: {
         tactic::FUNDENI check [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {Civilian Group SUNN no longer exists.}
+    } -result {Invalid civilian group, should be one of: SHIA, KURD, NO_ONE}
 
     test check-1.2 {check: multiple g in glist no longer exist} -setup {
         setup
@@ -135,7 +135,7 @@ namespace eval ::athena_test::tests:: {
         tactic::FUNDENI check [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {Civilian Group SHIA no longer exists.  Civilian Group SUNN no longer exists.  Civilian Group KURD no longer exists.}
+    } -result {Invalid civilian group, none are defined}
 
     #-------------------------------------------------------------------
     # dollars

@@ -51,7 +51,7 @@ source [file join $::projectgui::library myhtmlpane.tcl      ]
 source [file join $::projectgui::library modaltextwin.tcl    ]
 source [file join $::projectgui::library textwin.tcl         ]
 source [file join $::projectgui::library rolemapfield.tcl    ]
-source [file join $::projectgui::library smartfield.tcl      ]
+source [file join $::projectgui::library goferfield.tcl      ]
 
 
 

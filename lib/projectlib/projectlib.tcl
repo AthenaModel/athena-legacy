@@ -62,5 +62,5 @@ source [file join $::projectlib::library profiler.tcl    ]
 source [file join $::projectlib::library week.tcl        ]
 source [file join $::projectlib::library weekclock.tcl   ]
 source [file join $::projectlib::library experimentdb.tcl]
-source [file join $::projectlib::library smart_type.tcl  ]
+source [file join $::projectlib::library gofer.tcl       ]
 

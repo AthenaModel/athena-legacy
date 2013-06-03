@@ -35,96 +35,93 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
     # description of each subcommand.
 
     typemethod narrative {tdict} {
-        dict with tdict {
-            if {[llength $glist] == 1} {
-                set gtext "civilian group [lindex $glist 0]"
-            } else {
-                set gtext "civilian groups [join $glist {, }]"
-            }
+        dict with tdict {}
 
-            return "Fund \$[moneyfmt $x1] worth of Essential Non-Infrastructure services for $gtext."
-        }
+        set gtext [gofer_civgroups narrative $glist]
+
+        return "Fund \$[moneyfmt $x1] worth of Essential Non-Infrastructure services for $gtext."
     }
 
     typemethod dollars {tdict} {
-        dict with tdict {
-            return [moneyfmt $x1]
-        }
+        dict with tdict {}
+        return [moneyfmt $x1]
     }
 
     typemethod check {tdict} {
         set errors [list]
 
-        dict with tdict {
-            # glist
-            foreach g $glist {
-                if {$g ni [civgroup names]} {
-                    lappend errors "Civilian Group $g no longer exists."
-                }
-            }
+        dict with tdict {}
+
+        # glist
+        if {[catch {gofer_civgroups validate $glist} result]} {
+            lappend errors $result
         }
 
         return [join $errors "  "]
     }
 
     typemethod execute {tdict} {
-        dict with tdict {
-            # FIRST, Ensure that the group has influence in the
-            # relevant neighborhood, neighborhoods.  If insufficient
-            # influence, don't execute.
-            set glist [FilterForSupport $owner $glist]
+        dict with tdict {}
 
-            if {[llength $glist] == 0} {
-                return 0
-            }
+        # FIRST, get the list of groups.  Note that it might be empty.
+        set list [gofer_civgroups eval $glist]
 
-            # NEXT, can we afford it?
-            if {![cash spend $owner FUNDENI $x1]} {
-                return 0
-            }
+        # NEXT, Ensure that each group has influence in the
+        # relevant neighborhood, neighborhoods.  If insufficient
+        # influence, don't execute.  (This catches an empty glist as
+        # well.)
+        set list [FilterForSupport $owner $list]
 
-            # NEXT, Compute strings needed for logging.
-            if {[llength $glist] == 1} {
-                set gtext "{group:[lindex $glist 0]}"
-            } else {
-                set grps [list]
-     
-                foreach g $glist {
-                    lappend grps "{group:$g}"
-                }
-
-                set gtext [join $grps ", "]
-            }
-
-            
-            # NEXT, try to fund the service.  This will fail if
-            # all of the groups are empty.
-            if {![service fundeni $owner $x1 $glist]} {
-                cash refund $owner FUNDENI $x1
-                sigevent log 2 tactic "
-                    FUNDENI: Actor {actor:$owner} could not fund
-                    \$[moneyfmt $x1] worth of Essential Non-Infrastructure 
-                    services to $gtext, because all of those groups 
-                    are empty.
-                " $owner {*}$glist
-                return 0
-            }
-
-            # NEXT, get the related neighborhoods.
-            set nbhoods [rdb eval "
-                SELECT DISTINCT n 
-                FROM civgroups
-                WHERE g IN ('[join $glist ',']')
-            "]
-
-
-            # TBD: Do I need to include neighborhoods in here?
-            sigevent log 2 tactic "
-                FUNDENI: Actor {actor:$owner} funds \$[moneyfmt $x1]
-                worth of Essential Non-Infrastructure services to
-                $gtext.
-            " $owner {*}$glist {*}$nbhoods
+        if {[llength $list] == 0} {
+            return 0
         }
+
+        # NEXT, can we afford it?
+        if {![cash spend $owner FUNDENI $x1]} {
+            return 0
+        }
+
+        # NEXT, Compute strings needed for logging.
+        if {[llength $list] == 1} {
+            set gtext "{group:[lindex $list 0]}"
+        } else {
+            set grps [list]
+ 
+            foreach g $list {
+                lappend grps "{group:$g}"
+            }
+
+            set gtext [join $grps ", "]
+        }
+
+        
+        # NEXT, try to fund the service.  This will fail if
+        # all of the groups are empty.
+        if {![service fundeni $owner $x1 $list]} {
+            cash refund $owner FUNDENI $x1
+            sigevent log 2 tactic "
+                FUNDENI: Actor {actor:$owner} could not fund
+                \$[moneyfmt $x1] worth of Essential Non-Infrastructure 
+                services to $gtext, because all of those groups 
+                are empty.
+            " $owner {*}$glist
+            return 0
+        }
+
+        # NEXT, get the related neighborhoods.
+        set nbhoods [rdb eval "
+            SELECT DISTINCT n 
+            FROM civgroups
+            WHERE g IN ('[join $list ',']')
+        "]
+
+
+        # TBD: Do I need to include neighborhoods in here?
+        sigevent log 2 tactic "
+            FUNDENI: Actor {actor:$owner} funds \$[moneyfmt $x1]
+            worth of Essential Non-Infrastructure services to
+            $gtext.
+        " $owner {*}$list {*}$nbhoods
 
         return 1
     }
@@ -174,7 +171,7 @@ order define TACTIC:FUNDENI:CREATE {
         text owner -context yes
 
         rcc "Groups:" -for glist
-        civlist glist
+        gofer glist -typename gofer_civgroups
 
         rcc "Amount:" -for x1
         text x1
@@ -191,12 +188,12 @@ order define TACTIC:FUNDENI:CREATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type   actor
-    prepare glist    -toupper   -required -listof civgroup
-    prepare x1                  -required -type   money
-    prepare once                          -type   boolean
-    prepare on_lock                       -type   boolean
-    prepare priority -tolower             -type   ePrioSched
+    prepare owner    -toupper   -required -type actor
+    prepare glist               -required -type gofer_civgroups
+    prepare x1                  -required -type money
+    prepare once                          -type boolean
+    prepare on_lock                       -type boolean
+    prepare priority -tolower             -type ePrioSched
  
     returnOnError -final
 
@@ -224,7 +221,7 @@ order define TACTIC:FUNDENI:UPDATE {
         disp owner
 
         rcc "Groups:" -for glist
-        civlist glist
+        gofer glist -typename gofer_civgroups
 
         rcc "Amount:" -for x1
         text x1
@@ -239,7 +236,7 @@ order define TACTIC:FUNDENI:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
-    prepare glist      -toupper  -listof civgroup
+    prepare glist                -type   gofer_civgroups
     prepare x1                   -type   money
     prepare once                 -type   boolean
     prepare on_lock              -type   boolean
