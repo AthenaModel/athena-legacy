@@ -11,6 +11,26 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.9, 5 June 2013</h3>
+
+This build has a number of changes in support of Athena running on a
+supercomputing cluster. Essentially, Athena needs to be run completely
+"headless" meaning that no Tk modules can be loaded when in batch mode. 
+There is also a handful of minor functional enhancements and bug fixes.
+The complete list of packages are as follows:<p>
+
+<ul>
+<li> Bug 4012: athena(1): Add Linux basekit to the tools directory
+<li> Bug 4014: athena(1): need two validators for rolemap inputs
+<li> Bug 4026: athena(1): do not load Tk when athena is in batchmode
+<li> Bug 4008: athena(1): No executive reset on lock
+<li> Bug 4009: athena(1): [call] executive command can call internal scripts by name
+<li> Bug 4010: athena(1): Scripting Changes
+<li> Bug 4016: athena(1): Smart Types and Fields
+<li> Bug 4020: athena(1): rolemap and gofer dynaform_fields should be defined in projectlib.
+<li> Bug 4022: athena(1): Move non-Tk modules from ui/ to shared/ 
+</ul><p>
+
 <h3>Build 5.0.8, 22 May 2013</h3>
 
 This build has a number of significant enhancements over previous
