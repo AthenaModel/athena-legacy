@@ -6,7 +6,7 @@
 #   all of the package's modules.
 #
 # PACKAGE:
-#   app_sim_ui(n) -- Athena(1) User Interface code.
+#   app_sim_ui(n) -- Athena(1) User Interface (i.e., Tk) code.
 #
 # PROJECT:
 #   Athena S&RO Simulation
@@ -56,30 +56,6 @@ namespace import ::projectgui::*
 
 source [file join $::app_sim_ui::library activitybrowser.tcl    ]
 source [file join $::app_sim_ui::library actorbrowser.tcl       ]
-source [file join $::app_sim_ui::library appserver.tcl          ]
-source [file join $::app_sim_ui::library appserver_actor.tcl    ]
-source [file join $::app_sim_ui::library appserver_cap.tcl      ]
-source [file join $::app_sim_ui::library appserver_contribs.tcl ]
-source [file join $::app_sim_ui::library appserver_curses.tcl   ]
-source [file join $::app_sim_ui::library appserver_docs.tcl     ]
-source [file join $::app_sim_ui::library appserver_drivers.tcl  ]
-source [file join $::app_sim_ui::library appserver_econ.tcl     ]
-source [file join $::app_sim_ui::library appserver_enums.tcl    ]
-source [file join $::app_sim_ui::library appserver_firing.tcl   ]
-source [file join $::app_sim_ui::library appserver_group.tcl    ]
-source [file join $::app_sim_ui::library appserver_home.tcl     ]
-source [file join $::app_sim_ui::library appserver_hook.tcl     ]
-source [file join $::app_sim_ui::library appserver_image.tcl    ]
-source [file join $::app_sim_ui::library appserver_iom.tcl      ]
-source [file join $::app_sim_ui::library appserver_mads.tcl     ]
-source [file join $::app_sim_ui::library appserver_marsdocs.tcl ]
-source [file join $::app_sim_ui::library appserver_nbhood.tcl   ]
-source [file join $::app_sim_ui::library appserver_objects.tcl  ]
-source [file join $::app_sim_ui::library appserver_overview.tcl ]
-source [file join $::app_sim_ui::library appserver_parmdb.tcl   ]
-source [file join $::app_sim_ui::library appserver_plot.tcl     ]
-source [file join $::app_sim_ui::library appserver_sanity.tcl   ]
-source [file join $::app_sim_ui::library appserver_sigevents.tcl]
 source [file join $::app_sim_ui::library appwin.tcl             ]
 source [file join $::app_sim_ui::library attritbrowser.tcl      ]
 source [file join $::app_sim_ui::library bookmarkbrowser.tcl    ]
@@ -100,7 +76,6 @@ source [file join $::app_sim_ui::library econngbrowser.tcl      ]
 source [file join $::app_sim_ui::library econpopbrowser.tcl     ]
 source [file join $::app_sim_ui::library ensitbrowser.tcl       ]
 source [file join $::app_sim_ui::library frcgroupbrowser.tcl    ]
-source [file join $::app_sim_ui::library gradient.tcl           ]
 source [file join $::app_sim_ui::library hookbrowser.tcl        ]
 source [file join $::app_sim_ui::library hrelbrowser.tcl        ]
 source [file join $::app_sim_ui::library hrelbrowser_sim.tcl    ]
@@ -125,7 +100,6 @@ source [file join $::app_sim_ui::library securitybrowser.tcl    ]
 source [file join $::app_sim_ui::library strategybrowser.tcl    ]
 source [file join $::app_sim_ui::library timechart.tcl          ]
 source [file join $::app_sim_ui::library toolbutton.tcl         ]
-source [file join $::app_sim_ui::library view.tcl               ]
 source [file join $::app_sim_ui::library vrelbrowser.tcl        ]
 source [file join $::app_sim_ui::library vrelbrowser_sim.tcl    ]
 

@@ -12,7 +12,7 @@
 
 # coopgradient: A fill color gradient for satisfaction levels
 
-::marsgui::gradient coopgradient \
+::marsutil::gradient coopgradient \
     -mincolor \#FF0000          \
     -midcolor \#FFFFFF          \
     -maxcolor \#00FF00          \
@@ -22,7 +22,7 @@
 
 # covgradient: A fill color gradient for coverage fractions
 
-::marsgui::gradient covgradient \
+::marsutil::gradient covgradient \
     -mincolor \#FFFFFF          \
     -midcolor \#FFFFFF          \
     -maxcolor \#0000FF          \
@@ -32,7 +32,7 @@
 
 # pcfgradient: A fill color gradient for econ_n pcf's
 
-::marsgui::gradient pcfgradient \
+::marsutil::gradient pcfgradient \
     -mincolor \#FF0000          \
     -midcolor \#FFFFFF          \
     -maxcolor \#00FF00          \
@@ -42,7 +42,7 @@
 
 # satgradient: A fill color gradient for satisfaction levels
 
-::marsgui::gradient satgradient \
+::marsutil::gradient satgradient \
     -mincolor \#FF0000          \
     -midcolor \#FFFFFF          \
     -maxcolor \#00FF00          \
@@ -52,7 +52,7 @@
 
 # secgradient: A fill color gradient for security levels
 
-::marsgui::gradient secgradient \
+::marsutil::gradient secgradient \
     -mincolor \#FF0000          \
     -midcolor \#FFFFFF          \
     -maxcolor \#00FF00          \
@@ -62,7 +62,7 @@
 
 # relgradient: A fill color gradient for affinities and relationships
 
-::marsgui::gradient relgradient \
+::marsutil::gradient relgradient \
     -mincolor \#FF0000          \
     -midcolor \#FFFFFF          \
     -maxcolor \#00FF00          \
