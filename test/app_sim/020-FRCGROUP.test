@@ -118,8 +118,8 @@ namespace eval ::athena_test::tests:: {
         }]
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
+    } -match glob -result {
+        color {Invalid hex color*}
     }
 
 
@@ -365,8 +365,8 @@ local           0
         ted order -reject FRCGROUP:UPDATE g BLUE color NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
+    } -match glob -result {
+        color {Invalid hex color*}
     }
 
     test UPDATE-1.4 {invalid shape} -setup {
@@ -591,9 +591,9 @@ local           1
         ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE color NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
-    }
+    } -match glob -result {
+        color {Invalid hex color*}
+    } 
 
 
     test UPDATE:MULTI-1.6 {invalid shape} -setup {

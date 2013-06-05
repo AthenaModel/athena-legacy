@@ -111,8 +111,8 @@ namespace eval ::athena_test::tests:: {
         }]
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
+    } -match glob -result {
+        color {Invalid hex color*}
     }
 
 
@@ -309,8 +309,8 @@ base_personnel  1000
         ted order -reject ORGGROUP:UPDATE g USAID color NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
+    } -match glob -result {
+        color {Invalid hex color*}
     }
 
 
@@ -460,8 +460,8 @@ base_personnel  1000
         ted order -reject ORGGROUP:UPDATE:MULTI ids USAID color NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
+    } -match glob -result {
+        color {Invalid hex color*}
     }
 
 

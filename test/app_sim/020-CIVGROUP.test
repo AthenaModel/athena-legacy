@@ -119,8 +119,8 @@ namespace eval ::athena_test::tests:: {
         }]
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
+    } -match glob -result {
+        color {Invalid hex color*}
     }
 
 
@@ -438,8 +438,8 @@ upc         0.0
         ted order -reject CIVGROUP:UPDATE g SHIA color NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        color {Invalid hex color specifier, should be "#RRGGBB" or a valid color name}
+    } -match glob -result {
+        color {Invalid hex color*}
     }
 
 
