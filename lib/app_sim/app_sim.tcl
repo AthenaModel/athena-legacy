@@ -41,20 +41,28 @@ package require textutil::adjust 0.7
 
 # From Mars
 package require marsutil
-package require marsgui
 package require simlib
 
 # From Athena
 package require projectlib
-package require projectgui
 package require app_sim_shared
-package require app_sim_ui
         
 namespace import ::marsutil::* 
-namespace import ::marsgui::*
 namespace import ::simlib::*
 namespace import ::projectlib::*
-namespace import ::projectgui::*
+
+# For Tk applications
+if {$::loadTk} {
+    # From Mars
+    package require marsgui
+
+    # From Athena
+    package require app_sim_ui
+    package require projectgui
+
+    namespace import ::marsgui::*
+    namespace import ::projectgui::*
+}
 
 #-----------------------------------------------------------------------
 # Load app_sim(n) submodules

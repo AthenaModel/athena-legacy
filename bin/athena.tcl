@@ -83,19 +83,30 @@ proc main {argv} {
     #-------------------------------------------------------------------
     # Application Mode.
 
-    #-------------------------------------------------------------------
-    # Require Tk.
-    #
-    #    version conflict for package "Tcl": have 8.5.3, need exactly 8.5
-    #
-    # This logic works around the bug.
 
-    # FIRST, get all Non-TK arguments from argv, leaving the Tk-specific
+    # FIRST, Tk is needed if only if we are not in -batch mode
+    set ::loadTk 1
+
+    if {"-batch" in $argv} {
+        set ::loadTk 0
+    }
+
+    # NEXT, get all Non-TK arguments from argv, leaving the Tk-specific
     # stuff in place for processing by Tk.
-    set argv [nonTkArgs $argv]
 
-    # NEXT, load Tk.
-    package require Tk 8.5
+    if {$::loadTk} {
+        #---------------------------------------------------------------
+        # Require Tk.
+        #
+        #    version conflict for package "Tcl": have 8.5.3, 
+        #    need exactly 8.5
+        #
+        # This logic works around the bug.
+        set argv [nonTkArgs $argv]
+
+        # NEXT, load Tk.
+        package require Tk 8.5
+    }
 
     # NEXT, go ahead and load marsutil(n).  Don't import it;
     # leave that for the applications.

@@ -676,8 +676,10 @@ snit::type scenario {
         # NEXT, define the temp schema
         DefineTempSchema
 
-        # NEXT, load the blank map
-        map load [file join $::app_sim::library blank.png]
+        # NEXT, load the blank map, but only if we are not in batchmode
+        if {![app batch]} {
+            map load [file join $::app_sim::library blank.png]
+        }
 
         # NEXT, Reset the model parameters to their defaults, and
         # mark them saved.

@@ -452,7 +452,7 @@ snit::type axdb {
 
         if {[sim stopreason] eq "FAILURE"} {
             $type SetCaseOutcome $case_id FAILURE [sanity ontick text]
-            return "FAILURE; see my://app/sanity/onlock."
+            return "FAILURE; see my://app/sanity/ontick."
         }
 
         $type SetCaseOutcome $case_id ERROR \

@@ -663,17 +663,21 @@ snit::type sim {
         set stopping 0
 
         if {[sanity ontick check] != "OK"} {
-            app show my://app/sanity/ontick
+            # NEXT, direct the user to the appropriate appserver page
+            # if we are not in batch mode
+            if {![app batch]} {
+                app show my://app/sanity/ontick
 
-            if {[winfo exists .main]} {
-                messagebox popup \
-                    -parent  [app topwin]         \
-                    -icon    error                \
-                    -title   "Simulation Stopped" \
-                    -message [normalize {
-            On-tick sanity check failed; simulation stopped.
-            Please see the On-Tick Sanity Check report for details.
-                    }]
+                if {[winfo exists .main]} {
+                    messagebox popup \
+                        -parent  [app topwin]         \
+                        -icon    error                \
+                        -title   "Simulation Stopped" \
+                        -message [normalize {
+                On-tick sanity check failed; simulation stopped.
+                Please see the On-Tick Sanity Check report for details.
+                        }]
+                }
             }
 
             set info(reason) FAILURE

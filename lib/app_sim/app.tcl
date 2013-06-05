@@ -229,6 +229,7 @@ snit::type app {
 
         # NEXT, register my:// servers with myagent.
         appserver init
+
         myagent register app ::appserver
         myagent register help \
             [helpserver %AUTO% \
@@ -275,16 +276,19 @@ snit::type app {
             -trace       yes     \
             -transaction no
 
-        # NEXT, initialize the order dialog manager
-        orderdialog init \
-            -parent    .main              \
-            -appname   "Athena [version]" \
-            -helpcmd   [list app help]    \
-            -refreshon {
-                ::cif <Update>
-                ::sim <Tick>
-                ::sim <DbSyncB>
-            }
+        # NEXT, initialize the order dialog manager if we are not in
+        # batch mode
+        if {!$opts(-batch)} {
+            orderdialog init \
+                -parent    .main              \
+                -appname   "Athena [version]" \
+                -helpcmd   [list app help]    \
+                -refreshon {
+                    ::cif <Update>
+                    ::sim <Tick>
+                    ::sim <DbSyncB>
+                }
+        }
 
         # NEXT, bind components together
         notifier bind ::sim <State> ::order {::order state [::sim state]}
@@ -297,13 +301,13 @@ snit::type app {
         # NEXT, Create the main window, and register it as a saveable.
         # It does not, in fact, contain any scenario data; but this allows
         # us to capture the user's "session" as part of the scenario file.
-        wm withdraw .
+        # No main window in batch mode.
 
         if {!$opts(-batch)} {
+            wm withdraw .
             appwin .main -dev $opts(-dev)
             scenario register .main
         }
-
 
         # NEXT, log that we're up.
         log normal app "Athena [version]"
@@ -382,6 +386,15 @@ snit::type app {
         if {$opts(-url) ne ""} {
             app show $opts(-url)
         }
+    }
+
+    # batch
+    #
+    # Returns the value of the -batch option for other modules to
+    # use as needed.
+
+    typemethod batch {} {
+        return $opts(-batch)
     }
 
     # AddOrderToCIF interface name parmdict undoScript
@@ -733,7 +746,7 @@ snit::type app {
         }
 
         # NEXT, save the CLI history, if any.
-        if {!$opts(-ignoreuser) && [winfo exists .main]} {
+        if {!$opts(-ignoreuser) && !$opts(-batch) && [winfo exists .main]} {
             .main savehistory
         }
 
