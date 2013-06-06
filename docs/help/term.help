@@ -922,7 +922,7 @@ term roe "ROE" {
 
 #-----------------------------------------------------------------------
 
-term role "Role" {
+term role "role" {
     Roles are used to specify one or more <<term group>>s or 
     <<term actor>>s as part of an <<term inject>> associated with a 
     <<term curse>>.  Roles can be thought of as user-defined variables

@@ -54,12 +54,19 @@ object inject_ {
         its <<term curse>>.
     } -tags {object}
 
-    attribute id "Inject ID" {
+    attribute id "Inject" {
         The ID of this inject, which consists of the ID of the
         <<term curse>> to which it is attached, and its inject number
-        with respect to the CURSE< as a list 
+        with respect to the CURSE, as a list 
         {<i>curse_id inject_number</i>}.
     } -tags {object state}
+
+    attribute inject_mode "Mode" {
+        The mode, <b>persistent</b> or <b>transient</b>.  Transient
+        injects affect the current level of the curve during the next
+        time step; persistent injects affect the curve's baseline, and
+        hence usually persistent during subsequent weeks.
+    } -tags {object create update}
 
     attribute inject_type "Inject Type" {
         The inject's type, e.g., 
@@ -102,13 +109,13 @@ object inject_coop {
         with force groups in the force group <<term role>>.
     }
 
-    include inject_ -attrs {curse_id inject_num id state}
+    include inject_ -attrs {curse_id inject_num state inject_mode}
 
-    attribute f "Civ. Group Role" {
+    attribute f "Of Civ Group Role" {
         The ID of a <<term role>> for civilian groups.
     } -tags {create update}
 
-    attribute g "Frc. Group Role" {
+    attribute g "With Force Group Role" {
         The ID of a <<term role>> for force groups.
     } -tags {create update}
 
@@ -138,7 +145,7 @@ object inject_hrel {
         set of groups in another <<term role>>.
     }
 
-    include inject_ -attrs {curse_id inject_num id state}
+    include inject_ -attrs {curse_id inject_num state inject_mode}
 
     attribute f "Of Group Role" {
         The ID of a <<term role>> for one or more <<term group>>s.  
@@ -176,13 +183,13 @@ object inject_sat {
         concern.
     }
 
-    include inject_ -attrs {curse_id inject_num id state}
+    include inject_ -attrs {curse_id inject_num state inject_mode}
 
     attribute f "Civ. Group Role" {
         The ID of a <<term role>> for one or more <<term civgroup>>s.  
     } -tags {create update}
 
-    attribute c "concern" {
+    attribute c "With" {
         The ID of a <<term concern>>.
     } -tags {create update}
 
@@ -212,15 +219,15 @@ object inject_vrel {
         <<term role>>.
     }
 
-    include inject_ -attrs {curse_id inject_num id state}
+    include inject_ -attrs {curse_id inject_num state inject_mode}
 
-    attribute a "Actor" {
-        The ID of a <<term role>> for one or more <<term actor>>s.
-    } -tags {create update}
-
-    attribute g "With Group Role" {
+    attribute g "Of Group Role" {
         The ID of a <<term role>> for one or more <<term group>>s.  
         The group may be of any type.
+    } -tags {create update}
+
+    attribute a "With Actor Role" {
+        The ID of a <<term role>> for one or more <<term actor>>s.
     } -tags {create update}
 
     attribute mag "Magnitude" {

@@ -1966,7 +1966,86 @@ tab "Attitudes/Magic Attitude Drivers" {
 }
 
 tab "Attitudes/Curses" {
-    TBD.
+    Athena allows the analyst to define their own situations and events
+    with any desired affects to attitudes. This is useful if there is 
+    something that an analyst needs to drive attitudes that isn't already 
+    explicitly modeled in Athena.  Through the use of <<term inject>>s that 
+    use flexible user defined <<term role>>s an analyst can cause any number
+    of changes to attitudes with whatever magnitudes are desired.  These
+    are referred to as Complex User-defined Role-based Situations and
+    Events or <<cref /order/curse CURSEs>> for short. This
+    tab lists the existing CURSEs along with their associated <<term inject>>s.
+    The browser controls are described <<seebelow controls>>; the data 
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+
+    <<topic "CURSE/Inject">>
+    A narrative description of each CURSE and inject.  A button at the left
+    margin allows CURSEs to be expanded to reveal their attached injects.
+    <</topic>>
+
+    <<topic "Cause">>The <<term cause>> associated with the CURSE.  Every
+    input to URAM is associated with a cause; inputs with different
+    causes are independent of one another.  The cause may be any of
+    the causes supported by Athena's Driver Assessment Model rule
+    sets, or <b>UNIQUE</b>, indicating that this CURSEs effects are
+    independent of all other drivers.<p>
+    <</topic>>
+
+    <<topic "Id">>The Id of the CURSE or inject, a value that 
+    uniquely identifies the CURSE or inject.<p>
+    <</topic>>
+
+    <<topic "Type">> For injects, the inject type.<p>
+    <</topic>>
+
+    <<topic "Mode">> For injects, the mode of the desired attitude change, 
+    either "transient" or "persistent".  Transient injects
+    affect the current level of the attitude curve during the next time step; 
+    persistent injects affect the attitude curve's baseline, and hence usually 
+    persistent during subsequent weeks.<p>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plusc]>>
+    Pops up the <<cref /order/curse/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_plusi]>>
+    Pops up a dialog to create a new CURSE inject.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Depending on which row is selected, pops up either the 
+    <<cref /order/curse/update>> dialog or the appropriate <<term inject>> 
+    update dialog for the selected row.
+    <</topic>>
+
+    <<topic [image button_power]>>
+    Depending on which row is selected, toggles the selected CURSE or
+    inject on and off.  Disabled CURSEs will not have any of thier injects
+    executed.  Disabled injects will not be executed.  
+    <</topic>>
+
+    <<topic [image button_checktxt]>>
+    Force a sanity check of CURSEs and injects.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Depending on the selected row, either deletes a CURSE using the
+    <<cref /order/curse/delete>> order or the <<cref /order/inject/delete>>
+    order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
 }
 
 #=======================================================================
