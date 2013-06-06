@@ -42,11 +42,19 @@ namespace eval ::athena_test::tests:: {
     set c1 {
         curse_id    C1 
         longname   "Curse One"
+        cause       UNIQUE
+        s           1.0
+        p           0.2
+        q           0.1
     }
 
     set c2 {
         curse_id    C2
         longname   "Curse Two"
+        cause       UNIQUE
+        s           1.0
+        p           0.0
+        q           0.0
     }
 
     # injects
@@ -71,10 +79,10 @@ namespace eval ::athena_test::tests:: {
     } -result {
 curse_id  C1
 longname  Curse One
-cause     
+cause     UNIQUE
 s         1.0
-p         0.0
-q         0.0
+p         0.2
+q         0.1
 state     normal
     }
 
@@ -119,15 +127,15 @@ state     normal
     } -result {
 curse_id  C1
 longname  Curse One
-cause     
+cause     UNIQUE
 s         1.0
-p         0.0
-q         0.0
+p         0.2
+q         0.1
 state     normal
 
 curse_id  C2
 longname  Curse Two
-cause     
+cause     UNIQUE
 s         1.0
 p         0.0
 q         0.0
@@ -185,10 +193,10 @@ state     normal
     } -result {
 curse_id  C1
 longname  Cast a CURSE
-cause     
+cause     UNIQUE
 s         1.0
-p         0.0
-q         0.0
+p         0.2
+q         0.1
 state     normal
     }
 
@@ -199,7 +207,7 @@ state     normal
     } -body {
         set a [ted query {SELECT * FROM curses}]
 
-        iom mutate update $c1
+        curse mutate update $c1
 
         set b [ted query {SELECT * FROM curses}]
 
@@ -264,7 +272,7 @@ state     normal
     } -result {
 curse_id  C2
 longname  Curse Two
-cause     
+cause     UNIQUE
 s         1.0
 p         0.0
 q         0.0
@@ -498,10 +506,10 @@ state     disabled
     } -cleanup {
         cleanup
     } -result {
-        narrative {Curse One (s: 1.0 p: 0.0 q: 0.0)}
+        narrative {Curse One (s: 1.0 p: 0.2 q: 0.1)}
         state     normal
         fancy     {C1: Curse One}
-        cause     {}
+        cause     UNIQUE
         longname  {Curse One}
         longlink  {<a href="my://app/curse/C1">Curse One</a>}
         link      {<a href="my://app/curse/C1">C1</a>}

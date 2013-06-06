@@ -332,10 +332,16 @@ snit::type curse {
                 INSERT INTO 
                 curses(curse_id, 
                        longname,
-                       cause)
+                       cause,
+                       s,
+                       p,
+                       q)
                 VALUES($curse_id, 
                        $longname,
-                       $cause); 
+                       $cause,
+                       $s,
+                       $p,
+                       $q); 
             }
 
             # NEXT, Return the undo command
@@ -377,7 +383,10 @@ snit::type curse {
             rdb eval {
                 UPDATE curses
                 SET longname = nonempty($longname, longname),
-                    cause    = nonempty($cause,    cause)
+                    cause    = nonempty($cause,    cause),
+                    s        = nonempty($s,        s),
+                    p        = nonempty($p,        p),
+                    q        = nonempty($q,        q)
                 WHERE curse_id=$curse_id;
             } 
 
