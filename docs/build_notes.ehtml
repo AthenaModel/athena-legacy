@@ -29,6 +29,7 @@ The complete list of packages are as follows:<p>
 <li> Bug 4016: athena(1): Smart Types and Fields
 <li> Bug 4020: athena(1): rolemap and gofer dynaform_fields should be defined in projectlib.
 <li> Bug 4022: athena(1): Move non-Tk modules from ui/ to shared/ 
+<li> Bug 4027: Makefile: stop making install set tarball for Win32 
 </ul><p>
 
 <h3>Build 5.0.8, 22 May 2013</h3>
