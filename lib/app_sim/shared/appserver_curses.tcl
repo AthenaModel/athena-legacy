@@ -121,6 +121,7 @@ appserver module CURSES {
                    desc             AS "Description",
                    state            AS "State"
             FROM gui_injects
+            WHERE curse_id=$id
         } -default "None." -align RLLLL
         
 
