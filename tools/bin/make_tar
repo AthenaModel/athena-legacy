@@ -34,6 +34,14 @@ array set tags {
 }
 
 #-------------------------------------------------------------------
+# Tar sets by platform
+
+array set tarset {
+    win32 {source docs}
+    linux32 {install source docs}
+}
+
+#-------------------------------------------------------------------
 # Installation patterns
 #
 # Files matching one of the following glob patterns (relative to
@@ -145,19 +153,34 @@ set antipatterns {
 proc main {argv} {
     global patterns
     global tags
+    global tarset
 
-    # FIRST, get the version number
-    if {[llength $argv] != 2} {
-        puts "usage: make_tar type x.y.z"
+    # FIRST, check args
+    if {[llength $argv] != 3} {
+        puts "usage: make_tar type x.y.z platform"
         exit 1
     }
 
-    set tarType [lindex $argv 0]
-    set version [lindex $argv 1]
+    # NEXT, get type and version number
+    set tarType  [lindex $argv 0]
+    set version  [lindex $argv 1]
+    set platform [lindex $argv 2]
 
     if {![info exists patterns($tarType)]} {
         puts "invalid tar file type: \"$tarType\""
         exit 1
+    }
+
+    if {![info exists tarset($platform)]} {
+        puts "invalid platform: \"$platform\""
+        exit 1
+    }
+
+    # NEXT, if the tar type is not for this platform, done.
+    if {$tarType ni $tarset($platform)} {
+
+        puts "make_tar: skipping $tarType on $platform"
+        exit 0
     }
 
     # FIRST, get the absolute path of the athena_x.y.z directory.

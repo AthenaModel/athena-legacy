@@ -276,15 +276,19 @@ check_cmbuild:
 # Target: tar
 
 tar:
-	@ echo ""
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo "+               Making ../athena_$(ATHENA_VERSION).tar"
+	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
+	@ echo ""
+
+	$(TOP_DIR)/tools/bin/make_tar install $(ATHENA_VERSION) $(MARS_PLATFORM)
+
+	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo "+               Making ../athena_$(ATHENA_VERSION)_docs.tar"
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
 
-	$(TOP_DIR)/tools/bin/make_tar install $(ATHENA_VERSION)
-	$(TOP_DIR)/tools/bin/make_tar docs    $(ATHENA_VERSION)
+	$(TOP_DIR)/tools/bin/make_tar docs    $(ATHENA_VERSION) $(MARS_PLATFORM)
 
 #---------------------------------------------------------------------
 # Target: srctar
@@ -296,7 +300,7 @@ srctar:
 	@ echo "+++++++++++++++++++++++++++++++++++++++++++++++++++++"
 	@ echo ""
 
-	$(TOP_DIR)/tools/bin/make_tar source $(ATHENA_VERSION)
+	$(TOP_DIR)/tools/bin/make_tar source $(ATHENA_VERSION) $(MARS_PLATFORM)
 
 
 #---------------------------------------------------------------------
