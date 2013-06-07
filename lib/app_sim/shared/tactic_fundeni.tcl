@@ -37,7 +37,7 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
     typemethod narrative {tdict} {
         dict with tdict {}
 
-        set gtext [gofer_civgroups narrative $glist]
+        set gtext [gofer::CIVGROUPS narrative $glist]
 
         return "Fund \$[moneyfmt $x1] worth of Essential Non-Infrastructure services for $gtext."
     }
@@ -53,7 +53,7 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
         dict with tdict {}
 
         # glist
-        if {[catch {gofer_civgroups validate $glist} result]} {
+        if {[catch {gofer::CIVGROUPS validate $glist} result]} {
             lappend errors $result
         }
 
@@ -64,7 +64,7 @@ tactic type define FUNDENI {x1 glist once on_lock} actor {
         dict with tdict {}
 
         # FIRST, get the list of groups.  Note that it might be empty.
-        set list [gofer_civgroups eval $glist]
+        set list [gofer::CIVGROUPS eval $glist]
 
         # NEXT, Ensure that each group has influence in the
         # relevant neighborhood, neighborhoods.  If insufficient
@@ -171,7 +171,7 @@ order define TACTIC:FUNDENI:CREATE {
         text owner -context yes
 
         rcc "Groups:" -for glist
-        gofer glist -typename gofer_civgroups
+        gofer glist -typename gofer::CIVGROUPS
 
         rcc "Amount:" -for x1
         text x1
@@ -189,7 +189,7 @@ order define TACTIC:FUNDENI:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type actor
-    prepare glist               -required -type gofer_civgroups
+    prepare glist               -required -type gofer::CIVGROUPS
     prepare x1                  -required -type money
     prepare once                          -type boolean
     prepare on_lock                       -type boolean
@@ -221,7 +221,7 @@ order define TACTIC:FUNDENI:UPDATE {
         disp owner
 
         rcc "Groups:" -for glist
-        gofer glist -typename gofer_civgroups
+        gofer glist -typename gofer::CIVGROUPS
 
         rcc "Amount:" -for x1
         text x1
@@ -236,7 +236,7 @@ order define TACTIC:FUNDENI:UPDATE {
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type   tactic
-    prepare glist                -type   gofer_civgroups
+    prepare glist                -type   gofer::CIVGROUPS
     prepare x1                   -type   money
     prepare once                 -type   boolean
     prepare on_lock              -type   boolean

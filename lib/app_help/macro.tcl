@@ -25,9 +25,14 @@ namespace eval ::macro:: {
 
     namespace export \
         childlinks   \
+        children     \
         cref         \
         enumdoc      \
         image        \
+        itemlist     \
+        item         \
+        /item        \
+        /itemlist    \
         pageinfo     \
         parmlist     \
         parm         \
@@ -112,6 +117,30 @@ proc macro::childlinks {{parent ""}} {
 
     return $out
 }
+
+# children ?parent?
+#
+# parent - A parent path
+#
+# Returns a dictionary of page titles by page paths for the
+# children of parent, which defaults to the current page.
+
+proc macro::children {{parent ""}} {
+    variable pageInfo
+
+    # FIRST, get the parent name.
+    if {$parent eq ""} {
+        set parent $pageInfo(path)
+    }
+
+    # NEXT, get the children
+    return [hdb eval {
+        SELECT path, title 
+        FROM helpdb_pages 
+        WHERE parent=$parent
+    }]
+}
+
 
 # image slug ?align?
 #
@@ -251,6 +280,43 @@ template macro::/topiclist {} {
     </table><p>
 }
 
+# itemlist
+#
+# Begins a table of labeled items
+
+template macro::itemlist {} {
+    |<--
+    <table border="0" width="100%" cellspacing="0" cellpadding="4"> 
+}
+
+# item label
+#
+# label    - The item label
+#
+# Begins a labeled item, and formats the item label.
+
+template macro::item {label} {
+    |<--
+    <tr valign="baseline">
+    <td><b>$label</b></td>
+    <td>
+}
+
+# /item
+#
+# Ends an item
+template macro::/item {} {
+    </td>
+    </tr>
+}
+
+# /itemlist
+#
+# Ends a list of items
+template macro::/itemlist {} {
+    |<--
+    </table><p>
+}
 
 # version
 #

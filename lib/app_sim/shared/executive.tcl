@@ -392,6 +392,10 @@ snit::type executive {
         $interp smartalias export 1 1 {scriptFile} \
             [myproc export]
 
+        # gofer
+        $interp smartalias gofer 1 - {typeOrGdict ?rulename? ?args...?} \
+            [mytypemethod gofer]
+
         # help
         $interp smartalias help 0 - {?-info? ?command...?} \
             [mytypemethod help]
@@ -630,6 +634,25 @@ snit::type executive {
         }
 
         return $result
+    }
+
+    # gofer typeOrGdict ?rulename? ?args...?
+    #
+    # typeOrGdict   - either a type name or a gdict for evaluation.
+    # rulename      - a rule name for the named type
+    # args          - An arguments required by the rule
+    #
+    # Constructs gofer dictionary values; type and rule names can
+    # be lower case and will be converted automatically.  If there
+    # is only one argument, it is assumed to be a gdict, and will
+    # be evaluated.
+
+    typemethod gofer {typeOrGdict {rulename ""} args} {
+        if {$rulename ne ""} {
+            return [gofer construct $typeOrGdict $rulename {*}$args]
+        } else {
+            return [gofer eval [gofer validate $typeOrGdict]]
+        }
     }
 
     # help ?-info? ?command...?

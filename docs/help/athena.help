@@ -35,6 +35,7 @@ page "" "" "Athena Help" {
     <li> <<cref /menu>>
     <li> <<cref /tab>>
     <li> <<cref /order>>
+    <li> <<cref /gofer>>
     <li> <<cref /var>>
     <li> <<cref /command>>
     <li> <<cref /function>>
@@ -126,6 +127,7 @@ include object.help
 include menu.help
 include tab.help
 include order.help
+include gofer.help
 include var.help
 include command.help
 include function.help

@@ -1007,6 +1007,48 @@ command "export" {
 }
 
 #=======================================================================
+# gofer command
+
+command "gofer" {
+    <<syntax <i>typeOrGdict</i> ?<i>rulename</i>? ?<i>args...</i>? >>
+
+    This command is used to create <<cref /gofer "gofer">> values for use as
+    order parameters with the <<command send>> command; it can also
+    be used to evaluate gofer values.<p>
+
+    For example, suppose you are using the <<command send>> command
+    to create a <<cref /object/tactic/fundeni>>.  You want to fund
+    all civilian groups resident in neighborhood N1.  The order's 
+    <i>glist</i> parameter uses the <<cref /gofer/civgroups>> gofer type,
+    and you see that <<cref /gofer/civgroups>> has a rule called 
+    <<cref /gofer/civgroups/resident_in>> that will get the list of 
+    civilian groups resident in one or more neighborhoods.  Consequently,
+    you can do this<p>
+
+    <pre>
+    send TACTIC:FUNDENI:CREATE -glist [gofer civgroups resident_in N1] ...
+    </pre>
+
+    The <<command gofer>> command will validate the type name, the rule
+    name, and the neighborhood name, and return a gofer value usable
+    by the order.  <b>NOTE:</b> gofer type and rule names are all upper case,
+    but the <<command gofer>> command automatically converts the
+    names you give it to upper case for you.<p>
+
+    The <<command gofer>> command can also evaluate gofer values, returning
+    the selected data.  For example,<p>
+
+    <<cli {
+        > set gdict [gofer civgroups resident_in N1]
+        _type CIVGROUPS _rule RESIDENT_IN nlist N1
+        > gofer $gdict
+        SHIA SUNN
+        >
+    }>>
+}
+
+
+#=======================================================================
 # help command
 
 command "help" {

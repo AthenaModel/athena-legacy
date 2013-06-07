@@ -1,0 +1,315 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    gofer.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Gofer Types
+#
+#    This file is included into athena.help.
+#
+#    Gofers have help pages with names like
+#
+#        /gofer/<typename>
+#        /gofer/<typename>/rulename
+#
+#    E.g, the CIVGROUPS gofer has the page
+#
+#       /gofer/civgroups
+#
+#    plus a page for each rule, e.g.,
+#
+#       /gofer/civgroups/by_value
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+
+page / gofer "Gofers" {
+    <<title>>
+
+    <b>Overview:</b>
+    A gofer is a piece of code that will retrieve data for you on demand,
+    given a description of the data you want.  This is best explained using
+    an example.<p>
+
+    The <<cref /object/tactic/fundeni>> is used to fund Essential
+    Non-Infrastructure services for civilian groups; one of its inputs
+    is the list of groups for which the services are funded.  In Athena 4
+    this list had to be specified explicitly.  In Athena 5, 
+    you can describe the desired set of groups in any number of ways
+    by using the <<cref /gofer/civgroups>>.  For example, you can request
+    the set of civilian groups resident in a particular neighborhood.  
+    When the tactic executes, the gofer will retrieve ("go for") the desired
+    list of groups, and use it.<p>
+
+    Each gofer specializes in a particular kind of value, e.g., a list
+    of civilian groups, a list of force groups, or a list of neighborhoods.
+    Further, each gofer has some number of <i>rules</i> for you to choose from, 
+    including the ability to simply pick the value explicitly, as in the 
+    old days.<p>
+
+    <b>Using Gofers:</b>
+    Gofers are used automatically in Athena's order dialogs; in addition,
+    gofers can be used in executive scripts via the 
+    <<command gofer>> command.  This command is especially useful in
+    conjunction with the <<command send>> command, for those orders
+    that use gofers.<p>
+
+    <b>Gofer Names:</b>
+    Every gofer has a name; for example, "CIVGROUPS" is the name of the
+    <<cref /gofer/civgroups>>.  You don't need to know this name when using
+    the GUI, but it is useful when writing <<term executive>> scripts.<p>
+
+    <b><a name="rule_id">Rules and Rule IDs:</a></b>
+    As noted above, every gofer has one or more rules to pick from.  
+    Each rule has a <i>rule ID</i>; for example, the 
+    <<cref /gofer/civgroups>>'s rule for finding all groups resident
+    in a neighborhood has the ID "RESIDENT_IN".  Again, you don't need to
+    know this ID when using the GUI, but it is useful when writing
+    executive scripts.<p>
+
+    <b><a name="gdict">Gofer Values:</a></b>
+    A <i>gofer value</i> is a key-value list (also called a gofer dictionary,
+    or <i>gdict</i>)
+    that specifies the gofer name, the rule ID, and any data needed by 
+    the rule.  For example, the <<cref /gofer/civgroups>>'s 
+    <<cref /gofer/civgroups/resident_in RESIDENT_IN>> rule retrieves
+    all civilian groups resident in a list of one or more neighborhoods.
+    A gofer value for this rule must therefore include such a list.
+    The following is a gofer value that can be used to retrieve 
+    a list of the civilian groups resident in neighborhood NB1 and
+    NB2.<p>
+
+    <pre>
+    _type CIVGROUPS _rule RESIDENT_IN nlist {NB1 NB2}
+    </pre>
+
+    Every gofer value will include the <b>_type</b> and <b>_rule</b>
+    keys, which name the gofer and the rule; the remaining keys are specific 
+    to the rule.  Each rule's
+    help page documents the keys it requires and the values they can
+    take.<p>
+
+    <b><a name="constructor">Constructors:</a></b>
+    Many Athena orders take gofer values as arguments; and so, when 
+    writing executive scripts it will often be necessary to create
+    gofer values.  One way is to simply write them as lists in the
+    body of the script:<p>
+
+    <pre>
+    set gdict {_type CIVGROUPS _rule RESIDENT_IN nlist {NB1 NB2}}
+    send TACTIC:CREATE:FUNDENI -glist $gdict ...
+    </pre>
+
+    This works, but is error prone; the value needs to be exactly right,
+    and the syntax might be hard to remember.  As a result, it will often
+    be easier to use the <<command gofer>> command to create the value: <p>
+
+    <pre>
+    set gdict [gofer civgroups resident_in {NB1 NB2}]
+    send TACTIC:CREATE:FUNDENI -glist $gdict ...
+    </pre>
+
+    You simply specify the gofer name, the rule ID, and then a value for
+    each of the rule-specific keys, in the order shown on the rule's 
+    help page.  See the <<command gofer>> command's help page for more 
+    details.<p>
+
+    <b>Raw Values:</b>
+    Any order or executive command parameter that takes a gofer value will
+    also take a raw value of the particular type.  Thus, when using
+    <<command send>> to create a FUNDENI tactic to fund a particular set
+    of groups by name, you don't need to put in a gofer value or use
+    the <<command gofer>> command to construct one.  Athena will simply
+    take the raw value you provide and convert it into a gofer value using
+    the "BY_VALUE" rule that every gofer must provide.  For example,<p>
+
+    <pre>
+    send TACTIC:CREATE:FUNDENI -glist {SUNN SHIA}
+    </pre>
+
+    Thus, gofers are useful when you need them, and get out of the way
+    when you don't.<p>
+
+
+    <b>Existing Gofers:</b>
+    Athena supports many different gofer types, as follows:
+
+    <<childlinks>>
+}
+
+# gofer name title text
+#
+# name  - The gofer type's name
+# title - The gofer type's title (e.g., one line description of the output 
+#         value)
+# text  - The documentation for the gofer type.
+#
+# Defines a help page for one gofer type.
+
+proc gofer {name title text} {
+    set parent /gofer
+    set slug   [string tolower $name]
+    set prefix "<<gofer.header [list $title]>>"
+
+    page $parent $slug "$name gofer" "$prefix\n\n$text"
+}
+
+# gofer_rule typename rulename title text
+#
+# typename - the gofer type's typename
+# rulename - this rule's rulename
+# title    - A oneliner, similar to the rule's narrative
+# text     - Full documentation, including a table of rule keys.
+#
+# Defines a help page for a gofer rule.
+
+proc gofer_rule {typename rulename title text} {
+    set pslug  [string tolower $typename]
+    set parent "/gofer/$pslug"
+    set slug   [string tolower $rulename]
+
+    set prefix "<<gofer_rule.header $typename $rulename [list $title]>>"
+    page $parent $slug $title "$prefix\n\n$text"
+}
+
+
+# Formats the title for a gofer page
+macro gofer.header {otitle} {
+    set toplink "<a href=\"/gofer\">Gofer Type</a>"
+} {
+    |<--
+    [mktitle small $toplink "<b>[pageinfo title]:</b> $otitle" ""]<p>
+}
+
+# Formats the title for a gofer rule page
+macro gofer_rule.header {typename rulename rtitle} {
+    set toplink "<a href=\"/gofer\">Gofer Type:</a>"
+    set typelink "<b><a href\"[pageinfo parent]\">$typename</a></b>"
+} {
+    |<--
+    Gofer Rule: <b>$rtitle</b><p>
+}
+
+macro gofer.details {args} {
+    set plist [split [pageinfo path] "/"]
+
+    set ltype [lindex $plist end-1]
+    set typename [string toupper $ltype]
+    set typelink [link [pageinfo parent] $typename]
+
+    set lrule [lindex $plist end]
+    set rulename [string toupper $lrule]
+    set keys [dict keys $args]
+} {
+    |<--
+    [item [cref /gofer "Gofer Type:"]]
+    $typelink
+    [/item]
+
+    [item [cref /gofer#rule_id "Rule ID:"]]
+    $rulename
+    [/item]
+
+    [item [cref /gofer#constructor "Constructor:"]] 
+    <tt>[command gofer] $ltype $lrule <i>$keys</i></tt>
+    [/item]
+
+    [item [cref /gofer#gdict "Sample value:"]]
+    <tt>_type $typename _rule $rulename $args</tt>
+    [/item]
+}
+
+macro gofer.rules {} {
+    set out {}
+    foreach {path title} [children] {
+        set plist [split $path "/"]
+        set rulename [string toupper [lindex $plist end]]
+        
+        append out "[topic [link $path $rulename]] $title [/topic] \n"
+    }
+} {
+    |<--
+    [topiclist "Rule"]
+    $out
+    [/topiclist]
+}
+
+
+
+#==========================================================================
+# CIVGROUPS
+
+gofer CIVGROUPS "A list of civilian groups" {
+    This gofer retrieves a list of <<cref /object/group/civ>> names
+    according to one of the following rules:<p>
+
+    <<gofer.rules>>
+}
+
+gofer_rule CIVGROUPS BY_VALUE "Civilian groups, by name" {
+    Retrieves an arbitrary list of 
+    <<cref /object/group/civ "civilian groups">>
+    selected by name.<p>
+
+    <<itemlist>>
+    <<gofer.details raw_value {SUNN SHIA}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>raw_value</i></tt> >>
+    A list of <<cref /object/group/civ>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS RESIDENT_IN "Civilian groups, resident in" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    resident in a particular 
+    <<cref /object/nbhood "neighborhood or neighborhoods">>.<p>
+
+    <<itemlist>>
+    <<gofer.details nlist {NB1 NB2}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>nlist</i></tt> >>
+    A list of <<cref /object/nbhood>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS SUPPORTING_ACTOR "Civilian groups, supporting actor" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    who are actively supporting any of 
+    a specified list of 
+    <<cref /object/actor actors>>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {JOE BOB}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of <<cref /object/actor>> names.
+    <</topic>>
+
+    <</topiclist>>
+}

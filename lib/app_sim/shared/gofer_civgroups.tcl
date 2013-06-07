@@ -11,11 +11,7 @@
 #    gofer_civgroups: A list of civilian groups produced according to 
 #    various rules
 
-gofer create gofer_civgroups {
-    by_value         ::gofer_civgroups::by_value
-    resident_in      ::gofer_civgroups::resident_in
-    supporting_actor ::gofer_civgroups::supporting_actor
-} {
+gofer define CIVGROUPS {
     rc "" -width 3in -span 3
     label {
         Enter a rule for selecting a set of civilian groups.
@@ -23,19 +19,19 @@ gofer create gofer_civgroups {
 
     rc "" -for _rule
     selector _rule {
-        case by_value "By name" {
+        case BY_VALUE "By name" {
             cc "  " -for raw_value
             enumlonglist raw_value -dictcmd {::civgroup namedict} \
                 -width 30 -height 10 
         }
 
-        case resident_in "Resident in" {
+        case RESIDENT_IN "Resident in" {
             cc "  " -for nlist
             enumlonglist nlist -dictcmd {::nbhood namedict} \
                 -width 30 -height 10
         }
 
-        case supporting_actor "Supporting Actor(s)" {
+        case SUPPORTING_ACTOR "Supporting Actor(s)" {
             cc " " -for alist
             enumlonglist alist -dictcmd {::actor namedict} \
                 -width 30 -height 10
@@ -43,22 +39,14 @@ gofer create gofer_civgroups {
     }
 }
 
-# Rule: by_value
+# Rule: BY_VALUE
 #
 # Some set of civilian groups chosen by the user.
 
-snit::type ::gofer_civgroups::by_value {
-    # keys
-    #
-    # Returns the names of the rule-specific keys.
-
-    typemethod keys {} {
-        return {raw_value}
-    }
-
+gofer rule CIVGROUPS BY_VALUE {raw_value} {
     # validate gdict
     #
-    # gdict   - Possibly, a civgroups_by_value gdict
+    # gdict   - Possibly a valid rule gdict
     #
     # Validates the gdict and returns it in canonical form.  Only
     # keys relevant to the rule are checked or included in the result.
@@ -68,7 +56,7 @@ snit::type ::gofer_civgroups::by_value {
         dict with gdict {}
 
         dict create raw_value \
-            [gofer listval "groups" {civgroup validate} $raw_value]
+            [listval "groups" {civgroup validate} $raw_value]
     }
 
     # narrative gdict ?-brief?
@@ -82,7 +70,7 @@ snit::type ::gofer_civgroups::by_value {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return [gofer listnar "group" "these groups" $raw_value $opt]
+        return [listnar "group" "these groups" $raw_value $opt]
     }
 
     # eval gdict
@@ -108,22 +96,14 @@ snit::type ::gofer_civgroups::by_value {
     }
 }
 
-# Rule: resident_in
+# Rule: RESIDENT_IN
 #
 # Non-empty civilian groups resident in some set of neighborhoods.
 
-snit::type ::gofer_civgroups::resident_in {
-    # keys
-    #
-    # Returns the names of the rule-specific keys.
-
-    typemethod keys {} {
-        return {nlist}
-    }
-
+gofer rule CIVGROUPS RESIDENT_IN {nlist} {
     # validate gdict
     #
-    # gdict   - Possibly, a resident_in gdict
+    # gdict   - Possibly, a valid rule gdict
     #
     # Validates the gdict and returns it in canonical form.  Only
     # keys relevant to the rule are checked or included in the result.
@@ -133,7 +113,7 @@ snit::type ::gofer_civgroups::resident_in {
         dict with gdict {}
 
         dict create nlist \
-            [gofer listval "neighborhoods" {nbhood validate} $nlist]
+            [listval "neighborhoods" {nbhood validate} $nlist]
     }
 
     # narrative gdict ?-brief?
@@ -147,7 +127,7 @@ snit::type ::gofer_civgroups::resident_in {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        set text [gofer listnar "" "these neighborhoods" $nlist $opt]
+        set text [listnar "" "these neighborhoods" $nlist $opt]
 
         return "non-empty civilian groups resident in $text"
     }
@@ -179,22 +159,14 @@ snit::type ::gofer_civgroups::resident_in {
     }
 }
 
-# Rule: supporting_actor
+# Rule: SUPPORTING_ACTOR
 #
 # Civilian groups who contribute to the actor's support.
 
-snit::type ::gofer_civgroups::supporting_actor {
-    # keys
-    #
-    # Returns the names of the rule-specific keys.
-
-    typemethod keys {} {
-        return {alist}
-    }
-
+gofer rule CIVGROUPS SUPPORTING_ACTOR {alist} {
     # validate gdict
     #
-    # gdict   - Possibly, a rule gdict
+    # gdict   - Possibly, a valid rule gdict
     #
     # Validates the gdict and returns it in canonical form.  Only
     # keys relevant to the rule are checked or included in the result.
@@ -204,7 +176,7 @@ snit::type ::gofer_civgroups::supporting_actor {
         dict with gdict {}
 
         dict create alist \
-            [gofer listval "actors" {actor validate} $alist]
+            [listval "actors" {actor validate} $alist]
     }
 
     # narrative gdict ?-brief?
@@ -218,7 +190,7 @@ snit::type ::gofer_civgroups::supporting_actor {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        set text [gofer listnar "actor" "any of these actors" $alist $opt]
+        set text [listnar "actor" "any of these actors" $alist $opt]
 
         return "civilian groups that actively support $text"
     }

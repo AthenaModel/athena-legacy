@@ -147,6 +147,14 @@ Creates a bulleted list of links to the children of the named
 <i>parent</i> page.  If <i>parent</i> is omitted, the children of the
 current page are listed.<p>
 
+<<defitem children {&lt;&lt;children ?<i>parent</i>?&gt;&gt;}>>
+
+Returns a dictionary of paths and page titles for the children
+of the named <i>parent</i> page.  If <i>parent</i> is omitted, the 
+children of the current page are return.  This macro can be used
+in a macro's <i>initbody</i> to implement variants of the 
+<<iref childlinks>> macro.<p>
+
 <<defitem cref {&lt;&lt;cref <i>url</i> ?<i>text</i>?&gt;&gt;}>>
 
 Creates a cross-reference link to another page, identified by
@@ -182,6 +190,19 @@ Inserts an "<code>&lt;img&gt;</code>" tag for the image with the given
 <i>slug</i>.  If <i>align</i> is included, then it must be one of
 <b>right</b>, <b>left</b>, or <b>center</b>; the image's horizontal
 alignment will be as indicated.<p>
+
+<<defitem itemlist {&lt;&lt;itemlist&gt;&gt;}>>
+<<defitem item {&lt;&lt;item <i>label</i>&gt;&gt;}>>
+<<defitem /item {&lt;&lt;/item&gt;&gt;}>>
+<<defitem /itemlist {&lt;&lt;/itemlist&gt;&gt;}>>
+
+These macros are used together to produce a two-column borderless 
+table of item labels and descriptions.  There are no column headers.<p>
+
+Rows are added using the
+&lt;&lt;item&gt;&gt;...&lt;&lt;/item&gt;&gt; tags; the value of the
+<i>label</i> argument to &lt;&lt;item&gt;&gt; appears in boldface
+in the first column, and the text between the tags appears in the second.<p>
 
 <<defitem pageinfo {&lt;&lt;pageinfo <i>field</i>&gt;&gt;}>>
 

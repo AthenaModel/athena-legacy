@@ -30,14 +30,112 @@ namespace eval ::projectlib:: {
     namespace export gofer
 }
 
+namespace eval ::gofer:: {
+    # Gofer types will be defined in this namespace.
+}
+
+#-----------------------------------------------------------------------
+# gofer: The ensemble command for creating and manipulating gofer types
+# and values.
+
 snit::type ::projectlib::gofer {
+    pragma -hasinstances no
+
     #-------------------------------------------------------------------
-    # Helper Procs
+    # Type Variables
 
-    delegate typemethod * using {%t UnknownTypemethod %m}
+    # Array, full object names by type names
+    typevariable types -array {}
 
-    typemethod UnknownTypemethod {subcmd args} {
-        error "Unknown subcommand: \"$subcmd\" (use \"create\" to create types)"
+    # Rules array.  The key is a type name; the object is a ruledict,
+    # which is a dictionary of rule objects by rule name.
+    typevariable rules -array {}
+    
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+    
+    # define name formspec
+    #
+    # name   - The name
+    # formspec   - The dynaform spec for this type
+    #
+    # Defines a new dynaform type.  Rules are added separately.
+
+    typemethod define {name formspec} {
+        # FIRST, get the names
+        set name [string toupper $name]
+        identifier validate $name
+
+        set fullname "::gofer::${name}"
+
+        # NEXT, add the _type field to the formspec.
+        set formspec "text _type -context yes -invisible yes\n\n$formspec"
+
+        # NEXT, create the gofer type object
+        goferType $fullname $name $formspec
+
+        # NEXT, save the metadata
+        set types($name) $fullname
+        set rules($name) [dict create]
+    }
+
+
+    # rule typename rulename body
+    #
+    # typename   - The type to receive the new rule
+    # rulename   - The new rule's name
+    # keys       - The rule's parameter names
+    # body       - A snit::type body with the rule's typemethods.
+    #
+    # Defines a new rule, creating a rule object in the type's namespace.
+
+    typemethod rule {typename rulename keys body} {
+        # FIRST, get the names
+        set typename [string toupper $typename]
+        set rulename [string toupper $rulename]
+
+        require {[info exists types($typename)]} \
+            "No such gofer type: \"$typename\""
+        identifier validate $rulename
+
+        set fullname "::gofer::${typename}::${rulename}"
+
+        # NEXT, define the new object.
+        set prefix [format {
+            pragma -hasinstances no
+            typeconstructor {
+                namespace path %s 
+            }
+
+            typemethod keys {} { return %s }
+        } $type [list $keys]]
+
+        snit::type $fullname "$prefix\n$body"
+
+        # NEXT, update the metadata
+        dict set rules($typename) $rulename $fullname
+    }
+
+    # rulefrom typename rulename object
+    #
+    # typename   - The type to receive the new rule
+    # rulename   - The new rule's name
+    # object     - An object adhering to the gofer_rule(i) interface.
+    #
+    # Defines a new rule using an existing gofer_rule(i) object.
+
+    typemethod rulefrom {typename rulename object} {
+        # FIRST, get the names
+        set typename [string toupper $typename]
+        set rulename [string toupper $rulename]
+
+        require {[info exists $types($typename)]} \
+            "No such gofer type: \"$typename\""
+        identifier validate $rulename
+
+        # NEXT, save it.
+        dict set rules($typename) $rulename $object        
     }
 
     # check
@@ -47,16 +145,129 @@ snit::type ::projectlib::gofer {
     # if a problem is found; otherwise it returns "OK".
 
     typemethod check {} {
-        foreach instance [$type info instances] {
-            if {[catch {$instance SanityCheck} result]} {
-                error "Error in gofer $instance, $result"
+        foreach typename [array names types] {
+            if {[catch {$types($typename) SanityCheck} result]} {
+                error "Error in gofer $typename, $result"
             }
         }
 
         return "OK"
     }
 
-    # join list ?maxlen? ?delim?
+    # construct typename rulename ?args...?
+    #
+    # typename   - A gofer type name
+    # rulename   - A gofer rule name for this type
+    # args       - Any arguments required by the rule
+    #
+    # Constructs a valid gdict for the given type and rule.
+
+    typemethod construct {typename rulename args} {
+        set typename [string toupper $typename]
+        set rulename [string toupper $rulename]
+
+        require {[info exists types($typename)]} \
+            "No such gofer type: \"$typename\""
+        
+        return [$types($typename) $rulename {*}$args]
+    }
+
+    # validate gdict
+    #
+    # gdict    - Possibly, a gofer value dictionary
+    #
+    # Validates the gdict, returning it in canonical form.  The value
+    # may belong to any defined gofer type.  (To validate a gdict as
+    # belonging to a particular type, use the type's command, e.g.,
+    # [gofer::TYPENAME validate])
+
+    typemethod validate {gdict} {
+        # FIRST, verify that it's a dictionary, and get its _type.
+        if {[catch {
+            set gotType [dict exists $gdict _type]
+        }]} {
+            throw INVALID "Not a gofer type value"
+        }
+
+        if {!$gotType} {
+            throw INVALID "Not a gofer type value"
+        }
+
+        set typename [string toupper [dict get $gdict _type]]
+
+        # NEXT, verify that we have this type
+        if {![info exists types($typename)]} {
+            throw INVALID "No such gofer type, \"$typename\""
+        }
+
+        # NEXT, have the type complete the validation.
+        return [$types($typename) validate $gdict]
+    }
+
+    # narrative gdict ?-brief?
+    #
+    # gdict    - a valid gofer value dictionary
+    # -brief   - If included, lists are truncated with an ellipsis.
+    #
+    # Returns the narrative string for the gdict.
+
+    typemethod narrative {gdict {opt ""}} {
+        # FIRST, verify that it's a dictionary, and get its _type.
+        if {[catch {
+            set gotType [dict exists $gdict _type]
+        }]} {
+            return "Not a gofer type value"
+        }
+
+        if {!$gotType} {
+            return "Not a gofer type value"
+        }
+
+        set typename [string toupper [dict get $gdict _type]]
+
+        # NEXT, verify that we have this type
+        if {![info exists types($typename)]} {
+            return "No such gofer type, \"$typename\""
+        }
+
+        # NEXT, have the type return the narrative text.
+        return [$types($typename) narrative $gdict $opt]
+    }
+
+
+    # eval gdict
+    #
+    # gdict    - a valid gofer value dictionary
+    #
+    # Evaluates the gdict, returning the computed value.
+
+    typemethod eval {gdict} {
+        # FIRST, verify that it's a dictionary, and get its _type.
+        if {[catch {
+            set gotType [dict exists $gdict _type]
+        }]} {
+            error "Not a gofer type value"
+        }
+
+        if {!$gotType} {
+            error "Not a gofer type value"
+        }
+
+        set typename [string toupper [dict get $gdict _type]]
+
+        # NEXT, verify that we have this type
+        if {![info exists types($typename)]} {
+            error "No such gofer type, \"$typename\""
+        }
+
+        # NEXT, have the type compute the result.
+        return [$types($typename) eval $gdict]
+    }
+
+    #-------------------------------------------------------------------
+    # Helper commands
+
+    # joinlist list ?maxlen? ?delim?
     #
     # list   - A list
     # maxlen - If given, the maximum number of list items to show.
@@ -67,7 +278,7 @@ snit::type ::projectlib::gofer {
     # Joins the elements of the list using the delimiter, 
     # replacing excess elements with "..." if maxlen is given.
 
-    typemethod join {list {maxlen ""} {delim ", "}} {
+    proc joinlist {list {maxlen ""} {delim ", "}} {
         if {$maxlen ne "" && [llength $list] > $maxlen} {
             set list [lrange $list 0 $maxlen-1]
             lappend list ...
@@ -86,7 +297,7 @@ snit::type ::projectlib::gofer {
     # form for the validation type.  Throws an error if any
     # list member is invalid, or if the list is empty.
 
-    typemethod listval {noun vcmd list} {
+    proc listval {noun vcmd list} {
         set out [list]
         foreach elem $list {
             lappend out [{*}$vcmd $elem]
@@ -108,7 +319,7 @@ snit::type ::projectlib::gofer {
     #
     # Returns a standard list narrative string.
 
-    typemethod listnar {snoun pnoun list {opt ""}} {
+    proc listnar {snoun pnoun list {opt ""}} {
         if {$opt eq "-brief"} {
             set maxlen 8
         } else {
@@ -122,17 +333,23 @@ snit::type ::projectlib::gofer {
                 set text [lindex $list 0]
             }
         } else {
-            set text "$pnoun ([gofer join $list $maxlen])" 
+            set text "$pnoun ([joinlist $list $maxlen])" 
         }
 
         return $text
     }
+}
 
+
+#-----------------------------------------------------------------------
+# goferType: The instance type for specific gofer types.
+
+snit::type ::projectlib::goferType {
     #-------------------------------------------------------------------
     # Instance Variables
     
-    # Array mapping rule symbols to rule objects
-    variable rules -array {}
+    # Name of this gofer type
+    variable name
 
     # Name of the type's dynaform
     variable form ""
@@ -140,14 +357,14 @@ snit::type ::projectlib::gofer {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ruledict formspec
+    # constructor typename formspec
     #
-    # ruledict - A dict mapping rule symbols to rule object command names.
+    # typename - The type's name within ::gofer::
     # formspec - A dynaform spec
 
-    constructor {ruledict formspec} {
-        # FIRST, get the rules.
-        array set rules $ruledict
+    constructor {typename formspec} {
+        # FIRST, save the name.
+        set name $typename
 
         # NEXT, create the form
         set form $self.form
@@ -157,6 +374,15 @@ snit::type ::projectlib::gofer {
     #-------------------------------------------------------------------
     # Public Methods
 
+    # name
+    #
+    # Returns the type's gofer name, e.g., CIVGROUPS as opposed to
+    # its command name, ::gofer::CIVGROUPS.
+
+    method name {} {
+        return $name
+    }
+
     # dynaform 
     #
     # Returns the name of the type's dynaform.
@@ -164,7 +390,28 @@ snit::type ::projectlib::gofer {
     method dynaform {} {
         return $form
     }
-    
+
+    # rules
+    #
+    # Returns the names of this type's rules.
+
+    method rules {} {
+        return [dict keys $::projectlib::gofer::rules($name)]
+    }
+
+    # keys rule
+    #
+    # rule   - A rule name
+    #
+    # Returns the gdict keys for the given rule.
+
+    method keys {rule} {
+        set rule [string toupper $rule]
+        require {$rule in [$self rules]} "Unknown rule: \"$rule\""
+        return [$self CallRule $rule keys]
+    }
+
+
     # validate gdict
     #
     # gdict   - Possibly, a valid gdict
@@ -174,29 +421,41 @@ snit::type ::projectlib::gofer {
     # Throws INVALID if the gdict is invalid.
 
     method validate {gdict} {
-        # FIRST, if it doesn't begin with _rule, assume it's a raw value.
-        if {[lindex $gdict 0] ne "_rule"} {
-            set gdict [dict create _rule by_value raw_value $gdict]
+        # FIRST, if it doesn't begin with _type, assume it's a raw value.
+        if {[lindex $gdict 0] ne "_type"} {
+            set gdict [dict create _type $name _rule BY_VALUE raw_value $gdict]
+        }
+
+        # NEXT, match the _type.
+        set typename [string toupper [dict get $gdict _type]]
+
+        if {$typename ne $name} {
+            throw INVALID "Value has type \"$typename\", expected \"$name\""
+        }
+
+        # NEXT, make sure that there's a rule.
+        if {![dict exists $gdict _rule]} {
+            dict set gdict _rule ""
         }
 
         # NEXT, get the rule and put it in canonical form.
-        set rule [string tolower [dict get $gdict _rule]]
-        set out [dict create _rule $rule]
+        set rule [string toupper [dict get $gdict _rule]]
+        set out [dict create _type $name _rule $rule]
 
         # NEXT, if we don't know it, that's an error.
-        if {![info exists rules($rule)]} {
+        if {$rule ni [$self rules]} {
             throw INVALID "Unknown rule: \"$rule\""
         }
 
         # NEXT, make sure it's got all needed keys for the rule
-        foreach key [$rules($rule) keys] {
+        foreach key [$self CallRule $rule keys] {
             dict set stub $key ""
         }
         set gdict [dict merge $stub $gdict]
 
         # NEXT, validate the remainder of the gdict according to the
         # rule.
-        return [dict merge $out [$rules($rule) validate $gdict]]
+        return [dict merge $out [$self CallRule $rule validate $gdict]]
     }
 
     # narrative gdict ?-brief?
@@ -208,20 +467,31 @@ snit::type ::projectlib::gofer {
     # in a sentence, i.e., "all non-empty groups resident in $n".
 
     method narrative {gdict {opt ""}} {
-        # FIRST, if it doesn't begin with _rule, assume it's a raw value.
-        if {[lindex $gdict 0] ne "_rule"} {
-            set gdict [dict create _rule by_value raw_value $gdict]
+        # FIRST, if it doesn't begin with _type, assume it's a raw value.
+        if {[lindex $gdict 0] ne "_type"} {
+            set gdict [dict create _type $name _rule BY_VALUE raw_value $gdict]
+        }
+
+        set typeName [dict get $gdict _type]
+
+        if {$typeName ne $name} {
+            error "Type mismatch, got \"$typeName\", expected \"$name\""
+        }
+
+        # NEXT, make sure there's a _rule.
+        if {![dict exists $gdict _rule]} {
+            dict set gdict _rule ""
         }
 
         set rule [dict get $gdict _rule]
 
         # NEXT, if we don't know it, that's an error.
-        if {![info exists rules($rule)]} {
+        if {$rule ni [$self rules]} {
             return "Unknown rule: \"$rule\""
         }
 
         # NEXT, call the rule
-        return [$rules($rule) narrative $gdict $opt]
+        return [$self CallRule $rule narrative $gdict $opt]
     }
 
     # eval gdict
@@ -231,22 +501,51 @@ snit::type ::projectlib::gofer {
     # Evaluates the gdict and returns a list of civilian groups.
 
     method eval {gdict} {
-        # FIRST, if it doesn't begin with _rule, assume it's a raw value.
-        if {[lindex $gdict 0] ne "_rule"} {
-            set gdict [dict create _rule by_value raw_value $gdict]
+        # FIRST, if it doesn't begin with _type, assume it's a raw value.
+        if {[lindex $gdict 0] ne "_type"} {
+            set gdict [dict create _type $name _rule BY_VALUE raw_value $gdict]
+        }
+
+        set typeName [dict get $gdict _type]
+        if {$typeName ne $name} {
+            error "Type mismatch, got \"$typeName\", expected \"$name\""
+        }
+
+        # NEXT, make sure there's a _rule.
+        if {![dict exists $gdict _rule]} {
+            dict set gdict _rule ""
         }
 
         set rule [dict get $gdict _rule]
 
         # NEXT, if we don't know it, that's an error.
-        if {![info exists rules($rule)]} {
+        if {$rule ni [$self rules]} {
             error "Unknown rule: \"$rule\""
         }
 
         # NEXT, evaluate by rule.
-        return [$rules($rule) eval $gdict]
+        return [$self CallRule $rule eval $gdict]
     }
 
+    # CallRule rule args
+    #
+    # rule   - A rule name
+    # args   - method name and arguments.
+    #
+    # Executes the rule and returns the result.
+
+    method CallRule {rule args} {
+        set o [dict get $::projectlib::gofer::rules($name) $rule]
+        return [$o {*}$args]
+    }
+
+    # blank
+    #
+    # Creates an empty value of this type.
+
+    method blank {} {
+        return [dict create _type $name _rule ""]
+    }
 
     #-------------------------------------------------------------------
     # Rule constructors
@@ -255,18 +554,21 @@ snit::type ::projectlib::gofer {
 
     # UnknownSubcommand rule args..
     #
-    # rule    - An unknown subcommand; presumably a rule name
+    # rule    - An unknown subcommand; presumably a rule name. 
+    #           For convenience, convert it to upper case.
     #
     # Calls the constructor for the rule type.
 
     method UnknownSubcommand {rule args} {
-        if {![info exists rules($rule)]} {
+        set rule [string toupper $rule]
+
+        if {$rule ni [$self rules]} {
             error "Unknown rule: \"$rule\""
         }
 
         return [dict merge \
-            [dict create _rule $rule] \
-            [$rules($rule) construct {*}$args]]
+            [dict create _type $name _rule $rule] \
+            [$self CallRule $rule construct {*}$args]]
     }
 
     #-------------------------------------------------------------------
@@ -287,20 +589,27 @@ snit::type ::projectlib::gofer {
     # easier to read if it's the other way around.
 
     method SanityCheck {} {
-        # FIRST, verify that there is a by_value rule, and that its only
+        # FIRST, get the current array of rules
+        array set rules $::projectlib::gofer::rules($name)
+
+        # NEXT, verify that there is a BY_VALUE rule, and that its only
         # parm is "raw_value"
-        require {[info exists rules(by_value)]} \
-            "gofer has no \"by_value\" rule"
+        require {[info exists rules(BY_VALUE)]} \
+            "gofer has no \"BY_VALUE\" rule"
 
-        set keys [$rules(by_value) keys]
+        set keys [$rules(BY_VALUE) keys]
         require {$keys eq "raw_value"} \
-            "gofer's by_value rule has key(s) \"$keys\", should be \"raw_value\""
+            "gofer's BY_VALUE rule has key(s) \"$keys\", should be \"raw_value\""
 
-        # NEXT, verify that the dynaform begins with a _rule selector.
-        set first [lindex [dynaform fields $form] 0]
+        # NEXT, verify that the dynaform begins with a _type field
+        # and a _rule selector.
+        lassign [dynaform fields $form] first second
 
-        require {$first eq "_rule"} \
-            "gofer's first field is \"$first\", expected \"_rule\""
+        require {$first eq "_type"} \
+            "gofer's first field is \"$first\", expected \"_type\""
+
+        require {$second eq "_rule"} \
+            "gofer's first explicit field is \"$second\", expected \"_rule\""
 
         if {[catch {
             set cases [dynaform cases $form _rule {}] 
@@ -406,6 +715,7 @@ snit::type ::projectlib::gofer {
             }
         }
     }
+
 }
 
 #-----------------------------------------------------------------------

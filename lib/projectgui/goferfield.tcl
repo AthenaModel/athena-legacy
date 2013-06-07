@@ -99,7 +99,6 @@ snit::widget ::projectgui::goferfield {
             -relief             sunken
 
         # NEXT, create the label to display the narrative.
-        # TBD: Put it into a frame, to give it a border.
         install nlabel using ::ttk::label $win.nframe.nlabel \
             -takefocus  yes \
             -width      -30 \
@@ -120,6 +119,9 @@ snit::widget ::projectgui::goferfield {
 
         # NEXT, configure the arguments
         $self configure -state normal {*}$args
+
+        # NEXT, set the initial value
+        set info(value) [$options(-typename) blank]
     }
 
     #-------------------------------------------------------------------
@@ -159,7 +161,7 @@ snit::widget ::projectgui::goferfield {
     method Validate {value} {
         # FIRST, validate it; the validate command will throw INVALID
         # on error.
-        {*}$options(-typename) validate $value
+        $options(-typename) validate $value
 
         # NEXT, return the preview
         return [$self Preview $value]
@@ -172,7 +174,7 @@ snit::widget ::projectgui::goferfield {
     # Returns a preview string of the narrative text.
 
     method Preview {value} {
-        return "Rule: [{*}$options(-typename) narrative $value -brief]"
+        return "Rule: [$options(-typename) narrative $value -brief]"
     }
 
     #-------------------------------------------------------------------
@@ -193,14 +195,22 @@ snit::widget ::projectgui::goferfield {
     # Sets the widget's value to the new value.
 
     method set {value} {
-        # FIRST, if it's not a change do nothing.
+        # FIRST, if it's empty, give it the real blank value.
+        if {$value eq ""} {
+            set value [$options(-typename) blank]
+        }
+
+        # NEXT, Do nothing if the value didn't change.
         if {$value eq $info(value)} {
             return
         }
 
         # NEXT, if it doesn't begin with _rule, assume it's a raw value.
-        if {[lindex $value 0] ne "_rule"} {
-            set value [dict create _rule by_value raw_value $value]
+        if {[lindex $value 0] ne "_type"} {
+            set value [dict create \
+                _type     [$options(-typename) name] \
+                _rule     BY_VALUE                   \
+                raw_value $value]
         }
 
         # NEXT, save the value

@@ -803,7 +803,8 @@ object tactic_fundeni {
     include tactic_ -attrs {state priority on_lock once}
 
     attribute glist "Groups" {
-        The IDs of one or more civilian groups.
+        The IDs of one or more civilian groups, or
+        a <<cref /gofer/civgroups>> value.
     } -tags {create update}
 
     attribute x1 "Amount, $/week" {

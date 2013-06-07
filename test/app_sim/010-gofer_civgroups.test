@@ -9,11 +9,11 @@
 # DESCRIPTION:
 #    civgroup(sim) tests.
 #
-#    This test suite tests the gofer_civgroups type.
+#    This test suite tests the gofer::CIVGROUPS type.
 #
 #    NOTE: The type itself is implemented using gofer(n); thus,
 #    we don't need to test the behavior of the type itself.  As a result,
-#    this test suite focusses on the gofer_civgroups-specific rule
+#    this test suite focusses on the gofer::CIVGROUPS-specific rule
 #    objects.
 #
 #-----------------------------------------------------------------------
@@ -42,200 +42,200 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # Rule: by_value
+    # Rule: BY_VALUE
 
-    test by_value-1.1 {keys} -body {
-        ::gofer_civgroups::by_value keys
+    test BY_VALUE-1.1 {keys} -body {
+        ::gofer::CIVGROUPS::BY_VALUE keys
     } -result {raw_value}
     
-    test by_value-2.1 {construct, valid} -setup {
+    test BY_VALUE-2.1 {construct, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::by_value construct {SUNN SHIA}
+        ::gofer::CIVGROUPS::BY_VALUE construct {SUNN SHIA}
     } -cleanup {
         cleanup
     } -result {raw_value {SUNN SHIA}}
 
-    test by_value-2.2 {construct, invalid} -setup {
+    test BY_VALUE-2.2 {construct, invalid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::by_value construct {SUNN NONESUCH SHIA}
+        ::gofer::CIVGROUPS::BY_VALUE construct {SUNN NONESUCH SHIA}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
     } -match glob -result {Invalid civilian group*}
 
-    test by_value-3.1 {validate, valid} -setup {
+    test BY_VALUE-3.1 {validate, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::by_value validate {raw_value {SUNN SHIA}}
+        ::gofer::CIVGROUPS::BY_VALUE validate {raw_value {SUNN SHIA}}
     } -cleanup {
         cleanup
     } -result {raw_value {SUNN SHIA}}
 
-    test by_value-3.2 {validate, invalid} -setup {
+    test BY_VALUE-3.2 {validate, invalid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::by_value validate {raw_value {SUNN NONESUCH}}
+        ::gofer::CIVGROUPS::BY_VALUE validate {raw_value {SUNN NONESUCH}}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
     } -match glob -result {Invalid civilian group*}
 
-    test by_value-4.1 {narrative, one group} -body {
-        ::gofer_civgroups::by_value narrative {raw_value SUNN}
+    test BY_VALUE-4.1 {narrative, one group} -body {
+        ::gofer::CIVGROUPS::BY_VALUE narrative {raw_value SUNN}
     } -result {group SUNN}
 
-    test by_value-4.2 {narrative, several groups} -body {
-        ::gofer_civgroups::by_value narrative {
+    test BY_VALUE-4.2 {narrative, several groups} -body {
+        ::gofer::CIVGROUPS::BY_VALUE narrative {
             raw_value {SUNN SHIA KURD}
         }
     } -result {these groups (SUNN, SHIA, KURD)}
     
-    test by_value-4.3 {narrative, -brief} -body {
-        ::gofer_civgroups::by_value narrative {
+    test BY_VALUE-4.3 {narrative, -brief} -body {
+        ::gofer::CIVGROUPS::BY_VALUE narrative {
             raw_value {A B C D E F G H I J}
         } -brief
     } -result {these groups (A, B, C, D, E, F, G, H, ...)}
 
-    test by_value-5.1 {eval, valid} -setup {
+    test BY_VALUE-5.1 {eval, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::by_value eval {raw_value {SUNN SHIA}}
+        ::gofer::CIVGROUPS::BY_VALUE eval {raw_value {SUNN SHIA}}
     } -cleanup {
         cleanup
     } -result {SUNN SHIA}
 
     #-------------------------------------------------------------------
-    # Rule: resident_in
+    # Rule: RESIDENT_IN
 
-    test resident_in-1.1 {keys} -body {
-        ::gofer_civgroups::resident_in keys
+    test RESIDENT_IN-1.1 {keys} -body {
+        ::gofer::CIVGROUPS::RESIDENT_IN keys
     } -result {nlist}
     
-    test resident_in-2.1 {construct, valid} -setup {
+    test RESIDENT_IN-2.1 {construct, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::resident_in construct {NB1 NB2}
+        ::gofer::CIVGROUPS::RESIDENT_IN construct {NB1 NB2}
     } -cleanup {
         cleanup
     } -result {nlist {NB1 NB2}}
 
-    test resident_in-2.2 {construct, invalid} -setup {
+    test RESIDENT_IN-2.2 {construct, invalid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::resident_in construct {NB1 NONESUCH NB2}
+        ::gofer::CIVGROUPS::RESIDENT_IN construct {NB1 NONESUCH NB2}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
     } -match glob -result {Invalid neighborhood*}
 
-    test resident_in-3.1 {validate, valid} -setup {
+    test RESIDENT_IN-3.1 {validate, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::resident_in validate {nlist {NB1 NB2}}
+        ::gofer::CIVGROUPS::RESIDENT_IN validate {nlist {NB1 NB2}}
     } -cleanup {
         cleanup
     } -result {nlist {NB1 NB2}}
 
-    test resident_in-3.2 {validate, invalid} -setup {
+    test RESIDENT_IN-3.2 {validate, invalid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::resident_in validate {nlist {NB1 NONESUCH}}
+        ::gofer::CIVGROUPS::RESIDENT_IN validate {nlist {NB1 NONESUCH}}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
     } -match glob -result {Invalid neighborhood*}
 
-    test resident_in-4.1 {narrative, one nbhood} -body {
-        ::gofer_civgroups::resident_in narrative {nlist NB1}
+    test RESIDENT_IN-4.1 {narrative, one nbhood} -body {
+        ::gofer::CIVGROUPS::RESIDENT_IN narrative {nlist NB1}
     } -result {non-empty civilian groups resident in NB1}
 
-    test resident_in-4.2 {narrative, several nbhoods} -body {
-        ::gofer_civgroups::resident_in narrative {
+    test RESIDENT_IN-4.2 {narrative, several nbhoods} -body {
+        ::gofer::CIVGROUPS::RESIDENT_IN narrative {
             nlist {NB1 NB2}
         }
     } -result {non-empty civilian groups resident in these neighborhoods (NB1, NB2)}
     
-    test resident_in-4.3 {narrative, -brief} -body {
-        ::gofer_civgroups::resident_in narrative {
+    test RESIDENT_IN-4.3 {narrative, -brief} -body {
+        ::gofer::CIVGROUPS::RESIDENT_IN narrative {
             nlist {A B C D E F G H I J}
         } -brief
     } -result {non-empty civilian groups resident in these neighborhoods (A, B, C, D, E, F, G, H, ...)}
 
-    test resident_in-5.1 {eval, valid} -setup {
+    test RESIDENT_IN-5.1 {eval, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::resident_in eval {nlist {NB1 NB2}}
+        ::gofer::CIVGROUPS::RESIDENT_IN eval {nlist {NB1 NB2}}
     } -cleanup {
         cleanup
     } -result {SHIA SUNN KURD}
 
 
     #-------------------------------------------------------------------
-    # Rule: supporting_actor
+    # Rule: SUPPORTING_ACTOR
 
-    test supporting_actor-1.1 {keys} -body {
-        ::gofer_civgroups::supporting_actor keys
+    test SUPPORTING_ACTOR-1.1 {keys} -body {
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR keys
     } -result {alist}
     
-    test supporting_actor-2.1 {construct, valid} -setup {
+    test SUPPORTING_ACTOR-2.1 {construct, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::supporting_actor construct {JOE BOB}
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR construct {JOE BOB}
     } -cleanup {
         cleanup
     } -result {alist {JOE BOB}}
 
-    test supporting_actor-2.2 {construct, invalid} -setup {
+    test SUPPORTING_ACTOR-2.2 {construct, invalid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::supporting_actor construct {JOE NONESUCH BOB}
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR construct {JOE NONESUCH BOB}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
     } -match glob -result {Invalid actor*}
 
-    test supporting_actor-3.1 {validate, valid} -setup {
+    test SUPPORTING_ACTOR-3.1 {validate, valid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::supporting_actor validate {alist {JOE BOB}}
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR validate {alist {JOE BOB}}
     } -cleanup {
         cleanup
     } -result {alist {JOE BOB}}
 
-    test supporting_actor-3.2 {validate, invalid} -setup {
+    test SUPPORTING_ACTOR-3.2 {validate, invalid} -setup {
         setup
     } -body {
-        ::gofer_civgroups::supporting_actor validate {alist {JOE NONESUCH}}
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR validate {alist {JOE NONESUCH}}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
     } -match glob -result {Invalid actor*}
 
-    test supporting_actor-4.1 {narrative, one nbhood} -body {
-        ::gofer_civgroups::supporting_actor narrative {alist JOE}
+    test SUPPORTING_ACTOR-4.1 {narrative, one nbhood} -body {
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR narrative {alist JOE}
     } -result {civilian groups that actively support actor JOE}
 
-    test supporting_actor-4.2 {narrative, several nbhoods} -body {
-        ::gofer_civgroups::supporting_actor narrative {
+    test SUPPORTING_ACTOR-4.2 {narrative, several nbhoods} -body {
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR narrative {
             alist {JOE BOB}
         }
     } -result {civilian groups that actively support any of these actors (JOE, BOB)}
     
-    test supporting_actor-4.3 {narrative, -brief} -body {
-        ::gofer_civgroups::supporting_actor narrative {
+    test SUPPORTING_ACTOR-4.3 {narrative, -brief} -body {
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR narrative {
             alist {A B C D E F G H I J}
         } -brief
     } -result {civilian groups that actively support any of these actors (A, B, C, D, E, F, G, H, ...)}
 
-    test supporting_actor-5.1 {eval, valid} -setup {
+    test SUPPORTING_ACTOR-5.1 {eval, valid} -setup {
         setup
         rdb eval {
             INSERT INTO support_nga(n,g,a,support)
@@ -248,7 +248,7 @@ namespace eval ::athena_test::tests:: {
             VALUES('NB1','SHIA','BOB',0.3);
         }
     } -body {
-        ::gofer_civgroups::supporting_actor eval {alist JOE}
+        ::gofer::CIVGROUPS::SUPPORTING_ACTOR eval {alist JOE}
     } -cleanup {
         cleanup
     } -result {SHIA}

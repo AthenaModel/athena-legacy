@@ -141,7 +141,7 @@ owner        JOE
 narrative    Fund $7,000.00 worth of Essential Non-Infrastructure services for these groups (SHIA, SUNN, KURD).
 priority     1
 x1           7000.0
-glist        _rule by_value raw_value {SHIA SUNN KURD}
+glist        _type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN KURD}
 once         0
 on_lock      0
 state        normal
@@ -263,7 +263,7 @@ owner        JOE
 narrative    Fund $5,000.00 worth of Essential Non-Infrastructure services for these groups (SHIA, SUNN).
 priority     1
 x1           5000.0
-glist        _rule by_value raw_value {SHIA SUNN}
+glist        _type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}
 once         0
 on_lock      0
 state        normal
