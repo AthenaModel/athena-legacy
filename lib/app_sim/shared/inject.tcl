@@ -438,7 +438,7 @@ snit::type inject {
                     lmerge roles [rdb eval {
                         SELECT DISTINCT g FROM curse_injects
                         WHERE g != ''
-                        AND inject_type IN ('HREL','VREL','COOP)
+                        AND inject_type IN ('HREL','VREL','COOP')
                     }]
                 }
             }
