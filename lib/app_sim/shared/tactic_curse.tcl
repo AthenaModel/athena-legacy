@@ -44,46 +44,14 @@ tactic type define CURSE {curse roles once on_lock} system {
 
     typemethod narrative {tdict} {
         dict with tdict {}
-        set narr "[curse get $curse longname] ($curse) causes"
+        dict with pdict {}
 
-        rdb eval {
-            SELECT * FROM curse_injects
-            WHERE curse_id=$curse
-        } idata {
-            append narr \
-    " [qmag name $idata(mag)] [einjectpart longname $idata(inject_type)] of "
-            switch -exact -- $idata(inject_type) {
-                COOP -
-                HREL {
-                    append narr "$idata(f) = ("
-                    append narr [join [dict get $roles $idata(f)] ", "]
-                    append narr ")"
-                    append narr " with $idata(g) = ("
-                    append narr [join [dict get $roles $idata(g)] ", "]
-                    append narr ") "
-                }
+        set narr "[curse get $curse longname] ($curse). "
 
-                VREL {
-                    append narr "$idata(g) = ("
-                    append narr [join [dict get $roles $idata(g)] ", "]
-                    append narr ")"
-                    append narr " with $idata(a) = ("
-                    append narr [join [dict get $roles $idata(a)] ", "]
-                    append narr ")"
-                }
-
-                SAT {
-                    append narr "$idata(g) = ("
-                    append narr [join [dict get $roles $idata(g)] ", "]
-                    append narr ")"
-                    append narr " with $idata(c)"
-                }
-
-                default {
-                    # Should never happen
-                    error "Unrecognized inject type: $idata(inject_type)"
-                }
-            }
+        foreach {role entities} $roles {
+            append narr "$role = "
+            append narr [join $entities ", "]
+            append narr ". "
         }
 
         return $narr
@@ -96,10 +64,34 @@ tactic type define CURSE {curse roles once on_lock} system {
 
         set errors [list]
 
-        # NEXT, roles this tactic uses may have been deleted
-        foreach role [dict keys $roles] {
-            if {$role ni [curse rolenames $curse]} {
-                lappend errors "Role $role no longer exists."
+        # NEXT, the curse this tactic uses may have been deleted, disabled,
+        # or invalid
+        set exists [rdb exists {
+                          SELECT curse_id FROM curses
+                          WHERE curse_id = $curse
+                      }]
+
+        if {!$exists} {
+            lappend errors "Curse $curse no longer exists."
+        } else {
+            # NEXT, it exists, is it "normal"?
+            set state [rdb onecolumn {
+                          SELECT state FROM curses
+                          WHERE curse_id = $curse
+                      }]
+
+            if {$state ne "normal"} {
+                lappend errors "Curse $curse is $state."
+            }
+        }
+
+        # NEXT, it exists and is "normal", are the roles good?
+        if {$exists && $state eq "normal"} {
+            # NEXT, roles this tactic uses may have been deleted
+            foreach role [dict keys $roles] {
+                if {$role ni [curse rolenames $curse]} {
+                    lappend errors "Role $role no longer exists."
+                }
             }
         }
 
