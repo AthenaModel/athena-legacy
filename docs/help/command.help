@@ -449,8 +449,17 @@ command "autogen attroe" {
     <<cref /object/tactic/attroe>>s for force groups that belong to the
     specified owner.  For uniformed forces, the ROE is "ATTACK" for 
     non-uniformed forces it is "STAND_AND_FIGHT".  The tactic is created
-    against all other forces in each neighborhood. The list of available
-    options are:<p>
+    against all other forces in each neighborhood. 
+
+    The constraints are as follows:<p>
+
+    <ul>
+    <li> At least one actor must exist
+    <li> Neighborhoods must exist
+    <li> At least one force group must exist
+    </ul>
+
+    The list of available options are:<p>
 
     <<deflist options>>
 

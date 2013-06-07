@@ -273,7 +273,7 @@ snit::type executive {
             [list autogen assign]
 
         $interp smartalias {autogen attroe} 1 - \
-            {owner ?-attackers glist? ?-max_attacks n?} \
+            {owner ?-attackers glist? ?-max n?} \
             [list autogen attroe]
 
         # axdb 

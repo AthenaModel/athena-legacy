@@ -412,7 +412,7 @@ snit::type autogen {
         }
 
         if {[llength [frcgroup names]] == 0 &&
-            [llength [orgrooup names]] == 0} {
+            [llength [orggroup names]] == 0} {
             error "Must have at least one FRC group or one ORG group"
         }
 
@@ -566,9 +566,8 @@ snit::type autogen {
             error "Must create nbhoods first"
         }
 
-        if {[llength [frcgroup names]] == 0 &&
-            [llength [orgrooup names]] == 0} {
-            error "Must have at least one FRC group or one ORG group"
+        if {[llength [frcgroup names]] == 0} {
+            error "Must have at least one FRC group"
         }
 
         # NEXT, parse arguments
@@ -579,7 +578,7 @@ snit::type autogen {
                     set opts(-attackers) [lshift args]
                 }
 
-                -max_attacks {
+                -max {
                     set opts(-max) [lshift args]
                     if {![string is integer $opts(-max)]} {
                         error "$opt must be integer > 0"
@@ -928,6 +927,12 @@ snit::type autogen {
         set parms(proximity) "FAR"
         order send cli NBREL:UPDATE:MULTI [array get parms]
 
+        # NEXT, if the user only requested two neighborhoods we
+        # are done
+        if {$num == 2} {
+            return
+        }
+
         # NEXT, prepare for NEAR nbhoods
         array unset parms
 
@@ -1258,8 +1263,11 @@ snit::type autogen {
                 set civgroups $opts(-civgroups)
             }
 
-            foreach a $opts(-actors) {
-                autogen FundENITactic $a $civgroups
+            # NEXT, if there are civgroups do FUNDENI
+            if {[llength $civgroups] > 0} {
+                foreach a $opts(-actors) {
+                    autogen FundENITactic $a $civgroups
+                }
             }
         }
     }
@@ -1287,11 +1295,18 @@ snit::type autogen {
             return
         }
 
-        # NEXT, error if a group is not owned
+        set usegroups [list]
+
+        # NEXT, gather only owned groups
         foreach group $groups {
-            if {$group ni $ownedgroups} {
-                error "$a does not own $group"
+            if {$group in $ownedgroups} {
+                lappend usegroups $group
             }
+        }
+
+        # NEXT, if no groups owned, get out
+        if {[llength $usegroups] == 0} {
+            error "$a does not own any of the specified groups"
         }
 
         # NEXT, determine activities based on group type
@@ -1305,7 +1320,7 @@ snit::type autogen {
 
         # NEXT, go through each group mobilizing, deploying and assigning
         # appropriate activities
-        foreach g $groups {
+        foreach g $usegroups {
             set pers \
                 [rdb eval "
                     SELECT base_personnel FROM $gtable
