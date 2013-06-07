@@ -44,7 +44,6 @@ tactic type define CURSE {curse roles once on_lock} system {
 
     typemethod narrative {tdict} {
         dict with tdict {}
-        dict with pdict {}
 
         set narr "[curse get $curse longname] ($curse). "
 
@@ -60,7 +59,6 @@ tactic type define CURSE {curse roles once on_lock} system {
     typemethod check {tdict} {
         # FIRST, bring all attributes into scope
         dict with tdict {}
-        dict with pdict {}
 
         set errors [list]
 
@@ -101,7 +99,6 @@ tactic type define CURSE {curse roles once on_lock} system {
     typemethod execute {tdict} {
         # FIRST, bring all attributes into scope
         dict with tdict {}
-        dict with pdict {}
 
         set parms(curse_id) $curse
 

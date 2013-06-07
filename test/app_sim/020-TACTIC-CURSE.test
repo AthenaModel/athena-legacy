@@ -169,7 +169,7 @@ namespace eval ::athena_test::tests:: {
 tactic_id    1
 tactic_type  CURSE
 owner        SYSTEM
-narrative    C1 (C1) causes XL+ Sat. change of @CIV1 = (SUNN, SHIA) with SFT
+narrative    C1 (C1). @CIV1 = SUNN, SHIA.
 priority     1
 curse        C1
 roles        @CIV1 {SUNN SHIA}
@@ -321,7 +321,7 @@ exec_flag    0
 tactic_id    1
 tactic_type  CURSE
 owner        SYSTEM
-narrative    C1 (C1) causes XL+ Sat. change of @CIV1 = (SUNN) with SFT
+narrative    C1 (C1). @CIV1 = SUNN.
 priority     1
 curse        C1
 roles        @CIV1 {SUNN}

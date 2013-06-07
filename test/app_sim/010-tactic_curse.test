@@ -90,30 +90,6 @@ namespace eval ::athena_test::tests:: {
         once        YES
     }
 
-    set T2 {
-        tactic_type FLOW
-        owner       SYSTEM
-        priority    top
-        f           SHIA
-        g           KURD
-        text1       NUMBER
-        int1        500
-        x1          ""
-        once        YES
-    }
-
-    set T3 {
-        tactic_type FLOW
-        owner       SYSTEM
-        priority    top
-        f           SHIA
-        g           KURD
-        text1       RATE
-        int1        ""
-        x1          5.0
-        once        NO
-    }
-
     #-------------------------------------------------------------------
     # narrative
 
@@ -124,7 +100,7 @@ namespace eval ::athena_test::tests:: {
         tactic::CURSE narrative [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {C1 (C1) causes XXXS+ Coop. change of @C1 = (SHIA) with @F1 = (BLUE)  XXXS+ Horiz. rel. change of @C1 = (SHIA) with @F1 = (BLUE)  XXXS+ Vert. rel. change of @C1 = (SHIA) with @A1 = (JOE) XXXS+ Sat. change of @C2 = (SUNN) with SFT}
+    } -result {C1 (C1). @C1 = SHIA. @C2 = SUNN. @F1 = BLUE. @A1 = JOE. }
 
     #-------------------------------------------------------------------
     # check
