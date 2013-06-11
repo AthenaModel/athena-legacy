@@ -239,6 +239,35 @@ macro gofer.rules {} {
     [/topiclist]
 }
 
+#==========================================================================
+# ACTORS
+
+gofer ACTORS "A list of actors" {
+    This gofer retrieves a list of <<cref /object/actor>> names
+    according to one of the following rules:<p>
+
+    <<gofer.rules>>
+}
+
+gofer_rule ACTORS BY_VALUE "Actors, By name" {
+    Retrieves an arbitrary list of 
+    <<cref /object/actor "actors">>
+    selected by name.<p>
+
+    <<itemlist>>
+    <<gofer.details raw_value {GOV USA}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>raw_value</i></tt> >>
+    A list of <<cref /object/actor>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
 
 
 #==========================================================================
@@ -368,6 +397,66 @@ gofer_rule CIVGROUPS DISLIKING_ACTOR "Civilian groups, Disliking Actor(s)" {
 
     <<topic <tt><i>alist</i></tt> >>
     A list of <<cref /object/actor>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#==========================================================================
+# FRCGROUPS
+
+gofer FRCGROUPS "A list of force groups" {
+    This gofer retrieves a list of <<cref /object/group/frc>> names
+    according to one of the following rules:<p>
+
+    <<gofer.rules>>
+}
+
+gofer_rule FRCGROUPS BY_VALUE "Force groups, By name" {
+    Retrieves an arbitrary list of 
+    <<cref /object/group/frc "force groups">>
+    selected by name.<p>
+
+    <<itemlist>>
+    <<gofer.details raw_value {BLUE BRIT}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>raw_value</i></tt> >>
+    A list of <<cref /object/group/frc>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#==========================================================================
+# GROUPS
+
+gofer GROUPS "A list of groups" {
+    This gofer retrieves a list of <<cref /object/group>> names
+    according to one of the following rules:<p>
+
+    <<gofer.rules>>
+}
+
+gofer_rule GROUPS BY_VALUE "Groups, By name" {
+    Retrieves an arbitrary list of 
+    <<cref /object/group "groups">>
+    selected by name.<p>
+
+    <<itemlist>>
+    <<gofer.details raw_value {BLUE SHIA}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>raw_value</i></tt> >>
+    A list of <<cref /object/group>> names.
     <</topic>>
 
     <</topiclist>>

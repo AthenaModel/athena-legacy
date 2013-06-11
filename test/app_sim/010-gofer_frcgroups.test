@@ -1,0 +1,93 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-gofer_frcgroups.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    frcgroup(sim) tests.
+#
+#    This test suite tests the gofer::FRCGROUPS type.
+#
+#    NOTE: The type itself is implemented using gofer(n); thus,
+#    we don't need to test the behavior of the type itself.  As a result,
+#    this test suite focusses on the gofer::FRCGROUPS-specific rule
+#    objects.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    proc setup {} {
+        ted create JOE BOB BLUE BRIT
+    }
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+
+    #-------------------------------------------------------------------
+    # Rule: BY_VALUE
+
+    test BY_VALUE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::FRCGROUPS::BY_VALUE construct {BLUE BRIT}
+    } -cleanup {
+        cleanup
+    } -result {raw_value {BLUE BRIT}}
+
+    test BY_VALUE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::FRCGROUPS::BY_VALUE validate {raw_value {BLUE BRIT}}
+    } -cleanup {
+        cleanup
+    } -result {raw_value {BLUE BRIT}}
+
+    test BY_VALUE-2.2 {validate, invalid} -setup {
+        setup
+    } -body {
+        ::gofer::FRCGROUPS::BY_VALUE validate {raw_value {BLUE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force group*}
+
+    test BY_VALUE-3.1 {narrative} -body {
+        ::gofer::FRCGROUPS::BY_VALUE narrative {raw_value BLUE}
+    } -result {group BLUE}
+
+    test BY_VALUE-4.1 {eval} -setup {
+        setup
+    } -body {
+        ::gofer::FRCGROUPS::BY_VALUE eval {raw_value {BLUE BRIT}}
+    } -cleanup {
+        cleanup
+    } -result {BLUE BRIT}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+

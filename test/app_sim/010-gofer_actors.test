@@ -1,0 +1,93 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-gofer_actors.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    actor(sim) tests.
+#
+#    This test suite tests the gofer::ACTORS type.
+#
+#    NOTE: The type itself is implemented using gofer(n); thus,
+#    we don't need to test the behavior of the type itself.  As a result,
+#    this test suite focusses on the gofer::ACTORS-specific rule
+#    objects.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    proc setup {} {
+        ted create JOE BOB
+    }
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+
+    #-------------------------------------------------------------------
+    # Rule: BY_VALUE
+
+    test BY_VALUE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::ACTORS::BY_VALUE construct {BOB JOE}
+    } -cleanup {
+        cleanup
+    } -result {raw_value {BOB JOE}}
+
+    test BY_VALUE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::ACTORS::BY_VALUE validate {raw_value {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {raw_value {BOB JOE}}
+
+    test BY_VALUE-2.2 {validate, invalid} -setup {
+        setup
+    } -body {
+        ::gofer::ACTORS::BY_VALUE validate {raw_value {BOB NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor*}
+
+    test BY_VALUE-3.1 {narrative} -body {
+        ::gofer::ACTORS::BY_VALUE narrative {raw_value BOB}
+    } -result {actor BOB}
+
+    test BY_VALUE-4.1 {eval} -setup {
+        setup
+    } -body {
+        ::gofer::ACTORS::BY_VALUE eval {raw_value {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {BOB JOE}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
