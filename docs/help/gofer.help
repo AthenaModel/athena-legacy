@@ -321,6 +321,26 @@ gofer_rule CIVGROUPS RESIDENT_IN "Civilian groups, Resident in Neighborhood(s)" 
     <</topiclist>>
 }
 
+gofer_rule CIVGROUPS NOT_RESIDENT_IN "Civilian groups, Not Resident in Neighborhood(s)" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    who do not reside in a particular 
+    <<cref /object/nbhood "neighborhood or neighborhoods">>.<p>
+
+    <<itemlist>>
+    <<gofer.details nlist {NB1 NB2}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>nlist</i></tt> >>
+    A list of <<cref /object/nbhood>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
 gofer_rule CIVGROUPS SUPPORTING_ACTOR "Civilian groups, Supporting Actor(s)" {
     Retrieves a list of 
     <<cref /object/group/civ "civilian groups">>
@@ -402,6 +422,155 @@ gofer_rule CIVGROUPS DISLIKING_ACTOR "Civilian groups, Disliking Actor(s)" {
     <</topiclist>>
 }
 
+gofer_rule CIVGROUPS LIKING_GROUP "Civilian groups, Liking Group(s)" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    who have a <<term hrel>> of <b>LIKE</b> or <b>SUPPORT</b>
+    with any or all of a specified list of
+    <<cref /object/group groups>>.<p>
+
+    <<itemlist>>
+    <<gofer.details anyall ANY glist {SHIA SUNN}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve groups that like <b>ANY</b> or <b>ALL</b> of the listed
+    <<cref /object/group>> names.
+    <</topic>>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of <<cref /object/group>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS DISLIKING_GROUP "Civilian groups, Disliking Group(s)" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    who have a <<term hrel>> of <b>DISLIKE</b> or <b>OPPOSE</b>
+    with any or all of a specified list of
+    <<cref /object/group groups>>.<p>
+
+    <<itemlist>>
+    <<gofer.details anyall ANY glist {SHIA SUNN}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve groups that dislike <b>ANY</b> or <b>ALL</b> of the listed
+    <<cref /object/group>> names.
+    <</topic>>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of <<cref /object/group>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS LIKED_BY_GROUP "Civilian groups, Liked by Group(s)" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    for whom any or all of a specified list of
+    <<cref /object/group groups>> have a <<term hrel>> 
+    of <b>LIKE</b> or <b>SUPPORT</b>.<p>
+
+    <<itemlist>>
+    <<gofer.details anyall ANY glist {SHIA SUNN}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve groups that are liked by <b>ANY</b> or <b>ALL</b> of the listed
+    <<cref /object/group>> names.
+    <</topic>>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of <<cref /object/group>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS DISLIKED_BY_GROUP "Civilian groups, Disliked by Group(s)" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    for whom any or all of a specified list of
+    <<cref /object/group groups>> have a <<term hrel>> 
+    of <b>DISLIKE</b> or <b>OPPOSE</b>.<p>
+
+    <<itemlist>>
+    <<gofer.details anyall ANY glist {SHIA SUNN}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve groups that are disliked by <b>ANY</b> or <b>ALL</b> of the listed
+    <<cref /object/group>> names.
+    <</topic>>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of <<cref /object/group>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS MOOD_IS_SATISFIED "Civilian groups, Mood is Satisfied" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    whose <<term mood>> is <b>Satisfied</b> or <b>Very Satisfied</b>.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <</itemlist>><p>
+
+    This rule has no parameters.<p>
+    
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS MOOD_IS_DISSATISFIED "Civilian groups, Mood is Dissatisfied" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    whose <<term mood>> is <b>Dissatisfied</b> or <b>Very Dissatisfied</b>.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <</itemlist>><p>
+
+    This rule has no parameters.<p>
+    
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS MOOD_IS_AMBIVALENT "Civilian groups, Mood is Ambivalent" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    whose <<term mood>> is <b>Ambivalent</b>.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <</itemlist>><p>
+
+    This rule has no parameters.<p>
+    
+    <</topiclist>>
+}
 #==========================================================================
 # FRCGROUPS
 

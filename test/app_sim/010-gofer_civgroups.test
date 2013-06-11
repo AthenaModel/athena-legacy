@@ -31,7 +31,7 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     proc setup {} {
-        ted create JOE BOB BLUE SHIA SUNN KURD
+        ted create JOE BOB BLUE BRIT SHIA SUNN KURD
     }
 
     proc cleanup {} {
@@ -100,6 +100,64 @@ namespace eval ::athena_test::tests:: {
         } -brief
     } -result {any of these actors (A, B, C, D, E, F, G, H, ...)}
 
+    #-------------------------------------------------------------------
+    # Helper: validateAnyAllGlist
+
+    test validateAnyAllGlist-3.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::validateAnyAllGlist {anyall any glist {SHIA SUNN}}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {SHIA SUNN}}
+
+    test validateAnyAllGlist-3.2 {validate, invalid anyall} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::validateAnyAllGlist {anyall NONESUCH glist SHIA}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {invalid value "NONESUCH", should be one of: ANY, ALL}
+
+    test validateAnyAllGlist-3.3 {validate, invalid glist} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::validateAnyAllGlist {anyall ANY glist {SHIA NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group*}
+
+    #-------------------------------------------------------------------
+    # helper: narrativeAnyAllGlist
+
+    test narrativeAnyAllGlist-4.1 {narrative, one group} -body {
+        ::gofer::CIVGROUPS::narrativeAnyAllGlist {anyall ANY glist SHIA}
+    } -result {group SHIA}
+
+    test narrativeAnyAllGlist-4.2 {narrative, any, several groups} -body {
+        ::gofer::CIVGROUPS::narrativeAnyAllGlist {
+            anyall ANY
+            glist {SHIA SUNN}
+        }
+    } -result {any of these groups (SHIA, SUNN)}
+    
+    test narrativeAnyAllGlist-4.3 {narrative, all, several groups} -body {
+        ::gofer::CIVGROUPS::narrativeAnyAllGlist {
+            anyall ALL
+            glist {SHIA SUNN}
+        }
+    } -result {all of these groups (SHIA, SUNN)}
+
+    test narrativeAnyAllGlist-4.4 {narrative, -brief} -body {
+        ::gofer::CIVGROUPS::narrativeAnyAllGlist {
+            anyall ANY
+            glist {A B C D E F G H I J}
+        } -brief
+    } -result {any of these groups (A, B, C, D, E, F, G, H, ...)}
 
 
     #-------------------------------------------------------------------
@@ -184,6 +242,55 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {SHIA SUNN KURD}
 
+
+    #-------------------------------------------------------------------
+    # Rule: NOT_RESIDENT_IN
+
+    test NOT_RESIDENT_IN-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::NOT_RESIDENT_IN construct {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NOT_RESIDENT_IN-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::NOT_RESIDENT_IN validate {nlist {NB1 NB2}}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NOT_RESIDENT_IN-2.2 {validate, invalid} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::NOT_RESIDENT_IN validate {nlist {NB1 NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood*}
+
+    test NOT_RESIDENT_IN-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::NOT_RESIDENT_IN narrative {nlist NB1}
+    } -result {non-empty civilian groups not resident in NB1}
+
+    test NOT_RESIDENT_IN-4.1 {eval, valid} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::NOT_RESIDENT_IN eval {nlist NB2}
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
+
+    test NOT_RESIDENT_IN-4.2 {eval, valid} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::NOT_RESIDENT_IN eval {nlist {NB1 NB2}}
+    } -cleanup {
+        cleanup
+    } -result {}
 
     #-------------------------------------------------------------------
     # Rule: SUPPORTING_ACTOR
@@ -372,6 +479,354 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {SHIA}
+
+    #-------------------------------------------------------------------
+    # Rule: LIKING_GROUP
+
+    proc setupLikingGroup {} {
+        setup
+        ted lock
+        aram hrel bset 1 SHIA BLUE  0.3
+        aram hrel bset 1 SHIA BRIT  0.3
+        aram hrel bset 1 SHIA KURD  0.3
+        aram hrel bset 1 SUNN BLUE  0.3
+        aram hrel bset 1 SUNN BRIT  0.0
+        aram hrel bset 1 KURD BLUE  0.0
+        aram hrel bset 1 KURD BRIT  0.3
+        ted step
+    }
+
+    test LIKING_GROUP-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::LIKING_GROUP construct any {BRIT BLUE}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test LIKING_GROUP-2.1 {validate} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::LIKING_GROUP validate {anyall any glist {BRIT BLUE}}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test LIKING_GROUP-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::LIKING_GROUP narrative {anyall ANY glist BRIT}
+    } -match glob -result {civilian groups that like *}
+
+    test LIKING_GROUP-4.1 {eval, one} -setup {
+        setupLikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::LIKING_GROUP eval {anyall ANY glist KURD}
+        # NOTE: KURD is not included in output
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
+
+    test LIKING_GROUP-4.2 {eval, any of two} -setup {
+        setupLikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::LIKING_GROUP eval {anyall ANY glist {BLUE BRIT}}
+    } -cleanup {
+        cleanup
+    } -result {KURD SHIA SUNN}
+
+    test LIKING_GROUP-4.3 {eval, all of two} -setup {
+        setupLikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::LIKING_GROUP eval {anyall ALL glist {BLUE BRIT}}
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
+
+    #-------------------------------------------------------------------
+    # Rule: DISLIKING_GROUP
+
+    proc setupDislikingGroup {} {
+        setup
+        ted lock
+        aram hrel bset 1 SHIA BLUE -0.3
+        aram hrel bset 1 SHIA BRIT -0.3
+        aram hrel bset 1 SHIA KURD -0.3
+        aram hrel bset 1 SUNN BLUE -0.3
+        aram hrel bset 1 SUNN BRIT  0.0
+        aram hrel bset 1 KURD BLUE  0.0
+        aram hrel bset 1 KURD BRIT -0.3
+        ted step
+    }
+
+    test DISLIKING_GROUP-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKING_GROUP construct any {BRIT BLUE}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test DISLIKING_GROUP-2.1 {validate} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKING_GROUP validate {anyall any glist {BRIT BLUE}}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test DISLIKING_GROUP-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::DISLIKING_GROUP narrative {anyall ANY glist BRIT}
+    } -match glob -result {civilian groups that dislike *}
+
+    test DISLIKING_GROUP-4.1 {eval, one} -setup {
+        setupDislikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKING_GROUP eval {anyall ANY glist KURD}
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
+
+    test DISLIKING_GROUP-4.2 {eval, any of two} -setup {
+        setupDislikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKING_GROUP eval {anyall ANY glist {BLUE BRIT}}
+    } -cleanup {
+        cleanup
+    } -result {KURD SHIA SUNN}
+
+    test DISLIKING_GROUP-4.3 {eval, all of two} -setup {
+        setupDislikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKING_GROUP eval {anyall ALL glist {BLUE BRIT}}
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
+
+    #-------------------------------------------------------------------
+    # Rule: LIKED_BY_GROUP
+
+    proc setupLikingGroup {} {
+        setup
+        ted lock
+        aram hrel bset 1 SHIA SUNN  0.0
+        aram hrel bset 1 SHIA KURD  0.3
+        aram hrel bset 1 SUNN SHIA  0.0
+        aram hrel bset 1 SUNN KURD  0.3
+        aram hrel bset 1 KURD SHIA  0.3
+        aram hrel bset 1 KURD SUNN  0.3
+        ted step
+    }
+
+    test LIKED_BY_GROUP-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::LIKED_BY_GROUP construct any {BRIT BLUE}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test LIKED_BY_GROUP-2.1 {validate} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::LIKED_BY_GROUP validate {anyall any glist {BRIT BLUE}}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test LIKED_BY_GROUP-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::LIKED_BY_GROUP narrative {anyall ANY glist BRIT}
+    } -match glob -result {civilian groups that are liked by *}
+
+    test LIKED_BY_GROUP-4.1 {eval, one} -setup {
+        setupLikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::LIKED_BY_GROUP eval {anyall ANY glist KURD}
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
+
+    test LIKED_BY_GROUP-4.2 {eval, any of two} -setup {
+        setupLikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::LIKED_BY_GROUP eval {anyall ANY glist {SHIA KURD}}
+    } -cleanup {
+        cleanup
+    } -result {KURD SHIA SUNN}
+
+    test LIKED_BY_GROUP-4.3 {eval, all of two} -setup {
+        setupLikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::LIKED_BY_GROUP eval {anyall ALL glist {SUNN SHIA}}
+    } -cleanup {
+        cleanup
+    } -result {KURD}
+
+    #-------------------------------------------------------------------
+    # Rule: DISLIKED_BY_GROUP
+
+    proc setupDislikingGroup {} {
+        setup
+        ted lock
+        aram hrel bset 1 SHIA SUNN  0.0
+        aram hrel bset 1 SHIA KURD -0.3
+        aram hrel bset 1 SUNN SHIA  0.0
+        aram hrel bset 1 SUNN KURD -0.3
+        aram hrel bset 1 KURD SHIA -0.3
+        aram hrel bset 1 KURD SUNN -0.3
+        ted step
+    }
+
+    test DISLIKED_BY_GROUP-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKED_BY_GROUP construct any {BRIT BLUE}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test DISLIKED_BY_GROUP-2.1 {validate} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKED_BY_GROUP validate {anyall any glist {BRIT BLUE}}
+    } -cleanup {
+        cleanup
+    } -result {anyall ANY glist {BRIT BLUE}}
+
+    test DISLIKED_BY_GROUP-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::DISLIKED_BY_GROUP narrative {anyall ANY glist BRIT}
+    } -match glob -result {civilian groups that are disliked by *}
+
+    test DISLIKED_BY_GROUP-4.1 {eval, one} -setup {
+        setupDislikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKED_BY_GROUP eval {anyall ANY glist KURD}
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
+
+    test DISLIKED_BY_GROUP-4.2 {eval, any of two} -setup {
+        setupDislikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKED_BY_GROUP eval {anyall ANY glist {SHIA KURD}}
+    } -cleanup {
+        cleanup
+    } -result {KURD SHIA SUNN}
+
+    test DISLIKED_BY_GROUP-4.3 {eval, all of two} -setup {
+        setupDislikingGroup
+    } -body {
+        ::gofer::CIVGROUPS::DISLIKED_BY_GROUP eval {anyall ALL glist {SUNN SHIA}}
+    } -cleanup {
+        cleanup
+    } -result {KURD}
+
+    #-------------------------------------------------------------------
+    # Rule: MOOD_IS_SATISFIED
+
+    proc setupMood {} {
+        setup
+        ted lock
+        aram sat bset 1 SHIA AUT  100.0
+        aram sat bset 1 SHIA CUL  100.0
+        aram sat bset 1 SHIA QOL  100.0
+        aram sat bset 1 SHIA SFT  100.0
+        aram sat bset 1 SUNN AUT -100.0
+        aram sat bset 1 SUNN CUL -100.0
+        aram sat bset 1 SUNN QOL -100.0
+        aram sat bset 1 SUNN SFT -100.0
+        ted step
+    }
+
+    test MOOD_IS_SATISFIED-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_SATISFIED construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test MOOD_IS_SATISFIED-2.1 {validate} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_SATISFIED validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test MOOD_IS_SATISFIED-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::MOOD_IS_SATISFIED narrative {}
+    } -match glob -result {civilian groups whose mood is satisfied}
+
+    test MOOD_IS_SATISFIED-4.1 {eval} -setup {
+        setupMood
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_SATISFIED eval {}
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
+
+    #-------------------------------------------------------------------
+    # Rule: MOOD_IS_DISSATISFIED
+
+    test MOOD_IS_DISSATISFIED-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_DISSATISFIED construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test MOOD_IS_DISSATISFIED-2.1 {validate} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_DISSATISFIED validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test MOOD_IS_DISSATISFIED-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::MOOD_IS_DISSATISFIED narrative {}
+    } -match glob -result {civilian groups whose mood is dissatisfied}
+
+    test MOOD_IS_DISSATISFIED-4.1 {eval} -setup {
+        setupMood
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_DISSATISFIED eval {}
+    } -cleanup {
+        cleanup
+    } -result {SUNN}
+
+    #-------------------------------------------------------------------
+    # Rule: MOOD_IS_AMBIVALENT
+
+    test MOOD_IS_AMBIVALENT-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_AMBIVALENT construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test MOOD_IS_AMBIVALENT-2.1 {validate} -setup {
+        setup
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_AMBIVALENT validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test MOOD_IS_AMBIVALENT-3.1 {narrative} -body {
+        ::gofer::CIVGROUPS::MOOD_IS_AMBIVALENT narrative {}
+    } -match glob -result {civilian groups whose mood is ambivalent}
+
+    test MOOD_IS_AMBIVALENT-4.1 {eval} -setup {
+        setupMood
+    } -body {
+        ::gofer::CIVGROUPS::MOOD_IS_AMBIVALENT eval {}
+    } -cleanup {
+        cleanup
+    } -result {KURD}
+
+
 
     #-------------------------------------------------------------------
     # Cleanup
