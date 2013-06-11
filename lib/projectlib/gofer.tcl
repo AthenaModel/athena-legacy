@@ -51,7 +51,16 @@ snit::type ::projectlib::gofer {
     # which is a dictionary of rule objects by rule name.
     typevariable rules -array {}
     
+    #-------------------------------------------------------------------
+    # Type Constructor
 
+    typeconstructor {
+        # Define the ::gofer namespace, and make helpers available there.
+        namespace eval ::gofer {
+            namespace path ::projectlib::gofer
+        }
+    }
+    
     #-------------------------------------------------------------------
     # Public Type Methods
     
@@ -74,6 +83,12 @@ snit::type ::projectlib::gofer {
 
         # NEXT, create the gofer type object
         goferType $fullname $name $formspec
+
+        # NEXT, define the type's ::gofer namespace, and make the
+        # helper procs available in it.
+        namespace eval ::gofer::$name {
+            namespace path {::gofer ::projectlib::gofer}
+        }
 
         # NEXT, save the metadata
         set types($name) $fullname
@@ -105,11 +120,11 @@ snit::type ::projectlib::gofer {
         set prefix [format {
             pragma -hasinstances no
             typeconstructor {
-                namespace path %s 
+                namespace path [list %s %s %s] 
             }
 
             typemethod keys {} { return %s }
-        } $type [list $keys]]
+        } ::gofer::${typename} ::gofer:: $type [list $keys]]
 
         snit::type $fullname "$prefix\n$body"
 

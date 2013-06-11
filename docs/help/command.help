@@ -1045,6 +1045,10 @@ command "gofer" {
         SHIA SUNN
         >
     }>>
+
+    <b>NOTE:</b>  Most gofers are designed to work with a locked scenario;
+    if you explicitly use <<command gofer>> to retrieve data during 
+    scenario preparation, don't be surprised if the result is empty.<p>
 }
 
 

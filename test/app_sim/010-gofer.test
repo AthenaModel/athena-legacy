@@ -95,6 +95,22 @@ namespace eval ::athena_test::tests:: {
     } -result {items (a, b, c, d, e, f, g, h, ...)}
 
     #-------------------------------------------------------------------
+    # namespaces and paths
+
+    test namespace-1.1 {::gofer namespace path} -body {
+        namespace eval ::gofer { namespace path }
+    } -result {::projectlib::gofer}
+    
+    test namespace-1.2 {::gofer type namespace path} -body {
+        namespace eval ::gofer::CIVGROUPS { namespace path }
+    } -result {::gofer ::projectlib::gofer}
+    
+    test namespace-1.3 {::gofer rule namespace path} -body {
+        namespace eval ::gofer::CIVGROUPS::BY_VALUE { namespace path }
+    } -result {::gofer::CIVGROUPS ::gofer ::projectlib::gofer}
+    
+    
+    #-------------------------------------------------------------------
     # gofer check
     #
     # This test calls gofer's sanity checker, which sanity checks

@@ -17,6 +17,14 @@
 #
 #-----------------------------------------------------------------------
 
+# Any/All
+
+# Any of vs. All of
+enum eanyall {
+    ANY "Any of"
+    ALL "All of"
+}
+
 # Priority tokens
 
 enum ePrioSched {

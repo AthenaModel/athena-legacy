@@ -251,7 +251,7 @@ gofer CIVGROUPS "A list of civilian groups" {
     <<gofer.rules>>
 }
 
-gofer_rule CIVGROUPS BY_VALUE "Civilian groups, by name" {
+gofer_rule CIVGROUPS BY_VALUE "Civilian groups, By name" {
     Retrieves an arbitrary list of 
     <<cref /object/group/civ "civilian groups">>
     selected by name.<p>
@@ -271,7 +271,7 @@ gofer_rule CIVGROUPS BY_VALUE "Civilian groups, by name" {
     <</topiclist>>
 }
 
-gofer_rule CIVGROUPS RESIDENT_IN "Civilian groups, resident in" {
+gofer_rule CIVGROUPS RESIDENT_IN "Civilian groups, Resident in Neighborhood(s)" {
     Retrieves a list of 
     <<cref /object/group/civ "civilian groups">>
     resident in a particular 
@@ -292,20 +292,25 @@ gofer_rule CIVGROUPS RESIDENT_IN "Civilian groups, resident in" {
     <</topiclist>>
 }
 
-gofer_rule CIVGROUPS SUPPORTING_ACTOR "Civilian groups, supporting actor" {
+gofer_rule CIVGROUPS SUPPORTING_ACTOR "Civilian groups, Supporting Actor(s)" {
     Retrieves a list of 
     <<cref /object/group/civ "civilian groups">>
-    who are actively supporting any of 
+    who are actively <<term support>>ing any or all of 
     a specified list of 
     <<cref /object/actor actors>>.<p>
 
     <<itemlist>>
-    <<gofer.details alist {JOE BOB}>>
+    <<gofer.details anyall ANY alist {JOE BOB}>>
     <</itemlist>><p>
 
     The rule parameters are as follows:<p>
     
     <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve groups that support <b>ANY</b> or <b>ALL</b> of the listed
+    <<cref /object/actor>> names.
+    <</topic>>
 
     <<topic <tt><i>alist</i></tt> >>
     A list of <<cref /object/actor>> names.
@@ -313,3 +318,58 @@ gofer_rule CIVGROUPS SUPPORTING_ACTOR "Civilian groups, supporting actor" {
 
     <</topiclist>>
 }
+
+gofer_rule CIVGROUPS LIKING_ACTOR "Civilian groups, Liking Actor(s)" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    who have a <<term vrel>> of <b>LIKE</b> or <b>SUPPORT</b>
+    with any or all of a specified list of
+    <<cref /object/actor actors>>.<p>
+
+    <<itemlist>>
+    <<gofer.details anyall ANY alist {JOE BOB}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve groups that like <b>ANY</b> or <b>ALL</b> of the listed
+    <<cref /object/actor>> names.
+    <</topic>>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of <<cref /object/actor>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS DISLIKING_ACTOR "Civilian groups, Disliking Actor(s)" {
+    Retrieves a list of 
+    <<cref /object/group/civ "civilian groups">>
+    who have a <<term vrel>> of <b>DISLIKE</b> or <b>OPPOSE</b>
+    with any or all of a specified list of
+    <<cref /object/actor actors>>.<p>
+
+    <<itemlist>>
+    <<gofer.details anyall ANY alist {JOE BOB}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve groups that dislike <b>ANY</b> or <b>ALL</b> of the listed
+    <<cref /object/actor>> names.
+    <</topic>>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of <<cref /object/actor>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+

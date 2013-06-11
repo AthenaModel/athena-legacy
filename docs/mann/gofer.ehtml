@@ -134,12 +134,12 @@ The <i>body</i> is a <code>snit::type</code> body which defines the rule's
 <code>construct</code>, <code>eval</code>, <code>narrative</code>, and
 <code>validate</code> type methods (the <code>keys</code> type method is defined automatically).<p>
 
-See <<xref "RULE HELPERS">> for a list of commands for use in writing
-gofer rules.<p>
-
 The rule object's Tcl command name will be 
 <code>::gofer::<i>typename</i>::<i>rulename</i></code>.<p>
 
+gofer(n) provides a number of helper commands for use in writing gofer rules;
+and the application can provide its own helper commands as well.
+See <<xref "RULE HELPERS">> for details.<p>
 
 <<defitem "gofer rulefrom" {gofer rulefrom <i>typename rulename object</i>}>>
 
@@ -221,6 +221,14 @@ e.g., <b>by_value</b>, and will take one argument for each key, in the
 order they are listed by the rule's <code>keys</code> method.<p> 
 
 <<section "RULE HELPERS">>
+
+Rule object typemethods are often similar or identical across a number of
+rules, and so it makes sense to abstract out common functionality into 
+helper commands.  Gofer(n) provides a number of such helpers, listed below,
+which can be using in any gofer rule; in addition, the application can define
+its own in the <code>::gofer::</code> namespace, and a specific gofer type can
+define its own in the <code>::gofer::<i>typename</i></code> namespace.  All
+such commands are automatically visible in the type's gofer rule typemethods.<p>
 
 gofer(n) defines the following commands for use in the bodies of 
 gofer rules.<p>
