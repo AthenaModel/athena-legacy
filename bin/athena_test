@@ -58,10 +58,8 @@ lappend auto_path $marsdir $libdir
 
 puts "auto_path=<$auto_path>"
 
-# Global variable used by the app_sim(n) package
+# Global flag used to denote whether Tk should be loaded
 set ::loadTk 1
-
-package require Tk 8.5
 
 #-----------------------------------------------------------------------
 # Required Packages
@@ -85,8 +83,8 @@ namespace eval ::athena_test:: {
     #-------------------------------------------------------------------
     # Test Variables
 
-    variable waitFlag 0    ;# If 1, do not exit at end of run.
-    variable testDir  ""   ;# Test directory
+    variable waitFlag 0   ;# If 1, do not exit at end of run.
+    variable testDir  ""  ;# Test directory
 
 
     #-------------------------------------------------------------------
@@ -108,6 +106,8 @@ namespace eval ::athena_test:: {
         puts ""
         puts "-wait      Leave the application running when the tests are"
         puts "           complete."
+        puts "-notk      Do not load Tk into the app, some tests will not"
+        puts "           run if this is selected."
     }
     
     #-------------------------------------------------------------------
@@ -145,10 +145,19 @@ namespace eval ::athena_test:: {
                 set waitFlag 1
             }
 
+            -notk {
+                set ::loadTk 0
+            }
+
             default {
                 lappend tcltestOpts $opt
             }
         }
+    }
+
+    # NEXT, Tk is to be loaded
+    if {$::loadTk} {
+        package require Tk 8.5
     }
 
     # NEXT, initialize app_sim(n).  It will exit if there's a problem.
@@ -160,7 +169,8 @@ namespace eval ::athena_test:: {
 
     puts "app_sim(n) initialized."
 
-    # NEXT, if there's no -wait flag, then get rid of the GUI.
+    # NEXT, if there's no -wait flag, then get rid of the GUI. If
+    # Tk is not loaded, there is no GUI.
     #
     # NOTE: It's appropriate to create and delete the GUI, as it verifies
     # that all GUI components clean up after themselves.
@@ -168,7 +178,7 @@ namespace eval ::athena_test:: {
     # TBD: Add API so that the main window is created and destroyed
     # but never mapped in this case.
 
-    if {!$waitFlag} {
+    if {!$waitFlag && $::loadTk} {
         wm protocol .main WM_DELETE_WINDOW { 
             # NOP 
         }
@@ -179,6 +189,9 @@ namespace eval ::athena_test:: {
 
     # NEXT, load and initialize tcltest(n):
     package require tcltest 2.2
+
+    # NEXT, define a constraint for when Tk is loaded
+    ::tcltest::testConstraint tk $::loadTk
 
     set testDir [file join $topdir test app_sim]
     set tempDir [file join $topdir test temp]

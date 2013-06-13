@@ -39,8 +39,12 @@ snit::type map {
         set mapimage   ""
         set projection [mapref ${type}::proj]
 
-        # NEXT, register to receive dbsync events.
-        notifier bind ::sim <DbSyncA> $type [mytypemethod DbSync]
+        # NEXT, register to receive dbsync events if there is a GUI
+        if {[app tkloaded]} {
+            notifier bind ::sim <DbSyncA> $type [mytypemethod DbSync]
+        } else {
+            log detail map "app in non-GUI mode, ignoring notifiers"
+        }
 
         log detail map "init complete"
     }
@@ -154,7 +158,13 @@ snit::type map {
     # undoable.
 
     typemethod {mutate import} {filename} {
-        # FIRST, get the undo information
+        # FIRST, if the app is non-GUI, this is a no-op
+        if {![app tkloaded]} {
+            log detail map "app in non-GUI mode, ignoring map import"
+            return ""
+        }
+
+        # NEXT, get the undo information
         rdb eval {
             SELECT * FROM maps WHERE id=1
         } row {

@@ -1216,6 +1216,19 @@ $ svn switch <i>repository</i>/mars/tags/mars_2.3 mars
 <</step>>
 
 <<step>>
+<b>Optional.</b> Run the test suite in non-GUI mode. This is to test that
+Athena tests cleanly when there are no Tk modules loaded. This step is
+recommended for builds that will be used in a supercomputing environment.
+Resolve any errors, and retest, until the tests all pass. Commit 
+any changes.
+<</step/>>
+<pre>
+$ cd ~/athena_pkgs/athena_4.0.1/test
+$ athena_test all -notk
+</pre>
+<</step>>
+
+<<step>>
 Do a development build and test of the client. Resolve any errors, and
 retest, until the client builds cleanly. Commit any changes.
 <</step/>>
@@ -1224,7 +1237,6 @@ $ cd ~/athena_pkgs/athena_4.0.1
 $ make build
 </pre>
 <</step>>
-
 
 <<step>>
 Tag the build, updating the working copy to the tagged version. 
@@ -1270,11 +1282,12 @@ $ svn commit -m"Permanently link with Mars 2.3" .
 
 
 <<step>>
-Perform the official CM build. Installation, source, and documentation
-tarballs will be created automatically:<p>
+Perform the official CM build. Source and documentation
+tarballs will be created automatically, the installation 
+tarball will be created if the build is being done on Linux:<p>
 
 <ul>
-  <li> <code>~/athena_pkgs/athena_4.0.1.tgz</code>
+  <li> <code>~/athena_pkgs/athena_4.0.1.tgz</code> (Linux only)
   <li> <code>~/athena_pkgs/athena_4.0.1_src.tgz</code>
   <li> <code>~/athena_pkgs/athena_4.0.1_docs.tgz</code>
 </ul>

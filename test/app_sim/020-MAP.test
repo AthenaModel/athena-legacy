@@ -43,13 +43,13 @@ namespace eval ::athena_test::tests:: {
         filename {required value}
     }
     
-    test MAP:IMPORT-1.2 {filename is bad} -body {
+    test MAP:IMPORT-1.2 {filename is bad} -constraints tk -body {
         ted order -reject MAP:IMPORT filename nosuchfile.png
     } -result {
         filename {Could not open the specified file as a map image}
     }
 
-    test MAP:IMPORT-2.1 {map loaded} -body {
+    test MAP:IMPORT-2.1 {map loaded} -constraints tk -body {
         ted order MAP:IMPORT filename [testdir map.png]
 
         rdb onecolumn {SELECT filename FROM maps WHERE id=1}
@@ -57,7 +57,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {map.png}
 
-    test MAP:IMPORT-2.2 {<MapChanged> sent} -body {
+    test MAP:IMPORT-2.2 {<MapChanged> sent} -constraints tk -body {
         ted notifier bind ::map <MapChanged>
         ted order MAP:IMPORT filename [testdir map.png]
         ted notifier received
@@ -67,14 +67,14 @@ namespace eval ::athena_test::tests:: {
         {::map <MapChanged>}
     }
 
-    test MAP:IMPORT:3.1 {undo resets map} -setup {
+    test MAP:IMPORT:3.1 {undo resets map} -constraints tk -setup {
         ted order MAP:IMPORT filename [testdir map.png]
     } -body {
         cif undo
         rdb onecolumn {SELECT filename FROM maps WHERE id=1}
     } -result {blank.png}
 
-    test MAP:IMPORT:3.2 {undo sends <MapChanged>} -setup {
+    test MAP:IMPORT:3.2 {undo sends <MapChanged>} -constraints tk -setup {
         ted order MAP:IMPORT filename [testdir map.png]
     } -body {
         ted notifier bind ::map <MapChanged>

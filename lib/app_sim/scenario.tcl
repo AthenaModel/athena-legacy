@@ -676,8 +676,8 @@ snit::type scenario {
         # NEXT, define the temp schema
         DefineTempSchema
 
-        # NEXT, load the blank map, but only if we are not in batchmode
-        if {![app batch]} {
+        # NEXT, load the blank map, but only if we have a GUI
+        if {[app tkloaded]} {
             map load [file join $::app_sim::library blank.png]
         }
 

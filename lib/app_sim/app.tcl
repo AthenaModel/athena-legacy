@@ -276,9 +276,9 @@ snit::type app {
             -trace       yes     \
             -transaction no
 
-        # NEXT, initialize the order dialog manager if we are not in
-        # batch mode
-        if {!$opts(-batch)} {
+        # NEXT, initialize the order dialog manager if we are in
+        # GUI mode
+        if {[app tkloaded]} {
             orderdialog init \
                 -parent    .main              \
                 -appname   "Athena [version]" \
@@ -303,7 +303,7 @@ snit::type app {
         # us to capture the user's "session" as part of the scenario file.
         # No main window in batch mode.
 
-        if {!$opts(-batch)} {
+        if {[app tkloaded]} {
             wm withdraw .
             appwin .main -dev $opts(-dev)
             scenario register .main
@@ -347,12 +347,12 @@ snit::type app {
                         $result
                     }
 
-                    if {$opts(-batch)} {
+                    if {![app tkloaded]} {
                         app exit $message
                     } else {
                         app error $message
                     }
-                } elseif {$opts(-batch)} {
+                } elseif {![app tkloaded]} {
                     app exit {
                         |<--
                         Error in -script:
@@ -388,13 +388,13 @@ snit::type app {
         }
     }
 
-    # batch
+    # tkloaded
     #
     # Returns the value of the -batch option for other modules to
     # use as needed.
 
-    typemethod batch {} {
-        return $opts(-batch)
+    typemethod tkloaded {} {
+        return $::loadTk
     }
 
     # AddOrderToCIF interface name parmdict undoScript
@@ -684,7 +684,7 @@ snit::type app {
     #   text - A text string
 
     typemethod puts {text} {
-        if {!$opts(-batch)} {
+        if {[app tkloaded]} {
             set topwin [app topwin]
 
             if {$topwin ne ""} {
@@ -765,12 +765,15 @@ snit::type app {
     #
     # text - An exit message: multiple lines, each as a separate arg.
     #
-    # Displays the [app exit] text appropriately for the platform.
+    # Displays the [app exit] text appropriately.
+    # 
 
     typemethod DisplayExitText {args} {
         set text [join $args \n]
 
-        if {[os type] ne "win32"} {
+        # FIRST, if this is not windows or if Tk is not loaded then
+        # a simple puts will do.
+        if {[os type] ne "win32" || ![app tkloaded]} {
             puts $text
         } else {
             wm withdraw .
@@ -820,9 +823,17 @@ snit::type app {
     # to the Detail browser.
 
     typemethod show {uri} {
-        # FIRST, if there's no main window, just return.
-        # (This happens in batchmode, or when athena_test(1) runs the 
-        # test suite.)
+        # FIRST, if the app has not loaded Tk, there's nothing to show
+        # (This happens in batchmode, or when athena_test(1) is 
+        # explicitly told not to load Tk.)
+
+        if {![app tkloaded]} {
+            return
+        }
+
+        # NEXT, if there's no main window, just return.
+        # (This happens when athena_test(1) runs the 
+        # test suite with Tk loaded.)
 
         if {![winfo exists .main]} {
             return

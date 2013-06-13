@@ -664,8 +664,8 @@ snit::type sim {
 
         if {[sanity ontick check] != "OK"} {
             # NEXT, direct the user to the appropriate appserver page
-            # if we are not in batch mode
-            if {![app batch]} {
+            # if we are in GUI mode
+            if {[app tkloaded]} {
                 app show my://app/sanity/ontick
 
                 if {[winfo exists .main]} {
