@@ -84,6 +84,16 @@ snit::type ptype {
         lsort [concat [frcgroup names] [orggroup names]]
     }
 
+    typemethod {fog namedict} {} {
+        rdb eval {
+            SELECT g, longname
+            FROM groups
+            WHERE gtype IN ('FRC', 'ORG')
+            ORDER BY g
+        }
+    }
+
+
     typemethod {fog validate} {value} {
         EnumVal "force/org group" [$type fog names] $value
     }

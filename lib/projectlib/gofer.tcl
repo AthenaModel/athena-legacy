@@ -145,7 +145,7 @@ snit::type ::projectlib::gofer {
         set typename [string toupper $typename]
         set rulename [string toupper $rulename]
 
-        require {[info exists $types($typename)]} \
+        require {[info exists types($typename)]} \
             "No such gofer type: \"$typename\""
         identifier validate $rulename
 
@@ -463,6 +463,7 @@ snit::type ::projectlib::goferType {
         }
 
         # NEXT, make sure it's got all needed keys for the rule
+        set stub [dict create]
         foreach key [$self CallRule $rule keys] {
             dict set stub $key ""
         }

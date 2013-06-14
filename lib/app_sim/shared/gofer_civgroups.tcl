@@ -17,183 +17,177 @@
 gofer define CIVGROUPS {
     rc "" -width 3in -span 3
     label {
-        Enter a rule for selecting a set of civilian groups.
+        Enter a rule for selecting a set of civilian groups:
     }
+    rc
 
-    rc "" -for _rule
+    rc
     selector _rule {
         case BY_VALUE "By name" {
-            cc "  " -for raw_value
+            rc "Select groups from the following list:"
+            rc
             enumlonglist raw_value -dictcmd {::civgroup namedict} \
                 -width 30 -height 10 
         }
 
         case RESIDENT_IN "Resident in Neighborhood(s)" {
-            cc "  " -for nlist
+            rc "Select groups that reside in any of the following neighborhoods:"
+            rc
             enumlonglist nlist -dictcmd {::nbhood namedict} \
                 -width 30 -height 10
         }
 
         case NOT_RESIDENT_IN "Not Resident in Neighborhood(s)" {
-            cc "  " -for nlist
+            rc "Select groups that do not reside in any of the following neighborhoods:"
+            rc
             enumlonglist nlist -dictcmd {::nbhood namedict} \
                 -width 30 -height 10
         }
 
-        case SUPPORTING_ACTOR "Supporting Actor(s)" {
-            cc "" -for anyall
-            enumlong anyall -dictcmd {::eanyall deflist}
+        case MOOD_IS_GOOD "Mood is Good" { 
+            rc "Select groups whose mood is good."
+            rc
+            rc {
+                A group's mood is good if it is Satisfied or Very
+                Satisfied, i.e., it is greater than 20.0.
+            }
+        }
 
-            cc " " -for alist
+        case MOOD_IS_BAD "Mood is Bad" { 
+            rc "Select groups whose mood is bad."
+            rc
+            rc {
+                A group's mood is bad if it is Dissatisfied or Very
+                Dissatisfied, i.e., it is less than &minus;20.0.
+            }
+        }
+
+        case MOOD_IS_AMBIVALENT "Mood is Ambivalent" { 
+            rc "Select groups whose mood is ambivalent."
+            rc
+            rc {
+                A group's mood is ambivalent if it is between
+                &minus;20.0 and 20.0.
+            }
+        }
+
+        case SUPPORTING_ACTOR "Supporting Actor(s)" {
+            rc "Select groups that actively support "
+            enumlong anyall -defvalue ANY -dictcmd {::eanyall deflist}
+            label " the following actors:"
+
+            rc
             enumlonglist alist -dictcmd {::actor namedict} \
                 -width 30 -height 10
+
+            rc {
+                A group supports an actor if it contributes to the actor's 
+                influence in some neighborhood.
+            }
         }
 
         case LIKING_ACTOR "Liking Actor(s)" {
-            cc "" -for anyall
-            enumlong anyall -dictcmd {::eanyall deflist}
+            rc "Select groups that like "
+            enumlong anyall -defvalue ANY -dictcmd {::eanyall deflist}
+            label " the following actors:"
 
-            cc " " -for alist
+            rc
             enumlonglist alist -dictcmd {::actor namedict} \
                 -width 30 -height 10
+
+            rc {
+                A group likes an actor if its vertical relationship 
+                with the actor is LIKE or SUPPORT (i.e., the 
+                relationship is greater than or equal to 0.2).
+            }
         }
 
         case DISLIKING_ACTOR "Disliking Actor(s)" {
-            cc "" -for anyall
-            enumlong anyall -dictcmd {::eanyall deflist}
+            rc "Select groups that dislike "
+            enumlong anyall -defvalue ANY -dictcmd {::eanyall deflist}
+            label " the following actors:"
 
-            cc " " -for alist
+            rc
             enumlonglist alist -dictcmd {::actor namedict} \
                 -width 30 -height 10
+
+            rc {
+                A group dislikes an actor if its vertical relationship 
+                with the actor is DISLIKE or OPPOSE (i.e., the 
+                relationship is less than or equal to &minus;0.2).
+            }
         }
 
         case LIKING_GROUP "Liking Group(s)" {
-            cc "" -for anyall
-            enumlong anyall -dictcmd {::eanyall deflist}
+            rc "Select groups that like "
+            enumlong anyall -defvalue ANY -dictcmd {::eanyall deflist}
+            label " the following groups:"
 
-            cc " " -for glist
+            rc
             enumlonglist glist -dictcmd {::group namedict} \
                 -width 30 -height 10
+
+            rc {
+                Group F likes group G if its horizontal relationship 
+                with G is LIKE or SUPPORT (i.e., the 
+                relationship is greater than or equal to 0.2).
+            }
         }
 
         case DISLIKING_GROUP "Disliking Group(s)" {
-            cc "" -for anyall
-            enumlong anyall -dictcmd {::eanyall deflist}
+            rc "Select groups that dislike "
+            enumlong anyall -defvalue ANY -dictcmd {::eanyall deflist}
+            label " the following groups:"
 
-            cc " " -for glist
+            rc
             enumlonglist glist -dictcmd {::group namedict} \
                 -width 30 -height 10
+
+            rc {
+                Group F dislikes group G if its horizontal relationship 
+                with G is DISLIKE or OPPOSE (i.e., the 
+                relationship is less than or equal to &minus;0.2).
+            }
         }
 
         case LIKED_BY_GROUP "Liked by Group(s)" {
-            cc "" -for anyall
-            enumlong anyall -dictcmd {::eanyall deflist}
+            rc "Select groups that are liked by "
+            enumlong anyall -defvalue ANY -dictcmd {::eanyall deflist}
+            label " the following groups:"
 
-            cc " " -for glist
+            rc
             enumlonglist glist -dictcmd {::group namedict} \
                 -width 30 -height 10
+
+            rc {
+                Group F is liked by group G if G's horizontal relationship 
+                with F is LIKE or SUPPORT (i.e., the 
+                relationship is greater than or equal to 0.2).
+            }
         }
 
         case DISLIKED_BY_GROUP "Disliked by Group(s)" {
-            cc "" -for anyall
-            enumlong anyall -dictcmd {::eanyall deflist}
+            rc "Select groups that are disliked by "
+            enumlong anyall -defvalue ANY -dictcmd {::eanyall deflist}
+            label " the following groups:"
 
-            cc " " -for glist
+            rc
             enumlonglist glist -dictcmd {::group namedict} \
                 -width 30 -height 10
+
+            rc {
+                Group F is disliked by group G if G's horizontal relationship 
+                with F is DISLIKE or OPPOSE (i.e., the 
+                relationship is less than or equal to &minus;0.2).
+            }
         }
-
-        case MOOD_IS_SATISFIED "Mood is Satisfied" { }
-
-        case MOOD_IS_DISSATISFIED "Mood is Dissatisfied" { }
-
-        case MOOD_IS_AMBIVALENT "Mood is Ambivalent" { }
     }
 }
 
 #-----------------------------------------------------------------------
 # Helper Commands
 
-
-# validateAnyAllAlist gdict
-#
-# gdict - A gdict with keys anyall, alist
-#
-# Validates a gdict that allows the user to specify any/all of 
-# a list of actors.
-
-proc ::gofer::CIVGROUPS::validateAnyAllAlist {gdict} {
-    dict with gdict {}
-
-    set result [dict create]
-
-    dict set result anyall [eanyall validate $anyall]
-    dict set result alist [listval "actors" {actor validate} $alist]
-    return $result
-}
-
-# narrativeAnyAllAlist gdict ?opt?
-#
-# gdict - A gdict with keys anyall, alist
-# opt   - Possibly "-brief"
-#
-# produces narrative
-
-proc ::gofer::CIVGROUPS::narrativeAnyAllAlist {gdict {opt ""}} {
-    dict with gdict {}
-
-    if {[llength $alist] > 1} {
-        if {$anyall eq "ANY"} {
-            append result "any of "
-        } else {
-            append result "all of "
-        }
-    }
-
-    append result [listnar "actor" "these actors" $alist $opt]
-
-    return "$result"
-}
-
-# validateAnyAllGlist gdict
-#
-# gdict - A gdict with keys anyall, glist
-#
-# Validates a gdict that allows the user to specify any/all of 
-# a list of groups.
-
-proc ::gofer::CIVGROUPS::validateAnyAllGlist {gdict} {
-    dict with gdict {}
-
-    set result [dict create]
-
-    dict set result anyall [eanyall validate $anyall]
-    dict set result glist [listval "groups" {group validate} $glist]
-    return $result
-}
-
-# narrativeAnyAllGlist gdict ?opt?
-#
-# gdict - A gdict with keys anyall, glist
-# opt   - Possibly "-brief"
-#
-# produces narrative
-
-proc ::gofer::CIVGROUPS::narrativeAnyAllGlist {gdict {opt ""}} {
-    dict with gdict {}
-
-    if {[llength $glist] > 1} {
-        if {$anyall eq "ANY"} {
-            append result "any of "
-        } else {
-            append result "all of "
-        }
-    }
-
-    append result [listnar "group" "these groups" $glist $opt]
-
-    return "$result"
-}
+# Not at present
 
 
 #-----------------------------------------------------------------------
@@ -302,318 +296,11 @@ gofer rule CIVGROUPS NOT_RESIDENT_IN {nlist} {
 
 }
 
-
-# Rule: SUPPORTING_ACTOR
-#
-# Civilian groups who have the desire and ability (i.e.,
-# security) to contribute to the actor's support.
-
-gofer rule CIVGROUPS SUPPORTING_ACTOR {anyall alist} {
-    delegate typemethod validate using ::gofer::CIVGROUPS::validateAnyAllAlist
-
-    typemethod construct {anyall alist} {
-        return [$type validate [dict create anyall $anyall alist $alist]]
-    }
-
-    typemethod narrative {gdict {opt ""}} {
-        set result "civilian groups that actively support "
-        append result [::gofer::CIVGROUPS::narrativeAnyAllAlist $gdict $opt]
-        return "$result"
-    }
-
-    typemethod eval {gdict} {
-        # Get keys
-        dict with gdict {}
-
-        set groups [dict create]
-
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $alist]
-        }
-
-        return [rdb eval "
-            SELECT g FROM (
-                SELECT g, count(support) AS num
-                FROM civgroups
-                JOIN support_nga USING (g)
-                WHERE a IN ('[join $alist {','}]') 
-                AND support > 0
-                GROUP BY g 
-            ) WHERE num >= \$num 
-        "]
-    }
-
-}
-
-# Rule: LIKING_ACTOR
-#
-# Civilian groups who have a positive (LIKE or SUPPORT) vertical
-# relationship with any or all of a set of actors.
-
-gofer rule CIVGROUPS LIKING_ACTOR {anyall alist} {
-    delegate typemethod validate using ::gofer::CIVGROUPS::validateAnyAllAlist
-
-    typemethod construct {anyall alist} {
-        return [$type validate [dict create anyall $anyall alist $alist]]
-    }
-
-    typemethod narrative {gdict {opt ""}} {
-        set result "civilian groups that like "
-        append result [::gofer::CIVGROUPS::narrativeAnyAllAlist $gdict $opt]
-        return "$result"
-    }
-
-    typemethod eval {gdict} {
-        # Get keys
-        dict with gdict {}
-
-        set groups [dict create]
-
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $alist]
-        }
-
-        return [rdb eval "
-            SELECT g FROM (
-                SELECT g, count(vrel) AS num
-                FROM civgroups
-                JOIN uram_vrel USING (g)
-                WHERE a IN ('[join $alist {','}]') 
-                AND vrel >= 0.2
-                GROUP BY g 
-            ) WHERE num >= \$num 
-        "]
-    }
-}
-
-# Rule: DISLIKING_ACTOR
-#
-# Civilian groups who have a negative (DISLIKE or OPPOSE) vertical
-# relationship with any or all of a set of actors.
-
-gofer rule CIVGROUPS DISLIKING_ACTOR {anyall alist} {
-    delegate typemethod validate using ::gofer::CIVGROUPS::validateAnyAllAlist
-
-    typemethod construct {anyall alist} {
-        return [$type validate [dict create anyall $anyall alist $alist]]
-    }
-
-    typemethod narrative {gdict {opt ""}} {
-        set result "civilian groups that dislike "
-        append result [::gofer::CIVGROUPS::narrativeAnyAllAlist $gdict $opt]
-        return "$result"
-    }
-
-    typemethod eval {gdict} {
-        # Get keys
-        dict with gdict {}
-
-        set groups [dict create]
-
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $alist]
-        }
-
-        return [rdb eval "
-            SELECT g FROM (
-                SELECT g, count(vrel) AS num
-                FROM civgroups
-                JOIN uram_vrel USING (g)
-                WHERE a IN ('[join $alist {','}]') 
-                AND vrel <= -0.2
-                GROUP BY g 
-            ) WHERE num >= \$num 
-        "]
-    }
-}
-
-# Rule: LIKING_GROUP
-#
-# Civilian groups who have a positive (LIKE or SUPPORT) horizontal
-# relationship with any or all of a set of groups.
-
-gofer rule CIVGROUPS LIKING_GROUP {anyall glist} {
-    delegate typemethod validate using ::gofer::CIVGROUPS::validateAnyAllGlist
-
-    typemethod construct {anyall glist} {
-        return [$type validate [dict create anyall $anyall glist $glist]]
-    }
-
-    typemethod narrative {gdict {opt ""}} {
-        set result "civilian groups that like "
-        append result [::gofer::CIVGROUPS::narrativeAnyAllGlist $gdict $opt]
-        return "$result"
-    }
-
-    typemethod eval {gdict} {
-        # Get keys
-        dict with gdict {}
-
-        set groups [dict create]
-
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $glist]
-        }
-
-        return [rdb eval "
-            SELECT g FROM (
-                SELECT C.g AS g, count(U.hrel) AS num
-                FROM civgroups AS C
-                JOIN uram_hrel AS U ON (U.f = C.g)
-                WHERE U.f != U.g
-                AND U.g IN ('[join $glist {','}]') 
-                AND U.hrel >= 0.2
-                GROUP BY C.g 
-            ) WHERE num >= \$num 
-        "]
-    }
-}
-
-# Rule: DISLIKING_GROUP
-#
-# Civilian groups who have a negative (DISLIKE or OPPOSE) horizontal
-# relationship with any or all of a set of groups.
-
-gofer rule CIVGROUPS DISLIKING_GROUP {anyall glist} {
-    delegate typemethod validate using ::gofer::CIVGROUPS::validateAnyAllGlist
-
-    typemethod construct {anyall glist} {
-        return [$type validate [dict create anyall $anyall glist $glist]]
-    }
-
-    typemethod narrative {gdict {opt ""}} {
-        set result "civilian groups that dislike "
-        append result [::gofer::CIVGROUPS::narrativeAnyAllGlist $gdict $opt]
-        return "$result"
-    }
-
-    typemethod eval {gdict} {
-        # Get keys
-        dict with gdict {}
-
-        set groups [dict create]
-
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $glist]
-        }
-
-        return [rdb eval "
-            SELECT g FROM (
-                SELECT C.g AS g, count(U.hrel) AS num
-                FROM civgroups AS C
-                JOIN uram_hrel AS U ON (U.f = C.g)
-                WHERE U.f != U.g
-                AND U.g IN ('[join $glist {','}]') 
-                AND U.hrel <= -0.2
-                GROUP BY C.g 
-            ) WHERE num >= \$num 
-        "]
-    }
-}
-
-# Rule: LIKED_BY_GROUP
-#
-# Civilian groups for whom any or all of set of groups have a positive 
-# (LIKE or SUPPORT) horizontal relationship.
-
-gofer rule CIVGROUPS LIKED_BY_GROUP {anyall glist} {
-    delegate typemethod validate using ::gofer::CIVGROUPS::validateAnyAllGlist
-
-    typemethod construct {anyall glist} {
-        return [$type validate [dict create anyall $anyall glist $glist]]
-    }
-
-    typemethod narrative {gdict {opt ""}} {
-        set result "civilian groups that are liked by "
-        append result [::gofer::CIVGROUPS::narrativeAnyAllGlist $gdict $opt]
-        return "$result"
-    }
-
-    typemethod eval {gdict} {
-        # Get keys
-        dict with gdict {}
-
-        set groups [dict create]
-
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $glist]
-        }
-
-        return [rdb eval "
-            SELECT g FROM (
-                SELECT C.g AS g, count(U.hrel) AS num
-                FROM civgroups AS C
-                JOIN uram_hrel AS U USING (g)
-                WHERE U.f != U.g
-                AND U.f IN ('[join $glist {','}]') 
-                AND U.hrel >= 0.2
-                GROUP BY C.g 
-            ) WHERE num >= \$num 
-        "]
-    }
-}
-
-# Rule: DISLIKED_BY_GROUP
-#
-# Civilian groups for whom any or all of set of groups have a negative 
-# (DISLIKE or OPPOSE) horizontal relationship.
-
-gofer rule CIVGROUPS DISLIKED_BY_GROUP {anyall glist} {
-    delegate typemethod validate using ::gofer::CIVGROUPS::validateAnyAllGlist
-
-    typemethod construct {anyall glist} {
-        return [$type validate [dict create anyall $anyall glist $glist]]
-    }
-
-    typemethod narrative {gdict {opt ""}} {
-        set result "civilian groups that are disliked by "
-        append result [::gofer::CIVGROUPS::narrativeAnyAllGlist $gdict $opt]
-        return "$result"
-    }
-
-    typemethod eval {gdict} {
-        # Get keys
-        dict with gdict {}
-
-        set groups [dict create]
-
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $glist]
-        }
-
-        return [rdb eval "
-            SELECT g FROM (
-                SELECT C.g AS g, count(U.hrel) AS num
-                FROM civgroups AS C
-                JOIN uram_hrel AS U USING (g)
-                WHERE U.f != U.g
-                AND U.f IN ('[join $glist {','}]') 
-                AND U.hrel <= -0.2
-                GROUP BY C.g 
-            ) WHERE num >= \$num 
-        "]
-    }
-}
-
-# Rule: MOOD_IS_SATISFIED
+# Rule: MOOD_IS_GOOD
 #
 # Civilian groups whose mood is Satisfied or Very Satisfied.
 
-gofer rule CIVGROUPS MOOD_IS_SATISFIED {} {
+gofer rule CIVGROUPS MOOD_IS_GOOD {} {
     typemethod validate {gdict} {
         return [dict create]
     }
@@ -623,7 +310,7 @@ gofer rule CIVGROUPS MOOD_IS_SATISFIED {} {
     }
 
     typemethod narrative {gdict {opt ""}} {
-        return "civilian groups whose mood is satisfied"
+        return "civilian groups whose mood is good"
     }
 
     typemethod eval {gdict} {
@@ -634,11 +321,11 @@ gofer rule CIVGROUPS MOOD_IS_SATISFIED {} {
     }
 }
 
-# Rule: MOOD_IS_DISSATISFIED
+# Rule: MOOD_IS_BAD
 #
 # Civilian groups whose mood is Dissatisfied or Very Dissatisfied.
 
-gofer rule CIVGROUPS MOOD_IS_DISSATISFIED {} {
+gofer rule CIVGROUPS MOOD_IS_BAD {} {
     typemethod validate {gdict} {
         return [dict create]
     }
@@ -648,7 +335,7 @@ gofer rule CIVGROUPS MOOD_IS_DISSATISFIED {} {
     }
 
     typemethod narrative {gdict {opt ""}} {
-        return "civilian groups whose mood is dissatisfied"
+        return "civilian groups whose mood is bad"
     }
 
     typemethod eval {gdict} {
@@ -681,6 +368,181 @@ gofer rule CIVGROUPS MOOD_IS_AMBIVALENT {} {
             SELECT g FROM uram_mood
             WHERE mood > -20.0 AND mood < 20.0
         }]
+    }
+}
+
+# Rule: SUPPORTING_ACTOR
+#
+# Civilian groups who have the desire and ability (i.e.,
+# security) to contribute to the actor's support.
+
+gofer rule CIVGROUPS SUPPORTING_ACTOR {anyall alist} {
+    typemethod construct {anyall alist} {
+        return [$type validate [dict create anyall $anyall alist $alist]]
+    }
+
+    typemethod validate {gdict} { 
+        return [anyall_alist validate $gdict] 
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        set result "civilian groups that actively support "
+        append result [anyall_alist narrative $gdict $opt]
+        return "$result"
+    }
+
+    typemethod eval {gdict} {
+        return [anyall_alist supportingActor CIV $gdict]
+    }
+}
+
+# Rule: LIKING_ACTOR
+#
+# Civilian groups who have a positive (LIKE or SUPPORT) vertical
+# relationship with any or all of a set of actors.
+
+gofer rule CIVGROUPS LIKING_ACTOR {anyall alist} {
+    typemethod construct {anyall alist} {
+        return [$type validate [dict create anyall $anyall alist $alist]]
+    }
+
+    typemethod validate {gdict} { 
+        return [anyall_alist validate $gdict] 
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        set result "civilian groups that like "
+        append result [anyall_alist narrative $gdict $opt]
+        return "$result"
+    }
+
+    typemethod eval {gdict} {
+        return [anyall_alist likingActor CIV $gdict]
+    }
+}
+
+# Rule: DISLIKING_ACTOR
+#
+# Civilian groups who have a negative (DISLIKE or OPPOSE) vertical
+# relationship with any or all of a set of actors.
+
+gofer rule CIVGROUPS DISLIKING_ACTOR {anyall alist} {
+    typemethod construct {anyall alist} {
+        return [$type validate [dict create anyall $anyall alist $alist]]
+    }
+
+    typemethod validate {gdict} { 
+        return [anyall_alist validate $gdict] 
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        set result "civilian groups that dislike "
+        append result [anyall_alist narrative $gdict $opt]
+        return "$result"
+    }
+
+    typemethod eval {gdict} {
+        return [anyall_alist dislikingActor CIV $gdict]
+    }
+}
+
+# Rule: LIKING_GROUP
+#
+# Civilian groups who have a positive (LIKE or SUPPORT) horizontal
+# relationship with any or all of a set of groups.
+
+gofer rule CIVGROUPS LIKING_GROUP {anyall glist} {
+    typemethod construct {anyall glist} {
+        return [$type validate [dict create anyall $anyall glist $glist]]
+    }
+
+    typemethod validate {gdict} { 
+        return [anyall_glist validate $gdict] 
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        set result "civilian groups that like "
+        append result [anyall_glist narrative $gdict $opt]
+        return "$result"
+    }
+
+    typemethod eval {gdict} {
+        return [anyall_glist likingGroup CIV $gdict]
+    }
+}
+
+# Rule: DISLIKING_GROUP
+#
+# Civilian groups who have a negative (DISLIKE or OPPOSE) horizontal
+# relationship with any or all of a set of groups.
+
+gofer rule CIVGROUPS DISLIKING_GROUP {anyall glist} {
+    typemethod construct {anyall glist} {
+        return [$type validate [dict create anyall $anyall glist $glist]]
+    }
+
+    typemethod validate {gdict} { 
+        return [anyall_glist validate $gdict] 
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        set result "civilian groups that dislike "
+        append result [anyall_glist narrative $gdict $opt]
+        return "$result"
+    }
+
+    typemethod eval {gdict} {
+        return [anyall_glist dislikingGroup CIV $gdict]
+    }
+}
+
+# Rule: LIKED_BY_GROUP
+#
+# Civilian groups for whom any or all of set of groups have a positive 
+# (LIKE or SUPPORT) horizontal relationship.
+
+gofer rule CIVGROUPS LIKED_BY_GROUP {anyall glist} {
+    typemethod construct {anyall glist} {
+        return [$type validate [dict create anyall $anyall glist $glist]]
+    }
+
+    typemethod validate {gdict} { 
+        return [anyall_glist validate $gdict] 
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        set result "civilian groups that are liked by "
+        append result [anyall_glist narrative $gdict $opt]
+        return "$result"
+    }
+
+    typemethod eval {gdict} {
+        return [anyall_glist likedByGroup CIV $gdict]
+    }
+}
+
+# Rule: DISLIKED_BY_GROUP
+#
+# Civilian groups for whom any or all of set of groups have a negative 
+# (DISLIKE or OPPOSE) horizontal relationship.
+
+gofer rule CIVGROUPS DISLIKED_BY_GROUP {anyall glist} {
+    typemethod construct {anyall glist} {
+        return [$type validate [dict create anyall $anyall glist $glist]]
+    }
+
+    typemethod validate {gdict} { 
+        return [anyall_glist validate $gdict] 
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        set result "civilian groups that are disliked by "
+        append result [anyall_glist narrative $gdict $opt]
+        return "$result"
+    }
+
+    typemethod eval {gdict} {
+        return [anyall_glist dislikedByGroup CIV $gdict]
     }
 }
 
