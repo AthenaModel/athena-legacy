@@ -290,8 +290,8 @@ fdict      dtype MAGIC mad_id 1 atype sat mode T mag 5 g SHIA c AUT
 firing_id  1
 t          0
 driver_id  1000
-ruleset    magic
-rule       magic-4-1
+ruleset    MAGIC
+rule       MAGIC-4-1
 fdict      dtype MAGIC mad_id 1 atype coop mode P mag 5 f SHIA g BLUE
     }
     
