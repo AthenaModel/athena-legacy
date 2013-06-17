@@ -142,11 +142,11 @@ snit::type executive {
         }
 
         $interp proc selectfile {filename args} {
-            return [tofile $filename [select {*}$args]]
+            return [tofile $filename .txt [select {*}$args]]
         }
 
         $interp proc csvfile {filename args} {
-            return [tofile $filename [csv {*}$args]]
+            return [tofile $filename .csv [csv {*}$args]]
         }
 
         # NEXT, install the executive functions
@@ -570,7 +570,7 @@ snit::type executive {
             [myproc unlock]
 
         # tofile
-        $interp smartalias tofile 2 2 {filename text} \
+        $interp smartalias tofile 3 3 {filename extension text} \
             [myproc tofile]
 
         # usermode
@@ -1016,7 +1016,13 @@ snit::type executive {
         set result [axdb safequery $query -mode $mode]
 
         if {$filename ne ""} {
-            return [tofile $filename $result]
+            if {$mode eq "csv"} {
+                set extension ".csv"
+            } else {
+                set extension ".txt"
+            }
+
+            return [tofile $filename $extension $result]
         } else {
             return $result
         }
@@ -1654,12 +1660,18 @@ snit::type executive {
     # tofile filename text
     #
     # filename   - A filename
+    # extension  - A default extension
     # text       - Text
     #
     # Writes the text to the filename
 
-    proc tofile {filename text} {
-        # FIRST, open the file.  On error, the executive will pass
+    proc tofile {filename extension text} {
+        # FIRST, add the extension if there is none.
+        if {[file extension $filename] eq ""} {
+            append filename $extension
+        }
+
+        # NEXT, open the file.  On error, the executive will pass
         # the error message to the user.
         set f [open $filename w]
 

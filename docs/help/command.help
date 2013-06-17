@@ -654,7 +654,8 @@ command "axdb csvfile" {
     <<syntax <i>filename sql...</i> >>
 
     This command is like the normal <<command csvfile>> command, but queries
-    the experiment file rather than the RDB.<p>
+    the experiment file rather than the RDB.  If the file name has no
+    extension, ".csv" will be appended automatically.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -813,7 +814,7 @@ command "axdb select" {
     <<syntax <i>sql...</i> >>
 
     This command is like the normal <<command select>> command, but queries
-    the experiment file rather than the RDB.<p>
+    the experiment file rather than the RDB.  <p>
 }
 
 
@@ -824,7 +825,8 @@ command "axdb selectfile" {
     <<syntax <i>filename sql...</i> >>
 
     This command is like the normal <<command selectfile>> command, but queries
-    the experiment file rather than the RDB.<p>
+    the experiment file rather than the RDB.  If the file name has no
+    extension, ".txt" will be appended automatically.<p>
 }
 
 
@@ -895,11 +897,12 @@ command "csvfile" {
     <<syntax <i>filename sql...</i> >>
 
     The <b>csvfile</b> command is like <<command csv>>, but saves
-    the query result to the named file.  For example,<p>
+    the query result to the named file.  If the file name has no
+    extension, ".csv" will be appended automatically.  For example,<p>
 
     <<cli {
-        > csvfile save.txt g,forcetype from frcgroups
-        Saved save.txt
+        > csvfile save g,forcetype from frcgroups
+        Saved save.csv
         >}>>
 
     If the query is longer than one line, consider using
@@ -1658,10 +1661,11 @@ command "selectfile" {
     <<syntax <i>filename sql...</i> >>
 
     The <b>selectfile</b> command is like <<command select>>, but saves
-    the query result to the named file.  For example,<p>
+    the query result to the named file.  If the file name has no
+    extension, ".txt" will be appended automatically.  For example,<p>
 
     <<cli {
-        > selectfile save.txt g,forcetype from frcgroups
+        > selectfile save g,forcetype from frcgroups
         Saved save.txt
         >}>>
 
@@ -1747,20 +1751,26 @@ command "super" {
 # tofile command
 
 command "tofile" {
-    <<syntax <i>filename text</i> >>
+    <<syntax <i>filename extension text</i> >>
 
     The <b>tofile</b> command saves an arbitrary text string to the 
-    named file, replacing whatever was previously in it.  For example,<p>
+    named file, replacing whatever was previously in it.  If the
+    filename includes no extension (e.g., ".txt"), then the extension
+    will be added.<p>
+
+    For example,<p>
 
     <<cli {
-        > tofile myfile.txt "Hello, world!"
+        > tofile myfile.txt "" "Hello, world!"
         Saved myfile.txt
+        > tofile myfile .dat "Some data"
+        > saved myfile.dat
         >}>>
 
     The result of any executive command can be written in the same way:<p>
 
     <<cli {
-        > tofile myfile.txt [select * from frcgroups]
+        > tofile myfile.txt "" [select * from frcgroups]
         Saved myfile.txt
         >}>>
 }
