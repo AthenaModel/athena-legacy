@@ -2,24 +2,26 @@
 # TITLE:
 #    rolemapfield.tcl
 #
-# AUTHOR:
+# AUTHORS:
 #    Will Duquette
+#    Dave Hanks
 #
 # DESCRIPTION:
 #    projectgui(n) package: Role map editing widget
 #
 #    A rolemapfield is a data entry field that allows the user to
 #    selects list of entities for multiple roles.  The field value
-#    is a dictionary, <role> -> <list of values>.  This is intended
+#    is a dictionary, <role> -> <gofer type>.  This is intended
 #    for editing roles for the CURSE tactic, but it is really a 
-#    generic dictionary of lists editor, where the collection of 
-#    roles and valid lists is dynamically configurable.
+#    generic dictionary of gofer types editor, where the collection of 
+#    roles and gofer types is dynamically configurable.
+#
+#    See the gofer(n) man page for a discussion of what gofers are and
+#    how to use them.
 #
 #    The field contains a form(n) containing one label and one
-#    textfield for each role; these are configured when the -rolespec
-#    is changed.  The text fields contain whitespace delimited lists;
-#    each has an edit button which calls [messagebox listselect] to 
-#    allow the user to edit the list of items.
+#    goferfield(n) for each role; these are configured when the -rolespec
+#    is changed. See goferfield(n) for more.
 #
 #-----------------------------------------------------------------------
 
@@ -39,7 +41,7 @@ snit::widget ::projectgui::rolemapfield {
     #-------------------------------------------------------------------
     # Components
 
-    component form       ;# a form(n) containing the labels and fields
+    component form       ;# a form(n) containing the labels and goferfields
                           # for each specific role.
 
     #-------------------------------------------------------------------
@@ -59,9 +61,10 @@ snit::widget ::projectgui::rolemapfield {
     # -rolespec spec
     #
     # This option fully configures the data to be edited.  The spec is a
-    # dictionary <rolename> -> <valid list>.  The form will be set to 
-    # contain set of labels and listfields, where the <rolename> is the
-    # label string, and the listfield is defined for the matching valid list.
+    # dictionary <rolename> -> <gofer type>.  The form will be set to 
+    # contain set of labels and goferfields, where the <rolename> is the
+    # label string, and the goferfield is defined when the user selects
+    # the type of gofer(n) to use.
     option -rolespec \
         -configuremethod ConfigRoleSpec
 
@@ -138,7 +141,7 @@ snit::widget ::projectgui::rolemapfield {
         set fields [list]
 
         foreach {role value} [$form get] {
-            if {[llength $value] == 0} {
+            if {[catch {gofer validate $value} result]} {
                 lappend fields $role
             }
         }
@@ -146,42 +149,6 @@ snit::widget ::projectgui::rolemapfield {
         $form invalid $fields
 
         callwith $options(-changecmd) [$form get]
-    }
-
-    # OldUpdateDisplay
-    #
-    # TBD: Delete this before committing.
-    #
-    # This method is called when a new -rolespec 
-    # value is given.  It clears any included values, and resets the
-    # display.
-
-    method OldUpdateDisplay {} {
-        # FIRST, delete any existing content.
-        $form clear
-
-        # NEXT, add listfields for each role
-        foreach {role values} $options(-rolespec) {
-            # FIRST, create the item dict
-            set itemdict [dict create]
-            foreach value $values {
-                dict set itemdict $value $value
-            }
-
-            # NEXT, create the listfield
-            $form field create $role $role list \
-                -showkeys no                    \
-                -height   $options(-listheight) \
-                -stripe   $options(-liststripe) \
-                -width    $options(-listwidth)  \
-                -itemdict $itemdict
-        }
-
-        # NEXT, layout the widget.
-        $form layout
-
-        # NEXT, all roles are initially invalid (no items are selected)
-        $form invalid [dict keys $options(-rolespec)]
     }
 
     # UpdateDisplay
@@ -194,12 +161,11 @@ snit::widget ::projectgui::rolemapfield {
         # FIRST, delete any existing content.
         $form clear
 
-        # NEXT, add listfields for each role
-        foreach {role values} $options(-rolespec) {
+        # NEXT, add goferfields for each role
+        foreach {role gtype} $options(-rolespec) {
             # NEXT, create the textfield
-            $form field create $role $role text \
-                -width    $options(-textwidth) \
-                -editcmd  [mymethod EditRole $role]
+            $form field create $role $role gofer \
+                -typename $gtype
         }
 
         # NEXT, layout the widget.
@@ -209,47 +175,14 @@ snit::widget ::projectgui::rolemapfield {
         $form invalid [dict keys $options(-rolespec)]
     }
 
-    # EditRole role w current
-    #
-    # role     - The role to edit
-    # w        - The textfield widget
-    # current  - The current list of values
-
-    method EditRole {role w current} {
-        # FIRST, get the item dict for this role
-        set itemdict [dict create]
-        foreach value [dict get $options(-rolespec) $role] {
-            dict set itemdict $value $value
-        }
-
-        # NEXT, pop up the listselect box.
-        set result [messagebox listselect                     \
-            -initvalue $current                               \
-            -message   [normalize "
-                Select the entities you wish to map to the
-                $role role.
-            "]                                                \
-            -parent    [winfo toplevel $w]                    \
-            -title     "Map entities to $role"                \
-            -itemdict  $itemdict                              \
-            -stripe    $options(-liststripe)                  \
-            -listrows  $options(-listheight)                  \
-            -listwidth $options(-listwidth)]
-
-        if {$result ne ""} {
-            # They pressed OK
-            return $result 
-        } else {
-            # They pressed Cancel
-            return $current
-        }
-    }    
-
     #-------------------------------------------------------------------
     # Public Methods
 
     delegate method get to form
     delegate method set to form
 }
+
+# Register the goferfield(n) type with marsgui form(n)
+::marsgui::form register gofer ::projectgui::goferfield
 
 

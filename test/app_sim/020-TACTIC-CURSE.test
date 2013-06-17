@@ -51,7 +51,12 @@ namespace eval ::athena_test::tests:: {
         owner       SYSTEM
         priority    top
         curse       C1
-        roles       {@CIV1 {SUNN SHIA}}
+        roles       {@CIV1 {
+                        _type CIVGROUPS
+                        _rule BY_VALUE
+                        raw_value {SUNN SHIA}
+                        }
+                    }
         on_lock     NO
         once        YES
     }
@@ -60,7 +65,12 @@ namespace eval ::athena_test::tests:: {
         owner       SYSTEM
         priority    top
         curse       C1
-        roles       {@CIV1 {SUNN SHIA}}
+        roles       {@CIV1 {
+                        _type CIVGROUPS
+                        _rule BY_VALUE
+                        raw_value {SUNN SHIA}
+                        }
+                    }
         on_lock     YES
         once        NO
     }
@@ -113,7 +123,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        roles {Invalid role "NONESUCH", role should be one of: @CIV1}
+        roles {Not a gofer type value}
     }
 
     test CREATE-1.6 {curse isn't normal} -setup {
@@ -169,10 +179,10 @@ namespace eval ::athena_test::tests:: {
 tactic_id    1
 tactic_type  CURSE
 owner        SYSTEM
-narrative    C1 (C1). @CIV1 = SUNN, SHIA.
+narrative    C1 (C1). @CIV1 = these groups (SUNN, SHIA).
 priority     1
 curse        C1
-roles        @CIV1 {SUNN SHIA}
+roles        @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value {SUNN SHIA}}
 once         0
 on_lock      1
 state        normal
@@ -270,7 +280,8 @@ exec_flag    0
     test UPDATE-1.6 {bad role mapping} -setup {
         setup_update_curse
     } -body {
-        ted order -reject TACTIC:CURSE:UPDATE tactic_id 1 roles {@CIV1 NONESUCH}
+        ted order -reject TACTIC:CURSE:UPDATE tactic_id 1 \
+            roles {@CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value NONESUCH}}
     } -cleanup {
         cleanup
     } -result {
@@ -312,7 +323,8 @@ exec_flag    0
         setup_update_curse
     } -body {
         ted order TACTIC:CURSE:UPDATE \
-            tactic_id 1 roles {@CIV1 {SUNN}}
+            tactic_id 1 roles \
+                {@CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}}
 
         ted querylist {SELECT * FROM tactics_CURSE}
     } -cleanup {
@@ -321,10 +333,10 @@ exec_flag    0
 tactic_id    1
 tactic_type  CURSE
 owner        SYSTEM
-narrative    C1 (C1). @CIV1 = SUNN.
+narrative    C1 (C1). @CIV1 = group SUNN.
 priority     1
 curse        C1
-roles        @CIV1 {SUNN}
+roles        @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}
 once         0
 on_lock      1
 state        normal
@@ -337,7 +349,9 @@ exec_flag    0
         ted order TACTIC:CURSE:CREATE $T2
     } -body {
         ted notifier bind ::rdb <tactics>
-        ted order TACTIC:CURSE:UPDATE tactic_id 1 roles {@CIV1 SUNN}
+        ted order TACTIC:CURSE:UPDATE \
+            tactic_id 1 roles \
+                {@CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}}
         ted notifier received
     } -cleanup {
         cleanup
@@ -348,7 +362,9 @@ exec_flag    0
 
     test UPDATE-3.1 {undo effects} -setup {
         setup_update_curse
-        ted order TACTIC:CURSE:UPDATE tactic_id 1 roles {@CIV1 SUNN}
+        ted order TACTIC:CURSE:UPDATE \
+            tactic_id 1 roles \
+                {@CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}}
     } -body {
         ted notifier bind ::rdb <tactics>
         cif undo -test

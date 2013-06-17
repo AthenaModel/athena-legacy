@@ -1,3 +1,4 @@
+# Exporting  @ Mon Jun 17 12:23:50 PDT 2013
 send NBHOOD:CREATE -n CITY -longname {Capital City} -refpoint C66D46 -polygon {B74D40 D32C24 D60E06 C26E52}
 send NBHOOD:CREATE -n EL -longname Elitia -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
 send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller NONE -vtygain { 1.0} -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
@@ -110,9 +111,7 @@ send INJECT:DELETE -id {FLOOD 4}
 send INJECT:HREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -rtype EXISTING -f @FRC1 -g @CIV1 -mag -11.0
 send INJECT:SAT:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g CIV2 -c SFT -mag -4.5
 send INJECT:VREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -g GRP1 -a ACT1 -mag -8.0
-send TACTIC:CURSE:CREATE -owner SYSTEM -curse FLOOD -roles {@FRC1 {ARMY PELFM} @CIV1 {PEONR PEONU ELR ELU SA} @GRP1 {ARMY ELR ELU} @ACT1 {GOV PELF} @CIV2 {PEONR PEONU ELR}} -on_lock 1
-send TACTIC:DELETE -tactic_id 5
-send TACTIC:CURSE:CREATE -owner SYSTEM -curse FLOOD -roles {@FRC1 ARMY @CIV1 {PEONR PEONU ELR} @GRP1 {ARMY ELR ELU NOBODY PELFM PEONR PEONU SA} @ACT1 GOV @CIV2 {PEONR PEONU}} -on_lock 1
 send CURSE:CREATE -curse_id FIRE -longname {Fire in Elitia} -s 1.00 -p 0.20 -q 0.05
 send INJECT:SAT:CREATE -curse_id FIRE -longname {Fire in Elitia} -g CIVGRP2 -c QOL -mag -10.5
-send TACTIC:CURSE:CREATE -owner SYSTEM -curse FIRE -roles {@CIVGRP2 {PEONR PEONU ELR}} -on_lock 1
+send TACTIC:CURSE:CREATE -owner SYSTEM -curse FIRE -roles {@CIVGRP2 {_type CIVGROUPS _rule BY_VALUE raw_value {ELR ELU} nlist {} anyall {} alist {} glist {}}}
+send TACTIC:CURSE:CREATE -owner SYSTEM -curse FLOOD -roles {@FRC1 {_type FRCGROUPS _rule BY_VALUE raw_value ARMY alist {} anyall {} nlist {} glist {}} @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value PEONU nlist {} anyall {} alist {} glist {}} @GRP1 {_type GROUPS _rule BY_VALUE raw_value PEONU anyall {} alist {} glist {} nlist {}} @ACT1 {_type ACTORS _rule BY_VALUE raw_value GOV nlist {} anyall {} glist {}} @CIV2 {_type CIVGROUPS _rule BY_VALUE raw_value PEONR nlist {} anyall {} alist {} glist {}}}

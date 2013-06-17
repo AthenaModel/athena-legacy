@@ -1005,8 +1005,7 @@ snit::type ::projectlib::weight {
 #-----------------------------------------------------------------------
 # Rolemap type
 #
-# A rolemap must be a list with an even number of members. Cross checking
-# must be done by the application
+# A rolemap must be a list with a rolename mapping to a gofer dictionary.
 
 snit::type ::projectlib::rolemap {
     # Singleton
@@ -1023,7 +1022,13 @@ snit::type ::projectlib::rolemap {
             return -code error -errorcode INVALID "$value: not a dictionary"
         }
 
-        return $value
+        set rmap [list]
+        foreach {role goferdict} $value {
+            set gdict [gofer validate $goferdict]
+            lappend rmap $role $gdict
+        }
+
+        return $rmap
     }
 }
 

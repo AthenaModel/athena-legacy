@@ -47,9 +47,9 @@ tactic type define CURSE {curse roles once on_lock} system {
 
         set narr "[curse get $curse longname] ($curse). "
 
-        foreach {role entities} $roles {
+        foreach {role goferdict} $roles {
             append narr "$role = "
-            append narr [join $entities ", "]
+            append narr [gofer narrative $goferdict]
             append narr ". "
         }
 
@@ -102,6 +102,8 @@ tactic type define CURSE {curse roles once on_lock} system {
 
         set parms(curse_id) $curse
 
+        set inject_executed 0
+
         # NEXT, go through each inject associated with this CURSE
         # firing rules as we go
         rdb eval {
@@ -112,10 +114,18 @@ tactic type define CURSE {curse roles once on_lock} system {
                 HREL {
                     # Change to horizontal relationships of group(s) in
                     # f with group(s) in g
-                    set parms(f)    [dict get $roles $idata(f)]
-                    set parms(g)    [dict get $roles $idata(g)]
+                    set parms(f)    [gofer eval [dict get $roles $idata(f)]]
+                    set parms(g)    [gofer eval [dict get $roles $idata(g)]]
                     set parms(mode) $modeChar($idata(mode))
                     set parms(mag)  $idata(mag)
+
+                    if {$parms(f) eq "" || $parms(g) eq ""} {
+                        log detail tactic \
+                            "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
+                        continue
+                    }
+
+                    set inject_executed 1
 
                     tactic::CURSE hrel [array get parms]
                 }
@@ -123,10 +133,18 @@ tactic type define CURSE {curse roles once on_lock} system {
                 VREL {
                     # Change to verticl relationships of group(s) in
                     # g with actor(s) in a
-                    set parms(g)    [dict get $roles $idata(g)]
-                    set parms(a)    [dict get $roles $idata(a)]
+                    set parms(g)    [gofer eval [dict get $roles $idata(g)]]
+                    set parms(a)    [gofer eval [dict get $roles $idata(a)]]
                     set parms(mode) $modeChar($idata(mode))
                     set parms(mag)  $idata(mag)
+
+                    if {$parms(g) eq "" || $parms(a) eq ""} {
+                        log detail tactic \
+                            "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
+                        continue
+                    }
+
+                    set inject_executed 1
 
                     tactic::CURSE vrel [array get parms]
                 }
@@ -134,10 +152,18 @@ tactic type define CURSE {curse roles once on_lock} system {
                 COOP {
                     # Change to cooperation of CIV group(s) in f
                     # with FRC group(s) in g
-                    set parms(f)    [dict get $roles $idata(f)]
-                    set parms(g)    [dict get $roles $idata(g)]
+                    set parms(f)    [gofer eval [dict get $roles $idata(f)]]
+                    set parms(g)    [gofer eval [dict get $roles $idata(g)]]
                     set parms(mode) $modeChar($idata(mode))
                     set parms(mag)  $idata(mag)
+
+                    if {$parms(f) eq "" || $parms(g) eq ""} {
+                        log detail tactic \
+                            "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
+                        continue
+                    }
+
+                    set inject_executed 1
 
                     tactic::CURSE coop [array get parms]
                 }
@@ -145,10 +171,18 @@ tactic type define CURSE {curse roles once on_lock} system {
                 SAT {
                     # Change of satisfaction of CIV group(s) in g
                     # with concern c
-                    set parms(g)    [dict get $roles $idata(g)]
+                    set parms(g)    [gofer eval [dict get $roles $idata(g)]]
                     set parms(c)    $idata(c)
                     set parms(mode) $modeChar($idata(mode))
                     set parms(mag)  $idata(mag)
+
+                    if {$parms(g) eq ""} {
+                        log detail tactic \
+                            "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
+                        continue
+                    }
+
+                    set inject_executed 1
 
                     tactic::CURSE sat [array get parms]
                 }
@@ -160,97 +194,7 @@ tactic type define CURSE {curse roles once on_lock} system {
             }
         }
 
-        return 1
-    }
-
-    # checkRolemap rolemap curse
-    #
-    # rolemap   - a mapping of roles to entities
-    # curse     - ID of a CURSE for which the checking is done
-    #
-    # This method looks at a mapping of entities to roles and checks
-    # that given the inject in which the role exists whether the mapping
-    # of the entities to that role makes sense. For instance, in a COOP
-    # inject, the 'f' role must be all CIV groups. If a group is not
-    # mapped properly to a role a validation error occurs.
-
-    typemethod checkRolemap {rolemap curse} {
-        # FIRST, extract all the roles from the injects in the supplied
-        # CURSE, building up a map of role/entity types.
-        rdb eval {
-            SELECT * FROM curse_injects
-            WHERE curse_id=$curse
-        } idata {
-            switch -exact -- $idata(inject_type) {
-                HREL {
-                    # f, any groups; g, any groups
-                    set validmap($idata(f)) GRP
-                    set validmap($idata(g)) GRP
-                }
-
-                VREL {
-                    # g, any groups; a, any actors
-                    set validmap($idata(g)) GRP
-                    set validmap($idata(a)) ACT
-                }
-
-                COOP {
-                    # f, CIV groups; g, FRC groups
-                    set validmap($idata(f)) CIV
-                    set validmap($idata(g)) FRC
-                }
-
-                SAT {
-                    # g, CIV groups
-                    set validmap($idata(g)) CIV
-                }
-
-                default {
-                    # Should never happen
-                    error "Unrecognized inject type: $idata(inject_type)"
-                }
-            }
-        }
-        
-        # NEXT, traverse the mapping of groups to roles checking for
-        # validation errors along the way
-        foreach {role entities} $rolemap {
-            # NEXT, validate that the role exists for this CURSE
-            inject role validate $curse $role
-
-            switch -exact -- $validmap($role) {
-                GRP {
-                    # Must be a valid group
-                    foreach entity $entities {
-                        ::group validate $entity
-                    }
-                }
-
-                CIV {
-                    # Must be a valid CIV group
-                    foreach entity $entities {
-                        ::civgroup validate $entity
-                    }
-                }
-              
-                FRC {
-                    # Must be a valid FRC group
-                    foreach entity $entities {
-                        ::frcgroup validate $entity
-                    }
-                }
-                
-                ACT {
-                    # Must be a valid actor
-                    foreach entity $entities {
-                        ::actor validate $entity
-                    }
-                } 
-            }
-        } 
-
-        # NEXT, if no validation errors the rolemap checks out
-        return $rolemap
+        return $inject_executed
     }
 
     # hrel parmdict
@@ -399,8 +343,8 @@ tactic type define CURSE {curse roles once on_lock} system {
             WHERE curse_id=$curse_id
             AND inject_type='HREL'
         } row {
-            dict set roleSpec $row(f) [::group names]
-            dict set roleSpec $row(g) [::group names]
+            dict set roleSpec $row(f) ::gofer::GROUPS
+            dict set roleSpec $row(g) ::gofer::GROUPS
         }
 
         # VREL is not any more restrictive group wise
@@ -409,8 +353,8 @@ tactic type define CURSE {curse roles once on_lock} system {
             WHERE curse_id=$curse_id
             AND inject_type='VREL'
         } row {
-            dict set roleSpec $row(g) [::group names]
-            dict set roleSpec $row(a) [::actor names]
+            dict set roleSpec $row(g) ::gofer::GROUPS
+            dict set roleSpec $row(a) ::gofer::ACTORS
         }
 
         # SAT restricts the group role to *only* civilians. If an HREL or
@@ -421,7 +365,7 @@ tactic type define CURSE {curse roles once on_lock} system {
             WHERE curse_id=$curse_id
             AND inject_type='SAT'
         } row {
-            dict set roleSpec $row(g) [::civgroup names]
+            dict set roleSpec $row(g) ::gofer::CIVGROUPS
         }
 
         # COOP restricts one role to civilians only and the other role to
@@ -432,8 +376,8 @@ tactic type define CURSE {curse roles once on_lock} system {
             WHERE curse_id=$curse_id
             AND inject_type='COOP'
         } row {
-            dict set roleSpec $row(f) [::civgroup names]
-            dict set roleSpec $row(g) [::frcgroup names]
+            dict set roleSpec $row(f) ::gofer::CIVGROUPS
+            dict set roleSpec $row(g) ::gofer::FRCGROUPS
         }
 
         return $roleSpec
@@ -473,16 +417,10 @@ order define TACTIC:CURSE:CREATE {
     # FIRST, prepare and validate the parameters
     prepare owner    -toupper   -required -type {agent system}
     prepare curse    -toupper   -required -type {curse normal}
-    prepare roles    -toupper   -required -type rolemap
+    prepare roles               -required -type rolemap
     prepare once                -required -type boolean
     prepare on_lock             -required -type boolean
     prepare priority -tolower             -type ePrioSched
-
-    returnOnError 
-
-    validate roles {
-        tactic::CURSE checkRolemap $parms(roles) $parms(curse)
-    }
 
     returnOnError -final
 
@@ -525,21 +463,9 @@ order define TACTIC:CURSE:UPDATE {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -type tactic
     prepare curse      -toupper  -type {curse normal}
-    prepare roles      -toupper  -type rolemap
+    prepare roles                -type rolemap
     prepare once                 -type boolean
     prepare on_lock              -type boolean
-
-    returnOnError
-
-    # NEXT, cross check
-    validate roles {
-        set curse [rdb onecolumn {
-                      SELECT curse FROM tactics_CURSE 
-                      WHERE tactic_id=$parms(tactic_id)
-                  }]
-
-        tactic::CURSE checkRolemap $parms(roles) $curse
-    }
 
     returnOnError
 

@@ -392,7 +392,6 @@ tactic_id n   g    personnel
     }
 
     test execute-1.13 {execute: retain previous when not reinforcing} -setup {
-        puts "execute-1.13"
         rdb eval {
             INSERT INTO deploy_tng(tactic_id, n, g, personnel)
             VALUES(1, 'NB1', 'BLUE', 25);
