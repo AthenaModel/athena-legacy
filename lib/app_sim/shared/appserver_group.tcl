@@ -367,10 +367,15 @@ appserver module GROUPS {
                 }
             } else {
                 let lf {double($data(labor_force))/$data(population)}
-                let ur {double($data(unemployed))/$data(labor_force)}
-            
-                ht putln "[percent $lf] of the group is in the labor force, "
-                ht putln "and the unemployment rate is [percent $ur]."
+
+                ht putln "[percent $lf] of the group is in the labor force"
+
+                if {$data(labor_force) > 0} {
+                    let ur {double($data(unemployed))/$data(labor_force)}
+                    ht put ", and the unemployment rate is [percent $ur]."
+                } else {
+                    ht put "."
+                }        
             }
 
             ht putln "The population of the group is changing by "
