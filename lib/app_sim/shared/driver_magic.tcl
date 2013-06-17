@@ -165,7 +165,7 @@ driver type define MAGIC {mad_id} {
             dam sat $mode $g $c $mag
         }
 
-        dam rule magic-4-1 $fdict {*}$opts {
+        dam rule MAGIC-4-1 $fdict {*}$opts {
             $atype eq "coop" && $fpop > 0
         } {
             dam coop $mode $f $g $mag

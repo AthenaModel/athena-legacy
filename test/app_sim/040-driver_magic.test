@@ -312,8 +312,8 @@ q      0.1
 firing_id  1
 t          0
 driver_id  1000
-ruleset    magic
-rule       magic-4-1
+ruleset    MAGIC
+rule       MAGIC-4-1
 fdict      dtype MAGIC mad_id 1 atype coop mode T mag 10.0 f SHIA g BLUE
     }
     
@@ -328,7 +328,7 @@ fdict      dtype MAGIC mad_id 1 atype coop mode T mag 10.0 f SHIA g BLUE
     } -cleanup {
         cleanup
     } -result {
-rule   magic-4-1
+rule   MAGIC-4-1
 atype  coop
 mode   T
 f      SHIA
