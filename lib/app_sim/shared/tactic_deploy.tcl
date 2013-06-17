@@ -143,7 +143,15 @@ tactic type define DEPLOY {g text1 int1 nlist reinforce once on_lock} actor {
             SELECT cost FROM agroups WHERE g=$g
         }]
 
-        if {$text1 eq "ALL" || $reinforce} {
+        # NEXT, determine if we need to take past deployments into 
+        # account.  If we are deploying all remaining, or we are 
+        # reinforcing, or if the tactic has not yet executed, we don't.
+        #
+        # NOTE: exec_ts is cleared by [mutate update].  If they edit
+        # the tactic after it's executed, it's like it is a new
+        # tactic.
+        
+        if {$text1 eq "ALL" || $reinforce || $exec_ts eq ""} {
             set alreadyDeployed 0
         } else {
             rdb eval {

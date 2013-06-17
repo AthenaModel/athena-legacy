@@ -476,6 +476,12 @@ snit::type tactic {
 
         # NEXT, Update the tactic.  Note that tdata contains all the
         # values, so we'll update all of them.
+        #
+        # Note: set exec_flag = 0 and exec_ts = NULL: this is effectively
+        # a new tactic, and may bear little resemblance to what it was
+        # before.  Setting exec_ts to NULL allows the tactic's 
+        # [execute] method to know that this version of the tactic
+        # hasn't executed before.
         set tdata(narrative) [$type call narrative [array get tdata]]
 
         rdb eval {
@@ -484,7 +490,8 @@ snit::type tactic {
                 once      = $tdata(once),
                 on_lock   = $tdata(on_lock),
                 pdict     = $tdata(pdict),
-                exec_flag = 0
+                exec_flag = 0,
+                exec_ts   = NULL
             WHERE tactic_id=$tactic_id;
         } {}
 

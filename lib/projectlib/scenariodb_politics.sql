@@ -221,7 +221,8 @@ CREATE TABLE tactics (
     -- State: normal, disabled, invalid (etactic_state)
     state        TEXT DEFAULT 'normal',
 
-    -- time of last execution, in ticks
+    -- time of last execution, in ticks.  Reset to NULL when a tactic
+    -- is edited by the user.
     exec_ts      INTEGER,
 
     -- Flag: 1 if tactic was selected for execution at the last tactics

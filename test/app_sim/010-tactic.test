@@ -325,6 +325,27 @@ pdict        n NB1 g BLUE text1 FIRE_BACK_IMMEDIATELY
     } -result {1}
 
 
+    test update-1.3 {exec_* cleared on update} -setup {
+        setup
+        tactic mutate create $T2
+        rdb eval { 
+            UPDATE tactics 
+            SET exec_ts = 10,
+                exec_flag = 1
+        }
+    } -body {
+        tactic mutate update [mkupdate 1 {
+            text1      FIRE_BACK_IMMEDIATELY
+            once       1
+        }]
+
+        # This verifies both that requested changes are made, and
+        # that NULL columns remain NULL.
+        rdb eval {SELECT tactic_id, exec_ts, exec_flag FROM tactics}
+    } -cleanup {
+        cleanup
+    } -result {1 @ 0}
+
     test update-2.1 {undo undoes the change} -setup {
         setup
         tactic mutate create $T2
