@@ -131,25 +131,32 @@ snit::type engine {
         rebase prepare
 
         # NEXT, allow the population to grow or shrink
-        # according to its growth rate.
+        # according to its growth rate, and recompute 
+        # demographic statistics.
         profile demog growth
         profile demog stats
         
         # NEXT, execute strategies; this changes the situation
         # on the ground.  It may also schedule events to be executed
-        # immediately.
+        # immediately.  Recompute demog stats immediately, as the
+        # strategies might have moved population around.
         profile strategy tock
+        profile demog stats
 
         # NEXT, do analysis and assessment
-        profile demog stats
         profile ensit assess
         profile nbstat analyze
         profile driver::MOOD assess
         profile control_model analyze
         profile driver::actsit assess
         profile service assess
-        profile aam assess
 
+        # NEXT, do attrition and recompute demog stats, since groups
+        # might have lost personnel
+        profile aam assess
+        profile demog stats
+
+        # NEXT, update the economics.
         if {[simclock now] % [parmdb get econ.ticksPerTock] == 0} {
             set econOK [profile econ tock]
 
@@ -158,6 +165,7 @@ snit::type engine {
             }
         }
 
+        # NEXT, assess econ-dependent drivers.
         profile driver::CONSUMP assess
         profile driver::UNEMP assess
         profile control_model assess
