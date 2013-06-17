@@ -616,24 +616,84 @@ This section documents the steps involved in the following CM procedures:<p>
 <<section proc.dev "Developer Procedures">>
 
 These procedures are used by the development team in general.<p>
+<<section proc.dev.winsetup "Setting Up the Development Environment for Windows">>
 
-<<section proc.dev.setup "Setting Up the Development Environment">>
+The description below assumes the reader has already installed MinGW and
+is preparing to set up a Athena development environment for main-line development.<p>
 
-The description below assumes the reader is preparing to set up a Athena
-development environment for main-line development.<p>
-
-TBD: This procedure needs to be updated for MS Windows!<p>
+The following steps should be done using a MinGW Msys terminal window.
 
 <<procedure>>
 
 <<step>>
-Install ActiveTcl Enterprise Edition on your workstation as
+Install ActiveTcl Community Edition on your workstation as
 
-<pre>  /usr/local/ActiveTclEE-<i>yyyy</i>Q<i>n</i></pre>
+<pre>  C:\Tcl\AT<i>x.y.z</i></pre> 
 
-where <i>yyyy</i> is the year and <i>n</i> is the quarter number for
-the quarterly release of ActiveTcl Enterprise Edition.  The software
-is available from the project's technical contacts with ActiveState.
+where <i>x.y.z</i> is the particular version of ActiveTcl obtained from 
+the ActiveState website.
+<</step/>>
+n/a
+<</step>>
+
+
+<<step>>
+Set up your Subversion password for your <i>username</i> on your
+normal development machine.<p>
+
+You'll need a login on <code>oak.jpl.nasa.gov</code> with
+<code>sudo</code> privileges, or help from a developer who has it.<p>
+
+You'll be asked for the <code>oak</code> login password, and then your
+new Subversion password, twice.
+<</step/>>
+<pre>
+$ ssh oak
+$ sudo htpasswd -m /home/apache2/etc/svn-auth <i>username</i>
+$ exit
+</pre>
+<</step>>
+
+<<step>>
+Check out the Athena trunk.  You'll be asked for your Subversion password once or twice; then it will be cached.
+<</step/>>
+<pre>
+$ cd ~
+$ svn checkout <i>repository</i>/athena/trunk athena
+</pre>
+<</step>>
+
+<<step>>
+Close and then open MinGW Msys terminal windows, making the installed version of ActiveTcl available
+<</step/>>
+n/a
+<</step>>
+
+
+<<step>>
+Do a development build of Athena.
+<</step/>>
+<pre>
+See <<xref proc.dev.build>>
+</pre>
+<</step>>
+
+<</procedure>>
+
+<<section proc.dev.linuxsetup "Setting Up the Development Environment for Linux">>
+
+The description below assumes the reader is preparing to set up a Athena
+development environment for main-line development.<p>
+
+<<procedure>>
+
+<<step>>
+Install ActiveTcl Community Edition on your workstation as
+
+<pre>  /usr/local/AT<i>x.y.z</i></pre> 
+
+where <i>x.y.z</i> is the particular version of ActiveTcl.  The software
+is available from the ActiveState website.
 <</step/>>
 n/a
 <</step>>
@@ -658,31 +718,11 @@ $ exit
 
 
 <<step>>
-Create the <code>~/athena_pkgs</code> directory.  All checked out tags
-and branches of Athena will reside in this directory.
-<</step/>>
-<pre>
-$ cd ~
-$ mkdir ~/athena_pkgs
-</pre>
-<</step>>
-
-
-<<step>>
-Check out the Athena trunk as Athena 4.0.x.  You'll be asked for your Subversion password once or twice; then it will be cached.
+Check out the Athena trunk.  You'll be asked for your Subversion password once or twice; then it will be cached.
 <</step/>>
 <pre>
 $ cd ~/athena_pkgs
-$ svn checkout <i>repository</i>/athena/trunk athena_4.0.x
-</pre>
-<</step>>
-
-
-<<step>>
-Make Athena 4.0.x the active Athena version.
-<</step/>>
-<pre>
-$ ln -s ~/athena_pkgs/athena_4.0.x ~/athena
+$ svn checkout <i>repository</i>/athena/trunk athena
 </pre>
 <</step>>
 
@@ -691,7 +731,7 @@ Add these lines to your <code>.bash_profile</code>:
 <</step/>>
 <pre>
 # Athena Settings
-export PATH=/usr/local/ActiveTclEE-<i>yyyy</i>Q<i>n</i>:~/athena/bin:...
+export PATH=/usr/local/AT<i>x.y.z</i>:~/athena/bin:...
 </pre>
 <</step>>
 
