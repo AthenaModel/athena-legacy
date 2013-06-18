@@ -11,6 +11,42 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.10, 18 June 2013</h3>
+
+This build introduces the concept of gofers.  Gofers, in a nutshell, are
+objects that retrieve entities from Athena based upon a rule.  For example, 
+a gofer could retrieve all non-empty civilian groups from a set of one or
+more neighborhoods.  Another could retrieve all force groups owned by one or
+more actors.  Gofers are used in the FUNDENI tactic and in the CURSE tactic.
+They will probably become more prevalent moving forward.  This build also 
+contains quite a few bug fixes and documentation updates.  As of this build
+Athena no longer uses ActiveTcl Enterprise Edition in favor of the freely
+available community edition. The complete list of packages:<p>
+
+<ul>
+<li> Bug 4046: Update Athena 5 to ActiveTcl 8.5.14
+<li> Bug 4045: athena(1): update CURSE tactic to use gofer(n)
+<li> Bug 4043: athena(1): gofer::ACTORS, gofer::FRCGROUPS, gofer::GROUPS rules
+<li> Bug 4042: athena(1), athena_test(1): the Athena test suite should run in non-GUI mode
+<li> Bug 4038: FLOW into empty CIV group causes bgerror
+<li> Bug 4036: athena(1): bgerror when loading .adb in batch mode
+<li> Bug 4035: Attrit enitire CIV group causes bgerror
+<li> Bug 4034: athena(1): gofer::CIVGROUPS rules, part II
+<li> Bug 4033: athena(1): gofer::FRCGROUPS, gofer::GROUPS, gofer::ACTORS
+<li> Bug 4032: athena(1): gofer::CIVGROUPS rules
+<li> Bug 4031: athena(1): Gofers Mark III
+<li> Bug 4030: athena(1): bgerror when editing an inject of type COOP
+<li> Bug 4029: axdb csvfile filename should add .csv
+<li> Bug 4028: Disabled / Deleted CURSE sanity checks
+<li> Bug 4025: Curses and Injects in the Help
+<li> Bug 4024: Values of s,p,q do not change on Application / Curses Tab
+<li> Bug 4023: CURSE page on Detail Browser displays too many injects
+<li> Bug 4017: DEPLOY without reinforcement bgerror
+<li> Bug 3995: error in my://app/group/{name}: argument not in valid range
+<li> Bug 3977: Magic Cooperation Input not displayed in Rule Firings
+<li> Bug 3946: Autogen Bugs 
+</ul><p>
+
 <h3>Build 5.0.9, 5 June 2013</h3>
 
 This build has a number of changes in support of Athena running on a
