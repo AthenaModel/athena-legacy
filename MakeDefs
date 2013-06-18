@@ -34,7 +34,7 @@ ifeq "$(MARS_OS)" "win"
     ATHENA_WEB_HOME = /k/group/athena/www
     ATHENA_INSTALLER = $(TOP_DIR)/installer/Output/Athena$(ATHENA_VERSION)_Installer.exe
 else
-    ATHENA_WEB_HOME = /afs/jpl/group/athena/www
+    ATHENA_WEB_HOME = /afs/jpl.nasa.gov/group/athena/www
     ATHENA_INSTALLER =
 endif
 
