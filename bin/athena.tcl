@@ -314,14 +314,19 @@ proc ::athena_mods::logmods {} {
 #
 # line   -  One or more lines of text, as distinct arguments.
 #
-# On Linux/OS X, writes the text to standard output, and exits.
-# On Windows, pops up a messagebox and exits when the box is closed.
+# On Linux/OS X or when Tk is not loaded, writes the text to standard 
+# output, and exits. On Windows, pops up a messagebox and exits when 
+# the box is closed.
 
 proc errexit {args} {
     set text [join $args \n]
 
-    if {[os type] ne "win32"} {
-        puts $text
+    set f [open "error.log" w]
+    puts $f $text
+    close $f
+
+    if {[os type] ne "win32" || !$::loadTk} {
+         puts $text
     } else {
         wm withdraw .
         modaltextwin popup \

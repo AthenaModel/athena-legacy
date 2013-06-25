@@ -737,11 +737,11 @@ snit::type app {
             if {!$opts(-batch)} {
                 app DisplayExitText $text
             } else {
-                app DisplayExitText \
-                    "Error; see [file join [pwd] error.log] for details."
                 set f [open "error.log" w]
                 puts $f $text
                 close $f
+                app DisplayExitText \
+                    "Error; see [file join [pwd] error.log] for details."
             }
         }
 
