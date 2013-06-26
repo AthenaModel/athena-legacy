@@ -795,7 +795,12 @@ snit::type app {
     #   subcommand - A subcommand of the topwin, as one argument or many
 
     typemethod topwin {args} {
-        # FIRST, determine the topwin
+        # FIRST, if no Tk then nothing to do
+        if {![app tkloaded]} {
+            return ""
+        }
+
+        # NEXT, determine the topwin
         set topwin ""
 
         foreach w [lreverse [wm stackorder .]] {

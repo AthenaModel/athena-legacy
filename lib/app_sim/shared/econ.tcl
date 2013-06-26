@@ -1367,16 +1367,26 @@ snit::type econ {
         parmdb set econ.disable 1
         parmdb lock econ.disable
 
-        set answer [messagebox popup              \
-                        -icon warning             \
-                        -message $msg             \
-                        -parent [app topwin]      \
-                        -title  $title            \
-                        -buttons {ok "Ok" browser "Go To Detail Browser"}]
+        if {[app tkloaded]} {
+            set answer [messagebox popup              \
+                            -icon warning             \
+                            -message $msg             \
+                            -parent [app topwin]      \
+                            -title  $title            \
+                            -buttons {ok "Ok" browser "Go To Detail Browser"}]
 
-       if {$answer eq "browser"} {
-           app show my://app/econ
+           if {$answer eq "browser"} {
+               app show my://app/econ
+           }
+       } else {
+           set msg ""
+           append msg "The CGE in the Econ model failed to solve."
+           append msg "\nUse the Athena GUI to open the scenario and "
+           append msg "attempt to reproduce the problem."
+           append msg "\nSee the detail browser for more information."
+           app error $msg
        }
+
     }
 
     # SamError title
@@ -1391,15 +1401,24 @@ snit::type econ {
         parmdb set econ.disable 1
         parmdb lock econ.disable
 
-        set answer [messagebox popup              \
-                        -icon warning             \
-                        -message $msg             \
-                        -parent [app topwin]      \
-                        -title  $title            \
-                        -buttons {ok "Ok" browser "Go To Detail Browser"}]
+        if {[app tkloaded]} {
+            set answer [messagebox popup              \
+                            -icon warning             \
+                            -message $msg             \
+                            -parent [app topwin]      \
+                            -title  $title            \
+                            -buttons {ok "Ok" browser "Go To Detail Browser"}]
 
-       if {$answer eq "browser"} {
-           app show my://app/econ
+           if {$answer eq "browser"} {
+               app show my://app/econ
+           }
+       } else {
+           set msg ""
+           append msg "The SAM in the Econ model failed to solve."
+           append msg "\nUse the Athena GUI to open the scenario and "
+           append msg "attempt to lock it."
+           append msg "\nSee the detail browser for more information."
+           app error $msg
        }
     }
 

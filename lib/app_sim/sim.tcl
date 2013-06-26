@@ -847,16 +847,17 @@ order define SIM:LOCK {
     if {$sev eq "WARNING"} {
         app show my://app/sanity/onlock
 
-        set answer \
-            [messagebox popup \
-                 -title         "On-lock Sanity Check Failed"    \
-                 -icon          warning                          \
-                 -buttons       {ok "Continue" cancel "Cancel"}  \
-                 -default       cancel                           \
-                 -ignoretag     onlock_check_failed              \
-                 -ignoredefault ok                               \
-                 -parent        [app topwin]                     \
-                 -message       [normalize {
+        if {[sender] eq "gui"} {
+            set answer \
+                [messagebox popup \
+                     -title         "On-lock Sanity Check Failed"    \
+                     -icon          warning                          \
+                     -buttons       {ok "Continue" cancel "Cancel"}  \
+                     -default       cancel                           \
+                     -ignoretag     onlock_check_failed              \
+                     -ignoredefault ok                               \
+                     -parent        [app topwin]                     \
+                     -message       [normalize {
                      The on-lock sanity check failed with warnings; 
                      one or more simulation objects are invalid.  See the 
                      Detail Browser for details.  Press "Cancel" and
@@ -866,9 +867,18 @@ order define SIM:LOCK {
                      ignored as the simulation runs.
                  }]]
 
-        if {$answer eq "cancel"} {
-            # Don't do anything.
-            return
+            if {$answer eq "cancel"} {
+                # Don't do anything.
+                return
+            }
+        } else {
+            reject * {
+                The on-lock sanity check failed with one or more errors; 
+                time cannot advance.  Fix the error, and try again.
+                Please use the Athena GUI to lock the scenario and see 
+                the On-lock Sanity Check Report in the Detail Browser 
+                for details.
+            }
         }
     }
 
