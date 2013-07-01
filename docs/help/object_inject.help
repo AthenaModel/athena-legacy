@@ -111,6 +111,18 @@ object inject_coop {
 
     include inject_ -attrs {curse_id inject_num state inject_mode}
 
+    attribute ftype "Civlian Group Role Type" {
+        This parameter specifies if the <<term role>> is new or already 
+        exists. For new roles, it should be set to <b>NEW</b> for roles
+        that already exist, it should be set to <b>EXISTING</b>.
+    } -tags {create update}
+
+    attribute gtype "Force Group Role Type" {
+        This parameter specifies if the <<term role>> is new or already 
+        exists. For new roles, it should be set to <b>NEW</b> for roles
+        that already exist, it should be set to <b>EXISTING</b>.
+    } -tags {create update}
+
     attribute f "Of Civ Group Role" {
         The ID of a <<term role>> for civilian groups.
     } -tags {create update}
@@ -146,6 +158,18 @@ object inject_hrel {
     }
 
     include inject_ -attrs {curse_id inject_num state inject_mode}
+
+    attribute ftype "Group Role Type" {
+        This parameter specifies if the <<term role>> is new or already 
+        exists. For new roles, it should be set to <b>NEW</b> for roles
+        that already exist, it should be set to <b>EXISTING</b>.
+    } -tags {create update}
+
+    attribute gtype "Group Role Type" {
+        This parameter specifies if the <<term role>> is new or already 
+        exists. For new roles, it should be set to <b>NEW</b> for roles
+        that already exist, it should be set to <b>EXISTING</b>.
+    } -tags {create update}
 
     attribute f "Of Group Role" {
         The ID of a <<term role>> for one or more <<term group>>s.  
@@ -185,6 +209,12 @@ object inject_sat {
 
     include inject_ -attrs {curse_id inject_num state inject_mode}
 
+    attribute ftype "Civlian Group Role Type" {
+        This parameter specifies if the <<term role>> is new or already 
+        exists. For new roles, it should be set to <b>NEW</b> for roles
+        that already exist, it should be set to <b>EXISTING</b>.
+    } -tags {create update}
+
     attribute f "Civ. Group Role" {
         The ID of a <<term role>> for one or more <<term civgroup>>s.  
     } -tags {create update}
@@ -220,6 +250,18 @@ object inject_vrel {
     }
 
     include inject_ -attrs {curse_id inject_num state inject_mode}
+
+    attribute gtype "Group Role Type" {
+        This parameter specifies if the <<term role>> is new or already 
+        exists. For new roles, it should be set to <b>NEW</b> for roles
+        that already exist, it should be set to <b>EXISTING</b>.
+    } -tags {create update}
+
+    attribute atype "Actor Role Type" {
+        This parameter specifies if the <<term role>> is new or already 
+        exists. For new roles, it should be set to <b>NEW</b> for roles
+        that already exist, it should be set to <b>EXISTING</b>.
+    } -tags {create update}
 
     attribute g "Of Group Role" {
         The ID of a <<term role>> for one or more <<term group>>s.  

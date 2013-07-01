@@ -64,15 +64,15 @@ namespace eval ::athena_test::tests:: {
         # NEXT, add INJECTS to CURSES
         # Individual injects
         ted order INJECT:HREL:CREATE curse_id C1 f @CIV1 g @FRC1 mag S+
-        ted order INJECT:VREL:CREATE curse_id C2 g @CIV1 a @ACT1 mag M+
-        ted order INJECT:SAT:CREATE  curse_id C3 g @CIV1 c AUT   mag L+
-        ted order INJECT:COOP:CREATE curse_id C4 f @CIV1 g @FRC1 mag XL+
+        ted order INJECT:VREL:CREATE curse_id C2 g @CIV2 a @ACT1 mag M+
+        ted order INJECT:SAT:CREATE  curse_id C3 g @CIV3 c AUT   mag L+
+        ted order INJECT:COOP:CREATE curse_id C4 f @CIV4 g @FRC2 mag XL+
 
         # Multiple injects
-        ted order INJECT:HREL:CREATE curse_id C5 f @CIV1 g @FRC1 mag S+
-        ted order INJECT:VREL:CREATE curse_id C5 g @CIV1 a @ACT1 mag M+
-        ted order INJECT:SAT:CREATE  curse_id C5 g @CIV1 c AUT   mag L+
-        ted order INJECT:COOP:CREATE curse_id C5 f @CIV1 g @FRC1 mag XL+
+        ted order INJECT:HREL:CREATE curse_id C5 f @CIV5 g @FRC3 mag S+
+        ted order INJECT:VREL:CREATE curse_id C5 g @CIV6 a @ACT2 mag M+
+        ted order INJECT:SAT:CREATE  curse_id C5 g @CIV7 c AUT   mag L+
+        ted order INJECT:COOP:CREATE curse_id C5 f @CIV8 g @FRC4 mag XL+
     }
     
     # curse cid roles
@@ -131,7 +131,7 @@ fdict      dtype CURSE curse_id C1 atype hrel mode T mag 3.0 f {SHIA SUNN} g BLU
     } -body {
         
         curse C2 {
-            @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV2 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
             @ACT1 {_type ACTORS _rule BY_VALUE raw_value JOE}
         }
 
@@ -154,7 +154,7 @@ fdict      dtype CURSE curse_id C2 atype vrel mode T mag 5.0 g {SHIA SUNN} a JOE
     } -body {
         
         curse C3 {
-            @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV3 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
         }
 
         ted querylist {
@@ -176,8 +176,8 @@ fdict      dtype CURSE curse_id C3 atype sat mode T mag 7.5 c AUT g {SHIA SUNN}
     } -body {
         
         curse C4 {
-            @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @FRC1 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @CIV4 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @FRC2 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
         }
 
         ted querylist {
@@ -198,9 +198,13 @@ fdict      dtype CURSE curse_id C4 atype coop mode T mag 10.0 f {SHIA SUNN} g BL
         setup
     } -body {
         curse C5 {
-            @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @FRC1 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
-            @ACT1 {_type ACTORS    _rule BY_VALUE raw_value JOE}
+            @CIV5 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV6 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV7 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV8 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @FRC3 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @FRC4 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @ACT2 {_type ACTORS    _rule BY_VALUE raw_value JOE}
         }
 
         ted query {

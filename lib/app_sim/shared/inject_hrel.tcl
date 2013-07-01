@@ -69,7 +69,7 @@ order define INJECT:HREL:CREATE {
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
 
         rcc "Of Group Role:" -for f
-        selector rtype -defvalue "NEW" {
+        selector ftype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for f
                 label "@"
@@ -83,7 +83,7 @@ order define INJECT:HREL:CREATE {
         }
 
         rcc "With Group Role:" -for g 
-        selector rtype -defvalue "NEW" {
+        selector gtype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for g
                 label "@"
@@ -104,11 +104,29 @@ order define INJECT:HREL:CREATE {
     # FIRST, prepare and validate the parameters
     prepare curse_id -toupper   -required -type curse
     prepare mode     -tolower   -required -type einputmode
+    prepare ftype    -toupper   -required -selector
+    prepare gtype    -toupper   -required -selector
     prepare f        -toupper   -required -type roleid
     prepare g        -toupper   -required -type roleid
     prepare mag -num -toupper   -required -type qmag
 
+    validate f {
+        if {$parms(ftype) eq "NEW"} {
+            if {[inject role exists $parms(f)]} {
+                reject f \
+                    "Role is already defined."
+            }
+        }
+    }
+
     validate g {
+        if {$parms(gtype) eq "NEW"} {
+            if {[inject role exists $parms(g)]} {
+                reject g \
+                    "Role is already defined."
+            }
+        }
+
         if {$parms(f) eq $parms(g)} {
             reject g \
                 "Cannot have the same roles for horizontal relationship inject"
@@ -145,7 +163,7 @@ order define INJECT:HREL:UPDATE {
         enumlong mode -dictcmd {einputmode deflist}
 
         rcc "Of Group Role:" -for f
-        selector rtype -defvalue "EXISTING" {
+        selector ftype -defvalue "EXISTING" {
             case NEW "Rename role" {
                 cc "Role:" -for f
                 label "@"
@@ -159,7 +177,7 @@ order define INJECT:HREL:UPDATE {
         }
 
         rcc "With Group Role:" -for g 
-        selector rtype -defvalue "EXISTING" {
+        selector gtype -defvalue "EXISTING" {
             case NEW "Rename role" {
                 cc "Role:" -for g
                 label "@"
@@ -180,11 +198,29 @@ order define INJECT:HREL:UPDATE {
     # FIRST, prepare the parameters
     prepare id         -required -type inject
     prepare mode       -tolower  -type einputmode
+    prepare ftype      -toupper  -selector
+    prepare gtype      -toupper  -selector
     prepare f          -toupper  -type roleid
     prepare g          -toupper  -type roleid
     prepare mag   -num -toupper  -type qmag
 
+    validate f {
+        if {$parms(ftype) eq "NEW"} {
+            if {[inject role exists $parms(f)]} {
+                reject f \
+                    "Role is already defined."
+            }
+        }
+    }
+
     validate g {
+        if {$parms(gtype) eq "NEW"} {
+            if {[inject role exists $parms(g)]} {
+                reject g \
+                    "Role is already defined."
+            }
+        }
+
         if {$parms(f) eq $parms(g)} {
             reject g \
                 "Cannot have the same roles for horizontal relationship inject"

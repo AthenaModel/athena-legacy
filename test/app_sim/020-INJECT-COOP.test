@@ -90,6 +90,18 @@ namespace eval ::athena_test::tests:: {
         mag {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, ZERO, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
     }
 
+    test CREATE-1.4 {duplicate roles} -setup {
+        setup
+    } -body {
+        ted order INJECT:COOP:CREATE {*}$I1 
+        ted order -reject INJECT:COOP:CREATE {*}$I2
+    } -cleanup {
+        cleanup
+    } -result {
+        f {Role is already defined.}
+        g {Role is already defined.}
+    }
+
     test CREATE-2.1 {inject is created} -setup {
         setup
     } -body {
@@ -111,7 +123,40 @@ g           @F2
 mag         5.0
     }
 
-    test CREATE-2.2 {Effects} -setup {
+    test CREATE-2.2 {inject is created with existing roles} -setup {
+        setup
+        ted order INJECT:COOP:CREATE $I1
+    } -body {
+        ted order INJECT:COOP:CREATE {*}$I2 ftype EXISTING gtype EXISTING
+
+        ted querylist {SELECT * FROM gui_injects_COOP}
+    } -cleanup {
+        cleanup
+    } -result {
+id          C1 1
+curse_id    C1
+inject_num  1
+mode        transient
+longmode    transient
+narrative   Change cooperation of civilians in @C1 with forces in @F2 by 1.0 points (XXXS+).
+state       normal
+f           @C1
+g           @F2
+mag         1.0
+
+id          C2 1
+curse_id    C2
+inject_num  1
+mode        transient
+longmode    transient
+narrative   Change cooperation of civilians in @C1 with forces in @F2 by 5.0 points (M+).
+state       normal
+f           @C1
+g           @F2
+mag         5.0
+    }
+
+    test CREATE-2.3 {Effects} -setup {
         setup
     } -body {
         ted notifier bind ::rdb <curse_injects>

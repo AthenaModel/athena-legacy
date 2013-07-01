@@ -43,21 +43,21 @@ namespace eval ::athena_test::tests:: {
         ted order INJECT:HREL:CREATE \
             curse_id C1          \
             mode     transient   \
-            f        @C1         \
-            g        @F1         \
+            f        @C2         \
+            g        @F2         \
             mag      1.0
 
         ted order INJECT:VREL:CREATE \
             curse_id C1          \
             mode     transient   \
-            g        @C1         \
+            g        @C3         \
             a        @A1         \
             mag      1.0
 
         ted order INJECT:SAT:CREATE \
             curse_id C1          \
             mode     transient   \
-            g        @C2         \
+            g        @C4         \
             c        SFT         \
             mag      1.0
 
@@ -99,7 +99,25 @@ namespace eval ::athena_test::tests:: {
                 raw_value SUNN
             }
 
+            @C3 {
+                _type CIVGROUPS
+                _rule BY_VALUE
+                raw_value SHIA
+            }
+
+            @C4 {
+                _type CIVGROUPS
+                _rule BY_VALUE
+                raw_value SUNN
+            }
+
             @F1 {
+                _type FRCGROUPS
+                _rule BY_VALUE
+                raw_value BLUE
+            }
+
+            @F2 {
                 _type FRCGROUPS
                 _rule BY_VALUE
                 raw_value BLUE
@@ -124,7 +142,7 @@ namespace eval ::athena_test::tests:: {
         tactic::CURSE narrative [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {C1 (C1). @C1 = group SHIA. @C2 = group SUNN. @F1 = group BLUE. @A1 = actor JOE. }
+    } -result {C1 (C1). @C1 = group SHIA. @C2 = group SUNN. @C3 = group SHIA. @C4 = group SUNN. @F1 = group BLUE. @F2 = group BLUE. @A1 = actor JOE. }
 
     #-------------------------------------------------------------------
     # check
@@ -137,7 +155,7 @@ namespace eval ::athena_test::tests:: {
         tactic::CURSE check [tactic get 1]
     } -cleanup {
         cleanup
-    } -result {Role @A1 no longer exists.}
+    } -result {Role @C3 no longer exists., Role @A1 no longer exists.}
 
     #-------------------------------------------------------------------
     # execute

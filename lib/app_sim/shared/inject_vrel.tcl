@@ -69,7 +69,7 @@ order define INJECT:VREL:CREATE {
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
 
         rcc "Of Group Role:" -for g 
-        selector rtype -defvalue "NEW" {
+        selector gtype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for g
                 label "@"
@@ -83,7 +83,7 @@ order define INJECT:VREL:CREATE {
         }
 
         rcc "With Actor Role:" -for a
-        selector rtype -defvalue "NEW" {
+        selector atype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for a
                 label "@"
@@ -104,10 +104,30 @@ order define INJECT:VREL:CREATE {
     # FIRST, prepare and validate the parameters
     prepare curse_id -toupper   -required -type curse
     prepare mode     -tolower   -required -type einputmode
+    prepare gtype    -toupper   -required -selector
+    prepare atype    -toupper   -required -selector
     prepare g        -toupper   -required -type roleid
     prepare a        -toupper   -required -type roleid
     prepare mag -num -toupper   -required -type qmag
 
+    validate g {
+        if {$parms(gtype) eq "NEW"} {
+            if {[inject role exists $parms(g)]} {
+                reject g \
+                    "Role is already defined."
+            }
+        }
+    }
+
+    validate a {
+        if {$parms(atype) eq "NEW"} {
+            if {[inject role exists $parms(a)]} {
+                reject a \
+                    "Role is already defined."
+            }
+        }
+    }
+ 
     returnOnError -final
 
     # NEXT, put inject_type in the parmdict
@@ -138,7 +158,7 @@ order define INJECT:VREL:UPDATE {
         enumlong mode -dictcmd {einputmode deflist}
 
         rcc "Of Group Role:" -for g 
-        selector rtype -defvalue "EXISTING" {
+        selector gtype -defvalue "EXISTING" {
             case NEW "Rename role" {
                 cc "Role:" -for g
                 label "@"
@@ -152,7 +172,7 @@ order define INJECT:VREL:UPDATE {
         }
 
         rcc "With Actor Role:" -for a
-        selector rtype -defvalue "EXISTING" {
+        selector atype -defvalue "EXISTING" {
             case NEW "Rename role" {
                 cc "Role:" -for a
                 label "@"
@@ -173,9 +193,29 @@ order define INJECT:VREL:UPDATE {
     # FIRST, prepare the parameters
     prepare id    -required           -type inject
     prepare mode            -tolower  -type  einputmode
+    prepare gtype           -toupper  -selector
+    prepare atype           -toupper  -selector
     prepare g               -toupper  -type roleid
     prepare a               -toupper  -type roleid
     prepare mag   -num      -toupper  -type qmag
+
+    validate g {
+        if {$parms(gtype) eq "NEW"} {
+            if {[inject role exists $parms(g)]} {
+                reject g \
+                    "Role is already defined."
+            }
+        }
+    }
+
+    validate a {
+        if {$parms(atype) eq "NEW"} {
+            if {[inject role exists $parms(a)]} {
+                reject a \
+                    "Role is already defined."
+            }
+        }
+    }
 
     returnOnError -final
 

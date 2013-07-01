@@ -342,6 +342,35 @@ snit::type inject {
         }]
     }
 
+    # role exists
+    #
+    # role   - The name of role
+    #
+    # Returns 1 if the role already exists, and 0 otherwise
+
+    typemethod {role exists} {role} {
+        set roles [rdb eval {
+            SELECT DISTINCT f FROM curse_injects
+            WHERE f != ''
+        }]
+
+        lmerge roles  [rdb eval {
+            SELECT DISTINCT g FROM curse_injects
+            WHERE g != ''
+        }]
+
+        lmerge roles  [rdb eval {
+            SELECT DISTINCT a FROM curse_injects
+            WHERE a != ''
+        }]
+
+        if {$role in $roles} {
+            return 1
+        }
+
+        return 0
+    }
+
     # get id ?parm?
     #
     # id   - An inject id

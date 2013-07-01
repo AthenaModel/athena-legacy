@@ -68,7 +68,7 @@ order define INJECT:SAT:CREATE {
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
 
         rcc "Civ Group Role:" -for rtype
-        selector rtype -defvalue "NEW" {
+        selector gtype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for g
                 label "@"
@@ -92,9 +92,18 @@ order define INJECT:SAT:CREATE {
     # FIRST, prepare and validate the parameters
     prepare curse_id   -toupper   -required -type curse
     prepare mode       -tolower   -required -type einputmode
+    prepare gtype      -toupper   -required -selector
     prepare g          -toupper   -required -type roleid
     prepare c          -toupper   -required -type econcern
     prepare mag -num   -toupper   -required -type qmag
+
+    validate g {
+        if {$parms(gtype) eq "NEW"} {
+            if {[inject role exists $parms(g)]} {
+                reject g "Role is already defined."
+            }
+        }
+    }
 
     returnOnError -final
 
@@ -126,7 +135,7 @@ order define INJECT:SAT:UPDATE {
         enumlong mode -dictcmd {einputmode deflist} 
 
         rcc "Civ Group Role:" -for rtype
-        selector rtype -defvalue "EXISTING" {
+        selector gtype -defvalue "EXISTING" {
             case NEW "Rename role" {
                 cc "Role:" -for g
                 label "@"
@@ -150,9 +159,18 @@ order define INJECT:SAT:UPDATE {
     # FIRST, prepare the parameters
     prepare id    -required           -type  inject
     prepare mode            -tolower  -type  einputmode
+    prepare gtype           -toupper  -selector
     prepare g               -toupper  -type  roleid
     prepare c               -toupper  -type  econcern
     prepare mag   -num      -toupper  -type  qmag
+
+    validate g {
+        if {$parms(gtype) eq "NEW"} {
+            if {[inject role exists $parms(g)]} {
+                reject g "Role is already defined."
+            }
+        }
+    }
 
     returnOnError -final
 
