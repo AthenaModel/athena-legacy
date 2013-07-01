@@ -11,6 +11,21 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.11, 1 July 2013</h3>
+
+This build contains some bug fixes related to CURSEs and the CURSE tactic.
+There is also some fixes for when Athena is running in batch mode. The
+set of packages:<p>
+
+<ul>
+<li> Bug 4040: Use existing force group role bgerror
+<li> Bug 4041: Define new role should require a unique role name
+<li> Bug 4050: No error message written to stdout in Windows
+<li> Bug 4051: batch mode tk messagebox error, scenario with sanity check failures
+<li> Bug 4052: athena(1): sanity check failures in batch mode need to be handled without Tk
+<li> Bug 4054: ROLE not known in dictionary bgerror
+</ul><p>
+
 <h3>Build 5.0.10, 18 June 2013</h3>
 
 This build introduces the concept of gofers.  Gofers, in a nutshell, are
