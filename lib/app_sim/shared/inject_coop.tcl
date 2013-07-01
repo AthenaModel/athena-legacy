@@ -56,7 +56,7 @@ inject type define COOP {f g mag} {
 order define INJECT:COOP:CREATE {
     title "Create Inject: Cooperation"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "CURSE ID:" -for curse_id
@@ -148,7 +148,7 @@ order define INJECT:COOP:CREATE {
 
 order define INJECT:COOP:UPDATE {
     title "Update Inject: Cooperation"
-    options -sendstates {PREP PAUSED} 
+    options -sendstates PREP
 
     form {
         rcc "Inject:" -for id

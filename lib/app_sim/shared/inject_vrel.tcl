@@ -56,7 +56,7 @@ inject type define VREL {g a mag} {
 order define INJECT:VREL:CREATE {
     title "Create Inject: Vertical Relationship"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "CURSE ID:" -for curse_id
@@ -143,7 +143,7 @@ order define INJECT:VREL:CREATE {
 
 order define INJECT:VREL:UPDATE {
     title "Update Inject: Vertical Relationship"
-    options -sendstates {PREP PAUSED} 
+    options -sendstates PREP 
 
     form {
         rcc "Inject:" -for id

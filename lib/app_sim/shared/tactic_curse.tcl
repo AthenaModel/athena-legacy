@@ -85,10 +85,19 @@ tactic type define CURSE {curse roles once on_lock} system {
 
         # NEXT, it exists and is "normal", are the roles good?
         if {$exists && $state eq "normal"} {
+            set roles [dict keys $roles]
+
             # NEXT, roles this tactic uses may have been deleted
-            foreach role [dict keys $roles] {
+            foreach role $roles {
                 if {$role ni [curse rolenames $curse]} {
                     lappend errors "Role $role no longer exists."
+                }
+            }
+
+            # NEXT, all roles must be accounted for
+            foreach role [curse rolenames $curse] {
+                if {$role ni $roles} {
+                    lappend errors "Role $role is not defined."
                 }
             }
         }

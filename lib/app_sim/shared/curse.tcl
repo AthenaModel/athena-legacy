@@ -172,10 +172,22 @@ snit::type curse {
     # Returns a list of recognized rolenames given a CURSE ID
 
     typemethod rolenames {curse_id} {
-        return [rdb eval {
-            SELECT f, g, a FROM curse_injects
-            WHERE curse_id=$curse_id
+        set roles [rdb eval {
+            SELECT DISTINCT f FROM curse_injects
+            WHERE f != '' AND curse_id=$curse_id
         }]
+
+        lmerge roles [rdb eval {
+            SELECT DISTINCT g FROM curse_injects
+            WHERE g != '' AND curse_id=$curse_id
+        }]
+
+        lmerge roles [rdb eval {
+            SELECT DISTINCT a FROM curse_injects
+            WHERE a != '' AND curse_id=$curse_id
+        }]
+
+        return $roles
     }
     #-------------------------------------------------------------------
     # Sanity Check

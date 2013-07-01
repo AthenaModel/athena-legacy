@@ -55,7 +55,7 @@ inject type define SAT {g c mag} {
 order define INJECT:SAT:CREATE {
     title "Create Inject: Satisfaction"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "CURSE ID:" -for curse_id
@@ -120,7 +120,7 @@ order define INJECT:SAT:CREATE {
 
 order define INJECT:SAT:UPDATE {
     title "Update Inject: Satisfaction"
-    options -sendstates {PREP PAUSED} 
+    options -sendstates PREP 
 
     form {
         rcc "Inject:" -for id
