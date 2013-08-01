@@ -58,7 +58,6 @@ namespace eval ::athena_test::tests:: {
         mag          1.0
     }
 
-    # Ideally, this should have a different type.
     set I2 {
         curse_id     C2
         inject_type  COOP 
@@ -66,6 +65,24 @@ namespace eval ::athena_test::tests:: {
         f            @C1
         g            @F1
         mag          2.0
+    }
+
+    set I3 {
+        curse_id     C1
+        inject_type  HREL
+        mode         transient
+        f            @G1
+        g            @F1
+        mag          1.0
+    }
+
+    set I4 {
+        curse_id     C1
+        inject_type  VREL
+        mode         transient
+        a            @A1
+        g            @G2
+        mag          1.0
     }
 
     #-------------------------------------------------------------------
@@ -313,6 +330,57 @@ mag          2.0
     } -cleanup {
         cleanup
     } -result {C1 1}
+
+    test validate-3.1 {Valid rolenames: SAT} -setup {
+        setup
+        inject mutate create $I1
+        inject mutate create $I3
+        inject mutate create $I4
+    } -body {
+        inject rolenames SAT g C1
+    } -cleanup {
+        cleanup
+    } -result {@G1 @C1 @G2}
+
+    test validate-3.2 {Valid rolenames: COOP} -setup {
+        setup
+        inject mutate create $I1
+        inject mutate create $I3
+        inject mutate create $I4
+    } -body {
+        set a [inject rolenames COOP f C1]
+        set b [inject rolenames COOP g C1]
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {{@G1 @C1 @G2} {@G1 @G2 @F1}}
+
+    test validate-3.3 {Valid rolenames: HREL} -setup {
+        setup
+        inject mutate create $I1
+        inject mutate create $I3
+        inject mutate create $I4
+    } -body {
+        set a [inject rolenames HREL f C1]
+        set b [inject rolenames HREL g C1]
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {{@G1 @C1 @G2 @F1} {@G1 @C1 @G2 @F1}}
+
+    test validate-3.4 {Valid rolenames: VREL} -setup {
+        setup
+        inject mutate create $I1
+        inject mutate create $I3
+        inject mutate create $I4
+    } -body {
+        set a [inject rolenames VREL a C1]
+        set b [inject rolenames VREL g C1]
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {@A1 {@G1 @C1 @G2 @F1}}
+
 
     #-------------------------------------------------------------------
     # exists
