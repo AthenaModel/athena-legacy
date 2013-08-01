@@ -78,7 +78,7 @@ order define INJECT:VREL:CREATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for g
-                enum g -listcmd {::inject rolenames VREL g}
+                enum g -listcmd {::inject rolenames VREL g $curse_id}
             }
         }
 
@@ -92,7 +92,7 @@ order define INJECT:VREL:CREATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for a
-                enum a -listcmd {::inject rolenames VREL a}
+                enum a -listcmd {::inject rolenames VREL a $curse_id}
             }
         }
 
@@ -167,7 +167,7 @@ order define INJECT:VREL:UPDATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for g
-                enum g -listcmd {::inject rolenames VREL g}
+                enum g -listcmd {::inject rolenames VREL g [lindex $id 0]}
             }
         }
 
@@ -181,7 +181,7 @@ order define INJECT:VREL:UPDATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for a
-                enum a -listcmd {::inject rolenames VREL a}
+                enum a -listcmd {::inject rolenames VREL a [lindex $id 0]}
             }
         }
 

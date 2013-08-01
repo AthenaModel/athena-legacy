@@ -77,7 +77,7 @@ order define INJECT:SAT:CREATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for g
-                enum g -listcmd {::inject rolenames SAT g}
+                enum g -listcmd {::inject rolenames SAT g $curse_id}
             }
         }
 
@@ -144,7 +144,7 @@ order define INJECT:SAT:UPDATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for g
-                enum g -listcmd {::inject rolenames SAT g}
+                enum g -listcmd {::inject rolenames SAT g [lindex $id 0]}
             }
         }
 

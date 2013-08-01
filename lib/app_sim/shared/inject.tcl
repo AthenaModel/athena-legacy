@@ -409,18 +409,20 @@ snit::type inject {
     # of exactly which groups can be assigned to a role takes place when 
     # the CURSE tactic is created.
 
-    typemethod rolenames {itype col} {
+    typemethod rolenames {itype col curse_id} {
         switch -exact -- $itype {
             HREL {
                 # HREL: f and g can be any group role and not actor roles
                 set roles [rdb eval {
                     SELECT DISTINCT f FROM curse_injects
                     WHERE f != ''
+                    AND curse_id=$curse_id
                 }]
 
                 lmerge roles  [rdb eval {
                     SELECT DISTINCT g FROM curse_injects
                     WHERE g != ''
+                    AND curse_id=$curse_id
                 }]
 
             }
@@ -431,12 +433,14 @@ snit::type inject {
                 set roles [rdb eval {
                     SELECT DISTINCT g FROM curse_injects
                     WHERE g != ''
+                    AND curse_id=$curse_id
                     AND inject_type IN ('HREL','VREL','SAT')
                 }]
 
                 lmerge roles [rdb eval {
                     SELECT DISTINCT f FROM curse_injects
                     WHERE f != ''
+                    AND curse_id=$curse_id
                     AND inject_type IN ('HREL','COOP')
                 }]
             }
@@ -448,25 +452,29 @@ snit::type inject {
                 if {$col eq "f"} {
                     set roles [rdb eval {
                         SELECT DISTINCT f FROM curse_injects
-                        WHERE f != ''
+                        WHERE f != '' 
+                        AND curse_id=$curse_id
                         AND inject_type IN ('HREL','COOP')
                     }]
 
                     lmerge roles [rdb eval {
                         SELECT DISTINCT g FROM curse_injects
                         WHERE g != ''
+                        AND curse_id=$curse_id
                         AND inject_type IN ('HREL','SAT')
                     }]
                 } elseif {$col eq "g"} {
                     set roles [rdb eval {
                         SELECT DISTINCT f FROM curse_injects
                         WHERE f != ''
+                        AND curse_id=$curse_id
                         AND inject_type = 'HREL'
                     }]
 
                     lmerge roles [rdb eval {
                         SELECT DISTINCT g FROM curse_injects
                         WHERE g != ''
+                        AND curse_id=$curse_id
                         AND inject_type IN ('HREL','VREL','COOP')
                     }]
                 }
@@ -479,16 +487,19 @@ snit::type inject {
                     set roles [rdb eval {
                         SELECT DISTINCT a FROM curse_injects
                         WHERE a != ''
+                        AND curse_id=$curse_id
                     }]
                 } elseif {$col eq "g"} {
                     set roles [rdb eval {
                         SELECT DISTINCT g FROM curse_injects
                         WHERE g != ''
+                        AND curse_id=$curse_id
                     }]
 
                     lmerge roles [rdb eval {
                         SELECT DISTINCT f FROM curse_injects
                         WHERE f != ''
+                        AND curse_id=$curse_id
                     }]
                 }
             }

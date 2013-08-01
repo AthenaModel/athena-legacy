@@ -78,7 +78,7 @@ order define INJECT:COOP:CREATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for f
-                enum f -listcmd {::inject rolenames COOP f}
+                enum f -listcmd {::inject rolenames COOP f $curse_id}
             }
         }
 
@@ -92,7 +92,7 @@ order define INJECT:COOP:CREATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for g
-                enum g -listcmd {::inject rolenames COOP g}
+                enum g -listcmd {::inject rolenames COOP g $curse_id}
             }
         }
 
@@ -172,7 +172,7 @@ order define INJECT:COOP:UPDATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for f
-                enum f -listcmd {::inject rolenames COOP f}
+                enum f -listcmd {::inject rolenames COOP f [lindex $id 0]}
             }
         }
 
@@ -186,7 +186,7 @@ order define INJECT:COOP:UPDATE {
 
             case EXISTING "Use existing role" {
                 cc "Role:" -for g
-                enum g -listcmd {::inject rolenames COOP g}
+                enum g -listcmd {::inject rolenames COOP g [lindex $id 0]}
             }
         }
 
