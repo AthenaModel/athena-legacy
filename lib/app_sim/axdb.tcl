@@ -433,7 +433,12 @@ snit::type axdb {
         }
 
         # NEXT, lock the scenario
-        order send app SIM:LOCK
+        if {[catch {
+            order send app SIM:LOCK
+        } result eopts]} {
+            $type SetCaseOutcome $case_id ERROR [dict get $eopts -errorinfo]
+            return "ERROR: case $case_id, $result"
+        }
 
         # NEXT, run for the specified number of weeks
         if {[catch {
@@ -445,8 +450,15 @@ snit::type axdb {
 
         # NEXT, determine the outcome
         if {[sim stopreason] eq "OK"} {
-            $type SetCaseOutcome $case_id OK {}
-            $type SaveOutputs $case_id
+            if {[catch {
+                $type SetCaseOutcome $case_id OK {}
+                $type SaveOutputs $case_id
+            } result]} {
+                $type SetCaseOutcome $case_id ERROR \
+                    "Error, unknown reason for stopping: $result"
+                return "ERROR: reason= $result"
+            }
+
             return "OK"
         } 
 

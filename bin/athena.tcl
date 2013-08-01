@@ -70,6 +70,23 @@ lappend auto_path $marsdir $libdir
 package require Tcl 8.5
 
 #-----------------------------------------------------------------------
+# Application Metadata
+
+set metadata {
+    sim {
+        text "Athena Simulation"
+        applib app_sim
+        mode gui
+    }
+
+    pbs {
+        text "Athena Simulation PBS Cluster"
+        applib app_pbs
+        mode gui
+    }
+}
+
+#-----------------------------------------------------------------------
 # Main Program 
 
 # main argv
@@ -80,6 +97,14 @@ package require Tcl 8.5
 # It determines the application to invoke, and does so.
 
 proc main {argv} {
+    global metadata
+    global appname
+
+    #-------------------------------------------------------------------
+    # Get the Metadata
+
+    array set meta $metadata
+
     #-------------------------------------------------------------------
     # Application Mode.
 
@@ -108,13 +133,28 @@ proc main {argv} {
         package require Tk 8.5
     }
 
+    # NEXT extract the appname, if none specified we assume app_sim(1)
+    set appname "sim"
+    set appdir "app_sim"
+    set mode "gui"
+
+    if {[llength $argv] >= 1} {
+        set arg0 [lindex $argv 0]
+        # NEXT, if metadata does not exist, pass everything down to
+        # app_sim(1) it'll deal with any errors.
+        if {[info exists meta($arg0)]} {
+            set appname $arg0
+            set argv [lrange $argv 1 end]
+            set mode [dict get $meta($appname) mode]
+        }
+    }
+
     # NEXT, go ahead and load marsutil(n).  Don't import it;
     # leave that for the applications.
-
     package require marsutil
 
     # NEXT, load the application package.
-    package require app_sim
+    package require [dict get $meta($appname) applib]
 
     # NEXT, get the application directory in the host
     # file system.
