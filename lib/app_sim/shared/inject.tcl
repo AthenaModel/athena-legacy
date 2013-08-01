@@ -443,6 +443,19 @@ snit::type inject {
                     AND curse_id=$curse_id
                     AND inject_type IN ('HREL','COOP')
                 }]
+
+                # It's possible that HREL and/or VREL injects
+                # contain roles that are defined as FRC roles
+                # only in COOP injects, we need to prune them.
+                set frcroles \
+                    [rdb eval {
+                        SELECT DISTINCT g FROM curse_injects
+                        WHERE inject_type = 'COOP'
+                    }]
+
+                foreach frc $frcroles {
+                    ldelete roles $frc
+                }
             }
 
             COOP {
@@ -461,14 +474,27 @@ snit::type inject {
                         SELECT DISTINCT g FROM curse_injects
                         WHERE g != ''
                         AND curse_id=$curse_id
-                        AND inject_type IN ('HREL','SAT')
+                        AND inject_type IN ('HREL','VREL','SAT')
                     }]
+
+                    # It's possible that HREL and/or VREL injects
+                    # contain roles that are defined as FRC roles
+                    # only in COOP injects, we need to prune them.
+                    set frcroles \
+                        [rdb eval {
+                            SELECT DISTINCT g FROM curse_injects
+                            WHERE inject_type = 'COOP'
+                        }]
+
+                    foreach frc $frcroles {
+                        ldelete roles $frc
+                    }
                 } elseif {$col eq "g"} {
                     set roles [rdb eval {
                         SELECT DISTINCT f FROM curse_injects
                         WHERE f != ''
                         AND curse_id=$curse_id
-                        AND inject_type = 'HREL'
+                        AND inject_type IN ('HREL')
                     }]
 
                     lmerge roles [rdb eval {
@@ -477,6 +503,21 @@ snit::type inject {
                         AND curse_id=$curse_id
                         AND inject_type IN ('HREL','VREL','COOP')
                     }]
+
+                    # It's possible that HREL and/or VREL injects
+                    # contain roles that are defined as CIV roles
+                    # only in COOP injects, we need to prune them.
+                    # Note: don't need to worry about SAT injects
+                    # since we never grabbed them.
+                    set civroles \
+                        [rdb eval {
+                            SELECT DISTINCT f FROM curse_injects
+                            WHERE inject_type = 'COOP'
+                        }]
+
+                    foreach civ $civroles {
+                        ldelete roles $civ
+                    }
                 }
             }
 
