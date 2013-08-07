@@ -23,6 +23,7 @@
 
 <ul>
   <li> <<xref athena(1)>>: Command-line syntax for the Athena simulation.
+  <li> <<xref athena_pbs(1)>>: Athena on a PBS cluster.
   <li> <a href="build_notes.html">Build Notes</a>: Details of each
        Athena build.
 </ul>
