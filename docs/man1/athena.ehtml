@@ -30,6 +30,13 @@ The following options may be used:<p>
 
 Runs Athena in <<xref "BATCH MODE">>.<p>
 
+<<defopt {-scratch <i>dir</i>}>>
+
+Names a directory to use for writing runtime files to.  Log files and
+temporary database files are written here.  If left out, Athena defaults
+to a temporary directory defined by the operating system.  For Windows 
+systems, this is typically a directory under the user's home directory.<p>
+
 <<defopt {-script <i>filename</i>.tcl}>>
 
 Names an Athena executive script to be executed at start-up,

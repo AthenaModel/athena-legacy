@@ -13,13 +13,19 @@ namespace import ::projectlib::*
 
 <<xref workdir(n)>> is responsible for creating and locating
 Athena working directories.  At start-up, Athena calls
-<<iref workdir init>>, which creates the following directory
+<<iref workdir init>>, which creates the working directory either
+as
 
-<pre>    [os workdir]/<i>pid</i>/</pre>
+<pre>    [fileutil::tempdir]/<i>NNNNNNNN</i>/</pre>
 
-where <i>pid</i> is the process ID of the current version of Athena.  This
-directory is referred to as the working directory.  Within that, it
-then creates the following subdirectories:<p>
+or as 
+
+<pre>    <i>name</i>/<i>NNNNNNNN</i>/</pre>
+
+depending on whether <<iref workdir init>> is called with an optional
+directory name as an argument. <i>NNNNNNNN</i> is a random 8-digit number 
+generated at runtime.  This directory is referred to as the working directory.  
+Within that, it then creates the following subdirectories:<p>
 
 <dl>
   <dt> <b><code><i>working</i>/log</code></b>
@@ -34,18 +40,6 @@ then creates the following subdirectories:<p>
        this directory.<p>
 </dl>
 
-<<subsection "Active and Inactive Working Directories">>
-
-A working directory is active if it's in use by an application, and
-inactive otherwise.  Inactive working directories must ultimately be
-purged, and so it must be possible to determine which is which.<p>
-
-workdir(n) helps by updating the working directory's modification
-time every 10 seconds.  It does so by calling
-<<xref tcl:file(n) "file mtime">> with the current time.  Then,
-a working directory is presumed to be inactive if its modification
-time is at least ten minutes in the past.<p>
-
 <<section "COMMANDS">>
 
 This module defines the following commands:<p>
@@ -57,11 +51,14 @@ This module defines the following commands:<p>
 Deletes the current working directory and its contents, and "uninitializes"
 workdir(n).<p>
 
-<<defitem "workdir init" {workdir init}>>
+<<defitem "workdir init" {workdir init ?<i>scratchdir</i>?}>>
 
 Initializes workdir(n).  In particular, it determines and saves the
 full path to the working directory, and creates the standard
-subdirectories.  It returns the full path to the working directory.<p>
+subdirectories.  If called with <i>scratchdir</i> it sets the root of
+the working directory to that, otherwise it chooses an OS dependent 
+temporary directory as the root of the working directory.  It returns the 
+full path to the working directory.<p>
 
 <<defitem "workdir join" {workdir join ?<i>arg arg...</i>?}>>
 
@@ -75,12 +72,6 @@ following command returns the absolute path of a file called
 set rdbfile [workdir join rdb working.rdb]
 </pre>
 
-<<defitem "workdir purge" {workdir purge <i>hours</i>}>>
-
-Purges all inactive working directories that are least
-<i>hours</i> old.  If <i>hours</i> is zero, purges all inactive
-working directories.<p>
-
 <</deflist commands>>
 
 <<section ENVIRONMENT>>
@@ -90,6 +81,7 @@ This package requires Tcl 8.5 or later.
 <<section AUTHOR>>
 
 Will Duquette<p>
+Dave Hanks<p>
 
 <<section HISTORY>>
 

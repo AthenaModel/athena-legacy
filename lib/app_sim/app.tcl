@@ -67,6 +67,8 @@ snit::type app {
     #
     # -script filename - The name of a script to execute at start-up,
     #                    after loading the scenario file (if any).
+    # -scratch dir     - The name of a directory to use for writing
+    #                    log and working rdb files.
     # -url url         - A URL to load into the detail browser.
 
     typevariable opts -array {
@@ -75,6 +77,7 @@ snit::type app {
         -ignoreuser 0
         -threads    0
         -script     {}
+        -scratch    {}
         -url        {}
     }
 
@@ -130,6 +133,10 @@ snit::type app {
                 -url    {
                     set opts($opt) [lshift argv]
                 }
+
+                -scratch {
+                    set opts($opt) [lshift argv]
+                }
                 
                 default {
                     app exit "Unknown option: \"$opt\"\n[app usage]"
@@ -144,8 +151,22 @@ snit::type app {
         # NEXT, get the application directory
         appdir init
 
+        # NEXT, validate that if -scrach is provided, it exists
+        if {$opts(-scratch) ne ""} {
+            if {![file exists $opts(-scratch)]} {
+                app exit {
+                    |<--
+                    Error, scratch directory:
+
+                        $opts(-scratch)
+
+                    does not exist.
+                }
+            }
+        }
+
         # NEXT, create the working directory.
-        if {[catch {workdir init} result]} {
+        if {[catch {workdir init $opts(-scratch)} result]} {
             app exit {
                 |<--
                 Error, could not create working directory: 
@@ -155,15 +176,6 @@ snit::type app {
                 Reason: $result
             }
         }
-
-        # NEXT, Save the current PID to the workdir's parent directory
-        # so that we can tell what the most recently used working directory 
-        # was.  (Note that the parent directory is also an Athena-specific
-        # directory.)
-
-        set f [open [workdir join .. pid.txt] w]
-        puts $f "pid=[pid] ts=[clock seconds]"
-        close $f
 
         # NEXT, create the preferences directory.
         if {[catch {prefsdir init} result]} {
@@ -194,10 +206,6 @@ snit::type app {
 
         prefs configure -notifycmd \
             [list notifier send ::app <Prefs>]
-
-        # NEXT, purge old working directories
-        workdir purge [prefs get session.purgeHours]
-
 
         # NEXT, enable notifier(n) tracing
         notifier trace [myproc NotifierTrace]
