@@ -504,6 +504,7 @@ snit::type security_model {
                    total_force                  AS total_force,
                    vtygain                      AS vtygain
             FROM force_ng JOIN force_n USING (n) JOIN nbhoods USING (n)
+            WHERE force_ng.own_force > 0
             GROUP BY n
         } { 
             # Avoid integer overflow
