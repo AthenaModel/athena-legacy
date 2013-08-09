@@ -61,6 +61,7 @@ snit::widgetadaptor hrelbrowser {
             -reloadon {
                 ::rdb <groups>
                 ::sim <DbSyncB>
+                ::rdb <civgroups>
             } -views {
                 gui_hrel_view          "All"
                 gui_hrel_override_view "Overridden"

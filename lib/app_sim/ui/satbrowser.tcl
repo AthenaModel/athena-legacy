@@ -49,7 +49,9 @@ snit::widgetadaptor satbrowser {
     # Constructor
 
     constructor {args} {
-        # FIRST, Install the hull
+        # FIRST, Install the hull.  Reload on civgroups change, since
+        # a transition to or from basepop = 0 will affect the rows to
+        # display.
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
             -view         gui_sat_view                \
@@ -58,6 +60,7 @@ snit::widgetadaptor satbrowser {
             -selectioncmd [mymethod SelectionChanged] \
             -reloadon {
                 ::sim <DbSyncB>
+                ::rdb <civgroups>
             } -layout [string map [list %D $::app::derivedfg] $layout]
 
         # NEXT, get the options.

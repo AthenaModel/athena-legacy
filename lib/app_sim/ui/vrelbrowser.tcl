@@ -60,6 +60,7 @@ snit::widgetadaptor vrelbrowser {
             -displaycmd   [mymethod DisplayData]      \
             -reloadon {
                 ::rdb <actors>
+                ::rdb <civgroups>
                 ::rdb <groups>
                 ::sim <DbSyncB>
             } -views {

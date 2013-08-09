@@ -48,23 +48,23 @@ SELECT id,
        format("%4.1f", agf) AS agf
 FROM mam_acompare_view;
 
-
-
 ------------------------------------------------------------------------
 -- COOPERATION VIEWS
 
 -- gui_coop_view: A view used for editing baseline cooperation levels
 -- in Scenario Mode.
 CREATE TEMPORARY VIEW gui_coop_view AS
-SELECT f || ' ' || g                            AS id,
-       f                                        AS f,
-       g                                        AS g,
-       format('%5.1f', base)                    AS base,
-       regress_to                               AS regress_to,
-       CASE WHEN regress_to='BASELINE' 
-            THEN format('%5.1f', base)
-            ELSE format('%5.1f', natural) END   AS natural
-FROM coop_fg
+SELECT C.f || ' ' || C.g                          AS id,
+       C.f                                        AS f,
+       C.g                                        AS g,
+       format('%5.1f', C.base)                    AS base,
+       C.regress_to                               AS regress_to,
+       CASE WHEN C.regress_to='BASELINE' 
+            THEN format('%5.1f', C.base)
+            ELSE format('%5.1f', C.natural) END   AS natural
+FROM coop_fg AS C
+JOIN civgroups AS F ON (C.f = F.g)
+WHERE F.basepop > 0
 ORDER BY f,g;
 
 
@@ -87,6 +87,7 @@ SELECT f || ' ' || g                              AS id,
        curve_id                                   AS curve_id,
        fg_id                                      AS fg_id
 FROM uram_coop
+WHERE tracked
 ORDER BY f,g;
 
 
@@ -118,7 +119,11 @@ SELECT HV.f || ' ' || HV.g                           AS id,
 FROM hrel_view AS HV
 JOIN groups AS F ON (F.g = HV.f)
 JOIN groups AS G ON (G.g = HV.g)
-WHERE F.g != G.g;
+LEFT OUTER JOIN civgroups AS FC ON (F.g = FC.g)
+LEFT OUTER JOIN civgroups AS GC ON (G.g = GC.g)
+WHERE F.g != G.g
+AND coalesce(FC.basepop, 1) > 0
+AND coalesce(GC.basepop, 1) > 0;
 
 -- A gui_hrel_view subview: overridden relationships only.
 CREATE TEMPORARY VIEW gui_hrel_override_view AS
@@ -149,7 +154,7 @@ SELECT UH.f || ' ' || UH.g                           AS id,
 FROM uram_hrel AS UH
 JOIN groups AS F ON (F.g = UH.f)
 JOIN groups AS G ON (G.g = UH.g)
-WHERE F.g != G.g;
+WHERE UH.tracked AND F.g != G.g;
 
 ------------------------------------------------------------------------
 -- SATISFACTION VIEWS
@@ -169,6 +174,7 @@ SELECT GC.g || ' ' || GC.c                          AS id,
             ELSE format('%.3f', GC.base) END        AS current
 FROM sat_gc AS GC
 JOIN civgroups AS G ON (GC.g = G.g)
+WHERE G.basepop > 0
 ORDER BY g,c;
 
 
@@ -193,6 +199,7 @@ SELECT US.g || ' ' || US.c                           AS id,
        US.gc_id                                      AS gc_id
 FROM uram_sat AS US
 JOIN civgroups AS G USING (g)
+WHERE US.tracked
 ORDER BY g,c;
 
 
@@ -202,16 +209,18 @@ ORDER BY g,c;
 -- gui_vrel_view: A view used for editing baseline vertical relationships
 -- in Scenario Mode.
 CREATE TEMPORARY VIEW gui_vrel_view AS
-SELECT g || ' ' || a                              AS id,
-       g                                          AS g,
-       gtype                                      AS gtype,
-       a                                          AS a,
-       format('%+4.1f', base)                     AS base,
-       hist_flag                                  AS hist_flag,
-       format('%+4.1f', current)                  AS current,
-       format('%+4.1f', nat)                      AS nat,
-       CASE WHEN override THEN 'Y' ELSE 'N' END   AS override
-FROM vrel_view;
+SELECT V.g || ' ' || V.a                            AS id,
+       V.g                                          AS g,
+       V.gtype                                      AS gtype,
+       V.a                                          AS a,
+       format('%+4.1f', V.base)                     AS base,
+       V.hist_flag                                  AS hist_flag,
+       format('%+4.1f', V.current)                  AS current,
+       format('%+4.1f', V.nat)                      AS nat,
+       CASE WHEN V.override THEN 'Y' ELSE 'N' END   AS override
+FROM vrel_view AS V
+LEFT OUTER JOIN civgroups AS G USING (g)
+WHERE coalesce(G.basepop,1) > 0;
 
 -- A gui_vrel_view subview: overridden relationships only.
 CREATE TEMPORARY VIEW gui_vrel_override_view AS
@@ -239,7 +248,8 @@ SELECT UV.g || ' ' || UV.a                           AS id,
        UV.curve_id                                   AS curve_id,
        UV.ga_id                                      AS ga_id
 FROM uram_vrel AS UV
-JOIN groups AS G ON (G.g = UV.g);
+JOIN groups AS G ON (G.g = UV.g)
+WHERE tracked;
 
 ------------------------------------------------------------------------
 -- DRIVER VIEWS
