@@ -484,7 +484,9 @@ order define ACTOR:UPDATE {
     options -sendstates PREP
 
     form {
-        rcc "Select Actor:" -for a
+        ;# Use explicit width so that long labels don't wrap.  Ugh!
+        rc "Select Actor:" -for a -width 2in
+        c
         key a -table gui_actors -keys a \
             -loadcmd {::orderdialog keyload a *} 
         
@@ -497,7 +499,7 @@ order define ACTOR:UPDATE {
         rcc "Funding Type:" -for atype
         selector atype {
             case INCOME "Actor gets weekly income from local economy" {
-                rcc "Cash Reserve:" -for cash_reserve
+                rcc "Cash Reserve:" -for cash_reserve 
                 text cash_reserve
                 label "$"
         
