@@ -1180,6 +1180,9 @@ snit::type executive {
         # NEXT, save all of the scripts in sequence order
         foreach name [executive script names] {
             puts $f [list script save $name [executive script get $name]]
+            if {[executive script auto $name]} {
+                puts $f [list script auto $name 1]
+            }
         }
 
         # NEXT, turn the orders into commands, and save them.
