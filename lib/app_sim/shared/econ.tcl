@@ -1266,6 +1266,10 @@ snit::type econ {
             SELECT labor_force FROM demog_local
         }]
 
+        if {$totalLabor == 0} {
+            return 1.0
+        }
+
         # NEXT, get the number of workers who are working given the
         # security levels.
 
@@ -1302,6 +1306,11 @@ snit::type econ {
         set totalCons [rdb onecolumn {
             SELECT consumers FROM demog_local
         }]
+
+        if {$totalCons == 0} {
+            return 1.0
+        }
+
 
         # NEXT, get the number of consumers who are buying things
         # given the security levels.

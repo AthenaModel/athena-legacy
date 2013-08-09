@@ -242,6 +242,20 @@ snit::type sanity {
             }
         }
 
+        # NEXT, require that there are people in the civ groups
+        set basepop [rdb eval {
+            SELECT total(basepop) FROM civgroups
+        }]
+
+        if {$basepop == 0} {
+            set sev ERROR
+
+            $ht dlitem "<b>Error: No civilian population.</b>" {
+                No civilian group has a base population greater
+                than 0.
+            }
+        }
+
         # NEXT, collect data on groups and neighborhoods
         rdb eval {
             SELECT g,n FROM civgroups
