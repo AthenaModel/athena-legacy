@@ -1158,7 +1158,16 @@ term support "support" {
     <<term security>>, and
     on the number of people in each group.<p>
 
-    Support is used to compute <<term influence>>.
+    <b>Note:</b> To support an actor in this sense, a group must not only 
+    have a positive
+    <<term vrel>>, but most also have sufficient security to be active in
+    the actor's favor.  Thus, support in this sense is sometimes 
+    called <i>active support</i>.  One of the <<term vrel>> bins is also
+    called "SUPPORT"; this is simply a qualitative label put on 
+    relationships greater than 0.7, and should not be confused with 
+    active support.<p>
+
+    Support is used to compute <<term influence>>.<p>
 }
 
 #-----------------------------------------------------------------------
@@ -1323,7 +1332,12 @@ term vrel "vertical relationship" {
     relationships change over time, based on circumstances.
     Relationships are often described using the following scale:<p>
 
-   <<::simlib::qaffinity html>>
+   <<::simlib::qaffinity html>><p>
+
+   The term "SUPPORT" as it appears in this table is simply a 
+   symbolic name for relationships greater than 0.7.  It should not be
+   confused with the notion of active <<term support>> used in the Politics
+   model.
 }
 
 #-----------------------------------------------------------------------
