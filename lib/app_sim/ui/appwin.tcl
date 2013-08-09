@@ -2198,8 +2198,8 @@ snit::widget appwin {
             $simtools.next   configure -state disabled
             $simtools.last   configure -state disabled
         } else {
-            if {$now > 0} {
-                # Not at time 0, first is always valid; and prev is
+            if {$now > [simclock cget -tick0]} {
+                # Not at tick0, first is always valid; and prev is
                 # valid if first is.
                 $simtools.first configure -state normal
                 $simtools.prev  configure -state normal
