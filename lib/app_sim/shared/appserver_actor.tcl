@@ -79,6 +79,7 @@ appserver module ACTOR {
                    supports_link AS "Usually Supports",
                    cash_reserve  AS "Reserve, $",
                    income        AS "Income, $/week",
+                   atype         AS "Source",
                    cash_on_hand  AS "On Hand, $"
             FROM gui_actors
         } -default "None." -align LLRRR
@@ -149,24 +150,34 @@ appserver module ACTOR {
         ht para
 
         if {[locked -disclaimer] && ![parm get econ.disable]} {
-            ht putln "The following table shows this actors income per week "
-            ht put   "from the various sectors."
+            if {$data(atype) eq "INCOME"} {
+                ht putln {
+                    The following table shows this actor's income per week
+                    from the various sectors.
+                }
+                ht para
+
+                ht query {
+                    SELECT "$" || income_goods      AS "goods",
+                           "$" || income_black_t    AS "black market (tax)",
+                           "$" || income_black_nr   AS "black market (profits)",
+                           "$" || income_pop        AS "pop",
+                           "$" || income_world      AS "world",
+                           "$" || income_graft      AS "graft"
+                    FROM gui_econ_income_a
+                    WHERE a=$a
+                } -default "None." -align RRRRRR
+            } else {
+                ht putln "This actor has a budget of"
+                ht putln "\$$data(budget) per week from sources"
+                ht putln "outside the playbox.  Only money actually spent"
+                ht putln "by the actor during a given week enters the"
+                ht putln "local economy."
+            }
+
             ht para
 
-            ht query {
-                SELECT "$" || income_goods        AS "goods",
-                       "$" || income_black_t      AS "black market (tax)",
-                       "$" || income_black_nr     AS "black market (profits)",
-                       "$" || income_pop          AS "pop",
-                       "$" || income_world        AS "world",
-                       "$" || income_graft        AS "graft"
-                FROM gui_econ_income_a
-                WHERE a=$a
-            } -default "None." -align RRRRRR
-
-            ht para
-
-            ht putln "The following tables show this actors expenditures "
+            ht putln "The following tables show this actor's expenditures "
             ht put   "to the various sectors."
             ht para
 
