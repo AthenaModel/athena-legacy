@@ -181,10 +181,11 @@ appserver module GROUPS {
                 ht query {
                     SELECT longlink       AS "Group",
                            n              AS "Nbhood",
+                           housing        AS "Housing",
                            demeanor       AS "Demeanor",
                            basepop        AS "Population",
-                           pop_cr         AS "Pop. Change Rate, %/year",
-                           pretty_sa_flag AS "Subsist. Agric. Flag",
+                           pop_cr         AS "Pop. Change<br>Rate, %/year",
+                           pretty_sa_flag AS "Subsist. Agric.<br>Flag",
                            req_funding    AS "Req. ENI<br>funding, $/wk",
                            sat_funding    AS "Sat. ENI<br>funding, $/wk"
                     FROM gui_civgroups 
@@ -194,9 +195,11 @@ appserver module GROUPS {
                 ht query {
                     SELECT longlink       AS "Group",
                            n              AS "Nbhood",
+                           housing        AS "Housing",
                            demeanor       AS "Demeanor",
                            population     AS "Population",
-                           pretty_sa_flag AS "Subsist. Agric. Flag",
+                           pop_cr         AS "Pop. Change<br>Rate, %/year",
+                           pretty_sa_flag AS "Subsist. Agric.<br>Flag",
                            req_funding    AS "Req. ENI<br>funding, $/wk",
                            sat_funding    AS "Sat. ENI<br>funding, $/wk",
                            mood0          AS "Mood at T0",
@@ -354,6 +357,7 @@ appserver module GROUPS {
         ht putln "$data(longname) ($g) resides in neighborhood "
         ht link  /nbhood/$data(n) "$nb(longname) ($data(n))"
         ht put   " and has a population of [commafmt $population]."
+        ht putln "The group's housing status is $data(housing)."
 
         ht putln "The group's demeanor is "
         ht put   [edemeanor longname $data(demeanor)].
