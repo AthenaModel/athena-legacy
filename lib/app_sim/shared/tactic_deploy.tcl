@@ -47,7 +47,7 @@ tactic type define DEPLOY {g text1 int1 nlist reinforce once on_lock} actor {
         rdb eval {
             DROP TABLE IF EXISTS working_deploy_tng;
 
-            CREATE TABLE working_deploy_tng AS SELECT * FROM deploy_tng;
+            CREATE TEMP TABLE working_deploy_tng AS SELECT * FROM deploy_tng;
             DELETE FROM deploy_tng;
         }
     }
