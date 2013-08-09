@@ -23,12 +23,15 @@ snit::type cif {
 
     # info  -- scalar data
     #
+    # redoing    - If 1, we're in the middle of [cif redo].  If 0,
+    #              we're not.
     # redoStack  - Stack of redo records.  Item "end" is the head of the
     #              stack.  The variable contains the empty list if there
     #              is nothing to redo.  Each record is a dict corresponding
     #              to a CIF row.
 
     typevariable info -array {
+        redoing   0
         redoStack {}
     }
 
@@ -98,9 +101,13 @@ snit::type cif {
     # Saves the order in the CIF.
 
     typemethod add {order parmdict {undo ""}} {
-        # FIRST, clear the redo stack.
-        set info(redoStack) [list]
-
+        # FIRST, clear the redo stack, unless we're redoing an order.
+        # In that case, [cif redo] has already made the necessary
+        # changes.
+        if {!$info(redoing)} {
+            set info(redoStack) [list]
+        }
+        
         # NEXT, insert the new order.
         set now [simclock now]
 
@@ -282,16 +289,18 @@ snit::type cif {
             error "Nothing to redo"
         }
 
-        dict with record {
-            log normal cif "redo: $name $parmdict"
+        dict with record {}
+        log normal cif "redo: $name $parmdict"
 
+        # Using try/finally might be overkill here, but it shouldn't
+        # hurt anything.
+        try {
+            set info(redoing) 1
             bgcatch {
-                order send app $name $parmdict
+                order send gui $name $parmdict
             }
-
-            cif add $name $parmdict $undo
-
-            notifier send ::cif <Update>
+        } finally {
+            set info(redoing) 0
         }
 
         return
