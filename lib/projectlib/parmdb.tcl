@@ -355,13 +355,15 @@ snit::type ::projectlib::parmdb {
                 Parameters relating to this force activity.
             }
 
-            $ps define activity.FRC.$a.cost ::projectlib::money 0 {
-                The cost, in dollars, to assign one person to do this
-                activity for one strategy tock, i.e., for one week.
-                The dollar amount may be defined with a "K", "M", or
-                "B" suffix to connote thousands, millions, or billions.
+            if {$a ne "PRESENCE"} {
+                $ps define activity.FRC.$a.cost ::projectlib::money 0 {
+                    The cost, in dollars, to assign one person to do this
+                    activity for one strategy tock, i.e., for one week.
+                    The dollar amount may be defined with a "K", "M", or
+                    "B" suffix to connote thousands, millions, or billions.
+                }
             }
-
+            
             $ps define activity.FRC.$a.minSecurity ::projectlib::qsecurity L {
                 Minimum security level required to conduct this
                 activity.
