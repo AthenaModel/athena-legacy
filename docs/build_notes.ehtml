@@ -11,6 +11,32 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.12, 12 August 2013</h3>
+
+This build contains quite a few bug fixes. Most notable is a fix to the 
+calculation for friction (previously known as volatility). Zero population
+CIV groups and undeployed FRC groups were being incorrectly factored into
+the equation. There's also some updates to the Athena Analyst's Guide. The
+complete list of packages:<p>
+
+<ul>
+<li> Bug 4071: athena(1): fix econ model error handling when cell model fails to solve
+<li> Bug 4073: athena(1): inject roles not being constrained properly
+<li> Bug 4082: athena(1): change workdir(n) to use temporary directory or user supplied directory
+<li> Bug 3876: Update INCOME Actor Dialog Box
+<li> Bug 3880: CIV Group Detail Browser pages should include housing attributes
+<li> Bug 3881: Detail Browser should say whether actor is BUDGET or INCOME
+<li> Bug 3901: Typo in section 10.8.7 of AAG
+<li> Bug 3976: No snapshot at tick bgerror
+<li> Bug 3978: Empty CIV groups should not appear on Attitudes tab
+<li> Bug 4048: Empty CIV groups bgerror
+<li> Bug 4049: Previous snapshot in opened scenario causes bgerror
+<li> Bug 4053: CIV group Supporting Actor help page
+<li> Bug 4056: athena(1): cif redo problems
+<li> Bug 4058: athena(1): [export] command omits script auto flag
+<li> Bug 4077: Empty CIV groups affecting security 
+</ul><p>
+
 <h3>Build 5.0.11, 1 July 2013</h3>
 
 This build contains some bug fixes related to CURSEs and the CURSE tactic.
