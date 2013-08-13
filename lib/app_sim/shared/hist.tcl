@@ -209,10 +209,11 @@ snit::type hist {
 
         rdb eval {
             -- hist_econ
-            INSERT INTO hist_econ(t, consumers, labor, 
-                                  lsf, cpi, dgdp, ur)
+            INSERT INTO hist_econ(t, consumers, subsisters, labor, 
+                                  lsf, csf, rem, cpi, dgdp, ur)
             VALUES(now(), 
-                   $inputs(Consumers), $inputs(LF), $inputs(LSF), 
+                   $inputs(Consumers), $inputs(Subsisters), $inputs(LF),
+                   $inputs(LSF), $inputs(CSF), $inputs(REM),
                    $outputs(CPI), $outputs(DGDP), $outputs(UR));
         }
 
