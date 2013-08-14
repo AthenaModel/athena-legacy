@@ -2362,6 +2362,12 @@ tab "Demog/Groups" {
     neighborhood at time 0, as set by the 
     <<cref /order/civgroup/create>> order.
     <</topic>>
+
+    <<topic "Subsist. Agric.">>
+    The group's subsistence agriculture flag.  If yes, the group lives
+    by subsistence agriculture, and does not participate in the local
+    cash economy.
+    <</topic>>
     
     <<topic "Current Population">>
     The current population of the group in the
