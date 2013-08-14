@@ -160,6 +160,11 @@ snit::widget scriptbrowser {
         # NEXT, clear the reload request counter.
         set info(reloadRequests) 0
 
+        # NEXT, the currently displayed script might no longer exist.
+        if {$info(sname) ni [executive script names]} {
+            set info(sname) ""
+        }
+
         # NEXT, Reload each of the components
         $slist reload
         $self EditorReload
