@@ -1717,7 +1717,7 @@ command "sigevent" {
     Writes the <i>message</i> to the significant events log
     as component "script".  Contrast this command with
     <<cref /command/log>>, which writes a message to the
-    debugging log log.<p>
+    debugging log.<p>
 
     The <i>tags</i>, if any, are used to tag the message with 
     group, actor, or neighborhood names, so that the message will show

@@ -696,10 +696,11 @@ snit::type ::projectlib::parmdb {
 
             # NEXT, set the default cause to the first one, it will
             # be overridden below.
-            $ps define dam.$name.cause ::projectlib::ecause MAGIC {
-                The "cause" for all URAM inputs produced by this
-                rule set.  The value must be an ecause(n) short name.
-            }
+            $ps define dam.$name.cause ::projectlib::ecause MAGIC "
+                The \"cause\" for all URAM inputs produced by this
+                rule set.  The value must be a valid cause, one of:
+                [join [ecause names] {, }].
+            "
 
             $ps define dam.$name.nearFactor ::simlib::rfraction 0.0 {
                 Strength of indirect satisfaction effects in neighborhoods

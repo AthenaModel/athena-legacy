@@ -186,10 +186,7 @@ object group_frc {
         duties using <<term tactic>>s.<p>
     }
 
-    attribute g "Group" {
-        <<parm.identifier group BLUE>>
-    } -tags {create}
-
+    include group_ -attrs g        -tags create
     include group_ -attrs longname -tags {create update}
 
     attribute a "Owning Actor" {
@@ -289,10 +286,7 @@ object group_org {
         duties using <<term tactic>>s.<p>
     }
 
-    attribute g "Group" {
-        <<parm.identifier group USAID>>
-    } -tags {create}
-
+    include group_ -attrs g        -tags create
     include group_ -attrs longname -tags {create update}
 
     attribute a "Owning Actor" {

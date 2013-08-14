@@ -63,6 +63,113 @@ macro control.headers {} {
 }
 
 #=======================================================================
+# Detail Tab
+
+tab "Detail" {
+    The Detail tab contains the Detail Browser, which is the central
+    part of the Athena user interface, and the primary spot for
+    viewing scenario inputs, outputs, and the on-line help.  
+
+    In form, the Detail Browser resembles a web browser: it displays
+    pages of HTML-formatted data, each of which has its own URL.  The
+    user can navigate the data by clicking on links, by use of the
+    back and forward buttons, and by entering specific URLs into the
+    browser's address bar.  However, the Detail Browser does not
+    implement true web access; it will only display data from within
+    the application, not data from external web pages.<p>
+
+    The Detail Browser has several distinctive parts:<p>
+
+    <ul>
+    <li> <b>The Toolbar</b>, which contains standard browsing
+         tools.<p>
+
+    <li> <b>The <<cref /tab/detail/sidebar Sidebar>></b>, which provides quick
+         links to many of the available pages.<p>
+
+    <li> <b>The Data Pane</b>, in which pages are displayed.  The data
+         page has a helpful <<cref /tab/detail/context "context menu">>.
+    </ul>
+
+    The toolbar controls are as follows:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_backward]>>
+    Press to go back to the previously displayed page.
+    <</topic>>
+
+    <<topic [image button_forward]>>
+    After pressing the back button, press this to return to the page
+    that was left.
+    <</topic>>
+
+    <<topic [image button_home]>>
+    Go to the application's home page.
+    <</topic>>
+
+    <<topic [image button_reload]>>
+    Reload the current page.  (This is not usually necessary, as
+    Athena will usually reload the displayed page when data changes.)
+    <</topic>>
+
+    <<topic [image button_plus]>>
+    Bookmark the current page.  Bookmarks appear on the 
+    <<cref /menu/bookmarks>> and can be edited on the
+    <<tab Bookmarks>>.
+    <</topic>>
+
+    <<topic [image control_addressbar]>>
+    The address bar; enter a page's URL here to go straight to that page.
+    <</topic>>
+
+    <<topic [image control_search]>>
+    The search box; enter a search string to find the related on-line help.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+page /tab/detail sidebar "Detail Browser Sidebar" {
+    <<title>>
+
+    The <<cref /tab/detail "Detail Browser's">> sidebar contains links
+    to various useful pages.<p>
+
+    <<image control_dbsidebar>><p>
+
+    The sidebar has two tabs, the "Objects" tab, which has pages
+    related to the simulation objects and outputs, and the "?" tab,
+    which displays the tree of on-line help pages.  Click on the "+"
+    icons to open and close topics; and click on the topics to go to
+    the indicated page.<p>
+}
+
+page /tab/detail context "Detail Browser Context Menu" {
+    <<title>>
+
+    Right-clicking with the mouse on the 
+    <<cref /tab/detail "Detail Browser's">> data pane brings up a
+    context menu with the following menu items:<p>
+
+    <dl>
+    <dt><b>Save to Disk...</b>
+    <dd> Saves the HTML text of the page to disk as a .html file.<p>
+
+    <dt><b>View in System Web Browser...</b>
+    <dd> Saves the HTML text to disk, and opens it in the system's
+         default web browser.  The formatting may be somewhat
+         different, and images might be missing; however, this is a
+         convenient way to print the text.<p>
+
+    <dt><b>View Source...</b>
+    <dd> Displays the HTML source for the current page in a window.
+    </dl>
+
+}
+
+
+#=======================================================================
 # Map Tab
 
 tab "Map" {
@@ -184,113 +291,6 @@ tab "Map" {
 }
 
 #=======================================================================
-# Detail Tab
-
-tab "Detail" {
-    The Detail tab contains the Detail Browser, which is the central
-    part of the Athena user interface, and the primary spot for
-    viewing scenario inputs, outputs, and the on-line help.  
-
-    In form, the Detail Browser resembles a web browser: it displays
-    pages of HTML-formatted data, each of which has its own URL.  The
-    user can navigate the data by clicking on links, by use of the
-    back and forward buttons, and by entering specific URLs into the
-    browser's address bar.  However, the Detail Browser does not
-    implement true web access; it will only display data from within
-    the application, not data from external web pages.<p>
-
-    The Detail Browser has several distinctive parts:<p>
-
-    <ul>
-    <li> <b>The Toolbar</b>, which contains standard browsing
-         tools.<p>
-
-    <li> <b>The <<cref /tab/detail/sidebar Sidebar>></b>, which provides quick
-         links to many of the available pages.<p>
-
-    <li> <b>The Data Pane</b>, in which pages are displayed.  The data
-         page has a helpful <<cref /tab/detail/context "context menu">>.
-    </ul>
-
-    The toolbar controls are as follows:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_backward]>>
-    Press to go back to the previously displayed page.
-    <</topic>>
-
-    <<topic [image button_forward]>>
-    After pressing the back button, press this to return to the page
-    that was left.
-    <</topic>>
-
-    <<topic [image button_home]>>
-    Go to the application's home page.
-    <</topic>>
-
-    <<topic [image button_reload]>>
-    Reload the current page.  (This is not usually necessary, as
-    Athena will usually reload the displayed page when data changes.)
-    <</topic>>
-
-    <<topic [image button_plus]>>
-    Bookmark the current page.  Bookmarks appear on the 
-    <<cref /menu/bookmarks>> and can be edited on the
-    <<tab Bookmarks>>.
-    <</topic>>
-
-    <<topic [image control_addressbar]>>
-    The address bar; enter a page's URL here to go straight to that page.
-    <</topic>>
-
-    <<topic [image control_search]>>
-    The search box; enter a search string to find the related on-line help.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-page /tab/detail sidebar "Detail Browser Sidebar" {
-    <<title>>
-
-    The <<cref /tab/detail "Detail Browser's">> sidebar contains links
-    to various useful pages.<p>
-
-    <<image control_dbsidebar>>
-
-    The sidebar has two tabs, the "Objects" tab, which has pages
-    related to the simulation objects and outputs, and the "?" tab,
-    which displays the tree of on-line help pages.  Click on the "+"
-    icons to open and close topics; and click on the topics to go to
-    the indicated page.<p>
-}
-
-page /tab/detail context "Detail Browser Context Menu" {
-    <<title>>
-
-    Right-clicking with the mouse on the 
-    <<cref /tab/detail "Detail Browser's">> data pane brings up a
-    context menu with the following menu items:<p>
-
-    <dl>
-    <dt><b>Save to Disk...</b>
-    <dd> Saves the HTML text of the page to disk as a .html file.<p>
-
-    <dt><b>View in System Web Browser...</b>
-    <dd> Saves the HTML text to disk, and opens it in the system's
-         default web browser.  The formatting may be somewhat
-         different, and images might be missing; however, this is a
-         convenient way to print the text.<p>
-
-    <dt><b>View Source...</b>
-    <dd> Displays the HTML source for the current page in a window.
-    </dl>
-
-}
-
-
-#=======================================================================
 # Strategy Tab
 
 tab "Strategy" {
@@ -343,7 +343,7 @@ page /tab/strategy goals_tree "Goals Tree" {
     a status icon that indicates whether or not the goal or condition is 
     currently met.<p>
 
-    A button at the left margin allows goals to be expand to reveal
+    A button at the left margin allows goals to be expanded to reveal
     their attached conditions.
     <</topic>>
 
@@ -412,7 +412,7 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     tock.  For conditions, the icon indicates whether or not the
     condition was met at the last strategy execution tock.<p>
 
-    A button at the left margin allows tactics to be expand to reveal
+    A button at the left margin allows tactics to be expanded to reveal
     their attached conditions.
     <</topic>>
 
@@ -2487,7 +2487,7 @@ tab "Econ/SAM" {
 
     For the goods sector, a goods basket (goodsBKT) is the unit of measurement.
     A goods basket is simply a notional set of goods that the population
-    buys and it's associated price (defaulted to 1 USD per basket).
+    buys and its associated price (defaulted to 1 USD per basket).
     For the black sector, a metric ton (tonne) is the unit of measurement
     and the demand is simply the revenue divided by the price per tonne.
     For the population sector, base demand is labor output of the workforce

@@ -810,7 +810,7 @@ object tactic_fundeni {
     attribute x1 "Amount, $/week" {
         The amount of money to be provided to the groups.  The groups
         will receive the funds in proportion to their population; or,
-        to it another way, every individual in the set of groups will
+        to put it another way, every individual in the set of groups will
         receive the same dollar amount of service.
     } -tags {create update}
 }

@@ -196,7 +196,7 @@ object actor_ {
         If the Economics model is enabled 
         (See <<cref /parmdb/econ/disable>>), then this is the actor's income
         as of time 0; income in subsequent weeks will depend on 
-        the amount of coming into the playbox in those weeks.<p>
+        the amount of money coming into the playbox in those weeks.<p>
 
         This is one component of the actor's regular weekly income.  The
         actor's income flows into his cash-on-hand, where it may be
