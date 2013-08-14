@@ -32,12 +32,15 @@ snit::widgetadaptor demogbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { g           "\nGroup"                                              }
-        { n           "\nNbhood"                                             }
-        { basepop     "Base\nPopulation"    -sortmode integer                }
-        { pop_cr      "Change Rate\n%/year"                                  }
-        { population  "Current\nPopulation" -sortmode integer -foreground %D }
-        { attrition   "\nAttrition"         -sortmode integer -foreground %D }
+        { g              "\nGroup"                                }
+        { n              "\nNbhood"                               }
+        { basepop        "Base\nPopulation"    -sortmode integer  }
+        { pretty_sa_flag "Subsist.\nAgric."                       }
+        { pop_cr         "Change Rate\n%/year"                    }
+        { population     "Current\nPopulation" 
+                         -sortmode integer -foreground %D         }
+        { attrition      "\nAttrition"         
+                         -sortmode integer -foreground %D         }
     }
 
     #--------------------------------------------------------------------
