@@ -226,6 +226,37 @@ CURSE-4-1 coop  SHIA BLUE
 CURSE-4-1 coop  SUNN BLUE         
     }
 
+    test assess-1.6 {Rule 1-1 inputs, inject disabled} -setup {
+        setup
+        ted order INJECT:STATE id {C5 1} state disabled
+    } -body {
+        curse C5 {
+            @CIV5 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV6 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV7 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV8 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @FRC3 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @FRC4 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @ACT2 {_type ACTORS    _rule BY_VALUE raw_value JOE}
+        }
+
+        ted query {
+            SELECT rule, atype, f, g, c, a
+            FROM rule_firings JOIN rule_inputs USING (firing_id)
+        }
+    } -cleanup {
+        cleanup
+    } -result {
+rule      atype f    g    c   a   
+--------- ----- ---- ---- --- --- 
+CURSE-2-1 vrel       SHIA     JOE 
+CURSE-2-1 vrel       SUNN     JOE 
+CURSE-3-1 sat        SHIA AUT     
+CURSE-3-1 sat        SUNN AUT     
+CURSE-4-1 coop  SHIA BLUE         
+CURSE-4-1 coop  SUNN BLUE         
+    }
+
     #-------------------------------------------------------------------
     # sigline
 

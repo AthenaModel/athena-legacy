@@ -117,7 +117,7 @@ tactic type define CURSE {curse roles once on_lock} system {
         # firing rules as we go
         rdb eval {
             SELECT * FROM curse_injects
-            WHERE curse_id=$curse
+            WHERE curse_id=$curse AND state='normal'
         } idata {
             switch -exact -- $idata(inject_type) {
                 HREL {
