@@ -42,12 +42,9 @@ object cap_ {
         (though not useful) for group penetration to be positive for
         groups outside of the CAP's coverage area.  Such "orphan"
         groups are highlighted on the 
-        <<cref /tab/info/group_penetration>>.<p>
+        <<cref /tab/info/caps/group>>.<p>
         
-        CAPs are edited on the <<cref /tab/info/caps>>; neighborhood
-        coverage and group penetration are edited on the 
-        <<cref /tab/info/nbhood_coverage>> and 
-        <<cref /tab/info/group_penetration>>.<p>
+        CAPs are edited on the <<cref /tab/info/caps>>.<p>
     }
 
     attribute k "CAP" {

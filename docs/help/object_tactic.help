@@ -51,13 +51,7 @@ object tactic_ {
         due to failing a sanity check.
     } -tags {object state}
 
-    attribute priority "Priority" {
-        An <<term agent>>'s tactics are ranked from highest priority to
-        lowest; when the agent's strategy is executed, the tactics are
-        considered for execution in this order.
-    } -tags object
-
-    attribute once "Once?" {
+    attribute once "Once Only?" {
         A boolean value, "YES" or "NO".  If "YES", this tactic will be
         disabled automatically after it executes, and hence will execute
         only once.  If "NO", the tactic will remain enabled, and hence may
@@ -71,6 +65,12 @@ object tactic_ {
         etc...). If "NO", the tactic will be treated in the normal way with
         it eligible for execution only if the proper conditions are met.
     } 
+
+    attribute priority "Priority" {
+        An <<term agent>>'s tactics are ranked from highest priority to
+        lowest; when the agent's strategy is executed, the tactics are
+        considered for execution in this order.
+    } -tags object
 }
 
 page /object tactic "Tactic" {
@@ -116,7 +116,7 @@ object tactic_assign {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute g "Group" {
         The ID of a <<term frcgroup>> or <<term orggroup>> belonging
@@ -282,7 +282,7 @@ object tactic_broadcast {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute cap "CAP" {
         The ID of a <<term cap>> by which the <<term iom>> will be 
@@ -335,7 +335,7 @@ object tactic_curse {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute curse "CURSE ID" {
         The ID of the <<term curse>> to be executed.
@@ -443,7 +443,7 @@ object tactic_demob {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority}
+    include tactic_ -attrs {state priority once}
 
     attribute g "Group" {
         The ID of a <<term frcgroup>> or 
@@ -468,13 +468,6 @@ object tactic_demob {
         available, all available personnel will be demobilized.<p>
 
         If the mode is "ALL", this parameter is ignored.
-    } -tags {create update}
-
-    attribute once "Once?" {
-        A boolean value, "YES" or "NO".  If "YES", this tactic will be
-        disabled automatically after it executes, and hence will execute
-        only once.  If "NO", the tactic will remain enabled, and hence may
-        execute multiple times.
     } -tags {create update}
 }
 
@@ -533,7 +526,7 @@ object tactic_deploy {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute g "Group" {
         The ID of a <<term frcgroup>> or <<term orggroup>> belonging
@@ -638,14 +631,12 @@ object tactic_executive {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute text1 "Command" {
         The <<cref /command command>> to execute, often a 
         <<cref /command/call>> or <<cref /command/sigevent>> command.
     } -tags {create update}
-
-    include tactic_ -attrs once    -tags {create update}
 }
 
 page /object/tactic executive "EXECUTIVE tactic" {
@@ -800,7 +791,7 @@ object tactic_fundeni {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute glist "Groups" {
         The IDs of one or more civilian groups, or
@@ -932,7 +923,7 @@ object tactic_spend {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute mode "Mode" {
         The spending mode, "SOME" (spend some cash-on-hand) or
@@ -1036,7 +1027,7 @@ object tactic_stance {
         <<::simlib::qaffinity html>>
     } -tags {create update}
 
-    include tactic_ -attrs {on_lock state priority}
+    include tactic_ -attrs {priority on_lock state}
 }
 
 page /object/tactic stance "STANCE tactic" {
@@ -1074,7 +1065,7 @@ object tactic_support {
 
     include tactic_ -attrs tactic_id
     include tactic_ -attrs owner -tags create
-    include tactic_ -attrs {state priority on_lock once}
+    include tactic_ -attrs {state priority once on_lock}
 
     attribute a "Supported Actor" {
         The ID of the <<term actor>> who will receive the

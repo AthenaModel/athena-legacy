@@ -56,6 +56,7 @@ image button_plusi       "Button: Plus I"              img/button_plusi.png
 image button_plusp       "Button: Plus P"              img/button_plusp.png
 image button_plust       "Button: Plus T"              img/button_plust.png
 image button_poly        "Button: Polygon"             img/button_poly.png
+image button_polyg       "Button: Polygon G"           img/button_polyg.png
 image button_power       "Button: Power"               img/button_power.png
 image button_raise       "Button: Raise"               img/button_raise.png
 image button_reload      "Button: Reload"              img/button_reload.png

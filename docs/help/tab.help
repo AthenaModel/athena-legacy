@@ -429,6 +429,13 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     is set to execute only once or not.
     <</topic>>
 
+    <<topic "Exec On Lock?">>
+    <b>Tactics only.</b> The initial state of the simulation "on lock" is
+    determined by the set of tactics for which the "Exec On Lock" flag is
+    true.  These tactics are always executed on-lock; any attached conditions
+    or resource limitations are ignored.  After scenario lock, the "Exec On Lock" flag is ignored.
+    <</topic>>
+
     <<topic "Est. $">> 
     <b>Tactics only.</b> The estimated cost, in dollars, of executing the
     tactic.  Note that the actual cost may differ.<p>
@@ -848,6 +855,53 @@ tab "Neighborhoods/EnSits" {
     <</topiclist>>
 }
 
+#-----------------------------------------------------------------------
+
+tab "Neighborhoods/MagicAttrit" {
+    This tab shows any magic attrition entered manually 
+    (using the <<cref /order/attrit>>) while the simulation
+    is <<term paused>>.  The attrition is pending until attrition is
+    assessed at the next time advance.<p>
+
+    The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>The ID of the attrition record.<</topic>>
+
+    <<topic "Description">>A description of the groups that will be attrited.
+    <</topic>>
+
+    <<topic "Casualties">>The number of casualties.<</topic>>
+
+    <<topic "Responsible Group 1">>
+    A force group responsible for the casualties.
+    <</topic>>
+
+    <<topic "Responsible Group 2">>
+    Another force group responsible for the casualties.
+    <</topic>>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_poly]>>
+    Pops up the <<cref /order/attrit/nbhood>> dialog.
+    <</topic>>
+
+    <<topic [image button_polyg]>>
+    Pops up the <<cref /order/attrit/group>> dialog.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
 
 #=======================================================================
 # Groups Tab
@@ -971,6 +1025,8 @@ tab "Groups/FrcGroups" {
     <<group_frc parm color>>
     <<group_frc parm shape>>
     <<group_frc parm forcetype>>
+    <<group_frc parm training>>
+    <<group_frc parm base_personnel>>
     <<group_frc parm demeanor>>
     <<group_frc parm cost>>
     <<group_frc parm attack_cost>>
@@ -1020,6 +1076,7 @@ tab "Groups/OrgGroups" {
     <<group_org parm color>>
     <<group_org parm shape>>
     <<group_org parm orgtype -label "Org Type">>
+    <<group_org parm base_personnel>>
     <<group_org parm demeanor>>
     <<group_org parm cost>>
     <</parmlist>>
@@ -1966,6 +2023,7 @@ tab "Attitudes/Magic Attitude Drivers" {
 }
 
 tab "Attitudes/Curses" {
+    <b>Scenario mode only.</b>
     Athena allows the analyst to define their own situations and events
     with any desired affects to attitudes. This is useful if there is 
     something that an analyst needs to drive attitudes that isn't already 
@@ -2063,7 +2121,24 @@ tab "Info" {
 tab "Info/CAPs" {
     This tab shows the definition of each Communications Asset Package,
     or <<term cap>>, as entered during <<term prep>> and modified 
-    thereafter.  The browser controls are described 
+    thereafter.  The tab has three major panes:<p>
+
+    <ul>
+    <li> The <<cref /tab/info/caps/caps "CAPs Pane">>, in which CAPs 
+        are created and edited.
+    <li> The <<cref /tab/info/caps/nbhood "Coverage Area Pane">>, 
+        in which the coverage area of each CAP is edited.
+    <li> The <<cref /tab/info/caps/group "Group Penetration Pane">>, 
+        in which the penetration of a give CAP into the civilian groups 
+        is edited.
+    </ul>
+}
+
+page /tab/info/caps caps "CAPS Pane" {
+    <<title>>
+
+    This pane lists each of the currently defined <<term cap CAPs>>.
+    The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<parmlist Column Description>>
@@ -2101,12 +2176,17 @@ tab "Info/CAPs" {
     <</topiclist>>
 }
 
-#-----------------------------------------------------------------------
+page /tab/info/caps nbhood "Coverage Area Pane" {
+    <<title>>
 
-tab "Info/Nbhood Coverage" {
-    This tab shows the coverage of each <<term nbhood>> by each 
+    This pane shows the coverage of each <<term nbhood>> by each 
     <<term cap>>, as entered during <<term prep>> and modified 
-    thereafter.  The browser controls are described 
+    thereafter.  <b>NOTE:</b> By default, only neighborhoods with 
+    non-zero coverage are shown.  To extend a CAP's coverage to
+    new neighborhoods, first use the "View:" pull-down to see
+    all neighborhoods.<p>
+
+    The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<parmlist Column Description>>
@@ -2140,12 +2220,19 @@ tab "Info/Nbhood Coverage" {
 
 #-----------------------------------------------------------------------
 
-tab "Info/Group Penetration" {
-    This tab shows the penetration of each <<term civgroup>> by each 
+page /tab/info/caps group "Group Penetration Pane" {
+    <<title>>
+
+    This pane shows the penetration of each <<term civgroup>> by each 
     <<term cap>>, as entered during <<term prep>> and modified 
     thereafter.  In addition, it shows the ultimate coverage of each
     group by each CAP, as computed from the penetration, the neighborhood 
-    coverage, and the CAP's own capacity.  The browser controls are 
+    coverage, and the CAP's own capacity.  <b>NOTE:</b> By default, only
+    groups with non-zero penetration are shown.  To extend a CAP's 
+    penetration to new groups, first use the "View:" pull-down to see
+    all groups.<p>
+
+    The browser controls are 
     described <<seebelow controls>>; the data fields are as follows:<p>
 
     <<parmlist Column Description>>
@@ -2369,6 +2456,12 @@ tab "Demog/Groups" {
     cash economy.
     <</topic>>
     
+    <<topic "Change Rate">>
+    The normal rate of population change due to births and
+    natural deaths, stated as a percentage change per year.
+    The rate may be positive, negative, or zero.
+    <</topic>>
+    
     <<topic "Current Population">>
     The current population of the group in the
     neighborhood, the base population as affected by normal
@@ -2376,12 +2469,6 @@ tab "Demog/Groups" {
     groups.
     <</topic>>
 
-    <<topic "Change Rate">>
-    The normal rate of population change due to births and
-    natural deaths, stated as a percentage change per year.
-    The rate may be positive, negative, or zero.
-    <</topic>>
-    
     <<topic Attrition>>The number of personnel lost to this 
     civilian group through attrition since time 0.
     <</topic>>
@@ -3096,6 +3183,11 @@ tab "Bookmarks" {
     <<topic [image button_tobottom]>>
     Lowers the selected bookmark to the bottom of the list.
     <</topic>>
+
+    <<topic [image button_trash]>>
+    Deletes the selected bookmark.
+    <</topic>>
+
     <<control.filterbox>>
     <</topiclist>>
 }

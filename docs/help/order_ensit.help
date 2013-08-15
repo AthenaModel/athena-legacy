@@ -105,11 +105,7 @@ order ENSIT:CREATE "Create Environmental Situation" {
     <b>Required.</b> <<ENSIT.inception>>
     <</parm>>
 
-    <<parm g "Caused By">>
-    <b>Required.</b>  <<ENSIT.g>>
-    <</parm>>
-
-    <<parm resolver "Resolved By">>
+    <<parm resolver "Resolver">>
     <b>Required.</b>  The name of the group that the neighborhood
     population will consider responsible for resolving this situation,
     or <b>NONE</b> if none.  This entry is used when the situation
@@ -170,11 +166,7 @@ order ENSIT:UPDATE "Update Environmental Situation" {
     <b>Required.</b> <<ENSIT.inception>>
     <</parm>>
 
-    <<parm g "Caused By">>
-    <b>Required.</b>  <<ENSIT.g>>
-    <</parm>>
-
-    <<parm resolver "Resolved By">>
+    <<parm resolver "Resolver">>
     <b>Required.</b>  The name of the group that the neighborhood
     population will consider responsible for resolving this situation,
     or <b>NONE</b> if none.  This entry is used when the situation

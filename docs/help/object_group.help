@@ -145,6 +145,7 @@ object group_civ {
     } -tags {create update}
 
     attribute upc "Unemployment Per Capita" {
+        <b>Only when Start Mode is "From Previous Scenario".</b> 
         The percentage of unemployed workers in the group per group member
         at the start of scenario lock.  This value affects the computation of
         security during scenario lock, and is then overridden by the output

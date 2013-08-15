@@ -50,6 +50,9 @@ page "" "" "Athena Help" {
 page / changelog "Change Log" {
     <<title>>
     <<changelog>>
+    <<change 8/15/2013 New whd>>
+    Final scrub for Athena 5.
+    <</change>>
     <<change 11/15/2012 New whd>>
     Final scrub for Athena 4.
     <</change>>
@@ -100,22 +103,132 @@ page / release "Release Notes" {
     overview of the changes.<p>
 
     <ul>
-    <li>The simulation time step (also known as the tick size) is one week 
-        rather than one day.
-    <li>The GRAM attitude model has been replaced by the Unified Regional 
-        Attitude Model (URAM), which is specifically designed for Athena's 
-        longer time horizons.  URAM tracks changes to horizontal and vertical 
-        relationships in addition to satisfaction and cooperation.
-    <li>Actors can broadcast Information Operations Messages (IOMs) to 
-        affect civilian attitudes.
-    <li>The security model has been enhanced to take into account a 
-        force group's stance (whether positive or negative) towards other 
-        groups, as well as the effect of law enforcement on background 
-        criminal activity among the civilian groups.
-    <li>The Economic model has been increased to six sectors from three, and 
-        now takes into account both the international black market and 
-        monetary flows to and from actors.  This change fixes a number of 
-        shortcomings of the three-sector model.
+    <li> Economics
+       <ul>
+            <li> The base SAM data is richer.
+            <li> The computed economy at time 0 is calibrated to match
+                 the base SAM's GDP and Unemployment Rate
+            <li> The <<tab Econ>> gives much greater visibility into the
+                 CGE outputs.
+            <li> The overhead spending model, which proved to be problematic,
+                 has been been removed.
+            <li> Actors can receive income from the local economy, or a
+                 budget from outside the local economy.  Expenditures 
+                 by the latter result in money flowing into the local
+                 economy.
+            <li> An actor can spend money directly to sectors using the
+                 <<cref /object/tactic/spend>>.
+            <li> An actor can move money between his cash-on-hand and his
+                 cash-reserve using the <<cref /object/tactic/deposit>>
+                 and <<cref /object/tactic/withdraw>>.
+        </ul><p>
+
+    <li> Population
+        <ul>
+        <li>Population Flow</li>
+            <ul>
+            <li> The <<cref /object/tactic/flow>> "flows" population from
+                 one <<term civgroup>> to another.
+            <li> Civilian groups can now be "empty", i.e., have zero 
+                 population.
+            <li> Population flow can be used to model seasonal migration,
+                 refugees and other displaced persons, immigration, and
+                 conversion of beliefs.
+            <li> Note that displacement is now a group attribute, not a 
+                 civilian activity.  To displace civilians, flow them from
+                 a group where they are "at home" to one where they are
+                 "displaced" or "in camps".
+            <li> Attitude rules for displacement are pending.
+            </ul>
+
+        <li> Every group has a population change rate, so that the group's
+             population can grow or shrink over time.
+             
+        <li> Subsistence Agriculture is now a flag rather than a percentage.
+             A group either is part of the local cash economy, or it is not.
+
+        <li> Civilian groups now consume goods baskets in proportion to their
+             employed work force.  Attitude effects depend on the actual 
+             level of consumption vs. expectations, and on the fraction of
+             the group living below the poverty line.
+        </ul><p>
+
+    <li><<cref /object/curse CURSEs>>
+        <ul>
+        <li>Complex User-defined Role-based Situations and Events
+        <li>CURSEs are an IOM-like scheme for magic attitude injects.
+        <li>They are intended to replace the use of the
+            <<cref /object/tactic/executive>> to create and use 
+        <<cref /tab/attitudes/magic_attitude_drivers "Magic Attitude Drivers">>,
+            while retaining all of the flexibility of executive scripting.
+        </ul><p>
+
+    <li>Deployment without Reinforcements
+        <ul>
+        <li>The <<cref /object/tactic/deploy>> can now deploy 
+            <<term frcgroup>> and <<term orggroup>> personnel without
+            reinforcement, i.e., the number of troops deployed this week
+            will be the number left at the end of last week, after any
+            attrition. 
+        </ul><p>
+
+    <li>Rebasing Scenarios
+        <ul>
+        <li>A time-advanced scenario can now be "rebased" using the
+            <<cref /order/sim/rebase>> order, available on the
+            <<cref /menu/orders>> menu.
+        <li>Rebasing means creating a new, <<term unlock unlocked>> scenario
+            equivalent to the current state of the existing, time-advanced
+            scenario.
+        <li>This new scenario can then be modified as desired before locking
+            it and resuming simulation.
+        </ul><p>
+
+    <li> Rule Firing History
+        <ul>
+        <li> The history of <<term damrules "attitude rule firings">> 
+            is now saved in the scenario file in machine-readable form,
+            instead of as human-readable reports.
+        <li> The <<tab Detail>>'s sidebar allows rule firings to be browsed
+             in a number of different ways.
+        <li> More data is available, and can be made accessible.
+        <li> The old Firings tab has been removed.
+        </ul><p>
+
+    <li> <<cref /gofer Gofers>>
+        <ul>
+        <li> Gofers allow the user specify tactic inputs by rule rather than
+            explicitly.
+        <li> For example, the <<cref /object/tactic/fundeni>> now allows
+            the user to fund an explicit list of groups, as before, but
+            also to fund a list of groups specified by rule, i.e., all
+            groups resident in a given neighborhood, or all groups that
+            actively <<term support>> a given <<term actor>>.
+        </ul><p>
+
+    <li> Experiment Database
+        <ul>
+        <li> The <<cref /command/axdb>> command allows the user to define
+            experiment database: multiple cases defined against a common
+            base scenario.  See the <i>Athena User's Guide</i> for more
+            information.
+        </ul><p>
+
+    <li> Script Editor
+        <ul>
+        <li> Executive scripts (e.g., scripts used with the 
+            <<cref /object/tactic/executive>>) can now be edited 
+            on the <<tab Scripts>> and saved with the scenario.
+        </ul><p>
+
+    <li> Batch Mode
+        <ul>
+        <li> Athena can now be run in "batch" mode on headless servers.
+        <li> Via the "athena pbs" executable, Athena can be run in 
+            parallel on
+            Linux clusters using the Portable Batch System (PBS)
+            package.  See the <i>Athena User's Guide</i> for more details.  
+        </ul>
     </ul>
 }
 
