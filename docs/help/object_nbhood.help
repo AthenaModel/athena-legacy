@@ -72,10 +72,10 @@ object nbhood_ {
     } -tags {create update multi}
 
     attribute vtygain "Volatility Gain" {
-        The neighborhood's volatility gain, a real
-        number no less than zero; it is used to dial up and down the
-        effect of neighborhood <<term volatility>>
-        on neighborhood <<term security>>.
+        <b>Obsolete.</b>  This dial has been removed from the software
+        (it was never used).  The application still allows it to be set, for
+        compatibility with existing scenarios.  It will be removed in 
+        Athena 6.
     } -tags {create update multi}
 
     attribute stacking_order "Stacking Order" {

@@ -32,16 +32,16 @@ snit::widgetadaptor securitybrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { n                  "Nbhood"                                      }
-        { g                  "Group"                                       }
-        { personnel          "Personnel"  -sortmode integer -foreground %D }
-        { security           "Security"   -sortmode integer -foreground %D }
-        { symbol             "Symbol"                                      }
-        { pct_force          "%Force"     -sortmode integer -foreground %D }
-        { pct_enemy          "%Enemy"     -sortmode integer -foreground %D }
-        { volatility         "Volatility" -sortmode integer -foreground %D }
-        { volatility_gain    "VtyGain"    -sortmode real                   }
-        { nominal_volatility "NomVty"     -sortmode integer                }
+        { n              "\nNbhood"                                      }
+        { g              "\nGroup"                                       }
+        { personnel      "\nPersonnel"  -sortmode integer -foreground %D }
+        { security       "\nSecurity"   -sortmode integer -foreground %D }
+        { symbol         "\nSymbol"                       -foreground %D }
+        { pct_nominal_cf "\nCrim. Frac."                  -foreground %D }
+        { pct_actual_cf  "Effective\nCrim. Frac."         -foreground %D }
+        { pct_force      "\n%Force"     -sortmode integer -foreground %D }
+        { pct_enemy      "\n%Enemy"     -sortmode integer -foreground %D }
+        { volatility     "\nVolatility" -sortmode integer -foreground %D }
     }
 
     #-------------------------------------------------------------------

@@ -647,6 +647,20 @@ tab "Neighborhoods/Security" {
     <<projectlib::qsecurity html>>
     <</topic>>
 
+    <<topic "Crim. Frac.">>
+    For civilian groups only, the group's nominal criminal fraction.  
+    This is the percentage of the group that
+    will engage in criminal activities against the neighborhood population
+    if unsuppressed by law enforcement.
+    <</topic>>
+
+    <<topic "Effective Crim. Frac.">>
+    For civilian groups only, the group's effective criminal fraction.  
+    This is the percentage of the group that
+    is actually engaging in criminal activities against the neighborhood 
+    population given current levels of law enforcement.
+    <</topic>>
+
     <<topic "%Force">>A measure of the force the group can call on
     this neighborhood, relative to other groups, as a percentage of
     the total.

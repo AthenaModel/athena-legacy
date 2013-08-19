@@ -501,8 +501,7 @@ snit::type security_model {
         rdb eval {
             SELECT force_ng.n                   AS n,
                    total(enemy*force)           AS conflicts,
-                   total_force                  AS total_force,
-                   vtygain                      AS vtygain
+                   total_force                  AS total_force
             FROM force_ng JOIN force_n USING (n) JOIN nbhoods USING (n)
             WHERE force_ng.own_force > 0
             GROUP BY n
@@ -516,21 +515,17 @@ snit::type security_model {
             # no volatility.
 
             if {$tfSquared > 1.0} {
-                let nominal_volatility {
+                let volatility {
                     entier(ceil(100*$conflicts/$tfSquared))
                 }
             } else {
-                set nominal_volatility 0.0
-            }
-
-            let volatility {
-                min(100, entier($vtygain * $nominal_volatility))
+                set volatility 0.0
             }
             
             rdb eval {
                 UPDATE force_n
-                SET volatility_gain    = $vtygain,
-                    nominal_volatility = $nominal_volatility,
+                SET volatility_gain    = 1.0,
+                    nominal_volatility = $volatility,
                     volatility         = $volatility
                 WHERE n = $n
             }
