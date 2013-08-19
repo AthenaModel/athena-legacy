@@ -94,13 +94,13 @@ namespace eval ::athena_test::tests:: {
             }
 
             @C2 {
-                _type CIVGROUPS
+                _type GROUPS
                 _rule BY_VALUE
                 raw_value SUNN
             }
 
             @C3 {
-                _type CIVGROUPS
+                _type GROUPS
                 _rule BY_VALUE
                 raw_value SHIA
             }
@@ -118,7 +118,7 @@ namespace eval ::athena_test::tests:: {
             }
 
             @F2 {
-                _type FRCGROUPS
+                _type GROUPS
                 _rule BY_VALUE
                 raw_value BLUE
             }

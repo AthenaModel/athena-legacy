@@ -213,6 +213,12 @@ snit::widget ::projectgui::goferfield {
                 raw_value $value]
         }
 
+        # NEXT, if gofer type has changed, blank out the value it will
+        # need a new rule.
+        if {[dict get $value _type] ne [$options(-typename) name]} {
+            set value [$options(-typename) blank]
+        }
+
         # NEXT, save the value
         set info(value) $value
 

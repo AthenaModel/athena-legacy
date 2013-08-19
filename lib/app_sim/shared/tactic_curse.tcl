@@ -85,10 +85,10 @@ tactic type define CURSE {curse roles once on_lock} system {
 
         # NEXT, it exists and is "normal", are the roles good?
         if {$exists && $state eq "normal"} {
-            set roles [dict keys $roles]
+            set keys [dict keys $roles]
 
             # NEXT, roles this tactic uses may have been deleted
-            foreach role $roles {
+            foreach role $keys {
                 if {$role ni [curse rolenames $curse]} {
                     lappend errors "Role $role no longer exists."
                 }
@@ -98,6 +98,16 @@ tactic type define CURSE {curse roles once on_lock} system {
             foreach role [curse rolenames $curse] {
                 if {$role ni $roles} {
                     lappend errors "Role $role is not defined."
+                }
+            }
+
+            # NEXT, the roletype must not change out from underneath
+            # the tactic
+            foreach role $keys {
+                set gtype [dict get [dict get $roles $role] _type]
+                if {$role in [curse rolenames $curse] &&
+                    $gtype ne [inject roletype $curse $role]} {
+                    lappend errors "Role type of $role changed"
                 }
             }
         }

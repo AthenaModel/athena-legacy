@@ -108,8 +108,8 @@ namespace eval ::athena_test::tests:: {
     } -body {
         
         curse C1 {
-            @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @FRC1 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @CIV1 {_type GROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @FRC1 {_type GROUPS _rule BY_VALUE raw_value BLUE}
         }
 
         ted querylist {
@@ -131,7 +131,7 @@ fdict      dtype CURSE curse_id C1 atype hrel mode T mag 3.0 f {SHIA SUNN} g BLU
     } -body {
         
         curse C2 {
-            @CIV2 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV2 {_type GROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
             @ACT1 {_type ACTORS _rule BY_VALUE raw_value JOE}
         }
 
@@ -198,11 +198,11 @@ fdict      dtype CURSE curse_id C4 atype coop mode T mag 10.0 f {SHIA SUNN} g BL
         setup
     } -body {
         curse C5 {
-            @CIV5 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @CIV6 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV5 {_type GROUPS    _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV6 {_type GROUPS    _rule BY_VALUE raw_value {SHIA SUNN}}
             @CIV7 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
             @CIV8 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @FRC3 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @FRC3 {_type GROUPS    _rule BY_VALUE raw_value BLUE}
             @FRC4 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
             @ACT2 {_type ACTORS    _rule BY_VALUE raw_value JOE}
         }
@@ -231,11 +231,11 @@ CURSE-4-1 coop  SUNN BLUE
         ted order INJECT:STATE id {C5 1} state disabled
     } -body {
         curse C5 {
-            @CIV5 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @CIV6 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV5 {_type GROUPS    _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV6 {_type GROUPS    _rule BY_VALUE raw_value {SHIA SUNN}}
             @CIV7 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
             @CIV8 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @FRC3 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @FRC3 {_type GROUPS    _rule BY_VALUE raw_value BLUE}
             @FRC4 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
             @ACT2 {_type ACTORS    _rule BY_VALUE raw_value JOE}
         }

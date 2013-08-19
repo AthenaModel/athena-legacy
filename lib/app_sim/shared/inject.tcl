@@ -398,6 +398,80 @@ snit::type inject {
         return ""
     }
 
+    # roletype curse_id role
+    #
+    # curse_id   - The ID of a CURSE
+    # role       - A role in the CURSE
+    #
+    # This method returns the roletype given the curse_id and a role
+    # for a particular curse. The most restrictive role is what is
+    # returned since a role can appear in multiple injects.
+
+    typemethod roletype {curse_id role} {
+        # FIRST, initialize roletype
+        set roletype ""
+
+        # NEXT, go through all the injects associated with
+        # this CURSE and figure out the most restrictive type of
+        # role from the set of injects
+        rdb eval {
+            SELECT * FROM curse_injects
+            WHERE curse_id=$curse_id
+        } data {
+            switch -exact -- $data(inject_type) {
+                COOP {
+                    # COOP is most restrictive, we are done
+                    if {$data(f) eq $role} {
+                        set roletype "CIVGROUPS"
+                        break
+                    }
+
+                    if {$data(g) eq $role} {
+                        set roletype "FRCGROUPS"
+                        break
+                    }
+                }
+
+                SAT {
+                    # SAT is most restrictive, we are done
+                    if {$data(g) eq $role} {
+                        set roletype "CIVGROUPS"
+                        break
+                    }
+                }
+
+                HREL {
+                    # HREL is least restricive, continue to next inject
+                    if {$data(g) eq $role || $data(f) eq $role} {
+                        set roletype "GROUPS"
+                        continue
+                    }
+                }
+
+                VREL {
+                    # VREL: g is least restrictive, continue on, a is
+                    # most restrictive, since it's the only roletype for
+                    # actors 
+                    if {$data(a) eq $role} {
+                        set roletype "ACTORS"
+                        break
+                    }
+
+                    if {$data(g) eq $role} {
+                        set roletype "GROUPS"
+                        continue
+                    }
+                }
+
+                default {
+                    error "Unrecognized inject_type: $data(inject_type)"
+                }
+            }
+        }
+
+        return $roletype
+    }
+
     # rolenames itype col
     #
     # itype    - inject type: HREL, VREL, SAT or COOP
