@@ -565,17 +565,21 @@ snit::type executive {
         $interp smartalias super 1 - {arg ?arg...?} \
             [myproc super]
 
-        # unlock
-        $interp smartalias unlock 0 0 {} \
-            [myproc unlock]
-
         # tofile
         $interp smartalias tofile 3 3 {filename extension text} \
             [myproc tofile]
 
+        # unlock
+        $interp smartalias unlock 0 0 {} \
+            [myproc unlock]
+
         # usermode
         $interp smartalias {usermode} 0 1 {?mode?} \
             [list ::executive usermode]
+
+        # version
+        $interp smartalias version 0 0 {} \
+            [list version]
     }
 
 

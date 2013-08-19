@@ -1821,4 +1821,15 @@ command "usermode" {
     }>>
 }
 
+#=======================================================================
+# version command
+
+command "version" {
+    <<syntax>>
+
+    Returns the Athena version number, e.g., "<<version>>".
+}
+
+
+
 
