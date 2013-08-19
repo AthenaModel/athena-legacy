@@ -187,7 +187,26 @@ gofer define CIVGROUPS {
 #-----------------------------------------------------------------------
 # Helper Commands
 
-# Not at present
+# nonempty glist
+#
+# glist   - A list of groups
+#
+# Returns the list, filtering out empty civilian groups.
+
+proc gofer::CIVGROUPS::nonempty {glist} {
+    array set pop [rdb eval {
+        SELECT g, population FROM gui_civgroups
+    }]
+
+    set result [list]
+    foreach g $glist {
+        if {$pop($g) > 0} {
+            lappend result $g
+        }
+    }
+
+    return $result
+}
 
 
 #-----------------------------------------------------------------------
@@ -218,7 +237,7 @@ gofer rule CIVGROUPS BY_VALUE {raw_value} {
     typemethod eval {gdict} {
         dict with gdict {}
 
-        return $raw_value
+        return [nonempty $raw_value]
     }
 }
 
@@ -253,7 +272,7 @@ gofer rule CIVGROUPS RESIDENT_IN {nlist} {
         foreach n $nlist {
             lappend out {*}[demog gIn $n]
         }
-        return $out
+        return [nonempty $out]
     }
 
 }
@@ -291,7 +310,7 @@ gofer rule CIVGROUPS NOT_RESIDENT_IN {nlist} {
                 ldelete out $g
             }
         }
-        return $out
+        return [nonempty $out]
     }
 
 }
@@ -314,10 +333,10 @@ gofer rule CIVGROUPS MOOD_IS_GOOD {} {
     }
 
     typemethod eval {gdict} {
-        return [rdb eval {
+        return [nonempty [rdb eval {
             SELECT g FROM uram_mood
             WHERE mood >= 20.0
-        }]
+        }]]
     }
 }
 
@@ -339,10 +358,10 @@ gofer rule CIVGROUPS MOOD_IS_BAD {} {
     }
 
     typemethod eval {gdict} {
-        return [rdb eval {
+        return [nonempty [rdb eval {
             SELECT g FROM uram_mood
             WHERE mood <= -20.0
-        }]
+        }]]
     }
 }
 
@@ -364,10 +383,10 @@ gofer rule CIVGROUPS MOOD_IS_AMBIVALENT {} {
     }
 
     typemethod eval {gdict} {
-        return [rdb eval {
+        return [nonempty [rdb eval {
             SELECT g FROM uram_mood
             WHERE mood > -20.0 AND mood < 20.0
-        }]
+        }]]
     }
 }
 
@@ -392,7 +411,7 @@ gofer rule CIVGROUPS SUPPORTING_ACTOR {anyall alist} {
     }
 
     typemethod eval {gdict} {
-        return [anyall_alist supportingActor CIV $gdict]
+        return [nonempty [anyall_alist supportingActor CIV $gdict]]
     }
 }
 
@@ -417,7 +436,7 @@ gofer rule CIVGROUPS LIKING_ACTOR {anyall alist} {
     }
 
     typemethod eval {gdict} {
-        return [anyall_alist likingActor CIV $gdict]
+        return [nonempty [anyall_alist likingActor CIV $gdict]]
     }
 }
 
@@ -442,7 +461,7 @@ gofer rule CIVGROUPS DISLIKING_ACTOR {anyall alist} {
     }
 
     typemethod eval {gdict} {
-        return [anyall_alist dislikingActor CIV $gdict]
+        return [nonempty [anyall_alist dislikingActor CIV $gdict]]
     }
 }
 
@@ -467,7 +486,7 @@ gofer rule CIVGROUPS LIKING_GROUP {anyall glist} {
     }
 
     typemethod eval {gdict} {
-        return [anyall_glist likingGroup CIV $gdict]
+        return [nonempty [anyall_glist likingGroup CIV $gdict]]
     }
 }
 
@@ -492,7 +511,7 @@ gofer rule CIVGROUPS DISLIKING_GROUP {anyall glist} {
     }
 
     typemethod eval {gdict} {
-        return [anyall_glist dislikingGroup CIV $gdict]
+        return [nonempty [anyall_glist dislikingGroup CIV $gdict]]
     }
 }
 
@@ -517,7 +536,7 @@ gofer rule CIVGROUPS LIKED_BY_GROUP {anyall glist} {
     }
 
     typemethod eval {gdict} {
-        return [anyall_glist likedByGroup CIV $gdict]
+        return [nonempty [anyall_glist likedByGroup CIV $gdict]]
     }
 }
 
@@ -542,7 +561,7 @@ gofer rule CIVGROUPS DISLIKED_BY_GROUP {anyall glist} {
     }
 
     typemethod eval {gdict} {
-        return [anyall_glist dislikedByGroup CIV $gdict]
+        return [nonempty [anyall_glist dislikedByGroup CIV $gdict]]
     }
 }
 

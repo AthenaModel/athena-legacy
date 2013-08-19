@@ -230,6 +230,11 @@ namespace eval ::athena_test:: {
 
     set script [file join $topdir test app_sim $script]
 
+    if {[file extension $script] ne ".test"} {
+        puts stderr "\nError, not a test script:\n$script"
+        exit 1
+    }
+
     if {![file exists $script]} {
         puts stderr "\nError, test script does not exist:\n$script"
         exit 1

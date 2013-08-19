@@ -435,7 +435,9 @@ gofer_rule ACTORS DISLIKED_BY_GROUP "Actors, Disliked by Group(s)" {
 
 gofer CIVGROUPS "A list of civilian groups" {
     This gofer retrieves a list of <<cref /object/group/civ>> names
-    according to one of the following rules:<p>
+    according to one of the following rules.  The retrieved list will
+    not include any empty civilian groups (groups with a population of
+    zero).<p>
 
     <<gofer.rules>>
 }
@@ -443,7 +445,9 @@ gofer CIVGROUPS "A list of civilian groups" {
 gofer_rule CIVGROUPS BY_VALUE "Civilian groups, By name" {
     Retrieves an arbitrary list of 
     <<cref /object/group/civ "civilian groups">>
-    selected by name.<p>
+    selected by name.  The user is free to select any civilian group,
+    including groups with zero population; however, no empty groups
+    will be included in the retrieved list.<p>
 
     <<itemlist>>
     <<gofer.details raw_value {SUNN SHIA}>>
