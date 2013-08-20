@@ -11,6 +11,35 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.13, 20 August 2013</h3>
+This build contains a whole slew of bug fixes and the addition of a new
+Athena application for running Athena in batch mode on a Linux supercomputing
+cluster that uses the Portable Batch System (PBS).  Details of this application
+can be found on the athena_pbs(1) man page. The complete set of packages:<p>
+
+<ul>
+<li> Bug 3873: athena_sim(1): history module needs to be updated with latest econ inputs and outputs
+<li> Bug 4060: Disabled Injects should not execute
+<li> Bug 4074: athena(1): add PBS application
+<li> Bug 4086: Update econ section of AAG for Athena 5
+<li> Bug 4095: Mismatched Role bgerror when executing CURSE tactic
+<li> Bug 4096: Mismatched Role bgerror when editing CURSE tactic
+<li> Bug 4097: Update AUG with CURSE documentation and screenshots of UI.
+<li> Bug 4104: athena(1): Output version in batch mode
+<li> Bug 3800: Athena Help Typos
+<li> Bug 3832: Subsistence Agriculture Flag is not Displayed
+<li> Bug 3838: VREL CIV1 A is not tracked bgerror
+<li> Bug 3845: Remove activity.FRC.PRESENCE.cost parameter
+<li> Bug 3870: athena_sim(1): sa_flag not defaulting to 0 on CIVGROUP:CREATE order
+<li> Bug 3885: Pick a Color box appears behind create group order dialog
+<li> Bug 4084: athena(1): Order dialogs can drop behind main window
+<li> Bug 4091: bgerror: No such script
+<li> Bug 4094: Athena Help inconsistent with application
+<li> Bug 4105: athena(1): Make [version] available at executive CLI
+<li> Bug 4106: athena(1): Show criminal suppression in security browser
+<li> Bug 4108: gofers return empty civ groups 
+</ul><p>
+
 <h3>Build 5.0.12, 12 August 2013</h3>
 
 This build contains quite a few bug fixes. Most notable is a fix to the 
