@@ -319,6 +319,13 @@ snit::type app {
 
         # NEXT, log that we're up.
         log normal app "Athena [version]"
+        
+        # NEXT, if we're in batch mode print that we are up
+        if {$opts(-batch)} {
+            puts [format "%-25s %s" "Athena version:"        [version]]
+            puts [format "%-25s %s" "Application directory:" [appdir join]]
+            puts [format "%-25s %s" "Working directory:"     [workdir join]]
+        }
 
         # NEXT, if a scenario file is specified on the command line,
         # open it.
