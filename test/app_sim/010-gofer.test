@@ -208,13 +208,18 @@ namespace eval ::athena_test::tests:: {
         error
     } -result {No such gofer type, "NONESUCH"}
     
-    test gofer_eval-1.4 {success} -body {
+    test gofer_eval-1.4 {success} -setup {
+        ted create SUNN SHIA KURD BLUE
+        ted lock
+    } -body {
         gofer eval {
             _type     CIVGROUPS 
             _rule     BY_VALUE 
-            raw_value {a b c d e f g h i j}
+            raw_value {SUNN SHIA KURD}
         }
-    } -result {a b c d e f g h i j}
+    } -cleanup {
+        cleanup    
+    } -result {SUNN SHIA KURD}
 
     #-------------------------------------------------------------------
     # $type dynaform

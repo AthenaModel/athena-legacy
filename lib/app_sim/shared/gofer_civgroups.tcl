@@ -200,7 +200,7 @@ proc gofer::CIVGROUPS::nonempty {glist} {
 
     set result [list]
     foreach g $glist {
-        if {$pop($g) > 0} {
+        if {[info exists pop($g)] && $pop($g) > 0} {
             lappend result $g
         }
     }
