@@ -572,7 +572,7 @@ snit::widget appwin {
         puts $f "set jobidx \$::env(PBS_ARRAY_INDEX)"
         puts $f "set scriptfile \"test_case\$jobidx.tcl\""
         puts $f "cd \$::env(PBS_JOBDIR)"
-        #puts $f "exec athena.tcl -batch -script \$scriptfile $rundir/$info(adbshort)"
+        #puts $f "exec athena -batch -script \$scriptfile $rundir/$info(adbshort)"
         puts $f "exec athena.tcl -batch -script \$scriptfile adb_in\$jobidx.adb"
         close $f
 
