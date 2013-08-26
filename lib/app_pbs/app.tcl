@@ -66,6 +66,22 @@ snit::type app {
         # NEXT, get the application directory
         appdir init
 
+        # NEXT, this application is not available on Windows
+        if {[os type] == "win32"} {
+            messagebox popup \
+                -title  "Application Not Available" \
+                -icon   error                       \
+                -buttons {ok "Ok"}                  \
+                -parent  .                          \
+                -message [normalize "
+                    The Athena PBS application is only available on
+                    Linux clusters running the Portable Batch System
+                    (PBS).
+                "]
+
+            app exit
+        }
+
         # NEXT, see if PBS is available, take into account the which
         # command may be undefined
         set qsub ""
