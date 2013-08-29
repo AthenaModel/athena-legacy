@@ -570,10 +570,10 @@ snit::widget appwin {
         puts $f "#PBS -W stagein=db_in^array_index^.axdb@kelvin:$rundir/$info(axdbshort),adb_in^array_index^.adb@kelvin:$rundir/$info(adbshort)"
         puts $f "#PBS -W stageout=db_in^array_index^.axdb@kelvin:$rundir/db_out^array_index^.axdb"
         puts $f "set jobidx \$::env(PBS_ARRAY_INDEX)"
+        puts $f "set scratchdir \$::env(TMPDIR)"
         puts $f "set scriptfile \"test_case\$jobidx.tcl\""
         puts $f "cd \$::env(PBS_JOBDIR)"
-        #puts $f "exec athena -batch -script \$scriptfile $rundir/$info(adbshort)"
-        puts $f "exec athena.tcl -batch -script \$scriptfile adb_in\$jobidx.adb"
+        puts $f "exec athena -batch -scratch \$scratchdir -script \$scriptfile adb_in\$jobidx.adb"
         close $f
 
         # NEXT, submit the job array saving the jobId
