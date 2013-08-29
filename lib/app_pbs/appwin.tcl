@@ -333,6 +333,7 @@ snit::widget appwin {
             $axdb open $info(axdbfile)
             set info(ntests) [$axdb eval {SELECT count(*) FROM cases}]
             set info(nnodes) $info(ntests)
+
             $axdb close
             $axdb destroy
         } else {
@@ -553,6 +554,29 @@ snit::widget appwin {
 
         set f [open [file join $info(rundir) job.tcl] "w"]
 
+        # NEXT, clear any history there may be in the axdb, we are going
+        # to do a fresh run
+        set axdb [experimentdb axdb_%AUTO%]
+        $axdb open $info(axdbfile)
+        set info(ntests) [$axdb eval {SELECT count(*) FROM cases}]
+        set info(nnodes) $info(ntests)
+
+        set histTables [$axdb eval {
+            SELECT name FROM sqlite_master
+            WHERE type='table'
+            AND name GLOB 'hist_*'
+        }]
+
+        foreach histTable $histTables {
+            $axdb eval "DELETE FROM $histTable;"
+        }
+
+        # NEXT, reset all test cases
+        $axdb eval {UPDATE cases SET outcome=NULL, context=NULL;}
+
+        $axdb close
+        $axdb destroy
+
         # NEXT, move .adb and .axdb into the run directory 
         file copy -force $info(adbfile) $rundir
         file copy -force $info(axdbfile) $rundir
@@ -573,7 +597,7 @@ snit::widget appwin {
         puts $f "set scratchdir \$::env(TMPDIR)"
         puts $f "set scriptfile \"test_case\$jobidx.tcl\""
         puts $f "cd \$::env(PBS_JOBDIR)"
-        puts $f "exec athena -batch -scratch \$scratchdir -script \$scriptfile adb_in\$jobidx.adb"
+        puts $f "exec [appdir join bin athena] -batch -scratch \$scratchdir -script \$scriptfile adb_in\$jobidx.adb"
         close $f
 
         # NEXT, submit the job array saving the jobId
@@ -745,13 +769,18 @@ snit::widget appwin {
                 ATTACH DATABASE '$fout' AS source;
             "
 
-            # FIRST, test cases. We only want the ones from the source
-            # axdb that have outcomes
+            # FIRST, test cases and case parms. We only want results from 
+            # the source axdb that have outcomes
             $master transaction {
                 $master eval {
                     INSERT OR REPLACE INTO cases 
                     SELECT * FROM source.cases
                     WHERE source.cases.outcome IS NOT NULL;
+                }
+
+                $master eval {
+                    INSERT OR REPLACE INTO case_parms
+                    SELECT * FROM source.case_parms;
                 }
             }
 
