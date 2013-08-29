@@ -809,7 +809,7 @@ snit::widget appwin {
         # NEXT, perform any clean up
         set info(jobstate) "IDLE"
 
-        #$self CleanUp
+        $self CleanUp
     }
 
     # CleanUp
