@@ -11,6 +11,15 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.14, 29 August 2013</h3>
+This build has a couple of bug fixes to the athena_pbs(1) application. There
+is no new functionality.<p>
+
+<ul>
+<li> Bug 4114: athena pbs command should generate error message on Windows
+<li> Bug 4115: athena_pbs(1): job dispatcher references athena.tcl not athena 
+</ul><p>
+
 <h3>Build 5.0.13, 20 August 2013</h3>
 This build contains a whole slew of bug fixes and the addition of a new
 Athena application for running Athena in batch mode on a Linux supercomputing
