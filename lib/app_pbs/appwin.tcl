@@ -452,6 +452,13 @@ snit::widget appwin {
                 "Number of weeks must be integer > 0"
        }
 
+       # NEXT, can't specify more test cases than the number present in 
+       # the AXDB
+       if {![string is integer -strict $ntests] || $ntests > $info(ntests)} {
+           return -code error -errorcode INVALID \
+               "Number of tests must be <= $info(ntests)"
+       }
+
        # NEXT, you cannot request more nodes than can be supported
        # by the selected queue
        if {$nnodes > $qsize($queue)} {
