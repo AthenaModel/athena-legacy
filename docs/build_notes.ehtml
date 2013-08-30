@@ -11,6 +11,16 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.15, 30 August 2013</h3>
+This build has a few more bug fixes that continue filing off the rough edges
+of the athena_pbs(1) application.<p>
+
+<ul>
+<li> Bug 4116: Athena pbs application needs restriction on nodes and test cases
+<li> Bug 4117: axdb cases missing when ran in pbs application
+<li> Bug 4118: Athena pbs application requires "pristine" .axdb files 
+</ul><p>
+
 <h3>Build 5.0.14, 29 August 2013</h3>
 This build has a couple of bug fixes to the athena_pbs(1) application. There
 is no new functionality.<p>
