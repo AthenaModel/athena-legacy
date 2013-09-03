@@ -11,6 +11,14 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.0.16, 3 September 2013</h3>
+Two more bug fixes to the athena_pbs(1) application.<p>
+
+<ul>
+<li> Bug 4120: PBS ignores specified number of nodes and test cases
+<li> Bug 4121: PBS stop run needs to clean up temp files
+</ul><p>
+
 <h3>Build 5.0.15, 30 August 2013</h3>
 This build has a few more bug fixes that continue filing off the rough edges
 of the athena_pbs(1) application.<p>
