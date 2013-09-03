@@ -54,6 +54,7 @@ snit::widget appwin {
         jobstate "IDLE"
         nnodes 0
         ntests 0
+        maxtests 0
         queue  "shortq"
     }
 
@@ -196,6 +197,8 @@ snit::widget appwin {
             -command [mymethod StopExperiment]
         DynamicHelp::add $toolbar.stop -text "Stop Experiment"
 
+        ::sc::running control $toolbar.stop
+
         pack $toolbar.selectfiles -side left
         pack $toolbar.run         -side left
         pack $toolbar.stop        -side left
@@ -273,6 +276,12 @@ snit::widget appwin {
         grid $win.sep4     -sticky ew
         grid $win.status   -sticky ew
 
+        notifier send ::main <State>
+
+        # NEXT, try to clean up the run directory, there could be stuff
+        # left over from previous runs that failed to complete.
+        $self CleanUp
+
         $self DisplayJobs ""
     }
 
@@ -331,7 +340,8 @@ snit::widget appwin {
             set info(jobname) [file rootname $info(axdbshort)]
             set axdb [experimentdb axdb_%AUTO%]
             $axdb open $info(axdbfile)
-            set info(ntests) [$axdb eval {SELECT count(*) FROM cases}]
+            set info(maxtests) [$axdb eval {SELECT count(*) FROM cases}]
+            set info(ntests) $info(maxtests)
             set info(nnodes) $info(ntests)
 
             $axdb close
@@ -408,7 +418,7 @@ snit::widget appwin {
                        }]
 
         if {$answer eq "cancel"} {
-            return
+            return 0
         }
 
         # NEXT, get jobnum and append brackets (PBS wants them) and set
@@ -424,7 +434,18 @@ snit::widget appwin {
            exec qdel $job
         }
 
+        set info(jobstate) "IDLE"
+
+        # NOTE: because the PBS queue is running as a separate process, the
+        # clean up done by stopping the experiment may not fully complete. I
+        # think this is because deleting the queue (the 'qdel' command) is
+        # in the process of shutting things down when athena_pbs(1) exits.
+        # Not sure what can be done about this at this time.
+        $self CleanUp
+
         notifier send ::main <State>
+
+        return 1
     }
 
     # ValidateRun pdict
@@ -454,9 +475,9 @@ snit::widget appwin {
 
        # NEXT, can't specify more test cases than the number present in 
        # the AXDB
-       if {![string is integer -strict $ntests] || $ntests > $info(ntests)} {
+       if {![string is integer -strict $ntests] || $ntests > $info(maxtests)} {
            return -code error -errorcode INVALID \
-               "Number of tests must be <= $info(ntests)"
+               "Number of tests must be <= $info(maxtests)"
        }
 
        # NEXT, you cannot request more nodes than can be supported
@@ -565,8 +586,6 @@ snit::widget appwin {
         # to do a fresh run
         set axdb [experimentdb axdb_%AUTO%]
         $axdb open $info(axdbfile)
-        set info(ntests) [$axdb eval {SELECT count(*) FROM cases}]
-        set info(nnodes) $info(ntests)
 
         set histTables [$axdb eval {
             SELECT name FROM sqlite_master
@@ -878,122 +897,6 @@ snit::widget appwin {
         return
     }
 
-    # FileOpen
-    #
-    # Prompts the user to open a script file.
-
-    method FileOpen {} {
-        # FIRST, Allow the user to save unsaved data.
-        if {![$self SaveUnsavedData]} {
-            return
-        }
-
-        # NEXT, query for the script file name.
-        set filename [tk_getOpenFile                      \
-                          -parent $win                    \
-                          -title "Open Cell Model"        \
-                          -filetypes {
-                              {{cellmodel(5) script}     {.cm} }
-                          }]
-
-        # NEXT, If none, they cancelled
-        if {$filename eq ""} {
-            return
-        }
-
-        # NEXT, Open the requested script.
-        cmscript open $filename
-    }
-
-    # FileSaveAs
-    #
-    # Prompts the user to save the script as a particular file.
-
-    method FileSaveAs {} {
-        # FIRST, query for the script file name.  If the file already
-        # exists, the dialog will automatically query whether to 
-        # overwrite it or not. Returns 1 on success and 0 on failure.
-
-        set filename [tk_getSaveFile                       \
-                          -parent $win                     \
-                          -title "Save Cell Model As"        \
-                          -filetypes {
-                              {{cellmodel(5) script} {.cm} }
-                          }]
-
-        # NEXT, If none, they cancelled.
-        if {$filename eq ""} {
-            return 0
-        }
-
-        # NEXT, Save the script using this name
-        return [cmscript save $filename]
-    }
-
-    # FileSave
-    #
-    # Saves the script to the current file, making a backup
-    # copy.  Returns 1 on success and 0 on failure.
-
-    method FileSave {} {
-        # FIRST, if no file name is known, do a SaveAs.
-        if {[cmscript cmfile] eq ""} {
-            return [$self FileSaveAs]
-        }
-
-        # NEXT, Save the script to the current file.
-        return [cmscript save]
-    }
-
-    # SaveUnsavedData
-    #
-    # Allows the user to save unsaved changes.  Returns 1 if the user
-    # is ready to proceed, and 0 if the current activity should be
-    # cancelled.
-
-    method SaveUnsavedData {} {
-        return 1
-
-        # TBD need experiment module
-        if {[experiment unsaved]} {
-            # FIRST, deiconify the window, this gives the message box
-            # a parent to popup over.
-            wm deiconify $win
-
-            # NEXT, popup the message box for the user
-            set name [file tail [cmscript cmfile]]
-
-            set message [tsubst {
-                |<--
-                The experiment [tif {$name ne ""} {"$name" }]has not been saved.
-                Do you want to save your changes?
-            }]
-
-            set answer [messagebox popup                     \
-                            -icon    warning                 \
-                            -message $message                \
-                            -parent  $win                    \
-                            -title   "Athena PBS [version]" \
-                            -buttons {
-                                save    "Save"
-                                discard "Discard"
-                                cancel  "Cancel"
-                            }]
-
-            if {$answer eq "cancel"} {
-                return 0
-            } elseif {$answer eq "save"} {
-                # Stop exiting if the save failed
-                if {![$self FileSave]} {
-                    return 0
-                }
-            }
-        }
-
-        return 1
-    }
-
-
     # SetOutputdir
     #
     # Sets the working directory
@@ -1015,23 +918,20 @@ snit::widget appwin {
     # Verifies that the user has saved data before exiting.
 
     method FileExit {} {
-        # FIRST, Allow the user to save unsaved data.
-        if {![$self SaveUnsavedData]} {
-            return
+        # FIRST, if an experiment is running or coalescing results prompt
+        # the user
+        if {$info(jobstate) eq "RUNNING" || $info(jobstate) eq "RESULTS"} {
+            if {[$self StopExperiment]} {
+                app exit
+            } else {
+                return
+            }
         }
 
-        # NEXT, the data has been saved if it's going to be; so exit.
+        # NEXT, no experiment running, just exit.
         app exit
     }
 
-    # CliPrompt
-    #
-    # Returns a prompt string for the CLI
-
-    method CliPrompt {} {
-        return ">"
-    }
-    
     # error text
     #
     # text       A tsubst'd text string

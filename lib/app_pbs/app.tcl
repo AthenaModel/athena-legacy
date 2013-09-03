@@ -17,7 +17,7 @@
 #-----------------------------------------------------------------------
 # Required Packages
 
-# All needed packages are required in app_cell.tcl.
+# All needed packages are required in app_pbs.tcl.
  
 #-----------------------------------------------------------------------
 # app
@@ -108,6 +108,12 @@ snit::type app {
             ::main <State>
         } -condition {
             [.main jobstate] ne "RUNNING"
+        }
+
+        statecontroller ::sc::running -events {
+            ::main <State>
+        } -condition {
+            [.main jobstate] eq "RUNNING"
         }
 
         # NEXT, create the real main window.
