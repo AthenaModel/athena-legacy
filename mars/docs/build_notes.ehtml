@@ -1,0 +1,300 @@
+<html>
+<head>
+<title>Mars <<version>> Simulation Infrastructure Library</title>
+</head>
+
+<body bgcolor="#F5F5F5" alink="Blue" link="Blue">
+<h1 style="background: red;">&nbsp;Mars <<version>>: Simulation Infrastructure
+Library</h1>
+
+<h2>Build Notes</h2>
+
+<h3>Build 2.23, 3 September 2013</h3>
+This build contains one bug fix to the lazyupdater(n):<p>
+
+<ul>
+<li> Bug 4119: lazyupdater(n): -command can recursively schedule an update
+</ul><p>
+
+<h3>Build 2.22, 20 August 2013</h3>
+This build contains a number of bug fixes with the most noticable one being the
+behavior of orderdialog(n).  If an order dialog becomes obscured by the 
+main application window it will pop back to the top after a short time. 
+Having orderdialog(n) always be on top of the application caused other
+problems, so this is a way to alleviate those issues but still have the 
+order dialog window become visible.<p>
+
+<ul>
+<li> Bug 4090: uram(n): error thrown when group is untracked.
+<li> Bug 4088: uram(n): man page error, update population
+<li> Bug 4087: orderdialog(n): Order dialogs can drop behind main window
+<li> Bug 4085: colorfield(n): Selecting a custom color causes an error.
+<li> Bug 4083: orderdialog(n) uses [wm attributes -topmost]
+</ul><p>
+
+<h3>Build 2.21, 12 August 2013</h3>
+This build contains one bug fix and an update to the Mars Analyst's Guide.
+
+<ul>
+<li> Bug 4061: htmlviewer(n): SPAN classes
+</ul><p>
+
+<h3>Build 2.20, 1 July 2013</h3>
+This build adds support for building Athena on Mac OSX. There's no plans
+to distribute Athena for Mac at this time, but since we may develop Athena
+internally on OSX, this is a good idea.
+
+<ul>
+<li> Bug 4057: MakePlatform: OSX
+</ul><p>
+
+<h3>Build 2.19, 17 June 2013</h3>
+This build contains two packages. One that makes Mars use the ActiveTcl 
+Community Edition instead of Enterprise Edition and one that fixes a bug
+in uram(n).
+
+<ul>
+<li> Bug 4047: Update Mars 2 to use ActiveTcl 8.5.14
+<li> Bug 4044: uram(n): hrel curves tracked when f or g is empty
+</ul><p>
+
+<h3>Build 2.18, 5 June 2013</h3>
+This build contains some fixes to support building Athena on Linux and for
+running on supercomputing clusters. There's also an enhancement to dynabox(n)
+and a fix to a bug in dynaform_fields(n).
+
+<ul>
+<li> Bug 4021: hexcolor(n): Remove support for X color names
+<li> Bug 4015: dynaform_fields(n): enumlist field error
+<li> Bug 4013: dynabox(n): Display valid results
+<li> Bug 4011: mars(1): Fix Linux build problems
+</ul><p>
+
+<h3>Build 2.17, 22 May 2013</h3>
+
+This build has a mix of enhancements (CSV mode for queries) and bug
+fixes, in support of Athena 5.0.8.<p>
+
+<ul>
+<li> Bug 3980: cellmodel(n): add cell model object instance to -failcmd callback
+<li> Bug 3992: dynaview(n): error, geometry management loop
+<li> Bug 3994: listfield(n): Multi-selection moves go awry
+<li> Bug 3996: Updated Mars 2 to ATEE 2013Q2
+<li> Bug 4000: sqlib(n): query -mode csv
+<li> Bug 4001: sqlib(n) query can use variables
+<li> Bug 4002: sqldocument(n): safequery can take options
+</ul><p>
+
+
+<h3>Build 2.16, 22 April 2013</h3>
+
+This build has a change to the enum(n) object to allow an enumeration to be
+created that has no indices defined. This is useful for enumerations that have
+numbers for short names.<p>
+
+<ul>
+<li> Bug 3968: enum(n): add -noindex option
+</ul><p>
+
+<h3>Build 2.15, 28 March 2013</h3>
+
+This build contains a change to uram(n) in support of simulation rebasing
+and a change to order(n) to automatically fill in default values in the
+'send' method. The packages:<p>
+
+<ul>
+<li> Bug 3914: uram(n): start at t != 0, set current levels on load
+<li> Bug 3902: order(n): fill in default values in the 'send' method 
+</ul><p>
+
+<h3>Build 2.14, 5 February 2013</h3>
+
+This build contains two changes to the cellmodel(n) and cmsheet(n) 
+modules. The cellmodel(n) module now defaults to 200 iterations, this is
+due to more complex cell models being the standard. The cmsheet(n) module
+now supports cell-by-cell validation and change commands for more flexibility.
+The changes are as follows:<p>
+
+<ul>
+<li> Bug 3848: cellmodel(n): change the default of -maxiters to 200
+<li> Bug 3826: cmsheet(n): add cell by cell validation and change command
+</ul><p>
+
+<h3>Build 2.13, 14 January 2013</h3>
+
+This build contains changes, primarily to uram(n) and ucurve(n), to
+support empty civilian groups, i.e., groups with zero population.  The 
+specific changes are as follows:<p>
+
+<ul>
+<li> Bug 3801: ucurve(n): Untracked Curves
+<li> Bug 3802: uram(n): Support for Empty Civilian Groups
+<li> Bug 3803: uram(n): Roll-up contributions using historical population statistics
+<li> Bug 3810: coverage(n): error if population is 0.
+</ul><p>
+
+<h3>Build 2.12, 31 October 2012</h3>
+
+This build removes the obsolete module timeline(n), and the related
+dependency on the Plotchart package.<p>
+
+<h3>Build 2.11, 29 October 2012</h3>
+
+This build contains changes required to move Athena from using
+Zulu-time strings to Julian week strings as its human-readable time
+format.  In addition, the underlying Tcl infrastructure was updated to
+the 2012Q3 build of ActiveTcl Enterprise Edition, and code was added
+to make it possible to use geo-registered maps in Athena.<p>
+
+<ul>
+<li> Bug 3729: geotiff(n): geotiff reader for Mars
+<li> Bug 3731: geotiff(n): geotiff reader should give proper error message if file is not found
+<li> Bug 3735: geotiff(n): read GEOGRAPHIC model type from GeoTIFF file.
+<li> Bug 3743: simclock(i) interface
+<li> Bug 3753: Remove gram2(n) and related software
+<li> Bug 3754: Set MARS_TCL_HOME in MakePlatform
+</ul><p>
+
+<h3>Build 2.10, 3 October 2012</h3>
+
+This build contains performance improvements to URAM and to Mars'
+SQLite3 infrastructure.<p>
+
+<ul>
+<li> Bug 3723: uram(n): Optimizations
+<li> Bug 3726: sqlib(n): grab/ungrab
+</ul><p>
+
+
+<h3>Build 2.9, 26 September 2012</h3>
+
+This build contains a performance optimization to the marsutil(n)
+report handling code, and an enhancement to sqldocument(n) to aid
+performance optimization of SQL queries.  The full set of packages is
+as follows:<p>
+
+<ul>
+<li> Bug 3710: sqldocument(n): explain, -explaincmd
+<li> Bug 3713: reporter(n)/reportbrowser(n) optimization
+</ul><p>
+
+<h3>Build 2.8, 24 September 2012</h3>
+
+This build contains minor fixes to dynabox(n) and cellmodel(n).<p>
+
+<ul>
+<li> Bug 3689: dynabox(n): Error flags not cleared when all fields contain valid data.
+<li> Bug 3703: cellmodel(n): pageinfo cyclic and pageinfo order fail if model is not sane.
+</ul><p>
+
+<h3>Build 2.7, 11 September 2012</h3>
+
+The build contains some minor bug fixes and some cellmodel(n) changes
+in support of the new athena_cell(1) tool.<p>
+
+<ul>
+<li> Bug 3649: mars_cmtool(1): Error when called with no arguments
+<li> Bug 3653: isearch(n): Ctrl-S for searching conflicts with Ctrl-S for saving documents
+<li> Bug 3654: cellmodel(n): Improved reporting of syntax errors in cellmodel(5) input
+<li> Bug 3657: cellmodel(n): Instrument cellmodel(5) commands with line numbers
+<li> Bug 3661: order(n): prepare -num
+<li> Bug 3663: moneyscan: leading zeroes treated as octal
+<li> Bug 3670: cellmodel(n): [cellinfo uses] can miss some cells
+<li> Bug 3675: dynaform(n): contextkey field type.
+</ul><p>
+
+
+<h3>Build 2.6, 21 August 2012</h3>
+
+This build contains two changes to the cellmodel(5) tools in support
+of debugging Athena's 6x6 CGE.<p>
+
+<ul>
+    <li> Bug 3637: cellmodel(n): add a -failcmd option that calls back to users with some information about a failure
+    <li> Bug 3638: mars_cmtool(1): add -initfrom option to allow cell models to be initialized from outside data
+</ul><p>
+
+<h3>Build 2.5, 13 August 2012</h3>
+
+This build contains bug fixes and some improvements to marsgui(n)'s
+ability to display  monetary spreadsheet data.<p>
+
+<ul>
+    <li> Bug 3616: htmlviewer(n): "submit" elements have visible border
+    <li> Bug 3620: dynabox(n): Dynaform-based modal dialog
+    <li> Bug 3621: marsmisc(n): commafmt command should use wide() not int()
+    <li> Bug 3623: marsmisc(n): add option to commafmt command to specify decimal places
+    <li> Bug 3624: cmsheet(n): add -browsecommand option
+</ul><p>
+
+<h3>Build 2.4, 2 August 2012</h3>
+
+This build contains two additions to marsutil(n)'s order(n) module's
+[prepare] command, the -oneof and -someof options.  These allow 
+[prepare] to validate that a particular parameter's value is within
+a set of values, or is a subset of a set of values, where the set of
+values is specified as a list rather than as the name of a validation
+type.<p>
+
+<ul>
+    <li> Bug 3607: order(n): prepare -oneof, -someof
+</ul><p>
+
+
+<h3>Build 2.3, 25 July 2012</h3>
+
+This build integrates the dynaform(n)/dynaview(n) data entry form
+infrastructure into Mars and specifically into
+order(n)/orderdialog(n).  In addition, order(n)/orderdialog(n) are no
+longer integrated with the eventq(n) mechanism; orders can no longer
+be scheduled in advance.  (We've learned that that's the wrong
+abstraction; orders are about user input right now.  Scheduling
+applies to other entities.)<p>
+
+In addition, there are significant updates to the cmsheet(n) module,
+allowing much improved user input via a cmsheet(n).<p>
+
+The complete set of changes is as follows:<p>
+
+<ul>
+    <li> Bug 3591: dynaform(n)/dynaview(n)
+    <li> Bug 3594: dynaform(n)/order(n): Improved validation of selector cases
+    <li> Bug 3595: cmsheet(n): change behavior and add -changecmd option
+    <li> Bug 3598: dynaform(n) test suite
+</ul><p>
+
+
+<h3>Build 2.2, 2 July 2012</h3>
+
+This build is in support of the Athena 4.0.8 Engineering Release to
+TRISA. It contains the following minor change:<p>
+
+<ul>
+<li> Bug 3580: htmlviewer(n): INPUT elements should have border: 1px.
+</ul>
+
+<h3>Build 2.1, 25 June 2012</h3>
+
+This build contains the following changes:<p>
+
+<ul>
+    <li> Bug 3557: sqlbrowser(n): disable column-label sorting
+    <li> Bug 3565: Remove TkHTML 2.0 and related software
+    <li> Bug 3566: Move htmllviewer3(n) from projectgui(n) to marsgui(n) as htmlviewer(n).
+    <li> Bug 3569: Update CM plan to Mars 2.0
+</ul><p>
+
+<h3>Build 2.0, 21 June 2012</h3>
+
+Build 2.0 is the first Mars 2.x build; Mars has been split, with Mars
+1.x continuing to support JNEM maintenance and Mars 2.x supporting
+Athena 4.0.x development.  This will allow the TkHTML 2.0 widget
+currently used in Mars to be replaced by the TkHTML 3.0 widget now
+used in Athena.<p>
+
+Build 2.0 contains no changes except for those required to identify it
+as Mars 2.x.  In terms of the Mars code, it is identical to Mars
+1.70.<p>
+
+</body>
+</html>

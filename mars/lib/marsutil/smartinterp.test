@@ -1,0 +1,775 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    smartinterp.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for marsutil(n) smartinterp(n)
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require marsutil 1.0
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::marsutil::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::marsutil::*
+
+    #-------------------------------------------------------------------
+    # Setup
+
+    proc echo {args} {
+        return "<[join $args ><]>"
+    }
+
+    #-------------------------------------------------------------------
+    # Creation
+
+    test Creation-1.1 {Untrusted by default} -body {
+        set interp [smartinterp %AUTO%]
+
+        $interp cget -trusted
+    } -cleanup {
+        $interp destroy
+    } -result {no}
+
+    test Creation-1.2 {-trusted on request} -body {
+        set interp [smartinterp %AUTO% -trusted yes]
+
+        $interp cget -trusted 
+    } -cleanup {
+        $interp destroy
+    } -result {yes}
+
+    #-------------------------------------------------------------------
+    # eval
+    
+    test eval-1.1 {Can evaluate commands in interp} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp eval {
+            expr {1 + 2 + 3}
+        }
+    } -cleanup {        
+        $interp destroy
+    } -result 6
+
+    #-------------------------------------------------------------------
+    # Trust -- do -trusted yes and -trusted no have the desired effect?
+
+    test Trust-1.1 {-trusted no, interp is -safe} -setup {
+        set interp [smartinterp %AUTO% -trusted no]
+    } -body {
+        $interp eval {open}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {invalid command name "open"}
+
+    test Trust-1.2 {-trusted yes, interp is *NOT* -safe} -setup {
+        set interp [smartinterp %AUTO% -trusted yes]
+    } -body {
+        $interp eval {open}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "open fileName ?access? ?permissions?"}
+
+    #-------------------------------------------------------------------
+    # alias
+
+    test alias-1.1 {Can evaluate commands in interp} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp alias foo  ::marsutil::test::echo foo
+        
+        $interp eval {foo a b c}
+
+    } -cleanup {        
+        $interp destroy
+    } -result {<foo><a><b><c>}
+
+    #-------------------------------------------------------------------
+    # proc
+
+    test proc-1.1 {Can define procs in interp} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp proc hello {name} {
+            return "Hello, $name!"
+        }
+        
+        $interp eval {hello Fred}
+
+    } -cleanup {        
+        $interp destroy
+    } -result {Hello, Fred!}
+
+
+    #-------------------------------------------------------------------
+    # smartalias & ensemble
+
+    test smartalias-1.1 {Valid: 0,0} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 0 0 {} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo}
+    } -cleanup {        
+        $interp destroy
+    } -result {<foo>}
+
+    test smartalias-1.2 {Valid: 2,2} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 2 2 {this that} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a b}
+    } -cleanup {        
+        $interp destroy
+    } -result {<foo><a><b>}
+    
+    test smartalias-1.3 {Valid, 0,2, no arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 0 2 {?this? ?that?} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo}
+    } -cleanup {        
+        $interp destroy
+    } -result {<foo>}
+
+    test smartalias-1.4 {Valid, 0,2, 2 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 0 2 {?this? ?that?} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a b}
+    } -cleanup {        
+        $interp destroy
+    } -result {<foo><a><b>}
+
+    test smartalias-1.5 {Valid, 1,-, 1 argument} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 1 - {?this? ?options...?} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a}
+    } -cleanup {        
+        $interp destroy
+    } -result {<foo><a>}
+
+    test smartalias-1.6 {Valid, 1,-, 5 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 1 - {?this? ?options...?} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a b c d e}
+    } -cleanup {        
+        $interp destroy
+    } -result {<foo><a><b><c><d><e>}
+
+    test smartalias-1.7 {Valid, ensemble, 0,0} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 0 0 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub>}
+
+    test smartalias-1.8 {Valid, ensemble, 2,2} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 2 2 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a b}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a><b>}
+
+    test smartalias-1.9 {Valid, ensemble, 0,2, no args} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 0 2 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub>}
+
+    test smartalias-1.10 {Valid, ensemble, 0,2, 2 args} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 0 2 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a b}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a><b>}
+
+    test smartalias-1.11 {Valid, ensemble, 1,-, 1 arg} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 1 - {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a>}
+
+    test smartalias-1.12 {Valid, ensemble, 1,-, 5 args} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 1 - {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a b c d e}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a><b><c><d><e>}
+
+    test smartalias-1.13 {Valid, multi-ensemble, 0,0} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 0 0 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub>}
+
+    test smartalias-1.14 {Valid, ensemble, 2,2} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 2 2 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a b}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a><b>}
+
+    test smartalias-1.15 {Valid, multi-ensemble, 0,2, no args} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 0 2 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub>}
+
+    test smartalias-1.16 {Valid, multi-ensemble, 0,2, 2 args} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 0 2 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a b}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a><b>}
+
+    test smartalias-1.17 {Valid, multi-ensemble, 1,-, 1 arg} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 1 - {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a>}
+
+    test smartalias-1.18 {Valid, multi-ensemble, 1,-, 5 args} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 1 - {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a b c d e}
+    } -cleanup {        
+        $interp destroy
+    } -result {<ensub><a><b><c><d><e>}
+
+    test smartalias-2.1 {Invalid: 0,0, 1 argument} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 0 0 {} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "foo"}
+
+    test smartalias-2.2 {Invalid: 2,2, 1 argument} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 2 2 {this that} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "foo this that"}
+    
+    test smartalias-2.3 {Invalid, 2,2, 3 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 2 2 {this that} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a b c}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "foo this that"}
+
+    test smartalias-2.4 {Invalid, 1,2, 0 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 1 2 {this ?that?} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "foo this ?that?"}
+
+    test smartalias-2.5 {Invalid, 1,2, 3 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 1 2 {this ?that?} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo a b c}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "foo this ?that?"}
+
+    test smartalias-2.6 {Invalid: ensemble 0,0, 1 argument} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 0 0 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en sub"}
+
+    test smartalias-2.7 {Invalid: ensemble 2,2, 1 argument} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 2 2 {this that} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en sub this that"}
+    
+    test smartalias-2.8 {Invalid, ensemble 2,2, 3 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 2 2 {this that} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a b c}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en sub this that"}
+
+    test smartalias-2.9 {Invalid, ensemble, 1,2, 0 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 1 2 {this ?that?} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en sub this ?that?"}
+
+    test smartalias-2.10 {Invalid, ensemble, 1,2, 3 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en
+        $interp smartalias {en sub} 1 2 {this ?that?} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en sub a b c}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en sub this ?that?"}
+
+    test smartalias-2.11 {Invalid, multi-ensemble 0,0, 1 argument} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 0 0 {} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en1 en2 sub"}
+
+    test smartalias-2.12 {Invalid, multi-ensemble 2,2, 1 argument} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 2 2 {this that} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en1 en2 sub this that"}
+    
+    test smartalias-2.13 {Invalid, multi-ensemble 2,2, 3 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 2 2 {this that} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a b c}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en1 en2 sub this that"}
+
+    test smartalias-2.14 {Invalid, multi-ensemble, 1,2, 0 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 1 2 {this ?that?} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en1 en2 sub this ?that?"}
+
+    test smartalias-2.15 {Invalid, multi-ensemble, 1,2, 3 arguments} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 en2 sub} 1 2 {this ?that?} \
+            [list ::marsutil::test::echo ensub]
+        
+        $interp eval {en1 en2 sub a b c}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en1 en2 sub this ?that?"}
+
+    test smartalias-2.16 {Invalid, ensemble, no subcommand} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 sub1} 0 0 {} {}
+        
+        $interp eval {en1}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en1 subcommand ?args...?", valid subcommands: en2, sub1}
+    
+    test smartalias-2.17 {Invalid, ensemble, invalid subcommand} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 sub1} 0 0 {} {}
+        
+        $interp eval {en1 nonesuch}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {bad subcommand "nonesuch", should be one of: en2, sub1}
+
+    test smartalias-2.18 {Invalid, multi-ensemble, no subcommand} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp ensemble {en1 en2 en3}
+        $interp smartalias {en1 en2 sub1} 0 0 {} {}
+        
+        $interp eval {en1 en2}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {wrong * args: should be "en1 en2 subcommand ?args...?", valid subcommands: en3, sub1}
+    
+    test smartalias-2.17 {Invalid, ensemble, invalid subcommand} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp ensemble {en1 en2 en3}
+        $interp smartalias {en1 en2 sub1} 0 0 {} {}
+
+        $interp eval {en1 en2 nonesuch}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -match glob -result {bad subcommand "nonesuch", should be one of: en3, sub1}
+
+    test smartalias-3.1 {Can't define multi-alias with no parent} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias {foo bar} 0 0 {} {}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't define alias "foo bar", no parent ensemble "foo"}
+
+    test smartalias-3.2 {Can't define multi-alias with no parent} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias {foo bar baz} 0 0 {} {}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't define alias "foo bar baz", no parent ensemble "foo bar"}
+
+    test smartalias-3.3 {Can't define multi-ensemble with no parent} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble {foo bar}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't define ensemble "foo bar", no parent ensemble "foo"}
+
+    test smartalias-3.4 {Can't define multi-ensemble with no parent} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble {foo bar baz}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't define ensemble "foo bar baz", no parent ensemble "foo bar"}
+
+    test smartalias-3.5 {Can't redefine alias as ensemble} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp smartalias foo 0 0 {} dummy
+        $interp ensemble foo
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't redefine smartalias as an ensemble: "foo"}
+
+    test smartalias-3.6 {Can't redefine alias as ensemble} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble foo
+        $interp smartalias {foo bar} 0 0 {} dummy
+        $interp ensemble {foo bar}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't redefine smartalias as an ensemble: "foo bar"}
+
+    test smartalias-3.7 {Can't redefine ensemble as an alias} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble foo
+        $interp smartalias foo 0 0 {} dummy
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't redefine ensemble as a smartalias: "foo"}
+
+    test smartalias-3.8 {Can't redefine alias as ensemble} -setup {
+        set interp [smartinterp %AUTO%]
+    } -body {
+        $interp ensemble foo
+        $interp ensemble {foo bar}
+        $interp smartalias {foo bar} 0 0 {} dummy
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {can't redefine ensemble as a smartalias: "foo bar"}
+
+    #-------------------------------------------------------------------
+    # -cli yes
+
+    test smartalias-4.1 {-cli, Invalid, 1,2, 0 arguments} -setup {
+        set interp [smartinterp %AUTO% -cli yes]
+    } -body {
+        $interp smartalias foo 1 2 {this ?that?} \
+            [list ::marsutil::test::echo foo]
+        
+        $interp eval {foo}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {Wrong number of arguments.
+
+Usage: foo this ?that?}
+
+    test smartalias-4.2 {-cli, Invalid, ensemble, invalid subcommand} -setup {
+        set interp [smartinterp %AUTO% -cli yes]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 sub1} 0 0 {} {}
+        
+        $interp eval {en1 nonesuch}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {Invalid subcommand: "nonesuch"
+
+Usage: en1 subcommand ?args...?
+Valid subcommands: en2, sub1}
+
+    test smartalias-4.3 {-cli, Invalid, ensemble, missing subcommand} -setup {
+        set interp [smartinterp %AUTO% -cli yes]
+    } -body {
+        $interp ensemble en1
+        $interp ensemble {en1 en2}
+        $interp smartalias {en1 sub1} 0 0 {} {}
+        
+        $interp eval {en1}
+    } -returnCodes {
+        error
+    } -cleanup {        
+        $interp destroy
+    } -result {Missing subcommand.
+
+Usage: en1 subcommand ?args...?
+Valid subcommands: en2, sub1}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::marsutil::test
+
+
+
+
+
+
+

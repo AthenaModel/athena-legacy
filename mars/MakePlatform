@@ -1,0 +1,63 @@
+# -*-Makefile-*-
+#---------------------------------------------------------------------
+# TITLE:
+#    MakePlatform -- Platform-specific Symbols
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    The following definitions are loaded by MakeDefs, and are used
+#    to characterize the build platform.  At present, Mars supports
+#    these platforms; not all features are available on all platforms.
+#
+#    linux32      32-bit Linux (i686)
+#    linux64      64-bit Linux (x86_64)
+#    win32        32-bit Windows
+#
+# SYMBOLS:
+#    The following symbols are defined:
+#
+#    MARS_PLATFORM    - One of the symbols listed above.
+#    MARS_OS          - "linux" or "win"
+#    MARS_ARCH        - "i686" or "x86_64"
+#    MARS_LIBSUFFIX   - "so" or "dll"
+#    MARS_TCL_HOME    - Location of the relevant Tcl distribution
+#
+#---------------------------------------------------------------------
+
+# FIRST, get the platform
+
+UNAME := $(shell uname -sp)
+
+ifeq "$(UNAME)" "Linux i686"
+    MARS_PLATFORM  = linux32
+    MARS_OS        = linux
+    MARS_ARCH      = i686
+    MARS_LIBSUFFIX = so
+    export MARS_TCL_HOME  = /usr/local/AT8.5.14
+else ifeq "$(UNAME)" "Linux x86_64"
+    MARS_PLATFORM  = linux64
+    MARS_OS        = linux
+    MARS_ARCH      = x86_64
+    MARS_LIBSUFFIX = so
+    export MARS_TCL_HOME = /usr/local/AT8.5.14-x86_64
+else ifeq "$(UNAME)" "MINGW32_NT-6.1 unknown"
+    MARS_PLATFORM  = win32
+    MARS_OS        = win
+    MARS_ARCH      = i686
+    MARS_LIBSUFFIX = dll
+    export MARS_TCL_HOME = C:/Tcl/AT8.5.14
+else ifeq "$(UNAME)" "Darwin i386"
+    MARS_PLATFORM  = osx
+    MARS_OS        = osx
+    MARS_ARCH      = unknown
+    MARS_LIBSUFFIX = unknown
+    export MARS_TCL_HOME = /usr/local
+else
+    MARS_PLATFORM  = unknown
+    MARS_OS        = unknown
+    MARS_ARCH      = unknown
+    MARS_LIBSUFFIX = unknown
+    export MARS_TCL_HOME = unknown
+endif
