@@ -21,7 +21,7 @@ include $(TOP_DIR)/mars/MakePlatform
 export ATHENA_TCL_HOME = $(MARS_TCL_HOME)
 
 # Set ATHENA_VERSION for development if it isn't set.
-export ATHENA_VERSION_DEFAULT = 5.0.x
+export ATHENA_VERSION_DEFAULT = 6.0.x
 
 ifndef ATHENA_VERSION
     export ATHENA_VERSION = \
