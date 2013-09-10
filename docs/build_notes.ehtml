@@ -11,6 +11,10 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.1.0, 9 September 2013</h3>
+This build is the Athena 5 release candidate. It is identical to Athena 
+5.0.16 except for the version number and these build notes.<p>
+
 <h3>Build 5.0.16, 3 September 2013</h3>
 Two more bug fixes to the athena_pbs(1) application.<p>
 
