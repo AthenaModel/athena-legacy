@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Athena"
-#define MyAppVersion "5.0.16"
+#define MyAppVersion "5.1.0"
 #define MyAppPublisher "Jet Propulsion Laboratory, California Institute of Technology"
 #define MyAppExeName "athena.exe"
 
@@ -10,13 +10,13 @@
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
 ; (To generate a new GUID, click Tools | Generate GUID inside the IDE.)
-AppId={{C6674C4E-EA24-4564-A280-DF3FEF793FAA}
+AppId={{5AC6EF2B-096F-4063-A47F-A04616F7D222}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={pf}\Athena {#MyAppVersion}
-DefaultGroupName=Athena {#MyAppVersion}
+DefaultDirName={pf}\Athena 5.1 {#MyAppVersion}
+DefaultGroupName=Athena 5.1 {#MyAppVersion}
 LicenseFile=..\license.txt
 ;InfoBeforeFile=before.txt
 InfoAfterFile=after.txt
