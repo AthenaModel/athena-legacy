@@ -68,10 +68,11 @@ snit::widget cgesheet {
     # Array of narrative text that describes each view in vdict
     variable ntext -array {
         Out {
-            The economy with capacity constraints and security factors taken
-            into consideration. In addition to labor and goods capacity limits,
-            this view reflects whether people are either afraid to work or to
-            go to market.
+            The economy with capacity constraints, geographic unemployment
+            and security factors taken into consideration. In addition to 
+            labor and goods capacity limits, this view reflects the 
+            labor force proximity to where the jobs are and whether 
+            people are either afraid to work or to go to market.
         }
 
         M   {
@@ -130,10 +131,10 @@ snit::widget cgesheet {
 
         # NEXT the dropdown menu of views and their keys
         set vdict [dict create \
-            "Capacity Constrained with Security Factors" Out \
-            "Capacity Constrained"                       M   \
-            "Unconstrained"                              L   \
-            "Calibrated Values"                          Cal]
+            "Constrained with Geo. Unemp. and Sec. Factors" Out \
+            "Constrained"                                   M   \
+            "Unconstrained"                                 L   \
+            "Calibrated Values"                             Cal]
 
         # NEXT, Get the CGE.
         set cge [econ cge]
@@ -314,7 +315,7 @@ snit::widget cgesheet {
             -titlerows     1                       \
             -titlecols     1                       \
             -browsecommand [mymethod BrowseCmd $w %C] \
-            -formatcmd     ::marsutil::moneyfmt
+            -formatcmd     [mymethod FormatOutput]
 
         $quant textcol 0,-1 [concat $rsectors {Demand}]
 
@@ -373,7 +374,7 @@ snit::widget cgesheet {
             -colorigin     0                          \
             -cellmodel     $cge                       \
             -state         disabled                   \
-            -rows          7                          \
+            -rows          8                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -387,6 +388,7 @@ snit::widget cgesheet {
             "Consumers"
             "Consumer Sec. Factor"
             "Labor Force"
+            "Geo. Unemployed"
             "Labor Sec. Factor"
             "FAR Graft Factor"
             "Remittances"
@@ -396,6 +398,7 @@ snit::widget cgesheet {
         $inputs textcol 0,2 {
             "People"
             ""
+            "People"
             "People"
             ""
             ""
@@ -407,10 +410,11 @@ snit::widget cgesheet {
         $inputs mapcell 0,1 In::Consumers q -background $color(q)
         $inputs mapcell 1,1 In::CSF       q -formatcmd {format "%.3f"}
         $inputs mapcell 2,1 In::LF        q
-        $inputs mapcell 3,1 In::LSF       q -formatcmd {format "%.3f"}
-        $inputs mapcell 4,1 graft         q -formatcmd {format "%.3f"}
-        $inputs mapcell 5,1 In::REM       q 
-        $inputs mapcell 6,1 Global::REMChangeRate q -formatcmd {format "%.1f"}
+        $inputs mapcell 3,1 In::GU        q
+        $inputs mapcell 4,1 In::LSF       q -formatcmd {format "%.3f"}
+        $inputs mapcell 5,1 graft         q -formatcmd {format "%.3f"}
+        $inputs mapcell 6,1 In::REM       q 
+        $inputs mapcell 7,1 Global::REMChangeRate q -formatcmd {format "%.1f"}
 
         # NEXT, expand widths
         $inputs width 0 21
@@ -433,7 +437,7 @@ snit::widget cgesheet {
             -colorigin     0                          \
             -cellmodel     $cge                       \
             -state         disabled                   \
-            -rows          11                         \
+            -rows          9                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -447,12 +451,10 @@ snit::widget cgesheet {
             "Deflated GDP"
             "Per Capita Deflated GDP"
             "Per Cap. Demand for goods"
+            "Real Unemployment"
             "Unemployment"
             "Unemp. Rate"
             "Insecure Labor Force"
-            "Goods Shortage"
-            "Black Mkt Shortage"
-            "Labor Shortage"
         }
 
         $outputs width 0 25
@@ -464,27 +466,23 @@ snit::widget cgesheet {
             "$/Year, Deflated"
             "goodsBKT/year"
             "work-years"
-            "%"
             "work-years"
-            "goodsBKT/year"
-            "tonne/year"
+            "%"
             "work-years"
         } units -anchor w -relief flat
 
         $outputs width 2 17
         
         # NEXT, add data
-        $outputs mapcell  0,1 Out::GDP            x -background $color(x)
-        $outputs mapcell  1,1 Out::CPI            q -background $color(q)
-        $outputs mapcell  2,1 Out::DGDP           x
-        $outputs mapcell  3,1 Out::PerCapDGDP     x 
-        $outputs mapcell  4,1 Out::A.goods.pop    q
-        $outputs mapcell  5,1 Out::Unemployment   q
-        $outputs mapcell  6,1 Out::UR             q
-        $outputs mapcell  7,1 Out::LFU            q
-        $outputs mapcell  8,1 Out::SHORTAGE.goods q
-        $outputs mapcell  9,1 Out::SHORTAGE.black q
-        $outputs mapcell 10,1 Out::SHORTAGE.pop   q
+        $outputs mapcell  0,1 Out::GDP          x -background $color(x)
+        $outputs mapcell  1,1 Out::CPI          q -background $color(q)
+        $outputs mapcell  2,1 Out::DGDP         x
+        $outputs mapcell  3,1 Out::PerCapDGDP   x 
+        $outputs mapcell  4,1 Out::A.goods.pop  q
+        $outputs mapcell  5,1 Out::RealUnemp    q
+        $outputs mapcell  6,1 Out::Unemployment q
+        $outputs mapcell  7,1 Out::UR           q
+        $outputs mapcell  8,1 Out::LFU          q
     }
 
     # FormatOutput value
@@ -508,9 +506,9 @@ snit::widget cgesheet {
     #
     # Cal - the values for which the cellmodel was calibrated 
     # L   - the "long" term or unconstrained solution
-    # M   - the "medium" term or capacity constrained solution
-    # Out - the output or "short" term capacity and security factor
-    #       constrained solution
+    # M   - the "medium" term or capacity constrained 
+    # Out - the output or "short" term capacity, geo. unemp. and security 
+    #       factor constrained solution
 
     method DisplayCurrentView {} {
         # FIRST, extract the mode from the menu selection
@@ -568,6 +566,8 @@ snit::widget cgesheet {
         set rsectors [$cge index gbp]
         set nc       [llength $csectors]
         set nr       [llength $rsectors]
+        let clatent {$nc + 2}
+        let cidle   {$nc + 3}
         set rdem     $nr
         set cq2      $nc
 
@@ -600,18 +600,19 @@ snit::widget cgesheet {
         $quant map 0,0 gbp j ${mode}::QD.%gbp.%j qij \
             -background $color(q)
 
+        $quant mapcol 0,$clatent gbp ${mode}::LATENTDEMAND.%gbp q
+        $quant mapcol 0,$cidle   gbp ${mode}::IDLECAP.%gbp q
+
         # NEXT, some outputs that depend on mode
-        $outputs mapcell  0,1 ${mode}::GDP            x -background $color(x)
-        $outputs mapcell  1,1 ${mode}::CPI            q -background $color(q)
-        $outputs mapcell  2,1 ${mode}::DGDP           x
-        $outputs mapcell  3,1 ${mode}::PerCapDGDP     x 
-        $outputs mapcell  4,1 ${mode}::A.goods.pop    q
-        $outputs mapcell  5,1 ${mode}::Unemployment   q
-        $outputs mapcell  6,1 ${mode}::UR             q
-        $outputs mapcell  7,1 ${mode}::LFU            q
-        $outputs mapcell  8,1 ${mode}::SHORTAGE.goods q
-        $outputs mapcell  9,1 ${mode}::SHORTAGE.black q
-        $outputs mapcell 10,1 ${mode}::SHORTAGE.pop   q
+        $outputs mapcell  0,1 ${mode}::GDP          x -background $color(x)
+        $outputs mapcell  1,1 ${mode}::CPI          q -background $color(q)
+        $outputs mapcell  2,1 ${mode}::DGDP         x
+        $outputs mapcell  3,1 ${mode}::PerCapDGDP   x 
+        $outputs mapcell  4,1 ${mode}::A.goods.pop  q
+        $outputs mapcell  5,1 ${mode}::RealUnemp    q
+        $outputs mapcell  6,1 ${mode}::Unemployment q
+        $outputs mapcell  7,1 ${mode}::UR           q
+        $outputs mapcell  8,1 ${mode}::LFU          q
 
         # NEXT, take focus off the menu
         focus $win

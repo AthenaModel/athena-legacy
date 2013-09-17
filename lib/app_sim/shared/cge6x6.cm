@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cge6x6.cm, version ac
+#    cge6x6.cm, version af
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -10,6 +10,20 @@
 # DESCRIPTION:
 #    Six-sector CGE for the Athena Economics Model.  This 
 #    model contains both Leontief and Cobb-Douglas functions.
+#
+#    It is commonly assumed that "in the long run", production 
+#    capacity will be expanded until it is able to supply whatever 
+#    quantities are needed to fulfill demand. Thus, we refer to "the 
+#    long run" on the L page. Terminology used on the output GUIs, 
+#    however, reflects the assumption itself and refer to the results 
+#    of the "long run" computations as the "Unconstrained" case. Similarly,
+#    the "medium run" computations on the M and MG pages include production 
+#    capacity constraints. The MG page, which includes consideration of
+#    geographic unemployment, is referred to in the output GUIs as the 
+#    "Capacity Constrained" case. The "short run" computations on the S page 
+#    include consideration of the fact that low security may cause some 
+#    people to stay in and not go shopping or to work. The GUIs refer to 
+#    this as the "Capacity Constrained with Security Factors".
 #
 #    Criteria for success, necessary but not sufficient:
 #
@@ -38,22 +52,23 @@
 #    Global Stores variables that are not necessarily used by the
 #           cell model, but are germane to it.
 #    Cal    Iterative calibration based on data from the null page.
-#           Determines the values of A.goods.pop and TBD that make
+#           Determines the values of A.goods.pop and BP.pop that make
 #           Cal::GDP = BaseGDP and Cal::Unemp = BaseUnemp.
 #
 #    Dynamic Pages - run each tock
 #    In     Athena-set inputs for the L, M, and S pages.
 #    L      Long-run model; the size of the economy is driven by
 #           consumer demand and limited by available workers. Provides
-#           latent demands for shortage computation on the Out page.
+#           information for the computation of latent demand on the Out page.
 #    M      Medium-run model; production further limited by production 
 #           capacity and feedstock constraints (CAP.black, CAP.goods, 
 #           MF.world.black). Provides the number of jobs for unemployment
 #           computation on the Out page.
-#    S      Short-run model; the populace responds to current conditions: 
+#    S      Short-run model with Geographic Unemployment; the populace 
+#           responds to current conditions: 
 #           Labor supply is less than that of the medium-run reduced by the 
 #           LSF and the number of consumers is reduced by the CSF. 
-#    Out    Output page: computes overages, shortages, and idle capacities
+#    Out    Output page: computes latent demands and idle capacities
 #           (e.g., unemployment). Since the six-sector model has only one
 #           competitively priced good and only one factor of production,
 #           prices are completely determined by the goods production
@@ -63,6 +78,31 @@
 #    In, and Out pages.
 #
 # HISTORY:
+#    Version af: Outside the CGE, we disaggregate unemployment to 
+# neighborhood groups by associating jobs with workers, using 
+# neighborhood proximity to make the association. Some jobs may remain
+# unfilled because the available workers live too far away from those
+# jobs. We call this geographic unemployment, or GU for short. All of 
+# the current pages in the CGE assume those empty jobs contribute to 
+# production, so they must be removed from the computation. GU is 
+# subtracted from QS.pop on the S page to get the total number of jobs 
+# with constrained production and security-driven reductions in workers 
+# and shoppers. Because it is not feasible to apply the disaggregation 
+# within the S page, the value of GU computed after the previous computation
+# of the CGE is obtained from the In page. The Out page computes and
+# reports the total impact of GU.
+#
+#    Version ae: Removed computation of and references to Overages and 
+# Shortages. Overages do not happen. Shortages are now computed in the 
+# Consumption Model, which is outside the scope of this CGE. Computation
+# of Latent Demand and Idle Capacities are kept.
+#
+#    Version ad: Comments added to the description block to indicate that
+# the L, M and S pages are referred to on the GUI as "Unconstrained", 
+# "Capacity Constrained" and "Capacity Constrainted with Security Factors"
+# respectively. The short names continue to be used internally when solving 
+# the cell model.
+#
 #    Version ac: Fixed a bug related to the computation of expenditures 
 # in the pop sector for those that are computed using tax-like rates. It's 
 # possible that remittances are taxed, so X.actors.pop, X.region.pop and
@@ -1010,18 +1050,18 @@ let BaseBasketValue = {
     [P.pop]   * [BQD.pop.pop]
 }
 
-# Some outputs for display in the Athena GUI
-# Some of these (ie. A.goods.pop) are recomputed on the L, M and S pages.
-# Others are computed only on the Out page (ie. SHORTAGE.i).
-letsym CPI            = {"n/a"}
-letsym DGDP           = {"n/a"}
-letsym PerCapDGDP     = {"n/a"}
-let A.goods.pop       = {[Agp]}
-let Unemployment      = {[Unemp]}
-letsym LFU            = {"n/a"}
-letsym SHORTAGE.goods = {"n/a"}
-letsym SHORTAGE.black = {"n/a"}
-letsym SHORTAGE.pop   = {"n/a"}
+# Some outputs for display in the Athena GUI, these are set to "n/a" 
+# whenever their value does not make sense
+letsym CPI        = {"n/a"}
+letsym DGDP       = {"n/a"}
+letsym PerCapDGDP = {"n/a"}
+let A.goods.pop   = {[Agp]}
+let Unemployment  = {[Unemp]}
+letsym LFU        = {"n/a"}
+foreach i {goods black pop} {
+    letsym LATENTDEMAND.$i = {"n/a"}
+    letsym IDLECAP.$i      = {"n/a"}
+}
 
 #-----------------------------------------------------------------------
 # Diagnostics
@@ -1154,11 +1194,22 @@ let LF         = 9.6e7       ;# work-years/year
 # CAP.pop is the LF less this turbulence.
 let CAP.pop = {[LF]*(1 - [TurFrac])}
 
+# Since jobs are assumed to be located in the neighborhoods containing 
+# production infrastructure and we assign jobs to people by neighborhood
+# proximity, some jobs may be too far away from some of the still 
+# unassigned workers, thus causing what we call geographic unemployment 
+# (or GU, for short). Since we do not want to embed this algorithm for 
+# "disaggregation of unemployment" in the CGE itself, we use the value 
+# computed outside the CGE at the previous tick of the simulation clock.
+let GU = 7.0E4
+
 # Due to low security, the demographics model may say that some 
-# consumers are afraid to go shopping:
+# consumers are afraid to go shopping. This fraction is those that
+# do go:
 let CSF = 1.0
 
-# Demographics may also say that some laborers are afraid to go to work:
+# Demographics may also say that some laborers are afraid to go to work.
+# This fraction is those that do go:
 let LSF = 1.0
 
 # Actors expenditures
@@ -1177,12 +1228,15 @@ let X.actors.region = 0.0
 let X.actors.world  = 2.167e9
 
 #-----------------------------------------------------------------------
-# Long-Run Page
+# Long-Run or "Unconstrained" Page
 #
 # The base case computed on the Cal page is a long-run solution of the 
-# CGE using base-case data. This page also computes a long-run solution 
-# of the CGE, but it gets some of its data from the In page instead of 
-# the base case. 
+# CGE using base-case data, in which it is assumed that enough 
+# manufacturing capacity will be built to satisfy demand, so the ability 
+# to produce goods and black market products is not constrained by present
+# production capacity. It may, however, be limited by available labor. 
+# This page also computes a long-run solution of the CGE, but it gets 
+# some of its data from the In page instead of the base case. 
 #
 # In particular, it copies the equations from the Cal page (except for a
 # few of the diagnostics), then replaces the equation that drives the 
@@ -1203,7 +1257,7 @@ copypage Cal -except {
 }
 
 # Copy the calibrated wages and price of GoodsBKT
-let P.pop = {[Cal::P.pop]}
+let P.pop   = {[Cal::P.pop]}
 let P.goods = {[Cal::P.goods]}
 
 # A.goods.pop may have changed if the number of consumers has changed or the
@@ -1270,15 +1324,23 @@ let GDP = {
     [GDP.goods] + [GDP.black] + [GDP.pop] - [REV.world] + [In::SA]
 } -value 198.0e9
 
+# latend demand (which is N/A) and idle capacity
+foreach i {goods black pop} {
+    letsym LATENTDEMAND.$i = {"n/a"}
+    let IDLECAP.$i         = {[In::CAP.$i] - [QS.$i]}
+}
+
+# Unemployment Statistics, in number of people
 #-----------------------------------------------------------------------
-# Medium-Run Page
+# Medium-Run or "Capacity Constrained" Page
 #
-# This page runs the CGE for the medium-run solution. It
-# takes the current labor force and production capacity into account and
-# may therefore impose limits on the Quantity Supplied (QS.i) by the 
-# black, goods, and pop sectors, as compared with the long-run solution.
-# It does not, however, account for either the consumer or labor security 
-# factors, which are considered short-run issues.
+# This page runs the CGE for the medium-run solution, in which it is
+# assumed that production of goods and black market products is limited 
+# by the capacity of existing manufacturing plants as well as by available
+# labor. It may therefore impose limits on the Quantity Supplied (QS.i)
+# by the black, goods, and pop sectors, as compared with the long-run 
+# solution. It does not, however, account for either the consumer or 
+# labor security factors, which are considered short-run issues.
 #
 # Otherwise, the model is the same as on the L page.
 
@@ -1368,24 +1430,28 @@ let X.actors.region = {[In::X.actors.region]}
 let X.actors.world  = {[In::X.actors.world]}
 
 # Unemployment statistics
-let RealUnemp = {max(0.0, ediff([In::CAP.pop], [QS.pop]))}
-let Turb      = {[TurFrac] * [In::LF]}
-let Unemp     = {[RealUnemp] + [Turb]}
-let RealUR    = {100.0 * [RealUnemp] / [In::LF]}
-let UR        = {100.0 * [Unemp] / [In::LF]}
+let RealUnemp        = {max(0.0, ediff([In::CAP.pop], [QS.pop]))}
+let Turb             = {[TurFrac] * [In::LF]}
+let Unemp            = {[RealUnemp] + [Turb]}
+let RealUR           = {100.0 * [RealUnemp] / [In::LF]}
+let UR               = {100.0 * [Unemp] / [In::LF]}
 
 let GDP = {
     [GDP.goods] + [GDP.black] + [GDP.pop] - [REV.world] + [In::SA]
 } -value 198.0e9
 
-#=======================================================================
-
+# latend demand (which is N/A) and idle capacity
+foreach i {goods black pop} {
+    letsym LATENTDEMAND.$i = {"n/a"}
+    let IDLECAP.$i         = {[In::CAP.$i] - [QS.$i]}
+}
 
 #-----------------------------------------------------------------------
-# Short-Run Page
+# Short-Run or "Capacity Constrained with Security Factors and
+# Geographic Unemployment" Page
 #
 # This page runs the CGE for the short-run solution. In addition to the 
-# limitations considered on the Medium-Run page, it takes into account 
+# limitations considered on the MG page, it takes into account 
 # the consumers and laborers that stay home because they perceive that 
 # going out is too dangerous.
 #
@@ -1403,6 +1469,8 @@ copypage Cal -except {
     BPp
     GDPratio
     BaseBasketValue
+    RealUnemp
+    Unemp
 }
 
 # Copy the calibrated wages and price of GoodsBKT
@@ -1436,7 +1504,9 @@ let QS.black = {
 let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
 
 # The available labor force is now further limited by the LSF
-let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] * [In::LSF] ))}
+let QS.pop = {
+    max(0, min( [QD.pop], ([In::CAP.pop] - [In::GU]) * [In::LSF] ))
+}
 
 
 # Remittances may have changed
@@ -1470,10 +1540,13 @@ let X.actors.pop    = {[In::X.actors.pop]}
 let X.actors.region = {[In::X.actors.region]}
 let X.actors.world  = {[In::X.actors.world]}
 
+# Security effects
+let SecEffect = {max(0.0, ediff([In::CAP.pop]-[In::GU], [QS.pop]))}
+
 # Unemployment statistics
-let RealUnemp = {max(0.0, ediff([In::CAP.pop], [QS.pop]))}
+let RealUnemp = {[M::RealUnemp]}
 let Turb      = {[TurFrac] * [In::LF]}
-let Unemp     = {[RealUnemp] + [Turb]}
+let Unemp     = {[RealUnemp] + [Turb] + [In::GU] + [SecEffect]}
 let RealUR    = {100.0 * [RealUnemp] / [In::LF]}
 let UR        = {100.0 * [Unemp] / [In::LF]}
 
@@ -1538,28 +1611,22 @@ foreach i {actors region world} {
     }
 }
 
-# black shortages and overages: tons/year
-let OVERAGE.black      = {max(0.0, ediff([S::QS.black], [L::QD.black]))}
+# black latent demand and idle capacity: tons/year
 let LATENTDEMAND.black = {max(0.0, ediff([L::QD.black], [M::QS.black]))}
-let SHORTAGE.black     = {max(0.0, ediff([L::QD.black], [S::QS.black]))}
 let IDLECAP.black      = {max(0,0, ediff([In::CAP.black], [S::QS.black]))}
 
-# goods shortages and overages: GoodsBKT/year
-let OVERAGE.goods      = {max(0.0, ediff([S::QS.goods], [L::QD.goods]))}
+# goods latent demand and idle capacity: GoodsBKT/year
 let LATENTDEMAND.goods = {max(0.0, ediff([L::QD.goods], [M::QS.goods]))}
-let SHORTAGE.goods     = {max(0.0, ediff([L::QD.goods], [S::QS.goods]))}
 let IDLECAP.goods      = {max(0.0, ediff([In::CAP.goods], [S::QS.goods]))}
 
-# pop shortages and overages: work-years/year
-let OVERAGE.pop        = {max(0.0, ediff([S::QS.pop], [M::QD.pop]))}
-let LATENTDEMAND.pop   = {max(0.0, ediff([M::QD.pop], [M::QS.pop]))}
-let SHORTAGE.pop       = {[LATENTDEMAND.pop]}
+# pop latent demand and idle capacity: work-years/year
+let LATENTDEMAND.pop   = {max(0.0, ediff([L::QD.pop], [M::QS.pop]))}
 let IDLECAP.pop        = {max(0.0, ediff([In::CAP.pop], [S::QS.pop]))}
 
 # Unemployment Statistics, in number of people
-let RealUnemployment = {[S::RealUnemp]}
-let Turbulence       = {[S::Turb]} 
-let Unemployment     = {[S::Unemp]}
+let RealUnemp    = {[M::RealUnemp]}
+let Turbulence   = {[S::Turb]} 
+let Unemployment = {[S::Unemp]}
 
 # Unemployment Rates, real and reported
 let RealUR = {[S::RealUR]} ;# Percentage
