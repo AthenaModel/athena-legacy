@@ -14,11 +14,10 @@
 #    of the cge6x6.cm model's null page.
 #
 # INPUT: X-matrix data (aka input flows or unbalanced SAM), prices, 
-#        and NR.black for a base case.
+#        REM and NR.black for a base case.
 #
 # OUTPUT: * CGE shape parameters and sector-by-sector demands
 #         * Sector revenues & expenses
-#         * Remittances (REM)
 #         * Production & export quantities
 #         * FAA & FAR for the base case
 #         * Base case per capita demand for goods
@@ -29,6 +28,19 @@
 #    The model consists of a single page. 
 #
 # HISTORY:
+#    Version x: The following changes have been implemented:
+#               * Made REM an input again. Thus, BREV is the sum of
+#                 all revenue in the pop sector PLUS REM. However, the
+#                 analyst still needs to specify to which sectors any
+#                 REM goes. REM is no longer in the T matrix. A new 
+#                 balancing cell call BAggSavings.pop is introduced which
+#                 is the difference between BREV.pop and BEXP.pop (it can
+#                 be negative). This cell is part of the T matrix and will
+#                 cause the pop sector to balance.
+#               * Added BAggSavings.goods which is the difference between
+#                 BREV.goods and BEXP.goods. Similar to the pop sector, this
+#                 cell is part of the T matrix and will cause the goods
+#                 sector to balance.
 #    Version w: In support of scenario rebase, the SAM needs to be aware
 #               of whether actors are getting black market profits in order
 #               to set the T-matrix correctly. If no actor is getting any
@@ -208,6 +220,9 @@
 #              of the black market production capacity is developed in 
 #              Athena, it will come from there.
 #
+#   BREM       Payments from outside the region directly to the populace, 
+#              consisting of remittances in $/year. 
+#
 #-----------------------------------------------------------------------
 #
 # Indices
@@ -224,6 +239,7 @@ index inp {actors region world}                 ;# sectors with no product or
 # of the black sector's net revenue or the graft portion of the foreign
 # aid to the region (FAR) to the actors sector.
 
+# goods sector
 let BX.goods.goods  = 1.087e9
 let BX.goods.black  = 6.5e5
 let BX.goods.pop    = 209.0e9
@@ -231,6 +247,7 @@ let BX.goods.actors = 0.0
 let BX.goods.region = 785.0e6
 let BX.goods.world  = 21.410e9
 
+# black sector
 let BX.black.goods = 0.0
 let BX.black.black = 0.0
 let BX.black.pop   = 80.0e6
@@ -238,6 +255,10 @@ let BX.black.actors = 0.0
 let BX.black.region = 0.0
 let BX.black.world  = 800.0e6 
 
+# pop sector
+# if "services" are considered "goods", then BX.pop.pop should
+# be zero and the amount of money exchanged for serviced included in 
+# BX.goods.pop
 let BX.pop.goods    = 212.0e9
 let BX.pop.black    = 8.0e6
 let BX.pop.pop      = 0.0
@@ -245,6 +266,8 @@ let BX.pop.actors   = 0.0
 let BX.pop.region   = 0.0
 let BX.pop.world    = 0.0
 
+# actors sector
+# This sector is computed by Athena
 let BX.actors.goods = 0.0
 let BX.actors.black = 0.0
 let BX.actors.pop   = 0.0
@@ -252,6 +275,7 @@ let BX.actors.actors = 0.0
 let BX.actors.region = 0.0
 let BX.actors.world  = 0.0
 
+# region sector
 let BX.region.goods  = 0.0
 let BX.region.black  = 0.0
 let BX.region.pop    = 0.0
@@ -259,6 +283,7 @@ let BX.region.actors = 0.0
 let BX.region.region = 0.0
 let BX.region.world  = 1.5e9
 
+# world sector
 let BX.world.goods   = 20.092e9
 let BX.world.black   = 480.0e6
 let BX.world.pop     = 13.0e9
@@ -278,6 +303,7 @@ let BaseConsumers  = 160.0e6
 let BaseSubsisters = 40.0e6
 let BaseUR         = 10.0    ;# Unemployment rate
 let BaseSubWage    = 0       ;# Subsistence wage $/work-year
+let BREM           = 0       ;# Remittances
 
 # Here for reference; the CGE will recompute this.
 let BaseSA         = {[BaseSubsisters] * [BaseSubWage]}
@@ -301,15 +327,26 @@ let Flag.ActorsGetBNR = 0   ;# No actor may get black market profit
 #
 # The sector revenues and expenses are computed by:
 
-foreach i {goods black pop actors region world} {
+foreach i {goods black actors region world} {
     # Sector revenues sum the row
     let BREV.$i = {<:sum j {[BX.$i.$j]}:>} 
 }
+
+# pop sector revenue includes remittances
+let BREV.pop = {<:sum j {[BX.pop.$j]}:> + [BREM]}
 
 foreach j {goods black pop actors region world} {
     # Sector expenditures sum the column 
     let BEXP.$j = {<:sum i {[BX.$i.$j]}:>} 
 }
+
+# The data gathering process may fail to make the revenues match the
+# expenses in the base case. To force a balance in the XT matrix, we will
+# assume that the error term consists of aggregate savings (which may be
+# negative). This will be added to the T-matrix.
+
+let BAggSavings.pop   = {[BREV.pop]   - [BEXP.pop]}
+let BAggSavings.goods = {[BREV.goods] - [BEXP.goods]}
 
 # Sector-by-sector demands for all i and j are given by:
 foreach i {goods black pop} {
@@ -317,8 +354,6 @@ foreach i {goods black pop} {
         let BQD.$i.$j = {[BX.$i.$j]/[BP.$i]}
     }
 }
-
-let BREM = {max(0, [BEXP.pop] - [BREV.pop])}
 
 # Production quantities for the goods, black and pop sectors are 
 # a simple sum of the sector-by-sector demands:
@@ -461,7 +496,8 @@ let T.actors.black = {
 let T.world.black  = {
     [FEED.black] + fif([Flag.ActorsGetBNR] == 0, max(0.0,[BNR.black]))
 }
-let T.pop.world    = {[BREM]}
+let T.world.goods  = {[BAggSavings.goods]}
+let T.world.pop    = {[BAggSavings.pop]}
 let T.actors.world = {[graft]*[BFAR]}
 # Prevent "-0.0" from being displayed in the GUI
 let T.region.world = {
@@ -474,15 +510,16 @@ let T.region.world = {
 # are from the BX.i.j
 let XT.actors.black = {[BX.actors.black] + [T.actors.black]}
 let XT.world.black  = {[BX.world.black]  + [T.world.black]}
-let XT.pop.world    = {[BX.pop.world]    + [T.pop.world]}
+let XT.world.goods  = {[BX.world.goods]  + [T.world.goods]}
 let XT.actors.world = {[BX.actors.world] + [T.actors.world]}
 let XT.region.world = {[BX.region.world] + [T.region.world]}
+let XT.world.pop    = {[BX.world.pop]    + [T.world.pop]}
 
 # Fill out the rest of the XT.i.j, which are just the BX.i.j for
 # the applicable i and j
 
-# goods and black sector
-foreach i {goods black} {
+# goods, black and pop sectors
+foreach i {goods black pop} {
     foreach j {goods black pop actors region world} {
         let XT.$i.$j = {[BX.$i.$j]}
     }
@@ -494,12 +531,12 @@ foreach j {goods pop actors region} {
 }
 
 # world sector
-foreach j {goods pop actors region world} {
+foreach j {actors region world} {
     let XT.world.$j = {[BX.world.$j]}
 }
 
-# pop and region sector
-foreach i {pop region} {
+# region sector
+foreach i {region} {
     foreach j {goods black pop actors region} {
         let XT.$i.$j = {[BX.$i.$j]}
     }
@@ -509,10 +546,10 @@ foreach i {pop region} {
 # Some revenues are affected by the T-matrix, all others are from BREV.i
 let XTREV.goods  = {[BREV.goods]} 
 let XTREV.black  = {[BREV.black]}
-let XTREV.pop    = {[BREV.pop] + [T.pop.world]}
+let XTREV.pop    = {[BREV.pop]}
 let XTREV.actors = {[BREV.actors] + [T.actors.black] + [T.actors.world]}
 let XTREV.region = {[BREV.region] + [T.region.world]}
-let XTREV.world  = {[BREV.world]}
+let XTREV.world  = {[BREV.world] + [T.world.goods] + [T.world.pop]}
 
 # Expenditures 
 foreach j {goods black pop actors region world} {
@@ -537,5 +574,6 @@ foreach i {goods black pop actors region world} {
 # XTREV.i should equal XTEXP.i for all i
 # Note: this will only be true if an analyst is careful enough to 
 # define the actors so that XTREV.actors = XTEXP.actors 
+
 
 

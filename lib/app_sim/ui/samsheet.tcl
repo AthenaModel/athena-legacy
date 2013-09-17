@@ -413,7 +413,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         normal                     \
-            -rows          9                          \
+            -rows          10                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -432,6 +432,7 @@ snit::widget samsheet {
             "Base Unemployment Rate"
             "Base Subsisters"
             "Subsistence Wage"
+            "Remittances"
             "REM Change Rate"
         }
 
@@ -443,6 +444,7 @@ snit::widget samsheet {
             ""
             "%"
             ""
+            "$/year"
             "$/year"
             "%/year"
         } units -anchor w -relief flat
@@ -456,7 +458,8 @@ snit::widget samsheet {
         $inputs mapcell 5,1 BaseUR         e
         $inputs mapcell 6,1 BaseSubsisters e
         $inputs mapcell 7,1 BaseSubWage    e
-        $inputs mapcell 8,1 REMChangeRate  e        \
+        $inputs mapcell 8,1 BREM           e
+        $inputs mapcell 9,1 REMChangeRate  e        \
             -formatcmd {format "%.1f"}              \
             -validatecmd [mymethod ValidatePercent] \
             -changecmd [mymethod GlobalChanged]
@@ -590,7 +593,7 @@ snit::widget samsheet {
             -colorigin     0                          \
             -cellmodel     $sam                       \
             -state         disabled                   \
-            -rows          3                          \
+            -rows          2                          \
             -cols          3                          \
             -titlerows     0                          \
             -titlecols     1                          \
@@ -600,7 +603,6 @@ snit::widget samsheet {
         # NEXT, the labels to the left and right of the 
         # cells
         $miscout textcol 0,0 {
-            "Remittances"
             "Black Profit"
             "Black Feedstock"
         }
@@ -608,16 +610,14 @@ snit::widget samsheet {
         $miscout textcol 0,2 {
             "$/year"
             "$/year"
-            "$/year"
         } units -anchor w -relief flat
 
         # NEXT, map the cells and set the label widths
-        $miscout mapcell 0,1 BREM           r -background $color(r)
-        $miscout mapcell 1,1 BNR.black      r -background $color(r)
-        $miscout mapcell 2,1 FEED.black     r -background $color(r)
+        $miscout mapcell 0,1 BNR.black      r -background $color(r)
+        $miscout mapcell 1,1 FEED.black     r -background $color(r)
 
-        $miscout width 0 20
-        $miscout width 2 15
+        $miscout width 0 20 
+        $miscout width 2 20
     }
 
     # DisplayMode mode
@@ -640,7 +640,9 @@ snit::widget samsheet {
         let ractors {$ns - 3}
         let rregion {$ns - 2}
         let rworld  {$ns - 1}
+        let cgoods  {$ns - 6}
         let cblack  {$ns - 5}
+        let cpop    {$ns - 4}
         let cactors {$ns - 3}
         let cworld  {$ns - 1}
         set rexp    $ns
@@ -667,7 +669,8 @@ snit::widget samsheet {
             # from the T-matrix
             $mmatrix mapcell $ractors,$cblack T.actors.black t
             $mmatrix mapcell $rworld,$cblack  T.world.black  t
-            $mmatrix mapcell $rpop,$cworld    T.pop.world    t
+            $mmatrix mapcell $rworld,$cpop    T.world.pop    t
+            $mmatrix mapcell $rworld,$cgoods  T.world.goods  t
             $mmatrix mapcell $ractors,$cworld T.actors.world t 
             $mmatrix mapcell $rregion,$cworld T.region.world t
 
@@ -678,30 +681,11 @@ snit::widget samsheet {
 
             $mmatrix tag configure t -background $color(d)
         } elseif {$mode eq "BASE"} {
-            # NEXT, set the main area to the BX values
-            $mmatrix map 0,0 i j BX.%i.%j xt 
-            $mmatrix maprow $rexp,0    j BEXP.%j  r -background $color(r) 
-            $mmatrix mapcol 0,$crev    i BREV.%i  r -background $color(r) 
+            # NEXT, set the main area to the XT values
+            $mmatrix map 0,0 i j XT.%i.%j xt 
 
-            # NEXT, override some cells that may have changed from
-            # the addtion of T-matrix cells to the X-matrix cells
-            $mmatrix mapcell $ractors,$cblack XT.actors.black xt
-            $mmatrix mapcell $rworld,$cblack  XT.world.black  xt
-            $mmatrix mapcell $rpop,$cworld    XT.pop.world    xt
-            $mmatrix mapcell $ractors,$cworld XT.actors.world xt
-            $mmatrix mapcell $rregion,$cworld XT.region.world xt
-
-            $mmatrix mapcell $rpop,$crev    XTREV.pop r    \
-                -background $color(r)
-            $mmatrix mapcell $ractors,$crev XTREV.actors r \
-                -background $color(r)
-            $mmatrix mapcell $rregion,$crev XTREV.region r \
-                -background $color(r)
-
-            $mmatrix mapcell $rexp,$cblack XTEXP.black r \
-                -background $color(r)
-            $mmatrix mapcell $rexp,$cworld XTEXP.world r \
-                -background $color(r)
+            $mmatrix maprow $rexp,0 j XTEXP.%j r -background $color(r)
+            $mmatrix mapcol 0,$crev i XTREV.%i r -background $color(r)
 
             $mmatrix tag configure xt -background $color(d)
         } else {
