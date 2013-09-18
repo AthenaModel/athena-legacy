@@ -68,7 +68,7 @@ snit::widget cgesheet {
     # Array of narrative text that describes each view in vdict
     variable ntext -array {
         Out {
-            The economy with capacity constraints, geographic unemployment
+            The economy constrained by sector capacity, geographic unemployment
             and security factors taken into consideration. In addition to 
             labor and goods capacity limits, this view reflects the 
             labor force proximity to where the jobs are and whether 
@@ -76,18 +76,22 @@ snit::widget cgesheet {
         }
 
         M   {
-            The economy constrained by sector capacity only. This view of
-            the economy reflects labor and goods capacity limits.
+            The economy constrained by sector capacity and geographic
+            unemployment. This view of the economy reflects labor and 
+            goods capacity limits and that some of the labor force may not 
+            be close enough to where the jobs are.
         }
 
         L   {
             The economy with all available capacity being utilized. This view
-            shows what the economy would look like if labor and goods capacity
-            were not an issue.
+            shows what the economy would look like if everyone that could
+            work was working except for those between jobs.
         }
 
         Cal {
-            <b>For debugging and developer use only.</b> 
+            The economy as calibrated from the Base SAM. The GDP and 
+            unemployment rate should match. Geographic unemployment
+            is not accounted for.
         }
     }
 
@@ -132,9 +136,9 @@ snit::widget cgesheet {
         # NEXT the dropdown menu of views and their keys
         set vdict [dict create \
             "Constrained with Geo. Unemp. and Sec. Factors" Out \
-            "Constrained"                                   M   \
-            "Unconstrained"                                 L   \
-            "Calibrated Values"                             Cal]
+            "Constrained with Geo. Unemp."                  M   \
+            "Constrained by Total Labor"                    L   \
+            "Calibrated Values from Base SAM"               Cal]
 
         # NEXT, Get the CGE.
         set cge [econ cge]

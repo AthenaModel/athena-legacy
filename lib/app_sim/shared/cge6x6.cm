@@ -61,9 +61,9 @@
 #           consumer demand and limited by available workers. Provides
 #           information for the computation of latent demand on the Out page.
 #    M      Medium-run model; production further limited by production 
-#           capacity and feedstock constraints (CAP.black, CAP.goods, 
-#           MF.world.black). Provides the number of jobs for unemployment
-#           computation on the Out page.
+#           capacity, feedstock constraints and Geographic Unemployment
+#           (CAP.black, CAP.goods, MF.world.black, In::GU). Provides the 
+#           number of jobs for unemployment computation on the Out page.
 #    S      Short-run model with Geographic Unemployment; the populace 
 #           responds to current conditions: 
 #           Labor supply is less than that of the medium-run reduced by the 
@@ -78,6 +78,9 @@
 #    In, and Out pages.
 #
 # HISTORY:
+#    Version ag: The M page now takes into account geographic unemployment
+# from the In page. QS.pop is constrained by it.
+#
 #    Version af: Outside the CGE, we disaggregate unemployment to 
 # neighborhood groups by associating jobs with workers, using 
 # neighborhood proximity to make the association. Some jobs may remain
@@ -1379,8 +1382,8 @@ let QS.black = {
 let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
 
 # QS.pop, which is the number of jobs, is now limited by demand 
-# or the available labor force
-let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] ))}
+# or the available labor force taking into account geographic unemployment
+let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] - [In::GU] ))}
 
 # A.goods.pop may have changed if the number of consumers has changed or the
 # amount of money flowing to the pop sector has changed. It is modified by
