@@ -90,8 +90,8 @@ snit::widget cgesheet {
 
         Cal {
             The economy as calibrated from the Base SAM. The GDP and 
-            unemployment rate should match. Geographic unemployment
-            is not accounted for.
+            unemployment rate should match those in the Base SAM. 
+            Geographic unemployment is not accounted for.
         }
     }
 

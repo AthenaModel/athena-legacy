@@ -13,28 +13,19 @@
 #
 #    It is commonly assumed that "in the long run", production 
 #    capacity will be expanded until it is able to supply whatever 
-#    quantities are needed to fulfill demand. Thus, we refer to "the 
-#    long run" on the L page. Terminology used on the output GUIs, 
-#    however, reflects the assumption itself and refer to the results 
-#    of the "long run" computations as the "Unconstrained" case. Similarly,
-#    the "medium run" computations on the M and MG pages include production 
-#    capacity constraints. The MG page, which includes consideration of
-#    geographic unemployment, is referred to in the output GUIs as the 
-#    "Capacity Constrained" case. The "short run" computations on the S page 
-#    include consideration of the fact that low security may cause some 
-#    people to stay in and not go shopping or to work. The GUIs refer to 
-#    this as the "Capacity Constrained with Security Factors".
-#
-#    Criteria for success, necessary but not sufficient:
-#
-#    * The model converges.
-#    * All REV.i = EXP.i + NR.i
-#    * Prices and quantities are reasonable
-#      * Prices should recover the values used to calibrate the
-#        constants A.i.
-#    * Quantities produced should equal the sum of the demands.
-#      * I.e., deltaQ.i should = 0 for all i.
-#    * Quantities should not all be zero.
+#    quantities are needed to fulfill demand. Furthermore, workers 
+#    will move, if necessary to where the jobs are, so that geographic
+#    unemployment is zero. We  refer to "the long run" on the L page. 
+#    Terminology used on the output GUIs, however, reflects the assumption
+#    itself and refer to the results of the "long run" computations as 
+#    the "Constrained by Total Labor" case. Similarly, the "medium run" 
+#    computations on the M page includes production capacity constraints
+#    and geographic unemployment and is referred to in the output GUIs as
+#    the "Constrained with Geo. Unemp." case. The "short run" 
+#    computations on the S page include consideration of the fact that low 
+#    security may cause some people to stay in and not go shopping or to 
+#    work. The GUIs refer to this as the "Constrained with  Geo. Unemp and
+#    Sec. Factors".
 #
 # PAGES:
 #    The model contains the following pages. The calibration pages and 
@@ -78,8 +69,12 @@
 #    In, and Out pages.
 #
 # HISTORY:
-#    Version ag: The M page now takes into account geographic unemployment
-# from the In page. QS.pop is constrained by it.
+#    Version ag: Geographic unemployment (from the In page) is now 
+# accounted for correctly: It reduces the labor supply; the number of 
+# workers available to take jobs. GU reduces the number of jobs only when
+# the demand for labor exceeds the GU-adjusted supply. Some of the changes
+# of version af were removed; in particular, GU is NOT subtracted from 
+# QS.pop.
 #
 #    Version af: Outside the CGE, we disaggregate unemployment to 
 # neighborhood groups by associating jobs with workers, using 
@@ -861,7 +856,7 @@ let EXP.black = [EXP.j black]
 #   ratios.
 # Unit of measure: work-years per year
 # Revenues are derived from wages paid for labor and from REM 
-#  (remittances, foreign aid, and NGO aid).
+#  (remittances), direct foreign aid, and direct NGO aid.
 # Expenditures consist of taxes and tax-like payments to the actors, 
 #  region, and world sectors and consumption of the products of the 
 #  black, goods, and pop sectors.
@@ -871,12 +866,11 @@ let EXP.black = [EXP.j black]
 #  payments, makes consumption decisions to maximize the value of an 
 #  aggregate utility function. 
 # Utility function: Cobb-Douglas
-#
-# We have chosen to size the economy (in the unconstrained case) by the
-# per-capita demand for goods, which is A.goods.pop. Hence:
 
 let BaseSA = {[BaseSubsisters]*[BaseSubWage]}       ;# $/year
 
+# We have chosen to size the economy (in the unconstrained case) by the
+# per-capita demand for goods, which is Agp. 
 # We will redefine QD.goods.pop using Consumers in the L, M and S pages.
 let QD.goods.pop = {[Agp] * [BaseConsumers]}
 
@@ -1231,14 +1225,17 @@ let X.actors.region = 0.0
 let X.actors.world  = 2.167e9
 
 #-----------------------------------------------------------------------
-# Long-Run or "Unconstrained" Page
+# Long-Run or "Constrained by Total Labor" Page
 #
-# The base case computed on the Cal page is a long-run solution of the 
-# CGE using base-case data, in which it is assumed that enough 
-# manufacturing capacity will be built to satisfy demand, so the ability 
+# The base case computed on the Cal page is a medium-run solution of the 
+# CGE using base-case data, but it is assumed that just enough 
+# manufacturing capacity exists to just to satisfy demand, so the ability 
 # to produce goods and black market products is not constrained by present
 # production capacity. It may, however, be limited by available labor. 
-# This page also computes a long-run solution of the CGE, but it gets 
+# This page also computes a long-run solution of the CGE, but it is 
+# unnecessary to assume additional production capacity. Unlike the 
+# medium-run case, it assumes that people move as necessary to where the 
+# jobs are, so geographic unemployment is zero.  It gets 
 # some of its data from the In page instead of the base case. 
 #
 # In particular, it copies the equations from the Cal page (except for a
@@ -1335,15 +1332,16 @@ foreach i {goods black pop} {
 
 # Unemployment Statistics, in number of people
 #-----------------------------------------------------------------------
-# Medium-Run or "Capacity Constrained" Page
+# Medium-Run or "Capacity Constrained with Geographic Unemployment" Page
 #
 # This page runs the CGE for the medium-run solution, in which it is
 # assumed that production of goods and black market products is limited 
 # by the capacity of existing manufacturing plants as well as by available
 # labor. It may therefore impose limits on the Quantity Supplied (QS.i)
 # by the black, goods, and pop sectors, as compared with the long-run 
-# solution. It does not, however, account for either the consumer or 
-# labor security factors, which are considered short-run issues.
+# solution. The labor supply is reduced by any geographic unemployment.
+# It does not, however, account for either the consumer or labor security 
+# factors, which are considered short-run issues.
 #
 # Otherwise, the model is the same as on the L page.
 
@@ -1443,7 +1441,7 @@ let GDP = {
     [GDP.goods] + [GDP.black] + [GDP.pop] - [REV.world] + [In::SA]
 } -value 198.0e9
 
-# latend demand (which is N/A) and idle capacity
+# Latent demand (which is N/A) and idle capacity
 foreach i {goods black pop} {
     letsym LATENTDEMAND.$i = {"n/a"}
     let IDLECAP.$i         = {[In::CAP.$i] - [QS.$i]}
