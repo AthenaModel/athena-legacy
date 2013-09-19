@@ -472,7 +472,7 @@ let BaseGDP     = 198.503e9 ;# Gross domestic product in the base case.
 # Exogenous prices 
 let BP.black = 4.0e6        ;# $/tonne black market goods FOB export dock
 
-let PF.world.black  = 0.0   ;# $/tonne price of black market feedstock
+let BPF.world.black  = 0.0  ;# $/tonne price of black market feedstock
 
 # Shape parameters
 #  f.i.j - fraction of sector j's revenue that is spent in sector i.
@@ -570,14 +570,6 @@ let EmpExponent   = 0.3      ;# Exponent in EmpRatio
 
 let BP.goods = 1      ;# $/GoodsBKT  - the size of the GoodsBKT
 let BP.pop   = 2550   ;# $/work-year - the unchanging numeraire
-
-# The following will be relevant in future versions of the CGE in
-# which there are more sectors, so that prices are not completely
-# determined by the labor production function and the numeraire.
-# Changes in the economy will lead to changes in purchasing power, 
-# which is captured by the consumer price index, CPI. Changes in the 
-# economy as a whole are captured by the gross domestic product, GDP. 
-# The GDP Deflator is approximated by the quotient GDP/CPI.
 
 # Ultimately,the "size" of the economy depends on A.goods.pop and the 
 # number of consumers.  A.goods.pop is modified during calibration to
@@ -793,6 +785,7 @@ let REV.black = [REV.i black]    -value 100e6 ;# WAG to be updated
 # needs to be copied into the S page. The Out page references 
 # this as being on the S page as well
 let P.black = {[BP.black]} -value 4.0e6
+let PF.world.black = {[BPF.world.black]}
 
 let QD.black.black = [LQD.i.j black black]
 let X.black.black  = [X.i.j  black black]
@@ -867,10 +860,22 @@ let EXP.black = [EXP.j black]
 #  aggregate utility function. 
 # Utility function: Cobb-Douglas
 
+# The people who are engaging in subsistence agriculture do not participate 
+# in the modeled economy except that the imputed value of the self-
+# consumption of their production may be included in the GDP. Their 
+# contribution is the product of the number of people who are subsisting and 
+# their imputed wage. An input value of that wage of zero omits their GDP 
+# contribution; otherwise, the wage that is officially used to define poverty 
+# is suggested.
+
 let BaseSA = {[BaseSubsisters]*[BaseSubWage]}       ;# $/year
 
 # We have chosen to size the economy (in the unconstrained case) by the
-# per-capita demand for goods, which is Agp. 
+# per-capita demand for goods, which is Agp. However, because that 
+# parameter is difficult to estimate precisely, we have chosen to revise 
+# its value iteratively until the GDP computed on this calibration page 
+# matches the BaseGDP.
+
 # We will redefine QD.goods.pop using Consumers in the L, M and S pages.
 let QD.goods.pop = {[Agp] * [BaseConsumers]}
 
@@ -1131,7 +1136,7 @@ let deltaNR.goods = {1 - ([P.goods]/[C.goods])}
 #=======================================================================
 # Dynamic Pages
 #
-# The following pages are recomputed at each "tock".  Inputs from the
+# The following pages are recomputed at each "tick".  Inputs from the
 # rest of Athena and from the user that can change as time passes
 # appear on the In page.  Outputs to Athena appear on the Out
 # page.
@@ -1143,6 +1148,12 @@ let deltaNR.goods = {1 - ([P.goods]/[C.goods])}
 # come from outside the CGE. The notional values should be updated.
 
 page In
+
+# Inflation price index; the base year value is identically 1.0
+let PriceIndex = 1.0
+
+# Inflation wage index; the base year value is identically 1.0
+let WageIndex = 1.0
 
 # Number of consumers currently in the population.
 let Consumers = 1.6e8          ;# people.
@@ -1257,8 +1268,12 @@ copypage Cal -except {
 }
 
 # Copy the calibrated wages and price of GoodsBKT
-let P.pop   = {[Cal::P.pop]}
-let P.goods = {[Cal::P.goods]}
+let P.pop   = {[Cal::P.pop] * [In::WageIndex]}
+let P.goods = {[Cal::P.goods] * [In::PriceIndex]}
+
+# Copy the null-page prices and inflate them
+let PF.world.black = {[BPF.world.black] * [In::PriceIndex]} ;
+let P.black = {[BP.black] * [In::PriceIndex]} ;
 
 # A.goods.pop may have changed if the number of consumers has changed or the
 # amount of money flowing to the pop sector has changed. It is modified by
@@ -1268,7 +1283,7 @@ let P.goods = {[Cal::P.goods]}
 # Cal::P.goods be used instead of BP.goods?
 let A.goods.pop = {
     [Cal::Agp] * ([X.goods.pop]/[Cal::X.goods.pop]) / 
-    ([P.goods]/[BP.goods] * [In::Consumers]/[BaseConsumers])
+    ([In::PriceIndex] * [In::Consumers]/[BaseConsumers])
 } -value 1300
 
 # Remittances may have changed
@@ -1360,8 +1375,12 @@ copypage Cal -except {
 }
 
 # Copy the calibrated wages and price of GoodsBKT
-let P.pop = {[Cal::P.pop]}
-let P.goods = {[Cal::P.goods]}
+let P.pop = {[Cal::P.pop] * [In::WageIndex]}
+let P.goods = {[Cal::P.goods] * [In::PriceIndex]}
+
+# Copy the null-page prices and inflate them
+let PF.world.black = {[BPF.world.black] * [In::PriceIndex]} ;
+let P.black = {[BP.black] * [In::PriceIndex]} ;
 
 # Replace the following equations
 
@@ -1391,7 +1410,7 @@ let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] - [In::GU] ))}
 # Cal::P.goods be used instead of BP.goods?
 let A.goods.pop = {
     [Cal::Agp] * ([X.goods.pop]/[Cal::X.goods.pop]) / 
-    ([P.goods]/[BP.goods] * [In::Consumers]/[BaseConsumers])
+    ([In::PriceIndex] * [In::Consumers]/[BaseConsumers])
 }
 
 # Remittances may have changed
@@ -1475,8 +1494,12 @@ copypage Cal -except {
 }
 
 # Copy the calibrated wages and price of GoodsBKT
-let P.pop = {[Cal::P.pop]}
-let P.goods = {[Cal::P.goods]}
+let P.pop = {[Cal::P.pop] * [In::WageIndex]}
+let P.goods = {[Cal::P.goods] * [In::PriceIndex]}
+
+# Copy the null-page prices and inflate them
+let PF.world.black = {[BPF.world.black] * [In::PriceIndex]} ;
+let P.black = {[BP.black] * [In::PriceIndex]} ;
 
 # Replace the following equations
 
@@ -1488,7 +1511,7 @@ let P.goods = {[Cal::P.goods]}
 # Cal::P.goods be used instead of BP.goods?
 let A.goods.pop = {
     [Cal::Agp] * ([X.goods.pop]/[Cal::X.goods.pop]) / 
-   ([P.goods]/[BP.goods] * [In::Consumers]/[BaseConsumers])
+   ([In::PriceIndex] * [In::Consumers]/[BaseConsumers])
 }
 
 # The number of consumers is now further limited by the CSF

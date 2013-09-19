@@ -1036,9 +1036,9 @@ snit::type econ {
 
             # NEXT, black market feedstocks
             cge set [list \
-                        AF.world.black $samdata(AF.world.black) \
-                        MF.world.black $samdata(MF.world.black) \
-                        PF.world.black $samdata(PF.world.black)]
+                        AF.world.black  $samdata(AF.world.black) \
+                        MF.world.black  $samdata(MF.world.black) \
+                        BPF.world.black $samdata(PF.world.black)]
 
             # NOTE: if income from graft is ever allowed to change
             # over time, then In::graft should be computed and set
