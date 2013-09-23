@@ -2560,7 +2560,7 @@ tab "Econ" {
 tab "Econ/SAM" {
 
     This tab displays a social accounting matrix (SAM) of the economy
-    in spreadsheet form. The diaURAM below shows this tab when Athena
+    in spreadsheet form. The diagram below shows this tab when Athena
     is in <<term prep>> mode.<p>
 
     <<image econ_sam>><p>
@@ -2603,14 +2603,21 @@ tab "Econ/SAM" {
     1.05 tons of poppies to make 1 ton of opium, then this value would be 
     1.05), the maximum amount of black market feedstock available, the 
     production capacity of the black market, the number of consumers, the 
-    base case unemployment rate and the number of subsisters that the data 
-    in the SAM is based upon and the subsistence farmer wage, which is also 
-    the poverty level.  The subsistence wage is used to compute the 
-    contribution of subsistence agriculture to the GDP.<p>
+    base case unemployment rate, the number of subsisters that the data 
+    in the SAM is based upon and the subsistence farmer wage, which can 
+    be approximated as whatever the poverty level is for the scenario.  
+    The subsistence wage is used to compute the contribution of subsistence
+    agriculture to the GDP. Following the subsistence agriculture figures
+    is the amount of remittances being sent from overseas to the 
+    population along with an annual percentage rate of change to that
+    figure. This percentage can be positive, negative or zero. Note
+    that if remittances are non-zero, the analyst must inlude how they are
+    spent in the SAM inputs section. Otherwise, they do not contribute
+    to GDP.<p>
 
     When Athena is locked, all the cells on the SAM remain visible, but are
     no longer editable unless the user returns to the <<term prep>> state.
-    The diaURAM below shows this tab when Athena is <<term lock>>ed.<p>
+    The diagram below shows this tab when Athena is <<term lock>>ed.<p>
 
     <<image econ_sam_locked>><p>
 
@@ -2628,7 +2635,8 @@ tab "Econ/SAM" {
     <ul>
       <li>T.actors.black - Actors revenue from black market profits (if any).
       <li>T.world.black  - Total cost of feedstock for black market product.
-      <li>T.pop.world - The amount of remittances
+      <li>T.world.goods  - Aggregate savings in the goods sector (can be negative)
+      <li>T.pop.goods    - Aggregate savings in the pop sector (can be negative)
       <li>T.actors.world - Actors revenue due to graft on foreign aid
       <li>T.region.world - Reduction in revenue due to actors graft on aid
     </ul><p>
@@ -2661,26 +2669,25 @@ tab "Econ/SAM" {
 
     <b>Misc. Outputs</b><p>
 
-    This section contains three outputs. First is 
-    remittances which is the difference between the Base Revenue and the Base 
-    Expenditures in the pop sector.  The SAM assumes that any expenditures
-    by the populace over their revenue must be due to remittances.  Next
-    is black market profit which is the difference between Base Revenue and
-    Base Expenditures in the black sector.  It is required that base revenue
-    be higher than expenditures in the black sector.  The last miscellaneous
-    output is the cost of feedstock in dollars per year, it is the product
-    of the base demand of black market product, the price of black market
-    feedstock and the feedstock required for one unit of product.<p>
+    This section contains two outputs related to the black market: 
+    the black market profit, which is the difference between Base Revenue and
+    Base Expenditures in the black sector, and the cost of feedstock
+    in dollars per year, which is computed by multiplying the base demand
+    of black market product, the price of black market feedstock and the 
+    feedstock required for one unit of product. <b>Note:</b> it is required
+    that base revenue be higher than expenditures in the black sector.<p>
+
+    <b>Shape Parameters</b><p>
 
     Lastly, the shape parameters appear in a matrix tableau.  These values
     are computed from the base size of the economy and are used to calibrate
     the actual economy when the scenario is locked and to compute the
-    current state of the actual economy when Athena is run forward.<p>
+    current state of the actual economy as Athena is run forward.<p>
 
     <b>Note:</b> The definition of actors and where they get their income, 
     along with their strategies and Athena parameters that define how actors
     spend their income will result in the actors sector money flows being
-    recomputed when Athena is locked. 
+    computed when Athena is locked. 
 }
 
 tab "Econ/Overview" {
@@ -2696,46 +2703,46 @@ tab "Econ/Overview" {
     There are multiple views of the economy available which can be selected
     in the "Views:" dropdown menu at the upper right.  By default, the fully
     constrained economy is shown.  This view reflects any labor and goods
-    constraints and the effects of security on the population's willingness
-    to go to work or go out shopping.  The other views available are
-    a capacity constrained view, which reflects the effects of only labor and
-    goods capacity, ignoring the effects of security, an unconstrained view
+    constraints, the effects of people living to far away from where the
+    jobs are (geographic unemployment) and the effects of security on the 
+    population's willingness to go to work or go out shopping.  The other 
+    views available are a capacity constrained view, which reflects the 
+    effects of only labor and goods capacity and geographic unemployment,
+    ignoring the effects of security, an unconstrained view
     which ignores any capacity constraints and assumes everyone that can work
     is working (except for the "between jobs" turbulence) and, lastly, a view
-    of the values calibrated by Athena.  The calibrated values are generally 
-    used by developers for debugging purposes.<p>
+    of the values calibrated by Athena from the Base SAM.  The calibrated 
+    values of GDP and unemployment rate should reflect those in the base case
+    SAM.<p>
 
     Below the "Dollars" and "Quantities" matrices are inputs to the economy
-    that size it and the most salient outputs.<p>
+    that contribute to the size of it and the most salient outputs.<p>
 
     <<image econ_current>><p>
 
     The size of the economy is driven by the
-    number of consumers and the size of the labor force.  The Consumer 
+    number of consumers, the size of the labor force, the wage index of
+    labor and the price index of goods.  The Consumer 
     Security Factor (or CSF) is the fraction of the consumers that are 
     willing to go out and buy things and the Labor Security Factor, 
-    or LSF, determines how many of the workers are actually willing 
-    to go to work under current conditions. The graft factor as
+    or LSF, is the fraction of workers who are actually willing 
+    to go to work under current security conditions. The graft factor as
     computed by how much money the actors are receiving from skimming off
     foreign aid to the region appears next. Increasing the amount of 
     income from graft in the actor definitions will increase this factor.
-    Lastly, the amount of remittances as computed by the 
-    <<cref /tab/econ/sam>> appears.<p>
+    Lastly, the amount of remittances including any increase or decrease
+    due to an annual percentage rate appears.<p>
 
     The most salient outputs consist of the Gross Domestic Product (GDP),
     the Consumer Price Index (CPI), the Deflated GDP, the per capita 
     Deflated GDP, the average per capita demand for goods, the number of 
     unemployed workers in the playbox along 
-    with the unemployment rate.  The amount of the labor force afraid to 
-    go to work due to not enough security is the Unsecure Labor Force. 
-    This number is part of Unemployment.<p>
-
-    Below that, shortages are displayed:  the shortage in the goods sector
-    is determined by the unconstrained demand for goods and the constrained
-    supply, the shortage in the black market is determined by the 
-    unconstrained demand for black market goods and the constrained supply,
-    and the shortage of labor as defined by the unconstrained demand in the 
-    population sector and the available (constrained) labor force.<p>
+    with the unemployment rate.  Real Unemployment includes those that
+    are geographically unemployed, but not those "between jobs". 
+    The amount of the labor force afraid to 
+    go to work due to lack of neighborhood security is the Insecure Labor
+    Force. This number is part of Unemployment, but not part of Real
+    Unemployment.<p>
 }
 
 tab "Econ/Capacity" {
