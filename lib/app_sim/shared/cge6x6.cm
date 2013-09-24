@@ -1209,7 +1209,7 @@ let CAP.pop = {[LF]*(1 - [TurFrac])}
 # (or GU, for short). Since we do not want to embed this algorithm for 
 # "disaggregation of unemployment" in the CGE itself, we use the value 
 # computed outside the CGE at the previous tick of the simulation clock.
-let GU = 7.0E4
+let GU = 0.0
 
 # Due to low security, the demographics model may say that some 
 # consumers are afraid to go shopping. This fraction is those that
