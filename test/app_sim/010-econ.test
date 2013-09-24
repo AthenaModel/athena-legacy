@@ -152,11 +152,11 @@ NB2 1.0 0.0 0.0  0.0
         ted create NB1 NB2
     } -body {
         econ mutate cgecell {
-            id  PF.world.black
+            id  BPF.world.black
             val 100M
         }
 
-        dict get [[econ cge] get] PF.world.black
+        dict get [[econ cge] get] BPF.world.black
     } -cleanup {
         cleanup
     } -result {100M}
@@ -164,16 +164,16 @@ NB2 1.0 0.0 0.0  0.0
     test cgeupdate-2.1 {undo undoes the change} -setup {
         ted create NB1 NB2
     } -body {
-        set a [dict get [[econ cge] get] PF.world.black]
+        set a [dict get [[econ cge] get] BPF.world.black]
 
         set undo [econ mutate cgecell {
-            id PF.world.black
+            id BPF.world.black
             val 100M
         }]
 
         eval $undo
 
-        set b [dict get [[econ cge] get] PF.world.black]
+        set b [dict get [[econ cge] get] BPF.world.black]
 
         expr {$a eq $b}
     } -cleanup {

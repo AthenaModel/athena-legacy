@@ -418,7 +418,7 @@ NB2 1.0
         ted lock
     } -body {
         ted order -reject ECON:CGE:UPDATE \
-            id PF.world.black val -1
+            id BPF.world.black val -1
     } -cleanup {
         cleanup
     } -result {
@@ -430,7 +430,7 @@ NB2 1.0
         ted create BLUE SHIA KURD
         ted lock
     } -body {
-        ted order ECON:CGE:UPDATE id PF.world.black val 10000
+        ted order ECON:CGE:UPDATE id BPF.world.black val 10000
     } -cleanup {
         cleanup
     } -result {}
@@ -441,7 +441,7 @@ NB2 1.0
         ted lock
     } -body {
         ted notifier bind ::econ <CgeUpdate>
-        ted order ECON:CGE:UPDATE id PF.world.black val 10000
+        ted order ECON:CGE:UPDATE id BPF.world.black val 10000
         ted notifier received
     } -cleanup {
         cleanup
@@ -456,7 +456,7 @@ NB2 1.0
         ted lock
 
         ted order ECON:CGE:UPDATE {
-            id  PF.world.black
+            id  BPF.world.black
             val 100000
         }
     } -body {
