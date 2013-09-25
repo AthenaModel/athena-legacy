@@ -136,7 +136,7 @@ order define TACTIC:FUND:CREATE {
 # Updates existing FUND tactic.
 
 order define TACTIC:FUND:UPDATE {
-    title "Update Tactic: Fund ENI Services"
+    title "Update Tactic: Fund Actor"
     options -sendstates {PREP PAUSED}
 
     form {
