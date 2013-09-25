@@ -993,10 +993,25 @@ proc bgerror {msg} {
         sim mutate pause
     }
 
+    # Gather any error context we may have
+    set trace ""
+    set level [info level]
+
+    if {$level > 0} {
+        set trace "bgerror context:\n"
+        for {set lvl [expr {$level-1}]} {$lvl > 0} {incr lvl -1} {
+            append trace "$lvl [info level $lvl]\n"
+        }
+    }
+
     if {$app::opts(-batch)} {
         # app exit subst's in the caller's context
-        app exit {$msg\n\nStack Trace:\n$bgErrorInfo}
+        app exit {$msg\n\nStack Trace:\n$bgErrorInfo\n$trace}
     } elseif {[app topwin] ne ""} {
+        if {$trace ne ""} {
+            log error app $trace
+        }
+
         [app topwin] tab view slog
 
         app error {
@@ -1006,7 +1021,7 @@ proc bgerror {msg} {
         }
     } else {
         puts "bgerror: $msg"
-        puts "Stack Trace:\n$bgErrorInfo"
+        puts "Stack Trace:\n$bgErrorInfo\n$trace"
     }
 }
 
