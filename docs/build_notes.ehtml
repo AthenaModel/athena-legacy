@@ -11,6 +11,28 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.1, 25 September 2013</h3>
+This build contains some enhancements to the SAM and CGE in the econ model.
+Specifically, the SAM now takes remittances as a direct input and balances
+the goods and pop sectors on lock by assuming any difference in total 
+expenditures and total revenue in those sectors is aggregate savings (which
+could be negative). The CGE now takes total geographic unemployment (GU) into
+consideration when computing an equilibrium. The CGE also now has inputs
+for price and wage indices for use by a future inflation model. There's also
+an enhancement to how Athena produces a bgerror.<p>
+
+<ul>
+<li> Bug 4135: athena(1): implement geographic unemployment
+<li> Bug 4136: athena(1): introduce aggregate savings to balance goods and pop sectors in SAM
+<li> Bug 4137: athena(1): CGE 'M' page should take into account geographic unemployment
+<li> Bug 4140: athena(1): add price/wage index to CGE and econ tab
+<li> Bug 4142: Update helps with new econ stuff
+<li> Bug 4143: athena_test(1): test failures due to GU in the CGE
+<li> Bug 4144: athena_test(1): test failures due to cell name change in CGE
+<li> Bug 4145: athena(1): TACTIC:FUND:UPDATE order has wrong title
+<li> Bug 4146: athena(1): provide a context stack trace on bgerror 
+</ul><p>
+
 <h3>Build 6.0.0, 9 September 2013</h3>
 
 This is the initial 6.0.x baseline; it is based on the same code as
