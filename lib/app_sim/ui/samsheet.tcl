@@ -42,8 +42,8 @@ snit::widget samsheet {
     # complicated.
 
     typevariable units {
-        goods GBasket/yr
-        black tonne/yr
+        goods goodsBKT/yr
+        black blackBKT/yr
         pop   workyear/yr
     }
 
@@ -357,7 +357,7 @@ snit::widget samsheet {
 
         $mmatrix textcol 0,$cpunits {
             "$/goodsBKT"
-            "$/tonne"
+            "$/blackBKT"
             "$/work-year"
             ""
             ""
@@ -367,7 +367,7 @@ snit::widget samsheet {
 
         $mmatrix textcol 0,$cdunits {
             "goodsBKTs"
-            "tonnes"
+            "blackBKTs"
             "work-years"
             ""
             ""
@@ -437,10 +437,10 @@ snit::widget samsheet {
         }
 
         $inputs textcol 0,2 {
-            "$/tonne"
+            "$/blackFeedBKT"
             ""
-            "tonnes/year"
-            "tonnes"
+            "blackFeedBKTs/year"
+            "blackBKTs"
             ""
             "%"
             ""
@@ -465,7 +465,7 @@ snit::widget samsheet {
             -changecmd [mymethod GlobalChanged]
 
         $inputs width 0 25
-        $inputs width 2 15
+        $inputs width 2 20 
 
         $inputs tag configure e -state normal -background $color(e)
     }
@@ -562,8 +562,8 @@ snit::widget samsheet {
         $exfaout textcol 0,2 {
             "$/year"
             "$/year"
-            "goodsBKT/year"
-            "tonnes/year"
+            "goodsBKTs/year"
+            "blackBKTs/year"
             "work-years/year"
         } units -anchor w -relief flat
 

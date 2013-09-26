@@ -44,7 +44,7 @@ snit::widget cgesheet {
 
     typevariable units {
         goods goodsBKT/yr
-        black tonnes/yr
+        black blackBKT/yr
         pop   work-years/yr
     }
 

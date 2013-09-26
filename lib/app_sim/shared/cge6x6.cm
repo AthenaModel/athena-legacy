@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cge6x6.cm, version ag
+#    cge6x6.cm, version ah
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -69,6 +69,11 @@
 #    In, and Out pages.
 #
 # HISTORY:
+#    Version ah: Changed the units of production of the black market
+# from tonnes to black baskets. Change the units of production in the 
+# goods sector from "GoodsBKT" to "goodsBKT" to be consistent with the UI
+# and the documentation.
+#
 #    Version ag: Geographic unemployment (from the In page) is now 
 # accounted for correctly: It reduces the labor supply; the number of 
 # workers available to take jobs. GU reduces the number of jobs only when
@@ -239,7 +244,7 @@
 #
 #    Version l: Attempts to fix supply equaling demand when the supply is
 # constrained in the medium and short run cases. The price of wages is
-# allowed to float based upon demand. Changed "goodsBKT" to "GoodsBKT"
+# allowed to float based upon demand. Changed "goodsBKT" to "goodsBKT"
 # and changed RFN to REM globally.
 #
 #    Version k: Added some logic to bullet proof against the case that the
@@ -361,11 +366,11 @@ let TurFrac = 0.04 ;# Average fraction of workforce "merely between jobs"
 # SAM-based Parameters
 #
 # A Social Accounting Matrix (SAM) is used in the cell model sam6x6.cm to
-# compute the parameters the describe the shape of the economy in a base
+# compute the parameters that describe the shape of the economy in a base
 # case; i.e., the f.i.j's, A.i.j's, and t.i.j's. The base case is also used
-# to calibrate the parameters that drive the GDP and umemployment. During
-# simulation, the "size" of the economy must be must be driven by the labor
-# force, the number of consumes, the per capita consumption and the labor
+# to calibrate the parameters that drive the GDP and unemployment. During
+# simulation, the "size" of the economy must be driven by the labor
+# force, the number of consumers, the per capita consumption and the labor
 # and consumer security factors provided by the Ground and Demographic
 # models. 
 #
@@ -470,9 +475,19 @@ let BaseUnemp   = 9.6e6     ;# Number of unemployed
 let BaseGDP     = 198.503e9 ;# Gross domestic product in the base case.
 
 # Exogenous prices 
-let BP.black = 4.0e6        ;# $/tonne black market goods FOB export dock
+let BP.black = 4.0e6        ;# $/blackBKT black market goods FOB export dock
+# Note that while it is customary to define aggregate product baskets so
+# that the value of one basketful is $1.0, that is an arbitrary convention.
+# A non-unit price is allowed for compatibility with earlier versions of 
+# the model, in which the black market product was assumed to be illegal 
+# drugs, and the basket was sized to be equivalent in value to one tonne
+# of refined opium FOB the export dock. If BP.black is defined to be 
+# $1.00/BlackBKT (or any other value), it is only necessary to ensure that
+# the corresponding units "blackBKTs" are used for quantities, so that the
+# product of the price and the quantity gives the correct number of dollars.
 
-let BPF.world.black  = 0.0  ;# $/tonne price of black market feedstock
+let BPF.world.black  = 0.0  ;# $/blackFeedBKT price of black market 
+                            ;# feedstocks
 
 # Shape parameters
 #  f.i.j - fraction of sector j's revenue that is spent in sector i.
@@ -480,14 +495,14 @@ let BPF.world.black  = 0.0  ;# $/tonne price of black market feedstock
 #  t.i.j - tax or tax-like fraction of j's sales that is paid to i.
 
 # Black sector
-let A.black.black   = 0.0   ;# tonnes/tonne
-let AF.world.black  = 1.05  ;# tonnes/tonne  feedstock req't (when from world)
-let MF.world.black  = 240.0 ;# tonnes/year max black market feedstock available 
-                            ;# from outside the region (i.e.: from "the 
-                            ;# rest of the world")
+let A.black.black   = 0.0   ;# blackBKTs/blackBKT
+let AF.world.black  = 1.05  ;# blackFeedBKTs/blackBKT  black feedstock req't 
+let MF.world.black  = 240.0 ;# blackFeedBKTs/year  max black market 
+                            ;# feedstock available from outside the region
+                            ;# (i.e.: from "the rest of the world")
 
-let A.goods.black = 2955    ;# GoodsBKT/tonne (WAG; calibration needed)
-let A.pop.black   = 14.0    ;# work-years/tonne (WAG; calibration needed)
+let A.goods.black = 2955    ;# goodsBKT/blackBKT
+let A.pop.black   = 14.0    ;# work-years/blackBKT 
 
 let t.actors.black = 0.2    ;# tax-like rate for black market pmts to actors
 let t.region.black = 0.2    ;# regional tax-like rate for black market
@@ -509,7 +524,8 @@ let t.world.goods   = 0.09  ;# goods sector imports from the world as a
 # Pop sector
 let f.black.pop   = 0.0004  ;# fraction of pop's utility obtained from black
 let f.goods.pop   = 0.9996  ;# fraction of pop's utility obtained from goods
-let f.pop.pop     = 0.0     ;# fraction of pop's utility obtained from pop
+let f.pop.pop     = 0.0     ;# if the goods sector includes services, as
+                            ;# well as goods, this should be zero.
 
 let t.actors.pop  = 0.05    ;# tax-like rate for payments by pop to actors
 let t.region.pop  = 0.00    ;# regional tax-like rate for pop
@@ -534,15 +550,16 @@ let f.world.region  = 0.25  ;# region's budget fraction for world
 
 # (Rest of the) World sector has no shape parameters
 
-# The zeroed out values below are in only to keep the Athena GUI from
+# The zeroed out values below are only to keep the Athena GUI from
 # having errors.
-let f.black.goods = 0.0 ;# This is not defined
-let f.pop.black   = 0.0 ;# This is not defined
-let f.pop.world   = 0.0 ;# This is not defined
+let f.black.goods = 0.0 ;# Assume the goods sector needs no black input
+let f.pop.black   = 0.0 ;# This is not defined because A.pop.black is
+let f.pop.world   = 0.0 ;# This is not defined because the world expenses 
+                        ;# are exogenous
 
 # Base Exports
-let BEXPORTS.black = 200.0    ;# tonnes/year
-let BEXPORTS.goods = 21.410e9 ;# GoodsBKT/year
+let BEXPORTS.black = 200.0    ;# blackBKT/year
+let BEXPORTS.goods = 21.410e9 ;# goodsBKT/year
 let BEXPORTS.pop   = 0.0      ;# work-years/year
 
 # There are no exports from the actors, region, or world sectors
@@ -568,7 +585,7 @@ let EmpExponent   = 0.3      ;# Exponent in EmpRatio
 # Base prices: These are the prices of sector products used to 
 # calibrate the Cobb-Douglas coefficients. (See above for BP.black.)
 
-let BP.goods = 1      ;# $/GoodsBKT  - the size of the GoodsBKT
+let BP.goods = 1      ;# $/goodsBKT  - the size of the goodsBKT
 let BP.pop   = 2550   ;# $/work-year - the unchanging numeraire
 
 # Ultimately,the "size" of the economy depends on A.goods.pop and the 
@@ -576,7 +593,7 @@ let BP.pop   = 2550   ;# $/work-year - the unchanging numeraire
 # match the computed Unemployment to the BaseUnemp
 
 let BA.goods.pop = 1300   ;# Direct consumption of goods, 
-                          ;# in GoodsBKT/year per capita
+                          ;# in goodsBKT/year per capita
 
 # Flags: These provide an interface to the models in Athena
 let Flag.ActorsGetBNR = 1 ;# Do actors get black market net revenue
@@ -605,7 +622,7 @@ let k.pop   = {1.0 - [t.actors.pop]   - [t.region.pop]   - [t.world.pop]}
 
 let BQD.goods.pop  =  {
     [BaseConsumers]*[BA.goods.pop]
-} -value 1.14e8    ;# GoodsBKT/year
+} -value 1.14e8    ;# goodsBKT/year
 
 let BREV.black     =  {
     [f.black.pop] > 0.0 ? [BQD.goods.pop]*[BP.goods]/[f.black.pop] : 0.0
@@ -613,7 +630,7 @@ let BREV.black     =  {
 
 let BQD.black.pop  =  {
     [f.black.pop]*[BREV.black]/[BP.black]
-} -value 38000     ;# work-year/year
+} -value 38000     ;# blackBKT/year
 
 let BREV.pop       =  {
     [BQD.goods.pop]*[BP.goods]/[f.goods.pop]
@@ -711,10 +728,11 @@ define EXP.j {j} {<:sum i {[X.$i.$j]}:>}          ;# Expenses as column sum
 # Model" by Chamberlain, Duquette, and Kahovec).
 
 #SECTOR: goods  is all goods produced in the region other than by the
-# black market.
-# Product: All the goods produced in the region (except black market 
-#  goods), in fixed ratios.
-# Unit of measure: GoodsBKT per year.
+# black market. This sector may include all services as well. If that
+# is the case then BX.pop.pop should be zero.
+# Product: All the goods (and perhaps services) produced in the region 
+# (except black market goods), in fixed ratios.
+# Unit of measure: goodsBKT per year.
 # Revenues are derived from sales of the product.
 # Expenditures consist of taxes and tax-like payments to the actors, 
 #  region, and world sectors and purchases of the products of the 
@@ -728,7 +746,8 @@ let REV.goods = [REV.i goods] -value 232.283e9
 let QD.goods.goods = {[k.goods] * <:CQD.i.j goods goods:>} -value 1.087e9
 let X.goods.goods  = [X.i.j goods goods]                   -value 1.087e9
 
-# Zeroes as place holders
+# Zeroes as place holders, since the goods sector needs no black product 
+# by assumption
 let QD.black.goods = 0
 let X.black.goods  = 0
 
@@ -744,9 +763,10 @@ let C.goods = {[COST.goods] / [QS.goods]} -value 1.0
 
 let QD.goods = {<:sum j {[QD.goods.$j]}:>}
 
-# To calibrate the model to the base case, a medium-run equilibrium is 
-# sought, but production capacity is assumed to equal current base case
-# production. The equation is QS = min(QD, CAP), but QD = CAP, so:
+# To calibrate the model to the base case, a medium-run equilibrium without
+# the effects of geographic unemployment is sought, but production capacity
+# is assumed to equal current base case production. The equation is 
+# QS = min(QD, CAP), but QD = CAP, so:
 let QS.goods = {[QD.goods]} -value 232.283e9
  
 # EXP.goods is used only as an output, if removed it will cause the Out page
@@ -761,10 +781,10 @@ let NR.goods = {([P.goods] - [C.goods]) * [QS.goods]}
 # This will be checked in the diagnostics.
 
 #SECTOR: black  is the regional Black Market sector.
-# Product: Illegal drugs of all kinds in fixed ratios
-# Unit of measure: number of metric tons (tonnes) per year of refined
-#  opium FOB the port of export that would have the same monetary value 
-#  as the actual mix of drugs.
+# Product: Illegal products of all kinds in fixed ratios
+# Unit of measure: number of black market baskets (blackBKT) per year
+#  FOB the port of export that would have the same monetary value 
+#  as the actual mix of products.
 # Revenues are derived from sales of the product.
 # Expenditures consist of tax-like payments to the actors, region, and
 #  world sectors, purchases of the products of the black, goods, and 
@@ -773,13 +793,12 @@ let NR.goods = {([P.goods] - [C.goods]) * [QS.goods]}
 # maximize net revenues. Exogenous market forces determine the prices
 # of products and feedstocks.
 # Production function: Leontief.
-# Note: Trafficking in illegal drugs is the use case, which provides
+# Note: Trafficking in illegal drugs was the initial use case. It provided
 #  focus, but other black market products, such as illegal arms or 
-#  humans or a combination of products could be considered instead, 
-#  providing appropriate data is used. 
+#  humans or a combination of products are now considered explicitly.
 
 
-let REV.black = [REV.i black]    -value 100e6 ;# WAG to be updated
+let REV.black = [REV.i black]    -value 100e6
 
 # P.black is exogenous but it needs to be defined here because it
 # needs to be copied into the S page. The Out page references 
@@ -835,7 +854,7 @@ let QD.black = {<:sum j {[QD.black.$j]}:>}
 # production. The equation is QS = min(QD, CAP), but QD = CAP. Furthermore,
 # feedstock availability is assumed to be unrestricted, so:
 
-let QS.black = {[QD.black]}   -value 1e6   ;# tonnes/year
+let QS.black = {[QD.black]}   -value 1e6   ;# blackBKT/year
 
 let NR.black = {([P.black] - [C.black]) * [QS.black]}
 
@@ -1174,12 +1193,15 @@ let Population = {[Consumers]+[Subsisters]}
 # pages
 let CAP.black = 40000
 
+# The user should be able to change the exogenous black market price.
+let P.black = {[BP.black]}  ;# $/blackBKT
+
 # Remittances
 let REM = 1.0e10            ;# $/year
 
 # Exports
-let EXPORTS.black = 200.0    ;# tonnes/year
-let EXPORTS.goods = 21.410e9 ;# GoodsBKT/year
+let EXPORTS.black = 200.0    ;# blackBKT/year
+let EXPORTS.goods = 21.410e9 ;# goodsBKT/year
 let EXPORTS.pop   = 0.0      ;# work-years/year
 
 # Foreign aid to region
@@ -1192,7 +1214,7 @@ let FAA = 0.0               ;# $/year
 # values are intended to be effectively infinite.
 
 # Max production rate for goods
-let CAP.goods  = 298.0e9         ;# GoodsBKT/year, small enough to matter
+let CAP.goods  = 298.0e9         ;# goodsBKT/year, small enough to matter
 
 # Labor Force: Number of people who want to be employed
 let LF         = 9.6e7       ;# work-years/year
@@ -1267,13 +1289,13 @@ copypage Cal -except {
     BaseBasketValue
 }
 
-# Copy the calibrated wages and price of GoodsBKT
+# Copy the calibrated wages and price of goodsBKT
 let P.pop   = {[Cal::P.pop] * [In::WageIndex]}
 let P.goods = {[Cal::P.goods] * [In::PriceIndex]}
 
 # Copy the null-page prices and inflate them
 let PF.world.black = {[BPF.world.black] * [In::PriceIndex]} ;
-let P.black = {[BP.black] * [In::PriceIndex]} ;
+let P.black = {[In::P.black] * [In::PriceIndex]} ;
 
 # A.goods.pop may have changed if the number of consumers has changed or the
 # amount of money flowing to the pop sector has changed. It is modified by
@@ -1374,13 +1396,13 @@ copypage Cal -except {
     BaseBasketValue
 }
 
-# Copy the calibrated wages and price of GoodsBKT
+# Copy the calibrated wages and price of goodsBKT
 let P.pop = {[Cal::P.pop] * [In::WageIndex]}
 let P.goods = {[Cal::P.goods] * [In::PriceIndex]}
 
 # Copy the null-page prices and inflate them
 let PF.world.black = {[BPF.world.black] * [In::PriceIndex]} ;
-let P.black = {[BP.black] * [In::PriceIndex]} ;
+let P.black = {[In::P.black] * [In::PriceIndex]} ;
 
 # Replace the following equations
 
@@ -1493,13 +1515,13 @@ copypage Cal -except {
     Unemp
 }
 
-# Copy the calibrated wages and price of GoodsBKT
+# Copy the calibrated wages and price of goodsBKT
 let P.pop = {[Cal::P.pop] * [In::WageIndex]}
 let P.goods = {[Cal::P.goods] * [In::PriceIndex]}
 
 # Copy the null-page prices and inflate them
 let PF.world.black = {[BPF.world.black] * [In::PriceIndex]} ;
-let P.black = {[BP.black] * [In::PriceIndex]} ;
+let P.black = {[In::P.black] * [In::PriceIndex]} ;
 
 # Replace the following equations
 
@@ -1639,7 +1661,7 @@ foreach i {actors region world} {
 let LATENTDEMAND.black = {max(0.0, ediff([L::QD.black], [M::QS.black]))}
 let IDLECAP.black      = {max(0,0, ediff([In::CAP.black], [S::QS.black]))}
 
-# goods latent demand and idle capacity: GoodsBKT/year
+# goods latent demand and idle capacity: goodsBKT/year
 let LATENTDEMAND.goods = {max(0.0, ediff([L::QD.goods], [M::QS.goods]))}
 let IDLECAP.goods      = {max(0.0, ediff([In::CAP.goods], [S::QS.goods]))}
 

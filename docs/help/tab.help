@@ -2587,10 +2587,13 @@ tab "Econ/SAM" {
     demand) is computed.<p>
 
     For the goods sector, a goods basket (goodsBKT) is the unit of measurement.
-    A goods basket is simply a notional set of goods that the population
+    A goods basket is a notional set of goods that the population
     buys and its associated price (defaulted to 1 USD per basket).
-    For the black sector, a metric ton (tonne) is the unit of measurement
-    and the demand is simply the revenue divided by the price per tonne.
+    For the black sector, a black basket (blackBKT) is the unit of measurement
+    and the demand is the revenue divided by the price per blackBKT.
+    A black basket is a notional set of black market products that
+    the population buys. It can consist of any set of illicit items such as
+    weapons or drugs.
     For the population sector, base demand is labor output of the workforce
     in work-years given the average annual income of a typical person in
     the area of interest.<p>
