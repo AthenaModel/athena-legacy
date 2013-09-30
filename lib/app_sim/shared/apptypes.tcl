@@ -25,6 +25,29 @@ enum eanyall {
     ALL "All of"
 }
 
+# Block/tactic execution status
+enumx create eexecstatus {
+    NONE            {text -           icon ::projectgui::icon::dash13      }
+    SKIPPED         {text Skipped     icon ::projectgui::icon::dash13      }
+    FAIL_TIME       {text Time        icon ::projectgui::icon::clock13r    }
+    FAIL_CONDITIONS {text Conditions  icon ::projectgui::icon::smthumbdn13 }
+    FAIL_RESOURCES  {text Resources   icon ::projectgui::icon::dollar13r   }
+    SUCCESS         {text Success     icon ::projectgui::icon::check13     }
+}
+
+# Condition flag status
+enumx create eflagstatus {
+    ""            {text -           icon ::projectgui::icon::dash13      }
+    0             {text "Unmet"     icon ::projectgui::icon::smthumbdn13 }
+    1             {text "Met"       icon ::projectgui::icon::smthumbup13 }
+}
+
+# Block Execution Mode
+enumx create eexecmode {
+    ALL  {longname "All tactics or none"}
+    SOME {longname "As many tactics as possible"}
+}
+
 # Priority tokens
 
 enum ePrioSched {
@@ -62,6 +85,14 @@ enum esector {
     GOODS goods
     POP   pop
     ELSE  else
+}
+
+# Bean State
+
+enumx create ebeanstate {
+    normal     {color black    font codefont       }
+    disabled   {color #999999  font codefontstrike }
+    invalid    {color #FF0000  font codefontstrike }
 }
 
 # Magic Input Mode

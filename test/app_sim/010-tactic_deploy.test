@@ -40,7 +40,6 @@ namespace eval ::athena_test::tests:: {
         personnel start
         personnel load
         cash load
-        tactic::DEPLOY reset
     }
 
 

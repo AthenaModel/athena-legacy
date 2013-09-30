@@ -250,10 +250,15 @@ snit::widget ::projectgui::myhtmlpane {
 
     # ReloadNow
     #
-    # Reloads the current page immediately.
+    # Reloads the current page immediately, if there is one; otherwise,
+    # clears the display.
 
     method ReloadNow {} {
-        $self ShowPageRef $info(page) [lindex [$hv yview] 0]
+        if {$info(page) ne ""} {
+            $self ShowPageRef $info(page) [lindex [$hv yview] 0]
+        } else {
+            $hv set ""
+        }
     }
 
     # ReloadOnEvent dummy...

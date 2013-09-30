@@ -118,6 +118,19 @@ snit::type group {
         }]
     }
 
+    # maintPerPerson g
+    #
+    # g  - A group
+    #
+    # Returns the maintenance cost per person for the given force
+    # or organization group.
+
+    typemethod maintPerPerson {g} {
+        return [rdb onecolumn {
+            SELECT cost FROM agroups WHERE g=$g
+        }]
+    }
+
     # otherthan glist
     #
     # glist - A list of groups

@@ -61,15 +61,24 @@ snit::type personnel {
 
             INSERT INTO working_deployment(n,g)
             SELECT n,g FROM deploy_ng JOIN agroups USING (g);
+
+            DROP TABLE IF EXISTS working_deploy_tng;
+            CREATE TABLE working_deploy_tng AS SELECT * FROM deploy_tng;
+            DELETE FROM deploy_tng;
         }
     }
 
-    # deploy n g personnel
+    # deploy tactic_id n g personnel
+    #
+    # tactic_id    - The ID of the DEPLOY tactic
+    # n            - The neighborhood to which troops are deployed
+    # g            - The group to which the troops belong
+    # personnel    - The number of troops to deploy
     #
     # This routine is called by the DEPLOY tactic.  It deploys the
     # requested number of available FRC or ORG personnel.
 
-    typemethod deploy {n g personnel} {
+    typemethod deploy {tactic_id n g personnel} {
         set available [rdb onecolumn {
             SELECT available FROM working_personnel WHERE g=$g
         }]
@@ -89,6 +98,9 @@ snit::type personnel {
             SET personnel  = personnel  + $personnel,
                 unassigned = unassigned + $personnel
             WHERE n=$n AND g=$g;
+
+            INSERT INTO deploy_tng(tactic_id, n, g, personnel)
+            VALUES($tactic_id, $n, $g, $personnel)
         }
     }
 

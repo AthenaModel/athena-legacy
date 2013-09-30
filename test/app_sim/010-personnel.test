@@ -120,7 +120,7 @@ NB2 HAL  0         0
         personnel start
         personnel load
     } -body {
-        personnel deploy NB1 BLUE 6000
+        personnel deploy 1 NB1 BLUE 6000
     } -returnCodes {
         error
     } -cleanup {
@@ -132,7 +132,7 @@ NB2 HAL  0         0
         personnel start
         personnel load
     } -body {
-        personnel deploy NB1 BLUE 1000
+        personnel deploy 1 NB1 BLUE 1000
         ted query {SELECT * FROM working_personnel}
     } -cleanup {
         cleanup
@@ -149,7 +149,7 @@ HAL  2000      2000
         personnel start
         personnel load
     } -body {
-        personnel deploy NB1 BLUE 1000
+        personnel deploy 1 NB1 BLUE 1000
         ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
@@ -169,8 +169,8 @@ NB2 HAL  0         0
         personnel start
         personnel load
     } -body {
-        personnel deploy NB1 BLUE 1000
-        personnel deploy NB1 BLUE 500
+        personnel deploy 1 NB1 BLUE 1000
+        personnel deploy 2 NB1 BLUE 500
         ted query {SELECT * FROM working_deployment}
     } -cleanup {
         cleanup
@@ -227,9 +227,9 @@ HAL  2000      2000
 
         # Initially, all troops are deployed in NB1.  Move or
         # otherwise change them.
-        personnel deploy NB1 BLUE 2000
-        personnel deploy NB1 BRIT 2000
-        personnel deploy NB1 HAL 1000
+        personnel deploy 1 NB1 BLUE 2000
+        personnel deploy 2 NB1 BRIT 2000
+        personnel deploy 3 NB1 HAL 1000
     } -body {
         personnel save
 
@@ -244,9 +244,9 @@ HAL  2000      2000
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 2000
-        personnel deploy NB1 BRIT 5000
-        personnel deploy NB1 HAL 2000
+        personnel deploy 1 NB1 BLUE 2000
+        personnel deploy 2 NB1 BRIT 5000
+        personnel deploy 3 NB1 HAL 2000
     } -body {
         personnel save
 
@@ -265,7 +265,7 @@ HAL  2000
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 2000
+        personnel deploy 1 NB1 BLUE 2000
     } -body {
         personnel save
 
@@ -289,7 +289,7 @@ HAL  0
         personnel load
     } -body {
         set a [personnel available BLUE]
-        personnel deploy NB1 BLUE 1000
+        personnel deploy 1 NB1 BLUE 1000
         set b [personnel available BLUE]
 
         list $a $b
@@ -308,7 +308,7 @@ HAL  0
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 100
+        personnel deploy 1 NB1 BLUE 100
         personnel save
     } -body {
         personnel mutate attrit NB1 BLUE 15
@@ -327,8 +327,8 @@ HAL  0
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 100
-        personnel deploy NB1 BRIT 100
+        personnel deploy 1 NB1 BLUE 100
+        personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
         personnel mutate attrit NB1 BLUE 15
@@ -350,9 +350,9 @@ NB2 HAL  0         0
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 100
-        personnel deploy NB2 BLUE 100
-        personnel deploy NB1 BRIT 100
+        personnel deploy 1 NB1 BLUE 100
+        personnel deploy 1 NB2 BLUE 100
+        personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
         personnel mutate attrit NB1 BLUE 150
@@ -376,8 +376,8 @@ NB2 HAL  0         0
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 100
-        personnel deploy NB1 BRIT 100
+        personnel deploy 1 NB1 BLUE 100
+        personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
         set a [ted query {SELECT * FROM personnel_g}]
@@ -394,8 +394,8 @@ NB2 HAL  0         0
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 100
-        personnel deploy NB1 BRIT 100
+        personnel deploy 1 NB1 BLUE 100
+        personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
         set a [ted query {SELECT * FROM deploy_ng}]
@@ -412,8 +412,8 @@ NB2 HAL  0         0
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 100
-        personnel deploy NB1 BRIT 100
+        personnel deploy 1 NB1 BLUE 100
+        personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
         set a [ted query {SELECT * FROM deploy_ng}]
@@ -430,8 +430,8 @@ NB2 HAL  0         0
         setup
         personnel start
         personnel load
-        personnel deploy NB1 BLUE 100
-        personnel deploy NB1 BRIT 100
+        personnel deploy 1 NB1 BLUE 100
+        personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
         set a [ted query {SELECT * FROM deploy_ng}]
@@ -454,9 +454,4 @@ NB2 HAL  0         0
 }
 
 namespace delete ::athena_test::tests::
-
-
-
-
-
 

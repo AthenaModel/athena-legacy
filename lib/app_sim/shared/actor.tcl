@@ -146,7 +146,10 @@ snit::type actor {
     # valid.
 
     typemethod {mutate create} {parmdict} {
-        # FIRST, clear irrelevant fields.
+        # FIRST, prepare to undo.
+        set undo [list]
+
+        # NEXT, clear irrelevant fields.
         set parmdict [ClearIrrelevantFields $parmdict]
         
         # NEXT, create the actor.
@@ -187,28 +190,17 @@ snit::type actor {
                        $budget);
             }
 
-            # NEXT, create a matching bsystem entity
+            # NEXT, create the related entities
             bsystem entity add $a
+            lappend undo [list bsystem edit undo]
+            lappend undo [strategyx create_ $a]
 
             # NEXT, Return undo command.
-            return [mytypemethod UndoCreate $a]
+            lappend undo [list rdb delete actors "a='$a'"]
+
+            return [join $undo \n]
         }
     }
-
-    # UndoCreate a
-    #
-    # a - An actor short name
-    #
-    # Undoes the creation of the actor.
-
-    typemethod UndoCreate {a} {
-        # FIRST, undo the belief system change
-        bsystem edit undo
-        
-        # NEXT, delete the actor record.
-        rdb delete actors {a=$a}
-    }
-
 
     # mutate delete a
     #
@@ -217,6 +209,8 @@ snit::type actor {
     # Deletes the actor.
 
     typemethod {mutate delete} {a} {
+        set undo [list]
+
         # FIRST, get the undo information
         set gdata [rdb grab \
                        groups    {rel_entity=$a}          \
@@ -228,24 +222,15 @@ snit::type actor {
         set adata [rdb delete -grab actors {a=$a}]
 
         
-        # NEXT, delete the bsystem entity
+        # NEXT, delete the related entities
         bsystem entity delete $a
+        lappend undo [list bsystem edit undo]
+        lappend undo [strategyx delete_ $a]
+        lappend undo [list rdb ungrab [concat $adata $gdata]]
 
-        # NEXT, Return the undo script
-        return [mytypemethod UndoDelete [concat $adata $gdata]]
+        return [join $undo \n]
     }
 
-    # UndoDelete data
-    #
-    # data - An RDB grab data set
-    #
-    # Restores the data into the RDB, and undoes the bsystem change.
-    
-    typemethod UndoDelete {data} {
-        bsystem edit undo
-        rdb ungrab $data
-    }
-    
 
     # mutate update parmdict
     #

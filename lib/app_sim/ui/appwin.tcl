@@ -110,8 +110,23 @@ snit::widget appwin {
             label   "Strategy"
             vistype *
             parent  ""
+            script  ""
+        }
+
+        strategy_new {
+            label   "New"
+            vistype *
+            parent  strategy
+            script  { strategyxbrowser %W }
+        }
+
+        strategy_old {
+            label   "Old"
+            vistype *
+            parent  strategy
             script  { strategybrowser %W }
         }
+
 
         nbhoodst {
             label   "Neighborhoods"

@@ -18,6 +18,7 @@ package require snit
 #-----------------------------------------------------------------------
 # Internal Package Dependencies
 
+package require TclOO
 package require sqlite3
 package require uri
 package require fileutil
@@ -44,6 +45,7 @@ namespace eval ::projectlib:: {
 
 source [file join $::projectlib::library os.tcl          ]
 source [file join $::projectlib::library version.tcl     ]
+source [file join $::projectlib::library enumx.tcl       ]
 source [file join $::projectlib::library projtypes.tcl   ]
 source [file join $::projectlib::library prefs.tcl       ]
 source [file join $::projectlib::library parmdb.tcl      ]
@@ -64,4 +66,7 @@ source [file join $::projectlib::library weekclock.tcl   ]
 source [file join $::projectlib::library experimentdb.tcl]
 source [file join $::projectlib::library gofer.tcl       ]
 source [file join $::projectlib::library rolemap.tcl     ]
+source [file join $::projectlib::library oohelpers.tcl   ]
+source [file join $::projectlib::library beanclass.tcl   ]
+source [file join $::projectlib::library bean.tcl        ]
 

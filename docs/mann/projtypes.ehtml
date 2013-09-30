@@ -67,14 +67,32 @@ attitude change.<p>
 
 <<::projectlib::ecause html>>
 
-
 <<defitem ecomparator {ecomparator <i>subcommand</i> ?<i>args</i>?}>>
 
-An <<xref mars:enum(n)>> type, representing a variety of comparisons
-used by Athena conditions.  The data fields used by the comparison
-vary according to the comparator and the condition type.<p>
+An <<xref enum(n)>> type, representing a variety of comparisons
+used by Athena conditions:<p>
 
 <<::projectlib::ecomparator html>>
+
+<<defitem ecomparatorx {ecomparatorx <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref enumx(n)>> type, representing a variety of comparisons
+used by Athena conditions:<p>
+
+<<::projectlib::ecomparatorx html>>
+
+The type has one unique subcommand:<p>
+
+<<deflist ecomparatorx>>
+
+<<defitem "ecomparatorx compare" {ecomparatorx compare <i>x comp y</i>}>>
+
+Compares numeric value <i>x</i> with numeric value <i>y</i> according to
+<<iref ecomparator>> value <i>comp</i>, returning 1 if the comparison is
+true and 0 otherwise. <p>
+
+<</deflist ecomparatorx>>
+
 
 
 <<defitem econcern {econcern <i>subcommand</i> ?<i>args</i>?}>>
@@ -161,12 +179,32 @@ in some kind of refugee or displaced persons camp?<p>
 
 <<::projectlib::ehousing html>>
 
+<<defitem emoveitem {emoveitem <i>subcommand</i> ?<i>args</i>?}>>
+
+An <<xref enumx(n)>> type, representing ways to move an item in a list.<p>
+
+<<::projectlib::emoveitem html>>
+
+The type has one unique subcommand:<p>
+
+<<deflist emoveitem>>
+
+<<defitem "emoveitem move" {emoveitem move <i>where list item</i>}>>
+
+Moves the <i>item</i> to the place in the <i>list</i> indicated by
+by <i>where</i>, which is an <<iref emoveitem>> value, and returns
+the new list.<p>
+
+<</deflist emoveitem>>
+
 <<defitem epagesize {epagesize <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing the number of results to 
 display on one page of output.<p>
 
 <<::projectlib::epagesize html>>
+
+
 
 
 <<defitem eorgtype {eorgtype <i>subcommand</i> ?<i>args</i>?}>>

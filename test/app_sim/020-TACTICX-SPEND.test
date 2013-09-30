@@ -1,0 +1,222 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-TACTICX-SPEND.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    TACTICX:SPEND:* Orders tests
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        ted create JOE
+        variable S1
+        variable B1
+        variable T1
+        set S1 [strategyx getname JOE]
+        ted order STRATEGY:BLOCK:ADD agent JOE
+        lassign [$S1 blocks] B1
+        ted order BLOCK:TACTIC:ADD block_id [$B1 id] typename SPEND
+        lassign [$B1 tactics] T1
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # TACTICX:SPEND:UPDATE
+
+    test TACTICX:SPEND:UPDATE-1.1 {required parameters} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {required value}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.2 {unknown tactic_id} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        tactic_id {invalid value "NONESUCH", should be one of: *}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.3 {invalid mode} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] mode NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "NONESUCH", should be one of: SOME, ALL}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.4 {invalid amount} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] amount NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.5 {invalid goods} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] goods NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        goods {invalid value "NONESUCH", expected integer}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.6 {invalid black} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] black NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        black {invalid value "NONESUCH", expected integer}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.7 {invalid pop} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] pop NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        pop {invalid value "NONESUCH", expected integer}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.8 {invalid region} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] region NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        region {invalid value "NONESUCH", expected integer}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.9 {invalid world} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] world NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        world {invalid value "NONESUCH", expected integer}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.10 {mode SOME, amount 0.0} -setup {
+        setup
+    } -body {
+        # amount is 0.0 by default
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] mode SOME
+    } -cleanup {
+        cleanup
+    } -result {
+        amount {Required value when mode is SOME.}
+    }
+
+    test TACTICX:SPEND:UPDATE-1.11 {all shares 0} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:SPEND:UPDATE tactic_id [$T1 id] \
+            goods 0 black 0 pop 0 region 0 world 0
+    } -cleanup {
+        cleanup
+    } -result {
+        goods {At least one sector must have a positive share.}
+    }
+
+
+    test TACTICX:SPEND:UPDATE-2.1 {tactic updated} -setup {
+        setup
+    } -body {
+        ted order TACTICX:SPEND:UPDATE \
+            tactic_id [$T1 id] \
+            mode      SOME     \
+            amount    100.0    \
+            goods     10
+
+        ted pdict [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        world      1
+        state      normal
+        execstatus NONE
+        block      ::bean::block*
+        amount     100.0
+        goods      10
+        region     1
+        black      1
+        id         *
+        pop        1
+        mode       SOME
+    }
+
+    test TACTICX:SPEND:UPDATE-2.2 {notifier event} -setup {
+        setup
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        ted order TACTICX:SPEND:UPDATE tactic_id [$T1 id] amount 10.0
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+
+    test TACTICX:SPEND:UPDATE-2.3 {undo notifier event} -setup {
+        setup
+        ted order TACTICX:SPEND:UPDATE tactic_id [$T1 id] amount 10.0
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+ 
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

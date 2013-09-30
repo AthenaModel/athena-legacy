@@ -23,6 +23,7 @@ namespace eval ::projectlib:: {
         ecause           \
         ecivconcern      \
         ecomparator      \
+        ecomparatorx     \
         econcern         \
         econdition_type  \
         econdition_state \
@@ -40,6 +41,7 @@ namespace eval ::projectlib:: {
         einjectpart      \
         einject_state    \
         eiom_state       \
+        emoveitem        \
         eorgactivity     \
         eorgconcern      \
         eorgtype         \
@@ -585,7 +587,8 @@ snit::type ::projectlib::typewrapper {
 }
 
 
-# Comparator Type.  Used in conditions
+# Comparator Type.  Used in conditions.  It's a standard enumx plus
+# the compare method.
 
 ::marsutil::enum ::projectlib::ecomparator {
     EQ "equal to"
@@ -593,6 +596,70 @@ snit::type ::projectlib::typewrapper {
     GT "greater than"
     LE "less than or equal to"
     LT "less than"
+}
+
+::projectlib::enumx create ::projectlib::ecomparatorx {
+    EQ {longname "equal to"                 }
+    GE {longname "greater than or equal to" }
+    GT {longname "greater than"             }
+    LE {longname "less than or equal to"    }
+    LT {longname "less than"                }
+} {
+    method compare {x comp y} {
+        switch -exact -- $comp {
+            EQ      { return [expr {$x == $y}] }
+            GE      { return [expr {$x >= $y}] }
+            GT      { return [expr {$x >  $y}] }
+            LE      { return [expr {$x <= $y}] }
+            LT      { return [expr {$x <  $y}] }
+            default { error "Invalid comparator: \"$comp\"" }
+        }
+    }
+}
+
+# emoveitem: Ways to move an item in a list
+
+::projectlib::enumx create ::projectlib::emoveitem {
+    top    {longname "Move To Top"   }
+    up     {longname "Move Up"       }
+    down   {longname "Move Down"     }
+    bottom {longname "Move To Bottom"}
+} {
+    # move where list item
+    #
+    # where  - An emoveitem value
+    # list   - A list
+    # item   - An item in the list
+    #
+    # Moves the item in the list, and returns the new list.
+
+    method move {where list item} {
+        # FIRST, get item's position in the list.
+        set index [lsearch -exact $list $item]
+
+        # NEXT, get the new position
+        let end {[llength $list] - 1}
+
+        switch -exact -- $where {
+            top     { set newpos 0                         }
+            up      { let newpos {max(0,    $index - 1)}   }
+            down    { let newpos {min($end, $index + 1)}   }
+            bottom  { set newpos $end                      }
+            default { error "Unknown movement: \"$where\"" }
+        }
+
+        # NEXT, if the item is already in its position, we're done.
+        if {$newpos == $index} {
+            return $list
+        }
+
+        # NEXT, put the item in its list.
+        ldelete list $item
+        set list [linsert $list $newpos $item]
+
+        # FINALLY, return the new list.
+        return $list
+    }
 }
 
 # CURSE State.

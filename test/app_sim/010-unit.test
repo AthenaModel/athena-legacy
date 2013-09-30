@@ -32,8 +32,8 @@ namespace eval ::athena_test::tests:: {
         personnel start
         unit reset
         personnel load
-        personnel deploy NB1 BLUE  100
-        personnel deploy NB2 USAID 100
+        personnel deploy 1 NB1 BLUE  100
+        personnel deploy 2 NB2 USAID 100
         personnel save
     }
 

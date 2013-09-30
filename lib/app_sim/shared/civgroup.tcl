@@ -522,7 +522,7 @@ order define CIVGROUP:UPDATE {
     returnOnError
 
     # NEXT, do cross validation
-    fillparms CIVGROUP:UPDATE parms [civgroup getg $parms(g)]
+    fillparms parms [civgroup getg $parms(g)]
 
     validate lfp {
         if {$parms(sa_flag) && $parms(lfp) != 0} {

@@ -238,8 +238,11 @@ snit::type scenario {
     # "scenario new", and when "scenario open" tries and fails.
 
     typemethod MakeBlankScenario {} {
-        # FIRST, initialize the runtime data
+        # FIRST, initialize the runtime database
         InitializeRuntimeData
+
+        # NEXT, initialize the beans
+        bean reset
 
         # NEXT, there is no dbfile.
         set info(dbfile) ""

@@ -90,7 +90,6 @@ snit::type strategy {
         profile 1 tactic::ATTROE reset
         profile 1 tactic::BROADCAST reset
         profile 1 tactic::DEFROE reset
-        profile 1 tactic::DEPLOY reset
         profile 1 tactic::FLOW reset
         profile 1 tactic::STANCE reset
         profile 1 unit reset

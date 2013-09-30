@@ -130,7 +130,7 @@ order define CONDITION:DURING:UPDATE {
 
     # NEXT, make sure this is a valid interval.  Retrieve the previous
     # values of t1 and t2 if they are needed.
-    fillparms CONDITION:DURING:UPDATE parms [condition get $parms(condition_id)]
+    fillparms parms [condition get $parms(condition_id)]
     
     validate t2 {
         if {$parms(t2) < $parms(t1)} {

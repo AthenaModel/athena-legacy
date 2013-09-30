@@ -1562,7 +1562,7 @@ snit::type executive {
             return -code error -errorcode REJECT $text
         }
 
-        return ""
+        return $result
     }
 
     # show url

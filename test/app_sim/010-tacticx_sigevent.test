@@ -1,0 +1,136 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tacticx_sigevent.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tacticx_sigevent(sim) tests.
+#
+#    This test suite tests the tacticx_sigevent(sim) class.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        variable T1
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+
+        strategy::JOE addblock_
+        set block [lindex [strategy::JOE blocks] end]
+        set T1 [tacticx::SIGEVENT new $block]
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    test constructor-1.1 {default state} -setup {
+        setup
+    } -body {
+        ted pdict [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        id         *
+        execstatus NONE
+        state      normal
+        block      ::bean::block*
+        msg        {}
+    }
+    
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative, initial state} -setup {
+        setup
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Logs "???" to the sigevents log}
+
+    test narrative-1.2 {narrative, with msg} -setup {
+        setup
+        $T1 set msg Hello
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Logs "Hello" to the sigevents log}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {always succeeds} -setup {
+        setup
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    #-------------------------------------------------------------------
+    # obligate
+
+    test obligate-1.1 {always succeeds} -setup {
+        setup
+    } -body {
+        # The coffer argument is unused.
+        $T1 obligate NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {always succeeds} -setup {
+        setup
+        $T1 set msg "hello"
+    } -body {
+        $T1 execute
+        ted query {SELECT * FROM sigevents}
+    } -cleanup {
+        cleanup
+    } -result {
+event_id t level component narrative       
+-------- - ----- --------- --------------- 
+1        0 1     tactic    SIGEVENT: hello 
+    }
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

@@ -12,9 +12,21 @@
 #
 #-----------------------------------------------------------------------
 
-# fillparms order parmsVar parmdict
+# beanload idict id ?view?
 #
-# order    - The name of the order
+# idict    - A dynaform(n) field's item metadata dictionary
+# id       - A bean ID
+# view     - Optionally, a bean view name.  Defaults to "".
+#
+# This command is intended for use as a dynaform(n) -loadcmd, to
+# load a bean's data into a dynaview using a specific bean view.
+
+proc beanload {idict id {view ""}} {
+    return [bean view $id $view]
+}
+
+# fillparms parmsVar parmdict
+#
 # parmsVar - An order parms dictionary
 # parmdict - An entity attribute dictionary
 #
@@ -23,11 +35,11 @@
 # empty parameter values in the parmsVar with the existing data.
 # this allows for easier cross-validation of parameters.
 
-proc fillparms {order parmsVar parmdict} {
+proc fillparms {parmsVar parmdict} {
     upvar 1 $parmsVar parms
     
-    foreach parm [order parms $order] {
-        if {![info exists parms($parm)] || $parms($parm) eq ""} {
+    foreach parm [array names parms] {
+        if {$parms($parm) eq "" && [dict exists $parmdict $parm]} {
             set parms($parm) [dict get $parmdict $parm]
         }
     }
@@ -177,4 +189,18 @@ proc hrel.fg {f g} {
 
 proc vrel.ga {g a} {
     rdb onecolumn {SELECT vrel FROM uram_vrel WHERE g=$g AND a=$a}
+}
+
+# caller
+# 
+# Returns the caller's command, if possible.
+
+proc caller {} {
+    set dict [info frame -3]
+
+    if {[dict exists $dict cmd]} {
+        return [dict get $dict cmd]
+    } else {
+        return "*unknown*"
+    }
 }

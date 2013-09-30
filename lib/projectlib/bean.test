@@ -1,0 +1,1320 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    bean.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Tcltest test suite for projectlib(n) beanclass(n) and bean(n)
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Initialize tcltest(n)
+
+if {[lsearch [namespace children] ::tcltest] == -1} {
+    package require tcltest 2.2 
+    eval ::tcltest::configure $argv
+}
+ 
+#-----------------------------------------------------------------------
+# Load the package to be tested
+
+package require projectlib 1.0
+
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::projectlib::test {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Import the code to be tested
+    namespace import ::projectlib::*
+
+    # Notifications
+    variable notifications
+
+    proc setupNotifier {subject event} {
+        variable notifications
+        set notifications [list]
+        ::marsutil::notifier bind $subject $event ::projectlib::test \
+            [list ::projectlib::test::handleNotification $subject $event]
+    }
+
+    proc handleNotification {args} {
+        variable notifications
+
+        lappend notifications "        $args"
+    }
+
+    proc getNotifications {} {
+        variable notifications
+        pprint "[join $notifications \n]\n"
+    }
+
+    proc pprint {text} { 
+        return "\n$text    "
+    }
+
+    proc cleanup {} {
+        variable notifications
+
+        bean reset
+        ::marsutil::notifier forget ::projectlib::test
+        set notifications [list]
+    }
+
+
+    beanclass create pet {
+        superclass ::projectlib::bean
+
+        variable name
+        variable color
+
+        constructor {} {
+            next
+
+            set name ""
+            set color ""
+        }
+
+        method say {text} {
+            return "$name ([self]): $text"
+        }
+
+        # Override subject, so that we get notifier events.
+        method subject {} {
+            return "::pet"
+        }
+    }
+
+    beanclass create dog {
+        superclass pet
+
+        variable breed
+
+        constructor {{dict {}}} {
+            next
+
+            set breed "mutt"
+            my setdict $dict
+        }
+    }
+
+    beanclass create cat {
+        superclass pet
+
+        variable tail
+
+        constructor {{dict {}}} {
+            next
+
+            set tail yes  ;# Cat has a tail?
+
+            my setdict $dict
+        }
+    }
+
+    beanclass create wagger {
+        superclass dog
+
+        beanslot tail
+
+        constructor {{dict {}}} {
+            next
+            set tail ""
+            my setdict $dict
+        }
+
+        method addtail {newTail} {
+            set tail $newTail
+        }
+
+        method wag {} {
+            my say "Wagging tail [$tail id], of length [$tail get length]"
+        }
+
+    }
+
+    beanclass create tail {
+        superclass ::projectlib::bean
+
+        variable length
+
+        constructor {{dict {}}} {
+            next
+            set length medium
+            my setdict $dict
+        }
+    }
+
+    beanclass create blocklist {
+        superclass ::projectlib::bean
+
+        beanslot blocks
+        variable data
+
+        constructor {} {
+            next
+            set blocks [list]
+            set data ""
+        }
+
+        method subject {} {
+            return "::blocklist"
+        }
+
+        method add_ {bean} {
+            return [my addbean_ blocks $bean]
+        }
+
+        method delete_ {id} {
+            return [my deletebean_ blocks $id]
+        }
+
+        method clear {} {
+            my destroyslots blocks
+        }
+    }
+
+    beanclass create blocklist2 {
+        superclass ::projectlib::test::blocklist
+
+        beanslot moreblocks
+
+        constructor {} {
+            next
+
+            set moreblocks [list]
+        }
+    }
+
+    beanclass create trans {
+        superclass ::projectlib::bean
+
+        variable persistent
+        variable trans
+
+        constructor {} {
+            next
+            set persistent 1
+
+            # trans is array-valued and hence transient
+            set trans(dummy) 1
+        }
+    }
+
+    #===================================================================
+    # bean(n) Instance Methods
+
+    #-------------------------------------------------------------------
+    # id
+
+    test id-1.1 {can retrieve id} -body {
+        pet create fido
+        pet create spot
+        list [fido id] [spot id]
+    } -cleanup {
+        cleanup
+    } -result {1 2}
+    
+
+    #-------------------------------------------------------------------
+    # set/get
+    #
+    # Effects on the [bean changed] flag are tested below, under
+    # "changed".
+
+    test setget-1.1 {can get initial values} -body {
+        pet create fido
+        list [fido get id] [fido get name] [fido get color]
+    } -cleanup {
+        cleanup
+    } -result {1 {} {}}
+    
+    test setget-1.2 {can set and get values} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+        list [fido get id] [fido get name] [fido get color]
+    } -cleanup {
+        cleanup
+    } -result {1 Fido Brown}
+
+    test setget-1.3 {can set ID to itself} -body {
+        pet create fido
+        fido set id [fido id]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test setget-2.1 {can't get unknown variable} -body {
+        pet create fido
+        fido get NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {* no such variable}
+
+    test setget-2.2 {can't set unknown variable} -body {
+        pet create fido
+        fido set NONESUCH 1
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {unknown instance variable: "NONESUCH"}
+
+    test setget-2.3 {can't set ID to a new value} -body {
+        pet create fido
+        fido set id 0
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {cannot change bean ID}
+
+    test setget-3.1 {can't get array variable} -body {
+        trans create spot
+        spot get trans
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {* variable is array}
+
+    test setget-3.2 {can't set array variable} -body {
+        trans create spot
+        spot set trans 5
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {* variable is array}
+
+    #-------------------------------------------------------------------
+    # getdict
+
+    test getdict-1.1 {can get variable dictionary} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido getdict
+    } -cleanup {
+        cleanup
+    } -result {id 1 name Fido color Brown}
+
+    test getdict-2.1 {excludes array variables} -body {
+        trans create spot
+
+        # variable "trans" is excluded.
+        spot getdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {id * persistent 1}
+
+    #-------------------------------------------------------------------
+    # view
+
+    test view-1.1 {returns getdict by default} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        expr {[fido view] eq [fido getdict]}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test view-1.2 {view name is ignored by default} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        expr {[fido view NONESUCH] eq [fido getdict]}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    
+
+    #-------------------------------------------------------------------
+    # setdict
+
+    test setdict-1.1 {can set variable dictionary} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido setdict [list name "Spot" color "White"]
+        fido getdict
+    } -cleanup {
+        cleanup
+    } -result {id 1 name Spot color White}
+
+    test setdict-1.2 {can set ID to itself} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido setdict [list id 1 name "Spot" color "White"]
+        fido getdict
+    } -cleanup {
+        cleanup
+    } -result {id 1 name Spot color White}
+
+    test setdict-2.1 {can't set unknown variable} -body {
+        pet create fido
+        fido setdict [list NONESUCH 1]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {unknown instance variable: "NONESUCH"}
+
+    test setdict-2.2 {can't set ID to a new value} -body {
+        pet create fido
+        fido setdict [list id 0 name Spot]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {cannot change bean ID}
+
+    #-------------------------------------------------------------------
+    # lappend
+
+    test lappend-1.1 {can append to list} -body {
+        blocklist create blist
+        blist lappend blocks a b c
+        blist get blocks
+    } -cleanup {
+        cleanup
+    } -result {a b c}
+
+    #-------------------------------------------------------------------
+    # ldelete
+
+    test ldelete-1.1 {can delete from list} -body {
+        blocklist create blist
+        blist lappend blocks a b c
+        blist ldelete blocks b
+        blist get blocks
+    } -cleanup {
+        cleanup
+    } -result {a c}
+
+    #-------------------------------------------------------------------
+    # getslots
+
+    test getslots-1.1 {no slots} -body {
+        pet create fido
+        fido getslots
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test getslots-1.2 {got slots} -body {
+        set o [blocklist2 new]
+
+        $o getslots
+    } -cleanup {
+        cleanup
+    } -result {blocks moreblocks}
+    
+
+    #-------------------------------------------------------------------
+    # destroyslots
+
+    test destroyslots-1.1 {leaves the slot alone} -body {
+        blocklist create blist
+        blist add_ [bean new]
+        blist add_ [bean new]
+
+        set a [blist get blocks]
+        blist clear
+        set b [blist get blocks]
+
+        # destroyslots doesn't clear the slot variables; this would
+        # break delete/undelete.
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test destroyslots-1.2 {cleared beans are destroyed} -body {
+        blocklist create blist
+        set a [bean new]
+        blist add_ $a
+
+        blist clear
+
+        llength [info commands $a]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test destroyslots-1.2 {cleared beans are destroyed} -body {
+        blocklist create blist
+        set a [bean new]
+        blist add_ $a
+
+        blist clear
+
+        llength [info commands $a]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test destroyslots-1.3 {previously destroyed beans are ignored} -body {
+        blocklist create blist
+        set a [bean new]
+        blist add_ $a
+        $a destroy
+
+        blist clear
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test destroyslots-1.4 {uninitialized slots are ignored} -body {
+        # This will generate an error, which will cause the destructor
+        # to be called.  If the destructor attempts to reference the 
+        # uninitialized slot variable, that would throw an unknown
+        # variable error.  If we see a "wrong # args" error, then 
+        # the destructor handled the uninitialized slot.
+        blocklist create blist DUMMY DUMMY DUMMY
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {wrong # args: should be "blocklist create blist"}
+
+    #-------------------------------------------------------------------
+    # addbean_
+
+    test addbean-1.1 {adds the bean to the slot} -body {
+        blocklist create blist
+
+        blist add_ [bean new]
+        blist add_ [bean new]
+        blist get blocks
+    } -cleanup {
+        cleanup
+    } -result {::bean::bean2 ::bean::bean3}
+
+    test addbean-1.2 {returns an undo script} -body {
+        blocklist create blist
+
+        blist add_ [bean new]
+
+        set bean [bean new]
+        set undo [blist add_ $bean]
+        namespace eval :: $undo
+
+        list [blist get blocks] [llength [info commands $bean]]
+    } -cleanup {
+        cleanup
+    } -result {::bean::bean2 0}
+
+    test addbean-2.1 {notifications on add and undo} -setup {
+        setupNotifier ::projectlib::bean <Monitor>
+        setupNotifier ::blocklist <blocks>
+    } -body {
+        blocklist create blist
+
+        set undo [blist add_ [bean new]]
+        namespace eval :: $undo
+
+        getNotifications
+    } -cleanup {
+        cleanup
+    } -result {
+        ::blocklist <blocks> add 1 2
+        ::projectlib::bean <Monitor>
+        ::blocklist <blocks> delete 1 2
+        ::projectlib::bean <Monitor>
+    }
+
+
+    #-------------------------------------------------------------------
+    # deletebean_
+
+    test deletebean-1.1 {deletes the bean from the slot} -body {
+        blocklist create blist
+        set bean [bean new]
+        blist add_ $bean
+        blist add_ [bean new]
+
+        blist delete_ [$bean id]
+        list [blist get blocks] [llength [info commands $bean]]
+    } -cleanup {
+        cleanup
+    } -result {::bean::bean3 0}
+
+    test deletebean-1.2 {returns an undo script} -body {
+        blocklist create blist
+        set bean [bean new]
+        blist add_ $bean
+        blist add_ [bean new]
+
+        set undo [blist delete_ [$bean id]]
+        namespace eval :: $undo
+
+        blist get blocks
+    } -cleanup {
+        cleanup
+    } -result {::bean::bean2 ::bean::bean3}
+    
+    test deletebean-2.1 {notifications on delete and undo} -body {
+        setupNotifier ::projectlib::bean <Monitor>
+        setupNotifier ::blocklist <blocks>
+        blocklist create blist
+        set bean [bean new]
+        blist add_ $bean
+        set undo [blist delete_ [$bean id]]
+        namespace eval :: $undo
+
+        getNotifications
+    } -cleanup {
+        cleanup
+    } -result {
+        ::blocklist <blocks> add 1 2
+        ::projectlib::bean <Monitor>
+        ::blocklist <blocks> delete 1 2
+        ::projectlib::bean <Monitor>
+        ::blocklist <blocks> add 1 2
+        ::projectlib::bean <Monitor>
+    }
+    
+    #-------------------------------------------------------------------
+    # movebean_
+
+    test movebean-1.1 {moves a bean in its slot} -body {
+        blocklist create blist
+
+        blist add_ [bean new]
+        blist add_ [bean new]
+        set bean [lindex [blist get blocks] end]
+
+        blist movebean_ blocks [$bean id] top
+        blist get blocks
+    } -cleanup {
+        cleanup
+    } -result {::bean::bean3 ::bean::bean2}
+
+    test movebean-1.2 {returns an undo script} -body {
+        blocklist create blist
+
+        blist add_ [bean new]
+        blist add_ [bean new]
+        set bean [lindex [blist get blocks] end]
+
+        set a [blist get blocks]
+
+        set undo [blist movebean_ blocks [$bean id] top]
+        namespace eval :: $undo
+
+        set b [blist get blocks]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test movebean-2.1 {notifications on move and undo} -setup {
+        setupNotifier ::projectlib::bean <Monitor>
+        setupNotifier ::blocklist <blocks>
+    } -body {
+        blocklist create blist
+
+        blist add_ [bean new]
+        blist add_ [bean new]
+        set bean [lindex [blist get blocks] end]
+
+        set undo [blist movebean_ blocks [$bean id] top]
+        namespace eval :: $undo
+
+        getNotifications
+    } -cleanup {
+        cleanup
+    } -result {
+        ::blocklist <blocks> add 1 2
+        ::projectlib::bean <Monitor>
+        ::blocklist <blocks> add 1 3
+        ::projectlib::bean <Monitor>
+        ::blocklist <blocks> move 1 3
+        ::projectlib::bean <Monitor>
+        ::blocklist <blocks> move 1 3
+        ::projectlib::bean <Monitor>
+    }
+
+   
+    #-------------------------------------------------------------------
+    # update_
+
+    test update-1.1 {can update variable dictionary} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido update_ {name color} {name "Spot" color "White"}
+        fido getdict
+    } -cleanup {
+        cleanup
+    } -result {id 1 name Spot color White}
+
+    test update-1.2 {dict can contain other keys} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido update_ {name color} {name "Spot" color "White" dummy NONESUCH}
+        fido getdict
+    } -cleanup {
+        cleanup
+    } -result {id 1 name Spot color White}
+
+    test update-1.3 {missing keys are ignored} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido update_ {name color} {name "Spot"}
+        fido getdict
+    } -cleanup {
+        cleanup
+    } -result {id 1 name Spot color Brown}
+
+    test update-1.4 {empty values are ignored} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido update_ {name color} {name "Spot" color ""}
+        fido getdict
+    } -cleanup {
+        cleanup
+    } -result {id 1 name Spot color Brown}
+
+    test update-1.5 {undo script is returned} -body {
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        fido update_ {name color} {name "Spot"}
+    } -cleanup {
+        cleanup
+    } -match glob -result {* UndoUpdate {id 1 name Fido color Brown}}
+
+    test update-2.1 {notifications on update and undo} -body {
+        setupNotifier ::projectlib::bean <Monitor>
+        setupNotifier ::pet <update>
+        pet create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        set undo [fido update_ {name color} {name "Spot"}]
+        namespace eval :: $undo
+        getNotifications
+    } -cleanup {
+        cleanup
+    } -result {
+        ::pet <update> 1
+        ::projectlib::bean <Monitor>
+        ::pet <update> 1
+        ::projectlib::bean <Monitor>
+    }
+
+
+    #-------------------------------------------------------------------
+    # Bean slot items are destroyed automatically.
+    
+    test destroyslots-1.1 {leaves the slot alone} -body {
+        blocklist create blist
+        blist add_ [bean create b1]
+        blist add_ [bean create b2]
+
+        set a [list [info object isa object b1] [info object isa object b2]]
+
+        blist destroy
+
+        set b [list [info object isa object b1] [info object isa object b2]]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {{1 1} {0 0}}
+
+    #-------------------------------------------------------------------
+    # getowned
+
+    test getowned-1.1 {-shallow, no slots} -body {
+        dog create fido
+        fido getowned -shallow
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test getowned-1.2 {-shallow, slots} -body {
+        blocklist create a1
+        a1 add_ [blocklist create b1]
+        a1 add_ [blocklist create b2]
+        b1 add_ [blocklist create c1]
+
+        a1 getowned -shallow
+    } -cleanup {
+        cleanup
+    } -result {::projectlib::test::b1 ::projectlib::test::b2}
+
+    test getowned-2.1 {-deep, no slots} -body {
+        dog create fido
+        fido getowned -deep
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test getowned-2.2 {-deep, slots} -body {
+        blocklist create a1
+        a1 add_ [blocklist create b1]
+        a1 add_ [blocklist create b2]
+        b1 add_ [blocklist create c1]
+
+        a1 getowned -deep
+    } -cleanup {
+        cleanup
+    } -result {::projectlib::test::b1 ::projectlib::test::b2 ::projectlib::test::c1}
+
+    test getowned-2.3 {-deep is default} -body {
+        blocklist create a1
+        a1 add_ [blocklist create b1]
+        a1 add_ [blocklist create b2]
+        b1 add_ [blocklist create c1]
+
+        a1 getowned
+    } -cleanup {
+        cleanup
+    } -result {::projectlib::test::b1 ::projectlib::test::b2 ::projectlib::test::c1}
+
+
+    #===================================================================
+    # bean Class Methods
+
+    # [bean reset] is tested by [cleanup].
+
+    #-------------------------------------------------------------------
+    # new
+
+    test new-1.1 {"new" names} -body {
+        list \
+            [bean new] \
+            [bean new] \
+            [dog new] \
+            [dog new] \
+            [cat new] \
+            [cat new]
+    } -cleanup {
+        cleanup    
+    } -result {::bean::bean1 ::bean::bean2 ::bean::dog3 ::bean::dog4 ::bean::cat5 ::bean::cat6}
+    
+
+    #-------------------------------------------------------------------
+    # ids
+
+    test ids-1.1 {No ids initially} -body {
+        bean ids
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    test ids-1.2 {List of existing IDs} -body {
+        pet new
+        pet new
+        pet new
+        bean ids
+    } -cleanup {
+        cleanup
+    } -result {1 2 3}
+    
+    test ids-2.1 {subclasses have ids too} -body {
+        bean new
+        pet new
+        dog new 
+        pet ids
+
+        # result includes only pets (including subclasses)
+    } -cleanup {
+        cleanup
+    } -result {2 3}
+
+    #-------------------------------------------------------------------
+    # exists
+
+    test exists-1.1 {ID does not exist} -body {
+        pet new
+        pet new
+        bean exists 0
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test exists-1.2 {ID exists} -body {
+        pet new
+        pet new
+        bean exists 2
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test exists-2.1 {subclasses have exists too} -body {
+        pet create fido
+        bean create bean1
+        pet exists [fido id]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test exists-2.2 {subclasses constrain type} -body {
+        pet create fido
+        bean create bean1
+        pet exists [bean1 id]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test exists-2.3 {classes can retrieve subclasses } -body {
+        dog create fido
+        bean create bean1
+        pet exists [fido id]
+    } -cleanup {
+        cleanup
+    } -result {1}
+   
+
+    #-------------------------------------------------------------------
+    # get
+
+    test get-1.1 {no such ID} -body {
+        pet create fido
+        pet create spot
+        bean get 3
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {No such bean: 3}
+
+    test get-1.2 {got it} -body {
+        pet create fido
+        pet create spot
+        bean get 2
+    } -cleanup {
+        cleanup
+    } -result {::projectlib::test::spot}
+
+    test get-2.1 {subclasses have get too} -body {
+        pet create fido
+        bean create bean1
+        pet get [fido id]
+    } -cleanup {
+        cleanup
+    } -result {::projectlib::test::fido}
+
+    test get-2.2 {subclasses constrain type} -body {
+        pet create fido
+        bean create bean1
+        pet get [bean1 id]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {bean 2 is not a ::projectlib::test::pet}
+
+    test get-2.3 {classes can retrieve subclasses } -body {
+        dog create fido
+        bean create bean1
+        pet get [fido id]
+    } -cleanup {
+        cleanup
+    } -result {::projectlib::test::fido}
+
+    #-------------------------------------------------------------------
+    # bean view
+
+    test bean_view-1.1 {retrieves view given ID} -body {
+        dog create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        expr {[bean view [fido id]] eq [fido view]}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test bean_view-1.2 {can specify view name} -body {
+        dog create fido
+        fido set name "Fido"
+        fido set color "Brown"
+
+        expr {[bean view [fido id] myview] eq [fido view myview]}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # dump
+
+    test dump-1.1 {dumps all beans} -setup {
+        pet create spot
+        spot set name "Spot"
+        pet create fido
+        fido set name "Fido"
+        dog new
+        cat new
+        bean new
+    } -body {
+        pprint [bean dump]
+    } -cleanup {
+        cleanup
+    } -result {
+1 (::projectlib::test::pet/::projectlib::test::spot): id 1 name Spot color {}
+2 (::projectlib::test::pet/::projectlib::test::fido): id 2 name Fido color {}
+3 (::projectlib::test::dog/::bean::dog3): id 3 name {} breed mutt color {}
+4 (::projectlib::test::cat/::bean::cat4): id 4 name {} tail yes color {}
+5 (::projectlib::bean/::bean::bean5): id 5
+    }
+    
+    #-------------------------------------------------------------------
+    # checkpoint
+    #
+    # Effects on the [bean changed] flag are tested below, under
+    # "changed".
+
+
+    test checkpoint-1.1 {empty checkpoint} -body {
+        bean checkpoint
+    } -cleanup {
+        cleanup
+    } -result {idCounter 0 beans {}}
+    
+    test checkpoint-1.2 {checkpoint with objects} -setup {
+        cat create fifi { name "Fifi" color "black" tail no}
+        dog create fido { name "Fido" color "black" breed "Labrador"}
+    } -body {
+        bean checkpoint
+    } -cleanup {
+        cleanup
+    } -result {idCounter 2 beans {1 {::projectlib::test::cat ::projectlib::test::fifi {id 1 name Fifi tail no color black}} 2 {::projectlib::test::dog ::projectlib::test::fido {id 2 name Fido breed Labrador color black}}}}
+
+
+    #-------------------------------------------------------------------
+    # restore
+    #
+    # Effects on the [bean changed] flag are tested below, under
+    # "changed".
+
+    test restore-1.1 {restore empty checkpoint} -body {
+        set a [bean dump]
+        set checkpoint [bean checkpoint]
+
+        dog create spot
+
+        bean restore $checkpoint
+        set b [bean dump]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+    
+    test restore-1.2 {restore real checkpoint} -body {
+        dog create d1 {name D1 color white}
+        dog create d2 {name D2 color brown}
+        dog create d3 {name D3 color black}
+        set a [bean dump]
+        set checkpoint [bean checkpoint]
+
+        d2 destroy
+        dog create d4 {name D4 color yellow}
+        cat create c1 {name C1}
+
+        bean restore $checkpoint
+        set b [bean dump]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # delete/undelete
+    #
+    # Effects on the [bean changed] flag are tested below, under
+    # "changed".
+
+    test delete-1.1 {can delete one; no cascade} -body {
+        dog create d1 {name D1 color white}
+        dog create d2 {name D2 color brown}
+        dog create d3 {name D3 color black}
+
+        set cmd [bean get 2]
+        bean delete 2
+        list [bean ids] [info commands $cmd]
+    } -cleanup {
+        cleanup
+    } -result {{1 3} {}}
+
+    test delete-1.2 {can restore one; no cascade} -body {
+        dog create d1 {name D1 color white}
+        dog create d2 {name D2 color brown}
+        dog create d3 {name D3 color black}
+
+        set a [bean dump]
+        set delset [bean delete 2]
+        bean undelete $delset
+        set b [bean dump]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test delete-2.1 {delete with cascade} -body {
+        pet create spot
+        wagger create skipper {name "Skipper" color "Golden" breed "Retriever"}
+        skipper addtail [tail new {length long}]
+
+        # Delete both skipper and his tail
+        set a [bean delete 2]
+
+        bean ids
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test delete-2.2 {undelete with cascade} -body {
+        pet create spot
+        wagger create skipper {name "Skipper" color "Golden" breed "Retriever"}
+        skipper addtail [tail new {length long}]
+
+        set a [bean dump]
+    
+        # Delete both skipper and his tail
+        set delset [bean delete 2]
+        bean undelete $delset
+        set b [bean dump]
+        
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # changed
+
+    test changed-1.1 {unchanged initially} -body {
+        bean changed
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test changed-1.2 {set on bean create} -body {
+        dog new
+        bean changed
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test changed-1.3 {unset on bean reset} -body {
+        dog new
+        set a [bean changed]
+
+        bean reset
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {1 0}
+
+    test changed-1.4 {unchanged by checkpoint} -body {
+        dog create fido
+        set a [bean changed]
+
+        bean checkpoint
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {1 1}
+
+    test changed-1.5 {cleared by checkpoint -saved} -body {
+        dog create fido
+        set a [bean changed]
+
+        bean checkpoint -saved
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {1 0}
+
+    test changed-1.6 {set by restore} -body {
+        dog create fido
+        set cp [bean checkpoint -saved]
+        set a [bean changed]
+
+        bean restore $cp
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test changed-1.7 {cleared by restore -saved} -body {
+        dog create fido
+        set cp [bean checkpoint -saved]
+        set a [bean changed]
+
+        bean restore $cp -saved
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 0}
+
+
+    test changed-1.8 {set on [$bean set]} -body {
+        dog create fido
+        bean checkpoint -saved
+        set a [bean changed]
+
+        fido set name "Fido"
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test changed-1.9 {set on bean delete} -body {
+        dog create fido
+        bean checkpoint -saved
+        set a [bean changed]
+
+        bean delete [fido id]
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+    
+    test changed-1.10 {set on bean undelete} -body {
+        dog create fido
+        set delset [bean delete [fido id]]
+        bean checkpoint -saved
+        set a [bean changed]
+
+        bean undelete $delset
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+    
+    test changed-1.11 {set on lappend} -body {
+        blocklist create blist
+        bean checkpoint -saved
+        set a [bean changed]
+
+        blist lappend blocks a b c
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test changed-1.12 {set on ldelete} -body {
+        blocklist create blist
+        blist lappend blocks a b c
+        bean checkpoint -saved
+        set a [bean changed]
+
+        blist ldelete blocks b
+        set b [bean changed]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    #-------------------------------------------------------------------
+    # onchange
+
+    test onchange-1.1 {can set and retrieve} -body {
+        bean onchange handler
+        bean onchange
+    } -cleanup {
+        cleanup
+    } -result {handler}
+
+    test onchange-1.2 {can clear} -body {
+        bean onchange handler
+        bean onchange {}
+        bean onchange
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test onchange-1.3 {can call} -body {
+        bean onchange {puts "Got change"}
+        bean markchanged
+    } -cleanup {
+        cleanup
+    } -match glob -output {*Got change*}
+
+    #-------------------------------------------------------------------
+    # getslots
+    
+
+    test bean_getslots-1.1 {no slots} -body {
+        bean getslots ::projectlib::test::pet
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test bean_getslots-1.2 {got slots} -body {
+        bean getslots ::projectlib::test::blocklist2
+    } -cleanup {
+        cleanup
+    } -result {blocks moreblocks}
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::projectlib::test
+

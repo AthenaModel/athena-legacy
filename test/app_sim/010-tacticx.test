@@ -1,0 +1,360 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tacticx.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tacticx(sim) tests.
+#
+#    This test suite tests the tacticx(sim) mutators and queries
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        variable B1
+        variable T1
+        variable T2
+        variable BJOE
+        variable TJOE
+
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+
+        # NEXT, add a block to the system's strategy
+        ::strategy::SYSTEM addblock_
+        set B1 [::strategy::SYSTEM blocks 0]
+
+        # NEXT, add tactics to the block.
+        $B1 addtactic_ SIGEVENT
+        set T1 [$B1 tactics end]
+
+        $B1 addtactic_ EXECUTIVE
+        set T2 [$B1 tactics end]
+
+        ::strategy::JOE addblock_
+        set BJOE [::strategy::JOE blocks 0]
+
+        $BJOE addtactic_ SIGEVENT
+        set TJOE [$BJOE tactics end]
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+
+    #===================================================================
+    # tacticx class methods
+    #
+    # [tacticx define] is tested implicitly.
+
+    #-------------------------------------------------------------------
+    # type
+
+    test type-1.1 {return type given type name} -body {
+        tacticx type SIGEVENT
+    } -result {::tacticx::SIGEVENT}
+    
+    #-------------------------------------------------------------------
+    # types
+
+    test types-1.1 {lists type objects} -body {
+        tacticx types
+    } -result {::tacticx::ASSIGN ::tacticx::DEMOB ::tacticx::DEPLOY ::tacticx::DEPOSIT ::tacticx::EXECUTIVE ::tacticx::MOBILIZE ::tacticx::SIGEVENT ::tacticx::SPEND ::tacticx::WITHDRAW}
+    
+    #-------------------------------------------------------------------
+    # typenames
+
+    test typenames-1.1 {lists type names} -body {
+        tacticx typenames
+    } -result {ASSIGN DEMOB DEPLOY DEPOSIT EXECUTIVE MOBILIZE SIGEVENT SPEND WITHDRAW}
+
+    #-------------------------------------------------------------------
+    # typedict
+
+    test typedict-1.1 {lists types and titles} -body {
+        # Spot check
+        set a [llength [tacticx types]]
+        set b [dict size [tacticx typedict]]
+        set c [dict get [tacticx typedict] ::tacticx::SIGEVENT]
+        
+        list [expr {$a == $b}] $c
+    } -result {1 {SIGEVENT: Log Significant Event}}
+
+    test typedict-1.2 {lists by agent type} -body {
+        set a [tacticx typedict system]
+        set b [tacticx typedict actor]
+        expr {$a ne $b}
+    } -result {1}
+
+    #-------------------------------------------------------------------
+    # groupsOwnedByAgent
+
+    test groupsOwnedByAgent-1.1 {returns nothing for unknown tactic} -body {
+        tacticx groupsOwnedByAgent NONESUCH
+    } -result {}
+
+    test groupsOwnedByAgent-1.2 {returns groups for owning agent} -setup {
+        setup
+    } -body {
+        tacticx groupsOwnedByAgent [$TJOE id]
+    } -cleanup {
+        cleanup
+    } -result {BLUE BRIT}
+
+    
+    
+    #===================================================================
+    # tacticx::<type> class methods
+
+    #-------------------------------------------------------------------
+    # ttype's typename
+
+    test ttype_typename-1.1 {return type's name} -body {
+        tacticx::SIGEVENT typename
+    } -result {SIGEVENT}
+    
+    #-------------------------------------------------------------------
+    # ttype's title
+
+    test ttype_title-1.1 {return type's title} -body {
+        tacticx::SIGEVENT title
+    } -result {Log Significant Event}
+    
+    #-------------------------------------------------------------------
+    # ttype's onlock
+
+    test ttype_onlock-1.1 {return type's onlock} -body {
+        tacticx::SIGEVENT onlock
+    } -result {0}
+    
+
+    #===================================================================
+    # tacticx instance methods
+
+
+    #-------------------------------------------------------------------
+    # constructor
+
+    test constructor-1.1 {tactic is created} -setup {
+        setup
+    } -body {
+        ted pdict [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        id         *
+        execstatus NONE
+        state      normal
+        block      ::bean::block*
+        msg        {}
+    }
+
+    #-------------------------------------------------------------------
+    # typename
+
+    test typename-1.1 {can retrieve typename} -setup {
+        setup
+    } -body {
+        $T1 typename
+    } -cleanup {
+        cleanup
+    } -result {SIGEVENT}
+    
+    #-------------------------------------------------------------------
+    # agent
+
+    test agent-1.1 {can retrieve owning agent} -setup {
+        setup
+    } -body {
+        $T1 agent
+    } -cleanup {
+        cleanup
+    } -result {SYSTEM}
+    
+    #-------------------------------------------------------------------
+    # strategy
+
+    test strategy-1.1 {can retrieve owning strategy} -setup {
+        setup
+    } -body {
+        $T1 strategy
+    } -cleanup {
+        cleanup
+    } -result {::strategy::SYSTEM}
+    
+    #-------------------------------------------------------------------
+    # block
+
+    test block-1.1 {can retrieve owning block} -setup {
+        setup
+    } -body {
+        $T1 block
+    } -cleanup {
+        cleanup
+    } -match glob -result {::bean::block*}
+    
+    #-------------------------------------------------------------------
+    # state
+
+    test state-1.1 {can retrieve state} -setup {
+        setup
+    } -body {
+        $T1 state
+    } -cleanup {
+        cleanup
+    } -result {normal}
+    
+    #-------------------------------------------------------------------
+    # execstatus
+
+    test execstatus-1.1 {can retrieve execstatus} -setup {
+        setup
+    } -body {
+        $T1 set execstatus SUCCESS
+        $T1 execstatus
+    } -cleanup {
+        cleanup
+    } -result {SUCCESS}
+    
+
+    #-------------------------------------------------------------------
+    # execflag
+
+    test execflag-1.1 {can retrieve execflag} -setup {
+        setup
+    } -body {
+        $T1 set execstatus SKIPPED
+        set a [$T1 execflag]
+        $T1 set execstatus SUCCESS
+        set b [$T1 execflag]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+    
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {returns errors} -setup {
+        setup
+    } -body {
+        $T2 check
+    } -cleanup {
+        cleanup
+    } -result {command {No executive command has been specified.}}
+
+    test check-1.2 {sets state to invalid on failure} -setup {
+        setup
+    } -body {
+        $T2 set state normal 
+        $T2 check
+        $T2 state
+    } -cleanup {
+        cleanup
+    } -result {invalid}
+    
+    test check-1.3 {will reset invalid to normal on success} -setup {
+        setup
+    } -body {
+        $T2 set state invalid
+        $T2 set command dummy
+        $T2 check
+        $T2 state
+    } -cleanup {
+        cleanup
+    } -result {normal}
+    
+    test check-1.4 {will not reset disabled to normal on success} -setup {
+        setup
+    } -body {
+        $T2 set state disabled
+        $T2 set command dummy
+        $T2 check
+        $T2 state
+    } -cleanup {
+        cleanup
+    } -result {disabled}
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {returns narrative string} -setup {
+        setup
+    } -body {
+        $T1 set msg "Howdy"
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Logs "Howdy" to the sigevents log}
+
+    #-------------------------------------------------------------------
+    # obligate
+
+    # TBD: no general behavior to test.
+
+    #-------------------------------------------------------------------
+    # execute
+
+    # TBD: no general behavior to test.
+    
+    
+    #-------------------------------------------------------------------
+    # update_
+
+    test update-1.1 {update_ does a sanity check} -setup {
+        setup
+    } -body {
+        $T1 set state invalid
+        $T1 update_ {msg} {msg Howdy}
+        $T1 state
+    } -cleanup {
+        cleanup
+    } -result {normal}
+    
+    test update-1.2 {update_ clears execstatus} -setup {
+        setup
+    } -body {
+        $T1 set execstatus SUCCESS
+        $T1 update_ {msg} {msg Howdy}
+        $T1 get execstatus
+    } -cleanup {
+        cleanup
+    } -result {NONE}
+    
+
+    
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

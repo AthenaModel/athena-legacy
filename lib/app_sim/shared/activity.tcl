@@ -51,37 +51,6 @@ snit::type activity {
         return $a
     }
 
-
-    # civ names
-    #
-    # Returns the list of activities assignable to civilian units
-
-    typemethod {civ names} {} {
-        set names [rdb eval {
-            SELECT a FROM activity_gtype
-            WHERE gtype='CIV' AND assignable
-        }]
-    }
-
-
-    # civ validate a
-    #
-    # a         Possibly, an activity ID
-    #
-    # Validates an activity ID as assignable to civilian units
-
-    typemethod {civ validate} {a} {
-        if {$a ni [activity civ names]} {
-            set names [join [activity civ names] ", "]
-
-            return -code error -errorcode INVALID \
-                "Invalid activity, should be one of: $names"
-        }
-
-        return $a
-    }
-
-
     # frc names
     #
     # Returns the list of activities assignable to force units

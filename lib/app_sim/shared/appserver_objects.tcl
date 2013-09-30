@@ -41,6 +41,13 @@ appserver module OBJECTS {
             key      a
         }
 
+        /agents {
+            label    "Agents"
+            listIcon ::projectgui::icon::actor12
+            table    gui_agents
+            key      agent_id
+        }
+
         /caps   {
             label    "CAPs"
             listIcon ::projectgui::icon::cap12
@@ -183,6 +190,7 @@ appserver module OBJECTS {
                 set subset {
                     /overview
                     /actors 
+                    /agents
                     /nbhoods 
                     /groups/civ 
                     /groups/frc 

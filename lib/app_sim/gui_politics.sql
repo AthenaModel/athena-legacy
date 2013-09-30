@@ -40,6 +40,17 @@ FROM supports_na AS NA
 JOIN gui_nbhoods AS N ON (NA.n = N.n)
 JOIN gui_actors  AS A ON (A.a = NA.a);
 
+-- gui_agents: Data about agents for Detail Browsing
+CREATE TEMPORARY VIEW gui_agents AS
+SELECT agent_id                                         AS id,
+       agent_id                                         AS agent_id,
+       agent_type                                       AS agent_type,
+       'my://app/agent/' || agent_id                    AS url,
+       agent_id                                         AS fancy,
+       link('my://app/agent/' || agent_id, agent_id)    AS link,
+       link('my://app/agent/' || agent_id, agent_id)    AS longlink
+FROM agents;
+
 
 -----------------------------------------------------------------------
 -- End of File

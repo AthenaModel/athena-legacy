@@ -35,24 +35,6 @@
 
 tactic type define DEPLOY {g text1 int1 nlist reinforce once on_lock} actor {
     #-------------------------------------------------------------------
-    # Public Methods
-
-    # reset
-    #
-    # Prepares the module to support strategy execution.  The last
-    # tick's deployments are pulled into the past() array, and the
-    # deploy_tng table is cleared.
-
-    typemethod reset {} {
-        rdb eval {
-            DROP TABLE IF EXISTS working_deploy_tng;
-
-            CREATE TEMP TABLE working_deploy_tng AS SELECT * FROM deploy_tng;
-            DELETE FROM deploy_tng;
-        }
-    }
-
-    #-------------------------------------------------------------------
     # tactic(i) subcommands
     #
     # See the tactic(i) man page for the signature and general
@@ -228,13 +210,8 @@ tactic type define DEPLOY {g text1 int1 nlist reinforce once on_lock} actor {
         foreach n $nlist {
             set troops $byNbhood($n)
 
-            personnel deploy $n $g $troops
+            personnel deploy $tactic_id $n $g $troops
 
-            rdb eval {
-                INSERT INTO deploy_tng(tactic_id, n, g, personnel)
-                VALUES($tactic_id, $n, $g, $troops)
-            }
-            
             sigevent log 2 tactic "
                 DEPLOY: Actor {actor:$owner} deploys $troops {group:$g} 
                 personnel to {nbhood:$n}

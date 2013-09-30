@@ -41,9 +41,9 @@ namespace eval ::athena_test::tests:: {
         personnel load
         cash load
 
-        personnel deploy NB1 BLUE 1000
-        personnel deploy NB2 BLUE 2000
-        personnel deploy NB2 BRIT 3000
+        personnel deploy 1 NB1 BLUE 1000
+        personnel deploy 2 NB2 BLUE 2000
+        personnel deploy 3 NB2 BRIT 3000
     }
 
 

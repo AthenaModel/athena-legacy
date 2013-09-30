@@ -70,6 +70,8 @@ snit::type app {
     # -scratch dir     - The name of a directory to use for writing
     #                    log and working rdb files.
     # -url url         - A URL to load into the detail browser.
+    #                    "%" is replaced with "/", to work around MSys
+    #                    path-munging.
 
     typevariable opts -array {
         -batch      0
@@ -232,9 +234,13 @@ snit::type app {
         nbhood    init
         sim       init
         axdb      init
+        strategyx init
 
         coverage_model init
 
+        # NEXT, register saveables from projectlib.
+        scenario register ::projectlib::bean
+        
         # NEXT, register my:// servers with myagent.
         appserver init
 
@@ -399,7 +405,7 @@ snit::type app {
 
         # NEXT, if there's a URL, load it.
         if {$opts(-url) ne ""} {
-            app show $opts(-url)
+            app show [string map {% /} $opts(-url)]
         }
     }
 
@@ -645,6 +651,7 @@ snit::type app {
             "-ignoreuser         Ignore preference settings.\n"         \
             "-threads            Run Athena multi-threaded.\n"          \
             "-url url            Load the URL in the detail browser.\n" \
+            "                    '%' is replaced with '/'.\n"           \
             "\n"                                                        \
             "See athena(1) for more information.\n"
     }

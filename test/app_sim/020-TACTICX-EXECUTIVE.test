@@ -1,0 +1,123 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-TACTICX-EXECUTIVE.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    TACTICX:EXECUTIVE:* Orders tests
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    set S1 ::strategy::SYSTEM
+
+    proc setup {} {
+        ted create NB1
+        variable S1
+        variable B1
+        variable T1
+        ted order STRATEGY:BLOCK:ADD agent SYSTEM
+        lassign [$S1 blocks] B1
+        ted order BLOCK:TACTIC:ADD block_id [$B1 id] typename EXECUTIVE
+        lassign [$B1 tactics] T1
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # TACTICX:EXECUTIVE:UPDATE
+
+    test TACTICX:EXECUTIVE:UPDATE-1.1 {required parameters} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:EXECUTIVE:UPDATE
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {required value}
+        command {required value}
+    }
+
+    test TACTICX:EXECUTIVE:UPDATE-1.2 {unknown tactic_id} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:EXECUTIVE:UPDATE tactic_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        tactic_id {invalid value "NONESUCH", should be one of: *}
+    }
+
+    test TACTICX:EXECUTIVE:UPDATE-2.1 {tactic updated} -setup {
+        setup
+    } -body {
+        ted order TACTICX:EXECUTIVE:UPDATE \
+            tactic_id [$T1 id] \
+            command "Hello"
+
+        ted pdict [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        id         *
+        execstatus NONE
+        state      normal
+        block      ::bean::block*
+        command    Hello
+    }
+
+    test TACTICX:EXECUTIVE:UPDATE-2.2 {notifier event} -setup {
+        setup
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        ted order TACTICX:EXECUTIVE:UPDATE tactic_id [$T1 id] command "Hello"
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+
+    test TACTICX:EXECUTIVE:UPDATE-2.3 {undo notifier event} -setup {
+        setup
+        ted order TACTICX:EXECUTIVE:UPDATE tactic_id [$T1 id] command "Hello"
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+ 
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
