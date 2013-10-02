@@ -15,8 +15,6 @@
 
 # FIRST, create the class
 beanclass create block {
-    superclass ::projectlib::bean
-
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -321,12 +319,12 @@ beanclass create block {
             $ht putln "<table border=\"0\">"
 
             foreach cond [my conditions] {
-                set state [$cond get state]
+                set cstate [$cond get state]
 
                 $ht tr valign center {
                     $ht td
-                    if {0 && [$cond isKnown]} {
-                        if {[$cond isMet]} {
+                    if {[$cond isknown]} {
+                        if {[$cond ismet]} {
                             $ht image ::marsgui::icon::smthumbupgreen
                         } else {
                             $ht image ::marsgui::icon::smthumbdownred
@@ -337,7 +335,7 @@ beanclass create block {
                     $ht /td
 
                     $ht td left {
-                        $ht put "<span class=\"$state\">"
+                        $ht put "<span class=\"$cstate\">"
                         $ht put "([$cond id]) "
                         $ht put "[$cond typename]: [$cond narrative]"
                         $ht put "</span>"
@@ -369,21 +367,15 @@ beanclass create block {
             $ht putln "<table border=\"0\">"
 
             foreach tactic [my tactics] {
-                set state [$tactic get state]
+                set tstate [$tactic get state]
 
                 $ht tr valign center {
                     $ht td
-                    # TBD: need icons for different tactic execution
-                    # states.
-                    if {[$tactic execflag]} {
-                        $ht image ::marsgui::icon::check22
-                    } else {
-                        $ht image ::icon::dash
-                    }
+                    $ht image [eexecstatus as icon [$tactic get execstatus]]
                     $ht /td
 
                     $ht td left {
-                        $ht put "<span class=\"$state\">"
+                        $ht put "<span class=\"$tstate\">"
                         $ht put "([$tactic id]) "
                         $ht put "[$tactic typename]: [$tactic narrative]"
 
@@ -498,7 +490,7 @@ beanclass create block {
         }
 
         # NEXT, block execution is different on lock than on tick.
-        if {[strategyx locking]} {
+        if {[strategy locking]} {
             # FIRST, skip if the block's not done on lock.
             if {!$onlock} {
                 my set execstatus SKIPPED
@@ -727,7 +719,7 @@ beanclass create block {
     # execution data.
 
     method addcondition_ {typename} {
-        set type [conditionx type $typename]
+        set type [condition type $typename]
         return [my addbean_ conditions [$type new [self]]]
     }
 
@@ -750,7 +742,7 @@ beanclass create block {
     # execution data.
 
     method addtactic_ {typename} {
-        set type [tacticx type $typename]
+        set type [tactic type $typename]
         return [my addbean_ tactics [$type new [self]]]
     }
 
@@ -794,11 +786,11 @@ order define BLOCK:UPDATE {
         text block_id -context yes \
             -loadcmd {beanload}
 
-        label "On Lock?" -for onlock
-        yesno onlock
+        label "&nbsp;&nbsp;"
+        check onlock -text "On Lock?"
 
-        label "Once Only?" -for once
-        yesno once
+        label "&nbsp;&nbsp;"
+        check once -text "Once Only?"
 
         rc "Intent:" -for intent
         text intent -width 70
@@ -934,7 +926,7 @@ order define BLOCK:TACTIC:ADD {
 } {
     # FIRST, prepare and validate the parameters
     prepare block_id -required          -oneof [block ids]
-    prepare typename -required -toupper -oneof [tacticx typenames]
+    prepare typename -required -toupper -oneof [tactic typenames]
 
     returnOnError -final
 
@@ -942,6 +934,9 @@ order define BLOCK:TACTIC:ADD {
     set block [block get $parms(block_id)]
 
     setundo [$block addtactic_ $parms(typename)]
+
+    set tactic [$block tactics end]
+    return [$tactic id]
 }
 
 # BLOCK:TACTIC:DELETE
@@ -961,11 +956,11 @@ order define BLOCK:TACTIC:DELETE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id   -required -oneof [tacticx ids]
+    prepare tactic_id   -required -oneof [tactic ids]
     returnOnError -final
 
     # NEXT, delete the tactic
-    set tactic [tacticx get $parms(tactic_id)]
+    set tactic [tactic get $parms(tactic_id)]
     set block [$tactic block]
     
     setundo [$block deletetactic_ $parms(tactic_id)]
@@ -991,13 +986,13 @@ order define BLOCK:TACTIC:MOVE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id -required -oneof [tacticx ids]
+    prepare tactic_id -required -oneof [tactic ids]
     prepare where     -required -type emoveitem
 
     returnOnError -final
 
     # NEXT, move the block
-    set tactic [tacticx get $parms(tactic_id)]
+    set tactic [tactic get $parms(tactic_id)]
     set block [$tactic block]
 
     setundo [$block movetactic_ $parms(tactic_id) $parms(where)]
@@ -1025,7 +1020,7 @@ order define BLOCK:CONDITION:ADD {
 } {
     # FIRST, prepare and validate the parameters
     prepare block_id -required          -oneof [block ids]
-    prepare typename -required -toupper -oneof [conditionx typenames]
+    prepare typename -required -toupper -oneof [condition typenames]
 
     returnOnError -final
 
@@ -1033,6 +1028,9 @@ order define BLOCK:CONDITION:ADD {
     set block [block get $parms(block_id)]
 
     setundo [$block addcondition_ $parms(typename)]
+
+    set cond [$block conditions end]
+    return [$cond id]
 }
 
 # BLOCK:CONDITION:DELETE
@@ -1052,14 +1050,17 @@ order define BLOCK:CONDITION:DELETE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare condition_id   -required -oneof [conditionx ids]
+    prepare condition_id   -required -oneof [condition ids]
 
     returnOnError -final
 
     # NEXT, delete the condition
-    set cond [conditionx get $parms(condition_id)]
+    set cond [condition get $parms(condition_id)]
     set block [$cond block]
     
     setundo [$block deletecondition_ $parms(condition_id)]
 }
+
+
+
 

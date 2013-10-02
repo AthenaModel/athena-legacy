@@ -6,83 +6,89 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): DEPOSIT(amount) tactic
+#    athena_sim(1): Mark II Tactic, DEPOSIT
 #
-# This module defines the DEPOSIT tactic, which deposits a sum of
-# money in the actor's cash reserve.
+#    A DEPOSIT tactic deposits money from cash-on-hand to cash-reserve.
 #
 #-----------------------------------------------------------------------
 
+# FIRST, create the class.
+tactic define DEPOSIT "Deposit Money" {actor} {
+    #-------------------------------------------------------------------
+    # Instance Variables
 
-#-----------------------------------------------------------------------
-# Tactic: DEPOSIT
+    variable amount  ;# Amount of money to deposit
 
-tactic type define DEPOSIT {amount} actor {
-    typemethod narrative {tdict} {
-        dict with tdict {}
+    # Transient Data
+    variable trans
+
+    #-------------------------------------------------------------------
+    # Constructor
+
+    # constructor ?block_?
+    #
+    # block_  - The block that owns the tactic
+    #
+    # Creates a new tactic for the given block.
+
+    constructor {{block_ ""}} {
+        next $block_
+        set amount 0.0
+
+        set trans(amount) 0.0
+    }
+
+    #-------------------------------------------------------------------
+    # Operations
+
+    # No special SanityCheck is required.
+
+    method narrative {} {
         return "Deposit \$[moneyfmt $amount] to the cash reserve."
     }
 
-    typemethod dollars {tdict} {
-        dict with tdict {}
-        return [moneyfmt $amount]
-    }
+    # obligate coffer
+    #
+    # coffer  - A coffer object with the owning agent's current
+    #           resources
+    #
+    # Obligates the money to be spent: whatever remains, up to the
+    # requested amount.
+    #
+    # NOTE: DEPOSIT never executes on lock.
 
-    typemethod execute {tdict} {
-        # FIRST, if there's no cash_on_hand, return 0.
-        dict with tdict {}
-        array set cinfo [cash get $owner]
+    method obligate {coffer} {
+        assert {[strategy ontick]}
+        
+        # FIRST, retrieve relevant data.
+        let cash_on_hand [$coffer cash]
 
-        let amount {min($cinfo(cash_on_hand), $amount)}
-
-        if {$amount == 0.0} {
+        # NEXT, if there's no cash at all we can't deposit any.
+        if {$amount > 0.0 && $cash_on_hand == 0.0} {
             return 0
         }
-        
-        cash deposit $owner $amount
 
-        sigevent log 2 tactic "
-            DEPOSIT: $owner deposits \$[moneyfmt $amount] to reserve.
-        " $owner
+        # NEXT, get the actual amount to deposit.
+        let trans(amount) {min($cash_on_hand, $amount)}
+
+        # NEXT, obligate it.
+        $coffer deposit $trans(amount)
 
         return 1
+
+    }
+
+    method execute {} {
+        cash deposit [my agent] $trans(amount)
+
+        sigevent log 2 tactic "
+            DEPOSIT: [my agent] deposits \$[moneyfmt $trans(amount)] to reserve.
+        " [my agent]
     }
 }
 
-# TACTIC:DEPOSIT:CREATE
-#
-# Creates a new DEPOSIT tactic.
-
-order define TACTIC:DEPOSIT:CREATE {
-    title "Create Tactic: Deposit Money"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Owner:" -for owner
-        text owner -context yes
-
-        rcc "Amount:" -for amount
-        text amount 
-        label "dollars"
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type actor
-    prepare amount   -toupper   -required -type money
-    prepare priority -tolower             -type ePrioSched
-
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parm dict
-    set parms(tactic_type) DEPOSIT
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
-}
+#-----------------------------------------------------------------------
+# TACTIC:* orders
 
 # TACTIC:DEPOSIT:UPDATE
 #
@@ -94,31 +100,29 @@ order define TACTIC:DEPOSIT:UPDATE {
 
     form {
         rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_DEPOSIT -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
-        rcc "Owner" -for owner
-        disp owner
-
-        rcc "Amount:"
+        rcc "Amount:" -for amount
         text amount
-        label "dollars"
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id          -required -type tactic
-    prepare amount    -toupper -required -type money
-
-    returnOnError
-
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType DEPOSIT $parms(tactic_id)  }
+    prepare tactic_id  -required           -oneof [tactic::DEPOSIT ids]
+    prepare amount     -required -toupper  -type money
 
     returnOnError -final
 
+    # NEXT, get the tactic
+    set tactic [tactic get $parms(tactic_id)]
+
+    # NEXT, update the tactic, saving the undo script
+    set undo [$tactic update_ {amount} [array get parms]]
+
     # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    setundo $undo
 }
+
 
 
 

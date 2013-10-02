@@ -156,6 +156,10 @@ snit::widget ::projectgui::myhtmlpane {
         }
     }
 
+    destructor {
+        notifier forget $self
+    }
+
     # ObjectCmd node
     # 
     # node    - htmlviewer node handle

@@ -160,14 +160,14 @@ appserver module AGENT {
     #
     # Formats the strategy sanity check report for
     # /agents/sanity.  Note that sanity is checked by the
-    # "strategyx checker" command; this command simply reports on the
+    # "strategy checker" command; this command simply reports on the
     # results.
 
     proc /agents/sanity:html {udict matchArray} {
         ht page "Sanity Check: Agents' Strategies" {
             ht title "Agents' Strategies" "Sanity Check"
             
-            if {[strategyx checker ::appserver::ht] eq "OK"} {
+            if {[strategy checker ::appserver::ht] eq "OK"} {
                 ht putln "No problems were found."
                 ht para
             }

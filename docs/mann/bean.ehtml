@@ -28,13 +28,12 @@ All bean classes are created using <<xref beanclass(n)>> as follows:<p>
 
 <pre>
     ::projectlib::beanclass create pet {
-        superclass ::projectlib::bean
-
         # Variable and method definitions
     }
 </pre>
 
-The new <code>::pet</code> class command will have 
+The new <code>::pet</code> class command will be a sublcass of 
+<code>::projectlib::bean</code>, and will have 
 <<xref beanclass(n) exists>>, 
 <<xref beanclass(n) get>>, and
 <<xref beanclass(n) ids>> subcommands for retrieving and querying the

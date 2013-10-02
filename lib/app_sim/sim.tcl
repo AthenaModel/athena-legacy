@@ -134,8 +134,8 @@ snit::type sim {
         # NEXT, reset the econ model
         econ reset
 
-        # NEXT, reset the strategyx module.
-        strategyx init
+        # NEXT, reset the strategy module.
+        strategy init
 
         # NEXT, set the simulation status
         set info(changed) 0
@@ -1019,6 +1019,7 @@ order define SIM:PAUSE {
 
     setundo [join $undo \n]
 }
+
 
 
 

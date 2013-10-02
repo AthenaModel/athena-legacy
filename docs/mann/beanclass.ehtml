@@ -21,8 +21,6 @@ For example, to define a class that represents a pet:<p>
 
 <pre>
     ::projectlib::beanclass create pet {
-        superclass ::projectlib::bean
-
         # Variable and method definitions
     }
 </pre>

@@ -34,6 +34,26 @@ namespace eval ::projectlib:: {
 oo::class create ::projectlib::beanclass {
     superclass oo::class   ;# This is a metaclass
 
+    #-------------------------------------------------------------------
+    # Constructor
+    #
+    # This is called when a new beanclass is created; the constructor
+    # argument is the class definition script.
+
+    constructor {{defscript ""}} {
+        # FIRST, set the superclass to ::projectlib::bean by default.
+        if {[self] ne "::projectlib::bean"} {
+            define [self] superclass ::projectlib::bean
+        }
+
+        # NEXT, define the class
+        define [self] $defscript
+    }
+    
+
+    #-------------------------------------------------------------------
+    # Instance Creation methods
+    
     # new args
     #
     # Create a new object with a name like ::bean::<bareclass><ID>.

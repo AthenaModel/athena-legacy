@@ -6,109 +6,88 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): NBMOOD Condition Type Definition
-#
-#    See condition(i) for the condition interface requirements.
+#    athena_sim(1): Mark II Condition, NBMOOD
 #
 #-----------------------------------------------------------------------
 
+# FIRST, create the class.
+condition define NBMOOD "Neighborhood Mood" {
+    #-------------------------------------------------------------------
+    # Instance Variables
+
+    variable n          ;# A neighborhood
+    variable comp       ;# An ecomparator value
+    variable limit      ;# A satisfaction value
+    
+    #-------------------------------------------------------------------
+    # Constructor
+
+    # constructor ?block_?
+    #
+    # block_  - The block that owns the condition
+    #
+    # Creates a new tactic for the given block.
+
+    constructor {{block_ ""}} {
+        next $block_
+        set n     ""
+        set comp  EQ
+        set limit 0.0
+        my set state invalid   ;# n is still unknown.
+    }
+
+    #-------------------------------------------------------------------
+    # Operations
+
+    method narrative {} {
+        set compt [ecomparator longname $comp]
+
+        if {$n eq ""} {
+            set text "???"
+        } else {
+            set text $n
+        }
+
+        return [normalize "Neighborhood $text's mood is $compt [qsat format $limit]"]
+    }
+
+    method SanityCheck {errdict} {
+        if {$n ni [nbhood names]} {
+            dict set errdict n "Neighborhood \"$n\" does not exist"
+        }
+
+        return [next $errdict]
+    }
+
+    method Evaluate {} {
+        set mood [rdb onecolumn {
+            SELECT nbmood FROM uram_n WHERE n=$n
+        }]
+
+        set mood  [qsat format $mood]
+        set limit [qsat format $limit]
+
+        return [ecomparatorx compare $mood $comp $limit]
+    }
+}
+
 #-----------------------------------------------------------------------
-# Condition: NBMOOD(n, comp, amount)
-#
-# How does the mood of neighborhood n
-# compare with some amount?
+# CONDITION:* Orders
 
-condition type define NBMOOD {n op1 x1} {
-    typemethod narrative {cdict} {
-        dict with cdict {
-            set comp [ecomparator longname $op1]
-
-            return [normalize "
-                Neighborhood $n's mood is
-                $comp [qsat format $x1].
-            "]
-        }
-    }
-
-    typemethod check {cdict} {
-        dict with cdict {
-            if {$n ni [nbhood names]} {
-                return "Neighborhood $n no longer exists."
-            }
-        }
-
-        return
-    }
-
-    typemethod eval {cdict} {
-        dict with cdict {
-            set nbmood [rdb onecolumn {
-                SELECT nbmood FROM uram_n WHERE n=$n
-            }]
-
-            set nbmood [qsat format $nbmood]
-            set x1     [qsat format $x1]
-
-            return [condition compare $nbmood $op1 $x1]
-        }
-    }
-}
-
-# CONDITION:NBMOOD:CREATE
-#
-# Creates a new NBMOOD condition.
-
-order define CONDITION:NBMOOD:CREATE {
-    title "Create Condition: Neighborhood Mood"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Tactic/Goal ID:" -for cc_id
-        condcc cc_id
-
-        rcc ""
-        label {
-            This condition is met when
-        }
-
-        rcc "Neighborhood:" -for n
-        nbhood n
-        label "'s mood"
-
-        rcc "Is:" -for op1
-        comparator op1
-
-        rcc "Amount:" -for x1
-        sat x1
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare cc_id                -required -type cond_collection
-    prepare n          -toupper  -required -type nbhood
-    prepare op1        -toupper  -required -type ecomparator
-    prepare x1    -num -toupper  -required -type qsat
-
-    returnOnError -final
-
-    # NEXT, put condition_type in the parmdict
-    set parms(condition_type) NBMOOD
-
-    # NEXT, create the condition
-    setundo [condition mutate create [array get parms]]
-}
 
 # CONDITION:NBMOOD:UPDATE
 #
-# Updates existing NBMOOD condition.
+# Updates the condition's parameters
 
 order define CONDITION:NBMOOD:UPDATE {
-    title "Update Condition: Neighborhood Mood"
+    title "Update NBMOOD Condition"
+
     options -sendstates {PREP PAUSED}
 
     form {
         rcc "Condition ID:" -for condition_id
-        cond condition_id -table conditions_NBMOOD
+        text condition_id -context yes\
+            -loadcmd {beanload}
 
         rcc ""
         label {
@@ -119,32 +98,25 @@ order define CONDITION:NBMOOD:UPDATE {
         nbhood n
         label "'s mood"
 
-        rcc "Is:" -for op1
-        comparator op1
+        rcc "Is:" -for comp
+        comparator comp
 
-        rcc "Amount:" -for x1
-        sat x1
+        rcc "Amount:" -for limit
+        sat limit
     }
 } {
-    # FIRST, prepare the parameters
-    prepare condition_id  -required           -type condition
-    prepare n                       -toupper  -type nbhood
-    prepare op1                     -toupper  -type ecomparator
-    prepare x1            -num      -toupper  -type qsat
-
-    returnOnError
-
-    # NEXT, make sure this is the right kind of condition
-    validate condition_id { 
-        condition RequireType NBMOOD $parms(condition_id)  
-    }
-
+    # FIRST, prepare and validate the parameters
+    prepare condition_id -required -oneof [condition::NBMOOD ids]
+    prepare n                      -toupper  -type nbhood
+    prepare comp                   -toupper  -type ecomparatorx
+    prepare limit        -num      -toupper  -type qsat
     returnOnError -final
 
-    # NEXT, modify the condition
-    setundo [condition mutate update [array get parms]]
-}
+    set cond [condition get $parms(condition_id)]
 
+    # NEXT, update the block
+    setundo [$cond update_ {n comp limit} [array get parms]]
+}
 
 
 

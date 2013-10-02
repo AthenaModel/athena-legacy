@@ -6,73 +6,90 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): EXECUTIVE(command,once) tactic
+#    athena_sim(1): Mark II Tactic, EXECUTIVE
 #
-#    This module implements the EXECUTIVE tactic, which executes a 
-#    single Athena executive command.
-#
-# PARAMETER MAPPING:
-#
-#    text1   <= command
-#    once    <= once
-#    on_lock <= on_lock
+#    An EXECUTIVE tactic executes a single Athena executive command.
 #
 #-----------------------------------------------------------------------
 
-#-------------------------------------------------------------------
-# Tactic: EXECUTIVE
-
-tactic type define EXECUTIVE {text1 once on_lock} {actor system} {
+# FIRST, create the class.
+tactic define EXECUTIVE "Executive Command" {actor system} -onlock {
     #-------------------------------------------------------------------
-    # Public Methods
+    # Instance Variables
 
+    variable command    ;# The command to execute
+    
     #-------------------------------------------------------------------
-    # tactic(i) subcommands
+    # Constructor
+
+    # constructor ?block_?
     #
-    # See the tactic(i) man page for the signature and general
-    # description of each subcommand.
+    # block_  - The block that owns the tactic
+    #
+    # Creates a new tactic for the given block.
 
-    typemethod narrative {tdict} {
-        dict with tdict {
-            return  "Executive command: $text1"
+    constructor {{block_ ""}} {
+        next $block_
+        set command ""
+        my set state invalid   ;# command is still unknown.
+    }
+
+    #-------------------------------------------------------------------
+    # Operations
+
+    
+    method SanityCheck {errdict} {
+        if {[normalize $command] eq ""} {
+            dict set errdict command "No executive command has been specified."   
+        }
+
+        return [next $errdict]
+    }
+
+    # No special obligation is required
+
+    method narrative {} {
+        if {[normalize $command] eq ""} {
+            return "Executive command: ???"
+        } else {
+            return "Executive command: $command"
         }
     }
 
-    typemethod execute {tdict} {
-        dict with tdict {
-            # FIRST, set the order state to TACTIC, so that
-            # relevant orders can be executed.
+    method execute {} {
+        # FIRST, set the order state to TACTIC, so that
+        # relevant orders can be executed.
 
-            set oldState [order state]
-            order state TACTIC
-                
-            # NEXT, create a savepoint, so that we can back out
-            # the command's changes on error.
-            rdb eval {SAVEPOINT executive}
-                
+        set oldState [order state]
+        order state TACTIC
+            
+        # NEXT, create a savepoint, so that we can back out
+        # the command's changes on error.
+        rdb eval {SAVEPOINT executive}  
 
-            # NEXT, attempt to run the user's command.
-            if {[catch {
-                executive eval $text1
-            } result eopts]} {
-                # FAILURE 
+        # NEXT, attempt to run the user's command.
+        if {[catch {
+            executive eval $command
+        } result eopts]} {
+            # FAILURE 
 
-                # FIRST, roll back any changes made by the script; 
-                # it threw an error, and we don't want any garbage
-                # left behind.
-                rdb eval {ROLLBACK TO executive}
+            # FIRST, roll back any changes made by the script; 
+            # it threw an error, and we don't want any garbage
+            # left behind.
+            rdb eval {ROLLBACK TO executive}
 
-                # NEXT, restore the old order state
-                order state $oldState
+            # NEXT, restore the old order state
+            order state $oldState
 
-                # NEXT, log failure.
-                sigevent log error tactic "
-                    EXECUTIVE: Failed to execute command {$text1}: $result
-                " $owner
+            # NEXT, log failure.
+            sigevent log error tactic "
+                EXECUTIVE: Failed to execute command {$command}: $result
+            " [my agent]
 
-                executive errtrace
-                return 0
-            }
+            executive errtrace
+
+            # TBD: Report as sanity check failure
+            return
         }
 
         # SUCCESS
@@ -86,96 +103,41 @@ tactic type define EXECUTIVE {text1 once on_lock} {actor system} {
 
         # NEXT, log success
         sigevent log 1 tactic "
-            EXECUTIVE: $text1
-        " $owner
-
-        return 1
+            EXECUTIVE: $command
+        " [my agent]
     }
 }
 
-# TACTIC:EXECUTIVE:CREATE
-#
-# Creates a new EXECUTIVE tactic.
-
-order define TACTIC:EXECUTIVE:CREATE {
-    title "Create Tactic: Executive Command"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Owner:" -for owner
-        text owner -context yes
-
-        rcc "Command:" -for text1
-        text text1 -width 80
-        
-        rcc "Once Only?" -for once
-        yesno once -defvalue 1
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock -defvalue 0
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type agent
-    prepare text1
-    prepare priority -tolower             -type ePrioSched
-    prepare once     -toupper   -required -type boolean
-    prepare on_lock                       -type boolean
-
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) EXECUTIVE
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
-}
+#-----------------------------------------------------------------------
+# TACTIC:* orders
 
 # TACTIC:EXECUTIVE:UPDATE
 #
-# Updates existing EXECUTIVE tactic.
+# Updates the tactic's parameters
 
 order define TACTIC:EXECUTIVE:UPDATE {
-    title "Update Tactic: Executive Command"
+    title "Update EXECUTIVE Tactic"
+
     options -sendstates {PREP PAUSED}
 
     form {
-        rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_EXECUTIVE -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
+        rcc "Tactic ID:" -for tactic_id
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
-        rcc "Owner" -for owner
-        disp owner
-
-        rcc "Command:" -for text1
-        text text1 -width 80
-        
-        rcc "Once Only?" -for once
-        yesno once
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock
+        rcc "Command:" -for command
+        text command -width 80
     }
 } {
-    # FIRST, prepare the parameters
-    prepare tactic_id  -required -type tactic
-    prepare text1
-    prepare once       -toupper  -type boolean
-    prepare on_lock              -type boolean
-
-    returnOnError
-
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType EXECUTIVE $parms(tactic_id) }
-
+    # FIRST, prepare and validate the parameters
+    prepare tactic_id -required -oneof [tactic::EXECUTIVE ids]
+    prepare command   -required 
     returnOnError -final
 
-    # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    set tactic [tactic get $parms(tactic_id)]
+
+    # NEXT, update the block
+    setundo [$tactic update_ {command} [array get parms]]
 }
 
 

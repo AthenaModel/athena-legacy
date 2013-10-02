@@ -429,7 +429,6 @@ snit::widget ::projectgui::beanbrowser {
     # Reloads the list of beans.
     
     method ReloadContent {} {
-        puts "$win ReloadContent from [caller]"
         # FIRST, Layout the columns if need be.
         if {!$info(layoutFlag)} {
             $self LayoutColumns
@@ -714,7 +713,6 @@ snit::widget ::projectgui::beanbrowser {
     # pending lazy updates are excluded.
     
     method reload {{opt ""}} {
-        puts "$win reload $opt"
         if {$opt eq ""} {
             $lazy update
         } else {
@@ -849,7 +847,6 @@ snit::widget ::projectgui::beanbrowser {
     # relevant row.
 
     method {uid update} {uid} {
-        puts "\$bb uid update $uid"
         # FIRST, this call is only for updating beans that already displayed
         # in this browser.  If there is no such bean displayed, 
         # we can ignore the call.

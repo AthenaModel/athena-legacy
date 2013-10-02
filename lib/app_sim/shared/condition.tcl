@@ -6,550 +6,353 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Condition Manager
+#    athena_sim(1): Mark II Conditions
 #
-#    A condition is a boolean expression attached to a tactic that
-#    indicates whether or not the tactic should be used.  This module is
-#    responsible for managing conditions and operations upon them.  As
-#    such, it is a type ensemble.
+#    A condition is an bean that represents a boolean proposition
+#    regarding the state of the simulation.  It can be evaluated to 
+#    determine whether or not the condition is currently met.
 #
-#    There are a number of different condition types.
-#
-#    * All are stored in the conditions table.
-#
-#    * The data inheritance is handled by putting the type-specific
-#      parameters in a Tcl dictionary in the "pdict" column.
-#
-#    * The mutators work for all condition types.
-#
-#    * Each condition type has its own CREATE and UPDATE orders; the
-#      DELETE order is common to all.
-#
-#    * scenario.tcl defines a view for each condition type,
-#      conditions_<type>.
+#    Athena uses many different kinds of condition.  This module
+#    defines a base class for condition types.
 #
 #-----------------------------------------------------------------------
 
-snit::type condition {
-    # Make it a singleton
-    pragma -hasinstances no
+# FIRST, create the class.
+beanclass create condition
 
-    #===================================================================
-    # Lookup Tables
+# NEXT, define class methods
+#
+# TBD: This is essentially the same as tactic; can we refactor this
+# somehow?
+oo::objdefine condition {
+    # List of defined condition types
+    variable types
 
-    # A list of the table columns in the conditions table, to avoid
-    # name conflicts.
-    typevariable tableColumns {
-        condition_id
-        condition_type
-        cc_id
-        owner
-        narrative
-        state
-        flag
-        pdict
+    # define typename title atypes script
+    #
+    # typename - The condition type name
+    # title    - A condition title
+    # script   - The condition's oo::define script
+    #
+    # Defines a new condition type.
+
+    method define {typename title script} {
+        # FIRST, create the new type
+        set fullname ::condition::$typename
+        lappend types $fullname
+
+        beanclass create $fullname {
+            superclass ::condition
+        }
+
+        # NEXT, define the instance members.
+        oo::define $fullname $script
+
+        # NEXT, define type commands
+
+        oo::objdefine $fullname [format {
+            method typename {} {
+                return "%s"
+            }
+
+            method title {} {
+                return "%s"
+            }
+        } $typename $title]
     }
 
-    #===================================================================
-    # Condition Types: Definition and Query interface.
+    # types
+    #
+    # Returns a list of the available types.
 
+    method types {} {
+        return $types
+    }
+
+    # typenames
+    #
+    # Returns a list of the names of the available types.
+
+    method typenames {} {
+        set result [list]
+
+        foreach type [my types] {
+            lappend result [$type typename]
+        }
+
+        return $result
+    }
+
+    # type typename
+    #
+    # name   A typename
+    #
+    # Returns the actual type object given the typename.
+
+    method type {typename} {
+        return ::condition::$typename
+    }
+
+    # typedict
+    #
+    # Returns a dictionary of type objects and titles.
+
+    method typedict {} {
+        set result [dict create]
+
+        foreach type [my types] {
+            dict set result $type "[$type typename]: [$type title]"
+        }
+
+        return $result
+    }
+
+    # titledict
+    #
+    # Returns a dictionary of titles and type names.
+
+    method titledict {} {
+        set result [dict create]
+
+        foreach type [my types] {
+            dict set result "[$type typename]: [$type title]" [$type typename]
+        }
+
+        return $result
+    }
+}
+
+
+# NEXT, define instance methods
+oo::define condition {
     #-------------------------------------------------------------------
-    # Uncheckpointed Type variables
+    # Instance Variables
 
-    # tinfo array: Type Info
+    variable block    ;# The condition's owning block
+    variable state    ;# The condition's state
+    variable metflag  ;# 1 if condition is met, 0 if it is unmet, 
+                       # or "" if the result is unknown
+    
+    #-------------------------------------------------------------------
+    # Constructor
+
+    # constructor ?block_?
     #
-    # all           - List of the names of all condition types.
-    # goal          - List of the names of goal conditions
-    # tactic        - List of the names of tactic conditions
-    # parms-$ctype  - List of the type-specific parms used by the condition
-    #                 type
+    # The block that owns the condition.
 
-    typevariable tinfo -array {
-        all    {}
-        goal   {}
-        tactic {}
+    constructor {{block_ ""}} {
+        next
+        set block   $block_
+        set state   normal
+        set metflag ""
     }
-
-    # type names ?-all|-goal|-tactic?
-    #
-    # Returns the tactic type names.
-
-    typemethod {type names} {{opt -all}} {
-        switch -exact -- $opt {
-            -all    { return [lsort $tinfo(all)]       }
-            -goal   { return [lsort $tinfo(goal)]      }
-            -tactic { return [lsort $tinfo(tactic)]    }
-            default { error "Unknown option: \"$opt\"" }
-        }
-    }
-
-    # type parms ctype
-    #
-    # Returns a list of the names of the type-specific parameters used by
-    # the condition.
-
-    typemethod {type parms} {ctype} {
-        return $tinfo(parms-$ctype)
-    }
-
-    # type define name parms ?options...? defscript
-    #
-    # name       - The condition name
-    # parms      - The type-specific parms defined by this condition
-    # options... - Options; see below.
-    # defscript  - The definition script (a snit::type script)
-    #
-    # Options:
-    #
-    #   -attachto  - goal|tactic|both.  Defaults to "both".  Determines
-    #                the kind of things that instances of this type can
-    #                be attached to.
-    #
-    # Defines condition::$name as a type ensemble given the typemethods
-    # defined in the defscript.  See condition(i) for documentation of
-    # the expected typemethods.
-
-    typemethod {type define} {name parms args} {
-        # FIRST, get the defscript.
-        if {[llength $args] == 0} {
-            error "wrong \# args, should be: $type type define parms ?options...? defscript"
-        }
-
-        set defscript [lindex $args end]
-        set args [lrange $args 0 end-1]
-
-        # NEXT, get the options
-        array set opts {
-            -attachto both
-        }
-
-        while {[llength $args] > 0} {
-            set opt [lshift args]
-
-            switch -exact -- $opt {
-                -attachto {
-                    set val [lshift args]
-
-                    if {$val ni {goal tactic both}} {
-                        error "Invalid $opt value: \"$val\""
-                    }
-
-                    set opts(-attachto) $val
-                }
-
-                default {
-                    error "Invalid option: \"$opt\""
-                }
-            }
-        }
-
-        # NEXT, define the type.
-        set header {
-            # Make it a singleton
-            pragma -hasinstances no
-
-            typemethod check {cdict} { return }
-        }
-
-        snit::type ${type}::${name} "$header\n$defscript"
-
-        # NEXT, make sure the parm names don't conflict with the
-        # conditions table.
-        foreach parm $parms {
-            if {$parm in $tableColumns} {
-                error "Parameter/table column conflict: \"$parm\""
-            }
-        }
-
-        # NEXT, save the type name.
-        ladd tinfo(all) $name
-
-        if {$opts(-attachto) in {goal both}} {
-            ladd tinfo(goal) $name
-        }
-
-        if {$opts(-attachto) in {tactic both}} {
-            ladd tinfo(tactic) $name
-        }
-
-        set tinfo(parms-$name) $parms
-    }
-
-    # tempschema
-    #
-    # Returns the temporary view definitions for the currently defined
-    # condition types.
-
-    typemethod tempschema {} {
-        set sql ""
-        foreach ctype [condition type names] {
-            set parms [list]
-            foreach parm $tinfo(parms-$ctype) {
-                lappend parms "dictget(pdict,'$parm') AS $parm"
-            }
-
-            if {[llength $parms] > 0} {
-                set clause ",[join $parms ,]"
-            } else {
-                set clause ""
-            }
-
-            append sql "
-                CREATE TEMP VIEW conditions_$ctype AS
-                SELECT condition_id, condition_type, cc_id, narrative,
-                       state, flag $clause
-                FROM conditions WHERE condition_type='$ctype';
-            "
-        }
-
-        return $sql
-    }
-
-    #===================================================================
-    # Condition Instance Interface.
 
     #-------------------------------------------------------------------
     # Queries
     #
-    # These routines query information about the entities; they are
-    # not allowed to modify them.
-
-
-    # names
+    # These methods will rarely if ever be overridden by subclasses.
+    
+    # subject
     #
-    # Returns the list of condition ids
+    # Set subject for notifier events.
 
-    typemethod names {} {
-        set names [rdb eval {
-            SELECT condition_id FROM conditions ORDER BY condition_id
-        }]
+    method subject {} {
+        return "::condition"
     }
 
 
-    # validate id
+    # typename
     #
-    # id - Possibly, a condition ID
-    #
-    # Validates a condition ID
+    # Returns the condition's typename
 
-    typemethod validate {id} {
-        set ids [$type names]
-
-        if {$id ni $ids} {
-            return -code error -errorcode INVALID \
-                "Invalid condition ID: \"$id\""
-        }
-
-        return $id
+    method typename {} {
+        return [namespace tail [info object class [self]]]
     }
 
-    # get id ?parm?
+    # agent
     #
-    # id   - A condition_id
-    # parm - A conditions column name
+    # Returns the agent who owns the strategy that owns the block that
+    # owns this condition.
+
+    method agent {} {
+        return [$block agent]
+    }
+    
+    # strategy 
     #
-    # Retrieves an unpacked condition dictionary, or a particular
-    # parameter value, from conditions.
+    # Returns the strategy that owns the block that owns this condition.
 
-    typemethod get {id {parm ""}} {
-        # FIRST, get the data
-        rdb eval {SELECT * FROM conditions WHERE condition_id=$id} row {
-            # FIRST, pull in the pdict
-            unset row(*)
-            set cdict [unpackData [array get row]]
+    method strategy {} {
+        return [$block strategy]
+    }
 
-            if {$parm eq ""} {
-                return $cdict
-            } else {
-                return [dict get $cdict $parm]
-            }
-        }
-        return ""
+    # block
+    #
+    # Returns the block that owns this condition.
+
+    method block {} {
+        return $block
+    }
+
+    # state
+    #
+    # Returns the block's state, normal or invalid.
+
+    method state {} {
+        return $state
+    }
+
+    # isknown
+    #
+    # Returns 1 if the value of the metflag is known, and 0 otherwise.
+
+    method isknown {} {
+        return [expr {$metflag ne ""}]
+    }
+
+    # ismet
+    #
+    # Returns 1 if the value of the metflag is known, and the flag
+    # is met.  Returns 0 otherwise.
+
+    method ismet {} {
+        return [expr {$metflag ne "" && $metflag}]
     }
 
     #-------------------------------------------------------------------
-    # Condition Ensemble Interface
+    # Views
 
-    # condition call sub cdict ?args...?
+    # view ?view?
     #
-    # sub   - One of the above condition type subcommands
-    # cdict - An unpacked condition parameter dictionary
+    # view   - A view name (ignored at present)
     #
-    # This is a convenience command that calls the relevant subcommand
-    # for the condition.
+    # Returns a view dictionary, for display.
 
-    typemethod call {sub cdict args} {
-        [dict get $cdict condition_type] $sub $cdict {*}$args
+    method view {{view ""}} {
+        set result [next $view]
+
+        dict set result agent     [my agent]
+        dict set result narrative [my narrative]
+        dict set result typename  [my typename]
+
+        return $result
     }
 
     #-------------------------------------------------------------------
-    # Condition Tools
+    # Operations
     #
-    # These commands are for use implementing conditions.
+    # These methods represent condition operations whose actions may
+    # vary by condition type.
+    #
+    # Subclasses will usually need to override the SanityCheck, narrative,
+    # and Evaluate methods.
+    
+    # check
+    #
+    # Sanity checks the condition, returning a dict of variable names
+    # and error strings:
+    #
+    #   $var -> $errmsg 
+    #
+    # If the dict is empty, there are no problems.
+    # If the subclass has possible sanity check failures, it should
+    # override SanityCheck.
 
-    # compare x comp y
-    #
-    # x          - A numeric value
-    # comp       - An ecomparator
-    # y          - A numeric value
-    #
-    # Compares x and y using the comparator, and returns 1 if the
-    # comparison is true and 0 otherwise.
+    method check {} {
+        set errdict [my SanityCheck [dict create]]
 
-    typemethod compare {x comp y} {
-        switch -exact -- $comp {
-            EQ      { return [expr {$x == $y}] }
-            GE      { return [expr {$x >= $y}] }
-            GT      { return [expr {$x >  $y}] }
-            LE      { return [expr {$x <= $y}] }
-            LT      { return [expr {$x <  $y}] }
-            default { error "Invalid comparator: \"$comp\"" }
+        if {[dict size $errdict] > 0} {
+            my set state invalid
+            my set metflag ""
+        } elseif {$state eq "invalid"} {
+            my set state normal
         }
+
+        return $errdict
     }
 
+    # SanityCheck errdict
+    #
+    # errdict   - A dictionary of instance variable names and error
+    #             messages.
+    #
+    # This command should check the class's variables for errors, and
+    # add the error messages to the errdict, returning the errdict
+    # on completion.  The usual pattern for subclasses is this:
+    #
+    #    ... check for errors ...
+    #    return [next $errdict]
+    #
+    # thus allowing parent classes their chance at it.
+    #
+    # This method should be overridden by every condition type that
+    # can have sanity check failures.
+
+    method SanityCheck {errdict} {
+        return $errdict
+    }
+
+    # narrative
+    #
+    # Returns the condition's narrative.  This should be overridden by 
+    # the subclass.
+    method narrative {} {
+        return "no narrative defined"
+    }
+
+    # eval
+    #
+    # Evaluates the condition and saves the metflag.  The subclass
+    # should override Evaluate.
+
+    method eval {} {
+        my set metflag [my Evaluate]
+        return $metflag
+    }
+
+    # Evaluate
+    #
+    # This method should be overridden by every condition type; it
+    # should compute whether the condition is met or not, and return
+    # 1 if so and 0 otherwise.  The [eval] method will call it on
+    # demand and cache the result.
+
+    method Evaluate {} {
+        return 1
+    }
 
     #-------------------------------------------------------------------
-    # Mutators
-    #
-    # Mutators are used to implement orders that change the scenario in
-    # some way.  Mutators assume that their inputs are valid, and returns
-    # a script of one or more commands that will undo the change.  When
-    # change cannot be undone, the mutator returns the empty string.
+    # Event Handlers
 
-    # mutate create parmdict
+    # onUpdate_
     #
-    # parmdict     An unpacked dictionary of condition parms
-    #
-    #    condition_type - The condition type (econditiontype)
-    #    cc_id          - The owning tactic or goal
-    #
-    #    type-specific parms
-    #
-    # Creates a condition given the parms, which are presumed to be
-    # valid.
+    # On update_, clears the metflag, does a sanity check, if appropriate, 
+    # and sends notifications.
 
-    typemethod {mutate create} {parmdict} {
-        # FIRST, get the owning actor
-        dict set parmdict owner [$type GetOwner [dict get $parmdict cc_id]]
+    method onUpdate_ {} {
+        # FIRST, clear the metflag; the condition has changed, and
+        # we don't know whether it's been met or not.
+        my set metflag ""
 
-        # NEXT, compute the narrative string.
-        set narrative [condition call narrative $parmdict]
-
-        # NEXT, pack the type-specific parms
-        array set cdata [packData $parmdict]
-
-        # NEXT, put the condition in the database.
-        rdb eval {
-            INSERT INTO
-            conditions(condition_type, cc_id, owner, narrative, pdict)
-            VALUES($cdata(condition_type),
-                   $cdata(cc_id),
-                   $cdata(owner),
-                   $narrative,
-                   $cdata(pdict));
+        # NEXT, do a sanity check (unless it's already disabled)
+        if {$state ne "disabled"} {
+            my check
         }
 
-        set id [rdb last_insert_rowid]
-
-        lappend undo [list rdb delete conditions "condition_id=$id"]
-
-        # NEXT, Return undo command.
-        return [join $undo \n]
-    }
-
-    # GetOwner cc_id
-    #
-    # cc_id   A condition collection ID, e.g., a tactic or goal
-    #
-    # Given a cc_id, return the actor that owns the tactic or goal.
-
-    typemethod GetOwner {cc_id} {
-        rdb eval {
-            SELECT owner FROM goals WHERE goal_id=$cc_id
-            UNION
-            SELECT owner FROM tactics WHERE tactic_id=$cc_id
-        } {
-            return $owner
-        }
-
-        return ""
-    }
-
-    # mutate delete id
-    #
-    # id     a condition ID
-    #
-    # Deletes the condition.
-
-    typemethod {mutate delete} {id} {
-        # FIRST, get the undo information
-        set data [rdb delete -grab conditions {condition_id=$id}]
-
-        # NEXT, Return the undo script
-        return [list rdb ungrab $data]
-    }
-
-    # mutate update parmdict
-    #
-    # parmdict     An unpacked dictionary of condition parms
-    #
-    #    condition_id   The condition's ID
-    #
-    #    type-specific parms
-    #
-    # Updates a condition given the parms, which are presumed to be
-    # valid.  Note that you can't change the condition's cc_id or
-    # type.
-
-    typemethod {mutate update} {parmdict} {
-        # FIRST, get the undo information
-        set condition_id [dict get $parmdict condition_id]
-        set data [rdb grab conditions {condition_id=$condition_id}]
-
-        # NEXT, get the previous condition data, and merge in the
-        # changed values.
-        set cdict [$type get $condition_id]
-
-        dict for {parm value} $parmdict {
-            if {$value ne ""} {
-                dict set cdict $parm $value
-            }
-        }
-
-        # NEXT, compute and set the narrative
-        set narrative [condition call narrative $cdict]
-
-        # NEXT, pack up the updated condition data.
-        array set cdata [packData $cdict]
-
-        # NEXT, Update the condition.
-        rdb eval {
-            UPDATE conditions
-            SET flag      = NULL,
-                pdict     = $cdata(pdict),
-                narrative = $narrative
-            WHERE condition_id=$condition_id;
-        }
-
-        # NEXT, Return the undo command
-        return [list rdb ungrab $data]
-    }
-
-    # mutate state condition_id state
-    #
-    # condition_id - The condition's ID
-    # state        - The condition's econdition_state
-    #
-    # Updates a condition's state.
-
-    typemethod {mutate state} {condition_id state} {
-        # FIRST, get the undo information
-        set data [rdb grab conditions {condition_id=$condition_id}]
-
-        # NEXT, Update the condition.
-        rdb eval {
-            UPDATE conditions
-            SET state = $state
-            WHERE condition_id=$condition_id;
-        }
-
-        # NEXT, Return the undo command
-        return [list rdb ungrab $data]
-    }
-
-    # packData cdict
-    #
-    # cdict   - A dictionary of condition data
-    #
-    # Given a dictionary of condition data with the type-specific parms
-    # broken out, returns a new condition dictionary with the
-    # type-specific parms packed into pdict.
-
-    proc packData {cdict} {
-        dict set cdict pdict [dict create]
-
-        foreach parm $tinfo(parms-[dict get $cdict condition_type]) {
-            if {![dict exists $cdict $parm]} {
-                dict set cdict $parm ""
-            }
-            dict set cdict pdict $parm [dict get $cdict $parm]
-        }
-
-        return $cdict
-    }
-
-    # unpackData cdict
-    #
-    # cdict   - A dictionary of condition data
-    #
-    # Given a dictionary of condition data with the type-specific parms
-    # packed into pdict, extracts them out as entries in their own right.
-    # Returns the new pdict.
-
-    proc unpackData {cdict} {
-        return [dict merge $cdict [dict get $cdict pdict]]
+        # NEXT, send notifications.
+        next
     }
 
 
-
-    #-------------------------------------------------------------------
-    # Order Helpers
-
-    # RequireType condition_type id
-    #
-    # condition_type  - The desired condition_type
-    # id           - A condition_id
-    #
-    # Throws an error if the condition doesn't have the desired type.
-
-    typemethod RequireType {condition_type id} {
-        if {[rdb onecolumn {
-            SELECT condition_type FROM conditions WHERE condition_id = $id
-        }] ne $condition_type} {
-            return -code error -errorcode INVALID \
-                "Condition $id is not a $condition_type condition"
-        }
-    }
 }
-
 
 #-----------------------------------------------------------------------
-# Orders: CONDITION:*
-
-# CONDITION:DELETE
-#
-# Deletes an existing condition, of whatever type.
-#
-# TBD: The form spec could be much simpler.
-
-order define CONDITION:DELETE {
-    title "Delete Condition"
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Condition ID:" -for condition_id
-        key condition_id -context yes -table conditions -keys condition_id \
-            -loadcmd {orderdialog keyload condition_id *}
-
-        rcc "Condition Type:" -for condition_type
-        disp condition_type
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare condition_id -toupper -required -type condition
-
-    returnOnError -final
-
-    # NEXT, Delete the condition and dependent entities
-    setundo [condition mutate delete $parms(condition_id)]
-}
+# Orders
 
 # CONDITION:STATE
 #
-# Sets a condition's state.  Note that this order isn't intended
-# for use with a dialog.
-#
-# TBD: The form spec could be much simpler.
+# Sets a condition's state to normal or disabled.  The order dialog
+# is not generally used.
 
 order define CONDITION:STATE {
     title "Set Condition State"
@@ -557,19 +360,24 @@ order define CONDITION:STATE {
     options -sendstates {PREP PAUSED}
 
     form {
-        rcc "Condition ID:" -for condition_id
-        key condition_id -context yes -table conditions -keys condition_id \
-            -loadcmd {orderdialog keyload condition_id *}
+        label "Condition ID:" -for condition_id
+        text condition_id -context yes
 
-        rcc "State:" -for state
+        rc "State:" -for state
         text state
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare condition_id -required          -type condition
-    prepare state        -required -tolower -type econdition_state
-
+    prepare condition_id -required -oneof [condition ids]
+    prepare state        -required -tolower -type ebeanstate
     returnOnError -final
 
-    setundo [condition mutate state $parms(condition_id) $parms(state)]
+    set cond [condition get $parms(condition_id)]
+
+    # NEXT, update the block
+    setundo [$cond update_ {state} [array get parms]]
 }
+
+
+
+

@@ -193,7 +193,7 @@ snit::type actor {
             # NEXT, create the related entities
             bsystem entity add $a
             lappend undo [list bsystem edit undo]
-            lappend undo [strategyx create_ $a]
+            lappend undo [strategy create_ $a]
 
             # NEXT, Return undo command.
             lappend undo [list rdb delete actors "a='$a'"]
@@ -225,7 +225,7 @@ snit::type actor {
         # NEXT, delete the related entities
         bsystem entity delete $a
         lappend undo [list bsystem edit undo]
-        lappend undo [strategyx delete_ $a]
+        lappend undo [strategy delete_ $a]
         lappend undo [list rdb ungrab [concat $adata $gdata]]
 
         return [join $undo \n]
@@ -661,4 +661,5 @@ order define ACTOR:SUPPORTS {
     # NEXT, modify the actor
     setundo [actor mutate update [array get parms]]
 }
+
 

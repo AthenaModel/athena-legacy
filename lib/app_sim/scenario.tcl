@@ -45,14 +45,11 @@ snit::type scenario {
         cif
         civgroups
         concerns
-        cond_collections
-        conditions
         coop_fg
         drivers
         econ_n
         ensits
         frcgroups
-        goals
         groups
         hook_topics
         hooks
@@ -73,7 +70,6 @@ snit::type scenario {
         sat_gc
         scenario
         scripts
-        tactics
         undostack_stack
         vrel_ga
     }
@@ -155,7 +151,6 @@ snit::type scenario {
         rdb monitor add cap_kn        {k n}
         rdb monitor add cap_kg        {k g}
         rdb monitor add civgroups     {g}
-        rdb monitor add conditions    {condition_id}
         rdb monitor add coop_fg       {f g}
         rdb monitor add curses        {curse_id}
         rdb monitor add defroe_ng     {n g}
@@ -164,7 +159,6 @@ snit::type scenario {
         rdb monitor add econ_n        {n}
         rdb monitor add ensits        {s}
         rdb monitor add frcgroups     {g}
-        rdb monitor add goals         {goal_id}
         rdb monitor add groups        {g}
         rdb monitor add hooks         {hook_id}
         rdb monitor add hook_topics   {hook_id topic_id}
@@ -182,7 +176,6 @@ snit::type scenario {
         rdb monitor add orggroups     {g}
         rdb monitor add payloads      {iom_id payload_num}
         rdb monitor add sat_gc        {g c}
-        rdb monitor add tactics       {tactic_id}
         rdb monitor add units         {u}
         rdb monitor add vrel_ga       {g a}
 
@@ -723,11 +716,6 @@ snit::type scenario {
         RdbEvalFile gui_curses.sql      ;# User-defined CURSEs Area
         RdbEvalFile gui_politics.sql    ;# Politics Area
         RdbEvalFile gui_application.sql ;# Application Views
-
-        # NEXT, define tactic and condition type views
-        rdb eval [tactic tempschema]
-        rdb eval [condition tempschema]
-
     }
 
     # RdbEvalFile filename

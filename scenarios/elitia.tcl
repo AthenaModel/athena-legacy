@@ -71,15 +71,6 @@ send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shap
 send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller GOV -vtygain { 1.0} -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
 send NBHOOD:UPDATE -n EL -longname Elitia -local YES -urbanization RURAL -controller GOV -vtygain { 1.0} -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
 send NBHOOD:UPDATE -n PE -longname Peonia -local YES -urbanization RURAL -controller GOV -vtygain { 1.0} -refpoint G21D98 -polygon {F17C28 F63D50 G31E58 H69E28 H57D10 G51C22}
-send GOAL:CREATE -owner EPP -narrative {Democracy in Elitia}
-send GOAL:CREATE -owner GOV -narrative {Maintain Control}
-send GOAL:CREATE -owner PELF -narrative {Free Peonia}
-send CONDITION:CONTROL:CREATE -cc_id 2 -a GOV -list1 {CITY EL PE}
-send CONDITION:CONTROL:CREATE -cc_id 3 -a PELF -list1 PE
-send CONDITION:CONTROL:CREATE -cc_id 1 -a PELF -list1 {CITY EL}
-send TACTIC:FUND:CREATE -owner EPP -a PELF -x1 500K
-send CONDITION:CONTROL:UPDATE -condition_id 3 -a EPP -list1 {CITY EL}
-send CONDITION:UNMET:CREATE -cc_id 4 -list1 1
 send CAP:CREATE -k CBS -longname {Corps Broadcasting System} -owner GOV -capacity 1.00 -cost 100 -nlist {CITY EL} -glist {ELR ELU}
 send CAP:CREATE -k FOX -longname {Fox Snooze} -owner PELF -capacity 0.90 -cost 20 -nlist {EL PE} -glist {ELR ELU PEONR PEONU}
 send BSYSTEM:TOPIC:CREATE -tid PAT -title Patriotism -affinity 0
@@ -113,5 +104,3 @@ send INJECT:SAT:CREATE -curse_id FLOOD -longname {Flood in Peonia} -gtype EXISTI
 send INJECT:VREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -gtype EXISTING -g @GRP1 -a ACT1 -mag -8.0
 send CURSE:CREATE -curse_id FIRE -longname {Fire in Elitia} -s 1.00 -p 0.20 -q 0.05
 send INJECT:SAT:CREATE -curse_id FIRE -longname {Fire in Elitia} -gtype EXISTING -g @CIVGRP2 -c QOL -mag -10.5
-send TACTIC:CURSE:CREATE -owner SYSTEM -curse FIRE -roles {@CIVGRP2 {_type CIVGROUPS _rule BY_VALUE raw_value {ELR ELU} nlist {} anyall {} alist {} glist {}}}
-send TACTIC:CURSE:CREATE -owner SYSTEM -curse FLOOD -roles {@FRC1 {_type FRCGROUPS _rule BY_VALUE raw_value ARMY alist {} anyall {} nlist {} glist {}} @CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value PEONU nlist {} anyall {} alist {} glist {}} @GRP1 {_type GROUPS _rule BY_VALUE raw_value PEONU anyall {} alist {} glist {} nlist {}} @ACT1 {_type ACTORS _rule BY_VALUE raw_value GOV nlist {} anyall {} glist {}} @CIV2 {_type CIVGROUPS _rule BY_VALUE raw_value PEONR nlist {} anyall {} alist {} glist {}}}

@@ -6,230 +6,167 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): DEMOB(g,mode,personnel,once) tactic
+#    athena_sim(1): Mark II Tactic, DEMOB
 #
-#    This module implements the DEMOB tactic, which demobilizes
-#    force or ORG group personnel, i.e., moves them out of the playbox.
-#
-# PARAMETER MAPPING:
-#
-#    g     <= g
-#    text1 <= mode: ALL|SOME
-#    int1  <= personnel
-#    once  <= once
+#    A DEMOB tactic demobilizes force or organization group personnel,
+#    moving them out of the playbox.
 #
 #-----------------------------------------------------------------------
 
-#-------------------------------------------------------------------
-# Tactic: DEMOB
-
-tactic type define DEMOB {g text1 int1 once} actor {
+# FIRST, create the class.
+tactic define DEMOB "Demobilize Personnel" {actor} {
     #-------------------------------------------------------------------
-    # Public Methods
+    # Instance Variables
+
+    variable g           ;# A FRC or ORG group
+    variable mode        ;# ALL | SOME
+    variable personnel   ;# Number of personnel.
+
+    # Transient data
+    variable trans
 
     #-------------------------------------------------------------------
-    # tactic(i) subcommands
+    # Constructor
+
+    # constructor ?block_?
     #
-    # See the tactic(i) man page for the signature and general
-    # description of each subcommand.
+    # block_  - The block that owns the tactic
+    #
+    # Creates a new tactic for the given block.
 
-    typemethod narrative {tdict} {
-        dict with tdict {
-            if {$text1 eq "ALL"} {
-                return "Demobilize all of group $g's available personnel."
-            } else {
-                return "Demobilize $int1 of group $g's available personnel."
-            }
-        }
+    constructor {{block_ ""}} {
+        next $block_
+        set g ""
+        set mode ALL
+        set personnel 0
+        my set state invalid   ;# Initially we're invalid: no group
+
+        set trans(personnel) 0
     }
 
-    typemethod dollars {tdict} {
-        return [moneyfmt 0.0]
-    }
+    #-------------------------------------------------------------------
+    # Operations
 
-    typemethod check {tdict} {
-        set errors [list]
-
-        dict with tdict {
-            # g
-            if {$g ni [ptype fog names]} {
-                lappend errors "Force/organization group $g no longer exists."
-            } else {
-                rdb eval {SELECT a FROM agroups WHERE g=$g} {}
-
-                if {$a ne $owner} {
-                    lappend errors \
-                        "Force/organization group $g is no longer owned by actor $owner."
-                }
-            }
+    method SanityCheck {errdict} {
+        if {$g eq ""} {
+            dict set errdict g "No group selected."
+        } elseif {$g ni [group ownedby [my agent]]} {
+            dict set errdict g \
+                "Force/organization group \"$g\" is not owned by [my agent]."
         }
 
-        return [join $errors "  "]
+        return [next $errdict]
     }
 
-    typemethod execute {tdict} {
-        dict with tdict {
-            # FIRST, retrieve relevant data.
-            set available [personnel available $g]
 
-            # NEXT, if they want ALL personnel, we'll take all available.
-            # If they want SOME, we'll take the requested amount, *if* 
-            # they are available.
-            if {$text1 eq "ALL" || $int1 > $available} {
-                set int1 $available
-            }
+    method narrative {} {
+        set gtext [expr {$g    ne ""     ? $g         : "???"}]
+        set ptext [expr {$mode eq "SOME" ? $personnel : "all"}]
 
-            if {$int1 == 0} {
+        return "Demobilize $ptext of group $gtext's undeployed personnel."
+    }
+
+    # obligate coffer
+    #
+    # coffer  - A coffer object with the owning agent's current
+    #           resources
+    #
+    # Obligates the personnel to be demobilized.
+    #
+    # NOTE: DEMOB never executes on lock.
+
+    method obligate {coffer} {
+        assert {[strategy ontick]}
+        
+        set undeployed [$coffer troops $g undeployed]
+
+        if {$mode eq "SOME"} {
+            if {$undeployed < $personnel} {
                 return 0
             }
 
-            personnel demob $g $int1
-                
-            sigevent log 1 tactic "
-                DEMOB: Actor {actor:$owner} demobilizes $int1 {group:$g} 
-                personnel.
-            " $owner $g
+            set trans(personnel) $personnel
+        } else {
+            set trans(personnel) $undeployed 
         }
+
+        $coffer demobilize $g $trans(personnel)
 
         return 1
     }
+
+    method execute {} {
+        personnel demob $g $trans(personnel)
+            
+        sigevent log 1 tactic "
+            DEMOB: Actor {actor:[my agent]} demobilizes $trans(personnel)
+            {group:$g} personnel.
+        " [my agent] $g
+    }
 }
 
-# TACTIC:DEMOB:CREATE
-#
-# Creates a new DEMOB tactic.
-
-order define TACTIC:DEMOB:CREATE {
-    title "Create Tactic: Demobilize Forces"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Owner:" -for owner
-        text owner -context yes
-
-        rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
-
-        rcc "Mode:" -for text1
-        selector text1 {
-            case SOME "Demobilize some of the group's personnel" {
-                rcc "Personnel:" -for int1
-                text int1
-            }
-
-            case ALL "Demobilize all of the group's remaining personnel" {}
-        }
-
-        rcc "Once Only?" -for once
-        yesno once -defvalue 1
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type   actor
-    prepare g        -toupper   -required -type   {ptype fog}
-    prepare text1    -toupper   -required -selector
-    prepare int1     -num                 -type   ipositive
-    prepare once     -toupper   -required -type   boolean
-    prepare priority -tolower             -type   ePrioSched
-
-    returnOnError
-
-    # NEXT, cross-checks
-
-    # text1 vs int1
-    if {$parms(text1) eq "SOME" && $parms(int1) eq ""} {
-        reject int1 "Required value when mode is SOME."
-    }
-
-    # g vs owner
-    set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-    if {$a ne $parms(owner)} {
-        reject g "Group $parms(g) is not owned by actor $parms(owner)."
-    }
-
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) DEMOB
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
-}
+#-----------------------------------------------------------------------
+# TACTIC:* orders
 
 # TACTIC:DEMOB:UPDATE
 #
 # Updates existing DEMOB tactic.
 
 order define TACTIC:DEMOB:UPDATE {
-    title "Update Tactic: Demob Forces"
+    title "Update Tactic: Demobilize Personnel"
     options -sendstates {PREP PAUSED}
 
     form {
         rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_DEMOB -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
-
-        rcc "Owner" -for owner
-        disp owner
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
         rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
+        enum g -listcmd {tactic groupsOwnedByAgent $tactic_id}
 
-        rcc "Mode:" -for text1
-        selector text1 {
+        rcc "Mode:" -for mode
+        selector mode {
             case SOME "Demobilize some of the group's personnel" {
-                rcc "Personnel:" -for int1
-                text int1
+                rcc "Personnel:" -for personnel
+                text personnel
             }
 
             case ALL "Demobilize all of the group's remaining personnel" {}
         }
-
-        rcc "Once Only?" -for once
-        yesno once
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -type tactic
-    prepare g          -toupper  -type {ptype fog}
-    prepare text1      -toupper  -selector
-    prepare int1       -num      -type ipositive
-    prepare once       -toupper  -type boolean
+    prepare tactic_id  -required -oneof [tactic::DEMOB ids]
+    returnOnError
+
+    # NEXT, get the tactic
+    set tactic [tactic get $parms(tactic_id)]
+
+    prepare g                    -oneof [group ownedby [$tactic agent]]
+    prepare mode       -toupper  -selector
+    prepare personnel  -num      -type  ipositive
 
     returnOnError
 
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType DEMOB $parms(tactic_id) }
+    # NEXT, do the cross checks
+    fillparms parms [$tactic view]
 
-    returnOnError
-
-    # NEXT, cross-checks
-    tactic delta parms
-    validate g {
-        set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-        if {$a ne $parms(owner)} {
-            reject g "Group $parms(g) is not owned by actor $parms(owner)."
-        }
-    }
-
-    # If text1 is now SOME, then int1 must be defined, either by
-    # this order or in the RDB.
-    if {$parms(text1) eq "SOME"} {
-        if {$parms(int1) eq ""} {
-            reject int1 "Required value when mode is SOME."
+    if {$parms(mode) eq "SOME"} {
+        if {$parms(personnel) == 0} {
+            reject personnel "Must be positive when mode is SOME."
         }
     }
 
     returnOnError -final
 
+    # NEXT, update the tactic, saving the undo script
+    set undo [$tactic update_ {g mode personnel} [array get parms]]
+
     # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    setundo $undo
 }
+
+
+
 
 

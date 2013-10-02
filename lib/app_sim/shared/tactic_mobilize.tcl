@@ -6,185 +6,136 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): MOBILIZE(g,personnel,once) tactic
+#    athena_sim(1): Mark II Tactic, MOBILIZE
 #
-#    This module implements the MOBILIZE tactic, which mobilizes
-#    force or ORG group personnel, i.e., moves them into of the playbox.
+#    A MOBILIZE tactic mobilizes force or organization group personnel,
+#    moving new personnel into the playbox.
 #
-# PARAMETER MAPPING:
-#
-#    g     <= g
-#    int1  <= personnel
-#    once  <= once
+# TBD:
+#    * We might want to use a gofer to choose the number of people to
+#      mobilize.
 #
 #-----------------------------------------------------------------------
 
-#-------------------------------------------------------------------
-# Tactic: MOBILIZE
-
-tactic type define MOBILIZE {g int1 once} actor {
+# FIRST, create the class.
+tactic define MOBILIZE "Mobilize Personnel" {actor} {
     #-------------------------------------------------------------------
-    # Public Methods
+    # Instance Variables
+
+    variable g           ;# A FRC or ORG group
+    variable personnel   ;# Number of personnel.
 
     #-------------------------------------------------------------------
-    # tactic(i) subcommands
+    # Constructor
+
+    # constructor ?block_?
     #
-    # See the tactic(i) man page for the signature and general
-    # description of each subcommand.
+    # block_  - The block that owns the tactic
+    #
+    # Creates a new tactic for the given block.
 
-    typemethod narrative {tdict} {
-        dict with tdict {
-            return "Mobilize $int1 new $g personnel."
-        }
+    constructor {{block_ ""}} {
+        next $block_
+        set g ""
+        set personnel 0
+        my set state invalid   ;# Initially we're invalid: no group
     }
 
-    typemethod dollars {tdict} {
-        return [moneyfmt 0.0]
-    }
+    #-------------------------------------------------------------------
+    # Operations
 
-    typemethod check {tdict} {
-        set errors [list]
-
-        dict with tdict {
-            # g
-            if {$g ni [ptype fog names]} {
-                lappend errors "Force/organization group $g no longer exists."
-            } else {
-                rdb eval {SELECT a FROM agroups WHERE g=$g} {}
-
-                if {$a ne $owner} {
-                    lappend errors \
-                        "Force/organization group $g is no longer owned by actor $owner."
-                }
-            }
+    method SanityCheck {errdict} {
+        if {$g eq ""} {
+            dict set errdict g "No group selected."
+        } elseif {$g ni [group ownedby [my agent]]} {
+            dict set errdict g \
+                "Force/organization group \"$g\" is not owned by [my agent]."
         }
 
-        return [join $errors "  "]
+        return [next $errdict]
     }
 
-    typemethod execute {tdict} {
-        dict with tdict {
-            personnel mobilize $g $int1
-                
-            sigevent log 1 tactic "
-                MOBILIZE: Actor {actor:$owner} mobilizes $int1 new {group:$g} 
-                personnel.
-            " $owner $g
+
+    method narrative {} {
+        if {$g eq ""} {
+            set gtext "???"
+        } else {
+            set gtext $g
         }
+
+        return "Mobilize $personnel new $gtext personnel."
+    }
+
+    # obligate coffer
+    #
+    # coffer  - A coffer object with the owning agent's current
+    #           resources
+    #
+    # Obligates the personnel to be mobilizeilized.
+    #
+    # NOTE: MOBILIZE never executes on lock.
+
+    method obligate {coffer} {
+        assert {[strategy ontick]}
+
+        $coffer mobilize $g $personnel
 
         return 1
     }
+
+    method execute {} {
+        personnel mobilize $g $personnel
+            
+        sigevent log 1 tactic "
+            MOBILIZE: Actor {actor:[my agent]} mobilizes $personnel new 
+            {group:$g} personnel.
+        " [my agent] $g
+    }
 }
 
-# TACTIC:MOBILIZE:CREATE
-#
-# Creates a new MOBILIZE tactic.
-
-order define TACTIC:MOBILIZE:CREATE {
-    title "Create Tactic: Mobilize Forces"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Owner:" -for owner
-        text owner -context yes
-
-        rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
-
-        rcc "Personnel:" -for int1
-        text int1
-
-        rcc "Once Only?" -for once
-        yesno once -defvalue 1
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type   actor
-    prepare g        -toupper   -required -type   {ptype fog}
-    prepare int1     -num                 -type   ipositive
-    prepare once     -toupper   -required -type   boolean
-    prepare priority -tolower             -type   ePrioSched
-
-    returnOnError
-
-    # NEXT, cross-checks
-
-    # g vs owner
-    set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-    if {$a ne $parms(owner)} {
-        reject g "Group $parms(g) is not owned by actor $parms(owner)."
-    }
-
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) MOBILIZE
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
-}
+#-----------------------------------------------------------------------
+# TACTIC:* orders
 
 # TACTIC:MOBILIZE:UPDATE
 #
 # Updates existing MOBILIZE tactic.
 
 order define TACTIC:MOBILIZE:UPDATE {
-    title "Update Tactic: Mobilize Forces"
+    title "Update Tactic: Mobilize Personnel"
     options -sendstates {PREP PAUSED}
 
     form {
         rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_MOBILIZE -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
-
-        rcc "Owner" -for owner
-        disp owner
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
         rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
+        enum g -listcmd {tactic groupsOwnedByAgent $tactic_id}
 
-        rcc "Personnel:" -for int1
-        text int1
-
-        rcc "Once Only?" -for once
-        yesno once
+        rcc "Personnel:" -for personnel
+        text personnel
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -type tactic
-    prepare g          -toupper  -type {ptype fog}
-    prepare int1       -num      -type ipositive
-    prepare once       -toupper  -type boolean
-
+    prepare tactic_id  -required -oneof [tactic::MOBILIZE ids]
     returnOnError
 
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType MOBILIZE $parms(tactic_id) }
+    # NEXT, get the tactic
+    set tactic [tactic get $parms(tactic_id)]
 
-    returnOnError
-
-    # NEXT, cross-checks
-    validate g {
-        set owner [rdb onecolumn {
-            SELECT owner FROM tactics WHERE tactic_id = $parms(tactic_id)
-        }]
-
-        set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-        if {$a ne $owner} {
-            reject g "Group $parms(g) is not owned by actor $owner."
-        }
-    }
+    prepare g                    -oneof [group ownedby [$tactic agent]]
+    prepare personnel  -num      -type  ipositive
 
     returnOnError -final
 
+    # NEXT, update the tactic, saving the undo script
+    set undo [$tactic update_ {g personnel} [array get parms]]
+
     # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    setundo $undo
 }
+
+
+
 
 

@@ -6,243 +6,378 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): DEPLOY(g,mode,personnel,nlist,reinforce) tactic
+#    athena_sim(1): Mark II Tactic, DEPLOY
 #
-#    This module implements the DEPLOY tactic, which deploys a 
-#    force or ORG group's personnel into one or more neighborhoods.
-#    The troops remain as deployed until the next strategy tock, when
-#    troops may be redeployed.
+#    A DEPLOY tactic deploys force or organization group personnel into
+#    neighborhoods, without or without reinforcement.
 #
 # TBD:
-#
-#    * Can we arrange for redeployments to be ignored if nothing's
-#      changed, like the "once only" activity?
-#
-# PARAMETER MAPPING:
-#
-#    g         <= g
-#    text1     <= mode: ALL|SOME
-#    int1      <= personnel
-#    nlist     <= nlist
-#    reinforce <= reinforce
-#    on_lock   <= on_lock
-#    once      <= once
+#    * We might want to use a gofer to choose the group(s) to deploy
+#    * We might want to use a gofer to choose the nbhood(s) to deploy in.
 #
 #-----------------------------------------------------------------------
 
-#-------------------------------------------------------------------
-# Tactic: DEPLOY
-
-tactic type define DEPLOY {g text1 int1 nlist reinforce once on_lock} actor {
+# FIRST, create the class.
+tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
     #-------------------------------------------------------------------
-    # tactic(i) subcommands
+    # Instance Variables
+
+    # Editable Parameters
+    variable g           ;# A FRC or ORG group
+    variable mode        ;# ALL or SOME
+    variable personnel   ;# Number of personnel.
+    variable reinforce   ;# Reinforce each week flag
+    variable nlist       ;# Neighborhoods to deploy in
+
+    # Other State Variables
     #
-    # See the tactic(i) man page for the signature and general
-    # description of each subcommand.
+    # These are cleared on update.
 
-    typemethod narrative {tdict} {
-        dict with tdict {}
+    variable last_tick       ;# Tick at which tactic last executed
 
-        if {$text1 eq "ALL"} {
-            set output "Deploy all of group $g's remaining personnel"
-        } else {
-            set output "Deploy $int1 of group $g's personnel"
-        }
+    # Transient data
+    #
+    # personnel    - Dictionary, troops by neighborhood.
+    # cost         - Amount of cash obligated
+    variable trans
 
-        if {[llength $nlist] == 1} {
-            append output " into neighborhood [lindex $nlist 0]"
-        } else {
-            append output " into neighborhoods [join $nlist {, }]"
-        }
+    #-------------------------------------------------------------------
+    # Constructor
 
-        if {$text1 eq "SOME"} {
-            if {$reinforce} {
-                append output " with reinforcement."
-            } else {
-                append output " without reinforcement."
-            }
-        } else {
-            append output "."
-        }
+    # constructor ?block_?
+    #
+    # block_  - The block that owns the tactic
+    #
+    # Creates a new tactic for the given block.
+
+    constructor {{block_ ""}} {
+        # Initialize as tactic bean.
+        next $block_
+
+        # Initialize state variables
+        set g              ""
+        set mode           ALL
+        set personnel      0
+        set reinforce      0
+        set nlist          [list]
+        set last_tick      ""
+
+        # Initial state is invalid (no g, nlist)
+        my set state invalid
+
+        # Initialize transient data
+        set trans(personnel) 0
+        set trans(cost)      0.0
     }
 
-    typemethod dollars {tdict} {
-        dict with tdict {
-            rdb eval {
-                SELECT cost FROM agroups WHERE g=$g
-            } {
-                if {$text1 eq "SOME"} {
-                    return [moneyfmt [expr {$cost * $int1}]]
-                } elseif {$cost == 0.0} {
-                    return [moneyfmt 0.0]
-                }
-            }
-        
-            # If the mode is "ALL" and the $cost is not zero, we
-            # don't know what the total cost will be; and if 
-            # g no longer exists, we don't know what the cost per
-            # person is anyway.  So mark it unknown.
+    #-------------------------------------------------------------------
+    # Operations
 
-            return "?"
+    method SanityCheck {errdict} {
+        # Check g
+        if {$g eq ""} {
+            dict set errdict g "No group selected."
+        } elseif {$g ni [group ownedby [my agent]]} {
+            dict set errdict g \
+                "Force/organization group \"$g\" is not owned by [my agent]."
         }
-    }
 
-    typemethod check {tdict} {
-        set errors [list]
+        # Check nlist
+        if {[llength $nlist] == 0} {
+            dict set errdict nlist \
+                "No neighborhood(s) specified."
+        } else {
+            set nbhoods [nbhood names]
 
-        dict with tdict {
-            # nlist
+            set badn [list]
             foreach n $nlist {
-                if {$n ni [nbhood names]} {
-                    lappend errors "Neighborhood $n no longer exists."
-                }
+                if {$n ni $nbhoods} {
+                    lappend badn $n
+                } 
             }
 
-            # g
-            if {$g ni [ptype fog names]} {
-                lappend errors "Force/organization group $g no longer exists."
-            } else {
-                rdb eval {SELECT a FROM agroups WHERE g=$g} {}
-
-                if {$a ne $owner} {
-                    lappend errors \
-                        "Force/organization group $g is no longer owned by actor $owner."
-                }
+            if {[llength $badn] > 0} {
+                dict set errdict nlist \
+                    "Non-existent neighborhood(s): [join $badn {, }]"
             }
         }
 
-        return [join $errors "  "]
+        return [next $errdict]
     }
 
-    typemethod execute {tdict} {
-        dict with tdict {}
+    method narrative {} {
+        if {$g eq ""} {
+            set s(g) "???"
+        } else {
+            set s(g) $g
+        }
 
+        if {[llength $nlist] == 0} {
+            set s(nlist) " ???"
+        } elseif {[llength $nlist] == 1} {
+            set s(nlist) " [lindex $nlist 0]"
+        } else {
+            set s(nlist) "s [join $nlist {, }]"
+        }
+
+        if {$mode eq "ALL"} {
+            append output \
+                "Deploy all of group $s(g)'s remaining personnel " \
+                "into neighborhood$s(nlist)."
+        } else {
+            if {$reinforce} {
+                set s(reinforce) "with"
+            } else {
+                set s(reinforce) "without"
+            }
+
+            append output \
+                "Deploy $personnel of group $s(g)'s remaining personnel " \
+                "into neighborhood$s(nlist) "                             \
+                "$s(reinforce) reinforcement."
+        }
+
+        return $output
+    }
+
+    # obligate coffer
+    #
+    # coffer  - A coffer object with the owning agent's current
+    #           resources
+    #
+    # Obligates the personnel and cash required for the deployment.
+
+    method obligate {coffer} {
+        # FIRST, compute deployment; this will populate trans(personnel)
+        switch -exact -- $mode {
+            ALL {
+                set totalTroops [my ObligateALL $coffer] 
+            }
+
+            SOME {
+                set totalTroops [my ObligateSOME $coffer]
+            }
+
+            default {
+                error "Invalid mode: \"$mode\""
+            }
+        }
+
+        # NEXT, if none got deployed, we're done.
+        if {[strategy ontick] && $totalTroops == 0} {
+            return 0
+        }
+
+        # NEXT, obligate the troops
+        dict for {n ntroops} $trans(personnel) {
+            $coffer deploy $g $n $ntroops
+        }
+
+        # NEXT, save and obligate the cost.  Note that we chose the
+        # total within our budget, so there's enough money.
+        set trans(cost) [expr {[group maintPerPerson $g] * $totalTroops}]
+
+        $coffer spend $trans(cost)
+
+        return 1
+
+    }
+
+    # ObligateALL coffer
+    #
+    # coffer   - The agent's coffer of resources
+    #
+    # When mode is ALL, figures out how many troops can actually be
+    # deployed, and allocates them to neighborhoods.  Returns the 
+    # number of troops deployed, or 0 if no troops can be deployed.
+
+    method ObligateALL {coffer} {
         # FIRST, retrieve relevant data.
-        set available    [personnel available $g]
-        set cash_on_hand [cash get $owner cash_on_hand]
+        set available     [$coffer troops $g undeployed]
+        set cash          [$coffer cash]
+        set costPerPerson [group maintPerPerson $g]
 
-        set costPerPerson [rdb onecolumn {
-            SELECT cost FROM agroups WHERE g=$g
-        }]
+        # NEXT, How many troops can we afford? All of them if we
+        # are locking or they are free.
+        if {[strategy locking] || $costPerPerson == 0.0} {
+            set troops $available
+        } else {
+            let maxTroops {double($cash)/$costPerPerson}
+
+            # troops needs to be an integer.  int() truncates to
+            # machine integer, not a bignum.  round() rounds to
+            # a bignum; but we want to truncate.  Hence, 
+            # round(floor(x)).
+            let troops {round(floor(min($available,$maxTroops)))}
+        }
+
+        # NEXT, if there are no troops left, we're done.
+        if {[strategy ontick] && $troops == 0} {
+            return 0
+        }
+
+        # NEXT, allocate troops to neighborhoods.
+        set trans(personnel) [my AllocateTroops $troops]
+
+        return $troops
+    }
+
+    # AllocateTroops troops
+    #
+    # troops    - The number of troops to deploy
+    #
+    # Allocates the troops to the nlist, and returns the resulting
+    # dictionary.
+
+    method AllocateTroops {troops} {
+        set deployment [dict create]
+        set num        [llength $nlist]
+        let each       {$troops / $num}
+        let remainder  {$troops % $num}
+
+        set count 0
+        foreach n $nlist {
+            set ntroops $each
+
+            if {[incr count] <= $remainder} {
+                incr ntroops
+            }
+
+            dict set deployment $n $ntroops
+        }
+
+        return $deployment
+    }
+
+    # ObligateSOME coffer
+    #
+    # coffer   - The agent's coffer of resources
+    #
+    # When mode is SOME, figures out how many troops can actually be
+    # deployed (taking the reinforcement flag and past history into
+    # account) and allocates them to neighborhoods.  Returns the 
+    # number of troops deployed, or 0 if no troops can be deployed.
+
+    method ObligateSOME {coffer} {
+        # FIRST, retrieve relevant data.
+        set tactic_id     [my id]
+        set available     [$coffer troops $g undeployed]
+        set cash          [$coffer cash]
 
         # NEXT, determine if we need to take past deployments into 
         # account.  If we are deploying all remaining, or we are 
         # reinforcing, or if the tactic has not yet executed, we don't.
         #
-        # NOTE: exec_ts is cleared by [mutate update].  If they edit
+        # NOTE: last_tick is cleared by the update mutator.  If they edit
         # the tactic after it's executed, it's like it is a new
         # tactic.
-        
-        if {$text1 eq "ALL" || $reinforce || $exec_ts eq ""} {
-            set alreadyDeployed 0
-        } else {
-            rdb eval {
-                SELECT count(*)                        AS alreadyDeployed,
-                       coalesce(sum(personnel), $int1) AS int1
-                       FROM working_deploy_tng
-                       WHERE tactic_id = $tactic_id
-            } {}
-        }
 
-
-        # NEXT, if they want ALL personnel, we'll take as many as
-        # we can afford.  If they want SOME, we'll take the 
-        # requested amount, *if* we can afford it.
-        if {$text1 eq "ALL"} {
-            # FIRST, how many troops can we afford? All of them if we
-            # are locking or they are free.
-            if {[strategy locking] || $costPerPerson == 0.0} {
-                set int1 $available
+        if {[strategy ontick]} {
+            if {$reinforce       || 
+                $last_tick eq "" || 
+                $last_tick < [simclock now] - 1
+            } {
+                # This is a new deployment, or we are reinforcing.
+                set alreadyDeployed 0
+                set troops $personnel
             } else {
-                let maxTroops {double($cash_on_hand)/$costPerPerson}
-
-                # int1 needs to be an integer.  int() truncates to
-                # machine integer, not a bignum.  round() rounds to
-                # a bignum; but we want to truncate.  Hence, 
-                # round(floor(x)).
-                let int1 {round(floor(min($available,$maxTroops)))}
+                # This is an old deployment, and we are not reinforcing.
+                # See how many we actually have.
+                # TBD: What should happen if we get down to zero?  Should
+                # we continue "successfully" deploying 0?
+                rdb eval {
+                    SELECT count(*)                             AS alreadyDeployed,
+                           coalesce(sum(personnel), $personnel) AS troops
+                           FROM working_deploy_tng
+                           WHERE tactic_id = $tactic_id
+                } {}
             }
 
-            # NEXT, if there are no troops left, we're done.
-            if {$int1 == 0} {
+            # NEXT, If there are insufficient troops or insufficent funds
+            # available, we're done.
+            if {$troops > $available} {
+                return 0
+            }
+
+            if {$troops * [group maintPerPerson $g] > $cash} {
                 return 0
             }
         } else {
-            # FIRST, we're only deploying SOME.  If there are 
-            # insufficient troops available, we're done.
-            if {$int1 > $available} {
-                return 0
-            }
+            # On lock, it's a new deployment and they get what they want.
+            set alreadyDeployed 0
+            set troops $personnel
         }
 
-        # NEXT, Pay the maintenance cost, if we can.
-        let cost {$costPerPerson * $int1}
-
-        if {![cash spend $owner DEPLOY $cost]} {
-            return 0
-        }
-
-        # NEXT, determine the deployment to each neighborhood.
+        # NEXT, allocate troops to neighborhoods.
         if {$alreadyDeployed} {
-            array set byNbhood [rdb eval {
+            # We're not reinforcing; use the remains of the old deployment.
+            set trans(personnel) [rdb eval {
                 SELECT n, personnel 
                 FROM working_deploy_tng
                 WHERE tactic_id=$tactic_id
             }]
         } else {
-            set num       [llength $nlist]
-            let each      {$int1 / $num}
-            let remainder {$int1 % $num}
-
-            set count 0
-            foreach n $nlist {
-                set troops $each
-
-                if {[incr count] <= $remainder} {
-                    incr troops
-                }
-
-                set byNbhood($n) $troops
-            }
+            set trans(personnel) [my AllocateTroops $troops]
         }
+
+        return $troops
+    }
+
+
+    method execute {} {
+        # FIRST, Pay the maintenance cost.
+        cash spend [my agent] DEPLOY $trans(cost)
 
         # NEXT, deploy the troops to those neighborhoods.
-        foreach n $nlist {
-            set troops $byNbhood($n)
-
-            personnel deploy $tactic_id $n $g $troops
+        dict for {n ntroops} $trans(personnel) {
+            personnel deploy [my id] $n $g $ntroops
 
             sigevent log 2 tactic "
-                DEPLOY: Actor {actor:$owner} deploys $troops {group:$g} 
+                DEPLOY: Actor {actor:[my agent]} deploys $ntroops {group:$g} 
                 personnel to {nbhood:$n}
-            " $owner $n $g
+            " [my agent] $n $g
         }
-
-        return 1
     }
+
+    #-------------------------------------------------------------------
+    # Event Handlers
+
+    # onUpdate_
+    #
+    # On update, clear the "last_tick".
+
+    method onUpdate_ {} {
+        my set last_tick ""
+
+        next ;# Do notifications
+    }
+    
 }
 
-# TACTIC:DEPLOY:CREATE
+#-----------------------------------------------------------------------
+# TACTIC:* orders
+
+# TACTIC:DEPLOY:UPDATE
 #
-# Creates a new DEPLOY tactic.
+# Updates existing DEPLOY tactic.
 
-order define TACTIC:DEPLOY:CREATE {
-    title "Create Tactic: Deploy Forces"
-
+order define TACTIC:DEPLOY:UPDATE {
+    title "Update Tactic: Deploy Personnel"
     options -sendstates {PREP PAUSED}
 
     form {
-        rcc "Owner:" -for owner
-        text owner -context yes
+        rcc "Tactic ID:" -for tactic_id
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
         rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
+        enum g -listcmd {tactic groupsOwnedByAgent $tactic_id}
 
-        rcc "Mode:" -for text1
-        selector text1 {
+        rcc "Mode:" -for mode
+        selector mode {
             case SOME "Deploy some of the group's personnel" {
-                rcc "Personnel:" -for int1
-                text int1
+                rcc "Personnel:" -for personnel
+                text personnel
 
                 rcc "Reinforce?" -for reinforce
                 yesno reinforce -defvalue 0
@@ -253,140 +388,44 @@ order define TACTIC:DEPLOY:CREATE {
 
         rcc "In Neighborhoods:" -for nlist
         nlist nlist
-
-        rcc "Once Only?" -for once
-        yesno once -defvalue 0
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock -defvalue 1
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner     -toupper   -required -type   actor
-    prepare g         -toupper   -required -type   {ptype fog}
-    prepare text1     -toupper   -required -selector
-    prepare int1      -num                 -type   ipositive
-    prepare nlist     -toupper   -required -listof nbhood
-    prepare reinforce                      -type   boolean
-    prepare priority  -tolower             -type   ePrioSched
-    prepare once                           -type   boolean
-    prepare on_lock                        -type   boolean
-
-    returnOnError
-
-    # NEXT, cross-checks
-
-    # text1 vs int1
-    if {$parms(text1) eq "SOME" && $parms(int1) eq ""} {
-        reject int1 "Required value when mode is SOME."
-    }
-
-    # g vs owner
-    set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-    if {$a ne $parms(owner)} {
-        reject g "Group $parms(g) is not owned by actor $parms(owner)."
-    }
-
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) DEPLOY
-
-    # And make sure we have a reinforce flag.
-    if {$parms(reinforce) eq ""} {
-        set parms(reinforce) 0
-    }
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
-}
-
-# TACTIC:DEPLOY:UPDATE
-#
-# Updates existing DEPLOY tactic.
-
-order define TACTIC:DEPLOY:UPDATE {
-    title "Update Tactic: Deploy Forces"
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_DEPLOY -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
-
-        rcc "Owner" -for owner
-        disp owner
-
-        rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
-
-        rcc "Mode:" -for text1
-        selector text1 {
-            case SOME "Deploy some of the group's personnel" {
-                rcc "Personnel:" -for int1
-                text int1
-
-                rcc "Reinforce?" -for reinforce
-                yesno reinforce
-            }
-
-            case ALL "Deploy all of the group's remaining personnel" {}
-        }
-
-        rcc "In Neighborhoods:" -for nlist
-        nlist nlist
-
-        rcc "Once Only?" -for once
-        yesno once
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -type   tactic
-    prepare g          -toupper  -type   {ptype fog}
-    prepare text1      -toupper  -selector
-    prepare int1       -num      -type   ipositive
+    prepare tactic_id  -required -oneof [tactic::DEPLOY ids]
+    returnOnError
+
+    # NEXT, get the tactic
+    set tactic [tactic get $parms(tactic_id)]
+
+    prepare g                    -oneof [group ownedby [$tactic agent]]
+    prepare mode       -toupper  -selector
+    prepare personnel  -num      -type ipositive
+    prepare reinforce            -type boolean
     prepare nlist      -toupper  -listof nbhood
-    prepare reinforce            -type   boolean
-    prepare once                 -type   boolean
-    prepare on_lock              -type   boolean
 
     returnOnError
 
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType DEPLOY $parms(tactic_id) }
+    # NEXT, do the cross checks
+    fillparms parms [$tactic view]
 
-    returnOnError
-
-    # NEXT, cross-checks
-    tactic delta parms
-    
-    validate g {
-        set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-        if {$a ne $parms(owner)} {
-            reject g "Group $parms(g) is not owned by actor $parms(owner)."
-        }
-    }
-
-    # If text1 is now SOME, then int1 must be defined, either by
-    # this order or in the RDB.
-    if {$parms(text1) eq "SOME"} {
-        if {$parms(int1) eq ""} {
-            reject int1 "Required value when mode is SOME."
-        }
+    if {$parms(mode) eq "SOME" && $parms(personnel) == 0} {
+        reject personnel "Positive personnel required when mode is SOME"
     }
 
     returnOnError -final
 
-    # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    # NEXT, update the tactic, saving the undo script, and clearing
+    # historical state data.
+
+    set undo [$tactic update_ {
+        g mode personnel reinforce nlist
+    } [array get parms]]
+
+    # NEXT, save the undo script
+    setundo $undo
 }
+
+
+
 
 

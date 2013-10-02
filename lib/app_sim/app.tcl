@@ -234,7 +234,7 @@ snit::type app {
         nbhood    init
         sim       init
         axdb      init
-        strategyx init
+        strategy  init
 
         coverage_model init
 

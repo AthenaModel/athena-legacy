@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    tacticx.tcl
+#    tactic.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -13,7 +13,7 @@
 #-----------------------------------------------------------------------
 
 # FIRST, create the class.
-tacticx define SIGEVENT "Log Significant Event" {system actor} {
+tactic define SIGEVENT "Log Significant Event" {system actor} {
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -58,13 +58,13 @@ tacticx define SIGEVENT "Log Significant Event" {system actor} {
 }
 
 #-----------------------------------------------------------------------
-# TACTICX:* orders
+# TACTIC:* orders
 
-# TACTICX:SIGEVENT:UPDATE
+# TACTIC:SIGEVENT:UPDATE
 #
 # Updates the tactic's parameters
 
-order define TACTICX:SIGEVENT:UPDATE {
+order define TACTIC:SIGEVENT:UPDATE {
     title "Update SIGEVENT Tactic"
 
     options -sendstates {PREP PAUSED}
@@ -79,13 +79,15 @@ order define TACTICX:SIGEVENT:UPDATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id -required -oneof [tacticx::SIGEVENT ids]
+    prepare tactic_id -required -oneof [tactic::SIGEVENT ids]
     prepare msg       -required 
     returnOnError -final
 
-    set tactic [tacticx get $parms(tactic_id)]
+    set tactic [tactic get $parms(tactic_id)]
 
     # NEXT, update the block
     setundo [$tactic update_ {msg} [array get parms]]
 }
+
+
 

@@ -6,33 +6,60 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): SPEND(mode,amount,goods,pop,black,region,world) tactic
+#    athena_sim(1): Mark II Tactic, SPEND
 #
-#    This module implements the SPEND tactic, which spends a sum
-#    of money on things not explicitly modeled in Athena.  The money
-#    goes to the five non-actor sectors as indicated by shares set
-#    by the analyst.
+#    A SPEND tactic spends cash-on-hand to particular economic sectors.
 #
 #-----------------------------------------------------------------------
 
-#-------------------------------------------------------------------
-# Tactic: SPEND
-
-tactic type define SPEND {
-    mode amount goods black pop region world once on_lock
-} actor {
+# FIRST, create the class.
+tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
     #-------------------------------------------------------------------
-    # Public Methods
+    # Instance Variables
 
+    variable mode    ;# ALL or SOME
+    variable amount  ;# Amount of money if mode is SOME
+    variable goods   ;# Integer # of shares going to goods sector
+    variable black   ;# Integer # of shares going to black sector
+    variable pop     ;# Integer # of shares going to pop sector
+    variable region  ;# Integer # of shares going to region sector
+    variable world   ;# Integer # of shares going to world sector
+
+    # Transient Data
+    variable trans
+
+    
     #-------------------------------------------------------------------
-    # tactic(i) subcommands
+    # Constructor
+
+    # constructor ?block_?
     #
-    # See the tactic(i) man page for the signature and general
-    # description of each subcommand.
+    # block_  - The block that owns the tactic
+    #
+    # Creates a new tactic for the given block.
+    #
+    # TBD: What should initial shares be?
 
-    typemethod narrative {tdict} {
-        dict with tdict {}
-        
+    constructor {{block_ ""}} {
+        next $block_
+        set mode   ALL
+        set amount 0.0
+        set goods  1
+        set black  1
+        set pop    1
+        set region 1
+        set world  1
+
+        set trans(amount) 0.0
+    }
+
+    #-------------------------------------------------------------------
+    # Operations
+
+    # No special SanityCheck is required, unless we default to 
+    # all-zero shares.
+
+    method narrative {} {
         if {$mode eq "ALL"} {
             set text "Spend all remaining cash-on-hand "
         } else {
@@ -40,59 +67,64 @@ tactic type define SPEND {
         }
         
         append text "according to the following profile: "
-        append text [getPercentages $tdict]
+        append text [my GetPercentages]
         
         return $text
     }
 
-    typemethod dollars {tdict} {
-        dict with tdict {}
-        if {$mode eq "SOME"} {
-            return [moneyfmt $amount]
-        } else {
-            return "?"
-        }
-    }
+    # obligate coffer
+    #
+    # coffer  - A coffer object with the owning agent's current
+    #           resources
+    #
+    # Obligates the money to be spent.
 
-    typemethod execute {tdict} {
-        dict with tdict {}
-            
+    method obligate {coffer} {
         # FIRST, retrieve relevant data.
-        set cash_on_hand [cash get $owner cash_on_hand]
+        let cash_on_hand [$coffer cash]
         
         # NEXT, do we have it?
         if {$mode eq "ALL"} {
-            # NEXT, cash on hand can be negative if we are locking
-            # this simply keeps a negative number from being 
-            # reported in the sigevent log
-            set amount [expr {max(0.0, $cash_on_hand)}]
-        } elseif {![strategy locking] && $amount > $cash_on_hand} {
-            return 0
-        }
-        
-        # NEXT, spend it.
-        cash spendon $owner $amount [getProfile $tdict]
+            set trans(amount) $cash_on_hand
+        } else {
+            # mode is SOME.
 
-        sigevent log 2 tactic "
-            SPEND: Actor {actor:$owner} spends $amount
-            on [getPercentages $tdict]
-        " $owner 
+            # Except on-lock, we have to have the funds on hand.
+            if {[strategy ontick]} {
+                if {$amount > $cash_on_hand} {
+                    return 0
+                }
+            }    
+
+            set trans(amount) $amount
+        }
+
+        # NEXT, obligate it.
+        $coffer spend $trans(amount)
 
         return 1
+
     }
 
-    #-----------------------------------------------------------------
+    method execute {} {
+        cash spendon [my agent] $trans(amount) [my GetProfile]
+
+        sigevent log 2 tactic "
+            SPEND: Actor {actor:[my agent]} spends $trans(amount)
+            on [my GetPercentages]
+        " [my agent]
+    }
+
+    #-------------------------------------------------------------------
     # Helpers
-    
-    # getPercentages tdict
-    #
-    # tdict - An unpacked tactic dictionary
+
+    # GetPercentages 
     #
     # Turns the shares into percentages and returns a string
     # showing them.
     
-    proc getPercentages {tdict} {
-        set fracs [getProfile $tdict]
+    method GetPercentages {} {
+        set fracs [my GetProfile]
        
         set profile [list]
         dict for {sector value} $fracs {
@@ -102,24 +134,22 @@ tactic type define SPEND {
         return [join $profile "; "]
     }
     
-    # getProfile tdict
-    #
-    # tdict - An unpacked tactic dictionary
+    # GetProfile
     #
     # Turns the shares into fractions and returns a dictionary
     # of the non-zero fractions by sector.
     
-    proc getProfile {tdict} {
+    method GetProfile {} {
         let total 0.0
         
         foreach sector {goods black pop region world} {
-            let total {$total + [dict get $tdict $sector]}
+            let total {$total + [set $sector]}
         }
         
         set result [dict create]
         
         foreach sector {goods black pop region world} {
-            set share [dict get $tdict $sector]
+            set share [set $sector]
             
             if {$share > 0.0} {
                 let fraction {$share/$total}
@@ -128,139 +158,26 @@ tactic type define SPEND {
         }
 
         return $result        
-    }
-    
-    # getTotalShares parmsVar
-    #
-    # parmsVar - name of the parms array.
-    #
-    # Ensures that all shares have a value (0, at least),
-    # and the total is positive: the money is going somewhere.
-    
-    typemethod getTotalShares {parmsVar} {
-        upvar 1 $parmsVar parms
-        
-        set total 0
-        foreach sector {goods black pop region world} {
-            if {$parms($sector) eq ""} {
-                set parms($sector) 0
-            }
-            
-            let total {$total + $parms($sector)}
-        }
-        
-        return $total
-    }
+    }    
 }
 
-# TACTIC:SPEND:CREATE
-#
-# Creates a new SPEND tactic.
-
-order define TACTIC:SPEND:CREATE {
-    title "Create Tactic: Spend Money"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Owner:" -for owner
-        text owner -context yes
-
-        rcc "Mode:" -for text1
-        selector mode {
-            case SOME "Spend some cash-on-hand" {
-                rcc "Amount:" -for amount
-                text amount
-            }
-
-            case ALL "Spend all remaining cash-on-hand" {}
-        }
-        
-        rcc "Goods:" -for goods
-        text goods -defvalue 0
-        label "share(s)"        
-
-        rcc "Black:" -for black
-        text black -defvalue 0
-        label "share(s)"        
-
-        rcc "Pop:" -for pop
-        text pop -defvalue 0
-        label "share(s)"        
-
-        rcc "Region:" -for region
-        text region -defvalue 0
-        label "share(s)"        
-
-        rcc "World:" -for world
-        text world -defvalue 0
-        label "share(s)"        
-
-        rcc "Once Only?" -for once
-        yesno once -defvalue 0
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock -defvalue 1
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type actor
-    prepare mode     -toupper   -required -selector
-    prepare amount   -toupper             -type money
-    prepare goods    -num                 -type iquantity
-    prepare black    -num                 -type iquantity
-    prepare pop      -num                 -type iquantity
-    prepare region   -num                 -type iquantity
-    prepare world    -num                 -type iquantity
-    prepare once                          -type boolean
-    prepare on_lock                       -type boolean
-    prepare priority -tolower             -type ePrioSched
-
-    returnOnError
-
-    # NEXT, cross-checks
-
-    # Amount is required when mode is "SOME"
-    if {$parms(mode) eq "SOME" && $parms(amount) eq ""} {
-        reject amount "Required value when mode is SOME."
-    }
-
-    # At least one sector must get a positive share
-    set total [tactic::SPEND getTotalShares parms]
-    
-    if {$total == 0} {
-        reject goods "At least one sector must have a positive share."
-    }
-
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) SPEND
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
-}
+#-----------------------------------------------------------------------
+# TACTIC:* orders
 
 # TACTIC:SPEND:UPDATE
 #
 # Updates existing SPEND tactic.
 
 order define TACTIC:SPEND:UPDATE {
-    title "Update Tactic: Deploy Forces"
+    title "Update Tactic: Spend Money"
     options -sendstates {PREP PAUSED}
 
     form {
         rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_SPEND -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
-        rcc "Owner" -for owner
-        disp owner
-
-        rcc "Mode:" -for text1
+        rcc "Mode:" -for mode
         selector mode {
             case SOME "Spend some cash-on-hand" {
                 rcc "Amount:" -for amount
@@ -289,16 +206,10 @@ order define TACTIC:SPEND:UPDATE {
         rcc "World:" -for world
         text world
         label "share(s)"        
-        
-        rcc "Once Only?" -for once
-        yesno once
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -type tactic
+    prepare tactic_id  -required -oneof [tactic::SPEND ids]
     prepare mode       -toupper  -selector
     prepare amount     -toupper  -type money
     prepare goods      -num      -type iquantity
@@ -306,26 +217,25 @@ order define TACTIC:SPEND:UPDATE {
     prepare pop        -num      -type iquantity
     prepare region     -num      -type iquantity
     prepare world      -num      -type iquantity
-    prepare once                 -type boolean
-    prepare on_lock              -type boolean
 
     returnOnError
 
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType SPEND $parms(tactic_id) }
+    # NEXT, get the tactic
+    set tactic [tactic get $parms(tactic_id)]
 
-    returnOnError
+    # NEXT, check cross-constraints
+    fillparms parms [$tactic view]
 
-    # NEXT, cross-checks
-    tactic delta parms
-    
     # Amount is required when mode is "SOME"
-    if {$parms(mode) eq "SOME" && $parms(amount) eq ""} {
+    if {$parms(mode) eq "SOME" && $parms(amount) == 0.0} {
         reject amount "Required value when mode is SOME."
     }
 
     # At least one sector must get a positive share
-    set total [tactic::SPEND getTotalShares parms]
+    let total {
+        $parms(goods) + $parms(black) + $parms(pop) + $parms(region) + 
+        $parms(world)
+    }
     
     if {$total == 0} {
         reject goods "At least one sector must have a positive share."
@@ -333,8 +243,16 @@ order define TACTIC:SPEND:UPDATE {
 
     returnOnError -final
 
+    # NEXT, update the tactic, saving the undo script
+    set undo [$tactic update_ {
+        mode amount goods black pop region world
+    } [array get parms]]
+
     # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    setundo $undo
 }
+
+
+
 
 

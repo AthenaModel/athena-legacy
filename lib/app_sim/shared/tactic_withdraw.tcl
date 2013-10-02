@@ -6,109 +6,105 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): WITHDRAW(amount) tactic
+#    athena_sim(1): Mark II Tactic, WITHDRAW
 #
-# This module defines the WITHDRAW tactic, which allows an actor to
-# withdraw a sum of money from his cash reserve.   The reserve is allowed to
-# be negative; thus, WITHDRAW allows the actor to "borrow" money
-# (though from whom is unclear).
+#    A WITHDRAW tactic transfers money from cash-reserver to cash-on-hand.
 #
 #-----------------------------------------------------------------------
 
+# FIRST, create the class.
+tactic define WITHDRAW "Withdraw Money" {actor} {
+    #-------------------------------------------------------------------
+    # Instance Variables
 
-#-----------------------------------------------------------------------
-# Tactic: WITHDRAW
+    variable amount  ;# Amount of money to withdraw
 
-tactic type define WITHDRAW {amount} actor {
-    typemethod narrative {tdict} {
-        dict with tdict {}
+    #-------------------------------------------------------------------
+    # Constructor
+
+    # constructor ?block_?
+    #
+    # block_  - The block that owns the tactic
+    #
+    # Creates a new tactic for the given block.
+
+    constructor {{block_ ""}} {
+        next $block_
+        set amount 0.0
+    }
+
+    #-------------------------------------------------------------------
+    # Operations
+
+    # No special SanityCheck is required.
+
+    method narrative {} {
         return "Withdraw \$[moneyfmt $amount] from the cash reserve."
     }
 
-    typemethod execute {tdict} {
-        dict with tdict {}
-        
-        cash withdraw $owner $amount
+    # obligate coffer
+    #
+    # coffer  - A coffer object with the owning agent's current
+    #           resources
+    #
+    # Obligates the money to be withdrawn.  Note that cash_reserve is
+    # allowed to go negative.
+    #
+    # NOTE: WITHDRAW never executes on lock.
 
-        sigevent log 2 tactic "
-            WITHDRAW: $owner transfers \$[moneyfmt $amount] 
-            from reserve to cash-on-hand.
-        " $owner
+    method obligate {coffer} {
+        assert {[strategy ontick]}
+
+        $coffer withdraw $amount
 
         return 1
     }
-}
 
-# TACTIC:WITHDRAW:CREATE
-#
-# Creates a new WITHDRAW tactic.
+    method execute {} {
+        cash withdraw [my agent] $amount
 
-order define TACTIC:WITHDRAW:CREATE {
-    title "Create Tactic: Spend Money"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Owner:" -for owner
-        text owner -context yes
-
-        rcc "Amount:" -for amount
-        text amount 
-        label "dollars"
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
+        sigevent log 2 tactic "
+            WITHDRAW: [my agent] withdraws \$[moneyfmt $amount] from reserve.
+        " [my agent]
     }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type actor
-    prepare amount   -toupper   -required -type money
-    prepare priority -tolower             -type ePrioSched
-
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parm dict
-    set parms(tactic_type) WITHDRAW
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
 }
+
+#-----------------------------------------------------------------------
+# TACTIC:* orders
 
 # TACTIC:WITHDRAW:UPDATE
 #
 # Updates existing WITHDRAW tactic.
 
 order define TACTIC:WITHDRAW:UPDATE {
-    title "Update Tactic: Spend Money"
+    title "Update Tactic: Withdraw Money"
     options -sendstates {PREP PAUSED}
 
     form {
         rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_WITHDRAW -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
-        rcc "Owner" -for owner
-        disp owner
-
-        rcc "Amount:"
+        rcc "Amount:" -for amount
         text amount
-        label "dollars"
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id        -required -type tactic
-    prepare amount    -toupper -required -type money
-
-    returnOnError
-
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType WITHDRAW $parms(tactic_id)  }
+    prepare tactic_id  -required           -oneof [tactic::WITHDRAW ids]
+    prepare amount     -required -toupper  -type money
 
     returnOnError -final
 
+    # NEXT, get the tactic
+    set tactic [tactic get $parms(tactic_id)]
+
+    # NEXT, update the tactic, saving the undo script
+    set undo [$tactic update_ {amount} [array get parms]]
+
     # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    setundo $undo
 }
+
 
 
 

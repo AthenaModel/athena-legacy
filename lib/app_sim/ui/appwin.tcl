@@ -106,27 +106,19 @@ snit::widget appwin {
             script  { mapviewer %W -width 600 -height 400 }
         }
 
-        strategy {
+        strategyt {
             label   "Strategy"
             vistype *
             parent  ""
             script  ""
         }
 
-        strategy_new {
-            label   "New"
+        strategy {
+            label   "Editor"
             vistype *
-            parent  strategy
-            script  { strategyxbrowser %W }
-        }
-
-        strategy_old {
-            label   "Old"
-            vistype *
-            parent  strategy
+            parent  strategyt
             script  { strategybrowser %W }
         }
-
 
         nbhoodst {
             label   "Neighborhoods"
@@ -2346,5 +2338,6 @@ snit::widget appwin {
     }
 
 }
+
 
 

@@ -6,285 +6,241 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): ASSIGN(g,n,activity,personnel) tactic
+#    athena_sim(1): Mark II Tactic, ASSIGN
 #
-#    This module implements the ASSIGN tactic, which assigns 
-#    deployed personnel to do an abstract activity in a neighborhood.
-#    The troops remain as assigned until the next strategy tock.
+#    An ASSIGN tactic assigns deployed force or organization personnel
+#    to perform particular activities in a neighborhood.
 #
-# PARAMETER MAPPING:
-#
-#    g       <= g
-#    n       <= n
-#    text1   <= activity; list depends on whether g is FRC or ORG
-#    int1    <= personnel
-#    on_lock <= on_lock
-#    once    <= once
+# TBD:
+#    * We might want to use a gofer to choose the group to assign
+#    * We might want to use a gofer to choose the nbhood to assign it in.
+#    * We might want to use a gofer to choose the number of people to deploy.
 #
 #-----------------------------------------------------------------------
 
-#-------------------------------------------------------------------
-# Tactic: ASSIGN
-
-tactic type define ASSIGN {g n text1 int1 once on_lock} actor {
+# FIRST, create the class.
+tactic define ASSIGN "Assign Personnel" {actor} -onlock {
     #-------------------------------------------------------------------
-    # Public Methods
+    # Instance Variables
+
+    # Editable Parameters
+    variable g           ;# A FRC or ORG group
+    variable n           ;# The neighborhood in which g is deployed.
+    variable activity    ;# The activity to assign them to do.
+    variable personnel   ;# Number of personnel.
+
+    # Transient Arrays
+    variable trans
 
     #-------------------------------------------------------------------
-    # tactic(i) subcommands
+    # Constructor
+
+    # constructor ?block_?
     #
-    # See the tactic(i) man page for the signature and general
-    # description of each subcommand.
-
-    typemethod narrative {tdict} {
-        dict with tdict {
-            return "In $n, assign $int1 $g personnel to do $text1."
-        }
-    }
-
-    typemethod dollars {tdict} {
-        return [moneyfmt [$type ComputeCost $tdict]]
-    }
-
-    # ComputeCost tdict
+    # block_  - The block that owns the tactic
     #
-    # Computes the actual cost of this tactic: the number of personnel,
-    # times the cost of having one person of this group doing this
-    # activity for one strategy tock.
+    # Creates a new tactic for the given block.
 
-    typemethod ComputeCost {tdict} {
-        dict with tdict {
-            set gtype [group gtype $g]
-            set costPerTroop [parm get activity.$gtype.$text1.cost]
-            let cost {$costPerTroop * $int1}
+    constructor {{block_ ""}} {
+        # Initialize as tactic bean.
+        next $block_
 
-            return $cost
-        }
+        # Initialize state variables
+        set g              ""
+        set n              ""
+        set activity       ""
+        set personnel      0
+
+        # Initial state is invalid (no g, n, activity)
+        my set state invalid
+
+        # Transient data
+        set trans(cost) 0.0
     }
 
-    typemethod check {tdict} {
-        set errors [list]
+    #-------------------------------------------------------------------
+    # Operations
 
-        dict with tdict {
-            # n
-            if {$n ni [nbhood names]} {
-                lappend errors "Neighborhood $n no longer exists."
-            }
-
-            # g
-            if {$g ni [ptype fog names]} {
-                lappend errors "Force/organization group $g no longer exists."
-            } else {
-                rdb eval {SELECT a FROM agroups WHERE g=$g} {}
-
-                if {$a ne $owner} {
-                    lappend errors \
-                        "Force/organization group $g is no longer owned by actor $owner."
-                }
-            }
+    method SanityCheck {errdict} {
+        # Check g
+        if {$g eq ""} {
+            dict set errdict g "No group selected."
+        } elseif {$g ni [group ownedby [my agent]]} {
+            dict set errdict g \
+                "Force/organization group \"$g\" is not owned by [my agent]."
         }
 
-        return [join $errors "  "]
+        # Check n
+        if {[llength $n] == 0} {
+            dict set errdict n \
+                "No neighborhood selected."
+        } elseif {$n ni [nbhood names]} {
+            dict set errdict n \
+                "Non-existent neighborhood: $n"
+        }
+
+        # Check activity
+        if {$activity eq ""} {
+            dict set errdict activity "No activity selected."
+        } elseif {[catch {activity check $g $activity}]} {
+            dict set errdict activity \
+                "Invalid activity for selected group: \"$activity\"" 
+        }
+
+        return [next $errdict]
     }
 
-    typemethod execute {tdict} {
-        # FIRST, compute the cost of this tactic.
-        set cost [$type ComputeCost $tdict]
+    method narrative {} {
+        let s(g)        {$g        ne "" ? $g        : "???"}
+        let s(n)        {$n        ne "" ? $n        : "???"}
+        let s(activity) {$activity ne "" ? $activity : "???"}
 
-        dict with tdict {
-            # FIRST, retrieve relevant data.
-            set unassigned [personnel unassigned $n $g]
+        return "In $s(n), assign $personnel $s(g) personnel to do $s(activity)."
+    }
 
-            # NEXT, are there enough people available?
-            if {$int1 > $unassigned} {
+    # obligate coffer
+    #
+    # coffer  - A coffer object with the owning agent's current
+    #           resources
+    #
+    # Obligates the personnel and cash required for the assignment.
+
+    method obligate {coffer} {
+        # FIRST, compute the cost.
+        set trans(cost) [my AssignmentCost]
+
+        # NEXT, obligate the resources on tick
+        if {[strategy ontick]} {
+            # FIRST, are there enough people available?
+            if {$personnel > [$coffer troops $g $n]} {
                 return 0
             }
 
-            # NEXT, can we afford it? We can always afford it on scenario
-            # lock.
-            if {![cash spend $owner ASSIGN $cost]} {
+            # NEXT, can we afford to assign them?
+            if {$trans(cost) > [$coffer cash]} {
                 return 0
             }
-
-            # NEXT, assign them.
-            personnel assign $tactic_id $g $n $text1 $int1
-
-            sigevent log 2 tactic "
-                ASSIGN: Actor {actor:$owner} assigns
-                $int1 {group:$g} personnel to $text1
-                in {nbhood:$n} 
-            " $owner $n $g
         }
+
+        # NEXT, obligate the resources
+        $coffer spend $trans(cost)
+        $coffer assign $g $n $personnel
 
         return 1
     }
 
+    # AssignmentCost
+    #
+    # Assuming that the state is normal, returns the cost of the assignment.
+
+    method AssignmentCost {} {
+        set gtype [group gtype $g]
+        set costPerTroop [parm get activity.$gtype.$activity.cost]
+        let cost {$costPerTroop * $personnel}
+
+        return $cost
+    }
+
+    method execute {} {
+        # FIRST, Pay the maintenance cost and assign the troops.
+        cash spend [my agent] ASSIGN $trans(cost)
+        personnel assign [my id] $g $n $activity $personnel
+
+        sigevent log 2 tactic "
+            ASSIGN: Actor {actor:[my agent]} assigns $personnel {group:$g} 
+            personnel to $activity in {nbhood:$n}
+        " [my agent] $n $g
+
+    }
+
     #-------------------------------------------------------------------
     # Order Helpers
-
-    # ActivitiesFor g
+    
+    # activitiesFor g
     #
     # g  - A force or organization group
     #
     # Returns a list of the valid activities for this group.
 
-    typemethod ActivitiesFor {g} {
+    typemethod activitiesFor {g} {
         if {$g ne ""} {
             set gtype [string tolower [group gtype $g]]
-            return [::activity $gtype names]
-        } else {
-            return ""
+            if {$gtype ne ""} {
+                return [::activity $gtype names]
+            }
         }
+
+        return ""
     }
+
 }
 
-# TACTIC:ASSIGN:CREATE
-#
-# Creates a new ASSIGN tactic.
-
-order define TACTIC:ASSIGN:CREATE {
-    title "Create Tactic: Assign Activity"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "Owner:" -for owner
-        text owner -context yes
-
-        rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
-
-        rcc "Neighborhood:" -for n
-        nbhood n
-
-        rcc "Activity:" -for n
-        enum text1 -listcmd {tactic::ASSIGN ActivitiesFor $g}
-
-        rcc "Personnel:" -for int1
-        text int1
-
-        rcc "Once Only?" -for once
-        yesno once -defvalue 0
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock -defvalue 1
-
-        rcc "Priority:" -for priority
-        enumlong priority -dictcmd {ePrioSched deflist} -defvalue bottom
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare owner    -toupper   -required -type actor
-    prepare g        -toupper   -required -type {ptype fog}
-    prepare n        -toupper   -required -type nbhood
-    prepare text1    -toupper   -required -type {activity asched}
-    prepare int1     -num       -required -type ipositive
-    prepare once                -required -type boolean
-    prepare on_lock             -required -type boolean
-    prepare priority -tolower             -type ePrioSched
-
-    returnOnError
-
-    # NEXT, cross-checks
-
-    # g vs owner
-    set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-    if {$a ne $parms(owner)} {
-        reject g "Group $parms(g) is not owned by actor $parms(owner)."
-    }
-
-    # g and text1 are consistent
-    validate text1 {
-        activity check $parms(g) $parms(text1)
-    }
-    
-    returnOnError -final
-
-    # NEXT, put tactic_type in the parmdict
-    set parms(tactic_type) ASSIGN
-
-    # NEXT, create the tactic
-    setundo [tactic mutate create [array get parms]]
-}
+#-----------------------------------------------------------------------
+# TACTIC:* orders
 
 # TACTIC:ASSIGN:UPDATE
 #
 # Updates existing ASSIGN tactic.
 
 order define TACTIC:ASSIGN:UPDATE {
-    title "Update Tactic: Assign Activity"
+    title "Update Tactic: Assign Personnel"
     options -sendstates {PREP PAUSED}
 
     form {
         rcc "Tactic ID" -for tactic_id
-        key tactic_id -context yes -table tactics_ASSIGN -keys tactic_id \
-            -loadcmd {orderdialog keyload tactic_id *}
-
-        rcc "Owner" -for owner
-        disp owner
+        text tactic_id -context yes \
+            -loadcmd {beanload}
 
         rcc "Group:" -for g
-        enum g -listcmd {group ownedby $owner}
+        enum g -listcmd {tactic groupsOwnedByAgent $tactic_id}
 
         rcc "Neighborhood:" -for n
         nbhood n
 
-        rcc "Activity:" -for n
-        enum text1 -listcmd {tactic::ASSIGN ActivitiesFor $g}
+        rcc "Activity:" -for activity
+        enum activity -listcmd {tactic::ASSIGN activitiesFor $g}
 
-        rcc "Personnel:" -for int1
-        text int1
-
-        rcc "Once Only?" -for once
-        yesno once
-
-        rcc "Exec On Lock?" -for on_lock
-        yesno on_lock
+        rcc "Personnel:" -for personnel
+        text personnel
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -type tactic
-    prepare g          -toupper  -type {ptype fog}
-    prepare n          -toupper  -type nbhood
-    prepare text1      -toupper  -type {activity asched}
-    prepare int1       -num      -type ipositive
-    prepare once                 -type boolean
-    prepare on_lock              -type boolean
-
+    prepare tactic_id  -required -oneof [tactic::ASSIGN ids]
     returnOnError
 
-    # NEXT, make sure this is the right kind of tactic
-    validate tactic_id { tactic RequireType ASSIGN $parms(tactic_id) }
+    # NEXT, get the tactic
+    set tactic [tactic get $parms(tactic_id)]
 
+    prepare g                   -oneof [group ownedby [$tactic agent]]
+    prepare n         -toupper  -type nbhood
+    prepare activity  -toupper  -type {activity asched}
+    prepare personnel -num      -type ipositive
+ 
     returnOnError
 
-    # NEXT, cross-checks
-    tactic delta parms
-    
-    validate g {
-        set owner [rdb onecolumn {
-            SELECT owner FROM tactics WHERE tactic_id = $parms(tactic_id)
-        }]
+    # NEXT, do the cross checks
+    fillparms parms [$tactic view]
 
-        set a [rdb onecolumn {SELECT a FROM agroups WHERE g=$parms(g)}]
-
-        if {$a ne $owner} {
-            reject g "Group $parms(g) is not owned by actor $owner."
-        }
+    if {$parms(activity) ni [tactic::ASSIGN activitiesFor $parms(g)]} {
+        reject activity \
+            "Invalid activity for group $parms(g): \"$parms(activity)\""
     }
 
-    returnOnError
-
-    # g and text1 are consistent
-    validate text1 {
-        activity check $parms(g) $parms(text1)
+    if {$parms(personnel) == 0} {
+        reject personnel "Personnel must be positive"
     }
-    
+
     returnOnError -final
 
-    # NEXT, modify the tactic
-    setundo [tactic mutate update [array get parms]]
+    # NEXT, update the tactic, saving the undo script, and clearing
+    # historical state data.
+    set undo [$tactic update_ {g n activity personnel} [array get parms]]
+
+    # NEXT, save the undo script
+    setundo $undo
 }
+
+
+
 
 

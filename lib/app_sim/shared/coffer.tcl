@@ -166,7 +166,7 @@ oo::class create coffer {
     # the cash be available.
 
     method spend {amount} {
-        if {[strategyx ontick]} {
+        if {[strategy ontick]} {
             require {$amount <= $cash} "insufficient cash"
         }
 
@@ -183,7 +183,7 @@ oo::class create coffer {
     # cash-reserve.
 
     method deposit {amount} {
-        assert {[strategyx ontick]}
+        assert {[strategy ontick]}
 
         my spend $amount
         let reserve {$reserve + $amount}
@@ -198,7 +198,7 @@ oo::class create coffer {
     # negative.
 
     method withdraw {amount} {
-        assert {[strategyx ontick]}
+        assert {[strategy ontick]}
 
         let cash {$cash + $amount}
         let reserve {$reserve - $amount}
@@ -213,7 +213,7 @@ oo::class create coffer {
     # undeployed personnel.
 
     method demobilize {g personnel} {
-        assert {[strategyx ontick]}
+        assert {[strategy ontick]}
 
         set undeployed [my troops $g undeployed]
         require {$personnel <= $undeployed} "insufficient personnel"
@@ -231,7 +231,7 @@ oo::class create coffer {
     # undeployed personnel.
 
     method mobilize {g personnel} {
-        assert {[strategyx ontick]}
+        assert {[strategy ontick]}
 
         set undeployed [my troops $g undeployed]
 
@@ -251,7 +251,7 @@ oo::class create coffer {
         set undeployed [my troops $g undeployed]
         set deployed   [my troops $g $n]
 
-        if {[strategyx ontick]} {
+        if {[strategy ontick]} {
             require {$personnel <= $undeployed} "insufficient personnel"
         }
 
@@ -277,7 +277,7 @@ oo::class create coffer {
     method assign {g n personnel} {
         set unassigned [my troops $g $n]
 
-        if {[strategyx ontick]} {
+        if {[strategy ontick]} {
             require {$personnel <= $unassigned} "insufficient personnel"
         }
 
@@ -286,3 +286,4 @@ oo::class create coffer {
     }
 
 }
+
