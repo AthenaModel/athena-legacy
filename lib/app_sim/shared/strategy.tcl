@@ -531,20 +531,23 @@ order define STRATEGY:BLOCK:DELETE {
     options -sendstates {PREP PAUSED}
 
     form {
-        rcc "Block ID:" -for block_id
-        text block_id -context yes
+        text ids -context yes
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare block_id -required -oneof [block ids]
+    prepare ids -required -someof [block ids]
 
     returnOnError -final
 
-    # NEXT, delete the block
-    set block [block get $parms(block_id)]
-    set s [$block strategy]
-
-    setundo [$s deleteblock_ $parms(block_id)]
+    # NEXT, delete the block(s)
+    set undo [list]
+    foreach bid $parms(ids) {
+        set block [block get $bid]
+        set s [$block strategy]
+        lappend undo [$s deleteblock_ $bid]
+    }
+    
+    setundo [join [lreverse $undo] "\n"]
 }
 
 # STRATEGY:BLOCK:MOVE

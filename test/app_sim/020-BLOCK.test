@@ -363,9 +363,10 @@ namespace eval ::athena_test::tests:: {
     proc btd_setup {} {
         variable B1
         variable T1
+        variable T2
         setup
-        ted order BLOCK:TACTIC:ADD block_id [$B1 id] typename SIGEVENT
-        lassign [$B1 tactics] T1
+        set T1 [ted addtactic $B1 SIGEVENT]
+        set T2 [ted addtactic $B1 DEPLOY]
     }
 
     test BLOCK:TACTIC:DELETE-1.1 {required parameters} -setup {
@@ -375,50 +376,73 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        tactic_id {required value}
+        ids {required value}
     }
 
     test BLOCK:TACTIC:DELETE-1.2 {unknown tactic_id} -setup {
         setup
     } -body {
-        ted order -reject BLOCK:TACTIC:DELETE tactic_id NONESUCH
+        ted order -reject BLOCK:TACTIC:DELETE ids NONESUCH
     } -cleanup {
         cleanup
     } -match glob -result {
-        tactic_id {invalid value "NONESUCH", should be one of:*}
+        ids {invalid value "NONESUCH", should be one of:*}
     }
 
-    test BLOCK:TACTIC:DELETE-2.1 {deleted} -setup {
+    test BLOCK:TACTIC:DELETE-2.1 {one deleted} -setup {
         btd_setup
     } -body {
-        ted order BLOCK:TACTIC:DELETE tactic_id [$T1 id]
+        ted order BLOCK:TACTIC:DELETE ids [$T1 id]
+
+        $B1 tactics
+    } -cleanup {
+        cleanup
+    } -match glob -result {::bean::DEPLOY*}
+
+    test BLOCK:TACTIC:DELETE-2.2 {two deleted} -setup {
+        btd_setup
+    } -body {
+        ted order BLOCK:TACTIC:DELETE ids [list [$T1 id] [$T2 id]]
 
         $B1 tactics
     } -cleanup {
         cleanup
     } -result {}
 
-    test BLOCK:TACTIC:DELETE-2.2 {notifier event} -setup {
+    test BLOCK:TACTIC:DELETE-2.3 {notifier event} -setup {
         btd_setup
     } -body {
         ted notifier bind ::block <tactics>
-        ted order BLOCK:TACTIC:DELETE tactic_id [$T1 id]
+        ted order BLOCK:TACTIC:DELETE ids [$T1 id]
         ted notifier received
     } -cleanup {
         cleanup
     } -match glob -result {*{::block <tactics> *}*}
 
-    test BLOCK:TACTIC:DELETE-2.3 {undo notifier event} -setup {
+    test BLOCK:TACTIC:DELETE-2.4 {undoes all deletions} -setup {
         btd_setup
-        ted order BLOCK:TACTIC:DELETE tactic_id [$T1 id]
+        ted order BLOCK:TACTIC:DELETE ids [list [$T1 id] [$T2 id]]
+    } -body {
+        cif undo -test
+        $B1 tactics
+    } -cleanup {
+        cleanup
+    } -match glob -result {::bean::SIGEVENT* ::bean::DEPLOY*}
+ 
+    test BLOCK:TACTIC:DELETE-2.5 {undo notifier event} -setup {
+        btd_setup
+        ted order BLOCK:TACTIC:DELETE ids [list [$T1 id] [$T2 id]]
     } -body {
         ted notifier bind ::block <tactics>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
-    } -match glob -result {*{::block <tactics> *}*}
- 
+    } -match glob -result {
+        {::block <tactics> add * *}
+        {::block <tactics> add * *}
+    }
+
     #-------------------------------------------------------------------
     # BLOCK:TACTIC:MOVE
 
@@ -566,9 +590,10 @@ namespace eval ::athena_test::tests:: {
     proc bcd_setup {} {
         variable B1
         variable C1
+        variable C2
         setup
-        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename MOOD
-        lassign [$B1 conditions] C1
+        set C1 [ted addcondition $B1 MOOD]
+        set C2 [ted addcondition $B1 NBMOOD]
     }
 
     test BLOCK:CONDITION:DELETE-1.1 {required parameters} -setup {
@@ -578,49 +603,75 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        condition_id {required value}
+        ids {required value}
     }
 
-    test BLOCK:CONDITION:DELETE-1.2 {unknown condition_id} -setup {
+    test BLOCK:CONDITION:DELETE-1.2 {unknown ids} -setup {
         setup
     } -body {
-        ted order -reject BLOCK:CONDITION:DELETE condition_id NONESUCH
+        ted order -reject BLOCK:CONDITION:DELETE ids NONESUCH
     } -cleanup {
         cleanup
     } -match glob -result {
-        condition_id {invalid value "NONESUCH", should be one of:*}
+        ids {invalid value "NONESUCH", should be one of:*}
     }
 
-    test BLOCK:CONDITION:DELETE-2.1 {deleted} -setup {
+    test BLOCK:CONDITION:DELETE-2.1 {one deleted} -setup {
         bcd_setup
     } -body {
-        ted order BLOCK:CONDITION:DELETE condition_id [$C1 id]
+        ted order BLOCK:CONDITION:DELETE ids [$C1 id]
 
         $B1 conditions
     } -cleanup {
         cleanup
-    } -result {}
+    } -match glob -result {::bean::NBMOOD*}
 
-    test BLOCK:CONDITION:DELETE-2.2 {notifier event} -setup {
+    test BLOCK:CONDITION:DELETE-2.2 {two deleted} -setup {
+        bcd_setup
+    } -body {
+        ted order BLOCK:CONDITION:DELETE ids [list [$C1 id] [$C2 id]]
+
+        $B1 conditions
+    } -cleanup {
+        cleanup
+    } -match glob -result {}
+
+    test BLOCK:CONDITION:DELETE-2.3 {notifier event} -setup {
         bcd_setup
     } -body {
         ted notifier bind ::block <conditions>
-        ted order BLOCK:CONDITION:DELETE condition_id [$C1 id]
+        ted order BLOCK:CONDITION:DELETE ids [list [$C1 id] [$C2 id]]
         ted notifier received
     } -cleanup {
         cleanup
-    } -match glob -result {*{::block <conditions> *}*}
+    } -match glob -result {
+        {::block <conditions> delete * *}
+        {::block <conditions> delete * *}
+    }
 
-    test BLOCK:CONDITION:DELETE-2.3 {undo notifier event} -setup {
+    test BLOCK:CONDITION:DELETE-2.4 {undone} -setup {
         bcd_setup
-        ted order BLOCK:CONDITION:DELETE condition_id [$C1 id]
+        ted order BLOCK:CONDITION:DELETE ids [list [$C1 id] [$C2 id]]
+    } -body {
+        cif undo -test
+        $B1 conditions
+    } -cleanup {
+        cleanup
+    } -match glob -result {::bean::MOOD* ::bean::NBMOOD*}
+
+    test BLOCK:CONDITION:DELETE-2.5 {undo notifier event} -setup {
+        bcd_setup
+        ted order BLOCK:CONDITION:DELETE ids [list [$C1 id] [$C2 id]]
     } -body {
         ted notifier bind ::block <conditions>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
-    } -match glob -result {*{::block <conditions> *}*}
+    } -match glob -result {
+        {::block <conditions> add * *}
+        {::block <conditions> add * *}
+    }
  
 
     #-------------------------------------------------------------------

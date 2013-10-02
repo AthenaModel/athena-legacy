@@ -957,29 +957,32 @@ order define BLOCK:TACTIC:ADD {
 
 # BLOCK:TACTIC:DELETE
 #
-# Deletes a tactic from a block. 
+# Deletes a tactic or tactics from a block. 
 #
 # The order dialog is not generally used.
 
 order define BLOCK:TACTIC:DELETE {
-    title "Delete Tactic from Block"
+    title "Delete Tactic(s) from Block"
 
     options -sendstates {PREP PAUSED}
 
     form {
-        rcc "Tactic ID:" -for tactic_id
-        text tactic_id
+        text ids
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id   -required -oneof [tactic ids]
+    prepare ids   -required -someof [tactic ids]
     returnOnError -final
 
-    # NEXT, delete the tactic
-    set tactic [tactic get $parms(tactic_id)]
-    set block [$tactic block]
+    # NEXT, delete the tactics
+    set undo [list]
+    foreach tid $parms(ids) {
+        set tactic [tactic get $tid]
+        set block [$tactic block]
+        lappend undo [$block deletetactic_ $tid]
+    }
     
-    setundo [$block deletetactic_ $parms(tactic_id)]
+    setundo [join [lreverse $undo] "\n"]
 }
 
 # BLOCK:TACTIC:MOVE
@@ -1061,20 +1064,21 @@ order define BLOCK:CONDITION:DELETE {
     options -sendstates {PREP PAUSED}
 
     form {
-        rcc "Condition ID:" -for condition_id
-        text condition_id
+        text ids
     }
 } {
-    # FIRST, prepare and validate the parameters
-    prepare condition_id   -required -oneof [condition ids]
-
+    prepare ids   -required -someof [condition ids]
     returnOnError -final
 
-    # NEXT, delete the condition
-    set cond [condition get $parms(condition_id)]
-    set block [$cond block]
+    # NEXT, delete the conditions
+    set undo [list]
+    foreach tid $parms(ids) {
+        set condition [condition get $tid]
+        set block [$condition block]
+        lappend undo [$block deletecondition_ $tid]
+    }
     
-    setundo [$block deletecondition_ $parms(condition_id)]
+    setundo [join [lreverse $undo] "\n"]
 }
 
 

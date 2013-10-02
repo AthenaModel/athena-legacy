@@ -756,7 +756,7 @@ snit::widget strategybrowser {
 
         cond::simPP_predicate control $bl_deletebtn              \
             browser $win                                         \
-            predicate {blist single}
+            predicate {blist multi}
             
         pack $bl_bar.title  -side left
         pack $bl_addbtn     -side left
@@ -889,14 +889,10 @@ snit::widget strategybrowser {
     # BListDelete
     #
     # Called when the BList's delete button is pressed.
-    # Deletes the selected block.
+    # Deletes the selected block(s).
 
     method BListDelete {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$blist uid curselection] 0]
-
-        # NEXT, delete it.
-        order send gui STRATEGY:BLOCK:DELETE block_id $id
+        order send gui STRATEGY:BLOCK:DELETE ids [$blist uid curselection]
     }
 
     #-------------------------------------------------------------------
@@ -1090,7 +1086,7 @@ snit::widget strategybrowser {
 
         cond::simPP_predicate control $ct_deletebtn              \
             browser $win                                         \
-            predicate {ctab single}
+            predicate {ctab multi}
             
         pack $ct_bar.title  -side left
         pack $ct_bar.cmode  -side left -padx 2
@@ -1212,14 +1208,11 @@ snit::widget strategybrowser {
     # CTabDelete
     #
     # Called when the CTab's delete button is pressed.
-    # Deletes the selected condition.
+    # Deletes the selected condition(s).
 
     method CTabDelete {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$ctab uid curselection] 0]
-
-        # NEXT, delete it.
-        order send gui BLOCK:CONDITION:DELETE condition_id $id
+        # FIRST, delete all selected conditions.
+        order send gui BLOCK:CONDITION:DELETE ids [$ctab uid curselection]
     }
 
     #-------------------------------------------------------------------
@@ -1351,7 +1344,7 @@ snit::widget strategybrowser {
 
         cond::simPP_predicate control $tt_deletebtn              \
             browser $win                                         \
-            predicate {ttab single}
+            predicate {ttab multi}
             
         pack $tt_bar.title  -side left
         pack $tt_emode      -side left -padx 2
@@ -1502,11 +1495,8 @@ snit::widget strategybrowser {
     # Deletes the selected tactic.
 
     method TTabDelete {} {
-        # FIRST, there should be only one selected.
-        set id [lindex [$ttab uid curselection] 0]
-
-        # NEXT, delete it.
-        order send gui BLOCK:TACTIC:DELETE tactic_id $id
+        # FIRST, delete all selected tactics.
+        order send gui BLOCK:TACTIC:DELETE ids [$ttab uid curselection]
     }
 
     #-------------------------------------------------------------------
@@ -1565,6 +1555,15 @@ snit::widget strategybrowser {
         expr {[llength [$blist curselection]] == 1}
     }
 
+    # blist multi
+    #
+    # Returns 1 if at least one item is selected in the BList, and 0 
+    # otherwise.
+    
+    method {blist multi} {} {
+        expr {[llength [$blist curselection]] > 0}
+    }
+
     # gotblock
     #
     # Returns 1 if a block's data is loaded, and 0 
@@ -1583,6 +1582,15 @@ snit::widget strategybrowser {
         expr {[llength [$ctab curselection]] == 1}
     }
 
+    # ctab multi
+    #
+    # Returns 1 if at least one item is selected in the CTab, and 0 
+    # otherwise.
+    
+    method {ctab multi} {} {
+        expr {[llength [$ctab curselection]] > 0}
+    }
+
     # ttab single
     #
     # Returns 1 if a single item is selected in the TTab, and 0 
@@ -1590,6 +1598,15 @@ snit::widget strategybrowser {
     
     method {ttab single} {} {
         expr {[llength [$ttab curselection]] == 1}
+    }
+
+    # ttab multi
+    #
+    # Returns 1 if at least one item is selected in the TTab, and 0 
+    # otherwise.
+    
+    method {ttab multi} {} {
+        expr {[llength [$ttab curselection]] > 0}
     }
 
     #-------------------------------------------------------------------

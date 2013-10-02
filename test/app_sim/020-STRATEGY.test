@@ -101,54 +101,83 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        block_id {required value}
+        ids {required value}
     }
 
-    test BLOCK:DELETE-1.2 {unknown block_id} -setup {
+    test BLOCK:DELETE-1.2 {unknown ids} -setup {
         setup
     } -body {
-        ted order -reject STRATEGY:BLOCK:DELETE block_id NONESUCH
+        ted order -reject STRATEGY:BLOCK:DELETE ids NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        block_id {invalid value "NONESUCH", should be one of:}
+        ids {invalid value "NONESUCH", should be one of:}
     }
 
-    test BLOCK:DELETE-2.1 {block deleted} -setup {
+    test BLOCK:DELETE-2.1 {one block deleted} -setup {
         setup
-        ted order STRATEGY:BLOCK:ADD agent SYSTEM
-        set B1 [lindex [$S1 blocks] end]
+        set B1 [ted addblock SYSTEM]
+        set B2 [ted addblock SYSTEM]
     } -body {
-        ted order STRATEGY:BLOCK:DELETE block_id [$B1 id]
+        ted order STRATEGY:BLOCK:DELETE ids [$B1 id]
+        expr {[$S1 blocks] eq $B2}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test BLOCK:DELETE-2.2 {two blocks deleted} -setup {
+        setup
+        set B1 [ted addblock SYSTEM]
+        set B2 [ted addblock SYSTEM]
+    } -body {
+        ted order STRATEGY:BLOCK:DELETE ids [list [$B1 id] [$B2 id]]
         $S1 blocks
     } -cleanup {
         cleanup
     } -result {}
 
-    test BLOCK:DELETE-2.2 {notifier event} -setup {
+    test BLOCK:DELETE-2.3 {notifier event} -setup {
         setup
-        ted order STRATEGY:BLOCK:ADD agent SYSTEM
-        set B1 [lindex [$S1 blocks] end]
+        set B1 [ted addblock SYSTEM]
+        set B2 [ted addblock SYSTEM]
     } -body {
-        ted notifier bind ::projectlib::bean <Monitor>
-        ted order STRATEGY:BLOCK:DELETE block_id [$B1 id]
+        ted notifier bind ::strategy <blocks>
+        ted order STRATEGY:BLOCK:DELETE ids [list [$B1 id] [$B2 id]]
         ted notifier received
     } -cleanup {
         cleanup
-    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+    } -match glob -result {
+        {::strategy <blocks> delete * *}
+        {::strategy <blocks> delete * *}
+    }
 
-    test BLOCK:DELETE-2.3 {undo notifier event} -setup {
+    test BLOCK:DELETE-2.4 {undoes deletion} -setup {
         setup
-        ted order STRATEGY:BLOCK:ADD agent SYSTEM
-        set B1 [lindex [$S1 blocks] end]
-        ted order STRATEGY:BLOCK:DELETE block_id [$B1 id]
+        set B1 [ted addblock SYSTEM]
+        set B2 [ted addblock SYSTEM]
+        ted order STRATEGY:BLOCK:DELETE ids [list [$B1 id] [$B2 id]]
     } -body {
-        ted notifier bind ::projectlib::bean <Monitor>
+        cif undo -test
+        llength [$S1 blocks]
+    } -cleanup {
+        cleanup
+    } -result {2}
+
+    test BLOCK:DELETE-2.5 {undo notifier event} -setup {
+        setup
+        set B1 [ted addblock SYSTEM]
+        set B2 [ted addblock SYSTEM]
+        ted order STRATEGY:BLOCK:DELETE ids [list [$B1 id] [$B2 id]]
+    } -body {
+        ted notifier bind ::strategy <blocks>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
-    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+    } -match glob -result {
+        {::strategy <blocks> add * *}
+        {::strategy <blocks> add * *}
+    }
 
     #-------------------------------------------------------------------
     # STRATEGY:BLOCK:MOVE
