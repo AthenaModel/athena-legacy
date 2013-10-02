@@ -46,6 +46,27 @@ oo::objdefine strategy {
         set locking 0
     }
 
+    # rebase
+    #
+    # Mark blocks "onlock" if they executed at the last tick.
+    # Clear block and tactic execution data.
+
+    method rebase {} {
+        foreach a [agent names] {
+            set s [strategy getname $a]
+
+            foreach block [$s blocks] {
+                if {[$block execstatus] eq "SUCCESS"} {
+                    $block set onlock 1
+                } else {
+                    $block set onlock 0
+                }
+
+                $block reset
+            }
+        }
+    }
+
     #-------------------------------------------------------------------
     # Strategy Execution
 

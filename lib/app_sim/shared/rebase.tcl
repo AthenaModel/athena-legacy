@@ -63,7 +63,7 @@ snit::type rebase {
         # FIRST, do the tricky modules.
         econ rebase
         ensit rebase
-        tactic rebase
+        strategy rebase
 
         # NEXT, rebase the other scenario tables.
         RebaseCivgroups

@@ -307,6 +307,18 @@ oo::define tactic {
     }
 
     #-------------------------------------------------------------------
+    # Tactic Reset
+
+    # reset
+    #
+    # Resets the execution status of the tactic.
+
+    method reset {} {
+        my set execstatus NONE
+    }
+    
+
+    #-------------------------------------------------------------------
     # Views
 
     # view ?view?

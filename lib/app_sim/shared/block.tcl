@@ -36,7 +36,6 @@ beanclass create block {
     variable execstatus ;# eexecstatus value: result of last execution attempt
     variable exectime   ;# Sim time at which the block last executed, or ""
 
-
     #-------------------------------------------------------------------
     # Constructor/Destructor
 
@@ -214,6 +213,23 @@ beanclass create block {
         }
         return $result
     }
+
+    #-------------------------------------------------------------------
+    # Block Reset
+
+    # reset
+    #
+    # Resets the execution status of the block and its tactics.
+
+    method reset {} {
+        my set execstatus NONE
+        my set exectime   ""
+
+        foreach tactic $tactics {
+            $tactic reset
+        }
+    }
+    
 
     #-------------------------------------------------------------------
     # Views
