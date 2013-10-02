@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx_deploy.test
+#    010-tactic_deploy.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx_deploy(sim) tests.
+#    tactic_deploy(sim) tests.
 #
-#    This test suite tests the tacticx_deploy(sim) class.
+#    This test suite tests the tactic_deploy(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -38,9 +38,8 @@ namespace eval ::athena_test::tests:: {
         set coffer [coffer new JOE]
 
 
-        strategy::JOE addblock_
-        set block [lindex [strategy::JOE blocks] end]
-        set T1 [tacticx::DEPLOY new $block]
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 DEPLOY]
     }
 
     # Clean up after a test
@@ -452,7 +451,7 @@ namespace eval ::athena_test::tests:: {
         $coffer spend [$coffer cash]
         $coffer withdraw 99
 
-        strategyx locking 1
+        strategy locking 1
     } -body {
         set a [$coffer troops BLUE undeployed]
         set b [$T1 obligate $coffer]
@@ -473,7 +472,7 @@ namespace eval ::athena_test::tests:: {
 
         $coffer demobilize BLUE [$coffer troops BLUE undeployed]
 
-        strategyx locking 1
+        strategy locking 1
     } -body {
         set a [$T1 obligate $coffer]
         set b [$coffer troops BLUE undeployed]
@@ -495,7 +494,7 @@ namespace eval ::athena_test::tests:: {
         $coffer spend [$coffer cash]
         $coffer withdraw 99
 
-        strategyx locking 1
+        strategy locking 1
     } -body {
         set a [$coffer troops BLUE undeployed]
         set b [$T1 obligate $coffer]
@@ -516,7 +515,7 @@ namespace eval ::athena_test::tests:: {
         $T1 set personnel 5001
         $T1 set reinforce 0
 
-        strategyx locking 1
+        strategy locking 1
     } -body {
         set a [$coffer troops BLUE undeployed]
         set b [$T1 obligate $coffer]
@@ -572,6 +571,8 @@ tactic_id n   g    personnel
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

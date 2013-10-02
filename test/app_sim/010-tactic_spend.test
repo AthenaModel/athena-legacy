@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx_spend.test
+#    010-tactic_spend.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx_spend(sim) tests.
+#    tactic_spend(sim) tests.
 #
-#    This test suite tests the tacticx_spend(sim) class.
+#    This test suite tests the tactic_spend(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -36,9 +36,8 @@ namespace eval ::athena_test::tests:: {
         set coffer [coffer new JOE]
 
 
-        strategy::JOE addblock_
-        set block [lindex [strategy::JOE blocks] end]
-        set T1 [tacticx::SPEND new $block]
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 SPEND]
     }
 
     # Clean up after a test
@@ -152,7 +151,7 @@ namespace eval ::athena_test::tests:: {
 
     test obligate-1.4 {insufficient cash on lock} -setup {
         setup
-        strategyx locking 1
+        strategy locking 1
     } -body {
         $T1 set mode SOME
         $T1 set amount 10001.0
@@ -167,7 +166,7 @@ namespace eval ::athena_test::tests:: {
 
     test obligate-1.4 {no cash on lock} -setup {
         setup
-        strategyx locking 1
+        strategy locking 1
     } -body {
         $T1 set mode SOME
         $T1 set amount 10001.0
@@ -203,6 +202,8 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

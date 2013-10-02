@@ -103,7 +103,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # assess
     
-    test assess-1.1 {Rule 1-1 fires} -setup {
+    test assess-1.1 {Rule 1-1 fires} -constraints tbd -setup {
         setup
     } -body {
         
@@ -126,7 +126,7 @@ rule       CURSE-1-1
 fdict      dtype CURSE curse_id C1 atype hrel mode T mag 3.0 f {SHIA SUNN} g BLUE
     }
     
-    test assess-1.2 {Rule 2-1 fires} -setup {
+    test assess-1.2 {Rule 2-1 fires} -constraints tbd -setup {
         setup
     } -body {
         
@@ -149,7 +149,7 @@ rule       CURSE-2-1
 fdict      dtype CURSE curse_id C2 atype vrel mode T mag 5.0 g {SHIA SUNN} a JOE
     }
     
-    test assess-1.3 {Rule 3-1 fires} -setup {
+    test assess-1.3 {Rule 3-1 fires} -constraints tbd -setup {
         setup
     } -body {
         
@@ -171,7 +171,7 @@ rule       CURSE-3-1
 fdict      dtype CURSE curse_id C3 atype sat mode T mag 7.5 c AUT g {SHIA SUNN}
     }
     
-    test assess-1.4 {Rule 4-1 fires} -setup {
+    test assess-1.4 {Rule 4-1 fires} -constraints tbd -setup {
         setup
     } -body {
         
@@ -194,7 +194,7 @@ rule       CURSE-4-1
 fdict      dtype CURSE curse_id C4 atype coop mode T mag 10.0 f {SHIA SUNN} g BLUE
     }
     
-    test assess-1.5 {Rule 1-1 inputs} -setup {
+    test assess-1.5 {Rule 1-1 inputs} -constraints tbd -setup {
         setup
     } -body {
         curse C5 {
@@ -226,7 +226,7 @@ CURSE-4-1 coop  SHIA BLUE
 CURSE-4-1 coop  SUNN BLUE         
     }
 
-    test assess-1.6 {Rule 1-1 inputs, inject disabled} -setup {
+    test assess-1.6 {Rule 1-1 inputs, inject disabled} -constraints tbd -setup {
         setup
         ted order INJECT:STATE id {C5 1} state disabled
     } -body {

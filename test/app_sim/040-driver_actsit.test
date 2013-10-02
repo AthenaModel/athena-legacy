@@ -61,11 +61,8 @@ namespace eval ::athena_test::tests:: {
         ted order HREL:OVERRIDE id {SUNN BLUE} base -1.0
         
         # NEXT, deploy BLUE and HAL troops to NB1, so we can assign them.
-        ted order TACTIC:DEPLOY:CREATE owner JOE g BLUE nlist NB1 text1 ALL \
-            on_lock 1 once 0
-    
-        ted order TACTIC:DEPLOY:CREATE owner JOE g HAL nlist NB1 text1 ALL \
-            on_lock 1 once 0
+        ted deploy NB1 BLUE all
+        ted deploy NB1 HAL all
     
         # NEXT, create an ensit on request.
         if {$ensit ne ""} {
@@ -82,8 +79,7 @@ namespace eval ::athena_test::tests:: {
     #
     # Assigns BLUE troops do an an activity in NB1.
     proc assign {a personnel} {
-        ted order TACTIC:ASSIGN:CREATE owner JOE g BLUE n NB1 \
-            text1 $a int1 $personnel on_lock 1 once 0
+        ted assign NB1 BLUE $a $personnel
         ted lock
     }
     
@@ -95,8 +91,8 @@ namespace eval ::athena_test::tests:: {
     # Assigns HAL troops do an an activity in NB1.
     
     proc orgassign {a personnel} {
-        ted order TACTIC:ASSIGN:CREATE owner JOE g HAL n NB1 \
-            text1 $a int1 $personnel on_lock 1 once 0
+        ted assign NB1 HAL $a $personnel
+
         # Set security requirement to N, so that we know the activity
         # will fire.
         parm set activity.ORG.$a.minSecurity.CTR N

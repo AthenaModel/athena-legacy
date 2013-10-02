@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-CONDITIONX-MOOD.test
+#    020-CONDITION-MOOD.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    CONDITIONX:MOOD:* Orders tests
+#    CONDITION:MOOD:* Orders tests
 #
 #-----------------------------------------------------------------------
 
@@ -46,62 +46,62 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # CONDITIONX:MOOD:UPDATE
+    # CONDITION:MOOD:UPDATE
 
-    test CONDITIONX:MOOD:UPDATE-1.1 {required parameters} -setup {
+    test CONDITION:MOOD:UPDATE-1.1 {required parameters} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:MOOD:UPDATE
+        ted order -reject CONDITION:MOOD:UPDATE
     } -cleanup {
         cleanup
     } -result {
         condition_id {required value}
     }
 
-    test CONDITIONX:MOOD:UPDATE-1.2 {unknown condition_id} -setup {
+    test CONDITION:MOOD:UPDATE-1.2 {unknown condition_id} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:MOOD:UPDATE condition_id NONESUCH
+        ted order -reject CONDITION:MOOD:UPDATE condition_id NONESUCH
     } -cleanup {
         cleanup
     } -match glob -result {
         condition_id {invalid value "NONESUCH", should be one of: *}
     }
 
-    test CONDITIONX:MOOD:UPDATE-1.3 {invalid g} -setup {
+    test CONDITION:MOOD:UPDATE-1.3 {invalid g} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:MOOD:UPDATE condition_id [$C1 id] g NONESUCH
+        ted order -reject CONDITION:MOOD:UPDATE condition_id [$C1 id] g NONESUCH
     } -cleanup {
         cleanup
     } -result {
         g {Invalid civilian group, should be one of: SHIA}
     }
 
-    test CONDITIONX:MOOD:UPDATE-1.4 {invalid comp} -setup {
+    test CONDITION:MOOD:UPDATE-1.4 {invalid comp} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:MOOD:UPDATE condition_id [$C1 id] comp NONESUCH
+        ted order -reject CONDITION:MOOD:UPDATE condition_id [$C1 id] comp NONESUCH
     } -cleanup {
         cleanup
     } -result {
         comp {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
     }
 
-    test CONDITIONX:MOOD:UPDATE-1.5 {invalid limit} -setup {
+    test CONDITION:MOOD:UPDATE-1.5 {invalid limit} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:MOOD:UPDATE condition_id [$C1 id] limit NONESUCH
+        ted order -reject CONDITION:MOOD:UPDATE condition_id [$C1 id] limit NONESUCH
     } -cleanup {
         cleanup
     } -result {
         limit {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test CONDITIONX:MOOD:UPDATE-2.1 {condition updated} -setup {
+    test CONDITION:MOOD:UPDATE-2.1 {condition updated} -setup {
         setup
     } -body {
-        ted order CONDITIONX:MOOD:UPDATE \
+        ted order CONDITION:MOOD:UPDATE \
             condition_id [$C1 id] \
             g            SHIA     \
             comp         gt       \
@@ -120,19 +120,19 @@ namespace eval ::athena_test::tests:: {
         g       SHIA
     }
 
-    test CONDITIONX:MOOD:UPDATE-2.2 {notifier event} -setup {
+    test CONDITION:MOOD:UPDATE-2.2 {notifier event} -setup {
         setup
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
-        ted order CONDITIONX:MOOD:UPDATE condition_id [$C1 id] g SHIA
+        ted order CONDITION:MOOD:UPDATE condition_id [$C1 id] g SHIA
         ted notifier received
     } -cleanup {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-    test CONDITIONX:MOOD:UPDATE-2.3 {undo notifier event} -setup {
+    test CONDITION:MOOD:UPDATE-2.3 {undo notifier event} -setup {
         setup
-        ted order CONDITIONX:MOOD:UPDATE condition_id [$C1 id] g SHIA
+        ted order CONDITION:MOOD:UPDATE condition_id [$C1 id] g SHIA
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test
@@ -149,6 +149,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

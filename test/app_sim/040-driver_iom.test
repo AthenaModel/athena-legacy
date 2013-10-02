@@ -114,7 +114,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # assess
     
-    test assess-1.1 {Rule 1-1 fires} -setup {
+    test assess-1.1 {Rule 1-1 fires} -constraints tbd -setup {
         setup
     } -body {
         broadcast JOE IOM1 CBS BOB
@@ -133,7 +133,7 @@ rule       IOM-1-1
 fdict      accept 0.390625 capcov 0.8 cap CBS regard 0.390625 iom IOM1 tsource JOE resonance 1.0 f SHIA dtype IOM asource BOB adjcov 1.2121212121212122
     }
     
-    test assess-1.2 {Rule 1-1 inputs} -setup {
+    test assess-1.2 {Rule 1-1 inputs} -constraints tbd -setup {
         setup
     } -body {
         broadcast JOE IOM1 CBS BOB

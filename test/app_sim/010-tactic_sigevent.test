@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx_sigevent.test
+#    010-tactic_sigevent.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx_sigevent(sim) tests.
+#    tactic_sigevent(sim) tests.
 #
-#    This test suite tests the tacticx_sigevent(sim) class.
+#    This test suite tests the tactic_sigevent(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -32,9 +32,8 @@ namespace eval ::athena_test::tests:: {
         variable T1
         ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
 
-        strategy::JOE addblock_
-        set block [lindex [strategy::JOE blocks] end]
-        set T1 [tacticx::SIGEVENT new $block]
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 SIGEVENT]
     }
 
     # Clean up after a test
@@ -127,6 +126,7 @@ event_id t level component narrative
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

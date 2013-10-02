@@ -70,8 +70,7 @@ namespace eval ::athena_test::tests:: {
         }
         
         # NEXT, deploy BLUE troops to NB1 
-        ted order TACTIC:DEPLOY:CREATE owner JOE g BLUE nlist NB1 text1 ALL \
-            on_lock 1 once 0
+        ted deploy NB1 BLUE all
         
         # NEXT, set up the troops to get the right transition.
         # If JOE has all of the troops in the neighborhood, he will take
@@ -84,10 +83,8 @@ namespace eval ::athena_test::tests:: {
         # JOE has 2000 BLUE, DAVE has 2000 BRIT, and BOB has 1000 TAL.
     
         if {$a eq "BOB" && $b eq ""} {
-            ted order TACTIC:DEPLOY:CREATE owner DAVE g BRIT nlist NB1 \
-                text1 ALL on_lock 1 once 0
-            ted order TACTIC:DEPLOY:CREATE owner BOB g TAL nlist NB1 \
-                text1 ALL on_lock 1 once 0
+            ted deploy NB1 BRIT all
+            ted deploy NB1 TAL all
         }
     }
     

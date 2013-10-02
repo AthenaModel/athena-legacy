@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx_executive.test
+#    010-tactic_executive.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx_executive(sim) tests.
+#    tactic_executive(sim) tests.
 #
-#    This test suite tests the tacticx_executive(sim) class.
+#    This test suite tests the tactic_executive(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -32,9 +32,8 @@ namespace eval ::athena_test::tests:: {
         variable T1
         ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
 
-        strategy::JOE addblock_
-        set block [lindex [strategy::JOE blocks] end]
-        set T1 [tacticx::EXECUTIVE new $block]
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 EXECUTIVE]
     }
 
     # Clean up after a test
@@ -136,6 +135,7 @@ event_id t level component narrative
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx_withdraw.test
+#    010-tactic_withdraw.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx_withdraw(sim) tests.
+#    tactic_withdraw(sim) tests.
 #
-#    This test suite tests the tacticx_withdraw(sim) class.
+#    This test suite tests the tactic_withdraw(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -36,9 +36,8 @@ namespace eval ::athena_test::tests:: {
         set coffer [coffer new JOE]
 
 
-        strategy::JOE addblock_
-        set block [lindex [strategy::JOE blocks] end]
-        set T1 [tacticx::WITHDRAW new $block]
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 WITHDRAW]
     }
 
     # Clean up after a test
@@ -155,6 +154,7 @@ JOE 199000.0     10000.0 11000.0      0.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

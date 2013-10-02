@@ -118,6 +118,20 @@ snit::type group {
         }]
     }
 
+    # owner g
+    #
+    # g   - A group
+    #
+    # Returns a list of the owner of the force or org group, or "" if none.
+
+    typemethod owner {g} {
+        return [rdb onecolumn {
+            SELECT a FROM agroups
+            WHERE g=$g
+        }]
+    }
+
+
     # maintPerPerson g
     #
     # g  - A group

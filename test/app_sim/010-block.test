@@ -47,20 +47,15 @@ namespace eval ::athena_test::tests:: {
             set coffer [coffer new JOE]
         }
 
-        # NEXT, add a block to the system's strategy
-        ::strategy::SYSTEM addblock_
-        set B1 [lindex [::strategy::SYSTEM blocks] 0]
-
-        # NEXT, add a block to JOE's strategy
-        ::strategy::JOE addblock_
-        set BJOE [lindex [::strategy::JOE blocks] 0]
-
+        # NEXT, add some blocks
+        set B1   [ted addblock SYSTEM]
+        set BJOE [ted addblock JOE]
     }
 
     # Clean up after a test
 
     proc cleanup {} {
-        strategyx locking 0
+        strategy locking 0
         ted cleanup
     }
 
@@ -464,7 +459,7 @@ namespace eval ::athena_test::tests:: {
         $B1 addcondition_ MOOD
         $B1 addcondition_ MOOD
 
-        set a [conditionx ids]
+        set a [condition ids]
         set b [$B1 condition_ids]
 
         expr {$a eq $b}
@@ -504,7 +499,7 @@ namespace eval ::athena_test::tests:: {
         $B1 addtactic_ SIGEVENT
         $B1 addtactic_ SIGEVENT
 
-        set a [tacticx ids]
+        set a [tactic ids]
         set b [$B1 tactic_ids]
 
         expr {$a eq $b}
@@ -845,7 +840,7 @@ namespace eval ::athena_test::tests:: {
  
     test execute-2.1 {SKIPPED on lock if onlock=0} -setup {
         setup -lock
-        strategyx locking 1
+        strategy locking 1
     } -body {
         addExecutive
         $BJOE set onlock 0
@@ -857,7 +852,7 @@ namespace eval ::athena_test::tests:: {
     
     test execute-2.2 {SKIPPED on lock if no tactics} -setup {
         setup -lock
-        strategyx locking 1
+        strategy locking 1
     } -body {
         $BJOE set onlock 1
         $BJOE execute $coffer
@@ -868,7 +863,7 @@ namespace eval ::athena_test::tests:: {
     
     test execute-2.3 {SKIPPED on lock if no normal tactics} -setup {
         setup -lock
-        strategyx locking 1
+        strategy locking 1
     } -body {
         $BJOE set onlock 1
         set t [addExecutive]
@@ -881,7 +876,7 @@ namespace eval ::athena_test::tests:: {
 
     test execute-2.4 {SKIPPED on lock if no onlock tactics} -setup {
         setup -lock
-        strategyx locking 1
+        strategy locking 1
     } -body {
         $BJOE set onlock 1
         set t [addSigevent]
@@ -893,7 +888,7 @@ namespace eval ::athena_test::tests:: {
 
     test execute-3.1 {SUCCESS on lock if normal with onlock tactic} -setup {
         setup -lock
-        strategyx locking 1
+        strategy locking 1
     } -body {
         $BJOE set onlock 1
         addSigevent
@@ -1067,7 +1062,7 @@ namespace eval ::athena_test::tests:: {
         $coffer spend [$coffer cash]
         $coffer withdraw 2000
         $BJOE set onlock 1
-        strategyx locking 1
+        strategy locking 1
     } -body {
 
         set a [$coffer cash]
@@ -1085,6 +1080,9 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
+
+
 
 
 

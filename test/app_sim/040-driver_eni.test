@@ -73,7 +73,7 @@ namespace eval ::athena_test::tests:: {
             return
         }
 
-        foreach tid [tactic names] {
+        foreach tid [tactic ids] {
             ted order TACTIC:DELETE tactic_id $tid
         }
 
@@ -178,7 +178,7 @@ ENI-1-1 SUNN BOB credit=N, no control
 ENI-1-1 SUNN JOE credit=N, has control 
     }
 
-    test assess-2.1 {Rule 1-2 fires} -setup {
+    test assess-2.1 {Rule 1-2 fires} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -207,7 +207,7 @@ rule       ENI-1-2
 fdict      controller JOE required 0.6 expected 0.71875 actual 0.625 needs 0.0 expectf -0.1875 g SUNN dtype ENI case E-
     }
     
-    test assess-2.2 {Rule 1-2 satisfaction} -setup {
+    test assess-2.2 {Rule 1-2 satisfaction} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -231,7 +231,7 @@ ENI-1-2 SUNN AUT
 ENI-1-2 SUNN QOL 
     }
 
-    test assess-2.3 {Rule 1-2 vrel} -setup {
+    test assess-2.3 {Rule 1-2 vrel} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -255,7 +255,7 @@ ENI-1-2 SUNN BOB credit=N, no control
 ENI-1-2 SUNN JOE credit=M, has control 
     }
 
-    test assess-3.1 {Rule 1-3 fires} -setup {
+    test assess-3.1 {Rule 1-3 fires} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -284,7 +284,7 @@ rule       ENI-1-3
 fdict      controller JOE required 0.6 expected 0.75 actual 0.75 needs 0.0 expectf 0.0 g SUNN dtype ENI case E
     }
     
-    test assess-3.2 {Rule 1-3 satisfaction} -setup {
+    test assess-3.2 {Rule 1-3 satisfaction} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -302,7 +302,7 @@ fdict      controller JOE required 0.6 expected 0.75 actual 0.75 needs 0.0 expec
         cleanup
     } -result {0}
 
-    test assess-3.3 {Rule 1-3 vrel} -setup {
+    test assess-3.3 {Rule 1-3 vrel} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -326,7 +326,7 @@ ENI-1-3 SUNN BOB credit=N, no control
 ENI-1-3 SUNN JOE credit=M, has control 
     }
 
-    test assess-4.1 {Rule 1-4 fires} -setup {
+    test assess-4.1 {Rule 1-4 fires} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -355,7 +355,7 @@ rule       ENI-1-4
 fdict      controller JOE required 0.6 expected 0.875 actual 1.0 needs 0.0 expectf 0.25 g SUNN dtype ENI case E+
     }
     
-    test assess-4.2 {Rule 1-4 satisfaction} -setup {
+    test assess-4.2 {Rule 1-4 satisfaction} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600
@@ -379,7 +379,7 @@ ENI-1-4 SUNN AUT
 ENI-1-4 SUNN QOL 
     }
 
-    test assess-4.3 {Rule 1-4 vrel} -setup {
+    test assess-4.3 {Rule 1-4 vrel} -constraints tbd -setup {
         setup
     } -body {
         fundeni JOE 600

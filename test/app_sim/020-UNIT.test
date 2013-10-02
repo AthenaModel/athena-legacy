@@ -37,9 +37,9 @@ namespace eval ::athena_test::tests:: {
     }
 
     proc deploy {n g personnel} {
-        ted order TACTIC:DEPLOY:CREATE \
-            owner JOE g $g text1 SOME int1 $personnel nlist $n \
-            on_lock YES once NO
+        set block [ted addblock JOE onlock YES]
+        ted addtactic $block DEPLOY \
+            g $g mode SOME personnel $personnel nlist $n
     }
 
     proc setup {} {

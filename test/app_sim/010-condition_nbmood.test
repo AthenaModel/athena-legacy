@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-conditionx_nbmood.test
+#    010-condition_nbmood.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    conditionx_nbmood(sim) tests.
+#    condition_nbmood(sim) tests.
 #
-#    This test suite tests the conditionx_nbmood(sim) class.
+#    This test suite tests the condition_nbmood(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ namespace eval ::athena_test::tests:: {
     proc setup {} {
         variable C1
         ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
-        set C1 [conditionx::NBMOOD new]
+        set C1 [condition::NBMOOD new]
     }
 
     # Clean up after a test
@@ -113,6 +113,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

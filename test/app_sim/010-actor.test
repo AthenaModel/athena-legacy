@@ -86,6 +86,13 @@ income_world      0.0
 budget            0.0
     }
 
+    test create-1.4 {Strategy created} -body {
+        actor mutate create [ted entity JOE]
+        info object isa object ::strategy::JOE
+    } -cleanup {
+        cleanup
+    } -result {1}
+
 
     test create-2.1 {undo deletes the actor} -setup {
         actor mutate create [ted entity JOE]
@@ -106,6 +113,15 @@ budget            0.0
     } -cleanup {
         cleanup
     } -result {JOE}
+
+    test create-2.3 {undo deletes the strategy} -setup {
+        set undo [actor mutate create [ted entity JOE]]
+    } -body {
+        namespace eval :: $undo
+        info object isa object ::strategy::JOE
+    } -cleanup {
+        cleanup
+    } -result {0}
 
     #-------------------------------------------------------------------
     # mutate delete
@@ -216,49 +232,26 @@ budget            0.0
         cleanup
     } -result {1}
 
-    test delete-6.1 {Owned goal deleted} -setup {
-        ted create JOE BOB
-        ted order GOAL:CREATE owner JOE narrative "My goal"
-    } -body {
-        actor mutate delete JOE
+    # 6.* Obsolete
 
-        # Is the goal gone?
-        goal names
+    test delete-7.1 {Owned strategy deleted} -setup {
+        ted create JOE
+    } -body {
+        set a [info object isa object ::strategy::JOE]
+        actor mutate delete JOE
+        set b [info object isa object ::strategy::JOE]
+
+        list $a $b
     } -cleanup {
         cleanup
-    } -result {}
+    } -result {1 0}
 
-    test delete-6.2 {Undo restores goal} -setup {
-        ted create JOE BOB
-        ted order GOAL:CREATE owner JOE narrative "My goal"
+    test delete-7.2 {Undo restores strategy} -setup {
+        ted create JOE
         set undo [actor mutate delete JOE]
     } -body {
         namespace eval :: $undo
-        goal names
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-
-    test delete-7.1 {Owned tactic deleted} -setup {
-        ted create JOE BOB
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 20
-    } -body {
-        actor mutate delete JOE
-
-        # Is the goal gone?
-        tactic names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-7.2 {Undo restores tactic} -setup {
-        ted create JOE BOB
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 20 
-        set undo [actor mutate delete JOE]
-    } -body {
-        namespace eval :: $undo
-        tactic names
+        info object isa object ::strategy::JOE
     } -cleanup {
         cleanup
     } -result {1}

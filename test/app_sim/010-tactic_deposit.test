@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx_deposit.test
+#    010-tactic_deposit.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx_deposit(sim) tests.
+#    tactic_deposit(sim) tests.
 #
-#    This test suite tests the tacticx_deposit(sim) class.
+#    This test suite tests the tactic_deposit(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -36,9 +36,8 @@ namespace eval ::athena_test::tests:: {
         set coffer [coffer new JOE]
 
 
-        strategy::JOE addblock_
-        set block [lindex [strategy::JOE blocks] end]
-        set T1 [tacticx::DEPOSIT new $block]
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 DEPOSIT]
     }
 
     # Clean up after a test
@@ -169,6 +168,7 @@ JOE 201000.0     10000.0 9000.0       0.0
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

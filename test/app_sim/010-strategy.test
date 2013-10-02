@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-strategyx.test
+#    010-strategy.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    strategyx(sim) tests.
+#    strategy(sim) tests.
 #
-#    This test suite tests the strategyx(sim) mutators and queries
+#    This test suite tests the strategy(sim) mutators and queries
 #
 #-----------------------------------------------------------------------
 
@@ -45,53 +45,53 @@ namespace eval ::athena_test::tests:: {
     
 
     #-------------------------------------------------------------------
-    # strategyx init
+    # strategy init
 
-    test strategyx_init-1.1 {creates predefined agent strategies} -body {
+    test strategy_init-1.1 {creates predefined agent strategies} -body {
         # init is called automatically when the application is initialized.
-        info class instances ::strategyx 
+        info class instances ::strategy 
     } -result {::strategy::SYSTEM}
 
-    test strategyx_init-1.2 {locking is initialized} -body {
+    test strategy_init-1.2 {locking is initialized} -body {
         # init is called automatically when the application is initialized.
-        strategyx locking
+        strategy locking
     } -result {0}
 
     #-------------------------------------------------------------------
-    # strategyx getname
+    # strategy getname
 
-    test strategyx_getname-1.1 {defines strategy names} -body {
-        strategyx getname DUMMY
+    test strategy_getname-1.1 {defines strategy names} -body {
+        strategy getname DUMMY
     } -result {::strategy::DUMMY}
 
     #-------------------------------------------------------------------
-    # strategyx locking
+    # strategy locking
 
-    test strategyx_locking-1.1 {sets and returns locking flag} -body {
-        set a [strategyx locking]
-        set b [strategyx locking 1]
-        set c [strategyx locking]
+    test strategy_locking-1.1 {sets and returns locking flag} -body {
+        set a [strategy locking]
+        set b [strategy locking 1]
+        set c [strategy locking]
         list $a $b $c
     } -cleanup {
-        strategyx locking 0
+        strategy locking 0
     } -result {0 1 1}
     
     
     #-------------------------------------------------------------------
-    # strategyx create_
+    # strategy create_
 
-    test strategyx_create-1.1 {creates a strategy} -body {
-        strategyx create_ DUMMY
+    test strategy_create-1.1 {creates a strategy} -body {
+        strategy create_ DUMMY
 
         list \
             [info object class ::strategy::DUMMY] \
             [::strategy::DUMMY agent]
     } -cleanup {
         cleanup
-    } -result {::strategyx DUMMY}
+    } -result {::strategy DUMMY}
 
-    test strategyx_create-2.1 {create can be undone} -body {
-        set undo [strategyx create_ DUMMY]
+    test strategy_create-2.1 {create can be undone} -body {
+        set undo [strategy create_ DUMMY]
         namespace eval :: $undo
 
         info object isa object ::strategy::DUMMY
@@ -100,12 +100,12 @@ namespace eval ::athena_test::tests:: {
     } -result {0}
 
     #-------------------------------------------------------------------
-    # strategyx delete_
+    # strategy delete_
 
-    test strategyx_delete-1.1 {deletes a strategy} -setup {
-        strategyx create_ DUMMY
+    test strategy_delete-1.1 {deletes a strategy} -setup {
+        strategy create_ DUMMY
     } -body {
-        strategyx delete_ DUMMY
+        strategy delete_ DUMMY
 
         info object isa object ::strategy::DUMMY
     } -cleanup {
@@ -113,10 +113,10 @@ namespace eval ::athena_test::tests:: {
     } -result {0}
 
 
-    test strategyx_delete-2.1 {delete can be undone} -setup {
-        strategyx create_ DUMMY
+    test strategy_delete-2.1 {delete can be undone} -setup {
+        strategy create_ DUMMY
     } -body {
-        set undo [strategyx delete_ DUMMY]
+        set undo [strategy delete_ DUMMY]
         namespace eval :: $undo
 
         list \
@@ -124,7 +124,7 @@ namespace eval ::athena_test::tests:: {
             [::strategy::DUMMY agent]
     } -cleanup {
         cleanup
-    } -result {::strategyx DUMMY}
+    } -result {::strategy DUMMY}
 
     #-------------------------------------------------------------------
     # start
@@ -203,7 +203,7 @@ namespace eval ::athena_test::tests:: {
 
     test execute-1.1 {executes eligible blocks} -setup {
         setup
-        set s [strategyx getname SYSTEM]
+        set s [strategy getname SYSTEM]
 
         # Create a block that executes only at week 10.
         $s addblock_
@@ -365,6 +365,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

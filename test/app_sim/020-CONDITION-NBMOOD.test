@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-CONDITIONX-NBMOOD.test
+#    020-CONDITION-NBMOOD.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    CONDITIONX:NBMOOD:* Orders tests
+#    CONDITION:NBMOOD:* Orders tests
 #
 #-----------------------------------------------------------------------
 
@@ -46,62 +46,62 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # CONDITIONX:NBMOOD:UPDATE
+    # CONDITION:NBMOOD:UPDATE
 
-    test CONDITIONX:NBMOOD:UPDATE-1.1 {required parameters} -setup {
+    test CONDITION:NBMOOD:UPDATE-1.1 {required parameters} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:NBMOOD:UPDATE
+        ted order -reject CONDITION:NBMOOD:UPDATE
     } -cleanup {
         cleanup
     } -result {
         condition_id {required value}
     }
 
-    test CONDITIONX:NBMOOD:UPDATE-1.2 {unknown condition_id} -setup {
+    test CONDITION:NBMOOD:UPDATE-1.2 {unknown condition_id} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:NBMOOD:UPDATE condition_id NONESUCH
+        ted order -reject CONDITION:NBMOOD:UPDATE condition_id NONESUCH
     } -cleanup {
         cleanup
     } -match glob -result {
         condition_id {invalid value "NONESUCH", should be one of: *}
     }
 
-    test CONDITIONX:NBMOOD:UPDATE-1.3 {invalid n} -setup {
+    test CONDITION:NBMOOD:UPDATE-1.3 {invalid n} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:NBMOOD:UPDATE condition_id [$C1 id] n NONESUCH
+        ted order -reject CONDITION:NBMOOD:UPDATE condition_id [$C1 id] n NONESUCH
     } -cleanup {
         cleanup
     } -result {
         n {Invalid neighborhood, should be one of: NB1}
     }
 
-    test CONDITIONX:NBMOOD:UPDATE-1.4 {invalid comp} -setup {
+    test CONDITION:NBMOOD:UPDATE-1.4 {invalid comp} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:NBMOOD:UPDATE condition_id [$C1 id] comp NONESUCH
+        ted order -reject CONDITION:NBMOOD:UPDATE condition_id [$C1 id] comp NONESUCH
     } -cleanup {
         cleanup
     } -result {
         comp {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
     }
 
-    test CONDITIONX:NBMOOD:UPDATE-1.5 {invalid limit} -setup {
+    test CONDITION:NBMOOD:UPDATE-1.5 {invalid limit} -setup {
         setup
     } -body {
-        ted order -reject CONDITIONX:NBMOOD:UPDATE condition_id [$C1 id] limit NONESUCH
+        ted order -reject CONDITION:NBMOOD:UPDATE condition_id [$C1 id] limit NONESUCH
     } -cleanup {
         cleanup
     } -result {
         limit {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test CONDITIONX:NBMOOD:UPDATE-2.1 {condition updated} -setup {
+    test CONDITION:NBMOOD:UPDATE-2.1 {condition updated} -setup {
         setup
     } -body {
-        ted order CONDITIONX:NBMOOD:UPDATE \
+        ted order CONDITION:NBMOOD:UPDATE \
             condition_id [$C1 id] \
             n            NB1     \
             comp         gt       \
@@ -120,19 +120,19 @@ namespace eval ::athena_test::tests:: {
         comp    GT
     }
 
-    test CONDITIONX:NBMOOD:UPDATE-2.2 {notifier event} -setup {
+    test CONDITION:NBMOOD:UPDATE-2.2 {notifier event} -setup {
         setup
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
-        ted order CONDITIONX:NBMOOD:UPDATE condition_id [$C1 id] n NB1
+        ted order CONDITION:NBMOOD:UPDATE condition_id [$C1 id] n NB1
         ted notifier received
     } -cleanup {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-    test CONDITIONX:NBMOOD:UPDATE-2.3 {undo notifier event} -setup {
+    test CONDITION:NBMOOD:UPDATE-2.3 {undo notifier event} -setup {
         setup
-        ted order CONDITIONX:NBMOOD:UPDATE condition_id [$C1 id] n NB1
+        ted order CONDITION:NBMOOD:UPDATE condition_id [$C1 id] n NB1
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test
@@ -149,6 +149,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

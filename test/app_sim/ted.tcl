@@ -41,8 +41,6 @@ snit::type ted {
         cap_kn
         cap_kg
         civgroups
-        conditions
-        cond_collections
         coop_fg
         curses
         curse_injects
@@ -56,7 +54,6 @@ snit::type ted {
         ensits
         expenditures
         frcgroups
-        goals
         groups
         hooks
         hook_topics
@@ -75,7 +72,6 @@ snit::type ted {
         sigevent_tags
         stance_fg
         stance_nfg
-        tactics
         units
         vrel_ga
         working_cash
@@ -659,7 +655,7 @@ snit::type ted {
         simclock  reset
         aram      clear
         bean      reset
-        strategyx init
+        strategy  init
     }
 
     # sendex ?-error? command...
@@ -764,7 +760,7 @@ snit::type ted {
             }
         } else {
             # Normal case; let nature take its course
-            order send test $order $parmdict
+            return [order send test $order $parmdict]
         }
     }
 
@@ -788,6 +784,104 @@ snit::type ted {
 
     typemethod querylist {sql args} {
         return "\n[rdb query $sql -mode list]    "
+    }
+
+    #-------------------------------------------------------------------
+    # Strategy Helpers
+
+    # addblock agent ?parm value...?
+    #
+    # agent  - An agent name
+    #
+    # Adds a block to an agent and returns its name.  If args
+    # are given, they are passed to BLOCK:UPDATE.
+
+    typemethod addblock {agent args} {
+        set bid [ted order STRATEGY:BLOCK:ADD agent $agent]
+
+        if {[llength $args] > 0} {
+            ted order BLOCK:UPDATE block_id $bid {*}$args
+        }
+
+        return [block get $bid]
+    }
+
+    # addcondition block typename ?parm value...?
+    #
+    # block    - A block object name
+    # typename - A condition typename
+    #
+    # Adds a condition to an agent and returns its name.  If args
+    # are given, they are passed to CONDITION:$typename:UPDATE.
+
+    typemethod addcondition {block typename args} {
+        set cid [ted order BLOCK:CONDITION:ADD \
+                    block_id [$block id] typename $typename]
+
+        if {[llength $args] > 0} {
+            ted order CONDITION:${typename}:UPDATE condition_id $cid {*}$args
+        }
+
+        return [condition get $cid]
+    }
+
+    # addtactic block typename ?parm value...?
+    #
+    # block    - A block object name
+    # typename - A tactic typename
+    #
+    # Adds a tactic to an agent and returns its name.  If args
+    # are given, they are passed to TACTIC:$typename:UPDATE.
+
+    typemethod addtactic {block typename args} {
+        set tid [ted order BLOCK:TACTIC:ADD \
+                    block_id [$block id] typename $typename]
+
+        if {[llength $args] > 0} {
+            ted order TACTIC:${typename}:UPDATE tactic_id $tid {*}$args
+        }
+
+        return [tactic get $tid]
+    }
+
+    # deploy n g personnel
+    #
+    # n          - The neighborhood
+    # g          - The group
+    # personnel  - The number of personnel to deploy, or "all"
+    #
+    # Creates a new onlock YES block for g's owner, and a new
+    # DEPLOY tactic in that block.
+
+    typemethod deploy {n g personnel} {
+        set a [group owner $g]
+        set block [ted addblock $a onlock YES]
+
+        if {$personnel eq "all"} {
+            ted addtactic $block DEPLOY \
+                g $g mode ALL nlist $n
+        } else {
+            ted addtactic $block DEPLOY \
+                g $g mode SOME personnel $personnel nlist $n
+        }
+    }
+
+    # assign n g a personnel
+    #
+    # n          - The neighborhood
+    # g          - The group
+    # a          - The activity
+    # personnel  - The number of personnel to deploy
+    #
+    # Creates a new onlock YES block for g's owner, and a new
+    # ASSIGN tactic in that block.
+
+    typemethod assign {n g a personnel} {
+        set owner [group owner $g]
+        set block [ted addblock $owner onlock YES]
+
+        ted addtactic $block ASSIGN \
+            g $g n $n activity $a personnel $personnel
     }
 
     #-------------------------------------------------------------------

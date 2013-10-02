@@ -1,13 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-TACTICX-MOBILIZE.test
+#    020-TACTIC-MOBILIZE.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    TACTICX:MOBILIZE:* Orders tests
+#    TACTIC:MOBILIZE:* Orders tests
 #
 #-----------------------------------------------------------------------
 
@@ -31,7 +31,7 @@ namespace eval ::athena_test::tests:: {
         variable S1
         variable B1
         variable T1
-        set S1 [strategyx getname JOE]
+        set S1 [strategy getname JOE]
         ted order STRATEGY:BLOCK:ADD agent JOE
         lassign [$S1 blocks] B1
         ted order BLOCK:TACTIC:ADD block_id [$B1 id] typename MOBILIZE
@@ -45,62 +45,62 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # TACTICX:MOBILIZE:UPDATE
+    # TACTIC:MOBILIZE:UPDATE
 
-    test TACTICX:MOBILIZE:UPDATE-1.1 {required parameters} -setup {
+    test TACTIC:MOBILIZE:UPDATE-1.1 {required parameters} -setup {
         setup
     } -body {
-        ted order -reject TACTICX:MOBILIZE:UPDATE
+        ted order -reject TACTIC:MOBILIZE:UPDATE
     } -cleanup {
         cleanup
     } -result {
         tactic_id {required value}
     }
 
-    test TACTICX:MOBILIZE:UPDATE-1.2 {unknown tactic_id} -setup {
+    test TACTIC:MOBILIZE:UPDATE-1.2 {unknown tactic_id} -setup {
         setup
     } -body {
-        ted order -reject TACTICX:MOBILIZE:UPDATE tactic_id NONESUCH
+        ted order -reject TACTIC:MOBILIZE:UPDATE tactic_id NONESUCH
     } -cleanup {
         cleanup
     } -match glob -result {
         tactic_id {invalid value "NONESUCH", should be one of: *}
     }
 
-    test TACTICX:MOBILIZE:UPDATE-1.3 {invalid g} -setup {
+    test TACTIC:MOBILIZE:UPDATE-1.3 {invalid g} -setup {
         setup
     } -body {
-        ted order -reject TACTICX:MOBILIZE:UPDATE tactic_id [$T1 id] g NONESUCH
+        ted order -reject TACTIC:MOBILIZE:UPDATE tactic_id [$T1 id] g NONESUCH
     } -cleanup {
         cleanup
     } -result {
         g {invalid value "NONESUCH", should be one of: BLUE}
     }
 
-    test TACTICX:MOBILIZE:UPDATE-1.4 {invalid personnel} -setup {
+    test TACTIC:MOBILIZE:UPDATE-1.4 {invalid personnel} -setup {
         setup
     } -body {
-        ted order -reject TACTICX:MOBILIZE:UPDATE tactic_id [$T1 id] personnel NONESUCH
+        ted order -reject TACTIC:MOBILIZE:UPDATE tactic_id [$T1 id] personnel NONESUCH
     } -cleanup {
         cleanup
     } -result {
         personnel {invalid value "NONESUCH", expected integer}
     }
 
-    test TACTICX:MOBILIZE:UPDATE-1.5 {0 personnel} -setup {
+    test TACTIC:MOBILIZE:UPDATE-1.5 {0 personnel} -setup {
         setup
     } -body {
-        ted order -reject TACTICX:MOBILIZE:UPDATE tactic_id [$T1 id] personnel 0
+        ted order -reject TACTIC:MOBILIZE:UPDATE tactic_id [$T1 id] personnel 0
     } -cleanup {
         cleanup
     } -result {
         personnel {invalid value "0", expected integer no less than 1}
     }
 
-    test TACTICX:MOBILIZE:UPDATE-2.1 {tactic updated} -setup {
+    test TACTIC:MOBILIZE:UPDATE-2.1 {tactic updated} -setup {
         setup
     } -body {
-        ted order TACTICX:MOBILIZE:UPDATE \
+        ted order TACTIC:MOBILIZE:UPDATE \
             tactic_id [$T1 id] \
             g         BLUE     \
             personnel 1000
@@ -117,19 +117,19 @@ namespace eval ::athena_test::tests:: {
         g          BLUE
     }
 
-    test TACTICX:MOBILIZE:UPDATE-2.2 {notifier event} -setup {
+    test TACTIC:MOBILIZE:UPDATE-2.2 {notifier event} -setup {
         setup
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
-        ted order TACTICX:MOBILIZE:UPDATE tactic_id [$T1 id] personnel 100
+        ted order TACTIC:MOBILIZE:UPDATE tactic_id [$T1 id] personnel 100
         ted notifier received
     } -cleanup {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-    test TACTICX:MOBILIZE:UPDATE-2.3 {undo notifier event} -setup {
+    test TACTIC:MOBILIZE:UPDATE-2.3 {undo notifier event} -setup {
         setup
-        ted order TACTICX:MOBILIZE:UPDATE tactic_id [$T1 id] personnel 100
+        ted order TACTIC:MOBILIZE:UPDATE tactic_id [$T1 id] personnel 100
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test
@@ -146,6 +146,8 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

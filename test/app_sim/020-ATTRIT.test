@@ -39,12 +39,6 @@ namespace eval ::athena_test::tests:: {
         ted lock
     }
 
-    # Deploy troops into a neighborhood.
-    proc deploy {n g personnel} {
-        ted order TACTIC:DEPLOY:CREATE \
-            owner JOE g $g text1 SOME int1 $personnel nlist $n on_lock NO
-    }
-
     # Clean up after a test
 
     proc cleanup {} {
@@ -253,7 +247,7 @@ namespace eval ::athena_test::tests:: {
 
     test GROUP-2.1 {FRC units are attrited} -setup {
         setup {
-            deploy NB1 BLUE 100
+            ted deploy NB1 BLUE 100
         }
     } -body {
         ted notifier bind ::rdb <magic_attrit>
@@ -268,7 +262,7 @@ namespace eval ::athena_test::tests:: {
 
     test GROUP-2.2 {ORG units are attrited} -setup {
         setup {
-            deploy NB1 USAID 100
+            ted deploy NB1 USAID 100
         }
     } -body {
         ted notifier bind ::rdb <magic_attrit>

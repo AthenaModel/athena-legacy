@@ -49,7 +49,8 @@ snit::type aam {
         $type ClearAttitudeStatistics
 
         # NEXT, Refund unspent attack funds to actors.
-        tactic::ATTROE refund
+        # TBD: STRATM2 -- uncomment when tactic is implemented
+        # tactic::ATTROE refund
     }
 
     # ApplyAttrition

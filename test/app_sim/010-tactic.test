@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx.test
+#    010-tactic.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx(sim) tests.
+#    tactic(sim) tests.
 #
-#    This test suite tests the tacticx(sim) mutators and queries
+#    This test suite tests the tactic(sim) mutators and queries
 #
 #-----------------------------------------------------------------------
 
@@ -37,23 +37,15 @@ namespace eval ::athena_test::tests:: {
 
         ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
 
-        # NEXT, add a block to the system's strategy
-        ::strategy::SYSTEM addblock_
-        set B1 [::strategy::SYSTEM blocks 0]
+        # NEXT, add a block to the system's strategy and tactics to
+        # the block.
+        set B1 [ted addblock SYSTEM]
+        set T1 [ted addtactic $B1 SIGEVENT]
+        set T2 [ted addtactic $B1 EXECUTIVE]
 
-        # NEXT, add tactics to the block.
-        $B1 addtactic_ SIGEVENT
-        set T1 [$B1 tactics end]
-
-        $B1 addtactic_ EXECUTIVE
-        set T2 [$B1 tactics end]
-
-        ::strategy::JOE addblock_
-        set BJOE [::strategy::JOE blocks 0]
-
-        $BJOE addtactic_ SIGEVENT
-        set TJOE [$BJOE tactics end]
-    }
+        set BJOE [ted addblock JOE]
+        set TJOE [ted addtactic $BJOE SIGEVENT]
+   }
 
     # Clean up after a test
 
@@ -63,29 +55,29 @@ namespace eval ::athena_test::tests:: {
 
 
     #===================================================================
-    # tacticx class methods
+    # tactic class methods
     #
-    # [tacticx define] is tested implicitly.
+    # [tactic define] is tested implicitly.
 
     #-------------------------------------------------------------------
     # type
 
     test type-1.1 {return type given type name} -body {
-        tacticx type SIGEVENT
-    } -result {::tacticx::SIGEVENT}
+        tactic type SIGEVENT
+    } -result {::tactic::SIGEVENT}
     
     #-------------------------------------------------------------------
     # types
 
     test types-1.1 {lists type objects} -body {
-        tacticx types
-    } -result {::tacticx::ASSIGN ::tacticx::DEMOB ::tacticx::DEPLOY ::tacticx::DEPOSIT ::tacticx::EXECUTIVE ::tacticx::MOBILIZE ::tacticx::SIGEVENT ::tacticx::SPEND ::tacticx::WITHDRAW}
+        tactic types
+    } -result {::tactic::ASSIGN ::tactic::DEMOB ::tactic::DEPLOY ::tactic::DEPOSIT ::tactic::EXECUTIVE ::tactic::MOBILIZE ::tactic::SIGEVENT ::tactic::SPEND ::tactic::WITHDRAW}
     
     #-------------------------------------------------------------------
     # typenames
 
     test typenames-1.1 {lists type names} -body {
-        tacticx typenames
+        tactic typenames
     } -result {ASSIGN DEMOB DEPLOY DEPOSIT EXECUTIVE MOBILIZE SIGEVENT SPEND WITHDRAW}
 
     #-------------------------------------------------------------------
@@ -93,16 +85,16 @@ namespace eval ::athena_test::tests:: {
 
     test typedict-1.1 {lists types and titles} -body {
         # Spot check
-        set a [llength [tacticx types]]
-        set b [dict size [tacticx typedict]]
-        set c [dict get [tacticx typedict] ::tacticx::SIGEVENT]
+        set a [llength [tactic types]]
+        set b [dict size [tactic typedict]]
+        set c [dict get [tactic typedict] ::tactic::SIGEVENT]
         
         list [expr {$a == $b}] $c
     } -result {1 {SIGEVENT: Log Significant Event}}
 
     test typedict-1.2 {lists by agent type} -body {
-        set a [tacticx typedict system]
-        set b [tacticx typedict actor]
+        set a [tactic typedict system]
+        set b [tactic typedict actor]
         expr {$a ne $b}
     } -result {1}
 
@@ -110,13 +102,13 @@ namespace eval ::athena_test::tests:: {
     # groupsOwnedByAgent
 
     test groupsOwnedByAgent-1.1 {returns nothing for unknown tactic} -body {
-        tacticx groupsOwnedByAgent NONESUCH
+        tactic groupsOwnedByAgent NONESUCH
     } -result {}
 
     test groupsOwnedByAgent-1.2 {returns groups for owning agent} -setup {
         setup
     } -body {
-        tacticx groupsOwnedByAgent [$TJOE id]
+        tactic groupsOwnedByAgent [$TJOE id]
     } -cleanup {
         cleanup
     } -result {BLUE BRIT}
@@ -124,32 +116,32 @@ namespace eval ::athena_test::tests:: {
     
     
     #===================================================================
-    # tacticx::<type> class methods
+    # tactic::<type> class methods
 
     #-------------------------------------------------------------------
     # ttype's typename
 
     test ttype_typename-1.1 {return type's name} -body {
-        tacticx::SIGEVENT typename
+        tactic::SIGEVENT typename
     } -result {SIGEVENT}
     
     #-------------------------------------------------------------------
     # ttype's title
 
     test ttype_title-1.1 {return type's title} -body {
-        tacticx::SIGEVENT title
+        tactic::SIGEVENT title
     } -result {Log Significant Event}
     
     #-------------------------------------------------------------------
     # ttype's onlock
 
     test ttype_onlock-1.1 {return type's onlock} -body {
-        tacticx::SIGEVENT onlock
+        tactic::SIGEVENT onlock
     } -result {0}
     
 
     #===================================================================
-    # tacticx instance methods
+    # tactic instance methods
 
 
     #-------------------------------------------------------------------
@@ -351,6 +343,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

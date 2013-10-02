@@ -38,7 +38,7 @@ namespace eval ::athena_test::tests:: {
     # Clean up after a test
 
     proc cleanup {} {
-        strategyx locking 0
+        strategy locking 0
         ted cleanup
         catch {coff destroy}
     }
@@ -158,7 +158,7 @@ namespace eval ::athena_test::tests:: {
 
     test spend-1.3 {insufficient cash on lock} -setup {
         setup
-        strategyx locking 1
+        strategy locking 1
     } -body {
         # No error on lock, but balance doesn't go negative.
         coffer create coff JOE
@@ -299,7 +299,7 @@ namespace eval ::athena_test::tests:: {
 
     test deploy-1.3 {insufficient personnel on lock} -setup {
         setup
-        strategyx locking 1
+        strategy locking 1
     } -body {
         coffer create coff JOE
         coff deploy BLUE NB1 [expr {[coff troops BLUE undeployed] + 100}]
@@ -339,7 +339,7 @@ namespace eval ::athena_test::tests:: {
 
     test assign-1.3 {insufficient personnel on lock} -setup {
         setup
-        strategyx locking 1
+        strategy locking 1
         coffer create coff JOE
         coff deploy BLUE NB1 2500
     } -body {
@@ -357,6 +357,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

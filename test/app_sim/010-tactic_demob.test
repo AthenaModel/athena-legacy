@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tacticx_demob.test
+#    010-tactic_demob.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tacticx_demob(sim) tests.
+#    tactic_demob(sim) tests.
 #
-#    This test suite tests the tacticx_demob(sim) class.
+#    This test suite tests the tactic_demob(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -37,9 +37,8 @@ namespace eval ::athena_test::tests:: {
         set coffer [coffer new JOE]
 
 
-        strategy::JOE addblock_
-        set block [strategy::JOE blocks end]
-        set T1 [tacticx::DEMOB new $block]
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 DEMOB]
     }
 
     # Clean up after a test
@@ -201,6 +200,7 @@ BLUE 4000      4000
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 
