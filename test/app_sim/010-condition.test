@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-condition.test
+#    010-conditionx.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    condition(sim) tests.
+#    conditionx(sim) tests.
 #
-#    This test suite tests the condition(sim) mutators and queries
+#    This test suite tests the conditionx(sim) mutators and queries
 #
 #-----------------------------------------------------------------------
 
@@ -29,367 +29,299 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        variable gid
-        variable tid
+        variable B1
+        variable C1
 
-        ted create JOE BOB NB1 NB2 BLUE BRIT
-        ted order GOAL:CREATE owner BOB narrative "Sample Goal"
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
+        # FIRST, create a scenario
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
 
-        set gid [lindex [goal names]   0]
-        set tid [lindex [tactic names] 0]
+        # NEXT, add a block to the system's strategy
+        ::strategy::SYSTEM addblock_
+        set B1 [lindex [::strategy::SYSTEM blocks] 0]
 
-        # Verify that unused columns contain NULL
-        rdb nullvalue "@"
+        # NEXT, add a MOOD condition to the block.
+        $B1 addcondition_ MOOD
+        set C1 [lindex [$B1 conditions] 0]
     }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
-        rdb nullvalue ""
-        array unset parms
         ted cleanup
     }
 
-    proc mkupdate {condition_id parms} {
-        set dict {
-            a     ""
-            text1 ""
-            x1    ""
-        }
-
-        dict set dict condition_id $condition_id
-        return [dict merge $dict $parms]
-    }
-
-    # Standard Conditions.
-    # These are not real conditions; they are used for exercising
-    # the mutators.
-
-    set S1 {
-        cc_id          1
-        condition_type CASH
-        a              JOE
-        op1            GT
-        x1             10000
-        list1          {A B C}
-        text1          FOO
-    }
-
-    set S2 {
-        cc_id          1
-        condition_type CASH
-        a              BOB
-        op1            LT
-        x1             20000
-        list1          {D E F}
-        text1          BAR
-    }
+    #===================================================================
+    # conditionx class methods
+    #
+    # [conditionx define] is tested implicitly.
 
     #-------------------------------------------------------------------
-    # mutate create
+    # type
 
-    test create-1.1 {condition is created} -setup {
-        setup
-    } -body {
-        condition mutate create $S1
-        ted querylist {SELECT * FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {
-condition_id    1
-condition_type  CASH
-cc_id           1
-owner           BOB
-narrative       Actor JOE's cash reserve is greater than $10,000
-state           normal
-flag            @
-pdict           a JOE op1 GT x1 10000
-    }
-
-    test create-2.1 {undo deletes the condition} -setup {
-        setup
-        set undo [condition mutate create $S1]
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT * FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {}
+    test type-1.1 {return type given type name} -body {
+        conditionx type MOOD
+    } -result {::conditionx::MOOD}
+    
 
     #-------------------------------------------------------------------
-    # mutate delete
+    # types
 
-    test delete-1.1 {Condition is deleted} -setup {
-        setup
-        condition mutate create $S1
-        condition mutate create $S2
-    } -body {
-        condition mutate delete 1
+    test types-1.1 {lists type objects} -body {
+        conditionx types
+    } -result {::conditionx::MOOD ::conditionx::NBMOOD}
+    
+    #-------------------------------------------------------------------
+    # typenames
 
-        rdb eval {SELECT condition_id FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {2}
-
-    test delete-2.1 {Undo restores condition} -setup {
-        setup
-        condition mutate create $S1
-        condition mutate create $S2
-        set undo [condition mutate delete 2]
-    } -body {
-        namespace eval :: $undo
-        ted querylist {SELECT * FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {
-condition_id    1
-condition_type  CASH
-cc_id           1
-owner           BOB
-narrative       Actor JOE's cash reserve is greater than $10,000
-state           normal
-flag            @
-pdict           a JOE op1 GT x1 10000
-
-condition_id    2
-condition_type  CASH
-cc_id           1
-owner           BOB
-narrative       Actor BOB's cash reserve is less than $20,000
-state           normal
-flag            @
-pdict           a BOB op1 LT x1 20000
-    }
+    test typenames-1.1 {lists type names} -body {
+        conditionx typenames
+    } -result {MOOD NBMOOD}
 
     #-------------------------------------------------------------------
-    # mutate update
+    # typedict
 
-    test update-1.1 {condition is updated} -setup {
-        setup
-        condition mutate create $S2
-    } -body {
-        condition mutate update [mkupdate 1 {
-            x1  5000
-        }]
+    test typedict-1.1 {lists types and titles} -body {
+        # Spot check
+        set a [llength [conditionx types]]
+        set b [dict size [conditionx typedict]]
+        set c [dict get [conditionx typedict] ::conditionx::MOOD]
+        
+        list [expr {$a == $b}] $c
+    } -result {1 {MOOD: Group Mood}}
 
-        # This verifies both that requested changes are made, and
-        # that NULL columns remain NULL.
-        ted querylist {SELECT * FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {
-condition_id    1
-condition_type  CASH
-cc_id           1
-owner           BOB
-narrative       Actor BOB's cash reserve is less than $5,000.00
-state           normal
-flag            @
-pdict           a BOB op1 LT x1 5000
-    }
-
-    test update-1.2 {empty values are OK} -setup {
-        setup
-        condition mutate create $S2
-    } -body {
-        set a [ted query {SELECT * FROM conditions}]
-
-        condition mutate update [mkupdate 1 {}]
-
-        set b [ted query {SELECT * FROM conditions}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-
-    test update-2.1 {undo undoes the change} -setup {
-        setup
-        condition mutate create $S2
-    } -body {
-
-        set a [ted query {SELECT * FROM conditions}]
-
-        set undo [condition mutate update [mkupdate 1 {
-            text1        EQ
-            x1           1000
-        }]]
-
-        namespace eval :: $undo
-
-        set b [ted query {SELECT * FROM conditions}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
+    #===================================================================
+    # conditionx::<type> class methods
 
     #-------------------------------------------------------------------
-    # mutate state
+    # ctype's typename
 
-    test state-1.1 {condition state is changed} -setup {
-        setup
-        condition mutate create $S2
-    } -body {
-        condition mutate state 1 disabled
+    test ctype_typename-1.1 {return type's name} -body {
+        conditionx::MOOD typename
+    } -result {MOOD}
+    
+    #-------------------------------------------------------------------
+    # ctype's title
 
-        # This verifies both that requested changes are made, and
-        # that NULL columns remain NULL.
-        ted query {SELECT condition_id,state FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {
-condition_id state    
------------- -------- 
-1            disabled 
-    }
-
-
-    test state-2.1 {undo undoes the change} -setup {
-        setup
-        condition mutate create $S2
-    } -body {
-
-        set a [ted query {SELECT * FROM conditions}]
-
-        set undo [condition mutate state 1 disabled]
-
-        namespace eval :: $undo
-
-        set b [ted query {SELECT * FROM conditions}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
+    test ctype_title-1.1 {return type's title} -body {
+        conditionx::MOOD title
+    } -result {Group Mood}
+    
+    #===================================================================
+    # conditionx instance methods
 
 
     #-------------------------------------------------------------------
-    # names
+    # constructor
 
-    test names-1.1 {Returns names: none defined} -body {
-        condition names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test names-1.2 {Returns names} -setup {
+    test constructor-1.1 {condition is created} -setup {
         setup
-        condition mutate create $S1
-        condition mutate create $S2
     } -body {
-        condition names
+        ted pdict [$C1 getdict]
     } -cleanup {
         cleanup
-    } -result {1 2}
-
-
-    #-------------------------------------------------------------------
-    # validate
-
-    test validate-1.1 {Invalid ID: none defined} -body {
-        condition validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid condition ID: "NONESUCH"}
-
-    test validate-2.1 {Valid name} -setup {
-        setup
-        condition mutate create $S1
-    } -body {
-        condition validate 1
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    #-------------------------------------------------------------------
-    # get
-
-    proc setup_get {} {
-        variable S2
-        setup
-        condition mutate create $S2
+    } -match glob -result {
+        metflag {}
+        id      *
+        state   invalid
+        block   ::bean::block*
+        limit   0.0
+        comp    EQ
+        g       {}
     }
 
-    test get-1.1 {get condition dict} -setup {
-        setup_get
-    } -body {
-        ted pdict [condition get 1]
-    } -cleanup {
-        cleanup
-    } -result {
-        pdict          {a BOB op1 LT x1 20000}
-        narrative      {Actor BOB's cash reserve is less than $20,000}
-        condition_type CASH
-        state          normal
-        flag           @
-        cc_id          1
-        owner          BOB
-        condition_id   1
-        a              BOB
-        op1            LT
-        x1             20000
-    }
+    #-------------------------------------------------------------------
+    # typename
 
-    test get-1.2 {get parameter} -setup {
-        setup_get
+    test typename-1.1 {can retrieve typename} -setup {
+        setup
     } -body {
-        condition get 1 op1
+        $C1 typename
     } -cleanup {
         cleanup
-    } -result {LT}
+    } -result {MOOD}
+    
+    #-------------------------------------------------------------------
+    # agent
+
+    test agent-1.1 {can retrieve owning agent} -setup {
+        setup
+    } -body {
+        $C1 agent
+    } -cleanup {
+        cleanup
+    } -result {SYSTEM}
+    
+    #-------------------------------------------------------------------
+    # strategy
+
+    test strategy-1.1 {can retrieve owning strategy} -setup {
+        setup
+    } -body {
+        $C1 strategy
+    } -cleanup {
+        cleanup
+    } -result {::strategy::SYSTEM}
+    
+    #-------------------------------------------------------------------
+    # block
+
+    test block-1.1 {can retrieve owning block} -setup {
+        setup
+    } -body {
+        $C1 block
+    } -cleanup {
+        cleanup
+    } -match glob -result {::bean::block*}
+    
+    #-------------------------------------------------------------------
+    # state
+
+    test state-1.1 {can retrieve state} -setup {
+        setup
+    } -body {
+        $C1 state
+    } -cleanup {
+        cleanup
+    } -result {invalid}
+    
+    #-------------------------------------------------------------------
+    # isknown
+
+    # This method is tested with eval.
 
     #-------------------------------------------------------------------
-    # compare
+    # ismet
 
-    test compare-1.1 {EQ} -body {
-        list \
-            [condition compare 1 EQ 1] \
-            [condition compare 1 EQ 2]
+    # This method is tested with eval.
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {returns errors} -setup {
+        setup
+    } -body {
+        $C1 set g NONESUCH
+        $C1 check
+    } -cleanup {
+        cleanup
+    } -match glob -result {g {*}}
+
+    test check-1.2 {sets state to invalid on failure} -setup {
+        setup
+    } -body {
+        $C1 set g NONESUCH
+        $C1 set state normal 
+        $C1 check
+        $C1 state
+    } -cleanup {
+        cleanup
+    } -result {invalid}
+    
+    test check-1.3 {will reset invalid to normal on success} -setup {
+        setup
+    } -body {
+        $C1 set g SHIA
+        $C1 check
+        $C1 state
+    } -cleanup {
+        cleanup
+    } -result {normal}
+    
+    test check-1.4 {will not reset disabled to normal on success} -setup {
+        setup
+    } -body {
+        $C1 set g SHIA
+        $C1 set state disabled
+        $C1 check
+        $C1 state
+    } -cleanup {
+        cleanup
+    } -result {disabled}
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {returns narrative string} -setup {
+        setup
+    } -body {
+        $C1 set g SHIA
+        $C1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Group SHIA's mood is equal to 0.00}
+    
+
+    #-------------------------------------------------------------------
+    # eval/metflag
+
+    test eval-1.1 {metflag is initially unknown, and presumed unmet} -setup {
+        setup
+    } -body {
+        list [$C1 isknown] [$C1 ismet]
+    } -cleanup {
+        cleanup
+    } -result {0 0}
+    
+    test eval-1.2 {eval evaluates condition} -setup {
+        setup
+        ted lock
+        $C1 set g SHIA
+        $C1 set limit -20.0
+    } -body {
+        $C1 set comp GT
+        set a [$C1 eval]
+
+        $C1 set comp LT
+        set b [$C1 eval]
+
+        list $a $b
     } -cleanup {
         cleanup
     } -result {1 0}
 
-    test compare-1.2 {GE} -body {
-        list \
-            [condition compare 1 GE 1] \
-            [condition compare 2 GE 1] \
-            [condition compare 1 GE 2] \
+    test eval-1.3 {after eval metflag is known} -setup {
+        setup
+        ted lock
+        $C1 set g SHIA
+        $C1 set limit -20.0
+        $C1 set comp GT
+    } -body {
+        set a [$C1 eval]
+        list [$C1 isknown] $a [$C1 ismet]
     } -cleanup {
         cleanup
-    } -result {1 1 0}
+    } -result {1 1 1}
 
-    test compare-1.3 {GT} -body {
-        list \
-            [condition compare 1 GT 1] \
-            [condition compare 2 GT 1] \
-            [condition compare 1 GT 2] \
-    } -cleanup {
-        cleanup
-    } -result {0 1 0}
+    #-------------------------------------------------------------------
+    # update_
 
-    test compare-1.4 {LE} -body {
-        list \
-            [condition compare 1 LE 1] \
-            [condition compare 2 LE 1] \
-            [condition compare 1 LE 2] \
-    } -cleanup {
-        cleanup
-    } -result {1 0 1}
+    test update-1.1 {update_ clears the metflag} -setup {
+        setup
+        ted lock
+        $C1 set g SHIA
+        $C1 eval
+    } -body {
+        set a [$C1 isknown]
+        $C1 update_ {comp} {comp LT}
+        set b [$C1 isknown]
 
-    test compare-1.5 {LT} -body {
-        list \
-            [condition compare 1 LT 1] \
-            [condition compare 2 LT 1] \
-            [condition compare 1 LT 2] \
+        list $a $b
     } -cleanup {
         cleanup
-    } -result {0 0 1}
+    } -result {1 0}
+
+    test update-1.2 {update_ does a sanity check} -setup {
+        setup
+    } -body {
+        set a [$C1 state]
+        $C1 update_ {g} {g SHIA}
+        set b [$C1 state]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {invalid normal}
+    
 
     #-------------------------------------------------------------------
     # Cleanup

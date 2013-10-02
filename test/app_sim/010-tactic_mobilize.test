@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tactic_mobilize.test
+#    010-tacticx_mobilize.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tactic_mobilize(sim) tests.
+#    tacticx_mobilize(sim) tests.
 #
-#    This test suite tests the tactic::MOBILIZE ensemble.
+#    This test suite tests the tacticx_mobilize(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -29,46 +29,65 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT
-
-        # Verify that unused columns contain NULL
-        rdb nullvalue "@"
-    }
-
-    proc execute_setup {} {
-        setup
+        variable T1
+        variable coffer
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
         personnel start
         personnel load
-    }
+        set coffer [coffer new JOE]
 
+
+        strategy::JOE addblock_
+        set block [lindex [strategy::JOE blocks] end]
+        set T1 [tacticx::MOBILIZE new $block]
+    }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
-        rdb nullvalue ""
-        array unset parms
+        variable coffer
+        $coffer destroy
         ted cleanup
     }
 
-    set T1 {
-        tactic_type MOBILIZE
-        owner       JOE
-        priority    top
-        g           BLUE
-        int1        100
-        once        1
-        on_lock     NO
+    #-------------------------------------------------------------------
+    # Constructor
+
+    test constructor-1.1 {default state} -setup {
+        setup
+    } -body {
+        ted pdict [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        id         *
+        execstatus NONE
+        state      invalid
+        personnel  0
+        block      ::bean::block*
+        g          {}
     }
+
+    
 
     #-------------------------------------------------------------------
     # narrative
 
-    test narrative-1.1 {narrative} -setup {
+    test narrative-1.1 {narrative, default state} -setup {
         setup
-        tactic mutate create $T1
     } -body {
-        tactic::MOBILIZE narrative [tactic get 1]
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Mobilize 0 new ??? personnel.}
+
+    test narrative-1.2 {narrative, with amount} -setup {
+        setup
+        $T1 set g BLUE
+        $T1 set personnel 100
+        $T1 check
+    } -body {
+        $T1 narrative
     } -cleanup {
         cleanup
     } -result {Mobilize 100 new BLUE personnel.}
@@ -76,63 +95,69 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # check
 
-    test check-1.1 {check: g no longer exists} -setup {
+    test check-1.1 {Initial state fails} -setup {
         setup
-        tactic mutate create $T1
-        rdb eval {DELETE FROM frcgroups WHERE g='BLUE'}
     } -body {
-        tactic::MOBILIZE check [tactic get 1]
+        $T1 check
     } -cleanup {
         cleanup
-    } -result {Force/organization group BLUE no longer exists.}
+    } -result {g {No group selected.}}
 
-    test check-1.2 {check: g no longer owned by owner} -setup {
+    test check-1.2 {g owned by another actor} -setup {
         setup
-        tactic mutate create $T1
-        rdb eval {UPDATE frcgroups SET a=NULL}
     } -body {
-        tactic::MOBILIZE check [tactic get 1]
+        $T1 set g NONESUCH
+        $T1 check
     } -cleanup {
         cleanup
-    } -result {Force/organization group BLUE is no longer owned by actor JOE.}
+    } -result {g {Force/organization group "NONESUCH" is not owned by JOE.}}
+
+    test check-1.3 {Success} -setup {
+        setup
+    } -body {
+        $T1 set g BLUE
+        $T1 set personnel 100
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {}
 
     #-------------------------------------------------------------------
-    # dollars
+    # obligate
 
-    test dollars-1.1 {dollars} -setup {
+    test obligate-1.1 {Sufficient personnel} -setup {
         setup
-        tactic mutate create $T1
     } -body {
-        tactic::MOBILIZE dollars [tactic get 1]
+        $T1 set g BLUE
+        $T1 set personnel 100
+
+        set a [$coffer troops BLUE undeployed]
+        set b [$T1 obligate $coffer]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
     } -cleanup {
         cleanup
-    } -result {0.00}
+    } -result {5000 1 5100}
+
 
     #-------------------------------------------------------------------
     # execute
 
-    test execute-1.1 {execute: 1 on success} -setup {
-        execute_setup
-        tactic mutate create $T1
+    test execute-1.1 {always succeeds} -setup {
+        setup
+        $T1 set g BLUE
+        $T1 set personnel 1000
+        $T1 obligate $coffer
     } -body {
-        tactic::MOBILIZE execute [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test execute-1.2 {execute: effects} -setup {
-        execute_setup
-        tactic mutate create $T1
-    } -body {
-        tactic::MOBILIZE execute [tactic get 1]
-        ted query {SELECT * FROM working_personnel}
+        $T1 execute
+        ted query {SELECT * FROM working_personnel WHERE g='BLUE'}
     } -cleanup {
         cleanup
     } -result {
 g    personnel available 
 ---- --------- --------- 
-BLUE 5100      5100      
-BRIT 5000      5000      
+BLUE 6000      6000      
     }
 
     #-------------------------------------------------------------------
@@ -142,6 +167,8 @@ BRIT 5000      5000
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

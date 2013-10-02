@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tactic_withdraw.test
+#    010-tacticx_withdraw.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tactic_withdraw(sim) tests.
+#    tacticx_withdraw(sim) tests.
 #
-#    This test suite tests the tactic_withdraw(sim) tactic ensemble.
+#    This test suite tests the tacticx_withdraw(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -29,110 +29,124 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE 
+        variable T1
+        variable coffer
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
         cash load
+        set coffer [coffer new JOE]
 
-        # Verify that unused columns contain NULL
-        rdb nullvalue "@"
+
+        strategy::JOE addblock_
+        set block [lindex [strategy::JOE blocks] end]
+        set T1 [tacticx::WITHDRAW new $block]
     }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
-        rdb nullvalue ""
-        array unset a
-        array unset b
+        variable coffer
+        $coffer destroy
         ted cleanup
     }
 
+    #-------------------------------------------------------------------
+    # Constructor
 
-    # Standard Tactics
-    
-    set T1 {
-        tactic_type WITHDRAW
-        owner       JOE
-        priority    top
-        amount      1000.0
-        on_lock     NO
+    test constructor-1.1 {default state} -setup {
+        setup
+    } -body {
+        ted pdict [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        amount     0.0
+        id         *
+        execstatus NONE
+        state      normal
+        block      ::bean::block*
     }
+
+    
 
     #-------------------------------------------------------------------
     # narrative
 
-    test narrative-1.1 {narrative} -setup {
+    test narrative-1.1 {narrative, default state} -setup {
         setup
-        tactic mutate create $T1
     } -body {
-        tactic::WITHDRAW narrative [tactic get 1]
+        $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Withdraw $1,000.00 from the cash reserve.}
+    } -result {Withdraw $0.00 from the cash reserve.}
+
+    test narrative-1.2 {narrative, with amount} -setup {
+        setup
+        $T1 set amount 10.0
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Withdraw $10.00 from the cash reserve.}
 
     #-------------------------------------------------------------------
     # check
 
-    test check-1.1 {check: success} -setup {
+    test check-1.1 {Initial state succeeds} -setup {
         setup
-        tactic mutate create $T1
     } -body {
-        tactic::WITHDRAW check [tactic get 1]
+        $T1 check
     } -cleanup {
         cleanup
     } -result {}
 
-    # NOTE: check can't fail for this tactic
-
-
     #-------------------------------------------------------------------
-    # dollars
+    # obligate
 
-    test dollars-1.1 {dollars} -setup {
+    test obligate-1.1 {Sufficient cash} -setup {
         setup
-        tactic mutate create $T1
     } -body {
-        tactic::WITHDRAW dollars [tactic get 1]
+        $T1 set amount 100.0
+
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer reserve]
+
+        list $a $b $c
     } -cleanup {
         cleanup
-    } -result {n/a}
+    } -result {1 10100.0 199900.0}
 
+    test obligate-1.2 {Insufficient cash} -setup {
+        setup
+    } -body {
+        $T1 set amount 400000.0
+
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer reserve]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 410000.0 -200000.0}
 
     #-------------------------------------------------------------------
     # execute
 
-    test execute-1.1 {execute: zero reserve} -setup {
+    test execute-1.1 {always succeeds} -setup {
         setup
-        tactic mutate create $T1
-        
-        rdb eval { UPDATE working_cash SET cash_reserve=0.0 }
+        $T1 set amount 1000.0
+        $T1 obligate $coffer
     } -body {
-        array set a [cash get JOE]
-        set flag [tactic::WITHDRAW execute [tactic get 1]]
-        array set b [cash get JOE]
-
-        list $flag \
-            $a(cash_on_hand) $a(cash_reserve) \
-            $b(cash_on_hand) $b(cash_reserve)
+        $T1 execute
+        ted query {SELECT * FROM working_cash WHERE a='JOE'}
     } -cleanup {
         cleanup
-    } -result {1 10000.0 0.0 11000.0 -1000.0}
-
-    test execute-1.2 {execute: ample reserve} -setup {
-        setup
-        tactic mutate create $T1
-
-        rdb eval {UPDATE working_cash SET cash_on_hand=0.0 }
-    } -body {
-        array set a [cash get JOE]
-        set flag [tactic::WITHDRAW execute [tactic get 1]]
-        array set b [cash get JOE]
-
-        list $flag \
-            $a(cash_on_hand) $a(cash_reserve) \
-            $b(cash_on_hand) $b(cash_reserve)
-    } -cleanup {
-        cleanup
-    } -result {1 0.0 200000.0 1000.0 199000.0}
+    } -result {
+a   cash_reserve income  cash_on_hand gifts 
+--- ------------ ------- ------------ ----- 
+JOE 199000.0     10000.0 11000.0      0.0   
+    }
 
     #-------------------------------------------------------------------
     # Cleanup
@@ -141,6 +155,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

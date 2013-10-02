@@ -1,15 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-TACTIC-ASSIGN.test
+#    020-TACTICX-ASSIGN.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) TACTIC:ASSIGN:* order tests.
-#
-#    This test suite tests the ASSIGN tactic's orders.
+#    TACTICX:ASSIGN:* Orders tests
 #
 #-----------------------------------------------------------------------
 
@@ -27,360 +25,177 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     # Set up for tests
-    proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE USAID ALQ
-    }
 
+    proc setup {} {
+        ted create JOE BLUE ALQ NB1 NB2 SUNN SHIA KURD USAID
+        variable S1
+        variable B1
+        variable T1
+        set S1 [strategyx getname JOE]
+        ted order STRATEGY:BLOCK:ADD agent JOE
+        lassign [$S1 blocks] B1
+        ted order BLOCK:TACTIC:ADD block_id [$B1 id] typename ASSIGN
+        lassign [$B1 tactics] T1
+    }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
         ted cleanup
     }
 
-    # Standard items
-
-    set T1 {
-        owner       JOE
-        priority    bottom
-        g           BLUE
-        n           NB1
-        text1       PATROL
-        int1        100
-        on_lock     NO
-        once        NO
-    }
-
-    set T2 {
-        owner       JOE
-        priority    bottom
-        g           USAID
-        n           NB2
-        text1       CMO_HEALTHCARE
-        int1        100
-        on_lock     NO
-        once        NO
-    }
-
     #-------------------------------------------------------------------
-    # TACTIC:ASSIGN:CREATE
+    # TACTICX:ASSIGN:UPDATE
 
-    test CREATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:ASSIGN:CREATE {}
-    } -result {
-        owner {required value}
-        g {required value}
-        n {required value}
-        text1 {required value}
-        int1 {required value}
-    }
-
-    test CREATE-1.2 {owner is unknown} -setup {
+    test TACTICX:ASSIGN:UPDATE-1.1 {required parameters} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T1 [list owner NONESUCH]]
+        ted order -reject TACTICX:ASSIGN:UPDATE
     } -cleanup {
         cleanup
-    } -result {
-        owner {Invalid actor, should be one of: BOB, JOE}
-    }
-
-    test CREATE-1.3 {g is unknown} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T1 [list g NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid force/org group "NONESUCH", should be one of: ALQ, BLUE, USAID}
-    }
-
-    test CREATE-1.4 {g is not owned by owner} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T1 [list g ALQ]]
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Group ALQ is not owned by actor JOE.}
-    }
-
-    test CREATE-1.5 {n is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T1 [list n NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
-    }
-
-    test CREATE-1.6 {text1 is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T1 [list text1 NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        text1 {Invalid activity, should be one of: CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PSYOP}
-    }
-
-    test CREATE-1.7 {text1 is invalid for ORG} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T2 [list text1 PATROL]]
-    } -cleanup {
-        cleanup
-    } -result {
-        text1 {Group USAID cannot be assigned activity PATROL}
-    }
-
-    test CREATE-1.8 {int1 is non-integer} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T1 [list int1 NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        int1 {invalid value "NONESUCH", expected integer}
-    }
-
-    test CREATE-1.9 {int1 is non-positive} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE \
-            [dict merge $T1 [list int1 0]]
-    } -cleanup {
-        cleanup
-    } -result {
-        int1 {invalid value "0", expected integer no less than 1}
-    }
-
-    test CREATE-1.10 {priority is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:ASSIGN:CREATE [dict merge $T1 {
-            priority NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        priority {invalid value "nonesuch", should be one of: top, bottom}
-    }
-
-    test CREATE-2.1 {tactic is created: SOME} -setup {
-        setup
-    } -body {
-        ted order TACTIC:ASSIGN:CREATE $T2
-
-        ted querylist {SELECT * FROM tactics_ASSIGN}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    1
-tactic_type  ASSIGN
-owner        JOE
-narrative    In NB2, assign 100 USAID personnel to do CMO_HEALTHCARE.
-priority     1
-g            USAID
-n            NB2
-text1        CMO_HEALTHCARE
-int1         100
-once         0
-on_lock      0
-state        normal
-exec_ts      
-exec_flag    0
-    }
-
-    test CREATE-2.2 {Effects} -setup {
-        setup
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        ted order TACTIC:ASSIGN:CREATE $T1
-        ted notifier received
-
-        # NOTE: Two updates, because of priority setting.
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-        {::rdb <tactics> update 1}
-    }
-
-
-    test CREATE-3.1 {undo effects} -setup {
-        setup
-        ted order TACTIC:ASSIGN:CREATE $T1
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> delete 1}
-    }
-
-    #-------------------------------------------------------------------
-    # TACTIC:ASSIGN:UPDATE
-
-    proc setup_update_assign {} {
-        variable T2
-        setup
-        ted order TACTIC:ASSIGN:CREATE $T2
-    }
-
-    test UPDATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE {}
     } -result {
         tactic_id {required value}
     }
 
-    
-    test UPDATE-1.2 {tactic_id is unknown} -setup {
-        setup_update_assign
+    test TACTICX:ASSIGN:UPDATE-1.2 {unknown tactic_id} -setup {
+        setup
     } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE \
-            tactic_id NONESUCH
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        tactic_id {invalid value "NONESUCH", should be one of: *}
+    }
+
+    test TACTICX:ASSIGN:UPDATE-1.3 {invalid g} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] g NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        tactic_id {Invalid tactic ID: "NONESUCH"}
+        g {invalid value "NONESUCH", should be one of: BLUE, USAID}
     }
 
-    test UPDATE-1.3 {g is unknown} -setup {
-        setup_update_assign
+    test TACTICX:ASSIGN:UPDATE-1.4 {invalid n} -setup {
+        setup
     } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE tactic_id 1 g NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid force/org group "NONESUCH", should be one of: ALQ, BLUE, USAID}
-    }
-
-    test UPDATE-1.4 {n is invalid} -setup {
-        setup_update_assign
-    } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE tactic_id 1 n NONESUCH
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] n NONESUCH
     } -cleanup {
         cleanup
     } -result {
         n {Invalid neighborhood, should be one of: NB1, NB2}
     }
 
-    test UPDATE-1.5 {text1 is invalid} -setup {
-        setup_update_assign
-    } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE tactic_id 1 text1 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        text1 {Invalid activity, should be one of: CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PSYOP}
-    }
-
-    test UPDATE-1.6 {text1 is invalid for ORG} -setup {
-        setup_update_assign
-    } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE tactic_id 1 text1 PATROL
-    } -cleanup {
-        cleanup
-    } -result {
-        text1 {Group USAID cannot be assigned activity PATROL}
-    }
-
-    test UPDATE-1.7 {int1 is non-integer} -setup {
-        setup_update_assign
-    } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE tactic_id 1 int1 NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        int1 {invalid value "NONESUCH", expected integer}
-    }
-
-    test UPDATE-1.8 {int1 is non-positive} -setup {
-        setup_update_assign
-    } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE tactic_id 1 int1 0
-    } -cleanup {
-        cleanup
-    } -result {
-        int1 {invalid value "0", expected integer no less than 1}
-    }
-
-    test UPDATE-1.9 {wrong flavor of tactic} -setup {
-        setup_update_assign
-        rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
-    } -body {
-        ted order -reject TACTIC:ASSIGN:UPDATE tactic_id 1
-    } -cleanup {
-        cleanup
-    } -result {
-        tactic_id {Tactic 1 is not a ASSIGN tactic}
-    }
-
-    test UPDATE-2.1 {tactic is updated} -setup {
-        setup_update_assign
-    } -body {
-        ted order TACTIC:ASSIGN:UPDATE \
-            tactic_id 1 int1 150
-
-        ted querylist {SELECT * FROM tactics_ASSIGN}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    1
-tactic_type  ASSIGN
-owner        JOE
-narrative    In NB2, assign 150 USAID personnel to do CMO_HEALTHCARE.
-priority     1
-g            USAID
-n            NB2
-text1        CMO_HEALTHCARE
-int1         150
-once         0
-on_lock      0
-state        normal
-exec_ts      
-exec_flag    0
-    }
-
-    test UPDATE-2.2 {Effects} -setup {
+    test TACTICX:ASSIGN:UPDATE-1.5 {invalid activity} -setup {
         setup
-        ted order TACTIC:ASSIGN:CREATE $T2
     } -body {
-        ted notifier bind ::rdb <tactics>
-        ted order TACTIC:ASSIGN:UPDATE tactic_id 1 int1 150
+        $T1 set g BLUE
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] activity NONESUCH
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        activity {Invalid activity, should be one of: *}
+    }
+
+    test TACTICX:ASSIGN:UPDATE-1.6 {invalid activity for g} -setup {
+        setup
+    } -body {
+        $T1 set g USAID
+        $T1 set personnel 100
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] activity PATROL
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        activity {Invalid activity for group USAID: "PATROL"}
+    }
+
+    test TACTICX:ASSIGN:UPDATE-1.7 {invalid personnel} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] personnel NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "NONESUCH", expected integer}
+    }
+
+    test TACTICX:ASSIGN:UPDATE-1.8 {0 personnel} -setup {
+        setup
+    } -body {
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] personnel 0
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {invalid value "0", expected integer no less than 1}
+    }
+
+    test TACTICX:ASSIGN:UPDATE-1.9 {personnel is 0} -setup {
+        setup
+    } -body {
+        $T1 set g BLUE
+        $T1 set n NB1
+        $T1 set activity PATROL
+        ted order -reject TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] 
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {Personnel must be positive}
+    }
+
+    test TACTICX:ASSIGN:UPDATE-2.1 {tactic updated} -setup {
+        setup
+    } -body {
+        ted order TACTICX:ASSIGN:UPDATE \
+            tactic_id [$T1 id] \
+            g         BLUE     \
+            n         NB1      \
+            activity  PATROL   \
+            personnel 1000
+
+        ted pdict [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        id         *
+        execstatus NONE
+        state      normal
+        activity   PATROL
+        personnel  1000
+        n          NB1
+        block      ::bean::block*
+        g          BLUE
+    }
+
+    test TACTICX:ASSIGN:UPDATE-2.2 {notifier event} -setup {
+        setup
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        ted order TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] \
+            g         BLUE     \
+            n         NB1      \
+            activity  PATROL   \
+            personnel 1000
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-    }
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-
-    test UPDATE-3.1 {undo effects} -setup {
-        setup_update_assign
-        ted order TACTIC:ASSIGN:UPDATE tactic_id 1 int1 150
+    test TACTICX:ASSIGN:UPDATE-2.3 {undo notifier event} -setup {
+        setup
+        ted order TACTICX:ASSIGN:UPDATE tactic_id [$T1 id] \
+            g         BLUE     \
+            n         NB1      \
+            activity  PATROL   \
+            personnel 1000
     } -body {
-        ted notifier bind ::rdb <tactics>
+        ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-    }
-
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+ 
 
     #-------------------------------------------------------------------
     # Cleanup

@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-condition_mood.test
+#    010-conditionx_mood.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    condition_mood(sim) tests.
+#    conditionx_mood(sim) tests.
 #
-#    This test suite tests the condition_mood(sim) ensemble.
+#    This test suite tests the conditionx_mood(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -29,102 +29,82 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA
-
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
-
-        # Verify that unused columns contain NULL
-        rdb nullvalue "@"
+        variable C1
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+        set C1 [conditionx::MOOD new]
     }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
-        rdb nullvalue ""
-        array unset parms
         ted cleanup
-    }
-
-    # Standard Conditions.
-    
-    set C1 {
-        cc_id          1
-        condition_type MOOD
-        g              SHIA
-        op1            LT
-        x1             50.0
     }
 
     #-------------------------------------------------------------------
     # narrative
 
-    test narrative-1.1 {narrative} -setup {
+    test narrative-1.1 {narrative, initial state} -setup {
         setup
-        condition mutate create $C1
     } -body {
-        condition::MOOD narrative [condition get 1]
+        $C1 narrative
     } -cleanup {
         cleanup
-    } -result {Group SHIA's mood is less than 50.00.}
+    } -result {Group ???'s mood is equal to 0.00}
+
+    test narrative-1.2 {narrative, with group} -setup {
+        setup
+        $C1 set g SHIA
+    } -body {
+        $C1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Group SHIA's mood is equal to 0.00}
 
     #-------------------------------------------------------------------
     # check
 
-
-    test check-1.1 {check: successful} -setup {
+    test check-1.1 {check: no group} -setup {
         setup
-        condition mutate create $C1
     } -body {
-        condition::MOOD check [condition get 1]
+        $C1 check
+    } -cleanup {
+        cleanup
+    } -result {g {Group "" does not exist}}
+
+    test check-1.2 {check: successful} -setup {
+        setup
+        $C1 set g SHIA
+    } -body {
+        $C1 check
     } -cleanup {
         cleanup
     } -result {}
 
-    test check-1.2 {check: group deleted} -setup {
-        setup
-        condition mutate create $C1
-        civgroup mutate delete SHIA
-    } -body {
-        condition::MOOD check [condition get 1]
-    } -cleanup {
-        cleanup
-    } -result {Group SHIA no longer exists.}
-
     #-------------------------------------------------------------------
     # eval
 
-
-    proc MoodEval {mood comp amount} {
-        rdb eval {
-            SELECT g_id FROM uram_g WHERE g='SHIA'
-        } {
-            rdb eval {
-                UPDATE uram_civ_g
-                SET mood=$mood
-                WHERE g_id=$g_id
-            }
-        }
-
-        condition mutate update [list condition_id 1 op1 $comp x1 $amount]
-        return [condition::MOOD eval [condition get 1]]
+    proc EvalCase {cond comp limit} {
+        $cond set comp $comp
+        $cond set limit $limit
+        return [$cond eval]
     }
 
     test eval-1.1 {Test eval} -setup {
         setup
+        $C1 set g SHIA
         aram init
-        condition mutate create $C1
     } -body {
-        set a [MoodEval 50 EQ 50]
-        set b [MoodEval 50 GE 50]
-        set c [MoodEval 50 LE 50]
-        set d [MoodEval 50 GT 45]
-        set e [MoodEval 50 LT 45]
+        # SHIA's mood is initially 0.0
+        set a [EvalCase $C1 EQ 0.0]
+        set b [EvalCase $C1 LT 0.0]
+        set c [EvalCase $C1 LE 0.0]
+        set d [EvalCase $C1 GT 0.0]
+        set e [EvalCase $C1 GE 0.0]
 
         list $a $b $c $d $e
     } -cleanup {
         cleanup
-    } -result {1 1 1 1 0}
+    } -result {1 0 1 0 1}
 
     #-------------------------------------------------------------------
     # Cleanup

@@ -1,15 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-CONDITION-MOOD.test
+#    020-CONDITIONX-MOOD.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) CONDITION:MOOD:* order tests.
-#
-#    This test suite tests the CONDITION:MOOD:* orders.
+#    CONDITIONX:MOOD:* Orders tests
 #
 #-----------------------------------------------------------------------
 
@@ -27,276 +25,122 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     # Set up for tests
-    proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
-    }
 
+    set S1 ::strategy::SYSTEM
+
+    proc setup {} {
+        ted create SHIA
+        variable S1
+        variable B1
+        variable C1
+        ted order STRATEGY:BLOCK:ADD agent SYSTEM
+        lassign [$S1 blocks] B1
+        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename MOOD
+        lassign [$B1 conditions] C1
+    }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
         ted cleanup
     }
 
-    # Standard items
-
-    set C1 {
-        cc_id          1
-        g              SHIA
-        op1            GT
-        x1             45.0
-    }
-
-    set C2 {
-        cc_id          1
-        g              SHIA
-        op1            GT
-        x1             D
-    }
-
     #-------------------------------------------------------------------
-    # CONDITION:MOOD:CREATE
+    # CONDITIONX:MOOD:UPDATE
 
-    test CREATE-1.1 {required parms} -body {
-        ted order -reject CONDITION:MOOD:CREATE {}
-    } -result {
-        cc_id {required value}
-        g {required value}
-        op1 {required value}
-        x1 {required value}
-    }
-
-    
-    test CREATE-1.2 {tactic is unknown} -setup {
+    test CONDITIONX:MOOD:UPDATE-1.1 {required parameters} -setup {
         setup
     } -body {
-        ted order -reject CONDITION:MOOD:CREATE \
-            [dict merge $C1 [list cc_id NONESUCH]]
+        ted order -reject CONDITIONX:MOOD:UPDATE
     } -cleanup {
         cleanup
-    } -result {
-        cc_id {Invalid goal or tactic ID: "NONESUCH"}
-    }
-
-    test CREATE-1.3 {group is unknown} -setup {
-        setup
-    } -body {
-        ted order -reject CONDITION:MOOD:CREATE \
-            [dict merge $C1 [list g NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        g {Invalid civilian group, should be one of: SHIA}
-    }
-
-    test CREATE-1.4 {op1 is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject CONDITION:MOOD:CREATE \
-            [dict merge $C1 [list op1 NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        op1 {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
-    }
-
-    test CREATE-1.5 {x1 is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject CONDITION:MOOD:CREATE [dict merge $C1 {
-            x1 NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        x1 {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
-    }
-
-    test CREATE-2.1 {condition is created} -setup {
-        setup
-    } -body {
-        ted order CONDITION:MOOD:CREATE $C1
-
-        ted querylist {SELECT * FROM conditions_MOOD}
-    } -cleanup {
-        cleanup
-    } -result {
-condition_id    1
-condition_type  MOOD
-cc_id           1
-narrative       Group SHIA's mood is greater than 45.00.
-state           normal
-flag            
-g               SHIA
-op1             GT
-x1              45.0
-    }
-
-
-    # Test for Bug 3318
-    test CREATE-2.2 {condition is created; value can be symbolic} -setup {
-        setup
-    } -body {
-        ted order CONDITION:MOOD:CREATE $C2
-
-        ted querylist {SELECT * FROM conditions_MOOD}
-    } -cleanup {
-        cleanup
-    } -result {
-condition_id    1
-condition_type  MOOD
-cc_id           1
-narrative       Group SHIA's mood is greater than -40.00.
-state           normal
-flag            
-g               SHIA
-op1             GT
-x1              -40.0
-    }
-
-    test CREATE-2.3 {Effects} -setup {
-        setup
-    } -body {
-        ted notifier bind ::rdb <conditions>
-        ted order CONDITION:MOOD:CREATE $C1
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <conditions> update 1}
-    }
-
-
-    test CREATE-3.1 {undo effects} -setup {
-        setup
-        ted order CONDITION:MOOD:CREATE $C1
-    } -body {
-        ted notifier bind ::rdb <conditions>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <conditions> delete 1}
-    }
-
-
-    #-------------------------------------------------------------------
-    # CONDITION:MOOD:UPDATE
-
-    proc setup_update {} {
-        variable C1
-        setup
-        ted order CONDITION:MOOD:CREATE $C1
-    }
-
-    test UPDATE-1.1 {required parms} -body {
-        ted order -reject CONDITION:MOOD:UPDATE {}
     } -result {
         condition_id {required value}
     }
 
-    
-    test UPDATE-1.2 {condition_id is unknown} -setup {
-        setup_update
+    test CONDITIONX:MOOD:UPDATE-1.2 {unknown condition_id} -setup {
+        setup
     } -body {
-        ted order -reject CONDITION:MOOD:UPDATE condition_id NONESUCH x1 10
+        ted order -reject CONDITIONX:MOOD:UPDATE condition_id NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        condition_id {Invalid condition ID: "NONESUCH"}
+    } -match glob -result {
+        condition_id {invalid value "NONESUCH", should be one of: *}
     }
 
-    test UPDATE-1.3 {group is unknown} -setup {
-        setup_update
+    test CONDITIONX:MOOD:UPDATE-1.3 {invalid g} -setup {
+        setup
     } -body {
-        ted order -reject CONDITION:MOOD:UPDATE condition_id 1 g NONESUCH
+        ted order -reject CONDITIONX:MOOD:UPDATE condition_id [$C1 id] g NONESUCH
     } -cleanup {
         cleanup
     } -result {
         g {Invalid civilian group, should be one of: SHIA}
     }
 
-    test UPDATE-1.4 {op1 is invalid} -setup {
-        setup_update
+    test CONDITIONX:MOOD:UPDATE-1.4 {invalid comp} -setup {
+        setup
     } -body {
-        ted order -reject CONDITION:MOOD:UPDATE condition_id 1 op1 NONESUCH
+        ted order -reject CONDITIONX:MOOD:UPDATE condition_id [$C1 id] comp NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        op1 {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
+        comp {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
     }
 
-    test UPDATE-1.5 {x1 is invalid} -setup {
-        setup_update
+    test CONDITIONX:MOOD:UPDATE-1.5 {invalid limit} -setup {
+        setup
     } -body {
-        ted order -reject CONDITION:MOOD:UPDATE condition_id 1 x1 NONESUCH
+        ted order -reject CONDITIONX:MOOD:UPDATE condition_id [$C1 id] limit NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        x1 {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
+        limit {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: VS, S, A, D, VD}
     }
 
-    test UPDATE-1.6 {wrong flavor of condition} -setup {
-        setup_update
-        rdb eval {UPDATE conditions SET condition_type='BOGUS'}
+    test CONDITIONX:MOOD:UPDATE-2.1 {condition updated} -setup {
+        setup
     } -body {
-        ted order -reject CONDITION:MOOD:UPDATE condition_id 1 x1 5
+        ted order CONDITIONX:MOOD:UPDATE \
+            condition_id [$C1 id] \
+            g            SHIA     \
+            comp         gt       \
+            limit        10
+
+        ted pdict [$C1 getdict]
     } -cleanup {
         cleanup
-    } -result {
-        condition_id {Condition 1 is not a MOOD condition}
+    } -match glob -result {
+        metflag {}
+        id      3
+        state   normal
+        block   ::bean::block*
+        limit   10
+        comp    GT
+        g       SHIA
     }
 
-    test UPDATE-2.1 {activities are updated} -setup {
-        setup_update
+    test CONDITIONX:MOOD:UPDATE-2.2 {notifier event} -setup {
+        setup
     } -body {
-        ted order CONDITION:MOOD:UPDATE condition_id 1 op1 EQ x1 20
-
-        ted querylist {SELECT * FROM conditions_MOOD}
-    } -cleanup {
-        cleanup
-    } -result {
-condition_id    1
-condition_type  MOOD
-cc_id           1
-narrative       Group SHIA's mood is equal to 20.00.
-state           normal
-flag            
-g               SHIA
-op1             EQ
-x1              20
-    }
-
-
-    test UPDATE-2.2 {Effects} -setup {
-        setup_update
-    } -body {
-        ted notifier bind ::rdb <conditions>
-        ted order CONDITION:MOOD:UPDATE condition_id 1 x1 20
+        ted notifier bind ::projectlib::bean <Monitor>
+        ted order CONDITIONX:MOOD:UPDATE condition_id [$C1 id] g SHIA
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <conditions> update 1}
-    }
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-
-    test UPDATE-3.1 {undo effects} -setup {
-        setup_update
-        ted order CONDITION:MOOD:UPDATE condition_id 1 x1 20
+    test CONDITIONX:MOOD:UPDATE-2.3 {undo notifier event} -setup {
+        setup
+        ted order CONDITIONX:MOOD:UPDATE condition_id [$C1 id] g SHIA
     } -body {
-        ted notifier bind ::rdb <conditions>
+        ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <conditions> update 1}
-    }
-
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+ 
 
     #-------------------------------------------------------------------
     # Cleanup
@@ -305,9 +149,6 @@ x1              20
 }
 
 namespace delete ::athena_test::tests::
-
-
-
 
 
 

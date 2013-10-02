@@ -1,15 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-CONDITION.test
+#    020-CONDITIONX.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) CONDITION:* order tests.
-#
-#    This test suite tests the CONDITION:* orders.
+#    CONDITIONX:* orders tests.
 #
 #-----------------------------------------------------------------------
 
@@ -27,124 +25,92 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     # Set up for tests
-    proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT ALQ
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
-    }
 
+    set S1 ::strategy::SYSTEM
+
+    proc setup {} {
+        ted create SHIA
+        variable S1
+        variable B1
+        variable C1
+        ted order STRATEGY:BLOCK:ADD agent SYSTEM
+        lassign [$S1 blocks] B1
+        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename MOOD
+        lassign [$B1 conditions] C1
+        $C1 update_ {g} {g SHIA}
+    }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
         ted cleanup
     }
 
-    # Standard items
-
-    set S1 {
-        cc_id          1
-        a              JOE
-        op1            GT
-        x1             10000
-    }
-
     #-------------------------------------------------------------------
-    # CONDITION:DELETE
-    #
-    # Note: normally we'd test the CREATE orders before DELETE; but
-    # there's a CREATE order for each flavor of condition.  We'll be
-    # testing each flavor's orders together instead, and doing the
-    # generic orders up front.
+    # CONDITIONX:STATE
 
-    test DELETE-1.1 {required parms} -body {
-        ted order -reject CONDITION:DELETE {}
-    } -result {
-        condition_id {required value}
-    }
-
-    
-    test DELETE-1.2 {unknown condition_id} -body {
-        ted order -reject CONDITION:DELETE condition_id NONESUCH
-    } -result {
-        condition_id {Invalid condition ID: "NONESUCH"}
-    }
-
-
-    test DELETE-2.1 {Effects} -setup {
+    test CONDITIONX:STATE-1.1 {required parameters} -setup {
         setup
-        ted order CONDITION:CASH:CREATE $S1
     } -body {
-        ted notifier bind ::rdb <conditions>
-        ted order CONDITION:DELETE condition_id 1
-        ted notifier received
+        ted order -reject CONDITIONX:STATE
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <conditions> delete 1}
-    }
-
-
-    test DELETE-3.1 {Undo effects} -setup {
-        setup
-        ted order CONDITION:CASH:CREATE $S1
-        ted order CONDITION:DELETE condition_id 1
-    } -body {
-        ted notifier bind ::rdb <conditions>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <conditions> update 1}
-    }
-
-
-    #-------------------------------------------------------------------
-    # CONDITION:STATE
-
-    test STATE-1.1 {required parms} -body {
-        ted order -reject CONDITION:STATE {}
     } -result {
         condition_id {required value}
         state {required value}
     }
 
-    
-    test STATE-1.2 {unknown condition_id} -body {
-        ted order -reject CONDITION:STATE condition_id NONESUCH state disabled
-    } -result {
-        condition_id {Invalid condition ID: "NONESUCH"}
+    test CONDITIONX:STATE-1.2 {unknown condition_id} -setup {
+        setup
+    } -body {
+        ted order -reject CONDITIONX:STATE condition_id NONESUCH state normal
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        condition_id {invalid value "NONESUCH", should be one of: *}
     }
 
-
-    test STATE-2.1 {Effects} -setup {
+    test CONDITIONX:STATE-1.3 {invalid state} -setup {
         setup
-        ted order CONDITION:CASH:CREATE $S1
     } -body {
-        ted notifier bind ::rdb <conditions>
-        ted order CONDITION:STATE condition_id 1 state disabled
-        ted notifier received
+        ted order -reject CONDITIONX:STATE condition_id [$C1 id] state NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <conditions> update 1}
+        state {invalid value "nonesuch", should be one of: normal, disabled, invalid}
     }
 
-
-    test STATE-3.1 {Undo effects} -setup {
+    test CONDITIONX:STATE-2.1 {block updated} -setup {
         setup
-        ted order CONDITION:CASH:CREATE $S1
-        ted order CONDITION:STATE condition_id 1 state disabled
     } -body {
-        ted notifier bind ::rdb <conditions>
+        ted order CONDITIONX:STATE condition_id [$C1 id] state disabled
+
+        $C1 state
+    } -cleanup {
+        cleanup
+    } -result {disabled}
+
+    test CONDITIONX:STATE-2.2 {notifier event} -setup {
+        setup
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        ted order CONDITIONX:STATE condition_id [$C1 id] state disabled
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+
+    test CONDITIONX:STATE-2.3 {undo notifier event} -setup {
+        setup
+        ted order CONDITIONX:STATE condition_id [$C1 id] state disabled
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <conditions> update 1}
-    }
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+ 
 
     #-------------------------------------------------------------------
     # Cleanup
@@ -153,9 +119,6 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
-
-
-
 
 
 

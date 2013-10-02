@@ -1,15 +1,13 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    020-TACTIC-WITHDRAW.test
+#    020-TACTICX-WITHDRAW.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) TACTIC:* order tests.
-#
-#    This test suite tests the TACTIC:WITHDRAW:* orders.
+#    TACTICX:WITHDRAW:* Orders tests
 #
 #-----------------------------------------------------------------------
 
@@ -27,216 +25,98 @@ namespace eval ::athena_test::tests:: {
     namespace import ::tcltest::*
 
     # Set up for tests
+
     proc setup {} {
         ted create JOE
+        variable S1
+        variable B1
+        variable T1
+        set S1 [strategyx getname JOE]
+        ted order STRATEGY:BLOCK:ADD agent JOE
+        lassign [$S1 blocks] B1
+        ted order BLOCK:TACTIC:ADD block_id [$B1 id] typename WITHDRAW
+        lassign [$B1 tactics] T1
     }
-
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
         ted cleanup
     }
 
-    # Standard items
-
-    set WITHDRAW1 {
-        owner       JOE
-        priority    bottom
-        amount      1000.0
-    }
-
     #-------------------------------------------------------------------
-    # TACTIC:WITHDRAW:CREATE
+    # TACTICX:WITHDRAW:UPDATE
 
-    test WITHDRAW:CREATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:WITHDRAW:CREATE {}
-    } -result {
-        owner {required value}
-        amount {required value}
-    }
-
-    
-    test WITHDRAW:CREATE-1.2 {a is unknown} -setup {
+    test TACTICX:WITHDRAW:UPDATE-1.1 {required parameters} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:WITHDRAW:CREATE \
-            [dict merge $WITHDRAW1 [list owner NONESUCH]]
+        ted order -reject TACTICX:WITHDRAW:UPDATE
     } -cleanup {
         cleanup
-    } -result {
-        owner {Invalid actor, should be one of: JOE}
-    }
-
-    test WITHDRAW:CREATE-1.3 {amount is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:WITHDRAW:CREATE \
-            [dict merge $WITHDRAW1 [list amount NONESUCH]]
-    } -cleanup {
-        cleanup
-    } -result {
-        amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-    test WITHDRAW:CREATE-1.4 {priority is invalid} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:WITHDRAW:CREATE [dict merge $WITHDRAW1 {
-            priority NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        priority {invalid value "nonesuch", should be one of: top, bottom}
-    }
-
-    test WITHDRAW:CREATE-2.1 {tactic is created} -setup {
-        setup
-    } -body {
-        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
-
-        ted querylist {SELECT * FROM tactics_WITHDRAW}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    1
-tactic_type  WITHDRAW
-owner        JOE
-narrative    Withdraw $1,000.00 from the cash reserve.
-priority     1
-amount       1000.0
-state        normal
-exec_ts      
-exec_flag    0
-    }
-
-
-    test WITHDRAW:CREATE-2.2 {Effects} -setup {
-        setup
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
-        ted notifier received
-
-        # NOTE: Two updates, because of priority setting.
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-        {::rdb <tactics> update 1}
-    }
-
-
-    test WITHDRAW:CREATE-3.1 {undo effects} -setup {
-        setup
-        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        cif undo -test
-        ted notifier received
-    } -cleanup {
-        cleanup
-    } -result {
-        {::rdb <tactics> delete 1}
-    }
-
-
-    #-------------------------------------------------------------------
-    # TACTIC:WITHDRAW:UPDATE
-
-    proc setup_update_withdrawmoney {} {
-        variable WITHDRAW1
-        setup
-        ted order TACTIC:WITHDRAW:CREATE $WITHDRAW1
-    }
-
-    test WITHDRAW:UPDATE-1.1 {required parms} -body {
-        ted order -reject TACTIC:WITHDRAW:UPDATE {}
     } -result {
         tactic_id {required value}
         amount {required value}
     }
 
-    
-    test WITHDRAW:UPDATE-1.2 {tactic_id is unknown} -setup {
-        setup_update_withdrawmoney
+    test TACTICX:WITHDRAW:UPDATE-1.2 {unknown tactic_id} -setup {
+        setup
     } -body {
-        ted order -reject TACTIC:WITHDRAW:UPDATE tactic_id NONESUCH amount 10
+        ted order -reject TACTICX:WITHDRAW:UPDATE tactic_id NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        tactic_id {Invalid tactic ID: "NONESUCH"}
+    } -match glob -result {
+        tactic_id {invalid value "NONESUCH", should be one of: *}
     }
 
-    test WITHDRAW:UPDATE-1.3 {amount is invalid} -setup {
-        setup_update_withdrawmoney
+    test TACTICX:WITHDRAW:UPDATE-1.3 {invalid amount} -setup {
+        setup
     } -body {
-        ted order -reject TACTIC:WITHDRAW:UPDATE tactic_id 1 amount NONESUCH
+        ted order -reject TACTICX:WITHDRAW:UPDATE tactic_id [$T1 id] amount NONESUCH
     } -cleanup {
         cleanup
     } -result {
         amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test WITHDRAW:UPDATE-1.4 {wrong flavor of tactic} -setup {
-        setup_update_withdrawmoney
-        rdb eval {UPDATE tactics SET tactic_type='BOGUS'}
+    test TACTICX:WITHDRAW:UPDATE-2.1 {tactic updated} -setup {
+        setup
     } -body {
-        ted order -reject TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 5
+        ted order TACTICX:WITHDRAW:UPDATE \
+            tactic_id [$T1 id] \
+            amount    100.0
+
+        ted pdict [$T1 getdict]
     } -cleanup {
         cleanup
-    } -result {
-        tactic_id {Tactic 1 is not a WITHDRAW tactic}
+    } -match glob -result {
+        amount     100.0
+        id         *
+        execstatus NONE
+        state      normal
+        block      ::bean::block*
     }
 
-    test WITHDRAW:UPDATE-2.1 {activities are updated} -setup {
-        setup_update_withdrawmoney
+    test TACTICX:WITHDRAW:UPDATE-2.2 {notifier event} -setup {
+        setup
     } -body {
-        ted order TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 20
-
-        ted querylist {SELECT * FROM tactics_WITHDRAW}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    1
-tactic_type  WITHDRAW
-owner        JOE
-narrative    Withdraw $20.00 from the cash reserve.
-priority     1
-amount       20.0
-state        normal
-exec_ts      
-exec_flag    0
-    }
-
-
-    test WITHDRAW:UPDATE-2.2 {Effects} -setup {
-        setup_update_withdrawmoney
-    } -body {
-        ted notifier bind ::rdb <tactics>
-        ted order TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 20
+        ted notifier bind ::projectlib::bean <Monitor>
+        ted order TACTICX:WITHDRAW:UPDATE tactic_id [$T1 id] amount 10.0
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-    }
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-
-    test WITHDRAW:UPDATE-3.1 {undo effects} -setup {
-        setup_update_withdrawmoney
-        ted order TACTIC:WITHDRAW:UPDATE tactic_id 1 amount 20
+    test TACTICX:WITHDRAW:UPDATE-2.3 {undo notifier event} -setup {
+        setup
+        ted order TACTICX:WITHDRAW:UPDATE tactic_id [$T1 id] amount 10.0
     } -body {
-        ted notifier bind ::rdb <tactics>
+        ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
-    } -result {
-        {::rdb <tactics> update 1}
-    }
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+ 
 
     #-------------------------------------------------------------------
     # Cleanup
@@ -245,7 +125,6 @@ exec_flag    0
 }
 
 namespace delete ::athena_test::tests::
-
 
 
 

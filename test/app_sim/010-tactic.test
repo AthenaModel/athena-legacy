@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-tactic.test
+#    010-tacticx.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    tactic(sim) tests.
+#    tacticx(sim) tests.
 #
-#    This test suite tests the tactic(sim) mutators and queries
+#    This test suite tests the tacticx(sim) mutators and queries
 #
 #-----------------------------------------------------------------------
 
@@ -29,675 +29,320 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT
+        variable B1
+        variable T1
+        variable T2
+        variable BJOE
+        variable TJOE
 
-        # Verify that unused columns contain NULL
-        rdb nullvalue "@"
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+
+        # NEXT, add a block to the system's strategy
+        ::strategy::SYSTEM addblock_
+        set B1 [::strategy::SYSTEM blocks 0]
+
+        # NEXT, add tactics to the block.
+        $B1 addtactic_ SIGEVENT
+        set T1 [$B1 tactics end]
+
+        $B1 addtactic_ EXECUTIVE
+        set T2 [$B1 tactics end]
+
+        ::strategy::JOE addblock_
+        set BJOE [::strategy::JOE blocks 0]
+
+        $BJOE addtactic_ SIGEVENT
+        set TJOE [$BJOE tactics end]
     }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
-        rdb nullvalue ""
-        array unset parms
         ted cleanup
     }
 
-    # Dump priorities
-    proc dumpPriority {} {
-        return [ted query {
-            SELECT tactic_id,tactic_type,owner,priority
-            FROM tactics ORDER BY priority
-        }]
-    }
 
-    proc mkupdate {tactic_id parms} {
-        dict set parms tactic_id $tactic_id
-        return $parms
-    }
+    #===================================================================
+    # tacticx class methods
+    #
+    # [tacticx define] is tested implicitly.
 
-    # Standard Tactics
+    #-------------------------------------------------------------------
+    # type
+
+    test type-1.1 {return type given type name} -body {
+        tacticx type SIGEVENT
+    } -result {::tacticx::SIGEVENT}
     
-    set T1 {
-        tactic_type DEPOSIT
-        owner       JOE
-        priority    top
-        amount      10
-        once        0
-    }
+    #-------------------------------------------------------------------
+    # types
 
-    set T2 {
-        tactic_type DEFROE
-        owner       JOE
-        priority    top
-        n           NB1
-        g           BLUE
-        text1       HOLD_FIRE
-    }
+    test types-1.1 {lists type objects} -body {
+        tacticx types
+    } -result {::tacticx::ASSIGN ::tacticx::DEMOB ::tacticx::DEPLOY ::tacticx::DEPOSIT ::tacticx::EXECUTIVE ::tacticx::MOBILIZE ::tacticx::SIGEVENT ::tacticx::SPEND ::tacticx::WITHDRAW}
+    
+    #-------------------------------------------------------------------
+    # typenames
 
-    set T3 {
-        tactic_type DEFROE
-        owner       JOE
-        priority    top
-        once        1
-        n           NB2
-        g           BRIT
-        text1       HOLD_FIRE
-    }
+    test typenames-1.1 {lists type names} -body {
+        tacticx typenames
+    } -result {ASSIGN DEMOB DEPLOY DEPOSIT EXECUTIVE MOBILIZE SIGEVENT SPEND WITHDRAW}
 
     #-------------------------------------------------------------------
-    # mutate create
+    # typedict
 
-    test create-1.1 {tactic is created: once is omitted} -setup {
-        setup
-    } -body {
-        tactic mutate create $T1
-        ted querylist {SELECT * FROM tactics}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    1
-tactic_type  DEPOSIT
-owner        JOE
-narrative    Deposit $10.00 to the cash reserve.
-priority     1
-once         0
-on_lock      0
-state        normal
-exec_ts      @
-exec_flag    0
-pdict        amount 10
-    }
+    test typedict-1.1 {lists types and titles} -body {
+        # Spot check
+        set a [llength [tacticx types]]
+        set b [dict size [tacticx typedict]]
+        set c [dict get [tacticx typedict] ::tacticx::SIGEVENT]
+        
+        list [expr {$a == $b}] $c
+    } -result {1 {SIGEVENT: Log Significant Event}}
 
-    test create-1.2 {tactic is created: once=1} -setup {
-        setup
-    } -body {
-        tactic mutate create $T3
-        ted querylist {SELECT * FROM tactics}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    1
-tactic_type  DEFROE
-owner        JOE
-narrative    Group BRIT defends in NB2 with ROE HOLD_FIRE
-priority     1
-once         1
-on_lock      0
-state        normal
-exec_ts      @
-exec_flag    0
-pdict        n NB2 g BRIT text1 HOLD_FIRE
-    }
+    test typedict-1.2 {lists by agent type} -body {
+        set a [tacticx typedict system]
+        set b [tacticx typedict actor]
+        expr {$a ne $b}
+    } -result {1}
 
-    test create-1.3 {priority is set} -setup {
-        setup
-    } -body {
-        tactic mutate create $T1
-        tactic mutate create $T2
+    #-------------------------------------------------------------------
+    # groupsOwnedByAgent
 
-        # T2 should appear before T1
-        dumpPriority
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id tactic_type owner priority 
---------- ----------- ----- -------- 
-2         DEFROE      JOE   1        
-1         DEPOSIT     JOE   2        
-    }
-
-    test create-1.4 {priority defaults to bottom if unset} -setup {
-        setup
-    } -body {
-        tactic mutate create [dict merge $T1 {priority ""}]
-        tactic mutate create [dict merge $T2 {priority ""}]
-
-        dumpPriority
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id tactic_type owner priority 
---------- ----------- ----- -------- 
-1         DEPOSIT     JOE   1        
-2         DEFROE      JOE   2        
-    }
-
-
-
-    test create-2.1 {undo deletes the tactic} -setup {
-        setup
-        set undo [tactic mutate create $T1]
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT * FROM tactics}
-    } -cleanup {
-        cleanup
+    test groupsOwnedByAgent-1.1 {returns nothing for unknown tactic} -body {
+        tacticx groupsOwnedByAgent NONESUCH
     } -result {}
 
-    test create-2.2 {undo resets priorities} -setup {
+    test groupsOwnedByAgent-1.2 {returns groups for owning agent} -setup {
         setup
-        tactic mutate create $T1
-        set undo [tactic mutate create $T2]
     } -body {
-        namespace eval :: $undo
-        dumpPriority
+        tacticx groupsOwnedByAgent [$TJOE id]
     } -cleanup {
         cleanup
-    } -result {
-tactic_id tactic_type owner priority 
---------- ----------- ----- -------- 
-1         DEPOSIT     JOE   1        
-    }
+    } -result {BLUE BRIT}
 
-    test create-3.1 {tactic type must match agent type} -setup {
-        setup
-    } -body {
-        tactic mutate create [dict merge $T1 {owner SYSTEM}]
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Agent SYSTEM cannot own DEPOSIT tactics}
+    
+    
+    #===================================================================
+    # tacticx::<type> class methods
 
     #-------------------------------------------------------------------
-    # mutate delete
+    # ttype's typename
 
-    test delete-1.1 {Tactic is deleted} -setup {
-        setup
-        tactic mutate create $T1
-        tactic mutate create $T2
-    } -body {
-        tactic mutate delete 1
+    test ttype_typename-1.1 {return type's name} -body {
+        tacticx::SIGEVENT typename
+    } -result {SIGEVENT}
+    
+    #-------------------------------------------------------------------
+    # ttype's title
 
-        rdb eval {SELECT tactic_id FROM tactics}
-    } -cleanup {
-        cleanup
-    } -result {2}
+    test ttype_title-1.1 {return type's title} -body {
+        tacticx::SIGEVENT title
+    } -result {Log Significant Event}
+    
+    #-------------------------------------------------------------------
+    # ttype's onlock
 
-    test delete-2.1 {Undo restores tactic} -setup {
-        setup
-        tactic mutate create $T1
-        tactic mutate create $T2
-        set undo [tactic mutate delete 2]
-    } -body {
-        namespace eval :: $undo
-        ted querylist {SELECT * FROM tactics ORDER BY priority}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    2
-tactic_type  DEFROE
-owner        JOE
-narrative    Group BLUE defends in NB1 with ROE HOLD_FIRE
-priority     1
-once         0
-on_lock      0
-state        normal
-exec_ts      @
-exec_flag    0
-pdict        n NB1 g BLUE text1 HOLD_FIRE
+    test ttype_onlock-1.1 {return type's onlock} -body {
+        tacticx::SIGEVENT onlock
+    } -result {0}
+    
 
-tactic_id    1
-tactic_type  DEPOSIT
-owner        JOE
-narrative    Deposit $10.00 to the cash reserve.
-priority     2
-once         0
-on_lock      0
-state        normal
-exec_ts      @
-exec_flag    0
-pdict        amount 10
-    }
-
-    test delete-3.1 {Condition is deleted} -setup {
-        setup
-        tactic mutate create $T1
-        ted order CONDITION:CASH:CREATE cc_id 1 a JOE op1 LT x1 500
-    } -body {
-        tactic mutate delete 1
-
-        rdb eval {SELECT condition_id FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test delete-3.2 {Condition is restored on undo} -setup {
-        setup
-        tactic mutate create $T1
-        ted order CONDITION:CASH:CREATE cc_id 1 a JOE op1 LT x1 500
-
-        set undo [tactic mutate delete 1]
-    } -body {
-        namespace eval :: $undo
-        rdb eval {SELECT condition_id FROM conditions}
-    } -cleanup {
-        cleanup
-    } -result {1}
+    #===================================================================
+    # tacticx instance methods
 
 
     #-------------------------------------------------------------------
-    # mutate update
+    # constructor
 
-    test update-1.1 {tactic is updated} -setup {
+    test constructor-1.1 {tactic is created} -setup {
         setup
-        tactic mutate create $T2
     } -body {
-        tactic mutate update [mkupdate 1 {
-            text1      FIRE_BACK_IMMEDIATELY
-            once       1
-        }]
-
-        # This verifies both that requested changes are made, and
-        # that NULL columns remain NULL.
-        ted querylist {SELECT * FROM tactics}
+        ted pdict [$T1 getdict]
     } -cleanup {
         cleanup
-    } -result {
-tactic_id    1
-tactic_type  DEFROE
-owner        JOE
-narrative    Group BLUE defends in NB1 with ROE FIRE_BACK_IMMEDIATELY
-priority     1
-once         1
-on_lock      0
-state        normal
-exec_ts      @
-exec_flag    0
-pdict        n NB1 g BLUE text1 FIRE_BACK_IMMEDIATELY
+    } -match glob -result {
+        id         *
+        execstatus NONE
+        state      normal
+        block      ::bean::block*
+        msg        {}
     }
 
-    test update-1.2 {empty values are OK} -setup {
+    #-------------------------------------------------------------------
+    # typename
+
+    test typename-1.1 {can retrieve typename} -setup {
         setup
-        tactic mutate create $T2
     } -body {
-        set a [ted query {SELECT * FROM tactics}]
-
-        tactic mutate update [mkupdate 1 {}]
-
-        set b [ted query {SELECT * FROM tactics}]
-
-        expr {$a eq $b}
+        $T1 typename
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {SIGEVENT}
+    
+    #-------------------------------------------------------------------
+    # agent
 
-
-    test update-1.3 {exec_* cleared on update} -setup {
+    test agent-1.1 {can retrieve owning agent} -setup {
         setup
-        tactic mutate create $T2
-        rdb eval { 
-            UPDATE tactics 
-            SET exec_ts = 10,
-                exec_flag = 1
-        }
     } -body {
-        tactic mutate update [mkupdate 1 {
-            text1      FIRE_BACK_IMMEDIATELY
-            once       1
-        }]
-
-        # This verifies both that requested changes are made, and
-        # that NULL columns remain NULL.
-        rdb eval {SELECT tactic_id, exec_ts, exec_flag FROM tactics}
+        $T1 agent
     } -cleanup {
         cleanup
-    } -result {1 @ 0}
+    } -result {SYSTEM}
+    
+    #-------------------------------------------------------------------
+    # strategy
 
-    test update-2.1 {undo undoes the change} -setup {
+    test strategy-1.1 {can retrieve owning strategy} -setup {
         setup
-        tactic mutate create $T2
     } -body {
-
-        set a [ted query {SELECT * FROM tactics}]
-
-        set undo [tactic mutate update [mkupdate 1 {
-            roe          FIRE_BACK_IMMEDIATELY
-            once         1
-            n            NB2
-            g            BRIT
-        }]]
-
-        namespace eval :: $undo
-
-        set b [ted query {SELECT * FROM tactics}]
-
-        expr {$a eq $b}
+        $T1 strategy
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {::strategy::SYSTEM}
+    
+    #-------------------------------------------------------------------
+    # block
+
+    test block-1.1 {can retrieve owning block} -setup {
+        setup
+    } -body {
+        $T1 block
+    } -cleanup {
+        cleanup
+    } -match glob -result {::bean::block*}
+    
+    #-------------------------------------------------------------------
+    # state
+
+    test state-1.1 {can retrieve state} -setup {
+        setup
+    } -body {
+        $T1 state
+    } -cleanup {
+        cleanup
+    } -result {normal}
+    
+    #-------------------------------------------------------------------
+    # execstatus
+
+    test execstatus-1.1 {can retrieve execstatus} -setup {
+        setup
+    } -body {
+        $T1 set execstatus SUCCESS
+        $T1 execstatus
+    } -cleanup {
+        cleanup
+    } -result {SUCCESS}
+    
 
     #-------------------------------------------------------------------
-    # mutate state
+    # execflag
 
-    test state-1.1 {tactic state is changed} -setup {
+    test execflag-1.1 {can retrieve execflag} -setup {
         setup
-        tactic mutate create $T2
     } -body {
-        tactic mutate state 1 disabled
+        $T1 set execstatus SKIPPED
+        set a [$T1 execflag]
+        $T1 set execstatus SUCCESS
+        set b [$T1 execflag]
 
-        # This verifies both that requested changes are made, and
-        # that NULL columns remain NULL.
-        ted query {SELECT tactic_id,state FROM tactics}
+        list $a $b
     } -cleanup {
         cleanup
-    } -result {
-tactic_id state    
---------- -------- 
-1         disabled 
-    }
+    } -result {0 1}
+    
+    #-------------------------------------------------------------------
+    # check
 
-
-    test state-2.1 {undo undoes the change} -setup {
+    test check-1.1 {returns errors} -setup {
         setup
-        tactic mutate create $T2
     } -body {
-
-        set a [ted query {SELECT * FROM tactics}]
-
-        set undo [tactic mutate state 1 disabled]
-
-        namespace eval :: $undo
-
-        set b [ted query {SELECT * FROM tactics}]
-
-        expr {$a eq $b}
+        $T2 check
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {command {No executive command has been specified.}}
+
+    test check-1.2 {sets state to invalid on failure} -setup {
+        setup
+    } -body {
+        $T2 set state normal 
+        $T2 check
+        $T2 state
+    } -cleanup {
+        cleanup
+    } -result {invalid}
+    
+    test check-1.3 {will reset invalid to normal on success} -setup {
+        setup
+    } -body {
+        $T2 set state invalid
+        $T2 set command dummy
+        $T2 check
+        $T2 state
+    } -cleanup {
+        cleanup
+    } -result {normal}
+    
+    test check-1.4 {will not reset disabled to normal on success} -setup {
+        setup
+    } -body {
+        $T2 set state disabled
+        $T2 set command dummy
+        $T2 check
+        $T2 state
+    } -cleanup {
+        cleanup
+    } -result {disabled}
 
     #-------------------------------------------------------------------
-    # mutate priority
+    # narrative
 
-    proc setup_priority {} {
-        variable T1
-        variable T2
-        variable T3
+    test narrative-1.1 {returns narrative string} -setup {
         setup
-
-        # Create tactics with IDs 1, 2, and 3 such that the
-        # priority ordering is 1, 2, 3, to make changes easier
-        # to interpret.
-        tactic mutate create [dict merge $T1 {priority bottom}]
-        tactic mutate create [dict merge $T2 {priority bottom}]
-        tactic mutate create [dict merge $T3 {priority bottom}]
-    }
-
-    test priority-1.1 {item gets first priority} -setup {
-        setup_priority
     } -body {
-        tactic mutate priority 3 top
-        
-        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
+        $T1 set msg "Howdy"
+        $T1 narrative
     } -cleanup {
         cleanup
-    } -result {3 1 2}
-
-
-    test priority-1.2 {item priority is raised} -setup {
-        setup_priority
-    } -body {
-        tactic mutate priority 3 raise
-        
-        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
-    } -cleanup {
-        cleanup
-    } -result {1 3 2}
-
-    test priority-1.3 {item priority is lowered} -setup {
-        setup_priority
-    } -body {
-        tactic mutate priority 1 lower
-        
-        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
-    } -cleanup {
-        cleanup
-    } -result {2 1 3}
-
-    test priority-1.4 {item gets last priority} -setup {
-        setup_priority
-    } -body {
-        tactic mutate priority 1 bottom
-        
-        rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}
-    } -cleanup {
-        cleanup
-    } -result {2 3 1}
-
-    test priority-2.1 {undo undoes the change.} -setup {
-        setup_priority
-    } -body {
-        set a [rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}]
-
-        set undo [tactic mutate priority 1 bottom]
-
-        namespace eval :: $undo
-
-        set b [rdb eval {SELECT tactic_id FROM tactics ORDER BY priority}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
+    } -result {Logs "Howdy" to the sigevents log}
 
     #-------------------------------------------------------------------
-    # names
+    # obligate
 
-    test names-1.1 {Returns names: none defined} -body {
-        tactic names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test names-1.2 {Returns names} -setup {
-        setup
-        tactic mutate create $T1
-        tactic mutate create $T2
-        tactic mutate create $T3
-    } -body {
-        tactic names
-    } -cleanup {
-        cleanup
-    } -result {1 2 3}
-
-
-    #-------------------------------------------------------------------
-    # validate
-
-    test validate-1.1 {Invalid ID: none defined} -body {
-        tactic validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid tactic ID: "NONESUCH"}
-
-    test validate-2.1 {Valid name} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        tactic validate 1
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    #-------------------------------------------------------------------
-    # get
-
-    proc setup_get {} {
-        variable T2
-        setup
-        tactic mutate create $T2
-    }
-
-    test get-1.1 {get tactic dict} -setup {
-        setup_get
-    } -body {
-        ted pdict [tactic get 1]
-    } -cleanup {
-        cleanup
-    } -result {
-        state       normal
-        exec_ts     @
-        narrative   {Group BLUE defends in NB1 with ROE HOLD_FIRE}
-        once        0
-        tactic_type DEFROE
-        priority    1
-        owner       JOE
-        tactic_id   1
-        pdict       {n NB1 g BLUE text1 HOLD_FIRE}
-        on_lock     0
-        exec_flag   0
-        n           NB1
-        g           BLUE
-        text1       HOLD_FIRE
-    }
-
-    test get-1.2 {get parameter} -setup {
-        setup_get
-    } -body {
-        tactic get 1 owner
-    } -cleanup {
-        cleanup
-    } -result {JOE}
+    # TBD: no general behavior to test.
 
     #-------------------------------------------------------------------
     # execute
 
-    test execute-2.1 {once=1, tactic is disabled} -setup {
-        setup
-        tactic mutate create $T3
-    } -body {
-        tactic execute [tactic get 1]
-        ted query {SELECT tactic_id, state FROM tactics}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id state    
---------- -------- 
-1         disabled 
-    }
-
-    test execute-2.2 {once=0, tactic is normal} -setup {
-        setup
-        tactic mutate create $T2
-    } -body {
-        tactic execute [tactic get 1]
-        ted query {SELECT tactic_id, state FROM tactics}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id state  
---------- ------ 
-1         normal 
-    }
-
-
-    #-------------------------------------------------------------------
-    # tempschema
+    # TBD: no general behavior to test.
     
-    test tempschema-1.1 {temp view defined} -setup {
-        setup
-        tactic mutate create $T1
-    } -body {
-        ted querylist {SELECT * FROM tactics_DEPOSIT}
-    } -cleanup {
-        cleanup
-    } -result {
-tactic_id    1
-tactic_type  DEPOSIT
-owner        JOE
-narrative    Deposit $10.00 to the cash reserve.
-priority     1
-amount       10
-state        normal
-exec_ts      @
-exec_flag    0
-    }
     
     #-------------------------------------------------------------------
-    # delta
-    
-    test delta-1.1 {retrieve data} -setup {
+    # update_
+
+    test update-1.1 {update_ does a sanity check} -setup {
         setup
-        tactic mutate create $T1
     } -body {
-        set p(tactic_id) 1
-        set p(amount)    ""
-        tactic delta p
-        ted pdict [array get p]
+        $T1 set state invalid
+        $T1 update_ {msg} {msg Howdy}
+        $T1 state
     } -cleanup {
         cleanup
-    } -result {
-        amount    10
-        tactic_id 1
-        owner     JOE
-    }
-
-    #-------------------------------------------------------------------
-    # rebase
-
-
-    test rebase-1.1 {rebase occurs properly} -setup {
-        ted create JOE BLUE BRIT SHIA
-
-        # Create a tactic that has:
-        # * the on_lock parameter
-        # * that will execute each tock
-        ted order TACTIC:DEPLOY:CREATE \
-            owner JOE g BLUE text1 ALL nlist NB1 on_lock 1
-
-        # Create a tactic that has:
-        # * the on_lock parameter
-        # * that will not execute without it (due to false condition)
-        ted order TACTIC:ASSIGN:CREATE \
-            owner JOE g BLUE n NB1 text1 PATROL int1 5 on_lock 1
-        ted order CONDITION:EXPR:CREATE \
-            cc_id 2 text1 0
-
-        # Create a tactic that:
-        # * does not have the on_lock parameter
-        # * that will execute each tock
-        ted order TACTIC:DEFROE:CREATE \
-            owner JOE g BLUE n NB1 text1 HOLD_FIRE
-
-        ted lock
-        ted step
+    } -result {normal}
+    
+    test update-1.2 {update_ clears execstatus} -setup {
+        setup
     } -body {
-        tactic rebase
-
-        # The following things should be true at this time:
-        #
-        # * tactics executed in the last go round get on_lock=1 if they
-        #   support on_lock.
-        #
-        # * tactics executed in the last go round get on_lock=0 if they do not
-        #   support on_lock.
-        #
-        # * tactics not executed in the last go round get on_lock=0
-        #
-        # * exec_flag = 0 for all tactics
-        #
-        # * exec_ts is NULL for all tactics. 
-        #
-        # Note, then, only tactic 1 should have its on_lock flag set.
-
-        ted query {
-            SELECT tactic_id, tactic_type, on_lock, exec_ts, exec_flag
-            FROM tactics
-        }
+        $T1 set execstatus SUCCESS
+        $T1 update_ {msg} {msg Howdy}
+        $T1 get execstatus
     } -cleanup {
         cleanup
-    } -result {
-tactic_id tactic_type on_lock exec_ts exec_flag 
---------- ----------- ------- ------- --------- 
-1         DEPLOY      1               0         
-2         ASSIGN      0               0         
-3         DEFROE      0               0         
-    }
+    } -result {NONE}
+    
+
     
     #-------------------------------------------------------------------
     # Cleanup

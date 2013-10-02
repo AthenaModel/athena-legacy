@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    010-condition_nbmood.test
+#    010-conditionx_nbmood.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    condition_nbmood(sim) tests.
+#    conditionx_nbmood(sim) tests.
 #
-#    This test suite tests the condition_nbmood(sim) ensemble.
+#    This test suite tests the conditionx_nbmood(sim) class.
 #
 #-----------------------------------------------------------------------
 
@@ -29,97 +29,82 @@ namespace eval ::athena_test::tests:: {
     # Set up for tests
 
     proc setup {} {
-        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN
-
-        ted order TACTIC:DEPOSIT:CREATE owner JOE amount 10
-
-        # Verify that unused columns contain NULL
-        rdb nullvalue "@"
+        variable C1
+        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+        set C1 [conditionx::NBMOOD new]
     }
 
     # Clean up after a test
 
     proc cleanup {} {
-        # Clean up the test environment
-        rdb nullvalue ""
-        array unset parms
         ted cleanup
-    }
-
-    # Standard Conditions.
-    
-    set C1 {
-        cc_id          1
-        condition_type NBMOOD
-        n              NB1
-        op1            LT
-        x1             50.0
     }
 
     #-------------------------------------------------------------------
     # narrative
 
-    test narrative-1.1 {narrative} -setup {
+    test narrative-1.1 {narrative, initial state} -setup {
         setup
-        condition mutate create $C1
     } -body {
-        condition::NBMOOD narrative [condition get 1]
+        $C1 narrative
     } -cleanup {
         cleanup
-    } -result {Neighborhood NB1's mood is less than 50.00.}
+    } -result {Neighborhood ???'s mood is equal to 0.00}
+
+    test narrative-1.2 {narrative, with nbhood} -setup {
+        setup
+        $C1 set n NB1
+    } -body {
+        $C1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Neighborhood NB1's mood is equal to 0.00}
 
     #-------------------------------------------------------------------
     # check
 
-
-    test check-1.1 {check: successful} -setup {
+    test check-1.1 {check: no neighborhood} -setup {
         setup
-        condition mutate create $C1
     } -body {
-        condition::NBMOOD check [condition get 1]
+        $C1 check
+    } -cleanup {
+        cleanup
+    } -result {n {Neighborhood "" does not exist}}
+
+    test check-1.2 {check: successful} -setup {
+        setup
+        $C1 set n NB1
+    } -body {
+        $C1 check
     } -cleanup {
         cleanup
     } -result {}
 
-    test check-1.2 {check: nbhood deleted} -setup {
-        setup
-        condition mutate create $C1
-        nbhood mutate delete NB1
-    } -body {
-        condition::NBMOOD check [condition get 1]
-    } -cleanup {
-        cleanup
-    } -result {Neighborhood NB1 no longer exists.}
-
     #-------------------------------------------------------------------
     # eval
 
-
-    proc NbmoodEval {nbmood comp amount} {
-        rdb eval {
-            UPDATE uram_n
-            SET nbmood = $nbmood
-            WHERE n='NB1'
-        }
-        condition mutate update [list condition_id 1 op1 $comp x1 $amount]
-        return [condition::NBMOOD eval [condition get 1]]
+    proc EvalCase {cond comp limit} {
+        $cond set comp $comp
+        $cond set limit $limit
+        return [$cond eval]
     }
 
     test eval-1.1 {Test eval} -setup {
         setup
+        $C1 set n NB1
         aram init
-        condition mutate create $C1
     } -body {
-        set a [NbmoodEval 50 EQ 50]
-        set b [NbmoodEval 50 GE 50]
-        set c [NbmoodEval 50 LE 50]
-        set d [NbmoodEval 50 GT 45]
-        set e [NbmoodEval 50 LT 45]
+        # NB1's mood is initially 0.0
+        set a [EvalCase $C1 EQ 0.0]
+        set b [EvalCase $C1 LT 0.0]
+        set c [EvalCase $C1 LE 0.0]
+        set d [EvalCase $C1 GT 0.0]
+        set e [EvalCase $C1 GE 0.0]
 
         list $a $b $c $d $e
     } -cleanup {
         cleanup
-    } -result {1 1 1 1 0}
+    } -result {1 0 1 0 1}
 
     #-------------------------------------------------------------------
     # Cleanup
