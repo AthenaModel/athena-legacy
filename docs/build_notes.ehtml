@@ -11,6 +11,26 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.2, 3 October 2013</h3>
+
+This build contains the preliminary version of the Mark II Strategy Engine.
+Only two conditions and a subset of the tactics have been converted to the
+new engine; the remainder are unavailable in this version.<p>
+
+The focus in this version should be on testing strategy editing, and execution
+of the tactics that currently exist.  There are new Detail Browser pages, and
+similar content in the Strategy/Editor tab that needs to be examined for
+anomalies.  Anything that's unclear or peculiar looking should be reported.<p>
+
+The on-line help has not yet been updated.<p>
+
+<ul>
+<li> Bug 4147: athena(1): change the units of production in the black sector to blackBKT
+<li> Bug 4148: Mark II Strategy Engine Preliminaries
+<li> Bug 4153: Mark II Strategy Engine Installed
+<li> Bug 4156: athena(1): Multiple item delete in Strategy/Editor
+</ul><p>
+
 <h3>Build 6.0.1, 25 September 2013</h3>
 This build contains some enhancements to the SAM and CGE in the econ model.
 Specifically, the SAM now takes remittances as a direct input and balances
