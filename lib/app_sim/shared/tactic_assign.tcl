@@ -109,13 +109,13 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
         # FIRST, compute the cost.
         set trans(cost) [my AssignmentCost]
 
-        # NEXT, obligate the resources on tick
-        if {[strategy ontick]} {
-            # FIRST, are there enough people available?
-            if {$personnel > [$coffer troops $g $n]} {
-                return 0
-            }
+        # NEXT, are there enough people available?
+        if {$personnel > [$coffer troops $g $n]} {
+            return 0
+        }
 
+        # NEXT, is there enough cash?  This only matters on tick.
+        if {[strategy ontick]} {
             # NEXT, can we afford to assign them?
             if {$trans(cost) > [$coffer cash]} {
                 return 0

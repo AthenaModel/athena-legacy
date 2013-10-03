@@ -46,6 +46,7 @@ namespace eval ::athena_test::tests:: {
     proc cleanup {} {
         variable coffer
         $coffer destroy
+        strategy locking 0
         ted cleanup
     }
 
@@ -158,7 +159,7 @@ namespace eval ::athena_test::tests:: {
 
     # obligate-1.*: Failures
 
-    test obligate-1.1 {Insufficient troops} -setup {
+    test obligate-1.1 {Insufficient troops on tick} -setup {
         setup
         $T1 set g BLUE
         $T1 set n NB1
@@ -174,7 +175,24 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0 1}
 
-    test obligate-1.2 {Insufficient cash} -setup {
+    test obligate-1.2 {Insufficient troops on lock} -setup {
+        setup
+        strategy locking 1
+        $T1 set g BLUE
+        $T1 set n NB1
+        $T1 set activity PATROL
+        $T1 set personnel 100
+    } -body {
+        set before [$coffer getdict]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer getdict]
+
+        list $flag [expr {$before eq $after}]
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test obligate-1.3 {Insufficient cash on tick} -setup {
         setup
         parm set activity.FRC.PATROL.cost 1000
         $T1 set g BLUE
@@ -192,7 +210,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {0 1}
-
 
     # obligate-2.*: success
 
@@ -216,15 +233,15 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {500 10000.0 1 400 9900.0}
 
-    test obligate-2.2 {insufficient troops and funds on lock} -setup {
+    test obligate-2.2 {insufficient funds on lock} -setup {
         setup
+        strategy locking 1
         parm set activity.FRC.PATROL.cost 1000
         $T1 set g BLUE
         $T1 set n NB1
         $T1 set activity PATROL
         $T1 set personnel 1000
-        $coffer deploy BLUE NB1 500
-        strategy locking 1
+        $coffer deploy BLUE NB1 2000
     } -body {
         set a [$T1 obligate $coffer]
         set b [$coffer troops BLUE NB1]
@@ -233,7 +250,7 @@ namespace eval ::athena_test::tests:: {
         list $a $b $c
     } -cleanup {
         cleanup
-    } -result {1 0 0.0}
+    } -result {1 1000 0.0}
 
 
     #-------------------------------------------------------------------
