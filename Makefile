@@ -138,7 +138,8 @@ bin: check_env src
 		-pkgref "Tkhtml    -require 3.0"            \
 		-pkgref "uri"                               \
 		-pkgref "fileutil"                          \
-		-pkgref "ctext"
+		-pkgref "ctext"                             \
+		-pkgref "TclOO"
 	@ cat tclapp.log
 
 #---------------------------------------------------------------------
