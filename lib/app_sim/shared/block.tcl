@@ -505,16 +505,13 @@ beanclass create block {
             return
         }
 
-        # NEXT, block execution is different on lock than on tick.
+        # NEXT, block eligibility is different on lock than on tick.
         if {[strategy locking]} {
             # FIRST, skip if the block's not done on lock.
             if {!$onlock} {
                 my set execstatus SKIPPED
                 return
             }
-
-            # NEXT, get the tactics to execute
-            set tacticsToExecute [my GetOnLockTactics $coffer]
         } else {
             # FIRST, check whether it's time.
             if {![my istime]} {
@@ -527,9 +524,10 @@ beanclass create block {
                 my set execstatus FAIL_CONDITIONS
                 return
             }
-
-            set tacticsToExecute [my GetOnTickTactics $coffer]
         }
+
+        # NEXT, get the tactics to execute
+        set tacticsToExecute [my GetTactics $coffer]
 
         # NEXT, if there are no tactics to execute, we've failed.
         if {[llength $tacticsToExecute] == 0} {
@@ -549,47 +547,6 @@ beanclass create block {
         if {$once} {
             my set state disabled
         }
-    }
-
-    # GetOnLockTactics coffer
-    #
-    # coffer   - A coffer containing the actor's available resources
-    #            at this point in strategy execution.
-    #
-    # Handles block execution on lock.  The time constraints and 
-    # conditions are ignored, and available resources are not considered.
-
-    method GetOnLockTactics {coffer} {
-        # FIRST, see what tactics we have to execute
-        set tacticsToExecute [list]
-
-        foreach tactic $tactics {
-            # FIRST, skip disabled and invalid tactics
-            if {[$tactic state] ne "normal" } {
-                continue
-            }
-
-            # NEXT, skip tactics that don't execute on lock.
-            set ttype [info object class $tactic]
-            if {![$ttype onlock]} {
-                continue
-            }
-
-            # NEXT, obligate it; this is necessary for the tactics to 
-            # work properly, and for initialization of the CGE.  However,
-            # obligation isn't allowed to fail on lock.
-            set oflag [$tactic obligate $coffer]
-            assert {$oflag}
-
-            lappend tacticsToExecute $tactic
-        }
-
-        # NEXT, if there are no tactics to execute, we've failed.
-        if {[llength $tacticsToExecute] == 0} {
-            set execstatus SKIPPED
-        }
-
-        return $tacticsToExecute
     }
 
     # AreConditionsMet
@@ -630,7 +587,7 @@ beanclass create block {
         return $cflag
     }
 
-    # GetOnTickTactics coffer
+    # GetTactics coffer
     #
     # coffer   - A coffer containing the actor's available resources
     #            at this point in strategy execution.
@@ -638,7 +595,7 @@ beanclass create block {
     # Given that the block is eligible for execution, determines which
     # tactics are to be executed, and returns them in order.
 
-    method GetOnTickTactics {coffer} {
+    method GetTactics {coffer} {
         # FIRST, obligate the required assets
         set tacticsToExecute [list]
 
@@ -648,6 +605,14 @@ beanclass create block {
             # FIRST, skip disabled and invalid tactics
             if {[$tactic get state] ne "normal"} {
                 continue
+            }
+
+            # NEXT, skip tactics that don't execute on lock.
+            if {[strategy locking]} {
+                set ttype [info object class $tactic]
+                if {![$ttype onlock]} {
+                    continue
+                }
             }
 
             # NEXT, obligate required assets.  Save the coffer state,

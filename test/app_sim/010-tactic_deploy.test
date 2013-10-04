@@ -251,6 +251,44 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0 1}
 
+    test obligate-1.5 {on lock: mode ALL, no personnel} -setup {
+        setup
+        $T1 set g BLUE
+        $T1 set nlist NB1
+        $T1 set mode ALL
+
+        $coffer demobilize BLUE [$coffer troops BLUE undeployed]
+
+        strategy locking 1
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer troops BLUE undeployed]
+
+        list $a $b
+    } -cleanup {
+    cleanup
+    } -result {0 0}
+
+    test obligate-1.6 {on lock: mode SOME, insufficient personnel} -setup {
+        setup
+        $T1 set g BLUE
+        $T1 set nlist NB1
+        $T1 set mode SOME
+        $T1 set personnel 5001
+        $T1 set reinforce 0
+
+        strategy locking 1
+    } -body {
+        set a [$coffer troops BLUE undeployed]
+        set b [$T1 obligate $coffer]
+        set c [$coffer troops BLUE undeployed]
+        set d [$coffer troops BLUE NB1]
+
+        list $a $b $c $d
+    } -cleanup {
+        cleanup
+    } -result {5000 0 5000 0}
+
 
     # obligate-2.*: success
 
@@ -464,25 +502,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {5000 1 0 5000 0.0}
 
-    test obligate-3.2 {on lock: mode ALL, no personnel} -setup {
-        setup
-        $T1 set g BLUE
-        $T1 set nlist NB1
-        $T1 set mode ALL
-
-        $coffer demobilize BLUE [$coffer troops BLUE undeployed]
-
-        strategy locking 1
-    } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer troops BLUE undeployed]
-
-        list $a $b
-    } -cleanup {
-        cleanup
-    } -result {1 0}
-
-    test obligate-3.3 {on lock: mode SOME, insufficient cash} -setup {
+    test obligate-3.2 {on lock: mode SOME, insufficient cash} -setup {
         setup
         $T1 set g BLUE
         $T1 set nlist NB1
@@ -506,26 +526,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {5000 1 4900 100 0.0}
-
-    test obligate-3.3 {on lock: mode SOME, insufficient personnel} -setup {
-        setup
-        $T1 set g BLUE
-        $T1 set nlist NB1
-        $T1 set mode SOME
-        $T1 set personnel 5001
-        $T1 set reinforce 0
-
-        strategy locking 1
-    } -body {
-        set a [$coffer troops BLUE undeployed]
-        set b [$T1 obligate $coffer]
-        set c [$coffer troops BLUE undeployed]
-        set d [$coffer troops BLUE NB1]
-
-        list $a $b $c $d
-    } -cleanup {
-        cleanup
-    } -result {5000 1 0 5001}
 
 
 

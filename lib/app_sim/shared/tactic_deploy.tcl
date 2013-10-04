@@ -164,7 +164,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         }
 
         # NEXT, if none got deployed, we're done.
-        if {[strategy ontick] && $totalTroops == 0} {
+        if {$totalTroops == 0} {
             return 0
         }
 
@@ -212,7 +212,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         }
 
         # NEXT, if there are no troops left, we're done.
-        if {[strategy ontick] && $troops == 0} {
+        if {$troops == 0} {
             return 0
         }
 
@@ -293,12 +293,6 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
                 } {}
             }
 
-            # NEXT, If there are insufficient troops or insufficent funds
-            # available, we're done.
-            if {$troops > $available} {
-                return 0
-            }
-
             if {$troops * [group maintPerPerson $g] > $cash} {
                 return 0
             }
@@ -306,6 +300,12 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             # On lock, it's a new deployment and they get what they want.
             set alreadyDeployed 0
             set troops $personnel
+        }
+
+        # NEXT, If there are insufficient troops or insufficent funds
+        # available, we're done.
+        if {$troops > $available} {
+            return 0
         }
 
         # NEXT, allocate troops to neighborhoods.
