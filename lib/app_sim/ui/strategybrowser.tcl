@@ -229,8 +229,8 @@ snit::widget strategybrowser {
         # and so the browser's data is reloaded from scratch.  A
         # lazyupdater(n) is used to guarantee that the data is reloaded only
         # once, at the last possible moment.
-        notifier bind ::sim       <DbSyncB> $self [mymethod ReloadOnEvent]
-        notifier bind ::sim       <Tick>    $self [mymethod ReloadOnEvent]
+        notifier bind ::sim      <DbSyncB> $self [mymethod ReloadOnEvent]
+        notifier bind ::sim      <Tick>    $self [mymethod ReloadOnEvent]
         notifier bind ::strategy <Check>   $self [mymethod ReloadOnEvent]
 
         # ACTOR UPDATES
@@ -1227,12 +1227,14 @@ snit::widget strategybrowser {
     method TTabCreate {pane} {
         # FIRST, create the pane
         install ttab using beanbrowser $pane          \
-            -beancmd        ""                         \
-            -columnsorting 0                           \
-            -titlecolumns  2                           \
-            -height        5                           \
+            -beancmd       ""                         \
+            -columnsorting 0                          \
+            -titlecolumns  2                          \
+            -height        5                          \
             -displaycmd    [mymethod TTabDisplay]     \
             -selectioncmd  [mymethod TTabSelection]   \
+            -cutcopycmd    [mymethod TTabCutCopy]     \
+            -pastecmd      [mymethod TTabPaste]       \
             -layout [string map [list %D $::app::derivedfg] {
                 { id              "ID"                               }
                 { execstatus      "Exec"      -align center          }
@@ -1397,6 +1399,81 @@ snit::widget strategybrowser {
                  $tt_topbtn $tt_raisebtn $tt_lowerbtn $tt_bottombtn]
     }
 
+    # TTabCutCopy mode
+    #
+    # mode   - cut|copy
+    #
+    # This command is called when the user cuts or copies from
+    # the TTab.  There will always be at least one item selected.
+
+    method TTabCutCopy {mode} {
+        # TBD: Experimental
+        return
+
+        # FIRST, if the sim state is wrong, we're done.
+        if {[sim state] ni {PREP PAUSED}} {
+            bell
+            return
+        }
+
+        # NEXT, copy the data to the clipboard.
+        set ids [$ttab uid curselection]
+
+        set data [list]
+
+        foreach id $ids {
+            set bean [tactic get $id]
+            lappend copyData [$bean copydata]
+        }
+
+        clipboardx clear
+        clipboardx set ::tactic $copyData
+
+        # NEXT, if the mode is cut delete the items.
+        if {$mode eq "cut"} {
+            order send gui BLOCK:TACTIC:DELETE ids $ids
+        }
+
+        # NEXT, notify the user:
+        if {$mode eq "copy"} {
+            app puts "Copied [llength $ids] item(s)"
+        } else {
+            app puts "Cut [llength $ids] item(s)"
+        }
+    }
+
+    # TTabPaste
+    #
+    # This command is called when the user pastes into 
+    # the TTab.
+
+    method TTabPaste {} {
+        # TBD: Experimental
+        return
+
+        # FIRST, if the sim state is wrong or there's no block loaded,
+        # we're done.
+        if {[sim state] ni {PREP PAUSED} ||
+            ![$self gotblock]
+        } {
+            bell
+            return
+        }
+
+        # NEXT, get the tactics from the clipboard, if any.
+        set copysets [clipboardx get ::tactic]
+
+        if {[llength $copysets] == 0} {
+            bell
+            return
+        }
+
+        # NEXT, paste them.
+        order send gui BLOCK:TACTIC:PASTE \
+            block_id [$info(block) id] copysets $copysets
+
+        app puts "Pasted [llength $copysets] item(s)"
+    }
 
     # TTabAdd
     #
@@ -1623,11 +1700,4 @@ snit::widget strategybrowser {
         $lazy update
     }
 }
-
-
-
-
-
-
-
 

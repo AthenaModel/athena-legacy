@@ -85,15 +85,15 @@ namespace eval ::athena_test::tests:: {
             tactic_id [$T1 id] \
             amount    100.0
 
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
         amount     100.0
-        id         *
         execstatus NONE
+        id         *
+        parent     ::bean::block*
         state      normal
-        block      ::bean::block*
     }
 
     test TACTIC:WITHDRAW:UPDATE-2.2 {notifier event} -setup {

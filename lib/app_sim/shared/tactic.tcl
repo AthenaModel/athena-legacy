@@ -214,7 +214,7 @@ oo::define tactic {
 
     # Every tactic has a "id", due to being a bean.
 
-    variable block       ;# The tactic's owning block
+    variable parent      ;# The tactic's owning block
     variable state       ;# The tactic's state: normal, disabled, invalid
     variable execstatus  ;# An eexecstatus value: NONE, SKIPPED, 
                           # FAIL_RESOURCES, or SUCCESS.
@@ -224,13 +224,9 @@ oo::define tactic {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor theOwner
-    #
-    # The agent that owns the tactic.
-
-    constructor {block_} {
+    constructor {} {
         next
-        set block      $block_
+        set parent     ""
         set state      normal
         set execstatus NONE
     }
@@ -263,7 +259,7 @@ oo::define tactic {
     # owns this condition.
 
     method agent {} {
-        return [$block agent]
+        return [$parent agent]
     }
     
     # strategy 
@@ -271,7 +267,7 @@ oo::define tactic {
     # Returns the strategy that owns the block that owns this condition.
 
     method strategy {} {
-        return [$block strategy]
+        return [$parent strategy]
     }
 
     # block
@@ -279,7 +275,7 @@ oo::define tactic {
     # Returns the block that owns this condition.
 
     method block {} {
-        return $block
+        return $parent
     }
 
     # state
@@ -305,6 +301,7 @@ oo::define tactic {
     method execflag {} {
         return [expr {$execstatus eq "SUCCESS"}]
     }
+
 
     #-------------------------------------------------------------------
     # Tactic Reset
@@ -429,13 +426,13 @@ oo::define tactic {
 
     # onUpdate_
     #
-    # On update_, clears the execstatus, does a sanity check, if appropriate, 
-    # and sends notifications.
+    # On update_, resets status data and does a sanity check
+    # if appropriate.
     
     method onUpdate_ {} {
         # FIRST, clear the execstatus; the tactic has changed, and
         # is effectively different from any tactic that ran previously.
-        my set execstatus NONE
+        my reset
 
         # NEXT, Check only if the tactic is not disabled; otherwise, if you
         # try to disable an invalid tactic so that you can lock the
@@ -445,7 +442,16 @@ oo::define tactic {
             my check
         }
 
-        # NEXT, send notifications.
+        next
+    }
+
+    # onPaste_
+    #
+    # Pasted objects are like new objects.  Reset execution
+    # status data.
+
+    method onPaste_ {} {
+        my reset
         next
     }
 }

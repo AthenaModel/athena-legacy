@@ -64,13 +64,22 @@ namespace eval ::athena_test::tests:: {
         execstatus NONE
         state      invalid
         activity   {}
+        parent     ::bean::block*
         personnel  0
         n          {}
-        block      ::bean::block*
         g          {}
     }
 
-    
+    test constructor-1.2 {can set options} -setup {
+        setup
+    } -body {
+        set T1 [tactic::ASSIGN new -parent DUMMY]
+        $T1 get parent
+    } -cleanup {
+        cleanup
+    } -result {DUMMY}
+
+
 
     #-------------------------------------------------------------------
     # narrative

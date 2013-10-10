@@ -107,17 +107,17 @@ namespace eval ::athena_test::tests:: {
             comp         gt       \
             limit        10
 
-        ted pdict [$C1 getdict]
+        ted pdicts [$C1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
-        metflag {}
-        id      3
-        state   normal
-        block   ::bean::block*
-        limit   10
         comp    GT
         g       SHIA
+        id      *
+        limit   10
+        metflag {}
+        parent  ::bean::block*
+        state   normal
     }
 
     test CONDITION:MOOD:UPDATE-2.2 {notifier event} -setup {

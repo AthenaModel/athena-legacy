@@ -32,16 +32,11 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # block_  - The block that owns the tactic
-    #
-    # Creates a new tactic for the given block.
-    #
-    # TBD: What should initial shares be?
+    constructor {args} {
+        # Initialize as tactic bean.
+        next
 
-    constructor {{block_ ""}} {
-        next $block_
+        # Initialize state variables
         set mode   ALL
         set amount 0.0
         set goods  1
@@ -51,6 +46,9 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
         set world  1
 
         set trans(amount) 0.0
+
+        # Save the options
+        my configure {*}$args
     }
 
     #-------------------------------------------------------------------

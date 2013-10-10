@@ -151,20 +151,20 @@ namespace eval ::athena_test::tests:: {
             reinforce no       \
             nlist     NB1
 
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
-        id         *
         execstatus NONE
-        state      normal
-        reinforce  0
-        mode       SOME
-        last_tick  {}
-        nlist      NB1
-        personnel  1000
-        block      ::bean::block*
         g          BLUE
+        id         *
+        last_tick  {}
+        mode       SOME
+        nlist      NB1
+        parent     ::bean::block*
+        personnel  1000
+        reinforce  0
+        state      normal
     }
 
     test TACTIC:DEPLOY:UPDATE-2.2 {notifier event} -setup {

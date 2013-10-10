@@ -18,7 +18,7 @@ beanclass create block {
     #-------------------------------------------------------------------
     # Instance Variables
 
-    variable strategy   ;# Name of the owning strategy
+    variable parent     ;# Name of the owning strategy
     variable intent     ;# Intent of the analyst for this block
     variable state      ;# normal, disabled
     variable once       ;# Flag; if true, the block will be disabled
@@ -39,10 +39,17 @@ beanclass create block {
     #-------------------------------------------------------------------
     # Constructor/Destructor
 
+    # constructor ?option value...?
+    #
+    # option  - An instance variable in option form, e.g., -tmode.
+    #
+    # Creates the object, and assigns values to instance variables.
+    #
     # Note: bean constructors must not have required arguments.
-    constructor {{strategy_ ""}} {
+
+    constructor {args} {
         next
-        set strategy   $strategy_
+        set parent     ""
         set intent     ""
         set state      "normal"
         set once       0
@@ -56,6 +63,9 @@ beanclass create block {
         set tactics    [list]
         set execstatus NONE
         set exectime   ""
+
+        # Configure any option values.
+        my configure {*}$args
     }
     
     #-------------------------------------------------------------------
@@ -74,7 +84,7 @@ beanclass create block {
     # Returns the strategy's agent
 
     method agent {} {
-        return [$strategy agent]
+        return [$parent agent]
     }
 
     # strategy
@@ -82,7 +92,7 @@ beanclass create block {
     # Return the block's owning strategy
 
     method strategy {} {
-        return $strategy
+        return $parent
     }
 
     # state
@@ -701,7 +711,7 @@ beanclass create block {
 
     method addcondition_ {typename} {
         set type [condition type $typename]
-        return [my addbean_ conditions [$type new [self]]]
+        return [my addbean_ conditions [$type new]]
     }
 
     # deletecondition_ condition_id 
@@ -724,7 +734,7 @@ beanclass create block {
 
     method addtactic_ {typename} {
         set type [tactic type $typename]
-        return [my addbean_ tactics [$type new [self]]]
+        return [my addbean_ tactics [$type new]]
     }
 
     # deletetactic_ tactic_id 
@@ -747,6 +757,27 @@ beanclass create block {
 
     method movetactic_ {tactic_id where} {
         return [my movebean_ tactics $tactic_id $where]
+    }
+
+    # pasteTactics_ copysets
+    #
+    # copysets  - A list of tactic "cdicts" from [$tactic copydata]
+    #
+    # Pastes the tactics into the tactics slot, and does a sanity
+    # check.
+
+    method pasteTactics_ {copysets} {
+        set undoData [my getdict]
+
+        lappend undoList [my pastelist_ tactics $copysets]
+
+        # Sanity check this block and the new entities, which might
+        # have been pasted from another actor's strategy.
+        my check 
+
+        lappend undoList [mymethod setdict $undoData]
+
+        return [join $undoList \n]
     }
 }
 
@@ -981,6 +1012,53 @@ order define BLOCK:TACTIC:MOVE {
 
     setundo [$block movetactic_ $parms(tactic_id) $parms(where)]
 }
+
+# BLOCK:TACTIC:PASTE
+#
+# Pastes one or more tactics into the block.
+#
+# The order dialog is not usually used.
+
+order define BLOCK:TACTIC:PASTE {
+    title "Paste Tactics Into Block"
+
+    options -sendstates {PREP PAUSED}
+
+    form {
+        text block_id -context yes
+        text copysets
+    }
+} {
+    # FIRST, prepare and validate the parameters
+    prepare block_id -required -oneof  [block ids]
+    prepare copysets
+
+    set block [block get $parms(block_id)]
+
+    returnOnError
+
+    # NEXT, verify that the copysets are all tactic copysets.
+    # TBD: bean should provide this check given superclass.
+    foreach cdict $parms(copysets) {
+        if {![dict exists $cdict class_]} {
+            reject copysets "Invalid copy set format"
+            returnOnError -final
+        }
+
+        set cls [dict get $cdict class_]
+
+        if {"::tactic" ni [info class superclasses $cls]} {
+            reject copysets "Copied object is not a tactic"
+            returnOnError -final
+        }
+    }
+
+    # NEXT, paste the tactics
+    setundo [$block pasteTactics_ $parms(copysets)]
+
+    return
+}
+
 
 # BLOCK:CONDITION:ADD
 #

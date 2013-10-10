@@ -644,6 +644,31 @@ oo::define ::projectlib::bean {
         set [self namespace]::$var $value
     }
 
+    # configure ?option value...?
+    #
+    # option   - An instance variable name in option form: -$varname
+    # value    - The variable value
+    #
+    # This is equivalent to setdict, but uses option notation.
+
+    method configure {args} {
+        foreach {opt value} $args {
+            set var [string range $opt 1 end]
+            my set $var $value
+        }
+    }
+
+    # cget opt
+    #
+    # opt   - An instance variable name in option form: -$varname
+    #
+    # This is equivalent to get but uses option notation.
+
+    method cget {opt} {
+        set var [string range $opt 1 end]
+        return [my get $var]
+    }
+
     # lappend listvar value...
     #
     # listvar   - An instance variable name
@@ -732,6 +757,96 @@ oo::define ::projectlib::bean {
     }
 
     #-------------------------------------------------------------------
+    # Copy/Paste Support
+
+    # copydata
+    #
+    # Creates a copy set for this bean.  The copy set contains all
+    # of the information needed to recreate the bean and the beans that
+    # it owns:
+    #
+    # - The id variable and the parent variable (if any) are omitted.
+    # - A "class_" variable is added, with the leaf class name.
+    # - Beanslot elements are replaced with copy sets for the listed
+    #   elements.
+
+    method copydata {} {
+        # FIRST, get a shallow copy of this object.
+        set cdict [my GetShallowCopy]
+
+        # NEXT, for each bean slot get a copy set.
+        foreach slot [my getslots] {
+            dict set cdict $slot [list]
+
+            foreach bean [my get $slot] {
+                dict lappend cdict $slot [$bean copydata]
+            }
+        }
+
+        return $cdict
+    }
+
+    # GetShallowCopy
+    #
+    # Returns a copy dict for this object, a dictionary containing all
+    # state that can be copied and pasted.  This excludes the id,
+    # since a new object will have its own, and its parent (if any), as the
+    # new object's parent will be set on paste.  It includes a new
+    # key, "class_", the leaf class.
+
+    method GetShallowCopy {} {
+        set dict [dict remove [my getdict] id parent]
+        dict set dict class_ [info object class [self]]
+
+        return $dict
+    }
+
+    # newcopy
+    #
+    # Creates a new deep copy of this bean.
+
+    method newcopy {} {
+        return [my MakeNewCopy [my copydata]]
+    }
+    
+    # MakeNewCopy cdict
+    #
+    # cdict    - A copy set
+    #
+    # Given a copy set, creates a new bean, recursively creating any
+    # any owned beans.
+    #
+    # NOTE: We use addbean_ to add child beans to the new object's
+    # slots, which means that notifications are sent.  But it's
+    # not clear that that's really necessary; MakeNewCopy is always used
+    # to create a single new bean and its children, and all we really
+    # need to notify about is the new bean.
+
+    method MakeNewCopy {cdict} {
+        # FIRST, recreate the bean in the cdict
+        set bcls [dict get $cdict class_]
+        set bean [$bcls new]
+        $bean setdict [dict remove $cdict class_]
+
+        # NEXT, for any bean slots, make new copies of each of the elements.
+        foreach slot [$bean getslots] {
+            set childdicts [$bean get $slot]
+            $bean set $slot [list]
+
+            set children [list]
+            foreach child $childdicts {
+                $bean addbean_ $slot [my MakeNewCopy $child]
+            }
+        }
+
+        # NEXT, all the bean to update itself.
+        $bean onPaste_
+
+        return $bean
+    }
+    
+
+    #-------------------------------------------------------------------
     # Order Mutators
     #
     # The following commands are for use in defining mutators
@@ -744,7 +859,10 @@ oo::define ::projectlib::bean {
     # bean   - A new bean to add to the list.
     # 
     # Adds a bean to a slot and calls the onAddBean_ method,
-    # returnning an undo script.
+    # returnning an undo script.  The assumption is that this
+    # is a brand new bean, and that it will be destroyed on undo.
+    #
+    # NOTE: The bean must have a -parent method.
 
     unexport addbean_
     method addbean_ {slot bean} {
@@ -753,6 +871,7 @@ oo::define ::projectlib::bean {
 
         # NEXT, add the bean to the slot
         my lappend $slot $bean
+        $bean configure -parent [self]
 
         # NEXT, do activities on add to slot
         my onAddBean_ $slot [$bean id]
@@ -772,8 +891,7 @@ oo::define ::projectlib::bean {
 
     # onAddBean_ slot bean_id
     #
-    # This method is called as part of addBean_.  By default, it
-    # send the notification (if the subject is defined).  Subclasses
+    # This method is called as part of addBean_. Subclasses
     # can override it to do additional work before or after the 
     # notification is sent.
 
@@ -841,8 +959,7 @@ oo::define ::projectlib::bean {
 
     # onDeleteBean_ slot bean_id
     #
-    # This method is called as part of deleteBean_.  By default, it
-    # sends the notification (if the subject is defined).  Subclasses
+    # This method is called as part of deleteBean_.  Subclasses
     # can override it to do additional work before or after the 
     # notification is sent.
 
@@ -912,8 +1029,7 @@ oo::define ::projectlib::bean {
 
     # onMoveBean_
     #
-    # This method is called as part of movebean_.  By default, it
-    # send the notifications. Subclasses
+    # This method is called as part of movebean_.  Subclasses
     # can override it to do additional work before or after the 
     # notifications are sent.
 
@@ -989,11 +1105,65 @@ oo::define ::projectlib::bean {
         return [mymethod UndoUpdate $udict]
     }
 
+    # paste_ slot cdict
+    #
+    # slot      - A bean slot
+    # cdict     - A bean copy set to be pasted into the slot.
+    #
+    # Pastes the bean into the slot, recursively pasting owned beans.
+    # The addbean_ method is used to add the new beans, so the normal
+    # normal notifications are sent.  Also calls onPaste_ for each
+    # created bean.
+
+    method paste_ {slot cdict} {
+        # FIRST, create the new bean.
+        set bean [my MakeNewCopy $cdict]
+
+        # NEXT, paste the new bean into the slot, and return the undo
+        # script.  NOTE: The standard addbean_ undo script will delete
+        # the new bean and all of its children; we don't need to undo
+        # the children explicitly.
+        return [my addbean_ $slot $bean]
+    }
+
+    # pastelist_ slot copysets
+    #
+    # slot      - A bean slot
+    # copysets  - A list of one or more bean copy sets to be pasted into 
+    #             the slot.
+    #
+    # Pastes the copied beans into the slot, recursively pasting owned beans.
+    # The addbean_ method is used to add the new beans, so the normal
+    # normal notifications are sent.  Also calls onPaste_ for each
+    # created bean.
+
+    method pastelist_ {slot copysets} {
+        set undoList [list]
+
+        foreach cdict $copysets {
+            lappend undoList [my paste_ $slot $cdict]
+        }
+
+        # Undo the additions in the reverse order.
+        return [join [lreverse $undoList] \n]
+    }
+
+    # onPaste_
+    #
+    # This is called for each bean created by paste_ or deepcopy.  
+    # Pasting a bean may leave it with status data that's no longer
+    # appropriate.  The onPaste_ command can reset things appropriately.
+
+    method onPaste_ {} {
+        # Override
+    }
+
+
+
     # onUpdate_
     #
     # This method is called as part of an update_, after all changes
-    # have been made.  By default, it calls a notifier event 
-    # (if the subject is defined).  Subclasses can override it
+    # have been made.  Subclasses can override it
     # to do additional work before or after the notification.
 
     method onUpdate_ {} {

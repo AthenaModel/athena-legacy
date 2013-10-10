@@ -22,16 +22,16 @@ tactic define EXECUTIVE "Executive Command" {actor system} -onlock {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # block_  - The block that owns the tactic
-    #
-    # Creates a new tactic for the given block.
+    constructor {args} {
+        # Initialize as tactic bean.
+        next
 
-    constructor {{block_ ""}} {
-        next $block_
+        # Initialize state variables
         set command ""
         my set state invalid   ;# command is still unknown.
+
+        # Save the options
+        my configure {*}$args
     }
 
     #-------------------------------------------------------------------

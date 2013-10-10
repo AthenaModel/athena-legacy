@@ -10,6 +10,9 @@
 #
 #    This test suite tests the BLOCK:* orders.
 #
+# TBD:
+#    Test BLOCK:TACTIC:PASTE.
+#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -195,12 +198,12 @@ namespace eval ::athena_test::tests:: {
         tmode      DURING
         conditions {}
         emode      SOME
-        strategy   ::strategy::SYSTEM
         id         *
         once       1
         t1         5
         onlock     1
         t2         10
+        parent     ::strategy::SYSTEM
         intent     {New intent}
         tactics    {}
         exectime   {}

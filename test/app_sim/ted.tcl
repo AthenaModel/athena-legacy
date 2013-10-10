@@ -1111,6 +1111,27 @@ snit::type ted {
         return $results
     }
 
+    # pdicts dict
+    #
+    # dict - A dictionary
+    # 
+    # Pretty-prints a dictionary for use in -result, with sorted keys.
+
+    typemethod pdicts {dict} {
+        set results "\n"
+
+        set wid [lmaxlen [dict keys $dict]]
+
+        foreach key [lsort [dict keys $dict]] {
+            set value [dict get $dict $key]
+            append results \
+                "        [format {%-*s %s} $wid $key [list $value]]\n" 
+        }
+        append results "    "
+                    
+        return $results
+    }
+
 }
 
 

@@ -217,6 +217,17 @@ beanslot called "tail":<p>
     }
 </pre>
 
+The tail, for its part, must retain a pointer to its parent:<p>
+
+<pre>
+    ::projectlib::beanclass create tail {
+        variable parent  ;# The dog to which the tail belongs.
+    }
+</pre>
+
+The <<iref addbean_>> method updates both the bean slot and the added
+bean's <code>parent</code> variable.<p>
+
 Beans named in bean slots will be destroyed automatically with the owning
 bean.<p>
 
@@ -255,6 +266,20 @@ on mutate and on undo.  Every mutator sends out a
 script.  In addition, if the class's <<iref subject>> is defined the 
 mutators will send out more specific events from that subject.<p>
 
+
+<<subsection "Copy and Paste">>
+
+Beans support copy and paste.
+
+The <<iref deepcopy>> method returns a deep
+copy of the given bean, including copies of all beans in bean slots (and
+copies of beans in their bean slots, and so on).<p>
+
+The <<iref copydata>> method returns a copy set for the bean, a collection
+of data suitable to be placed on a clipboard.<p>
+
+The <<iref paste_>> mutator pastes a copy set into a bean slot, first
+recreating the bean being pasted along with the beans in its slots, if any.<p>
 
 <<section "CLASS COMMANDS">>
 
@@ -413,6 +438,34 @@ The undo script will undo the change; it will also:<p>
 
 Subclasses will usually wrap this in a mutator specific to the slot.<p>
 
+<<defitem cget {<i>bean</i> cget <i>option</i>}>>
+
+This method is simply syntactic sugar around <<iref get>>.  The
+<i>option</i> names are simply the object's instance variables in
+option form, i.e., "-varname" gets the variable named "varname".<p>
+
+<<defitem configure {<i>bean</i> configure ?<i>option value...</i>?}>>
+
+This method is simply syntactic sugar around <<iref setdict>>.  The
+<i>option</i> names are simply the object's instance variables in
+option form, i.e., "-varname" sets the variable named "varname".<p>
+
+The <<iref set>> method is used to save the <i>value</i>; if any
+validation is to be done, the child class should override 
+<<iref set>>.<p>
+
+<<defitem copydata {<i>bean</i> copydata}>>
+
+Returns a "copy set" value that can be used to duplicate the <i>bean</i>
+on <<iref paste_>>.<p>
+
+<<defitem deepcopy {<i>bean</i> deepcopy}>>
+
+Returns a deep copy of <i>bean</i>, including copies of all the items
+in the <i>bean</i>'s bean slots, and so on recursively.  The 
+<<iref onAddBean_>> and <<iref onPaste_>> methods are called on the
+created beans as appropriate.<p>
+
 <<defitem deletebean_ {<i>bean</i> deletebean_ <i>slot id</i>}>>
 
 <b>Protected.</b>  This mutator deletes the bean with the given <i>id</i> 
@@ -548,7 +601,7 @@ the named <i>slot</i> by the <<iref addbean_>> method.  Subclasses
 can override this to take some additional action when a bean is added; 
 this is preferable to overriding <<iref addbean_>>, as <<iref onAddBean_>> is 
 guaranteed to be called after the slot is modified but before any
-notifications are sent.</i>
+notifications are sent.<p>
 
 <<defitem onDeleteBean_ {<i>bean</i> onDeleteBean_ <i>slot bean_id</i>}>>
 
@@ -557,7 +610,7 @@ the named <i>slot</i> by the <<iref deletebean_>> method.  Subclasses
 can override this to take some additional action when a bean is deleted; 
 this is preferable to overriding <<iref deletebean_>>, as 
 <<iref onDeleteBean_>> is guaranteed to be called after the slot is 
-modified but before any notifications are sent.</i>
+modified but before any notifications are sent.<p>
 
 <<defitem onMoveBean_ {<i>bean</i> onMoveBean_ <i>slot bean_id</i>}>>
 
@@ -566,7 +619,12 @@ by the <<iref movebean_>> method.  Subclasses can override this to
 take some additional action when a bean is moved; this is preferable
 to overriding <<iref movebean_>>, as <<iref onMoveBean_>> is 
 guaranteed to be called after the slot is modified but before any
-notifications are sent.</i>
+notifications are sent.<p>
+
+<<defitem onPaste_ {<i>bean</i> onPaste_}>>
+
+<b>Protected.</b>  This method is called for each bean created as the result
+of a <<iref paste_>>, <<iref pastelist_>>, or <<iref deepcopy>>.<p>
 
 <<defitem onUpdate_ {<i>bean</i> onUpdate_}>>
 
@@ -575,7 +633,32 @@ by the <<iref update_>> method.  Subclasses
 can override this to take some additional action when a bean is 
 updated; this is preferable to overriding <<iref update_>>, as
 <<iref onUpdate_>> is guaranteed to be called after the bean is 
-modified but before any notifications are sent.</i>
+modified but before any notifications are sent.</i><p>
+
+<<defitem paste_ {<i>bean</i> paste_ <i>slot cdict</i>}>>
+
+Given copy set <i>cdict</i>, as returned by <<iref copydata>>, 
+this mutator pastes the copied data into the named <i>slot</i> variable,
+and returns a script that will undo the change.  The 
+<<iref addbean_>> mutator is called while adding beans to slots; hence,
+the <<iref onAddBean_>> method will be called and the "add" notifications 
+will be sent for each created bean.  In addition, <<iref onPaste_>> will
+be called for each bean created as a result of the paste.<p>
+
+On undo,
+notifications will be sent only for the removal of the top bean from the
+<i>slot</i>.<p>
+
+Subclasses will usually wrap this in a mutator specific to the slot.<p>
+
+<<defitem pastelist_ {<i>bean</i> pastelist_ <i>slot copysets</i>}>>
+
+Given a list of copy sets, <i>copysets</i>, 
+this mutator pastes the copied data into the named <i>slot</i> variable,
+and returns a script that will undo the change.  This is simply a wrapper
+around <<iref paste_>>, and has the same semantics.<p>
+
+Subclasses will usually wrap this in a mutator specific to the slot.<p>
 
 <<defitem set {<i>bean</i> set <i>var value</i>}>>
 

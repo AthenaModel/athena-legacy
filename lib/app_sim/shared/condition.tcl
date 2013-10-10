@@ -128,7 +128,8 @@ oo::define condition {
     #-------------------------------------------------------------------
     # Instance Variables
 
-    variable block    ;# The condition's owning block
+    variable parent   ;# The condition's owning block
+                       # TBD: in the long run, it won't always be a block.
     variable state    ;# The condition's state
     variable metflag  ;# 1 if condition is met, 0 if it is unmet, 
                        # or "" if the result is unknown
@@ -136,13 +137,9 @@ oo::define condition {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # The block that owns the condition.
-
-    constructor {{block_ ""}} {
+    constructor {} {
         next
-        set block   $block_
+        set parent  ""
         set state   normal
         set metflag ""
     }
@@ -175,7 +172,7 @@ oo::define condition {
     # owns this condition.
 
     method agent {} {
-        return [$block agent]
+        return [$parent agent]
     }
     
     # strategy 
@@ -183,7 +180,7 @@ oo::define condition {
     # Returns the strategy that owns the block that owns this condition.
 
     method strategy {} {
-        return [$block strategy]
+        return [$parent strategy]
     }
 
     # block
@@ -191,7 +188,7 @@ oo::define condition {
     # Returns the block that owns this condition.
 
     method block {} {
-        return $block
+        return $parent
     }
 
     # state
@@ -218,6 +215,7 @@ oo::define condition {
     method ismet {} {
         return [expr {$metflag ne "" && $metflag}]
     }
+
 
     #-------------------------------------------------------------------
     # Views
@@ -246,6 +244,14 @@ oo::define condition {
     #
     # Subclasses will usually need to override the SanityCheck, narrative,
     # and Evaluate methods.
+
+    # reset
+    #
+    # Resets execution status variables.
+
+    method reset {} {
+        my set metflag ""
+    }
     
     # check
     #
@@ -326,23 +332,29 @@ oo::define condition {
 
     # onUpdate_
     #
-    # On update_, clears the metflag, does a sanity check, if appropriate, 
-    # and sends notifications.
+    # On update_, clears the metflag and does a sanity check, if appropriate.
 
     method onUpdate_ {} {
-        # FIRST, clear the metflag; the condition has changed, and
-        # we don't know whether it's been met or not.
-        my set metflag ""
+        # FIRST, clear execution status; the condition has changed, and
+        # we don't know what its status is.
+        my reset
 
         # NEXT, do a sanity check (unless it's already disabled)
         if {$state ne "disabled"} {
             my check
         }
 
-        # NEXT, send notifications.
         next
     }
 
+    # onPaste_
+    #
+    # When a condition is pasted into another bean, resets relevant data.
+
+    method onPaste_ {} {
+        my reset
+        next
+    }
 
 }
 

@@ -62,9 +62,17 @@ namespace eval ::athena_test::tests:: {
         id         *
         execstatus NONE
         state      normal
-        block      ::bean::block*
+        parent     ::bean::block*
     }
 
+    test constructor-1.2 {can set options} -setup {
+        setup
+    } -body {
+        set T1 [tactic::WITHDRAW new -parent DUMMY]
+        $T1 get parent
+    } -cleanup {
+        cleanup
+    } -result {DUMMY}
     
 
     #-------------------------------------------------------------------

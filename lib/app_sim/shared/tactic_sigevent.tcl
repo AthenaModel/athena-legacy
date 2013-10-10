@@ -22,15 +22,15 @@ tactic define SIGEVENT "Log Significant Event" {system actor} {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # block_  - The block that owns the tactic
-    #
-    # Creates a new tactic for the given block.
+    constructor {args} {
+        # Initialize as tactic bean.
+        next
 
-    constructor {{block_ ""}} {
-        next $block_
+        # Initialize state variables
         set msg ""
+
+        # Save the options
+        my configure {*}$args
     }
 
     #-------------------------------------------------------------------

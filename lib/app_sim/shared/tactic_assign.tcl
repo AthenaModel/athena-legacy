@@ -35,15 +35,9 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # block_  - The block that owns the tactic
-    #
-    # Creates a new tactic for the given block.
-
-    constructor {{block_ ""}} {
+    constructor {args} {
         # Initialize as tactic bean.
-        next $block_
+        next
 
         # Initialize state variables
         set g              ""
@@ -56,6 +50,9 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
 
         # Transient data
         set trans(cost) 0.0
+
+        # Save the options
+        my configure {*}$args
     }
 
     #-------------------------------------------------------------------

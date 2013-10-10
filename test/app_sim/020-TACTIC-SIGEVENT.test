@@ -76,15 +76,15 @@ namespace eval ::athena_test::tests:: {
             tactic_id [$T1 id] \
             msg "Hello"
 
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
-        id         *
         execstatus NONE
-        state      normal
-        block      ::bean::block*
+        id         *
         msg        Hello
+        parent     ::bean::block*
+        state      normal
     }
 
     test TACTIC:SIGEVENT:UPDATE-2.2 {notifier event} -setup {

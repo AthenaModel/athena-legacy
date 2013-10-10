@@ -105,16 +105,16 @@ namespace eval ::athena_test::tests:: {
             g         BLUE     \
             personnel 1000
 
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
-        id         *
         execstatus NONE
-        state      normal
-        personnel  1000
-        block      ::bean::block*
         g          BLUE
+        id         *
+        parent     ::bean::block*
+        personnel  1000
+        state      normal
     }
 
     test TACTIC:MOBILIZE:UPDATE-2.2 {notifier event} -setup {

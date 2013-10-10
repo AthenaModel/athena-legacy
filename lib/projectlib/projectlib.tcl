@@ -69,4 +69,5 @@ source [file join $::projectlib::library rolemap.tcl     ]
 source [file join $::projectlib::library oohelpers.tcl   ]
 source [file join $::projectlib::library beanclass.tcl   ]
 source [file join $::projectlib::library bean.tcl        ]
+source [file join $::projectlib::library clipboardx.tcl  ]
 

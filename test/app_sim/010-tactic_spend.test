@@ -61,16 +61,24 @@ namespace eval ::athena_test::tests:: {
         world      1
         state      normal
         execstatus NONE
-        block      ::bean::block*
         amount     0.0
         goods      1
         region     1
         black      1
         id         *
         pop        1
+        parent     ::bean::block*
         mode       ALL
     }
 
+    test constructor-1.2 {can set options} -setup {
+        setup
+    } -body {
+        set T1 [tactic::SPEND new -parent DUMMY]
+        $T1 get parent
+    } -cleanup {
+        cleanup
+    } -result {DUMMY}
     
 
     #-------------------------------------------------------------------

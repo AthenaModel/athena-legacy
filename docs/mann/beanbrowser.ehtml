@@ -121,6 +121,14 @@ table or view being displayed, and cannot be changed.  (This is
 appropriate when the order of the items in the table is meaningful,
 e.g., priority ordering.)<p>
 
+<<defopt {-cutcopycmd <i>cmd</i>}>>
+
+Specifies a command that is called when the widget receives the
+&lt;&lt;Cut&gt;&gt; or &lt;&lt;Copy&gt;&gt; virtual events.  The
+command is called with one additional argument, the mode, which is
+either <b>cut</b> or <b>copy</b>.  The command is called only if 
+there is a selection.<p>
+
 <<defopt {-displaycmd <i>cmd</i>}>>
 
 Specifies a command that is called for each row inserted or updated in the
@@ -142,6 +150,11 @@ it will not.<p>
 <b>Required.</b>  Defines the layout
 specification.  See <<xref "Configuration">> for the syntax for
 layout specifications.<p>
+
+<<defopt {-pastecmd <i>cmd</i>}>>
+
+Specifies a command that is called when the widget receives the
+&lt;&lt;Paste&gt;&gt; virtual event.<p>
 
 <<defopt {-reloadbtn <i>flag</i>}>>
 

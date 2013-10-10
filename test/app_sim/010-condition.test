@@ -112,17 +112,17 @@ namespace eval ::athena_test::tests:: {
     test constructor-1.1 {condition is created} -setup {
         setup
     } -body {
-        ted pdict [$C1 getdict]
+        ted pdicts [$C1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
-        metflag {}
-        id      *
-        state   invalid
-        block   ::bean::block*
-        limit   0.0
         comp    EQ
         g       {}
+        id      *
+        limit   0.0
+        metflag {}
+        parent  ::bean::block*
+        state   invalid
     }
 
     #-------------------------------------------------------------------

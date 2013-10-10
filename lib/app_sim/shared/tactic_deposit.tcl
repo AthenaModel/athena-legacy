@@ -25,17 +25,17 @@ tactic define DEPOSIT "Deposit Money" {actor} {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # block_  - The block that owns the tactic
-    #
-    # Creates a new tactic for the given block.
+    constructor {args} {
+        # Initialize as tactic bean.
+        next
 
-    constructor {{block_ ""}} {
-        next $block_
+        # Initialize state variables
         set amount 0.0
 
         set trans(amount) 0.0
+
+        # Save the options
+        my configure {*}$args
     }
 
     #-------------------------------------------------------------------

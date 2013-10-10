@@ -183,6 +183,21 @@ snit::widget ::projectgui::beanbrowser {
         $self layout
     }
 
+    # -cutcopycmd cmd
+    #
+    # Specifies a command prefix to be called on <<Copy>> and <<Cut>>.  
+    # The command will be called with on additional argument, copy|cut.
+
+    option -cutcopycmd \
+        -default {}
+
+    # -pastecmd cmd
+    #
+    # Specifies a command to be called on <<Paste>>.
+
+    option -pastecmd \
+        -default {}
+
     #-------------------------------------------------------------------
     # Instance Variables
     
@@ -327,8 +342,9 @@ snit::widget ::projectgui::beanbrowser {
         bind [$tlist bodytag] <1> [focus $tlist]
         
         # Allow the user to copy the contents
-        # TBD: We'll update this to support bean copying.
-        bind [$tlist bodytag] <<Copy>> [mymethod CopySelection]
+        bind [$tlist bodytag] <<Copy>>  [mymethod CopySelection copy]
+        bind [$tlist bodytag] <<Cut>>   [mymethod CopySelection cut]
+        bind [$tlist bodytag] <<Paste>> [mymethod Paste]
         
         # Support -selectioncmd
         bind $tlist <<TablelistSelect>> [mymethod SelectionChanged]
@@ -399,14 +415,15 @@ snit::widget ::projectgui::beanbrowser {
         callwith $options(-selectioncmd)
     }
     
-    # CopySelection
+    # CopySelection mode
+    #
+    # mode   - copy | cut
     #
     # This method takes the currently selected text from the table list
-    # and puts it on the system clipboard.
-    #
-    # TBD: Update this to support bean copying.
+    # and puts it on the system clipboard.  In addition, it calls
+    # the -cutcopycmd handler.
 
-    method CopySelection {} {
+    method CopySelection {mode} {
         # FIRST, get currently selected rows
         set rows [$tlist curselection]
 
@@ -422,8 +439,19 @@ snit::widget ::projectgui::beanbrowser {
         foreach row $rows {
             clipboard append "[$tlist get $row]\n"
         }
+
+        # NEXT, call the user's handler
+        callwith $options(-cutcopycmd) $mode
     }
     
+    # Paste
+    #
+    # Calls the -pastecmd handler when <<Paste>> is received.
+
+    method Paste {} {
+        callwith $options(-pastecmd)
+    }
+
     # ReloadContent
     #
     # Reloads the list of beans.

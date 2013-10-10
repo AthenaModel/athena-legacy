@@ -65,14 +65,21 @@ namespace eval ::athena_test::tests:: {
         state      invalid
         reinforce  0
         mode       ALL
+        parent     ::bean::block*
         last_tick  {}
         nlist      {}
         personnel  0
-        block      ::bean::block*
         g          {}
     }
 
-    
+    test constructor-1.2 {can set options} -setup {
+        setup
+    } -body {
+        set T1 [tactic::DEPLOY new -parent DUMMY]
+        $T1 get parent
+    } -cleanup {
+        cleanup
+    } -result {DUMMY}
 
     #-------------------------------------------------------------------
     # narrative

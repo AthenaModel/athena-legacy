@@ -169,21 +169,21 @@ namespace eval ::athena_test::tests:: {
             amount    100.0    \
             goods     10
 
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
-        world      1
-        state      normal
-        execstatus NONE
-        block      ::bean::block*
         amount     100.0
-        goods      10
-        region     1
         black      1
+        execstatus NONE
+        goods      10
         id         *
-        pop        1
         mode       SOME
+        parent     ::bean::block*
+        pop        1
+        region     1
+        state      normal
+        world      1
     }
 
     test TACTIC:SPEND:UPDATE-2.2 {notifier event} -setup {

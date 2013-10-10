@@ -22,18 +22,18 @@ condition define MOOD "Group Mood" {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # block_  - The block that owns the condition
-    #
-    # Creates a new tactic for the given block.
+    constructor {args} {
+        # Initialize as tactic bean.
+        next
 
-    constructor {{block_ ""}} {
-        next $block_
+        # Initialize state variables
         set g     ""
         set comp  EQ
         set limit 0.0
         my set state invalid   ;# g is still unknown.
+
+        # Save the options
+        my configure {*}$args
     }
 
     #-------------------------------------------------------------------

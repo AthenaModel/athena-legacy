@@ -157,7 +157,7 @@ namespace eval ::athena_test::tests:: {
         id         *
         execstatus NONE
         state      normal
-        block      ::bean::block*
+        parent     ::bean::block*
         msg        {}
     }
 
@@ -334,7 +334,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {NONE}
     
-
     
     #-------------------------------------------------------------------
     # Cleanup

@@ -153,18 +153,18 @@ namespace eval ::athena_test::tests:: {
             activity  PATROL   \
             personnel 1000
 
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match glob -result {
-        id         *
-        execstatus NONE
-        state      normal
         activity   PATROL
-        personnel  1000
-        n          NB1
-        block      ::bean::block*
+        execstatus NONE
         g          BLUE
+        id         *
+        n          NB1
+        parent     ::bean::block*
+        personnel  1000
+        state      normal
     }
 
     test TACTIC:ASSIGN:UPDATE-2.2 {notifier event} -setup {

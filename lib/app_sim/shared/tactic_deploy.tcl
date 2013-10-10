@@ -44,15 +44,9 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
     #-------------------------------------------------------------------
     # Constructor
 
-    # constructor ?block_?
-    #
-    # block_  - The block that owns the tactic
-    #
-    # Creates a new tactic for the given block.
-
-    constructor {{block_ ""}} {
+    constructor {args} {
         # Initialize as tactic bean.
-        next $block_
+        next
 
         # Initialize state variables
         set g              ""
@@ -68,10 +62,24 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         # Initialize transient data
         set trans(personnel) 0
         set trans(cost)      0.0
+
+        # Save the options
+        my configure {*}$args
     }
 
     #-------------------------------------------------------------------
     # Operations
+
+    # reset
+    #
+    # On reset, clear the "last_tick".
+
+    method reset {} {
+        my set last_tick ""
+        next
+    }
+    
+
 
     method SanityCheck {errdict} {
         # Check g
@@ -339,19 +347,6 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         }
     }
 
-    #-------------------------------------------------------------------
-    # Event Handlers
-
-    # onUpdate_
-    #
-    # On update, clear the "last_tick".
-
-    method onUpdate_ {} {
-        my set last_tick ""
-
-        next ;# Do notifications
-    }
-    
 }
 
 #-----------------------------------------------------------------------

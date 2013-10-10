@@ -41,6 +41,34 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
+    # Constructor
+
+    test constructor-1.1 {default state} -setup {
+        setup
+    } -body {
+        ted pdicts [$C1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        comp    EQ
+        id      *
+        limit   0.0
+        metflag {}
+        n       {}
+        parent  {}
+        state   invalid
+    }
+
+    test constructor-1.2 {can set options} -setup {
+        setup
+    } -body {
+        set C1 [condition::NBMOOD new -parent DUMMY]
+        $C1 get parent
+    } -cleanup {
+        cleanup
+    } -result {DUMMY}
+
+    #-------------------------------------------------------------------
     # narrative
 
     test narrative-1.1 {narrative, initial state} -setup {
