@@ -1111,13 +1111,18 @@ snit::type ted {
         return $results
     }
 
-    # pdicts dict
+    # pdicts dict skipping
     #
-    # dict - A dictionary
+    # dict     - A dictionary
+    # skipping - keys to skip 
     # 
     # Pretty-prints a dictionary for use in -result, with sorted keys.
 
-    typemethod pdicts {dict} {
+    typemethod pdicts {dict {skipping ""}} {
+        if {[llength $skipping] > 0} {
+            set dict [dict remove $dict {*}$skipping]
+        }
+
         set results "\n"
 
         set wid [lmaxlen [dict keys $dict]]

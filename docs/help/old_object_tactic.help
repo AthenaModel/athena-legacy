@@ -1,0 +1,1157 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    object_tactic.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Tactic Simulation Objects
+#
+#    This file is included into object.help.
+#
+#-----------------------------------------------------------------------
+
+object tactic_ {
+    noun "tactic"
+    overview {
+        Tactics are the <<cref /object>> by which an
+        <<term agent>> implements his <<term strategy>>.  For
+        example, an <<term actor>> may use the 
+        <<cref /object/tactic/deploy>>
+        to position troops in a neighborhood, and then use the
+        <<cref /object/tactic/attroe>> to call for attacks on another
+        group.  Tactics may have <<term condition>>s attached
+        to them.  Tactics are browsed and 
+        edited on the <<tab Strategy>>.
+    }
+
+    attribute tactic_id "Tactic ID" {
+        The tactic ID, an integer number that uniquely
+        identifies the tactic.
+    } -tags {object state}
+
+    # TBD: Obsolete
+    attribute owner "Owner" {
+        The ID of the <<term agent>> to whose strategy this
+        tactic belongs.
+    } -tags {object create}
+
+    attribute agent "Agent" {
+        The ID of the <<term agent>> to whose strategy this
+        tactic belongs.
+    } -tags {object create}
+
+    attribute tactic_type "Tactic Type" {
+        The tactic's type, e.g., 
+        <b><<cref /object/tactic/deploy DEPLOY>></b>.
+    } -tags object
+
+    attribute state "State" {
+        The tactic's state, one of <b>normal</b>, <b>disabled</b>, or 
+        <b>invalid</b>.  Both <b>disabled</b> and <b>invalid</b> tactics
+        are ignored when the owner's strategy is executed; the
+        difference is that <b>disabled</b> tactics are explicitly
+        disabled by the user, while <b>invalid</b> tactics are disabled
+        due to failing a sanity check.
+    } -tags {object state}
+
+    attribute once "Once Only?" {
+        A boolean value, "YES" or "NO".  If "YES", this tactic will be
+        disabled automatically after it executes, and hence will execute
+        only once.  If "NO", the tactic will remain enabled, and hence may
+        execute multiple times.
+    }
+
+    attribute on_lock "Exec On Lock?" {
+        A boolean value, "YES" or "NO". If "YES", this tactic will be
+        eligible to be executed when Athena is locked. The tactic will
+        still be subject to resource constraints (ie. enough troops, money,
+        etc...). If "NO", the tactic will be treated in the normal way with
+        it eligible for execution only if the proper conditions are met.
+    } 
+
+    attribute priority "Priority" {
+        An <<term agent>>'s tactics are ranked from highest priority to
+        lowest; when the agent's strategy is executed, the tactics are
+        considered for execution in this order.
+    } -tags object
+}
+
+page /object tactic "Tactic" {
+    <<sotitle>>
+
+    <<tactic_ overview>><p>
+
+    There are many different kinds of tactic; all share the following
+    parameters:<p>
+
+    <<tactic_ parmlist -tags object>>
+
+    The full set of tactics is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# ASSIGN
+
+object tactic_assign {
+    noun "ASSIGN tactic"
+    overview {
+        This <<term tactic>> assigns an 
+        abstract <<term activity>> to an <<term actor>>'s
+        <<term frcgroup>> or <<term orggroup>> personnel
+        in a particular <<term nbhood>>.  The personnel must already
+        be <<cref /object/tactic/deploy deployed>> in the
+        neighborhood.  Athena will create a <<term unit>> containing
+        the assigned personnel; the unit will be visible on the
+        <<tab Map>>.<p>
+
+        The cost in dollars/person/week of assigning troops to do
+        activities is defined for each activity using 
+        <<cref /parmdb>>.  Look under <<cref /parmdb/activity/frc>> and
+        <<cref /parmdb/activity/org>> for the cost parameters, e.g.,
+        <<parmdb activity.FRC.PATROL.cost>>.  By
+        default, all activity costs are set to zero.<p>
+
+        Multiple ASSIGN tactics are cumulative.  The assignment lasts
+        until the next strategy tock.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or <<term orggroup>> belonging
+        to the <i>owner</i>.
+    } -tags {create update}
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The personnel to be assigned will be 
+        drawn from those deployed into this neighborhood.
+    } -tags {create update}
+
+    attribute text1 "Activity" {
+        The <<term activity>> to be assigned.  The valid
+        abstract activities are different for different group types;
+        see <i>Athena Rules Document</i>, delivered with the software,
+        for the full set.
+    } -tags {create update}
+
+    attribute int1 "Personnel" {
+        The number of personnel to be assigned to do the activity.
+    } -tags {create update}
+}
+
+page /object/tactic assign "ASSIGN tactic" {
+    <<sotitle>>
+
+    <<tactic_assign overview>><p>
+
+    ASSIGN tactics have the following attributes:<p>
+
+    <<tactic_assign parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# ATTROE
+
+object tactic_attroe {
+    noun "ATTROE tactic"
+    overview {
+        This tactic sets the attacking <<term roe>> for force groups
+        belonging to an <<term actor>>.<p>
+
+        Attacking ROEs determine whether a
+        <<term frcgroup>> will seek out and
+        attack other force groups.  In Athena, force groups are either
+        uniformed or non-uniformed.  (Non-uniformed forces are those that
+        hide among the local population and use terrorist and other
+        unconventional tactics.)<p>
+
+        Athena's attrition model currently
+        only supports attacks by uniformed force groups on non-uniformed
+        force groups, and <i>vice versa</i>.  ROEs are set 
+        <<term nbhood>> by neighborhood; thus, group A can be 
+        directed to attack group B in neighborhood N1 but not in 
+        neighborhood N2.<p>
+
+        No force group will attack any other force group unless it is
+        explicitly given an ROE to do so.<p>
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute f "Attacking Group" {
+        The attacking <<term frcgroup>>.  This group must
+        belong to the <i>owner</i>, and may be uniformed or non-uniformed.
+    } -tags {create update}
+
+    attribute g "Defending Group" {
+        The defending <<term frcgroup>>.  If the attacker
+        is uniformed, this group must be non-uniformed, and 
+        <i>vice versa</i>.
+    } -tags {create update}
+
+    attribute n "In Neighborhood" {
+        The <<term nbhood>> in which the attack(s) may take
+        place.  Note that
+        both groups must have personnel present in this neighborhood, 
+        or the ROE will have no effect.
+    } -tags {create update}
+
+    attribute text1 "ROE" {
+        The ROE proper.  The set of valid ROEs depends on whether
+        attacking group <i>f</i> is uniformed or non-uniformed.<p>
+
+        <b>Uniformed:</b>  The ROE must be one of the following values:<p>
+
+        <<enumdoc ::projectlib::eattroeuf>>
+
+        If the ROE is <b>ATTACK</b>, then group <i>f</i> will attempt to
+        hunt down and destroy units of group <i>g</i> in neighborhood
+        <i>n</i>; and if not, not.  Note that there is no difference
+        between having an ROE of <b>DO_NOT_ATTACK</b> and not
+        having an ROE at all.<p>
+
+        <b>Non-Uniformed:</b>  The ROE must be one of the following
+        values:<p>
+
+        <<enumdoc ::projectlib::eattroenf>>
+
+        If the ROE is <b>HIT_AND_RUN</b>, then group <i>f</i> will use
+        hit-and-run tactics against group <i>g</i>, trying on each attack
+        to nibble away at the uniformed force while taking minimal
+        losses.<p>
+
+        If the ROE is <b>STAND_AND_FIGHT</b>, then group <i>f</i> will
+        expend a pre-determined number of troops in order to kill as many
+        personnel of group <i>g</i> as possible.<p>
+
+        Otherwise, group <i>f</i> will not attempt to attack.  Again, 
+        there is no difference between having an ROE of
+        <b>DO_NOT_ATTACK</b> and not having an ROE at all.
+    } -tags {create update}
+
+    attribute int1 "Max Attacks" {
+        The maximum number of attacks the attacker will conduct
+        against the defender over the
+        following week.  Note that the actual number of attacks is
+        constrained by the presence of both attacker and defender, by the
+        cooperation of the neighborhood with both groups, and by other
+        factors.<p>
+
+        During strategy execution, this tactic will consume the
+        <i>owner</i>'s cash-on-hand
+        according to the maximum number of attacks provided for; if fewer
+        attacks are actually conducted (which is extremely likely), the
+        unused cash will be returned to the <i>owner</i> at the
+        beginning of the next strategy tock.<p>
+    } -tags {create update}
+}
+
+page /object/tactic attroe "ATTROE tactic" {
+    <<sotitle>>
+
+    <<tactic_attroe overview>><p>
+
+    ATTROE tactics have the following attributes:<p>
+
+    <<tactic_attroe parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# BROADCAST
+
+object tactic_broadcast {
+    noun "BROADCAST tactic"
+    overview {
+        This <<term tactic>> broadcasts an <<term iom>> via a
+        <<term cap>>.  The message may be attributed to a particular 
+        actor, including the owner, or may be anonymous.  The message
+        will have a particular preparation cost, in addition to the
+        cost of transmission by the chosen <<term cap>>.<p>
+
+        Note that the tactic owner might or might not have access to
+        his chosen <<term cap>>, due to the decisions of the other
+        actors.  This cannot be known until all strategies have been
+        executed.  At that time, all pending broadcasts will occur;
+        and if the tactic owner has no access to the chosen 
+        <<term cap>>, the broadcast will be cancelled, and the cost 
+        will be refunded.<p>
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute cap "CAP" {
+        The ID of a <<term cap>> by which the <<term iom>> will be 
+        sent.  For a successful broadcast, the <i>owner</i> must have 
+        access to the <<term cap>>.
+    } -tags {create update}
+
+    attribute a "Attr. Source" {
+        The attributed source: the name of an <<term actor>>, 
+        <b>SELF</b> if the message is to be attributed to the 
+        <i>owner</i>, or <b>NONE</b> if the message is to be anonymous.
+    } -tags {create update}
+
+    attribute iom "Message ID" {
+        The <<term iom>> to be broadcast.
+    } -tags {create update}
+
+    attribute x1 "Prep. Cost" {
+        The preparation cost for the message, as distinct from the 
+        <<term cap>>'s broadcast cost.
+    } -tags {create update}
+}
+
+page /object/tactic broadcast "BROADCAST tactic" {
+    <<sotitle>>
+
+    <<tactic_broadcast overview>><p>
+
+    BROADCAST tactics have the following attributes:<p>
+
+    <<tactic_broadcast parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# CURSE 
+
+object tactic_curse {
+    noun "CURSE tactic"
+    overview {
+        This SYSTEM <<term tactic>> causes a Complex User-defined
+        Role-based Situation and Event (or CURSE) to be executed with
+        all of it's injects.  Injects associated with a CURSE cause
+        changes to one or more of: Horizontal relationships, Vertical
+        relationships, Satisfaction and Cooperation.  Injects are similar
+        to <<term mad>>s in that the changes to attitude are identical to 
+        magic changes.  CURSEs are meant to be used when the effects of 
+        something not already explictly modeled in Athena needs to be 
+        injected into the simulation.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute curse "CURSE ID" {
+        The ID of the <<term curse>> to be executed.
+    } -tags {create update}
+
+    attribute roles "Role Mapping" {
+        The mapping of <<term role>>s to particular <<term group>>s and
+        <<term actor>>s.  The mapping of roles completely depends on the
+        types of injects defined for the <<term curse>>.
+    } -tags {create update}
+
+}
+
+page /object/tactic curse "CURSE tactic" {
+    <<sotitle>>
+
+    <<tactic_curse overview>><p>
+
+    CURSE tactics have the following attributes:<p>
+
+    <<tactic_curse parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# DEFROE
+
+object tactic_defroe {
+    noun "DEFROE tactic"
+    overview {
+        This <<term tactic>> sets the defensive <<term roe>> for 
+        <<term frcgroup>>s belonging to an <<term actor>>.<p>
+
+        Defending ROEs determine how a uniformed force group
+        responds to attack by a non-uniformed force group: do they 
+        shoot back, and if so under what conditions.  As such, it has 
+        no direct costs, either in dollars or personnel.<p>
+
+        Every uniformed force group has an automatically-created Defending
+        ROE in every <<term nbhood>>; the ROE defaults to
+        <b>FIRE_BACK_IF_PRESSED</b>.  This tactic adjusts the ROE
+        as the actor desires.<p>
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute g "Defending Group" {
+        The defending <<term frcgroup>>, the ID of a uniformed
+        force group belonging to the <i>owner</i>.
+    } -tags {create update}
+
+    attribute n "In Neighborhood" {
+        The <<term nbhood>> for which the ROE will be set.
+    } -tags {create update}
+
+    attribute text1 "ROE" {
+        The ROE proper, one of the following values:<p>
+
+        <<enumdoc ::projectlib::edefroeuf>>
+
+        If the ROE is <b>HOLD_FIRE</b>, then the group will never fire
+        back at attackers.  If the ROE is <b>FIRE_BACK_IF_PRESSED</b>,
+        then the group will fire back only if the attacker continues to
+        press the attack after the initial engagement.  That is, the group
+        will <i>not</i> fire back if the attacker does a hit-and-run.  If
+        the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always
+        fire back at its attackers.<p>
+
+        Note that the number of civilian casualties depends on whether or
+        not the group fires back at its attackers.
+    } -tags {create update}
+}
+
+page /object/tactic defroe "DEFROE tactic" {
+    <<sotitle>>
+
+    <<tactic_defroe overview>><p>
+
+    DEFROE tactics have the following attributes:<p>
+
+    <<tactic_defroe parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# DEMOB
+
+object tactic_demob {
+    noun "DEMOB tactic"
+    overview {
+        This tactic demobilizes 
+        <<term frcgroup>> or 
+        <<term orggroup>> personnel,
+        i.e., it removes them from the playbox.  Only personnel available
+        for deployment can be demobilized.<p>
+
+        There are several ways to select the number of troops to demobilize;
+        see the "Mode" parameter, below.<p>
+
+        Multiple DEMOB tactics executed during a single
+        week are cumulative.<p>
+
+        The tactic only fails when the <i>mode</i> is <b>SOME</b> and 
+        insufficient troops are available.  For all other modes, the 
+        tactic operates on a best-efforts basis and is considered to 
+        succeed even if no troops could be demobilized.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs agent -tags create
+    include tactic_ -attrs {state}
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or 
+        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+    } -tags {create update}
+
+    attribute mode "Mode" {
+        The demobilization mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Demobilize all undeployed personnel belonging to group
+        <i>g</i>.<p>
+
+        <b>SOME</b>: Demobilize the specified number of undeployed
+        <i>personnel</i>, if available.  Fails if there are insufficient
+        personnel.<p>
+
+        <b>PERCENT</b>: Demobilize the specified <i>percent</i> of 
+        undeployed personnel.<p>
+
+        <b>EXCESS</b>: Demobilize all undeployed personnel in 
+        excess of the specified number of <i>personnel</i>. 
+    } -tags {create update}
+
+    attribute personnel "Personnel" {
+        When the <i>mode</i> is <b>SOME</b>, the 
+        number of undeployed personnel to be demobilized.<p>
+
+        When the <i>mode</i> is <b>EXCESS</b>, the number of undeployed
+        personnel to retain; any excess will be be demobilized.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {create update}
+
+    attribute percent "Percentage" {
+        When the <i>mode</i> is <b>PERCENT</b>, the percentage of 
+        undeployed troops to demobilized, expressed as a real number, i.e.,
+        a value of 3.5 will demobilize 3.5% of the undeployed troops.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {create update}
+}
+
+page /object/tactic demob "DEMOB tactic" {
+    <<sotitle>>
+
+    <<tactic_demob overview>><p>
+
+    Demobilization tactics have the following attributes:<p>
+
+    <<tactic_demob parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# DEPLOY
+
+object tactic_deploy {
+    noun "DEPLOY tactic"
+    overview {
+        This <<term tactic>> deploys an <<term actor>>'s
+        <<term frcgroup>> or <<term orggroup>> personnel
+        into particular <<term nbhood>>s.  The personnel must already
+        be present in the <<term playbox>>.  The group's maintenance
+        cost is paid for each person deployed.  Once deployed, the
+        personnel may then be assigned to particular tasks.<p>
+
+        There are two deployment modes, "SOME" and "ALL".  The first
+        deploys a specific number of troops to one or more neighborhoods.
+        The second is for use as a catch-all.  Placed at the end of the
+        actor's strategy, it can ensure that all otherwise undeployed
+        personnel are positioned somewhere in the playbox, presumably in 
+        their bases.  Note that all personnel must be deployed somewhere;
+        undeployed personnel are automatically demobilized.<p>
+
+        When deploying "SOME" troops, the troops can be deployed with
+        or without reinforcement.  When deploying with reinforcement, the
+        full number of troops is deployed each week; if troops were lost
+        to attrition, they are replaced by troops from the lowest priority
+        deployment.<p>
+
+        When deploying without reinforcement (the default), the tactic
+        always deploys the same number of troops as it deployed the
+        previous week, less attrition.  Thus, if the tactic initially
+        deploys 1000 troops, and 10 are lost this week, then next week
+        the tactic will deploy 990 troops instead of 1000.  (Note that
+        the tactic parameter doesn't change; Athena simply keeps track 
+        of things for the analyst.)<p>
+
+        Deploying without reinforcement is new in Athena 5, and is now
+        the default method of deployment.<p>
+
+        Multiple DEPLOY tactics are cumulative.  The deployment lasts
+        until the next week, when troops are automatically withdrawn in
+        preparation for that week's deployment.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or <<term orggroup>> belonging
+        to the <i>owner</i>.
+    } -tags {create update}
+
+    attribute text1 "Mode" {
+        The deployment mode, "SOME" or "ALL".<p>
+
+        If "SOME", the tactic deploys a specific number of personnel, as
+        given by the <i>int1</i> parameter.  If there are insufficient
+        personnel, or insufficient funds to maintain them, the tactic will
+        not execute.<p>
+
+        If "ALL", the tactic deploys all remaining personnel belonging to
+        group <i>g</i>.  If there are insufficient funds available to
+        deploy all of them, then the tactic deploys as many as
+        possible; the excess will be automatically demobilized.
+    } -tags {create update}
+
+    attribute int1 "Personnel" {
+        The number of personnel to be deployed when the mode
+        (<i>text1</i>) is "SOME".  If
+        there are insufficient personnel available, the tactic will not
+        execute.<p>
+
+        If the mode is "ALL", the parameter is ignored.
+    } -tags {create update}
+
+    attribute reinforce "Reinforce?" {
+        If true, then attrited troops will be replaced in subsequent
+        weeks (the default behavior in Athena 4 and prior).  If false,
+        attrited troops will not be replaced in subsequent weeks.<p>
+
+        The the mode is "ALL", the parameter is ignored.
+    } -tags {create update}
+
+    attribute nlist "In Neighborhoods" {
+        A list of <<term nbhood>> IDs.  The personnel will be distributed
+        evenly across the neighborhoods.
+    } -tags {create update}
+
+}
+
+page /object/tactic deploy "DEPLOY tactic" {
+    <<sotitle>>
+
+    <<tactic_deploy overview>><p>
+
+    DEPLOY tactics have the following attributes:<p>
+
+    <<tactic_deploy parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# DEPOSIT
+
+object tactic_deposit {
+    noun "DEPOSIT tactic"
+    overview {
+        This <<term tactic>> allows the <<term actor>> to deposit
+        a sum of money from his cash-on-hand into his cash reserve.
+        The funds can then be withdrawn for spending using the
+        <<cref /object/tactic/withdraw>>.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute amount "Amount" {
+        The amount of money to deposit, in dollars.  If there
+        are insufficient funds in the actor's cash-on-hand, all
+        remaining cash will be deposited.
+    } -tags {create update}
+}
+
+page /object/tactic deposit "DEPOSIT tactic" {
+    <<sotitle>>
+
+    <<tactic_deposit overview>><p>
+
+    DEPOSIT tactics have the following attributes:<p>
+
+    <<tactic_deposit parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# EXECUTIVE
+
+object tactic_executive {
+    noun "EXECUTIVE tactic"
+    overview {
+        This <<term tactic>> executes an Athena 
+        <<cref /command "executive command">>, possibly affecting the 
+        state of the simulation.
+        The tactic succeeds if the command returns normally, and fails
+        if the command throws an error.  In the latter case, any
+        database changes made by the command are rolled back, and a
+        stack trace is written to the debugging log.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute text1 "Command" {
+        The <<cref /command command>> to execute, often a 
+        <<cref /command/call>> or <<cref /command/sigevent>> command.
+    } -tags {create update}
+}
+
+page /object/tactic executive "EXECUTIVE tactic" {
+    <<sotitle>>
+
+    <<tactic_executive overview>><p>
+
+    EXECUTIVE tactics have the following attributes:<p>
+
+    <<tactic_executive parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# FLOW
+
+object tactic_flow {
+    noun "FLOW tactic"
+    overview {
+        This SYSTEM <<term tactic>> causes population to flow from
+        one civilian group to another.  There are three ways to specify
+        the number of people to transfer between the groups:
+        the entire population, a specific
+        number, or as at a given rate.  The transfer is permanent.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once}
+
+    attribute f "Source Group" {
+        The ID of the <<term civgroup>> from which the population
+        will flow.
+    } -tags {create update}
+
+    attribute g "Destination Group" {
+        The ID of the <<term civgroup>> to which the population will
+        flow.
+    } -tags {create update}
+
+    attribute text1 "Mode" {
+        How the number of people to transfer is determined:
+        "ALL", "NUMBER", or "RATE".<p>
+
+        If the mode is "ALL", all of the remaining people in the source
+        group will be transferred to the destination group.<p>
+        
+        If the mode is "NUMBER", then a specific number of people will
+        be transferred, as determined by the <i>int1</i> parameter.
+        If the chosen number exceeds the number remaining,
+        then all of the people in the source group will be transferred.<p>
+        
+        If the mode is "RATE", then population will flow from the
+        source group at a given rate, determined by the
+        <i>x1</i> parameter.<p>
+    } -tags {create update}
+
+    attribute int1 "Personnel" {
+        The number of personnel to be transferred when the mode
+        (<i>text1</i>) is "NUMBER".  If
+        there are insufficient personnel available, then
+        all remaining personnel are transferred.<p>
+        
+        If the mode is "ALL" or "RATE", the parameter is ignored.
+    } -tags {create update}
+
+    attribute x1 "Rate" {
+        The rate at which personnel are to be transferred when the
+        mode (<i>text1</i>) is "RATE", expressed as a yearly percentage,
+        e.g., 5%/year.<p>
+        
+        If the mode is "ALL" or "NUMBER", the parameter is ignored.
+    } -tags {create update}
+
+}
+
+page /object/tactic flow "FLOW tactic" {
+    <<sotitle>>
+
+    <<tactic_flow overview>><p>
+
+    FLOW tactics have the following attributes:<p>
+
+    <<tactic_flow parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# FUND
+
+object tactic_fund {
+    noun "FUND tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to fund other actors.
+        The funding <<term actor>>
+        may specify any amount of money, which will come out of the 
+        actor's cash-on-hand.  The cash will be made available to the
+        recipient at the subsequent strategy execution.<p>
+
+        Multiple FUND tactics are cumulative.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute a "Actor" {
+        The ID of an <<term actor>> to receive the cash.
+    } -tags {create update}
+
+    attribute x1 "Amount, $/week" {
+        The amount of money to be provided to the receiving actor.
+    } -tags {create update}
+}
+
+page /object/tactic fund "FUND tactic" {
+    <<sotitle>>
+
+    <<tactic_fund overview>><p>
+
+    FUND tactics have the following attributes:<p>
+
+    <<tactic_fund parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# FUNDENI
+
+object tactic_fundeni {
+    noun "FUNDENI tactic"
+    overview {
+        This <<term tactic>> funds Essential Non-Infrastructure (ENI) 
+        services for one or more <<term civgroup>>s.  The <<term actor>>
+        may specify any amount of money, which will come out of the 
+        actor's cash-on-hand.  If the cash is unavailable, the groups
+        will not be funded.<p>
+
+        Civilian groups require a minimum amount of ENI services, and 
+        may expect a much higher amount.  When a group's requirements and
+        expectations are not met, the group's mood will fall, and the
+        group's vertical relationships with the actors may also fall.
+        If the group's requirements and expectations are exceeded, the
+        group's mood and vertical relationships may rise.<p>
+
+        It is possible to fund more than the saturation level of ENI
+        service; providing service in excess of the saturation level
+        has no additional effect on the civilian groups in
+        question.<p>
+
+        When executed, the FUNDENI tactic funds provision of the
+        service until the next strategy tock (one week).  Multiple
+        FUNDENI tactics are cumulative.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute glist "Groups" {
+        The IDs of one or more civilian groups, or
+        a <<cref /gofer/civgroups>> value.
+    } -tags {create update}
+
+    attribute x1 "Amount, $/week" {
+        The amount of money to be provided to the groups.  The groups
+        will receive the funds in proportion to their population; or,
+        to put it another way, every individual in the set of groups will
+        receive the same dollar amount of service.
+    } -tags {create update}
+}
+
+page /object/tactic fundeni "FUNDENI tactic" {
+    <<sotitle>>
+
+    <<tactic_fundeni overview>><p>
+
+    FUNDENI tactics have the following attributes:<p>
+
+    <<tactic_fundeni parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# GRANT
+
+object tactic_grant {
+    noun "GRANT tactic"
+    overview {
+        This <<term tactic>> grants one or more <<term actor>>s access to
+        one or more of the tactic owner's <<term cap>>s.  The actors 
+        granted access can then 
+        <<cref /object/tactic/broadcast broadcast>> 
+        <<term iom>>s via any of the listed <<term cap>>s.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority on_lock}
+
+    attribute klist "CAP List" {
+        A list of one or more <<term cap>>s belonging to the 
+        <i>owner</i>.
+    } -tags {create update}
+
+    attribute alist "Actor List" {
+        A list of one or more <<term actor>>s.
+    } -tags {create update}
+}
+
+page /object/tactic grant "GRANT tactic" {
+    <<sotitle>>
+
+    <<tactic_grant overview>><p>
+
+    GRANT tactics have the following attributes:<p>
+
+    <<tactic_grant parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# MOBILIZE
+
+object tactic_mobilize {
+    noun "MOBILIZE tactic"
+    overview {
+        This <<term tactic>> mobilizes 
+        <<term frcgroup>> or <<term orggroup>> personnel,
+        i.e., it brings new personnel into the playbox.  There is no
+        direct cost to mobilization; however, a maintenance cost will be
+        paid when the troops are deployed (and if they are not
+        deployed, they will be automatically demobilized again.)<p>
+
+        Multiple MOBILIZE tactics executed for the same group
+        are cumulative.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or <<term orggroup>> belonging
+        to the <i>owner</i>.
+    } -tags {create update}
+
+    attribute int1 "Personnel" {
+        The number of personnel to mobilize.
+    } -tags {create update}
+
+    include tactic_ -attrs once -tags {create update}
+}
+
+page /object/tactic mobilize "MOBILIZE tactic" {
+    <<sotitle>>
+
+    <<tactic_mobilize overview>><p>
+
+    MOBILIZE tactics have the following attributes:<p>
+
+    <<tactic_mobilize parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# SPEND
+
+object tactic_spend {
+    noun "SPEND tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to spend
+        his cash-on-hand on expenses not explicitly modeled by
+        Athena.  The tactic specifies the amount of money to be
+        spent, and the Economic sectors on which it will be spent.<p>
+        
+        There are two spending modes, "SOME" and "ALL".  The first
+        spends a specific amount of money, expressed in dollars; the
+        second expends all remaining cash-on-hand.<p>
+        
+        The tactic allocates the money to sectors by means of shares.
+        If the <b>goods</b> sector gets 2 shares, and the <b>pop</b>
+        sector gets 1 share, then <b>goods</b> gets 2/3rds of the money
+        and <b>pop</b> gets 1/3rd.  These shares can be expressed as
+        percentages if that seems clearer.<p>
+        
+        Multiple SPEND tactics are cumulative.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute mode "Mode" {
+        The spending mode, "SOME" (spend some cash-on-hand) or
+        "ALL" (spend all remaining cash-on-hand).
+    } -tags {create update}
+
+    attribute amount "amount" {
+        The amount of money to be spent when the mode is "SOME".  If
+        there are insufficient funds available, the tactic will not
+        execute.<p>
+    
+        If the mode is "ALL", this parameter is ignored.
+    } -tags {create update}
+
+    attribute goods "Goods Shares" {
+        The number of shares of the money allocated to the
+        <b>goods</b> sector.
+    } -tags {create update}
+
+    attribute black "Black Shares" {
+        The number of shares of the money allocated to the
+        <b>black</b> sector.
+    } -tags {create update}
+    
+    attribute pop "Pop Shares" {
+        The number of shares of the money allocated to the
+        <b>pop</b> sector.
+    } -tags {create update}
+    
+    attribute region "Region Shares" {
+        The number of shares of the money allocated to the
+        <b>region</b> sector.
+    } -tags {create update}
+    
+    attribute world "World Shares" {
+        The number of shares of the money allocated to the
+        <b>world</b> sector.
+    } -tags {create update}
+}
+
+page /object/tactic spend "SPEND tactic" {
+    <<sotitle>>
+
+    <<tactic_spend overview>><p>
+
+    SPEND tactics have the following attributes:<p>
+
+    <<tactic_spend parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# STANCE
+
+object tactic_stance {
+    noun "STANCE tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to 
+        tell his force groups to adopt a particular 
+        <<term stance>> towards other groups.  This stance is a 
+        relationship value that indicates how the force group is expected 
+        to behave toward the designated groups.  How well the force group
+        succeeds in this depends on the force group's training level,
+        and on its actual relationships toward the designated groups.<p>
+
+        An actor can execute multiple STANCE tactics during a single week.
+        If two such tactics affect the same relationship, the higher priority 
+        tactic determines the outcome.<p>
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+
+    attribute f "Force Group" {
+        The force group whose stance is being set.
+    } -tags {create update}
+
+    attribute text1 "Mode" {
+        This parameter determines how the designated groups are specified:
+        as an explicit list of groups (<b>GROUP</b>) or as all civilians
+        living in a particular list of neighborhoods (<b>NBHOOD</b>).
+    }  -tags {create update}
+
+    attribute glist "Groups" {
+        When the mode is <b>GROUP</b>, this parameter is the list of 
+        groups for which force group <i>f</i>'s relationship is 
+        being designated.
+    } -tags {create update}
+
+    attribute nlist "Neighborhoods" {
+        When the mode is <b>NBHOOD</b>, this parameter is the list of 
+        neighborhoods for which force group <i>f</i>'s relationship 
+        is being designated.
+    } -tags {create update}
+
+    attribute x1 "Designated Rel." {
+        The relationship which force group <i>f</i> is required to adopt
+        toward the designated groups, expressed as a value from the following
+        scaled:<p>
+
+        <<::simlib::qaffinity html>>
+    } -tags {create update}
+
+    include tactic_ -attrs {priority on_lock state}
+}
+
+page /object/tactic stance "STANCE tactic" {
+    <<sotitle>>
+
+    <<tactic_stance overview>><p>
+
+    STANCE tactics have the following attributes:<p>
+
+    <<tactic_stance parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# SUPPORT
+
+object tactic_support {
+    noun "SUPPORT tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to determine who
+        will receive his political support in one or more
+        <<term nbhood>>s.  Each actor has an actor he usually
+        supports, as given in his actor definition; using this tactic,
+        he can support other actors (or no one at all) in any given
+        neighborhood.<p>
+
+        When an actor supports another, this means that whatever
+        support the actor has from the groups in the neighborhood is
+        given to the supported actor, thus possibly increasing that
+        actor's influence and making it easier for that actor to gain
+        or maintain control.<p>
+
+        The support is given only until the next strategy execution,
+        at which time it must be explicitly renewed.<p>
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority once on_lock}
+
+    attribute a "Supported Actor" {
+        The ID of the <<term actor>> who will receive the
+        <i>owner</i>'s political support.
+    } -tags {create update}
+
+    attribute nlist "In Neighborhoods" {
+        A list of <<term nbhood>> IDs.  Actor <i>a</i> will receive
+        the owner's political support in these neighborhoods.
+    } -tags {create update}
+
+}
+
+page /object/tactic support "SUPPORT tactic" {
+    <<sotitle>>
+
+    <<tactic_support overview>><p>
+
+    SUPPORT tactics have the following attributes:<p>
+
+    <<tactic_support parmlist>>
+}
+ 
+#-----------------------------------------------------------------------
+# WITHDRAW
+
+object tactic_withdraw {
+    noun "WITHDRAW tactic"
+    overview {
+        This <<term tactic>> allows the <<term actor>> to withdraw
+        a sum of money from his cash reserve into his cash-on-hand
+        so that it can be spent on other tactics.  Funds are deposited
+        into the cash reserve using the <<cref /object/tactic/deposit>>.<p>
+        
+        Actors are frequently in the position of borrowing money.  Athena
+        does not explicitly model any kind of banking system; as a work
+        around, however, the cash reserve is allowed to be negative,
+        reflecting debt rather than savings.  In short, the actor
+        may withdraw as much money as he likes.  It is up to the
+        analyst to ensure that this doesn't get out of hand.
+    }
+
+    include tactic_ -attrs tactic_id
+    include tactic_ -attrs owner -tags create
+    include tactic_ -attrs {state priority}
+
+    attribute amount "Amount" {
+        The amount of money to withdraw from the cash reserve,
+        in dollars.
+    }  -tags {create update}
+}
+
+page /object/tactic withdraw "WITHDRAW tactic" {
+    <<sotitle>>
+
+    <<tactic_withdraw overview>><p>
+
+    WITHDRAW tactics have the following attributes:<p>
+
+    <<tactic_withdraw parmlist>>
+}
+
+
