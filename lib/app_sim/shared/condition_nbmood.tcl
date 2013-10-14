@@ -75,12 +75,12 @@ condition define NBMOOD "Neighborhood Mood" {
 # CONDITION:* Orders
 
 
-# CONDITION:NBMOOD:UPDATE
+# CONDITION:NBMOOD
 #
 # Updates the condition's parameters
 
-order define CONDITION:NBMOOD:UPDATE {
-    title "Update NBMOOD Condition"
+order define CONDITION:NBMOOD {
+    title "Condition: Neighborhood Mood"
 
     options -sendstates {PREP PAUSED}
 

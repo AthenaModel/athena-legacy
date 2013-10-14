@@ -96,12 +96,12 @@ tactic define MOBILIZE "Mobilize Personnel" {actor} {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:MOBILIZE:UPDATE
+# TACTIC:MOBILIZE
 #
 # Updates existing MOBILIZE tactic.
 
-order define TACTIC:MOBILIZE:UPDATE {
-    title "Update Tactic: Mobilize Personnel"
+order define TACTIC:MOBILIZE {
+    title "Tactic: Mobilize Personnel"
     options -sendstates {PREP PAUSED}
 
     form {

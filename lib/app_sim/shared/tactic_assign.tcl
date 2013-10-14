@@ -175,12 +175,12 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:ASSIGN:UPDATE
+# TACTIC:ASSIGN
 #
 # Updates existing ASSIGN tactic.
 
-order define TACTIC:ASSIGN:UPDATE {
-    title "Update Tactic: Assign Personnel"
+order define TACTIC:ASSIGN {
+    title "Tactic: Assign Personnel"
     options -sendstates {PREP PAUSED}
 
     form {

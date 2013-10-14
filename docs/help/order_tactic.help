@@ -26,16 +26,6 @@ page /order tactic "Tactic Orders" {
     <<childlinks>>
 } 
 
-
-order TACTIC:DELETE "Delete Tactic" {
-    Deletes the <<term tactic>> from its parent <<term block>>.
-    The order parameters are as follows:<p>
-
-    <<parmlist>>
-    <<tactic_ parm tactic_id -required>>
-    <</parmlist>>
-}
-
 order TACTIC:STATE "Set Tactic State" {
     Sets the <<term tactic>>'s state.  Note that this order is for 
     internal use by the application; there is no associated order 
@@ -50,7 +40,7 @@ order TACTIC:STATE "Set Tactic State" {
 #-----------------------------------------------------------------------
 # Tactic: DEMOB
 
-order TACTIC:DEMOB+UPDATE "Tactic: Demobilize Forces" {
+order TACTIC:DEMOB "Tactic: Demobilize Forces" {
     Updates an existing <<cref /object/tactic/demob>>.<p>
 
     <<parmlist>>

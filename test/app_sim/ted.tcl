@@ -819,7 +819,7 @@ snit::type ted {
                     block_id [$block id] typename $typename]
 
         if {[llength $args] > 0} {
-            ted order CONDITION:${typename}:UPDATE condition_id $cid {*}$args
+            ted order CONDITION:${typename} condition_id $cid {*}$args
         }
 
         return [condition get $cid]
@@ -838,7 +838,7 @@ snit::type ted {
                     block_id [$block id] typename $typename]
 
         if {[llength $args] > 0} {
-            ted order TACTIC:${typename}:UPDATE tactic_id $tid {*}$args
+            ted order TACTIC:${typename} tactic_id $tid {*}$args
         }
 
         return [tactic get $tid]

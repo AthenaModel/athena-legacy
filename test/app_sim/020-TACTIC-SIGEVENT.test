@@ -46,12 +46,12 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # TACTIC:SIGEVENT:UPDATE
+    # TACTIC:SIGEVENT
 
-    test TACTIC:SIGEVENT:UPDATE-1.1 {required parameters} -setup {
+    test TACTIC:SIGEVENT-1.1 {required parameters} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:SIGEVENT:UPDATE
+        ted order -reject TACTIC:SIGEVENT
     } -cleanup {
         cleanup
     } -result {
@@ -59,20 +59,20 @@ namespace eval ::athena_test::tests:: {
         msg {required value}
     }
 
-    test TACTIC:SIGEVENT:UPDATE-1.2 {unknown tactic_id} -setup {
+    test TACTIC:SIGEVENT-1.2 {unknown tactic_id} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:SIGEVENT:UPDATE tactic_id NONESUCH
+        ted order -reject TACTIC:SIGEVENT tactic_id NONESUCH
     } -cleanup {
         cleanup
     } -match glob -result {
         tactic_id {invalid value "NONESUCH", should be one of: *}
     }
 
-    test TACTIC:SIGEVENT:UPDATE-2.1 {tactic updated} -setup {
+    test TACTIC:SIGEVENT-2.1 {tactic updated} -setup {
         setup
     } -body {
-        ted order TACTIC:SIGEVENT:UPDATE \
+        ted order TACTIC:SIGEVENT \
             tactic_id [$T1 id] \
             msg "Hello"
 
@@ -87,19 +87,19 @@ namespace eval ::athena_test::tests:: {
         state      normal
     }
 
-    test TACTIC:SIGEVENT:UPDATE-2.2 {notifier event} -setup {
+    test TACTIC:SIGEVENT-2.2 {notifier event} -setup {
         setup
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
-        ted order TACTIC:SIGEVENT:UPDATE tactic_id [$T1 id] msg "Hello"
+        ted order TACTIC:SIGEVENT tactic_id [$T1 id] msg "Hello"
         ted notifier received
     } -cleanup {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-    test TACTIC:SIGEVENT:UPDATE-2.3 {undo notifier event} -setup {
+    test TACTIC:SIGEVENT-2.3 {undo notifier event} -setup {
         setup
-        ted order TACTIC:SIGEVENT:UPDATE tactic_id [$T1 id] msg "Hello"
+        ted order TACTIC:SIGEVENT tactic_id [$T1 id] msg "Hello"
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test

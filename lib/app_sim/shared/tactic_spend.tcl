@@ -162,12 +162,12 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:SPEND:UPDATE
+# TACTIC:SPEND
 #
 # Updates existing SPEND tactic.
 
-order define TACTIC:SPEND:UPDATE {
-    title "Update Tactic: Spend Money"
+order define TACTIC:SPEND {
+    title "Tactic: Spend Money"
     options -sendstates {PREP PAUSED}
 
     form {

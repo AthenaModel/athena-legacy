@@ -75,12 +75,12 @@ condition define MOOD "Group Mood" {
 # CONDITION:* Orders
 
 
-# CONDITION:MOOD:UPDATE
+# CONDITION:MOOD
 #
 # Updates the condition's parameters
 
-order define CONDITION:MOOD:UPDATE {
-    title "Update MOOD Condition"
+order define CONDITION:MOOD {
+    title "Condition: Group Mood"
 
     options -sendstates {PREP PAUSED}
 

@@ -72,12 +72,12 @@ tactic define WITHDRAW "Withdraw Money" {actor} {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:WITHDRAW:UPDATE
+# TACTIC:WITHDRAW
 #
 # Updates existing WITHDRAW tactic.
 
-order define TACTIC:WITHDRAW:UPDATE {
-    title "Update Tactic: Withdraw Money"
+order define TACTIC:WITHDRAW {
+    title "Tactic: Withdraw Money"
     options -sendstates {PREP PAUSED}
 
     form {

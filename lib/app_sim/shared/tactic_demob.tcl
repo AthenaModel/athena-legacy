@@ -148,12 +148,12 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:DEMOB:UPDATE
+# TACTIC:DEMOB
 #
 # Updates existing DEMOB tactic.
 
-order define TACTIC:DEMOB:UPDATE {
-    title "Update Tactic: Demobilize Personnel"
+order define TACTIC:DEMOB {
+    title "Tactic: Demobilize Personnel"
     options -sendstates {PREP PAUSED}
 
     form {

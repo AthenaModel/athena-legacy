@@ -111,12 +111,12 @@ tactic define EXECUTIVE "Executive Command" {actor system} -onlock {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:EXECUTIVE:UPDATE
+# TACTIC:EXECUTIVE
 #
 # Updates the tactic's parameters
 
-order define TACTIC:EXECUTIVE:UPDATE {
-    title "Update EXECUTIVE Tactic"
+order define TACTIC:EXECUTIVE {
+    title "Tactic: Executive Command"
 
     options -sendstates {PREP PAUSED}
 

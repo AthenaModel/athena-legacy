@@ -60,12 +60,12 @@ tactic define SIGEVENT "Log Significant Event" {system actor} {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:SIGEVENT:UPDATE
+# TACTIC:SIGEVENT
 #
 # Updates the tactic's parameters
 
-order define TACTIC:SIGEVENT:UPDATE {
-    title "Update SIGEVENT Tactic"
+order define TACTIC:SIGEVENT {
+    title "Tactic: Log Significant Event"
 
     options -sendstates {PREP PAUSED}
 

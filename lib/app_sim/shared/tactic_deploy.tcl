@@ -352,12 +352,12 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
 #-----------------------------------------------------------------------
 # TACTIC:* orders
 
-# TACTIC:DEPLOY:UPDATE
+# TACTIC:DEPLOY
 #
 # Updates existing DEPLOY tactic.
 
-order define TACTIC:DEPLOY:UPDATE {
-    title "Update Tactic: Deploy Personnel"
+order define TACTIC:DEPLOY {
+    title "Tactic: Deploy Personnel"
     options -sendstates {PREP PAUSED}
 
     form {
