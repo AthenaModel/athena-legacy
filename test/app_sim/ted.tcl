@@ -120,9 +120,16 @@ snit::type ted {
     # Initializes all TED-defined data and constraints
 
     typemethod init {} {
+        # FIRST, define test entities
         DefineEntities
 
+        # NEXT, Define Constraints
         # No constraints yet
+
+        # NEXT, define custom match algorithms.
+        ::tcltest::customMatch dict     [mytypemethod MatchDict]
+        ::tcltest::customMatch indict   [mytypemethod MatchInDict]
+        ::tcltest::customMatch dictglob [mytypemethod MatchDictGlob]
 
         puts "Test Execution Deputy: Initialized"
     }
@@ -1135,6 +1142,103 @@ snit::type ted {
         append results "    "
                     
         return $results
+    }
+
+    # sortdict dict
+    #
+    # dict     - A dictionary
+    # 
+    # Returns a dictionary with the keys in sorted order.
+
+    typemethod sortdict {dict} {
+        set result [dict create]
+
+        foreach key [lsort [dict keys $dict]] {
+            dict set result $key [dict get $dict $key]
+        }
+                    
+        return $result
+    }
+
+    # MatchDict edict adict
+    #
+    # edict    - Expected result dictionary
+    # adict    - Actual result dictionary
+    #
+    # TclTest custom match algorithm for "dict":
+    # the adict must have the same keys as edict, and every value in
+    # adict must eq the pattern in edict.
+
+    typemethod MatchDict {edict adict} {
+        # FIRST, the dictionaries must have the same keys.
+        if {[lsort [dict keys $edict]] ne [lsort [dict keys $adict]]} {
+            return 0
+        }
+
+        # NEXT, each actual value must match the expected pattern.
+        dict for {key value} $adict {
+            set pattern [dict get $edict $key]
+
+            if {$value ne $pattern} {
+                return 0
+            }
+        }
+
+        return 1
+    }
+
+    # MatchInDict edict adict
+    #
+    # edict    - Expected result dictionary
+    # adict    - Actual result dictionary
+    #
+    # TclTest custom match algorithm for "indict":
+    # every key in the edict must be in the adict, and every value in
+    # adict must eq the pattern in edict.  Keys in adict that are not
+    # in edict are ignored.
+
+    typemethod MatchInDict {edict adict} {
+        dict for {key pattern} $edict {
+            if {![dict exists $adict $key]} {
+                return 0
+            }
+
+            set value [dict get $adict $key]
+
+            if {$value ne $pattern} {
+                return 0
+            }
+        }
+
+        return 1
+    }
+
+
+    # MatchDictGlob edict adict
+    #
+    # edict    - Expected result dictionary
+    # adict    - Actual result dictionary
+    #
+    # TclTest custom match algorithm for "dictglob":
+    # the adict must have the same keys as edict, and every value in
+    # adict must [string match] the pattern in edict.
+
+    typemethod MatchDictGlob {edict adict} {
+        # FIRST, the dictionaries must have the same keys.
+        if {[lsort [dict keys $edict]] ne [lsort [dict keys $adict]]} {
+            return 0
+        }
+
+        # NEXT, each actual value must match the expected pattern.
+        dict for {key value} $adict {
+            set pattern [dict get $edict $key]
+
+            if {![string match $pattern $value]} {
+                return 0
+            }
+        }
+
+        return 1
     }
 
 }

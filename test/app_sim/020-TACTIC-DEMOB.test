@@ -127,13 +127,15 @@ namespace eval ::athena_test::tests:: {
             personnel 1000             \
             percent   5.0
 
-        ted pdicts [$T1 getdict] {id parent}
+        ted sortdict [$T1 getdict]
     } -cleanup {
         cleanup
-    } -result {
+    } -match dictglob -result {
         execstatus NONE
         g          BLUE
+        id         *
         mode       SOME
+        parent     ::bean::block*
         percent    5.0
         personnel  1000
         state      normal

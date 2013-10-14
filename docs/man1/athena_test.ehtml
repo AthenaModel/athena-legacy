@@ -305,6 +305,34 @@ Sets/queries the unit's personnel.<p>
 <</deflist ted>>
 <</deflist test_commands>>
 
+<<section "TEST MATCH ALGORITHMS">>
+
+athena_test, via "ted", defines the following custom resulting matching
+algorithms, available via the TclTest <code>-match</code> option:<p>
+
+<<deflist match>>
+
+<<defitem "match dict" {-match dict}>>
+
+The <code>-result</code> is a dictionary; the test result must be a 
+dictionary with exactly the same keys and all keys must have 
+identical values.<p>
+
+<<defitem "match indict" {-match indict}>>
+
+The <code>-result</code> is a dictionary; the test result must be a dictionary
+containing at least the keys in the <code>-result</code>, and those keys
+must have identical values.<p>
+
+<<defitem "match dictglob" {-match dictglob}>>
+
+The <code>-result</code> is a dictionary whose values may contain
+glob-wildcards; the test result must be a 
+dictionary with exactly the same keys and the key values must match
+the patterns in <code>-result</code>.<p>
+
+<</deflist match>>
+
 <<section "TEST CONSTRAINTS">>
 
 <b>TBD:</b> As yet, no constraints are defined.<p>
