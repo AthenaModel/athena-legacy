@@ -17,7 +17,9 @@ tactic define DEPOSIT "Deposit Money" {actor} {
     #-------------------------------------------------------------------
     # Instance Variables
 
-    variable amount  ;# Amount of money to deposit
+    variable mode    ;# ALL, EXACT, UPTO, PERCENT or EXCESS
+    variable amount  ;# Amount of money to deposit, based on mode
+    variable percent ;# Percent of money to deposit if mode is PERCENT
 
     # Transient Data
     variable trans
@@ -30,7 +32,9 @@ tactic define DEPOSIT "Deposit Money" {actor} {
         next
 
         # Initialize state variables
-        set amount 0.0
+        set mode    ALL
+        set amount  0.0
+        set percent 0.0
 
         set trans(amount) 0.0
 
@@ -44,7 +48,33 @@ tactic define DEPOSIT "Deposit Money" {actor} {
     # No special SanityCheck is required.
 
     method narrative {} {
-        return "Deposit \$[moneyfmt $amount] to the cash reserve."
+        set amt [moneyfmt $amount]
+
+        switch -exact -- $mode {
+            ALL {
+                return "Deposit all cash-on-hand to cash reserve."
+            }
+
+            EXACT {
+                return "Deposit \$$amt to cash reserve."
+            }
+
+            UPTO {
+                return "Deposit up to \$$amt of cash-on-hand to cash reserve."
+            }
+
+            PERCENT {
+                return "Deposit $percent% of cash-on-hand to cash reserve."
+            }
+
+            EXCESS {
+                return "Deposit any cash-on-hand over \$$amt to cash reserve."
+            }
+
+            default {
+                error "Invalid mode: \"$mode\""
+            }
+        }
     }
 
     # obligate coffer
@@ -52,8 +82,7 @@ tactic define DEPOSIT "Deposit Money" {actor} {
     # coffer  - A coffer object with the owning agent's current
     #           resources
     #
-    # Obligates the money to be spent: whatever remains, up to the
-    # requested amount.
+    # Obligates the money to be deposited based on mode 
     #
     # NOTE: DEPOSIT never executes on lock.
 
@@ -62,14 +91,46 @@ tactic define DEPOSIT "Deposit Money" {actor} {
         
         # FIRST, retrieve relevant data.
         let cash_on_hand [$coffer cash]
+        set deposit 0.0
 
-        # NEXT, if there's no cash at all we can't deposit any.
-        if {$amount > 0.0 && $cash_on_hand == 0.0} {
-            return 0
+        # NEXT, depending on mode, try to obligate money
+        switch -exact -- $mode {
+            ALL {
+                if {$cash_on_hand > 0.0} {
+                    set deposit $cash_on_hand
+                }
+            }
+
+            EXACT {
+                # This is the only one than could give rise to an error
+                if {$amount > $cash_on_hand} {
+                    return 0
+                }
+                set deposit $amount
+            }
+
+            UPTO {
+                let deposit {max(0.0, min($cash_on_hand, $amount))}
+            }
+
+            PERCENT {
+                if {$cash_on_hand > 0.0} {
+                    let deposit {double($percent/100.0) * $cash_on_hand}
+                }
+            }
+
+            EXCESS {
+                let deposit {max(0.0, $cash_on_hand-$amount)}
+            }
+
+            default {
+                error "Invalid mode: \"$mode\""
+            }
+
         }
 
         # NEXT, get the actual amount to deposit.
-        let trans(amount) {min($cash_on_hand, $amount)}
+        set trans(amount) $deposit
 
         # NEXT, obligate it.
         $coffer deposit $trans(amount)
@@ -88,13 +149,13 @@ tactic define DEPOSIT "Deposit Money" {actor} {
 }
 
 #-----------------------------------------------------------------------
-# TACTIC:* orders
+# TACTIC:DEPOSIT order
 
 # TACTIC:DEPOSIT:UPDATE
 #
 # Updates existing DEPOSIT tactic.
 
-order define TACTIC:DEPOSIT:UPDATE {
+order define TACTIC:DEPOSIT {
     title "Update Tactic: Deposit Money"
     options -sendstates {PREP PAUSED}
 
@@ -103,21 +164,62 @@ order define TACTIC:DEPOSIT:UPDATE {
         text tactic_id -context yes \
             -loadcmd {beanload}
 
-        rcc "Amount:" -for amount
-        text amount
+        rcc "Mode:"   -for mode
+        selector mode {
+            case ALL "Deposit all remaining cash-on-hand" {}
+
+            case EXACT "Deposit exactly this much cash-on-hand" {
+                rcc "Amount:" -for amount
+                text amount
+            }
+
+            case UPTO "Deposit up to this much of cash-on-hand" {
+                rcc "Amount:" -for amount
+                text amount
+            }
+
+            case PERCENT "Deposit this percentage of cash-on-hand" {
+                rcc "Percent:" -for percent
+                text percent
+                label "%"
+            }
+
+            case EXCESS "Deposit cash-on-hand in excess of given amount" {
+                rcc "Amount:" -for amount
+                text amount
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required           -oneof [tactic::DEPOSIT ids]
-    prepare amount     -required -toupper  -type money
+    returnOnError 
+    
+    set tactic [tactic get $parms(tactic_id)]
+
+    prepare mode       -toupper  -selector
+    prepare amount     -toupper  -type money
+    prepare percent    -toupper  -type rpercent
+
+    returnOnError 
+
+    # NEXT, do the cross checks
+    fillparms parms [$tactic view]
+
+    if {$parms(mode) ne "PERCENT" && 
+        $parms(mode) ne "ALL"     &&
+        $parms(amount) == 0.0} {
+            reject amount "You must specify an amount > 0.0"
+    }
+
+    if {$parms(mode) eq "PERCENT" && $parms(percent) == 0.0} {
+        reject percent "You must specify a percent > 0.0"
+    }
 
     returnOnError -final
 
-    # NEXT, get the tactic
-    set tactic [tactic get $parms(tactic_id)]
-
     # NEXT, update the tactic, saving the undo script
-    set undo [$tactic update_ {amount} [array get parms]]
+    set undo [$tactic update_ {mode amount percent} [array get parms]]
 
     # NEXT, modify the tactic
     setundo $undo

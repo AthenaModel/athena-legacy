@@ -157,4 +157,79 @@ page /object/tactic demob "DEMOB tactic" {
     <<tactic_demob parmlist>>
 }
 
+object tactic_deposit {
+    noun "DEPOSIT tactic"
+
+    overview {
+        This <<term tactic>> allows the <<term actor>> to deposit
+        a sum of money from his cash-on-hand into his cash reserve.
+        The funds can then be withdrawn for spending using the
+        <<cref /object/tactic/withdraw>>.
+
+
+        There are several ways to select how much money should be 
+        deposited from cash-on-hand; see the "Mode" parameter below.
+
+        The tactic only fails when an exact amount of money is slated
+        to be deposited and it is greater than cash-on-hand.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute mode "Mode" {
+        The deposit amount mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Deposit all remaining cash-on-hand. The tactic will
+        still execute if cash-on-hand is zero or negative, just no cash
+        will be deposited.<p>
+
+        <b>EXACT</b>: Deposit the exact amount of money from cash-on-hand. 
+        The tactic will fail to execute if there is not at least this amount
+        of money in cash-on-hand.<p>
+
+        <b>UPTO</b>: Deposit any amount of money up to the given amount from
+        available cash-on-hand.  The tactic will still execute if there is
+        not enough cash, just no cash will be deposited.<p>
+
+        <b>PERCENT</b>: Deposit the specified <i>percent</i> of 
+        cash-on-hand.  The tactic will still execute if cash-on-hand is 
+        zero or negative, just no cash will be deposited.<p>
+
+        <b>EXCESS</b>: Deposit any cash-on-hand that is in
+        excess of the specified amount.  The tactic will still execute
+        if there is not enough cash, just no cash will be deposited.<p> 
+    } -tags {update}
+
+    attribute amount "Amount" {
+        When the <i>mode</i> is EXACT, the exact amount of money to
+        be deposited.<p>
+
+        When the <i>mode</i> is UPTO, the maximum amount of money that 
+        should be deposited.<p>
+
+        When the <i>mode</i> is EXCESS, the amount of money over which
+        any excess should be deposited.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percent" {
+        When the <i>mode</i> is PERCENT, the percentage of cash-on-hand
+        that should be deposited.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+}
+
+page /object/tactic deposit "DEPOSIT tactic" {
+    <<sotitle>>
+
+    <<tactic_deposit overview>><p>
+
+    Deposit tactics have the following attributes:<p>
+
+    <<tactic_deposit parmlist>>
+}
 
