@@ -74,10 +74,20 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {invalid value "NONESUCH", should be one of: BLUE}
+        personnel {Mode requires personnel greater than 0.}
     }
 
-    test TACTIC:MOBILIZE-1.4 {invalid personnel} -setup {
+    test TACTIC:MOBILIZE-1.4 {invalid mode} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:MOBILIZE tactic_id [$T1 id] mode NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        mode {invalid value "NONESUCH", should be one of: ADD, PERCENT, UPTO, ENSURE}
+    }
+
+    test TACTIC:MOBILIZE-1.5 {invalid personnel} -setup {
         setup
     } -body {
         ted order -reject TACTIC:MOBILIZE tactic_id [$T1 id] personnel NONESUCH
@@ -87,14 +97,38 @@ namespace eval ::athena_test::tests:: {
         personnel {invalid value "NONESUCH", expected integer}
     }
 
-    test TACTIC:MOBILIZE-1.5 {0 personnel} -setup {
+    test TACTIC:MOBILIZE-1.6 {invalid percent} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:MOBILIZE tactic_id [$T1 id] personnel 0
+        ted order -reject TACTIC:MOBILIZE tactic_id [$T1 id] percent NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        personnel {invalid value "0", expected integer no less than 1}
+        percent {invalid value "NONESUCH", expected double}
+    }
+
+    test TACTIC:MOBILIZE-1.7 {0 personnel for mode} -setup {
+        setup
+    } -body {
+        # personnel is initially 0.  mode ADD requires positive personnel
+        # on cross-check.
+        ted order -reject TACTIC:MOBILIZE tactic_id [$T1 id] mode ADD
+    } -cleanup {
+        cleanup
+    } -result {
+        personnel {Mode requires personnel greater than 0.}
+    }
+
+    test TACTIC:MOBILIZE-1.8 {0 percent for mode} -setup {
+        setup
+    } -body {
+        # percent is initially 0.  mode PERCENT requires positive percent
+        # on cross-check.
+        ted order -reject TACTIC:MOBILIZE tactic_id [$T1 id] mode PERCENT
+    } -cleanup {
+        cleanup
+    } -result {
+        percent {Mode requires a percentage greater than 0.0%.}
     }
 
     test TACTIC:MOBILIZE-2.1 {tactic updated} -setup {
@@ -103,16 +137,20 @@ namespace eval ::athena_test::tests:: {
         ted order TACTIC:MOBILIZE \
             tactic_id [$T1 id] \
             g         BLUE     \
-            personnel 1000
+            mode      UPTO     \
+            personnel 1000     \
+            percent   5.0
 
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         execstatus NONE
         g          BLUE
         id         *
+        mode       UPTO
         parent     ::bean::block*
+        percent    5.0
         personnel  1000
         state      normal
     }

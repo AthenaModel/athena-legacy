@@ -50,22 +50,26 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         coffer create coff
-        coff getdict
+        ted sortdict [coff getdict]
     } -cleanup {
         cleanup
-    } -result {cash 0.0 reserve 0.0 troops {}}
+    } -match dict -result {
+        cash    0.0 
+        reserve 0.0 
+        troops  {}
+    }
 
     test constructor-1.2 {create with actor} -setup {
         setup
     } -body {
         coffer create coff JOE
-        ted pdict [coff getdict]
+        ted sortdict [coff getdict]
     } -cleanup {
         cleanup
-    } -result {
+    } -match dict -result {
         cash    10000.0
         reserve 200000.0
-        troops  {BLUE {undeployed 5000} BRIT {undeployed 5000}}
+        troops  {BLUE {mobilized 5000 undeployed 5000} BRIT {mobilized 5000 undeployed 5000}}
     }
 
     #-------------------------------------------------------------------
@@ -218,17 +222,19 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # demobilize
 
-    test demobilize-1.1 {removes personnel from undeployed} -setup {
+    test demobilize-1.1 {removes personnel from mobilized, undeployed} -setup {
         setup
     } -body {
         coffer create coff JOE
-        set a [coff troops BLUE undeployed]
-        coff demobilize BLUE 100
+        set a [coff troops BLUE mobilized]
         set b [coff troops BLUE undeployed]
-        list $a $b
+        coff demobilize BLUE 100
+        set c [coff troops BLUE mobilized]
+        set d [coff troops BLUE undeployed]
+        list $a $b $c $d
     } -cleanup {
         cleanup
-    } -result {5000 4900}
+    } -result {5000 5000 4900 4900}
     
     test demobilize-1.2 {insufficient personnel} -setup {
         setup
@@ -257,17 +263,19 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # mobilize
 
-    test mobilize-1.1 {adds personnel to undeployed} -setup {
+    test mobilize-1.1 {adds personnel to mobilized, undeployed} -setup {
         setup
     } -body {
         coffer create coff JOE
-        set a [coff troops BLUE undeployed]
-        coff mobilize BLUE 100
+        set a [coff troops BLUE mobilized]
         set b [coff troops BLUE undeployed]
-        list $a $b
+        coff mobilize BLUE 100
+        set c [coff troops BLUE mobilized]
+        set d [coff troops BLUE undeployed]
+        list $a $b $c $d
     } -cleanup {
         cleanup
-    } -result {5000 5100}
+    } -result {5000 5000 5100 5100}
 
     #-------------------------------------------------------------------
     # deploy

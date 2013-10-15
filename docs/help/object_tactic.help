@@ -79,7 +79,7 @@ page /object tactic "Tactic" {
 
 
 #-----------------------------------------------------------------------
-# DEMOB
+# DEMOB Tactic
 
 object tactic_demob {
     noun "DEMOB tactic"
@@ -157,6 +157,9 @@ page /object/tactic demob "DEMOB tactic" {
     <<tactic_demob parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# DEPOSIT Tactic
+
 object tactic_deposit {
     noun "DEPOSIT tactic"
 
@@ -231,5 +234,93 @@ page /object/tactic deposit "DEPOSIT tactic" {
     Deposit tactics have the following attributes:<p>
 
     <<tactic_deposit parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# MOBILIZE Tactic
+
+object tactic_mobilize {
+    noun "MOBILIZE tactic"
+    overview {
+        This tactic mobilizes 
+        <<term frcgroup>> or 
+        <<term orggroup>> personnel,
+        i.e., it brings new personnel into the playbox.  There is no
+        direct cost to mobilization; however, a maintenance cost will be
+        paid when the troops are deployed (and if they are not
+        deployed, they will be automatically demobilized again.)<p>
+
+        There are several ways to select the number of troops to mobilize;
+        see the "Mode" parameter, below.<p>
+
+        Multiple MOBILIZE tactics executed during a single
+        week are cumulative.<p>
+
+        This tactic never fails to execute.  However, for several of the 
+        modes the selected number of troops might be zero (e.g., when the
+        <i>mode</i> is <b>UPTO</b> and the number of group <i>g</i>'s 
+        troops in the playbox exceeds the desired quantity).
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or 
+        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+    } -tags {update}
+
+    attribute mode "Mode" {
+        The mobilization mode, which has one of the following values.<p>
+
+        <b>ADD</b>: Mobilizes a specific number of new <i>personnel</i> for group
+        <i>g</i>.<p>
+
+        <b>PERCENT</b>: Increases the number of mobilized troops by a
+        specific percentage, <i>percent</i>.  If no troops are currently
+        mobilized, none will be added.<p>
+
+        <b>UPTO</b>: Increases the number of mobilized troops up to a
+        some maximum number of <i>personnel</i>.  If the current number of 
+        mobilized troops exceeds that number, none will be added.<p>
+
+        <b>ENSURE</b>: Increases the number of mobilized troops so as to
+        ensure that least the specified number of <i>personnel</i> are 
+        available for deployment.  If the current number of 
+        undeployed troops exceeds that number, none will be added.<p>
+    } -tags {update}
+
+    attribute personnel "Personnel" {
+        When the <i>mode</i> is <b>ADD</b>, the 
+        number of personnel to mobilize.<p>
+
+        When the <i>mode</i> is <b>UPTO</b>, mobilizes troops up to the
+        specified maximum number of <i>personnel</i>.<p>
+
+        When the <i>mode</i> is <b>ENSURE</b>, ensures that at least
+        <i>personnel</i> troops are available for deployment, mobilizing
+        troops if necessary.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percentage" {
+        When the <i>mode</i> is <b>PERCENT</b>, increases the number
+        of mobilized troops by the given percentage, <i>percent</i>, i.e.,
+        a value of 3.5 will mobilize 3.5% more troops.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+}
+
+page /object/tactic mobilize "MOBILIZE tactic" {
+    <<sotitle>>
+
+    <<tactic_mobilize overview>><p>
+
+    Mobilize tactics have the following attributes:<p>
+
+    <<tactic_mobilize parmlist>>
 }
 

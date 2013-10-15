@@ -43,7 +43,7 @@ oo::class create coffer {
     
     variable cash       ;# Cash-on-hand
     variable reserve    ;# Cash-reserve
-    variable troops     ;# dict $g -> {undeployed, $n} -> $troops
+    variable troops     ;# dict $g -> {mobilized, undeployed, $n} -> $troops
 
     #-------------------------------------------------------------------
     # Constructor
@@ -54,6 +54,10 @@ oo::class create coffer {
     #
     # Initializes the instance variables; if agent is given, loads the
     # agent's resources into the coffer.
+    #
+    # NOTE: We assume that the coffer is created at the beginning of
+    # the agent's strategy execution, before any mobilization or deployment
+    # changes are done.
 
     constructor {{agent ""}} {
         # FIRST, initialize the instance variables
@@ -80,19 +84,16 @@ oo::class create coffer {
 
         # NEXT, load the agent's undeployed personnel
         rdb eval {
-            SELECT g, available
+            SELECT g, 
+                   personnel AS mobilized, 
+                   available
             FROM working_personnel
             JOIN agroups USING (g)
             WHERE a = $agent
         } {
+            dict set troops $g mobilized  $mobilized
             dict set troops $g undeployed $available
         }
-
-        # TBD: We could load deployments from working_deployment.  But the
-        # expectation is that this would be created at the beginning of
-        # the agent's strategy execution, before any troops are deployed.
-
-
     }
 
     #-------------------------------------------------------------------
@@ -140,9 +141,10 @@ oo::class create coffer {
     # troops g location
     #
     # g        - Group name
-    # location - "undeployed" or neighborhood
+    # location - "mobilized", "undeployed" or neighborhood
     #
     # Returns the number of troops in the specified location.
+    # All troops in the playbox are counted as "mobilized".
     # Troops not yet deployed to neighborhoods are in the "undeployed"
     # location; troops deployed to neighborhood $n and not yet assigned
     # are in the "$n" location.
@@ -220,6 +222,9 @@ oo::class create coffer {
 
         let undeployed {$undeployed - $personnel}
         dict set troops $g undeployed $undeployed
+
+        let mobilized {[my troops $g mobilized] - $personnel}
+        dict set troops $g mobilized $mobilized
     }
 
     # mobilize g personnel
@@ -237,6 +242,9 @@ oo::class create coffer {
 
         let undeployed {$undeployed + $personnel}
         dict set troops $g undeployed $undeployed
+
+        let mobilized {[my troops $g mobilized] + $personnel}
+        dict set troops $g mobilized $mobilized
     }
 
     # deploy g n personnel

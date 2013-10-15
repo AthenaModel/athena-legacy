@@ -37,9 +37,6 @@ order TACTIC:STATE "Set Tactic State" {
     <</parmlist>>
 }
 
-#-----------------------------------------------------------------------
-# Tactic: DEMOB
-
 order TACTIC:DEMOB "Tactic: Demobilize Forces" {
     Updates an existing <<cref /object/tactic/demob>>.<p>
 
@@ -48,9 +45,6 @@ order TACTIC:DEMOB "Tactic: Demobilize Forces" {
     <<tactic_demob parms -optional -tags update>>
     <</parmlist>>
 }
-
-#-----------------------------------------------------------------------
-# Tactic: DEPOSIT
 
 order TACTIC:DEPOSIT "Tactic: Deposit Money" {
     Updates an existing <<cref /object/tactic/deposit>>.<p>
@@ -61,5 +55,13 @@ order TACTIC:DEPOSIT "Tactic: Deposit Money" {
     <</parmlist>>
 }
 
+order TACTIC:MOBILIZE "Tactic: Mobilize Forces" {
+    Updates an existing <<cref /object/tactic/mobilize>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_mobilize parms -optional -tags update>>
+    <</parmlist>>
+}
 
 

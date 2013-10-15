@@ -188,7 +188,7 @@ order define TACTIC:DEMOB {
 } {
     # FIRST, prepare the parameters
     prepare tactic_id  -required -oneof [tactic::DEMOB ids]
-    prepare g                    -type ident
+    prepare g          -toupper  -type ident
     prepare mode       -toupper  -selector
     prepare personnel  -num      -type ipositive
     prepare percent    -num      -type rpercent
@@ -199,9 +199,6 @@ order define TACTIC:DEMOB {
     set tactic [tactic get $parms(tactic_id)]
 
     fillparms parms [$tactic getdict]
-
-    if {$parms(mode) eq "PERCENT"} {
-    }
 
     switch -exact -- $parms(mode) {
         ALL {
