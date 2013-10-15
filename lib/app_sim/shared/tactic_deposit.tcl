@@ -151,12 +151,12 @@ tactic define DEPOSIT "Deposit Money" {actor} {
 #-----------------------------------------------------------------------
 # TACTIC:DEPOSIT order
 
-# TACTIC:DEPOSIT:UPDATE
+# TACTIC:DEPOSIT
 #
 # Updates existing DEPOSIT tactic.
 
 order define TACTIC:DEPOSIT {
-    title "Update Tactic: Deposit Money"
+    title "Tactic: Deposit Money"
     options -sendstates {PREP PAUSED}
 
     form {
