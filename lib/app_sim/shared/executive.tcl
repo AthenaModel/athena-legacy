@@ -502,6 +502,10 @@ snit::type executive {
         $interp smartalias {rdb tables} 0 0 {} \
             [list ::rdb tables]
 
+        # redo
+        $interp smartalias redo 0 0 {} \
+            [myproc redo]
+
         # reset
         $interp smartalias {reset} 0 0 {} \
             [mytypemethod reset]
@@ -568,6 +572,10 @@ snit::type executive {
         # tofile
         $interp smartalias tofile 3 3 {filename extension text} \
             [myproc tofile]
+
+        # undo
+        $interp smartalias undo 0 0 {} \
+            [myproc undo]
 
         # unlock
         $interp smartalias unlock 0 0 {} \
@@ -1733,7 +1741,39 @@ snit::type executive {
             return [format %.0f $personnel]
         }
     }
+
+    # undo
+    #
+    # If possible, undoes the order on the top of the stack.
+
+    proc undo {} {
+        set title [cif canundo]
+
+        if {$title eq ""} {
+            return "Nothing to undo."
+        }
+
+        cif undo -test
+
+        return "Undone: $title"
+    }
  
+    # redo
+    #
+    # If possible, redoes the last undone order.
+
+    proc redo {} {
+        set title [cif canredo]
+
+        if {$title eq ""} {
+            return "Nothing to redo."
+        }
+
+        cif redo
+
+        return "Redone: $title"
+    }
+
     # unemp
     #
     # Returns the playbox unemployment rate as a percentage.

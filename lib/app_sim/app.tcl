@@ -425,15 +425,11 @@ snit::type app {
     # parmdict   - The order parameters
     # undoScript - The order's undo script, or "" if not undoable.
     #
-    # Adds accepted orders to the CIF, export for REPORT:* orders,
-    # which don't modify the RDB and hence don't need to be CIF'd.
+    # Adds accepted orders to the CIF.
 
     proc AddOrderToCIF {interface name parmdict undoScript} {
-        if {![string match "REPORT:*" $name]} {
-            cif add $name $parmdict $undoScript
-        }
+        cif add $name $parmdict $undoScript
     }
-
 
     # UnexpectedOrderError name errmsg
     #

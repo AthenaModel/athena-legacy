@@ -1497,6 +1497,18 @@ command "rdb tables" {
 }
 
 #=======================================================================
+# redo command
+
+command "redo" {
+    <<syntax>>
+
+    Re-does the last thing that was undone using the 
+    <<menu Edit/Undo>> menu item
+    or the <<command undo>> executive command.  Returns the string
+    "Nothing to redo" if there is nothing that can be redone.
+}
+
+#=======================================================================
 # reset command
 
 command "reset" {
@@ -1775,6 +1787,17 @@ command "tofile" {
         >}>>
 }
 
+#=======================================================================
+# undo command
+
+command "undo" {
+    <<syntax>>
+
+    Undoes the operation on top of the undo stack, just like the 
+    <<menu Edit/Undo>> menu item. Returns the string
+    "Nothing to undo" if the undo stack is empty.  See also
+    the <<command redo>> command.
+}
 
 #=======================================================================
 # unlock command
