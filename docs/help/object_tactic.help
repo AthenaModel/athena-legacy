@@ -194,9 +194,9 @@ object tactic_deposit {
 
         <b>UPTO</b>: Deposit any amount of money up to the given amount from
         available cash-on-hand.  The tactic will still execute if there is
-        not enough cash, just no cash will be deposited.<p>
+        not enough cash, just less cash will be deposited.<p>
 
-        <b>PERCENT</b>: Deposit the specified <i>percent</i> of 
+        <b>PERCENT</b>: Deposit the specified percent of 
         cash-on-hand.  The tactic will still execute if cash-on-hand is 
         zero or negative, just no cash will be deposited.<p>
 
@@ -234,6 +234,86 @@ page /object/tactic deposit "DEPOSIT tactic" {
     Deposit tactics have the following attributes:<p>
 
     <<tactic_deposit parmlist>>
+}
+
+object tactic_withdraw {
+    noun "WITHDRAW tactic"
+
+    overview {
+        This <<term tactic>> allows the <<term actor>> to withdraw
+        a sum of money from his cash reserve into his cash-on-hand
+        so that it can be spent on other tactics.  Funds are deposited
+        into the cash reserve using the <<cref /object/tactic/deposit>>.<p>
+        
+        Actors are frequently in the position of borrowing money.  Athena
+        does not explicitly model any kind of banking system; as a work
+        around, however, the cash reserve is allowed to be negative,
+        reflecting debt rather than savings.  In short, the actor
+        may withdraw as much money as he likes.  It is up to the
+        analyst to ensure that this doesn't get out of hand.<p>
+
+        There are several ways to select how much money should be 
+        withdrawn from cash reserve; see the "Mode" parameter below.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute mode "Mode" {
+        The withdrawal amount mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Withdraw all remaining cash reserve. The tactic will
+        still execute if the cash reserve is zero or negative, just no cash
+        will be withdrawn.<p>
+
+        <b>EXACT</b>: Withdraw the exact amount of money from cash reserve. 
+        The tactic will fail to execute if there is not at least this amount
+        of money in cash reserve.<p>
+
+        <b>UPTO</b>: Withdraw any amount of money up to the given amount from
+        cash reserve.  The tactic will still execute if there is
+        not enough cash, just less cash will be withdrawn.<p>
+
+        <b>PERCENT</b>: Withdraw the specified percent of the
+        cash reserve.  The tactic will still execute if the reserve is 
+        zero or negative, just no cash will be withdrawn.<p>
+
+        <b>BORROW</b>: Withdraw any amount from cash reserve, allowing
+        the balance to go negative if need be. This is a workaround for 
+        borrowing money in the absence of a model of a banking system. 
+        The tactic will always execute.<p> 
+    } -tags {update}
+
+    attribute amount "Amount" {
+        When the <i>mode</i> is EXACT, the exact amount of money to
+        be withdrawn.<p>
+
+        When the <i>mode</i> is UPTO, the maximum amount of money that 
+        should be withdrawn.<p>
+
+        When the <i>mode</i> is BORROW, the amount of money to be 
+        withdrawn, allowing the reserve to go negative, if necessary.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percent" {
+        When the <i>mode</i> is PERCENT, the percentage of cash-on-hand
+        that should be deposited.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+}
+
+page /object/tactic withdraw "WITHDRAW tactic" {
+    <<sotitle>>
+
+    <<tactic_withdraw overview>><p>
+
+    Withdraw tactics have the following attributes:<p>
+
+    <<tactic_withdraw parmlist>>
 }
 
 #-----------------------------------------------------------------------
