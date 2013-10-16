@@ -23,14 +23,14 @@ tactic define EXECUTIVE "Executive Command" {actor system} -onlock {
     # Constructor
 
     constructor {args} {
-        # Initialize as tactic bean.
+        # FIRST, Initialize as a tactic bean.
         next
 
-        # Initialize state variables
+        # NEXT, Initialize state variables
         set command ""
         my set state invalid   ;# command is still unknown.
 
-        # Save the options
+        # NEXT, Save the options
         my configure {*}$args
     }
 
@@ -46,7 +46,8 @@ tactic define EXECUTIVE "Executive Command" {actor system} -onlock {
         return [next $errdict]
     }
 
-    # No special obligation is required
+    # No special obligation is required, as Athena has no way of knowing
+    # what resources the command might require.
 
     method narrative {} {
         if {[normalize $command] eq ""} {
@@ -131,7 +132,7 @@ order define TACTIC:EXECUTIVE {
 } {
     # FIRST, prepare and validate the parameters
     prepare tactic_id -required -oneof [tactic::EXECUTIVE ids]
-    prepare command   -required 
+    prepare command   -required -type  tclscript
     returnOnError -final
 
     set tactic [tactic get $parms(tactic_id)]

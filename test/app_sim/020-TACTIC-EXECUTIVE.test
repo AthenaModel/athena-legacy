@@ -69,6 +69,17 @@ namespace eval ::athena_test::tests:: {
         tactic_id {invalid value "NONESUCH", should be one of: *}
     }
 
+    test TACTIC:EXECUTIVE-1.3 {script is in error} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:EXECUTIVE tactic_id [$T1 id] \
+            command "foo \{"
+    } -cleanup {
+        cleanup
+    } -result {
+        command {Script is incomplete; check braces and quotes.}
+    }
+
     test TACTIC:EXECUTIVE-2.1 {tactic updated} -setup {
         setup
     } -body {

@@ -168,6 +168,25 @@ snit::type refpoly {
     }
 }
 
+# tclscript
+#
+# This experimental type is for validating Tcl Scripts, e.g., those
+# used by the EXECUTIVE tactic.
+
+snit::type tclscript {
+    pragma -hasinstances no
+
+    typemethod validate {script} {
+        # FIRST, verify that the script contains at least a complete command.
+        # This checks for unclosed braces and quotes, but not extra braces
+        # and quotes at the end.
+        if {![info complete $script]} {
+            throw INVALID "Script is incomplete; check braces and quotes."
+        }
+
+        return $script
+    }
+}
 
 
 

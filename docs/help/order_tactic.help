@@ -55,6 +55,15 @@ order TACTIC:DEPOSIT "Tactic: Deposit Money" {
     <</parmlist>>
 }
 
+order TACTIC:EXECUTIVE "Tactic: Log Significant Event" {
+    Updates an existing <<cref /object/tactic/executive>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_executive parms -optional -tags update>>
+    <</parmlist>>
+}
+
 
 order TACTIC:MOBILIZE "Tactic: Mobilize Forces" {
     Updates an existing <<cref /object/tactic/mobilize>>.<p>
@@ -64,7 +73,7 @@ order TACTIC:MOBILIZE "Tactic: Mobilize Forces" {
     <</parmlist>>
 }
 
-order TACTIC:SIGEVENT "Tactic: Log Significant Event" {
+order TACTIC:SIGEVENT "Tactic: Executive Command" {
     Updates an existing <<cref /object/tactic/sigevent>>.<p>
 
     <<parmlist>>
