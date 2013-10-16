@@ -1,0 +1,149 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-gofer_number.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    actor(sim) tests.
+#
+#    This test suite tests the gofer::NUMBER type.
+#
+#    NOTE: The type itself is implemented using gofer(n); thus,
+#    we don't need to test the behavior of the type itself.  As a result,
+#    this test suite focusses on the gofer::NUMBER-specific rule
+#    objects.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    proc setup {} {
+        ted create JOE BOB BLUE BRIT TAL SUNN SHIA KURD USAID
+    }
+
+    proc cleanup {} {
+        # Clean up the test environment
+        array unset parms
+        ted cleanup
+    }
+
+
+    #-------------------------------------------------------------------
+    # Rule: BY_VALUE
+
+    test BY_VALUE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::BY_VALUE construct 45.0
+    } -cleanup {
+        cleanup
+    } -result {raw_value 45.0}
+
+    test BY_VALUE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::BY_VALUE validate {raw_value 45.0}
+    } -cleanup {
+        cleanup
+    } -result {raw_value 45.0}
+
+    test BY_VALUE-2.2 {validate, invalid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::BY_VALUE validate {raw_value NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", expected double}
+
+    test BY_VALUE-3.1 {narrative} -body {
+        ::gofer::NUMBER::BY_VALUE narrative {raw_value 45.0}
+    } -result {45.0}
+
+    test BY_VALUE-4.1 {eval} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::BY_VALUE eval {raw_value 45.0}
+    } -cleanup {
+        cleanup
+    } -result {45.0}
+
+
+    #-------------------------------------------------------------------
+    # Rule: COOP
+
+    test COOP-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COOP construct SHIA BLUE
+    } -cleanup {
+        cleanup
+    } -result {f SHIA g BLUE}
+
+    test COOP-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COOP validate {f shia g blue}
+    } -cleanup {
+        cleanup
+    } -result {f SHIA g BLUE}
+
+    test COOP-2.2 {validate, invalid f} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COOP validate {f NONESUCH g BLUE}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test COOP-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COOP validate {f SHIA g NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force group,*}
+
+    test COOP-3.1 {narrative} -body {
+        ::gofer::NUMBER::COOP narrative {f SHIA g BLUE}
+    } -result {cooperation of SHIA with BLUE}
+
+    test COOP-4.1 {eval} -setup {
+        setup
+        # Set coop to 25.0
+        ted order COOP:UPDATE \
+            id {SHIA BLUE} base 25.0 regress_to NATURAL natural 25.0
+        ted lock
+    } -body {
+        ::gofer::NUMBER::COOP eval {f SHIA g BLUE}
+    } -cleanup {
+        cleanup
+    } -result {25.0}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+

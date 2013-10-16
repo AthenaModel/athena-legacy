@@ -406,6 +406,18 @@ snit::type ::projectlib::goferType {
         return $form
     }
 
+    # testform
+    #
+    # Pops up the dynaform in a dynabox.
+
+    method testform {} {
+        dynabox popup \
+            -formtype    $form               \
+            -parent      .main               \
+            -validatecmd [mymethod validate] \
+            -initvalue   [list _type $name _rule BY_VALUE]
+    }
+
     # rules
     #
     # Returns the names of this type's rules.
