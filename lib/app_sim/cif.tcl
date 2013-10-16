@@ -25,10 +25,18 @@ snit::type cif {
     #
     # redoing    - If 1, we're in the middle of [cif redo].  If 0,
     #              we're not.
+    #
     # redoStack  - Stack of redo records.  Item "end" is the head of the
     #              stack.  The variable contains the empty list if there
-    #              is nothing to redo.  Each record is a dict corresponding
-    #              to a CIF row.
+    #              is nothing to redo.  Each record is a dictionary
+    #              containing one item to redo.
+    #
+    # Redo Stack Records
+    #
+    # Every record has the following keys:
+    #
+    #   narrative - The text returned by [cif canredo] for use by the GUI.
+    #   orders    - A list of name/parmdict pairs, in the order to be redone.
 
     typevariable info -array {
         redoing   0
@@ -62,6 +70,7 @@ snit::type cif {
     typemethod ClearUndo {} {
         # FIRST, clear the undo information from the cif table.
         rdb eval {
+            DELETE FROM cif WHERE kind != 'order';
             UPDATE cif SET undo='';
         }
 
@@ -90,6 +99,51 @@ snit::type cif {
     typemethod clear {} {
         set info(redoStack) [list]
         rdb eval {DELETE FROM cif}
+    }
+
+    # startblock narrative
+    #
+    # narrative - Narrative text for the block as a whole.
+    #
+    # Begins a block of orders to be undone and redone together.
+
+    typemethod startblock {narrative} {
+        rdb eval {
+            INSERT INTO cif(time,kind,narrative)
+            VALUES(now(), 'start', $narrative);
+        }
+    }
+
+    # endblock narrative
+    #
+    # narrative - Narrative text for the block as a whole.
+    #
+    # Ends a block of orders to be undone and redone together.
+
+    typemethod endblock {narrative} {
+        # FIRST, verify that there's a matching start block
+        set found 0
+
+        rdb eval {
+            SELECT * FROM cif
+            WHERE kind != 'order'
+            ORDER BY id DESC
+            LIMIT 1
+        } row {
+            if {$row(kind) eq "start" && $row(narrative) eq $narrative } {
+                set found 1
+            }
+        }
+
+        if {!$found} {
+            error "Start marker not found for block <$narrative>"
+        }
+
+        # NEXT, add the end block.
+        rdb eval {
+            INSERT INTO cif(time,kind,narrative)
+            VALUES(now(), 'end', $narrative);
+        }
     }
 
     # add order parmdict ?undo?
@@ -149,12 +203,13 @@ snit::type cif {
         }
 
         rdb eval {
-            SELECT narrative,
+            SELECT kind,
+                   narrative,
                    coalesce(undo,'') == '' AS noUndo
             FROM cif 
             WHERE id=$top
         } {
-            if {$noUndo} {
+            if {$kind eq "order" && $noUndo} {
                 return ""
             }
 
@@ -172,19 +227,137 @@ snit::type cif {
     # error.
 
     typemethod undo {{opt ""}} {
-        # FIRST, get the undo information
+        # FIRST, set testflag
+        let testflag {$opt eq "-test"}
+
+        # NEXT, can we undo?
+        if {[cif canundo] eq ""} {
+            error "Nothing to undo."
+        }
+
+        # NEXT, Handle the undo based on what's on top of the stack.
+        set id [cif top]
+        set kind [rdb onecolumn {
+            SELECT kind FROM cif WHERE id=$id
+        }]
+
+        if {$kind eq "order"} {
+            $type UndoOneOrder $testflag
+        } else {
+            $type UndoOneBlock $testflag
+        }
+    }
+
+    # UndoOneBlock testflag
+    # 
+    # testflag   - If true, rethrow errors.  Otherwise, report to GUI.
+    #
+    # Undoes one block of orders from end to start, placing the block on
+    # the redo stack.
+
+    typemethod UndoOneBlock {testflag} {
+        # FIRST, there's a block of orders on top of the stack.
+        # Get the id of the start of the block.
+        rdb eval {
+            SELECT id        AS start,
+                   narrative AS narrative 
+            FROM cif
+            WHERE kind = 'start'
+            ORDER BY id DESC
+            LIMIT 1
+        } {}
+
+        # NEXT, undo the orders.
+        foreach id [rdb eval {
+            SELECT id FROM cif
+            WHERE id > $start AND kind == 'order'
+            ORDER BY id DESC
+        }] {
+            if {![$type UndoOrder $id $testflag]} {
+                return
+            }
+        }
+
+        # NEXT, put the undo data on the undo stack.
+
+        set record [dict create narrative $narrative]
+
+        dict set record orders [rdb eval {
+            SELECT name, parmdict
+            FROM cif
+            WHERE id > $start AND kind == 'order'
+            ORDER BY id ASC
+        }]        
+
+        lappend info(redoStack) $record
+
+        # NEXT, delete the entries.
+        rdb eval {
+            DELETE FROM cif WHERE id >= $start
+        }
+
+        notifier send ::cif <Update>
+        return
+    }
+
+    # UndoOneOrder testflag
+    # 
+    # testflag   - If true, rethrow errors.  Otherwise, report to GUI.
+    #
+    # Undo the order on the top of the stack, handling undo errors.
+    # Delete the undo order from the undo stack, and add it to the
+    # redo stack.
+
+    typemethod UndoOneOrder {testflag} {
+        # FIRST, get the order to undo.
         set id [cif top]
 
-
+        # NEXT, get the undo information
         rdb eval {
             SELECT id, name, narrative, parmdict, undo
             FROM cif 
             WHERE id=$id
         } {}
 
-        if {$id eq "" || $undo eq ""} {
-            error "Nothing to undo"
+        # NEXT, undo the order; add it do the redo stack on
+        # success.
+
+        if {[$type UndoOrder $id $testflag]} {
+            # FIRST, delete the entry; we're done with it.
+            rdb eval {
+                DELETE FROM cif WHERE id = $id
+            }
+
+            # NEXT, add it to the undo stack.
+            set record [dict create                \
+                 narrative $narrative              \
+                 orders    [list $name $parmdict]]
+
+            lappend info(redoStack) $record
+
         }
+
+        notifier send ::cif <Update>
+
+        return
+    }
+
+    # UndoOrder id testflag
+    #
+    # id       - The ID of the entry to undo.
+    # testflag - If 1, throw an error; otherwise, pop up a dialog.
+    #
+    # Undo the given order, handling errors.  Return 1 on success
+    # and 0 on handled error.  (Rethrown errors naturally propagate
+    # as errors.)
+
+    typemethod UndoOrder {id testflag} {
+        # FIRST, get the undo information
+        rdb eval {
+            SELECT id, name, narrative, parmdict, undo
+            FROM cif 
+            WHERE id=$id
+        } {}
 
         # NEXT, Undo the order
         log normal cif "undo: $name $parmdict"
@@ -195,7 +368,7 @@ snit::type cif {
             }
         } result opts]} {
             # FIRST, If we're testing, rethrow the error.
-            if {$opt eq "-test"} {
+            if {$testflag} {
                 return {*}$opts $result
             }
 
@@ -214,10 +387,7 @@ snit::type cif {
 
             # NEXT, clear all undo information; we can't undo, and
             # we've logged the problem entry.
-            rdb eval {
-                UPDATE cif
-                SET undo = '';
-            }
+            $type ClearUndo
 
             # NEXT, tell the user what happened.
             app error {
@@ -239,24 +409,11 @@ snit::type cif {
             # NEXT, Reconfigure all modules from the database: 
             # this should clean up any problems in Tcl memory.
             sim dbsync
-        } else {
-            # FIRST, no error; add the undo order to the redo stack.
-            lappend info(redoStack)       \
-                [dict create              \
-                     name      $name      \
-                     narrative $narrative \
-                     parmdict  $parmdict  \
-                     undo      $undo]
 
-            # NEXT, delete the order from the undo stack
-            rdb eval {
-                DELETE FROM cif WHERE id=$id
-            }
+            return 0
         }
 
-        notifier send ::cif <Update>
-
-        return
+        return 1
     }
 
     # canredo
@@ -289,21 +446,44 @@ snit::type cif {
             error "Nothing to redo"
         }
 
-        dict with record {}
-        log normal cif "redo: $name $parmdict"
-
-        # Using try/finally might be overkill here, but it shouldn't
+        # NEXT, Using try/finally might be overkill here, but it shouldn't
         # hurt anything.
         try {
             set info(redoing) 1
             bgcatch {
-                order send gui $name $parmdict
+                $type RedoOrders $record
             }
         } finally {
             set info(redoing) 0
         }
 
         return
+    }
+
+    # RedoOrders record
+    #
+    # record   - A redo record
+    #
+    # Redoes the order or orders in the record.
+
+    typemethod RedoOrders {record} {
+        dict with record {}
+
+        log normal cif "redo: $narrative"
+
+        set gotBlock [expr {[llength $orders] > 2}]
+
+        if {$gotBlock} {
+            $type startblock $narrative
+        }
+
+        foreach {name parmdict} $orders {
+            order send gui $name $parmdict
+        }
+
+        if {$gotBlock} {
+            $type endblock $narrative
+        }
     }
 
     # dump ?-count n?"
@@ -343,6 +523,14 @@ snit::type cif {
             ORDER BY id DESC
             LIMIT $opts(-count)
         }] row {
+            # FIRST, handle markers
+            if {$row(kind) ne "order"} {
+                lappend result \
+                    "Marker: $row(id) $row(kind) <$row(narrative)> @ $row(time)\n"
+                continue
+            }
+
+            # NEXT, handler orders.
             set out "\#$row(id) $row(name) @ $row(time): \n"
 
 

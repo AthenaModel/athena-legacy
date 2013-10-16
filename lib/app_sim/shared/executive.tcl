@@ -1143,7 +1143,7 @@ snit::type executive {
         rdb eval {
             SELECT time,name,parmdict
             FROM cif
-            WHERE name != 'SIM:UNLOCK'
+            WHERE kind == 'order' AND name != 'SIM:UNLOCK'
             ORDER BY id
         } {
             # SIM:RUN requires special handling.

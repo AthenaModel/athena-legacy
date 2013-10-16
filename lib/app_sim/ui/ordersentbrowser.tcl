@@ -37,6 +37,7 @@ snit::widgetadaptor ordersentbrowser {
         { tick      "Week"       -sortmode integer   }
         { week      "Date"                           }
         { canUndo   "Undo?"                          }
+        { kind      "Kind"                           }
         { narrative "Narrative"  -width 50 -wrap yes }
         { name      "Order"                          }
         { parmdict  "Parameters" -width 70 -wrap yes }

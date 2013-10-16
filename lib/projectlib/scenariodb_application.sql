@@ -49,22 +49,25 @@ CREATE TABLE snapshots (
 
 CREATE TABLE cif (
     -- Unique ID; used for ordering
-    id       INTEGER PRIMARY KEY,
+    id        INTEGER PRIMARY KEY,
 
     -- Simulation time at which the order was entered.
-    time     INTEGER DEFAULT 0,
+    time      INTEGER DEFAULT 0,
+
+    -- Kind of entry: order | start | end
+    kind      TEXT default 'order',
 
     -- Order name
-    name     TEXT,
+    name      TEXT default '',
 
     -- Order narrative
     narrative TEXT default '',
 
     -- Parameter Dictionary
-    parmdict TEXT,
+    parmdict  TEXT default '',
 
     -- Undo Command, or ''
-    undo     TEXT DEFAULT ''
+    undo      TEXT DEFAULT ''
 );
 
 CREATE INDEX cif_index ON cif(time,id);
