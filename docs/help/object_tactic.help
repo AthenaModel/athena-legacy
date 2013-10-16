@@ -404,3 +404,36 @@ page /object/tactic mobilize "MOBILIZE tactic" {
     <<tactic_mobilize parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# SIGEVENT Tactic
+
+object tactic_sigevent {
+    noun "SIGEVENT tactic"
+    overview {
+        This tactic logs a message to the significant events log.
+        The message will have a log level of 1 (highest priority) and
+        a component field of "tactic".<p>
+
+        This tactic is never insane, and never fails to execute.<p>
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute msg "Message" {
+        The message text to log when the tactic executes.
+    } -tags {update}
+}
+
+page /object/tactic sigevent "SIGEVENT tactic" {
+    <<sotitle>>
+
+    <<tactic_sigevent overview>><p>
+
+    SIGEVENT tactics have the following attributes:<p>
+
+    <<tactic_sigevent parmlist>>
+}
+
+

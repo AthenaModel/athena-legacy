@@ -64,8 +64,18 @@ order TACTIC:MOBILIZE "Tactic: Mobilize Forces" {
     <</parmlist>>
 }
 
+order TACTIC:SIGEVENT "Tactic: Log Significant Event" {
+    Updates an existing <<cref /object/tactic/sigevent>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_sigevent parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:WITHDRAW "Tactic: Withdraw Money" {
     Updates an existing <<cref /object/tactic/withdraw>>.<p>
+
     <<parmlist>>
     <<tactic_ parm tactic_id -required>>
     <<tactic_withdraw parms -optional -tags update>>

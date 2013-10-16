@@ -23,21 +23,22 @@ tactic define SIGEVENT "Log Significant Event" {system actor} {
     # Constructor
 
     constructor {args} {
-        # Initialize as tactic bean.
+        # FIRST, Initialize as tactic bean.
         next
 
-        # Initialize state variables
+        # NEXT, Initialize state variables
         set msg ""
 
-        # Save the options
+        # NEXT, Save the options
         my configure {*}$args
     }
 
     #-------------------------------------------------------------------
     # Operations
 
-    # No special SanityCheck is required; this is 
-    # No special obligation is required
+    # No special SanityCheck is required; any message is OK.
+
+    # No special obligation is required; SIGEVENT takes no resources.
 
     method narrative {} {
         if {$msg ne ""} {
