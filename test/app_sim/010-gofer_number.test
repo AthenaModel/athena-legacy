@@ -124,7 +124,7 @@ namespace eval ::athena_test::tests:: {
 
     test COOP-3.1 {narrative} -body {
         ::gofer::NUMBER::COOP narrative {f SHIA g BLUE}
-    } -result {cooperation of SHIA with BLUE}
+    } -result {coop("SHIA","BLUE")}
 
     test COOP-4.1 {eval} -setup {
         setup

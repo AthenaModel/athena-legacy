@@ -84,8 +84,8 @@ namespace eval ::athena_test::tests:: {
         ted order -reject CONDITION:MOOD condition_id [$C1 id] comp NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        comp {invalid value "NONESUCH", should be one of: EQ, GE, GT, LE, LT}
+    } -match glob -result {
+        comp {invalid value "NONESUCH", should be one of: EQ,*}
     }
 
     test CONDITION:MOOD-1.5 {invalid limit} -setup {

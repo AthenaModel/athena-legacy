@@ -60,20 +60,6 @@ namespace eval ::athena_test::tests:: {
     
 
     #-------------------------------------------------------------------
-    # types
-
-    test types-1.1 {lists type objects} -body {
-        condition types
-    } -result {::condition::MOOD ::condition::NBMOOD}
-    
-    #-------------------------------------------------------------------
-    # typenames
-
-    test typenames-1.1 {lists type names} -body {
-        condition typenames
-    } -result {MOOD NBMOOD}
-
-    #-------------------------------------------------------------------
     # typedict
 
     test typedict-1.1 {lists types and titles} -body {

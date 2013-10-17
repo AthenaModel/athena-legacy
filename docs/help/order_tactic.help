@@ -18,10 +18,10 @@ page /order tactic "Tactic Orders" {
 
     These orders are used to create, update, and delete
     <<term tactic>>s, of which there are many different type.
-    Each tactic type has its own "CREATE" and "UPDATE" orders; 
+    Each tactic type has its own specific order; 
     other TACTIC:* orders are shared by all tactic types.<p>
 
-    Orders used with all tactic types are as follows:
+    The full set of tactic orders is as follows:
 
     <<childlinks>>
 } 

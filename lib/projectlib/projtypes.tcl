@@ -600,6 +600,7 @@ snit::type ::projectlib::typewrapper {
 
 ::projectlib::enumx create ::projectlib::ecomparatorx {
     EQ {longname "equal to"                 }
+    AE {longname "approximately equal to"   }
     GE {longname "greater than or equal to" }
     GT {longname "greater than"             }
     LE {longname "less than or equal to"    }
@@ -607,13 +608,35 @@ snit::type ::projectlib::typewrapper {
 } {
     method compare {x comp y} {
         switch -exact -- $comp {
-            EQ      { return [expr {$x == $y}] }
-            GE      { return [expr {$x >= $y}] }
-            GT      { return [expr {$x >  $y}] }
-            LE      { return [expr {$x <= $y}] }
-            LT      { return [expr {$x <  $y}] }
+            EQ      { return [expr {$x == $y}]         }
+            AE      { return [my ApproxEqual $x $y] }
+            GE      { return [expr {$x >= $y}]         }
+            GT      { return [expr {$x >  $y}]         }
+            LE      { return [expr {$x <= $y}]         }
+            LT      { return [expr {$x <  $y}]         }
             default { error "Invalid comparator: \"$comp\"" }
         }
+    }
+
+    # ApproxEqual x y
+    #
+    # x    - A number
+    # y    - A number
+    #
+    # Returns 1 if x is approximately equal to y, and 0 otherwise.
+
+    method ApproxEqual {x y} {
+        if {$x == $y} {
+            return 1
+        }
+
+        set epsilon 0.000001
+
+        if {abs($x - $y)/max(abs($x),abs($y)) < $epsilon} {
+            return 1
+        }
+
+        return 0
     }
 }
 

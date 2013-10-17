@@ -100,7 +100,7 @@ gofer rule NUMBER COOP {f g} {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "cooperation of $f with $g"
+        return "coop(\"$f\",\"$g\")"
     }
 
     typemethod eval {gdict} {

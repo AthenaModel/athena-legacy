@@ -67,20 +67,6 @@ namespace eval ::athena_test::tests:: {
     } -result {::tactic::SIGEVENT}
     
     #-------------------------------------------------------------------
-    # types
-
-    test types-1.1 {lists type objects} -body {
-        tactic types
-    } -result {::tactic::ASSIGN ::tactic::DEMOB ::tactic::DEPLOY ::tactic::DEPOSIT ::tactic::EXECUTIVE ::tactic::MOBILIZE ::tactic::SIGEVENT ::tactic::SPEND ::tactic::WITHDRAW}
-    
-    #-------------------------------------------------------------------
-    # typenames
-
-    test typenames-1.1 {lists type names} -body {
-        tactic typenames
-    } -result {ASSIGN DEMOB DEPLOY DEPOSIT EXECUTIVE MOBILIZE SIGEVENT SPEND WITHDRAW}
-
-    #-------------------------------------------------------------------
     # typedict
 
     test typedict-1.1 {lists types and titles} -body {

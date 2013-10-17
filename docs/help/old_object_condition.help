@@ -1,0 +1,635 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    object_condition.help
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Simulation Objects: Conditions
+#
+#    This file is included into object.help.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Condition Objects
+
+page /object condition "Condition" {
+    <<sotitle>>
+
+    A <i>condition</i> a Boolean predicate that can be
+    attached to a <<term tactic>> or <<term goal>>.
+    Tactic conditions  determine whether the tactic should be used or
+    not; goal conditions determine whether the goal is met or not.<p>
+
+    There are many different types of condition, each with its own 
+    specific inputs, as follows:<p>
+
+    <<childlinks>>
+}
+
+object condition_ {
+    noun "condition"
+
+    overview {
+        A <i>condition</i> a Boolean predicate that can be
+        attached to a <<term tactic>> or <<term goal>>.
+        Tactic conditions  determine whether the tactic should be used or
+        not; goal conditions determine whether the goal is met or not.<p>
+    }
+
+    attribute condition_id "Condition ID" {
+        Every condition has a condition ID, an integer number that uniquely
+        identifies the condition.
+    } 
+
+    attribute cc_id "Tactic/Goal ID" {
+        Every condition has a collection ID, an integer number that uniquely
+        identifies the <<term tactic>> or 
+        <<term goal>> that owns the condition.
+    }
+
+    attribute owner "Owner" {
+        The ID of the <<term actor>> to whose strategy this
+        condition belongs.
+    }
+}
+
+
+#-----------------------------------------------------------------------
+# AFTER
+
+object condition_after {
+    noun "AFTER condition"
+    overview {
+        This <<term condition>> is met when the current simulation time is later
+        than a particular date.<p>
+    }
+
+    include condition_ 
+
+    attribute t1 "Week" {
+        The week after which the condition is met,
+        specified as a <<term timespec>>.
+    } -tags {create update}
+}
+
+page /object/condition after "AFTER condition" {
+    <<sotitle>>
+
+    <<condition_after overview>><p>
+
+    AFTER conditions have the following attributes:<p>
+
+    <<condition_after parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# AT
+
+object condition_at {
+    noun "AT condition"
+    overview {
+        This <<term condition>> is met when the current simulation
+        time is exactly a particular date.<p>
+    }
+
+    include condition_ 
+
+    attribute t1 "Week" {
+        The week at which the condition is met,
+        specified as a <<term timespec>>.
+    } -tags {create update}
+}
+
+page /object/condition at "AT condition" {
+    <<sotitle>>
+
+    <<condition_at overview>><p>
+
+    AT conditions have the following attributes:<p>
+
+    <<condition_at parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# BEFORE
+
+object condition_before {
+    noun "BEFORE condition"
+    overview {
+        This <<term condition>> is met when the current simulation time is earlier
+        than a particular date.<p>
+    }
+
+    include condition_ 
+
+    attribute t1 "Week" {
+        The week on which the condition is no longer met,
+        specified as a <<term timespec>>.
+    } -tags {create update}
+}
+
+page /object/condition before "BEFORE condition" {
+    <<sotitle>>
+
+    <<condition_before overview>><p>
+
+    BEFORE conditions have the following attributes:<p>
+
+    <<condition_before parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# CASH
+
+object condition_cash {
+    noun "CASH condition"
+    overview {
+        This <<term condition>> compares an actor's cash reserve with a 
+        user-specified amount.  The actor manages his cash reserve
+        using the <<cref /order/tactic/deposit DEPOSIT>> and
+        <<cref /order/tactic/withdraw WITHDRAW>> tactics.  Using this
+        condition, the actor can undertake tactics when enough
+        money has been saved, or when the reserve is low.<p>
+
+        The behavior of the condition changes depending on whether or not
+        the referenced actor is the same as the actor who owns the condition.
+        If they are the same, the condition queries the actor's cash reserve
+        <b>at that point in strategy execution</b>; otherwise it queries
+        the actor's cash reserve before strategy execution begins.<p>
+
+        For example, actor A wants to execute a tactic when actor B's 
+        cash reserve is low, and uses a CASH condition to determine this.
+        The condition will be met or unmet based on actor B's cash reserve
+        before he executes any new tactics.<p>
+
+        On the other hand, suppose actor A wants to execute a tactic
+        when his own cash reserve is high, and uses a CASH condition to 
+        determine this.  A may execute a series of tactics during strategy 
+        execution, and some of these may change the level of 
+        his cash reserve.  Naturally, he wants to take his previous decisions 
+        into account when deciding whether to execute the <i>next</i> tactic.
+        In this case, then, the CASH condition will query his cash reserve
+        at that point in the process.<p>
+    }
+
+    include condition_ 
+
+    attribute a "Actor" {
+        The name of the actor whose cash reserve is being compared.
+    } -tags {create update}
+
+    attribute op1 "Is" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+
+        Values are rounded to the penny before comparison.
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The amount of cash to which the actor's
+        cash reserve will be compared.
+    } -tags {create update}
+
+}
+
+page /object/condition cash "CASH condition" {
+    <<sotitle>>
+
+    <<condition_cash overview>><p>
+
+    CASH conditions have the following attributes:<p>
+
+    <<condition_cash parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# CONTROL
+
+object condition_control {
+    noun "CONTROL condition"
+    overview {
+        This <<term condition>> is met when the referenced actor controls a
+        specified set of one or more neighborhoods.<p>
+    }
+
+    include condition_ 
+
+    attribute a "Actor" {
+        The name of the actor whose control is being queried.
+    } -tags {create update}
+
+    attribute list1 "Neighborhoods" {
+        A list of one or more neighborhoods that the
+        actor might or might not control.
+    } -tags {create update}
+}
+
+page /object/condition control "CONTROL condition" {
+    <<sotitle>>
+
+    <<condition_control overview>><p>
+
+    CONTROL conditions have the following attributes:<p>
+
+    <<condition_control parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# DURING
+
+object condition_during {
+    noun "DURING condition"
+    overview {
+        This <<term condition>> is met when the current simulation time is within
+        a particular interval.  The start and end times are included within
+        the interval.<p>
+    }
+
+    include condition_ 
+
+    attribute t1 "Start Week" {
+        The week which begins the interval, specified
+        as a <<term timespec>>.
+    } -tags {create update}
+
+    attribute t2 "End Week" {
+        The week which ends the interval, specified
+        as a <<term timespec>>.
+    } -tags {create update}
+}
+
+page /object/condition during "DURING condition" {
+    <<sotitle>>
+
+    <<condition_during overview>><p>
+
+    DURING conditions have the following attributes:<p>
+
+    <<condition_during parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# EXPR
+
+object condition_expr {
+    noun "EXPR condition"
+    overview {
+        This <<term condition>> is met when a particular boolean
+        expression is true.  The expression has Tcl expression 
+        syntax, and is evaluated by the Athena
+        <<term executive>>.  The expression can call
+        arbitrary executive <<cref /command commands>> and 
+        <<cref /function functions>>, 
+        but should avoid
+        calling commands with side effects.<p>
+
+        If the expression contains an error, e.g., a syntax error,
+        that will be discovered when Athena evaluates the condition
+        during <<term strategy>> execution.  The error will be logged
+        in the <a href="my://app/sigevents">Significant Events</a>
+        log.<p>
+
+        A condition whose expression contains an error has no value.
+        Such conditions can be seen at a glance in the
+        <a href="gui:/tab/strategy">Strategy Browser</a> because they
+        will be marked by a black dash icon rather than a green
+        thumb's up or a red thumb's down.  (Note that conditions that
+        have been edited but not evaluated also lack values.)  In addition,
+        if the condition is attached to a tactic, that tactic will not
+        execute.<p>
+    }
+
+    include condition_ 
+
+    attribute text1 "Expression" {
+        A boolean expression with Tcl syntax to be evaluated by the
+        Athena <<term executive>>.
+    } -tags {create update}
+}
+
+page /object/condition expr "EXPR condition" {
+    <<sotitle>>
+
+    <<condition_expr overview>><p>
+
+    EXPR conditions have the following attributes:<p>
+
+    <<condition_expr parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# INFLUENCE
+
+object condition_influence {
+    noun "INFLUENCE condition"
+    overview {
+        This <<term condition>> compares an <<term actor>>'s 
+        <<term influence>> in a <<term nbhood>>
+        with a user-specified amount.<p>
+    }
+
+    include condition_ 
+
+    attribute a "Actor" {
+        The name of the <<term actor>> whose influence is being compared.
+    } -tags {create update}
+
+    attribute n "Neighborhood" {
+        The name of the <<term nbhood>> in which the <<term actor>>
+        might have influence.
+    } -tags {create update}
+
+    attribute op1 "Is" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+
+        Values are rounded to two decimals places before comparison.
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The amount of influence to which the actor's
+        influence will be compared.
+    } -tags {create update}
+}
+
+page /object/condition influence "INFLUENCE condition" {
+    <<sotitle>>
+
+    <<condition_influence overview>><p>
+
+    INFLUENCE conditions have the following attributes:<p>
+
+    <<condition_influence parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# MET
+
+object condition_met {
+    noun "MET condition"
+    overview {
+        This <<term condition>> is met when one or more goals are all met.
+        All of the queried goals must belong to the same actor
+        as the condition does.<p>
+        
+        This <<term condition>> can only be attached to tactics, not to
+        goals.<p>
+    }
+
+    include condition_  -attrs condition_id
+
+    attribute cc_id "Tactic ID" {
+        Every MET condition has a collection ID, an integer number that 
+        uniquely identifies the <<term tactic>> that owns the condition.
+    }
+
+    include condition_  -attrs owner
+
+    attribute list1 "Goals" {
+        A list of the IDs of one or more goals belonging
+        to the same actor as the tactic to which this condition is attached.
+    } -tags {create update}
+}
+
+page /object/condition met "MET condition" {
+    <<sotitle>>
+
+    <<condition_met overview>><p>
+
+    MET conditions have the following attributes:<p>
+
+    <<condition_met parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# MOOD
+
+object condition_mood {
+    noun "MOOD condition"
+    overview {
+        This <<term condition>> compares a civilian group's mood
+        with a particular value.  The condition
+        is met when the comparison is true, e.g., when group
+        G1's mood is greater than 55.0.<p>
+    }
+
+    include condition_ 
+
+    attribute g "Group" {
+        The ID of the <<term civgroup>> whose mood is
+        being compared.
+    } -tags {create update}
+
+    attribute op1 "Is" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The number to which the group's mood will be compared.
+    } -tags {create update}
+}
+
+page /object/condition mood "MOOD condition" {
+    <<sotitle>>
+
+    <<condition_mood overview>><p>
+
+    MOOD conditions have the following attributes:<p>
+
+    <<condition_mood parmlist>>
+}
+
+
+
+#-----------------------------------------------------------------------
+# NBCOOP
+
+object condition_nbcoop {
+    noun "NBCOOP condition"
+    overview {
+        This <<term condition>> compares a neighborhood's cooperation with a
+        particular force group to a particular value.  The condition
+        is met when the comparison is true, e.g., when neighborhood
+        N1's cooperation with BLUE is greater than 55.0.<p>
+    }
+
+    include condition_ 
+
+    attribute n "Neighborhood" {
+        The ID of the <<term nbhood>> whose cooperation is
+        being compared.
+    } -tags {create update}
+
+    attribute g "Group" {
+        The ID of the <<term frcgroup>> whose cooperation
+        is being compared.
+    } -tags {create update}
+
+    attribute op1 "Is" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The number to which the neighborhood's cooperation with the
+        group will be compared.
+    } -tags {create update}
+}
+
+page /object/condition nbcoop "NBCOOP condition" {
+    <<sotitle>>
+
+    <<condition_nbcoop overview>><p>
+
+    NBCOOP conditions have the following attributes:<p>
+
+    <<condition_nbcoop parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# NBMOOD
+
+object condition_nbmood {
+    noun "NBMOOD condition"
+    overview {
+        This <<term condition>> compares a neighborhood's mood
+        with a particular value.  The condition
+        is met when the comparison is true, e.g., when neighborhood
+        N1's mood is greater than 55.0.<p>
+    }
+
+    include condition_ 
+
+    attribute n "Neighborhood" {
+        The ID of the <<term nbhood>> whose mood is
+        being compared.
+    } -tags {create update}
+
+    attribute op1 "Is" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+    } -tags {create update}
+
+    attribute x1 "Amount" {
+        The number to which the neighborhood's mood will be compared.
+    } -tags {create update}
+}
+
+page /object/condition nbmood "NBMOOD condition" {
+    <<sotitle>>
+
+    <<condition_nbmood overview>><p>
+
+    NBMOOD conditions have the following attributes:<p>
+
+    <<condition_nbmood parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+# TROOPS
+
+object condition_troops {
+    noun "TROOPS condition"
+    overview {
+        This <<term condition>> compares a force or organization group's total
+        number of personnel in the playbox with some 
+        user-specified amount.<p>
+
+        The behavior of the condition changes depending on whether or not
+        the referenced group is owned by the same actor who owns the condition.
+        If they are the same, the condition queries the group's total
+        number of personnel <b>at that point in strategy execution</b>;
+        otherwise it queries the number of personnel in the playbox
+        before strategy execution began.  In other words, the condition
+        takes into account the effects of any previous
+        <<cref /object/tactic/mobilize>> or <<cref /object/tactic/demob>>
+        that was executed by the owning actor during the same strategy
+        execution tock.<p>
+    }
+
+    include condition_ 
+
+    attribute g "Group" {
+        The ID of the <<term frcgroup>> or 
+        <<term orggroup>> whose troop numbers are being compared.
+    } -tags {create update}
+
+    attribute op1 "Is" {
+        The kind of comparison being done: a value from
+        the following table:<p>
+
+        <<enumdoc ::projectlib::ecomparator>>
+    } -tags {create update}
+
+    attribute int1 "Amount" {
+        The number to which the group's number of personnel
+        will be compared.
+    } -tags {create update}
+}
+
+page /object/condition troops "TROOPS condition" {
+    <<sotitle>>
+
+    <<condition_troops overview>><p>
+
+    TROOPS conditions have the following attributes:<p>
+
+    <<condition_troops parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# UNMET
+
+object condition_unmet {
+    noun "UNMET condition"
+    overview {
+        This <<term condition>> is met when any of one or more goals are unmet.
+        All of the queried goals must belong to the same actor
+        as the condition does.<p>
+
+        This <<term condition>> can only be attached to tactics, not to
+        goals.<p>
+    }
+
+    include condition_  -attrs condition_id
+
+    attribute cc_id "Tactic ID" {
+        Every UNMET condition has a collection ID, an integer number that 
+        uniquely identifies the <<term tactic>> that owns the condition.
+    }
+
+    include condition_  -attrs owner
+
+    attribute list1 "Goals" {
+        A list of the IDs of one or more goals belonging
+        to the same actor as the tactic to which this condition is attached.
+    } -tags {create update}
+}
+
+page /object/condition unmet "UNMET condition" {
+    <<sotitle>>
+
+    <<condition_unmet overview>><p>
+
+    UNMET conditions have the following attributes:<p>
+
+    <<condition_unmet parmlist>>
+}
+
+

@@ -174,7 +174,7 @@ snit::widget ::projectgui::goferfield {
     # Returns a preview string of the narrative text.
 
     method Preview {value} {
-        return "Rule: [$options(-typename) narrative $value -brief]"
+        return [$options(-typename) narrative $value -brief]
     }
 
     #-------------------------------------------------------------------

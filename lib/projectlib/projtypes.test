@@ -54,13 +54,17 @@ namespace eval ::projectlib::test {
     test ecomparatorx-1.1 {compare} -body {
         list \
             [ecomparatorx compare 1.0 EQ 2.0] \
+            [ecomparatorx compare 1.0 EQ 1.0] \
+            [ecomparatorx compare 1.0 AE 2.0] \
+            [ecomparatorx compare 1.0 AE 1.0] \
+            [ecomparatorx compare 1.000000001 AE 1.000000002] \
             [ecomparatorx compare 1.0 GE 2.0] \
             [ecomparatorx compare 2.0 GE 2.0] \
             [ecomparatorx compare 2.0 GT 1.0] \
             [ecomparatorx compare 1.0 LE 2.0] \
             [ecomparatorx compare 2.0 LE 2.0] \
             [ecomparatorx compare 2.0 LT 1.0]
-    } -result {0 0 1 1 1 1 0}
+    } -result {0 1 0 1 1 0 1 1 1 1 0}
 
     test ecomparatorx-2.1 {compare with invalid comparison} -body {
         ecomparatorx compare 1.0 NONESUCH 2.0
