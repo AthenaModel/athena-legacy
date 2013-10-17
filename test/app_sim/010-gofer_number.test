@@ -138,6 +138,154 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {25.0}
 
+    #-------------------------------------------------------------------
+    # Rule: MOOD
+
+    test MOOD-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOOD construct SHIA
+    } -cleanup {
+        cleanup
+    } -result {g SHIA}
+
+    test MOOD-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOOD validate {g shia}
+    } -cleanup {
+        cleanup
+    } -result {g SHIA}
+
+    test MOOD-2.2 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOOD validate {g NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test MOOD-3.1 {narrative} -body {
+        ::gofer::NUMBER::MOOD narrative {g SHIA}
+    } -result {mood("SHIA")}
+
+    test MOOD-4.1 {eval} -setup {
+        setup
+        ted order SAT:UPDATE:MULTI ids {
+            {SHIA AUT} {SHIA CUL} {SHIA QOL} {SHIA SFT}
+        } base 25.0 hist_flag 1 current 25.0
+
+        ted lock
+        
+    } -body {
+        ::gofer::NUMBER::MOOD eval {g SHIA}
+    } -cleanup {
+        cleanup
+    } -result {22.9}
+
+    #-------------------------------------------------------------------
+    # Rule: NBMOOD
+
+    test NBMOOD-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBMOOD construct NB1
+    } -cleanup {
+        cleanup
+    } -result {n NB1}
+
+    test NBMOOD-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBMOOD validate {n nb1}
+    } -cleanup {
+        cleanup
+    } -result {n NB1}
+
+    test NBMOOD-2.2 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBMOOD validate {n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBMOOD-3.1 {narrative} -body {
+        ::gofer::NUMBER::NBMOOD narrative {n NB1}
+    } -result {nbmood("NB1")}
+
+    test NBMOOD-4.1 {eval} -setup {
+        setup
+        ted lock
+        rdb eval {UPDATE uram_n SET nbmood=25.0 WHERE n='NB1'}
+        
+    } -body {
+        ::gofer::NUMBER::NBMOOD eval {n NB1}
+    } -cleanup {
+        cleanup
+    } -result {25.0}
+
+
+    #-------------------------------------------------------------------
+    # Rule: SAT
+
+    test SAT-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SAT construct SHIA SFT
+    } -cleanup {
+        cleanup
+    } -result {g SHIA c SFT}
+
+    test SAT-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SAT validate {g shia c sft}
+    } -cleanup {
+        cleanup
+    } -result {g SHIA c SFT}
+
+    test SAT-2.2 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SAT validate {g NONESUCH c SFT}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test SAT-2.3 {validate, invalid c} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SAT validate {g SHIA c NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
+
+    test SAT-3.1 {narrative} -body {
+        ::gofer::NUMBER::SAT narrative {g SHIA c SFT}
+    } -result {sat("SHIA","SFT")}
+
+    test SAT-4.1 {eval} -setup {
+        setup
+        # Set sat to 25.0
+        ted order SAT:UPDATE \
+            id {SHIA SFT} base 25.0 hist_flag 1 current 25.0
+        ted lock
+    } -body {
+        ::gofer::NUMBER::SAT eval {g SHIA c SFT}
+    } -cleanup {
+        cleanup
+    } -result {25.0}
+
+
 
     #-------------------------------------------------------------------
     # Cleanup

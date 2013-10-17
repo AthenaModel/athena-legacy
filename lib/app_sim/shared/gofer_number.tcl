@@ -40,6 +40,31 @@ gofer define NUMBER {
             rc
             enumlong g -showkeys yes -dictcmd {::frcgroup namedict}
         }
+
+        case MOOD "mood(g)" {
+            rc
+            rc "Mood of civilian group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::civgroup namedict}
+        }
+
+        case NBMOOD "nbmood(n)" {
+            rc
+            rc "Mood of neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
+        case SAT "sat(g,c)" {
+            rc
+            rc "Satisfaction of civilian group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::civgroup namedict}
+
+            rc "with concern"
+            rc
+            enumlong c -showkeys yes -dictcmd {::econcern deflist}
+        }
     }
 }
 
@@ -81,7 +106,7 @@ gofer rule NUMBER BY_VALUE {raw_value} {
 
 # Rule: COOP
 #
-# coop.fg
+# coop(f,g)
 
 gofer rule NUMBER COOP {f g} {
     typemethod construct {f g} {
@@ -115,3 +140,110 @@ gofer rule NUMBER COOP {f g} {
         return 0.0
     }
 }
+
+# Rule: MOOD
+#
+# mood(g)
+
+gofer rule NUMBER MOOD {g} {
+    typemethod construct {g} {
+        return [$type validate [dict create g $g]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create g [civgroup validate [string toupper $g]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "mood(\"$g\")"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT mood FROM uram_mood WHERE g=$g
+        } {
+            return [format %.1f $mood]
+        }
+
+        return 0.0
+    }
+}
+
+# Rule: NBMOOD
+#
+# nbmood(n)
+
+gofer rule NUMBER NBMOOD {n} {
+    typemethod construct {n} {
+        return [$type validate [dict create n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "nbmood(\"$n\")"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT nbmood FROM uram_n WHERE n=$n
+        } {
+            return [format %.1f $nbmood]
+        }
+
+        return 0.0
+    }
+}
+
+
+# Rule: SAT
+#
+# sat(g,c)
+
+gofer rule NUMBER SAT {g c} {
+    typemethod construct {g c} {
+        return [$type validate [dict create g $g c $c]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            g [civgroup validate [string toupper $g]] \
+            c [econcern validate [string toupper $c]]
+
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "sat(\"$g\",\"$c\")"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT sat FROM uram_sat WHERE g=$g AND c=$c
+        } {
+            return [format %.1f $sat]
+        }
+
+        return 0.0
+    }
+}
+

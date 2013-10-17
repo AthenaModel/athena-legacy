@@ -137,6 +137,16 @@ macro gofer.details {args} {
     [/item]
 }
 
+# gofer.function function arglist
+#
+# Formats a gofer-value in function call format.
+
+macro gofer.function {function arglist} {
+    [item [cref /gofer#function "Function:"]]
+    [cref /function/$function <tt>${function}($arglist)</tt>]
+    [/item]
+}
+
 
 #-----------------------------------------------------------------------
 
@@ -230,6 +240,12 @@ page / gofer "Gofers" {
     each of the rule-specific keys, in the order shown on the rule's 
     help page.  See the <<command gofer>> command's help page for more 
     details.<p>
+
+    <b><a name="function">Functions:</a></b>
+
+    Some gofer rules are associated with <<cref /function>>.  In such cases,
+    the gofer rule's page will show an example of what the 
+    executive function looks like in use.<p>
 
     <b>Raw Values:</b>
     Any order or executive command parameter that takes a gofer value will
@@ -1812,6 +1828,97 @@ gofer_rule NUMBER BY_VALUE "specific number" {
 
     <<topic <tt><i>raw_value</i></tt> >>
     A number in any normal numeric format.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER COOP "coop(f,g)" {
+    Returns the cooperation of <<term civgroup>> <i>f</i> with 
+    <<term frcgroup>> <i>g</i> as a number between 0.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details f SHIA g SUNN>>
+    <<gofer.function coop {"SHIA","SUNN"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>f</i></tt> >>
+    ID of a <<term civgroup>>.
+    <</topic>>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term frcgroup>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER MOOD "mood(g)" {
+    Returns the mood of <<term civgroup>> <i>g</i> as a number between 
+    -100.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details g SHIA>>
+    <<gofer.function mood {"SHIA"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term civgroup>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER NBMOOD "nbmood(g)" {
+    Returns the mood of <<term nbhood>> <i>n</i> as a number between 
+    -100.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details n N1>>
+    <<gofer.function nbmood {"N1"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+
+gofer_rule NUMBER SAT "sat(g,c)" {
+    Returns the satisfaction of <<term civgroup>> <i>g</i> with 
+    <<term concern>> <i>c</i> as a number between -100.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details g SHIA c AUT>>
+    <<gofer.function sat {"SHIA","AUT"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term civgroup>>.
+    <</topic>>
+
+    <<topic <tt><i>c</i></tt> >>
+    ID of a <<term concern>>:<p>
+
+    <<enumdoc ::projectlib::econcern>>
     <</topic>>
 
     <</topiclist>>

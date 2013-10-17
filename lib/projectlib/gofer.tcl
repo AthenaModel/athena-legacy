@@ -412,10 +412,15 @@ snit::type ::projectlib::goferType {
 
     method testform {} {
         dynabox popup \
-            -formtype    $form               \
-            -parent      .main               \
-            -validatecmd [mymethod validate] \
+            -formtype    $form                       \
+            -parent      .main                       \
+            -validatecmd [mymethod TestformValidate] \
             -initvalue   [list _type $name _rule BY_VALUE]
+    }
+
+    method TestformValidate {value} {
+        set value [$self validate $value]
+        return [$self narrative $value]
     }
 
     # rules
