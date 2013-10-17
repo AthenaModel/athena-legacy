@@ -147,14 +147,13 @@ oo::objdefine strategy {
         # TBD: Replace these as appropriate as the tactic types are defined.
         # profile 1 tactic::ATTROE reset
         # profile 1 tactic::BROADCAST reset
-        # profile 1 tactic::DEFROE reset
+        profile 1 tactic::DEFROE reset
         # profile 1 tactic::FLOW reset
         # profile 1 tactic::STANCE reset
 
         profile 1 unit reset
 
         # NEXT, execute each agent's strategy.
-        # TBD: Always execute SYSTEM last?  First?
 
         foreach agent [agent names] {
             [my getname $agent] execute

@@ -204,6 +204,23 @@ oo::objdefine tactic {
             return [list]
         }
     }
+
+    # groupsOwnedAndUniformed id
+    #
+    # id   - A tactic ID
+    #
+    # Returns a list of uniformed force groups owned by the 
+    # agent who owns the given tactic.  This is for use in order
+    # dynaforms where the user must choose an owned group.
+
+    method groupsOwnedAndUniformed {id} {
+        if {[my exists $id]} {
+            set tactic [my get $id]
+            return [frcgroup ownedAndUniformed [$tactic agent]]
+        } else {
+            return [list]
+        }
+    }
 }
 
 

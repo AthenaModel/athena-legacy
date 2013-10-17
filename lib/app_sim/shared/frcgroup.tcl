@@ -169,6 +169,20 @@ snit::type frcgroup {
         }]
     }
 
+    # ownedAndUniformed a
+    #
+    # a - An actor
+    #
+    # Returns a list of the uniformed force groups owned by actor a.
+
+    typemethod ownedAndUniformed {a} {
+        return [rdb eval {
+            SELECT g FROM frcgroups
+            WHERE a=$a AND uniformed
+        }]
+    }
+
+
     #-------------------------------------------------------------------
     # Mutators
     #

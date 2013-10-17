@@ -77,6 +77,75 @@ page /object tactic "Tactic" {
     <<childlinks>>
 }
 
+#-----------------------------------------------------------------------
+# DEFROE Tactic
+
+object tactic_defroe {
+    noun "DEFROE tactic"
+    overview {
+        This <<term tactic>> sets the defensive <<term roe>> for 
+        uniformed <<term frcgroup>>s belonging to an <<term actor>>.<p>
+
+        Defending ROEs determine how a uniformed force group
+        responds to attack by a non-uniformed force group: do they 
+        shoot back, and if so under what conditions.  As such, it has 
+        no direct costs, either in dollars or personnel.<p>
+
+        Every uniformed force group has an automatically-created Defending
+        ROE in every <<term nbhood>>; the ROE defaults to
+        <b>FIRE_BACK_IF_PRESSED</b>.  This tactic adjusts the ROE
+        as the actor desires.<p>
+
+        The new ROE applies only for the current week; to retain the
+        new ROE over a period of weeks, execute the tactic each week.<p>
+
+        This tactic consumes no resources, and consequently never fails
+        due to lack of resources.  Attrition is not assessed on scenario
+        lock, and so this tactic does not execute on lock.<p>
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute g "Group" {
+        The ID of a uniformed <<term frcgroup>>
+        belonging to the tactic's owning <i>agent</i>.
+    } -tags {update}
+
+    attribute n "In Neighborhood" {
+        The <<term nbhood>> for which the ROE will be set.
+    } -tags {update}
+
+    attribute roe "Defending ROE" {
+        The ROE proper, one of the following values:<p>
+
+        <<enumdoc ::projectlib::edefroeuf>>
+
+        If the ROE is <b>HOLD_FIRE</b>, then the group will never fire
+        back at attackers.  If the ROE is <b>FIRE_BACK_IF_PRESSED</b>,
+        then the group will fire back only if the attacker continues to
+        press the attack after the initial engagement.  That is, the group
+        will <i>not</i> fire back if the attacker does a hit-and-run.  If
+        the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always
+        fire back at its attackers.<p>
+
+        Note that the number of civilian casualties depends on whether or
+        not the group fires back at its attackers.
+    } -tags {update}
+
+}
+
+page /object/tactic defroe "DEFROE tactic" {
+    <<sotitle>>
+
+    <<tactic_defroe overview>><p>
+
+    Defensive ROE tactics have the following attributes:<p>
+
+    <<tactic_defroe parmlist>>
+}
+
 
 #-----------------------------------------------------------------------
 # DEMOB Tactic
