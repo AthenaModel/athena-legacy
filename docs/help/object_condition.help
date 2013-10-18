@@ -86,7 +86,7 @@ object condition_compare {
         using the  <<cref /gofer/number>> <<cref /gofer>>. <p>
     }
 
-    include condition_ 
+    include condition_ -attrs {id typename agent state}
 
     attribute x "X Value" {
         The X value in the comparison, chosen by rule using the
@@ -116,5 +116,51 @@ page /object/condition compare "COMPARE condition" {
     <<condition_compare parmlist>>
 }
 
+
+#-----------------------------------------------------------------------
+# EXPR
+
+object condition_expr {
+    noun "EXPR condition"
+    overview {
+        This <<term condition>> is met when a particular boolean
+        expression is true.  The expression has Tcl expression 
+        syntax, and is evaluated by the Athena
+        <<term executive>>.  The expression can call
+        arbitrary executive <<cref /command commands>> and 
+        <<cref /function functions>>, 
+        but should avoid calling commands with side effects.<p>
+
+        If the expression contains an error, e.g., a syntax error,
+        that will be discovered when Athena evaluates the condition
+        during <<term strategy>> execution.  The error will be logged
+        in the <a href="my://app/sigevents">Significant Events</a>
+        log.<p>
+
+        A condition whose expression contains an error is assumed to
+        be false, and it is marked invalid.  
+        Such conditions can be seen at a glance in the
+        <a href="gui:/tab/strategy">Strategy Browser</a> because they
+        will be displayed in red.  In addition, the block to which the
+        condition belongs will not execute.
+    }
+
+    include condition_ -attrs {id typename agent state}
+
+    attribute expression "Expression" {
+        A boolean expression with Tcl syntax to be evaluated by the
+        Athena <<term executive>>.
+    } -tags {update}
+}
+
+page /object/condition expr "EXPR condition" {
+    <<sotitle>>
+
+    <<condition_expr overview>><p>
+
+    EXPR conditions have the following attributes:<p>
+
+    <<condition_expr parmlist>>
+}
 
 

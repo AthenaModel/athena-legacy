@@ -50,3 +50,12 @@ order CONDITION:COMPARE "Condition: Compare Numbers" {
     <<condition_compare parms -optional -tags update>>
     <</parmlist>>
 }
+
+order CONDITION:EXPR "Condition: Boolean Expression" {
+    Updates an existing <<cref /object/condition/expr>>.<p>
+
+    <<parmlist>>
+    <<condition_ parm condition_id -required>>
+    <<condition_expr parms -optional -tags update>>
+    <</parmlist>>
+}
