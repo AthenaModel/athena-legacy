@@ -866,6 +866,7 @@ snit::widget ::projectgui::mybrowser {
     # Creates a "Not Found" pseudo-page body.
 
     method PageNotFound {uri result} {
+        set result [htools escape $result]
         return [tsubst {
             |<--
             <h1>Not Found</h1>
@@ -883,6 +884,7 @@ snit::widget ::projectgui::mybrowser {
     # Creates an "Unexpected Error" pseudo-page body.
 
     method PageError {uri einfo} {
+        set einfo [htools escape $einfo]
         return [tsubst {
             |<--
             <h1>Unexpected Error</h1>
