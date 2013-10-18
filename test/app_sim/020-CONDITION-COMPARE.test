@@ -66,17 +66,7 @@ namespace eval ::athena_test::tests:: {
         condition_id {invalid value "NONESUCH", should be one of: *}
     }
 
-    test CONDITION:COMPARE-1.3 {invalid x} -setup {
-        setup
-    } -body {
-        ted order -reject CONDITION:COMPARE condition_id [$C1 id] x NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        x {invalid value "NONESUCH", expected double}
-    }
-
-    test CONDITION:COMPARE-1.4 {invalid comp} -setup {
+    test CONDITION:COMPARE-1.3 {invalid comp} -setup {
         setup
     } -body {
         ted order -reject CONDITION:COMPARE condition_id [$C1 id] comp NONESUCH
@@ -84,16 +74,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {
         comp {invalid value "NONESUCH", should be one of: EQ,*}
-    }
-
-    test CONDITION:COMPARE-1.5 {invalid y} -setup {
-        setup
-    } -body {
-        ted order -reject CONDITION:COMPARE condition_id [$C1 id] y NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        y {invalid value "NONESUCH", expected double}
     }
 
     test CONDITION:COMPARE-2.1 {condition updated} -setup {
@@ -118,7 +98,24 @@ namespace eval ::athena_test::tests:: {
         y       {_type NUMBER _rule BY_VALUE raw_value 10.0}
     }
 
-    test CONDITION:COMPARE-2.2 {notifier event} -setup {
+    test CONDITION:COMPARE-2.2 {sanity check done} -setup {
+        setup
+    } -body {
+        ted order CONDITION:COMPARE condition_id [$C1 id] x NONESUCH
+        ted pdicts [$C1 getdict]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        comp    EQ
+        id      *
+        metflag {}
+        parent  ::bean::block*
+        state   invalid
+        x       NONESUCH
+        y       {_type NUMBER _rule BY_VALUE raw_value 0}
+    }
+
+    test CONDITION:COMPARE-2.3 {notifier event} -setup {
         setup
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
@@ -128,7 +125,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
-    test CONDITION:COMPARE-2.3 {undo notifier event} -setup {
+    test CONDITION:COMPARE-2.4 {undo notifier event} -setup {
         setup
         ted order CONDITION:COMPARE condition_id [$C1 id] comp LT
     } -body {

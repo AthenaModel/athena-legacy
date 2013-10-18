@@ -39,11 +39,27 @@ condition define COMPARE "Compare Numbers" {
     # Operations
 
     method narrative {} {
-        set xt    [gofer narrative $x -brief]
+        set xt    [my GoferNarrative $x]
         set compt [ecomparator longname $comp]
-        set yt    [gofer narrative $y -brief]
+        set yt    [my GoferNarrative $y]
 
         return [normalize "Compare whether $xt is $compt $yt"]
+    }
+
+    # GoferNarrative gdict
+    #
+    # gdict   - A gofer value
+    #
+    # Returns a narrative for a value that might not be a gofer value.
+
+    method GoferNarrative {gdict} {
+        set text [gofer narrative $gdict -brief]
+
+        if {$text eq "Not a gofer type value"} {
+            return "???"
+        } else {
+            return $text
+        }
     }
 
     method SanityCheck {errdict} {
@@ -101,9 +117,9 @@ order define CONDITION:COMPARE {
 } {
     # FIRST, prepare and validate the parameters
     prepare condition_id -required -oneof [condition::COMPARE ids]
-    prepare x                      -type gofer::NUMBER
+    prepare x                      
     prepare comp         -toupper  -type ecomparatorx
-    prepare y                      -type gofer::NUMBER
+    prepare y                      
     returnOnError -final
 
     set cond [condition get $parms(condition_id)]
