@@ -37,6 +37,15 @@ order TACTIC:STATE "Set Tactic State" {
     <</parmlist>>
 }
 
+order TACTIC:ATTROE "Tactic: Attacking ROE" {
+    Updates an existing <<cref /object/tactic/attroe>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_attroe parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:DEFROE "Tactic: Defensive ROE" {
     Updates an existing <<cref /object/tactic/defroe>>.<p>
 

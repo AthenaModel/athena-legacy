@@ -82,6 +82,27 @@ snit::type frcgroup {
         return $g
     }
 
+    # get g ?parm?
+    #
+    # g      - A force group
+    # parm   - A frcgroups_view column name
+    #
+    # Retrieves a row dictionary, or a particular column value, from
+    # frcgroups; or "" if not found.
+
+    typemethod get {g {parm ""}} {
+        # FIRST, get the data
+        rdb eval {SELECT * FROM frcgroups_view WHERE g=$g} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
+    }
 
     # uniformed names
     #
@@ -92,6 +113,7 @@ snit::type frcgroup {
             SELECT g FROM frcgroups WHERE uniformed
         }]
     }
+
 
 
     # uniformed validate g

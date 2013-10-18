@@ -145,7 +145,7 @@ oo::objdefine strategy {
         profile 1 cap access load
 
         # TBD: Replace these as appropriate as the tactic types are defined.
-        # profile 1 tactic::ATTROE reset
+        profile 1 tactic::ATTROE reset
         # profile 1 tactic::BROADCAST reset
         profile 1 tactic::DEFROE reset
         # profile 1 tactic::FLOW reset

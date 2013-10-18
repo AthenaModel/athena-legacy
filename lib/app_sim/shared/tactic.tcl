@@ -205,6 +205,23 @@ oo::objdefine tactic {
         }
     }
 
+    # frcgroupsOwnedByAgent id
+    #
+    # id   - A tactic ID
+    #
+    # Returns a list of force groups owned by the 
+    # agent who owns the given tactic.  This is for use in order
+    # dynaforms where the user must choose an owned group.
+
+    method frcgroupsOwnedByAgent {id} {
+        if {[my exists $id]} {
+            set tactic [my get $id]
+            return [frcgroup ownedby [$tactic agent]]
+        } else {
+            return [list]
+        }
+    }
+
     # groupsOwnedAndUniformed id
     #
     # id   - A tactic ID
