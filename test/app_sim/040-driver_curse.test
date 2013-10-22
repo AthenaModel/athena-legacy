@@ -83,14 +83,18 @@ namespace eval ::athena_test::tests:: {
     # Creates the BROADCAST tactic, and locks the scenario.
 
     proc curse {cid roles} {
-        ted order TACTIC:CURSE:CREATE \
-            owner       SYSTEM \
-            curse       $cid   \
-            roles       $roles \
-            on_lock     YES    \
-            once        NO
+        set S1 [strategy getname SYSTEM]
 
-        ted lock
+        ted order STRATEGY:BLOCK:ADD agent SYSTEM
+        lassign [$S1 blocks] B1
+        ted order BLOCK:TACTIC:ADD block_id [$B1 id] typename CURSE
+        lassign [$B1 tactics] T1
+
+        ted order TACTIC:CURSE tactic_id [$T1 id] \
+            curse       $cid   \
+            roles       $roles 
+
+        ted step
     }
     
     # Clean up after a test
@@ -103,7 +107,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # assess
     
-    test assess-1.1 {Rule 1-1 fires} -constraints tbd -setup {
+    test assess-1.1 {Rule 1-1 fires} -setup {
         setup
     } -body {
         
@@ -117,16 +121,16 @@ namespace eval ::athena_test::tests:: {
         }
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 firing_id  1
-t          0
+t          *
 driver_id  1000
 ruleset    CURSE
 rule       CURSE-1-1
 fdict      dtype CURSE curse_id C1 atype hrel mode T mag 3.0 f {SHIA SUNN} g BLUE
     }
     
-    test assess-1.2 {Rule 2-1 fires} -constraints tbd -setup {
+    test assess-1.2 {Rule 2-1 fires} -setup {
         setup
     } -body {
         
@@ -140,16 +144,16 @@ fdict      dtype CURSE curse_id C1 atype hrel mode T mag 3.0 f {SHIA SUNN} g BLU
         }
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 firing_id  1
-t          0
+t          *
 driver_id  1000
 ruleset    CURSE
 rule       CURSE-2-1
 fdict      dtype CURSE curse_id C2 atype vrel mode T mag 5.0 g {SHIA SUNN} a JOE
     }
     
-    test assess-1.3 {Rule 3-1 fires} -constraints tbd -setup {
+    test assess-1.3 {Rule 3-1 fires} -setup {
         setup
     } -body {
         
@@ -162,16 +166,16 @@ fdict      dtype CURSE curse_id C2 atype vrel mode T mag 5.0 g {SHIA SUNN} a JOE
         }
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 firing_id  1
-t          0
+t          *
 driver_id  1000
 ruleset    CURSE
 rule       CURSE-3-1
 fdict      dtype CURSE curse_id C3 atype sat mode T mag 7.5 c AUT g {SHIA SUNN}
     }
     
-    test assess-1.4 {Rule 4-1 fires} -constraints tbd -setup {
+    test assess-1.4 {Rule 4-1 fires} -setup {
         setup
     } -body {
         
@@ -185,16 +189,16 @@ fdict      dtype CURSE curse_id C3 atype sat mode T mag 7.5 c AUT g {SHIA SUNN}
         }
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 firing_id  1
-t          0
+t          *
 driver_id  1000
 ruleset    CURSE
 rule       CURSE-4-1
 fdict      dtype CURSE curse_id C4 atype coop mode T mag 10.0 f {SHIA SUNN} g BLUE
     }
     
-    test assess-1.5 {Rule 1-1 inputs} -constraints tbd -setup {
+    test assess-1.5 {Rule 1-1 inputs} -setup {
         setup
     } -body {
         curse C5 {
@@ -226,7 +230,7 @@ CURSE-4-1 coop  SHIA BLUE
 CURSE-4-1 coop  SUNN BLUE         
     }
 
-    test assess-1.6 {Rule 1-1 inputs, inject disabled} -constraints tbd -setup {
+    test assess-1.6 {Rule 1-1 inputs, inject disabled} -setup {
         setup
         ted order INJECT:STATE id {C5 1} state disabled
     } -body {

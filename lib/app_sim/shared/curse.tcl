@@ -189,6 +189,74 @@ snit::type curse {
 
         return $roles
     }
+
+    # rolespec curse_id
+    #
+    # curse_id    ID of an existing CURSE
+    #
+    # This method returns a dictionary of role type/gofer pairs
+    # to be used by the caller to fill in data for a set of
+    # CURSE injects associated with the given CURSE. 
+
+    typemethod rolespec {curse_id} {
+        # FIRST, if there's no curse specified, then nothing to
+        # return
+        if {$curse_id eq ""} {
+            return {}
+        }
+
+        # NEXT, create the role spec dictionary
+        set roleSpec [dict create]
+
+        # NEXT, build up the rolespec based upon the injects associated
+        # with this curse
+        # HREL is the least restrictive, any group can belong to the
+        # roles defined
+        rdb eval {
+            SELECT * FROM curse_injects 
+            WHERE curse_id=$curse_id
+            AND inject_type='HREL'
+        } row {
+            dict set roleSpec $row(f) ::gofer::GROUPS
+            dict set roleSpec $row(g) ::gofer::GROUPS
+        }
+
+        # VREL is not any more restrictive group wise
+        rdb eval {
+            SELECT * FROM curse_injects
+            WHERE curse_id=$curse_id
+            AND inject_type='VREL'
+        } row {
+            dict set roleSpec $row(g) ::gofer::GROUPS
+            dict set roleSpec $row(a) ::gofer::ACTORS
+        }
+
+        # SAT restricts the group role to *only* civilians. If an HREL or
+        # VREL inject has this role, then those injects will only be able
+        # to contain civilian groups
+        rdb eval {
+            SELECT * FROM curse_injects
+            WHERE curse_id=$curse_id
+            AND inject_type='SAT'
+        } row {
+            dict set roleSpec $row(g) ::gofer::CIVGROUPS
+        }
+
+        # COOP restricts one role to civilians only and the other role to
+        # forces only. Like SAT, if these roles appear in HREL or VREL, then
+        # they will be restricted to the same groups
+        rdb eval {
+            SELECT * FROM curse_injects
+            WHERE curse_id=$curse_id
+            AND inject_type='COOP'
+        } row {
+            dict set roleSpec $row(f) ::gofer::CIVGROUPS
+            dict set roleSpec $row(g) ::gofer::FRCGROUPS
+        }
+
+        return $roleSpec
+    }
+
     #-------------------------------------------------------------------
     # Sanity Check
 
