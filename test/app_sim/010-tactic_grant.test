@@ -84,7 +84,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Grant ??? access to CAP ???.}
+    } -result {Grant actor ??? access to CAP ???.}
 
     test narrative-1.2 {narrative, with valid fields} -setup {
         setup
@@ -107,7 +107,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dict -result {
-        alist {Unknown rule: ""}
+        alist {No rule specified}
         klist {Empty CAP List}
     }
 
@@ -142,7 +142,7 @@ namespace eval ::athena_test::tests:: {
         $T1 check
     } -cleanup {
         cleanup
-    } -result {alist {Not a gofer type value}}
+    } -result {alist {Not a gofer value}}
 
 
 

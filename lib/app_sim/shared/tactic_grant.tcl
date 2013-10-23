@@ -66,7 +66,7 @@ tactic define GRANT "Grant Access to CAP" {actor} -onlock {
         }
 
         # alist
-        if {[catch {gofer validate $alist} result]} {
+        if {[catch {gofer::ACTORS validate $alist} result]} {
             dict set errdict alist $result
         }
 
@@ -76,28 +76,9 @@ tactic define GRANT "Grant Access to CAP" {actor} -onlock {
 
     method narrative {} {
         set s(klist) [andlist CAP $klist]
-        set s(alist) [my GoferNarrative $alist]
+        set s(alist) [gofer::ACTORS narrative $alist]
 
         return "Grant $s(alist) access to $s(klist)."
-    }
-
-    # GoferNarrative gdict
-    #
-    # gdict   - A gofer value
-    #
-    # Returns a narrative for a value that might not be a gofer value.
-
-    method GoferNarrative {gdict} {
-        # TBD: Use [gofer narrative] or [gofer::ACTORS narrative]?
-        set text [gofer narrative $gdict -brief]
-
-        if {$text eq "Not a gofer type value" ||
-            [string match "Unknown rule:*" $text]
-        } {
-            return "???"
-        } else {
-            return $text
-        }
     }
 
 

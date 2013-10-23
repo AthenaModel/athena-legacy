@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------
 # gofer::FRCGROUPS
 
-gofer define FRCGROUPS {
+gofer define FRCGROUPS group {
     rc "" -width 3in -span 3
     label {
         Enter a rule for selecting a set of force groups:

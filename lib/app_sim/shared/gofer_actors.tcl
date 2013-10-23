@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------
 # gofer::ACTORS
 
-gofer define ACTORS {
+gofer define ACTORS actor {
     rc "" -width 3in -span 3
     label {
         Enter a rule for selecting a set of actors.

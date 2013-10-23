@@ -247,23 +247,6 @@ page / gofer "Gofers" {
     the gofer rule's page will show an example of what the 
     executive function looks like in use.<p>
 
-    <b>Raw Values:</b>
-    Any order or executive command parameter that takes a gofer value will
-    also take a raw value of the particular type.  Thus, when using
-    <<command send>> to create a FUNDENI tactic to fund a particular set
-    of groups by name, you don't need to put in a gofer value or use
-    the <<command gofer>> command to construct one.  Athena will simply
-    take the raw value you provide and convert it into a gofer value using
-    the "BY_VALUE" rule that every gofer must provide.  For example,<p>
-
-    <pre>
-    send TACTIC:CREATE:FUNDENI -glist {SUNN SHIA}
-    </pre>
-
-    Thus, gofers are useful when you need them, and get out of the way
-    when you don't.<p>
-
-
     <b>Existing Gofers:</b>
     Athena supports many different gofer types, as follows:
 

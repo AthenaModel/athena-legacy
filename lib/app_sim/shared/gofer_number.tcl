@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------
 # gofer::NUMBER
 
-gofer define NUMBER {
+gofer define NUMBER "" {
     rc "" -width 3in -span 3
     label {
         Enter a rule for retrieving a particular number.

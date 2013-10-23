@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------
 # gofer::CIVGROUPS
 
-gofer define CIVGROUPS {
+gofer define CIVGROUPS group {
     rc "" -width 3in -span 3
     label {
         Enter a rule for selecting a set of civilian groups:

@@ -128,19 +128,19 @@ namespace eval ::athena_test::tests:: {
         gofer validate NONESUCH
     } -returnCodes {
         error
-    } -result {Not a gofer type value}
+    } -result {Not a gofer value}
     
     test gofer_validate-1.2 {no _type given} -body {
         gofer validate {NONESUCH NONESUCH}
     } -returnCodes {
         error
-    } -result {Not a gofer type value}
+    } -result {Not a gofer value}
     
     test gofer_validate-1.3 {no such _type} -body {
         gofer validate {_type NONESUCH}
     } -returnCodes {
         error
-    } -result {No such gofer type, "NONESUCH"}
+    } -result {No such gofer type: "NONESUCH"}
     
     test gofer_validate-1.4 {bad type parms} -body {
         gofer validate {_type CIVGROUPS _rule BY_VALUE raw_value NONESUCH}
@@ -161,15 +161,15 @@ namespace eval ::athena_test::tests:: {
 
     test gofer_narrative-1.1 {not a dict} -body {
         gofer narrative NONESUCH
-    } -result {Not a gofer type value}
+    } -result {???}
     
     test gofer_narrative-1.2 {no _type given} -body {
         gofer narrative {NONESUCH NONESUCH}
-    } -result {Not a gofer type value}
+    } -result {???}
     
     test gofer_narrative-1.3 {no such _type} -body {
         gofer narrative {_type NONESUCH}
-    } -result {No such gofer type, "NONESUCH"}
+    } -result {???}
     
     test gofer_narrative-1.4 {success} -body {
         gofer narrative {
@@ -194,19 +194,19 @@ namespace eval ::athena_test::tests:: {
         gofer eval NONESUCH
     } -returnCodes {
         error
-    } -result {Not a gofer type value}
+    } -result {Not a gofer value}
     
     test gofer_eval-1.2 {no _type given} -body {
         gofer eval {NONESUCH NONESUCH}
     } -returnCodes {
         error
-    } -result {Not a gofer type value}
+    } -result {Not a gofer value}
     
     test gofer_eval-1.3 {no such _type} -body {
         gofer eval {_type NONESUCH}
     } -returnCodes {
         error
-    } -result {No such gofer type, "NONESUCH"}
+    } -result {No such gofer type: "NONESUCH"}
     
     test gofer_eval-1.4 {success} -setup {
         ted create SUNN SHIA KURD BLUE
@@ -233,15 +233,7 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # $type validate
 
-    test validate-1.1 {if no leading _type, assume raw} -setup {
-        ted create SUNN SHIA KURD
-    } -body {
-        gofer::CIVGROUPS validate {SUNN SHIA KURD}
-    } -cleanup {
-        cleanup
-    } -result {_type CIVGROUPS _rule BY_VALUE raw_value {SUNN SHIA KURD}}
-
-    test validate-1.2 {canonicalizes _type} -setup {
+    test validate-1.1 {canonicalizes _type} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type civgroups _rule BY_VALUE raw_value SUNN}
@@ -249,7 +241,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}
 
-    test validate-1.3 {_type mismatch} -setup {
+    test validate-1.2 {unknown _type} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type NONESUCH _rule BY_VALUE raw_value SUNN}
@@ -257,7 +249,17 @@ namespace eval ::athena_test::tests:: {
         error
     } -cleanup {
         cleanup
-    } -result {Value has type "NONESUCH", expected "CIVGROUPS"}
+    } -result {No such gofer type: "NONESUCH"}
+
+    test validate-1.3 {_type mismatch} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer::CIVGROUPS validate {_type ACTORS _rule BY_VALUE raw_value SUNN}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Type mismatch, got "ACTORS", expected "CIVGROUPS"}
 
     test validate-1.4 {canonicalizes _rule} -setup {
         ted create SUNN SHIA KURD
@@ -275,7 +277,7 @@ namespace eval ::athena_test::tests:: {
         error
     } -cleanup {
         cleanup
-    } -result {Unknown rule: ""}
+    } -result {No rule specified}
 
     test validate-1.6 {invalid rule} -setup {
         ted create SUNN SHIA KURD
@@ -300,25 +302,23 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # $type eval
 
-    test eval-1.1 {no type, assume raw} -setup {
-        ted create SUNN SHIA KURD
-    } -body {
-        gofer::CIVGROUPS eval {SUNN SHIA}
-    } -cleanup {
-        cleanup
-    } -result {SUNN SHIA}
-    
-    test eval-1.2 {type mismatch} -body {
+    test eval-1.1 {unknown type} -body {
         gofer::CIVGROUPS eval {_type NONESUCH raw_value {SUNN SHIA}}
     } -returnCodes {
         error
-    } -result {Type mismatch, got "NONESUCH", expected "CIVGROUPS"}
+    } -result {No such gofer type: "NONESUCH"}
+
+    test eval-1.2 {type mismatch} -body {
+        gofer::CIVGROUPS eval {_type ACTORS raw_value {SUNN SHIA}}
+    } -returnCodes {
+        error
+    } -result {Type mismatch, got "ACTORS", expected "CIVGROUPS"}
 
     test eval-1.3 {missing rule} -body {
         gofer::CIVGROUPS eval {_type CIVGROUPS raw_value {SUNN SHIA}}
     } -returnCodes {
         error
-    } -result {Unknown rule: ""}
+    } -result {No rule specified}
 
     test eval-1.4 {unknown rule} -body {
         gofer::CIVGROUPS eval {_type CIVGROUPS _rule NONESUCH raw_value {SUNN SHIA}}
@@ -338,30 +338,34 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # $type narrative
 
-    test narrative-1.1 {no type: raw value} -setup {
+    test narrative-1.1 {raw value} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS narrative {SUNN SHIA}
     } -cleanup {
         cleanup
-    } -result {these groups (SUNN, SHIA)}
+    } -result {group ???}
 
-    test narrative-1.2 {type mismatch} -body {
+    test narrative-1.2 {unknown type} -body {
         gofer::CIVGROUPS narrative {_type NONESUCH raw_value {SUNN SHIA}}
-    } -returnCodes {
-        error
-    } -result {Type mismatch, got "NONESUCH", expected "CIVGROUPS"}
+    } -result {group ???}
 
-    test narrative-1.3 {missing rule} -body {
+    test narrative-1.3 {type mismatch} -body {
+        gofer::CIVGROUPS narrative {_type NONESUCH raw_value {SUNN SHIA}}
+    } -result {group ???}
+
+    test narrative-1.4 {missing rule} -body {
         gofer::CIVGROUPS narrative {_type CIVGROUPS raw_value {SUNN SHIA}}
-    } -result {Unknown rule: ""}
+    } -result {group ???}
 
     test narrative-1.4 {unknown rule} -body {
         gofer::CIVGROUPS narrative {_type CIVGROUPS _rule NONESUCH raw_value {SUNN SHIA}}
-    } -result {Unknown rule: "NONESUCH"}
+    } -result {group ???}
 
     test narrative-1.5 {brief output} -body {
-        gofer::CIVGROUPS narrative {A B C D E F G H I J} -brief
+        gofer::CIVGROUPS narrative {
+            _type CIVGROUPS _rule BY_VALUE raw_value {A B C D E F G H I J}
+        } -brief
     } -result {these groups (A, B, C, D, E, F, G, H, ...)}
 
     #-------------------------------------------------------------------

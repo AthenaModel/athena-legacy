@@ -14,7 +14,7 @@
 #-----------------------------------------------------------------------
 # gofer::GROUPS
 
-gofer define GROUPS {
+gofer define GROUPS group {
     rc "" -width 3in -span 3
     label {
         Enter a rule for selecting a set of groups.

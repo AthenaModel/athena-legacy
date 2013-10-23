@@ -115,7 +115,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        roles {Not a gofer type value}
+        roles {Not a gofer value}
     }
 
     test TACTIC:CURSE-1.6 {curse isn't normal} -setup {
