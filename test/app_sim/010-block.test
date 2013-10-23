@@ -878,7 +878,7 @@ namespace eval ::athena_test::tests:: {
         
         $BJOE addtactic_ SPEND
         set t [lasttactic $BJOE]
-        $t set mode SOME
+        $t set mode EXACT
         $t set amount $amount
         $t check
 

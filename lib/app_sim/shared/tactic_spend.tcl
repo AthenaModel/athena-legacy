@@ -17,8 +17,9 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
     #-------------------------------------------------------------------
     # Instance Variables
 
-    variable mode    ;# ALL or SOME
+    variable mode    ;# ALL, EXACT, UPTO, PERCENT or EXCESS 
     variable amount  ;# Amount of money if mode is SOME
+    variable percent ;# Percent of money to spend if mode is PERCENT
     variable goods   ;# Integer # of shares going to goods sector
     variable black   ;# Integer # of shares going to black sector
     variable pop     ;# Integer # of shares going to pop sector
@@ -37,13 +38,14 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
         next
 
         # Initialize state variables
-        set mode   ALL
-        set amount 0.0
-        set goods  1
-        set black  1
-        set pop    1
-        set region 1
-        set world  1
+        set mode    ALL
+        set amount  0.0
+        set percent 0.0
+        set goods   1
+        set black   1
+        set pop     1
+        set region  1
+        set world   1
 
         set trans(amount) 0.0
 
@@ -58,10 +60,33 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
     # all-zero shares.
 
     method narrative {} {
-        if {$mode eq "ALL"} {
-            set text "Spend all remaining cash-on-hand "
-        } else {
-            set text "Spend [moneyfmt $amount] "
+        set amt [moneyfmt $amount]
+
+        set text ""
+        switch -exact -- $mode {
+            ALL {
+                append text "Spend all remaining cash-on-hand "
+            }
+
+            EXACT {
+                append text "Spend exactly \$$amt of cash-on-hand "
+            }
+
+            UPTO {
+                append text "Spend up to \$$amt of cash-on-hand "
+            }
+
+            PERCENT {
+                append text "Spend $percent% of cash-on-hand "
+            }
+
+            EXCESS {
+                append text "Spend any cash-on-hand over \$amt "
+            }
+
+            default {
+                error "Invalid mode: \"$mode\""
+            }
         }
         
         append text "according to the following profile: "
@@ -80,22 +105,46 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
     method obligate {coffer} {
         # FIRST, retrieve relevant data.
         let cash_on_hand [$coffer cash]
-        
-        # NEXT, do we have it?
-        if {$mode eq "ALL"} {
-            set trans(amount) $cash_on_hand
-        } else {
-            # mode is SOME.
+        set spent 0.0
 
-            # Except on-lock, we have to have the funds on hand.
-            if {[strategy ontick]} {
-                if {$amount > $cash_on_hand} {
+        # NEXT, depending on mode, try to obligate money
+        switch -exact -- $mode {
+            ALL {
+                if {$cash_on_hand > 0.0} {
+                    set spent $cash_on_hand
+                }
+            }
+
+            EXACT {
+                # This is the only one than could give rise to an error and
+                # only if we are on a tick
+                if {[strategy ontick] && $amount > $cash_on_hand} {
                     return 0
                 }
-            }    
+                set spent $amount
+            }
 
-            set trans(amount) $amount
+            UPTO {
+                let spent {max(0.0, min($cash_on_hand, $amount))}
+            }
+
+            PERCENT {
+                if {$cash_on_hand > 0.0} {
+                    let spent {double($percent/100.0) * $cash_on_hand}
+                }
+            }
+
+            EXCESS {
+                let spent {max(0.0, $cash_on_hand-$amount)}
+            }
+
+            default {
+                error "Invalid mode: \"$mode\""
+            }
+
         }
+        
+        set trans(amount) $spent
 
         # NEXT, obligate it.
         $coffer spend $trans(amount)
@@ -175,14 +224,30 @@ order define TACTIC:SPEND {
         text tactic_id -context yes \
             -loadcmd {beanload}
 
-        rcc "Mode:" -for mode
+        rcc "Mode:"   -for mode
         selector mode {
-            case SOME "Spend some cash-on-hand" {
+            case ALL "Spend all remaining cash-on-hand" {}
+
+            case EXACT "Spend exactly this much cash-on-hand" {
                 rcc "Amount:" -for amount
                 text amount
             }
 
-            case ALL "Spend all remaining cash-on-hand" {}
+            case UPTO "Spend up to this much of cash-on-hand" {
+                rcc "Amount:" -for amount
+                text amount
+            }
+
+            case PERCENT "Spend this percentage of cash-on-hand" {
+                rcc "Percent:" -for percent
+                text percent
+                label "%"
+            }
+
+            case EXCESS "Spend cash-on-hand in excess of given amount" {
+                rcc "Amount:" -for amount
+                text amount
+            }
         }
         
         rcc "Goods:" -for goods
@@ -210,6 +275,7 @@ order define TACTIC:SPEND {
     prepare tactic_id  -required -oneof [tactic::SPEND ids]
     prepare mode       -toupper  -selector
     prepare amount     -toupper  -type money
+    prepare percent    -toupper  -type rpercent
     prepare goods      -num      -type iquantity
     prepare black      -num      -type iquantity
     prepare pop        -num      -type iquantity
@@ -224,9 +290,14 @@ order define TACTIC:SPEND {
     # NEXT, check cross-constraints
     fillparms parms [$tactic view]
 
-    # Amount is required when mode is "SOME"
-    if {$parms(mode) eq "SOME" && $parms(amount) == 0.0} {
-        reject amount "Required value when mode is SOME."
+    if {$parms(mode) ne "PERCENT" && 
+        $parms(mode) ne "ALL"     &&
+        $parms(amount) == 0.0} {
+            reject amount "You must specify an amount > 0.0"
+    }
+
+    if {$parms(mode) eq "PERCENT" && $parms(percent) == 0.0} {
+        reject percent "You must specify a percent > 0.0"
     }
 
     # At least one sector must get a positive share
@@ -243,7 +314,7 @@ order define TACTIC:SPEND {
 
     # NEXT, update the tactic, saving the undo script
     set undo [$tactic update_ {
-        mode amount goods black pop region world
+        mode amount percent goods black pop region world
     } [array get parms]]
 
     # NEXT, modify the tactic
