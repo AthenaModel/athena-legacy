@@ -100,6 +100,15 @@ order TACTIC:SIGEVENT "Tactic: Executive Command" {
     <</parmlist>>
 }
 
+order TACTIC:SPEND "Tactic: Spend Money" {
+    Updates an existing <<cref /object/tactic/spend>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_spend parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:WITHDRAW "Tactic: Withdraw Money" {
     Updates an existing <<cref /object/tactic/withdraw>>.<p>
 

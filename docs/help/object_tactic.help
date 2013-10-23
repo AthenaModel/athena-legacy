@@ -585,6 +585,111 @@ page /object/tactic sigevent "SIGEVENT tactic" {
     <<tactic_sigevent parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# SPEND Tactic
+
+object tactic_spend {
+    noun "SPEND tactic"
+
+    overview {
+        This <<term tactic>> allows the <<term actor>> to spend
+        a sum of money from his cash-on-hand to the various 
+        sectors in the economy according to some amount of shares
+        per sector.
+
+        There are several ways to select how much money should be 
+        spent from cash-on-hand; see the "Mode" parameter below.
+
+        The tactic only fails when an exact amount of money is slated
+        to be spent and it is greater than cash-on-hand.
+        
+        <b>Note:</b> This tactic will always execute on lock even if
+        the amount to spend is greater than cash-on-hand.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute mode "Mode" {
+        The spend mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Spend all remaining cash-on-hand. The tactic will
+        still execute if cash-on-hand is zero or negative, just no cash
+        will be spent.<p>
+
+        <b>EXACT</b>: Spend the exact amount of money from cash-on-hand. 
+        The tactic will fail to execute if there is not at least this amount
+        of money in cash-on-hand and the Athena scenario is not locking.<p>
+
+        <b>UPTO</b>: Spend any amount of money up to the given amount from
+        available cash-on-hand.  The tactic will still execute if there is
+        not enough cash, just less cash will be spent.<p>
+
+        <b>PERCENT</b>: Spend the specified percentage of 
+        cash-on-hand.  The tactic will still execute if cash-on-hand is 
+        zero or negative, just no cash will be spent.<p>
+
+        <b>EXCESS</b>: Spend any cash-on-hand that is in
+        excess of the specified amount.  The tactic will still execute
+        if there is not enough cash, just no cash will be spent.<p> 
+    } -tags {update}
+
+    attribute amount "Amount" {
+        When the <i>mode</i> is EXACT, the exact amount of money to
+        be spent.<p>
+
+        When the <i>mode</i> is UPTO, the maximum amount of money that 
+        should be spent.<p>
+
+        When the <i>mode</i> is EXCESS, the amount of money over which
+        any excess should be spent.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percent" {
+        When the <i>mode</i> is PERCENT, the percentage of cash-on-hand
+        that should be spent.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute goods "Goods Shares" {
+        The number of shares of the money allocated to the
+        <b>goods</b> sector.
+    } -tags {create update}
+
+    attribute black "Black Shares" {
+        The number of shares of the money allocated to the
+        <b>black</b> sector.
+    } -tags {create update}
+    
+    attribute pop "Pop Shares" {
+        The number of shares of the money allocated to the
+        <b>pop</b> sector.
+    } -tags {create update}
+    
+    attribute region "Region Shares" {
+        The number of shares of the money allocated to the
+        <b>region</b> sector.
+    } -tags {create update}
+    
+    attribute world "World Shares" {
+        The number of shares of the money allocated to the
+        <b>world</b> sector.
+    } -tags {create update}
+}
+
+page /object/tactic spend "SPEND tactic" {
+    <<sotitle>>
+
+    <<tactic_spend overview>><p>
+
+    Spend tactics have the following attributes:<p>
+
+    <<tactic_spend parmlist>>
+}
 
 #-----------------------------------------------------------------------
 # WITHDRAW Tactic
