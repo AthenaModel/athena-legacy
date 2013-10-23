@@ -464,6 +464,47 @@ page /object/tactic executive "EXECUTIVE tactic" {
     <<tactic_executive parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# GRANT Tactic
+
+object tactic_grant {
+    noun "GRANT tactic"
+    overview {
+        This <<term tactic>> grants one or more <<term actor>>s access to
+        one or more of the tactic owner's <<term cap>>s.  The actors 
+        granted access can then 
+        <<cref /object/tactic/broadcast broadcast>> 
+        <<term iom>>s via any of the listed <<term cap>>s.<p>
+
+        This tactic can execute on lock.  It never fails due to lack of 
+        resources.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute klist "CAP List" {
+        A list of one or more <<term cap>>s belonging to the 
+        <i>agent</i>.
+    } -tags {update}
+
+    attribute alist "Actor List" {
+        An <<cref /gofer/actors>> value specifying a list of one or 
+        more <<term actor>>s.
+    } -tags {update}
+
+}
+
+page /object/tactic grant "GRANT tactic" {
+    <<sotitle>>
+
+    <<tactic_grant overview>><p>
+
+    Grant Access tactics have the following attributes:<p>
+
+    <<tactic_grant parmlist>>
+}
 
 #-----------------------------------------------------------------------
 # MOBILIZE Tactic

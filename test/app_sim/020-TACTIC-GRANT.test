@@ -1,0 +1,144 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    020-TACTIC-GRANT.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    TACTIC:GRANT Order tests
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        variable B1
+        variable T1
+
+        ted create JOE BOB CBS NBC ABC CNN FOX PBS
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 GRANT]
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    #-------------------------------------------------------------------
+    # TACTIC:GRANT
+
+    # klist and alist are validated by the sanity checker.
+
+    test TACTIC:GRANT-1.1 {required parameters} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:GRANT
+    } -cleanup {
+        cleanup
+    } -result {
+        tactic_id {required value}
+    }
+
+    test TACTIC:GRANT-1.2 {unknown tactic_id} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:GRANT tactic_id NONESUCH
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        tactic_id {invalid value "NONESUCH", should be one of: *}
+    }
+
+    test TACTIC:GRANT-2.1 {tactic updated, state normal} -setup {
+        setup
+    } -body {
+        ted order TACTIC:GRANT \
+            tactic_id [$T1 id]         \
+            klist     {ABC CBS}        \
+            alist     [gofer construct ACTORS BY_VALUE BOB]
+
+        ted pdicts [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        alist      {_type ACTORS _rule BY_VALUE raw_value BOB}
+        execstatus NONE
+        id         *
+        klist      {ABC CBS}
+        parent     ::bean::block*
+        state      normal
+    }
+
+    test TACTIC:GRANT-2.2 {tactic updated, state invalid} -setup {
+        setup
+    } -body {
+        ted order TACTIC:GRANT \
+            tactic_id [$T1 id]         \
+            klist     {CNN FOX}        \
+            alist     [gofer construct ACTORS BY_VALUE BOB]
+
+        ted pdicts [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        alist      {_type ACTORS _rule BY_VALUE raw_value BOB}
+        execstatus NONE
+        id         *
+        klist      {CNN FOX}
+        parent     ::bean::block*
+        state      invalid
+    }
+
+    test TACTIC:GRANT-2.3 {notifier event} -setup {
+        setup
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        ted order TACTIC:GRANT tactic_id [$T1 id] klist ABC
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+
+    test TACTIC:GRANT-2.4 {undo notifier event} -setup {
+        setup
+        ted order TACTIC:GRANT tactic_id [$T1 id] klist ABC
+    } -body {
+        ted notifier bind ::projectlib::bean <Monitor>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -match glob -result {*{::projectlib::bean <Monitor>}*}
+ 
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+

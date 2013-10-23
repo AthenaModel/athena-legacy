@@ -62,6 +62,33 @@ proc lexcept {list element} {
     }
 }
 
+# andlist noun list
+#
+# noun   - The noun for the list
+# list   - A list of things
+#
+# Formats the list nicely, whether it contains one, two, or more
+# elements.  If the list is empty, returns "<noun> ???"
+
+proc andlist {noun list} {
+    if {[llength $list] == 0} {
+        return "$noun ???"
+    } elseif {[llength $list] == 1} {
+        return "$noun [lindex $list 0]"
+    } elseif {[llength $list] == 2} {
+        return "${noun}s [lindex $list 0] and [lindex $list 1]"
+    } else {
+        set last [lindex $list end]
+        set list [lrange $list 0 end-1]
+
+        set text "${noun}s "
+        append text [join $list ", "]
+        append text " and $last"
+
+        return $text
+    }
+}
+
 
 # lprio list item prio
 #
