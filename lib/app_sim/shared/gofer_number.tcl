@@ -41,6 +41,16 @@ gofer define NUMBER "" {
             enumlong g -showkeys yes -dictcmd {::frcgroup namedict}
         }
 
+        case INFLUENCE "influence(a,n)" {
+            rc
+            rc "Influence of actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+
+            rc "in neighborhood"
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
         case MOOD "mood(g)" {
             rc
             rc "Mood of civilian group"
@@ -48,11 +58,30 @@ gofer define NUMBER "" {
             enumlong g -showkeys yes -dictcmd {::civgroup namedict}
         }
 
+        case NBCOOP "nbcoop(n,g)" {
+            rc
+            rc "Cooperation of neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+
+            rc "with force group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::frcgroup namedict}
+        }
+
         case NBMOOD "nbmood(n)" {
             rc
             rc "Mood of neighborhood"
             rc
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
+        case PCTCONTROL "pctcontrol(a,...)" {
+            rc 
+            rc "Percentage of neighborhood controlled by these actors"
+            rc
+            enumlonglist alist -showkeys yes -dictcmd {::actor namedict} \
+                -width 30 -height 10
         }
 
         case SAT "sat(g,c)" {
@@ -137,6 +166,43 @@ gofer rule NUMBER COOP {f g} {
             return [format %.1f $coop]
         }
 
+        return 50.0
+    }
+}
+
+# Rule: INFLUENCE
+#
+# influence(a,n)
+
+gofer rule NUMBER INFLUENCE {a n} {
+    typemethod construct {a n} {
+        return [$type validate [dict create a $a n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]] \
+            n [nbhood validate [string toupper $n]]
+
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "influence(\"$a\",\"$n\")"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT influence FROM influence_na WHERE n=$n AND a=$a
+        } {
+            return [format %.2f $influence]
+        }
+
         return 0.0
     }
 }
@@ -175,6 +241,43 @@ gofer rule NUMBER MOOD {g} {
     }
 }
 
+# Rule: NBCOOP
+#
+# nbcoop(n,g)
+
+gofer rule NUMBER NBCOOP {n g} {
+    typemethod construct {n g} {
+        return [$type validate [dict create n $n g $g]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            n [nbhood validate [string toupper $n]] \
+            g [frcgroup validate [string toupper $g]]
+
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "nbcoop(\"$n\",\"$g\")"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT nbcoop FROM uram_nbcoop WHERE n=$n AND g=$g
+        } {
+            return [format %.1f $nbcoop]
+        }
+
+        return 50.0
+    }
+}
+
 # Rule: NBMOOD
 #
 # nbmood(n)
@@ -209,7 +312,52 @@ gofer rule NUMBER NBMOOD {n} {
     }
 }
 
+# Rule: PCTCONTROL
+#
+# pctcontrol(a,...)
 
+gofer rule NUMBER PCTCONTROL {alist} {
+    typemethod construct {alist} {
+        return [$type validate [dict create alist $alist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create alist \
+            [listval actors {actor validate} [string toupper $alist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "pctcontrol(\"[join $alist \",\"]\")"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the number of neighborhoods controlled by
+        # actors in the list.
+        set count [rdb onecolumn "
+            SELECT count(n) 
+            FROM control_n
+            WHERE controller IN $inClause
+        "]
+
+        set total [llength [nbhood names]]
+
+        if {$total == 0.0} {
+            return 0.0
+        }
+
+        return [expr {100.0*$count/$total}]
+    }
+}
+
+#
 # Rule: SAT
 #
 # sat(g,c)

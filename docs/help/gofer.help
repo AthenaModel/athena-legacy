@@ -1840,6 +1840,30 @@ gofer_rule NUMBER COOP "coop(f,g)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER INFLUENCE "influence(a,n)" {
+    Returns the <<term influence>> of <<term actor>> <i>a</i> with 
+    <<term nbhood>> <i>n</i> as a number between 0.0 and 1.0.<p>
+
+    <<itemlist>>
+    <<gofer.details a USA n CITY>>
+    <<gofer.function influence {"USA","CITY"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of an <<term actor>>.
+    <</topic>>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER MOOD "mood(g)" {
     Returns the mood of <<term civgroup>> <i>g</i> as a number between 
     -100.0 and 100.0.<p>
@@ -1860,7 +1884,31 @@ gofer_rule NUMBER MOOD "mood(g)" {
     <</topiclist>>
 }
 
-gofer_rule NUMBER NBMOOD "nbmood(g)" {
+gofer_rule NUMBER NBCOOP "nbcoop(n,g)" {
+    Returns the cooperation of <<term nbhood>> <i>n</i> with 
+    <<term frcgroup>> <i>g</i> as a number between 0.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details n NB1 g SUNN>>
+    <<gofer.function nbcoop {"NB1","SUNN"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term frcgroup>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER NBMOOD "nbmood(n)" {
     Returns the mood of <<term nbhood>> <i>n</i> as a number between 
     -100.0 and 100.0.<p>
 
@@ -1879,6 +1927,29 @@ gofer_rule NUMBER NBMOOD "nbmood(g)" {
 
     <</topiclist>>
 }
+
+gofer_rule NUMBER PCTCONTROL "pctcontrol(a,...)" {
+    Returns the percentage of the <<term nbhood>>s in the playbox that
+    are controlled by one of the listed <<term actor>>s,
+    as a number between 0.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {A1 A2}>>
+    <<gofer.function pctcontrol {"A1","A2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of the IDs of one or more <<term actor>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+
 
 
 gofer_rule NUMBER SAT "sat(g,c)" {

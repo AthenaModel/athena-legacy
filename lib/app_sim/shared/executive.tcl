@@ -151,10 +151,6 @@ snit::type executive {
 
         # NEXT, install the executive functions
 
-        # ainfluence(n,a)
-        $interp smartalias ::tcl::mathfunc::ainfluence 2 2 {n a} \
-            [myproc influence]
-
         # controls(a,n,?n...?)
         $interp smartalias ::tcl::mathfunc::controls 2 - {a n ?n...?} \
             [myproc controls]
@@ -166,6 +162,10 @@ snit::type executive {
         # gdp()
         $interp smartalias ::tcl::mathfunc::gdp 0 0 {} \
             [myproc gdp]
+
+        # influence(a,n)
+        $interp smartalias ::tcl::mathfunc::influence 2 2 {a n} \
+            [myproc influence]
 
         # mood(g)
         $interp smartalias ::tcl::mathfunc::mood 1 1 {g} \
@@ -1081,16 +1081,8 @@ snit::type executive {
     # Returns the cooperation of f with g.
 
     proc coop {f g} {
-        set f [civgroup validate [string toupper $f]]
-        set g [frcgroup validate [string toupper $g]]
-
-        rdb eval {
-            SELECT coop FROM uram_coop WHERE f=$f AND g=$g
-        } {
-            return [format %.1f $coop]
-        }
-
-        error "coop not yet computed"
+        set gdict [gofer construct NUMBER COOP $f $g] 
+        return [gofer::NUMBER eval $gdict]
     }
 
 
@@ -1232,24 +1224,16 @@ snit::type executive {
         return [format %.2f [econ value Out::DGDP]]
     }
 
-    # influence n a
+    # influence a n
     #
-    # n - A neighborhood
     # a - An actor
+    # n - A neighborhood
     #
     # Returns the influence of a in n.
 
-    proc influence {n a} {
-        set n [nbhood validate [string toupper $n]]
-        set a [actor validate [string toupper $a]]
-
-        rdb eval {
-            SELECT influence FROM influence_na WHERE n=$n AND a=$a
-        } {
-            return [format %.2f $influence]
-        }
-
-        error "influence not yet computed"
+    proc influence {a n} {
+        set gdict [gofer construct NUMBER INFLUENCE $a $n] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # last_mad
@@ -1287,15 +1271,8 @@ snit::type executive {
     # Returns the mood of group g.
 
     proc mood {g} {
-        set g [civgroup validate [string toupper $g]]
-
-        rdb eval {
-            SELECT mood FROM uram_mood WHERE g=$g
-        } {
-            return [format %.1f $mood]
-        }
-
-        error "mood not yet computed"
+        set gdict [gofer construct NUMBER MOOD $g] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # nbcoop n g
@@ -1306,16 +1283,8 @@ snit::type executive {
     # Returns the cooperation of n with g.
 
     proc nbcoop {n g} {
-        set n [nbhood validate [string toupper $n]]
-        set g [frcgroup validate [string toupper $g]]
-
-        rdb eval {
-            SELECT nbcoop FROM uram_nbcoop WHERE n=$n AND g=$g
-        } {
-            return $nbcoop
-        }
-
-        error "nbcoop not yet computed"
+        set gdict [gofer construct NUMBER NBCOOP $n $g] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # nbmood n
@@ -1325,15 +1294,8 @@ snit::type executive {
     # Returns the mood of neighborhood n.
 
     proc nbmood {n} {
-        set n [nbhood validate [string toupper $n]]
-
-        rdb eval {
-            SELECT nbmood FROM uram_n WHERE n=$n
-        } {
-            return [format %.1f $nbmood]
-        }
-
-        error "nbmood not yet computed"
+        set gdict [gofer construct NUMBER NBMOOD $n] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # parmImport filename
@@ -1393,49 +1355,20 @@ snit::type executive {
     # listed actors.
 
     proc pctcontrol {args} {
-        # FIRST, validate the actor names.
-        foreach a $args {
-            lappend alist [actor validate [string toupper $a]]
-        }
-
-        # NEXT, create the inClause.
-        set inClause "('[join $alist ',']')"
-
-        # NEXT, query the number of neighborhoods controlled by
-        # actors in the list.
-        set count [rdb onecolumn "
-            SELECT count(n) 
-            FROM control_n
-            WHERE controller IN $inClause
-        "]
-
-        set total [llength [nbhood names]]
-
-        if {$total == 0.0} {
-            return 0.0
-        }
-
-        return [expr {100.0*$count/$total}]
+        set gdict [gofer construct NUMBER PCTCONTROL $args] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # sat g c
     #
-    # g - A civilian grou
+    # g - A civilian group
     # c - A concern
     #
     # Returns the satisfaction of g with c
 
     proc sat {g c} {
-        set g [civgroup validate [string toupper $g]]
-        set c [econcern validate $c]
-
-        rdb eval {
-            SELECT sat FROM uram_sat WHERE g=$g AND c=$c
-        } {
-            return [format %.1f $sat]
-        }
-
-        error "sat not yet computed"
+        set gdict [gofer construct NUMBER SAT $g $c] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # save filename

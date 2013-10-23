@@ -33,43 +33,6 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # ainfluence()
-
-    test ainfluence-1.1 {invalid neighborhood} -setup {
-        ted create NB1 JOE
-    } -body {
-        ted sendex -error expr ainfluence("NONESUCH","JOE")
-    } -cleanup {
-        cleanup
-    } -result {Invalid neighborhood, should be one of: NB1}
-
-    test ainfluence-1.2 {invalid actor} -setup {
-        ted create NB1 JOE
-    } -body {
-        ted sendex -error expr ainfluence("NB1","NONESUCH")
-    } -cleanup {
-        cleanup
-    } -result {Invalid actor, should be one of: JOE}
-
-    test ainfluence-1.3 {no data} -setup {
-        ted create NB1 JOE
-    } -body {
-        ted sendex -error expr ainfluence("NB1","JOE")
-    } -cleanup {
-        cleanup
-    } -result {influence not yet computed}
-
-
-    test ainfluence-2.1 {get data} -setup {
-        ted create NB1 JOE SUNN BLUE
-        ted lock
-    } -body {
-        ted sendex expr ainfluence("nb1","joe")
-    } -cleanup {
-        cleanup
-    } -result {0.0}
-
-    #-------------------------------------------------------------------
     # controls()
 
     test controls-1.1 {invalid actor} -setup {
@@ -168,16 +131,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {Invalid force group, should be one of: BLUE}
 
-    test coop-1.3 {no data} -setup {
+    test coop-2.1 {in prep} -setup {
         ted create BLUE SUNN
     } -body {
-        ted sendex -error expr coop("SUNN","BLUE")
+        ted sendex expr coop("SUNN","BLUE")
     } -cleanup {
         cleanup
-    } -result {coop not yet computed}
+    } -result {50.0}
 
 
-    test coop-2.1 {get data} -setup {
+    test coop-2.2 {get data} -setup {
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
@@ -209,6 +172,43 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # influence()
+
+    test influence-1.1 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr influence("NONESUCH","NB1")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test influence-1.2 {invalid nbhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr influence("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test influence-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr influence("JOE","NB1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+
+    test influence-2.2 {on lock} -setup {
+        ted create NB1 JOE SUNN BLUE
+        ted lock
+    } -body {
+        ted sendex expr influence("joe","nb1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # mood()
 
     test mood-1.1 {invalid civ group} -setup {
@@ -219,16 +219,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {Invalid civilian group, should be one of: SUNN}
 
-    test mood-1.2 {no data} -setup {
+    test mood-2.1 {in prep} -setup {
         ted create SUNN
     } -body {
-        ted sendex -error expr mood("SUNN")
+        ted sendex expr mood("SUNN")
     } -cleanup {
         cleanup
-    } -result {mood not yet computed}
+    } -result {0.0}
 
 
-    test mood-2.1 {get data} -setup {
+    test mood-2.2 {on lock} -setup {
         parm set econ.disable yes
         ted create NB1 BLUE SUNN
         ted lock
@@ -257,16 +257,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {Invalid force group, should be one of: BLUE}
 
-    test nbcoop-1.3 {no data} -setup {
+    test nbcoop-2.1 {in prep} -setup {
         ted create NB1 BLUE SUNN
     } -body {
-        ted sendex -error expr nbcoop("NB1","BLUE")
+        ted sendex expr nbcoop("NB1","BLUE")
     } -cleanup {
         cleanup
-    } -result {nbcoop not yet computed}
+    } -result {50.0}
 
 
-    test nbcoop-2.1 {get data} -setup {
+    test nbcoop-2.2 {on lock} -setup {
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
@@ -286,16 +286,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {Invalid neighborhood, should be one of: NB1}
 
-    test nbmood-1.2 {no data} -setup {
+    test nbmood-2.1 {in prep} -setup {
         ted create NB1
     } -body {
-        ted sendex -error expr nbmood("NB1")
+        ted sendex expr nbmood("NB1")
     } -cleanup {
         cleanup
-    } -result {nbmood not yet computed}
+    } -result {0.0}
 
 
-    test nbmood-2.1 {get data} -setup {
+    test nbmood-2.2 {get data} -setup {
         parm set econ.disable yes
         ted create NB1 BLUE SUNN
         ted lock
@@ -340,7 +340,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr pctcontrol("NONESUCH")
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: BOB, JOE}
+    } -match glob -result {Invalid actor,*}
 
     test pctcontrol-1.2 {2 actors, invalid} -setup {
         ted create JOE BOB NB1 NB2
@@ -348,7 +348,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr pctcontrol("JOE","NONESUCH")
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: BOB, JOE}
+    } -match glob -result {Invalid actor,*}
 
     test pctcontrol-2.1 {Zero control when no neighborhoods} -setup {
         ted create JOE BOB
@@ -422,16 +422,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {invalid value "NONESUCH", should be one of: AUT, SFT, CUL, QOL}
 
-    test sat-1.3 {no data} -setup {
+    test sat-2.1 {in prep} -setup {
         ted create SUNN
     } -body {
-        ted sendex -error expr sat("SUNN","AUT")
+        ted sendex expr sat("SUNN","AUT")
     } -cleanup {
         cleanup
-    } -result {sat not yet computed}
+    } -result {0.0}
 
 
-    test sat-2.1 {get data} -setup {
+    test sat-2.2 {get data} -setup {
         parm set econ.disable yes
         ted create NB1 BLUE SUNN
         ted lock

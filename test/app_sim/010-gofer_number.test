@@ -139,6 +139,70 @@ namespace eval ::athena_test::tests:: {
     } -result {25.0}
 
     #-------------------------------------------------------------------
+    # Rule: INFLUENCE
+
+    test INFLUENCE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INFLUENCE construct JOE NB1
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test INFLUENCE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INFLUENCE validate {a joe n nb1}
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test INFLUENCE-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INFLUENCE validate {a NONESUCH n NB1}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INFLUENCE-2.3 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INFLUENCE validate {a JOE n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test INFLUENCE-3.1 {narrative} -body {
+        ::gofer::NUMBER::INFLUENCE narrative {a JOE n NB1}
+    } -result {influence("JOE","NB1")}
+
+    test INFLUENCE-4.1 {eval, no value available} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INFLUENCE eval {a JOE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test INFLUENCE-4.2 {eval, value available} -setup {
+        setup
+        # Set influence to 0.75
+        rdb eval {
+            INSERT OR REPLACE INTO influence_na(n,a,influence)
+            VALUES('NB1','JOE',0.75)
+        }
+    } -body {
+        ::gofer::NUMBER::INFLUENCE eval {a JOE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.75}
+
+    #-------------------------------------------------------------------
     # Rule: MOOD
 
     test MOOD-1.1 {construct, valid} -setup {
@@ -186,6 +250,61 @@ namespace eval ::athena_test::tests:: {
     } -result {22.9}
 
     #-------------------------------------------------------------------
+    # Rule: NBCOOP
+
+    test NBCOOP-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCOOP construct NB1 BLUE
+    } -cleanup {
+        cleanup
+    } -result {n NB1 g BLUE}
+
+    test NBCOOP-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCOOP validate {n nb1 g blue}
+    } -cleanup {
+        cleanup
+    } -result {n NB1 g BLUE}
+
+    test NBCOOP-2.2 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCOOP validate {n NONESUCH g BLUE}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBCOOP-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCOOP validate {n NB1 g NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force group,*}
+
+    test NBCOOP-3.1 {narrative} -body {
+        ::gofer::NUMBER::NBCOOP narrative {n NB1 g BLUE}
+    } -result {nbcoop("NB1","BLUE")}
+
+    test NBCOOP-4.1 {eval} -setup {
+        setup
+        # Set NBCOOP to 25.0
+        ted order COOP:UPDATE \
+            id {SHIA BLUE} base 25.0 regress_to NATURAL natural 25.0
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NBCOOP eval {n NB1 g BLUE}
+    } -cleanup {
+        cleanup
+    } -result {37.5}
+
+    #-------------------------------------------------------------------
     # Rule: NBMOOD
 
     test NBMOOD-1.1 {construct, valid} -setup {
@@ -229,6 +348,47 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {25.0}
 
+    #-------------------------------------------------------------------
+    # Rule: PCTCONTROL
+
+    test PCTCONTROL-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PCTCONTROL construct {JOE BOB}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test PCTCONTROL-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PCTCONTROL validate {alist {joe bob}}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test PCTCONTROL-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PCTCONTROL validate {alist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test PCTCONTROL-3.1 {narrative} -body {
+        ::gofer::NUMBER::PCTCONTROL narrative {alist {JOE BOB}}
+    } -result {pctcontrol("JOE","BOB")}
+
+    test PCTCONTROL-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PCTCONTROL eval {alist JOE}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
 
     #-------------------------------------------------------------------
     # Rule: SAT

@@ -39,6 +39,10 @@ page / function "Executive Functions" {
         set m [mood G1]
     }>>
 
+    Most functions depend on data that is only available when the
+    simulation is locked.  During scenario prep, these functions will
+    return some default value, as described on their help pages.<p>
+
     This page lists the available functions.<p>
 
     <<childlinks>>
@@ -66,18 +70,6 @@ macro function_syntax {} {
 }
 
 #=======================================================================
-# ainfluence
-
-function "ainfluence(n,a)" {
-    Returns the influence of <<term actor>> <i>a</i> in 
-    <<term nbhood>> <i>n</i>
-    as a number between 0.0 and 1.0.<p>
-
-    Influence data is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.
-}
-
-#=======================================================================
 # controls
 
 function "controls(a,n,?n...?)" {
@@ -96,8 +88,10 @@ function "coop(f,g)" {
     Returns the cooperation of <<term civgroup>> <i>f</i> with 
     <<term frcgroup>> <i>g</i> as a number between 0.0 and 100.0.<p>
 
-    Cooperation is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.<p>
+    Returns 50.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/coop>> rule.
 }
 
 #=======================================================================
@@ -114,14 +108,32 @@ function "gdp()" {
 }
 
 #=======================================================================
+# influence
+
+function "influence(a,n)" {
+    Returns the influence of <<term actor>> <i>a</i> in 
+    <<term nbhood>> <i>n</i>
+    as a number between 0.0 and 1.0.<p>
+
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/influence>> rule.
+}
+
+
+#=======================================================================
 # mood
 
 function "mood(g)" {
     Returns the <<term mood>> of <<term civgroup>> <i>g</i> as a 
     number between -100.0 and 100.0.<p>
 
-    Mood is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.<p>
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/mood>> rule.
+
 }
 
 #=======================================================================
@@ -135,8 +147,10 @@ function "nbcoop(n,g)" {
     average of the cooperations of the <<term civgroup>>s living in
     the neighborhood with the given force group.<p>
 
-    Cooperation is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.<p>
+    Returns 50.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nbcoop>> rule.
 }
 
 #=======================================================================
@@ -146,16 +160,20 @@ function "nbmood(n)" {
     Returns the <<term mood>> of <<term nbhood>> <i>n</i> as a 
     number between -100.0 and 100.0.<p>
 
-    Mood is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.<p>
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nbmood>> rule.
+
 }
 
 #=======================================================================
 # now
 
 function "now()" {
-    Returns the current simulation time in integer days.  Returns 0 if
-    the scenario is unlocked.
+    Returns the current simulation time in integer weeks.<p>
+
+    Returns 0 when the scenario is unlocked.
 }
 
 #=======================================================================
@@ -173,6 +191,13 @@ function "pctcontrol(a,?a...?)" {
     Given the names of one or more <<term actor>>s, returns the 
     percentage of <<term nbhood>>s controlled by those actors as a 
     number from 0.0 to 100.0.
+
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/pctcontrol>> rule.
+
+
 }
 
 #=======================================================================
@@ -183,8 +208,11 @@ function sat(g,c) {
     <<term civgroup>> <i>g</i> with respect to <<term concern>>
     <i>c</i> as a number between -100.0 and 100.0.<p>
 
-    Satisfaction is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.<p>
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/sat>> rule.
+
 }
 
 #=======================================================================
