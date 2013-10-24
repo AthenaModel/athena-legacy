@@ -44,6 +44,23 @@ snit::type curse {
         }]
     }
 
+    # narrative curse_id
+    #
+    # Returns a string description for the CURSE or an
+    # appropriate message if there's something wrong
+
+    typemethod narrative {curse_id} {
+        set narr "??? (???)"
+
+        if {[curse exists $curse_id]} {
+            set narr [curse get $curse_id longname]
+            append narr " ($curse_id)"
+        }
+
+        return $narr
+    }
+
+
     # validate curse_id
     #
     # curse_id   - Possibly, a CURSE ID

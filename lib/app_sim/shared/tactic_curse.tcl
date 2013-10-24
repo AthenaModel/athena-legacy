@@ -57,7 +57,7 @@ tactic define CURSE "Cause a CURSE" {system} {
         # or invalid
         if {!$exists} {
             dict set errdict curse \
-                "Curse $curse no longer exists."
+                "Curse $curse does not exist."
         } else {
             set state [curse get $curse state]
 
@@ -68,7 +68,19 @@ tactic define CURSE "Cause a CURSE" {system} {
         }
 
         # NEXT, it exists and is "normal", are the roles good?
-        if {$exists && $state eq "normal"} {
+        
+        # Make sure it is a rolemap
+        set isrolemap 0
+
+        if {[catch {
+            set roles [::projectlib::rolemap validate $roles]
+        } result]} {
+            dict set errdict roles $result
+        } else {
+            set isrolemap 1
+        }
+
+        if {$isrolemap && $exists && $state eq "normal"} {
             set keys [dict keys $roles]
 
             set badr [list]
@@ -105,7 +117,8 @@ tactic define CURSE "Cause a CURSE" {system} {
     }
 
     method narrative {} {
-        set narr "[curse get $curse longname] ($curse). "
+        set narr [curse narrative $curse]
+        append narr ". "
 
         foreach {role goferdict} $roles {
             append narr "$role = "
@@ -358,8 +371,9 @@ order define TACTIC:CURSE {
 
     set tactic [tactic get $parms(tactic_id)]
 
-    prepare curse      -toupper  -type {curse normal}
-    prepare roles                -type rolemap
+    # All validation takes place on sanity check
+    prepare curse -toupper
+    prepare roles
 
     returnOnError -final
 

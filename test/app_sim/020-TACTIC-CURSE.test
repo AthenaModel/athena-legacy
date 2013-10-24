@@ -91,43 +91,39 @@ namespace eval ::athena_test::tests:: {
     test TACTIC:CURSE-1.3 {curse is unknown} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:CURSE tactic_id [$T1 id] curse NONESUCH 
+        ted order TACTIC:CURSE tactic_id [$T1 id] curse NONESUCH 
+        $T1 check
     } -cleanup {
         cleanup
-    } -result {
-        curse {Invalid CURSE, should be one of: C1, C2}
-    }
+    } -match glob -result {curse {Curse NONESUCH does not exist.}*}
 
     test TACTIC:CURSE-1.4 {roles is not a dict} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:CURSE tactic_id [$T1 id] roles NONESUCH
+        ted order TACTIC:CURSE tactic_id [$T1 id] roles NONESUCH
+        $T1 check
     } -cleanup {
         cleanup
-    } -result {
-        roles {NONESUCH: not a dictionary}
-    }
+    } -match glob -result {*roles {NONESUCH: not a dictionary}}
 
     test TACTIC:CURSE-1.5 {roles is invalid} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:CURSE tactic_id [$T1 id] roles {NONESUCH NONESUCH}
+        ted order TACTIC:CURSE tactic_id [$T1 id] roles {NONESUCH NONESUCH}
+        $T1 check
     } -cleanup {
         cleanup
-    } -result {
-        roles {Not a gofer value}
-    }
+    } -match glob -result {*roles {Not a gofer value}}
 
     test TACTIC:CURSE-1.6 {curse isn't normal} -setup {
         setup
         ted order CURSE:STATE curse_id C1 state disabled
     } -body {
-        ted order -reject TACTIC:CURSE tactic_id [$T1 id] curse C1
+        ted order TACTIC:CURSE tactic_id [$T1 id] curse C1
+        $T1 check
     } -cleanup {
         cleanup
-    } -result {
-        curse {Invalid CURSE, should be one of: C2}
-    }
+    } -match glob -result {curse {Curse C1 is disabled.}*}
 
     test TACTIC:CURSE-2.1 {tactic is created} -setup {
         setup

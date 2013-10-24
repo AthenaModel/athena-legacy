@@ -1108,7 +1108,11 @@ snit::type ::projectlib::rolemap {
     # Returns an error on failure, the value on success
 
     typemethod validate {value} {
-        if {[llength $value] % 2 != 0} {
+        if {[llength $value] == 0} {
+            return -code error -errorcode INVALID "$value: no data"
+        }
+
+        if {[catch {dict keys $value} result]} {
             return -code error -errorcode INVALID "$value: not a dictionary"
         }
 

@@ -201,6 +201,48 @@ page /object/tactic attroe "ATTROE tactic" {
 }
 
 #-----------------------------------------------------------------------
+# CURSE Tactic
+object tactic_curse {
+    noun "CURSE tactic"
+    overview {
+        This SYSTEM <<term tactic>> causes a Complex User-defined
+        Role-based Situation and Event (or CURSE) to be executed with
+        all of it's injects.  Injects associated with a CURSE cause
+        changes to one or more of: Horizontal relationships, Vertical
+        relationships, Satisfaction and Cooperation.  Injects are similar
+        to <<term mad>>s in that the changes to attitude are identical to 
+        magic changes.  CURSEs are meant to be used when the effects of 
+        something not already explictly modeled in Athena needs to be 
+        injected into the simulation.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute curse "CURSE ID" {
+        The ID of the <<term curse>> to be executed.
+    } -tags {update}
+
+    attribute roles "Role Mapping" {
+        The mapping of <<term role>>s to particular <<term group>>s and
+        <<term actor>>s.  The mapping of roles completely depends on the
+        types of injects defined for the <<term curse>>.
+    } -tags {update}
+
+}
+
+page /object/tactic curse "CURSE tactic" {
+    <<sotitle>>
+
+    <<tactic_curse overview>><p>
+
+    CURSE tactics have the following attributes:<p>
+
+    <<tactic_curse parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # DEFROE Tactic
 
 object tactic_defroe {
