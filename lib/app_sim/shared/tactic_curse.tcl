@@ -353,7 +353,7 @@ order define TACTIC:CURSE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -oneof [tactic::CURSE ids]
+    prepare tactic_id  -required -type tactic::CURSE
     returnOnError
 
     set tactic [tactic get $parms(tactic_id)]

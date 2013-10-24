@@ -192,7 +192,7 @@ order define TACTIC:DEPOSIT {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required           -oneof [tactic::DEPOSIT ids]
+    prepare tactic_id  -required -type tactic::DEPOSIT
     returnOnError 
     
     set tactic [tactic get $parms(tactic_id)]

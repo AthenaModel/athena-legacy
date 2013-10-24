@@ -106,7 +106,7 @@ order define CONDITION:MOOD {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare condition_id -required -oneof [condition::MOOD ids]
+    prepare condition_id -required           -type condition::MOOD
     prepare g                      -toupper  -type civgroup
     prepare comp                   -toupper  -type ecomparatorx
     prepare limit        -num      -toupper  -type qsat

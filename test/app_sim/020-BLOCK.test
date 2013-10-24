@@ -65,7 +65,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        block_id {invalid value "NONESUCH", should be one of: *}
+        block_id {Invalid block ID: "NONESUCH"}
     }
 
     test BLOCK:UPDATE-1.4 {invalid tmode} -setup {
@@ -251,7 +251,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        block_id {invalid value "NONESUCH", should be one of: *}
+        block_id {Invalid block ID: "NONESUCH"}
     }
 
     test BLOCK:STATE-1.3 {invalid state} -setup {
@@ -316,7 +316,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        block_id {invalid value "NONESUCH", should be one of: *}
+        block_id {Invalid block ID: "NONESUCH"}
     }
 
     test BLOCK:TACTIC:ADD-1.3 {invalid typename} -setup {
@@ -389,7 +389,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        ids {invalid value "NONESUCH", should be one of:*}
+        ids {Invalid tactic ID: "NONESUCH"}
     }
 
     test BLOCK:TACTIC:DELETE-2.1 {one deleted} -setup {
@@ -467,7 +467,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        tactic_id {invalid value "NONESUCH", should be one of:}
+        tactic_id {Invalid tactic ID: "NONESUCH"}
     }
 
     test BLOCK:TACTIC:MOVE-1.3 {invalid where} -setup {
@@ -543,7 +543,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        block_id {invalid value "NONESUCH", should be one of: *}
+        block_id {Invalid block ID: "NONESUCH"}
     }
 
     test BLOCK:CONDITION:ADD-1.3 {invalid typename} -setup {
@@ -616,7 +616,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        ids {invalid value "NONESUCH", should be one of:*}
+        ids {Invalid condition ID: "NONESUCH"}
     }
 
     test BLOCK:CONDITION:DELETE-2.1 {one deleted} -setup {

@@ -534,7 +534,7 @@ order define STRATEGY:BLOCK:DELETE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare ids -required -someof [block ids]
+    prepare ids -required -listof ::block
 
     returnOnError -final
 
@@ -567,7 +567,7 @@ order define STRATEGY:BLOCK:MOVE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare block_id -required -oneof [block ids]
+    prepare block_id -required -type ::block
     prepare where    -required -type emoveitem
 
     returnOnError -final

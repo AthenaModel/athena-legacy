@@ -1214,6 +1214,45 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {1}
    
+    #-------------------------------------------------------------------
+    # validate
+
+    test validate-1.1 {not a bean id} -body {
+        pet validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid pet ID: "NONESUCH"}
+
+    test validate-1.2 {not a pet id} -body {
+        bean create bean1
+        pet validate [bean1 id]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid pet ID: "*"}
+
+    test validate-2.1 {got a pet id} -body {
+        set bean [pet new]
+        set id [$bean id]
+        set result [pet validate $id]
+        expr {$result == $id}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test validate-2.2 {subclasses are OK} -body {
+        set bean [dog new]
+        set id [$bean id]
+        set result [pet validate $id]
+        expr {$result == $id}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
 
     #-------------------------------------------------------------------
     # get

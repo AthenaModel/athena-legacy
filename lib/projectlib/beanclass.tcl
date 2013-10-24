@@ -113,6 +113,28 @@ oo::class create ::projectlib::beanclass {
         return 0
     }
 
+    # validate id
+    #
+    # id   - Possibly, a bean ID of this class's type
+    #
+    # Throws an error with errorcode INVALID if this is not
+    # a bean belonging to this class.
+
+    method validate {id} {
+        if {[::projectlib::bean exists $id]} {
+            set bean [::projectlib::bean get $id]
+
+            if {[info object isa typeof $bean [self]]} {
+                return $id     
+            }
+        }
+
+        set tail [namespace tail [self]]
+
+        ::marsutil::throw INVALID \
+            "Invalid $tail ID: \"$id\""
+    }
+
     # ids
     #
     # Returns a list of the IDs of the beans of this class or its

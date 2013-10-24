@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        tactic_id {invalid value "NONESUCH", should be one of: *}
+        tactic_id {Invalid GRANT ID: "NONESUCH"}
     }
 
     test TACTIC:GRANT-2.1 {tactic updated, state normal} -setup {

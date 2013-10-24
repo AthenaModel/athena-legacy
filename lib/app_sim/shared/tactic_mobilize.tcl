@@ -233,7 +233,7 @@ order define TACTIC:MOBILIZE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -oneof [tactic::MOBILIZE ids]
+    prepare tactic_id  -required -type tactic::MOBILIZE
     prepare g          -toupper  -type  ident
     prepare mode       -toupper  -selector
     prepare personnel  -num      -type  ipositive

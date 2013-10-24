@@ -56,7 +56,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         tactic_id {required value}
-        msg {required value}
     }
 
     test TACTIC:SIGEVENT-1.2 {unknown tactic_id} -setup {
@@ -66,7 +65,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        tactic_id {invalid value "NONESUCH", should be one of: *}
+        tactic_id {Invalid SIGEVENT ID: "NONESUCH"}
     }
 
     test TACTIC:SIGEVENT-2.1 {tactic updated} -setup {

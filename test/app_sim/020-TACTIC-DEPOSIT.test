@@ -65,7 +65,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        tactic_id {invalid value "NONESUCH", should be one of: *}
+        tactic_id {Invalid DEPOSIT ID: "NONESUCH"}
     }
 
     test TACTIC:DEPOSIT-1.3 {invalid amount} -setup {

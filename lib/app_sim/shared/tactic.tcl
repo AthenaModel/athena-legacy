@@ -510,7 +510,7 @@ order define TACTIC:STATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id -required -oneof [tactic ids]
+    prepare tactic_id -required          -type tactic
     prepare state     -required -tolower -type ebeanstate
     returnOnError -final
 

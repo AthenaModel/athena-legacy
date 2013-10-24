@@ -202,7 +202,7 @@ order define TACTIC:ASSIGN {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -oneof [tactic::ASSIGN ids]
+    prepare tactic_id  -required -type tactic::ASSIGN
     returnOnError
 
     # NEXT, get the tactic

@@ -272,7 +272,7 @@ order define TACTIC:SPEND {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -oneof [tactic::SPEND ids]
+    prepare tactic_id  -required -type tactic::SPEND
     prepare mode       -toupper  -selector
     prepare amount     -toupper  -type money
     prepare percent    -toupper  -type rpercent

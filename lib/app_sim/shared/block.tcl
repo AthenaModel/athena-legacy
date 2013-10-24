@@ -843,7 +843,7 @@ order define BLOCK:UPDATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare block_id -required -oneof [block ids]
+    prepare block_id -required -type ::block
     prepare intent
     prepare tmode    -toupper  -selector
     prepare t1       -toupper  -type {simclock timespec}
@@ -906,7 +906,7 @@ order define BLOCK:STATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare block_id -required -oneof [block ids]
+    prepare block_id -required          -type ::block
     prepare state    -required -tolower -type ebeanstate
     returnOnError -final
 
@@ -937,7 +937,7 @@ order define BLOCK:TACTIC:ADD {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare block_id -required          -oneof [block ids]
+    prepare block_id -required          -type  ::block
     prepare typename -required -toupper -oneof [tactic typenames]
 
     returnOnError -final
@@ -967,7 +967,7 @@ order define BLOCK:TACTIC:DELETE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare ids   -required -someof [tactic ids]
+    prepare ids   -required -listof tactic
     returnOnError -final
 
     # NEXT, delete the tactics
@@ -1001,7 +1001,7 @@ order define BLOCK:TACTIC:MOVE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id -required -oneof [tactic ids]
+    prepare tactic_id -required -type tactic
     prepare where     -required -type emoveitem
 
     returnOnError -final
@@ -1030,7 +1030,7 @@ order define BLOCK:TACTIC:PASTE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare block_id -required -oneof  [block ids]
+    prepare block_id -required -type block
     prepare copysets
 
     set block [block get $parms(block_id)]
@@ -1081,7 +1081,7 @@ order define BLOCK:CONDITION:ADD {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare block_id -required          -oneof [block ids]
+    prepare block_id -required          -type block
     prepare typename -required -toupper -oneof [condition typenames]
 
     returnOnError -final
@@ -1110,7 +1110,7 @@ order define BLOCK:CONDITION:DELETE {
         text ids
     }
 } {
-    prepare ids   -required -someof [condition ids]
+    prepare ids   -required -listof condition
     returnOnError -final
 
     # NEXT, delete the conditions

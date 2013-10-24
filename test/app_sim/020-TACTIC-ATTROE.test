@@ -62,7 +62,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        tactic_id {invalid value "NONESUCH", should be one of: *}
+        tactic_id {Invalid ATTROE ID: "NONESUCH"}
     }
 
     test TACTIC:ATTROE-1.3 {invalid f} -setup {

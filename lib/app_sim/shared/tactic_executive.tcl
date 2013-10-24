@@ -131,8 +131,8 @@ order define TACTIC:EXECUTIVE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id -required -oneof [tactic::EXECUTIVE ids]
-    prepare command   -required -type  tclscript
+    prepare tactic_id -required -type tactic::EXECUTIVE
+    prepare command             -type tclscript
     returnOnError -final
 
     set tactic [tactic get $parms(tactic_id)]

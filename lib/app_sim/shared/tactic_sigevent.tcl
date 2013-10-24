@@ -80,8 +80,8 @@ order define TACTIC:SIGEVENT {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare tactic_id -required -oneof [tactic::SIGEVENT ids]
-    prepare msg       -required 
+    prepare tactic_id -required -type tactic::SIGEVENT
+    prepare msg        
     returnOnError -final
 
     set tactic [tactic get $parms(tactic_id)]

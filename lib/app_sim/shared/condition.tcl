@@ -380,7 +380,7 @@ order define CONDITION:STATE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare condition_id -required -oneof [condition ids]
+    prepare condition_id -required          -type condition
     prepare state        -required -tolower -type ebeanstate
     returnOnError -final
 

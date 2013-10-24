@@ -192,7 +192,7 @@ order define TACTIC:WITHDRAW {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required           -oneof [tactic::WITHDRAW ids]
+    prepare tactic_id  -required -type tactic::WITHDRAW
 
     returnOnError
 

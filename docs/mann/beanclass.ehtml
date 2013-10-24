@@ -96,6 +96,13 @@ bean ID.<p>
 In the example above, a <code>::dog</code> instance with bean ID 5 would 
 have the name "<b>::bean::dog5</b>".<p>
 
+<<defitem validate {<i>class</i> validate <i>id</i>}>>
+
+Returns the <i>id</i> if it is the bean ID of an instance of <i>class</i> or
+its subclasses, and throws an error message with error code <b>INVALID</b>
+otherwise.<p>
+
+
 <</deflist class_commands>>
 
 <<section ENVIRONMENT>>

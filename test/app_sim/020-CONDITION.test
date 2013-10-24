@@ -67,7 +67,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        condition_id {invalid value "NONESUCH", should be one of: *}
+        condition_id {Invalid condition ID: "NONESUCH"}
     }
 
     test CONDITION:STATE-1.3 {invalid state} -setup {

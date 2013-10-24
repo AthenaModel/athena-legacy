@@ -100,7 +100,7 @@ order define CONDITION:COMPARE {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare condition_id -required -oneof [condition::COMPARE ids]
+    prepare condition_id -required -type condition::COMPARE
     prepare x                      
     prepare comp         -toupper  -type ecomparatorx
     prepare y                      

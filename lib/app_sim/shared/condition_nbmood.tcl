@@ -106,7 +106,7 @@ order define CONDITION:NBMOOD {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare condition_id -required -oneof [condition::NBMOOD ids]
+    prepare condition_id -required           -type condition::NBMOOD
     prepare n                      -toupper  -type nbhood
     prepare comp                   -toupper  -type ecomparatorx
     prepare limit        -num      -toupper  -type qsat

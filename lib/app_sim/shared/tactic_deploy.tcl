@@ -386,7 +386,7 @@ order define TACTIC:DEPLOY {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -oneof [tactic::DEPLOY ids]
+    prepare tactic_id  -required -type tactic::DEPLOY
     returnOnError
 
     # NEXT, get the tactic

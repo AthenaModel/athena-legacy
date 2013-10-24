@@ -153,7 +153,7 @@ order define TACTIC:GRANT {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -oneof  [tactic::GRANT ids]
+    prepare tactic_id  -required -type tactic::GRANT
     prepare klist      -toupper
     prepare alist
  

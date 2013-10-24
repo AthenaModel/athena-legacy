@@ -98,7 +98,7 @@ order define CONDITION:EXPR {
     }
 } {
     # FIRST, prepare and validate the parameters
-    prepare condition_id -required -oneof [condition::EXPR ids]
+    prepare condition_id -required -type condition::EXPR
     prepare expression
     returnOnError -final
 

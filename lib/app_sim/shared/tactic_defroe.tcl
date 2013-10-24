@@ -137,10 +137,10 @@ order define TACTIC:DEFROE {
     }
 } {
     # FIRST, prepare the parameters
-    prepare tactic_id  -required -oneof [tactic::DEFROE ids]
-    prepare g          -toupper  -type  ident
-    prepare n          -toupper  -type  ident
-    prepare roe        -toupper  -type  edefroeuf
+    prepare tactic_id  -required -type tactic::DEFROE
+    prepare g          -toupper  -type ident
+    prepare n          -toupper  -type ident
+    prepare roe        -toupper  -type edefroeuf
  
     returnOnError -final
 

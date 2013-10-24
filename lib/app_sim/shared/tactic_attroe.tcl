@@ -312,7 +312,7 @@ order define TACTIC:ATTROE {
 } {
     # FIRST, prepare the parameters
     # TBD: Could define a "symbol" type for the ROE
-    prepare tactic_id  -required -oneof [tactic::ATTROE ids]
+    prepare tactic_id  -required -type tactic::ATTROE
     prepare f          -toupper  -type  ident
     prepare g          -toupper  -type  ident
     prepare n          -toupper  -type  ident
