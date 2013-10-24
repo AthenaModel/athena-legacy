@@ -91,6 +91,15 @@ order TACTIC:EXECUTIVE "Tactic: Executive Command" {
     <</parmlist>>
 }
 
+order TACTIC:FUND "Tactic: Fund Actor" {
+    Updates an existing <<cref /object/tactic/fund>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_fund parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:GRANT "Tactic: Grant Access to CAP" {
     Updates an existing <<cref /object/tactic/grant>>.<p>
 

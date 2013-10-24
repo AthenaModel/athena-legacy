@@ -238,6 +238,23 @@ oo::objdefine tactic {
             return [list]
         }
     }
+
+    # allAgentsBut id
+    #
+    # id  - A tactic ID
+    #
+    # Returns a list of agents except the one that owns the 
+    # given tactic.
+
+    method allAgentsBut {id} {
+        if {[my exists $id]} {
+            set tactic [my get $id]
+            set alist [actor names]
+            return [ldelete alist [$tactic agent]]
+        } else {
+            return [list]
+        }
+    }
 }
 
 

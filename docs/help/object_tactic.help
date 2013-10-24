@@ -403,9 +403,8 @@ object tactic_deposit {
         The funds can then be withdrawn for spending using the
         <<cref /object/tactic/withdraw>>.
 
-
         There are several ways to select how much money should be 
-        deposited from cash-on-hand; see the "Mode" parameter below.
+        deposited to cash-on-hand; see the "Mode" parameter below.
 
         The tactic only fails when an exact amount of money is slated
         to be deposited and it is greater than cash-on-hand.
@@ -504,6 +503,82 @@ page /object/tactic executive "EXECUTIVE tactic" {
     EXECUTIVE tactics have the following attributes:<p>
 
     <<tactic_executive parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# FUND Tactic
+
+object tactic_fund {
+    noun "FUND tactic"
+
+    overview {
+        This <<term tactic>> allows an <<term actor>> to give
+        a sum of money from his cash-on-hand to another <<term actor>>. 
+
+        There are several ways to select how much money should be 
+        taken from cash-on-hand for funding; see the "Mode" parameter below.
+
+        The tactic only fails when an exact amount of money is slated
+        to be used and it is greater than cash-on-hand.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute mode "Mode" {
+        The funding amount mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Fund with all remaining cash-on-hand. The tactic will
+        still execute if cash-on-hand is zero or negative, just no cash
+        will be transferred.<p>
+
+        <b>EXACT</b>: Fund with the exact amount of money from cash-on-hand. 
+        The tactic will fail to execute if there is not at least this amount
+        of money in cash-on-hand.<p>
+
+        <b>UPTO</b>: Fund with any amount of money up to the given amount from
+        available cash-on-hand.  The tactic will still execute if there is
+        not enough cash, just less cash will be transferred.<p>
+
+        <b>PERCENT</b>: Fund with the specified percent of 
+        cash-on-hand.  The tactic will still execute if cash-on-hand is 
+        zero or negative, just no cash will be transferred.<p>
+
+        <b>EXCESS</b>: Fund with any cash-on-hand that is in
+        excess of the specified amount.  The tactic will still execute
+        if there is not enough cash, just no cash will be transferred.<p> 
+    } -tags {update}
+
+    attribute amount "Amount" {
+        When the <i>mode</i> is EXACT, the exact amount of money to
+        be used for funding.<p>
+
+        When the <i>mode</i> is UPTO, the maximum amount of money that 
+        should be used for funding.<p>
+
+        When the <i>mode</i> is EXCESS, the amount of money over which
+        any excess should be used for funding.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percent" {
+        When the <i>mode</i> is PERCENT, the percentage of cash-on-hand
+        that should be used for funding.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+}
+
+page /object/tactic fund "FUND tactic" {
+    <<sotitle>>
+
+    <<tactic_fund overview>><p>
+
+    Fund tactics have the following attributes:<p>
+
+    <<tactic_fund parmlist>>
 }
 
 #-----------------------------------------------------------------------
