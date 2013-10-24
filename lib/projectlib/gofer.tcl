@@ -203,7 +203,7 @@ snit::type ::projectlib::gofer {
 
     typemethod validate {gdict} {
         # FIRST, validate the _type
-        set typename [$type GetType INVALID $gdict]
+        set typename [$type GetType "" INVALID $gdict]
 
         # NEXT, have the type complete the validation.
         return [$types($typename) validate $gdict]
@@ -237,7 +237,7 @@ snit::type ::projectlib::gofer {
 
     typemethod eval {gdict} {
         # FIRST, get its type (throws error if invalid)
-        set typename [$type GetType NONE $gdict]
+        set typename [$type GetType "" NONE $gdict]
 
         # NEXT, have the type compute the result.
         return [$types($typename) eval $gdict]
@@ -271,14 +271,15 @@ snit::type ::projectlib::gofer {
         return 1
     }
 
-    # GetType ecode gdict
+    # GetType name ecode gdict
     #
+    # name    - Gofer type name, e.g., "ACTORS", or ""
     # ecode   - The error code, NONE or INVALID
     # gdict   - Possibly, a gofer dict.
     #
     # Throws an error if the gdict has no valid type.
 
-    typemethod GetType {ecode gdict} {
+    typemethod GetType {name ecode gdict} {
         # FIRST, verify that it's a dictionary, and get its _type.
         if {[catch {
             set gotType [dict exists $gdict _type]
@@ -287,7 +288,11 @@ snit::type ::projectlib::gofer {
         }
 
         if {!$gotType} {
-            throw $ecode "Not a gofer value"
+            if {$name eq ""} {
+                throw $ecode "Not a gofer value"
+            } else {
+                throw $ecode "Not a gofer $name value"
+            }
         }
 
         set typename [string toupper [dict get $gdict _type]]
@@ -486,7 +491,7 @@ snit::type ::projectlib::goferType {
 
     method validate {gdict} {
         # FIRST, get the type name.  Throws error if not found.
-        set typename [gofer GetType INVALID $gdict]
+        set typename [gofer GetType $name INVALID $gdict]
 
         # NEXT, make sure that it's the correct type.
         if {$typename ne $name} {
@@ -565,7 +570,7 @@ snit::type ::projectlib::goferType {
     # Evaluates the gdict and returns a list of civilian groups.
 
     method eval {gdict} {
-        set typename [gofer GetType NONE $gdict]
+        set typename [gofer GetType $name NONE $gdict]
 
         if {$typename ne $name} {
             error "Type mismatch, got \"$typename\", expected \"$name\""

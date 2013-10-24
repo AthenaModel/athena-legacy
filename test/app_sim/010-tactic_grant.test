@@ -142,7 +142,7 @@ namespace eval ::athena_test::tests:: {
         $T1 check
     } -cleanup {
         cleanup
-    } -result {alist {Not a gofer value}}
+    } -result {alist {Not a gofer ACTORS value}}
 
 
 

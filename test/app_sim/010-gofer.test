@@ -239,9 +239,19 @@ namespace eval ::athena_test::tests:: {
         gofer::CIVGROUPS validate {_type civgroups _rule BY_VALUE raw_value SUNN}
     } -cleanup {
         cleanup
-    } -result {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}
+    } -result {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}    
 
-    test validate-1.2 {unknown _type} -setup {
+    test validate-1.2 {missing _type} -setup {
+        ted create SUNN SHIA KURD
+    } -body {
+        gofer::CIVGROUPS validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Not a gofer CIVGROUPS value}
+
+    test validate-1.3 {unknown _type} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type NONESUCH _rule BY_VALUE raw_value SUNN}
@@ -251,7 +261,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {No such gofer type: "NONESUCH"}
 
-    test validate-1.3 {_type mismatch} -setup {
+    test validate-1.4 {_type mismatch} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type ACTORS _rule BY_VALUE raw_value SUNN}
@@ -261,7 +271,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {Type mismatch, got "ACTORS", expected "CIVGROUPS"}
 
-    test validate-1.4 {canonicalizes _rule} -setup {
+    test validate-1.5 {canonicalizes _rule} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type CIVGROUPS _rule by_value raw_value SUNN}
@@ -269,7 +279,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {_type CIVGROUPS _rule BY_VALUE raw_value SUNN}
 
-    test validate-1.5 {missing _rule} -setup {
+    test validate-1.6 {missing _rule} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type CIVGROUPS raw_value NONESUCH}
@@ -279,7 +289,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {No rule specified}
 
-    test validate-1.6 {invalid rule} -setup {
+    test validate-1.7 {invalid rule} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type CIVGROUPS _rule NONESUCH raw_value NONESUCH}
@@ -289,7 +299,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {Unknown rule: "NONESUCH"}
 
-    test validate-1.7 {invalid rule parms} -setup {
+    test validate-1.8 {invalid rule parms} -setup {
         ted create SUNN SHIA KURD
     } -body {
         gofer::CIVGROUPS validate {_type CIVGROUPS _rule BY_VALUE raw_value NONESUCH}
