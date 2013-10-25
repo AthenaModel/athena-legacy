@@ -256,6 +256,32 @@ snit::type service {
         }
     }
 
+    # fundlevel pct glist
+    #
+    # pct   - percentage of SLOS
+    # glist - List of groups
+    #
+    # This method returns the funding level required for the groups
+    # in glist to receive the input percentage of the saturation
+    # level of service. Note: It is assumed that there is only one
+    # source of ENI funding.
+
+    typemethod fundlevel {pct glist} {
+        require {$pct >= 0.0} \
+            "Attempt to compute funding level with negative percent: $pct"
+
+        set gclause "g IN ('[join $glist {','}]')"
+
+        set sat_funding [rdb onecolumn "
+                         SELECT total(saturation_funding)
+                         FROM service_g
+                         WHERE $gclause
+                    "]
+
+        return [expr {$sat_funding * $pct/100.0}]
+    }
+
+
     # fundeni a amount glist
     #
     # a        - An actor
@@ -264,7 +290,7 @@ snit::type service {
     #
     # This routine is called by the FUNDENI tactic.  It allocates
     # the funding to the listed groups in proportion to their
-    # population.
+    # population and the urbanization of their neighborhood.
     #
     # Returns 1 on success and 0 if all of the groups were empty.
 
@@ -276,30 +302,42 @@ snit::type service {
             "Attempt to fund ENI for empty list of groups"
 
         # FIRST, get the "in" clause
-        set gclause "g IN ('[join $glist ',']')"
+        set gclause "G.g IN ('[join $glist ',']')"
 
-        # NEXT, get the total number of personnel in the groups
-        set total [rdb onecolumn "
-            SELECT total(population) FROM demog_g
+        # NEXT initialize adjust cost by group and adjusted total
+        # cost
+        set Agcost [dict create]
+        set Atcost 0.0
+
+        foreach {g n urb pop} [rdb eval "
+            SELECT G.g                AS g,
+                   G.n                AS n,
+                   N.urbanization     AS urb,
+                   D.population       AS pop
+            FROM civgroups  AS G 
+            JOIN nbhoods    AS N   USING (n)
+            JOIN demog_g    AS D   ON (D.g = G.g)
             WHERE $gclause
-        "]
+            GROUP BY G.g
+        "] {
+            # NEXT compute each groups adjusted cost based on urbanization
+            # and keep a running total of adjusted cost
+            if {$pop > 0} {
+                set Sc     [parm get service.ENI.saturationCost.$urb]
+                let Acost  {$pop * $Sc}
+                let Atcost {$Atcost + $Acost}
+
+                dict set Agcost $g $Acost
+            }
+        }
 
         # NEXT, can't fund 0 people.
-        if {$total == 0} {
+        if {$Atcost == 0.0} {
             return 0
         }
 
-        # NEXT, get the proportion of people in each group:
-        set fracs [rdb eval "
-            SELECT g, (CAST (population AS REAL))/\$total
-            FROM demog_g
-            WHERE $gclause
-        "]
-
-        # NEXT, fund each group with their proportion of the money.
-        dict for {g frac} $fracs {
-            let share {$frac*$amount}
-
+        dict for {g cost} $Agcost {
+            let share {$cost/$Atcost*$amount}
             rdb eval {
                 UPDATE working_service_ga
                 SET funding = funding + $share
