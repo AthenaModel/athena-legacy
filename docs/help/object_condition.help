@@ -83,7 +83,7 @@ object condition_compare {
     overview {
         This <<term condition>> compares two numbers according to 
         the selected comparison operator.  The numbers are selected
-        using the  <<cref /gofer/number>> <<cref /gofer>>. <p>
+        using the <<cref /gofer/number>>s. <p>
     }
 
     include condition_ -attrs {id typename agent state}
@@ -131,18 +131,21 @@ object condition_expr {
         <<cref /function functions>>, 
         but should avoid calling commands with side effects.<p>
 
-        If the expression contains an error, e.g., a syntax error,
-        that will be discovered when Athena evaluates the condition
-        during <<term strategy>> execution.  The error will be logged
-        in the <a href="my://app/sigevents">Significant Events</a>
+        Athena does the best it can to detect errors in the user's
+        expression when the expression is first entered, and when
+        sanity checks are performed.  Some errors (e.g., divide by zero)
+        can only be discovered when Athena evaluates the condition
+        during <<term strategy>> execution.  In this case, the error will 
+        be logged in the <a href="my://app/sigevents">Significant Events</a>
         log.<p>
 
-        A condition whose expression contains an error is assumed to
-        be false, and it is marked invalid.  
+        A condition whose expression contains a sanity check failure
+        error is assumed to be false, and it is marked invalid.  
         Such conditions can be seen at a glance in the
         <a href="gui:/tab/strategy">Strategy Browser</a> because they
         will be displayed in red.  In addition, the block to which the
-        condition belongs will not execute.
+        condition belongs will not execute.  To execute the scenario,
+        either fix the error or disable the condition.
     }
 
     include condition_ -attrs {id typename agent state}

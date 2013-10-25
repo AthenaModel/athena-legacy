@@ -43,6 +43,8 @@ condition define EXPR "Boolean Expression" {
     method SanityCheck {errdict} {
         if {$expression eq ""} {
             dict set errdict expression "No expression has been specified"
+        } elseif {[catch {executive expr validate $expression} result]} {
+            dict set errdict expression $result
         }
 
         return [next $errdict]
@@ -97,9 +99,12 @@ order define CONDITION:EXPR {
         expr expression
     }
 } {
-    # FIRST, prepare and validate the parameters
     prepare condition_id -required -type condition::EXPR
-    prepare expression
+
+    # In the GUI, give detailed feedback on errors.  From other sources,
+    # the sanity check will catch it.
+    prepare expression -oncheck -type {executive expr}
+
     returnOnError -final
 
     set cond [condition get $parms(condition_id)]

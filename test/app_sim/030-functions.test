@@ -161,7 +161,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr gdp()
     } -cleanup {
         cleanup
-    } -result {Economic model is disabled.  To enable, set econ.disable to no.}
+    } -result {Economic model is disabled. To enable, set econ.disable to no.}
 
     test gdp-2.1 {succeeds otherwise} -setup {
         parm set econ.disable no
@@ -673,7 +673,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr unemp()
     } -cleanup {
         cleanup
-    } -result {Economic model is disabled.  To enable, set econ.disable to no.}
+    } -result {Economic model is disabled. To enable, set econ.disable to no.}
 
     test unemp-2.1 {succeeds otherwise} -setup {
         parm set econ.disable no

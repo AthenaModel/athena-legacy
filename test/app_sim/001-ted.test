@@ -41,15 +41,11 @@ namespace eval ::athena_test::ted:: {
 
     test sendex-2.1 {send -error with multiple arguments, get error} -body {
         ted sendex -error expr 1 + dummy
-    } -result {invalid bareword "dummy"
-in expression "1 + dummy";
-should be "$dummy" or "{dummy}" or "dummy(...)" or ...}
+    } -result {invalid bareword "dummy"}
 
     test sendex-2.2 {send -error with one argument, get error} -body {
         ted sendex -error {expr 1 + dummy}
-    } -result {invalid bareword "dummy"
-in expression "1 + dummy";
-should be "$dummy" or "{dummy}" or "dummy(...)" or ...}
+    } -result {invalid bareword "dummy"}
 
     test sendex-2.3 {send -error with multiple arguments, no error} -body {
         ted sendex -error expr 1 + 1
