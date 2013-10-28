@@ -582,6 +582,116 @@ page /object/tactic fund "FUND tactic" {
 }
 
 #-----------------------------------------------------------------------
+# FUNDENI Tactic
+
+object tactic_fundeni {
+    noun "FUNDENI tactic"
+
+    overview {
+        This <<term tactic>> funds Essential Non-Infrastructure (ENI) 
+        services for one or more <<term civgroup>>s.  The <<term actor>>
+        may specify any amount of money, which will come out of the 
+        actor's cash-on-hand.  If the cash is unavailable, the groups
+        will not be funded.<p>
+
+        There are several ways to select how much money should be 
+        taken from cash-on-hand for funding; see the "Mode" parameter below.<p>
+
+        Civilian groups require a minimum amount of ENI services, and 
+        may expect a much higher amount.  When a group's requirements and
+        expectations are not met, the group's mood will fall, and the
+        group's vertical relationships with the actors may also fall.
+        If the group's requirements and expectations are exceeded, the
+        group's mood and vertical relationships may rise.<p>
+
+        The maximum amount of funding is capped as a function of saturation
+        level of service.  By default this level is set to 100% of SLOS but
+        can be dialed down; see the "LOS" parameter below.<p>
+
+        When executed, the FUNDENI tactic funds provision of the
+        service until the next strategy tock (one week).  Multiple
+        FUNDENI tactics are cumulative.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute mode "Mode" {
+        The funding amount mode, which has one of the following values. In
+        all cases, the amount of money is capped by default to the amount of
+        money it would take to fund at 100% of the saturation level of 
+        service assuming the actor that owns this tactic is the only one
+        funding ENI.  It's possible to cap at a lower percentage of SLOS;
+        see the "LOS" parameter.<p>
+
+        <b>ALL</b>: Fund with all remaining cash-on-hand. The tactic will
+        still execute if cash-on-hand is zero or negative, just no cash
+        will be spent.<p>
+
+        <b>EXACT</b>: Fund with the exact amount of money from cash-on-hand. 
+        The tactic will fail to execute if there is not at least this amount
+        of money in cash-on-hand.<p>
+
+        <b>UPTO</b>: Fund with any amount of money up to the given amount from
+        available cash-on-hand.  The tactic will still execute if there is
+        not enough cash, just less cash will be spent.<p>
+
+        <b>PERCENT</b>: Fund with the specified percent of 
+        cash-on-hand.  The tactic will still execute if cash-on-hand is 
+        zero or negative, just no cash will be spent.<p>
+
+        <b>EXCESS</b>: Fund with any cash-on-hand that is in
+        excess of the specified amount.  The tactic will still execute
+        if there is not enough cash, just no cash will be spent.<p> 
+    } -tags {update}
+
+    attribute glist "Groups"  {
+        The IDs of one or more civilian groups, or
+        a <<cref /gofer/civgroups>> value.
+    } -tags {update}
+
+    attribute amount "Amount" {
+        When the <i>mode</i> is EXACT, the exact amount of money to
+        be used for funding.<p>
+
+        When the <i>mode</i> is UPTO, the maximum amount of money that 
+        should be used for funding.<p>
+
+        When the <i>mode</i> is EXCESS, the amount of money over which
+        any excess should be used for funding.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percent" {
+        When the <i>mode</i> is PERCENT, the percentage of cash-on-hand
+        that should be used for funding.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute los "LOS" {
+        This parameter is used to cap the amount an actor spends on ENI as
+        a percentage of the saturation level of service.  For instance, if 
+        this parameter is set to 50, Athena will compute the amount of money
+        it would take to fund ENI for the groups in "Groups" to meet 
+        the 50 percent of the saturation level of service and ensure that the
+        owning actor does not spend any more than that amount on ENI.
+    } -tags {update}
+}
+
+page /object/tactic fundeni "FUNDENI tactic" {
+    <<sotitle>>
+
+    <<tactic_fundeni overview>><p>
+
+    Fund ENI tactics have the following attributes:<p>
+
+    <<tactic_fundeni parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # GRANT Tactic
 
 object tactic_grant {

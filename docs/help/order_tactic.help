@@ -100,6 +100,15 @@ order TACTIC:FUND "Tactic: Fund Actor" {
     <</parmlist>>
 }
 
+order TACTIC:FUNDENI "Tactic: Fund Essential Non-infrastructure Services" {
+    Updates an existing <<cref /object/tactic/fundeni>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_fundeni parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:GRANT "Tactic: Grant Access to CAP" {
     Updates an existing <<cref /object/tactic/grant>>.<p>
 
