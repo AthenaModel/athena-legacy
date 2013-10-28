@@ -222,6 +222,31 @@ SUNN JOE 0.0
     }
 
     #-------------------------------------------------------------------
+    # fundlevel
+
+    test fundlevel-1.1 {Returns funding level for groups} -setup {
+        setup
+        service start
+        service load
+    } -body {
+        service save
+        service fundlevel 100 {SUNN SHIA}
+    } -cleanup {
+        cleanup
+    } -result {12000.0}
+
+    test fundlevel-1.2 {Returns funding level for groups, smaller %} -setup {
+        setup
+        service start
+        service load
+    } -body {
+        service save
+        service fundlevel 50 {SUNN SHIA}
+    } -cleanup {
+        cleanup
+    } -result {6000.0}
+
+    #-------------------------------------------------------------------
     # save
 
     test save-1.1 {Logs changed funding levels} -setup {

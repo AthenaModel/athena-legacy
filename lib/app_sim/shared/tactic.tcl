@@ -255,6 +255,7 @@ oo::objdefine tactic {
             return [list]
         }
     }
+
 }
 
 

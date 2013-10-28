@@ -270,6 +270,10 @@ snit::type service {
         require {$pct >= 0.0} \
             "Attempt to compute funding level with negative percent: $pct"
 
+        if {[llength $glist] == 0} {
+            return 0.0
+        }
+
         set gclause "g IN ('[join $glist {','}]')"
 
         set sat_funding [rdb onecolumn "
