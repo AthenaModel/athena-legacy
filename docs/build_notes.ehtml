@@ -11,6 +11,53 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.3, 28 October 2013</h3>
+
+This build contains wholesale changes to the Mark II Strategy Engine that 
+includes the addition of many more tactics and some changes to how some of 
+the tactics are specified.  There are more robust ways of specifying how an
+actor spends his money on certain tactics.  Some of the tactics have been
+updated to user gofer(n) objects to retrieve list of entities from Athena
+upon tactic execution.<p>
+
+Spend as much time as is necessary to vet each of the revamped tactics. The
+on-line help for all the implemented tactics should be available to aid in
+testing.<p>
+
+<ul>
+<li> Bug 4164: athena(1): DEPOSIT Tactic Scrub
+<li> Bug 4165: athena(1): WITHDRAW tactic scrub
+<li> Bug 4187: athena(1): Mark II CURSE Tactic
+<li> Bug 4188: athena(1): Mark II SPEND Tactic
+<li> Bug 4192: athena(1): Mark II FUND tactic
+<li> Bug 4193: athena(1): Mark II FUNDENI Tactic
+<li> Bug 4203: athena(1): fundeni method should apportion according to population and urbanization
+<li> Bug 4157: Two blocks with a deploy tactic causes bgerror
+<li> Bug 4158: Not enough personnel for activity bgerror
+<li> Bug 4163: athena(1): bean copy/paste changes
+<li> Bug 4166: athena(1): DEMOB Tactic Scrub
+<li> Bug 4167: athena(1): MOBILIZE Tactic Scrub
+<li> Bug 4170: athena(1): TACTIC:*:UPDATE, CONDITION:*:UPDATE orders lose ":UPDATE"
+<li> Bug 4171: athena_test(1): Custom -match algorithms
+<li> Bug 4174: athena(1): undo/redo executive commands
+<li> Bug 4177: athena(1): SIGEVENT Tactic Documentation
+<li> Bug 4178: athena(1): Mark II Executive Tactic Scrub
+<li> Bug 4179: athena(1): Support for undo/redo blocks
+<li> Bug 4180: athena(1): gofer::NUMBER, part 1
+<li> Bug 4181: athena(1): Mark II ATTROE Tactic
+<li> Bug 4182: athena(1): Mark II DEFROE Tactic
+<li> Bug 4183: athena(1): COMPARE Condition
+<li> Bug 4184: athena(1): gofer::NUMBER, part 2
+<li> Bug 4185: athena(1): Mark II EXPR Condition
+<li> Bug 4189: athena(1): Mark II COMPARE Condition, revised
+<li> Bug 4190: mybrowser(n)/myhtmlpane(n): PageError not escaped
+<li> Bug 4194: athena(1): Mark II GRANT Tactic
+<li> Bug 4196: athena(1): gofer::NUMBER, part 3
+<li> Bug 4197: beanclass(n) validate method
+<li> Bug 4202: athena(1): Expression Validation
+<li> Bug 4204: athena(1): Add Condition/Add Tactic menus
+</ul><p>
+
 <h3>Build 6.0.2, 3 October 2013</h3>
 
 This build contains the preliminary version of the Mark II Strategy Engine.
