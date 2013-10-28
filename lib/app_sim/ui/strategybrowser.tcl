@@ -1050,16 +1050,21 @@ snit::widget strategybrowser {
         ttk::separator $ct_bar.sep \
             -orient vertical
 
-        install ct_addbtn using mktoolbutton $ct_bar.ct_addbtn   \
-            ::marsgui::icon::plus22                              \
-            "Add Condition"                                      \
-            -state   normal                                      \
-            -command [mymethod CTabAdd]
+        # Add button
+        install ct_addbtn using ttk::menubutton $ct_bar.add       \
+            -style Toolbutton                                     \
+            -image ::marsgui::icon::plus22                        \
+            -state normal
+
+        DynamicHelp::add $ct_addbtn -text "Add Condition"
 
         cond::simPP_predicate control $ct_addbtn                 \
             browser   $win                                       \
             predicate {gotblock}
 
+        $self CTabPopulateAddMenu $ct_addbtn.menu
+
+        # Edit Button
         install ct_editbtn using mkeditbutton $ct_bar.edit       \
             "Edit Condition"                                     \
             -state   disabled                                    \
@@ -1069,6 +1074,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ctab single}
 
+        # State button
         install ct_togglebtn using mktoolbutton $ct_bar.toggle   \
             ::marsgui::icon::onoff                               \
             "Toggle State"                                \
@@ -1079,6 +1085,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ctab single}
 
+        # Delete button
         install ct_deletebtn using mkdeletebutton $ct_bar.delete \
             "Delete Condition"                                   \
             -state   disabled                                    \
@@ -1088,6 +1095,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ctab multi}
             
+        # Pack all buttons
         pack $ct_bar.title  -side left
         pack $ct_bar.cmode  -side left -padx 2
         pack $ct_bar.title2 -side left
@@ -1098,6 +1106,7 @@ snit::widget strategybrowser {
 
         pack $ct_deletebtn  -side right
     }
+
 
     # CTabDisplay rindex values
     # 
@@ -1133,35 +1142,34 @@ snit::widget strategybrowser {
             [list $ct_editbtn $ct_deletebtn $ct_togglebtn]
     }
 
-    # CTabAdd
+    # CTabPopulateAddMenu mnu
+    #
+    # mnu  - the menu widget name.
+    #
+    # Creates and populates the popup menu associated with the addbutton.
+
+    method CTabPopulateAddMenu {mnu} {
+        menu $mnu
+        $ct_addbtn configure -menu $mnu
+
+        dict for {ctype title} [condition typedict] {
+            $mnu add command \
+                -label   $title \
+                -command [mymethod CTabAdd [$ctype typename]]
+        }
+    }
+
+    # CTabAdd typename
+    #
+    # typename - The typename of the condition to add.
     #
     # Creates a new condition and adds it to the strategy.
     
-    method CTabAdd {} {
-        # FIRST, get a list of condition types
-        set tdict [condition titledict]
-        set titles [dict keys $tdict]
-
-        # NEXT, let them pick one
-        # TBD: messagebox should let you set the width of the pulldown.
-        # TBD: messagebox should let you specify a value/label dict.
-        set title [messagebox pick \
-                       -parent    [app topwin]        \
-                       -initvalue [lindex $titles 0]  \
-                       -title     "Select a condition type"   \
-                       -values    $titles             \
-                       -message   [normalize "
-                           Select a condition type to add to this block.
-                       "]]
-
-        if {$title eq ""} {
-            return
-        }
-
-        # NEXT, create the condition.
+    method CTabAdd {typename} {
+        # FIRST, create the condition.
         set condition_id [order send gui BLOCK:CONDITION:ADD \
             block_id [$info(block) id] \
-            typename [dict get $tdict $title]]
+            typename $typename]
 
         # NEXT, force a reload of the list, so that we can select
         # the new condition.  Select it, and popup the edit dialog.
@@ -1270,16 +1278,21 @@ snit::widget strategybrowser {
             -orient vertical
 
 
-        install tt_addbtn using mktoolbutton $tt_bar.tt_addbtn   \
-            ::marsgui::icon::plus22                              \
-            "Add Tactic"                                         \
-            -state   normal                                      \
-            -command [mymethod TTabAdd]
+        # Add Button
+        install tt_addbtn using ttk::menubutton $tt_bar.add       \
+            -style Toolbutton                                     \
+            -image ::marsgui::icon::plus22                        \
+            -state normal
 
-        cond::simPP_predicate control $tt_addbtn             \
-            browser   $win                                   \
+        DynamicHelp::add $tt_addbtn -text "Add tactic"
+
+        cond::simPP_predicate control $tt_addbtn                 \
+            browser   $win                                       \
             predicate {gotblock}
 
+        $self TTabPopulateAddMenu $tt_addbtn.menu
+
+        # Edit Button
         install tt_editbtn using mkeditbutton $tt_bar.edit       \
             "Edit Tactic"                                        \
             -state   disabled                                    \
@@ -1289,6 +1302,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ttab single}
 
+        # State Button
         install tt_togglebtn using mktoolbutton $tt_bar.toggle   \
             ::marsgui::icon::onoff                               \
             "Toggle State"                                \
@@ -1299,6 +1313,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ttab single}
 
+        # Top Button
         install tt_topbtn using mktoolbutton $tt_bar.top         \
             ::marsgui::icon::totop                               \
             "Top Priority"                                       \
@@ -1309,6 +1324,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ttab single}
 
+        # Raise Button
         install tt_raisebtn using mktoolbutton $tt_bar.up        \
             ::marsgui::icon::raise                               \
             "Raise Priority"                                     \
@@ -1319,6 +1335,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ttab single}
 
+        # Lower Button
         install tt_lowerbtn using mktoolbutton $tt_bar.down      \
             ::marsgui::icon::lower                               \
             "Lower Priority"                                     \
@@ -1329,6 +1346,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ttab single}
 
+        # Bottom Button
         install tt_bottombtn using mktoolbutton $tt_bar.bottom   \
             ::marsgui::icon::tobottom                            \
             "Bottom Priority"                                    \
@@ -1339,6 +1357,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ttab single}
 
+        # Delete Button
         install tt_deletebtn using mkdeletebutton $tt_bar.delete \
             "Delete Tactic"                                      \
             -state   disabled                                    \
@@ -1348,6 +1367,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {ttab multi}
             
+        # Pack all buttons
         pack $tt_bar.title  -side left
         pack $tt_emode      -side left -padx 2
         pack $tt_bar.sep    -side left -padx {2 4} -fill y
@@ -1475,37 +1495,35 @@ snit::widget strategybrowser {
         app puts "Pasted [llength $copysets] item(s)"
     }
 
-    # TTabAdd
+    # TTabPopulateAddMenu mnu
     #
-    # Creates a new tactic and adds it to the block.
-    
-    method TTabAdd {} {
-        # FIRST, get a list of tactic types for the current agent
-        set atype  [agent type $info(agent)]
-        set tdict [tactic titledict $atype]
-        set titles [dict keys $tdict]
+    # mnu  - the menu widget name.
+    #
+    # Creates and populates the popup menu associated with the addbutton.
 
-        # NEXT, let them pick one
-        # TBD: messagebox should let you set the width of the pulldown.
-        # TBD: messagebox should let you specify a value/label dict.
-        set title [messagebox pick \
-                       -parent    [app topwin]        \
-                       -initvalue [lindex $titles 0]  \
-                       -title     "Select a tactic type"   \
-                       -values    $titles             \
-                       -message   [normalize "
-                           Select a tactic type to add to this block.
-                       "]]
+    method TTabPopulateAddMenu {mnu} {
+        menu $mnu \
+            -postcommand [list puts $mnu]
+        $tt_addbtn configure -menu $mnu
 
-        if {$title eq ""} {
-            return
+        dict for {ttype title} [tactic typedict] {
+            $mnu add command \
+                -label   $title \
+                -command [mymethod TTabAdd [$ttype typename]]
         }
+    }
 
-        # NEXT, create the tactic.
+    # TTabAdd typename
+    #
+    # typename - The typename of the tactic to add.
+    #
+    # Creates a new tactic and adds it to the strategy.
+    
+    method TTabAdd {typename} {
+        # FIRST, create the tactic.
         set tactic_id [order send gui BLOCK:TACTIC:ADD \
             block_id [$info(block) id] \
-            typename [dict get $tdict $title]]
-
+            typename $typename]
 
         # NEXT, force a reload of the list, so that we can select
         # the new tactic.  Select it, and popup the edit dialog.
