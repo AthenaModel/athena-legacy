@@ -506,6 +506,91 @@ page /object/tactic executive "EXECUTIVE tactic" {
 }
 
 #-----------------------------------------------------------------------
+# FLOW Tactic
+
+object tactic_flow {
+    noun "FLOW tactic"
+
+    overview {
+        This SYSTEM <<term tactic>> causes population to flow from
+        one civilian group to another.  There are several ways to specify
+        the number of people to transfer between the groups.  
+        The transfer is permanent, unless reversed explicitly by 
+        another FLOW tactic.<p>
+
+        This tactic never executes on lock, and never fails due to
+        insufficient resources.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute f "Source Group" {
+        The ID of the <<term civgroup>> from which the population
+        will flow.
+    } -tags {update}
+
+    attribute g "Destination Group" {
+        The ID of the <<term civgroup>> to which the population will
+        flow.
+    } -tags {update}
+
+    attribute mode "Mode" {
+        The mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Flow all remaining people from group <i>f</i> to
+        group <i>g</i>.<p>
+
+        <b>RATE</b>: Flow people from <i>f</i> to <i>g</i> at the given
+        rate, expressed as a <i>percent</i> per year.  If the 
+        <i>percent</i> is 5, then over the course of a year this tactic
+        would flow about 5% of the population.<p>
+
+        <b>UPTO</b>: Flow available personnel up to a maximum of
+        <i>personnel</i> people from 
+        <i>f</i> to <i>g</i>, but no more.<p>
+
+        <b>ALLBUT</b>: Flow all but <i>personnel</i> of the available
+        personnel from <i>f</i> to <i>g</i>.<p>
+
+    } -tags {update}
+
+    attribute personnel "Personnel" {
+        When the <i>mode</i> is <b>UPTO</b>, the maximum number of 
+        personnel to be transferred.  If
+        there are insufficient personnel available, then
+        all remaining personnel are transferred.<p>
+
+        When the <i>mode</i> is <b>ALLBUT</b>, the number of personnel
+        to leave in the source group.<p>
+        
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Rate" {
+        The rate at which personnel are to be transferred when the
+        <i>mode</i> is <b>RATE</b>, expressed as a yearly percentage,
+        e.g., 5%/year.<p>
+        
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+}
+
+page /object/tactic flow "FLOW tactic" {
+    <<sotitle>>
+
+    <<tactic_flow overview>><p>
+
+    Flow Personnel tactics have the following attributes:<p>
+
+    <<tactic_flow parmlist>>
+}
+
+
+
+#-----------------------------------------------------------------------
 # FUND Tactic
 
 object tactic_fund {
