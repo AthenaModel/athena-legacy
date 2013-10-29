@@ -91,5 +91,42 @@
 <node TEXT="Add order pages to order_tactic.help" ID="ID_1026057679" CREATED="1343844189218" MODIFIED="1343844195110"/>
 </node>
 </node>
+<node TEXT="Defining a gofer::NUMBER rule" POSITION="right" ID="ID_691294663" CREATED="1383083935142" MODIFIED="1383083944430">
+<node TEXT="Determine the rule&apos;s name and parameters" ID="ID_1295330900" CREATED="1383083963521" MODIFIED="1383083974534"/>
+<node TEXT="Determine how to retrieve the desired number" ID="ID_292230656" CREATED="1383083975265" MODIFIED="1383083985574"/>
+<node TEXT="In gofer_number.tcl" ID="ID_1658391915" CREATED="1383083945976" MODIFIED="1383084177319">
+<node TEXT="Add a case for the rule and its parameters to the dynaform at the top of the file." ID="ID_1145251164" CREATED="1383083956216" MODIFIED="1383084004319"/>
+<node TEXT="If in doubt, put it at the end." ID="ID_601355061" CREATED="1383084043244" MODIFIED="1383084049502"/>
+<node TEXT="Add a [gofer rule] object for the new rule, parallel to the existing rules." ID="ID_1029822361" CREATED="1383084005434" MODIFIED="1383084038617"/>
+<node TEXT="The rule objects should be in the same order as the dynaform cases." ID="ID_491007698" CREATED="1383084050924" MODIFIED="1383084077338"/>
+<node TEXT="Use the helpers from gofer.tcl and gofer_helpers.tcl as appropriate." ID="ID_403896074" CREATED="1383084101742" MODIFIED="1383084115236"/>
+<node TEXT="Add new helpers if appropriate" ID="ID_1705721843" CREATED="1383084133000" MODIFIED="1383084136636"/>
+</node>
+<node TEXT="Test the gofer rule interactively" ID="ID_21552464" CREATED="1383084261654" MODIFIED="1383084268651">
+<node TEXT="Use the COMPARE condition in a scenario." ID="ID_1930229849" CREATED="1383084268958" MODIFIED="1383084279371"/>
+<node TEXT="Test the dynaform layout and text." ID="ID_1868858426" CREATED="1383084279887" MODIFIED="1383084289660"/>
+<node TEXT="Spot check the behavior (i.e., no bgerrors)" ID="ID_1131690357" CREATED="1383084291047" MODIFIED="1383084328701"/>
+</node>
+<node TEXT="Code Review, if needed" ID="ID_1925898206" CREATED="1383084465246" MODIFIED="1383084470556"/>
+<node TEXT="In 010-gofer_number.tcl" ID="ID_1062198334" CREATED="1383084116927" MODIFIED="1383084183143">
+<node TEXT="Add tests for the new rule, parallel to the existing rules." ID="ID_18635815" CREATED="1383084125927" MODIFIED="1383084148166"/>
+<node TEXT="The rules should be in the same order as in gofer_number.tcl." ID="ID_658426211" CREATED="1383084148769" MODIFIED="1383084159230"/>
+</node>
+<node TEXT="In 010-gofer_helpers.tcl" ID="ID_1043928615" CREATED="1383084184162" MODIFIED="1383084190543">
+<node TEXT="Add tests for any new or extended helpers." ID="ID_1980163295" CREATED="1383084191075" MODIFIED="1383084214252"/>
+</node>
+<node TEXT="Run 010-gofer.test" ID="ID_1423632373" CREATED="1383084215946" MODIFIED="1383084233081">
+<node TEXT="This verifies that the dynaform and rules are consistent." ID="ID_1743239617" CREATED="1383084234196" MODIFIED="1383084246905"/>
+</node>
+<node TEXT="In gofer.help" ID="ID_587268283" CREATED="1383084337609" MODIFIED="1383084357190">
+<node TEXT="Add a page for the rule, parallel to the existing rules." ID="ID_479546257" CREATED="1383084357754" MODIFIED="1383084377023"/>
+<node TEXT="The rules should be in the same order as in gofer_number.tcl." ID="ID_1240544135" CREATED="1383084377298" MODIFIED="1383084387952"/>
+<node TEXT="Build the help and review it in the Detail Browser" ID="ID_857693444" CREATED="1383084388691" MODIFIED="1383084407825"/>
+</node>
+<node TEXT="Run &quot;athena_test all&quot;" ID="ID_752467800" CREATED="1383084410748" MODIFIED="1383084423553">
+<node TEXT="Fix any problems." ID="ID_661967420" CREATED="1383084428437" MODIFIED="1383084431521"/>
+<node TEXT="Update tests as needed" ID="ID_83381592" CREATED="1383084431965" MODIFIED="1383084436185"/>
+</node>
+</node>
 </node>
 </map>
