@@ -306,12 +306,12 @@ gofer_rule ACTORS CONTROLLING "Actors, Controlling Neighborhood(s)" {
 }
 
 gofer_rule ACTORS INFLUENCE_IN "Actors, With Influence in Neighborhoods(s)" {
-    Retrieves a list of <<cref /object/actor "actors">> who are
+    Retrieves a list of <<cref /object/actor "actors">> who
     have <<term influence>> in any or all of 
     a specified list of <<cref /object/nbhood neighborhoods>>.<p>
 
     <<itemlist>>
-    <<gofer.details nlist {N1 N2}>>
+    <<gofer.details anyall ANY nlist {N1 N2}>>
     <</itemlist>><p>
 
     The rule parameters are as follows:<p>
@@ -1786,6 +1786,122 @@ gofer_rule GROUPS FRC_DISLIKED_BY_GROUP "Force groups, Disliked by Group(s)" {
 
     <</topiclist>>
 }
+
+#==========================================================================
+# NBHOODS
+
+gofer NBHOODS "A list of neighborhoods" {
+    This gofer retrieves a list of <<cref /object/nbhood>> names
+    according to one of the following rules:<p>
+
+    <<gofer.rules>>
+}
+
+gofer_rule NBHOODS BY_VALUE "Neighborhoods, By name" {
+    Retrieves an arbitrary list of 
+    <<cref /object/nbhood "nbhoods">>
+    selected by name.<p>
+
+    <<itemlist>>
+    <<gofer.details nlist {NB1 NB2}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>nlist</i></tt> >>
+    A list of <<cref /object/nbhood>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NBHOODS CONTROLLED_BY "Neighborhoods, Controlled by Actor(s)" {
+    Retrieves a list of <<cref /object/nbhood "neighborhoods">> that are
+    controlled by any of a specified list of 
+    <<cref /object/actor actors>>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {GOV USA}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of <<cref /object/actor>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NBHOODS NOT_CONTROLLED_BY "Neighborhoods, Not Controlled by Actor(s)" {
+    Retrieves a list of <<cref /object/nbhood "neighborhoods">> that are
+    not controlled by any of a specified list of 
+    <<cref /object/actor actors>>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {GOV USA}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of <<cref /object/actor>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NBHOODS WITH_DEPLOYMENT "Neighborhoods, With Deployment of Group(s)" {
+    Retrieves a list of <<cref /object/nbhood "neighborhoods">> in which
+    any or all of a specified list of <<term frcgroup "force groups">>
+    are deployed.<p>
+
+    <<itemlist>>
+    <<gofer.details anyall ANY glist {BLUE BRIT}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>anyall</i></tt> >>
+    Retrieve neighborhoods with deployments of <b>ANY</b> or <b>ALL</b> 
+    of the listed groups.
+    <</topic>>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of <<cref /object/group/frc>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NBHOODS WITHOUT_DEPLOYMENT "Neighborhoods, Without Deployment of Group(s)" {
+    Retrieves a list of <<cref /object/nbhood "neighborhoods">> in which
+    none of a specified list of <<term frcgroup "force groups">>
+    are deployed.<p>
+
+    <<itemlist>>
+    <<gofer.details glist {BLUE BRIT}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of <<cref /object/group/frc>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 
 #==========================================================================
 # NUMBER

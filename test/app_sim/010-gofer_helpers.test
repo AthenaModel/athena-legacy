@@ -276,6 +276,17 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {Invalid group*}
 
+    test anyall_glist-1.4 {validate, invalid glist given type} -setup {
+        setup
+    } -body {
+        ::gofer::anyall_glist validate {anyall ANY glist {SHIA BLUE}} frcgroup
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force group*}
+
+
     test anyall_glist-2.1 {narrative, one group} -body {
         ::gofer::anyall_glist narrative {anyall ANY glist SHIA}
     } -result {group SHIA}

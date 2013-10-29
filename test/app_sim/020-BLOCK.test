@@ -326,7 +326,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {
-        typename {invalid value "NONESUCH", should be one of: *}
+        typename {invalid value: "NONESUCH"}
     }
 
     test BLOCK:TACTIC:ADD-2.1 {added} -setup {

@@ -190,20 +190,22 @@ snit::type ::gofer::anyall_glist {
     pragma -hasinstances no
     typeconstructor { namespace path ::projectlib::gofer }
 
-    # validate gdict
+    # validate gdict ?gtype?
     #
     # gdict - A gdict with keys anyall, glist:
+    # gtype - Group type; defaults to "group", but can be
+    #         civgroup, frcgroup, orggroup, etc.
     #
     # Validates a gdict that allows the user to specify any/all of 
     # a list of groups.
 
-    typemethod validate {gdict} {
+    typemethod validate {gdict {gtype group}} {
         dict with gdict {}
 
         set result [dict create]
 
         dict set result anyall [eanyall validate $anyall]
-        dict set result glist [listval "groups" {group validate} $glist]
+        dict set result glist [listval "groups" [list $gtype validate] $glist]
         return $result
     }
 
