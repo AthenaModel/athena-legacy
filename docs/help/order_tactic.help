@@ -46,6 +46,15 @@ order TACTIC:ATTROE "Tactic: Attacking ROE" {
     <</parmlist>>
 }
 
+order TACTIC:BROADCAST "Tactic: Broadcast an IOM" {
+    Updates an existing <<cref /object/tactic/broadcast>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_broadcast parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:CURSE "Tactic: CURSE" {
     Updates and existing <<cref /object/tactic/curse>>.<p>
 

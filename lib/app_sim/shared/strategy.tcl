@@ -146,7 +146,7 @@ oo::objdefine strategy {
 
         # TBD: Replace these as appropriate as the tactic types are defined.
         profile 1 tactic::ATTROE reset
-        # profile 1 tactic::BROADCAST reset
+        profile 1 tactic::BROADCAST reset
         profile 1 tactic::DEFROE reset
         profile 1 tactic::FLOW reset
         # profile 1 tactic::STANCE reset
@@ -180,7 +180,7 @@ oo::objdefine strategy {
         profile 1 unit makebase
 
         # NEXT, assess all requested IOM broadcasts
-        # TBD: profile 1 tactic::BROADCAST assess
+        profile 1 tactic::BROADCAST assess
     }
 
 

@@ -1,0 +1,273 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-tactic_broadcast.test
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    tactic_broadcast(sim) tests.
+#
+#    This test suite tests the tactic::BROADCAST ensemble.
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for tests
+
+    proc setup {} {
+        variable T1
+        variable coffer
+        ted create JOE BOB CBS CNN IOM1 IOM2 BLUE
+
+        cash load
+        set coffer [coffer new JOE]
+
+        set T1 {
+            cap         CBS
+            a           SELF
+            iom         IOM1
+            cost        500.0
+        }
+
+        # We need a payload and a hook topic, or we can't execute.
+        bsystem topic add TOPIC1
+
+        payload mutate create {
+            iom_id       IOM1
+            payload_type COOP 
+            g            BLUE
+            mag          1.0
+        }
+
+        hook mutate topic create {
+            hook_id  HOOK1
+            topic_id TOPIC1
+            position 0.9
+        }
+
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 BROADCAST {*}$T1]
+
+        tactic::BROADCAST reset
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        variable coffer
+        $coffer destroy
+        ted cleanup
+        tactic::BROADCAST reset
+    }
+
+
+    #-------------------------------------------------------------------
+    # constructor
+    test constructor-1.1 {default state} -setup {
+        setup
+    } -body {
+        ted pdicts [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        a          SELF
+        cap        CBS
+        cost       500.0
+        execstatus NONE
+        id         *
+        iom        IOM1
+        parent     ::bean::block*
+        state      normal
+    }
+
+    test constructor-1.2 {can set options} -setup {
+        setup
+    } -body {
+        set T1 [tactic::BROADCAST new -iom DUMMY -a NONESUCH -cap FOO -cost 99]
+        ted pdicts [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match glob -result {
+        a          NONESUCH
+        cap        FOO
+        cost       99
+        execstatus NONE
+        id         *
+        iom        DUMMY
+        parent     *
+        state      invalid
+    }
+
+    #-------------------------------------------------------------------
+    # narrative
+
+    test narrative-1.1 {narrative, attributed to self} -setup {
+        setup
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and attribute it to self.}
+
+    test narrative-1.2 {narrative, attributed to none} -setup {
+        setup
+        $T1 set a NONE
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and no attribution.}
+
+    test narrative-1.3 {narrative, attributed to other} -setup {
+        setup
+        $T1 set a BOB
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and attribute it to BOB.}
+
+    #-------------------------------------------------------------------
+    # check
+
+    test check-1.1 {check: cap no longer exists}  -setup {
+        setup
+        rdb eval {DELETE FROM caps}
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {cap {CAP CBS does not exist.}}
+
+    test check-1.2 {check: a no longer exists} -setup {
+        setup
+        $T1 set a NONESUCH
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {a {Actor NONESUCH does not exist.}}
+
+    test check-1.3 {check: IOM no longer exists.} -setup {
+        setup
+        $T1 set iom NONESUCH
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {iom {IOM NONESUCH does not exist.}}
+
+    test check-1.4 {check: IOM is disabled.} -setup {
+        setup
+        rdb eval {UPDATE ioms SET state='disabled'}
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {iom {IOM IOM1 is disabled.}}
+
+    test check-1.5 {check: IOM is invalid.} -setup {
+        setup
+        rdb eval {UPDATE ioms SET state='invalid'}
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {iom {IOM IOM1 is invalid.}}
+
+    test check-1.6 {check: IOM has no valid payloads.} -setup {
+        setup
+        rdb eval {DELETE FROM payloads;}
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {iom {IOM IOM1 has no valid payloads.}}
+
+    test check-1.7 {check: IOM hook has no valid topics.} -setup {
+        setup
+        rdb eval {DELETE FROM hook_topics;}
+    } -body {
+        $T1 check
+    } -cleanup {
+        cleanup
+    } -result {iom {IOM1: IOM's hook has no valid topics.}}
+
+    test check-1.8 {check: multiple failures} -setup {
+        setup
+        rdb eval {DELETE FROM caps}
+        rdb eval {DELETE FROM ioms}
+    } -body {
+        $T1 check 
+    } -cleanup {
+        cleanup
+    } -result {cap {CAP CBS does not exist.} iom {IOM IOM1 does not exist.}}
+
+    #-------------------------------------------------------------------
+    # obligate
+
+    test obligate-1.1 {CAP cost + prep cost} -setup {
+        setup
+        cap access load
+    } -body {
+        set a [$coffer cash]
+        set b [$T1 obligate $coffer]
+        set c [$coffer cash]
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {10000.0 1 8500.0}
+
+    test obligate-1.2 {obligate: insufficient funds} -setup {
+        setup
+        cap access load
+    } -body {
+        $T1 set cost 100000.0
+        set a [$coffer cash]
+        set b [$T1 obligate $coffer]
+        set c [$coffer cash]
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {10000.0 0 10000.0}
+
+    #-------------------------------------------------------------------
+    # execute
+
+    test execute-1.1 {execute} -setup {
+        setup
+        $T1 obligate $coffer
+    } -body {
+        $T1 execute
+        rdb onecolumn {SELECT cash_on_hand FROM working_cash WHERE a='JOE'}
+     } -cleanup {
+        cleanup
+    } -result {8500.0}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+

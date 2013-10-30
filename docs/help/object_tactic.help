@@ -199,6 +199,62 @@ page /object/tactic attroe "ATTROE tactic" {
 
     <<tactic_attroe parmlist>>
 }
+#-----------------------------------------------------------------------
+# BROADCAST
+
+object tactic_broadcast {
+    noun "BROADCAST tactic"
+    overview {
+        This <<term tactic>> broadcasts an <<term iom>> via a
+        <<term cap>>.  The message may be attributed to a particular 
+        actor, including the owner, or may be anonymous.  The message
+        will have a particular preparation cost, in addition to the
+        cost of transmission by the chosen <<term cap>>.<p>
+
+        Note that the tactic owner might or might not have access to
+        his chosen <<term cap>>, due to the decisions of the other
+        actors.  This cannot be known until all strategies have been
+        executed.  At that time, all pending broadcasts will occur;
+        and if the tactic owner has no access to the chosen 
+        <<term cap>>, the broadcast will be cancelled, and the cost 
+        will be refunded.<p>
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute cap "CAP" {
+        The ID of a <<term cap>> by which the <<term iom>> will be 
+        sent.  For a successful broadcast, the <i>owner</i> must have 
+        access to the <<term cap>>.
+    } -tags {update}
+
+    attribute a "Attr. Source" {
+        The attributed source: the name of an <<term actor>>, 
+        <b>SELF</b> if the message is to be attributed to the 
+        <i>owner</i>, or <b>NONE</b> if the message is to be anonymous.
+    } -tags {update}
+
+    attribute iom "Message ID" {
+        The <<term iom>> to be broadcast.
+    } -tags {update}
+
+    attribute cost "Prep. Cost" {
+        The preparation cost for the message, as distinct from the 
+        <<term cap>>'s broadcast cost.
+    } -tags {update}
+}
+
+page /object/tactic broadcast "BROADCAST tactic" {
+    <<sotitle>>
+
+    <<tactic_broadcast overview>><p>
+
+    BROADCAST tactics have the following attributes:<p>
+
+    <<tactic_broadcast parmlist>>
+}
 
 #-----------------------------------------------------------------------
 # CURSE Tactic
