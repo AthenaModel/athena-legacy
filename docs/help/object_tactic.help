@@ -1067,27 +1067,27 @@ object tactic_spend {
     attribute goods "Goods Shares" {
         The number of shares of the money allocated to the
         <b>goods</b> sector.
-    } -tags {create update}
+    } -tags {update}
 
     attribute black "Black Shares" {
         The number of shares of the money allocated to the
         <b>black</b> sector.
-    } -tags {create update}
+    } -tags {update}
     
     attribute pop "Pop Shares" {
         The number of shares of the money allocated to the
         <b>pop</b> sector.
-    } -tags {create update}
+    } -tags {update}
     
     attribute region "Region Shares" {
         The number of shares of the money allocated to the
         <b>region</b> sector.
-    } -tags {create update}
+    } -tags {update}
     
     attribute world "World Shares" {
         The number of shares of the money allocated to the
         <b>world</b> sector.
-    } -tags {create update}
+    } -tags {update}
 }
 
 page /object/tactic spend "SPEND tactic" {
@@ -1098,6 +1098,70 @@ page /object/tactic spend "SPEND tactic" {
     Spend tactics have the following attributes:<p>
 
     <<tactic_spend parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# STANCE
+
+object tactic_stance {
+    noun "STANCE tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to 
+        tell his force groups to adopt a particular 
+        <<term stance>> towards other groups.  This stance is a 
+        relationship value that indicates how the force group is expected 
+        to behave toward the designated groups.  How well the force group
+        succeeds in this depends on the force group's training level,
+        and on its actual relationships toward the designated groups.<p>
+
+        An actor can execute multiple STANCE tactics during a single week.
+        If two such tactics affect the same relationship, the higher priority 
+        tactic determines the outcome.<p>
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute f "Force Group" {
+        The force group whose stance is being set.
+    } -tags {update}
+
+    attribute mode "Mode" {
+        This parameter determines how the designated groups are specified:
+        as an explicit list of groups (<b>BY_GROUP</b>) or as all civilians
+        living in a particular list of neighborhoods (<b>BY_NBHOOD</b>).
+    }  -tags {update}
+
+    attribute glist "Groups" {
+        When the mode is <b>BY_GROUP</b>, a <<cref /gofer/groups>> value
+        specifying a list of one or more groups for which force group 
+        <i>f</i>'s relationship is being designated.
+    } -tags {update}
+
+    attribute nlist "Neighborhoods" {
+        When the mode is <b>BY_NBHOOD</b>, a <<cref /gofer/nbhoods>> 
+        value specifying a list of one or more  neighborhoods for which 
+        force group <i>f</i>'s relationship is being designated.
+    } -tags {update}
+
+    attribute drel "Designated Rel." {
+        The relationship which force group <i>f</i> is required to adopt
+        toward the designated groups, expressed as a value from the following
+        scaled:<p>
+
+        <<::simlib::qaffinity html>>
+    } -tags {update}
+}
+
+page /object/tactic stance "STANCE tactic" {
+    <<sotitle>>
+
+    <<tactic_stance overview>><p>
+
+    STANCE tactics have the following attributes:<p>
+
+    <<tactic_stance parmlist>>
 }
 
 #-----------------------------------------------------------------------

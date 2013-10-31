@@ -149,7 +149,7 @@ oo::objdefine strategy {
         profile 1 tactic::BROADCAST reset
         profile 1 tactic::DEFROE reset
         profile 1 tactic::FLOW reset
-        # profile 1 tactic::STANCE reset
+        profile 1 tactic::STANCE reset
 
         profile 1 unit reset
 
@@ -174,7 +174,7 @@ oo::objdefine strategy {
 
         # NEXT, determine the actual stance of each group based on the
         # effects of the STANCE and ATTROE tactics.
-        # TBD: profile 1 tactic::STANCE assess
+        profile 1 tactic::STANCE assess
 
         # NEXT, populate base units for all groups.
         profile 1 unit makebase
