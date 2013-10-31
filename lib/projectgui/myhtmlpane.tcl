@@ -386,7 +386,7 @@ snit::widget ::projectgui::myhtmlpane {
     # Creates a "Not Found" pseudo-page body.
 
     method PageNotFound {uri result} {
-        set result [htools escape $einfo]
+        set result [htools escape $result]
         return [tsubst {
             |<--
             <h1>Not Found</h1>

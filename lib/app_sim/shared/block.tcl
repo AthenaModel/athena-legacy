@@ -775,7 +775,7 @@ beanclass create block {
         # have been pasted from another actor's strategy.
         my check 
 
-        lappend undoList [mymethod setdict $undoData]
+        lappend undoList [list [self] setdict $undoData]
 
         return [join $undoList \n]
     }

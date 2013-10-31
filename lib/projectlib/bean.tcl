@@ -886,7 +886,8 @@ oo::define ::projectlib::bean {
 
 
         # NEXT, return the undo command.
-        return [mymethod UndoAddBean $slot $bean $undodict]
+
+        return [list [self] UndoAddBean $slot $bean $undodict]
     }
 
     # onAddBean_ slot bean_id
@@ -921,6 +922,7 @@ oo::define ::projectlib::bean {
 
         ::marsutil::notifier send ::projectlib::bean <Monitor>
     }
+    export UndoAddBean
 
     # deletebean_ slot id
     #
@@ -954,7 +956,7 @@ oo::define ::projectlib::bean {
         ::marsutil::notifier send ::projectlib::bean <Monitor>
 
         # NEXT, return the undo command.
-        return [mymethod UndoDeleteBean $slot $bean_id $undodict $delset]
+        return [list [self] UndoDeleteBean $slot $bean_id $undodict $delset]
     }
 
     # onDeleteBean_ slot bean_id
@@ -989,6 +991,7 @@ oo::define ::projectlib::bean {
 
         ::marsutil::notifier send ::projectlib::bean <Monitor>
     }
+    export UndoDeleteBean
 
     # movebean_ slot bean_id where
     #
@@ -1024,7 +1027,7 @@ oo::define ::projectlib::bean {
         ::marsutil::notifier send ::projectlib::bean <Monitor>
 
         # NEXT, return the undo command.
-        return [mymethod UndoMoveBean $slot $bean_id $undodict]
+        return [list [self] UndoMoveBean $slot $bean_id $undodict]
     }
 
     # onMoveBean_
@@ -1055,6 +1058,7 @@ oo::define ::projectlib::bean {
 
         ::marsutil::notifier send ::projectlib::bean <Monitor>
     }
+    export UndoMoveBean
 
     # update_ varlist userdict
     #
@@ -1102,7 +1106,7 @@ oo::define ::projectlib::bean {
         ::marsutil::notifier send ::projectlib::bean <Monitor>
 
         # NEXT, return the undo command.
-        return [mymethod UndoUpdate $udict]
+        return [list [self] UndoUpdate $udict]
     }
 
     # paste_ slot cdict
@@ -1185,6 +1189,7 @@ oo::define ::projectlib::bean {
 
         ::marsutil::notifier send ::projectlib::bean <Monitor>
     }
+    export UndoUpdate
 }
 
 
