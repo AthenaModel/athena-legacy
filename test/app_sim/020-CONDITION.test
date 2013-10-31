@@ -35,9 +35,9 @@ namespace eval ::athena_test::tests:: {
         variable C1
         ted order STRATEGY:BLOCK:ADD agent SYSTEM
         lassign [$S1 blocks] B1
-        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename MOOD
+        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename EXPR
         lassign [$B1 conditions] C1
-        $C1 update_ {g} {g SHIA}
+        $C1 update_ {expression} {expression {1 == 1}}
     }
 
     # Clean up after a test

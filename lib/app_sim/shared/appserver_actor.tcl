@@ -119,7 +119,6 @@ appserver module ACTOR {
 
         ht linkbar {
             "#money"     "Income/Assets/Expenditures"
-            "#goals"     "Goals"
             "#sphere"    "Sphere of Influence"
             "#base"      "Power Base"
             "#eni"       "ENI Funding"
@@ -195,38 +194,6 @@ appserver module ACTOR {
             } -default "None." -align LRRRRRRR
         }
                 
-        # Goals
-        ht subtitle "Goals" goals
-
-        ht push
-        rdb eval {
-            SELECT narrative, flag, goal_id FROM goals
-            WHERE owner=$a AND state = 'normal'
-        } {
-            ht ul {
-                ht li {
-                    if {$flag ne ""} {
-                        if {$flag} {
-                            ht image ::marsgui::icon::smthumbupgreen middle
-                        } else {
-                            ht image ::marsgui::icon::smthumbdownred middle
-                        }
-                    }
-                    ht put $narrative
-                    ht tinyi " (goal=$goal_id)"
-                }
-            }
-            ht para
-        }
-
-        set text [ht pop]
-
-        if {$text ne ""} {
-            ht put $text
-        } else {
-            ht put "None."
-            ht para
-        }
 
         # Sphere of Influence
         ht subtitle "Sphere of Influence" sphere

@@ -1502,8 +1502,7 @@ snit::widget strategybrowser {
     # Creates and populates the popup menu associated with the addbutton.
 
     method TTabPopulateAddMenu {mnu} {
-        menu $mnu \
-            -postcommand [list puts $mnu]
+        menu $mnu 
         $tt_addbtn configure -menu $mnu
 
         dict for {ttype title} [tactic typedict] {

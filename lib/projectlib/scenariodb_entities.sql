@@ -74,13 +74,6 @@ CREATE TABLE actors (
     budget           DOUBLE  DEFAULT 0
 );
 
-CREATE TRIGGER actor_delete
-AFTER DELETE ON actors BEGIN
-    DELETE FROM goals      WHERE owner = old.a;
-    DELETE FROM tactics    WHERE owner = old.a;
-    DELETE FROM conditions WHERE owner = old.a;
-END;
-
 CREATE TABLE income_a (
     -- Actor a's current income, as computed by the Econ model.
     -- If the Econ model is disabled, this table should be empty.

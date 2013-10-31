@@ -58,24 +58,6 @@ dynaform fieldtype alias concernlist enumlonglist \
     -width 30     \
     -dictcmd {econcern deflist}
 
-# cond: Condition ID.  NOTE: This is not really a general-purpose 
-# field type; but it is complicated, and appears in every 
-# CONDITION:*:UPDATE order, so we put it here.
-dynaform fieldtype alias cond key \
-    -context yes          \
-    -db      ::rdb        \
-    -keys    condition_id \
-    -loadcmd {orderdialog keyload condition_id *}
-
-# condcc: Condition Container ID.  NOTE: This is not really a 
-# general-purpose field type; but it is complicated, and appears in 
-# every CONDITION:*:CREATE order, so we put it here.
-dynaform fieldtype alias condcc key \
-    -context yes              \
-    -db      ::rdb            \
-    -table   cond_collections \
-    -keys    cc_id
-
 # contextkey: key fields should get -db automatically.
 dynaform fieldtype alias contextkey contextkey -db ::rdb
 
@@ -102,12 +84,6 @@ dynaform fieldtype alias frclist enumlonglist \
     -showkeys yes \
     -width    30  \
     -dictcmd {::frcgroup namedict}
-
-# goal: Pick a goal ID
-dynaform fieldtype alias goal key \
-    -db    ::rdb  \
-    -table goals   \
-    -keys  goal_id
 
 # group: Pick a group by name.
 dynaform fieldtype alias group enum -listcmd {::group names}

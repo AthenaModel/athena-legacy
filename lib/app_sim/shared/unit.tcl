@@ -96,13 +96,15 @@ snit::type unit {
     typemethod reset {} {
         # FIRST, delete all units associated with tactics that no longer
         # exist.
+
         rdb eval {
-            SELECT u
-            FROM units LEFT OUTER JOIN tactics USING (tactic_id)
+            SELECT u, tactic_id
+            FROM units
             WHERE tactic_id > 0
-            AND tactics.tactic_type IS NULL
         } {
-            unit delete $u
+            if {![tactic exists $tactic_id]} {
+                unit delete $u
+            }
         }
 
         # NEXT, deactivate all of the remaining units.

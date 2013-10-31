@@ -539,7 +539,7 @@ namespace eval ::athena_test::tests:: {
     test BLOCK:CONDITION:ADD-1.2 {unknown block_id} -setup {
         setup
     } -body {
-        ted order -reject BLOCK:CONDITION:ADD block_id NONESUCH typename MOOD
+        ted order -reject BLOCK:CONDITION:ADD block_id NONESUCH typename EXPR
     } -cleanup {
         cleanup
     } -match glob -result {
@@ -559,18 +559,18 @@ namespace eval ::athena_test::tests:: {
     test BLOCK:CONDITION:ADD-2.1 {added} -setup {
         setup
     } -body {
-        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename MOOD
+        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename EXPR
 
         $B1 conditions
     } -cleanup {
         cleanup
-    } -match glob -result {::bean::MOOD*}
+    } -match glob -result {::bean::EXPR*}
 
     test BLOCK:CONDITION:ADD-2.2 {notifier event} -setup {
         setup
     } -body {
         ted notifier bind ::block <conditions>
-        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename MOOD
+        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename EXPR
         ted notifier received
     } -cleanup {
         cleanup
@@ -578,7 +578,7 @@ namespace eval ::athena_test::tests:: {
 
     test BLOCK:CONDITION:ADD-2.3 {undo notifier event} -setup {
         setup
-        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename MOOD
+        ted order BLOCK:CONDITION:ADD block_id [$B1 id] typename EXPR
     } -body {
         ted notifier bind ::block <conditions>
         cif undo -test
@@ -595,8 +595,8 @@ namespace eval ::athena_test::tests:: {
         variable C1
         variable C2
         setup
-        set C1 [ted addcondition $B1 MOOD]
-        set C2 [ted addcondition $B1 NBMOOD]
+        set C1 [ted addcondition $B1 EXPR]
+        set C2 [ted addcondition $B1 COMPARE]
     }
 
     test BLOCK:CONDITION:DELETE-1.1 {required parameters} -setup {
@@ -627,7 +627,7 @@ namespace eval ::athena_test::tests:: {
         $B1 conditions
     } -cleanup {
         cleanup
-    } -match glob -result {::bean::NBMOOD*}
+    } -match glob -result {::bean::COMPARE*}
 
     test BLOCK:CONDITION:DELETE-2.2 {two deleted} -setup {
         bcd_setup
@@ -660,7 +660,7 @@ namespace eval ::athena_test::tests:: {
         $B1 conditions
     } -cleanup {
         cleanup
-    } -match glob -result {::bean::MOOD* ::bean::NBMOOD*}
+    } -match glob -result {::bean::EXPR* ::bean::COMPARE*}
 
     test BLOCK:CONDITION:DELETE-2.5 {undo notifier event} -setup {
         bcd_setup
