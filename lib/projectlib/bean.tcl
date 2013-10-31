@@ -166,6 +166,24 @@ oo::objdefine ::projectlib::bean {
         return
     }
 
+    # uncreate bean
+    #
+    # bean - The bean to uncreate
+    #
+    # Uncreates a bean, which must be the most recently created bean,
+    # resetting the idCounter.  This is used when undoing the creation
+    # of a bean.
+    #
+    # NOTE: This command doesn't really need the name of the bean;
+    # we have it only so we can check it.
+
+    method uncreate {bean} {
+        require {[$bean id] == $idCounter} "not most recent bean: \"$bean\""
+
+        $bean destroy
+        incr idCounter -1
+    }
+
     #-------------------------------------------------------------------
     # beanclass methods
     #
@@ -821,8 +839,13 @@ oo::define ::projectlib::bean {
     # not clear that that's really necessary; MakeNewCopy is always used
     # to create a single new bean and its children, and all we really
     # need to notify about is the new bean.
+    #
+    # TBD: This is not quite right, anymore; addbean_ now creates
+    # the desired object.
 
     method MakeNewCopy {cdict} {
+        error "TBD: Command not yet ready for use!"
+
         # FIRST, recreate the bean in the cdict
         set bcls [dict get $cdict class_]
         set bean [$bcls new]
@@ -852,24 +875,31 @@ oo::define ::projectlib::bean {
     # The following commands are for use in defining mutators
     # for bean classes.  Most are unexported.
 
-    # addbean_ slot bean
+    # addbean_ slot cls ?beanvar?
     #
-    # slot   - A bean instance variable that contains a list 
-    #          of beans owned only by this bean.
-    # bean   - A new bean to add to the list.
+    # slot     - A bean instance variable that contains a list 
+    #            of beans owned only by this bean.
+    # cls      - The new bean's class
+    # beanvar  - Name of a variable to receive the new bean object's
+    #            name.
     # 
-    # Adds a bean to a slot and calls the onAddBean_ method,
-    # returnning an undo script.  The assumption is that this
-    # is a brand new bean, and that it will be destroyed on undo.
+    # Creates a new bean and adds it to the slot, 
+    # calling the onAddBean_ method and returning an undo script.  
     #
-    # NOTE: The bean must have a -parent method.
+    # NOTE: The bean class must provide a "parent" parameter.
 
     unexport addbean_
-    method addbean_ {slot bean} {
-        # FIRST, save the bean's previous state.
+    method addbean_ {slot cls {beanvar ""}} {
+        # FIRST, make the new bean accessible to the caller.
+        if {$beanvar ne ""} {
+            upvar $beanvar bean
+        }
+
+        # NEXT, save the bean's previous state.
         set undodict [my getdict]
 
-        # NEXT, add the bean to the slot
+        # NEXT, add the new bean to the slot
+        set bean [$cls new]
         my lappend $slot $bean
         $bean configure -parent [self]
 
@@ -907,13 +937,16 @@ oo::define ::projectlib::bean {
     # undodict  - The bean's previous state
     # bean      - The bean that was added to the slot
     #
-    # Undoes the addition of a bean to a slot, sending a notification
+    # Undoes the addition of a bean to a slot, destroying the bean,
+    # resetting the ID counter, and sending a notification
     # if the subject is defined.
 
     method UndoAddBean {slot bean undodict} {
         my setdict $undodict
         set bean_id [$bean id]
-        $bean destroy
+
+        # Put the id counter back to what it was
+        [self class] uncreate $bean
 
         if {[my subject] ne ""} {
             ::marsutil::notifier send \

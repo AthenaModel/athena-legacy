@@ -463,7 +463,7 @@ oo::define strategy {
     # list.
 
     method addblock_ {} {
-        return [my addbean_ blocks [block new]]
+        return [my addbean_ blocks ::block]
     }
 
     # deleteblock_ block_id

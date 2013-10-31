@@ -710,8 +710,7 @@ beanclass create block {
     # execution data.
 
     method addcondition_ {typename} {
-        set type [condition type $typename]
-        return [my addbean_ conditions [$type new]]
+        return [my addbean_ conditions [condition type $typename]]
     }
 
     # deletecondition_ condition_id 
@@ -733,8 +732,7 @@ beanclass create block {
     # execution data.
 
     method addtactic_ {typename} {
-        set type [tactic type $typename]
-        return [my addbean_ tactics [$type new]]
+        return [my addbean_ tactics [tactic type $typename]]
     }
 
     # deletetactic_ tactic_id 

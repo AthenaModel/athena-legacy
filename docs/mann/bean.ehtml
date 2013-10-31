@@ -380,6 +380,14 @@ default, the <<iref bean changed>> flag is set; if <b>-saved</b> is given,
 the <<iref bean changed>> flag is cleared.  (This is part of
 bean(n)'s <<xref saveable(i)>> interface.)<p>
 
+<<defitem "bean uncreate" {bean uncreate <i>bean</i>}>>
+
+This command is used by the undo code for bean(n) mutators that create new 
+beans.  When creation of a bean is undone, the ID counter used to assign 
+bean IDs must be reset.  This command verifies that the <i>bean</i> is
+the most recently created bean, destroys it, and decrements the ID 
+counter.<p> 
+
 <<defitem "bean undelete" {bean undelete <i>deleteSet</i>}>>
 
 Undoes a call to <<iref bean delete>> given the <i>deleteSet</i> returned
@@ -406,10 +414,13 @@ subcommands.<p>
 
 <<deflist instance>>
 
-<<defitem addbean_ {<i>bean</i> addbean_ <i>slot bean</i>}>>
+<<defitem addbean_ {<i>bean</i> addbean_ <i>slot cls</i> ?<i>beanvar</i>?}>>
 
-<b>Protected.</b>  This mutator appends the <i>bean</i> to the named
-bean <i>slot</i> variable, and returns a script that will undo the change.<p>
+<b>Protected.</b>  This mutator creates a new bean of class <i>cls</i>,
+and appends it to the named <i>slot</i> variable, 
+returns a script that will undo the change.  If <i>beanvar</i> is given,
+it is the name of a variable in the caller's context; this variable
+will receive the newly added bean object's name.<p>
 
 In addition, the mutator performs the following actions after modifying
 the slot variable:<p>

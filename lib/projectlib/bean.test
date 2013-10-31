@@ -184,8 +184,20 @@ namespace eval ::projectlib::test {
             return "::blocklist"
         }
 
-        method add_ {bean} {
-            return [my addbean_ blocks $bean]
+        method addblock_ {{beanvar ""}} {
+            if {$beanvar ne ""} {
+                upvar $beanvar bean
+            }
+
+            return [my addbean_ blocks ::projectlib::test::block bean]
+        }
+
+        method addlist_ {{beanvar ""}} {
+            if {$beanvar ne ""} {
+                upvar $beanvar bean
+            }
+
+            return [my addbean_ blocks ::projectlib::test::blocklist bean]
         }
 
         method delete_ {id} {
@@ -540,8 +552,8 @@ namespace eval ::projectlib::test {
 
     test destroyslots-1.1 {leaves the slot alone} -body {
         blocklist create blist
-        blist add_ [block new]
-        blist add_ [block new]
+        blist addblock_
+        blist addblock_
 
         set a [blist get blocks]
         blist clear
@@ -556,40 +568,25 @@ namespace eval ::projectlib::test {
 
     test destroyslots-1.2 {cleared beans are destroyed} -body {
         blocklist create blist
-        set a [block new]
-        blist add_ $a
-
+        blist addblock_ bean
         blist clear
 
-        llength [info commands $a]
+        llength [info commands $bean]
     } -cleanup {
         cleanup
     } -result {0}
 
-    test destroyslots-1.3 {cleared beans are destroyed} -body {
+    test destroyslots-1.3 {previously destroyed beans are ignored} -body {
         blocklist create blist
-        set a [block new]
-        blist add_ $a
-
-        blist clear
-
-        llength [info commands $a]
-    } -cleanup {
-        cleanup
-    } -result {0}
-
-    test destroyslots-1.4 {previously destroyed beans are ignored} -body {
-        blocklist create blist
-        set a [block new]
-        blist add_ $a
-        $a destroy
+        blist addblock_ bean
+        $bean destroy
 
         blist clear
     } -cleanup {
         cleanup
     } -result {}
 
-    test destroyslots-1.5 {uninitialized slots are ignored} -body {
+    test destroyslots-1.4 {uninitialized slots are ignored} -body {
         # This will generate an error, which will cause the destructor
         # to be called.  If the destructor attempts to reference the 
         # uninitialized slot variable, that would throw an unknown
@@ -602,14 +599,31 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {wrong # args: should be "blocklist create blist"}
 
+    test destroyslots-1.5 {leaves the slot alone} -body {
+        blocklist create blist
+        blist addblock_ b1
+        blist addblock_ b2
+
+        set a [list [info object isa object $b1] [info object isa object $b2]]
+
+        blist destroy
+
+        set b [list [info object isa object $b1] [info object isa object $b2]]
+
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {{1 1} {0 0}}
+
+
     #-------------------------------------------------------------------
     # addbean_
 
     test addbean-1.1 {adds the bean to the slot} -body {
         blocklist create blist
 
-        blist add_ [block new]
-        blist add_ [block new]
+        blist addblock_
+        blist addblock_
         blist get blocks
     } -cleanup {
         cleanup
@@ -618,10 +632,8 @@ namespace eval ::projectlib::test {
     test addbean-1.2 {returns an undo script} -body {
         blocklist create blist
 
-        blist add_ [block new]
-
-        set bean [block new]
-        set undo [blist add_ $bean]
+        blist addblock_
+        set undo [blist addblock_ bean]
         namespace eval :: $undo
 
         list [blist get blocks] [llength [info commands $bean]]
@@ -635,7 +647,7 @@ namespace eval ::projectlib::test {
     } -body {
         blocklist create blist
 
-        set undo [blist add_ [block new]]
+        set undo [blist addblock_]
         namespace eval :: $undo
 
         getNotifications
@@ -654,9 +666,8 @@ namespace eval ::projectlib::test {
 
     test deletebean-1.1 {deletes the bean from the slot} -body {
         blocklist create blist
-        set bean [block new]
-        blist add_ $bean
-        blist add_ [block new]
+        blist addblock_ bean
+        blist addblock_
 
         blist delete_ [$bean id]
         list [blist get blocks] [llength [info commands $bean]]
@@ -666,9 +677,8 @@ namespace eval ::projectlib::test {
 
     test deletebean-1.2 {returns an undo script} -body {
         blocklist create blist
-        set bean [block new]
-        blist add_ $bean
-        blist add_ [block new]
+        blist addblock_ bean
+        blist addblock_
 
         set undo [blist delete_ [$bean id]]
         namespace eval :: $undo
@@ -682,8 +692,7 @@ namespace eval ::projectlib::test {
         setupNotifier ::projectlib::bean <Monitor>
         setupNotifier ::blocklist <blocks>
         blocklist create blist
-        set bean [block new]
-        blist add_ $bean
+        blist addblock_ bean
         set undo [blist delete_ [$bean id]]
         namespace eval :: $undo
 
@@ -705,9 +714,8 @@ namespace eval ::projectlib::test {
     test movebean-1.1 {moves a bean in its slot} -body {
         blocklist create blist
 
-        blist add_ [block new]
-        blist add_ [block new]
-        set bean [lindex [blist get blocks] end]
+        blist addblock_
+        blist addblock_ bean
 
         blist movebean_ blocks [$bean id] top
         blist get blocks
@@ -718,9 +726,8 @@ namespace eval ::projectlib::test {
     test movebean-1.2 {returns an undo script} -body {
         blocklist create blist
 
-        blist add_ [block new]
-        blist add_ [block new]
-        set bean [lindex [blist get blocks] end]
+        blist addblock_
+        blist addblock_ bean
 
         set a [blist get blocks]
 
@@ -740,9 +747,8 @@ namespace eval ::projectlib::test {
     } -body {
         blocklist create blist
 
-        blist add_ [block new]
-        blist add_ [block new]
-        set bean [lindex [blist get blocks] end]
+        blist addblock_
+        blist addblock_ bean
 
         set undo [blist movebean_ blocks [$bean id] top]
         namespace eval :: $undo
@@ -840,25 +846,6 @@ namespace eval ::projectlib::test {
 
 
     #-------------------------------------------------------------------
-    # Bean slot items are destroyed automatically.
-    
-    test destroyslots-1.1 {leaves the slot alone} -body {
-        blocklist create blist
-        blist add_ [block create b1]
-        blist add_ [block create b2]
-
-        set a [list [info object isa object b1] [info object isa object b2]]
-
-        blist destroy
-
-        set b [list [info object isa object b1] [info object isa object b2]]
-
-        list $a $b
-    } -cleanup {
-        cleanup
-    } -result {{1 1} {0 0}}
-
-    #-------------------------------------------------------------------
     # getowned
 
     test getowned-1.1 {-shallow, no slots} -body {
@@ -869,15 +856,15 @@ namespace eval ::projectlib::test {
     } -result {}
 
     test getowned-1.2 {-shallow, slots} -body {
-        blocklist create a1
-        a1 add_ [blocklist create b1]
-        a1 add_ [blocklist create b2]
-        b1 add_ [blocklist create c1]
+        set a1 [blocklist new]
+        $a1 addlist_ b1
+        $a1 addlist_ b2
+        $b1 addlist_ c1
 
-        a1 getowned -shallow
+        expr {[$a1 getowned -shallow] eq [list $b1 $b2]}
     } -cleanup {
         cleanup
-    } -result {::projectlib::test::b1 ::projectlib::test::b2}
+    } -result {1}
 
     test getowned-2.1 {-deep, no slots} -body {
         dog create fido
@@ -887,26 +874,26 @@ namespace eval ::projectlib::test {
     } -result {}
 
     test getowned-2.2 {-deep, slots} -body {
-        blocklist create a1
-        a1 add_ [blocklist create b1]
-        a1 add_ [blocklist create b2]
-        b1 add_ [blocklist create c1]
+        set a1 [blocklist new]
+        $a1 addlist_ b1
+        $a1 addlist_ b2
+        $b1 addlist_ c1
 
-        a1 getowned -deep
+        expr {[$a1 getowned -deep] eq [list $b1 $b2 $c1]}
     } -cleanup {
         cleanup
-    } -result {::projectlib::test::b1 ::projectlib::test::b2 ::projectlib::test::c1}
+    } -result {1}
 
     test getowned-2.3 {-deep is default} -body {
-        blocklist create a1
-        a1 add_ [blocklist create b1]
-        a1 add_ [blocklist create b2]
-        b1 add_ [blocklist create c1]
+        set a1 [blocklist new]
+        $a1 addlist_ b1
+        $a1 addlist_ b2
+        $b1 addlist_ c1
 
-        a1 getowned
+        expr {[$a1 getowned] eq [$a1 getowned -deep]}
     } -cleanup {
         cleanup
-    } -result {::projectlib::test::b1 ::projectlib::test::b2 ::projectlib::test::c1}
+    } -result {1}
 
     #-------------------------------------------------------------------
     # copydata
@@ -923,10 +910,10 @@ namespace eval ::projectlib::test {
     test copydata-1.2 {copy set for parent objects} -body {
         blocklist create blist
         blist set data mydata
-        blist add_ [block create b1]
-        blist add_ [block create b2]
-        b1 set name b1
-        b2 set name b2
+        blist addblock_ b1
+        blist addblock_ b2
+        $b1 set name b1
+        $b2 set name b2
         blist copydata
     } -cleanup {
         cleanup
@@ -935,7 +922,7 @@ namespace eval ::projectlib::test {
     #-------------------------------------------------------------------
     # newcopy
 
-    test newcopy-1.1 {make new copy of leaf object} -body {
+    test newcopy-1.1 {make new copy of leaf object} -constraints tbd -body {
         set fido [dog new]
         $fido set name "Fido"
         $fido set color "brown"
@@ -945,13 +932,13 @@ namespace eval ::projectlib::test {
         cleanup
     } -match glob -result {id * name Fido breed mutt color brown}
 
-    test newcopy-1.2 {make new copy of parent object} -body {
+    test newcopy-1.2 {make new copy of parent object} -constraints tbd -body {
         blocklist create blist
         blist set data mydata
-        blist add_ [block create b1]
-        blist add_ [block create b2]
-        b1 set name b1
-        b2 set name b2
+        blist addblock_ b1
+        blist addblock_ b2
+        $b1 set name b1
+        $b2 set name b2
         set newlist [blist newcopy]
         set result [list]
         lappend result [$newlist getdict]
@@ -983,7 +970,7 @@ namespace eval ::projectlib::test {
         set z2 [zoo new "Z2"]
     }
 
-    test paste-1.1 {a cage into a zoo} -setup {
+    test paste-1.1 {a cage into a zoo} -constraints tbd -setup {
         pasteSetup
     } -body {
         $z2 paste_ cages [$c1 copydata]
@@ -996,7 +983,7 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {1 C1}
 
-    test paste-1.2 {animals in the cages} -setup {
+    test paste-1.2 {animals in the cages} -constraints tbd -setup {
         pasteSetup
     } -body {
         $z2 paste_ cages [$c1 copydata]
@@ -1013,7 +1000,7 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {Lion Tiger}
 
-    test paste-1.3 {notifications on paste} -setup {
+    test paste-1.3 {notifications on paste} -constraints tbd -setup {
         pasteSetup
     } -body {
         setupNotifier ::projectlib::bean <Monitor>
@@ -1034,7 +1021,7 @@ namespace eval ::projectlib::test {
         ::projectlib::bean <Monitor>
     }
 
-    test paste-2.1 {undo paste} -setup {
+    test paste-2.1 {undo paste} -constraints tbd -setup {
         pasteSetup
     } -body {
 
@@ -1046,7 +1033,7 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {}
 
-    test paste-2.2 {undo paste} -setup {
+    test paste-2.2 {undo paste} -constraints tbd -setup {
         pasteSetup
     } -body {
 
@@ -1080,7 +1067,7 @@ namespace eval ::projectlib::test {
         $z1 addbean_ cages [cage new "C2"]
     }
 
-    test pastelist-1.1 {paste multiple cages into a zoo} -setup {
+    test pastelist-1.1 {paste multiple cages into a zoo} -constraints tbd -setup {
         pastelistSetup
     } -body {
         set copysets [list] 
@@ -1102,7 +1089,7 @@ namespace eval ::projectlib::test {
 6 (::projectlib::test::cage/::bean::cage6): id 6 animals {} name C2 parent ::bean::zoo2
     }
 
-    test pastelist-1.2 {undo paste multiple cages into a zoo} -setup {
+    test pastelist-1.2 {undo paste multiple cages into a zoo} -constraints tbd -setup {
         pastelistSetup
     } -body {
         set copysets [list] 
@@ -1660,6 +1647,37 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {blocks moreblocks}
 
+    #-------------------------------------------------------------------
+    # bean uncreate
+
+    test bean_uncreate-1.1 {destroys the bean} -body {
+        set bean [pet new]
+        bean uncreate $bean
+        info commands $bean
+    } -cleanup {
+        cleanup
+    } -result {}
+    
+    test bean_uncreate-1.2 {decrements the ID counter} -body {
+        set bean [pet new]
+        set id1 [$bean id]
+        bean uncreate $bean
+        set id2 [[pet new] id]
+
+        expr {$id1 == $id2}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test bean_uncreate-1.3 {fails if not most recent bean} -body {
+        set bean [pet new]
+        pet new
+        bean uncreate $bean
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {not most recent bean: "::bean::pet1"}
 
     #-------------------------------------------------------------------
     # Cleanup
