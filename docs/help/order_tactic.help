@@ -163,6 +163,15 @@ order TACTIC:SPEND "Tactic: Spend Money" {
     <</parmlist>>
 }
 
+order TACTIC:SUPPORT "Tactic: Support Actor" {
+    Updates an existing <<cref /object/tactic/support>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_support parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:WITHDRAW "Tactic: Withdraw Money" {
     Updates an existing <<cref /object/tactic/withdraw>>.<p>
 

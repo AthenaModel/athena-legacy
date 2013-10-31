@@ -1101,6 +1101,62 @@ page /object/tactic spend "SPEND tactic" {
 }
 
 #-----------------------------------------------------------------------
+# SUPPORT Tactic
+
+object tactic_support {
+    noun "SUPPORT tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to determine who
+        will receive his political support in one or more
+        <<term nbhood>>s.  Each actor has an actor he usually
+        supports, as given in his actor definition; using this tactic,
+        he can support other actors (or no one at all) in any given
+        neighborhood.<p>
+
+        When an actor supports another, this means that whatever
+        support the actor has from the groups in the neighborhood is
+        given to the supported actor, thus possibly increasing that
+        actor's influence and making it easier for that actor to gain
+        or maintain control.<p>
+
+        The support is given only until the next strategy execution,
+        at which time it must be explicitly renewed.<p>
+
+        This tactic never fails due to insufficient resources.  If
+        the rule for selecting neighborhoods returns no neighborhoods,
+        the tactic will succeed, but do nothing.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute a "Supported Actor" {
+        The ID of the <<term actor>> who will receive the
+        owning actor's political support.
+    } -tags {update}
+
+    attribute nlist "In Neighborhoods" {
+        A <<cref /gofer/nbhoods>> value specifying a list of one or 
+        more <<term nbhood>>s.  Actor <i>a</i> will receive the
+        owner's political support in these neighborhoods.
+    } -tags {update}
+
+}
+
+page /object/tactic support "SUPPORT tactic" {
+    <<sotitle>>
+
+    <<tactic_support overview>><p>
+
+    Support Actor tactics have the following attributes:<p>
+
+    <<tactic_support parmlist>>
+}
+
+
+
+#-----------------------------------------------------------------------
 # WITHDRAW Tactic
 
 object tactic_withdraw {
