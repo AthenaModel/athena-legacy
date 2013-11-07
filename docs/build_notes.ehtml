@@ -11,6 +11,25 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.4, 7 November 2013</h3>
+
+This build contains what is likely that last major update to the Mark II 
+Strategy Engine.  Most of the work is complete, but there's a few loose ends
+that will be tied up in later builds.  There is now a new neighborhoods 
+gofer and some bug fixes as well.<p>
+
+<ul>
+<li> Bug 4154: athena(1): update autogen to create new-style strategies.
+<li> Bug 4205: athena(1): Mark II BROADCAST Tactic
+<li> Bug 4212: athena(1): Mark II STANCE Tactic
+<li> Bug 4191: athena(1): Mark II FLOW Tactic
+<li> Bug 4206: athena(1): gofer::NBHOODS
+<li> Bug 4207: athena(1): Mark II SUPPORT Tactic
+<li> Bug 4214: athena(1): Remove obsolete strategy code, Part 1
+<li> Bug 4216: undo causes error when referencing deleted objects
+<li> Bug 4217: athena(1): Mark II DEPLOY Tactic
+</ul><p>
+
 <h3>Build 6.0.3, 28 October 2013</h3>
 
 This build contains wholesale changes to the Mark II Strategy Engine that 
