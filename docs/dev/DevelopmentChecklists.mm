@@ -101,19 +101,30 @@
 <node TEXT="The rule objects should be in the same order as the dynaform cases." ID="ID_491007698" CREATED="1383084050924" MODIFIED="1383084077338"/>
 <node TEXT="Use the helpers from gofer.tcl and gofer_helpers.tcl as appropriate." ID="ID_403896074" CREATED="1383084101742" MODIFIED="1383084115236"/>
 <node TEXT="Add new helpers if appropriate" ID="ID_1705721843" CREATED="1383084133000" MODIFIED="1383084136636"/>
+<node TEXT="The narrative should be the matching execution function." ID="ID_1807602901" CREATED="1383858247051" MODIFIED="1383858266157"/>
+<node TEXT="The rule should always returns a numeric result when called with valid parameters." ID="ID_248264871" CREATED="1383858365566" MODIFIED="1383858384779"/>
+<node TEXT="Often, this means returning 0.0 or some similar value when the [sim state] is PREP." ID="ID_1421748599" CREATED="1383858386271" MODIFIED="1383858410827"/>
+</node>
+<node TEXT="In executive.tcl" ID="ID_1187749632" CREATED="1383858272659" MODIFIED="1383858284985">
+<node TEXT="Add the matching executive function, in parallel to the existing ones." ID="ID_459111863" CREATED="1383858285852" MODIFIED="1383858298840"/>
+<node TEXT="The function should rely on the gofer for all parameter validation." ID="ID_1759732480" CREATED="1383858299228" MODIFIED="1383858313042"/>
 </node>
 <node TEXT="Test the gofer rule interactively" ID="ID_21552464" CREATED="1383084261654" MODIFIED="1383084268651">
 <node TEXT="Use the COMPARE condition in a scenario." ID="ID_1930229849" CREATED="1383084268958" MODIFIED="1383084279371"/>
 <node TEXT="Test the dynaform layout and text." ID="ID_1868858426" CREATED="1383084279887" MODIFIED="1383084289660"/>
 <node TEXT="Spot check the behavior (i.e., no bgerrors)" ID="ID_1131690357" CREATED="1383084291047" MODIFIED="1383084328701"/>
 </node>
+<node TEXT="Test the executive function interactively using the [expr] command at the Athena CLI." ID="ID_1008762090" CREATED="1383858319077" MODIFIED="1383858336897"/>
 <node TEXT="Code Review, if needed" ID="ID_1925898206" CREATED="1383084465246" MODIFIED="1383084470556"/>
-<node TEXT="In 010-gofer_number.tcl" ID="ID_1062198334" CREATED="1383084116927" MODIFIED="1383084183143">
+<node TEXT="In 010-gofer_number.test" ID="ID_1062198334" CREATED="1383084116927" MODIFIED="1383857955813">
 <node TEXT="Add tests for the new rule, parallel to the existing rules." ID="ID_18635815" CREATED="1383084125927" MODIFIED="1383084148166"/>
 <node TEXT="The rules should be in the same order as in gofer_number.tcl." ID="ID_658426211" CREATED="1383084148769" MODIFIED="1383084159230"/>
 </node>
-<node TEXT="In 010-gofer_helpers.tcl" ID="ID_1043928615" CREATED="1383084184162" MODIFIED="1383084190543">
+<node TEXT="In 010-gofer_helpers.test" ID="ID_1043928615" CREATED="1383084184162" MODIFIED="1383857963540">
 <node TEXT="Add tests for any new or extended helpers." ID="ID_1980163295" CREATED="1383084191075" MODIFIED="1383084214252"/>
+</node>
+<node TEXT="In 030-function.test" ID="ID_1493838361" CREATED="1383858343485" MODIFIED="1383858352002">
+<node TEXT="Add tests for the executive function." ID="ID_144214576" CREATED="1383858352382" MODIFIED="1383858358451"/>
 </node>
 <node TEXT="Run 010-gofer.test" ID="ID_1423632373" CREATED="1383084215946" MODIFIED="1383084233081">
 <node TEXT="This verifies that the dynaform and rules are consistent." ID="ID_1743239617" CREATED="1383084234196" MODIFIED="1383084246905"/>
