@@ -862,15 +862,12 @@ namespace eval ::athena_test::tests:: {
     proc addDeploy {personnel} {
         variable BJOE
         
-        $BJOE addtactic_ DEPLOY
-        set t [lasttactic $BJOE]
-        $t set g BLUE
-        $t set nlist NB1
-        $t set personnel $personnel
-        $t set mode ALL
-        $t check
-
-        return $t
+        return [ted addtactic $BJOE DEPLOY \
+            g         BLUE \
+            nlist     [gofer construct NBHOODS BY_VALUE NB1] \
+            nmode     EQUAL \
+            pmode     SOME  \
+            personnel $personnel]
     }
 
     proc addSpend {amount} {

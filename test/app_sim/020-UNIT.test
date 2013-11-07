@@ -36,15 +36,9 @@ namespace eval ::athena_test::tests:: {
         personnel 1
     }
 
-    proc deploy {n g personnel} {
-        set block [ted addblock JOE onlock YES]
-        ted addtactic $block DEPLOY \
-            g $g mode SOME personnel $personnel nlist $n
-    }
-
     proc setup {} {
         ted create NB1 NB2 BLUE SHIA KURD
-        deploy NB1 BLUE 100
+        ted deploy NB1 BLUE 100
         ted lock
     }
 

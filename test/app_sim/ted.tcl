@@ -865,11 +865,18 @@ snit::type ted {
         set block [ted addblock $a onlock YES]
 
         if {$personnel eq "all"} {
-            ted addtactic $block DEPLOY \
-                g $g mode ALL nlist $n
+            ted addtactic $block DEPLOY                          \
+                g         $g                                     \
+                pmode     ALL                                    \
+                nlist     [gofer construct NBHOODS BY_VALUE $n]  \
+                nmode     EQUAL
         } else {
-            ted addtactic $block DEPLOY \
-                g $g mode SOME personnel $personnel nlist $n
+            ted addtactic $block DEPLOY                          \
+                g         $g                                     \
+                pmode     SOME                                   \
+                personnel $personnel                             \
+                nlist     [gofer construct NBHOODS BY_VALUE $n]  \
+                nmode     EQUAL
         }
     }
 
