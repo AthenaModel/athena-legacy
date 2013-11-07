@@ -607,6 +607,8 @@ snit::type autogen {
             set agrp $opts(-attackers)
         }
 
+        set block [autogen AddBlock $owner]
+
         # NEXT, step through attackers and set ROE according to
         # whether the force group is uniformed or not
         foreach grp $agrp {
@@ -619,12 +621,12 @@ snit::type autogen {
             if {$grp in [frcgroup uniformed names]} {
                 foreach dgrp [frcgroup nonuniformed names] {
                     foreach n [nbhood names] {
-                        autogen AttroeTactic $owner   \
-                                             $grp     \
-                                             $dgrp    \
-                                             $n       \
-                                             "ATTACK" \
-                                             $opts(-max)
+                        autogen AddTactic ATTROE $block    \
+                                          f       $grp     \
+                                          g       $dgrp    \
+                                          n       $n       \
+                                          roe     "ATTACK" \
+                                          attacks $opts(-max)
                     }
                 }
             } else {
@@ -632,12 +634,12 @@ snit::type autogen {
                 # other uniformed forces
                 foreach dgrp [frcgroup uniformed names] {
                     foreach n [nbhood names] {
-                        autogen AttroeTactic $owner            \
-                                             $grp              \
-                                             $dgrp             \
-                                             $n                \
-                                             "STAND_AND_FIGHT" \
-                                             $opts(-max)
+                        autogen AddTactic ATTROE $block             \
+                                          f       $grp              \
+                                          g       $dgrp             \
+                                          n       $n                \
+                                          roe     "STAND_AND_FIGHT" \
+                                          attacks $opts(-max)
                     }
                 }
             }
@@ -778,6 +780,8 @@ snit::type autogen {
             }
         }
 
+        set block [autogen AddBlock $owner]
+
         set aidx 0
         # NEXT, create ASSIGN for force groups
         foreach g $opts(-frcg) {
@@ -785,11 +789,11 @@ snit::type autogen {
 
                 set act [lindex $opts(-frcact) $aidx]
                 # NEXT, create the tactic
-                autogen AssignTactic $owner \
-                                     $g     \
-                                     $n     \
-                                     $act   \
-                                     100
+                autogen AddTactic ASSIGN $block \
+                    g          $g   \
+                    n          $n   \
+                    activity   $act \
+                    personnel  100
 
                incr aidx
                if {[expr {$aidx % [llength $opts(-frcact)]}] == 0} {
@@ -804,11 +808,11 @@ snit::type autogen {
            foreach n $opts(-nbhoods) {
                set act [lindex $opts(-orgact) $aidx]
                # NEXT, create the tactic
-               autogen AssignTactic $owner \
-                                    $g     \
-                                    $n     \
-                                    $act   \
-                                    100
+                autogen AddTactic ASSIGN $block \
+                    g          $g   \
+                    n          $n   \
+                    activity   $act \
+                    personnel  100
 
                incr aidx
                if {[expr {$aidx % [llength $opts(-orgact)]}] == 0} {
@@ -1235,6 +1239,8 @@ snit::type autogen {
         # the groups each actor owns
         if {"DEPLOY" in $opts(-tactics)} {
             foreach a $opts(-actors) {
+                set block [autogen AddBlock $a onlock YES]
+
                 set frcgroups \
                     [rdb eval {SELECT g FROM frcgroups WHERE a=$a}]
                 set orggroups \
@@ -1245,14 +1251,14 @@ snit::type autogen {
                 }
 
                 autogen GroupStrategy \
-                    $a $frcgroups FRC $opts(-frcact) $opts(-nbhoods)
+                    $block $frcgroups FRC $opts(-frcact) $opts(-nbhoods)
 
                 if {$opts(-orggroups) ne "ALL"} {
                     set orggroups $opts(-orggroups)
                 }
 
                 autogen GroupStrategy \
-                    $a $orggroups ORG $opts(-orgact) $opts(-nbhoods)
+                    $block $orggroups ORG $opts(-orgact) $opts(-nbhoods)
             }
         }
 
@@ -1266,26 +1272,36 @@ snit::type autogen {
             # NEXT, if there are civgroups do FUNDENI
             if {[llength $civgroups] > 0} {
                 foreach a $opts(-actors) {
-                    autogen FundENITactic $a $civgroups
+                    set block [autogen AddBlock $a onlock YES]
+                    autogen AddTactic FUNDENI $block \
+                        glist  [gofer construct CIVGROUPS BY_VALUE $civgroups] \
+                        mode   EXACT \
+                        amount "1K"
                 }
             }
         }
     }
 
-    # GroupStrategy  a groups gtype activites
+    # GroupStrategy  b groups gtype activites
     #
-    # a        The actor who owns the groups
-    # gtype    The type of groups; FRC or ORG
+    # b            The block for adding tactics
+    # groups       List of groups to be deployed/assigned activities
+    # gtype        The type of groups; FRC or ORG
+    # activities   List of activities to be assigned
+    # nbhoods      List of nbhoods to which groups should be deployed/assigned
     #
     # This method deploys and assigns appropriate activities
-    # to groups owned by actor a. Activities are assigned in turn
-    # to each neighborood. The type of activities depend on whether
-    # gtype is FRC or ORG.
+    # to groups owned by the actor that owns the strategy block. 
+    # Activities are assigned in turn to each neighborood. The type 
+    # of activities depend on whether gtype is FRC or ORG.
 
-    typemethod GroupStrategy {a groups gtype activities nbhoods} {
+    typemethod GroupStrategy {b groups gtype activities nbhoods} {
 
         # FIRST, set the table name to look up the number of personnel
         set gtable "[string tolower $gtype]groups"
+
+        # NEXT, get the agent that owns the block
+        set a [$b agent]
 
         # NEXT, see if this actor owns any groups of this group type
         set ownedgroups [rdb eval "SELECT g FROM $gtable WHERE a=\$a"]
@@ -1327,7 +1343,11 @@ snit::type autogen {
                     WHERE g = \$g
                 "]
 
-            autogen DeployTactic $a $g
+            autogen AddTactic DEPLOY $b \
+                pmode  "ALL" \
+                g      $g \
+                nlist  [gofer construct NBHOODS BY_VALUE \
+                           [rdb eval {SELECT n FROM nbhoods}]]
 
             # NEXT determine the number of personnel per neighborhood to
             # assign to an activity
@@ -1337,7 +1357,11 @@ snit::type autogen {
             foreach n $nbhoods {
                 set act [lindex $activities $info(aidx)]
 
-                autogen AssignTactic $a $g $n $act $persPerN
+                autogen AddTactic ASSIGN $b \
+                    g          $g   \
+                    n          $n   \
+                    activity   $act \
+                    personnel  $persPerN
 
                 # NEXT, increment activity counter making sure
                 # not to run off the end
@@ -1349,87 +1373,40 @@ snit::type autogen {
         }
     }
 
-    # AttroeTactic a f g n roe max
+    # AddBlock agent args
     #
-    # a    - an actor
-    # f    - an attacking group
-    # g    - a defending group
-    # n    - a neighborhood
-    # roe  - the ROE the attacking group should assume
-    # max  - the max number of attacks per week
+    # agent   - the agent that owns the created block
+    # args    - optional arguments for the block object
     #
-    # This method creates a parms array from the given arguments
-    # and sends an order to create an ATTROE tactic for the given
-    # actor. Error checking is assumed.
+    # This method creates and adds a block to the supplied
+    # agents strategy. The ID of the block is returned
 
-    typemethod AttroeTactic {a f g n roe max} {
-        set parms(owner) $a
-        set parms(f)     $f
-        set parms(g)     $g
-        set parms(n)     $n
-        set parms(text1) $roe
-        set parms(int1)  $max
-    
-        order send cli TACTIC:ATTROE:CREATE [array get parms]
+    typemethod AddBlock {agent args} {
+        set bid [order send cli STRATEGY:BLOCK:ADD agent $agent]
+
+        if {[llength $args] > 0} {
+            order send cli BLOCK:UPDATE block_id $bid {*}$args
+        }
+
+        return [block get $bid]
     }
 
-    # AssignTactic a g n act pers
+    # AddTactic ttype block args
     #
-    # a       the actor that owns the group 
-    # g       the group being assigned the activity
-    # n       the neighborhood in which the activity is being assigned
-    # act     the activity being assigned
-    # pers    the number of personnel in g being assigned the activity
+    # ttype   - Tactic type
+    # block   - Block object to which the tactic should be added
+    # args    - arguments specific to the type of tactic being added
     #
-    # This helper method creates an ASSIGN strategy with the
-    # supplied arguments as the parms. All other parms are defaulted.
+    # This method adds a tactic of the type provided along with the
+    # specified arguments.  The caller is responsible for supplying the
+    # proper arguments.
 
-    typemethod AssignTactic {a g n act pers} {
-        set parms(owner) $a
-        set parms(g)     $g
-        set parms(n)     $n
-        set parms(text1) $act
-        set parms(int1)  $pers
+    typemethod AddTactic {ttype block args} {
+        set tid [order send cli BLOCK:TACTIC:ADD \
+            block_id [$block id] \
+            typename $ttype]
 
-        order send cli TACTIC:ASSIGN:CREATE [array get parms]
-    }
+        order send cli TACTIC:${ttype} tactic_id $tid {*}$args
 
-    # DeployTactic a g
-    #
-    # a    the actor that owns the group
-    # g    the group being deployed
-    #
-    # This helper method creates a DEPLOY tactic with the supplied
-    # arguments as the parms. The tactic is set up to deploy all 
-    # available troops evenly across every neighborhood. All other 
-    # parms are defaulted.
-
-    typemethod DeployTactic {a g} {
-        set parms(owner) $a
-        set parms(g)     $g
-        set parms(text1) "ALL"
-        set parms(nlist) [rdb eval {SELECT n FROM nbhoods}]
-
-        order send cli TACTIC:DEPLOY:CREATE [array get parms]
-    }
-
-    # FundENITactic a grps
-    #
-    # a      - an actor
-    # grps   - the CIV groups to receive ENI funding
-    #
-    # This method creates a parms array and sends an order to create
-    # a FUNDENI tactic for the given actor and list of groups.
-    #
-    # Error checking has already been done.
-
-    typemethod FundENITactic {a grps} {
-        set parms(owner)   $a
-        set parms(glist)   $grps
-        set parms(x1)      "1K"
-        set parms(once)    NO
-        set parms(on_lock) YES
-
-        order send cli TACTIC:FUNDENI:CREATE [array get parms]
     }
 }
