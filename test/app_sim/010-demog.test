@@ -194,7 +194,40 @@ NB2 1000       1000        0         0           0          0.0 0.0
     } -cleanup {
         cleanup
     } -result {1200}
- 
+
+
+    #-------------------------------------------------------------------
+    # pop
+
+    test pop-1.1 {get pop for multiple neighborhoods} -setup {
+        setup
+    } -body {
+        demog pop {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {3000}
+
+    #-------------------------------------------------------------------
+    # shares
+
+    test shares-1.1 {get shares for multiple neighborhoods} -setup {
+        setup
+    } -body {
+        demog shares {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {NB1 0.6666666666666666 NB2 0.3333333333333333}
+
+    test shares-1.2 {get shares for empty neighborhoods} -setup {
+        setup
+        rdb eval {UPDATE demog_n SET population = 0.0}
+    } -body {
+        demog shares {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {NB1 0.0 NB2 0.0}
+    
+
     #-------------------------------------------------------------------
     # adjust
 

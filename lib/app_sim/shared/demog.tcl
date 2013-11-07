@@ -563,6 +563,53 @@ snit::type demog {
         }
     }
 
+    # pop nbhoods
+    #
+    # nbhoods  - A list of neighborhoods
+    #
+    # Returns the total population of the neighborhoods in the
+    # list.
+
+    typemethod pop {nbhoods} {
+        set total [rdb onecolumn "
+            SELECT total(population)
+            FROM demog_n
+            WHERE n IN ('[join $nbhoods ',']')
+        "]
+
+        return [expr {entier($total)}]
+    }
+
+    # shares nbhoods
+    #
+    # nbhoods   - A list of neighborhoods
+    #
+    # Returns a population profile for the list of neighborhoods: the
+    # fractional share each neighborhood has of the total population
+    # of the neighborhoods.
+
+    typemethod shares {nbhoods} {
+        # FIRST, get the total population.
+        set total [demog pop $nbhoods]
+
+        # NEXT, handle a set of empty neighborhoods.
+        if {$total == 0.0} {
+            foreach n $nbhoods {
+                dict set result $n 0.0
+            }
+            return $result
+        }
+
+        # NEXT, compute the profile for the set of neighborhoods.
+        return [rdb eval "
+            SELECT n, (CAST (population AS DOUBLE))/\$total
+            FROM demog_n 
+            WHERE n IN ('[join $nbhoods ',']')
+            ORDER BY n
+        "]
+    }
+
+
     #-------------------------------------------------------------------
     # Mutators
     #
