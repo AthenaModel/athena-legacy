@@ -835,7 +835,7 @@ order define TACTIC:DEPLOY {
     prepare personnel  -num      -type iquantity
     prepare min        -num      -type iquantity
     prepare max        -num      -type ipositive
-    prepare percent    -num      -type ipercent
+    prepare percent    -num      -type rpercent
     prepare nlist 
     prepare nmode                -selector
     prepare redeploy             -type boolean

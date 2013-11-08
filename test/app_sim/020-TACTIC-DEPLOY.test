@@ -162,7 +162,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        percent {invalid value "101", expected integer in range 0, 100}
+        percent {invalid value "101", expected double in range 0.0, 100.0}
     }
 
     test TACTIC:DEPLOY-1.13 {PERCENT, percent is 0} -setup {

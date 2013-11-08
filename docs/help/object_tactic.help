@@ -448,6 +448,158 @@ page /object/tactic demob "DEMOB tactic" {
 }
 
 #-----------------------------------------------------------------------
+# DEPLOY Tactic
+
+object tactic_deploy {
+    noun "DEPLOY tactic"
+    overview {
+        This <<term tactic>> deploys an <<term actor>>'s
+        <<term frcgroup>> or <<term orggroup>> personnel
+        into particular <<term nbhood>>s.  The personnel must already
+        be present in the <<term playbox>>.  The group's maintenance
+        cost is paid for each person deployed.  Once deployed, the
+        personnel may then be assigned to particular tasks.<p>
+
+        The number of troops to deploy is determined by the personnel
+        mode (<i>pmode</i>); see the table below.<p>
+
+        The chosen troops are deployed into the neighborhoods
+        indicated by the neighborhood list, a 
+        <<cref /gofer/nbhoods>> value, according to the
+        neighborhood mode (<i>nmode</i>):<p>
+
+        <b>Redeployment and Existing Deployments</b>
+
+        The neighborhood and personnel modes control new deployments only.
+        If the tactic executed the previous week, then by default the
+        remaining personnel will remain in place when the tactic executes
+        this week.<p>
+
+        If the redeploy flag is set (<i>redeploy</i>), then every deployment
+        is a new deployment.  In addition, any changes to the tactic
+        are tantamount to creating a new tactic; it will create a new
+        deployment when it next executes.<p>
+
+        Multiple DEPLOY tactics are cumulative.  The deployment lasts
+        until the next week, when troops are automatically withdrawn in
+        preparation for that week's deployment.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or 
+        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+    } -tags {update}
+
+    attribute pmode "Personnel Mode" {
+        The personnel mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Athena will deploy
+        as many of the group's undeployed personnel as the actor 
+        can afford.  If no undeployed personnel are available, the
+        tactic succeeds trivially.  If personnel are available but
+        there's not enough cash to deploy any, the tactic fails due
+        to insufficient cash.<p>
+
+        <b>SOME</b>: Athena will deploy
+        the specified number of <i>personnel</i>.  The tactic fails
+        if there are insufficient troops available to deploy, or if
+        the actor cannot afford to deploy the requested number.<p>
+
+        <b>UPTO</b>: Athena will deploy
+        as many troops as the actor can afford, from at least 
+        the <i>min</i> number of personnel up to the
+        given <i>max</i> number.  The tactic fails if there are fewer
+        than <i>min</i> personnel available for deployment, or if
+        the actor cannot afford at least <i>min</i> personnel.<p>
+
+        <b>ALLBUT</b>: Athena will deploy
+        all but the specified number of <i>personnel</i>, leaving 
+        <i>personnel</i> available for additional deployments.  The
+        tactic operates on a best-efforts basis with respect to personnel;
+        if there are only <i>personnel</i> or fewer troops available,
+        the tactic will succeed trivially with an empty deployment.<p>
+
+        <b>PERCENT</b>: Athena will deploy a given <i>percent</i>
+        of the group's undeployed personnel, rounding up (so that it always
+        deploys at least one person).  If no personnel are available,
+        succeeds trivially.  Fails if the actor cannot afford to 
+        deploy the requested percentage.
+    } -tags {update}
+
+    attribute personnel "Personnel" {
+        When the <i>pmode</i> is <b>SOME</b>, the 
+        number of undeployed personnel to be deployed.<p>
+
+        When the <i>pmode</i> is <b>ALLBUT</b>, the number of undeployed
+        personnel to retain; any excess will be be deployed.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute min "Min Personnel" {
+        When the <i>pmode</i> is <b>UPTO</b>, the 
+        minimum number of undeployed personnel to be deployed.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute max "Max Personnel" {
+        When the <i>pmode</i> is <b>UPTO</b>, the 
+        maximum number of undeployed personnel to be deployed.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percentage" {
+        When the <i>pmode</i> is <b>PERCENT</b>, the percentage of 
+        undeployed troops to deploy, expressed as a real number, i.e.,
+        a value of 3.5 will demobilize 3.5% of the undeployed troops.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute nlist "In Neighborhoods" {
+        A <<cref /gofer/nbhoods>> value, which will be evaluated to determine
+        the list of <<term nbhood>> IDs when the tactic is executed.
+    } -tags {create update}
+
+    attribute nmode "Neighborhood Mode" {
+        The neighborhood mode, which has one of the following values.<p>
+
+        <b>BY_POP</b>: The chosen troops
+        are deployed into the neighborhoods in proportion with the
+        neighborhood population.  If neighborhood A has twice the population
+        of neighborhood B, it will receive twice the troops.  This is
+        the default.<p>
+
+        <b>EQUAL</b>: Every neighborhood
+        will get the same number of troops, give or take one.  This
+        was the only choice in Athena 5.1 and prior.<p>
+    } -tags {update}
+
+    attribute redeploy "Redeploy?" {
+        If false (the default), then any existing deployment will be retained
+        when this tactic executes in subsequent weeks.  If true, then 
+        the tactic will do a new deployment every week.<p>
+    } -tags {create update}
+
+}
+
+page /object/tactic deploy "DEPLOY tactic" {
+    <<sotitle>>
+
+    <<tactic_deploy overview>><p>
+
+    Deploy Troops tactics have the following attributes:<p>
+
+    <<tactic_deploy parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # DEPOSIT Tactic
 
 object tactic_deposit {

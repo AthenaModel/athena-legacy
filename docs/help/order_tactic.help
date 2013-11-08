@@ -82,6 +82,15 @@ order TACTIC:DEMOB "Tactic: Demobilize Forces" {
     <</parmlist>>
 }
 
+order TACTIC:DEPLOY "Tactic: Deploy Troops" {
+    Updates an existing <<cref /object/tactic/deploy>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_deploy parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:DEPOSIT "Tactic: Deposit Money" {
     Updates an existing <<cref /object/tactic/deposit>>.<p>
 
