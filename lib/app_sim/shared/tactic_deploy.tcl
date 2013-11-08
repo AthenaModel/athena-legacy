@@ -37,8 +37,11 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
 
     # Editable Parameters
     variable g           ;# A FRC or ORG group
-    variable pmode       ;# ALL or SOME
-    variable personnel   ;# Number of personnel.
+    variable pmode       ;# ALL, SOME, UPTO, ALLBUT
+    variable personnel   ;# SOME, ALLBUT: Number of personnel.
+    variable min         ;# UPTO: Minimum number of personnel.
+    variable max         ;# UPTO: Maximum number of personnel.
+    variable percent     ;# PERCENT: percentage of personnel remaining.
     variable nlist       ;# gofer::NBHOODS value; nbhoods to deploy in
     variable nmode       ;# EQUAL or BY_POP
     variable redeploy    ;# If true, each deployment is a new deployment.
@@ -70,6 +73,9 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         set nmode          BY_POP
         set pmode          ALL
         set personnel      0
+        set min            0
+        set max            0
+        set percent        0
         set redeploy       0
         set last_tick      ""
 
@@ -145,6 +151,12 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             }
             "SOME" {
                 set s(pmode) "$personnel"
+            }
+            "UPTO" {
+                set s(pmode) "at least $min and up to $max"
+            }
+            "ALLBUT" {
+                set s(pmode) "all but $personnel"
             }
             default { error "Unknown pmode: \"$pmode\"" }
         }
@@ -309,6 +321,19 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         return [expr {$troops * [group maintPerPerson $g]}]
     }
 
+    # TroopsFor cash
+    #
+    # cash   - Some amount of money.
+    #
+    # Returns the maximum number of troops one can afford to deploy
+    # given the cash available.
+
+    method TroopsFor {cash} {
+        set costPerPerson [group maintPerPerson $g]
+
+        return [expr {entier(double($cash)/$costPerPerson)}]
+    }
+
     # DeductResourcesFromCoffer coffer
     #
     # coffer  - The owning agent's coffer of resources.
@@ -347,8 +372,11 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         # have different failure policies.
 
         switch -exact -- $pmode {
-            ALL     { set flag [my ObligateALL  $coffer] }
-            SOME    { set flag [my ObligateSOME $coffer] }
+            ALL     { set flag [my ObligateALL     $coffer] }
+            SOME    { set flag [my ObligateSOME    $coffer] }
+            UPTO    { set flag [my ObligateUPTO    $coffer] }
+            ALLBUT  { set flag [my ObligateALLBUT  $coffer] }
+            PERCENT { set flag [my ObligatePERCENT $coffer] }
 
             default { error "Invalid pmode: \"$pmode\""     }
         }
@@ -385,7 +413,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         return $nbhoods
     }
 
-    # ObligateALL coffer nbhoods
+    # ObligateALL coffer
     #
     # coffer  - The owning agent's coffer of resources.
     #
@@ -403,6 +431,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         set cash          [$coffer cash]
         set costPerPerson [group maintPerPerson $g]
 
+
         # NEXT, if no troops are available, then we've done what we
         # can; we succeed on a best efforts basis.
         if {$available == 0} {
@@ -416,8 +445,8 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             set troops $available
         } else {
             # FIRST, compute the number of troops we can afford.
-            let maxTroops {double($cash)/$costPerPerson}
-            let troops {entier(min($available,$maxTroops))}
+            let maxTroops [my TroopsFor $cash]
+            let troops {min($available,$maxTroops)}
 
             if {$troops == 0} {
                 # We have troops but we can't afford to deploy them.
@@ -461,6 +490,135 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         # NEXT, obligate the deployment, allocating troops to
         # neighborhoods.
         my AllocateTroops $personnel
+
+        return 1
+    }
+
+    # ObligateUPTO coffer
+    #
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is UPTO, figures out how many troops we can
+    # afford to deploy, from min up to max, and obligates the deployment.  
+    # Returns 1 on success, and 0 on failure.
+    #
+    # This tactic fails if it can't deploy at least min troops.  It
+    # will deploy up to max if we can afford them.
+
+    method ObligateUPTO {coffer} {
+        # FIRST, retrieve relevant data.
+        set available [$coffer troops $g undeployed]
+        set cash      [$coffer cash]
+
+        # NEXT, compute the cost of the minimum amount of troops, 
+        # and the maximum quantity of troops we can afford.
+        set minCost          [my TroopCost $min]
+
+        if {[strategy locking]} {
+            set affordableTroops $max
+        } else {
+            set affordableTroops [my TroopsFor $cash]
+        }
+
+        if {$min > $available} {
+            # TBD: Report failure details
+            return 0
+        }
+
+        if {[strategy ontick] && $minCost > $cash} {
+            # TBD: Report failure details
+            return 0
+        }
+
+        let troops {min($max,$affordableTroops, $available)}
+
+        # NEXT, obligate the deployment, allocating troops to
+        # neighborhoods.
+        my AllocateTroops $troops
+
+        return 1
+    }
+
+    # ObligateALLBUT coffer
+    #
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is ALLBUT, figures out how many troops we can
+    # afford to deploy, and obligates the deployment.  Returns 1 on
+    # success, and 0 on failure.
+    #
+    # This tactic operates on a "best efforts" basis with respect to
+    # personnel.  If there are personnel troops or less, it still succeeds; 
+    # if there are troops to deploy, but we can't afford to deploy 
+    # them, it fails.
+
+    method ObligateALLBUT {coffer} {
+        # FIRST, retrieve relevant data.
+        set available [$coffer troops $g undeployed]
+        set cash      [$coffer cash]
+
+
+        # NEXT, if no troops are available, then we've done what we
+        # can; we succeed on a best efforts basis.
+        let troops {$available - $personnel}
+
+        if {$troops <= 0} {
+            return [my ObligateEmptyDeployment]
+        }
+
+        # NEXT, cost only matters on tick.
+        if {[strategy ontick] && [my TroopCost $troops] > $cash} {
+            # TBD: Report detailed failure
+            return 0
+        }
+
+        # NEXT, obligate the deployment, allocating troops to
+        # neighborhoods.
+        my AllocateTroops $troops
+
+        return 1
+    }
+
+    # ObligatePERCENT coffer
+    #
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is PERCENT, figures out how many troops we can
+    # afford to deploy, and obligates the deployment.  Returns 1 on
+    # success, and 0 on failure.
+    #
+    # This tactic operates on a "best efforts" basis with respect to
+    # personnel.  It will always attempt to deploy at least one troop.
+    # If 0 are available, it succeeds with an empty deployment.
+    # If there are troops to deploy, but we can't afford to deploy  
+    # them, it fails.
+
+    method ObligatePERCENT {coffer} {
+        # FIRST, retrieve relevant data.
+        set available [$coffer troops $g undeployed]
+        set cash      [$coffer cash]
+
+
+        # NEXT, if no troops are available, then we've done what we
+        # can; we succeed on a best efforts basis.
+        if {$available == 0} {
+            return [my ObligateEmptyDeployment]
+        }
+
+        let troops {
+            entier(ceil(double($percent)*$available/100.0))
+        }
+
+
+        # NEXT, cost only matters on tick.
+        if {[strategy ontick] && [my TroopCost $troops] > $cash} {
+            # TBD: Report detailed failure
+            return 0
+        }
+
+        # NEXT, obligate the deployment, allocating troops to
+        # neighborhoods.
+        my AllocateTroops $troops
 
         return 1
     }
@@ -631,6 +789,25 @@ order define TACTIC:DEPLOY {
                 rcc "Personnel:" -for personnel
                 text personnel
             }
+
+            case UPTO "Deploy no less than" {
+                rcc "Min Personnel:" -for min
+                text min
+                label "and up to"
+
+                rcc "Max Personnel:" -for max
+                text max
+            }
+
+            case ALLBUT "Deploy all but some of the group's personnel" {
+                rcc "Personnel:" -for personnel
+                text personnel
+            }
+
+            case PERCENT "Deploy a percentage of the group's personnel" {
+                rcc "Percentage:" -for percent
+                text percent
+            }
         }
 
         rcc "In Neighborhoods:" -for nlist
@@ -655,7 +832,10 @@ order define TACTIC:DEPLOY {
 
     prepare g                    
     prepare pmode      -toupper  -selector
-    prepare personnel  -num      -type ipositive
+    prepare personnel  -num      -type iquantity
+    prepare min        -num      -type iquantity
+    prepare max        -num      -type ipositive
+    prepare percent    -num      -type ipercent
     prepare nlist 
     prepare nmode                -selector
     prepare redeploy             -type boolean
@@ -665,8 +845,21 @@ order define TACTIC:DEPLOY {
     fillparms parms [$tactic view]
 
     if {$parms(pmode) eq "SOME" && $parms(personnel) == 0} {
-        reject personnel "Positive personnel required when mode is SOME"
+        reject personnel "For pmode SOME, personnel must be positive."
     }
+
+    if {$parms(pmode) eq "UPTO"} {
+        if {$parms(max) < $parms(min)} {
+            reject max "For pmode UPTO, max must be greater than min."
+        }
+    }
+
+    if {$parms(pmode) eq "PERCENT"} {
+        if {$parms(percent) == 0} {
+            reject max "For pmode PERCENT, percent must be positive."
+        }
+    }
+
 
     returnOnError -final
 
@@ -674,7 +867,7 @@ order define TACTIC:DEPLOY {
     # historical state data.
 
     set undo [$tactic update_ {
-        g pmode personnel nlist nmode redeploy
+        g pmode personnel min max percent nlist nmode redeploy
     } [array get parms]]
 
     # NEXT, save the undo script

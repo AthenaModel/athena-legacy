@@ -93,6 +93,16 @@ namespace eval ::athena_test::tests:: {
         $coffer withdraw $amount
     }
 
+    # Set the number of troops available for deployment.
+    proc settroops {personnel} {
+        variable coffer
+        $coffer demobilize BLUE [$coffer troops BLUE undeployed]
+
+        if {$personnel > 0} {
+            $coffer mobilize BLUE $personnel
+        }
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -117,9 +127,12 @@ namespace eval ::athena_test::tests:: {
         g          {}
         id         *
         last_tick  {}
+        max        0
+        min        0
         nlist      {_type NBHOODS _rule {}}
         nmode      BY_POP
         parent     ::bean::block*
+        percent    0
         personnel  0
         pmode      ALL
         redeploy   0
@@ -172,6 +185,15 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {Deploy 1000 of group ???'s undeployed personnel *}
+
+    test narrative-2.1 {pmode UPTO} -setup {
+        setup
+        $T1 configure -pmode UPTO -min 1000 -max 2000
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -match glob -result {Deploy at least 1000 and up to 2000 of group ???'s undeployed personnel *}
 
     test narrative-3.1 {nmode EQUAL} -setup {
         setup
@@ -249,7 +271,24 @@ namespace eval ::athena_test::tests:: {
     #       failure: ontick, insufficient cash
     #       success: sufficient troops and cash
     #       success: onlock, sufficient troops, insufficient cash
-    # 6.*: existing deployment
+    #   6.* pmode=UPTO
+    #       failure: insufficient troops
+    #       failure: on tick, insufficient cash
+    #       success: sufficient troops and cash, max allocated
+    #       success: on tick, not enough cash for max
+    #       success: not enough troops for max
+    #       success: on lock, not enough cash for max
+    #   7.* pmode=ALLBUT
+    #       success: no troops to deploy, empty deployment.
+    #       failure: on tick, insufficient cash
+    #       success: on tick, sufficient cash
+    #       success: on lock, insufficient cash
+    #   8.* pmode=PERCENT
+    #       success: no troops to deploy, empty deployment.
+    #       failure: on tick, insufficient cash
+    #       success: on tick, sufficient cash
+    #       success: on lock, insufficient cash
+    # 9.*: existing deployment
     #   success: empty deployment
     #       -> no troops obligated
     #       -> no cash obligated
@@ -501,9 +540,209 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1 4000}
 
-    # 6.*: Existing Deployment
+    # 6.*: New deployment, pmode=UPTO
 
-    test obligate-6.1 {empty deployment} -setup {
+    test obligate-6.1 {pmode=UPTO, insufficient troops} -setup {
+        setup valid
+        $T1 configure -pmode UPTO -min 10000 -max 20000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0 10000.0 5000}
+
+    test obligate-6.2 {pmode=UPTO, insufficient cash} -setup {
+        setup valid
+        setcost 10
+        $T1 configure -pmode UPTO -min 5000 -max 10000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0 10000.0 5000}
+
+    test obligate-6.3 {pmode=UPTO, success, max allocated} -setup {
+        setup valid
+        $T1 configure -pmode UPTO -min 1000 -max 2000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 8000.0 3000}
+
+    test obligate-6.4 {pmode=UPTO, success, no cash for max} -setup {
+        setup valid
+        setcost 10
+        $T1 configure -pmode UPTO -min 100 -max 5000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 0.0 4000}
+
+    test obligate-6.5 {pmode=UPTO, success, no troops for max} -setup {
+        setup valid
+        $T1 configure -pmode UPTO -min 100 -max 10000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 5000.0 0}
+
+    test obligate-6.6 {pmode=UPTO, success, on lock, no cash for max} -setup {
+        setup valid
+        setcost 100
+        strategy locking 1
+        $T1 configure -pmode UPTO -min 100 -max 5000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 0.0 0}
+
+    # 7.*: New deployment, pmode=ALLBUT
+
+    test obligate-7.1 {pmode=ALLBUT, no troops} -setup {
+        setup valid
+        $T1 configure -pmode ALLBUT -personnel 5000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 10000.0 5000}
+
+    test obligate-7.2 {pmode=ALLBUT, on tick, no cash} -setup {
+        setup valid
+        setcost 10
+        $T1 configure -pmode ALLBUT -personnel 1000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0 10000.0 5000}
+
+    test obligate-7.3 {pmode=ALLBUT, on tick, got cash} -setup {
+        setup valid
+        $T1 configure -pmode ALLBUT -personnel 1000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 6000.0 1000}
+
+    test obligate-7.4 {pmode=ALLBUT, on lock, no cash} -setup {
+        setup valid
+        setcost 100
+        strategy locking 1
+        $T1 configure -pmode ALLBUT -personnel 1000
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 0.0 1000}
+
+
+    # 8.*: New deployment, pmode=PERCENT
+
+    test obligate-8.1 {pmode=PERCENT, no troops} -setup {
+        setup valid
+        settroops 0
+        $T1 configure -pmode PERCENT -percent 10
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 10000.0 0}
+
+    test obligate-8.2 {pmode=PERCENT, on tick, no cash} -setup {
+        setup valid
+        setcost 10
+        $T1 configure -pmode PERCENT -percent 100
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {0 10000.0 5000}
+
+    test obligate-8.3 {pmode=PERCENT, on tick, got cash} -setup {
+        setup valid
+        $T1 configure -pmode PERCENT -percent 50
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 7500.0 2500}
+
+    test obligate-8.4 {pmode=PERCENT, on lock, no cash} -setup {
+        setup valid
+        setcost 100
+        strategy locking 1
+        $T1 configure -pmode PERCENT -percent 50
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer cash]
+        set c [$coffer troops BLUE undeployed]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 0.0 2500}
+
+    # 9.*: Existing Deployment
+
+    test obligate-9.1 {empty deployment} -setup {
         setup prep  ;# Set up in PREP state
         ted lock    ;# All personnel should be deployed 
         context     ;# Provide execution context
@@ -522,7 +761,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1 1 {} 10000.0 5000}
 
-    test obligate-6.2 {troops deployed} -setup {
+    test obligate-9.2 {troops deployed} -setup {
         setup prep  ;# Set up in PREP state
         ted lock    ;# All personnel should be deployed 
         context     ;# Provide execution context
@@ -538,7 +777,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1 1 {NB1 3333 NB2 1667} 5000.0 0}
 
-    test obligate-6.3 {insufficient troops} -setup {
+    test obligate-9.3 {insufficient troops} -setup {
         setup prep  ;# Set up in PREP state
         ted lock    ;# All personnel should be deployed 
         context     ;# Provide execution context
@@ -554,7 +793,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0 1 10000.0 4000}
 
-    test obligate-6.4 {insufficient cash} -setup {
+    test obligate-9.4 {insufficient cash} -setup {
         setup prep  ;# Set up in PREP state
         ted lock    ;# All personnel should be deployed 
         context     ;# Provide execution context

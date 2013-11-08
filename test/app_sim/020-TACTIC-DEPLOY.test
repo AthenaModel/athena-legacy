@@ -84,14 +84,14 @@ namespace eval ::athena_test::tests:: {
         personnel {invalid value "NONESUCH", expected integer}
     }
 
-    test TACTIC:DEPLOY-1.5 {0 personnel} -setup {
+    test TACTIC:DEPLOY-1.5 {-1 personnel} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:DEPLOY tactic_id [$T1 id] personnel 0
+        ted order -reject TACTIC:DEPLOY tactic_id [$T1 id] personnel -1
     } -cleanup {
         cleanup
     } -result {
-        personnel {invalid value "0", expected integer no less than 1}
+        personnel {invalid value "-1", expected integer no less than 0}
     }
 
     test TACTIC:DEPLOY-1.6 {invalid nmode} -setup {
@@ -121,7 +121,60 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        personnel {Positive personnel required when mode is SOME}
+        personnel {For pmode SOME, personnel must be positive.}
+    }
+
+    test TACTIC:DEPLOY-1.9 {negative min} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DEPLOY tactic_id [$T1 id] min -1
+    } -cleanup {
+        cleanup
+    } -result {
+        min {invalid value "-1", expected integer no less than 0}
+    }
+
+    test TACTIC:DEPLOY-1.10 {zero max} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DEPLOY tactic_id [$T1 id] max 0
+    } -cleanup {
+        cleanup
+    } -result {
+        max {invalid value "0", expected integer no less than 1}
+    }
+
+    test TACTIC:DEPLOY-1.11 {UPTO, max < min} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DEPLOY tactic_id [$T1 id] \
+            pmode UPTO max 1 min 2
+    } -cleanup {
+        cleanup
+    } -result {
+        max {For pmode UPTO, max must be greater than min.}
+    }
+
+    test TACTIC:DEPLOY-1.12 {percent is out of range} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:DEPLOY tactic_id [$T1 id] percent 101
+    } -cleanup {
+        cleanup
+    } -result {
+        percent {invalid value "101", expected integer in range 0, 100}
+    }
+
+    test TACTIC:DEPLOY-1.13 {PERCENT, percent is 0} -setup {
+        setup
+    } -body {
+        # percent defaults to 0
+        ted order -reject TACTIC:DEPLOY tactic_id [$T1 id] \
+            pmode PERCENT
+    } -cleanup {
+        cleanup
+    } -result {
+        max {For pmode PERCENT, percent must be positive.}
     }
 
 
@@ -136,6 +189,9 @@ namespace eval ::athena_test::tests:: {
             g         NONESUCH  \
             pmode     SOME      \
             personnel 1000      \
+            min       5         \
+            max       10        \
+            percent   15        \
             nlist     NONESUCH  \
             nmode     EQUAL     \
             redeploy  yes        
@@ -148,9 +204,12 @@ namespace eval ::athena_test::tests:: {
         g          NONESUCH
         id         *
         last_tick  {}
+        max        10
+        min        5
         nlist      NONESUCH
         nmode      EQUAL
         parent     ::bean::block*
+        percent    15
         personnel  1000
         pmode      SOME
         redeploy   1
@@ -168,6 +227,9 @@ namespace eval ::athena_test::tests:: {
             g         BLUE      \
             pmode     SOME      \
             personnel 1000      \
+            min       5         \
+            max       10        \
+            percent   15        \
             nlist     [gofer construct NBHOODS BY_VALUE {NB1}] \
             nmode     EQUAL     \
             redeploy  yes
@@ -180,9 +242,12 @@ namespace eval ::athena_test::tests:: {
         g          BLUE
         id         *
         last_tick  {}
+        max        10
+        min        5
         nlist      {_type NBHOODS _rule BY_VALUE nlist NB1}
         nmode      EQUAL
         parent     ::bean::block*
+        percent    15
         personnel  1000
         pmode      SOME
         redeploy   1
