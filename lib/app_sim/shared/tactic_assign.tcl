@@ -11,11 +11,6 @@
 #    An ASSIGN tactic assigns deployed force or organization personnel
 #    to perform particular activities in a neighborhood.
 #
-# TBD:
-#    * We might want to use a gofer to choose the group to assign
-#    * We might want to use a gofer to choose the nbhood to assign it in.
-#    * We might want to use a gofer to choose the number of people to deploy.
-#
 #-----------------------------------------------------------------------
 
 # FIRST, create the class.
@@ -27,7 +22,11 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
     variable g           ;# A FRC or ORG group
     variable n           ;# The neighborhood in which g is deployed.
     variable activity    ;# The activity to assign them to do.
-    variable personnel   ;# Number of personnel.
+    variable pmode       ;# Personnel mode: ALL, SOME, UPTO, ALLBUT, PERCENT
+    variable personnel   ;# pmode=SOME,ALLBUT: Number of personnel.
+    variable min         ;# pmode=UPTO: Min personnel
+    variable max         ;# pmode=UPTO: Max personnel
+    variable percent     ;# pmode=PERCENT: Percentage of personnel
 
     # Transient Arrays
     variable trans
@@ -43,13 +42,21 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
         set g              ""
         set n              ""
         set activity       ""
+        set pmode          ALL
         set personnel      0
+        set min            0
+        set max            0
+        set percent        0.0
 
         # Initial state is invalid (no g, n, activity)
         my set state invalid
 
         # Transient data
-        set trans(cost) 0.0
+        # 
+        # personnel - Number of personnel to assign
+        # cost      - How much it will cost
+        set trans(personnel) 0
+        set trans(cost)      0.0
 
         # Save the options
         my configure {*}$args
@@ -92,59 +99,321 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
         let s(n)        {$n        ne "" ? $n        : "???"}
         let s(activity) {$activity ne "" ? $activity : "???"}
 
-        return "In $s(n), assign $personnel $s(g) personnel to do $s(activity)."
+        switch -exact -- $pmode {
+            "ALL"     { set s(pmode) "all"                       }
+            "SOME"    { set s(pmode) $personnel                  }
+            "UPTO"    { set s(pmode) "at least $min, up to $max" }
+            "ALLBUT"  { set s(pmode) "all but $personnel"        }
+            "PERCENT" { set s(pmode) [format %0.1f%% $percent]   }
+            default   { error "Unexpected pmode: \"$pmode\""     }
+        }
+
+        return "In $s(n), assign $s(pmode) of $s(g)'s unassigned personnel to do $s(activity)."
     }
+
+    #-------------------------------------------------------------------
+    # Obligation
+    
 
     # obligate coffer
     #
-    # coffer  - A coffer object with the owning agent's current
-    #           resources
+    # coffer  - The owning agent's coffer of resources.
     #
-    # Obligates the personnel and cash required for the assignment.
+    # Obligates the personnel and cash required for the assignment,
+    # as indicated by the pmode, returning 1 on success and 0
+    # on failure.
 
     method obligate {coffer} {
-        # FIRST, compute the cost.
-        set trans(cost) [my AssignmentCost]
+        # FIRST, Obligate by mode.  We can't simply compute the number
+        # of troops for the selected mode, because different modes
+        # have different failure policies.
 
-        # NEXT, are there enough people available?
-        if {$personnel > [$coffer troops $g $n]} {
+        switch -exact -- $pmode {
+            ALL     { set flag [my ObligateALL     $coffer] }
+            SOME    { set flag [my ObligateSOME    $coffer] }
+            UPTO    { set flag [my ObligateUPTO    $coffer] }
+            ALLBUT  { set flag [my ObligateALLBUT  $coffer] }
+            PERCENT { set flag [my ObligatePERCENT $coffer] }
+
+            default { error "Invalid pmode: \"$pmode\""     }
+        }
+
+        if {$flag} {
+            $coffer spend $trans(cost)
+            $coffer assign $g $n $trans(personnel)
+        }
+
+        return $flag
+    }
+
+    # ObligateALL coffer
+    #
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is ALL, assigns all unassigned troops.  Returns 1 on
+    # success, and 0 on failure.
+    #
+    # This tactic operates on a "best efforts" basis with respect to
+    # personnel.  If there are no troops, it succeeds; if there are
+    # troops, but we can't afford to deploy them, it fails.
+
+    method ObligateALL {coffer} {
+        # FIRST, retrieve relevant data.
+        set available     [$coffer troops $g $n]
+        set cash          [$coffer cash]
+        set cost          [my TroopCost $available]
+
+
+        # NEXT, if no troops are available, then we've done what we
+        # can; we succeed on a best efforts basis.
+        if {$available == 0} {
+            return [my ObligateEmptyAssignment]
+        }
+
+
+        # NEXT, if we are not locking, can we afford the troops?
+        if {[strategy ontick] && $cost > $cash} {
+            # TBD: Report failure details.
             return 0
         }
 
-        # NEXT, is there enough cash?  This only matters on tick.
-        if {[strategy ontick]} {
-            # NEXT, can we afford to assign them?
-            if {$trans(cost) > [$coffer cash]} {
-                return 0
-            }
-        }
-
-        # NEXT, obligate the resources
-        $coffer spend $trans(cost)
-        $coffer assign $g $n $personnel
+        # NEXT, save the assignment details
+        set trans(personnel) $available
+        set trans(cost)      $cost
 
         return 1
     }
 
-    # AssignmentCost
+    # ObligateSOME coffer
     #
-    # Assuming that the state is normal, returns the cost of the assignment.
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is SOME, obligates the specified number of personnel,
+    # failing if the troops are not available or cannot be paid for.
 
-    method AssignmentCost {} {
+    method ObligateSOME {coffer} {
+        # FIRST, retrieve relevant data.
+        set tactic_id [my id]
+        set available [$coffer troops $g $n]
+        set cash      [$coffer cash]
+        set cost      [my TroopCost $personnel]
+
+        # NEXT, Fail if there are insufficient troops.
+        if {$personnel > $available} {
+            # TBD: Report detailed failure
+            return 0
+        }
+
+        # NEXT, cost only matters on tick.
+        if {[strategy ontick] && $cost > $cash} {
+            # TBD: Report detailed failure
+            return 0
+        }
+
+        # NEXT, save the assignment details
+        set trans(personnel) $personnel
+        set trans(cost)      $cost
+
+        return 1
+    }
+
+    # ObligateUPTO coffer
+    #
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is UPTO, figures out how many troops we can
+    # afford to assign, from min up to max, and obligates the assignment.  
+    # Returns 1 on success, and 0 on failure.
+    #
+    # This tactic fails if it can't assign at least min troops.  It
+    # will assign up to max if we can afford them.
+
+    method ObligateUPTO {coffer} {
+        # FIRST, retrieve relevant data.
+        set available [$coffer troops $g $n]
+        set cash      [$coffer cash]
+
+        # NEXT, compute the cost of the minimum amount of troops, 
+        # and the maximum quantity of troops we can afford.
+        set minCost [my TroopCost $min]
+
+        if {[strategy locking]} {
+            set affordableTroops $max
+        } else {
+            set affordableTroops [my TroopsFor $coffer $cash]
+        }
+
+        if {$min > $available} {
+            # TBD: Report failure details
+            return 0
+        }
+
+        if {[strategy ontick] && $minCost > $cash} {
+            # TBD: Report failure details
+            return 0
+        }
+
+        let troops {min($max,$affordableTroops, $available)}
+
+        # NEXT, save the assignment details
+        set trans(personnel) $troops
+        set trans(cost)      [my TroopCost $troops]
+
+        return 1
+    }
+
+    # ObligateALLBUT coffer
+    #
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is ALLBUT, determines how many troops to assign
+    # and obligates the assignment.  Returns 1 on
+    # success, and 0 on failure.
+    #
+    # This tactic operates on a "best efforts" basis with respect to
+    # personnel.  If there are personnel troops or less, it still succeeds; 
+    # if there are troops to assign, but we can't afford to assign 
+    # them, it fails.
+
+    method ObligateALLBUT {coffer} {
+        # FIRST, retrieve relevant data.
+        set available [$coffer troops $g $n]
+        set cash      [$coffer cash]
+
+        # NEXT, if no troops are available, then we've done what we
+        # can; we succeed on a best efforts basis.
+        let troops {$available - $personnel}
+
+        if {$troops <= 0} {
+            return [my ObligateEmptyAssignment]
+        }
+
+        # NEXT, cost only matters on tick.
+        set cost [my TroopCost $troops]
+
+        if {[strategy ontick] && $cost > $cash} {
+            # TBD: Report detailed failure
+            return 0
+        }
+
+        # NEXT, save the assignment details
+        set trans(personnel) $troops
+        set trans(cost)      $cost
+
+        return 1
+    }
+
+    # ObligatePERCENT coffer
+    #
+    # coffer  - The owning agent's coffer of resources.
+    #
+    # When mode is PERCENT, figures out how many troops to assign
+    # and obligates the assignment.  Returns 1 on
+    # success, and 0 on failure.
+    #
+    # This tactic operates on a "best efforts" basis with respect to
+    # personnel.  It will always attempt to assign at least one troop.
+    # If 0 are available, it succeeds with an empty assignment.
+    # If there are troops to assign, but we can't afford to assign  
+    # them, it fails.
+
+    method ObligatePERCENT {coffer} {
+        # FIRST, retrieve relevant data.
+        set available [$coffer troops $g $n]
+        set cash      [$coffer cash]
+
+
+        # NEXT, if no troops are available, then we've done what we
+        # can; we succeed on a best efforts basis.
+        if {$available == 0} {
+            return [my ObligateEmptyAssignment]
+        }
+
+        let troops {
+            entier(ceil(double($percent)*$available/100.0))
+        }
+
+        # NEXT, cost only matters on tick.
+        set cost [my TroopCost $troops]
+
+        if {[strategy ontick] && $cost > $cash} {
+            # TBD: Report detailed failure
+            return 0
+        }
+
+        # NEXT, save the assignment details
+        set trans(personnel) $troops
+        set trans(cost)      $cost
+
+        return 1
+    }
+
+
+    # ObligateEmptyAssignment
+    #
+    # In some cases we will successfully assign no one.  This
+    # method sets up the trans() variables for these cases,
+    # and returns 1 for a successful assignment.
+
+    method ObligateEmptyAssignment {} {
+        set trans(personnel) 0
+        set trans(cost)      0.0
+        return 1
+    }
+
+    # CostPerPerson
+    #
+    # Returns the cost per person for the chosen activity.
+
+    method CostPerPerson {} {
         set gtype [group gtype $g]
-        set costPerTroop [parm get activity.$gtype.$activity.cost]
-        let cost {$costPerTroop * $personnel}
+        return [parm get activity.$gtype.$activity.cost]
+    }
+
+
+    # TroopCost troops
+    #
+    # Returns the cost of assigning the specified number of troops
+    # to the selected activity.
+
+    method TroopCost {troops} {
+        let cost {[my CostPerPerson] * $troops}
 
         return $cost
     }
 
+    # TroopsFor coffer cash
+    #
+    # coffer - The owning agent's coffer of resources.
+    # cash   - Some amount of money.
+    #
+    # Returns the maximum number of troops one can afford to assign
+    # given the cash available.
+
+    method TroopsFor {coffer cash} {
+        set costPerPerson [my CostPerPerson]
+
+        if {$costPerPerson == 0.0} {
+            return [$coffer troops $g $n]
+        }
+
+        return [expr {entier(double($cash)/$costPerPerson)}]
+    }
+
+
+
+    #-------------------------------------------------------------------
+    # Execution
+    
+
     method execute {} {
-        # FIRST, Pay the maintenance cost and assign the troops.
+        # FIRST, Pay the assignment cost and assign the troops.  Note
+        # that the assignment might be empty.
+        personnel assign [my id] $g $n $activity $trans(personnel)
         cash spend [my agent] ASSIGN $trans(cost)
-        personnel assign [my id] $g $n $activity $personnel
 
         sigevent log 2 tactic "
-            ASSIGN: Actor {actor:[my agent]} assigns $personnel {group:$g} 
+            ASSIGN: Actor {actor:[my agent]} assigns $trans(personnel) {group:$g} 
             personnel to $activity in {nbhood:$n}
         " [my agent] $n $g
 
@@ -197,8 +466,34 @@ order define TACTIC:ASSIGN {
         rcc "Activity:" -for activity
         enum activity -listcmd {tactic::ASSIGN activitiesFor $g}
 
-        rcc "Personnel:" -for personnel
-        text personnel
+        rcc "Personnel Mode:" -for pmode
+        selector pmode {
+            case ALL "Assign all of the group's unassigned personnel" {}
+
+            case SOME "Assign some of the group's unassigned personnel" {
+                rcc "Personnel:" -for personnel
+                text personnel
+            }
+
+            case UPTO "Assign no less than" {
+                rcc "Min Personnel:" -for min
+                text min
+                label "and up to"
+
+                rcc "Max Personnel:" -for max
+                text max
+            }
+
+            case ALLBUT "Assign all but some of the group's unassigned personnel" {
+                rcc "Personnel:" -for personnel
+                text personnel
+            }
+
+            case PERCENT "Assign a percentage of the group's unassigned personnel" {
+                rcc "Percentage:" -for percent
+                text percent
+            }
+        }
     }
 } {
     # FIRST, prepare the parameters
@@ -208,30 +503,43 @@ order define TACTIC:ASSIGN {
     # NEXT, get the tactic
     set tactic [tactic get $parms(tactic_id)]
 
-    prepare g                   -oneof [group ownedby [$tactic agent]]
-    prepare n         -toupper  -type nbhood
-    prepare activity  -toupper  -type {activity asched}
-    prepare personnel -num      -type ipositive
- 
+    prepare g          -toupper  -type ident
+    prepare n          -toupper  -type ident
+    prepare activity   -toupper  -type {activity asched}
+    prepare pmode      -toupper  -selector
+    prepare personnel  -num      -type iquantity
+    prepare min        -num      -type iquantity
+    prepare max        -num      -type ipositive
+    prepare percent    -num      -type rpercent
+
     returnOnError
 
     # NEXT, do the cross checks
     fillparms parms [$tactic view]
 
-    if {$parms(activity) ni [tactic::ASSIGN activitiesFor $parms(g)]} {
-        reject activity \
-            "Invalid activity for group $parms(g): \"$parms(activity)\""
+    if {$parms(pmode) eq "SOME" && $parms(personnel) == 0} {
+        reject personnel "For pmode SOME, personnel must be positive."
     }
 
-    if {$parms(personnel) == 0} {
-        reject personnel "Personnel must be positive"
+    if {$parms(pmode) eq "UPTO"} {
+        if {$parms(max) < $parms(min)} {
+            reject max "For pmode UPTO, max must be greater than min."
+        }
+    }
+
+    if {$parms(pmode) eq "PERCENT"} {
+        if {$parms(percent) == 0} {
+            reject max "For pmode PERCENT, percent must be positive."
+        }
     }
 
     returnOnError -final
 
     # NEXT, update the tactic, saving the undo script, and clearing
     # historical state data.
-    set undo [$tactic update_ {g n activity personnel} [array get parms]]
+    set undo [$tactic update_ {
+        g n activity pmode personnel min max percent
+    } [array get parms]]
 
     # NEXT, save the undo script
     setundo $undo

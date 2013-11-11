@@ -28,17 +28,42 @@ namespace eval ::athena_test::tests:: {
 
     # Set up for tests
 
-    proc setup {} {
+    # If opt is -valid, sets up a valid tactic.
+    proc setup {{opt ""}} {
+        variable B1
         variable T1
         variable coffer
-        ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+
+        # FIRST, create the basic entities.
+        ted create JOE BLUE ALQ NB1 NB2 SUNN SHIA KURD USAID
+
+        # NEXT, create a default ASSIGN tactic
+        set B1 [ted addblock JOE]
+        set T1 [ted addtactic $B1 ASSIGN]
+
+        # NEXT, when desired make it valid.
+        if {$opt eq "-valid"} {
+            # pmode is ALL by default.
+            $T1 configure -g BLUE -n NB1 -activity PATROL
+            $T1 check
+        }
+
+        # NEXT, prepare for obligation
         cash load
         personnel start
         personnel load
         set coffer [coffer new JOE]
+    }
 
-        set B1 [ted addblock JOE]
-        set T1 [ted addtactic $B1 ASSIGN]
+    # Set the cost of the PATROL activity
+    proc setcost {cost} {
+        parm set activity.FRC.PATROL.cost $cost
+    }
+
+    # Set the number of unassigned troops (<= 5000)
+    proc settroops {troops} {
+        variable coffer
+        $coffer deploy BLUE NB1 $troops
     }
 
     # Clean up after a test
@@ -56,18 +81,22 @@ namespace eval ::athena_test::tests:: {
     test constructor-1.1 {default state} -setup {
         setup
     } -body {
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
-        id         *
-        execstatus NONE
-        state      invalid
+    } -match dictglob -result {
         activity   {}
-        parent     ::bean::block*
-        personnel  0
-        n          {}
+        execstatus NONE
         g          {}
+        id         5
+        max        0
+        min        0
+        n          {}
+        parent     ::bean::block4
+        percent    0.0
+        personnel  0
+        pmode      ALL
+        state      invalid
     }
 
     test constructor-1.2 {can set options} -setup {
@@ -90,19 +119,56 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {In ???, assign 0 ??? personnel to do ???.}
+    } -result {In ???, assign all of ???'s unassigned personnel to do ???.}
 
-    test narrative-1.2 {narrative, valid data} -setup {
+    test narrative-1.2 {pmode ALL} -setup {
         setup
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 100
+        $T1 configure -g BLUE -n NB1 -activity PATROL
     } -body {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {In NB1, assign 100 BLUE personnel to do PATROL.}
+    } -result {In NB1, assign all of BLUE's unassigned personnel to do PATROL.}
+
+    test narrative-1.3 {pmode SOME} -setup {
+        setup
+        $T1 configure -g BLUE -n NB1 -activity PATROL \
+            -pmode SOME -personnel 1000
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {In NB1, assign 1000 of BLUE's unassigned personnel to do PATROL.}
+
+    test narrative-1.4 {pmode UPTO} -setup {
+        setup
+        $T1 configure -g BLUE -n NB1 -activity PATROL \
+            -pmode UPTO -min 100 -max 200
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {In NB1, assign at least 100, up to 200 of BLUE's unassigned personnel to do PATROL.}
+
+    test narrative-1.5 {pmode ALLBUT} -setup {
+        setup
+        $T1 configure -g BLUE -n NB1 -activity PATROL \
+            -pmode ALLBUT -personnel 1000
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {In NB1, assign all but 1000 of BLUE's unassigned personnel to do PATROL.}
+
+    test narrative-1.6 {pmode PERCENT} -setup {
+        setup
+        $T1 configure -g BLUE -n NB1 -activity PATROL \
+            -pmode PERCENT -percent 50.0
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {In NB1, assign 50.0% of BLUE's unassigned personnel to do PATROL.}
 
     #-------------------------------------------------------------------
     # check
@@ -110,54 +176,52 @@ namespace eval ::athena_test::tests:: {
     test check-1.1 {Initial state fails} -setup {
         setup
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {g {No group selected.} n {No neighborhood selected.} activity {No activity selected.}}
+    } -match dict -result {
+        g        {No group selected.} 
+        n        {No neighborhood selected.} 
+        activity {No activity selected.}
+    }
 
     test check-1.2 {g doesn't exist or is owned by another actor} -setup {
-        setup
+        setup -valid
     } -body {
-        $T1 set g NONESUCH
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 1
+        $T1 configure -g NONESUCH
         $T1 check
     } -cleanup {
         cleanup
-    } -result {g {Force/organization group "NONESUCH" is not owned by JOE.} activity {Invalid activity for selected group: "PATROL"}}
+    } -match dict -result {
+        g        {Force/organization group "NONESUCH" is not owned by JOE.} 
+        activity {Invalid activity for selected group: "PATROL"}
+    }
 
     test check-1.3 {unknown n} -setup {
-        setup
+        setup -valid
     } -body {
-        $T1 set g BLUE
-        $T1 set n NONESUCH
-        $T1 set activity PATROL
-        $T1 set personnel 1
+        $T1 configure -n NONESUCH
         $T1 check
     } -cleanup {
         cleanup
-    } -result {n {Non-existent neighborhood: NONESUCH}}
+    } -match dict -result {
+        n {Non-existent neighborhood: NONESUCH}
+    }
 
     test check-1.4 {unknown activity} -setup {
-        setup
+        setup -valid
     } -body {
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity NONESUCH
-        $T1 set personnel 1
+        $T1 configure -activity NONESUCH
         $T1 check
     } -cleanup {
         cleanup
-    } -result {activity {Invalid activity for selected group: "NONESUCH"}}
+    } -match dict -result {
+        activity {Invalid activity for selected group: "NONESUCH"}
+    }
 
     test check-1.5 {Success} -setup {
-        setup
+        setup -valid
     } -body {
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 1
         $T1 check
     } -cleanup {
         cleanup
@@ -165,15 +229,37 @@ namespace eval ::athena_test::tests:: {
 
     #-------------------------------------------------------------------
     # obligate
+    #
+    # The following tree shows an outline of the test cases, with 
+    # test numbers.
+    #
+    # 1.*: pmode=ALL
+    # 2.*: pmode=SOME
+    # 3.*: pmode=UPTO
+    # 4.*: pmode=ALLBUT
+    # 5.*: pmode=PERCENT
 
-    # obligate-1.*: Failures
+    # 1.*: pmode=ALL
 
-    test obligate-1.1 {Insufficient troops on tick} -setup {
-        setup
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 100
+    test obligate-1.1 {pmode=ALL, No troops} -setup {
+        setup -valid
+        $T1 configure -pmode ALL
+    } -body {
+        set before [$coffer troops BLUE NB1]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer troops BLUE NB1]
+
+        # Succeed with empty assignment
+        list $flag [expr {$before == $after}]
+    } -cleanup {
+        cleanup
+    } -result {1 1}
+
+    test obligate-1.2 {pmode=ALL, Insufficient cash on tick} -setup {
+        setup -valid
+        $T1 configure -pmode ALL
+        settroops 1000
+        setcost 1000
     } -body {
         set before [$coffer getdict]
         set flag [$T1 obligate $coffer]
@@ -184,52 +270,11 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0 1}
 
-    test obligate-1.2 {Insufficient troops on lock} -setup {
-        setup
-        strategy locking 1
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 100
-    } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
-    } -cleanup {
-        cleanup
-    } -result {0 1}
-
-    test obligate-1.3 {Insufficient cash on tick} -setup {
-        setup
-        parm set activity.FRC.PATROL.cost 1000
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 1000
-        $coffer deploy BLUE NB1 2000
-    } -body {
-        # 1000 troops at $1000 per is $1M; we have $10K.
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
-    } -cleanup {
-        cleanup
-    } -result {0 1}
-
-    # obligate-2.*: success
-
-    test obligate-2.1 {success} -setup {
-        setup
-        parm set activity.FRC.PATROL.cost 1
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 100
-        $coffer deploy BLUE NB1 500
+    test obligate-1.3 {pmode=ALL, got resources on tick} -setup {
+        setup -valid
+        setcost 1
+        settroops 1000
+        $T1 configure -pmode ALL
     } -body {
         set a [$coffer troops BLUE NB1]
         set b [$coffer cash]
@@ -240,17 +285,77 @@ namespace eval ::athena_test::tests:: {
         list $a $b $c $d $e
     } -cleanup {
         cleanup
-    } -result {500 10000.0 1 400 9900.0}
+    } -result {1000 10000.0 1 0 9000.0}
 
-    test obligate-2.2 {insufficient funds on lock} -setup {
-        setup
+    test obligate-1.4 {pmode=ALL, no cash on lock} -setup {
+        setup -valid
+        settroops 1000
+        setcost 1000
         strategy locking 1
-        parm set activity.FRC.PATROL.cost 1000
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 1000
-        $coffer deploy BLUE NB1 2000
+        $T1 configure -pmode ALL
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer troops BLUE NB1]
+        set c [$coffer cash]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 0 0.0}
+
+
+    # 2.*: pmode=SOME
+
+    test obligate-2.1 {pmode=SOME, Insufficient troops} -setup {
+        setup -valid
+        $T1 configure -pmode SOME -personnel 100
+    } -body {
+        set before [$coffer getdict]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer getdict]
+
+        list $flag [expr {$before eq $after}]
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test obligate-2.2 {pmode=SOME, Insufficient cash on tick} -setup {
+        setup -valid
+        $T1 configure -pmode SOME -personnel 100
+        setcost 1000
+    } -body {
+        set before [$coffer getdict]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer getdict]
+
+        list $flag [expr {$before eq $after}]
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test obligate-2.3 {pmode=SOME, got resources on tick} -setup {
+        setup -valid
+        setcost 1
+        settroops 1000
+        $T1 configure -pmode SOME -personnel 100
+    } -body {
+        set a [$coffer troops BLUE NB1]
+        set b [$coffer cash]
+        set c [$T1 obligate $coffer]
+        set d [$coffer troops BLUE NB1]
+        set e [$coffer cash]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {1000 10000.0 1 900 9900.0}
+
+    test obligate-2.4 {pmode=SOME, no cash on lock} -setup {
+        setup -valid
+        settroops 2000
+        setcost 1000
+        strategy locking 1
+        $T1 configure -pmode SOME -personnel 1000
     } -body {
         set a [$T1 obligate $coffer]
         set b [$coffer troops BLUE NB1]
@@ -262,18 +367,240 @@ namespace eval ::athena_test::tests:: {
     } -result {1 1000 0.0}
 
 
+    # 3.*: pmode=UPTO
+
+    test obligate-3.1 {pmode=UPTO, Insufficient troops} -setup {
+        setup -valid
+        $T1 configure -pmode UPTO -min 100 -max 200
+    } -body {
+        set before [$coffer getdict]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer getdict]
+
+        list $flag [expr {$before eq $after}]
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test obligate-3.2 {pmode=UPTO, Insufficient cash tick} -setup {
+        setup -valid
+        $T1 configure -pmode UPTO -min 100 -max 200
+        setcost 1000
+    } -body {
+        set before [$coffer getdict]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer getdict]
+
+        list $flag [expr {$before eq $after}]
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test obligate-3.3 {pmode=UPTO, got max on tick} -setup {
+        setup -valid
+        setcost 1
+        settroops 1000
+        $T1 configure -pmode UPTO -min 100 -max 200
+    } -body {
+        set a [$coffer troops BLUE NB1]
+        set b [$coffer cash]
+        set c [$T1 obligate $coffer]
+        set d [$coffer troops BLUE NB1]
+        set e [$coffer cash]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {1000 10000.0 1 800 9800.0}
+
+    test obligate-3.4 {pmode=UPTO, cash for less than max} -setup {
+        setup -valid
+        setcost 10   ;# Can afford 1000
+        settroops 2000
+        $T1 configure -pmode UPTO -min 100 -max 2000
+    } -body {
+        set a [$coffer troops BLUE NB1]
+        set b [$coffer cash]
+        set c [$T1 obligate $coffer]
+        set d [$coffer troops BLUE NB1]
+        set e [$coffer cash]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {2000 10000.0 1 1000 0.0}
+
+    test obligate-3.5 {pmode=UPTO, personnel for less than max} -setup {
+        setup -valid
+        setcost 1 ;# Can afford 1000
+        settroops 1000
+        $T1 configure -pmode UPTO -min 100 -max 2000
+    } -body {
+        set a [$coffer troops BLUE NB1]
+        set b [$coffer cash]
+        set c [$T1 obligate $coffer]
+        set d [$coffer troops BLUE NB1]
+        set e [$coffer cash]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {1000 10000.0 1 0 9000.0}
+
+    test obligate-3.6 {pmode=UPTO, no cash on lock} -setup {
+        setup -valid
+        settroops 2000
+        setcost 1000
+        strategy locking 1
+        $T1 configure -pmode UPTO -min 1000 -max 1500
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer troops BLUE NB1]
+        set c [$coffer cash]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 500 0.0}
+
+    # 4.*: pmode=ALLBUT
+
+    test obligate-4.1 {pmode=ALLBUT, No troops} -setup {
+        setup -valid
+        $T1 configure -pmode ALLBUT -personnel 100
+    } -body {
+        set before [$coffer troops BLUE NB1]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer troops BLUE NB1]
+
+        # Succeed with empty assignment
+        list $flag [expr {$before == $after}]
+    } -cleanup {
+        cleanup
+    } -result {1 1}
+
+    test obligate-4.2 {pmode=ALLBUT, Insufficient cash on tick} -setup {
+        setup -valid
+        $T1 configure -pmode ALLBUT -personnel 100
+        settroops 1000
+        setcost 1000
+    } -body {
+        set before [$coffer getdict]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer getdict]
+
+        list $flag [expr {$before eq $after}]
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test obligate-4.3 {pmode=ALLBUT, got resources on tick} -setup {
+        setup -valid
+        setcost 1
+        settroops 1000
+        $T1 configure -pmode ALLBUT -personnel 100
+    } -body {
+        set a [$coffer troops BLUE NB1]
+        set b [$coffer cash]
+        set c [$T1 obligate $coffer]
+        set d [$coffer troops BLUE NB1]
+        set e [$coffer cash]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {1000 10000.0 1 100 9100.0}
+
+    test obligate-4.4 {pmode=ALLBUT, no cash on lock} -setup {
+        setup -valid
+        settroops 1000
+        setcost 1000
+        strategy locking 1
+        $T1 configure -pmode ALLBUT -personnel 100
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer troops BLUE NB1]
+        set c [$coffer cash]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 100 0.0}
+
+    # 5.*: pmode=PERCENT
+
+    test obligate-5.1 {pmode=PERCENT, No troops} -setup {
+        setup -valid
+        $T1 configure -pmode PERCENT -percent 50.0
+    } -body {
+        set before [$coffer troops BLUE NB1]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer troops BLUE NB1]
+
+        # Succeed with empty assignment
+        list $flag [expr {$before == $after}]
+    } -cleanup {
+        cleanup
+    } -result {1 1}
+
+    test obligate-5.2 {pmode=PERCENT, Insufficient cash on tick} -setup {
+        setup -valid
+        $T1 configure -pmode PERCENT -percent 50.0
+        settroops 1000
+        setcost 1000
+    } -body {
+        set before [$coffer getdict]
+        set flag [$T1 obligate $coffer]
+        set after [$coffer getdict]
+
+        list $flag [expr {$before eq $after}]
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    test obligate-5.3 {pmode=PERCENT, got resources on tick} -setup {
+        setup -valid
+        setcost 1
+        settroops 1000
+        $T1 configure -pmode PERCENT -percent 50.0
+    } -body {
+        set a [$coffer troops BLUE NB1]
+        set b [$coffer cash]
+        set c [$T1 obligate $coffer]
+        set d [$coffer troops BLUE NB1]
+        set e [$coffer cash]
+
+        list $a $b $c $d $e
+    } -cleanup {
+        cleanup
+    } -result {1000 10000.0 1 500 9500.0}
+
+    test obligate-5.4 {pmode=PERCENT, no cash on lock} -setup {
+        setup -valid
+        settroops 1000
+        setcost 1000
+        strategy locking 1
+        $T1 configure -pmode PERCENT -percent 50.0
+    } -body {
+        set a [$T1 obligate $coffer]
+        set b [$coffer troops BLUE NB1]
+        set c [$coffer cash]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {1 500 0.0}
+
+
     #-------------------------------------------------------------------
     # execute
 
     test execute-1.1 {assigns troops} -setup {
-        setup
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 100
-
-        $coffer deploy BLUE NB1 500
-        personnel deploy 1 NB1 BLUE 500
+        setup -valid
+        setcost 1
+        settroops 1000
+        $T1 configure -pmode SOME -personnel 100
+        personnel deploy 1 NB1 BLUE 1000
 
         $T1 obligate $coffer
     } -body {
@@ -288,15 +615,11 @@ BLUE 100
     }
 
     test execute-1.2 {expends cash} -setup {
-        setup
-        parm set activity.FRC.PATROL.cost 1
-        $T1 set g BLUE
-        $T1 set n NB1
-        $T1 set activity PATROL
-        $T1 set personnel 100
-
-        $coffer deploy BLUE NB1 500
-        personnel deploy 1 NB1 BLUE 500
+        setup -valid
+        setcost 1
+        settroops 1000
+        $T1 configure -pmode SOME -personnel 100
+        personnel deploy 1 NB1 BLUE 1000
 
         $T1 obligate $coffer
     } -body {
@@ -305,6 +628,7 @@ BLUE 100
     } -cleanup {
         cleanup
     } -result {9900.0}
+
 
     #-------------------------------------------------------------------
     # Cleanup

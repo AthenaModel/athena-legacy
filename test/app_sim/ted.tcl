@@ -895,7 +895,7 @@ snit::type ted {
         set block [ted addblock $owner onlock YES]
 
         ted addtactic $block ASSIGN \
-            g $g n $n activity $a personnel $personnel
+            g $g n $n activity $a pmode SOME personnel $personnel
     }
 
     #-------------------------------------------------------------------

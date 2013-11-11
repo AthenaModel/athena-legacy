@@ -78,6 +78,136 @@ page /object tactic "Tactic" {
 }
 
 #-----------------------------------------------------------------------
+# ASSIGN Tactic
+
+object tactic_assign {
+    noun "ASSIGN tactic"
+    overview {
+        This <<term tactic>> assigns an 
+        abstract <<term activity>> to an <<term actor>>'s
+        <<term frcgroup>> or <<term orggroup>> personnel
+        in a particular <<term nbhood>>.  The personnel must already
+        be <<cref /object/tactic/deploy deployed>> in the
+        neighborhood.  Athena will create a <<term unit>> containing
+        the assigned personnel; the unit will be visible on the
+        <<tab Map>>.<p>
+
+        The number of troops to assign is determined by the personnel
+        mode (<i>pmode</i>); see the table below.<p>
+
+        The cost in dollars/person/week of assigning troops to do
+        activities is defined for each activity using 
+        <<cref /parmdb>>.  Look under <<cref /parmdb/activity/frc>> and
+        <<cref /parmdb/activity/org>> for the cost parameters, e.g.,
+        <<parmdb activity.FRC.PATROL.cost>>.  By
+        default, all activity costs are set to zero.<p>
+
+        Multiple ASSIGN tactics are cumulative.  The assignment lasts
+        until the next strategy tock.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute g "Group" {
+        The ID of a <<term frcgroup>> or 
+        <<term orggroup>> belonging to the tactic's owning <i>agent</i>.
+    } -tags {update}
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The personnel to be assigned will be 
+        drawn from those deployed into this neighborhood.
+    } -tags {create update}
+
+    attribute activity "Activity" {
+        The <<term activity>> to be assigned.  The valid
+        abstract activities are different for different group types;
+        see <i>Athena Rules Document</i>, delivered with the software,
+        for the full set.
+    } -tags {update}
+
+    attribute pmode "Personnel Mode" {
+        The personnel mode, which has one of the following values.<p>
+
+        <b>ALL</b>: Athena will assign
+        as many of the group's unassigned personnel as the actor 
+        can afford.  If no unassigned personnel are available, the
+        tactic succeeds trivially.  If personnel are available but
+        there's not enough cash to assign any, the tactic fails due
+        to insufficient cash.<p>
+
+        <b>SOME</b>: Athena will assign
+        the specified number of <i>personnel</i>.  The tactic fails
+        if there are insufficient troops available to assign, or if
+        the actor cannot afford to assign the requested number.<p>
+
+        <b>UPTO</b>: Athena will assign
+        as many troops as the actor can afford, from at least 
+        the <i>min</i> number of personnel up to the
+        given <i>max</i> number.  The tactic fails if there are fewer
+        than <i>min</i> personnel available for assignment, or if
+        the actor cannot afford at least <i>min</i> personnel.<p>
+
+        <b>ALLBUT</b>: Athena will assign
+        all but the specified number of <i>personnel</i>, leaving 
+        <i>personnel</i> available for additional assignments.  The
+        tactic operates on a best-efforts basis with respect to personnel;
+        if there are only <i>personnel</i> or fewer troops available,
+        the tactic will succeed trivially with an empty assignment.<p>
+
+        <b>PERCENT</b>: Athena will assign a given <i>percent</i>
+        of the group's unassigned personnel, rounding up (so that it always
+        assigns at least one person).  If no personnel are available,
+        succeeds trivially.  Fails if the actor cannot afford to 
+        assign the requested percentage.
+    } -tags {update}
+
+    attribute personnel "Personnel" {
+        When the <i>pmode</i> is <b>SOME</b>, the 
+        number of unassigned personnel to be assigned.<p>
+
+        When the <i>pmode</i> is <b>ALLBUT</b>, the number of unassigned
+        personnel to retain; any excess will be be assigned.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute min "Min Personnel" {
+        When the <i>pmode</i> is <b>UPTO</b>, the 
+        minimum number of unassigned personnel to be assigned.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute max "Max Personnel" {
+        When the <i>pmode</i> is <b>UPTO</b>, the 
+        maximum number of unassigned personnel to be assigned.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+
+    attribute percent "Percentage" {
+        When the <i>pmode</i> is <b>PERCENT</b>, the percentage of 
+        unassigned troops to deploy, expressed as a real number, i.e.,
+        a value of 3.5 will assign 3.5% of the unassigned troops.<p>
+
+        This parameter is ignored for other modes.
+    } -tags {update}
+}
+
+page /object/tactic assign "ASSIGN tactic" {
+    <<sotitle>>
+
+    <<tactic_assign overview>><p>
+
+    Assign Troops tactics have the following attributes:<p>
+
+    <<tactic_assign parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # ATTROE Tactic
 
 object tactic_attroe {
@@ -557,7 +687,7 @@ object tactic_deploy {
     attribute percent "Percentage" {
         When the <i>pmode</i> is <b>PERCENT</b>, the percentage of 
         undeployed troops to deploy, expressed as a real number, i.e.,
-        a value of 3.5 will demobilize 3.5% of the undeployed troops.<p>
+        a value of 3.5 will deploy 3.5% of the undeployed troops.<p>
 
         This parameter is ignored for other modes.
     } -tags {update}

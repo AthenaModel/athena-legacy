@@ -321,15 +321,20 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         return [expr {$troops * [group maintPerPerson $g]}]
     }
 
-    # TroopsFor cash
+    # TroopsFor coffer cash
     #
+    # coffer - The owning agent's coffer of resources.
     # cash   - Some amount of money.
     #
     # Returns the maximum number of troops one can afford to deploy
     # given the cash available.
 
-    method TroopsFor {cash} {
+    method TroopsFor {coffer cash} {
         set costPerPerson [group maintPerPerson $g]
+
+        if {$costPerPerson == 0.0} {
+            return [$coffer troops $g undeployed]
+        }
 
         return [expr {entier(double($cash)/$costPerPerson)}]
     }
@@ -445,7 +450,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             set troops $available
         } else {
             # FIRST, compute the number of troops we can afford.
-            let maxTroops [my TroopsFor $cash]
+            let maxTroops [my TroopsFor $coffer $cash]
             let troops {min($available,$maxTroops)}
 
             if {$troops == 0} {
@@ -517,7 +522,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         if {[strategy locking]} {
             set affordableTroops $max
         } else {
-            set affordableTroops [my TroopsFor $cash]
+            set affordableTroops [my TroopsFor $coffer $cash]
         }
 
         if {$min > $available} {
