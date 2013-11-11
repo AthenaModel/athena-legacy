@@ -1389,6 +1389,7 @@ snit::type executive {
         set f [open $fullname w]
 
         # NEXT, write a header
+        puts $f "# Written from Athena version [version]"
         puts $f "# Exporting [scenario dbfile] @ [clock format [clock seconds]]"
 
         # NEXT, save all of the scripts in sequence order
