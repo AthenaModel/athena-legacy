@@ -81,7 +81,7 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
             }
 
             EXCESS {
-                append text "Spend any cash-on-hand over \$amt "
+                append text "Spend any cash-on-hand over \$$amt "
             }
 
             default {
