@@ -819,6 +819,10 @@ object tactic_fund {
     include tactic_ -attrs agent
     include tactic_ -attrs state
 
+    attribute a "Actor" {
+        The ID of an <<term actor>> to receive the cash.
+    } -tags {update}
+
     attribute mode "Mode" {
         The funding amount mode, which has one of the following values.<p>
 
