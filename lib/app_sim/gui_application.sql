@@ -46,7 +46,8 @@ SELECT c          AS id, 'concern'  AS etype FROM concerns    UNION
 SELECT a          AS id, 'activity' AS etype FROM activity    UNION
 SELECT u          AS id, 'unit'     AS etype FROM units       UNION
 SELECT tid        AS id, 'topic'    AS etype FROM mam_topic   UNION
-SELECT curse_id   AS id, 'curse'    AS etype FROM curses;
+SELECT curse_id   AS id, 'curse'    AS etype FROM curses      UNION
+SELECT hook_id    AS id, 'hook'     AS etype FROM hooks;
 
 
 ------------------------------------------------------------------------
