@@ -408,7 +408,7 @@ namespace eval ::athena_test::tests:: {
         $T1 faildict
     } -cleanup {
         cleanup
-    } -result {WARNING {Gofer selected no neighborhoods.}}
+    } -result {WARNING {Gofer retrieved no neighborhoods.}}
 
     test obligate-3.2 {nlist returns empty neighborhoods} -setup {
         setup valid
@@ -418,7 +418,7 @@ namespace eval ::athena_test::tests:: {
         $T1 faildict
     } -cleanup {
         cleanup
-    } -result {WARNING {All selected neighborhoods are empty.}}
+    } -result {WARNING {All retrieved neighborhoods are empty.}}
 
     # 4.*: New deployment, pmode = ALL
 

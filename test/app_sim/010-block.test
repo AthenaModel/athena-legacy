@@ -75,10 +75,10 @@ namespace eval ::athena_test::tests:: {
     test constructor-1.1 {block is created} -setup {
         setup
     } -body {
-        ted pdict [$B1 getdict]
+        ted pdicts [$B1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         cmode      ALL
         execstatus NONE
         state      normal
@@ -100,10 +100,10 @@ namespace eval ::athena_test::tests:: {
         setup
         set B1 [block new -cmode ANY -intent "My block"]
     } -body {
-        ted pdict [$B1 getdict]
+        ted pdicts [$B1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         cmode      ANY
         execstatus NONE
         state      normal
@@ -161,60 +161,62 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         $B1 set exectime ""
-        ted pdict [$B1 view]
+        ted pdicts [$B1 view]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
+        agent           SYSTEM
         cmode           ALL
-        execstatus      NONE
-        state           normal
-        tmode           ALWAYS
         conditions      {}
         emode           ALL
-        id              *
-        once            0
-        t1              {}
-        onlock          0
-        t2              {}
-        parent          ::strategy::SYSTEM
-        intent          {}
-        tactics         {}
+        execstatus      NONE
         exectime        {}
-        agent           SYSTEM
+        id              *
+        intent          {}
+        once            0
+        onlock          0
+        parent          ::strategy::SYSTEM
+        pretty_exectime -
         pretty_once     No
         pretty_onlock   No
+        state           normal
+        statusicon      ::projectgui::icon::dash13
+        t1              {}
+        t2              {}
+        tactics         {}
         timestring      {every week}
-        pretty_exectime -
+        tmode           ALWAYS
     }
 
     test view-1.2 {view, exectime set} -setup {
         setup
     } -body {
         $B1 set exectime 5
-        ted pdict [$B1 view]
+        ted pdicts [$B1 view]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
+        agent           SYSTEM
         cmode           ALL
-        execstatus      NONE
-        state           normal
-        tmode           ALWAYS
         conditions      {}
         emode           ALL
-        id              *
-        once            0
-        t1              {}
-        onlock          0
-        t2              {}
-        parent          ::strategy::SYSTEM
-        intent          {}
-        tactics         {}
+        execstatus      NONE
         exectime        5
-        agent           SYSTEM
+        id              *
+        intent          {}
+        once            0
+        onlock          0
+        parent          ::strategy::SYSTEM
+        pretty_exectime 2012W06
         pretty_once     No
         pretty_onlock   No
+        state           normal
+        statusicon      ::projectgui::icon::dash13
+        t1              {}
+        t2              {}
+        tactics         {}
         timestring      {every week}
-        pretty_exectime 2012W06
+        tmode           ALWAYS
     }
     
     #-------------------------------------------------------------------
