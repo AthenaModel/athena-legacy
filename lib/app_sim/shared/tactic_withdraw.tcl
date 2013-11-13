@@ -77,7 +77,7 @@ tactic define WITHDRAW "Withdraw Money" {actor} {
         }
     }
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
     #           resources
@@ -87,7 +87,7 @@ tactic define WITHDRAW "Withdraw Money" {actor} {
     #
     # NOTE: WITHDRAW never executes on lock.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         assert {[strategy ontick]}
 
         # FIRST, retrieve the current reserve amount
@@ -104,8 +104,8 @@ tactic define WITHDRAW "Withdraw Money" {actor} {
 
             EXACT {
                 # This is the only one that can fail
-                if {$amount > $cash_reserve} {
-                    return 0
+                if {[my InsufficientCash $cash_reserve $amount]} {
+                    return
                 }
 
                 set withdrawal $amount
@@ -135,8 +135,6 @@ tactic define WITHDRAW "Withdraw Money" {actor} {
 
         # NEXT, obligate it
         $coffer withdraw $trans(amount)
-
-        return 1
     }
 
     method execute {} {

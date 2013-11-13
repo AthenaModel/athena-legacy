@@ -60,6 +60,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match dictglob -result {
         execstatus NONE
+        faildict   {}
         g          {}
         id         *
         n          {}

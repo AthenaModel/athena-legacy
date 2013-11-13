@@ -115,15 +115,14 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
     # Obligation
     
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - The owning agent's coffer of resources.
     #
     # Obligates the personnel and cash required for the assignment,
-    # as indicated by the pmode, returning 1 on success and 0
-    # on failure.
+    # as indicated by the pmode, if possible, and failing otherwise.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         # FIRST, Obligate by mode.  We can't simply compute the number
         # of troops for the selected mode, because different modes
         # have different failure policies.
@@ -142,8 +141,6 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
             $coffer spend $trans(cost)
             $coffer assign $g $n $trans(personnel)
         }
-
-        return $flag
     }
 
     # ObligateALL coffer
@@ -170,10 +167,8 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
             return [my ObligateEmptyAssignment]
         }
 
-
         # NEXT, if we are not locking, can we afford the troops?
-        if {[strategy ontick] && $cost > $cash} {
-            # TBD: Report failure details.
+        if {[my InsufficientCash $cash $cost]} {
             return 0
         }
 
@@ -199,14 +194,12 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
         set cost      [my TroopCost $personnel]
 
         # NEXT, Fail if there are insufficient troops.
-        if {$personnel > $available} {
-            # TBD: Report detailed failure
+        if {[my InsufficientPersonnel $available $personnel]} {
             return 0
         }
 
         # NEXT, cost only matters on tick.
-        if {[strategy ontick] && $cost > $cash} {
-            # TBD: Report detailed failure
+        if {[my InsufficientCash $cash $cost]} {
             return 0
         }
 
@@ -243,13 +236,11 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
             set affordableTroops [my TroopsFor $coffer $cash]
         }
 
-        if {$min > $available} {
-            # TBD: Report failure details
+        if {[my InsufficientPersonnel $available $min]} {
             return 0
         }
 
-        if {[strategy ontick] && $minCost > $cash} {
-            # TBD: Report failure details
+        if {[my InsufficientCash $cash $minCost]} {
             return 0
         }
 
@@ -291,8 +282,7 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
         # NEXT, cost only matters on tick.
         set cost [my TroopCost $troops]
 
-        if {[strategy ontick] && $cost > $cash} {
-            # TBD: Report detailed failure
+        if {[my InsufficientCash $cash $cost]} {
             return 0
         }
 
@@ -336,8 +326,7 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
         # NEXT, cost only matters on tick.
         set cost [my TroopCost $troops]
 
-        if {[strategy ontick] && $cost > $cash} {
-            # TBD: Report detailed failure
+        if {[my InsufficientCash $cash $cost]} {
             return 0
         }
 

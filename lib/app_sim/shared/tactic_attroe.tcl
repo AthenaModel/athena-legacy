@@ -174,17 +174,17 @@ tactic define ATTROE "Attacking ROE" {actor} {
         }
     }
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current resources
     #
-    # Obligates cash required for the attacks.
+    # Obligates cash required for the attacks if possible.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         # FIRST, if we aren't attacking there's no cost.
         if {$roe eq "DO_NOT_ATTACK"} {
             set trans(cost) 0.0
-            return 1
+            return
         }
 
         # NEXT, compute the cost; can we afford it?
@@ -192,14 +192,12 @@ tactic define ATTROE "Attacking ROE" {actor} {
 
         let trans(cost) {$costPerAttack * $attacks}
 
-        if {$trans(cost) > [$coffer cash]} {
-            return 0
+        if {[my InsufficientCash [$coffer cash] $trans(cost)]} {
+            return
         } 
 
         # NEXT, yes; obligate it.
         $coffer spend $trans(cost)
-
-        return 1
     }
 
     method execute {} {

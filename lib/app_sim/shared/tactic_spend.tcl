@@ -95,47 +95,48 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
         return $text
     }
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
     #           resources
     #
     # Obligates the money to be spent.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         # FIRST, retrieve relevant data.
-        let cash_on_hand [$coffer cash]
+        let cash [$coffer cash]
         set spent 0.0
 
         # NEXT, depending on mode, try to obligate money
         switch -exact -- $mode {
             ALL {
-                if {$cash_on_hand > 0.0} {
-                    set spent $cash_on_hand
+                if {$cash > 0.0} {
+                    set spent $cash
                 }
             }
 
             EXACT {
                 # This is the only one than could give rise to an error and
                 # only if we are on a tick
-                if {[strategy ontick] && $amount > $cash_on_hand} {
-                    return 0
+                if {[my InsufficientCash $cash $amount]} {
+                    return
                 }
+
                 set spent $amount
             }
 
             UPTO {
-                let spent {max(0.0, min($cash_on_hand, $amount))}
+                let spent {max(0.0, min($cash, $amount))}
             }
 
             PERCENT {
-                if {$cash_on_hand > 0.0} {
-                    let spent {double($percent/100.0) * $cash_on_hand}
+                if {$cash > 0.0} {
+                    let spent {double($percent/100.0) * $cash}
                 }
             }
 
             EXCESS {
-                let spent {max(0.0, $cash_on_hand-$amount)}
+                let spent {max(0.0, $cash-$amount)}
             }
 
             default {
@@ -148,9 +149,6 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
 
         # NEXT, obligate it.
         $coffer spend $trans(amount)
-
-        return 1
-
     }
 
     method execute {} {

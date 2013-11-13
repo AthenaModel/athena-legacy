@@ -201,6 +201,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match dictglob -result {
         execstatus NONE
+        faildict   {}
         g          NONESUCH
         id         *
         last_tick  {}
@@ -239,6 +240,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match dictglob -result {
         execstatus NONE
+        faildict   {}
         g          BLUE
         id         *
         last_tick  {}

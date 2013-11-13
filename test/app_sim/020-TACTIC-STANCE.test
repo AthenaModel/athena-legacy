@@ -99,6 +99,7 @@ namespace eval ::athena_test::tests:: {
         drel       0.0
         execstatus NONE
         f          BLUE
+        faildict   {}
         glist      {_type GROUPS _rule BY_VALUE raw_value {BRIT USAID}}
         id         *
         mode       BY_GROUP
@@ -122,6 +123,7 @@ namespace eval ::athena_test::tests:: {
         drel       0.0
         execstatus NONE
         f          BLUE
+        faildict   {}
         glist      {_type GROUPS _rule {}}
         id         *
         mode       BY_NBHOOD

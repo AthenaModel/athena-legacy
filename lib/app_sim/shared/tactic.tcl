@@ -270,6 +270,8 @@ oo::define tactic {
     variable state       ;# The tactic's state: normal, disabled, invalid
     variable execstatus  ;# An eexecstatus value: NONE, SKIPPED, 
                           # FAIL_RESOURCES, or SUCCESS.
+    variable faildict    ;# Dictionary of resource failure detail messages
+                          # by eresource symbol.
 
     # Tactic types will add their own variables.
 
@@ -281,6 +283,7 @@ oo::define tactic {
         set parent     ""
         set state      normal
         set execstatus NONE
+        set faildict   [dict create]
     }
 
     #-------------------------------------------------------------------
@@ -354,6 +357,93 @@ oo::define tactic {
         return [expr {$execstatus eq "SUCCESS"}]
     }
 
+    #-------------------------------------------------------------------
+    # Resource Failure Detail Management
+    
+
+    # Fail code message
+    #
+    # code    - An eresource code
+    # message - The failure message
+    # 
+    # Saves the resource failure message.  This is for use by
+    # obligate methods.
+
+    method Fail {code message} {
+        dict set faildict $code $message
+    }
+
+    # InsufficientCash cash cost
+    #
+    # cash   - Cash available
+    # cost   - Cash required
+    #
+    # Returns 1 on insufficient cash, setting the failure message,
+    # and 0 otherwise.  Cash is always sufficient on lock.
+
+    method InsufficientCash {cash cost} {
+        if {[strategy ontick] && $cost > $cash} {
+
+            set cash [commafmt $cash]
+            set cost [commafmt $cost]
+
+            my Fail CASH "Required \$$cost, but had only \$$cash."
+
+            return 1
+        } else {
+            return 0
+        }
+    }
+
+    # InsufficientPersonnel available required
+    #
+    # available  - Personnel available
+    # required   - Personnel required
+    #
+    # Returns 1 on insufficient personnel, setting the failure
+    # message, and 0 otherwise.
+
+    method InsufficientPersonnel {available required} {
+        if {$required > $available} {
+            my Fail PERSONNEL \
+            "Required $required personnel, but had only $available available."
+            return 1
+        } else {
+            return 0
+        }
+    }
+
+
+    # faildict
+    #
+    # Returns the tactic's failure dictionary.
+
+    method faildict {} {
+        return $faildict
+    }
+
+    # failicon
+    #
+    # Returns the icon associated with the first failure
+    # in the faildict., or "" if none.
+
+    method failicon {} {
+        set code [lindex [dict keys $faildict] 0]
+
+        if {$code ne ""} {
+            return [eresource as icon $code]
+        } else {
+            return ""
+        }
+    }
+
+    # failures
+    #
+    # Returns a list of the resource failure messages.
+
+    method failures {} {
+        return [dict values $faildict]
+    }
 
     #-------------------------------------------------------------------
     # Tactic Reset
@@ -364,6 +454,7 @@ oo::define tactic {
 
     method reset {} {
         my set execstatus NONE
+        my set faildict   [dict create]
     }
     
 
@@ -449,11 +540,35 @@ oo::define tactic {
     #
     # Obligates the resources for use by this tactic, updating
     # the coffer.  Returns 1 on success, and 0 on failure.
+    #
+    # Subclasses override ObligateResources.  The obligation is
+    # known to have failed if the subclass has registered a
+    # resource failure using [my Fail] or one of the other
+    # helper methods.
 
     method obligate {coffer} {
-        # Tactics don't obligate resources by default.
-        # There is no need to call "next" on override.
-        return 1
+        # FIRST, initialize the failure dictionary
+        my set faildict [dict create]
+
+        my ObligateResources $coffer
+
+        return [expr {[dict size $faildict] == 0}]
+    }
+
+    # ObligateResources coffer
+    #
+    # coffer - A coffer object, representing the owning actor's
+    #          current resources.
+    #
+    # Obligates resources required by this tactic, updating
+    # the coffer.  Subclasses should override this method.  
+    # It is not necessary to call "next".  However, the
+    # method should call [my Fail] on resource failure.
+    # (This is done automatically by [my InsufficientCash]
+    # and [my InsufficientTroops]).
+
+    method ObligateResources {coffer} {
+        # By default, obligation trivally succeeds.
     }
 
     # execute

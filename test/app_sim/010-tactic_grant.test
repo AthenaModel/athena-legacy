@@ -59,6 +59,7 @@ namespace eval ::athena_test::tests:: {
     } -match dictglob -result {
         alist      {_type ACTORS _rule {}}
         execstatus NONE
+        faildict   {}
         id         *
         klist      {}
         parent     ::bean::block*

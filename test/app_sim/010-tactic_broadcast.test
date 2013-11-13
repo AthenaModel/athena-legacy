@@ -83,11 +83,12 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          SELF
         cap        CBS
         cost       500.0
         execstatus NONE
+        faildict   {}
         id         *
         iom        IOM1
         parent     ::bean::block*
@@ -101,11 +102,12 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          NONESUCH
         cap        FOO
         cost       99
         execstatus NONE
+        faildict   {}
         id         *
         iom        DUMMY
         parent     *
@@ -237,13 +239,11 @@ namespace eval ::athena_test::tests:: {
         cap access load
     } -body {
         $T1 set cost 100000.0
-        set a [$coffer cash]
-        set b [$T1 obligate $coffer]
-        set c [$coffer cash]
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {10000.0 0 10000.0}
+    } -result {CASH {Required $101,000, but had only $10,000.}}
 
     #-------------------------------------------------------------------
     # execute

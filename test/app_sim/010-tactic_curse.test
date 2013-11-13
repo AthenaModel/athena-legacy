@@ -135,16 +135,17 @@ namespace eval ::athena_test::tests:: {
     test constructor-1.1 {default state} -setup {
         setup
     } -body {
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
-        id         5
-        execstatus NONE
-        state      normal
-        roles      *
-        parent     *
+    } -match dictglob -result {
         curse      C1
+        execstatus NONE
+        faildict   {}
+        id         5
+        parent     *
+        roles      *
+        state      normal
     }
 
     test constructor-1.2 {can set options} -setup {

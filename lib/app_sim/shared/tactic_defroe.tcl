@@ -64,7 +64,7 @@ tactic define DEFROE "Defensive ROE" {actor} {
     #-------------------------------------------------------------------
     # Operations
 
-    # No obligate method is required; the ROE uses no resources.
+    # No ObligateResources method is required; the ROE uses no resources.
 
     method SanityCheck {errdict} {
         # Check g

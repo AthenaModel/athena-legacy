@@ -49,6 +49,11 @@ tactic define CURSE "Cause a CURSE" {system} {
         my configure {*}$args
     }
 
+    #-------------------------------------------------------------------
+    # Operations
+
+    # No ObligateResources method is required; the ROE uses no resources.
+
     method SanityCheck {errdict} {
         # FIRST check for existence of the CURSE
         set exists [curse exists $curse]

@@ -133,9 +133,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         curse      C1
         execstatus NONE
+        faildict   {}
         id         *
         parent     ::bean::block*
         roles      {@CIV1 {_type CIVGROUPS _rule BY_VALUE raw_value {SUNN SHIA}}}

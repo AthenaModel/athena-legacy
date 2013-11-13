@@ -218,24 +218,23 @@ tactic define BROADCAST "Broadcast an Info Ops Message" {actor} -onlock {
         return $text
     }
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         # has access to cap?
         if {![cap hasaccess $cap [my agent]]} {
-            return 0
+            my Fail CAP "[my agent] has no access to CAP $cap."
+            return
         }
 
-        set cash_on_hand [$coffer cash]
+        set cash [$coffer cash]
         
         # Total cost is prep cost plus cost to use CAP
         set trans(cost) [expr {$cost + [cap get $cap cost]}]
 
-        if {$trans(cost) > $cash_on_hand} {
-            return 0
+        if {[my InsufficientCash $cash $trans(cost)]} {
+            return
         }
 
         $coffer spend $trans(cost)
-
-        return 1
     }
 
     method execute {} {

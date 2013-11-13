@@ -78,7 +78,7 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
         return "Demobilize $ptext of group $gtext's undeployed personnel."
     }
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
     #           resources
@@ -87,7 +87,7 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
     #
     # NOTE: DEMOB never executes on lock.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         assert {[strategy ontick]}
         
         # FIRST, get the amount to demobilize.
@@ -98,9 +98,9 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
                 set trans(personnel) $undeployed 
             }
 
-            SOME { 
-                if {$undeployed < $personnel} {
-                    return 0
+            SOME {
+                if {[my InsufficientPersonnel $undeployed $personnel]} {
+                    return
                 }
                 set trans(personnel) $personnel
             }
@@ -127,8 +127,6 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
         }
 
         $coffer demobilize $g $trans(personnel)
-
-        return 1
     }
 
     method execute {} {

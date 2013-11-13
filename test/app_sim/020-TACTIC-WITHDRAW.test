@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
         ted order -reject TACTIC:WITHDRAW tactic_id NONESUCH
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         tactic_id {Invalid WITHDRAW ID: "NONESUCH"}
     }
 
@@ -97,9 +97,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     0.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       ALL
         parent     ::bean::block*
@@ -118,11 +119,14 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     100.0
         execstatus NONE
+        faildict   {}
         id         *
+        mode       EXACT
         parent     ::bean::block*
+        percent    0.0
         state      normal
     }
 
@@ -137,11 +141,14 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     100.0
         execstatus NONE
+        faildict   {}
         id         *
+        mode       UPTO
         parent     ::bean::block*
+        percent    0.0
         state      normal
     }
 
@@ -156,9 +163,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     0.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       PERCENT
         parent     ::bean::block*
@@ -177,9 +185,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     400000.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       BORROW
         parent     ::bean::block*

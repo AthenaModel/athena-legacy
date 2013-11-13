@@ -93,7 +93,7 @@ tactic define FUND "Fund Another Actor" {actor} {
         }
     }
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
     #           resources
@@ -102,41 +102,41 @@ tactic define FUND "Fund Another Actor" {actor} {
     #
     # NOTE: FUND never executes on lock.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         assert {[strategy ontick]}
 
         # FIRST, retrieve relevant data.
-        let cash_on_hand [$coffer cash]
+        set cash [$coffer cash]
         set funds 0.0
 
         # NEXT, depending on mode, try to obligate money
         switch -exact -- $mode {
             ALL {
-                if {$cash_on_hand > 0.0} {
-                    set funds $cash_on_hand
+                if {$cash > 0.0} {
+                    set funds $cash
                 }
             }
 
             EXACT {
                 # This is the only one than could give rise to an error
-                if {$amount > $cash_on_hand} {
-                    return 0
+                if {[my InsufficientCash $cash $amount]} {
+                    return
                 }
                 set funds $amount
             }
 
             UPTO {
-                let funds {max(0.0, min($cash_on_hand, $amount))}
+                let funds {max(0.0, min($cash, $amount))}
             }
 
             PERCENT {
-                if {$cash_on_hand > 0.0} {
-                    let funds {double($percent/100.0) * $cash_on_hand}
+                if {$cash > 0.0} {
+                    let funds {double($percent/100.0) * $cash}
                 }
             }
 
             EXCESS {
-                let funds {max(0.0, $cash_on_hand-$amount)}
+                let funds {max(0.0, $cash-$amount)}
             }
 
             default {
@@ -150,9 +150,6 @@ tactic define FUND "Fund Another Actor" {actor} {
 
         # NEXT, obligate it.
         $coffer spend $trans(amount)
-
-        return 1
-
     }
 
     method execute {} {

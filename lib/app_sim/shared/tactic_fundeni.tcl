@@ -105,9 +105,9 @@ tactic define FUNDENI \
 
     }
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         # FIRST, retrieve relevant data.
-        let cash_on_hand [$coffer cash]
+        let cash [$coffer cash]
 
         # NEXT, filter out groups that do not provide enough direct support
         # to the tactic owner
@@ -124,30 +124,31 @@ tactic define FUNDENI \
         # NEXT, depending on mode, try to obligate money
         switch -exact -- $mode {
             ALL {
-                let funds {min($cash_on_hand, $max_fund)}
+                let funds {min($cash, $max_fund)}
             }
 
             EXACT {
                 # This is the only one than could give rise to an error
-                if {$amt > $cash_on_hand} {
-                    return 0
+                if {[my InsufficientCash $cash $amt]} {
+                    return
                 }
+
                 set funds $amt
             }
 
             UPTO {
-                let funds {max(0.0, min($cash_on_hand, $amt))}
+                let funds {max(0.0, min($cash, $amt))}
             }
 
             PERCENT {
-                if {$cash_on_hand > 0.0} {
+                if {$cash > 0.0} {
                     let funds \
-                        {min(double($percent/100.0) * $cash_on_hand,$max_fund)}
+                        {min(double($percent/100.0) * $cash,$max_fund)}
                 }
             }
 
             EXCESS {
-                let funds {max(0.0, min($cash_on_hand-$amount,$max_fund))}
+                let funds {max(0.0, min($cash-$amount,$max_fund))}
             }
 
             default {

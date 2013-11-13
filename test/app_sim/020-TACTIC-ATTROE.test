@@ -123,6 +123,7 @@ namespace eval ::athena_test::tests:: {
         attacks    5
         execstatus NONE
         f          BLUE
+        faildict   {}
         g          TAL
         id         *
         n          NB1

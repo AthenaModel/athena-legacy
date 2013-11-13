@@ -117,7 +117,7 @@ tactic define MOBILIZE "Mobilize Personnel" {actor} {
         return $result
     }
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
     #           resources
@@ -128,7 +128,7 @@ tactic define MOBILIZE "Mobilize Personnel" {actor} {
     # Sets trans(personnel) to the selected number of personnel
     # to mobilize (possibly 0).
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         assert {[strategy ontick]}
 
         set mobilized [$coffer troops $g mobilized]
@@ -158,8 +158,6 @@ tactic define MOBILIZE "Mobilize Personnel" {actor} {
         if {$trans(personnel) > 0} {
             $coffer mobilize $g $trans(personnel)
         }
-
-        return 1
     }
 
     # execute

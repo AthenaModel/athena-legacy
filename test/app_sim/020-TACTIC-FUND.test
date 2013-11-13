@@ -136,10 +136,11 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          BOB
         amount     0.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       ALL
         parent     ::bean::block*
@@ -159,10 +160,11 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          BOB
         amount     1000.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       EXACT
         parent     ::bean::block*
@@ -182,10 +184,11 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          BOB
         amount     2000.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       UPTO
         parent     ::bean::block*
@@ -205,10 +208,11 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          BOB
         amount     0.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       PERCENT
         parent     ::bean::block*
@@ -228,10 +232,11 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          BOB
         amount     3000.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       EXCESS
         parent     ::bean::block*

@@ -89,9 +89,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         command    Hello
         execstatus NONE
+        faildict   {}
         id         *
         parent     ::bean::block*
         state      normal

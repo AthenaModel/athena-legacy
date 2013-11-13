@@ -80,6 +80,7 @@ namespace eval ::athena_test::tests:: {
     } -match dictglob -result {
         alist      {_type ACTORS _rule BY_VALUE raw_value BOB}
         execstatus NONE
+        faildict   {}
         id         *
         klist      {ABC CBS}
         parent     ::bean::block*
@@ -100,6 +101,7 @@ namespace eval ::athena_test::tests:: {
     } -match dictglob -result {
         alist      {_type ACTORS _rule BY_VALUE raw_value BOB}
         execstatus NONE
+        faildict   {}
         id         *
         klist      {CNN FOX}
         parent     ::bean::block*

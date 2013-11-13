@@ -57,10 +57,11 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     0.0
         black      1
         execstatus NONE
+        faildict   {}
         goods      1
         id         *
         mode       ALL
@@ -131,7 +132,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Spend any cash-on-hand over $amt according to the following profile: goods: 20%; black: 20%; pop: 20%; region: 20%; world: 20%}
+    } -result {Spend any cash-on-hand over $10.00 according to the following profile: goods: 20%; black: 20%; pop: 20%; region: 20%; world: 20%}
 
     #-------------------------------------------------------------------
     # check
@@ -180,13 +181,11 @@ namespace eval ::athena_test::tests:: {
         $T1 set mode EXACT
         $T1 set amount 10001.0
 
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-
-        list $a $b
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0}
+    } -result {CASH {Required $10,001, but had only $10,000.}}
 
     test obligate-1.4 {Insufficient cash on lock} -setup {
         setup

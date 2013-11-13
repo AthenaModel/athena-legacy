@@ -35,6 +35,20 @@ enumx create eexecstatus {
     SUCCESS         {text Success     icon ::projectgui::icon::check13     }
 }
 
+# Resource Error Types
+#
+# These are used to flag what kind of resource failure the tactic 
+# had.
+enumx create eresource {
+    CASH        {text Cash       icon ::projectgui::icon::dollar13r    }
+    PERSONNEL   {text Personnel  icon ::projectgui::icon::personnel13r }
+    CAP         {text CAP        icon ::projectgui::icon::cap13r       }
+    OTHER       {text Other      icon ::projectgui::icon::other13r     }
+    WARNING     {text Warning    icon ::projectgui::icon::warning13r   }
+    ERROR       {text Error      icon ::projectgui::icon::error13r     }
+}
+
+
 # Condition flag status
 enumx create eflagstatus {
     ""            {text -           icon ::projectgui::icon::dash13      }

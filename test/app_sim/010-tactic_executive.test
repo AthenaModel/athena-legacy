@@ -48,15 +48,16 @@ namespace eval ::athena_test::tests:: {
     test constructor-1.1 {default state} -setup {
         setup
     } -body {
-        ted pdict [$T1 getdict]
+        ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
-        id         *
-        execstatus NONE
-        state      invalid
-        parent     ::bean::block*
+    } -match dictglob -result {
         command    {}
+        execstatus NONE
+        faildict   {}
+        id         *
+        parent     ::bean::block*
+        state      invalid
     }
 
     test constructor-1.2 {can set options} -setup {

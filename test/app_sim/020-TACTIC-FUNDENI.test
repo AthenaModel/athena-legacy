@@ -170,9 +170,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     0.0
         execstatus NONE
+        faildict   {}
         glist      {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN KURD}}
         id         *
         los        100.0
@@ -191,9 +192,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     10.0
         execstatus NONE
+        faildict   {}
         glist      {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN KURD}}
         id         *
         los        100.0
@@ -212,9 +214,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     10.0
         execstatus NONE
+        faildict   {}
         glist      {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN KURD}}
         id         *
         los        100.0
@@ -233,9 +236,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     0.0
         execstatus NONE
+        faildict   {}
         glist      {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN KURD}}
         id         *
         los        100.0
@@ -254,9 +258,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     10.0
         execstatus NONE
+        faildict   {}
         glist      {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN KURD}}
         id         *
         los        100.0

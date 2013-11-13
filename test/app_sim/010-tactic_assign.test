@@ -87,6 +87,7 @@ namespace eval ::athena_test::tests:: {
     } -match dictglob -result {
         activity   {}
         execstatus NONE
+        faildict   {}
         g          {}
         id         5
         max        0
@@ -261,14 +262,11 @@ namespace eval ::athena_test::tests:: {
         settroops 1000
         setcost 1000
     } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {CASH {Required $1,000,000, but had only $10,000.}}
 
     test obligate-1.3 {pmode=ALL, got resources on tick} -setup {
         setup -valid
@@ -310,28 +308,23 @@ namespace eval ::athena_test::tests:: {
         setup -valid
         $T1 configure -pmode SOME -personnel 100
     } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {PERSONNEL {Required 100 personnel, but had only 0 available.}}
 
     test obligate-2.2 {pmode=SOME, Insufficient cash on tick} -setup {
         setup -valid
         $T1 configure -pmode SOME -personnel 100
+        settroops 1000
         setcost 1000
     } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {CASH {Required $100,000, but had only $10,000.}}
 
     test obligate-2.3 {pmode=SOME, got resources on tick} -setup {
         setup -valid
@@ -373,28 +366,23 @@ namespace eval ::athena_test::tests:: {
         setup -valid
         $T1 configure -pmode UPTO -min 100 -max 200
     } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {PERSONNEL {Required 100 personnel, but had only 0 available.}}
 
-    test obligate-3.2 {pmode=UPTO, Insufficient cash tick} -setup {
+    test obligate-3.2 {pmode=UPTO, Insufficient cash on tick} -setup {
         setup -valid
         $T1 configure -pmode UPTO -min 100 -max 200
+        settroops 1000
         setcost 1000
     } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {CASH {Required $100,000, but had only $10,000.}}
 
     test obligate-3.3 {pmode=UPTO, got max on tick} -setup {
         setup -valid
@@ -485,14 +473,11 @@ namespace eval ::athena_test::tests:: {
         settroops 1000
         setcost 1000
     } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {CASH {Required $900,000, but had only $10,000.}}
 
     test obligate-4.3 {pmode=ALLBUT, got resources on tick} -setup {
         setup -valid
@@ -549,14 +534,11 @@ namespace eval ::athena_test::tests:: {
         settroops 1000
         setcost 1000
     } -body {
-        set before [$coffer getdict]
-        set flag [$T1 obligate $coffer]
-        set after [$coffer getdict]
-
-        list $flag [expr {$before eq $after}]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 1}
+    } -result {CASH {Required $500,000, but had only $10,000.}}
 
     test obligate-5.3 {pmode=PERCENT, got resources on tick} -setup {
         setup -valid

@@ -58,8 +58,9 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         execstatus NONE
+        faildict   {}
         g          {}
         id         *
         mode       ALL
@@ -218,13 +219,11 @@ namespace eval ::athena_test::tests:: {
     } -body {
         $T1 configure -g BLUE -mode SOME -personnel 10000
 
-        list \
-            [$coffer troops BLUE undeployed] \
-            [$T1 obligate $coffer]           \
-            [$coffer troops BLUE undeployed]
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {5000 0 5000}
+    } -result {PERSONNEL {Required 10000 personnel, but had only 5000 available.}}
 
     test obligate-3.1 {mode is PERCENT} -setup {
         setup

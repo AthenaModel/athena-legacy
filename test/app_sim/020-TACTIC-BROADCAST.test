@@ -99,11 +99,12 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          SELF
         cap        CBS
         cost       1000.0
         execstatus NONE
+        faildict   {}
         id         *
         iom        IOM1
         parent     ::bean::block*

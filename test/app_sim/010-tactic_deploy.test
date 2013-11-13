@@ -124,6 +124,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match dictglob -result {
         execstatus NONE
+        faildict   {}
         g          {}
         id         *
         last_tick  {}
@@ -404,18 +405,20 @@ namespace eval ::athena_test::tests:: {
     } -body {
         $T1 configure -nlist [gofer construct NBHOODS WITH_DEPLOYMENT ALL BRIT]
         $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {WARNING {Gofer selected no neighborhoods.}}
 
     test obligate-3.2 {nlist returns empty neighborhoods} -setup {
         setup valid
         rdb eval {UPDATE demog_n SET population=0}
     } -body {
         $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {WARNING {All selected neighborhoods are empty.}}
 
     # 4.*: New deployment, pmode = ALL
 
@@ -475,14 +478,11 @@ namespace eval ::athena_test::tests:: {
         setup valid
         $coffer spend [$coffer cash]
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        set c [$coffer troops BLUE undeployed]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 0.0 5000}
+    } -result {CASH {Could not afford to deploy any troops.}}
 
     # 5.*: New deployment, pmode=SOME
 
@@ -490,28 +490,22 @@ namespace eval ::athena_test::tests:: {
         setup valid
         $T1 configure -pmode SOME -personnel 10000
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        set c [$coffer troops BLUE undeployed]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0 5000}
+    } -result {PERSONNEL {Required 10000 personnel, but had only 5000 available.}}
 
     test obligate-5.2 {pmode=SOME, on tick, insufficient cash} -setup {
         setup valid
         setcost 10
         $T1 configure -pmode SOME -personnel 5000
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        set c [$coffer troops BLUE undeployed]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0 5000}
+    } -result {CASH {Required $50,000, but had only $10,000.}}
 
     test obligate-5.3 {pmode=SOME, sufficient troops and cash} -setup {
         setup valid
@@ -546,28 +540,22 @@ namespace eval ::athena_test::tests:: {
         setup valid
         $T1 configure -pmode UPTO -min 10000 -max 20000
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        set c [$coffer troops BLUE undeployed]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0 5000}
+    } -result {PERSONNEL {Required 10000 personnel, but had only 5000 available.}}
 
     test obligate-6.2 {pmode=UPTO, insufficient cash} -setup {
         setup valid
         setcost 10
         $T1 configure -pmode UPTO -min 5000 -max 10000
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        set c [$coffer troops BLUE undeployed]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0 5000}
+    } -result {CASH {Required $50,000, but had only $10,000.}}
 
     test obligate-6.3 {pmode=UPTO, success, max allocated} -setup {
         setup valid
@@ -644,14 +632,11 @@ namespace eval ::athena_test::tests:: {
         setcost 10
         $T1 configure -pmode ALLBUT -personnel 1000
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        set c [$coffer troops BLUE undeployed]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0 5000}
+    } -result {CASH {Required $40,000, but had only $10,000.}}
 
     test obligate-7.3 {pmode=ALLBUT, on tick, got cash} -setup {
         setup valid
@@ -703,14 +688,11 @@ namespace eval ::athena_test::tests:: {
         setcost 10
         $T1 configure -pmode PERCENT -percent 100
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        set c [$coffer troops BLUE undeployed]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0 5000}
+    } -result {CASH {Required $50,000, but had only $10,000.}}
 
     test obligate-8.3 {pmode=PERCENT, on tick, got cash} -setup {
         setup valid
@@ -784,14 +766,11 @@ namespace eval ::athena_test::tests:: {
         setcash 10000.0
         $coffer demobilize BLUE 1000
     } -body {
-        list \
-            [$T1 obligate $coffer] \
-            [$T1 trans old]        \
-            [$coffer cash]         \
-            [$coffer troops BLUE undeployed] 
+        $T1 obligate $coffer
+        list [$T1 trans old] {*}[$T1 faildict]
     } -cleanup {
         cleanup
-    } -result {0 1 10000.0 4000}
+    } -result {1 PERSONNEL {Required 5000 personnel, but had only 4000 available.}}
 
     test obligate-9.4 {insufficient cash} -setup {
         setup prep  ;# Set up in PREP state
@@ -799,14 +778,11 @@ namespace eval ::athena_test::tests:: {
         context     ;# Provide execution context
         setcash 1000.0
     } -body {
-        list \
-            [$T1 obligate $coffer] \
-            [$T1 trans old]        \
-            [$coffer cash]         \
-            [$coffer troops BLUE undeployed] 
+        $T1 obligate $coffer
+        list [$T1 trans old] {*}[$T1 faildict]
     } -cleanup {
         cleanup
-    } -result {0 1 1000.0 5000}
+    } -result {1 CASH {Required $5,000, but had only $1,000.}}
 
 
     #-------------------------------------------------------------------

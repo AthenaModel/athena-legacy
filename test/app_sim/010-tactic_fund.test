@@ -64,10 +64,11 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         a          BOB
         amount     0.0
         execstatus NONE
+        faildict   {}
         id         *
         mode       ALL
         parent     ::bean::block*
@@ -152,15 +153,11 @@ namespace eval ::athena_test::tests:: {
         $T1 set mode EXACT
         $T1 set amount 10001.0
     } -body {
-        set a [$T1 obligate $coffer]
-        set b [$coffer cash]
-        $T1 execute
-        set c [rdb onecolumn {SELECT gifts FROM working_cash WHERE a='BOB'}]
-
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {0 10000.0 0.0}
+    } -result {CASH {Required $10,001, but had only $10,000.}}
 
     test obligate-1.4 {UPTO, under cash-on-hand} -setup {
         setup

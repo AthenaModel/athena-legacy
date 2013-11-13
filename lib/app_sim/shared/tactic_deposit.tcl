@@ -77,7 +77,7 @@ tactic define DEPOSIT "Deposit Money" {actor} {
         }
     }
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
     #           resources
@@ -86,41 +86,41 @@ tactic define DEPOSIT "Deposit Money" {actor} {
     #
     # NOTE: DEPOSIT never executes on lock.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         assert {[strategy ontick]}
         
         # FIRST, retrieve relevant data.
-        let cash_on_hand [$coffer cash]
+        set cash [$coffer cash]
         set deposit 0.0
 
         # NEXT, depending on mode, try to obligate money
         switch -exact -- $mode {
             ALL {
-                if {$cash_on_hand > 0.0} {
-                    set deposit $cash_on_hand
+                if {$cash > 0.0} {
+                    set deposit $cash
                 }
             }
 
             EXACT {
                 # This is the only one than could give rise to an error
-                if {$amount > $cash_on_hand} {
-                    return 0
+                if {[my InsufficientCash $cash $amount]} {
+                    return
                 }
                 set deposit $amount
             }
 
             UPTO {
-                let deposit {max(0.0, min($cash_on_hand, $amount))}
+                let deposit {max(0.0, min($cash, $amount))}
             }
 
             PERCENT {
-                if {$cash_on_hand > 0.0} {
-                    let deposit {double($percent/100.0) * $cash_on_hand}
+                if {$cash > 0.0} {
+                    let deposit {double($percent/100.0) * $cash}
                 }
             }
 
             EXCESS {
-                let deposit {max(0.0, $cash_on_hand-$amount)}
+                let deposit {max(0.0, $cash-$amount)}
             }
 
             default {
@@ -134,9 +134,6 @@ tactic define DEPOSIT "Deposit Money" {actor} {
 
         # NEXT, obligate it.
         $coffer deposit $trans(amount)
-
-        return 1
-
     }
 
     method execute {} {

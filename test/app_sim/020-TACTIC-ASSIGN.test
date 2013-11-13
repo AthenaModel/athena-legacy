@@ -193,9 +193,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         activity   PATROL
         execstatus NONE
+        faildict   {}
         g          {}
         id         *
         max        2
@@ -225,9 +226,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         activity   PATROL
         execstatus NONE
+        faildict   {}
         g          BLUE
         id         *
         max        2

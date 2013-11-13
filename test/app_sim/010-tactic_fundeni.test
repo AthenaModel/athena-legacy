@@ -103,9 +103,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         amount     0.0
         execstatus NONE
+        faildict   {}
         glist      {}
         id         *
         los        100.0
@@ -244,13 +245,11 @@ namespace eval ::athena_test::tests:: {
         $T1 set mode EXACT
         $T1 set amount 50000.0
     } -body {
-        set a [$coffer cash]
-        set b [$T1 obligate $coffer]
-        set c [$coffer cash]
-        list $a $b $c
+        $T1 obligate $coffer
+        $T1 faildict
     } -cleanup {
         cleanup
-    } -result {10000.0 0 10000.0}
+    } -result {CASH {Required $16,000, but had only $10,000.}}
 
     test obligate-1.4 {mode PERCENT} -setup {
         setup

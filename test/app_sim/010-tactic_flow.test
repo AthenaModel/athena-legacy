@@ -55,9 +55,10 @@ namespace eval ::athena_test::tests:: {
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
-    } -match glob -result {
+    } -match dictglob -result {
         execstatus NONE
         f          {}
+        faildict   {}
         g          {}
         id         *
         mode       ALL

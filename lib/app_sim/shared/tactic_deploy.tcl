@@ -196,23 +196,23 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
     #-------------------------------------------------------------------
     # Obligation
 
-    # obligate coffer
+    # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
     #           resources
     #
     # Obligates the personnel and cash required for the deployment.
 
-    method obligate {coffer} {
+    method ObligateResources {coffer} {
         # FIRST, is this an existing deployment?
         set trans(old) [my IsExistingDeployment]
 
         # NEXT, if it is an existing deployment, obligate it as such;
         # otherwise, obligate it as a new deployment.
         if {$trans(old)} {
-            return [my ObligateExistingDeployment $coffer]
+            my ObligateExistingDeployment $coffer
         } else {
-            return [my ObligateNewDeployment $coffer]
+            my ObligateNewDeployment $coffer
         }
     }
 
@@ -262,26 +262,28 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
            WHERE tactic_id = $tactic_id
         } {}
 
+        # SQLite gives us a float.
+        let troops {entier($troops)}
+
         # NEXT, if there are no troops then the existing deployment was
         # wiped out.  This must be a success; our alternative is to
         # redeploy the empty garrison, which isn't something we should
         # do without instructions from the analyst.
         if {$troops == 0} {
-            return [my ObligateEmptyDeployment]
+            my ObligateEmptyDeployment
+            return
         }
 
         # NEXT, If there are insufficient troops or insufficent funds
         # available, we're done.
-        if {$troops > $available} {
-            # TBD: Report resource type
-            return 0
+        if {[my InsufficientPersonnel $available $troops]} {
+            return
         }
 
         set trans(cost) [my TroopCost $troops]
 
-        if {$trans(cost) > $cash} {
-            # TBD: Report resource type
-            return 0
+        if {[my InsufficientCash $cash $trans(cost)]} {
+            return
         }
 
         # NEXT, deploy the troops just as they were from the previous
@@ -295,8 +297,6 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
 
         # NEXT, obligate the cash and personnel.
         my DeductResourcesFromCoffer $coffer
-
-        return 1
     }
 
     # ObligateEmptyDeployment
@@ -368,7 +368,6 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         set trans(nbhoods) [my GetNbhoods]
 
         if {[llength $trans(nbhoods)] == 0} {
-            # TBD: Report as a "warning"
             return 0
         }
 
@@ -399,20 +398,26 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
     # to which we will deploy.  If the nmode is BY_POP, exclude empty
     # neighborhoods, since we will only deploy to neighborhoods with
     # a civilian population.
-    #
-    # TBD: if there are no neighborhoods, save the reason.
 
     method GetNbhoods {} {
         # FIRST, get the neighborhoods
         set nbhoods [gofer::NBHOODS eval $nlist]
 
+        if {[llength $nbhoods] == 0} {
+            my Fail WARNING "Gofer selected no neighborhoods."
+        }
+
         # NEXT, if nmode is BY_POP, filter out empty neighborhoods now.
-        if {$nmode eq "BY_POP"} {
+        if {$nmode eq "BY_POP" && [llength $nbhoods] > 0} {
             set nbhoods [rdb eval "
                 SELECT n FROM demog_n
                 WHERE population > 0
                 AND n IN ('[join $nbhoods ',']')
             "]
+
+            if {[llength $nbhoods] == 0} {
+                my Fail WARNING "All selected neighborhoods are empty."
+            }
         }
 
         return $nbhoods
@@ -454,8 +459,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             let troops {min($available,$maxTroops)}
 
             if {$troops == 0} {
-                # We have troops but we can't afford to deploy them.
-                # TBD: Report failure details.
+                my Fail CASH "Could not afford to deploy any troops."
                 return 0
             }            
         }
@@ -481,14 +485,12 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         set cash      [$coffer cash]
 
         # NEXT, Fail if there are insufficient troops.
-        if {$personnel > $available} {
-            # TBD: Report detailed failure
+        if {[my InsufficientPersonnel $available $personnel]} {
             return 0
         }
 
         # NEXT, cost only matters on tick.
-        if {[strategy ontick] && [my TroopCost $personnel] > $cash} {
-            # TBD: Report detailed failure
+        if {[my InsufficientCash $cash [my TroopCost $personnel]]} {
             return 0
         }
 
@@ -525,13 +527,13 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             set affordableTroops [my TroopsFor $coffer $cash]
         }
 
-        if {$min > $available} {
-            # TBD: Report failure details
+        # NEXT, Fail if there are insufficient troops.
+        if {[my InsufficientPersonnel $available $min]} {
             return 0
         }
 
-        if {[strategy ontick] && $minCost > $cash} {
-            # TBD: Report failure details
+        # NEXT, cost only matters on tick.
+        if {[my InsufficientCash $cash $minCost]} {
             return 0
         }
 
@@ -572,8 +574,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         }
 
         # NEXT, cost only matters on tick.
-        if {[strategy ontick] && [my TroopCost $troops] > $cash} {
-            # TBD: Report detailed failure
+        if {[my InsufficientCash $cash [my TroopCost $troops]]} {
             return 0
         }
 
@@ -616,8 +617,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
 
 
         # NEXT, cost only matters on tick.
-        if {[strategy ontick] && [my TroopCost $troops] > $cash} {
-            # TBD: Report detailed failure
+        if {[my InsufficientCash $cash [my TroopCost $troops]]} {
             return 0
         }
 
