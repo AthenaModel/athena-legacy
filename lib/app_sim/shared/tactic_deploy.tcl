@@ -404,7 +404,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
         set nbhoods [gofer::NBHOODS eval $nlist]
 
         if {[llength $nbhoods] == 0} {
-            my Fail WARNING "Gofer selected no neighborhoods."
+            my Fail WARNING "Gofer retrieved no neighborhoods."
         }
 
         # NEXT, if nmode is BY_POP, filter out empty neighborhoods now.
@@ -416,7 +416,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             "]
 
             if {[llength $nbhoods] == 0} {
-                my Fail WARNING "All selected neighborhoods are empty."
+                my Fail WARNING "All retrieved neighborhoods are empty."
             }
         }
 

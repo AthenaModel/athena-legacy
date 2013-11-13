@@ -663,9 +663,9 @@ snit::widget strategybrowser {
             -selectioncmd  [mymethod BListSelection]   \
             -layout [string map [list %D $::app::derivedfg] {
                 { id              "ID"                              }
-                { execstatus      "Exec"     -align center          }
+                { statusicon      "Exec"     -align center          }
                 { state           "State"    -width 8               }
-                { intent          "Intent"   -width 50 -wrap yes }
+                { intent          "Intent"   -width 50 -wrap yes    }
                 { timestring      "At Time"  -stretchable yes       }
                 { pretty_onlock   "On Lock?"                        }
                 { pretty_once     "Once?"                           }
@@ -780,11 +780,11 @@ snit::widget strategybrowser {
 
     method BListDisplay {rindex values} {
         # FIRST, set flag icon
-        set cindex [$blist cname2cindex execstatus]
-        set estatus [lindex $values $cindex]
+        set cindex [$blist cname2cindex statusicon]
+        set icon [lindex $values $cindex]
 
         $blist cellconfigure $rindex,$cindex       \
-            -image [eexecstatus as icon $estatus] \
+            -image $icon \
             -text  ""
 
         # NEXT, set intent color
@@ -1245,7 +1245,7 @@ snit::widget strategybrowser {
             -pastecmd      [mymethod TTabPaste]       \
             -layout [string map [list %D $::app::derivedfg] {
                 { id              "ID"                               }
-                { execstatus      "Exec"      -align center          }
+                { statusicon      "Exec"      -align center          }
                 { state           "State"     -width 8               }
                 { narrative       "Narrative" -width 60 -wrap yes    }
                 { typename        "Type"                             }
@@ -1392,11 +1392,11 @@ snit::widget strategybrowser {
 
     method TTabDisplay {rindex values} {
         # FIRST, set status icon
-        set cindex [$ttab cname2cindex execstatus]
-        set estatus [lindex $values $cindex]
+        set cindex [$ttab cname2cindex statusicon]
+        set icon [lindex $values $cindex]
 
-        $ttab cellconfigure $rindex,$cindex       \
-            -image [eexecstatus as icon $estatus] \
+        $ttab cellconfigure $rindex,$cindex \
+            -image $icon \
             -text  ""
 
         # NEXT, set narrative color

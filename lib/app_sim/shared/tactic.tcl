@@ -357,6 +357,20 @@ oo::define tactic {
         return [expr {$execstatus eq "SUCCESS"}]
     }
 
+    # statusicon
+    #
+    # Returns the appropriate status icon for this tactic.  If the
+    # execstatus is FAIL_RESOURCES, then it returns the failicon.
+    # Otherwise it returns the execstatus icon.
+
+    method statusicon {} {
+        if {$execstatus eq "FAIL_RESOURCES"} {
+            return [my failicon]
+        } else {
+            return [eexecstatus as icon $execstatus]
+        }
+    }
+
     #-------------------------------------------------------------------
     # Resource Failure Detail Management
     
@@ -470,9 +484,10 @@ oo::define tactic {
     method view {{view ""}} {
         set result [next $view]
 
-        dict set result agent     [my agent]
-        dict set result narrative [my narrative]
-        dict set result typename  [my typename]
+        dict set result agent      [my agent]
+        dict set result narrative  [my narrative]
+        dict set result typename   [my typename]
+        dict set result statusicon [my statusicon]
 
         return $result
     }

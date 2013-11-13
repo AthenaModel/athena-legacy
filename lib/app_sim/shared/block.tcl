@@ -120,6 +120,25 @@ beanclass create block {
         return [expr {$execstatus eq "SUCCESS"}]
     }
 
+    # statusicon
+    #
+    # Returns the block's execution status icon.
+
+    method statusicon {} {
+        # FIRST, if it's a resource failure return the icon
+        # for the first failed tactic.
+        if {$execstatus eq "FAIL_RESOURCES"} {
+            foreach tactic $tactics {
+                if {[$tactic failicon] ne ""} {
+                    return [$tactic failicon]
+                }
+            }
+        }
+
+        # OTHERWISE, use the icon for the block's own status.
+        return [eexecstatus as icon $execstatus]
+    }
+
     # timestring
     #
     # Returns a narrative for the time variables.
@@ -257,6 +276,7 @@ beanclass create block {
         dict set result pretty_once   [expr {$once ? "Yes" : "No"}]
         dict set result pretty_onlock [expr {$onlock ? "Yes" : "No"}]
         dict set result timestring    [my timestring]
+        dict set result statusicon    [my statusicon]
 
         if {$exectime ne ""} {
             dict set result pretty_exectime [simclock toString $exectime]
@@ -397,15 +417,23 @@ beanclass create block {
 
                 $ht tr valign center {
                     $ht td
-                    $ht image [eexecstatus as icon [$tactic get execstatus]]
+                    $ht image [$tactic statusicon]
                     $ht /td
 
                     $ht td left {
                         $ht put "<span class=\"$tstate\">"
                         $ht put "([$tactic id]) "
                         $ht put "[$tactic typename]: [$tactic narrative]"
-
                         $ht put "</span>"
+
+                        if {[llength [$tactic failures]] > 0} {
+                            $ht putln "<span class=\"error\">"
+                            foreach msg [$tactic failures] {
+                                $ht putln "$msg"
+                            }
+                            $ht putln "</span>"
+                        }
+
                     }
                 }
             }
