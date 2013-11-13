@@ -160,6 +160,9 @@ CREATE TABLE nbhoods (
 
     -- Volatility gain: rgain
     vtygain        REAL DEFAULT 1.0,
+    
+    -- Production factor
+    pfactor        REAL DEFAULT 1.0,
 
     -- Neighborhood reference point: map coordinates {mx my}
     refpoint       TEXT,

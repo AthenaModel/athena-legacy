@@ -78,6 +78,10 @@ object nbhood_ {
         Athena 6.
     } -tags {create update multi}
 
+    attribute pfactor "Production Factor" {
+        <b>TBD</b>
+    } -tags {create update multi}
+
     attribute stacking_order "Stacking Order" {
         The neighborhood's Stacking Order.  When
         neighborhoods overlap, the neighborhood with the higher stacking

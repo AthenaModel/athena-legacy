@@ -213,6 +213,7 @@ snit::type nbhood {
     #    urbanization   eurbanization level
     #    controller     Initial controller, or NONE
     #    vtygain        Volatility gain (rgain)
+    #    pfactor        Production factor
     #    refpoint       Reference point, map coordinates
     #    polygon        Boundary polygon, in map coordinates.
     #
@@ -225,13 +226,15 @@ snit::type nbhood {
             # FIRST, Put the neighborhood in the database
             rdb eval {
                 INSERT INTO nbhoods(n,longname,local,urbanization,
-                                    controller,vtygain,refpoint,polygon)
+                                    controller,vtygain,pfactor,refpoint,
+                                    polygon)
                 VALUES($n,
                        $longname,
                        $local,
                        $urbanization,
                        nullif($controller,'NONE'),
                        $vtygain,
+                       $pfactor,
                        $refpoint,
                        $polygon);
 
@@ -400,6 +403,7 @@ snit::type nbhood {
     #    urbanization   A new eurbanization level, or ""
     #    controller     A new controller, or ""
     #    vtygain        A new volatility gain, or ""
+    #    pfactor        A new production factor, or ""
     #    refpoint       A new reference point, or ""
     #    polygon        A new polygon, or ""
     #
@@ -431,6 +435,7 @@ snit::type nbhood {
                                         WHEN $controller = 'NONE' THEN null
                                         ELSE $controller END,
                     vtygain      = nonempty($vtygain,      vtygain),
+                    pfactor      = nonempty($pfactor,      pfactor),
                     refpoint     = nonempty($refpoint,     refpoint),
                     polygon      = nonempty($polygon,      polygon)
                 WHERE n=$n
@@ -479,6 +484,9 @@ order define NBHOOD:CREATE {
         rcc "Volatility Gain:" -for vtygain
         text vtygain -defvalue 1.0
 
+        rcc "Production Factor:" -for pfactor
+        text pfactor -defvalue 1.0
+
         rcc "Reference Point:" -for refpoint
         text refpoint
 
@@ -496,6 +504,7 @@ order define NBHOOD:CREATE {
     prepare urbanization  -toupper            -required -type eurbanization
     prepare controller    -toupper            -required -type {ptype a+none}
     prepare vtygain       -num                -required -type rgain
+    prepare pfactor       -num                -required -type rnonneg
     prepare refpoint      -toupper            -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
 
@@ -666,6 +675,9 @@ order define NBHOOD:UPDATE {
         rcc "Volatility Gain:" -for vtygain
         text vtygain
 
+        rcc "Production Factor:" -for pfactor
+        text pfactor
+
         rcc "Reference Point:" -for refpoint
         text refpoint
 
@@ -683,6 +695,7 @@ order define NBHOOD:UPDATE {
     prepare urbanization -toupper             -type eurbanization
     prepare controller   -toupper             -type {ptype a+none}
     prepare vtygain      -num                 -type rgain
+    prepare pfactor      -num                 -type rnonneg
     prepare refpoint     -toupper             -type refpoint
     prepare polygon      -normalize -toupper  -type refpoly
 
@@ -772,6 +785,9 @@ order define NBHOOD:UPDATE:MULTI {
 
         rcc "Volatility Gain:" -for vtygain
         text vtygain
+
+        rcc "Production Factor:" -for pfactor
+        text pfactor 
     }
 } {
     # FIRST, prepare the parameters
@@ -780,6 +796,7 @@ order define NBHOOD:UPDATE:MULTI {
     prepare urbanization -toupper           -type   eurbanization
     prepare controller   -toupper           -type   {ptype a+none}
     prepare vtygain      -num               -type   rgain
+    prepare pfactor      -num               -type   rnonneg
 
     returnOnError -final
 

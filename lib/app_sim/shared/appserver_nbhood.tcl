@@ -86,10 +86,11 @@ appserver module NBHOOD {
                        local         AS "Local?",
                        urbanization  AS "Urbanization",
                        controller    AS "Controller",
-                       vtygain       AS "VtyGain"
+                       vtygain       AS "VtyGain",
+                       pfactor       AS "Prod. Factor"
                 FROM gui_nbhoods 
                 ORDER BY longlink
-            } -default "None." -align LLLLR
+            } -default "None." -align LLLLRR
         } else {
             ht query {
                 SELECT longlink      AS "Neighborhood",
@@ -101,7 +102,8 @@ appserver module NBHOOD {
                        mood0         AS "Mood at T0",
                        mood          AS "Mood Now",
                        vtygain       AS "VtyGain",
-                       volatility    AS "Vty"
+                       volatility    AS "Vty",
+                       pfactor       AS "Prod. Factor"
                 FROM gui_nbhoods
                 ORDER BY longlink
             } -default "None." -align LLLLR

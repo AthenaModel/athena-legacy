@@ -148,6 +148,7 @@ snit::type ted {
             urbanization URBAN
             controller   NONE
             vtygain      1.0
+            pfactor      1.0
             refpoint     {100 100}
             polygon      {80 80 120 80 100 120}
         }
@@ -159,6 +160,7 @@ snit::type ted {
             urbanization SUBURBAN
             controller   NONE
             vtygain      1.0
+            pfactor      1.0
             refpoint     {101 101}
             polygon      {81 81 121 81 101 121}
         }
@@ -170,6 +172,7 @@ snit::type ted {
             urbanization RURAL
             controller   NONE
             vtygain      1.0
+            pfactor      1.0
             refpoint     {300 300}
             polygon      {280 280 320 280 300 320}
         }
@@ -182,6 +185,7 @@ snit::type ted {
             urbanization RURAL
             controller   NONE
             vtygain      1.0
+            pfactor      1.0
             refpoint     {500 500}
             polygon      {400 400 400 800 800 800 800 400}
         }
@@ -193,6 +197,7 @@ snit::type ted {
             urbanization URBAN
             controller   NONE
             vtygain      1.0
+            pfactor      1.0
             refpoint     {700 700}
             polygon      {600 600 600 800 800 800 800 600}
         }
