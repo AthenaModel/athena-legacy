@@ -94,7 +94,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Fund actor BOB with all remaining cash-on-hand every week.}
+    } -result {Fund actor {actor:BOB} with all remaining cash-on-hand every week.}
 
     #-------------------------------------------------------------------
     # check

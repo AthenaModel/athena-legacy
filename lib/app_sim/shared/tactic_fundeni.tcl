@@ -43,7 +43,7 @@ tactic define FUNDENI \
         set los     100.0
         set amount  0.0
         set percent 0.0
-        set glist   [list]
+        set glist   [gofer::CIVGROUPS blank]
 
         # Initial state is invalid (no glist)
         my set state invalid

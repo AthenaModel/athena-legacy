@@ -365,25 +365,17 @@ beanclass create block {
             $ht putln "<table border=\"0\">"
 
             foreach cond [my conditions] {
-                set cstate [$cond get state]
+                array set cdata [$cond view html]
 
                 $ht tr valign center {
                     $ht td
-                    if {[$cond isknown]} {
-                        if {[$cond ismet]} {
-                            $ht image ::marsgui::icon::smthumbupgreen
-                        } else {
-                            $ht image ::marsgui::icon::smthumbdownred
-                        }
-                    } else {
-                        $ht image ::icon::dash
-                    }
+                    $ht image $cdata(statusicon)
                     $ht /td
 
                     $ht td left {
-                        $ht put "<span class=\"$cstate\">"
-                        $ht put "([$cond id]) "
-                        $ht put "[$cond typename]: [$cond narrative]"
+                        $ht put "<span class=\"$cdata(state)\">"
+                        $ht put "($cdata(id)) "
+                        $ht put "$cdata(typename): $cdata(narrative)"
                         $ht put "</span>"
                     }
                 }
@@ -413,24 +405,22 @@ beanclass create block {
             $ht putln "<table border=\"0\">"
 
             foreach tactic [my tactics] {
-                set tstate [$tactic get state]
+                array set tdata [$tactic view html]
 
                 $ht tr valign center {
                     $ht td
-                    $ht image [$tactic statusicon]
+                    $ht image $tdata(statusicon)
                     $ht /td
 
                     $ht td left {
-                        $ht put "<span class=\"$tstate\">"
-                        $ht put "([$tactic id]) "
-                        $ht put "[$tactic typename]: [$tactic narrative]"
+                        $ht put "<span class=\"$tdata(state)\">"
+                        $ht put "($tdata(id)) "
+                        $ht put "$tdata(typename): $tdata(narrative)"
                         $ht put "</span>"
 
-                        if {[llength [$tactic failures]] > 0} {
+                        if {$tdata(failures) ne ""} {
                             $ht putln "<span class=\"error\">"
-                            foreach msg [$tactic failures] {
-                                $ht putln "$msg"
-                            }
+                            $ht putln $tdata(failures)
                             $ht putln "</span>"
                         }
 

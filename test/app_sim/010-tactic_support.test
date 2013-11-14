@@ -96,7 +96,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Support actor BOB in these neighborhoods (NB1, NB2).}
+    } -result {Support actor {actor:BOB} in these neighborhoods (NB1, NB2).}
 
     #-------------------------------------------------------------------
     # check

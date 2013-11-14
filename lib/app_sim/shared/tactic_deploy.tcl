@@ -135,8 +135,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
     # Returns a human-readable narrative string for this tactic.
 
     method narrative {} {
-        let s(g) {$g ne "" ? $g : "???"}
-
+        set s(g)     [link make group $g]
         set s(nlist) [gofer::NBHOODS narrative $nlist]
 
         if {$redeploy} {

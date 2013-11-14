@@ -125,8 +125,8 @@ tactic define FLOW "Flow Personnel" {system} {
 
 
     method narrative {} {
-        set s(f) [expr {$f ne "" ? $f : "???"}]
-        set s(g) [expr {$g ne "" ? $g : "???"}]
+        set s(f) [link make group $f]
+        set s(g) [link make group $g]
 
         switch -exact -- $mode {
             ALL { 

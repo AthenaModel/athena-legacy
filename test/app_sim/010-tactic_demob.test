@@ -100,7 +100,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Demobilize all of group BLUE's undeployed personnel.}
+    } -result {Demobilize all of group {group:BLUE}'s undeployed personnel.}
 
     test narrative-1.3 {mode is SOME} -setup {
         setup
@@ -112,7 +112,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Demobilize 100 of group BLUE's undeployed personnel.}
+    } -result {Demobilize 100 of group {group:BLUE}'s undeployed personnel.}
 
     test narrative-1.4 {mode is PERCENT} -setup {
         setup
@@ -124,7 +124,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Demobilize 3.5% of group BLUE's undeployed personnel.}
+    } -result {Demobilize 3.5% of group {group:BLUE}'s undeployed personnel.}
 
     test narrative-1.2 {mode is excess} -setup {
         setup
@@ -136,7 +136,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Demobilize all but 100 of group BLUE's undeployed personnel.}
+    } -result {Demobilize all but 100 of group {group:BLUE}'s undeployed personnel.}
 
 
     #-------------------------------------------------------------------

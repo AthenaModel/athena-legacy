@@ -132,11 +132,7 @@ tactic define STANCE "Adopt a Stance" {actor} -onlock {
 
 
     method narrative {} {
-        set fgrp $f
-
-        if {$f eq ""} {
-            set fgrp "???"
-        }
+        set fgrp [link make group $f]
 
         append result \
             "Group $fgrp adopts a stance of [format %.2f $drel] " \

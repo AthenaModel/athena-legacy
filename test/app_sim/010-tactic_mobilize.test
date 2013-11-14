@@ -98,7 +98,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Mobilize 100 more group BLUE personnel.}
+    } -result {Mobilize 100 more group {group:BLUE} personnel.}
 
     test narrative-3.1 {valid narrative, PERCENT} -setup {
         setup
@@ -107,7 +107,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Mobilize 3.5% more group BLUE personnel.}
+    } -result {Mobilize 3.5% more group {group:BLUE} personnel.}
 
     test narrative-4.1 {valid narrative, UPTO} -setup {
         setup
@@ -116,7 +116,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Mobilize group BLUE personnel up to a maximum of 5000 personnel.}
+    } -result {Mobilize group {group:BLUE} personnel up to a maximum of 5000 personnel.}
 
     test narrative-5.1 {valid narrative, ENSURE} -setup {
         setup
@@ -125,7 +125,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Mobilize enough group BLUE personnel to ensure that 5000 personnel are available for deployment.}
+    } -result {Mobilize enough group {group:BLUE} personnel to ensure that 5000 personnel are available for deployment.}
 
 
     #-------------------------------------------------------------------

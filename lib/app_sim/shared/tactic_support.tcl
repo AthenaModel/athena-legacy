@@ -66,14 +66,12 @@ tactic define SUPPORT "Support Actor" {actor} -onlock {
     }
 
     method narrative {} {
-        if {$a eq ""} {
-            set s(a) "actor ???"
-        } elseif {$a eq "SELF"} {
+        if {$a eq "SELF"} {
             set s(a) "self"
         } elseif {$a eq "NONE"} {
             set s(a) "no one"
         } else {
-            set s(a) "actor $a"
+            set s(a) "actor [link make actor $a]"
         }
 
         set s(nlist) [gofer::NBHOODS narrative $nlist]

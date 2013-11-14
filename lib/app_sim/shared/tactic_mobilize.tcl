@@ -84,7 +84,7 @@ tactic define MOBILIZE "Mobilize Personnel" {actor} {
     # should be forgiving of unsane and missing data.
 
     method narrative {} {
-        let gtext  {$g ne ""       ? $g                       : "???"}
+        set gtext  [link make group $g]
         let ptext1 {$personnel > 0 ? $personnel               : "???"}
         let ptext2 {$percent > 0   ? [format %.1f%% $percent] : "???"}
 

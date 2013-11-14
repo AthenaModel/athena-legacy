@@ -95,8 +95,8 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
     }
 
     method narrative {} {
-        let s(g)        {$g        ne "" ? $g        : "???"}
-        let s(n)        {$n        ne "" ? $n        : "???"}
+        set s(g)        [link make group  $g]
+        set s(n)        [link make nbhood $n]
         let s(activity) {$activity ne "" ? $activity : "???"}
 
         switch -exact -- $pmode {

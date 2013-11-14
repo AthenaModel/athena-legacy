@@ -63,7 +63,7 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
 
 
     method narrative {} {
-        set gtext [expr {$g    ne ""     ? $g         : "???"}]
+        set gtext [link make group $g]
 
         switch -exact -- $mode {
             ALL     { set ptext "all"                      }

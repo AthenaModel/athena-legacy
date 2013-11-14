@@ -91,8 +91,8 @@ tactic define DEFROE "Defensive ROE" {actor} {
     }
 
     method narrative {} {
-        let s(g)        {$g        ne "" ? $g        : "???"}
-        let s(n)        {$n        ne "" ? $n        : "???"}
+        set s(g) [link make group  $g]
+        set s(n) [link make nbhood $n]
 
         return "Group $s(g) defends in $s(n) with ROE $roe"
     }

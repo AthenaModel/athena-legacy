@@ -65,32 +65,6 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-    set OT1 {
-        tactic_type FUNDENI
-        owner       JOE
-        priority    top
-        x1          2000.0
-        glist       SHIA
-        on_lock     NO
-    }
-
-    set OT2 {
-        tactic_type FUNDENI
-        owner       JOE
-        priority    top
-        x1          7000.0
-        glist       {SHIA SUNN KURD}
-        on_lock     NO
-    }
-
-    set OT3 {
-        tactic_type FUNDENI
-        owner       JOE
-        priority    top
-        x1          7000.0
-        glist       NO_ONE
-        on_lock     NO
-    }
        
 
 
@@ -107,7 +81,7 @@ namespace eval ::athena_test::tests:: {
         amount     0.0
         execstatus NONE
         faildict   {}
-        glist      {}
+        glist      {_type CIVGROUPS _rule {}}
         id         *
         los        100.0
         mode       ALL
@@ -198,7 +172,7 @@ namespace eval ::athena_test::tests:: {
         $T1 check
     } -cleanup {
         cleanup
-    } -result {glist {Not a gofer CIVGROUPS value}}
+    } -result {glist {No rule specified}}
 
     test check-1.2 {check: g in glist no longer exist} -setup {
         setup

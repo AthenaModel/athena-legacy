@@ -154,9 +154,9 @@ tactic define ATTROE "Attacking ROE" {actor} {
     }
 
     method narrative {} {
-        let s(f) {$f ne "" ? $f : "???"}
-        let s(g) {$g ne "" ? $g : "???"}
-        let s(n) {$n ne "" ? $n : "???"}
+        set s(f) [link make group  $f]
+        set s(g) [link make group  $g]
+        set s(n) [link make nbhood $n]
 
         if {$attacks == 1} {
             set rate "1 time/week"

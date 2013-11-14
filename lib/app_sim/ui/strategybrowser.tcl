@@ -1015,7 +1015,7 @@ snit::widget strategybrowser {
             -selectioncmd  [mymethod CTabSelection]   \
             -layout [string map [list %D $::app::derivedfg] {
                 { id              "ID"                               }
-                { metflag         "Flag"                             }
+                { statusicon      "Flag"                             }
                 { state           "State"     -width 8               }
                 { narrative       "Narrative" -width 60 -wrap yes    }
                 { typename        "Type"                             }
@@ -1117,11 +1117,11 @@ snit::widget strategybrowser {
 
     method CTabDisplay {rindex values} {
         # FIRST, set flag icon
-        set cindex [$ctab cname2cindex metflag]
-        set metflag [lindex $values $cindex]
+        set cindex [$ctab cname2cindex statusicon]
+        set icon [lindex $values $cindex]
 
         $ctab cellconfigure $rindex,$cindex       \
-            -image [eflagstatus as icon $metflag] \
+            -image $icon \
             -text  ""
 
         # NEXT, set narrative color

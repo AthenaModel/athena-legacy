@@ -97,7 +97,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Group BLUE defends in NB1 with ROE FIRE_BACK_IF_PRESSED}
+    } -result {Group {group:BLUE} defends in {nbhood:NB1} with ROE FIRE_BACK_IF_PRESSED}
 
     #-------------------------------------------------------------------
     # check

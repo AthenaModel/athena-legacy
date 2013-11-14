@@ -477,17 +477,25 @@ oo::define tactic {
 
     # view ?view?
     #
-    # view   - A view name (ignored at present)
+    # view   - A view name; defaults to "text".
     #
-    # Returns a view dictionary, for display.
+    # Returns a view dictionary, for display.  The default view
+    # is plain text; specify "html" to get narrative with HTML links.
 
-    method view {{view ""}} {
+    method view {{view "text"}} {
         set result [next $view]
 
         dict set result agent      [my agent]
-        dict set result narrative  [my narrative]
         dict set result typename   [my typename]
         dict set result statusicon [my statusicon]
+
+        if {$view eq "html"} {
+            dict set result narrative [link html [my narrative]]
+        } else {
+            dict set result narrative [link text [my narrative]]
+        }
+
+        dict set result failures [join [my failures] "\n"]
 
         return $result
     }

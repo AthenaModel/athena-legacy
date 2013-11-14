@@ -62,29 +62,31 @@ tactic define FUND "Fund Another Actor" {actor} {
     }
 
     method narrative {} {
+        set s(a) [link make actor $a]
+
         set amt [moneyfmt $amount]
 
         switch -exact -- $mode {
             ALL {
                 return \
-                    "Fund actor $a with all remaining cash-on-hand every week."
+                    "Fund actor $s(a) with all remaining cash-on-hand every week."
             }
 
             EXACT {
-                return "Fund actor $a with \$$amt/week."
+                return "Fund actor $s(a) with \$$amt/week."
             }
 
             UPTO {
-                return "Fund actor $a with up to \$$amt/week."
+                return "Fund actor $s(a) with up to \$$amt/week."
             }
 
             PERCENT {
-                return "Fund actor $a with $percent% of cash-on-hand per week."
+                return "Fund actor $s(a) with $percent% of cash-on-hand per week."
             }
 
             EXCESS {
                 return \
-                    "Fund actor $a with any cash-on-hand over \$$amt per week."
+                    "Fund actor $s(a) with any cash-on-hand over \$$amt per week."
             }
 
             default {

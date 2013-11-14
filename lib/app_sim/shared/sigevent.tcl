@@ -76,18 +76,4 @@ snit::type sigevent {
             }
         }
     }
-
-    # mklinks narrative
-    #
-    # narrative - A sigevents narrative string
-    #
-    # Translates links in the narrative to HTML.
-
-    typemethod mklinks {narrative} {
-        regsub -all -- {{(\w+):(\w+)}} $narrative \
-            {<a href="my://app/\1/\2">\2</a>} \
-            narrative
-
-        return $narrative
-    }
 }

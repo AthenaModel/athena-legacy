@@ -700,7 +700,7 @@ snit::type scenario {
         rdb function m2ref                [myproc M2Ref]
         rdb function qsecurity            ::projectlib::qsecurity
         rdb function moneyfmt             ::marsutil::moneyfmt
-        rdb function mklinks              [list ::sigevent mklinks]
+        rdb function mklinks              [list ::link html]
         rdb function uram_gamma           [myproc UramGamma]
         rdb function sigline              [myproc Sigline]
         rdb function firing_narrative     [myproc FiringNarrative]

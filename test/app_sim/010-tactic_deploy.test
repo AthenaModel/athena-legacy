@@ -167,7 +167,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -match glob -result {Deploy all of group BLUE's undeployed personnel into neighborhood NB1 as *}
+    } -match glob -result {Deploy all of group {group:BLUE}'s undeployed personnel into neighborhood NB1 as *}
 
     test narrative-1.3 {redeploy} -setup {
         setup
