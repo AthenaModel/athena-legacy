@@ -108,7 +108,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dict -result {
-        a     {No actor specified}
+        a     {No actor specified.}
         nlist {No rule specified}
     }
 
@@ -121,7 +121,7 @@ namespace eval ::athena_test::tests:: {
         $T1 check
     } -cleanup {
         cleanup
-    } -result {a {No such actor: "NONESUCH"}}
+    } -result {a {No such actor: "NONESUCH".}}
 
     test check-1.4 {invalid nlist gofer} -setup {
         setup

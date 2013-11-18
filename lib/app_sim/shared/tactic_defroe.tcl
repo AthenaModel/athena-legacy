@@ -72,7 +72,7 @@ tactic define DEFROE "Defensive ROE" {actor} {
             dict set errdict g "No group selected."
         } elseif {$g ni [group ownedby [my agent]]} {
             dict set errdict g \
-                "Force group \"$g\" is not owned by [my agent]."
+                "[my agent] does not own a force group called \"$g\"."
         } elseif {$g ni [frcgroup uniformed names]} {
             dict set errdict g \
                 "Force group \"$g\" is not a uniformed force group."
@@ -84,7 +84,7 @@ tactic define DEFROE "Defensive ROE" {actor} {
                 "No neighborhood selected."
         } elseif {$n ni [nbhood names]} {
             dict set errdict n \
-                "Non-existent neighborhood: \"$n\""
+                "No such neighborhood: \"$n\"."
         }
 
         return [next $errdict]

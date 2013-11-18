@@ -129,7 +129,7 @@ namespace eval ::athena_test::tests:: {
         $T1 check
     } -cleanup {
         cleanup
-    } -result {f {Group BLUE does not exist, or actor JOE no longer owns it.}}
+    } -result {f {JOE does not own a group called "BLUE".}}
 
     test check-1.2 {check: g in glist no longer exists} -setup {
         setup
@@ -157,20 +157,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {nlist {Invalid neighborhood, should be one of: NB2}}
-
-    test check-1.4 {check: multiple failures} -setup {
-        setup
-        $T1 configure \
-            -f BLUE   \
-            -mode BY_NBHOOD \
-            -nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
-        rdb eval {UPDATE frcgroups SET a=NULL}
-        rdb eval {DELETE FROM nbhoods WHERE n='NB1'}
-    } -body {
-        $T1 check
-    } -cleanup {
-        cleanup
-    } -result {f {Group BLUE does not exist, or actor JOE no longer owns it.} nlist {Invalid neighborhood, should be one of: NB2}}
 
     #-------------------------------------------------------------------
     # execute

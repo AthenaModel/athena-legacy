@@ -52,7 +52,7 @@ tactic define GRANT "Grant Access to CAP" {actor} -onlock {
     method SanityCheck {errdict} {
         # klist
         if {[llength $klist] == 0} {
-            dict set errdict klist "Empty CAP List"
+            dict set errdict klist "No CAPs selected."
         } else {
             foreach cap $klist {
                 if {$cap ni [cap names] || 

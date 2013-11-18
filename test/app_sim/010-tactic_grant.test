@@ -109,7 +109,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match dict -result {
         alist {No rule specified}
-        klist {Empty CAP List}
+        klist {No CAPs selected.}
     }
 
     test check-1.2 {non-existent caps} -setup {

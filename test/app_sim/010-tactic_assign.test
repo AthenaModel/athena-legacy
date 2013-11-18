@@ -190,34 +190,34 @@ namespace eval ::athena_test::tests:: {
         setup -valid
     } -body {
         $T1 configure -g NONESUCH
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
     } -match dict -result {
-        g        {Force/organization group "NONESUCH" is not owned by JOE.} 
-        activity {Invalid activity for selected group: "PATROL"}
+        g        {JOE does not own a force group called "NONESUCH".} 
+        activity {Invalid activity for selected group: "PATROL".}
     }
 
     test check-1.3 {unknown n} -setup {
         setup -valid
     } -body {
         $T1 configure -n NONESUCH
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
     } -match dict -result {
-        n {Non-existent neighborhood: NONESUCH}
+        n {No such neighborhood: "NONESUCH".}
     }
 
     test check-1.4 {unknown activity} -setup {
         setup -valid
     } -body {
         $T1 configure -activity NONESUCH
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
     } -match dict -result {
-        activity {Invalid activity for selected group: "NONESUCH"}
+        activity {Invalid activity for selected group: "NONESUCH".}
     }
 
     test check-1.5 {Success} -setup {

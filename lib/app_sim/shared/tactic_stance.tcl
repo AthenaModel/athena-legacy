@@ -100,9 +100,12 @@ tactic define STANCE "Adopt a Stance" {actor} -onlock {
     
     method SanityCheck {errdict} {
         # f
-        if {$f ni [group ownedby [my agent]]} {
+        if {$f eq ""} {
             dict set errdict f \
-                "Group $f does not exist, or actor [my agent] no longer owns it."
+                "No group selected."
+        } elseif {$f ni [group ownedby [my agent]]} {
+            dict set errdict f \
+                "[my agent] does not own a group called \"$f\"."
         }
 
         # glist/nlist
@@ -110,12 +113,7 @@ tactic define STANCE "Adopt a Stance" {actor} -onlock {
             BY_GROUP {
                 if {[catch {gofer::GROUPS validate $glist} result]} {
                     dict set errdict glist $result
-                } else {
-                    set grps [gofer eval $glist]
-                    if {$f in $grps} {
-                        dict set errdict glist "$f cannot be in groups list."
-                    }
-                }
+                } 
             }
 
             BY_NBHOOD {
@@ -168,6 +166,9 @@ tactic define STANCE "Adopt a Stance" {actor} -onlock {
             }
         } else {
             set groups [gofer eval $glist]
+
+            # We can't set stance with $f
+            ldelete groups $f
         }
 
         # NEXT, determine which groups to ignore.

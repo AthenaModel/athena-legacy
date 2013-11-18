@@ -171,7 +171,29 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # check
 
-    test check-1.1 {check: role no longer exists} -setup {
+    test check-1.1 {no curse selected} -setup {
+        setup
+        $T1 configure -curse ""
+    } -body {
+        ted pdict [$T1 check]
+    } -cleanup {
+        cleanup
+    } -result {
+        curse {No curse selected.}
+    }
+
+    test check-1.2 {no such curse} -setup {
+        setup
+        $T1 configure -curse "NONESUCH"
+    } -body {
+        ted pdict [$T1 check]
+    } -cleanup {
+        cleanup
+    } -result {
+        curse {No such curse: "NONESUCH".}
+    }
+
+    test check-2.1 {check: role no longer exists} -setup {
         setup
         rdb eval {DELETE FROM curse_injects WHERE inject_type='VREL'}
     } -body {
@@ -180,7 +202,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {roles {Role @C3 no longer exists. Role @A1 no longer exists.}}
 
-    test check-1.2 {check: inject changes roles} -setup {
+    test check-2.2 {check: inject changes roles} -setup {
         setup
     } -body {
         ted order INJECT:DELETE  \
@@ -199,7 +221,7 @@ namespace eval ::athena_test::tests:: {
     } -result {roles {Role @C1 no longer exists. Role @F1 no longer exists. Role @DUMMY1 is not defined. Role @DUMMY2 is not defined.}}
 
 
-    test check-1.3 {check: inject changes role types} -setup {
+    test check-2.3 {check: inject changes role types} -setup {
         setup
     } -body {
         ted order INJECT:DELETE  \

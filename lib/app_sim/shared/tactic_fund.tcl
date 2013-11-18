@@ -55,7 +55,7 @@ tactic define FUND "Fund Another Actor" {actor} {
     method SanityCheck {errdict} {
         # FIRST, check that the actor exists
         if {$a ni [actor names]} {
-            dict set errdict a "Actor $a does not exist."
+            dict set errdict a "No such actor: \"$a\"."
         }
 
         return [next $errdict]

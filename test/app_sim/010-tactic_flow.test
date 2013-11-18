@@ -148,7 +148,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dict -result {
-        f {No civilian group named "NONESUCH".}
+        f {No such civilian group: "NONESUCH".}
     }
 
     test check-1.3 {g not a civilian group} -setup {
@@ -159,7 +159,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        g {No civilian group named "NONESUCH".}
+        g {No such civilian group: "NONESUCH".}
     }
 
     test check-2.1 {Success} -setup {

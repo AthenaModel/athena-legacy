@@ -120,7 +120,7 @@ namespace eval ::athena_test::tests:: {
         $T1 check
     } -cleanup {
         cleanup
-    } -result {g {Force group "NONESUCH" is not owned by JOE.}}
+    } -result {g {JOE does not own a force group called "NONESUCH".}}
 
     test check-1.3 {g not uniformed} -setup {
         setup
@@ -139,7 +139,7 @@ namespace eval ::athena_test::tests:: {
         $T1 check
     } -cleanup {
         cleanup
-    } -result {n {Non-existent neighborhood: "NONESUCH"}}
+    } -result {n {No such neighborhood: "NONESUCH".}}
 
 
     test check-2.1 {Success} -setup {

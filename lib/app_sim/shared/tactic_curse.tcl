@@ -60,9 +60,12 @@ tactic define CURSE "Cause a CURSE" {system} {
 
         # NEXT, the curse this tactic uses may have been deleted, disabled,
         # or invalid
-        if {!$exists} {
+        if {$curse eq ""} {
             dict set errdict curse \
-                "Curse $curse does not exist."
+                "No curse selected."
+        } elseif {!$exists} {
+            dict set errdict curse \
+                "No such curse: \"$curse\"."
         } else {
             set state [curse get $curse state]
 

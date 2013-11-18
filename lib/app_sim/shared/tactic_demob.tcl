@@ -55,7 +55,7 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
             dict set errdict g "No group selected."
         } elseif {$g ni [group ownedby [my agent]]} {
             dict set errdict g \
-                "Group \"$g\" is not owned by [my agent]."
+                "[my agent] does not own a group called \"$g\"."
         }
 
         return [next $errdict]

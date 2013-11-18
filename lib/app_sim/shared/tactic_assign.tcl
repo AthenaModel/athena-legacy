@@ -71,7 +71,7 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
             dict set errdict g "No group selected."
         } elseif {$g ni [group ownedby [my agent]]} {
             dict set errdict g \
-                "Force/organization group \"$g\" is not owned by [my agent]."
+                "[my agent] does not own a force group called \"$g\"."
         }
 
         # Check n
@@ -80,7 +80,7 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
                 "No neighborhood selected."
         } elseif {$n ni [nbhood names]} {
             dict set errdict n \
-                "Non-existent neighborhood: $n"
+                "No such neighborhood: \"$n\"."
         }
 
         # Check activity
@@ -88,7 +88,7 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
             dict set errdict activity "No activity selected."
         } elseif {[catch {activity check $g $activity}]} {
             dict set errdict activity \
-                "Invalid activity for selected group: \"$activity\"" 
+                "Invalid activity for selected group: \"$activity\"." 
         }
 
         return [next $errdict]

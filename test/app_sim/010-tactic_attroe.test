@@ -185,7 +185,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dict -result {
-        g {Groups "BLUE" and "BRIT" are both uniformed}
+        g {Groups "BLUE" and "BRIT" are both uniformed.}
     }
 
     test check-1.5 {f and g both non-uniformed} -setup {
@@ -196,7 +196,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dict -result {
-        g {Groups "TAL" and "ALQ" are both non-uniformed}
+        g {Groups "TAL" and "ALQ" are both non-uniformed.}
     }
 
     test check-1.6 {invalid ROE, uniformed} -setup {
@@ -229,7 +229,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dict -result {
-        n {Non-existent neighborhood: "NONESUCH"}
+        n {No such neighborhood: "NONESUCH".}
     }
 
 

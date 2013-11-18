@@ -117,12 +117,12 @@ tactic define ATTROE "Attacking ROE" {actor} {
             if {$fUniformed} {
                 if {$gUniformed} {
                     dict set errdict g \
-                        "Groups \"$f\" and \"$g\" are both uniformed"
+                        "Groups \"$f\" and \"$g\" are both uniformed."
                 }
             } else {
                 if {!$gUniformed} {
                     dict set errdict g \
-                        "Groups \"$f\" and \"$g\" are both non-uniformed"
+                        "Groups \"$f\" and \"$g\" are both non-uniformed."
                 }
             }
         }
@@ -146,7 +146,7 @@ tactic define ATTROE "Attacking ROE" {actor} {
         if {[llength $n] == 0} {
             dict set errdict n "No neighborhood selected."
         } elseif {$n ni [nbhood names]} {
-            dict set errdict n "Non-existent neighborhood: \"$n\""
+            dict set errdict n "No such neighborhood: \"$n\"."
         }
 
 

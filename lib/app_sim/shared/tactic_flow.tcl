@@ -110,14 +110,14 @@ tactic define FLOW "Flow Personnel" {system} {
             dict set errdict f "No group selected."
         } elseif {$f ni [civgroup names]} {
             dict set errdict f \
-                "No civilian group named \"$f\"."
+                "No such civilian group: \"$f\"."
         }
 
         if {$g eq ""} {
             dict set errdict g "No group selected."
         } elseif {$g ni [civgroup names]} {
             dict set errdict g \
-                "No civilian group named \"$g\"."
+                "No such civilian group: \"$g\"."
         }
 
         return [next $errdict]
