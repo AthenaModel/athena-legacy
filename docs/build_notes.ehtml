@@ -11,6 +11,27 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.5, 18 November 2013</h3>
+
+This build contains the last tactic to be converted to the Mark II Strategy
+Engine: ASSIGN.  It also contains some new deployment modes for the DEPLOY 
+tactic, some bug fixes to the new strategy engine and a few minor 
+enhancements.<p>
+
+<ul>
+<li> Bug 4208: SPEND tactic displays $amt instead of numerical value
+<li> Bug 4209: FUND tactic help page is missing actor
+<li> Bug 4219: Hook ID does not require unique value
+<li> Bug 4222: athena(1): have export command write the version of Athena used for export
+<li> Bug 4225: athena(1): expose the pfactor attribute in the nbhood object
+<li> Bug 4213: athena(1): Mark II ASSIGN Tactic
+<li> Bug 4215: Tactic undo redo bgerror
+<li> Bug 4218: athena(1): Mark II DEPLOY Tactic, Part II
+<li> Bug 4226: athena(1): Display tactic failure details
+<li> Bug 4230: athena(1): Support links in tactic and condition narrative strings.
+<li> Bug 4231: athena(1): Make tactic sanity check failures consistent 
+</ul><p>
+
 <h3>Build 6.0.4, 7 November 2013</h3>
 
 This build contains what is likely that last major update to the Mark II 
