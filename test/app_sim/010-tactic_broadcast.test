@@ -28,7 +28,9 @@ namespace eval ::athena_test::tests:: {
 
     # Set up for tests
 
-    proc setup {} {
+    # With -valid, creates a valid BROADCAST tactic.  Without
+    # -valid, you get the default values.
+    proc setup {{opt ""}} {
         variable T1
         variable coffer
         ted create JOE BOB CBS CNN IOM1 IOM2 BLUE
@@ -60,7 +62,12 @@ namespace eval ::athena_test::tests:: {
         }
 
         set B1 [ted addblock JOE]
-        set T1 [ted addtactic $B1 BROADCAST {*}$T1]
+
+        if {$opt eq "-valid"} {
+            set T1 [ted addtactic $B1 BROADCAST {*}$T1]
+        } else {
+            set T1 [ted addtactic $B1 BROADCAST]
+        }
 
         tactic::BROADCAST reset
     }
@@ -84,146 +91,171 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dictglob -result {
-        a          SELF
-        cap        CBS
-        cost       500.0
+        a          {}
+        cap        {}
+        cost       0.0
         execstatus NONE
         faildict   {}
         id         *
-        iom        IOM1
+        iom        {}
         parent     ::bean::block*
-        state      normal
+        state      invalid
     }
 
     test constructor-1.2 {can set options} -setup {
         setup
     } -body {
-        set T1 [tactic::BROADCAST new -iom DUMMY -a NONESUCH -cap FOO -cost 99]
+        $T1 configure -cap CBS -iom IOM1 -a BOB -cost 1000
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match dictglob -result {
-        a          NONESUCH
-        cap        FOO
-        cost       99
+        a          BOB
+        cap        CBS
+        cost       1000
         execstatus NONE
         faildict   {}
         id         *
-        iom        DUMMY
-        parent     *
+        iom        IOM1
+        parent     ::bean::block*
         state      invalid
     }
 
     #-------------------------------------------------------------------
     # narrative
 
-    test narrative-1.1 {narrative, attributed to self} -setup {
+    test narrative-1.1 {default narrative} -setup {
         setup
     } -body {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and attribute it to self.}
+    } -result {Broadcast ??? via ??? with prep cost of $0 and attribute it to ???.}
 
-    test narrative-1.2 {narrative, attributed to none} -setup {
+    test narrative-1.2 {attributed to none} -setup {
         setup
-        $T1 set a NONE
+        $T1 configure -a NONE
     } -body {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and no attribution.}
+    } -match glob -result {Broadcast * and no attribution.}
 
-    test narrative-1.3 {narrative, attributed to other} -setup {
+    test narrative-1.3 {attributed to self} -setup {
         setup
-        $T1 set a BOB
+        $T1 configure -a SELF
     } -body {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Broadcast IOM1 via CBS with prep cost of $500.0 and attribute it to BOB.}
+    } -match glob -result {Broadcast * and attribute it to self.}
+
+    test narrative-1.4 {all attributes} -setup {
+        setup
+        $T1 configure -cap CBS -iom IOM1 -a BOB -cost 1000.0
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Broadcast {iom:IOM1} via {cap:CBS} with prep cost of $1,000 and attribute it to {actor:BOB}.}
 
     #-------------------------------------------------------------------
     # check
 
-    test check-1.1 {check: cap no longer exists}  -setup {
+    test check-1.1 {initial state fails}  -setup {
         setup
-        rdb eval {DELETE FROM caps}
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {cap {CAP CBS does not exist.}}
+    } -match dict -result {
+        a   {No actor selected.}
+        cap {No CAP selected.}
+        iom {No IOM selected.}
+    }
 
-    test check-1.2 {check: a no longer exists} -setup {
-        setup
-        $T1 set a NONESUCH
+    test check-1.2 {no such CAP}  -setup {
+        setup -valid
+        $T1 configure -cap NONESUCH
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {a {Actor NONESUCH does not exist.}}
+    } -match dict -result {
+        cap {No such CAP: "NONESUCH".}
+    }
 
-    test check-1.3 {check: IOM no longer exists.} -setup {
-        setup
-        $T1 set iom NONESUCH
+    test check-1.3 {no such actor}  -setup {
+        setup -valid
+        $T1 configure -a NONESUCH
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {iom {IOM NONESUCH does not exist.}}
+    } -match dict -result {
+        a {No such actor: "NONESUCH".}
+    }
 
-    test check-1.4 {check: IOM is disabled.} -setup {
-        setup
+    test check-1.4 {no such IOM}  -setup {
+        setup -valid
+        $T1 configure -iom NONESUCH
+    } -body {
+        ted pdicts [$T1 check]
+    } -cleanup {
+        cleanup
+    } -match dict -result {
+        iom {No such IOM: "NONESUCH".}
+    }
+
+    test check-1.5 {IOM is disabled.} -setup {
+        setup -valid
         rdb eval {UPDATE ioms SET state='disabled'}
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {iom {IOM IOM1 is disabled.}}
+    } -match dict -result {
+        iom {IOM is disabled: "IOM1".}
+    }
 
-    test check-1.5 {check: IOM is invalid.} -setup {
-        setup
+    test check-1.6 {IOM is invalid.} -setup {
+        setup -valid
         rdb eval {UPDATE ioms SET state='invalid'}
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {iom {IOM IOM1 is invalid.}}
+    } -match dict -result {
+        iom {IOM is invalid: "IOM1".}
+    }
 
-    test check-1.6 {check: IOM has no valid payloads.} -setup {
-        setup
+    test check-1.7 {check: IOM has no valid payloads.} -setup {
+        setup -valid
         rdb eval {DELETE FROM payloads;}
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {iom {IOM IOM1 has no valid payloads.}}
+    } -match dict -result {
+        iom {IOM has no valid payloads: "IOM1".}
+    }
 
-    test check-1.7 {check: IOM hook has no valid topics.} -setup {
-        setup
+    test check-1.8 {check: IOM hook has no valid topics.} -setup {
+        setup -valid
         rdb eval {DELETE FROM hook_topics;}
     } -body {
-        $T1 check
+        ted pdicts [$T1 check]
     } -cleanup {
         cleanup
-    } -result {iom {IOM1: IOM's hook has no valid topics.}}
-
-    test check-1.8 {check: multiple failures} -setup {
-        setup
-        rdb eval {DELETE FROM caps}
-        rdb eval {DELETE FROM ioms}
-    } -body {
-        $T1 check 
-    } -cleanup {
-        cleanup
-    } -result {cap {CAP CBS does not exist.} iom {IOM IOM1 does not exist.}}
+    } -match dict -result {
+        iom {IOM's hook has no valid topics: "IOM1".}
+    }
 
     #-------------------------------------------------------------------
     # obligate
 
     test obligate-1.1 {CAP cost + prep cost} -setup {
-        setup
+        setup -valid
         cap access load
     } -body {
         set a [$coffer cash]
@@ -235,7 +267,7 @@ namespace eval ::athena_test::tests:: {
     } -result {10000.0 1 8500.0}
 
     test obligate-1.2 {obligate: insufficient funds} -setup {
-        setup
+        setup -valid
         cap access load
     } -body {
         $T1 set cost 100000.0
@@ -249,7 +281,7 @@ namespace eval ::athena_test::tests:: {
     # execute
 
     test execute-1.1 {execute} -setup {
-        setup
+        setup -valid
         $T1 obligate $coffer
     } -body {
         $T1 execute

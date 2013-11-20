@@ -147,9 +147,9 @@ tactic define BROADCAST "Broadcast an Info Ops Message" {actor} -onlock {
         next
 
         # Initialize state variables
-        set cap "???"
-        set a   "???"
-        set iom "???"
+        set cap ""
+        set a   ""
+        set iom ""
         set cost 0.0
 
         set trans(cost) 0.0
@@ -164,55 +164,67 @@ tactic define BROADCAST "Broadcast an Info Ops Message" {actor} -onlock {
 
     method SanityCheck {errdict} {
         # cap
-        if {$cap ni [cap names]} {
-            dict set errdict cap "CAP $cap does not exist."
+        if {$cap eq ""} {
+            dict set errdict cap "No CAP selected."
+        } elseif {$cap ni [cap names]} {
+            dict set errdict cap "No such CAP: \"$cap\"."
         }
 
         # a
-        if {$a ni [ptype a+self+none names]} {
-            dict set errdict a "Actor $a does not exist."
+        if {$a eq ""} {
+            dict set errdict a "No actor selected."
+        } elseif {$a ni [ptype a+self+none names]} {
+            dict set errdict a "No such actor: \"$a\"."
         }
 
         # iom
-        # FIRST, doe the IOM exist and is it valid
-        set iomexists [expr {$iom in [iom names]}]
-        if {!$iomexists} {
-            dict set errdict iom "IOM $iom does not exist."
+        set gotIOM [expr {$iom in [iom names]}]
+
+        if {$iom eq ""} {
+            dict set errdict iom "No IOM selected."            
+        } elseif {!$gotIOM} {
+            dict set errdict iom "No such IOM: \"$iom\"."
         } elseif {[iom get $iom state] eq "disabled"} {
-            dict set errdict iom "IOM $iom is disabled."
+            dict set errdict iom "IOM is disabled: \"$iom\"."
         } elseif {[iom get $iom state] eq "invalid"} {
-            dict set errdict iom "IOM $iom is invalid."
+            dict set errdict iom "IOM is invalid: \"$iom\"."
         }
 
         # NEXT, does the IOM have any valid payloads?
-        if {$iomexists && ![rdb onecolumn { 
+        if {$gotIOM && ![rdb onecolumn { 
             SELECT count(payload_num) FROM payloads
             WHERE iom_id=$iom AND state='normal'
         }]} {
-            dict set errdict iom "IOM $iom has no valid payloads."     
+            dict set errdict iom "IOM has no valid payloads: \"$iom\"."     
         }
 
         # NEXT, does the IOM's hook have any valid topics?
-        if {$iomexists && ![rdb onecolumn { 
+        if {$gotIOM && ![rdb onecolumn { 
             SELECT count(HT.topic_id) 
             FROM hook_topics AS HT
             JOIN ioms AS I USING (hook_id)
             WHERE I.iom_id=$iom AND HT.state='normal'
         }]} {
-            dict set errdict iom "$iom: IOM's hook has no valid topics."
+            dict set errdict iom "IOM's hook has no valid topics: \"$iom\"."
         }
 
         return [next $errdict]
     }
 
     method narrative {} {
-        set text "Broadcast $iom via $cap with prep cost of \$$cost"
+        set s(cap) [link make cap $cap]
+        set s(a)   [link make actor $a]
+        set s(iom) [link make iom $iom]
+        set s(cost) "\$[commafmt $cost]"
+
+        set text "Broadcast $s(iom) via $s(cap) with prep cost of $s(cost)"
+
         if {$a eq "SELF"} {
             append text " and attribute it to self."
         } elseif {$a eq "NONE"} {
             append text " and no attribution."
         } else {
-            append text " and attribute it to $a."
+            append text " and attribute it to $s(a)."
         }
 
         return $text
