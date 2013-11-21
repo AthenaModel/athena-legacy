@@ -1502,13 +1502,19 @@ snit::widget strategybrowser {
     # Creates and populates the popup menu associated with the addbutton.
 
     method TTabPopulateAddMenu {mnu} {
-        menu $mnu 
+        # Update the cond::predicate statecontroller when the
+        # menu is posted, so that the relevant items will be
+        # enabled/disabled.
+        menu $mnu \
+            -postcommand [list ::cond::predicate update]
+
         $tt_addbtn configure -menu $mnu
 
-        dict for {ttype title} [tactic typedict] {
-            $mnu add command \
-                -label   $title \
-                -command [mymethod TTabAdd [$ttype typename]]
+        foreach ttype [tactic types] {
+            cond::predicate control \
+                [menuitem $mnu command [$ttype title] \
+                    -command [mymethod TTabAdd [$ttype typename]]] \
+                browser $self predicate [list agentTypeIn [$ttype atypes]]
         }
     }
 
@@ -1701,6 +1707,21 @@ snit::widget strategybrowser {
     
     method {ttab multi} {} {
         expr {[llength [$ttab curselection]] > 0}
+    }
+
+    # agentTypeIn atypes
+    #
+    # atypes - A list of agent types
+    #
+    # Returns 1 if the current agent's type is in the list, and
+    # 0 otherwise.
+
+    method agentTypeIn {atypes} {
+        if {$info(agent) eq ""} {
+            return 0
+        }
+
+        expr {[agent type $info(agent)] in $atypes}
     }
 
     #-------------------------------------------------------------------
