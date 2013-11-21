@@ -230,15 +230,38 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NBHOODS::WITH_DEPLOYMENT narrative {anyall ANY glist {BLUE BRIT}}
     } -match glob -result {neighborhoods with deployments of any of these groups (BLUE, BRIT)}
 
+    # setupDeployments
+    #
+    # Clears deploy_ng, and inserts a large set of data with bogus
+    # neighborhoods and groups.
+
     proc setupDeployments {} {
-        setup
-        dict for {n g} {
-            NB1 BLUE
-            NB2 BRIT
+        ted create NB1 NB2 NB3 NB4 BLUE BRIT TAL ALQ
+
+        foreach {n g personnel} {
+            NB1 BLUE 1
+            NB1 BRIT 0
+            NB1 TAL  0
+            NB1 ALQ  0
+
+            NB2 BLUE 1
+            NB2 BRIT 1
+            NB2 TAL  1
+            NB2 ALQ  1
+
+            NB3 BLUE 0
+            NB3 BRIT 0
+            NB3 TAL  0
+            NB3 ALQ  1
+
+            NB4 BLUE 0
+            NB4 BRIT 1
+            NB4 TAL  1
+            NB4 ALQ  1
         } { 
             rdb eval {
                 INSERT OR REPLACE INTO deploy_ng(n,g,personnel) 
-                VALUES($n,$g,1)
+                VALUES($n,$g,$personnel)
             }
         }
     }
@@ -249,23 +272,93 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NBHOODS::WITH_DEPLOYMENT eval {anyall ANY glist BLUE}
     } -cleanup {
         cleanup
-    } -result {NB1}
+    } -result {NB1 NB2}
 
-    test WITH_DEPLOYMENT-4.2 {eval, multi, any} -setup {
-        setupDeployments 
+    test WITH_DEPLOYMENT-4.2 {eval, one} -setup {
+        setupDeployments
     } -body {
-        ::gofer::NBHOODS::WITH_DEPLOYMENT eval {anyall ANY glist {BLUE BRIT}}
+        ::gofer::NBHOODS::WITH_DEPLOYMENT eval {anyall ALL glist BLUE}
     } -cleanup {
         cleanup
     } -result {NB1 NB2}
 
-    test WITH_DEPLOYMENT-4.3 {eval, multi, all} -setup {
+    test WITH_DEPLOYMENT-4.3 {eval, multi, any} -setup {
         setupDeployments 
     } -body {
-        ::gofer::NBHOODS::WITH_DEPLOYMENT eval {anyall ALL glist {BLUE BRIT}}
+        ::gofer::NBHOODS::WITH_DEPLOYMENT eval {anyall ANY glist {BLUE ALQ}}
+    } -cleanup {
+        cleanup
+    } -result {NB1 NB2 NB3 NB4}
+
+    test WITH_DEPLOYMENT-4.4 {eval, multi, all} -setup {
+        setupDeployments 
+    } -body {
+        ::gofer::NBHOODS::WITH_DEPLOYMENT eval {anyall ALL glist {BLUE ALQ}}
+    } -cleanup {
+        cleanup
+    } -result {NB2}
+
+    #-------------------------------------------------------------------
+    # Rule: WITHOUT_DEPLOYMENT
+
+    test WITHOUT_DEPLOYMENT-1.1 {construct} -setup {
+        setup
+    } -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT construct {BLUE BRIT}
+    } -cleanup {
+        cleanup
+    } -result {glist {BLUE BRIT}}
+
+    test WITHOUT_DEPLOYMENT-2.1 {validate: valid} -setup {
+        setup
+    } -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT validate {glist {BLUE BRIT}}
+    } -cleanup {
+        cleanup
+    } -result {glist {BLUE BRIT}}
+
+    test WITHOUT_DEPLOYMENT-2.2 {validate: invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT validate {glist {BLUE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force group,*}
+
+
+    test WITHOUT_DEPLOYMENT-3.1 {narrative, one} -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT narrative {glist BLUE}
+    } -match glob -result {neighborhoods without deployments of group BLUE}
+
+    test WITHOUT_DEPLOYMENT-3.2 {narrative, two} -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT narrative {glist {BLUE BRIT}}
+    } -result {neighborhoods without deployments of any of these groups (BLUE, BRIT)}
+
+    test WITHOUT_DEPLOYMENT-4.1 {eval, one} -setup {
+        setupDeployments
+    } -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT eval {glist BLUE}
+    } -cleanup {
+        cleanup
+    } -result {NB3 NB4}
+
+    test WITHOUT_DEPLOYMENT-4.2 {eval, multi, none found} -setup {
+        setupDeployments 
+    } -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT eval {glist {BLUE ALQ}}
     } -cleanup {
         cleanup
     } -result {}
+
+    test WITHOUT_DEPLOYMENT-4.3 {eval, multi, some found} -setup {
+        setupDeployments 
+    } -body {
+        ::gofer::NBHOODS::WITHOUT_DEPLOYMENT eval {glist {BRIT TAL}}
+    } -cleanup {
+        cleanup
+    } -result {NB1 NB3}
 
 
     #-------------------------------------------------------------------

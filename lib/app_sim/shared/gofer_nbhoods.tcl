@@ -217,7 +217,7 @@ gofer rule NBHOODS WITH_DEPLOYMENT {anyall glist} {
                 FROM deploy_ng
                 WHERE g IN ('[join $glist {','}]')
                 AND personnel > 0
-                GROUP BY g
+                GROUP BY n
             ) WHERE num >= \$num
         "]
     }
@@ -246,23 +246,18 @@ gofer rule NBHOODS WITHOUT_DEPLOYMENT {glist} {
 
     typemethod eval {gdict} {
         # Get keys
-        set anyall [dict get $gdict anyall]
-        set glist  [dict get $gdict glist]
+        set glist [dict get $gdict glist]
 
-        if {$anyall eq "ANY"} {
-            set num [expr {1}]
-        } else {
-            set num [llength $glist]
-        }
+        set num [llength $glist]
 
         return [rdb eval "
             SELECT n FROM (
                 SELECT n, count(g) AS num
                 FROM deploy_ng
                 WHERE g IN ('[join $glist {','}]')
-                AND personnel > 0
-                GROUP BY g
-            ) WHERE num >= \$num
+                AND personnel = 0
+                GROUP BY n
+            ) WHERE num = $num
         "]
     }
 }
