@@ -157,6 +157,9 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
             "ALLBUT" {
                 set s(pmode) "all but $personnel"
             }
+            "PERCENT" {
+                set s(pmode) "[format %.1f%% $percent]"
+            }
             default { error "Unknown pmode: \"$pmode\"" }
         }
 

@@ -187,7 +187,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {Deploy 1000 of group ???'s undeployed personnel *}
 
-    test narrative-2.1 {pmode UPTO} -setup {
+    test narrative-2.2 {pmode UPTO} -setup {
         setup
         $T1 configure -pmode UPTO -min 1000 -max 2000
     } -body {
@@ -195,6 +195,24 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match glob -result {Deploy at least 1000 and up to 2000 of group ???'s undeployed personnel *}
+
+    test narrative-2.3 {pmode ALLBUT} -setup {
+        setup
+        $T1 configure -pmode ALLBUT -personnel 1000
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -match glob -result {Deploy all but 1000 of group ???'s undeployed personnel *}
+
+    test narrative-2.4 {pmode PERCENT} -setup {
+        setup
+        $T1 configure -pmode PERCENT -percent 25.5
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -match glob -result {Deploy 25.5% of group ???'s undeployed personnel *}
 
     test narrative-3.1 {nmode EQUAL} -setup {
         setup
