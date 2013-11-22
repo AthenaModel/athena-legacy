@@ -91,6 +91,16 @@ snit::type executive {
         return $out
     }
 
+    # check script
+    #
+    # Checks the script for obvious errors relative to the executive
+    # interpreter.  Returns a flat list of line numbers and error
+    # messages.
+
+    typemethod check {script} {
+        return [tclchecker check $interp $script]
+    }
+
     # InitializeInterp
     #
     # Creates and initializes the executive interpreter.
@@ -158,6 +168,7 @@ snit::type executive {
         $interp eval {
             interp alias {} = {} expr
         }
+        $interp setsig = 1 1 {expression}
 
         # advance
         $interp smartalias advance 1 1 {days} \

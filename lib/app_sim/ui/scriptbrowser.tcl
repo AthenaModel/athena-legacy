@@ -48,6 +48,7 @@ snit::widget scriptbrowser {
     component ed_bar         ;# Editor toolbar
     component ed_name        ;# Editor name
     component ed_renamebtn   ;# Rename button
+    component ed_checkbtn    ;# Check button
     component ed_execbtn     ;# Eval button
     component ed_savebtn     ;# Save button
     component ed_revertbtn   ;# Revert button (X)
@@ -115,6 +116,9 @@ snit::widget scriptbrowser {
 
         # NEXT, schedule the first reload
         $self reload
+
+        # TBD:
+        bind all <Control-l> {puts "Focus is <[focus]>"}
     }
 
     destructor {
@@ -642,6 +646,20 @@ snit::widget scriptbrowser {
         DynamicHelp::add $ed_resetbtn \
             -text "Resets the executive, reloading saved scripts."
 
+        # Check button
+        install ed_checkbtn using ttk::button $ed_bar.ed_checkbtn \
+            -style   Toolbutton                                   \
+            -state   disabled                                     \
+            -text    "Check"                                      \
+            -command [mymethod EditorCheck]
+
+        cond::predicate control $ed_checkbtn                     \
+            browser $win                                         \
+            predicate singleSelected
+
+        DynamicHelp::add $ed_checkbtn \
+            -text "Checks the script for obvious errors."
+
         # Exec button
         install ed_execbtn using ttk::button $ed_bar.ed_execbtn \
             -style   Toolbutton                                 \
@@ -679,6 +697,7 @@ snit::widget scriptbrowser {
 
         pack $ed_savebtn    -side right
         pack $ed_execbtn    -side right
+        pack $ed_checkbtn   -side right
 
         ttk::separator $pane.sep1 \
             -orient horizontal
@@ -717,6 +736,7 @@ snit::widget scriptbrowser {
             $sl_deletebtn \
             $ed_renamebtn \
             $ed_revertbtn \
+            $ed_checkbtn  \
             $ed_execbtn   \
             $ed_savebtn]
     }
@@ -771,6 +791,43 @@ snit::widget scriptbrowser {
         $self OutlogShow [executive reset]
     }
 
+    # EditorCheck
+    #
+    # Checks the script in the editor without saving.
+
+    method EditorCheck {} {
+        # FIRST, get the script text
+        set text [$editor get 1.0 "end -1 char"]
+
+        # NEXT, display what we're checking.
+        $self OutlogClear
+        $self OutlogPuts "Checking "
+
+        if {[$self editorUnsaved]} {
+            $self OutlogPuts "Unsaved "
+        }
+
+        $self OutlogPuts "Script: $info(sname)\n\n"
+
+        # NEXT, check it.
+        set errlist [executive check $text]
+
+        if {[llength $errlist] == 0} {
+            $self OutlogPuts "OK\n" ok
+            $self OutlogTop
+            return
+        }
+
+        # NEXT, display the errors.
+        foreach {num msg} $errlist {
+            $self OutlogPuts "At line $num: " linelink
+            $self OutlogPuts "$msg"           {error linelink}
+            $self OutlogPuts "\n"
+        }
+
+        $self OutlogTop
+    }
+
     # EditorExecute
     #
     # Evaluates the text in the editor without saving.
@@ -778,28 +835,30 @@ snit::widget scriptbrowser {
     method EditorExecute {} {
         set text [$editor get 1.0 "end -1 char"]
 
-        set output "Checking "
+        $self OutlogClear
+        $self OutlogPuts "Executing "
 
         if {[$self editorUnsaved]} {
-            append output "Unsaved "
+            $self OutlogPuts "Unsaved "
         }
 
-        append output "Script: $info(sname)\n"
+        $self OutlogPuts "Script: $info(sname)\n\n"
 
         if {[catch {
             executive eval $text
         } result eopts]} {
-            append output "Error: $result\n\n"
-            append output "Full Info:\n"
-            append output [dict get $eopts -errorinfo]
+            $self OutlogPuts "Error: "
+            $self OutlogPuts "$result\n\n" error
 
-            $self OutlogShow $output error
+            $self OutlogPuts "Full Info:\n"
+            $self OutlogPuts [dict get $eopts -errorinfo] error
+
+            $self OutlogTop
             return
         }
 
-        append output "OK\n\n"
-        append output $result
-        $self OutlogShow $output
+        $self OutlogPuts "OK\n\n" ok
+        $self OutlogTop
     }
 
     # EditorSave
@@ -812,31 +871,46 @@ snit::widget scriptbrowser {
         $editor edit modified no
         $self SetButtonState
 
-        set output "Saved Script: $info(sname)\n"
+        $self OutlogClear
+        $self OutlogPuts "Saved Script: $info(sname)\n"
 
         if {[executive script auto $info(sname)]} {
-            append output "Checking Script: $info(sname)\n"
+            $self OutlogPuts "Checking Script: $info(sname)\n"
 
             if {[catch {
                 executive script load $info(sname)
             } result eopts]} {
-                append output "Error: $result\n\n"
-                append output "Full Info:\n"
-                append output [dict get $eopts -errorinfo]
+                $self OutlogPuts "Error: "
+                $self OutlogPuts "$result\n\n" error
 
-                $self OutlogShow $output error
+                $self OutlogPuts "Full Info:\n"
+                $self OutlogPuts [dict get $eopts -errorinfo] error
+
+                $self OutlogTop
                 return
             }
 
-            append output "OK\n\n"
-            append output $result
+            $self OutlogPuts "OK\n\n" ok
         } else {
-            append output "No check done (auto flag not set).\n"
-            append output "Press \"Execute\" to check manually.\n"
+            $self OutlogPuts "No check done (auto flag not set).\n"
+            $self OutlogPuts "Press \"Execute\" to check manually.\n"
         }
 
 
-        $self OutlogShow $output
+        $self OutlogTop
+    }
+
+    # EditorGoto index
+    #
+    # index  - A text widget index
+    #
+    # Moves the insertion point to the index, and scrolls
+    # so that it is visible.
+
+    method EditorGoto {index} {
+        $editor mark set insert $index
+        $editor see insert
+        $editor focus
     }
 
 
@@ -871,7 +945,6 @@ snit::widget scriptbrowser {
         install outlog using rotext $pane.outlog \
             -height         5                    \
             -width          80                   \
-            -foreground     forestgreen          \
             -yscrollcommand [list $pane.yscroll set]
 
         ttk::scrollbar $pane.yscroll                 \
@@ -888,7 +961,18 @@ snit::widget scriptbrowser {
         grid columnconfigure $pane 0 -weight 1
 
         # NEXT, configure the rotext.
-        $outlog tag configure error -foreground red
+        $outlog tag configure error    -foreground #C7001B
+        $outlog tag configure ok       -foreground #269900
+        $outlog tag configure linelink
+
+        $outlog tag bind linelink <Enter> \
+            [list $outlog configure -cursor hand2]
+
+        $outlog tag bind linelink <Leave> \
+            [list $outlog configure -cursor xterm]
+
+        $outlog tag bind linelink <ButtonRelease-1> \
+            [mymethod OutlogLineLink %x %y]
     }
 
     # OutlogClear
@@ -912,6 +996,46 @@ snit::widget scriptbrowser {
         $outlog see 1.0
     } 
 
+    # OutlogPuts text ?tags?
+    #
+    # text    - The text to display
+    # tags    - tags to use, i.e., "error".
+    #
+    # Inserts the text into the outlog widget at the end of
+    # the current text, using the given tags.
+
+    method OutlogPuts {text {tag ""}} {
+        $outlog ins end $text $tag
+    } 
+
+    # OutlogTop
+    #
+    # Scrolls the log to the top.
+
+    method OutlogTop {} {
+        $outlog see 1.0
+    } 
+
+    # OutlogLineLink x y
+    #
+    # x pixel coordinate in Outlog
+    # y pixel coordinate in Outlog
+    #
+    # Links to the given line number in the editor.
+
+    method OutlogLineLink {x y} {
+        # FIRST, get the line from the log
+        set start "@$x,$y linestart"
+        set end   "@$x,$y lineend"
+
+        set text [$outlog get $start $end]
+
+        # NEXT, extract the line number.
+        regexp {^At line (\d+):} $text dummy linenum
+        
+        # NEXT, go there!
+        $self EditorGoto $linenum.0
+    }
 
     #-------------------------------------------------------------------
     # State Controller Predicates

@@ -3347,11 +3347,21 @@ tab "Scripts" {
     executive in a clean state.
     <</topic>>
 
+    <<topic "Check">>
+    Checks the script in the Editor for obvious errors, which it displays
+    in the Output area.  Click on an error message in the Output area
+    to jump to the matching line of code.<p>
+
+    The checker cannot find all errors.  It will not find unknown variables,
+    for example.  Also, if you have a script that defines and uses procs,
+    those procs will show up as undefined if the script has not been
+    successfully executed.<p>
+    <</topic>>
+
     <<topic "Execute">>
     Executes the script in the Editor, showing the results in the 
     Output area.  If there are unsaved changes, they remain unsaved.
-    This is a useful step, as it does a simple check of the
-    script before saving it.<p>
+    <p>
 
     <b>Note:</b> Programming is tricky.  Executing the script will
     define any Tcl procedures included within it; but it does not
