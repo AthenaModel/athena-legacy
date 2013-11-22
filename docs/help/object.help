@@ -50,5 +50,6 @@ include object_goal.help
 include object_group.help
 include object_nbhood.help
 include object_payload.help
+include object_plant.help
 include object_tactic.help
 

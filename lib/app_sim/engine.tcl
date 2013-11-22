@@ -72,6 +72,7 @@ snit::type engine {
         profile demog start          ;# Computes population statistics
         profile personnel start      ;# Initial deployments and base units.
         profile service start        ;# Populates service tables.
+        profile plant start          ;# Initializes the infrastructure model
         profile nbstat start         ;# Computes initial security and coverage
         profile control_model start  ;# Computes initial support and influence
 

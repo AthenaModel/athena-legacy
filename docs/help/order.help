@@ -118,6 +118,7 @@ include order_iom.help
 include order_mad.help
 include order_map.help
 include order_parm.help       ;# Sort as "Model Parameter"
+include order_plant.help
 include order_nbhood.help
 include order_nbrel.help
 include order_orggroup.help

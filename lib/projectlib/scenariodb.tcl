@@ -239,6 +239,7 @@ snit::type ::projectlib::scenariodb {
             scenariodb_attitude.sql
             scenariodb_ground.sql
             scenariodb_demog.sql
+            scenariodb_infrastructure.sql
             scenariodb_econ.sql
             scenariodb_info.sql
             scenariodb_politics.sql

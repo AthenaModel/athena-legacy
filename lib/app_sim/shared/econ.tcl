@@ -1121,10 +1121,11 @@ snit::type econ {
         let Xba {$exp(black)  * 52.0}
         let Xpa {$exp(pop)    * 52.0}
 
-        set CAPgoods [rdb onecolumn {
-            SELECT total(pcf*ccf)
-            FROM econ_n
-        }]
+        # NEXT, if we are not calibrating get the goods sector
+        # capacity from the infrastructure model
+        if {$opt ne "-calibrate"} {
+            set CAPgoods [plant capacity total]
+        }
 
         let subsisters {$demdata(population) - $demdata(consumers)}
 

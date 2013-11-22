@@ -1209,10 +1209,27 @@ snit::type ::projectlib::parmdb {
             and, thus, make up a portion of the unemployed.
         }
 
+        $ps define econ.initCapPct ::projectlib::rpercent 100.0 {
+            The initial capacity of the economy being modeled expressed as
+            a percentage of the maximum capacity.  If the production
+            infrastructure at scenario lock is degraded, then this parameter
+            should be something less than 100 percent to represent that. 
+        }
+
         $ps define econ.idleFrac ::simlib::rfraction 0.25 {
             The idle production capacity for goods, expressed as
             a decimal fraction of the total production capacity.  This
             value can range from 0.0 to 0.9.
+        }
+
+        $ps subset econ.bktsPerYear {
+            Parameters that control the average output of a manufacturing
+            plant in number of baskets produced per year.
+        }
+
+        $ps define econ.bktsPerYear.goods ::projectlib::money 1B {
+            The average output of a single manufacturing plant that makes
+            goods baskets when the plant is running at full capacity.
         }
 
         $ps subset econ.check {

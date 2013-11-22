@@ -1,0 +1,78 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    object_plant.help
+#
+# AUTHOR:
+#    Dave Hanks
+#
+# DESCRIPTION:
+#    Athena Help Documentation: Manufacturing Plants
+#
+#    This file is included into object.help.
+#
+#-----------------------------------------------------------------------
+
+object plant_ {
+    noun "plant"
+
+    overview {
+        <i>Manufacturing Plants</i> determine the total production output
+        capacity of the goods sector.  Rather than specify a specific
+        number of plants that are owned by an actor in particular 
+        neighborhoods, Athena allows the user to specify a number of shares
+        of the total production capacity along with an initial
+        repair level by actor and neighborhood.  When the scenario is locked
+        Athena will compute exactly the number of plants needed given the 
+        initial output of the goods sector from the economic model, an 
+        individual plants maximum capacity (taking into account that the 
+        initial average repair level for some plants may be in a degraded 
+        state) and the production capacity of each neighborhood in which 
+        plants should reside.  Athena then assigns plants to actors and 
+        neighborhoods taking into account the number of shares allocated to 
+        each actor that owns them in each neighborhood.  
+
+        Shares of Manufacturing Plants are defined and edited on the 
+        <<cref /tab/neighborhoods/manufacturing_plants>>.<p>
+
+    }
+
+
+    attribute a "Agent ID" {
+        The agent ID.  It may be any actor in Athena or 'SYSTEM'.
+    } -tags {create}
+
+    attribute n "Neighborhood" {
+        A neighborhood ID.  It may be any neighborhood defined.
+    } -tags {create}
+
+    attribute id "ID" {
+        An agent/neighborhood pair consisting of a list <i>{a n}</i> 
+        that uniquely identifies the definition of shares.
+    } 
+
+    attribute shares "Number of Shares" {
+        The number of shares that should be owned by the agent in the
+        neighborhood.  If the production capacity of the neighborhood is
+        zero, then no plants will be allocated to the agent in this
+        neighborhood.
+    } -tags {create update}
+
+    attribute rho "Average Repair Level" {
+        This is the average repair level of the plants allocated to the
+        agent in this neighborhood when the scenario is locked. It is
+        a number between 0.0 and 1.0
+    } -tags {create update}
+}
+
+page /object plant "Manufacturing Plants" {
+    <<sotitle>>
+
+    <<plant_ overview>><p>
+
+    Define manufacturing plant shares with these attributes:<p>
+
+    <<plant_ parmlist>>
+}
+
+

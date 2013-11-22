@@ -84,6 +84,52 @@ appserver module ACTOR {
             FROM gui_actors
         } -default "None." -align LLRRR
 
+        if {[locked]} {
+            ht para
+
+            ht put {
+                The following table shows the current laydown of
+                manufacturing plants and the actors that own them along
+                with their repair levels.
+            }
+
+            ht para
+
+            set totplants [rdb onecolumn {
+                SELECT total(quant) FROM gui_plants_na
+            }]
+
+            ht query {
+                SELECT alink         AS "Agent",
+                       nlink         AS "Neighborhood",
+                       quant         AS "Owned Plants",
+                       rho           AS "Average Repair Level"
+                FROM gui_plants_na
+                WHERE a != 'SYSTEM'
+                ORDER BY alink
+            } -default "None." -align LLLL
+
+            set sysplants [rdb onecolumn {
+                SELECT sum(quant) FROM gui_plants_na
+                WHERE a='SYSTEM'
+            }]
+
+            if {$sysplants > 0} {
+                if {$sysplants == $totplants} {
+                    set sysplants "all"
+                } 
+
+                ht para 
+
+                ht put "
+                    <b>Note:</b> The SYSTEM has ownership of $sysplants
+                    manufacturing plants. None of these plants will 
+                    require any repair and will not degrade.
+                "
+            }
+
+        }
+
         ht /page
 
         return [ht get]
@@ -122,6 +168,7 @@ appserver module ACTOR {
             "#sphere"    "Sphere of Influence"
             "#base"      "Power Base"
             "#eni"       "ENI Funding"
+            "#infra"     "Infrastructure Ownership"
             "#cap"       "CAP Ownership"
             "#forces"    "Force Deployment"
             "#attack"    "Attack Status"
@@ -319,6 +366,61 @@ appserver module ACTOR {
                 ORDER BY GA.numeric_funding;
             } -align LLRRRRR
         } 
+
+        # Infrastructure Ownership
+        ht subtitle "Infrastructure Ownership" infra
+
+        if {![locked]} {
+            ht put {
+                The shares of plants that this actor will get when
+                the scenario is locked is as follows.  When the 
+                scenario is locked the actual number of plants owned
+                by this actor and thier true repair level will be 
+                shown.
+            }
+
+            ht para
+
+            ht query {
+                SELECT nlink   AS "Neighborhood",
+                       quant   AS "Shares",
+                       rho     AS "Initial Repair Level"
+                FROM gui_plants_na
+                WHERE a=$a
+                ORDER BY nlink
+            } -default "None." -align LLL
+                
+        } else {
+            ht put {
+                Manufacturing plant ownership by this actor is as
+                follows.  An actor must pay to maintain infrastructure
+                it owns or it will fall into disrepair and no longer
+                produce goods for the economy.
+            }
+
+            ht para
+
+            ht query  {
+                SELECT nlink     AS "Neighborhood",
+                       quant     AS "Owned Plants",
+                       rho       AS "Average Repair Level"
+                FROM gui_plants_na
+                WHERE a=$a
+                ORDER BY nlink
+            } -default "None." -align LLL
+
+            ht para
+            set capA [plant capacity a $a]
+            set capT [plant capacity total]
+            set pct  [format "%.2f" [expr {($capA/$capT) * 100.0}]]
+            
+            ht put "
+                The manufacturing plants this actor owns are currently
+                producing [moneyfmt $capA] goods baskets annually.  This 
+                is $pct% of the goods production capacity of the entire
+                economy.
+            "
+        }
 
         # CAP Ownership
         ht subtitle "CAP Ownership" cap

@@ -91,6 +91,7 @@ appserver module NBHOOD {
                 FROM gui_nbhoods 
                 ORDER BY longlink
             } -default "None." -align LLLLRR
+
         } else {
             ht query {
                 SELECT longlink      AS "Neighborhood",
@@ -107,6 +108,69 @@ appserver module NBHOOD {
                 FROM gui_nbhoods
                 ORDER BY longlink
             } -default "None." -align LLLLR
+        }
+
+        if {![locked]} {
+            # Population adjusted for production capacity to aid in 
+            # determining manufacturing plant distribution by neighborhood
+            set adjpop 0.0
+
+            rdb eval {
+                SELECT total(C.basepop) AS nbpop,
+                       N.pcf            AS pcf
+                FROM civgroups AS C
+                JOIN nbhoods AS N ON (N.n=C.n)
+                GROUP BY N.n
+            } row {
+                let adjpop {$adjpop + $row(nbpop)*$row(pcf)}
+            }
+
+            if {$adjpop > 0} {
+                ht para
+
+                ht put   "The following table is an estimate of manufacturing"
+                ht put   " plant distribution in the playbox given the"
+                ht put   " neighborhoods and neighborhood populations currently"
+                ht putln " defined."
+                ht para 
+
+                ht table {
+                    "Neighborhood" "Capacity Factor" "Base Pop."
+                    "% of Manufacturing Plants"
+                } {
+                    rdb eval {
+                        SELECT nlonglink      AS link,
+                               pcf            AS pcf,
+                               nbpop          AS nbpop 
+                        FROM gui_plants_n
+                    } row {
+                        set pct  [expr {$row(nbpop)*$row(pcf)/$adjpop*100.0}]
+
+                        ht tr {
+                            ht td left  { ht put $row(link)                 }
+                            ht td right { ht put [format "%4.1f" $row(pcf)] }
+                            ht td right { ht put $row(nbpop)                }
+                            ht td right { ht put [format "%4.1f" $pct]      }
+                        }
+                    }
+                }
+            }
+        } else {
+
+            ht para
+            ht put   "The following table shows the current laydown of "
+            ht put   "manufacturing plants and the agents that own them "
+            ht putln "along with their repair levels."
+            ht para 
+
+            ht query {
+                SELECT nlink         AS "Neighborhood",
+                       alink         AS "Agent",
+                       quant         AS "Owned Plants",
+                       rho           AS "Average Repair Level"
+                FROM gui_plants_na
+                ORDER BY nlink
+            } -default "None." -align LLLL
         }
 
         ht /page
@@ -189,6 +253,7 @@ appserver module NBHOOD {
             "#forces"    "Forces Present"
             "#eni"       "ENI Services"
             "#cap"       "CAP Coverage"
+            "#infra"     "Manufacturing Infrastructure"
             "#control"   "Support and Control"
             "#conflicts" "Force Conflicts" 
             "#sigevents" "Significant Events"
@@ -477,6 +542,106 @@ appserver module NBHOOD {
 
         ht para
 
+        # Manufacturing Infrastructure
+        ht subtitle "Manufacturing Infrastructure" infra
+
+        ht put {
+            The number and laydown of manufacturing plants when the 
+            scenario is locked depends on a number of things: the 
+            production capacity of a neighborhood, the amount of goods
+            a single plant can produce, and the repair level of plants
+            at initialization.  Given the production capacity of a single
+            manufacturing plant, Athena will allocate just enough plants
+            to meet the initial production demanded by the economic model
+            taking into account repair level and neighborhood production 
+            capacity.  Athena will then lay them down according to agent
+            shares of ownership.  To increase capacity after lock, either
+            plants in disrepair need to be fixed or new plants built or
+            both.
+        }
+
+        ht para
+
+        if {![locked]} {
+            ht put {
+                The percentage of plants that this neighborhood will get 
+                when locked is approximately shown as follows.  When the 
+                scenario is locked the actual number of plants and their 
+                owning agent will be shown along with the repair level.  
+                These numbers are approximate because the demographics may
+                be different after the scenario is locked.
+            }
+
+            ht para
+
+            set adjpop 0.0
+
+            rdb eval {
+                SELECT total(C.basepop) AS nbpop,
+                       N.pcf            AS pcf
+                FROM civgroups AS C
+                JOIN nbhoods AS N ON (N.n=C.n)
+                GROUP BY N.n
+            } row {
+                let adjpop {$adjpop + $row(nbpop)*$row(pcf)}
+            }
+
+            if {$adjpop > 0} {
+                ht table {
+                    "Neighborhood" "Capacity Factor" "Base Pop."
+                    "% of Manufacturing Plants"
+                } {
+                    rdb eval {
+                        SELECT nlonglink      AS link,
+                               pcf            AS pcf,
+                               nbpop          AS nbpop 
+                        FROM gui_plants_n
+                        WHERE n=$n
+                    } row {
+                        set pct  [expr {$row(nbpop)*$row(pcf)/$adjpop*100.0}]
+
+                        ht tr {
+                            ht td left  { ht put $row(link)                 }
+                            ht td right { ht put [format "%4.1f" $row(pcf)] }
+                            ht td right { ht put $row(nbpop)                }
+                            ht td right { ht put [format "%4.1f" $pct]      }
+                        }
+                    }
+                }
+            } else {
+                ht put {
+                    The scenario has no population defined yet.
+                }
+            }
+        } else {
+            ht para
+            ht put   "The following table shows the current laydown of "
+            ht put   "manufacturing plants in $n and the agents that own "
+            ht putln "them along with their repair levels."
+            ht para 
+
+            ht query {
+                SELECT nlink         AS "Neighborhood",
+                       alink         AS "Agent",
+                       quant         AS "Owned Plants",
+                       rho           AS "Average Repair Level"
+                FROM gui_plants_na
+                WHERE n=$n
+            } -default "None." -align LLLL
+
+            ht para
+
+            set capN [plant capacity n $n]
+            set capT [plant capacity total]
+            set pct  [format "%.2f" [expr {($capN/$capT) * 100.0}]]
+
+            ht put "
+                The manufacturing plants in this neighborhood are currently
+                producing [moneyfmt $capN] goods baskets annually.  This is
+                $pct% of the goods production capacity of the entire economy.
+            "
+
+        }
         # Support and Control
         ht subtitle "Support and Control" control
 

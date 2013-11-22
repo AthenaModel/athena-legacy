@@ -616,6 +616,60 @@ tab "Neighborhoods/Relationships" {
 }
 
 #-----------------------------------------------------------------------
+tab "Neighborhoods/Manufacturing Plants" {
+    <b>Scenario Mode Only.</b><p>
+
+    This tab shows how manufacturing plants the represent the production
+    infrastructure of the goods sector should be apportioned to the
+    various <<term agent>>s and neighborhoods.  It also shows the 
+    initial repair level for those plants.  The user can specify initial
+    repair levels less than 1.0 indicating that some plants are already in 
+    a degraded state.  The browser controls are described
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Neighborhood">>The ID of a neighborhood.<</topic>>
+
+    <<topic "Owning Agent">>The ID of an actor, or 'SYSTEM'.<</topic>>
+
+    <<topic "Average Repair Level">>The average repair level of all the
+    manufacturing plants owned by the agent in the neighborhood.<</topic>>
+
+    <<topic "Share of Manufacturing Plants">>The share of plants that the
+    agent should be allocated in that neighborhood when the scenario is 
+    locked.<</topic>>
+
+    <</topiclist>>
+
+    <b><a name='controls'>Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plus]>>
+    Pops up the <<cref /order/plant/shares:create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    If one or more share definitions are selected, pops up the
+    <<cref /order/plant/shares:update>> or
+    <<cref /order/plant/shares:update:multi>> dialog for
+    the selection(s).<p>
+
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single definition is selected, deletes it
+    using the <<cref /order/plant/shares:delete>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
 
 tab "Neighborhoods/Security" {
     <b>Simulation Mode Only.</b><p>

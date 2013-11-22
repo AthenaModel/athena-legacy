@@ -106,6 +106,12 @@ dynaform fieldtype alias inject key \
     -table gui_injects  \
     -keys  {curse_id inject_num}
 
+# inject: Pick an inject by its ID.
+dynaform fieldtype alias plant key \
+    -db    ::rdb        \
+    -table gui_plants_na  \
+    -keys  {n a}
+
 # key: key fields should get -db automatically.
 dynaform fieldtype alias key key -db ::rdb
 

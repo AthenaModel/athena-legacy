@@ -175,6 +175,7 @@ snit::type scenario {
         rdb monitor add nbrel_mn      {m n}
         rdb monitor add orggroups     {g}
         rdb monitor add payloads      {iom_id payload_num}
+        rdb monitor add plants_shares {n a}
         rdb monitor add sat_gc        {g c}
         rdb monitor add units         {u}
         rdb monitor add vrel_ga       {g a}

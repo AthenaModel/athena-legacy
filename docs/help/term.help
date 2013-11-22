@@ -823,6 +823,20 @@ term personnel "personnel" {
 
 #-----------------------------------------------------------------------
 
+term plant "manufacturing plant" {
+    In Athena, the infrastructure associated with production capacity
+    in the goods sector in the economy is encapsulated by the abstract
+    notion of a manufacturing plant.  A manufacturing plant by itself
+    is capable of producing some amount of the product of the goods sector,
+    namely the "goods basket".  One goods basket is a notional set of goods
+    portioned in such a way as to represent nominally one dollars worth
+    of all goods produced by the economy being modeled.  Aggregated
+    together, all the manufacturing plants in the simulation represent
+    the total capacity of the goods sector.
+}
+    
+#-----------------------------------------------------------------------
+
 term playbox "playbox" {
     The <i>playbox</i> is the region of interest to the analyst in 
     the current scenario, i.e., the region for which

@@ -141,6 +141,13 @@ snit::widget appwin {
             script  { nbrelbrowser %W }
         }
 
+        plants {
+            label   "Manufacturing Plants"
+            vistype  scenario
+            parent   nbhoodst
+            script   { plantbrowser %W }
+        }
+
         security {
             label   "Security"
             vistype simulation

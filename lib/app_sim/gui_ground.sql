@@ -238,6 +238,30 @@ JOIN gui_actors    AS A ON (GA.a = A.a)
 JOIN gui_nbhoods   AS N ON (G.n = N.n);
 
 
+------------------------------------------------------------------------
+-- INFRASTRUCTURE PLANT VIEWS
+
+CREATE TEMPORARY VIEW gui_plants_na AS
+SELECT PS.n || ' ' || PS.a                     AS id,
+       PS.n                                    AS n,
+       N.longlink                              AS nlink,
+       PS.a                                    AS a,
+       coalesce(A.longlink,PN.a)               AS alink,
+       format('%.2f', coalesce(PN.rho,PS.rho)) AS rho,
+       coalesce(PN.num,PS.shares)              AS quant
+FROM plants_shares         AS PS
+JOIN gui_nbhoods           AS N  ON (PS.N=N.n)
+LEFT OUTER JOIN gui_actors AS A  ON (PS.a=A.a)
+LEFT OUTER JOIN plants_na  AS PN ON (PS.n=PN.N AND PS.a=PN.a);
+
+CREATE TEMPORARY VIEW gui_plants_n AS
+SELECT N.longlink                        AS nlonglink,
+       P.n                               AS n,
+       P.pcf                             AS pcf,
+       P.nbpop                           AS nbpop
+FROM plants_n_view AS P
+JOIN gui_nbhoods AS N ON (N.n=P.n);
+
 -----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------
