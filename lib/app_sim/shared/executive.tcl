@@ -530,23 +530,56 @@ snit::type executive {
     # Defines the executive functions.
     
     typemethod DefineExecutiveFunctions {} {
-        $interp function controls   [myproc controls]
-        $interp function coop       [myproc coop]
-        $interp function gdp        [myproc gdp]
-        $interp function influence  [myproc influence]
-        $interp function mood       [myproc mood]
-        $interp function nbcoop     [myproc nbcoop]
-        $interp function nbmood     [myproc nbmood]
-        $interp function now        [list simclock now]
-        $interp function parm       [list ::parm get]
-        $interp function pctcontrol [myproc pctcontrol]
-        $interp function sat        [myproc sat]
-        $interp function security   [myproc security]
-        $interp function support    [myproc support]
-        $interp function supports   [myproc supports]
-        $interp function troops     [myproc troops]
-        $interp function unemp      [myproc unemp]
-        $interp function volatility [myproc volatility]
+        $interp function controls 2 - {a n ?n...?} \
+            [myproc controls]
+
+        $interp function coop 2 2 {f g} \
+            [myproc coop]
+
+        $interp function gdp 0 0 {} \
+            [myproc gdp]
+
+        $interp function influence 2 2 {a n} \
+            [myproc influence]
+
+        $interp function mood 1 1 {g} \
+            [myproc mood]
+
+        $interp function nbcoop 2 2 {n g} \
+            [myproc nbcoop]
+
+        $interp function nbmood 1 1 {n} \
+            [myproc nbmood]
+
+        $interp function now 0 0 {} \
+            [list simclock now]
+
+        $interp function parm 1 1 {parm} \
+            [list ::parm get]
+
+        $interp function pctcontrol 1 - {a ?a...?} \
+            [myproc pctcontrol]
+
+        $interp function sat 2 2 {g c} \
+            [myproc sat]
+
+        $interp function security 2 2 {n g} \
+            [myproc security]
+
+        $interp function support 2 2 {n a} \
+            [myproc support]
+
+        $interp function supports 2 - {a b ?n...?} \
+            [myproc supports]
+
+        $interp function troops 1 - {g ?n...?} \
+            [myproc troops]
+
+        $interp function unemp 0 0 {} \
+            [myproc unemp]
+
+        $interp function volatility 1 1 {n} \
+            [myproc volatility]
     }
 
     # controls a n ?n...?
