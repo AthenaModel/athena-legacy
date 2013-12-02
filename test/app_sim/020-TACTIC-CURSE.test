@@ -158,6 +158,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
+    test TACTIC:CURSE-4.1 {identity} -setup {
+        setup
+        # Create a tactic in the initial state
+        set T1 [ted addtactic $B1 CURSE]
+    } -body {
+        ted tactic identity $T1
+    } -cleanup {
+        cleanup
+    } -result {OK}
+
     #-------------------------------------------------------------------
     # Cleanup
 

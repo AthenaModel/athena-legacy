@@ -90,24 +90,15 @@ namespace eval ::athena_test::tests:: {
     test TACTIC:DEMOB-1.5 {0 personnel in order} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:DEMOB tactic_id [$T1 id] personnel 0
-    } -cleanup {
-        cleanup
-    } -result {
-        personnel {invalid value "0", expected integer no less than 1}
-    }
-
-    test TACTIC:DEMOB-1.6 {0 personnel in tactic} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:DEMOB tactic_id [$T1 id] mode SOME
+        ted order -reject TACTIC:DEMOB tactic_id [$T1 id] \
+            mode SOME personnel 0
     } -cleanup {
         cleanup
     } -result {
         personnel {Mode requires personnel greater than 0.}
     }
 
-    test TACTIC:DEMOB-1.7 {0.0 percentage in tactic} -setup {
+    test TACTIC:DEMOB-1.6 {0.0 percentage in tactic} -setup {
         setup
     } -body {
         ted order -reject TACTIC:DEMOB tactic_id [$T1 id] mode PERCENT
@@ -163,6 +154,13 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
  
+    test TACTIC:DEMOB-3.1 {identity} -setup {
+        setup
+    } -body {
+        ted tactic identity $T1
+    } -cleanup {
+        cleanup
+    } -result {OK}
 
     #-------------------------------------------------------------------
     # Cleanup

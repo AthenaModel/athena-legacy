@@ -141,6 +141,14 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
 
+    test TACTIC:BROADCAST-4.1 {identity} -setup {
+        setup
+    } -body {
+        ted tactic identity $T1
+    } -cleanup {
+        cleanup
+    } -result {OK}
+
     #-------------------------------------------------------------------
     # Cleanup
 

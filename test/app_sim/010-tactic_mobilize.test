@@ -66,7 +66,7 @@ namespace eval ::athena_test::tests:: {
         mode       ADD
         parent     ::bean::block*
         percent    0
-        personnel  0
+        personnel  1
         state      invalid
     }
 
@@ -89,7 +89,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Mobilize ??? more group ??? personnel.}
+    } -result {Mobilize 1 more group ??? personnel.}
 
     test narrative-2.1 {valid narrative, ADD} -setup {
         setup

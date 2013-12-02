@@ -20,6 +20,9 @@
 #
 # This command is intended for use as a dynaform(n) -loadcmd, to
 # load a bean's data into a dynaview using a specific bean view.
+#
+# Note: a pastable bean's normal UPDATE method should always use
+# the default view, as that is what will be copied.
 
 proc beanload {idict id {view ""}} {
     return [bean view $id $view]

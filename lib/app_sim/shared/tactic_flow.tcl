@@ -262,7 +262,7 @@ order define TACTIC:FLOW {
     prepare f          -toupper  -type ident
     prepare g          -toupper  -type ident
     prepare mode       -toupper  -selector
-    prepare personnel  -num      -type ipositive
+    prepare personnel  -num      -type iquantity
     prepare percent    -num      -type rpercent
 
     returnOnError

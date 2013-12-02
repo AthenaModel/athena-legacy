@@ -300,6 +300,14 @@ namespace eval ::athena_test::tests:: {
         {::projectlib::bean <Monitor>}
     }
 
+    test TACTIC:FUNDENI-3.1 {identity} -setup {
+        setup
+    } -body {
+        ted tactic identity $T1
+    } -cleanup {
+        cleanup
+    } -result {OK}
+
     #-------------------------------------------------------------------
     # Cleanup
 

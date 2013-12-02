@@ -43,7 +43,7 @@ tactic define MOBILIZE "Mobilize Personnel" {actor} {
 
         set g         ""
         set mode      ADD
-        set personnel 0
+        set personnel 1
         set percent   0
         my set state invalid   ;# Initially we're invalid: no group
 
@@ -234,7 +234,7 @@ order define TACTIC:MOBILIZE {
     prepare tactic_id  -required -type tactic::MOBILIZE
     prepare g          -toupper  -type  ident
     prepare mode       -toupper  -selector
-    prepare personnel  -num      -type  ipositive
+    prepare personnel  -num      -type  iquantity
     prepare percent    -num      -type  rpercent
 
     returnOnError

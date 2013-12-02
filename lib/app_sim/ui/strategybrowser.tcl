@@ -1427,9 +1427,6 @@ snit::widget strategybrowser {
     # the TTab.  There will always be at least one item selected.
 
     method TTabCutCopy {mode} {
-        # TBD: Experimental
-        return
-
         # FIRST, if the sim state is wrong, we're done.
         if {[sim state] ni {PREP PAUSED}} {
             bell
@@ -1468,9 +1465,6 @@ snit::widget strategybrowser {
     # the TTab.
 
     method TTabPaste {} {
-        # TBD: Experimental
-        return
-
         # FIRST, if the sim state is wrong or there's no block loaded,
         # we're done.
         if {[sim state] ni {PREP PAUSED} ||
@@ -1488,9 +1482,10 @@ snit::widget strategybrowser {
             return
         }
 
-        # NEXT, paste them.
-        order send gui BLOCK:TACTIC:PASTE \
-            block_id [$info(block) id] copysets $copysets
+        # NEXT, begin an undo block
+        cif transaction "Paste Tactic(s)" {
+            tactic paste $info(block) $copysets
+        }
 
         app puts "Pasted [llength $copysets] item(s)"
     }

@@ -903,6 +903,30 @@ snit::type ted {
             g $g n $n activity $a pmode SOME personnel $personnel
     }
 
+    # tactic identity tactic
+    #
+    # tactic - a tactic object
+    #
+    # Given the tactic, passes the tactic's default view parameters
+    # back to the tactic's order.  This should work without error.
+
+    typemethod {tactic identity} {tactic} {
+        set tname [$tactic typename]
+        set order TACTIC:$tname
+        set tdict [$tactic view]
+        dict set tdict tactic_id [$tactic id]
+
+        set pdict [dict create]
+
+        foreach parm [order parms $order] {
+            dict set pdict $parm [dict get $tdict $parm]
+        }
+
+        ted order $order {*}$pdict
+
+        return "OK"
+    }
+
     #-------------------------------------------------------------------
     # Notifier events
 

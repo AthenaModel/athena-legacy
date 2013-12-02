@@ -498,7 +498,7 @@ order define TACTIC:ASSIGN {
     prepare pmode      -toupper  -selector
     prepare personnel  -num      -type iquantity
     prepare min        -num      -type iquantity
-    prepare max        -num      -type ipositive
+    prepare max        -num      -type iquantity
     prepare percent    -num      -type rpercent
 
     returnOnError
@@ -513,6 +513,10 @@ order define TACTIC:ASSIGN {
     if {$parms(pmode) eq "UPTO"} {
         if {$parms(max) < $parms(min)} {
             reject max "For pmode UPTO, max must be greater than min."
+        }
+
+        if {$parms(max) == 0} {
+            reject max "For pmode UPTO, max must be greater than 0."
         }
     }
 

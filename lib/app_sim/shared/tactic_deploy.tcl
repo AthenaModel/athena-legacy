@@ -841,7 +841,7 @@ order define TACTIC:DEPLOY {
     prepare pmode      -toupper  -selector
     prepare personnel  -num      -type iquantity
     prepare min        -num      -type iquantity
-    prepare max        -num      -type ipositive
+    prepare max        -num      -type iquantity
     prepare percent    -num      -type rpercent
     prepare nlist 
     prepare nmode                -selector
@@ -858,6 +858,10 @@ order define TACTIC:DEPLOY {
     if {$parms(pmode) eq "UPTO"} {
         if {$parms(max) < $parms(min)} {
             reject max "For pmode UPTO, max must be greater than min."
+        }
+
+        if {$parms(max) == 0} {
+            reject max "For pmode UPTO, max must be greater than 0."
         }
     }
 

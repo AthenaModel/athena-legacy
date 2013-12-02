@@ -188,7 +188,7 @@ order define TACTIC:DEMOB {
     prepare tactic_id  -required -type tactic::DEMOB
     prepare g          -toupper  -type ident
     prepare mode       -toupper  -selector
-    prepare personnel  -num      -type ipositive
+    prepare personnel  -num      -type iquantity
     prepare percent    -num      -type rpercent
 
     returnOnError

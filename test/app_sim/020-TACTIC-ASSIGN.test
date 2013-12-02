@@ -138,11 +138,12 @@ namespace eval ::athena_test::tests:: {
     test TACTIC:ASSIGN-1.10 {zero max} -setup {
         setup
     } -body {
-        ted order -reject TACTIC:ASSIGN tactic_id [$T1 id] max 0
+        ted order -reject TACTIC:ASSIGN tactic_id [$T1 id] \
+            pmode UPTO min 0 max 0
     } -cleanup {
         cleanup
     } -result {
-        max {invalid value "0", expected integer no less than 1}
+        max {For pmode UPTO, max must be greater than 0.}
     }
 
     test TACTIC:ASSIGN-1.11 {UPTO, max < min} -setup {
@@ -273,6 +274,13 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
  
+    test TACTIC:ASSIGN-3.1 {identity} -setup {
+        setup
+    } -body {
+        ted tactic identity $T1
+    } -cleanup {
+        cleanup
+    } -result {OK}
 
     #-------------------------------------------------------------------
     # Cleanup

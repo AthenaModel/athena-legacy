@@ -146,6 +146,39 @@ snit::type cif {
         }
     }
 
+    # transaction narrative script
+    #
+    # narrative   - A startblock/endblock narrative string
+    # script      - A script that will send multiple orders.
+    #
+    # Executes the script, enclosing it in startblock/endblock.
+    # If there is an error, the block is closed and any successful
+    # orders are undone; then the error is rethrown.
+
+    typemethod transaction {narrative script} {
+        # FIRST, start the block.
+        cif startblock $narrative
+
+        # NEXT, execute the script
+        set code [catch {
+            uplevel 1 $script
+        } result eopts]
+
+        # NEXT, close the block
+        cif endblock $narrative
+
+        # NEXT, if there was an error, undo the successful orders,
+        # and clear the redo stack: you can't redo the error.
+        if {$code} {
+            cif undo
+            set info(redoStack) [list]
+
+            return {*}$eopts $result 
+        } else {
+            return $result
+        }
+    }
+
     # add order parmdict ?undo?
     #
     # order      The name of the order to be saved

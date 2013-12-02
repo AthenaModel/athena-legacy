@@ -363,9 +363,6 @@ order define TACTIC:CURSE {
         text tactic_id -context yes \
             -loadcmd {beanload}
 
-        rcc "Owner" -for owner
-        disp owner
-
         rcc "CURSE" -for curse
         curse curse
 

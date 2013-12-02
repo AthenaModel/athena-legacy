@@ -186,6 +186,63 @@ oo::objdefine tactic {
     }
 
     #-------------------------------------------------------------------
+    # Pasting of Tactics
+
+    # paste block copysets
+    #
+    # block     - The block to receive the tactics
+    # copysets  - A list of tactic copysets from [$bean copydata].
+    #
+    # Pastes the tactics into the given block.  This call should be
+    # wrapped by [cif startblock]/[cif endblock] calls.  These are
+    # not included in [paste] itself, because pasting tactics can be
+    # done as part of a larger paste (i.e., pasting blocks).
+
+    method paste {block copysets} {
+        # FIRST, get the block ID
+        set block_id [$block id]
+
+        # NEXT, paste the copied tactics into the block
+        foreach copyset $copysets {
+            # FIRST, get the tactic data
+            set cls   [dict get $copyset class_]
+            set tname [$cls typename]
+            set tdict [my GetOrderParmsFromCopySet $tname $copyset]
+
+            # NEXT, create the tactic with default settings
+            set tactic_id \
+                [order send gui BLOCK:TACTIC:ADD \
+                    block_id $block_id typename $tname]
+
+            # NEXT, update the tactic with the right data.
+            order send gui TACTIC:$tname tactic_id $tactic_id \
+                {*}$tdict
+        }
+    }
+
+    # GetOrderParmsFromCopySet tname copyset
+    #
+    # tname   - The tactic type name
+    # copyset - The copyset from [$bean copydata]
+    #
+    # Pulls out the required parameters from the copyset.
+
+    method GetOrderParmsFromCopySet {tname copyset} {
+        set pdict [dict create]
+
+        foreach parm [order parms TACTIC:$tname] {
+            if {$parm eq "tactic_id"} {
+                continue
+            }
+
+            dict set pdict $parm [dict get $copyset $parm]
+        }
+
+        return $pdict
+    }
+    
+
+    #-------------------------------------------------------------------
     # Order Helpers
 
     # groupsOwnedByAgent id
@@ -632,16 +689,6 @@ oo::define tactic {
             my check
         }
 
-        next
-    }
-
-    # onPaste_
-    #
-    # Pasted objects are like new objects.  Reset execution
-    # status data.
-
-    method onPaste_ {} {
-        my reset
         next
     }
 }
