@@ -11,6 +11,27 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.6, 2 December 2013</h3>
+
+This build contains the first part of the manufacturing infrastructure model.
+Manufacturing plants can be allocated to actors and neighborhoods.  The econ
+model uses the capacity computed by the infrastructure model as the capacity
+of the goods sector.  There's a few bug fixes and some code cleanup in a 
+couple of the Mark II tactics.  The built in script editor now has better
+syntax checking.<p>
+
+<ul>
+<li> Bug 4243: athena(1): Manufacturing Plant Infrastructure, part I
+<li> Bug 4220: Actors and System Agent share tactic lists
+<li> Bug 4221: athena(1): gofer::NBHOODS not returning nbhoods properly
+<li> Bug 4234: athena(1): Require tablelist 5.10
+<li> Bug 4235: athena(1): Cleanup BROADCAST tactic
+<li> Bug 4238: athena(1): initial tclchecker(n) integration
+<li> Bug 4241: athena(1): Add syntax checking to Scripts Editor
+<li> Bug 4245: bean(n): clean up paste/newcopy code
+<li> Bug 4236: 	athena(1): Cleanup FUND tactic tests 
+</ul><p>
+
 <h3>Build 6.0.5, 18 November 2013</h3>
 
 This build contains the last tactic to be converted to the Mark II Strategy
