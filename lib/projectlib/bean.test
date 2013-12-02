@@ -234,48 +234,20 @@ namespace eval ::projectlib::test {
         }
     }
 
-
-    # Objects for paste testing.
-    beanclass create zoo {
-        variable name
-        beanslot cages
-
-        method subject {} {
-            return "::zoo"
-        }
-
-        constructor {{name_ ""}} {
-            next
-            set name $name_
-            set cages [list]
-        }
-    }
-
-    beanclass create cage {
-        variable parent
-        variable name
-        beanslot animals
-
-        method subject {} {
-            return "::cage"
-        }
-
-        constructor {{name_ ""}} {
-            next
-            set parent ""
-            set name $name_
-            set animals [list]
-        }
-    }
-
-    beanclass create animal {
-        variable parent
+    beanclass create viewbean {
         variable name
 
-        constructor {{name_ ""}} {
+        constructor {name_} {
             next
-            set parent ""
             set name $name_
+        }
+
+        method view {{view ""}} {
+            set vdict [next $view]
+
+            if {$view eq ""} {
+                dict set vdict name [string toupper $name]
+            }
         }
     }
 
@@ -919,194 +891,12 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {data mydata blocks {{name b1 class_ ::projectlib::test::block} {name b2 class_ ::projectlib::test::block}} class_ ::projectlib::test::blocklist}
 
-    #-------------------------------------------------------------------
-    # newcopy
-
-    test newcopy-1.1 {make new copy of leaf object} -constraints tbd -body {
-        set fido [dog new]
-        $fido set name "Fido"
-        $fido set color "brown"
-        set newfido [$fido newcopy]
-        $newfido getdict
+    test copydata-1.3 {copy set is based on default view} -body {
+        viewbean create mybean fred
+        mybean copydata
     } -cleanup {
         cleanup
-    } -match glob -result {id * name Fido breed mutt color brown}
-
-    test newcopy-1.2 {make new copy of parent object} -constraints tbd -body {
-        blocklist create blist
-        blist set data mydata
-        blist addblock_ b1
-        blist addblock_ b2
-        $b1 set name b1
-        $b2 set name b2
-        set newlist [blist newcopy]
-        set result [list]
-        lappend result [$newlist getdict]
-
-        foreach block [$newlist get blocks] {
-            lappend result [$block getdict]
-        }
-
-        set result
-    } -cleanup {
-        cleanup
-    } -result {{id 4 data mydata blocks {::bean::block5 ::bean::block6} parent {}} {id 5 name b1 parent ::bean::blocklist4} {id 6 name b2 parent ::bean::blocklist4}}
-
-    #-------------------------------------------------------------------
-    # paste_
-
-    proc pasteSetup {} {
-        variable z1
-        variable c1
-        variable z2
-
-        set z1 [zoo new "Z1"]
-        set c1 [cage new "C1"]
-        $z1 addbean_ cages $c1
-
-        $c1 addbean_ animals [animal new Lion]
-        $c1 addbean_ animals [animal new Tiger]
-
-        set z2 [zoo new "Z2"]
-    }
-
-    test paste-1.1 {a cage into a zoo} -constraints tbd -setup {
-        pasteSetup
-    } -body {
-        $z2 paste_ cages [$c1 copydata]
-
-        set newcage [lindex [$z2 get cages] end]
-        list \
-            [llength [$z2 get cages]] \
-            [[lindex [$z2 get cages] end] get name]
-    } -cleanup {
-        cleanup
-    } -result {1 C1}
-
-    test paste-1.2 {animals in the cages} -constraints tbd -setup {
-        pasteSetup
-    } -body {
-        $z2 paste_ cages [$c1 copydata]
-
-        set newcage [lindex [$z2 get cages] end]
-
-        set names [list]
-        foreach a [$newcage get animals] {
-            lappend names [$a get name]
-        }
-
-        set names
-    } -cleanup {
-        cleanup
-    } -result {Lion Tiger}
-
-    test paste-1.3 {notifications on paste} -constraints tbd -setup {
-        pasteSetup
-    } -body {
-        setupNotifier ::projectlib::bean <Monitor>
-        setupNotifier ::zoo <cages>
-        setupNotifier ::cage <animals>
-
-        $z2 paste_ cages [$c1 copydata]
-
-        getNotifications
-    } -cleanup {
-        cleanup
-    } -result {
-        ::cage <animals> add 6 7
-        ::projectlib::bean <Monitor>
-        ::cage <animals> add 6 8
-        ::projectlib::bean <Monitor>
-        ::zoo <cages> add 5 6
-        ::projectlib::bean <Monitor>
-    }
-
-    test paste-2.1 {undo paste} -constraints tbd -setup {
-        pasteSetup
-    } -body {
-
-        set undo [$z2 paste_ cages [$c1 copydata]]
-        namespace eval :: $undo
-
-        $z2 get cages
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test paste-2.2 {undo paste} -constraints tbd -setup {
-        pasteSetup
-    } -body {
-
-        set undo [$z2 paste_ cages [$c1 copydata]]
-
-        setupNotifier ::projectlib::bean <Monitor>
-        setupNotifier ::zoo <cages>
-        setupNotifier ::cage <animals>
-
-        namespace eval :: $undo
-
-        getNotifications
-    } -cleanup {
-        cleanup
-    } -result {
-        ::zoo <cages> delete 5 6
-        ::projectlib::bean <Monitor>
-    }
-
-    #-------------------------------------------------------------------
-    # pastelist_
-
-    proc pastelistSetup {} {
-        variable z1
-        variable z2
-
-        set z1 [zoo new "Z1"]
-        set z2 [zoo new "Z2"]
-
-        $z1 addbean_ cages [cage new "C1"]
-        $z1 addbean_ cages [cage new "C2"]
-    }
-
-    test pastelist-1.1 {paste multiple cages into a zoo} -constraints tbd -setup {
-        pastelistSetup
-    } -body {
-        set copysets [list] 
-        foreach cage [$z1 get cages] {
-            lappend copysets [$cage copydata]
-        }
-
-        $z2 pastelist_ cages $copysets
-
-        pprint [bean dump]
-    } -cleanup {
-        cleanup
-    } -result {
-1 (::projectlib::test::zoo/::bean::zoo1): id 1 name Z1 cages {::bean::cage3 ::bean::cage4}
-2 (::projectlib::test::zoo/::bean::zoo2): id 2 name Z2 cages {::bean::cage5 ::bean::cage6}
-3 (::projectlib::test::cage/::bean::cage3): id 3 animals {} name C1 parent ::bean::zoo1
-4 (::projectlib::test::cage/::bean::cage4): id 4 animals {} name C2 parent ::bean::zoo1
-5 (::projectlib::test::cage/::bean::cage5): id 5 animals {} name C1 parent ::bean::zoo2
-6 (::projectlib::test::cage/::bean::cage6): id 6 animals {} name C2 parent ::bean::zoo2
-    }
-
-    test pastelist-1.2 {undo paste multiple cages into a zoo} -constraints tbd -setup {
-        pastelistSetup
-    } -body {
-        set copysets [list] 
-        foreach cage [$z1 get cages] {
-            lappend copysets [$cage copydata]
-        }
-
-        set a [bean dump]
-        set undo [$z2 pastelist_ cages $copysets]
-        namespace eval :: $undo
-        set b [bean dump]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
+    } -result {name FRED class_ ::projectlib::test::viewbean}
 
     #===================================================================
     # bean Class Methods

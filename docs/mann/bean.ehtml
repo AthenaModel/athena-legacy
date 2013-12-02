@@ -269,17 +269,24 @@ mutators will send out more specific events from that subject.<p>
 
 <<subsection "Copy and Paste">>
 
-Beans support copy and paste.
+The <<iref copydata>> method returns a copy set for the bean and the 
+dependent beans in its beanslots, a collection of data suitable to be 
+placed on a clipboard.  The copy set is a dictionary of data with the
+following content:<p>
 
-The <<iref deepcopy>> method returns a deep
-copy of the given bean, including copies of all beans in bean slots (and
-copies of beans in their bean slots, and so on).<p>
+<ul>
+    <li> The keys and values from the bean's default <<iref view>>, which
+         contains data in the user formats required for order processing.
+    <li> The <b>id</b> field, and the <b>parent</b> field if present, are
+         removed, since they won't apply to the pasted data.
+    <li> A <b>class_</b> key is added, naming the bean's leaf class.
+    <li> The beanslots in the copy set will contain a list of copy sets like 
+         this, one for each owned bean, instead of the bean instance names.
+</ul>
 
-The <<iref copydata>> method returns a copy set for the bean, a collection
-of data suitable to be placed on a clipboard.<p>
+Pasting must be handled by the application, because it needs to be done
+using orders.<p>
 
-The <<iref paste_>> mutator pastes a copy set into a bean slot, first
-recreating the bean being pasted along with the beans in its slots, if any.<p>
 
 <<section "CLASS COMMANDS">>
 
@@ -468,14 +475,8 @@ validation is to be done, the child class should override
 <<defitem copydata {<i>bean</i> copydata}>>
 
 Returns a "copy set" value that can be used to duplicate the <i>bean</i>
-on <<iref paste_>>.<p>
-
-<<defitem deepcopy {<i>bean</i> deepcopy}>>
-
-Returns a deep copy of <i>bean</i>, including copies of all the items
-in the <i>bean</i>'s bean slots, and so on recursively.  The 
-<<iref onAddBean_>> and <<iref onPaste_>> methods are called on the
-created beans as appropriate.<p>
+and its dependents.  See <<xref "Copy and Paste">> for a description of
+how to implement copy and paste.<p>
 
 <<defitem deletebean_ {<i>bean</i> deletebean_ <i>slot id</i>}>>
 
@@ -632,11 +633,6 @@ to overriding <<iref movebean_>>, as <<iref onMoveBean_>> is
 guaranteed to be called after the slot is modified but before any
 notifications are sent.<p>
 
-<<defitem onPaste_ {<i>bean</i> onPaste_}>>
-
-<b>Protected.</b>  This method is called for each bean created as the result
-of a <<iref paste_>>, <<iref pastelist_>>, or <<iref deepcopy>>.<p>
-
 <<defitem onUpdate_ {<i>bean</i> onUpdate_}>>
 
 <b>Protected.</b>  This method is called when a bean is updated
@@ -645,31 +641,6 @@ can override this to take some additional action when a bean is
 updated; this is preferable to overriding <<iref update_>>, as
 <<iref onUpdate_>> is guaranteed to be called after the bean is 
 modified but before any notifications are sent.</i><p>
-
-<<defitem paste_ {<i>bean</i> paste_ <i>slot cdict</i>}>>
-
-Given copy set <i>cdict</i>, as returned by <<iref copydata>>, 
-this mutator pastes the copied data into the named <i>slot</i> variable,
-and returns a script that will undo the change.  The 
-<<iref addbean_>> mutator is called while adding beans to slots; hence,
-the <<iref onAddBean_>> method will be called and the "add" notifications 
-will be sent for each created bean.  In addition, <<iref onPaste_>> will
-be called for each bean created as a result of the paste.<p>
-
-On undo,
-notifications will be sent only for the removal of the top bean from the
-<i>slot</i>.<p>
-
-Subclasses will usually wrap this in a mutator specific to the slot.<p>
-
-<<defitem pastelist_ {<i>bean</i> pastelist_ <i>slot copysets</i>}>>
-
-Given a list of copy sets, <i>copysets</i>, 
-this mutator pastes the copied data into the named <i>slot</i> variable,
-and returns a script that will undo the change.  This is simply a wrapper
-around <<iref paste_>>, and has the same semantics.<p>
-
-Subclasses will usually wrap this in a mutator specific to the slot.<p>
 
 <<defitem set {<i>bean</i> set <i>var value</i>}>>
 
