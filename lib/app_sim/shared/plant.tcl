@@ -312,15 +312,16 @@ snit::type plant {
 
         lassign $id n a
 
-        set data [rdb grab plants_shares \
-            {n='$n' AND a='$a'}]
+        set data [rdb grab plants_shares {n=$n AND a=$a}]
 
         rdb eval {
             UPDATE plants_shares
-            SET rho = nullif(nonempty($rho, rho), ''),
+            SET rho    = nullif(nonempty($rho, rho), ''),
                 shares = nullif(nonempty($shares, shares), '')
             WHERE n=$n AND a=$a
         } {}
+        
+        return [list rdb ungrab $data]
     }
 
     #---------------------------------------------------------------------
@@ -445,7 +446,9 @@ order define PLANT:SHARES:UPDATE {
 
     returnOnError -final
 
-    setundo [plant mutate update [array get parms]]
+    set undo [list]
+    lappend undo [plant mutate update [array get parms]]
+    setundo [join $undo \n]
 }
 
 # PLANT:SHARES:UPDATE:MULTI

@@ -1,0 +1,294 @@
+# -*-Tcl-*-
+#-----------------------------------------------------------------------
+# TITLE:
+#    010-plant.test
+#
+# AUTHOR:
+#    Dave Hanks
+#
+# DESCRIPTION:
+#    plant(sim) tests: Manufacturing infrastructure
+#
+#-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Test Suite
+#
+# The tests run in a namespace so as not to interfere with other
+# test suites.
+
+namespace eval ::athena_test::tests:: {
+    #-------------------------------------------------------------------
+    # Set up the test environment
+
+    # Import tcltest(n)
+    namespace import ::tcltest::*
+
+    # Set up for a test
+    proc setup {} {
+        ted create JOE BOB NB1 NB2 SHIA KURD SUNN
+    }
+
+    # Clean up after a test
+
+    proc cleanup {} {
+        ted cleanup
+    }
+
+    set p1 [dict create \
+               n  NB1   \
+               a  JOE   \
+               rho 0.9  \
+               shares 1]
+
+    set p2 [dict create \
+               n NB1    \
+               a BOB    \
+               rho 0.8  \
+               shares 2]
+
+    #-------------------------------------------------------------------
+    # mutate create
+
+    test create-1.1 {Plant share record is created} -setup {
+        setup
+    } -body {
+        plant mutate create $p1 
+        plant mutate create $p2
+
+        ted querylist {SELECT * FROM plants_shares}
+    } -cleanup {
+        cleanup
+    } -result {
+n       NB1
+a       JOE
+shares  1
+rho     0.9
+
+n       NB1
+a       BOB
+shares  2
+rho     0.8
+    }
+    
+
+    test create-1.2 {Plant share record created, rho can be set} -setup {
+        setup
+    } -body {
+        plant mutate create [dict merge $p1 [list rho 0.7]]
+
+        ted querylist {SELECT * FROM plants_shares}
+    } -cleanup {
+        cleanup
+    } -result {
+n       NB1
+a       JOE
+shares  1
+rho     0.7
+    }
+
+    test create-2.1 {Undo deletes the entity} -setup {
+        setup
+        set undo [plant mutate create $p1]
+    } -body {
+        {*}$undo
+        rdb query {SELECT n FROM plants_shares}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+
+    #-------------------------------------------------------------------
+    # mutate delete
+
+    test delete-1.1 {Record is deleted} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+    } -body {
+        plant mutate delete {NB1 JOE}
+
+        # Is 1 gone?
+        rdb eval {SELECT n,a FROM plants_shares}
+    } -cleanup {
+        cleanup
+    } -result {NB1 BOB}
+
+
+    test delete-2.1 {Undo restores record} -setup {
+        setup
+        plant mutate create $p1
+        set undo [plant mutate delete {NB1 JOE}]
+    } -body {
+        {*}$undo
+        ted querylist {SELECT * FROM plants_shares}
+    } -cleanup {
+        cleanup
+    } -result {
+n       NB1
+a       JOE
+shares  1
+rho     0.9
+    }
+
+
+    #-------------------------------------------------------------------
+    # mutate update
+
+
+    test update-1.1 {record is updated} -setup {
+        setup
+        plant mutate create $p1
+    } -body {
+        plant mutate update {
+            id {NB1 JOE}
+            rho 0.5
+        }
+
+        ted querylist {SELECT * FROM plants_shares}
+    } -cleanup {
+        cleanup
+    } -result {
+n       NB1
+a       JOE
+shares  1
+rho     0.5
+    }
+
+    test update-1.2 {empty values are OK} -setup {
+        setup
+        plant mutate create $p1
+    } -body {
+        set a [ted query {SELECT * FROM plants_shares}]
+
+        plant mutate update  {
+            id      [list NB1 JOE]
+            rho     ""
+            shares  ""
+        }
+
+        set b [ted query {SELECT * FROM plants_shares}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test update-2.1 {undo undoes the change} -setup {
+        setup
+        plant mutate create $p1
+    } -body {
+        set a [ted query {SELECT * FROM plants_shares}]
+
+        set undo [plant mutate update {
+            id        [list NB1 JOE]
+            rho       0.5
+            shares    3
+        }]
+
+        {*}$undo
+
+        set b [ted query {SELECT * FROM plants_shares}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # exists
+
+    test exists-1.1 {record exists} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+    } -body {
+        plant exists [list NB1 JOE]
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    test exists-1.2 {record does not exist} -setup {
+        setup
+        plant mutate create $p2
+    } -body {
+        plant exists [list NB1 JOE]
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+
+    #-------------------------------------------------------------------
+    # capacity
+
+    test capacity-1.1 {total, by nbhood and by actor} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+        ted create BLUE 
+        ted lock
+    } -body {
+        set a [moneyfmt [plant capacity total]]
+        set b [moneyfmt [plant capacity n NB1]]
+        set c [moneyfmt [plant capacity a JOE]]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {232.283B 185.826B 61.942B}
+
+    test capacity-1.2 {summed by nbhood equals total} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+        ted create BLUE 
+        ted lock
+    } -body {
+        set a [moneyfmt [plant capacity total]]
+        set sum [expr {[plant capacity n NB1] +
+                       [plant capacity n NB2]}]
+        set b [moneyfmt $sum]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test capacity-1.3 {summed by agent equals total} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+        ted create BLUE 
+        ted lock
+    } -body {
+        set a [moneyfmt [plant capacity total]]
+        set sum [expr {[plant capacity a JOE] +
+                       [plant capacity a BOB] +
+                       [plant capacity a SYSTEM]}]
+        set b [moneyfmt $sum]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+
+    #-------------------------------------------------------------------
+    # Cleanup
+
+    cleanupTests
+}
+
+namespace delete ::athena_test::tests::
+
+
+
+
+
+
+
+
+
