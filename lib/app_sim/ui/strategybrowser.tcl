@@ -1007,12 +1007,14 @@ snit::widget strategybrowser {
         # TBD: Display cflag using thumbup/thumbdown/dash
         #      Needs emetstatus value, "yes", "no", "unknown"
         install ctab using beanbrowser $pane          \
-            -beancmd        ""                         \
-            -columnsorting 0                           \
-            -titlecolumns  2                           \
-            -height        5                           \
+            -beancmd        ""                        \
+            -columnsorting 0                          \
+            -titlecolumns  2                          \
+            -height        5                          \
             -displaycmd    [mymethod CTabDisplay]     \
             -selectioncmd  [mymethod CTabSelection]   \
+            -cutcopycmd    [mymethod CTabCutCopy]     \
+            -pastecmd      [mymethod CTabPaste]       \
             -layout [string map [list %D $::app::derivedfg] {
                 { id              "ID"                               }
                 { statusicon      "Flag"                             }
@@ -1107,7 +1109,6 @@ snit::widget strategybrowser {
         pack $ct_deletebtn  -side right
     }
 
-
     # CTabDisplay rindex values
     # 
     # rindex    The row index
@@ -1140,6 +1141,77 @@ snit::widget strategybrowser {
     method CTabSelection {} {
         ::cond::simPP_predicate update \
             [list $ct_editbtn $ct_deletebtn $ct_togglebtn]
+    }
+
+    # CTabCutCopy mode
+    #
+    # mode   - cut|copy
+    #
+    # This command is called when the user cuts or copies from
+    # the CTab.  There will always be at least one item selected.
+
+    method CTabCutCopy {mode} {
+        # FIRST, if the sim state is wrong, we're done.
+        if {[sim state] ni {PREP PAUSED}} {
+            bell
+            return
+        }
+
+        # NEXT, copy the data to the clipboard.
+        set ids [$ctab uid curselection]
+
+        set data [list]
+
+        foreach id $ids {
+            set bean [condition get $id]
+            lappend copyData [$bean copydata]
+        }
+
+        clipboardx clear
+        clipboardx set ::condition $copyData
+
+        # NEXT, if the mode is cut delete the items.
+        if {$mode eq "cut"} {
+            order send gui BLOCK:CONDITION:DELETE ids $ids
+        }
+
+        # NEXT, notify the user:
+        if {$mode eq "copy"} {
+            app puts "Copied [llength $ids] item(s)"
+        } else {
+            app puts "Cut [llength $ids] item(s)"
+        }
+    }
+
+    # CTabPaste
+    #
+    # This command is called when the user pastes into 
+    # the CTab.
+
+    method CTabPaste {} {
+        # FIRST, if the sim state is wrong or there's no block loaded,
+        # we're done.
+        if {[sim state] ni {PREP PAUSED} ||
+            ![$self gotblock]
+        } {
+            bell
+            return
+        }
+
+        # NEXT, get the conditions from the clipboard, if any.
+        set copysets [clipboardx get ::condition]
+
+        if {[llength $copysets] == 0} {
+            bell
+            return
+        }
+
+        # NEXT, begin an undo block
+        cif transaction "Paste Condition(s)" {
+            condition paste $info(block) $copysets
+        }
+
+        app puts "Pasted [llength $copysets] item(s)"
     }
 
     # CTabPopulateAddMenu mnu

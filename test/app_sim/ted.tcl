@@ -927,6 +927,30 @@ snit::type ted {
         return "OK"
     }
 
+    # condition identity condition
+    #
+    # condition - a condition object
+    #
+    # Given the condition, passes the condition's default view parameters
+    # back to the condition's order.  This should work without error.
+
+    typemethod {condition identity} {condition} {
+        set cname [$condition typename]
+        set order CONDITION:$cname
+        set cdict [$condition view]
+        dict set cdict condition_id [$condition id]
+
+        set pdict [dict create]
+
+        foreach parm [order parms $order] {
+            dict set pdict $parm [dict get $cdict $parm]
+        }
+
+        ted order $order {*}$pdict
+
+        return "OK"
+    }
+
     #-------------------------------------------------------------------
     # Notifier events
 

@@ -136,6 +136,13 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {*{::projectlib::bean <Monitor>}*}
  
+    test CONDITION:COMPARE-3.1 {identity} -setup {
+        setup
+    } -body {
+        ted condition identity $C1
+    } -cleanup {
+        cleanup
+    } -result {OK}
 
     #-------------------------------------------------------------------
     # Cleanup

@@ -120,6 +120,62 @@ oo::objdefine condition {
 
         return $result
     }
+
+    #-------------------------------------------------------------------
+    # Pasting of Conditions
+
+    # paste block copysets
+    #
+    # block     - The block to receive the conditions
+    # copysets  - A list of condition copysets from [$bean copydata].
+    #
+    # Pastes the conditions into the given block.  This call should be
+    # wrapped by [cif startblock]/[cif endblock] calls.  These are
+    # not included in [paste] itself, because pasting conditions can be
+    # done as part of a larger paste (i.e., pasting blocks).
+
+    method paste {block copysets} {
+        # FIRST, get the block ID
+        set block_id [$block id]
+
+        # NEXT, paste the copied conditions into the block
+        foreach copyset $copysets {
+            # FIRST, get the condition data
+            set cls   [dict get $copyset class_]
+            set cname [$cls typename]
+            set cdict [my GetOrderParmsFromCopySet $cname $copyset]
+
+            # NEXT, create the condition with default settings
+            set condition_id \
+                [order send gui BLOCK:CONDITION:ADD \
+                    block_id $block_id typename $cname]
+
+            # NEXT, update the condition with the right data.
+            order send gui CONDITION:$cname condition_id $condition_id \
+                {*}$cdict
+        }
+    }
+
+    # GetOrderParmsFromCopySet cname copyset
+    #
+    # cname   - The condition type name
+    # copyset - The copyset from [$bean copydata]
+    #
+    # Pulls out the required parameters from the copyset.
+
+    method GetOrderParmsFromCopySet {cname copyset} {
+        set pdict [dict create]
+
+        foreach parm [order parms CONDITION:$cname] {
+            if {$parm eq "condition_id"} {
+                continue
+            }
+
+            dict set pdict $parm [dict get $copyset $parm]
+        }
+
+        return $pdict
+    }
 }
 
 
