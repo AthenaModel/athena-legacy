@@ -14,7 +14,67 @@
 #-----------------------------------------------------------------------
 
 # FIRST, create the class
-beanclass create block {
+beanclass create block 
+
+# NEXT, define class methods
+oo::objdefine block {
+    #-------------------------------------------------------------------
+    # Pasting of blocks
+
+    # paste agent copysets
+    #
+    # agent     - The agent whose strategy will receive the blocks
+    # copysets  - A list of block copysets from [$bean copydata].
+    #
+    # Pastes the blocks into the given strategy, pasting tactics and
+    # conditions recursively.  This call should be
+    # wrapped by [cif startblock]/[cif endblock] calls.  These are
+    # not included in [paste] itself, because pasting blocks could be
+    # done as part of a larger paste.
+
+    method paste {agent copysets} {
+        # FIRST, paste the copied blocks into the agent's strategy
+        foreach copyset $copysets {
+            # FIRST, get the block data
+            set bdict [my GetOrderParmsFromCopySet $copyset]
+
+            # NEXT, create the block with default settings
+            set block_id [order send gui STRATEGY:BLOCK:ADD agent $agent]
+
+            # NEXT, update the block with the right data.
+            order send gui BLOCK:UPDATE block_id $block_id {*}$bdict
+
+            # NEXT, paste the conditions and tactics
+            condition paste $block_id [dict get $copyset conditions]
+            tactic paste    $block_id [dict get $copyset tactics]
+        }
+    }
+
+    # GetOrderParmsFromCopySet copyset
+    #
+    # copyset - The copyset from [$bean copydata]
+    #
+    # Pulls out the required parameters from the copyset.
+
+    method GetOrderParmsFromCopySet {copyset} {
+        set pdict [dict create]
+
+        foreach parm [order parms BLOCK:UPDATE] {
+            if {$parm eq "block_id"} {
+                continue
+            }
+
+            dict set pdict $parm [dict get $copyset $parm]
+        }
+
+        return $pdict
+    }
+
+}
+
+
+# NEXT, define instance methods
+oo::define block {
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -773,27 +833,6 @@ beanclass create block {
 
     method movetactic_ {tactic_id where} {
         return [my movebean_ tactics $tactic_id $where]
-    }
-
-    # pasteTactics_ copysets
-    #
-    # copysets  - A list of tactic "cdicts" from [$tactic copydata]
-    #
-    # Pastes the tactics into the tactics slot, and does a sanity
-    # check.
-
-    method pasteTactics_ {copysets} {
-        set undoData [my getdict]
-
-        lappend undoList [my pastelist_ tactics $copysets]
-
-        # Sanity check this block and the new entities, which might
-        # have been pasted from another actor's strategy.
-        my check 
-
-        lappend undoList [list [self] setdict $undoData]
-
-        return [join $undoList \n]
     }
 }
 

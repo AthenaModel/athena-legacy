@@ -190,7 +190,7 @@ oo::objdefine tactic {
 
     # paste block copysets
     #
-    # block     - The block to receive the tactics
+    # block_id  - The ID of the block to receive the tactics
     # copysets  - A list of tactic copysets from [$bean copydata].
     #
     # Pastes the tactics into the given block.  This call should be
@@ -198,11 +198,8 @@ oo::objdefine tactic {
     # not included in [paste] itself, because pasting tactics can be
     # done as part of a larger paste (i.e., pasting blocks).
 
-    method paste {block copysets} {
-        # FIRST, get the block ID
-        set block_id [$block id]
-
-        # NEXT, paste the copied tactics into the block
+    method paste {block_id copysets} {
+        # FIRST, paste the copied tactics into the block
         foreach copyset $copysets {
             # FIRST, get the tactic data
             set cls   [dict get $copyset class_]

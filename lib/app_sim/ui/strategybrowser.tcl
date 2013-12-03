@@ -357,7 +357,12 @@ snit::widget strategybrowser {
     # metadata has been updated.
 
     method BlockUpdate {id} {
-        # FIRST, if it's not our block we don't care.
+        # FIRST, update the blist; if it's one of this agent's blocks, 
+        # that will update its entry, lazily if appropriate.
+        $blist uid update $id
+
+        # NEXT, if it's not the currently selected block there's no more
+        # to do.
         if {$info(block) eq "" || $id != [$info(block) id]} {
             return
         }
@@ -369,8 +374,7 @@ snit::widget strategybrowser {
             return
         }
 
-        # NEXT, update the blist entry and the block metadata widgets.
-        $blist uid update $id
+        # NEXT, update the block metadata widgets.
         $self ReloadBlockMetadata
     }
 
@@ -661,6 +665,8 @@ snit::widget strategybrowser {
             -titlecolumns  2                           \
             -displaycmd    [mymethod BListDisplay]     \
             -selectioncmd  [mymethod BListSelection]   \
+            -cutcopycmd    [mymethod BListCutCopy]     \
+            -pastecmd      [mymethod BListPaste]       \
             -layout [string map [list %D $::app::derivedfg] {
                 { id              "ID"                              }
                 { statusicon      "Exec"     -align center          }
@@ -823,6 +829,77 @@ snit::widget strategybrowser {
         set info(block) $newBlock
 
         $self ReloadBlock
+    }
+
+    # BListCutCopy mode
+    #
+    # mode   - cut|copy
+    #
+    # This command is called when the user cuts or copies from
+    # the BList.  There will always be at least one item selected.
+
+    method BListCutCopy {mode} {
+        # FIRST, if the sim state is wrong, we're done.
+        if {[sim state] ni {PREP PAUSED}} {
+            bell
+            return
+        }
+
+        # NEXT, copy the data to the clipboard.
+        set ids [$blist uid curselection]
+
+        set data [list]
+
+        foreach id $ids {
+            set bean [block get $id]
+            lappend copyData [$bean copydata]
+        }
+
+        clipboardx clear
+        clipboardx set ::block $copyData
+
+        # NEXT, if the mode is cut delete the items.
+        if {$mode eq "cut"} {
+            order send gui STRATEGY:BLOCK:DELETE ids $ids
+        }
+
+        # NEXT, notify the user:
+        if {$mode eq "copy"} {
+            app puts "Copied [llength $ids] item(s)"
+        } else {
+            app puts "Cut [llength $ids] item(s)"
+        }
+    }
+
+    # BListPaste
+    #
+    # This command is called when the user pastes into 
+    # the BList.
+
+    method BListPaste {} {
+        # FIRST, if the sim state is wrong or there's no strategy loaded,
+        # we're done.
+        if {[sim state] ni {PREP PAUSED} ||
+            $info(agent) eq ""
+        } {
+            bell
+            return
+        }
+
+        # NEXT, get the blocks from the clipboard, if any.
+        set copysets [clipboardx get ::block]
+
+        if {[llength $copysets] == 0} {
+            bell
+            return
+        }
+
+        # NEXT, begin an undo block
+        cif transaction "Paste Block(s)" {
+            block paste $info(agent) $copysets
+        }
+
+        app puts "Pasted [llength $copysets] item(s)"
     }
 
     # BListEdit
@@ -1208,7 +1285,7 @@ snit::widget strategybrowser {
 
         # NEXT, begin an undo block
         cif transaction "Paste Condition(s)" {
-            condition paste $info(block) $copysets
+            condition paste [$info(block) id] $copysets
         }
 
         app puts "Pasted [llength $copysets] item(s)"
@@ -1556,7 +1633,7 @@ snit::widget strategybrowser {
 
         # NEXT, begin an undo block
         cif transaction "Paste Tactic(s)" {
-            tactic paste $info(block) $copysets
+            tactic paste [$info(block) id] $copysets
         }
 
         app puts "Pasted [llength $copysets] item(s)"

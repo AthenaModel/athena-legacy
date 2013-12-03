@@ -124,9 +124,9 @@ oo::objdefine condition {
     #-------------------------------------------------------------------
     # Pasting of Conditions
 
-    # paste block copysets
+    # paste block_id copysets
     #
-    # block     - The block to receive the conditions
+    # block_id  - The ID of the block to receive the conditions
     # copysets  - A list of condition copysets from [$bean copydata].
     #
     # Pastes the conditions into the given block.  This call should be
@@ -134,11 +134,8 @@ oo::objdefine condition {
     # not included in [paste] itself, because pasting conditions can be
     # done as part of a larger paste (i.e., pasting blocks).
 
-    method paste {block copysets} {
-        # FIRST, get the block ID
-        set block_id [$block id]
-
-        # NEXT, paste the copied conditions into the block
+    method paste {block_id copysets} {
+        # FIRST, paste the copied conditions into the block
         foreach copyset $copysets {
             # FIRST, get the condition data
             set cls   [dict get $copyset class_]
@@ -418,16 +415,6 @@ oo::define condition {
 
         next
     }
-
-    # onPaste_
-    #
-    # When a condition is pasted into another bean, resets relevant data.
-
-    method onPaste_ {} {
-        my reset
-        next
-    }
-
 }
 
 #-----------------------------------------------------------------------
