@@ -1216,12 +1216,6 @@ snit::type ::projectlib::parmdb {
             should be something less than 100 percent to represent that. 
         }
 
-        $ps define econ.idleFrac ::simlib::rfraction 0.25 {
-            The idle production capacity for goods, expressed as
-            a decimal fraction of the total production capacity.  This
-            value can range from 0.0 to 0.9.
-        }
-
         $ps subset econ.bktsPerYear {
             Parameters that control the average output of a manufacturing
             plant in number of baskets produced per year.

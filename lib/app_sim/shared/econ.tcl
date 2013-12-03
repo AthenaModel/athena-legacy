@@ -1067,13 +1067,9 @@ snit::type econ {
                 return 0
             }
 
-            # NEXT, Compute the initial CAP.goods.
-            # NOTE: Should econ.idleFrac come from the CGE?
+            # NEXT, retrieve the initial CAP.goods.
             array set out [cge get Out -bare]
-
-            let CAPgoods {
-                $out(BQS.goods) / (1.0-[parm get econ.idleFrac])
-            }
+            let CAPgoods $out(BQS.goods)
 
             # NEXT, compute CCF.n, the capacity fraction for each neighborhood.
             set sum 0.0
