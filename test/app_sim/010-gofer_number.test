@@ -445,7 +445,58 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {25.0}
 
+    #-------------------------------------------------------------------
+    # Rule: SECURITY
 
+    test SECURITY-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY construct SHIA NB1
+    } -cleanup {
+        cleanup
+    } -result {g SHIA n NB1}
+
+    test SECURITY-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY validate {g shia n nb1}
+    } -cleanup {
+        cleanup
+    } -result {g SHIA n NB1}
+
+    test SECURITY-2.2 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY validate {g NONESUCH n NB1}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group,*}
+
+    test SECURITY-2.3 {validate, invalid c} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY validate {g SHIA n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood, should be one of: NB1, NB2}
+
+    test SECURITY-3.1 {narrative} -body {
+        ::gofer::NUMBER::SECURITY narrative {g SHIA n NB1}
+    } -result {security("SHIA","NB1")}
+
+    test SECURITY-4.1 {eval} -setup {
+        setup
+        #Setup sets the security to 31
+        ted lock
+    } -body {
+        ::gofer::NUMBER::SECURITY eval {g SHIA n NB1}
+    } -cleanup {
+        cleanup
+    } -result {31}
 
     #-------------------------------------------------------------------
     # Cleanup

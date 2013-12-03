@@ -94,6 +94,17 @@ gofer define NUMBER "" {
             rc
             enumlong c -showkeys yes -dictcmd {::econcern deflist}
         }
+
+        case SECURITY "security(g,n)" {
+            rc
+            rc "Security of group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::group namedict}
+
+            rc "in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}            
+        }
     }
 }
 
@@ -395,3 +406,39 @@ gofer rule NUMBER SAT {g c} {
     }
 }
 
+#
+# Rule: SECURITY
+#
+# security(g,n)
+
+gofer rule NUMBER SECURITY {g n} {
+    typemethod construct {g n} {
+        return [$type validate [dict create g $g n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            g [group validate [string toupper $g]] \
+            n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {security("%s","%s")} $g $n]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT security FROM force_ng WHERE n=$n AND g=$g
+        } {
+            return $security
+        }
+
+        return 0
+    }
+}

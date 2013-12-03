@@ -218,13 +218,15 @@ function sat(g,c) {
 #=======================================================================
 # security
 
-function security(n,g) {
+function security(g,n) {
     Returns the <<term security>> of 
     <<term group>> <i>g</i> in <<term nbhood>> <i>n</i> as a number
     between -100 and 100.<p>
 
-    Security is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.<p>
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/security>> rule.
 }
 
 #=======================================================================

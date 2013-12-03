@@ -721,24 +721,17 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
-    # security n g
+    # security g n
     #
-    # n - A neighborhood
     # g - A group
+    # n - A neighborhood
     #
     # Returns g's security in n
 
-    proc security {n g} {
-        set n [nbhood validate [string toupper $n]]
-        set g [group validate [string toupper $g]]
+    proc security {g n} {
+        set gdict [gofer construct NUMBER SECURITY $g $n]
 
-        rdb eval {
-            SELECT security FROM force_ng WHERE n=$n AND g=$g
-        } {
-            return $security
-        }
-
-        error "security not yet computed"
+        return [gofer::NUMBER eval $gdict]
     }
 
     # support n a
