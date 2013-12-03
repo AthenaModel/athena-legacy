@@ -24,12 +24,6 @@ CREATE TABLE econ_n (
 
     -- The following columns can be ignored if nbhoods.local == 0.    
 
-    -- Input, Production Capacity Factor (PCF)
-    pcf        DOUBLE DEFAULT 1.0,
-
-    -- Output, Capacity Calibration Factor (CCF)
-    ccf        DOUBLE DEFAULT 0.0,
-
     -- Output, Production Capacity at time 0
     cap0       DOUBLE DEFAULT 0,
 

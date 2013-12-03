@@ -238,7 +238,7 @@ appserver module NBHOOD {
         }
 
         rdb eval {SELECT * FROM gui_nbhoods WHERE n=$n} data {}
-        rdb eval {SELECT * FROM econ_n      WHERE n=$n} econ {}
+        rdb eval {SELECT * FROM econ_n_view WHERE n=$n} econ {}
         rdb eval {
             SELECT * FROM gui_actors  
             WHERE a=$data(controller)
@@ -550,14 +550,20 @@ appserver module NBHOOD {
             scenario is locked depends on a number of things: the 
             production capacity of a neighborhood, the amount of goods
             a single plant can produce, and the repair level of plants
-            at initialization.  Given the production capacity of a single
-            manufacturing plant, Athena will allocate just enough plants
-            to meet the initial production demanded by the economic model
-            taking into account repair level and neighborhood production 
-            capacity.  Athena will then lay them down according to agent
-            shares of ownership.  To increase capacity after lock, either
-            plants in disrepair need to be fixed or new plants built or
-            both.
+            at initialization.  
+        }
+            
+        if {![locked]} {
+            ht put {
+                Given the production capacity of a single
+                manufacturing plant, Athena will allocate just enough plants
+                to meet the initial production demanded by the economic model
+                taking into account repair level and neighborhood production 
+                capacity.  Athena will then lay them down according to agent
+                shares of ownership.  To increase capacity after lock, either
+                plants in disrepair need to be fixed or new plants built or
+                both.
+            }
         }
 
         ht para
@@ -567,9 +573,9 @@ appserver module NBHOOD {
                 The percentage of plants that this neighborhood will get 
                 when locked is approximately shown as follows.  When the 
                 scenario is locked the actual number of plants and their 
-                owning agent will be shown along with the repair level.  
-                These numbers are approximate because the demographics may
-                be different after the scenario is locked.
+                owning agent will be shown along with the average repair 
+                level.  These numbers are approximate because the 
+                demographics may be different after the scenario is locked.
             }
 
             ht para
@@ -588,7 +594,7 @@ appserver module NBHOOD {
 
             if {$adjpop > 0} {
                 ht table {
-                    "Neighborhood" "Capacity Factor" "Base Pop."
+                    "Neighborhood" "Prod. Capacity Factor" "Base Pop."
                     "% of Manufacturing Plants"
                 } {
                     rdb eval {
@@ -617,7 +623,7 @@ appserver module NBHOOD {
             ht para
             ht put   "The following table shows the current laydown of "
             ht put   "manufacturing plants in $n and the agents that own "
-            ht putln "them along with their repair levels."
+            ht putln "them along with the average repair levels."
             ht para 
 
             ht query {
@@ -638,7 +644,9 @@ appserver module NBHOOD {
             ht put "
                 The manufacturing plants in this neighborhood are currently
                 producing [moneyfmt $capN] goods baskets annually.  This is
-                $pct% of the goods production capacity of the entire economy.
+                $pct% of the goods production capacity of the entire economy.  
+                This neighborhood has a production capacity factor of 
+                $econ(pcf).
             "
 
         }

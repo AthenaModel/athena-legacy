@@ -1071,33 +1071,13 @@ snit::type econ {
             array set out [cge get Out -bare]
             let CAPgoods $out(BQS.goods)
 
-            # NEXT, compute CCF.n, the capacity fraction for each neighborhood.
-            set sum 0.0
-
-            rdb eval {
-                SELECT nbhoods.n    AS n,
-                demog_n.labor_force AS labor_force, 
-                econ_n.pcf          AS pcf
-                FROM nbhoods
-                JOIN demog_n USING (n)
-                JOIN econ_n  USING (n)
-                WHERE local = 1
-            } {
-                set pcfs($n) $pcf
-                let cf($n) {$pcf * $labor_force}
-                let sum    {$sum + $cf($n)}
-            }
-
-            foreach n [array names cf] {
-                let cf($n) {$cf($n) / $sum}
-                let cap0 {$CAPgoods * $cf($n)}
-                let ccf {$cap0/$pcfs($n)}
+            foreach n [nbhood names] {
+                set cap0 [plant capacity n $n]
                 
                 rdb eval {
                     UPDATE econ_n
-                    SET ccf  = $ccf,
-                    cap0 = $cap0,
-                    cap  = $cap0
+                    SEt cap0 = $cap0,
+                        cap  = $cap0
                     WHERE n = $n
                 }
             }
@@ -1518,38 +1498,6 @@ snit::type econ {
     # a script of one or more commands that will undo the change.  When
     # change cannot be undone, the mutator returns the empty string.
 
-    # mutate update parmdict
-    #
-    # parmdict     A dictionary of order parms
-    #
-    #    n                Neighborhood ID
-    #    pcf              Production capacity factor for n
-    #
-    # Updates neighborhood economic inputs given the parms, which are 
-    # presumed to be valid.
-
-    typemethod {mutate update} {parmdict} {
-        # FIRST, use the dict
-        dict with parmdict {
-            # FIRST, get the undo information
-            set data [rdb grab econ_n {n=$n}]
-
-            # NEXT, Update the group
-            rdb eval {
-                UPDATE econ_n
-                SET pcf = nonempty($pcf, pcf)
-                WHERE n=$n;
-
-                UPDATE econ_n
-                SET cap = pcf*cap0
-                WHERE n=$n;
-            } {}
-
-            # NEXT, Return the undo command
-            return [list rdb ungrab $data]
-        }
-    }
-
     # mutate samcell parmdict
     #
     # parmdict   A dictionary of order parms
@@ -1800,85 +1748,6 @@ order define ECON:UPDATE:HIST {
     returnOnError -final
 
     setundo [econ mutate hist [array get parms]]
-}
-
-# ECON:UPDATE
-#
-# Updates existing neighborhood economic inputs
-
-order define ECON:UPDATE {
-    title "Update Neighborhood Economic Inputs"
-    options -sendstates {PREP PAUSED TACTIC}
-
-    form {
-        rcc "Neighborhood:" -for n
-        key n -table gui_econ_n -keys n \
-            -loadcmd {orderdialog keyload n *}
-
-        rcc "Prod. Capacity Factor" -for pcf
-        text pcf
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare n   -toupper  -required -type nbhood
-    prepare pcf -toupper  -num      -type rnonneg
-
-    returnOnError
-
-    # During PREP, the pcf is limited to the range 0.1 to 1.0.
-    if {[order state] eq "PREP"} {
-        validate pcf {
-            rpcf0 validate $parms(pcf)
-        }
-    }
-
-    returnOnError -final
-
-    # NEXT, modify the record
-    setundo [econ mutate update [array get parms]]
-}
-
-# ECON:UPDATE:MULTI
-#
-# Updates economic inputs for multiple existing neighborhoods
-
-
-order define ECON:UPDATE:MULTI {
-    title "Update Economic Inputs for Multiple Neighborhoods"
-    options -sendstates {PREP PAUSED}
-
-    form {
-        rcc "IDs:" -for ids
-        multi ids -table gui_econ_n -key n \
-            -loadcmd {orderdialog multiload ids *}
-
-        rcc "Prod. Capacity Factor" -for pcf
-        text pcf
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare ids -toupper  -required -listof nbhood
-    prepare pcf -toupper  -num      -type   rnonneg 
-
-    returnOnError
-
-    # During PREP, the pcf is limited to the range 0.1 to 1.0.
-    if {[order state] eq "PREP"} {
-        validate pcf {
-            rpcf0 validate $parms(pcf)
-        }
-    }
-
-    returnOnError -final
-
-    # NEXT, modify the records
-    set undo [list]
-
-    foreach parms(n) $parms(ids) {
-        lappend undo [econ mutate update [array get parms]]
-    }
-
-    setundo [join $undo \n]
 }
 
 # ECON:SAM:UPDATE 

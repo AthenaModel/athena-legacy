@@ -372,13 +372,6 @@ snit::widget appwin {
             script  { cgesheet %W }
         }
 
-        econcap {
-            label   "Capacity"
-            vistype simulation
-            parent  "econt"
-            script  { econcapbrowser %W }
-        }
-
         econexp {
             label   "Actors"
             vistype simulation
@@ -908,7 +901,6 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Economics" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu ECON:UPDATE
         $self AddOrder $submenu ECON:UPDATE:REMRATE
         $self AddOrder $submenu ECON:CGE:UPDATE
 
