@@ -27,12 +27,51 @@ enum eanyall {
 
 # Block/tactic execution status
 enumx create eexecstatus {
-    NONE            {text -           icon ::projectgui::icon::dash13      }
-    SKIPPED         {text Skipped     icon ::projectgui::icon::dash13      }
-    FAIL_TIME       {text Time        icon ::projectgui::icon::clock13r    }
-    FAIL_CONDITIONS {text Conditions  icon ::projectgui::icon::smthumbdn13 }
-    FAIL_RESOURCES  {text Resources   icon ::projectgui::icon::dollar13r   }
-    SUCCESS         {text Success     icon ::projectgui::icon::check13     }
+    NONE {
+        icon ::projectgui::icon::dash13      
+        btext "Unknown"
+        ttext "Unknown"
+    }
+    SKIP_BLOCK {
+        icon ::projectgui::icon::dash13      
+        btext "n/a"
+        ttext "The tactic's block did not execute."        
+    }
+    SKIP_STATE {
+        icon ::projectgui::icon::dash13      
+        btext "Skipped; the block is disabled or invalid."
+        ttext "Skipped; the tactic is disabled or invalid."     
+    }
+    SKIP_EMPTY {
+        icon ::projectgui::icon::dash13      
+        btext "Skipped; the block contains no tactics that could be executed."
+        ttext "n/a"
+    }
+    SKIP_LOCK {
+        icon ::projectgui::icon::dash13      
+        btext "Skipped; the block does not execute on lock."
+        ttext "Skipped; this tactic type does not execute on lock."
+    }
+    SKIP_TIME {
+        icon ::projectgui::icon::clock13r
+        btext "Skipped; the block's time constraints were not met."
+        ttext "n/a"
+    }
+    SKIP_CONDITIONS {
+        icon ::projectgui::icon::smthumbdn13
+        btext "Skipped; the block's conditions were not met."
+        ttext "n/a"
+    }
+    FAIL_RESOURCES {
+        icon ::projectgui::icon::dollar13r
+        btext "Failed due to insufficient resources for a required tactic."   
+        ttext "Failed due to insufficient resources."
+    }
+    SUCCESS {
+        icon ::projectgui::icon::check13     
+        btext "The block executed successfully."
+        ttext "The tactic executed successfully." 
+    }
 }
 
 # Resource Error Types
@@ -106,7 +145,7 @@ enum esector {
 enumx create ebeanstate {
     normal     {color black    font codefont       }
     disabled   {color #999999  font codefontstrike }
-    invalid    {color #FF0000  font codefontstrike }
+    invalid    {color #C7001B  font codefontstrike }
 }
 
 # Magic Input Mode

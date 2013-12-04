@@ -357,8 +357,16 @@ oo::define block {
     # Produces an HTML description of the block, in the buffer.
 
     method html {ht} {
+        # FIRST, add the header.  Its color and font should indicate
+        # the state.
         $ht putln "<span class=\"[my state]\">"
         $ht put "<b>Block [my id]:</b> "
+
+        if {[my state] eq "disabled"} {
+            $ht putln "<b>(Disabled)</b> "
+        } elseif {[my state] eq "invalid"} {
+            $ht putln "<b>(Invalid)</b> "
+        }
 
         if {[my get intent] ne ""} {
             $ht put "<b>[my get intent]</b>"
@@ -369,138 +377,203 @@ oo::define block {
 
         $ht para
 
-        if {[my state] eq "disabled"} {
-            $ht putln "<b>Disabled.</b> "
-        } elseif {[my state] eq "invalid"} {
-            $ht putln "<b>Invalid.</b> "
+        # NEXT, if we are locked show the execution status of this block.
+        if {[sim locked]} {
+            $ht putln "<b>Execution Status:</b> "
+            $ht put [eexecstatus as btext [my execstatus]]
+
+            $ht para
         }
 
+        # NEXT, major sections
+        my HtmlExecConstraints $ht
+        my HtmlConditions $ht
+        my HtmlTactics $ht
+
+        set etime [my get exectime]
+
+        if {$etime ne ""} {
+            set week [simclock toString $etime]
+
+            if {$etime == [simclock cget -tick0]} {
+                set tick "on lock"
+            } else {
+                set tick "tick $etime"
+            }
+            $ht tiny "Last executed: $week ($tick)"
+        }
+    }
+    
+    # HtmlExecConstraints ht
+    #
+    # ht   - An htools(n) buffer
+    #
+    # Adds the block's execution constraints to the buffer.
+
+    method HtmlExecConstraints {ht} {
+        $ht putln "<b>Execution Constraints:</b> "
+
+        $ht ul
+
         if {[my get onlock]} {
-            $ht putln {
+            $ht li-text {
                 The block will execute <b>on scenario lock</b>.
             }
         }
 
-        set tstring [my timestring]
+        $ht li {
+            set tstring [my timestring]
 
-        if {[llength [my conditions]] == 0} {
-            $ht putln "
-                The block will execute <b>$tstring</b>, 
-                resources permitting.
-            "
-        } else {
-            $ht putln "The block execute <b>$tstring</b> on which <b>"
-            $ht putln [string tolower [eanyall longname [my get cmode]]]
-            $ht putln "</b> the conditions are met, resources permitting."
+            $ht putln "The block is eligible to execute <b>$tstring</b>"
+
+            if {[llength [my conditions]] > 0} {
+                $ht put ", provided that <b>"
+                $ht putln [string tolower [eanyall longname [my get cmode]]]
+                $ht putln "</b> the conditions are met"
+            }
+
+            $ht put "."
         }
 
         if {[my get once]} {
-            $ht putln {
-                It will execute <b>at most once</b>, and will then 
+            $ht li-text {
+                The block can execute <b>at most once</b>, and will then 
                 be disabled.
             }
         }
 
         if {[my get emode] eq "ALL"} {
-            $ht putln {
-                Unless enough resources are available for <b>all</b> 
-                of the block's tactics, the block will not execute.
+            $ht li-text {
+                The block will fail to execute if there are 
+                insufficient resources available for <b>all</b> 
+                of the block's tactics.
             }
         } else {
-            $ht putln {
+            $ht li-text {
                 The block will execute as many of its tactics as
                 it can, in priority order, given current resources.
             }
         }
 
-        $ht para
+        $ht /ul
 
+        $ht para
+    }
+
+    # HtmlConditions ht
+    #
+    # ht   - An htools(n) buffer
+    #
+    # Adds the block's conditions to the buffer.
+
+    method HtmlConditions {ht} {
+        # FIRST, handle the empty case.
         if {[llength [my conditions]] == 0} {
             $ht putln "No conditions have been added to this block."
             $ht para
-        } else {
-            $ht putln "The conditions are as follows:"
-            $ht para
-
-            $ht putln "<table border=\"0\">"
-
-            foreach cond [my conditions] {
-                array set cdata [$cond view html]
-
-                $ht tr valign center {
-                    $ht td
-                    $ht image $cdata(statusicon)
-                    $ht /td
-
-                    $ht td left {
-                        $ht put "<span class=\"$cdata(state)\">"
-                        $ht put "($cdata(id)) "
-                        $ht put "$cdata(typename): $cdata(narrative)"
-                        $ht put "</span>"
-                    }
-                }
-            }
-            $ht /table
-            $ht para
+            return
         }
 
-        if {[llength [my tactics]] == 0} {
-            $ht putln {No tactics have been added to this block.}
-            $ht para
-        } else {
-            if {[my get emode] eq "ALL"} {
-                $ht putln {
-                    All of the following tactics must execute together
-                    or the block will not execute:
-                }
+
+        # NEXT, include a block of the conditions:
+        $ht putln "The conditions are as follows:"
+        $ht para
+
+        $ht putln "<table class=pretty cellpadding=5>"
+
+        $ht put "<tr class=header valign=bottom>"
+        $ht td center { $ht put "Status"    }
+        $ht td center { $ht put "ID"        }
+        $ht td left   { $ht put "Type"      }
+        $ht td left   { $ht put "Narrative" }
+        $ht /tr
+
+        set count 0
+        foreach bean [my conditions] {
+            array set data [$bean view html]
+
+            if {[incr count] % 2 == 1} {
+                set cls odd
             } else {
-                $ht putln {
-                    As many as possible of these tactics will execute,
-                    given current resources:
-                }
+                set cls even
             }
 
-            $ht para     
-
-            $ht putln "<table border=\"0\">"
-
-            foreach tactic [my tactics] {
-                array set tdata [$tactic view html]
-
-                $ht tr valign center {
-                    $ht td
-                    $ht image $tdata(statusicon)
-                    $ht /td
-
-                    $ht td left {
-                        $ht put "<span class=\"$tdata(state)\">"
-                        $ht put "($tdata(id)) "
-                        $ht put "$tdata(typename): $tdata(narrative)"
-                        $ht put "</span>"
-
-                        if {$tdata(failures) ne ""} {
-                            $ht putln "<span class=\"error\">"
-                            $ht putln $tdata(failures)
-                            $ht putln "</span>"
-                        }
-
-                    }
-                }
+            $ht put "<tr class=$cls valign=top>"
+            $ht td center { $ht image $data(statusicon) }
+            $ht td center { $ht put $data(id)           }
+            $ht td left   { $ht put $data(typename)     }
+            $ht td left {
+                $ht put "<span class=\"$data(state)\">"
+                $ht put $data(narrative)
+                $ht put "</span>"
             }
-            $ht /table
-            $ht para
-
-            set etime [my get exectime]
-
-            if {$etime ne ""} {
-                set week [simclock toString $etime]
-                $ht tiny "Last executed: $week (tick $etime)"
-            }
+            $ht /tr
         }
 
+        $ht /table
+        $ht para
     }
-    
-    
+
+    # HtmlTactics ht
+    #
+    # ht   - An htools(n) buffer
+    #
+    # Adds the block's tactics to the buffer.
+
+    method HtmlTactics {ht} {
+        # FIRST, handle the empty case.
+        if {[llength [my tactics]] == 0} {
+            $ht putln "No tactics have been added to this block."
+            $ht para
+            return
+        }
+
+
+        # NEXT, include a block of the tactics:
+        $ht putln "The tactics are as follows:"
+        $ht para
+
+        $ht putln "<table class=pretty cellpadding=5>"
+
+        $ht put "<tr class=header valign=bottom>"
+        $ht td center { $ht put "Status"    }
+        $ht td center { $ht put "ID"        }
+        $ht td left   { $ht put "Type"      }
+        $ht td left   { $ht put "Narrative" }
+        $ht /tr
+
+        set count 0
+        foreach bean [my tactics] {
+            array set data [$bean view html]
+
+            if {[incr count] % 2 == 1} {
+                set cls odd
+            } else {
+                set cls even
+            }
+
+            $ht put "<tr class=$cls valign=top>"
+            $ht td center { $ht image $data(statusicon) }
+            $ht td center { $ht put $data(id)           }
+            $ht td left   { $ht put $data(typename)     }
+            $ht td left {
+                $ht put "<span class=\"$data(state)\">"
+                $ht put $data(narrative)
+                $ht put "</span>"
+
+                if {$data(failures) ne ""} {
+                    $ht putln "<span class=\"error\">"
+                    $ht putln $data(failures)
+                    $ht putln "</span>"
+                }
+            }
+            $ht /tr
+        }
+
+        $ht /table
+        $ht para
+    }
+
 
     #-------------------------------------------------------------------
     # Operations
@@ -566,14 +639,7 @@ oo::define block {
     # Attempts to execute the block given the resources in the coffer.
     # On success, expended resources are deducted from the coffer.
     # The execstatus method returns an eexecstatus value indicating
-    # what happened:
-    #
-    # SKIPPED         - The block is empty, disabled, or was skipped
-    #                   on lock because its on-flag was false.
-    # FAIL_TIME       - The block's time constraints were not met.
-    # FAIL_CONDITIONS - The block's conditions were not met.
-    # FAIL_RESOURCES  - Insufficient resources were available.
-    # SUCCESS         - The block executed successfully.
+    # what happened; see eexecstatus in apptypes(sim) for details.
 
     method execute {coffer} {
         # FIRST, we don't know what the current execution status is.  Set
@@ -581,15 +647,15 @@ oo::define block {
         # a clue.
         my set execstatus NONE
 
-        # NEXT, mark all tactics as SKIPPED.  We'll update that later
+        # NEXT, mark all tactics as SKIP_BLOCK.  We'll update that later
         # if need be.
         foreach tactic $tactics {
-            $tactic set execstatus SKIPPED
+            $tactic set execstatus SKIP_BLOCK
         }
 
         # NEXT, skip if disabled
         if {[my state] ne "normal"} {
-            my set execstatus SKIPPED
+            my set execstatus SKIP_STATE
             return
         }
 
@@ -597,19 +663,19 @@ oo::define block {
         if {[strategy locking]} {
             # FIRST, skip if the block's not done on lock.
             if {!$onlock} {
-                my set execstatus SKIPPED
+                my set execstatus SKIP_LOCK
                 return
             }
         } else {
             # FIRST, check whether it's time.
             if {![my istime]} {
-                my set execstatus FAIL_TIME
+                my set execstatus SKIP_TIME
                 return
             }
 
             # NEXT, are the conditions met according to the cmode?
             if {![my AreConditionsMet]} {
-                my set execstatus FAIL_CONDITIONS
+                my set execstatus SKIP_CONDITIONS
                 return
             }
         }
@@ -617,7 +683,8 @@ oo::define block {
         # NEXT, get the tactics to execute
         set tacticsToExecute [my GetTactics $coffer]
 
-        # NEXT, if there are no tactics to execute, we've failed.
+        # NEXT, if there are no tactics to execute, we've failed;
+        # the execstatus was set in GetTactics.
         if {[llength $tacticsToExecute] == 0} {
             return
         }
@@ -687,11 +754,12 @@ oo::define block {
         # FIRST, obligate the required assets
         set tacticsToExecute [list]
 
-        my set execstatus SKIPPED
+        my set execstatus SKIP_EMPTY
 
         foreach tactic $tactics {
             # FIRST, skip disabled and invalid tactics
             if {[$tactic get state] ne "normal"} {
+                $tactic set execstatus SKIP_STATE
                 continue
             }
 
@@ -699,6 +767,7 @@ oo::define block {
             if {[strategy locking]} {
                 set ttype [info object class $tactic]
                 if {![$ttype onlock]} {
+                    $tactic set execstatus SKIP_LOCK
                     continue
                 }
             }

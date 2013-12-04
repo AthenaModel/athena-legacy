@@ -97,6 +97,7 @@ will bind to the given events, and reload its content when any of
 them is sent.<p>
 
 <<defopt {-shrink <i>flag</i>}>>
+<<defopt {-styles <i>css</i>}>>
 <<defopt {-zoom <i>factor</i>}>>
 
 These options are delegated to the underlying 

@@ -49,6 +49,7 @@ snit::widget ::projectgui::myhtmlpane {
     delegate option -shrink       to hv
     delegate option -zoom         to hv
     delegate option -hyperlinkcmd to hv
+    delegate option -styles       to hv
 
     delegate option -defaultserver to agent
 

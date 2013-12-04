@@ -337,6 +337,14 @@ snit::type sim {
         return $info(state)
     }
 
+    # locked
+    #
+    # Returns 1 if the simulation is locked, and 0 otherwise.
+
+    typemethod locked {} {
+        return [expr {$info(state) ne "PREP"}]
+    }
+
     # stoptime
     #
     # Returns the current stop time in ticks

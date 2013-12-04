@@ -234,7 +234,7 @@ namespace eval ::athena_test::tests:: {
         list $a $b $c
     } -cleanup {
         cleanup
-    } -result {FAIL_TIME SUCCESS {SIGEVENT: B2}}
+    } -result {SKIP_TIME SUCCESS {SIGEVENT: B2}}
 
     #-------------------------------------------------------------------
     # addblock_

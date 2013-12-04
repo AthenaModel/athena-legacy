@@ -933,7 +933,7 @@ namespace eval ::athena_test::tests:: {
         $BJOE execstatus
     } -cleanup {
         cleanup
-    } -result {SKIPPED}
+    } -result {SKIP_STATE}
  
     test execute-2.1 {SKIPPED on lock if onlock=0} -setup {
         setup -lock
@@ -945,7 +945,7 @@ namespace eval ::athena_test::tests:: {
         $BJOE execstatus
     } -cleanup {
         cleanup
-    } -result {SKIPPED}
+    } -result {SKIP_LOCK}
     
     test execute-2.2 {SKIPPED on lock if no tactics} -setup {
         setup -lock
@@ -956,7 +956,7 @@ namespace eval ::athena_test::tests:: {
         $BJOE execstatus
     } -cleanup {
         cleanup
-    } -result {SKIPPED}
+    } -result {SKIP_EMPTY}
     
     test execute-2.3 {SKIPPED on lock if no normal tactics} -setup {
         setup -lock
@@ -969,7 +969,7 @@ namespace eval ::athena_test::tests:: {
         list [$BJOE execstatus] [tstate]
     } -cleanup {
         cleanup
-    } -result {SKIPPED {6 SKIPPED}}
+    } -result {SKIP_EMPTY {6 SKIP_STATE}}
 
     test execute-2.4 {SKIPPED on lock if no onlock tactics} -setup {
         setup -lock
@@ -981,7 +981,7 @@ namespace eval ::athena_test::tests:: {
         list [$BJOE execstatus] [tstate]
     } -cleanup {
         cleanup
-    } -result {SKIPPED {6 SKIPPED}}
+    } -result {SKIP_EMPTY {6 SKIP_LOCK}}
 
     test execute-3.1 {SUCCESS on lock if normal with onlock tactic} -setup {
         setup -lock
@@ -994,9 +994,9 @@ namespace eval ::athena_test::tests:: {
         list [$BJOE execstatus] [tstate]
     } -cleanup {
         cleanup
-    } -result {SUCCESS {6 SKIPPED 7 SUCCESS}}
+    } -result {SUCCESS {6 SKIP_LOCK 7 SUCCESS}}
 
-     test execute-4.1 {FAIL_TIME if time constraint not met} -setup {
+     test execute-4.1 {SKIP_TIME if time constraint not met} -setup {
         setup -lock
     } -body {
         $BJOE set tmode AT
@@ -1005,7 +1005,7 @@ namespace eval ::athena_test::tests:: {
         $BJOE execstatus
     } -cleanup {
         cleanup
-    } -result {FAIL_TIME}
+    } -result {SKIP_TIME}
 
     test execute-5.1 {cmode ALL, not all are met} -setup {
         setup -lock
@@ -1024,7 +1024,7 @@ namespace eval ::athena_test::tests:: {
         $BJOE execstatus
     } -cleanup {
         cleanup
-    } -result {FAIL_CONDITIONS}
+    } -result {SKIP_CONDITIONS}
     
     test execute-5.2 {cmode ANY, none are met} -setup {
         setup -lock
@@ -1044,7 +1044,7 @@ namespace eval ::athena_test::tests:: {
         $BJOE execstatus
     } -cleanup {
         cleanup
-    } -result {FAIL_CONDITIONS}
+    } -result {SKIP_CONDITIONS}
     
     test execute-6.1 {cmode ALL, all are met} -setup {
         setup -lock
@@ -1138,7 +1138,7 @@ namespace eval ::athena_test::tests:: {
         list [$BJOE execstatus] [tstate]
     } -cleanup {
         cleanup
-    } -result {FAIL_RESOURCES {6 SKIPPED 7 FAIL_RESOURCES}}
+    } -result {FAIL_RESOURCES {6 SKIP_BLOCK 7 FAIL_RESOURCES}}
     
     test execute-7.2 {insufficient resources for 1, emode=SOME} -setup {
         setup -lock

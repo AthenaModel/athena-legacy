@@ -671,7 +671,7 @@ snit::widget strategybrowser {
                 { id              "ID"                              }
                 { statusicon      "Exec"     -align center          }
                 { state           "State"    -width 8               }
-                { intent          "Intent"   -width 50 -wrap yes    }
+                { intent          "Intent"   -width 30 -wrap yes    }
                 { timestring      "At Time"  -stretchable yes       }
                 { pretty_onlock   "On Lock?"                        }
                 { pretty_once     "Once?"                           }
