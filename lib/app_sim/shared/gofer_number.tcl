@@ -48,6 +48,7 @@ gofer define NUMBER "" {
             enumlong a -showkeys yes -dictcmd {::actor namedict}
 
             rc "in neighborhood"
+            rc
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
@@ -165,7 +166,7 @@ gofer rule NUMBER COOP {f g} {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "coop(\"$f\",\"$g\")"
+        return [format {coop("%s","%s")} $f $g]
     }
 
     typemethod eval {gdict} {
@@ -196,13 +197,12 @@ gofer rule NUMBER INFLUENCE {a n} {
         dict create \
             a [actor validate [string toupper $a]] \
             n [nbhood validate [string toupper $n]]
-
     }
 
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "influence(\"$a\",\"$n\")"
+        return [format {influence("%s","%s")} $a $n]
     }
 
     typemethod eval {gdict} {
@@ -236,7 +236,7 @@ gofer rule NUMBER MOOD {g} {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "mood(\"$g\")"
+        return [format {mood("%s")} $g]
     }
 
     typemethod eval {gdict} {
@@ -273,7 +273,7 @@ gofer rule NUMBER NBCOOP {n g} {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "nbcoop(\"$n\",\"$g\")"
+        return [format {nbcoop("%s","%s")} $n $g]
     }
 
     typemethod eval {gdict} {
@@ -307,7 +307,7 @@ gofer rule NUMBER NBMOOD {n} {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "nbmood(\"$n\")"
+        return [format {nbmood("%s")} $n]
     }
 
     typemethod eval {gdict} {
@@ -341,7 +341,7 @@ gofer rule NUMBER PCTCONTROL {alist} {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "pctcontrol(\"[join $alist \",\"]\")"
+        return [format {pctcontrol("%s")} [join $alist \",\"]]
     }
 
     typemethod eval {gdict} {
@@ -390,7 +390,7 @@ gofer rule NUMBER SAT {g c} {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "sat(\"$g\",\"$c\")"
+        return [format {sat("%s","%s")} $g $c]
     }
 
     typemethod eval {gdict} {
