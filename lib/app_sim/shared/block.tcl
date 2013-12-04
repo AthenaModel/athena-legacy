@@ -481,12 +481,12 @@ oo::define block {
 
         $ht putln "<table class=pretty cellpadding=5>"
 
-        $ht put "<tr class=header valign=bottom>"
-        $ht td center { $ht put "Status"    }
-        $ht td center { $ht put "ID"        }
-        $ht td left   { $ht put "Type"      }
-        $ht td left   { $ht put "Narrative" }
-        $ht /tr
+        $ht tr class header valign bottom {
+            $ht td center { $ht put "Status"    }
+            $ht td center { $ht put "ID"        }
+            $ht td left   { $ht put "Type"      }
+            $ht td left   { $ht put "Narrative" }
+        }
 
         set count 0
         foreach bean [my conditions] {
@@ -498,16 +498,16 @@ oo::define block {
                 set cls even
             }
 
-            $ht put "<tr class=$cls valign=top>"
-            $ht td center { $ht image $data(statusicon) }
-            $ht td center { $ht put $data(id)           }
-            $ht td left   { $ht put $data(typename)     }
-            $ht td left {
-                $ht put "<span class=\"$data(state)\">"
-                $ht put $data(narrative)
-                $ht put "</span>"
+            $ht tr class $cls valign top {
+                $ht td center { $ht image $data(statusicon) }
+                $ht td center { $ht put $data(id)           }
+                $ht td left   { $ht put $data(typename)     }
+                $ht td left {
+                    $ht put "<span class=\"$data(state)\">"
+                    $ht put $data(narrative)
+                    $ht put "</span>"
+                }
             }
-            $ht /tr
         }
 
         $ht /table
@@ -535,12 +535,12 @@ oo::define block {
 
         $ht putln "<table class=pretty cellpadding=5>"
 
-        $ht put "<tr class=header valign=bottom>"
-        $ht td center { $ht put "Status"    }
-        $ht td center { $ht put "ID"        }
-        $ht td left   { $ht put "Type"      }
-        $ht td left   { $ht put "Narrative" }
-        $ht /tr
+        $ht tr class header valign bottom {
+            $ht td center { $ht put "Status"    }
+            $ht td center { $ht put "ID"        }
+            $ht td left   { $ht put "Type"      }
+            $ht td left   { $ht put "Narrative" }
+        }
 
         set count 0
         foreach bean [my tactics] {
@@ -552,22 +552,22 @@ oo::define block {
                 set cls even
             }
 
-            $ht put "<tr class=$cls valign=top>"
-            $ht td center { $ht image $data(statusicon) }
-            $ht td center { $ht put $data(id)           }
-            $ht td left   { $ht put $data(typename)     }
-            $ht td left {
-                $ht put "<span class=\"$data(state)\">"
-                $ht put $data(narrative)
-                $ht put "</span>"
+            $ht tr class $cls valign top {
+                $ht td center { $ht image $data(statusicon) }
+                $ht td center { $ht put $data(id)           }
+                $ht td left   { $ht put $data(typename)     }
+                $ht td left {
+                    $ht put "<span class=\"$data(state)\">"
+                    $ht put $data(narrative)
+                    $ht put "</span>"
 
-                if {$data(failures) ne ""} {
-                    $ht putln "<span class=\"error\">"
-                    $ht putln $data(failures)
-                    $ht putln "</span>"
+                    if {$data(failures) ne ""} {
+                        $ht putln "<span class=\"error\">"
+                        $ht putln $data(failures)
+                        $ht putln "</span>"
+                    }
                 }
             }
-            $ht /tr
         }
 
         $ht /table
