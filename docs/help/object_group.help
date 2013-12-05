@@ -178,7 +178,7 @@ object group_frc {
         Examples include the regular army, the local police, and
         organized crime.  Force groups are owned by
         <<term actor>>s, who may use them to achieve their
-        <<term goal>>s.<p>
+        goals.<p>
 
         Force groups are created on the
         <<tab Groups/FrcGroups>> using the <<cref /order/frcgroup>>.
@@ -277,7 +277,7 @@ object group_org {
         Organizations (IGOs) such as UNESCO, and contractors such as
         Haliburton.  Organization groups are owned by
         <<term actor>>s, who may use them to achieve their
-        <<term goal>>s.<p>
+        goals.<p>
 
         Organization groups are created on the
         <<tab Groups/OrgGroups>> using the
@@ -331,3 +331,4 @@ page /object/group org "Organization Group" {
 
     <<group_org parmlist>>
 }
+

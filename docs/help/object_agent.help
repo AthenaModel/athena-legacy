@@ -20,7 +20,7 @@ page /object agent "Agent" {
     An agent is a <<cref /object "simulation object">> that can own a 
     <<term strategy>>: that is, it is an object that can execute
     <<term tactic>>s subject to certain <<term condition>>s to
-    achieve <<term goal>>s.<p>
+    achieve their goals.<p>
 
     Political <<term actor>>s are the primary kind of agent in
     Athena; actors have financial and personnel assets that they

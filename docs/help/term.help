@@ -143,6 +143,11 @@ term bgerror "bgerror" {
 
 #-----------------------------------------------------------------------
 
+alias /term block "block" /object/block
+
+
+#-----------------------------------------------------------------------
+
 term calibration "calibration" {
     Athena's models can be calibrated and adjusted by 
     tweaking Athena's <<cref /parmdb>>.  The model descriptions in the 
@@ -565,10 +570,6 @@ term filterbox "filter box" {
 #-----------------------------------------------------------------------
 
 alias /term frcgroup "force group" /object/group/frc
-
-#-----------------------------------------------------------------------
-
-alias /term goal "goal" /object/goal
 
 #-----------------------------------------------------------------------
 
@@ -1144,7 +1145,8 @@ term state "state" {
 term strategy "strategy" {
     An <<term actor>>'s <i>strategy</i> is the collection of 
     <<term tactic>>s he will use to achieve his 
-    <<term goal>>s, along with the set of <<term condition>>s
+    goals, collected in <<term block blocks>> with the set of 
+    <<term condition conditions>>
     under which he will use them.  The actor's strategy is
     browsed and edited on the <<tab Strategy>>.
 }

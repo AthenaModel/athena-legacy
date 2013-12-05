@@ -1137,52 +1137,6 @@ order define BLOCK:TACTIC:MOVE {
     setundo [$block movetactic_ $parms(tactic_id) $parms(where)]
 }
 
-# BLOCK:TACTIC:PASTE
-#
-# Pastes one or more tactics into the block.
-#
-# The order dialog is not usually used.
-
-order define BLOCK:TACTIC:PASTE {
-    title "Paste Tactics Into Block"
-
-    options -sendstates {PREP PAUSED}
-
-    form {
-        text block_id -context yes
-        text copysets
-    }
-} {
-    # FIRST, prepare and validate the parameters
-    prepare block_id -required -type block
-    prepare copysets
-
-    set block [block get $parms(block_id)]
-
-    returnOnError
-
-    # NEXT, verify that the copysets are all tactic copysets.
-    # TBD: bean should provide this check given superclass.
-    foreach cdict $parms(copysets) {
-        if {![dict exists $cdict class_]} {
-            reject copysets "Invalid copy set format"
-            returnOnError -final
-        }
-
-        set cls [dict get $cdict class_]
-
-        if {"::tactic" ni [info class superclasses $cls]} {
-            reject copysets "Copied object is not a tactic"
-            returnOnError -final
-        }
-    }
-
-    # NEXT, paste the tactics
-    setundo [$block pasteTactics_ $parms(copysets)]
-
-    return
-}
-
 
 # BLOCK:CONDITION:ADD
 #

@@ -20,7 +20,7 @@ page /object condition "Condition" {
     <<sotitle>>
 
     A <i>condition</i> a Boolean predicate that can be
-    attached to a <<term tactic>> or <<term goal>>.
+    attached to a <<term tactic>> or goal.
     Tactic conditions  determine whether the tactic should be used or
     not; goal conditions determine whether the goal is met or not.<p>
 
@@ -35,7 +35,7 @@ object condition_ {
 
     overview {
         A <i>condition</i> a Boolean predicate that can be
-        attached to a <<term tactic>> or <<term goal>>.
+        attached to a <<term tactic>> or goal.
         Tactic conditions  determine whether the tactic should be used or
         not; goal conditions determine whether the goal is met or not.<p>
     }
@@ -48,7 +48,7 @@ object condition_ {
     attribute cc_id "Tactic/Goal ID" {
         Every condition has a collection ID, an integer number that uniquely
         identifies the <<term tactic>> or 
-        <<term goal>> that owns the condition.
+        goal that owns the condition.
     }
 
     attribute owner "Owner" {
@@ -631,5 +631,6 @@ page /object/condition unmet "UNMET condition" {
 
     <<condition_unmet parmlist>>
 }
+
 
 

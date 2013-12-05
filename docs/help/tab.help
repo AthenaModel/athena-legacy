@@ -295,9 +295,9 @@ tab "Map" {
 
 tab "Strategy" {
     The Strategy tab is where the analyst browses and edits each
-    <<term agent>>'s <<term strategy>>: the agent's <<term goal>>s
-    and the collection of <<term tactic>>s the agent will use to 
-    achieve them.<p>
+    <<term agent>>'s <<term strategy>>.  A strategy consists of the 
+    collection of <<term tactic tactics>> the agent will use to 
+    achieve his goals, organized into <<term block blocks>>.<p>
 
     The Strategy tab shows the strategy for one agent at a time.  It
     consists of several panes, each with its own controls:<p>
@@ -305,166 +305,266 @@ tab "Strategy" {
     <ul>
     <li> <b>The Agent List</b>: A list of all of the agents in the
     simulation.  Selecting an agent in the list displays the agent's
-    strategy in the other panes.</li>
+    strategy in the other panes.<p>
 
-    <li> <b>The <<cref /tab/strategy/goals_tree>></b>: This pane shows
-    the agent's  
-    goals, along with all attached conditions.  A goal is deemed to be
-    met when all attached conditions are true.  The analyst creates,
-    edits, and browses goals in this pane.
-    </li>
+    <li> <b>The <<cref /tab/strategy/blocks>></b>: This pane shows
+    the blocks in the agent's strategy, with the block metadata.  The
+    analyst creates, edits, and browses blocks in this pane.<p>
 
-    <li> <b>The <<cref /tab/strategy/tactics_tree>></b>:  This pane
-    shows the agent's 
-    tactics in priority order, along with all attached conditions.
-    The analyst creates, edits, and browses tactics in this pane.</li>
+    <li> <b>The Overview Subtab</b>: This subtab shows
+        an overview of the current selected block, including all 
+        execution constraints, conditions, and tactics.  This is
+        the normal way to browse the block's details.<p>
 
+    <li> <b>The <<cref /tab/strategy/conditions>></b>: This subtab
+        shows the <<term condition conditions>> attached to the currently 
+        selected block.  The analyst creates and edits conditions in 
+        this subtab.<p>
+
+    <li> <b>The <<cref /tab/strategy/tactics>></b>: This subtab
+        shows the <<term tactic tactics>> attached to the currently 
+        selected block.  The analyst creates and edits tactics in 
+        this subtab.<p>
     </ul>
 }
 
-page /tab/strategy goals_tree "Goals Tree" {
+page /tab/strategy blocks "Blocks List" {
     <<title>>
 
-    The Goals Tree shows the <<term goal>>s currently defined for
-    the <<term agent>> shown in the Agent List, along with all
-    attached <<term condition>>s.  A goal is said to be "met" when
-    all of the attached conditions are met, and "unmet" otherwise.
-    The Goals Tree consists of a tool bar containing controls used in
-    creating, editing, and manipulating goals and conditions, and an 
-    outline view of the agent's goals with the conditions
-    attached to each goal indented underneath.  The user can expand
-    or collapse each goal to show or hide the attached
-    conditions.<p>
+    The Blocks list shows the <<term block blocks>> in the strategy
+    of the <<term agent>> shown in the Agent List.  The user can
+    add, delete, and add blocks; in addition, he can 
+    <b>cut and copy blocks</b>, and <b>paste blocks</b> into the 
+    Blocks List for any agent.<p>
 
-    <<topiclist Column Description>>
 
-    <<topic "Goal/Condition">>
-    A narrative description of each goal and condition, preceded by
-    a status icon that indicates whether or not the goal or condition is 
-    currently met.<p>
+    The following data is shown for each
+    block:<p>
 
-    A button at the left margin allows goals to be expanded to reveal
-    their attached conditions.
+    <<parmlist Column Description>>
+
+    <<block_ parm id         -label "ID">>
+    <<block_ parm execstatus -label "Exec">>
+    <<block_ parm state      -label "State">>
+    <<block_ parm intent     -label "Intent">>
+
+    <<topic "At Time">>
+    The block's time constraint: a statement of the time interval
+    during which the block can be considered for execution.
     <</topic>>
 
-    <<topic "Id">> The goal or condition ID, a number that uniquely
-    identifies the goal or condition.<p>
-    <</topic>>
+    <<block_ parm onlock     -label "On Lock?">>
+    <<block_ parm once       -label "Once?">>
+    <<block_ parm exectime   -label "Last">>
 
-    <<topic "Type">> For conditions, the condition type.<p>
-    <</topic>>
+    <</parmlist>>
 
-    <</topiclist>>
-
-    <b><a name="controls">Tree Controls:</a></b>  The tree's
+    <b><a name="controls">Block Controls:</a></b>  The Block List's
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
 
-    <<topic [image button_plusg]>>
-    Create a new goal.
-    <</topic>>
-
-    <<topic [image button_plusc]>>
-    Create a new condition for the currently selected goal.
+    <<topic [image button_plus]>>
+    Creates a new block.
     <</topic>>
 
     <<topic [image button_pencil]>>
-    Pops up the update dialog for the selected goal or condition.
+    Pops up the update dialog for the selected block.
     <</topic>>
 
     <<topic [image button_power]>>
-    Toggles the selected goal on and off.  Disabled goals are
-    grayed out with an overstrike.
+    Toggles the selected block's state from <b>normal</b> or
+    <b>invalid</b> to <b>disabled</b>, and back again.
     <</topic>>
 
-    <<topic [image button_checktxt]>>
-    Force a sanity check of the actors' strategies.
+    <<topic [image button_totop]>>
+    Gives the selected block top priority over all other blocks
+    for the selected agent.
+    <</topic>>
+
+    <<topic [image button_raise]>>
+    Raises the priority of the selected block by one notch, 
+    putting it just above its immediate predecessor.
+    <</topic>>
+
+    <<topic [image button_lower]>>
+    Lowers the priority of the selected block by one notch, 
+    putting it just below its immediate successor.
+    <</topic>>
+
+    <<topic [image button_tobottom]>>
+    Gives the selected block bottom priority below all other blocks
+    scheduled for the same agent.
     <</topic>>
 
     <<topic [image button_trash]>>
-    Deletes the selected goal or condition.
+    Deletes the selected block, with all of its attached conditions
+    and tactics.
+    <</topic>>
+
+    <<control.filterbox>>
+    <</topiclist>>
+
+    <b><a name="metadata">Block Metadata:</a></b> Below the list are 
+    several controls for setting the attributes of the currently
+    selected block:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic "On Lock">>
+    Click the check box to set or clear the block's "On Lock" flag.
+    <</topic>>
+
+    <<topic "Once Only">>
+    Click the check box to set or clear the block's "Once Only" flag.
+    <</topic>>
+
+    <<topic "Time Constraint">>
+    Press the clock icon to edit the block's time constraints.
+    <</topic>>
+    <</topiclist>>
+}
+
+page /tab/strategy conditions "Conditions Subtab" {
+    <<title>>
+
+    The Conditions Subtab shows the <<term condition>>s attached to the
+    currently selected <<term block>>.  It 
+    consists of a tool bar containing controls used in creating,
+    editing, and manipulating conditions, and a list of the 
+    conditions themselves.
+
+    The user can can 
+    <b>cut and copy conditions</b>, and <b>conditions tactic</b> into the 
+    Conditions list for any block belonging to any agent.<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "ID">>
+    The condition ID, an integer number that uniquely
+    identifies the condition.  It is assigned automatically when the
+    condition is created.
+    <</topic>>
+
+    <<topic "Flag">>
+    The condition's "met" flag, represented as one of the following
+    icons: TBD.
+    <</topic>>
+
+    <<topic "State">>
+    The condition's state, one of <b>normal</b>, <b>disabled</b>, or 
+    <b>invalid</b>.  A condition is <b>invalid</b> if it fails its
+    sanity check.  Invalid conditions must be fixed or 
+    disabled before the scenario can be locked.
+    <b>Disabled</b> conditions
+    are ignored when the owning agent's strategy is executed.
+    <</topic>>
+
+    <<topic "Narrative">>
+    A narrative description of the condition and its parameters.
+    <</topic>>
+
+    <<topic "Type">> The condition type.<p>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">condition Controls:</a></b>  The subtab's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic "WHEN">>
+    Use this pulldown to set the condition mode to <b>ALL</b> (All 
+    conditions are met) or to <b>ANY</b> (Any condition is met).
+    <</topic>>
+
+    <<topic [image button_plus]>>
+    Create a new condition.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the update dialog for the selected condition.
+    <</topic>>
+
+    <<topic [image button_power]>>
+    Toggles the selected condition's state from <b>normal</b> or
+    <b>invalid</b> to <b>disabled</b>, and back again.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Deletes the selected condition.
     <</topic>>
 
     <</topiclist>>
 }
 
-
-page /tab/strategy tactics_tree "Tactics Tree" {
+page /tab/strategy tactics "Tactics Subtab" {
     <<title>>
 
-    The Tactics Tree shows the <<term tactic>>s currently defined for
-    the <<term agent>> shown in the Agent List, along with all
-    attached <<term condition>>s.  It 
+    The Tactics Subtab shows the <<term tactic>>s attached to the
+    currently selected <<term block>>.  It 
     consists of a tool bar containing controls used in creating,
-    editing, and manipulating tactics and conditions, and an outline
-    view of the agent's tactics in priority order with the conditions
-    attached to each tactic indented underneath.  The user can expand
-    or collapse each tactic to show or hide the attached
-    conditions.<p>
+    editing, and manipulating tactics, and a list of the 
+    tactics themselves.
+
+    The user can can 
+    <b>cut and copy tactics</b>, and <b>paste tactic</b> into the 
+    Tactics list for any block belonging to any agent.<p>
 
     <<topiclist Column Description>>
 
-    <<topic "Tactic/Condition">>
-    A narrative description of each tactic and condition, preceded by
-    a status icon.  For tactics, the icon is a green checkmark if the
-    tactic was selected for execution at the last strategy execution
-    tock.  For conditions, the icon indicates whether or not the
-    condition was met at the last strategy execution tock.<p>
-
-    A button at the left margin allows tactics to be expanded to reveal
-    their attached conditions.
+    <<topic "ID">>
+    The tactic ID, an integer number that uniquely
+    identifies the tactic.  It is assigned automatically when the
+    tactic is created.
     <</topic>>
 
-    <<topic "Last Exec">>
-    <b>Tactics only.</b> The <<term jweek>> string at which the tactic last
-    executed.
+    <<topic "Exec">>
+    The tactic's execution status, represented as one of the following
+    icons: TBD.  On failures, see the Overview Subtab for just what
+    went wrong.
     <</topic>>
 
-    <<topic "Once?">>
-    <b>Tactics only.</b> Some tactics can be set to execute only once, 
-    e.g., <<cref /order/tactic/demob>>.  On execution, the tactic is
-    automatically disabled; the user must manually re-enable it before
-    it can execute again.  This column shows whether the tactic
-    is set to execute only once or not.
+    <<topic "State">>
+    The tactic's state, one of <b>normal</b>, <b>disabled</b>, or 
+    <b>invalid</b>.  A tactic is <b>invalid</b> if it fails its
+    sanity check.  Invalid tactics must be fixed or 
+    disabled before the scenario can be locked.
+    <b>Disabled</b> tactics
+    are ignored when the owning agent's strategy is executed.
     <</topic>>
 
-    <<topic "Exec On Lock?">>
-    <b>Tactics only.</b> The initial state of the simulation "on lock" is
-    determined by the set of tactics for which the "Exec On Lock" flag is
-    true.  These tactics are always executed on-lock; any attached conditions
-    or resource limitations are ignored.  After scenario lock, the "Exec On Lock" flag is ignored.
+    <<topic "Narrative">>
+    A narrative description of the tactic and its parameters.
     <</topic>>
 
-    <<topic "Est. $">> 
-    <b>Tactics only.</b> The estimated cost, in dollars, of executing the
-    tactic.  Note that the actual cost may differ.<p>
-    <</topic>>
-
-    <<topic "Id">> The tactic or condition ID, a number that uniquely
-    identifies the tactic or condition.<p>
-    <</topic>>
-
-    <<topic "Type">> The tactic or condition type.<p>
+    <<topic "Type">> The tactic type.<p>
     <</topic>>
 
     <</topiclist>>
 
-    <b><a name="controls">Tree Controls:</a></b>  The tree's
+    <b><a name="controls">Tactic Controls:</a></b>  The subtab's
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
 
-    <<topic [image button_plust]>>
+    <<topic "THEN execute">>
+    Use this pulldown to set the execution mode to <b>ALL</b> (All 
+    tactics or none) or to <b>SOME</b> (As many tactics as possible).
+    <</topic>>
+
+    <<topic [image button_plus]>>
     Create a new tactic.
     <</topic>>
 
-    <<topic [image button_plusc]>>
-    Create a new condition for the currently selected tactic.
+    <<topic [image button_pencil]>>
+    Pops up the update dialog for the selected tactic.
     <</topic>>
 
-    <<topic [image button_pencil]>>
-    Pops up the update dialog for the selected tactic or condition.
+    <<topic [image button_power]>>
+    Toggles the selected tactic's state from <b>normal</b> or
+    <b>invalid</b> to <b>disabled</b>, and back again.
     <</topic>>
 
     <<topic [image button_totop]>>
@@ -487,13 +587,8 @@ page /tab/strategy tactics_tree "Tactics Tree" {
     scheduled for the same agent.
     <</topic>>
 
-    <<topic [image button_power]>>
-    Toggles the selected tactic on and off.  Disabled tactics are
-    grayed out with an overstrike.
-    <</topic>>
-
     <<topic [image button_trash]>>
-    Deletes the selected tactic or condition.
+    Deletes the selected tactic.
     <</topic>>
 
     <</topiclist>>

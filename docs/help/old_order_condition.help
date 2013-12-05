@@ -21,7 +21,7 @@ page /order condition "Condition Orders" {
     <<title>>
 
     A <<term condition>> is a Boolean predicate that can be
-    attached to a <<term tactic>> or <<term goal>>.
+    attached to a <<term tactic>> or goal.
     There are many different types of condition, each of
     which has its own "CREATE" and "UPDATE" orders; other orders are
     shared by all condition types.<p>
@@ -546,4 +546,5 @@ order CONDITION:UNMET:UPDATE "Update Condition: Unmet" {
     <<condition_unmet parms -required -tags update>>
     <</parmlist>>
 }
+
 
