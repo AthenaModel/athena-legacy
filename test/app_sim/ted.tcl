@@ -66,6 +66,8 @@ snit::type ted {
         orggroups
         payloads
         personnel_g
+        plants_na
+        plants_shares
         rule_firings
         rule_inputs
         sigevents

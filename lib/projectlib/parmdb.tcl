@@ -1317,7 +1317,7 @@ snit::type ::projectlib::parmdb {
             for this expenditure class.
         }
 
-        foreach class {ASSIGN ATTROE BROADCAST DEPLOY FUNDENI} {
+        foreach class {ASSIGN ATTROE BROADCAST DEPLOY FUNDENI MAINTAIN} {
             $ps subset econ.shares.$class "
                 Allocations of expenditures to CGE sectors for the
                 $class expenditure class.  The allocations are
@@ -1362,6 +1362,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault econ.shares.FUNDENI.black     0
         $ps setdefault econ.shares.FUNDENI.region    0
         $ps setdefault econ.shares.FUNDENI.world     0
+        $ps setdefault econ.shares.MAINTAIN.goods    1 
+        $ps setdefault econ.shares.MAINTAIN.pop      3
+        $ps setdefault econ.shares.MAINTAIN.black    0
+        $ps setdefault econ.shares.MAINTAIN.region   0
+        $ps setdefault econ.shares.MAINTAIN.world    0
 
         # ensit.* parameters
         $ps subset ensit {
@@ -1792,6 +1797,38 @@ snit::type ::projectlib::parmdb {
             to the hist_vrel table.
         }
 
+
+        $ps subset plant {
+            Parameters which affect the manufacturing plant infrastructure
+            model.
+        }
+
+        $ps define plant.lifetime ::projectlib::iquantity 156 {
+            The lifetime in weeks of an unmaintained manufacturing plant.
+            The production of goods by manufacturing plants will degrade
+            to zero over this time span if no repair work is done.
+            Setting this parameter to zero will cause plant degradation
+            to be disabled.
+        }
+
+        $ps define plant.repairtime ::projectlib::iquantity 26 {
+            The time in weeks it takes to repair a manufacturing plant
+            from total disrepair to fully functional.  A plant in total
+            disrepair does not mean that it is destroyed, just that
+            it does not produce any goods.  Setting this parameter to
+            zero will bring the repair level of all plants to fully 
+            functional at the next tick.
+        }
+
+        $ps define plant.buildcost ::projectlib::money 1B {
+            The average cost to build a manufacturing plant from scratch.
+        }
+
+        $ps define plant.repairfrac ::projectlib::rfraction 0.001 {
+            The cost to repair a manufacturing plant from total disrepair
+            to fully functional expressed as a fraction of the cost to
+            build a plant from scratch.
+        }
 
         # NEXT, define rmf parameters
         $ps slave add [list ::simlib::rmf parm]

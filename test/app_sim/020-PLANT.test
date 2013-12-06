@@ -31,14 +31,14 @@ namespace eval ::athena_test::tests:: {
         n NB1
         a JOE
         rho 0.9
-        shares 2
+        num 2
     }
 
     set p2 {
         n NB1
         a BOB
         rho 0.8
-        shares 1 
+        num 1 
     }
 
     # Setup
@@ -90,10 +90,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-n       NB1
-a       JOE
-shares  2
-rho     0.9
+n    NB1
+a    JOE
+num  2
+rho  0.9
     }
 
     test CREATE-2.2 {Effects} -setup {
@@ -193,19 +193,19 @@ rho     0.9
         ted order PLANT:SHARES:CREATE $p1
     } -body {
         ted order PLANT:SHARES:UPDATE {
-            id           {NB1 JOE}
-            rho          0.5
-            shares       3
+            id        {NB1 JOE}
+            rho       0.5
+            num       3
         }
 
         ted querylist {SELECT * FROM plants_shares}
     } -cleanup {
         cleanup
     } -result {
-n       NB1
-a       JOE
-shares  3
-rho     0.5
+n    NB1
+a    JOE
+num  3
+rho  0.5
     }
 
     test UPDATE-2.2 {table monitor event} -setup {
@@ -261,7 +261,7 @@ rho     0.5
         ted order PLANT:SHARES:UPDATE:MULTI {
             ids          {{NB1 JOE}}
             rho          0.5
-            shares       3
+            num          3
         }
 
         ted notifier received
@@ -282,7 +282,7 @@ rho     0.5
         ted order PLANT:SHARES:UPDATE:MULTI {
             ids          {{NB1 JOE} {NB1 BOB}}
             rho          0.5
-            shares       1
+            num          1
         }
 
         ted notifier received
@@ -300,7 +300,7 @@ rho     0.5
         ted order PLANT:SHARES:UPDATE:MULTI {
             ids          {{NB1 JOE} {NB1 BOB}}
             rho          0.5
-            shares       1
+            num          1
         }
     } -body {
         ted notifier bind ::rdb <plants_shares>

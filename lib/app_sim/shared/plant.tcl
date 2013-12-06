@@ -57,7 +57,7 @@ snit::type plant {
         foreach n $nbhoods {
             if {![rdb exists {SELECT * FROM plants_shares WHERE n=$n}]} {
                 rdb eval {
-                    INSERT INTO plants_shares(n, a, shares, rho)
+                    INSERT INTO plants_shares(n, a, num, rho)
                     VALUES($n, 'SYSTEM', 1, 1.0);
                 }
             }
@@ -82,7 +82,7 @@ snit::type plant {
             FROM plants_shares;
         }
 
-        # NEXT, laydown plants to in neighborhoods
+        # NEXT, laydown plants in neighborhoods
         $type LaydownPlants
     }
 
@@ -121,7 +121,7 @@ snit::type plant {
             # NEXT, compute the total shares of plants in the 
             # neighborhood for all agents
             set tshares [rdb onecolumn {
-                SELECT total(shares) FROM plants_shares
+                SELECT total(num) FROM plants_shares
                 WHERE n=$n
             }]
 
@@ -133,11 +133,11 @@ snit::type plant {
             # the appropriate number of plants to each one based on 
             # shares and initial repair level
             rdb eval {
-                SELECT a, shares, rho FROM plants_shares
+                SELECT a, num, rho FROM plants_shares
                 WHERE n=$n
             } {
                 # The fraction of plants this agent gets
-                let afrac {double($shares) / double($tshares)}
+                let afrac {double($num) / double($tshares)}
 
                 # The number of plants this agent needs in this neighborhood
                 # to produce the number of baskets required if they were
@@ -146,6 +146,8 @@ snit::type plant {
 
                 # The actual number of plants given the repair level and
                 # that fractional plants do not exist
+                # Note: floor() could be used here, resulting in an increase
+                # to rho, but then that leaves the possiblity of a rho > 1.0
                 let actualPlantsNA {int(ceil($plantsNA/$rho))}
 
                 rdb eval {
@@ -164,6 +166,207 @@ snit::type plant {
                 }
             }
         }
+    }
+
+    #-----------------------------------------------------------------------
+    # Infrastructure degradation
+
+    # degrade
+    #
+    # This method applies a week's worth of degradation to all the plants
+    # not owned by the SYSTEM agent, which do not degrade and require no
+    # repair.  If plants owned by actors are not maintained via the 
+    # MAINTAIN tactic, they will produce less and less affecting the 
+    # capacity of the goods sector.
+
+    typemethod degrade {} {
+
+        # FIRST, get the plant lifetime
+        set lt [parmdb get plant.lifetime]
+
+        # NEXT, if the lifetime is zero, degradation is disabled
+        if {$lt == 0} {
+            return
+        }
+
+        # NEXT, the inverse of the lifetime is one weeks worth of 
+        # degradation
+        let deltaRho {1.0 / $lt}
+
+        # NEXT, degrade repair levels, making sure they do not go 
+        # negative
+        # NOTE: Plants owned by the SYSTEM do not degrade
+        rdb eval {
+            UPDATE plants_na
+            SET rho = max(rho - $deltaRho, 0.0)
+            WHERE a != 'SYSTEM'
+        }
+    }
+
+    #----------------------------------------------------------------------
+    # Infrastructure repair
+
+    # repaircost n a lvl
+    #
+    # n    - a neighborhood that contains manufacturing plants
+    # a    - an actor that owns some plants in n
+    # lvl  - the desired average level of repair
+    #
+    # This method computes the cost to repair all the plants owned by
+    # actor a in neighborhood n for one weeks worth of repair or to the
+    # requested level of repair, whichever is smaller.
+
+    typemethod repaircost {n a lvl} {
+
+        # FIRST get the number of plants and repair level 
+        set plist [rdb eval {
+                      SELECT num, rho 
+                      FROM plants_na
+                      WHERE n=$n AND a=$a
+              }]
+
+        if {[llength $plist] == 0} {
+            return 0.0
+        }
+
+        lassign $plist num rho
+
+        # NEXT, if the repair level is already over the desired level,
+        # no cost
+        if {$rho >= $lvl} {
+            return 0.0
+        }
+
+        # NEXT, retrieve parms
+        set bCost [money validate [parmdb get plant.buildcost]]
+        set rFrac [parmdb get plant.repairfrac]
+        set rTime [parmdb get plant.repairtime]
+
+        # NEXT, if repair time is zero no cost
+        if {$rTime == 0} {
+            return 0.0
+        }
+
+        # NEXT, determine the cost of repairing one plant in this
+        # neighborhood
+
+        # maximum delta of repair in one week
+        let maxdRho {1.0 / $rTime}
+
+        # maximum possible cost per plant per week
+        let maxCostPerWk {$bCost * $rFrac * $maxdRho}
+
+        # the delta rho requested, could be < max
+        let dRho {$lvl - $rho}
+
+        # if requested delta rho is less than max, reduce cost by their ratio
+        if {$dRho < $maxdRho} {
+            let maxCostPerWk {$maxCostPerWk * ($dRho / $maxdRho)}
+        }
+
+        # NEXT, multiply by number of plants to get total cost in this 
+        # neighborhood for the supplied actor
+        return [expr {$maxCostPerWk * $num}]
+    }
+
+    # repair a nlist amount level 
+    #
+    # a       - an actor that owns infrastructure
+    # nlist   - a list of nieghborhoods 
+    # amount  - the amount the actor spends on repair
+    # level   - the desired level of repair for the plants
+    #
+    # This method takes a single amount of money and allocates 
+    # it to the infrastructure plants owned by the actor based 
+    # upon the current level of repair and the desired level 
+    # of repair in each of the neighborhoods in which this
+    # actor owns infrastruture plants.   Since, in general, 
+    # the current level of repair is different for each neighborhood
+    # the desired level must be supplied to determine how much 
+    # money should be allocated to each neighborhood.
+
+    typemethod repair {a nlist amount level} {
+        # FIRST, if no money being spent, we're done
+        if {$amount == 0.0} {
+            return
+        }
+
+        # NEXT, initialize some variables
+        set Ancost [dict create]
+        set totCost 0.0
+
+        # NEXT, determine maximum repair cost per plant per week
+        set bCost [money validate [parmdb get plant.buildcost]]
+        set rFrac [parmdb get plant.repairfrac]
+        set rTime [parmdb get plant.repairtime]
+
+        # NEXT, if repair time is zero, nothing to do
+        if {$rTime == 0} {
+            return 
+        }
+
+        # NEXT, maximum delta rho in one week
+        let maxdRho {1.0 / $rTime}
+
+        # NEXT, the maximum possible cost per plant per week 
+        let maxCostPerWk {$bCost * $rFrac * $maxdRho}
+
+        # NEXT, accumulate actual max repair costs for allocation
+        set Atcost 0.0
+
+        foreach n $nlist {
+            set Acost [plant repaircost $n $a $level]
+            
+            let Atcost {$Atcost + $Acost}
+
+            dict set Ancost $n $Acost
+        }
+
+        # NEXT, no repair cost, nothing to do
+        # This should NOT happen
+        if {$Atcost == 0.0} {
+            return
+        }
+
+        # NEXT, allocate money based on actual costs and update repair
+        # level. 
+
+        dict for {n Acost} $Ancost {
+            let share {$Acost / $Atcost * $amount}
+
+            # Adjust max delta rho by the actual share allocated
+            rdb eval {
+                UPDATE plants_na
+                SET rho = rho + ($maxdRho * ($share / (num * $maxCostPerWk)))
+                WHERE n=$n AND a=$a
+            }
+        }
+    }
+
+    # get  id ?parm?
+    #
+    # id      ID {n a} of a record in the plants_na table
+    # parm    optional parm to retrieve from the record
+    #
+    # Returns the value of supplied parm from the requested record 
+    # or a dictionary of parm/value pairs for the entire record.
+
+    typemethod get {id {parm ""}} {
+        lassign $id n a
+
+        rdb eval {
+            SELECT * FROM plants_na
+            WHERE n=$n AND a=$a
+        } row {
+            if {$parm eq ""} {
+                unset row(*)
+                return [array get row]
+            } else {
+                return $row($parm)
+            }
+        }
+
+        return ""
     }
 
     # validate id
@@ -273,8 +476,8 @@ snit::type plant {
         dict with parmdict {}
 
         rdb eval {
-            INSERT INTO plants_shares(n, a, rho, shares)
-            VALUES($n, $a, $rho, $shares);
+            INSERT INTO plants_shares(n, a, rho, num)
+            VALUES($n, $a, $rho, $num);
         }
 
         return [list rdb delete plants_shares "n='$n' AND a='$a'"]
@@ -301,7 +504,7 @@ snit::type plant {
     # id       A neighborhood/agent pair corresponding to a record that 
     #          should already exist.
     # rho      A repair level, or ""
-    # shares   The number of shares owned by a in n, or ""
+    # num      The number of shares owned by a in n, or ""
     #
     # Updates a plant shares record in the database given the parms.
 
@@ -316,8 +519,8 @@ snit::type plant {
 
         rdb eval {
             UPDATE plants_shares
-            SET rho    = nullif(nonempty($rho, rho), ''),
-                shares = nullif(nonempty($shares, shares), '')
+            SET rho = nullif(nonempty($rho, rho), ''),
+                num = nullif(nonempty($num, num), '')
             WHERE n=$n AND a=$a
         } {}
         
@@ -370,15 +573,15 @@ order define PLANT:SHARES:CREATE {
         rcc "Initial Repair Frac:" -for rho
         frac rho -defvalue 1.0
 
-        rcc "Shares:" -for shares
-        text shares -defvalue 1
+        rcc "Shares:" -for num
+        text num -defvalue 1
     }
 } {
 
     prepare a      -toupper -required -type agent
     prepare n      -toupper -required -type nbhood
     prepare rho    -toupper           -type rfraction
-    prepare shares -toupper           -type iquantity
+    prepare num    -toupper           -type iquantity
 
     returnOnError
 
@@ -430,19 +633,19 @@ order define PLANT:SHARES:UPDATE {
         rcc "ID:" -for id
         key id -context yes -table gui_plants_na \
             -keys {n a} \
-            -loadcmd {orderdialog keyload id {rho shares}}
+            -loadcmd {orderdialog keyload id {rho num}}
 
         rcc "Initial Repair Frac:" -for rho
         frac rho 
 
-        rcc "Shares:" -for shares
-        text shares
+        rcc "Shares:" -for num
+        text num
     }
 } {
 
-    prepare id -required -type plant
-    prepare rho -toupper -type rfraction
-    prepare shares -toupper -type iquantity
+    prepare id  -required -type plant
+    prepare rho -toupper  -type rfraction
+    prepare num -toupper  -type iquantity
 
     returnOnError -final
 
@@ -469,14 +672,14 @@ order define PLANT:SHARES:UPDATE:MULTI {
         rcc "Initial Repair Frac:" -for rho
         frac rho 
 
-        rcc "Shares:" -for shares
-        text shares
+        rcc "Shares:" -for num
+        text num
     }
 } {
 
     prepare ids -required -listof plant
     prepare rho -toupper -type rfraction
-    prepare shares -toupper -type iquantity
+    prepare num -toupper -type iquantity
 
     returnOnError -final
 

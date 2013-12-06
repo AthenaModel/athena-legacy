@@ -1,4 +1,5 @@
-# Exporting  @ Mon Jun 17 12:23:50 PDT 2013
+# Written from Athena version 6.0.x
+# Exporting  @ Fri Dec 06 07:46:04 PST 2013
 send NBHOOD:CREATE -n CITY -longname {Capital City} -refpoint C66D46 -polygon {B74D40 D32C24 D60E06 C26E52}
 send NBHOOD:CREATE -n EL -longname Elitia -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
 send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller NONE -vtygain { 1.0} -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
@@ -104,3 +105,5 @@ send INJECT:SAT:CREATE -curse_id FLOOD -longname {Flood in Peonia} -gtype EXISTI
 send INJECT:VREL:CREATE -curse_id FLOOD -longname {Flood in Peonia} -gtype EXISTING -g @GRP1 -a ACT1 -mag -8.0
 send CURSE:CREATE -curse_id FIRE -longname {Fire in Elitia} -s 1.00 -p 0.20 -q 0.05
 send INJECT:SAT:CREATE -curse_id FIRE -longname {Fire in Elitia} -gtype EXISTING -g @CIVGRP2 -c QOL -mag -10.5
+send PLANT:SHARES:CREATE -a GOV -n CITY -rho 1.00
+send PLANT:SHARES:CREATE -a GOV -n EL -rho 1.00

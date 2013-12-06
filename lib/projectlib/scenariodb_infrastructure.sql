@@ -48,9 +48,9 @@ CREATE TABLE plants_shares (
     -- Agent ID, can be actor ID or 'SYSTEM'
     a               TEXT,
 
-    -- The shares of total number of plants in the nbhood that the
+    -- The number of shares of plants in the nbhood that the
     -- agent owns
-    shares          INTEGER DEFAULT 1,
+    num             INTEGER DEFAULT 1,
 
     -- Average repair level of all plants in operation by agent a in
     -- nbhood n. The defaul level is fully repaired.

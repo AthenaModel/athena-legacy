@@ -248,7 +248,7 @@ SELECT PS.n || ' ' || PS.a                     AS id,
        PS.a                                    AS a,
        coalesce(A.longlink,PN.a)               AS alink,
        format('%.2f', coalesce(PN.rho,PS.rho)) AS rho,
-       coalesce(PN.num,PS.shares)              AS quant
+       coalesce(PN.num,PS.num)                 AS num
 FROM plants_shares         AS PS
 JOIN gui_nbhoods           AS N  ON (PS.N=N.n)
 LEFT OUTER JOIN gui_actors AS A  ON (PS.a=A.a)

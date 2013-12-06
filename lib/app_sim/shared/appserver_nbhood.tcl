@@ -164,10 +164,10 @@ appserver module NBHOOD {
             ht para 
 
             ht query {
-                SELECT nlink         AS "Neighborhood",
-                       alink         AS "Agent",
-                       quant         AS "Owned Plants",
-                       rho           AS "Average Repair Level"
+                SELECT nlink    AS "Neighborhood",
+                       alink    AS "Agent",
+                       num      AS "Owned Plants",
+                       rho      AS "Average Repair Level"
                 FROM gui_plants_na
                 ORDER BY nlink
             } -default "None." -align LLLL
@@ -627,10 +627,10 @@ appserver module NBHOOD {
             ht para 
 
             ht query {
-                SELECT nlink         AS "Neighborhood",
-                       alink         AS "Agent",
-                       quant         AS "Owned Plants",
-                       rho           AS "Average Repair Level"
+                SELECT nlink    AS "Neighborhood",
+                       alink    AS "Agent",
+                       num      AS "Owned Plants",
+                       rho      AS "Average Repair Level"
                 FROM gui_plants_na
                 WHERE n=$n
             } -default "None." -align LLLL

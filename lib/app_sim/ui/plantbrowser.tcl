@@ -32,8 +32,8 @@ snit::widgetadaptor plantbrowser {
     typevariable layout {
         { n      "Neighborhood"                                    }
         { a      "Owning Agent"                                    }
-        { rho    "Average Repair Level"          -sortmode real    }
-        { quant  "Share of Manufacturing Plants" -sortmode integer }
+        { rho    "Average Repair Level"           -sortmode real    }
+        { num    "Shares of Manufacturing Plants" -sortmode integer }
     }
 
     #-------------------------------------------------------------------

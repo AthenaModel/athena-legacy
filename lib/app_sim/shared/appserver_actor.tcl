@@ -96,13 +96,13 @@ appserver module ACTOR {
             ht para
 
             set totplants [rdb onecolumn {
-                SELECT total(quant) FROM gui_plants_na
+                SELECT total(num) FROM gui_plants_na
             }]
 
             ht query {
                 SELECT alink         AS "Agent",
                        nlink         AS "Neighborhood",
-                       quant         AS "Owned Plants",
+                       num           AS "Owned Plants",
                        rho           AS "Average Repair Level"
                 FROM gui_plants_na
                 WHERE a != 'SYSTEM'
@@ -110,7 +110,7 @@ appserver module ACTOR {
             } -default "None." -align LLLL
 
             set sysplants [rdb onecolumn {
-                SELECT sum(quant) FROM gui_plants_na
+                SELECT sum(num) FROM gui_plants_na
                 WHERE a='SYSTEM'
             }]
 
@@ -383,7 +383,7 @@ appserver module ACTOR {
 
             ht query {
                 SELECT nlink   AS "Neighborhood",
-                       quant   AS "Shares",
+                       num     AS "Shares",
                        rho     AS "Initial Repair Level"
                 FROM gui_plants_na
                 WHERE a=$a
@@ -401,9 +401,9 @@ appserver module ACTOR {
             ht para
 
             ht query  {
-                SELECT nlink     AS "Neighborhood",
-                       quant     AS "Owned Plants",
-                       rho       AS "Average Repair Level"
+                SELECT nlink  AS "Neighborhood",
+                       num    AS "Owned Plants",
+                       rho    AS "Average Repair Level"
                 FROM gui_plants_na
                 WHERE a=$a
                 ORDER BY nlink

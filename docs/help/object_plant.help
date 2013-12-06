@@ -51,7 +51,7 @@ object plant_ {
         that uniquely identifies the definition of shares.
     } 
 
-    attribute shares "Number of Shares" {
+    attribute num "Number of Shares" {
         The number of shares that should be owned by the agent in the
         neighborhood.  If the production capacity of the neighborhood is
         zero, then no plants will be allocated to the agent in this
