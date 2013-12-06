@@ -11,6 +11,33 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.7, 6 December 2013</h3>
+
+This build has some quite notable new functionality.  The second part of
+the manufacturing infrastructure has been implemented.  This means that
+the infrastructure now degrades with time if the new MAINTAIN tactic is not
+used by an actor to keep it from going into disrepair.  Note that you can
+disable the degradation of infrastructure (and thus the need to MAINTAIN it)
+by not allocating any of it to actors and let the SYSTEM agent own it all.
+The economic model will be impacted if the infrastructure is allowed to degrade
+too far.  Cut/Copy/Paste is implemented for Blocks, Conditions and Tactics!
+This means that you can cut and copy any part (or all) of one actors strategy
+and paste it.  Once pasted, editing can then take place to
+make possibly invalid blocks valid.<p>
+
+<ul>
+<li> Bug 4248: athena(1): remove econ.idleFrac from application
+<li> Bug 4250: athena(1): remove econcapbrowser(n) from application
+<li> Bug 4260: athena(1): Manufacturing Plant Infrastructure, part II
+<li> Bug 4247: athena(1): Implement needed gopher::NUMBER rule "security" and update it's executive function.
+<li> Bug 4244: athena(1): Tactic Cut/Copy/Paste
+<li> Bug 4249: athena(1): Condition Cut/Copy/Paste
+<li> Bug 4251: athena(1): Block cut/copy/paste
+<li> Bug 4252: athena(1): Modify existing gofer::NUMBER rules to use neat formatting
+<li> Bug 4259: athena(1): Mark II Strategy help pages
+<li> Bug 4261: athena(1): STRATEGY:* help pages
+</ul><p>
+
 <h3>Build 6.0.6, 2 December 2013</h3>
 
 This build contains the first part of the manufacturing infrastructure model.
