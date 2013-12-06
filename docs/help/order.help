@@ -126,6 +126,7 @@ include order_payload.help
 include order_sat.help
 include order_hook.help       ;# Sort as "Semantic Hook"
 include order_sim.help
+include order_strategy.help
 include order_tactic.help
 include order_unit.help
 include order_vrel.help
