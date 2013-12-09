@@ -175,9 +175,10 @@ term capacity "capacity" {
     Usually when we speak of capacity, however, we mean the
     capacity of the <b>goods</b> sector: the ability of the economy 
     to produce goods and services.  This capacity is set when the
-    scenario is locked and can then be increased or decreased 
-    <<term nbhood>> by neighborhood by setting the Production 
-    Capacity Factor (PCF) on the <<tab Econ/Capacity>>.
+    scenario is locked and then increases or decreases depending
+    on how the <<term plant>> infrastructure is maintained by the 
+    <<term actor>>s that own them.  Allocation of infrastructure to
+    actors is done on the <<tab Neighborhoods/Manufacturing Plants>>.
 }
 
 #-----------------------------------------------------------------------

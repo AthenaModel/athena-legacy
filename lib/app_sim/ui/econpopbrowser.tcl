@@ -94,23 +94,6 @@ snit::widgetadaptor econpopbrowser {
                 [list nbhood $n]
         }
     }
-
-
-    # EditSelected
-    #
-    # Called when the user wants to edit the selected entity
-
-    method EditSelected {} {
-        set ids [$hull uid curselection]
-
-        if {[llength $ids] == 1} {
-            set id [lindex $ids 0]
-
-            order enter ECON:UPDATE n $id
-        } else {
-            order enter ECON:UPDATE:MULTI ids $ids
-        }
-    }
 }
 
 

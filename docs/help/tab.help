@@ -2897,57 +2897,6 @@ tab "Econ/Overview" {
     Unemployment.<p>
 }
 
-tab "Econ/Capacity" {
-    <b>Simulation Mode only.</b><p>
-
-    This tab displays the production capacity statistics for
-    each local neighborhood.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic ID>>A neighborhood ID.<</topic>>
-
-    <<topic "Neighborhood">>The neighborhood's long name.
-    <</topic>>
-
-    <<topic Urbanization>>The <<term urbanization>> of the neighborhood.
-    <</topic>>
-    
-    <<topic "Prod. Cap.">>The neighborhood's production capacity
-    factor, or PCF.
-    The production capacity of the neighborhood can be increased or
-    decreased by changing this number, which is nominally 1.0.
-    <</topic>>
-
-    <<topic "Cap. Cal.">>The capacity calibration factor, or CCF.
-    This figure represents the maximum capacity of the neighborhood at time 0,
-    in goods baskets, given the PCF at time 0.
-    <</topic>>
-
-    <<topic "Cap at T0">>The actual production capacity at time 0, in 
-    goods baskets, given the PCF at time 0.
-    <</topic>>
-
-    <<topic "Cap Now">>The current production capacity, in goods baskets.
-    <</topic>>
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    Pops up the <<cref /order/econ/update>> or <<cref /order/econ/update:multi>> dialog for
-    the selected neighborhood(s).
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
 tab "Econ/Actors" {
     <b>Simulation Mode only.</b><p>
 
