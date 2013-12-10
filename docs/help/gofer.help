@@ -2044,6 +2044,31 @@ gofer_rule NUMBER NBMOOD "nbmood(n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER NBSUPPORT "nbsupport(a,n)" {
+    Returns the support for <<term actor>> <i>a</i> in 
+    <<term nbhood>> <i>n</i> as a number between 
+    -100.0 and 100.0.<p>
+    
+    <<itemlist>>
+    <<gofer.details a JOE n N1>>
+    <<gofer.function nbsupport {"JOE","N1"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER PCTCONTROL "pctcontrol(a,...)" {
     Returns the percentage of the <<term nbhood>>s in the playbox that
     are controlled by one of the listed <<term actor>>s,
@@ -2110,6 +2135,61 @@ gofer_rule NUMBER SECURITY "security(g,n)" {
 
     <<topic <tt><i>n</i></tt> >>
     ID of a <<term nbhood>>:<p>
+    <</topic>>
 
+    <</topiclist>>
+}
+
+gofer_rule NUMBER SUPPORT_CIV "support(a,g)" {
+    Returns the support for <<term actor>> <i>a</i> by
+    <<term civgroup>> <i>g</i> as a number between 
+    -100.0 and 100.0.<p>
+    
+    <<itemlist>>
+    <<gofer.details a JOE g SHIA>>
+    <<gofer.function nbsupport {"JOE","SHIA"}>>
+    <</itemlist>><p>
+    
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+    
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+    
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term civgroup>>.
+    <</topic>>
+    
+    <</topiclist>>
+}
+
+gofer_rule NUMBER SUPPORT "support(a,g,n)" {
+    Returns the support for <<term actor>> <i>a</i>  by
+    <<term group>> <i>g</i> in <<term nbhood>> <i>n</i> 
+    as a number between -100.0 and 100.0.<p>
+    
+    <<itemlist>>
+    <<gofer.details a JOE g SHIA n N1>>
+    <<gofer.function support {"JOE","SHIA","N1"}>>
+    <</itemlist>><p>
+    
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+    
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+    
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term group>>.
+    <</topic>>
+    
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+    
     <</topiclist>>
 }

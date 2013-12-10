@@ -82,7 +82,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {45.0}
 
-
     #-------------------------------------------------------------------
     # Rule: COOP
 
@@ -349,6 +348,58 @@ namespace eval ::athena_test::tests:: {
     } -result {25.0}
 
     #-------------------------------------------------------------------
+    # Rule: NBSUPPORT
+
+    test NBSUPPORT-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBSUPPORT construct JOE NB1
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test NBSUPPORT-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBSUPPORT validate {a joe n nb1}
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test NBSUPPORT-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBSUPPORT validate {a NONESUCH n NB1}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test NBSUPPORT-2.3 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBSUPPORT validate {a JOE n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBSUPPORT-3.1 {narrative} -body {
+        ::gofer::NUMBER::NBSUPPORT narrative {a JOE n NB1}
+    } -result {nbsupport("JOE","NB1")}
+
+    test NBSUPPORT-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NBSUPPORT eval {a JOE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
     # Rule: PCTCONTROL
 
     test PCTCONTROL-1.1 {construct, valid} -setup {
@@ -474,7 +525,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {Invalid group,*}
 
-    test SECURITY-2.3 {validate, invalid c} -setup {
+    test SECURITY-2.3 {validate, invalid n} -setup {
         setup
     } -body {
         ::gofer::NUMBER::SECURITY validate {g SHIA n NONESUCH}
@@ -482,7 +533,7 @@ namespace eval ::athena_test::tests:: {
         error
     } -cleanup {
         cleanup
-    } -match glob -result {Invalid neighborhood, should be one of: NB1, NB2}
+    } -match glob -result {Invalid neighborhood,*}
 
     test SECURITY-3.1 {narrative} -body {
         ::gofer::NUMBER::SECURITY narrative {g SHIA n NB1}
@@ -497,6 +548,120 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {31}
+
+    #-------------------------------------------------------------------
+    # Rule: SUPPORT_CIV
+
+    test SUPPORT_CIV-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT_CIV construct JOE SUNN
+    } -cleanup {
+        cleanup
+    } -result {a JOE g SUNN}
+
+    test SUPPORT_CIV-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT_CIV validate {a joe g sunn}
+    } -cleanup {
+        cleanup
+    } -result {a JOE g SUNN}
+
+    test SUPPORT_CIV-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT_CIV validate {a NONESUCH g SUNN}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test SUPPORT_CIV-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT_CIV validate {a JOE g NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test SUPPORT_CIV-3.1 {narrative} -body {
+        ::gofer::NUMBER::SUPPORT_CIV narrative {a JOE g SUNN}
+    } -result {support("JOE","SUNN")}
+
+    test SUPPORT_CIV-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::SUPPORT_CIV eval {a JOE g SUNN}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
+    # Rule: SUPPORT
+
+    test SUPPORT-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT construct JOE BLUE NB1
+    } -cleanup {
+        cleanup
+    } -result {a JOE g BLUE n NB1}
+
+    test SUPPORT-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT validate {a joe g blue n nb1}
+    } -cleanup {
+        cleanup
+    } -result {a JOE g BLUE n NB1}
+
+    test SUPPORT-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT validate {a NONESUCH g BLUE n NB1}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test SUPPORT-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT validate {a JOE g NONESUCH n NB1}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group,*}
+
+    test SUPPORT-2.4 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SUPPORT validate {a JOE g BLUE n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test SUPPORT-3.1 {narrative} -body {
+        ::gofer::NUMBER::SUPPORT narrative {a JOE g BLUE n NB1}
+    } -result {support("JOE","BLUE","NB1")}
+
+    test SUPPORT-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::SUPPORT eval {a JOE g BLUE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
 
     #-------------------------------------------------------------------
     # Cleanup

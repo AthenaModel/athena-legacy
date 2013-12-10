@@ -77,6 +77,17 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case NBSUPPORT "nbsupport(a,n)" {
+            rc
+            rc "Support of actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+            
+            rc "in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}    
+        }
+
         case PCTCONTROL "pctcontrol(a,...)" {
             rc 
             rc "Percentage of neighborhood controlled by these actors"
@@ -105,6 +116,32 @@ gofer define NUMBER "" {
             rc "in neighborhood"
             rc
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}            
+        }
+
+        case SUPPORT_CIV "support(a,g)" {
+            rc
+            rc "Support for actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+            
+            rc "by group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::civgroup namedict}
+        }
+
+        case SUPPORT "support(a,g,n)" {
+            rc
+            rc "Support for actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+            
+            rc "by group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::group namedict}
+            
+            rc "in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}    
         }
     }
 }
@@ -323,6 +360,42 @@ gofer rule NUMBER NBMOOD {n} {
     }
 }
 
+# Rule: NBSUPPORT
+#
+# nbsupport(a,n)
+
+gofer rule NUMBER NBSUPPORT {a n} {
+    typemethod construct {a n} {
+        return [$type validate [dict create a $a n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]] \
+            n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {nbsupport("%s","%s")} $a $n]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT support FROM influence_na WHERE n=$n AND a=$a
+        } {
+            return [format %.2f $support]
+        }
+
+        return 0.00
+    }
+}
+
 # Rule: PCTCONTROL
 #
 # pctcontrol(a,...)
@@ -440,5 +513,78 @@ gofer rule NUMBER SECURITY {g n} {
         }
 
         return 0
+    }
+}
+
+# Rule: SUPPORT_CIV
+#
+# support(a,g)
+
+gofer rule NUMBER SUPPORT_CIV {a g} {
+    typemethod construct {a g} {
+        return [$type validate [dict create a $a g $g]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]] \
+            g [civgroup validate [string toupper $g]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {support("%s","%s")} $a $g]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT support FROM support_nga WHERE g=$g AND a=$a
+        } {
+            return [format %.2f $support]
+        }
+
+        return 0.00
+    }
+}
+
+# Rule: SUPPORT
+#
+# support(a,g,n)
+
+gofer rule NUMBER SUPPORT {a g n} {
+    typemethod construct {a g n} {
+        return [$type validate [dict create a $a g $g n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]] \
+            g [group validate [string toupper $g]] \
+            n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {support("%s","%s","%s")} $a $g $n]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT support FROM support_nga WHERE n=$n AND g=$g AND a=$a
+        } {
+            return [format %.2f $support]
+        }
+
+        return 0.00
     }
 }

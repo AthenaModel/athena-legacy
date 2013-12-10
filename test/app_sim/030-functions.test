@@ -306,6 +306,43 @@ namespace eval ::athena_test::tests:: {
     } -result {-1.5}
 
     #-------------------------------------------------------------------
+    # nbsupport()
+
+    test nbsupport-1.1 {invalid neighborhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr nbsupport("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test nbsupport-1.2 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr nbsupport("NONESUCH","NB1")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test nbsupport-1.3 {no data} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr nbsupport("JOE","NB1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+
+    test nbsupport-2.1 {get data} -setup {
+        ted create NB1 JOE BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr nbsupport("joe","nb1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # now()
 
     test now-1.1 {get data} -body {
@@ -482,36 +519,76 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # support()
 
-    test support-1.1 {invalid neighborhood} -setup {
-        ted create NB1 JOE
+    test support-1.1 {invalid actor SUPPORT} -setup {
+        ted create NB1 BLUE JOE
     } -body {
-        ted sendex -error expr support("NONESUCH","JOE")
-    } -cleanup {
-        cleanup
-    } -result {Invalid neighborhood, should be one of: NB1}
-
-    test support-1.2 {invalid actor} -setup {
-        ted create NB1 JOE
-    } -body {
-        ted sendex -error expr support("NB1","NONESUCH")
+        ted sendex -error expr support("NONESUCH","BLUE","NB1")
     } -cleanup {
         cleanup
     } -result {Invalid actor, should be one of: JOE}
 
-    test support-1.3 {no data} -setup {
-        ted create NB1 JOE
+    test support-1.2 {invalid group SUPPORT} -setup {
+        ted create NB1 BLUE JOE
     } -body {
-        ted sendex -error expr support("NB1","JOE")
+        ted sendex -error expr support("JOE","NONESUCH","NB1")
     } -cleanup {
         cleanup
-    } -result {support not yet computed}
+    } -result {Invalid group, should be one of: BLUE}
 
+    test support-1.3 {invalid neighborhood SUPPORT} -setup {
+        ted create NB1 BLUE JOE
+    } -body {
+        ted sendex -error expr support("JOE","BLUE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
 
-    test support-2.1 {get data} -setup {
+    test support-1.4 {invalid actor SUPPORT_CIV} -setup {
+        ted create NB1 SUNN JOE
+    } -body {
+        ted sendex -error expr support("NONESUCH","SUNN")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test support-1.5 {invalid civgroup SUPPORT_CIV} -setup {
+        ted create NB1 SUNN JOE
+    } -body {
+        ted sendex -error expr support("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SUNN}
+
+    test support-1.6 {no data support} -setup {
+        ted create NB1 BLUE JOE
+    } -body {
+        ted sendex expr support("JOE","BLUE","NB1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test support-1.7 {no data civsupport} -setup {
+        ted create SUNN JOE
+    } -body {
+        ted sendex expr support("JOE","SUNN")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test support-2.1 {get data support} -setup {
         ted create NB1 JOE BLUE SUNN
         ted lock
     } -body {
-        ted sendex expr support("nb1","joe")
+        ted sendex expr support("joe","blue","nb1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test support-2.2 {get data support_civ} -setup {
+        ted create NB1 JOE BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr support("joe","sunn")
     } -cleanup {
         cleanup
     } -result {0.0}

@@ -168,6 +168,20 @@ function "nbmood(n)" {
 }
 
 #=======================================================================
+# nbsupport
+
+function "nbsupport(a,n)" {
+    Returns the support for <<term actor>> <i>a</i>  in 
+    <<term nbhood>> <i>n</i> as a number between 
+    -100.0 and 100.0.<p>
+
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nbsupport>> rule.
+}
+
+#=======================================================================
 # now
 
 function "now()" {
@@ -229,15 +243,26 @@ function security(g,n) {
     <<cref /gofer/number/security>> rule.
 }
 
-#=======================================================================
+#=====================================================================
 # support
 
-function support(n,a) {
-    Returns the support of <<term nbhood>> <i>n</i> for 
-    <<term actor>> <i>a</i> as a number between 0.0 and 1.0.<p>
-
-    Support is not computed until the scenario is locked; the
-    function will throw an error if the data is unavailable.<p>
+function support(a,g,n) {
+    Returns the support for <<term actor>> <i>a</i>  by
+    <<term group>> <i>g</i> in <<term nbhood>> <i>n</i> 
+    as a number between -100.0 and 100.0.  <p>
+    
+    If n is not entered, then it assumes the group is
+    a civilian group.<p>
+    
+    Returns 0 when the scenario is unlocked.<p>
+    
+    If a nbhood is entered, then this function is 
+    equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/support>> rule.
+    
+    If a nbhood is not entered, then this function is
+    equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/support_civ>> rule.
 }
 
 #=======================================================================

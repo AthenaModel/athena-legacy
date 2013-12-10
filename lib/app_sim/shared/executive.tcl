@@ -562,6 +562,9 @@ snit::type executive {
         $interp function nbmood 1 1 {n} \
             [myproc nbmood]
 
+        $interp function nbsupport 2 2 {a n} \
+            [myproc nbsupport]
+
         $interp function now 0 0 {} \
             [list simclock now]
 
@@ -577,7 +580,7 @@ snit::type executive {
         $interp function security 2 2 {n g} \
             [myproc security]
 
-        $interp function support 2 2 {n a} \
+        $interp function support 2 3 {a g ?n?} \
             [myproc support]
 
         $interp function supports 2 - {a b ?n...?} \
@@ -697,6 +700,19 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
+    # nbsupport a n
+    #
+    # a - An actor
+    # n - A neighborhood
+    #
+    # Returns the support of a in n.
+
+    proc nbsupport {a n} {
+        set gdict [gofer construct NUMBER NBSUPPORT $a $n]
+
+        return [gofer::NUMBER eval $gdict]
+    }
+
     # pctcontrol a ?a...?
     #
     # a - An actor
@@ -734,24 +750,23 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
-    # support n a
+    # support a g ?n?
     #
-    # n - A neighborhood
     # a - An actor
+    # g - A group
+    # n - A neighborhood
     #
-    # Returns the support of a in n.
+    # Returns the support for a by g in n. 
+    # If n is not given, it is assumed to be a civilian group.
 
-    proc support {n a} {
-        set n [nbhood validate [string toupper $n]]
-        set a [actor validate [string toupper $a]]
-
-        rdb eval {
-            SELECT support FROM influence_na WHERE n=$n AND a=$a
-        } {
-            return [format %.2f $support]
+    proc support {a g {n ""}} {
+        if {$n eq ""} {
+            set gdict [gofer construct NUMBER SUPPORT_CIV $a $g]
+        } else {
+            set gdict [gofer construct NUMBER SUPPORT $a $g $n]
         }
 
-        error "support not yet computed"
+        return [gofer::NUMBER eval $gdict]
     }
 
     # supports a b ?n...?
