@@ -109,24 +109,6 @@ order define INJECT:VREL:CREATE {
     prepare g        -toupper   -required -type roleid
     prepare a        -toupper   -required -type roleid
     prepare mag -num -toupper   -required -type qmag
-
-    validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g \
-                    "Role is already defined."
-            }
-        }
-    }
-
-    validate a {
-        if {$parms(atype) eq "NEW"} {
-            if {[inject role exists $parms(a)]} {
-                reject a \
-                    "Role is already defined."
-            }
-        }
-    }
  
     returnOnError -final
 
@@ -198,24 +180,6 @@ order define INJECT:VREL:UPDATE {
     prepare g               -toupper  -type roleid
     prepare a               -toupper  -type roleid
     prepare mag   -num      -toupper  -type qmag
-
-    validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g \
-                    "Role is already defined."
-            }
-        }
-    }
-
-    validate a {
-        if {$parms(atype) eq "NEW"} {
-            if {[inject role exists $parms(a)]} {
-                reject a \
-                    "Role is already defined."
-            }
-        }
-    }
 
     returnOnError -final
 

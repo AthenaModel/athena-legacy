@@ -393,7 +393,7 @@ order define ACTOR:CREATE {
     # FIRST, prepare and validate the parameters
     prepare a                -toupper -required -unused -type ident
     prepare longname         -normalize
-    prepare supports         -toupper -required -type {ptype a+self+none}
+    prepare supports         -toupper           -type {ptype a+self+none}
     prepare atype            -toupper           -selector
     prepare cash_reserve     -toupper           -type money
     prepare cash_on_hand     -toupper           -type money
@@ -410,6 +410,11 @@ order define ACTOR:CREATE {
     # NEXT, If longname is "", defaults to ID.
     if {$parms(longname) eq ""} {
         set parms(longname) $parms(a)
+    }
+
+    # NEXT, if supports is "", defaults to SELF
+    if {$parms(supports) eq ""} {
+        set parms(supports) "SELF"
     }
     
     # NEXT, create the actor

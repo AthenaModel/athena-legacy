@@ -612,6 +612,11 @@ snit::widget appwin {
                  -underline 14                           \
                  -command   [mymethod FileSaveAs]]
 
+        cond::simIsPrep control \
+            [menuitem $mnu command "Export Scenario As..." \
+                 -underline 14                           \
+                 -command   [mymethod FileExportAs]]
+
         $mnu add command                               \
             -label     "Save CLI Scrollback Buffer..." \
             -underline 5                               \
@@ -1669,6 +1674,40 @@ snit::widget appwin {
 
         # NEXT, Save the scenario to the current file.
         return [scenario save]
+    }
+
+    # FileExportAs
+    #
+    # Prompts the user to export the scenario as an order script.
+
+    method FileExportAs {} {
+        # FIRST, we can only export a new scenario if we're in PREP
+        # The menu item will be unavailable in this case, but we might
+        # still get here via a hot-key.
+        if {[sim state] ne "PREP"} {
+            return
+        }
+
+        # NEXT, query for the script file name.  If the file already
+        # exists, the dialog will automatically query whether to 
+        # overwrite it or not. Returns 1 on success and 0 on failure.
+
+        set filename [tk_getSaveFile                       \
+                          -parent $win                     \
+                          -title "Export Scenario As"        \
+                          -filetypes {
+                              {{Athena Script} {.tcl} }
+                          }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        # NEXT, Save the scenario using this name
+        exporter fromdata $filename
+        app puts "Exported scenario from current data as $filename."
+
     }
 
     # FileSaveCLI

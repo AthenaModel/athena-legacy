@@ -110,26 +110,9 @@ order define INJECT:COOP:CREATE {
     prepare g        -toupper  -required -type roleid
     prepare mag -num -toupper  -required -type qmag
 
-    validate f {
-        if {$parms(ftype) eq "NEW"} {
-            if {[inject role exists $parms(f)]} {
-                reject f \
-                    "Role is already defined."
-            }
-        }
-    }
-
     validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g \
-                    "Role is already defined."
-            }
-        }
-
         if {$parms(f) eq $parms(g)} {
-            reject g \
-                "Cannot have the same roles for cooperation inject"
+            reject g "Inject requires two distinct roles"
         }
     }
 
@@ -204,26 +187,9 @@ order define INJECT:COOP:UPDATE {
     prepare g             -toupper  -type roleid
     prepare mag -num      -toupper  -type qmag
 
-    validate f {
-        if {$parms(ftype) eq "NEW"} {
-            if {[inject role exists $parms(f)]} {
-                reject f \
-                    "Role is already defined."
-            }
-        }
-    }
-
     validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g \
-                    "Role is already defined."
-            }
-        }
-
         if {$parms(f) eq $parms(g)} {
-            reject g \
-                "Cannot have the same roles for cooperation inject"
+            reject g "Inject requires two distinct roles"
         }
     }
 

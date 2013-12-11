@@ -67,6 +67,16 @@ JOIN civgroups AS F ON (C.f = F.g)
 WHERE F.basepop > 0
 ORDER BY f,g;
 
+-- gui_coop_override_view: records with non-default values.
+-- Used for scenario export.
+CREATE TEMPORARY VIEW gui_coop_override_view AS
+SELECT f || ' ' || g           AS id,
+       base                    AS base,
+       regress_to              AS regress_to,
+       natural                 AS natural
+FROM coop_fg
+WHERE base != 50.0 OR regress_to != 'BASELINE' OR natural != 50.0;
+
 
 -- gui_uram_coop: A view used for displaying cooperation levels and
 -- their components in Simulation Mode.
@@ -177,6 +187,17 @@ JOIN civgroups AS G ON (GC.g = G.g)
 WHERE G.basepop > 0
 ORDER BY g,c;
 
+-- gui_sat_override_view: records with non-default values.
+-- Used for scenario export.
+CREATE TEMPORARY VIEW gui_sat_override_view AS
+SELECT g || ' ' || c             AS id,
+       base                      AS base,
+       saliency                  AS saliency,
+       hist_flag                 AS hist_flag,
+       current                   AS current
+FROM sat_gc
+WHERE base != 0.0 OR saliency != 1.0 OR hist_flag OR current != 0
+ORDER BY g,c;
 
 -- gui_uram_sat: A view used for displaying satisfaction levels and
 -- their components in Simulation mode.

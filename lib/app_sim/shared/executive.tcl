@@ -365,7 +365,7 @@ snit::type executive {
             [mytypemethod errtrace]
 
         # export
-        $interp smartalias export 1 1 {scriptFile} \
+        $interp smartalias export 1 2 {?-history? scriptFile} \
             [myproc export]
 
         # gofer
@@ -1637,98 +1637,62 @@ snit::type executive {
 
 
 
-    # export scriptFile
+    # export ?-history? scriptFile
     #
-    # scriptFile    Name of a file relative to the current working
+    # -history    - Export the sequence of orders used to build the
+    #               scenario up to this point.
+    # scriptFile  - Name of a file relative to the current working
     #               directory.
     #
-    # Creates a script of "send" commands from the orders in the
-    # CIF.  "SIM:UNLOCK" is explicitly ignored, as it gets left
-    # behind in the CIF on unlock, and would break scripts.
+    # Creates a script of "send" commands that will rebuild the
+    # scenario.  By default, a minimal set of orders is created;
+    # this can only be done in PREP.
+    #
+    # If the -history option is given, exports the orders in the
+    # CIF.  This can be done when time is advanced, and will run
+    # the scenario to the same point.
 
-    proc export {scriptFile} {
-        # FIRST, get a list of the order data.  Skip SIM:UNLOCK, and 
-        # prepare to fix up SIM:RUN and SIM:PAUSE
-        set orders [list]
-        set lastRun(index) ""
-        set lastRun(time)  ""
-
-        rdb eval {
-            SELECT time,name,parmdict
-            FROM cif
-            WHERE kind == 'order' AND name != 'SIM:UNLOCK'
-            ORDER BY id
-        } {
-            # SIM:RUN requires special handling.
-            if {$name eq "SIM:RUN"} {
-                # FIRST, all SIM:RUN's should be blocking.
-                dict set parmdict block yes
-
-                # NEXT, we might need to fix up the days; save this order's
-                # index into the orders list.
-                set lastRun(index) [llength $orders]
-                set lastRun(time)  $time
-            }
-
-            # SIM:PAUSE updates previous SIM:RUN
-            if {$name eq "SIM:PAUSE"} {
-                # FIRST, update the previous SIM:RUN
-                let days {$time - $lastRun(time) + 1}
-
-                lassign [lindex $orders $lastRun(index)] runOrder runParms
-                dict set runParms days $days
-                lset orders $lastRun(index) [list $runOrder $runParms]
-
-                # NEXT, the sim will stop running automatically now,
-                # so no PAUSE is needed.
-                continue
-            }
-
-            # Save the current order.
-            lappend orders [list $name $parmdict]
+    proc export {args} {
+        # FIRST, get the options.
+        array set opts {
+            -history 0
         }
 
-        # NEXT, if there are no orders or scripts to save, do nothing.
-        if {[llength $orders] == 0 && [llength [executive script names]] == 0} {
-            error "nothing to export"
-        }
+        set optargs [lrange $args 0 end-1]
+        set filename [lindex $args end]
+        set fullname [file join [pwd] $filename]
 
-        # NEXT, get file handle.  We'll throw an error if they
-        # use a bad name; that's OK.
-        set fullname [file join [pwd] $scriptFile]
+        while {[llength $optargs] > 0} {
+            set opt [lshift optargs]
 
-        set f [open $fullname w]
+            switch -exact -- $opt {
+                -history {
+                    set opts(-history) 1
+                }
 
-        # NEXT, write a header
-        puts $f "# Written from Athena version [version]"
-        puts $f "# Exporting [scenario dbfile] @ [clock format [clock seconds]]"
-
-        # NEXT, save all of the scripts in sequence order
-        foreach name [executive script names] {
-            puts $f [list script save $name [executive script get $name]]
-            if {[executive script auto $name]} {
-                puts $f [list script auto $name 1]
+                default {
+                    error "unknown option "
+                }
             }
         }
 
-        # NEXT, turn the orders into commands, and save them.
-        foreach entry $orders {
-            lassign $entry name parmdict
+        # NEXT, if they want the -history export, that can be done
+        # at any time.  Do it and return.
+        if {$opts(-history)} {
+            exporter fromcif $fullname
 
-            # FIRST, build option list.  Include only parameters with
-            # non-default values.
-            set cmd [list send $name]
-
-            dict for {parm value} [order prune $name $parmdict] {
-                lappend cmd -$parm $value
-            }
-
-            puts $f $cmd
+            app puts "Exported scenario from history as $fullname."
+            return
         }
 
-        close $f
+        # NEXT, the normal export can only be done during PREP.
+        if {[sim locked]} {
+            error "Cannot export while the scenario is locked."
+        }
 
-        log normal exec "Exported orders as $fullname."
+        exporter fromdata $fullname
+
+        app puts "Exported scenario from current data as $fullname."
 
         return
     }

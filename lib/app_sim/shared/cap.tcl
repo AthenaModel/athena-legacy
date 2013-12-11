@@ -552,8 +552,8 @@ order define CAP:CREATE {
     prepare owner       -toupper   -required -type actor
     prepare capacity    -num       -required -type rfraction
     prepare cost        -toupper   -required -type money
-    prepare nlist       -toupper   -required -listof nbhood
-    prepare glist       -toupper   -required -listof civgroup
+    prepare nlist       -toupper             -listof nbhood
+    prepare glist       -toupper             -listof civgroup
 
     returnOnError -final
 

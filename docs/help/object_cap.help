@@ -81,14 +81,18 @@ object cap_ {
     attribute nlist "Neighborhoods" {
         The initial set of covered neighborhoods.  This list is
         specified when the CAP is created; by default, the CAP has
-        1.0 neighborhood coverage in these neighborhoods.
-    } -tags {create}
+        1.0 neighborhood coverage in these neighborhoods.  Neighborhood
+        coverage can also be edited subsequently using 
+        <<cref /order/cap/nbcov/set>>.
+    } -tags {create optcreate}
 
     attribute glist "Civ. Groups" {
         The initial set of civilian groups reached by this CAP.  This
         list is specified when the CAP is created; by default, the
-        CAP has 1.0 penetration of these groups.
-    } -tags {create}
+        CAP has 1.0 penetration of these groups.  Group penetration can
+        also be edited subsequently using
+        <<cref /order/cap/pen/set>>. 
+    } -tags {create optcreate}
 
 }
 

@@ -255,9 +255,6 @@ snit::type scenario {
     typemethod open {filename} {
         require {[sim state] ne "RUNNING"} "The simulation is running."
 
-        # FIRST, which kind of file is it?
-        set ftype [file extension $filename]
-
         # FIRST, load the file.
         if {[catch {
             rdb load $filename

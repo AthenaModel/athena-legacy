@@ -92,6 +92,12 @@ menuitem "File/Save Scenario As..." {
     prompting for a new file name.
 }
 
+menuitem "File/Export Scenario As..." {
+    Saves the current scenario to disk as a minimal order script,
+    prompting for a new file name.  This menu item is equivalent
+    to the <<cref /command/export>> executive command.
+}
+
 menuitem "File/Save CLI Scrollback Buffer..." {
     Saves the contents of the main window's Command Line Interface
     (<<term cli>>) scrollback buffer to disk as a text file.<p>

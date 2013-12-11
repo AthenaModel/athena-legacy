@@ -68,7 +68,7 @@ order define INJECT:HREL:CREATE {
         rcc "Mode:" -for mode -span 4
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
 
-        rcc "Of Group Role:" -for f
+        rcc "Of Group Role:" -for ftype
         selector ftype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for f
@@ -82,7 +82,7 @@ order define INJECT:HREL:CREATE {
             }
         }
 
-        rcc "With Group Role:" -for g 
+        rcc "With Group Role:" -for gtype 
         selector gtype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for g
@@ -110,26 +110,9 @@ order define INJECT:HREL:CREATE {
     prepare g        -toupper   -required -type roleid
     prepare mag -num -toupper   -required -type qmag
 
-    validate f {
-        if {$parms(ftype) eq "NEW"} {
-            if {[inject role exists $parms(f)]} {
-                reject f \
-                    "Role is already defined."
-            }
-        }
-    }
-
     validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g \
-                    "Role is already defined."
-            }
-        }
-
         if {$parms(f) eq $parms(g)} {
-            reject g \
-                "Cannot have the same roles for horizontal relationship inject"
+            reject g "Inject requires two distinct roles"
         }
     }
 
@@ -204,26 +187,9 @@ order define INJECT:HREL:UPDATE {
     prepare g          -toupper  -type roleid
     prepare mag   -num -toupper  -type qmag
 
-    validate f {
-        if {$parms(ftype) eq "NEW"} {
-            if {[inject role exists $parms(f)]} {
-                reject f \
-                    "Role is already defined."
-            }
-        }
-    }
-
     validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g \
-                    "Role is already defined."
-            }
-        }
-
         if {$parms(f) eq $parms(g)} {
-            reject g \
-                "Cannot have the same roles for horizontal relationship inject"
+            reject g "Inject requires two distinct roles"
         }
     }
 

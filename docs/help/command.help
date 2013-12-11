@@ -1236,12 +1236,23 @@ command "errtrace" {
 # export command
 
 command "export" {
-    <<syntax <i>scriptFile</i> >>
+    <<syntax ?-history? <i>scriptFile</i> >>
 
-    Exports the orders shown on <<tab orders>> to a script file
-    that can be executed to reproduce the current scenario at the
-    current simulation time.  Execute the script in a new, empty 
-    scenario using the <<command call>> command.<p>
+    Exports the current scenario as an <<term executive>> script;
+    execute the script in a new, empty scenario via the
+    <code>-script</code> start-up option or the <<command call>>
+    command at the <<term cli>>.<p>
+
+    By default, the scenario must be exported while in 
+    scenario preparation; the result will be a minimal script that
+    will reproduce essentially the same scenario, though some
+    insignificant details (such as numeric object IDs) might be different.<p>
+
+    If the <code>-history</code> option is given, then the script
+    contains exactly the sequence of orders used to produce the current
+    state of the program; this can be many times longer than the 
+    minimal set.  However, it can also capture the application's state
+    in simulation mode, after time has advanced.<p>
 
     The script file will be saved in the current working directory.<p>
 }

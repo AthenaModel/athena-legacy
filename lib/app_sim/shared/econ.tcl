@@ -1626,6 +1626,30 @@ snit::type econ {
             }]
     }
 
+    # samparms
+    #
+    # Returns a dictionary of SAM inputs that have non-default values.
+
+    typemethod samparms {} {
+        set result [dict create]
+
+        foreach cell [$sam cells] {
+            # Constants only.
+            if {[$sam cellinfo ctype $cell] ne "constant"} {
+                continue
+            }
+
+            set value [$sam value $cell]
+            set ivalue [$sam cellinfo ivalue $cell]
+
+            if {$value ne $ivalue} {
+                dict set result $cell $value
+            }
+        }
+
+        return $result
+    }
+
     #-------------------------------------------------------------------
     # saveable(i) interface
 

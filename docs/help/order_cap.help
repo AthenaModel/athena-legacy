@@ -33,6 +33,7 @@ order CAP:CREATE "Create Comm. Asset Package" {
 
     <<parmlist>>
     <<cap_ parms -required -tags create>>
+    <<cap_ parms -optional -tags optcreate>>
     <</parmlist>>
 }
 

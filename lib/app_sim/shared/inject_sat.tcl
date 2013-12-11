@@ -67,7 +67,7 @@ order define INJECT:SAT:CREATE {
         rcc "Mode:" -for mode -span 4
         enumlong mode -dictcmd {einputmode deflist} -defvalue transient
 
-        rcc "Civ Group Role:" -for rtype
+        rcc "Civ Group Role:" -for gtype
         selector gtype -defvalue "NEW" {
             case NEW "Define new role" {
                 cc "Role:" -for g
@@ -96,14 +96,6 @@ order define INJECT:SAT:CREATE {
     prepare g          -toupper   -required -type roleid
     prepare c          -toupper   -required -type econcern
     prepare mag -num   -toupper   -required -type qmag
-
-    validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g "Role is already defined."
-            }
-        }
-    }
 
     returnOnError -final
 
@@ -164,13 +156,6 @@ order define INJECT:SAT:UPDATE {
     prepare c               -toupper  -type  econcern
     prepare mag   -num      -toupper  -type  qmag
 
-    validate g {
-        if {$parms(gtype) eq "NEW"} {
-            if {[inject role exists $parms(g)]} {
-                reject g "Role is already defined."
-            }
-        }
-    }
 
     returnOnError -final
 
