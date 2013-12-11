@@ -328,23 +328,54 @@ oo::define block {
     # view   - A view name (ignored at present)
     #
     # Returns a view dictionary, for display.
+    #
+    # Standard views:
+    #
+    #     text    - Everything, links converted to text.
+    #     html    - Everything, links converted to HTML <a> links
+    #     cget    - Data for [block cget] executive command
+    #
+    # Note that for blocks, text and html are the same, as blocks
+    # have no links.
 
     method view {{view ""}} {
-        set result [next $view]
+        # FIRST, set up the basic text/html view
+        set vdict [next $view]
 
-        dict set result agent         [my agent]
-        dict set result pretty_once   [expr {$once ? "Yes" : "No"}]
-        dict set result pretty_onlock [expr {$onlock ? "Yes" : "No"}]
-        dict set result timestring    [my timestring]
-        dict set result statusicon    [my statusicon]
+        dict set vdict agent         [my agent]
+        dict set vdict pretty_once   [expr {$once ? "Yes" : "No"}]
+        dict set vdict pretty_onlock [expr {$onlock ? "Yes" : "No"}]
+        dict set vdict timestring    [my timestring]
+        dict set vdict statusicon    [my statusicon]
 
         if {$exectime ne ""} {
-            dict set result pretty_exectime [simclock toString $exectime]
+            dict set vdict pretty_exectime [simclock toString $exectime]
         } else {
-            dict set result pretty_exectime "-"
+            dict set vdict pretty_exectime "-"
         }
 
-        return $result
+        # NEXT, handle cget view differences
+        if {$view eq "cget"} {
+            # FIRST, define or translate needed keys
+            dict set vdict block_id   [my id]
+            dict set vdict conditions [lmap $conditions x {$x id}]
+            dict set vdict tactics    [lmap $tactics x {$x id}]
+
+            # NEXT, remove extraneous keys
+            set vdict [dict remove $vdict {*}{
+                execstatus
+                exectime
+                id
+                parent
+                pretty_exectime
+                pretty_once 
+                pretty_onlock
+                statusicon
+                timestring
+            }]
+        }
+
+        return $vdict
     }
 
     #-------------------------------------------------------------------

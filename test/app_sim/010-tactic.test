@@ -270,6 +270,78 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {0 1}
+
+    #-------------------------------------------------------------------
+    # view
+
+    test view-1.1 {view: text} -setup {
+        setup
+        set T3 [ted addtactic $BJOE DEMOB g BLUE]
+    } -body {
+        ted pdicts [$T3 view]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        agent      JOE
+        execstatus NONE
+        faildict   {}
+        failures   {}
+        g          BLUE
+        id         *
+        mode       ALL
+        narrative  {Demobilize all of group BLUE's undeployed personnel.}
+        parent     ::bean::block*
+        percent    0
+        personnel  0
+        state      normal
+        statusicon ::projectgui::icon::dash13
+        typename   DEMOB
+    }
+
+    test view-1.2 {view: html} -setup {
+        setup
+        set T3 [ted addtactic $BJOE DEMOB g BLUE]
+    } -body {
+        ted pdicts [$T3 view html]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        agent      JOE
+        execstatus NONE
+        faildict   {}
+        failures   {}
+        g          BLUE
+        id         *
+        mode       ALL
+        narrative  {Demobilize all of group <a href="my://app/group/BLUE">BLUE</a>'s undeployed personnel.}
+        parent     ::bean::block*
+        percent    0
+        personnel  0
+        state      normal
+        statusicon ::projectgui::icon::dash13
+        typename   DEMOB
+    }
+
+    test view-1.3 {view: cget} -setup {
+        setup
+        set T3 [ted addtactic $BJOE DEMOB g BLUE]
+    } -body {
+        ted pdicts [$T3 view cget]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        agent     JOE
+        g         BLUE
+        mode      ALL
+        narrative {Demobilize all of group BLUE's undeployed personnel.}
+        parent    8
+        percent   0
+        personnel 0
+        state     normal
+        tactic_id *
+        typename  DEMOB
+    }
+    
     
     #-------------------------------------------------------------------
     # check

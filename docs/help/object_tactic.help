@@ -40,17 +40,21 @@ object tactic_ {
     attribute tactic_id "Tactic ID" {
         The tactic ID, an integer number that uniquely
         identifies the tactic.
-    }
+    } -tags {cget}
 
     attribute agent "Agent" {
         The ID of the <<term agent>> to whose strategy this
         tactic belongs.
-    } -tags {object}
+    } -tags {object cget}
 
     attribute typename "Tactic Type" {
         The tactic's type, e.g., 
         <b><<cref /object/tactic/deploy DEPLOY>></b>.
-    } -tags {object}
+    } -tags {object cget}
+
+    attribute parent "Parent" {
+        The ID of the <<term block>> containing this tactic.
+    } -tags {cget}
 
     attribute state "State" {
         The tactic's state, one of <b>normal</b>, <b>disabled</b>, or 
@@ -59,7 +63,13 @@ object tactic_ {
         difference is that <b>disabled</b> tactics are explicitly
         disabled by the user, while <b>invalid</b> tactics are disabled
         due to failing a sanity check.
-    } -tags {object state}
+    } -tags {object state cget configure}
+
+    attribute narrative "Narrative" {
+        A human-readable narrative string reflecting the tactic's
+        current configuration.
+    } -tags {cget}
+
 }
 
 page /object tactic "Tactic" {

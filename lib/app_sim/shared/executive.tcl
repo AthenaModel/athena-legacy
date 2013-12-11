@@ -299,7 +299,40 @@ snit::type executive {
         # axdb selectfile
         $interp smartalias {axdb selectfile} 1 - {filename query...} \
             [myproc AxdbQuery mc]
+
+        # block
+        $interp ensemble block
+
+        # block add
+        $interp smartalias {block add} 1 - {agent ?option value...?} \
+            [mytypemethod block add]
             
+        $interp smartalias {block cget} 1 2 {block_id ?option?} \
+            [mytypemethod block cget]
+
+        $interp smartalias {block configure} 1 - {block_id ?option value...?} \
+            [mytypemethod block configure]
+
+        $interp smartalias {block last} 0 0 {} \
+            [myproc last_bean ::block]
+
+        # condition
+        $interp ensemble condition
+
+        # condition add
+        $interp smartalias {condition add} 1 - {block_id typename ?option value...?} \
+            [mytypemethod condition add]
+            
+        $interp smartalias {condition cget} 1 2 {condition_id ?option?} \
+            [mytypemethod condition cget]
+
+        $interp smartalias {condition configure} 1 - {condition_id ?option value...?} \
+            [mytypemethod condition configure]
+
+        $interp smartalias {condition last} 0 0 {} \
+            [myproc last_bean ::condition]
+
+
         # clear
         $interp smartalias clear 0 0 {} \
             [list .main cli clear]
@@ -324,7 +357,7 @@ snit::type executive {
 
         # ensit last
         $interp smartalias {ensit last} 0 0 {} \
-            [myproc ensit_last]
+            [myproc last_ensit]
 
         
         # errtrace
@@ -343,6 +376,28 @@ snit::type executive {
         $interp smartalias help 0 - {?-info? ?command...?} \
             [mytypemethod help]
 
+        # last
+        $interp ensemble last
+
+        # last block
+        $interp smartalias {last block} 0 0 {} \
+            [myproc last_bean ::block]
+
+        # last condition
+        $interp smartalias {last condition} 0 0 {} \
+            [myproc last_bean ::condition]
+
+        # last ensit
+        $interp smartalias {last ensit} 0 0 {} \
+            [myproc last_ensit]
+
+        # last mad
+        $interp smartalias {last mad} 0 0 {} \
+            [myproc last_mad]
+
+        # last tactic
+        $interp smartalias {last tactic} 0 0 {} \
+            [myproc last_bean ::tactic]
 
         # last_mad
         $interp smartalias last_mad 0 0 {} \
@@ -511,6 +566,22 @@ snit::type executive {
         # super
         $interp smartalias super 1 - {arg ?arg...?} \
             [myproc super]
+
+        # tactic
+        $interp ensemble tactic
+
+        # tactic add
+        $interp smartalias {tactic add} 1 - {block_id typename ?option value...?} \
+            [mytypemethod tactic add]
+            
+        $interp smartalias {tactic cget} 1 2 {tactic_id ?option?} \
+            [mytypemethod tactic cget]
+
+        $interp smartalias {tactic configure} 1 - {tactic_id ?option value...?} \
+            [mytypemethod tactic configure]
+
+        $interp smartalias {tactic last} 0 0 {} \
+            [myproc last_bean ::tactic]
 
         # tofile
         $interp smartalias tofile 3 3 {filename extension text} \
@@ -1299,10 +1370,9 @@ snit::type executive {
 
         return
     }
-        
-
-    #---------------------------------------------------------------
-    # Procs
+    
+    #-------------------------------------------------------------------
+    # Executive Command Implementations
 
     # advance weeks
     #
@@ -1346,6 +1416,195 @@ snit::type executive {
         }
     }
 
+    # block add agent ?option value...?
+    #
+    # agent   - Name of an agent.
+    # options - Options for the new block.
+    #
+    # Adds a block to the given agent's strategy, and applies the
+    # options to it.  The options are the BLOCK:UPDATE send options
+    # plus -state.
+
+    typemethod {block add} {agent args} {
+        cif transaction "block add..." {
+            set block_id [send STRATEGY:BLOCK:ADD -agent $agent]
+            BlockConfigure $block_id $args
+        }
+
+        return $block_id
+    }
+
+    # block cget block_id ?option?
+    #
+    # block_id   - A valid block ID, or "-" for the newest block.
+    #
+    # Retrieves the value of a block option.  If no option is given,
+    # returns a dictionary of options and values.
+    #
+    # TBD: It may be possible to add a BeanCget command, as the
+    # shared implementation for block/condition/tactic cget.
+
+    typemethod {block cget} {block_id {opt ""}} {
+        # FIRST, get the block_id
+        if {$block_id eq "-"} {
+            set block_id [last_bean ::block]
+        }
+
+        block validate $block_id
+
+        # NEXT, get the block data
+        set block [block get $block_id]
+
+        set dict [parmdict2optdict [$block view cget]]
+
+        # NEXT, return what was asked for.
+        if {$opt eq ""} {
+            return $dict
+        }
+
+        if {[dict exists $dict $opt]} {
+            return [dict get $dict $opt]
+        } else {
+            error "Unknown option: \"$opt\""
+        }
+    }
+
+    # block configure block_id ?option value...?
+    #
+    # block_id      - A valid block ID, or "-" for the newest block.
+    # option value  - BLOCK:UPDATE/BLOCK:STATE options
+    #
+    # Configures the block using orders.
+
+    typemethod {block configure} {block_id args} {
+        # FIRST, get the block_id
+        if {$block_id eq "-"} {
+            set block_id [last_bean ::block]
+        }
+
+        # NEXT, configure it
+        cif transaction "block configure..." {
+            BlockConfigure $block_id $args
+        }
+    }
+    
+    # BlockConfigure block_id opts
+    #
+    # block_id   - A block ID
+    # opts       - A list of block options and values
+    #
+    # Applies the options to the block.  The options are the BLOCK:UPDATE 
+    # send options plus -state.
+
+    proc BlockConfigure {block_id opts} {
+        set state [from opts -state ""]
+
+        send BLOCK:UPDATE -block_id $block_id {*}$opts
+
+        if {$state ne ""} {
+            send BLOCK:STATE -block_id $block_id -state $state
+        }
+    }
+
+    # condition add block_id typename ?option value...?
+    #
+    # block_id - A valid block_id, or "-" for the last block created.
+    # typename - Type for the new condition
+    # options  - Options for the new condition.
+    #
+    # Adds a condition to the given agent's strategy, and applies the
+    # options to it.  The options are the CONDITION:UPDATE send options
+    # plus -state.
+
+    typemethod {condition add} {block_id typename args} {
+        # FIRST, get the block_id
+        if {$block_id eq "-"} {
+            set block_id [last_bean ::block]
+        }
+
+        # NEXT, create the condition
+        cif transaction "condition add..." {
+            set condition_id [send BLOCK:CONDITION:ADD \
+                                    -block_id $block_id \
+                                    -typename $typename]
+            ConditionConfigure $condition_id $args
+        }
+
+        return $condition_id
+    }
+
+    # condition cget condition_id ?option?
+    #
+    # condition_id   - A valid condition ID, or "-" for the newest condition.
+    #
+    # Retrieves the value of a condition option.  If no option is given,
+    # returns a dictionary of options and values.
+
+    typemethod {condition cget} {condition_id {opt ""}} {
+        # FIRST, get the condition_id
+        if {$condition_id eq "-"} {
+            set condition_id [last_bean ::condition]
+        }
+
+        condition validate $condition_id
+
+        # NEXT, get the condition data
+        set condition [condition get $condition_id]
+
+        set dict [parmdict2optdict [$condition view cget]]
+
+        # NEXT, return what was asked for.
+        if {$opt eq ""} {
+            return $dict
+        }
+
+        if {[dict exists $dict $opt]} {
+            return [dict get $dict $opt]
+        } else {
+            error "Unknown option: \"$opt\""
+        }
+    }
+
+    # condition configure condition_id ?option value...?
+    #
+    # condition_id  - A valid condition ID, or "-" for the newest condition.
+    # option value  - CONDITION:UPDATE/CONDITION:STATE options
+    #
+    # Configures the condition using orders.
+
+    typemethod {condition configure} {condition_id args} {
+        # FIRST, get the condition_id
+        if {$condition_id eq "-"} {
+            set condition_id [last_bean ::condition]
+        }
+
+        condition validate $condition_id
+
+        # NEXT, configure it
+        cif transaction "condition configure..." {
+            ConditionConfigure $condition_id $args
+        }
+    }
+    
+    # ConditionConfigure condition_id opts
+    #
+    # condition_id   - A condition ID
+    # opts           - A list of condition options and values
+    #
+    # Applies the options to the condition.  The options are the 
+    # CONDITION:UPDATE send options plus -state.
+
+    proc ConditionConfigure {condition_id opts} {
+        set c [condition get $condition_id]
+
+        set state [from opts -state ""]
+
+        send CONDITION:[$c typename] -condition_id $condition_id {*}$opts
+
+        if {$state ne ""} {
+            send CONDITION:STATE -condition_id $condition_id -state $state
+        }
+    }
 
 
     # ensit_id n stype
@@ -1474,14 +1733,50 @@ snit::type executive {
         return
     }
 
+    # last_bean cls
+    #
+    # cls   - A bean class
+    #
+    # Returns the bean ID of the most recently created instance of
+    # the given bean class, or "" if none.
+
+    proc last_bean {cls} {
+        set last [lindex [$cls ids] end]
+
+        if {$last eq ""} {
+            set kind [namespace tail $cls]
+            error "last $kind: no ${kind}s have been created."
+        }
+
+        return $last
+    }
+
+    # last_ensit
+    #
+    # Returns the situation ID of the most recently created ensit.
+
+    proc last_ensit {} {
+        rdb eval {
+            SELECT s FROM ensits ORDER BY s DESC LIMIT 1;
+        } {
+            return $s
+        }
+
+        error "last ensit: no ensits have been created."
+    }
+
     # last_mad
     #
     # Returns the ID of the most recently created MAD.
 
     proc last_mad {} {
-        return [rdb onecolumn {
+        rdb eval {
             SELECT mad_id FROM mads ORDER BY mad_id DESC LIMIT 1;
-        }]
+        } {
+            return $mad_id
+        }
+
+        error "last mad: no MADs have been created."
     }
 
     # lock
@@ -1693,6 +1988,106 @@ snit::type executive {
         namespace eval :: $args
     }
 
+
+    # tactic add block_id typename ?option value...?
+    #
+    # block_id - A valid block_id, or "-" for the last block created.
+    # typename - Type for the new tactic
+    # options  - Options for the new tactic.
+    #
+    # Adds a tactic to the given agent's strategy, and applies the
+    # options to it.  The options are the TACTIC:UPDATE send options
+    # plus -state.
+
+    typemethod {tactic add} {block_id typename args} {
+        # FIRST, get the block_id
+        if {$block_id eq "-"} {
+            set block_id [last_bean ::block]
+        }
+
+        # NEXT, create the tactic
+        cif transaction "tactic add..." {
+            set tactic_id [send BLOCK:TACTIC:ADD \
+                                    -block_id $block_id \
+                                    -typename $typename]
+            TacticConfigure $tactic_id $args
+        }
+
+        return $tactic_id
+    }
+
+    # tactic cget tactic_id ?option?
+    #
+    # tactic_id   - A valid tactic ID, or "-" for the newest tactic.
+    #
+    # Retrieves the value of a tactic option.  If no option is given,
+    # returns a dictionary of options and values.
+
+    typemethod {tactic cget} {tactic_id {opt ""}} {
+        # FIRST, get the tactic_id
+        if {$tactic_id eq "-"} {
+            set tactic_id [last_bean ::tactic]
+        }
+
+        tactic validate $tactic_id
+
+        # NEXT, get the tactic data
+        set tactic [tactic get $tactic_id]
+
+        set dict [parmdict2optdict [$tactic view cget]]
+
+        # NEXT, return what was asked for.
+        if {$opt eq ""} {
+            return $dict
+        }
+
+        if {[dict exists $dict $opt]} {
+            return [dict get $dict $opt]
+        } else {
+            error "Unknown option: \"$opt\""
+        }
+    }
+
+    # tactic configure tactic_id ?option value...?
+    #
+    # tactic_id  - A valid tactic ID, or "-" for the newest tactic.
+    # option value  - TACTIC:UPDATE/TACTIC:STATE options
+    #
+    # Configures the tactic using orders.
+
+    typemethod {tactic configure} {tactic_id args} {
+        # FIRST, get the tactic_id
+        if {$tactic_id eq "-"} {
+            set tactic_id [last_bean ::tactic]
+        }
+
+        tactic validate $tactic_id
+
+        # NEXT, configure it
+        cif transaction "tactic configure..." {
+            TacticConfigure $tactic_id $args
+        }
+    }
+    
+    # TacticConfigure tactic_id opts
+    #
+    # tactic_id   - A tactic ID
+    # opts           - A list of tactic options and values
+    #
+    # Applies the options to the tactic.  The options are the 
+    # TACTIC:UPDATE send options plus -state.
+
+    proc TacticConfigure {tactic_id opts} {
+        set c [tactic get $tactic_id]
+
+        set state [from opts -state ""]
+
+        send TACTIC:[$c typename] -tactic_id $tactic_id {*}$opts
+
+        if {$state ne ""} {
+            send TACTIC:STATE -tactic_id $tactic_id -state $state
+        }
+    }
 
     # tofile filename text
     #

@@ -510,6 +510,7 @@ command "autogen assign" {
 
 }
 
+
 #=======================================================================
 # axdb command
 
@@ -830,6 +831,117 @@ command "axdb selectfile" {
 }
 
 
+#=======================================================================
+# block commands
+
+command "block" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    This command is used to create, query, and update <<term strategy>>
+    <<term block blocks>>.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# block add
+
+command "block add" {
+    <<syntax <i>agent</i> ?<i>option value...</i>?>>
+
+    This command adds a new <<term block>> to the <<term strategy>>
+    of the given <<term agent>>, returning the new block's ID.  The
+    options can be used to configure the new block; see 
+    <<cref /command/block/configure>> for the list of options.<p>
+
+    For example,<p>
+
+    <pre>
+    athena> set block_id [block add SYSTEM -tmode AT -t1 20]
+    12
+    athena>
+    </pre>
+}
+
+#-----------------------------------------------------------------------
+# block cget
+
+command "block cget" {
+    <<syntax <i>block_id</i> ?<i>option</i>?>>
+
+    This command queries an existing <<term block>>.<p>
+
+    The <i>block_id</i> may be any valid block ID, as returned by
+    <<cref /command/block/add>> or displayed in the <<tab Strategy>>.
+    If the <i>block_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will query the most recently created block,
+    i.e., the <<cref /command/last/block>>.<p> 
+
+    If no <i>option</i> name is given, the command returns a 
+    TCL dictionary of all of the options listed below, with their
+    values.  Otherwise, it retrieves the value of the given option.<p>
+
+    The following options may be queried:<p>
+
+    <<optionlist>>
+    <<block_ parms -tags cget -asoption>>
+    <</optionlist>>
+
+
+    For example,<p>
+
+    <pre>
+    athena> block cget - -agent
+    SYSTEM
+    athena>
+    </pre>
+}
+
+
+#-----------------------------------------------------------------------
+# block configure
+
+command "block configure" {
+    <<syntax <i>block_id</i> ?<i>option value...</i>?>>
+
+    This command configures an existing <<term block>>; the result is the
+    same as editing the block using the "Update Strategy Block" 
+    dialog in the <<tab Strategy>>.<p>
+
+    The <i>block_id</i> may be any valid block ID, as returned by
+    <<cref /command/block/add>> or displayed in the <<tab Strategy>>.
+    If the <i>block_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will update the most recently created block,
+    i.e., the <<cref /command/last/block>>.<p> 
+
+    The following options may be configured:<p>
+
+    <<optionlist>>
+    <<block_ parms -tags configure -asoption>>
+    <</optionlist>>
+
+
+    For example,<p>
+
+    <pre>
+    athena> block configure - -tmode AT -t1 20
+    athena>
+    </pre>
+}
+
+#-----------------------------------------------------------------------
+# block last
+
+command "block last" {
+    <<syntax>>
+
+    Returns the ID of the most recently created strategy 
+    <<term block>>.  This command is equivalent to
+    <<cref /command/last/block>>.
+}
+
+
+
 
 #=======================================================================
 # call command
@@ -863,6 +975,131 @@ command "clear" {
 
     Clears the contents of the CLI's scrollback buffer.
 }
+
+#=======================================================================
+# condition commands
+
+command "condition" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    This command is used to create, query, and update <<term strategy>>
+    <<term condition conditions>>.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# condition add
+
+command "condition add" {
+    <<syntax <i>block_id typename</i> ?<i>option value...</i>?>>
+
+    This command adds a new <<term condition>> to the given <<term block>>
+    returning the new condition's ID.  The
+    options can be used to configure the new condition; see 
+    <<cref /command/condition/configure>> for the list of options.<p>
+
+    The <i>block_id</i> may be any valid block ID, as returned by
+    <<cref /command/block/add>> or displayed in the <<tab Strategy>>.
+    If the <i>block_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will update the most recently created block,
+    i.e., the <<cref /command/last/block>>.<p> 
+
+    The <i>typename</i> must be a valid <<term condition>> type name.<p>
+
+    For example,<p>
+
+    <pre>
+    athena> block add SYSTEM
+    11
+    athena> condition add - EXPR -expression {1 + 1 == 2}
+    12
+    athena>
+    </pre>
+}
+
+#-----------------------------------------------------------------------
+# condition cget
+
+command "condition cget" {
+    <<syntax <i>condition_id</i> ?<i>option</i>?>>
+
+    This command queries an existing <<term condition>>.<p>
+
+    The <i>condition_id</i> may be any valid condition ID, as returned by
+    <<cref /command/condition/add>> or displayed in the <<tab Strategy>>.
+    If the <i>condition_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will query the most recently created condition,
+    i.e., the <<cref /command/last/condition>>.<p> 
+
+    If no <i>option</i> name is given, the command returns a 
+    TCL dictionary of all of the options listed below, with their
+    values.  Otherwise, it retrieves the value of the given option.<p>
+
+    The following options may be queried:<p>
+
+    <<optionlist>>
+    <<condition_ parms -tags cget -asoption>>
+    <</optionlist>>
+
+
+    For example,<p>
+
+    <pre>
+    athena> condition cget - -parent
+    11
+    athena>
+    </pre>
+}
+
+
+#-----------------------------------------------------------------------
+# condition configure
+
+command "condition configure" {
+    <<syntax <i>condition_id</i> ?<i>option value...</i>?>>
+
+    This command configures an existing <<term condition>>; the result is the
+    same as editing the condition in the <<tab Strategy>>.<p>
+
+    The <i>condition_id</i> may be any valid condition ID, as returned by
+    <<cref /command/condition/add>> or displayed in the <<tab Strategy>>.
+    If the <i>condition_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will update the most recently created condition,
+    i.e., the <<cref /command/last/condition>>.<p> 
+
+    The following options may be configured for all condition types;
+    in addition, the type-specific parameters of the given condition type's
+    <<cref /order/condition>> update order may be also be used by
+    prefixing their names with a hyphen, e.g., "<code>-expression</code>"
+    for the <<cref /object/condition/expr>>.<p>
+
+    <<optionlist>>
+    <<condition_ parms -tags configure -asoption>>
+    <</optionlist>>
+
+
+    For example,<p>
+
+    <pre>
+    athena> condition add - EXPR
+    12
+    athena> condition configure - -expression {2 + 2 == 4}
+    athena>
+    </pre>
+}
+
+#-----------------------------------------------------------------------
+# condition last
+
+command "condition last" {
+    <<syntax>>
+
+    Returns the ID of the most recently created strategy 
+    <<term condition>>.  This command is equivalent to
+    <<cref /command/last/condition>>.
+}
+
 
 #=======================================================================
 # csv command
@@ -1085,11 +1322,72 @@ command "help" {
 }
 
 #=======================================================================
+# last commands
+
+command "last" {
+    <<syntax <i>subcommand</i> >>
+
+    This command is used to return the object ID of the most recently
+    created instance of some kind of object, e.g., the ID of the most
+    recently created strategy block.  The kind of object is determined
+    by the <i>subcommand</i>.
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+command "last block" {
+    <<syntax>>
+    
+    Returns the ID of the most recently created strategy 
+    <<term block>>.  This command is equivalent to
+    <<cref /command/block/last>>.
+}
+
+#-----------------------------------------------------------------------
+
+command "last condition" {
+    <<syntax>>
+    
+    Returns the ID of the most recently created 
+    <<term condition>>.
+}
+
+#-----------------------------------------------------------------------
+
+command "last ensit" {
+    <<syntax>>
+    
+    Returns the ID of the most recently created 
+    <<term ensit>>.
+}
+
+#-----------------------------------------------------------------------
+
+command "last mad" {
+    <<syntax>>
+    
+    Returns the ID of the most recently created 
+    <<term mad>>.
+}
+
+#-----------------------------------------------------------------------
+
+command "last tactic" {
+    <<syntax>>
+    
+    Returns the ID of the most recently created 
+    <<term tactic>>.
+}
+
+#=======================================================================
 # last_mad command
 
 command "last_mad" {
     <<syntax>>
 
+    <b>Deprecated.  Use <<cref /command/last/mad>> instead.</b>
     Returns the ID of the most recently created Magic Attitude
     Driver (MAD).  A script can create a MAD by 
     <<cref /command/send>>ing the <<cref /order/mad/create>> order,
@@ -1758,6 +2056,134 @@ command "super" {
     that command in the context of the application rather than in the
     Athena <<term executive>>.
 }
+
+
+
+#=======================================================================
+# tactic commands
+
+command "tactic" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+
+    This command is used to create, query, and update <<term strategy>>
+    <<term tactic tactics>>.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# tactic add
+
+command "tactic add" {
+    <<syntax <i>block_id typename</i> ?<i>option value...</i>?>>
+
+    This command adds a new <<term tactic>> to the given <<term block>>,
+    returning the new tactic's ID.  The
+    options can be used to configure the new tactic; see 
+    <<cref /command/tactic/configure>> for the list of options.<p>
+
+    The <i>block_id</i> may be any valid block ID, as returned by
+    <<cref /command/block/add>> or displayed in the <<tab Strategy>>.
+    If the <i>block_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will update the most recently created block,
+    i.e., the <<cref /command/last/block>>.<p> 
+
+    The <i>typename</i> must be a valid <<term tactic>> type name.<p>
+
+    For example,<p>
+
+    <pre>
+    athena> block add SYSTEM
+    11
+    athena> tactic add - SIGEVENT -msg {My significant event}
+    12
+    athena>
+    </pre>
+}
+
+#-----------------------------------------------------------------------
+# tactic cget
+
+command "tactic cget" {
+    <<syntax <i>tactic_id</i> ?<i>option</i>?>>
+
+    This command queries an existing <<term tactic>>.<p>
+
+    The <i>tactic_id</i> may be any valid tactic ID, as returned by
+    <<cref /command/tactic/add>> or displayed in the <<tab Strategy>>.
+    If the <i>tactic_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will query the most recently created tactic,
+    i.e., the <<cref /command/last/tactic>>.<p> 
+
+    If no <i>option</i> name is given, the command returns a 
+    TCL dictionary of all of the options listed below, with their
+    values.  Otherwise, it retrieves the value of the given option.<p>
+
+    The following options may be queried:<p>
+
+    <<optionlist>>
+    <<tactic_ parms -tags cget -asoption>>
+    <</optionlist>>
+
+
+    For example,<p>
+
+    <pre>
+    athena> tactic cget - -parent
+    11
+    athena>
+    </pre>
+}
+
+
+#-----------------------------------------------------------------------
+# tactic configure
+
+command "tactic configure" {
+    <<syntax <i>tactic_id</i> ?<i>option value...</i>?>>
+
+    This command configures an existing <<term tactic>>; the result is the
+    same as editing the tactic in the <<tab Strategy>>.<p>
+
+    The <i>tactic_id</i> may be any valid tactic ID, as returned by
+    <<cref /command/tactic/add>> or displayed in the <<tab Strategy>>.
+    If the <i>tactic_id</i> is a hyphen, "<tt>-</tt>", then the 
+    command will update the most recently created tactic,
+    i.e., the <<cref /command/last/tactic>>.<p> 
+
+    The following options may be configured for all tactic types;
+    in addition, the type-specific parameters of the given tactic type's
+    <<cref /order/tactic>> update order may be also be used by
+    prefixing their names with a hyphen, e.g., "<code>-msg</code>"
+    for the <<cref /object/tactic/sigevent>>.<p>
+
+    <<optionlist>>
+    <<tactic_ parms -tags configure -asoption>>
+    <</optionlist>>
+
+
+    For example,<p>
+
+    <pre>
+    athena> tactic add - SIGEVENT
+    12
+    athena> tactic configure - -msg {My significant event}
+    athena>
+    </pre>
+}
+
+#-----------------------------------------------------------------------
+# tactic last
+
+command "tactic last" {
+    <<syntax>>
+
+    Returns the ID of the most recently created strategy 
+    <<term tactic>>.  This command is equivalent to
+    <<cref /command/last/tactic>>.
+}
+
+
 
 #=======================================================================
 # tofile command

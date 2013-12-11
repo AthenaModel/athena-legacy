@@ -37,17 +37,21 @@ object condition_ {
     attribute condition_id "Condition ID" {
         The condition ID, an integer number that uniquely
         identifies the condition.
-    } 
+    } -tags {cget}
 
     attribute agent "Agent" {
         The ID of the <<term agent>> to whose strategy this
         condition belongs.
-    } -tags {object}
+    } -tags {object cget}
 
     attribute typename "Condition Type" {
         The condition's type, e.g., 
         <b><<cref /object/condition/compare COMPARE>></b>.
-    } -tags {object}
+    } -tags {object cget}
+
+    attribute parent "Parent" {
+        The ID of the <<term block>> containing this condition.
+    } -tags {cget}
 
     attribute state "State" {
         The condition's state, one of <b>normal</b>, <b>disabled</b>, or 
@@ -56,7 +60,12 @@ object condition_ {
         difference is that <b>disabled</b> conditions are explicitly
         disabled by the user, while <b>invalid</b> conditions are disabled
         due to failing a sanity check.
-    } -tags {object state}
+    } -tags {object state configure cget}
+
+    attribute narrative "Narrative" {
+        A human-readable narrative string reflecting the condition's
+        current configuration.
+    } -tags {cget}
 }
 
 page /object condition "Condition" {

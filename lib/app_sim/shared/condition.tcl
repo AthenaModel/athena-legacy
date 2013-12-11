@@ -286,23 +286,43 @@ oo::define condition {
     #
     # view   - A view name; defaults to "text"
     #
-    # Returns a view dictionary, for display. The default view
-    # is plain text; specify "html" to get narrative with HTML links.
+    # Standard views:
+    #
+    #    text    - All data, links converted to plain text.
+    #    html    - All data, links converted to HTML <a> tags
+    #    cget    - Data for [tactic cget] executive command.
+    #
+    # Returns a view dictionary.
 
     method view {{view "text"}} {
-        set result [next $view]
+        set vdict [next $view]
 
-        dict set result agent      [my agent]
-        dict set result typename   [my typename]
-        dict set result statusicon [my statusicon]
+        # FIRST, set up the default view data for text and html
+        dict set vdict agent      [my agent]
+        dict set vdict typename   [my typename]
+        dict set vdict statusicon [my statusicon]
 
         if {$view eq "html"} {
-            dict set result narrative [link html [my narrative]]
+            dict set vdict narrative [link html [my narrative]]
         } else {
-            dict set result narrative [link text [my narrative]]
+            # text, cget
+            dict set vdict narrative [link text [my narrative]]
         }
 
-        return $result
+        # NEXT, translate and trim for cget view
+        if {$view eq "cget"} {
+            dict set vdict condition_id [my id]
+            dict set vdict parent       [[my get parent] id]
+
+            set vdict [dict remove $vdict {*}{
+                id
+                metflag
+                statusicon
+            }]
+        }
+
+
+        return $vdict
     }
 
     #-------------------------------------------------------------------

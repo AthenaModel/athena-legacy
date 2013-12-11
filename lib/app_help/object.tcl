@@ -223,6 +223,7 @@ snit::type object {
     #    -required    - The attributes are marked as Required.
     #    -optional    - The attributes are marked as Optional.
     #    -display     - The attributes are marked as Display Only.
+    #    -asoption    - Displays the parameter as a command option.
     #
     # Returns <<parm>>...<</parm>> text for the attributes selected
     # by the options, or all attributes by default.
@@ -230,20 +231,22 @@ snit::type object {
     method parms {args} {
         # FIRST, get the options
         array set data {
-            tags {}
-            attrs {}
-            mode ""
+            tags     {}
+            attrs    {}
+            mode     ""
+            asoption 0
         }
 
         while {[llength $args] > 0} {
             set opt [lshift args]
 
             switch -exact -- $opt {
-                -tags     { set data(tags)  [lshift args]    }
-                -attrs    { set data(attrs) [lshift args]    }
-                -required { set data(mode)  "Required"       }
-                -optional { set data(mode)  "Optional"       }
-                -display  { set data(mode)  "Display Only"   }
+                -tags     { set data(tags)     [lshift args]    }
+                -attrs    { set data(attrs)    [lshift args]    }
+                -required { set data(mode)     "Required"       }
+                -optional { set data(mode)     "Optional"       }
+                -display  { set data(mode)     "Display Only"   }
+                -asoption { set data(asoption) 1                }
                 default   { error "Invalid option: \"$opt\"" }
             }
         }
@@ -266,7 +269,12 @@ snit::type object {
         }
 
         foreach name $data(attrs) {
-            append text "<<parm $name [list $info(label-$name)]>>\n"
+            if {$data(asoption)} {
+                append text "<<option -$name>>\n"
+            } else {
+                append text "<<parm $name [list $info(label-$name)]>>\n"
+            }
+
             if {$data(mode) ne ""} {
                 append text "<b>$data(mode).</b>"
             }
@@ -279,7 +287,12 @@ snit::type object {
                     context to the user; it is not an input.
                 }
             }
-            append text "\n<</parm>>\n\n"
+
+            if {$data(asoption)} {
+                append text "\n<</option>>\n\n"
+            } else {
+                append text "\n<</parm>>\n\n"
+            }
         }
 
         return [ehtml expand $text]
@@ -292,34 +305,45 @@ snit::type object {
     #    -required    - The attribute is marked as Required.
     #    -optional    - The attribute is marked as Optional.
     #    -display     - The attribute is marked as Display Only.
+    #    -asoption    - The attribute is displayed as a command option
     #
     # Returns expanded <<parm>>...<</parm>> text for the attribute.
 
     method parm {attr args} {
         # FIRST, get the options
-        set data(label) $info(label-$attr)
-        set data(mode)  ""
+        set data(label)    $info(label-$attr)
+        set data(mode)     ""
+        set data(asoption) 0
 
         while {[llength $args] > 0} {
             set opt [lshift args]
 
             switch -exact -- $opt {
-                -label    { set data(label) [lshift args]    }
-                -required { set data(mode)  "Required"       }
-                -optional { set data(mode)  "Optional"       }
-                -display  { set data(mode)  "Display Only"   }
-                default   { error "Invalid option: \"$opt\"" }
+                -label    { set data(label)    [lshift args]    }
+                -required { set data(mode)     "Required"       }
+                -optional { set data(mode)     "Optional"       }
+                -display  { set data(mode)     "Display Only"   }
+                -asoption { set data(asoption) 1                }
+                default   { error "Invalid option: \"$opt\""    }
             }
         }
 
-        set text "<<parm $attr [list $data(label)]>>\n"
+        if {$data(asoption)} {
+            set text "<<option -$attr>>\n"
+        } else {
+            set text "<<parm $attr [list $data(label)]>>\n"
+        }
 
         if {$data(mode) ne ""} {
                 append text "<b>$data(mode).</b>"
         }
 
         append text $info(text-$attr)
-        append text "\n<</parm>>\n\n"
+        if {$data(asoption)} {
+            append text "\n<</option>>\n\n"
+        } else {
+            append text "\n<</parm>>\n\n"
+        }
 
         return [ehtml expand $text]
     }

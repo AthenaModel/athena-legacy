@@ -213,6 +213,64 @@ namespace eval ::athena_test::tests:: {
     # This method is tested with eval.
 
     #-------------------------------------------------------------------
+    # view
+
+    test view-1.1 {view: text} -setup {
+        setup
+        set C2 [ted addcondition $B1 EXPR expression {1 == 1}]
+    } -body {
+        ted pdicts [$C2 view]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        agent      SYSTEM
+        expression {1 == 1}
+        id         *
+        metflag    {}
+        narrative  {Expression: 1 == 1}
+        parent     ::bean::block*
+        state      normal
+        statusicon ::projectgui::icon::dash13
+        typename   EXPR
+    }
+
+    test view-1.2 {view: html} -setup {
+        setup
+        set C2 [ted addcondition $B1 EXPR expression {1 == 1}]
+    } -body {
+        ted pdicts [$C2 view html]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        agent      SYSTEM
+        expression {1 == 1}
+        id         *
+        metflag    {}
+        narrative  {Expression: 1 == 1}
+        parent     ::bean::block*
+        state      normal
+        statusicon ::projectgui::icon::dash13
+        typename   EXPR
+    }
+
+    test view-1.3 {view: cget} -setup {
+        setup
+        set C2 [ted addcondition $B1 EXPR expression {1 == 1}]
+    } -body {
+        ted pdicts [$C2 view cget]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        agent        SYSTEM
+        condition_id *
+        expression   {1 == 1}
+        narrative    {Expression: 1 == 1}
+        parent       4
+        state        normal
+        typename     EXPR
+    }
+
+    #-------------------------------------------------------------------
     # check
 
     test check-1.1 {returns errors} -setup {

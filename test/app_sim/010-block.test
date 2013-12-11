@@ -292,6 +292,34 @@ namespace eval ::athena_test::tests:: {
         tmode           ALWAYS
     }
     
+    test view-1.3 {cget view} -setup {
+        setup
+        ted addcondition $BJOE COMPARE
+        ted addcondition $BJOE EXPR
+        ted addtactic    $BJOE SIGEVENT
+        ted addtactic    $BJOE EXECUTIVE
+
+        $BJOE configure -tmode DURING -t1 5 -t2 10 -intent "My Block"
+    } -body {
+        ted pdicts [$BJOE view cget]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        agent      JOE
+        block_id   5
+        cmode      ALL
+        conditions {6 7}
+        emode      ALL
+        intent     {My Block}
+        once       0
+        onlock     0
+        state      normal
+        t1         5
+        t2         10
+        tactics    {8 9}
+        tmode      DURING
+    }
+
     #-------------------------------------------------------------------
     # update_
 

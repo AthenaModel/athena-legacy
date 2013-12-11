@@ -34,6 +34,10 @@ namespace eval ::macro:: {
         /item        \
         /itemlist    \
         pageinfo     \
+        optionlist   \
+        option       \
+        /option      \
+        /optionlist  \
         parmlist     \
         parm         \
         /parm        \
@@ -231,6 +235,48 @@ template macro::/parm {} {
 #
 # Ends a list of order parameters
 template macro::/parmlist {} {
+    |<--
+    </table><p>
+}
+
+# optionlist
+#
+# Begins a list of command options.
+
+template macro::optionlist {} {
+    |<--
+    <table border="1" width="100%" cellspacing="0" cellpadding="4"> 
+    <tr>
+    <th align="left">Option</th> 
+    <th align="left">Description</th>
+    </tr>
+}
+
+# option name
+#
+# name   - The option name
+#
+# Begins an option description.
+
+template macro::option {name} {
+    |<--
+    <tr valign="baseline">
+    <td style="white-space: nowrap"><b><code>$name</code></b></td>
+    <td>
+}
+
+# /option
+#
+# Ends an option description
+template macro::/option {} {
+    </td>
+    </tr>
+}
+
+# /optionlist
+#
+# Ends a list of command options
+template macro::/optionlist {} {
     |<--
     </table><p>
 }

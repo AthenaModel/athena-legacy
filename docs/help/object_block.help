@@ -43,7 +43,13 @@ object block_ {
         The block ID, an integer number that uniquely
         identifies the block.  It is assigned automatically when the
         block is created.
-    }
+    } -tags {cget}
+
+    attribute agent "Agent" {
+        The name of the <<term agent>> to whose 
+        <<term strategy>> the block belongs.
+    } -tags {cget}
+
 
     attribute execstatus "Execution Status" {
         The block's execution status.  It is usually represented by 
@@ -58,25 +64,25 @@ object block_ {
         disabled before the scenario can be locked.
         <b>Disabled</b> blocks
         are ignored when the owner's strategy is executed.
-    } -tags {object state browser}
+    } -tags {object state browser configure cget}
 
     attribute intent "Intent" {
         A brief statement of the purpose of the block, entered by the 
         analyst as a mnemonic.
-    } -tags {object update browser}
+    } -tags {object update browser configure cget}
 
     attribute onlock "On Lock?" {
         The block's "On Lock" flag: <b>Yes</b> if the block should be 
         executed on scenario lock, to help initialize the scenario, and 
         <b>No</b> otherwise.
-    } -tags {object update}
+    } -tags {object update configure cget}
 
     attribute once "Once Only?" {
         The block's "Once Only" flag: if <b>Yes</b>, the block will disable 
         itself after the first time it executes.  Use this for blocks that 
         should execute once, the first time a particular set of conditions 
         is met.
-    } -tags {object update}
+    } -tags {object update configure cget}
 
     attribute tmode "Time Constraint Mode" {
         This mode parameter has one of the following values:<p>
@@ -93,15 +99,15 @@ object block_ {
 
         <b>DURING</b>: The block is eligible for execution every week
         from week <i>t1</i> to week <i>t2</i>.<p>
-    } -tags {object update}
+    } -tags {object update configure cget}
 
     attribute t1 "Week:" {
         Week <i>t1</i>; see the Time Constraint Mode, above.
-    } -tags {object update}
+    } -tags {object update configure cget}
 
     attribute t2 "To Week:" {
         Week <i>t2</i>; see the Time Constraint Mode, above.
-    } -tags {object update}
+    } -tags {object update configure cget}
 
     attribute cmode "Condition Mode" {
         This mode determines how conditions affect execution of the block:<p>
@@ -113,7 +119,7 @@ object block_ {
         of the attached conditions are met.<p>
         
         This setting is ignored if the block has no attached conditions.
-    } -tags {object update}
+    } -tags {object update configure cget}
 
     attribute emode "Execution Mode" {
         This mode determines how the block executes in the face of insufficient
@@ -124,19 +130,19 @@ object block_ {
 
         <b>SOME</b>: The block will execute as many of its tactics as
         resources will permit, in priority order from first to last.
-    } -tags {object update}
+    } -tags {object update configure cget}
 
     attribute exectime "Last Execution Time" {
         The simulation time at which the block last executed, if any.
     } -tags {object browser}
 
     attribute conditions "Conditions" {
-        A list of the conditions attached to this block.
-    }
+        A list of the IDs of the conditions attached to this block.
+    } -tags {cget}
 
     attribute tactics "Tactics" {
-        A list of the tactics attached to this block.
-    }
+        A list of the IDs of the tactics attached to this block.
+    } -tags {cget}
 }
 
 page /object block "Block" {

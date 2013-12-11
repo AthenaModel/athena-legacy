@@ -48,6 +48,65 @@ proc fillparms {parmsVar parmdict} {
     }
 }
 
+# optdict2parmdict dict
+#
+# dict   - A dictionary in which the keys have option syntax
+#
+# Returns the same dictionary with "-" stripped from the keys.
+
+proc optdict2parmdict {dict} {
+    set result [dict create]
+
+    dict for {key value} $dict {
+        if {[string index $key 0] eq "-"} {
+            set key [string range $key 1 end]
+        }
+
+        dict set result $key $value
+    }
+
+    return $result
+}
+
+# lmap list x body
+#
+# list   - A list of things
+# var    - A variable to take on values from the list.
+# body   - A body to return a new value given $var
+#
+# Returns a list of values computed by calling body for each value
+# in the list.
+
+proc lmap {list var body} {
+    set result [list]
+
+    foreach $var $list {
+        lappend result [eval $body]
+    }
+
+    return $result
+}
+
+# parmdict2optdict dict
+#
+# dict   - A dictionary in which the keys have option syntax
+#
+# Returns the same dictionary with "-" added to the keys.
+
+proc parmdict2optdict {dict} {
+    set result [dict create]
+
+    dict for {key value} $dict {
+        if {[string index $key 0] ne "-"} {
+            set key "-$key"
+        }
+
+        dict set result $key $value
+    }
+
+    return $result
+}
+
 # lexcept list element
 #
 # list      - A list
