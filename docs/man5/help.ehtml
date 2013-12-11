@@ -210,6 +210,19 @@ This command returns information about the current page.  The
 <i>field</i> is one of <b>path</b>, <b>title</b>, <b>parent</b>, or
 <b>text</b>.<p>
 
+<<defitem optionlist {&lt;&lt;optionlist&gt;&gt;}>>
+<<defitem option {&lt;&lt;option <i>name</i>&gt;&gt;}>>
+<<defitem /option {&lt;&lt;/option&gt;&gt;}>>
+<<defitem /optionlist {&lt;&lt;/optionlist&gt;&gt;}>>
+
+These macros are used together to produce a table of command option names
+and descriptions.  Each option has a name, e.g., "<code>-myoption</code>",
+plus a description, which is <<xref ehtml(5)>> input contained between
+<code>&lt;&lt;option&gt;&gt;</code> and
+<code>&lt;&lt;/option&gt;&gt;</code>.<p>
+
+The column headers are "Option" and "Description".<p>
+
 <<defitem parmlist {&lt;&lt;parmlist ?<i>h1</i>? ?<i>h2</i>?&gt;&gt;}>>
 <<defitem parm {&lt;&lt;parm <i>parm field</i>&gt;&gt;}>>
 <<defitem /parm {&lt;&lt;/parm&gt;&gt;}>>
@@ -224,7 +237,7 @@ description, which is <<xref ehtml(5)>> input contained between
 
 The column headers default to "Field" and
 "Description", but can be changed using the optional <i>h1</i> and
-<i>h2</i> parameters
+<i>h2</i> parameters.<p>
 
 <<defitem topiclist {&lt;&lt;topiclist ?<i>h1</i>? ?<i>h2</i>?&gt;&gt;}>>
 <<defitem topic {&lt;&lt;topic <i>topic</i>&gt;&gt;}>>
@@ -444,7 +457,25 @@ Will Duquette<p>
 
 <<section HISTORY>>
 
-New package.<p>
+<<changelog>>
+
+<<change 2013-12-11 Added whd>>
+Added changes to support objects with configure/cget commands:<p>
+
+<ul>
+    <li> Added the <<iref optionlist>>, <<iref /optionlist>>,
+        <<iref option>>, and <<iref /option>> macros, for producing
+        lists of command or object options.<p>
+
+    <li> The <<iref object>> <<iref parms>> and <<iref parm>> 
+         commands now take an <code>-asoption</code> option; this
+         produces an <<iref option>>...<<iref /option>> pair.<p>
+
+</ul>
+
+<</change>>
+
+<</changelog>>
 
 <</manpage>>
 
