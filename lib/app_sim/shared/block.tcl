@@ -524,9 +524,9 @@ oo::define block {
             array set data [$bean view html]
 
             if {[incr count] % 2 == 1} {
-                set cls odd
+                set cls oddrow
             } else {
-                set cls even
+                set cls evenrow
             }
 
             $ht tr class $cls valign top {
@@ -578,9 +578,9 @@ oo::define block {
             array set data [$bean view html]
 
             if {[incr count] % 2 == 1} {
-                set cls odd
+                set cls oddrow
             } else {
-                set cls even
+                set cls evenrow
             }
 
             $ht tr class $cls valign top {

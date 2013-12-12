@@ -19,9 +19,11 @@
 namespace eval ::macro:: {
     namespace eval ::macro::user {}
 
-    variable docInfo   ;# Array of information about the document as a
-                        # whole.
-    variable pageInfo  ;# Array of information about the current page.
+    variable docInfo     ;# Array of information about the document as a
+                          # whole.
+    variable pageInfo    ;# Array of information about the current page.
+
+    variable itemCounter ;# Counts items in tabular lists
 
     namespace export \
         childlinks   \
@@ -201,9 +203,12 @@ template macro::enumdoc {enum} {
 # Begins a list of order parameters
 
 template macro::parmlist {{h1 Field} {h2 Description}} {
+    variable itemCounter
+    set itemCounter 0
+} {
     |<--
-    <table border="1" width="100%" cellspacing="0" cellpadding="4"> 
-    <tr>
+    <table class="pretty" width="100%" cellpadding="5"> 
+    <tr class="header">
     <th align="left">$h1</th> 
     <th align="left">$h2</th>
     </tr>
@@ -217,8 +222,16 @@ template macro::parmlist {{h1 Field} {h2 Description}} {
 # Begins a parameter description.
 
 template macro::parm {parm field} {
+    variable itemCounter
+
+    if {[incr itemCounter] % 2 == 0} {
+        set rowclass evenrow
+    } else {
+        set rowclass oddrow
+    }
+} {
     |<--
-    <tr valign="baseline">
+    <tr class="$rowclass" valign="baseline">
     <td style="white-space: nowrap"><b>$field</b><br>(<tt>$parm</tt>)</td>
     <td>
 }
@@ -244,9 +257,12 @@ template macro::/parmlist {} {
 # Begins a list of command options.
 
 template macro::optionlist {} {
+    variable itemCounter
+    set itemCounter 0
+} {
     |<--
-    <table border="1" width="100%" cellspacing="0" cellpadding="4"> 
-    <tr>
+    <table class="pretty" width="100%" cellpadding="5"> 
+    <tr class="header">
     <th align="left">Option</th> 
     <th align="left">Description</th>
     </tr>
@@ -259,8 +275,16 @@ template macro::optionlist {} {
 # Begins an option description.
 
 template macro::option {name} {
+    variable itemCounter
+
+    if {[incr itemCounter] % 2 == 0} {
+        set rowclass evenrow
+    } else {
+        set rowclass oddrow
+    }
+} {
     |<--
-    <tr valign="baseline">
+    <tr class="$rowclass" valign="baseline">
     <td style="white-space: nowrap"><b><code>$name</code></b></td>
     <td>
 }
@@ -289,9 +313,12 @@ template macro::/optionlist {} {
 # Begins a table of topics and descriptions
 
 template macro::topiclist {{h1 Topic} {h2 Description}} {
+    variable itemCounter
+    set itemCounter 0
+} {
     |<--
-    <table border="1" width="100%" cellspacing="0" cellpadding="4"> 
-    <tr>
+    <table class="pretty" width="100%" cellpadding="5"> 
+    <tr class="header">
     <th align="left">$h1</th> 
     <th align="left">$h2</th>
     </tr>
@@ -304,8 +331,16 @@ template macro::topiclist {{h1 Topic} {h2 Description}} {
 # Begins a topic description.
 
 template macro::topic {topic} {
+    variable itemCounter
+
+    if {[incr itemCounter] % 2 == 0} {
+        set rowclass evenrow
+    } else {
+        set rowclass oddrow
+    }
+} {
     |<--
-    <tr valign="baseline">
+    <tr class="$rowclass" valign="baseline">
     <td><b>$topic</b></td>
     <td>
 }
