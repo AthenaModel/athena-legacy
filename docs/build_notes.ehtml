@@ -11,6 +11,32 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.8, 12 December 2013</h3>
+
+This build contains some significant changes to how the MAINTAIN tactic
+operates.  The analyst specifies repair modes instead of spending modes and 
+then Athena spends according to best efforts to maintain the infrastructure
+as instructed.  There's also a few bug fixes to the infrastrucuture model.
+There are some new NUMBER gofer(n) rules and a new export capability that
+exports the state of Athena rather than the history.  This should make it
+easier for the end user when moving from one version of Athena to another and
+when declassifying scenarios.<p>
+
+<ul>
+<li> Bug 4262: athena(1): ECON:* order help pages
+<li> Bug 4269: Small values for bktsPerYear yields negative number of plants
+<li> Bug 4270: repair level of zero causes bgerror
+<li> Bug 4258: athena(1): Need to implement gofer::NUMBER 'support' rules.
+<li> Bug 4276: athena(1): Need to implement gofer::NUMBER 'assigned' rule & executive function.
+<li> Bug 4277: athena(1): Implement needed gopher::NUMBER rule "security" and update it's executive function.
+<li> Bug 4278: athena(1): Need to implement gofer::NUMBER 'coverage' rule & executive function.
+<li> Bug 4271: athena(1): Strategy executive commands
+<li> Bug 4272: help(5): optionlist, option macros
+<li> Bug 4273: athena(1): Minimal Scenario export script
+<li> Bug 4282: htools(n): "pretty" tables
+<li> Bug 4280: athena(1): Use pretty tables in help(5) 
+</ul><p>
+
 <h3>Build 6.0.7, 6 December 2013</h3>
 
 This build has some quite notable new functionality.  The second part of
