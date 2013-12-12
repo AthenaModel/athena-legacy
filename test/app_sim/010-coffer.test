@@ -30,8 +30,15 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {} {
         ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
+
+        rdb eval {
+            INSERT INTO plants_na(n, a, num, rho)
+            VALUES('NB1', 'JOE', 2, 0.9);
+        }
+
         personnel start
         personnel load
+        plant start
         cash load
     }
 
@@ -54,8 +61,9 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dict -result {
-        cash    0.0 
-        reserve 0.0 
+        cash    0.0
+        plants  {}
+        reserve 0.0
         troops  {}
     }
 
@@ -68,6 +76,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match dict -result {
         cash    10000.0
+        plants  {NB1 0.9}
         reserve 200000.0
         troops  {BLUE {mobilized 5000 undeployed 5000} BRIT {mobilized 5000 undeployed 5000}}
     }
@@ -84,11 +93,11 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         coffer create coff
-        coff setdict {cash 1 reserve 2 troops DUMMY}
+        coff setdict {cash 1 reserve 2 troops DUMMY plants DUMMY}
         coff getdict
     } -cleanup {
         cleanup
-    } -result {cash 1 reserve 2 troops DUMMY}
+    } -result {cash 1 reserve 2 troops DUMMY plants DUMMY}
 
     #-------------------------------------------------------------------
     # cash
@@ -136,6 +145,18 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0}
     
+    #-------------------------------------------------------------------
+    # plants
+
+    test plants-1.1 {retrieve plant repair levels} -setup {
+        setup
+    } -body {
+        coffer create coff JOE
+        coff plants NB1
+    } -cleanup {
+        cleanup
+    } -result {0.9}
+
     #-------------------------------------------------------------------
     # spend
 
@@ -357,6 +378,19 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0}
 
+
+    #-------------------------------------------------------------------
+    # repair
+
+    test repair-1.1 {set repair level in neighborhood} -setup {
+        setup
+    } -body {
+        coffer create coff JOE
+        coff repair NB1 0.1
+        coff plants NB1
+    } -cleanup {
+        cleanup
+    } -result {1.0}
 
     #-------------------------------------------------------------------
     # Cleanup

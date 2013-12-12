@@ -28,7 +28,7 @@ tactic define FUNDENI \
     variable percent ;# Percent of money to use if mode is PERCENT
     variable glist   ;# List if CIV groups to receive services
 
-    # Transent data
+    # Transient data
     variable trans
 
     #------------------------------------------------------------------

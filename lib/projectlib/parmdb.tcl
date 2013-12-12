@@ -1216,16 +1216,6 @@ snit::type ::projectlib::parmdb {
             should be something less than 100 percent to represent that. 
         }
 
-        $ps subset econ.bktsPerYear {
-            Parameters that control the average output of a manufacturing
-            plant in number of baskets produced per year.
-        }
-
-        $ps define econ.bktsPerYear.goods ::projectlib::money 1B {
-            The average output of a single manufacturing plant that makes
-            goods baskets when the plant is running at full capacity.
-        }
-
         $ps subset econ.check {
             Parameters that control Athena's on-going sanity checks for
             economic model.
@@ -1801,6 +1791,16 @@ snit::type ::projectlib::parmdb {
         $ps subset plant {
             Parameters which affect the manufacturing plant infrastructure
             model.
+        }
+
+        $ps subset plant.bktsPerYear {
+            Parameters that control the average output of a manufacturing
+            plant in number of baskets produced per year.
+        }
+
+        $ps define plant.bktsPerYear.goods ::projectlib::money 1B {
+            The average output of a single manufacturing plant that makes
+            goods baskets when the plant is running at full capacity.
         }
 
         $ps define plant.lifetime ::projectlib::iquantity 156 {

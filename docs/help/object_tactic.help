@@ -1180,22 +1180,25 @@ object tactic_maintain {
         This <<term tactic>> spends money to maintain the manufacturing
         infrastructure owned by an <<term actor>> in the
         neighborhoods specified.  The <<term actor>>
-        may specify any amount of money, which will come out of the 
-        actor's cash-on-hand.  If the cash is unavailable, the maintenance
-        will not be funded and the production capacity of his manufacturing
-        infrastructure will degrade.<p>
+        may specify any amount of money as a cap on repair spending. The total
+        cost of repairs is computed and then compared to the cap.  If the cost
+        is less than the cap, the maximum amount of repair that could take
+        place does.  If the cap is less, as much repair than can be done within
+        that cap is allocated to the actors infrastructure in proportion 
+        to the total cost of repairs across the neighborhoods specified in 
+        the tactic.<p>
 
-        There are several ways to select how much money should be 
-        taken from cash-on-hand for funding; see the "Mode" parameter below.<p>
+        There are two ways to select how much repair should be 
+        attempted; see the "Mode" parameter below.<p>
 
         Manufacturing plants produce goods depending on their level of
         repair (or disrepair).  If an actor does not spend money to maintain
-        a certain his infrastructure it will degrade the
+        a certain level of repair it will degrade the
         production capacity of his <<term plant>>s and thus negatively impact
-        the the economic model potentially leading to shortages of
+        the economic model potentially leading to shortages of
         goods and higher unemployment.
 
-        The maximum amount of spending is capped as a function of the requested
+        The cost of repair is capped as a function of the requested
         level of repair, or the maximum amount of repair that can be
         performed in a single week, whichever is less.  If an actor desires
         to maintain his infrastructure at a repair level that is something
@@ -1204,41 +1207,32 @@ object tactic_maintain {
         repair level. By default the repair level is set to 100% of total 
         capacity but can be dialed down; see the "level" parameter below.<p>
 
-        When executed, the MAINTAIN tactic spends money to repair the
-        infrastructure owned by the actor.  The most the repair level
-        can move up in one week is controlled by a parameter.
-        Multiple MAINTAIN tactics are cumulative.
+        When executed, the MAINTAIN tactic computes how much money it will
+        take to make the repairs to the infrastructure owned by the actor.  
+        The most the repair level can move up in one week is controlled by a 
+        parameter.  The "Amount" parameter puts a spending cap on how much
+        an actor could possible spend doing repairs.
     }
 
     include tactic_ -attrs id
     include tactic_ -attrs agent
     include tactic_ -attrs state
 
-    attribute mode "Mode" {
-        The spending mode, which has one of the following values. In
-        all cases, the amount of money is capped by default to the amount of
+    attribute rmode "Mode" {
+        The repair mode, which has one of the following values. In
+        all cases, the cost of repairs is capped by default to the amount of
         money it would take to bring up the repair level by one weeks worth
-        of repairs.
+        of repairs.<p>
 
-        <b>ALL</b>: Spend all remaining cash-on-hand. The tactic will
-        still execute if cash-on-hand is zero or negative, just no cash
-        will be spent.<p>
+        <b>FULL</b>: Try to maintian a repair level of 100% of capacity.
+        The tactic will still execute if cash-on-hand is less than the cost
+        to maintain this level of repair, just the repairs will fall short.<p>
 
-        <b>EXACT</b>: Spend the exact amount of money from cash-on-hand. 
-        The tactic will fail to execute if there is not at least this amount
-        of money in cash-on-hand.<p>
+        <b>UPTO</b>: Try to maintain a repair level at some amount less
+        than full capacity. The tactic will still execute if there is
+        not enough cash to maintain this level, just the repairs will fall 
+        short.<p>
 
-        <b>UPTO</b>: Spend any amount of money up to the given amount from
-        available cash-on-hand.  The tactic will still execute if there is
-        not enough cash, just less cash will be spent.<p>
-
-        <b>PERCENT</b>: Spend the specified percent of 
-        cash-on-hand.  The tactic will still execute if cash-on-hand is 
-        zero or negative, just no cash will be spent.<p>
-
-        <b>EXCESS</b>: Spend any cash-on-hand that is in
-        excess of the specified amount.  The tactic will still execute
-        if there is not enough cash, just no cash will be spent.<p> 
     } -tags {update}
 
     attribute nlist "Nbhoods"  {
@@ -1247,34 +1241,20 @@ object tactic_maintain {
     } -tags {update}
 
     attribute amount "Amount" {
-        When the <i>mode</i> is EXACT, the exact amount of money to
-        be used for maintenance.<p>
-
-        When the <i>mode</i> is UPTO, the maximum amount of money that 
-        should be used for maintenance.<p>
-
-        When the <i>mode</i> is EXCESS, the amount of money over which
-        any excess should be used for maintenance.<p>
-
-        This parameter is ignored for other modes.
-    } -tags {update}
-
-    attribute percent "Percent" {
-        When the <i>mode</i> is PERCENT, the percentage of cash-on-hand
-        that should be used for maintenance.<p>
-
-        This parameter is ignored for other modes.
+        The amount of money that any spending for repairs should be capped.
+        Setting this amount to a large number will cause all repairs to take
+        place, assuming that the actor has enough cash-on-hand to do them.
     } -tags {update}
 
     attribute level "Maximum" {
-        This parameter is used to cap the amount an actor spends on 
-        maintenance expressed as a maximum level of repair.  For instance,
-        if this parameter is set to 80, Athena will only spend enough of
-        this actor's money to bring his infrastructure up to 80% of maximum
-        production capacity in the neighborhoods specified.  It may take more
-        than one week of maintenance to get the infrastructure to this level 
-        if it has fallen into disrepair, but once it is there, only the 
-        amount of money needed to keep it there is allocated.
+        This parameter is used to cap the maximum level of repair.  
+        For instance, if this parameter is set to 80, Athena will only spend
+        enough of this actor's money to bring his infrastructure up to 80% 
+        of maximum production capacity in the neighborhoods specified.  
+        It may take more than one week of maintenance to get the 
+        infrastructure to this level if it has fallen into disrepair, but 
+        once it is there, only the amount of money needed to keep it there 
+        is allocated.
     } -tags {update}
 }
 

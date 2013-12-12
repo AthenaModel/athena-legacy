@@ -44,6 +44,7 @@ oo::class create coffer {
     variable cash       ;# Cash-on-hand
     variable reserve    ;# Cash-reserve
     variable troops     ;# dict $g -> {mobilized, undeployed, $n} -> $troops
+    variable plants     ;# dict $n -> repair level
 
     #-------------------------------------------------------------------
     # Constructor
@@ -57,13 +58,14 @@ oo::class create coffer {
     #
     # NOTE: We assume that the coffer is created at the beginning of
     # the agent's strategy execution, before any mobilization or deployment
-    # changes are done.
+    # changes and before any infrastructure maintenance are done.
 
     constructor {{agent ""}} {
         # FIRST, initialize the instance variables
         set cash    0.0
         set reserve 0.0
         set troops  [dict create]
+        set plants  [dict create]
 
         if {$agent eq ""} {
             return
@@ -94,6 +96,15 @@ oo::class create coffer {
             dict set troops $g mobilized  $mobilized
             dict set troops $g undeployed $available
         }
+
+        # NEXT, initialize agent's infrastructure repair levels
+        rdb eval {
+            SELECT n, rho
+            FROM plants_na
+            WHERE a = $agent
+        } {
+            dict set plants $n $rho
+        }
     }
 
     #-------------------------------------------------------------------
@@ -104,7 +115,7 @@ oo::class create coffer {
     # Returns object state as a dictionary.
 
     method getdict {} {
-        return [dict create cash $cash reserve $reserve troops $troops]    
+        return [dict create cash $cash reserve $reserve troops $troops plants $plants]    
     }
 
     # setdict dict
@@ -117,6 +128,7 @@ oo::class create coffer {
         set cash    [dict get $dict cash]
         set reserve [dict get $dict reserve]
         set troops  [dict get $dict troops]
+        set plants  [dict get $dict plants]
     }
 
     #-------------------------------------------------------------------
@@ -155,6 +167,20 @@ oo::class create coffer {
         }
 
         return 0
+    }
+
+    # plants n
+    #
+    # n     - A neighborhood
+    #
+    # Returns the average level of repair of the plants in n.
+
+    method plants {n} {
+        if {[dict exists $plants $n]} {
+            return [dict get $plants $n]
+        }
+
+        return 0.0
     }
 
     #-------------------------------------------------------------------
@@ -293,5 +319,20 @@ oo::class create coffer {
         dict set troops $g $n $unassigned
     }
 
+    # repair n rho
+    #
+    # n        - A neighborhood that contains manufacturing infrastructure
+    # rho      - The repair level of that infrastructure
+    #
+    # This keeps track of the level of repair of the infrastructure in n.
+    # The level goes up each time a MAINTAIN tactic is obligated.
+
+    method repair {n dRho} {
+        set rho [my plants $n]
+
+        let newRho {$rho + $dRho}
+
+        dict set plants $n $newRho
+    }
 }
 

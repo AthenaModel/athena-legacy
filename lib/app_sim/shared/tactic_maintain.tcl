@@ -17,11 +17,11 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
     #-------------------------------------------------------------------
     # Instance Variables
 
-    variable mode    ;# ALL, EXACT, UPTO, PERCENT or EXCESS 
-    variable level   ;# Desired level of repair as a percentage
-    variable amount  ;# Amount of money if mode is SOME
+    variable rmode   ;# Repair mode: FULL, UPTO
+    variable level   ;# Desired level of repair if mode is UPTO
+    variable amount  ;# Max amount of money to spend regardless of rmode
     variable percent ;# Percent of money to spend if mode is PERCENT
-    variable nlist   ;# List of nbhoods in which to spend to maintain
+    variable nlist   ;# List of nbhoods in which to maintain plants
 
     # Transient Data
     variable trans
@@ -35,13 +35,18 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
         next
 
         # Initialize state variables
-        set mode    ALL
-        set level   100.0
+        set rmode   FULL
+        set level   0.0
         set amount  0.0
         set percent 0.0
         set nlist   [gofer::NBHOODS blank]
 
-        set trans(amount) 0.0
+        my set state invalid
+
+        set trans(amount)   0.0
+        set trans(nlist)    [list]
+        set trans(repairs)  [dict create]
+        set trans(repaired) 0
 
         # Save the options
         my configure {*}$args
@@ -63,32 +68,17 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
         set ntext [gofer::NBHOODS narrative $nlist]
         set atext [moneyfmt $amount]
         set ltext [format "%.1f%%" $level]
-        set ptext [format "%.1f%%" $percent]
-        set anarr "\$$atext of cash-on-hand, but not more than is required"
-        set lnarr "to maintain at least $ltext of the total production capacity"
-        set pnarr "$ptext of cash-on-hand, but not more than is required"
-        set enarr "of the infrastructure owned in $ntext"
+        set anarr "Spend no more than \$$atext of cash-on-hand to maintain"
+        set enarr "capacity of the infrastructure owned in $ntext"
 
         set text ""
-        switch -exact -- $mode {
-            ALL {
-                return "Spend all remaining cash-on-hand $lnarr $enarr."
-            }
-
-            EXACT {
-                return "Spend exactly $anarr $lnarr $enarr."
+        switch -exact -- $rmode {
+            FULL {
+                return "$anarr full $enarr."
             }
 
             UPTO {
-                return "Spend up to $anarr $lnarr $enarr."
-            }
-
-            PERCENT {
-                return "Spend $pnarr $lnarr $enarr."
-            }
-
-            EXCESS {
-                return "Spend anything in excess of $anarr $lnarr $enarr."
+                return "$anarr at least $ltext $enarr."
             }
 
             default {
@@ -100,89 +90,192 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
     # ObligateResources coffer
     #
     # coffer  - A coffer object with the owning agent's current
-    #           resources
+    #           resourcemaxAmts
     #
     # Obligates the money to be spent.
 
     method ObligateResources {coffer} {
         # FIRST, retrieve relevant data.
-        let cash [$coffer cash]
+        set cash  [$coffer cash]
         set owner [my agent]
 
-        let lfrac {$level/100.0}
-        set spend 0.0
-        set max_spend 0.0
+        # Only going to deal in whole dollars
+        let cash {entier($cash)}
 
-        # NEXT, compute the upper limit of spending which is either one
-        # weeks worth of repair cost, or just enough money to bring all
-        # plants to the requested repair level.
-        foreach n [gofer::NBHOODS eval $nlist] {
-            let max_spend {$max_spend + [plant repaircost $n $owner $lfrac]}
+        # NEXT, max amount that can possibly be spent is either the
+        # amount of cash on hand or the limiting amount
+        let maxAmt {min($cash, $amount)}
+
+        # NEXT, get nbhoods, the gofer may retrieve an empty list
+        set trans(nlist) [my GetNbhoods]
+
+        if {[llength $trans(nlist)] == 0} {
+            return 0
         }
 
-        let amt {min($amount, $max_spend)}
-
-        # NEXT, depending on mode, try to obligate money
-        switch -exact -- $mode {
-            ALL {
-                let spend {min($cash, $max_spend)}
-            }
-
-            EXACT {
-                # This is the only one than could give rise to an error and
-                # only if we are on a tick
-                if {[my InsufficientCash $cash $amt]} {
-                    return
-                }
-
-                set spend $amt
-            }
-
-            UPTO {
-                let spend {max(0.0, min($cash, $amt))}
-            }
-
-            PERCENT {
-                if {$cash > 0.0} {
-                    let spend \
-                        {min(double($percent/100.0) * $cash, $max_spend)}
-                }
-            }
-
-            EXCESS {
-                let spend {max(0.0, min($cash-$amount, $max_spend))}
-            }
-
-            default {
-                error "Invalid mode: \"$mode\""
-            }
-
+        # NEXT, the maximum possible amount of repair that could be
+        # performed in one tick
+        set rTime [parmdb get plant.repairtime]
+        if {$rTime == 0.0} {
+            set maxDeltaRho 1.0
+        } else {
+            let maxDeltaRho {1.0/$rTime}
         }
-        
-        set trans(amount) $spend
 
-        # NEXT, obligate it.
-        $coffer spend $trans(amount)
+        # NEXT, the maximum repair level is either fully repaired or
+        # the level of repair the user has requested
+        # Note: This will need to be change if more repair modes are
+        # added
+        set maxRho 1.0
+
+        if {$rmode eq "UPTO"} {
+            let maxRho {$level/100.0}
+        }
+
+        # NEXT, set up to book keep the repairs and their cost
+        set trans(repairs) [dict create]
+        set costProfile    [dict create]
+        set totalCost 0.0
+         
+        # NEXT, go through each neighborhood that has plants owned by
+        # this actor and compute the amount and cost of repairs
+        foreach n $trans(nlist) {
+            # FIRST, the current level of repair at the start of the tick
+            set currRho [plant get [list $n $owner] rho]
+
+            # NEXT, the amount of repair is the difference between
+            # the maximum and the current levl
+            let deltaRho {$maxRho - $currRho}
+
+            # NEXT, if the current level of repair is already greater 
+            # than the max, nothing to do
+            if {$deltaRho <= 0.0} {
+                continue
+            }
+
+            # NEXT, constrain the actual amount of repair by the maximum that
+            # could be done in this tick
+            let actualDeltaRho {min($deltaRho, $maxDeltaRho)}
+
+            # NEXT, see if there's been any work done to these plants during
+            # strategy execution
+            let unrepaired {
+                ($currRho+$actualDeltaRho) - [$coffer plants $n]
+            }
+
+            # NEXT, constrain the amount of repair further by whatever is
+            # left unrepaired
+            let actualDeltaRho {min($actualDeltaRho, $unrepaired)}
+
+            # NEXT, these plants may have already had the maximum amount
+            # of repair done to them
+            if {$actualDeltaRho == 0.0} {
+                continue
+            }
+                    
+            # NEXT, determine the cost and bookkeep it, the actor may
+            # not have enough money to pay for it all
+            set nCost [plant repaircost $n $owner $actualDeltaRho]
+            dict set costProfile $n $nCost
+            let totalCost {$totalCost + $nCost}
+        }
+
+        # NEXT, if no cash, tactic fails
+        if {$totalCost > 0.0 && $cash == 0} {
+            my Fail CASH "Need \$[moneyfmt $totalCost] for repairs, have none."
+            return 0
+        }
+
+        set totalSpent 0.0
+        # NEXT, use cost profile to determine the actual repair done
+        foreach n [dict keys $costProfile] {
+            # NEXT, the share of the cost in this neighborhood and the
+            # actual amount spent
+            set spend 0.0
+
+            if {$totalCost > 0.0} {
+                let share {[dict get $costProfile $n] / $totalCost}
+                let spend {$share * min($totalCost, $maxAmt)}
+                let totalSpent {$totalSpent + $spend}
+            }
+
+            # NEXT, the actual amount of repair done
+            set dRho [plant repairlevel $n $owner $spend]
+            dict set trans(repairs) $n $dRho
+            $coffer repair $n $dRho
+        }
+
+        # NEXT, obligate cash
+        $coffer spend $totalSpent
+        set trans(amount) $totalSpent
+
+        # NEXT, if there's no repair cost, no repairs are needed
+        if {$totalCost == 0.0} {
+            set trans(repaired) 1
+        }
 
         return 1
     }
  
+    method GetNbhoods {} {
+        set nbhoods [gofer::NBHOODS eval $nlist]
+        set owner [my agent]
+
+        if {[llength $nbhoods] == 0} {
+            my Fail WARNING "Gofer retrieved no neighborhoods."
+            return ""
+        }
+
+        # NEXT, filter out any neighborhoods that have no infrastructure
+        # owned by the actor
+        set nbhoodsWithPlants [rdb eval {
+            SELECT n FROM plants_na
+            WHERE a = $owner
+        }]
+
+        set inNbhoods [list]
+
+        foreach n $nbhoods {
+            if {$n in $nbhoodsWithPlants} {
+                lappend inNbhoods $n
+            }
+        }
+
+        if {[llength $inNbhoods] == 0} {
+            my Fail WARNING \
+                "$owner has no infrastructure in the retrieved neighborhoods."
+        }
+
+        return $inNbhoods
+    }
+
     method execute {} {
         set owner [my agent]
 
         cash spend $owner MAINTAIN $trans(amount)
 
-        set nbs   [gofer::NBHOODS eval $nlist]
-        set ntext [gofer::NBHOODS narrative $nlist]
+        set nbhoods [gofer::NBHOODS eval $nlist]
+        set ntext   [gofer::NBHOODS narrative $nlist]
 
-        sigevent log 2 tactic "
-            MAINTAIN: Actor {actor:$owner} spends
-            \$[moneyfmt $trans(amount)] to maintain manufacturing
-            infrastructure in $ntext.
-        " $owner {*}$nbs
+        if {$trans(repaired)} {
+            sigevent log 2 tactic "
+                MAINTAIN: Actor {actor:$owner} spends
+                \$[moneyfmt $trans(amount)] since any
+                infrastructure owned in $ntext have already 
+                had the maximum amount of repair.
+            " $owner {*}$nbhoods
 
-        let lfrac {$level/100.0}
-        plant repair $owner $nbs $trans(amount) $lfrac
+        } else {
+            sigevent log 2 tactic "
+                MAINTAIN: Actor {actor:$owner} spends
+                \$[moneyfmt $trans(amount)] to maintain any 
+                infrastructure owned in $ntext.
+            " $owner {*}$nbhoods
+        }
+
+        foreach n [dict keys $trans(repairs)] {
+            plant repair $owner $n [dict get $trans(repairs) $n]
+        }
     }
 }
 
@@ -202,41 +295,26 @@ order define TACTIC:MAINTAIN {
         text tactic_id -context yes \
             -loadcmd {beanload}
 
-        rc "Maintain In:" -span 2
+        rc "Maintain In:" -span 3 
 
-        rcc "Nbhoods:" -for nlist -span 3
+        rcc "Nbhoods:" -for nlist -span 4 
         gofer nlist -typename gofer::NBHOODS
 
-        rcc "Amount:"   -for mode
-        selector mode {
-            case ALL "All remaining cash-on-hand" {}
+        rcc "A Capacity of:" -for rmode 
+        selector rmode {
+            case FULL "100%" {}
 
-            case EXACT "Exactly this much" {
-                c "" -for amount
-                text amount
-            }
-
-            case UPTO "Up to this much" {
-                c "" -for amount
-                text amount
-            }
-
-            case PERCENT "Percentage of cash-on-hand" {
-                cc "" -for percent
-                text percent
-                c
+            case UPTO "at least" {
+                cc "" -for level 
+                text level
+                c 
                 label "%"
-            }
-
-            case EXCESS "Excess of cash-on-hand" {
-                c "" -for amount
-                text amount
             }
         }
         
-        rcc "Maximum:" -for level -span 2
-        text level
-        label "% of capacity."
+        rcc "Using a max of:" -for amount -span 3
+        text amount
+        label "cash-on-hand."
     }
 } {
     # FIRST, prepare the parameters
@@ -246,9 +324,8 @@ order define TACTIC:MAINTAIN {
     set tactic [tactic get $parms(tactic_id)]
 
     prepare nlist
-    prepare mode    -toupper  -selector
+    prepare rmode   -toupper  -selector
     prepare amount  -type money
-    prepare percent -type rpercent
     prepare level   -type rpercent
 
     returnOnError
@@ -256,21 +333,15 @@ order define TACTIC:MAINTAIN {
     # NEXT, check cross-constraints
     fillparms parms [$tactic view]
 
-    if {$parms(mode) ne "PERCENT" && 
-        $parms(mode) ne "ALL"     &&
-        $parms(amount) == 0.0} {
-            reject amount "You must specify an amount > 0.0"
-    }
-
-    if {$parms(mode) eq "PERCENT" && $parms(percent) == 0.0} {
-        reject percent "You must specify a percent > 0.0"
+    if {$parms(rmode) eq "UPTO" && $parms(level) == 0.0} {
+        reject level "You must specify a capacity level > 0.0"
     }
 
     returnOnError -final
 
     # NEXT, update the tactic, saving the undo script
     setundo [$tactic update_ {
-        nlist mode amount percent level
+        nlist rmode amount level
     } [array get parms]]
 }
 

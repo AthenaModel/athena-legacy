@@ -276,13 +276,12 @@ rho  0.5
         moneyfmt [plant repaircost NB1 JOE 1.0]
     } -cleanup {
         cleanup
-    } -result {2.654M}
+    } -result {69.000M}
 
     test repaircost-1.3 {almost totally repaired} -setup {
         execute_setup
     } -body {
-        rdb eval {UPDATE plants_na SET rho=0.99 WHERE n='NB1' AND a='JOE'}
-        moneyfmt [plant repaircost NB1 JOE 1.0]
+        moneyfmt [plant repaircost NB1 JOE 0.01]
     } -cleanup {
         cleanup
     } -result {690,000}
@@ -295,7 +294,7 @@ rho  0.5
     } -body {
         ted create DAVE
         set a [rdb eval {SELECT total(rho) FROM plants_na}]
-        plant repair DAVE {NB1} 10000000.0 1.0
+        plant repair DAVE {NB1} 1.0
         set b [rdb eval {SELECT total(rho) FROM plants_na}]
 
         expr {$a==$b}
@@ -303,23 +302,11 @@ rho  0.5
         cleanup
     } -result {1}
 
-    test repair-1.2 {plants owned, no money} -setup {
+    test repair-1.2 {plants owned, plants repaired} -setup {
         execute_setup
     } -body {
         set a [rdb eval {SELECT total(rho) FROM plants_na}]
-        plant repair JOE {NB1} 0.0 1.0
-        set b [rdb eval {SELECT total(rho) FROM plants_na}]
-
-        expr {$a==$b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test repair-1.3 {plants owned, plants repaired} -setup {
-        execute_setup
-    } -body {
-        set a [rdb eval {SELECT total(rho) FROM plants_na}]
-        plant repair JOE {NB1} 100000.0 1.0
+        plant repair JOE {NB1} 1.0
         set b [rdb eval {SELECT total(rho) FROM plants_na}]
 
         expr {$a<$b}

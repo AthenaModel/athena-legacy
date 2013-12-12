@@ -97,7 +97,7 @@ snit::type plant {
     typemethod LaydownPlants {} {
         # FIRST, get the amount of goods each plant is capable of producing
         # at max capacity
-        set goodsPerPlant [money validate [parmdb get econ.bktsPerYear.goods]]
+        set goodsPerPlant [money validate [parmdb get plant.bktsPerYear.goods]]
 
         # NEXT, get the calibrated values from the CGE for the quantity of
         # goods baskets and their price
@@ -148,7 +148,7 @@ snit::type plant {
                 # that fractional plants do not exist
                 # Note: floor() could be used here, resulting in an increase
                 # to rho, but then that leaves the possiblity of a rho > 1.0
-                let actualPlantsNA {int(ceil($plantsNA/$rho))}
+                let actualPlantsNA {entier(ceil($plantsNA/$rho))}
 
                 rdb eval {
                     UPDATE plants_na
@@ -206,140 +206,101 @@ snit::type plant {
     #----------------------------------------------------------------------
     # Infrastructure repair
 
-    # repaircost n a lvl
+    # repairlevel n a cash
     #
     # n    - a neighborhood that contains manufacturing plants
-    # a    - an actor that owns some plants in n
-    # lvl  - the desired average level of repair
+    # a    - an actor that owns plants in n
+    # cash - some amount of cash
     #
-    # This method computes the cost to repair all the plants owned by
-    # actor a in neighborhood n for one weeks worth of repair or to the
-    # requested level of repair, whichever is smaller.
+    # This method converts cash to some amount of repair and returns
+    # the repair level that would result from the expenditure of that
+    # cash on repairs
+    
+    typemethod repairlevel {n a cash} {
+        # FIRST, get the number of plants
+        set num [rdb eval {
+                     SELECT num
+                     FROM plants_na
+                     WHERE n=$n AND a=$a
+                 }]
 
-    typemethod repaircost {n a lvl} {
-
-        # FIRST get the number of plants and repair level 
-        set plist [rdb eval {
-                      SELECT num, rho 
-                      FROM plants_na
-                      WHERE n=$n AND a=$a
-              }]
-
-        if {[llength $plist] == 0} {
-            return 0.0
-        }
-
-        lassign $plist num rho
-
-        # NEXT, if the repair level is already over the desired level,
-        # no cost
-        if {$rho >= $lvl} {
+        if {$num eq "" || $num == 0} {
             return 0.0
         }
 
         # NEXT, retrieve parms
         set bCost [money validate [parmdb get plant.buildcost]]
         set rFrac [parmdb get plant.repairfrac]
-        set rTime [parmdb get plant.repairtime]
 
-        # NEXT, if repair time is zero no cost
-        if {$rTime == 0} {
+        # NEXT, the amount of money spent per plant
+        let cashPerPlant {$cash / $num}
+
+        # NEXT, the average amount of repair per plant that this amount
+        # of money can do
+        if {$rFrac == 0.0} {
+            return 1.0
+        } else {
+            let dRho {$cashPerPlant / ($bCost * $rFrac)}
+        }
+
+        return $dRho
+    }
+
+
+    # repaircost n a lvl
+    #
+    # n     - a neighborhood that contains manufacturing plants
+    # a     - an actor that owns some plants in n
+    # dRho  - the desired change in level of repair
+    #
+    # This method computes the cost to repair all the plants owned by
+    # actor a in neighborhood n for one weeks worth of repair or to the
+    # requested level of repair, whichever is smaller.
+
+    typemethod repaircost {n a dRho} {
+        # FIRST, if the desired change is zero, no cost 
+        if {$dRho == 0} {
             return 0.0
         }
 
-        # NEXT, determine the cost of repairing one plant in this
-        # neighborhood
+        # FIRST get the number of plants 
+        set num [rdb eval {
+                      SELECT num 
+                      FROM plants_na
+                      WHERE n=$n AND a=$a
+                }]
 
-        # maximum delta of repair in one week
-        let maxdRho {1.0 / $rTime}
-
-        # maximum possible cost per plant per week
-        let maxCostPerWk {$bCost * $rFrac * $maxdRho}
-
-        # the delta rho requested, could be < max
-        let dRho {$lvl - $rho}
-
-        # if requested delta rho is less than max, reduce cost by their ratio
-        if {$dRho < $maxdRho} {
-            let maxCostPerWk {$maxCostPerWk * ($dRho / $maxdRho)}
+        if {$num eq "" || $num == 0} {
+            return 0.0
         }
 
-        # NEXT, multiply by number of plants to get total cost in this 
-        # neighborhood for the supplied actor
-        return [expr {$maxCostPerWk * $num}]
+        # NEXT, retrieve parms
+        set bCost [money validate [parmdb get plant.buildcost]]
+        set rFrac [parmdb get plant.repairfrac]
+
+        # NEXT, determine the cost of repairing one plant in this
+        # neighborhood
+        let maxCostPerWk {$bCost * $rFrac * $dRho}
+
+        # NEXT, multiply by number of plants to get total cost 
+        let totalCost {$maxCostPerWk * $num}
+
+        return $totalCost 
     }
 
     # repair a nlist amount level 
     #
-    # a       - an actor that owns infrastructure
-    # nlist   - a list of nieghborhoods 
-    # amount  - the amount the actor spends on repair
-    # level   - the desired level of repair for the plants
+    # a     - an actor that owns infrastructure
+    # n     - a neighborhood that a has infrastructure
+    # dRho  - the change in level of repair for the plants
     #
-    # This method takes a single amount of money and allocates 
-    # it to the infrastructure plants owned by the actor based 
-    # upon the current level of repair and the desired level 
-    # of repair in each of the neighborhoods in which this
-    # actor owns infrastruture plants.   Since, in general, 
-    # the current level of repair is different for each neighborhood
-    # the desired level must be supplied to determine how much 
-    # money should be allocated to each neighborhood.
 
-    typemethod repair {a nlist amount level} {
-        # FIRST, if no money being spent, we're done
-        if {$amount == 0.0} {
-            return
-        }
-
-        # NEXT, initialize some variables
-        set Ancost [dict create]
-        set totCost 0.0
-
-        # NEXT, determine maximum repair cost per plant per week
-        set bCost [money validate [parmdb get plant.buildcost]]
-        set rFrac [parmdb get plant.repairfrac]
-        set rTime [parmdb get plant.repairtime]
-
-        # NEXT, if repair time is zero, nothing to do
-        if {$rTime == 0} {
-            return 
-        }
-
-        # NEXT, maximum delta rho in one week
-        let maxdRho {1.0 / $rTime}
-
-        # NEXT, the maximum possible cost per plant per week 
-        let maxCostPerWk {$bCost * $rFrac * $maxdRho}
-
-        # NEXT, accumulate actual max repair costs for allocation
-        set Atcost 0.0
-
-        foreach n $nlist {
-            set Acost [plant repaircost $n $a $level]
-            
-            let Atcost {$Atcost + $Acost}
-
-            dict set Ancost $n $Acost
-        }
-
-        # NEXT, no repair cost, nothing to do
-        # This should NOT happen
-        if {$Atcost == 0.0} {
-            return
-        }
-
-        # NEXT, allocate money based on actual costs and update repair
-        # level. 
-
-        dict for {n Acost} $Ancost {
-            let share {$Acost / $Atcost * $amount}
-
-            # Adjust max delta rho by the actual share allocated
-            rdb eval {
-                UPDATE plants_na
-                SET rho = rho + ($maxdRho * ($share / (num * $maxCostPerWk)))
-                WHERE n=$n AND a=$a
-            }
+    typemethod repair {a n dRho} {
+        # FIRST, change rho by the amount requested
+        rdb eval {
+            UPDATE plants_na
+            SET rho = min(1.0,rho + $dRho)
+            WHERE n=$n AND a=$a
         }
     }
 
@@ -409,7 +370,7 @@ snit::type plant {
     # Returns the total output capacity of all manufacturing plants
 
     typemethod {capacity total} {} {
-        set goodsPerPlant [money validate [parmdb get econ.bktsPerYear.goods]]
+        set goodsPerPlant [money validate [parmdb get plant.bktsPerYear.goods]]
 
         set totBkts [rdb onecolumn {
             SELECT total(num*rho) FROM plants_na
@@ -424,7 +385,7 @@ snit::type plant {
     # a neighborhood
 
     typemethod {capacity n} {n} {
-        set goodsPerPlant [money validate [parmdb get econ.bktsPerYear.goods]]
+        set goodsPerPlant [money validate [parmdb get plant.bktsPerYear.goods]]
 
         set totBkts [rdb onecolumn {
             SELECT total(num*rho) FROM plants_na
@@ -440,7 +401,7 @@ snit::type plant {
     # an agent
 
     typemethod {capacity a} {a} {
-        set goodsPerPlant [money validate [parmdb get econ.bktsPerYear.goods]]
+        set goodsPerPlant [money validate [parmdb get plant.bktsPerYear.goods]]
 
         set totBkts [rdb onecolumn {
             SELECT total(num*rho) FROM plants_na
