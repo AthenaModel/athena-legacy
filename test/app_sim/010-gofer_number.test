@@ -209,6 +209,76 @@ namespace eval ::athena_test::tests:: {
     } -result {25.0}
 
     #-------------------------------------------------------------------
+    # Rule: COVERAGE
+
+    test COVERAGE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COVERAGE construct NB1 BLUE PRESENCE
+    } -cleanup {
+        cleanup
+    } -result {n NB1 g BLUE a PRESENCE}
+
+    test COVERAGE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COVERAGE validate {n nb1 g shia a patrol}
+    } -cleanup {
+        cleanup
+    } -result {n NB1 g SHIA a PATROL}
+
+    test COVERAGE-2.2 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COVERAGE validate {n NONESUCH g BLUE a PATROL}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test COVERAGE-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COVERAGE validate {n NB1 g NONESUCH a PATROL}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group,*}
+
+    test COVERAGE-2.4 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COVERAGE validate {n NB1 g SHIA a NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid activity,*}
+
+    test COVERAGE-3.1 {narrative} -body {
+        ::gofer::NUMBER::COVERAGE narrative {n NB1 g SHIA a PATROL}
+    } -result {coverage("NB1","SHIA","PATROL")}
+
+    test COVERAGE-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::COVERAGE eval {n NB1 g SHIA a PATROL}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test COVERAGE-4.1 {eval no data before lock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::COVERAGE eval {n NB1 g SHIA a PATROL}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # Rule: INFLUENCE
 
     test INFLUENCE-1.1 {construct, valid} -setup {

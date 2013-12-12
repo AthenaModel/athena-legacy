@@ -1984,6 +1984,35 @@ gofer_rule NUMBER COOP "coop(f,g)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER COVERAGE "coverage(n,g,a)" {
+    Returns the coverage fraction for <<term group>> <i>g</i> 
+    assigned to <<term activity>> <i>a</i> in <<term nbhood>> <i>n</i>
+    as a number between 0.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details n NB1 g SHIA a PATROL>>
+    <<gofer.function coverage {"NB1","SHIA","PATROL"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term group>>.
+    <</topic>>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term activity>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER INFLUENCE "influence(a,n)" {
     Returns the <<term influence>> of <<term actor>> <i>a</i> with 
     <<term nbhood>> <i>n</i> as a number between 0.0 and 1.0.<p>

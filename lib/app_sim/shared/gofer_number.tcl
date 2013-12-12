@@ -56,6 +56,21 @@ gofer define NUMBER "" {
             enumlong g -showkeys yes -dictcmd {::frcgroup namedict}
         }
 
+        case COVERAGE "coverage(n,g,a)" {
+            rc
+            rc "Coverage fraction for group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::group namedict}
+
+            rc "assigned to activity"
+            rc
+            enum a -listcmd {::activity names}
+
+            rc "in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
         case INFLUENCE "influence(a,n)" {
             rc
             rc "Influence of actor"
@@ -257,7 +272,6 @@ gofer rule NUMBER COOP {f g} {
         dict create \
             f [civgroup validate [string toupper $f]] \
             g [frcgroup validate [string toupper $g]]
-
     }
 
     typemethod narrative {gdict {opt ""}} {
@@ -276,6 +290,43 @@ gofer rule NUMBER COOP {f g} {
         }
 
         return 50.0
+    }
+}
+
+# Rule: COVERAGE
+#
+# coverage(n,g,a)
+
+gofer rule NUMBER COVERAGE {n g a} {
+    typemethod construct {n g a} {
+        return [$type validate [dict create n $n g $g a $a]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            n [nbhood validate [string toupper $n]] \
+            g [group validate [string toupper $g]] \
+            a [activity validate [string toupper $a]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {coverage("%s","%s","%s")} $n $g $a]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT coverage FROM activity_nga WHERE n=$n AND g=$g AND a=$a
+        } {
+            return [format %.1f $coverage]
+        }
+
+        return 0.0
     }
 }
 

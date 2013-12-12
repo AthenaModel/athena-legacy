@@ -108,6 +108,20 @@ function "coop(f,g)" {
 }
 
 #=======================================================================
+# coverage
+
+function "coverage(n,g,a)" {
+    Returns the coverage fraction for <<term group>> <i>g</i> 
+    assigned to <<term activity>> <i>a</i> in <<term nbhood>> <i>n</i>
+    as a number between 0.0 and 100.0.<p>
+
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/coverage>> rule.
+}
+
+#=======================================================================
 # gdp
 
 function "gdp()" {
