@@ -2144,6 +2144,26 @@ gofer_rule NUMBER SAT "sat(g,c)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER SECURITY_CIV "security(g)" {
+    Returns the security of <<term civgroup>> <i>g</i> 
+    as a number between -100.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details g SHIA>>
+    <<gofer.function security {"SHIA"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term group>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER SECURITY "security(g,n)" {
     Returns the security of <<term group>> <i>g</i> in 
     <<term nbhood>> <i>n</i> as a number between -100.0 and 100.0.<p>

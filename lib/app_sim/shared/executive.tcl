@@ -651,7 +651,7 @@ snit::type executive {
         $interp function sat 2 2 {g c} \
             [myproc sat]
 
-        $interp function security 2 2 {n g} \
+        $interp function security 1 2 {g ?n?} \
             [myproc security]
 
         $interp function support 2 3 {a g ?n?} \
@@ -825,15 +825,20 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
-    # security g n
+    # security g ?n?
     #
     # g - A group
     # n - A neighborhood
     #
     # Returns g's security in n
+    # If no n is specified, g is assumed to be a civilian group
 
-    proc security {g n} {
-        set gdict [gofer construct NUMBER SECURITY $g $n]
+   proc security {g {n ""}} {
+        if {$n eq ""} {
+            set gdict [gofer construct NUMBER SECURITY_CIV $g]
+        } else {
+            set gdict [gofer construct NUMBER SECURITY $g $n]
+        }
 
         return [gofer::NUMBER eval $gdict]
     }
@@ -845,7 +850,7 @@ snit::type executive {
     # n - A neighborhood
     #
     # Returns the support for a by g in n. 
-    # If n is not given, it is assumed to be a civilian group.
+    # If n is not given, g is assumed to be a civilian group.
 
     proc support {a g {n ""}} {
         if {$n eq ""} {

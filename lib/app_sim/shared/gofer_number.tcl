@@ -122,6 +122,13 @@ gofer define NUMBER "" {
             enumlong c -showkeys yes -dictcmd {::econcern deflist}
         }
 
+        case SECURITY_CIV "security(g)" {
+            rc
+            rc "Security of civilian group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::civgroup namedict}         
+        }
+
         case SECURITY "security(g,n)" {
             rc
             rc "Security of group"
@@ -532,6 +539,41 @@ gofer rule NUMBER SAT {g c} {
     }
 }
 
+#
+# Rule: SECURITY_CIV
+#
+# security(g)
+
+gofer rule NUMBER SECURITY_CIV {g} {
+    typemethod construct {g} {
+        return [$type validate [dict create g $g]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            g [civgroup validate [string toupper $g]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {security("%s")} $g]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT security FROM force_ng WHERE g=$g
+        } {
+            return $security
+        }
+
+        return 0
+    }
+}
 #
 # Rule: SECURITY
 #

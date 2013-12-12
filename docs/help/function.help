@@ -246,14 +246,19 @@ function sat(g,c) {
 # security
 
 function security(g,n) {
-    Returns the <<term security>> of 
-    <<term group>> <i>g</i> in <<term nbhood>> <i>n</i> as a number
-    between -100 and 100.<p>
+    Returns the <<term security>> of <<term group>> <i>g</i> in 
+    <<term nbhood>> <i>n</i> as a number between -100 and 100.<p>
+
+    If n is not given, then it returns the <<term security>> of 
+    <<term civgroup>> <i>g</i> as a number between -100 and 100.<p>
 
     Returns 0 when the scenario is unlocked.<p>
 
-    This function is equivalent to the <<cref /gofer/number>>'s
-    <<cref /gofer/number/security>> rule.
+    If n is given, this function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/security>> rule.<p>
+
+    If n is NOT given, this function is equivalent to the 
+    <<cref /gofer/number>>'s <<cref /gofer/number/security_civ>> rule.
 }
 
 #=====================================================================

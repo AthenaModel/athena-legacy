@@ -568,6 +568,58 @@ namespace eval ::athena_test::tests:: {
     } -result {25.0}
 
     #-------------------------------------------------------------------
+    # Rule: SECURITY_CIV
+
+    test SECURITY_CIV-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY_CIV construct SHIA
+    } -cleanup {
+        cleanup
+    } -result {g SHIA}
+
+    test SECURITY_CIV-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY_CIV validate {g shia}
+    } -cleanup {
+        cleanup
+    } -result {g SHIA}
+
+    test SECURITY_CIV-2.2 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY_CIV validate {g NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test SECURITY_CIV-3.1 {narrative} -body {
+        ::gofer::NUMBER::SECURITY_CIV narrative {g SHIA}
+    } -result {security("SHIA")}
+
+    test SECURITY_CIV-4.1 {eval} -setup {
+        setup
+        #Setup sets the security_civ to 31
+        ted lock
+    } -body {
+        ::gofer::NUMBER::SECURITY_CIV eval {g SHIA}
+    } -cleanup {
+        cleanup
+    } -result {31}
+
+    test SECURITY_CIV-4.1 {eval no data} -setup {
+        setup
+        #Setup sets the security_civ to 31
+    } -body {
+        ::gofer::NUMBER::SECURITY_CIV eval {g SHIA}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
     # Rule: SECURITY
 
     test SECURITY-1.1 {construct, valid} -setup {
@@ -619,6 +671,14 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {31}
+
+    test SECURITY-4.2 {eval no data} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::SECURITY eval {g SHIA n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0}
 
     #-------------------------------------------------------------------
     # Rule: SUPPORT_CIV
