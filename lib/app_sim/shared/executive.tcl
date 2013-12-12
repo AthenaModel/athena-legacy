@@ -612,6 +612,9 @@ snit::type executive {
     # Defines the executive functions.
     
     typemethod DefineExecutiveFunctions {} {
+        $interp function assigned 3 3 {n g activity} \
+            [myproc assigned]
+
         $interp function controls 2 - {a n ?n...?} \
             [myproc controls]
 
@@ -665,6 +668,20 @@ snit::type executive {
 
         $interp function volatility 1 1 {n} \
             [myproc volatility]
+    }
+
+    # assigned n g activity
+    #
+    # n - A neighborhood
+    # g - A force group
+    # activity - an activity
+    #
+    # Returns the number of personnel in nbhood n
+    # of group g, assigned to do the activity.
+
+    proc assigned {n g activity} {
+        set gdict [gofer construct NUMBER ASSIGNED $n $g $activity] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # controls a n ?n...?

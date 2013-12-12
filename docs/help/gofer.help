@@ -1932,6 +1932,34 @@ gofer_rule NUMBER BY_VALUE "specific number" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER ASSIGNED "assigned(n,g,activity)" {
+    Returns the number of personnel in <<term nbhood>> <i>n</i>
+    of <<term group>> <i>g</i> with <<term activity>> <i>activity</i><p>
+
+    <<itemlist>>
+    <<gofer.details n N01 g SUNN activity PATROL>>
+    <<gofer.function assigned {"N01","SUNN","PATROL"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term group>>.
+    <</topic>>
+
+    <<topic <tt><i>activity</i></tt> >>
+    ID of a <<term activity>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER COOP "coop(f,g)" {
     Returns the cooperation of <<term civgroup>> <i>f</i> with 
     <<term frcgroup>> <i>g</i> as a number between 0.0 and 100.0.<p>

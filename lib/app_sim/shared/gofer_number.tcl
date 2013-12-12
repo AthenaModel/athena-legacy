@@ -30,6 +30,21 @@ gofer define NUMBER "" {
             text raw_value 
         }
 
+        case ASSIGNED "assigned(n,g,activity)" {
+            rc
+            rc "Number of personnel in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+
+            rc "of group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::group namedict}
+
+            rc "assigned to do activity"
+            rc
+            enum activity -listcmd {::activity names}
+        }
+
         case COOP "coop(f,g)" {
             rc
             rc "Cooperation of civilian group"
@@ -179,6 +194,44 @@ gofer rule NUMBER BY_VALUE {raw_value} {
         dict with gdict {}
 
         return $raw_value
+    }
+}
+
+# Rule: ASSIGNED
+#
+# assigned(n,g,activity)
+
+gofer rule NUMBER ASSIGNED {n g activity} {
+    typemethod construct {n g activity} {
+        return [$type validate [dict create n $n g $g activity $activity]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            n [nbhood validate [string toupper $n]] \
+            g [group validate [string toupper $g]] \
+            activity [activity validate [string toupper $activity]] \
+
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {assigned("%s","%s","%s")} $n $g $activity]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT total(personnel) AS assigned FROM units WHERE n=$n AND g=$g AND a=$activity
+        } {
+            return [format %.0f $assigned]
+        }
+
+        return 0
     }
 }
 

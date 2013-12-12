@@ -70,6 +70,19 @@ macro function_syntax {} {
 }
 
 #=======================================================================
+# assigned
+
+function "assigned(n,g,activity)" {
+    Returns the number of personnel in <<term nbhood>> <i>n</i>
+    of <<term group>> <i>g</i> with <<term activity>> <i>activity</i>.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/assigned>> rule.
+}
+
+#=======================================================================
 # controls
 
 function "controls(a,n,?n...?)" {

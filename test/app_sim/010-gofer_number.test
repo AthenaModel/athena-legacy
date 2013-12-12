@@ -83,6 +83,77 @@ namespace eval ::athena_test::tests:: {
     } -result {45.0}
 
     #-------------------------------------------------------------------
+    # Rule: ASSIGNED
+
+    test ASSIGNED-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ASSIGNED construct NB1 BLUE PATROL
+    } -cleanup {
+        cleanup
+    } -result {n NB1 g BLUE activity PATROL}
+
+    test ASSIGNED-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ASSIGNED validate {n nb1 g blue activity patrol}
+    } -cleanup {
+        cleanup
+    } -result {n NB1 g BLUE activity PATROL}
+
+    test ASSIGNED-2.2 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ASSIGNED validate {n NONESUCH g BLUE activity PATROL}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test ASSIGNED-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ASSIGNED validate {n NB1 g NONESUCH activity PATROL}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group,*}
+
+    test ASSIGNED-2.4 {validate, invalid activity} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ASSIGNED validate {n NB1 g BLUE activity NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid activity,*}
+
+    test ASSIGNED-3.1 {narrative} -body {
+        ::gofer::NUMBER::ASSIGNED narrative {n NB1 g BLUE activity PATROL}
+    } -result {assigned("NB1","BLUE","PATROL")}
+
+    test ASSIGNED-4.1 {eval, no data} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::ASSIGNED eval {n NB1 g BLUE activity PATROL}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test ASSIGNED-4.1 {eval, data} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::ASSIGNED eval {n NB1 g BLUE activity PATROL}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
     # Rule: COOP
 
     test COOP-1.1 {construct, valid} -setup {
