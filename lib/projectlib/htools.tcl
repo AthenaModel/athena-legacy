@@ -43,6 +43,7 @@ snit::type ::projectlib::htools {
     typevariable qrow        ;# Row of queried data.
 
 
+
     #-------------------------------------------------------------------
     # Type Methods
 
@@ -91,6 +92,11 @@ snit::type ::projectlib::htools {
     variable stack -array {
         0  {}
     }
+
+    # Variables used in formatting tables
+
+    # itemCounter: used to determine odd/even rows
+    variable itemCounter 0
 
 
     #-------------------------------------------------------------------
@@ -667,10 +673,12 @@ snit::type ::projectlib::htools {
     # added automatically.
 
     method table {headers {body ""}} {
-        $self putln "<table border=1 cellpadding=2 cellspacing=0>"
+        set itemCounter 0
+
+        $self putln "<table class=pretty cellpadding=5>"
 
         if {[llength $headers] > 0} {
-            $self putln "<tr align=left>"
+            $self putln "<tr class=header align=left>"
 
             foreach header $headers {
                 $self put "<th align=left>$header</th>"
@@ -705,12 +713,26 @@ snit::type ::projectlib::htools {
             append attrs " $attr=\"$value\""
         }
 
-        $self putln "<tr valign=top$attrs>"
+        if {[incr itemCounter] % 2 == 1} {
+            set trClass oddrow
+        } else {
+            set trClass evenrow
+        }
+
+        $self putln "<tr class=$trClass valign=top$attrs>"
 
         if {$body ne ""} {
             uplevel 1 $body
             $self /tr
         }
+    }
+
+    # rowcount 
+    #
+    # Number of rows in most recently produced table.
+
+    method rowcount {} {
+        return $itemCounter
     }
 
     # td ?align? ?body?

@@ -765,50 +765,39 @@ appserver module GROUPS {
             # There might not be any.
             ht push
 
-            rdb eval {
-                SELECT nlink,
-                       froe,
-                       fpersonnel,
-                       glink,
-                       fattacks,
-                       gpersonnel,
-                       groe
-                       FROM gui_conflicts
-                WHERE f = $g;
+            ht table {
+                "Nbhood" "Att. ROE" "Max Attacks" "Defender" 
+                "Personnel" "Def. ROE"
             } {
-                if {$fpersonnel && $gpersonnel > 0} {
-                    set bgcolor white
-                } else {
-                    set bgcolor lightgray
-                }
-
-                ht tr bgcolor $bgcolor {
-                    ht td left  { ht put $nlink      }
-                    ht td left  { ht put $froe       }
-                    ht td right { ht put $fattacks   }
-                    ht td left  { ht put $glink      }
-                    ht td right { ht put $gpersonnel }
-                    ht td left  { ht put $groe       }
+                rdb eval {
+                    SELECT nlink,
+                           froe,
+                           fpersonnel,
+                           glink,
+                           fattacks,
+                           gpersonnel,
+                           groe
+                           FROM gui_conflicts
+                    WHERE f = $g;
+                } {
+                    ht tr {
+                        ht td left  { ht put $nlink      }
+                        ht td left  { ht put $froe       }
+                        ht td right { ht put $fattacks   }
+                        ht td left  { ht put $glink      }
+                        ht td right { ht put $gpersonnel }
+                        ht td left  { ht put $groe       }
+                    }
                 }
             }
 
             set text [ht pop]
 
-            if {$text ne ""} {
+            if {[ht rowcount] > 0} {
                 ht putln "Group $g has the following attacking ROEs."
-                ht putln {
-                    The background will be gray for potential conflicts, 
-                    i.e., those in which one or the other group (or both)
-                    has no personnel in the neighborhood in question.
-                }
                 ht para
 
-                ht table {
-                    "Nbhood" "Att. ROE" "Max Attacks" "Defender" 
-                    "Personnel" "Def. ROE"
-                } {
-                    ht putln $text
-                }
+                ht putln $text
             } else {
                 ht putln "Group $g is not attacking any other groups."
             }

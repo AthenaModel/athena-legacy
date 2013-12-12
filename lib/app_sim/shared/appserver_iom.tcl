@@ -150,45 +150,37 @@ appserver module IOM {
 
         # NEXT, may need to customize the table for disabled or invalid
         # hook topics, so build it from scratch
-        rdb eval {
-            SELECT fancy      AS fancy,
-                   position   AS position,
-                   state      AS state
-            FROM gui_hook_topics WHERE hook_id=$data(hook_id)
-        } {
-            if {$state eq "disabled"} {
-                ht putln "<tr bgcolor=lightgray>"
-            } elseif {$state eq "invalid"} {
-                ht putln "<tr bgcolor=yellow>"
-            } else {
-                ht putln "<tr>"
-            }
+        ht table {"Topic" "Position" "Symbolic Value" "State"} {
+            rdb eval {
+                SELECT fancy      AS fancy,
+                       position   AS position,
+                       state      AS state
+                FROM gui_hook_topics WHERE hook_id=$data(hook_id)
+            } {
+                ht tr {
+                    ht td left {
+                        ht put "<span class=$state>$fancy</span>"
+                    }
 
-            ht td left {
-                ht put $fancy
-            }
+                    ht td right {
+                        ht put $position
+                    }
 
-            ht td right {
-                ht put $position
-            }
+                    ht td left {
+                        ht put [qposition longname $position]
+                    }
 
-            ht td left {
-                ht put [qposition longname $position]
+                    ht td left {
+                        ht put $state
+                    }
+                }
             }
-
-            ht td left {
-                ht put $state
-            }
-
-            ht put "</tr>"
         }
 
         set text [ht pop]
 
-        if {$text ne ""} {
-            ht table {"Topic" "Position" "Symbolic Value" "State"} {
-                ht putln $text
-            }
+        if {[ht rowcount] > 0} {
+            ht putln $text
         } else {
             ht putln "None."
         }

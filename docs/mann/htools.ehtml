@@ -486,6 +486,12 @@ set.<p>
 
 <</deflist options>>
 
+<<defitem rowcount {<i>object</i> rowcount}>>
+
+Returns the number of <<iref tr>> calls made for the most recent
+<<iref table>>.  This can be used with <<iref push>> and <<iref pop>>
+to avoid including a table if it has no rows of data.<p>
+
 <<defitem record {<i>object</i> record ?<i>body</i>?}>>
 
 Begins a record structure, a borderless two-column table of labels

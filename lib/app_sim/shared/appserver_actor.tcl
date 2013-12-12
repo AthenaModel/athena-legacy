@@ -462,39 +462,44 @@ appserver module ACTOR {
             # There might not be any.
             ht push
 
-            rdb eval {
-                SELECT nlink,
-                       flink,
-                       froe,
-                       fpersonnel,
-                       glink,
-                       fattacks,
-                       gpersonnel,
-                       groe
-                FROM gui_conflicts
-                WHERE factor = $a;
+            ht table {
+                "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
+                "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
             } {
-                if {$fpersonnel && $gpersonnel > 0} {
-                    set bgcolor white
-                } else {
-                    set bgcolor lightgray
-                }
+                rdb eval {
+                    SELECT nlink,
+                           flink,
+                           froe,
+                           fpersonnel,
+                           glink,
+                           fattacks,
+                           gpersonnel,
+                           groe
+                    FROM gui_conflicts
+                    WHERE factor = $a;
+                } {
+                    if {$fpersonnel && $gpersonnel > 0} {
+                        set bgcolor white
+                    } else {
+                        set bgcolor lightgray
+                    }
 
-                ht tr bgcolor $bgcolor {
-                    ht td left  { ht put $nlink      }
-                    ht td left  { ht put $flink      }
-                    ht td left  { ht put $froe       }
-                    ht td right { ht put $fpersonnel }
-                    ht td right { ht put $fattacks   }
-                    ht td left  { ht put $glink      }
-                    ht td right { ht put $gpersonnel }
-                    ht td left  { ht put $groe       }
+                    ht tr bgcolor $bgcolor {
+                        ht td left  { ht put $nlink      }
+                        ht td left  { ht put $flink      }
+                        ht td left  { ht put $froe       }
+                        ht td right { ht put $fpersonnel }
+                        ht td right { ht put $fattacks   }
+                        ht td left  { ht put $glink      }
+                        ht td right { ht put $gpersonnel }
+                        ht td left  { ht put $groe       }
+                    }
                 }
             }
 
             set text [ht pop]
 
-            if {$text ne ""} {
+            if {[ht rowcount] > 0} {
                 ht putln "Actor $a's force groups have the following "
                 ht put   "attacking ROEs."
                 ht putln {
@@ -504,12 +509,7 @@ appserver module ACTOR {
                 }
                 ht para
 
-                ht table {
-                    "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
-                    "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
-                } {
-                    ht putln $text
-                }
+                ht putln $text
             } else {
                 ht putln "No group owned by actor $a is attacking any other "
                 ht put   "groups."

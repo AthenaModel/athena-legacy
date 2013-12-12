@@ -341,21 +341,16 @@ snit::type econ {
                 $ht para
                 
                 # NEXT, create a table of cells and their errors
-                $ht push
-
-                foreach {cell} [$info(econCellModel) cells error] {
-                    set err [$info(econCellModel) cellinfo error $cell]
-                    $ht tr {
-                        $ht td left {$ht put $cell}
-                        $ht td left {$ht put $err}
-                    }
-                }
-                set text [$ht pop]
-
                 $ht table {
                     "Cell Name" "Error"
                 } {
-                    $ht putln $text
+                    foreach {cell} [$info(econCellModel) cells error] {
+                        set err [$info(econCellModel) cellinfo error $cell]
+                        $ht tr {
+                            $ht td left {$ht put $cell}
+                            $ht td left {$ht put $err}
+                        }
+                    }
                 }
 
                 set solutions {}

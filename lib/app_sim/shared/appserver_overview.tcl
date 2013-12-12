@@ -126,52 +126,44 @@ appserver module OVERVIEW {
         # There might not be any.
         ht push
 
-        rdb eval {
-            SELECT nlink,
-                   flink,
-                   froe,
-                   fpersonnel,
-                   glink,
-                   fattacks,
-                   gpersonnel,
-                   groe
-            FROM gui_conflicts
+        ht table {
+            "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
+            "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
         } {
-            if {$fpersonnel && $gpersonnel > 0} {
-                set bgcolor white
-            } else {
-                set bgcolor lightgray
-            }
-
-            ht tr bgcolor $bgcolor {
-                ht td left  { ht put $nlink }
-                ht td left  { ht put $flink }
-                ht td left  { ht put $froe }
-                ht td right { ht put $fpersonnel }
-                ht td right { ht put $fattacks }
-                ht td left  { ht put $glink }
-                ht td right { ht put $gpersonnel }
-                ht td left  { ht put $groe }
+            rdb eval {
+                SELECT nlink,
+                       flink,
+                       froe,
+                       fpersonnel,
+                       glink,
+                       fattacks,
+                       gpersonnel,
+                       groe
+                FROM gui_conflicts
+            } {
+                ht tr {
+                    ht td left  { ht put $nlink }
+                    ht td left  { ht put $flink }
+                    ht td left  { ht put $froe }
+                    ht td right { ht put $fpersonnel }
+                    ht td right { ht put $fattacks }
+                    ht td left  { ht put $glink }
+                    ht td right { ht put $gpersonnel }
+                    ht td left  { ht put $groe }
+                }
             }
         }
 
         set text [ht pop]
 
-        if {$text ne ""} {
+        if {[ht rowcount] > 0} {
             ht putln {
                 The following attacking ROEs are in force across the
-                playbox.  The background will be gray for potential conflicts,
-                i.e., those in which one or the other group (or both)
-                has no personnel in the neighborhood in question.
+                playbox.
             }
             ht para
 
-            ht table {
-                "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
-                "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
-            } {
-                ht putln $text
-            }
+            ht putln $text
         } else {
             ht putln "No attacking ROEs are in force."
         }

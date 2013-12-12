@@ -246,42 +246,42 @@ appserver module SIGEVENTS {
 
         ht push
 
-        rdb eval $query {
-            ht tr {
-                ht td right {
-                    ht put $t
+        ht table {"Week" "Date" "Model" "Narrative"} {
+            rdb eval $query {
+                ht tr {
+                    ht td right {
+                        ht put $t
+                    }
+
+                    ht td left {
+                        ht put $week
+                    }
+
+                    ht td left {
+                        ht put $component
+                    }
+
+                    if {$level == -1} {
+                        ht putln "<td bgcolor=orange>"
+                    } elseif {$level == 0} {
+                        ht putln "<td bgcolor=yellow>"
+                    } elseif {$level == 1} {
+                        ht putln "<td>"
+                    } else {
+                        ht putln "<td bgcolor=lightgray>"
+                    }
+
+                    ht put $narrative
+
+                    ht put "</td>"
                 }
-
-                ht td left {
-                    ht put $week
-                }
-
-                ht td left {
-                    ht put $component
-                }
-
-                if {$level == -1} {
-                    ht putln "<td bgcolor=orange>"
-                } elseif {$level == 0} {
-                    ht putln "<td bgcolor=yellow>"
-                } elseif {$level == 1} {
-                    ht putln "<td>"
-                } else {
-                    ht putln "<td bgcolor=lightgray>"
-                }
-
-                ht put $narrative
-
-                ht put "</td>"
             }
         }
-        
+
         set text [ht pop]
 
-        if {$text ne ""} {
-            ht table {"Week" "Date" "Model" "Narrative"} {
-                ht putln $text
-            }
+        if {[ht rowcount] > 0} {
+            ht putln $text
         } else {
             ht putln "No significant events occurred."
         }

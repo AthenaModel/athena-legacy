@@ -113,54 +113,60 @@ appserver module HOOK {
  
         ht subtitle "Semantic Hook Topics" topics
 
-        ht put "Semantic hooks must take one or more positions on belief "
-        ht put "system topics in order to have an effect on the groups "
-        ht put "receiving an Information Operations Message (IOM).  The "
-        ht put "following table shows the topics and positions on those "
-        ht put "topics for the semantic hook called $hook_id.  "
-        ht put "<b>Note:</b> Disabled or invalid semantic hook topics will "
-        ht putln "not be used in Information Operations Messages."
+        ht putln {
+            Semantic hooks must take one or more positions on belief 
+            system topics in order to have an effect on the groups 
+            receiving an Information Operations Message (IOM).
+        }
+        ht para
+
+        ht putln {
+            <b>Note:</b> Disabled or invalid semantic hook topics will 
+            not be used in Information Operations Messages.
+        }
+
+        ht para
+
+        ht putln {
+            The following topics and positions are defined for 
+            this semantic hook:
+        }
+
+        ht para
+
         ht push
 
-        rdb eval {
-            SELECT fancy      AS fancy,
-                   position   AS position,
-                   state      AS state
-            FROM gui_hook_topics WHERE hook_id=$hook_id
-        } {
-            if {$state eq "disabled"} {
-                ht putln "<tr bgcolor=lightgray>"
-            } elseif {$state eq "invalid"} {
-                ht putln "<tr bgcolor=yellow>"
-            } else {
-                ht putln "<tr>"
-            }
+        ht table {"Topic" "Position" "Symbolic Value" "State"} {
+            rdb eval {
+                SELECT fancy      AS fancy,
+                       position   AS position,
+                       state      AS state
+                FROM gui_hook_topics WHERE hook_id=$hook_id
+            } {
+                ht tr {
+                    ht td left {
+                        ht put "<span class=$state>$fancy</span>"
+                    }
 
-            ht td left {
-                ht put $fancy
-            }
+                    ht td right {
+                        ht put $position
+                    }
 
-            ht td right {
-                ht put $position
-            }
+                    ht td left {
+                        ht put [qposition longname $position]
+                    }
 
-            ht td left {
-                ht put [qposition longname $position]
+                    ht td left {
+                        ht put $state
+                    }
+                }
             }
-
-            ht td left {
-                ht put $state
-            }
-
-            ht put "</tr>"
         }
 
         set text [ht pop]
 
-        if {$text ne ""} {
-            ht table {"Topic" "Position" "Symbolic Value" "State"} {
-                ht putln $text
-            }
+        if {[ht rowcount] > 0} {
+            ht putln $text
         } else {
             ht putln "None."
         }

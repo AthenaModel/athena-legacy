@@ -76,62 +76,65 @@ appserver module CAP {
             # particular order
             ht push
 
-            rdb eval {
-                SELECT k             AS k,
-                       longlink      AS longlink,
-                       owner         AS owner,
-                       capacity      AS capacity,
-                       cost          AS cost
-                FROM gui_caps
-            } {
-                set alist [list]
-
-                # NEXT, owner first
-                lappend alist [rdb onecolumn {
-                    SELECT link FROM gui_actors WHERE a=$owner}]
-
-                # NEXT, everyone else in alphabetical order
+            ht table {"Name" "Owner" "Capacity" "Cost, $" "Accessible By"} {
                 rdb eval {
-                    SELECT A.link AS alink
-                    FROM gui_actors  AS A
-                    JOIN cap_access  AS C ON (C.a == A.a)
-                    WHERE C.k  = $k
-                    AND   C.a != $owner
-                    ORDER BY C.a
+                    SELECT k             AS k,
+                           longlink      AS longlink,
+                           owner         AS owner,
+                           capacity      AS capacity,
+                           cost          AS cost
+                    FROM gui_caps
                 } {
-                    lappend alist $alink
+                    set alist [list]
+
+                    # NEXT, owner first
+                    lappend alist [rdb onecolumn {
+                        SELECT link FROM gui_actors WHERE a=$owner}]
+
+                    # NEXT, everyone else in alphabetical order
+                    rdb eval {
+                        SELECT A.link AS alink
+                        FROM gui_actors  AS A
+                        JOIN cap_access  AS C ON (C.a == A.a)
+                        WHERE C.k  = $k
+                        AND   C.a != $owner
+                        ORDER BY C.a
+                    } {
+                        lappend alist $alink
+                    }
+
+                    ht tr {
+                        ht td left {
+                            ht put $longlink
+                        }
+
+                        ht td left {
+                            ht put $owner
+                        }
+
+                        ht td right {
+                            ht put $capacity
+                        }
+
+                        ht td right {
+                            ht put $cost
+                        }
+
+                        ht td left {
+                            ht put [join $alist ", "]
+                        }
+                    }
                 }
-
-                ht putln "<tr>"
-
-                ht td left {
-                    ht put $longlink
-                }
-
-                ht td left {
-                    ht put $owner
-                }
-
-                ht td right {
-                    ht put $capacity
-                }
-
-                ht td right {
-                    ht put $cost
-                }
-
-                ht td left {
-                    ht put [join $alist ", "]
-                }
-
-                ht put "</tr>"
             }
 
             set text [ht pop]
 
-            ht table {"Name" "Owner" "Capcity" "Cost, $" "Accessible By"} {
+            if {[ht rowcount] > 0} {
                 ht putln $text
+            } else {
+                ht putln "None defined."
             }
+
 
         } else {
             ht query {
