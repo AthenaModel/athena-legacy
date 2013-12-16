@@ -84,52 +84,6 @@ appserver module ACTOR {
             FROM gui_actors
         } -default "None." -align LLRRR
 
-        if {[locked]} {
-            ht para
-
-            ht put {
-                The following table shows the current laydown of
-                manufacturing plants and the actors that own them along
-                with their repair levels.
-            }
-
-            ht para
-
-            set totplants [rdb onecolumn {
-                SELECT total(num) FROM gui_plants_na
-            }]
-
-            ht query {
-                SELECT alink         AS "Agent",
-                       nlink         AS "Neighborhood",
-                       num           AS "Owned Plants",
-                       rho           AS "Average Repair Level"
-                FROM gui_plants_na
-                WHERE a != 'SYSTEM'
-                ORDER BY alink
-            } -default "None." -align LLLL
-
-            set sysplants [rdb onecolumn {
-                SELECT sum(num) FROM gui_plants_na
-                WHERE a='SYSTEM'
-            }]
-
-            if {$sysplants > 0} {
-                if {$sysplants == $totplants} {
-                    set sysplants "all"
-                } 
-
-                ht para 
-
-                ht put "
-                    <b>Note:</b> The SYSTEM has ownership of $sysplants
-                    manufacturing plants. None of these plants will 
-                    require any repair and will not degrade.
-                "
-            }
-
-        }
-
         ht /page
 
         return [ht get]

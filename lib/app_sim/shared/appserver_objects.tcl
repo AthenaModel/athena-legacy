@@ -109,6 +109,11 @@ appserver module OBJECTS {
             key      n
         }
 
+        /plants {
+            label   "Infrastructure"
+            listIcon ::projectgui::icon::plant12
+        }
+
         /overview {
             label "Overview"
             listIcon ::projectgui::icon::eye12
@@ -195,6 +200,7 @@ appserver module OBJECTS {
                     /groups/civ 
                     /groups/frc 
                     /groups/org
+                    /plants
                     /curses
                     /mads
                     /drivers

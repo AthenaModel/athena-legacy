@@ -154,6 +154,21 @@ namespace eval ::projectgui::icon:: {
        ....X....
     } { . trans X #216C2A }
 
+    mkicon ::projectgui::icon::plant12 {
+       ....xx..x
+       ...xx..xx
+       ..xx..xx.
+       .xx..xx..
+       .XX..XX..
+       .XX..XX..
+       .XX..XX..
+       .XX..XX..
+       .XXXXXX..
+       .XXXXXX..
+       .XXXXXXXX
+       .XXXXXXXX
+    } { . trans X black x #888888 }
+
     mkicon ::projectgui::icon::heart12 {
        .........
        .........
