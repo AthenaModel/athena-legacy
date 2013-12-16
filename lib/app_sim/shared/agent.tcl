@@ -106,6 +106,25 @@ snit::type agent {
     typemethod type {agent_id} {
         rdb eval {SELECT agent_type FROM agents WHERE agent_id=$agent_id}
     }
+
+    # stats agent_id
+    #
+    # Returns a dictionary of agent strategy statistics: the number
+    # of blocks, conditions, and tactics in the agent's strategy.
+
+    typemethod stats {agent_id} {
+        set result [dict create blocks 0 conditions 0 tactics 0]
+        set s [strategy getname $agent_id]
+
+        dict set result blocks [llength [$s blocks]]
+
+        foreach block [$s blocks] {
+            dict set result conditions [llength [$block conditions]]
+            dict set result tactics    [llength [$block tactics]]
+        }
+
+        return $result
+    }
 }
 
 

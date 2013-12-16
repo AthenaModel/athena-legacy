@@ -326,6 +326,59 @@ oo::define condition {
     }
 
     #-------------------------------------------------------------------
+    # HTML Output
+
+    # htmlpage ht
+    #
+    # ht - An htools(n) buffer
+    #
+    # Produces a complete HTML page describing this condition in the
+    # ht buffer.
+
+    method htmlpage {ht} {
+        set block_id [[my block] id]
+
+        $ht page "Agent [my agent], Detail for Condition [my id] in Block $block_id"
+        $ht putln "<b>Agent "
+        $ht link my://app/agent/[my agent] [my agent]
+        $ht put ", Condition [my id] in "
+        $ht link my://app/bean/$block_id "Block $block_id"
+        $ht put "</b>"
+        $ht hr
+        $ht para
+        my html $ht
+        $ht /page
+    }
+
+    # html ht
+    #
+    # ht   - An htools(n) buffer
+    #
+    # Produces an HTML description of the condition, in the buffer, for
+    # inclusion in another page or for use in a myhtmlpane.
+
+    method html {ht} {
+        # FIRST, add the header.  Its color and font should indicate
+        # the state.
+        $ht putln "<a name=\"condition[my id]\"><b>Condition [my id]:</b></a>"
+
+        array set view [my view html]
+
+        $ht table {
+            "Variable" "Value"
+        } {
+            foreach key [lsort [array names view]] {
+                $ht tr {
+                    $ht td left { $ht put "<tt>$key</tt>" }
+                    $ht td left { $ht put "<tt>$view($key)</tt>"}
+                }
+            }
+        }
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Operations
     #
     # These methods represent condition operations whose actions may

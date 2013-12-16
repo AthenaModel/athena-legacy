@@ -381,16 +381,35 @@ oo::define block {
     #-------------------------------------------------------------------
     # HTML Output
 
+    # htmlpage ht
+    #
+    # ht - An htools(n) buffer
+    #
+    # Produces a complete HTML page describing this block in the
+    # ht buffer.
+
+    method htmlpage {ht} {
+        $ht page "Agent [my agent], Detail for Strategy Block [my id]"
+        $ht putln "<b>Agent "
+        $ht link my://app/agent/[my agent] [my agent]
+        $ht put ", Strategy Block [my id]: Detail</b>"
+        $ht hr
+        $ht para
+        my html $ht
+        $ht /page
+    }
+
     # html ht
     #
     # ht   - An htools(n) buffer
     #
-    # Produces an HTML description of the block, in the buffer.
+    # Produces an HTML description of the block, in the buffer, for
+    # inclusion in another page or for use in a myhtmlpane.
 
     method html {ht} {
         # FIRST, add the header.  Its color and font should indicate
         # the state.
-        $ht putln "<span class=\"[my state]\">"
+        $ht putln "<a name=\"block[my id]\"><span class=\"[my state]\">"
         $ht put "<b>Block [my id]:</b> "
 
         if {[my state] eq "disabled"} {
@@ -404,7 +423,7 @@ oo::define block {
         } else {
             $ht put "<i>The analyst has not entered the block's intent</i>"
         }
-        $ht put "</span>"
+        $ht put "</span></a>"
 
         $ht para
 
@@ -510,38 +529,34 @@ oo::define block {
         $ht putln "The conditions are as follows:"
         $ht para
 
-        $ht putln "<table class=pretty cellpadding=5>"
+        # TBD: Add state
+        $ht table {
+            "Status" "ID" "Type" "State" "Narrative"
+        } {
+            set count 0
+            foreach bean [my conditions] {
+                array set data [$bean view html]
 
-        $ht tr class header valign bottom {
-            $ht td center { $ht put "Status"    }
-            $ht td center { $ht put "ID"        }
-            $ht td left   { $ht put "Type"      }
-            $ht td left   { $ht put "Narrative" }
-        }
+                if {[incr count] % 2 == 1} {
+                    set cls oddrow
+                } else {
+                    set cls evenrow
+                }
 
-        set count 0
-        foreach bean [my conditions] {
-            array set data [$bean view html]
-
-            if {[incr count] % 2 == 1} {
-                set cls oddrow
-            } else {
-                set cls evenrow
-            }
-
-            $ht tr class $cls valign top {
-                $ht td center { $ht image $data(statusicon) }
-                $ht td center { $ht put $data(id)           }
-                $ht td left   { $ht put $data(typename)     }
-                $ht td left {
-                    $ht put "<span class=\"$data(state)\">"
-                    $ht put $data(narrative)
-                    $ht put "</span>"
+                $ht tr class $cls valign top {
+                    $ht td center { $ht image $data(statusicon) }
+                    $ht td center { $ht put $data(id)           }
+                    $ht td left   { $ht put $data(typename)     }
+                    $ht td left   { $ht put $data(state)        }
+                    $ht td left {
+                        $ht put "<span class=\"$data(state)\">"
+                        $ht put $data(narrative)
+                        $ht put "</span>"
+                    }
                 }
             }
         }
 
-        $ht /table
         $ht para
     }
 
@@ -564,44 +579,38 @@ oo::define block {
         $ht putln "The tactics are as follows:"
         $ht para
 
-        $ht putln "<table class=pretty cellpadding=5>"
+        $ht table {
+            "Status" "ID" "Type" "State" "Narrative"
+        } {
+            set count 0
+            foreach bean [my tactics] {
+                array set data [$bean view html]
 
-        $ht tr class header valign bottom {
-            $ht td center { $ht put "Status"    }
-            $ht td center { $ht put "ID"        }
-            $ht td left   { $ht put "Type"      }
-            $ht td left   { $ht put "Narrative" }
-        }
+                if {[incr count] % 2 == 1} {
+                    set cls oddrow
+                } else {
+                    set cls evenrow
+                }
 
-        set count 0
-        foreach bean [my tactics] {
-            array set data [$bean view html]
+                $ht tr class $cls valign top {
+                    $ht td center { $ht image $data(statusicon) }
+                    $ht td center { $ht put $data(id)           }
+                    $ht td left   { $ht put $data(typename)     }
+                    $ht td left   { $ht put $data(state)        }
+                    $ht td left {
+                        $ht put "<span class=\"$data(state)\">"
+                        $ht put $data(narrative)
+                        $ht put "</span>"
 
-            if {[incr count] % 2 == 1} {
-                set cls oddrow
-            } else {
-                set cls evenrow
-            }
-
-            $ht tr class $cls valign top {
-                $ht td center { $ht image $data(statusicon) }
-                $ht td center { $ht put $data(id)           }
-                $ht td left   { $ht put $data(typename)     }
-                $ht td left {
-                    $ht put "<span class=\"$data(state)\">"
-                    $ht put $data(narrative)
-                    $ht put "</span>"
-
-                    if {$data(failures) ne ""} {
-                        $ht putln "<span class=\"error\">"
-                        $ht putln $data(failures)
-                        $ht putln "</span>"
+                        if {$data(failures) ne ""} {
+                            $ht putln "<span class=\"error\">"
+                            $ht putln $data(failures)
+                            $ht putln "</span>"
+                        }
                     }
                 }
             }
         }
-
-        $ht /table
         $ht para
     }
 
