@@ -538,12 +538,11 @@ appserver module NBHOOD {
     
                 if {$adjpop > 0} {
                     ht table {
-                        "Neighborhood" "Prod. Capacity Factor" "Base Pop."
+                        "Base Pop." "Prod. Capacity Factor"
                         "% of Manufacturing Plants"
                     } {
                         rdb eval {
-                            SELECT nlonglink      AS link,
-                                   pcf            AS pcf,
+                            SELECT pcf            AS pcf,
                                    nbpop          AS nbpop 
                             FROM gui_plants_n
                             WHERE n=$n
@@ -553,9 +552,8 @@ appserver module NBHOOD {
                                      }]
     
                             ht tr {
-                                ht td left  {ht put $row(link)                }
-                                ht td right {ht put [format "%4.1f" $row(pcf)]}
                                 ht td right {ht put $row(nbpop)               }
+                                ht td right {ht put [format "%4.1f" $row(pcf)]}
                                 ht td right {ht put [format "%4.1f" $pct]     }
                             }
                         }
@@ -573,13 +571,12 @@ appserver module NBHOOD {
                 ht para 
     
                 ht query {
-                    SELECT nlink    AS "Neighborhood",
-                           alink    AS "Agent",
+                    SELECT alink    AS "Agent",
                            num      AS "Owned Plants",
                            rho      AS "Average Repair Level"
                     FROM gui_plants_na
                     WHERE n=$n
-                } -default "None." -align LLLL
+                } -default "None." -align LLL
     
                 ht para
     
