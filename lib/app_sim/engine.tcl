@@ -72,7 +72,6 @@ snit::type engine {
         profile demog start          ;# Computes population statistics
         profile personnel start      ;# Initial deployments and base units.
         profile service start        ;# Populates service tables.
-        profile plant start          ;# Initializes the infrastructure model
         profile nbstat start         ;# Computes initial security and coverage
         profile control_model start  ;# Computes initial support and influence
 
@@ -86,6 +85,8 @@ snit::type engine {
         profile strategy start       ;# Execute on-lock strategies
         profile econ start           ;# Initializes the econ model taking 
                                       # into account on-lock strategies
+        profile plant start          ;# Initializes the infrastructure model
+                                     ;# which depends on the econ model
 
         # NEXT, do analysis and assessment, of transient effects only.
         # There will be no attrition and no shifts in neighborhood control.

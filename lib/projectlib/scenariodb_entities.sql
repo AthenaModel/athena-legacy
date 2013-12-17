@@ -40,26 +40,30 @@ CREATE TABLE scenario (
 -- Actor Data
 CREATE TABLE actors (
     -- Symbolic actor name
-    a            TEXT PRIMARY KEY,
+    a             TEXT PRIMARY KEY,
 
     -- Full actor name
-    longname     TEXT,
+    longname      TEXT,
 
     -- Supports actor (actor name or NULL)
-    supports     TEXT REFERENCES actors(a)
-                 ON DELETE SET NULL
-                 DEFERRABLE INITIALLY DEFERRED,
+    supports      TEXT REFERENCES actors(a)
+                  ON DELETE SET NULL
+                  DEFERRABLE INITIALLY DEFERRED,
 
     -- Actor type, INCOME or BUDGET
-    atype        TEXT DEFAULT 'INCOME',
+    atype         TEXT DEFAULT 'INCOME',
+
+    -- Automatic infrastructure maintenance flag
+    -- Set to 1, maintenance is cost free and automatic
+    auto_maintain INTEGER DEFAULT 0,
 
     -- Money saved for later, in $.  Usually only INCOME actors
     -- will use this.
-    cash_reserve DOUBLE DEFAULT 0,
+    cash_reserve  DOUBLE DEFAULT 0,
 
     -- Money available to be spent, in $.
     -- For INCOME actors, unspent cash accumulates from tock to tock.
-    cash_on_hand DOUBLE DEFAULT 0,
+    cash_on_hand  DOUBLE DEFAULT 0,
 
     -- Income by income class, in $/week, for INCOME actors.
     -- Ultimately, these should go in a separate table.
@@ -113,6 +117,7 @@ SELECT a,
        longname,
        supports,
        atype,
+       auto_maintain,
        cash_reserve,
        cash_on_hand,
        income_goods,

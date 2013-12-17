@@ -345,35 +345,45 @@ appserver module ACTOR {
             } -default "None." -align LLL
                 
         } else {
-            ht put {
-                Manufacturing plant ownership by this actor is as
-                follows.  An actor must pay to maintain infrastructure
-                it owns or it will fall into disrepair and no longer
-                produce goods for the economy.
-            }
 
-            ht para
+            if {[parmdb get econ.disable]} {
+                ht put {
+                    The economic model is disabled, so actors own no
+                    manufacturing infrastructure.
+                }
+                
+                ht para
+            } else {
+                ht put {
+                    Manufacturing plant ownership by this actor is as
+                    follows.  An actor must pay to maintain infrastructure
+                    it owns or it will fall into disrepair and no longer
+                    produce goods for the economy.
+                }
 
-            ht query  {
-                SELECT nlink  AS "Neighborhood",
-                       num    AS "Owned Plants",
-                       rho    AS "Average Repair Level"
-                FROM gui_plants_na
-                WHERE a=$a
-                ORDER BY nlink
-            } -default "None." -align LLL
+                ht para
 
-            ht para
-            set capA [plant capacity a $a]
-            set capT [plant capacity total]
-            set pct  [format "%.2f" [expr {($capA/$capT) * 100.0}]]
+                ht query  {
+                    SELECT nlink  AS "Neighborhood",
+                           num    AS "Owned Plants",
+                           rho    AS "Average Repair Level"
+                    FROM gui_plants_na
+                    WHERE a=$a
+                    ORDER BY nlink
+                } -default "None." -align LLL
+
+                ht para
+                set capA [plant capacity a $a]
+                set capT [plant capacity total]
+                set pct  [format "%.2f" [expr {($capA/$capT) * 100.0}]]
             
-            ht put "
-                The manufacturing plants this actor owns are currently
-                producing [moneyfmt $capA] goods baskets annually.  This 
-                is $pct% of the goods production capacity of the entire
-                economy.
-            "
+                ht put "
+                    The manufacturing plants this actor owns are currently
+                    producing [moneyfmt $capA] goods baskets annually.  This 
+                    is $pct% of the goods production capacity of the entire
+                    economy.
+                "
+            }
         }
 
         # CAP Ownership

@@ -94,19 +94,29 @@ appserver module PLANT {
 
         } else {
 
+            if {[parmdb get econ.disable]} {
+                ht para
+                ht put "The Economic model is disabled, so the infrastructure "
+                ht put "model is not in use."
+                ht para
+                ht /page
+                return [ht get]
+            }
+
             ht para
             ht put   "The following table shows the current laydown of "
             ht put   "manufacturing plants, owning agents and repair levels."
             ht para 
 
             ht query {
-                SELECT nlink    AS "Neighborhood",
-                       alink    AS "Agent",
-                       num      AS "Owned Plants",
-                       rho      AS "Average Repair Level"
+                SELECT nlink         AS "Neighborhood",
+                       alink         AS "Agent",
+                       num           AS "Owned Plants",
+                       auto_maintain AS "Automatic Maintenance?",
+                       rho           AS "Average Repair Level"
                 FROM gui_plants_na
                 ORDER BY nlink
-            } -default "None." -align LLLL
+            } -default "None." -align LLLLL
         }
 
         ht /page

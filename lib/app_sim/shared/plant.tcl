@@ -83,7 +83,11 @@ snit::type plant {
         }
 
         # NEXT, laydown plants in neighborhoods
-        $type LaydownPlants
+        if {![parmdb get econ.disable]} {
+            $type LaydownPlants
+        } else {
+            log warning plant "econ is disabled"
+        }
     }
 
     # LaydownPlants
@@ -179,8 +183,12 @@ snit::type plant {
     # capacity of the goods sector.
 
     typemethod degrade {} {
+        # FIRST, if the econ model is disabled, do nothing
+        if {[parmdb get econ.disable]} {
+            return
+        }
 
-        # FIRST, get the plant lifetime
+        # NEXT, get the plant lifetime
         set lt [parmdb get plant.lifetime]
 
         # NEXT, if the lifetime is zero, degradation is disabled

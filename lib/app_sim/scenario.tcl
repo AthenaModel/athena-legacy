@@ -706,14 +706,15 @@ snit::type scenario {
         rdb function yesno                [myproc YesNo]
 
         # NEXT, define the GUI Views
-        RdbEvalFile gui_scenario.sql    ;# Scenario Entities
-        RdbEvalFile gui_attitude.sql    ;# Attitude Area
-        RdbEvalFile gui_econ.sql        ;# Economics Area
-        RdbEvalFile gui_ground.sql      ;# Ground Area
-        RdbEvalFile gui_info.sql        ;# Information Area
-        RdbEvalFile gui_curses.sql      ;# User-defined CURSEs Area
-        RdbEvalFile gui_politics.sql    ;# Politics Area
-        RdbEvalFile gui_application.sql ;# Application Views
+        RdbEvalFile gui_scenario.sql       ;# Scenario Entities
+        RdbEvalFile gui_attitude.sql       ;# Attitude Area
+        RdbEvalFile gui_econ.sql           ;# Economics Area
+        RdbEvalFile gui_ground.sql         ;# Ground Area
+        RdbEvalFile gui_info.sql           ;# Information Area
+        RdbEvalFile gui_curses.sql         ;# User-defined CURSEs Area
+        RdbEvalFile gui_politics.sql       ;# Politics Area
+        RdbEvalFile gui_infrastructure.sql ;# Infrastructure Area
+        RdbEvalFile gui_application.sql    ;# Application Views
     }
 
     # RdbEvalFile filename

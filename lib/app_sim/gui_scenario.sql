@@ -38,6 +38,9 @@ SELECT a                                               AS id,
             ELSE link('my://app/actor/' || supports, supports)
             END                                        AS supports_link,
        atype                                           AS atype,
+       CASE WHEN auto_maintain = 0 THEN 'NO'
+            ELSE                        'YES'
+            END                                        AS auto_maintain,
        moneyfmt(cash_reserve)                          AS cash_reserve,
        moneyfmt(cash_on_hand)                          AS cash_on_hand,
        moneyfmt(income_goods)                          AS income_goods,
