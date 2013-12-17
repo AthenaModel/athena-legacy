@@ -1240,13 +1240,7 @@ object tactic_maintain {
         a <<cref /gofer/nbhoods>> value.
     } -tags {update}
 
-    attribute amount "Amount" {
-        The amount of money that any spending for repairs should be capped.
-        Setting this amount to a large number will cause all repairs to take
-        place, assuming that the actor has enough cash-on-hand to do them.
-    } -tags {update}
-
-    attribute level "Maximum" {
+    attribute level "A Capacity of" {
         This parameter is used to cap the maximum level of repair.  
         For instance, if this parameter is set to 80, Athena will only spend
         enough of this actor's money to bring his infrastructure up to 80% 
@@ -1256,6 +1250,13 @@ object tactic_maintain {
         once it is there, only the amount of money needed to keep it there 
         is allocated.
     } -tags {update}
+
+    attribute amount "Using a max of" {
+        The amount of money that any spending for repairs should be capped.
+        Setting this amount to a large number will cause all repairs to take
+        place, assuming that the actor has enough cash-on-hand to do them.
+    } -tags {update}
+
 }
 
 page /object/tactic maintain "MAINTAIN tactic" {
