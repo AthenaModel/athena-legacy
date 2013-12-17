@@ -148,20 +148,19 @@ snit::type plant {
                 # that fractional plants do not exist
                 # Note: floor() could be used here, resulting in an increase
                 # to rho, but then that leaves the possiblity of a rho > 1.0
-                let actualPlantsNA {entier(ceil($plantsNA/$rho))}
-
-                rdb eval {
-                    UPDATE plants_na
-                    SET num = $actualPlantsNA
-                    WHERE n=$n AND a=$a
+                if {$rho == 0.0} {
+                    let actualPlantsNA {entier(ceil($plantsNA))}
+                    set adjRho 0.0
+                } else {
+                    let actualPlantsNA {entier(ceil($plantsNA/$rho))}
+                    # The actual repair level
+                    let adjRho {($plantsNA) / double($actualPlantsNA)}
                 }
-                
-                # The actual repair level
-                let adjRho {($plantsNA) / double($actualPlantsNA)}
 
                 rdb eval {
                     UPDATE plants_na
-                    SET rho = $adjRho
+                    SET num = $actualPlantsNA,
+                        rho = $adjRho
                     WHERE n=$n AND a=$a
                 }
             }
