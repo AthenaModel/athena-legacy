@@ -119,7 +119,7 @@ tactic define DEFROE "Defensive ROE" {actor} {
 
 order define TACTIC:DEFROE {
     title "Tactic: Defensive ROE"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -152,6 +152,7 @@ order define TACTIC:DEFROE {
     # NEXT, save the undo script
     setundo $undo
 }
+
 
 
 

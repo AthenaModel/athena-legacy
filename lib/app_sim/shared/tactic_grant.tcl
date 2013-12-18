@@ -135,7 +135,7 @@ tactic define GRANT "Grant Access to CAP" {actor} -onlock {
 
 order define TACTIC:GRANT {
     title "Tactic: Grant Access to CAP"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -170,6 +170,7 @@ order define TACTIC:GRANT {
     # NEXT, save the undo script
     setundo $undo
 }
+
 
 
 

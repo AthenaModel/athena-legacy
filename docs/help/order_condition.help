@@ -31,7 +31,8 @@ page /order condition "Condition Orders" {
 } 
 
 order CONDITION:STATE "Set Condition State" {
-    Sets the <<term condition>>'s state.  Note that this order is for 
+    <b><<term prep>> Only.</b>  Sets the <<term condition>>'s state.  
+    Note that this order is for 
     internal use by the application; there is no associated order 
     dialog.  The order parameters are as follows:<p>
 
@@ -43,6 +44,7 @@ order CONDITION:STATE "Set Condition State" {
 
 
 order CONDITION:COMPARE "Condition: Compare Numbers" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/condition/compare>>.<p>
 
     <<parmlist>>
@@ -52,6 +54,7 @@ order CONDITION:COMPARE "Condition: Compare Numbers" {
 }
 
 order CONDITION:EXPR "Condition: Boolean Expression" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/condition/expr>>.<p>
 
     <<parmlist>>

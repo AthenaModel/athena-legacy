@@ -257,7 +257,7 @@ tactic define STANCE "Adopt a Stance" {actor} -onlock {
 order define TACTIC:STANCE {
     title "Tactic: Force Group Stance"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -299,5 +299,6 @@ order define TACTIC:STANCE {
     # NEXT, create the tactic
     setundo [$tactic update_ {f mode drel glist nlist} [array get parms]]
 }
+
 
 

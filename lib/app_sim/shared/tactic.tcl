@@ -772,7 +772,7 @@ oo::define tactic {
 order define TACTIC:STATE {
     title "Set Tactic State"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         label "Tactic ID:" -for tactic_id
@@ -792,6 +792,7 @@ order define TACTIC:STATE {
     # NEXT, update the block, clearing the execution status
     setundo [$tactic update_ {state} [array get parms]]
 }
+
 
 
 

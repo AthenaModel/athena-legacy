@@ -778,7 +778,7 @@ tactic define DEPLOY "Deploy Personnel" {actor} -onlock {
 
 order define TACTIC:DEPLOY {
     title "Tactic: Deploy Personnel"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID:" -for tactic_id
@@ -884,6 +884,7 @@ order define TACTIC:DEPLOY {
     # NEXT, save the undo script
     setundo $undo
 }
+
 
 
 

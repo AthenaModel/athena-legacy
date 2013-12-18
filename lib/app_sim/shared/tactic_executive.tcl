@@ -119,7 +119,7 @@ tactic define EXECUTIVE "Executive Command" {actor system} -onlock {
 order define TACTIC:EXECUTIVE {
     title "Tactic: Executive Command"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID:" -for tactic_id
@@ -140,6 +140,7 @@ order define TACTIC:EXECUTIVE {
     # NEXT, update the block
     setundo [$tactic update_ {command} [array get parms]]
 }
+
 
 
 

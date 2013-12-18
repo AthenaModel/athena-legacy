@@ -439,7 +439,7 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
 
 order define TACTIC:ASSIGN {
     title "Tactic: Assign Personnel"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -537,6 +537,7 @@ order define TACTIC:ASSIGN {
     # NEXT, save the undo script
     setundo $undo
 }
+
 
 
 

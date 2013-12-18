@@ -195,7 +195,7 @@ tactic define MOBILIZE "Mobilize Personnel" {actor} {
 
 order define TACTIC:MOBILIZE {
     title "Tactic: Mobilize Personnel"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -274,6 +274,7 @@ order define TACTIC:MOBILIZE {
 
     return
 }
+
 
 
 

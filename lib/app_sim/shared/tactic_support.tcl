@@ -148,7 +148,7 @@ tactic define SUPPORT "Support Actor" {actor} -onlock {
 
 order define TACTIC:SUPPORT {
     title "Tactic: Support Actor"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -180,6 +180,7 @@ order define TACTIC:SUPPORT {
     # NEXT, save the undo script
     setundo $undo
 }
+
 
 
 

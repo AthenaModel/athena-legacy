@@ -284,7 +284,7 @@ tactic define ATTROE "Attacking ROE" {actor} {
 
 order define TACTIC:ATTROE {
     title "Tactic: Attacking ROE"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -330,6 +330,7 @@ order define TACTIC:ATTROE {
     # NEXT, save the undo script
     setundo $undo
 }
+
 
 
 

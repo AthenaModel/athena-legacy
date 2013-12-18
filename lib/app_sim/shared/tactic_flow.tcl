@@ -222,7 +222,7 @@ tactic define FLOW "Flow Personnel" {system} {
 
 order define TACTIC:FLOW {
     title "Tactic: Flow Personnel"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -304,6 +304,7 @@ order define TACTIC:FLOW {
     # NEXT, modify the tactic
     setundo $undo
 }
+
 
 
 

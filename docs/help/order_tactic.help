@@ -27,6 +27,7 @@ page /order tactic "Tactic Orders" {
 } 
 
 order TACTIC:STATE "Set Tactic State" {
+    <b><<term prep>> Only.</b>  
     Sets the <<term tactic>>'s state.  Note that this order is for 
     internal use by the application; there is no associated order 
     dialog.  The order parameters are as follows:<p>
@@ -38,6 +39,7 @@ order TACTIC:STATE "Set Tactic State" {
 }
 
 order TACTIC:ASSIGN "Tactic: Assign Personnel" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/assign>>.<p>
 
     <<parmlist>>
@@ -47,6 +49,7 @@ order TACTIC:ASSIGN "Tactic: Assign Personnel" {
 }
 
 order TACTIC:ATTROE "Tactic: Attacking ROE" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/attroe>>.<p>
 
     <<parmlist>>
@@ -56,6 +59,7 @@ order TACTIC:ATTROE "Tactic: Attacking ROE" {
 }
 
 order TACTIC:BROADCAST "Tactic: Broadcast an IOM" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/broadcast>>.<p>
 
     <<parmlist>>
@@ -65,6 +69,7 @@ order TACTIC:BROADCAST "Tactic: Broadcast an IOM" {
 }
 
 order TACTIC:CURSE "Tactic: CURSE" {
+    <b><<term prep>> Only.</b>  
     Updates and existing <<cref /object/tactic/curse>>.<p>
 
     <<parmlist>>
@@ -74,6 +79,7 @@ order TACTIC:CURSE "Tactic: CURSE" {
 }
 
 order TACTIC:DEFROE "Tactic: Defensive ROE" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/defroe>>.<p>
 
     <<parmlist>>
@@ -83,6 +89,7 @@ order TACTIC:DEFROE "Tactic: Defensive ROE" {
 }
 
 order TACTIC:DEMOB "Tactic: Demobilize Forces" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/demob>>.<p>
 
     <<parmlist>>
@@ -92,6 +99,7 @@ order TACTIC:DEMOB "Tactic: Demobilize Forces" {
 }
 
 order TACTIC:DEPLOY "Tactic: Deploy Troops" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/deploy>>.<p>
 
     <<parmlist>>
@@ -101,6 +109,7 @@ order TACTIC:DEPLOY "Tactic: Deploy Troops" {
 }
 
 order TACTIC:DEPOSIT "Tactic: Deposit Money" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/deposit>>.<p>
 
     <<parmlist>>
@@ -110,6 +119,7 @@ order TACTIC:DEPOSIT "Tactic: Deposit Money" {
 }
 
 order TACTIC:EXECUTIVE "Tactic: Executive Command" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/executive>>.<p>
 
     <<parmlist>>
@@ -119,6 +129,7 @@ order TACTIC:EXECUTIVE "Tactic: Executive Command" {
 }
 
 order TACTIC:FLOW "Tactic: Flow Personnel" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/flow>>.<p>
 
     <<parmlist>>
@@ -128,6 +139,7 @@ order TACTIC:FLOW "Tactic: Flow Personnel" {
 }
 
 order TACTIC:FUND "Tactic: Fund Actor" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/fund>>.<p>
 
     <<parmlist>>
@@ -137,6 +149,7 @@ order TACTIC:FUND "Tactic: Fund Actor" {
 }
 
 order TACTIC:FUNDENI "Tactic: Fund Essential Non-infrastructure Services" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/fundeni>>.<p>
 
     <<parmlist>>
@@ -146,6 +159,7 @@ order TACTIC:FUNDENI "Tactic: Fund Essential Non-infrastructure Services" {
 }
 
 order TACTIC:GRANT "Tactic: Grant Access to CAP" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/grant>>.<p>
 
     <<parmlist>>
@@ -155,6 +169,7 @@ order TACTIC:GRANT "Tactic: Grant Access to CAP" {
 }
 
 order TACTIC:MAINTAIN "Tactic: Maintain Infrastructure" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/maintain>>.<p>
     <<parmlist>>
     <<tactic_ parm tactic_id -required>>
@@ -163,6 +178,7 @@ order TACTIC:MAINTAIN "Tactic: Maintain Infrastructure" {
 }
 
 order TACTIC:MOBILIZE "Tactic: Mobilize Forces" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/mobilize>>.<p>
     <<parmlist>>
     <<tactic_ parm tactic_id -required>>
@@ -171,6 +187,7 @@ order TACTIC:MOBILIZE "Tactic: Mobilize Forces" {
 }
 
 order TACTIC:SIGEVENT "Tactic: Log Significant Event" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/sigevent>>.<p>
 
     <<parmlist>>
@@ -180,6 +197,7 @@ order TACTIC:SIGEVENT "Tactic: Log Significant Event" {
 }
 
 order TACTIC:SPEND "Tactic: Spend Money" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/spend>>.<p>
 
     <<parmlist>>
@@ -189,6 +207,7 @@ order TACTIC:SPEND "Tactic: Spend Money" {
 }
 
 order TACTIC:STANCE "Tactic: Force Group Stance" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/stance>>.<p>
 
     <<parmlist>>
@@ -198,6 +217,7 @@ order TACTIC:STANCE "Tactic: Force Group Stance" {
 }
 
 order TACTIC:SUPPORT "Tactic: Support Actor" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/support>>.<p>
 
     <<parmlist>>
@@ -207,6 +227,7 @@ order TACTIC:SUPPORT "Tactic: Support Actor" {
 }
 
 order TACTIC:WITHDRAW "Tactic: Withdraw Money" {
+    <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/withdraw>>.<p>
 
     <<parmlist>>

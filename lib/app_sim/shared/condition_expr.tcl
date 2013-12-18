@@ -81,7 +81,7 @@ condition define EXPR "Boolean Expression" {
 order define CONDITION:EXPR {
     title "Condition: Expr Numbers"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Condition ID:" -for condition_id
@@ -112,6 +112,7 @@ order define CONDITION:EXPR {
     # NEXT, update the block
     setundo [$cond update_ {expression} [array get parms]]
 }
+
 
 
 

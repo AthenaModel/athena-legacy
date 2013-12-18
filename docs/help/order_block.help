@@ -25,7 +25,7 @@ page /order block "Block Orders" {
 #-----------------------------------------------------------------------
 
 order BLOCK:UPDATE "Update Strategy Block" {
-    This order modifies the
+    <b><<term prep>> Only.</b>  This order modifies the
     definition of an existing <<term block>>.  The order
     parameters are as follows:<p>
 
@@ -39,7 +39,8 @@ order BLOCK:UPDATE "Update Strategy Block" {
 #-----------------------------------------------------------------------
 
 order BLOCK:STATE "Set Strategy Block State" {
-    Sets the <<term block>>'s state.  Note that this order is for 
+    <b><<term prep>> Only.</b>  Sets the <<term block>>'s state.  Note that 
+    this order is for 
     internal use by the application; there is no associated order 
     dialog.  The order parameters are as follows:<p>
 
@@ -53,7 +54,7 @@ order BLOCK:STATE "Set Strategy Block State" {
 #-----------------------------------------------------------------------
 
 order BLOCK:CONDITION+ADD "Add Condition to Block" {
-    Adds a <<term condition>> of a particular type to
+    <b><<term prep>> Only.</b>  Adds a <<term condition>> of a particular type to
     the block.  The order parameters are as follows:<p>
 
     <<parmlist>>
@@ -69,7 +70,8 @@ order BLOCK:CONDITION+ADD "Add Condition to Block" {
 #-----------------------------------------------------------------------
 
 order BLOCK:CONDITION+DELETE "Delete Condition from Block" {
-    Deletes one or more conditions from the block that owns them.
+    <b><<term prep>> Only.</b>  Deletes one or more conditions from the block 
+    that owns them.
     The order parameters are as follows:<p>
 
     <<parmlist>>
@@ -83,7 +85,7 @@ order BLOCK:CONDITION+DELETE "Delete Condition from Block" {
 #-----------------------------------------------------------------------
 
 order BLOCK:TACTIC+ADD "Add Tactic to Block" {
-    Adds a <<term tactic>> of a particular type to
+    <b><<term prep>> Only.</b>  Adds a <<term tactic>> of a particular type to
     the block.  The order parameters are as follows:<p>
 
     <<parmlist>>
@@ -99,7 +101,7 @@ order BLOCK:TACTIC+ADD "Add Tactic to Block" {
 #-----------------------------------------------------------------------
 
 order BLOCK:TACTIC+MOVE "Move Tactic Within Block" {
-    A <<term block>> lists 
+    <b><<term prep>> Only.</b>  A <<term block>> lists 
     <<term tactic tactics>> in priority order.  This order moves a
     tactic to a different spot in the list, thus changing its
     priority.  The order parameters are as follows:<p>
@@ -119,7 +121,8 @@ order BLOCK:TACTIC+MOVE "Move Tactic Within Block" {
 #-----------------------------------------------------------------------
 
 order BLOCK:TACTIC+DELETE "Delete Tactic from Block" {
-    Deletes one or more tactics from the block that owns them.
+    <b><<term prep>> Only.</b>  Deletes one or more tactics from the block 
+    that owns them.
     The order parameters are as follows:<p>
 
     <<parmlist>>

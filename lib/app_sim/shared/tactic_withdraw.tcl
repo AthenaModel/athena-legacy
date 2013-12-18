@@ -155,7 +155,7 @@ tactic define WITHDRAW "Withdraw Money" {actor} {
 
 order define TACTIC:WITHDRAW {
     title "Tactic: Withdraw Money"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -224,6 +224,7 @@ order define TACTIC:WITHDRAW {
     # NEXT, modify the tactic
     setundo $undo
 }
+
 
 
 

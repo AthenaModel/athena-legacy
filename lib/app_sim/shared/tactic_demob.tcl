@@ -152,7 +152,7 @@ tactic define DEMOB "Demobilize Personnel" {actor} {
 
 order define TACTIC:DEMOB {
     title "Tactic: Demobilize Personnel"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -229,6 +229,7 @@ order define TACTIC:DEMOB {
     # NEXT, modify the tactic
     setundo $undo
 }
+
 
 
 

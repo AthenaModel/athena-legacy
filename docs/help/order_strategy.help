@@ -26,7 +26,7 @@ page /order strategy "Strategy Orders" {
 #-----------------------------------------------------------------------
 
 order STRATEGY:BLOCK+ADD "Add Block to Strategy" {
-    Adds an empty <<term block>> to the strategy.  
+    <b><<term prep>> Only.</b>  Adds an empty <<term block>> to the strategy.  
     The order parameters are as follows:<p>
 
     <<parmlist>>
@@ -40,7 +40,7 @@ order STRATEGY:BLOCK+ADD "Add Block to Strategy" {
 #-----------------------------------------------------------------------
 
 order STRATEGY:BLOCK+MOVE "Move Block in Strategy" {
-    A <<term strategy>> lists 
+    <b><<term prep>> Only.</b>  A <<term strategy>> lists 
     <<term block blocks>> in priority order.  This order moves a
     block to a different spot in the list, thus changing its
     priority.  The order parameters are as follows:<p>
@@ -60,7 +60,7 @@ order STRATEGY:BLOCK+MOVE "Move Block in Strategy" {
 #-----------------------------------------------------------------------
 
 order STRATEGY:BLOCK+DELETE "Delete Block from Strategy" {
-    Deletes one or more blocks from a strategy.
+    <b><<term prep>> Only.</b>  Deletes one or more blocks from a strategy.
     The order parameters are as follows:<p>
 
     <<parmlist>>

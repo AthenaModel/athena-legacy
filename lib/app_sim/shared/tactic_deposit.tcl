@@ -154,7 +154,7 @@ tactic define DEPOSIT "Deposit Money" {actor} {
 
 order define TACTIC:DEPOSIT {
     title "Tactic: Deposit Money"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -221,6 +221,7 @@ order define TACTIC:DEPOSIT {
     # NEXT, modify the tactic
     setundo $undo
 }
+
 
 
 

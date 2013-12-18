@@ -262,7 +262,7 @@ tactic define FUNDENI \
 
 order define TACTIC:FUNDENI {
     title "Tactic: Fund ENI Services"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -338,5 +338,6 @@ order define TACTIC:FUNDENI {
     # NEXT, create the tactic
     setundo [$tactic update_ {glist mode amount percent los} [array get parms]]
 }
+
 
 

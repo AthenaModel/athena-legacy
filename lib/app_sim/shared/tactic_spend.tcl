@@ -215,7 +215,7 @@ tactic define SPEND "Spend Cash-On-Hand" {actor} -onlock {
 
 order define TACTIC:SPEND {
     title "Tactic: Spend Money"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -318,6 +318,7 @@ order define TACTIC:SPEND {
     # NEXT, modify the tactic
     setundo $undo
 }
+
 
 
 

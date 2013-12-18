@@ -176,7 +176,7 @@ tactic define FUND "Fund Another Actor" {actor} {
 
 order define TACTIC:FUND {
     title "Tactic: Fund Actor"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -242,4 +242,5 @@ order define TACTIC:FUND {
     # NEXT, upeate the tactic
     setundo [$tactic update_ {a mode amount percent} [array get parms]]
 }
+
 

@@ -29,7 +29,6 @@ snit::widget strategybrowser {
     # Options delegated to the hull
     delegate option * to hull
 
-
     #-------------------------------------------------------------------
     # Components
 
@@ -524,7 +523,7 @@ snit::widget strategybrowser {
         $self ReloadConditions
         $self ReloadTactics
 
-        ::cond::simPP_predicate update \
+        ::cond::simPrepPredicate update \
             [list $bl_editbtn $bl_deletebtn $bl_togglebtn \
                  $bl_topbtn $bl_raisebtn $bl_lowerbtn $bl_bottombtn \
                  $ct_cmode $ct_addbtn $tt_emode $tt_addbtn \
@@ -633,7 +632,7 @@ snit::widget strategybrowser {
 
     method AListAgentSelect {} {
         # FIRST, update state controllers
-        ::cond::simPP_predicate update [list $bl_addbtn]
+        ::cond::simPrepPredicate update [list $bl_addbtn]
 
         # NEXT, Skip it if there's no change.
         if {$info(agent) eq [$self AListGet]} {
@@ -692,7 +691,7 @@ snit::widget strategybrowser {
             -state   normal                                      \
             -command [mymethod BListAdd]
 
-        cond::simPP_predicate control $bl_addbtn                 \
+        cond::simPrepPredicate control $bl_addbtn                 \
             browser   $win                                       \
             predicate {alist single}
 
@@ -701,7 +700,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod BListEdit]
 
-        cond::simPP_predicate control $bl_editbtn                \
+        cond::simPrepPredicate control $bl_editbtn                \
             browser $win                                         \
             predicate {blist single}
 
@@ -711,7 +710,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod BListState]
 
-        cond::simPP_predicate control $bl_togglebtn              \
+        cond::simPrepPredicate control $bl_togglebtn              \
             browser $win                                         \
             predicate {blist single}
 
@@ -721,7 +720,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod BListPriority top]
 
-        cond::simPP_predicate control $bl_topbtn                 \
+        cond::simPrepPredicate control $bl_topbtn                 \
             browser $win                                         \
             predicate {blist single}
 
@@ -731,7 +730,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod BListPriority up]
 
-        cond::simPP_predicate control $bl_raisebtn               \
+        cond::simPrepPredicate control $bl_raisebtn               \
             browser $win                                         \
             predicate {blist single}
 
@@ -741,7 +740,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod BListPriority down]
 
-        cond::simPP_predicate control $bl_lowerbtn               \
+        cond::simPrepPredicate control $bl_lowerbtn               \
             browser $win                                         \
             predicate {blist single}
 
@@ -751,7 +750,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod BListPriority bottom]
 
-        cond::simPP_predicate control $bl_bottombtn              \
+        cond::simPrepPredicate control $bl_bottombtn              \
             browser $win                                         \
             predicate {blist single}
 
@@ -760,7 +759,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod BListDelete]
 
-        cond::simPP_predicate control $bl_deletebtn              \
+        cond::simPrepPredicate control $bl_deletebtn              \
             browser $win                                         \
             predicate {blist multi}
             
@@ -808,7 +807,7 @@ snit::widget strategybrowser {
     # Called when the blist's selection has changed.
 
     method BListSelection {} {
-        ::cond::simPP_predicate update \
+        ::cond::simPrepPredicate update \
             [list $bl_editbtn $bl_deletebtn $bl_togglebtn \
                  $bl_topbtn $bl_raisebtn $bl_lowerbtn $bl_bottombtn \
                  $bp_onlock $bp_once $bp_clock]
@@ -989,7 +988,7 @@ snit::widget strategybrowser {
             -text      "On Lock"                         \
             -changecmd [mymethod SetBlockParm onlock]
 
-        cond::simPP_predicate control $bp_onlock         \
+        cond::simPrepPredicate control $bp_onlock         \
             browser   $win                               \
             predicate {gotblock}
 
@@ -997,7 +996,7 @@ snit::widget strategybrowser {
             -text      "Once Only"                   \
             -changecmd [mymethod SetBlockParm once]
 
-        cond::simPP_predicate control $bp_once           \
+        cond::simPrepPredicate control $bp_once           \
             browser   $win                               \
             predicate {gotblock}
 
@@ -1009,7 +1008,7 @@ snit::widget strategybrowser {
             -state   disabled                              \
             -command [mymethod BListEdit]
 
-        cond::simPP_predicate control $bp_clock                  \
+        cond::simPrepPredicate control $bp_clock                  \
             browser $win                                         \
             predicate {blist single}
 
@@ -1119,7 +1118,7 @@ snit::widget strategybrowser {
             -enumtype    eanyall                                 \
             -changecmd   [mymethod SetBlockParm cmode]
 
-        cond::simPP_predicate control $ct_cmode                  \
+        cond::simPrepPredicate control $ct_cmode                  \
             browser   $win                                       \
             predicate {gotblock}
 
@@ -1137,7 +1136,7 @@ snit::widget strategybrowser {
 
         DynamicHelp::add $ct_addbtn -text "Add Condition"
 
-        cond::simPP_predicate control $ct_addbtn                 \
+        cond::simPrepPredicate control $ct_addbtn                 \
             browser   $win                                       \
             predicate {gotblock}
 
@@ -1149,7 +1148,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod CTabEdit]
 
-        cond::simPP_predicate control $ct_editbtn                \
+        cond::simPrepPredicate control $ct_editbtn                \
             browser $win                                         \
             predicate {ctab single}
 
@@ -1160,7 +1159,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod CTabState]
 
-        cond::simPP_predicate control $ct_togglebtn              \
+        cond::simPrepPredicate control $ct_togglebtn              \
             browser $win                                         \
             predicate {ctab single}
 
@@ -1170,7 +1169,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod CTabDelete]
 
-        cond::simPP_predicate control $ct_deletebtn              \
+        cond::simPrepPredicate control $ct_deletebtn              \
             browser $win                                         \
             predicate {ctab multi}
             
@@ -1216,7 +1215,7 @@ snit::widget strategybrowser {
     # Called when the ctab's selection has changed.
 
     method CTabSelection {} {
-        ::cond::simPP_predicate update \
+        ::cond::simPrepPredicate update \
             [list $ct_editbtn $ct_deletebtn $ct_togglebtn]
     }
 
@@ -1419,7 +1418,7 @@ snit::widget strategybrowser {
             -values      [eexecmode asdict longname]             \
             -changecmd   [mymethod SetBlockParm emode]
 
-        cond::simPP_predicate control $tt_emode                  \
+        cond::simPrepPredicate control $tt_emode                  \
             browser   $win                                       \
             predicate {gotblock}
 
@@ -1435,7 +1434,7 @@ snit::widget strategybrowser {
 
         DynamicHelp::add $tt_addbtn -text "Add tactic"
 
-        cond::simPP_predicate control $tt_addbtn                 \
+        cond::simPrepPredicate control $tt_addbtn                 \
             browser   $win                                       \
             predicate {gotblock}
 
@@ -1447,7 +1446,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod TTabEdit]
 
-        cond::simPP_predicate control $tt_editbtn                \
+        cond::simPrepPredicate control $tt_editbtn                \
             browser $win                                         \
             predicate {ttab single}
 
@@ -1458,7 +1457,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod TTabState]
 
-        cond::simPP_predicate control $tt_togglebtn              \
+        cond::simPrepPredicate control $tt_togglebtn              \
             browser $win                                         \
             predicate {ttab single}
 
@@ -1469,7 +1468,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod TTabPriority top]
 
-        cond::simPP_predicate control $tt_topbtn                 \
+        cond::simPrepPredicate control $tt_topbtn                 \
             browser $win                                         \
             predicate {ttab single}
 
@@ -1480,7 +1479,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod TTabPriority up]
 
-        cond::simPP_predicate control $tt_raisebtn               \
+        cond::simPrepPredicate control $tt_raisebtn               \
             browser $win                                         \
             predicate {ttab single}
 
@@ -1491,7 +1490,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod TTabPriority down]
 
-        cond::simPP_predicate control $tt_lowerbtn               \
+        cond::simPrepPredicate control $tt_lowerbtn               \
             browser $win                                         \
             predicate {ttab single}
 
@@ -1502,7 +1501,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod TTabPriority bottom]
 
-        cond::simPP_predicate control $tt_bottombtn              \
+        cond::simPrepPredicate control $tt_bottombtn              \
             browser $win                                         \
             predicate {ttab single}
 
@@ -1512,7 +1511,7 @@ snit::widget strategybrowser {
             -state   disabled                                    \
             -command [mymethod TTabDelete]
 
-        cond::simPP_predicate control $tt_deletebtn              \
+        cond::simPrepPredicate control $tt_deletebtn              \
             browser $win                                         \
             predicate {ttab multi}
             
@@ -1563,7 +1562,7 @@ snit::widget strategybrowser {
     # Called when the ttab's selection has changed.
 
     method TTabSelection {} {
-        ::cond::simPP_predicate update \
+        ::cond::simPrepPredicate update \
             [list $tt_editbtn $tt_deletebtn $tt_togglebtn \
                  $tt_topbtn $tt_raisebtn $tt_lowerbtn $tt_bottombtn]
     }

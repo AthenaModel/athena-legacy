@@ -77,7 +77,7 @@ condition define COMPARE "Compare Numbers" {
 order define CONDITION:COMPARE {
     title "Condition: Compare Numbers"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Condition ID:" -for condition_id
@@ -111,6 +111,7 @@ order define CONDITION:COMPARE {
     # NEXT, update the block
     setundo [$cond update_ {x comp y} [array get parms]]
 }
+
 
 
 

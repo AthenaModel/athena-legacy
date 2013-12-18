@@ -28,28 +28,38 @@ namespace eval ::athena_test::tests:: {
 
     # Set up for tests
 
-    # setup ?-lock?
-    #
-    # With -lock, locks the scenario and creates a coffer for JOE.
-    proc setup {{opt ""}} {
+    # setup
+
+    proc setup {} {
         variable B1
         variable BJOE
-        variable coffer
 
         ted create JOE BOB NB1 NB2 BLUE BRIT SHIA SUNN KURD
-
-        # NEXT, if desired, lock the scenario and create a coffer for JOE
-        if {$opt eq "-lock"} {
-            parm set econ.disable yes
-            ted lock
-            cash load
-            personnel load
-            set coffer [coffer new JOE]
-        }
 
         # NEXT, add some blocks
         set B1   [ted addblock SYSTEM]
         set BJOE [ted addblock JOE]
+    }
+
+    proc lock {} {
+        variable B1
+        variable BJOE
+        variable coffer
+
+        # FIRST, disable the blocks, so that they don't execute
+        $B1 configure -state disabled
+        $BJOE configure -state disabled
+
+        # NEXT, lock everything and create the coffer
+        parm set econ.disable yes
+        ted lock
+        cash load
+        personnel load
+        set coffer [coffer new JOE]
+
+        # NEXT, enable the blocks again.
+        $B1   configure -state normal
+        $BJOE configure -state normal
     }
 
     # Clean up after a test
@@ -953,9 +963,10 @@ namespace eval ::athena_test::tests:: {
     }
 
     test execute-1.1 {SKIPPED if state is not normal} -setup {
-        setup -lock
-    } -body {
+        setup
         addExecutive
+        lock
+    } -body {
         $BJOE set state disabled
         $BJOE execute $coffer
         $BJOE execstatus
@@ -964,10 +975,11 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_STATE}
  
     test execute-2.1 {SKIPPED on lock if onlock=0} -setup {
-        setup -lock
+        setup
+        addExecutive
+        lock
         strategy locking 1
     } -body {
-        addExecutive
         $BJOE set onlock 0
         $BJOE execute $coffer
         $BJOE execstatus
@@ -976,7 +988,8 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_LOCK}
     
     test execute-2.2 {SKIPPED on lock if no tactics} -setup {
-        setup -lock
+        setup
+        lock
         strategy locking 1
     } -body {
         $BJOE set onlock 1
@@ -987,12 +1000,13 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_EMPTY}
     
     test execute-2.3 {SKIPPED on lock if no normal tactics} -setup {
-        setup -lock
+        setup
+        set t [addExecutive]
+        $t set state disabled
+        lock
         strategy locking 1
     } -body {
         $BJOE set onlock 1
-        set t [addExecutive]
-        $t set state disabled
         $BJOE execute $coffer
         list [$BJOE execstatus] [tstate]
     } -cleanup {
@@ -1000,11 +1014,12 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_EMPTY {6 SKIP_STATE}}
 
     test execute-2.4 {SKIPPED on lock if no onlock tactics} -setup {
-        setup -lock
+        setup
+        addSigevent
+        lock
         strategy locking 1
     } -body {
         $BJOE set onlock 1
-        set t [addSigevent]
         $BJOE execute $coffer
         list [$BJOE execstatus] [tstate]
     } -cleanup {
@@ -1012,12 +1027,13 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_EMPTY {6 SKIP_LOCK}}
 
     test execute-3.1 {SUCCESS on lock if normal with onlock tactic} -setup {
-        setup -lock
+        setup
+        addSigevent
+        addExecutive
+        lock
         strategy locking 1
     } -body {
         $BJOE set onlock 1
-        addSigevent
-        set t [addExecutive]
         $BJOE execute $coffer
         list [$BJOE execstatus] [tstate]
     } -cleanup {
@@ -1025,7 +1041,8 @@ namespace eval ::athena_test::tests:: {
     } -result {SUCCESS {6 SKIP_LOCK 7 SUCCESS}}
 
      test execute-4.1 {SKIP_TIME if time constraint not met} -setup {
-        setup -lock
+        setup 
+        lock
     } -body {
         $BJOE set tmode AT
         $BJOE set t1    10
@@ -1036,8 +1053,7 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_TIME}
 
     test execute-5.1 {cmode ALL, not all are met} -setup {
-        setup -lock
-    } -body {
+        setup 
         $BJOE addcondition_ EXPR
         set C1 [lastcond $BJOE]
 
@@ -1046,7 +1062,8 @@ namespace eval ::athena_test::tests:: {
 
         $C1 update_ {expression} { expression { 1 == 1 } }
         $C2 update_ {expression} { expression { 1 == 2 } }
-
+        lock
+    } -body {
         $BJOE set cmode ALL
         $BJOE execute $coffer
         $BJOE execstatus
@@ -1055,8 +1072,7 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_CONDITIONS}
     
     test execute-5.2 {cmode ANY, none are met} -setup {
-        setup -lock
-    } -body {
+        setup 
         $BJOE addcondition_ EXPR
         set C1 [lastcond $BJOE]
 
@@ -1066,7 +1082,8 @@ namespace eval ::athena_test::tests:: {
         $C1 update_ {expression} { expression { 1 == 2 } }
         $C2 update_ {expression} { expression { 2 == 3 } }
 
-
+        lock
+    } -body {
         $BJOE set cmode ANY
         $BJOE execute $coffer
         $BJOE execstatus
@@ -1075,8 +1092,7 @@ namespace eval ::athena_test::tests:: {
     } -result {SKIP_CONDITIONS}
     
     test execute-6.1 {cmode ALL, all are met} -setup {
-        setup -lock
-    } -body {
+        setup 
         addSigevent ;# So the block isn't empty
         $BJOE addcondition_ EXPR
         set C1 [lastcond $BJOE]
@@ -1087,6 +1103,8 @@ namespace eval ::athena_test::tests:: {
         $C1 update_ {expression} { expression { 1 == 1 } }
         $C2 update_ {expression} { expression { 2 == 2 } }
 
+        lock
+    } -body {
         $BJOE set cmode ALL
         $BJOE execute $coffer
         $BJOE execstatus
@@ -1095,8 +1113,7 @@ namespace eval ::athena_test::tests:: {
     } -result {SUCCESS}
 
     test execute-6.2 {cmode ANY, some are met} -setup {
-        setup -lock
-    } -body {
+        setup 
         addSigevent ;# So the block isn't empty
         $BJOE addcondition_ EXPR
         set C1 [lastcond $BJOE]
@@ -1107,6 +1124,8 @@ namespace eval ::athena_test::tests:: {
         $C1 update_ {expression} { expression { 1 == 2 } }
         $C2 update_ {expression} { expression { 2 == 2 } }
 
+        lock
+    } -body {
         $BJOE set cmode ANY
         $BJOE execute $coffer
         $BJOE execstatus
@@ -1115,8 +1134,7 @@ namespace eval ::athena_test::tests:: {
     } -result {SUCCESS}
 
     test execute-6.3 {disabled conditions are ignored} -setup {
-        setup -lock
-    } -body {
+        setup 
         addSigevent ;# So the block isn't empty
         $BJOE addcondition_ EXPR
         set C1 [lastcond $BJOE]
@@ -1128,6 +1146,8 @@ namespace eval ::athena_test::tests:: {
         $C2 update_ {expression} { expression { 2 == 2 } }
 
         $C1 set state disabled
+        lock
+    } -body {
         $BJOE set cmode ALL
         $BJOE execute $coffer
         list [$BJOE execstatus] [tstate]
@@ -1136,8 +1156,7 @@ namespace eval ::athena_test::tests:: {
     } -result {SUCCESS {6 SUCCESS}}
     
     test execute-6.4 {invalid conditions are ignored} -setup {
-        setup -lock
-    } -body {
+        setup
         addSigevent ;# So the block isn't empty
         $BJOE addcondition_ EXPR
         set C1 [lastcond $BJOE]
@@ -1146,7 +1165,8 @@ namespace eval ::athena_test::tests:: {
         set C2 [lastcond $BJOE]
 
         $C2 update_ {expression} { expression { 2 == 2 } }
-
+        lock
+    } -body {
         $C1 set state invalid
         $BJOE set cmode ALL
         $BJOE execute $coffer
@@ -1156,11 +1176,11 @@ namespace eval ::athena_test::tests:: {
     } -result {SUCCESS {6 SUCCESS}}
     
     test execute-7.1 {insufficient resources for 1, emode=ALL} -setup {
-        setup -lock
-    } -body {
+        setup 
         addSigevent 
         addDeploy 30000  ;# Shouldn't be any troops mobilized.
-
+        lock
+    } -body {
         $BJOE set emode ALL
         $BJOE execute $coffer
         list [$BJOE execstatus] [tstate]
@@ -1169,11 +1189,12 @@ namespace eval ::athena_test::tests:: {
     } -result {FAIL_RESOURCES {6 SKIP_BLOCK 7 FAIL_RESOURCES}}
     
     test execute-7.2 {insufficient resources for 1, emode=SOME} -setup {
-        setup -lock
-    } -body {
+        setup
         addSigevent 
         addDeploy 30000  ;# Shouldn't be any troops mobilized.
 
+        lock
+    } -body {
         $BJOE set emode SOME
         $BJOE execute $coffer
         list [$BJOE execstatus] [tstate]
@@ -1182,14 +1203,15 @@ namespace eval ::athena_test::tests:: {
     } -result {SUCCESS {6 SUCCESS 7 FAIL_RESOURCES}}
 
     test execute-8.1 {obligates on lock} -setup {
-        setup -lock
+        setup
         addSpend 1000.0
+        lock
+
         $coffer spend [$coffer cash]
         $coffer withdraw 2000
         $BJOE set onlock 1
         strategy locking 1
     } -body {
-
         set a [$coffer cash]
         $BJOE execute $coffer
         set b [$coffer cash]

@@ -68,7 +68,7 @@ tactic define SIGEVENT "Log Significant Event" {system actor} {
 order define TACTIC:SIGEVENT {
     title "Tactic: Log Significant Event"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID:" -for tactic_id
@@ -89,6 +89,7 @@ order define TACTIC:SIGEVENT {
     # NEXT, update the block
     setundo [$tactic update_ {msg} [array get parms]]
 }
+
 
 
 

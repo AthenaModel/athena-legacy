@@ -498,7 +498,7 @@ oo::define strategy {
 order define STRATEGY:BLOCK:ADD {
     title "Add Block to Strategy"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Agent:" -for agent
@@ -527,7 +527,7 @@ order define STRATEGY:BLOCK:ADD {
 order define STRATEGY:BLOCK:DELETE {
     title "Delete Block from Strategy"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         text ids -context yes
@@ -556,7 +556,7 @@ order define STRATEGY:BLOCK:DELETE {
 order define STRATEGY:BLOCK:MOVE {
     title "Move Block in Strategy"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Block ID:" -for block_id
@@ -578,3 +578,4 @@ order define STRATEGY:BLOCK:MOVE {
 
     setundo [$s moveblock_ $parms(block_id) $parms(where)]
 }
+

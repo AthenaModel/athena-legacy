@@ -501,7 +501,7 @@ oo::define condition {
 order define CONDITION:STATE {
     title "Set Condition State"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         label "Condition ID:" -for condition_id
@@ -521,6 +521,7 @@ order define CONDITION:STATE {
     # NEXT, update the block
     setundo [$cond update_ {state} [array get parms]]
 }
+
 
 
 

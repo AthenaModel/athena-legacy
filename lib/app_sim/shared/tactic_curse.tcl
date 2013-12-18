@@ -356,7 +356,7 @@ tactic define CURSE "Cause a CURSE" {system} {
 
 order define TACTIC:CURSE {
     title "Tactic: CURSE"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -385,6 +385,7 @@ order define TACTIC:CURSE {
     # NEXT, modify the tactic
     setundo [$tactic update_ {curse roles} [array get parms]]
 }
+
 
 
 

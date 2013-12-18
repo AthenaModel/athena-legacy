@@ -955,7 +955,7 @@ oo::define block {
 order define BLOCK:UPDATE {
     title "Update Strategy Block"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rc "Block ID:" -for block_id
@@ -1059,7 +1059,7 @@ order define BLOCK:UPDATE {
 order define BLOCK:STATE {
     title "Set Strategy Block State"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         label "Block ID:" -for block_id
@@ -1090,7 +1090,7 @@ order define BLOCK:STATE {
 order define BLOCK:TACTIC:ADD {
     title "Add Tactic to Block"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         label "Block ID:" -for block_id
@@ -1124,7 +1124,7 @@ order define BLOCK:TACTIC:ADD {
 order define BLOCK:TACTIC:DELETE {
     title "Delete Tactic(s) from Block"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         text ids
@@ -1154,7 +1154,7 @@ order define BLOCK:TACTIC:DELETE {
 order define BLOCK:TACTIC:MOVE {
     title "Move Tactic Within Block"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID:" -for tactic_id
@@ -1188,7 +1188,7 @@ order define BLOCK:TACTIC:MOVE {
 order define BLOCK:CONDITION:ADD {
     title "Add Condition to Block"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         label "Block ID:" -for block_id
@@ -1222,7 +1222,7 @@ order define BLOCK:CONDITION:ADD {
 order define BLOCK:CONDITION:DELETE {
     title "Delete Condition from Block"
 
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         text ids
@@ -1241,6 +1241,7 @@ order define BLOCK:CONDITION:DELETE {
     
     setundo [join [lreverse $undo] "\n"]
 }
+
 
 
 

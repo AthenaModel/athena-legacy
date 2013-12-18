@@ -267,7 +267,7 @@ order define TACTIC:BROADCAST {
     title "Tactic: Broadcast IOM"
 
     options \
-        -sendstates {PREP PAUSED}
+        -sendstates PREP
 
     form {
         rcc "Tactic ID:" -for tactic_id
@@ -308,6 +308,7 @@ order define TACTIC:BROADCAST {
     # NEXT, create the tactic
     setundo [$tactic update_ {cap a iom cost} [array get parms]]
 }
+
 
 
 

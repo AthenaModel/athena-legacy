@@ -296,7 +296,7 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
 
 order define TACTIC:MAINTAIN {
     title "Tactic: Maintain Infrastructure"
-    options -sendstates {PREP PAUSED}
+    options -sendstates PREP
 
     form {
         rcc "Tactic ID" -for tactic_id
@@ -352,6 +352,7 @@ order define TACTIC:MAINTAIN {
         nlist rmode amount level
     } [array get parms]]
 }
+
 
 
 
