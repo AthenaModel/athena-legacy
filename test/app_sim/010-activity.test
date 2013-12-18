@@ -41,6 +41,10 @@ namespace eval ::athena_test::tests:: {
         activity asched names
     } -result {CHECKPOINT CMO_CONSTRUCTION CMO_DEVELOPMENT CMO_EDUCATION CMO_EMPLOYMENT CMO_HEALTHCARE CMO_INDUSTRY CMO_INFRASTRUCTURE CMO_LAW_ENFORCEMENT CMO_OTHER COERCION CRIMINAL_ACTIVITIES CURFEW GUARD PATROL PSYOP}
 
+    test asched-1.2 {List of schedulable names group g} -body {
+        activity asched names BLUE
+    } -result {}
+
     test asched-2.1 {Invalid name} -body {
         activity asched validate NONESUCH
     } -returnCodes {

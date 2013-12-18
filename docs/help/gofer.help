@@ -1932,29 +1932,30 @@ gofer_rule NUMBER BY_VALUE "specific number" {
     <</topiclist>>
 }
 
-gofer_rule NUMBER ASSIGNED "assigned(n,g,activity)" {
-    Returns the number of personnel in <<term nbhood>> <i>n</i>
-    of <<term group>> <i>g</i> with <<term activity>> <i>activity</i><p>
+gofer_rule NUMBER ASSIGNED "assigned(g,activity,n)" {
+    Returns the number of personnel of <<term frcgroup>> or 
+    <<term orggroup>> <i>g</i> assigned to do the explicit 
+    <<term activity>> in <<term nbhood>> <i>n</i><p>
 
     <<itemlist>>
-    <<gofer.details n N01 g SUNN activity PATROL>>
-    <<gofer.function assigned {"N01","SUNN","PATROL"}>>
+    <<gofer.details g BLUE activity PATROL n N01>>
+    <<gofer.function assigned {"BLUE","PATROL","N01"}>>
     <</itemlist>><p>
 
     The rule parameters are as follows:<p>
     
     <<topiclist "Parameter">>
 
-    <<topic <tt><i>n</i></tt> >>
-    ID of a <<term nbhood>>.
-    <</topic>>
-
     <<topic <tt><i>g</i></tt> >>
-    ID of a <<term group>>.
+    ID of a <<term frcgroup>> or <<term orggroup>>.
     <</topic>>
 
     <<topic <tt><i>activity</i></tt> >>
-    ID of a <<term activity>>.
+    ID of an explicit <<term activity>>.
+    <</topic>>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
     <</topic>>
 
     <</topiclist>>

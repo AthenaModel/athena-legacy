@@ -72,9 +72,10 @@ macro function_syntax {} {
 #=======================================================================
 # assigned
 
-function "assigned(n,g,activity)" {
-    Returns the number of personnel in <<term nbhood>> <i>n</i>
-    of <<term group>> <i>g</i> with <<term activity>> <i>activity</i>.<p>
+function "assigned(g,activity,n)" {
+    Returns the number of personnel of <<term frcgroup>> or 
+    <<term orggroup>> <i>g</i> assigned to do the explicit 
+    <<term activity>> in <<term nbhood>> <i>n</i><p>
 
     Returns 0 when the scenario is unlocked.<p>
 

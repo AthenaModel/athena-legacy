@@ -30,19 +30,20 @@ gofer define NUMBER "" {
             text raw_value 
         }
 
-        case ASSIGNED "assigned(n,g,activity)" {
+        case ASSIGNED "assigned(g,activity,n)" {
             rc
-            rc "Number of personnel in neighborhood"
+            rc "Number of personnel of force or org group "
             rc
-            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+            enumlong g -showkeys yes -dictcmd {::ptype fog namedict}
 
-            rc "of group"
-            rc
-            enumlong g -showkeys yes -dictcmd {::group namedict}
 
             rc "assigned to do activity"
             rc
-            enum activity -listcmd {::activity names}
+            enum activity -listcmd {::activity asched names $g}
+
+            rc "in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
         case COOP "coop(f,g)" {
@@ -221,27 +222,38 @@ gofer rule NUMBER BY_VALUE {raw_value} {
 
 # Rule: ASSIGNED
 #
-# assigned(n,g,activity)
+# assigned(g,activity,n)
 
-gofer rule NUMBER ASSIGNED {n g activity} {
-    typemethod construct {n g activity} {
-        return [$type validate [dict create n $n g $g activity $activity]]
+gofer rule NUMBER ASSIGNED {g activity n} {
+    typemethod construct {g activity n} {
+        return [$type validate [dict create g $g activity $activity n $n]]
     }
 
     typemethod validate {gdict} {
         dict with gdict {}
 
-        dict create \
-            n [nbhood validate [string toupper $n]] \
-            g [group validate [string toupper $g]] \
-            activity [activity validate [string toupper $activity]] \
+        set valid [dict create]
 
+        dict set valid g [ptype fog validate [string toupper $g]]
+
+        dict set valid activity [string toupper $activity]
+
+        if {$activity eq ""} {
+            return -code error -errorcode INVALID \
+                "Invalid activity \"\"."
+        } else {
+            activity check [string toupper $g] [string toupper $activity]
+        }
+
+        dict set valid n [nbhood validate [string toupper $n]]
+
+        return $valid
     }
 
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return [format {assigned("%s","%s","%s")} $n $g $activity]
+        return [format {assigned("%s","%s","%s")} $g $activity $n]
     }
 
     typemethod eval {gdict} {

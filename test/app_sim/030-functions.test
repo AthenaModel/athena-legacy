@@ -38,7 +38,7 @@ namespace eval ::athena_test::tests:: {
     test assigned-1.1 {invalid nbhood} -setup {
         ted create NB1 BLUE
     } -body {
-        ted sendex -error expr assigned("NONESUCH","BLUE","PATROL")
+        ted sendex -error expr assigned("BLUE","PATROL","NONESUCH")
     } -cleanup {
         cleanup
     } -result {Invalid neighborhood, should be one of: NB1}
@@ -46,23 +46,23 @@ namespace eval ::athena_test::tests:: {
     test assigned-1.2 {invalid group} -setup {
         ted create NB1 BLUE SUNN
     } -body {
-        ted sendex -error expr assigned("NB1","NONESUCH","PATROL")
+        ted sendex -error expr assigned("NONESUCH","PATROL","NB1")
     } -cleanup {
         cleanup
-    } -result {Invalid group, should be one of: BLUE, SUNN}
+    } -result {Invalid force/org group "NONESUCH", should be one of: BLUE}
 
     test assigned-1.3 {invalid activity} -setup {
         ted create NB1 BLUE SUNN
     } -body {
-        ted sendex -error expr assigned("NB1","BLUE","NONESUCH")
+        ted sendex -error expr assigned("BLUE","NONESUCH","NB1")
     } -cleanup {
         cleanup
-    } -result {Invalid activity, should be one of: CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, NONE, PATROL, PRESENCE, PSYOP}
+    } -result {Group BLUE cannot be assigned activity NONESUCH}
 
     test assigned-2.1 {in prep} -setup {
         ted create NB1 BLUE SUNN
     } -body {
-        ted sendex expr assigned("NB1","BLUE","PATROL")
+        ted sendex expr assigned("BLUE","PATROL","NB1")
     } -cleanup {
         cleanup
     } -result {0}
@@ -71,7 +71,7 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
-        ted sendex expr assigned("NB1","BLUE","PATROL")
+        ted sendex expr assigned("BLUE","PATROL","NB1")
     } -cleanup {
         cleanup
     } -result {0}

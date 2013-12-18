@@ -110,15 +110,24 @@ snit::type activity {
         return $a
     }
 
+
     # asched names
     #
     # Returns the list of schedulable activities
 
-    typemethod {asched names} {} {
-        set names [rdb eval {
-            SELECT DISTINCT a FROM activity_gtype
-            WHERE assignable
-        }]
+    typemethod {asched names} {{g ""}} {
+        if {$g eq ""} {
+            set names [rdb eval {
+                SELECT DISTINCT a FROM activity_gtype
+                WHERE assignable
+            }]
+        } else {
+            set gtype [group gtype $g]
+            set names [rdb eval {
+                SELECT DISTINCT a FROM activity_gtype
+                WHERE assignable AND gtype=$gtype
+            }]
+        }
     }
 
 
@@ -138,6 +147,7 @@ snit::type activity {
 
         return $a
     }
+
 
     # check g a
     #

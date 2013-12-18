@@ -88,23 +88,23 @@ namespace eval ::athena_test::tests:: {
     test ASSIGNED-1.1 {construct, valid} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ASSIGNED construct NB1 BLUE PATROL
+        ::gofer::NUMBER::ASSIGNED construct BLUE PATROL NB1
     } -cleanup {
         cleanup
-    } -result {n NB1 g BLUE activity PATROL}
+    } -result {g BLUE activity PATROL n NB1}
 
     test ASSIGNED-2.1 {validate, valid} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ASSIGNED validate {n nb1 g blue activity patrol}
+        ::gofer::NUMBER::ASSIGNED validate {g blue activity patrol n nb1}
     } -cleanup {
         cleanup
-    } -result {n NB1 g BLUE activity PATROL}
+    } -result {g BLUE activity PATROL n NB1}
 
     test ASSIGNED-2.2 {validate, invalid n} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ASSIGNED validate {n NONESUCH g BLUE activity PATROL}
+        ::gofer::NUMBER::ASSIGNED validate {g BLUE activity PATROL n NONESUCH}
     } -returnCodes {
         error
     } -cleanup {
@@ -114,32 +114,32 @@ namespace eval ::athena_test::tests:: {
     test ASSIGNED-2.3 {validate, invalid g} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ASSIGNED validate {n NB1 g NONESUCH activity PATROL}
+        ::gofer::NUMBER::ASSIGNED validate {g NONESUCH activity PATROL n NB1}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -match glob -result {Invalid group,*}
+    } -match glob -result {Invalid force/org group "NONESUCH", should be one of: BLUE, BRIT, TAL, USAID}
 
     test ASSIGNED-2.4 {validate, invalid activity} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ASSIGNED validate {n NB1 g BLUE activity NONESUCH}
+        ::gofer::NUMBER::ASSIGNED validate {g BLUE activity NONESUCH n NB1}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -match glob -result {Invalid activity,*}
+    } -match glob -result {Group BLUE cannot be assigned activity NONESUCH}
 
     test ASSIGNED-3.1 {narrative} -body {
-        ::gofer::NUMBER::ASSIGNED narrative {n NB1 g BLUE activity PATROL}
-    } -result {assigned("NB1","BLUE","PATROL")}
+        ::gofer::NUMBER::ASSIGNED narrative {g BLUE activity PATROL n NB1}
+    } -result {assigned("BLUE","PATROL","NB1")}
 
     test ASSIGNED-4.1 {eval, no data} -setup {
         setup
         ted lock
     } -body {
-        ::gofer::NUMBER::ASSIGNED eval {n NB1 g BLUE activity PATROL}
+        ::gofer::NUMBER::ASSIGNED eval {g BLUE activity PATROL n NB1}
     } -cleanup {
         cleanup
     } -result {0}
@@ -148,7 +148,7 @@ namespace eval ::athena_test::tests:: {
         setup
         ted lock
     } -body {
-        ::gofer::NUMBER::ASSIGNED eval {n NB1 g BLUE activity PATROL}
+        ::gofer::NUMBER::ASSIGNED eval {g BLUE activity PATROL n NB1}
     } -cleanup {
         cleanup
     } -result {0}
