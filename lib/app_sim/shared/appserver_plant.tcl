@@ -109,11 +109,11 @@ appserver module PLANT {
             ht para 
 
             ht query {
-                SELECT nlink         AS "Neighborhood",
-                       alink         AS "Agent",
-                       num           AS "Owned Plants",
-                       auto_maintain AS "Automatic Maintenance?",
-                       rho           AS "Average Repair Level"
+                SELECT nlink          AS "Neighborhood",
+                       alink          AS "Agent",
+                       num            AS "Owned Plants",
+                       auto_maintain  AS "Automatic Maintenance?",
+                       rho            AS "Average Repair Level"
                 FROM gui_plants_na
                 ORDER BY nlink
             } -default "None." -align LLLLL

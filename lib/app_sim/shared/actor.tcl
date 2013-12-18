@@ -166,6 +166,7 @@ snit::type actor {
                        longname,  
                        supports, 
                        atype,
+                       auto_maintain,
                        cash_reserve, 
                        cash_on_hand,
                        income_goods, 
@@ -179,6 +180,7 @@ snit::type actor {
                        $longname, 
                        nullif($supports, 'NONE'),
                        $atype,
+                       $auto_maintain,
                        $cash_reserve,
                        $cash_on_hand,
                        $income_goods, 
@@ -270,20 +272,21 @@ snit::type actor {
             # NEXT, Update the actor
             rdb eval {
                 UPDATE actors
-                SET longname     = nonempty($longname,     longname),
-                    supports     = nullif(nonempty($supports,supports),'NONE'),
-                    atype        = nonempty($atype,        atype),
-                    cash_reserve = nonempty($cash_reserve, cash_reserve),
-                    cash_on_hand = nonempty($cash_on_hand, cash_on_hand),
-                    income_goods = nonempty($income_goods, income_goods),
-                    shares_black_nr = 
-                        nonempty($shares_black_nr, shares_black_nr),
+                SET longname      = nonempty($longname,      longname),
+                    supports      = nullif(nonempty($supports,supports),'NONE'),
+                    atype         = nonempty($atype,         atype),
+                    auto_maintain = nonempty($auto_maintain, auto_maintain),
+                    cash_reserve  = nonempty($cash_reserve,  cash_reserve),
+                    cash_on_hand  = nonempty($cash_on_hand,  cash_on_hand),
+                    income_goods  = nonempty($income_goods,  income_goods),
+                    shares_black_nr  = 
+                        nonempty($shares_black_nr,  shares_black_nr),
                     income_black_tax = 
                         nonempty($income_black_tax, income_black_tax),
-                    income_pop   = nonempty($income_pop,   income_pop),
-                    income_graft = nonempty($income_graft, income_graft),
-                    income_world = nonempty($income_world, income_world),
-                    budget       = nonempty($budget,       budget)
+                    income_pop    = nonempty($income_pop,    income_pop),
+                    income_graft  = nonempty($income_graft,  income_graft),
+                    income_world  = nonempty($income_world,  income_world),
+                    budget        = nonempty($budget,        budget)
                 WHERE a=$a;
             } {}
 
@@ -347,6 +350,9 @@ order define ACTOR:CREATE {
         rcc "Supports:" -for supports
         enum supports -defvalue SELF -listcmd {ptype a+self+none names}
 
+        rcc "Auto-maintain Infrastructure?" -for auto_maintain
+        yesno auto_maintain -defvalue 0
+
         rcc "Funding Type:" -for atype
         selector atype -defvalue INCOME {
             case INCOME "Actor gets weekly income from local economy" {
@@ -394,6 +400,7 @@ order define ACTOR:CREATE {
     prepare a                -toupper -required -unused -type ident
     prepare longname         -normalize
     prepare supports         -toupper           -type {ptype a+self+none}
+    prepare auto_maintain    -toupper           -type boolean 
     prepare atype            -toupper           -selector
     prepare cash_reserve     -toupper           -type money
     prepare cash_on_hand     -toupper           -type money
@@ -486,6 +493,9 @@ order define ACTOR:UPDATE {
         rcc "Supports:" -for supports
         enum supports -listcmd {ptype a+self+none names}
 
+        rcc "Auto-maintain Infrastructure?" -for auto_maintain
+        yesno auto_maintain 
+
         rcc "Funding Type:" -for atype
         selector atype {
             case INCOME "Actor gets weekly income from local economy" {
@@ -533,6 +543,7 @@ order define ACTOR:UPDATE {
     prepare a                -toupper   -required -type actor
     prepare longname         -normalize
     prepare supports         -toupper             -type {ptype a+self+none}
+    prepare auto_maintain    -toupper             -type boolean 
     prepare atype            -toupper             -selector
     prepare cash_reserve     -toupper             -type money
     prepare cash_on_hand     -toupper             -type money
@@ -615,10 +626,11 @@ order define ACTOR:INCOME {
 
     # NEXT, fill in the empty parameters
     array set parms {
-        longname     {}
-        supports     {}
-        cash_reserve {}
-        cash_on_hand {}
+        auto_maintain {}
+        longname      {}
+        supports      {}
+        cash_reserve  {}
+        cash_on_hand  {}
     }
 
     # NEXT, modify the actor
@@ -652,6 +664,7 @@ order define ACTOR:SUPPORTS {
     array set parms {
         longname         {}
         atype            {}
+        auto_maintain    {}
         cash_reserve     {}
         cash_on_hand     {}
         income_goods     {}

@@ -35,6 +35,7 @@ snit::widgetadaptor actorbrowser {
         { longname         "\nLong Name"                               }
         { supports         "\nSupports"                                }
         { atype            "Funding\nType"                             }
+        { pretty_am_flag   "Auto-maintain\nInfrastructure?"            }
         { cash_reserve     "Cash Reserve\n$"
                            -sortmode command 
                            -sortcommand ::marsutil::moneysort          }

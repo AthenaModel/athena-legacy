@@ -61,6 +61,14 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
             dict set errdict nlist $result
         }
 
+        # owner must not be automatically maintaining infrastructure
+        set owner [my agent]
+
+        if {[actor get $owner auto_maintain]} {
+            set errmsg "$owner has auto maintenance enabled."
+            dict set errdict owner $errmsg
+        }
+
         return [next $errdict]
     }
 
@@ -124,7 +132,7 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
 
         # NEXT, the maximum repair level is either fully repaired or
         # the level of repair the user has requested
-        # Note: This will need to be change if more repair modes are
+        # Note: This will need to be changed if more repair modes are
         # added
         set maxRho 1.0
 

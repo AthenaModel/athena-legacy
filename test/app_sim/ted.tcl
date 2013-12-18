@@ -211,6 +211,7 @@ snit::type ted {
             longname         "Joe the Actor"
             supports         SELF
             atype            INCOME
+            auto_maintain    0
             cash_reserve     200000
             cash_on_hand     0
             income_goods     10000
@@ -227,6 +228,7 @@ snit::type ted {
             longname         "Bob the Actor"
             supports         SELF
             atype            INCOME
+            auto_maintain    0
             cash_reserve     150000
             cash_on_hand     0
             income_goods     5000
@@ -243,6 +245,7 @@ snit::type ted {
             longname         "Dave the Actor"
             supports         SELF
             atype            INCOME
+            auto_maintain    0
             cash_reserve     150000
             cash_on_hand     0
             income_goods     5000
@@ -259,6 +262,7 @@ snit::type ted {
             longname         "Brian the Actor"
             supports         BOB
             atype            INCOME
+            auto_maintain    0
             cash_reserve     150000
             cash_on_hand     0
             income_goods     5000
@@ -275,6 +279,7 @@ snit::type ted {
             longname         "Will the Actor"
             supports         SELF
             atype            BUDGET
+            auto_maintain    0
             cash_reserve     0
             cash_on_hand     0
             income_goods     0

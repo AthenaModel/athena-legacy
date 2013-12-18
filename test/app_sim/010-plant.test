@@ -315,6 +315,46 @@ rho  0.5
     } -result {1}
 
     #-------------------------------------------------------------------
+    # degrade
+    test degrade-1.1 {plants degrade} -setup {
+        execute_setup
+    } -body {
+        set a [rdb eval {SELECT total(rho) FROM plants_na}]
+        plant degrade
+        set b [rdb eval {SELECT total(rho) FROM plants_na}]
+
+        expr {$a>$b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test degrade-1.2 {no degradation with auto-maintain enabled} -setup {
+        execute_setup
+        rdb eval {UPDATE actors SET auto_maintain=1}
+    } -body {
+        set a [rdb eval {SELECT total(rho) FROM plants_na}]
+        plant degrade
+        set b [rdb eval {SELECT total(rho) FROM plants_na}]
+        
+        expr {$a==$b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test degrade-1.3 {no degradation when econ is disabled} -setup {
+        execute_setup
+        parmdb set econ.disable 1
+    } -body {
+        set a [rdb eval {SELECT total(rho) FROM plants_na}]
+        plant degrade
+        set b [rdb eval {SELECT total(rho) FROM plants_na}]
+        
+        expr {$a==$b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+        
+    #-------------------------------------------------------------------
     # capacity
 
     test capacity-1.1 {total, by nbhood and by actor} -setup {

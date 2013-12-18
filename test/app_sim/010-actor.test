@@ -47,6 +47,7 @@ a                 JOE
 longname          Joe the Actor
 supports          JOE
 atype             INCOME
+auto_maintain     0
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      10000.0
@@ -75,6 +76,7 @@ a                 JOE
 longname          Joe the Actor
 supports          
 atype             INCOME
+auto_maintain     0
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      10000.0
@@ -150,6 +152,7 @@ a                 JOE
 longname          Joe the Actor
 supports          JOE
 atype             INCOME
+auto_maintain     0
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      10000.0
@@ -368,6 +371,7 @@ a                 JOE
 longname          Joe the Actress
 supports          
 atype             BUDGET
+auto_maintain     0
 cash_reserve      0.0
 cash_on_hand      0.0
 income_goods      0.0
@@ -501,6 +505,7 @@ budget            10.0
     } -result {
         supports         JOE
         a                JOE
+        auto_maintain    0
         income_pop       0.0
         cash_reserve     200000.0
         budget           0.0
@@ -510,8 +515,8 @@ budget            10.0
         income_world     0.0
         income_black_tax 0.0
         cash_on_hand     0.0
-        income_goods     10000.0
         income_graft     0.0
+        income_goods     10000.0
     }
 
     test get-1.2 {get actor attribute} -setup {

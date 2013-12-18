@@ -33,6 +33,7 @@ namespace eval ::athena_test::tests:: {
         longname         "Joe the Actor"
         supports         SELF
         atype            INCOME
+        auto_maintain    0
         cash_reserve     200000
         cash_on_hand     0
         income_goods     60000
@@ -49,6 +50,7 @@ namespace eval ::athena_test::tests:: {
         longname         "Bob the Actor"
         supports         SELF
         atype            INCOME
+        auto_maintain    1
         cash_reserve     150000
         cash_on_hand     0
         income_goods     5000
@@ -65,6 +67,7 @@ namespace eval ::athena_test::tests:: {
         longname         "Dave the Actor"
         supports         SELF
         atype            BUDGET
+        auto_maintain    1
         cash_reserve     0
         cash_on_hand     0
         income_goods     0
@@ -233,6 +236,7 @@ a                 JOE
 longname          Joe the Actor
 supports          JOE
 atype             INCOME
+auto_maintain     0
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      60000.0
@@ -256,6 +260,7 @@ a                 JOE
 longname          JOE
 supports          JOE
 atype             INCOME
+auto_maintain     0
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      60000.0
@@ -482,6 +487,7 @@ a                 JOE
 longname          Joe the Actress
 supports          BOB
 atype             BUDGET
+auto_maintain     0
 cash_reserve      0.0
 cash_on_hand      0.0
 income_goods      0.0
@@ -496,6 +502,7 @@ a                 BOB
 longname          Bob the Actor
 supports          BOB
 atype             INCOME
+auto_maintain     0
 cash_reserve      150000.0
 cash_on_hand      0.0
 income_goods      5000.0
@@ -628,6 +635,7 @@ a                 JOE
 longname          Joe the Actor
 supports          JOE
 atype             INCOME
+auto_maintain     0
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      0.0
@@ -662,6 +670,7 @@ a                 JOE
 longname          Joe the Actor
 supports          JOE
 atype             INCOME
+auto_maintain     0
 cash_reserve      200000.0
 cash_on_hand      0.0
 income_goods      0.0

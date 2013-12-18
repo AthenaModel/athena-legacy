@@ -26,7 +26,7 @@ SELECT PS.n || ' ' || PS.a                     AS id,
        N.longlink                              AS nlink,
        PS.a                                    AS a,
        coalesce(A.longlink,AG.longlink)        AS alink,
-       coalesce(A.auto_maintain, 'YES')        AS auto_maintain,
+       coalesce(A.pretty_am_flag, 'Yes')       AS auto_maintain,
        format('%.2f', coalesce(PN.rho,PS.rho)) AS rho,
        coalesce(PN.num,PS.num)                 AS num
 FROM plants_shares         AS PS

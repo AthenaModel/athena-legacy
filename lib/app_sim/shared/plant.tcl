@@ -200,13 +200,18 @@ snit::type plant {
         # degradation
         let deltaRho {1.0 / $lt}
 
-        # NEXT, degrade repair levels, making sure they do not go 
-        # negative
+        # NEXT, degrade repair levels for plants owned by actors
+        # that do not have auto-maintenance enabled
         # NOTE: Plants owned by the SYSTEM do not degrade
         rdb eval {
-            UPDATE plants_na
-            SET rho = max(rho - $deltaRho, 0.0)
-            WHERE a != 'SYSTEM'
+            SELECT a FROM actors
+            WHERE auto_maintain = 0
+        } {
+            rdb eval {
+                UPDATE plants_na
+                SET rho = max(rho - $deltaRho, 0.0)
+                WHERE a=$a
+            }
         }
     }
 
@@ -303,7 +308,12 @@ snit::type plant {
     #
 
     typemethod repair {a n dRho} {
-        # FIRST, change rho by the amount requested
+        # FIRST, if this actor has auto-maitenance enabled, nothing to do
+        if {[actor get $a auto_maintain]} {
+            return
+        }
+
+        # NEXT, change rho by the amount requested
         rdb eval {
             UPDATE plants_na
             SET rho = min(1.0,rho + $dRho)
