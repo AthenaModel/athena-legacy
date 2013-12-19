@@ -214,23 +214,23 @@ namespace eval ::athena_test::tests:: {
     test COVERAGE-1.1 {construct, valid} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::COVERAGE construct NB1 BLUE PRESENCE
+        ::gofer::NUMBER::COVERAGE construct BLUE PRESENCE NB1
     } -cleanup {
         cleanup
-    } -result {n NB1 g BLUE a PRESENCE}
+    } -result {g BLUE activity PRESENCE n NB1}
 
     test COVERAGE-2.1 {validate, valid} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::COVERAGE validate {n nb1 g shia a patrol}
+        ::gofer::NUMBER::COVERAGE validate {g blue activity patrol n nb1}
     } -cleanup {
         cleanup
-    } -result {n NB1 g SHIA a PATROL}
+    } -result {g BLUE activity PATROL n NB1}
 
     test COVERAGE-2.2 {validate, invalid n} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::COVERAGE validate {n NONESUCH g BLUE a PATROL}
+        ::gofer::NUMBER::COVERAGE validate {g BLUE activity PATROL n NONESUCH}
     } -returnCodes {
         error
     } -cleanup {
@@ -240,17 +240,17 @@ namespace eval ::athena_test::tests:: {
     test COVERAGE-2.3 {validate, invalid g} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::COVERAGE validate {n NB1 g NONESUCH a PATROL}
+        ::gofer::NUMBER::COVERAGE validate {g NONESUCH activity PATROL n NB1}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -match glob -result {Invalid group,*}
+    } -match glob -result {Invalid force/org group "NONESUCH", should be one of: BLUE, BRIT, TAL, USAID}
 
     test COVERAGE-2.4 {validate, invalid a} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::COVERAGE validate {n NB1 g SHIA a NONESUCH}
+        ::gofer::NUMBER::COVERAGE validate {g BLUE activity NONESUCH n NB1}
     } -returnCodes {
         error
     } -cleanup {
@@ -258,14 +258,14 @@ namespace eval ::athena_test::tests:: {
     } -match glob -result {Invalid activity,*}
 
     test COVERAGE-3.1 {narrative} -body {
-        ::gofer::NUMBER::COVERAGE narrative {n NB1 g SHIA a PATROL}
-    } -result {coverage("NB1","SHIA","PATROL")}
+        ::gofer::NUMBER::COVERAGE narrative {g BLUE activity PATROL n NB1}
+    } -result {coverage("BLUE","PATROL","NB1")}
 
     test COVERAGE-4.1 {eval} -setup {
         setup
         ted lock
     } -body {
-        ::gofer::NUMBER::COVERAGE eval {n NB1 g SHIA a PATROL}
+        ::gofer::NUMBER::COVERAGE eval {g BLUE activity PATROL n NB1}
     } -cleanup {
         cleanup
     } -result {0.0}
@@ -273,7 +273,7 @@ namespace eval ::athena_test::tests:: {
     test COVERAGE-4.1 {eval no data before lock} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::COVERAGE eval {n NB1 g SHIA a PATROL}
+        ::gofer::NUMBER::COVERAGE eval {g BLUE activity PATROL n NB1}
     } -cleanup {
         cleanup
     } -result {0.0}

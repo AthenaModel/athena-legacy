@@ -149,6 +149,47 @@ snit::type activity {
     }
 
 
+    # withcov names
+    #
+    # Returns the list of activities for group type gtype, minus NONE.
+
+    typemethod {withcov names} {gtype} {
+        set names [rdb eval {
+            SELECT DISTINCT a FROM activity_gtype
+            WHERE gtype=$gtype AND a!='NONE'
+        }]
+    }
+
+    # withcov frc validate
+    #
+    # Validates an implicit/explicit activity ID for a frc group
+
+    typemethod {withcov frc validate} {a} {
+        if {$a ni [activity withcov names FRC]} {
+            set names [join [activity withcov names FRC] ", "]
+
+            return -code error -errorcode INVALID \
+                "Invalid activity, should be one of: $names"
+        }
+
+        return $a
+    }
+
+    # withcov org validate
+    #
+    # Validates an implicit/explicit activity ID for a org group
+
+    typemethod {withcov org validate} {a} {
+        if {$a ni [activity withcov names org]} {
+            set names [join [activity withcov names org] ", "]
+
+            return -code error -errorcode INVALID \
+                "Invalid activity, should be one of: $names"
+        }
+
+        return $a
+    }
+
     # check g a
     #
     # g    A group

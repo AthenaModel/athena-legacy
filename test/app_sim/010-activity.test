@@ -56,6 +56,29 @@ namespace eval ::athena_test::tests:: {
     } -result {PATROL}
 
     #-------------------------------------------------------------------
+    # withcov
+
+    test withcov-1.1 {List of implicit/explicit names force group} -body {
+        activity withcov names BLUE
+    } -result {}
+
+    test withcov-1.2 {List of implicit/explicit names force group} -body {
+        activity withcov names USAID 
+    } -result {}
+
+    test withcov-2.1 {FRC - Invalid name} -body {
+        activity withcov frc validate NONESUCH
+    } -returnCodes {
+        error
+    } -result {Invalid activity, should be one of: CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
+
+    test withcov-2.1 {ORG - Invalid name} -body {
+        activity withcov org validate NONESUCH
+    } -returnCodes {
+        error
+    } -result {Invalid activity, should be one of: }
+
+    #-------------------------------------------------------------------
     # check
 
     test check-1.1 {group/activity mismatch} -setup {

@@ -621,7 +621,7 @@ snit::type executive {
         $interp function coop 2 2 {f g} \
             [myproc coop]
 
-        $interp function coverage 3 3 {n g a} \
+        $interp function coverage 3 3 {g activity n} \
             [myproc coverage]
 
         $interp function gdp 0 0 {} \
@@ -732,17 +732,17 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
-    # coverage n g a
+    # coverage g activity n
     #
-    # n - A neighborhood
-    # g - A group
+    # g - A force or org group
     # a - An activity
+    # n - A neighborhood
     #
-    # Returns the coverage for group g assigned to activity a in 
-    # neighborhood n.
+    # Returns the coverage for force/org group g assigned to 
+    # activity a in neighborhood n.
 
-    proc coverage {n g a} {
-        set gdict [gofer construct NUMBER COVERAGE $n $g $a] 
+    proc coverage {g activity n} {
+        set gdict [gofer construct NUMBER COVERAGE $g $activity $n]
         return [gofer::NUMBER eval $gdict]
     }
 

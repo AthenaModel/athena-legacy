@@ -57,15 +57,15 @@ gofer define NUMBER "" {
             enumlong g -showkeys yes -dictcmd {::frcgroup namedict}
         }
 
-        case COVERAGE "coverage(n,g,a)" {
+        case COVERAGE "coverage(g,activity,n)" {
             rc
-            rc "Coverage fraction for group"
+            rc "Coverage fraction for force or org group"
             rc
-            enumlong g -showkeys yes -dictcmd {::group namedict}
+            enumlong g -showkeys yes -dictcmd {::ptype fog namedict}
 
             rc "assigned to activity"
             rc
-            enum a -listcmd {::activity names}
+            enum activity -listcmd {::activity withcov names [group gtype $g]}
 
             rc "in neighborhood"
             rc
@@ -307,33 +307,44 @@ gofer rule NUMBER COOP {f g} {
 
 # Rule: COVERAGE
 #
-# coverage(n,g,a)
+# coverage(g,activity,n)
 
-gofer rule NUMBER COVERAGE {n g a} {
-    typemethod construct {n g a} {
-        return [$type validate [dict create n $n g $g a $a]]
+gofer rule NUMBER COVERAGE {g activity n} {
+    typemethod construct {g activity n} {
+        return [$type validate [dict create g $g activity $activity n $n]]
     }
 
     typemethod validate {gdict} {
         dict with gdict {}
 
-        dict create \
-            n [nbhood validate [string toupper $n]] \
-            g [group validate [string toupper $g]] \
-            a [activity validate [string toupper $a]]
+        set valid [dict create]
+
+        dict set valid g [ptype fog validate [string toupper $g]]
+        dict set valid activity [string toupper $activity]
+
+        set gtype [group gtype $g]
+        if {$gtype eq "FRC"} {
+            activity withcov frc validate [string toupper $activity]
+        } elseif {$gtype eq "ORG"} {
+            activity withcov org validate [string toupper $activity]
+        }
+
+        dict set valid n [nbhood validate [string toupper $n]]
+
+        return $valid
     }
 
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return [format {coverage("%s","%s","%s")} $n $g $a]
+        return [format {coverage("%s","%s","%s")} $g $activity $n]
     }
 
     typemethod eval {gdict} {
         dict with gdict {}
 
         rdb eval {
-            SELECT coverage FROM activity_nga WHERE n=$n AND g=$g AND a=$a
+            SELECT coverage FROM activity_nga WHERE n=$n AND g=$g AND a=$activity
         } {
             return [format %.1f $coverage]
         }

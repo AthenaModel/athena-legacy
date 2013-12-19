@@ -199,7 +199,7 @@ namespace eval ::athena_test::tests:: {
     test coverage-1.1 {invalid nbhood} -setup {
         ted create NB1 BLUE
     } -body {
-        ted sendex -error expr coverage("NONESUCH","BLUE","PATROL")
+        ted sendex -error expr coverage("BLUE","PATROL","NONESUCH")
     } -cleanup {
         cleanup
     } -result {Invalid neighborhood, should be one of: NB1}
@@ -207,23 +207,23 @@ namespace eval ::athena_test::tests:: {
     test coverage-1.2 {invalid group} -setup {
         ted create NB1 BLUE SUNN
     } -body {
-        ted sendex -error expr coverage("NB1","NONESUCH","PATROL")
+        ted sendex -error expr coverage("NONESUCH","PATROL","NB1")
     } -cleanup {
         cleanup
-    } -result {Invalid group, should be one of: BLUE, SUNN}
+    } -result {Invalid force/org group "NONESUCH", should be one of: BLUE}
 
     test coverage-1.3 {invalid activity} -setup {
         ted create NB1 BLUE SUNN
     } -body {
-        ted sendex -error expr coverage("NB1","BLUE","NONESUCH")
+        ted sendex -error expr coverage("BLUE","NONESUCH","NB1")
     } -cleanup {
         cleanup
-    } -result {Invalid activity, should be one of: CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, NONE, PATROL, PRESENCE, PSYOP}
+    } -result {Invalid activity, should be one of: CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
 
     test coverage-2.1 {in prep} -setup {
         ted create NB1 BLUE SUNN
     } -body {
-        ted sendex expr coverage("NB1","BLUE","PATROL")
+        ted sendex expr coverage("BLUE","PATROL","NB1")
     } -cleanup {
         cleanup
     } -result {0.0}
@@ -232,7 +232,7 @@ namespace eval ::athena_test::tests:: {
         ted create NB1 BLUE SUNN
         ted lock
     } -body {
-        ted sendex expr coverage("NB1","BLUE","PATROL")
+        ted sendex expr coverage("BLUE","PATROL","NB1")
     } -cleanup {
         cleanup
     } -result {0.0}
