@@ -1188,8 +1188,12 @@ object tactic_maintain {
         to the total cost of repairs across the neighborhoods specified in 
         the tactic.<p>
 
+        There are three ways to specify how the cost of the tactic
+        should be funded; see the "Funding Mode" parameter
+        below.<p>
+
         There are two ways to select how much repair should be 
-        attempted; see the "Mode" parameter below.<p>
+        attempted; see the "Maintenance Mode" parameter below.<p>
 
         Manufacturing plants produce goods depending on their level of
         repair (or disrepair).  If an actor does not spend money to maintain
@@ -1218,8 +1222,46 @@ object tactic_maintain {
     include tactic_ -attrs agent
     include tactic_ -attrs state
 
-    attribute rmode "Mode" {
-        The repair mode, which has one of the following values. In
+    attribute nlist "Nbhoods"  {
+        The IDs of one or more neighborhoods, or
+        a <<cref /gofer/nbhoods>> value.
+    } -tags {update}
+
+    attribute fmode "Funding Mode" {
+        The funding mode, which has one of the following values. In all cases,
+        the actual amount of money spent is the lesser of:<p>
+
+        <ul>
+        <li> The cost to do one weeks worth of repairs.
+        <li> The amount specified in the funding mode.
+        <li> The amount of cash-on-hand.
+        </ul>
+        
+        <b>ALL</b>: Spend as much cash on hand as it takes to maintain
+        the infrastructure.<p>
+
+        <b>EXACT</b>: Spend up to some exact amount of cash on hand to maintain
+        the infrastructure.<p>
+
+        <b>PERCENT</b>: Spend up to a percentage of cash on hand to maintain
+        the infrastructure.<p>
+
+    } -tags {update}
+
+    attribute percent "Fund Percentage" {
+        If the "Funding Mode" is <b>PERCENT</b> the percentage of
+        cash-on-hand to use as a maximum amount of funds for repairs. 
+    } -tags {update}
+
+    attribute amount "Amount" {
+        If the "Funding Mode" is <b>EXACT</b> the amount of money that any
+        spending for repairs should be capped. Setting this amount to a 
+        large number will cause all repairs to take place, assuming that 
+        the actor has enough cash-on-hand to do them.
+    } -tags {update}
+
+    attribute rmode "Maintenance Mode" {
+        The maintenance mode, which has one of the following values. In
         all cases, the cost of repairs is capped by default to the amount of
         money it would take to bring up the repair level by one weeks worth
         of repairs.<p>
@@ -1235,28 +1277,12 @@ object tactic_maintain {
 
     } -tags {update}
 
-    attribute nlist "Nbhoods"  {
-        The IDs of one or more neighborhoods, or
-        a <<cref /gofer/nbhoods>> value.
+    attribute level "Capacity Percentage" {
+        If the "Maintenance Mode" is <b>UPTO</b> this parameter is used 
+        to cap the maximum level of repair to some percentage of full
+        capacity. Setting this to 100% is equivalent to specifying a
+        "Maintenance Mode" of <b>FULL</b>.
     } -tags {update}
-
-    attribute level "A Capacity of" {
-        This parameter is used to cap the maximum level of repair.  
-        For instance, if this parameter is set to 80, Athena will only spend
-        enough of this actor's money to bring his infrastructure up to 80% 
-        of maximum production capacity in the neighborhoods specified.  
-        It may take more than one week of maintenance to get the 
-        infrastructure to this level if it has fallen into disrepair, but 
-        once it is there, only the amount of money needed to keep it there 
-        is allocated.
-    } -tags {update}
-
-    attribute amount "Using a max of" {
-        The amount of money that any spending for repairs should be capped.
-        Setting this amount to a large number will cause all repairs to take
-        place, assuming that the actor has enough cash-on-hand to do them.
-    } -tags {update}
-
 }
 
 page /object/tactic maintain "MAINTAIN tactic" {

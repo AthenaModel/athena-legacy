@@ -19,6 +19,7 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
 
     variable rmode   ;# Repair mode: FULL, UPTO
     variable level   ;# Desired level of repair if mode is UPTO
+    variable fmode   ;# Funding mode: ALL, EXACT, PERCENT
     variable amount  ;# Max amount of money to spend regardless of rmode
     variable percent ;# Percent of money to spend if mode is PERCENT
     variable nlist   ;# List of nbhoods in which to maintain plants
@@ -36,9 +37,10 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
 
         # Initialize state variables
         set rmode   FULL
+        set fmode   ALL
         set level   0.0
-        set amount  0.0
-        set percent 0.0
+        set amount  100000
+        set percent 100
         set nlist   [gofer::NBHOODS blank]
 
         my set state invalid
@@ -75,9 +77,28 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
     method narrative {} {
         set ntext [gofer::NBHOODS narrative $nlist]
         set atext [moneyfmt $amount]
+        set ptext [format "%.1f%%" $percent]
         set ltext [format "%.1f%%" $level]
-        set anarr "Spend no more than \$$atext of cash-on-hand to maintain"
+        set anarr "Spend no more than "
         set enarr "capacity of the infrastructure owned in $ntext"
+
+        switch -exact -- $fmode {
+            ALL {
+                set anarr "Spend as much cash-on-hand as possible to maintain"
+            }
+
+            EXACT {
+                append anarr "\$$atext of cash-on-hand to maintain"
+            }
+
+            PERCENT {
+                append anarr "$ptext of cash-on-hand to maintain"
+            }
+
+            default {
+                error "Invalid fmode: \"$fmode\""
+            }
+        }
 
         set text ""
         switch -exact -- $rmode {
@@ -90,7 +111,7 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
             }
 
             default {
-                error "Invalid mode: \"$mode\""
+                error "Invalid rmode: \"$rmode\""
             }
         }
     }
@@ -109,10 +130,6 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
 
         # Only going to deal in whole dollars
         let cash {entier($cash)}
-
-        # NEXT, max amount that can possibly be spent is either the
-        # amount of cash on hand or the limiting amount
-        let maxAmt {min($cash, $amount)}
 
         # NEXT, get nbhoods, the gofer may retrieve an empty list
         set trans(nlist) [my GetNbhoods]
@@ -192,6 +209,28 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
         if {$totalCost > 0.0 && $cash == 0} {
             my Fail CASH "Need \$[moneyfmt $totalCost] for repairs, have none."
             return 0
+        }
+
+        # NEXT, figure out the maximum amount that could possibly be
+        # spent
+        set maxAmt 0.0
+
+        switch -exact -- $fmode  {
+            ALL {
+                set maxAmt $cash
+            }
+
+            EXACT {
+                let maxAmt {min($cash, $amount)}
+            }
+
+            PERCENT {
+                let maxAmt {$percent/100.0 * $cash}
+            }
+
+            default {
+                error "Invalid fmode: \"$fmode\""
+            }
         }
 
         set totalSpent 0.0
@@ -303,26 +342,36 @@ order define TACTIC:MAINTAIN {
         text tactic_id -context yes \
             -loadcmd {beanload}
 
-        rc "Maintain In:" -span 3 
-
         rcc "Nbhoods:" -for nlist -span 4 
         gofer nlist -typename gofer::NBHOODS
 
-        rcc "A Capacity of:" -for rmode 
-        selector rmode {
-            case FULL "100%" {}
+        rcc "Funding Mode:" -for fmode
+        selector fmode {
+            case ALL "Use as much cash-on-hand as possible" {}
 
-            case UPTO "at least" {
-                cc "" -for level 
+            case EXACT "Use no more than an exact amount of cash-on-hand" {
+                rcc "Amount:" -for amount
+                text amount
+                label "dollars"
+            }
+
+            case PERCENT "Use no more than a percentage of cash-on-hand" {
+               rcc "Fund Percentage:" -for percent
+               text percent
+               label "%"
+            }
+        }
+
+        rcc "Maintenance Mode:" -for rmode 
+        selector rmode {
+            case FULL "Maintain to full capacity" {}
+
+            case UPTO "Maintain to a percentage of full capacity" {
+                rcc "Capacity Percentage:" -for level 
                 text level
-                c 
                 label "%"
             }
         }
-        
-        rcc "Using a max of:" -for amount -span 3
-        text amount
-        label "cash-on-hand."
     }
 } {
     # FIRST, prepare the parameters
@@ -333,8 +382,10 @@ order define TACTIC:MAINTAIN {
 
     prepare nlist
     prepare rmode   -toupper  -selector
+    prepare fmode   -toupper  -selector
     prepare amount  -type money
     prepare level   -type rpercent
+    prepare percent -type rpercent
 
     returnOnError
 
@@ -345,11 +396,15 @@ order define TACTIC:MAINTAIN {
         reject level "You must specify a capacity level > 0.0"
     }
 
+    if {$parms(fmode) eq "PERCENT" && $parms(percent) == 0.0} {
+        reject percent "You must specify a percentage of cash > 0.0"
+    }
+
     returnOnError -final
 
     # NEXT, update the tactic, saving the undo script
     setundo [$tactic update_ {
-        nlist rmode amount level
+        nlist rmode amount fmode level percent
     } [array get parms]]
 }
 

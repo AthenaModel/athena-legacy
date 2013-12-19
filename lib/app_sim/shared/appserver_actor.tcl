@@ -356,9 +356,7 @@ appserver module ACTOR {
             } else {
                 ht put {
                     Manufacturing plant ownership by this actor is as
-                    follows.  An actor must pay to maintain infrastructure
-                    it owns or it will fall into disrepair and no longer
-                    produce goods for the economy.
+                    follows.  
                 }
 
                 ht para
@@ -373,6 +371,22 @@ appserver module ACTOR {
                 } -default "None." -align LLL
 
                 ht para
+
+                if {$data(auto_maintain)} {
+                    ht put {
+                        This actor is automatically maintaining all owned
+                        infrastructure.  The repair level will remain at
+                        the initial level specified.
+                    }
+
+                } else {
+                    ht put {
+                        This actor must pay to maintain infrastructure
+                        it owns or it will fall into disrepair reducing the
+                        production of goods for the economy.
+                    }
+                } 
+            
                 set capA [plant capacity a $a]
                 set capT [plant capacity total]
                 set pct  [format "%.2f" [expr {($capA/$capT) * 100.0}]]

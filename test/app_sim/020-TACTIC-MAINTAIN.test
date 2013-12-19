@@ -79,7 +79,27 @@ namespace eval ::athena_test::tests:: {
         rmode {invalid value "NONESUCH", should be one of: FULL, UPTO}
     }
 
-    test TACTIC:MAINTAIN-1.4 {amount is non-numeric} -setup {
+    test TACTIC:MAINTAIN-1.4 {fmode is unknown} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:MAINTAIN tactic_id [$T1 id] fmode NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        fmode {invalid value "NONESUCH", should be one of: ALL, EXACT, PERCENT}
+    }
+
+    test TACTIC:MAINTAIN-1.5 {percent is non-numeric} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:MAINTAIN tactic_id [$T1 id] percent NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {
+        percent {invalid value "NONESUCH", expected double}
+    }
+
+    test TACTIC:MAINTAIN-1.6 {amount is non-numeric} -setup {
         setup
     } -body {
         ted order -reject TACTIC:MAINTAIN tactic_id [$T1 id] amount NONESUCH
@@ -89,7 +109,7 @@ namespace eval ::athena_test::tests:: {
         amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test TACTIC:MAINTAIN-1.5 {level is non-numeric} -setup {
+    test TACTIC:MAINTAIN-1.7 {level is non-numeric} -setup {
         setup
     } -body {
         ted order -reject TACTIC:MAINTAIN tactic_id [$T1 id] level NONESUCH
@@ -99,7 +119,7 @@ namespace eval ::athena_test::tests:: {
         level {invalid value "NONESUCH", expected double}
     }
 
-    test TACTIC:MAINTAIN-1.6 {amount is negative} -setup {
+    test TACTIC:MAINTAIN-1.8 {amount is negative} -setup {
         setup
     } -body {
         ted order -reject TACTIC:MAINTAIN tactic_id [$T1 id] amount -1
@@ -109,7 +129,17 @@ namespace eval ::athena_test::tests:: {
         amount {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test TACTIC:MAINTAIN-1.7 {level is negative} -setup {
+    test TACTIC:MAINTAIN-1.9 {percent is negative} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:MAINTAIN tactic_id [$T1 id] percent -1
+    } -cleanup {
+        cleanup
+    } -result {
+        percent {invalid value "-1", expected double in range 0.0, 100.0}
+    }
+
+    test TACTIC:MAINTAIN-1.10 {level is negative} -setup {
         setup
     } -body {
         ted order -reject TACTIC:MAINTAIN tactic_id [$T1 id] level -1
@@ -119,7 +149,18 @@ namespace eval ::athena_test::tests:: {
         level {invalid value "-1", expected double in range 0.0, 100.0}
     }
 
-    test TACTIC:MAINTAIN-1.8 {mode requires level, no level} -setup {
+    test TACTIC:MAINTAIN-1.11 {mode requires percent, no percent} -setup {
+        setup
+    } -body {
+        ted order -reject TACTIC:MAINTAIN \
+            tactic_id [$T1 id] fmode PERCENT percent 0.0
+    } -cleanup {
+        cleanup
+    } -result {
+        percent {You must specify a percentage of cash > 0.0}
+    }
+
+    test TACTIC:MAINTAIN-1.12 {mode requires level, no level} -setup {
         setup
     } -body {
         ted order -reject TACTIC:MAINTAIN \
@@ -140,14 +181,15 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dictglob -result {
-        amount     0.0
+        amount     100000
+        fmode      ALL
         execstatus NONE
         faildict   {}
         id         *
         level      0.0
         nlist      {_type NBHOODS _rule BY_VALUE nlist {NB1 NB2}}
         parent     ::bean::block*
-        percent    0.0
+        percent    100
         rmode      FULL
         state      normal
     }
@@ -162,19 +204,66 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dictglob -result {
-        amount     0.0
+        amount     100000
+        fmode      ALL
         execstatus NONE
         faildict   {}
         id         *
         level      90.0
         nlist      {_type NBHOODS _rule BY_VALUE nlist {NB1 NB2}}
         parent     ::bean::block*
-        percent    0.0
+        percent    100
         rmode      UPTO
         state      normal
     }
 
-    test TACTIC:MAINTAIN-2.3 {notifier event} -setup {
+    test TACTIC:MAINTAIN-2.3 {tactic is created, PERCENT} -setup {
+        setup
+    } -body {
+        ted order TACTIC:MAINTAIN tactic_id [$T1 id] rmode UPTO level 90.0 \
+            nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}] fmode PERCENT
+
+        ted pdicts [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        amount     100000
+        fmode      PERCENT
+        execstatus NONE
+        faildict   {}
+        id         *
+        level      90.0
+        nlist      {_type NBHOODS _rule BY_VALUE nlist {NB1 NB2}}
+        parent     ::bean::block*
+        percent    100
+        rmode      UPTO
+        state      normal
+    }
+
+    test TACTIC:MAINTAIN-2.4 {tactic is created, EXACT} -setup {
+        setup
+    } -body {
+        ted order TACTIC:MAINTAIN tactic_id [$T1 id] rmode UPTO level 90.0 \
+            nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}] fmode EXACT
+
+        ted pdicts [$T1 getdict]
+    } -cleanup {
+        cleanup
+    } -match dictglob -result {
+        amount     100000
+        fmode      EXACT
+        execstatus NONE
+        faildict   {}
+        id         *
+        level      90.0
+        nlist      {_type NBHOODS _rule BY_VALUE nlist {NB1 NB2}}
+        parent     ::bean::block*
+        percent    100
+        rmode      UPTO
+        state      normal
+    }
+
+    test TACTIC:MAINTAIN-2.5 {notifier event} -setup {
         setup
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>

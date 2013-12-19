@@ -67,14 +67,15 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -match dictglob -result {
-        amount     0.0
+        amount     100000
+        fmode      ALL
         execstatus NONE
         faildict   {}
-        id         *
+        id         5
         level      0.0
         nlist      {_type NBHOODS _rule {}}
-        parent     ::bean::block*
-        percent    0.0
+        parent     ::bean::block4
+        percent    100
         rmode      FULL
         state      invalid
     }
@@ -97,7 +98,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Spend no more than $0.00 of cash-on-hand to maintain full capacity of the infrastructure owned in nbhood ???.}
+    } -result {Spend as much cash-on-hand as possible to maintain full capacity of the infrastructure owned in nbhood ???.}
 
     test narrative-1.2 {narrative, two nbhoods} -setup {
         setup
@@ -107,7 +108,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Spend no more than $10,000 of cash-on-hand to maintain full capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
+    } -result {Spend as much cash-on-hand as possible to maintain full capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
 
     test narrative-1.3 {narrative, rmode FULL} -setup {
         setup
@@ -117,7 +118,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Spend no more than $10,000 of cash-on-hand to maintain full capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
+    } -result {Spend as much cash-on-hand as possible to maintain full capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
 
     test narrative-1.4 {narrative, rmode UPTO} -setup {
         setup
@@ -129,7 +130,31 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Spend no more than $10,000 of cash-on-hand to maintain at least 80.0% capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
+    } -result {Spend as much cash-on-hand as possible to maintain at least 80.0% capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
+
+    test narrative-1.5 {narrative, fmode PERCENT} -setup {
+        setup
+        $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
+        $T1 set level 80
+        $T1 set fmode PERCENT
+        $T1 set percent 10
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Spend no more than 10.0% of cash-on-hand to maintain full capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
+
+    test narrative-1.6 {narrative, fmode EXACT} -setup {
+        setup
+        $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
+        $T1 set level 80
+        $T1 set fmode EXACT
+        $T1 set amount 10000
+    } -body {
+        $T1 narrative
+    } -cleanup {
+        cleanup
+    } -result {Spend no more than $10,000 of cash-on-hand to maintain full capacity of the infrastructure owned in these neighborhoods (NB1, NB2).}
 
     #-------------------------------------------------------------------
     # check
@@ -165,10 +190,23 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # obligate
 
-    test obligate-1.1 {rmode FULL} -setup {
+    test obligate-1.1 {rmode FULL, no cap} -setup {
         setup
         $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
-        $T1 set amount 5000
+    } -body {
+        set a [$coffer cash]
+        set b [$T1 obligate $coffer]
+        set c [$coffer cash]
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {10000.0 1 0.0}
+
+    test obligate-1.2 {rmode FULL, spending cap} -setup {
+        setup
+        $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
+        $T1 set fmode EXACT
+        $T1 set amount 5000.0
     } -body {
         set a [$coffer cash]
         set b [$T1 obligate $coffer]
@@ -178,11 +216,26 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {10000.0 1 5000.0}
 
-    test obligate-1.2 {rmode UPTO, 100%} -setup {
+    test obligate-1.3 {rmode UPTO, 100%, no cap} -setup {
         setup
         $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
         $T1 set rmode UPTO
         $T1 set level 100.0
+    } -body {
+        set a [$coffer cash]
+        set b [$T1 obligate $coffer]
+        set c [$coffer cash]
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {10000.0 1 0.0}
+
+    test obligate-1.4 {rmode UPTO, 100%, spending cap} -setup {
+        setup
+        $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
+        $T1 set rmode UPTO
+        $T1 set level 100.0
+        $T1 set fmode EXACT
         $T1 set amount 5000.0
     } -body {
         set a [$coffer cash]
@@ -193,11 +246,24 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {10000.0 1 5000.0}
 
-    test obligate-1.3 {rmode UPTO, < 100%} -setup {
+    test obligate-1.5 {rmode UPTO, < 100%} -setup {
         setup
         $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
         $T1 set rmode UPTO
         $T1 set level 90.0
+    } -body {
+        set a [$coffer cash]
+        set b [$T1 obligate $coffer]
+        set c [$coffer cash]
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {10000.0 1 0.0}
+
+    test obligate-1.6 {fmode EXACT, use less than cash available} -setup {
+        setup
+        $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
+        $T1 set fmode EXACT
         $T1 set amount 5000.0
     } -body {
         set a [$coffer cash]
@@ -208,7 +274,35 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {10000.0 1 5000.0}
 
-    test obligate-1.4 {no money} -setup {
+    test obligate-1.7 {fmode EXACT, use all cash available} -setup {
+        setup
+        $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
+        $T1 set fmode EXACT
+        $T1 set amount 100000.0
+    } -body {
+        set a [$coffer cash]
+        set b [$T1 obligate $coffer]
+        set c [$coffer cash]
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {10000.0 1 0.0}
+
+    test obligate-1.8 {fmode PERCENT} -setup {
+        setup
+        $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
+        $T1 set fmode PERCENT
+        $T1 set percent 10.0
+    } -body {
+        set a [$coffer cash]
+        set b [$T1 obligate $coffer]
+        set c [$coffer cash]
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {10000.0 1 9000.0}
+
+    test obligate-1.8 {no money} -setup {
         setup
         $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
         $T1 set amount 50000.0
