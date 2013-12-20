@@ -674,6 +674,9 @@ snit::type executive {
 
         $interp function volatility 1 1 {n} \
             [myproc volatility]
+
+        $interp function vrel 2 2 {g a} \
+            [myproc vrel]
     }
 
     # assigned g activity n
@@ -1017,6 +1020,18 @@ snit::type executive {
         }
 
         error "volatility not yet computed"
+    }
+
+    # vrel g a
+    #
+    # g - A group
+    # a - An actor
+    #
+    # Returns the vertical relationship of g with a.
+
+    proc vrel {g a} {
+        set gdict [gofer construct NUMBER VREL $g $a] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     #-------------------------------------------------------------------

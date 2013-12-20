@@ -2017,7 +2017,7 @@ gofer_rule NUMBER COVERAGE "coverage(g,activity,n)" {
 
 gofer_rule NUMBER HREL "hrel(f,g)" {
     Returns the horizontal relationship of <<term group>> <i>f</i> with 
-    <<term group>> <i>g</i> as a number between 0.0 and 100.0.<p>
+    <<term group>> <i>g</i> as a number between -1 and 1.<p>
 
     <<itemlist>>
     <<gofer.details f SHIA g SUNN>>
@@ -2294,5 +2294,29 @@ gofer_rule NUMBER SUPPORT "support(a,g,n)" {
     ID of a <<term nbhood>>.
     <</topic>>
     
+    <</topiclist>>
+}
+
+gofer_rule NUMBER VREL "vrel(g,a)" {
+    Returns the vertical relationship of <<term group>> <i>g</i> with 
+    <<term actor>> <i>a</i> as a number between -1 and 1.<p>
+
+    <<itemlist>>
+    <<gofer.details g SHIA a JOE>>
+    <<gofer.function vrel {"SHIA","JOE"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term group>>.
+    <</topic>>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+
     <</topiclist>>
 }

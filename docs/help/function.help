@@ -141,7 +141,7 @@ function "gdp()" {
 
 function "hrel(f,g)" {
     Returns the horizontal relationship of <<term group>> <i>f</i> with 
-    <<term group>> <i>g</i> as a number between 0.0 and 100.0.<p>
+    <<term group>> <i>g</i> as a number between -1 and 1.<p>
 
     Returns 0.0 when the scenario is unlocked.<p>
 
@@ -373,4 +373,17 @@ function volatility(n) {
 
     Volatility is not computed until the scenario is locked; the
     function will throw an error if the data is unavailable.<p>
+}
+
+#=======================================================================
+# vrel
+
+function "vrel(g,a)" {
+    Returns the vertical relationship of <<term group>> <i>g</i> with 
+    <<term actor>> <i>a</i> as a number between -1 and 1.<p>
+
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/vrel>> rule.
 }

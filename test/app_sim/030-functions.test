@@ -183,7 +183,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {50.0}
 
-
     test coop-2.2 {get data} -setup {
         ted create NB1 BLUE SUNN
         ted lock
@@ -285,7 +284,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0.0}
 
-
     test hrel-2.2 {get data} -setup {
         ted create NB1 BLUE SUNN
         ted lock
@@ -322,7 +320,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0.0}
 
-
     test influence-2.2 {on lock} -setup {
         ted create NB1 JOE SUNN BLUE
         ted lock
@@ -350,7 +347,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {0.0}
-
 
     test mood-2.2 {on lock} -setup {
         parm set econ.disable yes
@@ -389,7 +385,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {50.0}
 
-
     test nbcoop-2.2 {on lock} -setup {
         ted create NB1 BLUE SUNN
         ted lock
@@ -417,7 +412,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {0.0}
-
 
     test nbmood-2.2 {get data} -setup {
         parm set econ.disable yes
@@ -456,7 +450,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0.0}
 
-
     test nbsupport-2.1 {get data} -setup {
         ted create NB1 JOE BLUE SUNN
         ted lock
@@ -475,7 +468,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0}
 
-
     #-------------------------------------------------------------------
     # parm()
 
@@ -484,7 +476,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {unknown parameter: "NONESUCH"}
-
 
     test parm-2.1 {get parm} -body {
         ted sendex expr parm("econ.ticksPerTock")
@@ -591,7 +582,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0.0}
 
-
     test sat-2.2 {get data} -setup {
         parm set econ.disable yes
         ted create NB1 BLUE SUNN
@@ -601,7 +591,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {-3.0}
-
 
     #-------------------------------------------------------------------
     # security()
@@ -927,7 +916,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {volatility not yet computed}
 
-
     test volatility-2.1 {get data} -setup {
         ted create NB1 BLUE SUNN
         ted lock
@@ -936,6 +924,42 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {7}
+
+    #-------------------------------------------------------------------
+    # vrel()
+
+    test vrel-1.1 {invalid group} -setup {
+        ted create JOE BLUE
+    } -body {
+        ted sendex -error expr vrel("NONESUCH","JOE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid group, should be one of: BLUE}
+
+    test vrel-1.2 {invalid actor} -setup {
+        ted create JOE BLUE
+    } -body {
+        ted sendex -error expr vrel("BLUE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test vrel-2.1 {in prep} -setup {
+        ted create JOE BLUE
+    } -body {
+        ted sendex expr vrel("BLUE","JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test vrel-2.2 {get data} -setup {
+        ted create JOE NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr vrel("blue","joe")
+    } -cleanup {
+        cleanup
+    } -result {1.0}
 
 
     cleanupTests

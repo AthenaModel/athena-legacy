@@ -192,6 +192,17 @@ gofer define NUMBER "" {
             rc
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}    
         }
+
+        case VREL "vrel(g,a)" {
+            rc
+            rc "The vertical relationship of group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::group namedict}
+
+            rc "with actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+        }
     }
 }
 
@@ -802,5 +813,41 @@ gofer rule NUMBER SUPPORT {a g n} {
         }
 
         return 0.00
+    }
+}
+
+# Rule: VREL
+#
+# vrel(g,a)
+
+gofer rule NUMBER VREL {g a} {
+    typemethod construct {g a} {
+        return [$type validate [dict create g $g a $a]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            g [group validate [string toupper $g]] \
+            a [actor validate [string toupper $a]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {vrel("%s","%s")} $g $a]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT vrel FROM uram_vrel WHERE g=$g AND a=$a AND tracked
+        } {
+            return [format %.1f $vrel]
+        }
+
+        return 0.0
     }
 }

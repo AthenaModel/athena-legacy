@@ -917,6 +917,58 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     #-------------------------------------------------------------------
+    # Rule: VREL
+
+    test VREL-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::VREL construct SHIA JOE
+    } -cleanup {
+        cleanup
+    } -result {g SHIA a JOE}
+
+    test VREL-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::VREL validate {g shia a joe}
+    } -cleanup {
+        cleanup
+    } -result {g SHIA a JOE}
+
+    test VREL-2.2 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::VREL validate {g NONESUCH a JOE}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group,*}
+
+    test VREL-2.3 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::VREL validate {g SHIA a NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test VREL-3.1 {narrative} -body {
+        ::gofer::NUMBER::VREL narrative {g SHIA a JOE}
+    } -result {vrel("SHIA","JOE")}
+
+    test VREL-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::VREL eval {g SHIA a JOE}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests
