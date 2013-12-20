@@ -115,7 +115,7 @@ function "coverage(g,activity,n)" {
     Returns the coverage fraction for <<term frcgroup>> or 
     <<term orggroup>> <i>g</i> assigned to implicit or explicit
     <<term activity>> in <<term nbhood>> <i>n</i>
-    as a number between 0.0 and 100.0.<p>
+    as a number between 0.0 and 1.0.<p>
 
     Returns 0.0 when the scenario is unlocked.<p>
 
@@ -141,7 +141,7 @@ function "gdp()" {
 
 function "hrel(f,g)" {
     Returns the horizontal relationship of <<term group>> <i>f</i> with 
-    <<term group>> <i>g</i> as a number between -1 and 1.<p>
+    <<term group>> <i>g</i> as a number between -1.0 and 1.0.<p>
 
     Returns 0.0 when the scenario is unlocked.<p>
 
@@ -215,7 +215,7 @@ function "nbmood(n)" {
 function "nbsupport(a,n)" {
     Returns the support for <<term actor>> <i>a</i>  in 
     <<term nbhood>> <i>n</i> as a number between 
-    -100.0 and 100.0.<p>
+    0.0 and 1.0.<p>
 
     Returns 0.0 when the scenario is unlocked.<p>
 
@@ -296,7 +296,7 @@ function security(g,n) {
 function support(a,g,n) {
     Returns the support for <<term actor>> <i>a</i>  by
     <<term group>> <i>g</i> in <<term nbhood>> <i>n</i> 
-    as a number between -100.0 and 100.0.  <p>
+    as a number between 0.0 and 1.0.  <p>
     
     If n is not entered, then it assumes the group is
     a civilian group.<p>
@@ -380,7 +380,7 @@ function volatility(n) {
 
 function "vrel(g,a)" {
     Returns the vertical relationship of <<term group>> <i>g</i> with 
-    <<term actor>> <i>a</i> as a number between -1 and 1.<p>
+    <<term actor>> <i>a</i> as a number between -1.0 and 1.0.<p>
 
     Returns 0.0 when the scenario is unlocked.<p>
 
