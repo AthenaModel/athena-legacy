@@ -216,6 +216,84 @@ page /object/tactic assign "ASSIGN tactic" {
     <<tactic_assign parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# ATTRIT Tactic
+
+object tactic_attrit {
+    noun "ATTRIT tactic"
+    overview {
+        This <<term tactic>> causes magic attrition to a neighborhood
+        or to a specific group in a neighborhood.<p>
+
+        If a specific group is specified in the tactic but at execution
+        time there are no units of that group to attrit, the tactic does
+        not fail, it just has no effect. In short, this tactic executes
+        on a best efforts basis.  If more casualties are specified than 
+        there are personnel, all personnel suffer attrition.<p>
+
+        For civilian casualties, if responsible groups are specified 
+        there are cooperation effects.<p>
+
+        This tactic has no cost and can be executed only by the SYSTEM
+        agent.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute mode "Attrition Mode" {
+        The attrition mode, which has one of the following values.<p>
+
+        <b>NBHOOD</b>: Cause attrition to units belonging to all groups
+        in a neighborhood.<p>
+
+        <b>GROUP</b>: Cause attrition to units belonging only to a 
+        specific group in a neighborhood.<p>
+    } -tags {update}
+
+    attribute n "Nbhood" {
+        A <<term nbhood>> ID.  The neighborhood in which to cause
+        attrition.
+    } -tags {update}
+
+    attribute f "Group" {
+        A <<term group>> ID. If "Attrition Mode" is <b>GROUP</b> this
+        is the group that should suffer attrition.
+    } -tags {update}
+
+    attribute casualties "Casualties" {
+        The number of casualties to inflict.  In <b>NBHOOD</b> mode, the
+        casualties are spread out among all units in the neighborhood. In
+        <b>GROUP</b> mode just units of the specified group suffers
+        casualties.
+    } -tags {update}
+
+    attribute g1 "Responsible Group" {
+        A <<term frcgroup>> ID.  A force group that is 
+        responsible for the attrition.  This is available in <b>NBHOOD</b>
+        mode or if the "Group" suffering casualties in <b>GROUP</b> mode 
+        is a civilian group.
+    } -tags {update}
+
+    attribute g2 "Responsible Group 2" {
+        A <<term frcgroup>> ID.  A second force group that 
+        is responsible for the attrition.  This is available in <b>NBHOOD</b> 
+        mode or in <b>GROUP</b> mode if the "Group" suffering casualties is 
+        a civilian group.
+    } -tags {update}
+}
+
+page /object/tactic attrit "ATTRIT tactic" {
+    <<sotitle>>
+
+    <<tactic_attrit overview>><p>
+
+    Magic Attrition tactics have the following attributes:<p>
+
+    <<tactic_attrit parmlist>>
+}
+
 
 #-----------------------------------------------------------------------
 # ATTROE Tactic

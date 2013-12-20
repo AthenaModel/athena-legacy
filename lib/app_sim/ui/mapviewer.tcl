@@ -956,11 +956,6 @@ snit::widget mapviewer {
         $mnu add separator
 
         cond::available control \
-            [menuitem $mnu command "Attrit Civilians in Neighborhood" \
-                 -command [mymethod NbhoodAttrit]]                    \
-            order ATTRIT:NBHOOD
-
-        cond::available control \
             [menuitem $mnu command "Bring Neighborhood to Front" \
                  -command [mymethod NbhoodBringToFront]]         \
             order NBHOOD:RAISE
@@ -978,15 +973,6 @@ snit::widget mapviewer {
 
     method NbhoodCreateEnsitHere {} {
         order enter ENSIT:CREATE location $nbhoods(transref)
-    }
-
-
-    # NbhoodAttrit
-    #
-    # Attrits all civilians in the neighborhood
-
-    method NbhoodAttrit {} {
-        order enter ATTRIT:NBHOOD n $nbhoods(trans)
     }
 
 

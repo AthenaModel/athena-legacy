@@ -503,15 +503,7 @@ snit::type aam {
     }
 
 
-    #-------------------------------------------------------------------
-    # Mutators
-    #
-    # Mutators are used to implement orders that change the simulation in
-    # some way.  Mutators assume that their inputs are valid, and returns
-    # a script of one or more commands that will undo the change.  When
-    # the change cannot be undone, the mutator returns the empty string.
-
-    # mutate attrit parmdict
+    # attrit parmdict
     #
     # parmdict
     # 
@@ -527,7 +519,7 @@ snit::type aam {
     #
     # g1 and g2 are used only for attrition to a civilian group
 
-    typemethod {mutate attrit} {parmdict} {
+    typemethod attrit {parmdict} {
         dict with parmdict {
             # FIRST add a record to the table
             rdb eval {
@@ -538,27 +530,8 @@ snit::type aam {
                        nullif($f,  ''),
                        nullif($g1, ''),
                        nullif($g2, ''));
-           }
-
-           set id [rdb last_insert_rowid]
-
-           # NEXT return the undo command
-           return [list rdb delete magic_attrit "id=$id"]
-       }
-    }
-
-    # mutate delete id
-    #
-    # id    a magic attrition ID
-    #
-    # Deletes a magic attrition request.
-
-    typemethod {mutate delete} {id} {
-        # FIRST, get the undo information
-        set data [rdb delete -grab magic_attrit {id=$id}]
-
-        # NEXT, Return the undo script
-        return [list rdb ungrab $data]
+            }
+        }
     }
 
     # AttritGroup n f casualties g1 g2
@@ -646,7 +619,7 @@ snit::type aam {
     # Attrits the units marked with the attrition flag 
     # proportional to their size until
     # all casualites are inflicted or the units have no personnel.
-    # The actual work is performed by mutate attritunit.
+    # The actual work is performed by AttritUnit.
 
     typemethod AttritUnits {casualties g1 g2} {
         # FIRST, determine the number of personnel in the attrited units
@@ -734,8 +707,7 @@ snit::type aam {
             } else {
                 # FIRST, It's a force or org unit.  Attrit its pool in
                 # its neighborhood.
-                # TBD: this no longer needs to be a mutator
-                personnel mutate attrit $n $g $casualties
+                personnel attrit $n $g $casualties
             }
         }
 
@@ -840,156 +812,22 @@ snit::type aam {
     }
 
     #-------------------------------------------------------------------
-    # Order Helpers
+    # Tactic Order Helpers
 
     # AllButG1 g1
     #
     # g1 - A force group
     #
-    # Returns a list of all force groups but g1.
+    # Returns a list of all force groups but g1 and puts "NONE" at the
+    # beginning of the list.
 
     typemethod AllButG1 {g1} {
-        set groups [frcgroup names]
+        set groups [ptype frcg+none names]
         ldelete groups $g1
 
         return $groups
     }
-
-    # GroupsInN n
-    #
-    # n   - A neighborhood
-    #
-    # Returns a list of the groups with personnel in n.
-    
-    typemethod GroupsInN {n} {
-        return [rdb eval {
-            SELECT DISTINCT g
-            FROM units
-            WHERE n=$n
-            ORDER BY g
-        }]
-    }
 }
-
-#-------------------------------------------------------------------
-# Orders
-
-
-# ATTRIT:NBHOOD
-#
-# Attrits all civilians in a neighborhood.
-
-order define ATTRIT:NBHOOD {
-    title "Magic Attrit Neighborhood"
-    options -sendstates {PAUSED TACTIC}
-
-    form {
-        rcc "Neighborhood:" -for n
-        nbhood n
-        
-        rcc "Casualties:" -for casualties
-        text casualties -defvalue 1
-
-        rcc "Responsible Group:" -for g1
-        frcgroup g1
-
-        when {$g1 ne ""} {
-            rcc "Responsible Group 2:" -for g2
-            enum g2 -listcmd {::aam AllButG1 $g1}
-        }
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare n          -toupper -required -type nbhood
-    prepare casualties -num     -required -type iquantity
-    prepare g1         -toupper           -type frcgroup
-    prepare g2         -toupper           -type frcgroup
-
-    returnOnError -final
-
-    set parms(mode) "NBHOOD"
-
-    # NEXT, g1 != g2
-    if {$parms(g1) eq $parms(g2)} {
-        set parms(g2) ""
-    }
-
-    # NEXT, attrit the civilians in the neighborhood
-    lappend undo [aam mutate attrit [array get parms]]
-
-    setundo [join $undo \n]
-}
-
-
-# ATTRIT:GROUP
-#
-# Attrits a group in a neighborhood.
-
-order define ATTRIT:GROUP {
-    title "Magic Attrit Group"
-    options -sendstates {PAUSED TACTIC}
-
-    form {
-        rcc "Neighborhood:" -for n
-        nbhood n
-        
-        rcc "Group:" -for f
-        enum f -listcmd {::aam GroupsInN $n}
-
-        rcc "Casualties:" -for casualties
-        text casualties -defvalue 1
-
-        when {$f in [::civgroup names]} {
-            rcc "Responsible Group:" -for g1
-            frcgroup g1
-
-            when {$g1 ne ""} {
-                rcc "Responsible Group 2:" -for g2
-                enum g2 -listcmd {::aam AllButG1 $g1}
-            }
-        }
-    }
-} {
-    # FIRST, prepare the parameters
-    prepare n          -toupper -required -type nbhood
-    prepare f          -toupper -required -type group
-    prepare casualties -num     -required -type iquantity
-    prepare g1         -toupper           -type frcgroup
-    prepare g2         -toupper           -type frcgroup
-
-    returnOnError
-
-    # NEXT, get the group type
-    set gtype [group gtype $parms(f)]
-
-    # NEXT, g1 and g2 should be "" unless f is a CIV
-    if {$gtype ne "CIV"} {
-        validate g1 {
-            reject g1 \
-                "Responsible groups only matter when civilians are attrited"
-        }
-
-        validate g2 {
-            reject g2 \
-                "Responsible groups only matter when civilians are attrited"
-        }
-    }
-
-    returnOnError -final
-
-    set parms(mode) "GROUP"
-
-    # NEXT, g1 != g2
-    if {$parms(g1) eq $parms(g2)} {
-        set parms(g2) ""
-    }
-
-    # NEXT, attrit the group
-    lappend undo [aam mutate attrit [array get parms]]
-
-    setundo [join $undo \n]
-}
-
 
 
 

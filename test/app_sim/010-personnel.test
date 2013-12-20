@@ -311,7 +311,7 @@ HAL  0
         personnel deploy 1 NB1 BLUE 100
         personnel save
     } -body {
-        personnel mutate attrit NB1 BLUE 15
+        personnel attrit NB1 BLUE 15
         ted query {SELECT * FROM personnel_g ORDER BY g}
     } -cleanup {
         cleanup
@@ -331,7 +331,7 @@ HAL  0
         personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
-        personnel mutate attrit NB1 BLUE 15
+        personnel attrit NB1 BLUE 15
         ted query {SELECT * FROM deploy_ng ORDER BY g}
     } -cleanup {
         cleanup
@@ -355,7 +355,7 @@ NB2 HAL  0         0
         personnel deploy 2 NB1 BRIT 100
         personnel save
     } -body {
-        personnel mutate attrit NB1 BLUE 150
+        personnel attrit NB1 BLUE 150
 
         set personnel [rdb onecolumn {
             SELECT personnel FROM personnel_g WHERE g='BLUE'
@@ -370,82 +370,6 @@ NB2 HAL  0         0
     } -cleanup {
         cleanup
     } -result {100 0}
-
-
-    test attrit-2.1 {undo undoes the personnel_g change} -setup {
-        setup
-        personnel start
-        personnel load
-        personnel deploy 1 NB1 BLUE 100
-        personnel deploy 2 NB1 BRIT 100
-        personnel save
-    } -body {
-        set a [ted query {SELECT * FROM personnel_g}]
-        set undo [personnel mutate attrit NB1 BLUE 30]
-        namespace eval :: $undo
-        set b [ted query {SELECT * FROM personnel_g}]
-        
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test attrit-2.2 {undo undoes the deploy_ng change} -setup {
-        setup
-        personnel start
-        personnel load
-        personnel deploy 1 NB1 BLUE 100
-        personnel deploy 2 NB1 BRIT 100
-        personnel save
-    } -body {
-        set a [ted query {SELECT * FROM deploy_ng}]
-        set undo [personnel mutate attrit NB1 BLUE 30]
-        namespace eval :: $undo
-        set b [ted query {SELECT * FROM deploy_ng}]
-        
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test attrit-2.3 {undo restores truncated value} -setup {
-        setup
-        personnel start
-        personnel load
-        personnel deploy 1 NB1 BLUE 100
-        personnel deploy 2 NB1 BRIT 100
-        personnel save
-    } -body {
-        set a [ted query {SELECT * FROM deploy_ng}]
-        set undo [personnel mutate attrit NB1 BLUE 150]
-        namespace eval :: $undo
-        set b [ted query {SELECT * FROM deploy_ng}]
-        
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test attrit-2.4 {joined undo's yield the right answer} -setup {
-        setup
-        personnel start
-        personnel load
-        personnel deploy 1 NB1 BLUE 100
-        personnel deploy 2 NB1 BRIT 100
-        personnel save
-    } -body {
-        set a [ted query {SELECT * FROM deploy_ng}]
-        set undo [list]
-        lappend undo [personnel mutate attrit NB1 BLUE 30]
-        lappend undo [personnel mutate attrit NB1 BLUE 15]
-        namespace eval :: [join $undo \n]
-        set b [ted query {SELECT * FROM deploy_ng}]
-        
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
 
     #-------------------------------------------------------------------
     # Cleanup

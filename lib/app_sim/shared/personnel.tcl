@@ -303,15 +303,7 @@ snit::type personnel {
         }
     }
 
-    #-------------------------------------------------------------------
-    # Mutators
-    #
-    # Mutators are used to implement orders that change the scenario in
-    # some way.  Mutators assume that their inputs are valid, and returns
-    # a script of one or more commands that will undo the change.  When
-    # change cannot be undone, the mutator returns the empty string.
-
-    # mutate attrit n g casualties
+    # attrit n g casualties
     #
     # n            - A neighborhood
     # g            - A FRC/ORG group
@@ -320,7 +312,7 @@ snit::type personnel {
     # Updates deploy_ng and personnel_g given the casualties.  If
     # casualties is negative, personnel are returned.
 
-    typemethod {mutate attrit} {n g casualties} {
+    typemethod attrit {n g casualties} {
         # FIRST, get the undo information
         set deployed [rdb onecolumn {
             SELECT personnel FROM deploy_ng
@@ -348,9 +340,6 @@ snit::type personnel {
             SET personnel = personnel - $casualties
             WHERE g=$g
         } {}
-        
-        # NEXT, Return the undo command
-        return [mytypemethod mutate attrit $n $g $undoCasualties]
     }
 }
 

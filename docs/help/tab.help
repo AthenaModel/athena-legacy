@@ -1018,54 +1018,6 @@ tab "Neighborhoods/EnSits" {
     <</topiclist>>
 }
 
-#-----------------------------------------------------------------------
-
-tab "Neighborhoods/MagicAttrit" {
-    This tab shows any magic attrition entered manually 
-    (using the <<cref /order/attrit>>) while the simulation
-    is <<term paused>>.  The attrition is pending until attrition is
-    assessed at the next time advance.<p>
-
-    The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "ID">>The ID of the attrition record.<</topic>>
-
-    <<topic "Description">>A description of the groups that will be attrited.
-    <</topic>>
-
-    <<topic "Casualties">>The number of casualties.<</topic>>
-
-    <<topic "Responsible Group 1">>
-    A force group responsible for the casualties.
-    <</topic>>
-
-    <<topic "Responsible Group 2">>
-    Another force group responsible for the casualties.
-    <</topic>>
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_poly]>>
-    Pops up the <<cref /order/attrit/nbhood>> dialog.
-    <</topic>>
-
-    <<topic [image button_polyg]>>
-    Pops up the <<cref /order/attrit/group>> dialog.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-
 #=======================================================================
 # Groups Tab
 

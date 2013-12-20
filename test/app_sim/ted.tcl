@@ -61,6 +61,7 @@ snit::type ted {
         income_a
         ioms
         mads
+        magic_attrit
         nbhoods
         nbrel_mn
         orggroups

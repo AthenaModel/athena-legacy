@@ -99,7 +99,6 @@ macro parm.ids {entity} {
 # Order Files
 
 include order_actor.help
-include order_attrit.help
 include order_block.help
 include order_bookmark.help
 include order_bsystem.help
