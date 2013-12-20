@@ -697,8 +697,11 @@ gofer rule NUMBER SECURITY_CIV {g} {
     typemethod eval {gdict} {
         dict with gdict {}
 
+        set n [rdb eval {
+            SELECT n FROM civgroups WHERE g=$g
+        }]
         rdb eval {
-            SELECT security FROM force_ng WHERE g=$g
+            SELECT security FROM force_ng WHERE n=$n AND g=$g
         } {
             return $security
         }
