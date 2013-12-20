@@ -72,6 +72,17 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case HREL "hrel(f,g)" {
+            rc
+            rc "The horizontal relationship of group"
+            rc
+            enumlong f -showkeys yes -dictcmd {::group namedict}
+
+            rc "with group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::group namedict}
+        }
+
         case INFLUENCE "influence(a,n)" {
             rc
             rc "Influence of actor"
@@ -347,6 +358,42 @@ gofer rule NUMBER COVERAGE {g activity n} {
             SELECT coverage FROM activity_nga WHERE n=$n AND g=$g AND a=$activity
         } {
             return [format %.1f $coverage]
+        }
+
+        return 0.0
+    }
+}
+
+# Rule: HREL
+#
+# hrel(f,g)
+
+gofer rule NUMBER HREL {f g} {
+    typemethod construct {f g} {
+        return [$type validate [dict create f $f g $g]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            f [group validate [string toupper $f]] \
+            g [group validate [string toupper $g]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {hrel("%s","%s")} $f $g]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        rdb eval {
+            SELECT hrel FROM uram_hrel WHERE f=$f AND g=$g AND tracked
+        } {
+            return [format %.1f $hrel]
         }
 
         return 0.0

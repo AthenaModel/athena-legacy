@@ -279,6 +279,58 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: HREL
+
+    test HREL-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::HREL construct SHIA BLUE
+    } -cleanup {
+        cleanup
+    } -result {f SHIA g BLUE}
+
+    test HREL-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::HREL validate {f shia g blue}
+    } -cleanup {
+        cleanup
+    } -result {f SHIA g BLUE}
+
+    test HREL-2.2 {validate, invalid f} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::HREL validate {f NONESUCH g BLUE}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group,*}
+
+    test HREL-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::HREL validate {f SHIA g NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid group,*}
+
+    test HREL-3.1 {narrative} -body {
+        ::gofer::NUMBER::HREL narrative {f SHIA g BLUE}
+    } -result {hrel("SHIA","BLUE")}
+
+    test HREL-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::HREL eval {f SHIA g BLUE}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # Rule: INFLUENCE
 
     test INFLUENCE-1.1 {construct, valid} -setup {

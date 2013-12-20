@@ -259,6 +259,43 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # hrel()
+
+    test hrel-1.1 {invalid group} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex -error expr hrel("NONESUCH","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid group, should be one of: BLUE, SUNN}
+
+    test hrel-1.2 {invalid group} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex -error expr hrel("SUNN","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid group, should be one of: BLUE, SUNN}
+
+    test hrel-2.1 {in prep} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex expr hrel("SUNN","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+
+    test hrel-2.2 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr hrel("sunn","blue")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # influence()
 
     test influence-1.1 {invalid actor} -setup {

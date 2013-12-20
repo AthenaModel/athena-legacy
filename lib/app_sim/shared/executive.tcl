@@ -627,6 +627,9 @@ snit::type executive {
         $interp function gdp 0 0 {} \
             [myproc gdp]
 
+        $interp function hrel 2 2 {f g} \
+            [myproc hrel]
+
         $interp function influence 2 2 {a n} \
             [myproc influence]
 
@@ -757,6 +760,18 @@ snit::type executive {
         }
 
         return [format %.2f [econ value Out::DGDP]]
+    }
+
+    # hrel f g
+    #
+    # f - A group
+    # g - A group
+    #
+    # Returns the horizontal relationship of f with g.
+
+    proc hrel {f g} {
+        set gdict [gofer construct NUMBER HREL $f $g] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # influence a n

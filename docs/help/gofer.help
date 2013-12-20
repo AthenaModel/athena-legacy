@@ -2015,6 +2015,30 @@ gofer_rule NUMBER COVERAGE "coverage(g,activity,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER HREL "hrel(f,g)" {
+    Returns the horizontal relationship of <<term group>> <i>f</i> with 
+    <<term group>> <i>g</i> as a number between 0.0 and 100.0.<p>
+
+    <<itemlist>>
+    <<gofer.details f SHIA g SUNN>>
+    <<gofer.function hrel {"SHIA","SUNN"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>f</i></tt> >>
+    ID of a <<term group>>.
+    <</topic>>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term group>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER INFLUENCE "influence(a,n)" {
     Returns the <<term influence>> of <<term actor>> <i>a</i> with 
     <<term nbhood>> <i>n</i> as a number between 0.0 and 1.0.<p>
