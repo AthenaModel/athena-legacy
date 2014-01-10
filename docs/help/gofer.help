@@ -2015,6 +2015,16 @@ gofer_rule NUMBER COVERAGE "coverage(g,activity,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER GDP "gdp()" {
+    Returns the deflated Gross Domestic Product of the regional economy in
+    base-year dollars.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function gdp {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER HREL "hrel(f,g)" {
     Returns the horizontal relationship of <<term group>> <i>f</i> with 
     <<term group>> <i>g</i> as a number between -1.0 and 1.0.<p>

@@ -239,23 +239,41 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # gdp()
 
-    # Note: Should really throw an error if used while unlocked.
-
-    test gdp-1.1 {fails when econ is disabled} -setup {
+    test gdp-1.1 {In Prep - Econ disabled} -setup {
         parm set econ.disable yes
     } -body {
-        ted sendex -error expr gdp()
+        ted sendex expr gdp()
     } -cleanup {
         cleanup
-    } -result {Economic model is disabled. To enable, set econ.disable to no.}
+    } -result {0.0}
 
-    test gdp-2.1 {succeeds otherwise} -setup {
+    test gdp-2.1 {In Prep - Econ enabled} -setup {
         parm set econ.disable no
     } -body {
         ted sendex expr gdp()
     } -cleanup {
         cleanup
     } -result {0.0}
+
+    test gdp-3.1 {Get Data - Econ disabled} -setup {
+        ted create NB1 BLUE SUNN
+        parm set econ.disable yes
+        ted lock
+    } -body {
+        ted sendex expr gdp()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test gdp-4.1 {Get Data - Econ enabled} -setup {
+        ted create NB1 BLUE SUNN
+        parm set econ.disable no
+        ted lock
+    } -body {
+        ted sendex expr gdp()
+    } -cleanup {
+        cleanup
+    } -result {20361333852.52}
 
     #-------------------------------------------------------------------
     # hrel()

@@ -279,6 +279,46 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: GDP
+
+    test GDP-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GDP construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test GDP-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GDP validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test GDP-3.1 {narrative} -body {
+        ::gofer::NUMBER::GDP narrative {}
+    } -result {gdp()}
+
+    test GDP-4.1 {eval, not locked} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GDP eval {}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test GDP-4.2 {eval, locked} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::GDP eval {}
+    } -cleanup {
+        cleanup
+    } -result {20362653597.66}
+
+    #-------------------------------------------------------------------
     # Rule: HREL
 
     test HREL-1.1 {construct, valid} -setup {

@@ -72,6 +72,13 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case GDP "gdp()" {
+            rc
+            rc "The value of the deflated Gross Domestic Product of the regional economy in
+    base-year dollars."
+            rc
+       }
+
         case HREL "hrel(f,g)" {
             rc
             rc "The horizontal relationship of group"
@@ -372,6 +379,32 @@ gofer rule NUMBER COVERAGE {g activity n} {
         }
 
         return 0.0
+    }
+}
+
+# Rule: GDP
+#
+# gdp()
+
+gofer rule NUMBER GDP {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        return "gdp()"
+    }
+
+    typemethod eval {gdict} {
+        if {[parm get econ.disable]} {
+            return 0.00
+        } else {
+            return [format %.2f [econ value Out::DGDP]]
+        }
     }
 }
 

@@ -127,13 +127,16 @@ function "coverage(g,activity,n)" {
 # gdp
 
 function "gdp()" {
-    Returns the Gross Domestic Product of the regional economy in
-    base-year dollars.  It is an error if the economic model is
-    disabled; see <<cref /parmdb/econ/disable>>.<p>
+    Returns the deflated Gross Domestic Product of the regional economy in
+    base-year dollars.<p>
 
-    <b>Warning:</b> This function will return 0.0 before the 
-    scenario is locked, and in <<cref /object/condition/expr>>s when
-    strategies are executed at time 0.<p>
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    It will return 0.00 if the economic model is
+    disabled see <<cref /parmdb/econ/disable>>.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/gdp>> rule.
 }
 
 #=======================================================================

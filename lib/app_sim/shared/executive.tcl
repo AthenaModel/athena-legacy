@@ -758,11 +758,8 @@ snit::type executive {
     # It's an error if the economic model is disabled.
 
     proc gdp {} {
-        if {[parm get econ.disable]} {
-            error "Economic model is disabled.  To enable, set econ.disable to no."
-        }
-
-        return [format %.2f [econ value Out::DGDP]]
+        set gdict [gofer construct NUMBER GDP]
+        return [gofer::NUMBER eval $gdict]
     }
 
     # hrel f g
