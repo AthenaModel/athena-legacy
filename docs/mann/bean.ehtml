@@ -164,8 +164,8 @@ its default view.<p>
 <<subsection "Detecting Changes">>
 
 The bean(n) type is a <<xref saveable(i)>>, so that beans can be checkpointed
-and restored with the Athena scenario.  Consequently, bean(n) needs to when
-there are unsaved changes to beans.  Bean subclass methods can signal that 
+and restored with the Athena scenario.  Consequently, bean(n) needs to know
+when there are unsaved changes to beans.  Bean subclass methods can signal that
 changes have been made by calling <<iref bean markchanged>>.  Further, the
 <<iref set>> method always sets the changed flag.  Thus, it is often useful for
 bean methods to set instance variables using the <<iref set>> method, like this:
@@ -186,6 +186,18 @@ well, for modifying list-valued variables with notification.<p>
 The bean(n) class object is a <<xref saveable(i)>>, and thus can be plugged
 into Athena's checkpoint/restore mechanism.  Note that both bean IDs and
 bean object names are preserved across checkpoint/restore.<p>
+
+Beans can be checkpointed in two different ways.  In the default way, the
+checkpoint string includes all bean data.  Alternatively, the individual 
+beans can be stored as rows the <code>beans</code> table in a 
+<<xref scenariodb(n)>> RDB.  This mode is selected by setting the
+<<iref bean configure>> <b>-rdb</b> option.<p>
+
+The <b>-rdb</b> mode uses less memory when saving than the normal mode, and
+also allows bean data to be accessed by ID in SQL queries.<p>
+
+If the beans are checkpointed with <b>-rdb</b>, they must be restored with 
+<b>-rdb</b>; any given application should use one mode or the other.
 
 <<subsection "Bean Ownership and Bean Slots">>
 
@@ -299,11 +311,45 @@ This module defines the following commands:<p>
 Returns 1 if any bean data has changed, and 0 otherwise.  (This is part of
 bean(n)'s <<xref saveable(i)>> interface.)<p>
 
+<<defitem "bean cget" {bean cget <i>option</i>}>>
+
+Returns the value of the named class configuration option.  See
+<<iref bean configure>> for a list of options.<p> 
+
 <<defitem "bean checkpoint" {bean checkpoint ?-saved?}>>
 
 Returns a checkpoint of all existing beans; if <b>-saved</b> is given, then
 the <<iref bean changed>> flag is cleared.  (This is part of
 bean(n)'s <<xref saveable(i)>> interface.)<p>
+
+If the <<iref bean configure>> <b>-rdb</b> option has been set, the
+individual beans will be saved in the RDB's <code>beans</code> table;
+the returned checkpoint string will contain only bean metadata.<p>
+
+If the beans are checkpointed with <b>-rdb</b>, they must be restored
+with <b>-rdb</b>; any given application should use one mode or the other.<p>
+
+<<defitem "bean configure" {bean configure <i>option value ...</i>}>>
+
+Sets the value of one or more of the <<xref bean(n)>> class configuration
+options, which are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-onchange <i>command</i>}>>
+
+Specifies a command to call whenever any bean changes in any way.  This
+is most useful as a debugging aid, as it detects every set of every
+instance variable.  For significant scenario changes, use the class
+<<xref "Notifier Events">> instead.<p>
+
+<<defopt {-rdb <i>command</i>}>>
+
+Specifies the name of an instances of <<xref scenariodb(n)>> serving
+as a run-time database (RDB).  This command will be used when checkpointing
+and restoring the set of beans.<p> 
+
+<</deflist options>> 
 
 <<defitem "bean create" {bean create <i>name</i>}>>
 
@@ -386,6 +432,12 @@ Restores a <i>checkpoint</i> returned by <<iref bean checkpoint>>.  By
 default, the <<iref bean changed>> flag is set; if <b>-saved</b> is given,
 the <<iref bean changed>> flag is cleared.  (This is part of
 bean(n)'s <<xref saveable(i)>> interface.)<p>
+
+If the <<iref bean configure>> <b>-rdb</b> option has been set, this 
+routine assumes that the individual beans were saved in the RDB's
+<code>beans</code> table, and that the <i>checkpoint</i> string
+contains only bean metadata.<p>
+
 
 <<defitem "bean uncreate" {bean uncreate <i>bean</i>}>>
 

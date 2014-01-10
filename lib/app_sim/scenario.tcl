@@ -140,6 +140,7 @@ snit::type scenario {
             -clock      ::simclock \
             -explaincmd [mytypemethod ExplainCmd]
         set rdb ::rdb
+        bean configure -rdb ::rdb
 
         rdb register ::service
 

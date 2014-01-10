@@ -19,18 +19,33 @@
 ------------------------------------------------------------------------
 -- SCENARIO MANAGEMENT
 
--- Saveables Table: saves saveable(i) data.  I.e., this table contains
--- checkpoints of in-memory data for specific objects.
-
 CREATE TABLE saveables (
+    -- Saveables Table: saves saveable(i) data.  I.e., this table contains
+    -- checkpoints of in-memory data for specific objects.
+
     saveable   TEXT PRIMARY KEY,
     checkpoint TEXT
 );
 
--- Snapshots Table: saves scenario snapshots.  I.e., this table
--- contains snapshots of the scenario at different points in time.
+CREATE TABLE beans (
+    -- Beans Table: Saves all bean(n) objects.
+    --
+    -- Note that bean(n) is a saveable; the bean data is saved to this
+    -- table as part of [bean checkpoint] and restored as part of 
+    -- [bean restore].  DO NOT QUERY THIS TABLE AT RUN-TIME, AS THE
+    -- DATA MAY BE OBSOLETE.  IT IS ONLY GUARANTEED TO BE RIGHT IN THE
+    -- .adb!
+
+    id          INTEGER,  -- The bean's unique ID
+    bean_class  TEXT,     -- The bean's beanclass, e.g., ::tactic
+    bean_object TEXT,     -- The bean's object name, e.g., ::bean::block7
+    bean_dict   TEXT      -- Dictionary of the bean's instance vars
+);
 
 CREATE TABLE snapshots (
+    -- Snapshots Table: saves scenario snapshots.  I.e., this table
+    -- contains snapshots of the scenario at different points in time.
+
     -- Time tick at which the snapshot was saved; 0 is restart
     -- checkpoint.
     tick       INTEGER PRIMARY KEY,
@@ -44,10 +59,10 @@ CREATE TABLE snapshots (
 -- ORDERS
 
 
--- Critical Input Table: Saves user orders and (temporarily) any
--- undo information.
-
 CREATE TABLE cif (
+    -- Critical Input Table: Saves user orders and (temporarily) any
+    -- undo information.
+
     -- Unique ID; used for ordering
     id        INTEGER PRIMARY KEY,
 
@@ -77,10 +92,10 @@ CREATE INDEX cif_index ON cif(time,id);
 ------------------------------------------------------------------------
 -- SIGNIFICANT EVENTS LOG
 
--- These two tables store significant simulation events, and allow
--- events to be tagged with zero or more entities.
-
 CREATE TABLE sigevents (
+    -- These two tables store significant simulation events, and allow
+    -- events to be tagged with zero or more entities.
+
     -- Used for sorting
     event_id   INTEGER PRIMARY KEY,
     t          INTEGER,               -- Time stamp, in ticks
@@ -89,11 +104,11 @@ CREATE TABLE sigevents (
     narrative  TEXT                   -- Event narrative.
 );
 
--- Tags table.  Individual events can be tagged with 0 or more tags;
--- this information can later be used to display tailored logs, e.g.,
--- events involving a particular neighborhood or actor.
-
 CREATE TABLE sigevent_tags (
+    -- Tags table.  Individual events can be tagged with 0 or more tags;
+    -- this information can later be used to display tailored logs, e.g.,
+    -- events involving a particular neighborhood or actor.
+
     event_id INTEGER REFERENCES sigevents(event_id)
                      ON DELETE CASCADE
                      DEFERRABLE INITIALLY DEFERRED,
@@ -111,12 +126,12 @@ FROM sigevents JOIN sigevent_tags USING (event_id);
 ------------------------------------------------------------------------
 -- MAPS
 
--- Maps Table: Stores data for map images.
---
--- At this time, there's never more than one map image in the table.
--- The map with id=1 is the map to use.
-
 CREATE TABLE maps (
+    -- Maps Table: Stores data for map images.
+    --
+    -- At this time, there's never more than one map image in the table.
+    -- The map with id=1 is the map to use.
+
     -- ID
     id       INTEGER PRIMARY KEY,
 

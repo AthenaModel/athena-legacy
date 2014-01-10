@@ -86,6 +86,7 @@ oo::objdefine ::projectlib::bean {
     variable deleting   ;# If true, we are in [bean delete].
     variable deletions  ;# Dict of deleted beans, accumulated during [bean delete]
     variable onchange   ;# Command to call on change.
+    variable rdb        ;# RDB object, for checkpoint/restore.
     
     #-------------------------------------------------------------------
     # Initialization
@@ -114,7 +115,61 @@ oo::objdefine ::projectlib::bean {
         if {![info exists onchange]} {
             set onchange {}
         }
+
+        # rdb isn't bean data; it's part of the glue code.  So
+        # don't clear it on reset.
+        if {![info exists rdb]} {
+            set rdb {}
+        }
     }
+
+    # configure option value ...
+    #
+    # option   - A bean(n) class option
+    # value    - The option value
+    #
+    # Saves or clears the option values.
+
+    method configure {args} {
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+
+            switch -exact -- $opt {
+                -onchange {
+                    set onchange [lshift args] 
+                }
+
+                -rdb {
+                    set rdb [lshift args]
+                }
+
+                default {
+                    error "Unknown option: \"$opt\""
+                }
+            }
+        }
+
+        return
+    }
+
+    # cget option
+    #
+    # option - A bean(n) class option
+    #
+    # Returns the option's value.
+
+    method cget {option} {
+        switch -exact -- $option {
+            -onchange { return $onchange }
+            -rdb      { return $rdb      }
+
+            default {
+                error "Unknown option: \"$opt\""
+            }
+        }
+    }
+
+
     
 
     #-------------------------------------------------------------------
@@ -268,24 +323,6 @@ oo::objdefine ::projectlib::bean {
         my init 1
     }
 
-    # onchange ?cmd?
-    #
-    # cmd - A command prefix
-    #
-    # Calls the command when the [markchanged] command is called.
-    # Pass "" to clear the command.  With no arguments, returns
-    # the command.
-
-    method onchange {args} {
-        if {[llength $args] == 0} {
-            return $onchange
-        } elseif {[llength $args] == 1} {
-            set args [lindex $args 0]
-        }
-
-        set onchange $args
-    }
-
     # getslots cls
     #
     # cls   - A subclass of ::projectlib::bean
@@ -341,6 +378,39 @@ oo::objdefine ::projectlib::bean {
         list [info object class $bean] $bean [$bean getdict]
     }
 
+    # SerializeAll
+    #
+    # Serializes all beans, and returns the string.
+
+    method SerializeAll {} {
+        set result [dict create]
+        dict for {id bean} $beans {
+            dict set result $id [my Serialize $bean]
+        }
+
+        return $result
+    }
+
+    # SaveBeansToRDB
+    #
+    # Saves all beans to the beans table on checkpoint.
+
+    method SaveBeansToRDB {} {
+        $rdb eval {
+            DELETE FROM beans;
+        }
+
+        foreach {id bean_object} $beans {
+            set bean_class [info object class $bean_object]
+            set bean_dict [$bean_object getdict]
+
+            $rdb eval {
+                INSERT INTO beans(id, bean_class, bean_object, bean_dict)
+                VALUES($id, $bean_class, $bean_object, $bean_dict)
+            }
+        }
+    }
+
     # Deserialize id blist
     #
     # id    - The bean's ID
@@ -367,6 +437,7 @@ oo::objdefine ::projectlib::bean {
         # NEXT, register it.
         dict set beans $id $bean
     }
+
 
     # changed
     #
@@ -396,9 +467,11 @@ oo::objdefine ::projectlib::bean {
 
     method checkpoint {{flag ""}} {
         dict set data idCounter $idCounter
-        dict set data beans [dict create]
-        dict for {id bean} $beans {
-            dict set data beans $id [my Serialize $bean]
+
+        if {$rdb eq ""} {
+            dict set data beans [my SerializeAll]
+        } else {
+            my SaveBeansToRDB
         }
 
         if {$flag eq "-saved"} {
@@ -407,7 +480,8 @@ oo::objdefine ::projectlib::bean {
 
         return $data
     }
-    
+
+
     # restore checkpoint ?-saved?
     #
     # checkpoint - A string returned by [bean checkpoint]
@@ -437,8 +511,18 @@ oo::objdefine ::projectlib::bean {
         ::marsutil::try {
             set idCounter [dict get $checkpoint idCounter]
 
-            dict for {id blist} [dict get $checkpoint beans] {
-                my Deserialize $id $blist
+            if {$rdb eq ""} {
+                dict for {id blist} [dict get $checkpoint beans] {
+                    my Deserialize $id $blist
+                }
+            } else {
+                $rdb eval {
+                    SELECT * FROM beans
+                    ORDER BY id
+                } {
+                    set blist [list $bean_class $bean_object $bean_dict]
+                    my Deserialize $id $blist
+                }
             }
         } finally {
             set restoring 0

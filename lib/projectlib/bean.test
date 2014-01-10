@@ -41,8 +41,9 @@ namespace eval ::projectlib::test {
     # Import the code to be tested
     namespace import ::projectlib::*
 
-    # Notifications
+    # Variables
     variable notifications
+    variable rdb ""
 
     proc setupNotifier {subject event} {
         variable notifications
@@ -62,17 +63,32 @@ namespace eval ::projectlib::test {
         pprint "[join $notifications \n]\n"
     }
 
+    proc setupRDB {} {
+        variable rdb
+
+        set rdb [scenariodb rdb]
+        $rdb open :memory:
+        $rdb clear
+        bean configure -rdb $rdb
+    }
+
     proc pprint {text} { 
         return "\n$text    "
     }
 
     proc cleanup {} {
+        variable rdb
         variable notifications
 
         bean reset
-        bean onchange {}
+        bean configure -onchange {} -rdb {}
         ::marsutil::notifier forget ::projectlib::test
         set notifications [list]
+
+        if {$rdb ne ""} {
+            $rdb destroy
+            set rdb ""
+        }
     }
 
 
@@ -1131,6 +1147,7 @@ namespace eval ::projectlib::test {
     # Effects on the [bean changed] flag are tested below, under
     # "changed".
 
+    # checkpoint-1.*: serialized checkpoints
 
     test checkpoint-1.1 {empty checkpoint} -body {
         bean checkpoint
@@ -1147,12 +1164,59 @@ namespace eval ::projectlib::test {
         cleanup
     } -result {idCounter 2 beans {1 {::projectlib::test::cat ::projectlib::test::fifi {id 1 name Fifi tail no color black}} 2 {::projectlib::test::dog ::projectlib::test::fido {id 2 name Fido breed Labrador color black}}}}
 
+    # checkpoint-2.*: RDB checkpoints
+
+    test checkpoint-2.1 {empty checkpoint string} -setup {
+        setupRDB
+    } -body {
+        bean checkpoint
+    } -cleanup {
+        cleanup
+    } -result {idCounter 0}
+    
+    test checkpoint-2.2 {beans table is cleared} -setup {
+        setupRDB
+        $rdb eval {INSERT INTO beans(id) VALUES(100)}
+    } -body {
+        bean checkpoint
+        rdb onecolumn {SELECT count(id) FROM beans}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test checkpoint-2.3 {checkpoint string with objects} -setup {
+        setupRDB
+        cat create fifi { name "Fifi" color "black" tail no}
+        dog create fido { name "Fido" color "black" breed "Labrador"}
+    } -body {
+        bean checkpoint
+    } -cleanup {
+        cleanup
+    } -result {idCounter 2}
+
+    test checkpoint-2.4 {checkpoint populates beans table} -setup {
+        setupRDB
+        cat create fifi { name "Fifi" color "black" tail no}
+        dog create fido { name "Fido" color "black" breed "Labrador"}
+    } -body {
+        bean checkpoint
+        pprint [rdb query {SELECT * FROM beans}]
+    } -cleanup {
+        cleanup
+    } -result {
+id bean_class              bean_object              bean_dict                      
+-- ----------------------- ------------------------ ------------------------------ 
+1  ::projectlib::test::cat ::projectlib::test::fifi id 1 name Fifi tail no colo... 
+2  ::projectlib::test::dog ::projectlib::test::fido id 2 name Fido breed Labrad... 
+    }
 
     #-------------------------------------------------------------------
     # restore
     #
     # Effects on the [bean changed] flag are tested below, under
     # "changed".
+
+    # restore-1.*: restore serialized checkpoint
 
     test restore-1.1 {restore empty checkpoint} -body {
         set a [bean dump]
@@ -1186,6 +1250,46 @@ namespace eval ::projectlib::test {
     } -cleanup {
         cleanup
     } -result {1}
+
+    # restore-2.*: restore RDB checkpoint
+
+    test restore-2.1 {restore empty checkpoint} -setup {
+        setupRDB
+    } -body {
+        set a [bean dump]
+        set checkpoint [bean checkpoint]
+
+        dog create spot
+
+        bean restore $checkpoint
+        set b [bean dump]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test restore-2.2 {restore real checkpoint} -setup {
+        setupRDB
+    } -body {
+        dog create d1 {name D1 color white}
+        dog create d2 {name D2 color brown}
+        dog create d3 {name D3 color black}
+        set a [bean dump]
+        set checkpoint [bean checkpoint]
+
+        d2 destroy
+        dog create d4 {name D4 color yellow}
+        cat create c1 {name C1}
+
+        bean restore $checkpoint
+        set b [bean dump]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
 
     #-------------------------------------------------------------------
     # delete/undelete
@@ -1397,29 +1501,47 @@ namespace eval ::projectlib::test {
     } -result {0 1}
 
     #-------------------------------------------------------------------
-    # onchange
+    # -onchange option
 
     test onchange-1.1 {can set and retrieve} -body {
-        bean onchange handler
-        bean onchange
+        bean configure -onchange handler
+        bean cget -onchange
     } -cleanup {
         cleanup
     } -result {handler}
 
     test onchange-1.2 {can clear} -body {
-        bean onchange handler
-        bean onchange {}
-        bean onchange
+        bean configure -onchange handler
+        bean configure -onchange {}
+        bean cget -onchange
     } -cleanup {
         cleanup
     } -result {}
 
     test onchange-1.3 {can call} -body {
-        bean onchange {puts "Got change"}
+        bean configure -onchange {puts "Got change"}
         bean markchanged
     } -cleanup {
         cleanup
     } -match glob -output {*Got change*}
+
+    #-------------------------------------------------------------------
+    # -rdb option
+
+    test rdb-1.1 {can set and retrieve} -body {
+        bean configure -rdb handler
+        bean cget -rdb
+    } -cleanup {
+        cleanup
+    } -result {handler}
+
+    test rdb-1.2 {can clear} -body {
+        bean configure -rdb handler
+        bean configure -rdb {}
+        bean cget -rdb
+    } -cleanup {
+        cleanup
+    } -result {}
 
     #-------------------------------------------------------------------
     # getslots
