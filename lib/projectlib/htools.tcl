@@ -449,6 +449,31 @@ snit::type ::projectlib::htools {
         }
     }
 
+    # span cls ?body?
+    #
+    # cls   - CSS element class
+    #
+    # Creates a <span> element with the given class.
+    # If body is given, it's a tcl script; and the </span> is added 
+    # automatically.
+
+    method span {cls {body ""}} {
+        $self put "<span class=\"$cls\">"
+
+        if {$body ne ""} {
+            uplevel 1 $body
+            $self /span
+        }
+    }
+   
+    # /span
+    #
+    # Terminates a <span>.
+
+    method /span {} {
+        $self put "</span>"
+    }
+
     # hr
     #
     # Inserts an <hr> tag.

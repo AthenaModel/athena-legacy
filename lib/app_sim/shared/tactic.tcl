@@ -679,7 +679,7 @@ oo::define tactic {
 
         if {$atype ni $validAtypes} {
             dict set errdict agent \
-                "Invalid agent type: \"[my agent]\" has type \"$atype\", should be \"$validAtypes\""
+                "This agent cannot use [my typename] tactics."
         }
         return $errdict
     }

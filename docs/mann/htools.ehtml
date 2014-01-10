@@ -506,6 +506,17 @@ Record structures contain one or more <<iref field>> structures.<p>
 
 Terminates a <<iref record>> structure.<p>
 
+<<defitem span {<i>object</i> span <i>cls</i> ?<i>body</i>?}>>
+
+Inserts a <code>&lt;span class="<i>cls</i>"&gt;</code> tag into the buffer. 
+If <i>body</i> is given, it will be executed as a Tcl script; then,
+<<iref /span>> will be called automatically.<p>
+
+<<defitem /span {<i>object</i> /span}>>
+
+Inserts a <code>&lt;/span&gt;</code> tag into the buffer.<p>
+
+
 <<defitem submit {<i>object</i> submit ?<i>label</i>?}>>
 
 Adds a "submit" button to the current <<iref form>>.  When pressed,
@@ -605,6 +616,8 @@ If <i>body</i> is given, it will be executed as a Tcl script; then,
 <<defitem /ul {<i>object</i> /ul}>>
 
 Inserts a <code>&lt;/ul&gt;</code> tag into the buffer.<p>
+
+<</deflist>>
 
 <<section ENVIRONMENT>>
 

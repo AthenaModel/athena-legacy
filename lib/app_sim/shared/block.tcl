@@ -549,9 +549,23 @@ oo::define block {
                     $ht td left   { $ht put $data(typename)     }
                     $ht td left   { $ht put $data(state)        }
                     $ht td left {
-                        $ht put "<span class=\"$data(state)\">"
-                        $ht put $data(narrative)
-                        $ht put "</span>"
+                        $ht span $data(state) {
+                            $ht put $data(narrative)
+                        }
+
+                        if {$data(state) eq "invalid"} {
+                            $ht para
+                            $ht putln "Sanity Check Failures:"
+    
+                            dict for {var msg} [$bean check] {
+                                $ht br
+                                $ht putln "==> <tt>$var</tt>: "
+                                $ht span error {
+                                    $ht putln $msg
+                                }
+                            }
+                        }
+
                     }
                 }
             }
@@ -598,14 +612,27 @@ oo::define block {
                     $ht td left   { $ht put $data(typename)     }
                     $ht td left   { $ht put $data(state)        }
                     $ht td left {
-                        $ht put "<span class=\"$data(state)\">"
-                        $ht put $data(narrative)
-                        $ht put "</span>"
+                        $ht span $data(state) {
+                            $ht put $data(narrative)
+                        }
 
                         if {$data(failures) ne ""} {
-                            $ht putln "<span class=\"error\">"
-                            $ht putln $data(failures)
-                            $ht putln "</span>"
+                            $ht span error {
+                                $ht putln $data(failures)
+                            }
+                        }
+
+                        if {$data(state) eq "invalid"} {
+                            $ht para
+                            $ht putln "Sanity Check Failures:"
+    
+                            dict for {var msg} [$bean check] {
+                                $ht br
+                                $ht putln "==> <tt>$var</tt>: "
+                                $ht span error {
+                                    $ht putln $msg
+                                }
+                            }
                         }
                     }
                 }
