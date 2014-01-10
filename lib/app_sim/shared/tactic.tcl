@@ -672,6 +672,15 @@ oo::define tactic {
     # Thus allowing parent classes their chance at it.
 
     method SanityCheck {errdict} {
+        # Check the agent type.
+        set atype [agent type [my agent]]
+        set validAtypes [[info object class [self object]] atypes]
+
+
+        if {$atype ni $validAtypes} {
+            dict set errdict agent \
+                "Invalid agent type: \"[my agent]\" has type \"$atype\", should be \"$validAtypes\""
+        }
         return $errdict
     }
 
