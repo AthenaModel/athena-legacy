@@ -294,10 +294,9 @@ menuitem "Help/Orders" {
 }
 
 menuitem "Help/Display Variables" {
-    This menu item pops up the refernece material for each of the
+    This menu item pops up the reference material for each of the
     neighborhood and time-related <<cref /var>> that can be plotted
-    on the <<tab Plots>> and used to color neighborhoods on
-    the <<tab Map>>.
+    or used to color neighborhoods on the <<tab Map>>.
 }
 
 menuitem "Help/Executive Commands" {

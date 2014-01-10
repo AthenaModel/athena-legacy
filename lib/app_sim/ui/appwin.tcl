@@ -386,15 +386,6 @@ snit::widget appwin {
             script  { econngbrowser %W }
         }
 
-        plot {
-            label   "Plots"
-            vistype simulation
-            parent  ""
-            script  { 
-                plotviewer %W
-            }
-        }
-
         orders {
             label   "Orders"
             vistype orders
