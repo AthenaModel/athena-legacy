@@ -187,6 +187,30 @@ oo::objdefine strategy {
     #-------------------------------------------------------------------
     # Strategy Sanity Check
 
+    # check
+    #
+    # Performs the sanity check for all strategies, marking failing
+    # blocks, tactics, and conditions as "invalid".
+    #
+    # Returns 1 if problems were found, and 0 otherwise.
+    
+    method check {} {
+        set flag 0
+
+        foreach agent [agent names] {
+            set s [strategy getname $agent]
+
+            if {[dict size [$s check]] > 0} {
+                set flag 1
+            }
+        }
+
+        # NEXT, notify the application that a check has been done.
+        notifier send ::strategy <Check>
+
+        return $flag
+    }
+
     # checker ?ht?
     #
     # ht - An htools buffer
@@ -409,6 +433,24 @@ oo::define strategy {
 
         return $result
     }
+
+    # state
+    #
+    # Returns the strategy's state.
+    #
+    # A strategy's state is normal or invalid; and it is invalid
+    # only if it contains invalid blocks.
+    
+    method state {} {
+        foreach block $blocks {
+            if {[$block state] eq "invalid"} {
+                return "invalid"
+            }
+        }
+
+        return "normal"
+    }
+
 
     # check
     #

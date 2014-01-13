@@ -14,9 +14,6 @@
 #    keep in sync with the state of the application.  See the 
 #    MonitorApplication method for details and analysis.
 #
-# TBD:
-#    Allow strategy editing post-prep?
-#
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
@@ -47,6 +44,7 @@ snit::widget strategybrowser {
     component bl_lowerbtn    ;# The "Lower Priority" button
     component bl_bottombtn   ;# The "Bottom Priority" button
     component bl_togglebtn   ;# The state toggle button
+    component bl_checkbtn    ;# The "Check" button
     component bl_deletebtn   ;# The Delete button
 
     # Tab: Content Tabbed Notebook; contains the block-specific tabs.
@@ -609,11 +607,32 @@ snit::widget strategybrowser {
             -uid          agent_id                    \
             -filterbox    off                         \
             -selectmode   browse                      \
+            -displaycmd   [mymethod AListDisplay]     \
             -selectioncmd [mymethod AListAgentSelect] \
             -layout {
                 {agent_id "Agent" -stretchable yes} 
             } 
     }
+
+    # AListDisplay rindex values
+    # 
+    # rindex    The row index
+    # values    The values in the row's cells
+    #
+    # Sets the agent's color based on its known state.
+
+
+    method AListDisplay {rindex values} {
+        # FIRST, set color
+        set agent [lindex $values 0]
+        set state [[strategy getname $agent] state]
+
+        $alist rowconfigure $rindex \
+            -foreground [ebeanstate as color $state] \
+            -font       [ebeanstate as font  $state]
+
+    }
+
 
     # AListGet
     #
@@ -685,6 +704,7 @@ snit::widget strategybrowser {
         ttk::label $bl_bar.title \
             -text "Blocks:"
 
+        # Add
         install bl_addbtn using mktoolbutton $bl_bar.bl_addbtn   \
             ::marsgui::icon::plus22                              \
             "Add Block"                                          \
@@ -695,6 +715,7 @@ snit::widget strategybrowser {
             browser   $win                                       \
             predicate {alist single}
 
+        # Edit
         install bl_editbtn using mkeditbutton $bl_bar.edit       \
             "Edit Block Metadata"                                \
             -state   disabled                                    \
@@ -704,6 +725,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {blist single}
 
+        # Toggle State
         install bl_togglebtn using mktoolbutton $bl_bar.toggle   \
             ::marsgui::icon::onoff                               \
             "Toggle State"                                \
@@ -714,6 +736,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {blist single}
 
+        # To Top
         install bl_topbtn using mktoolbutton $bl_bar.top         \
             ::marsgui::icon::totop                               \
             "Top Priority"                                       \
@@ -724,6 +747,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {blist single}
 
+        # Raise
         install bl_raisebtn using mktoolbutton $bl_bar.up        \
             ::marsgui::icon::raise                               \
             "Raise Priority"                                     \
@@ -734,6 +758,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {blist single}
 
+        # Lower
         install bl_lowerbtn using mktoolbutton $bl_bar.down      \
             ::marsgui::icon::lower                               \
             "Lower Priority"                                     \
@@ -744,6 +769,7 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {blist single}
 
+        # To Bottom
         install bl_bottombtn using mktoolbutton $bl_bar.bottom   \
             ::marsgui::icon::tobottom                            \
             "Bottom Priority"                                    \
@@ -754,6 +780,18 @@ snit::widget strategybrowser {
             browser $win                                         \
             predicate {blist single}
 
+        # vsep
+        ttk::separator $bl_bar.vsep \
+            -orient vertical
+
+        # Check
+        install bl_checkbtn using ttk::button $bl_bar.check       \
+            -style   Toolbutton                                   \
+            -text    "Check"                                      \
+            -command [mymethod BListCheckStrategies]
+
+
+        # Delete
         install bl_deletebtn using mkdeletebutton $bl_bar.delete \
             "Delete Block"                                       \
             -state   disabled                                    \
@@ -771,6 +809,8 @@ snit::widget strategybrowser {
         pack $bl_raisebtn   -side left
         pack $bl_lowerbtn   -side left
         pack $bl_bottombtn  -side left
+        pack $bl_bar.vsep   -side left -fill y -padx 5
+        pack $bl_checkbtn   -side left
 
         pack $bl_deletebtn  -side right
     }
@@ -959,6 +999,23 @@ snit::widget strategybrowser {
         } else {
             order send gui BLOCK:STATE block_id $id state disabled
         }
+    }
+
+    # BListCheckStrategies
+    #
+    # Executes the sanity checks for all strategies, displaying the 
+    # results.
+
+    method BListCheckStrategies {} {
+        set failed [strategy check]
+
+        if {$failed} {
+            set msg "at least one problem was found"
+        } else {
+            set msg "no problems found"
+        }
+
+        app puts "Performed strategy sanity check; $msg."
     }
 
 
