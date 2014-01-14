@@ -1307,7 +1307,7 @@ snit::type ::projectlib::parmdb {
             for this expenditure class.
         }
 
-        foreach class {ASSIGN ATTROE BROADCAST DEPLOY FUNDENI MAINTAIN} {
+        foreach class {ASSIGN ATTROE BROADCAST BUILD DEPLOY FUNDENI MAINTAIN} {
             $ps subset econ.shares.$class "
                 Allocations of expenditures to CGE sectors for the
                 $class expenditure class.  The allocations are
@@ -1342,6 +1342,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault econ.shares.BROADCAST.black   0
         $ps setdefault econ.shares.BROADCAST.region  0
         $ps setdefault econ.shares.BROADCAST.world   0
+        $ps setdefault econ.shares.BUILD.goods       1 
+        $ps setdefault econ.shares.BUILD.pop         3
+        $ps setdefault econ.shares.BUILD.black       0
+        $ps setdefault econ.shares.BUILD.region      0
+        $ps setdefault econ.shares.BUILD.world       0
         $ps setdefault econ.shares.DEPLOY.goods      4
         $ps setdefault econ.shares.DEPLOY.pop        6
         $ps setdefault econ.shares.DEPLOY.black      0
@@ -1818,6 +1823,11 @@ snit::type ::projectlib::parmdb {
             it does not produce any goods.  Setting this parameter to
             zero will bring the repair level of all plants to fully 
             functional at the next tick.
+        }
+
+        $ps define plant.buildtime ::projectlib::iquantity 52 {
+            The average time in weeks it takes to build a manufacturing 
+            plant from scratch.
         }
 
         $ps define plant.buildcost ::projectlib::money 1B {

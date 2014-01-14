@@ -138,9 +138,10 @@ snit::type engine {
         profile demog growth
         profile demog stats
         
-        # NEXT, degrade manufacturing infrastructure, it may get
-        # repaired during strategy execution
+        # NEXT, manufacturing infrastructure, plants may degrade and
+        # new plants may come online
         profile plant degrade
+        profile plant assess
 
         # NEXT, execute strategies; this changes the situation
         # on the ground.  It may also schedule events to be executed

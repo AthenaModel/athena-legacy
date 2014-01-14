@@ -117,6 +117,41 @@ appserver module PLANT {
                 FROM gui_plants_na
                 ORDER BY nlink
             } -default "None." -align LLLLL
+
+            ht para
+            ht put  "The following table shows the production infrastructure "
+            ht put  "currently under construction with the fraction built. "
+            ht put  "Once these plants are complete, they will contribute to "
+            ht put  "the production capacity of goods."
+            ht para
+
+            ht query {
+                SELECT nlink         AS "Neighborhood",
+                       alink         AS "Agent",
+                       num           AS "Num. Plants",
+                       sigma         AS "Frac. Complete",
+                       start_time    AS "Construction Started"
+                FROM gui_plants_build
+                WHERE built != 1
+            } -default "None." -align LLLLL
+
+            ht para
+            ht put  "The following table shows the production infrastructure "
+            ht put  "that was built since the scenario was locked. Along with "
+            ht put  "the time that construction was completed. These plants "
+            ht put  "are contributing to the production capacity of goods "
+            ht put  "provided that they are adequately maintained."
+            ht para
+
+            ht query {
+                SELECT nlink       AS "Neighborhood",
+                       alink       AS "Agent",
+                       num         AS "Num. Plants",
+                       end_time    AS "Construction Ended"
+                FROM gui_plants_build
+                WHERE built == 1
+            } -default "None." -align LLLL
+
         }
 
         ht /page

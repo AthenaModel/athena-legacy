@@ -171,6 +171,57 @@ snit::type plant {
         }
     }
 
+    # assess
+    #
+    # This method sees if any new production infrastructure needs to be
+    # added to the table of infrastructure that is currently producing
+    # goods.
+
+    typemethod assess {} {
+        # FIRST, see if there are freshly built plants that need to be
+        # added to the production infrastructure
+        rdb eval { 
+            SELECT n, a, num AS new FROM plants_unbuilt
+            WHERE sigma=1.0
+        } {
+            if {[plant exists [list $n $a]]} {
+                # NEXT, retrieve old data to compute new average repair
+                # level given new plants 
+                set oldVals [rdb eval {
+                    SELECT num,rho FROM plants_na
+                    WHERE n=$n AND a=$a
+                }]
+
+                lassign $oldVals oldNum oldRho
+
+                # NEXT, weighted average of old and new. Note: we can
+                # assume a rho of 1.0 for all new plants
+                let newRho {($oldNum*$oldRho + $new)/($oldNum+$new)}
+
+                rdb eval {
+                    UPDATE plants_na
+                    SET num=num+$new,
+                        rho=$newRho
+                    WHERE n=$n AND a=$a
+                }
+            } else {
+                rdb eval {
+                    INSERT INTO plants_na(n,a,num,rho) 
+                    VALUES($n,$a,$new,1.0);
+                }
+            }
+        }
+
+        set t [simclock now]
+        # NEXT, update the end time
+        rdb eval {
+            UPDATE plants_build
+            SET built    = 1,
+                end_time = $t
+            WHERE sigma=1.0 AND built=0
+        }
+    }
+
     #-----------------------------------------------------------------------
     # Infrastructure degradation
 
@@ -319,6 +370,151 @@ snit::type plant {
             SET rho = min(1.0,rho + $dRho)
             WHERE n=$n AND a=$a
         }
+    }
+
+    #------------------------------------------------------------------
+    # New Infrastructure Construction
+
+    # buildcost num ?id?
+    #
+    # num   - the number of plants being built
+    # id    - if supplied, the ID of a construction job
+    #
+    # This method returns the cost of one weeks worth of construction to
+    # the specified number of plants.  If ID is supplied then the RDB is
+    # checked to see if the state of construction is such that less than
+    # one weeks of building is required to reach completion thereby reducing
+    # the cost.
+
+    typemethod buildcost {num {id ""}} {
+
+        # FIRST, retrieve relevant parameters
+        set bCost [money validate [parmdb get plant.buildcost]]
+        set bTime [parmdb get plant.buildtime]
+
+        # NEXT, if build time is zero, no cost
+        if {$bTime == 0} {
+            return 0.0
+        }
+
+        # NEXT, one weeks worth of construction
+        let bRate {1.0 / $bTime}
+
+        # NEXT, the cost for one plant for one week
+        let maxCostPerPlant {$bCost * $bRate} 
+        
+        # NEXT, if no ID, then the total cost is the cost of construction for
+        # all the plants for one week
+        if {![rdb exists {SELECT id FROM plants_build WHERE id=$id}]} {
+            return [expr {$maxCostPerPlant * $num}]
+        }
+
+        # NEXT, retrieve current construction level and check to see if
+        # cost can be reduced
+        set sigma [rdb eval {SELECT sigma FROM plants_build WHERE id=$id}]
+
+        # NEXT, if we are within one weeks worth of construction cost is less
+        if {1.0 - $sigma < $bRate} {
+            let maxCostPerPlant {$maxCostPerPlant * ((1.0 - $sigma) / $bRate)}
+        }
+
+        return [expr {$maxCostPerPlant * $num}]
+    }
+
+    # build id money
+    #
+    # id    - the ID of a construction job
+    # money - the amount of money being applied to the job
+    #
+    # This method increases the construction level of a construction job
+    # based upon the amount of money provided for the job
+
+    typemethod build {id money} {
+        # FIRST, retrieve relevant parameters
+        set bCost [money validate [parmdb get plant.buildcost]]
+        set bTime [parmdb get plant.buildtime]
+
+        # NEXT, if build time is zero, instantly build the infrastructure
+        if {$bTime == 0} {
+            rdb eval {
+                UPDATE plants_build
+                SET sigma = 1.0
+                WHERE id=$id
+            }
+
+            return
+        }
+
+        # NEXT, if the SYSTEM builds infrastructure it immediately appears
+        set a [rdb onecolumn {SELECT a FROM plants_build WHERE id=$id}]
+        if {$a eq "SYSTEM"} {
+            rdb eval {
+                UPDATE plants_build
+                SET sigma = 1.0
+                WHERE id=$id
+            }
+
+            return
+        }
+
+        # NEXT, one weeks worth of construction
+        let bRate {1.0 / $bTime}
+
+        # NEXT, the maximum cost for on plant
+        let maxCostPerPlant {$bCost * $bRate} 
+
+        # NEXT, retrieve the number of plants under construction
+        set num [rdb eval {SELECT num FROM plants_build WHERE id=$id}]
+
+        # NEXT, the maximum cost for one weeks worth of construction
+        let totalCost {$maxCostPerPlant * $num}
+
+        # NEXT, adjust the fraction by the amount of money supplied. Note
+        # that this fraction could be greater than 1.0
+        let bFrac {$money / $totalCost}
+
+        # NEXT, compute deltaSigma and apply it to the construction job
+        let deltaSigma {$bRate * $bFrac}
+
+        rdb eval {
+            UPDATE plants_build
+            SET sigma = min(1.0, sigma + $deltaSigma)
+            WHERE id=$id
+        }
+    }
+
+    # startbuild n a num
+    #
+    # n    - A neighborhood ID
+    # a    - An agent ID
+    # num  - The number of plants to construct
+    #
+    # This method inserts a new record into the plants_build table to track
+    # the construction of a new set of plants. It returns the ID of the 
+    # construction job.
+
+    typemethod startbuild {n a num} {
+        set now [simclock now]
+
+        rdb eval {
+            INSERT INTO plants_build(n, a, num, start_time, end_time)
+            VALUES($n, $a, $num, $now, -1)
+        }
+
+        return [rdb onecolumn {SELECT max(id) FROM plants_build}]
+    }
+
+    # buildfrac id
+    #
+    # Given the ID of a construction job return the fraction of construction
+    # completed
+
+    typemethod buildfrac {id} {
+        return [rdb onecolumn {SELECT sigma FROM plants_build WHERE id=$id}]
+    }
+
+    typemethod endbuildtime {id} {
+        return [rdb onecolumn {SELECT end_time FROM plants_build WHERE id=$id}]
     }
 
     # get  id ?parm?

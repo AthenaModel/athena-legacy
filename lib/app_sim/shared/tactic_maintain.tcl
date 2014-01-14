@@ -1,14 +1,15 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    tactic_spend.tcl
+#    tactic_maintain.tcl
 #
 # AUTHOR:
-#    Will Duquette
+#    Dave Hanks
 #
 # DESCRIPTION:
-#    athena_sim(1): Mark II Tactic, SPEND
+#    athena_sim(1): Mark II Tactic, MAINTAIN
 #
-#    A SPEND tactic spends cash-on-hand to particular economic sectors.
+#    A MAINTAIN tactic spends cash-on-hand to maintain goods sector 
+#    production infrastructure
 #
 #-----------------------------------------------------------------------
 
@@ -331,7 +332,7 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
 
 # TACTIC:MAINTAIN
 #
-# Updates existing SPEND tactic.
+# Updates existing MAINTAIN tactic.
 
 order define TACTIC:MAINTAIN {
     title "Tactic: Maintain Infrastructure"

@@ -59,6 +59,40 @@ CREATE TABLE plants_shares (
     PRIMARY KEY (n, a)
 );
 
+-- Plants under construction: during strategy execution an agent may 
+-- use the BUILD tactic to build new infrastructure, this table tracks
+-- the progress of that construction
+
+CREATE TABLE plants_build (
+    -- Unique ID, an actor may have more than one set of plants under 
+    -- construction in the same neighborhood
+    id              INTEGER PRIMARY KEY,
+
+    -- Neighborhood ID
+    n               TEXT,
+
+    -- Agent ID, can be actor ID or 'SYSTEM'
+    a               TEXT,
+
+    -- Number of plants to build
+    num             INTEGER DEFAULT 0,
+
+    -- The build fraction, from 0.0 to 1.0
+    sigma           REAL DEFAULT 0.0,
+
+    -- Start time of the build, for reporting
+    start_time      INTEGER,
+
+    -- Completion time of the build, for reporting
+    end_time        INTEGER,
+
+    -- Flag indicating build status; 1 = completely built
+    built           INTEGER DEFAULT 0
+);
+
+CREATE VIEW plants_unbuilt AS
+SELECT * FROM plants_build WHERE built = 0;
+
 -- Plants neighborhood view. Used during prep and initialization to 
 -- determine how infrastructure plants are distributed among the 
 -- neighborhoods as a function of total neighborhood population and
