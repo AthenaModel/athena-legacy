@@ -305,7 +305,9 @@ tab "Strategy" {
     <ul>
     <li> <b>The Agent List</b>: A list of all of the agents in the
     simulation.  Selecting an agent in the list displays the agent's
-    strategy in the other panes.<p>
+    strategy in the other panes.  If an agent's strategy is known to
+    contain tactics or conditions with sanity check failures, 
+    the agent's name will be displayed in red with a line through it.<p>
 
     <li> <b>The <<cref /tab/strategy/blocks>></b>: This pane shows
     the blocks in the agent's strategy, with the block metadata.  The
@@ -395,6 +397,12 @@ page /tab/strategy blocks "Blocks List" {
     <<topic [image button_tobottom]>>
     Gives the selected block bottom priority below all other blocks
     scheduled for the same agent.
+    <</topic>>
+
+    <<topic "Check">>
+    Executes the sanity checker for all tactics and conditions in all 
+    strategies, and marks failing tactics and conditions invalid, along
+    with the blocks and strategies containing them.
     <</topic>>
 
     <<topic [image button_trash]>>
