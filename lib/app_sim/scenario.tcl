@@ -38,6 +38,7 @@ snit::type scenario {
         activity
         activity_gtype
         actors
+        beans
         bookmarks
         cap_kg
         cap_kn
@@ -102,7 +103,6 @@ snit::type scenario {
         hist_support
         hist_volatility
         hist_vrel
-        reports
         rule_firings
         rule_inputs
         scripts
@@ -429,36 +429,15 @@ snit::type scenario {
     #-------------------------------------------------------------------
     # Snapshot Management
 
-    # snapshot save ?-prep?
+    # snapshot save
     #
-    # Saves a snapshot as of the current sim time.  The snapshot is
-    # a Tcl string of everything but "maps" and "snapshots" tables.
-    # The "maps" are excluded because of the size, and the "snapshots"
-    # are excluded for obvious reasons.
-    #
-    # In addition, exclude the URAM influence and history tables.
-    # The URAM influence tables never change after time 0 (for now,
-    # anyway) and the URAM history table entries never change after they
-    # are written.  We can leave them in place, and truncate the tables
-    # if we re-enter the time-stream.
-    #
-    # Finally, the bookmarks table is excluded; bookmarks do not affect
-    # the simulation, and can be edited at any time.
-    #
-    # If the -prep flag is given, then the snapshot is saved for
-    # time "-1", indicating that it's a PREP-state snapshot.
+    # Saves an on-lock snapshot of the scenario, so that we can 
+    # return to it on-lock.  See nonSnapshotTables, above, for the
+    # excluded tables.
 
-    typemethod {snapshot save} {{opt -now}} {
+    typemethod {snapshot save} {} {
         # FIRST, save the saveables
         $type SaveSaveables
-
-        # NEXT, get the tick
-        if {$opt eq "-prep"} {
-            assert {[sim now] == [simclock cget -tick0]}
-            set tick -1
-        } else {
-            set tick [sim now]
-        }
 
         # NEXT, get the snapshot text
         set snapshot [GrabAllBut $nonSnapshotTables]
@@ -466,7 +445,7 @@ snit::type scenario {
         # NEXT, save it into the RDB
         rdb eval {
             INSERT OR REPLACE INTO snapshots(tick,snapshot)
-            VALUES($tick,$snapshot)
+            VALUES(-1,$snapshot)
         }
 
         log normal scenario "snapshot saved: [string length $snapshot] bytes"
@@ -508,32 +487,20 @@ snit::type scenario {
         return $snapshot
     }
 
-    # snapshot load tick
+    # snapshot load
     #
-    # tick     The tick of the snapshot to load, or -prep.
-    #
-    # Loads the specified snapshot.  The caller should
+    # Loads the on-lock snapshot.  The caller should
     # dbsync the sim.
 
-    typemethod {snapshot load} {tick} {
-        require {$tick eq "-prep" || $tick in [scenario snapshot list]} \
-            "No snapshot at tick $tick"
-
-        # FIRST, get the snapshot
-        if {$tick eq "-prep"} {
-            set t -1
-        } else {
-            set t $tick
-        }
-
+    typemethod {snapshot load} {} {
         set snapshot [rdb onecolumn {
             SELECT snapshot FROM snapshots
-            WHERE tick=$t
+            WHERE tick = -1
         }]
 
         # NEXT, import it.
         log normal scenario \
-            "Loading snapshot for tick $tick: [string length $snapshot] bytes"
+            "Loading on-lock snapshot: [string length $snapshot] bytes"
 
         rdb transaction {
             # NEXT, clear the tables being loaded.
@@ -550,71 +517,22 @@ snit::type scenario {
         $type RestoreSaveables
     }
 
-
-    # snapshot list
+    # snapshot purge
     #
-    # Returns a list of the ticks for which snapshots are available.
-    # Skip the -prep snapshot.
+    # Purges the on-lock snapshot and all history.
 
-    typemethod {snapshot list} {} {
-        rdb eval {
-            SELECT tick FROM snapshots
-            WHERE tick >= 0
-            ORDER BY tick
-        }
-    }
-
-
-    # snapshot purge t
-    #
-    # t     A sim time in ticks, or "-unlock"
-    #
-    # Purges all snapshots with ticks greater than or equal to t,
-    # and all history with ticks greater than t.  If t is "unlock",
-    # then we're returning to PREP and all non-PREP data is purge.
-
-    typemethod {snapshot purge} {t} {
-        if {$t ne "-unlock"} {
-            set hist_t $t
-            profile rdb eval {
-                DELETE FROM snapshots WHERE tick >= $t;
-                DELETE FROM ucurve_contribs_t WHERE t > $t;
-                DELETE FROM rule_firings WHERE t > $t;
-                DELETE FROM rule_inputs WHERE t > $t;
-            }
-        } else {
-            # On unlock, it's quicker to leave out the WHERE clause
-            set hist_t -1
-            profile rdb eval {
-                DELETE FROM snapshots;
-                DELETE FROM ucurve_contribs_t;
-                DELETE FROM rule_firings;
-                DELETE FROM rule_inputs;
-            }
+    typemethod {snapshot purge} {} {
+        profile rdb eval {
+            DELETE FROM snapshots;
+            DELETE FROM ucurve_contribs_t;
+            DELETE FROM rule_firings;
+            DELETE FROM rule_inputs;
         }
 
-        hist purge $hist_t
+        hist purge -1
     }
 
-    # snapshot current
-    #
-    # Returns the index of the current snapshot, or -1 if we're
-    # not on a snapshot.
 
-    typemethod {snapshot current} {} {
-        # TBD: Consider storing the index in the RDB.
-        lsearch -exact [scenario snapshot list] [simclock now]
-    }
-
-    # snapshot latest
-    #
-    # Returns the tick of the latest snapshot.
-
-    typemethod {snapshot latest} {} {
-        lindex [scenario snapshot list] end
-    }
-
-                            
     #-------------------------------------------------------------------
     # Save current simulation state as new baseline scenario.
     
@@ -624,7 +542,7 @@ snit::type scenario {
         
         # NEXT, purge history.  (Do this second, in case the modules
         # needed the history to do their work.)
-        scenario snapshot purge -unlock
+        scenario snapshot purge
         sigevent purge 0
 
         # NEXT, update the clock

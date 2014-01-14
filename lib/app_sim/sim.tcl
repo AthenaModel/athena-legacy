@@ -146,158 +146,11 @@ snit::type sim {
 
     # restart
     #
-    # Reloads snapshot 0, and enters.
+    # Reloads on-lock snapshot.
 
     typemethod restart {} {
         sim mutate unlock
     }
-
-    #-------------------------------------------------------------------
-    # Snapshot Navigation
-
-    # snapshot first
-    #
-    # Loads the first snapshot, which resets the simulation as a 
-    # whole to the moment before it first 
-    # transitioned from PAUSED to RUNNING.
-
-    typemethod {snapshot first} {} {
-        $type LoadSnapshot [lindex [scenario snapshot list] 0]
-
-        return
-    }
-
-
-    # snapshot prev
-    #
-    # Loads the previous snapshot, if any.
-
-    typemethod {snapshot prev} {} {
-        # FIRST, get the tick of the previous snapshot
-        set now [simclock now]
-
-        foreach tick [lreverse [scenario snapshot list]] {
-            if {$tick < $now} {
-                break
-            }
-        }
-
-        # NEXT, Load the snapshot
-        $type LoadSnapshot $tick
-
-        return
-    }
-
-
-    # snapshot next
-    #
-    # Loads the next snapshot, if any.
-
-    typemethod {snapshot next} {} {
-        # FIRST, get the tick of the next snapshot
-        set now [simclock now]
-
-        foreach tick [scenario snapshot list] {
-            if {$tick > $now} {
-                break
-            }
-        }
-
-        assert {$tick > $now}
-
-        # NEXT, Load the snapshot
-        $type LoadSnapshot $tick
-
-        return
-    }
-
-
-    # snapshot last
-    #
-    # Loads the latest snapshot.
-
-    typemethod {snapshot last} {} {
-        set tick [scenario snapshot latest]
-
-        assert {[simclock now] < $tick}
-
-        $type LoadSnapshot $tick
-
-        return
-    }
-
-    # LoadSnapshot tick
-    #
-    # tick        The timestamp of the snapshot to load
-    #
-    # Loads the snapshot.  If the time now is later than 
-    # the latest checkpoint, saves one so that we can return.
-
-    typemethod LoadSnapshot {tick} {
-        assert {[sim state] in {PAUSED SNAPSHOT}}
-
-        # FIRST, if the time is greater than the last snapshot, 
-        # save one.
-        if {[simclock now] > [scenario snapshot latest]} {
-            scenario snapshot save
-        }
-
-        # NEXT, restore to the tick 
-        scenario snapshot load $tick
-
-        # NEXT, PAUSED if we're at the 
-        # last snapshot, and SNAPSHOT otherwise.
-        if {$tick == [scenario snapshot latest]} {
-            $type SetState PAUSED
-            log newlog latest
-        } else {
-            $type SetState SNAPSHOT
-            log newlog snapshot
-        }
-
-        # NEXT, log the change
-        set message \
-            "Loaded snapshot [scenario snapshot current] at [simclock asString] (tick [simclock now])"
-
-        log normal sim $message
-        app puts $message
-
-        # NEXT, resync the app with the RDB
-        $type dbsync
-
-        return
-    }
-
-    # snapshot enter
-    #
-    # Re-enters the time-stream as of the current snapshot; purges
-    # later snapshots.
-
-    typemethod {snapshot enter} {} {
-        # FIRST, must be in SNAPSHOT mode.
-        assert {[sim state] eq "SNAPSHOT"}
-
-        # NEXT, purge future snapshots
-        set now [simclock now]
-        scenario snapshot purge $now
-        sigevent purge $now
-
-        # NEXT, set state
-        $type SetState PAUSED
-
-        # NEXT, log it.
-        log newlog latest
-        
-        set message \
-       "Re-entered the timestream at [simclock asString] (tick [simclock now])"
-
-        log normal sim $message
-        app puts $message
-
-        # NEXT, resync the app with the RDB
-        $type dbsync
-    }
-
     #-------------------------------------------------------------------
     # RDB Synchronization
 
@@ -430,8 +283,8 @@ snit::type sim {
         # rather than being simulation outputs.
         bsystem start
 
-        # NEXT, save a PREP checkpoint.
-        scenario snapshot save -prep
+        # NEXT, save an on-lock snapshot
+        scenario snapshot save
 
         # NEXT, do initial analyses, and initialize modules that
         # begin to work at this time.
@@ -456,17 +309,15 @@ snit::type sim {
 
     # mutate unlock
     #
-    # Causes the simulation to transition from PAUSED or SNAPSHOT
+    # Causes the simulation to transition from PAUSED
     # to PREP.
 
     typemethod {mutate unlock} {} {
-        assert {$info(state) in {PAUSED SNAPSHOT}}
+        assert {$info(state) eq "PAUSED"}
 
         # FIRST, load the PREP snapshot
-        scenario snapshot load -prep
-
-        # NEXT, purge future snapshots
-        scenario snapshot purge -unlock
+        scenario snapshot load
+        scenario snapshot purge
         sigevent purge 0
 
         # NEXT, set state
@@ -564,10 +415,6 @@ snit::type sim {
         # check it to make sure.
         assert {$info(stoptime) == 0 || $info(stoptime) > [simclock now]}
         assert {!$blocking || $info(stoptime) != 0}
-
-        # NEXT, save a snapshot, purging any later snapshots.
-        scenario snapshot purge [simclock now]
-        scenario snapshot save
 
         # NEXT, set the state to running.  This will initialize the
         # models, if need be.
@@ -910,7 +757,7 @@ order define SIM:LOCK {
 order define SIM:UNLOCK {
     title "Unlock Scenario Preparation"
     options \
-        -sendstates {PAUSED SNAPSHOT} \
+        -sendstates {PAUSED} \
         -monitor    no
 } {
     returnOnError -final

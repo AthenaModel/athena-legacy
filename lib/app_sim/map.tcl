@@ -232,7 +232,7 @@ snit::type map {
 
 order define MAP:IMPORT {
     title "Import Map"
-    options -sendstates {PREP PAUSED SNAPSHOT}
+    options -sendstates {PREP PAUSED}
 
     # NOTE: Dialog is not usually used.  Could define a "filepicker"
     # -editcmd, though.

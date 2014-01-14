@@ -998,8 +998,8 @@ term scenariofile "scenario file" {
     Athena is a document-centric application, rather like a word
     processor or spreadsheet application.  An Athena "document" is
     called an <i>Athena scenario file</i>.  The scenario file contains
-    the scenario data, the map image (if any),
-    <<term snapshot>>s, and in general everything
+    the scenario data, the map image (if any), any simulation results,
+    and in general everything
     to do with the scenario.<p>
 
     Athena scenario files have an ".adb" file type.<p>
@@ -1081,19 +1081,6 @@ term situation "situation" {
     "situation" come from JNEM, but the distinction between 
     events and situations is considerably muddier in Athena than it was
     in JNEM.<p>
-}
-
-#-----------------------------------------------------------------------
-
-term snapshot "snapshot" {
-    Each time the user presses the 
-    Run Simulation button, the
-    simulation saves a snapshot of its current <<term state>>.  When the 
-    simulation is paused, the user can use the VCR buttons on the
-    main toolbar to return to any previous snapshot and view the
-    state of the simulation.  This is called
-    being in "snapshot mode".  While in snapshot mode, the user can
-    browse the various <<cref /tab>> freely.<p>
 }
 
 #-----------------------------------------------------------------------

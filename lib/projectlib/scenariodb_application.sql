@@ -43,14 +43,17 @@ CREATE TABLE beans (
 );
 
 CREATE TABLE snapshots (
-    -- Snapshots Table: saves scenario snapshots.  I.e., this table
-    -- contains snapshots of the scenario at different points in time.
+    -- Snapshots Table: saves scenario snapshots.  In Athena 5 and
+    -- prior, this table held a snapshot for each time at which
+    -- the simulation entered the RUNNING state, as well as an
+    -- on-lock snapshot.  As of Athena 6, it holds only the
+    -- on-lock snapshot.
 
-    -- Time tick at which the snapshot was saved; 0 is restart
-    -- checkpoint.
-    tick       INTEGER PRIMARY KEY,
+    -- Time tick at which the snapshot was saved; -1 is the
+    -- on-lock checkpoint.
+    tick     INTEGER PRIMARY KEY,
 
-    -- XML text of the snapshot.
+    -- TCL-serialized text of the snapshot.
     snapshot TEXT
 );
 

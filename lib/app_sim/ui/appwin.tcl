@@ -1016,22 +1016,6 @@ snit::widget appwin {
 
         DynamicHelp::add $simtools.duration -text "Duration of run"
 
-        # First Snapshot
-        $self AddSimTool first first16 "Time 0 Snapshot" \
-            [list ::sim snapshot first]
-
-        # Previous Snapshot
-        $self AddSimTool prev prev16 "Previous Snapshot" \
-            [list ::sim snapshot prev]
-
-        # Next Snapshot
-        $self AddSimTool next next16 "Next Snapshot" \
-            [list ::sim snapshot next]
-
-        # Latest Snapshot
-        $self AddSimTool last last16 "Latest Snapshot" \
-            [list ::sim snapshot last]
-
         # Sim State
         ttk::label $toolbar.state                  \
             -text "State:"
@@ -1062,10 +1046,6 @@ snit::widget appwin {
 
         pack $simtools.runpause  -side left    
         pack $simtools.duration  -side left -padx {0 15}
-        pack $simtools.first     -side left
-        pack $simtools.prev      -side left
-        pack $simtools.next      -side left
-        pack $simtools.last      -side left
 
         pack $toolbar.preplock  -side left
         pack $toolbar.tick      -side right -padx 2 
@@ -1970,35 +1950,6 @@ snit::widget appwin {
     method RunPause {} {
         if {[sim state] eq "RUNNING"} {
             order send gui SIM:PAUSE
-        } elseif {[sim state] eq "SNAPSHOT"} {
-            set last [expr {[llength [scenario snapshot list]] - 1}]
-            set next [expr {[scenario snapshot current] + 1}]
-            
-            if {$last == $next} {
-                set lostSnapshots "Snapshot $next"
-            } elseif {$last == $next + 1} {
-                set lostSnapshots "Snapshots $next and $last"
-            } else {
-                set lostSnapshots "Snapshots $next to $last"
-            }
-
-
-            set answer [messagebox popup \
-                            -parent    $win                  \
-                            -icon      peabody               \
-                            -title     "Are you sure?"       \
-                            -ignoretag "sim_snapshot_enter"  \
-                            -onclose   cancel                \
-                            -buttons   {
-                                ok      "Change the Future"
-                                cancel  "Look, But Don't Touch"
-                            } -message [normalize "
-    Peabody here.  If you wish, you may use the Wayback Machine to re-enter the time stream at Snapshot [scenario snapshot current]; you may then make changes and run the simulation forward.  However, you will lose $lostSnapshots.
-                            "]]
-
-            if {$answer eq "ok"} {
-                sim snapshot enter
-            }
         } else {
             order send gui SIM:RUN \
                 weeks [dict get $durations [$simtools.duration get]]
@@ -2127,13 +2078,7 @@ snit::widget appwin {
     # in some way.
 
     method SimState {} {
-        # FIRST, get some snapshot data
-        set now       [sim now]
-        set snapshots [scenario snapshot list]
-        set latest    [lindex $snapshots end]
-        set current   [lsearch -exact $snapshots $now]
-
-        # NEXT, display the simulation state
+        # FIRST, display the simulation state
         if {[sim state] eq "RUNNING"} {
             set prefix [esimstate longname [sim state]]
 
@@ -2143,9 +2088,6 @@ snit::widget appwin {
                 set info(simstate) \
                     "$prefix until [simclock toString [sim stoptime]]"
             }
-        } elseif {[sim state] eq "SNAPSHOT"} {
-            set info(simstate) \
-                "Snapshot $current"
         } else {
             set info(simstate) [esimstate longname [sim state]]
         }
@@ -2187,13 +2129,6 @@ snit::widget appwin {
             DynamicHelp::add $simtools.runpause -text "Pause Simulation"
 
             $simtools.duration configure -state disabled
-        } elseif {[sim state] eq "SNAPSHOT"} {
-            $simtools.runpause configure \
-                -image ::marsgui::icon::rewind22 \
-                -state normal
-            DynamicHelp::add $simtools.runpause -text "Leave Snapshot Mode"
-
-            $simtools.duration configure -state disabled
         } elseif {[sim state] eq "PAUSED"} {
             $simtools.runpause configure \
                 -image ::marsgui::icon::play22 \
@@ -2210,34 +2145,6 @@ snit::widget appwin {
 
             $simtools.duration configure -state disabled
 
-        }
-
-        # NEXT, Update the snapshot buttons.
-        if {[sim state] in {"PREP" "RUNNING"}} {
-            $simtools.first  configure -state disabled
-            $simtools.prev   configure -state disabled
-            $simtools.next   configure -state disabled
-            $simtools.last   configure -state disabled
-        } else {
-            if {$now > [simclock cget -tick0]} {
-                # Not at tick0, first is always valid; and prev is
-                # valid if first is.
-                $simtools.first configure -state normal
-                $simtools.prev  configure -state normal
-            } else {
-                $simtools.first  configure -state disabled
-                $simtools.prev   configure -state disabled
-            }
-
-            # If we're at a time earlier than the latest snapshot,
-            # then last is valid; and next is valid if last is.
-            if {$now < $latest} {
-                $simtools.next configure -state normal
-                $simtools.last configure -state normal
-            } else {
-                $simtools.next configure -state disabled
-                $simtools.last configure -state disabled
-            }
         }
     }
 

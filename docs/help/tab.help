@@ -3375,11 +3375,6 @@ tab "Log" {
     <li> When a new scenario is created (<b>new</b>)
     <li> When an existing scenario is opened (<b>open</b>)
     <li> When saving the scenario under a new name (<b>saveas</b>)
-    <li> When entering <<term snapshot>> mode (<b>snapshot</b>)
-    <li> When leaving snapshot mode and re-entering the 
-         <<term prep>> state. (<b>prep</b>)
-    <li> When leaving snapshot mode and re-entering the paused
-         state. (<b>latest</b>) 
     <li> When the current log file grows too large.
     </ul><p>
 

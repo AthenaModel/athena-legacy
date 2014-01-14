@@ -128,7 +128,6 @@ enum esimstate {
     PREP     Prep
     RUNNING  Running
     PAUSED   Paused
-    SNAPSHOT Snapshot
 }
 
 # esector: Econ Model sectors, used for the economic display variables
