@@ -63,7 +63,7 @@ snit::type personnel {
             SELECT n,g FROM deploy_ng JOIN agroups USING (g);
 
             DROP TABLE IF EXISTS working_deploy_tng;
-            CREATE TABLE working_deploy_tng AS SELECT * FROM deploy_tng;
+            CREATE TEMP TABLE working_deploy_tng AS SELECT * FROM deploy_tng;
             DELETE FROM deploy_tng;
         }
     }
