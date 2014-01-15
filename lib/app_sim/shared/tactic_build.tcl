@@ -127,7 +127,7 @@ tactic define BUILD "Build Infrastructure" {actor} {
             }
 
             PERCENT {
-                let spend {min($cost, $cash * $percent)}
+                let spend {min($cost, $cash * ($percent/100.0))}
             }
 
             default {
@@ -140,6 +140,7 @@ tactic define BUILD "Build Infrastructure" {actor} {
             return 0
         }
 
+        $coffer spend $spend
         set trans(amount) $spend
 
         return 1

@@ -71,10 +71,10 @@ namespace eval ::athena_test::tests:: {
         fmode      ALL
         execstatus NONE
         faildict   {}
-        id         5
+        id         *
         level      0.0
         nlist      {_type NBHOODS _rule {}}
-        parent     ::bean::block4
+        parent     ::bean::block*
         percent    100
         rmode      FULL
         state      invalid

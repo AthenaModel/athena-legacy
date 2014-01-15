@@ -69,6 +69,7 @@ snit::type ted {
         personnel_g
         plants_na
         plants_shares
+        plants_build
         rule_firings
         rule_inputs
         sigevents

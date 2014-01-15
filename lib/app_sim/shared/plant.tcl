@@ -435,19 +435,7 @@ snit::type plant {
         set bTime [parmdb get plant.buildtime]
 
         # NEXT, if build time is zero, instantly build the infrastructure
-        if {$bTime == 0} {
-            rdb eval {
-                UPDATE plants_build
-                SET sigma = 1.0
-                WHERE id=$id
-            }
-
-            return
-        }
-
-        # NEXT, if the SYSTEM builds infrastructure it immediately appears
-        set a [rdb onecolumn {SELECT a FROM plants_build WHERE id=$id}]
-        if {$a eq "SYSTEM"} {
+        if {$bTime == 0 || $bCost == 0.0} {
             rdb eval {
                 UPDATE plants_build
                 SET sigma = 1.0
@@ -512,6 +500,11 @@ snit::type plant {
     typemethod buildfrac {id} {
         return [rdb onecolumn {SELECT sigma FROM plants_build WHERE id=$id}]
     }
+
+    # endbuildtime id
+    #
+    # Given the ID of a construction job return it's endtime. It may be
+    # incomplete in which case a value of -1 is returned.
 
     typemethod endbuildtime {id} {
         return [rdb onecolumn {SELECT end_time FROM plants_build WHERE id=$id}]
