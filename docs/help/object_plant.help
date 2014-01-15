@@ -35,6 +35,16 @@ object plant_ {
         Shares of Manufacturing Plants are defined and edited on the 
         <<cref /tab/neighborhoods/manufacturing_plants>>.<p>
 
+        Unless an actor is automatically maintaining his infrastructure, money
+        must be spent during <<term strategy>> execution to maintain it by
+        way of the MAINTAIN <<term tactic>>.  Infrastructure that is not
+        maintained will fall into disrepair and produce less and less goods
+        until it stops production completely.<p>
+
+        Actors can also build new infrastructure by way of the BUILD 
+        <<term tactic>>.  This new infrastructure will also need to be
+        maintained after it is completed, unless the actor who built it
+        is automatically maintaining it.<p>
     }
 
 

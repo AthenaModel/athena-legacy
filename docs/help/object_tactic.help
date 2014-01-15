@@ -475,6 +475,76 @@ page /object/tactic broadcast "BROADCAST tactic" {
 }
 
 #-----------------------------------------------------------------------
+# BROADCAST
+
+object tactic_build {
+    noun "BUILD tactic"
+    overview {
+        This <<term tactic>> allows an <<term actor>> to construct
+        new goods sector prodution infrastructure thereby increasing the
+        output capacity of that sector.  Once new infrastructure is 
+        completed, it must be maintained by using the MAINTAIN <<term tactic>>.
+        Nominally it will take multiple weeks for new production 
+        infrastructure to be complete and until it is it will not 
+        contribute to the production capacity of the goods sector.<p>
+
+        If an actor cannot complete the construction of new infrastructure due
+        to monetary constraints, it will remain in whatever unfinished state
+        it was until more money can be allocated to it.<p> 
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute n "Nbhood" {
+        The <<term nbhood>> in which infrastructure is to be built.
+    } -tags {update}
+
+    attribute num "Number of Plants" {
+        The number of new plants to build.
+    }
+
+    attribute mode "Mode" {
+        The spending mode.  This constrains how much money could possibly
+        be spent when the tactic executes.  Note that the total cost
+        of construction in a given tick is the smaller of the cost to
+        perform one weeks worth of construction or the constraining
+        amount of money.<p>
+
+        <b>ALL</b>: Construction cost is constrained only by the total amount of
+        cash-on-hand.<p>
+
+        <b>EXACT</b>: Construction cost is constrained by an exact amount of
+        cash-on-hand.  If cash-on-hand is less than this amount, then that
+        amount constrains the cost.<p>
+
+        <b>PERCENT</b>: Construction cost is constrained by some percentage of
+        cash-on-hand.<p>
+    } -tags {update}
+
+    attribute amount "Amount" {
+        If mode is EXACT, the amount of cash-on-hand the cost is constrained 
+        by.<p>
+    } -tags {update}
+
+    attribute percent "Percentage" {
+        If mode is PERCENT, the percentage of cash-on-hand the cost is 
+        constrained by.<p>
+    } -tags {update}
+}
+
+page /object/tactic build "BUILD tactic" {
+    <<sotitle>>
+
+    <<tactic_build overview>><p>
+
+    BUILD tactics have the following attributes:<p>
+
+    <<tactic_build parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # CURSE Tactic
 object tactic_curse {
     noun "CURSE tactic"

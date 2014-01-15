@@ -78,6 +78,16 @@ order TACTIC:BROADCAST "Tactic: Broadcast an IOM" {
     <</parmlist>>
 }
 
+order TACTIC:BUILD "Tactic: Build Infrastructure" {
+    <b><<term prep>> Only.</b>  
+    Updates an existing <<cref /object/tactic/build>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_build parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:CURSE "Tactic: CURSE" {
     <b><<term prep>> Only.</b>  
     Updates and existing <<cref /object/tactic/curse>>.<p>
