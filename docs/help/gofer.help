@@ -2016,7 +2016,7 @@ gofer_rule NUMBER COVERAGE "coverage(g,activity,n)" {
 }
 
 gofer_rule NUMBER GDP "gdp()" {
-    Returns the deflated Gross Domestic Product of the regional economy in
+    Returns the Gross Domestic Product of the regional economy in
     base-year dollars.<p>
 
     <<itemlist>>

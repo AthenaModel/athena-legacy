@@ -74,7 +74,7 @@ gofer define NUMBER "" {
 
         case GDP "gdp()" {
             rc
-            rc "The value of the deflated Gross Domestic Product of the regional economy in
+            rc "The value of the Gross Domestic Product of the regional economy in
     base-year dollars."
             rc
        }

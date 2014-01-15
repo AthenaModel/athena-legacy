@@ -127,7 +127,7 @@ function "coverage(g,activity,n)" {
 # gdp
 
 function "gdp()" {
-    Returns the deflated Gross Domestic Product of the regional economy in
+    Returns the Gross Domestic Product of the regional economy in
     base-year dollars.<p>
 
     Returns 0.00 when the scenario is unlocked.<p>
