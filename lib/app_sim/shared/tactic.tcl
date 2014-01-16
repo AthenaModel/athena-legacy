@@ -119,14 +119,22 @@ oo::objdefine tactic {
         return $types
     }
 
-    # typenames
+    # typenames ?agent_type?
     #
-    # Returns a list of the names of the available types.
+    # Returns a list of the names of the available types.  If 
+    # agent_typeis given, it's limited to tactics available for
+    # that type.
 
-    method typenames {} {
+    method typenames {{agent_type ""}} {
         set result [list]
 
         foreach type [my types] {
+            if {$agent_type ne ""} {
+                if {$agent_type ni [$type atypes]} {
+                    continue
+                }
+            }
+            
             lappend result [$type typename]
         }
 

@@ -1714,7 +1714,7 @@ snit::widget strategybrowser {
             cond::predicate control \
                 [menuitem $mnu command [$ttype title] \
                     -command [mymethod TTabAdd [$ttype typename]]] \
-                browser $self predicate [list agentTypeIn [$ttype atypes]]
+                browser $self predicate [list usableByAgent [$ttype typename]]
         }
     }
 
@@ -1909,19 +1909,19 @@ snit::widget strategybrowser {
         expr {[llength [$ttab curselection]] > 0}
     }
 
-    # agentTypeIn atypes
+    # usableByAgent typename
     #
-    # atypes - A list of agent types
+    # typename  - A tactic type name
     #
-    # Returns 1 if the current agent's type is in the list, and
-    # 0 otherwise.
+    # Returns 1 if the named tactic type can be used by the current
+    # agent, and 0 otherwise.
 
-    method agentTypeIn {atypes} {
+    method usableByAgent {typename} {
         if {$info(agent) eq ""} {
             return 0
         }
 
-        expr {[agent type $info(agent)] in $atypes}
+        expr {$typename in [agent tactictypes $info(agent)]}
     }
 
     #-------------------------------------------------------------------

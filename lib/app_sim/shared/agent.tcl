@@ -125,6 +125,32 @@ snit::type agent {
 
         return $result
     }
+
+    # tactictypes agent_id
+    #
+    # Returns a list of the names of the tactic types that are valid for this 
+    # agent.
+
+    typemethod tactictypes {agent_id} {
+        # FIRST, get the tactic types that are valid for the agent type.
+        set result [list]
+        set atype [agent type $agent_id]
+
+        foreach name [tactic typenames $atype] {
+            # FIRST, skip special cases.
+            if {$name  eq "MAINTAIN"                && 
+                $atype eq "actor"                   &&
+                [actor get $agent_id auto_maintain]
+            } {
+                continue
+            }
+
+            # NEXT, the name is valid.
+            lappend result $name
+        } 
+
+        return $result
+    }
 }
 
 
