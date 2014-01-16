@@ -55,10 +55,13 @@ appserver module PARMDB {
         dict set result /parmdb?subset=changed label "Changed"
         dict set result /parmdb?subset=changed listIcon ::marsgui::icon::pencil12
 
+        # TBD: parmset(n) doesn't have queries for the tree structure of 
+        # parm names (alas); we really should be grabbing this automatically. 
         foreach subset {
             sim
             aam
             activity
+            app
             attitude
             control
             dam
@@ -67,10 +70,11 @@ appserver module PARMDB {
             ensit
             force
             hist
-            uram
+            plant
             rmf
             service
             strategy
+            uram
         } {
             set url /parmdb?pattern=$subset.*
 
