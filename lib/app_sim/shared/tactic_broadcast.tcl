@@ -43,20 +43,16 @@ tactic define BROADCAST "Broadcast an Info Ops Message" {actor} -onlock {
         set pending [list]
     }
 
-    # broadcast cap owner a iom cost
+    # broadcast tactic
     #
-    # cap   - CAP from which the broadcast is made
-    # owner - The actor sending the broadcast
-    # a     - The actor attributed to the broadcast
-    # iom   - The message being broadcast
-    # cost  - The cost of the broadcast, this may get refunded if for some
-    #         reason the owning actor no longer has access to the CAP
+    # tactic   - A BROADCAST tactic object
     #
-    # Saves the pending broadcast until later
+    # Marks this tactic for attempted broadcast at the end of 
+    # strategy execution.
 
-    typemethod broadcast {cap owner a iom cost} {
+    typemethod broadcast {tactic} {
         my variable pending
-        lappend pending $cap $owner $a $iom $cost
+        lappend pending $tactic
     }
 
     # assess
@@ -71,62 +67,15 @@ tactic define BROADCAST "Broadcast an Info Ops Message" {actor} -onlock {
         my variable pending
 
         # FIRST, assess each of the pending broadcasts
-        foreach {cap owner a iom fullcost} $pending {
-            # FIRST, does the owner have access to the CAP?
-            # If not, refund his money; we're through here.
-            if {![cap hasaccess $cap $owner]} {
-                cash refund $owner BROADCAST $fullcost 
-
-                # NEXT, log the event
-                sigevent log 2 tactic "
-                    BROADCAST: Actor {actor:$owner} failed to broadcast
-                    IOM {iom:$iom} via CAP {cap:$cap}: access denied. 
-                " $owner $iom $cap
-
-                continue
-            }
-            
-            # NEXT, Get the entity tags, for when we log the sigevent.
-            set tags [list $owner $iom $cap]
-
-            if {$a eq "SELF"} {
-                set attribution ", attributing it to self"
-                set asource $owner
-            } elseif {$a eq "NONE"} {
-                set attribution " without attribution"
-                set asource ""
-            } else {
-                set attribution ", attributing it to $a"
-                set asource $a
-                lappend tags $a
-            }
-
-            lappend tags \
-                [rdb eval {SELECT hook_id FROM ioms WHERE iom_id=$iom}]
-            lappend tags {*}[rdb eval {
-                SELECT g,n FROM capcov 
-                WHERE k=$cap AND capcov > 0.0
-            }]
-
-            # NEXT, set up the dict needed by the IOM rule set.
-            set rdict [dict create]
-            dict set rdict tsource $owner
-            dict set rdict cap     $cap
-            dict set rdict iom     $iom
-            dict set rdict asource $asource
-
-            # NEXT, log the event
-            sigevent log 2 tactic "
-                BROADCAST: Actor {actor:$owner} broadcast
-                IOM {iom:$iom} via CAP {cap:$cap}$attribution. 
-            " {*}$tags
-
-            # NEXT, assess the broadcast.
-            driver::IOM assess $rdict
+        foreach tactic $pending {
+            $tactic assess
         }
+
 
         # NEXT, clear the list.
         my reset
+
+        return
     }
 
     #-------------------------------------------------------------------
@@ -231,15 +180,12 @@ tactic define BROADCAST "Broadcast an Info Ops Message" {actor} -onlock {
     }
 
     method ObligateResources {coffer} {
-        # has access to cap?
-        if {![cap hasaccess $cap [my agent]]} {
-            my Fail CAP "[my agent] has no access to CAP $cap."
-            return
-        }
+        # NOTE: We don't check for access to the CAP here; we check
+        # at the end of strategy execution, so that GRANT tactics
+        # can have their effect.
 
-        set cash [$coffer cash]
-        
         # Total cost is prep cost plus cost to use CAP
+        set cash [$coffer cash]
         set trans(cost) [expr {$cost + [cap get $cap cost]}]
 
         if {[my InsufficientCash $cash $trans(cost)]} {
@@ -255,7 +201,68 @@ tactic define BROADCAST "Broadcast an Info Ops Message" {actor} -onlock {
 
         # NEXT, Save the broadcast.  It can't take effect yet,
         # as CAP access might be changed by other tactics.
-        tactic::BROADCAST broadcast $cap [my agent] $a $iom $trans(cost)
+        tactic::BROADCAST broadcast [self]
+    }
+
+    # assess
+    #
+    # This is called at the end of tactic execution, to assess the
+    # effects of the attempted broadcast.
+
+    method assess {} {
+        # FIRST, does the owner have access to the CAP?
+        # If not, refund his money; we're through here.
+        if {![cap hasaccess $cap [my agent]]} {
+            my set execstatus FAIL_RESOURCES
+            my Fail CAP "Failed during execution: [my agent] has no access to CAP $cap."
+            cash refund [my agent] BROADCAST $trans(cost) 
+
+            # NEXT, log the event
+            sigevent log 2 tactic "
+                BROADCAST: Actor {actor:[my agent]} failed to broadcast
+                IOM {iom:$iom} via CAP {cap:$cap}: access denied. 
+            " [my agent] $iom $cap
+
+            return
+        }
+        
+        # NEXT, Get the entity tags, for when we log the sigevent.
+        set tags [list [my agent] $iom $cap]
+
+        if {$a eq "SELF"} {
+            set attribution ", attributing it to self"
+            set asource [my agent]
+        } elseif {$a eq "NONE"} {
+            set attribution " without attribution"
+            set asource ""
+        } else {
+            set attribution ", attributing it to $a"
+            set asource $a
+            lappend tags $a
+        }
+
+        lappend tags \
+            [rdb eval {SELECT hook_id FROM ioms WHERE iom_id=$iom}]
+        lappend tags {*}[rdb eval {
+            SELECT g,n FROM capcov 
+            WHERE k=$cap AND capcov > 0.0
+        }]
+
+        # NEXT, set up the dict needed by the IOM rule set.
+        set rdict [dict create]
+        dict set rdict tsource [my agent]
+        dict set rdict cap     $cap
+        dict set rdict iom     $iom
+        dict set rdict asource $asource
+
+        # NEXT, log the event
+        sigevent log 2 tactic "
+            BROADCAST: Actor {actor:[my agent]} broadcast
+            IOM {iom:$iom} via CAP {cap:$cap}$attribution. 
+        " {*}$tags
+
+        # NEXT, assess the broadcast.
+        driver::IOM assess $rdict
     }
 }
 

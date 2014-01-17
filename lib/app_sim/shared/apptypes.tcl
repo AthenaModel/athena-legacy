@@ -78,10 +78,16 @@ enumx create eexecstatus {
 #
 # These are used to flag what kind of resource failure the tactic 
 # had.
+#
+# NOTE: Resource failures that occur during obligation (i.e., during
+# the actor's planning) should be colored red; resource failures that 
+# occur during execution (after decisions can no longer be altered)
+# should be colored purple.
+
 enumx create eresource {
     CASH        {text Cash       icon ::projectgui::icon::dollar13r    }
     PERSONNEL   {text Personnel  icon ::projectgui::icon::personnel13r }
-    CAP         {text CAP        icon ::projectgui::icon::cap13r       }
+    CAP         {text CAP        icon ::projectgui::icon::cap13p       }
     OTHER       {text Other      icon ::projectgui::icon::other13r     }
     WARNING     {text Warning    icon ::projectgui::icon::warning13r   }
     ERROR       {text Error      icon ::projectgui::icon::error13r     }

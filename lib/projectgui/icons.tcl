@@ -549,7 +549,7 @@ namespace eval ::projectgui::icon:: {
     } { . trans X red }
 
 
-    mkicon ::projectgui::icon::cap13r {
+    mkicon ::projectgui::icon::cap13p {
         ..X.xx.X..
         .X.xxxx.X.
         .X.xxxx.X.
@@ -563,7 +563,7 @@ namespace eval ::projectgui::icon:: {
         ....xx....
         ....xx....
         ..........
-    } { . trans X red x "#AA0000"}
+    } { . trans X "#BA29C4" x "#BA29C4"}
 
     mkicon ::marsgui::icon::other13r {
         ...XXXXXX...
