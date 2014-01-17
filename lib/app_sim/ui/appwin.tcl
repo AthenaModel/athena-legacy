@@ -1437,7 +1437,7 @@ snit::widget appwin {
 
             # NEXT, if it's one of the optional tabs, set its visibility
             # flags.
-            if {$vistype in {orders bookmarks log}} {
+            if {$vistype in [array names visibility]} {
                 set visibility($vistype) 1
                 $self MakeTabsVisible
             }
@@ -2202,10 +2202,11 @@ snit::widget appwin {
     method error {text} {
         set text [uplevel 1 [list tsubst $text]]
 
-        messagebox popup   \
-            -message $text \
-            -icon    error \
-            -parent  $win
+        messagebox popup      \
+            -message    $text \
+            -icon       error \
+            -wraplength ""    \
+            -parent     $win
     }
 
     # puts text
