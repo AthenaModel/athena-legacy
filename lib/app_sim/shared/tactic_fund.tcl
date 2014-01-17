@@ -71,24 +71,24 @@ tactic define FUND "Fund Another Actor" {actor} {
         switch -exact -- $mode {
             ALL {
                 return \
-                    "Fund actor $s(a) with all remaining cash-on-hand every week."
+                    "Fund actor $s(a) with all remaining cash-on-hand each week."
             }
 
             EXACT {
-                return "Fund actor $s(a) with $s(amount)/week."
+                return "Fund actor $s(a) with $s(amount) each week."
             }
 
             UPTO {
-                return "Fund actor $s(a) with up to $s(amount)/week."
+                return "Fund actor $s(a) with up to $s(amount) each week."
             }
 
             PERCENT {
-                return "Fund actor $s(a) with $s(percent) of cash-on-hand per week."
+                return "Fund actor $s(a) with $s(percent) of cash-on-hand each week."
             }
 
             EXCESS {
                 return \
-                    "Fund actor $s(a) with any cash-on-hand over $s(amount) per week."
+                    "Fund actor $s(a) with any cash-on-hand over $s(amount) each week."
             }
 
             default {

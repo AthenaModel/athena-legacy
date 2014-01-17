@@ -100,7 +100,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Fund actor ??? with all remaining cash-on-hand every week.}
+    } -result {Fund actor ??? with all remaining cash-on-hand each week.}
 
     test narrative-1.2 {mode EXACT} -setup {
         setup -valid
@@ -109,7 +109,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Fund actor {actor:BOB} with $1,000/week.}
+    } -result {Fund actor {actor:BOB} with $1,000 each week.}
 
     test narrative-1.3 {mode UPTO} -setup {
         setup -valid
@@ -118,7 +118,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Fund actor {actor:BOB} with up to $1,000/week.}
+    } -result {Fund actor {actor:BOB} with up to $1,000 each week.}
 
     test narrative-1.4 {mode PERCENT} -setup {
         setup -valid
@@ -127,7 +127,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Fund actor {actor:BOB} with 50.0% of cash-on-hand per week.}
+    } -result {Fund actor {actor:BOB} with 50.0% of cash-on-hand each week.}
 
     test narrative-1.5 {mode EXCESS} -setup {
         setup -valid
@@ -136,7 +136,7 @@ namespace eval ::athena_test::tests:: {
         $T1 narrative
     } -cleanup {
         cleanup
-    } -result {Fund actor {actor:BOB} with any cash-on-hand over $1,000 per week.}
+    } -result {Fund actor {actor:BOB} with any cash-on-hand over $1,000 each week.}
 
     #-------------------------------------------------------------------
     # check
