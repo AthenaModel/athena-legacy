@@ -300,6 +300,7 @@ snit::widget ::projectgui::myhtmlpane {
         # html viewer; there's nothing else to do.
         if {$page eq "" && $anchor eq ""} {
             $hv set ""
+            set info(page) ""
             return
         }
 
