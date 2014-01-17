@@ -1726,6 +1726,11 @@ snit::type executive {
 
         set optargs [lrange $args 0 end-1]
         set filename [lindex $args end]
+
+        if {[file extension $filename] ne ".tcl"} {
+            append filename ".tcl"
+        }
+
         set fullname [file join [pwd] $filename]
 
         while {[llength $optargs] > 0} {

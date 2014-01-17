@@ -1660,6 +1660,12 @@ snit::widget appwin {
             return 0
         }
 
+        # NEXT, add a ".tcl" if they didn't.
+        if {[file extension $filename] ne ".tcl"} {
+            append filename ".tcl"
+        }
+
+
         # NEXT, Save the scenario using this name
         exporter fromdata $filename
         app puts "Exported scenario from current data as $filename."
