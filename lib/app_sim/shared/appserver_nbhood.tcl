@@ -86,7 +86,6 @@ appserver module NBHOOD {
                        local         AS "Local?",
                        urbanization  AS "Urbanization",
                        controller    AS "Controller",
-                       vtygain       AS "VtyGain",
                        pcf           AS "Prod. Capacity Factor"
                 FROM gui_nbhoods 
                 ORDER BY longlink
@@ -102,7 +101,6 @@ appserver module NBHOOD {
                        population    AS "Population",
                        mood0         AS "Mood at T0",
                        mood          AS "Mood Now",
-                       vtygain       AS "VtyGain",
                        volatility    AS "Vty",
                        pcf           AS "Prod. Capacity Factor"
                 FROM gui_nbhoods

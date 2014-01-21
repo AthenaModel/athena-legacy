@@ -71,13 +71,6 @@ object nbhood_ {
         simulation runs, control can shift from actor to actor.
     } -tags {create update multi}
 
-    attribute vtygain "Volatility Gain" {
-        <b>Obsolete.</b>  This dial has been removed from the software
-        (it was never used).  The application still allows it to be set, for
-        compatibility with existing scenarios.  It will be removed in 
-        Athena 6.
-    } -tags {create update multi}
-
     attribute pcf "Production Capacity Factor" {
         <b>TBD</b>
     } -tags {create update multi}

@@ -163,9 +163,6 @@ CREATE TABLE nbhoods (
                    ON DELETE SET NULL
                    DEFERRABLE INITIALLY DEFERRED, 
 
-    -- Volatility gain: rgain
-    vtygain        REAL DEFAULT 1.0,
-    
     -- Production capacity factor
     pcf            REAL DEFAULT 1.0,
 

@@ -212,7 +212,6 @@ snit::type nbhood {
     #    local          The nbhood's local flag
     #    urbanization   eurbanization level
     #    controller     Initial controller, or NONE
-    #    vtygain        Volatility gain (rgain)
     #    pcf            Production capacity factor
     #    refpoint       Reference point, map coordinates
     #    polygon        Boundary polygon, in map coordinates.
@@ -226,14 +225,13 @@ snit::type nbhood {
             # FIRST, Put the neighborhood in the database
             rdb eval {
                 INSERT INTO nbhoods(n,longname,local,urbanization,
-                                    controller,vtygain,pcf,refpoint,
+                                    controller,pcf,refpoint,
                                     polygon)
                 VALUES($n,
                        $longname,
                        $local,
                        $urbanization,
                        nullif($controller,'NONE'),
-                       $vtygain,
                        $pcf,
                        $refpoint,
                        $polygon);
@@ -402,7 +400,6 @@ snit::type nbhood {
     #    local          A new local flag, or ""
     #    urbanization   A new eurbanization level, or ""
     #    controller     A new controller, or ""
-    #    vtygain        A new volatility gain, or ""
     #    pcf            A new production capacity factor, or ""
     #    refpoint       A new reference point, or ""
     #    polygon        A new polygon, or ""
@@ -434,7 +431,6 @@ snit::type nbhood {
                     controller   = CASE WHEN $controller = '' THEN controller
                                         WHEN $controller = 'NONE' THEN null
                                         ELSE $controller END,
-                    vtygain      = nonempty($vtygain,      vtygain),
                     pcf          = nonempty($pcf,          pcf),
                     refpoint     = nonempty($refpoint,     refpoint),
                     polygon      = nonempty($polygon,      polygon)
@@ -481,9 +477,6 @@ order define NBHOOD:CREATE {
         rcc "Controller:" -for controller
         enum controller -listcmd {ptype a+none names} -defvalue NONE
 
-        rcc "Volatility Gain:" -for vtygain
-        text vtygain -defvalue 1.0
-
         rcc "Prod. Capacity Factor:" -for pcf
         text pcf -defvalue 1.0
 
@@ -503,7 +496,6 @@ order define NBHOOD:CREATE {
     prepare local         -toupper            -required -type boolean
     prepare urbanization  -toupper            -required -type eurbanization
     prepare controller    -toupper            -required -type {ptype a+none}
-    prepare vtygain       -num                -required -type rgain
     prepare pcf           -num                -required -type rnonneg
     prepare refpoint      -toupper            -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
@@ -672,9 +664,6 @@ order define NBHOOD:UPDATE {
         rcc "Controller:" -for controller
         enum controller -listcmd {ptype a+none names}
 
-        rcc "Volatility Gain:" -for vtygain
-        text vtygain
-
         rcc "Prod. Capacity Factor:" -for pcf
         text pcf
 
@@ -694,7 +683,6 @@ order define NBHOOD:UPDATE {
     prepare local        -toupper             -type boolean
     prepare urbanization -toupper             -type eurbanization
     prepare controller   -toupper             -type {ptype a+none}
-    prepare vtygain      -num                 -type rgain
     prepare pcf          -num                 -type rnonneg
     prepare refpoint     -toupper             -type refpoint
     prepare polygon      -normalize -toupper  -type refpoly
@@ -783,9 +771,6 @@ order define NBHOOD:UPDATE:MULTI {
         rcc "Controller:" -for controller
         enum controller -listcmd {ptype a+none names}
 
-        rcc "Volatility Gain:" -for vtygain
-        text vtygain
-
         rcc "Prod. Capacity Factor:" -for pcf
         text pcf
     }
@@ -795,7 +780,6 @@ order define NBHOOD:UPDATE:MULTI {
     prepare local        -toupper           -type   boolean
     prepare urbanization -toupper           -type   eurbanization
     prepare controller   -toupper           -type   {ptype a+none}
-    prepare vtygain      -num               -type   rgain
     prepare pcf          -num               -type   rnonneg
 
     returnOnError -final

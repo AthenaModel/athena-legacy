@@ -2,9 +2,9 @@
 # Exporting  @ Fri Dec 06 07:46:04 PST 2013
 send NBHOOD:CREATE -n CITY -longname {Capital City} -refpoint C66D46 -polygon {B74D40 D32C24 D60E06 C26E52}
 send NBHOOD:CREATE -n EL -longname Elitia -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
-send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller NONE -vtygain { 1.0} -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
+send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller NONE -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
 send NBHOOD:CREATE -n PE -longname Peonia -urbanization RURAL -refpoint G21D98 -polygon {F17C28 F63D50 G31E58 H69E28 H57D10 G51C22}
-send NBHOOD:UPDATE -n EL -longname Elitia -local YES -urbanization RURAL -controller NONE -vtygain { 1.0} -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
+send NBHOOD:UPDATE -n EL -longname Elitia -local YES -urbanization RURAL -controller NONE -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
 send NBREL:UPDATE -id {EL CITY} -proximity NEAR
 send NBREL:UPDATE -id {CITY EL} -proximity FAR
 send NBREL:UPDATE -id {PE CITY} -proximity FAR
@@ -69,9 +69,9 @@ send CIVGROUP:UPDATE -g PEONU -longname {Urban Peons} -n CITY -color #AA7744 -sh
 send CIVGROUP:UPDATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000
 send CIVGROUP:UPDATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 600000
 send CIVGROUP:UPDATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 800000
-send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller GOV -vtygain { 1.0} -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
-send NBHOOD:UPDATE -n EL -longname Elitia -local YES -urbanization RURAL -controller GOV -vtygain { 1.0} -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
-send NBHOOD:UPDATE -n PE -longname Peonia -local YES -urbanization RURAL -controller GOV -vtygain { 1.0} -refpoint G21D98 -polygon {F17C28 F63D50 G31E58 H69E28 H57D10 G51C22}
+send NBHOOD:UPDATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller GOV -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
+send NBHOOD:UPDATE -n EL -longname Elitia -local YES -urbanization RURAL -controller GOV -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
+send NBHOOD:UPDATE -n PE -longname Peonia -local YES -urbanization RURAL -controller GOV -refpoint G21D98 -polygon {F17C28 F63D50 G31E58 H69E28 H57D10 G51C22}
 send CAP:CREATE -k CBS -longname {Corps Broadcasting System} -owner GOV -capacity 1.00 -cost 100 -nlist {CITY EL} -glist {ELR ELU}
 send CAP:CREATE -k FOX -longname {Fox Snooze} -owner PELF -capacity 0.90 -cost 20 -nlist {EL PE} -glist {ELR ELU PEONR PEONU}
 send BSYSTEM:TOPIC:CREATE -tid PAT -title Patriotism -affinity 0

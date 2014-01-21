@@ -628,7 +628,6 @@ tab "Neighborhoods/Neighborhoods" {
     <<nbhood_ parm local          -label "Local">>
     <<nbhood_ parm urbanization   -label "Urbanization">>
     <<nbhood_ parm controller     -label "Controller">>
-    <<nbhood_ parm vtygain        -label "VtyGain">>
     <<nbhood_ parm stacking_order -label "StkOrder">>
     <<nbhood_ parm obscured_by    -label "ObscuredBy">>
     <<nbhood_ parm refpoint       -label "RefPoint">>
@@ -837,17 +836,6 @@ tab "Neighborhoods/Security" {
     This number reflects the volatility gain.<p>
 
     Note that this number is constant across groups in a neighborhood.
-    <</topic>>
-
-    <<topic "VtyGain">>A multiplier that increases or decreases the
-    <<term volatility>> in the neighborhood.  This number is constant across
-    groups in a neighborhood, and can be edited during 
-    <<term prep>> using the <<cref /order/nbhood/update>> order.
-    <</topic>>
-
-    <<topic "NomVty">>The nominal volatility, i.e., the volatility
-    computed by the <<term security>> model before the volatility gain is
-    applied.
     <</topic>>
 
     <</topiclist>>

@@ -38,7 +38,6 @@ snit::widgetadaptor nbhoodbrowser {
         { local          "Local?"                                        }
         { urbanization   "Urbanization"                                  }
         { controller     "Controller"                     -foreground %D }
-        { vtygain        "VtyGain"           -sortmode real              }
         { pcf            "Prod. Cap. Factor" -sortmode real              }
         { stacking_order "StkOrd"            -sortmode integer \
                                                           -foreground %D } 
