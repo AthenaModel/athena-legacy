@@ -150,7 +150,7 @@ CREATE TABLE nbhoods (
     longname       TEXT,
 
     -- 1 if Local (e.g., part of the region of interest), 0 o.w.
-    local          INTEGER DEFAULT 1.0,
+    local          INTEGER DEFAULT 1,
 
     -- Stacking order: 1 is low, N is high
     stacking_order INTEGER,
@@ -290,6 +290,18 @@ SELECT g,
        CASE WHEN hist_flag
             THEN upc ELSE 0.0 END AS upc
 FROM groups JOIN civgroups USING (g);
+
+-- Local Civ Groups View: data needed by modules that only affect
+-- residents of "local" neighborhoods.
+CREATE VIEW local_civgroups AS
+SELECT G.g               AS g,
+       G.longname        AS longname,
+       G.basepop         AS basepop,
+       G.n               AS n,
+       N.urbanization    AS urbanization
+FROM civgroups_view AS G
+JOIN nbhoods AS N ON (N.n == G.n)
+WHERE N.local;
 
 -- Force Groups
 CREATE TABLE frcgroups (

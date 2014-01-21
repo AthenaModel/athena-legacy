@@ -416,6 +416,27 @@ upc         10.0
 
 
     #-------------------------------------------------------------------
+    # namedict
+
+    test namedict-1.1 {Returns namedict: none defined} -body {
+        civgroup namedict
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test namedict-1.2 {Returns namedict} -setup {
+        ted create SHIA SUNN
+    } -body {
+        ted pdicts [civgroup namedict]
+    } -cleanup {
+        cleanup
+    } -match dict -result {
+        SHIA Shia
+        SUNN Sunni
+    }
+
+
+    #-------------------------------------------------------------------
     # validate
 
     test validate-1.1 {Invalid name: none defined} -body {
@@ -443,6 +464,83 @@ upc         10.0
     } -cleanup {
         cleanup
     } -result {SUNN}
+
+    #-------------------------------------------------------------------
+    # local names
+
+    test local_names-1.1 {Returns local names: none defined} -body {
+        civgroup local names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test local_names-1.2 {Returns local names} -setup {
+        ted create SHIA SUNN KURD
+        rdb eval {
+            UPDATE nbhoods SET local=0 WHERE n='NB1'
+        }
+    } -body {
+        civgroup local names
+    } -cleanup {
+        cleanup
+    } -result {KURD}
+
+    #-------------------------------------------------------------------
+    # local namedict
+
+    test local_namedict-1.1 {Returns local namedict: none defined} -body {
+        civgroup local namedict
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test local_namedict-1.2 {Returns local namedict} -setup {
+        ted create SHIA SUNN KURD
+        rdb eval {
+            UPDATE nbhoods SET local=0 WHERE n='NB1'
+        }
+    } -body {
+        civgroup local namedict
+    } -cleanup {
+        cleanup
+    } -match dict -result {
+        KURD Kurd
+    }
+
+    #-------------------------------------------------------------------
+    # local validate
+
+    test local_validate-1.1 {Invalid name: none defined} -body {
+        civgroup local validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid local civilian group, none are defined}
+
+    test local_validate-1.2 {Invalid name: some defined} -setup {
+        ted create SHIA SUNN KURD
+        rdb eval {
+            UPDATE nbhoods SET local=0 WHERE n='NB1'
+        }
+    } -body {
+        civgroup local validate SHIA
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid local civilian group, should be one of: KURD}
+
+    test local_validate-2.1 {Valid name} -setup {
+        ted create SHIA SUNN KURD
+        rdb eval {
+            UPDATE nbhoods SET local=0 WHERE n='NB1'
+        }
+    } -body {
+        civgroup local validate KURD
+    } -cleanup {
+        cleanup
+    } -result {KURD}
 
     #-------------------------------------------------------------------
     # gInN

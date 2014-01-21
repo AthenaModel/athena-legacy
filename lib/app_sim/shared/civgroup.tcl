@@ -26,7 +26,7 @@ snit::type civgroup {
 
     # names
     #
-    # Returns the list of neighborhood names
+    # Returns the list of civgroup names
 
     typemethod names {} {
         return [rdb eval {
@@ -63,6 +63,51 @@ snit::type civgroup {
 
             return -code error -errorcode INVALID \
                 "Invalid civilian group, $msg"
+        }
+
+        return $g
+    }
+
+    # local names
+    #
+    # Returns the list of civgroup names for groups living
+    # in local neighborhoods.
+
+    typemethod {local names} {} {
+        return [rdb eval {
+            SELECT g FROM local_civgroups
+        }]
+    }
+
+
+    # local namedict
+    #
+    # Returns ID/longname dictionary for local civgroups.
+
+    typemethod {local namedict} {} {
+        return [rdb eval {
+            SELECT g, longname FROM local_civgroups ORDER BY g
+        }]
+    }
+
+    # local validate g
+    #
+    # g         Possibly, a local civilian group short name.
+    #
+    # Validates a local civgroup short name
+
+    typemethod {local validate} {g} {
+        if {![rdb exists {SELECT g FROM local_civgroups WHERE g=$g}]} {
+            set names [join [civgroup local names] ", "]
+
+            if {$names ne ""} {
+                set msg "should be one of: $names"
+            } else {
+                set msg "none are defined"
+            }
+
+            return -code error -errorcode INVALID \
+                "Invalid local civilian group, $msg"
         }
 
         return $g

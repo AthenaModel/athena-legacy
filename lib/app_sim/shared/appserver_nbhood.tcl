@@ -198,7 +198,8 @@ appserver module NBHOOD {
         
         # Non-local?
         if {!$data(local)} {
-            ht putln "$n is located outside of the main playbox."
+            ht putln "<b>$n is non-local, i.e., it is located outside of the main playbox.</b>"
+            ht para
         }
 
         # When not locked.
@@ -236,7 +237,12 @@ appserver module NBHOOD {
                 ht putif {$urb eq "Urban"} "an " "a "
                 ht put "$urb neighborhood with a population of "
                 ht put [commafmt $data(population)]
-                ht put ", [percent $labPct] of which are in the labor force and "
+                ht put ", "
+
+                if {$data(local)} {
+                    ht put "[percent $labPct] of which are in the labor force and "
+                } 
+
                 ht put "[percent $sagPct] of which are engaged in subsistence "
                 ht put "agriculture."
         
@@ -373,7 +379,15 @@ appserver module NBHOOD {
         # ENI Services
         ht subtitle "ENI Services" eni
 
-        if {$data(population) == 0} {
+        if {!$data(local)} {
+            ht putln {
+                This neighborhood is non-local, and is therefore outside
+                the local economy.  Groups residing in this neighborhood
+                neither require nor expect Essential Non-Infrastructure
+                Services.
+            }
+            ht para
+        } elseif {$data(population) == 0} {
             ht putln {
                 This neighborhood has no population to require
                 services.

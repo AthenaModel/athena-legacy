@@ -80,20 +80,18 @@ snit::type service {
         # NEXT, determine the correct database query based on state
         if {[sim state] eq "PREP"} {
             set rdbQuery "
-                SELECT G.g            AS g,
-                       N.urbanization AS urb,
-                       G.basepop      AS pop
-                FROM civgroups AS G
-                JOIN nbhoods   AS N ON (N.n == G.n)
+                SELECT g            AS g,
+                       urbanization AS urb,
+                       basepop      AS pop
+                FROM local_civgroups
             "
         } else {
             set rdbQuery "
-                SELECT G.g            AS g,
-                       N.urbanization AS urb,
-                       D.population   AS pop
-                FROM civgroups AS G
-                JOIN nbhoods   AS N ON (N.n == G.n)
-                JOIN demog_g   AS D ON (D.g == G.g)
+                SELECT g            AS g,
+                       urbanization AS urb,
+                       population   AS pop
+                FROM local_civgroups
+                JOIN demog_g USING (g)
             "
         }
 
@@ -128,13 +126,13 @@ snit::type service {
             -- Populate service_ga table
             INSERT INTO service_ga(g,a)
             SELECT C.g, A.a
-            FROM civgroups AS C
+            FROM local_civgroups AS C
             JOIN actors    AS A;
         }
 
         # NEXT, populate the service_g table
         rdb eval {
-            SELECT g FROM civgroups
+            SELECT g FROM local_civgroups
         } {
             rdb eval {
                 -- Populate service_g table
@@ -181,7 +179,7 @@ snit::type service {
         rdb eval { UPDATE service_ga SET credit = 0.0; }
 
         # NEXT, Prepare to compute the controlling actor's credit.
-        foreach g [civgroup names] {
+        foreach g [civgroup local names] {
             set controller($g) ""
             set conCredit($g)  0.0
         }
@@ -194,7 +192,7 @@ snit::type service {
                    SGA.funding           AS funding,
                    SG.saturation_funding AS saturation,
                    SG.funding            AS total
-            FROM civgroups AS C
+            FROM local_civgroups AS C
             JOIN control_n AS CN USING (n)
             JOIN service_ga AS SGA ON (SGA.g = C.g AND SGA.a = CN.controller)
             JOIN service_g  AS SG  USING (g);
@@ -252,7 +250,7 @@ snit::type service {
         rdb eval {
             DELETE FROM working_service_ga;
             INSERT INTO working_service_ga(g,a)
-            SELECT g, a FROM civgroups JOIN actors;
+            SELECT g, a FROM local_civgroups JOIN actors;
         }
     }
 
@@ -290,7 +288,7 @@ snit::type service {
     #
     # a        - An actor
     # amount   - ENI funding, in $/week
-    # glist    - List of groups to be funded.
+    # glist    - List of local groups to be funded.
     #
     # This routine is called by the FUNDENI tactic.  It allocates
     # the funding to the listed groups in proportion to their
@@ -393,12 +391,11 @@ snit::type service {
         foreach {g n urb pop Fg oldX} [rdb eval {
             SELECT G.g                AS g,
                    G.n                AS n,
-                   N.urbanization     AS urb,
+                   G.urbanization     AS urb,
                    D.population       AS pop,
                    total(SGA.funding) AS Fg,
                    SG.expected        AS oldX
-            FROM civgroups  AS G 
-            JOIN nbhoods    AS N   USING (n)
+            FROM local_civgroups AS G 
             JOIN demog_g    AS D   ON (D.g = G.g)
             JOIN service_ga AS SGA ON (SGA.g = G.g)
             JOIN service_g  AS SG  ON (SG.g = G.g)
@@ -487,10 +484,10 @@ snit::type service {
                    OLD.funding                   AS old,
                    NEW.funding                   AS new,
                    NEW.funding - OLD.funding     AS delta,
-                   civgroups.n                   AS n
+                   G.n                           AS n
             FROM service_ga AS OLD
             JOIN working_service_ga AS NEW USING (g,a)
-            JOIN civgroups ON (civgroups.g = OLD.g)
+            JOIN local_civgroups As g ON (G.g = OLD.g)
             WHERE abs(delta) >= 1.0
             ORDER BY delta DESC, a, g
         } {

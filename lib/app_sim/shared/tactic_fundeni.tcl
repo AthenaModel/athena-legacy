@@ -112,7 +112,7 @@ tactic define FUNDENI \
         # NEXT, filter out groups that do not provide enough direct support
         # to the tactic owner
         set list [gofer::CIVGROUPS eval $glist]
-        set trans(glist) [my groupsThatSupport [my agent] $list]
+        set trans(glist) [my groupsInSupportingNbhoods [my agent] $list]
 
         # NEXT, compute the upper limit of funding as a percentage of
         # saturation level of service for all groups
@@ -226,27 +226,31 @@ tactic define FUNDENI \
         " $owner {*}$trans(glist) {*}$nbhoods
     }
 
-    # groupsThatSupport  a glist
+    # groupsInSupportingNbhoods  a glist
     # 
     # a     - the agent that owns this tactic
     # glist - a list of civilian groups
     #
-    # This helper method filters out any groups in glist that are not
-    # providing enough direct support to the agent for the funding of
-    # ENI to take place. It may return an empty list.
+    # This helper method filters out any groups in glist that are
+    # in neighborhoods which are not providing enough direct support to the 
+    # agent for the funding of ENI to take place. 
+    #
+    # It also filters out groups in non-local neighborhoods.
+    #
+    # It may return an empty list.
 
-    method groupsThatSupport {a glist} {
+    method groupsInSupportingNbhoods {a glist} {
         # FIRST, make an "IN" clause
         set inClause "IN ('[join $glist ',']')"
 
-        # NEXT, get the list of groups that reside in neighborhoods in
+        # NEXT, get the list of groups that reside in local neighborhoods in
         # which the owner has positive direct support
 
         set minSupport [parm get service.ENI.minSupport]
 
         rdb eval "
             SELECT g 
-            FROM civgroups
+            FROM local_civgroups
             JOIN influence_na USING (n)
             WHERE a=\$a
             AND   direct_support >= $minSupport

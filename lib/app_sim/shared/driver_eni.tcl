@@ -103,10 +103,10 @@ driver type define ENI {g} {
         # NEXT, call the ENI rule set.
         rdb eval {
             SELECT g, actual, required, expected, expectf, needs, controller
-            FROM civgroups 
+            FROM local_civgroups 
             JOIN demog_g USING (g)
             JOIN service_g USING (g)
-            JOIN control_n ON (civgroups.n = control_n.n)
+            JOIN control_n ON (local_civgroups.n = control_n.n)
             WHERE demog_g.population > 0
             ORDER BY g
         } gdata {

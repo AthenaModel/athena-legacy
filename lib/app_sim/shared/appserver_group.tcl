@@ -359,6 +359,14 @@ appserver module GROUPS {
         ht put   " and has a population of [commafmt $population]."
         ht putln "The group's housing status is $data(housing)."
 
+        if {!$nb(local)} {
+            ht putln {
+                <b>This is a non-local neighborhood;
+                consequently this group does not participate in the
+                local economy.</b>
+            }
+        }
+
         ht putln "The group's demeanor is "
         ht put   [edemeanor longname $data(demeanor)].
 
@@ -369,7 +377,7 @@ appserver module GROUPS {
                     The group members support themselves by means of
                     subsistence agriculture.
                 }
-            } else {
+            } elseif {$nb(local)} {
                 let lf {double($data(labor_force))/$data(population)}
 
                 ht putln "[percent $lf] of the group is in the labor force"
@@ -385,19 +393,22 @@ appserver module GROUPS {
             ht putln "The population of the group is changing by "
             ht putln "$data(pop_cr)% per year."
 
-            ht putln "The group is receiving "
+            if {$nb(local)} {
+                ht putln "The group is receiving "
 
-            if {$eni(actual) < $eni(required)} {
-                ht put "less than the required level of "
-            } elseif {$eni(pct_actual) eq $eni(pct_expected)} {
-                ht put "about the expected amount of "
-            } elseif {$eni(actual) < $eni(expected)} {
-                ht put "less than the expected amount of "
-            } else {
-                ht put "more than the expected amount of "
+                if {$eni(actual) < $eni(required)} {
+                    ht put "less than the required level of "
+                } elseif {$eni(pct_actual) eq $eni(pct_expected)} {
+                    ht put "about the expected amount of "
+                } elseif {$eni(actual) < $eni(expected)} {
+                    ht put "less than the expected amount of "
+                } else {
+                    ht put "more than the expected amount of "
+                }
+
+                ht put "ENI services."
             }
 
-            ht put "ENI services."
 
             ht putln "$g's overall mood is [qsat format $data(mood)] "
             ht put   "([qsat longname $data(mood)])."
@@ -548,7 +559,14 @@ appserver module GROUPS {
 
        ht subtitle "ENI Services" eni
 
-       if {$population == 0} {
+       if {!$nb(local)} {
+            ht putln {
+                This group resides in a non-local neighborhood, and
+                consequently does not receive or require ENI services
+                from the actors in the scenario.
+            }
+            ht para
+        } elseif {$population == 0} {
             ht putln {
                 This information is not available for this group
                 at this time.

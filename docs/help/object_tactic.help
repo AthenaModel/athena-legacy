@@ -1174,7 +1174,8 @@ object tactic_fundeni {
 
     overview {
         This <<term tactic>> funds Essential Non-Infrastructure (ENI) 
-        services for one or more <<term civgroup>>s.  The <<term actor>>
+        services for one or more <<term civgroup>>s living in 
+        <<term local_economy "local">> neighborhoods.  The <<term actor>>
         may specify any amount of money, which will come out of the 
         actor's cash-on-hand.  If the cash is unavailable, the groups
         will not be funded.<p>
@@ -1233,7 +1234,20 @@ object tactic_fundeni {
 
     attribute glist "Groups"  {
         The IDs of one or more civilian groups, or
-        a <<cref /gofer/civgroups>> value.
+        a <<cref /gofer/civgroups>> value.<p>
+
+        The tactic will attempt to fund all groups returned by the 
+        selected gofer value.  However, the tactic will never fund
+        the following kinds of groups:<p>
+
+        <ul>
+            <li> Groups in non-local neighborhoods; these do not require 
+                 or expect ENI services.
+            <li> "Empty" groups, i.e., groups whose population is zero; 
+                 there is no one to serve.
+            <li> Groups in neighborhoods which lack a minimal level of
+                 support for the funding actor.
+        </ul>
     } -tags {update}
 
     attribute amount "Amount" {
