@@ -11,6 +11,52 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.9, 22 January 2014</h3>
+This build contains fixes to existing Mark II tactics and implementation of
+some new ones: ATTRIT and BUILD.  There are also some new gofer(n) NUMBER 
+types and some cleanup of the GUI.  Many bug fixes in other areas, too.<p>
+
+<ul>
+<li> Bug 4270: repair level of zero causes bgerror
+<li> Bug 4283: athena(1): move manufacturing infrastructure detail browser pages into their own category
+<li> Bug 4284: athena(1): Actors should optionally have maintenance free infrastructure.
+<li> Bug 4287: TACTIC:MAINTAIN help page inconsistencies
+<li> Bug 4288: Manufacturing Infrastructure table on my://app/nbhood/<nbhood>
+<li> Bug 4289: Infrastructure should add up to QD.goods on calibrated view
+<li> Bug 4295: athena(1): implement ATTRIT tactic to replace ATTRIT:NBHOOD and ATTRIT:GROUP
+<li> Bug 4305: athena(1): Implement Mark II BUILD tactic
+<li> Bug 4286: athena(1): gofer::NUMBER ASSIGNED rule needs modified.
+<li> Bug 4292: athena(1): gofer::NUMBER COVERAGE rule needs modified.
+<li> Bug 4293: athena(1): Need to implement gofer::NUMBER 'HREL' rule & executive function.
+<li> Bug 4298: athena(1): Need to implement gofer::NUMBER 'VREL' rule & executive function.
+<li> Bug 4299: athena(1): Need to fix the help page description for various exec. functions and gofer::NUMBER rules.
+<li> Bug 4300: security g executive function returns 0
+<li> Bug 4301: athena(1): Need to implement gofer::NUMBER 'gdp' rule & modify executive function.
+<li> Bug 4308: athena(1): Need to modify gofer::NUMBER 'GDP' description.
+<li> Bug 4107: athena(1): Remove volatility gain
+<li> Bug 4123: athena(1): ENI in non-local neighborhoods
+<li> Bug 4159: athena(1): Scrolling log disappears on bgerror
+<li> Bug 4161: Strategy block causes error in detail browser
+<li> Bug 4210: athena(1): Trace in strategy browser "new tab" menu
+<li> Bug 4228: Update Strategy does not get undone
+<li> Bug 4246: tactics can be added
+<li> Bug 4254: GRANT tactic executes but actor cannot BROADCAST
+<li> Bug 4255: FUND tactic narrative strings
+<li> Bug 4257: athena(1): Scrub block overview HTML
+<li> Bug 4264: Copy and Paste from actor to system agent
+<li> Bug 4265: Strategy Overview subtab displays information when no tactic is selected
+<li> Bug 4275: athena(1): File/Export Scenario As... item doesn't add ".tcl" extension to file name
+<li> Bug 4281: athena(1): New parmdb(5) parameters not included in the detail browser's treectrl.
+<li> Bug 4285: athena(1): Detail Browser pages for Strategies
+<li> Bug 4290: athena(1): MAINTAIN tactic should appear disabled in drop down menu in some cases
+<li> Bug 4291: athena(1): Strategies should not be modifiable after lock.
+<li> Bug 4294: Previous snapshot in opened scenario causes bgerror
+<li> Bug 4302: bean(n): beans are saved in beans table
+<li> Bug 4303: athena(1): Remove Plots tab
+<li> Bug 4304: athena(1): Add sanity check button to Strategy browser
+<li> Bug 4306: athena(1): Remove "snapshot" buttons and related infrastructure 
+</ul><p>
+
 <h3>Build 6.0.8, 12 December 2013</h3>
 
 This build contains some significant changes to how the MAINTAIN tactic
