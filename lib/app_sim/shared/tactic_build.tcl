@@ -18,12 +18,11 @@ tactic define BUILD "Build Infrastructure" {actor} {
     #-------------------------------------------------------------------
     # Instance Variables
 
-    variable mode    ;# Spending mode: ALL, EXACT or PERCENT
+    variable mode    ;# Spending mode: CASH or EFFORT
     variable num     ;# Number of plants to build
     variable amount  ;# Amount of money to spend depending on mode
     variable percent ;# Percent of money to spend if mode is PERCENT
     variable n       ;# Nbhood in which to build plants
-    variable bid     ;# Build ID, used internally
     variable done    ;# A flag indicating the build is complete
 
     # Transient Data
@@ -37,12 +36,11 @@ tactic define BUILD "Build Infrastructure" {actor} {
         next
 
         # Initialize state variables
-        set mode    ALL
+        set mode    CASH
         set amount  0
         set num     1
         set percent 0
         set n       {}  
-        set bid     0
         set done    0
 
         my set state invalid
@@ -64,8 +62,8 @@ tactic define BUILD "Build Infrastructure" {actor} {
             dict set errdict n "No such neighborhood: \"$n\"."
         }
 
-        # Non-zero number of plants
-        if {$num == 0} {
+        # Non-zero work-weeks if mode is effort
+        if {$mode eq "EFFORT" && $num == 0} {
             dict set errdict num "Must specify > 0 plants to build."
         }
 
@@ -79,18 +77,14 @@ tactic define BUILD "Build Infrastructure" {actor} {
         set s(num)     [expr {$num == 1 ? "1 plant" : "$num plants"}]
 
         switch -exact -- $mode {
-            ALL {
+            EFFORT {
                 return \
-                  "Build $s(num) in $s(n) using up to remaining cash-on-hand each week."
+                  "Use up to all remaining cash-on-hand each week to fund $num work-weeks each week in $s(n)."
             }
 
-            EXACT {
-                return "Build $s(num) in $s(n) using at most $s(amount)/week."
-            }
-
-            PERCENT {
+            CASH {
                 return \
-                    "Build $s(num) in $s(n) using at most $s(percent) of cash-on-hand per week."
+                    "Use at most $s(amount)/week to build infrastructure in $s(n)."
             }
 
             default {
@@ -107,37 +101,28 @@ tactic define BUILD "Build Infrastructure" {actor} {
     # Obligates the money to be spent.
 
     method ObligateResources {coffer} {
-        # FIRST, if building is complete no cost
-        if {$done} {
-            return 1
+        set cash [$coffer cash]
+        if {$cash == 0.0} {
+            my Fail CASH "Need money to build, have none."
+            return 0
         }
 
-        set cash [$coffer cash]
-
-        set cost [plant buildcost $num $bid]
+        set owner [my agent]
         set spend 0.0
 
         switch -exact -- $mode {
-            ALL {
+            EFFORT {
+                set cost [plant buildcost $n $owner $num]
                 let spend {min($cost, $cash)}
             }
 
-            EXACT {
-                let spend {min($cost, $amount)}
-            }
-
-            PERCENT {
-                let spend {min($cost, $cash * ($percent/100.0))}
+            CASH {
+                let spend {min($amount, $cash)}
             }
 
             default {
                 error "Invalid mode: \"$mode\"."
             }
-        }
-
-        if {$cost > 0.0 && $cash == 0.0} {
-            my Fail CASH "Need \$[moneyfmt $cost] to build, have none."
-            return 0
         }
 
         $coffer spend $spend
@@ -148,37 +133,28 @@ tactic define BUILD "Build Infrastructure" {actor} {
     }
  
     method execute {} {
-        # FIRST, if building is complete nothing to do
-        if {$done} {
-            return 1
-        }
-
         set owner [my agent]
 
         cash spend $owner BUILD $trans(amount)
 
-        if {$bid == 0} {
-            set bid [plant startbuild $n $owner $num]
-        }
+        lassign [plant build $n $owner $trans(amount)] old new
 
-        if {[plant endbuildtime $bid] == [simclock now]} {
-            sigevent log 2 tactic "
-                BUILD: Actor {actor:$owner} has finished building
-                $num infrastructure plant(s) in $n.
-            " $owner $n
-
-            set done 1
-
-        } else { 
-
+        if {$mode eq "EFFORT"} {
             sigevent log 2 tactic "
                 BUILD: Actor {actor:$owner} spends
-                \$[moneyfmt $trans(amount)] to construct $num
-                infrastructure plant(s) in $n.
+                \$[moneyfmt $trans(amount)] in an effort to 
+                construct $num infrastructure plant(s) in $n. 
+                $old plant(s) were worked on, $new plant(s) started.
             " $owner $n
-    
-            plant build $bid $trans(amount)
+        } elseif {$mode eq "CASH"} {
+            sigevent log 2 tactic "
+                BUILD: Actor {actor:$owner} spends
+                \$[moneyfmt $trans(amount)] in an effort to 
+                construct as much infrastructure plant(s) in $n as possible. 
+                $old plant(s) were worked on, $new plant(s) started.
+            " $owner $n
         }
+    
     }
 }
 
@@ -201,23 +177,18 @@ order define TACTIC:BUILD {
         rcc "Nbhood:" -for n 
         nbhood n
 
-        rcc "Number of Plants:" -for num
-        text num -defvalue 1
-
-        rcc "Mode:" -for mode
+        rcc "Construction Mode:" -for mode
         selector mode {
-            case ALL "Use up to as much cash-on-hand as possible" {}
-
-            case EXACT "Use no more than an exact amount of cash-on-hand" {
-                rcc "Amount:" -for amount
-                text amount
-                label "dollars"
+            case EFFORT "Use as much cash-on-hand it takes to work up to" {
+                rcc "Number:" -for num
+                text num 
+                label "work weeks each week."
             }
 
-            case PERCENT "Use no more than a percentage of cash-on-hand" {
-               rcc "Percentage:" -for percent
-               text percent
-               label "%"
+            case CASH "Use up to this amount of cash-on-hand" {
+               rcc "Amount:" -for amount
+               text amount
+               label "dollars"
             }
         }
     }

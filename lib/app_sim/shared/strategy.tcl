@@ -142,6 +142,7 @@ oo::objdefine strategy {
         profile 1 cash load
         profile 1 personnel load
         profile 1 service load
+        profile 1 plant load
         profile 1 cap access load
 
         # TBD: Replace these as appropriate as the tactic types are defined.
@@ -170,6 +171,7 @@ oo::objdefine strategy {
         profile 1 personnel save
         profile 1 tactic::FLOW save
         profile 1 service save
+        profile 1 plant save
         profile 1 cap access save
 
         # NEXT, determine the actual stance of each group based on the

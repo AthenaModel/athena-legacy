@@ -151,6 +151,26 @@ CREATE TEMPORARY TABLE working_service_ga (
 
 
 --------------------------------------------------------------------
+-- Temporary Infrastructure Tables
+
+-- Working Construction table for Infrastructure: tracks the progress
+-- of construction as BUILD tactics execute by nbhood and actor
+
+CREATE TEMPORARY TABLE working_build (
+    -- Nbhood ID
+    n         TEXT,
+    
+    -- Actor ID
+    a         TEXT,
+
+    -- List of pairs (current, delta)
+    -- Each pair tracks construction level of one infrastructure plant
+    progress  TEXT,
+
+    PRIMARY KEY (n, a)
+);
+
+--------------------------------------------------------------------
 -- Temporary Attrition Tables
 
 

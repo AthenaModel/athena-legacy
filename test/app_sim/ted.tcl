@@ -78,6 +78,7 @@ snit::type ted {
         stance_nfg
         units
         vrel_ga
+        working_build
         working_cash
         working_personnel
         working_deployment

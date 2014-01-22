@@ -76,20 +76,10 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        mode {invalid value "NONESUCH", should be one of: ALL, EXACT, PERCENT}
+        mode {invalid value "NONESUCH", should be one of: EFFORT, CASH}
     }
 
-    test TACTIC:BUILD-1.4 {percent is non-numeric} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:BUILD tactic_id [$T1 id] percent NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        percent {invalid value "NONESUCH", expected double}
-    }
-
-    test TACTIC:BUILD-1.5 {amount is non-numeric} -setup {
+    test TACTIC:BUILD-1.4 {amount is non-numeric} -setup {
         setup
     } -body {
         ted order -reject TACTIC:BUILD tactic_id [$T1 id] amount NONESUCH
@@ -99,7 +89,7 @@ namespace eval ::athena_test::tests:: {
         amount {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test TACTIC:BUILD-1.6 {amount is negative} -setup {
+    test TACTIC:BUILD-1.5 {amount is negative} -setup {
         setup
     } -body {
         ted order -reject TACTIC:BUILD tactic_id [$T1 id] amount -1
@@ -107,27 +97,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         amount {invalid money value "-1", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-    test TACTIC:BUILD-1.7 {percent is negative} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:BUILD tactic_id [$T1 id] percent -1
-    } -cleanup {
-        cleanup
-    } -result {
-        percent {invalid value "-1", expected double in range 0.0, 100.0}
-    }
-
-    test TACTIC:BUILD-1.8 {mode requires percent, no percent} -setup {
-        setup
-    } -body {
-        ted order -reject TACTIC:BUILD \
-            tactic_id [$T1 id] mode PERCENT percent 0.0
-    } -cleanup {
-        cleanup
-    } -result {
-        percent {You must specify a percentage of cash > 0.0}
     }
 
     test TACTIC:BUILD-2.1 {tactic is created} -setup {
@@ -139,12 +108,11 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match dictglob -result {
         amount     0
-        bid        0
         done       0
         execstatus NONE
         faildict   {}
         id         *
-        mode       ALL
+        mode       CASH
         n          NB1
         num        1
         parent     ::bean::block*
@@ -152,49 +120,25 @@ namespace eval ::athena_test::tests:: {
         state      normal
     }
 
-    test TACTIC:BUILD-2.2 {tactic is created, EXACT} -setup {
+    test TACTIC:BUILD-2.2 {tactic is created, EFFORT} -setup {
         setup
     } -body {
-        ted order TACTIC:BUILD tactic_id [$T1 id] n NB1 mode EXACT amount 10000
-
-        ted pdicts [$T1 getdict]
-    } -cleanup {
-        cleanup
-    } -match dictglob -result {
-        amount     10000.0
-        bid        0
-        done       0
-        execstatus NONE
-        faildict   {}
-        id         *
-        mode       EXACT
-        n          NB1
-        num        1
-        parent     ::bean::block*
-        percent    0
-        state      normal
-    }
-
-    test TACTIC:BUILD-2.3 {tactic is created, PERCENT} -setup {
-        setup
-    } -body {
-        ted order TACTIC:BUILD tactic_id [$T1 id] n NB1 mode PERCENT percent 10
+        ted order TACTIC:BUILD tactic_id [$T1 id] n NB1 mode EFFORT num 10
 
         ted pdicts [$T1 getdict]
     } -cleanup {
         cleanup
     } -match dictglob -result {
         amount     0
-        bid        0
         done       0
         execstatus NONE
         faildict   {}
         id         *
-        mode       PERCENT
+        mode       EFFORT
         n          NB1
-        num        1
+        num        10
         parent     ::bean::block*
-        percent    10
+        percent    0
         state      normal
     }
 
@@ -202,7 +146,7 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
-        ted order TACTIC:BUILD tactic_id [$T1 id] n NB1 mode EXACT amount 10000
+        ted order TACTIC:BUILD tactic_id [$T1 id] n NB1 mode CASH amount 10000
         ted notifier received
     } -cleanup {
         cleanup
@@ -213,7 +157,7 @@ namespace eval ::athena_test::tests:: {
 
     test TACTIC:BUILD-3.1 {undo effects} -setup {
         setup
-        ted order TACTIC:BUILD tactic_id [$T1 id] n NB1 mode EXACT amount 10000
+        ted order TACTIC:BUILD tactic_id [$T1 id] n NB1 mode CASH amount 10000
     } -body {
         ted notifier bind ::projectlib::bean <Monitor>
         cif undo -test

@@ -356,15 +356,16 @@ appserver module ACTOR {
             } else {
                 ht put {
                     Manufacturing plant ownership by this actor is as
-                    follows.  
+                    follows.  Note that plants under construction will not
+                    appear in this table until they are 100% complete.
                 }
 
                 ht para
 
                 ht query  {
                     SELECT nlink  AS "Neighborhood",
-                           num    AS "Owned Plants",
-                           rho    AS "Average Repair Level"
+                           num    AS "Plants<br>Owned",
+                           rho    AS "Average<br>Repair Level"
                     FROM gui_plants_na
                     WHERE a=$a
                     ORDER BY nlink
@@ -376,7 +377,7 @@ appserver module ACTOR {
                     ht put {
                         This actor is automatically maintaining all owned
                         infrastructure.  The repair level will remain at
-                        the initial level specified.
+                        the initial level.
                     }
 
                 } else {
@@ -397,6 +398,80 @@ appserver module ACTOR {
                     is $pct% of the goods production capacity of the entire
                     economy.
                 "
+
+                ht para
+
+                ht put "The following table breaks down manufacturing plants "
+                ht put "under construction by neighborhood into ranges of "
+                ht put "percentage complete."
+                ht para
+        
+                ht push 
+        
+                ht table {
+                    "Nbhood" "Total" "&lt 20%" "20%-40%" 
+                    "40%-60%" "60%-80%" "&gt 80%" 
+                } {
+                    rdb eval {
+                        SELECT n, nlink, levels, num
+                        FROM gui_plants_build
+                        WHERE a=$a
+                    } {
+                        array set bins {0 0 20 0 40 0 60 0 80 0}
+                        foreach lvl $levels {
+                            if {$lvl < 0.2} {
+                                incr bins(0)
+                            } elseif {$lvl >= 0.2 && $lvl < 0.4} {
+                                incr bins(20)
+                            } elseif {$lvl >= 0.4 && $lvl < 0.6} {
+                                incr bins(40)
+                            } elseif {$lvl >= 0.6 && $lvl < 0.8} {
+                                incr bins(60)
+                            } elseif {$lvl >= 0.8} {
+                                incr bins(80)
+                            }
+                        }
+        
+                        ht tr {
+                            ht td left {
+                                ht put $nlink
+                            }
+        
+                            ht td center {
+                                ht put $num
+                            }
+        
+                            ht td center {
+                                ht put $bins(0)
+                            }
+        
+                            ht td center {
+                                ht put $bins(20)
+                            }
+        
+                            ht td center {
+                                ht put $bins(40)
+                            }
+        
+                            ht td center {
+                                ht put $bins(60)
+                            }
+        
+                            ht td center {
+                                ht put $bins(80)
+                            }
+        
+                        }
+                    }
+                }
+
+                set text [ht pop]
+        
+                if {[ht rowcount] > 0} {
+                    ht putln $text
+                } else {
+                    ht putln "This actor has no plants under construction."
+                }
             }
         }
 

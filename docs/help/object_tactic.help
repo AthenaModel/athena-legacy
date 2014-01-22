@@ -481,16 +481,29 @@ object tactic_build {
     noun "BUILD tactic"
     overview {
         This <<term tactic>> allows an <<term actor>> to construct
-        new goods sector prodution infrastructure thereby increasing the
-        output capacity of that sector.  Once new infrastructure is 
-        completed, it must be maintained by using the MAINTAIN <<term tactic>>.
-        Nominally it will take multiple weeks for new production 
-        infrastructure to be complete and until it is it will not 
-        contribute to the production capacity of the goods sector.<p>
+        new goods sector production infrastructure thereby increasing the
+        output capacity of that sector.<p>
+
+        There are two ways to allocate resources to construction jobs;
+        see the "Construction Mode" parameter, below.<p>
+
+        As long as this tactic executes, every effort is made to complete
+        existing construction jobs in priority order with the most complete
+        jobs getting resources first.  If there are any resources left over
+        after existing plants have had the maximum amount allocated, then new
+        plants are started.  The maximum amount of construction that can
+        take place on a plant each week is controlled by a 
+        <<cref /parmdb/plant "plant model parameter">>.<p>  
+
+        Once new infrastructure is completed, it adds to the production 
+        capacity of the goods sector and it must be maintained by using 
+        the MAINTAIN <<term tactic>>.  Nominally it will take multiple weeks 
+        of construction before new infrastructure contributes to the 
+        production capacity of the goods sector.<p>
 
         If an actor cannot complete the construction of new infrastructure due
-        to monetary constraints, it will remain in whatever unfinished state
-        it was until more money can be allocated to it.<p> 
+        to monetary constraints, then that infrastructure will remain in
+        an unfinished state until more resources can be allocated to it.<p> 
     }
 
     include tactic_ -attrs id
@@ -501,36 +514,29 @@ object tactic_build {
         The <<term nbhood>> in which infrastructure is to be built.
     } -tags {update}
 
-    attribute num "Number of Plants" {
-        The number of new plants to build.
-    }
+    attribute mode "Construction Mode" {
+        The construction mode.  This determines how resources should be
+        allocated to build new infrastructure.
+        In both cases, the amount of construction done is on a best efforts
+        basis and is constrained by the amount of cash-on-hand.<p>
 
-    attribute mode "Mode" {
-        The spending mode.  This constrains how much money could possibly
-        be spent when the tactic executes.  Note that the total cost
-        of construction in a given tick is the smaller of the cost to
-        perform one weeks worth of construction or the constraining
-        amount of money.<p>
+        <b>CASH</b>: Construction cost is constrained by some amount of money
+        and cannot exceed remaining cash-on-hand.<p>
 
-        <b>ALL</b>: Construction cost is constrained only by the total amount of
-        cash-on-hand.<p>
-
-        <b>EXACT</b>: Construction cost is constrained by an exact amount of
-        cash-on-hand.  If cash-on-hand is less than this amount, then that
-        amount constrains the cost.<p>
-
-        <b>PERCENT</b>: Construction cost is constrained by some percentage of
-        cash-on-hand.<p>
+        <b>EFFORT</b>: Construction cost is constrained by a number of work
+        weeks allocated to build new infrastructure.  The cost cannot exceed
+        remaining cash-on-hand.<p>
     } -tags {update}
 
     attribute amount "Amount" {
-        If mode is EXACT, the amount of cash-on-hand the cost is constrained 
-        by.<p>
+        If mode is <b>CASH</b>, the maximum amount of money to use when 
+        allocating work.  This is constrained by remaining cash-on-hand.<p>
     } -tags {update}
 
-    attribute percent "Percentage" {
-        If mode is PERCENT, the percentage of cash-on-hand the cost is 
-        constrained by.<p>
+    attribute num "Number" {
+        If mode is <b>EFFORT</b>, the maximum number of work-weeks per week to 
+        allocate to the job.  The effort is converted to an amount of money
+        which is constrained by remaining cash-on-hand.<p>
     } -tags {update}
 }
 

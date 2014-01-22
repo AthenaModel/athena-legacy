@@ -90,6 +90,33 @@ snit::type plant {
         }
     }
 
+    # load
+    #
+    # This method loads the current build levels into the working table
+    # in anticipation of the execution of BUILD tactics.
+
+    typemethod load {} {
+        rdb eval {DELETE FROM working_build;}
+
+        rdb eval {
+            SELECT n, a, levels FROM plants_build
+        } {
+            # Sort by build level, most completed first
+            set sorted [lsort -decreasing -real $levels]
+
+            set progress [list]
+
+            foreach level $sorted {
+                lappend progress $level 0.0
+            }
+
+            rdb eval {
+                INSERT INTO working_build(n, a, progress)
+                VALUES($n, $a, $progress)
+            }
+        }
+    }
+
     # LaydownPlants
     #
     # This method computes the actual number of plants needed by
@@ -171,20 +198,69 @@ snit::type plant {
         }
     }
 
-    # assess
+    # save
     #
-    # This method sees if any new production infrastructure needs to be
-    # added to the table of infrastructure that is currently producing
+    # This is called after strategy execution has taken place.  The 
+    # working table of plants under construction is used to update the
+    # actual table of plant construction.  That table is then inspected
+    # to see if there are any newly completed plants that need to be 
+    # added to the set of infrastructure that is actually producing
     # goods.
 
-    typemethod assess {} {
-        # FIRST, see if there are freshly built plants that need to be
-        # added to the production infrastructure
-        rdb eval { 
-            SELECT n, a, num AS new FROM plants_unbuilt
-            WHERE sigma=1.0
+    typemethod save {} {
+        # FIRST, update the levels of construction in all plants being
+        # worked on
+        rdb eval {
+            SELECT n, a, progress
+            FROM working_build
         } {
-            if {[plant exists [list $n $a]]} {
+            set newlevels [list]
+            foreach {level amount} $progress {
+                let newlevel {min(1.0,$level+$amount)}
+                lappend newlevels $newlevel 
+            }
+
+            set num [llength $newlevels]
+
+            rdb eval {
+                INSERT OR REPLACE INTO plants_build(n, a, levels, num)
+                VALUES($n, $a, $newlevels, $num)
+            }
+        }
+
+        # NEXT, add completed plants (if any) to the table of completed
+        # plants; they will begin to produce goods
+        rdb eval {
+            SELECT n, a, levels FROM plants_build
+        } {
+            set newplant 0
+            set newlevels [list]
+
+            foreach lvl $levels {
+                if {$lvl == 1.0} {
+                    incr newplant
+                } else {
+                    lappend newlevels $lvl
+                }
+            }
+
+            # This removes the completed plant from the set of plants
+            # under construction
+            rdb eval {
+                UPDATE plants_build
+                SET levels=$newlevels
+                WHERE n=$n AND a=$a
+            }
+
+            # No new plants, done
+            if {!$newplant} {
+                continue
+            }
+
+            # NEXT, add new plants to the set of completed plants and compute
+            # average level of repair provided this actor already has plants
+            # in the neighborhood
+            if {[rdb exists {SELECT * FROM plants_na WHERE n=$n AND a=$a}]} {
                 # NEXT, retrieve old data to compute new average repair
                 # level given new plants 
                 set oldVals [rdb eval {
@@ -196,29 +272,22 @@ snit::type plant {
 
                 # NEXT, weighted average of old and new. Note: we can
                 # assume a rho of 1.0 for all new plants
-                let newRho {($oldNum*$oldRho + $new)/($oldNum+$new)}
+                let newRho \
+                    {($oldNum*$oldRho + $newplant)/($oldNum+$newplant)}
 
                 rdb eval {
                     UPDATE plants_na
-                    SET num=num+$new,
+                    SET num=num+$newplant,
                         rho=$newRho
                     WHERE n=$n AND a=$a
                 }
             } else {
+                # No plants yet, average level of repair is 1.0
                 rdb eval {
-                    INSERT INTO plants_na(n,a,num,rho) 
-                    VALUES($n,$a,$new,1.0);
+                    INSERT INTO plants_na(n, a, num, rho)
+                    VALUES($n, $a, $newplant, 1.0)
                 }
             }
-        }
-
-        set t [simclock now]
-        # NEXT, update the end time
-        rdb eval {
-            UPDATE plants_build
-            SET built    = 1,
-                end_time = $t
-            WHERE sigma=1.0 AND built=0
         }
     }
 
@@ -375,139 +444,179 @@ snit::type plant {
     #------------------------------------------------------------------
     # New Infrastructure Construction
 
-    # buildcost num ?id?
+    # buildcost n a num
     #
-    # num   - the number of plants being built
-    # id    - if supplied, the ID of a construction job
+    # n   - A neighborhood that has infrastructure
+    # a   - An actor owning infrastructure in n
+    # num - The number of plants to work on
     #
-    # This method returns the cost of one weeks worth of construction to
-    # the specified number of plants.  If ID is supplied then the RDB is
-    # checked to see if the state of construction is such that less than
-    # one weeks of building is required to reach completion thereby reducing
-    # the cost.
+    # This method computes the cost to work on a number of plants. It
+    # takes into account any work that may have already been done by
+    # other BUILD tactics and makes sure that not more than one weeks 
+    # worth of work is costed for each plant to be worked on.
 
-    typemethod buildcost {num {id ""}} {
+    typemethod buildcost {n a num} {
+        set cost 0.0
 
-        # FIRST, retrieve relevant parameters
+        # FIRST, extract the current progress
+        set progress [rdb onecolumn {
+            SELECT progress FROM working_build
+            WHERE n=$n AND a=$a
+        }]
+
+        # NEXT, the request may be for more or fewer than the plants
+        # that this actor has in the nbhood.
+        # Note: if this is the first construction project for the actor
+        # in n then diff is num.
+        let diff {$num - ([llength $progress]/2)} 
+
+        # NEXT, if it's more, add plants to be worked on to the list
+        # otherwise, trim the list. .
+        if {$diff > 0} {
+            lappend progress {*}[string repeat {0.0 0.0 } $diff]
+        } elseif {$diff < 0} {
+            set progress [lrange $progress 0 [expr {$num*2-1}]]
+        }
+
+        # NEXT, retrieve relevant parameters and compute one weeks worth of
+        # construction
         set bCost [money validate [parmdb get plant.buildcost]]
         set bTime [parmdb get plant.buildtime]
 
-        # NEXT, if build time is zero, no cost
-        if {$bTime == 0} {
-            return 0.0
+        set bRate 1.0
+        if {$bTime > 0.0} {
+            let bRate {1.0 / $bTime}
         }
 
-        # NEXT, one weeks worth of construction
-        let bRate {1.0 / $bTime}
-
-        # NEXT, the cost for one plant for one week
-        let maxCostPerPlant {$bCost * $bRate} 
-        
-        # NEXT, if no ID, then the total cost is the cost of construction for
-        # all the plants for one week
-        if {![rdb exists {SELECT id FROM plants_build WHERE id=$id}]} {
-            return [expr {$maxCostPerPlant * $num}]
-        }
-
-        # NEXT, retrieve current construction level and check to see if
-        # cost can be reduced
-        set sigma [rdb eval {SELECT sigma FROM plants_build WHERE id=$id}]
-
-        # NEXT, if we are within one weeks worth of construction cost is less
-        if {1.0 - $sigma < $bRate} {
-            let maxCostPerPlant {$maxCostPerPlant * ((1.0 - $sigma) / $bRate)}
-        }
-
-        return [expr {$maxCostPerPlant * $num}]
-    }
-
-    # build id money
-    #
-    # id    - the ID of a construction job
-    # money - the amount of money being applied to the job
-    #
-    # This method increases the construction level of a construction job
-    # based upon the amount of money provided for the job
-
-    typemethod build {id money} {
-        # FIRST, retrieve relevant parameters
-        set bCost [money validate [parmdb get plant.buildcost]]
-        set bTime [parmdb get plant.buildtime]
-
-        # NEXT, if build time is zero, instantly build the infrastructure
-        if {$bTime == 0 || $bCost == 0.0} {
-            rdb eval {
-                UPDATE plants_build
-                SET sigma = 1.0
-                WHERE id=$id
+        # NEXT, compute cost based upon the list, which has already been
+        # sorted so we know we work on most complete plants first
+        foreach {level amount} $progress {
+            # NEXT, if the max amount of construction possible has been
+            # reached OR if the plant is complete, nothing to do
+            if {$amount >= $bRate || $level+$amount >= 1.0} {
+                continue
             }
 
-            return
+            # NEXT, the amount of construction that could possible be done
+            # cannot exceed 1.0 or one weeks worth of work, whichever is less
+            let bRemain {min(1.0-$level,$bRate-$amount)}
+
+            # NEXT, add the cost to the growing total
+            let cost {$cost + $bCost*$bRemain}
         }
+
+        return $cost
+    }
+
+    # build n a funds
+    #
+    # n     - A nbhood that has infrastructure
+    # a     - An actor owning infrastructure in n
+    # funds - An amount of money to spend on construction
+    #
+    # The method converts the supplied amount of money into units of
+    # construction and applies it to this actors list of plants under
+    # construction in the neighborhood.  Most completed plants are worked
+    # on first. 
+
+    typemethod build {n a funds} {
+        # FIRST, keep track of the number of existing plants worked on and
+        # the number of new plants started
+        set oldplants 0
+        set newplants 0
+
+        # NEXT, retrieve relevant parameters
+        set bCost [money validate [parmdb get plant.buildcost]]
+        set bTime [parmdb get plant.buildtime]
 
         # NEXT, one weeks worth of construction
-        let bRate {1.0 / $bTime}
-
-        # NEXT, the maximum cost for on plant
-        let maxCostPerPlant {$bCost * $bRate} 
-
-        # NEXT, retrieve the number of plants under construction
-        set num [rdb eval {SELECT num FROM plants_build WHERE id=$id}]
-
-        # NEXT, the maximum cost for one weeks worth of construction
-        let totalCost {$maxCostPerPlant * $num}
-
-        # NEXT, adjust the fraction by the amount of money supplied. Note
-        # that this fraction could be greater than 1.0
-        let bFrac {$money / $totalCost}
-
-        # NEXT, compute deltaSigma and apply it to the construction job
-        let deltaSigma {$bRate * $bFrac}
-
-        rdb eval {
-            UPDATE plants_build
-            SET sigma = min(1.0, sigma + $deltaSigma)
-            WHERE id=$id
-        }
-    }
-
-    # startbuild n a num
-    #
-    # n    - A neighborhood ID
-    # a    - An agent ID
-    # num  - The number of plants to construct
-    #
-    # This method inserts a new record into the plants_build table to track
-    # the construction of a new set of plants. It returns the ID of the 
-    # construction job.
-
-    typemethod startbuild {n a num} {
-        set now [simclock now]
-
-        rdb eval {
-            INSERT INTO plants_build(n, a, num, start_time, end_time)
-            VALUES($n, $a, $num, $now, -1)
+        set bRate 1.0
+        if {$bTime > 0.0} {
+            let bRate {1.0 / $bTime}
         }
 
-        return [rdb onecolumn {SELECT max(id) FROM plants_build}]
-    }
+        # NEXT, retrieve the current level of progress on the plants
+        set progress [rdb onecolumn {
+            SELECT progress FROM working_build
+            WHERE n=$n AND a=$a
+        }]
 
-    # buildfrac id
-    #
-    # Given the ID of a construction job return the fraction of construction
-    # completed
+        # NEXT, prepare for construction
+        set newlevels [list]
 
-    typemethod buildfrac {id} {
-        return [rdb onecolumn {SELECT sigma FROM plants_build WHERE id=$id}]
-    }
+        # NEXT, expend funds on plants already under construction in priority
+        # order (they are already sorted)
+        foreach {level amount} $progress {
+            # Out of money, just copy current levels
+            if {$funds <= 0.0} {
+                lappend newlevels $level $amount
+                continue
+            }
 
-    # endbuildtime id
-    #
-    # Given the ID of a construction job return it's endtime. It may be
-    # incomplete in which case a value of -1 is returned.
+            # Construction remaining to get to 1.0
+            let Cmax {1.0-$level}
 
-    typemethod endbuildtime {id} {
-        return [rdb onecolumn {SELECT end_time FROM plants_build WHERE id=$id}]
+            # Construction amount/cost is the lesser of whatever it takes 
+            # to get to 1.0 or one weeks worth of work taking into account
+            # that this plant may have already been worked on
+            let Camount {min($Cmax, $bRate-$amount)}
+            let Ccost   {$Camount*$bCost}
+
+            # If the cost is more than what is available, prorate the 
+            # construction
+            if {$Ccost > $funds} {
+                let Camount {$Camount * ($funds/$Ccost)}
+                let Ccost {$Camount*$bCost}
+            } 
+
+            # New construction levels, and decrement funds
+            let newAmount {$amount+$Camount}
+            let funds {$funds-$Ccost}
+
+            lappend newlevels $level $newAmount
+
+            # Bump the counter of existing plants worked on
+            incr oldplants
+        }
+
+        # NEXT, if there's at least one penny left over start work on new 
+        # plant(s)
+        # Note: This could probably be done better?
+        while {$funds >= 0.01} {
+            # NEXT, stopgap measure. If free is allowed then any amount 
+            # of money results in an infinite number of new plants
+            if {$bCost == 0.0} {
+                break
+            }
+
+            # Cost of one weeks worth of work
+            let Ccost {$bRate*$bCost}
+            set Camount $bRate
+
+            # If cost is greater than what's available, prorate
+            if {$Ccost > $funds} {
+                let Camount {$bRate * ($funds/$Ccost)}
+                set Ccost $funds
+            }
+
+            # New construction on a new plant
+            lappend newlevels 0.0 $Camount
+
+            # Expend the funds
+            let funds {$funds-$Ccost}
+
+            # Bumpt the counter of new plants worked on
+            incr newplants
+        }
+
+        # NEXT, all funds expended, updated the working table
+        rdb eval {
+            INSERT OR REPLACE INTO working_build(n, a, progress)
+            VALUES($n, $a, $newlevels)
+        }
+
+        # NEXT, return the plant counters for reporting purposes
+        return [list $oldplants $newplants]
     }
 
     # get  id ?parm?
@@ -569,7 +678,6 @@ snit::type plant {
             SELECT * FROM plants_shares WHERE n=$n AND a=$a
         }]
     }
-
 
     # capacity total
     #

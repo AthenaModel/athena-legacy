@@ -1827,7 +1827,9 @@ snit::type ::projectlib::parmdb {
 
         $ps define plant.buildtime ::projectlib::iquantity 52 {
             The average time in weeks it takes to build a manufacturing 
-            plant from scratch.
+            plant from scratch.  The inverse of this number is the
+            maximum fractional amount of construction that can take place
+            in one week.
         }
 
         $ps define plant.buildcost ::projectlib::money 1B {

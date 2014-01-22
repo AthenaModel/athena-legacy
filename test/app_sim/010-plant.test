@@ -355,81 +355,90 @@ rho  0.5
     } -result {1}
         
     #-------------------------------------------------------------------
-    # startbuild
+    # buildcost
 
-    test startbuild-1.1 {job id is assigned} -setup {
+    test buildcost-1.1 {no work yet done} -setup {
         setup
     } -body {
-        plant startbuild NB1 JOE 10
+        set cost [plant buildcost NB1 JOE 3]
+        expr {$cost > 0.0}
     } -cleanup {
         cleanup
     } -result {1}
 
-    #-------------------------------------------------------------------
-    # buildcost
-
-    test buildcost-1.1 {no id} -setup {
+    test buildcost-1.2 {some work already done} -setup {
         setup
+        set costA [plant buildcost NB1 JOE 3]
+        rdb eval {
+            INSERT INTO working_build(n, a, progress)
+            VALUES('NB1','JOE','0.0 0.01 0.0 0.01 0.0 0.01');
+        }
     } -body {
-        moneyfmt [plant buildcost 10]
+        set costB [plant buildcost NB1 JOE 3]
+        expr {$costB < $costA}
     } -cleanup {
         cleanup
-    } -result {192.308M}
+    } -result {1}
 
-    test buildcost-1.2 {id supplied} -setup {
+    test buildcost-1.3 {no work needed} -setup {
         setup
-        set bid [plant startbuild NB1 JOE 10] 
+        rdb eval {
+            INSERT INTO working_build(n, a, progress)
+            VALUES('NB1','JOE','1.0 0.0 1.0 0.0 1.0 0.0');
+        }
     } -body {
-        moneyfmt [plant buildcost 10 $bid]
+        plant buildcost NB1 JOE 3
     } -cleanup {
         cleanup
-    } -result {192.308M}
-
-    test buildcost-1.3 {id, construction almost complete} -setup {
-        setup
-        set bid [plant startbuild NB1 JOE 10] 
-        rdb eval {UPDATE plants_build SET sigma=0.9999}
-    } -body {
-        moneyfmt [plant buildcost 10 $bid]
-    } -cleanup {
-        cleanup
-    } -result {1,000,000}
+    } -result {0.0}
 
 
     #-------------------------------------------------------------------
     # build
 
-    test build-1.1 {build fraction increases} -setup {
+    test build-1.1 {new construction} -setup {
         setup
-        set bid [plant startbuild NB1 JOE 10]
     } -body {
-        plant build $bid 1000000.0
-        plant buildfrac $bid
+        set a [rdb onecolumn {SELECT progress FROM working_build 
+                         WHERE n='NB1' AND a='JOE'}]
+        plant build NB1 JOE 1000000.0
+        set b [rdb onecolumn {SELECT progress FROM working_build 
+                         WHERE n='NB1' AND a='JOE'}]
+        expr {[llength $b] > [llength $a]}
     } -cleanup {
         cleanup
-    } -result {0.0001}
+    } -result {1}
 
-    test build-1.2 {build fraction goes to 1.0 when no cost} -setup {
+    test build-1.2 {existing construction} -setup {
         setup
-        set bid [plant startbuild NB1 JOE 10]
-        parmdb set plant.buildcost 0
+        plant build NB1 JOE 1000000.0
     } -body {
-        plant build $bid 0.0
-        plant buildfrac $bid
+        set a [rdb onecolumn {SELECT progress FROM working_build 
+                         WHERE n='NB1' AND a='JOE'}]
+        plant build NB1 JOE 1000000.0
+        set b [rdb onecolumn {SELECT progress FROM working_build 
+                         WHERE n='NB1' AND a='JOE'}]
+        expr {[llength $b] == [llength $a]}
     } -cleanup {
         cleanup
-    } -result {1.0}
+    } -result {1}
 
-    test build-1.3 {build fraction goes to 1.0 when build time is 0} -setup {
+    test build-1.3 {start new plants} -setup {
         setup
-        set bid [plant startbuild NB1 JOE 10]
-        parmdb set plant.buildtime 0
+        rdb eval {
+            INSERT INTO working_build(n, a, progress)
+            VALUES('NB1','JOE','1.0 0.0 1.0 0.0 1.0 0.0')
+        }
     } -body {
-        plant build $bid 0.0
-        plant buildfrac $bid
+        set a [rdb onecolumn {SELECT progress FROM working_build 
+                         WHERE n='NB1' AND a='JOE'}]
+        plant build NB1 JOE 1000000.0
+        set b [rdb onecolumn {SELECT progress FROM working_build 
+                         WHERE n='NB1' AND a='JOE'}]
+        expr {[llength $a] < [llength $b]}
     } -cleanup {
         cleanup
-    } -result {1.0}
+    } -result {1}
 
     #-------------------------------------------------------------------
     # capacity

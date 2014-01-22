@@ -579,7 +579,9 @@ appserver module NBHOOD {
                 ht para
                 ht put   "The following table shows the current laydown of "
                 ht put   "manufacturing plants in $n and the agents that own "
-                ht putln "them along with the average repair levels."
+                ht put   "them along with the average repair levels.  Note "
+                ht put   "that plants under construction will not appear in "
+                ht putln "this table until they are 100% complete."
                 ht para 
     
                 ht query {
@@ -604,6 +606,80 @@ appserver module NBHOOD {
                     has a production capacity factor of $econ(pcf).
                 "
 
+                ht para
+
+                ht put "The following table breaks down manufacturing plants "
+                ht put "under construction by agent into ranges of "
+                ht put "percentage complete."
+                ht para
+        
+                ht push 
+        
+                ht table {
+                    "Agent" "Total" "&lt 20%" "20%-40%" 
+                    "40%-60%" "60%-80%" "&gt 80%" 
+                } {
+                    rdb eval {
+                        SELECT a, alink, levels, num
+                        FROM gui_plants_build
+                        WHERE n=$n
+                    } {
+                        array set bins {0 0 20 0 40 0 60 0 80 0}
+                        foreach lvl $levels {
+                            if {$lvl < 0.2} {
+                                incr bins(0)
+                            } elseif {$lvl >= 0.2 && $lvl < 0.4} {
+                                incr bins(20)
+                            } elseif {$lvl >= 0.4 && $lvl < 0.6} {
+                                incr bins(40)
+                            } elseif {$lvl >= 0.6 && $lvl < 0.8} {
+                                incr bins(60)
+                            } elseif {$lvl >= 0.8} {
+                                incr bins(80)
+                            }
+                        }
+        
+                        ht tr {
+                            ht td left {
+                                ht put $alink
+                            }
+        
+                            ht td center {
+                                ht put $num
+                            }
+        
+                            ht td center {
+                                ht put $bins(0)
+                            }
+        
+                            ht td center {
+                                ht put $bins(20)
+                            }
+        
+                            ht td center {
+                                ht put $bins(40)
+                            }
+        
+                            ht td center {
+                                ht put $bins(60)
+                            }
+        
+                            ht td center {
+                                ht put $bins(80)
+                            }
+        
+                        }
+                    }
+                }
+
+                set text [ht pop]
+        
+                if {[ht rowcount] > 0} {
+                    ht putln $text
+                } else {
+                    ht putln \
+                        "This neighborhood has no plants under construction."
+                }
             }
         }
 
