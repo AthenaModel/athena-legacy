@@ -27,7 +27,7 @@ object hook_ {
         Operations Message or <<term iom>>.
 
         Semantic Hooks are created and edited on the 
-        <<cref /tab/info/semantic_hooks>>.<p>
+        <<cref /tab/information/semantic_hooks>>.<p>
 
     }
 
@@ -109,5 +109,6 @@ page /object/hook topic "Semantic Hook Topic" {
 
     <<hook_topic parmlist>>
 }
+
 
 

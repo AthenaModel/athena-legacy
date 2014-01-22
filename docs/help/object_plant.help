@@ -33,7 +33,7 @@ object plant_ {
         each actor that owns them in each neighborhood.  
 
         Shares of Manufacturing Plants are defined and edited on the 
-        <<cref /tab/neighborhoods/manufacturing_plants>>.<p>
+        <<cref /tab/infrastructure/goods_plants>>.<p>
 
         Unless an actor is automatically maintaining his infrastructure, money
         must be spent during <<term strategy>> execution to maintain it by
@@ -84,5 +84,6 @@ page /object plant "Manufacturing Plants" {
 
     <<plant_ parmlist>>
 }
+
 
 

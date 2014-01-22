@@ -296,7 +296,7 @@ menuitem "Help/Orders" {
 menuitem "Help/Display Variables" {
     This menu item pops up the reference material for each of the
     neighborhood and time-related <<cref /var>> that can be plotted
-    or used to color neighborhoods on the <<tab Map>>.
+    or used to color neighborhoods on the <<tab Physical/Map>>.
 }
 
 menuitem "Help/Executive Commands" {
@@ -318,6 +318,7 @@ menuitem "Help/About Athena" {
     This menu item displays basic information <<cref /about>>,
     including the copyright.
 }
+
 
 
 

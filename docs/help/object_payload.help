@@ -38,7 +38,7 @@ object payload_ {
 
         There are several different types of payload; they are all 
         created, edited, and browsed on the 
-        <<cref /tab/info/info_ops_messages>>.<p>
+        <<cref /tab/information/info_ops_messages>>.<p>
     }
 
     attribute iom_id "Message ID" {
@@ -211,4 +211,5 @@ page /object/payload vrel "VREL payload" {
 
     <<payload_vrel parmlist>>
 }
+
 

@@ -192,7 +192,7 @@ page /order/cap pen "Group Penetration Orders" {
     a group a positive penetration fraction even if its neighborhood
     is not in the CAP's coverage area; such a group is called an
     "orphan" group.  Orphan groups are highlighted in the 
-    <<cref /tab/info/caps/group>>.<p>
+    <<cref /tab/infrastructure/caps/group>>.<p>
 
     The following orders are used to set group penetration.<p>
 
@@ -241,4 +241,5 @@ order CAP:PEN:SET+MULTI "Set Multiple CAP Group Penetrations" {
     <</parm>>
     <</parmlist>>
 }
+
 

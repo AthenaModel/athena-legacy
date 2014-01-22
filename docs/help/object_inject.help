@@ -41,7 +41,7 @@ object inject_ {
 
         There are several different types of inject; they are all 
         created, edited, and browsed on the 
-        <<cref /tab/attitudes/curses>>.<p>
+        <<cref /tab/physical/curses>>.<p>
     }
 
     attribute curse_id "CURSE ID" {
@@ -286,4 +286,5 @@ page /object/inject vrel "VREL inject" {
 
     <<inject_vrel parmlist>>
 }
+
 

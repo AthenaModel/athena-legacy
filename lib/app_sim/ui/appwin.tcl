@@ -99,13 +99,6 @@ snit::widget appwin {
             script  { detailbrowser %W }
         }
 
-        viewer {
-            label   "Map"
-            vistype *
-            parent  ""
-            script  { mapviewer %W -width 600 -height 400 }
-        }
-
         strategyt {
             label   "Strategy"
             vistype *
@@ -120,193 +113,268 @@ snit::widget appwin {
             script  { strategybrowser %W }
         }
 
-        nbhoodst {
-            label   "Neighborhoods"
+        physical {
+            label   "Physical"
             vistype *
             parent  ""
             script  ""
         }
 
+        map {
+            label   "Map"
+            vistype *
+            parent  physical
+            script  { mapviewer %W -width 600 -height 400 }
+        }
+
         nbhoods {
             label   "Neighborhoods"
-            vistype scenario
-            parent  nbhoodst
+            vistype *
+            parent  physical
             script  { nbhoodbrowser %W }
         }
 
-        nbrel {
-            label   "Relationships"
-            vistype scenario
-            parent  nbhoodst
+        prox {
+            label   "Proximities"
+            vistype *
+            parent  physical
             script  { nbrelbrowser %W }
         }
 
-        plants {
-            label   "Manufacturing Plants"
-            vistype  scenario
-            parent   nbhoodst
-            script   { plantbrowser %W }
+        ensit {
+            label   "EnSits"
+            vistype *
+            parent  physical
+            script  { ensitbrowser %W }
         }
 
         security {
             label   "Security"
             vistype simulation
-            parent  nbhoodst
+            parent  physical
             script  { securitybrowser %W }
         }
 
         activity {
             label   "Activity"
             vistype simulation
-            parent  nbhoodst
+            parent  physical
             script  { activitybrowser %W }
         }
 
-        ensit {
-            label   "EnSits"
-            vistype *
-            parent  nbhoodst
-            script  { ensitbrowser %W }
+        curses {
+            label   "CURSEs"
+            vistype scenario
+            parent physical
+            script { cursebrowser %W }
         }
 
-        groupst {
-            label   "Groups"
-            vistype scenario
-            parent  ""
-            script  ""
+        demogn {
+            label   "NbhoodDemog"
+            vistype simulation
+            parent  "physical"
+            script  { demognbrowser %W }
+        }
+
+
+        pol {
+            label "Political"
+            vistype *
+            parent ""
+            script ""
         }
 
         actors {
             label   "Actors"
-            vistype scenario
-            parent  groupst
-            script  { actorbrowser %W }
-        }
-
-        civgroups {
-            label   "CivGroups"
-            vistype scenario
-            parent  groupst
-            script  { civgroupbrowser %W }
-        }
-
-        frcgroups {
-            label   "FrcGroups"
-            vistype scenario
-            parent  groupst
-            script  { frcgroupbrowser %W }
-        }
-
-        orggroups {
-            label   "OrgGroups"
-            vistype scenario
-            parent  groupst
-            script  { orggroupbrowser %W }
-        }
-
-        att {
-            label   "Attitudes"
             vistype *
-            parent  ""
-            script  ""
-        }
-
-        bsystem {
-            label   "Beliefs"
-            vistype scenario
-            parent  att
-            script  { bsystembrowser %W }
-        }
-
-        hrel {
-            label   "HRel"
-            vistype scenario
-            parent  att
-            script  { hrelbrowser %W }
-        }
-
-        hrel_sim {
-            label   "HRel"
-            vistype simulation
-            parent  att
-            script  { hrelbrowser_sim %W }
+            parent  pol
+            script  { actorbrowser %W }
         }
 
         vrel {
             label   "VRel"
             vistype scenario
-            parent  att
+            parent  pol
             script  { vrelbrowser %W }
         }
 
         vrel_sim {
             label   "VRel"
             vistype simulation
-            parent  att
+            parent  pol
             script  { vrelbrowser_sim %W }
+        }
+
+        mil {
+            label "Military"
+            vistype *
+            parent ""
+            script ""
+        }
+
+        frcgroups {
+            label   "Force Groups"
+            vistype *
+            parent  mil
+            script  { frcgroupbrowser %W }
+        }   
+
+
+        econt {
+            label   "Economics"
+            vistype *
+            parent  ""
+            script  ""
+        }
+
+        econsam {
+            vistype *
+            label   "SAM"
+            parent  econt
+            script  { samsheet %W }
+        }
+
+        econcge {
+            vistype simulation
+            label   "Overview"
+            parent  econt
+            script  { cgesheet %W }
+        }
+
+        econexp {
+            label   "Expenditures"
+            vistype simulation
+            parent  econt
+            script  { econexpbrowser %W }
+        }
+
+        econpop {
+            label   "Population"
+            vistype simulation
+            parent  econt
+            script  { econpopbrowser %W }
+        }
+
+        econg {
+            label   "Groups"
+            vistype simulation
+            parent  econt
+            script  { econngbrowser %W }
+        }
+
+        social {
+            label   "Social"
+            vistype *
+            parent  ""
+            script  "" 
+        }
+
+        bsystem {
+            label   "Beliefs"
+            vistype scenario
+            parent  social
+            script  { bsystembrowser %W }
+        }
+
+        civgroups {
+            label   "CivGroups"
+            vistype *
+            parent  social
+            script  { civgroupbrowser %W }
+        }
+
+        orggroups {
+            label   "OrgGroups"
+            vistype *
+            parent  social
+            script  { orggroupbrowser %W }
         }
 
         sat {
             label   "Satisfaction"
             vistype scenario
-            parent  att
+            parent  social
             script  { satbrowser %W }
         }
 
         sat_sim {
             label   "Satisfaction"
             vistype simulation
-            parent  att
+            parent  social
             script  { satbrowser_sim %W }
+        }
+
+
+        hrel {
+            label   "HRel"
+            vistype scenario
+            parent  social
+            script  { hrelbrowser %W }
+        }
+
+        hrel_sim {
+            label   "HRel"
+            vistype simulation
+            parent  social
+            script  { hrelbrowser_sim %W }
+        }
+
+        demogg {
+            label   "Demog"
+            vistype simulation
+            parent  "social"
+            script  { demogbrowser %W }
+        }
+
+
+
+        infra {
+            label   "Infrastructure"
+            vistype *
+            parent  ""
+            script  "" 
+        }
+
+        caps {
+            label  "CAPs"
+            vistype *
+            parent infra
+            script { capbrowser %W }
+        }
+
+        plants {
+            label   "GOODS Plants"
+            vistype  *
+            parent   infra
+            script   { plantbrowser %W }
+        }
+
+        info {
+            label   "Information"
+            vistype *
+            parent  ""
+            script  ""
         }
 
         coop {
             label   "Cooperation"
             vistype scenario
-            parent  att
+            parent  info
             script  { coopbrowser %W }
         }
 
         coop_sim {
             label   "Cooperation"
             vistype simulation
-            parent  att
+            parent  info
             script  { coopbrowser_sim %W }
         }
 
         nbcoop {
             label   "NbhoodCoop"
             vistype simulation
-            parent  att
+            parent  info
             script  { nbcoopbrowser %W }
-        }
-
-        mads {
-            label   "Magic Attitude Drivers"
-            vistype *
-            parent  att
-            script  {madbrowser %W}
-        }
-        
-        curses {
-            label   "CURSEs"
-            vistype scenario
-            parent att
-            script {cursebrowser %W}
-        }
-
-        info {
-            label   "Info"
-            vistype *
-            parent  ""
-            script  ""
-        }
-
-        caps {
-            label  "CAPs"
-            vistype *
-            parent info
-            script {capbrowser %W}
         }
 
         hooks {
@@ -314,6 +382,7 @@ snit::widget appwin {
             vistype *
             parent  info
             script  {hookbrowser %W}
+
         }
 
         ioms {
@@ -323,68 +392,7 @@ snit::widget appwin {
             script  {iombrowser %W}
         }
 
-        demogt {
-            label   "Demog"
-            vistype simulation
-            parent  ""
-            script  ""
-        }
 
-        demogg {
-            label   "Groups"
-            vistype simulation
-            parent  "demogt"
-            script  { demogbrowser %W }
-        }
-
-        demogn {
-            label   "Nbhoods"
-            vistype simulation
-            parent  "demogt"
-            script  { demognbrowser %W }
-        }
-
-        econt {
-            label   "Econ"
-            vistype *
-            parent  ""
-            script  ""
-        }
-
-        econsam {
-            vistype *
-            label   "SAM"
-            parent  "econt"
-            script  { samsheet %W }
-        }
-
-        econcge {
-            vistype simulation
-            label   "Overview"
-            parent  "econt"
-            script  { cgesheet %W }
-        }
-
-        econexp {
-            label   "Actors"
-            vistype simulation
-            parent  "econt"
-            script  { econexpbrowser %W }
-        }
-
-        econpop {
-            label   "Population"
-            vistype simulation
-            parent  "econt"
-            script  { econpopbrowser %W }
-        }
-
-        econg {
-            label   "Groups"
-            vistype simulation
-            parent  "econt"
-            script  { econngbrowser %W }
-        }
 
         orders {
             label   "Orders"
@@ -1086,7 +1094,7 @@ snit::widget appwin {
         $self CreateTabs
 
         # Viewer
-        set viewer [$self tab win viewer]
+        set viewer [$self tab win map]
 
         # Scrolling log
         set slog   [$self tab win slog]

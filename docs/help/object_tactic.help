@@ -100,7 +100,7 @@ object tactic_assign {
         be <<cref /object/tactic/deploy deployed>> in the
         neighborhood.  Athena will create a <<term unit>> containing
         the assigned personnel; the unit will be visible on the
-        <<tab Map>>.<p>
+        <<tab Physical/Map>>.<p>
 
         The number of troops to assign is determined by the personnel
         mode (<i>pmode</i>); see the table below.<p>

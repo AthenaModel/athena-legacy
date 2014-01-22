@@ -29,8 +29,8 @@ object nbhood_ {
         cannot cover another neighborhood's reference point.<p>
 
         Neighborhoods can be created on the 
-        <<tab Map>> during <<term prep>>, and manipulated
-        on the <<tab Neighborhoods/Neighborhoods>> and using the
+        <<tab Physical/Map>> during <<term prep>>, and manipulated
+        on the <<tab Physical/Neighborhoods>> and using the
         <<cref /order/nbhood>>.
     }
 
@@ -115,5 +115,7 @@ page /object nbhood "Neighborhood" {
 
     <<nbhood_ parmlist>>
 }
+
+
 
 

@@ -42,9 +42,9 @@ object cap_ {
         (though not useful) for group penetration to be positive for
         groups outside of the CAP's coverage area.  Such "orphan"
         groups are highlighted on the 
-        <<cref /tab/info/caps/group>>.<p>
+        <<cref /tab/infrastructure/caps/group>>.<p>
         
-        CAPs are edited on the <<cref /tab/info/caps>>.<p>
+        CAPs are edited on the <<cref /tab/infrastructure/caps>>.<p>
     }
 
     attribute k "CAP" {
@@ -105,4 +105,5 @@ page /object cap "CAP" {
 
     <<cap_ parmlist>>
 }
+
 

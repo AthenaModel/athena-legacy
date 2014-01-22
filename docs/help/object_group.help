@@ -53,7 +53,7 @@ object group_ {
 
     attribute shape "Unit Shape" {
         According to MIL-STD-2525a, friendly, neutral, and enemy units
-        are drawn differently by the <<tab Map>>.  This parameter
+        are drawn differently by the <<tab Physical/Map>>.  This parameter
         determines whether the group's units are drawn as friendly,
         neutral, or enemy.  The possible values are as follows:<p>
 
@@ -181,7 +181,7 @@ object group_frc {
         goals.<p>
 
         Force groups are created on the
-        <<tab Groups/FrcGroups>> using the <<cref /order/frcgroup>>.
+        <<tab Military/Force Groups>> using the <<cref /order/frcgroup>>.
         In order to apply force, force group
         personnel must be deployed to neighborhoods and assigned
         duties using <<term tactic>>s.<p>
@@ -280,7 +280,7 @@ object group_org {
         goals.<p>
 
         Organization groups are created on the
-        <<tab Groups/OrgGroups>> using the
+        <<tab Social/OrgGroups>> using the
         <<cref /order/orggroup>>.
         In order to work, organization group
         personnel must be deployed to neighborhoods and assigned
@@ -331,4 +331,7 @@ page /object/group org "Organization Group" {
 
     <<group_org parmlist>>
 }
+
+
+
 

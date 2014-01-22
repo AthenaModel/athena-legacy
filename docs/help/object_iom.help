@@ -29,7 +29,7 @@ object iom_ {
         how to make the best use of IOMs.<p>
         
         IOMs are created and edited on the 
-        <<cref /tab/info/info_ops_messages>>.<p>
+        <<cref /tab/information/info_ops_messages>>.<p>
 
     }
 
@@ -52,7 +52,7 @@ object iom_ {
     attribute hook_id "Semantic Hook" {
         The message appeals to the belief systems of the targetted
         civilians by means of its <<term hook>>.  Semantic hooks are
-        created and edited on the <<cref /tab/info/semantic_hooks>> tab.<p>
+        created and edited on the <<cref /tab/information/semantic_hooks>> tab.<p>
         
         This parameter may remain unset during
         <<term prep>>, but must be specified before time can be
@@ -78,4 +78,6 @@ page /object iom "IOM" {
 
     <<iom_ parmlist>>
 }
+
+
 

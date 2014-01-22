@@ -168,128 +168,6 @@ page /tab/detail context "Detail Browser Context Menu" {
 
 }
 
-
-#=======================================================================
-# Map Tab
-
-tab "Map" {
-    The Map tab contains the Athena Map Viewer, the primary means of
-    visualizing Athena scenarios.  The Map Viewer is where 
-    <<cref /order/nbhood neighborhoods>> and <<cref /order/unit units>> are drawn,
-    <<cref /order/ensit "environmental situations">>  are 
-    created and positioned, and group moods and other <<cref /var/n>>
-    are visualized.  The
-    browser controls are described <<seebelow controls>>.<p>
-
-    <b>Basics:</b> For the most part, using the Map Viewer is
-    intuitive.  See the <i>Athena User's Guide</i> for information on map
-    cooperations and importing a map background into the scenario,
-    and for information on defining a scenario.<p>
-
-    <b><a name="controls">Browser Controls:</a></b>  The Map Viewer
-    has two toolbars, the manipulation toolbar along the left-hand
-    side and the visualization toolbar across the top.  These toolbars
-    contain the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_arrow]>>
-    Press this button to enable selection mode.  In this mode,
-    clicking on an object prints a brief description of the object to
-    the message line at the bottom of the window.  In addition, you
-    can control-click to drag units and environmental situations from
-    one place to another.  Simply press the <b>Ctrl</b> key, click on
-    the unit or situation, holding down the mouse button, and drag the
-    object to its new location.
-    <</topic>>
-
-    <<topic [image button_pan]>>
-    Press this button to enable panning mode.  In panning mode, click
-    and drag the map to pan from one part of the map to another.
-    Alternatively, use the scroll bars.
-    <</topic>>
-
-    <<topic [image button_location]>>
-    Press this button to enable location-entry mode, i.e., to enter a
-    <<term mapref>> into an order dialog or the CLI.<p>
-
-    It is rarely necessary to select this mode explicitly, as the
-    order dialogs select it automatically when the current order field
-    expects a <<term mapref>>. 
-    <</topic>>
-
-    <<topic [image button_poly]>>
-    Press this button to enable polygon-entry mode, i.e., to enter a
-    polygon (defined by a list of <<term mapref>>s) into an order
-    dialog or the CLI.<p>
-
-    It is rarely necessary to select this mode explicitly, as the
-    order dialogs select it automatically when the current order field
-    expects a polygon.
-    <</topic>>
-
-    <<topic [image button_nbhood]>>
-    Press this button to pop up the 
-    <<cref /order/nbhood/create>> order dialog.
-    <</topic>>
-
-    <<topic [image button_ensit]>>
-    Press this button to pop up the 
-    <<cref /order/ensit/create>> order
-    dialog.  Alternatively, right-click on the map and select
-    <<cref /order/ensit/create>> from the context
-    menu--this will pop up the order dialog with the selected location
-    already filled in.
-    <</topic>>
-
-    <<topic [image control_mapref]>>
-    This control shows the <<term mapref>> of the location under the
-    mouse pointer.
-    <</topic>>
-
-    <<topic [image button_extmap]>>
-    Map reference strings address a square region; if the map in use
-    is not a square, there is a strip of unused space on the
-    righthand-side or along the bottom.  If this button is selected,
-    this excess space is available as a place to position units or to
-    draw neighborhoods for remote regions.  Otherwise, all objects
-    must be on the map proper.
-    <</topic>>
-
-    <<topic [image button_nbfill]>>
-    By default, neighborhood polygons are transparent, revealing the
-    map background beneath.  If this button is selected, the polygons
-    will be filled with some color, nominally white.  See the
-    neighborhood fill type control, next, for other choices.
-    <</topic>>
-
-    <<topic [image control_filltype]>>
-    When the neighborhood fill button is selected, neighborhood
-    polygons are filled with color based on some 
-    <<cref /var/n "Neighborhood Variable">>.  This pulldown determines the
-    which variable is used.  Note that some variables are unavailable
-    during <<term prep>>.<p>
-
-    The pulldown is initially populated with a number of neighborhood
-    variables; others can be requested using the <<command nbfill>> 
-    command.
-
-    <</topic>>
-
-    <<topic [image control_zoom]>>
-    This pulldown controls the zoom level.  By default, the map is
-    drawn at 100%, its actual size.  Select one of the other zoom
-    levels to scale it up or down.  <b>Note:</b> the first time a
-    zoom level is chosen, there may be a delay as the map is scaled.
-    <</topic>>
-
-    <<topic "Context Menus">>Most objects drawn on the map have
-    context menus.  Right-click to pop up the menu.
-    <</topic>>
-
-    <</topiclist>>
-}
-
 #=======================================================================
 # Strategy Tab
 
@@ -603,18 +481,139 @@ page /tab/strategy tactics "Tactics Subtab" {
 }
 
 #=======================================================================
-# Neighborhoods Tab
+# Physical Tab
 
-tab "Neighborhoods" {
-    This tab collects data about the neighborhoods in the playbox.  It
-    has the following subtabs.<p>
+tab "Physical" {
+    This tab collects data about the physical environment in the playbox.  
+    It has the following subtabs:<p>
 
     <<childlinks>>
 }
 
+
+tab "Physical/Map" {
+    The Map tab contains the Athena Map Viewer, the primary means of
+    visualizing Athena scenarios.  The Map Viewer is where 
+    <<cref /order/nbhood neighborhoods>> and <<cref /order/unit units>> are drawn,
+    <<cref /order/ensit "environmental situations">>  are 
+    created and positioned, and group moods and other <<cref /var/n>>
+    are visualized.  The
+    browser controls are described <<seebelow controls>>.<p>
+
+    <b>Basics:</b> For the most part, using the Map Viewer is
+    intuitive.  See the <i>Athena User's Guide</i> for information on map
+    cooperations and importing a map background into the scenario,
+    and for information on defining a scenario.<p>
+
+    <b><a name="controls">Browser Controls:</a></b>  The Map Viewer
+    has two toolbars, the manipulation toolbar along the left-hand
+    side and the visualization toolbar across the top.  These toolbars
+    contain the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_arrow]>>
+    Press this button to enable selection mode.  In this mode,
+    clicking on an object prints a brief description of the object to
+    the message line at the bottom of the window.  In addition, you
+    can control-click to drag units and environmental situations from
+    one place to another.  Simply press the <b>Ctrl</b> key, click on
+    the unit or situation, holding down the mouse button, and drag the
+    object to its new location.
+    <</topic>>
+
+    <<topic [image button_pan]>>
+    Press this button to enable panning mode.  In panning mode, click
+    and drag the map to pan from one part of the map to another.
+    Alternatively, use the scroll bars.
+    <</topic>>
+
+    <<topic [image button_location]>>
+    Press this button to enable location-entry mode, i.e., to enter a
+    <<term mapref>> into an order dialog or the CLI.<p>
+
+    It is rarely necessary to select this mode explicitly, as the
+    order dialogs select it automatically when the current order field
+    expects a <<term mapref>>. 
+    <</topic>>
+
+    <<topic [image button_poly]>>
+    Press this button to enable polygon-entry mode, i.e., to enter a
+    polygon (defined by a list of <<term mapref>>s) into an order
+    dialog or the CLI.<p>
+
+    It is rarely necessary to select this mode explicitly, as the
+    order dialogs select it automatically when the current order field
+    expects a polygon.
+    <</topic>>
+
+    <<topic [image button_nbhood]>>
+    Press this button to pop up the 
+    <<cref /order/nbhood/create>> order dialog.
+    <</topic>>
+
+    <<topic [image button_ensit]>>
+    Press this button to pop up the 
+    <<cref /order/ensit/create>> order
+    dialog.  Alternatively, right-click on the map and select
+    <<cref /order/ensit/create>> from the context
+    menu--this will pop up the order dialog with the selected location
+    already filled in.
+    <</topic>>
+
+    <<topic [image control_mapref]>>
+    This control shows the <<term mapref>> of the location under the
+    mouse pointer.
+    <</topic>>
+
+    <<topic [image button_extmap]>>
+    Map reference strings address a square region; if the map in use
+    is not a square, there is a strip of unused space on the
+    righthand-side or along the bottom.  If this button is selected,
+    this excess space is available as a place to position units or to
+    draw neighborhoods for remote regions.  Otherwise, all objects
+    must be on the map proper.
+    <</topic>>
+
+    <<topic [image button_nbfill]>>
+    By default, neighborhood polygons are transparent, revealing the
+    map background beneath.  If this button is selected, the polygons
+    will be filled with some color, nominally white.  See the
+    neighborhood fill type control, next, for other choices.
+    <</topic>>
+
+    <<topic [image control_filltype]>>
+    When the neighborhood fill button is selected, neighborhood
+    polygons are filled with color based on some 
+    <<cref /var/n "Neighborhood Variable">>.  This pulldown determines the
+    which variable is used.  Note that some variables are unavailable
+    during <<term prep>>.<p>
+
+    The pulldown is initially populated with a number of neighborhood
+    variables; others can be requested using the <<command nbfill>> 
+    command.
+
+    <</topic>>
+
+    <<topic [image control_zoom]>>
+    This pulldown controls the zoom level.  By default, the map is
+    drawn at 100%, its actual size.  Select one of the other zoom
+    levels to scale it up or down.  <b>Note:</b> the first time a
+    zoom level is chosen, there may be a delay as the map is scaled.
+    <</topic>>
+
+    <<topic "Context Menus">>Most objects drawn on the map have
+    context menus.  Right-click to pop up the menu.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+
+
 #-----------------------------------------------------------------------
 
-tab "Neighborhoods/Neighborhoods" {
+tab "Physical/Neighborhoods" {
     This tab shows basic data about each 
     <<term nbhood>>, as entered
     during <<term prep>>, along with some values computed as the
@@ -669,9 +668,7 @@ tab "Neighborhoods/Neighborhoods" {
 
 #-----------------------------------------------------------------------
 
-tab "Neighborhoods/Relationships" {
-    <b>Scenario Mode Only.</b><p>
-
+tab "Physical/Proximities" {
     This tab shows the relationship between pairs of
     <<cref /order/nbrel neighborhoods>>, as entered
     during <<term prep>>.  The browser controls are described 
@@ -718,207 +715,8 @@ tab "Neighborhoods/Relationships" {
 }
 
 #-----------------------------------------------------------------------
-tab "Neighborhoods/Manufacturing Plants" {
-    <b>Scenario Mode Only.</b><p>
 
-    This tab shows how manufacturing plants the represent the production
-    infrastructure of the goods sector should be apportioned to the
-    various <<term agent>>s and neighborhoods.  It also shows the 
-    initial repair level for those plants.  The user can specify initial
-    repair levels less than 1.0 indicating that some plants are already in 
-    a degraded state.  The browser controls are described
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Neighborhood">>The ID of a neighborhood.<</topic>>
-
-    <<topic "Owning Agent">>The ID of an actor, or 'SYSTEM'.<</topic>>
-
-    <<topic "Average Repair Level">>The average repair level of all the
-    manufacturing plants owned by the agent in the neighborhood.<</topic>>
-
-    <<topic "Share of Manufacturing Plants">>The share of plants that the
-    agent should be allocated in that neighborhood when the scenario is 
-    locked.<</topic>>
-
-    <</topiclist>>
-
-    <b><a name='controls'>Browser Controls:</a></b>  The browser's 
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plus]>>
-    Pops up the <<cref /order/plant/shares:create>> dialog.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    If one or more share definitions are selected, pops up the
-    <<cref /order/plant/shares:update>> or
-    <<cref /order/plant/shares:update:multi>> dialog for
-    the selection(s).<p>
-
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If a single definition is selected, deletes it
-    using the <<cref /order/plant/shares:delete>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Neighborhoods/Security" {
-    <b>Simulation Mode Only.</b><p>
-
-    This tab shows the <<term security>> of each group in each neighborhood.
-    This browser is populated only after Athena leaves
-    <<term prep>>.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Nbhood">>The ID of the neighborhood.<</topic>>
-
-    <<topic "Group">>The ID of the civilian, force, or organization 
-    group.  All groups are represented in each neighborhood.<</topic>>
-
-    <<topic "Personnel">>The number of the group's personnel present
-    in the neighborhood.<</topic>>
-    
-    <<topic Security>>The <<term security>> of the group in the neighborhood,
-    expressed as number using the following scale:<p>
-
-    <<projectlib::qsecurity html>>
-    <</topic>>
-
-    <<topic Symbol>>The <<term security>> of the group in the neighborhood,
-    expressed as a symbol from the following scale:<p>
-
-    <<projectlib::qsecurity html>>
-    <</topic>>
-
-    <<topic "Crim. Frac.">>
-    For civilian groups only, the group's nominal criminal fraction.  
-    This is the percentage of the group that
-    will engage in criminal activities against the neighborhood population
-    if unsuppressed by law enforcement.
-    <</topic>>
-
-    <<topic "Effective Crim. Frac.">>
-    For civilian groups only, the group's effective criminal fraction.  
-    This is the percentage of the group that
-    is actually engaging in criminal activities against the neighborhood 
-    population given current levels of law enforcement.
-    <</topic>>
-
-    <<topic "%Force">>A measure of the force the group can call on
-    this neighborhood, relative to other groups, as a percentage of
-    the total.
-    <</topic>>
-
-    <<topic "%Enemy">>A measure of the force opposed to the the group in
-    this neighborhood, relative to other groups, as a percentage of
-    the total.
-    <</topic>>
-
-    <<topic "Volatility">>A measure of the <<term volatility>> of the
-    neighborhood, i.e., the likelihood that an individual will be
-    caught up in violence in the neighborhood, as a number from 0 to
-    100.  The higher the volatility, the lower the <<term security>> of all
-    groups in the neighborhood.<p>
-
-    This number reflects the volatility gain.<p>
-
-    Note that this number is constant across groups in a neighborhood.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Neighborhoods/Activity" {
-    <b>Simulation Mode Only.</b><p>
-
-    This tab shows the coverage of the various activities assigned to
-    units in the neighborhoods of the playbox.  All force units
-    contribute to the <b>PRESENCE</b> activity of their group; in addition,
-    group personnel can be assigned activities via the
-    <<cref /object/tactic/assign>>.  This browser is populated only
-    after Athena leaves <<term prep>>.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Nbhood">>The ID of a neighborhood.<</topic>>
-
-    <<topic "Group">>The ID of the civilian, force, or organization 
-    group.<</topic>>
-    
-    <<topic Activity>>An activity assigned to units of the group, or
-    <b>PRESENCE</b> for force groups.
-    <</topic>>
-
-    <<topic Coverage>>The coverage of the activity, as a number
-    between 0.0 and 1.0: the fraction of the neighborhood population
-    affected by the activity.
-    <</topic>>
-
-    <<topic SecFlag>><b>YES</b> if the unit has sufficient
-    <<term security>> to perform the activity, and <b>NO</b>
-    otherwise; the required security level depends on the activity.
-    <</topic>>
-
-    <<topic "NomPers">>Nominal personnel: The number of the group's
-    personnel assigned to this activity in this neighborhood.
-    <</topic>>
-
-    <<topic "ActPers">>Actual personnel: The actual number of the
-    group's personnel actually performing the activity at any given
-    time, given the shift schedule for the activity.
-    <</topic>>
-
-    <<topic "EffPers">>Effective personnel: The number of personnel
-    who can effectively perform the activity at any given time, given
-    <<term security>> and (in theory) other factors.  The coverage is
-    based on this number.
-    <</topic>>
-
-    <<topic "SitType">>Situation type: If the activity has a coverage
-    greater than 0.0 it will engender an activity situation of this
-    type, resulting in a variety of attitude effects; see the
-    <i>Athena Rules Document</i> for details.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-
-#-----------------------------------------------------------------------
-
-tab "Neighborhoods/EnSits" {
+tab "Physical/EnSits" {
     This tab shows the environmental situations present in the
     playbox.  The browser controls are
     described <<seebelow controls>>; the data fields are as follows:<p>
@@ -1014,19 +812,301 @@ tab "Neighborhoods/EnSits" {
     <</topiclist>>
 }
 
-#=======================================================================
-# Groups Tab
 
-tab "Groups" {
-    This tab collects data about the various actors and groups in the 
-    playbox.  It has the following subtabs.<p>
+
+
+#-----------------------------------------------------------------------
+
+tab "Physical/Security" {
+    <b>Simulation Mode Only.</b><p>
+
+    This tab shows the <<term security>> of each group in each neighborhood.
+    This browser is populated only after Athena leaves
+    <<term prep>>.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The ID of the neighborhood.<</topic>>
+
+    <<topic "Group">>The ID of the civilian, force, or organization 
+    group.  All groups are represented in each neighborhood.<</topic>>
+
+    <<topic "Personnel">>The number of the group's personnel present
+    in the neighborhood.<</topic>>
+    
+    <<topic Security>>The <<term security>> of the group in the neighborhood,
+    expressed as number using the following scale:<p>
+
+    <<projectlib::qsecurity html>>
+    <</topic>>
+
+    <<topic Symbol>>The <<term security>> of the group in the neighborhood,
+    expressed as a symbol from the following scale:<p>
+
+    <<projectlib::qsecurity html>>
+    <</topic>>
+
+    <<topic "Crim. Frac.">>
+    For civilian groups only, the group's nominal criminal fraction.  
+    This is the percentage of the group that
+    will engage in criminal activities against the neighborhood population
+    if unsuppressed by law enforcement.
+    <</topic>>
+
+    <<topic "Effective Crim. Frac.">>
+    For civilian groups only, the group's effective criminal fraction.  
+    This is the percentage of the group that
+    is actually engaging in criminal activities against the neighborhood 
+    population given current levels of law enforcement.
+    <</topic>>
+
+    <<topic "%Force">>A measure of the force the group can call on
+    this neighborhood, relative to other groups, as a percentage of
+    the total.
+    <</topic>>
+
+    <<topic "%Enemy">>A measure of the force opposed to the the group in
+    this neighborhood, relative to other groups, as a percentage of
+    the total.
+    <</topic>>
+
+    <<topic "Volatility">>A measure of the <<term volatility>> of the
+    neighborhood, i.e., the likelihood that an individual will be
+    caught up in violence in the neighborhood, as a number from 0 to
+    100.  The higher the volatility, the lower the <<term security>> of all
+    groups in the neighborhood.<p>
+
+    This number reflects the volatility gain.<p>
+
+    Note that this number is constant across groups in a neighborhood.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Physical/Activity" {
+    <b>Simulation Mode Only.</b><p>
+
+    This tab shows the coverage of the various activities assigned to
+    units in the neighborhoods of the playbox.  All force units
+    contribute to the <b>PRESENCE</b> activity of their group; in addition,
+    group personnel can be assigned activities via the
+    <<cref /object/tactic/assign>>.  This browser is populated only
+    after Athena leaves <<term prep>>.  The browser controls are
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>The ID of a neighborhood.<</topic>>
+
+    <<topic "Group">>The ID of the civilian, force, or organization 
+    group.<</topic>>
+    
+    <<topic Activity>>An activity assigned to units of the group, or
+    <b>PRESENCE</b> for force groups.
+    <</topic>>
+
+    <<topic Coverage>>The coverage of the activity, as a number
+    between 0.0 and 1.0: the fraction of the neighborhood population
+    affected by the activity.
+    <</topic>>
+
+    <<topic SecFlag>><b>YES</b> if the unit has sufficient
+    <<term security>> to perform the activity, and <b>NO</b>
+    otherwise; the required security level depends on the activity.
+    <</topic>>
+
+    <<topic "NomPers">>Nominal personnel: The number of the group's
+    personnel assigned to this activity in this neighborhood.
+    <</topic>>
+
+    <<topic "ActPers">>Actual personnel: The actual number of the
+    group's personnel actually performing the activity at any given
+    time, given the shift schedule for the activity.
+    <</topic>>
+
+    <<topic "EffPers">>Effective personnel: The number of personnel
+    who can effectively perform the activity at any given time, given
+    <<term security>> and (in theory) other factors.  The coverage is
+    based on this number.
+    <</topic>>
+
+    <<topic "SitType">>Situation type: If the activity has a coverage
+    greater than 0.0 it will engender an activity situation of this
+    type, resulting in a variety of attitude effects; see the
+    <i>Athena Rules Document</i> for details.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Physical/Curses" {
+    <b>Scenario mode only.</b>
+    Athena allows the analyst to define their own situations and events
+    with any desired affects to attitudes. This is useful if there is 
+    something that an analyst needs to drive attitudes that isn't already 
+    explicitly modeled in Athena.  Through the use of <<term inject>>s that 
+    use flexible user defined <<term role>>s an analyst can cause any number
+    of changes to attitudes with whatever magnitudes are desired.  These
+    are referred to as Complex User-defined Role-based Situations and
+    Events or <<cref /order/curse CURSEs>> for short. This
+    tab lists the existing CURSEs along with their associated <<term inject>>s.
+    The browser controls are described <<seebelow controls>>; the data 
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+
+    <<topic "CURSE/Inject">>
+    A narrative description of each CURSE and inject.  A button at the left
+    margin allows CURSEs to be expanded to reveal their attached injects.
+    <</topic>>
+
+    <<topic "Cause">>The <<term cause>> associated with the CURSE.  Every
+    input to URAM is associated with a cause; inputs with different
+    causes are independent of one another.  The cause may be any of
+    the causes supported by Athena's Driver Assessment Model rule
+    sets, or <b>UNIQUE</b>, indicating that this CURSEs effects are
+    independent of all other drivers.<p>
+    <</topic>>
+
+    <<topic "Id">>The Id of the CURSE or inject, a value that 
+    uniquely identifies the CURSE or inject.<p>
+    <</topic>>
+
+    <<topic "Type">> For injects, the inject type.<p>
+    <</topic>>
+
+    <<topic "Mode">> For injects, the mode of the desired attitude change, 
+    either "transient" or "persistent".  Transient injects
+    affect the current level of the attitude curve during the next time step; 
+    persistent injects affect the attitude curve's baseline, and hence usually 
+    persistent during subsequent weeks.<p>
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plusc]>>
+    Pops up the <<cref /order/curse/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_plusi]>>
+    Pops up a dialog to create a new CURSE inject.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Depending on which row is selected, pops up either the 
+    <<cref /order/curse/update>> dialog or the appropriate <<term inject>> 
+    update dialog for the selected row.
+    <</topic>>
+
+    <<topic [image button_power]>>
+    Depending on which row is selected, toggles the selected CURSE or
+    inject on and off.  Disabled CURSEs will not have any of thier injects
+    executed.  Disabled injects will not be executed.  
+    <</topic>>
+
+    <<topic [image button_checktxt]>>
+    Force a sanity check of CURSEs and injects.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Depending on the selected row, either deletes a CURSE using the
+    <<cref /order/curse/delete>> order or the <<cref /order/inject/delete>>
+    order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+#-----------------------------------------------------------------------
+
+tab "Physical/NbhoodDemog" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the current demographics of each neighborhood.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic "Local">>Whether the neighborhood is part of the local
+    region or not.  Neighborhoods outside the region do not
+    participate in the regional economy.
+    <</topic>>
+
+    <<topic Population>>The current population of the neighborhood, 
+    including both resident civilian groups and displaced personnel.
+    <</topic>>
+    
+    <<topic Subsistence>>The number of people in the neighborhood that
+    support themselves by subsistence agriculture, and hence do not
+    participate in its regional economy.
+    <</topic>>
+
+    <<topic Consumers>>The number of people in the neighborhood that
+    consume goods and services, and hence <i>do</i>
+    participate in its regional economy.
+    <</topic>>
+
+    <<topic LaborForce>>The number of people in the neighborhood that
+    seek paid employment (though they might not find it).
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#=======================================================================
+# Politics Tab
+
+tab "Politics" {
+    This tab collects data about the politics of the playbox,
+    including the significant actors.  It has the following subtabs:<p>
 
     <<childlinks>>
 }
 
 #-----------------------------------------------------------------------
 
-tab "Groups/Actors" {
+tab "Politics/Actors" {
     This tab shows basic data about each 
     <<cref /object/actor "actor">>, as entered
     during <<term prep>>.
@@ -1068,512 +1148,7 @@ tab "Groups/Actors" {
 
 #-----------------------------------------------------------------------
 
-tab "Groups/CivGroups" {
-    This tab shows basic data about each 
-    <<term civgroup>>, as entered
-    during <<term prep>>.
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<parmlist Column Description>>
-
-    <<parm g "ID">>The group's ID.<</topic>>
-
-    <<group_civ parm longname -label "Long Name">>
-    <<group_civ parm n        -label "Nbhood">>
-    <<group_civ parm color    -label "Color">>
-    <<group_civ parm shape    -label "Unit Shape">>
-    <<group_civ parm demeanor -label "Demeanor">>
-    <<group_civ parm basepop  -label "BasePop">>
-    <<group_civ parm pop_cr   -label "Population Change Rate">>
-    <<group_civ parm sa_flag  -label "Subsistence Agriculture">>
-    <<group_civ parm lfp      -label "Labor Force%">>
-    <<group_civ parm housing  -label "Housing">>
-    <<group_civ parm upc      -label "Unemployment Per Capita">>
-
-    <</parmlist>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plus]>>
-    Pops up the <<cref /order/civgroup/create>> dialog.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    When a row is selected, pops up the 
-    <<cref /order/civgroup/update>> dialog for
-    the selected row.
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If a single row is selected, deletes it using the
-    <<cref /order/civgroup/delete>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Groups/FrcGroups" {
-    This tab shows basic data about the 
-    <<term frcgroup>>s that are active
-    in the playbox.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<parmlist Column Description>>
-
-    <<parm id ID>>The group's ID.<</parm>>
-    <<group_frc parm longname>>
-    <<group_frc parm a -label "Owner">>
-    <<group_frc parm color>>
-    <<group_frc parm shape>>
-    <<group_frc parm forcetype>>
-    <<group_frc parm training>>
-    <<group_frc parm base_personnel>>
-    <<group_frc parm demeanor>>
-    <<group_frc parm cost>>
-    <<group_frc parm attack_cost>>
-    <<group_frc parm uniformed>>
-    <<group_frc parm local -label "Local?">>
-    <</parmlist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plus]>>
-    Pops up the <<cref /order/frcgroup/create>> dialog.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/frcgroup/update>> or 
-    <<cref /order/frcgroup/update:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If a single row is selected, deletes it using the
-    <<cref /order/frcgroup/delete>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Groups/OrgGroups" {
-    This tab shows basic data about the 
-    <<cref /order/orggroup "organization groups">> that are active
-    in the playbox.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<parmlist Column Description>>
-
-    <<parm id ID>>The group's ID.<</topic>>
-    <<group_org parm longname>>
-    <<group_org parm a -label "Owner">>
-    <<group_org parm color>>
-    <<group_org parm shape>>
-    <<group_org parm orgtype -label "Org Type">>
-    <<group_org parm base_personnel>>
-    <<group_org parm demeanor>>
-    <<group_org parm cost>>
-    <</parmlist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plus]>>
-    Pops up the <<cref /order/orggroup/create>> dialog.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/orggroup/update>> or 
-    <<cref /order/orggroup/update:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If a single row is selected, deletes it using the
-    <<cref /order/orggroup/delete>> order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-
-#=======================================================================
-# Attitudes
-
-tab "Attitudes" {
-    The subtabs of the Attitudes tab display various data related to the 
-    URAM attitude model.  The full set of subtabs is as follows:<p>
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Attitudes/Beliefs" {
-    <b>Scenario Mode Only.</b><p>
-
-    This tab contains the Belief System Browser, which allows the user
-    to edit the belief systems of the actors and civilian groups. The
-    browser has the following major areas:
-
-    <ul>
-    <li> <b>The <<cref /tab/attitudes/beliefs/topic "Topics List">></b>,
-    where topics of belief are viewed and edited.<p>
-
-    <li> <b>The <<cref /tab/attitudes/beliefs/entity "Entities Tree">></b>,
-    which lists the available actors and civilian groups.<p>
-
-    <li> <b>The <<cref /tab/attitudes/beliefs/beliefs "Beliefs List">></b>,
-    where an entity's beliefs are specified.<p>
-
-    <li> <b>The <<cref /tab/attitudes/beliefs/affinity "Affinities Pane">></b>,
-    where the currently selected entity's affinities are displayed.<p>
-    </ul>
-
-    Note that you can drag the border between the areas to make them
-    bigger or smaller.
-
-    See the <i>Athena User's Guide</i> for more about defining belief
-    systems.<p>
-}
-
-page /tab/attitudes/beliefs topic "Belief Systems Browser Topics List" {
-    <<title>>
-
-    The Topics List lists all of the currently defined topics, and
-    allows them to be created and edited.  The major portion of the
-    list is a table with the following columns:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Topic>>
-    The topic ID, a string chosen by the user when
-    creating the topic.
-    <</topic>>
-
-    <<topic Affinity?>>
-    The affinity flag.  If "Yes", the topic is included when
-    computing affinity, and if "No" it is not.  Selected the desired
-    value from the pulldown in the topic's row.
-    <</topic>>
-
-    <<topic Title>>
-    The topic's human-readable title, a string chosen by the user when
-    creating the topic.  To edit, use the "pencil" control or simply
-    click on the title.
-    <</topic>>
-
-    <</topiclist>><p>
-
-    The Topic List's toolbar has the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plust]>>
-    Pops up the <<cref /order/bsystem/topic/create>> dialog.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    Pops up the <<cref /order/bsystem/topic/update>> dialog for the
-    selected topic.
-    <</topic>>
-
-    <<topic [image control_pcommon]>>
-    Sets the playbox commonality level.
-    <</topic>>
-
-    <<topic [image control_autocalc]>>
-    Enables/disables automatic calculation.  If checked, all
-    affinities will be recomputed whenever any belief system input is
-    changed.
-    <</topic>>
-
-    <<topic [image button_calcnow]>>
-    Forces the affinities to be re-calculated.
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If a single row is selected, deletes it using the
-    <<cref /order/bsystem/topic/delete>> order.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-page /tab/attitudes/beliefs entity "Belief Systems Browser Entities Tree" {
-    <<title>>
-
-    The Entities Tree lists all defined actors and civilian groups.<p>
-
-    <<image bsystem_entities>><p>
-
-    Select an actor or group to edit its belief system.<p>
-}
-
-page /tab/attitudes/beliefs beliefs "Belief Systems Browser Beliefs List" {
-    <<title>>
-
-    The Beliefs List lists all of the beliefs of the currently
-    selected actor or group, and allows them to be edited.  
-    The major portion of the
-    list is a table with the following columns:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Topic>>
-    The topic ID about which the entity has a belief.
-    <</topic>>
-
-    <<topic Position>>
-    The entity's position on this topic.  Select a value from the
-    pulldown.
-    <</topic>>
-
-    <<topic "Emphasis is On">>
-    The entity's emphasis on agreement vs. disagreement for this
-    topic.  Select a value from the pulldown.
-    <</topic>>
-
-    <</topiclist>><p>
-
-    The Topic List's toolbar has the following control:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image control_ecommon]>>
-    Sets the entity's commonality level, i.e., its participation in
-    the playbox commonality.
-    <</topic>>
-
-    <</topiclist>>
-    
-}
-
-page /tab/attitudes/beliefs affinity "Belief Systems Browser Affinities Pane" {
-    <<title>>
-
-    This pane shows the affinity between entity A, the entity
-    currently selected in the Entity Tree and every other entity, and
-    also their affinities with A.  Click on a column header to sort on
-    that column.
-}
-
-#-----------------------------------------------------------------------
-
-tab "Attitudes/HRel" {
-    This tab shows the horizontal relationships (HRel) between the
-    various pairs of groups in the playbox.  Each row concerns the
-    relationship of group F with group G from group F's point of
-    view.<p>
-
-    This browser functions differently in Scenario mode vs. Simulation
-    mode.
-
-    <<childlinks>>
-}
-
-page /tab/attitudes/hrel scenario "HRel browser, Scenario Mode" {
-    <<title>>
-
-    In <b>Scenario Mode</b>, the horizontal relationship
-    browser shows the natural,
-    affinity-based level for each relationship, along with the initial
-    baseline value.  The baseline value defaults to the natural level,
-    but can be overridden by the user.  Default baselines are
-    shown in green text; overridden baselines are shown in red text.
-
-    Initially, horizontal relationships are computed automatically from the 
-    belief systems model; civilian groups have their own 
-    belief systems, and force and organization groups inherit the
-    belief systems of their owning actors.  Computed relationships
-    are shown in green text.<p>
-
-    Additionally, the analyst can override any initial relationship
-    with a specific value; these manually-entered relationships are
-    shown in red text.<p>
-
-    The browser controls are described <<seebelow controls>>; the data
-    fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Of Group F">>A group ID.<</topic>>
-    
-    <<topic "With Group G">>Another group ID.<</topic>>
-    
-    <<topic "F Type">>The group type of group F:<p>
-
-    <<enumdoc ::simlib::egrouptype>>
-    <</topic>>
-
-    <<topic "G Type">>The group type of group G, as above.<p>
-
-    <</topic>>
-
-    <<topic "Baseline">> The initial baseline relationship between
-    group F and group G from F's point of view, a number drawn from the
-    following scale:<p>
-
-    <<::simlib::qaffinity html>>
-
-    <</topic>>
-
-    <<topic "Current">>
-    The initial current relationship, as set during
-    <<term prep>>.  It will usually be the same as the baseline value; but
-    see the discussion on the help page for the 
-    <<cref /order/hrel/override>> order.
-    <</topic>>
-    
-    <<topic "Natural">> The natural relationship between group F and
-    group G from F's point of view, as derived from the affinity
-    between the two groups.  It will be the same as the baseline value
-    unless the baseline has been overridden by the analyst.  In the
-    absence of other drivers, the baseline relationship will regress to 
-    this value slowly over time.<p>
-
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/hrel/override>> or 
-    <<cref /order/hrel/override:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If an overridden relationship is selected, deletes the
-    override and restores the computed relationship.
-    <</topic>>
-
-    <<topic [image viewbox]>>
-    The view box determines which set of entities is to be displayed.
-    The following sets may be selected from the pulldown:<p>
-
-    <ul>
-    <li> <b>All</b>: All relationships, whether computed or overridden.
-    <li> <b>Overridden</b>: Manually overridden relationships only.
-    </ul>
-    <</topic>>
-
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-page /tab/attitudes/hrel simulation "HRel browser, Simulation Mode" {
-    <<title>>
-
-    In <b>Simulation Mode</b>, the horizontal relationship
-    browser shows the current, baseline, and natural levels for
-    each relationship for the current time and for time 0.  The
-    current level is the baseline level plus any transient effects.
-    The presence of transient effects will cause the baseline level to
-    change slowly, and in the absence of attitude drivers 
-    the baseline level will regress slowly back to the natural level
-    over time.<p>
-
-    The browser controls are described <<seebelow controls>>; the data
-    fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Of Group F">>A group ID.<</topic>>
-    
-    <<topic "With Group G">>Another group ID.<</topic>>
-    
-    <<topic "F Type">>The group type of group F:<p>
-
-    <<enumdoc ::simlib::egrouptype>>
-    <</topic>>
-
-    <<topic "G Type">>The group type of group G, as above.<p>
-    <</topic>>
-
-    <<topic "Current">> The current relationship between
-    group F and group G from F's point of view, a number drawn from the
-    following scale:<p>
-
-    <<::simlib::qaffinity html>><p>
-
-    The current relationships is the baseline plus any transient effects.
-    <</topic>>
-
-    <<topic "Baseline">> The baseline relationship between
-    group F and group G from F's point of view.
-    <</topic>>
-
-    <<topic "Natural">> The natural relationship between group F and
-    group G from F's point of view, as derived from the affinity
-    between the two groups.  In the
-    absence of attitude drivers, the baseline relationship will regress to 
-    this value slowly over time.<p>
-
-    <</topic>>
-
-    <<topic "Current at T0">> The current relationship between
-    group F and group G from F's point of view at time 0.
-    <</topic>>
-
-    <<topic "Baseline at T0">> The baseline relationship between
-    group F and group G from F's point of view at time 0.
-    <</topic>>
-
-    <<topic "Natural at T0">> The natural relationship between group F and
-    group G from F's point of view at time 0.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/hrel>> dialog for
-    the selected relationship.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Attitudes/VRel" {
+tab "Politics/VRel" {
     This tab shows the vertical relationships (VRel) between the
     groups and actors in the playbox.  Each row concerns the
     relationship of group G with actor A from group G's point of
@@ -1585,7 +1160,7 @@ tab "Attitudes/VRel" {
     <<childlinks>>
 }
 
-page /tab/attitudes/vrel scenario "VRel browser, Scenario Mode" {
+page /tab/politics/vrel scenario "VRel browser, Scenario Mode" {
     <<title>>
 
     In <b>Scenario Mode</b>, the vertical relationship
@@ -1679,7 +1254,7 @@ page /tab/attitudes/vrel scenario "VRel browser, Scenario Mode" {
     <</topiclist>>
 }
 
-page /tab/attitudes/vrel simulation "VRel browser, Simulation Mode" {
+page /tab/politics/vrel simulation "VRel browser, Simulation Mode" {
     <<title>>
 
     In <b>Simulation Mode</b>, the vertical relationship
@@ -1755,889 +1330,61 @@ page /tab/attitudes/vrel simulation "VRel browser, Simulation Mode" {
     <</topiclist>>
 }
 
-#-----------------------------------------------------------------------
-
-tab "Attitudes/Satisfaction" {
-    This tab shows the full set of satisfaction curves for all 
-    civilian groups.
-
-    This browser functions differently in Scenario mode vs. Simulation
-    mode.
-
-    <<childlinks>>
-}
-
-page /tab/attitudes/satisfaction scenario "Satisfaction browser, Scenario Mode" {
-    <<title>>
-
-    In <b>Scenario Mode</b>, the satisfaction browser shows the baseline
-    level and saliency of each satisfaction curve, as entered by the
-    user.  The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Group>>The name of a civilian group that's resident in
-    the neighborhood.<</topic>>
-    
-    <<topic "Concern">>A concern of the specified group, from
-    the following enumeration.<p>
-
-    <<enumdoc ::projectlib::econcern>>
-    <</topic>>
-
-    <<topic Nbhood>>A neighborhood name.<</topic>>
-
-    <<topic "Baseline">>The initial baseline satisfaction value for this
-    curve, as set during <<term prep>>.  It is a real number
-    taken from the following scale:<p>
-
-    <<::simlib::qsat html>>
-    <</topic>>
-
-    <<topic "Current">>
-    The initial current satisfaction value for this curve, as set during
-    <<term prep>>.  It will usually be the same as the baseline value; but
-    see the discussion on the help page for the 
-    <<cref /order/sat/update>> order.
-    <</topic>>
-    
-    <<topic Saliency>>The importance of this concern to this group in
-    this neighborhood, a real number from the following scale:<p>
-
-    <<::simlib::qsaliency html>>
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/sat/update>> or <<cref /order/sat/update:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-page /tab/attitudes/satisfaction simulation "Satisfaction browser, Simulation Mode" {
-    <<title>>
-
-    In <b>Simulation Mode</b>, the satisfaction browser shows the 
-    current, baseline, and natural levels for each satisfaction curve
-    for the current time and for time 0.  Note that by default, only 
-    SFT satisfaction curves regress to a natural level.<p>
-
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Group>>The name of a civilian group that's resident in
-    the neighborhood.<</topic>>
-    
-    <<topic "Concern">>A concern of the specified group, from
-    the following enumeration.<p>
-
-    <<enumdoc ::projectlib::econcern>>
-    <</topic>>
-
-    <<topic Nbhood>>A neighborhood name.<</topic>>
-
-    <<topic "Current">> The group's current satisfaction the concern,
-    a number drawn from the following scale:<p>
-
-    <<::simlib::qsat html>><p>
-
-    The current level is the baseline plus any transient effects.
-    <</topic>>
-
-    <<topic "Baseline">> The baseline satisfaction level.  This will
-    change slowly in response to transient effects.
-    <</topic>>
-
-    <<topic "Natural">> The natural satisfaction level (if defined).  In
-    the absence of attitude drivers, the baseline relationship will 
-    regress to this value slowly over time.<p>
-
-    <</topic>>
-
-    <<topic "Current at T0">> The current level at time 0.
-    <</topic>>
-
-    <<topic "Baseline at T0">> The baseline level at time 0.
-    <</topic>>
-
-    <<topic "Natural at T0">> The natural level (if defined) at time 0.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/sat>> dialog for
-    the selected curve.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Attitudes/Cooperation" {
-    This tab displays the full set of cooperation curves for all
-    civilian groups with all force groups.
-
-    This browser functions differently in Scenario mode vs. Simulation
-    mode.
-
-    <<childlinks>>
-}
-
-page /tab/attitudes/cooperation scenario "Cooperation browser, Scenario Mode" {
-    <<title>>
-
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Of Group">>The name of a civilian group resident in the
-    neighborhood.
-    <</topic>>
-    
-    <<topic "With Group">>The name of a force group.
-    <</topic>>
-
-    <<topic "Baseline Level">>The initial baseline cooperation value for this
-    curve, as set during <<term prep>>.  It is a real number
-    taken from the following scale:<p>
-
-    <<::simlib::qcooperation html>>
-    <</topic>>
-    
-    <<topic "Natural Level">>The natural level for this
-    curve, as set during <<term prep>>.  The baseline will regress to 
-    this value over time, in the absence of other effects.
-    <</topic>>
-    
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/coop/update>> or <<cref /order/coop/update:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-page /tab/attitudes/cooperation simulation "Cooperation browser, Simulation Mode" {
-    <<title>>
-
-    In <b>Simulation Mode</b>, the cooperation browser shows the 
-    current, baseline, and natural levels for each cooperation curve
-    for the current time and for time 0.<p>
-
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Of Group">>The name of a civilian group resident in the
-    neighborhood.
-    <</topic>>
-    
-    <<topic "With Group">>The name of a force group.
-    <</topic>>
-
-    <<topic "Current">> Group F's current cooperation with group G,
-    a number drawn from the following scale:<p>
-
-    <<::simlib::qcooperation html>><p>
-
-    The current level is the baseline plus any transient effects.
-    <</topic>>
-
-    <<topic "Baseline">> The baseline cooperation level.  This will
-    change slowly in response to transient effects.
-    <</topic>>
-
-    <<topic "Natural">> The natural cooperation level. In
-    the absence of attitude drivers, the baseline level will 
-    regress to this value slowly over time.<p>
-
-    <</topic>>
-
-    <<topic "Current at T0">> The current level at time 0.
-    <</topic>>
-
-    <<topic "Baseline at T0">> The baseline level at time 0.
-    <</topic>>
-
-    <<topic "Natural at T0">> The natural level at time 0.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/coop>> dialog for
-    the selected curve.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Attitudes/NbhoodCoop" {
-    <b>Simulation Mode Only.</b><p>
-
-    This tab displays the cooperation of the residents of each
-    neighborhood with each force group.  This data is not available 
-    during <<term prep>>, and so the tab is not populated with
-    data until the first time advance. The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Nbhood">>A neighborhood name.<</topic>>
-
-    <<topic "With Group">>The name of a force group.
-    <</topic>>
-
-    <<topic "Coop at T0">>The cooperation of the neighborhood
-    with the force group, as of time 0.  It is a real number
-    taken from the following scale:<p>
-
-    <<::simlib::qcooperation html>>
-    <</topic>>
-    
-    <<topic "Coop Now">>The cooperation of the neighborhood withthe
-    force group, at the current time.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Attitudes/Magic Attitude Drivers" {
-    Athena defines a number of drivers of attitude change, including
-    activity situations, environmental situations, and civilian
-    casualties.  It also allows the analyst to define their own
-    attitude drivers, with any desired affects.  Such drivers are
-    called <<cref /order/mad "Magic Attitude Drivers">>, or "MADs".  This
-    tab lists the existing MADs.  The browser controls are
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "ID">>The ID of the Magic Attitude Driver<</topic>>
-
-    <<topic "Narrative">>A short one-line description of the driver,
-    e.g., as a memory-jogger for the analyst.
-    <</topic>>
-
-    <<topic "Cause">>The <<term cause>> associated with the driver.  Every
-    input to URAM is associated with a cause; inputs with different
-    causes are independent of one another.  The cause may be any of
-    the causes supported by Athena's Driver Assessment Model rule
-    sets, or <b>UNIQUE</b>, indicating that this driver's effects are
-    independent of all other drivers.
-    <</topic>>
-
-    <<topic "Here Factor (s)">>A URAM input can have indirect effects
-    in the same neighborhood, i.e., <b>HERE</b>.  The here factor is a
-    real number between 0.0 and 1.0 and determines the strength of
-    these indirect effects.  If 0.0, there will be no <b>HERE</b>
-    effects.  The here factor is usually 1.0.
-    <</topic>>
-
-    <<topic "Near Factor (p)">>A URAM input can have indirect effects
-    in <b>NEAR</b> neighborhoods.  The near factor is a real number
-    between 0.0 and 1.0 and determines the strength of these indirect
-    effects.  If 0.0, there will be no <b>NEAR</b> effects.
-    <</topic>>
-
-    <<topic "Far Factor (q)">>A URAM input can have indirect effects
-    in <b>FAR</b> neighborhoods.  The far factor is a real number
-    between 0.0 and 1.0 and determines the strength of these indirect
-    effects.  If 0.0, there will be no <b>FAR</b> effects.
-    <</topic>>
-
-    <<topic "Driver ID">>The URAM Driver ID associated with this MAD.  
-    There will be no driver ID until the first time magic inputs 
-    associated with the MAD are assessed.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plus]>>
-    Pops up the <<cref /order/mad/create>> dialog.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    If a single row is selected, pops up the 
-    <<cref /order/mad/update>> dialog for
-    the selected row.
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If a single row is selected, deletes it
-    using the <<cref /order/mad/delete>> order.  Note that drivers with
-    associated inputs or adjustments cannot be deleted.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-tab "Attitudes/Curses" {
-    <b>Scenario mode only.</b>
-    Athena allows the analyst to define their own situations and events
-    with any desired affects to attitudes. This is useful if there is 
-    something that an analyst needs to drive attitudes that isn't already 
-    explicitly modeled in Athena.  Through the use of <<term inject>>s that 
-    use flexible user defined <<term role>>s an analyst can cause any number
-    of changes to attitudes with whatever magnitudes are desired.  These
-    are referred to as Complex User-defined Role-based Situations and
-    Events or <<cref /order/curse CURSEs>> for short. This
-    tab lists the existing CURSEs along with their associated <<term inject>>s.
-    The browser controls are described <<seebelow controls>>; the data 
-    fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-
-    <<topic "CURSE/Inject">>
-    A narrative description of each CURSE and inject.  A button at the left
-    margin allows CURSEs to be expanded to reveal their attached injects.
-    <</topic>>
-
-    <<topic "Cause">>The <<term cause>> associated with the CURSE.  Every
-    input to URAM is associated with a cause; inputs with different
-    causes are independent of one another.  The cause may be any of
-    the causes supported by Athena's Driver Assessment Model rule
-    sets, or <b>UNIQUE</b>, indicating that this CURSEs effects are
-    independent of all other drivers.<p>
-    <</topic>>
-
-    <<topic "Id">>The Id of the CURSE or inject, a value that 
-    uniquely identifies the CURSE or inject.<p>
-    <</topic>>
-
-    <<topic "Type">> For injects, the inject type.<p>
-    <</topic>>
-
-    <<topic "Mode">> For injects, the mode of the desired attitude change, 
-    either "transient" or "persistent".  Transient injects
-    affect the current level of the attitude curve during the next time step; 
-    persistent injects affect the attitude curve's baseline, and hence usually 
-    persistent during subsequent weeks.<p>
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plusc]>>
-    Pops up the <<cref /order/curse/create>> dialog.
-    <</topic>>
-
-    <<topic [image button_plusi]>>
-    Pops up a dialog to create a new CURSE inject.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    Depending on which row is selected, pops up either the 
-    <<cref /order/curse/update>> dialog or the appropriate <<term inject>> 
-    update dialog for the selected row.
-    <</topic>>
-
-    <<topic [image button_power]>>
-    Depending on which row is selected, toggles the selected CURSE or
-    inject on and off.  Disabled CURSEs will not have any of thier injects
-    executed.  Disabled injects will not be executed.  
-    <</topic>>
-
-    <<topic [image button_checktxt]>>
-    Force a sanity check of CURSEs and injects.
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    Depending on the selected row, either deletes a CURSE using the
-    <<cref /order/curse/delete>> order or the <<cref /order/inject/delete>>
-    order.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
 #=======================================================================
-# Info
+# Military Tab
 
-tab "Info" {
-    The subtabs of the Info tab display various data related to Athena's
-    Information models.  The full set of subtabs is as follows:<p>
+tab "Military" {
+    This tab collects data about the use of military force in the playbox.  
+    It has the following subtabs:<p>
 
     <<childlinks>>
 }
 
 #-----------------------------------------------------------------------
 
-tab "Info/CAPs" {
-    This tab shows the definition of each Communications Asset Package,
-    or <<term cap>>, as entered during <<term prep>> and modified 
-    thereafter.  The tab has three major panes:<p>
-
-    <ul>
-    <li> The <<cref /tab/info/caps/caps "CAPs Pane">>, in which CAPs 
-        are created and edited.
-    <li> The <<cref /tab/info/caps/nbhood "Coverage Area Pane">>, 
-        in which the coverage area of each CAP is edited.
-    <li> The <<cref /tab/info/caps/group "Group Penetration Pane">>, 
-        in which the penetration of a give CAP into the civilian groups 
-        is edited.
-    </ul>
-}
-
-page /tab/info/caps caps "CAPS Pane" {
-    <<title>>
-
-    This pane lists each of the currently defined <<term cap CAPs>>.
-    The browser controls are described 
+tab "Military/Force Groups" {
+    This tab shows basic data about the 
+    <<term frcgroup>>s that are active
+    in the playbox.  The browser controls are described 
     <<seebelow controls>>; the data fields are as follows:<p>
 
     <<parmlist Column Description>>
-    <<parm k ID>>The CAP's ID.<</parm>>
 
-    <<cap_ parms -tags browser>>
+    <<parm id ID>>The group's ID.<</parm>>
+    <<group_frc parm longname>>
+    <<group_frc parm a -label "Owner">>
+    <<group_frc parm color>>
+    <<group_frc parm shape>>
+    <<group_frc parm forcetype>>
+    <<group_frc parm training>>
+    <<group_frc parm base_personnel>>
+    <<group_frc parm demeanor>>
+    <<group_frc parm cost>>
+    <<group_frc parm attack_cost>>
+    <<group_frc parm uniformed>>
+    <<group_frc parm local -label "Local?">>
     <</parmlist>>
 
-    <b><a name="controls">Browser Controls:</a></b>  The browser's 
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
 
     <<topic [image button_plus]>>
-    Pops up the <<cref /order/cap/create>> dialog.
+    Pops up the <<cref /order/frcgroup/create>> dialog.
     <</topic>>
 
     <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up an order dialog for 
-    the selected rows, allow the user to edit the data.  During 
-    <<term prep>>, any CAP data but the ID can be edited;
-    once the scenario is locked, only the capacity can be edited.  The
-    <<cref /order/cap/update>>, <<cref /order/cap/update:multi>>,
-    <<cref /order/cap/capacity>>, or <<cref /order/cap/capacity:multi>>
-    orders are used, as appropriate.
+    If one or more rows are selected, pops up the 
+    <<cref /order/frcgroup/update>> or 
+    <<cref /order/frcgroup/update:multi>> dialog for
+    the selected row(s).
     <</topic>>
 
     <<topic [image button_trash]>>
     If a single row is selected, deletes it using the
-    <<cref /order/cap/delete>> order.
+    <<cref /order/frcgroup/delete>> order.
     <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-page /tab/info/caps nbhood "Coverage Area Pane" {
-    <<title>>
-
-    This pane shows the coverage of each <<term nbhood>> by each 
-    <<term cap>>, as entered during <<term prep>> and modified 
-    thereafter.  <b>NOTE:</b> By default, only neighborhoods with 
-    non-zero coverage are shown.  To extend a CAP's coverage to
-    new neighborhoods, first use the "View:" pull-down to see
-    all neighborhoods.<p>
-
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<parmlist Column Description>>
-    <<parm k "Of CAP">>A CAP ID.<</parm>>
-    <<parm n "In Nbhood">>A neighborhood ID.<</parm>>
-    <<parm nbcov "Coverage">>The coverage of the neighborhood by the CAP,
-    as a fraction from 0.0 to 1.0.
-    <</parmlist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's 
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/cap/nbcov/set>> or 
-    <<cref /order/cap/nbcov/set:multi>> 
-    dialog for the selected rows, allowing the data to be edited.
-    <</topic>>
-
-    <<topic [image control_knview]>>
-    Selects the set of neighborhood coverage records to display: 
-    <b>All</b> records, or only those that are <b>Non-Zero</b>.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-page /tab/info/caps group "Group Penetration Pane" {
-    <<title>>
-
-    This pane shows the penetration of each <<term civgroup>> by each 
-    <<term cap>>, as entered during <<term prep>> and modified 
-    thereafter.  In addition, it shows the ultimate coverage of each
-    group by each CAP, as computed from the penetration, the neighborhood 
-    coverage, and the CAP's own capacity.  <b>NOTE:</b> By default, only
-    groups with non-zero penetration are shown.  To extend a CAP's 
-    penetration to new groups, first use the "View:" pull-down to see
-    all groups.<p>
-
-    The browser controls are 
-    described <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<parmlist Column Description>>
-    <<parm k "Of CAP">>A CAP ID.<</parm>>
-    <<parm owner "With Owner">>The CAP's owning <<term actor>>.<</parm>>
-    <<parm g "Into Group">>A civilian group ID.<</parm>>
-    
-    <<parm n "In Nbhood">>
-    The ID of the group's home <<term nbhood>>.
-    <</parm>>
-
-    <<parm capcov "Grp Cov">>
-    <b>Computed.</b> The ultimate coverage of this group by this CAP, 
-    as a fraction from 0.0 to 1.0.
-    <</parm>>
-
-    <<parm pen "= Grp Pen">>
-    Penetration of this group by this CAP, as a fraction from 0.0 to 1.0.
-    <</parm>>
-
-    <<parm nbcov "* Nbhood Cov">>
-    The coverage of the group's 
-    neighborhood by the CAP, as a fraction from 0.0 to 1.0.
-    <</parm>>
-
-    <<parm capacity "* Capacity">>
-    The CAP's current capacity.
-    <</parm>>
-    <</parmlist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's 
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/cap/pen/set>> or 
-    <<cref /order/cap/pen/set:multi>> 
-    dialog for the selected rows, allowing the group penetration values
-    to be edited.
-    <</topic>>
-
-    <<topic [image control_knview]>>
-    Selects the set of group penetration records to display: 
-    <b>All</b> records, or only those that are <b>Non-Zero</b>, or
-    only those that are <b>Orphans</b>, i.e., those groups for which the
-    CAP has positive penetration but 0.0 coverage of the groups' home 
-    neighborhoods.  Orphans are ignored by the simulation.
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Info/Semantic Hooks" {
-    The Semantic Hooks tab is where the analyst browses and edits 
-    <<term hook>>s and their <<term topic>>s.<p>
-
-    The browser consists of a tool bar containing controls used in 
-    creating, editing, and manipulating semantic hooks and topics, and
-    an outline view of the semantic hooks with associated topics
-    attached to each semantic hook underneath. The user can expand or
-    collapse each semantic hook to show or hide the attached topics.<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Hook/Topic">>
-    A narrative description of each semantic hook and hook topic. A
-    button at the left margin allows semantic hooks to be expanded to
-    reveal their attached topics.
-    <</topic>>
-
-    <<topic "Id">> The semantic hook or hook topic ID, a value that 
-    uniquely indentifies the semantic hook or topic.<p>
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Controls:</a></b>  The browser's toolbar
-    contains the following controls:<p>
-
-    <<topiclist Control Description>>
-    <<topic [image button_plush]>>
-    Create a new semantic hook.
-    <</topic>>
-
-    <<topic [image button_plust]>>
-    Add a topic and position on that topic for the selected semantic hook.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    Pops up the update dialog for the selected semantic hook or topic.
-    <</topic>>
-
-    <<topic [image button_power]>>
-    Toggles the selected hook topic on and off.  Disabled topics are
-    grayed out with an overstrike.
-    <</topic>>
-
-    <<topic [image button_checktxt]>>
-    Force a sanity check of the semantic hooks. 
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    Deletes the selected semantic hook or hook topic. 
-    <</topic>>
-
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Info/Info Ops Messages" {
-    The Info Ops Messages tab is where the analyst browses and edits
-    <<term iom>>'s and their <<term payload>>s.<p>
-
-    The browser consists of a tool bar containing controls used in
-    creating, editing, and manipulating IOMs and payloads, and an
-    outline view of the IOMs with the payloads attached to each IOM
-    indented underneath.  The user can expand or collapse each IOM to
-    show or hide the attached payloads.<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "IOM/Payload">>
-    A narrative description of each IOM and payload.  A button at the 
-    left margin allows IOMs to be expanded to reveal
-    their attached payloads.
-    <</topic>>
-
-    <<topic "Id">> The IOM or payload ID, a value that uniquely
-    identifies the IOM or payload.<p>
-    <</topic>>
-
-    <<topic "Type">> For payloads, the payload type.<p>
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_plusi]>>
-    Create a new IOM.
-    <</topic>>
-
-    <<topic [image button_plusp]>>
-    Create a new payload for the currently selected IOM.
-    <</topic>>
-
-    <<topic [image button_pencil]>>
-    Pops up the update dialog for the selected IOM or payload.
-    <</topic>>
-
-    <<topic [image button_power]>>
-    Toggles the selected IOM or payload on and off.  Disabled items are
-    grayed out with an overstrike.
-    <</topic>>
-
-    <<topic [image button_checktxt]>>
-    Force a sanity check of the IOMs and payloads. 
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    Deletes the selected IOM or payload.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-
-
-
-#=======================================================================
-# Demog
-
-tab "Demog" {
-    <b>Simulation Mode only.</b><p>
-
-    This tab displays the current demographics of the playbox.  It
-    has the following subtabs.<p>
-
-    <<childlinks>>
-}
-
-
-tab "Demog/Groups" {
-    <b>Simulation Mode only.</b><p>
-
-    This tab displays the current demographics of each neighborhood group.
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic "Group">>
-    The name of a civilian group that's resident in
-    the neighborhood.
-    <</topic>>
-    
-    <<topic "Nbhood">>
-    A neighborhood name.
-    <</topic>>
-
-    <<topic "Base Population">>
-    The base population of the group in the
-    neighborhood, i.e., the number of group members resident in the
-    neighborhood at time 0, as set by the 
-    <<cref /order/civgroup/create>> order.
-    <</topic>>
-
-    <<topic "Subsist. Agric.">>
-    The group's subsistence agriculture flag.  If yes, the group lives
-    by subsistence agriculture, and does not participate in the local
-    cash economy.
-    <</topic>>
-    
-    <<topic "Change Rate">>
-    The normal rate of population change due to births and
-    natural deaths, stated as a percentage change per year.
-    The rate may be positive, negative, or zero.
-    <</topic>>
-    
-    <<topic "Current Population">>
-    The current population of the group in the
-    neighborhood, the base population as affected by normal
-    population change, attrition, and flows to and from other
-    groups.
-    <</topic>>
-
-    <<topic Attrition>>The number of personnel lost to this 
-    civilian group through attrition since time 0.
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-#-----------------------------------------------------------------------
-
-tab "Demog/Nbhoods" {
-    <b>Simulation Mode only.</b><p>
-
-    This tab displays the current demographics of each neighborhood.
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
-
-    <<topiclist Column Description>>
-
-    <<topic Nbhood>>A neighborhood name.<</topic>>
-
-    <<topic "Local">>Whether the neighborhood is part of the local
-    region or not.  Neighborhoods outside the region do not
-    participate in the regional economy.
-    <</topic>>
-
-    <<topic Population>>The current population of the neighborhood, 
-    including both resident civilian groups and displaced personnel.
-    <</topic>>
-    
-    <<topic Subsistence>>The number of people in the neighborhood that
-    support themselves by subsistence agriculture, and hence do not
-    participate in its regional economy.
-    <</topic>>
-
-    <<topic Consumers>>The number of people in the neighborhood that
-    consume goods and services, and hence <i>do</i>
-    participate in its regional economy.
-    <</topic>>
-
-    <<topic LaborForce>>The number of people in the neighborhood that
-    seek paid employment (though they might not find it).
-    <</topic>>
-
-    <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
 
     <<control.filterbox>>
     <<control.headers>>
@@ -2647,14 +1394,14 @@ tab "Demog/Nbhoods" {
 #=======================================================================
 # Econ
 
-tab "Econ" {
+tab "Economics" {
     The subtabs of the Econ tab display various data related to the 
     Economics model.  The full set of subtabs is as follows:<p>
 
     <<childlinks>>
 }
 
-tab "Econ/SAM" {
+tab "Economics/SAM" {
 
     This tab displays a social accounting matrix (SAM) of the economy
     in spreadsheet form. The diagram below shows this tab when Athena
@@ -2790,7 +1537,7 @@ tab "Econ/SAM" {
     computed when Athena is locked. 
 }
 
-tab "Econ/Overview" {
+tab "Economics/Overview" {
     <b>Simulation Mode only.</b><p>
 
     This tab displays the current state of the economy in two ways: in the
@@ -2845,7 +1592,7 @@ tab "Econ/Overview" {
     Unemployment.<p>
 }
 
-tab "Econ/Actors" {
+tab "Economics/Actors" {
     <b>Simulation Mode only.</b><p>
 
     This tab displays the expenditures made be each actor to each of
@@ -2908,7 +1655,7 @@ tab "Econ/Actors" {
     <</topiclist>>
 }
 
-tab "Econ/Population" {
+tab "Economics/Population" {
     <b>Simulation Mode only.</b><p>
 
     This tab displays the economic statistics for the population
@@ -2965,7 +1712,7 @@ tab "Econ/Population" {
     <</topiclist>>
 }
 
-tab "Econ/Groups" {
+tab "Economics/Groups" {
     <b>Simulation Mode only.</b><p>
 
     This tab displays the effect of the current economy on the
@@ -3037,6 +1784,1193 @@ tab "Econ/Groups" {
     <<control.headers>>
     <</topiclist>>
 }
+
+
+#=======================================================================
+# Social
+
+tab "Social" {
+    The subtabs of the Social tab display various data related to the 
+    social environment of the playbox, including the resident groups
+    and their beliefs.The full set of subtabs is as follows:<p>
+
+    <<childlinks>>
+}
+
+#------------------------------------------------------------------------
+
+tab "Social/Beliefs" {
+    <b>Scenario Mode Only.</b><p>
+
+    This tab contains the Belief System Browser, which allows the user
+    to edit the belief systems of the actors and civilian groups. The
+    browser has the following major areas:
+
+    <ul>
+    <li> <b>The <<cref /tab/social/beliefs/topic "Topics List">></b>,
+    where topics of belief are viewed and edited.<p>
+
+    <li> <b>The <<cref /tab/social/beliefs/entity "Entities Tree">></b>,
+    which lists the available actors and civilian groups.<p>
+
+    <li> <b>The <<cref /tab/social/beliefs/beliefs "Beliefs List">></b>,
+    where an entity's beliefs are specified.<p>
+
+    <li> <b>The <<cref /tab/social/beliefs/affinity "Affinities Pane">></b>,
+    where the currently selected entity's affinities are displayed.<p>
+    </ul>
+
+    Note that you can drag the border between the areas to make them
+    bigger or smaller.
+
+    See the <i>Athena User's Guide</i> for more about defining belief
+    systems.<p>
+}
+
+page /tab/social/beliefs topic "Belief Systems Browser Topics List" {
+    <<title>>
+
+    The Topics List lists all of the currently defined topics, and
+    allows them to be created and edited.  The major portion of the
+    list is a table with the following columns:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Topic>>
+    The topic ID, a string chosen by the user when
+    creating the topic.
+    <</topic>>
+
+    <<topic Affinity?>>
+    The affinity flag.  If "Yes", the topic is included when
+    computing affinity, and if "No" it is not.  Selected the desired
+    value from the pulldown in the topic's row.
+    <</topic>>
+
+    <<topic Title>>
+    The topic's human-readable title, a string chosen by the user when
+    creating the topic.  To edit, use the "pencil" control or simply
+    click on the title.
+    <</topic>>
+
+    <</topiclist>><p>
+
+    The Topic List's toolbar has the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plust]>>
+    Pops up the <<cref /order/bsystem/topic/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the <<cref /order/bsystem/topic/update>> dialog for the
+    selected topic.
+    <</topic>>
+
+    <<topic [image control_pcommon]>>
+    Sets the playbox commonality level.
+    <</topic>>
+
+    <<topic [image control_autocalc]>>
+    Enables/disables automatic calculation.  If checked, all
+    affinities will be recomputed whenever any belief system input is
+    changed.
+    <</topic>>
+
+    <<topic [image button_calcnow]>>
+    Forces the affinities to be re-calculated.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single row is selected, deletes it using the
+    <<cref /order/bsystem/topic/delete>> order.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+page /tab/social/beliefs entity "Belief Systems Browser Entities Tree" {
+    <<title>>
+
+    The Entities Tree lists all defined actors and civilian groups.<p>
+
+    <<image bsystem_entities>><p>
+
+    Select an actor or group to edit its belief system.<p>
+}
+
+page /tab/social/beliefs beliefs "Belief Systems Browser Beliefs List" {
+    <<title>>
+
+    The Beliefs List lists all of the beliefs of the currently
+    selected actor or group, and allows them to be edited.  
+    The major portion of the
+    list is a table with the following columns:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Topic>>
+    The topic ID about which the entity has a belief.
+    <</topic>>
+
+    <<topic Position>>
+    The entity's position on this topic.  Select a value from the
+    pulldown.
+    <</topic>>
+
+    <<topic "Emphasis is On">>
+    The entity's emphasis on agreement vs. disagreement for this
+    topic.  Select a value from the pulldown.
+    <</topic>>
+
+    <</topiclist>><p>
+
+    The Topic List's toolbar has the following control:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image control_ecommon]>>
+    Sets the entity's commonality level, i.e., its participation in
+    the playbox commonality.
+    <</topic>>
+
+    <</topiclist>>
+    
+}
+
+page /tab/social/beliefs affinity "Belief Systems Browser Affinities Pane" {
+    <<title>>
+
+    This pane shows the affinity between entity A, the entity
+    currently selected in the Entity Tree and every other entity, and
+    also their affinities with A.  Click on a column header to sort on
+    that column.
+}
+
+#-----------------------------------------------------------------------
+
+tab "Social/CivGroups" {
+    This tab shows basic data about each 
+    <<term civgroup>>, as entered
+    during <<term prep>>.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+
+    <<parm g "ID">>The group's ID.<</topic>>
+
+    <<group_civ parm longname -label "Long Name">>
+    <<group_civ parm n        -label "Nbhood">>
+    <<group_civ parm color    -label "Color">>
+    <<group_civ parm shape    -label "Unit Shape">>
+    <<group_civ parm demeanor -label "Demeanor">>
+    <<group_civ parm basepop  -label "BasePop">>
+    <<group_civ parm pop_cr   -label "Population Change Rate">>
+    <<group_civ parm sa_flag  -label "Subsistence Agriculture">>
+    <<group_civ parm lfp      -label "Labor Force%">>
+    <<group_civ parm housing  -label "Housing">>
+    <<group_civ parm upc      -label "Unemployment Per Capita">>
+
+    <</parmlist>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plus]>>
+    Pops up the <<cref /order/civgroup/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    When a row is selected, pops up the 
+    <<cref /order/civgroup/update>> dialog for
+    the selected row.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single row is selected, deletes it using the
+    <<cref /order/civgroup/delete>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Social/OrgGroups" {
+    This tab shows basic data about the 
+    <<cref /order/orggroup "organization groups">> that are active
+    in the playbox.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+
+    <<parm id ID>>The group's ID.<</topic>>
+    <<group_org parm longname>>
+    <<group_org parm a -label "Owner">>
+    <<group_org parm color>>
+    <<group_org parm shape>>
+    <<group_org parm orgtype -label "Org Type">>
+    <<group_org parm base_personnel>>
+    <<group_org parm demeanor>>
+    <<group_org parm cost>>
+    <</parmlist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plus]>>
+    Pops up the <<cref /order/orggroup/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/orggroup/update>> or 
+    <<cref /order/orggroup/update:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single row is selected, deletes it using the
+    <<cref /order/orggroup/delete>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Social/Satisfaction" {
+    This tab shows the full set of satisfaction curves for all 
+    civilian groups.
+
+    This browser functions differently in Scenario mode vs. Simulation
+    mode.
+
+    <<childlinks>>
+}
+
+page /tab/social/satisfaction scenario "Satisfaction browser, Scenario Mode" {
+    <<title>>
+
+    In <b>Scenario Mode</b>, the satisfaction browser shows the baseline
+    level and saliency of each satisfaction curve, as entered by the
+    user.  The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Group>>The name of a civilian group that's resident in
+    the neighborhood.<</topic>>
+    
+    <<topic "Concern">>A concern of the specified group, from
+    the following enumeration.<p>
+
+    <<enumdoc ::projectlib::econcern>>
+    <</topic>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic "Baseline">>The initial baseline satisfaction value for this
+    curve, as set during <<term prep>>.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qsat html>>
+    <</topic>>
+
+    <<topic "Current">>
+    The initial current satisfaction value for this curve, as set during
+    <<term prep>>.  It will usually be the same as the baseline value; but
+    see the discussion on the help page for the 
+    <<cref /order/sat/update>> order.
+    <</topic>>
+    
+    <<topic Saliency>>The importance of this concern to this group in
+    this neighborhood, a real number from the following scale:<p>
+
+    <<::simlib::qsaliency html>>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/sat/update>> or <<cref /order/sat/update:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+page /tab/social/satisfaction simulation "Satisfaction browser, Simulation Mode" {
+    <<title>>
+
+    In <b>Simulation Mode</b>, the satisfaction browser shows the 
+    current, baseline, and natural levels for each satisfaction curve
+    for the current time and for time 0.  Note that by default, only 
+    SFT satisfaction curves regress to a natural level.<p>
+
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic Group>>The name of a civilian group that's resident in
+    the neighborhood.<</topic>>
+    
+    <<topic "Concern">>A concern of the specified group, from
+    the following enumeration.<p>
+
+    <<enumdoc ::projectlib::econcern>>
+    <</topic>>
+
+    <<topic Nbhood>>A neighborhood name.<</topic>>
+
+    <<topic "Current">> The group's current satisfaction the concern,
+    a number drawn from the following scale:<p>
+
+    <<::simlib::qsat html>><p>
+
+    The current level is the baseline plus any transient effects.
+    <</topic>>
+
+    <<topic "Baseline">> The baseline satisfaction level.  This will
+    change slowly in response to transient effects.
+    <</topic>>
+
+    <<topic "Natural">> The natural satisfaction level (if defined).  In
+    the absence of attitude drivers, the baseline relationship will 
+    regress to this value slowly over time.<p>
+
+    <</topic>>
+
+    <<topic "Current at T0">> The current level at time 0.
+    <</topic>>
+
+    <<topic "Baseline at T0">> The baseline level at time 0.
+    <</topic>>
+
+    <<topic "Natural at T0">> The natural level (if defined) at time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    Pops up the <<cref /order/mad/sat>> dialog for
+    the selected curve.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+#-----------------------------------------------------------------------
+
+tab "Social/HRel" {
+    This tab shows the horizontal relationships (HRel) between the
+    various pairs of groups in the playbox.  Each row concerns the
+    relationship of group F with group G from group F's point of
+    view.<p>
+
+    This browser functions differently in Scenario mode vs. Simulation
+    mode.
+
+    <<childlinks>>
+}
+
+page /tab/social/hrel scenario "HRel browser, Scenario Mode" {
+    <<title>>
+
+    In <b>Scenario Mode</b>, the horizontal relationship
+    browser shows the natural,
+    affinity-based level for each relationship, along with the initial
+    baseline value.  The baseline value defaults to the natural level,
+    but can be overridden by the user.  Default baselines are
+    shown in green text; overridden baselines are shown in red text.
+
+    Initially, horizontal relationships are computed automatically from the 
+    belief systems model; civilian groups have their own 
+    belief systems, and force and organization groups inherit the
+    belief systems of their owning actors.  Computed relationships
+    are shown in green text.<p>
+
+    Additionally, the analyst can override any initial relationship
+    with a specific value; these manually-entered relationships are
+    shown in red text.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group F">>A group ID.<</topic>>
+    
+    <<topic "With Group G">>Another group ID.<</topic>>
+    
+    <<topic "F Type">>The group type of group F:<p>
+
+    <<enumdoc ::simlib::egrouptype>>
+    <</topic>>
+
+    <<topic "G Type">>The group type of group G, as above.<p>
+
+    <</topic>>
+
+    <<topic "Baseline">> The initial baseline relationship between
+    group F and group G from F's point of view, a number drawn from the
+    following scale:<p>
+
+    <<::simlib::qaffinity html>>
+
+    <</topic>>
+
+    <<topic "Current">>
+    The initial current relationship, as set during
+    <<term prep>>.  It will usually be the same as the baseline value; but
+    see the discussion on the help page for the 
+    <<cref /order/hrel/override>> order.
+    <</topic>>
+    
+    <<topic "Natural">> The natural relationship between group F and
+    group G from F's point of view, as derived from the affinity
+    between the two groups.  It will be the same as the baseline value
+    unless the baseline has been overridden by the analyst.  In the
+    absence of other drivers, the baseline relationship will regress to 
+    this value slowly over time.<p>
+
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/hrel/override>> or 
+    <<cref /order/hrel/override:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If an overridden relationship is selected, deletes the
+    override and restores the computed relationship.
+    <</topic>>
+
+    <<topic [image viewbox]>>
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All relationships, whether computed or overridden.
+    <li> <b>Overridden</b>: Manually overridden relationships only.
+    </ul>
+    <</topic>>
+
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+page /tab/social/hrel simulation "HRel browser, Simulation Mode" {
+    <<title>>
+
+    In <b>Simulation Mode</b>, the horizontal relationship
+    browser shows the current, baseline, and natural levels for
+    each relationship for the current time and for time 0.  The
+    current level is the baseline level plus any transient effects.
+    The presence of transient effects will cause the baseline level to
+    change slowly, and in the absence of attitude drivers 
+    the baseline level will regress slowly back to the natural level
+    over time.<p>
+
+    The browser controls are described <<seebelow controls>>; the data
+    fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group F">>A group ID.<</topic>>
+    
+    <<topic "With Group G">>Another group ID.<</topic>>
+    
+    <<topic "F Type">>The group type of group F:<p>
+
+    <<enumdoc ::simlib::egrouptype>>
+    <</topic>>
+
+    <<topic "G Type">>The group type of group G, as above.<p>
+    <</topic>>
+
+    <<topic "Current">> The current relationship between
+    group F and group G from F's point of view, a number drawn from the
+    following scale:<p>
+
+    <<::simlib::qaffinity html>><p>
+
+    The current relationships is the baseline plus any transient effects.
+    <</topic>>
+
+    <<topic "Baseline">> The baseline relationship between
+    group F and group G from F's point of view.
+    <</topic>>
+
+    <<topic "Natural">> The natural relationship between group F and
+    group G from F's point of view, as derived from the affinity
+    between the two groups.  In the
+    absence of attitude drivers, the baseline relationship will regress to 
+    this value slowly over time.<p>
+
+    <</topic>>
+
+    <<topic "Current at T0">> The current relationship between
+    group F and group G from F's point of view at time 0.
+    <</topic>>
+
+    <<topic "Baseline at T0">> The baseline relationship between
+    group F and group G from F's point of view at time 0.
+    <</topic>>
+
+    <<topic "Natural at T0">> The natural relationship between group F and
+    group G from F's point of view at time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    Pops up the <<cref /order/mad/hrel>> dialog for
+    the selected relationship.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+tab "Social/Demog" {
+    <b>Simulation Mode only.</b><p>
+
+    This tab displays the current demographics of each neighborhood group.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Group">>
+    The name of a civilian group that's resident in
+    the neighborhood.
+    <</topic>>
+    
+    <<topic "Nbhood">>
+    A neighborhood name.
+    <</topic>>
+
+    <<topic "Base Population">>
+    The base population of the group in the
+    neighborhood, i.e., the number of group members resident in the
+    neighborhood at time 0, as set by the 
+    <<cref /order/civgroup/create>> order.
+    <</topic>>
+
+    <<topic "Subsist. Agric.">>
+    The group's subsistence agriculture flag.  If yes, the group lives
+    by subsistence agriculture, and does not participate in the local
+    cash economy.
+    <</topic>>
+    
+    <<topic "Change Rate">>
+    The normal rate of population change due to births and
+    natural deaths, stated as a percentage change per year.
+    The rate may be positive, negative, or zero.
+    <</topic>>
+    
+    <<topic "Current Population">>
+    The current population of the group in the
+    neighborhood, the base population as affected by normal
+    population change, attrition, and flows to and from other
+    groups.
+    <</topic>>
+
+    <<topic Attrition>>The number of personnel lost to this 
+    civilian group through attrition since time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+#=======================================================================
+# Infrastructure
+
+tab "Infrastructure" {
+    The subtabs of the Infrastructure tab display various data related to 
+    Athena's Infrastructure models.  The full set of subtabs is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Infrastructure/CAPs" {
+    This tab shows the definition of each Communications Asset Package,
+    or <<term cap>>, as entered during <<term prep>> and modified 
+    thereafter.  The tab has three major panes:<p>
+
+    <ul>
+    <li> The <<cref /tab/infrastructure/caps/caps "CAPs Pane">>, in which CAPs 
+        are created and edited.
+    <li> The <<cref /tab/infrastructure/caps/nbhood "Coverage Area Pane">>, 
+        in which the coverage area of each CAP is edited.
+    <li> The <<cref /tab/infrastructure/caps/group "Group Penetration Pane">>, 
+        in which the penetration of a give CAP into the civilian groups 
+        is edited.
+    </ul>
+}
+
+page /tab/infrastructure/caps caps "CAPS Pane" {
+    <<title>>
+
+    This pane lists each of the currently defined <<term cap CAPs>>.
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+    <<parm k ID>>The CAP's ID.<</parm>>
+
+    <<cap_ parms -tags browser>>
+    <</parmlist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plus]>>
+    Pops up the <<cref /order/cap/create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up an order dialog for 
+    the selected rows, allow the user to edit the data.  During 
+    <<term prep>>, any CAP data but the ID can be edited;
+    once the scenario is locked, only the capacity can be edited.  The
+    <<cref /order/cap/update>>, <<cref /order/cap/update:multi>>,
+    <<cref /order/cap/capacity>>, or <<cref /order/cap/capacity:multi>>
+    orders are used, as appropriate.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single row is selected, deletes it using the
+    <<cref /order/cap/delete>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+page /tab/infrastructure/caps nbhood "Coverage Area Pane" {
+    <<title>>
+
+    This pane shows the coverage of each <<term nbhood>> by each 
+    <<term cap>>, as entered during <<term prep>> and modified 
+    thereafter.  <b>NOTE:</b> By default, only neighborhoods with 
+    non-zero coverage are shown.  To extend a CAP's coverage to
+    new neighborhoods, first use the "View:" pull-down to see
+    all neighborhoods.<p>
+
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+    <<parm k "Of CAP">>A CAP ID.<</parm>>
+    <<parm n "In Nbhood">>A neighborhood ID.<</parm>>
+    <<parm nbcov "Coverage">>The coverage of the neighborhood by the CAP,
+    as a fraction from 0.0 to 1.0.
+    <</parmlist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/cap/nbcov/set>> or 
+    <<cref /order/cap/nbcov/set:multi>> 
+    dialog for the selected rows, allowing the data to be edited.
+    <</topic>>
+
+    <<topic [image control_knview]>>
+    Selects the set of neighborhood coverage records to display: 
+    <b>All</b> records, or only those that are <b>Non-Zero</b>.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+page /tab/infrastructure/caps group "Group Penetration Pane" {
+    <<title>>
+
+    This pane shows the penetration of each <<term civgroup>> by each 
+    <<term cap>>, as entered during <<term prep>> and modified 
+    thereafter.  In addition, it shows the ultimate coverage of each
+    group by each CAP, as computed from the penetration, the neighborhood 
+    coverage, and the CAP's own capacity.  <b>NOTE:</b> By default, only
+    groups with non-zero penetration are shown.  To extend a CAP's 
+    penetration to new groups, first use the "View:" pull-down to see
+    all groups.<p>
+
+    The browser controls are 
+    described <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<parmlist Column Description>>
+    <<parm k "Of CAP">>A CAP ID.<</parm>>
+    <<parm owner "With Owner">>The CAP's owning <<term actor>>.<</parm>>
+    <<parm g "Into Group">>A civilian group ID.<</parm>>
+    
+    <<parm n "In Nbhood">>
+    The ID of the group's home <<term nbhood>>.
+    <</parm>>
+
+    <<parm capcov "Grp Cov">>
+    <b>Computed.</b> The ultimate coverage of this group by this CAP, 
+    as a fraction from 0.0 to 1.0.
+    <</parm>>
+
+    <<parm pen "= Grp Pen">>
+    Penetration of this group by this CAP, as a fraction from 0.0 to 1.0.
+    <</parm>>
+
+    <<parm nbcov "* Nbhood Cov">>
+    The coverage of the group's 
+    neighborhood by the CAP, as a fraction from 0.0 to 1.0.
+    <</parm>>
+
+    <<parm capacity "* Capacity">>
+    The CAP's current capacity.
+    <</parm>>
+    <</parmlist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/cap/pen/set>> or 
+    <<cref /order/cap/pen/set:multi>> 
+    dialog for the selected rows, allowing the group penetration values
+    to be edited.
+    <</topic>>
+
+    <<topic [image control_knview]>>
+    Selects the set of group penetration records to display: 
+    <b>All</b> records, or only those that are <b>Non-Zero</b>, or
+    only those that are <b>Orphans</b>, i.e., those groups for which the
+    CAP has positive penetration but 0.0 coverage of the groups' home 
+    neighborhoods.  Orphans are ignored by the simulation.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Infrastructure/GOODS Plants" {
+    <b>Scenario Mode Only.</b><p>
+
+    This tab shows how manufacturing plants the represent the production
+    infrastructure of the goods sector should be apportioned to the
+    various <<term agent>>s and neighborhoods.  It also shows the 
+    initial repair level for those plants.  The user can specify initial
+    repair levels less than 1.0 indicating that some plants are already in 
+    a degraded state.  The browser controls are described
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Neighborhood">>The ID of a neighborhood.<</topic>>
+
+    <<topic "Owning Agent">>The ID of an actor, or 'SYSTEM'.<</topic>>
+
+    <<topic "Average Repair Level">>The average repair level of all the
+    manufacturing plants owned by the agent in the neighborhood.<</topic>>
+
+    <<topic "Share of Manufacturing Plants">>The share of plants that the
+    agent should be allocated in that neighborhood when the scenario is 
+    locked.<</topic>>
+
+    <</topiclist>>
+
+    <b><a name='controls'>Browser Controls:</a></b>  The browser's 
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plus]>>
+    Pops up the <<cref /order/plant/shares:create>> dialog.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    If one or more share definitions are selected, pops up the
+    <<cref /order/plant/shares:update>> or
+    <<cref /order/plant/shares:update:multi>> dialog for
+    the selection(s).<p>
+
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single definition is selected, deletes it
+    using the <<cref /order/plant/shares:delete>> order.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+
+#=======================================================================
+# Information
+
+tab "Information" {
+    The subtabs of the Info tab display various data related to Athena's
+    Information models.  The full set of subtabs is as follows:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Information/Cooperation" {
+    This tab displays the full set of cooperation curves for all
+    civilian groups with all force groups.
+
+    This browser functions differently in Scenario mode vs. Simulation
+    mode.
+
+    <<childlinks>>
+}
+
+page /tab/information/cooperation scenario "Cooperation browser, Scenario Mode" {
+    <<title>>
+
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group">>The name of a civilian group resident in the
+    neighborhood.
+    <</topic>>
+    
+    <<topic "With Group">>The name of a force group.
+    <</topic>>
+
+    <<topic "Baseline Level">>The initial baseline cooperation value for this
+    curve, as set during <<term prep>>.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+    
+    <<topic "Natural Level">>The natural level for this
+    curve, as set during <<term prep>>.  The baseline will regress to 
+    this value over time, in the absence of other effects.
+    <</topic>>
+    
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    If one or more rows are selected, pops up the 
+    <<cref /order/coop/update>> or <<cref /order/coop/update:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+page /tab/information/cooperation simulation "Cooperation browser, Simulation Mode" {
+    <<title>>
+
+    In <b>Simulation Mode</b>, the cooperation browser shows the 
+    current, baseline, and natural levels for each cooperation curve
+    for the current time and for time 0.<p>
+
+    The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Of Group">>The name of a civilian group resident in the
+    neighborhood.
+    <</topic>>
+    
+    <<topic "With Group">>The name of a force group.
+    <</topic>>
+
+    <<topic "Current">> Group F's current cooperation with group G,
+    a number drawn from the following scale:<p>
+
+    <<::simlib::qcooperation html>><p>
+
+    The current level is the baseline plus any transient effects.
+    <</topic>>
+
+    <<topic "Baseline">> The baseline cooperation level.  This will
+    change slowly in response to transient effects.
+    <</topic>>
+
+    <<topic "Natural">> The natural cooperation level. In
+    the absence of attitude drivers, the baseline level will 
+    regress to this value slowly over time.<p>
+
+    <</topic>>
+
+    <<topic "Current at T0">> The current level at time 0.
+    <</topic>>
+
+    <<topic "Baseline at T0">> The baseline level at time 0.
+    <</topic>>
+
+    <<topic "Natural at T0">> The natural level at time 0.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_pencil]>>
+    Pops up the <<cref /order/mad/coop>> dialog for
+    the selected curve.
+    <</topic>>
+
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Information/NbhoodCoop" {
+    <b>Simulation Mode Only.</b><p>
+
+    This tab displays the cooperation of the residents of each
+    neighborhood with each force group.  This data is not available 
+    during <<term prep>>, and so the tab is not populated with
+    data until the first time advance. The browser controls are described 
+    <<seebelow controls>>; the data fields are as follows:<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Nbhood">>A neighborhood name.<</topic>>
+
+    <<topic "With Group">>The name of a force group.
+    <</topic>>
+
+    <<topic "Coop at T0">>The cooperation of the neighborhood
+    with the force group, as of time 0.  It is a real number
+    taken from the following scale:<p>
+
+    <<::simlib::qcooperation html>>
+    <</topic>>
+    
+    <<topic "Coop Now">>The cooperation of the neighborhood withthe
+    force group, at the current time.
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Browser Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<control.filterbox>>
+    <<control.headers>>
+    <</topiclist>>rmation
+}
+
+
+#-----------------------------------------------------------------------
+
+tab "Information/Semantic Hooks" {
+    The Semantic Hooks tab is where the analyst browses and edits 
+    <<term hook>>s and their <<term topic>>s.<p>
+
+    The browser consists of a tool bar containing controls used in 
+    creating, editing, and manipulating semantic hooks and topics, and
+    an outline view of the semantic hooks with associated topics
+    attached to each semantic hook underneath. The user can expand or
+    collapse each semantic hook to show or hide the attached topics.<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "Hook/Topic">>
+    A narrative description of each semantic hook and hook topic. A
+    button at the left margin allows semantic hooks to be expanded to
+    reveal their attached topics.
+    <</topic>>
+
+    <<topic "Id">> The semantic hook or hook topic ID, a value that 
+    uniquely indentifies the semantic hook or topic.<p>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Controls:</a></b>  The browser's toolbar
+    contains the following controls:<p>
+
+    <<topiclist Control Description>>
+    <<topic [image button_plush]>>
+    Create a new semantic hook.
+    <</topic>>
+
+    <<topic [image button_plust]>>
+    Add a topic and position on that topic for the selected semantic hook.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the update dialog for the selected semantic hook or topic.
+    <</topic>>
+
+    <<topic [image button_power]>>
+    Toggles the selected hook topic on and off.  Disabled topics are
+    grayed out with an overstrike.
+    <</topic>>
+
+    <<topic [image button_checktxt]>>
+    Force a sanity check of the semantic hooks. 
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Deletes the selected semantic hook or hook topic. 
+    <</topic>>
+
+    <</topiclist>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Information/Info Ops Messages" {
+    The Info Ops Messages tab is where the analyst browses and edits
+    <<term iom>>'s and their <<term payload>>s.<p>
+
+    The browser consists of a tool bar containing controls used in
+    creating, editing, and manipulating IOMs and payloads, and an
+    outline view of the IOMs with the payloads attached to each IOM
+    indented underneath.  The user can expand or collapse each IOM to
+    show or hide the attached payloads.<p>
+
+    <<topiclist Column Description>>
+
+    <<topic "IOM/Payload">>
+    A narrative description of each IOM and payload.  A button at the 
+    left margin allows IOMs to be expanded to reveal
+    their attached payloads.
+    <</topic>>
+
+    <<topic "Id">> The IOM or payload ID, a value that uniquely
+    identifies the IOM or payload.<p>
+    <</topic>>
+
+    <<topic "Type">> For payloads, the payload type.<p>
+    <</topic>>
+
+    <</topiclist>>
+
+    <b><a name="controls">Controls:</a></b>  The browser's
+    toolbar contains the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image button_plusi]>>
+    Create a new IOM.
+    <</topic>>
+
+    <<topic [image button_plusp]>>
+    Create a new payload for the currently selected IOM.
+    <</topic>>
+
+    <<topic [image button_pencil]>>
+    Pops up the update dialog for the selected IOM or payload.
+    <</topic>>
+
+    <<topic [image button_power]>>
+    Toggles the selected IOM or payload on and off.  Disabled items are
+    grayed out with an overstrike.
+    <</topic>>
+
+    <<topic [image button_checktxt]>>
+    Force a sanity check of the IOMs and payloads. 
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    Deletes the selected IOM or payload.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 
 
 
@@ -3431,4 +3365,6 @@ tab "Log" {
 
     <</topiclist>>
 }
+
+
 

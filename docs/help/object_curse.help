@@ -34,7 +34,7 @@ object curse_ {
         to cause the CURSE to happen whenever the analyst likes.<p>
 
         CURSEs are created and edited on the 
-        <<cref /tab/attitudes/curses>>.<p>
+        <<cref /tab/physical/curses>>.<p>
 
     }
 
@@ -100,4 +100,5 @@ page /object curse "CURSE" {
 
     <<curse_ parmlist>>
 }
+
 

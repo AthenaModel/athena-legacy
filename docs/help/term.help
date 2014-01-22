@@ -48,7 +48,7 @@ term activity "activity" {
     <<term nbhood>>, as initiated by a <<term tactic>>.  Activities are
     staffed by group <<term personnel>> <<term deployment deployed>> to
     neighborhoods during <<term strategy>> execution.  Personnel assigned to
-    an activity appear as a <<term unit>> on the <<tab Map>>; the unit is said
+    an activity appear as a <<term unit>> on the <<tab Physical/Map>>; the unit is said
     to perform the activity.  Different kinds of group can perform different
     kinds of activity.  For the full list of activities, and the meaning and
     effect of each, see the <i>Athena Rules</i> document, which is delivered
@@ -178,7 +178,7 @@ term capacity "capacity" {
     scenario is locked and then increases or decreases depending
     on how the <<term plant>> infrastructure is maintained by the 
     <<term actor>>s that own them.  Allocation of infrastructure to
-    actors is done on the <<tab Neighborhoods/Manufacturing Plants>>.
+    actors is done on the <<tab Infrastructure/GOODS Plants>>.
 }
 
 #-----------------------------------------------------------------------
@@ -315,7 +315,7 @@ term cooperation "cooperation" {
 
     Athena creates the required cooperation curves automatically as 
     groups are created.  The cooperation between groups
-    is viewed and modified on the <<tab Attitudes/Cooperation>>
+    is viewed and modified on the <<tab Information/Cooperation>>
     using the <<cref /order/coop>> and <<cref /order/mad/coop>>.  
     Cooperation can
     also be changed by <<term driver>>s that trigger Athena's
@@ -451,7 +451,7 @@ term ensit "environmental situation" {
     is meaningless.<p>
 
     Environmental situations can be created and positioned using the 
-    controls on the <<tab Map>>.  
+    controls on the <<tab Physical/Map>>.  
 }
 
 #-----------------------------------------------------------------------
@@ -592,7 +592,7 @@ term hrel "horizontal relationship" {
     to <<term iom>>s and <<term mad>>s.<p>
 
     The initial relationship can be overridden on the 
-    <<tab Attitudes/HRel>>, using the 
+    <<tab Social/Hrel>>, using the 
     <<cref /order/hrel>> orders.<p>
 }
 
@@ -907,7 +907,7 @@ term proximity "proximity" {
     the <i>Athena Rules</i> document for details.<p>
 
     The proximity between two neighborhoods is edited on the
-    <<tab Neighborhoods/Relationships>>, using the
+    <<tab Physical/Proximities>>, using the
     <<cref /order/nbrel>>.<p>
 }
 
@@ -968,7 +968,7 @@ term saliency "saliency" {
     <<::simlib::qsaliency html>>
 
     A group's saliency for each concern is set on the
-    <<tab Attitudes/Satisfaction>> using the
+    <<tab Social/Satisfaction>> using the
     <<cref /order/sat>>.
 }
 
@@ -986,7 +986,7 @@ term satisfaction "satisfaction" {
     Athena creates the required satisfaction curves automatically as 
     civilian groups are created.  A group's initial baseline 
     satisfaction levels are viewed and modified on the 
-    <<tab Attitudes/Satisfaction>> using the <<cref /order/sat>>.  Once
+    <<tab Social/Satisfaction>> using the <<cref /order/sat>>.  Once
     the simulation is running, satisfaction can be changed by
     <<term attitude>> <<term driver>>s that trigger Athena's
     <<term damrules>>.
@@ -1266,7 +1266,7 @@ term topic "topic" {
 term unit "unit" {
     A <i>unit</i> is a collection of <<term personnel>> belonging to some
     <<term group>> that can be positioned in the <<term playbox>>
-    and displayed on the <<tab Map>>.<p>
+    and displayed on the <<tab Physical/Map>>.<p>
 
     Units come into existence automatically to represent the
     civilian population of the <<term nbhood>>, and to represent 
@@ -1292,7 +1292,7 @@ term unit "unit" {
     <<term activity>> of law enforcement.<p>
 
     Units can be positioned using the controls on the
-    <<tab Map>>.
+    <<tab Physical/Map>>.
 }
 
 
@@ -1370,4 +1370,10 @@ term worker "worker" {
     Demographics model.  All workers are 
     <<term consumer>>s.
 }
+
+
+
+
+
+
 
