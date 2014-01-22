@@ -70,6 +70,19 @@ macro function_syntax {} {
 }
 
 #=======================================================================
+# affinity
+
+function "affinity(x,y)" {
+    Returns the affinity of <<term group>> or <<term actor>> <i>x</i> with 
+    <<term group>> or <<term actor>> <i>y</i> as a number between -1.0 and 1.0.<p>
+
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/affinity>> rule.
+}
+
+#=======================================================================
 # assigned
 
 function "assigned(g,activity,n)" {

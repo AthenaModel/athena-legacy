@@ -50,6 +50,7 @@ snit::type ptype {
         EnumVal "actor" [$type a+self+none names] $value
     }
 
+
     # n
     #
     # Neighborhood names
@@ -121,6 +122,30 @@ snit::type ptype {
 
     typemethod {g+all validate} {value} {
         EnumVal "group" [$type g+all names] $value
+    }
+
+
+    # goa
+    #
+    # Group names + Actor names
+
+    typemethod {goa names} {} {
+        lsort [concat [group names] [actor names]]
+    }
+
+    typemethod {goa namedict} {} {
+        rdb eval {
+            SELECT g as x, longname
+            FROM groups
+            UNION
+            SELECT a as x, longname
+            FROM actors
+            ORDER BY x
+        }
+    }
+
+    typemethod {goa validate} {value} {
+        EnumVal "Group/Actor" [$type goa names] $value
     }
 
 

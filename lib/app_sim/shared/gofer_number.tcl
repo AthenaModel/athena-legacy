@@ -30,6 +30,17 @@ gofer define NUMBER "" {
             text raw_value 
         }
 
+        case AFFINITY "affinity(x,y)" {
+            rc
+            rc "Affinity of group or actor"
+            rc
+            enumlong x -showkeys yes -dictcmd {::ptype goa namedict}
+
+            rc "with group or actor"
+            rc
+            enumlong y -showkeys yes -dictcmd {::ptype goa namedict}
+        }
+
         case ASSIGNED "assigned(g,activity,n)" {
             rc
             rc "Number of personnel of force or org group "
@@ -74,8 +85,8 @@ gofer define NUMBER "" {
 
         case GDP "gdp()" {
             rc
-            rc "The value of the Gross Domestic Product of the regional economy in
-    base-year dollars."
+            rc "The value of the Gross Domestic Product of the regional economy \
+                in base-year dollars."
             rc
        }
 
@@ -246,6 +257,55 @@ gofer rule NUMBER BY_VALUE {raw_value} {
         dict with gdict {}
 
         return $raw_value
+    }
+}
+
+# Rule: AFFINITY
+#
+# affinity(x,y)
+
+gofer rule NUMBER AFFINITY {x y} {
+    typemethod construct {x y} {
+        return [$type validate [dict create x $x y $y]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            x [ptype goa validate [string toupper $x]] \
+            y [ptype goa validate [string toupper $y]]
+
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {affinity("%s","%s")} $x $y]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+        
+        if {$x in [group names]} {
+            set x [rdb eval {
+                SELECT rel_entity FROM groups WHERE g=$x
+            }]
+        }
+        if {$y in [group names]} {
+            set y [rdb eval {
+                SELECT rel_entity FROM groups WHERE g=$y
+            }]
+        } {
+
+        }
+        rdb eval {
+            SELECT affinity FROM mam_affinity WHERE f=$x AND g=$y
+        } {
+            return [format %.2f $affinity]
+        }
+
+        return  0.00
     }
 }
 

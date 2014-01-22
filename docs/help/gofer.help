@@ -1932,6 +1932,30 @@ gofer_rule NUMBER BY_VALUE "specific number" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER AFFINITY "affinity(x,y)" {
+    Returns the affinity of <<term group>> or <<term actor>> <i>x</i> with 
+    <<term group>> or <<term actor>> <i>y</i> as a number between -1.0 and 1.0.<p>
+
+    <<itemlist>>
+    <<gofer.details x SHIA y SUNN>>
+    <<gofer.function affinity {"SHIA","SUNN"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>x</i></tt> >>
+    ID of a <<term group>> or <<term actor>>.
+    <</topic>>
+
+    <<topic <tt><i>y</i></tt> >>
+    ID of a <<term group>> or <<term actor>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER ASSIGNED "assigned(g,activity,n)" {
     Returns the number of personnel of <<term frcgroup>> or 
     <<term orggroup>> <i>g</i> assigned to do the explicit 

@@ -33,6 +33,42 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
+    # affinity()
+
+    test affinity-1.1 {invalid group/actor} -setup {
+        ted create BLUE SUNN JOE
+    } -body {
+        ted sendex -error expr affinity("NONESUCH","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid Group/Actor "NONESUCH", should be one of: BLUE, JOE, SUNN}
+
+    test affinity-1.2 {invalid group/actor} -setup {
+        ted create BLUE SUNN JOE
+    } -body {
+        ted sendex -error expr affinity("SUNN","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid Group/Actor "NONESUCH", should be one of: BLUE, JOE, SUNN}
+
+    test affinity-2.1 {in prep} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex expr affinity("SUNN","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test affinity-2.2 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr affinity("sunn","blue")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # assigned()
 
     test assigned-1.1 {invalid nbhood} -setup {
@@ -75,6 +111,42 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {0}
+
+    #-------------------------------------------------------------------
+    # coop()
+
+    test coop-1.1 {invalid civ group} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex -error expr coop("NONESUCH","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SUNN}
+
+    test coop-1.2 {invalid force group} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex -error expr coop("SUNN","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid force group, should be one of: BLUE}
+
+    test coop-2.1 {in prep} -setup {
+        ted create BLUE SUNN
+    } -body {
+        ted sendex expr coop("SUNN","BLUE")
+    } -cleanup {
+        cleanup
+    } -result {50.0}
+
+    test coop-2.2 {get data} -setup {
+        ted create NB1 BLUE SUNN
+        ted lock
+    } -body {
+        ted sendex expr coop("sunn","blue")
+    } -cleanup {
+        cleanup
+    } -result {50.0}
 
     #-------------------------------------------------------------------
     # controls()
@@ -155,42 +227,6 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {0}
-
-    #-------------------------------------------------------------------
-    # coop()
-
-    test coop-1.1 {invalid civ group} -setup {
-        ted create BLUE SUNN
-    } -body {
-        ted sendex -error expr coop("NONESUCH","BLUE")
-    } -cleanup {
-        cleanup
-    } -result {Invalid civilian group, should be one of: SUNN}
-
-    test coop-1.2 {invalid force group} -setup {
-        ted create BLUE SUNN
-    } -body {
-        ted sendex -error expr coop("SUNN","NONESUCH")
-    } -cleanup {
-        cleanup
-    } -result {Invalid force group, should be one of: BLUE}
-
-    test coop-2.1 {in prep} -setup {
-        ted create BLUE SUNN
-    } -body {
-        ted sendex expr coop("SUNN","BLUE")
-    } -cleanup {
-        cleanup
-    } -result {50.0}
-
-    test coop-2.2 {get data} -setup {
-        ted create NB1 BLUE SUNN
-        ted lock
-    } -body {
-        ted sendex expr coop("sunn","blue")
-    } -cleanup {
-        cleanup
-    } -result {50.0}
 
     #-------------------------------------------------------------------
     # coverage()

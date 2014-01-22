@@ -83,6 +83,66 @@ namespace eval ::athena_test::tests:: {
     } -result {45.0}
 
     #-------------------------------------------------------------------
+    # Rule: AFFINITY
+
+    test AFFINITY-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::AFFINITY construct SHIA JOE
+    } -cleanup {
+        cleanup
+    } -result {x SHIA y JOE}
+
+    test AFFINITY-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::AFFINITY validate {x shia y joe}
+    } -cleanup {
+        cleanup
+    } -result {x SHIA y JOE}
+
+    test AFFINITY-2.2 {validate, invalid x} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::AFFINITY validate {x NONESUCH y JOE}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid Group/Actor "NONESUCH", should be one of: BLUE, BOB, BRIT, JOE, KURD, SHIA, SUNN, TAL, USAID}
+
+    test AFFINITY-2.3 {validate, invalid y} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::AFFINITY validate {x SHIA y NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid Group/Actor "NONESUCH", should be one of: BLUE, BOB, BRIT, JOE, KURD, SHIA, SUNN, TAL, USAID}
+
+    test AFFINITY-3.1 {narrative} -body {
+        ::gofer::NUMBER::AFFINITY narrative {x JOE y BLUE}
+    } -result {affinity("JOE","BLUE")}
+
+    test AFFINITY-4.1 {eval prep} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::AFFINITY eval {x SHIA y BLUE}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test AFFINITY-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::AFFINITY eval {x SHIA y BLUE}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
     # Rule: ASSIGNED
 
     test ASSIGNED-1.1 {construct, valid} -setup {

@@ -612,6 +612,9 @@ snit::type executive {
     # Defines the executive functions.
     
     typemethod DefineExecutiveFunctions {} {
+        $interp function affinity 2 2 {x y} \
+            [myproc affinity]
+
         $interp function assigned 3 3 {g activity n} \
             [myproc assigned]
 
@@ -677,6 +680,19 @@ snit::type executive {
 
         $interp function vrel 2 2 {g a} \
             [myproc vrel]
+    }
+
+    # affinity x y
+    #
+    # x - A belief system entity.
+    # y - A belief system entity.
+    #
+    # At present x and y are any group or actor.
+    # Returns the affinity of x for y.
+
+    proc affinity {x y} {
+        set gdict [gofer construct NUMBER AFFINITY $x $y] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # assigned g activity n
