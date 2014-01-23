@@ -18,7 +18,7 @@ page /order plant "Manufacturing Plant Orders" {
     <<title>>
 
     These orders are used create, update, and delete shares of
-    <<term plant>>s.
+    goods production infrastructure <<term plant>>s.
 
     <<childlinks>>
 }

@@ -593,6 +593,50 @@ page /object/tactic curse "CURSE tactic" {
 }
 
 #-----------------------------------------------------------------------
+# DAMAGE Tactic
+
+object tactic_damage {
+    noun "DAMAGE tactic"
+    overview {
+        This SYSTEM <<term tactic>> sets the average repair level for goods
+        production infrastructure <<term plant>>s owned by an <<term actor>>
+        in a <<term nbhood>>.  It's possible to use this tactic not only to 
+        decrease average repair levels, but increase them as well.<p>
+
+        This tactic consumes no resources, and consequently never fails
+        due to lack of resources.   If the <<term actor>> specified does
+        not own any infrastructure in the <<term nbhood>> specified the 
+        tactic will execute trivially without changing anything.<p>
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute a "Actor" {
+        The ID of an <<term actor>> that owns infrastructure.
+    } -tags {update}
+
+    attribute n "Nbhood" {
+        The <<term nbhood>> for which the average repair will be set.
+    } -tags {update}
+
+    attribute percent "Repair Level" {
+        The new average repair level.
+    } -tags {update}
+}
+
+page /object/tactic damage "DAMAGE tactic" {
+    <<sotitle>>
+
+    <<tactic_damage overview>><p>
+
+    Damage infrastructure tactics have the following attributes:<p>
+
+    <<tactic_damage parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # DEFROE Tactic
 
 object tactic_defroe {
@@ -1363,7 +1407,7 @@ object tactic_maintain {
         There are two ways to select how much repair should be 
         attempted; see the "Maintenance Mode" parameter below.<p>
 
-        Manufacturing plants produce goods depending on their level of
+        Goods production plants produce goods depending on their level of
         repair (or disrepair).  If an actor does not spend money to maintain
         a certain level of repair it will degrade the
         production capacity of his <<term plant>>s and thus negatively impact

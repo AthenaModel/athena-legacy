@@ -699,19 +699,6 @@ term mad "magic attitude driver" {
     <<cref /order/mad>>.<p>
 }
 
-#-----------------------------------------------------------------------
-
-term plant "manufacturing plant" {
-    In Athena, the infrastructure associated with production capacity
-    in the goods sector in the economy is encapsulated by the abstract
-    notion of a manufacturing plant.  A manufacturing plant by itself
-    is capable of producing some amount of the product of the goods sector,
-    namely the "goods basket".  One goods basket is a notional set of goods
-    portioned in such a way as to represent nominally one dollars worth
-    of all goods produced by the economy being modeled.  Aggregated
-    together, all the manufacturing plants in the simulation represent
-    the total capacity of the goods sector.
-}
 
 #-----------------------------------------------------------------------
 
@@ -834,6 +821,20 @@ term personnel "personnel" {
 
     Once deployed, personnel can be assigned to 
     <<term activity activities>> and used in a variety of other ways.<p>
+}
+
+#-----------------------------------------------------------------------
+
+term plant "plant" {
+    In Athena, the infrastructure associated with production capacity
+    in the goods sector in the economy is encapsulated by the abstract
+    notion of a goods production plant or just "plant".  A plant by itself
+    is capable of producing some amount of the product of the goods sector,
+    namely the "goods basket".  One goods basket is a notional set of goods
+    portioned in such a way as to represent nominally one dollars worth
+    of all goods produced by the economy being modeled.  Aggregated
+    together, all the manufacturing plants in the simulation represent
+    the total capacity of the goods sector.
 }
 
     
@@ -1370,10 +1371,4 @@ term worker "worker" {
     Demographics model.  All workers are 
     <<term consumer>>s.
 }
-
-
-
-
-
-
 

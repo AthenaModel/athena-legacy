@@ -98,6 +98,16 @@ order TACTIC:CURSE "Tactic: CURSE" {
     <</parmlist>>
 }
 
+order TACTIC:DAMAGE "Tactic: Damage Infrastructure" {
+    <b><<term prep>> Only.</b>  
+    Updates an existing <<cref /object/tactic/damage>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_damage parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:DEFROE "Tactic: Defensive ROE" {
     <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/defroe>>.<p>
