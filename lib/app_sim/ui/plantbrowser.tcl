@@ -7,7 +7,7 @@
 #
 # DESCRIPTION:
 #
-#    This browser displays the allocation of manufacturing plants among
+#    This browser displays the allocation of GOODS production plants among
 # the actors who have them along with their initial repair level.
 #
 #-----------------------------------------------------------------------
@@ -121,7 +121,7 @@ snit::widgetadaptor plantbrowser {
 
     # AddOwnership
     #
-    # Called when the user want to specify ownership of manufacturing plants
+    # Called when the user want to specify ownership of GOODS production plants
     # for an agent
 
     method AddOwnership {} {

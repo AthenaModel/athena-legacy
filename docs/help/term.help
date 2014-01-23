@@ -833,7 +833,7 @@ term plant "plant" {
     namely the "goods basket".  One goods basket is a notional set of goods
     portioned in such a way as to represent nominally one dollars worth
     of all goods produced by the economy being modeled.  Aggregated
-    together, all the manufacturing plants in the simulation represent
+    together, all the plants in the simulation represent
     the total capacity of the goods sector.
 }
 

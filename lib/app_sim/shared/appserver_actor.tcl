@@ -349,13 +349,13 @@ appserver module ACTOR {
             if {[parmdb get econ.disable]} {
                 ht put {
                     The economic model is disabled, so actors own no
-                    manufacturing infrastructure.
+                    GOODS production infrastructure.
                 }
                 
                 ht para
             } else {
                 ht put {
-                    Manufacturing plant ownership by this actor is as
+                    GOODS production plants ownership by this actor is as
                     follows.  Note that plants under construction will not
                     appear in this table until they are 100% complete.
                 }
@@ -393,7 +393,7 @@ appserver module ACTOR {
                 set pct  [format "%.2f" [expr {($capA/$capT) * 100.0}]]
             
                 ht put "
-                    The manufacturing plants this actor owns are currently
+                    The GOODS production plants this actor owns are currently
                     producing [moneyfmt $capA] goods baskets annually.  This 
                     is $pct% of the goods production capacity of the entire
                     economy.
@@ -401,9 +401,9 @@ appserver module ACTOR {
 
                 ht para
 
-                ht put "The following table breaks down manufacturing plants "
-                ht put "under construction by neighborhood into ranges of "
-                ht put "percentage complete."
+                ht put "The following table breaks down GOODS production "
+                ht put "plants under construction by neighborhood into "
+                ht put "ranges of percentage complete."
                 ht para
         
                 ht push 

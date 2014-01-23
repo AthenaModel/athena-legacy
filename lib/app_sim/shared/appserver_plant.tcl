@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(n), appserver(sim) module: Manufacturing Infrastructure
+#    app_sim(n), appserver(sim) module: GOODS Production Infrastructure
 #
 #    my://app/plants
 #
@@ -27,7 +27,7 @@ appserver module PLANT {
         # FIRST, register the resource types
         appserver register /plants/ {plants/?} \
             text/html    [myproc /plants:html] {
-                Links to defined manufacturing infrastructure.
+                Links to defined GOODS production infrastructure.
             }
 
         appserver register /plants/detail/  {plants/detail/?} \
@@ -37,18 +37,18 @@ appserver module PLANT {
 
     # /plants:html udict matchArray
     #
-    # Tabular display of manufacturing infrastructure data.
+    # Tabular display of GOODS production infrastructure data.
 
     proc /plants:html {udict matchArray} {
         upvar 1 $matchArray ""
 
         # Begin the page
-        ht page "Manufacturing Plants"
-        ht title "Manufacturing Infrastructure"
+        ht page "GOODS Production Plants"
+        ht title "GOODS Production Infrastructure"
 
         if {![locked]} {
             # Population adjusted for production capacity to aid in 
-            # determining manufacturing plant distribution by neighborhood
+            # determining GOODS production plant distribution by neighborhood
             set adjpop 0.0
 
             rdb eval {
@@ -64,15 +64,15 @@ appserver module PLANT {
             if {$adjpop > 0} {
                 ht para
 
-                ht put   "The following table is an estimate of manufacturing"
-                ht put   " plant distribution in the playbox given the"
-                ht put   " neighborhoods and neighborhood populations currently"
-                ht putln " defined."
+                ht put   "The following table is an estimate of GOODS "
+                ht put   "production plant distribution in the playbox "
+                ht put   "given the neighborhoods and neighborhood "
+                ht putln "populations currently defined."
                 ht para 
 
                 ht table {
                     "Neighborhood" "Capacity<br>Factor" "Base Pop."
-                    "% of Manufacturing<br>Plants"
+                    "% of GOODS<br>Production Plants"
                 } {
                     rdb eval {
                         SELECT nlonglink      AS link,
@@ -109,9 +109,9 @@ appserver module PLANT {
 
             ht para
             ht put   "The following table shows the current laydown of "
-            ht put   "manufacturing plants, owning agents and repair levels.  "
-            ht put   "Plants under construction will appear in this table "
-            ht put   "when they are 100% complete."
+            ht put   "GOODS production plants, owning agents and repair "
+            ht put   "levels.  Plants under construction will appear in "
+            ht put   "this table when they are 100% complete."
             ht para 
 
             ht query {
@@ -127,7 +127,7 @@ appserver module PLANT {
 
         ht para
 
-        ht put "The following table breaks down manufacturing plants under "
+        ht put "The following table breaks down GOODS production plants under "
         ht put "construction by neighborhood and actor into ranges of "
         ht put "percentage complete.  Clicking on "
         ht put "[ht link /plants/detail "detail"] will break construction "
@@ -217,8 +217,8 @@ appserver module PLANT {
         upvar 1 $matchArray ""
 
         # Begin the page
-        ht page "Manufacturing Plants Under Construction"
-        ht title "Manufacturing Plants Under Construction"
+        ht page "GOODS Production Plants Under Construction"
+        ht title "GOODS Production Plants Under Construction"
 
         if {![locked -disclaimer]} {
             ht /page

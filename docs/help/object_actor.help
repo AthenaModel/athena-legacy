@@ -75,7 +75,7 @@ object actor_ {
     
     attribute auto_maintain "Auto-maintain Infrastrucure?" {
         A flag indicating whether an actor has automatic maintenance of
-        manufacturing infrastructure enabled.  If set to "Yes", then any
+        GOODS production infrastructure enabled.  If set to "Yes", then any
         infrastructure owned by this actor does not degrade over time.
         Note that the infrastructure will stay at it's initial repair level
         and any enabled MAINTAIN tactics owned by this actor will have

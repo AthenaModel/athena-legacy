@@ -340,7 +340,7 @@ snit::type plant {
 
     # repairlevel n a cash
     #
-    # n    - a neighborhood that contains manufacturing plants
+    # n    - a neighborhood that contains GOODS production plants
     # a    - an actor that owns plants in n
     # cash - some amount of cash
     #
@@ -381,7 +381,7 @@ snit::type plant {
 
     # repaircost n a lvl
     #
-    # n     - a neighborhood that contains manufacturing plants
+    # n     - a neighborhood that contains GOODS production plants
     # a     - an actor that owns some plants in n
     # dRho  - the desired change in level of repair
     #
@@ -681,7 +681,7 @@ snit::type plant {
 
     # capacity total
     #
-    # Returns the total output capacity of all manufacturing plants
+    # Returns the total output capacity of all GOODS production plants
 
     typemethod {capacity total} {} {
         set goodsPerPlant [money validate [parmdb get plant.bktsPerYear.goods]]
@@ -695,7 +695,7 @@ snit::type plant {
 
     # capacity n
     #
-    # Returns the total output capacity of all manufacturing plants given
+    # Returns the total output capacity of all GOODS production plants given
     # a neighborhood
 
     typemethod {capacity n} {n} {
@@ -711,7 +711,7 @@ snit::type plant {
 
     # capacity a
     #
-    # Returns the total output capacity of all manufacturing plants given
+    # Returns the total output capacity of all GOODS production plants given
     # an agent
 
     typemethod {capacity a} {a} {
@@ -830,11 +830,11 @@ snit::type plant {
 
 # PLANT:SHARES:CREATE
 #
-# Creates an allocation of shares of manufacturing plants for an
+# Creates an allocation of shares of GOODS production plants for an
 # agent in a neighborhood.
 
 order define PLANT:SHARES:CREATE {
-    title "Allocate Production Capacity Shares"
+    title "Allocate GOODS Production Capacity Shares"
 
     options -sendstates PREP
 

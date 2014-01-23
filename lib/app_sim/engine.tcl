@@ -138,7 +138,7 @@ snit::type engine {
         profile demog growth
         profile demog stats
         
-        # NEXT, manufacturing infrastructure, plants may degrade and
+        # NEXT, GOODS production infrastructure, plants may degrade and
         # new plants may come online
         profile plant degrade
 

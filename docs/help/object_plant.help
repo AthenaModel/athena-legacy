@@ -7,7 +7,7 @@
 #    Dave Hanks
 #
 # DESCRIPTION:
-#    Athena Help Documentation: Manufacturing Plants
+#    Athena Help Documentation: GOODS Production Plants
 #
 #    This file is included into object.help.
 #
@@ -17,7 +17,7 @@ object plant_ {
     noun "plant"
 
     overview {
-        <i>Manufacturing Plants</i> determine the total production output
+        <i>GOODS Production Plants</i> determine the total production output
         capacity of the goods sector.  Rather than specify a specific
         number of plants that are owned by an actor in particular 
         neighborhoods, Athena allows the user to specify a number of shares
@@ -32,7 +32,7 @@ object plant_ {
         neighborhoods taking into account the number of shares allocated to 
         each actor that owns them in each neighborhood.  
 
-        Shares of Manufacturing Plants are defined and edited on the 
+        Shares of GOODS Production Plants are defined and edited on the 
         <<cref /tab/infrastructure/goods_plants>>.<p>
 
         Unless an actor is automatically maintaining his infrastructure, money
@@ -75,12 +75,12 @@ object plant_ {
     } -tags {create update}
 }
 
-page /object plant "Manufacturing Plants" {
+page /object plant "GOODS Production Plants" {
     <<sotitle>>
 
     <<plant_ overview>><p>
 
-    Define manufacturing plant shares with these attributes:<p>
+    Define GOODS production plant shares with these attributes:<p>
 
     <<plant_ parmlist>>
 }

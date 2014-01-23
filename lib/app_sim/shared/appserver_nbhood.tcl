@@ -188,7 +188,7 @@ appserver module NBHOOD {
             "#forces"    "Forces Present"
             "#eni"       "ENI Services"
             "#cap"       "CAP Coverage"
-            "#infra"     "Manufacturing Infrastructure"
+            "#infra"     "GOODS Production Infrastructure"
             "#control"   "Support and Control"
             "#conflicts" "Force Conflicts" 
             "#sigevents" "Significant Events"
@@ -491,18 +491,18 @@ appserver module NBHOOD {
 
         ht para
 
-        # Manufacturing Infrastructure
-        ht subtitle "Manufacturing Infrastructure" infra
+        # GOODS Production Infrastructure
+        ht subtitle "GOODS Production Infrastructure" infra
 
         if {[parmdb get econ.disable]} {
             ht put {
                 The economic model is disabled, so neighborhoods have no 
-                manufacturing infrastructure.
+                GOODS production infrastructure.
             }
         } else {
 
             ht put {
-                The number and laydown of manufacturing plants when the 
+                The number and laydown of GOODS production plants when the 
                 scenario is locked depends on a number of things: the 
                 production capacity of a neighborhood, the amount of goods
                 a single plant can produce, and the repair level of plants
@@ -512,7 +512,7 @@ appserver module NBHOOD {
             if {![locked]} {
                 ht put {
                     Given the production capacity of a single
-                    manufacturing plant, Athena will allocate just enough
+                    GOODS production plant, Athena will allocate just enough
                     plants to meet the initial production demanded by the 
                     economic model taking into account repair level and 
                     neighborhood production capacity.  Athena will then lay
@@ -551,7 +551,7 @@ appserver module NBHOOD {
                 if {$adjpop > 0} {
                     ht table {
                         "Base Pop." "Prod. Capacity Factor"
-                        "% of Manufacturing Plants"
+                        "% of GOODS<br>Production Plants"
                     } {
                         rdb eval {
                             SELECT pcf            AS pcf,
@@ -578,8 +578,8 @@ appserver module NBHOOD {
             } else {
                 ht para
                 ht put   "The following table shows the current laydown of "
-                ht put   "manufacturing plants in $n and the agents that own "
-                ht put   "them along with the average repair levels.  Note "
+                ht put   "GOODS production plants in $n and the agents that "
+                ht put   "own them along with the average repair levels.  Note "
                 ht put   "that plants under construction will not appear in "
                 ht putln "this table until they are 100% complete."
                 ht para 
@@ -599,7 +599,7 @@ appserver module NBHOOD {
                 set pct  [format "%.2f" [expr {($capN/$capT) * 100.0}]]
     
                 ht put "
-                    The manufacturing plants in this neighborhood are 
+                    The GOODS production plants in this neighborhood are 
                     currently producing [moneyfmt $capN] goods baskets 
                     annually.  This is $pct% of the goods production 
                     capacity of the entire economy.  This neighborhood 
@@ -608,8 +608,8 @@ appserver module NBHOOD {
 
                 ht para
 
-                ht put "The following table breaks down manufacturing plants "
-                ht put "under construction by agent into ranges of "
+                ht put "The following table breaks down GOODS production "
+                ht put "plants under construction by agent into ranges of "
                 ht put "percentage complete."
                 ht para
         

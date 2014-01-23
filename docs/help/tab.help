@@ -2629,8 +2629,7 @@ page /tab/infrastructure/caps group "Group Penetration Pane" {
 tab "Infrastructure/GOODS Plants" {
     <b>Scenario Mode Only.</b><p>
 
-    This tab shows how manufacturing plants the represent the production
-    infrastructure of the goods sector should be apportioned to the
+    This tab shows how GOODS production plants should be apportioned to the
     various <<term agent>>s and neighborhoods.  It also shows the 
     initial repair level for those plants.  The user can specify initial
     repair levels less than 1.0 indicating that some plants are already in 
@@ -2646,7 +2645,7 @@ tab "Infrastructure/GOODS Plants" {
     <<topic "Average Repair Level">>The average repair level of all the
     manufacturing plants owned by the agent in the neighborhood.<</topic>>
 
-    <<topic "Share of Manufacturing Plants">>The share of plants that the
+    <<topic "Share of GOODS Production Plants">>The share of plants that the
     agent should be allocated in that neighborhood when the scenario is 
     locked.<</topic>>
 

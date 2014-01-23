@@ -321,7 +321,7 @@ oo::class create coffer {
 
     # repair n rho
     #
-    # n        - A neighborhood that contains manufacturing infrastructure
+    # n        - A neighborhood that contains GOODS production infrastructure
     # rho      - The repair level of that infrastructure
     #
     # This keeps track of the level of repair of the infrastructure in n.
