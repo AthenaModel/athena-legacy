@@ -33,6 +33,19 @@ JOIN gui_nbhoods           AS N  ON (PN.n=N.n)
 LEFT OUTER JOIN gui_agents AS AG ON (PN.a=AG.agent_id)
 LEFT OUTER JOIN gui_actors AS A  ON (PN.a=A.a);
 
+CREATE TEMPORARY VIEW gui_plants_shares AS
+SELECT PS.n || ' ' || PS.a                     AS id,
+       PS.n                                    AS n,
+       N.link                                  AS nlink,
+       PS.a                                    AS a,
+       A.link                                  AS alink,
+       coalesce(A.pretty_am_flag, 'Yes')       AS auto_maintain,
+       format('%.2f', PS.rho)                  AS rho,
+       PS.num                                  AS num
+FROM plants_shares         AS PS
+JOIN gui_nbhoods           AS N  ON (PS.n=N.n)
+LEFT OUTER JOIN gui_actors AS A  ON (PS.a=A.a);
+
 CREATE TEMPORARY VIEW gui_plants_build AS
 SELECT N.link                            AS nlink,
        B.n                               AS n,

@@ -30,10 +30,11 @@ snit::widgetadaptor plantbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        { n      "Neighborhood"                                    }
-        { a      "Owning Agent"                                    }
-        { rho    "Average Repair Level"           -sortmode real    }
-        { num    "Shares of Manufacturing Plants" -sortmode integer }
+        { n             "Neighborhood"                            }
+        { a             "Owning Agent"                            }
+        { rho           "Average\nRepair Level"  -sortmode real   }
+        { num           "Shares of Goods\nProduction Plants" 
+                                                -sortmode integer }
     }
 
     #-------------------------------------------------------------------
@@ -50,7 +51,7 @@ snit::widgetadaptor plantbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_plants_na               \
+            -view         gui_plants_shares           \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \

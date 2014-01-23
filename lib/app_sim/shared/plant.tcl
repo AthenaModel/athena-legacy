@@ -906,7 +906,7 @@ order define PLANT:SHARES:UPDATE {
     
     form {
         rcc "ID:" -for id
-        key id -context yes -table gui_plants_na \
+        key id -context yes -table gui_plants_shares \
             -keys {n a} \
             -loadcmd {orderdialog keyload id {rho num}}
 
@@ -941,7 +941,7 @@ order define PLANT:SHARES:UPDATE:MULTI {
     
     form {
         rcc "IDs:" -for ids
-        multi ids -context yes -key id -table gui_plants_na \
+        multi ids -context yes -key id -table gui_plants_shares \
             -loadcmd {orderdialog multiload ids *}
 
         rcc "Initial Repair Frac:" -for rho
