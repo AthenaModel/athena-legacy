@@ -9,7 +9,8 @@
 #    vrelbrowser(sim) package: Vertical Relationship browser, Scenario
 #    Mode.
 #
-#    This widget displays a formatted list of gui_vrel_view records.
+#    This widget displays a formatted list of gui_vrel_view
+#    or gui_uram_vrel records..
 #
 #-----------------------------------------------------------------------
 
@@ -31,14 +32,67 @@ snit::widgetadaptor vrelbrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        {g        "Of Group G"                  }
-        {a        "With Actor A"                }
-        {gtype    "G Type"                      }
-        {base     "Baseline"     -sortmode real }
-        {current  "Current"      -sortmode real }
-        {nat      "Natural"      -sortmode real }
-        {override "OV"           -hide 1        }
     }
+
+    # modes
+    #
+    # Array of configuration data for different app modes.
+    #
+    # scenario   - [sim state] eq PREP
+    # simulation - [sim state] ne PREP 
+    #
+    #    -layout   - The layout spec for the sqlbrowser.  %D is replaced
+    #                with the color for derived columns.
+    #    -view     - The view name.
+    #    -reloadon - The default reload events 
+    #
+    # Reload on ::parm <Update>: ???.  I'm not sure why we're doing this.
+
+    typevariable modes -array {
+        scenario {
+            -view gui_vrel_view
+            -views {
+                gui_vrel_view          "All"
+                gui_vrel_override_view "Overridden"
+            }
+            -layout {
+                {g        "Of Group G"                  }
+                {a        "With Actor A"                }
+                {gtype    "G Type"                      }
+                {base     "Baseline"     -sortmode real }
+                {current  "Current"      -sortmode real }
+                {nat      "Natural"      -sortmode real }
+                {override "OV"           -hide 1        }
+            }
+            -reloadon {
+                ::rdb <actors>
+                ::rdb <civgroups>
+                ::rdb <groups>
+                ::sim <DbSyncB>
+            }
+        }
+        simulation {
+            -view gui_uram_sat
+            -views {}
+            -layout {
+                { g        "Group"                                        }
+                { c        "Concern"                                      }
+                { n        "Nbhood"                                       }
+                { sat      "Current"        -sortmode real -foreground %D }
+                { base     "Baseline"       -sortmode real -foreground %D }
+                { nat      "Natural"                       -foreground %D }
+                { sat0     "Current at T0"  -sortmode real -foreground %D }
+                { base0    "Baseline at T0" -sortmode real                }
+                { nat0     "Natural at T0"                 -foreground %D }
+            }
+            -reloadon {
+                ::sim <Tick>
+                ::sim <DbSyncB>
+                ::parm <Update>
+            }
+        }
+    }
+
 
     #-------------------------------------------------------------------
     # Components
@@ -53,20 +107,12 @@ snit::widgetadaptor vrelbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_vrel_view               \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -displaycmd   [mymethod DisplayData]      \
-            -reloadon {
-                ::rdb <actors>
-                ::rdb <civgroups>
-                ::rdb <groups>
-                ::sim <DbSyncB>
-            } -views {
-                gui_vrel_view          "All"
-                gui_vrel_override_view "Overridden"
-            } -layout [string map [list %D $::app::derivedfg] $layout]
+            {*}[ModeOptions scenario]
+
 
         # NEXT, get the options.
         $self configurelist $args
@@ -95,8 +141,11 @@ snit::widgetadaptor vrelbrowser {
         pack $editbtn   -side left
         pack $deletebtn -side right
 
+        # NEXT, set the mode when the simulation state changes.
+        notifier bind ::sim <State> $self [mymethod StateChange]
+
         # NEXT, update individual entities when they change.
-        notifier bind ::rdb <vrel_ga> $self [mymethod uid]
+        $self SetMode scenario
     }
 
     #-------------------------------------------------------------------
@@ -156,6 +205,51 @@ snit::widgetadaptor vrelbrowser {
     #-------------------------------------------------------------------
     # Private Methods
 
+    # StateChange
+    #
+    # The simulation state has changed.  Update the display.
+
+    method StateChange {} {
+        if {[sim state] eq "PREP"} {
+            $self SetMode scenario
+        } else {
+            $self SetMode simulation
+        }
+    }
+
+    # SetMode mode
+    #
+    # mode - scenario | simulation
+    #
+    # Sets the widget to display the content for the given mode.
+
+    method SetMode {mode} {
+        $hull configure {*}[ModeOptions $mode]
+
+        if {$mode eq "scenario"} {
+            notifier bind ::rdb <vrel_ga> $self [mymethod uid]
+            notifier bind ::mad <Vrel>    $self ""
+        } else {
+            notifier bind ::rdb <vrel_ga> $self ""
+            notifier bind ::mad <Vrel>    $self [mymethod uid]
+        }
+    }
+
+    # ModeOptions mode
+    #
+    # mode - scenario | simulation
+    #
+    # Returns a dictionary of the mode options and values.
+
+    proc ModeOptions {mode} {
+        set opts $modes($mode)
+        dict with opts {
+            set -layout [string map [list %D $::app::derivedfg] ${-layout}]
+        }
+
+        return $opts
+    }
+
     # DisplayData rindex values
     # 
     # rindex    The row index
@@ -164,12 +258,14 @@ snit::widgetadaptor vrelbrowser {
     # Sets the cell foreground color for the color cells.
 
     method DisplayData {rindex values} {
-        set override [lindex $values end-1]
+        if {[sim state] eq "PREP"} {
+            set override [lindex $values end-1]
 
-        if {$override && [sim state] eq "PREP"} {
-            $hull rowconfigure $rindex -foreground "#BB0000"
-        } else {
-            $hull rowconfigure $rindex -foreground $::app::derivedfg
+            if {$override} {
+                $hull rowconfigure $rindex -foreground "#BB0000"
+            } else {
+                $hull rowconfigure $rindex -foreground $::app::derivedfg
+            }
         }
     }
 

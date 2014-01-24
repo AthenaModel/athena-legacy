@@ -193,16 +193,9 @@ snit::widget appwin {
 
         vrel {
             label   "VRel"
-            vistype scenario
+            vistype *
             parent  pol
             script  { vrelbrowser %W }
-        }
-
-        vrel_sim {
-            label   "VRel"
-            vistype simulation
-            parent  pol
-            script  { vrelbrowser_sim %W }
         }
 
         mil {

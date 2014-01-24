@@ -1155,20 +1155,14 @@ tab "Politics/VRel" {
     view.<p>
 
     This browser functions differently in Scenario mode vs. Simulation
-    mode.
-
-    <<childlinks>>
-}
-
-page /tab/politics/vrel scenario "VRel browser, Scenario Mode" {
-    <<title>>
+    mode.<p>
 
     In <b>Scenario Mode</b>, the vertical relationship
     browser shows the natural,
     affinity-based level for each relationship, along with the initial
     baseline value.  The baseline value defaults to the natural level,
     but can be overridden by the user.  Default baselines are
-    shown in green text; overridden baselines are shown in red text.
+    shown in green text; overridden baselines are shown in red text.<p>
 
     Initially, vertical relationships are computed automatically from the 
     belief systems model; civilian groups and actors have their own 
@@ -1219,43 +1213,6 @@ page /tab/politics/vrel scenario "VRel browser, Scenario Mode" {
     <</topic>>
 
     <</topiclist>>
-
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/vrel/override>> or 
-    <<cref /order/vrel/override:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If an overridden relationship is selected, deletes the
-    override and restores the computed relationship.
-    <</topic>>
-
-    <<topic [image viewbox]>>
-    The view box determines which set of entities is to be displayed.
-    The following sets may be selected from the pulldown:<p>
-
-    <ul>
-    <li> <b>All</b>: All relationships, whether computed or overridden.
-    <li> <b>Overridden</b>: Manually overridden relationships only.
-    </ul>
-    <</topic>>
-
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-page /tab/politics/vrel simulation "VRel browser, Simulation Mode" {
-    <<title>>
 
     In <b>Simulation Mode</b>, the vertical relationship
     browser shows the current, baseline, and natural levels for
@@ -1321,8 +1278,26 @@ page /tab/politics/vrel simulation "VRel browser, Simulation Mode" {
     <<topiclist Control Description>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/vrel>> dialog for
-    the selected relationship.
+    <b>Scenario Mode only.</b> If one or more rows are selected, pops up the 
+    <<cref /order/vrel/override>> or 
+    <<cref /order/vrel/override:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    <b>Scenario Mode only.</b> If an overridden relationship is selected, 
+    deletes the override and restores the computed relationship.
+    <</topic>>
+
+    <<topic [image viewbox]>>
+    <b>Scenario Mode only.</b> 
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All relationships, whether computed or overridden.
+    <li> <b>Overridden</b>: Manually overridden relationships only.
+    </ul>
     <</topic>>
 
     <<control.filterbox>>
