@@ -2053,16 +2053,10 @@ tab "Social/OrgGroups" {
 
 tab "Social/Satisfaction" {
     This tab shows the full set of satisfaction curves for all 
-    civilian groups.
+    civilian groups.<p>
 
     This browser functions differently in Scenario mode vs. Simulation
-    mode.
-
-    <<childlinks>>
-}
-
-page /tab/social/satisfaction scenario "Satisfaction browser, Scenario Mode" {
-    <<title>>
+    mode.<p>
 
     In <b>Scenario Mode</b>, the satisfaction browser shows the baseline
     level and saliency of each satisfaction curve, as entered by the
@@ -2104,32 +2098,10 @@ page /tab/social/satisfaction scenario "Satisfaction browser, Scenario Mode" {
 
     <</topiclist>>
 
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/sat/update>> or <<cref /order/sat/update:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-page /tab/social/satisfaction simulation "Satisfaction browser, Simulation Mode" {
-    <<title>>
-
     In <b>Simulation Mode</b>, the satisfaction browser shows the 
     current, baseline, and natural levels for each satisfaction curve
     for the current time and for time 0.  Note that by default, only 
     SFT satisfaction curves regress to a natural level.<p>
-
-    The browser controls are described 
-    <<seebelow controls>>; the data fields are as follows:<p>
 
     <<topiclist Column Description>>
 
@@ -2173,14 +2145,16 @@ page /tab/social/satisfaction simulation "Satisfaction browser, Simulation Mode"
 
     <</topiclist>>
 
+
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/sat>> dialog for
-    the selected curve.
+    <b>Scenario Mode only.</b> If one or more rows are selected, pops up the 
+    <<cref /order/sat/update>> or <<cref /order/sat/update:multi>> dialog for
+    the selected row(s).
     <</topic>>
 
     <<control.filterbox>>

@@ -26,7 +26,7 @@ snit::widgetadaptor satbrowser {
     #-------------------------------------------------------------------
     # Lookup Tables
 
-    # Layout
+    # layout
     #
     # %D is replaced with the color for derived columns.
 
@@ -39,11 +39,64 @@ snit::widgetadaptor satbrowser {
         { saliency "Saliency"  -sortmode real  }
     }
 
+    # modes
+    #
+    # Array of configuration data for different app modes.
+    #
+    # scenario   - [sim state] eq PREP
+    # simulation - [sim state] ne PREP 
+    #
+    #    -layout   - The layout spec for the sqlbrowser.  %D is replaced
+    #                with the color for derived columns.
+    #    -view     - The view name.
+    #    -reloadon - The default reload events 
+    #
+    # Reload on ::rdb <civgroups> because changes to basepop will affect the
+    # rows to display.
+    #
+    # Reload on ::parm <Update>: ???.  I'm not sure why we're doing this.
+
+    typevariable modes -array {
+        scenario {
+            -view gui_sat_view
+            -layout {
+                { g        "Group"                     }
+                { c        "Concern"                   }
+                { n        "Nbhood"                    }
+                { base     "Baseline"  -sortmode real  }
+                { current  "Current"   -sortmode real  }
+                { saliency "Saliency"  -sortmode real  }
+            }
+            -reloadon {
+                ::sim <DbSyncB>
+                ::rdb <civgroups>
+            }
+        }
+        simulation {
+            -view gui_uram_sat
+            -layout {
+                { g        "Group"                                        }
+                { c        "Concern"                                      }
+                { n        "Nbhood"                                       }
+                { sat      "Current"        -sortmode real -foreground %D }
+                { base     "Baseline"       -sortmode real -foreground %D }
+                { nat      "Natural"                       -foreground %D }
+                { sat0     "Current at T0"  -sortmode real -foreground %D }
+                { base0    "Baseline at T0" -sortmode real                }
+                { nat0     "Natural at T0"                 -foreground %D }
+            }
+            -reloadon {
+                ::sim <Tick>
+                ::sim <DbSyncB>
+                ::parm <Update>
+            }
+        }
+    }
+
     #-------------------------------------------------------------------
     # Components
 
     component editbtn     ;# The "Edit" button
-    component adjbtn      ;# The "Adjust" button
 
     #--------------------------------------------------------------------
     # Constructor
@@ -54,14 +107,10 @@ snit::widgetadaptor satbrowser {
         # display.
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_sat_view                \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
-            -reloadon {
-                ::sim <DbSyncB>
-                ::rdb <civgroups>
-            } -layout [string map [list %D $::app::derivedfg] $layout]
+            {*}[ModeOptions scenario]
 
         # NEXT, get the options.
         $self configurelist $args
@@ -80,8 +129,11 @@ snit::widgetadaptor satbrowser {
 
         pack $editbtn   -side left
 
+        # NEXT, set the mode when the simulation state changes.
+        notifier bind ::sim <State> $self [mymethod StateChange]
+
         # NEXT, update individual entities when they change.
-        notifier bind ::rdb <sat_gc> $self [mymethod uid]
+        $self SetMode scenario
     }
 
     #-------------------------------------------------------------------
@@ -91,7 +143,52 @@ snit::widgetadaptor satbrowser {
 
 
     #-------------------------------------------------------------------
-    # Private Methods
+    # Private Methods and Procs
+
+    # StateChange
+    #
+    # The simulation state has changed.  Update the display.
+
+    method StateChange {} {
+        if {[sim state] eq "PREP"} {
+            $self SetMode scenario
+        } else {
+            $self SetMode simulation
+        }
+    }
+
+    # SetMode mode
+    #
+    # mode - scenario | simulation
+    #
+    # Sets the widget to display the content for the given mode.
+
+    method SetMode {mode} {
+        $hull configure {*}[ModeOptions $mode]
+
+        if {$mode eq "scenario"} {
+            notifier bind ::rdb <sat_gc> $self [mymethod uid]
+            notifier bind ::mad <Sat>    $self ""
+        } else {
+            notifier bind ::rdb <sat_gc> $self ""
+            notifier bind ::mad <Sat>    $self [mymethod uid]
+        }
+    }
+
+    # ModeOptions mode
+    #
+    # mode - scenario | simulation
+    #
+    # Returns a dictionary of the mode options and values.
+
+    proc ModeOptions {mode} {
+        set opts $modes($mode)
+        dict with opts {
+            set -layout [string map [list %D $::app::derivedfg] ${-layout}]
+        }
+
+        return $opts
+    }
 
     # SelectionChanged
     #

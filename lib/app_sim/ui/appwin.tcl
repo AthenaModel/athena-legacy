@@ -292,18 +292,10 @@ snit::widget appwin {
 
         sat {
             label   "Satisfaction"
-            vistype scenario
+            vistype *
             parent  social
             script  { satbrowser %W }
         }
-
-        sat_sim {
-            label   "Satisfaction"
-            vistype simulation
-            parent  social
-            script  { satbrowser_sim %W }
-        }
-
 
         hrel {
             label   "HRel"
