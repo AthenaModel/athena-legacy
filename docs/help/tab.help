@@ -2147,20 +2147,14 @@ tab "Social/HRel" {
     view.<p>
 
     This browser functions differently in Scenario mode vs. Simulation
-    mode.
-
-    <<childlinks>>
-}
-
-page /tab/social/hrel scenario "HRel browser, Scenario Mode" {
-    <<title>>
+    mode.<p>
 
     In <b>Scenario Mode</b>, the horizontal relationship
     browser shows the natural,
     affinity-based level for each relationship, along with the initial
     baseline value.  The baseline value defaults to the natural level,
     but can be overridden by the user.  Default baselines are
-    shown in green text; overridden baselines are shown in red text.
+    shown in green text; overridden baselines are shown in red text.<p>
 
     Initially, horizontal relationships are computed automatically from the 
     belief systems model; civilian groups have their own 
@@ -2216,43 +2210,6 @@ page /tab/social/hrel scenario "HRel browser, Scenario Mode" {
 
     <</topiclist>>
 
-    <b><a name="controls">Browser Controls:</a></b>  The browser's
-    toolbar contains the following controls:<p>
-
-    <<topiclist Control Description>>
-
-    <<topic [image button_pencil]>>
-    If one or more rows are selected, pops up the 
-    <<cref /order/hrel/override>> or 
-    <<cref /order/hrel/override:multi>> dialog for
-    the selected row(s).
-    <</topic>>
-
-    <<topic [image button_trash]>>
-    If an overridden relationship is selected, deletes the
-    override and restores the computed relationship.
-    <</topic>>
-
-    <<topic [image viewbox]>>
-    The view box determines which set of entities is to be displayed.
-    The following sets may be selected from the pulldown:<p>
-
-    <ul>
-    <li> <b>All</b>: All relationships, whether computed or overridden.
-    <li> <b>Overridden</b>: Manually overridden relationships only.
-    </ul>
-    <</topic>>
-
-    <</topic>>
-
-    <<control.filterbox>>
-    <<control.headers>>
-    <</topiclist>>
-}
-
-page /tab/social/hrel simulation "HRel browser, Simulation Mode" {
-    <<title>>
-
     In <b>Simulation Mode</b>, the horizontal relationship
     browser shows the current, baseline, and natural levels for
     each relationship for the current time and for time 0.  The
@@ -2261,9 +2218,6 @@ page /tab/social/hrel simulation "HRel browser, Simulation Mode" {
     change slowly, and in the absence of attitude drivers 
     the baseline level will regress slowly back to the natural level
     over time.<p>
-
-    The browser controls are described <<seebelow controls>>; the data
-    fields are as follows:<p>
 
     <<topiclist Column Description>>
 
@@ -2314,20 +2268,45 @@ page /tab/social/hrel simulation "HRel browser, Simulation Mode" {
 
     <</topiclist>>
 
+
     <b><a name="controls">Browser Controls:</a></b>  The browser's
     toolbar contains the following controls:<p>
 
     <<topiclist Control Description>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/mad/hrel>> dialog for
-    the selected relationship.
+    <b>Scenario Mode only.</b>
+    If one or more rows are selected, pops up the 
+    <<cref /order/hrel/override>> or 
+    <<cref /order/hrel/override:multi>> dialog for
+    the selected row(s).
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    <b>Scenario Mode only.</b>
+    If an overridden relationship is selected, deletes the
+    override and restores the computed relationship.
+    <</topic>>
+
+    <<topic [image viewbox]>>
+    <b>Scenario Mode only.</b>
+    The view box determines which set of entities is to be displayed.
+    The following sets may be selected from the pulldown:<p>
+
+    <ul>
+    <li> <b>All</b>: All relationships, whether computed or overridden.
+    <li> <b>Overridden</b>: Manually overridden relationships only.
+    </ul>
+    <</topic>>
+
     <</topic>>
 
     <<control.filterbox>>
     <<control.headers>>
     <</topiclist>>
 }
+
+#-----------------------------------------------------------------------
 
 tab "Social/Demog" {
     <b>Simulation Mode only.</b><p>

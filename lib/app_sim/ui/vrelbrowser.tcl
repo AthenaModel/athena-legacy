@@ -166,6 +166,10 @@ snit::widgetadaptor vrelbrowser {
     # selection.
 
     method canupdate {} {
+        if {[sim state] ne "PREP"} {
+            return 0
+        }
+
         # FIRST, there must be something selected
         if {[llength [$self uid curselection]] > 0} {
             return 1
@@ -182,6 +186,10 @@ snit::widgetadaptor vrelbrowser {
     # selection and it is overridden.
 
     method candelete {} {
+        if {[sim state] ne "PREP"} {
+            return 0
+        }
+
         # FIRST, there must be one thing selected
         if {[llength [$self uid curselection]] != 1} {
             return 0

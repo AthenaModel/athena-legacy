@@ -8,7 +8,7 @@
 # DESCRIPTION:
 #    hrelbrowser(sim) package: Relationship browser.
 #
-#    This widget displays the scenario's HREL inputs.
+#    This widget displays the scenario's HREL inputs and current values.
 #
 #-----------------------------------------------------------------------
 
@@ -25,19 +25,64 @@ snit::widgetadaptor hrelbrowser {
     #-------------------------------------------------------------------
     # Lookup Tables
 
-    # Layout
+    # modes
     #
-    # %D is replaced with the color for derived columns.
+    # Array of configuration data for different app modes.
+    #
+    # scenario   - [sim state] eq PREP
+    # simulation - [sim state] ne PREP 
+    #
+    #    -layout   - The layout spec for the sqlbrowser.  %D is replaced
+    #                with the color for derived columns.
+    #    -view     - The view name.
+    #    -reloadon - The default reload events 
+    #
+    # Reload on ::parm <Update>: ???.  I'm not sure why we're doing this.
 
-    typevariable layout {
-        {f        "Of Group F"                  }
-        {g        "With Group G"                }
-        {ftype    "F Type"                      }
-        {gtype    "G Type"                      }
-        {base     "Baseline"     -sortmode real }
-        {current  "Current"      -sortmode real }
-        {nat      "Natural"      -sortmode real }
-        {override "OV"           -hide 1        }
+    typevariable modes -array {
+        scenario {
+            -view gui_hrel_view
+            -views {
+                gui_hrel_view          "All"
+                gui_hrel_override_view "Overridden"
+            }
+            -layout {
+                {f        "Of Group F"                  }
+                {g        "With Group G"                }
+                {ftype    "F Type"                      }
+                {gtype    "G Type"                      }
+                {base     "Baseline"     -sortmode real }
+                {current  "Current"      -sortmode real }
+                {nat      "Natural"      -sortmode real }
+                {override "OV"           -hide 1        }
+            }
+            -reloadon {
+                ::rdb <groups>
+                ::sim <DbSyncB>
+                ::rdb <civgroups>
+            }
+        }
+        simulation {
+            -view gui_uram_hrel
+            -views {}
+            -layout {
+                {f        "Of Group F"                                   }
+                {g        "With Group G"                                 }
+                {ftype    "F Type"                                       }
+                {gtype    "G Type"                                       }
+                {hrel     "Current"        -sortmode real -foreground %D }
+                {base     "Baseline"       -sortmode real -foreground %D }
+                {nat      "Natural"        -sortmode real -foreground %D }
+                {hrel0    "Current at T0"  -sortmode real -foreground %D }
+                {base0    "Baseline at T0" -sortmode real                }
+                {nat0     "Natural at T0"  -sortmode real -foreground %D }
+            }
+            -reloadon {
+                ::sim <Tick>
+                ::sim <DbSyncB>
+                ::parm <Update>
+            }
+        }
     }
 
     #-------------------------------------------------------------------
@@ -53,19 +98,12 @@ snit::widgetadaptor hrelbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_hrel_view               \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
             -displaycmd   [mymethod DisplayData]      \
-            -reloadon {
-                ::rdb <groups>
-                ::sim <DbSyncB>
-                ::rdb <civgroups>
-            } -views {
-                gui_hrel_view          "All"
-                gui_hrel_override_view "Overridden"
-            } -layout [string map [list %D $::app::derivedfg] $layout]
+            {*}[ModeOptions scenario]
+
 
         # NEXT, get the options.
         $self configurelist $args
@@ -94,8 +132,11 @@ snit::widgetadaptor hrelbrowser {
         pack $editbtn   -side left
         pack $deletebtn -side right
 
+        # NEXT, set the mode when the simulation state changes.
+        notifier bind ::sim <State> $self [mymethod StateChange]
+
         # NEXT, update individual entities when they change.
-        notifier bind ::rdb <hrel_fg> $self [mymethod uid]
+        $self SetMode scenario
     }
 
     #-------------------------------------------------------------------
@@ -116,6 +157,10 @@ snit::widgetadaptor hrelbrowser {
     # selection.
 
     method canupdate {} {
+        if {[sim state] ne "PREP"} {
+            return 0
+        }
+
         # FIRST, there must be something selected
         if {[llength [$self uid curselection]] > 0} {
             return 1
@@ -132,6 +177,10 @@ snit::widgetadaptor hrelbrowser {
     # selection and it is overridden.
 
     method candelete {} {
+        if {[sim state] ne "PREP"} {
+            return 0
+        }
+
         # FIRST, there must be one thing selected
         if {[llength [$self uid curselection]] != 1} {
             return 0
@@ -155,6 +204,52 @@ snit::widgetadaptor hrelbrowser {
     #-------------------------------------------------------------------
     # Private Methods
 
+    # StateChange
+    #
+    # The simulation state has changed.  Update the display.
+
+    method StateChange {} {
+        if {[sim state] eq "PREP"} {
+            $self SetMode scenario
+        } else {
+            $self SetMode simulation
+        }
+    }
+
+    # SetMode mode
+    #
+    # mode - scenario | simulation
+    #
+    # Sets the widget to display the content for the given mode.
+
+    method SetMode {mode} {
+        $hull configure {*}[ModeOptions $mode]
+
+        if {$mode eq "scenario"} {
+            notifier bind ::rdb <hrel_fg> $self [mymethod uid]
+            notifier bind ::mad <Hrel>    $self ""
+        } else {
+            notifier bind ::rdb <hrel_fg> $self ""
+            notifier bind ::mad <Hrel>    $self [mymethod uid]
+        }
+    }
+
+    # ModeOptions mode
+    #
+    # mode - scenario | simulation
+    #
+    # Returns a dictionary of the mode options and values.
+
+    proc ModeOptions {mode} {
+        set opts $modes($mode)
+        dict with opts {
+            set -layout [string map [list %D $::app::derivedfg] ${-layout}]
+        }
+
+        return $opts
+    }
+   
+
     # DisplayData rindex values
     # 
     # rindex    The row index
@@ -163,12 +258,14 @@ snit::widgetadaptor hrelbrowser {
     # Sets the cell foreground color for the color cells.
 
     method DisplayData {rindex values} {
-        set override [lindex $values end-1]
+        if {[sim state] eq "PREP"} {
+            set override [lindex $values end-1]
 
-        if {$override && [sim state] eq "PREP"} {
-            $hull rowconfigure $rindex -foreground "#BB0000"
-        } else {
-            $hull rowconfigure $rindex -foreground $::app::derivedfg
+            if {$override} {
+                $hull rowconfigure $rindex -foreground "#BB0000"
+            } else {
+                $hull rowconfigure $rindex -foreground $::app::derivedfg
+            }
         }
     }
 

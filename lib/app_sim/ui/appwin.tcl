@@ -292,16 +292,9 @@ snit::widget appwin {
 
         hrel {
             label   "HRel"
-            vistype scenario
+            vistype *
             parent  social
             script  { hrelbrowser %W }
-        }
-
-        hrel_sim {
-            label   "HRel"
-            vistype simulation
-            parent  social
-            script  { hrelbrowser_sim %W }
         }
 
         demogg {
