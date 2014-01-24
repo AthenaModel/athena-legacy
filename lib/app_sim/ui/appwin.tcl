@@ -350,16 +350,9 @@ snit::widget appwin {
 
         coop {
             label   "Cooperation"
-            vistype scenario
+            vistype *
             parent  info
             script  { coopbrowser %W }
-        }
-
-        coop_sim {
-            label   "Cooperation"
-            vistype simulation
-            parent  info
-            script  { coopbrowser_sim %W }
         }
 
         nbcoop {

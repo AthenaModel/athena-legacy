@@ -26,19 +26,6 @@ snit::widgetadaptor satbrowser {
     #-------------------------------------------------------------------
     # Lookup Tables
 
-    # layout
-    #
-    # %D is replaced with the color for derived columns.
-
-    typevariable layout {
-        { g        "Group"                     }
-        { c        "Concern"                   }
-        { n        "Nbhood"                    }
-        { base     "Baseline"  -sortmode real  }
-        { current  "Current"   -sortmode real  }
-        { saliency "Saliency"  -sortmode real  }
-    }
-
     # modes
     #
     # Array of configuration data for different app modes.
