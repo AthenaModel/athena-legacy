@@ -67,7 +67,7 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
         # owner must not be automatically maintaining infrastructure
         set owner [my agent]
 
-        if {[actor get $owner auto_maintain]} {
+        if {$owner ne "SYSTEM" && [actor get $owner auto_maintain]} {
             set errmsg "$owner has auto maintenance enabled."
             dict set errdict owner $errmsg
         }
