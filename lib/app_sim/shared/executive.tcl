@@ -2017,8 +2017,8 @@ snit::type executive {
     # Shows a URL in the detail browser.
 
     proc show {url} {
-        [.main tab win detail] show $url
         .main tab view detail
+        app show $url
     }
 
     # SigEventLog message ?tags...?
