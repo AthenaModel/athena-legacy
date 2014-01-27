@@ -207,6 +207,18 @@ snit::type ted {
             polygon      {600 600 600 800 800 800 800 600}
         }
 
+        defentity NL1 ::nbhood {
+            n            NL1
+            longname     "Not Local"
+            local        0
+            urbanization URBAN
+            controller   NONE
+            vtygain      1.0
+            pcf          1.0
+            refpoint     {800 800}
+            polygon      {600 600 600 800 800 800 800 600}
+        }
+
         # Actors
         
         defentity JOE ::actor {
@@ -359,6 +371,22 @@ snit::type ted {
             hist_flag 0
             upc       0.0
         } NB2
+
+        defentity NOT_LOCALS ::civgroup {
+            g         NOT_LOCALS
+            longname  "Not Locals"
+            color     "#c00003"
+            shape     NEUTRAL
+            n         NL1
+            basepop   1000
+            pop_cr    0.0
+            sa_flag   1
+            demeanor  AGGRESSIVE
+            lfp       0
+            housing   AT_HOME
+            hist_flag 0
+            upc       0.0
+        } NL1
 
         # Force Groups
 

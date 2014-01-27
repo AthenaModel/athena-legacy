@@ -598,6 +598,23 @@ NB2 2
     } -result {NB1 NB2}
 
     #-------------------------------------------------------------------
+    # names
+
+    test local_names-1.1 {Returns local nbhood names: none defined} -body {
+        nbhood local names
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test local_names-1.2 {Returns only local neighborhood names} -setup {
+        ted create NB1 NB2 NL1
+    } -body {
+        nbhood local names
+    } -cleanup {
+        cleanup
+    } -result {NB1 NB2}
+
+    #-------------------------------------------------------------------
     # find
 
     test find-1.1 {No neighborhood to find} -body {
@@ -669,6 +686,44 @@ NB2 2
         cleanup
     } -result {NB1}
 
+    #-------------------------------------------------------------------
+    # local validate
+
+    test local_validate-1.1 {Invalid local name: none defined} -body {
+        nbhood local validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid local neighborhood, none are defined}
+
+    test local_validate-1.2 {Invalid local name: some defined} -setup {
+        ted create NB1 NB2 NL1
+    } -body {
+        nbhood local validate NONESUCH
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid local neighborhood, should be one of: NB1, NB2}
+
+    test local_validate-1.3 {Non-local nbhood: some defined} -setup {
+        ted create NB1 NB2 NL1
+    } -body {
+        nbhood local validate NL1
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid local neighborhood, should be one of: NB1, NB2}
+
+    test local_validate-2.1 {Valid name} -setup {
+        ted create NB1 NB2 NL1
+    } -body {
+        nbhood local validate NB1
+    } -cleanup {
+        cleanup
+    } -result {NB1}
 
     #-------------------------------------------------------------------
     # dbsync

@@ -136,8 +136,6 @@ snit::type nbhood {
         }]
     }
 
-
-
     # validate n
     #
     # n         Possibly, a neighborhood short name.
@@ -156,6 +154,49 @@ snit::type nbhood {
 
             return -code error -errorcode INVALID \
                 "Invalid neighborhood, $msg"
+        }
+
+        return $n
+    }
+
+    # local names
+    #
+    # Returns the list of nbhoods that have the local flag set
+
+    typemethod {local names} {} {
+        return [rdb eval {
+            SELECT n FROM nbhoods WHERE local=1 ORDER BY n
+        }]
+    }
+
+    # local namedict
+    #
+    # Returns ID/longname dictionary for local nbhoods
+
+    typemethod {local namedict} {} {
+        return [rdb eval {
+            SELECT n, longname FROM nbhoods WHERE local=1 ORDER BY n
+        }]
+    }
+
+    # local validate n
+    #
+    # n    Possibly, a local nbhood short name
+    #
+    # Validates a local nbhood short name
+
+    typemethod {local validate} {n} {
+        if {![rdb exists {SELECT n FROM nbhoods WHERE local=1 AND n=$n}]} {
+            set names [join [nbhood local names] ", "]
+
+            if {$names ne ""} {
+                set msg "should be one of: $names"
+            } else {
+                set msg "none are defined"
+            }
+
+            return -code error -errorcode INVALID \
+                "Invalid local neighborhood, $msg"
         }
 
         return $n
