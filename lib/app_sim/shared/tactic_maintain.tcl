@@ -276,6 +276,7 @@ tactic define MAINTAIN "Maintain Infrastructure" {actor} {
 
         # NEXT, filter out any neighborhoods that have no infrastructure
         # owned by the actor
+        # NOTE: non-local neighborhoods will also get filtered out here.
         set nbhoodsWithPlants [rdb eval {
             SELECT n FROM plants_na
             WHERE a = $owner

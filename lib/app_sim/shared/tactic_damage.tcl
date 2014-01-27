@@ -57,6 +57,8 @@ tactic define DAMAGE "Damage Infrastructure" {system} {
             dict set errdict n "No neighborhood selected."
         } elseif {$n ni [nbhood names]} {
             dict set errdict n "No such neighborhood: \"$n\"."
+        } elseif {$n ni [nbhood local names]} {
+            dict set errdict n "Neighborhood \"$n\" is not local, should be."
         }
 
         return [next $errdict]
@@ -131,7 +133,7 @@ order define TACTIC:DAMAGE {
         actor a
 
         rcc "Nbhood:" -for n 
-        nbhood n
+        localn n
 
         rcc "Repair Level:" -for percent
         percent percent

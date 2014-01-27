@@ -45,6 +45,10 @@ object plant_ {
         <<term tactic>>.  This new infrastructure will also need to be
         maintained after it is completed, unless the actor who built it
         is automatically maintaining it.<p>
+
+        GOODS Production Plants cannot exist in non-local neighborhoods.
+        Thus, attempting to BUILD, MAINTAIN or DAMAGE them as part of an
+        actor's <<term strategy>> in non-local neighborhoods is not allowed.<p>
     }
 
 
@@ -53,7 +57,7 @@ object plant_ {
     } -tags {create}
 
     attribute n "Neighborhood" {
-        A neighborhood ID.  It may be any neighborhood defined.
+        A neighborhood ID.  It may be any local neighborhood defined.
     } -tags {create}
 
     attribute id "ID" {

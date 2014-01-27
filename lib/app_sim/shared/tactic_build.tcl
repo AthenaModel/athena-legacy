@@ -60,6 +60,8 @@ tactic define BUILD "Build Infrastructure" {actor} {
             dict set errdict n "No neighborhood selected."
         } elseif {$n ni [nbhood names]} {
             dict set errdict n "No such neighborhood: \"$n\"."
+        } elseif {$n ni [nbhood local names]} {
+            dict set errdict n "Neighborhood \"$n\" is not local, should be."
         }
 
         # Non-zero work-weeks if mode is effort
@@ -175,7 +177,7 @@ order define TACTIC:BUILD {
             -loadcmd {beanload}
 
         rcc "Nbhood:" -for n 
-        nbhood n
+        localn n
 
         rcc "Construction Mode:" -for mode
         selector mode {

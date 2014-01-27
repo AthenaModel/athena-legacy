@@ -143,6 +143,11 @@ dynaform fieldtype alias nbhood enumlong \
     -showkeys yes \
     -dictcmd  {::nbhood namedict}
 
+# localn: Pick a local neighborhood by name
+dynaform fieldtype alias localn enumlong \
+    -showkeys yes \
+    -dictcmd {::nbhood local namedict}
+
 # nlist: Pick a neighborhood from a list; long names shown.
 dynaform fieldtype alias nlist enumlonglist \
     -showkeys yes \
