@@ -499,6 +499,12 @@ appserver module NBHOOD {
                 The economic model is disabled, so neighborhoods have no 
                 GOODS production infrastructure.
             }
+        } elseif {!$data(local)} {
+            ht put {
+                This neighborhood is non-local, and is therfore outside the
+                local economy.  Because of this, no GOODS production 
+                infrastructure can exist in this neighborhood.
+            }
         } else {
 
             ht put {

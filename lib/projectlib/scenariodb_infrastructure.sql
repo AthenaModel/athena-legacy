@@ -80,10 +80,6 @@ CREATE TABLE plants_build (
     PRIMARY KEY (n,a)
 );
 
--- Plants under construction: during strategy execution an agent may 
--- use the BUILD tactic to build new infrastructure, this table tracks
--- the progress of that construction
-
 -- Plants neighborhood view. Used during prep and initialization to 
 -- determine how infrastructure plants are distributed among the 
 -- neighborhoods as a function of total neighborhood population and
@@ -94,7 +90,7 @@ SELECT N.n                                     AS n,
        N.pcf                                   AS pcf,
        total(coalesce(D.population,C.basepop)) AS nbpop
 FROM civgroups          AS C
-JOIN nbhoods            AS N USING (n)
+JOIN local_nbhoods      AS N USING (n)
 LEFT OUTER JOIN demog_n AS D USING (n)
 GROUP BY n;
 

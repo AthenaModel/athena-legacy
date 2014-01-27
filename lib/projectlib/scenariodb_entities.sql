@@ -177,6 +177,9 @@ CREATE TABLE nbhoods (
     obscured_by    TEXT DEFAULT ''
 );
 
+CREATE VIEW local_nbhoods AS
+SELECT * FROM nbhoods WHERE local=1;
+
 -- Neighborhood relationships from m's point of view
 CREATE TABLE nbrel_mn (
     -- Symbolic nbhood name

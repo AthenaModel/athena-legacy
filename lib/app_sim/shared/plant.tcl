@@ -50,9 +50,9 @@ snit::type plant {
     # Computes the allocation of plants at scenario lock.
 
     typemethod start {} {
-        # FIRST, fill in any neighborhoods that are not specified in the
+        # FIRST, fill in any local neighborhoods that are not specified in the
         # shares table with the SYSTEM agent
-        set nbhoods [nbhood names]
+        set nbhoods [nbhood local names]
 
         foreach n $nbhoods {
             if {![rdb exists {SELECT * FROM plants_shares WHERE n=$n}]} {
@@ -143,7 +143,7 @@ snit::type plant {
         
         # NEXT, go through the neighborhoods laying down plants for each
         # agent that owns them
-        foreach n [nbhood names] {
+        foreach n [nbhood local names] {
             # NEXT, if no plants in the neighborhood nothing to do
             if {$pfrac($n) == 0.0} {
                 continue
@@ -815,7 +815,7 @@ snit::type plant {
     typemethod notAllocatedTo {a} {
         set nballoc [rdb eval {SELECT n FROM plants_shares WHERE a = $a}]
 
-        set nbnotalloc [nbhood names]
+        set nbnotalloc [nbhood local names]
 
         foreach n $nballoc {
             ldelete nbnotalloc $n

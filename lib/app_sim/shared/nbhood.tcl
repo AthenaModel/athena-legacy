@@ -165,7 +165,7 @@ snit::type nbhood {
 
     typemethod {local names} {} {
         return [rdb eval {
-            SELECT n FROM nbhoods WHERE local=1 ORDER BY n
+            SELECT n FROM local_nbhoods ORDER BY n
         }]
     }
 
@@ -175,7 +175,7 @@ snit::type nbhood {
 
     typemethod {local namedict} {} {
         return [rdb eval {
-            SELECT n, longname FROM nbhoods WHERE local=1 ORDER BY n
+            SELECT n, longname FROM local_nbhoods ORDER BY n
         }]
     }
 
@@ -186,7 +186,7 @@ snit::type nbhood {
     # Validates a local nbhood short name
 
     typemethod {local validate} {n} {
-        if {![rdb exists {SELECT n FROM nbhoods WHERE local=1 AND n=$n}]} {
+        if {![rdb exists {SELECT n FROM local_nbhoods WHERE n=$n}]} {
             set names [join [nbhood local names] ", "]
 
             if {$names ne ""} {
@@ -508,18 +508,20 @@ order define NBHOOD:CREATE {
         longname longname 
 
         rcc "Local Neighborhood?" -for local
-        # TBD: replace eyesno with a "bool" field that maps 0,1 to
-        # nice long names.
-        enum local -listcmd {eyesno names} -defvalue YES
+        selector local -defvalue YES {
+            case YES "Yes" {
+                rcc "Prod. Capacity Factor:" -for pcf
+                text pcf -defvalue 1.0
+            }
+
+            case NO "No" {}
+        }
 
         rcc "Urbanization:" -for urbanization
         enum urbanization -listcmd {eurbanization names} -defvalue URBAN
 
         rcc "Controller:" -for controller
         enum controller -listcmd {ptype a+none names} -defvalue NONE
-
-        rcc "Prod. Capacity Factor:" -for pcf
-        text pcf -defvalue 1.0
 
         rcc "Reference Point:" -for refpoint
         text refpoint
@@ -581,6 +583,11 @@ order define NBHOOD:CREATE {
     # NEXT, If longname is "", defaults to ID.
     if {$parms(longname) eq ""} {
         set parms(longname) $parms(n)
+    }
+
+    # NEXT, If non-local pcf is 0.0
+    if {!$parms(local)} {
+        set parms(pcf) 0.0
     }
 
     # NEXT, create the neighborhood and dependent entities
@@ -697,16 +704,20 @@ order define NBHOOD:UPDATE {
         longname longname
         
         rcc "Local Neighborhood?" -for local
-        enum local -listcmd {eyesno names}
+        selector local -defvalue YES {
+            case YES "Yes" {
+                rcc "Prod. Capacity Factor:" -for pcf
+                text pcf -defvalue 1.0
+            }
+
+            case NO "No" {}
+        }  
 
         rcc "Urbanization:" -for urbanization
         enum urbanization -listcmd {eurbanization names}
 
         rcc "Controller:" -for controller
         enum controller -listcmd {ptype a+none names}
-
-        rcc "Prod. Capacity Factor:" -for pcf
-        text pcf
 
         rcc "Reference Point:" -for refpoint
         text refpoint
@@ -782,6 +793,11 @@ order define NBHOOD:UPDATE {
     }
     
     returnOnError -final
+
+    # NEXT, If non-local pcf is 0.0
+    if {!$parms(local)} {
+        set parms(pcf) 0.0
+    }
 
     # NEXT, modify the neighborhood
     lappend undo [nbhood mutate update [array get parms]]

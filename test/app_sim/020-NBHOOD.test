@@ -62,6 +62,16 @@ namespace eval ::athena_test::tests:: {
         polygon      {C80C80 D20C80 D00D20}
     }
 
+    set nl1 {
+        n            NL1
+        longname     "Non-Local"
+        local        NO
+        urbanization RURAL
+        controller   NONE
+        pcf          1.0
+        refpoint     D00D00
+        polygon      {C80C80 D20C80 D00D20}
+    }
 
     # Clean up after a test
 
@@ -230,7 +240,15 @@ polygon       80 80 120 80 100 120
         cleanup
     } -result {NB1}
 
-    test CREATE-2.4 {Effects} -body {
+    test CREATE-2.4 {pcf defaults to 0.0 for non-local} -body {
+        ted order NBHOOD:CREATE [dict merge $nl1 {longname ""}]
+
+        rdb onecolumn {SELECT pcf FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test CREATE-2.5 {Effects} -body {
         ted notifier bind ::rdb <nbhoods>
         ted order NBHOOD:CREATE $nb1
         ted notifier received
@@ -553,7 +571,7 @@ longname      Not Here
 local         0
 urbanization  RURAL
 controller    JOE
-pcf           0.5
+pcf           0.0
 refpoint      5 5
 polygon       0 0 10 0 10 10 0 10
     }

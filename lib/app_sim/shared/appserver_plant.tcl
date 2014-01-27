@@ -67,7 +67,9 @@ appserver module PLANT {
                 ht put   "The following table is an estimate of GOODS "
                 ht put   "production plant distribution in the playbox "
                 ht put   "given the neighborhoods and neighborhood "
-                ht putln "populations currently defined."
+                ht put   "populations currently defined.  Only local "
+                ht put   "neighborhoods can contain GOODS production "
+                ht putln "GOODS production infrastructure."
                 ht para 
 
                 ht table {
@@ -111,7 +113,9 @@ appserver module PLANT {
             ht put   "The following table shows the current laydown of "
             ht put   "GOODS production plants, owning agents and repair "
             ht put   "levels.  Plants under construction will appear in "
-            ht put   "this table when they are 100% complete."
+            ht put   "this table when they are 100% complete.  Non-local "
+            ht put   "neighborhoods do not appear in this table since GOODS "
+            ht put   "production infrastructure cannot exist in them."
             ht para 
 
             ht query {

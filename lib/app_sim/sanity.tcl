@@ -314,7 +314,7 @@ snit::type sanity {
             $ht dlitem "<b>Error: Duplicate Environmental Situations</b>" "
                 There are duplicate ensits of type $stype in
                 neighborhood $n.  Delete all but one of them on the
-                <a href=\"gui:/tab/ensits\">Neighborhoods/Ensits</a>
+                <a href=\"gui:/tab/ensit\">Neighborhoods/Ensits</a>
                 tab.
             "
         }
@@ -336,6 +336,30 @@ snit::type sanity {
                 population.  Add or edit civilian groups on the
                 <a href="gui:/tab/civgroups">Groups/CivGroups</a>
                 tab.
+            }
+        }
+
+        # NEXT, there cannot be any GOODS production infrastructure allocated
+        # to non-local neighborhoods
+
+        set localn [nbhood local names]
+
+        rdb eval {
+            SELECT n, a FROM plants_shares
+        } {
+
+            if {$n ni $localn} {
+                set sev ERROR
+
+                $ht dlitem \
+                    "<b>Error: GOODS Infrastructure in non-local nbhood</b>" "
+                    There is GOODS production infrastructure allocated to $n, 
+                    which is a non-local neighborhood.  Only local 
+                    neighborhoods can contain GOODS production infrastructure.
+                    Delete or edit infrastructure allocation on the
+                    <a href=\"gui:/tab/plants\">Infrastructure/GOODS Plants</a>
+                    tab.
+                "
             }
         }
 
