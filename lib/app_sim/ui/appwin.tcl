@@ -148,6 +148,13 @@ snit::widget appwin {
             script  { ensitbrowser %W }
         }
 
+        curses {
+            label   "CURSEs"
+            vistype *
+            parent physical
+            script { cursebrowser %W }
+        }
+
         security {
             label   "Security"
             vistype simulation
@@ -160,13 +167,6 @@ snit::widget appwin {
             vistype simulation
             parent  physical
             script  { activitybrowser %W }
-        }
-
-        curses {
-            label   "CURSEs"
-            vistype scenario
-            parent physical
-            script { cursebrowser %W }
         }
 
         demogn {
@@ -264,7 +264,7 @@ snit::widget appwin {
 
         bsystem {
             label   "Beliefs"
-            vistype scenario
+            vistype *
             parent  social
             script  { bsystembrowser %W }
         }
@@ -675,19 +675,8 @@ snit::widget appwin {
         set viewmenu [menu $menubar.view]
         $menubar add cascade -label "View" -underline 0 -menu $viewmenu
 
-        $viewmenu add radiobutton                   \
-            -label    "Scenario"                    \
-            -variable [myvar info(mode)]            \
-            -value    scenario                      \
-            -command  [mymethod SetMode scenario]
+        # The rest of the view menu is added later.
 
-        $viewmenu add radiobutton                   \
-            -label    "Simulation"                  \
-            -variable [myvar info(mode)]            \
-            -value    simulation                    \
-            -command  [mymethod SetMode simulation]
-
-        $viewmenu add separator
 
         # Bookmarks menu
         set bookmenu [menu $menubar.bookmark \

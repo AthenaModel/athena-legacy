@@ -195,20 +195,6 @@ menu "View" {
     <<childlinks>>
 }
 
-menuitem "View/Scenario" {
-    Selecting this item puts the main window in "Scenario" mode; the 
-    window contains the tabs needed to create and edit Athena scenarios.
-    By default, the window is in "Scenario" mode whenever the scenario
-    is unlocked.
-}
-
-menuitem "View/Simulation" {
-    Selecting this item puts the main window in "Simulation" mode; the 
-    window contains the tabs needed when running the simulation and examining
-    the results.  By default, the window is in "Simulation" mode whenever 
-    the scenario is locked.
-}
-
 menuitem "View/Bookmarks" {
     Selecting this time shows or hides the <<tab Bookmarks>>.
 }
