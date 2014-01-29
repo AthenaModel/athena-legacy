@@ -89,9 +89,21 @@ snit::widget ::projectgui::mybrowser {
 
     # -hyperlinkcmd
     #
-    # A command to call when a hyperlink uses a scheme other than my:.
+    # A command to call when a hyperlink is selected.  By default,
+    # hyperlinks are simply passed to [$self show]; clients can use this
+    # option to circumvent that.
 
     option -hyperlinkcmd
+
+    # -unknowncmd
+    #
+    # A command to call when [$self show] is given a URL with an
+    # unknown scheme (i.e., a scheme other than "my:").  If the
+    # -unknowncmd can handle it, it should return 1; otherwise,
+    # it should return 0, and mybrowser will handle it by
+    # displaying an error.
+
+    option -unknowncmd
 
     # -loadedcmd
     #
@@ -353,18 +365,11 @@ snit::widget ::projectgui::mybrowser {
         # FIRST, get the URI
         set uri [$agent resolve $info(base) $uri]
 
-        # NEXT, get its scheme
-        if {[catch {
-            array set parts [uri::split $uri]
-        } result]} {
-            # Punt to normal error handling
-            $self show $uri
-        }
-
-        if {$parts(scheme) eq "my"
-            || $options(-hyperlinkcmd) eq ""
-            || ![callwith $options(-hyperlinkcmd) $uri]
-        } {
+        # NEXT, show it.  By default, just show it normally; but
+        # allow the user to handle it if desired.
+        if {$options(-hyperlinkcmd) ne ""} {
+            callwith $options(-hyperlinkcmd) $uri
+        } else {
             $self show $uri
         }
     }
@@ -742,7 +747,12 @@ snit::widget ::projectgui::mybrowser {
     # display the related text.
 
     method show {uri} {
-        # FIRST, parse the URI and its components
+        # FIRST, handle unknown URL schemes.
+        if {[$self HandleUnknownSchemes $uri]} {
+            return
+        }
+
+        # NEXT, parse the URI and its components
         lassign [split $uri "#"] page anchor
 
         # NEXT, if page and anchor are both "", then just clear the
@@ -787,6 +797,38 @@ snit::widget ::projectgui::mybrowser {
 
         # NEXT, update the button state.
         $self UpdateButtonState
+    }
+
+    # HandleUnknownSchemes uri 
+    #
+    # uri   - A resource URI
+    #
+    # Looks for the scheme, and attempts to handle unknown schemes
+    # (i.e., other than "my:").  Returns 1 on success and 0 on
+    # failure.
+
+    method HandleUnknownSchemes {uri} {
+        # FIRST, if there's no unknown command, we *have* to handle it
+        # normally.
+        if {$options(-unknowncmd) eq ""} {
+            return 0
+        }
+
+        # NEXT, try to get its scheme
+        if {[catch {
+            array set parts [uri::split $uri]
+        } result]} {
+            # Couldn't get it; punt to normal handling
+            return 0
+        }
+
+        # NEXT, if it's a "my:" URL, it's not an unknown scheme.
+        if {$parts(scheme) eq "my"} {
+            return 0
+        }
+
+        # NEXT, let the -unknowncmd decide whether it can handle it or not.
+        return [callwith $options(-unknowncmd) $parts(scheme) $uri]
     }
 
     # ShowPageRef page ?frac?

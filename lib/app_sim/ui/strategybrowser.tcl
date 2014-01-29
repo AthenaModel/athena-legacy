@@ -1099,6 +1099,7 @@ snit::widget strategybrowser {
     method OTabCreate {pane} {
         # FIRST, create the pane
         install otab using myhtmlpane $pane              \
+            -url          my://app/sigevents             \
             -reloadon     {::projectlib::bean <Monitor>} \
             -hyperlinkcmd {::app show}                   \
             -messagecmd   {::app puts}

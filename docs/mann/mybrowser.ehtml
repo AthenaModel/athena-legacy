@@ -145,11 +145,10 @@ this page initially, and will return to it when the browser's
 
 <<defopt {-hyperlinkcmd <i>command</i>}>>
 
-Specifies a <i>command</i> to be called if a hyperlink uses a URI
-scheme other than "my:".  The command is passed the URI, and can do
-what it likes with it.  The command should return 1 if it handles the
-URI, and 0 otherwise, in which case mybrowser(n)'s usually error
-handling will apply.<p>
+This option determines what happens when a user clicks on a hyperlink.  If
+the option is unset (the default), then mybrowser(n) simply passes 
+resolved hyperlinks directly to <<iref show>>.  Otherwise, they are passed
+to <i>command</i>, which may do what it likes.<p>
 
 <<defopt {-loadedcmd <i>command</i>}>>
 
@@ -187,6 +186,14 @@ search box is displayed only if this option has a non-empty value.<p>
 Gives a set of CSS styles to the underlying 
 <<xref mars:htmlviewer(n)>>.<p>
 
+<<defopt {-unknowncmd <i>command</i>}>>
+
+Specifies a <i>command</i> to be called if a hyperlink uses a URI
+scheme other than "my".  The command is passed two additional arguments,
+the scheme name (e.g., "gui") and the URI, and can do
+what it likes with them.  The command should return 1 if it handles the
+URI, and 0 otherwise, in which case mybrowser(n)'s usual error
+handling will apply.<p>
 
 <</deflist options>>
 

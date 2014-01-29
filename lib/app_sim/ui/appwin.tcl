@@ -363,7 +363,19 @@ snit::widget appwin {
             script  {iombrowser %W}
         }
 
+        timet {
+            label   "Time"
+            vistype *
+            parent  ""
+            script ""
+        }
 
+        sigevent {
+            label   "Significant Events"
+            vistype *
+            parent  timet
+            script  { sigeventbrowser %W }
+        }
 
         orders {
             label   "Orders"

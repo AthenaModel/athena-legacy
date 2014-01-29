@@ -71,7 +71,7 @@ appserver module SIGEVENTS {
         
         # Begin the page
         if {$entity eq ""} {
-            set title "Significant Events: All Entities"
+            set title "Significant Events"
         } else {
             set title "Significant Events: $entity"
         }
