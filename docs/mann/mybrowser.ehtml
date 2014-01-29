@@ -170,6 +170,12 @@ Specifies a <i>command</i> to be called when the browser's
 content; this callback is defined so that the <b>sidebar</b>
 components, if any, can also reload their content.<p>
 
+<<defopt {-reloadon <i>dict</i>}>>
+
+Specifies a dictionary of notifier subject/event pairs.  The widget
+will bind to the given events, and reload its content when any of
+them is sent.<p>
+
 <<defopt {-searchcmd <i>command</i>}>>
 
 Specifies a <i>command</i> to be called whenever the user has
@@ -181,10 +187,26 @@ results for the string.<p>
 This option is read-only after widget creation; and note that the
 search box is displayed only if this option has a non-empty value.<p>
 
+<<defopt {-sidebar <i>flag</i>}>>
+
+If yes (the default), the browser will have a <<iref sidebar>> frame,
+into which the client can place any desired content.   If no, the sidebar will
+be omitted.<p>
+
+This option is read-only after widget creation.<p>
+
 <<defopt {-styles <i>css</i>}>>
 
 Gives a set of CSS styles to the underlying 
 <<xref mars:htmlviewer(n)>>.<p>
+
+<<defopt {-toolbar <i>flag</i>}>>
+
+If yes (the default), the browser will have a toolbar with the usual
+controls (back button, address bar, etc.).  If no, the toolbar will
+be omitted.<p>
+
+This option is read-only after widget creation.<p>
 
 <<defopt {-unknowncmd <i>command</i>}>>
 
@@ -226,10 +248,14 @@ This command is equivalent to pressing the browser's "forward" button.<p>
 
 Shows the browser's <code>-home</code> page.<p>
 
-<<defitem reload {<i>pathName</i> reload}>>
+<<defitem reload {<i>pathName</i> reload ?-force?}>>
 
 Causes the widget to reload its currently displayed URL, and
 call its <code>-reloadcmd</code>.<p>
+
+By default, the widget's contents is reloaded in a lazy fashion, using
+<<xref mars:lazyupdater(n)>>.  If the <b>-force</b> option is given, the
+content is reloaded immediately.<p>
 
 <<defitem show {<i>pathName</i> show <i>url</i>}>>
 
@@ -237,9 +263,10 @@ Asks the browser to display the given <i>url</i>.<p>
 
 <<defitem sidebar {<i>pathName</i> sidebar}>>
 
-Returns a <b>ttk::frame</b> widget into which the application can add
-its own components.  The sidebar appears on the left hand side of the
-browser, separated from the main browser pane by a user-adjustable sash.<p>
+If <b>-sidebar</b> is yes, returns a <b>ttk::frame</b> widget into which the 
+application can add its own components.  The sidebar appears on the left hand 
+side of the browser, separated from the main browser pane by a user-adjustable 
+sash.<p>
 
 <<defitem title {<i>pathName</i> title}>>
 

@@ -45,6 +45,7 @@ snit::widget ::projectgui::mybrowser {
     component bookbtn   ;# Bookmark Button
     component address   ;# Address box
     component searchbox ;# Search box
+    component lazy      ;# Lazy updater
 
     #-------------------------------------------------------------------
     # Options
@@ -52,9 +53,12 @@ snit::widget ::projectgui::mybrowser {
     # Delegate all options to the hull frame
     delegate option * to hull
 
-    delegate option -width to hv
+    delegate option -width  to hv
     delegate option -height to hv
     delegate option -styles to hv
+    delegate option -shrink to hv
+    delegate option -zoom   to hv
+
 
     delegate option -defaultserver to agent
 
@@ -68,10 +72,12 @@ snit::widget ::projectgui::mybrowser {
     method ConfigureHome {opt val} {
         set options($opt) $val
 
-        if {$val ne ""} {
-            $homebtn configure -state normal
-        } else {
-            $homebtn configure -state disabled
+        if {$options(-toolbar)} {
+            if {$val ne ""} {
+                $homebtn configure -state normal
+            } else {
+                $homebtn configure -state disabled
+            }
         }
     }
 
@@ -128,7 +134,31 @@ snit::widget ::projectgui::mybrowser {
 
     option -searchcmd \
         -readonly yes
+
+    # -toolbar
+    #
+    # Flag; if true, add the toolbar, and if false do not.
+
+    option -toolbar \
+        -default  yes \
+        -readonly yes
+
+    # -sidebar
+    #
+    # Flag; if true, creates a sidebar widget to be filled in by
+    # the client.  If not, not.
+
+    option -sidebar \
+        -default  yes \
+        -readonly no
     
+    # -reloadon
+    #
+    # A dictionary of notifier events on which the content should be
+    # reloaded.
+
+    option -reloadon \
+        -readonly yes
 
     #-------------------------------------------------------------------
     # Instance Variables
@@ -192,115 +222,147 @@ snit::widget ::projectgui::mybrowser {
             -width  8i  \
             -height 6i
 
+        # NEXT, get the read-only construction options.
+        set options(-toolbar)     [from args -toolbar yes]
+        set options(-searchcmd)   [from args -searchcmd]
+        set options(-bookmarkcmd) [from args -bookmarkcmd]
+        set options(-sidebar)     [from args -sidebar yes]
+
         # NEXT, create the widgets
 
-        # Toolbar
-        install bar using ttk::frame $win.bar
+        if {$options(-toolbar)} {
+            # Toolbar
+            install bar using ttk::frame $win.bar
 
-        install backbtn using ttk::button $bar.back         \
-            -style   Toolbutton                             \
-            -image   [list                                  \
-                                   ::marsgui::icon::back    \
-                          disabled ::marsgui::icon::backd]  \
-            -command [mymethod back]
+            install backbtn using ttk::button $bar.back         \
+                -style   Toolbutton                             \
+                -image   [list                                  \
+                                       ::marsgui::icon::back    \
+                              disabled ::marsgui::icon::backd]  \
+                -command [mymethod back]
 
-        DynamicHelp::add $backbtn -text "Go back one page"
+            DynamicHelp::add $backbtn -text "Go back one page"
 
 
-        install fwdbtn using ttk::button $bar.forward         \
-            -style   Toolbutton                               \
-            -image   [list                                    \
-                                   ::marsgui::icon::forward   \
-                          disabled ::marsgui::icon::forwardd] \
-            -command [mymethod forward]
+            install fwdbtn using ttk::button $bar.forward         \
+                -style   Toolbutton                               \
+                -image   [list                                    \
+                                       ::marsgui::icon::forward   \
+                              disabled ::marsgui::icon::forwardd] \
+                -command [mymethod forward]
 
-        DynamicHelp::add $fwdbtn -text "Go forward one page"
+            DynamicHelp::add $fwdbtn -text "Go forward one page"
 
-        install homebtn using ttk::button $bar.home          \
-            -style   Toolbutton                              \
-            -state   disabled                                \
-            -image   [list                                   \
-                                   ::marsgui::icon::home22   \
-                          disabled ::marsgui::icon::home22d] \
-            -command [mymethod home]
+            install homebtn using ttk::button $bar.home          \
+                -style   Toolbutton                              \
+                -state   disabled                                \
+                -image   [list                                   \
+                                       ::marsgui::icon::home22   \
+                              disabled ::marsgui::icon::home22d] \
+                -command [mymethod home]
 
-        DynamicHelp::add $homebtn -text "Display home page"
+            DynamicHelp::add $homebtn -text "Display home page"
 
-        install reloadbtn using ttk::button $bar.reload      \
-            -style   Toolbutton                              \
-            -image   [list                                   \
-                                   ::marsgui::icon::reload   \
-                          disabled ::marsgui::icon::reloadd] \
-            -command [mymethod reload]
+            install reloadbtn using ttk::button $bar.reload      \
+                -style   Toolbutton                              \
+                -image   [list                                   \
+                                       ::marsgui::icon::reload   \
+                              disabled ::marsgui::icon::reloadd] \
+                -command [mymethod reload]
 
-        DynamicHelp::add $reloadbtn -text "Reload current page"
+            DynamicHelp::add $reloadbtn -text "Reload current page"
 
-        install bookbtn using ttk::button $bar.bookmark      \
-            -style   Toolbutton                              \
-            -image   [list                                   \
-                                   ::marsgui::icon::plus22   \
-                          disabled ::marsgui::icon::plus22d] \
-            -command [mymethod BookmarkCmd]
-        DynamicHelp::add $bookbtn -text "Bookmark current page"
+            if {$options(-bookmarkcmd) ne ""} {
+                install bookbtn using ttk::button $bar.bookmark      \
+                    -style   Toolbutton                              \
+                    -image   [list                                   \
+                                           ::marsgui::icon::plus22   \
+                                  disabled ::marsgui::icon::plus22d] \
+                    -command [mymethod BookmarkCmd]
+                DynamicHelp::add $bookbtn -text "Bookmark current page"
+            }
 
-        install address using ttk::entry $bar.address \
-            -textvariable [myvar info(address)]
+            install address using ttk::entry $bar.address \
+                -textvariable [myvar info(address)]
 
-        bind $address <Return> [mymethod ShowAddress]
+            bind $address <Return> [mymethod ShowAddress]
 
-        ttk::label $bar.searchlab \
-            -text "Search:"
+            if {$options(-searchcmd) ne ""} {
+                ttk::label $bar.searchlab \
+                    -text "Search:"
 
-        install searchbox using commandentry $bar.searchbox \
-            -relief    sunken                               \
-            -clearbtn  yes                                  \
-            -returncmd [mymethod DoSearch]
+                install searchbox using commandentry $bar.searchbox \
+                    -relief    sunken                               \
+                    -clearbtn  yes                                  \
+                    -returncmd [mymethod DoSearch]
+            }
 
-        pack $backbtn   -side left                      -padx 1 -pady 1
-        pack $fwdbtn    -side left                      -padx 1 -pady 1
-        pack $homebtn   -side left                      -padx 1 -pady 1
-        pack $reloadbtn -side left                      -padx 1 -pady 1
-        pack $bookbtn   -side left                      -padx 1 -pady 1
-        pack $address   -side left -fill x -expand yes  -padx 1 -pady {1 3}
+            pack $backbtn   -side left                      -padx 1 -pady 1
+            pack $fwdbtn    -side left                      -padx 1 -pady 1
+            pack $homebtn   -side left                      -padx 1 -pady 1
+            pack $reloadbtn -side left                      -padx 1 -pady 1
 
-        # Separator
-        ttk::separator $win.sep -orient horizontal
+            if {$options(-bookmarkcmd) ne ""} {
+                pack $bookbtn -side left -padx 1 -pady 1
+            }
+            pack $address   -side left -fill x -expand yes  -padx 1 -pady {1 3}
 
-        # Paner
-        ttk::panedwindow $win.paner -orient horizontal
+            # NEXT, display the searchbox if we have a search command
+            if {$options(-searchcmd) ne ""} {
+                pack $searchbox     -side right -padx 1 -pady {1 3}
+                pack $bar.searchlab -side right -padx 1 -pady 1
+            }
 
-        # Sidebar Frame: We'll create this later, when we need it.
-        set sidebar ""
+            # Separator
+            ttk::separator $win.sep -orient horizontal  
+        }
+
+
+        # NEXT, do we have a sidebar or not?
+        if {$options(-sidebar)} {
+            ttk::panedwindow $win.paner -orient horizontal
+            ttk::frame $win.paner.frm
+            install sidebar using ttk::frame $win.paner.sidebar
+
+            $win.paner add $win.paner.sidebar
+            $win.paner add $win.paner.frm -weight 1
+
+            set content $win.paner.frm
+            grid $win.paner -row 2 -column 0 -sticky nsew
+        } else {
+            ttk::frame $win.frm
+            set content $win.frm
+            grid $win.frm -row 2 -column 0 -sticky nsew
+        }
 
         # HTML Viewer
-        ttk::frame $win.paner.frm
-        $win.paner add $win.paner.frm -weight 1
         
-        install hv using htmlviewer $win.paner.frm.hv             \
+        install hv using htmlviewer $content.hv                \
             -hovercmd            [mymethod HoverCmd]               \
             -hyperlinkcmd        [mymethod HyperlinkCmd]           \
             -imagecmd            [mymethod ImageCmd]               \
             -isvisitedcmd        [mymethod IsVisitedCmd]           \
-            -xscrollcommand      [list $win.paner.frm.xscroll set] \
-            -yscrollcommand      [list $win.paner.frm.yscroll set]
+            -xscrollcommand      [list $content.xscroll set] \
+            -yscrollcommand      [list $content.yscroll set]
 
-        ttk::scrollbar $win.paner.frm.xscroll \
+        ttk::scrollbar $content.xscroll \
             -orient  horizontal               \
             -command [list $hv xview]
 
-        ttk::scrollbar $win.paner.frm.yscroll \
+        ttk::scrollbar $content.yscroll \
             -command [list $hv yview]
 
-        grid $win.paner.frm.hv      -row 0 -column 0 -sticky nsew
-        grid $win.paner.frm.yscroll -row 0 -column 1 -sticky ns
-        grid $win.paner.frm.xscroll -row 1 -column 0 -sticky ew
+        grid $content.hv      -row 0 -column 0 -sticky nsew
+        grid $content.yscroll -row 0 -column 1 -sticky ns
+        grid $content.xscroll -row 1 -column 0 -sticky ew
 
-        grid rowconfigure    $win.paner.frm 0 -weight 1
-        grid columnconfigure $win.paner.frm 0 -weight 1
+        grid rowconfigure    $content 0 -weight 1
+        grid columnconfigure $content 0 -weight 1
 
-        grid $win.bar   -row 0 -column 0 -sticky ew
-        grid $win.sep   -row 1 -column 0 -sticky ew -pady 1
-        grid $win.paner -row 2 -column 0 -sticky nsew
+        if {$options(-toolbar)} {
+            grid $win.bar   -row 0 -column 0 -sticky ew
+            grid $win.sep   -row 1 -column 0 -sticky ew -pady 1
+        }
 
         grid rowconfigure    $win 2 -weight 1
         grid columnconfigure $win 0 -weight 1
@@ -315,6 +377,11 @@ snit::widget ::projectgui::mybrowser {
         install agent using myagent ${selfns}::agent \
             -contenttypes {text/html text/plain tk/image}
 
+        # NEXT, create the lazy updater
+        install lazy using lazyupdater ${selfns}::lazy \
+            -window   $win \
+            -command  [mymethod ReloadNow]
+
         # NEXT, add node handlers
         $hv handler node  object [mymethod ObjectCmd]
         $hv handler node  input  [mymethod InputCmd]
@@ -323,21 +390,21 @@ snit::widget ::projectgui::mybrowser {
         # NEXT, get the options
         $self configurelist $args
 
-        # NEXT, remove the bookmark button if we have no command
-        if {$options(-bookmarkcmd) eq ""} {
-            pack forget $bookbtn
+        # NEXT, prepare to reload on notifier events
+        foreach {subject event} $options(-reloadon) {
+            notifier bind $subject $event $win [mymethod ReloadOnEvent]
         }
 
-        # NEXT, display the searchbox if we have a search command
-        if {$options(-searchcmd) ne ""} {
-            pack $searchbox     -side right -padx 1 -pady {1 3}
-            pack $bar.searchlab -side right -padx 1 -pady 1
-        }
 
         # NEXT, reload the browser and show the home page
         $self reload
         $self home
     }
+
+    destructor {
+        notifier forget $win
+    }
+
 
     # HoverCmd otype text
     #
@@ -714,19 +781,16 @@ snit::widget ::projectgui::mybrowser {
 
     # sidebar
     #
-    # If the sidebar pane has not been created, creates it and
-    # manages it in the paner.  Returns the sidebar pane's widget.
+    # Returns the sidebar widget, into which the client can place any
+    # desired content.  It's an error if the browser was created without
+    # a sidebar.
 
     method sidebar {} {
-        if {$sidebar eq ""} {
-            install sidebar using ttk::frame $win.paner.sidebar
-
-            $win.paner forget $win.paner.frm
-            $win.paner add $win.paner.sidebar
-            $win.paner add $win.paner.frm -weight 1
+        if {$options(-sidebar)} {
+            return $sidebar
         }
 
-        return $sidebar
+        error "Error, -sidebar is false"
     }
 
     # home
@@ -940,16 +1004,38 @@ snit::widget ::projectgui::mybrowser {
         }]
     }
 
+    # reload ?-force?
+    #
+    # Causes the widget to reload itself.  In particular,
+    #
+    # * This call triggers the lazy updater.
+    # * The lazy updater will ask the widget to reload itself after
+    #   1 millisecond, or when the window is next mapped.
 
-    # reload
+    method reload {{opt ""}} {
+        if {$opt eq "-force"} {
+            $self ReloadNow
+        } else {
+            $lazy update
+        }
+    }
+
+    # ReloadNow
     #
     # Reloads the current page
 
-    method reload {} {
+    method ReloadNow {} {
         $self ShowPageRef $info(page) [lindex [$hv yview] 0]
         callwith $options(-reloadcmd)
     }
 
+    # ReloadOnEvent dummy...
+    #
+    # Reloads the content on an arbitrary notifier event.
+
+    method ReloadOnEvent {args} {
+        $self reload
+    }
 
     # back
     #
@@ -1025,6 +1111,11 @@ snit::widget ::projectgui::mybrowser {
     # browser.
 
     method UpdateButtonState {} {
+        # Skip if there's no toolbar
+        if {!$options(-toolbar)} {
+            return
+        }
+
         if {[llength $info(history)] > 0} {
             $backbtn configure -state normal
         } else {

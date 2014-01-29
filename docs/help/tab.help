@@ -2879,6 +2879,26 @@ tab "Information/Info Ops Messages" {
 }
 
 
+#=======================================================================
+# Time
+
+tab "Time" {
+    The subtabs of the Time tab display the state of the simulation over
+    time, after time has been advanced.<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+
+tab "Time/Significant Events" {
+    This tab displays the simulation's significant events log.  Significant
+    events are recorded by various parts of the simulation as time advances;
+    in particular, every tactic writes to the log when it executes.<p>
+
+    The controls can be used to adjust the amount of data displayed in the
+    window.
+}
 
 
 #=======================================================================

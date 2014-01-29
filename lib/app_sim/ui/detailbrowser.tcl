@@ -67,7 +67,6 @@ snit::widget detailbrowser {
     component browser ;# The mybrowser(n)
     component otree   ;# The object linktree(n)
     component htree   ;# The help linktree(n)
-    component lazy    ;# The lazyupdater(n)
     component context ;# The context menu
 
     #--------------------------------------------------------------------
@@ -80,7 +79,14 @@ snit::widget detailbrowser {
             -unknowncmd   [mymethod GuiLinkCmd]       \
             -searchcmd    [mymethod FormatSearchURL]  \
             -bookmarkcmd  [mymethod BookmarkThisPage] \
-            -messagecmd   {app puts}
+            -messagecmd   {app puts}                  \
+            -reloadon {
+                ::sim <DbSyncB>             
+                ::sim <Tick>                
+                ::rdb <Monitor>             
+                ::parm <Update>             
+                ::projectlib::bean <Monitor>
+            }
 
         # NEXT, create the sidebar.
         set sidebar [$browser sidebar]
@@ -122,22 +128,10 @@ snit::widget detailbrowser {
 
         pack $sidebar.tabs -fill both -expand yes
 
-        # NEXT, create the lazy updater
-        install lazy using lazyupdater ${selfns}::lazy \
-            -window   $win \
-            -command  [list $browser reload]
-
         pack $browser -fill both -expand yes
 
         # NEXT, get the options.
         $self configurelist $args
-
-        # NEXT, bind to events that are likely to cause reloads.
-        notifier bind ::sim <DbSyncB>              $win [mymethod reload]
-        notifier bind ::sim <Tick>                 $win [mymethod reload]
-        notifier bind ::rdb <Monitor>              $win [mymethod reload]
-        notifier bind ::parm <Update>              $win [mymethod reload]
-        notifier bind ::projectlib::bean <Monitor> $win [mymethod reload]
 
         # NEXT, create the browser context menu
         bind $win.browser <3>         [mymethod MainContextMenu %X %Y]
@@ -148,10 +142,6 @@ snit::widget detailbrowser {
         # NEXT, schedule the first reload
         $self reload
         $htree refresh
-    }
-
-    destructor {
-        notifier forget $win
     }
 
     # MainContextMenu rx ry
@@ -373,20 +363,6 @@ snit::widget detailbrowser {
     # Public Methods
 
     delegate method * to browser
-
-    # reload
-    #
-    # Causes the widget to reload itself.  In particular,
-    #
-    # * This call triggers the lazy updater.
-    # * The lazy updater will ask the mybrowser to reload itself after
-    #   1 millisecond, or when the window is next mapped.
-    # * The mybrowser will reload the currently displayed resource and
-    #   ask the tree to refresh itself via its -reloadcmd.
-
-    method reload {} {
-        $lazy update
-    }
 }
 
 
