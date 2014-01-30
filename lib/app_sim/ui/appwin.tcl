@@ -380,9 +380,31 @@ snit::widget appwin {
         orders {
             label   "Orders"
             vistype orders
-            parent  ""
+            parent  timet
             script  { 
                 ordersentbrowser %W
+            }
+        }
+
+        slog {
+            label   "Log"
+            vistype slog
+            parent  timet
+            script  {
+                scrollinglog %W \
+                    -relief        flat                \
+                    -height        20                  \
+                    -logcmd        [mymethod puts]     \
+                    -loglevel      "normal"            \
+                    -showloglist   yes                 \
+                    -rootdir       [workdir join log]  \
+                    -defaultappdir app_sim             \
+                    -format        {
+                        {week 7 yes}
+                        {v    7 yes}
+                        {c    9 yes}
+                        {m    0 yes}
+                    }
             }
         }
 
@@ -403,30 +425,6 @@ snit::widget appwin {
                 scriptbrowser %W
             }
         }
-
-        slog {
-            label   "Log"
-            vistype slog
-            parent  ""
-            script  {
-                scrollinglog %W \
-                    -relief        flat                \
-                    -height        20                  \
-                    -logcmd        [mymethod puts]     \
-                    -loglevel      "normal"            \
-                    -showloglist   yes                 \
-                    -rootdir       [workdir join log]  \
-                    -defaultappdir app_sim             \
-                    -format        {
-                        {week 7 yes}
-                        {v    7 yes}
-                        {c    9 yes}
-                        {m    0 yes}
-                    }
-            }
-        }
-
-
     }
 
 
@@ -1361,27 +1359,42 @@ snit::widget appwin {
         $viewmenu add checkbutton                   \
             -label    "Bookmarks"                   \
             -variable [myvar visibility(bookmarks)] \
-            -command  [mymethod MakeTabsVisible]
-
-        $viewmenu add checkbutton                   \
-            -label    "Order History"               \
-            -variable [myvar visibility(orders)]    \
-            -command  [mymethod MakeTabsVisible]
-
-        $viewmenu add checkbutton                   \
-            -label    "Scrolling Log"               \
-            -variable [myvar visibility(slog)]      \
-            -command  [mymethod MakeTabsVisible]
+            -command  [mymethod ToggleHiddenTab bookmarks]
 
         $viewmenu add checkbutton                   \
             -label    "Scripts Editor"              \
             -variable [myvar visibility(scripts)]   \
-            -command  [mymethod MakeTabsVisible]
+            -command  [mymethod ToggleHiddenTab scripts]
+
+        $viewmenu add checkbutton                   \
+            -label    "Order History"               \
+            -variable [myvar visibility(orders)]    \
+            -command  [mymethod ToggleHiddenTab orders]
+
+        $viewmenu add checkbutton                   \
+            -label    "Scrolling Log"               \
+            -variable [myvar visibility(slog)]      \
+            -command  [mymethod ToggleHiddenTab slog]
 
         $viewmenu add checkbutton                   \
             -label    "Command Line"                \
             -variable [myvar visibility(cli)]       \
             -command  [mymethod ToggleCLI]
+    }
+
+
+    # ToggleHiddenTab tab
+    #
+    # This is called when the tab's View menu item toggles the visibility
+    # flag for the tab.  Makes the tab actually visible or invisible; and
+    # if visible, brings it to the front.
+
+    method ToggleHiddenTab {tab} {
+        $self MakeTabsVisible
+
+        if {$visibility($tab)} {
+            $self tab view $tab
+        }
     }
 
     # tab win tab
