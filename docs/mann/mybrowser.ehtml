@@ -110,6 +110,36 @@ its value is used as the button text.<p>
 
 <</deflist inputs>>
 
+<<subsection "Chromeless HTML Panes">>
+
+A mybrowser(n) widget can also be used to display myserver(n) pages purely
+the control of the application, i.e., as a way to implement browsers for
+specific pieces of data.  The involves turning off the "chrome" (the toolbar
+the sidebar), possibly setting the -home URL to a desired page, and 
+setting hyperlinks to be displayed in a full browser.  For example,<p>
+
+<pre>
+    mybrowser .datapane              \
+        -toolbar      no             \
+        -sidebar      no             \
+        -home         my://app/data  \
+        -hyperlinkcmd {::app show}   \
+        -messagecmd   {::app puts}   \
+        -reloadon {
+            ::sim &lt;Tick&gt;
+        }
+</pre> 
+
+This code creates a data pane that will always display the URL 
+"<code>my://app/data</code>".
+If the user clicks on any link in the displayed data, the URL will be passed
+to the application's <code>::app show</code> command for handling.  The
+widget's contents will automatically reload on the 
+"<code>::sim &lt;Tick&gt;</code>" <<xref mars:notifier(n)>> event.<p>
+
+If the application needs to change the displayed page, it can use the
+<<iref show>> method in the usual way.<p>
+
 <<section COMMANDS>>
 
 This module defines the following commands.<p>

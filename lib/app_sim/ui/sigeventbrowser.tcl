@@ -8,7 +8,8 @@
 # DESCRIPTION:
 #    sigeventbrowser(sim) package: Significant Events Browser
 #
-#    This widget displays the significant events log in a myhtmlpane.
+#    This widget displays the significant events log in a lightweight
+#    mybrowser.
 #
 #-----------------------------------------------------------------------
 

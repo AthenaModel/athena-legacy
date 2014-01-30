@@ -824,6 +824,8 @@ snit::widget ::projectgui::mybrowser {
         if {$page eq "" && $anchor eq ""} {
             set forms [dict create]
             $hv set ""
+            set info(page) ""
+            set info(anchor) ""
             return
         }
 
@@ -1025,7 +1027,11 @@ snit::widget ::projectgui::mybrowser {
     # Reloads the current page
 
     method ReloadNow {} {
-        $self ShowPageRef $info(page) [lindex [$hv yview] 0]
+        if {$info(page) ne ""} {
+            $self ShowPageRef $info(page) [lindex [$hv yview] 0]
+        } else {
+            $hv set ""
+        }
         callwith $options(-reloadcmd)
     }
 

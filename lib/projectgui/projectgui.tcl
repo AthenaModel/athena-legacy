@@ -49,17 +49,6 @@ source [file join $::projectgui::library goferfield.tcl      ]
 source [file join $::projectgui::library icons.tcl           ]
 source [file join $::projectgui::library linktree.tcl        ]
 source [file join $::projectgui::library mybrowser.tcl       ]
-source [file join $::projectgui::library myhtmlpane.tcl      ]
 source [file join $::projectgui::library modaltextwin.tcl    ]
 source [file join $::projectgui::library textwin.tcl         ]
 source [file join $::projectgui::library rolemapfield.tcl    ]
-
-
-
-
-
-
-
-
-
-

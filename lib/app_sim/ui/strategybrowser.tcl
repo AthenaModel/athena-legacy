@@ -138,7 +138,7 @@ snit::widget strategybrowser {
     #     BList   - A beanbrowser listing the blocks in the selected 
     #               agent's strategy.
     #     BMeta   - A frame containing block metadata fields
-    #     OTab    - Overview Tab: a myhtmlpane displaying HTML content
+    #     OTab    - Overview Tab: a mybrowser displaying HTML content
     #               for the selected block.
     #     CTab    - Conditions Tab: a beanbrowser displaying the selected 
     #               block's conditions and cmode.
@@ -1098,14 +1098,18 @@ snit::widget strategybrowser {
 
     method OTabCreate {pane} {
         # FIRST, create the pane
-        install otab using myhtmlpane $pane              \
-            -url          my://app/sigevents             \
-            -reloadon     {::projectlib::bean <Monitor>} \
-            -hyperlinkcmd {::app show}                   \
-            -messagecmd   {::app puts}
+        install otab using mybrowser $pane     \
+            -toolbar      no                   \
+            -sidebar      no                   \
+            -home         ""                   \
+            -hyperlinkcmd {::app show}         \
+            -messagecmd   {::app puts}         \
+            -reloadon     {
+                ::projectlib::bean <Monitor>
+            }
 
         # NEXT, initialize it
-        $otab configure -url ""
+        $otab show ""
 
         # NEXT, add it to the tabbed notebook.
         $tabs add $otab \
@@ -1120,9 +1124,9 @@ snit::widget strategybrowser {
 
     method OTabReload {} {
         if {$info(block) eq ""} {
-            $otab configure -url ""
+            $otab show ""
         } else {
-            $otab configure -url "my://app/bean/[$info(block) id]"
+            $otab show "my://app/bean/[$info(block) id]"
         }
     }
 
