@@ -17,12 +17,17 @@
 #
 #-----------------------------------------------------------------------
 
-# Any/All
 
 # Any of vs. All of
 enum eanyall {
     ANY "Any of"
     ALL "All of"
+}
+
+# Does vs Doesn't
+enumx create edoes {
+    DOES   { longname "Does"     }
+    DOESNT { longname "Does not" }
 }
 
 # Block/tactic execution status

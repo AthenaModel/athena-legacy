@@ -53,6 +53,16 @@ order CONDITION:COMPARE "Condition: Compare Numbers" {
     <</parmlist>>
 }
 
+order CONDITION:CONTROL "Condition: Control of Neighborhoods" {
+    <b><<term prep>> Only.</b>  
+    Updates an existing <<cref /object/condition/control>>.<p>
+
+    <<parmlist>>
+    <<condition_ parm condition_id -required>>
+    <<condition_control parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order CONDITION:EXPR "Condition: Boolean Expression" {
     <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/condition/expr>>.<p>

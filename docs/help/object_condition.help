@@ -127,6 +127,52 @@ page /object/condition compare "COMPARE condition" {
 
 
 #-----------------------------------------------------------------------
+# CONTROL
+
+object condition_control {
+    noun "CONTROL condition"
+    overview {
+        This <<term condition>> determines whether an actor controls
+        or does not control any or all of a set of neighborhoods.  The set
+        of neighborhoods is selected using the <<cref /gofer/nbhoods>>s.<p>
+
+        If the set of neighborhoods turns out to be empty, the condition
+        is assumed to be unmet.
+    }
+
+    include condition_ -attrs {id typename agent state}
+
+    attribute a "Actor" {
+        The actor who does or does not control the neighborhoods.
+    } -tags {update}
+
+    attribute sense "Sense" {
+        The sense of the condition: <b>DOES</b> or <b>DOESNT</b> the actor
+        control the selected neighborhoods?
+    } -tags {update}
+
+    attribute anyall "Any/All" {
+        Does the actor control <b>ANY</b> or <b>ALL</b> of the selected neighborhoods?
+    } -tags {update}
+
+    attribute list "Neighborhoods" {
+        The selected neighborhoods, chosen by rule using the
+        <<cref /gofer/nbhoods>>.
+    } -tags {update}
+}
+
+page /object/condition control "CONTROL condition" {
+    <<sotitle>>
+
+    <<condition_control overview>><p>
+
+    CONTROL conditions have the following attributes:<p>
+
+    <<condition_control parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # EXPR
 
 object condition_expr {
