@@ -133,6 +133,10 @@ snit::type cash {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Queries
+    
+
     # get a parm
     #
     # a    - An actor
@@ -154,6 +158,42 @@ snit::type cash {
 
         return ""
     }
+
+    # onhand a
+    #
+    # a  - An actor
+    #
+    # Returns the actor's cash-on-hand.  If the actor is the acting
+    # actor, then it's the working cash-on-hand; otherwise, it's the
+    # actor's cash-on-hand prior to strategy execution.
+
+    typemethod onhand {a} {
+        if {$a eq [strategy acting]} {
+            return [cash get $a cash_on_hand]
+        } else {
+            return [actor get $a cash_on_hand]
+        }
+    }
+
+    # reserve a
+    #
+    # a  - An actor
+    #
+    # Returns the actor's cash-reserve.  If the actor is the acting
+    # actor, then it's the working cash-reserve; otherwise, it's the
+    # actor's cash-reserve prior to strategy execution.
+
+    typemethod reserve {a} {
+        if {$a eq [strategy acting]} {
+            return [cash get $a cash_reserve]
+        } else {
+            return [actor get $a cash_reserve]
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Strategy Execution Commands
+    
 
     # spend a eclass dollars
     #

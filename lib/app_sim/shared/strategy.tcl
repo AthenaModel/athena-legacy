@@ -27,6 +27,7 @@ oo::objdefine strategy {
     # Transient Class Variables
 
     variable locking   ;# Flag: 1 if locking the scenario, 0 otherwise.
+    variable acting    ;# Name of the acting agent, or "" if none.
     
     #-------------------------------------------------------------------
     # Initialization
@@ -116,6 +117,21 @@ oo::objdefine strategy {
         return [expr {!$locking}]
     }
 
+    # acting ?a?
+    #
+    # Returns the name of the acting agent, or "" if we aren't in
+    # the middle of strategy execution.
+    #
+    # If a is given, sets the acting agent to $a.  NOTE: This for use
+    # by the test suite only.
+
+    method acting {{a "-"}} {
+        if {$a ne "-"} {
+            set acting $a
+        } 
+        return $acting
+    }
+
     # DoTock
     #
     # Executes agent strategies on lock and on normal ticks.  In either
@@ -156,9 +172,11 @@ oo::objdefine strategy {
 
         # NEXT, execute each agent's strategy.
 
-        foreach agent [agent names] {
-            [my getname $agent] execute
+        foreach acting [agent names] {
+            [my getname $acting] execute
         } 
+
+        set acting ""
 
         # NEXT, save working data. If we are on lock, no cash has been used
         # so we don't want to save it
