@@ -35,6 +35,7 @@ appserver module PLANT {
             "Links to the bins of plants under construction."
     }
 
+
     # /plants:html udict matchArray
     #
     # Tabular display of GOODS production infrastructure data.
@@ -239,7 +240,7 @@ appserver module PLANT {
                 dict set data [list $nlink $alink] {}
             }
 
-            set pcts [lmap $levels x {format %.1f%% [expr {100*$x}]}]
+            set pcts [lmap $levels x {appserver::PLANT::percent $x}]
 
             set pdict [dict create]
 
@@ -315,6 +316,21 @@ appserver module PLANT {
         ht /page
 
         return [ht get]
+    }
+
+    # percent
+    #
+    # Helper proc that makes sure plants that are not yet 100% complete
+    # are not reported that way
+
+    proc percent {x} {
+        set percent [format %.1f%% [expr {100*$x}]]
+        
+        if {$x < 1.0 && $percent eq "100.0%"} {
+            return "99.9%"
+        }
+
+        return $percent
     }
 }
 

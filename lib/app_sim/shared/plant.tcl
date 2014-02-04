@@ -217,6 +217,13 @@ snit::type plant {
             set newlevels [list]
             foreach {level amount} $progress {
                 let newlevel {min(1.0,$level+$amount)}
+
+                # NEXT, if we are within 1 ten-thousandths of complete, 
+                # we are done
+                if {[Within $newlevel 1.0 0.0001]} {
+                    set newlevel 1.0
+                }
+
                 lappend newlevels $newlevel 
             }
 
@@ -289,6 +296,14 @@ snit::type plant {
                 }
             }
         }
+    }
+
+    #-----------------------------------------------------------------------
+    # Helper proc
+
+    proc Within {num val eps} {
+        let diff {abs($num-$val)}
+        return [expr {$diff < $eps}]
     }
 
     #-----------------------------------------------------------------------
@@ -471,7 +486,7 @@ snit::type plant {
         let diff {$num - ([llength $progress]/2)} 
 
         # NEXT, if it's more, add plants to be worked on to the list
-        # otherwise, trim the list. .
+        # otherwise, trim the list.
         if {$diff > 0} {
             lappend progress {*}[string repeat {0.0 0.0 } $diff]
         } elseif {$diff < 0} {
