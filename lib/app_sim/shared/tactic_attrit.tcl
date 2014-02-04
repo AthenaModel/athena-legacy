@@ -96,16 +96,19 @@ tactic define ATTRIT "Magic Attrition" {system} {
 
     method narrative {} {
         set narr ""
-        if {$n eq ""} {set n "???"}
-        if {$f eq ""} {set f "???"}
+
+        set s(n)  [link make nbhood $n]
+        set s(f)  [link make group $f]
+        set s(g1) [link make group $g1]
+        set s(g2) [link make group $g2]
 
         switch -exact -- $mode {
             NBHOOD {
-                set narr "Magic attrit $casualties personnel in $n"
+                set narr "Magic attrit $casualties personnel in $s(n)"
             }
 
             GROUP {
-                set narr "Magic attrit $casualties of $f's personnel in $n"
+                set narr "Magic attrit $casualties of $s(f)'s personnel in $s(n)"
             }
 
             default {
@@ -114,11 +117,11 @@ tactic define ATTRIT "Magic Attrition" {system} {
         }
 
         if {$g1 ne "NONE"} {
-            append narr " and attribute it to $g1"
+            append narr " and attribute it to $s(g1)"
         }
 
         if {$g2 ne "NONE"} {
-            append narr " and $g2"
+            append narr " and $s(g2)"
         }
         
         append narr "."
@@ -126,81 +129,55 @@ tactic define ATTRIT "Magic Attrition" {system} {
         return $narr
     }
 
-    method ObligateResources {coffer} {
-        # FIRST, keep track of whether the magic attrition should
-        # be attempted
-        set trans(ok) 1
-
-        switch -exact -- $mode {
-            NBHOOD {
-                set f ""
-            }
-
-            GROUP {
-                set groupsInN [rdb eval {
-                    SELECT DISTINCT g
-                    FROM units
-                    WHERE n=$n
-                }]
-
-                if {$f ni $groupsInN} {
-                    # Group is not in n, nothing to do
-                    set trans(ok) 0
-                    set trans(msg) "$f is not in $n."
-                    return 1
-                }
-            }
-                  
-        }
-
-        if {$g1 eq "NONE"} {
-            set g1 ""
-        }
-
-        if {$g2 eq "NONE"} {
-            set g2 ""
-        }
-
-        return 1
-    }
-
-
     method execute {} {
         set owner [my agent]
         set objects [list]
 
-        # FIRST, the condition are not okay for magic attrition
-        if {!$trans(ok)} {
-            sigevent log 2 tactic "
-                ATTRIT: No magic attrition because $trans(msg)
-            " $owner $n
-            return
-        }
+        set s(n)  [link make nbhood $n]
+        set s(f)  [link make group $f]
+        set s(g1) [link make group $g1]
+        set s(g2) [link make group $g2]
 
-        # NEXT, couch the sigevent message appropriately
-        if {$mode eq "NBHOOD"} {
+        # FIRST, is f in n?  If not, there's nothing to do.
+        if {$mode eq "GROUP"} {
+            set groupsInN [rdb eval {
+                SELECT DISTINCT g
+                FROM units
+                WHERE n=$n
+            }]
+
+            if {$f ni $groupsInN} {
+                sigevent log 2 tactic "
+                    ATTRIT: No magic attrition; group $s(f) is not in $s(n).
+                " $owner $n
+
+                return 1
+            }
+
             set msg "
-                ATTRIT: Magic attrition attempted in $n: 
+                ATTRIT: Magic attrition attempted against $s(f): 
+                $casualties casualties in $s(n)
+            "
+            lappend objects $f
+        } else {
+            # Mode is NBHOOD
+            set msg "
+                ATTRIT: Magic attrition attempted in $s(n): 
                 $casualties casualties
             "
             lappend objects $n
         }
 
-        if {$mode eq "GROUP"} {
-            set msg "
-                ATTRIT: Magic attrition attempted against $f: 
-                $casualties casualties in $n
-            "
-            lappend objects $f
-        }
 
         # NEXT add in responsible groups if necessary
-        if {$g1 ne ""} {
-            append msg " by $g1"
+        if {$g1 ne "NONE"} {
+            append msg " by $s(g1)"
+            lappend objects $g1
         } 
 
-        if {$g2 ne ""} {
-            append msg " and $g2"
+        if {$g2 ne "NONE"} {
+            append msg " and $s(g2)"
+            lappend objects $g2
         }
 
         append msg "."
@@ -211,9 +188,9 @@ tactic define ATTRIT "Magic Attrition" {system} {
         set p(mode)       $mode
         set p(casualties) $casualties
         set p(n)          $n
-        set p(f)          $f
-        set p(g1)         $g1
-        set p(g2)         $g2
+        set p(f)          [expr {$mode eq "GROUP"  ? $f  : ""}]
+        set p(g1)         [expr {$g1   ne "NONE"   ? $g1 : ""}]
+        set p(g2)         [expr {$g2   ne "NONE"   ? $g2 : ""}]
 
         aam attrit [array get p]
     }
