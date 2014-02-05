@@ -72,7 +72,11 @@ object nbhood_ {
     } -tags {create update multi}
 
     attribute pcf "Production Capacity Factor" {
-        <b>TBD</b>
+        The production capacity factor is a value between 0.0 and 1.0. 
+        This attribute is used to dial up or down how much production 
+        capacity a neighborhood can have.  Set to 0.0, there will be
+        no infrastructure. Set to 1.0, there will be the maximum capacity 
+        that could possibly be present at scenario lock.      
     } -tags {create update multi}
 
     attribute stacking_order "Stacking Order" {

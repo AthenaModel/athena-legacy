@@ -1664,8 +1664,18 @@ tab "Economics/Population" {
     both civilian groups and displaced personnel.
     <</topic>>
 
+    <<topic Jobs>>The number of jobs in the neighborhood.  This is a function
+    of the amount of production infrastructure.  The more infrastructure
+    present in a neighborhood, the more jobs there are.  If the Economic
+    model is disabled, this number is equal to the labor force.
+    <</topic>>
+
     <<topic Unemployed>>The total number of unemployed workers in the
     neighborhood.
+    <</topic>>
+
+    <<topic UnempRate%>>The  unemployment rate of the neighborhood expressed
+    as a percentage.
     <</topic>>
 
     <<topic UnempPerCap%>>The number of unemployed workers in the 
