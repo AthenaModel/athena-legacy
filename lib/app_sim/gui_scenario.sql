@@ -163,6 +163,7 @@ SELECT G.id                                            AS id,
        CASE WHEN SR.sat_funding IS NULL
             THEN 'N/A' 
             ELSE moneyfmt(SR.sat_funding) END          AS sat_funding, 
+       format('%.1f', coalesce(DG.ur, 0.0))            AS ur,
        format('%.1f', coalesce(DG.upc, CG.upc))        AS upc,
        format('%.2f', coalesce(DG.uaf, 0.0))           AS uaf,
        format('%.1f', coalesce(DG.tc, 0.0))            AS tc,

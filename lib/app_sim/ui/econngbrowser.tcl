@@ -40,6 +40,7 @@ snit::widgetadaptor econngbrowser {
         { consumers   "\nConsumers"      -sortmode integer -foreground %D }
         { labor_force "Labor\nForce"     -sortmode integer -foreground %D }
         { unemployed  "\nUnemployed"     -sortmode integer -foreground %D }
+        { ur          "Unemp.\nRate%"    -sortmode real    -foreground %D }
         { aloc        "Actual\nLOC"      -sortmode real    -foreground %D }
         { eloc        "Expected\nLOC"    -sortmode real    -foreground %D }
         { rloc        "Required\nLOC"    -sortmode real    -foreground %D }

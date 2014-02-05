@@ -271,8 +271,8 @@ snit::type demog {
             WHERE nbhoods.local
             GROUP BY g
         }] {
-            set popN [rdb eval {
-                SELECT population FROM demog_n
+            set laborN [rdb eval {
+                SELECT labor_force FROM demog_n
                 WHERE n=$n
             }]
 
@@ -281,16 +281,24 @@ snit::type demog {
                 WHERE n=$n
             }]
 
-            if {$popN > 0} {
+            if {$laborN > 0} {
                 # number of employed and unemployed workers
-                let unemployed {round($population/$popN*$unemployedN)}
+                let unemployed {
+                    double($labor_force)/double($laborN)*double($unemployedN)
+                }
+                let unemployed {round($unemployed)}
                 let employed   {$labor_force - $unemployed}
 
                 # unemployed per capita
                 if {$population > 0} {
                     let upc {100.0 * $unemployed / $population}
+                    let ur 0.0
+                    if {$labor_force > 0} {
+                        let ur  {100.0 * $unemployed / $labor_force}
+                    }
                 } else {
                     set upc 0.0
+                    set ur  0.0
                 }
 
                 # Unemployment Attitude Factor
@@ -298,6 +306,7 @@ snit::type demog {
             } else {
                 let unemployed 0
                 let employed   0
+                let ur         0.0
                 let upc        0.0
                 let uaf        0.0
             }
@@ -307,6 +316,7 @@ snit::type demog {
                 UPDATE demog_g
                 SET employed   = $employed,
                     unemployed = $unemployed,
+                    ur         = $ur,
                     upc        = $upc,
                     uaf        = $uaf
                 WHERE g=$g;

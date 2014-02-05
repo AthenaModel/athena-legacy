@@ -59,6 +59,7 @@ consumers    1000
 labor_force  600
 employed     0
 unemployed   0
+ur           0.0
 upc          0.0
 uaf          0.0
 tc           0.0
@@ -76,6 +77,7 @@ consumers    1000
 labor_force  600
 employed     0
 unemployed   0
+ur           0.0
 upc          0.0
 uaf          0.0
 tc           0.0
@@ -93,6 +95,7 @@ consumers    0
 labor_force  0
 employed     0
 unemployed   0
+ur           0.0
 upc          0.0
 uaf          0.0
 tc           0.0
@@ -127,7 +130,7 @@ NB2 1000       1000        0         0           0          0.0 0.0 0.0
         demog getg SHIA
     } -cleanup {
         cleanup
-    } -result {subsistence 0 povfrac 0.0 unemployed 0 eloc 0.0 population 1000 uaf 0.0 attrition 0 labor_force 600 g SHIA consumers 1000 employed 600 tc 0.0 rloc 0.0 upc 0.0 real_pop 1000.0 aloc 0.0}
+    } -result {subsistence 0 povfrac 0.0 unemployed 0 eloc 0.0 population 1000 uaf 0.0 attrition 0 labor_force 600 tc 0.0 g SHIA consumers 1000 employed 600 rloc 0.0 upc 0.0 real_pop 1000.0 aloc 0.0 ur 0.0}
     
     test getg-1.2 {can get one parameter} -setup {
         setup
@@ -158,7 +161,7 @@ NB2 1000       1000        0         0           0          0.0 0.0 0.0
         demog getn NB1
     } -cleanup {
         cleanup
-    } -result {uaf 0.0 upc 2.4 subsistence 0 unemployed 48 labor_force 1200 n NB1 ur 23.166666666666668 consumers 2000 population 2000}
+    } -result {uaf 0.0 upc 2.4 subsistence 0 unemployed 48 labor_force 1200 n NB1 ur 4.0 consumers 2000 population 2000}
     
     test getn-1.2 {can get one parameter} -setup {
         setup
@@ -348,9 +351,11 @@ KURD 981        980.7692307692307
     # econstats
     test econstats-1.1 {More workers, more unemployment} -setup {
         setup
+        rdb eval {UPDATE demog_n SET labor_force = 2000 WHERE n='NB1'}
+        demog econstats
     } -body {
         set a [rdb eval {SELECT ur FROM demog_n WHERE n='NB1'}]
-        rdb eval {UPDATE demog_n SET labor_force = 2400 WHERE n='NB1'}
+        rdb eval {UPDATE demog_n SET labor_force = 3000 WHERE n='NB1'}
         demog econstats
         set b [rdb eval {SELECT ur FROM demog_n WHERE n='NB1'}]
         expr {$a < $b}
@@ -360,6 +365,8 @@ KURD 981        980.7692307692307
 
     test econstats-1.2 {Fewer workers, less unemployment} -setup {
         setup
+        rdb eval {UPDATE demog_n SET labor_force = 2000 WHERE n='NB1'}
+        demog econstats
     } -body {
         set a [rdb eval {SELECT ur FROM demog_n WHERE n='NB1'}]
         rdb eval {UPDATE demog_n SET labor_force = 1000 WHERE n='NB1'}
@@ -373,6 +380,7 @@ KURD 981        980.7692307692307
     test econstats-1.3 {Workers willing to travel, less unemployment} -setup {
         ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD 
         parmdb set demog.maxcommute NEAR
+        rdb eval {UPDATE nbrel_mn SET proximity='REMOTE'}
         ted lock
     } -body {
         set a [rdb eval {SELECT ur FROM demog_n WHERE n='NB1'}]

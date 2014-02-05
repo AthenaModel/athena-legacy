@@ -1736,6 +1736,10 @@ tab "Economics/Groups" {
     <<topic Unemployed>>The number of unemployed workers in the group.
     <</topic>>
 
+    <<topic UnempRate%>>The  unemployment rate of the group expressed
+    as a percentage.
+    <</topic>>
+
     <<topic "Actual LOC">>The Actual Level of Consumption, i.e., the
     number of goods baskets consumed by each consumer in the group
     during the past week.

@@ -457,7 +457,7 @@ rho  0.5
         list $a $b $c
     } -cleanup {
         cleanup
-    } -result {22.303B 17.842B 5.947B}
+    } -result {17.842B 17.842B 5.947B}
 
     test capacity-1.2 {summed by nbhood equals total} -setup {
         setup

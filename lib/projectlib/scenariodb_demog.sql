@@ -85,6 +85,9 @@ CREATE TABLE demog_g (
     -- Unemployed workers
     unemployed     INTEGER DEFAULT 0,
 
+    -- Unemployment rate (percentage)
+    ur             DOUBLE DEFAULT 0.0,
+
     -- Unemployed per capita (percentage)
     upc            DOUBLE DEFAULT 0.0,
 
