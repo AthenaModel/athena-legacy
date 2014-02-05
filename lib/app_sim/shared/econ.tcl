@@ -1064,7 +1064,7 @@ snit::type econ {
 
             # NEXT, retrieve the initial CAP.goods.
             array set out [cge get Out -bare]
-            let CAPgoods $out(BQS.goods)
+            set CAPgoods $out(BQS.goods)
 
             foreach n [nbhood names] {
                 set cap0 [plant capacity n $n]
@@ -1095,26 +1095,10 @@ snit::type econ {
         let Xba {$exp(black)  * 52.0}
         let Xpa {$exp(pop)    * 52.0}
 
-        # NEXT, if we are not calibrating get the goods sector
-        # capacity from the infrastructure model and get the
-        # geo-unemployment from the demographics model
+        # NEXT, if we are not calibrating, goods sector capacity comes
+        # from the infrastructure model
         if {$opt ne "-calibrate"} {
             set CAPgoods [plant capacity total]
-
-            # Jobs comes from the capacity constrained M page
-            array set data [cge get M -bare]
-
-            foreach n [nbhood local names] {
-                set cap [plant capacity n $n]
-                let jobs {$data(QS.pop) * $cap / $CAPgoods}
-                
-                rdb eval {
-                    UPDATE econ_n
-                    SET cap  = $cap,
-                        jobs = $jobs
-                    WHERE n = $n
-                }
-            }
         }
 
         # NEXT, get geo-unemployment from the demographics model 
@@ -1152,7 +1136,6 @@ snit::type econ {
                      In::X.pop.actors    $Xpa]        
 
 
-
         # Solve the CGE.
         set status [cge solve In Out]
         set info(econStatus) [lindex $status 0]
@@ -1173,6 +1156,27 @@ snit::type econ {
             log warning econ "Economic analysis failed"
             $type CgeError "CGE Solution Error"
             return 0
+        }
+
+        # NEXT, if we are not calibrating set the number of jobs
+        # based on GOODS production infrastructure capacity and
+        # the number of jobs in the CGE
+        if {$opt ne "-calibrate"} {
+
+            # Jobs comes from the capacity constrained M page
+            array set data [cge get M -bare]
+
+            foreach n [nbhood local names] {
+                set cap [plant capacity n $n]
+                let jobs {$data(QS.pop) * $cap / $CAPgoods}
+                
+                rdb eval {
+                    UPDATE econ_n
+                    SET cap  = $cap,
+                        jobs = $jobs
+                    WHERE n = $n
+                }
+            }
         }
 
         # NEXT, use sector revenues to determine actor

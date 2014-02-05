@@ -30,7 +30,13 @@ object plant_ {
         state) and the production capacity of each neighborhood in which 
         plants should reside.  Athena then assigns plants to actors and 
         neighborhoods taking into account the number of shares allocated to 
-        each actor that owns them in each neighborhood.  
+        each actor that owns them in each neighborhood.<p>
+
+        Note that the SYSTEM agent will own any infrastructure in 
+        neighborhoods to which no actor is assigned shares of GOODS
+        production infrastructure.  However, the SYSTEM will not be 
+        allocated any infrastructure in neighborhoods that do not have 
+        any consumers (ie. consist only of subsisters).<p>
 
         Shares of GOODS Production Plants are defined and edited on the 
         <<cref /tab/infrastructure/goods_plants>>.<p>

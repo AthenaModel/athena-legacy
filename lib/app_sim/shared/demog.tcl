@@ -521,7 +521,8 @@ snit::type demog {
             # Neighborhoods with workers 
             set nbWithWorkers [rdb eval {
                 SELECT DISTINCT R.m
-                FROM nbrel_mn AS R JOIN nbhoods AS N ON (N.n=R.m)
+                FROM nbrel_mn AS R 
+                JOIN nbhoods AS N ON (N.n=R.m)
                 WHERE R.n        =$n
                 AND   R.proximity=$prio
                 AND   N.local    =1

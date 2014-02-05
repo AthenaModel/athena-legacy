@@ -55,6 +55,10 @@ snit::type plant {
         set nbhoods [nbhood local names]
 
         foreach n $nbhoods {
+            if {[demog getn $n consumers] == 0} {
+                continue
+            }
+
             if {![rdb exists {SELECT * FROM plants_shares WHERE n=$n}]} {
                 rdb eval {
                     INSERT INTO plants_shares(n, a, num, rho)
