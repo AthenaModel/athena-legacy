@@ -1068,11 +1068,14 @@ snit::type econ {
 
             foreach n [nbhood names] {
                 set cap0 [plant capacity n $n]
+                let jobs0 {$out(BQS.pop) * $cap0 / $CAPgoods}
                 
                 rdb eval {
                     UPDATE econ_n
-                    SEt cap0 = $cap0,
-                        cap  = $cap0
+                    SET cap0  = $cap0,
+                        cap   = $cap0,
+                        jobs0 = $jobs0,
+                        jobs  = $jobs0
                     WHERE n = $n
                 }
             }
@@ -1093,11 +1096,32 @@ snit::type econ {
         let Xpa {$exp(pop)    * 52.0}
 
         # NEXT, if we are not calibrating get the goods sector
-        # capacity from the infrastructure model
+        # capacity from the infrastructure model and get the
+        # geo-unemployment from the demographics model
         if {$opt ne "-calibrate"} {
             set CAPgoods [plant capacity total]
+
+            # Jobs comes from the capacity constrained M page
+            array set data [cge get M -bare]
+
+            foreach n [nbhood local names] {
+                set cap [plant capacity n $n]
+                let jobs {$data(QS.pop) * $cap / $CAPgoods}
+                
+                rdb eval {
+                    UPDATE econ_n
+                    SET cap  = $cap,
+                        jobs = $jobs
+                    WHERE n = $n
+                }
+            }
         }
 
+        # NEXT, get geo-unemployment from the demographics model 
+        set GU [demog geounemp]
+
+        # NEXT, subsisters are members of the population that are not
+        # consumers
         let subsisters {$demdata(population) - $demdata(consumers)}
 
         # NEXT, compute an updated value for REM
@@ -1107,6 +1131,7 @@ snit::type econ {
                      In::Consumers  $demdata(consumers)     \
                      In::Subsisters $subsisters             \
                      In::LF         $demdata(labor_force)   \
+                     In::GU         $GU                     \
                      In::CAP.goods  $CAPgoods               \
                      In::CAP.black  $samdata(BaseCAP.black) \
                      In::LSF        $LSF                    \

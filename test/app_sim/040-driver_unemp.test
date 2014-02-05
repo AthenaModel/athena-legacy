@@ -119,25 +119,16 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         unemp 1.0
-        ted querylist {
-            SELECT * FROM rule_firings where ruleset='UNEMP'
+        ted query {
+            SELECT rule FROM rule_firings where ruleset='UNEMP'
         }
     } -cleanup {
         cleanup
     } -result {
-firing_id  1
-t          0
-driver_id  1000
-ruleset    UNEMP
-rule       UNEMP-1-1
-fdict      upc 2.4 uaf 1.0 n NB1 g SHIA dtype UNEMP
-
-firing_id  2
-t          0
-driver_id  1001
-ruleset    UNEMP
-rule       UNEMP-1-1
-fdict      upc 2.4 uaf 1.0 n NB1 g SUNN dtype UNEMP
+rule      
+--------- 
+UNEMP-1-1 
+UNEMP-1-1 
     }
     
     test assess-1.2 {Rule 1-1 inputs} -setup {

@@ -28,7 +28,13 @@ CREATE TABLE econ_n (
     cap0       DOUBLE DEFAULT 0,
 
     -- Output, Production Capacity at time t
-    cap        DOUBLE DEFAULT 0
+    cap        DOUBLE DEFAULT 0,
+
+    -- Jobs at time 0 given production capacity t time 0
+    jobs0      DOUBLE DEFAULT 0,
+
+    -- Jobs in neighborhood given production capacity
+    jobs       DOUBLE DEFAULT 0
 );
 
 -- A view of only those econ_n records that correspond to local

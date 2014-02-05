@@ -129,17 +129,12 @@ namespace eval ::athena_test::tests:: {
     } -body {
         consump 2.0 0.0
         ted querylist {
-            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-1-*'
+            SELECT fdict FROM rule_firings where rule GLOB 'CONSUMP-1-*'
         }
     } -cleanup {
         cleanup
-    } -result {
-firing_id  1
-t          0
-driver_id  1000
-ruleset    CONSUMP
-rule       CONSUMP-1-1
-fdict      a {} povfrac 0.0 n NB1 eloc 2000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf -1.5 povf 0.00
+    } -match glob -result {
+fdict  a {} povfrac 0.0 n NB1 eloc 2000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf -1.5 povf 0.00
     }
     
     test assess-1.2 {Rule 1-1 inputs, expectf not zero} -setup {
@@ -165,17 +160,12 @@ CONSUMP-1-1 SHIA QOL
     } -body {
         consump 1.0 1.0
         ted querylist {
-            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-1-*'
+            SELECT fdict FROM rule_firings where rule GLOB 'CONSUMP-1-*'
         }
     } -cleanup {
         cleanup
     } -result {
-firing_id  1
-t          0
-driver_id  1000
-ruleset    CONSUMP
-rule       CONSUMP-1-1
-fdict      a {} povfrac 1.0 n NB1 eloc 1000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf 0.0 povf 1.00
+fdict  a {} povfrac 1.0 n NB1 eloc 1000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf 0.0 povf 1.00
     }
     
     test assess-1.4 {Rule 1-1 inputs, povf not zero} -setup {
@@ -202,17 +192,12 @@ CONSUMP-1-1 SHIA QOL
         consump 1.0 1.0 JOE
         
         ted querylist {
-            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-2-*'
+            SELECT fdict FROM rule_firings where rule GLOB 'CONSUMP-2-*'
         }
     } -cleanup {
         cleanup
     } -result {
-firing_id  2
-t          0
-driver_id  1000
-ruleset    CONSUMP
-rule       CONSUMP-2-1
-fdict      a JOE povfrac 1.0 n NB1 eloc 1000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf 0.0 povf 1.00
+fdict  a JOE povfrac 1.0 n NB1 eloc 1000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf 0.0 povf 1.00
     }
     
     test assess-2.2 {Rule 2-1 doesn't fire with no controller} -setup {
@@ -221,7 +206,7 @@ fdict      a JOE povfrac 1.0 n NB1 eloc 1000.0 aloc 1000.0 g SHIA dtype CONSUMP 
         consump 1.0 1.0
         
         rdb eval {
-            SELECT rule FROM rule_firings
+            SELECT rule FROM rule_firings WHERE rule GLOB 'CONSUMP-*'
         }
     } -cleanup {
         cleanup
@@ -250,17 +235,12 @@ CONSUMP-2-1 SHIA JOE
         consump 2.0 1.0 JOE
         
         ted querylist {
-            SELECT * FROM rule_firings where rule GLOB 'CONSUMP-2-*'
+            SELECT fdict FROM rule_firings where rule GLOB 'CONSUMP-2-*'
         }
     } -cleanup {
         cleanup
     } -result {
-firing_id  2
-t          0
-driver_id  1000
-ruleset    CONSUMP
-rule       CONSUMP-2-2
-fdict      a JOE povfrac 1.0 n NB1 eloc 2000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf -1.5 povf 1.00
+fdict  a JOE povfrac 1.0 n NB1 eloc 2000.0 aloc 1000.0 g SHIA dtype CONSUMP expectf -1.5 povf 1.00
     }
     
     test assess-3.2 {Rule 2-2 doesn't fire with no controller} -setup {
@@ -269,7 +249,7 @@ fdict      a JOE povfrac 1.0 n NB1 eloc 2000.0 aloc 1000.0 g SHIA dtype CONSUMP 
         consump 2.0 1.0
         
         rdb eval {
-            SELECT rule FROM rule_firings
+            SELECT rule FROM rule_firings WHERE rule GLOB 'CONSUMP-*'
         }
     } -cleanup {
         cleanup

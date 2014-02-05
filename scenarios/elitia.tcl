@@ -1,5 +1,5 @@
-# Exporting C:/MinGW/msys/1.0/Users/dhanks/athena/scenarios/elitia.adb from current data
-# Exported @ Mon Jan 27 07:37:22 PST 2014
+# Exporting  from current data
+# Exported @ Wed Feb 05 08:14:38 PST 2014
 # Written by Athena version 6.0.x
 #
 # Note: if header has no commands following it, then
@@ -28,16 +28,16 @@ send ACTOR:SUPPORTS -a EPP -supports SELF
 #-----------------------------------------------------------------
 # Base Entities: Neighborhoods
 
-send NBHOOD:CREATE -n CITY -longname {Capital City} -local YES -urbanization URBAN -controller GOV -pcf { 1.0} -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
-send NBHOOD:CREATE -n EL -longname Elitia -local YES -urbanization RURAL -controller GOV -pcf { 1.0} -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
-send NBHOOD:CREATE -n PE -longname Peonia -local YES -urbanization RURAL -controller GOV -pcf { 1.0} -refpoint G21D98 -polygon {F17C28 F63D50 G31E58 H69E28 H57D10 G51C22}
-send NBHOOD:CREATE -n IN -longname {Incognitia} -local NO -urbanization RURAL -controller NONE -pcf { 1.0} -refpoint D75C54 -polygon {D14D58 C59C34 E80B25 F17C28}
+send NBHOOD:CREATE -n CITY -longname {Capital City} -local YES -pcf { 1.0} -urbanization URBAN -controller GOV -refpoint F47E12 -polygon {F63D50 E76E06 F55E88 G31E58}
+send NBHOOD:CREATE -n EL -longname Elitia -local YES -pcf { 1.0} -urbanization RURAL -controller GOV -refpoint E62D58 -polygon {D14D58 F17C28 F63D50 E76E06 F55E88 E20F39}
+send NBHOOD:CREATE -n PE -longname Peonia -local YES -pcf { 1.0} -urbanization RURAL -controller GOV -refpoint G21D98 -polygon {F17C28 F63D50 G31E58 H69E28 H57D10 G51C22}
+send NBHOOD:CREATE -n IN -longname Incognitia -local NO -pcf { 0.0} -urbanization RURAL -controller NONE -refpoint D75C54 -polygon {D14D58 C59C34 E80B25 F17C28}
 send NBREL:UPDATE -id {EL CITY} -proximity NEAR
 send NBREL:UPDATE -id {CITY EL} -proximity FAR
-send NBREL:UPDATE -id {PE CITY} -proximity FAR
+send NBREL:UPDATE -id {PE CITY} -proximity REMOTE
 send NBREL:UPDATE -id {PE EL} -proximity FAR
 send NBREL:UPDATE -id {CITY PE} -proximity REMOTE
-send NBREL:UPDATE -id {EL PE} -proximity REMOTE
+send NBREL:UPDATE -id {EL PE} -proximity FAR
 send NBREL:UPDATE -id {IN CITY} -proximity REMOTE
 send NBREL:UPDATE -id {IN EL} -proximity REMOTE
 send NBREL:UPDATE -id {IN PE} -proximity REMOTE
@@ -54,7 +54,7 @@ send CIVGROUP:CREATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -sha
 send CIVGROUP:CREATE -g ELU -longname {Urban Elitians} -n CITY -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
 send CIVGROUP:CREATE -g SA -longname SA -n PE -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 100000 -pop_cr 0.0 -sa_flag 1 -lfp 0 -housing AT_HOME -hist_flag 0 -upc 0.0
 send CIVGROUP:CREATE -g NOBODY -longname NOBODY -n CITY -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 0 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g ICS -longname {Incognitians} -n IN -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 10000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g ICS -longname Incognitians -n IN -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 10000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
 
 #-----------------------------------------------------------------
 # Base Entities: Force Groups
@@ -88,42 +88,42 @@ send BSYSTEM:BELIEF:UPDATE -id {ELR PI} -position P- -emphasis DSTRONG
 send BSYSTEM:BELIEF:UPDATE -id {ELU PI} -position P- -emphasis DEXTREME
 send BSYSTEM:BELIEF:UPDATE -id {EPP PI} -position W+ -emphasis DWEAK
 send BSYSTEM:BELIEF:UPDATE -id {GOV PI} -position S- -emphasis DSTRONG
+send BSYSTEM:BELIEF:UPDATE -id {ICS PI} -position A -emphasis NEITHER
+send BSYSTEM:BELIEF:UPDATE -id {NOBODY PI} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PELF PI} -position P+ -emphasis DEXTREME
 send BSYSTEM:BELIEF:UPDATE -id {PEONR PI} -position S+ -emphasis DSTRONG
 send BSYSTEM:BELIEF:UPDATE -id {PEONU PI} -position S+ -emphasis DWEAK
+send BSYSTEM:BELIEF:UPDATE -id {SA PI} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {ELR DEM} -position W+ -emphasis AWEAK
 send BSYSTEM:BELIEF:UPDATE -id {ELU DEM} -position W- -emphasis DWEAK
 send BSYSTEM:BELIEF:UPDATE -id {EPP DEM} -position S+ -emphasis DEXTREME
 send BSYSTEM:BELIEF:UPDATE -id {GOV DEM} -position S- -emphasis DSTRONG
+send BSYSTEM:BELIEF:UPDATE -id {ICS DEM} -position A -emphasis NEITHER
+send BSYSTEM:BELIEF:UPDATE -id {NOBODY DEM} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PELF DEM} -position W+ -emphasis AWEAK
 send BSYSTEM:BELIEF:UPDATE -id {PEONR DEM} -position W+ -emphasis AWEAK
 send BSYSTEM:BELIEF:UPDATE -id {PEONU DEM} -position S+ -emphasis AWEAK
+send BSYSTEM:BELIEF:UPDATE -id {SA DEM} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {ELR PAT} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {ELU PAT} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {EPP PAT} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {GOV PAT} -position A -emphasis NEITHER
+send BSYSTEM:BELIEF:UPDATE -id {ICS PAT} -position A -emphasis NEITHER
+send BSYSTEM:BELIEF:UPDATE -id {NOBODY PAT} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PELF PAT} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PEONR PAT} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PEONU PAT} -position A -emphasis NEITHER
+send BSYSTEM:BELIEF:UPDATE -id {SA PAT} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {ELR PUPPIES} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {ELU PUPPIES} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {EPP PUPPIES} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {GOV PUPPIES} -position A -emphasis NEITHER
+send BSYSTEM:BELIEF:UPDATE -id {ICS PUPPIES} -position A -emphasis NEITHER
+send BSYSTEM:BELIEF:UPDATE -id {NOBODY PUPPIES} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PELF PUPPIES} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PEONR PUPPIES} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {PEONU PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {SA DEM} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {SA PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {SA PI} -position A -emphasis NEITHER
 send BSYSTEM:BELIEF:UPDATE -id {SA PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY DEM} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY PI} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ICS DEM} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ICS PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ICS PI} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ICS PUPPIES} -position A -emphasis NEITHER
 
 #-----------------------------------------------------------------
 # Attitudes

@@ -1157,6 +1157,13 @@ snit::type ::projectlib::parmdb {
             in the region, and used to describe the Lorenz curve for
             the region.  It is a number between 0.0 and 1.0
         }
+
+        $ps define demog.maxcommute ::simlib::eproximity FAR {
+            The maximum neighborhood proximity that workers are willing
+            to travel for a job when allocating the work force to jobs.
+            If set to FAR, then workers are not willing to travel to
+            FAR or REMOTE neighborhoods.
+        }
         
         $ps define demog.Zuaf ::marsutil::zcurve {0.0 5.0 15.0 2.0} {
             Z-curve for the unemployment attitude factor (UAF).

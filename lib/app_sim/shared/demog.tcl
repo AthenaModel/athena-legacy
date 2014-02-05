@@ -33,6 +33,24 @@ snit::type demog {
     pragma -hasinstances no
 
     #-------------------------------------------------------------------
+    # Non-Checkpointed Variables
+    #
+    # This variable is used to keep track of unused labor force by
+    # neighborhood. It's used when unemployment is disaggregated
+
+    typevariable lfremain -array {}
+
+    # This variable is used to keep track of jobs remaining by 
+    # neighborhood. It's used when unemployment is disaggregated
+
+    typevariable jobsremain -array {}
+
+    # This variable keeps track of the number of iterations of the
+    # unemployment disaggregation algorithm given a priority level
+
+    typevariable iter
+
+    #-------------------------------------------------------------------
     # Scenario Control
 
     # start
@@ -195,11 +213,12 @@ snit::type demog {
 
     typemethod econstats {} {
         # FIRST, compute the statistics
+        $type ComputeUnemployment
+        $type ComputeNbhoodEconStats
         $type ComputeGroupEmployment
         $type ComputeGroupConsumption
         $type ComputeExpectedGroupConsumption
         $type ComputeGroupPoverty
-        $type ComputeNbhoodEconStats
 
 
         # NEXT, Notify the GUI that demographics may have changed.
@@ -207,22 +226,40 @@ snit::type demog {
 
         return
     }
-    
+
+    # geounemp
+    #
+    # Returns the number of workers geographically unemployed (are too
+    # far from where the work is)
+
+    typemethod geounemp {} {
+        # FIRST, no econ model, no geo-unemployment
+        if {[parm get econ.disable]} {
+            return 0
+        }
+
+        # NEXT, grab the CGE M page unemployment and the disaggregated
+        # unemployment
+        array set data [econ get M -bare]
+
+        set cgeUnemp $data(Unemp)
+
+        set demogUnemp \
+            [rdb onecolumn {SELECT total(unemployed) FROM demog_n}]
+
+        # NEXT, return the difference between the two
+        let GU {max(0, round($demogUnemp-$cgeUnemp))}
+
+        return $GU
+    }
+
     # ComputeGroupEmployment
     #
     # Compute the group employment statistics for each group.
     
     typemethod ComputeGroupEmployment {} {
         # FIRST, get the unemployment rate and the Unemployment
-        # Factor Z-curve.  Assume no unemployment if the econ
-        # model is disabled.
-
-        if {![parm get econ.disable]} {
-            set ur [econ value Out::UR]
-        } else {
-            set ur 0
-        }
-
+        # Factor Z-curve.
         set zuaf [parmdb get demog.Zuaf]
 
         # NEXT, compute the group employment statistics
@@ -234,13 +271,27 @@ snit::type demog {
             WHERE nbhoods.local
             GROUP BY g
         }] {
-            if {$population > 0} {
+            set popN [rdb eval {
+                SELECT population FROM demog_n
+                WHERE n=$n
+            }]
+
+            set unemployedN [rdb eval {
+                SELECT unemployed FROM demog_n
+                WHERE n=$n
+            }]
+
+            if {$popN > 0} {
                 # number of employed and unemployed workers
-                let unemployed {round($labor_force * $ur / 100.0)}
+                let unemployed {round($population/$popN*$unemployedN)}
                 let employed   {$labor_force - $unemployed}
 
                 # unemployed per capita
-                let upc {100.0 * $unemployed / $population}
+                if {$population > 0} {
+                    let upc {100.0 * $unemployed / $population}
+                } else {
+                    set upc 0.0
+                }
 
                 # Unemployment Attitude Factor
                 set uaf [zcurve eval $zuaf $upc]
@@ -299,10 +350,16 @@ snit::type demog {
             JOIN nbhoods AS N USING (n)
             WHERE D.consumers > 0
         }] {
-            # QD is a yearly rate of consumption; divided by 52 to get
-            # weekly consumption.
-            let tc   {($QD/52.0)*($employed/$totalEmployed)}
-            let aloc {$tc/$consumers}
+            if {$totalEmployed == 0} {
+                set tc   0.0
+                set aloc 0.0
+            } else {
+                # QD is a yearly rate of consumption; divided by 52 to get
+                # weekly consumption.
+                let tc   {($QD/52.0)*($employed/$totalEmployed)}
+                let aloc {$tc/$consumers}
+            }
+
             let rloc {[parm get demog.consump.RGPC.$urbanization]/52.0}
             
             rdb eval {
@@ -419,23 +476,233 @@ snit::type demog {
             }
         }
     }
-    
+
+    # AllocateJobsByPriority prio
+    #
+    # prio    - An eproximity(n) value
+    #
+    # This method allocates workers from neighborhoods that have labor
+    # to jobs in neighborhoods that have work given a neighborhood
+    # proximity.  It's possible that one time through the method
+    # is not enough so this method should be called multiple times until 
+    # the finished condition is reached. The finshed condition is true
+    # when the following is true:
+    #
+    #    For each neighborhood n and m that have the given eproximity(n):
+    #
+    #           lfremain(n) * jobsremain(m) = 0
+    #
+    # The result of this calculation is returned to the caller.
+
+    typemethod AllocateJobsByPriority {prio} {
+        # FIRST, initialize labor force available to each neighborhood 
+        # and job offers made to each neighborhood
+        foreach n [array names lfremain] {
+            set LFAvailToNb($n) 0
+        }
+
+        foreach n [array names jobsremain] {
+            set jOffersToNb($n) 0
+        }
+
+        # NEXT, create a mapping of neighborhoods that have jobs to
+        # neighborhoods with workers that could work them
+        set jmap [dict create]
+
+        set nbWithJobs [rdb eval {
+            SELECT DISTINCT N.n
+            FROM nbhoods AS N JOIN nbrel_mn AS R
+            WHERE R.n        =N.n
+            AND   R.proximity=$prio
+            AND   N.local    =1
+        }]
+
+        foreach n $nbWithJobs {
+            # Neighborhoods with workers 
+            set nbWithWorkers [rdb eval {
+                SELECT DISTINCT R.m
+                FROM nbrel_mn AS R JOIN nbhoods AS N ON (N.n=R.m)
+                WHERE R.n        =$n
+                AND   R.proximity=$prio
+                AND   N.local    =1
+            }]
+
+            dict set jmap $n $nbWithWorkers
+
+            # Total up workers available to each neighborhood
+            foreach m $nbWithWorkers {
+               let LFAvailToNb($n) {$lfremain($m) + $LFAvailToNb($n)}
+            }
+        }
+
+        # NEXT, go through neighborhoods with jobs and make job offers
+        # to those workers available in other neighborhoods
+        foreach n [dict keys $jmap] {
+
+            foreach m [dict get $jmap $n] {
+                set jobOffers($n,$m) 0
+
+                # No labor force available, no job offers
+                if {$LFAvailToNb($n) == 0} {
+                    set jobOffers($n,$m) 0
+                } else {
+                    let totalLF {double($lfremain($m))}
+                    let availLF {double($LFAvailToNb($n))}
+                    let jobOffers($n,$m) {
+                        round($jobsremain($n) * ($totalLF / $availLF))
+                    }
+                }
+            }
+
+            # NEXT, sum up the total number of job offers made to the
+            # neighborhood that has the workers, there may be more
+            # offers than there are workers
+            foreach m [dict get $jmap $n] {
+                let jOffersToNb($m) {
+                    $jOffersToNb($m) + $jobOffers($n,$m)
+                }
+            }
+        }
+
+        # NEXT, given the available labor force determine how the jobs
+        # get filled in m by the workers available in each n
+        foreach m [dict keys $jmap] {
+            # Allocate jobs as filled positions
+            foreach n [dict get $jmap $m] {
+                set jRatio 0
+                set filledPos($m,$n) 0
+                if {$jOffersToNb($n) > 0} {
+                    # If the total number of job offers to the neighborhood
+                    # is greater than the labor force remaining in the
+                    # neighborhood, we use the jobs ratio
+                    if {$jOffersToNb($n) >= $lfremain($n)} {
+                        let jRatio {
+                            double($jobOffers($m,$n)) / 
+                            double($jOffersToNb($n))
+                        }
+                        let filledPos($m,$n) {round($lfremain($n) * $jRatio)}
+                    } else {
+                        set filledPos($m,$n) $jobOffers($m,$n)
+                    }
+                } 
+
+                # Decrement the number of job offers by the number of
+                # filled positions
+                let jobOffers($m,$n) {$jobOffers($m,$n)-$filledPos($m,$n)}
+            }
+        }
+                
+        # NEXT, compute new totals of labor force remaining and jobs
+        # remaining given that jobs have been filled
+        set morework 0
+        foreach m [dict keys $jmap] {
+            foreach n [dict get $jmap $m] {
+                # It's possible that the rounding done causes a -1 in either
+                # jobs remaining or labor force remaining, so guard against
+                # that
+                let lfremain($n) {max(0,$lfremain($n) - $filledPos($m,$n))}
+                let jobsremain($m) {max(0,$jobsremain($m) - $filledPos($m,$n))}
+
+                # NEXT, determine if all possible jobs that could be filled
+                # have been
+                let morework {$morework + $lfremain($n)*$jobsremain($m)}
+            }
+        }
+        
+        # NEXT, return the morework indicator
+        return $morework
+    }
+
+    # ComputeUnemployment
+    #
+    # This method disaggregates unemployment based upon the number of
+    # workers demanded in the economic model and where GOODS production
+    # plants exist in the infrastructure model.  Essentially, jobs exist
+    # where plants exist and whether a worker is willing to work at
+    # a plant is a function of neighborhood proximity.  The maximum proximity
+    # a worker will take a job is controlled by a model parameter.
+
+    typemethod ComputeUnemployment {} {
+        # FIRST, if econ is disabled, quick exit
+        if {[parm get econ.disable]} {
+            return
+        }
+
+        # NEXT, extract jobs and labor force available. Those in turbulence
+        # are not considered part of the labor force
+        set TurFrac [econ value TurFrac]
+
+        rdb eval {
+            SELECT E.n           AS n,
+                   E.jobs        AS jobs, 
+                   D.labor_force AS LF 
+                   FROM econ_n_view  AS E
+                   JOIN demog_n AS D ON E.n=D.n
+        } {
+            # Available jobs and available labor force as integers
+            let jobsremain($n) {round($jobs)}
+            let lfremain($n)   {round($LF * (1.0-$TurFrac))}
+        }
+
+        # NEXT, based on neighborhood proximity as the priority, 
+        # disaggregate unemployment taking into account that
+        # some folks are geographically unemployed (too far from 
+        # where the jobs are)
+        set max [parmdb get demog.maxcommute]
+
+        foreach prox [eproximity names] {
+            set morework 1
+            set iter 0
+
+            # NEXT, allocate the jobs at each priority, making sure that
+            # all jobs that could possibly be filled are filled.
+            if {[eproximity le $prox $max]} {
+                while {$morework} {
+                    incr iter
+                    set morework [$type AllocateJobsByPriority $prox]
+
+                    # If we haven't finished by 1000 iterations, something
+                    # is completely hosed.
+                    assert {$iter < 1000}
+                }
+            } else {
+                break
+            }
+        }
+    }
+
     # ComputeNbhoodEconStats
     #
     # Computes the neighborhood's economic statistics.
-    
+ 
     typemethod ComputeNbhoodEconStats {} {
-        # FIRST, get the unemployment rate and the Unemployment
-        # Factor Z-curve.  Assume no unemployment if the econ
-        # model is disabled.
+        # FIRST, if no econ model, no unemployment
+        if {[parm get econ.disable]} {
+            rdb eval {
+                UPDATE demog_n
+                SET unemployed = 0,
+                    ur         = 0.0,
+                    upc        = 0,
+                    uaf        = 0.0;
+            }
 
-        if {![parm get econ.disable]} {
-            set ur [econ value Out::UR]
-        } else {
-            set ur 0
+            foreach {n labor_force} [rdb eval {
+                SELECT n,labor_force FROM demog_n
+            }] {
+                rdb eval {
+                    UPDATE econ_n
+                    SET jobs=$labor_force
+                    WHERE n=$n
+                }
+            }
+
+            return
         }
 
+        # NEXT, compute neighborhood statistics based upon the disaggregated
+        # unemployment
         set zuaf [parmdb get demog.Zuaf]
+        set TurFrac [econ value TurFrac]
 
         foreach {n population labor_force} [rdb eval {
             SELECT n, population, labor_force
@@ -443,9 +710,16 @@ snit::type demog {
             JOIN nbhoods USING (n)
             WHERE nbhoods.local
         }] {
-            if {$population > 0.0} {
+            if {$population > 0} {
                 # number of unemployed workers
-                let unemployed {round($labor_force * $ur / 100.0)}
+                let unemployed {round($lfremain($n) + $labor_force*$TurFrac)}
+
+                # unemployment rate
+                if {$labor_force > 0} {
+                    let ur {100.0 * $unemployed / $labor_force}
+                } else {
+                    set ur 0.0
+                }
 
                 # unemployed per capita
                 let upc {100.0 * $unemployed / $population}
@@ -454,6 +728,7 @@ snit::type demog {
                 set uaf [zcurve eval $zuaf $upc]
             } else {
                 let unemployed 0
+                let ur         0.0
                 let upc        0.0
                 let uaf        0.0
             }
@@ -462,13 +737,15 @@ snit::type demog {
             rdb eval {
                 UPDATE demog_n
                 SET unemployed = $unemployed,
+                    ur         = $ur,
                     upc        = $upc,
                     uaf        = $uaf
                 WHERE n=$n;
             }
         }
-    }
 
+    }
+    
     #-------------------------------------------------------------------
     # Queries
 

@@ -28,28 +28,31 @@ CREATE TABLE demog_local (
 
 CREATE TABLE demog_n (
     -- Symbolic neighborhood name
-    n            TEXT PRIMARY KEY,
+    n               TEXT PRIMARY KEY,
 
     -- Total population in the neighborhood at the current time
-    population   INTEGER DEFAULT 0,
+    population      INTEGER DEFAULT 0,
 
     -- Total subsistence population in the neighborhood at the current time
-    subsistence  INTEGER DEFAULT 0,
+    subsistence     INTEGER DEFAULT 0,
 
     -- Total consumers in the neighborhood at the current time
-    consumers    INTEGER DEFAULT 0,
+    consumers       INTEGER DEFAULT 0,
 
     -- Total labor force in the neighborhood at the current time
-    labor_force  INTEGER DEFAULT 0,
+    labor_force     INTEGER DEFAULT 0,
 
     -- Unemployed workers in the neighborhood.
-    unemployed   INTEGER DEFAULT 0,
+    unemployed      INTEGER DEFAULT 0,
+
+    -- Unemployment rate (percentage)
+    ur              DOUBLE DEFAULT 0.0,
 
     -- Unemployed per capita (percentage)
-    upc          DOUBLE DEFAULT 0.0,
+    upc             DOUBLE DEFAULT 0.0,
 
     -- Unemployment Attitude Factor
-    uaf          DOUBLE DEFAULT 0.0
+    uaf             DOUBLE DEFAULT 0.0
 );
 
 -- Demographics of particular civgroups

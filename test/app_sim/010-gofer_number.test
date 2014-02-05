@@ -373,10 +373,12 @@ namespace eval ::athena_test::tests:: {
         setup
         ted lock
     } -body {
-        ::gofer::NUMBER::GDP eval {}
+        set a [format %.2f [econ value Out::DGDP]]
+        set b [::gofer::NUMBER::GDP eval {}]
+        expr {$a == $b}
     } -cleanup {
         cleanup
-    } -result {20362653597.66}
+    } -result {1}
 
     #-------------------------------------------------------------------
     # Rule: HREL
@@ -529,17 +531,14 @@ namespace eval ::athena_test::tests:: {
 
     test MOOD-4.1 {eval} -setup {
         setup
-        ted order SAT:UPDATE:MULTI ids {
-            {SHIA AUT} {SHIA CUL} {SHIA QOL} {SHIA SFT}
-        } base 25.0 hist_flag 1 current 25.0
-
         ted lock
         
     } -body {
+        rdb eval {UPDATE uram_civ_g SET mood=50.0}
         ::gofer::NUMBER::MOOD eval {g SHIA}
     } -cleanup {
         cleanup
-    } -result {22.9}
+    } -result {50.0}
 
     #-------------------------------------------------------------------
     # Rule: NBCOOP
@@ -779,11 +778,9 @@ namespace eval ::athena_test::tests:: {
 
     test SAT-4.1 {eval} -setup {
         setup
-        # Set sat to 25.0
-        ted order SAT:UPDATE \
-            id {SHIA SFT} base 25.0 hist_flag 1 current 25.0
         ted lock
     } -body {
+        rdb eval {UPDATE ucurve_curves_t SET a=25.0}
         ::gofer::NUMBER::SAT eval {g SHIA c SFT}
     } -cleanup {
         cleanup

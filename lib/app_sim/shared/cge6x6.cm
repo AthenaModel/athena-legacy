@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    cge6x6.cm, version ah
+#    cge6x6.cm, version ai
 # 
 # AUTHORS:
 #    Bob Chamberlain
@@ -69,6 +69,14 @@
 #    In, and Out pages.
 #
 # HISTORY:
+#    Version ai: Removed GU from the M page. Turns out that geographic
+# unemployment, as computed from the demographics model, is an input to
+# the S page.  Using it as in input on the M page causes a "limit cycle"
+# to occur.  Unemployment on the M and S pages is now computed as the
+# difference between the labor force and QS.pop.  The LSF is applied to
+# the equation for QS.pop correctly now.  Previously, if QD.pop was the
+# limiting factor, it was not being applied.
+#
 #    Version ah: Changed the units of production of the black market
 # from tonnes to black baskets. Change the units of production in the 
 # goods sector from "GoodsBKT" to "goodsBKT" to be consistent with the UI
@@ -1422,7 +1430,7 @@ let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
 
 # QS.pop, which is the number of jobs, is now limited by demand 
 # or the available labor force taking into account geographic unemployment
-let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] - [In::GU] ))}
+let QS.pop = {max(0, min( [QD.pop], [In::CAP.pop] ))}
 
 # A.goods.pop may have changed if the number of consumers has changed or the
 # amount of money flowing to the pop sector has changed. It is modified by
@@ -1474,7 +1482,7 @@ let X.actors.world  = {[In::X.actors.world]}
 # Unemployment statistics
 let RealUnemp        = {max(0.0, ediff([In::CAP.pop], [QS.pop]))}
 let Turb             = {[TurFrac] * [In::LF]}
-let Unemp            = {[RealUnemp] + [Turb]}
+let Unemp            = {[In::LF] - [QS.pop]}
 let RealUR           = {100.0 * [RealUnemp] / [In::LF]}
 let UR               = {100.0 * [Unemp] / [In::LF]}
 
@@ -1549,9 +1557,11 @@ let QS.black = {
 # QS.goods is now limited by demand or capacity
 let QS.goods = {max(0, min( [QD.goods], [In::CAP.goods] ))}
 
+
+
 # The available labor force is now further limited by the LSF
 let QS.pop = {
-    max(0, min( [QD.pop], ([In::CAP.pop] - [In::GU]) * [In::LSF] ))
+    max(0, min( [QD.pop], ([In::CAP.pop] - [In::GU])) * [In::LSF] )
 }
 
 
@@ -1586,13 +1596,10 @@ let X.actors.pop    = {[In::X.actors.pop]}
 let X.actors.region = {[In::X.actors.region]}
 let X.actors.world  = {[In::X.actors.world]}
 
-# Security effects
-let SecEffect = {max(0.0, ediff([In::CAP.pop]-[In::GU], [QS.pop]))}
-
 # Unemployment statistics
 let RealUnemp = {[M::RealUnemp]}
 let Turb      = {[TurFrac] * [In::LF]}
-let Unemp     = {[RealUnemp] + [Turb] + [In::GU] + [SecEffect]}
+let Unemp     = {[In::LF] - [QS.pop]}
 let RealUR    = {100.0 * [RealUnemp] / [In::LF]}
 let UR        = {100.0 * [Unemp] / [In::LF]}
 

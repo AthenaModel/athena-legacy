@@ -98,9 +98,15 @@ snit::type engine {
         profile driver::actsit assess
         profile service assess
         set econOK [econ tock]
+
+        # NEXT, if the econ tock is okay, we compute the demographics model
+        # econ stats and then run another econ tock with updated unemployment
+        # data
         if {$econOK} {
             profile demog econstats
+            profile econ tock
         }
+
         profile driver::CONSUMP assess
         profile driver::UNEMP assess
 
@@ -138,8 +144,7 @@ snit::type engine {
         profile demog growth
         profile demog stats
         
-        # NEXT, GOODS production infrastructure, plants may degrade and
-        # new plants may come online
+        # NEXT, GOODS production infrastructure plants may degrade 
         profile plant degrade
 
         # NEXT, execute strategies; this changes the situation

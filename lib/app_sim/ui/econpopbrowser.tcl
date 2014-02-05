@@ -38,7 +38,9 @@ snit::widgetadaptor econpopbrowser {
         { subsistence    "Subsistence"   -sortmode integer -foreground %D }
         { consumers      "Consumers"     -sortmode integer -foreground %D }
         { labor_force    "Labor Force"   -sortmode integer -foreground %D }
+        { jobs           "Jobs"          -sortmode integer -foreground %D }
         { unemployed     "Unemployed"    -sortmode integer -foreground %D }
+        { ur             "UnempRate%"    -sortmode real    -foreground %D }
         { upc            "UnempPerCap%"  -sortmode real    -foreground %D }
         { uaf            "UAFactor"      -sortmode real    -foreground %D }
     }

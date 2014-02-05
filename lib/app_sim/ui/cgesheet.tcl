@@ -76,10 +76,8 @@ snit::widget cgesheet {
         }
 
         M   {
-            The economy constrained by sector capacity and geographic
-            unemployment. This view of the economy reflects labor and 
-            goods capacity limits and that some of the labor force may not 
-            be close enough to where the jobs are.
+            The economy constrained by sector capacity. This view of the 
+            economy reflects labor and goods capacity limits.
         }
 
         L   {
@@ -136,7 +134,7 @@ snit::widget cgesheet {
         # NEXT the dropdown menu of views and their keys
         set vdict [dict create \
             "Constrained with Geo. Unemp. and Sec. Factors" Out \
-            "Constrained with Geo. Unemp."                  M   \
+            "Constrained by Labor and Goods Capacities"     M   \
             "Constrained by Total Labor"                    L   \
             "Calibrated Values from Base SAM"               Cal]
 

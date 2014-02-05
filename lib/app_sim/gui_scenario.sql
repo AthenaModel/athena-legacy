@@ -74,10 +74,7 @@ SELECT N.n                                                    AS id,
        END                                                    AS controller,
        COALESCE(C.since, 0)                                   AS since_ticks,
        timestr(COALESCE(C.since, 0))                          AS since,
-       CASE N.local WHEN 1 
-        THEN format('%4.1f',N.pcf)  
-        ELSE "N/A"
-       END                                                    AS pcf,
+       format('%4.1f',N.pcf)                                  AS pcf,
        N.stacking_order                                       AS stacking_order,
        N.obscured_by                                          AS obscured_by,
        m2ref(N.refpoint)                                      AS refpoint,
