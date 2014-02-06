@@ -40,8 +40,6 @@ snit::type plant {
         shares ""
     }
 
-    typevariable pfrac -array {}
-
     #-------------------------------------------------------------------
     # Scenario Control
 
@@ -65,16 +63,6 @@ snit::type plant {
                     VALUES($n, 'SYSTEM', 1, 1.0);
                 }
             }
-        }
-
-        # NEXT, compute adjusted population based on pcf
-        set adjpop [rdb onecolumn {SELECT total(nbpop*pcf) FROM plants_n_view}]
-
-        # NEXT, set the fraction of plants by nbhood
-        rdb eval {
-            SELECT n, pcf, nbpop FROM plants_n_view
-        } row {
-            let pfrac($row(n)) {$row(nbpop)*$row(pcf)/$adjpop}
         }
 
         # NEXT, populate the plants_na table.
@@ -130,6 +118,19 @@ snit::type plant {
     # are not allowed.
 
     typemethod LaydownPlants {} {
+        # FIRST, compute adjusted population based on pcf
+        set adjpop [rdb onecolumn {SELECT total(nbpop*pcf) FROM plants_n_view}]
+
+        set nbhoods [list]
+
+        # NEXT, set the fraction of plants by nbhood
+        rdb eval {
+            SELECT n, pcf, nbpop FROM plants_n_view
+        } row {
+            let pfrac($row(n)) {$row(nbpop)*$row(pcf)/$adjpop}
+            lappend nbhoods $row(n)
+        }
+
         # FIRST, get the amount of goods each plant is capable of producing
         # at max capacity
         set goodsPerPlant [money validate [parmdb get plant.bktsPerYear.goods]]
@@ -147,7 +148,7 @@ snit::type plant {
         
         # NEXT, go through the neighborhoods laying down plants for each
         # agent that owns them
-        foreach n [nbhood local names] {
+        foreach n $nbhoods {
             # NEXT, if no plants in the neighborhood nothing to do
             if {$pfrac($n) == 0.0} {
                 continue

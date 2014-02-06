@@ -53,11 +53,8 @@ appserver module PLANT {
             set adjpop 0.0
 
             rdb eval {
-                SELECT total(C.basepop) AS nbpop,
-                       N.pcf            AS pcf
-                FROM civgroups AS C
-                JOIN nbhoods AS N ON (N.n=C.n)
-                GROUP BY N.n
+                SELECT nbpop, pcf
+                FROM plants_n_view
             } row {
                 let adjpop {$adjpop + $row(nbpop)*$row(pcf)}
             }
@@ -132,85 +129,87 @@ appserver module PLANT {
 
         ht para
 
-        ht put "The following table breaks down GOODS production plants under "
-        ht put "construction by neighborhood and actor into ranges of "
-        ht put "percentage complete.  Clicking on "
-        ht put "[ht link /plants/detail "detail"] will break construction "
-        ht put "levels down even further."
-        ht para
+        if {[locked]} {
+            ht put "The following table breaks down GOODS production plants under "
+            ht put "construction by neighborhood and actor into ranges of "
+            ht put "percentage complete.  Clicking on "
+            ht put "[ht link /plants/detail "detail"] will break construction "
+            ht put "levels down even further."
+            ht para
 
-        ht push 
+            ht push 
 
-        ht table {
-            "Nbhood" "Owner" "Total" "&lt 20%" "20%-40%" 
-            "40%-60%" "60%-80%" "&gt 80%" "" 
-        } {
-            rdb eval {
-                SELECT n, a, nlink, alink, levels
-                FROM gui_plants_build
+            ht table {
+                "Nbhood" "Owner" "Total" "&lt 20%" "20%-40%" 
+                "40%-60%" "60%-80%" "&gt 80%" "" 
             } {
-                array set bins {0 0 20 0 40 0 60 0 80 0}
-                set total [llength $levels]
-                foreach lvl $levels {
-                    if {$lvl < 0.2} {
-                        incr bins(0)
-                    } elseif {$lvl >= 0.2 && $lvl < 0.4} {
-                        incr bins(20)
-                    } elseif {$lvl >= 0.4 && $lvl < 0.6} {
-                        incr bins(40)
-                    } elseif {$lvl >= 0.6 && $lvl < 0.8} {
-                        incr bins(60)
-                    } elseif {$lvl >= 0.8} {
-                        incr bins(80)
-                    }
-                }
-
-                ht tr {
-                    ht td left {
-                        ht put $nlink
-                    }
-
-                    ht td left {
-                        ht put $alink
+                rdb eval {
+                    SELECT n, a, nlink, alink, levels
+                    FROM gui_plants_build
+                } {
+                    array set bins {0 0 20 0 40 0 60 0 80 0}
+                    set total [llength $levels]
+                    foreach lvl $levels {
+                        if {$lvl < 0.2} {
+                            incr bins(0)
+                        } elseif {$lvl >= 0.2 && $lvl < 0.4} {
+                            incr bins(20)
+                        } elseif {$lvl >= 0.4 && $lvl < 0.6} {
+                            incr bins(40)
+                        } elseif {$lvl >= 0.6 && $lvl < 0.8} {
+                            incr bins(60)
+                        } elseif {$lvl >= 0.8} {
+                            incr bins(80)
+                        }
                     }
 
-                    ht td center {
-                        ht put $total
-                    }
+                    ht tr {
+                        ht td left {
+                            ht put $nlink
+                        }
 
-                    ht td center {
-                        ht put $bins(0)
-                    }
+                        ht td left {
+                            ht put $alink
+                        }
 
-                    ht td center {
-                        ht put $bins(20)
-                    }
+                        ht td center {
+                            ht put $total
+                        }
 
-                    ht td center {
-                        ht put $bins(40)
-                    }
+                        ht td center {
+                            ht put $bins(0)
+                        }
 
-                    ht td center {
-                        ht put $bins(60)
-                    }
+                        ht td center {
+                            ht put $bins(20)
+                        }
 
-                    ht td center {
-                        ht put $bins(80)
-                    }
+                        ht td center {
+                            ht put $bins(40)
+                        }
 
-                    ht td center {
-                        ht link /plants/detail/ "Detail"
+                        ht td center {
+                            ht put $bins(60)
+                        }
+
+                        ht td center {
+                            ht put $bins(80)
+                        }
+
+                        ht td center {
+                            ht link /plants/detail/ "Detail"
+                        }
                     }
                 }
             }
-        }
 
-        set text [ht pop]
+            set text [ht pop]
 
-        if {[ht rowcount] > 0} {
-            ht putln $text
-        } else {
-            ht putln "None."
+            if {[ht rowcount] > 0} {
+                ht putln $text
+            } else {
+                ht putln "None."
+            }
         }
 
         ht /page

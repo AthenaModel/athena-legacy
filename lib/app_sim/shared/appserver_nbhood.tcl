@@ -507,29 +507,6 @@ appserver module NBHOOD {
             }
         } else {
 
-            ht put {
-                The number and laydown of GOODS production plants when the 
-                scenario is locked depends on a number of things: the 
-                production capacity of a neighborhood, the amount of goods
-                a single plant can produce, and the repair level of plants
-                at initialization.  
-            }
-            
-            if {![locked]} {
-                ht put {
-                    Given the production capacity of a single
-                    GOODS production plant, Athena will allocate just enough
-                    plants to meet the initial production demanded by the 
-                    economic model taking into account repair level and 
-                    neighborhood production capacity.  Athena will then lay
-                    them down according to agent shares of ownership.  To 
-                    increase capacity after lock, either plants in disrepair
-                    need to be fixed or new plants built or both.
-                }
-            }
-    
-            ht para
-    
             if {![locked]} {
                 ht put {
                     The percentage of plants that this neighborhood will get 
@@ -545,16 +522,15 @@ appserver module NBHOOD {
                 set adjpop 0.0
     
                 rdb eval {
-                    SELECT total(C.basepop) AS nbpop,
-                           N.pcf            AS pcf
-                    FROM civgroups AS C
-                    JOIN nbhoods AS N ON (N.n=C.n)
-                    GROUP BY N.n
+                    SELECT nbpop, pcf
+                    FROM plants_n_view
                 } row {
                     let adjpop {$adjpop + $row(nbpop)*$row(pcf)}
                 }
     
                 if {$adjpop > 0} {
+                    ht push 
+
                     ht table {
                         "Base Pop." "Prod. Capacity Factor"
                         "% of GOODS<br>Production Plants"
@@ -575,6 +551,14 @@ appserver module NBHOOD {
                                 ht td right {ht put [format "%4.1f" $pct]     }
                             }
                         }
+                    }
+                    
+                    set text [ht pop]
+
+                    if {[ht rowcount] > 0} {
+                        ht put $text
+                    } else {
+                        ht put "None."
                     }
                 } else {
                     ht put {

@@ -38,6 +38,7 @@ namespace eval ::athena_test::tests:: {
             VALUES('NB1', 'JOE', 1, 0.9);
         }
 
+        demog start
         plant start
         cash load
 
@@ -302,7 +303,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {10000.0 1 9000.0}
 
-    test obligate-1.8 {no money} -setup {
+    test obligate-1.9 {no money} -setup {
         setup
         $T1 set nlist [gofer construct NBHOODS BY_VALUE {NB1 NB2}]
         $T1 set amount 50000.0
@@ -312,7 +313,7 @@ namespace eval ::athena_test::tests:: {
         $T1 faildict
     } -cleanup {
         cleanup
-    } -result {CASH {Need $6.654M for repairs, have none.}}
+    } -match glob -result {CASH {Need * for repairs, have none.}}
 
     #-------------------------------------------------------------------
     # execute
