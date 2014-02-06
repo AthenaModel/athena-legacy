@@ -1153,5 +1153,31 @@ snit::type ::projectlib::money {
     }
 }
 
+#-----------------------------------------------------------------------
+# Posmoney type
+
+# A positive money value is a string defined as for marsutil::moneyscan.  
+# It is converted to a real number. It must be greater than zero.
+
+snit::type ::projectlib::posmoney {
+    pragma -hasinstances no
+
+    typemethod validate {value} {
+        if {[catch {
+            set newValue [::marsutil::moneyscan $value]
+        } result]} {
+            set scanErr 1
+        } else {
+            set scanErr 0
+        }
+
+        if {$scanErr || $newValue <= 0.0} {
+            return -code error -errorcode INVALID \
+                "invalid money value \"$value\", expected numeric value > 0 with optional K, M, or B suffix"
+        }
+
+        return $newValue
+    }
+}
 
 

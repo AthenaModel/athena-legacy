@@ -1810,7 +1810,7 @@ snit::type ::projectlib::parmdb {
             plant in number of baskets produced per year.
         }
 
-        $ps define plant.bktsPerYear.goods ::projectlib::money 1B {
+        $ps define plant.bktsPerYear.goods ::projectlib::posmoney 1B {
             The average output of a single manufacturing plant that makes
             goods baskets when the plant is running at full capacity.
         }
