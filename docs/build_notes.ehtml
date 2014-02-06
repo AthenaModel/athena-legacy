@@ -11,6 +11,49 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.10, 6 February 2014</h3>
+This build contains a complete retooling of the layout of Athena's tabs to
+be in line with the PMESII-PT acronym.  Thus you will see tabs titled:
+"Political", "Military", "Economics", "Social", "Infrastructure", and 
+"Information" to correspond to the first part of this acronym.  There are
+also tabs for "Physical" and "Time" that correspond to the last part.  The
+"Detail" tab and "Strategy" tab are on their own since they cross-cut so much
+of all areas.  There is one significant new feature in this build: 
+unemployment is now disaggregated to neighborhoods according to the amount
+of production infrastructure present.  Part of this algorithm includes
+computing those in the labor force that are geographically unemployed since 
+they are unwilling to go a parameter controlled distance to get to work.  
+This number is fed back into the CGE on the next tock and further impacts 
+the economy.  There are a host of bug fixes in the build as well.<p>
+
+<ul>
+<li> Bug 4312: athena(1): "Manufacturing Infrastructure" should be "GOODS Production Infrastructure"
+<li> Bug 4314: athena(1): SQL view for plantbrowser(n) not returning data
+<li> Bug 4315: athena(1): Implement Mark II DAMAGE tactic
+<li> Bug 4321: athena(1): nbhoods object should have methods for local neighborhoods
+<li> Bug 4324: athena(1): PCF/Infrastructure in non-local neighborhoods
+<li> Bug 4325: Copy and Paste MAINTAIN tactic to SYSTEM agent causes bgerror
+<li> Bug 4327: athena(1): do not allow BUILD/MAINTAIN/DAMAGE tactics in non-local neighborhoods
+<li> Bug 4338: BUILD tactic plant at 100.0% is not completed
+<li> Bug 4342: athena(1): implement disaggregation of unemployment
+<li> Bug 4343: athena(1): the SYSTEM should not put infrastructure in neighborhoods with no consumers
+<li> Bug 4344: athena(1): Economics > Group tab should show unemployment rate
+<li> Bug 4310: athena(1): Cash Queries
+<li> Bug 4313: athena(1): PMESII Tabs
+<li> Bug 4316: athena(1): Combine satbrowser and satbrowser_sim
+<li> Bug 4317: athena(1): Combine coopbrowser and coopbrowser_sim
+<li> Bug 4319: athena(1): Combine vrelbrowser and vrelbrowser_sim
+<li> Bug 4320: athena(1): Combine hrelbrowser and hrelbrowser_sim.
+<li> Bug 4322: athena(1): [show] executive command rejects gui: URLs
+<li> Bug 4323: athena(1): Detail Browser address bar rejects gui: URLs
+<li> Bug 4331: athena(1): Remove View/Scenario and View/Simulation menu items.
+<li> Bug 4334: athena(1): Add Time/Significant Events tab
+<li> Bug 4335: athena(1): Replace myhtmlpane(n) with mybrowser(n)
+<li> Bug 4336: athena(1): View toggles bring relevant tab to front
+<li> Bug 4340: ATTRIT tactic with no responsible groups 
+</ul><p>
+
+
 <h3>Build 6.0.9, 22 January 2014</h3>
 This build contains fixes to existing Mark II tactics and implementation of
 some new ones: ATTRIT and BUILD.  There are also some new gofer(n) NUMBER 
