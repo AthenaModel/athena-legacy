@@ -25,16 +25,50 @@ snit::widgetadaptor plantbrowser {
     #-------------------------------------------------------------------
     # Lookup Tables
 
-    # Layout
+    # modes
     #
-    # %D is replaced with the color for derived columns.
+    # Array of configuration data for different app modes.
+    #
+    # scenario   - [sim state] eq PREP
+    # simulation - [sim state] ne PREP 
+    #
+    #    -layout   - The layout spec for the sqlbrowser.  %D is replaced
+    #                with the color for derived columns.
+    #    -view     - The view name.
+    #    -reloadon - The default reload events 
+    #
+    # Reload on ::rdb <plants_shares>
+    #
 
-    typevariable layout {
-        { n             "Neighborhood"                            }
-        { a             "Owning Agent"                            }
-        { rho           "Average\nRepair Level"  -sortmode real   }
-        { num           "Shares of Goods\nProduction Plants" 
-                                                -sortmode integer }
+    # %D is replaced with the color for derived columns.
+    
+    typevariable modes -array {
+        scenario {
+            -view gui_plants_shares
+            -layout {
+                { n   "Neighborhood"                               }
+                { a   "Owning Agent"                               }
+                { rho "Average\nRepair Level"   -sortmode real     }
+                { num "Shares of Goods\nPlants" -sortmode integer  }
+            }
+            -reloadon {
+                ::sim <DbSyncB>
+                ::rdb <plants_shares>
+            }
+        }
+        simulation {
+            -view gui_plants_na
+            -layout {
+                { n   "Neighborhood"                               }
+                { a   "Owning Agent"                               }
+                { rho "Average\nRepair Level"   -sortmode real     }
+                { num "Number of Goods\nPlants" -sortmode integer  }
+            }
+            -reloadon {
+                ::sim <Tick>
+                ::sim <DbSyncB>
+            }
+        }
     }
 
     #-------------------------------------------------------------------
@@ -51,13 +85,10 @@ snit::widgetadaptor plantbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_plants_shares           \
             -uid          id                          \
             -titlecolumns 2                           \
             -selectioncmd [mymethod SelectionChanged] \
-            -reloadon {
-                ::sim  <DbSyncB>
-            } -layout [string map [list %D $::app::derivedfg] $layout]
+            {*}[ModeOptions scenario]
 
         # NEXT, get the options.
         $self configurelist $args
@@ -97,7 +128,11 @@ snit::widgetadaptor plantbrowser {
         pack $editbtn   -side left
         pack $deletebtn -side right
 
-        notifier bind ::rdb <plants_shares> $self [mymethod uid]
+        # NEXT, set the mode when the simulation state changes.
+        notifier bind ::sim <State> $self [mymethod StateChange]
+
+        # NEXT, update individual entities when they change.
+        $self SetMode scenario
     }
 
     #-------------------------------------------------------------------
@@ -106,7 +141,50 @@ snit::widgetadaptor plantbrowser {
     delegate method * to hull
 
     #-------------------------------------------------------------------
-    # Private Methods
+    # Private Methods and Procs
+
+    # StateChange
+    #
+    # The simulation state has changed.  Update the display.
+
+    method StateChange {} {
+        if {[sim state] eq "PREP"} {
+            $self SetMode scenario
+        } else {
+            $self SetMode simulation
+        }
+    }
+
+    # SetMode mode
+    #
+    # mode - scenario | simulation
+    #
+    # Sets the widget to display the content for the given mode.
+
+    method SetMode {mode} {
+        $hull configure {*}[ModeOptions $mode]
+
+        if {$mode eq "scenario"} {
+            notifier bind ::rdb <plants_shares> $self [mymethod uid]
+        } else {
+            notifier bind ::rdb <plants_shares> $self ""
+        }
+    }
+
+    # ModeOptions mode
+    #
+    # mode - scenario | simulation
+    #
+    # Returns a dictionary of the mode options and values.
+
+    proc ModeOptions {mode} {
+        set opts $modes($mode)
+        dict with opts {
+            set -layout [string map [list %D $::app::derivedfg] ${-layout}]
+        }
+
+        return $opts
+    }
 
     # SelectionChanged
     #

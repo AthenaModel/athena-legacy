@@ -2569,15 +2569,21 @@ page /tab/infrastructure/caps group "Group Penetration Pane" {
 #-----------------------------------------------------------------------
 
 tab "Infrastructure/GOODS Plants" {
-    <b>Scenario Mode Only.</b><p>
+    This browser shows GOODS production infrastructure allocation.<p>
 
-    This tab shows how GOODS production plants should be apportioned to the
-    various <<term agent>>s and neighborhoods.  It also shows the 
-    initial repair level for those plants.  The user can specify initial
-    repair levels less than 1.0 indicating that some plants are already in 
-    a degraded state.  The browser controls are described
-    <<seebelow controls>>; the data fields are as follows:<p>
+    This browser functions differently in Scenario mode vs. Simulation
+    mode.<p>
 
+    In <b>Scenario Mode</b>, the browser shows how shares of GOODS plants
+    have been allocated to actors, if any.  In <b>Simulation Mode</b>, the
+    browser shows the actual number of GOODS plants owned by actors and the
+    number owned by the SYSTEM agent, if any.  In both cases, the repair 
+    level for those plants is shown.  In <b>Scenario Mode</b> the user can 
+    specify initial repair levels less than 1.0 indicating that some plants
+    are already in a degraded state.  In <b>Simulation Mode</b> the actual
+    average repair level is shown.  The browser controls are 
+    described <<seebelow controls>>; the data fields are as follows:<p>
+    
     <<topiclist Column Description>>
 
     <<topic "Neighborhood">>The ID of a neighborhood.<</topic>>
@@ -2587,9 +2593,9 @@ tab "Infrastructure/GOODS Plants" {
     <<topic "Average Repair Level">>The average repair level of all the
     manufacturing plants owned by the agent in the neighborhood.<</topic>>
 
-    <<topic "Share of GOODS Production Plants">>The share of plants that the
-    agent should be allocated in that neighborhood when the scenario is 
-    locked.<</topic>>
+    <<topic "Shares/Number of GOODS Plants">>Either the shares or the actual
+    number of plants that the agent is allocated in that neighborhood 
+    depending on whether in Scenario mode or Simulation mode.<</topic>>
 
     <</topiclist>>
 
