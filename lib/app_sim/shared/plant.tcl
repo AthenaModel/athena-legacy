@@ -875,7 +875,7 @@ order define PLANT:SHARES:CREATE {
     prepare a      -toupper -required -type agent
     prepare n      -toupper -required -type nbhood
     prepare rho    -toupper           -type rfraction
-    prepare num    -toupper           -type iquantity
+    prepare num    -toupper           -type ipositive
 
     returnOnError
 
