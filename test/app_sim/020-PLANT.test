@@ -43,7 +43,7 @@ namespace eval ::athena_test::tests:: {
 
     # Setup
     proc setup {} {
-        ted create JOE BOB NB1 NB2 SHIA SUNN KURD
+        ted create JOE BOB NB1 NB2 NL1 SHIA SUNN KURD NOT_LOCALS
     }
 
     # Clean up after a test
@@ -69,10 +69,19 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-        n {Invalid neighborhood, should be one of: NB1, NB2}
+        n {Invalid local neighborhood, should be one of: NB1, NB2}
     }
 
-    test CREATE-1.3 {invalid agent} -body {
+    test CREATE-1.3 {invalid nbhood, not local} -body {
+        setup
+        ted order -reject PLANT:SHARES:CREATE {*}$p1 n NL1
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Invalid local neighborhood, should be one of: NB1, NB2}
+    }
+
+    test CREATE-1.4 {invalid agent} -body {
         setup
         ted order -reject PLANT:SHARES:CREATE {*}$p1 a NONESUCH
     } -cleanup {
