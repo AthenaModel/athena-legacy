@@ -503,16 +503,24 @@ snit::type demog {
     #           lfremain(n) * jobsremain(m) = 0
     #
     # The result of this calculation is returned to the caller.
+    # 
+    # The following variables are used in the algorithm below given the
+    # input eproximity value:
+    #
+    #    laborAvailableToNb(n) - total amount of labor available to n
+    #    jobOffersToNb(n)      - total number of job offers given to n
+    #    jobOffers(n,m)        - job offers by nbhood n to labor in nbhood m
+    #    jobsFilled(n,m)       - jobs filled in nbhood n by labor in nbhood m
 
     typemethod AllocateJobsByPriority {prio} {
         # FIRST, initialize labor force available to each neighborhood 
         # and job offers made to each neighborhood
         foreach n [array names lfremain] {
-            set LFAvailToNb($n) 0
+            set laborAvailToNb($n) 0
         }
 
         foreach n [array names jobsremain] {
-            set jOffersToNb($n) 0
+            set jobOffersToNb($n) 0
         }
 
         # NEXT, create a mapping of neighborhoods that have jobs to
@@ -542,25 +550,23 @@ snit::type demog {
 
             # Total up workers available to each neighborhood
             foreach m $nbWithWorkers {
-               let LFAvailToNb($n) {$lfremain($m) + $LFAvailToNb($n)}
+               let laborAvailToNb($n) {$lfremain($m) + $laborAvailToNb($n)}
             }
         }
 
         # NEXT, go through neighborhoods with jobs and make job offers
         # to those workers available in other neighborhoods
         foreach n [dict keys $jmap] {
-
             foreach m [dict get $jmap $n] {
                 set jobOffers($n,$m) 0
 
                 # No labor force available, no job offers
-                if {$LFAvailToNb($n) == 0} {
+                if {$laborAvailToNb($n) == 0} {
                     set jobOffers($n,$m) 0
                 } else {
-                    let totalLF {double($lfremain($m))}
-                    let availLF {double($LFAvailToNb($n))}
                     let jobOffers($n,$m) {
-                        round($jobsremain($n) * ($totalLF / $availLF))
+                        ceil($jobsremain($n) * 
+                            ($lfremain($m) / $laborAvailToNb($n)))
                     }
                 }
             }
@@ -569,57 +575,61 @@ snit::type demog {
             # neighborhood that has the workers, there may be more
             # offers than there are workers
             foreach m [dict get $jmap $n] {
-                let jOffersToNb($m) {
-                    $jOffersToNb($m) + $jobOffers($n,$m)
+                let jobOffersToNb($m) {
+                    $jobOffersToNb($m) + $jobOffers($n,$m)
                 }
             }
         }
 
         # NEXT, given the available labor force determine how the jobs
-        # get filled in m by the workers available in each n
-        foreach m [dict keys $jmap] {
-            # Allocate jobs as filled positions
-            foreach n [dict get $jmap $m] {
-                set jRatio 0
-                set filledPos($m,$n) 0
-                if {$jOffersToNb($n) > 0} {
+        # get filled in n by the workers available in each m
+        foreach n [dict keys $jmap] {
+            foreach m [dict get $jmap $n] {
+                set jobsFilled($n,$m) 0
+
+                if {$jobOffersToNb($m) > 0} {
                     # If the total number of job offers to the neighborhood
-                    # is greater than the labor force remaining in the
-                    # neighborhood, we use the jobs ratio
-                    if {$jOffersToNb($n) >= $lfremain($n)} {
-                        let jRatio {
-                            double($jobOffers($m,$n)) / 
-                            double($jOffersToNb($n))
+                    # is greater than the labor force remaining, the ratio
+                    # of job offers in the neighborhood to the total number
+                    # of job offers is used
+                    if {$jobOffersToNb($m) >= $lfremain($m)} {
+                        let jobsFilled($n,$m) {
+                            ceil($lfremain($m) * 
+                                ($jobOffers($n,$m) / $jobOffersToNb($m)))
                         }
-                        let filledPos($m,$n) {round($lfremain($n) * $jRatio)}
                     } else {
-                        set filledPos($m,$n) $jobOffers($m,$n)
+                        set jobsFilled($n,$m) $jobOffers($n,$m)
                     }
                 } 
 
                 # Decrement the number of job offers by the number of
                 # filled positions
-                let jobOffers($m,$n) {$jobOffers($m,$n)-$filledPos($m,$n)}
+                let jobOffers($n,$m) {$jobOffers($n,$m)-$jobsFilled($n,$m)}
             }
         }
                 
         # NEXT, compute new totals of labor force remaining and jobs
-        # remaining given that jobs have been filled
+        # remaining now that jobs have been filled
         set morework 0
-        foreach m [dict keys $jmap] {
-            foreach n [dict get $jmap $m] {
-                # It's possible that the rounding done causes a -1 in either
+        foreach n [dict keys $jmap] {
+            foreach m [dict get $jmap $n] {
+                # It's possible that the ceil() function causes a -1 in the
                 # jobs remaining or labor force remaining, so guard against
                 # that
-                let lfremain($n) {max(0,$lfremain($n) - $filledPos($m,$n))}
-                let jobsremain($m) {max(0,$jobsremain($m) - $filledPos($m,$n))}
+                let lfremain($m) {
+                    max(0,$lfremain($m) - $jobsFilled($n,$m))
+                }
+                
+                let jobsremain($n) {
+                    max(0,$jobsremain($n) - $jobsFilled($n,$m))
+                }
 
                 # NEXT, determine if all possible jobs that could be filled
                 # have been
-                let morework {$morework + $lfremain($n)*$jobsremain($m)}
+                let morework {$morework + $lfremain($m)*$jobsremain($n)}
             }
         }
-        
+
         # NEXT, return the morework indicator
         return $morework
     }
@@ -650,9 +660,9 @@ snit::type demog {
                    FROM econ_n_view  AS E
                    JOIN demog_n AS D ON E.n=D.n
         } {
-            # Available jobs and available labor force as integers
-            let jobsremain($n) {round($jobs)}
-            let lfremain($n)   {round($LF * (1.0-$TurFrac))}
+            # Only whole jobs and whole people are considered
+            let jobsremain($n) {floor($jobs)}
+            let lfremain($n)   {floor($LF * (1.0-$TurFrac))}
         }
 
         # NEXT, based on neighborhood proximity as the priority, 
@@ -674,7 +684,13 @@ snit::type demog {
 
                     # If we haven't finished by 1000 iterations, something
                     # is completely hosed.
-                    assert {$iter < 1000}
+                    if {$iter >= 1000} {
+                        log debug demog \
+                            "Jobs remaining by nbhood: [array get jobsremain]"
+                        log debug demog \
+                            "Labor remaining by nbhood: [array get lfremain]"
+                        error "Disaggregation of unemployment failed"
+                    }
                 }
             } else {
                 break

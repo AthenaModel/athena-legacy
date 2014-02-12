@@ -1168,7 +1168,7 @@ snit::type econ {
 
             foreach n [nbhood local names] {
                 set cap [plant capacity n $n]
-                let jobs {$data(QS.pop) * $cap / $CAPgoods}
+                let jobs {floor($data(QS.pop) * $cap / $CAPgoods)}
                 
                 rdb eval {
                     UPDATE econ_n
