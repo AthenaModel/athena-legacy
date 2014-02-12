@@ -26,23 +26,7 @@ This page gives an overview of the data available through this browser:<p>
        </ul>
   <li> <a href="my://app/nbhoods">Neighborhoods</a>
        <ul>
-         <li> <a href="my://app/nbhoods/rel">Neighborhood Relationships</a>
-       </ul>
-  <li> <a href="my://app/parmdb">Model Parameters</a>
-       <ul>
-         <li> <a href="my://app/parmdb/sim">sim.*</a>
-         <li> <a href="my://app/parmdb/aam">aam.*</a>
-         <li> <a href="my://app/parmdb/activity">activity.*</a>
-         <li> <a href="my://app/parmdb/control">control.*</a>
-         <li> <a href="my://app/parmdb/dam">dam.*</a>
-         <li> <a href="my://app/parmdb/demsit">demsit.*</a>
-         <li> <a href="my://app/parmdb/demog">demog.*</a>
-         <li> <a href="my://app/parmdb/econ">econ.*</a>
-         <li> <a href="my://app/parmdb/ensit">ensit.*</a>
-         <li> <a href="my://app/parmdb/force">force.*</a>
-         <li> <a href="my://app/parmdb/gram">gram.*</a>
-         <li> <a href="my://app/parmdb/rmf">rmf.*</a>
-         <li> <a href="my://app/parmdb/strategy">strategy.*</a>
+         <li> <a href="my://app/nbhoods/prox">Neighborhood Proximities</a>
        </ul>
 </ul>
 
