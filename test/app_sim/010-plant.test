@@ -214,9 +214,7 @@ rho  0.5
     # exists
 
     test exists-1.1 {record exists} -setup {
-        setup
-        plant mutate create $p1
-        plant mutate create $p2
+        execute_setup
     } -body {
         plant exists [list NB1 JOE]
     } -cleanup {
@@ -225,10 +223,9 @@ rho  0.5
 
 
     test exists-1.2 {record does not exist} -setup {
-        setup
-        plant mutate create $p2
+        execute_setup
     } -body {
-        plant exists [list NB1 JOE]
+        plant exists [list FOO BAR]
     } -cleanup {
         cleanup
     } -result {0}

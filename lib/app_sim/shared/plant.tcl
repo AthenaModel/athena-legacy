@@ -675,7 +675,7 @@ snit::type plant {
     typemethod validate {id} {
         lassign $id n a
 
-        if {![plant exists $id]} {
+        if {![rdb exists {SELECT * FROM plants_shares WHERE n=$n AND a=$a}]} {
             return -code error -errorcode INVALID \
                 "Invalid plant ID \"$id\"."
         }
@@ -695,7 +695,7 @@ snit::type plant {
         lassign $id n a
 
         return [rdb exists {
-            SELECT * FROM plants_shares WHERE n=$n AND a=$a
+            SELECT * FROM plants_na WHERE n=$n AND a=$a
         }]
     }
 
@@ -825,6 +825,12 @@ snit::type plant {
     #---------------------------------------------------------------------
     # Order Helpers
 
+    typemethod actorOwnsShares {n a} {
+        return [rdb exists {
+            SELECT * FROM plants_shares WHERE n=$n AND a=$a
+        }]
+    }
+
     # notAllocatedTo   a
     #
     # a     An agent
@@ -882,7 +888,7 @@ order define PLANT:SHARES:CREATE {
 
     # Cross check n 
     validate n {
-        if {[plant exists [list $parms(n) $parms(a)]]} {
+        if {[plant actorOwnsShares $parms(n) $parms(a)]} {
             reject n \
                 "Agent $parms(a) already ownes a share of the plants in $parms(n)"
         }
