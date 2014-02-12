@@ -877,8 +877,6 @@ tab "Physical/Security" {
     100.  The higher the volatility, the lower the <<term security>> of all
     groups in the neighborhood.<p>
 
-    This number reflects the volatility gain.<p>
-
     Note that this number is constant across groups in a neighborhood.
     <</topic>>
 
