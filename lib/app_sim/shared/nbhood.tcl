@@ -539,7 +539,7 @@ order define NBHOOD:CREATE {
     prepare local         -toupper            -required -type boolean
     prepare urbanization  -toupper            -required -type eurbanization
     prepare controller    -toupper            -required -type {ptype a+none}
-    prepare pcf           -num                -required -type rnonneg
+    prepare pcf           -num                          -type rnonneg
     prepare refpoint      -toupper            -required -type refpoint
     prepare polygon       -normalize -toupper -required -type refpoly
 
@@ -577,17 +577,19 @@ order define NBHOOD:CREATE {
             reject refpoint "not in polygon"
         }
     }
-    
+
+    # NEXT, If non-local pcf is 0.0, otherwise validate it
+    if {!$parms(local)} {
+        set parms(pcf) 0.0
+    } elseif {[catch {rnonneg validate $parms(pcf)} result]} {
+        reject pcf $result
+    }
+   
     returnOnError -final
 
     # NEXT, If longname is "", defaults to ID.
     if {$parms(longname) eq ""} {
         set parms(longname) $parms(n)
-    }
-
-    # NEXT, If non-local pcf is 0.0
-    if {!$parms(local)} {
-        set parms(pcf) 0.0
     }
 
     # NEXT, create the neighborhood and dependent entities
