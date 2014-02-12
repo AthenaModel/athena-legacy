@@ -131,7 +131,7 @@ order MAD:CREATE "Create Magic Attitude Driver" {
 order MAD:DELETE "Delete Magic Attitude Driver" {
     <<parmlist>>
 
-    <<parm driver_id "MAD ID">>
+    <<parm mad_id "MAD ID">>
     <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to delete.
     <</parm>>
     <</parmlist>>
@@ -145,7 +145,7 @@ order MAD:DELETE "Delete Magic Attitude Driver" {
 order MAD:UPDATE "Update Magic Attitude Driver" {
     <<parmlist>>
 
-    <<parm driver_id "MAD ID">>
+    <<parm mad_id "MAD ID">>
     <b>Required.</b>  The ID of the Magic Attitude Driver (MAD) to update.
     <</parm>>
 
@@ -179,7 +179,7 @@ order MAD:UPDATE "Update Magic Attitude Driver" {
 order MAD:HREL "Magic Horizontal Relationship Input" {
     <<parmlist>>
     
-    <<parm driver_id "MAD ID">>
+    <<parm mad_id "MAD ID">>
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
@@ -218,7 +218,7 @@ order MAD:HREL "Magic Horizontal Relationship Input" {
 order MAD:VREL "Magic Vertical Relationship Input" {
     <<parmlist>>
     
-    <<parm driver_id "MAD ID">>
+    <<parm mad_id "MAD ID">>
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
@@ -257,7 +257,7 @@ order MAD:VREL "Magic Vertical Relationship Input" {
 order MAD:SAT "Magic Satisfaction Input" {
     <<parmlist>>
     
-    <<parm driver_id "MAD ID">>
+    <<parm mad_id "MAD ID">>
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
@@ -297,7 +297,7 @@ order MAD:SAT "Magic Satisfaction Input" {
 order MAD:COOP "Magic Cooperation Input" {
     <<parmlist>>
     
-    <<parm driver_id "MAD ID">>
+    <<parm mad_id "MAD ID">>
     <b>Required.</b>  <<MAD.mad>>
     <</parm>>
 
