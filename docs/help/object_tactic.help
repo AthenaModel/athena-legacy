@@ -93,6 +93,8 @@ page /object tactic "Tactic" {
 object tactic_assign {
     noun "ASSIGN tactic"
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> assigns an 
         abstract <<term activity>> to an <<term actor>>'s
         <<term frcgroup>> or <<term orggroup>> personnel
@@ -222,6 +224,8 @@ page /object/tactic assign "ASSIGN tactic" {
 object tactic_attrit {
     noun "ATTRIT tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> causes magic attrition to a neighborhood
         or to a specific group in a neighborhood.<p>
 
@@ -301,6 +305,8 @@ page /object/tactic attrit "ATTRIT tactic" {
 object tactic_attroe {
     noun "ATTROE tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> sets the attacking <<term roe>> for 
         force groups belonging to an <<term actor>>.<p>
 
@@ -423,6 +429,8 @@ page /object/tactic attroe "ATTROE tactic" {
 object tactic_broadcast {
     noun "BROADCAST tactic"
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> broadcasts an <<term iom>> via a
         <<term cap>>.  The message may be attributed to a particular 
         actor, including the owner, or may be anonymous.  The message
@@ -480,6 +488,8 @@ page /object/tactic broadcast "BROADCAST tactic" {
 object tactic_build {
     noun "BUILD tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> allows an <<term actor>> to construct
         new goods sector production infrastructure thereby increasing the
         output capacity of that sector.<p>
@@ -555,6 +565,8 @@ page /object/tactic build "BUILD tactic" {
 object tactic_curse {
     noun "CURSE tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This SYSTEM <<term tactic>> causes a Complex User-defined
         Role-based Situation and Event (or CURSE) to be executed with
         all of it's injects.  Injects associated with a CURSE cause
@@ -598,6 +610,8 @@ page /object/tactic curse "CURSE tactic" {
 object tactic_damage {
     noun "DAMAGE tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This SYSTEM <<term tactic>> sets the average repair level for goods
         production infrastructure <<term plant>>s owned by an <<term actor>>
         in a <<term nbhood>>.  It's possible to use this tactic not only to 
@@ -642,6 +656,8 @@ page /object/tactic damage "DAMAGE tactic" {
 object tactic_defroe {
     noun "DEFROE tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> sets the defensive <<term roe>> for 
         uniformed <<term frcgroup>>s belonging to an <<term actor>>.<p>
 
@@ -712,6 +728,8 @@ page /object/tactic defroe "DEFROE tactic" {
 object tactic_demob {
     noun "DEMOB tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This tactic demobilizes 
         <<term frcgroup>> or 
         <<term orggroup>> personnel,
@@ -791,6 +809,8 @@ page /object/tactic demob "DEMOB tactic" {
 object tactic_deploy {
     noun "DEPLOY tactic"
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> deploys an <<term actor>>'s
         <<term frcgroup>> or <<term orggroup>> personnel
         into particular <<term nbhood>>s.  The personnel must already
@@ -944,6 +964,8 @@ object tactic_deposit {
     noun "DEPOSIT tactic"
 
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> allows the <<term actor>> to deposit
         a sum of money from his cash-on-hand into his cash reserve.
         The funds can then be withdrawn for spending using the
@@ -1021,6 +1043,8 @@ page /object/tactic deposit "DEPOSIT tactic" {
 object tactic_executive {
     noun "EXECUTIVE tactic"
     overview {
+        <b>Can execute on lock.</b><p>
+        
         This <<term tactic>> executes an Athena 
         <<cref /command "executive command">>, possibly affecting the 
         state of the simulation.
@@ -1058,6 +1082,8 @@ object tactic_flow {
     noun "FLOW tactic"
 
     overview {
+        <b>Ignored on lock.</b><p>
+
         This SYSTEM <<term tactic>> causes population to flow from
         one civilian group to another.  There are several ways to specify
         the number of people to transfer between the groups.  
@@ -1143,6 +1169,8 @@ object tactic_fund {
     noun "FUND tactic"
 
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> allows an <<term actor>> to give
         a sum of money from his cash-on-hand to another <<term actor>>. 
 
@@ -1223,6 +1251,8 @@ object tactic_fundeni {
     noun "FUNDENI tactic"
 
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> funds Essential Non-Infrastructure (ENI) 
         services for one or more <<term civgroup>>s living in 
         <<term local_economy "local">> neighborhoods.  The <<term actor>>
@@ -1346,6 +1376,8 @@ page /object/tactic fundeni "FUNDENI tactic" {
 object tactic_grant {
     noun "GRANT tactic"
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> grants one or more <<term actor>>s access to
         one or more of the tactic owner's <<term cap>>s.  The actors 
         granted access can then 
@@ -1389,6 +1421,8 @@ object tactic_maintain {
     noun "MAINTAIN tactic"
 
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> spends money to maintain the manufacturing
         infrastructure owned by an <<term actor>> in the
         neighborhoods specified.  The <<term actor>>
@@ -1513,6 +1547,8 @@ page /object/tactic maintain "MAINTAIN tactic" {
 object tactic_mobilize {
     noun "MOBILIZE tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This tactic mobilizes 
         <<term frcgroup>> or 
         <<term orggroup>> personnel,
@@ -1601,6 +1637,8 @@ page /object/tactic mobilize "MOBILIZE tactic" {
 object tactic_sigevent {
     noun "SIGEVENT tactic"
     overview {
+        <b>Ignored on lock.</b><p>
+
         This tactic logs a message to the significant events log.
         The message will have a log level of 1 (highest priority) and
         a component field of "tactic".<p>
@@ -1634,6 +1672,8 @@ object tactic_spend {
     noun "SPEND tactic"
 
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> allows the <<term actor>> to spend
         a sum of money from his cash-on-hand to the various 
         sectors in the economy according to some amount of shares
@@ -1739,6 +1779,8 @@ page /object/tactic spend "SPEND tactic" {
 object tactic_stance {
     noun "STANCE tactic"
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> allows an <<term actor>> to 
         tell his force groups to adopt a particular 
         <<term stance>> towards other groups.  This stance is a 
@@ -1803,6 +1845,8 @@ page /object/tactic stance "STANCE tactic" {
 object tactic_support {
     noun "SUPPORT tactic"
     overview {
+        <b>Can execute on lock.</b><p>
+
         This <<term tactic>> allows an <<term actor>> to determine who
         will receive his political support in one or more
         <<term nbhood>>s.  Each actor has an actor he usually
@@ -1860,6 +1904,8 @@ object tactic_withdraw {
     noun "WITHDRAW tactic"
 
     overview {
+        <b>Ignored on lock.</b><p>
+
         This <<term tactic>> allows the <<term actor>> to withdraw
         a sum of money from his cash reserve into his cash-on-hand
         so that it can be spent on other tactics.  Funds are deposited
