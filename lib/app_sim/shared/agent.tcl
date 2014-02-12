@@ -118,10 +118,16 @@ snit::type agent {
 
         dict set result blocks [llength [$s blocks]]
 
+        set nc 0
+        set nt 0
+
         foreach block [$s blocks] {
-            dict set result conditions [llength [$block conditions]]
-            dict set result tactics    [llength [$block tactics]]
+            incr nc [llength [$block conditions]]
+            incr nt [llength [$block tactics]]
         }
+
+        dict set result conditions $nc
+        dict set result tactics    $nt
 
         return $result
     }
