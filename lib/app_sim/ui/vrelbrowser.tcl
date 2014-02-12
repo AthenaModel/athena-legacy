@@ -72,18 +72,18 @@ snit::widgetadaptor vrelbrowser {
             }
         }
         simulation {
-            -view gui_uram_sat
+            -view gui_uram_vrel
             -views {}
             -layout {
-                { g        "Group"                                        }
-                { c        "Concern"                                      }
-                { n        "Nbhood"                                       }
-                { sat      "Current"        -sortmode real -foreground %D }
-                { base     "Baseline"       -sortmode real -foreground %D }
-                { nat      "Natural"                       -foreground %D }
-                { sat0     "Current at T0"  -sortmode real -foreground %D }
-                { base0    "Baseline at T0" -sortmode real                }
-                { nat0     "Natural at T0"                 -foreground %D }
+                {g        "Of Group G"                                   }
+                {a        "With Actor A"                                 }
+                {gtype    "G Type"                                       }
+                {vrel     "Current"        -sortmode real -foreground %D }
+                {base     "Baseline"       -sortmode real -foreground %D }
+                {nat      "Natural"        -sortmode real -foreground %D }
+                {vrel0    "Current at T0"  -sortmode real -foreground %D }
+                {base0    "Baseline at T0" -sortmode real                }
+                {nat0     "Natural at T0"  -sortmode real -foreground %D }
             }
             -reloadon {
                 ::sim <Tick>
