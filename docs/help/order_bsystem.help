@@ -47,6 +47,46 @@ page /order bsystem "Belief System Orders" {
 
 #-----------------------------------------------------------------------
 
+order BSYSTEM:PLAYBOX+UPDATE "Update Playbox-wide Belief System Parameters" {
+    <b><<term prep>> Only.</b>  This order sets the playbox commonality 
+    figure.
+
+    <<parmlist>>
+    <<parm gamma "Playbox Commonality">>
+    <b>Required.</b>  The playbox commonality is the number of virtual topics 
+    on which there is general agreement among the people of the playbox.  
+    Increasing the playbox commonality generally increases all affinities;
+    decreasing it decreases them.
+    <</parm>>
+
+    <</parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
+
+order BSYSTEM:ENTITY+UPDATE "Update Belief System Entity" {
+    <b><<term prep>> Only.</b>  This order sets the entity commonality 
+    figure for a belief system entity.
+
+    <<parmlist>>
+    <<parm eid "Entity ID">>
+    <b>Required.</b>  The ID of a belief system entity, i.e., an 
+    <<term actor>> or <<term civgroup>>.<p>
+
+    <<parm commonality "Commonality Fraction">>
+    <b>Required.</b>  The entity's commonality fraction is the degree to
+    which it shares in the general culture of the playbox as a whole, i.e.,
+    the degree to which it shares the playbox commonality.  Increasing
+    or decreasing the entity's commonality fraction will generally increase or
+    decrease its affinity with other entities. 
+    <</parm>>
+
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+
 page /order/bsystem topic "Topic Orders" {
     <<title>>
 
