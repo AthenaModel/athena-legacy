@@ -112,7 +112,10 @@ order BLOCK:TACTIC+MOVE "Move Tactic Within Block" {
     <<parm where "Where">>
     Where to move the tactic, one of the following symbolic values:<p>
 
-    <<emoveitem html>>
+    <b>top</b>: Move to top<br>
+    <b>up</b>: Move up one slot<br>
+    <b>down</b>: Move down one slot<br>
+    <b>bottom</b>: Move to bottom<p>
     <</parm>>
 
     <</parmlist>>
