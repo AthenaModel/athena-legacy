@@ -745,6 +745,34 @@ snit::type plant {
         return [expr {$totBkts * $goodsPerPlant}]
     }
 
+    # number total
+    #
+    # Returns the total number of plants in the playbox
+
+    typemethod {number total} {} {
+        return [rdb eval {SELECT total(num) FROM plants_na}]
+    }
+
+    # number n
+    #
+    # n   - A neighborhood
+    #
+    # Returns the total number of plants in the supplied neighborhood
+
+    typemethod {number n} {n} {
+        return [rdb eval {SELECT total(num) FROM plants_na WHERE n=$n}]
+    }
+
+    # number a
+    #
+    # a   - An agent
+    #
+    # Returns the total number of plants owned by the supplied agent
+
+    typemethod {number a} {a} {
+        return [rdb eval {SELECT total(num) FROM plants_na WHERE a=$a}]
+    }
+
     #-----------------------------------------------------------------------
     # Mutators
     #

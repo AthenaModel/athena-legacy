@@ -510,6 +510,57 @@ rho  0.5
         cleanup
     } -result {1}
 
+    #-------------------------------------------------------------------
+    # number
+
+    test number-1.1 {total, by nbhood and by actor} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+        ted create BLUE 
+        ted lock
+        rdb eval {UPDATE plants_na SET num=10}
+    } -body {
+        set a [plant number total]
+        set b [plant number n NB1]
+        set c [plant number a JOE]
+
+        list $a $b $c
+    } -cleanup {
+        cleanup
+    } -result {20.0 20.0 10.0}
+
+    test number-1.2 {summed by nbhood equals total} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+        ted create BLUE 
+        ted lock
+    } -body {
+        set a [plant number total]
+        set b [expr {[plant number n NB1] + [plant number n NB2]}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test number-1.3 {summed by agent equals total} -setup {
+        setup
+        plant mutate create $p1
+        plant mutate create $p2
+        ted create BLUE 
+        ted lock
+    } -body {
+        set a [plant number total]
+        set b [expr {[plant number a JOE] +
+                     [plant number a BOB] +
+                     [plant number a SYSTEM]}]
+
+        expr {$a eq $b}
+    } -cleanup {
+        cleanup
+    } -result {1}
 
     #-------------------------------------------------------------------
     # Cleanup
