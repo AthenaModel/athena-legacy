@@ -122,7 +122,7 @@ appserver module ACTOR {
             "#sphere"    "Sphere of Influence"
             "#base"      "Power Base"
             "#eni"       "ENI Funding"
-            "#infra"     "Infrastructure Ownership"
+            "#infra"     "GOODS Plant Ownership"
             "#cap"       "CAP Ownership"
             "#forces"    "Force Deployment"
             "#attack"    "Attack Status"
@@ -321,8 +321,8 @@ appserver module ACTOR {
             } -align LLRRRRR
         } 
 
-        # Infrastructure Ownership
-        ht subtitle "Infrastructure Ownership" infra
+        # GOODS Plant Ownership
+        ht subtitle "GOODS Plant Ownership" infra
 
         if {![locked]} {
             set nbhoods [rdb eval {
