@@ -11,6 +11,37 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.11, 13 February 2014</h3>
+This build is entirely bug fixes and documentation changes, there is no
+new functionality. The list of packages:<p>
+
+<ul>
+<li> Bug 4229: autogen scenario with a strategy block causes bgerror
+<li> Bug 4266: econ.bktsPerYear.goods set to zero causes bgerror
+<li> Bug 4345: repair levels on Infrastructure / GOODS Plants tab not updating
+<li> Bug 4347: zero shares of production plants causes bgerror
+<li> Bug 4348: neighborhood with no consumers should not reduce total number of plants
+<li> Bug 4351: GeoUnemployment bgerror
+<li> Bug 4353: Unable to create non-local neighborhoods with NBHOOD:CREATE dialog
+<li> Bug 4354: DAMAGE tactic does not recognize all plants
+<li> Bug 4355: actors can have shares of plants in non-local neighborhoods
+<li> Bug 4356: athena(1): implement "number" API to plant module
+<li> Bug 4357: Add agent column to Infrastructure page when in prep
+<li> Bug 4358: Infrastructure on actor page of Detail browser
+<li> Bug 4359: "manufacturing infrastructure/plants" still exists in help pages
+<li> Bug 4176: athena(1): MAD:* help pages refer to "driver_id", not "mad_id".
+<li> Bug 4211: BLOCK:TACTIC:ADD order missing from help
+<li> Bug 4263: STRATEGY:BLOCK:MOVE help page is misleading
+<li> Bug 4267: athena(1): Some of the BSYSTEM:* orders are missing from the help
+<li> Bug 4311: athena(1): CONTROL Condition
+<li> Bug 4326: Help pages mention volatility gain
+<li> Bug 4337: my://app/agents page displays incorrect number of tactics and conditions
+<li> Bug 4339: We need a list of tactics that do and do not execute on lock
+<li> Bug 4346: PMESII-PT tab help page updates
+<li> Bug 4349: VRel tab displays satisfaction
+<li> Bug 4352: Broken links on Overview page of Detail browser 
+</ul><p>
+
 <h3>Build 6.0.10, 6 February 2014</h3>
 This build contains a complete retooling of the layout of Athena's tabs to
 be in line with the PMESII-PT acronym.  Thus you will see tabs titled:
