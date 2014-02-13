@@ -325,25 +325,27 @@ appserver module ACTOR {
         ht subtitle "Infrastructure Ownership" infra
 
         if {![locked]} {
-            ht put {
-                The shares of plants that this actor will get when
-                the scenario is locked is as follows.  When the 
-                scenario is locked the actual number of plants owned
-                by this actor and thier true repair level will be 
-                shown.
-            }
-
-            ht para
-
-            ht query {
-                SELECT nlink   AS "Neighborhood",
-                       num     AS "Shares",
-                       rho     AS "Initial Repair Level"
-                FROM gui_plants_na
+            set nbhoods [rdb eval {
+                SELECT nlink FROM gui_plants_alloc
                 WHERE a=$a
-                ORDER BY nlink
-            } -default "None." -align LLL
+            }]
+
+            if {[llength $nbhoods] == 0} {
+
+                ht put "
+                    $a is not currently allocated any shares of GOODS
+                    production infrastructure.
+                "
+            } else {
                 
+                set nlist [join $nbhoods ", "]
+
+                ht put "$a has been allocated shares of GOODS production "
+                ht put "infrastructure in these neighborhoods: $nlist. See $a's"
+                ht put "[ht link /plant/$a/ " infrastructure page"] "
+                ht put "for more."
+                ht para
+            }
         } else {
 
             if {[parmdb get econ.disable]} {
@@ -354,36 +356,44 @@ appserver module ACTOR {
                 
                 ht para
             } else {
-                ht put {
-                    GOODS production plants ownership by this actor is as
-                    follows.  Note that plants under construction will not
-                    appear in this table until they are 100% complete.
-                }
-
-                ht para
-
-                ht query  {
-                    SELECT nlink  AS "Neighborhood",
-                           num    AS "Plants<br>Owned",
-                           rho    AS "Average<br>Repair Level"
-                    FROM gui_plants_na
+                set nbhoods [rdb eval {
+                    SELECT nlink FROM gui_plants_na
                     WHERE a=$a
-                    ORDER BY nlink
-                } -default "None." -align LLL
+                }]
+
+                if {[llength $nbhoods] == 0} {
+                    ht put {
+                        This actor does not own any GOODS production 
+                        infrastructure.
+                    }
+                } else {
+
+                    set nlist [join $nbhoods ", "]
+                    set num [rdb eval {
+                        SELECT sum(num) FROM gui_plants_na
+                        WHERE a=$a
+                    }]
+
+                    ht put "$a owns $num GOODS production infrastructure "
+                    ht put "plants in these neighborhoods: $nlist. "
+                    ht put "See $a's "
+                    ht put "[ht link /plant/$a/ "infrastructure page"] "
+                    ht put "for more."
+                }
 
                 ht para
 
                 if {$data(auto_maintain)} {
                     ht put {
-                        This actor is automatically maintaining all owned
-                        infrastructure.  The repair level will remain at
-                        the initial level.
+                        This actor automatically maintains GOODS production
+                        infrastructure.  The repair level will not degrade
+                        with time.
                     }
 
                 } else {
                     ht put {
                         This actor must pay to maintain infrastructure
-                        it owns or it will fall into disrepair reducing the
+                        or it will fall into disrepair reducing the
                         production of goods for the economy.
                     }
                 } 
@@ -400,78 +410,6 @@ appserver module ACTOR {
                 "
 
                 ht para
-
-                ht put "The following table breaks down GOODS production "
-                ht put "plants under construction by neighborhood into "
-                ht put "ranges of percentage complete."
-                ht para
-        
-                ht push 
-        
-                ht table {
-                    "Nbhood" "Total" "&lt 20%" "20%-40%" 
-                    "40%-60%" "60%-80%" "&gt 80%" 
-                } {
-                    rdb eval {
-                        SELECT n, nlink, levels, num
-                        FROM gui_plants_build
-                        WHERE a=$a
-                    } {
-                        array set bins {0 0 20 0 40 0 60 0 80 0}
-                        foreach lvl $levels {
-                            if {$lvl < 0.2} {
-                                incr bins(0)
-                            } elseif {$lvl >= 0.2 && $lvl < 0.4} {
-                                incr bins(20)
-                            } elseif {$lvl >= 0.4 && $lvl < 0.6} {
-                                incr bins(40)
-                            } elseif {$lvl >= 0.6 && $lvl < 0.8} {
-                                incr bins(60)
-                            } elseif {$lvl >= 0.8} {
-                                incr bins(80)
-                            }
-                        }
-        
-                        ht tr {
-                            ht td left {
-                                ht put $nlink
-                            }
-        
-                            ht td center {
-                                ht put $num
-                            }
-        
-                            ht td center {
-                                ht put $bins(0)
-                            }
-        
-                            ht td center {
-                                ht put $bins(20)
-                            }
-        
-                            ht td center {
-                                ht put $bins(40)
-                            }
-        
-                            ht td center {
-                                ht put $bins(60)
-                            }
-        
-                            ht td center {
-                                ht put $bins(80)
-                            }
-        
-                        }
-                    }
-                }
-
-                set text [ht pop]
-        
-                if {[ht rowcount] > 0} {
-                    ht putln $text
-                } else {
-                    ht putln "This actor has no plants under construction."
-                }
             }
         }
 

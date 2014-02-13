@@ -95,6 +95,19 @@ LEFT OUTER JOIN demog_n AS D USING (n)
 WHERE C.sa_flag=0
 GROUP BY n;
 
+-- Plants allocation view. Used during prep by appserver pages to give
+-- an estimate of the breakdown of goods production plants in 
+-- neighborhoods by neighborhood and agent.
+
+CREATE VIEW plants_alloc_view AS
+SELECT N.n                     AS n,
+       N.pcf                   AS pcf,
+       coalesce(PS.a,'SYSTEM') AS a,
+       coalesce(PS.num,1)      AS shares,
+       coalesce(PS.rho,1.0)    AS rho
+FROM local_nbhoods AS N
+LEFT OUTER JOIN plants_shares AS PS USING (n);
+
 ------------------------------------------------------------------------
 -- End of File
 ------------------------------------------------------------------------

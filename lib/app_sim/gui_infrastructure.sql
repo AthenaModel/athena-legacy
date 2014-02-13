@@ -46,6 +46,23 @@ FROM plants_shares         AS PS
 JOIN gui_nbhoods           AS N  ON (PS.n=N.n)
 LEFT OUTER JOIN gui_actors AS A  ON (PS.a=A.a);
 
+CREATE TEMPORARY VIEW gui_plants_alloc AS
+SELECT PA.n || ' ' || PA.a                     AS id,
+       PA.n                                    AS n,
+       PA.pcf                                  AS pcf,
+       N.link                                  AS nlink,
+       PA.a                                    AS a,
+       'my://app/plant/' || AG.agent_id        AS url,
+       AG.agent_id                             AS fancy, 
+       coalesce(A.link, AG.link)               AS alink,
+       coalesce(A.pretty_am_flag, 'Yes')       AS auto_maintain,
+       format('%.2f', PA.rho)                  AS rho,
+       PA.shares                               AS shares
+FROM plants_alloc_view     AS PA
+JOIN gui_nbhoods           AS N  ON (PA.n=N.n)
+LEFT OUTER JOIN gui_agents AS AG ON (PA.a=AG.agent_id)
+LEFT OUTER JOIN gui_actors AS A  ON (PA.a=A.a);
+
 CREATE TEMPORARY VIEW gui_plants_build AS
 SELECT N.link                            AS nlink,
        B.n                               AS n,
@@ -59,6 +76,7 @@ JOIN gui_actors  AS A ON (A.a=B.a);
 
 CREATE TEMPORARY VIEW gui_plants_n AS
 SELECT N.longlink                        AS nlonglink,
+       N.link                            AS nlink,
        P.n                               AS n,
        P.pcf                             AS pcf,
        P.nbpop                           AS nbpop

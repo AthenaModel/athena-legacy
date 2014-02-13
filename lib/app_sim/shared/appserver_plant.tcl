@@ -26,6 +26,7 @@ appserver module PLANT {
     typemethod init {} {
         # FIRST, register the resource types
         appserver register /plants/ {plants/?} \
+            tcl/linkdict [myproc /plants:linkdict] \
             text/html    [myproc /plants:html] {
                 Links to defined GOODS production infrastructure.
             }
@@ -33,8 +34,29 @@ appserver module PLANT {
         appserver register /plants/detail/  {plants/detail/?} \
             text/html  [myproc /plants/detail:html]            \
             "Links to the bins of plants under construction."
+
+        appserver register /plant/{agent}  {plant/(\w+)/?} \
+            text/html  [myproc /plant:html]            \
+            "Page for agent {agent}'s infrastructure." 
     }
 
+
+    #-------------------------------------------------------------------
+    # /plants: Agents/Nbhoods with goods production infrastructure
+    #
+    # No match parameters
+
+    # /plants:linkdict udict matchArray
+    #
+    # tcl/linkdict of agents the own infrastructure
+
+    proc /plants:linkdict {udcit matchArray} {
+        return [objects:linkdict {
+            label   "Infrastructure"
+            listIcon ::projectgui::icon::plant12
+            table    gui_plants_alloc
+        }]
+    }
 
     # /plants:html udict matchArray
     #
@@ -64,29 +86,46 @@ appserver module PLANT {
 
                 ht put   "The following table is an estimate of GOODS "
                 ht put   "production plant distribution in the playbox "
-                ht put   "given the neighborhoods and neighborhood "
-                ht put   "populations currently defined.  Only local "
-                ht put   "neighborhoods can contain GOODS production "
-                ht putln "GOODS production infrastructure."
+                ht put   "given the neighborhoods, owning agents and "
+                ht put   "neighborhood populations currently defined. "
+                ht put   "Only local neighborhoods can contain GOODS "
+                ht putln "production infrastructure."
                 ht para 
 
                 ht table {
-                    "Neighborhood" "Capacity<br>Factor" "Base Pop."
-                    "% of GOODS<br>Production Plants"
+                    "Neighborhood" "Agent" "Shares" "Capacity<br>Factor" 
+                    "Base Pop." "% of GOODS<br>Production Plants"
                 } {
                     rdb eval {
-                        SELECT nlonglink      AS link,
+                        SELECT n              AS n,
+                               nlink          AS nlink,
                                pcf            AS pcf,
                                nbpop          AS nbpop 
                         FROM gui_plants_n
-                    } row {
-                        set pct  [expr {$row(nbpop)*$row(pcf)/$adjpop*100.0}]
+                        ORDER by nlink
+                    } {
+                        set totshares [rdb eval {
+                            SELECT total(shares) FROM plants_alloc_view
+                            WHERE n=$n
+                        }]
 
-                        ht tr {
-                            ht td left  { ht put $row(link)                 }
-                            ht td right { ht put [format "%4.1f" $row(pcf)] }
-                            ht td right { ht put $row(nbpop)                }
-                            ht td right { ht put [format "%4.1f" $pct]      }
+                        foreach {shares alink} [rdb eval {
+                            SELECT shares, alink FROM gui_plants_alloc
+                            WHERE n=$n
+                        }] {
+                            let sharepct {double($shares)/double($totshares)}
+                            let plantpct {$sharepct*$nbpop*$pcf/$adjpop*100.0}
+                            set fpcf [format "%4.1f" $pcf]
+                            set fpct [format "%4.1f" $plantpct]
+
+                            ht tr {
+                                ht td left  { ht put $nlink   }
+                                ht td left  { ht put $alink  }
+                                ht td left  { ht put $shares }
+                                ht td right { ht put $fpcf   }
+                                ht td right { ht put $nbpop  }
+                                ht td right { ht put $fpct   }
+                            }
                         }
                     }
                 } 
@@ -217,6 +256,11 @@ appserver module PLANT {
         return [ht get]
     }
 
+    # /plants/detail:html udict matchArray
+    #
+    # Details about goods production infrastructure that is under
+    # construction
+
     proc /plants/detail:html {udict matchArray} {
         upvar 1 $matchArray ""
 
@@ -314,6 +358,182 @@ appserver module PLANT {
 
         ht /page
 
+        return [ht get]
+    }
+     
+    #-------------------------------------------------------------------
+    # /plant/{agent}:  A single {agent}'s infrastructure
+    #
+    # Match Parameters:
+    # {agent} => $1  - The agent's short name
+
+    # /plant:html udict matchArray
+    #
+    # Index page for a single agent's infrastructure
+
+    proc /plant:html {udict matchArray} {
+        upvar 1 $matchArray ""
+
+        set a [string toupper $(1)]
+
+        if {$a ni [agent names]} {
+            return -code error -errorcode NOTFOUND \
+                "Unknown entity: [dict get $udict url]."
+        }
+
+        ht page "Agent: $a GOODS Production Infrastructure"
+        ht title "Agent: $a GOODS Production Infrastructure"
+
+        if {![locked]} {
+            set adjpop 0
+            rdb eval {
+                SELECT nbpop, pcf
+                FROM plants_n_view
+            } row {
+                let adjpop {$adjpop + $row(nbpop)*$row(pcf)}
+            }
+
+            if {$adjpop > 0} {
+                ht para
+
+                ht put   "The following table is an estimate of GOODS "
+                ht put   "production plant distribution for $a in the playbox "
+                ht put   "given the neighborhoods and "
+                ht put   "neighborhood populations currently defined. "
+                ht put   "Only local neighborhoods can contain GOODS "
+                ht putln "production infrastructure."
+                ht para 
+
+                ht table {
+                    "Neighborhood" "Shares" "Capacity<br>Factor" 
+                    "Base Pop." "% of GOODS<br>Production Plants"
+                } {
+                    rdb eval {
+                        SELECT n              AS n,
+                               nlink          AS nlink,
+                               pcf            AS pcf,
+                               nbpop          AS nbpop 
+                        FROM gui_plants_n
+                    } {
+                        set totshares [rdb eval {
+                            SELECT total(shares) FROM plants_alloc_view
+                            WHERE n=$n
+                        }]
+
+                        foreach {shares alink} [rdb eval {
+                            SELECT shares, alink FROM gui_plants_alloc
+                            WHERE n=$n AND a=$a
+                        }] {
+                            let sharepct {double($shares)/double($totshares)}
+                            let plantpct {$sharepct*$nbpop*$pcf/$adjpop*100.0}
+                            set fpcf [format "%4.1f" $pcf]
+                            set fpct [format "%4.1f" $plantpct]
+
+                            ht tr {
+                                ht td left  { ht put $nlink   }
+                                ht td left  { ht put $shares }
+                                ht td right { ht put $fpcf   }
+                                ht td right { ht put $nbpop  }
+                                ht td right { ht put $fpct   }
+                            }
+                        }
+                    }
+                } 
+            } else {
+
+                ht put "None."
+                ht para
+            }
+
+        } else {
+
+            if {[parmdb get econ.disable]} {
+                ht para
+                ht put "The Economic model is disabled, so the infrastructure "
+                ht put "model is not in use."
+                ht para
+                ht /page
+                return [ht get]
+            }
+
+            ht para
+            ht put   "The following table shows the current laydown of "
+            ht put   "GOODS production plants owned by $a and their repair "
+            ht put   "levels.  Plants under construction will appear in "
+            ht put   "this table when they are 100% complete.  Non-local "
+            ht put   "neighborhoods do not appear in this table since GOODS "
+            ht put   "production infrastructure cannot exist in them."
+            ht para 
+
+            ht query {
+                SELECT nlink          AS "Neighborhood",
+                       num            AS "Plants In<br>Operation",
+                       auto_maintain  AS "Automatic<br>Maintenance?",
+                       rho            AS "Average<br>Repair Level"
+                FROM gui_plants_na WHERE a=$a
+                ORDER BY nlink
+            } -default "None." -align LLLL
+        }
+
+        if {![locked]} {
+            ht /page
+            return [ht get]
+        }
+
+        ht para
+
+        ht put "The following table breaks down GOODS production "
+        ht put "plants under construction by neighborhood into "
+        ht put "ranges of percentage complete."
+        ht para
+        
+        ht push 
+        
+        ht table {
+            "Nbhood" "Total" "&lt 20%" "20%-40%" 
+            "40%-60%" "60%-80%" "&gt 80%" 
+        } {
+            rdb eval {
+                SELECT n, nlink, levels, num
+                FROM gui_plants_build
+                WHERE a=$a
+            } {
+                array set bins {0 0 20 0 40 0 60 0 80 0}
+                foreach lvl $levels {
+                    if {$lvl < 0.2} {
+                        incr bins(0)
+                    } elseif {$lvl >= 0.2 && $lvl < 0.4} {
+                        incr bins(20)
+                    } elseif {$lvl >= 0.4 && $lvl < 0.6} {
+                        incr bins(40)
+                    } elseif {$lvl >= 0.6 && $lvl < 0.8} {
+                        incr bins(60)
+                    } elseif {$lvl >= 0.8} {
+                        incr bins(80)
+                    }
+                }
+        
+                ht tr {
+                    ht td left   { ht put $nlink    }
+                    ht td center { ht put $num      }
+                    ht td center { ht put $bins(0)  }
+                    ht td center { ht put $bins(20) }
+                    ht td center { ht put $bins(40) }
+                    ht td center { ht put $bins(60) }
+                    ht td center { ht put $bins(80) }
+                }
+            }
+        }
+
+        set text [ht pop]
+
+        if {[ht rowcount] > 0} {
+            ht putln $text
+        } else {
+            ht putln "$a has no plants under construction."
+        }
+
+        ht /page
         return [ht get]
     }
 
