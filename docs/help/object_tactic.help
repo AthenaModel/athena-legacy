@@ -1423,7 +1423,7 @@ object tactic_maintain {
     overview {
         <b>Ignored on lock.</b><p>
 
-        This <<term tactic>> spends money to maintain the manufacturing
+        This <<term tactic>> spends money to maintain the GOODS production
         infrastructure owned by an <<term actor>> in the
         neighborhoods specified.  The <<term actor>>
         may specify any amount of money as a cap on repair spending. The total

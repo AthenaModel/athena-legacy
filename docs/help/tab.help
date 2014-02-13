@@ -2586,7 +2586,7 @@ tab "Infrastructure/GOODS Plants" {
     <<topic "Owning Agent">>The ID of an actor, or 'SYSTEM'.<</topic>>
 
     <<topic "Average Repair Level">>The average repair level of all the
-    manufacturing plants owned by the agent in the neighborhood.<</topic>>
+    GOODS production plants owned by the agent in the neighborhood.<</topic>>
 
     <<topic "Shares/Number of GOODS Plants">>Either the shares or the actual
     number of plants that the agent is allocated in that neighborhood 

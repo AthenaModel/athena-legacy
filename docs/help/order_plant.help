@@ -40,7 +40,7 @@ order PLANT:SHARES+CREATE "Define GOODS Production Plant Shares" {
 
 order PLANT:SHARES+DELETE "Delete GOODS Production Plant Shares" {
     <b><<term prep>> Only.</b> Deletes the shares of 
-    manufacturing plants allocated to an <<term agent>>.
+    GOODS production plants allocated to an <<term agent>>.
     The order parameters are as follows:<p>
 
     <<parmlist>>

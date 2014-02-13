@@ -1801,30 +1801,30 @@ snit::type ::projectlib::parmdb {
 
 
         $ps subset plant {
-            Parameters which affect the manufacturing plant infrastructure
+            Parameters which affect the GOODS production infrastructure
             model.
         }
 
         $ps subset plant.bktsPerYear {
-            Parameters that control the average output of a manufacturing
-            plant in number of baskets produced per year.
+            Parameters that control the average output of a GOODS
+            production plant in number of baskets produced per year.
         }
 
         $ps define plant.bktsPerYear.goods ::projectlib::posmoney 1B {
-            The average output of a single manufacturing plant that makes
+            The average output of a single GOODS production plant that makes
             goods baskets when the plant is running at full capacity.
         }
 
         $ps define plant.lifetime ::projectlib::iquantity 156 {
-            The lifetime in weeks of an unmaintained manufacturing plant.
-            The production of goods by manufacturing plants will degrade
+            The lifetime in weeks of an unmaintained GOODS production plant.
+            The production of goods by plants will degrade
             to zero over this time span if no repair work is done.
             Setting this parameter to zero will cause plant degradation
             to be disabled.
         }
 
         $ps define plant.repairtime ::projectlib::iquantity 26 {
-            The time in weeks it takes to repair a manufacturing plant
+            The time in weeks it takes to repair a GOODS production plant
             from total disrepair to fully functional.  A plant in total
             disrepair does not mean that it is destroyed, just that
             it does not produce any goods.  Setting this parameter to
@@ -1833,18 +1833,18 @@ snit::type ::projectlib::parmdb {
         }
 
         $ps define plant.buildtime ::projectlib::iquantity 52 {
-            The average time in weeks it takes to build a manufacturing 
+            The average time in weeks it takes to build a GOODS production 
             plant from scratch.  The inverse of this number is the
             maximum fractional amount of construction that can take place
             in one week.
         }
 
         $ps define plant.buildcost ::projectlib::money 1B {
-            The average cost to build a manufacturing plant from scratch.
+            The average cost to build a GOODS production plant from scratch.
         }
 
         $ps define plant.repairfrac ::projectlib::rfraction 0.001 {
-            The cost to repair a manufacturing plant from total disrepair
+            The cost to repair a GOODS production plant from total disrepair
             to fully functional expressed as a fraction of the cost to
             build a plant from scratch.
         }
