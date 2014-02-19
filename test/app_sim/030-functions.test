@@ -137,7 +137,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr consumers("SHIA")
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {0}
 
     test consumers-2.2 {Unlocked, 2 civgroups} -setup {
         ted create JOE BOB SHIA SUNN NB1 NB2 
@@ -145,7 +145,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr consumers("SHIA","SUNN")
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {0}
 
     test consumers-2.3 {LOCKED - 1 civgroup} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
@@ -437,6 +437,34 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # local_consumers()
+
+    test local_consumers-1.1 {valid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex expr local_consumers()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test local_consumers-2.1 {Unlocked} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr local_consumers()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test local_consumers-2.2 {LOCKED} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr local_consumers()
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # mood()
 
     test mood-1.1 {invalid civ group} -setup {
@@ -490,7 +518,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr nbconsumers("NB1")
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {0}
 
     test nbconsumers-2.2 {Unlocked, 2 nbhoods} -setup {
         ted create JOE BOB SHIA SUNN NB1 NB2 
@@ -498,7 +526,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr nbconsumers("NB1","NB2")
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {0}
 
     test nbconsumers-2.3 {LOCKED - 1 nbhood} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD

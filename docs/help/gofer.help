@@ -2117,6 +2117,16 @@ gofer_rule NUMBER INFLUENCE "influence(a,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER LOCAL_CONSUMERS "local_consumers()" {
+    Returns the number of the <<term consumer>>s in the playbox that
+    reside in the local <<term nbhood>>s (all consumers).
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function local_consumers {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER MOOD "mood(g)" {
     Returns the mood of <<term civgroup>> <i>g</i> as a number between 
     -100.0 and 100.0.<p>
@@ -2139,7 +2149,7 @@ gofer_rule NUMBER MOOD "mood(g)" {
 
 gofer_rule NUMBER NBCONSUMERS "nbconsumers(n,...)" {
     Returns the number of the <<term consumer>>s in the playbox that
-    reside in of the listed <<term nbhood>>s.
+    reside in the listed <<term nbhood>>s.
 
     <<itemlist>>
     <<gofer.details nlist {N1 N2}>>

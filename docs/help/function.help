@@ -103,7 +103,7 @@ function "consumers(g,?g...?)" {
     Given the names of one or more <<term civgroup>>s, returns the 
     number of <<term consumer>>s belonging to those civgroups.<p>
 
-    Returns 0.0 when the scenario is unlocked.<p>
+    Returns 0 when the scenario is unlocked.<p>
 
     This function is equivalent to the <<cref /gofer/number>>'s
     <<cref /gofer/number/group_consumers>> rule.
@@ -192,6 +192,18 @@ function "influence(a,n)" {
     <<cref /gofer/number/influence>> rule.
 }
 
+#=======================================================================
+# local_consumers
+
+function "local_consumers()" {
+    Returns the number of <<term consumer>>s residing in local 
+    <<term nbhood>>s.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/local_consumers>> rule.
+}
 
 #=======================================================================
 # mood
@@ -214,7 +226,7 @@ function "nbconsumers(n,...)" {
     Given the names of one or more <<term nbhood>>s, returns the 
     number of <<term consumer>>s residing in those nbhoods.<p>
 
-    Returns 0.0 when the scenario is unlocked.<p>
+    Returns 0 when the scenario is unlocked.<p>
 
     This function is equivalent to the <<cref /gofer/number>>'s
     <<cref /gofer/number/nbconsumers>> rule.

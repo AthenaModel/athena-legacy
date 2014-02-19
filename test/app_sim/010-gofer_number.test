@@ -266,7 +266,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::GROUP_CONSUMERS eval {glist SUNN}
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {0}
 
     test GROUP_CONSUMERS-4.2 {eval} -setup {
         setup
@@ -561,6 +561,46 @@ namespace eval ::athena_test::tests:: {
     } -result {0.75}
 
     #-------------------------------------------------------------------
+    # Rule: LOCAL_CONSUMERS
+
+    test LOCAL_CONSUMERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_CONSUMERS construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test LOCAL_CONSUMERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_CONSUMERS validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test LOCAL_CONSUMERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::LOCAL_CONSUMERS narrative {}
+    } -result {local_consumers()}
+
+    test LOCAL_CONSUMERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_CONSUMERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test LOCAL_CONSUMERS-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::LOCAL_CONSUMERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: MOOD
 
     test MOOD-1.1 {construct, valid} -setup {
@@ -657,7 +697,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::NBCONSUMERS eval {nlist NB2}
     } -cleanup {
         cleanup
-    } -result {0.0}
+    } -result {0}
 
     test NBCONSUMERS-4.1 {eval} -setup {
         setup

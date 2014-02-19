@@ -120,6 +120,12 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case LOCAL_CONSUMERS "local_consumers()" {
+            rc
+            rc "Consumers resident in local neighborhoods"
+            rc
+        }
+
         case MOOD "mood(g)" {
             rc
             rc "Mood of civilian group"
@@ -409,8 +415,8 @@ gofer rule NUMBER GROUP_CONSUMERS {glist} {
             WHERE g IN $inClause
         "]
 
-        if {$count == 0.0} {
-            return 0.0
+        if {$count == ""} {
+            return 0
         } else {
             return $count
         }
@@ -599,6 +605,43 @@ gofer rule NUMBER INFLUENCE {a n} {
     }
 }
 
+# Rule: LOCAL_CONSUMERS
+#
+# local_consumers()
+
+gofer rule NUMBER LOCAL_CONSUMERS {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "local_consumers()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # NEXT, query the total of consumers belonging to
+        # groups in the list.
+        set count [rdb onecolumn "
+            SELECT count(consumers) 
+            FROM demog_local
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
+    }
+}
+
 # Rule: MOOD
 #
 # mood(g)
@@ -668,8 +711,8 @@ gofer rule NUMBER NBCONSUMERS {nlist} {
             WHERE n IN $inClause
         "]
 
-        if {$count == 0.0} {
-            return 0.0
+        if {$count == ""} {
+            return 0
         } else {
             return $count
         }

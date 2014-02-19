@@ -639,6 +639,9 @@ snit::type executive {
         $interp function influence 2 2 {a n} \
             [myproc influence]
 
+        $interp function local_consumers 0 0 {} \
+            [myproc local_consumers]
+
         $interp function mood 1 1 {g} \
             [myproc mood]
 
@@ -819,6 +822,15 @@ snit::type executive {
 
     proc influence {a n} {
         set gdict [gofer construct NUMBER INFLUENCE $a $n] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # local_consumers 
+    #
+    # Returns the consumers resident in local neighborhood(s) (all consumers).
+
+    proc local_consumers {} {
+        set gdict [gofer construct NUMBER LOCAL_CONSUMERS] 
         return [gofer::NUMBER eval $gdict]
     }
 
