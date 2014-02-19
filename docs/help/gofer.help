@@ -1985,6 +1985,26 @@ gofer_rule NUMBER ASSIGNED "assigned(g,activity,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER GROUP_CONSUMERS "consumers(g,...)" {
+    Returns the number of the <<term consumer>>s in the playbox that
+    belong to one of the listed <<term civgroup>>s.
+
+    <<itemlist>>
+    <<gofer.details glist {C1 C2}>>
+    <<gofer.function consumers {"C1","C2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of the IDs of one or more <<term civgroup>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER COOP "coop(f,g)" {
     Returns the cooperation of <<term civgroup>> <i>f</i> with 
     <<term frcgroup>> <i>g</i> as a number between 0.0 and 100.0.<p>

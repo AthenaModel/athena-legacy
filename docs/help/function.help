@@ -97,6 +97,19 @@ function "assigned(g,activity,n)" {
 }
 
 #=======================================================================
+# consumers
+
+function "consumers(g,?g...?)" {
+    Given the names of one or more <<term civgroup>>s, returns the 
+    number of <<term consumer>>s belonging to those civgroups.<p>
+
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/group_consumers>> rule.
+}
+
+#=======================================================================
 # controls
 
 function "controls(a,n,?n...?)" {
@@ -254,7 +267,6 @@ function "now()" {
 function "parm(parm)" {
     Returns the value of <<cref /parmdb "model parameter">> <i>parm</i>.
 }
-
 
 #=======================================================================
 # pctcontrol

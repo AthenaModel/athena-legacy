@@ -57,6 +57,14 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case GROUP_CONSUMERS "consumers(g,...)" {
+            rc
+            rc "Consumers belonging to civilian group(s)"
+            rc
+            enumlonglist glist -showkeys yes -dictcmd {::civgroup namedict} \
+                -width 30 -height 10
+        }
+
         case COOP "coop(f,g)" {
             rc
             rc "Cooperation of civilian group"
@@ -355,6 +363,49 @@ gofer rule NUMBER ASSIGNED {g activity n} {
         }
 
         return 0
+    }
+}
+
+# Rule: GROUP_CONSUMERS
+#
+# consumers(g,...)
+
+gofer rule NUMBER GROUP_CONSUMERS {glist} {
+    typemethod construct {glist} {
+        return [$type validate [dict create glist $glist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create glist \
+            [listval civgroups {civgroup validate} [string toupper $glist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {consumers("%s")} [join $glist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $glist ',']')"
+
+        # NEXT, query the total of consumers belonging to
+        # groups in the list.
+        set count [rdb onecolumn "
+            SELECT count(consumers) 
+            FROM demog_g
+            WHERE g IN $inClause
+        "]
+
+        if {$count == 0.0} {
+            return 0.0
+        } else {
+            return $count
+        }
     }
 }
 

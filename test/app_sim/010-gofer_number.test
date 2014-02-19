@@ -214,6 +214,70 @@ namespace eval ::athena_test::tests:: {
     } -result {0}
 
     #-------------------------------------------------------------------
+    # Rule: GROUP_CONSUMERS
+
+    test GROUP_CONSUMERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS construct {SHIA SUNN}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_CONSUMERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS validate {glist {shia sunn}}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_CONSUMERS-2.2 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS validate {glist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_CONSUMERS-2.3 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS validate {glist {SHIA NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_CONSUMERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS narrative {glist {SUNN SHIA}}
+    } -result {consumers("SUNN","SHIA")}
+
+    test GROUP_CONSUMERS-3.2 {narrative} -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS narrative {glist {SUNN}}
+    } -result {consumers("SUNN")}
+
+    test GROUP_CONSUMERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test GROUP_CONSUMERS-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::GROUP_CONSUMERS eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: COOP
 
     test COOP-1.1 {construct, valid} -setup {

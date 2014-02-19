@@ -618,6 +618,9 @@ snit::type executive {
         $interp function assigned 3 3 {g activity n} \
             [myproc assigned]
 
+        $interp function consumers 1 - {g ?g...?} \
+            [myproc consumers]
+
         $interp function controls 2 - {a n ?n...?} \
             [myproc controls]
 
@@ -706,6 +709,20 @@ snit::type executive {
 
     proc assigned {g activity n} {
         set gdict [gofer construct NUMBER ASSIGNED $g $activity $n] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # consumers g ?g...?
+    #
+    # g - A list of civilian groups or multiple civilian groups
+    #
+    # Returns the consumers belonging to the listed civilian group(s) g.
+
+    proc consumers {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER GROUP_CONSUMERS $args] 
         return [gofer::NUMBER eval $gdict]
     }
 
