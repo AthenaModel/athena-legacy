@@ -155,7 +155,7 @@ object condition_control {
         Does the actor control <b>ANY</b> or <b>ALL</b> of the selected neighborhoods?
     } -tags {update}
 
-    attribute list "Neighborhoods" {
+    attribute nlist "Neighborhoods" {
         The selected neighborhoods, chosen by rule using the
         <<cref /gofer/nbhoods>>.
     } -tags {update}
