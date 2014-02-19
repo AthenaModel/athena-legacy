@@ -860,6 +860,46 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     #-------------------------------------------------------------------
+    # Rule: PLAYBOX_CONSUMERS
+
+    test PLAYBOX_CONSUMERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_CONSUMERS construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_CONSUMERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_CONSUMERS validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_CONSUMERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::PLAYBOX_CONSUMERS narrative {}
+    } -result {pbconsumers()}
+
+    test PLAYBOX_CONSUMERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_CONSUMERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test PLAYBOX_CONSUMERS-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_CONSUMERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: PCTCONTROL
 
     test PCTCONTROL-1.1 {construct, valid} -setup {

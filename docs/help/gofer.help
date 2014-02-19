@@ -2236,6 +2236,15 @@ gofer_rule NUMBER NBSUPPORT "nbsupport(a,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER PLAYBOX_CONSUMERS "pbconsumers()" {
+    Returns the number of the <<term consumer>>s in the playbox.
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function pbconsumers {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER PCTCONTROL "pctcontrol(a,...)" {
     Returns the percentage of the <<term nbhood>>s in the playbox that
     are controlled by one of the listed <<term actor>>s,

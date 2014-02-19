@@ -170,6 +170,12 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}    
         }
 
+        case PLAYBOX_CONSUMERS "pbconsumers()" {
+            rc
+            rc "Consumers resident in the playbox."
+            rc
+        }
+
         case PCTCONTROL "pctcontrol(a,...)" {
             rc 
             rc "Percentage of neighborhood controlled by these actors"
@@ -627,8 +633,7 @@ gofer rule NUMBER LOCAL_CONSUMERS {} {
     typemethod eval {gdict} {
         dict with gdict {}
 
-        # NEXT, query the total of consumers belonging to
-        # groups in the list.
+        # NEXT, query the total of consumers
         set count [rdb onecolumn "
             SELECT count(consumers) 
             FROM demog_local
@@ -703,8 +708,8 @@ gofer rule NUMBER NBCONSUMERS {nlist} {
         # FIRST, create the inClause.
         set inClause "('[join $nlist ',']')"
 
-        # NEXT, query the total of consumers belonging to
-        # groups in the list.
+        # NEXT, query the total of consumers residing in
+        # nbhoods in the list.
         set count [rdb onecolumn "
             SELECT count(consumers) 
             FROM demog_n
@@ -823,6 +828,42 @@ gofer rule NUMBER NBSUPPORT {a n} {
         }
 
         return 0.00
+    }
+}
+
+# Rule: PLAYBOX_CONSUMERS
+#
+# pbconsumers()
+
+gofer rule NUMBER PLAYBOX_CONSUMERS {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "pbconsumers()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # NEXT, query the total of consumers
+        set count [rdb onecolumn "
+            SELECT count(consumers) 
+            FROM demog_local
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
     }
 }
 

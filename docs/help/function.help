@@ -294,6 +294,18 @@ function "parm(parm)" {
 }
 
 #=======================================================================
+# pbconsumers
+
+function "pbconsumers()" {
+    Returns the number of <<term consumer>>s residing in the playbox.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/playbox_consumers>> rule.
+}
+
+#=======================================================================
 # pctcontrol
 
 function "pctcontrol(a,?a...?)" {

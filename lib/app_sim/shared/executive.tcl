@@ -663,6 +663,9 @@ snit::type executive {
         $interp function parm 1 1 {parm} \
             [list ::parm get]
 
+        $interp function pbconsumers 0 0 {} \
+            [myproc pbconsumers]
+
         $interp function pctcontrol 1 - {a ?a...?} \
             [myproc pctcontrol]
 
@@ -892,6 +895,16 @@ snit::type executive {
     proc nbsupport {a n} {
         set gdict [gofer construct NUMBER NBSUPPORT $a $n]
 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # pbconsumers 
+    #
+    # Returns the consumers resident in the playbox
+    #  (same as local_consumers()).
+
+    proc pbconsumers {} {
+        set gdict [gofer construct NUMBER PLAYBOX_CONSUMERS] 
         return [gofer::NUMBER eval $gdict]
     }
 
