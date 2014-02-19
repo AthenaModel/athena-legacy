@@ -1092,9 +1092,9 @@ tab "Physical/NbhoodDemog" {
 }
 
 #=======================================================================
-# Politics Tab
+# Political Tab
 
-tab "Politics" {
+tab "Political" {
     This tab collects data about the politics of the playbox,
     including the significant actors.  It has the following subtabs:<p>
 
@@ -1103,7 +1103,7 @@ tab "Politics" {
 
 #-----------------------------------------------------------------------
 
-tab "Politics/Actors" {
+tab "Political/Actors" {
     This tab shows basic data about each 
     <<cref /object/actor "actor">>, as entered
     during <<term prep>>.
@@ -1145,7 +1145,7 @@ tab "Politics/Actors" {
 
 #-----------------------------------------------------------------------
 
-tab "Politics/VRel" {
+tab "Political/VRel" {
     This tab shows the vertical relationships (VRel) between the
     groups and actors in the playbox.  Each row concerns the
     relationship of group G with actor A from group G's point of
