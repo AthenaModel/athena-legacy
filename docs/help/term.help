@@ -846,6 +846,26 @@ term playbox "playbox" {
     <<term nbhood>>s are defined.
 }
 
+#-----------------------------------------------------------------------
+
+term pmesii "PMESII-PT" {
+    PMESII-PT is a paradigm for breaking down the operating environment.
+    Its components are:<p>
+
+    <ul>
+        <li> Physical
+        <li> Political
+        <li> Economics
+        <li> Social
+        <li> Infrastructure
+        <li> Information
+        <li> Physical
+        <li> Time
+    </ul><p>
+
+    Athena uses the PMESII-PT paradigm as the organizing principle for
+    its user interface and documentation.
+}
 
 #-----------------------------------------------------------------------
 
@@ -952,7 +972,6 @@ term role "role" {
     entities from within Athena using <<cref /gofer>>.
 }
 
-#-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
 

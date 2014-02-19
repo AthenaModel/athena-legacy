@@ -50,6 +50,9 @@ page "" "" "Athena Help" {
 page / changelog "Change Log" {
     <<title>>
     <<changelog>>
+    <<change 2/19/2014 New whd>>
+    Final changes for Athena 6.
+    <</change>>
     <<change 8/15/2013 New whd>>
     Final scrub for Athena 5.
     <</change>>
@@ -99,7 +102,37 @@ page / release "Release Notes" {
     <<title Athena V[version] Release notes>>
 
     The <i>Athena Users's Guide</i> gives a complete list of 
-    changes for Athena V<<version>>. 
+    changes for Athena V<<version>>. Here is a summary:<p>
+
+    <ul>
+    <li> The user interface and documentation are now organized around the 
+         <<term pmesii>> paradigm.
+    <li> Athena's <<term strategy>> engine has been improved and generalized.
+         Strategies are now more powerful, and much easier to create and
+         edit, as the strategy editor supports cut, copy, and paste of
+         <<term block blocks>>, <<term condition conditions>>, and 
+         <<term tactic tactics>>.
+    <li> The user can now assign ownership of the production infrastucture
+         for the <b>goods</b> sector to individual actors, who can maintain
+         and build <<term plant plants>> as the simulation progresses.
+    <li> The distribution of <b>goods</b> production capacity across the
+         playbox now determines the distribution of employment and also
+         the consumption of <b>goods</b> by civilians.  
+    <li> Athena now has much better edit-time syntax checking for TCL 
+         expressions entered with the <<cref /object/condition/expr>>, and for
+         TCL scripts written in the <<tab Scripts>>.
+    <li> Athena can now <<cref /command/export>> scenario order scripts in 
+         "minimal" form, i.e.,
+         the minimum number of orders required to rebuild the scenario, all
+         in logical order.  This is the new default behavior.  The older
+         form of order script can also be produced if need be.
+    </ul><p>
+
+    <b>NOTE:</b> Because of the significant changes to the strategy 
+    mechanism, it is not generally possible to import Athena 5 order
+    scripts as is.  At a minimum, it will be necessary to strip out
+    all GOAL:*, TACTIC:* and CONDITION:* orders and rebuild the 
+    actor's strategies by hand.
 }
 
 
