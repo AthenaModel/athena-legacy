@@ -268,7 +268,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0.0}
 
-    test GROUP_CONSUMERS-4.1 {eval} -setup {
+    test GROUP_CONSUMERS-4.2 {eval} -setup {
         setup
         ted lock
     } -body {
@@ -603,6 +603,70 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {50.0}
+
+    #-------------------------------------------------------------------
+    # Rule: NBCONSUMERS
+
+    test NBCONSUMERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCONSUMERS construct {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NBCONSUMERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCONSUMERS validate {nlist {nb1 nb2}}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NBCONSUMERS-2.2 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCONSUMERS validate {nlist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBCONSUMERS-2.3 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCONSUMERS validate {nlist {NB1 NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBCONSUMERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::NBCONSUMERS narrative {nlist {NB2 NB1}}
+    } -result {nbconsumers("NB2","NB1")}
+
+    test NBCONSUMERS-3.2 {narrative} -body {
+        ::gofer::NUMBER::NBCONSUMERS narrative {nlist {NB2}}
+    } -result {nbconsumers("NB2")}
+
+    test NBCONSUMERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBCONSUMERS eval {nlist NB2}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test NBCONSUMERS-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NBCONSUMERS eval {nlist NB2}
+    } -cleanup {
+        cleanup
+    } -result {1}
 
     #-------------------------------------------------------------------
     # Rule: NBCOOP

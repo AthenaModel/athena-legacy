@@ -2137,6 +2137,26 @@ gofer_rule NUMBER MOOD "mood(g)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER NBCONSUMERS "nbconsumers(n,...)" {
+    Returns the number of the <<term consumer>>s in the playbox that
+    reside in of the listed <<term nbhood>>s.
+
+    <<itemlist>>
+    <<gofer.details nlist {N1 N2}>>
+    <<gofer.function nbconsumers {"N1","N2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>nlist</i></tt> >>
+    A list of the IDs of one or more <<term nbhood>>s
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER NBCOOP "nbcoop(n,g)" {
     Returns the cooperation of <<term nbhood>> <i>n</i> with 
     <<term frcgroup>> <i>g</i> as a number between 0.0 and 100.0.<p>

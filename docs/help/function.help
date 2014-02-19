@@ -208,6 +208,19 @@ function "mood(g)" {
 }
 
 #=======================================================================
+# nbconsumers
+
+function "nbconsumers(n,...)" {
+    Given the names of one or more <<term nbhood>>s, returns the 
+    number of <<term consumer>>s residing in those nbhoods.<p>
+
+    Returns 0.0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nbconsumers>> rule.
+}
+
+#=======================================================================
 # nbcoop
 
 function "nbcoop(n,g)" {
