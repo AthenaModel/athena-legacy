@@ -1987,7 +1987,7 @@ gofer_rule NUMBER ASSIGNED "assigned(g,activity,n)" {
 
 gofer_rule NUMBER GROUP_CONSUMERS "consumers(g,...)" {
     Returns the number of the <<term consumer>>s in the playbox that
-    belong to one of the listed <<term civgroup>>s.
+    belong to one of the listed <<term civgroup>>s.<p>
 
     <<itemlist>>
     <<gofer.details glist {C1 C2}>>
@@ -2054,6 +2054,30 @@ gofer_rule NUMBER COVERAGE "coverage(g,activity,n)" {
 
     <<topic <tt><i>n</i></tt> >>
     ID of a <<term nbhood>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER DEPLOYED "deployed(g,n,...)" {
+    Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
+    deployed in the <<term nbhood>>s n. <p>
+
+    <<itemlist>>
+    <<gofer.details g BLUE nlist {N1 N2}>>
+    <<gofer.function deployed {"BLUE","N1","N2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>g</i></tt> >>
+    ID of a <<term frcgroup>> or <<term orggroup>>.
+    <</topic>>
+
+    <<topic <tt><i>nlist</i></tt> >>
+    A list of the IDs of one or more <<term nbhood>>s.
     <</topic>>
 
     <</topiclist>>

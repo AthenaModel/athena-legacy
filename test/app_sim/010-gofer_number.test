@@ -403,6 +403,78 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: DEPLOYED
+
+    test DEPLOYED-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::DEPLOYED construct BLUE {NB1}
+    } -cleanup {
+        cleanup
+    } -result {g BLUE nlist NB1}
+
+    test DEPLOYED-1.2 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::DEPLOYED construct BLUE {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {g BLUE nlist {NB1 NB2}}
+
+    test DEPLOYED-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::DEPLOYED validate {g blue nlist {nb1 nb2}}
+    } -cleanup {
+        cleanup
+    } -result {g BLUE nlist {NB1 NB2}}
+
+    test DEPLOYED-2.2 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::DEPLOYED validate {g NONESUCH nlist {NB1}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force/org group "NONESUCH",*}
+
+    test DEPLOYED-2.3 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::DEPLOYED validate {g BLUE nlist {NB1 NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test DEPLOYED-3.1 {narrative} -body {
+        ::gofer::NUMBER::DEPLOYED narrative {g BLUE nlist {NB1 NB2}}
+    } -result {deployed("BLUE","NB1","NB2")}
+
+    test DEPLOYED-3.2 {narrative} -body {
+        ::gofer::NUMBER::DEPLOYED narrative {g BLUE nlist {NB1}}
+    } -result {deployed("BLUE","NB1")}
+
+    test DEPLOYED-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::DEPLOYED eval {g BLUE nlist NB1}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test DEPLOYED-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::DEPLOYED eval {g BLUE nlist NB1}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: GDP
 
     test GDP-1.1 {construct, valid} -setup {

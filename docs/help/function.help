@@ -150,6 +150,19 @@ function "coverage(g,activity,n)" {
 }
 
 #=======================================================================
+# deployed
+
+function "deployed(g,n,?n...?)" {
+    Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
+    deployed in the <<term nbhood>>s n. <p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/deployed>> rule.
+}
+
+#=======================================================================
 # gdp
 
 function "gdp()" {

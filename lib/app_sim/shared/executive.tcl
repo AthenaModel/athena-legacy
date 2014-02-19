@@ -630,6 +630,9 @@ snit::type executive {
         $interp function coverage 3 3 {g activity n} \
             [myproc coverage]
 
+        $interp function deployed 2 - {g n ?n...?} \
+            [myproc deployed]
+
         $interp function gdp 0 0 {} \
             [myproc gdp]
 
@@ -791,6 +794,22 @@ snit::type executive {
 
     proc coverage {g activity n} {
         set gdict [gofer construct NUMBER COVERAGE $g $activity $n]
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # deployed g n ?n...?
+    #
+    # g - A force or org group
+    # n - A neighborhood (or multiple)
+    #
+    # Returns the deployed personnel of force/org group g
+    # deployed in neighborhood(s) n.
+
+    proc deployed {g args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER DEPLOYED $g $args] 
         return [gofer::NUMBER eval $gdict]
     }
 

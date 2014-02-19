@@ -91,6 +91,19 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case DEPLOYED "deployed(g,n,...)" {
+            rc
+            rc "Personnel of force or org group"
+            rc
+            enumlong g -showkeys yes -dictcmd {::ptype fog namedict}
+
+            rc
+            rc "deployed in neighborhood(s)"
+            rc
+            enumlonglist nlist -showkeys yes -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
         case GDP "gdp()" {
             rc
             rc "The value of the Gross Domestic Product of the regional economy \
@@ -510,6 +523,51 @@ gofer rule NUMBER COVERAGE {g activity n} {
         }
 
         return 0.0
+    }
+}
+
+# Rule: DEPLOYED
+#
+# deployed(g,...)
+
+gofer rule NUMBER DEPLOYED {g nlist} {
+    typemethod construct {g nlist} {
+        return [$type validate [dict create g $g nlist $nlist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create \
+            g [ptype fog validate [string toupper $g]] \
+            nlist [listval nbhoods {nbhood validate} [string toupper $nlist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {deployed("%s","%s")} $g [join $nlist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $nlist ',']')"
+
+        # NEXT, query the total of deployed belonging to
+        # the group in the nbhoods in the nbhood list.
+        set count [rdb onecolumn "
+            SELECT count(personnel) 
+            FROM deploy_ng
+            WHERE g='$g'
+            AND n IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
     }
 }
 
