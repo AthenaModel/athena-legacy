@@ -51,10 +51,18 @@ appserver module PLANT {
     # tcl/linkdict of agents the own infrastructure
 
     proc /plants:linkdict {udcit matchArray} {
+        if {![locked]} {
+            return [objects:linkdict {
+                label   "Infrastructure"
+                listIcon ::projectgui::icon::plant12
+                table    gui_plants_alloc
+            }]
+        } 
+
         return [objects:linkdict {
             label   "Infrastructure"
             listIcon ::projectgui::icon::plant12
-            table    gui_plants_alloc
+            table    gui_plants_na
         }]
     }
 
