@@ -88,13 +88,15 @@ appserver module PLANT {
                 ht put   "production plant distribution in the playbox "
                 ht put   "given the neighborhoods, owning agents and "
                 ht put   "neighborhood populations currently defined. "
-                ht put   "Only local neighborhoods can contain GOODS "
-                ht putln "production infrastructure."
+                ht put   "Only local neighborhoods that have consumers "
+                ht putln "can contain GOODS production infrastructure."
                 ht para 
+
+                ht push
 
                 ht table {
                     "Neighborhood" "Agent" "Shares" "Capacity<br>Factor" 
-                    "Base Pop." "% of GOODS<br>Production Plants"
+                    "Consumers" "% of GOODS<br>Production Plants"
                 } {
                     rdb eval {
                         SELECT n              AS n,
@@ -128,7 +130,18 @@ appserver module PLANT {
                             }
                         }
                     }
-                } 
+                }
+
+                set text [ht pop]
+
+                if {[ht rowcount] > 0} {
+                    ht put $text
+                    ht para
+                } else {
+                    ht put "None."
+                    ht para
+                }
+
             } else {
 
                 ht put "None."
@@ -150,9 +163,9 @@ appserver module PLANT {
             ht put   "The following table shows the current laydown of "
             ht put   "GOODS production plants, owning agents and repair "
             ht put   "levels.  Plants under construction will appear in "
-            ht put   "this table when they are 100% complete.  Non-local "
-            ht put   "neighborhoods do not appear in this table since GOODS "
-            ht put   "production infrastructure cannot exist in them."
+            ht put   "this table when they are 100% complete.  Only local "
+            ht put   "neighborhoods that have consumers appear in this "
+            ht putln "table." 
             ht para 
 
             ht query {
@@ -400,13 +413,13 @@ appserver module PLANT {
                 ht put   "production plant distribution for $a in the playbox "
                 ht put   "given the neighborhoods and "
                 ht put   "neighborhood populations currently defined. "
-                ht put   "Only local neighborhoods can contain GOODS "
-                ht putln "production infrastructure."
+                ht put   "Only local neighborhoods that have consumers "
+                ht put   "can contain GOODS production infrastructure. "
                 ht para 
 
                 ht table {
                     "Neighborhood" "Shares" "Capacity<br>Factor" 
-                    "Base Pop." "% of GOODS<br>Production Plants"
+                    "Consumers" "% of GOODS<br>Production Plants"
                 } {
                     rdb eval {
                         SELECT n              AS n,
@@ -460,9 +473,9 @@ appserver module PLANT {
             ht put   "The following table shows the current laydown of "
             ht put   "GOODS production plants owned by $a and their repair "
             ht put   "levels.  Plants under construction will appear in "
-            ht put   "this table when they are 100% complete.  Non-local "
-            ht put   "neighborhoods do not appear in this table since GOODS "
-            ht put   "production infrastructure cannot exist in them."
+            ht put   "this table when they are 100% complete.  Only local "
+            ht put   "neighborhoods that have consumers appear in this "
+            ht put   "table."
             ht para 
 
             ht query {

@@ -513,8 +513,10 @@ appserver module NBHOOD {
                     when locked is approximately shown as follows.  When the 
                     scenario is locked the actual number of plants and their 
                     owning agent will be shown along with the average repair 
-                    level.  These numbers are approximate because the 
-                    demographics may be different after the scenario is locked.
+                    level.  Neighborhoods with no consumers will not have
+                    plants allocated to them. These numbers are approximate 
+                    because the demographics may be different after the 
+                    scenario is locked.
                 }
     
                 ht para
@@ -532,7 +534,7 @@ appserver module NBHOOD {
                     ht push 
 
                     ht table {
-                        "Base Pop." "Prod. Capacity Factor"
+                        "Consumers" "Prod. Capacity Factor"
                         "% of GOODS<br>Production Plants"
                     } {
                         rdb eval {

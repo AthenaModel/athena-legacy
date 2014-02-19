@@ -88,11 +88,14 @@ CREATE TABLE plants_build (
 CREATE VIEW plants_n_view AS
 SELECT N.n                                     AS n,
        N.pcf                                   AS pcf,
-       total(coalesce(D.consumers,C.basepop))  AS nbpop
+       total(
+        CASE C.sa_flag WHEN 0
+            THEN coalesce(D.consumers,C.basepop)
+            ELSE 0.0 END
+       )                                       AS nbpop
 FROM civgroups          AS C
 JOIN local_nbhoods      AS N USING (n)
 LEFT OUTER JOIN demog_n AS D USING (n)
-WHERE C.sa_flag=0
 GROUP BY n;
 
 -- Plants allocation view. Used during prep by appserver pages to give
