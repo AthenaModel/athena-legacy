@@ -713,6 +713,46 @@ namespace eval ::athena_test::tests:: {
     } -result {3000}
 
     #-------------------------------------------------------------------
+    # Rule: LOCAL_WORKERS
+
+    test LOCAL_WORKERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_WORKERS construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test LOCAL_WORKERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_WORKERS validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test LOCAL_WORKERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::LOCAL_WORKERS narrative {}
+    } -result {local_workers()}
+
+    test LOCAL_WORKERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_WORKERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test LOCAL_WORKERS-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::LOCAL_WORKERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {1200}
+
+    #-------------------------------------------------------------------
     # Rule: MOBILIZED
 
     test MOBILIZED-1.1 {construct, valid} -setup {

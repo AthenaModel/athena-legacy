@@ -145,6 +145,12 @@ gofer define NUMBER "" {
             rc
         }
 
+        case LOCAL_WORKERS "local_workers()" {
+            rc
+            rc "Workers resident in local neighborhoods"
+            rc
+        }
+
         case MOBILIZED "mobilized(g,...)" {
             rc
             rc "Personnel mobilized in the playbox belonging to force or org group"
@@ -781,6 +787,42 @@ gofer rule NUMBER LOCAL_POPULATION {} {
         # NEXT, query the total of population
         set count [rdb onecolumn "
             SELECT population
+            FROM demog_local
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
+    }
+}
+
+# Rule: LOCAL_WORKERS
+#
+# local_workers()
+
+gofer rule NUMBER LOCAL_WORKERS {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "local_workers()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # NEXT, query the total of workers
+        set count [rdb onecolumn "
+            SELECT labor_force
             FROM demog_local
         "]
 

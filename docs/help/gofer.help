@@ -2160,6 +2160,16 @@ gofer_rule NUMBER LOCAL_POPULATION "local_pop()" {
     <</itemlist>><p>
 }
 
+gofer_rule NUMBER LOCAL_WORKERS "local_workers()" {
+    Returns the number of the <<term worker>>s in the playbox that
+    reside in the local <<term nbhood>>s.
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function local_workers {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER MOBILIZED "mobilized(g,...)" {
     Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
     mobilized in the playbox. <p>

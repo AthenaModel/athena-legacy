@@ -648,6 +648,9 @@ snit::type executive {
         $interp function local_pop 0 0 {} \
             [myproc local_pop]
 
+        $interp function local_workers 0 0 {} \
+            [myproc local_workers]
+
         $interp function mobilized 1 - {g ?g...?} \
             [myproc mobilized]
 
@@ -883,6 +886,15 @@ snit::type executive {
 
     proc local_pop {} {
         set gdict [gofer construct NUMBER LOCAL_POPULATION] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # local_workers 
+    #
+    # Returns the workers resident in local neighborhood(s).
+
+    proc local_workers {} {
+        set gdict [gofer construct NUMBER LOCAL_WORKERS] 
         return [gofer::NUMBER eval $gdict]
     }
 
