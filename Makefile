@@ -92,6 +92,9 @@ src: check_env
 ifeq "$(MARS_PLATFORM)" "linux32"
     BASE_KIT   = $(TOP_DIR)/tools/basekits/base-tk-thread-linux-ix86
     ATHENA_EXE = $(TOP_DIR)/bin/athena
+else ifeq "$(MARS_PLATFORM)" "linux64"
+    BASE_KIT   = $(TOP_DIR)/tools/basekits/base-tk-thread-linux-x86_64
+    ATHENA_EXE = $(TOP_DIR)/bin/athena
 else ifeq "$(MARS_PLATFORM)" "win32"
     BASE_KIT   = $(TOP_DIR)/tools/basekits/base-tk-thread-win32-ix86.exe
     ATHENA_EXE = $(TOP_DIR)/bin/athena.exe

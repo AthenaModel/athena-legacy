@@ -39,6 +39,7 @@ array set tags {
 array set tarset {
     win32 {source docs}
     linux32 {install source docs}
+    linux64 {install source docs}
 }
 
 #-------------------------------------------------------------------
