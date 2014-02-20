@@ -1193,7 +1193,7 @@ gofer rule NUMBER GROUP_POPULATION {glist} {
         # NEXT, query the total of population belonging to
         # groups in the list.
         set count [rdb onecolumn "
-            SELECT count(population) 
+            SELECT SUM(population) 
             FROM demog_g
             WHERE g IN $inClause
         "]

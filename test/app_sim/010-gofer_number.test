@@ -1291,7 +1291,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::GROUP_POPULATION eval {glist SUNN}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {1000}
 
     #-------------------------------------------------------------------
     # Rule: SAT
