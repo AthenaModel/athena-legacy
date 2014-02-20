@@ -326,6 +326,19 @@ function "nbsupport(a,n)" {
 }
 
 #=======================================================================
+# nbworkers
+
+function "nbworkers(n,?n...?)" {
+    Given the names of one or more <<term nbhood>>s, returns the 
+    number of <<term worker>>s residing in those nbhoods.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nbworkers>> rule.
+}
+
+#=======================================================================
 # now
 
 function "now()" {

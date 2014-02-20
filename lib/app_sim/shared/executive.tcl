@@ -669,6 +669,9 @@ snit::type executive {
         $interp function nbsupport 2 2 {a n} \
             [myproc nbsupport]
 
+        $interp function nbworkers 1 - {n ?n...?} \
+            [myproc nbworkers]
+
         $interp function now 0 0 {} \
             [list simclock now]
 
@@ -970,6 +973,20 @@ snit::type executive {
     proc nbsupport {a n} {
         set gdict [gofer construct NUMBER NBSUPPORT $a $n]
 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # nbworkers n ?n...?
+    #
+    # n - A list of neighborhoods
+    #
+    # Returns the workers resident in the listed neighborhood(s).
+
+    proc nbworkers {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER NBWORKERS $args] 
         return [gofer::NUMBER eval $gdict]
     }
 

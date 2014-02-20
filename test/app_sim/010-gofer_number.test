@@ -883,7 +883,7 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {0}
 
-    test NBCONSUMERS-4.1 {eval} -setup {
+    test NBCONSUMERS-4.2 {eval} -setup {
         setup
         ted lock
     } -body {
@@ -1115,6 +1115,79 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {0.00}
+
+    #-------------------------------------------------------------------
+    # Rule: NBWORKERS
+
+    test NBWORKERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBWORKERS construct {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NBWORKERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBWORKERS validate {nlist {nb1 nb2}}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NBWORKERS-2.2 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBWORKERS validate {nlist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBWORKERS-2.3 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBWORKERS validate {nlist {NB1 NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBWORKERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::NBWORKERS narrative {nlist {NB2 NB1}}
+    } -result {nbworkers("NB2","NB1")}
+
+    test NBWORKERS-3.2 {narrative} -body {
+        ::gofer::NUMBER::NBWORKERS narrative {nlist {NB2}}
+    } -result {nbworkers("NB2")}
+
+    test NBWORKERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBWORKERS eval {nlist NB1}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test NBWORKERS-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NBWORKERS eval {nlist NB1}
+    } -cleanup {
+        cleanup
+    } -result {1200}
+
+    test NBWORKERS-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NBWORKERS eval {nlist {NB1 NB2}}
+    } -cleanup {
+        cleanup
+    } -result {1200}
 
     #-------------------------------------------------------------------
     # Rule: PLAYBOX_CONSUMERS

@@ -204,6 +204,14 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}    
         }
 
+        case NBWORKERS "nbworkers(n,...)" {
+            rc
+            rc "Workers resident in neighborhood(s)"
+            rc
+            enumlonglist nlist -showkeys yes -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
         case PLAYBOX_CONSUMERS "pbconsumers()" {
             rc
             rc "Consumers resident in the playbox."
@@ -1051,6 +1059,49 @@ gofer rule NUMBER NBSUPPORT {a n} {
         }
 
         return 0.00
+    }
+}
+
+# Rule: NBWORKERS
+#
+# nbworkers(n,...)
+
+gofer rule NUMBER NBWORKERS {nlist} {
+    typemethod construct {nlist} {
+        return [$type validate [dict create nlist $nlist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create nlist \
+            [listval nbhoods {nbhood validate} [string toupper $nlist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {nbworkers("%s")} [join $nlist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $nlist ',']')"
+
+        # NEXT, query the total of workers residing in
+        # nbhoods in the list.
+        set count [rdb onecolumn "
+            SELECT sum(labor_force) 
+            FROM demog_n
+            WHERE n IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
     }
 }
 

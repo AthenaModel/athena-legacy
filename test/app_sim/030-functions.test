@@ -860,6 +860,68 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # nbworkers()
+
+    test nbworkers-1.1 {1 nbhood, invalid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr nbworkers("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test nbworkers-1.2 {2 nbhoods, invalid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr nbworkers("NB1","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test nbworkers-2.1 {Unlocked, 1 nbhood} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr nbworkers("NB1")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test nbworkers-2.2 {Unlocked, 2 nbhoods} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr nbworkers("NB1","NB2")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test nbworkers-2.3 {LOCKED - 1 nbhood} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr nbworkers("NB1")
+    } -cleanup {
+        cleanup
+    } -result {1200}
+
+    test nbworkers-2.4 {LOCKED - 1 nbhood} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr nbworkers("NB2")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test nbworkers-2.5 {LOCKED - 2 nbhoods} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr nbworkers("NB1","NB2")
+    } -cleanup {
+        cleanup
+    } -result {1200}
+
+    #-------------------------------------------------------------------
     # now()
 
     test now-1.1 {get data} -body {
