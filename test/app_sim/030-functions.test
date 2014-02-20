@@ -603,7 +603,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr mobilized("BLUE")
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {0}
 
     test mobilized-2.4 {LOCKED - 2 frc/org groups} -setup {
         ted create BLUE BRIT JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
@@ -612,7 +612,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr mobilized("BLUE","BRIT")
     } -cleanup {
         cleanup
-    } -result {2}
+    } -result {0}
 
     #-------------------------------------------------------------------
     # mood()

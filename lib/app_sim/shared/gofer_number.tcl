@@ -806,7 +806,7 @@ gofer rule NUMBER MOBILIZED {glist} {
         # NEXT, query the total of mobilized belonging to
         # the group in the nbhoods in the nbhood list.
         set count [rdb onecolumn "
-            SELECT count(personnel) 
+            SELECT sum(personnel) 
             FROM personnel_g
             WHERE g IN $inClause
         "]

@@ -782,7 +782,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::MOBILIZED eval {glist BLUE}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {0}
 
     #-------------------------------------------------------------------
     # Rule: MOOD
