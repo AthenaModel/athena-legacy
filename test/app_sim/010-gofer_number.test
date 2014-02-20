@@ -1145,7 +1145,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::PLAYBOX_CONSUMERS eval {}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {2000}
 
     #-------------------------------------------------------------------
     # Rule: PLAYBOX_POPULATION

@@ -1070,7 +1070,7 @@ gofer rule NUMBER PLAYBOX_CONSUMERS {} {
 
         # NEXT, query the total of consumers
         set count [rdb onecolumn "
-            SELECT count(consumers)
+            SELECT sum(consumers)
             FROM demog_local
         "]
 

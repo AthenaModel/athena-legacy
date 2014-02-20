@@ -909,7 +909,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr pbconsumers()
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {2000}
 
     #-------------------------------------------------------------------
     # pbpop()
