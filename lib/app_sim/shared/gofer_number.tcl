@@ -187,7 +187,7 @@ gofer define NUMBER "" {
 
         case NBPOPULATION "nbpop(n,...)" {
             rc
-            rc "Civilian population resident in neighborhood(s)"
+            rc "Civilian population in neighborhood(s)"
             rc
             enumlonglist nlist -showkeys yes -dictcmd {::nbhood namedict} \
                 -width 30 -height 10
@@ -997,7 +997,7 @@ gofer rule NUMBER NBPOPULATION {nlist} {
         # NEXT, query the total of population residing in
         # nbhoods in the list.
         set count [rdb onecolumn "
-            SELECT count(population) 
+            SELECT sum(population) 
             FROM demog_n
             WHERE n IN $inClause
         "]

@@ -812,7 +812,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr nbpop("NB1")
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {2000}
 
     test nbpop-2.4 {LOCKED - 2 nbhoods} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
@@ -821,7 +821,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr nbpop("NB1","NB2")
     } -cleanup {
         cleanup
-    } -result {2}
+    } -result {3000}
 
     #-------------------------------------------------------------------
     # nbsupport()

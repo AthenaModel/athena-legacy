@@ -1053,7 +1053,16 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::NBPOPULATION eval {nlist NB2}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {1000}
+
+    test NBPOPULATION-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NBPOPULATION eval {nlist {NB2 NB1}}
+    } -cleanup {
+        cleanup
+    } -result {3000}
 
     #-------------------------------------------------------------------
     # Rule: NBSUPPORT
