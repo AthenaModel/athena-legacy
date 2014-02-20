@@ -764,7 +764,7 @@ gofer rule NUMBER LOCAL_POPULATION {} {
 
         # NEXT, query the total of population
         set count [rdb onecolumn "
-            SELECT count(population)
+            SELECT population
             FROM demog_local
         "]
 

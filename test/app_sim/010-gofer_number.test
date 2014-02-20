@@ -710,7 +710,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::LOCAL_POPULATION eval {}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {3000}
 
     #-------------------------------------------------------------------
     # Rule: MOBILIZED

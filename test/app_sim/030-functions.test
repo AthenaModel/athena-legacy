@@ -559,7 +559,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr local_pop()
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {3000}
 
     #-------------------------------------------------------------------
     # mobilizaed()
