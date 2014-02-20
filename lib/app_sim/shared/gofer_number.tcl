@@ -592,7 +592,7 @@ gofer rule NUMBER DEPLOYED {g nlist} {
         # NEXT, query the total of deployed belonging to
         # the group in the nbhoods in the nbhood list.
         set count [rdb onecolumn "
-            SELECT count(personnel) 
+            SELECT sum(personnel) 
             FROM deploy_ng
             WHERE g='$g'
             AND n IN $inClause

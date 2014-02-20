@@ -469,10 +469,10 @@ namespace eval ::athena_test::tests:: {
         setup
         ted lock
     } -body {
-        ::gofer::NUMBER::DEPLOYED eval {g BLUE nlist NB1}
+        ::gofer::NUMBER::DEPLOYED eval {g BLUE nlist {NB1 NB2}}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {0}
 
     #-------------------------------------------------------------------
     # Rule: GDP
