@@ -371,7 +371,7 @@ function security(g,n) {
 #=====================================================================
 # support
 
-function support(a,g,n) {
+function support(a,g,?n?) {
     Returns the support for <<term actor>> <i>a</i>  by
     <<term group>> <i>g</i> in <<term nbhood>> <i>n</i> 
     as a number between 0.0 and 1.0.  <p>

@@ -2367,7 +2367,7 @@ gofer_rule NUMBER SUPPORT_CIV "support(a,g)" {
     
     <<itemlist>>
     <<gofer.details a JOE g SHIA>>
-    <<gofer.function nbsupport {"JOE","SHIA"}>>
+    <<gofer.function support {"JOE","SHIA"}>>
     <</itemlist>><p>
     
     The rule parameters are as follows:<p>
