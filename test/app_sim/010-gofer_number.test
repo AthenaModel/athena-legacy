@@ -670,7 +670,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::LOCAL_CONSUMERS eval {}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {2000}
 
     #-------------------------------------------------------------------
     # Rule: LOCAL_POPULATION

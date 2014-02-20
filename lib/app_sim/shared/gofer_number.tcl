@@ -728,7 +728,7 @@ gofer rule NUMBER LOCAL_CONSUMERS {} {
 
         # NEXT, query the total of consumers
         set count [rdb onecolumn "
-            SELECT count(consumers) 
+            SELECT consumers
             FROM demog_local
         "]
 
