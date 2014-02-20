@@ -99,7 +99,8 @@ snit::type service {
         # service table
         rdb eval $rdbQuery {
             if {$pop > 0} {
-                set Sr [parm get service.ENI.saturationCost.$urb]
+                set Sr [money validate \
+                    [parm get service.ENI.saturationCost.$urb]]
                 let Sf {$pop * $Sr}
                 set Rr [parm get service.ENI.required.$urb]
                 let Rf {$Sf * $Rr}
@@ -325,7 +326,8 @@ snit::type service {
             # NEXT compute each groups adjusted cost based on urbanization
             # and keep a running total of adjusted cost
             if {$pop > 0} {
-                set Sc     [parm get service.ENI.saturationCost.$urb]
+                set Sc     [money validate \
+                    [parm get service.ENI.saturationCost.$urb]]
                 let Acost  {$pop * $Sc}
                 let Atcost {$Atcost + $Acost}
 
@@ -403,7 +405,8 @@ snit::type service {
         }] {
             if {$pop > 0} {
                 # Compute the actual value
-                set Sr   [parm get service.ENI.saturationCost.$urb]
+                set Sr   [money validate \
+                    [parm get service.ENI.saturationCost.$urb]]
                 let Pg   {$pop * $Sr}
                 set Rg   [parm get service.ENI.required.$urb]
                 set beta [parm get service.ENI.beta.$urb]

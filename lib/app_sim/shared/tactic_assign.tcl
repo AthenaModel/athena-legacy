@@ -356,7 +356,7 @@ tactic define ASSIGN "Assign Personnel" {actor} -onlock {
 
     method CostPerPerson {} {
         set gtype [group gtype $g]
-        return [parm get activity.$gtype.$activity.cost]
+        return [money validate [parm get activity.$gtype.$activity.cost]]
     }
 
 
