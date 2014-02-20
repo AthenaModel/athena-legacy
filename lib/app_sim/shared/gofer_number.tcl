@@ -204,6 +204,14 @@ gofer define NUMBER "" {
                 -width 30 -height 10
         }
 
+        case GROUP_POPULATION "pop(g,...)" {
+            rc
+            rc "Population of civilian group(s) in playbox"
+            rc
+            enumlonglist glist -showkeys yes -dictcmd {::civgroup namedict} \
+                -width 30 -height 10
+        }
+
         case SAT "sat(g,c)" {
             rc
             rc "Satisfaction of civilian group"
@@ -1017,6 +1025,49 @@ gofer rule NUMBER PCTCONTROL {alist} {
         }
 
         return [expr {100.0*$count/$total}]
+    }
+}
+
+# Rule: GROUP_POPULATION
+#
+# pop(g,...)
+
+gofer rule NUMBER GROUP_POPULATION {glist} {
+    typemethod construct {glist} {
+        return [$type validate [dict create glist $glist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create glist \
+            [listval civgroups {civgroup validate} [string toupper $glist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {pop("%s")} [join $glist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $glist ',']')"
+
+        # NEXT, query the total of population belonging to
+        # groups in the list.
+        set count [rdb onecolumn "
+            SELECT count(population) 
+            FROM demog_g
+            WHERE g IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
     }
 }
 

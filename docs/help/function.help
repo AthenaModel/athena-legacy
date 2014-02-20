@@ -346,6 +346,18 @@ function "pctcontrol(a,?a...?)" {
 }
 
 #=======================================================================
+# pop
+
+function "pop(g,?g...?)" {
+    Returns the Population of the <<term civgroup>>s in the playbox.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/group_population>> rule.
+}
+
+#=======================================================================
 # sat
 
 function sat(g,c) {

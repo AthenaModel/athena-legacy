@@ -2310,6 +2310,25 @@ gofer_rule NUMBER PCTCONTROL "pctcontrol(a,...)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER GROUP_POPULATION "pop(g,...)" {
+    Returns the Population of the <<term civgroup>>s in the playbox.<p>
+
+    <<itemlist>>
+    <<gofer.details glist {C1 C2}>>
+    <<gofer.function pop {"C1","C2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of the IDs of one or more <<term civgroup>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER SAT "sat(g,c)" {
     Returns the satisfaction of <<term civgroup>> <i>g</i> with 
     <<term concern>> <i>c</i> as a number between -100.0 and 100.0.<p>

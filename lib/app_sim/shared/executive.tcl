@@ -675,6 +675,9 @@ snit::type executive {
         $interp function pctcontrol 1 - {a ?a...?} \
             [myproc pctcontrol]
 
+        $interp function pop 1 - {g ?g...?} \
+            [myproc pop]
+
         $interp function sat 2 2 {g c} \
             [myproc sat]
 
@@ -954,6 +957,20 @@ snit::type executive {
 
     proc pctcontrol {args} {
         set gdict [gofer construct NUMBER PCTCONTROL $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # pop g ?g...?
+    #
+    # g - A list of civilian groups or multiple civilian groups
+    #
+    # Returns the population of the listed civilian group(s) g in the playbox.
+
+    proc pop {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER GROUP_POPULATION $args] 
         return [gofer::NUMBER eval $gdict]
     }
 

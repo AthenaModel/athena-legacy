@@ -1086,6 +1086,70 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: GROUP_POPULATION
+
+    test GROUP_POPULATION-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_POPULATION construct {SHIA SUNN}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_POPULATION-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_POPULATION validate {glist {shia sunn}}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_POPULATION-2.2 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_POPULATION validate {glist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_POPULATION-2.3 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_POPULATION validate {glist {SHIA NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_POPULATION-3.1 {narrative} -body {
+        ::gofer::NUMBER::GROUP_POPULATION narrative {glist {SUNN SHIA}}
+    } -result {pop("SUNN","SHIA")}
+
+    test GROUP_POPULATION-3.2 {narrative} -body {
+        ::gofer::NUMBER::GROUP_POPULATION narrative {glist {SUNN}}
+    } -result {pop("SUNN")}
+
+    test GROUP_POPULATION-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_POPULATION eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test GROUP_POPULATION-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::GROUP_POPULATION eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: SAT
 
     test SAT-1.1 {construct, valid} -setup {
