@@ -534,6 +534,34 @@ namespace eval ::athena_test::tests:: {
     } -result {1}
 
     #-------------------------------------------------------------------
+    # local_pop()
+
+    test local_pop-1.1 {valid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex expr local_pop()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test local_pop-2.1 {Unlocked} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr local_pop()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test local_pop-2.2 {LOCKED} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr local_pop()
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # mobilizaed()
 
     test mobilized-1.1 {1 frc/org group, invalid G} -setup {

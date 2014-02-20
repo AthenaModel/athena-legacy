@@ -673,6 +673,46 @@ namespace eval ::athena_test::tests:: {
     } -result {1}
 
     #-------------------------------------------------------------------
+    # Rule: LOCAL_POPULATION
+
+    test LOCAL_POPULATION-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_POPULATION construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test LOCAL_POPULATION-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_POPULATION validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test LOCAL_POPULATION-3.1 {narrative} -body {
+        ::gofer::NUMBER::LOCAL_POPULATION narrative {}
+    } -result {local_pop()}
+
+    test LOCAL_POPULATION-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::LOCAL_POPULATION eval {}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test LOCAL_POPULATION-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::LOCAL_POPULATION eval {}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: MOBILIZED
 
     test MOBILIZED-1.1 {construct, valid} -setup {

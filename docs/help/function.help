@@ -217,6 +217,18 @@ function "local_consumers()" {
 }
 
 #=======================================================================
+# local_pop
+
+function "local_pop()" {
+    Returns the population of civilian groups in the local <<term nbhood>>s.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/local_population>> rule.
+}
+
+#=======================================================================
 # mobilized
 
 function "mobilized(g,?g...?)" {

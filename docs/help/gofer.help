@@ -2151,6 +2151,15 @@ gofer_rule NUMBER LOCAL_CONSUMERS "local_consumers()" {
     <</itemlist>><p>
 }
 
+gofer_rule NUMBER LOCAL_POPULATION "local_pop()" {
+    Returns the population of civilian groups in the local <<term nbhood>>s.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function local_pop {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER MOBILIZED "mobilized(g,...)" {
     Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
     mobilized in the playbox. <p>
