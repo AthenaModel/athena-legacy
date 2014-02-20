@@ -660,6 +660,9 @@ snit::type executive {
         $interp function nbmood 1 1 {n} \
             [myproc nbmood]
 
+        $interp function nbpop 1 - {n ?n...?} \
+            [myproc nbpop]
+
         $interp function nbsupport 2 2 {a n} \
             [myproc nbsupport]
 
@@ -922,6 +925,20 @@ snit::type executive {
 
     proc nbmood {n} {
         set gdict [gofer construct NUMBER NBMOOD $n] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # nbpop n ?n...?
+    #
+    # n - A list of neighborhoods
+    #
+    # Returns the civilian population resident in the listed neighborhood(s).
+
+    proc nbpop {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER NBPOPULATION $args] 
         return [gofer::NUMBER eval $gdict]
     }
 

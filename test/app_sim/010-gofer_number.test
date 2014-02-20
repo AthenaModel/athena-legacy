@@ -952,6 +952,70 @@ namespace eval ::athena_test::tests:: {
     } -result {25.0}
 
     #-------------------------------------------------------------------
+    # Rule: NBPOPULATION
+
+    test NBPOPULATION-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBPOPULATION construct {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NBPOPULATION-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBPOPULATION validate {nlist {nb1 nb2}}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NBPOPULATION-2.2 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBPOPULATION validate {nlist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBPOPULATION-2.3 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBPOPULATION validate {nlist {NB1 NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NBPOPULATION-3.1 {narrative} -body {
+        ::gofer::NUMBER::NBPOPULATION narrative {nlist {NB2 NB1}}
+    } -result {nbpop("NB2","NB1")}
+
+    test NBPOPULATION-3.2 {narrative} -body {
+        ::gofer::NUMBER::NBPOPULATION narrative {nlist {NB2}}
+    } -result {nbpop("NB2")}
+
+    test NBPOPULATION-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NBPOPULATION eval {nlist NB2}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test NBPOPULATION-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NBPOPULATION eval {nlist NB2}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: NBSUPPORT
 
     test NBSUPPORT-1.1 {construct, valid} -setup {

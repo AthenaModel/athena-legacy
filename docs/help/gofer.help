@@ -2255,6 +2255,25 @@ gofer_rule NUMBER NBMOOD "nbmood(n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER NBPOPULATION "nbpop(n,...)" {
+    Returns the civilian population in the <<term nbhood>>s given.
+
+    <<itemlist>>
+    <<gofer.details nlist {N1 N2}>>
+    <<gofer.function nbpop {"N1","N2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>nlist</i></tt> >>
+    A list of the IDs of one or more <<term nbhood>>s
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER NBSUPPORT "nbsupport(a,n)" {
     Returns the support for <<term actor>> <i>a</i> in 
     <<term nbhood>> <i>n</i> as a number between 

@@ -179,6 +179,14 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case NBPOPULATION "nbpop(n,...)" {
+            rc
+            rc "Civilian population resident in neighborhood(s)"
+            rc
+            enumlonglist nlist -showkeys yes -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
         case NBSUPPORT "nbsupport(a,n)" {
             rc
             rc "Support of actor"
@@ -799,7 +807,7 @@ gofer rule NUMBER MOOD {g} {
 
 # Rule: NBCONSUMERS
 #
-# consumers(n,...)
+# nbconsumers(n,...)
 
 gofer rule NUMBER NBCONSUMERS {nlist} {
     typemethod construct {nlist} {
@@ -908,6 +916,49 @@ gofer rule NUMBER NBMOOD {n} {
         }
 
         return 0.0
+    }
+}
+
+# Rule: NBPOPULATION
+#
+# nbpop(n,...)
+
+gofer rule NUMBER NBPOPULATION {nlist} {
+    typemethod construct {nlist} {
+        return [$type validate [dict create nlist $nlist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create nlist \
+            [listval nbhoods {nbhood validate} [string toupper $nlist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {nbpop("%s")} [join $nlist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $nlist ',']')"
+
+        # NEXT, query the total of population residing in
+        # nbhoods in the list.
+        set count [rdb onecolumn "
+            SELECT count(population) 
+            FROM demog_n
+            WHERE n IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
     }
 }
 

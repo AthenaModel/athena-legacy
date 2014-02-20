@@ -246,7 +246,7 @@ function "mood(g)" {
 #=======================================================================
 # nbconsumers
 
-function "nbconsumers(n,...)" {
+function "nbconsumers(n,?n...?)" {
     Given the names of one or more <<term nbhood>>s, returns the 
     number of <<term consumer>>s residing in those nbhoods.<p>
 
@@ -285,6 +285,18 @@ function "nbmood(n)" {
     This function is equivalent to the <<cref /gofer/number>>'s
     <<cref /gofer/number/nbmood>> rule.
 
+}
+
+#=======================================================================
+# nbpop
+
+function "nbpop(n,?n...?)" {
+    Returns the civilian population in the <<term nbhood>>s given.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nbpopulation>> rule.
 }
 
 #=======================================================================
