@@ -180,8 +180,8 @@ snit::type activity {
     # Validates an implicit/explicit activity ID for a org group
 
     typemethod {withcov org validate} {a} {
-        if {$a ni [activity withcov names org]} {
-            set names [join [activity withcov names org] ", "]
+        if {$a ni [activity withcov names ORG]} {
+            set names [join [activity withcov names ORG] ", "]
 
             return -code error -errorcode INVALID \
                 "Invalid activity, should be one of: $names"

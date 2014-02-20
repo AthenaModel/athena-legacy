@@ -555,10 +555,11 @@ gofer rule NUMBER COVERAGE {g activity n} {
 
         set valid [dict create]
 
-        dict set valid g [ptype fog validate [string toupper $g]]
+        dict set valid g [::ptype fog validate [string toupper $g]]
         dict set valid activity [string toupper $activity]
 
-        set gtype [group gtype $g]
+        set gtype [group gtype [string toupper $g]]
+
         if {$gtype eq "FRC"} {
             activity withcov frc validate [string toupper $activity]
         } elseif {$gtype eq "ORG"} {
