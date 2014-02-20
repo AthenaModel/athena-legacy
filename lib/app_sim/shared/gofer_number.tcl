@@ -210,6 +210,12 @@ gofer define NUMBER "" {
             rc
         }
 
+        case PLAYBOX_POPULATION "pbpop()" {
+            rc
+            rc "Population of civilian groups in the playbox."
+            rc
+        }
+
         case PCTCONTROL "pctcontrol(a,...)" {
             rc 
             rc "Percentage of neighborhood controlled by these actors"
@@ -722,7 +728,7 @@ gofer rule NUMBER LOCAL_CONSUMERS {} {
 
         # NEXT, query the total of consumers
         set count [rdb onecolumn "
-            SELECT consumers 
+            SELECT count(consumers) 
             FROM demog_local
         "]
 
@@ -758,7 +764,7 @@ gofer rule NUMBER LOCAL_POPULATION {} {
 
         # NEXT, query the total of population
         set count [rdb onecolumn "
-            SELECT population
+            SELECT count(population)
             FROM demog_local
         "]
 
@@ -1064,8 +1070,44 @@ gofer rule NUMBER PLAYBOX_CONSUMERS {} {
 
         # NEXT, query the total of consumers
         set count [rdb onecolumn "
-            SELECT consumers 
+            SELECT count(consumers)
             FROM demog_local
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
+    }
+}
+
+# Rule: PLAYBOX_POPULATION
+#
+# pbpop()
+
+gofer rule NUMBER PLAYBOX_POPULATION {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "pbpop()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # NEXT, query the total of population
+        set count [rdb onecolumn "
+            SELECT sum(population)
+            FROM demog_n
         "]
 
         if {$count == ""} {

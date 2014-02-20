@@ -903,6 +903,34 @@ namespace eval ::athena_test::tests:: {
     } -result {1}
 
     #-------------------------------------------------------------------
+    # pbpop()
+
+    test pbpop-1.1 {valid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex expr pbpop()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test pbpop-2.1 {Unlocked} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr pbpop()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test pbpop-2.2 {LOCKED} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr pbpop()
+    } -cleanup {
+        cleanup
+    } -result {3000}
+
+    #-------------------------------------------------------------------
     # pctcontrol()
 
     test pctcontrol-1.1 {1 actor, invalid} -setup {

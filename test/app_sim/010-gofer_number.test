@@ -1148,6 +1148,46 @@ namespace eval ::athena_test::tests:: {
     } -result {1}
 
     #-------------------------------------------------------------------
+    # Rule: PLAYBOX_POPULATION
+
+    test PLAYBOX_POPULATION-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_POPULATION construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_POPULATION-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_POPULATION validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_POPULATION-3.1 {narrative} -body {
+        ::gofer::NUMBER::PLAYBOX_POPULATION narrative {}
+    } -result {pbpop()}
+
+    test PLAYBOX_POPULATION-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_POPULATION eval {}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test PLAYBOX_POPULATION-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_POPULATION eval {}
+    } -cleanup {
+        cleanup
+    } -result {3000}
+
+    #-------------------------------------------------------------------
     # Rule: PCTCONTROL
 
     test PCTCONTROL-1.1 {construct, valid} -setup {

@@ -354,6 +354,18 @@ function "pbconsumers()" {
 }
 
 #=======================================================================
+# pbpop
+
+function "pbpop()" {
+    Returns the population of the <<term civgroup>>s in the playbox.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/playbox_population>> rule.
+}
+
+#=======================================================================
 # pctcontrol
 
 function "pctcontrol(a,?a...?)" {
