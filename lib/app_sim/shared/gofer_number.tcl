@@ -464,7 +464,7 @@ gofer rule NUMBER GROUP_CONSUMERS {glist} {
         # NEXT, query the total of consumers belonging to
         # groups in the list.
         set count [rdb onecolumn "
-            SELECT count(consumers) 
+            SELECT sum(consumers) 
             FROM demog_g
             WHERE g IN $inClause
         "]
