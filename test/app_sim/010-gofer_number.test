@@ -878,7 +878,7 @@ namespace eval ::athena_test::tests:: {
     test NBCONSUMERS-4.1 {prelock} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::NBCONSUMERS eval {nlist NB2}
+        ::gofer::NUMBER::NBCONSUMERS eval {nlist NB1}
     } -cleanup {
         cleanup
     } -result {0}
@@ -887,10 +887,10 @@ namespace eval ::athena_test::tests:: {
         setup
         ted lock
     } -body {
-        ::gofer::NUMBER::NBCONSUMERS eval {nlist NB2}
+        ::gofer::NUMBER::NBCONSUMERS eval {nlist NB1}
     } -cleanup {
         cleanup
-    } -result {1}
+    } -result {2000}
 
     #-------------------------------------------------------------------
     # Rule: NBCOOP

@@ -883,7 +883,7 @@ gofer rule NUMBER NBCONSUMERS {nlist} {
         # NEXT, query the total of consumers residing in
         # nbhoods in the list.
         set count [rdb onecolumn "
-            SELECT count(consumers) 
+            SELECT sum(consumers) 
             FROM demog_n
             WHERE n IN $inClause
         "]
