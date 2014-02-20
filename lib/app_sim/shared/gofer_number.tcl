@@ -230,6 +230,12 @@ gofer define NUMBER "" {
             rc
         }
 
+        case PLAYBOX_WORKERS "pbworkers()" {
+            rc
+            rc "Workers resident in the playbox."
+            rc
+        }
+
         case PCTCONTROL "pctcontrol(a,...)" {
             rc 
             rc "Percentage of neighborhood controlled by these actors"
@@ -1209,6 +1215,42 @@ gofer rule NUMBER PLAYBOX_POPULATION {} {
         set count [rdb onecolumn "
             SELECT sum(population)
             FROM demog_n
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
+    }
+}
+
+# Rule: PLAYBOX_WORKERS
+#
+# pbworkers()
+
+gofer rule NUMBER PLAYBOX_WORKERS {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "pbworkers()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # NEXT, query the total of workers
+        set count [rdb onecolumn "
+            SELECT sum(labor_force)
+            FROM demog_local
         "]
 
         if {$count == ""} {

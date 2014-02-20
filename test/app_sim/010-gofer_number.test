@@ -1310,6 +1310,46 @@ namespace eval ::athena_test::tests:: {
     } -result {3000}
 
     #-------------------------------------------------------------------
+    # Rule: PLAYBOX_WORKERS
+
+    test PLAYBOX_WORKERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_WORKERS construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_WORKERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_WORKERS validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_WORKERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::PLAYBOX_WORKERS narrative {}
+    } -result {pbworkers()}
+
+    test PLAYBOX_WORKERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_WORKERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test PLAYBOX_WORKERS-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_WORKERS eval {}
+    } -cleanup {
+        cleanup
+    } -result {1200}
+
+    #-------------------------------------------------------------------
     # Rule: PCTCONTROL
 
     test PCTCONTROL-1.1 {construct, valid} -setup {

@@ -687,6 +687,9 @@ snit::type executive {
         $interp function pbpop 0 0 {} \
             [myproc pbpop]
 
+        $interp function pbworkers 0 0 {} \
+            [myproc pbworkers]
+
         $interp function pctcontrol 1 - {a ?a...?} \
             [myproc pctcontrol]
 
@@ -1018,6 +1021,16 @@ snit::type executive {
 
     proc pbpop {} {
         set gdict [gofer construct NUMBER PLAYBOX_POPULATION] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # pbworkers 
+    #
+    # Returns the workers resident in the playbox
+    #  (same as local_workers()).
+
+    proc pbworkers {} {
+        set gdict [gofer construct NUMBER PLAYBOX_WORKERS] 
         return [gofer::NUMBER eval $gdict]
     }
 

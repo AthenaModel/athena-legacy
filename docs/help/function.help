@@ -392,6 +392,18 @@ function "pbpop()" {
 }
 
 #=======================================================================
+# pbworkers
+
+function "pbworkers()" {
+    Returns the number of <<term worker>>s residing in the playbox.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/playbox_workers>> rule.
+}
+
+#=======================================================================
 # pctcontrol
 
 function "pctcontrol(a,?a...?)" {

@@ -2356,6 +2356,16 @@ gofer_rule NUMBER PLAYBOX_POPULATION "pbpop()" {
     <</itemlist>><p>
 }
 
+gofer_rule NUMBER PLAYBOX_WORKERS "pbworkers()" {
+    Returns the number of the <<term worker>>s in the playbox 
+    (same as LOCAL_WORKERS).
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function pbworkers {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER PCTCONTROL "pctcontrol(a,...)" {
     Returns the percentage of the <<term nbhood>>s in the playbox that
     are controlled by one of the listed <<term actor>>s,
