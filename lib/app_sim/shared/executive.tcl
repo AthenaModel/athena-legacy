@@ -645,6 +645,9 @@ snit::type executive {
         $interp function local_consumers 0 0 {} \
             [myproc local_consumers]
 
+        $interp function mobilized 1 - {g ?g...?} \
+            [myproc mobilized]
+
         $interp function mood 1 1 {g} \
             [myproc mood]
 
@@ -853,6 +856,21 @@ snit::type executive {
 
     proc local_consumers {} {
         set gdict [gofer construct NUMBER LOCAL_CONSUMERS] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # mobilized g ?g...?
+    #
+    # g - A force or org group (or multiple)
+    #
+    # Returns the mobilized personnel of force/org group g
+    # in the playbox.
+
+    proc mobilized {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER MOBILIZED $args] 
         return [gofer::NUMBER eval $gdict]
     }
 

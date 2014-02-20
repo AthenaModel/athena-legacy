@@ -217,6 +217,19 @@ function "local_consumers()" {
 }
 
 #=======================================================================
+# mobilized
+
+function "mobilized(g,?g...?)" {
+    Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
+    mobilized in the playbox. <p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/mobilized>> rule.
+}
+
+#=======================================================================
 # mood
 
 function "mood(g)" {

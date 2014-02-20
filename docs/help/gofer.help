@@ -2151,6 +2151,26 @@ gofer_rule NUMBER LOCAL_CONSUMERS "local_consumers()" {
     <</itemlist>><p>
 }
 
+gofer_rule NUMBER MOBILIZED "mobilized(g,...)" {
+    Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
+    mobilized in the playbox. <p>
+
+    <<itemlist>>
+    <<gofer.details glist {BLUE BRIT}>>
+    <<gofer.function mobilized {"BLUE","BRIT"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of the IDs of one or more <<term frcgroup>> or <<term orggroup>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER MOOD "mood(g)" {
     Returns the mood of <<term civgroup>> <i>g</i> as a number between 
     -100.0 and 100.0.<p>

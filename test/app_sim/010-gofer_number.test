@@ -673,6 +673,78 @@ namespace eval ::athena_test::tests:: {
     } -result {1}
 
     #-------------------------------------------------------------------
+    # Rule: MOBILIZED
+
+    test MOBILIZED-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOBILIZED construct {BLUE}
+    } -cleanup {
+        cleanup
+    } -result {glist BLUE}
+
+    test MOBILIZED-1.2 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOBILIZED construct {BLUE BRIT}
+    } -cleanup {
+        cleanup
+    } -result {glist {BLUE BRIT}}
+
+    test MOBILIZED-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOBILIZED validate {glist {blue brit}}
+    } -cleanup {
+        cleanup
+    } -result {glist {BLUE BRIT}}
+
+    test MOBILIZED-2.2 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOBILIZED validate {glist {NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force/org group "NONESUCH",*}
+
+    test MOBILIZED-2.3 {validate, invalid g} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOBILIZED validate {glist {BLUE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force/org group "NONESUCH",*}
+
+    test MOBILIZED-3.1 {narrative} -body {
+        ::gofer::NUMBER::MOBILIZED narrative {glist {BLUE BRIT}}
+    } -result {mobilized("BLUE","BRIT")}
+
+    test MOBILIZED-3.2 {narrative} -body {
+        ::gofer::NUMBER::MOBILIZED narrative {glist {BLUE}}
+    } -result {mobilized("BLUE")}
+
+    test MOBILIZED-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::MOBILIZED eval {glist BLUE}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test MOBILIZED-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::MOBILIZED eval {glist BLUE}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #-------------------------------------------------------------------
     # Rule: MOOD
 
     test MOOD-1.1 {construct, valid} -setup {

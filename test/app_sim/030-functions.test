@@ -534,6 +534,59 @@ namespace eval ::athena_test::tests:: {
     } -result {1}
 
     #-------------------------------------------------------------------
+    # mobilizaed()
+
+    test mobilized-1.1 {1 frc/org group, invalid G} -setup {
+        ted create BLUE JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr mobilized("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force/org group "NONESUCH",*}
+
+    test mobilized-1.2 {2 frc/org groups, invalid G} -setup {
+        ted create BLUE JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr mobilized("BLUE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid force/org group "NONESUCH",*}
+
+    test mobilized-2.1 {Unlocked, 1 frc/org group} -setup {
+        ted create BLUE JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr mobilized("BLUE")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test mobilized-2.2 {Unlocked, 2 frc/org groups} -setup {
+        ted create BLUE BRIT JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr mobilized("BLUE","BRIT")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test mobilized-2.3 {LOCKED - 1 frc/org group} -setup {
+        ted create BLUE JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr mobilized("BLUE")
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test mobilized-2.4 {LOCKED - 2 frc/org groups} -setup {
+        ted create BLUE BRIT JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr mobilized("BLUE","BRIT")
+    } -cleanup {
+        cleanup
+    } -result {2}
+
+    #-------------------------------------------------------------------
     # mood()
 
     test mood-1.1 {invalid civ group} -setup {

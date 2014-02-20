@@ -139,6 +139,13 @@ gofer define NUMBER "" {
             rc
         }
 
+        case MOBILIZED "mobilized(g,...)" {
+            rc
+            rc "Personnel mobilized in the playbox belonging to force or org group"
+            rc
+            enumlonglist glist -showkeys yes -dictcmd {::ptype fog namedict}
+        }
+
         case MOOD "mood(g)" {
             rc
             rc "Mood of civilian group"
@@ -528,7 +535,7 @@ gofer rule NUMBER COVERAGE {g activity n} {
 
 # Rule: DEPLOYED
 #
-# deployed(g,...)
+# deployed(g,n,...)
 
 gofer rule NUMBER DEPLOYED {g nlist} {
     typemethod construct {g nlist} {
@@ -695,6 +702,49 @@ gofer rule NUMBER LOCAL_CONSUMERS {} {
         set count [rdb onecolumn "
             SELECT count(consumers) 
             FROM demog_local
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
+    }
+}
+
+# Rule: MOBILIZED
+#
+# mobilized(g,...)
+
+gofer rule NUMBER MOBILIZED {glist} {
+    typemethod construct {glist} {
+        return [$type validate [dict create glist $glist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create \
+            glist [listval fogs {::ptype fog validate} [string toupper $glist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {mobilized("%s")} [join $glist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $glist ',']')"
+
+        # NEXT, query the total of mobilized belonging to
+        # the group in the nbhoods in the nbhood list.
+        set count [rdb onecolumn "
+            SELECT count(personnel) 
+            FROM personnel_g
+            WHERE g IN $inClause
         "]
 
         if {$count == ""} {
