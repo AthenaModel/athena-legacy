@@ -1635,6 +1635,79 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: GROUP_WORKERS
+
+    test GROUP_WORKERS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_WORKERS construct {SHIA SUNN}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_WORKERS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_WORKERS validate {glist {shia sunn}}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_WORKERS-2.2 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_WORKERS validate {glist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_WORKERS-2.3 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_WORKERS validate {glist {SHIA NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_WORKERS-3.1 {narrative} -body {
+        ::gofer::NUMBER::GROUP_WORKERS narrative {glist {SUNN SHIA}}
+    } -result {workers("SUNN","SHIA")}
+
+    test GROUP_WORKERS-3.2 {narrative} -body {
+        ::gofer::NUMBER::GROUP_WORKERS narrative {glist {SUNN}}
+    } -result {workers("SUNN")}
+
+    test GROUP_WORKERS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_WORKERS eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test GROUP_WORKERS-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::GROUP_WORKERS eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {600}
+
+    test GROUP_WORKERS-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::GROUP_WORKERS eval {glist {SUNN SHIA}}
+    } -cleanup {
+        cleanup
+    } -result {1200}
+
+    #-------------------------------------------------------------------
     # Cleanup
 
     cleanupTests

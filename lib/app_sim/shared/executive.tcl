@@ -710,6 +710,9 @@ snit::type executive {
 
         $interp function vrel 2 2 {g a} \
             [myproc vrel]
+
+        $interp function workers 1 - {g ?g...?} \
+            [myproc workers]
     }
 
     # affinity x y
@@ -1198,6 +1201,20 @@ snit::type executive {
 
     proc vrel {g a} {
         set gdict [gofer construct NUMBER VREL $g $a] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # workers g ?g...?
+    #
+    # g - A list of civilian groups or multiple civilian groups
+    #
+    # Returns the workers belonging to the listed civilian group(s) g.
+
+    proc workers {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER GROUP_WORKERS $args] 
         return [gofer::NUMBER eval $gdict]
     }
 

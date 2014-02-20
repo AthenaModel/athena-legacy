@@ -297,6 +297,14 @@ gofer define NUMBER "" {
             rc
             enumlong a -showkeys yes -dictcmd {::actor namedict}
         }
+
+        case GROUP_WORKERS "workers(g,...)" {
+            rc
+            rc "Workers belonging to civilian group(s)"
+            rc
+            enumlonglist glist -showkeys yes -dictcmd {::civgroup namedict} \
+                -width 30 -height 10
+        }
     }
 }
 
@@ -1425,5 +1433,48 @@ gofer rule NUMBER VREL {g a} {
         }
 
         return 0.0
+    }
+}
+
+# Rule: GROUP_WORKERS
+#
+# workers(g,...)
+
+gofer rule NUMBER GROUP_WORKERS {glist} {
+    typemethod construct {glist} {
+        return [$type validate [dict create glist $glist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create glist \
+            [listval civgroups {civgroup validate} [string toupper $glist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {workers("%s")} [join $glist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $glist ',']')"
+
+        # NEXT, query the total of workers belonging to
+        # groups in the list.
+        set count [rdb onecolumn "
+            SELECT sum(labor_force) 
+            FROM demog_g
+            WHERE g IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0
+        } else {
+            return $count
+        }
     }
 }

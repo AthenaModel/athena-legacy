@@ -1470,6 +1470,68 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {1.0}
 
+    #-------------------------------------------------------------------
+    # workers()
+
+    test workers-1.1 {1 civgroup, invalid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr workers("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test workers-1.2 {2 civgroups, invalid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr workers("SHIA","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test workers-2.1 {Unlocked, 1 civgroup} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr workers("SHIA")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test workers-2.2 {Unlocked, 2 civgroups} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr workers("SHIA","SUNN")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test workers-2.3 {LOCKED - 1 civgroup} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr workers("SHIA")
+    } -cleanup {
+        cleanup
+    } -result {600}
+
+    test workers-2.4 {LOCKED - 1 civgroup} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr workers("SUNN")
+    } -cleanup {
+        cleanup
+    } -result {600}
+
+    test workers-2.5 {LOCKED - 2 civgroups} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr workers("SHIA","SUNN")
+    } -cleanup {
+        cleanup
+    } -result {1200}
+
 
     cleanupTests
 }
