@@ -244,6 +244,12 @@ gofer define NUMBER "" {
             rc
         }
 
+        case PLAYBOX_UNEMPLOYMENT_RATE "pbunemp()" {
+            rc
+            rc "Average unemployment rate in the playbox."
+            rc
+        }
+
         case PLAYBOX_WORKERS "pbworkers()" {
             rc
             rc "Workers resident in the playbox."
@@ -1351,6 +1357,57 @@ gofer rule NUMBER PLAYBOX_POPULATION {} {
         } else {
             return $count
         }
+    }
+}
+
+# Rule: PLAYBOX_UNEMPLOYMENT_RATE
+#
+# pbunemp()
+
+gofer rule NUMBER PLAYBOX_UNEMPLOYMENT_RATE {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "pbunemp()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+        
+        # NEXT, query the total of unemployment rates belonging
+        # to ALL nbhoods in demog_n
+        set ur [rdb onecolumn "
+            SELECT sum(ur) 
+            FROM demog_n
+        "]
+        
+        # NEXT, if in setup it will return "", need to set to 0
+        if {$ur == ""} {
+            set ur 0.00
+        }
+        
+        # NEXT, get the total number of nbhoods
+        set numnbhoods [rdb onecolumn "
+            SELECT count(n)
+            FROM demog_n
+        "]
+        if {$numnbhoods == "" || $numnbhoods == 0} {
+            return 0.00
+        }
+  
+        # NEXT, divide the unemployment rate total by the 
+        # number of nbhoods to get the average.
+        set urate [expr { $ur/$numnbhoods }]
+            
+        return [format %.2f $urate]
     }
 }
 

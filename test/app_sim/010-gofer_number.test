@@ -1414,6 +1414,46 @@ namespace eval ::athena_test::tests:: {
     } -result {3000}
 
     #-------------------------------------------------------------------
+    # Rule: PLAYBOX_UNEMPLOYMENT_RATE
+
+    test PLAYBOX_UNEMPLOYMENT_RATE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_UNEMPLOYMENT_RATE construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_UNEMPLOYMENT_RATE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_UNEMPLOYMENT_RATE validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_UNEMPLOYMENT_RATE-3.1 {narrative} -body {
+        ::gofer::NUMBER::PLAYBOX_UNEMPLOYMENT_RATE narrative {}
+    } -result {pbunemp()}
+
+    test PLAYBOX_UNEMPLOYMENT_RATE-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_UNEMPLOYMENT_RATE eval {}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test PLAYBOX_UNEMPLOYMENT_RATE-4.1 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_UNEMPLOYMENT_RATE eval {}
+    } -cleanup {
+        cleanup
+    } -result {2.00}
+
+    #-------------------------------------------------------------------
     # Rule: PLAYBOX_WORKERS
 
     test PLAYBOX_WORKERS-1.1 {construct, valid} -setup {

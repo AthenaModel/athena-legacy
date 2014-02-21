@@ -693,6 +693,9 @@ snit::type executive {
         $interp function pbpop 0 0 {} \
             [myproc pbpop]
 
+        $interp function pbunemp 0 0 {} \
+            [myproc pbunemp]
+
         $interp function pbworkers 0 0 {} \
             [myproc pbworkers]
 
@@ -1056,6 +1059,15 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
+    # pbunemp 
+    #
+    # Returns the average unemployment rate in the playbox
+
+    proc pbunemp {} {
+        set gdict [gofer construct NUMBER PLAYBOX_UNEMPLOYMENT_RATE] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
     # pbworkers 
     #
     # Returns the workers resident in the playbox
@@ -1234,19 +1246,6 @@ snit::type executive {
             return [format %.0f $personnel]
         }
     }
-
-    # unemp
-    #
-    # Returns the playbox unemployment rate as a percentage.
-    # It's an error if the economic model is disabled.
-
-#     proc unemp {} {
-#         if {[parm get econ.disable]} {
-#             error "Economic model is disabled.  To enable, set econ.disable to no."
-#         }
-
-#         return [format %.1f [econ value Out::UR]]
-#     }
 
     # unemp g ?g...?
     #

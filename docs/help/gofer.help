@@ -2386,6 +2386,15 @@ gofer_rule NUMBER PLAYBOX_POPULATION "pbpop()" {
     <</itemlist>><p>
 }
 
+gofer_rule NUMBER PLAYBOX_UNEMPLOYMENT_RATE "pbunemp()" {
+    Returns the average unemployment rate in the playbox.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function pbunemp {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER PLAYBOX_WORKERS "pbworkers()" {
     Returns the number of the <<term worker>>s in the playbox 
     (same as LOCAL_WORKERS).

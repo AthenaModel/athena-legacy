@@ -1120,6 +1120,34 @@ namespace eval ::athena_test::tests:: {
     } -result {3000}
 
     #-------------------------------------------------------------------
+    # pbunemp()
+
+    test pbunemp-1.1 {valid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex expr pbunemp()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test pbunemp-2.1 {Unlocked} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr pbunemp()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test pbunemp-2.2 {LOCKED} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr pbunemp()
+    } -cleanup {
+        cleanup
+    } -result {2.0}
+
+    #-------------------------------------------------------------------
     # pbworkers()
 
     test pbworkers-1.1 {valid} -setup {
