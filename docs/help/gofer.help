@@ -2530,6 +2530,25 @@ gofer_rule NUMBER SUPPORT "support(a,g,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER GROUP_UNEMPLOYMENT_RATE "unemp(g,...)" {
+    Returns the average unemployment rate for the listed <<term civgroup>>s.<p>
+
+    <<itemlist>>
+    <<gofer.details glist {C1 C2}>>
+    <<gofer.function unemp {"C1","C2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>glist</i></tt> >>
+    A list of the IDs of one or more <<term civgroup>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER VREL "vrel(g,a)" {
     Returns the vertical relationship of <<term group>> <i>g</i> with 
     <<term actor>> <i>a</i> as a number between -1.0 and 1.0.<p>

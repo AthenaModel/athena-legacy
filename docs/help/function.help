@@ -524,18 +524,30 @@ function troops(g,?n...?) {
 #=======================================================================
 # unemp
 
-function "unemp()" {
-    Returns the playbox-wide unemployment rate as a number between
-    0.0 and 100.0.  It is an error if the economic model is
-    disabled; see <<cref /parmdb/econ/disable>>.<p>
+# function "unemp()" {
+#     Returns the playbox-wide unemployment rate as a number between
+#     0.0 and 100.0.  It is an error if the economic model is
+#     disabled; see <<cref /parmdb/econ/disable>>.<p>
 
-    The unemployment rate is assumed to be the same in all
-    neighborhoods; hence, there is no function that returns 
-    neighborhood unemployment rates.<p>
+#     The unemployment rate is assumed to be the same in all
+#     neighborhoods; hence, there is no function that returns 
+#     neighborhood unemployment rates.<p>
 
-    <b>Warning:</b> This function will return 0.0 before the 
-    scenario is locked, and in <<cref /object/condition/expr>>s when
-    strategies are executed at time 0.<p>
+#     <b>Warning:</b> This function will return 0.0 before the 
+#     scenario is locked, and in <<cref /object/condition/expr>>s when
+#     strategies are executed at time 0.<p>
+# }
+
+#=======================================================================
+# unemp
+
+function "unemp(g,?g...?)" {
+    Returns the average unemployment rate for the listed <<term civgroup>>s.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/group_unemployment_rate>> rule.
 }
 
 #=======================================================================

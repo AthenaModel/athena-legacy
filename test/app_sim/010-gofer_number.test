@@ -1736,6 +1736,70 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     #-------------------------------------------------------------------
+    # Rule: GROUP_UNEMPLOYMENT_RATE
+
+    test GROUP_UNEMPLOYMENT_RATE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE construct {SHIA SUNN}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_UNEMPLOYMENT_RATE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE validate {glist {shia sunn}}
+    } -cleanup {
+        cleanup
+    } -result {glist {SHIA SUNN}}
+
+    test GROUP_UNEMPLOYMENT_RATE-2.2 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE validate {glist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_UNEMPLOYMENT_RATE-2.3 {validate, invalid G} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE validate {glist {SHIA NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test GROUP_UNEMPLOYMENT_RATE-3.1 {narrative} -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE narrative {glist {SUNN SHIA}}
+    } -result {unemp("SUNN","SHIA")}
+
+    test GROUP_UNEMPLOYMENT_RATE-3.2 {narrative} -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE narrative {glist {SUNN}}
+    } -result {unemp("SUNN")}
+
+    test GROUP_UNEMPLOYMENT_RATE-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test GROUP_UNEMPLOYMENT_RATE-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE eval {glist SUNN}
+    } -cleanup {
+        cleanup
+    } -result {4.00}
+
+    #-------------------------------------------------------------------
     # Rule: VREL
 
     test VREL-1.1 {construct, valid} -setup {

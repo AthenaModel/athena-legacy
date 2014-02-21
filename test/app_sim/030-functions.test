@@ -1508,21 +1508,82 @@ namespace eval ::athena_test::tests:: {
 
     # Note: Should really throw an error if used while unlocked.
 
-    test unemp-1.1 {fails when econ is disabled} -setup {
+    test unemp-1.1 {Returns 0 when econ is disabled} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
         parm set econ.disable yes
     } -body {
-        ted sendex -error expr unemp()
-    } -cleanup {
-        cleanup
-    } -result {Economic model is disabled. To enable, set econ.disable to no.}
-
-    test unemp-2.1 {succeeds otherwise} -setup {
-        parm set econ.disable no
-    } -body {
-        ted sendex expr unemp()
+        ted sendex expr unemp("SHIA")
     } -cleanup {
         cleanup
     } -result {0.0}
+
+    test unemp-1.2 {succeeds otherwise} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+        parm set econ.disable no
+    } -body {
+        ted sendex expr unemp("SHIA")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test unemp-1.3 {1 civgroup, invalid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr unemp("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test unemp-1.4 {2 civgroups, invalid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex -error expr unemp("SHIA","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid civilian group,*}
+
+    test unemp-2.1 {Unlocked, 1 civgroup} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr unemp("SHIA")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test unemp-2.2 {Unlocked, 2 civgroups} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2 
+    } -body {
+        ted sendex expr unemp("SHIA","SUNN")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test unemp-2.3 {LOCKED - 1 civgroup} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr unemp("SHIA")
+    } -cleanup {
+        cleanup
+    } -result {4.0}
+
+    test unemp-2.4 {LOCKED - 1 civgroup} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr unemp("SUNN")
+    } -cleanup {
+        cleanup
+    } -result {4.0}
+
+    test unemp-2.5 {LOCKED - 2 civgroups} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        ted lock
+    } -body {
+        ted sendex expr unemp("SHIA","SUNN")
+    } -cleanup {
+        cleanup
+    } -result {4.0}
 
     #-------------------------------------------------------------------
     # volatility()

@@ -714,6 +714,9 @@ snit::type executive {
         $interp function unemp 0 0 {} \
             [myproc unemp]
 
+        $interp function unemp 1 - {g ?g...?} \
+            [myproc unemp]
+
         $interp function volatility 1 1 {n} \
             [myproc volatility]
 
@@ -1208,12 +1211,26 @@ snit::type executive {
     # Returns the playbox unemployment rate as a percentage.
     # It's an error if the economic model is disabled.
 
-    proc unemp {} {
-        if {[parm get econ.disable]} {
-            error "Economic model is disabled.  To enable, set econ.disable to no."
-        }
+#     proc unemp {} {
+#         if {[parm get econ.disable]} {
+#             error "Economic model is disabled.  To enable, set econ.disable to no."
+#         }
 
-        return [format %.1f [econ value Out::UR]]
+#         return [format %.1f [econ value Out::UR]]
+#     }
+
+    # unemp g ?g...?
+    #
+    # g - A list of civilian groups or multiple civilian groups
+    #
+    # Returns the average unemployment rate for the listed civilian group(s) g.
+
+    proc unemp {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER GROUP_UNEMPLOYMENT_RATE $args] 
+        return [gofer::NUMBER eval $gdict]
     }
 
     # volatility n

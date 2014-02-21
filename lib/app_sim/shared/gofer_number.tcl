@@ -307,6 +307,14 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}    
         }
 
+        case GROUP_UNEMPLOYMENT_RATE "unemp(g,...)" {
+            rc
+            rc "Average unemployment rate for civilian group(s)"
+            rc
+            enumlonglist glist -showkeys yes -dictcmd {::civgroup namedict} \
+                -width 30 -height 10
+        }
+
         case VREL "vrel(g,a)" {
             rc
             rc "The vertical relationship of group"
@@ -1533,6 +1541,55 @@ gofer rule NUMBER SUPPORT {a g n} {
         }
 
         return 0.00
+    }
+}
+
+# Rule: GROUP_UNEMPLOYMENT_RATE
+#
+# unemp(g,...)
+
+gofer rule NUMBER GROUP_UNEMPLOYMENT_RATE {glist} {
+    typemethod construct {glist} {
+        return [$type validate [dict create glist $glist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create glist \
+            [listval civgroups {civgroup validate} [string toupper $glist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {unemp("%s")} [join $glist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+        
+        # FIRST, create the inClause.
+        set inClause "('[join $glist ',']')"
+        
+        # NEXT, query the total of unemployment rates belonging
+        # to groups in the list
+        set ur [rdb onecolumn "
+            SELECT sum(ur) 
+            FROM demog_g
+            WHERE g IN $inClause
+        "]
+        
+        # NEXT, if in setup it will return "", need to set to 0
+        if {$ur == ""} {
+            set ur 0.00
+        }
+            
+        # NEXT, divide the unemployment rate total by the 
+        # number of groups selected to get the average.
+        set numgroups [llength $glist]
+        set urate [expr { $ur/$numgroups }]
+            
+        return [format %.2f $urate]
     }
 }
 
