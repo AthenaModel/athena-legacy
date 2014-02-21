@@ -339,6 +339,19 @@ function "nbsupport(a,n)" {
 }
 
 #=======================================================================
+# nbunemp
+
+function "nbunemp(n,?n...?)" {
+    Returns the average unemployment rate for the listed 
+    <<term nbhood>>s.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nb_unemployment_rate>> rule.
+}
+
+#=======================================================================
 # nbworkers
 
 function "nbworkers(n,?n...?)" {

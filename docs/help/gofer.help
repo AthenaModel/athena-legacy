@@ -2318,6 +2318,26 @@ gofer_rule NUMBER NBSUPPORT "nbsupport(a,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER NB_UNEMPLOYMENT_RATE "nbunemp(n,...)" {
+    Returns the average unemployment rate for the listed 
+    <<term nbhood>>s.
+
+    <<itemlist>>
+    <<gofer.details nlist {N1 N2}>>
+    <<gofer.function nbunemp {"N1","N2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>nlist</i></tt> >>
+    A list of the IDs of one or more <<term nbhood>>s
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER NBWORKERS "nbworkers(n,...)" {
     Returns the number of the <<term worker>>s in the playbox that
     reside in the listed <<term nbhood>>s.<p>

@@ -672,6 +672,9 @@ snit::type executive {
         $interp function nbsupport 2 2 {a n} \
             [myproc nbsupport]
 
+        $interp function nbunemp 1 - {n ?n...?} \
+            [myproc nbunemp]
+
         $interp function nbworkers 1 - {n ?n...?} \
             [myproc nbworkers]
 
@@ -991,6 +994,20 @@ snit::type executive {
     proc nbsupport {a n} {
         set gdict [gofer construct NUMBER NBSUPPORT $a $n]
 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # nbunemp n ?n...?
+    #
+    # n - A list of neighborhoods
+    #
+    # Returns the average unemployment rate for the listed neighborhood(s).
+
+    proc nbunemp {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER NB_UNEMPLOYMENT_RATE $args] 
         return [gofer::NUMBER eval $gdict]
     }
 

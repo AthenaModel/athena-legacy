@@ -210,6 +210,14 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}    
         }
 
+        case NB_UNEMPLOYMENT_RATE "nbunemp(n,...)" {
+            rc
+            rc "Average unemployment rate for neighborhood(s)"
+            rc
+            enumlonglist nlist -showkeys yes -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
         case NBWORKERS "nbworkers(n,...)" {
             rc
             rc "Workers resident in neighborhood(s)"
@@ -1116,6 +1124,57 @@ gofer rule NUMBER NBSUPPORT {a n} {
         }
 
         return 0.00
+    }
+}
+
+# Rule: NB_UNEMPLOYMENT_RATE
+#
+# nbunemp(n,...)
+
+gofer rule NUMBER NB_UNEMPLOYMENT_RATE {nlist} {
+    typemethod construct {nlist} {
+        return [$type validate [dict create nlist $nlist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create nlist \
+            [listval nbhoods {nbhood validate} [string toupper $nlist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {nbunemp("%s")} [join $nlist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+        
+        # FIRST, create the inClause.
+        set inClause "('[join $nlist ',']')"
+        
+        # NEXT, query the total of unemployment rates belonging
+        # to nbhoods in the list JOINED with nbhoods that are local
+        set ur [rdb onecolumn "
+            SELECT sum(demog_n.ur) 
+            FROM demog_n INNER JOIN nbhoods
+            ON demog_n.n = nbhoods.n
+            WHERE demog_n.n IN $inClause
+            AND nbhoods.local
+        "]
+        
+        # NEXT, if in setup it will return "", need to set to 0
+        if {$ur == ""} {
+            set ur 0.00
+        }
+            
+        # NEXT, divide the unemployment rate total by the 
+        # number of groups selected to get the average.
+        set numgroups [llength $nlist]
+        set urate [expr { $ur/$numgroups }]
+            
+        return [format %.2f $urate]
     }
 }
 

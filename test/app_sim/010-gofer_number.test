@@ -1157,6 +1157,70 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     #-------------------------------------------------------------------
+    # Rule: NB_UNEMPLOYMENT_RATE
+
+    test NB_UNEMPLOYMENT_RATE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE construct {NB1 NB2}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NB_UNEMPLOYMENT_RATE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE validate {nlist {nb1 nb2}}
+    } -cleanup {
+        cleanup
+    } -result {nlist {NB1 NB2}}
+
+    test NB_UNEMPLOYMENT_RATE-2.2 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE validate {nlist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NB_UNEMPLOYMENT_RATE-2.3 {validate, invalid N} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE validate {nlist {NB1 NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NB_UNEMPLOYMENT_RATE-3.1 {narrative} -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE narrative {nlist {NB2 NB1}}
+    } -result {nbunemp("NB2","NB1")}
+
+    test NB_UNEMPLOYMENT_RATE-3.2 {narrative} -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE narrative {nlist {NB2}}
+    } -result {nbunemp("NB2")}
+
+    test NB_UNEMPLOYMENT_RATE-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE eval {nlist NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test NB_UNEMPLOYMENT_RATE-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE eval {nlist NB1}
+    } -cleanup {
+        cleanup
+    } -result {4.00}
+
+    #-------------------------------------------------------------------
     # Rule: NBWORKERS
 
     test NBWORKERS-1.1 {construct, valid} -setup {
