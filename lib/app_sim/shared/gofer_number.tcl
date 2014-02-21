@@ -1749,11 +1749,13 @@ gofer rule NUMBER GROUP_UNEMPLOYMENT_RATE {glist} {
         set inClause "('[join $glist ',']')"
         
         # NEXT, query the total of unemployment rates belonging
-        # to groups in the list
+        # to groups in the list JOINED with local_civgroups
         set ur [rdb onecolumn "
-            SELECT sum(ur) 
-            FROM demog_g
-            WHERE g IN $inClause
+            SELECT sum(demog_g.ur)
+            FROM demog_g INNER JOIN local_civgroups
+            ON demog_g.g = local_civgroups.g
+            WHERE demog_g.g IN $inClause
+            
         "]
         
         # NEXT, if in setup it will return "", need to set to 0
