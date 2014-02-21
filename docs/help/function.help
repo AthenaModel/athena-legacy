@@ -229,6 +229,19 @@ function "local_pop()" {
 }
 
 #=======================================================================
+# local_unemp
+
+function "local_unemp()" {
+    Returns the average unemployment rate in the local
+    <<term nbhood>>s as a number between 0.00 and 100.00.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/local_unemployment_rate>> rule.
+}
+
+#=======================================================================
 # local_workers
 
 function "local_workers()" {

@@ -648,6 +648,9 @@ snit::type executive {
         $interp function local_pop 0 0 {} \
             [myproc local_pop]
 
+        $interp function local_unemp 0 0 {} \
+            [myproc local_unemp]
+
         $interp function local_workers 0 0 {} \
             [myproc local_workers]
 
@@ -895,6 +898,15 @@ snit::type executive {
 
     proc local_pop {} {
         set gdict [gofer construct NUMBER LOCAL_POPULATION] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # local_unemp 
+    #
+    # Returns the average unemployment rate in local neighborhood(s).
+
+    proc local_unemp {} {
+        set gdict [gofer construct NUMBER LOCAL_UNEMPLOYMENT_RATE] 
         return [gofer::NUMBER eval $gdict]
     }
 

@@ -145,6 +145,12 @@ gofer define NUMBER "" {
             rc
         }
 
+        case LOCAL_UNEMPLOYMENT_RATE "local_unemp()" {
+            rc
+            rc "Average unemployment rate in local neighborhoods"
+            rc
+        }
+
         case LOCAL_WORKERS "local_workers()" {
             rc
             rc "Workers resident in local neighborhoods"
@@ -818,6 +824,61 @@ gofer rule NUMBER LOCAL_POPULATION {} {
         } else {
             return $count
         }
+    }
+}
+
+# Rule: LOCAL_UNEMPLOYMENT_RATE
+#
+# local_unemp()
+
+gofer rule NUMBER LOCAL_UNEMPLOYMENT_RATE {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "local_unemp()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+        
+        # NEXT, query the total of unemployment rates belonging
+        # to ALL nbhoods JOINED with nbhoods that are local
+        set ur [rdb onecolumn "
+            SELECT sum(demog_n.ur) 
+            FROM demog_n INNER JOIN nbhoods
+            ON demog_n.n = nbhoods.n
+            WHERE nbhoods.local
+        "]
+        
+        # NEXT, if in setup it will return "", need to set to 0
+        if {$ur == ""} {
+            set ur 0.00
+        }
+        
+        # NEXT, get the total number of nbhoods
+        set numnbhoods [rdb onecolumn "
+            SELECT count(demog_n.n)
+            FROM demog_n INNER JOIN nbhoods
+            ON demog_n.n = nbhoods.n
+            WHERE nbhoods.local
+        "]
+        if {$numnbhoods == "" || $numnbhoods == 0} {
+            return 0.00
+        }
+  
+        # NEXT, divide the unemployment rate total by the 
+        # number of nbhoods to get the average.
+        set urate [expr { $ur/$numnbhoods }]
+            
+        return [format %.2f $urate]
     }
 }
 
