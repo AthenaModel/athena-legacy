@@ -2415,6 +2415,15 @@ gofer_rule NUMBER PLAYBOX_CONSUMERS "pbconsumers()" {
     <</itemlist>><p>
 }
 
+gofer_rule NUMBER PLAYBOX_PLANTS "pbplants()" {
+    Returns the total number of plants in the playbox.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function pbplants {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER PLAYBOX_POPULATION "pbpop()" {
     Returns the population of the <<term civgroup>>s in the playbox.
 

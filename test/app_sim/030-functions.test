@@ -1148,6 +1148,34 @@ namespace eval ::athena_test::tests:: {
     } -result {2000}
 
     #-------------------------------------------------------------------
+    # pbplants()
+
+    test pbplants-1.1 {valid} -setup {
+        ted create JOE BOB SHIA SUNN NB1 NB2
+    } -body {
+        ted sendex expr pbplants()
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test pbplants-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr pbplants()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test pbplants-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr pbplants()
+    } -cleanup {
+        cleanup
+    } -result {23.0}
+
+    #-------------------------------------------------------------------
     # pbpop()
 
     test pbpop-1.1 {valid} -setup {

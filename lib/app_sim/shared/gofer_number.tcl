@@ -252,6 +252,12 @@ gofer define NUMBER "" {
             rc
         }
 
+        case PLAYBOX_PLANTS "pbplants()" {
+            rc
+            rc "The total number of plants in the playbox"
+            rc
+        }
+
         case PLAYBOX_POPULATION "pbpop()" {
             rc
             rc "Population of civilian groups in the playbox."
@@ -1416,6 +1422,38 @@ gofer rule NUMBER PLAYBOX_CONSUMERS {} {
         } else {
             return $count
         }
+    }
+}
+
+# Rule: PLAYBOX_PLANTS
+#
+# pbplants()
+
+gofer rule NUMBER PLAYBOX_PLANTS {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "pbplants()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set plants [plant number total]
+
+        if {$plants == ""} {
+            set plants 0.0
+        }
+
+        return $plants
     }
 }
 

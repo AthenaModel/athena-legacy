@@ -1474,6 +1474,46 @@ namespace eval ::athena_test::tests:: {
     } -result {2000}
 
     #-------------------------------------------------------------------
+    # Rule: PLAYBOX_PLANTS
+
+    test PLAYBOX_PLANTS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_PLANTS construct
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_PLANTS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_PLANTS validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_PLANTS-3.1 {narrative} -body {
+        ::gofer::NUMBER::PLAYBOX_PLANTS narrative {}
+    } -result {pbplants()}
+
+    test PLAYBOX_PLANTS-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_PLANTS eval {}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test PLAYBOX_PLANTS-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_PLANTS eval {}
+    } -cleanup {
+        cleanup
+    } -result {23.0}
+
+    #-------------------------------------------------------------------
     # Rule: PLAYBOX_POPULATION
 
     test PLAYBOX_POPULATION-1.1 {construct, valid} -setup {
