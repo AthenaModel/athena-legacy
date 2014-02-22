@@ -702,6 +702,9 @@ snit::type executive {
         $interp function pctcontrol 1 - {a ?a...?} \
             [myproc pctcontrol]
 
+        $interp function plants 2 2 {a n} \
+            [myproc plants]
+
         $interp function pop 1 - {g ?g...?} \
             [myproc pop]
 
@@ -1087,6 +1090,19 @@ snit::type executive {
 
     proc pctcontrol {args} {
         set gdict [gofer construct NUMBER PCTCONTROL $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # plants f g
+    #
+    # a - An actor
+    # n - A neighborhood
+    #
+    # Returns the total number of plants owned by actor a in 
+    # neighborhood n.
+
+    proc plants {a n} {
+        set gdict [gofer construct NUMBER PLANTS $a $n] 
         return [gofer::NUMBER eval $gdict]
     }
 

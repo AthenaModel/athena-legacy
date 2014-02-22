@@ -1248,6 +1248,42 @@ namespace eval ::athena_test::tests:: {
     } -result {100.0}
 
     #-------------------------------------------------------------------
+    # plants()
+
+    test plants-1.1 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr plants("NONESUCH","NB1")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test plants-1.2 {invalid nbhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr plants("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test plants-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr plants("JOE","NB1")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test plants-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr plants("joe","nb1")
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
     # pop()
 
     test pop-1.1 {1 civgroup, invalid} -setup {

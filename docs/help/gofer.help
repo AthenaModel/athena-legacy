@@ -1987,7 +1987,7 @@ gofer_rule NUMBER ASSIGNED "assigned(g,activity,n)" {
 
 gofer_rule NUMBER GROUP_CONSUMERS "consumers(g,...)" {
     Returns the number of the <<term consumer>>s in the playbox that
-    belong to one of the listed <<term civgroup>>s.<p>
+    belong to one of the listed <<term civgroup>>s in <i>glist</i>.<p>
 
     <<itemlist>>
     <<gofer.details glist {C1 C2}>>
@@ -2061,7 +2061,7 @@ gofer_rule NUMBER COVERAGE "coverage(g,activity,n)" {
 
 gofer_rule NUMBER DEPLOYED "deployed(g,n,...)" {
     Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
-    deployed in the <<term nbhood>>s n. <p>
+     <i>g</i> deployed in the <<term nbhood>>s in <i>nlist</i>. <p>
 
     <<itemlist>>
     <<gofer.details g BLUE nlist {N1 N2}>>
@@ -2181,8 +2181,8 @@ gofer_rule NUMBER LOCAL_WORKERS "local_workers()" {
 }
 
 gofer_rule NUMBER MOBILIZED "mobilized(g,...)" {
-    Returns the personnel of <<term frcgroup>> or <<term orggroup>> 
-    mobilized in the playbox. <p>
+    Returns the personnel of <<term frcgroup>>s or <<term orggroup>>s 
+     in <i>glist</i> mobilized in the playbox. <p>
 
     <<itemlist>>
     <<gofer.details glist {BLUE BRIT}>>
@@ -2222,7 +2222,7 @@ gofer_rule NUMBER MOOD "mood(g)" {
 
 gofer_rule NUMBER NBCONSUMERS "nbconsumers(n,...)" {
     Returns the number of the <<term consumer>>s in the playbox that
-    reside in the listed <<term nbhood>>s.
+    reside in the <<term nbhood>>s in <i>nlist</i>.<p>
 
     <<itemlist>>
     <<gofer.details nlist {N1 N2}>>
@@ -2285,7 +2285,7 @@ gofer_rule NUMBER NBMOOD "nbmood(n)" {
 }
 
 gofer_rule NUMBER NBPOPULATION "nbpop(n,...)" {
-    Returns the civilian population in the <<term nbhood>>s given.
+    Returns the civilian population in the <<term nbhood>>s in <i>nlist</i>.
 
     <<itemlist>>
     <<gofer.details nlist {N1 N2}>>
@@ -2329,8 +2329,8 @@ gofer_rule NUMBER NBSUPPORT "nbsupport(a,n)" {
 }
 
 gofer_rule NUMBER NB_UNEMPLOYMENT_RATE "nbunemp(n,...)" {
-    Returns the average unemployment rate for the listed 
-    <<term nbhood>>s.
+    Returns the average unemployment rate for the  
+    <<term nbhood>>s in <i>nlist</i> as a number between 0.0 and 100.0.<p>
 
     <<itemlist>>
     <<gofer.details nlist {N1 N2}>>
@@ -2350,7 +2350,7 @@ gofer_rule NUMBER NB_UNEMPLOYMENT_RATE "nbunemp(n,...)" {
 
 gofer_rule NUMBER NBWORKERS "nbworkers(n,...)" {
     Returns the number of the <<term worker>>s in the playbox that
-    reside in the listed <<term nbhood>>s.<p>
+    reside in the <<term nbhood>>s in <i>nlist</i>.<p>
 
     <<itemlist>>
     <<gofer.details nlist {N1 N2}>>
@@ -2387,7 +2387,8 @@ gofer_rule NUMBER PLAYBOX_POPULATION "pbpop()" {
 }
 
 gofer_rule NUMBER PLAYBOX_UNEMPLOYMENT_RATE "pbunemp()" {
-    Returns the average unemployment rate in the playbox.<p>
+    Returns the average unemployment rate in the playbox 
+    as a number between 0.0 and 100.0.<p>
 
     <<itemlist>>
     <<gofer.details>>
@@ -2426,8 +2427,33 @@ gofer_rule NUMBER PCTCONTROL "pctcontrol(a,...)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER PLANTS "plants(a,n)" {
+    Returns the total number of plants owned by <<term actor>> 
+    <i>a</i> in <<term nbhood>> <i>n</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details a JOE n NB1>>
+    <<gofer.function plants {"JOE","NB1"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER GROUP_POPULATION "pop(g,...)" {
-    Returns the Population of the <<term civgroup>>s in the playbox.<p>
+    Returns the Population of the <<term civgroup>>s in <i>glist</i>, 
+    in the playbox.<p>
 
     <<itemlist>>
     <<gofer.details glist {C1 C2}>>
@@ -2570,7 +2596,9 @@ gofer_rule NUMBER SUPPORT "support(a,g,n)" {
 }
 
 gofer_rule NUMBER GROUP_UNEMPLOYMENT_RATE "unemp(g,...)" {
-    Returns the average unemployment rate for the listed <<term civgroup>>s.<p>
+    Returns the average unemployment rate for the 
+    <<term civgroup>>s in <i>glist</i> as a number 
+    between 0.0 and 100.0.<p>
 
     <<itemlist>>
     <<gofer.details glist {C1 C2}>>
@@ -2614,7 +2642,7 @@ gofer_rule NUMBER VREL "vrel(g,a)" {
 
 gofer_rule NUMBER GROUP_WORKERS "workers(g,...)" {
     Returns the number of the <<term worker>>s in the playbox that
-    belong to one of the listed <<term civgroup>>s.<p>
+    belong to one of the <<term civgroup>>s in <i>glist</i>.<p>
 
     <<itemlist>>
     <<gofer.details glist {C1 C2}>>

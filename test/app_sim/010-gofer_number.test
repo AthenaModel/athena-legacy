@@ -1536,6 +1536,66 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: PLANTS
+
+    test PLANTS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLANTS construct JOE NB1
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test PLANTS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLANTS validate {a joe n nb1}
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test PLANTS-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLANTS validate {a NONESUCH n NB1}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test PLANTS-2.3 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLANTS validate {a JOE n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test PLANTS-3.1 {narrative} -body {
+        ::gofer::NUMBER::PLANTS narrative {a JOE n NB1}
+    } -result {plants("JOE","NB1")}
+
+    test PLANTS-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLANTS eval {a JOE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    test PLANTS-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PLANTS eval {a JOE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0}
+
+    #-------------------------------------------------------------------
     # Rule: GROUP_POPULATION
 
     test GROUP_POPULATION-1.1 {construct, valid} -setup {

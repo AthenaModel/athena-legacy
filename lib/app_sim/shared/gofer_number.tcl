@@ -264,6 +264,17 @@ gofer define NUMBER "" {
                 -width 30 -height 10
         }
 
+        case PLANTS "plants(a,n)" {
+            rc
+            rc "The total number of plants owned by actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+
+            rc "in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
         case GROUP_POPULATION "pop(g,...)" {
             rc
             rc "Population of civilian group(s) in playbox"
@@ -1489,6 +1500,42 @@ gofer rule NUMBER PCTCONTROL {alist} {
         }
 
         return [expr {100.0*$count/$total}]
+    }
+}
+
+# Rule: PLANTS
+#
+# plants(a,n)
+
+gofer rule NUMBER PLANTS {a n} {
+    typemethod construct {a n} {
+        return [$type validate [dict create a $a n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]] \
+            n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {plants("%s","%s")} $a $n]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set plants [plant get {$n $a} num]
+
+        if {$plants == ""} {
+            set plants 0
+        }
+
+        return $plants
     }
 }
 
