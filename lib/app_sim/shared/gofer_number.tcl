@@ -266,6 +266,12 @@ gofer define NUMBER "" {
             rc
         }
 
+        case PLAYBOX_GOODS_CAP "pbgoodscap()" {
+            rc
+            rc "The total output capacity of all goods production plants in the playbox."
+            rc
+        }
+
         case PLAYBOX_PLANTS "pbplants()" {
             rc
             rc "The total number of plants in the playbox"
@@ -1517,6 +1523,38 @@ gofer rule NUMBER PLAYBOX_CONSUMERS {} {
         } else {
             return $count
         }
+    }
+}
+
+# Rule: PLAYBOX_GOODS_CAP
+#
+# pbgoodscap()
+
+gofer rule NUMBER PLAYBOX_GOODS_CAP {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "pbgoodscap()"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set goodscap [plant capacity total]
+
+        if {$goodscap == ""} {
+            set goodscap 0.0
+        }
+
+        return $goodscap
     }
 }
 

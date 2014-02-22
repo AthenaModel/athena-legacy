@@ -702,6 +702,9 @@ snit::type executive {
         $interp function pbconsumers 0 0 {} \
             [myproc pbconsumers]
 
+        $interp function pbgoodscap 0 0 {} \
+            [myproc pbgoodscap]
+
         $interp function pbplants 0 0 {} \
             [myproc pbplants]
 
@@ -1115,6 +1118,16 @@ snit::type executive {
 
     proc pbconsumers {} {
         set gdict [gofer construct NUMBER PLAYBOX_CONSUMERS] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # pbgoodscap
+    #
+    # Returns the total output capacity of all goods production 
+    # plants in the playbox.
+
+    proc pbgoodscap {} {
+        set gdict [gofer construct NUMBER PLAYBOX_GOODS_CAP] 
         return [gofer::NUMBER eval $gdict]
     }
 

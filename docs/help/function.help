@@ -455,6 +455,19 @@ function "pbconsumers()" {
 }
 
 #=======================================================================
+# pbgoodscap
+
+function "pbgoodscap()" {
+    Returns the total output capacity of all goods production plants 
+    in the playbox.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/playbox_goods_cap>> rule.
+}
+
+#=======================================================================
 # pbplants
 
 function "pbplants()" {

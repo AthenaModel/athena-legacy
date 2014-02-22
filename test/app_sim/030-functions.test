@@ -1204,6 +1204,34 @@ namespace eval ::athena_test::tests:: {
     } -result {2000}
 
     #-------------------------------------------------------------------
+    # pbgoodscap()
+
+    test pbgoodscap-1.1 {valid} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr pbgoodscap()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test pbgoodscap-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr pbgoodscap()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test pbgoodscap-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr pbgoodscap()
+    } -cleanup {
+        cleanup
+    } -result {22301252822.96461}
+
+    #-------------------------------------------------------------------
     # pbplants()
 
     test pbplants-1.1 {valid} -setup {

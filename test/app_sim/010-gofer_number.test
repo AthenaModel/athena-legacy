@@ -1574,6 +1574,46 @@ namespace eval ::athena_test::tests:: {
     } -result {2000}
 
     #-------------------------------------------------------------------
+    # Rule: PLAYBOX_GOODS_CAP
+
+    test PLAYBOX_GOODS_CAP-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_GOODS_CAP construct 
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_GOODS_CAP-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_GOODS_CAP validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test PLAYBOX_GOODS_CAP-3.1 {narrative} -body {
+        ::gofer::NUMBER::PLAYBOX_GOODS_CAP narrative {}
+    } -result {pbgoodscap()}
+
+    test PLAYBOX_GOODS_CAP-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_GOODS_CAP eval {}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test PLAYBOX_GOODS_CAP-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::PLAYBOX_GOODS_CAP eval {}
+    } -cleanup {
+        cleanup
+    } -result {22302558935.59318}
+
+    #-------------------------------------------------------------------
     # Rule: PLAYBOX_PLANTS
 
     test PLAYBOX_PLANTS-1.1 {construct, valid} -setup {

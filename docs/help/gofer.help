@@ -2455,6 +2455,16 @@ gofer_rule NUMBER PLAYBOX_CONSUMERS "pbconsumers()" {
     <</itemlist>><p>
 }
 
+gofer_rule NUMBER PLAYBOX_GOODS_CAP "pbgoodscap()" {
+    Returns the total output capacity of all goods production 
+    plants in the playbox.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function pbgoodscap {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER PLAYBOX_PLANTS "pbplants()" {
     Returns the total number of plants in the playbox.<p>
 
