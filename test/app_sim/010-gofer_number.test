@@ -1072,6 +1072,56 @@ namespace eval ::athena_test::tests:: {
     } -result {25.0}
 
     #-------------------------------------------------------------------
+    # Rule: NB_PLANTS
+
+    test NB_PLANTS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_PLANTS construct NB1
+    } -cleanup {
+        cleanup
+    } -result {n NB1}
+
+    test NB_PLANTS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_PLANTS validate {n nb1}
+    } -cleanup {
+        cleanup
+    } -result {n NB1}
+
+    test NB_PLANTS-2.2 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_PLANTS validate {n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NB_PLANTS-3.1 {narrative} -body {
+        ::gofer::NUMBER::NB_PLANTS narrative {n NB1}
+    } -result {nbplants("NB1")}
+
+    test NB_PLANTS-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_PLANTS eval {n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test NB_PLANTS-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NB_PLANTS eval {n NB1}
+    } -cleanup {
+        cleanup
+    } -result {23.0}
+
+    #-------------------------------------------------------------------
     # Rule: NBPOPULATION
 
     test NBPOPULATION-1.1 {construct, valid} -setup {
@@ -1584,7 +1634,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::PLANTS eval {a JOE n NB1}
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {0.0}
 
     test PLANTS-4.2 {eval lock} -setup {
         setup
@@ -1593,7 +1643,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::PLANTS eval {a JOE n NB1}
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {0.0}
 
     #-------------------------------------------------------------------
     # Rule: GROUP_POPULATION

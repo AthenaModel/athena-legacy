@@ -325,6 +325,18 @@ function "nbmood(n)" {
 }
 
 #=======================================================================
+# nbplants
+
+function "nbplants(n)" {
+    Returns the total number of plants in <<term nbhood>> <i>n</i>.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nb_plants>> rule.
+}
+
+#=======================================================================
 # nbpop
 
 function "nbpop(n,?n...?)" {

@@ -197,6 +197,13 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case NB_PLANTS "nbplants(n)" {
+            rc
+            rc "The total number of plants in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
         case NBPOPULATION "nbpop(n,...)" {
             rc
             rc "Civilian population in neighborhood(s)"
@@ -1126,6 +1133,41 @@ gofer rule NUMBER NBMOOD {n} {
     }
 }
 
+# Rule: NB_PLANTS
+#
+# nbplants(n)
+
+gofer rule NUMBER NB_PLANTS {n} {
+    typemethod construct {n} {
+        return [$type validate [dict create n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {nbplants("%s")} $n]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set nbplants [plant number n $n]
+
+        if {$nbplants == ""} {
+            set nbplants 0.0
+        }
+
+        return $nbplants
+    }
+}
+
 # Rule: NBPOPULATION
 #
 # nbpop(n,...)
@@ -1532,7 +1574,7 @@ gofer rule NUMBER PLANTS {a n} {
         set plants [plant get {$n $a} num]
 
         if {$plants == ""} {
-            set plants 0
+            set plants 0.0
         }
 
         return $plants

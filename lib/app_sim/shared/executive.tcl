@@ -669,6 +669,9 @@ snit::type executive {
         $interp function nbmood 1 1 {n} \
             [myproc nbmood]
 
+        $interp function nbplants 1 1 {n} \
+            [myproc nbplants]
+
         $interp function nbpop 1 - {n ?n...?} \
             [myproc nbpop]
 
@@ -988,6 +991,18 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
+    # nbplants n
+    #
+    # n - A neighborhood
+    #
+    # Returns the total number of plants in 
+    # neighborhood n.
+
+    proc nbplants {n} {
+        set gdict [gofer construct NUMBER NB_PLANTS $n] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
     # nbpop n ?n...?
     #
     # n - A list of neighborhoods
@@ -1093,7 +1108,7 @@ snit::type executive {
         return [gofer::NUMBER eval $gdict]
     }
 
-    # plants f g
+    # plants a n
     #
     # a - An actor
     # n - A neighborhood

@@ -827,6 +827,34 @@ namespace eval ::athena_test::tests:: {
     } -result {-1.5}
 
     #-------------------------------------------------------------------
+    # nbplants()
+
+    test nbplants-1.1 {invalid nbhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr nbplants("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test nbplants-2.1 {in prep} -setup {
+        ted create NB1 
+    } -body {
+        ted sendex expr nbplants("NB1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test nbplants-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr nbplants("nb1")
+    } -cleanup {
+        cleanup
+    } -result {23.0}
+
+    #-------------------------------------------------------------------
     # nbpop()
 
     test nbpop-1.1 {1 nbhood, invalid} -setup {
@@ -1272,7 +1300,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr plants("JOE","NB1")
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {0.0}
 
     test plants-2.2 {get data} -setup {
         ted create NB1 BLUE SHIA JOE
@@ -1281,7 +1309,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr plants("joe","nb1")
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {0.0}
 
     #-------------------------------------------------------------------
     # pop()

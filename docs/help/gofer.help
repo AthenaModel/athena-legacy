@@ -2284,6 +2284,25 @@ gofer_rule NUMBER NBMOOD "nbmood(n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER NB_PLANTS "nbplants(n)" {
+    Returns the total number of plants in <<term nbhood>> <i>n</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details n NB1>>
+    <<gofer.function nbplants {"NB1"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER NBPOPULATION "nbpop(n,...)" {
     Returns the civilian population in the <<term nbhood>>s in <i>nlist</i>.
 
