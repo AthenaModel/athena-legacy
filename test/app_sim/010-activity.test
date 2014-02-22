@@ -72,11 +72,11 @@ namespace eval ::athena_test::tests:: {
         error
     } -result {Invalid activity, should be one of: CHECKPOINT, CMO_CONSTRUCTION, CMO_DEVELOPMENT, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_LAW_ENFORCEMENT, CMO_OTHER, COERCION, CRIMINAL_ACTIVITIES, CURFEW, GUARD, PATROL, PRESENCE, PSYOP}
 
-    test withcov-2.1 {ORG - Invalid name} -body {
+    test withcov-2.2 {ORG - Invalid name} -body {
         activity withcov org validate NONESUCH
     } -returnCodes {
         error
-    } -result {Invalid activity, should be one of: }
+    } -result {Invalid activity, should be one of: CMO_CONSTRUCTION, CMO_EDUCATION, CMO_EMPLOYMENT, CMO_HEALTHCARE, CMO_INDUSTRY, CMO_INFRASTRUCTURE, CMO_OTHER}
 
     #-------------------------------------------------------------------
     # check
