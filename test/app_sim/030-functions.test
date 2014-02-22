@@ -490,6 +490,34 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # goodsidle()
+
+    test goodsidle-1.1 {valid} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr goodsidle()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test goodsidle-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr goodsidle()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test goodsidle-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr goodsidle()
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # hrel()
 
     test hrel-1.1 {invalid group} -setup {

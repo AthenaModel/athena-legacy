@@ -125,6 +125,12 @@ gofer define NUMBER "" {
             enumlong a -showkeys yes -dictcmd {::actor namedict}
         }
 
+        case GOODS_IDLE "goodsidle()" {
+            rc
+            rc "The idle capacity for the playbox."
+            rc
+        }
+
         case HREL "hrel(f,g)" {
             rc
             rc "The horizontal relationship of group"
@@ -818,6 +824,34 @@ gofer rule NUMBER GOODS_CAP {a} {
         }
 
         return $goodscap
+    }
+}
+
+# Rule: GOODS_IDLE
+#
+# goodsidle()
+
+gofer rule NUMBER GOODS_IDLE {} {
+    typemethod construct {} {
+        return [$type validate [dict create]]
+    }
+
+    typemethod validate {gdict} {
+        dict create
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "goodsidle()"
+    }
+
+    typemethod eval {gdict} {
+        if {[parm get econ.disable]} {
+            return 0.00
+        } else {
+            return [format %.2f [econ value Out::IDLECAP.goods]]
+        }
     }
 }
 

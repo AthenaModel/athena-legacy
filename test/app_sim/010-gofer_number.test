@@ -617,6 +617,46 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: GOODS_IDLE
+
+    test GOODS_IDLE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GOODS_IDLE construct 
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test GOODS_IDLE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GOODS_IDLE validate {}
+    } -cleanup {
+        cleanup
+    } -result {}
+
+    test GOODS_IDLE-3.1 {narrative} -body {
+        ::gofer::NUMBER::GOODS_IDLE narrative {}
+    } -result {goodsidle()}
+
+    test GOODS_IDLE-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::GOODS_IDLE eval {}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test GOODS_IDLE-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::GOODS_IDLE eval {}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
     # Rule: HREL
 
     test HREL-1.1 {construct, valid} -setup {

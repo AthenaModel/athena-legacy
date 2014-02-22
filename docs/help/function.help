@@ -201,6 +201,18 @@ function "goodscap(a)" {
 }
 
 #=======================================================================
+# goodsidle
+
+function "goodsidle()" {
+    Returns the idle capacity for the playbox.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/goods_idle>> rule.
+}
+
+#=======================================================================
 # hrel
 
 function "hrel(f,g)" {

@@ -642,6 +642,9 @@ snit::type executive {
         $interp function goodscap 1 1 {a} \
             [myproc goodscap]
 
+        $interp function goodsidle 0 0 {} \
+            [myproc goodsidle]
+
         $interp function hrel 2 2 {f g} \
             [myproc hrel]
 
@@ -906,6 +909,15 @@ snit::type executive {
 
     proc goodscap {a} {
         set gdict [gofer construct NUMBER GOODS_CAP $a] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # goodsidle
+    #
+    # Returns the idle capacity for the playbox.
+
+    proc goodsidle {} {
+        set gdict [gofer construct NUMBER GOODS_IDLE] 
         return [gofer::NUMBER eval $gdict]
     }
 

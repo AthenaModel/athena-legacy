@@ -2132,6 +2132,15 @@ gofer_rule NUMBER GOODS_CAP "goodscap(a)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER GOODS_IDLE "goodsidle()" {
+    Returns the idle capacity for the playbox.<p>
+
+    <<itemlist>>
+    <<gofer.details>>
+    <<gofer.function goodsidle {}>>
+    <</itemlist>><p>
+}
+
 gofer_rule NUMBER HREL "hrel(f,g)" {
     Returns the horizontal relationship of <<term group>> <i>f</i> with 
     <<term group>> <i>g</i> as a number between -1.0 and 1.0.<p>
