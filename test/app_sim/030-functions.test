@@ -69,6 +69,34 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # aplants()
+
+    test aplants-1.1 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr aplants("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test aplants-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr aplants("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test aplants-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr aplants("joe")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # assigned()
 
     test assigned-1.1 {invalid nbhood} -setup {

@@ -143,6 +143,56 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     #-------------------------------------------------------------------
+    # Rule: ACTOR_PLANTS
+
+    test ACTOR_PLANTS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ACTOR_PLANTS construct JOE
+    } -cleanup {
+        cleanup
+    } -result {a JOE}
+
+    test ACTOR_PLANTS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ACTOR_PLANTS validate {a joe}
+    } -cleanup {
+        cleanup
+    } -result {a JOE}
+
+    test ACTOR_PLANTS-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ACTOR_PLANTS validate {a NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test ACTOR_PLANTS-3.1 {narrative} -body {
+        ::gofer::NUMBER::ACTOR_PLANTS narrative {a JOE}
+    } -result {aplants("JOE")}
+
+    test ACTOR_PLANTS-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::ACTOR_PLANTS eval {a JOE}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test ACTOR_PLANTS-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::ACTOR_PLANTS eval {a JOE}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # Rule: ASSIGNED
 
     test ASSIGNED-1.1 {construct, valid} -setup {

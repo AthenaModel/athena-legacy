@@ -41,6 +41,13 @@ gofer define NUMBER "" {
             enumlong y -showkeys yes -dictcmd {::ptype goa namedict}
         }
 
+        case ACTOR_PLANTS "aplants(a)" {
+            rc
+            rc "The total number of plants owned by actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+        }
+
         case ASSIGNED "assigned(g,activity,n)" {
             rc
             rc "Number of personnel of force or org group "
@@ -456,6 +463,41 @@ gofer rule NUMBER AFFINITY {x y} {
         }
 
         return  0.00
+    }
+}
+
+# Rule: ACTOR_PLANTS
+#
+# plants(a)
+
+gofer rule NUMBER ACTOR_PLANTS {a} {
+    typemethod construct {a} {
+        return [$type validate [dict create a $a]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {aplants("%s")} $a]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set plants [plant number a $a]
+
+        if {$plants == ""} {
+            set plants 0.0
+        }
+
+        return $plants
     }
 }
 

@@ -615,6 +615,9 @@ snit::type executive {
         $interp function affinity 2 2 {x y} \
             [myproc affinity]
 
+        $interp function aplants 1 1 {a} \
+            [myproc aplants]
+
         $interp function assigned 3 3 {g activity n} \
             [myproc assigned]
 
@@ -752,6 +755,17 @@ snit::type executive {
 
     proc affinity {x y} {
         set gdict [gofer construct NUMBER AFFINITY $x $y] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # aplants a
+    #
+    # a - An actor
+    #
+    # Returns the total number of plants owned by actor a.
+
+    proc aplants {a} {
+        set gdict [gofer construct NUMBER ACTOR_PLANTS $a] 
         return [gofer::NUMBER eval $gdict]
     }
 
