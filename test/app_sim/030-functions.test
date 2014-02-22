@@ -854,6 +854,34 @@ namespace eval ::athena_test::tests:: {
     } -result {50.0}
 
     #-------------------------------------------------------------------
+    # nbgoodscap()
+
+    test nbgoodscap-1.1 {invalid actor} -setup {
+        ted create NB1
+    } -body {
+        ted sendex -error expr nbgoodscap("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test nbgoodscap-2.1 {in prep} -setup {
+        ted create NB1
+    } -body {
+        ted sendex expr nbgoodscap("NB1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test nbgoodscap-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA
+        ted lock
+    } -body {
+        ted sendex expr nbgoodscap("nb1")
+    } -cleanup {
+        cleanup
+    } -result {22301252822.96461}
+
+    #-------------------------------------------------------------------
     # nbmood()
 
     test nbmood-1.1 {invalid nbhood} -setup {

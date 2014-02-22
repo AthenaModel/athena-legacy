@@ -1128,6 +1128,56 @@ namespace eval ::athena_test::tests:: {
     } -result {37.5}
 
     #-------------------------------------------------------------------
+    # Rule: NB_GOODS_CAP
+
+    test NB_GOODS_CAP-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_GOODS_CAP construct NB1
+    } -cleanup {
+        cleanup
+    } -result {n NB1}
+
+    test NB_GOODS_CAP-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_GOODS_CAP validate {n nb1}
+    } -cleanup {
+        cleanup
+    } -result {n NB1}
+
+    test NB_GOODS_CAP-2.2 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_GOODS_CAP validate {n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test NB_GOODS_CAP-3.1 {narrative} -body {
+        ::gofer::NUMBER::NB_GOODS_CAP narrative {n NB1}
+    } -result {nbgoodscap("NB1")}
+
+    test NB_GOODS_CAP-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::NB_GOODS_CAP eval {n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test NB_GOODS_CAP-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NB_GOODS_CAP eval {n NB1}
+    } -cleanup {
+        cleanup
+    } -result {22302558935.59318}
+
+    #-------------------------------------------------------------------
     # Rule: NBMOOD
 
     test NBMOOD-1.1 {construct, valid} -setup {

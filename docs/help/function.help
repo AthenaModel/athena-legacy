@@ -336,6 +336,19 @@ function "nbcoop(n,g)" {
 }
 
 #=======================================================================
+# nbgoodscap
+
+function "nbgoodscap(n)" {
+    Returns the total output capacity of all goods production plants 
+    in <<term nbhood>> <i>n</i>.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/nb_goods_cap>> rule.
+}
+
+#=======================================================================
 # nbmood
 
 function "nbmood(n)" {

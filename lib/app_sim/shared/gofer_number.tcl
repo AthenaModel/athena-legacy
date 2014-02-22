@@ -204,6 +204,13 @@ gofer define NUMBER "" {
             enumlong g -showkeys yes -dictcmd {::frcgroup namedict}
         }
 
+        case NB_GOODS_CAP "nbgoodscap(n)" {
+            rc
+            rc "The total output capacity of all goods production plants in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
         case NBMOOD "nbmood(n)" {
             rc
             rc "Mood of neighborhood"
@@ -1197,6 +1204,41 @@ gofer rule NUMBER NBCOOP {n g} {
         }
 
         return 50.0
+    }
+}
+
+# Rule: NB_GOODS_CAP
+#
+# nbgoodscap(n)
+
+gofer rule NUMBER NB_GOODS_CAP {n} {
+    typemethod construct {n} {
+        return [$type validate [dict create n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {nbgoodscap("%s")} $n]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set goodscap [plant capacity n $n]
+
+        if {$goodscap == ""} {
+            set goodscap 0.0
+        }
+
+        return $goodscap
     }
 }
 

@@ -672,6 +672,9 @@ snit::type executive {
         $interp function nbcoop 2 2 {n g} \
             [myproc nbcoop]
 
+        $interp function nbgoodscap 1 1 {n} \
+            [myproc nbgoodscap]
+
         $interp function nbmood 1 1 {n} \
             [myproc nbmood]
 
@@ -1012,6 +1015,18 @@ snit::type executive {
 
     proc nbcoop {n g} {
         set gdict [gofer construct NUMBER NBCOOP $n $g] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # nbgoodscap n
+    #
+    # n - A neighborhood
+    #
+    # Returns the total output capacity of all goods production 
+    # plants in a neighborhood n
+
+    proc nbgoodscap {n} {
+        set gdict [gofer construct NUMBER NB_GOODS_CAP $n] 
         return [gofer::NUMBER eval $gdict]
     }
 
