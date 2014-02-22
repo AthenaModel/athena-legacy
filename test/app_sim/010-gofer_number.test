@@ -2040,6 +2040,56 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: CASH_RESERVE
+
+    test CASH_RESERVE-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_RESERVE construct JOE
+    } -cleanup {
+        cleanup
+    } -result {a JOE}
+
+    test CASH_RESERVE-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_RESERVE validate {a joe}
+    } -cleanup {
+        cleanup
+    } -result {a JOE}
+
+    test CASH_RESERVE-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_RESERVE validate {a NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test CASH_RESERVE-3.1 {narrative} -body {
+        ::gofer::NUMBER::CASH_RESERVE narrative {a JOE}
+    } -result {reserve("JOE")}
+
+    test CASH_RESERVE-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_RESERVE eval {a JOE}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test CASH_RESERVE-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::CASH_RESERVE eval {a JOE}
+    } -cleanup {
+        cleanup
+    } -result {200000.00}
+
+    #-------------------------------------------------------------------
     # Rule: SAT
 
     test SAT-1.1 {construct, valid} -setup {

@@ -584,6 +584,25 @@ function "repair(a,n)" {
 }
 
 #=======================================================================
+# reserve
+
+function "reserve(a)" {
+    Returns the cash reserve of <<term actor>> <i>a</i>.<p>
+
+    If actor a is the actor whose strategy is being executed 
+    then it is their current reserve.<p>
+
+    If actor a is an actor whose strategy is NOT being executed, then
+    it is the cash reserve for that actor at the time strategy execution began.<p>
+
+    It will return 0.00 if the economic model is
+    disabled see <<cref /parmdb/econ/disable>>.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/cash_reserve>> rule.
+}
+
+#=======================================================================
 # sat
 
 function sat(g,c) {

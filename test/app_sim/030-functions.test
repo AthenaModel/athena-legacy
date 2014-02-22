@@ -1569,6 +1569,72 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # reserve()
+
+    test reserve-1.1 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr reserve("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test reserve-1.2 {In Prep - Econ disabled} -setup {
+        ted create NB1 JOE
+        parm set econ.disable yes
+    } -body {
+        ted sendex expr reserve("joe")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test reserve-1.3 {In Prep - Econ enabled} -setup {
+        ted create NB1 JOE
+        parm set econ.disable no
+    } -body {
+        ted sendex expr reserve("joe")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test reserve-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr reserve("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test reserve-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr reserve("joe")
+    } -cleanup {
+        cleanup
+    } -result {200000.0}
+
+    test reserve-3.1 {Get Data - Econ disabled} -setup {
+        ted create NB1 BLUE SUNN JOE
+        parm set econ.disable yes
+        ted lock
+    } -body {
+        ted sendex expr reserve("joe")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test reserve-4.1 {Get Data - Econ enabled} -setup {
+        ted create NB1 BLUE SUNN JOE
+        parm set econ.disable no
+        ted lock
+    } -body {
+        ted sendex expr reserve("joe")
+    } -cleanup {
+        cleanup
+    } -result {200000.0}
+
+    #-------------------------------------------------------------------
     # sat()
 
     test sat-1.1 {invalid civ group} -setup {

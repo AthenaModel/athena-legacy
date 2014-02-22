@@ -340,6 +340,13 @@ gofer define NUMBER "" {
             enumlong n -showkeys yes -dictcmd {::nbhood namedict}
         }
 
+        case CASH_RESERVE "reserve(a)" {
+            rc
+            rc "The cash reserve of actor a"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+        }
+
         case SAT "sat(g,c)" {
             rc
             rc "Satisfaction of civilian group"
@@ -1904,6 +1911,49 @@ gofer rule NUMBER REPAIR {a n} {
         }
 
         return $repair
+    }
+}
+
+# Rule: CASH_RESERVE
+#
+# reserve(a)
+
+gofer rule NUMBER CASH_RESERVE {a} {
+    typemethod construct {a} {
+        return [$type validate [dict create a $a]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {reserve("%s")} $a]
+    }
+
+    typemethod eval {gdict} {
+        if {[parm get econ.disable]} {
+            # IF econ disabled return 0.00
+            return 0.00
+        } elseif {![sim locked]} {
+            # If the scenario is NOT locked, return 0.00
+            return 0.00
+        } else {
+            dict with gdict {}
+            
+            set reserve [cash reserve $a]
+            
+            if {$reserve == ""} {
+                set reserve 0.00
+            }
+            
+            return [format %.2f $reserve]
+        }
     }
 }
 

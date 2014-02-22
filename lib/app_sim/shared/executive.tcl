@@ -732,6 +732,9 @@ snit::type executive {
         $interp function repair 2 2 {a n} \
             [myproc repair]
 
+        $interp function reserve 1 1 {a} \
+            [myproc reserve]
+
         $interp function sat 2 2 {g c} \
             [myproc sat]
 
@@ -1230,6 +1233,17 @@ snit::type executive {
 
     proc repair {a n} {
         set gdict [gofer construct NUMBER REPAIR $a $n] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # reserve a
+    #
+    # a - An actor
+    #
+    # Returns the cash reserve of actor a.
+
+    proc reserve {a} {
+        set gdict [gofer construct NUMBER CASH_RESERVE $a] 
         return [gofer::NUMBER eval $gdict]
     }
 

@@ -2601,6 +2601,31 @@ gofer_rule NUMBER REPAIR "repair(a,n)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER CASH_RESERVE "reserve(a)" {
+    Returns the cash reserve of <<term actor>> <i>a</i>.<p>
+
+    If actor a is the actor whose strategy is being executed 
+    then it is their current reserve.<p>
+
+    If actor a is an actor whose strategy is NOT being executed, then
+    it is the cash reserve for that actor at the time strategy execution began.<p>
+
+    <<itemlist>>
+    <<gofer.details a JOE>>
+    <<gofer.function reserve {"JOE"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER SAT "sat(g,c)" {
     Returns the satisfaction of <<term civgroup>> <i>g</i> with 
     <<term concern>> <i>c</i> as a number between -100.0 and 100.0.<p>
