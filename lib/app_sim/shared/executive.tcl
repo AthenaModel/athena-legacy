@@ -717,6 +717,9 @@ snit::type executive {
         $interp function pop 1 - {g ?g...?} \
             [myproc pop]
 
+        $interp function repair 2 2 {a n} \
+            [myproc repair]
+
         $interp function sat 2 2 {g c} \
             [myproc sat]
 
@@ -1159,6 +1162,19 @@ snit::type executive {
             set args [lindex $args 0]
         }
         set gdict [gofer construct NUMBER GROUP_POPULATION $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # repair a n
+    #
+    # a - An actor
+    # n - A neighborhood
+    #
+    # Returns the current level of repair for plants owned by actor a in 
+    # neighborhood n.
+
+    proc repair {a n} {
+        set gdict [gofer construct NUMBER REPAIR $a $n] 
         return [gofer::NUMBER eval $gdict]
     }
 

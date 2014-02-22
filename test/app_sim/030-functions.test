@@ -1156,7 +1156,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr pbplants()
     } -cleanup {
         cleanup
-    } -result {0}
+    } -result {0.0}
 
     test pbplants-2.1 {in prep} -setup {
         ted create NB1 JOE
@@ -1419,6 +1419,42 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {2000}
+
+    #-------------------------------------------------------------------
+    # repair()
+
+    test repair-1.1 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr repair("NONESUCH","NB1")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test repair-1.2 {invalid nbhood} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr repair("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1}
+
+    test repair-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr repair("JOE","NB1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test repair-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr repair("joe","nb1")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
 
     #-------------------------------------------------------------------
     # sat()

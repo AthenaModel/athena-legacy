@@ -520,6 +520,19 @@ function "pop(g,?g...?)" {
 }
 
 #=======================================================================
+# repair
+
+function "repair(a,n)" {
+    Returns the current level of repair of plants owned by <<term actor>> 
+    <i>a</i> in <<term nbhood>> <i>n</i>.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/repair>> rule.
+}
+
+#=======================================================================
 # sat
 
 function sat(g,c) {

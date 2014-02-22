@@ -2518,6 +2518,30 @@ gofer_rule NUMBER GROUP_POPULATION "pop(g,...)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER REPAIR "repair(a,n)" {
+    Returns the current level of repair of plants owned by <<term actor>> 
+    <i>a</i> in <<term nbhood>> <i>n</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details a JOE n NB1>>
+    <<gofer.function repair {"JOE","NB1"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+
+    <<topic <tt><i>n</i></tt> >>
+    ID of a <<term nbhood>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER SAT "sat(g,c)" {
     Returns the satisfaction of <<term civgroup>> <i>g</i> with 
     <<term concern>> <i>c</i> as a number between -100.0 and 100.0.<p>

@@ -303,6 +303,17 @@ gofer define NUMBER "" {
                 -width 30 -height 10
         }
 
+        case REPAIR "repair(a,n)" {
+            rc
+            rc "The current level of repair for plants owned by actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+
+            rc "in neighborhood"
+            rc
+            enumlong n -showkeys yes -dictcmd {::nbhood namedict}
+        }
+
         case SAT "sat(g,c)" {
             rc
             rc "Satisfaction of civilian group"
@@ -1701,6 +1712,42 @@ gofer rule NUMBER GROUP_POPULATION {glist} {
         } else {
             return $count
         }
+    }
+}
+
+# Rule: REPAIR
+#
+# repair(a,n)
+
+gofer rule NUMBER REPAIR {a n} {
+    typemethod construct {a n} {
+        return [$type validate [dict create a $a n $n]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]] \
+            n [nbhood validate [string toupper $n]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {repair("%s","%s")} $a $n]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set repair [plant get {$n $a} rho]
+
+        if {$repair == ""} {
+            set repair 0.0
+        }
+
+        return $repair
     }
 }
 

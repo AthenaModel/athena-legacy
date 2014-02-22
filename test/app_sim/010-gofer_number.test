@@ -1800,6 +1800,66 @@ namespace eval ::athena_test::tests:: {
     } -result {1000}
 
     #-------------------------------------------------------------------
+    # Rule: REPAIR
+
+    test REPAIR-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::REPAIR construct JOE NB1
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test REPAIR-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::REPAIR validate {a joe n nb1}
+    } -cleanup {
+        cleanup
+    } -result {a JOE n NB1}
+
+    test REPAIR-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::REPAIR validate {a NONESUCH n NB1}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test REPAIR-2.3 {validate, invalid n} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::REPAIR validate {a JOE n NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid neighborhood,*}
+
+    test REPAIR-3.1 {narrative} -body {
+        ::gofer::NUMBER::REPAIR narrative {a JOE n NB1}
+    } -result {repair("JOE","NB1")}
+
+    test REPAIR-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::REPAIR eval {a JOE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test REPAIR-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::REPAIR eval {a JOE n NB1}
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # Rule: SAT
 
     test SAT-1.1 {construct, valid} -setup {
