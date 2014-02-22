@@ -1574,6 +1574,56 @@ namespace eval ::athena_test::tests:: {
     } -result {1200}
 
     #-------------------------------------------------------------------
+    # Rule: CASH_ON_HAND
+
+    test CASH_ON_HAND-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_ON_HAND construct JOE
+    } -cleanup {
+        cleanup
+    } -result {a JOE}
+
+    test CASH_ON_HAND-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_ON_HAND validate {a joe}
+    } -cleanup {
+        cleanup
+    } -result {a JOE}
+
+    test CASH_ON_HAND-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_ON_HAND validate {a NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test CASH_ON_HAND-3.1 {narrative} -body {
+        ::gofer::NUMBER::CASH_ON_HAND narrative {a JOE}
+    } -result {onhand("JOE")}
+
+    test CASH_ON_HAND-4.1 {eval prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::CASH_ON_HAND eval {a JOE}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test CASH_ON_HAND-4.2 {eval lock} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::CASH_ON_HAND eval {a JOE}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
     # Rule: PLAYBOX_CONSUMERS
 
     test PLAYBOX_CONSUMERS-1.1 {construct, valid} -setup {

@@ -266,6 +266,13 @@ gofer define NUMBER "" {
                 -width 30 -height 10
         }
 
+        case CASH_ON_HAND "onhand(a)" {
+            rc
+            rc "The cash on hand of actor a"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+        }
+
         case PLAYBOX_CONSUMERS "pbconsumers()" {
             rc
             rc "Consumers resident in the playbox."
@@ -1527,6 +1534,49 @@ gofer rule NUMBER NBWORKERS {nlist} {
             return 0
         } else {
             return $count
+        }
+    }
+}
+
+# Rule: CASH_ON_HAND
+#
+# onhand(a)
+
+gofer rule NUMBER CASH_ON_HAND {a} {
+    typemethod construct {a} {
+        return [$type validate [dict create a $a]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {onhand("%s")} $a]
+    }
+
+    typemethod eval {gdict} {
+        if {[parm get econ.disable]} {
+            # IF econ disabled return 0.00
+            return 0.00
+        } elseif {![sim locked]} {
+            # If the scenario is NOT locked, return 0.00
+            return 0.00
+        } else {
+            dict with gdict {}
+            
+            set onhand [cash onhand $a]
+            
+            if {$onhand == ""} {
+                set onhand 0.00
+            }
+            
+            return [format %.2f $onhand]
         }
     }
 }

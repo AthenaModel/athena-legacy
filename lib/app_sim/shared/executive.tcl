@@ -699,6 +699,9 @@ snit::type executive {
         $interp function now 0 0 {} \
             [list simclock now]
 
+        $interp function onhand 1 1 {a} \
+            [myproc onhand]
+
         $interp function parm 1 1 {parm} \
             [list ::parm get]
 
@@ -1123,6 +1126,17 @@ snit::type executive {
             set args [lindex $args 0]
         }
         set gdict [gofer construct NUMBER NBWORKERS $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # onhand a
+    #
+    # a - An actor
+    #
+    # Returns the cash on hand of actor a.
+
+    proc onhand {a} {
+        set gdict [gofer construct NUMBER CASH_ON_HAND $a] 
         return [gofer::NUMBER eval $gdict]
     }
 

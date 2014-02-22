@@ -2455,6 +2455,31 @@ gofer_rule NUMBER NBWORKERS "nbworkers(n,...)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER CASH_ON_HAND "onhand(a)" {
+    Returns the cash on hand of <<term actor>> <i>a</i>.<p>
+
+    If actor a is the actor whose strategy is being executed 
+    then it is their current cash on hand.<p>
+
+    If actor a is an actor whose strategy is NOT being executed, then
+    it is the cash on hand for that actor at the time strategy execution began.<p>
+
+    <<itemlist>>
+    <<gofer.details a JOE>>
+    <<gofer.function onhand {"JOE"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER PLAYBOX_CONSUMERS "pbconsumers()" {
     Returns the number of the <<term consumer>>s in the playbox.
 
