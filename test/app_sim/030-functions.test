@@ -462,6 +462,34 @@ namespace eval ::athena_test::tests:: {
     } -result {20361333852.52}
 
     #-------------------------------------------------------------------
+    # goodscap()
+
+    test goodscap-1.1 {invalid actor} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex -error expr goodscap("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: JOE}
+
+    test goodscap-2.1 {in prep} -setup {
+        ted create NB1 JOE
+    } -body {
+        ted sendex expr goodscap("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test goodscap-2.2 {get data} -setup {
+        ted create NB1 BLUE SHIA JOE
+        ted lock
+    } -body {
+        ted sendex expr goodscap("joe")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # hrel()
 
     test hrel-1.1 {invalid group} -setup {

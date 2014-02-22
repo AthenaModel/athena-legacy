@@ -118,6 +118,13 @@ gofer define NUMBER "" {
             rc
        }
 
+        case GOODS_CAP "goodscap(a)" {
+            rc
+            rc "The total output capacity of all goods production plants given an actor"
+            rc
+            enumlong a -showkeys yes -dictcmd {::actor namedict}
+        }
+
         case HREL "hrel(f,g)" {
             rc
             rc "The horizontal relationship of group"
@@ -763,6 +770,41 @@ gofer rule NUMBER GDP {} {
         } else {
             return [format %.2f [econ value Out::DGDP]]
         }
+    }
+}
+
+# Rule: GOODS_CAP
+#
+# goodscap(a)
+
+gofer rule NUMBER GOODS_CAP {a} {
+    typemethod construct {a} {
+        return [$type validate [dict create a $a]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create \
+            a [actor validate [string toupper $a]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {goodscap("%s")} $a]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set goodscap [plant capacity a $a]
+
+        if {$goodscap == ""} {
+            set goodscap 0.0
+        }
+
+        return $goodscap
     }
 }
 

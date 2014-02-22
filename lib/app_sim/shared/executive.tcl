@@ -639,6 +639,9 @@ snit::type executive {
         $interp function gdp 0 0 {} \
             [myproc gdp]
 
+        $interp function goodscap 1 1 {a} \
+            [myproc goodscap]
+
         $interp function hrel 2 2 {f g} \
             [myproc hrel]
 
@@ -885,6 +888,18 @@ snit::type executive {
 
     proc gdp {} {
         set gdict [gofer construct NUMBER GDP]
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # goodscap a
+    #
+    # a - An actor
+    #
+    # Returns the total output capacity of all goods production 
+    # plants owned by actor a.
+
+    proc goodscap {a} {
+        set gdict [gofer construct NUMBER GOODS_CAP $a] 
         return [gofer::NUMBER eval $gdict]
     }
 

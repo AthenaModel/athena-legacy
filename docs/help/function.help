@@ -84,7 +84,7 @@ function "affinity(x,y)" {
 # aplants
 
 function "aplants(a)" {
-    Returns the total number of plants owned by <<term actor>>.<p>
+    Returns the total number of plants owned by <<term actor>> <i>a</i>.<p>
 
     Returns 0 when the scenario is unlocked.<p>
 
@@ -185,6 +185,19 @@ function "gdp()" {
 
     This function is equivalent to the <<cref /gofer/number>>'s
     <<cref /gofer/number/gdp>> rule.
+}
+
+#=======================================================================
+# goodscap
+
+function "goodscap(a)" {
+    Returns the total output capacity of all goods production plants 
+    owned by <<term actor>> <i>a</i>.<p>
+
+    Returns 0 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/goods_cap>> rule.
 }
 
 #=======================================================================

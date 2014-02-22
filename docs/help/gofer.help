@@ -1957,7 +1957,7 @@ gofer_rule NUMBER AFFINITY "affinity(x,y)" {
 }
 
 gofer_rule NUMBER ACTOR_PLANTS "aplants(a)" {
-    Returns the total number of plants owned by <<term actor>>.<p>
+    Returns the total number of plants owned by <<term actor>> <i>a</i>.<p>
 
     <<itemlist>>
     <<gofer.details a JOE>>
@@ -2110,6 +2110,26 @@ gofer_rule NUMBER GDP "gdp()" {
     <<gofer.details>>
     <<gofer.function gdp {}>>
     <</itemlist>><p>
+}
+
+gofer_rule NUMBER GOODS_CAP "goodscap(a)" {
+    Returns the total output capacity of all goods production 
+    plants owned by <<term actor>> <i>a</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details a JOE>>
+    <<gofer.function goodscap {"JOE"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>a</i></tt> >>
+    ID of a <<term actor>>.
+    <</topic>>
+
+    <</topiclist>>
 }
 
 gofer_rule NUMBER HREL "hrel(f,g)" {
