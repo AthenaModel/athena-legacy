@@ -1,0 +1,242 @@
+<<manpage {marsutil(n) reporter(n)} "Report Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsutil 1.0
+namespace import ::marsutil::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<xref reporter(n)>> is responsible for saving textual reports to
+an RDB, and for managing a collection of views, called bins, used to
+retrieve reports for display.  It provides a number of meta-data
+variables used to classify and categorize reports.  In addition,
+reporter(n) is designed to support client/server architectures:
+reports can be generated in a server process, transported to a client
+process, and saved there; reporter(n) handles the work at both
+ends.<p>
+
+<<subsection "Configuration Options">>
+
+<<xref reporter(n)>> defines a number of configuration options, some
+of which must be set before the module can be used.  See the
+<<iref reporter configure>> command for details.<p>
+
+<<deflist commands>>
+
+<<defitem "reporter configure" {reporter configure <i>option value...</i>}>>
+
+Configures the module for service.<p>
+
+The following options are used to configure reporter(n) for use; at
+least the <code>-db</code> and <code>-clock</code> options must be set
+before anything else can be done.<p>
+
+<<deflist options>>
+
+<<defopt {-clock <i>clock</i>}>>
+
+<b>Required.</b>  The name of the <<xref simclock(i)>> object
+used to timestamp reports.<p>
+
+<<defopt {-db <i>db</i>}>>
+
+<b>Required.</b>  The name of an <<xref sqldocument(n)>> object,
+representing the database in which reports will be saved.<p>
+
+<<defopt {-deletecmd <i>command</i>}>>
+
+A callback that's called whenever a report is deleted using
+<<iref reporter delete>>.  The <i>command</i> is called with one
+additional argument, the report ID.<p>
+
+<<defopt {-reportcmd <i>command</i>}>>
+
+A callback that's called whenever a report is saved using
+<<iref reporter save>>.  The <i>command</i> is called with one
+additional argument, a dictionary of the report's definition options,
+including the report ID.  See <<iref reporter save>> for a full list.<p>
+
+<</deflist options>>
+
+<<defitem "reporter cget" {reporter cget <i>option</i>}>>
+
+Retrieves the value of the reporter(n) configuration <i>option</i>.<p>
+
+<<defitem "reporter bin" {reporter bin <i>subcommand</i> ?<i>args...</i>?}>>
+
+This command is used to define "bins", views used to query various
+subsets of the full set of reports.  The set of bins can be
+hierarchical, with child bins representing subsets of the parent bin.
+The <<xref reportbrowser(n)>> allows the user to filter the set of
+reports by selecting one bin or another from a graphical tree.<p>
+
+In client/server architectures the bins can be defined on the server
+side, and transported to the clients using
+<<iref reporter bin getall>> and <<iref reporter bin setall>>;
+alternatively, the bins can be defined solely on the client side, as
+the server will not generally need them.<p>
+
+All of the subcommands of <<iref reporter bin>> require that the
+<code>-db</code> be defined.<p>
+
+<<deflist bin>>
+
+<<defitem "reporter bin clear" {reporter bin clear}>>
+
+Deletes all bin definitions.<p>
+
+<<defitem "reporter bin define" {reporter bin define <i>bin title parent query</i>}>>
+
+Defines a new bin, which will have symbolic name <i>bin</i>.  The
+<i>title</i> is a string used for display.  The new bin is a child of
+bin <i>parent</i>, or is a top-level bin if <i>parent</i> is the empty
+string.  Finally, the contents of the bin is defined by <i>query</i>,
+which is an SQL SELECT statement of the form
+
+<pre>
+    SELECT * FROM reports ...
+</pre>
+
+The query will be used to define a temporary SQL view for the bin.<p>
+
+<<defitem "reporter bin children" {reporter bin children ?<i>bin</i>?}>>
+
+Returns a list of the names of the children of the specified
+<i>bin</i>.  If <i>bin</i> is omitted, returns a list of the names of
+the top-level bins.<p>
+
+<<defitem "reporter bin view" {reporter bin view <i>bin</i>}>>
+
+Returns the name of the view associated with this bin.  The view can
+then be used in SQL queries to retrieve report data.<p>
+
+<b>Note:</b> this command automatically redefines the view in the
+<code>-db</code>; thus, this command will always return a valid
+view, even if the database has been re-initialized.<p>
+
+<<defitem "reporter bin getall" {reporter bin getall}>>
+
+Returns a value containing the current bin definitions.  It can be
+passed to <<iref reporter bin setall>> to define the same set of
+bins.  This can be used to pass bin definitions from a server to a client.<p>
+
+<<defitem "reporter bin setall" {reporter bin setall <i>bindef</i>}>>
+
+Clears any existing bin definitions, and defines those bins found
+in <i>bindef</i>, which should be the return value of
+<<iref reporter bin getall>>.<p>
+
+<</deflist bin>>
+
+
+<<defitem "reporter delete" {report delete <i>id</i>}>>
+
+Deletes the report with the specified <i>id</i> from the database, and
+calls the <code>-deletecmd</code>, if it is defined.<p>
+
+
+<<defitem "reporter hotlist" {reporter hotlist <i>subcommand</i> ?<i>args...</i>?}>>
+
+The user can place particular reports on the "hot list" for easy
+reference.  This command is used to manage the hot list.<p>
+
+<<deflist hotlist>>
+
+<<defitem "reporter hotlist set" {reporter hotlist set <i>idlist flag</i>}>>
+
+Sets the hot list flag to <i>flag</i> (i.e., 1 or 0) for every report
+ID in the <i>idlist</i>.  If the <i>idlist</i> is set to <b>all</b>,
+then the flag is set for all reports.  This is usually used to
+clear all hot list flags.<p>
+
+<</deflist hotlist>>
+
+<<defitem "reporter save" {reporter save <i>options...</i>}>>
+
+Saves a report to the database, and calls the <code>-reportcmd</code>,
+if any, returning the report ID.<p>
+
+Note that the <code>-id</code>, <code>-time</code>, and
+<code>-stamp</code> values are usually generated automatically;
+the options are provided for use in client/server architectures, so
+that the server can send reports to the client as a complete set of
+report options, and be certain of getting the same report IDs and time
+stamps.<p>
+
+The options are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-id <i>id</i>}>>
+
+<b>Client-side Only.</b>  The report's ID.<p>
+
+<<defopt {-time <i>tick</i>}>>
+
+<b>Client-side Only.</b> The time at which the report was
+generated, in ticks.<p>
+
+<<defopt {-stamp <i>timestamp</i>}>>
+
+<b>Client-side Only.</b> The timestamp string for the time at which
+the report was generated.<p>
+
+<<defopt {-title <i>title</i>}>>
+
+<b>Required.</b>  The report's title.  This may be constant for all
+instances of the report, or may contain additional data.  It should no
+more than about 40 characters long.<p>
+
+<<defopt {-text <i>text</i>}>>
+
+<b>Required.</b> The report text proper.  The other options are simply
+metadata.<p>
+
+<<defopt {-requested <i>flag</i>}>>
+
+1 or 0.  If 1, the report is flagged as a requested report.  Defaults
+to 0.<p>
+
+<<defopt {-rtype <i>rtype</i>}>>
+<<defopt {-subtype <i>subtype</i>}>>
+<<defopt {-meta1 <i>value</i>}>>
+<<defopt {-meta2 <i>value</i>}>>
+<<defopt {-meta3 <i>value</i>}>>
+<<defopt {-meta4 <i>value</i>}>>
+
+These options are used to categorize reports in various ways, as
+needed by the bin definitions.  They can be used in any way desired by
+the application; there are no predefined types, subtypes, etc.<p>
+
+<</deflist options>>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+This package requires Tcl 8.5 or later.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+
+
+
+
+
+

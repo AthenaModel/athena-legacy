@@ -1,0 +1,99 @@
+<<manpage {mars(1) mars_man(1)} "Mars Man Page Tool">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem mars_man {mars man ?<i>options...</i>?}>>
+
+<</deflist program>>
+
+mars_man(1) is a processor for man pages written in
+<<xref mars_man(5)>> format, an "Extended HTML" format,
+consisting of HTML text with embedded macros.  mars_man(1) expands the
+macros, and adds boilerplate and CSS formatting.<p>
+
+The tool is designed to process all of the ".ehtml" files in a source
+directory all at once, producing a matching ".html" page in the
+destination directory.<p>
+
+Man pages can define their own macros; the standard set is defined
+in <<xref mars_man(5)>>.<p>
+
+<<section OPTIONS>>
+
+<<deflist options>>
+
+<<defopt {-manroots <i>roots</i>}>>
+
+Specifies the mapping from man page names to URLs to be used
+when processing cross-references in documents.  See
+<<xref ehtml(n) manroots>> in <<xref ehtml(n)>> for the syntax
+of <i>roots</i>.<p>
+
+<<defopt {-version <i>x.y.z</i>}>>
+
+Specifies the client project's version number, for inclusion in the
+generated man pages.  Defaults to "x.y.z", as a placeholder.<p>
+
+<<defopt {-project <i>project</i>}>>
+
+Specifies the name of the project being documented. 
+Defaults to "Mars".  This string appears in the headers
+and footers of the generated pages.<p>
+
+<<defopt {-longproject <i>name</i>}>>
+
+Specifies the long name of the project being documented. 
+Defaults to "Simulation Infrastructure Library".  This string
+appears in the headers of the generated pages..<p>
+
+<<defopt {-srcdir <i>path</i>}>>
+
+Specifies the source directory; mars_man(1) will process all ".ehtml"
+files found in the directory.  Defaults to ".", the current working
+directory.<p>
+
+<<defopt {-destdir <i>path</i>}>>
+
+Specifies the destination directory; mars_man(1) will write a
+"<tt><i>name</i>.html</tt>" file to this directory for each
+"<tt><i>name</i>.ehtml</tt>" file found in the source directory.
+Defaults to ".", the current working directory.<p>
+
+<<defopt {-section <i>title</i>}>>
+
+Specifies the section title for the collection of man pages in the
+<tt>-srcdir</tt>.  This section title will be used in the generated
+index page.<p>
+
+<</deflist options>>
+
+<<section ENVIRONMENT>>
+
+mars_man(1) requires Tcl 8.5 or later.
+
+To execute mars_man(1), the standard <tt>tclsh8.5(1)</tt> must be
+available on the <code>PATH</code>.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Originally written for JNEM as mars_man(1); migrated to Mars in
+September 2008.<p>
+
+<</manpage>>
+
+
+
+
+
+
+
