@@ -11,6 +11,53 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.0.12, 24 February 2014</h3>
+This build contains mainly a whole slew of new gofer(n) number types for
+use by analysts in the new Mark II Strategy scheme.  There are also a few
+bug fixes and documentation updates.<p>
+
+<ul>
+<li> Bug 4253: athena(1): ENI saturation cost parms have type ::projectlib::money, code does not convert
+<li> Bug 4360: Infrastructure table needs zero entries for neighborhoods with only subsisters
+<li> Bug 4361: Infrastructure subpages not created when actor builds first plants
+<li> Bug 4382: Make utilities: update for 64-bit builds on Linux
+<li> Bug 4330: affinity(x,y) executive function help page needs to be modified
+<li> Bug 4332: coverage executive function has no valid org group activities
+<li> Bug 4333: NUMBER gofer support(a,g) help page lists the wrong function
+<li> Bug 4368: athena(1): Need to implement gofer::NUMBER 'GROUP_CONSUMERS' rule & executive function
+<li> Bug 4369: athena(1): Need to implement gofer::NUMBER 'NBCONSUMERS' rule & executive function
+<li> Bug 4370: athena(1): Need to implement gofer::NUMBER 'LOCAL_CONSUMERS' rule & executive function
+<li> Bug 4371: athena(1): Need to implement gofer::NUMBER 'PLAYBOX_CONSUMERS' rule & executive function
+<li> Bug 4372: athena(1): Need to implement gofer::NUMBER 'DEPLOYED' rule & executive function
+<li> Bug 4373: athena(1): Need to implement gofer::NUMBER 'MOBILIZED' rule & executive function
+<li> Bug 4374: athena(1): Need to implement gofer::NUMBER 'GROUP_POPULATION' rule & executive function
+<li> Bug 4375: athena(1): Need to implement gofer::NUMBER 'NBPOPULATION' rule & executive function
+<li> Bug 4376: athena(1): Need to implement gofer::NUMBER 'LOCAL_POPULATION' rule & executive function
+<li> Bug 4377: athena(1): Need to implement gofer::NUMBER 'PLAYBOX_POPULATION' rule & executive function
+<li> Bug 4378: athena(1): Need to implement gofer::NUMBER 'GROUP_WORKERS' rule & executive function
+<li> Bug 4379: athena(1): Need to implement gofer::NUMBER 'NBWORKERS' rule & executive function
+<li> Bug 4380: athena(1): Need to implement gofer::NUMBER 'LOCAL_WORKERS' rule & executive function
+<li> Bug 4381: athena(1): Need to implement gofer::NUMBER 'PLAYBOX_WORKERS' rule & executive function
+<li> Bug 4383: athena(1): Need to implement gofer::NUMBER 'GROUP_UNEMPLOYMENT_RATE' rule & executive function
+<li> Bug 4384: athena(1): Need to implement gofer::NUMBER 'NB_UNEMPLOYMENT_RATE' rule & executive function
+<li> Bug 4385: athena(1): Need to implement gofer::NUMBER 'LOCAL_UNEMPLOYMENT_RATE' rule & executive function.
+<li> Bug 4386: athena(1): Need to implement gofer::NUMBER 'PLAYBOX_UNEMPLOYMENT_RATE' rule & executive function.
+<li> Bug 4387: athena(1): Need to implement gofer::NUMBER 'PLANTS' rule & executive function
+<li> Bug 4388: athena(1): Need to implement gofer::NUMBER 'NB_PLANTS' rule & executive function
+<li> Bug 4389: athena(1): Need to implement gofer::NUMBER 'ACTOR_PLANTS' rule & executive function
+<li> Bug 4390: athena(1): Need to implement gofer::NUMBER 'PLAYBOX_PLANTS' rule & executive function
+<li> Bug 4391: athena(1): Need to implement gofer::NUMBER 'REPAIR' rule & executive function
+<li> Bug 4392: athena(1): Need to implement gofer::NUMBER 'GOODS_CAP' rule & executive function
+<li> Bug 4393: athena(1): Need to implement gofer::NUMBER 'NB_GOODS_CAP' rule & executive function
+<li> Bug 4394: athena(1): Need to implement gofer::NUMBER 'PLAYBOX_GOODS_CAP' rule & executive function
+<li> Bug 4395: athena(1): Need to implement gofer::NUMBER 'GOODS_IDLE' rule & executive function
+<li> Bug 4396: athena(1): Need to implement gofer::NUMBER 'CASH_RESERVE' rule & executive function
+<li> Bug 4397: athena(1): Need to implement gofer::NUMBER 'CASH_ON_HAND' rule & executive function
+<li> Bug 4365: athena(1): Update "Release Notes" in on-line help.
+<li> Bug 4366: athena(1): CONTROL parameter name error in help
+<li> Bug 4367: Help guide refers to Political tab as Politics tab 
+</ul><p>
+
 <h3>Build 6.0.11, 13 February 2014</h3>
 This build is entirely bug fixes and documentation changes, there is no
 new functionality. The list of packages:<p>
