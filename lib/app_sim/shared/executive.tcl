@@ -1219,7 +1219,7 @@ snit::type executive {
     # neighborhood n.
 
     proc plants {a n} {
-        set gdict [gofer construct NUMBER PLANTS $a $n] 
+        set gdict [gofer construct NUMBER PLANTS $a $n]
         return [gofer::NUMBER eval $gdict]
     }
 

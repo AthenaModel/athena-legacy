@@ -525,7 +525,7 @@ gofer rule NUMBER AFFINITY {x y} {
 
 # Rule: ACTOR_PLANTS
 #
-# plants(a)
+# aplants(a)
 
 gofer rule NUMBER ACTOR_PLANTS {a} {
     typemethod construct {a} {
@@ -1875,7 +1875,7 @@ gofer rule NUMBER PLANTS {a n} {
     typemethod eval {gdict} {
         dict with gdict {}
 
-        set plants [plant get {$n $a} num]
+        set plants [plant get "$n $a" num]
 
         if {$plants == ""} {
             set plants 0.0
@@ -1954,7 +1954,7 @@ gofer rule NUMBER REPAIR {a n} {
     typemethod eval {gdict} {
         dict with gdict {}
 
-        set repair [plant get {$n $a} rho]
+        set repair [plant get "$n $a" rho]
 
         if {$repair == ""} {
             set repair 0.0
