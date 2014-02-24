@@ -11,6 +11,10 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.1.0, 24 February 2014</h3>
+This build is identical to build 6.0.12 except for the version number and these
+build notes.<p>
+
 <h3>Build 6.0.12, 24 February 2014</h3>
 This build contains mainly a whole slew of new gofer(n) number types for
 use by analysts in the new Mark II Strategy scheme.  There are also a few
