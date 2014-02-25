@@ -890,7 +890,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::LOCAL_UNEMPLOYMENT_RATE eval {}
     } -cleanup {
         cleanup
-    } -result {2.00}
+    } -result {4.00}
 
     #-------------------------------------------------------------------
     # Rule: LOCAL_WORKERS
@@ -1500,6 +1500,24 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {4.00}
 
+    test NB_UNEMPLOYMENT_RATE-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE eval {nlist NB2}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test NB_UNEMPLOYMENT_RATE-4.4 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE eval {nlist {NB1 NB2}}
+    } -cleanup {
+        cleanup
+    } -result {4.00}
+
     #-------------------------------------------------------------------
     # Rule: NBWORKERS
 
@@ -1821,7 +1839,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::NUMBER::PLAYBOX_UNEMPLOYMENT_RATE eval {}
     } -cleanup {
         cleanup
-    } -result {2.00}
+    } -result {4.00}
 
     #-------------------------------------------------------------------
     # Rule: PLAYBOX_WORKERS

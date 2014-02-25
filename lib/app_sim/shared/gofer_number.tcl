@@ -167,7 +167,7 @@ gofer define NUMBER "" {
 
         case LOCAL_UNEMPLOYMENT_RATE "local_unemp()" {
             rc
-            rc "Average unemployment rate in local neighborhoods"
+            rc "Unemployment rate in local neighborhoods"
             rc
         }
 
@@ -252,7 +252,7 @@ gofer define NUMBER "" {
 
         case NB_UNEMPLOYMENT_RATE "nbunemp(n,...)" {
             rc
-            rc "Average unemployment rate for neighborhood(s)"
+            rc "Unemployment rate for neighborhood(s)"
             rc
             enumlonglist nlist -showkeys yes -dictcmd {::nbhood namedict} \
                 -width 30 -height 10
@@ -299,7 +299,7 @@ gofer define NUMBER "" {
 
         case PLAYBOX_UNEMPLOYMENT_RATE "pbunemp()" {
             rc
-            rc "Average unemployment rate in the playbox."
+            rc "Unemployment rate in the playbox."
             rc
         }
 
@@ -411,7 +411,7 @@ gofer define NUMBER "" {
 
         case GROUP_UNEMPLOYMENT_RATE "unemp(g,...)" {
             rc
-            rc "Average unemployment rate for civilian group(s)"
+            rc "Unemployment rate for civilian group(s)"
             rc
             enumlonglist glist -showkeys yes -dictcmd {::civgroup namedict} \
                 -width 30 -height 10
@@ -1035,34 +1035,42 @@ gofer rule NUMBER LOCAL_UNEMPLOYMENT_RATE {} {
     typemethod eval {gdict} {
         dict with gdict {}
         
-        # NEXT, query the total of unemployment rates belonging
+        # NEXT, query the total of unemployed ppl belonging
         # to ALL nbhoods JOINED with nbhoods that are local
-        set ur [rdb onecolumn "
-            SELECT sum(demog_n.ur) 
+        set unemp [rdb onecolumn "
+            SELECT sum(demog_n.unemployed)
             FROM demog_n INNER JOIN nbhoods
             ON demog_n.n = nbhoods.n
             WHERE nbhoods.local
         "]
         
-        # NEXT, if in setup it will return "", need to set to 0
-        if {$ur == ""} {
-            set ur 0.00
+        # NEXT, if in setup unemp will be "", need to set to 0.00
+        # Otherwise we cast it to a double to be sure the division
+        # done later will keep it's precision.
+        if {$unemp == ""} {
+            set unemp 0.00
+        } else {
+            set unemp [expr { double($unemp) }]
         }
-        
-        # NEXT, get the total number of nbhoods
-        set numnbhoods [rdb onecolumn "
-            SELECT count(demog_n.n)
+
+        # NEXT, query the total number of the labor force belonging
+        # to ALL nbhoods JOINED with nbhoods that are local
+        set labfrc [rdb onecolumn "
+            SELECT sum(demog_n.labor_force)
             FROM demog_n INNER JOIN nbhoods
             ON demog_n.n = nbhoods.n
             WHERE nbhoods.local
         "]
-        if {$numnbhoods == "" || $numnbhoods == 0} {
+
+        # NEXT, if in setup labfrc is "" or 0, we cannot divide by 0
+        # so we just return 0.00
+        if {$labfrc == "" || $labfrc == 0} {
             return 0.00
         }
-  
-        # NEXT, divide the unemployment rate total by the 
-        # number of nbhoods to get the average.
-        set urate [expr { $ur/$numnbhoods }]
+
+        # NEXT, divide the unemployment total by the 
+        # labor force total to get the weighted average.
+        set urate [expr { 100*($unemp/$labfrc) }]
             
         return [format %.2f $urate]
     }
@@ -1471,25 +1479,44 @@ gofer rule NUMBER NB_UNEMPLOYMENT_RATE {nlist} {
         # FIRST, create the inClause.
         set inClause "('[join $nlist ',']')"
         
-        # NEXT, query the total of unemployment rates belonging
+        # NEXT, query the total of unemployed ppl belonging
         # to nbhoods in the list JOINED with nbhoods that are local
-        set ur [rdb onecolumn "
-            SELECT sum(demog_n.ur) 
+        set unemp [rdb onecolumn "
+            SELECT sum(demog_n.unemployed) 
             FROM demog_n INNER JOIN nbhoods
             ON demog_n.n = nbhoods.n
             WHERE demog_n.n IN $inClause
             AND nbhoods.local
         "]
         
-        # NEXT, if in setup it will return "", need to set to 0
-        if {$ur == ""} {
-            set ur 0.00
+        # NEXT, if in setup unemp will be "", need to set to 0.00
+        # Otherwise we cast it to a double to be sure the division
+        # done later will keep it's precision.
+        if {$unemp == ""} {
+            set unemp 0.00
+        } else {
+            set unemp [expr { double($unemp) }]
         }
-            
-        # NEXT, divide the unemployment rate total by the 
-        # number of groups selected to get the average.
-        set numgroups [llength $nlist]
-        set urate [expr { $ur/$numgroups }]
+
+        # NEXT, query the total number of the labor force belonging
+        # to nbhoods in the list JOINED with nbhoods that are local
+        set labfrc [rdb onecolumn "
+            SELECT sum(demog_n.labor_force)
+            FROM demog_n INNER JOIN nbhoods
+            ON demog_n.n = nbhoods.n
+            WHERE demog_n.n IN $inClause
+            AND nbhoods.local
+        "]
+        
+        # NEXT, if in setup labfrc is "" or 0, we cannot divide by 0
+        # so we just return 0.00
+        if {$labfrc == "" || $labfrc == 0} {
+            return 0.00
+        }
+
+        # NEXT, divide the unemployment total by the 
+        # labor force total to get the weighted average.
+        set urate [expr { 100*($unemp/$labfrc) }]
             
         return [format %.2f $urate]
     }
@@ -1739,30 +1766,42 @@ gofer rule NUMBER PLAYBOX_UNEMPLOYMENT_RATE {} {
     typemethod eval {gdict} {
         dict with gdict {}
         
-        # NEXT, query the total of unemployment rates belonging
-        # to ALL nbhoods in demog_n
-        set ur [rdb onecolumn "
-            SELECT sum(ur) 
-            FROM demog_n
+        # NEXT, query the total of unemployed ppl belonging
+        # to ALL nbhoods JOINED with nbhoods that are local
+        set unemp [rdb onecolumn "
+            SELECT sum(demog_n.unemployed)
+            FROM demog_n INNER JOIN nbhoods
+            ON demog_n.n = nbhoods.n
+            WHERE nbhoods.local
         "]
         
-        # NEXT, if in setup it will return "", need to set to 0
-        if {$ur == ""} {
-            set ur 0.00
+        # NEXT, if in setup unemp will be "", need to set to 0.00
+        # Otherwise we cast it to a double to be sure the division
+        # done later will keep it's precision.
+        if {$unemp == ""} {
+            set unemp 0.00
+        } else {
+            set unemp [expr { double($unemp) }]
         }
-        
-        # NEXT, get the total number of nbhoods
-        set numnbhoods [rdb onecolumn "
-            SELECT count(n)
-            FROM demog_n
+
+        # NEXT, query the total number of the labor force belonging
+        # to ALL nbhoods JOINED with nbhoods that are local
+        set labfrc [rdb onecolumn "
+            SELECT sum(demog_n.labor_force)
+            FROM demog_n INNER JOIN nbhoods
+            ON demog_n.n = nbhoods.n
+            WHERE nbhoods.local
         "]
-        if {$numnbhoods == "" || $numnbhoods == 0} {
+
+        # NEXT, if in setup labfrc is "" or 0, we cannot divide by 0
+        # so we just return 0.00
+        if {$labfrc == "" || $labfrc == 0} {
             return 0.00
         }
-  
-        # NEXT, divide the unemployment rate total by the 
-        # number of nbhoods to get the average.
-        set urate [expr { $ur/$numnbhoods }]
+
+        # NEXT, divide the unemployment total by the 
+        # labor force total to get the weighted average.
+        set urate [expr { 100*($unemp/$labfrc) }]
             
         return [format %.2f $urate]
     }
@@ -2220,25 +2259,42 @@ gofer rule NUMBER GROUP_UNEMPLOYMENT_RATE {glist} {
         # FIRST, create the inClause.
         set inClause "('[join $glist ',']')"
         
-        # NEXT, query the total of unemployment rates belonging
+        # NEXT, query the total number of unemployed ppl belonging
         # to groups in the list JOINED with local_civgroups
-        set ur [rdb onecolumn "
-            SELECT sum(demog_g.ur)
+        set unemp [rdb onecolumn "
+            SELECT sum(demog_g.unemployed)
             FROM demog_g INNER JOIN local_civgroups
             ON demog_g.g = local_civgroups.g
             WHERE demog_g.g IN $inClause
-            
         "]
-        
-        # NEXT, if in setup it will return "", need to set to 0
-        if {$ur == ""} {
-            set ur 0.00
+
+        # NEXT, if in setup unemp will be "", need to set to 0.00
+        # Otherwise we cast it to a double to be sure the division
+        # done later will keep it's precision.
+        if {$unemp == "" || $unemp == 0} {
+            set unemp 0.00
+        } else {
+            set unemp [expr { double($unemp) }]
         }
-            
-        # NEXT, divide the unemployment rate total by the 
-        # number of groups selected to get the average.
-        set numgroups [llength $glist]
-        set urate [expr { $ur/$numgroups }]
+        
+        # NEXT, query the total number of the labor force belonging
+        # to groups in the list JOINED with local_civgroups
+        set labfrc [rdb onecolumn "
+            SELECT sum(demog_g.labor_force)
+            FROM demog_g INNER JOIN local_civgroups
+            ON demog_g.g = local_civgroups.g
+            WHERE demog_g.g IN $inClause
+        "]
+
+        # NEXT, if in setup labfrc is "" or 0, we cannot divide by 0
+        # so we just return 0.00
+        if {$labfrc == "" || $labfrc == 0} {
+            return 0.00
+        }
+
+        # NEXT, divide the unemployment total by the 
+        # labor force total to get the weighted average.
+        set urate [expr { 100*($unemp/$labfrc) }]
             
         return [format %.2f $urate]
     }

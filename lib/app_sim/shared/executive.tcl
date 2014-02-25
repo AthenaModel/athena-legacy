@@ -753,9 +753,6 @@ snit::type executive {
         $interp function troops 1 - {g ?n...?} \
             [myproc troops]
 
-        $interp function unemp 0 0 {} \
-            [myproc unemp]
-
         $interp function unemp 1 - {g ?g...?} \
             [myproc unemp]
 
@@ -971,7 +968,7 @@ snit::type executive {
 
     # local_unemp 
     #
-    # Returns the average unemployment rate in local neighborhood(s).
+    # Returns the unemployment rate in local neighborhood(s).
 
     proc local_unemp {} {
         set gdict [gofer construct NUMBER LOCAL_UNEMPLOYMENT_RATE] 
@@ -1105,7 +1102,7 @@ snit::type executive {
     #
     # n - A list of neighborhoods
     #
-    # Returns the average unemployment rate for the listed neighborhood(s).
+    # Returns the unemployment rate for the listed neighborhood(s).
 
     proc nbunemp {args} {
         if {[llength $args]==1} {
@@ -1219,7 +1216,7 @@ snit::type executive {
     # neighborhood n.
 
     proc plants {a n} {
-        set gdict [gofer construct NUMBER PLANTS $a $n] 
+        set gdict [gofer construct NUMBER PLANTS $a $n]
         return [gofer::NUMBER eval $gdict]
     }
 
@@ -1408,7 +1405,7 @@ snit::type executive {
     #
     # g - A list of civilian groups or multiple civilian groups
     #
-    # Returns the average unemployment rate for the listed civilian group(s) g.
+    # Returns the unemployment rate for the listed civilian group(s) g.
 
     proc unemp {args} {
         if {[llength $args]==1} {
