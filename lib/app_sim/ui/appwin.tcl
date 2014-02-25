@@ -1315,9 +1315,8 @@ snit::widget appwin {
     # Adds items to pop up the visible tabs to the View menu
 
     method AddTabMenuItems {} {
-        # FIRST, delete old tab entries.  That's everything
-        # from item 3 on down.
-        $viewmenu delete 3 end
+        # FIRST, delete old tab entries.
+        $viewmenu delete 0 end
 
         # NEXT, save the parent menu for toplevel tabs
         set pmenu() $viewmenu
