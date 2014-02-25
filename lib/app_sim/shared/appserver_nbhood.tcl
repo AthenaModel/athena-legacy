@@ -190,7 +190,6 @@ appserver module NBHOOD {
             "#cap"       "CAP Coverage"
             "#infra"     "GOODS Production Infrastructure"
             "#control"   "Support and Control"
-            "#conflicts" "Force Conflicts" 
             "#sigevents" "Significant Events"
         }
 
@@ -731,29 +730,6 @@ appserver module NBHOOD {
                 WHERE S.n=$n AND S.personnel > 0
                 ORDER BY S.influence DESC, S.vrel DESC, A.a
             } -default "None." -align LLRRLRL
-        }
-
-        ht para
-
-        ht subtitle "Force Conflicts" conflicts
-
-        if {[locked -disclaimer]} {
-            ht putln "The following force groups are actively in conflict "
-            ht put   "in neighborhood $n:"
-            ht para
-    
-            ht query {
-                SELECT flink                AS "Attacker",
-                       froe                 AS "Att. ROE",
-                       fpersonnel           AS "Att. Personnel",
-                       glink                AS "Defender",
-                       groe                 AS "Def. ROE",
-                       gpersonnel           AS "Def. Personnel"
-                FROM gui_conflicts
-                WHERE n=$n
-                AND   fpersonnel > 0
-                AND   gpersonnel > 0
-            } -default "None."
         }
 
         ht para

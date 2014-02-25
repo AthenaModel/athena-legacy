@@ -146,7 +146,6 @@ snit::type scenario {
 
         # NEXT, monitor tables.
         rdb monitor add actors        {a}
-        rdb monitor add attroe_nfg    {n f g}
         rdb monitor add bookmarks     {bookmark_id}
         rdb monitor add caps          {k}
         rdb monitor add cap_kn        {k n}
@@ -154,7 +153,6 @@ snit::type scenario {
         rdb monitor add civgroups     {g}
         rdb monitor add coop_fg       {f g}
         rdb monitor add curses        {curse_id}
-        rdb monitor add defroe_ng     {n g}
         rdb monitor add deploy_ng     {n g}
         rdb monitor add drivers       {driver_id}
         rdb monitor add econ_n        {n}

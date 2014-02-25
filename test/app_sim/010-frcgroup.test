@@ -58,8 +58,6 @@ a               JOE
 forcetype       REGULAR
 training        PROFICIENT
 base_personnel  5000
-attack_cost     0.0
-uniformed       1
 local           0
     }
 
@@ -84,8 +82,6 @@ a
 forcetype       REGULAR
 training        PROFICIENT
 base_personnel  5000
-attack_cost     0.0
-uniformed       1
 local           0
     }
 
@@ -158,8 +154,6 @@ a               JOE
 forcetype       REGULAR
 training        PROFICIENT
 base_personnel  5000
-attack_cost     0.0
-uniformed       1
 local           0
     }
 
@@ -251,8 +245,6 @@ local           0
             training     NONE
             demeanor     AGGRESSIVE
             cost         10.0
-            attack_cost  20.0
-            uniformed    0
             local        1  
         }
 
@@ -273,8 +265,6 @@ a               BOB
 forcetype       POLICE
 training        NONE
 base_personnel  5000
-attack_cost     20.0
-uniformed       0
 local           1
     }
 
@@ -308,8 +298,6 @@ local           1
             training     ""
             demeanor     ""
             cost         ""
-            attack_cost  ""
-            uniformed    ""
             local        ""
         }
 
@@ -336,8 +324,6 @@ local           1
             training     ""
             demeanor     ""
             cost         ""
-            attack_cost  ""
-            uniformed    ""
             local        ""
         }]
 
@@ -409,7 +395,6 @@ local           1
         cleanup
     } -match dict -result {
         a              JOE
-        attack_cost    0.0
         base_personnel 5000
         color          {#f00001}
         cost           0.0
@@ -423,7 +408,6 @@ local           1
         shape          FRIEND
         symbol         infantry
         training       PROFICIENT
-        uniformed      1
     }
 
     test get-1.2 {get group attribute} -setup {
@@ -434,100 +418,6 @@ local           1
         cleanup
     } -result {JOE}
 
-    #-------------------------------------------------------------------
-    # uniformed names
-
-    test uniformed_names-1.1 {Returns names: none defined} -body {
-        frcgroup uniformed names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test uniformed_names-1.2 {Returns names} -setup {
-        ted create BLUE BRIT ALQ
-    } -body {
-        frcgroup uniformed names
-    } -cleanup {
-        cleanup
-    } -result {BLUE BRIT}
-
-
-    #-------------------------------------------------------------------
-    # uniformed validate
-
-    test uniformed_validate-1.1 {Invalid name: none defined} -body {
-        frcgroup uniformed validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid uniformed force group, none are defined}
-
-    test uniformed_validate-1.2 {Invalid name: some defined} -setup {
-        ted create BLUE BRIT ALQ
-    } -body {
-        frcgroup uniformed validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid uniformed force group, should be one of: BLUE, BRIT}
-
-    test uniformed_validate-2.1 {Valid name} -setup {
-        ted create BLUE BRIT ALQ
-    } -body {
-        frcgroup uniformed validate BRIT
-    } -cleanup {
-        cleanup
-    } -result {BRIT}
-
-
-    #-------------------------------------------------------------------
-    # nonuniformed names
-
-    test nonuniformed_names-1.1 {Returns names: none defined} -body {
-        frcgroup nonuniformed names
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test nonuniformed_names-1.2 {Returns names} -setup {
-        ted create BLUE BRIT ALQ
-    } -body {
-        frcgroup nonuniformed names
-    } -cleanup {
-        cleanup
-    } -result {ALQ}
-
-
-    #-------------------------------------------------------------------
-    # nonuniformed validate
-
-    test nonuniformed_validate-1.1 {Invalid name: none defined} -body {
-        frcgroup nonuniformed validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid non-uniformed force group, none are defined}
-
-    test nonuniformed_validate-1.2 {Invalid name: some defined} -setup {
-        ted create BLUE BRIT ALQ
-    } -body {
-        frcgroup nonuniformed validate NONESUCH
-    } -returnCodes {
-        error
-    } -cleanup {
-        cleanup
-    } -result {Invalid non-uniformed force group, should be one of: ALQ}
-
-    test nonuniformed_validate-2.1 {Valid name} -setup {
-        ted create BLUE BRIT ALQ
-    } -body {
-        frcgroup nonuniformed validate ALQ
-    } -cleanup {
-        cleanup
-    } -result {ALQ}
 
     #-------------------------------------------------------------------
     # ownedby
@@ -544,25 +434,6 @@ local           1
         ted create JOE BOB ALQ TAL BLUE BRIT
     } -body {
         frcgroup ownedby JOE
-    } -cleanup {
-        cleanup
-    } -result {BLUE BRIT}
-
-    #-------------------------------------------------------------------
-    # ownedAndUniformed
-
-    test ownedAndUniformed-1.1 {No groups owned by actor} -setup {
-        ted create JOE BOB BLUE BRIT TAL ALQ
-    } -body {
-        frcgroup ownedAndUniformed BOB
-    } -cleanup {
-        cleanup
-    } -result {}
-
-    test ownedAndUniformed-1.2 {Some groups owned by actor} -setup {
-        ted create JOE BOB ALQ TAL BLUE BRIT
-    } -body {
-        frcgroup ownedAndUniformed JOE
     } -cleanup {
         cleanup
     } -result {BLUE BRIT}

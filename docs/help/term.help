@@ -942,23 +942,6 @@ term relationship "relationship" {
 
 #-----------------------------------------------------------------------
 
-term roe "ROE" {
-    In normal military usage, a unit's Rules of Engagement (ROEs) are
-    the rules given to them in their orders that determine when they
-    may engage the enemy.  In Athena, ROEs apply to a <<term frcgroup>>
-    in a <<term nbhood>> and determine when and how the group can 
-    engage other <<term group groups>>.  There will be no armed 
-    conflict, and hence
-    no attrition or civilian casualties, unless the user creates
-    the appropriate ROEs.<p>
-
-    There are several kinds of ROE; they are created using the
-    <<cref /object/tactic/defroe>> and <<cref /object/tactic/attroe>>
-    tactics.
-}
-
-#-----------------------------------------------------------------------
-
 term role "role" {
     Roles are used to specify one or more <<term group>>s or 
     <<term actor>>s as part of an <<term inject>> associated with a 

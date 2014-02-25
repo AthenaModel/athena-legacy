@@ -211,13 +211,10 @@ snit::type executive {
 {?-tactics tlist? ?-actors alist? ?-frcg glist? ?-civg glist? ?-orgg glist?} \
             [list autogen strategy]
 
+        # autogen assign
         $interp smartalias {autogen assign} 1 - \
             {owner ?-group g? ?-nbhood n? ?-activity act?} \
             [list autogen assign]
-
-        $interp smartalias {autogen attroe} 1 - \
-            {owner ?-attackers glist? ?-max n?} \
-            [list autogen attroe]
 
         # axdb 
         $interp ensemble axdb

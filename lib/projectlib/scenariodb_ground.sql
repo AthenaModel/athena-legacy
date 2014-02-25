@@ -112,83 +112,6 @@ units(n,g,a,personnel);
 ------------------------------------------------------------------------
 -- ATTRITION 
 
--- Attacking ROE table: Uniformed and Non-uniformed Forces
-
-CREATE TABLE attroe_nfg (
-    -- Neighborhood in which to attack
-    n           TEXT REFERENCES nbhoods(n)
-                ON DELETE CASCADE
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Attacking force group
-    f           TEXT REFERENCES frcgroups(g)
-                ON DELETE CASCADE
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- Attacked force group
-    g           TEXT REFERENCES frcgroups(g)
-                ON DELETE CASCADE
-                DEFERRABLE INITIALLY DEFERRED,
-
-    -- 1 if f is uniformed, and 0 otherwise.
-    uniformed   INTEGER,
-
-    -- ROE: eattroenf for non-uniformed forces, eattroeuf for uniformed
-    -- forces.  Note: a missing record for n,f,g is equivalent to an
-    -- ROE of DO_NOT_ATTACK.
-    roe         TEXT DEFAULT 'DO_NOT_ATTACK',
-
-    -- Maximum number of attacks per week.
-    max_attacks INTEGER DEFAULT 0,
-
-    -- Actual number of attacks
-    attacks     INTEGER DEFAULT 0,
-
-    PRIMARY KEY (n,f,g)
-);
-
-
--- Defending ROE table: overrides defending ROE for
--- Uniformed Forces only.
-
-CREATE TABLE defroe_ng (
-    -- Neighborhood in which to defend
-    n          TEXT REFERENCES nbhoods(n)
-               ON DELETE CASCADE
-               DEFERRABLE INITIALLY DEFERRED,
-
-    -- Defending force group
-    g          TEXT REFERENCES frcgroups(g)
-               ON DELETE CASCADE
-               DEFERRABLE INITIALLY DEFERRED,
-
-    -- ROE: edefroeuf.
-    roe        TEXT,
-
-    PRIMARY KEY (n,g)
-);
-
--- Defending ROE view
---
--- This view computes the current defending ROE for every 
--- uniformed force group.
---
--- * The ROE defaults to FIRE_BACK_IF_PRESSED...
--- * ...unless there's an overriding entry in defroe_ng.
-
-CREATE VIEW defroe_view AS
-SELECT nbhoods.n                             AS n,
-       frcgroups.g                           AS g,
-       COALESCE(roe, 'FIRE_BACK_IF_PRESSED') AS roe,
-       CASE WHEN defroe_ng.roe IS NOT NULL 
-            THEN 1
-            ELSE 0 END                       AS override
-       
-FROM nbhoods
-JOIN frcgroups
-LEFT OUTER JOIN defroe_ng USING (n,g)
-WHERE frcgroups.uniformed;
-
 
 -- An instance of magic attrition to a group or a neighborhood.
 -- These records are accumulated while the sim is paused and then applied 
@@ -281,10 +204,11 @@ CREATE TABLE stance_fg (
 );
 
 CREATE TABLE stance_nfg (
-    -- Contains neighborhood-specific overrides to stance.fg.  For example,
-    -- if group f is attacking group g in neighborhood n, it has a maximum
-    -- stance toward g as set by force.maxAttackingStance.  This table
-    -- contains all such overrides.
+    -- Contains neighborhood-specific overrides to stance.fg.  This table
+    -- was used to override stance when group f was directed attack 
+    -- group g in a neighborhood; at present, there are no overrides.
+    -- However, since the mechanism is known to work it seemed better
+    -- to retain it for now.
 
     n      TEXT,    -- Neighborhood n
     f      TEXT,    -- Force group f
@@ -304,7 +228,7 @@ SELECT N.n                                           AS n,
        F.g                                           AS f,
        G.g                                           AS g,
        coalesce(SN.stance,S.stance,UH.hrel)          AS stance,
-       CASE WHEN SN.stance IS NOT NULL THEN 'ATTROE'
+       CASE WHEN SN.stance IS NOT NULL THEN 'OVERRIDE'
             WHEN S.stance  IS NOT NULL THEN 'ACTOR'
             ELSE 'DEFAULT' END                       AS source
 FROM nbhoods   AS N

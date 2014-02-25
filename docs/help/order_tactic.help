@@ -58,16 +58,6 @@ order TACTIC:ATTRIT "Tactic: Magic Attrition" {
     <</parmlist>>
 }
 
-order TACTIC:ATTROE "Tactic: Attacking ROE" {
-    <b><<term prep>> Only.</b>  
-    Updates an existing <<cref /object/tactic/attroe>>.<p>
-
-    <<parmlist>>
-    <<tactic_ parm tactic_id -required>>
-    <<tactic_attroe parms -optional -tags update>>
-    <</parmlist>>
-}
-
 order TACTIC:BROADCAST "Tactic: Broadcast an IOM" {
     <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/broadcast>>.<p>
@@ -105,16 +95,6 @@ order TACTIC:DAMAGE "Tactic: Damage Infrastructure" {
     <<parmlist>>
     <<tactic_ parm tactic_id -required>>
     <<tactic_damage parms -optional -tags update>>
-    <</parmlist>>
-}
-
-order TACTIC:DEFROE "Tactic: Defensive ROE" {
-    <b><<term prep>> Only.</b>  
-    Updates an existing <<cref /object/tactic/defroe>>.<p>
-
-    <<parmlist>>
-    <<tactic_ parm tactic_id -required>>
-    <<tactic_defroe parms -optional -tags update>>
     <</parmlist>>
 }
 

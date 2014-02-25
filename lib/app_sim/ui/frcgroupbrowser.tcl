@@ -35,18 +35,14 @@ snit::widgetadaptor frcgroupbrowser {
         { longname         "\nLong Name"                        }
         { a                "\nOwner"                            }
         { color            "\nColor"                            }
-        { shape            "Unit\nShape"                       }
-        { forcetype        "Force\nType"                       }
-        { training         "Training\nLevel"                  }
-        { base_personnel   "Base\nPersonnel"                   }
+        { shape            "Unit\nShape"                        }
+        { forcetype        "Force\nType"                        }
+        { training         "Training\nLevel"                    }
+        { base_personnel   "Base\nPersonnel"                    }
         { demeanor         "\nDemeanor"                         }
         { cost             "Cost,\n$/person/week" 
                            -sortmode command 
-                           -sortcommand ::marsutil::moneysort }
-        { attack_cost      "Cost,\n$/attack"               
-                           -sortmode command 
-                           -sortcommand ::marsutil::moneysort }
-        { pretty_uniformed "\nUniformed?"                       }
+                           -sortcommand ::marsutil::moneysort   }
         { pretty_local     "\nLocal?"                           }
     }
 

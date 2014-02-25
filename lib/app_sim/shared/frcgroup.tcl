@@ -104,80 +104,6 @@ snit::type frcgroup {
         return ""
     }
 
-    # uniformed names
-    #
-    # Returns the list of uniformed frcgroups
-
-    typemethod {uniformed names} {} {
-        set names [rdb eval {
-            SELECT g FROM frcgroups WHERE uniformed
-        }]
-    }
-
-
-
-    # uniformed validate g
-    #
-    # g         Possibly, a uniformed force group short name.
-    #
-    # Validates a uniformed force group short name
-
-    typemethod {uniformed validate} {g} {
-        set names [$type uniformed names]
-
-        if {$g ni $names} {
-            set names [join $names ", "]
-
-            if {$names ne ""} {
-                set msg "should be one of: $names"
-            } else {
-                set msg "none are defined"
-            }
-
-            return -code error -errorcode INVALID \
-                "Invalid uniformed force group, $msg"
-        }
-
-        return $g
-    }
-
-
-    # nonuniformed names
-    #
-    # Returns the list of nonuniformed frcgroups
-
-    typemethod {nonuniformed names} {} {
-        set names [rdb eval {
-            SELECT g FROM frcgroups WHERE NOT uniformed
-        }]
-    }
-
-
-    # nonuniformed validate g
-    #
-    # g         Possibly, a non-uniformed force group short name.
-    #
-    # Validates a non-uniformed force group short name
-
-    typemethod {nonuniformed validate} {g} {
-        set names [$type nonuniformed names]
-
-        if {$g ni $names} {
-            set names [join $names ", "]
-
-            if {$names ne ""} {
-                set msg "should be one of: $names"
-            } else {
-                set msg "none are defined"
-            }
-
-            return -code error -errorcode INVALID \
-                "Invalid non-uniformed force group, $msg"
-        }
-
-        return $g
-    }
-
     # ownedby a
     #
     # a - An actor
@@ -188,19 +114,6 @@ snit::type frcgroup {
         return [rdb eval {
             SELECT g FROM frcgroups
             WHERE a=$a
-        }]
-    }
-
-    # ownedAndUniformed a
-    #
-    # a - An actor
-    #
-    # Returns a list of the uniformed force groups owned by actor a.
-
-    typemethod ownedAndUniformed {a} {
-        return [rdb eval {
-            SELECT g FROM frcgroups
-            WHERE a=$a AND uniformed
         }]
     }
 
@@ -227,8 +140,6 @@ snit::type frcgroup {
     #    base_personnel The group's base personnel
     #    demeanor       The group's demeanor (edemeanor(n))
     #    cost           The group's maintenance cost, $/person/week
-    #    attack_cost    The group's cost per attack, $.
-    #    uniformed      The group's uniformed flag
     #    local          The group's local flag
     #
     # Creates a force group given the parms, which are presumed to be
@@ -260,15 +171,12 @@ snit::type frcgroup {
                    'FRC');
 
             INSERT INTO frcgroups(g, a, forcetype, training,
-                                  base_personnel, attack_cost,
-                                  uniformed, local)
+                                  base_personnel, local)
             VALUES($g,
                    nullif($a,''),
                    $forcetype,
                    $training,
                    $base_personnel,
-                   $attack_cost,
-                   $uniformed,
                    $local);
 
             INSERT INTO coop_fg(f,g)
@@ -307,8 +215,6 @@ snit::type frcgroup {
     #    base_personnel A new base personnel, or ""
     #    demeanor       A new demeanor, or ""
     #    cost           A new cost, or ""
-    #    attack_cost    A new attack cost, or ""
-    #    uniformed      A new uniformed flag, or ""
     #    local          A new local flag, or ""
     #
     # Updates a frcgroup given the parms, which are presumed to be
@@ -345,8 +251,6 @@ snit::type frcgroup {
                 forcetype      = nonempty($forcetype,      forcetype),
                 training       = nonempty($training,       training),
                 base_personnel = nonempty($base_personnel, base_personnel),
-                attack_cost    = nonempty($attack_cost,    attack_cost),
-                uniformed      = nonempty($uniformed,      uniformed),
                 local          = nonempty($local,          local)
             WHERE g=$g
         } {}
@@ -400,13 +304,6 @@ order define FRCGROUP:CREATE {
         text cost -defvalue 0
         label "$/person/week"
 
-        rcc "Attack Cost:" -for attack_cost
-        text attack_cost -defvalue 0
-        label "$/attack"
-
-        rcc "Uniformed?" -for uniformed
-        yesno uniformed -defvalue 1
-
         rcc "Local Group?" -for local
         yesno local -defvalue 0
     }
@@ -422,8 +319,6 @@ order define FRCGROUP:CREATE {
     prepare base_personnel -num       -required -type iquantity
     prepare demeanor       -toupper   -required -type edemeanor
     prepare cost           -toupper   -required -type money
-    prepare attack_cost    -toupper   -required -type money
-    prepare uniformed      -toupper   -required -type boolean
     prepare local          -toupper   -required -type boolean
 
     returnOnError -final
@@ -526,13 +421,6 @@ order define FRCGROUP:UPDATE {
         text cost
         label "$/person/week"
 
-        rcc "Attack Cost:" -for attack_cost
-        text attack_cost
-        label "$/attack"
-
-        rcc "Uniformed?" -for uniformed
-        yesno uniformed
-
         rcc "Local Group?" -for local
         yesno local
     }
@@ -548,8 +436,6 @@ order define FRCGROUP:UPDATE {
     prepare base_personnel -num       -type iquantity
     prepare demeanor       -toupper   -type edemeanor
     prepare cost           -toupper   -type money
-    prepare attack_cost    -toupper   -type money
-    prepare uniformed      -toupper   -type boolean
     prepare local          -toupper   -type boolean
 
     returnOnError -final
@@ -599,13 +485,6 @@ order define FRCGROUP:UPDATE:MULTI {
         text cost
         label "$/person/week"
 
-        rcc "Attack Cost:" -for attack_cost
-        text attack_cost
-        label "$/attack"
-
-        rcc "Uniformed?" -for uniformed
-        yesno uniformed
-
         rcc "Local Group?" -for local
         yesno local
     }
@@ -620,8 +499,6 @@ order define FRCGROUP:UPDATE:MULTI {
     prepare base_personnel -num                -type   iquantity
     prepare demeanor       -toupper            -type   edemeanor
     prepare cost           -toupper            -type   money
-    prepare attack_cost    -toupper            -type   money
-    prepare uniformed      -toupper            -type   boolean
     prepare local          -toupper            -type   boolean
 
     returnOnError -final

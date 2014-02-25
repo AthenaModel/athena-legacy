@@ -162,9 +162,7 @@ oo::objdefine strategy {
         profile 1 cap access load
 
         # TBD: Replace these as appropriate as the tactic types are defined.
-        profile 1 tactic::ATTROE reset
         profile 1 tactic::BROADCAST reset
-        profile 1 tactic::DEFROE reset
         profile 1 tactic::FLOW reset
         profile 1 tactic::STANCE reset
 
@@ -191,10 +189,6 @@ oo::objdefine strategy {
         profile 1 service save
         profile 1 plant save
         profile 1 cap access save
-
-        # NEXT, determine the actual stance of each group based on the
-        # effects of the STANCE and ATTROE tactics.
-        profile 1 tactic::STANCE assess
 
         # NEXT, populate base units for all groups.
         profile 1 unit makebase

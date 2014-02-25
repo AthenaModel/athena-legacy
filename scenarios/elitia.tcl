@@ -59,8 +59,8 @@ send CIVGROUP:CREATE -g ICS -longname Incognitians -n IN -color #45DD11 -shape N
 #-----------------------------------------------------------------
 # Base Entities: Force Groups
 
-send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -color #3B61FF -shape FRIEND -forcetype REGULAR -training FULL -base_personnel 20000 -demeanor AVERAGE -cost 5,000.00 -attack_cost 3,000.00 -uniformed 1 -local 1
-send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -color #3B61FF -shape ENEMY -forcetype IRREGULAR -training FULL -base_personnel 6000 -demeanor AGGRESSIVE -cost 1,000.00 -attack_cost 500.00 -uniformed 0 -local 1
+send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -color #3B61FF -shape FRIEND -forcetype REGULAR -training FULL -base_personnel 20000 -demeanor AVERAGE -cost 5,000.00 -local 1
+send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -color #3B61FF -shape ENEMY -forcetype IRREGULAR -training FULL -base_personnel 6000 -demeanor AGGRESSIVE -cost 1,000.00 -local 1
 
 #-----------------------------------------------------------------
 # Base Entities: Organization Groups

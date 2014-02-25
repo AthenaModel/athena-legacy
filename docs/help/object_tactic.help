@@ -23,8 +23,8 @@ object tactic_ {
         example, an <<term actor>> may use the 
         <<cref /object/tactic/deploy>>
         to position troops in a neighborhood, and then use the
-        <<cref /object/tactic/attroe>> to call for attacks on another
-        group.  Tactics may have <<term condition>>s attached
+        <<cref /object/tactic/assign>> activities to them.  
+        Tactics may have <<term condition>>s attached
         to them.  Tactics are browsed and 
         edited on the <<tab Strategy>>.
     }
@@ -300,130 +300,6 @@ page /object/tactic attrit "ATTRIT tactic" {
 
 
 #-----------------------------------------------------------------------
-# ATTROE Tactic
-
-object tactic_attroe {
-    noun "ATTROE tactic"
-    overview {
-        <b>Ignored on lock.</b><p>
-
-        This <<term tactic>> sets the attacking <<term roe>> for 
-        force groups belonging to an <<term actor>>.<p>
-
-        Attacking ROEs determine whether a
-        <<term frcgroup>> will seek out and
-        attack other force groups.  In Athena, force groups are either
-        uniformed or non-uniformed.  (Non-uniformed forces are those that
-        hide among the local population and use terrorist and other
-        unconventional tactics.)<p>
-
-        Athena's attrition model currently
-        only supports attacks by uniformed force groups on non-uniformed
-        force groups, and <i>vice versa</i>.  ROEs are set 
-        <<term nbhood>> by neighborhood; thus, group A can be 
-        directed to attack group B in neighborhood N1 but not in 
-        neighborhood N2.<p>
-
-        No force group will attack any other force group unless it is
-        explicitly given an ROE to do so.<p>
-
-        The new ROE applies only for the current week; to retain the
-        new ROE over a period of weeks, execute the tactic each week.<p>
-
-        Every force group has an attack cost, which defaults to $0/attack.
-        If the attack cost is positive, then it will be expended for each
-        of the requested attacks.  Unspent money will be returned at the
-        end of the attrition assessment.<p>
-
-        Attrition is not assessed on scenario
-        lock, and so this tactic does not execute on lock.<p>
-    }
-
-    include tactic_ -attrs id
-    include tactic_ -attrs agent
-    include tactic_ -attrs state
-
-    attribute f "Attacking Group" {
-        The attacking <<term frcgroup>>.  This group must
-        belong to the owning <i>agent</i>, and may be uniformed or 
-        non-uniformed.
-    } -tags {update}
-
-    attribute g "Defending Group" {
-        The defending <<term frcgroup>>.  If the attacker
-        is uniformed, this group must be non-uniformed, and 
-        <i>vice versa</i>.
-    } -tags {update}
-
-    attribute n "In Neighborhood" {
-        The <<term nbhood>> in which the attack(s) may take
-        place.  Note that
-        both groups must have personnel present in this neighborhood, 
-        for any attacks to occur.
-    } -tags {update}
-
-    attribute roe "ROE" {
-        The ROE proper.  The set of valid ROEs depends on whether
-        attacking group <i>f</i> is uniformed or non-uniformed.<p>
-
-        <b>Uniformed:</b>  The ROE must be one of the following values:<p>
-
-        <<enumdoc ::projectlib::eattroeuf>>
-
-        If the ROE is <b>ATTACK</b>, then group <i>f</i> will attempt to
-        hunt down and destroy units of group <i>g</i> in neighborhood
-        <i>n</i>; and if not, not.  Note that there is no difference
-        between having an ROE of <b>DO_NOT_ATTACK</b> and not
-        having an ROE at all.<p>
-
-        <b>Non-Uniformed:</b>  The ROE must be one of the following
-        values:<p>
-
-        <<enumdoc ::projectlib::eattroenf>>
-
-        If the ROE is <b>HIT_AND_RUN</b>, then group <i>f</i> will use
-        hit-and-run tactics against group <i>g</i>, trying on each attack
-        to nibble away at the uniformed force while taking minimal
-        losses.<p>
-
-        If the ROE is <b>STAND_AND_FIGHT</b>, then group <i>f</i> will
-        expend a pre-determined number of troops in order to kill as many
-        personnel of group <i>g</i> as possible.<p>
-
-        Otherwise, group <i>f</i> will not attempt to attack.  Again, 
-        there is no difference between having an ROE of
-        <b>DO_NOT_ATTACK</b> and not having an ROE at all.
-    } -tags {update}
-
-    attribute attacks "Max Attacks" {
-        The maximum number of attacks the attacker will conduct
-        against the defender over the
-        following week.  Note that the actual number of attacks is
-        constrained by the presence of both attacker and defender, by the
-        cooperation of the neighborhood with both groups, and by other
-        factors.<p>
-
-        During strategy execution, this tactic will consume the
-        <i>agent</i>'s cash-on-hand for the the maximum number of attacks 
-        provided for; if fewer
-        attacks are actually conducted (which is extremely likely), the
-        unused cash will be returned to the <i>agent</i> at the
-        beginning of the next strategy tock.<p>
-    } -tags {update}
-
-
-}
-
-page /object/tactic attroe "ATTROE tactic" {
-    <<sotitle>>
-
-    <<tactic_attroe overview>><p>
-
-    Attacking ROE tactics have the following attributes:<p>
-
-    <<tactic_attroe parmlist>>
-}
-#-----------------------------------------------------------------------
 # BROADCAST
 
 object tactic_broadcast {
@@ -648,77 +524,6 @@ page /object/tactic damage "DAMAGE tactic" {
     Damage infrastructure tactics have the following attributes:<p>
 
     <<tactic_damage parmlist>>
-}
-
-#-----------------------------------------------------------------------
-# DEFROE Tactic
-
-object tactic_defroe {
-    noun "DEFROE tactic"
-    overview {
-        <b>Ignored on lock.</b><p>
-
-        This <<term tactic>> sets the defensive <<term roe>> for 
-        uniformed <<term frcgroup>>s belonging to an <<term actor>>.<p>
-
-        Defending ROEs determine how a uniformed force group
-        responds to attack by a non-uniformed force group: do they 
-        shoot back, and if so under what conditions.  As such, it has 
-        no direct costs, either in dollars or personnel.<p>
-
-        Every uniformed force group has an automatically-created Defending
-        ROE in every <<term nbhood>>; the ROE defaults to
-        <b>FIRE_BACK_IF_PRESSED</b>.  This tactic adjusts the ROE
-        as the actor desires.<p>
-
-        The new ROE applies only for the current week; to retain the
-        new ROE over a period of weeks, execute the tactic each week.<p>
-
-        This tactic consumes no resources, and consequently never fails
-        due to lack of resources.  Attrition is not assessed on scenario
-        lock, and so this tactic does not execute on lock.<p>
-    }
-
-    include tactic_ -attrs id
-    include tactic_ -attrs agent
-    include tactic_ -attrs state
-
-    attribute g "Group" {
-        The ID of a uniformed <<term frcgroup>>
-        belonging to the tactic's owning <i>agent</i>.
-    } -tags {update}
-
-    attribute n "In Neighborhood" {
-        The <<term nbhood>> for which the ROE will be set.
-    } -tags {update}
-
-    attribute roe "Defending ROE" {
-        The ROE proper, one of the following values:<p>
-
-        <<enumdoc ::projectlib::edefroeuf>>
-
-        If the ROE is <b>HOLD_FIRE</b>, then the group will never fire
-        back at attackers.  If the ROE is <b>FIRE_BACK_IF_PRESSED</b>,
-        then the group will fire back only if the attacker continues to
-        press the attack after the initial engagement.  That is, the group
-        will <i>not</i> fire back if the attacker does a hit-and-run.  If
-        the ROE is <b>FIRE_BACK_IMMEDIATELY</b>, the group will always
-        fire back at its attackers.<p>
-
-        Note that the number of civilian casualties depends on whether or
-        not the group fires back at its attackers.
-    } -tags {update}
-
-}
-
-page /object/tactic defroe "DEFROE tactic" {
-    <<sotitle>>
-
-    <<tactic_defroe overview>><p>
-
-    Defensive ROE tactics have the following attributes:<p>
-
-    <<tactic_defroe parmlist>>
 }
 
 

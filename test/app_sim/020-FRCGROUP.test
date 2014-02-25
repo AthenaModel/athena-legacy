@@ -39,8 +39,6 @@ namespace eval ::athena_test::tests:: {
         base_personnel 1000
         demeanor       AVERAGE
         cost           0.0
-        attack_cost    0.0
-        uniformed      yes
         local          no
     }
 
@@ -55,8 +53,6 @@ namespace eval ::athena_test::tests:: {
         base_personnel 1000
         demeanor       AVERAGE
         cost           0.0
-        attack_cost    0.0
-        uniformed      yes
         local          no
     }
 
@@ -196,30 +192,6 @@ namespace eval ::athena_test::tests:: {
         cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
     }
 
-    test CREATE-1.12 {invalid attack_cost} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject FRCGROUP:CREATE [dict merge $blue {
-            attack_cost NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        attack_cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-    test CREATE-1.13 {invalid uniformed} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject FRCGROUP:CREATE [dict merge $blue {
-            uniformed NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
-    }
-
     test CREATE-1.14 {invalid local} -setup {
         ted create JOE
     } -body {
@@ -254,8 +226,6 @@ a               JOE
 forcetype       REGULAR
 training        PROFICIENT
 base_personnel  1000
-attack_cost     0.0
-uniformed       1
 local           0
     }
 
@@ -433,28 +403,6 @@ local           0
     }
 
 
-    test UPDATE-1.10 {invalid attack_cost} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE g BLUE attack_cost NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        attack_cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-
-    test UPDATE-1.11 {invalid uniformed} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE g BLUE uniformed NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
-    }
-
-
     test UPDATE-1.12 {invalid local} -setup {
         ted create BLUE
     } -body {
@@ -480,8 +428,6 @@ local           0
             base_personnel 10000
             demeanor       AGGRESSIVE
             cost           10.0
-            attack_cost    20.0
-            uniformed      no
             local          yes
         }
 
@@ -502,8 +448,6 @@ a               BOB
 forcetype       POLICE
 training        NONE
 base_personnel  10000
-attack_cost     20.0
-uniformed       0
 local           1
     }
 
@@ -533,9 +477,7 @@ local           1
             base_personnel 10000
             demeanor       AGGRESSIVE
             cost           10.0
-            attack_cost    20.0
             local          yes
-            uniformed      no
         }
     } -body {
         ted notifier bind ::rdb <frcgroups>
@@ -661,28 +603,6 @@ local           1
     }
 
 
-    test UPDATE:MULTI-1.12 {invalid attack_cost} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE attack_cost NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        attack_cost {invalid money value "NONESUCH", expected positive numeric value with optional K, M, or B suffix}
-    }
-
-
-    test UPDATE:MULTI-1.13 {invalid uniformed} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE uniformed NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        uniformed {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
-    }
-
-
     test UPDATE:MULTI-1.14 {invalid local} -setup {
         ted create BLUE
     } -body {
@@ -709,8 +629,6 @@ local           1
             base_personnel 10000
             demeanor       AGGRESSIVE
             cost           10.0
-            attack_cost    20.0
-            uniformed      no
             local          yes
         }
 
@@ -737,8 +655,6 @@ local           1
             base_personnel 10000
             demeanor       AGGRESSIVE
             cost           10.0
-            attack_cost    20.0
-            uniformed      no
             local          yes
         }
 

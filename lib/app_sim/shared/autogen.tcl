@@ -529,123 +529,6 @@ snit::type autogen {
         autogen Strategy [array get opts]
     }
 
-    # attroe owner ?args...?
-    #
-    # owner   - an actor
-    #
-    # Arguments:
-    #
-    # -attackers   - a force group or groups owned by owner
-    # -max         - maximum number of attacks per week
-    #
-    # This method creates ATTROE tactics for force groups 
-    # owned by the supplied actor. By default, all force groups
-    # owned by the actor are given an ATTROE tactic. If the -attacker
-    # argument is passed in, then only force groups in that list
-    # are given an ATTROE tactic.  The maximum number of tactics
-    # defaults to 1.
-    #
-    # For each neighborhood:
-    # For uniformed forces, they are given an ROE of "ATTACK" for
-    # non-uniformed forces, they are given an ROE of "STAND_AND_FIGHT"
-
-    typemethod attroe {owner args} {
-        # FIRST, default options
-        array set opts {
-            -attackers {}
-            -max 1
-        }
-
-        # NEXT, must have actors, nbhoods and and least one FRC 
-        # or ORG group
-        if {[llength [actor names]] == 0} {
-            error "Must create actors first"
-        }
-
-        if {[llength [nbhood names]] == 0} {
-            error "Must create nbhoods first"
-        }
-
-        if {[llength [frcgroup names]] == 0} {
-            error "Must have at least one FRC group"
-        }
-
-        # NEXT, parse arguments
-        while {[llength $args] != 0} {
-            set opt [lshift args]
-            switch -exact -- $opt {
-                -attackers {
-                    set opts(-attackers) [lshift args]
-                }
-
-                -max {
-                    set opts(-max) [lshift args]
-                    if {![string is integer $opts(-max)]} {
-                        error "$opt must be integer > 0"
-                    }
-
-                    if {$opts(-max) < 1} {
-                        error "$opt must be integer > 0"
-                    }
-                }
-
-                default {
-                    error "Unknown option: $opt"
-                }
-            }
-        }
-
-        # NEXT, owner must have force groups at disposal
-        if {[frcgroup ownedby $owner] eq ""} {
-            error "$owner does not own any force groups"
-        }
-
-        # NEXT, if no list supplied, use all force owned by actor
-        if {$opts(-attackers) eq ""} {
-            set agrp [frcgroup ownedby $owner]
-        } else {
-            set agrp $opts(-attackers)
-        }
-
-        set block [autogen AddBlock $owner]
-
-        # NEXT, step through attackers and set ROE according to
-        # whether the force group is uniformed or not
-        foreach grp $agrp {
-            set grp [frcgroup validate $grp]
-
-            # NOTE: the orders will do further validation
-
-            # NEXT, each uniformed force against all other
-            # non-uniformed forces
-            if {$grp in [frcgroup uniformed names]} {
-                foreach dgrp [frcgroup nonuniformed names] {
-                    foreach n [nbhood names] {
-                        autogen AddTactic ATTROE $block    \
-                                          f       $grp     \
-                                          g       $dgrp    \
-                                          n       $n       \
-                                          roe     "ATTACK" \
-                                          attacks $opts(-max)
-                    }
-                }
-            } else {
-                # NEXT, each non-uniformed force against all
-                # other uniformed forces
-                foreach dgrp [frcgroup uniformed names] {
-                    foreach n [nbhood names] {
-                        autogen AddTactic ATTROE $block             \
-                                          f       $grp              \
-                                          g       $dgrp             \
-                                          n       $n                \
-                                          roe     "STAND_AND_FIGHT" \
-                                          attacks $opts(-max)
-                    }
-                }
-            }
-        }
-    }
-
     # assign owner args
     #
     # owner   - an actor
@@ -1104,7 +987,6 @@ snit::type autogen {
             set parms(forcetype)      [eforcetype name $frctype]
             set parms(base_personnel) 100000
             set parms(cost)           "1K"
-            set parms(uniformed)      [expr {$i % 2}]
 
             order send cli FRCGROUP:CREATE [array get parms]
 

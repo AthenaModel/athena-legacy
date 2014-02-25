@@ -34,7 +34,6 @@ snit::type ted {
         actors
         attrit_nf
         attrit_nfg
-        attroe_nfg
         bookmarks
         caps
         cap_access
@@ -44,7 +43,6 @@ snit::type ted {
         coop_fg
         curses
         curse_injects
-        defroe_ng
         demog_g
         demog_local
         demog_n
@@ -401,8 +399,6 @@ snit::type ted {
             base_personnel 5000
             demeanor       AVERAGE
             cost           0.0
-            attack_cost    0.0
-            uniformed      1
             local          0
         } JOE
 
@@ -417,8 +413,6 @@ snit::type ted {
             base_personnel 5000
             demeanor       AVERAGE
             cost           0.0
-            attack_cost    0.0
-            uniformed      1
             local          0
         } JOE
         
@@ -433,8 +427,6 @@ snit::type ted {
             base_personnel 1000
             demeanor       AGGRESSIVE
             cost           0.0
-            attack_cost    0.0
-            uniformed      0
             local          0
         } BOB
         
@@ -449,8 +441,6 @@ snit::type ted {
             base_personnel 1000
             demeanor       AGGRESSIVE
             cost           0.0
-            attack_cost    0.0
-            uniformed      0
             local          1
         } BOB
         

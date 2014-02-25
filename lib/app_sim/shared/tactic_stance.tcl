@@ -36,36 +36,6 @@ tactic define STANCE "Adopt a Stance" {actor} -onlock {
         }
     }
 
-    # assess
-    #
-    # This command overrides the actor-specified/default stance
-    # on a neighborhood by neighborhood basis.
-    #
-    # At present, if group f is attacking group g in n, the maximum
-    # stance is force.maxAttackingStance.
-
-    typemethod assess {} {
-        # FIRST, get the max stance
-        set maxStance [parm get force.maxAttackingStance]
-
-        rdb eval {
-            SELECT A.n                        AS n,
-                   A.f                        AS f,
-                   A.g                        AS g,
-                   coalesce(S.stance, H.hrel) AS stance
-            FROM attroe_nfg AS A
-            JOIN uram_hrel  AS H USING (f,g)
-            LEFT OUTER JOIN stance_fg AS S USING (f,g)
-        } {
-            if {$maxStance < $stance} {
-                rdb eval {
-                    INSERT INTO stance_nfg(n,f,g,stance)
-                    VALUES($n,$f,$g,$maxStance)
-                }
-            }
-        }
-    }
-
     #-------------------------------------------------------------------
     # Instance Variables
 

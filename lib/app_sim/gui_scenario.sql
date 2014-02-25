@@ -200,9 +200,6 @@ SELECT G.id                                             AS id,
        F.forcetype                                      AS forcetype,
        F.training                                       AS training,
        F.base_personnel                                 AS base_personnel,
-       moneyfmt(F.attack_cost)                          AS attack_cost,
-       uniformed                                        AS uniformed,
-       CASE F.uniformed WHEN 1 THEN 'Yes' ELSE 'No' END AS pretty_uniformed,
        local                                            AS local,
        CASE F.local     WHEN 1 THEN 'Yes' ELSE 'No' END AS pretty_local
 FROM gui_groups  AS G

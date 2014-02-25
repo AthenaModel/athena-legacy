@@ -442,37 +442,6 @@ command "autogen strategy" {
     <</deflist options>>
 }
 
-command "autogen attroe" {
-    <<syntax <i>owner</i> ?<i>args...</i>?>>
-
-    This command automatically generates one or more 
-    <<cref /object/tactic/attroe>>s for force groups that belong to the
-    specified owner.  For uniformed forces, the ROE is "ATTACK" for 
-    non-uniformed forces it is "STAND_AND_FIGHT".  The tactic is created
-    against all other forces in each neighborhood. 
-
-    The constraints are as follows:<p>
-
-    <ul>
-    <li> At least one actor must exist
-    <li> Neighborhoods must exist
-    <li> At least one force group must exist
-    </ul>
-
-    The list of available options are:<p>
-
-    <<deflist options>>
-
-    <<defopt {-attackers <i>glist</i>}>>
-    The list of force groups that should get the tactic. Default to all
-    those that belong to <i>owner</i>.<p>
-
-    <<defopt {-max <i>n</i>}>>
-    The maximum number of attacks per week, defaults to 1.
-
-    <</deflist options>>
-}
-
 command "autogen assign" {
     <<syntax <i>owner</i> ?<i>args...</i>?>>
 

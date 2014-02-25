@@ -30,18 +30,6 @@ appserver module OVERVIEW {
             text/html    [myproc /overview:html]     \
             "Overview"
 
-        appserver register /overview/attroe {overview/attroe/?} \
-            text/html [myproc /overview/attroe:html] {
-                All attacking ROEs for all force groups in all 
-                neighborhoods.
-            }
-
-        appserver register /overview/defroe {overview/defroe/?} \
-            text/html [myproc /overview/defroe:html] {
-                All defending ROEs for all uniformed force groups in all 
-                neighborhoods.
-            }
-
         appserver register /overview/deployment {overview/deployment/?} \
             text/html [myproc /overview/deployment:html] {
                 Deployment of force and organization group personnel
@@ -67,14 +55,6 @@ appserver module OVERVIEW {
             }
             /sigevents { 
                 label "Sig. Events: All" 
-                listIcon ::projectgui::icon::eye12
-            }
-            /overview/attroe { 
-                label "Attacking ROEs" 
-                listIcon ::projectgui::icon::eye12
-            }
-            /overview/defroe { 
-                label "Defending ROEs" 
                 listIcon ::projectgui::icon::eye12
             }
             /overview/deployment { 
@@ -104,124 +84,6 @@ appserver module OVERVIEW {
     }
 
 
-    #-------------------------------------------------------------------
-    # /overview/attroe:  Attacking ROEs
-    #
-    # No Match Parameters
-
-    # /overview/attroe:html udict matchArray
-    #
-    # All Attacking ROEs.
-
-    proc /overview/attroe:html {udict matchArray} {
-        # Begin the page
-        ht page "Attacking ROEs"
-        ht title "Attacking ROEs"
-
-        if {![locked -disclaimer]} {
-            ht /page
-            return [ht get]
-        }
-
-        # There might not be any.
-        ht push
-
-        ht table {
-            "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
-            "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
-        } {
-            rdb eval {
-                SELECT nlink,
-                       flink,
-                       froe,
-                       fpersonnel,
-                       glink,
-                       fattacks,
-                       gpersonnel,
-                       groe
-                FROM gui_conflicts
-            } {
-                ht tr {
-                    ht td left  { ht put $nlink }
-                    ht td left  { ht put $flink }
-                    ht td left  { ht put $froe }
-                    ht td right { ht put $fpersonnel }
-                    ht td right { ht put $fattacks }
-                    ht td left  { ht put $glink }
-                    ht td right { ht put $gpersonnel }
-                    ht td left  { ht put $groe }
-                }
-            }
-        }
-
-        set text [ht pop]
-
-        if {[ht rowcount] > 0} {
-            ht putln {
-                The following attacking ROEs are in force across the
-                playbox.
-            }
-            ht para
-
-            ht putln $text
-        } else {
-            ht putln "No attacking ROEs are in force."
-        }
-
-        ht para
-
-        ht /page
-        
-        return [ht get]
-    }
-
-
-    #-------------------------------------------------------------------
-    # /overview/defroe:  Defending ROEs
-    #
-    # No Match Parameters
-
-    # /overview/defroe:html udict matchArray
-    #
-    # All Defending ROEs.
-
-    proc /overview/defroe:html {udict matchArray} {
-        upvar 1 $matchArray ""
-
-        # Begin the page
-        ht page "Defending ROEs"
-        ht title "Defending ROEs"
-
-        if {![locked -disclaimer]} {
-            ht /page
-            return [ht get]
-        }
-
-
-        ht putln {
-            Uniformed force groups are defending themselves given the
-            following ROEs across the playbox:
-        }
-
-        ht para
-
-        ht query {
-            SELECT ownerlink           AS "Owning Actor",
-                   glink               AS "Defender",
-                   nlink               AS "Neighborhood",
-                   roe                 AS "Def. ROE",
-                   personnel           AS "Def. Personnel"
-            FROM gui_defroe
-            WHERE personnel > 0
-            ORDER BY owner, g, n
-        } -default "None."
-
-        ht para
-
-        ht /page
-        
-        return [ht get]
-    }
 
     #-------------------------------------------------------------------
     # /overview/deployment:  FRC/ORG group deployments

@@ -223,8 +223,6 @@ appserver module GROUPS {
                        demeanor     AS "Demeanor",
                        personnel    AS "Personnel",
                        cost         AS "Cost, $/person/week",
-                       attack_cost  AS "Cost, $/attack",
-                       uniformed    AS "Uniformed?",
                        local        AS "Local?"
                 FROM gui_frcgroups 
                 ORDER BY longlink
@@ -732,21 +730,11 @@ appserver module GROUPS {
 
         ht linkbar {
             "#deployment" "Deployment"
-            "#attack"     "Attack Status"
-            "#defense"    "Defense Status"
             "#sigevents"  "Significant Events"
         }
 
         # General information
-        ht putln "$data(longname) ($g) is a"
-
-        if {$data(uniformed)} {
-            ht put " uniformed "
-        } else {
-            ht put " non-uniformed "
-        }
-
-        ht putln "force group of type"
+        ht putln "$data(longname) ($g) is a force group of type"
         ht putln "$data(forcetype) belonging to actor "
         ht link /actor/$data(a) $data(a)
         ht put ".  It is "
@@ -760,91 +748,12 @@ appserver module GROUPS {
         ht putln "demeanor of $data(demeanor)."
 
         ht putln "It has a deployment cost of [moneyfmt $data(cost)]"
-        ht putln "$/week/person, and may conduct attacks on"
-
-        if {$data(uniformed)} {
-            ht put " non-uniformed "
-        } else {
-            ht put " uniformed "
-        }
-
-        ht putln "personnel at a cost of [moneyfmt $data(attack_cost)]"
-        ht putln "$/attack."
+        ht putln "$/week/person."
 
         ht para
 
         # Deployment; anchor is "deployment".
         GroupDeployment:html $g
-
-
-        ht subtitle "Attack Status" attack
-
-        if {[locked -disclaimer]} {
-            # There might not be any.
-            ht push
-
-            ht table {
-                "Nbhood" "Att. ROE" "Max Attacks" "Defender" 
-                "Personnel" "Def. ROE"
-            } {
-                rdb eval {
-                    SELECT nlink,
-                           froe,
-                           fpersonnel,
-                           glink,
-                           fattacks,
-                           gpersonnel,
-                           groe
-                           FROM gui_conflicts
-                    WHERE f = $g;
-                } {
-                    ht tr {
-                        ht td left  { ht put $nlink      }
-                        ht td left  { ht put $froe       }
-                        ht td right { ht put $fattacks   }
-                        ht td left  { ht put $glink      }
-                        ht td right { ht put $gpersonnel }
-                        ht td left  { ht put $groe       }
-                    }
-                }
-            }
-
-            set text [ht pop]
-
-            if {[ht rowcount] > 0} {
-                ht putln "Group $g has the following attacking ROEs."
-                ht para
-
-                ht putln $text
-            } else {
-                ht putln "Group $g is not attacking any other groups."
-            }
-        }
-
-        ht para
-
-
-        ht subtitle "Defense Status" defense
-
-        if {[locked -disclaimer]} {
-            ht putln "Group $g is defending against attack from the following "
-            ht put   "groups:"
-            ht para
-
-            ht query {
-                SELECT nlink                AS "Neighborhood",
-                       groe                 AS "Def. ROE",
-                       flink                AS "Attacker",
-                       froe                 AS "Att. ROE",
-                       fpersonnel           AS "Att. Personnel"
-                FROM gui_conflicts
-                WHERE g=$g
-                AND   fpersonnel > 0
-                AND   gpersonnel > 0
-            } -default "None."
-
-            ht para
-        }
 
         ht subtitle "Significant Events" sigevents
 

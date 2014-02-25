@@ -125,8 +125,6 @@ appserver module ACTOR {
             "#infra"     "GOODS Plant Ownership"
             "#cap"       "CAP Ownership"
             "#forces"    "Force Deployment"
-            "#attack"    "Attack Status"
-            "#defense"   "Defense Status"
             "#sigevents" "Significant Events"
         }
         
@@ -444,94 +442,6 @@ appserver module ACTOR {
                 JOIN gui_nbhoods  AS N ON (N.n=P.n)
                 WHERE G.a=$a AND personnel > 0
             } -default "No forces are deployed."
-        }
-
-
-        ht subtitle "Attack Status" attack
-
-        if {[locked -disclaimer]} {
-            # There might not be any.
-            ht push
-
-            ht table {
-                "Nbhood" "Attacker" "Att. ROE" "Att. Personnel"
-                "Max Attacks" "Defender" "Def. Personnel" "Def. ROE"
-            } {
-                rdb eval {
-                    SELECT nlink,
-                           flink,
-                           froe,
-                           fpersonnel,
-                           glink,
-                           fattacks,
-                           gpersonnel,
-                           groe
-                    FROM gui_conflicts
-                    WHERE factor = $a;
-                } {
-                    if {$fpersonnel && $gpersonnel > 0} {
-                        set bgcolor white
-                    } else {
-                        set bgcolor lightgray
-                    }
-
-                    ht tr bgcolor $bgcolor {
-                        ht td left  { ht put $nlink      }
-                        ht td left  { ht put $flink      }
-                        ht td left  { ht put $froe       }
-                        ht td right { ht put $fpersonnel }
-                        ht td right { ht put $fattacks   }
-                        ht td left  { ht put $glink      }
-                        ht td right { ht put $gpersonnel }
-                        ht td left  { ht put $groe       }
-                    }
-                }
-            }
-
-            set text [ht pop]
-
-            if {[ht rowcount] > 0} {
-                ht putln "Actor $a's force groups have the following "
-                ht put   "attacking ROEs."
-                ht putln {
-                    The background will be gray for potential conflicts,
-                    i.e., those in which one or the other group (or both)
-                    has no personnel in the neighborhood in question.
-                }
-                ht para
-
-                ht putln $text
-            } else {
-                ht putln "No group owned by actor $a is attacking any other "
-                ht put   "groups."
-            }
-        }
-
-        ht para
-
-
-        ht subtitle "Defense Status" defense
-
-        if {[locked -disclaimer]} {
-            ht putln "Actor $a's force groups are defending against "
-            ht put   "the following attacks:"
-            ht para
-
-            ht query {
-                SELECT nlink                AS "Neighborhood",
-                       glink                AS "Defender",
-                       groe                 AS "Def. ROE",
-                       gpersonnel           AS "Def. Personnel",
-                       flink                AS "Attacker",
-                       froe                 AS "Att. ROE",
-                       fpersonnel           AS "Att. Personnel"
-                FROM gui_conflicts
-                WHERE gactor = $a
-                AND   fpersonnel > 0
-                AND   gpersonnel > 0
-            } -default "None."
-
-            ht para
         }
 
         ht subtitle "Significant Events" sigevents

@@ -325,12 +325,6 @@ CREATE TABLE frcgroups (
     -- The base number personnel 
     base_personnel INTEGER DEFAULT 0,
 
-    -- Cost/Attack, in $
-    attack_cost    DOUBLE DEFAULT 0,
-
-    -- Uniformed or Non-uniformed: 1 or 0
-    uniformed      INTEGER DEFAULT 1,
-
     -- Local or foreign: 1 if local, 0 if foreign
     local          INTEGER
 );

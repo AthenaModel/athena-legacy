@@ -319,13 +319,11 @@ SHIA JOE 0.9  1         0.0
 
     set simTables {
         {activity_nga {n g a}}                  
-        {attroe_nfg {n f g}}                    
         {cap_access {k a}}                    
         {cap_kg {k g}}                        
         {cap_kn {k n}}                        
         {caps {k}}                          
         {control_n {n}}                     
-        {defroe_ng {n g}}
         {demog_g {g}}          
         {demog_local}                   
         {demog_n {n}}                       

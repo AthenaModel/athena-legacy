@@ -104,216 +104,6 @@ snit::type ::projectlib::parmdb {
             remain.
         }
 
-        # NEXT, Athena Attrition Model parameters
-
-        $ps subset aam {
-            Parameters that affect the Athena Attrition Model.
-        }
-
-        # UFvsNF
-        $ps subset aam.UFvsNF {
-            Parameters for Uniformed Force vs. Non-uniformed Force
-            attrition.
-        }
-
-        $ps subset aam.UFvsNF.UF {
-            Parameters relating to the Uniformed Force in UF vs. NF
-            attrition.
-        }
-
-        $ps define aam.UFvsNF.UF.coverageFunction ::simlib::coverage {
-            25.0 1000
-        } {
-            The coverage function used for the coverage of the
-            Uniformed Force in the neighborhood, based on the number
-            of UF personnel in the neighborhood.
-        }
-
-        $ps define aam.UFvsNF.UF.nominalCoverage \
-            ::projectlib::parmdb_nomcoverage 0.3 {
-            The nominal coverage of the Uniformed Force in the
-            neighborhood for this algorithm.  When the UF coverage is
-            equal to this value, the time-to-find an NF cell will tend
-            to be <tt>aam.UFvsNF.UF.timeToFind</tt>.
-        }
-
-        $ps define aam.UFvsNF.UF.nominalCooperation \
-            ::projectlib::parmdb_nomcoop 35.0 {
-            The nominal cooperation of the neighborhood population
-            with the Uniformed Force.  When the actual cooperation is
-            equal to this value, the time-to-find an NF cell will tend
-            to be <tt>aam.UFvsNF.UF.timeToFind</tt>.
-        }
-
-        $ps define aam.UFvsNF.UF.timeToFind \
-            ::projectlib::parmdb_posdays 5.0 {
-            The average time for the Uniformed Force to find a
-            Non-uniformed Force cell, in weeks.
-        }
-
-        $ps subset aam.UFvsNF.NF {
-            Parameters relating to the Non-uniformed Force in UF vs. NF
-            attrition.
-        }
-
-        $ps define aam.UFvsNF.NF.coverageFunction ::simlib::coverage {
-            12.0 1000
-        } {
-            The coverage function used for the coverage of the
-            Non-uniformed Force in the neighborhood, based on the number
-            of NF personnel in the neighborhood.
-        }
-
-        $ps define aam.UFvsNF.NF.nominalCoverage \
-            ::projectlib::parmdb_nomcoverage 0.4 {
-            The nominal coverage of the Non-uniformed Force in the
-            neighborhood for this algorithm.  When the NF coverage is
-            equal to this value, the time-to-find an NF cell will tend
-            to be <tt>aam.UFvsNF.UF.timeToFind</tt>.
-        }
-
-        $ps define aam.UFvsNF.NF.cellSize \
-            ::projectlib::ipositive 7 {
-            The average number of Non-uniformed Force personnel per
-            NF cell.  Ultimately, this might be allowed to vary by
-            group and neighborhood.
-        }
-
-        $ps subset aam.UFvsNF.ECDA {
-            The Expected Collateral Damage per Attack, i.e., the
-            expected number of civilians killed per non-uniformed cell
-            attacked by a uniformed force.  The actual value depends
-            on the urbanization level.
-        }
-
-        foreach ul [::projectlib::eurbanization names] {
-            $ps define aam.UFvsNF.ECDA.$ul ::projectlib::parmdb_rquantity 0.0 {
-                The ECDA for this urbanization level, i.e., the
-                expected number of civilians killed per non-uniformed cell
-                attacked by a uniformed force.
-            }
-        }
-
-        $ps setdefault aam.UFvsNF.ECDA.ISOLATED 0.0
-        $ps setdefault aam.UFvsNF.ECDA.RURAL    1.0
-        $ps setdefault aam.UFvsNF.ECDA.SUBURBAN 3.0
-        $ps setdefault aam.UFvsNF.ECDA.URBAN    5.0
-
-        # NFvsUF
-
-        $ps subset aam.NFvsUF {
-            Parameters for Non-uniformed Force vs. Uniformed Force
-            attrition.
-        }
-
-        $ps subset aam.NFvsUF.UF {
-            Parameters relating to the Uniformed Force in NF vs. UF
-            attrition.
-        }
-
-        $ps define aam.NFvsUF.UF.coverageFunction ::simlib::coverage {
-            25.0 1000
-        } {
-            The coverage function used for the coverage of the
-            Uniformed Force in the neighborhood, based on the number
-            of UF personnel in the neighborhood.
-        }
-
-        $ps define aam.NFvsUF.UF.nominalCoverage \
-            ::projectlib::parmdb_nomcoverage 0.2 {
-            The nominal coverage of the Uniformed Force in the
-            neighborhood for this algorithm.
-        }
-
-        $ps subset aam.NFvsUF.HIT_AND_RUN {
-            Parameters relating to the Non-uniformed Force in NF vs. UF
-            attrition when the Non-uniformed Force is using
-            Hit-and-Run tactics.
-        }
-
-        $ps define aam.NFvsUF.HIT_AND_RUN.nominalCooperation \
-            ::projectlib::parmdb_nomcoop 50.0 {
-            The nominal cooperation of the neighborhood civilians
-            with the Non-uniformed Force for this algorithm.
-        }
-
-        $ps define aam.NFvsUF.HIT_AND_RUN.ELER \
-            ::projectlib::parmdb_ler 0.33 {
-            The Expected Loss Exchange Ratio: the expected number of NF
-            casualties per UF casualty inflicted, assuming that the
-            neighborhood cooperates equally with the NF and UF (and
-            that the UF is able to fire back).
-        }
-
-        $ps define aam.NFvsUF.HIT_AND_RUN.MAXLER \
-            ::projectlib::parmdb_ler 0.25 {
-            The Maximum Loss Exchange Ratio: the maximum number of
-            NF casualties the NF is willing to accept for each UF
-            casualty inflicted.
-        }
-
-        $ps define aam.NFvsUF.HIT_AND_RUN.ufCasualties \
-            ::projectlib::ipositive 4 {
-            The number of Uniformed Force personnel the Non-uniformed
-            wishes to kill in any hit-and-run attack.
-        }
-
-        $ps subset aam.NFvsUF.STAND_AND_FIGHT {
-            Parameters relating to the Non-uniformed Force in NF vs. UF
-            attrition when the Non-uniformed Force is using
-            Stand-and-Fight tactics.
-        }
-
-        $ps define aam.NFvsUF.STAND_AND_FIGHT.nominalCooperation \
-            ::projectlib::parmdb_nomcoop 50.0 {
-            The nominal cooperation of the neighborhood civilians
-            with the Non-uniformed Force for this algorithm.
-        }
-
-        $ps define aam.NFvsUF.STAND_AND_FIGHT.ELER \
-            ::projectlib::parmdb_ler 3.0 {
-            The Expected Loss Exchange Ratio: the expected number of NF
-            casualties per UF casualty inflicted, assuming that the
-            neighborhood cooperates equally with the NF and UF (and
-            that the UF is able to fire back).
-        }
-
-        $ps define aam.NFvsUF.STAND_AND_FIGHT.MAXLER \
-            ::projectlib::parmdb_ler 4.0 {
-            The Maximum Loss Exchange Ratio: the maximum number of
-            NF casualties the NF is willing to accept for each UF
-            casualty inflicted.
-        }
-
-        $ps define aam.NFvsUF.STAND_AND_FIGHT.nfCasualties \
-            ::projectlib::ipositive 20 {
-            The number of personnel the Non-uniformed Force
-            is willing to expend in a single attack, killing as many
-            UF personnel as possible, when standing and fighting.
-        }
-
-        $ps subset aam.NFvsUF.ECDC {
-            The Expected Collateral Damage per Casualty, i.e., the
-            expected number of civilians killed per non-uniformed casualty
-            when a uniformed force is defending against non-uniformed
-            attack.  The actual value depends
-            on the urbanization level.
-        }
-
-        foreach ul [::projectlib::eurbanization names] {
-            $ps define aam.NFvsUF.ECDC.$ul ::projectlib::parmdb_rquantity 0.0 {
-                The ECDC for this urbanization level, i.e., the
-                expected number of civilians killed per non-uniformed casualty
-                when a uniformed force is defending.
-            }
-        }
-
-        $ps setdefault aam.NFvsUF.ECDC.ISOLATED 0.0
-        $ps setdefault aam.NFvsUF.ECDC.RURAL    0.1
-        $ps setdefault aam.NFvsUF.ECDC.SUBURBAN 0.15
-        $ps setdefault aam.NFvsUF.ECDC.URBAN    0.2
-
-
         # NEXT, Activity Parameters
 
         $ps subset activity {
@@ -1314,7 +1104,7 @@ snit::type ::projectlib::parmdb {
             for this expenditure class.
         }
 
-        foreach class {ASSIGN ATTROE BROADCAST BUILD DEPLOY FUNDENI MAINTAIN} {
+        foreach class {ASSIGN BROADCAST BUILD DEPLOY FUNDENI MAINTAIN} {
             $ps subset econ.shares.$class "
                 Allocations of expenditures to CGE sectors for the
                 $class expenditure class.  The allocations are
@@ -1339,11 +1129,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault econ.shares.ASSIGN.black      0
         $ps setdefault econ.shares.ASSIGN.region     0
         $ps setdefault econ.shares.ASSIGN.world      0
-        $ps setdefault econ.shares.ATTROE.goods      4
-        $ps setdefault econ.shares.ATTROE.pop        6
-        $ps setdefault econ.shares.ATTROE.black      0
-        $ps setdefault econ.shares.ATTROE.region     0
-        $ps setdefault econ.shares.ATTROE.world      0
         $ps setdefault econ.shares.BROADCAST.goods   4
         $ps setdefault econ.shares.BROADCAST.pop     6
         $ps setdefault econ.shares.BROADCAST.black   0
@@ -1411,17 +1196,6 @@ snit::type ::projectlib::parmdb {
         # NEXT, Force/Volatility/Security Parameters
         $ps subset force {
             Parameters which affect the neighborhood force analysis models.
-        }
-
-        $ps define force.maxAttackingStance ::simlib::qaffinity -0.5 {
-            A group's stance toward another group is set by the STANCE
-            tactic, and defaults to the group's horizontal relationship
-            toward the other group.  If, however, the group has been given
-            an attacking ROE toward the other group via the ATTROE tactic,
-            this implies a negative stance toward that group.  This parameter
-            specifies that maximum stance a group can have toward another
-            group in a neighborhood in which it has been directed to attack
-            that group.
         }
 
         $ps define force.mood ::simlib::rfraction 0.2 {

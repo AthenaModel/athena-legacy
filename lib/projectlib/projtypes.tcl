@@ -17,9 +17,6 @@ namespace eval ::projectlib:: {
     namespace export     \
         boolean          \
         eactortype       \
-        eattroe          \
-        eattroenf        \
-        eattroeuf        \
         ecause           \
         ecivconcern      \
         ecomparator      \
@@ -30,7 +27,6 @@ namespace eval ::projectlib:: {
         ecurse_state     \
         edamrule         \
         edamruleset      \
-        edefroeuf        \
         edemeanor        \
         eensit           \
         eforcetype       \
@@ -149,39 +145,6 @@ snit::type ::projectlib::typewrapper {
     NORMAL          "Normal"
     PSEUDO          "Pseudo-actor"
 }
-
-
-# AAM Attacking ROEs, UF and NF combined
-::marsutil::enum ::projectlib::eattroe  {
-    DO_NOT_ATTACK   "Do not attack"
-    HIT_AND_RUN     "Hit and run"
-    STAND_AND_FIGHT "Stand and fight"
-    ATTACK          "Attack"
-}
-
-
-# AAM Attacking ROEs, NF only
-::marsutil::enum ::projectlib::eattroenf  {
-    DO_NOT_ATTACK   "Do not attack"
-    HIT_AND_RUN     "Hit and run"
-    STAND_AND_FIGHT "Stand and fight"
-}
-
-
-# AAM Attacking ROEs, UF only
-::marsutil::enum ::projectlib::eattroeuf  {
-    DO_NOT_ATTACK   "Do not attack"
-    ATTACK          "Attack"
-}
-
-
-# AAM Defending ROEs, UF only
-::marsutil::enum ::projectlib::edefroeuf  {
-    HOLD_FIRE             "Hold fire"
-    FIRE_BACK_IF_PRESSED  "Fire back if pressed"
-    FIRE_BACK_IMMEDIATELY "Fire back immediately"
-}
-
 
 
 # DAM Rules

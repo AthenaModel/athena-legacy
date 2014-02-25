@@ -231,22 +231,6 @@ object group_frc {
         "1K" is 1,000 dollars.
     } -tags {create update multi}
 
-    attribute attack_cost "Cost $/attack" {
-        The cost of one attack on another force group, in dollars.<p>
-
-        Force groups can be authorized to attack other force groups in
-        specific neighborhoods via the
-        <<cref /object/tactic/attroe>>.  The ROE specifies some
-        maximum number of attacks in a given week; this parameter gives
-        the cost of one such attack.
-    } -tags {create update multi}
-
-    attribute uniformed "Uniformed?" {
-        Boolean flag (e.g., "Yes" or "No").  Indicates whether or not the
-        group's personnel wear recognizeable uniforms.  This affects the
-        offensive and defensive tactics used by the group.
-    } -tags {create update multi}
-
     attribute local "Local Group?" {
         Boolean flag (e.g., "Yes" or "No").  Indicates whether or not
         the civilians perceive the group as being local to the playbox.

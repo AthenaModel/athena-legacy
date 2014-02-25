@@ -38,28 +38,6 @@ Almost all actors are "normal" actors.<p>
 
 <<::projectlib::eactortype html>>
 
-<<defitem eattroe {eattroe <i>subcommand</i> ?<i>args</i>?}>>
-
-This <<xref mars:enum(n)>> type defines the set of attacking rules of
-engagement (ROEs) for uniformed (UF) and non-uniformed forces (NF).<p>
-
-<<::projectlib::eattroe html>>
-
-<<defitem eattroenf {eattroenf <i>subcommand</i> ?<i>args</i>?}>>
-
-This <<xref mars:enum(n)>> type defines the set of attacking rules of
-engagement (ROEs) for non-uniformed forces (NF).<p>
-
-<<::projectlib::eattroenf html>>
-
-<<defitem eattroeuf {eattroeuf <i>subcommand</i> ?<i>args</i>?}>>
-
-This <<xref mars:enum(n)>> type defines the set of attacking rules of
-engagement (ROEs) for uniformed (UF).<p>
-
-<<::projectlib::eattroeuf html>>
-
-
 <<defitem ecause {ecause <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing the "causes" of GRAM
@@ -136,14 +114,6 @@ An <<xref mars:enum(n)>> type, enumerating the names and descriptions
 of all Athena Driver Assessment rule sets.<p>
 
 <<::projectlib::edamruleset html>>
-
-<<defitem edefroeuf {edefroeuf <i>subcommand</i> ?<i>args</i>?}>>
-
-These <<xref mars:enum(n)>> types define the set of defending rules of
-engagement (ROEs) for uniformed (UF).<p>
-
-<<::projectlib::edefroeuf html>>
-
 
 <<defitem edemeanor {edemeanor <i>subcommand</i> ?<i>args</i>?}>>
 

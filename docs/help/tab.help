@@ -1332,8 +1332,6 @@ tab "Military/Force Groups" {
     <<group_frc parm base_personnel>>
     <<group_frc parm demeanor>>
     <<group_frc parm cost>>
-    <<group_frc parm attack_cost>>
-    <<group_frc parm uniformed>>
     <<group_frc parm local -label "Local?">>
     <</parmlist>>
 

@@ -59,7 +59,6 @@ appserver module PARMDB {
         # parm names (alas); we really should be grabbing this automatically. 
         foreach subset {
             sim
-            aam
             activity
             app
             attitude

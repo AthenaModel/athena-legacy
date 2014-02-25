@@ -31,477 +31,39 @@ snit::type aam {
     typemethod assess {} {
         log normal aam "assess"
 
-        # FIRST, Clear the pending attrition data, if any.
-        rdb eval {
-            DELETE FROM aam_pending_nf;
-            DELETE FROM aam_pending_n;
-        }
-
-        # NEXT, compute all normal attrition for this interval,
-        # and then apply it all at once.
-        $type UFvsNF
-        $type NFvsUF
+        # FIRST, Apply all saved magic attrition from the
+        # magic_attrit table.  This updates units and deployments,
+        # and accumulates all civilian attrition as input to the
+        # CIVCAS rule set.
         $type ApplyAttrition
 
-        # NEXT, assess the attitude implications of all normal
-        # and magic attrition for this interval.
+        # NEXT, assess the attitude implications of all attrition for
+        # this tick.
         driver::CIVCAS assess
-        $type ClearAttitudeStatistics
 
-        # NEXT, Refund unspent attack funds to actors.
-        tactic::ATTROE refund
+        # NEXT, clear the saved data for this tick; we're done.
+        $type ClearPendingdAta
     }
 
-    # ApplyAttrition
-    #
-    # Applies the attrition from magic attrition and then that
-    # accumulated by the normal attrition algorithms.
 
-    typemethod ApplyAttrition {} {
-        # FIRST, apply the magic attrition
-        rdb eval {
-            SELECT mode,
-                   n,
-                   f,
-                   casualties,
-                   g1,
-                   g2
-            FROM magic_attrit
-        } {
-            switch -exact -- $mode {
-                NBHOOD {
-                    $type AttritNbhood $n $casualties $g1 $g2
-                }
-
-                GROUP {
-                    $type AttritGroup $n $f $casualties $g1 $g2
-                }
-
-                default {error "Unrecognized attrition mode: \"$mode\""}
-            }
-        }
-
-        # NEXT, clear out the magic attrition, we're done.
-        rdb eval {
-            DELETE FROM magic_attrit;
-        }
-
-        # NEXT, apply the force group attrition
-        rdb eval {
-            SELECT n, 
-                   f, 
-                   total(casualties) AS casualties,
-                   ''                AS g1,
-                   ''                AS g2
-            FROM aam_pending_nf
-            GROUP BY n,f
-        } {
-            $type AttritGroup $n $f $casualties $g1 $g2
-        }
-
-
-        # NEXT, apply the collateral damage.
-        rdb eval {
-            SELECT n,
-                   casualties,
-                   attacker    AS g1,
-                   defender    AS g2
-            FROM aam_pending_n
-        } {
-            $type AttritNbhood $n $casualties $g1 $g2
-        }
-    }
-
-    # ClearAttitudeStatistics
+    # ClearPendingdAta
     #
     # Clears the tables used to store attrition for use in
     # assessing attitudinal effects.
 
-    typemethod ClearAttitudeStatistics {} {
+    typemethod ClearPendingdAta {} {
         # FIRST, clear the accumulated attrition statistics, in preparation
         # for the next tock.
         rdb eval {
+            DELETE FROM magic_attrit;
             DELETE FROM attrit_nf;
             DELETE FROM attrit_nfg;
         }
     }
 
     #-------------------------------------------------------------------
-    # UF vs. NF Attrition
-
-    # UFvsNF
-    #
-    # Computes the attrition, if any, due to Uniformed Force attacks
-    # on Non-uniformed Force personnel.
-
-    typemethod UFvsNF {} {
-        # FIRST, get the relevant parameter values
-        set deltaT    7.0 ;# 1 tick in days.
-        set ufCovFunc [parmdb get aam.UFvsNF.UF.coverageFunction]
-        set ufCovNom  [parmdb get aam.UFvsNF.UF.nominalCoverage]
-        set ufCoopNom [parmdb get aam.UFvsNF.UF.nominalCooperation]
-        set nfCovFunc [parmdb get aam.UFvsNF.NF.coverageFunction]
-        set nfCovNom  [parmdb get aam.UFvsNF.NF.nominalCoverage]
-        set tf        [parmdb get aam.UFvsNF.UF.timeToFind]
-        set cellSize  [parmdb get aam.UFvsNF.NF.cellSize]
-
-        # NEXT, step over all attacking ROEs.
-        rdb eval {
-            SELECT A.n                       AS n,
-                   A.f                       AS uf, 
-                   A.g                       AS nf,
-                   A.max_attacks             AS max,
-                   N.urbanization            AS urbanization,
-                   DN.population             AS pop,
-                   UP.personnel              AS ufPersonnel,
-                   UC.nbcoop                 AS ufCoop,
-                   NP.personnel              AS nfPersonnel,
-                   NC.nbcoop                 AS nfCoop
-            FROM attroe_nfg    AS A
-            JOIN nbhoods       AS N  ON (N.n  = A.n)
-            JOIN demog_n       AS DN ON (DN.n = A.n)
-            JOIN force_ng      AS UP ON (UP.n = A.n AND UP.g = A.f)
-            JOIN uram_nbcoop   AS UC ON (UC.n = A.n AND UC.g = A.f)
-            JOIN force_ng      AS NP ON (NP.n = A.n AND NP.g = A.g)
-            JOIN uram_nbcoop   AS NC ON (NC.n = A.n AND NC.g = A.g)
-            WHERE A.uniformed =  1
-            AND   A.roe       =  'ATTACK'
-        } {
-            # FIRST, if the attack cannot be carried out, log it.
-            set prefix "no $uf attacks on $nf in $n:"
-
-            if {$ufPersonnel == 0} {
-                log detail aam "$prefix No $uf personnel in $n"
-                continue
-            } elseif {$nfPersonnel == 0} {
-                log detail aam "$prefix No $nf personnel in $n"
-                continue
-            }
-
-            # NEXT, the attack occurs.  Get the coverage fractions.
-            set ufCov     [coverage eval $ufCovFunc $ufPersonnel $pop]
-            set nfCov     [coverage eval $nfCovFunc $nfPersonnel $pop]
-
-            # NEXT, compute the possible number of attacks:
-            let Np { 
-                round( ($ufCoop           * $ufCov    * $nfCov * $deltaT)/
-                       (max($nfCoop,10.0) * $ufCovNom * $nfCovNom * $tf ) )
-            }
-
-            # But no more than max_attacks
-            if {$Np > $max} {
-                set Np $max
-            }
-
-            if {$Np == 0} {
-                log detail aam \
-                  "$prefix UF can't find NF"
-                continue
-            }
-
-            # NEXT, compute the actual number of attacks
-            
-            # Number of NF cells
-            let Ncells { ceil(double($nfPersonnel) / $cellSize) }
-
-            # Each attack kills an entire cell
-            let Na { entier(min($Np, $Ncells)) }
-
-            # Save the actual number of attacks
-            set actual([list $n $uf $nf]) $Na
-
-            # Number of NF troops killed
-            let Nkilled { min($Na * $cellSize, $nfPersonnel) }
-
-            rdb eval {
-                INSERT INTO aam_pending_nf(n,f,casualties)
-                VALUES($n,$nf,$Nkilled);
-            }
-
-            # NEXT, compute the collateral damage.  Get the ECDA.
-            set ecda [parmdb get aam.UFvsNF.ECDA.$urbanization]
-
-            let Ncivcas {
-                entier( $Na * $ecda * $ufCoopNom / max($ufCoop, 10.0))
-            }
-
-            if {$Ncivcas > 0} {
-                rdb eval {
-                    INSERT INTO aam_pending_n(n,attacker,defender,casualties)
-                    VALUES($n,$uf,$nf,$Ncivcas);
-                }
-            }
-
-            # NEXT, log the results
-            log normal aam \
-                "UF $uf attacks NF $nf in $n: NF $Nkilled CIV $Ncivcas"
-            log detail aam [tsubst {
-                |<--
-                UF $uf attacks NF $nf in $n:
-                    urbanization: $urbanization
-                    pop:          $pop
-                    ufPersonnel:  $ufPersonnel
-                    ufCov         $ufCov
-                    ufCoop:       $ufCoop
-                    nfPersonnel:  $nfPersonnel
-                    nfCov         $nfCov
-                    nfCoop:       $nfCoop
-                    Np:           $Np
-                    Ncells:       $Ncells
-                    Na:           $Na
-            }]
-
-            rdb eval {SELECT a AS ufOwner FROM frcgroups WHERE g=$uf} {}
-            rdb eval {SELECT a AS nfOwner FROM frcgroups WHERE g=$nf} {}
-
-            sigevent log 1 attrit "
-                Uniformed force {group:$uf} attacks non-uniformed force
-                {group:$nf} in {nbhood:$n} $Na times, 
-                killing $Nkilled personnel,
-                with $Ncivcas civilian casualties.
-            " $uf $nf $n $ufOwner $nfOwner
-        }
-
-        # NEXT, save the actual number of attacks in the attroe_nfg 
-        # table, so that unused funds can be returned.
-        foreach id [array names actual] {
-            lassign $id n f g
-
-            set value $actual($id)
-
-            rdb eval {
-                UPDATE attroe_nfg
-                SET    attacks = $value
-                WHERE n=$n AND f=$f AND g=$g;
-            }            
-        }
-    }
-
-    #-------------------------------------------------------------------
-    # NF vs. UF Attrition
-
-    # NFvsUF
-    #
-    # Computes the attrition, if any, due to Non-uniformed Force attacks
-    # on Uniformed Force personnel.
-
-    typemethod NFvsUF {} {
-        # FIRST, get the relevant constant parameter values
-        set ufCovFunc [parmdb get aam.NFvsUF.UF.coverageFunction]
-        set ufCovNom  [parmdb get aam.NFvsUF.UF.nominalCoverage]
-
-        # NEXT, step over all attacking ROEs, gathering the related
-        # data as needed.
-        rdb eval {
-            SELECT A.n                             AS n,
-                   A.f                             AS nf,
-                   A.g                             AS uf,
-                   A.roe                           AS nfRoe,
-                   A.max_attacks                   AS max,
-                   N.urbanization                  AS urbanization,
-                   DN.population                   AS pop,
-                   NP.personnel                    AS nfPersonnel,
-                   NC.nbcoop                       AS nfCoop,
-                   UP.personnel                    AS ufPersonnel,
-                   UP.security                     AS ufSecurity,
-                   UC.nbcoop                       AS ufCoop,
-                   UD.roe                          AS ufRoe
-            FROM attroe_nfg     AS A
-            JOIN nbhoods        AS N  ON (N.n = A.n)
-            JOIN demog_n        AS DN ON (DN.n = A.n)
-            JOIN force_ng       AS NP ON (NP.n = A.n AND NP.g = A.f)
-            JOIN uram_nbcoop    AS NC ON (NC.n = A.n AND NC.g = A.f)
-            JOIN force_ng       AS UP ON (UP.n = A.n AND UP.g = A.g)
-            JOIN uram_nbcoop    AS UC ON (UC.n = A.n AND UC.g = A.g)
-            JOIN defroe_view    AS UD ON (UD.n = A.n AND UD.g = A.g)
-            WHERE A.uniformed =  0
-            AND   A.roe       != 'DO_NOT_ATTACK'
-        } {
-            # FIRST, if the attack cannot be carried out, log it.
-            set prefix "no $nf attacks on $uf in $n:"
-
-            if {$nfPersonnel == 0} {
-                log detail aam "$prefix No $nf personnel in $n"
-                continue
-            } elseif {$ufPersonnel == 0} {
-                log detail aam "$prefix No $uf personnel in $n"
-                continue
-            }
-
-            # NEXT, get the UF coverage
-            set ufCov     [coverage eval $ufCovFunc $ufPersonnel $pop]
-
-            # NEXT, get the NF parameters that depend on ROE
-            set nfCoopNom [parmdb get aam.NFvsUF.$nfRoe.nominalCooperation]
-            set ELER      [parmdb get aam.NFvsUF.$nfRoe.ELER]
-            set MAXLER    [parmdb get aam.NFvsUF.$nfRoe.MAXLER]
-
-            # NEXT, compute the potential number of attacks.  max_attacks
-            # is the rate of attacks per strategy tock, so it can serve
-            # as the base rate.
-            let Np { 
-                round( 
-                 ($max * (100 - $ufSecurity) * $nfCoop    * $ufCov)
-                 / (            100          * $nfCoopNom * $ufCovNom))
-            }
-
-            # But no more than max_attacks
-            if {$Np > $max} {
-                set Np $max
-            }
-
-            if {$Np == 0} {
-                log detail aam \
-                  "$prefix $nf has no $uf target opportunities"
-                continue
-            }
-
-            # NEXT, compute loss exchange rate, and determine whether
-            # the NF is willing to attack.
-            
-            let ler {
-                $ELER * $ufCoop / max($nfCoop,10.0)
-            }
-
-            if {$ler > $MAXLER} {
-                log detail aam \
-                    "$prefix LER [format %.2f $ler] exceeds MAXLER $MAXLER"
-                continue
-            }
-
-            # NEXT, The number of casualties per attack depends on 
-            # the NF's attacking ROE.
-            if {$nfRoe eq "HIT_AND_RUN"} {
-                set ufCas [parmdb get aam.NFvsUF.HIT_AND_RUN.ufCasualties]
-                
-                let nfCas {$ufCas * $ler}
-            } elseif {$nfRoe eq "STAND_AND_FIGHT"} {
-                set nfCas [parmdb get aam.NFvsUF.STAND_AND_FIGHT.nfCasualties]
-
-                let ufCas {$nfCas / max($ler,0.01)}
-            } else {
-                error "Unknown ROE: \"$roe\""
-            }
-
-            # NEXT, compute the actual number of attacks.
-            let NFmax {double($nfPersonnel)/max($nfCas,0.1)}
-            let UFmax {double($ufPersonnel)/max($ufCas,0.1)}
-
-            let Na {
-                entier(min($Np, $NFmax, $UFmax))
-            }
-
-            # NEXT, they always attack at least once.
-            if {$Na == 0} {
-                set Na 1
-            }
-
-            # Save the actual number of attacks
-            set actual([list $n $nf $uf]) $Na
-
-            # NEXT, compute the total number of UF casualties
-            let totalUFcas {
-                round(min($Na * $ufCas, $ufPersonnel))
-            }
-
-            # NEXT, compute the total number of UF casualties
-            if {[ufFiresBack $nfRoe $ufRoe]} {
-                let totalNFcas {
-                    round(min($totalUFcas * $ler, $nfPersonnel))
-                }
-            } else {
-                set totalNFcas 0
-            }
-
-            # NEXT, compute the civilian collateral damage
-            set ecdc [parmdb get aam.NFvsUF.ECDC.$urbanization]
-
-            let Ncivcas { round($ecdc * $totalNFcas) }
-            
-            # NEXT, save the casualties
-            rdb eval {
-                INSERT INTO aam_pending_nf(n,f,casualties)
-                VALUES($n,$uf,$totalUFcas);
-
-                INSERT INTO aam_pending_nf(n,f,casualties)
-                VALUES($n,$nf,$totalNFcas);
-
-                INSERT INTO aam_pending_n(n,attacker,defender,casualties)
-                VALUES($n,$nf,$uf,$Ncivcas);
-            }
-
-            # NEXT, log the results
-            log normal aam \
-                "NF $nf attacks UF $uf in $n: UF $totalUFcas NF $totalNFcas CIV $Ncivcas"
-            log detail aam [tsubst {
-                |<--
-                NF $nf attacks UF $uf in $n:
-                    nfRoe:        $nfRoe
-                    max_attacks:  $max
-                    urbanization: $urbanization
-                    pop:          $pop
-                    nfPersonnel:  $nfPersonnel
-                    nfCoop:       $nfCoop
-                    ufPersonnel:  $ufPersonnel
-                    ufSecurity:   $ufSecurity
-                    ufCoop:       $ufCoop
-                    ufCov:        $ufCov
-                    ufRoe:        $ufRoe
-                    Np:           $Np
-                    LER:          $ler
-                    Na:           $Na
-                    ufCas:        $ufCas
-                    nfCas:        $nfCas
-            }]
-
-            rdb eval {SELECT a AS ufOwner FROM frcgroups WHERE g=$uf} {}
-            rdb eval {SELECT a AS nfOwner FROM frcgroups WHERE g=$nf} {}
-
-            sigevent log 1 attrit "
-                Non-uniformed force {group:$nf} attacks uniformed force
-                {group:$uf} in {nbhood:$n} $Na times, 
-                killing $totalUFcas {group:$uf} personnel
-                at a cost of $totalNFcas {group:$nf} personnel
-                with $Ncivcas civilian casualties.
-            " $nf $uf $n $nfOwner $ufOwner
-        }
-
-        # NEXT, save the actual number of attacks in the attroe_nfg 
-        # table, so that unused funds can be returned.
-        foreach id [array names actual] {
-            lassign $id n f g
-
-            set value $actual($id)
-
-            rdb eval {
-                UPDATE attroe_nfg
-                SET    attacks = $value
-                WHERE n=$n AND f=$f AND g=$g;
-            }            
-        }
-    }
-
-    # ufFiresBack nfRoe ufRoe
-    #
-    # nfRoe       The NF's attacking ROE
-    # ufRoe       The UF's defending ROE
-    #
-    # Returns 1 if UF fires back, and 0 otherwise.
-
-    proc ufFiresBack {nfRoe ufRoe} {
-        if {$nfRoe eq "HIT_AND_RUN"} {
-            if {$ufRoe eq "FIRE_BACK_IMMEDIATELY"} {
-                return 1
-            }
-        } elseif {$nfRoe eq "STAND_AND_FIGHT"} {
-            if {$ufRoe ne "HOLD_FIRE"} {
-                return 1
-            }
-        }
-
-        return 0
-    }
-
+    # Magic attrition, from ATTRIT tactic
+    
 
     # attrit parmdict
     #
@@ -530,6 +92,39 @@ snit::type aam {
                        nullif($f,  ''),
                        nullif($g1, ''),
                        nullif($g2, ''));
+            }
+        }
+    }
+
+    #-------------------------------------------------------------------
+    # Apply Attrition
+    
+    # ApplyAttrition
+    #
+    # Applies the attrition from magic attrition and then that
+    # accumulated by the normal attrition algorithms.
+
+    typemethod ApplyAttrition {} {
+        # FIRST, apply the magic attrition
+        rdb eval {
+            SELECT mode,
+                   n,
+                   f,
+                   casualties,
+                   g1,
+                   g2
+            FROM magic_attrit
+        } {
+            switch -exact -- $mode {
+                NBHOOD {
+                    $type AttritNbhood $n $casualties $g1 $g2
+                }
+
+                GROUP {
+                    $type AttritGroup $n $f $casualties $g1 $g2
+                }
+
+                default {error "Unrecognized attrition mode: \"$mode\""}
             }
         }
     }
@@ -820,6 +415,8 @@ snit::type aam {
     #
     # Returns a list of all force groups but g1 and puts "NONE" at the
     # beginning of the list.
+    #
+    # TBD: Should go in tactic_attrit.tcl
 
     typemethod AllButG1 {g1} {
         set groups [ptype frcg+none names]
