@@ -350,7 +350,7 @@ snit::type plant {
             rdb eval {
                 UPDATE plants_na
                 SET rho = max(rho - $deltaRho, 0.0)
-                WHERE a=$a
+                WHERE a=$a AND num > 0
             }
         }
     }

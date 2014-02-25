@@ -332,7 +332,7 @@ appserver module PLANT {
             complete.  For instance, if an actor has 10 plants under 
             construction in a neighborhood that are all within a tenth 
             of a percent of 30.0% complete then those plants are shown 
-            as \"10@30.0%\".
+            as "10@30.0%".
         }
 
         ht para
