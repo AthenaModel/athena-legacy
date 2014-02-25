@@ -268,8 +268,8 @@ function "local_pop()" {
 # local_unemp
 
 function "local_unemp()" {
-    Returns the average unemployment rate in the local
-    <<term nbhood>>s as a number between 0.00 and 100.00.
+    Returns the unemployment rate in the local <<term nbhood>>s as 
+    a number between 0.00 and 100.00.<p>
 
     Returns 0 when the scenario is unlocked.<p>
 
@@ -416,8 +416,8 @@ function "nbsupport(a,n)" {
 # nbunemp
 
 function "nbunemp(n,?n...?)" {
-    Returns the average unemployment rate for the  
-    <<term nbhood>>s in <i>nlist</i> as a number between 0.0 and 100.0.<p>
+    Returns the unemployment rate for the <<term nbhood>>s in 
+    <i>nlist</i> as a number between 0.0 and 100.0.<p>
 
     Returns 0 when the scenario is unlocked.<p>
 
@@ -526,7 +526,7 @@ function "pbpop()" {
 # pbunemp
 
 function "pbunemp()" {
-    Returns the average unemployment rate in the playbox as a number 
+    Returns the unemployment rate in the playbox as a number 
     between 0.0 and 100.0.<p>
 
     Returns 0 when the scenario is unlocked.<p>
@@ -715,8 +715,8 @@ function troops(g,?n...?) {
 # unemp
 
 function "unemp(g,?g...?)" {
-    Returns the average unemployment rate for the 
-    <<term civgroup>>s in <i>glist</i> as a number between 0.0 and 100.0.<p>
+    Returns the unemployment rate for the <<term civgroup>>s 
+    in <i>glist</i> as a number between 0.0 and 100.0.<p>
 
     Returns 0 when the scenario is unlocked.<p>
 

@@ -2209,8 +2209,8 @@ gofer_rule NUMBER LOCAL_POPULATION "local_pop()" {
 }
 
 gofer_rule NUMBER LOCAL_UNEMPLOYMENT_RATE "local_unemp()" {
-    Returns the average unemployment rate in the local
-    <<term nbhood>>s as a number between 0.00 and 100.00.
+    Returns the unemployment rate in the local <<term nbhood>>s as 
+    a number between 0.00 and 100.00.<p>
 
     <<itemlist>>
     <<gofer.details>>
@@ -2416,8 +2416,8 @@ gofer_rule NUMBER NBSUPPORT "nbsupport(a,n)" {
 }
 
 gofer_rule NUMBER NB_UNEMPLOYMENT_RATE "nbunemp(n,...)" {
-    Returns the average unemployment rate for the  
-    <<term nbhood>>s in <i>nlist</i> as a number between 0.0 and 100.0.<p>
+    Returns the unemployment rate for the <<term nbhood>>s in 
+    <i>nlist</i> as a number between 0.0 and 100.0.<p>
 
     <<itemlist>>
     <<gofer.details nlist {N1 N2}>>
@@ -2518,8 +2518,8 @@ gofer_rule NUMBER PLAYBOX_POPULATION "pbpop()" {
 }
 
 gofer_rule NUMBER PLAYBOX_UNEMPLOYMENT_RATE "pbunemp()" {
-    Returns the average unemployment rate in the playbox 
-    as a number between 0.0 and 100.0.<p>
+    Returns the unemployment rate in the playbox as a number 
+    between 0.0 and 100.0.<p>
 
     <<itemlist>>
     <<gofer.details>>
@@ -2776,9 +2776,8 @@ gofer_rule NUMBER SUPPORT "support(a,g,n)" {
 }
 
 gofer_rule NUMBER GROUP_UNEMPLOYMENT_RATE "unemp(g,...)" {
-    Returns the average unemployment rate for the 
-    <<term civgroup>>s in <i>glist</i> as a number 
-    between 0.0 and 100.0.<p>
+    Returns the unemployment rate for the <<term civgroup>>s 
+    in <i>glist</i> as a number between 0.0 and 100.0.<p>
 
     <<itemlist>>
     <<gofer.details glist {C1 C2}>>

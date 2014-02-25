@@ -671,7 +671,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr local_unemp()
     } -cleanup {
         cleanup
-    } -result {2.0}
+    } -result {4.0}
 
     #-------------------------------------------------------------------
     # local_workers()
@@ -1115,7 +1115,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr nbunemp("NB1","NB2")
     } -cleanup {
         cleanup
-    } -result {2.0}
+    } -result {4.0}
 
     #-------------------------------------------------------------------
     # nbworkers()
@@ -1407,7 +1407,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr pbunemp()
     } -cleanup {
         cleanup
-    } -result {2.0}
+    } -result {4.0}
 
     #-------------------------------------------------------------------
     # pbworkers()
