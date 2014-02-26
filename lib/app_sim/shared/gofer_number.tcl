@@ -29,6 +29,13 @@ gofer define NUMBER "" {
             rc
             text raw_value 
         }
+        
+        case EXPR "TCL expression" {
+            rc
+            rc "A Tcl Boolean expression."
+            rc
+            text expr_value
+        }
 
         case AFFINITY "affinity(x,y)" {
             rc
@@ -471,6 +478,34 @@ gofer rule NUMBER BY_VALUE {raw_value} {
         dict with gdict {}
 
         return $raw_value
+    }
+}
+
+# Rule: EXPR
+#
+# An TCL expression chosen by the user.
+
+gofer rule NUMBER EXPR {expr_value} {
+    typemethod construct {expr_value} {
+        return [$type validate [dict create expr_value $expr_value]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create expr_value [executive expr validate $expr_value]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "$expr_value"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        return [executive eval [list expr $expr_value]]
     }
 }
 

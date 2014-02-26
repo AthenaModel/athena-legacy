@@ -83,6 +83,47 @@ namespace eval ::athena_test::tests:: {
     } -result {45.0}
 
     #-------------------------------------------------------------------
+    # Rule: EXPR
+
+    test EXPR-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::EXPR construct 45.0*8/2
+    } -cleanup {
+        cleanup
+    } -result {expr_value 45.0*8/2}
+
+    test EXPR-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::EXPR validate {expr_value 45.0*8/2}
+    } -cleanup {
+        cleanup
+    } -result {expr_value 45.0*8/2}
+
+    test EXPR-2.2 {validate, invalid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::EXPR validate {expr_value NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid bareword "NONESUCH"}
+
+    test EXPR-3.1 {narrative} -body {
+        ::gofer::NUMBER::EXPR narrative {expr_value 45.0*8/2}
+    } -result {45.0*8/2}
+
+    test EXPR-4.1 {eval} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::EXPR eval {expr_value 45.0*8/2}
+    } -cleanup {
+        cleanup
+    } -result {180.0}
+
+    #-------------------------------------------------------------------
     # Rule: AFFINITY
 
     test AFFINITY-1.1 {construct, valid} -setup {

@@ -1932,6 +1932,24 @@ gofer_rule NUMBER BY_VALUE "specific number" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER EXPR "TCL expression" {
+    Returns the value of the entered TCL boolean expression.<p>
+
+    <<itemlist>>
+    <<gofer.details expr_value {45.0*7/8}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>expr_value</i></tt> >>
+    A TCL boolean expression.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER AFFINITY "affinity(x,y)" {
     Returns the affinity of <<term group>> or <<term actor>> <i>x</i> with 
     <<term group>> or <<term actor>> <i>y</i> as a number between -1.0 and 1.0.<p>
