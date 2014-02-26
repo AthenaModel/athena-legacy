@@ -183,6 +183,16 @@ snit::type ::marsutil::sqldocument {
 
     option -explaincmd
 
+    # -readonly flag
+    #
+    # If true, the sqlite3 handle is opened in readonly mode.
+
+    option -readonly \
+        -default  no \
+        -readonly yes \
+        -type     snit::boolean
+
+
     #-------------------------------------------------------------------
     # Instance variables
 
@@ -289,41 +299,47 @@ snit::type ::marsutil::sqldocument {
         # *not* be saved.
         set db ${selfns}::db
 
-        sqlite3 $db $filename
+        sqlite3 $db $filename -readonly $options(-readonly)
 
         # NEXT, define the DICT collating sequence.
         $db collate DICT [myproc DictCompare]
 
-        # NEXT, set the hardware security requirement
-        $db eval {
-            -- We don't need to safeguard the database from 
-            -- hardware errors.
-            PRAGMA synchronous=OFF;
+        # NEXT, set up various pragmas, IF we are not read-only.
+        # If we are read-only we can't change these things, and anyway
+        # they should already be set in the DB we're reading.
 
-            -- Keep temporary data in memory
-            PRAGMA temp_store=MEMORY;
-        }
-
-        # NEXT, if -rollback is off, turn off journaling.
-        if {!$options(-rollback)} {
+        if {!$options(-readonly)} {
+            # FIRST, set the hardware security requirement
             $db eval {
-                PRAGMA journal_mode=OFF;
+                -- We don't need to safeguard the database from 
+                -- hardware errors.
+                PRAGMA synchronous=OFF;
+
+                -- Keep temporary data in memory
+                PRAGMA temp_store=MEMORY;
             }
-        }
 
-        # NEXT, if -foreignkeys is on, turn on foreign keys,
-        # else turn it off.  (Foreign keys are liable to be
-        # on by default in a future version of SQLite3; 
-        # setting the pragma explicitly in both cases means
-        # we don't need to think about it.)
-
-        if {$options(-foreignkeys)} {
-            $db eval {
-                PRAGMA foreign_keys=ON
+            # NEXT, if -rollback is off, turn off journaling.
+            if {!$options(-rollback)} {
+                $db eval {
+                    PRAGMA journal_mode=OFF;
+                }
             }
-        } else {
-            $db eval {
-                PRAGMA foreign_keys=OFF
+
+            # NEXT, if -foreignkeys is on, turn on foreign keys,
+            # else turn it off.  (Foreign keys are liable to be
+            # on by default in a future version of SQLite3; 
+            # setting the pragma explicitly in both cases means
+            # we don't need to think about it.)
+
+            if {$options(-foreignkeys)} {
+                $db eval {
+                    PRAGMA foreign_keys=ON
+                }
+            } else {
+                $db eval {
+                    PRAGMA foreign_keys=OFF
+                }
             }
         }
 
@@ -339,7 +355,7 @@ snit::type ::marsutil::sqldocument {
         set info(dbIsOpen) 1
 
         # NEXT, if -autotrans then open the initial transaction.
-        if {$options(-autotrans)} {
+        if {!$options(-readonly) && $options(-autotrans)} {
             $db eval {BEGIN IMMEDIATE TRANSACTION;}
         }
     }
@@ -352,6 +368,7 @@ snit::type ::marsutil::sqldocument {
     method clear {} {
         # FIRST, are the requirements for clearing the database met?
         require {$info(dbIsOpen)}         "database is not open"
+        require {!$options(-readonly)} "database is -readonly yes"
 
         # NEXT, Clear the current contents, if any, and set up the 
         # schema.  If the database is being written to by another
@@ -468,6 +485,7 @@ snit::type ::marsutil::sqldocument {
             }
         }
     }
+
     # DefineFunctions
     #
     # Define SQL functions.
@@ -501,6 +519,8 @@ snit::type ::marsutil::sqldocument {
 
     method lock {tables} {
         require {$info(dbIsOpen)} "database is not open"
+        require {!$options(-readonly)} "database is -readonly yes"
+
 
         foreach table $tables {
             foreach event {DELETE INSERT UPDATE} {
@@ -523,6 +543,7 @@ snit::type ::marsutil::sqldocument {
 
     method unlock {tables} {
         require {$info(dbIsOpen)} "database is not open"
+        require {!$options(-readonly)} "database is -readonly yes"
 
         foreach table $tables {
             foreach event {DELETE INSERT UPDATE} {
@@ -566,6 +587,7 @@ snit::type ::marsutil::sqldocument {
 
     method commit {} {
         require {$info(dbIsOpen)} "database is not open"
+        require {!$options(-readonly)} "database is -readonly yes"
 
         if {$options(-autotrans)} {
             # Break this up into two SQL statements. If one fails, its

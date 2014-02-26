@@ -96,8 +96,7 @@ snit::type ::projectlib::helpserver {
 
         # NEXT, try to open the helpdb.
         install hdb using sqldocument ${selfns}::hdb \
-            -autotrans off                           \
-            -rollback  off
+            -readonly yes
 
         if {![file exists $options(-helpdb)]} {
             set hdb ""

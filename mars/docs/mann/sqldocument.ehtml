@@ -223,6 +223,12 @@ value of the <i>boolean</i> flag.  Foreign key checking is
 <b>on</b> by default.  See <b>PRAGMA foreign_keys</b> in the SQLite3
 documentation for more information.<p>
 
+<<defopt {-readonly <i>boolean</i>}>>
+
+If <b>yes</b>, the sqldocument(n) object can be used to read an existing
+database, but cannot change it in any way; any attempt to write to it
+will throw an error.<p>
+
 <<defopt {-rollback <i>boolean</i>}>>
 
 If <b>on</b>, transactions can be rolled back instead of committed.
