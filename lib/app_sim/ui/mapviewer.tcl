@@ -324,7 +324,7 @@ snit::widget mapviewer {
     variable info -array {
         mode      ""
         ordertags {}
-        ref       ""
+        loc       ""
     }
 
     # View array; used for values that control the view
@@ -361,7 +361,7 @@ snit::widget mapviewer {
         install canvas using mapcanvas $win.mapsw.canvas  \
             -background     white                         \
             -modevariable   [myvar info(mode)]            \
-            -refvariable    [myvar info(ref)]             \
+            -locvariable    [myvar info(loc)]             \
             -xscrollcommand [list $win.mapsw.xscroll set] \
             -yscrollcommand [list $win.mapsw.yscroll set]
 
@@ -382,10 +382,12 @@ snit::widget mapviewer {
         # Horizontal tool bar
         ttk::frame $win.hbar
 
-        # MapRef
-        ttk::label $win.hbar.ref \
-            -textvariable [myvar info(ref)] \
-            -width        8
+        # MapLoc
+        ttk::label $win.hbar.loc \
+            -textvariable [myvar info(loc)] \
+            -justify      right             \
+            -anchor       e                 \
+            -width        60 
 
         # Extended scroll region toggle
         ttk::checkbutton $win.hbar.extend           \
@@ -442,7 +444,7 @@ snit::widget mapviewer {
         pack $win.hbar.fillbox  -side right
         pack $win.hbar.fillpoly -side right -padx 3
         pack $win.hbar.extend   -side right
-        pack $win.hbar.ref      -side right
+        pack $win.hbar.loc      -side right
 
         # Separators
         ttk::separator $win.sep1

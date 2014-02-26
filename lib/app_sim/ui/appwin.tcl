@@ -1741,6 +1741,7 @@ snit::widget appwin {
                               {{JPEG Images} {.jpg} }
                               {{GIF Images}  {.gif} }
                               {{PNG Images}  {.png} }
+                              {{TIF Images}  {.tif} }
                               {{Any File}    *      }
                           }]
 

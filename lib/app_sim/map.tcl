@@ -37,7 +37,7 @@ snit::type map {
 
         # FIRST, there's no map yet.
         set mapimage   ""
-        set projection [mapref ${type}::proj]
+        set projection [mapref %AUTO%]
 
         # NEXT, register to receive dbsync events if there is a GUI
         if {[app tkloaded]} {
@@ -64,24 +64,21 @@ snit::type map {
             image delete $mapimage
             set mapimage ""
 
-            # NEXT, reset the projection
-            $projection configure \
-                -width  1000      \
-                -height 1000
+            # NEXT, destroy projection it's about to be created again
+            $projection destroy
         }
 
         # NEXT, load the new map.
         rdb eval {
-            SELECT width,height,data 
+            SELECT width,height,projtype,proj_opts,data 
             FROM maps WHERE id=1
         } {
-            # FIRST, create the image
             set mapimage [image create photo -format jpeg -data $data]
 
-            # NEXT, configure the projection
-            $projection configure \
-                -width  $width    \
-                -height $height
+            set projection [[eprojtype as proj $projtype] %AUTO \
+                                          -width $width         \
+                                          -height $height       \
+                                          {*}$proj_opts]
         }
     }
 
@@ -124,16 +121,58 @@ snit::type map {
             error "Could not open the specified file as a map image"
         }
         
-        # NEXT, get the image data, and save it in the RDB
+        # NEXT, default map type is mapref(n)
+        set projtype REF
+        set proj_opts [list]
+
+        # NEXT, get the image data
         set tail [file tail $filename]
         set data [$img data -format jpeg]
         set width [image width $img]
         set height [image height $img]
 
+        # NEXT, try to load any projection metadata. For now only
+        # GeoTIFF with GEOGRAPHIC model types are recognized.
+        if {[catch {
+            set mdata [dict create {*}[geotiff read $filename]]
+            if {[dict get $mdata modeltype] eq "GEOGRAPHIC"} {
+                set projtype RECT
+            } else {
+                log detail map "Projection type not recognized in $tail, using default."
+            }
+        } result]} {
+            log detail map "Could not read GeoTIFF info from $tail: $result"
+        }
+
+        # NEXT compute projection information
+        switch -exact -- $projtype  {
+            REF {}
+
+            RECT {
+                # Extract tiepoints and scaling from projection metadata
+                set tiepoints [dict get $mdata tiepoints]
+                set pscale    [dict get $mdata pscale]
+
+                # Compute lat/long bounds of map image
+                set minlon [lindex $tiepoints 3]
+                set maxlat [lindex $tiepoints 4]
+                let maxlon {$minlon + $width* [lindex $pscale 0]}
+                let minlat {$maxlat - $height*[lindex $pscale 1]}
+
+                # Set projection options
+                lappend proj_opts -minlat $minlat -minlon $minlon
+                lappend proj_opts -maxlat $maxlat -maxlon $maxlon
+            }
+
+            default {
+                error "Unrecognized projection type: \"$projtype\"."
+            }
+        }
+
         rdb eval {
             INSERT OR REPLACE
-            INTO maps(id, filename, width, height, data)
-            VALUES(1,$tail,$width,$height,$data);
+            INTO maps(id,filename,width,height,projtype,proj_opts,data)
+            VALUES(1,$tail,$width,$height,$projtype,$proj_opts,$data);
         }
 
         image delete $img

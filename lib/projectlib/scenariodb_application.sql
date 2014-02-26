@@ -136,17 +136,24 @@ CREATE TABLE maps (
     -- The map with id=1 is the map to use.
 
     -- ID
-    id       INTEGER PRIMARY KEY,
+    id        INTEGER PRIMARY KEY,
 
     -- Original file name of this map
-    filename TEXT,
+    filename  TEXT,
 
+    -- projection type eprojtype enumx(n)
+    projtype  INTEGER DEFAULT 'REF',
+    
     -- Width and Height, in pixels
-    width    INTEGER,
-    height   INTEGER,
+    width     INTEGER,
+    height    INTEGER,
+
+    -- Projection options, used for maps that have projection 
+    -- metadata 
+    proj_opts TEXT DEFAULT '',
 
     -- Map data: a BLOB of data in "jpeg" format.
-    data     BLOB
+    data      BLOB
 );
 
 ------------------------------------------------------------------------
