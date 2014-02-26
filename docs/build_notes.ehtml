@@ -11,6 +11,18 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.1.1, 26 February 2014</h3>
+This build is a bug fix build for the release candidate. It is expected that
+this version will be delivered to TRISA. The bug fixes:<p>
+
+<ul>
+<li> Bug 4399: Repair level of zero plants decreases
+<li> Bug 4404: plants(a,n) and repair(a,n) always return zero
+<li> Bug 4405: unemployment rate executive functions take simple averages
+<li> Bug 4402: PMESII-PT glossary help page
+<li> Bug 4403: View dropdown menu contains Detail twice 
+</ul><p>
+
 <h3>Build 6.1.0, 24 February 2014</h3>
 This build is identical to build 6.0.12 except for the version number and these
 build notes.<p>
