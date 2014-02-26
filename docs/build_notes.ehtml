@@ -11,6 +11,14 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.1.2, 26 February 2014</h3>
+A couple more bug fixes needed.<p>
+
+<ul>
+<li> Bug 4419: helpserver(n): Load helpdb with -readonly yes
+<li> Bug 4414: User License Agreement on Installer needs to be updated 
+</ul><p>
+
 <h3>Build 6.1.1, 26 February 2014</h3>
 This build is a bug fix build for the release candidate. It is expected that
 this version will be delivered to TRISA. The bug fixes:<p>
