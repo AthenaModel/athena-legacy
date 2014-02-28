@@ -778,12 +778,12 @@ snit::type executive {
 
     # aplants a
     #
-    # a - An actor
+    # a - An agent
     #
-    # Returns the total number of plants owned by actor a.
+    # Returns the total number of plants owned by agent a.
 
     proc aplants {a} {
-        set gdict [gofer construct NUMBER ACTOR_PLANTS $a] 
+        set gdict [gofer construct NUMBER AGENT_PLANTS $a] 
         return [gofer::NUMBER eval $gdict]
     }
 
@@ -902,10 +902,10 @@ snit::type executive {
 
     # goodscap a
     #
-    # a - An actor
+    # a - An agents
     #
     # Returns the total output capacity of all goods production 
-    # plants owned by actor a.
+    # plants owned by agent a.
 
     proc goodscap {a} {
         set gdict [gofer construct NUMBER GOODS_CAP $a] 
@@ -1206,10 +1206,10 @@ snit::type executive {
 
     # plants a n
     #
-    # a - An actor
+    # a - An agent
     # n - A neighborhood
     #
-    # Returns the total number of plants owned by actor a in 
+    # Returns the total number of plants owned by agent a in 
     # neighborhood n.
 
     proc plants {a n} {

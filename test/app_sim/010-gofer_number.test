@@ -184,51 +184,51 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     #-------------------------------------------------------------------
-    # Rule: ACTOR_PLANTS
+    # Rule: AGENT_PLANTS
 
-    test ACTOR_PLANTS-1.1 {construct, valid} -setup {
+    test AGENT_PLANTS-1.1 {construct, valid} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ACTOR_PLANTS construct JOE
+        ::gofer::NUMBER::AGENT_PLANTS construct JOE
     } -cleanup {
         cleanup
     } -result {a JOE}
 
-    test ACTOR_PLANTS-2.1 {validate, valid} -setup {
+    test AGENT_PLANTS-2.1 {validate, valid} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ACTOR_PLANTS validate {a joe}
+        ::gofer::NUMBER::AGENT_PLANTS validate {a joe}
     } -cleanup {
         cleanup
     } -result {a JOE}
 
-    test ACTOR_PLANTS-2.2 {validate, invalid a} -setup {
+    test AGENT_PLANTS-2.2 {validate, invalid a} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ACTOR_PLANTS validate {a NONESUCH}
+        ::gofer::NUMBER::AGENT_PLANTS validate {a NONESUCH}
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -match glob -result {Invalid actor,*}
+    } -match glob -result {Invalid agent,*}
 
-    test ACTOR_PLANTS-3.1 {narrative} -body {
-        ::gofer::NUMBER::ACTOR_PLANTS narrative {a JOE}
+    test AGENT_PLANTS-3.1 {narrative} -body {
+        ::gofer::NUMBER::AGENT_PLANTS narrative {a JOE}
     } -result {aplants("JOE")}
 
-    test ACTOR_PLANTS-4.1 {eval prelock} -setup {
+    test AGENT_PLANTS-4.1 {eval prelock} -setup {
         setup
     } -body {
-        ::gofer::NUMBER::ACTOR_PLANTS eval {a JOE}
+        ::gofer::NUMBER::AGENT_PLANTS eval {a JOE}
     } -cleanup {
         cleanup
     } -result {0.0}
 
-    test ACTOR_PLANTS-4.2 {eval lock} -setup {
+    test AGENT_PLANTS-4.2 {eval lock} -setup {
         setup
         ted lock
     } -body {
-        ::gofer::NUMBER::ACTOR_PLANTS eval {a JOE}
+        ::gofer::NUMBER::AGENT_PLANTS eval {a JOE}
     } -cleanup {
         cleanup
     } -result {0.0}
@@ -634,7 +634,7 @@ namespace eval ::athena_test::tests:: {
         error
     } -cleanup {
         cleanup
-    } -match glob -result {Invalid actor,*}
+    } -match glob -result {Invalid agent,*}
 
     test GOODS_CAP-3.1 {narrative} -body {
         ::gofer::NUMBER::GOODS_CAP narrative {a JOE}
@@ -1991,7 +1991,7 @@ namespace eval ::athena_test::tests:: {
         error
     } -cleanup {
         cleanup
-    } -match glob -result {Invalid actor,*}
+    } -match glob -result {Invalid agent,*}
 
     test PLANTS-2.3 {validate, invalid n} -setup {
         setup

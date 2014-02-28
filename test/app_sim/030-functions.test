@@ -77,7 +77,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr aplants("NONESUCH")
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: JOE}
+    } -result {Invalid agent, should be one of: JOE, SYSTEM}
 
     test aplants-2.1 {in prep} -setup {
         ted create NB1 JOE
@@ -470,7 +470,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr goodscap("NONESUCH")
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: JOE}
+    } -result {Invalid agent, should be one of: JOE, SYSTEM}
 
     test goodscap-2.1 {in prep} -setup {
         ted create NB1 JOE
@@ -1518,7 +1518,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex -error expr plants("NONESUCH","NB1")
     } -cleanup {
         cleanup
-    } -result {Invalid actor, should be one of: JOE}
+    } -result {Invalid agent, should be one of: JOE, SYSTEM}
 
     test plants-1.2 {invalid nbhood} -setup {
         ted create NB1 JOE

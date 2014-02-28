@@ -1974,8 +1974,8 @@ gofer_rule NUMBER AFFINITY "affinity(x,y)" {
     <</topiclist>>
 }
 
-gofer_rule NUMBER ACTOR_PLANTS "aplants(a)" {
-    Returns the total number of plants owned by <<term actor>> <i>a</i>.<p>
+gofer_rule NUMBER AGENT_PLANTS "aplants(a)" {
+    Returns the total number of plants owned by <<term agent>> <i>a</i>.<p>
 
     <<itemlist>>
     <<gofer.details a JOE>>
@@ -1987,7 +1987,7 @@ gofer_rule NUMBER ACTOR_PLANTS "aplants(a)" {
     <<topiclist "Parameter">>
 
     <<topic <tt><i>a</i></tt> >>
-    ID of a <<term actor>>.
+    ID of a <<term agent>>.
     <</topic>>
 
     <</topiclist>>
@@ -2132,7 +2132,7 @@ gofer_rule NUMBER GDP "gdp()" {
 
 gofer_rule NUMBER GOODS_CAP "goodscap(a)" {
     Returns the total output capacity of all goods production 
-    plants owned by <<term actor>> <i>a</i>.<p>
+    plants owned by <<term agent>> <i>a</i>.<p>
 
     <<itemlist>>
     <<gofer.details a JOE>>
@@ -2144,7 +2144,7 @@ gofer_rule NUMBER GOODS_CAP "goodscap(a)" {
     <<topiclist "Parameter">>
 
     <<topic <tt><i>a</i></tt> >>
-    ID of a <<term actor>>.
+    ID of a <<term agent>>.
     <</topic>>
 
     <</topiclist>>
@@ -2577,7 +2577,7 @@ gofer_rule NUMBER PCTCONTROL "pctcontrol(a,...)" {
 }
 
 gofer_rule NUMBER PLANTS "plants(a,n)" {
-    Returns the total number of plants owned by <<term actor>> 
+    Returns the total number of plants owned by <<term agent>> 
     <i>a</i> in <<term nbhood>> <i>n</i>.<p>
 
     <<itemlist>>
@@ -2590,7 +2590,7 @@ gofer_rule NUMBER PLANTS "plants(a,n)" {
     <<topiclist "Parameter">>
 
     <<topic <tt><i>a</i></tt> >>
-    ID of a <<term actor>>.
+    ID of a <<term agent>>.
     <</topic>>
 
     <<topic <tt><i>n</i></tt> >>

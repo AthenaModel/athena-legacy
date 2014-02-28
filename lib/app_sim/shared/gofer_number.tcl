@@ -48,11 +48,11 @@ gofer define NUMBER "" {
             enumlong y -showkeys yes -dictcmd {::ptype goa namedict}
         }
 
-        case ACTOR_PLANTS "aplants(a)" {
+        case AGENT_PLANTS "aplants(a)" {
             rc
-            rc "The total number of plants owned by actor"
+            rc "The total number of plants owned by agent"
             rc
-            enumlong a -showkeys yes -dictcmd {::actor namedict}
+            enum a -listcmd {::agent names}
         }
 
         case ASSIGNED "assigned(g,activity,n)" {
@@ -127,9 +127,9 @@ gofer define NUMBER "" {
 
         case GOODS_CAP "goodscap(a)" {
             rc
-            rc "The total output capacity of all goods production plants given an actor"
+            rc "The total output capacity of all goods production plants given an agent"
             rc
-            enumlong a -showkeys yes -dictcmd {::actor namedict}
+            enum a -listcmd {::agent names}
         }
 
         case GOODS_IDLE "goodsidle()" {
@@ -326,9 +326,9 @@ gofer define NUMBER "" {
 
         case PLANTS "plants(a,n)" {
             rc
-            rc "The total number of plants owned by actor"
+            rc "The total number of plants owned by agent"
             rc
-            enumlong a -showkeys yes -dictcmd {::actor namedict}
+            enum a -listcmd {::agent names}
 
             rc "in neighborhood"
             rc
@@ -558,11 +558,11 @@ gofer rule NUMBER AFFINITY {x y} {
     }
 }
 
-# Rule: ACTOR_PLANTS
+# Rule: AGENT_PLANTS
 #
 # aplants(a)
 
-gofer rule NUMBER ACTOR_PLANTS {a} {
+gofer rule NUMBER AGENT_PLANTS {a} {
     typemethod construct {a} {
         return [$type validate [dict create a $a]]
     }
@@ -571,7 +571,7 @@ gofer rule NUMBER ACTOR_PLANTS {a} {
         dict with gdict {}
 
         dict create \
-            a [actor validate [string toupper $a]]
+            a [agent validate [string toupper $a]]
     }
 
     typemethod narrative {gdict {opt ""}} {
@@ -854,7 +854,7 @@ gofer rule NUMBER GOODS_CAP {a} {
         dict with gdict {}
 
         dict create \
-            a [actor validate [string toupper $a]]
+            a [agent validate [string toupper $a]]
     }
 
     typemethod narrative {gdict {opt ""}} {
@@ -1936,7 +1936,7 @@ gofer rule NUMBER PLANTS {a n} {
         dict with gdict {}
 
         dict create \
-            a [actor validate [string toupper $a]] \
+            a [agent validate [string toupper $a]] \
             n [nbhood validate [string toupper $n]]
     }
 

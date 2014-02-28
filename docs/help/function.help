@@ -84,12 +84,12 @@ function "affinity(x,y)" {
 # aplants
 
 function "aplants(a)" {
-    Returns the total number of plants owned by <<term actor>> <i>a</i>.<p>
+    Returns the total number of plants owned by <<term agent>> <i>a</i>.<p>
 
     Returns 0 when the scenario is unlocked.<p>
 
     This function is equivalent to the <<cref /gofer/number>>'s
-    <<cref /gofer/number/actor_plants>> rule.
+    <<cref /gofer/number/agent_plants>> rule.
 }
 
 #=======================================================================
@@ -192,7 +192,7 @@ function "gdp()" {
 
 function "goodscap(a)" {
     Returns the total output capacity of all goods production plants 
-    owned by <<term actor>> <i>a</i>.<p>
+    owned by <<term agent>> <i>a</i>.<p>
 
     Returns 0 when the scenario is unlocked.<p>
 
@@ -567,7 +567,7 @@ function "pctcontrol(a,?a...?)" {
 # plants
 
 function "plants(a,n)" {
-    Returns the total number of plants owned by <<term actor>> 
+    Returns the total number of plants owned by <<term agent>> 
     <i>a</i> in <<term nbhood>> <i>n</i>.<p>
 
     Returns 0 when the scenario is unlocked.<p>
