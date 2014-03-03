@@ -226,6 +226,84 @@ function "hrel(f,g)" {
 }
 
 #=======================================================================
+# income
+
+function "income(a,?a...?)" {
+    Returns the total income for the listed <<term actor>>s in 
+    <i>alist</i>.<p>
+
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/income>> rule.
+}
+
+#=======================================================================
+# income_black
+
+function "income_black(a,?a...?)" {
+    Returns the total income from the black market sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/income_black>> rule.
+}
+
+#=======================================================================
+# income_goods
+
+function "income_goods(a,?a...?)" {
+    Returns the total income from the goods sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/income_goods>> rule.
+}
+
+#=======================================================================
+# income_pop
+
+function "income_pop(a,?a...?)" {
+    Returns the total income from the population sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/income_pop>> rule.
+}
+
+#=======================================================================
+# income_region
+
+function "income_region(a,?a...?)" {
+    Returns the total income from the region sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/income_region>> rule.
+}
+
+#=======================================================================
+# income_world
+
+function "income_world(a,?a...?)" {
+    Returns the total income from the world sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    Returns 0.00 when the scenario is unlocked.<p>
+
+    This function is equivalent to the <<cref /gofer/number>>'s
+    <<cref /gofer/number/income_world>> rule.
+}
+
+#=======================================================================
 # influence
 
 function "influence(a,n)" {

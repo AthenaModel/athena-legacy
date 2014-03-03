@@ -750,6 +750,498 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # Rule: INCOME
+
+    test INCOME-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME construct {JOE BOB}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME validate {alist {joe bob}}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME validate {alist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME-2.3 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME validate {alist {JOE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME-3.1 {narrative} -body {
+        ::gofer::NUMBER::INCOME narrative {alist {BOB JOE}}
+    } -result {income("BOB","JOE")}
+
+    test INCOME-3.2 {narrative} -body {
+        ::gofer::NUMBER::INCOME narrative {alist {BOB}}
+    } -result {income("BOB")}
+
+    test INCOME-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {480.07}
+
+    test INCOME-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME eval {alist {JOE}}
+    } -cleanup {
+        cleanup
+    } -result {960.15}
+
+    test INCOME-4.4 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME eval {alist {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {1440.22}
+
+    #-------------------------------------------------------------------
+    # Rule: INCOME_BLACK
+
+    test INCOME_BLACK-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK construct {JOE BOB}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_BLACK-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK validate {alist {joe bob}}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_BLACK-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK validate {alist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_BLACK-2.3 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK validate {alist {JOE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_BLACK-3.1 {narrative} -body {
+        ::gofer::NUMBER::INCOME_BLACK narrative {alist {BOB JOE}}
+    } -result {income_black("BOB","JOE")}
+
+    test INCOME_BLACK-3.2 {narrative} -body {
+        ::gofer::NUMBER::INCOME_BLACK narrative {alist {BOB}}
+    } -result {income_black("BOB")}
+
+    test INCOME_BLACK-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_BLACK-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_BLACK-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK eval {alist {JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_BLACK-4.4 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_BLACK eval {alist {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
+    # Rule: INCOME_GOODS
+
+    test INCOME_GOODS-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS construct {JOE BOB}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_GOODS-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS validate {alist {joe bob}}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_GOODS-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS validate {alist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_GOODS-2.3 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS validate {alist {JOE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_GOODS-3.1 {narrative} -body {
+        ::gofer::NUMBER::INCOME_GOODS narrative {alist {BOB JOE}}
+    } -result {income_goods("BOB","JOE")}
+
+    test INCOME_GOODS-3.2 {narrative} -body {
+        ::gofer::NUMBER::INCOME_GOODS narrative {alist {BOB}}
+    } -result {income_goods("BOB")}
+
+    test INCOME_GOODS-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_GOODS-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {480.07}
+
+    test INCOME_GOODS-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS eval {alist {JOE}}
+    } -cleanup {
+        cleanup
+    } -result {960.15}
+
+    test INCOME_GOODS-4.4 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_GOODS eval {alist {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {1440.22}
+
+    #-------------------------------------------------------------------
+    # Rule: INCOME_POP
+
+    test INCOME_POP-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_POP construct {JOE BOB}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_POP-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_POP validate {alist {joe bob}}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_POP-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_POP validate {alist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_POP-2.3 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_POP validate {alist {JOE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_POP-3.1 {narrative} -body {
+        ::gofer::NUMBER::INCOME_POP narrative {alist {BOB JOE}}
+    } -result {income_pop("BOB","JOE")}
+
+    test INCOME_POP-3.2 {narrative} -body {
+        ::gofer::NUMBER::INCOME_POP narrative {alist {BOB}}
+    } -result {income_pop("BOB")}
+
+    test INCOME_POP-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_POP eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_POP-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_POP eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_POP-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_POP eval {alist {JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_POP-4.4 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_POP eval {alist {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
+    # Rule: INCOME_REGION
+
+    test INCOME_REGION-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION construct {JOE BOB}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_REGION-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION validate {alist {joe bob}}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_REGION-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION validate {alist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_REGION-2.3 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION validate {alist {JOE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_REGION-3.1 {narrative} -body {
+        ::gofer::NUMBER::INCOME_REGION narrative {alist {BOB JOE}}
+    } -result {income_region("BOB","JOE")}
+
+    test INCOME_REGION-3.2 {narrative} -body {
+        ::gofer::NUMBER::INCOME_REGION narrative {alist {BOB}}
+    } -result {income_region("BOB")}
+
+    test INCOME_REGION-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_REGION-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_REGION-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION eval {alist {JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_REGION-4.4 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_REGION eval {alist {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
+    # Rule: INCOME_WORLD
+
+    test INCOME_WORLD-1.1 {construct, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD construct {JOE BOB}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_WORLD-2.1 {validate, valid} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD validate {alist {joe bob}}
+    } -cleanup {
+        cleanup
+    } -result {alist {JOE BOB}}
+
+    test INCOME_WORLD-2.2 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD validate {alist NONESUCH}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_WORLD-2.3 {validate, invalid a} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD validate {alist {JOE NONESUCH}}
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test INCOME_WORLD-3.1 {narrative} -body {
+        ::gofer::NUMBER::INCOME_WORLD narrative {alist {BOB JOE}}
+    } -result {income_world("BOB","JOE")}
+
+    test INCOME_WORLD-3.2 {narrative} -body {
+        ::gofer::NUMBER::INCOME_WORLD narrative {alist {BOB}}
+    } -result {income_world("BOB")}
+
+    test INCOME_WORLD-4.1 {prelock} -setup {
+        setup
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_WORLD-4.2 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD eval {alist BOB}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_WORLD-4.3 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD eval {alist {JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    test INCOME_WORLD-4.4 {eval} -setup {
+        setup
+        ted lock
+    } -body {
+        ::gofer::NUMBER::INCOME_WORLD eval {alist {BOB JOE}}
+    } -cleanup {
+        cleanup
+    } -result {0.00}
+
+    #-------------------------------------------------------------------
     # Rule: INFLUENCE
 
     test INFLUENCE-1.1 {construct, valid} -setup {

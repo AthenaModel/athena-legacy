@@ -2183,6 +2183,126 @@ gofer_rule NUMBER HREL "hrel(f,g)" {
     <</topiclist>>
 }
 
+gofer_rule NUMBER INCOME "income(a,...)" {
+    Returns the total income for the listed <<term actor>>s in 
+    <i>alist</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {A1 A2}>>
+    <<gofer.function income {"A1","A2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of the IDs of one or more <<term actor>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER INCOME_BLACK "income_black(a,...)" {
+    Returns the total income from the black market sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {A1 A2}>>
+    <<gofer.function income_black {"A1","A2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of the IDs of one or more <<term actor>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER INCOME_GOODS "income_goods(a,...)" {
+    Returns the total income from the goods sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {A1 A2}>>
+    <<gofer.function income_goods {"A1","A2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of the IDs of one or more <<term actor>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER INCOME_POP "income_pop(a,...)" {
+    Returns the total income from the population sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {A1 A2}>>
+    <<gofer.function income_pop {"A1","A2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of the IDs of one or more <<term actor>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER INCOME_REGION "income_region(a,...)" {
+    Returns the total income from the region sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {A1 A2}>>
+    <<gofer.function income_region {"A1","A2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of the IDs of one or more <<term actor>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule NUMBER INCOME_WORLD "income_world(a,...)" {
+    Returns the total income from the world sector
+    for the listed <<term actor>>s in <i>alist</i>.<p>
+
+    <<itemlist>>
+    <<gofer.details alist {A1 A2}>>
+    <<gofer.function income_world {"A1","A2"}>>
+    <</itemlist>><p>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>alist</i></tt> >>
+    A list of the IDs of one or more <<term actor>>s.
+    <</topic>>
+
+    <</topiclist>>
+}
+
 gofer_rule NUMBER INFLUENCE "influence(a,n)" {
     Returns the <<term influence>> of <<term actor>> <i>a</i> with 
     <<term nbhood>> <i>n</i> as a number between 0.0 and 1.0.<p>

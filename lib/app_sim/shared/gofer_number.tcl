@@ -149,6 +149,54 @@ gofer define NUMBER "" {
             enumlong g -showkeys yes -dictcmd {::group namedict}
         }
 
+        case INCOME "income(a,...)" {
+            rc
+            rc "The total income for actor(s)"
+            rc
+            enumlonglist alist -showkeys yes -dictcmd {::actor namedict} \
+                -width 30 -height 10
+        }
+
+        case INCOME_BLACK "income_black(a,...)" {
+            rc
+            rc "The income from the black market sector for actor(s)"
+            rc
+            enumlonglist alist -showkeys yes -dictcmd {::actor namedict} \
+                -width 30 -height 10
+        }
+
+        case INCOME_GOODS "income_goods(a,...)" {
+            rc
+            rc "The total income for actor(s)"
+            rc
+            enumlonglist alist -showkeys yes -dictcmd {::actor namedict} \
+                -width 30 -height 10
+        }
+
+        case INCOME_POP "income_pop(a,...)" {
+            rc
+            rc "The total income for actor(s)"
+            rc
+            enumlonglist alist -showkeys yes -dictcmd {::actor namedict} \
+                -width 30 -height 10
+        }
+
+        case INCOME_REGION "income_region(a,...)" {
+            rc
+            rc "The total income for actor(s)"
+            rc
+            enumlonglist alist -showkeys yes -dictcmd {::actor namedict} \
+                -width 30 -height 10
+        }
+
+        case INCOME_WORLD "income_world(a,...)" {
+            rc
+            rc "The total income for actor(s)"
+            rc
+            enumlonglist alist -showkeys yes -dictcmd {::actor namedict} \
+                -width 30 -height 10
+        }
+
         case INFLUENCE "influence(a,n)" {
             rc
             rc "Influence of actor"
@@ -937,6 +985,276 @@ gofer rule NUMBER HREL {f g} {
         }
 
         return 0.0
+    }
+}
+
+# Rule: INCOME
+#
+# income(a,...)
+
+gofer rule NUMBER INCOME {alist} {
+    typemethod construct {alist} {
+        return [$type validate [dict create alist $alist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create alist \
+            [listval actors {actor validate} [string toupper $alist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {income("%s")} [join $alist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the total income belonging to
+        # actor(s) in the list.
+        set count [rdb onecolumn "
+            SELECT sum(income) 
+            FROM income_a
+            WHERE a IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0.00
+        } else {
+            return [format %.2f $count]
+        }
+    }
+}
+
+# Rule: INCOME_BLACK
+#
+# income_black(a,...)
+
+gofer rule NUMBER INCOME_BLACK {alist} {
+    typemethod construct {alist} {
+        return [$type validate [dict create alist $alist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create alist \
+            [listval actors {actor validate} [string toupper $alist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {income_black("%s")} [join $alist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the total inc_black_t belonging to
+        # actor(s) in the list.
+        set countt [rdb onecolumn "
+            SELECT sum(inc_black_t) 
+            FROM income_a
+            WHERE a IN $inClause
+        "]
+
+        if {$countt == ""} {
+            set countt 0.00
+        } 
+
+        # NEXT, query the total inc_black_nr belonging to
+        # actor(s) in the list.
+        set countnr [rdb onecolumn "
+            SELECT sum(inc_black_nr)
+            FROM income_a
+            WHERE a IN $inClause
+        "]
+
+        if {$countnr == ""} {
+            set countnr 0.00
+        }
+
+        return [format %.2f [expr $countt+$countnr]]
+    }
+}
+
+# Rule: INCOME_GOODS
+#
+# income_goods(a,...)
+
+gofer rule NUMBER INCOME_GOODS {alist} {
+    typemethod construct {alist} {
+        return [$type validate [dict create alist $alist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create alist \
+            [listval actors {actor validate} [string toupper $alist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {income_goods("%s")} [join $alist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the total inc_goods belonging to
+        # actor(s) in the list.
+        set count [rdb onecolumn "
+            SELECT sum(inc_goods) 
+            FROM income_a
+            WHERE a IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0.00
+        } else {
+            return [format %.2f $count]
+        }
+    }
+}
+
+# Rule: INCOME_POP
+#
+# income_pop(a,...)
+
+gofer rule NUMBER INCOME_POP {alist} {
+    typemethod construct {alist} {
+        return [$type validate [dict create alist $alist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create alist \
+            [listval actors {actor validate} [string toupper $alist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {income_pop("%s")} [join $alist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the total inc_pop belonging to
+        # actor(s) in the list.
+        set count [rdb onecolumn "
+            SELECT sum(inc_pop) 
+            FROM income_a
+            WHERE a IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0.00
+        } else {
+            return [format %.2f $count]
+        }
+    }
+}
+
+# Rule: INCOME_REGION
+#
+# income_region(a,...)
+
+gofer rule NUMBER INCOME_REGION {alist} {
+    typemethod construct {alist} {
+        return [$type validate [dict create alist $alist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create alist \
+            [listval actors {actor validate} [string toupper $alist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {income_region("%s")} [join $alist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the total inc_region belonging to
+        # actor(s) in the list.
+        set count [rdb onecolumn "
+            SELECT sum(inc_region) 
+            FROM income_a
+            WHERE a IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0.00
+        } else {
+            return [format %.2f $count]
+        }
+    }
+}
+
+# Rule: INCOME_WORLD
+#
+# income_world(a,...)
+
+gofer rule NUMBER INCOME_WORLD {alist} {
+    typemethod construct {alist} {
+        return [$type validate [dict create alist $alist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+        dict create alist \
+            [listval actors {actor validate} [string toupper $alist]]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return [format {income_world("%s")} [join $alist \",\"]]
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # FIRST, create the inClause.
+        set inClause "('[join $alist ',']')"
+
+        # NEXT, query the total inc_world belonging to
+        # actor(s) in the list.
+        set count [rdb onecolumn "
+            SELECT sum(inc_world) 
+            FROM income_a
+            WHERE a IN $inClause
+        "]
+
+        if {$count == ""} {
+            return 0.00
+        } else {
+            return [format %.2f $count]
+        }
     }
 }
 

@@ -554,6 +554,378 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     #-------------------------------------------------------------------
+    # income()
+
+    test income-1.1 {1 actor, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income-1.2 {2 actors, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income-2.1 {Unlocked, 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income-2.2 {Unlocked, 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income-2.3 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income("JOE")
+    } -cleanup {
+        cleanup
+    } -result {960.09}
+
+    test income-2.4 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income("BOB")
+    } -cleanup {
+        cleanup
+    } -result {480.05}
+
+    test income-2.5 {LOCKED - 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {1440.14}
+
+    #-------------------------------------------------------------------
+    # income_black()
+
+    test income_black-1.1 {1 actor, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_black("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_black-1.2 {2 actors, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_black("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_black-2.1 {Unlocked, 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_black("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_black-2.2 {Unlocked, 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_black("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_black-2.3 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_black("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_black-2.4 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_black("BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_black-2.5 {LOCKED - 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_black("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # income_goods()
+
+    test income_goods-1.1 {1 actor, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_goods("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_goods-1.2 {2 actors, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_goods("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_goods-2.1 {Unlocked, 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_goods("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_goods-2.2 {Unlocked, 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_goods("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_goods-2.3 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_goods("JOE")
+    } -cleanup {
+        cleanup
+    } -result {960.09}
+
+    test income_goods-2.4 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_goods("BOB")
+    } -cleanup {
+        cleanup
+    } -result {480.05}
+
+    test income_goods-2.5 {LOCKED - 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_goods("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {1440.14}
+
+    #-------------------------------------------------------------------
+    # income_pop()
+
+    test income_pop-1.1 {1 actor, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_pop("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_pop-1.2 {2 actors, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_pop("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_pop-2.1 {Unlocked, 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_pop("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_pop-2.2 {Unlocked, 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_pop("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_pop-2.3 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_pop("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_pop-2.4 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_pop("BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_pop-2.5 {LOCKED - 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_pop("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # income_region()
+
+    test income_region-1.1 {1 actor, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_region("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_region-1.2 {2 actors, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_region("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_region-2.1 {Unlocked, 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_region("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_region-2.2 {Unlocked, 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_region("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_region-2.3 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_region("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_region-2.4 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_region("BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_region-2.5 {LOCKED - 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_region("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
+    # income_world()
+
+    test income_world-1.1 {1 actor, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_world("NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_world-1.2 {2 actors, invalid} -setup {
+        ted create JOE BOB NB1 NB2
+    } -body {
+        ted sendex -error expr income_world("JOE","NONESUCH")
+    } -cleanup {
+        cleanup
+    } -match glob -result {Invalid actor,*}
+
+    test income_world-2.1 {Unlocked, 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_world("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_world-2.2 {Unlocked, 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 
+    } -body {
+        ted sendex expr income_world("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_world-2.3 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_world("JOE")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_world-2.4 {LOCKED - 1 actor} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_world("BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    test income_world-2.5 {LOCKED - 2 actors} -setup {
+        ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        ted lock
+    } -body {
+        ted sendex expr income_world("JOE","BOB")
+    } -cleanup {
+        cleanup
+    } -result {0.0}
+
+    #-------------------------------------------------------------------
     # influence()
 
     test influence-1.1 {invalid actor} -setup {

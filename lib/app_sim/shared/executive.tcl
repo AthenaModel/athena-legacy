@@ -645,6 +645,24 @@ snit::type executive {
         $interp function hrel 2 2 {f g} \
             [myproc hrel]
 
+        $interp function income 1 - {a ?a...?} \
+            [myproc income]
+
+        $interp function income_black 1 - {a ?a...?} \
+            [myproc income_black]
+
+        $interp function income_goods 1 - {a ?a...?} \
+            [myproc income_goods]
+
+        $interp function income_pop 1 - {a ?a...?} \
+            [myproc income_pop]
+
+        $interp function income_region 1 - {a ?a...?} \
+            [myproc income_region]
+
+        $interp function income_world 1 - {a ?a...?} \
+            [myproc income_world]
+
         $interp function influence 2 2 {a n} \
             [myproc influence]
 
@@ -930,6 +948,90 @@ snit::type executive {
 
     proc hrel {f g} {
         set gdict [gofer construct NUMBER HREL $f $g] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # income a ?a...?
+    #
+    # a - A list of actors multiple actors
+    #
+    # Returns the total income for actor(s) a.
+
+    proc income {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER INCOME $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # income_black a ?a...?
+    #
+    # a - A list of actors multiple actors
+    #
+    # Returns the total income from the black market sector for actor(s) a.
+
+    proc income_black {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER INCOME_BLACK $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # income_goods a ?a...?
+    #
+    # a - A list of actors multiple actors
+    #
+    # Returns the total income from the goods sector for actor(s) a.
+
+    proc income_goods {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER INCOME_GOODS $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # income_pop a ?a...?
+    #
+    # a - A list of actors multiple actors
+    #
+    # Returns the total income from the pop sector for actor(s) a.
+
+    proc income_pop {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER INCOME_POP $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # income_region a ?a...?
+    #
+    # a - A list of actors multiple actors
+    #
+    # Returns the total income from the region sector for actor(s) a.
+
+    proc income_region {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER INCOME_REGION $args] 
+        return [gofer::NUMBER eval $gdict]
+    }
+
+    # income_world a ?a...?
+    #
+    # a - A list of actors multiple actors
+    #
+    # Returns the total income from the world sector for actor(s) a.
+
+    proc income_world {args} {
+        if {[llength $args]==1} {
+            set args [lindex $args 0]
+        }
+        set gdict [gofer construct NUMBER INCOME_WORLD $args] 
         return [gofer::NUMBER eval $gdict]
     }
 
