@@ -90,16 +90,6 @@ snit::type ::projectlib::prefs {
         $ps setdefault helper.linux.browser "firefox"
         $ps setdefault helper.win32.browser "cmd /C start"
         $ps setdefault helper.macosx.browser "open"
-
-        $ps subset session {
-            Parameters which affect session management.
-        }
-
-        $ps define session.purgeHours ::projectlib::iquantity 4 {
-            The duration in hours for which session working directories
-            are retained.  At startup, athena_sim(1) automatically 
-            purges all working directories older than this amount.
-        }
     }
 
     # help parm
@@ -121,16 +111,17 @@ snit::type ::projectlib::prefs {
 
     typemethod set {parm value} {
         $ps set $parm $value
-        $ps save [prefsdir join $prefsFile]
+        $type SavePrefs
     }
     
     # prefs reset
     #
-    # Resets all parameters to their defaults, and saves the result.
+    # Resets all parameters to their defaults, and saves the result
+    # (if the prefsdir is initialized)
     
     typemethod reset {} {
         $ps reset
-        $ps save [prefsdir join $prefsFile]
+        $type SavePrefs
     }
 
     # list ?pattern?
@@ -157,6 +148,16 @@ snit::type ::projectlib::prefs {
     typemethod load {} {
         if {[file exists [prefsdir join $prefsFile]]} {
             $ps load [prefsdir join $prefsFile] -safe
+        }
+    }
+
+    # SavePrefs
+    #
+    # Saves the preferences, only if the prefsdir is initialized.
+
+    typemethod SavePrefs {} {
+        if {[prefsdir initialized]} {
+            $ps save [prefsdir join $prefsFile]
         }
     }
 }
