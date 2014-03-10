@@ -125,7 +125,6 @@ snit::type ::projectlib::parmdb {
         foreach a {
             CHECKPOINT
             CMO_CONSTRUCTION
-            CMO_DEVELOPMENT
             CMO_EDUCATION
             CMO_EMPLOYMENT
             CMO_HEALTHCARE
@@ -230,10 +229,6 @@ snit::type ::projectlib::parmdb {
         # Activity: CMO_CONSTRUCTION
         $ps setdefault activity.FRC.CMO_CONSTRUCTION.minSecurity    H
         $ps setdefault activity.FRC.CMO_CONSTRUCTION.coverage       {20 1000}
-
-        # Activity: CMO_DEVELOPMENT
-        $ps setdefault activity.FRC.CMO_DEVELOPMENT.minSecurity     M
-        $ps setdefault activity.FRC.CMO_DEVELOPMENT.coverage        {25 1000}
 
         # Activity: CMO_EDUCATION
         $ps setdefault activity.FRC.CMO_EDUCATION.minSecurity       H
@@ -452,13 +447,6 @@ snit::type ::projectlib::parmdb {
                 CMOINF
                 CMOMED
                 CMOOTHER
-                ORGCONST
-                ORGEDU
-                ORGEMP
-                ORGIND
-                ORGINF
-                ORGMED
-                ORGOTHER
             }} {
                 $ps define dam.$name.mitigates ::projectlib::leensit {} {
                     List of environmental situation types mitigated by this
@@ -509,11 +497,6 @@ snit::type ::projectlib::parmdb {
             EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
             NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE   SEWAGE
         }
-
-        # Rule Set: CMODEV
-        $ps setdefault dam.CMODEV.cause           CMODEV
-        $ps setdefault dam.CMODEV.nearFactor      0.5
-        $ps setdefault dam.CMODEV.farFactor       0.1
 
         # Rule Set: CMOEDU
         $ps setdefault dam.CMOEDU.cause           CMOEDU
@@ -700,65 +683,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.ORDNANCE.cause         ORDNANCE
         $ps setdefault dam.ORDNANCE.nearFactor    0.0
         $ps setdefault dam.ORDNANCE.farFactor     0.0
-
-        # Rule Set: ORGCONST
-        $ps setdefault dam.ORGCONST.cause         ORGCONST
-        $ps setdefault dam.ORGCONST.nearFactor    0.75
-        $ps setdefault dam.ORGCONST.farFactor     0.25
-        $ps setdefault dam.ORGCONST.mitigates     {
-            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
-            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
-            SEWAGE
-        }
-
-        # Rule Set: ORGEDU
-        $ps setdefault dam.ORGEDU.cause           ORGEDU
-        $ps setdefault dam.ORGEDU.nearFactor      0.75
-        $ps setdefault dam.ORGEDU.farFactor       0.5
-        $ps setdefault dam.ORGEDU.mitigates       {}
-
-        # Rule Set: ORGEMP
-        $ps setdefault dam.ORGEMP.cause           ORGEMP
-        $ps setdefault dam.ORGEMP.nearFactor      0.75
-        $ps setdefault dam.ORGEMP.farFactor       0.5
-        $ps setdefault dam.ORGEMP.mitigates       {}
-
-        # Rule Set: ORGIND
-        $ps setdefault dam.ORGIND.cause           ORGIND
-        $ps setdefault dam.ORGIND.nearFactor      0.75
-        $ps setdefault dam.ORGIND.farFactor       0.25
-        $ps setdefault dam.ORGIND.mitigates       {
-            COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
-            POWEROUT REFINERY
-        }
-
-        # Rule Set: ORGINF
-        $ps setdefault dam.ORGINF.cause           ORGINF
-        $ps setdefault dam.ORGINF.nearFactor      0.75
-        $ps setdefault dam.ORGINF.farFactor       0.25
-        $ps setdefault dam.ORGINF.mitigates       {
-            BADWATER COMMOUT NOWATER POWEROUT SEWAGE
-        }
-
-        # Rule Set: ORGMED
-        $ps setdefault dam.ORGMED.cause           ORGMED
-        $ps setdefault dam.ORGMED.nearFactor      0.75
-        $ps setdefault dam.ORGMED.farFactor       0.25
-        $ps setdefault dam.ORGMED.mitigates       {
-            DISASTER DISEASE EPIDEMIC
-        }
-
-        # Rule Set: ORGOTHER
-        $ps setdefault dam.ORGOTHER.cause         ORGOTHER
-        $ps setdefault dam.ORGOTHER.nearFactor    0.25
-        $ps setdefault dam.ORGOTHER.farFactor     0.1
-        $ps setdefault dam.ORGOTHER.mitigates     {
-            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
-            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
-            SEWAGE
-        }
 
         # Rule Set: UNEMP
         $ps setdefault dam.UNEMP.cause            UNEMP
@@ -1181,7 +1105,6 @@ snit::type ::projectlib::parmdb {
             NONE
             CHECKPOINT
             CMO_CONSTRUCTION
-            CMO_DEVELOPMENT
             CMO_EDUCATION
             CMO_EMPLOYMENT
             CMO_HEALTHCARE
@@ -1206,7 +1129,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault force.alpha.NONE                1.0
         $ps setdefault force.alpha.CHECKPOINT          1.5
         $ps setdefault force.alpha.CMO_CONSTRUCTION    0.8
-        $ps setdefault force.alpha.CMO_DEVELOPMENT     0.8
         $ps setdefault force.alpha.CMO_EDUCATION       0.8
         $ps setdefault force.alpha.CMO_EMPLOYMENT      0.8
         $ps setdefault force.alpha.CMO_HEALTHCARE      0.8

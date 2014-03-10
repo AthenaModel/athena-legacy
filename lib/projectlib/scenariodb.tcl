@@ -57,7 +57,6 @@ snit::type ::projectlib::scenariodb {
             { a NONE                 longname "None"                       }
             { a CHECKPOINT           longname "Checkpoint/Control Point"   }
             { a CMO_CONSTRUCTION     longname "CMO -- Construction"        }
-            { a CMO_DEVELOPMENT      longname "CMO -- Development (Light)" }
             { a CMO_EDUCATION        longname "CMO -- Education"           }
             { a CMO_EMPLOYMENT       longname "CMO -- Employment"          }
             { a CMO_HEALTHCARE       longname "CMO -- Healthcare"          }
@@ -96,11 +95,6 @@ snit::type ::projectlib::scenariodb {
                 assignable   1 
                 stype        CMOCONST 
                 attrit_order 1}
-            { a CMO_DEVELOPMENT      
-                gtype        FRC 
-                assignable   1 
-                stype        CMODEV   
-                attrit_order 2}
             { a CMO_EDUCATION        
                 gtype        FRC 
                 assignable   1 
@@ -180,37 +174,37 @@ snit::type ::projectlib::scenariodb {
             { a CMO_CONSTRUCTION     
                 gtype        ORG 
                 assignable   1 
-                stype        ORGCONST 
+                stype        CMOCONST 
                 attrit_order 1}
             { a CMO_EDUCATION        
                 gtype        ORG 
                 assignable   1 
-                stype        ORGEDU   
+                stype        CMOEDU   
                 attrit_order 2}
             { a CMO_EMPLOYMENT       
                 gtype        ORG 
                 assignable   1 
-                stype        ORGEMP   
+                stype        CMOEMP   
                 attrit_order 3}
             { a CMO_HEALTHCARE       
                 gtype        ORG 
                 assignable   1 
-                stype        ORGMED   
+                stype        CMOMED   
                 attrit_order 7}
             { a CMO_INDUSTRY         
                 gtype        ORG 
                 assignable   1 
-                stype        ORGIND   
+                stype        CMOIND   
                 attrit_order 4}
             { a CMO_INFRASTRUCTURE   
                 gtype        ORG 
                 assignable   1 
-                stype        ORGINF   
+                stype        CMOINF   
                 attrit_order 5}
             { a CMO_OTHER            
                 gtype        ORG 
                 assignable   1 
-                stype        ORGOTHER 
+                stype        CMOOTHER 
                 attrit_order 6}
         }
     }

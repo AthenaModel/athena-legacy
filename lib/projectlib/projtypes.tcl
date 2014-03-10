@@ -30,7 +30,6 @@ namespace eval ::projectlib:: {
         edemeanor        \
         eensit           \
         eforcetype       \
-        efrcactivity     \
         egoal_state      \
         egoal_predicate  \
         ehousing         \
@@ -38,8 +37,6 @@ namespace eval ::projectlib:: {
         einject_state    \
         eiom_state       \
         emoveitem        \
-        eorgactivity     \
-        eorgconcern      \
         eorgtype         \
         epagesize        \
         epayload_state   \
@@ -140,6 +137,8 @@ snit::type ::projectlib::typewrapper {
 #-------------------------------------------------------------------
 # Enumerations
 
+# Group activities
+
 # Actor Types
 ::marsutil::enum ::projectlib::eactortype {
     NORMAL          "Normal"
@@ -163,22 +162,27 @@ snit::type ::projectlib::typewrapper {
     CIVCAS-2-1    "Civilian casualties taken from force group"
 
     CMOCONST-1-1  "Force is doing construction work"
-
-    CMODEV-1-1    "Force is encouraging light development"
+    CMOCONST-2-1  "ORG is doing construction work"
 
     CMOEDU-1-1    "Force is teaching local civilians"
+    CMOEDU-2-1    "ORG is teaching local civilians"
 
     CMOEMP-1-1    "Force is providing employment"
+    CMOEMP-2-1    "ORG is providing employment"
 
     CMOIND-1-1    "Force is aiding industry"
+    CMOIND-2-1    "ORG is aiding industry"
 
     CMOINF-1-1    "Force is improving infrastructure"
+    CMOINF-2-1    "ORG is improving infrastructure"
 
     CMOLAW-1-1    "Force is enforcing the law"
 
     CMOMED-1-1    "Force is providing health care"
+    CMOMED-2-1    "ORG is providing health care"
 
     CMOOTHER-1-1  "Force is doing other CMO activities"
+    CMOOTHER-2-1  "ORG is doing other CMO activities"
 
     COERCION-1-1  "Force is coercing local civilians"
 
@@ -265,20 +269,6 @@ snit::type ::projectlib::typewrapper {
     ORDNANCE-1-2  "Unexploded ordnance remains"
     ORDNANCE-2-1  "Unexploded ordnance is removed by locals"
 
-    ORGCONST-1-1  "ORG is doing construction work"
-
-    ORGEDU-1-1    "ORG is teaching local civilians"
-
-    ORGEMP-1-1    "ORG is employing local civilians"
-
-    ORGIND-1-1    "ORG is aiding industry"
-
-    ORGINF-1-1    "ORG is improving infrastructure"
-
-    ORGMED-1-1    "ORG is providing health care"
-
-    ORGOTHER-1-1  "ORG is doing other CMO activities"
-
     PATROL-1-1    "Force is patrolling"
 
     PIPELINE-1-1  "Oil pipeline catches fire"
@@ -315,7 +305,6 @@ snit::type ::projectlib::typewrapper {
     CHKPOINT  "Checkpoint/Control Point"
     CIVCAS    "Civilian Casualties"
     CMOCONST  "CMO -- Construction"
-    CMODEV    "CMO -- Development"
     CMOEDU    "CMO -- Education"
     CMOEMP    "CMO -- Employment"
     CMOIND    "CMO -- Industry"
@@ -348,13 +337,6 @@ snit::type ::projectlib::typewrapper {
     NOWATER   "Interrupted Water Supply"
     ORDNANCE  "Unexploded Ordnance"
     ORGCAS    "Organization Casualties"
-    ORGCONST  "ORG -- Construction"
-    ORGEDU    "ORG -- Education"
-    ORGEMP    "ORG -- Employment"
-    ORGIND    "ORG -- Industry"
-    ORGINF    "ORG -- Infrastructure"
-    ORGMED    "ORG -- Healthcare"
-    ORGOTHER  "ORG -- Other"
     PATROL    "Patrol"
     PIPELINE  "Oil Pipeline Fire"
     POWEROUT  "Power Outage"
@@ -371,7 +353,6 @@ snit::type ::projectlib::typewrapper {
     CHKPOINT  "Checkpoint/Control Point"
     CIVCAS    "Civilian Casualties"
     CMOCONST  "CMO -- Construction"
-    CMODEV    "CMO -- Development"
     CMOEDU    "CMO -- Education"
     CMOEMP    "CMO -- Employment"
     CMOIND    "CMO -- Industry"
@@ -399,13 +380,6 @@ snit::type ::projectlib::typewrapper {
     MOOD      "Mood"
     ORDNANCE  "Unexploded Ordnance/Minefield"
     ORGCAS    "Organization Casualties"
-    ORGCONST  "ORG -- Construction"
-    ORGEDU    "ORG -- Education"
-    ORGEMP    "ORG -- Employment"
-    ORGIND    "ORG -- Industry"
-    ORGINF    "ORG -- Infrastructure"
-    ORGMED    "ORG -- Healthcare"
-    ORGOTHER  "ORG -- Other"
     PATROL    "Patrol"
     PIPELINE  "Oil Pipeline Fire"
     POWEROUT  "Power Outage"

@@ -43,9 +43,11 @@ snit::type driver::actsit {
             SELECT stype        AS dtype,
                    n            AS n,
                    g            AS g,
+                   gtype        AS gtype,
                    effective    AS personnel,
                    coverage     AS coverage
             FROM activity_nga
+            JOIN groups USING (g)
             WHERE coverage > 0.0
         } {
             if {![dam isactive $dtype]} {
@@ -58,8 +60,10 @@ snit::type driver::actsit {
             dict set fdict dtype     $dtype
             dict set fdict n         $n
             dict set fdict g         $g
+            dict set fdict gtype     $gtype
             dict set fdict personnel $personnel
             dict set fdict coverage  $coverage
+            dict set fdict flist     [demog gIn $n]
 
             bgcatch {
                 # Run the monitor rule set.
@@ -227,27 +231,35 @@ snit::type driver::actsit {
         }
     }
 
-    # mitigates fdictVar
+    # checkMitigation fdictVar
     #
     # fdictVar    A variable containing the fdict.
     #
     # Sets fdict.mitigates to a list of the ensits present in the 
-    # neighborhood that are mitigated by the current activity.
-    # Returns 1 if there are any, and 0 otherwise.
+    # neighborhood that are mitigated by the current activity,
+    # updates the number of stops, and provides a note for the
+    # attitude inputs.
 
-    proc mitigates {fdictVar} {
+    proc checkMitigation {fdictVar} {
         upvar 1 $fdictVar fdict
 
+        # FIRST, set some defaults.
+        dict set fdict mitigates {}
+        dict set fdict note      ""
+        dict set fdict stops     0
+
+
+        # FIRST, extract some values from the fdict
         set ruleset [dict get $fdict dtype]
         set n       [dict get $fdict n]
 
-        # FIRST, get the mitigated ensits and form them into an 
+        # NEXT, get the mitigated ensits and form them into an 
         # "IN" list.  If none, just return immediately.
+
         set ensits [parmdb get dam.$ruleset.mitigates]
 
         if {[llength $ensits] == 0} {
-            dict set fdict mitigates {}
-            return 0
+            return
         }
 
         set inList "('[join $ensits ',']')"
@@ -263,7 +275,10 @@ snit::type driver::actsit {
 
         dict set fdict mitigates $elist
 
-        return [expr {[llength $elist] > 0}] 
+        if {[llength $elist] > 0} {
+            dict set fdict note "mitigates"
+            dict set fdict stops 1
+        }
     }
 }
 
@@ -328,8 +343,6 @@ driver::actsit define PRESENCE {
         dam rule PRESENCE-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-            
             satinput $flist $g $coverage "" \
                 AUT quad XXS+ \
                 SFT quad XXS+ \
@@ -341,10 +354,10 @@ driver::actsit define PRESENCE {
 }
 
 #===================================================================
-# Force Activity Situations
+# Force and Organization Activity Situations
 #
 # The following rule sets are for situations which depend
-# on the stated ACTIVITY of FRC units.
+# on the stated ACTIVITY of FRC and ORG units.
 
 #-------------------------------------------------------------------
 # Rule Set: CHKPOINT:  Checkpoint/Control Point
@@ -360,8 +373,6 @@ driver::actsit define CHKPOINT {
         dam rule CHKPOINT-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-
             foreach f $flist {
                 set hrel [hrel.fg $f $g]
 
@@ -392,33 +403,18 @@ driver::actsit define CHKPOINT {
 #-------------------------------------------------------------------
 # Rule Set: CMOCONST:  CMO -- Construction
 #
-# Activity Situation: Units belonging to a FRC group are 
+# Activity Situation: Units belonging to a group are 
 # doing CMO_CONSTRUCTION in a neighborhood.
 
 driver::actsit define CMOCONST {
     typemethod ruleset {fdict} {
+        checkMitigation fdict
         dict with fdict {}
         log detail CMOCONST $fdict
 
-        set mitigates [mitigates fdict]
-
         dam rule CMOCONST-1-1 $fdict {
-            $coverage > 0.0
+            $gtype eq "FRC" && $coverage > 0.0
         } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                set stops 1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            # While there is a CMOCONST situation
-            #     with COVERAGE > 0.0
-            # For each CIV group f in the nbhood,
             satinput $flist $g $coverage $note      \
                 AUT quad     [mag+ $stops S+]  \
                 SFT constant [mag+ $stops S+]  \
@@ -427,63 +423,36 @@ driver::actsit define CMOCONST {
 
             coopinput $flist $g $coverage frmore [mag+ $stops M+] $note
         }
-    }
-}
 
-#-------------------------------------------------------------------
-# Rule Set: CMODEV:  CMO -- Development (Light)
-#
-# Activity Situation: Units belonging to a force group are 
-# encouraging light development in a neighborhood.
-
-driver::actsit define CMODEV {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail CMODEV $fdict
-
-        dam rule CMODEV-1-1 $fdict {
-            $coverage > 0.0
+        dam rule CMOCONST-2-1 $fdict {
+            $gtype eq "ORG" && $coverage > 0.0
         } {
-            set flist [demog gIn $n]
+            satinput $flist $g $coverage $note      \
+                AUT constant [mag+ $stops S+]  \
+                SFT constant [mag+ $stops S+]  \
+                CUL constant [mag+ $stops XS+] \
+                QOL constant [mag+ $stops L+]
 
-            satinput $flist $g $coverage "" \
-                AUT quad M+   \
-                SFT quad S+   \
-                CUL quad S+   \
-                QOL quad L+
-
-            coopinput $flist $g $coverage frmore M+
         }
     }
 }
 
+
 #-------------------------------------------------------------------
 # Rule Set: CMOEDU:  CMO -- Education
 #
-# Activity Situation: Units belonging to a FRC group are 
+# Activity Situation: Units belonging to a group are 
 # doing CMO_EDUCATION in a neighborhood.
 
 driver::actsit define CMOEDU {
     typemethod ruleset {fdict} {
+        checkMitigation fdict
         dict with fdict {}
         log detail CMOEDU $fdict
 
-        set mitigates [mitigates fdict]
-
         dam rule CMOEDU-1-1 $fdict {
-            $coverage > 0.0
+            $gtype eq "FRC" && $coverage > 0.0
         } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                set stops 1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
             satinput $flist $g $coverage "$note" \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
@@ -492,36 +461,34 @@ driver::actsit define CMOEDU {
 
             coopinput $flist $g $coverage frmore [mag+ $stops M+] $note
         }
+
+        dam rule CMOEDU-2-1 $fdict {
+            $gtype eq "ORG" && $coverage > 0.0
+        } {
+            satinput $flist $g $coverage $note       \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
+        }
     }
 }
 
 #-------------------------------------------------------------------
 # Rule Set: CMOEMP:  CMO -- Employment
 #
-# Activity Situation: Units belonging to a FRC group are 
+# Activity Situation: Units belonging to a group are 
 # doing CMO_EMPLOYMENT in a neighborhood.
 
 driver::actsit define CMOEMP {
     typemethod ruleset {fdict} {
+        checkMitigation fdict
         dict with fdict {}
         log detail CMOEMP $fdict
 
-        set mitigates [mitigates fdict]
-
         dam rule CMOEMP-1-1 $fdict {
-            $coverage > 0.0
+            $gtype eq "FRC" && $coverage > 0.0
         } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                set stops 1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
             satinput $flist $g $coverage $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
@@ -529,6 +496,16 @@ driver::actsit define CMOEMP {
                 QOL constant [mag+ $stops L+]
 
             coopinput $flist $g $coverage frmore [mag+ $stops M+] $note
+        }
+
+        dam rule CMOEMP-2-1 $fdict {
+            $gtype eq "ORG" && $coverage > 0.0
+        } {
+            satinput $flist $g $coverage $note       \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 }
@@ -536,30 +513,18 @@ driver::actsit define CMOEMP {
 #-------------------------------------------------------------------
 # Rule Set: CMOIND:  CMO -- Industry
 #
-# Activity Situation: Units belonging to a FRC group are 
+# Activity Situation: Units belonging to a group are 
 # doing CMO_INDUSTRY in a neighborhood.
 
 driver::actsit define CMOIND {
     typemethod ruleset {fdict} {
+        checkMitigation fdict
         dict with fdict {}
         log detail CMOIND $fdict
 
-        set mitigates [mitigates fdict]
-
         dam rule CMOIND-1-1 $fdict {
-            $coverage > 0.0
+            $gtype eq "FRC" && $coverage > 0.0
         } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                set stops 1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
             satinput $flist $g $coverage $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
@@ -568,36 +533,34 @@ driver::actsit define CMOIND {
 
             coopinput $flist $g $coverage frmore [mag+ $stops M+] $note
         }
+
+        dam rule CMOIND-2-1 $fdict {
+            $gtype eq "ORG" && $coverage > 0.0
+        } {
+            satinput $flist $g $coverage $note       \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
+        }
     }
 }
 
 #-------------------------------------------------------------------
 # Rule Set: CMOINF:  CMO -- Infrastructure
 #
-# Activity Situation: Units belonging to a FRC group are 
+# Activity Situation: Units belonging to a group are 
 # doing CMO_INFRASTRUCTURE in a neighborhood.
 
 driver::actsit define CMOINF {
     typemethod ruleset {fdict} {
+        checkMitigation fdict
         dict with fdict {}
         log detail CMOINF $fdict
 
-        set mitigates [mitigates fdict]
-
         dam rule CMOINF-1-1 $fdict {
-            $coverage > 0.0
+            $gtype eq "FRC" && $coverage > 0.0
         } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                set stops 1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
             satinput $flist $g $coverage $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
@@ -606,7 +569,18 @@ driver::actsit define CMOINF {
 
             coopinput $flist $g $coverage frmore [mag+ $stops M+] $note
         }
+
+        dam rule CMOINF-2-1 $fdict {
+            $gtype eq "ORG" && $coverage > 0.0
+        } {
+            satinput $flist $g $coverage $note       \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops M+]
+        }
     }
+
 }
 
 #-------------------------------------------------------------------
@@ -623,8 +597,6 @@ driver::actsit define CMOLAW {
         dam rule CMOLAW-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-            
             satinput $flist $g $coverage "" \
                 AUT quad M+  \
                 SFT quad S+
@@ -637,30 +609,18 @@ driver::actsit define CMOLAW {
 #-------------------------------------------------------------------
 # Rule Set: CMOMED:  CMO -- Healthcare
 #
-# Activity Situation: Units belonging to a FRC group are 
+# Activity Situation: Units belonging to a group are 
 # doing CMO_HEALTHCARE in a neighborhood.
 
 driver::actsit define CMOMED {
     typemethod ruleset {fdict} {
+        checkMitigation fdict
         dict with fdict {}
         log detail CMOMED $fdict
 
-        set mitigates [mitigates fdict]
-
         dam rule CMOMED-1-1 $fdict {
-            $coverage > 0.0
+            $gtype eq "FRC" && $coverage > 0.0
         } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                set stops 1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
             satinput $flist $g $coverage $note       \
                 AUT quad     [mag+ $stops S+]   \
                 SFT constant [mag+ $stops XXS+] \
@@ -668,36 +628,34 @@ driver::actsit define CMOMED {
 
             coopinput $flist $g $coverage frmore [mag+ $stops L+] $note
         }
+
+        dam rule CMOMED-2-1 $fdict {
+            $gtype eq "ORG" && $coverage > 0.0
+        } {
+            satinput $flist $g $coverage $note       \
+                AUT constant [mag+ $stops S+]   \
+                SFT constant [mag+ $stops XXS+] \
+                CUL constant [mag+ $stops XXS+] \
+                QOL constant [mag+ $stops L+]
+        }
     }
 }
 
 #-------------------------------------------------------------------
 # Rule Set: CMOOTHER:  CMO -- Other
 #
-# Activity Situation: Units belonging to a CMO group are 
+# Activity Situation: Units belonging to a group are 
 # doing CMO_OTHER in a neighborhood.
 
 driver::actsit define CMOOTHER {
     typemethod ruleset {fdict} {
+        checkMitigation fdict
         dict with fdict {}
         log detail CMOOTHER $fdict
 
-        set mitigates [mitigates fdict]
-
         dam rule CMOOTHER-1-1 $fdict {
-            $coverage > 0.0
+            $gtype eq "FRC" && $coverage > 0.0
         } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                set stops 1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
             satinput $flist $g $coverage $note      \
                 AUT quad     [mag+ $stops S+]  \
                 SFT constant [mag+ $stops S+]  \
@@ -705,6 +663,17 @@ driver::actsit define CMOOTHER {
                 QOL constant [mag+ $stops L+]
 
             coopinput $flist $g $coverage frmore [mag+ $stops M+] $note
+        }
+
+
+        dam rule CMOOTHER-2-1 $fdict {
+            $gtype eq "ORG" && $coverage > 0.0
+        } {
+            satinput $flist $g $coverage $note      \
+                AUT constant [mag+ $stops S+]  \
+                SFT constant [mag+ $stops S+]  \
+                CUL constant [mag+ $stops XS+] \
+                QOL constant [mag+ $stops L+]
         }
     }
 }
@@ -724,8 +693,6 @@ driver::actsit define COERCION {
         dam rule COERCION-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-
             satinput $flist $g $coverage "" \
                 AUT enquad XL-  \
                 SFT enquad XXL- \
@@ -752,8 +719,6 @@ driver::actsit define CRIMINAL {
         dam rule CRIMINAL-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-
             satinput $flist $g $coverage "" \
                 AUT enquad L-  \
                 SFT enquad XL- \
@@ -776,8 +741,6 @@ driver::actsit define CURFEW {
         dam rule CURFEW-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-
             foreach f $flist {
                 set rel [hrel.fg $f $g]
 
@@ -820,8 +783,6 @@ driver::actsit define GUARD {
         dam rule GUARD-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-
             satinput $flist $g $coverage "" \
                 AUT enmore L- \
                 SFT enmore L- \
@@ -848,8 +809,6 @@ driver::actsit define PATROL {
         dam rule PATROL-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-
             satinput $flist $g $coverage "" \
                 AUT enmore M- \
                 SFT enmore M- \
@@ -875,8 +834,6 @@ driver::actsit define PSYOP {
         dam rule PSYOP-1-1 $fdict {
             $coverage > 0.0
         } {
-            set flist [demog gIn $n]
-
             foreach f $flist {
                 set rel [hrel.fg $f $g]
 
@@ -898,266 +855,6 @@ driver::actsit define PSYOP {
             }
 
             coopinput $flist $g $coverage frmore XL+
-        }
-    }
-}
-
-
-
-#===================================================================
-# ORG Activity Situations
-#
-# The following rule sets are for situations which depend
-# on the stated ACTIVITY of ORG units.
-
-#-------------------------------------------------------------------
-# Rule Set: ORGCONST:  CMO -- Construction
-#
-# Activity Situation: Units belonging to an ORG group are 
-# doing CMO_CONSTRUCTION in a neighborhood.
-
-driver::actsit define ORGCONST {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail ORGCONST $fdict
-
-        set mitigates [mitigates fdict]
-
-        dam rule ORGCONST-1-1 $fdict {
-            $coverage > 0.0
-        } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                incr stops +1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            satinput $flist $g $coverage $note      \
-                AUT constant [mag+ $stops S+]  \
-                SFT constant [mag+ $stops S+]  \
-                CUL constant [mag+ $stops XS+] \
-                QOL constant [mag+ $stops L+]
-        }
-    }
-}
-
-#-------------------------------------------------------------------
-# Rule Set: ORGEDU:  CMO -- Education
-#
-# Activity Situation: Units belonging to an ORG group are 
-# doing CMO_EDUCATION in a neighborhood.
-
-driver::actsit define ORGEDU {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail ORGEDU $fdict
-
-        set mitigates [mitigates fdict]
-
-        dam rule ORGEDU-1-1 $fdict {
-            $coverage > 0.0
-        } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                incr stops +1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            satinput $flist $g $coverage $note       \
-                AUT constant [mag+ $stops S+]   \
-                SFT constant [mag+ $stops XXS+] \
-                CUL constant [mag+ $stops XXS+] \
-                QOL constant [mag+ $stops L+]
-        }
-    }
-}
-
-#-------------------------------------------------------------------
-# Rule Set: ORGEMP:  CMO -- Employment
-#
-# Activity Situation: Units belonging to an ORG group are 
-# doing CMO_EMPLOYMENT in a neighborhood.
-
-driver::actsit define ORGEMP {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail ORGEMP $fdict
-
-        set mitigates [mitigates fdict]
-
-        dam rule ORGEMP-1-1 $fdict {
-            $coverage > 0.0
-        } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                incr stops +1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            satinput $flist $g $coverage $note       \
-                AUT constant [mag+ $stops S+]   \
-                SFT constant [mag+ $stops XXS+] \
-                CUL constant [mag+ $stops XXS+] \
-                QOL constant [mag+ $stops L+]
-        }
-    }
-}
-
-#-------------------------------------------------------------------
-# Rule Set: ORGIND:  CMO -- Industry
-#
-# Activity Situation: Units belonging to an ORG group are 
-# doing CMO_INDUSTRY in a neighborhood.
-
-driver::actsit define ORGIND {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail ORGIND $fdict
-
-        set mitigates [mitigates fdict]
-
-        dam rule ORGIND-1-1 $fdict {
-            $coverage > 0.0
-        } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                incr stops +1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            satinput $flist $g $coverage $note       \
-                AUT constant [mag+ $stops S+]   \
-                SFT constant [mag+ $stops XXS+] \
-                CUL constant [mag+ $stops XXS+] \
-                QOL constant [mag+ $stops L+]
-        }
-    }
-}
-
-#-------------------------------------------------------------------
-# Rule Set: ORGINF:  CMO -- Infrastructure
-#
-# Activity Situation: Units belonging to an ORG group are 
-# doing CMO_INFRASTRUCTURE in a neighborhood.
-
-driver::actsit define ORGINF {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail ORGINF $fdict
-
-        set mitigates [mitigates fdict]
-
-        dam rule ORGINF-1-1 $fdict {
-            $coverage > 0.0
-        } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                incr stops +1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            satinput $flist $g $coverage $note       \
-                AUT constant [mag+ $stops S+]   \
-                SFT constant [mag+ $stops XXS+] \
-                CUL constant [mag+ $stops XXS+] \
-                QOL constant [mag+ $stops M+]
-        }
-    }
-}
-
-#-------------------------------------------------------------------
-# Rule Set: ORGMED:  CMO -- Healthcare
-#
-# Activity Situation: Units belonging to an ORG group are 
-# doing CMO_HEALTHCARE in a neighborhood.
-
-driver::actsit define ORGMED {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail ORGMED $fdict
-
-        set mitigates [mitigates fdict]
-
-        dam rule ORGMED-1-1 $fdict {
-            $coverage > 0.0
-        } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                incr stops +1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            satinput $flist $g $coverage $note       \
-                AUT constant [mag+ $stops S+]   \
-                SFT constant [mag+ $stops XXS+] \
-                CUL constant [mag+ $stops XXS+] \
-                QOL constant [mag+ $stops L+]
-        }
-    }
-}
-
-#-------------------------------------------------------------------
-# Rule Set: ORGOTHER:  CMO -- Other
-#
-# Activity Situation: Units belonging to an ORG group are 
-# doing CMO_OTHER in a neighborhood.
-
-driver::actsit define ORGOTHER {
-    typemethod ruleset {fdict} {
-        dict with fdict {}
-        log detail ORGOTHER $fdict
-
-        set mitigates [mitigates fdict]
-
-        dam rule ORGOTHER-1-1 $fdict {
-            $coverage > 0.0
-        } {
-            # +1 stops if g is mitigating a situation for any f
-            set flist           [demog gIn $n]
-            set stops           0
-
-            if {$mitigates} {
-                incr stops +1
-                set note "mitigates"
-            } else {
-                set note ""
-            }
-
-            satinput $flist $g $coverage $note      \
-                AUT constant [mag+ $stops S+]  \
-                SFT constant [mag+ $stops S+]  \
-                CUL constant [mag+ $stops XS+] \
-                QOL constant [mag+ $stops L+]
         }
     }
 }
