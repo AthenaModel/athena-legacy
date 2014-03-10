@@ -30,7 +30,6 @@ SELECT n || ' ' || g || ' ' || a     AS id,
        CASE security_flag WHEN 1 THEN 'YES' ELSE 'NO' END AS security_flag,
        CASE can_do        WHEN 1 THEN 'YES' ELSE 'NO' END AS can_do,
        nominal                       AS nominal,
-       active                        AS active,
        effective                     AS effective,
        stype                         AS stype
 FROM activity_nga

@@ -159,16 +159,6 @@ snit::type ::projectlib::parmdb {
                 activity.
             }
 
-            $ps define activity.FRC.$a.shifts \
-                ::projectlib::ipositive 1 {
-                    Number of personnel which must be assigned to the
-                    activity to yield one person actively performing the
-                    activity given a typical schedule, i.e., the number
-                    of shifts.  For example, a 24x7 activity will
-                    require the assigned personnel to work three or
-                    four shifts.
-                }
-
             $ps define activity.FRC.$a.coverage ::simlib::coverage {
                 25.0 1000
             } {
@@ -215,19 +205,8 @@ snit::type ::projectlib::parmdb {
                      }
             }
 
-            $ps define activity.ORG.$a.shifts \
-                ::projectlib::ipositive 1 {
-                    Number of personnel which must be assigned to the
-                    activity to yield one person actively performing the
-                    activity given a typical schedule, i.e., the number
-                    of shifts.  For example, a 24x7 activity will
-                    require the assigned personnel to work three or
-                    four shifts.
-                }
-
-
             $ps define activity.ORG.$a.coverage ::simlib::coverage {
-                25.0 1000
+                20.0 1000
             } {
                 The parameters (c, d) that determine the
                 coverage fraction function for this activity.  Coverage
@@ -309,48 +288,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault activity.FRC.PSYOP.coverage                  {1 50000}
 
         # ORG Activities
-
-        # Activity: CMO_CONSTRUCTION
-        $ps setdefault activity.ORG.CMO_CONSTRUCTION.minSecurity.IGO   H
-        $ps setdefault activity.ORG.CMO_CONSTRUCTION.minSecurity.NGO   H
-        $ps setdefault activity.ORG.CMO_CONSTRUCTION.minSecurity.CTR   M
-        $ps setdefault activity.ORG.CMO_CONSTRUCTION.coverage          {20 1000}
-
-        # Activity: CMO_EDUCATION
-        $ps setdefault activity.ORG.CMO_EDUCATION.minSecurity.IGO      H
-        $ps setdefault activity.ORG.CMO_EDUCATION.minSecurity.NGO      H
-        $ps setdefault activity.ORG.CMO_EDUCATION.minSecurity.CTR      M
-        $ps setdefault activity.ORG.CMO_EDUCATION.coverage             {20 1000}
-
-        # Activity: CMO_EMPLOYMENT
-        $ps setdefault activity.ORG.CMO_EMPLOYMENT.minSecurity.IGO     H
-        $ps setdefault activity.ORG.CMO_EMPLOYMENT.minSecurity.NGO     H
-        $ps setdefault activity.ORG.CMO_EMPLOYMENT.minSecurity.CTR     M
-        $ps setdefault activity.ORG.CMO_EMPLOYMENT.coverage            {20 1000}
-
-        # Activity: CMO_HEALTHCARE
-        $ps setdefault activity.ORG.CMO_HEALTHCARE.minSecurity.IGO     H
-        $ps setdefault activity.ORG.CMO_HEALTHCARE.minSecurity.NGO     H
-        $ps setdefault activity.ORG.CMO_HEALTHCARE.minSecurity.CTR     M
-        $ps setdefault activity.ORG.CMO_HEALTHCARE.coverage            {20 1000}
-
-        # Activity: CMO_INDUSTRY
-        $ps setdefault activity.ORG.CMO_INDUSTRY.minSecurity.IGO       H
-        $ps setdefault activity.ORG.CMO_INDUSTRY.minSecurity.NGO       H
-        $ps setdefault activity.ORG.CMO_INDUSTRY.minSecurity.CTR       M
-        $ps setdefault activity.ORG.CMO_INDUSTRY.coverage              {20 1000}
-
-        # Activity: CMO_INFRASTRUCTURE
-        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.minSecurity.IGO H
-        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.minSecurity.NGO H
-        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.minSecurity.CTR M
-        $ps setdefault activity.ORG.CMO_INFRASTRUCTURE.coverage        {20 1000}
-
-        # Activity: CMO_OTHER
-        $ps setdefault activity.ORG.CMO_OTHER.minSecurity.IGO          H
-        $ps setdefault activity.ORG.CMO_OTHER.minSecurity.NGO          H
-        $ps setdefault activity.ORG.CMO_OTHER.minSecurity.CTR          M
-        $ps setdefault activity.ORG.CMO_OTHER.coverage                 {20 1000}
+        # All parameters use defaults.
 
         # app.* parameters
         $ps subset app {

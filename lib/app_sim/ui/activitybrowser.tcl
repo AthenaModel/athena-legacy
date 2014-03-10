@@ -31,15 +31,19 @@ snit::widgetadaptor activitybrowser {
     # %D is replaced with the color for derived columns.
 
     typevariable layout {
-        {n              "Nbhood"                                     }
-        {g              "Group"                                      }
-        {a              "Activity"                                   }
-        {coverage       "Coverage"  -sortmode real    -foreground %D }
-        {security_flag  "SecFlag"                     -foreground %D }
-        {nominal        "NomPers"   -sortmode integer -foreground %D }
-        {active         "ActPers"   -sortmode integer -foreground %D }
-        {effective      "EffPers"   -sortmode integer -foreground %D }
-        {stype          "SitType"                     -foreground %D }
+        {n              "\nNeighborhood"      }
+        {g              "\nGroup"             }
+        {a              "\nActivity"          }
+        {coverage       "\nCoverage"           
+            -sortmode real -foreground %D }
+        {security_flag  "Security\nFlag"
+            -foreground %D }
+        {nominal        "Nominal\nPersonnel"   
+            -sortmode integer -foreground %D }
+        {effective      "Effective\nPersonnel" 
+            -sortmode integer -foreground %D }
+        {stype          "Situation\nType"      
+            -foreground %D }
     }
 
     #--------------------------------------------------------------------

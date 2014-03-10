@@ -312,12 +312,7 @@ CREATE TABLE activity_nga (
     -- group g which are assigned activity a.
     nominal             INTEGER  DEFAULT 0,
 
-    -- Number of personnel in nbhood n belonging to 
-    -- group g which can actively pursue a given the assigned-to-active
-    -- ratio.
-    active              INTEGER  DEFAULT 0,
-
-    -- Number of the active personnel that are effectively performing
+    -- Number of the nominal personnel that are effectively performing
     -- the activity.  This will be 0 if security_flag is 0.
     effective           INTEGER  DEFAULT 0,
 

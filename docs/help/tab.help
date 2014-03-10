@@ -991,41 +991,38 @@ tab "Physical/Activity" {
 
     <<topiclist Column Description>>
 
-    <<topic "Nbhood">>The ID of a neighborhood.<</topic>>
+    <<topic "Neighborhood">>The ID of a neighborhood.<</topic>>
 
-    <<topic "Group">>The ID of the civilian, force, or organization 
+    <<topic "Group">>The ID of the force or organization 
     group.<</topic>>
     
-    <<topic Activity>>An activity assigned to units of the group, or
+    <<topic "Activity">>An activity assigned to units of the group, or
     <b>PRESENCE</b> for force groups.
     <</topic>>
 
-    <<topic Coverage>>The coverage of the activity, as a number
+    <<topic "Coverage">>The coverage of the activity, as a number
     between 0.0 and 1.0: the fraction of the neighborhood population
     affected by the activity.
     <</topic>>
 
-    <<topic SecFlag>><b>YES</b> if the unit has sufficient
+    <<topic "Security Flag">><b>YES</b> if the unit has sufficient
     <<term security>> to perform the activity, and <b>NO</b>
     otherwise; the required security level depends on the activity.
     <</topic>>
 
-    <<topic "NomPers">>Nominal personnel: The number of the group's
-    personnel assigned to this activity in this neighborhood.
+    <<topic "Nominal Personnel">>Nominal personnel: The number of 
+    the group's personnel assigned to this activity in this neighborhood.
     <</topic>>
 
-    <<topic "ActPers">>Actual personnel: The actual number of the
-    group's personnel actually performing the activity at any given
-    time, given the shift schedule for the activity.
-    <</topic>>
-
-    <<topic "EffPers">>Effective personnel: The number of personnel
+    <<topic "Effective Personnel">>Effective personnel: The number 
+    of personnel
     who can effectively perform the activity at any given time, given
     <<term security>> and (in theory) other factors.  The coverage is
     based on this number.
     <</topic>>
 
-    <<topic "SitType">>Situation type: If the activity has a coverage
+    <<topic "Situation Type">>Situation type: If the activity has a 
+    coverage
     greater than 0.0 it will engender an activity situation of this
     type, resulting in a variety of attitude effects; see the
     <i>Athena Rules Document</i> for details.

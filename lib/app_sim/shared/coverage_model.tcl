@@ -102,7 +102,6 @@ snit::type coverage_model {
             SET security_flag = 0,
                 can_do        = 1,
                 nominal       = 0,
-                active        = 0,
                 effective     = 0,
                 coverage      = 0.0;
         }
@@ -122,11 +121,10 @@ snit::type coverage_model {
             WHERE gtype='FRC' AND personnel > 0
             GROUP BY n,g
         } {
-            # All troops are active at being present
+            # All troops are present
             rdb eval {
                 UPDATE activity_nga
-                SET nominal   = $nominal,
-                    active    = $nominal
+                SET nominal   = $nominal
                 WHERE n=$n AND g=$g AND a='PRESENCE'
             }
         }
@@ -145,17 +143,9 @@ snit::type coverage_model {
             AND personnel > 0
             GROUP BY n,g,a
         } {
-            # FIRST, how many of the nominal personnel are active given 
-            # the shift schedule?
-            set shifts [parmdb get activity.$gtype.$a.shifts]
-            let active {$nominal / $shifts}
-
-
-            # NEXT, accumulate the staff for the target neighborhood
             rdb eval {
                 UPDATE activity_nga
-                SET nominal = $nominal,
-                    active  = $active
+                SET nominal = $nominal
                 WHERE n=$n AND g=$g AND a=$a;
             }
         }
@@ -208,17 +198,6 @@ snit::type coverage_model {
             JOIN force_ng USING (n, g)
             JOIN orggroups USING (g)
         } {
-            # can_do
-            # TBD: Need to set this based on whether the group
-            # is active in the neighborhood or not!
-            if 0 {
-                # Old JNEM code
-                set can_do [jout orgIsActive $n $g]
-            } else {
-                # For now, assume that it can.
-                set can_do 1
-            }
-
             # security
             set minSecurity \
                 [qsecurity value [parmdb get \
@@ -235,8 +214,7 @@ snit::type coverage_model {
             # Save values
             rdb eval {
                 UPDATE activity_nga
-                SET can_do        = $can_do,
-                    security_flag = $security_flag
+                SET security_flag = $security_flag
                 WHERE n=$n AND g=$g AND a=$a
             }
         }
@@ -253,7 +231,7 @@ snit::type coverage_model {
         # FIRST, compute effective staff for each activity
         rdb eval {
             UPDATE activity_nga
-            SET effective = active
+            SET effective = nominal
             WHERE can_do AND security_flag
         }
 
