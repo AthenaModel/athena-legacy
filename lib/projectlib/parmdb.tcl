@@ -123,22 +123,22 @@ snit::type ::projectlib::parmdb {
 
         # FRC activities
         foreach a {
-            CHECKPOINT
-            CMO_CONSTRUCTION
-            CMO_EDUCATION
-            CMO_EMPLOYMENT
-            CMO_HEALTHCARE
-            CMO_INDUSTRY
-            CMO_INFRASTRUCTURE
-            CMO_LAW_ENFORCEMENT
-            CMO_OTHER
+            CHKPOINT
             COERCION
-            CRIMINAL_ACTIVITIES
+            CONSTRUCT
+            CRIME
             CURFEW
+            EDU
+            EMPLOY
             GUARD
+            INDUSTRY
+            INFRA
+            LAWENF
+            MEDICAL
             PATROL
             PRESENCE
             PSYOP
+            RELIEF
         } {
             $ps subset activity.FRC.$a {
                 Parameters relating to this force activity.
@@ -172,13 +172,13 @@ snit::type ::projectlib::parmdb {
 
         # ORG activities
         foreach a {
-            CMO_CONSTRUCTION
-            CMO_EDUCATION
-            CMO_EMPLOYMENT
-            CMO_HEALTHCARE
-            CMO_INDUSTRY
-            CMO_INFRASTRUCTURE
-            CMO_OTHER
+            CONSTRUCT
+            EDU
+            EMPLOY
+            INDUSTRY
+            INFRA
+            MEDICAL
+            RELIEF
         } {
             $ps subset activity.ORG.$a {
                 Parameters relating to this organization activity.
@@ -219,68 +219,68 @@ snit::type ::projectlib::parmdb {
         # FRC Activities
 
         # Activity: PRESENCE
-        $ps setdefault activity.FRC.PRESENCE.minSecurity            N
-        $ps setdefault activity.FRC.PRESENCE.coverage               {25 1000}
+        $ps setdefault activity.FRC.PRESENCE.minSecurity  N
+        $ps setdefault activity.FRC.PRESENCE.coverage     {25 1000}
 
-        # Activity: CHECKPOINT
-        $ps setdefault activity.FRC.CHECKPOINT.minSecurity          L
-        $ps setdefault activity.FRC.CHECKPOINT.coverage             {25 1000}
-
-        # Activity: CMO_CONSTRUCTION
-        $ps setdefault activity.FRC.CMO_CONSTRUCTION.minSecurity    H
-        $ps setdefault activity.FRC.CMO_CONSTRUCTION.coverage       {20 1000}
-
-        # Activity: CMO_EDUCATION
-        $ps setdefault activity.FRC.CMO_EDUCATION.minSecurity       H
-        $ps setdefault activity.FRC.CMO_EDUCATION.coverage          {20 1000}
-
-        # Activity: CMO_EMPLOYMENT
-        $ps setdefault activity.FRC.CMO_EMPLOYMENT.minSecurity      H
-        $ps setdefault activity.FRC.CMO_EMPLOYMENT.coverage         {20 1000}
-
-        # Activity: CMO_HEALTHCARE
-        $ps setdefault activity.FRC.CMO_HEALTHCARE.minSecurity      H
-        $ps setdefault activity.FRC.CMO_HEALTHCARE.coverage         {20 1000}
-
-        # Activity: CMO_INDUSTRY
-        $ps setdefault activity.FRC.CMO_INDUSTRY.minSecurity        H
-        $ps setdefault activity.FRC.CMO_INDUSTRY.coverage           {20 1000}
-
-        # Activity: CMO_INFRASTRUCTURE
-        $ps setdefault activity.FRC.CMO_INFRASTRUCTURE.minSecurity  H
-        $ps setdefault activity.FRC.CMO_INFRASTRUCTURE.coverage     {20 1000}
-
-        # Activity: CMO_OTHER
-        $ps setdefault activity.FRC.CMO_OTHER.minSecurity           H
-        $ps setdefault activity.FRC.CMO_OTHER.coverage              {20 1000}
-
-        # Activity: CMO_LAW_ENFORCEMENT
-        $ps setdefault activity.FRC.CMO_LAW_ENFORCEMENT.minSecurity M
-        $ps setdefault activity.FRC.CMO_LAW_ENFORCEMENT.coverage    {25 1000}
+        # Activity: CHKPOINT
+        $ps setdefault activity.FRC.CHKPOINT.minSecurity  L
+        $ps setdefault activity.FRC.CHKPOINT.coverage     {25 1000}
 
         # Activity: COERCION
-        $ps setdefault activity.FRC.COERCION.minSecurity            M
-        $ps setdefault activity.FRC.COERCION.coverage               {12 1000}
+        $ps setdefault activity.FRC.COERCION.minSecurity  M
+        $ps setdefault activity.FRC.COERCION.coverage     {12 1000}
 
-        # Activity: CRIMINAL
-        $ps setdefault activity.FRC.CRIMINAL_ACTIVITIES.minSecurity M
-        $ps setdefault activity.FRC.CRIMINAL_ACTIVITIES.coverage    {10 1000}
+        # Activity: CONSTRUCT
+        $ps setdefault activity.FRC.CONSTRUCT.minSecurity H
+        $ps setdefault activity.FRC.CONSTRUCT.coverage    {20 1000}
+
+        # Activity: CRIME
+        $ps setdefault activity.FRC.CRIME.minSecurity     M
+        $ps setdefault activity.FRC.CRIME.coverage        {10 1000}
 
         # Activity: CURFEW
-        $ps setdefault activity.FRC.CURFEW.minSecurity              M
-        $ps setdefault activity.FRC.CURFEW.coverage                 {25 1000}
+        $ps setdefault activity.FRC.CURFEW.minSecurity    M
+        $ps setdefault activity.FRC.CURFEW.coverage       {25 1000}
+
+        # Activity: EDU
+        $ps setdefault activity.FRC.EDU.minSecurity       H
+        $ps setdefault activity.FRC.EDU.coverage          {20 1000}
+
+        # Activity: EMPLOY
+        $ps setdefault activity.FRC.EMPLOY.minSecurity    H
+        $ps setdefault activity.FRC.EMPLOY.coverage       {20 1000}
 
         # Activity: GUARD
-        $ps setdefault activity.FRC.GUARD.minSecurity               L
-        $ps setdefault activity.FRC.GUARD.coverage                  {25 1000}
+        $ps setdefault activity.FRC.GUARD.minSecurity     L
+        $ps setdefault activity.FRC.GUARD.coverage        {25 1000}
+
+        # Activity: INDUSTRY
+        $ps setdefault activity.FRC.INDUSTRY.minSecurity  H
+        $ps setdefault activity.FRC.INDUSTRY.coverage     {20 1000}
+
+        # Activity: INFRA
+        $ps setdefault activity.FRC.INFRA.minSecurity     H
+        $ps setdefault activity.FRC.INFRA.coverage        {20 1000}
+
+        # Activity: LAWENF
+        $ps setdefault activity.FRC.LAWENF.minSecurity    M
+        $ps setdefault activity.FRC.LAWENF.coverage       {25 1000}
+
+        # Activity: MEDICAL
+        $ps setdefault activity.FRC.MEDICAL.minSecurity   H
+        $ps setdefault activity.FRC.MEDICAL.coverage      {20 1000}
 
         # Activity: PATROL
-        $ps setdefault activity.FRC.PATROL.minSecurity              L
-        $ps setdefault activity.FRC.PATROL.coverage                 {25 1000}
+        $ps setdefault activity.FRC.PATROL.minSecurity    L
+        $ps setdefault activity.FRC.PATROL.coverage       {25 1000}
 
         # Activity: PSYOP
-        $ps setdefault activity.FRC.PSYOP.minSecurity               L
-        $ps setdefault activity.FRC.PSYOP.coverage                  {1 50000}
+        $ps setdefault activity.FRC.PSYOP.minSecurity     L
+        $ps setdefault activity.FRC.PSYOP.coverage        {1 50000}
+
+        # Activity: RELIEF
+        $ps setdefault activity.FRC.RELIEF.minSecurity    H
+        $ps setdefault activity.FRC.RELIEF.coverage       {20 1000}
 
         # ORG Activities
         # All parameters use defaults.
@@ -440,13 +440,13 @@ snit::type ::projectlib::parmdb {
             # Add mitigates parm for activities that support mitigation
             # of ensits. 
             if {$name in {
-                CMOCONST
-                CMOEDU
-                CMOEMP
-                CMOIND
-                CMOINF
-                CMOMED
-                CMOOTHER
+                CONSTRUCT
+                EDU
+                EMPLOY
+                INDUSTRY
+                INFRA
+                MEDICAL
+                RELIEF
             }} {
                 $ps define dam.$name.mitigates ::projectlib::leensit {} {
                     List of environmental situation types mitigated by this
@@ -488,67 +488,14 @@ snit::type ::projectlib::parmdb {
             casualties.
         }
 
-        # Rule Set: CMOCONST
-        $ps setdefault dam.CMOCONST.cause         CMOCONST
-        $ps setdefault dam.CMOCONST.nearFactor    0.75
-        $ps setdefault dam.CMOCONST.farFactor     0.25
-        $ps setdefault dam.CMOCONST.mitigates     {
+        # Rule Set: CONSTRUCT
+        $ps setdefault dam.CONSTRUCT.cause        CONSTRUCT
+        $ps setdefault dam.CONSTRUCT.nearFactor   0.75
+        $ps setdefault dam.CONSTRUCT.farFactor    0.25
+        $ps setdefault dam.CONSTRUCT.mitigates    {
             BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
             EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
             NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE   SEWAGE
-        }
-
-        # Rule Set: CMOEDU
-        $ps setdefault dam.CMOEDU.cause           CMOEDU
-        $ps setdefault dam.CMOEDU.nearFactor      0.75
-        $ps setdefault dam.CMOEDU.farFactor       0.5
-        $ps setdefault dam.CMOEDU.mitigates       {}
-
-        # Rule Set: CMOEMP
-        $ps setdefault dam.CMOEMP.cause           CMOEMP
-        $ps setdefault dam.CMOEMP.nearFactor      0.75
-        $ps setdefault dam.CMOEMP.farFactor       0.5
-        $ps setdefault dam.CMOEMP.mitigates       {}
-
-        # Rule Set: CMOIND
-        $ps setdefault dam.CMOIND.cause           CMOIND
-        $ps setdefault dam.CMOIND.nearFactor      0.75
-        $ps setdefault dam.CMOIND.farFactor       0.25
-        $ps setdefault dam.CMOIND.mitigates       {
-            COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
-            POWEROUT REFINERY
-        }
-
-        # Rule Set: CMOINF
-        $ps setdefault dam.CMOINF.cause           CMOINF
-        $ps setdefault dam.CMOINF.nearFactor      0.75
-        $ps setdefault dam.CMOINF.farFactor       0.25
-        $ps setdefault dam.CMOINF.mitigates       {
-            BADWATER COMMOUT NOWATER POWEROUT SEWAGE
-        }
-
-        # Rule Set: CMOLAW
-        $ps setdefault dam.CMOLAW.cause           CMOLAW
-        $ps setdefault dam.CMOLAW.nearFactor      0.5
-        $ps setdefault dam.CMOLAW.farFactor       0.25
-
-        # Rule Set: CMOMED
-        $ps setdefault dam.CMOMED.cause           CMOMED
-        $ps setdefault dam.CMOMED.nearFactor      0.75
-        $ps setdefault dam.CMOMED.farFactor       0.25
-        $ps setdefault dam.CMOMED.mitigates       {
-            DISASTER DISEASE EPIDEMIC
-        }
-
-        # Rule Set: CMOOTHER
-        $ps setdefault dam.CMOOTHER.cause         CMOOTHER
-        $ps setdefault dam.CMOOTHER.nearFactor    0.25
-        $ps setdefault dam.CMOOTHER.farFactor     0.1
-        $ps setdefault dam.CMOOTHER.mitigates     {
-            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
-            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
-            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
-            SEWAGE
         }
 
         # Rule Set: COERCION
@@ -566,10 +513,10 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CONTROL.nearFactor     0.2
         $ps setdefault dam.CONTROL.farFactor      0.0
 
-        # Rule Set: CRIMINAL
-        $ps setdefault dam.CRIMINAL.cause         CRIMINAL
-        $ps setdefault dam.CRIMINAL.nearFactor    0.5
-        $ps setdefault dam.CRIMINAL.farFactor     0.2
+        # Rule Set: CRIME
+        $ps setdefault dam.CRIME.cause            CRIME
+        $ps setdefault dam.CRIME.nearFactor       0.5
+        $ps setdefault dam.CRIME.farFactor        0.2
 
         # Rule Set: CURFEW
         $ps setdefault dam.CURFEW.cause           CURFEW
@@ -596,6 +543,18 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.DISPLACED.cause        DISPLACED
         $ps setdefault dam.DISPLACED.nearFactor   0.25
         $ps setdefault dam.DISPLACED.farFactor    0.0
+
+        # Rule Set: EDU
+        $ps setdefault dam.EDU.cause              EDU
+        $ps setdefault dam.EDU.nearFactor         0.75
+        $ps setdefault dam.EDU.farFactor          0.5
+        $ps setdefault dam.EDU.mitigates          {}
+
+        # Rule Set: EMPLOY
+        $ps setdefault dam.EMPLOY.cause           EMPLOY
+        $ps setdefault dam.EMPLOY.nearFactor      0.75
+        $ps setdefault dam.EMPLOY.farFactor       0.5
+        $ps setdefault dam.EMPLOY.mitigates       {}
 
         # Rule Set: ENI
         $ps setdefault dam.ENI.cause              ENI
@@ -632,6 +591,23 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.INDSPILL.nearFactor    0.0
         $ps setdefault dam.INDSPILL.farFactor     0.0
 
+        # Rule Set: INDUSTRY
+        $ps setdefault dam.INDUSTRY.cause         INDUSTRY
+        $ps setdefault dam.INDUSTRY.nearFactor    0.75
+        $ps setdefault dam.INDUSTRY.farFactor     0.25
+        $ps setdefault dam.INDUSTRY.mitigates     {
+            COMMOUT  FOODSHRT FUELSHRT INDSPILL NOWATER PIPELINE
+            POWEROUT REFINERY
+        }
+
+        # Rule Set: INFRA
+        $ps setdefault dam.INFRA.cause            INFRA
+        $ps setdefault dam.INFRA.nearFactor       0.75
+        $ps setdefault dam.INFRA.farFactor        0.25
+        $ps setdefault dam.INFRA.mitigates        {
+            BADWATER COMMOUT NOWATER POWEROUT SEWAGE
+        }
+
         # Rule Set: IOM
         $ps setdefault dam.IOM.cause         IOM
         $ps setdefault dam.IOM.nearFactor    0.0
@@ -655,6 +631,19 @@ snit::type ::projectlib::parmdb {
             negative affinity receive no effect.  Some backfiring might be
             reasonable, so the <i>lo</i> value could easily be decreased to,
             say, -0.1.
+        }
+
+        # Rule Set: LAWENF
+        $ps setdefault dam.LAWENF.cause           LAWENF
+        $ps setdefault dam.LAWENF.nearFactor      0.5
+        $ps setdefault dam.LAWENF.farFactor       0.25
+
+        # Rule Set: MEDICAL
+        $ps setdefault dam.MEDICAL.cause          MEDICAL
+        $ps setdefault dam.MEDICAL.nearFactor     0.75
+        $ps setdefault dam.MEDICAL.farFactor      0.25
+        $ps setdefault dam.MEDICAL.mitigates      {
+            DISASTER DISEASE EPIDEMIC
         }
 
         # Rule Set: MINEFIELD
@@ -719,6 +708,17 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.REFINERY.cause         REFINERY
         $ps setdefault dam.REFINERY.nearFactor    0.0
         $ps setdefault dam.REFINERY.farFactor     0.0
+
+        # Rule Set: RELIEF
+        $ps setdefault dam.RELIEF.cause           RELIEF
+        $ps setdefault dam.RELIEF.nearFactor      0.25
+        $ps setdefault dam.RELIEF.farFactor       0.1
+        $ps setdefault dam.RELIEF.mitigates       {
+            BADFOOD  BADWATER COMMOUT  CULSITE  DISASTER DISEASE
+            EPIDEMIC FOODSHRT FUELSHRT GARBAGE  INDSPILL MINEFIELD
+            NOWATER  ORDNANCE PIPELINE POWEROUT REFINERY RELSITE
+            SEWAGE
+        }
 
         # Rule Set: RELSITE
         $ps setdefault dam.RELSITE.cause          RELSITE
@@ -1103,21 +1103,21 @@ snit::type ::projectlib::parmdb {
 
         foreach a {
             NONE
-            CHECKPOINT
-            CMO_CONSTRUCTION
-            CMO_EDUCATION
-            CMO_EMPLOYMENT
-            CMO_HEALTHCARE
-            CMO_INDUSTRY
-            CMO_INFRASTRUCTURE
-            CMO_LAW_ENFORCEMENT
-            CMO_OTHER
+            CHKPOINT
             COERCION
-            CRIMINAL_ACTIVITIES
+            CONSTRUCT
+            CRIME
             CURFEW
+            EDU
+            EMPLOY
             GUARD
+            INDUSTRY
+            INFRA
+            LAWENF
+            MEDICAL
             PATROL
             PSYOP
+            RELIEF
         } {
             $ps define force.alpha.$a ::projectlib::rgain 1.0 {
                 Force multiplier for force group personnel assigned the
@@ -1126,22 +1126,22 @@ snit::type ::projectlib::parmdb {
             }
         }
 
-        $ps setdefault force.alpha.NONE                1.0
-        $ps setdefault force.alpha.CHECKPOINT          1.5
-        $ps setdefault force.alpha.CMO_CONSTRUCTION    0.8
-        $ps setdefault force.alpha.CMO_EDUCATION       0.8
-        $ps setdefault force.alpha.CMO_EMPLOYMENT      0.8
-        $ps setdefault force.alpha.CMO_HEALTHCARE      0.8
-        $ps setdefault force.alpha.CMO_INDUSTRY        0.8
-        $ps setdefault force.alpha.CMO_INFRASTRUCTURE  0.8
-        $ps setdefault force.alpha.CMO_LAW_ENFORCEMENT 1.5
-        $ps setdefault force.alpha.CMO_OTHER           0.8
-        $ps setdefault force.alpha.COERCION            1.2
-        $ps setdefault force.alpha.CRIMINAL_ACTIVITIES 0.8
-        $ps setdefault force.alpha.CURFEW              1.2
-        $ps setdefault force.alpha.GUARD               1.7
-        $ps setdefault force.alpha.PATROL              2.0
-        $ps setdefault force.alpha.PSYOP               1.0
+        $ps setdefault force.alpha.CHKPOINT   1.5
+        $ps setdefault force.alpha.COERCION   1.2
+        $ps setdefault force.alpha.CONSTRUCT  0.8
+        $ps setdefault force.alpha.CRIME      0.8
+        $ps setdefault force.alpha.CURFEW     1.2
+        $ps setdefault force.alpha.EDU        0.8
+        $ps setdefault force.alpha.EMPLOY     0.8
+        $ps setdefault force.alpha.GUARD      1.7
+        $ps setdefault force.alpha.INDUSTRY   0.8
+        $ps setdefault force.alpha.INFRA      0.8
+        $ps setdefault force.alpha.LAWENF     1.5
+        $ps setdefault force.alpha.MEDICAL    0.8
+        $ps setdefault force.alpha.NONE       1.0
+        $ps setdefault force.alpha.PATROL     2.0
+        $ps setdefault force.alpha.PSYOP      1.0
+        $ps setdefault force.alpha.RELIEF     0.8
 
         $ps subset force.demeanor {
             Dial that determines the effect of demeanor on a group's
@@ -1220,22 +1220,21 @@ snit::type ::projectlib::parmdb {
 
         foreach a {
             NONE
-            CHECKPOINT
-            CMO_CONSTRUCTION
-            CMO_DEVELOPMENT
-            CMO_EDUCATION
-            CMO_EMPLOYMENT
-            CMO_HEALTHCARE
-            CMO_INDUSTRY
-            CMO_INFRASTRUCTURE
-            CMO_LAW_ENFORCEMENT
-            CMO_OTHER
+            CHKPOINT
             COERCION
-            CRIMINAL_ACTIVITIES
+            CONSTRUCT
+            CRIME
             CURFEW
+            EDU
+            EMPLOY
             GUARD
+            INDUSTRY
+            INFRA
+            LAWENF
+            MEDICAL
             PATROL
             PSYOP
+            RELIEF
         } {
             $ps define force.law.beta.$a ::projectlib::rgain 1.0 {
                 How effective this activity is at reducing volatility
@@ -1243,23 +1242,22 @@ snit::type ::projectlib::parmdb {
             }
         }
 
-        $ps setdefault force.law.beta.NONE                0.0
-        $ps setdefault force.law.beta.CHECKPOINT          0.5
-        $ps setdefault force.law.beta.CMO_CONSTRUCTION    0.0
-        $ps setdefault force.law.beta.CMO_DEVELOPMENT     0.0
-        $ps setdefault force.law.beta.CMO_EDUCATION       0.0
-        $ps setdefault force.law.beta.CMO_EMPLOYMENT      0.0
-        $ps setdefault force.law.beta.CMO_HEALTHCARE      0.0
-        $ps setdefault force.law.beta.CMO_INDUSTRY        0.0
-        $ps setdefault force.law.beta.CMO_INFRASTRUCTURE  0.0
-        $ps setdefault force.law.beta.CMO_LAW_ENFORCEMENT 1.0
-        $ps setdefault force.law.beta.CMO_OTHER           0.3
-        $ps setdefault force.law.beta.COERCION            0.3
-        $ps setdefault force.law.beta.CRIMINAL_ACTIVITIES 0.0
-        $ps setdefault force.law.beta.CURFEW              1.2
-        $ps setdefault force.law.beta.GUARD               1.0
-        $ps setdefault force.law.beta.PATROL              1.0
-        $ps setdefault force.law.beta.PSYOP               0.3
+        $ps setdefault force.law.beta.NONE       0.0
+        $ps setdefault force.law.beta.CHKPOINT   0.5
+        $ps setdefault force.law.beta.COERCION   0.3
+        $ps setdefault force.law.beta.CONSTRUCT  0.0
+        $ps setdefault force.law.beta.CRIME      0.0
+        $ps setdefault force.law.beta.CURFEW     1.2
+        $ps setdefault force.law.beta.EDU        0.0
+        $ps setdefault force.law.beta.EMPLOY     0.0
+        $ps setdefault force.law.beta.GUARD      1.0
+        $ps setdefault force.law.beta.INDUSTRY   0.0
+        $ps setdefault force.law.beta.INFRA      0.0
+        $ps setdefault force.law.beta.LAWENF     1.0
+        $ps setdefault force.law.beta.MEDICAL    0.0
+        $ps setdefault force.law.beta.PATROL     1.0
+        $ps setdefault force.law.beta.PSYOP      0.3
+        $ps setdefault force.law.beta.RELIEF     0.3
 
         $ps subset force.law.coverage {
             These parameters are coverage functions for law enforcement

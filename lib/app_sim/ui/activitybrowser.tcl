@@ -42,8 +42,6 @@ snit::widgetadaptor activitybrowser {
             -sortmode integer -foreground %D }
         {effective      "Effective\nPersonnel" 
             -sortmode integer -foreground %D }
-        {stype          "Situation\nType"      
-            -foreground %D }
     }
 
     #--------------------------------------------------------------------

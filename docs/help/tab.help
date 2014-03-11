@@ -997,7 +997,10 @@ tab "Physical/Activity" {
     group.<</topic>>
     
     <<topic "Activity">>An activity assigned to units of the group, or
-    <b>PRESENCE</b> for force groups.
+    <b>PRESENCE</b> for force groups. If the activity has a 
+    coverage greater than 0.0 it will engender an activity situation,
+    resulting in a variety of attitude effects; see the
+    <i>Athena Rules Document</i> for details.
     <</topic>>
 
     <<topic "Coverage">>The coverage of the activity, as a number
@@ -1019,13 +1022,6 @@ tab "Physical/Activity" {
     who can effectively perform the activity at any given time, given
     <<term security>> and (in theory) other factors.  The coverage is
     based on this number.
-    <</topic>>
-
-    <<topic "Situation Type">>Situation type: If the activity has a 
-    coverage
-    greater than 0.0 it will engender an activity situation of this
-    type, resulting in a variety of attitude effects; see the
-    <i>Athena Rules Document</i> for details.
     <</topic>>
 
     <</topiclist>>

@@ -161,33 +161,13 @@ snit::type ::projectlib::typewrapper {
     CIVCAS-1-1    "Civilian casualties taken"
     CIVCAS-2-1    "Civilian casualties taken from force group"
 
-    CMOCONST-1-1  "Force is doing construction work"
-    CMOCONST-2-1  "ORG is doing construction work"
-
-    CMOEDU-1-1    "Force is teaching local civilians"
-    CMOEDU-2-1    "ORG is teaching local civilians"
-
-    CMOEMP-1-1    "Force is providing employment"
-    CMOEMP-2-1    "ORG is providing employment"
-
-    CMOIND-1-1    "Force is aiding industry"
-    CMOIND-2-1    "ORG is aiding industry"
-
-    CMOINF-1-1    "Force is improving infrastructure"
-    CMOINF-2-1    "ORG is improving infrastructure"
-
-    CMOLAW-1-1    "Force is enforcing the law"
-
-    CMOMED-1-1    "Force is providing health care"
-    CMOMED-2-1    "ORG is providing health care"
-
-    CMOOTHER-1-1  "Force is doing other CMO activities"
-    CMOOTHER-2-1  "ORG is doing other CMO activities"
-
     COERCION-1-1  "Force is coercing local civilians"
 
     COMMOUT-1-1   "Communications go out"
     COMMOUT-1-2   "Communications remain out"
+
+    CONSTRUCT-1-1  "Force is doing construction work"
+    CONSTRUCT-2-1  "ORG is doing construction work"
 
     CONSUMP-1-1   "Effect of Consumption on Satisfaction"
     CONSUMP-2-1   "Consumption no worse than expected"
@@ -198,7 +178,7 @@ snit::type ::projectlib::typewrapper {
     CONTROL-1-3   "Neighborhood is no longer in chaos."
     CONTROL-2-1   "Neighborhood sees shift in control"
 
-    CRIMINAL-1-1  "Force is engaging in criminal activities"
+    CRIME-1-1     "Force is engaging in criminal activities"
 
     CULSITE-1-1   "A cultural site is damaged"
     CULSITE-1-2   "Damage has not been resolved"
@@ -219,6 +199,12 @@ snit::type ::projectlib::typewrapper {
     DISEASE-2-1   "Unhealthy conditions are resolved by locals"
 
     DISPLACED-1-1 "Displaced persons living in neighborhood"
+
+    EDU-1-1       "Force is providing schools"
+    EDU-2-1       "ORG is providing schools"
+
+    EMPLOY-1-1    "Force is providing employment"
+    EMPLOY-2-1    "ORG is providing employment"
 
     ENI-1-1       "ENI Services are less than required"
     ENI-1-2       "ENI Services are less than expected"
@@ -247,12 +233,23 @@ snit::type ::projectlib::typewrapper {
     INDSPILL-1-2  "Industrial spill has not been cleaned up"
     INDSPILL-2-1  "Industrial spill is cleaned up by locals"
 
+    INDUSTRY-1-1  "Force is aiding industry"
+    INDUSTRY-2-1  "ORG is aiding industry"
+
+    INFRA-1-1     "Force is improving infrastructure"
+    INFRA-2-1     "ORG is improving infrastructure"
+
     IOM-1-1       "Info Ops Message"
+
+    LAWENF-1-1    "Force is enforcing the law"
 
     MAGIC-1-1     "Magic Horizontal Relationship Input"
     MAGIC-2-1     "Magic Vertical Relationship Input"
     MAGIC-3-1     "Magic Satisfaction Input"
     MAGIC-4-1     "Magic Cooperation Input"
+
+    MEDICAL-1-1   "Force is providing health care"
+    MEDICAL-2-1   "ORG is providing health care"
 
     MINEFIELD-1-1 "Minefield is placed"
     MINEFIELD-1-2 "Minefield remains"
@@ -287,6 +284,9 @@ snit::type ::projectlib::typewrapper {
     REFINERY-1-2  "Oil refinery is still burning"
     REFINERY-2-1  "Oil refinery fire is extinguished by locals"
 
+    RELIEF-1-1    "Force is providing humanitarian relief"
+    RELIEF-2-1    "ORG is providing humanitarian relief"
+
     RELSITE-1-1   "A religious site is damaged"
     RELSITE-1-2   "Damage has not been resolved"
     RELSITE-2-1   "Damage is resolved by locals"
@@ -304,25 +304,20 @@ snit::type ::projectlib::typewrapper {
     BADWATER  "Contaminated Water Supply"
     CHKPOINT  "Checkpoint/Control Point"
     CIVCAS    "Civilian Casualties"
-    CMOCONST  "CMO -- Construction"
-    CMOEDU    "CMO -- Education"
-    CMOEMP    "CMO -- Employment"
-    CMOIND    "CMO -- Industry"
-    CMOINF    "CMO -- Infrastructure"
-    CMOLAW    "CMO -- Law Enforcement"
-    CMOMED    "CMO -- Healthcare"
-    CMOOTHER  "CMO -- Other"
     COERCION  "Coercion"
     COMMOUT   "Communications Outage"
+    CONSTRUCT "Construction"
     CONSUMP   "Consumption of Goods"
     CONTROL   "Shift in Control of Neighborhood"
-    CRIMINAL  "Criminal Activities"
+    CRIME     "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
     CURFEW    "Curfew"
     CURSE     "CURSE Attitude Injects"
     DISASTER  "Disaster"
     DISEASE   "Disease"
     DISPLACED "Displaced Persons"
+    EDU       "Schools"
+    EMPLOY    "Provide Employment"
     ENI       "ENI Services"
     EPIDEMIC  "Epidemic"
     FOODSHRT  "Food Shortage"
@@ -330,8 +325,12 @@ snit::type ::projectlib::typewrapper {
     GARBAGE   "Garbage in the Streets"
     GUARD     "Guard"
     INDSPILL  "Industrial Spill"
+    INDUSTRY  "Support Industry"
+    INFRA     "Support Infrastructure"
     IOM       "Info Ops Message"
+    LAWENF    "Law Enforcement"
     MAGIC     "Magic Attitude Inputs"
+    MEDICAL   "Healthcare"
     MINEFIELD "Minefield"
     MOOD      "Civilian Mood Changes"
     NOWATER   "Interrupted Water Supply"
@@ -343,6 +342,7 @@ snit::type ::projectlib::typewrapper {
     PRESENCE  "Mere Presence of Force Units"
     PSYOP     "PSYOP"
     REFINERY  "Oil Refinery Fire"
+    RELIEF    "Humanitarian Relief"
     RELSITE   "Damage to Religious Site/Artifact"
     SEWAGE    "Sewage Spill"
     UNEMP     "Unemployment"
@@ -352,31 +352,30 @@ snit::type ::projectlib::typewrapper {
 ::marsutil::enum ::projectlib::ecause {
     CHKPOINT  "Checkpoint/Control Point"
     CIVCAS    "Civilian Casualties"
-    CMOCONST  "CMO -- Construction"
-    CMOEDU    "CMO -- Education"
-    CMOEMP    "CMO -- Employment"
-    CMOIND    "CMO -- Industry"
-    CMOINF    "CMO -- Infrastructure"
-    CMOLAW    "CMO -- Law Enforcement"
-    CMOMED    "CMO -- Healthcare"
-    CMOOTHER  "CMO -- Other"
     COERCION  "Coercion"
     COMMOUT   "Communications Outage"
+    CONSTRUCT "Construction"
     CONSUMP   "Consumption of Goods"
     CONTROL   "Shift in Control of Neighborhood"
-    CRIMINAL  "Criminal Activities"
+    CRIME     "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
     CURFEW    "Curfew"
     DISASTER  "Disaster"
     DISPLACED "Displaced Persons"
+    EDU       "Schools"
+    EMPLOY    "Provide Employment"
     ENI       "ENI Services"
     FUELSHRT  "Fuel Shortage"
     GARBAGE   "Garbage in the Streets"
     GUARD     "Guard"
     HUNGER    "Hunger"
     INDSPILL  "Industrial Spill"
+    INDUSTRY  "Support Industry"
+    INFRA     "Support Infrastructure"
     IOM       "Info Ops Message"
+    LAWENF    "Law Enforcement"
     MAGIC     "Magic Input"
+    MEDICAL   "Healthcare"
     MOOD      "Mood"
     ORDNANCE  "Unexploded Ordnance/Minefield"
     ORGCAS    "Organization Casualties"
@@ -386,6 +385,7 @@ snit::type ::projectlib::typewrapper {
     PRESENCE  "Mere Presence of Force Units"
     PSYOP     "PSYOP"
     REFINERY  "Oil Refinery Fire"
+    RELIEF    "Humanitarian Relief"
     RELSITE   "Damage to Religious Site/Artifact"
     SEWAGE    "Sewage Spill"
     SICKNESS  "Sickness"

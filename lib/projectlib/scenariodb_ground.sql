@@ -319,9 +319,6 @@ CREATE TABLE activity_nga (
     -- Coverage fraction, 0.0 to 1.0, for this activity.
     coverage            DOUBLE   DEFAULT 0.0,
 
-    -- Type of activity situation associated with this activity
-    stype               TEXT,
-
     PRIMARY KEY (n,g,a)
 );
 

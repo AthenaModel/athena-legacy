@@ -54,158 +54,54 @@ snit::type ::projectlib::scenariodb {
         }
 
         activity {
-            { a NONE                 longname "None"                       }
-            { a CHECKPOINT           longname "Checkpoint/Control Point"   }
-            { a CMO_CONSTRUCTION     longname "CMO -- Construction"        }
-            { a CMO_EDUCATION        longname "CMO -- Education"           }
-            { a CMO_EMPLOYMENT       longname "CMO -- Employment"          }
-            { a CMO_HEALTHCARE       longname "CMO -- Healthcare"          }
-            { a CMO_INDUSTRY         longname "CMO -- Industry"            }
-            { a CMO_INFRASTRUCTURE   longname "CMO -- Infrastructure"      }
-            { a CMO_LAW_ENFORCEMENT  longname "CMO -- Law Enforcement"     }
-            { a CMO_OTHER            longname "CMO -- Other"               }
-            { a COERCION             longname "Coercion"                   }
-            { a CRIMINAL_ACTIVITIES  longname "Criminal Activities"        }
-            { a CURFEW               longname "Curfew"                     }
-            { a GUARD                longname "Guard"                      }
-            { a PATROL               longname "Patrol"                     }
-            { a PRESENCE             longname "Presence"                   }
-            { a PSYOP                longname "PSYOP"                      }
+            { a NONE       longname "None"                       }
+            { a CHKPOINT   longname "Checkpoint/Control Point"   }
+            { a COERCION   longname "Coercion"                   }
+            { a CONSTRUCT  longname "Construction"               }
+            { a CRIME      longname "Criminal Activities"        }
+            { a CURFEW     longname "Curfew"                     }
+            { a EDU        longname "Schools"                    }
+            { a EMPLOY     longname "Provide Employment"         }
+            { a GUARD      longname "Guard"                      }
+            { a INDUSTRY   longname "Support Industry"           }
+            { a INFRA      longname "Support Infrastructure"     }
+            { a LAWENF     longname "Law Enforcement"            }
+            { a MEDICAL    longname "Provide Healthcare"         }
+            { a PATROL     longname "Patrol"                     }
+            { a PRESENCE   longname "Presence"                   }
+            { a PSYOP      longname "PSYOP"                      }
+            { a RELIEF     longname "Humanitarian Relief"        }
         }
 
         activity_gtype {
-            { a NONE                 
-                gtype        CIV 
-                assignable   0 
-                stype        {}       
-                attrit_order 0}
+            { a NONE      gtype CIV assignable 0 }
 
-            { a NONE                 
-                gtype        FRC 
-                assignable   0 
-                stype        {}       
-                attrit_order 0}
-            { a CHECKPOINT           
-                gtype        FRC 
-                assignable   1 
-                stype        CHKPOINT 
-                attrit_order 14}
-            { a CMO_CONSTRUCTION     
-                gtype        FRC 
-                assignable   1 
-                stype        CMOCONST 
-                attrit_order 1}
-            { a CMO_EDUCATION        
-                gtype        FRC 
-                assignable   1 
-                stype        CMOEDU   
-                attrit_order 3}
-            { a CMO_EMPLOYMENT       
-                gtype        FRC 
-                assignable   1 
-                stype        CMOEMP   
-                attrit_order 4}
-            { a CMO_HEALTHCARE       
-                gtype        FRC 
-                assignable   1 
-                stype        CMOMED   
-                attrit_order 9}
-            { a CMO_INDUSTRY         
-                gtype        FRC 
-                assignable   1 
-                stype        CMOIND   
-                attrit_order 5}
-            { a CMO_INFRASTRUCTURE   
-                gtype        FRC 
-                assignable   1 
-                stype        CMOINF   
-                attrit_order 6}
-            { a CMO_LAW_ENFORCEMENT  
-                gtype        FRC 
-                assignable   1 
-                stype        CMOLAW   
-                attrit_order 7}
-            { a CMO_OTHER            
-                gtype        FRC 
-                assignable   1 
-                stype        CMOOTHER 
-                attrit_order 8}
-            { a COERCION             
-                gtype        FRC 
-                assignable   1 
-                stype        COERCION 
-                attrit_order 11}
-            { a CRIMINAL_ACTIVITIES  
-                gtype        FRC 
-                assignable   1 
-                stype        CRIMINAL 
-                attrit_order 10}
-            { a CURFEW               
-                gtype        FRC 
-                assignable   1 
-                stype        CURFEW   
-                attrit_order 13}
-            { a GUARD                
-                gtype        FRC 
-                assignable   1 
-                stype        GUARD    
-                attrit_order 16}
-            { a PATROL               
-                gtype        FRC 
-                assignable   1 
-                stype        PATROL   
-                attrit_order 15}
-            { a PRESENCE             
-                gtype        FRC 
-                assignable   0 
-                stype        PRESENCE 
-                attrit_order 0}
-            { a PSYOP                
-                gtype        FRC 
-                assignable   1 
-                stype        PSYOP    
-                attrit_order 12}
+            { a NONE      gtype FRC assignable 0 }
+            { a CHKPOINT  gtype FRC assignable 1 }
+            { a COERCION  gtype FRC assignable 1 }
+            { a CONSTRUCT gtype FRC assignable 1 }
+            { a CRIME     gtype FRC assignable 1 }
+            { a CURFEW    gtype FRC assignable 1 }
+            { a EDU       gtype FRC assignable 1 }
+            { a EMPLOY    gtype FRC assignable 1 }
+            { a GUARD     gtype FRC assignable 1 }
+            { a INDUSTRY  gtype FRC assignable 1 }
+            { a INFRA     gtype FRC assignable 1 }
+            { a LAWENF    gtype FRC assignable 1 }
+            { a MEDICAL   gtype FRC assignable 1 }
+            { a PATROL    gtype FRC assignable 1 }
+            { a PRESENCE  gtype FRC assignable 0 }
+            { a PSYOP     gtype FRC assignable 1 }
+            { a RELIEF    gtype FRC assignable 1 }
             
-            { a NONE                 
-                gtype        ORG 
-                assignable   0 
-                stype        {}       
-                attrit_order 0}
-            { a CMO_CONSTRUCTION     
-                gtype        ORG 
-                assignable   1 
-                stype        CMOCONST 
-                attrit_order 1}
-            { a CMO_EDUCATION        
-                gtype        ORG 
-                assignable   1 
-                stype        CMOEDU   
-                attrit_order 2}
-            { a CMO_EMPLOYMENT       
-                gtype        ORG 
-                assignable   1 
-                stype        CMOEMP   
-                attrit_order 3}
-            { a CMO_HEALTHCARE       
-                gtype        ORG 
-                assignable   1 
-                stype        CMOMED   
-                attrit_order 7}
-            { a CMO_INDUSTRY         
-                gtype        ORG 
-                assignable   1 
-                stype        CMOIND   
-                attrit_order 4}
-            { a CMO_INFRASTRUCTURE   
-                gtype        ORG 
-                assignable   1 
-                stype        CMOINF   
-                attrit_order 5}
-            { a CMO_OTHER            
-                gtype        ORG 
-                assignable   1 
-                stype        CMOOTHER 
-                attrit_order 6}
+            { a NONE      gtype ORG assignable 0 }
+            { a CONSTRUCT gtype ORG assignable 1 }
+            { a EDU       gtype ORG assignable 1 }
+            { a EMPLOY    gtype ORG assignable 1 }
+            { a INDUSTRY  gtype ORG assignable 1 }
+            { a INFRA     gtype ORG assignable 1 }
+            { a MEDICAL   gtype ORG assignable 1 }
+            { a RELIEF    gtype ORG assignable 1 }
         }
     }
 

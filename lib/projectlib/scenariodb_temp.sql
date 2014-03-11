@@ -56,12 +56,6 @@ CREATE TEMPORARY TABLE activity_gtype (
     -- Assignable: 1 or 0
     assignable   INTEGER DEFAULT 0,
 
-    -- Situation Type Name, or ''
-    stype        TEXT DEFAULT '',
-
-    -- Attrition Order: 0 is first, N is last
-    attrit_order INTEGER DEFAULT 0,
-
     PRIMARY KEY (a, gtype)
 );
 

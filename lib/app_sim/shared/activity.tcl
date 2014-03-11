@@ -201,7 +201,6 @@ snit::type activity {
         set gtype [group gtype $g]
 
         switch -exact -- $gtype {
-            CIV     { set names [activity civ names] }
             FRC     { set names [activity frc names] }
             ORG     { set names [activity org names] }
             default { error "Unexpected gtype: \"$gtype\""   }
