@@ -11,6 +11,15 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 5.1.1, 12 March 2014</h3>
+This build fixes a bug found by SoSACorp while running Athena in the cloud.
+Essentially, in batch mode, Athena should not try to initialize the prefsdir
+since it is only needed when there is a GUI present.<p>
+
+<ul>
+<li> Bug 4430: athena(1): Failure creating prefsdir
+</ul><p>
+
 <h3>Build 5.1.0, 9 September 2013</h3>
 This build is the Athena 5 release candidate. It is identical to Athena 
 5.0.16 except for the version number and these build notes.<p>
