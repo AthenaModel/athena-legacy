@@ -121,16 +121,17 @@ snit::type ::projectlib::prefs {
 
     typemethod set {parm value} {
         $ps set $parm $value
-        $ps save [prefsdir join $prefsFile]
+        $type SavePrefs
     }
     
     # prefs reset
     #
-    # Resets all parameters to their defaults, and saves the result.
+    # Resets all parameters to their defaults, and saves the result
+    # (if the prefsdir is initialized)
     
     typemethod reset {} {
         $ps reset
-        $ps save [prefsdir join $prefsFile]
+        $type SavePrefs
     }
 
     # list ?pattern?
@@ -157,6 +158,16 @@ snit::type ::projectlib::prefs {
     typemethod load {} {
         if {[file exists [prefsdir join $prefsFile]]} {
             $ps load [prefsdir join $prefsFile] -safe
+        }
+    }
+
+    # SavePrefs
+    #
+    # Saves the preferences, only if the prefsdir is initialized.
+
+    typemethod SavePrefs {} {
+        if {[prefsdir initialized]} {
+            $ps save [prefsdir join $prefsFile]
         }
     }
 }
