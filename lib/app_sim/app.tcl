@@ -180,14 +180,16 @@ snit::type app {
         }
 
         # NEXT, create the preferences directory.
-        if {[catch {prefsdir init} result]} {
-            app exit {
-                |<--
-                Error, could not create preferences directory: 
+        if {!$opts(-batch) && !$opts(-ignoreuser)} {
+            if {[catch {prefsdir init} result]} {
+                app exit {
+                    |<--
+                    Error, could not create preferences directory: 
 
-                    [prefsdir join]
+                        [prefsdir join]
 
-                Reason: $result
+                    Reason: $result
+                }
             }
         }
 
@@ -202,7 +204,7 @@ snit::type app {
         # NEXT, initialize and load the user preferences
         prefs init
         
-        if {!$opts(-ignoreuser)} {
+        if {!$opts(-ignoreuser) && !$opts(-batch)} {
             prefs load
         }
 

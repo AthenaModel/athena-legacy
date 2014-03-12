@@ -27,7 +27,13 @@ This module defines the following commands:<p>
 <<defitem "prefsdir init" {prefsdir init}>>
 
 Initializes prefsdir(n).  In particular, it determines and saves the
-full path to the preferences directory, and returns the full path to it.<p>
+full path to the preferences directory, and returns the full path to it;
+in addition, it creates the directory itself.<p>
+
+<<defitem "prefsdir initialized" {prefsdir initialized}>>
+
+Returns 1 if the preferences directory has been successfully initialized,
+and false otherwise.<p>
 
 <<defitem "prefsdir join" {prefsdir join ?<i>arg arg...</i>?}>>
 
@@ -40,6 +46,9 @@ following command returns the absolute path of a file called
 <pre>
 set prefsFil [prefsdir join prefs.dat]
 </pre>
+
+Note that this command always succeeds, even if the preferences directory
+could not be successfully created.<p> 
 
 <</deflist commands>>
 

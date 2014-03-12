@@ -53,13 +53,21 @@ snit::type ::projectlib::prefsdir {
         return [os prefsdir]
     }
 
+    # initialized
+    #
+    # Returns 1 if the preferences dir has been initialized, and 0 
+    # otherwise.
+
+    typemethod initialized {} {
+        return $initialized
+    }
+
     # join args
     #
     # Called with no arguments, returns the working directory.  
     # Any arguments are joined to the working directory using [file join].
 
     typemethod join {args} {
-        require {$initialized} "prefsdir(n): Not initialized"
         file join [os prefsdir] {*}$args
     }
 }
