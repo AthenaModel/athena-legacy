@@ -11,6 +11,31 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 7.0.1, 13 March 2014</h3>
+This build consists mainly of bug fixes found on the Athena 6 branch that
+need to be folded into the trunk.  There is also the introduction of a new
+map projection that converts pixel location to lat/long and MGRS. A sample 
+map is included with this build to test this functionality.<p>
+
+<ul>
+<li> Bug 4409: Repair level of zero plants decreases
+<li> Bug 4416: athena(1): geo-referenced maps
+<li> Bug 4401: plants(a,n) always returns 0
+<li> Bug 4410: unemployment rate executive functions take simple averages
+<li> Bug 4411: SYSTEM should be a valid entry for some executive functions
+<li> Bug 4423: athena(1): Need to implement gofer::NUMBER 'EXPR' rule
+<li> Bug 4425: athena(1): Need to implement gofer::NUMBER 'INCOME*' rules & executive functions
+<li> Bug 4162: Sometimes copying text on the Detail browser causes error
+<li> Bug 4406: View dropdown menu contains Detail twice
+<li> Bug 4407: PMESII-PT glossary help page
+<li> Bug 4408: athena(1): Remove Athena Attrition Model
+<li> Bug 4413: User License Agreement on Installer needs to be updated
+<li> Bug 4418: helpserver(n): Load helpdb with -readonly yes
+<li> Bug 4426: athena(1): Failure creating prefsdir
+<li> Bug 4427: athena(1): Remove activity shifts
+<li> Bug 4429: athena(1): Rename group activities/rule sets 
+</ul><p>
+
 <h3>Build 6.0.12, 24 February 2014</h3>
 This build contains mainly a whole slew of new gofer(n) number types for
 use by analysts in the new Mark II Strategy scheme.  There are also a few
