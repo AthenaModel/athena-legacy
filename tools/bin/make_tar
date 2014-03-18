@@ -78,6 +78,8 @@ set patterns(install) {
     mars/docs/dev/*.pptx
     mars/docs/dev/*.txt
     mars/docs/dev/*.odt
+    maps/*.png
+    maps/*.tif
     mods/*
 }
 

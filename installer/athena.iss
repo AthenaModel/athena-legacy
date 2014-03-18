@@ -52,6 +52,7 @@ Source: "..\mars\docs\dev\*.docx"; DestDir: "{app}\mars\docs\dev"; Flags: ignore
 Source: "..\mars\docs\dev\*.pptx"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\mars\docs\dev\*.pdf"; DestDir: "{app}\mars\docs\dev"; Flags: ignoreversion skipifsourcedoesntexist
 Source: "..\maps\*.png"; DestDir: "{app}\maps"; Flags: ignoreversion 
+Source: "..\maps\*.tif"; DestDir: "{app}\maps"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Dirs]
