@@ -23,6 +23,8 @@ package require sqlite3
 package require uri
 package require fileutil
 package require platform
+package require http
+package require tls
 package require marsutil
 package require simlib
 
@@ -70,4 +72,7 @@ source [file join $::projectlib::library oohelpers.tcl   ]
 source [file join $::projectlib::library beanclass.tcl   ]
 source [file join $::projectlib::library bean.tcl        ]
 source [file join $::projectlib::library clipboardx.tcl  ]
+source [file join $::projectlib::library httpagent.tcl   ]
+source [file join $::projectlib::library wmsclient.tcl   ]
+
 

@@ -142,7 +142,8 @@ bin: check_env src
 		-pkgref "uri"                               \
 		-pkgref "fileutil"                          \
 		-pkgref "ctext"                             \
-		-pkgref "TclOO"
+		-pkgref "TclOO"                             \
+		-pkgref "tls"
 	@ cat tclapp.log
 
 #---------------------------------------------------------------------
