@@ -230,67 +230,72 @@ snit::type ::projectlib::httpagent {
     # web server (or when the request fails).
 
     method GetResponse {token} {
-        # FIRST, we handle connection errors.
-        switch -exact -- [http::status $token] {
-            ok { 
-                # If it's a 300 error, redirect (if possible).
-                set ncode [http::ncode $token]
+        # WARNING: http(n) will silently swallow any errors that occur
+        # in this routine.  Consequently, wrap them in bgcatch.
+        bgcatch {
+            # FIRST, we handle connection errors.
+            switch -exact -- [http::status $token] {
+                ok { 
+                    # If it's a 300 error, redirect (if possible).
+                    set ncode [http::ncode $token]
 
-                if {$ncode >= 300 && $ncode < 400} {
-                    set newurl [$self meta Location]
+                    if {$ncode >= 300 && $ncode < 400} {
+                        set newurl [$self meta Location]
 
-                    if {$newurl ne ""} {
-                        # TBD: Need to copy query?
-                        $self get $newurl
-                        return
+                        if {$newurl ne ""} {
+                            # TBD: Need to copy query?
+                            $self get $newurl
+                            return
+                        }
                     }
                 }
-            }
 
-            reset {
-                # Ignore; the request was reset by the user.
-                return 
-            }
+                reset {
+                    # Ignore; the request was reset by the user.
+                    return 
+                }
 
-            timeout {
+                timeout {
+                    set info(state)  ERROR
+                    set info(status) "Error connecting to server"
+                    set info(error)  "Server timed out"
+                    http::cleanup $info(token)
+                    set info(token)  ""
+
+                    callwith $info(callback)
+                    return
+                }
+
+                error {
+                    set info(state)  ERROR
+                    set info(status) "Error connecting to server"
+                    set info(error)  [http::error $token]
+                    
+                    callwith $info(callback)
+                    return
+                }
+            }
+        
+            # NEXT, The request returned an HTTP status.  Handle all of the
+            # cases.
+            #
+            # TBD: Should probably handle redirection.
+
+            if {[http::ncode $token] != 200} {
+                # Unsuccessful HTTP code?
                 set info(state)  ERROR
-                set info(status) "Error connecting to server"
-                set info(error)  "Server timed out"
-                http::cleanup $info(token)
-                set info(token)  ""
-
-                callwith $info(callback)
-                return
+                set info(status) "Could not retrieve data"
+                set info(error)  [http::code $token]
+            } else {
+                # Success!
+                set info(state)  OK
+                set info(status) "Success"
+                set info(error)  ""
             }
 
-            error {
-                set info(state)  ERROR
-                set info(status) "Error connecting to server"
-                set info(error)  [http::error $token]
-                
-                callwith $info(callback)
-                return
-            }
-        }
-    
-        # NEXT, The request returned an HTTP status.  Handle all of the
-        # cases.
-        #
-        # TBD: Should probably handle redirection.
+            callwith $info(callback)
 
-        if {[http::ncode $token] != 200} {
-            # Unsuccessful HTTP code?
-            set info(state)  ERROR
-            set info(status) "Could not retrieve data"
-            set info(error)  [http::code $token]
-        } else {
-            # Success!
-            set info(state)  OK
-            set info(status) "Success"
-            set info(error)  ""
         }
-
-        callwith $info(callback)
     }
 
     # url
