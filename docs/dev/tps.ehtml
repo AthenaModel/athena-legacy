@@ -26,7 +26,7 @@ The following software is required during development, but not during
 operations:
 
 <ul>
-  <li> ActiveTcl 8.5.14 (Community Edition), from ActiveState.com.
+  <li> ActiveTcl 8.6.1 (Community Edition), from ActiveState.com.
 
   <li> <a href="http://activestate.com/Products/Tcl_Dev_Kit/?mp=1">
        Tcl Dev Kit 4.1</a> (or later).
