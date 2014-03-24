@@ -59,7 +59,7 @@ HAL  2000
         setup
     } -body {
         personnel start
-        ted query {SELECT * FROM deploy_ng}
+        ted query {SELECT * FROM deploy_ng ORDER BY n, g}
     } -cleanup {
         cleanup
     } -result {
@@ -97,7 +97,7 @@ HAL  2000      2000
         personnel start
     } -body {
         personnel load
-        ted query {SELECT * FROM working_deployment}
+        ted query {SELECT * FROM working_deployment ORDER BY n,g}
     } -cleanup {
         cleanup
     } -result {
@@ -150,7 +150,7 @@ HAL  2000      2000
         personnel load
     } -body {
         personnel deploy 1 NB1 BLUE 1000
-        ted query {SELECT * FROM working_deployment}
+        ted query {SELECT * FROM working_deployment ORDER BY n,g}
     } -cleanup {
         cleanup
     } -result {
@@ -171,7 +171,7 @@ NB2 HAL  0         0
     } -body {
         personnel deploy 1 NB1 BLUE 1000
         personnel deploy 2 NB1 BLUE 500
-        ted query {SELECT * FROM working_deployment}
+        ted query {SELECT * FROM working_deployment ORDER BY n,g}
     } -cleanup {
         cleanup
     } -result {

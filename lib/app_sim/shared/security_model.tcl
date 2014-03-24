@@ -231,7 +231,7 @@ snit::type security_model {
             FROM units AS U 
             JOIN frcgroups_view AS G USING (g)
             WHERE U.personnel > 0
-            GROUP BY n, g, a
+            GROUP BY n, g, U.a
         } {
             set D [parmdb get force.demeanor.$demeanor]
             set E [parmdb get force.forcetype.$forcetype]

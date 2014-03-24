@@ -508,7 +508,7 @@ oo::objdefine ::projectlib::bean {
         # NEXT, restore the checkpoint
         set restoring 1
 
-        ::marsutil::try {
+        try {
             set idCounter [dict get $checkpoint idCounter]
 
             if {$rdb eq ""} {
@@ -558,7 +558,7 @@ oo::objdefine ::projectlib::bean {
         set deletions [dict create]
         set deleting 1
 
-        marsutil::try {
+        try {
             set bean [my get $id]
             $bean destroy
         } finally {
@@ -581,7 +581,7 @@ oo::objdefine ::projectlib::bean {
     method undelete {deleteSet} {
         set restoring 1
 
-        marsutil::try {
+        try {
             dict for {id blist} $deleteSet {
                 my Deserialize $id $blist
             }

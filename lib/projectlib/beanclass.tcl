@@ -131,7 +131,7 @@ oo::class create ::projectlib::beanclass {
 
         set tail [namespace tail [self]]
 
-        ::marsutil::throw INVALID \
+        throw INVALID \
             "Invalid $tail ID: \"$id\""
     }
 

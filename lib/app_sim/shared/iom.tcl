@@ -228,7 +228,7 @@ snit::type iom {
             FROM ioms AS I
             LEFT OUTER JOIN payloads AS P 
             ON P.iom_id = I.iom_id AND P.state = 'normal'
-            GROUP BY iom_id
+            GROUP BY I.iom_id
         } {
             if {$num == 0} {
                 dict lappend edict $iom_id "IOM has no valid payloads."

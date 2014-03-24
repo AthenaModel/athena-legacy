@@ -130,20 +130,21 @@ bin: check_env src
 		-force                                      \
 		-pkgref "comm"                              \
 		-pkgref "Img       -require 1.4"            \
-	        -pkgref "snit      -require 2.3"            \
-	        -pkgref "BWidget   -require 1.9"            \
-                -pkgref "Tktable"                           \
+	    -pkgref "snit      -require 2.3"            \
+	    -pkgref "BWidget   -require 1.9"            \
+        -pkgref "Tktable"                           \
 		-pkgref "treectrl"                          \
-		-pkgref "sqlite3   -require 3.6.23"         \
-		-pkgref "tablelist -require 5.10"           \
+		-pkgref "sqlite3   -require 3.8.3"          \
+		-pkgref "tablelist -require 5.11"           \
 		-pkgref "textutil::expander"                \
 		-pkgref "textutil::adjust"                  \
 		-pkgref "Tkhtml    -require 3.0"            \
 		-pkgref "uri"                               \
 		-pkgref "fileutil"                          \
-		-pkgref "ctext"                             \
+		-pkgref "ctext     -require 3.3"            \
 		-pkgref "TclOO"                             \
-		-pkgref "tls"
+		-pkgref "tls"                               \
+		-pkgref "tdom"
 	@ cat tclapp.log
 
 #---------------------------------------------------------------------

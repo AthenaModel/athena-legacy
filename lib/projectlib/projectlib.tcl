@@ -19,15 +19,15 @@ package require snit
 # Internal Package Dependencies
 
 package require TclOO
-package require sqlite3
-package require uri
+package require sqlite3 3.8
+package require uri 1.2.4
 package require fileutil
 package require platform
 package require http
 package require tls
+package require tdom
 package require marsutil
 package require simlib
-package require tdom
 
 #-----------------------------------------------------------------------
 # Package Definition

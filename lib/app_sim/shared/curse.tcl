@@ -339,7 +339,7 @@ snit::type curse {
             FROM curses AS C
             LEFT OUTER JOIN curse_injects AS I 
             ON I.curse_id = C.curse_id AND I.state = 'normal'
-            GROUP BY curse_id
+            GROUP BY C.curse_id
         } {
             if {$num == 0} {
                 dict lappend edict $curse_id "CURSE has no valid injects."

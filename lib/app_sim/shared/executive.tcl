@@ -132,7 +132,7 @@ snit::type executive {
             }
 
             # NEXT, try to load it from disk.
-            if {[file extension $script] eq ""} {
+            if {[extension $script] eq ""} {
                 append script ".tcl"
             }
 
@@ -364,6 +364,10 @@ snit::type executive {
         # export
         $interp smartalias export 1 2 {?-history? scriptFile} \
             [myproc export]
+
+        # extension
+        $interp smartalias extension 1 1 {name} \
+            [list ::file extension]
 
         # gofer
         $interp smartalias gofer 1 - {typeOrGdict ?rulename? ?args...?} \

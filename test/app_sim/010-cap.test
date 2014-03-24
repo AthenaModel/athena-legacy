@@ -842,18 +842,18 @@ CNN BOB   KURD NB2 1.0
     test capcov-1.1 {with overrides} -setup {
         ted create CBS CNN
     } -body {
-        ted query {SELECT * FROM capcov}
+        ted query {SELECT * FROM capcov ORDER BY k, g, n}
     } -cleanup {
         cleanup
     } -result {
 k   g    n   owner capacity nbcov pen capcov 
 --- ---- --- ----- -------- ----- --- ------ 
-CBS SHIA NB1 JOE   0.8      1.0   1.0 0.8    
-CNN SHIA NB1 BOB   0.9      1.0   0.0 0.0    
-CBS SUNN NB1 JOE   0.8      1.0   0.0 0.0    
-CNN SUNN NB1 BOB   0.9      1.0   1.0 0.9    
 CBS KURD NB2 JOE   0.8      0.0   0.0 0.0    
+CBS SHIA NB1 JOE   0.8      1.0   1.0 0.8    
+CBS SUNN NB1 JOE   0.8      1.0   0.0 0.0    
 CNN KURD NB2 BOB   0.9      1.0   1.0 0.9    
+CNN SHIA NB1 BOB   0.9      1.0   0.0 0.0    
+CNN SUNN NB1 BOB   0.9      1.0   1.0 0.9    
     }
 
     #-------------------------------------------------------------------
