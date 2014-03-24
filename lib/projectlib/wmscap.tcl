@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    wmscapabilities.tcl
+#    wmscap.tcl
 #
 # AUTHOR:
 #    Dave Hanks
@@ -15,30 +15,33 @@
 #
 #    Version -> The version of the WMS 
 #    Service => dictionary of service metadata
-#      Title      -> string, short description of the service
-#      Abstract   -> string, long description of the service
-#      MaxWidth   -> integer, the maximum width in pixels
-#      MaxHeight  -> integer, the maximum height in pixels
-#      LayerLimit -> integer, the maximum number of requestable layers
+#            -> Title => string, short description of the service
+#            -> Abstract => string, long description of the service
+#            -> MaxWidth => integer, the maximum width in pixels
+#            -> MaxHeight => integer, the maximum height in pixels
+#            -> LayerLimit => integer, the maximum number of requestable layers
 #    Layer => dictionary of layer metadata available
-#      Name  -> string, the name of the layer to be included in map requests
-#      Title -> string, human readable name of the layer for display
+#            -> Name => string, the name of the layer to be included in
+#               map requests
+#            -> Title => string, human readable name of the layer for
+#                        display
 #    Request => dictionary of capabilities that can be requested
-#      $request => dictionary of metadata for the capability defined
-#        Format -> list of strings, the formats available for the type 
-#                  of capability
-#        Xref   -> string, base URL of capability
+#            -> $request => dictionary of metadata for the capability 
+#                           defined
+#                        -> Format => list of strings, the formats available 
+#                                     for the type of capability
+#                        -> Xref => string, base URL of capability
 #
 #-----------------------------------------------------------------------
 
 namespace eval ::projectlib:: {
-    namespace export wmscapabilities
+    namespace export wmscap
 }
 
 #-----------------------------------------------------------------------
 # wscap
 
-snit::type ::projectlib::wmscapabilities {
+snit::type ::projectlib::wmscap {
     #-------------------------------------------------------------------
     # Type Constructor
     typeconstructor {
