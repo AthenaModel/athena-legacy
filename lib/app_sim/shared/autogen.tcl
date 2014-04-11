@@ -1108,11 +1108,16 @@ snit::type autogen {
             foreach a $opts(-actors) {
                 set block [autogen AddBlock $a onlock YES]
 
-                set frcgroups \
-                    [rdb eval {SELECT g FROM frcgroups WHERE a=$a}]
-                set orggroups \
-                    [rdb eval {SELECT g FROM orggroups WHERE a=$a}]
+                set frcgroups [rdb eval {
+                    SELECT g FROM groups 
+                    WHERE gtype='FRC' AND a=$a
+                }]
 
+                set orggroups [rdb eval {
+                    SELECT g FROM groups 
+                    WHERE gtype='ORG' AND a=$a
+                }]
+                
                 if {$opts(-frcgroups) ne "ALL"} {
                     set frcgroups $opts(-frcgroups)
                 }
@@ -1171,7 +1176,9 @@ snit::type autogen {
         set a [$b agent]
 
         # NEXT, see if this actor owns any groups of this group type
-        set ownedgroups [rdb eval "SELECT g FROM $gtable WHERE a=\$a"]
+        set ownedgroups [rdb eval {
+            SELECT g FROM groups WHERE gtype=$gtype AND a=$a
+        }]
 
         # NEXT, no groups, get out
         if {[llength $groups] == 0} {
