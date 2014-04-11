@@ -33,7 +33,7 @@ snit::widgetadaptor frcgroupbrowser {
     typevariable layout {
         { g                "\nID"                               }
         { longname         "\nLong Name"                        }
-        { a                "\nOwner"                            }
+        { owner            "\nOwner"                            }
         { color            "\nColor"                            }
         { shape            "Unit\nShape"                        }
         { forcetype        "Force\nType"                        }

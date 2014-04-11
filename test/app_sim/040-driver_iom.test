@@ -55,21 +55,29 @@ namespace eval ::athena_test::tests:: {
         # NEXT, create the entities
         ted create JOE BOB NB1 SHIA SUNN BLUE IOM1 HOOK1 CBS PBS
 
-        # NEXT, define belief systems
-        ted order BSYSTEM:TOPIC:CREATE \
-            tid TOPIC1 title "Topic 1" affinity no
-        ted order BSYSTEM:BELIEF:UPDATE \
-            id {JOE TOPIC1} position 0.6 emphasis 0.5
-        ted order BSYSTEM:BELIEF:UPDATE \
-            id {BOB TOPIC1} position -0.6 emphasis 0.5
-        ted order BSYSTEM:BELIEF:UPDATE \
-            id {SHIA TOPIC1} position 0.6 emphasis 0.35
-        ted order BSYSTEM:BELIEF:UPDATE \
-            id {SUNN TOPIC1} position -0.6 emphasis 0.35
 
-        # NEXT, associate HOOK1 with TOPIC1
+        # NEXT, define belief systems
+        set sid(JOE)  [ted order BSYS:SYSTEM:ADD]
+        set sid(BOB)  [ted order BSYS:SYSTEM:ADD]
+        set sid(SHIA) [ted order BSYS:SYSTEM:ADD]
+        set sid(SUNN) [ted order BSYS:SYSTEM:ADD]
+
+        set tid(T1) [ted order BSYS:TOPIC:ADD]
+        ted order BSYS:TOPIC:UPDATE \
+            tid $tid(T1) name "Topic 1" affinity no
+
+        ted order BSYS:BELIEF:UPDATE \
+            bid [list $sid(JOE) $tid(T1)] position 0.6 emphasis 0.5
+        ted order BSYS:BELIEF:UPDATE \
+            bid [list $sid(BOB) $tid(T1)] position -0.6 emphasis 0.5
+        ted order BSYS:BELIEF:UPDATE \
+            bid [list $sid(SHIA) $tid(T1)] position 0.6 emphasis 0.35
+        ted order BSYS:BELIEF:UPDATE \
+            bid [list $sid(SUNN) $tid(T1)] position -0.6 emphasis 0.35
+
+        # NEXT, associate HOOK1 with $tid(T1)
         ted order HOOK:TOPIC:CREATE hook_id HOOK1 \
-            topic_id TOPIC1 position 0.6
+            topic_id $tid(T1) position 0.6
 
         # NEXT, add payloads to IOM1
         ted order PAYLOAD:COOP:CREATE iom_id IOM1 g BLUE mag S+

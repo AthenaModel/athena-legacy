@@ -57,12 +57,6 @@ snit::type scenario {
         hrel_fg
         ioms
         mads
-        mam_affinity
-        mam_belief
-        mam_entity
-        mam_playbox
-        mam_topic
-        mam_undo
         maps
         nbhoods
         nbrel_mn
@@ -166,10 +160,6 @@ snit::type scenario {
         rdb monitor add ioms          {iom_id}
         rdb monitor add mads          {mad_id}
         rdb monitor add magic_attrit  {id}
-        rdb monitor add mam_playbox   {pid}
-        rdb monitor add mam_belief    {eid tid}
-        rdb monitor add mam_entity    {eid}
-        rdb monitor add mam_topic     {tid}
         rdb monitor add nbhoods       {n}
         rdb monitor add nbrel_mn      {m n}
         rdb monitor add orggroups     {g}
@@ -592,6 +582,9 @@ snit::type scenario {
             map load [file join $::app_sim::library blank.png]
         }
 
+        # NEXT, create the neutral belief system.
+        bsys clear
+
         # NEXT, Reset the model parameters to their defaults, and
         # mark them saved.
         parm reset
@@ -621,6 +614,8 @@ snit::type scenario {
         rdb function firing_narrative     [myproc FiringNarrative]
         rdb function elink                [myproc EntityLink]
         rdb function yesno                [myproc YesNo]
+        rdb function bsysname             ::bsys::bsysname
+        rdb function affinity             ::bsys::affinity
 
         # NEXT, define the GUI Views
         RdbEvalFile gui_scenario.sql       ;# Scenario Entities
@@ -731,7 +726,7 @@ snit::type scenario {
         }
     }
 
- 
+
     #-------------------------------------------------------------------
     # Registration of saveable objects
 

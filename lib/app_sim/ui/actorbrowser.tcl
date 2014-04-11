@@ -33,6 +33,7 @@ snit::widgetadaptor actorbrowser {
     typevariable layout {
         { a                "\nID"                                      }
         { longname         "\nLong Name"                               }
+        { bsysname         "\nBelief System"                           }
         { supports         "\nSupports"                                }
         { atype            "Funding\nType"                             }
         { pretty_am_flag   "Auto-maintain\nInfrastructure?"            }

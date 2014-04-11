@@ -45,6 +45,9 @@ CREATE TABLE actors (
     -- Full actor name
     longname      TEXT,
 
+    -- Belief system ID
+    bsid          INTEGER DEFAULT 1,
+
     -- Supports actor (actor name or NULL)
     supports      TEXT REFERENCES actors(a)
                   ON DELETE SET NULL
@@ -116,6 +119,7 @@ CREATE VIEW actors_view AS
 SELECT a, 
        longname,
        supports,
+       bsid,
        atype,
        auto_maintain,
        cash_reserve,
@@ -228,14 +232,27 @@ CREATE TABLE groups (
     -- Maintenance Cost, in $/person/week (FRC/ORG groups only)
     cost        DOUBLE DEFAULT 0,
 
-    -- Relationship Entity
-    rel_entity  TEXT REFERENCES mam_entity(eid)
-                ON DELETE SET NULL 
-                DEFERRABLE INITIALLY DEFERRED,
-
     -- Group type, CIV, FRC, ORG
-    gtype       TEXT
+    gtype       TEXT,
+
+    -- Owning Actor (FRC and ORG groups only, NULL otherwise)
+    a           TEXT REFERENCES actors(a)
+                ON DELETE SET NULL
+                DEFERRABLE INITIALLY DEFERRED, 
+
+    -- Belief system ID, or (for FRC and ORG groups only) NULL
+    bsid        INTEGER
 );
+
+-- groups BSID View: pulls in owner's bsid where needed.
+CREATE VIEW groups_bsid_view AS
+SELECT G.g                           AS g,
+       G.gtype                       AS gtype,
+       G.a                           AS a,
+       coalesce(G.bsid, A.bsid, 1)   AS bsid
+FROM groups AS G
+LEFT OUTER JOIN actors AS A USING (a);
+
 
 -- Civ Groups
 CREATE TABLE civgroups (
@@ -277,13 +294,13 @@ CREATE TABLE civgroups (
 CREATE VIEW civgroups_view AS
 SELECT g, 
        longname,
+       bsid,
        color,
        shape,
        symbol,
        demeanor,
        basepop,
        pop_cr,
-       rel_entity,
        gtype,
        n,
        sa_flag,
@@ -311,11 +328,6 @@ CREATE TABLE frcgroups (
     -- Symbolic group name
     g              TEXT PRIMARY KEY,
 
-    -- Owning Actor
-    a              TEXT REFERENCES actors(a)
-                   ON DELETE SET NULL
-                   DEFERRABLE INITIALLY DEFERRED, 
-
     -- Force Type
     forcetype      TEXT,
 
@@ -338,11 +350,6 @@ SELECT * FROM groups JOIN frcgroups USING (g);
 CREATE TABLE orggroups (
     -- Symbolic group name
     g                TEXT PRIMARY KEY,
-
-    -- Owning Actor
-    a                TEXT REFERENCES actors(a)
-                     ON DELETE SET NULL
-                     DEFERRABLE INITIALLY DEFERRED, 
 
     -- Organization type: eorgtype
     orgtype          TEXT DEFAULT 'NGO',

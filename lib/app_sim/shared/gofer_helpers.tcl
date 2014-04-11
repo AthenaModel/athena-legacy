@@ -96,7 +96,7 @@ snit::type ::gofer::anyall_alist {
                 SELECT g, count(support) AS num
                 FROM groups
                 JOIN support_nga USING (g)
-                WHERE a IN ('[join $alist {','}]') 
+                WHERE support_nga.a IN ('[join $alist {','}]') 
                 AND support > 0
                 $gtypeClause
                 GROUP BY g 
@@ -133,7 +133,7 @@ snit::type ::gofer::anyall_alist {
                 SELECT g, count(vrel) AS num
                 FROM groups
                 JOIN uram_vrel USING (g)
-                WHERE a IN ('[join $alist {','}]') 
+                WHERE uram_vrel.a IN ('[join $alist {','}]') 
                 AND vrel >= 0.2
                 $gtypeClause
                 GROUP BY g 
@@ -170,7 +170,7 @@ snit::type ::gofer::anyall_alist {
                 SELECT g, count(vrel) AS num
                 FROM groups
                 JOIN uram_vrel USING (g)
-                WHERE a IN ('[join $alist {','}]') 
+                WHERE uram_vrel.a IN ('[join $alist {','}]') 
                 AND vrel <= -0.2
                 $gtypeClause
                 GROUP BY g 

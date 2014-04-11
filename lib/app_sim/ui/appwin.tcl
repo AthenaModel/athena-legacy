@@ -262,11 +262,11 @@ snit::widget appwin {
             script  "" 
         }
 
-        bsystem {
+        bsys {
             label   "Beliefs"
             vistype *
             parent  social
-            script  { bsystembrowser %W }
+            script  { bsysbrowser %W }
         }
 
         civgroups {

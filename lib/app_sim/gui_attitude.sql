@@ -18,37 +18,6 @@
 ------------------------------------------------------------------------
 
 ------------------------------------------------------------------------
--- BELIEF SYSTEM VIEWS 
-
--- gui_mam_topic: All MAM topics
-CREATE TEMPORARY VIEW gui_mam_topic AS
-SELECT tid                                            AS id,
-       tid                                            AS tid,
-       title                                          AS title,
-       CASE relevance WHEN 1 THEN 'YES' ELSE 'NO' END AS relevance
-FROM mam_topic;
-
-
--- gui_mam_belief: All MAM beliefs
-CREATE TEMPORARY VIEW gui_mam_belief AS
-SELECT eid || ' ' || tid                AS id,
-       eid                              AS eid,
-       tid                              AS tid,
-       qposition('name',position)       AS position,
-       qemphasis('name',emphasis)       AS emphasis
-FROM mam_belief;
-
-
--- gui_mam_acompare: A view that shows A.fg and A.gf in parallel.
-CREATE TEMPORARY VIEW gui_mam_acompare AS
-SELECT id,
-       f,
-       g,
-       format("%4.1f", afg) AS afg,
-       format("%4.1f", agf) AS agf
-FROM mam_acompare_view;
-
-------------------------------------------------------------------------
 -- COOPERATION VIEWS
 
 -- gui_coop_view: A view used for editing baseline cooperation levels
@@ -113,25 +82,40 @@ FROM uram_nbcoop;
 ------------------------------------------------------------------------
 -- HORIZONTAL RELATIONSHIP VIEWS 
 
+-- gui_hrel_base_view:  A view that puts hrel_base_view together with
+-- the mam2(n)-based affinity values to get the base H.fg values for
+-- this scenario.  It is used only as a part of the definition
+-- of gui_hrel_view, which looks the way it did with the original 
+-- mam(n) implementation.
+CREATE TEMPORARY VIEW gui_hrel_base_view AS
+SELECT f                                         AS f,
+       ftype                                     AS ftype,
+       g                                         AS g,
+       gtype                                     AS gtype,
+       coalesce(nat,  affinity(fbsid, gbsid))    AS nat,
+       coalesce(base, affinity(fbsid, gbsid))    AS base,
+       hist_flag                                 AS hist_flag,
+       coalesce(current, affinity(fbsid, gbsid)) AS current,
+       override                                  AS override
+FROM hrel_base_view;
+
 -- gui_hrel_view: A view used for editing baseline horizontal 
 -- relationship levels in Scenario Mode.
 CREATE TEMPORARY VIEW gui_hrel_view AS
 SELECT HV.f || ' ' || HV.g                           AS id,
        HV.f                                          AS f,
-       F.gtype                                       AS ftype,
+       HV.ftype                                      AS ftype,
        HV.g                                          AS g,
-       G.gtype                                       AS gtype,
+       HV.gtype                                      AS gtype,
        format('%+4.1f', HV.base)                     AS base,
        HV.hist_flag                                  AS hist_flag,
        format('%+4.1f', HV.current)                  AS current,
        format('%+4.1f', HV.nat)                      AS nat,
        CASE WHEN override THEN 'Y' ELSE 'N' END      AS override
-FROM hrel_view AS HV
-JOIN groups AS F ON (F.g = HV.f)
-JOIN groups AS G ON (G.g = HV.g)
-LEFT OUTER JOIN civgroups AS FC ON (F.g = FC.g)
-LEFT OUTER JOIN civgroups AS GC ON (G.g = GC.g)
-WHERE F.g != G.g
+FROM gui_hrel_base_view AS HV
+LEFT OUTER JOIN civgroups AS FC ON (HV.f = FC.g)
+LEFT OUTER JOIN civgroups AS GC ON (HV.g = GC.g)
+WHERE HV.f != HV.g
 AND coalesce(FC.basepop, 1) > 0
 AND coalesce(GC.basepop, 1) > 0;
 
@@ -227,6 +211,24 @@ ORDER BY g,c;
 ------------------------------------------------------------------------
 -- VERTICAL RELATIONSHIPS VIEWS 
 
+-- gui_vrel_base_view: A view that puts vrel_base_view together with the
+-- mam2(n)-based affinity values to get the base G.fa values for this s
+-- scenario.
+
+CREATE TEMPORARY VIEW gui_vrel_base_view AS
+SELECT g                                           AS g,
+       gtype                                       AS gtype,
+       gbsid                                       AS gbsid,
+       owner                                       AS owner,
+       a                                           AS a,
+       absid                                       AS absid,
+       coalesce(nat, affinity(gbsid,absid))        AS nat,
+       coalesce(base, affinity(gbsid,absid))       AS base,
+       hist_flag                                   AS hist_flag,
+       coalesce(current, affinity(gbsid,absid))    AS current,
+       override                                    AS override
+FROM vrel_base_view;
+
 -- gui_vrel_view: A view used for editing baseline vertical relationships
 -- in Scenario Mode.
 CREATE TEMPORARY VIEW gui_vrel_view AS
@@ -239,7 +241,7 @@ SELECT V.g || ' ' || V.a                            AS id,
        format('%+4.1f', V.current)                  AS current,
        format('%+4.1f', V.nat)                      AS nat,
        CASE WHEN V.override THEN 'Y' ELSE 'N' END   AS override
-FROM vrel_view AS V
+FROM gui_vrel_base_view AS V
 LEFT OUTER JOIN civgroups AS G USING (g)
 WHERE coalesce(G.basepop,1) > 0;
 

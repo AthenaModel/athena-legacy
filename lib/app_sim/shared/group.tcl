@@ -131,6 +131,18 @@ snit::type group {
         }]
     }
 
+    # bsid g
+    #
+    # g  - A group
+    #
+    # Returns the group's belief system ID.
+
+    typemethod bsid {g} {
+        return [rdb onecolumn {
+            SELECT bsid FROM groups_bsid_view WHERE g=$g
+        }]
+    }
+
 
     # maintPerPerson g
     #

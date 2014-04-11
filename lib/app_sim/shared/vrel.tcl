@@ -9,7 +9,7 @@
 #    athena_sim(1): Vertical Relationship Manager
 #
 #    By default, the initial baseline vertical group relationships (base)
-#    are computed from belief systems by the bsystem module, an
+#    are computed from belief systems by the bsys module, an
 #    instance of mam(n), with the exception that vrel.ga is always 1.0
 #    when g is a group owned by actor a. The analyst is allowed to override 
 #    any initial baseline relationship.  The natural relationship is always 
@@ -292,5 +292,6 @@ order define VREL:OVERRIDE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 

@@ -61,9 +61,11 @@ snit::type coverage_model {
 
         # NEXT, Add groups and activities for each neighborhood.
         rdb eval {
-            SELECT n, g, a
-            FROM nbhoods JOIN groups JOIN activity_gtype USING (gtype)
-            WHERE a != 'NONE'
+            SELECT n, g, A.a AS a
+            FROM nbhoods 
+            JOIN groups 
+            JOIN activity_gtype AS A USING (gtype)
+            WHERE A.a != 'NONE'
         } {
             rdb eval {
                 INSERT INTO activity_nga(n,g,a)

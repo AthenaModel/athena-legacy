@@ -186,7 +186,7 @@ snit::type sanity {
         }
 
         # NEXT, Require that each force group has an actor
-        set names [rdb eval {SELECT g FROM frcgroups WHERE a IS NULL}]
+        set names [rdb eval {SELECT g FROM frcgroups_view WHERE a IS NULL}]
 
         if {[llength $names] > 0} {
             set sev ERROR
@@ -201,7 +201,7 @@ snit::type sanity {
         }
 
         # NEXT, Require that each ORG group has an actor
-        set names [rdb eval {SELECT g FROM orggroups WHERE a IS NULL}]
+        set names [rdb eval {SELECT g FROM orggroups_view WHERE a IS NULL}]
 
         if {[llength $names] > 0} {
             set sev ERROR

@@ -142,13 +142,13 @@ CREATE TABLE hook_topics (
                ON DELETE CASCADE ON UPDATE CASCADE
                DEFERRABLE INITIALLY DEFERRED,
 
-    topic_id   TEXT,                   -- A topic of the semantic hook, 
-                                       -- this topic ID exists in the 
-                                       -- mam_topic table
+    topic_id   INTEGER,                -- A topic of the semantic hook, 
+                                       -- this topic ID exists in 
+                                       -- [bsys topic ids].
 
     topic_text TEXT,                   -- The text representation of 
                                        -- the topic as it exists in the
-                                       -- mam_topic table
+                                       -- mam2(n) data.
 
     narrative  TEXT,                   -- Narrative describing the position
                                        -- on the topic.
@@ -171,15 +171,6 @@ SELECT hook_id || ' ' || topic_id AS id,
        state                      AS state,
        position                   AS position
 FROM hook_topics;
-
--- View that combines the ids from the hooks table and from the 
--- mam_topic table that defines the universe of possible
--- hook id/topic id pairs 
-CREATE VIEW hook_topic_ids AS
-SELECT hook_id                   AS hook_id,
-       tid                       AS topic_id
-FROM hooks
-JOIN mam_topic;
 
 ------------------------------------------------------------------------
 -- INFO OPS MESSAGES (IOMS)

@@ -84,39 +84,44 @@ CREATE TABLE hrel_fg (
     PRIMARY KEY (f, g)
 );
 
--- This view computes the initial baseline horizontal relationship for 
--- each pair of groups.  The initial baseline, base, defaults to the
--- affinity between the groups' relationship entities, and can be
--- explicitly overridden in the hrel_fg table.  The natural level,
--- nat, is just the affinity.  Note that the the relationship of a
--- group with itself is forced to 1.0; and this cannot be overridden.
--- A group has a self-identity that it does not share with other
--- groups and that the affinity model does not take into account.
 
-CREATE VIEW hrel_view AS
-SELECT F.g                                         AS f,
-       G.g                                         AS g,
+-- This view determines the data that drives the initial baseline
+-- horizontal relationship for each pair of groups.  In particular,
+-- it determines the bsid for each group, and the base H.fg when it
+-- is known (i.e., when f=g or the base H.fg has been explicitly
+-- overridden by the user).  Note that the R.* columns will be 
+-- NULL unless the HREL is overridden.
+
+CREATE VIEW hrel_base_view AS
+SELECT F.g                                     AS f,
+       F.gtype                                 AS ftype,
+       F.bsid                                  AS fbsid,
+       G.g                                     AS g,
+       G.gtype                                 AS gtype,
+       G.bsid                                  AS gbsid,
        CASE WHEN F.g = G.g
             THEN 1.0
-            ELSE A.affinity END                    AS nat,
+            ELSE NULL END                      AS nat,
        CASE WHEN F.g = G.g
             THEN 1.0
-            ELSE coalesce(R.base, A.affinity) END  AS base,
+            ELSE R.base END                    AS base,
        CASE WHEN F.g = G.g
             THEN 0
-            ELSE coalesce(R.hist_flag, 0) END      AS hist_flag,
+            ELSE coalesce(R.hist_flag, 0) END  AS hist_flag,
        CASE WHEN F.g = G.g 
             THEN 1.0
             WHEN coalesce(R.hist_flag, 0)
             THEN R.current
-            ELSE coalesce(R.base, A.affinity) END  AS current,
+            ELSE R.base END                    AS current,
        CASE WHEN R.base IS NOT NULL 
             THEN 1
-            ELSE 0 END                             AS override
-FROM groups AS F
-JOIN groups AS G
-JOIN mam_affinity AS A ON (A.f = F.rel_entity AND A.g = G.rel_entity)
+            ELSE 0 END                         AS override
+FROM groups_bsid_view AS F 
+JOIN groups_bsid_view AS G
 LEFT OUTER JOIN hrel_fg AS R ON (R.f = F.g AND R.g = G.g);
+
+
+
 
 ------------------------------------------------------------------------
 -- SATISFACTION: INITIAL DATA
@@ -183,38 +188,40 @@ CREATE TABLE vrel_ga (
     PRIMARY KEY (g, a)
 );
 
--- This view computes the initial baseline vertical relationships for 
--- each group and actor.  The initial baseline, base, defaults to the 
--- affinity between the relationship entities, and can be explicitly 
--- overridden in the vrel_ga table.  The natural level, nat, is
--- just the affinity.  Note that the relationship of a group with
--- its owning actor defaults to 1.0.
+-- This view determines the data that drives the initial baseline 
+-- vertical relationships for each group and actor: the belief system
+-- IDs (bsids) and any overrides from vrel_ga.  Note that the 
+-- relationship of a group with its owning actor defaults to 1.0.
+-- The final word is in the temporary view gui_vrel_base_view,
+-- because a function is required to compute the affinities.
+--
+-- Note that base and current will be NULL if they are not overridden.
 
-CREATE VIEW vrel_view AS
+CREATE VIEW vrel_base_view AS
 SELECT G.g                                          AS g,
        G.gtype                                      AS gtype,
+       G.bsid                                       AS gbsid,
+       G.a                                          AS owner,
        A.a                                          AS a,
-       -- Assume that actor A owns G if A is G's rel_entity.
-       CASE WHEN G.rel_entity = A.a
+       A.bsid                                       AS absid,
+       CASE WHEN G.a = A.a
             THEN 1.0
-            ELSE AF.affinity END                    AS nat,
-       CASE WHEN G.rel_entity = A.a
+            ELSE NULL END                           AS nat,
+       CASE WHEN G.a = A.a
             THEN coalesce(V.base, 1.0)
-            ELSE coalesce(V.base, AF.affinity) END  AS base,
+            ELSE V.base END                         AS base,
        coalesce(V.hist_flag, 0)                     AS hist_flag,
        CASE WHEN coalesce(V.hist_flag,0)
             THEN V.current
-            WHEN G.rel_entity = A.a 
+            WHEN G.a = A.a 
             THEN coalesce(V.base, 1.0)
-            ELSE coalesce(V.base, AF.affinity) END  AS current,
+            ELSE V.base END                         AS current,
        CASE WHEN V.base IS NOT NULL 
             THEN 1
             ELSE 0 END                              AS override
-FROM groups AS G
+FROM groups_bsid_view AS G
 JOIN actors AS A
-JOIN mam_affinity AS AF ON (AF.f = G.rel_entity AND AF.g = A.a)
 LEFT OUTER JOIN vrel_ga AS V ON (V.g = G.g AND V.a = A.a);
-
 
 
 ------------------------------------------------------------------------

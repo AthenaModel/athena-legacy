@@ -36,13 +36,22 @@ namespace eval ::athena_test::tests {
 
     set t1 [dict create \
                 hook_id  PUPG \
-                topic_id T1   \
+                topic_id 1    \
                 position 0.9]
 
     set m1 [dict create \
                 iom_id M1          \
                 longname "IOM One" \
                 hook_id PUPG]
+
+    # mktopic 
+    #
+    # Makes a bsys topic with ID 1 and name TBD.
+
+    proc mktopic {} {
+        bsys topic add 1
+        bsys topic configure 1 -name TBD
+    }
 
     #-----------------------------------------------------------------
     # Semantic hook creation
@@ -162,7 +171,7 @@ state     normal
     # Semantic hook topic create
 
     test createtopic-1.1 {Hook topic is created} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
     } -body {
         hook mutate topic create $t1
@@ -171,7 +180,7 @@ state     normal
         cleanup
     } -result {
 hook_id     PUPG
-topic_id    T1
+topic_id    1
 topic_text  TBD
 narrative   Passionately For TBD
 state       normal
@@ -179,7 +188,7 @@ position    0.9
     }
 
     test createtopic-1.2 {Undo deletes the hook topic} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         set undo [hook mutate topic create $t1]
     } -body {
@@ -193,7 +202,7 @@ position    0.9
     # Semantic hook topic update
 
     test updatetopic-1.1 {Hook topic is updated} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -206,7 +215,7 @@ position    0.9
     } -result {0.0}
 
     test updatetopic-1.2 {Hook topic update is undone} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
         set parms(id) [rdb onecolumn {SELECT id FROM hook_topics_view}]
@@ -223,7 +232,7 @@ position    0.9
     # Semantic hook topic state change
 
     test state-1.1 {Hook is changed to disabled} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -236,7 +245,7 @@ position    0.9
     } -result {disabled}
 
     test state-1.2 {Undo hook is changed to disabled} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
         set id [rdb onecolumn {SELECT id FROM hook_topics_view}]
@@ -254,7 +263,7 @@ position    0.9
     # Semantic hook topic delete
 
     test deletetopic-1.1 {Hook topic is deleted} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -266,7 +275,7 @@ position    0.9
     } -result {}
 
     test delete-1.2 {Hook deletion is undone} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
         set id [rdb onecolumn {SELECT id FROM hook_topics_view}]
@@ -278,7 +287,7 @@ position    0.9
         cleanup
     } -result {
 hook_id     PUPG
-topic_id    T1
+topic_id    1
 topic_text  TBD
 narrative   Passionately For TBD
 state       normal
@@ -289,7 +298,7 @@ position    0.9
     # Sanity check
 
     test sanity-1.1 {Hook module is sane} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -299,11 +308,11 @@ position    0.9
     } -result {OK}
 
     test sanity-1.2 {Hook module is not sane} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
-        bsystem topic delete T1
+        bsys topic delete 1
         hook checker
     } -cleanup {
         cleanup
@@ -361,7 +370,7 @@ position    0.9
     } -result {Invalid hook ID, should be one of: PUPG}
         
     test validate-1.3 {Hook topic is valid} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -389,11 +398,11 @@ position    0.9
         error
     } -cleanup {
         cleanup
-    } -result {Invalid topic, none are defined}
+    } -result {Invalid topic ID}
 
     # topic exists
     test topic_exists-1.1 {Hook topic exists} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -410,18 +419,25 @@ position    0.9
 
     # topic get
     test topic_get-1.1 {Get all data} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
         set id [rdb onecolumn {SELECT id FROM hook_topics_view}]
-        hook topic get $id
+        ted pdicts [hook topic get $id]
     } -cleanup {
         cleanup
-    } -result {narrative {Passionately For TBD} position 0.9 state normal hook_id PUPG topic_text TBD topic_id T1}
+    } -match dict -result {
+        hook_id    PUPG
+        narrative  {Passionately For TBD}
+        position   0.9
+        state      normal
+        topic_id   1
+        topic_text TBD
+    }
 
     test topic_get-1.2 {Get one field} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -439,7 +455,7 @@ position    0.9
     } -result {}
 
     test getdict-1.2 {dict is returned} -setup {
-        bsystem topic add T1
+        mktopic
         hook mutate create $h1
         hook mutate topic create $t1
     } -body {
@@ -447,7 +463,7 @@ position    0.9
         hook getdict $hook_id
     } -cleanup {
         cleanup
-    } -result {T1 0.9}
+    } -result {1 0.9}
 
 
     cleanupTests

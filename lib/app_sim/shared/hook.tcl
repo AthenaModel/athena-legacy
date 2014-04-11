@@ -241,7 +241,7 @@ snit::type hook {
 
         # FIRST, see if the individual IDs are okay
         set hook_id  [hook validate $hook_id]
-        set topic_id [bsystem topic validate $topic_id]
+        set topic_id [bsys topic validate $topic_id]
 
         # NEXT, check that they exist together in the hook_topics 
         # table
@@ -286,7 +286,7 @@ snit::type hook {
     # id      - a hook/topic pair that serves as an ID
     # parm    - a column in the hook_topics table
     #
-    # Retreives a row dictionary, or a particular column value from
+    # Retrieves a row dictionary, or a particular column value from
     # hook_topics 
 
     typemethod {topic get} {id {parm ""}} {
@@ -320,7 +320,7 @@ snit::type hook {
         set errors [list]
 
         dict with pdict {
-            if {$topic_id ni [bsystem topic names]} {
+            if {$topic_id ni [bsys topic ids]} {
                 lappend errors \
                     "Belief system topic $topic_id no longer exists."
             }
@@ -467,7 +467,7 @@ snit::type hook {
     # parmdict     A dictionary of hook/topic parms
     #
     #     hook_id    A hook
-    #     topic_id   A mam(n) topic
+    #     topic_id   A bsys topic
     #     position   A qposition(n) value 
     #
     # Creates a hook/topic record upon which a semantic hook takes a 
@@ -477,7 +477,7 @@ snit::type hook {
         dict with parmdict {
 
             set narrative [hook ComputeTopicNarrative $topic_id $position]
-            set ttext     [bsystem topic cget $topic_id -title]
+            set ttext     [bsys topic cget $topic_id -name]
 
             rdb eval {
                 INSERT INTO 
@@ -520,8 +520,8 @@ snit::type hook {
             lassign $id hook_id topic_id
 
             # FIRST, compute the hook topic narrative
+            set ttext     [bsys topic cget $topic_id -name]
             set narrative [hook ComputeTopicNarrative $topic_id $position]
-            set ttext     [bsystem topic cget $topic_id -title]
 
             set tdata [rdb grab \
                 hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
@@ -617,7 +617,7 @@ snit::type hook {
 
     # ComputeTopicNarrative topic_id position
     #
-    # topic_id   ID of a bsystem topic
+    # topic_id   ID of a bsys topic
     # position   A qposition(n) value
     #
     # Given a topic and a position on that topic compute a narrative.
@@ -625,7 +625,7 @@ snit::type hook {
     typemethod ComputeTopicNarrative {topic_id position} {
         # FIRST, get the text representation of the topic and position
         set ptext [qposition longname $position]
-        set ttext [bsystem topic cget $topic_id -title]
+        set ttext [bsys topic cget $topic_id -name]
 
         # NEXT, compute the narrative
         set narr "$ptext "
@@ -646,25 +646,24 @@ snit::type hook {
     #
     # hook_id   - An existing semantic hook ID
     #
-    # Returns a list of the belief system topics not currently used
-    # by this hook.
+    # Returns an id/name dictionary of the belief system topics not 
+    # currently used by this hook.
 
     typemethod UnusedTopics {hook_id} {
-        set used [rdb eval {
+        # FIRST, get the topic IDs used by this hook.
+
+        # FIRST, get the topic id/name dictionary for all topics.
+        set ndict [bsys topic namedict]
+
+        # NEXT, remove the ones that have already been used.
+        rdb eval {
             SELECT topic_id FROM hook_topics
             WHERE hook_id=$hook_id
-        }]
-
-        set unused [list]
-
-        foreach topic [bsystem topic names] {
-            if {$topic ni $used} {
-                set topic_text [bsystem topic cget $topic -title]
-                lappend unused $topic $topic_text
-            }
+        } {
+            dict unset ndict $topic_id
         }
 
-        return $unused
+        return $ndict
     }
 
     # LoadPosition idict id
@@ -818,7 +817,7 @@ order define HOOK:TOPIC:CREATE {
     }
 } {
     prepare hook_id       -toupper -required -type hook
-    prepare topic_id      -toupper -required -type {bsystem topic}
+    prepare topic_id      -toupper -required -type {bsys topic}
     prepare position -num -toupper -required -type qposition 
 
     returnOnError 

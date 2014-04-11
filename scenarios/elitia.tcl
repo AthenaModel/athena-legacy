@@ -1,6 +1,6 @@
-# Exporting  from current data
-# Exported @ Wed Feb 05 08:14:38 PST 2014
-# Written by Athena version 6.0.x
+# Exporting C:/Users/will/athena/elitia.adb from current data
+# Exported @ Tue Apr 08 13:17:54 PDT 2014
+# Written by Athena version 7.0.x
 #
 # Note: if header has no commands following it, then
 # there was no data of that kind to export.
@@ -16,11 +16,68 @@ send SIM:STARTTICK -starttick 0
 
 
 #-----------------------------------------------------------------
+# Belief Systems
+
+send BSYS:PLAYBOX:UPDATE -gamma 0.7
+send BSYS:TOPIC:ADD -tid 1
+send BSYS:TOPIC:UPDATE -tid 1 -name {Peonian Independence} -affinity 1
+send BSYS:TOPIC:ADD -tid 2
+send BSYS:TOPIC:UPDATE -tid 2 -name Democracy -affinity 1
+send BSYS:TOPIC:ADD -tid 3
+send BSYS:TOPIC:UPDATE -tid 3 -name Patriotism -affinity 0
+send BSYS:TOPIC:ADD -tid 4
+send BSYS:TOPIC:UPDATE -tid 4 -name Puppies! -affinity 0
+
+send BSYS:SYSTEM:ADD -sid 2
+send BSYS:SYSTEM:UPDATE -sid 2 -name GOV -commonality 1.0
+send BSYS:BELIEF:UPDATE -bid {2 1} -position -0.6 -emphasis 0.25
+send BSYS:BELIEF:UPDATE -bid {2 2} -position -0.6 -emphasis 0.25
+
+send BSYS:SYSTEM:ADD -sid 3
+send BSYS:SYSTEM:UPDATE -sid 3 -name PELF -commonality 0.8
+send BSYS:BELIEF:UPDATE -bid {3 1} -position 0.9 -emphasis 0.15
+send BSYS:BELIEF:UPDATE -bid {3 2} -position 0.3 -emphasis 0.7
+
+send BSYS:SYSTEM:ADD -sid 4
+send BSYS:SYSTEM:UPDATE -sid 4 -name EPP -commonality 1.0
+send BSYS:BELIEF:UPDATE -bid {4 1} -position 0.3 -emphasis 0.35
+send BSYS:BELIEF:UPDATE -bid {4 2} -position 0.6 -emphasis 0.15
+
+send BSYS:SYSTEM:ADD -sid 5
+send BSYS:SYSTEM:UPDATE -sid 5 -name PEONR -commonality 0.6
+send BSYS:BELIEF:UPDATE -bid {5 1} -position 0.6 -emphasis 0.25
+send BSYS:BELIEF:UPDATE -bid {5 2} -position 0.3 -emphasis 0.7
+
+send BSYS:SYSTEM:ADD -sid 6
+send BSYS:SYSTEM:UPDATE -sid 6 -name PEONU -commonality 0.45
+send BSYS:BELIEF:UPDATE -bid {6 1} -position 0.6 -emphasis 0.35
+send BSYS:BELIEF:UPDATE -bid {6 2} -position 0.6 -emphasis 0.7
+
+send BSYS:SYSTEM:ADD -sid 7
+send BSYS:SYSTEM:UPDATE -sid 7 -name ELR -commonality 1.0
+send BSYS:BELIEF:UPDATE -bid {7 1} -position -0.9 -emphasis 0.25
+send BSYS:BELIEF:UPDATE -bid {7 2} -position 0.3 -emphasis 0.7
+
+send BSYS:SYSTEM:ADD -sid 8
+send BSYS:SYSTEM:UPDATE -sid 8 -name ELU -commonality 1.0
+send BSYS:BELIEF:UPDATE -bid {8 1} -position -0.9 -emphasis 0.15
+send BSYS:BELIEF:UPDATE -bid {8 2} -position -0.3 -emphasis 0.35
+
+send BSYS:SYSTEM:ADD -sid 9
+send BSYS:SYSTEM:UPDATE -sid 9 -name SA -commonality 1.0
+
+send BSYS:SYSTEM:ADD -sid 10
+send BSYS:SYSTEM:UPDATE -sid 10 -name NOBODY -commonality 1.0
+
+send BSYS:SYSTEM:ADD -sid 11
+send BSYS:SYSTEM:UPDATE -sid 11 -name ICS -commonality 1.0
+
+#-----------------------------------------------------------------
 # Base Entities: Actors
 
-send ACTOR:CREATE -a GOV -longname {Elitian Government} -auto_maintain 0 -atype INCOME -cash_reserve 0.00 -cash_on_hand 0.00 -income_goods 5.000M -shares_black_nr 0 -income_black_tax 0.00 -income_pop 0.00 -income_graft 0.00 -income_world 0.00 -budget 0.00
-send ACTOR:CREATE -a PELF -longname {Peonian Liberation Front} -auto_maintain 0 -atype INCOME -cash_reserve 0.00 -cash_on_hand 500,000 -income_goods 250,000 -shares_black_nr 1 -income_black_tax 0.00 -income_pop 0.00 -income_graft 0.00 -income_world 0.00 -budget 0.00
-send ACTOR:CREATE -a EPP -longname {Elitian People's Party} -auto_maintain 0 -atype INCOME -cash_reserve 0.00 -cash_on_hand 0.00 -income_goods 1.000M -shares_black_nr 0 -income_black_tax 0.00 -income_pop 0.00 -income_graft 0.00 -income_world 0.00 -budget 0.00
+send ACTOR:CREATE -a GOV -longname {Elitian Government} -bsid 2 -auto_maintain 0 -atype INCOME -cash_reserve 0.00 -cash_on_hand 0.00 -income_goods 5.000M -shares_black_nr 0 -income_black_tax 0.00 -income_pop 0.00 -income_graft 0.00 -income_world 0.00 -budget 0.00
+send ACTOR:CREATE -a PELF -longname {Peonian Liberation Front} -bsid 3 -auto_maintain 0 -atype INCOME -cash_reserve 0.00 -cash_on_hand 500,000 -income_goods 250,000 -shares_black_nr 1 -income_black_tax 0.00 -income_pop 0.00 -income_graft 0.00 -income_world 0.00 -budget 0.00
+send ACTOR:CREATE -a EPP -longname {Elitian People's Party} -bsid 4 -auto_maintain 0 -atype INCOME -cash_reserve 0.00 -cash_on_hand 0.00 -income_goods 1.000M -shares_black_nr 0 -income_black_tax 0.00 -income_pop 0.00 -income_graft 0.00 -income_world 0.00 -budget 0.00
 send ACTOR:SUPPORTS -a GOV -supports SELF
 send ACTOR:SUPPORTS -a PELF -supports SELF
 send ACTOR:SUPPORTS -a EPP -supports SELF
@@ -48,13 +105,13 @@ send NBREL:UPDATE -id {PE IN} -proximity REMOTE
 #-----------------------------------------------------------------
 # Base Entities: Civilian Groups
 
-send CIVGROUP:CREATE -g PEONR -longname {Rural Peons} -n PE -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 800000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g PEONU -longname {Urban Peons} -n CITY -color #AA7744 -shape NEUTRAL -demeanor AVERAGE -basepop 50000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g ELR -longname {Rural Elitians} -n EL -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 600000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g ELU -longname {Urban Elitians} -n CITY -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g SA -longname SA -n PE -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 100000 -pop_cr 0.0 -sa_flag 1 -lfp 0 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g NOBODY -longname NOBODY -n CITY -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 0 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g ICS -longname Incognitians -n IN -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 10000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g PEONR -longname {Rural Peons} -n PE -bsid 5 -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 800000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g PEONU -longname {Urban Peons} -n CITY -bsid 6 -color #AA7744 -shape NEUTRAL -demeanor AVERAGE -basepop 50000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g ELR -longname {Rural Elitians} -n EL -bsid 7 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 600000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g ELU -longname {Urban Elitians} -n CITY -bsid 8 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g SA -longname SA -n PE -bsid 9 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 100000 -pop_cr 0.0 -sa_flag 1 -lfp 0 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g NOBODY -longname NOBODY -n CITY -bsid 10 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 0 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g ICS -longname Incognitians -n IN -bsid 11 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 10000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
 
 #-----------------------------------------------------------------
 # Base Entities: Force Groups
@@ -65,65 +122,6 @@ send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -color #3B61FF -s
 #-----------------------------------------------------------------
 # Base Entities: Organization Groups
 
-
-#-----------------------------------------------------------------
-# Belief Systems
-
-send BSYSTEM:PLAYBOX:UPDATE -gamma 0.7
-send BSYSTEM:ENTITY:UPDATE -eid GOV -commonality 1.0
-send BSYSTEM:ENTITY:UPDATE -eid PELF -commonality 0.8
-send BSYSTEM:ENTITY:UPDATE -eid EPP -commonality 1.0
-send BSYSTEM:ENTITY:UPDATE -eid PEONR -commonality 0.6
-send BSYSTEM:ENTITY:UPDATE -eid PEONU -commonality 0.45
-send BSYSTEM:ENTITY:UPDATE -eid ELR -commonality 1.0
-send BSYSTEM:ENTITY:UPDATE -eid ELU -commonality 1.0
-send BSYSTEM:ENTITY:UPDATE -eid SA -commonality 1.0
-send BSYSTEM:ENTITY:UPDATE -eid NOBODY -commonality 1.0
-send BSYSTEM:ENTITY:UPDATE -eid ICS -commonality 1.0
-send BSYSTEM:TOPIC:CREATE -tid PI -title {Peonian Independence} -affinity 1
-send BSYSTEM:TOPIC:CREATE -tid DEM -title Democracy -affinity 1
-send BSYSTEM:TOPIC:CREATE -tid PAT -title Patriotism -affinity 0
-send BSYSTEM:TOPIC:CREATE -tid PUPPIES -title Puppies! -affinity 0
-send BSYSTEM:BELIEF:UPDATE -id {ELR PI} -position P- -emphasis DSTRONG
-send BSYSTEM:BELIEF:UPDATE -id {ELU PI} -position P- -emphasis DEXTREME
-send BSYSTEM:BELIEF:UPDATE -id {EPP PI} -position W+ -emphasis DWEAK
-send BSYSTEM:BELIEF:UPDATE -id {GOV PI} -position S- -emphasis DSTRONG
-send BSYSTEM:BELIEF:UPDATE -id {ICS PI} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY PI} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PELF PI} -position P+ -emphasis DEXTREME
-send BSYSTEM:BELIEF:UPDATE -id {PEONR PI} -position S+ -emphasis DSTRONG
-send BSYSTEM:BELIEF:UPDATE -id {PEONU PI} -position S+ -emphasis DWEAK
-send BSYSTEM:BELIEF:UPDATE -id {SA PI} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ELR DEM} -position W+ -emphasis AWEAK
-send BSYSTEM:BELIEF:UPDATE -id {ELU DEM} -position W- -emphasis DWEAK
-send BSYSTEM:BELIEF:UPDATE -id {EPP DEM} -position S+ -emphasis DEXTREME
-send BSYSTEM:BELIEF:UPDATE -id {GOV DEM} -position S- -emphasis DSTRONG
-send BSYSTEM:BELIEF:UPDATE -id {ICS DEM} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY DEM} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PELF DEM} -position W+ -emphasis AWEAK
-send BSYSTEM:BELIEF:UPDATE -id {PEONR DEM} -position W+ -emphasis AWEAK
-send BSYSTEM:BELIEF:UPDATE -id {PEONU DEM} -position S+ -emphasis AWEAK
-send BSYSTEM:BELIEF:UPDATE -id {SA DEM} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ELR PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ELU PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {EPP PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {GOV PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ICS PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PELF PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PEONR PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PEONU PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {SA PAT} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ELR PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ELU PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {EPP PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {GOV PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {ICS PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {NOBODY PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PELF PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PEONR PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {PEONU PUPPIES} -position A -emphasis NEITHER
-send BSYSTEM:BELIEF:UPDATE -id {SA PUPPIES} -position A -emphasis NEITHER
 
 #-----------------------------------------------------------------
 # Attitudes
@@ -163,19 +161,19 @@ send CAP:NBCOV:SET -id {CBS CITY} -nbcov 1.00
 send CAP:NBCOV:SET -id {CBS EL} -nbcov 1.00
 send CAP:NBCOV:SET -id {FOX EL} -nbcov 1.00
 send CAP:NBCOV:SET -id {FOX PE} -nbcov 1.00
-send CAP:PEN:SET -id {FOX PEONR} -pen 1.00
 send CAP:PEN:SET -id {CBS ELR} -pen 1.00
-send CAP:PEN:SET -id {FOX ELR} -pen 1.00
 send CAP:PEN:SET -id {CBS ELU} -pen 1.00
+send CAP:PEN:SET -id {FOX PEONR} -pen 1.00
+send CAP:PEN:SET -id {FOX ELR} -pen 1.00
 
 #-----------------------------------------------------------------
 # Semantic Hooks
 
 send HOOK:CREATE -hook_id PUPGOOD -longname {Puppies Are Good!}
 send HOOK:CREATE -hook_id HPAT -longname {Patriotism and Puppies}
-send HOOK:TOPIC:CREATE -hook_id PUPGOOD -topic_id PUPPIES -position 0.6
-send HOOK:TOPIC:CREATE -hook_id HPAT -topic_id PAT -position 0.6
-send HOOK:TOPIC:CREATE -hook_id HPAT -topic_id PUPPIES -position 0.9
+send HOOK:TOPIC:CREATE -hook_id PUPGOOD -topic_id 4 -position 0.6
+send HOOK:TOPIC:CREATE -hook_id HPAT -topic_id 3 -position 0.6
+send HOOK:TOPIC:CREATE -hook_id HPAT -topic_id 4 -position 0.9
 
 #-----------------------------------------------------------------
 # Information Operations Messages (IOMs)

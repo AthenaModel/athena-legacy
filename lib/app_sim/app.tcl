@@ -232,6 +232,7 @@ snit::type app {
             -usedtable    entities               \
             -logcmd       ::log                  \
             -ordercmd     [myproc AddOrderToCIF]
+        bsys      init
         scenario  init
         nbhood    init
         sim       init

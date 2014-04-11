@@ -222,6 +222,7 @@ snit::type ted {
         defentity JOE ::actor {
             a                JOE
             longname         "Joe the Actor"
+            bsid             1
             supports         SELF
             atype            INCOME
             auto_maintain    0
@@ -239,6 +240,7 @@ snit::type ted {
         defentity BOB ::actor {
             a                BOB
             longname         "Bob the Actor"
+            bsid             1
             supports         SELF
             atype            INCOME
             auto_maintain    0
@@ -256,6 +258,7 @@ snit::type ted {
         defentity DAVE ::actor {
             a                DAVE
             longname         "Dave the Actor"
+            bsid             1
             supports         SELF
             atype            INCOME
             auto_maintain    0
@@ -273,6 +276,7 @@ snit::type ted {
         defentity BRIAN ::actor {
             a                BRIAN
             longname         "Brian the Actor"
+            bsid             1
             supports         BOB
             atype            INCOME
             auto_maintain    0
@@ -290,6 +294,7 @@ snit::type ted {
         defentity WILL ::actor {
             a                WILL
             longname         "Will the Actor"
+            bsid             1
             supports         SELF
             atype            BUDGET
             auto_maintain    0
@@ -309,6 +314,7 @@ snit::type ted {
         defentity SHIA ::civgroup {
             g         SHIA
             longname  "Shia"
+            bsid      1
             color     "#c00001"
             shape     NEUTRAL
             n         NB1
@@ -325,6 +331,7 @@ snit::type ted {
         defentity SUNN ::civgroup {
             g         SUNN
             longname  "Sunni"
+            bsid      1
             color     "#c00002"
             shape     NEUTRAL
             n         NB1
@@ -341,6 +348,7 @@ snit::type ted {
         defentity KURD ::civgroup {
             g         KURD
             longname  "Kurd"
+            bsid      1
             color     "#c00003"
             shape     NEUTRAL
             n         NB2
@@ -357,6 +365,7 @@ snit::type ted {
         defentity NO_ONE ::civgroup {
             g         NO_ONE
             longname  "Nobody"
+            bsid      1
             color     "#c00004"
             shape     NEUTRAL
             n         NB2
@@ -373,6 +382,7 @@ snit::type ted {
         defentity NOT_LOCALS ::civgroup {
             g         NOT_LOCALS
             longname  "Not Locals"
+            bsid      1
             color     "#c00003"
             shape     NEUTRAL
             n         NL1
@@ -690,7 +700,7 @@ snit::type ted {
 
         cif       clear
         parm      reset
-        bsystem   clear
+        bsys      clear
         econ      reset
         simclock  reset
         aram      clear

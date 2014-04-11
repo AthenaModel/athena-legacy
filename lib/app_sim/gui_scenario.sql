@@ -29,6 +29,8 @@ SELECT a                                               AS id,
        link('my://app/actor/' || a, a)                 AS link,
        link('my://app/actor/' || a, pair(longname, a)) AS longlink,
        longname                                        AS longname,
+       bsid                                            AS bsid,
+       bsysname(bsid)                                  AS bsysname,
        CASE WHEN supports = a      THEN 'SELF'
             WHEN supports IS NULL  THEN 'NONE'
             ELSE supports 
@@ -123,10 +125,12 @@ SELECT g                                                 AS id,
        gtype                                             AS gtype,
        link('my://app/groups/' || lower(gtype), gtype)   AS gtypelink,
        longname                                          AS longname,
+       bsid                                              AS bsid,
        color                                             AS color,
        shape                                             AS shape,
        demeanor                                          AS demeanor,
-       moneyfmt(cost)                                    AS cost
+       moneyfmt(cost)                                    AS cost,
+       a                                                 AS a
 FROM groups;
 
 
@@ -145,6 +149,8 @@ SELECT G.id                                            AS id,
        G.demeanor                                      AS demeanor,
        CG.basepop                                      AS basepop,
        CG.n                                            AS n,
+       G.bsid                                          AS bsid,
+       bsysname(G.bsid)                                AS bsysname,
        CASE CG.sa_flag WHEN 1 THEN 'Yes' ELSE 'No' END AS pretty_sa_flag,
        CG.sa_flag                                      AS sa_flag,
        format('%.1f', CG.pop_cr)                       AS pop_cr,
@@ -196,7 +202,7 @@ SELECT G.id                                             AS id,
        G.demeanor                                       AS demeanor,
        coalesce(P.personnel, 0)                         AS personnel,
        G.cost                                           AS cost,
-       F.a                                              AS a,
+       G.a                                              AS a,
        F.forcetype                                      AS forcetype,
        F.training                                       AS training,
        F.base_personnel                                 AS base_personnel,
@@ -222,7 +228,7 @@ SELECT G.id                                             AS id,
        G.demeanor                                       AS demeanor,
        coalesce(P.personnel, 0)                         AS personnel,
        G.cost                                           AS cost,
-       O.a                                              AS a,
+       G.a                                              AS a,
        O.orgtype                                        AS orgtype,
        O.base_personnel                                 AS base_personnel
 FROM gui_groups  AS G

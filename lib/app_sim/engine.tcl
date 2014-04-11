@@ -258,12 +258,12 @@ snit::type engine {
         }]
 
         $uram load hrel {*}[rdb eval {
-            SELECT f, g, current, base, nat FROM hrel_view
+            SELECT f, g, current, base, nat FROM gui_hrel_base_view
             ORDER BY f, g
         }]
 
         $uram load vrel {*}[rdb eval {
-            SELECT g, a, current, base, nat FROM vrel_view
+            SELECT g, a, current, base, nat FROM gui_vrel_base_view
             ORDER BY g, a
         }]
 

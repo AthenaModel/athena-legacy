@@ -182,9 +182,9 @@ shape           NEUTRAL
 symbol          organization
 demeanor        AVERAGE
 cost            0.0
-rel_entity      JOE
 gtype           ORG
 a               JOE
+bsid            
 orgtype         NGO
 base_personnel  1000
 
@@ -195,9 +195,9 @@ shape           NEUTRAL
 symbol          organization
 demeanor        AVERAGE
 cost            0.0
-rel_entity      JOE
 gtype           ORG
 a               JOE
+bsid            
 orgtype         CTR
 base_personnel  1000
     }
@@ -381,9 +381,9 @@ shape           ENEMY
 symbol          organization
 demeanor        AGGRESSIVE
 cost            10.0
-rel_entity      JOE
 gtype           ORG
 a               JOE
+bsid            
 orgtype         IGO
 base_personnel  1000
     }

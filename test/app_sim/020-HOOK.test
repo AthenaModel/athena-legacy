@@ -34,14 +34,8 @@ namespace eval ::athena_test::tests:: {
 
     set t1 {
         hook_id   FOO 
-        topic_id  T1
+        topic_id  1
         position  P+
-    }
-
-    set T1 {
-        tid      T1
-        title    "Topic #1"
-        affinity no
     }
 
     # Clean up after a test
@@ -51,8 +45,12 @@ namespace eval ::athena_test::tests:: {
         ted cleanup
     }
 
-    proc bsysTopic {t} {
-        ted order BSYSTEM:TOPIC:CREATE $t
+    # mktopic
+    #
+    # Makes a bsys topic with ID 1.
+    proc mktopic {} {
+        bsys topic add 1
+        bsys topic configure 1 -name "Topic #1" -affinity no
     }
 
     #-------------------------------------------------------------------
@@ -118,29 +116,29 @@ narrative  Foo is good: No position on any topics
 
     test TOPIC:CREATE-1.2 {invalid hook/topic ids} -body {
         ted order -reject \
-            HOOK:TOPIC:CREATE {hook_id FOO topic_id T1 position 0.0}
+            HOOK:TOPIC:CREATE {hook_id FOO topic_id 1 position 0.0}
     } -result {
         hook_id {Invalid hook ID, none are defined}
-        topic_id {Invalid topic, none are defined}
+        topic_id {Invalid topic ID}
     }
 
     test TOPIC:CREATE-1.3 {invalid topic id} -setup {
         ted order HOOK:CREATE $h1
     } -body {
         ted order -reject \
-            HOOK:TOPIC:CREATE {hook_id FOO topic_id T1 position 0.0}
+            HOOK:TOPIC:CREATE {hook_id FOO topic_id 1 position 0.0}
     } -cleanup {
         cleanup
     } -result {
-        topic_id {Invalid topic, none are defined}
+        topic_id {Invalid topic ID}
     }
 
     test TOPIC:CREATE-1.4 {invalid position} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
     } -body {
         ted order -reject \
-            HOOK:TOPIC:CREATE {hook_id FOO topic_id T1 position NONESUCH}
+            HOOK:TOPIC:CREATE {hook_id FOO topic_id 1 position NONESUCH}
     } -cleanup {
         cleanup 
     } -result {
@@ -148,7 +146,7 @@ narrative  Foo is good: No position on any topics
     }
 
     test TOPIC:CREATE-2.1 {hook topic is created} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
     } -body {
         ted order HOOK:TOPIC:CREATE $t1
@@ -157,7 +155,7 @@ narrative  Foo is good: No position on any topics
         cleanup
     } -result {
 hook_id     FOO
-topic_id    T1
+topic_id    1
 topic_text  Topic #1
 narrative   Passionately For Topic #1
 state       normal
@@ -165,7 +163,7 @@ position    0.9
     }
 
     test TOPIC:CREATE-2.2 {Effects} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
     } -body {
         ted notifier bind ::rdb <hook_topics>
@@ -174,12 +172,12 @@ position    0.9
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <hook_topics> update {FOO T1}}
+        {::rdb <hook_topics> update {FOO 1}}
     }
 
 
     test TOPIC:CREATE-3.1 {undo effects} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
         ted order HOOK:TOPIC:CREATE $t1
     } -body {
@@ -189,7 +187,7 @@ position    0.9
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <hook_topics> delete {FOO T1}}
+        {::rdb <hook_topics> delete {FOO 1}}
     }
 
     #-------------------------------------------------------------------
@@ -257,28 +255,28 @@ position    0.9
     } -cleanup {
         cleanup
     } -result {
-        id {Invalid topic, none are defined}
+        id {Invalid topic ID}
     }
 
     test TOPIC:DELETE-2.1 {Effects} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
         ted order HOOK:TOPIC:CREATE $t1
     } -body {
         ted notifier bind ::rdb <hook_topics>
-        ted order HOOK:TOPIC:DELETE id {FOO T1}
+        ted order HOOK:TOPIC:DELETE id {FOO 1}
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <hook_topics> delete {FOO T1}}
+        {::rdb <hook_topics> delete {FOO 1}}
     }
 
     test TOPIC:DELETE-3.1 {Undo effects} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
         ted order HOOK:TOPIC:CREATE $t1
-        ted order HOOK:TOPIC:DELETE id {FOO T1}
+        ted order HOOK:TOPIC:DELETE id {FOO 1}
     } -body {
         ted notifier bind ::rdb <hook_topics>
         cif undo -test
@@ -286,7 +284,7 @@ position    0.9
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <hook_topics> update {FOO T1}}
+        {::rdb <hook_topics> update {FOO 1}}
     }
 
 
@@ -374,15 +372,15 @@ narrative  Foo is still good: No position on any topics
     } -cleanup {
         cleanup
     } -result {
-        id {Invalid topic, none are defined}
+        id {Invalid topic ID}
     }
 
     test TOPIC:UPDATE-1.4 {invalid position} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
         ted order HOOK:TOPIC:CREATE $t1
     } -body {
-        ted order -reject HOOK:TOPIC:UPDATE {id {FOO T1} position NONESUCH}
+        ted order -reject HOOK:TOPIC:UPDATE {id {FOO 1} position NONESUCH}
     } -cleanup {
         cleanup
     } -result {
@@ -390,12 +388,12 @@ narrative  Foo is still good: No position on any topics
     }
     
     test TOPIC:UPDATE-2.1 {hook topic is updated} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
         ted order HOOK:TOPIC:CREATE $t1
     } -body {
         ted order HOOK:TOPIC:UPDATE {
-            id {FOO T1}
+            id {FOO 1}
             position 0.0
         }
 
@@ -404,7 +402,7 @@ narrative  Foo is still good: No position on any topics
         cleanup
     } -result {
 hook_id     FOO
-topic_id    T1
+topic_id    1
 topic_text  Topic #1
 narrative   Ambivalent Towards Topic #1
 state       normal
@@ -412,24 +410,24 @@ position    0.0
     }
 
     test TOPIC:UPDATE-2.2 {table monitor event} -setup {
-        bsysTopic $T1
+        mktopic
         ted order HOOK:CREATE $h1
         ted order HOOK:TOPIC:CREATE $t1
     } -body {
         ted notifier bind ::rdb <hook_topics>
-        ted order HOOK:TOPIC:UPDATE {id {FOO T1} position 0.3}
+        ted order HOOK:TOPIC:UPDATE {id {FOO 1} position 0.3}
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <hook_topics> update {FOO T1}}
+        {::rdb <hook_topics> update {FOO 1}}
     }
 
-    test UPDATE-3.1 {undo undoes the change} -setup {
-        bsysTopic $T1
+    test TOPIC:UPDATE-3.1 {undo undoes the change} -setup {
+        mktopic
         ted order HOOK:CREATE $h1
         ted order HOOK:TOPIC:CREATE $t1
-        ted order HOOK:TOPIC:UPDATE {id {FOO T1} position 0.3}
+        ted order HOOK:TOPIC:UPDATE {id {FOO 1} position 0.3}
     } -body {
         ted notifier bind ::rdb <hook_topics>
         cif undo -test
@@ -437,7 +435,7 @@ position    0.0
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <hook_topics> update {FOO T1}}
+        {::rdb <hook_topics> update {FOO 1}}
     }
 
     #-------------------------------------------------------------------

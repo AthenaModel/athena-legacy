@@ -46,7 +46,8 @@ namespace eval ::athena_test::tests:: {
         }
 
         # We need a payload and a hook topic, or we can't execute.
-        bsystem topic add TOPIC1
+        bsys topic add 1
+        bsys topic configure 1 -name TBD
 
         payload mutate create {
             iom_id       IOM1
@@ -55,11 +56,10 @@ namespace eval ::athena_test::tests:: {
             mag          1.0
         }
 
-        hook mutate topic create {
-            hook_id  HOOK1
-            topic_id TOPIC1
-            position 0.9
-        }
+        hook mutate topic create [dict create \
+            hook_id  HOOK1 \
+            topic_id 1     \
+            position 0.9]
 
         set B1 [ted addblock JOE]
 

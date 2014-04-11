@@ -238,7 +238,7 @@ gofer rule FRCGROUPS OWNED_BY {alist} {
         dict with gdict {}
 
         return [rdb eval "
-            SELECT g FROM frcgroups
+            SELECT g FROM frcgroups_view
             WHERE a IN ('[join $alist {','}]')
         "]
     }

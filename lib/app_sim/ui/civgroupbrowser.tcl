@@ -34,6 +34,7 @@ snit::widgetadaptor civgroupbrowser {
         { g              "\nID"                                           }
         { longname       "\nLong Name"                                    }
         { n              "\nNbhood"                                       }
+        { bsysname       "\nBelief System"                                }
         { color          "\nColor"                                        }
         { shape          "\nUnit Shape"                                   }
         { demeanor       "\nDemeanor"                                     }
@@ -122,15 +123,16 @@ snit::widgetadaptor civgroupbrowser {
     #-------------------------------------------------------------------
     # Private Methods
 
-    # DisplayData rindex values
+    # DisplayData r values
     # 
-    # rindex    The row index
-    # values    The values in the row's cells
+    # r       - The row index
+    # values  - The values in the row's cells
     #
     # Sets the cell background color for the color cells.
 
-    method DisplayData {rindex values} {
-        $hull cellconfigure $rindex,3 -background [lindex $values 3]
+    method DisplayData {r values} {
+        set c [$hull cname2cindex color]
+        $hull cellconfigure $r,$c -background [lindex $values $c]
     }
 
 

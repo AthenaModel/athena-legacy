@@ -52,9 +52,9 @@ shape           FRIEND
 symbol          infantry
 demeanor        AVERAGE
 cost            0.0
-rel_entity      JOE
 gtype           FRC
 a               JOE
+bsid            
 forcetype       REGULAR
 training        PROFICIENT
 base_personnel  5000
@@ -76,9 +76,9 @@ shape           FRIEND
 symbol          infantry
 demeanor        AVERAGE
 cost            0.0
-rel_entity      
 gtype           FRC
 a               
+bsid            
 forcetype       REGULAR
 training        PROFICIENT
 base_personnel  5000
@@ -148,9 +148,9 @@ shape           FRIEND
 symbol          infantry
 demeanor        AVERAGE
 cost            0.0
-rel_entity      JOE
 gtype           FRC
 a               JOE
+bsid            
 forcetype       REGULAR
 training        PROFICIENT
 base_personnel  5000
@@ -259,9 +259,9 @@ shape           NEUTRAL
 symbol          police
 demeanor        AGGRESSIVE
 cost            10.0
-rel_entity      BOB
 gtype           FRC
 a               BOB
+bsid            
 forcetype       POLICE
 training        NONE
 base_personnel  5000
@@ -396,6 +396,7 @@ local           1
     } -match dict -result {
         a              JOE
         base_personnel 5000
+        bsid           {}
         color          {#f00001}
         cost           0.0
         demeanor       AVERAGE
@@ -404,7 +405,6 @@ local           1
         gtype          FRC
         local          0
         longname       {US Army}
-        rel_entity     JOE
         shape          FRIEND
         symbol         infantry
         training       PROFICIENT

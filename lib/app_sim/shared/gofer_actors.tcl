@@ -247,10 +247,7 @@ gofer rule ACTORS OWNING {glist} {
 
         return [rdb eval "
             SELECT DISTINCT a FROM (
-                SELECT a FROM frcgroups
-                WHERE g IN ('[join $glist {','}]')
-                UNION
-                SELECT a FROM orggroups
+                SELECT a FROM groups
                 WHERE g IN ('[join $glist {','}]')
             )
         "]

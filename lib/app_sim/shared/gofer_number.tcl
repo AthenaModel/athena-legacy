@@ -584,25 +584,23 @@ gofer rule NUMBER AFFINITY {x y} {
     typemethod eval {gdict} {
         dict with gdict {}
         
-        if {$x in [group names]} {
-            set x [rdb eval {
-                SELECT rel_entity FROM groups WHERE g=$x
-            }]
-        }
-        if {$y in [group names]} {
-            set y [rdb eval {
-                SELECT rel_entity FROM groups WHERE g=$y
-            }]
-        } {
+        return [format %.2f [bsys affinity [getbsid $x] [getbsid $y]]]
+    }
 
-        }
+    proc getbsid {e} {
         rdb eval {
-            SELECT affinity FROM mam_affinity WHERE f=$x AND g=$y
+            SELECT bsid FROM actors WHERE a=$e
         } {
-            return [format %.2f $affinity]
+            return $bsid
         }
 
-        return  0.00
+        rdb eval {
+            SELECT bsid FROM groups_bsid_view WHERE g=$e
+        } {
+            return $bsid
+        }
+
+        return 1
     }
 }
 

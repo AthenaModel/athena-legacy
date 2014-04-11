@@ -104,9 +104,6 @@ snit::type sim {
                         -repetition yes                    \
                         -command    {profile sim Tick}]
 
-        # NEXT, initialize the belief system manager
-        bsystem init
-
         # NEXT, initialize the model engine.
         engine init
 
@@ -127,9 +124,6 @@ snit::type sim {
         simclock configure \
             -week0 $constants(startdate) \
             -tick0 $constants(starttick)
-
-        # NEXT, clear the belief system
-        bsystem clear
 
         # NEXT, reset the econ model
         econ reset
@@ -277,11 +271,9 @@ snit::type sim {
     typemethod {mutate lock} {} {
         assert {$info(state) eq "PREP"}
 
-        # FIRST, Make sure that bsystem has had a chance to compute
-        # all of the affinities.  Do this before saving a PREP checkpoint;
-        # the computed affinities are really part of the scenario proper,
-        # rather than being simulation outputs.
-        bsystem start
+        # FIRST, Make sure that bsys has had a chance to compute
+        # all of the affinities.
+        bsys start
 
         # NEXT, save an on-lock snapshot
         scenario snapshot save

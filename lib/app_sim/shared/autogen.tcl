@@ -1012,7 +1012,8 @@ snit::type autogen {
     # num   number of topics to create
     #
     # This method creates the number of requested topics and then
-    # goes through actors and civilian groups assigning beliefs
+    # goes through actors and civilian groups creating belief systems
+    # and assigning beliefs
     # to each. There are four possible position/emphasis pairs for
     # each entity. These pairs are cycled through the topics. If
     # there are as many topics as there are pairs (four) then
@@ -1020,26 +1021,29 @@ snit::type autogen {
     # is desired, it's best to have three or five topics.
 
     typemethod BSystem {num} {
-
-        # FIRST, get the actors and civ groups
-        set actors [rdb eval {SELECT a FROM actors}]
-        set civg   [rdb eval {SELECT g FROM civgroups}]
-
-        # NEXT, create the requested topics
-        for {set i 0} {$i < $num} {incr i} {
-            set tid "T[format "%02d" $i]"
-
-            set parms(tid) $tid
-            set parms(title) $tid
-            set parms(affinity) 1
-
-            order send cli BSYSTEM:TOPIC:CREATE [array get parms]
+        # FIRST, create the requested topics
+        for {set i 1} {$i <= $num} {incr i} {
+            order send cli BSYS:TOPIC:ADD tid $i
         }
 
-        # NEXT, get the list of topics just created
-        set topics [rdb eval {SELECT tid FROM mam_topic}]
+        # FIRST, create a belief system for each actor and group.
+        set sids [list]
 
-        array unset parms
+        foreach a [actor names] {
+            set sid [order send cli BSYS:SYSTEM:ADD]
+            order send cli BSYS:SYSTEM:UPDATE \
+                sid $sid name "Actor $a's Beliefs"
+
+            lappend sids $sid
+        }
+
+        foreach g [civgroup names] {
+            set sid [order send cli BSYS:SYSTEM:ADD]
+            order send cli BSYS:SYSTEM:UPDATE \
+                sid $sid name "Group $g's Beliefs"
+
+            lappend sids $sid
+        }
 
         # NEXT, set up the list of positions and emphases, this
         # list could be expanded
@@ -1051,39 +1055,20 @@ snit::type autogen {
 
         # NEXT, give actors their beliefs
         set idx 0
-        foreach a $actors {
-            foreach t $topics {
-                set parms(id) "$a $t"
+        foreach sid $sids  {
+            for {set tid 1} {$tid <= $num} {incr tid} {
+                set parms(bid) [list $sid $tid]
 
                 # NEXT, set position/emphasis pair 
                 lassign [lindex $pelist $idx] parms(position) parms(emphasis)
 
-                order send cli BSYSTEM:BELIEF:UPDATE [array get parms]
+                order send cli BSYS:BELIEF:UPDATE [array get parms]
 
                 # NEXT, go to next position/emphasis pair
                 incr idx
 
                 # NEXT, if we are out of pairs, go back to the first one
-                if {[expr {$idx % [llength $pelist]}] == 0} {
-                    set idx 0
-                }
-            }
-        }
-
-        # NEXT, give civilians their beliefs
-        # Note: pick up position/emphasis pairs where the actors left off
-        foreach g $civg {
-            foreach t $topics {
-                set parms(id) "$g $t"
-                lassign [lindex $pelist $idx] parms(position) parms(emphasis)
-
-                order send cli BSYSTEM:BELIEF:UPDATE [array get parms]
-
-                # NEXT, go to next position/emphasis pair
-                incr idx
-
-                # NEXT, if we are out of pairs, go back to the first one
-                if {[expr {$idx % [llength $pelist]}] == 0} {
+                if {($idx % [llength $pelist]) == 0} {
                     set idx 0
                 }
             }

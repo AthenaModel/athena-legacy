@@ -15,13 +15,11 @@
 # Images
 
 image athena             "Sculpture of Athena"         img/athena.png
-image bsystem_entities   "Belief System Entities"      img/bsystem_entities.png
 image button_a           "Button: A"                   img/button_a.png
 image button_arrow       "Button: Arrow"               img/button_arrow.png
 image button_autoscroll  "Button: Autoscroll"          img/button_autoscroll.png
 image button_axe         "Button: Axe"                 img/button_axe.png
 image button_backward    "Button: Backward"            img/button_backward.png
-image button_calcnow     "Button: Calc Now"            img/button_calcnow.png
 image button_check       "Button: Checkmark"           img/button_check.png
 image button_checktxt    "Button: Check"               img/button_checktxt.png
 image button_clock       "Button: Clock"               img/button_clock.png
@@ -44,7 +42,9 @@ image button_pencil      "Button: Pencil"              img/button_pencil.png
 image button_pencil0     "Button: Pencil 0"            img/button_pencil0.png
 image button_pencils     "Button: Pencil S"            img/button_pencils.png
 image button_pencila     "Button: Pencil A"            img/button_pencila.png
+image button_pencilb     "Button: Pencil B"            img/button_pencilb.png
 image button_pencili     "Button: Pencil I"            img/button_pencili.png
+image button_pencilt     "Button: Pencil T"            img/button_pencilt.png
 image button_pause       "Button: Pause"               img/button_pause.png
 image button_peabody     "Button: Peabody"             img/button_peabody.png
 image button_play        "Button: Play"                img/button_play.png
@@ -69,9 +69,9 @@ image button_updown      "Button: Up/Down"             img/button_updown.png
 image button_unlockprep  "Button: Unlock Prep"         img/button_unlockprep.png 
 image button_x           "Button: X"                   img/button_x.png
 image control_addressbar "Control: Address Bar"        img/control_addressbar.png
-image control_autocalc   "Control: Auto-Calc"          img/control_autocalc.png
+image control_affinity   "Control: Affinity Flag"      img/control_affinity.png
 image control_dbsidebar  "Control: Sidebar"            img/control_dbsidebar.png
-image control_ecommon    "Control: Entity Common."     img/control_ecommon.png
+image control_emphasis   "Control: Emphasis"           img/control_emphasis.png
 image control_filltype   "Control: Fill Type"          img/control_filltype.png
 image control_fromtime   "Control: From Time"          img/control_fromtime.png
 image control_nfilter    "Control: Nbhood Filter"      img/control_nfilter.png
@@ -86,6 +86,8 @@ image control_logcnt     "Control: Log Count"          img/control_logcnt.png
 image control_logvcr     "Control: Log VCR"            img/control_logvcr.png
 image control_mapref     "Control: Map Ref"            img/control_mapref.png
 image control_pcommon    "Control: Playbox Common."    img/control_pcommon.png
+image control_position   "Control: Position"           img/control_position.png
+image control_scommon    "Control: Commonality"        img/control_scommon.png
 image control_search     "Control: Search"             img/control_search.png
 image control_simtime    "Control: Sim Time"           img/control_simtime.png
 image control_simvcr     "Control: Sim VCR"            img/control_simvcr.png

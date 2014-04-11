@@ -112,7 +112,7 @@ snit::type frcgroup {
 
     typemethod ownedby {a} {
         return [rdb eval {
-            SELECT g FROM frcgroups
+            SELECT g FROM frcgroups_view
             WHERE a=$a
         }]
     }
@@ -158,22 +158,21 @@ snit::type frcgroup {
         # NEXT, Put the group in the database
         rdb eval {
             INSERT INTO 
-            groups(g, longname, color, shape, symbol, demeanor, 
-                   cost, rel_entity, gtype)
+            groups(g, longname, a, color, shape, symbol, demeanor, 
+                   cost, gtype)
             VALUES($g,
                    $longname,
+                   nullif($a,''),
                    $color,
                    $shape,
                    $symbol,
                    $demeanor,
                    $cost,
-                   nullif($a,''),
                    'FRC');
 
-            INSERT INTO frcgroups(g, a, forcetype, training,
+            INSERT INTO frcgroups(g, forcetype, training,
                                   base_personnel, local)
             VALUES($g,
-                   nullif($a,''),
                    $forcetype,
                    $training,
                    $base_personnel,
@@ -238,17 +237,16 @@ snit::type frcgroup {
         rdb eval {
             UPDATE groups
             SET longname   = nonempty($longname,     longname),
+                a          = coalesce(nullif($a,''), a),
                 color      = nonempty($color,        color),
                 shape      = nonempty($shape,        shape),
                 symbol     = nonempty($symbol,       symbol),
                 demeanor   = nonempty($demeanor,     demeanor),
-                cost       = nonempty($cost,         cost),
-                rel_entity = coalesce(nullif($a,''), rel_entity)
+                cost       = nonempty($cost,         cost)
             WHERE g=$g;
 
             UPDATE frcgroups
-            SET a              = coalesce(nullif($a,''),   a),
-                forcetype      = nonempty($forcetype,      forcetype),
+            SET forcetype      = nonempty($forcetype,      forcetype),
                 training       = nonempty($training,       training),
                 base_personnel = nonempty($base_personnel, base_personnel),
                 local          = nonempty($local,          local)
@@ -279,8 +277,8 @@ order define FRCGROUP:CREATE {
         rcc "Long Name:" -for longname
         longname longname
 
-        rcc "Owning Actor:" -for a
-        actor a
+        rcc "Owning Actor:" -for a    
+        actor a    
 
         rcc "Color:" -for color
         color color -defvalue #3B61FF
@@ -396,8 +394,8 @@ order define FRCGROUP:UPDATE {
         rcc "Long Name:" -for longname
         longname longname
 
-        rcc "Owning Actor:" -for a
-        actor a
+        rcc "Owning Actor:" -for a    
+        actor a    
 
         rcc "Color:" -for color
         color color
@@ -460,8 +458,8 @@ order define FRCGROUP:UPDATE:MULTI {
         multi ids -table gui_frcgroups -key g \
             -loadcmd {orderdialog multiload ids *}
 
-        rcc "Owning Actor:" -for a
-        actor a
+        rcc "Owning Actor:" -for a    
+        actor a    
 
         rcc "Color:" -for color
         color color

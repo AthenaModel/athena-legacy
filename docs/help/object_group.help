@@ -99,6 +99,13 @@ object group_civ {
         neighborhood of residence.
     } -tags {create update browser}
 
+    attribute bsid "Belief System" {
+        The group's belief system, a collection of positions on
+        topics of interest in the region that determines how
+        other groups perceive this group.  Belief systems are 
+        created and edited on the <<tab "Social/Beliefs">>.
+    } -tags {create update browser}
+
     include group_ -attrs {color shape demeanor} \
         -tags {create update browser}
 

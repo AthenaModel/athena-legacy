@@ -42,16 +42,16 @@ namespace eval ::athena_test::tests:: {
         ted querylist {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
-    } -result {
+    } -match dict -result {
 g           SHIA
 longname    Shia
+bsid        1
 color       #c00001
 shape       NEUTRAL
 symbol      civilian
 demeanor    AVERAGE
 basepop     1000
 pop_cr      0.0
-rel_entity  SHIA
 gtype       CIV
 n           NB1
 sa_flag     0
@@ -60,13 +60,6 @@ housing     AT_HOME
 hist_flag   0
 upc         0.0
     }
-
-    test create-1.2 {bsystem entity is created} -body {
-        civgroup mutate create [ted entity SHIA]
-        bsystem entity names
-    } -cleanup {
-        cleanup
-    } -result {SHIA}
 
     test create-1.3 {sat curves are created} -body {
         civgroup mutate create [ted entity SHIA]
@@ -90,16 +83,6 @@ upc         0.0
     } -body {
         namespace eval :: $undo
         rdb eval {SELECT g FROM civgroups_view}
-    } -cleanup {
-        cleanup
-    } -result {SHIA}
-
-    test create-2.2 {undo deletes the bsystem entity} -setup {
-        civgroup mutate create [ted entity SHIA]
-        set undo [civgroup mutate create [ted entity SUNN]]
-    } -body {
-        namespace eval :: $undo
-        bsystem entity names
     } -cleanup {
         cleanup
     } -result {SHIA}
@@ -147,16 +130,16 @@ upc         0.0
         ted querylist {SELECT * FROM civgroups_view}
     } -cleanup {
         cleanup
-    } -result {
+    } -match dict -result {
 g           SHIA
 longname    Shia
+bsid        1
 color       #c00001
 shape       NEUTRAL
 symbol      civilian
 demeanor    AVERAGE
 basepop     1000
 pop_cr      0.0
-rel_entity  SHIA
 gtype       CIV
 n           NB1
 sa_flag     0
@@ -165,28 +148,6 @@ housing     AT_HOME
 hist_flag   0
 upc         0.0
     }
-
-    test delete-3.1 {Bsystem entity is deleted} -setup {
-        ted create SHIA SUNN
-    } -body {
-        civgroup mutate delete SHIA
-
-        # Is SHIA gone?
-        bsystem entity names
-    } -cleanup {
-        cleanup
-    } -result {SUNN}
-
-
-    test delete-3.2 {Undo restores bsystem entity} -setup {
-        ted create SHIA SUNN
-        set undo [civgroup mutate delete SHIA]
-    } -body {
-        namespace eval :: $undo
-        bsystem entity names
-    } -cleanup {
-        cleanup
-    } -result {SHIA SUNN}
 
     test delete-4.1 {sat curves are deleted} -setup {
         ted create SHIA
@@ -313,6 +274,7 @@ upc         0.0
         civgroup mutate update {
             g            SHIA
             longname     "Shia Folk"
+            bsid         2
             color        "#ff0000"
             shape        FRIEND
             hist_flag    1
@@ -323,22 +285,22 @@ upc         0.0
     } -cleanup {
         cleanup
     } -result {
-g           SHIA
-longname    Shia Folk
-color       #ff0000
-shape       FRIEND
-symbol      civilian
-demeanor    AVERAGE
-basepop     1000
-pop_cr      0.0
-rel_entity  SHIA
-gtype       CIV
-n           NB1
-sa_flag     0
-lfp         60
-housing     AT_HOME
-hist_flag   1
-upc         10.0
+g          SHIA
+longname   Shia Folk
+bsid       2
+color      #ff0000
+shape      FRIEND
+symbol     civilian
+demeanor   AVERAGE
+basepop    1000
+pop_cr     0.0
+gtype      CIV
+n          NB1
+sa_flag    0
+lfp        60
+housing    AT_HOME
+hist_flag  1
+upc        10.0
     }
 
 
@@ -579,26 +541,26 @@ upc         10.0
     test getg-1.1 {get group dict} -setup {
         ted create NB1 SHIA
     } -body {
-        ted pdict [civgroup getg SHIA]
+        ted pdicts [civgroup getg SHIA]
     } -cleanup {
         cleanup
-    } -result {
-        hist_flag  0
-        shape      NEUTRAL
-        lfp        60
+    } -match dict -result {
         basepop    1000
+        bsid       1
+        color      {#c00001}
         demeanor   AVERAGE
         g          SHIA
-        rel_entity SHIA
-        upc        0.0
-        longname   Shia
         gtype      CIV
-        pop_cr     0.0
+        hist_flag  0
         housing    AT_HOME
-        sa_flag    0
-        symbol     civilian
+        lfp        60
+        longname   Shia
         n          NB1
-        color      {#c00001}
+        pop_cr     0.0
+        sa_flag    0
+        shape      NEUTRAL
+        symbol     civilian
+        upc        0.0
     }
 
     test getg-1.2 {get group attribute} -setup {

@@ -185,6 +185,7 @@ snit::type civgroup {
     #    color      - The group's color
     #    shape      - The group's unit shape (eunitshape(n))
     #    demeanor   - The group's demeanor (edemeanor(n))
+    #    bsid       - The group's belief system ID.
     #    basepop    - The group's base population
     #    pop_cr     - The group's population change rate
     #    sa_flag    - The group's subsistence agriculture flag
@@ -211,22 +212,19 @@ snit::type civgroup {
             set upc 0.0
         }
 
-        # NEXT, create a bsystem entity
-        bsystem entity add $g
-
         # NEXT, Put the group in the database
         rdb eval {
             INSERT INTO
             groups(g, longname, color, shape, symbol, demeanor,
-                   rel_entity, gtype)
+                   gtype, bsid)
             VALUES($g,
                    $longname,
                    $color,
                    $shape,
                    'civilian',
                    $demeanor,
-                   $g,
-                   'CIV');
+                   'CIV',
+                   $bsid);
 
             INSERT INTO
             civgroups(g,n,basepop,pop_cr,sa_flag,lfp,housing, hist_flag, upc)
@@ -259,7 +257,6 @@ snit::type civgroup {
 
     typemethod UndoCreate {g} {
         rdb delete groups {g=$g} civgroups {g=$g}
-        bsystem edit undo
     }
 
     # mutate delete g
@@ -272,9 +269,6 @@ snit::type civgroup {
         # FIRST, delete the group, grabbing the undo information
         set data [rdb delete -grab groups {g=$g} civgroups {g=$g}]
 
-        # NEXT, delete the bsystem entity.
-        bsystem entity delete $g
-
         # NEXT, Return the undo script
         return [mytypemethod UndoDelete $data]
     }
@@ -283,10 +277,9 @@ snit::type civgroup {
     #
     # data - An RDB grab data set
     #
-    # Restores the data into the RDB, and undoes the bsystem change.
+    # Restores the data into the RDB.
 
     typemethod UndoDelete {data} {
-        bsystem edit undo
         rdb ungrab $data
     }
 
@@ -301,6 +294,7 @@ snit::type civgroup {
     #    color       - A new color, or ""
     #    shape       - A new shape, or ""
     #    demeanor    - A new demeanor, or "" (edemeanor(n))
+    #    bsid        - A new bsid, or ""
     #    basepop     - A new basepop, or ""
     #    pop_cr      - A new pop change rate, or ""
     #    sa_flag     - A new sa_flag, or ""
@@ -323,7 +317,8 @@ snit::type civgroup {
                 SET longname  = nonempty($longname, longname),
                     color     = nonempty($color,    color),
                     shape     = nonempty($shape,    shape),
-                    demeanor  = nonempty($demeanor, demeanor)
+                    demeanor  = nonempty($demeanor, demeanor),
+                    bsid      = nonempty($bsid,     bsid)
                 WHERE g=$g;
 
                 UPDATE civgroups
@@ -367,6 +362,10 @@ order define CIVGROUP:CREATE {
         rcc "Nbhood:" -for n
         nbhood n
 
+        rcc "Belief System:" -for bsid
+        enumlong bsid -dictcmd {::bsys system namedict} -showkeys yes \
+            -defvalue 1
+
         rcc "Color:" -for color
         color color -defvalue #45DD11
 
@@ -407,6 +406,7 @@ order define CIVGROUP:CREATE {
     prepare g         -toupper   -required -unused -type ident
     prepare longname  -normalize
     prepare n         -toupper   -required         -type nbhood
+    prepare bsid      -num                         -type {bsys system}
     prepare color     -tolower   -required         -type hexcolor
     prepare shape     -toupper   -required         -type eunitshape
     prepare demeanor  -toupper   -required         -type edemeanor
@@ -440,6 +440,11 @@ order define CIVGROUP:CREATE {
     # NEXT, If longname is "", defaults to ID.
     if {$parms(longname) eq ""} {
         set parms(longname) $parms(g)
+    }
+
+    # NEXT, if bsys is "", defaults to 1 (neutral)
+    if {$parms(bsid) eq ""} {
+        set parms(bsid) 1
     }
 
     # NEXT, create the group and dependent entities
@@ -513,6 +518,9 @@ order define CIVGROUP:UPDATE {
         rcc "Nbhood:" -for n
         nbhood n
 
+        rcc "Belief System:" -for bsid
+        enumlong bsid -dictcmd {::bsys system namedict} -showkeys yes
+
         rcc "Color:" -for color
         color color
 
@@ -553,6 +561,7 @@ order define CIVGROUP:UPDATE {
     prepare g         -toupper   -required -type civgroup
     prepare longname  -normalize
     prepare n         -toupper   -type nbhood
+    prepare bsid      -num       -type {bsys system}
     prepare color     -tolower   -type hexcolor
     prepare shape     -toupper   -type eunitshape
     prepare demeanor  -toupper   -type edemeanor

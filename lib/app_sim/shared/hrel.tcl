@@ -9,7 +9,7 @@
 #    athena_sim(1): Horizontal Relationship Manager
 #
 #    By default, the initial baseline horizontal relationships (hrel)
-#    are computed from belief systems by the bsystem module, an
+#    are computed from belief systems by the bsys module, an
 #    instance of mam(n), with the exception that rel.gg is always 1.0.
 #    The analyst is allowed to override any initial baseline relationship 
 #    for which f != g.  The natural relationship is always either 1.0 
@@ -297,5 +297,6 @@ order define HREL:OVERRIDE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 

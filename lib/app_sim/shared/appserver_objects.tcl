@@ -163,23 +163,14 @@ appserver module OBJECTS {
             tcl/linkdict [myproc /objects:linkdict]       \
             text/html    [myproc /objects:html "Objects"] \
             "Links to the main Athena simulation objects."
-
-        appserver register /objects/bsystem {objects/(bsystem)/?}       \
-            tcl/linkdict [myproc /objects:linkdict]                     \
-            text/html    [myproc /objects:html "Belief System Objects"] {
-                Links to the Athena objects for which belief 
-                systems are defined.
-            }
-
     }
 
     #-------------------------------------------------------------------
     # /objects                 - All object types
-    # /objects/bsystem         - Belief system entities
     #
     # Match Parameters:
     # 
-    # {subset} ==> $(1)   - bsystem or ""
+    # None.
 
     # /objects:linkdict udict matchArray
     #
@@ -190,40 +181,25 @@ appserver module OBJECTS {
         upvar 1 $matchArray ""
 
         # FIRST, handle subsets
-        switch -exact -- $(1) {
-            "" { 
-                set subset {
-                    /overview
-                    /actors 
-                    /agents
-                    /nbhoods 
-                    /groups/civ 
-                    /groups/frc 
-                    /groups/org
-                    /plants
-                    /curses
-                    /mads
-                    /drivers
-                    /firings
-                    /contribs
-                    /econ
-                    /caps
-                    /hooks
-                    /ioms
-                    /parmdb
-                }
-            }
-
-            bsystem { 
-                set subset {/actors /groups/civ}    
-            }
-
-            default { 
-                # At present, the resource patterns should prevent
-                # this case from occurring; otherwise we'd need to
-                # throw NOTFOUND
-                error "Unknown resource: \"$udict\"" 
-            }
+        set subset {
+            /overview
+            /actors 
+            /agents
+            /nbhoods 
+            /groups/civ 
+            /groups/frc 
+            /groups/org
+            /plants
+            /curses
+            /mads
+            /drivers
+            /firings
+            /contribs
+            /econ
+            /caps
+            /hooks
+            /ioms
+            /parmdb
         }
 
         foreach otype $subset {

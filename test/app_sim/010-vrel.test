@@ -236,53 +236,54 @@ SHIA JOE 0.7  1         0.5
     } -result {SHIA JOE}
 
     #-------------------------------------------------------------------
-    # vrel_view
+    # vrel_base_view
     #
-    # The vrel_view is implemented in scenariodb.sql, not in vrel.tcl,
+    # The gui_vrel_base_view is implemented in scenariodb_attitude.sql 
+    # and gui_attitude.sql, not in vrel.tcl,
     # so perhaps it doesn't belong here; on the other hand, it pulls
     # together affinities from the bsystem with relationship overrides
     # from vrel_ga, and it ought to be tested somewhere.
 
-    test vrel_view-1.1 {Defaults to 1.0 for owned groups} -setup {
+    test vrel_base_view-1.1 {Defaults to 1.0 for owned groups} -setup {
         ted create JOE BLUE SHIA
     } -body {
-        ted query {SELECT * FROM vrel_view ORDER BY g,a}
+        ted query {SELECT * FROM gui_vrel_base_view ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
-g    gtype a   nat base hist_flag current override 
----- ----- --- --- ---- --------- ------- -------- 
-BLUE FRC   JOE 1.0 1.0  0         1.0     0        
-SHIA CIV   JOE 0.0 0.0  0         0.0     0        
+g    gtype gbsid owner a   absid nat base hist_flag current override 
+---- ----- ----- ----- --- ----- --- ---- --------- ------- -------- 
+BLUE FRC   1     JOE   JOE 1     1.0 1.0  0         1.0     0        
+SHIA CIV   1           JOE 1     0.0 0.0  0         0.0     0        
     }
 
-    test vrel_view-1.2 {vrel_ga overrides bsystem values} -setup {
+    test vrel_base_view-1.2 {vrel_ga overrides bsystem values} -setup {
         ted create JOE BLUE SHIA
     } -body {
         vrel mutate create $V1
         vrel mutate create {id {BLUE JOE} base 0.25 hist_flag 0 current 0.0}
-        ted query {SELECT * FROM vrel_view ORDER BY g,a}
+        ted query {SELECT * FROM gui_vrel_base_view ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
-g    gtype a   nat base hist_flag current override 
----- ----- --- --- ---- --------- ------- -------- 
-BLUE FRC   JOE 1.0 0.25 0         0.25    1        
-SHIA CIV   JOE 0.0 0.5  0         0.5     1        
+g    gtype gbsid owner a   absid nat base hist_flag current override 
+---- ----- ----- ----- --- ----- --- ---- --------- ------- -------- 
+BLUE FRC   1     JOE   JOE 1     1.0 0.25 0         0.25    1        
+SHIA CIV   1           JOE 1     0.0 0.5  0         0.5     1        
     }
 
-    test vrel_view-1.3 {hist_flag overrides bsystem values} -setup {
+    test vrel_base_view-1.3 {hist_flag overrides bsystem values} -setup {
         ted create JOE BLUE SHIA
     } -body {
         vrel mutate create {id {BLUE JOE} base 0.25 hist_flag 1 current 0.4}
-        ted query {SELECT * FROM vrel_view ORDER BY g,a}
+        ted query {SELECT * FROM gui_vrel_base_view ORDER BY g,a}
     } -cleanup {
         cleanup
     } -result {
-g    gtype a   nat base hist_flag current override 
----- ----- --- --- ---- --------- ------- -------- 
-BLUE FRC   JOE 1.0 0.25 1         0.4     1        
-SHIA CIV   JOE 0.0 0.0  0         0.0     0        
+g    gtype gbsid owner a   absid nat base hist_flag current override 
+---- ----- ----- ----- --- ----- --- ---- --------- ------- -------- 
+BLUE FRC   1     JOE   JOE 1     1.0 0.25 1         0.4     1        
+SHIA CIV   1           JOE 1     0.0 0.0  0         0.0     0        
     }
 
     #-------------------------------------------------------------------

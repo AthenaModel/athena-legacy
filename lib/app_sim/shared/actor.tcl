@@ -99,7 +99,7 @@ snit::type actor {
     # Returns a list of the force groups owned by the actor.
     
     typemethod frcgroups {a} {
-        rdb eval {SELECT g FROM frcgroups WHERE a=$a}
+        rdb eval {SELECT g FROM frcgroups_view WHERE a=$a}
     }
 
     # income a
@@ -130,6 +130,7 @@ snit::type actor {
     #
     #    a                 The actor's ID
     #    longname          The actor's long name
+    #    bsid              Belief System ID
     #    supports          Actor name, SELF, or NONE.
     #    atype             Actor type, INCOME or BUDGET
     #    cash_reserve      Cash reserve (starting balance)
@@ -163,7 +164,8 @@ snit::type actor {
             rdb eval {
                 INSERT INTO 
                 actors(a,  
-                       longname,  
+                       longname,
+                       bsid,  
                        supports, 
                        atype,
                        auto_maintain,
@@ -177,7 +179,8 @@ snit::type actor {
                        income_world,
                        budget)
                 VALUES($a, 
-                       $longname, 
+                       $longname,
+                       $bsid, 
                        nullif($supports, 'NONE'),
                        $atype,
                        $auto_maintain,
@@ -193,8 +196,6 @@ snit::type actor {
             }
 
             # NEXT, create the related entities
-            bsystem entity add $a
-            lappend undo [list bsystem edit undo]
             lappend undo [strategy create_ $a]
 
             # NEXT, Return undo command.
@@ -215,9 +216,7 @@ snit::type actor {
 
         # FIRST, get the undo information
         set gdata [rdb grab \
-                       groups    {rel_entity=$a}          \
-                       frcgroups {a=$a}                   \
-                       orggroups {a=$a}                   \
+                       groups    {a=$a}                   \
                        caps      {owner=$a}               \
                        actors    {a != $a AND supports=$a}]
         
@@ -225,8 +224,6 @@ snit::type actor {
 
         
         # NEXT, delete the related entities
-        bsystem entity delete $a
-        lappend undo [list bsystem edit undo]
         lappend undo [strategy delete_ $a]
         lappend undo [list rdb ungrab [concat $adata $gdata]]
 
@@ -240,6 +237,7 @@ snit::type actor {
     #
     #    a                  An actor short name
     #    longname           A new long name, or ""
+    #    bsid               A new belief system ID, or ""
     #    supports           A new supports (SELF, NONE, actor), or ""
     #    atype              A new actor type, or ""
     #    cash_reserve       A new reserve amount, or ""
@@ -273,6 +271,7 @@ snit::type actor {
             rdb eval {
                 UPDATE actors
                 SET longname      = nonempty($longname,      longname),
+                    bsid          = nonempty($bsid,          bsid),
                     supports      = nullif(nonempty($supports,supports),'NONE'),
                     atype         = nonempty($atype,         atype),
                     auto_maintain = nonempty($auto_maintain, auto_maintain),
@@ -302,6 +301,14 @@ snit::type actor {
     # Clears fields to zero if they are irrelevant for the funding
     # type.
     proc ClearIrrelevantFields {parmdict} {
+        if {![dict exists $parmdict atype]} {
+            dict set parmdict atype ""
+        }
+
+        if {![dict exists $parmdict supports]} {
+            dict set parmdict supports ""
+        }
+
         dict with parmdict {       
             # FIRST, if atype is empty retrieve it.
             if {$atype eq ""} {
@@ -346,6 +353,10 @@ order define ACTOR:CREATE {
         
         rcc "Long Name:" -for longname
         longname longname
+
+        rcc "Belief System:" -for bsid
+        enumlong bsid -dictcmd {::bsys system namedict} -showkeys yes \
+            -defvalue 1
 
         rcc "Supports:" -for supports
         enum supports -defvalue SELF -listcmd {ptype a+self+none names}
@@ -399,6 +410,7 @@ order define ACTOR:CREATE {
     # FIRST, prepare and validate the parameters
     prepare a                -toupper -required -unused -type ident
     prepare longname         -normalize
+    prepare bsid             -num               -type {bsys system}
     prepare supports         -toupper           -type {ptype a+self+none}
     prepare auto_maintain    -toupper           -type boolean 
     prepare atype            -toupper           -selector
@@ -417,6 +429,11 @@ order define ACTOR:CREATE {
     # NEXT, If longname is "", defaults to ID.
     if {$parms(longname) eq ""} {
         set parms(longname) $parms(a)
+    }
+
+    # NEXT, if bsys is "", defaults to 1 (neutral)
+    if {$parms(bsid) eq ""} {
+        set parms(bsid) 1
     }
 
     # NEXT, if supports is "", defaults to SELF
@@ -490,6 +507,9 @@ order define ACTOR:UPDATE {
         rcc "Long Name:" -for longname
         longname longname
 
+        rcc "Belief System:" -for bsid
+        enumlong bsid -dictcmd {::bsys system namedict} -showkeys yes \
+
         rcc "Supports:" -for supports
         enum supports -listcmd {ptype a+self+none names}
 
@@ -542,6 +562,7 @@ order define ACTOR:UPDATE {
     # FIRST, prepare the parameters
     prepare a                -toupper   -required -type actor
     prepare longname         -normalize
+    prepare bsid             -num                 -type {bsys system}
     prepare supports         -toupper             -type {ptype a+self+none}
     prepare auto_maintain    -toupper             -type boolean 
     prepare atype            -toupper             -selector

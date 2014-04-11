@@ -192,7 +192,8 @@ command "autogen scenario" {
 
     <<defopt {-topics <i>n</i>}>>
     Specifies the number of belief system topics to create.  Each actor and
-    civilian group created is assigned a belief to each topic.  The beliefs
+    civilian group is given its own belief system, and assigned a belief 
+    for each topic.  The beliefs
     assigned are cycled through four possibilities comprised of a position
     and emphasis pair. They are:
 
@@ -341,7 +342,8 @@ command "autogen bsystem" {
     <<syntax ?<i>num</i>?>>
 
     Specifies the number of belief system topics to create.  Each actor and
-    civilian group created is assigned a belief to each topic.  The beliefs
+    civilian group is given its own belief system, and is assigned a belief 
+    for each topic.  The beliefs
     assigned are cycled through four possibilities comprised of a position
     and emphasis pair. They are:
 

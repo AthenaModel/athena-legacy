@@ -40,13 +40,13 @@ snit::type driver::actsit {
     typemethod assess {} {
         # FIRST, find the activities with coverage greater than 0.
         rdb eval {
-            SELECT a            AS dtype,
+            SELECT A.a          AS dtype,
                    n            AS n,
                    g            AS g,
                    gtype        AS gtype,
                    effective    AS personnel,
                    coverage     AS coverage
-            FROM activity_nga
+            FROM activity_nga AS A
             JOIN groups USING (g)
             WHERE coverage > 0.0
         } {

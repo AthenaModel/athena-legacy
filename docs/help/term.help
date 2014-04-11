@@ -96,15 +96,23 @@ term attitude "attitude" {
 #-----------------------------------------------------------------------
 
 term bsystem "belief system" {
-    Every <<term civgroup>> and <<term actor>> has a <i>belief 
+    A <i>belief 
     system</i>, which is a set of beliefs with regard to a number of 
-    <<term topic>>s.  Each belief consists of a <<term position>> for 
+    <<term topic>>s of belief.  Each belief consists of a 
+    <<term position>> for 
     or against the topic, along with an <<term emphasis>> on agreement 
     or disagreement for that position.<p>
+
+    Every <<term civgroup>> and <<term actor>> is explicitly assigned
+    a belief system; every <<term frcgroup>> and 
+    <<term orggroup>> inherits the belief system of its owner.</p>
 
     Belief systems are used to compute <<term affinity affinities>>,
     which in turn are the basis for <<term group>> and group/actor 
     <<term relationship>>s.<p>
+
+    Belief systems are created and edited on the 
+    <<tab Social/Beliefs>>, or via the <<cref /order/bsys>>.<p>
 }
 
 #-----------------------------------------------------------------------

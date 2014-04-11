@@ -92,21 +92,20 @@ snit::type orggroup {
             # FIRST, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                groups(g, longname, color, shape, symbol, demeanor,
-                       cost, rel_entity, gtype)
+                groups(g, longname, a, color, shape, symbol, demeanor,
+                       cost, gtype)
                 VALUES($g,
                        $longname,
+                       nullif($a,''),
                        $color,
                        $shape,
                        'organization',
                        $demeanor,
                        $cost,
-                       nullif($a,''),
                        'ORG');
 
-                INSERT INTO orggroups(g,a,orgtype,base_personnel)
+                INSERT INTO orggroups(g,orgtype,base_personnel)
                 VALUES($g,
-                       nullif($a,''),
                        $orgtype,
                        $base_personnel);
             }
@@ -156,16 +155,15 @@ snit::type orggroup {
             rdb eval {
                 UPDATE groups
                 SET longname   = nonempty($longname,     longname),
+                    a      = coalesce(nullif($a,''), a),
                     color      = nonempty($color,        color),
                     demeanor   = nonempty($demeanor,     demeanor),
                     cost       = nonempty($cost,         cost),
-                    shape      = nonempty($shape,        shape),
-                    rel_entity = coalesce(nullif($a,''), rel_entity)
+                    shape      = nonempty($shape,        shape)
                 WHERE g=$g;
 
                 UPDATE orggroups
-                SET a              = coalesce(nullif($a,''),  a),
-                    orgtype        = nonempty($orgtype,       orgtype),
+                SET orgtype        = nonempty($orgtype,       orgtype),
                     base_personnel = nonempty($base_personnel,base_personnel)
                 WHERE g=$g
             } {}
@@ -194,8 +192,8 @@ order define ORGGROUP:CREATE {
         rcc "Long Name:" -for longname
         longname longname
 
-        rcc "Owning Actor:" -for a
-        actor a
+        rcc "Owning Actor:" -for a    
+        actor a    
 
         rcc "Color:" -for color
         color color -defvalue #10DDD7
@@ -303,8 +301,8 @@ order define ORGGROUP:UPDATE {
         rcc "Long Name:" -for longname
         longname longname
 
-        rcc "Owning Actor:" -for a
-        actor a
+        rcc "Owning Actor:" -for a    
+        actor a    
 
         rcc "Color:" -for color
         color color
@@ -357,8 +355,8 @@ order define ORGGROUP:UPDATE:MULTI {
         multi ids -table gui_orggroups -key g \
             -loadcmd {orderdialog multiload ids *}
 
-        rcc "Owning Actor:" -for a
-        actor a
+        rcc "Owning Actor:" -for a    
+        actor a    
 
         rcc "Color:" -for color
         color color

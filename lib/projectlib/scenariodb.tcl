@@ -221,7 +221,6 @@ snit::type ::projectlib::scenariodb {
 
         # NEXT, register the schema sections
         $db register ::marsutil::undostack
-        $db register ::simlib::mam
         $db register ::simlib::ucurve
         $db register ::simlib::uram
         $db register $type

@@ -45,6 +45,13 @@ object actor_ {
         actor's ID, e.g., "United States".
     } -tags {create_opt update browser}
 
+    attribute bsid "Belief System" {
+        The actor's belief system, a collection of positions on
+        topics of interest in the region that determines how
+        groups perceive this actor.  Belief systems are 
+        created and edited on the <<tab "Social/Beliefs">>.
+    } -tags {create_opt update browser}
+
     attribute supports "Supports" {
         The name of the actor that usually receives this actor's political
         support, or <b>NONE</b> if the actor supports no other actor,

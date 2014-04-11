@@ -1778,21 +1778,21 @@ tab "Social" {
 
 tab "Social/Beliefs" {
     This tab contains the Belief System Browser, which allows the user
-    to edit the belief systems of the actors and civilian groups. The
-    browser has the following major areas:
+    to create and edit the significant belief systems in the playbox.
+    This browser has the following major areas:
 
     <ul>
-    <li> <b>The <<cref /tab/social/beliefs/topic "Topics List">></b>,
-    where topics of belief are viewed and edited.<p>
+    <li> <b>The <<cref /tab/social/beliefs/systems "Belief System List">></b>,
+    which lists each of the existing belief systems, including the
+    "Neutral" belief system, which always exists.<p>
 
-    <li> <b>The <<cref /tab/social/beliefs/entity "Entities Tree">></b>,
-    which lists the available actors and civilian groups.<p>
-
-    <li> <b>The <<cref /tab/social/beliefs/beliefs "Beliefs List">></b>,
-    where an entity's beliefs are specified.<p>
+    <li> <b>The <<cref /tab/social/beliefs/topics "Topics and Beliefs List">></b>,
+    which lists all defined topics, and the currently selected belief system's
+    positions on those topics.<p>
 
     <li> <b>The <<cref /tab/social/beliefs/affinity "Affinities Pane">></b>,
-    where the currently selected entity's affinities are displayed.<p>
+    which displays the affinity between the currently selected belief system
+    and all other belief systems.<p>
     </ul>
 
     Note that you can drag the border between the areas to make them
@@ -1802,125 +1802,171 @@ tab "Social/Beliefs" {
     systems.<p>
 }
 
-page /tab/social/beliefs topic "Belief Systems Browser Topics List" {
+page /tab/social/beliefs systems "Belief Systems List" {
     <<title>>
 
-    The Topics List lists all of the currently defined topics, and
-    allows them to be created and edited.  The major portion of the
-    list is a table with the following columns:<p>
+    The Belief Systems list shows all currently defined belief systems.<p>
 
+    Prior to Athena 7, every actor and every civilian group had its down 
+    distinct belief system, which was automatically created with the
+    actor or group.  In Athena 7, belief systems are separate from actors
+    and groups, and a single belief system can be shared by multiple 
+    actors and groups.<p>
+
+    The list displays the following data values:<p>
+    
     <<topiclist Column Description>>
 
-    <<topic Topic>>
-    The topic ID, a string chosen by the user when
-    creating the topic.
+    <<topic "ID">>The belief system ID, a unique integer ID assigned
+    automatically when the system is created.<</topic>>
+    
+    <<topic "Belief System">>The belief system's name.  Every belief system 
+    has a unique human-readable name.<</topic>>
+
+    <<topic "Commonality">>The belief system's commonality fraction.
+    This fraction indicates the extent (from 0.0 to 1.0) that this
+    belief system participates in the dominant culture in the
+    playbox.
     <</topic>>
 
-    <<topic Affinity?>>
-    The affinity flag.  If "Yes", the topic is included when
-    computing affinity, and if "No" it is not.  Selected the desired
-    value from the pulldown in the topic's row.
-    <</topic>>
+    <</topiclist>>
 
-    <<topic Title>>
-    The topic's human-readable title, a string chosen by the user when
-    creating the topic.  To edit, use the "pencil" control or simply
-    click on the title.
-    <</topic>>
-
-    <</topiclist>><p>
-
-    The Topic List's toolbar has the following controls:<p>
+    The Belief Systems list's toolbar has the following controls:<p>
 
     <<topiclist Control Description>>
 
-    <<topic [image button_plust]>>
-    Pops up the <<cref /order/bsystem/topic/create>> dialog.
+    <<topic [image button_plus]>>
+    Adds a new belief system to the list.  The new belief system 
+    will have an automatically generated name and a commonality of 1.0.
     <</topic>>
 
     <<topic [image button_pencil]>>
-    Pops up the <<cref /order/bsystem/topic/update>> dialog for the
-    selected topic.
+    Pops up the <<cref /order/bsys/system/update>> dialog for the
+    selected system, allowing the name and commonality to be changed.
+    Note that the "Neutral" belief system cannot be modified.<p>
     <</topic>>
 
-    <<topic [image control_pcommon]>>
-    Sets the playbox commonality level.
-    <</topic>>
-
-    <<topic [image control_autocalc]>>
-    Enables/disables automatic calculation.  If checked, all
-    affinities will be recomputed whenever any belief system input is
-    changed.
-    <</topic>>
-
-    <<topic [image button_calcnow]>>
-    Forces the affinities to be re-calculated.
+    <<topic [image control_scommon]>>
+    This slider sets the commonality level for the selected system.
     <</topic>>
 
     <<topic [image button_trash]>>
-    If a single row is selected, deletes it using the
-    <<cref /order/bsystem/topic/delete>> order.
+    If a single belief system is selected, deletes it using the
+    <<cref /order/bsys/system/delete>> order.  Note that belief systems
+    cannot be deleted if they are in use by some actor or group, and
+    that the "Neutral" belief system can never be deleted.
     <</topic>>
 
     <</topiclist>>
 }
 
-page /tab/social/beliefs entity "Belief Systems Browser Entities Tree" {
+page /tab/social/beliefs topics "Topics and Beliefs List" {
     <<title>>
 
-    The Entities Tree lists all defined actors and civilian groups.<p>
-
-    <<image bsystem_entities>><p>
-
-    Select an actor or group to edit its belief system.<p>
-}
-
-page /tab/social/beliefs beliefs "Belief Systems Browser Beliefs List" {
-    <<title>>
-
-    The Beliefs List lists all of the beliefs of the currently
-    selected actor or group, and allows them to be edited.  
-    The major portion of the
+    The Topics and Beliefs List shows all of the defined topics of 
+    belief, and the positions taken on those topics by the currently
+    selected belief system, and allows the topics and beliefs to
+    be edited.  The major portion of the
     list is a table with the following columns:<p>
 
     <<topiclist Column Description>>
 
+    <<topic ID>>
+    The topic ID, a unique integer ID assigned automatically when
+    the topic is created.
+    <</topic>>
+
     <<topic Topic>>
-    The topic ID about which the entity has a belief.
+    The topic's human-readable name, a string chosen by the user.
+    To edit it, use the "pencil-T" button.
+    <</topic>>
+
+    <<topic Affinity?>>
+    The topic's affinity flag.  If "Yes", the topic is included when
+    computing affinity, and if "No" it is not.  To edit it, 
+    press the "pencil-T" toolbar button to pop up the edit dialog, or
+    select the desired value from the "Affinity?" pulldown on
+    the toolbar.
     <</topic>>
 
     <<topic Position>>
-    The entity's position on this topic.  Select a value from the
-    pulldown.
+    The position taken by the currently selected belief system on this
+    topic.  To edit it, press the "pencil-B" toolbar button to pop up the 
+    edit dialog, or select the desired value from the "Position" 
+    pulldown on the toolbar.
     <</topic>>
 
     <<topic "Emphasis is On">>
-    The entity's emphasis on agreement vs. disagreement for this
-    topic.  Select a value from the pulldown.
+    The belief system's emphasis on agreement vs. disagreement for this
+    topic.  To edit it, press the "pencil-B" toolbar button to pop up the 
+    edit dialog, or select the desired value from the "Emphasis" 
+    pulldown on the toolbar.
     <</topic>>
-
     <</topiclist>><p>
 
-    The Topic List's toolbar has the following control:<p>
+    The Topics/Beliefs List's toolbar has the following controls:<p>
 
     <<topiclist Control Description>>
 
-    <<topic [image control_ecommon]>>
-    Sets the entity's commonality level, i.e., its participation in
-    the playbox commonality.
+    <<topic [image button_plus]>>
+    Adds a new topic with default settings.
+    <</topic>>
+
+    <<topic [image button_pencilt]>>
+    Pops up the <<cref /order/bsys/topic/update>> dialog for the
+    selected topic.
+    <</topic>>
+
+    <<topic [image button_pencilb]>>
+    Pops up the <<cref /order/bsys/belief/update>> dialog for the
+    selected belief system and topic.
+    <</topic>>
+
+    <<topic [image control_affinity]>>
+    Sets the "Affinity?" flag for the currently selected topic.
+    <</topic>>
+
+    <<topic [image control_position]>>
+    Sets the position for the currently selected system and topic.
+    <</topic>>
+
+    <<topic [image control_emphasis]>>
+    Sets the emphasis for the currently selected system and topic.
+    <</topic>>
+
+    <<topic [image button_trash]>>
+    If a single topic is selected, deletes it using the
+    <<cref /order/bsys/topic/delete>> order.  A topic cannot be
+    deleted if it is in use by a <<cref /object/hook>>.
     <</topic>>
 
     <</topiclist>>
-    
 }
 
-page /tab/social/beliefs affinity "Belief Systems Browser Affinities Pane" {
+
+
+page /tab/social/beliefs affinity "Affinities Pane" {
     <<title>>
 
-    This pane shows the affinity between entity A, the entity
-    currently selected in the Entity Tree and every other entity, and
-    also their affinities with A.  Click on a column header to sort on
-    that column.
+    This pane shows the affinity between belief system A (the currently
+    selected belief system in the 
+    <<cref /tab/social/beliefs/systems "Belief System List">>), and
+    every other belief system B, and vice versa.
+    Click on a column header to sort on that column.
+
+    The pane's toolbar has the following controls:<p>
+
+    <<topiclist Control Description>>
+
+    <<topic [image control_pcommon]>>
+    Sets the playbox "gamma" value.  The "gamma" value is a number from
+    0.0 to 2.0, and it indicates the commonality of the dominant culture
+    in the playbox.  In general, increasing "gamma" will increase 
+    affinities, and decreasing "gamma" will decrease affinities.
+    <</topic>>
+
+    <</topiclist>>
+
 }
 
 #-----------------------------------------------------------------------
@@ -1938,6 +1984,7 @@ tab "Social/CivGroups" {
 
     <<group_civ parm longname -label "Long Name">>
     <<group_civ parm n        -label "Nbhood">>
+    <<group_civ parm bsid     -label "Belief System">>
     <<group_civ parm color    -label "Color">>
     <<group_civ parm shape    -label "Unit Shape">>
     <<group_civ parm demeanor -label "Demeanor">>

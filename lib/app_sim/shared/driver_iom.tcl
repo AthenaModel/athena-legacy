@@ -172,12 +172,14 @@ driver type define IOM {tsource iom} {
         if {$asource eq ""} {
             set theta 1.0
         } else {
-            set theta [bsystem entity cget $asource -commonality]
+            set absid [actor get $asource bsid]
+            set theta [bsys system cget $absid -commonality]
         }
 
         # NEXT, compute the congruence of the hook with the group's
         # belief system.
-        set congruence [bsystem congruence $f $theta $hook]
+        set fbsid [group bsid $f]
+        set congruence [bsys congruence $fbsid $theta $hook]
 
         # NEXT, compute the resonance
         set Zresonance [parm get dam.IOM.Zresonance]
@@ -324,6 +326,7 @@ driver type define IOM {tsource iom} {
         }
     }
 }
+
 
 
 

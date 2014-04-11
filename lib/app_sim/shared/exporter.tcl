@@ -181,13 +181,43 @@ snit::type exporter {
 
         # NEXT, Date and Time Parameters
         SectionHeader $f "Date and Time Parameters"
-        OrderParms $f SIM:STARTDATE startdate [simclock cget -week0]
-        OrderParms $f SIM:STARTTICK starttick [simclock cget -tick0]
+        MakeSend $f SIM:STARTDATE startdate [simclock cget -week0]
+        MakeSend $f SIM:STARTTICK starttick [simclock cget -tick0]
 
         # NEXT, Model Parameters
         SectionHeader $f "Model Parameters"
         foreach parm [parm nondefaults] {
-            OrderParms $f PARM:SET parm $parm value [parm get $parm]
+            MakeSend $f PARM:SET parm $parm value [parm get $parm]
+        }
+
+        # NEXT, Belief Systems
+        SectionHeader $f "Belief Systems"
+        FromParms $f BSYS:PLAYBOX:UPDATE gamma [bsys playbox cget -gamma]
+
+        foreach tid [bsys topic ids] {
+            FromParms $f BSYS:TOPIC:ADD tid $tid
+            FromParms $f BSYS:TOPIC:UPDATE tid $tid \
+                {*}[bsys topic get $tid]
+        }
+
+        foreach sid [bsys system ids] {
+            if {$sid == 1} {
+                continue
+            }
+
+            puts $f ""
+            FromParms $f BSYS:SYSTEM:ADD sid $sid
+            FromParms $f BSYS:SYSTEM:UPDATE sid $sid \
+                {*}[bsys system get $sid]
+
+            foreach tid [bsys topic ids] {
+                if {[bsys belief isdefault [list $sid $tid]]} {
+                    continue
+                } 
+
+                FromParms $f BSYS:BELIEF:UPDATE bid [list $sid $tid] \
+                    {*}[bsys belief get $sid $tid]
+            }
         }
 
         # NEXT, Actors.  Do supports separately, since this field can 
@@ -218,13 +248,6 @@ snit::type exporter {
         SectionHeader $f "Base Entities: Organization Groups"
         FromRDB $f ORGGROUP:CREATE {SELECT * FROM gui_orggroups}
 
-        # NEXT, Belief Systems
-        SectionHeader $f "Belief Systems"
-        OrderParms $f BSYSTEM:PLAYBOX:UPDATE gamma [bsystem playbox cget -gamma]
-        FromRDB $f BSYSTEM:ENTITY:UPDATE {SELECT * FROM mam_entity}
-        FromRDB $f BSYSTEM:TOPIC:CREATE  {SELECT * FROM mam_topic}
-        FromRDB $f BSYSTEM:BELIEF:UPDATE {SELECT * FROM gui_mam_belief}
-
         # NEXT, Attitudes
         SectionHeader $f "Attitudes"
         FromRDB $f COOP:UPDATE   {SELECT * FROM gui_coop_override_view}
@@ -240,7 +263,7 @@ snit::type exporter {
         SectionHeader $f "Economics: SAM Inputs"
 
         dict for {cell value} [econ samparms] {
-            OrderParms $f ECON:SAM:GLOBAL id $cell val $value
+            MakeSend $f ECON:SAM:GLOBAL id $cell val $value
         }
 
         # NEXT, Plant Infrastructure
@@ -344,7 +367,7 @@ snit::type exporter {
         puts $f "# $text\n"
     }
 
-    # OrderParms order parms...
+    # MakeSend order parms...
     #
     # f       - File handle
     # order   - Name of an order
@@ -352,7 +375,7 @@ snit::type exporter {
     #
     # Given the parms, outputs a [send] command for the order.
 
-    proc OrderParms {f order args} {
+    proc MakeSend {f order args} {
         # FIRST, build option list.  Include only parameters with
         # non-default values.
         set cmd [list send $order]
@@ -362,6 +385,30 @@ snit::type exporter {
         }
 
         puts $f $cmd
+    }
+
+    # FromParms f order parms...
+    #
+    # f       - File handle
+    # order   - Name of an order
+    # parms   - Parameter dictionary
+    #
+    # Given the parms, outputs a [send] command for the order,
+    # removing any unwanted parms from the inputs.
+
+    proc FromParms {f order args} {
+        # FIRST, get the parameters we care about.
+        set parms [order parms $order]
+
+        # NEXT, extract the available parameters from the args.
+        dict for {parm value} $args {
+            if {$parm ni $parms} {
+                dict unset args $parm
+            }
+        }
+
+        # NEXT, make the order
+        MakeSend $f $order {*}$args
     }
 
     # FromRDB f order query ?exceptions?
@@ -394,7 +441,7 @@ snit::type exporter {
             }
 
             # NEXT, output the command.
-            OrderParms $f $order {*}$parmdict
+            MakeSend $f $order {*}$parmdict
         }
     }
 

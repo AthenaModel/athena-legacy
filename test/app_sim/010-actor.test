@@ -45,6 +45,7 @@ namespace eval ::athena_test::tests:: {
     } -result {
 a                 JOE
 longname          Joe the Actor
+bsid              1
 supports          JOE
 atype             INCOME
 auto_maintain     0
@@ -59,13 +60,6 @@ income_world      0.0
 budget            0.0
     }
 
-    test create-1.2 {bsystem entity is created} -body {
-        actor mutate create [ted entity JOE]
-        bsystem entity names
-    } -cleanup {
-        cleanup
-    } -result {JOE}
-
     test create-1.3 {supports=NONE => NULL} -body {
         actor mutate create [dict merge [ted entity JOE] {supports NONE}]
         ted querylist {SELECT * FROM actors}
@@ -74,6 +68,7 @@ budget            0.0
     } -result {
 a                 JOE
 longname          Joe the Actor
+bsid              1
 supports          
 atype             INCOME
 auto_maintain     0
@@ -102,16 +97,6 @@ budget            0.0
     } -body {
         namespace eval :: $undo
         rdb eval {SELECT a FROM actors}
-    } -cleanup {
-        cleanup
-    } -result {JOE}
-
-    test create-2.2 {undo deletes the bsystem entity} -setup {
-        actor mutate create [ted entity JOE]
-        set undo [actor mutate create [ted entity BOB]]
-    } -body {
-        namespace eval :: $undo
-        bsystem entity names
     } -cleanup {
         cleanup
     } -result {JOE}
@@ -150,6 +135,7 @@ budget            0.0
     } -result {
 a                 JOE
 longname          Joe the Actor
+bsid              1
 supports          JOE
 atype             INCOME
 auto_maintain     0
@@ -164,71 +150,25 @@ income_world      0.0
 budget            0.0
     }
 
-    test delete-3.1 {Bsystem entity deleted} -setup {
-        ted create JOE BOB
+    test delete-4.1 {groups.a set to NULL} -setup {
+        ted create JOE BLUE USAID
     } -body {
         actor mutate delete JOE
 
-        # Is JOE gone?
-        bsystem entity names
+        rdb eval {SELECT g,a FROM groups}
     } -cleanup {
         cleanup
-    } -result {BOB}
+    } -result {BLUE {} USAID {}}
 
-    test delete-3.2 {Undo restores bsystem entity} -setup {
-        ted create JOE BOB
-        set undo [actor mutate delete JOE]
-    } -body {
-        namespace eval :: $undo
-        bsystem entity names
-    } -cleanup {
-        cleanup
-    } -result {BOB JOE}
-
-    test delete-4.1 {frcgroups.a set to NULL} -setup {
+    test delete-4.2 {Undo restores groups.a} -setup {
         ted create JOE BLUE
     } -body {
-        actor mutate delete JOE
-
-        rdb eval {SELECT g,a FROM frcgroups}
-    } -cleanup {
-        cleanup
-    } -result {BLUE {}}
-
-    test delete-4.2 {Undo restores frcgroups.a} -setup {
-        ted create JOE BLUE
-    } -body {
-        set a [rdb eval {SELECT g,a FROM frcgroups}]
+        set a [rdb eval {SELECT g,a FROM groups}]
 
         set undo [actor mutate delete JOE]
         namespace eval :: $undo
 
-        set b [rdb eval {SELECT g,a FROM frcgroups}]
-
-        expr {$a eq $b}
-    } -cleanup {
-        cleanup
-    } -result {1}
-
-    test delete-5.1 {orggroups.a set to NULL} -setup {
-        ted create JOE USAID
-    } -body {
-        actor mutate delete JOE
-
-        rdb eval {SELECT g,a FROM orggroups}
-    } -cleanup {
-        cleanup
-    } -result {USAID {}}
-
-    test delete-5.2 {Undo restores orggroups.a} -setup {
-        ted create JOE USAID
-    } -body {
-        set a [rdb eval {SELECT g,a FROM orggroups}]
-
-        set undo [actor mutate delete JOE]
-        namespace eval :: $undo
-
-        set b [rdb eval {SELECT g,a FROM orggroups}]
+        set b [rdb eval {SELECT g,a FROM groups}]
 
         expr {$a eq $b}
     } -cleanup {
@@ -350,6 +290,7 @@ budget            0.0
         actor mutate update {
             a                JOE
             longname         "Joe the Actress"
+            bsid             2
             supports         NONE
             atype            BUDGET
             cash_reserve     0
@@ -369,6 +310,7 @@ budget            0.0
     } -result {
 a                 JOE
 longname          Joe the Actress
+bsid              2
 supports          
 atype             BUDGET
 auto_maintain     0
@@ -392,6 +334,7 @@ budget            10.0
         actor mutate update  {
             a                JOE
             longname         ""
+            bsid             ""
             supports         ""
             atype            ""
             cash_reserve     ""
@@ -499,24 +442,25 @@ budget            10.0
     test get-1.1 {get actor dict} -setup {
         ted create JOE
     } -body {
-        ted pdict [actor get JOE]
+        ted pdicts [actor get JOE]
     } -cleanup {
         cleanup
-    } -result {
-        supports         JOE
+    } -match dict -result {
         a                JOE
-        auto_maintain    0
-        income_pop       0.0
-        cash_reserve     200000.0
-        budget           0.0
         atype            INCOME
+        auto_maintain    0
+        bsid             1
+        budget           0.0
+        cash_on_hand     0.0
+        cash_reserve     200000.0
+        income_black_tax 0.0
+        income_goods     10000.0
+        income_graft     0.0
+        income_pop       0.0
+        income_world     0.0
         longname         {Joe the Actor}
         shares_black_nr  0
-        income_world     0.0
-        income_black_tax 0.0
-        cash_on_hand     0.0
-        income_graft     0.0
-        income_goods     10000.0
+        supports         JOE
     }
 
     test get-1.2 {get actor attribute} -setup {
