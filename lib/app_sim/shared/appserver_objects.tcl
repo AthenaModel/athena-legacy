@@ -34,25 +34,29 @@ appserver module OBJECTS {
     #               label
 
     typevariable objectInfo {
+        /topics {
+            label    "Topics of Belief"
+            listIcon ::projectgui::icon::topic12
+        }
+
+        /bsystems {
+            label    "Belief Systems"
+            listIcon ::projectgui::icon::bsystem12
+        }
+
         /actors {
             label    "Actors"
             listIcon ::projectgui::icon::actor12
-            table    gui_actors
-            key      a
         }
 
         /agents {
             label    "Agents"
             listIcon ::projectgui::icon::actor12
-            table    gui_agents
-            key      agent_id
         }
 
         /caps   {
             label    "CAPs"
             listIcon ::projectgui::icon::cap12
-            table    gui_caps
-            key      k
         }
 
         /econ   {
@@ -63,50 +67,36 @@ appserver module OBJECTS {
         /ioms   {
             label    "IOMs"
             listIcon ::projectgui::icon::message12
-            table    gui_ioms
-            key      iom_id
         }
 
         /hooks {
             label    "Semantic Hooks"
             listIcon ::projectgui::icon::hook12
-            table    gui_hooks
-            key      hook_id
         }
 
         /groups {
             label    "Groups"
             listIcon ::projectgui::icon::group12
-            table    gui_groups
-            key      g
         }
 
         /groups/civ {
             label    "Civ. Groups"
             listIcon ::projectgui::icon::civgroup12
-            table    gui_civgroups
-            key      g
         }
 
         /groups/frc {
             label    "Force Groups"
             listIcon ::projectgui::icon::frcgroup12
-            table    gui_frcgroups
-            key      g
         }
 
         /groups/org {
             label    "Org. Groups"
             listIcon ::projectgui::icon::orggroup12
-            table    gui_orggroups
-            key      g
         }
 
         /nbhoods {
             label    "Neighborhoods"
             listIcon ::projectgui::icon::nbhood12
-            table    gui_nbhoods
-            key      n
         }
 
         /plants {
@@ -183,6 +173,8 @@ appserver module OBJECTS {
         # FIRST, handle subsets
         set subset {
             /overview
+            /bsystems
+            /topics
             /actors 
             /agents
             /nbhoods 

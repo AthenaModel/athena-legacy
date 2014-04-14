@@ -46,7 +46,7 @@ CREATE TABLE actors (
     longname      TEXT,
 
     -- Belief system ID
-    bsid          INTEGER DEFAULT 1,
+    bsid          TEXT DEFAULT '1',
 
     -- Supports actor (actor name or NULL)
     supports      TEXT REFERENCES actors(a)
@@ -241,7 +241,7 @@ CREATE TABLE groups (
                 DEFERRABLE INITIALLY DEFERRED, 
 
     -- Belief system ID, or (for FRC and ORG groups only) NULL
-    bsid        INTEGER
+    bsid        TEXT
 );
 
 -- groups BSID View: pulls in owner's bsid where needed.
