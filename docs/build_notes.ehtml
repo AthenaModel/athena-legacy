@@ -11,6 +11,23 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 7.0.2, 14 April 2014</h3>
+This build contains a complete reimplementation of belief systems to be
+pure Tcl/Tk based rather than rely on SQLite. Particular attention should be
+paid to this part of the build when testing.  There is also an upgrade to
+Tcl/Tk 8.6 in this build along with a few bug fixes.<p>
+
+<ul>
+<li> Bug 4434: Installers should include the correct list of maps
+<li> Bug 4435: MGRS coordinate bgerror
+<li> Bug 4441: Upgrade to Tcl/Tk 8.6
+<li> Bug 4442: httpagent(n): http(n) swallows errors
+<li> Bug 4449: athena(1): Belief System Reimplementation
+<li> Bug 4451: athena(1): autogen failure
+<li> Bug 4452: athena(1): Removing semantic hook sanity checks.
+<li> Bug 4453: athena(1): Compute semantic hook narratives on demand 
+</ul><p>
+
 <h3>Build 7.0.1, 13 March 2014</h3>
 This build consists mainly of bug fixes found on the Athena 6 branch that
 need to be folded into the trunk.  There is also the introduction of a new
