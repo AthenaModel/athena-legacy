@@ -84,13 +84,14 @@ WHERE orphan;
 -- SEMANTIC HOOK VIEWS
 
 CREATE TEMPORARY VIEW gui_hooks AS
-SELECT hook_id                                                    AS hook_id,
-       longname                                                   AS longname,
-       pair(longname,hook_id)                                     AS fancy,
-       'my://app/hook/' || hook_id                                AS url,
-       link('my://app/hook/' || hook_id, hook_id)                 AS link,
-       link('my://app/hook/' || hook_id, pair(longname, hook_id)) AS longlink,
-       narrative                                                  AS narrative
+SELECT hook_id                                       AS hook_id,
+       longname                                      AS longname,
+       pair(longname,hook_id)                        AS fancy,
+       'my://app/hook/' || hook_id                   AS url,
+       link('my://app/hook/' || hook_id, hook_id)    AS link,
+       link('my://app/hook/' || hook_id, 
+            pair(longname, hook_id))                 AS longlink,
+       hook_narrative(hook_id)                       AS narrative
 FROM hooks;
 
 CREATE TEMPORARY VIEW gui_hook_topics AS
@@ -98,9 +99,9 @@ SELECT hook_id || ' ' || topic_id                   AS id,
        link('my://app/hook/' || hook_id, hook_id)   AS hlink,
        hook_id                                      AS hook_id,
        topic_id                                     AS topic_id,
-       topic_text                                   AS topic_text,
-       pair(topic_text,topic_id)                    AS fancy,
-       narrative                                    AS narrative,
+       pair(topicname(topic_id), topic_id)          AS fancy,
+       qposition(position) || ' ' || 
+              topicname(topic_id)                   AS narrative,
        state                                        AS state,
        format('%4.2f',position)                     AS position,
        position                                     AS raw_position
@@ -125,7 +126,7 @@ SELECT I.iom_id                                       AS iom_id,
        END                                            AS narrative,
        state                                          AS state
 FROM ioms AS I
-LEFT OUTER JOIN hooks AS H USING (hook_id);
+LEFT OUTER JOIN gui_hooks AS H USING (hook_id);
        
 -----------------------------------------------------------------------
 -- PAYLOAD TYPE VIEWS

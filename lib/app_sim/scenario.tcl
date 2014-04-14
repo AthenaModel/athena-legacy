@@ -615,7 +615,10 @@ snit::type scenario {
         rdb function elink                [myproc EntityLink]
         rdb function yesno                [myproc YesNo]
         rdb function bsysname             ::bsys::bsysname
+        rdb function topicname            ::bsys::topicname
         rdb function affinity             ::bsys::affinity
+        rdb function qposition            [myproc QPosition]
+        rdb function hook_narrative       ::hook::hook_narrative
 
         # NEXT, define the GUI Views
         RdbEvalFile gui_scenario.sql       ;# Scenario Entities
@@ -724,6 +727,22 @@ snit::type scenario {
         } else {
             return "NO"
         }
+    }
+
+    # QPosition position
+    #
+    # position   - A qposition(n) value
+    #
+    # Returns the human-readable equivalent as a string.
+
+    proc QPosition {position} {
+        set ptext [qposition longname $position]
+
+        if {$ptext eq "Ambivalent"} {
+            append ptext " Towards"
+        }
+
+        return $ptext
     }
 
 

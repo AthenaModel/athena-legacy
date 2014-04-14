@@ -260,6 +260,16 @@ snit::type bsys {
         return "[$mam system get $bsid name] ($bsid)"
     }
 
+    # topicname tid
+    #
+    # tid  - A belief topic ID
+    #
+    # Returns the topic's name.
+
+    proc topicname {tid} {
+        return [$mam topic get $tid name]
+    }
+
     # affinity bsid1 bsid2
     #
     # bsid1  - A belief system ID

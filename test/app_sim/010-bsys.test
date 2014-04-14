@@ -352,6 +352,33 @@ namespace eval ::athena_test::tests:: {
         {::bsys <topic> delete 1}
         {::bsys <topic> add 1}
     }
+
+    #-------------------------------------------------------------------
+    # SQL Function Procs
+
+    test bsysname-1.1 {Retrieves belief system name} -body {
+        ::bsys::bsysname 1
+    } -cleanup {
+        cleanup
+    } -result {Neutral (1)}
+
+    test topicname-1.1 {Retrieves belief topic name} -setup {
+        bsys mutate add topic 1
+        bsys topic configure 1 -name "Test Topic"
+    } -body {
+        ::bsys::topicname 1
+    } -cleanup {
+        cleanup
+    } -result {Test Topic}
+    
+    test affinity-1.1 {Retrieves affinities} -setup {
+        bsys mutate add topic 1
+    } -body {
+        ::bsys::affinity 1 1
+    } -cleanup {
+        cleanup
+    } -result {1.0}
+
     #-------------------------------------------------------------------
     # Cleanup
 

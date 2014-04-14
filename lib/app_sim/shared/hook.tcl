@@ -57,7 +57,7 @@ snit::type hook {
 
     typemethod get {hook_id {parm ""}} {
         # FIRST, get the data
-        rdb eval {SELECT * FROM hooks WHERE hook_id=$hook_id} row {
+        rdb eval {SELECT * FROM gui_hooks WHERE hook_id=$hook_id} row {
             if {$parm ne ""} {
                 return $row($parm)
             } else {
@@ -79,10 +79,10 @@ snit::type hook {
 
     typemethod getdict {hook_id} {
         array set data [rdb eval {
-                     SELECT topic_id, position
-                     FROM hook_topics
-                     WHERE hook_id=$hook_id AND state='normal'
-                 }]
+            SELECT topic_id, position
+            FROM hook_topics
+            WHERE hook_id=$hook_id AND state='normal'
+        }]
 
         return [array get data]
     }
@@ -178,7 +178,7 @@ snit::type hook {
 
         # NEXT, get the data
         rdb eval {
-            SELECT * FROM hook_topics 
+            SELECT * FROM gui_hook_topics 
             WHERE hook_id=$hook_id AND topic_id=$topic_id
         } row {
             if {$parm ne ""} {
@@ -219,14 +219,6 @@ snit::type hook {
                       longname)
                 VALUES($hook_id, 
                        $longname) 
-            }
-
-            # NEXT, set the initial narrative
-            set narrative [hook ComputeHookNarrative $hook_id]
-
-            rdb eval {
-                UPDATE hooks SET narrative=$narrative
-                WHERE hook_id=$hook_id
             }
 
             # NEXT, Return undo command.
@@ -273,57 +265,11 @@ snit::type hook {
                 WHERE hook_id=$hook_id;
             } {}
 
-            # NEXT, compute the narrative
-            set narrative [$type ComputeHookNarrative $hook_id]
-
-            rdb eval {
-                UPDATE hooks
-                SET narrative = $narrative
-                WHERE hook_id=$hook_id;
-            }
-
             # NEXT, Return the undo command
             return [list rdb ungrab $data]
         }
     }
 
-    # ComputeHookNarrative hook_id
-    #
-    # hook_id    The ID of a semantic hook
-    #
-    # This method recomputes the user friendly narrative for a semantic
-    # hook.
-    #
-    
-    typemethod ComputeHookNarrative {hook_id} {
-        # FIRST, get the longname of this hook from the rdb
-        set longname [rdb onecolumn {
-                         SELECT longname FROM hooks 
-                         WHERE hook_id=$hook_id
-                     }]
-
-        # NEXT, trim of any trailing punctuation and add a colon
-        set longname [string trimright $longname ".!;?,:"]
-
-        set narr "$longname: "
-
-        # NEXT, grab all positions on this topic and build the narrative
-        set positions [rdb eval {
-            SELECT narrative FROM hook_topics 
-            WHERE hook_id=$hook_id
-            AND   state='normal'
-        }]
-
-        if {[llength $positions] == 0} {
-            append narr "No position on any topics"
-
-            return $narr
-        }
-        
-        append narr [join $positions "; "]
-
-        return $narr
-    }
 
     # mutate topic create parmdict
     #
@@ -339,30 +285,16 @@ snit::type hook {
     typemethod {mutate topic create} {parmdict} {
         dict with parmdict {
 
-            set narrative [hook ComputeTopicNarrative $topic_id $position]
-            set ttext     [bsys topic cget $topic_id -name]
-
             rdb eval {
                 INSERT INTO 
                 hook_topics(hook_id,
                             topic_id,
-                            topic_text,
-                            narrative,
                             position)
                 VALUES($hook_id,
                        $topic_id,
-                       $ttext,
-                       $narrative,
                        $position)
             }
             
-            set narrative [hook ComputeHookNarrative $hook_id]
-
-            rdb eval {
-                UPDATE hooks SET narrative=$narrative
-                WHERE hook_id=$hook_id
-            }
-
             return \
                 [mytypemethod mutate topic delete [list $hook_id $topic_id]]
         }
@@ -382,18 +314,12 @@ snit::type hook {
         dict with parmdict {
             lassign $id hook_id topic_id
 
-            # FIRST, compute the hook topic narrative
-            set ttext     [bsys topic cget $topic_id -name]
-            set narrative [hook ComputeTopicNarrative $topic_id $position]
-
             set tdata [rdb grab \
                 hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
 
             rdb eval {
                 UPDATE hook_topics
-                SET position   = nonempty($position,  position),
-                    narrative  = nonempty($narrative, narrative),
-                    topic_text = nonempty($ttext,     topic_text)
+                SET position   = nonempty($position,  position)
                 WHERE hook_id=$hook_id AND topic_id=$topic_id
             }
 
@@ -401,15 +327,6 @@ snit::type hook {
             # topic go away
             set hdata [rdb grab hooks {hook_id=$hook_id}]
             
-            # NEXT, compute the hook narrative and update the hooks
-            # table
-            set narrative [hook ComputeHookNarrative $hook_id]
-
-            rdb eval {
-                UPDATE hooks SET narrative=$narrative
-                WHERE hook_id=$hook_id
-            }
-
             return [list rdb ungrab [concat $tdata $hdata]]
         }
     }
@@ -429,14 +346,6 @@ snit::type hook {
             -grab hook_topics {hook_id=$hook_id AND topic_id=$topic_id}]
 
         set hdata [rdb grab hooks {hook_id=$hook_id}]
-
-        # NEXT, compute the new hook narrative, a topic has gone away
-        set narrative [hook ComputeHookNarrative $hook_id]
-
-        rdb eval {
-            UPDATE hooks SET narrative=$narrative
-            WHERE hook_id=$hook_id
-        }
 
         return [list rdb ungrab [concat $tdata $hdata]]
     }
@@ -464,43 +373,51 @@ snit::type hook {
             WHERE hook_id=$hook_id AND topic_id=$topic_id
         }
 
-        # NEXT, compute the new hook narrative, a topic has changed
-        # state
-        set narrative [hook ComputeHookNarrative $hook_id]
-
-        rdb eval {
-            UPDATE hooks SET narrative=$narrative
-            WHERE hook_id=$hook_id
-        }
-
         return [list rdb ungrab [concat $tdata $hdata]]
     }
 
 
+    #-------------------------------------------------------------------
+    # SQL Function Implementations
 
-    # ComputeTopicNarrative topic_id position
+    # hook_narrative hook_id
     #
-    # topic_id   ID of a bsys topic
-    # position   A qposition(n) value
+    # hook_id  - The ID of a semantic hook
     #
-    # Given a topic and a position on that topic compute a narrative.
+    # This method recomputes the user friendly narrative for a semantic
+    # hook.
+    
+    proc hook_narrative {hook_id} {
+        # FIRST, get the longname of this hook from the rdb
+        set longname [rdb onecolumn {
+            SELECT longname FROM hooks 
+            WHERE hook_id=$hook_id
+        }]
 
-    typemethod ComputeTopicNarrative {topic_id position} {
-        # FIRST, get the text representation of the topic and position
-        set ptext [qposition longname $position]
-        set ttext [bsys topic cget $topic_id -name]
+        # NEXT, trim of any trailing punctuation and add a colon
+        set longname [string trimright $longname ".!;?,:"]
 
-        # NEXT, compute the narrative
-        set narr "$ptext "
+        set narr "$longname: "
 
-        if {$ptext eq "Ambivalent"} {
-            append narr "Towards "
+        # NEXT, grab all positions on this topic and build the narrative
+        set positions [rdb eval {
+            SELECT narrative FROM gui_hook_topics 
+            WHERE hook_id=$hook_id
+            AND   state='normal'
+        }]
+
+        if {[llength $positions] == 0} {
+            append narr "No position on any topics"
+
+            return $narr
         }
-
-        append narr "$ttext"
+        
+        append narr [join $positions "; "]
 
         return $narr
     }
+
+    
 
     #-------------------------------------------------------------------
     # Order Helpers

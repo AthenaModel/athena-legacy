@@ -128,9 +128,7 @@ CREATE TABLE hooks (
 
     hook_id    TEXT PRIMARY KEY, -- ID of a semantic hook
 
-    longname   TEXT,             -- Longname of the semantic hook
-
-    narrative  TEXT              -- A free form narrative
+    longname   TEXT              -- Longname of the semantic hook
 );
 
 CREATE TABLE hook_topics (
@@ -146,13 +144,6 @@ CREATE TABLE hook_topics (
                                        -- this topic ID exists in 
                                        -- [bsys topic ids].
 
-    topic_text TEXT,                   -- The text representation of 
-                                       -- the topic as it exists in the
-                                       -- mam2(n) data.
-
-    narrative  TEXT,                   -- Narrative describing the position
-                                       -- on the topic.
-
     state      TEXT DEFAULT "normal",  -- Normal, disabled or invalid
                                        -- (an etopic_state)
 
@@ -167,7 +158,6 @@ CREATE VIEW hook_topics_view AS
 SELECT hook_id || ' ' || topic_id AS id,
        hook_id                    AS hook_id,
        topic_id                   AS topic_id,
-       narrative                  AS narrative,
        state                      AS state,
        position                   AS position
 FROM hook_topics;
