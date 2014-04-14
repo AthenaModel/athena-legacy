@@ -33,7 +33,6 @@ snit::widget hookbrowser {
     component taddbtn        ;# Add Topic button
     component editbtn        ;# The "Edit" button
     component togglebtn      ;# The hook state toggle button
-    component checkbtn       ;# The sanity check button
     component deletebtn      ;# The Delete button
 
     #-------------------------------------------------------------------
@@ -79,7 +78,6 @@ snit::widget hookbrowser {
         # Reload the content on various notifier events.
         notifier bind ::sim     <DbSyncB> $self [mymethod ReloadOnEvent]
         notifier bind ::sim     <Tick>    $self [mymethod ReloadOnEvent]
-        notifier bind ::hook    <Check>   $self [mymethod ReloadOnEvent]
 
         # Reload individual entities when they
         # are updated or deleted.
@@ -268,11 +266,6 @@ snit::widget hookbrowser {
             browser $win                                \
             predicate {htree validtopic}
 
-        install checkbtn using ttk::button $bar.check      \
-            -style Toolbutton                              \
-            -text  "Check"                                 \
-            -command [mymethod SanityCheck]
-
         install deletebtn using mkdeletebutton $bar.delete \
             "Delete hook or topic"                         \
             -state   disabled                              \
@@ -287,7 +280,6 @@ snit::widget hookbrowser {
         pack $taddbtn    -side left
         pack $editbtn    -side left
         pack $togglebtn  -side left
-        pack $checkbtn   -side left
 
         pack $deletebtn  -side right
 
@@ -452,16 +444,6 @@ snit::widget hookbrowser {
         order enter HOOK:CREATE 
     }
 
-
-    # SanityCheck
-    #
-    # Allows the user to check the sanity of the existing hooks.
-
-    method SanityCheck {} {
-        if {[hook checker] ne "OK"} {
-            app show my://app/sanity/hook
-        }
-    }
 
     # ToggleTopicState
     #

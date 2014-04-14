@@ -114,7 +114,6 @@ snit::type sanity {
 
         # NEXT, call each of the on-lock checkers
         savemax sev [$type ScenarioOnLockChecker $ht] 
-        savemax sev [hook checker $ht] 
         savemax sev [iom checker $ht] 
         savemax sev [curse checker $ht]
         savemax sev [strategy checker $ht] 

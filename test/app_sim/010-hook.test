@@ -295,30 +295,6 @@ position    0.9
     }
 
     #----------------------------------------------------------
-    # Sanity check
-
-    test sanity-1.1 {Hook module is sane} -setup {
-        mktopic
-        hook mutate create $h1
-        hook mutate topic create $t1
-    } -body {
-        hook checker
-    } -cleanup {
-        cleanup
-    } -result {OK}
-
-    test sanity-1.2 {Hook module is not sane} -setup {
-        mktopic
-        hook mutate create $h1
-        hook mutate topic create $t1
-    } -body {
-        bsys topic delete 1
-        hook checker
-    } -cleanup {
-        cleanup
-    } -result {WARNING}
-
-    #----------------------------------------------------------
     # Public methods
 
     # names
