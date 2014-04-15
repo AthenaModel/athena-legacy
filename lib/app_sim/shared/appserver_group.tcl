@@ -327,7 +327,8 @@ appserver module GROUPS {
             "#drivers"    "Drivers"
             "#sigevents"  "Significant Events"
         }
-        
+
+
         # NEXT, determine the population.
         # TBD: Once demog_g is populated only when the simulation is locked,
         # we can update gui_civgroups to coalesce basepop into population,
@@ -356,6 +357,10 @@ appserver module GROUPS {
         ht link  /nbhood/$data(n) "$nb(longname) ($data(n))"
         ht put   " and has a population of [commafmt $population]."
         ht putln "The group's housing status is $data(housing)."
+
+        ht putln "The group's belief system is "
+        set bsysname [bsys system cget $data(bsid) -name]
+        ht link my://app/bsystem/$data(bsid) "\"$bsysname ($data(bsid))\"."
 
         if {!$nb(local)} {
             ht putln {

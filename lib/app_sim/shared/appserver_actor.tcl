@@ -128,6 +128,12 @@ appserver module ACTOR {
             "#sigevents" "Significant Events"
         }
         
+        ht putln "Belief System: "
+        set bsysname [bsys system cget $data(bsid) -name]
+        ht link my://app/bsystem/$data(bsid) "$bsysname ($data(bsid))"
+
+        ht para
+
         ht putln "Groups owned: "
 
         ht linklist -default "None" [rdb eval {
