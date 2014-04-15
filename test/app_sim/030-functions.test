@@ -61,6 +61,7 @@ namespace eval ::athena_test::tests:: {
 
     test affinity-2.2 {get data} -setup {
         ted create NB1 BLUE SUNN
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr affinity("sunn","blue")
@@ -89,6 +90,7 @@ namespace eval ::athena_test::tests:: {
 
     test aplants-2.2 {get data} -setup {
         ted create NB1 BLUE SHIA JOE
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr aplants("joe")
@@ -590,6 +592,7 @@ namespace eval ::athena_test::tests:: {
 
     test income-2.3 {LOCKED - 1 actor} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr income("JOE")
@@ -599,6 +602,7 @@ namespace eval ::athena_test::tests:: {
 
     test income-2.4 {LOCKED - 1 actor} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr income("BOB")
@@ -608,6 +612,7 @@ namespace eval ::athena_test::tests:: {
 
     test income-2.5 {LOCKED - 2 actors} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr income("JOE","BOB")
@@ -714,6 +719,7 @@ namespace eval ::athena_test::tests:: {
 
     test income_goods-2.3 {LOCKED - 1 actor} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr income_goods("JOE")
@@ -723,6 +729,7 @@ namespace eval ::athena_test::tests:: {
 
     test income_goods-2.4 {LOCKED - 1 actor} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr income_goods("BOB")
@@ -732,6 +739,7 @@ namespace eval ::athena_test::tests:: {
 
     test income_goods-2.5 {LOCKED - 2 actors} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr income_goods("JOE","BOB")
@@ -1038,6 +1046,7 @@ namespace eval ::athena_test::tests:: {
 
     test local_unemp-2.2 {LOCKED} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr local_unemp()
@@ -1274,6 +1283,7 @@ namespace eval ::athena_test::tests:: {
 
     test nbgoodscap-2.2 {get data} -setup {
         ted create NB1 BLUE SHIA
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr nbgoodscap("nb1")
@@ -1331,6 +1341,7 @@ namespace eval ::athena_test::tests:: {
 
     test nbplants-2.2 {get data} -setup {
         ted create NB1 BLUE SHIA JOE
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr nbplants("nb1")
@@ -1464,6 +1475,7 @@ namespace eval ::athena_test::tests:: {
 
     test nbunemp-2.3 {LOCKED - 1 nbhood} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr nbunemp("NB1")
@@ -1473,6 +1485,7 @@ namespace eval ::athena_test::tests:: {
 
     test nbunemp-2.4 {LOCKED - 1 nbhood} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr nbunemp("NB2")
@@ -1482,6 +1495,7 @@ namespace eval ::athena_test::tests:: {
 
     test nbunemp-2.5 {LOCKED - 2 nbhoods} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr nbunemp("NB1","NB2")
@@ -1690,6 +1704,7 @@ namespace eval ::athena_test::tests:: {
 
     test pbgoodscap-2.2 {get data} -setup {
         ted create NB1 BLUE SHIA JOE
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr pbgoodscap()
@@ -1718,6 +1733,7 @@ namespace eval ::athena_test::tests:: {
 
     test pbplants-2.2 {get data} -setup {
         ted create NB1 BLUE SHIA JOE
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr pbplants()
@@ -1774,6 +1790,7 @@ namespace eval ::athena_test::tests:: {
 
     test pbunemp-2.2 {LOCKED} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr pbunemp()
@@ -2045,6 +2062,7 @@ namespace eval ::athena_test::tests:: {
 
     test reserve-2.2 {get data} -setup {
         ted create NB1 BLUE SHIA JOE
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr reserve("joe")
@@ -2450,6 +2468,7 @@ namespace eval ::athena_test::tests:: {
 
     test unemp-2.3 {LOCKED - 1 civgroup} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr unemp("SHIA")
@@ -2459,6 +2478,7 @@ namespace eval ::athena_test::tests:: {
 
     test unemp-2.4 {LOCKED - 1 civgroup} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr unemp("SUNN")
@@ -2468,6 +2488,7 @@ namespace eval ::athena_test::tests:: {
 
     test unemp-2.5 {LOCKED - 2 civgroups} -setup {
         ted create JOE BOB NB1 NB2 BLUE SHIA SUNN KURD
+        parm set econ.disable no
         ted lock
     } -body {
         ted sendex expr unemp("SHIA","SUNN")

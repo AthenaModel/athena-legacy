@@ -30,7 +30,10 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    proc setup {} {
+    proc setup {{opt ""}} {
+        if {$opt eq "-econ"} {
+            parm set econ.disable no
+        }
         ted create JOE BOB BLUE BRIT TAL SUNN SHIA KURD USAID
     }
 
@@ -805,7 +808,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test INCOME-4.2 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::INCOME eval {alist BOB}
@@ -814,7 +817,7 @@ namespace eval ::athena_test::tests:: {
     } -result {480.07}
 
     test INCOME-4.3 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::INCOME eval {alist {JOE}}
@@ -823,7 +826,7 @@ namespace eval ::athena_test::tests:: {
     } -result {960.15}
 
     test INCOME-4.4 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::INCOME eval {alist {BOB JOE}}
@@ -969,7 +972,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test INCOME_GOODS-4.2 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::INCOME_GOODS eval {alist BOB}
@@ -978,7 +981,7 @@ namespace eval ::athena_test::tests:: {
     } -result {480.07}
 
     test INCOME_GOODS-4.3 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::INCOME_GOODS eval {alist {JOE}}
@@ -987,7 +990,7 @@ namespace eval ::athena_test::tests:: {
     } -result {960.15}
 
     test INCOME_GOODS-4.4 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::INCOME_GOODS eval {alist {BOB JOE}}
@@ -1417,7 +1420,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test LOCAL_UNEMPLOYMENT_RATE-4.1 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::LOCAL_UNEMPLOYMENT_RATE eval {}
@@ -1742,7 +1745,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     test NB_GOODS_CAP-4.2 {eval lock} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::NB_GOODS_CAP eval {n NB1}
@@ -1836,7 +1839,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     test NB_PLANTS-4.2 {eval lock} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::NB_PLANTS eval {n NB1}
@@ -2025,7 +2028,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test NB_UNEMPLOYMENT_RATE-4.2 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE eval {nlist NB1}
@@ -2043,7 +2046,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test NB_UNEMPLOYMENT_RATE-4.4 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::NB_UNEMPLOYMENT_RATE eval {nlist {NB1 NB2}}
@@ -2246,7 +2249,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     test PLAYBOX_GOODS_CAP-4.2 {eval lock} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::PLAYBOX_GOODS_CAP eval {}
@@ -2286,7 +2289,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.0}
 
     test PLAYBOX_PLANTS-4.2 {eval lock} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::PLAYBOX_PLANTS eval {}
@@ -2366,7 +2369,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test PLAYBOX_UNEMPLOYMENT_RATE-4.1 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::PLAYBOX_UNEMPLOYMENT_RATE eval {}
@@ -2682,7 +2685,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test CASH_RESERVE-4.2 {eval lock} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::CASH_RESERVE eval {a JOE}
@@ -3026,7 +3029,7 @@ namespace eval ::athena_test::tests:: {
     } -result {0.00}
 
     test GROUP_UNEMPLOYMENT_RATE-4.2 {eval} -setup {
-        setup
+        setup -econ
         ted lock
     } -body {
         ::gofer::NUMBER::GROUP_UNEMPLOYMENT_RATE eval {glist SUNN}

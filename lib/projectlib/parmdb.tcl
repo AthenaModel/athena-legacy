@@ -831,7 +831,7 @@ snit::type ::projectlib::parmdb {
             Parameters which affect the Athena Economic Model.
         }
 
-        $ps define econ.disable ::projectlib::boolean no {
+        $ps define econ.disable ::projectlib::boolean yes {
             If yes, the Athena economic model is disabled.  The
             economy will not be computed, and economic results will not
             be used.

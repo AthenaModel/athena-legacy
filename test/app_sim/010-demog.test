@@ -26,8 +26,14 @@ namespace eval ::athena_test::tests:: {
     # Import tcltest(n)
     namespace import ::tcltest::*
 
-    # Setup
-    proc setup {} {
+    # setup ?flag?
+    #
+    # flag  - yes or no
+    #
+    # Sets up for tests; by default, sets econ.disable no.
+    # Pass flag explicitly to set it to yes.
+    proc setup {{flag no}} {
+        parm set econ.disable $flag
         ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD
         ted lock
     }
@@ -124,8 +130,7 @@ NB2 1000       1000        0         0           0          0.0 0.0 0.0
     # getg
 
     test getg-1.1 {can get all data} -setup {
-        parm set econ.disable yes
-        setup
+        setup yes
     } -body {
         demog getg SHIA
     } -cleanup {
@@ -378,6 +383,8 @@ KURD 981        980.7692307692307
     } -result {1}
 
     test econstats-1.3 {Workers willing to travel, less unemployment} -setup {
+        parm set econ.disable no
+
         ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD 
         parmdb set demog.maxcommute NEAR
         rdb eval {UPDATE nbrel_mn SET proximity='REMOTE'}
@@ -394,6 +401,7 @@ KURD 981        980.7692307692307
     } -result {1}
 
     test econstats-1.4 {Workers won't travel, more unemployment} -setup {
+        parm set econ.disable no
         ted create JOE BOB BLUE USAID NB1 NB2 SHIA SUNN KURD 
         parmdb set demog.maxcommute NEAR 
         rdb eval {UPDATE nbrel_mn SET proximity='NEAR'}
