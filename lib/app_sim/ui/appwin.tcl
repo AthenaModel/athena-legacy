@@ -29,7 +29,6 @@ snit::widget appwin {
     # Dictionary of duration values by label strings 
     # for the durations pulldown
     typevariable durations {
-        "Until paused"  ""
         "1 week"         1
         "2 weeks"        2
         "3 weeks"        3
@@ -970,7 +969,7 @@ snit::widget appwin {
         install toolbar using ttk::frame $win.toolbar
 
         # Prep Lock/Unlock
-        ttk::button $toolbar.preplock            \
+        ttk::button $toolbar.preplock                \
             -style    Toolbutton                     \
             -image    ::projectgui::icon::unlocked22 \
             -command  [mymethod PrepLock]
@@ -979,25 +978,25 @@ snit::widget appwin {
         install simtools using ttk::frame $toolbar.sim
 
         # RunPause
-        ttk::button $simtools.runpause       \
+        ttk::button $simtools.runpause          \
             -style   Toolbutton                 \
-            -image   ::marsgui::icon::play22 \
+            -image   ::marsgui::icon::play22    \
             -command [mymethod RunPause]
 
         # Duration
 
-        menubox $simtools.duration         \
+        menubox $simtools.duration            \
             -justify   left                   \
             -width     10                     \
             -takefocus 0                      \
             -values    [dict keys $durations]
 
-        $simtools.duration set [lindex [dict keys $durations] 1]
+        $simtools.duration set [lindex [dict keys $durations] 0]
 
         DynamicHelp::add $simtools.duration -text "Duration of run"
 
         # Sim State
-        ttk::label $toolbar.state                  \
+        ttk::label $toolbar.state                \
             -text "State:"
 
         ttk::label $toolbar.simstate             \
