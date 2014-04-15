@@ -224,7 +224,12 @@ proc main {argv} {
     close $f
 
     # NEXT, make the tar file
-    set tarFile athena_${version}$tags($tarType).tgz
+    set tarFile athena_${version}$tags($tarType)
+    if {$platform eq "linux64" && $tarType eq "install"} {
+        append tarFile "-x86_64.tgz"
+    } else {
+        append tarFile ".tgz"
+    }
 
     puts "make_tar: [file join [pwd] $tarFile]"
     eval [concat [list exec tar cvzf $tarFile] -T tarfiles.txt]
