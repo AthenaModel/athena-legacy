@@ -316,7 +316,6 @@ snit::type ted {
             longname  "Shia"
             bsid      1
             color     "#c00001"
-            shape     NEUTRAL
             n         NB1
             basepop   1000
             pop_cr    0.0
@@ -333,7 +332,6 @@ snit::type ted {
             longname  "Sunni"
             bsid      1
             color     "#c00002"
-            shape     NEUTRAL
             n         NB1
             basepop   1000
             pop_cr    0.0
@@ -350,7 +348,6 @@ snit::type ted {
             longname  "Kurd"
             bsid      1
             color     "#c00003"
-            shape     NEUTRAL
             n         NB2
             basepop   1000
             pop_cr    0.0
@@ -367,7 +364,6 @@ snit::type ted {
             longname  "Nobody"
             bsid      1
             color     "#c00004"
-            shape     NEUTRAL
             n         NB2
             basepop   0
             pop_cr    0.0
@@ -384,7 +380,6 @@ snit::type ted {
             longname  "Not Locals"
             bsid      1
             color     "#c00003"
-            shape     NEUTRAL
             n         NL1
             basepop   1000
             pop_cr    0.0
@@ -403,7 +398,6 @@ snit::type ted {
             longname       "US Army"
             a              JOE
             color          "#f00001"
-            shape          FRIEND
             forcetype      REGULAR
             training       PROFICIENT
             base_personnel 5000
@@ -417,7 +411,6 @@ snit::type ted {
             longname       "British Forces"
             a              JOE
             color          "#f00002"
-            shape          FRIEND
             forcetype      REGULAR
             training       PROFICIENT
             base_personnel 5000
@@ -431,7 +424,6 @@ snit::type ted {
             longname       "Al Qaeda"
             a              BOB
             color          "#f00003"
-            shape          ENEMY
             forcetype      IRREGULAR
             training       PARTIAL
             base_personnel 1000
@@ -445,7 +437,6 @@ snit::type ted {
             longname       "Taliban"
             a              BOB
             color          "#f00004"
-            shape          ENEMY
             forcetype      IRREGULAR
             training       PARTIAL
             base_personnel 1000
@@ -461,7 +452,6 @@ snit::type ted {
             longname       "US Aid"
             a              JOE
             color          "#000001"
-            shape          NEUTRAL
             orgtype        NGO
             base_personnel 1000
             demeanor       AVERAGE
@@ -473,7 +463,6 @@ snit::type ted {
             longname       "Haliburton"
             a              JOE
             color          "#000002"
-            shape          NEUTRAL
             orgtype        CTR
             base_personnel 2000
             demeanor       AVERAGE

@@ -108,6 +108,17 @@ CREATE TABLE units (
 CREATE INDEX units_ngap_index ON
 units(n,g,a,personnel);
 
+-- Units view, for display
+CREATE VIEW units_view AS
+SELECT U.u               AS u,
+       U.active          AS active,
+       U.g               AS g,
+       u.gtype           AS gtype,
+       U.personnel       AS personnel,
+       U.a               AS a,
+       U.location        AS location,
+       G.color           AS color
+FROM units AS U JOIN groups AS G USING (g);
 
 ------------------------------------------------------------------------
 -- ATTRITION 

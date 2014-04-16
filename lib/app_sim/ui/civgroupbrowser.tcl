@@ -36,7 +36,6 @@ snit::widgetadaptor civgroupbrowser {
         { n              "\nNbhood"                                       }
         { bsysname       "\nBelief System"                                }
         { color          "\nColor"                                        }
-        { shape          "\nUnit Shape"                                   }
         { demeanor       "\nDemeanor"                                     }
         { basepop        "Base\nPopulation"             -sortmode integer }
         { pop_cr         "Pop. Change Rate\n% per year" -sortmode real    }

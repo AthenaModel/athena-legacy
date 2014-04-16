@@ -105,19 +105,19 @@ send NBREL:UPDATE -id {PE IN} -proximity REMOTE
 #-----------------------------------------------------------------
 # Base Entities: Civilian Groups
 
-send CIVGROUP:CREATE -g PEONR -longname {Rural Peons} -n PE -bsid 5 -color #AA7744 -shape NEUTRAL -demeanor AGGRESSIVE -basepop 800000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g PEONU -longname {Urban Peons} -n CITY -bsid 6 -color #AA7744 -shape NEUTRAL -demeanor AVERAGE -basepop 50000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g ELR -longname {Rural Elitians} -n EL -bsid 7 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 600000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g ELU -longname {Urban Elitians} -n CITY -bsid 8 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 300000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g SA -longname SA -n PE -bsid 9 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 100000 -pop_cr 0.0 -sa_flag 1 -lfp 0 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g NOBODY -longname NOBODY -n CITY -bsid 10 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 0 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
-send CIVGROUP:CREATE -g ICS -longname Incognitians -n IN -bsid 11 -color #45DD11 -shape NEUTRAL -demeanor AVERAGE -basepop 10000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g PEONR -longname {Rural Peons} -n PE -bsid 5 -color #AA7744 -demeanor AGGRESSIVE -basepop 800000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g PEONU -longname {Urban Peons} -n CITY -bsid 6 -color #AA7744 -demeanor AVERAGE -basepop 50000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g ELR -longname {Rural Elitians} -n EL -bsid 7 -color #45DD11 -demeanor AVERAGE -basepop 600000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g ELU -longname {Urban Elitians} -n CITY -bsid 8 -color #45DD11 -demeanor AVERAGE -basepop 300000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g SA -longname SA -n PE -bsid 9 -color #45DD11 -demeanor AVERAGE -basepop 100000 -pop_cr 0.0 -sa_flag 1 -lfp 0 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g NOBODY -longname NOBODY -n CITY -bsid 10 -color #45DD11 -demeanor AVERAGE -basepop 0 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
+send CIVGROUP:CREATE -g ICS -longname Incognitians -n IN -bsid 11 -color #45DD11 -demeanor AVERAGE -basepop 10000 -pop_cr 0.0 -sa_flag 0 -lfp 60 -housing AT_HOME -hist_flag 0 -upc 0.0
 
 #-----------------------------------------------------------------
 # Base Entities: Force Groups
 
-send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -color #3B61FF -shape FRIEND -forcetype REGULAR -training FULL -base_personnel 20000 -demeanor AVERAGE -cost 5,000.00 -local 1
-send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -color #3B61FF -shape ENEMY -forcetype IRREGULAR -training FULL -base_personnel 6000 -demeanor AGGRESSIVE -cost 1,000.00 -local 1
+send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -color #3B61FF -forcetype REGULAR -training FULL -base_personnel 20000 -demeanor AVERAGE -cost 5,000.00 -local 1
+send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -color #3B61FF -forcetype IRREGULAR -training FULL -base_personnel 6000 -demeanor AGGRESSIVE -cost 1,000.00 -local 1
 
 #-----------------------------------------------------------------
 # Base Entities: Organization Groups

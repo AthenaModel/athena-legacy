@@ -33,7 +33,6 @@ namespace eval ::athena_test::tests:: {
         longname       "US Army"
         a              JOE
         color          #0000ff
-        shape          FRIEND
         forcetype      REGULAR
         training       PROFICIENT
         base_personnel 1000
@@ -47,7 +46,6 @@ namespace eval ::athena_test::tests:: {
         longname       "British Forces"
         a              JOE
         color          #00ffff
-        shape          FRIEND
         forcetype      REGULAR
         training       FULL
         base_personnel 1000
@@ -116,19 +114,6 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -match glob -result {
         color {Invalid hex color*}
-    }
-
-
-    test CREATE-1.6 {invalid shape} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject FRCGROUP:CREATE [dict merge $blue {
-            shape NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 
@@ -216,8 +201,6 @@ namespace eval ::athena_test::tests:: {
 g               BLUE
 longname        US Army
 color           #0000FF
-shape           FRIEND
-symbol          infantry
 demeanor        AVERAGE
 cost            0.0
 gtype           FRC
@@ -339,16 +322,6 @@ local           0
         color {Invalid hex color*}
     }
 
-    test UPDATE-1.4 {invalid shape} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE g BLUE shape NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
-    }
-
 
     test UPDATE-1.5 {invalid forcetype} -setup {
         ted create BLUE
@@ -422,7 +395,6 @@ local           0
             longname       "Blue Angels"
             a              BOB
             color          "#ff0000"
-            shape          NEUTRAL
             forcetype      POLICE
             training       NONE
             base_personnel 10000
@@ -438,8 +410,6 @@ local           0
 g               BLUE
 longname        Blue Angels
 color           #FF0000
-shape           NEUTRAL
-symbol          police
 demeanor        AGGRESSIVE
 cost            10.0
 gtype           FRC
@@ -538,17 +508,6 @@ local           1
     } 
 
 
-    test UPDATE:MULTI-1.6 {invalid shape} -setup {
-        ted create BLUE
-    } -body {
-        ted order -reject FRCGROUP:UPDATE:MULTI ids BLUE shape NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
-    }
-
-
     test UPDATE:MULTI-1.7 {invalid forcetype} -setup {
         ted create BLUE
     } -body {
@@ -623,7 +582,6 @@ local           1
             ids            BLUE 
             a              BOB
             color          "#ff0000"
-            shape          NEUTRAL
             forcetype      POLICE
             training       NONE
             base_personnel 10000
@@ -649,7 +607,6 @@ local           1
             ids            {BLUE BRIT}
             a              BOB
             color          "#ff0000"
-            shape          NEUTRAL
             forcetype      POLICE
             training       NONE
             base_personnel 10000

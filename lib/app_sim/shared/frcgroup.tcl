@@ -20,16 +20,6 @@ snit::type frcgroup {
     #-------------------------------------------------------------------
     # Type Variables
 
-    # Unit Symbols, by force type
-
-    typevariable symbols -array {
-        REGULAR       infantry
-        IRREGULAR     {irregular infantry}
-        PARAMILITARY  {infantry police}
-        POLICE        police
-        CRIMINAL      criminal
-    }
-
     #-------------------------------------------------------------------
     # Queries
     #
@@ -134,7 +124,6 @@ snit::type frcgroup {
     #    longname       The group's long name
     #    a              The group's owning actor
     #    color          The group's color
-    #    shape          The group's unit shape (eunitshape(n))
     #    forcetype      The group's eforcetype
     #    training       The group's training level (etraining(n))
     #    base_personnel The group's base personnel
@@ -152,20 +141,14 @@ snit::type frcgroup {
         # FIRST, bring the parameters into scope.
         dict with parmdict {}
 
-        # NEXT, get the symbol
-        set symbol $symbols($forcetype)
-
         # NEXT, Put the group in the database
         rdb eval {
             INSERT INTO 
-            groups(g, longname, a, color, shape, symbol, demeanor, 
-                   cost, gtype)
+            groups(g, longname, a, color, demeanor, cost, gtype)
             VALUES($g,
                    $longname,
                    nullif($a,''),
                    $color,
-                   $shape,
-                   $symbol,
                    $demeanor,
                    $cost,
                    'FRC');
@@ -208,7 +191,6 @@ snit::type frcgroup {
     #    longname       A new long name, or ""
     #    a              A new owning actor, or ""
     #    color          A new color, or ""
-    #    shape          A new shape, or ""
     #    forcetype      A new eforcetype, or ""
     #    training       A new training level, or ""
     #    base_personnel A new base personnel, or ""
@@ -226,21 +208,12 @@ snit::type frcgroup {
         # NEXT, grab the group data that might change.
         set data [rdb grab groups {g=$g} frcgroups {g=$g}]
 
-        # NEXT, get the new unit symbol, if need be.
-        if {$forcetype ne ""} {
-            set symbol $symbols($forcetype)
-        } else {
-            set symbol ""
-        }
-
         # NEXT, Update the group
         rdb eval {
             UPDATE groups
             SET longname   = nonempty($longname,     longname),
                 a          = coalesce(nullif($a,''), a),
                 color      = nonempty($color,        color),
-                shape      = nonempty($shape,        shape),
-                symbol     = nonempty($symbol,       symbol),
                 demeanor   = nonempty($demeanor,     demeanor),
                 cost       = nonempty($cost,         cost)
             WHERE g=$g;
@@ -281,11 +254,8 @@ order define FRCGROUP:CREATE {
         actor a    
 
         rcc "Color:" -for color
-        color color -defvalue #3B61FF
+        color color -defvalue #AA7744
 
-        rcc "Unit Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist} -defvalue NEUTRAL
-        
         rcc "Force Type" -for forcetype
         enumlong forcetype -dictcmd {eforcetype deflist} -defvalue REGULAR
 
@@ -311,7 +281,6 @@ order define FRCGROUP:CREATE {
     prepare longname       -normalize
     prepare a              -toupper             -type actor
     prepare color          -tolower   -required -type hexcolor
-    prepare shape          -toupper   -required -type eunitshape
     prepare forcetype      -toupper   -required -type eforcetype
     prepare training       -toupper   -required -type etraining
     prepare base_personnel -num       -required -type iquantity
@@ -400,9 +369,6 @@ order define FRCGROUP:UPDATE {
         rcc "Color:" -for color
         color color
 
-        rcc "Unit Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist}
-        
         rcc "Force Type" -for forcetype
         enumlong forcetype -dictcmd {eforcetype deflist}
 
@@ -428,7 +394,6 @@ order define FRCGROUP:UPDATE {
     prepare a              -toupper   -type actor
     prepare longname       -normalize
     prepare color          -tolower   -type hexcolor
-    prepare shape          -toupper   -type eunitshape
     prepare forcetype      -toupper   -type eforcetype
     prepare training       -toupper   -type etraining
     prepare base_personnel -num       -type iquantity
@@ -464,9 +429,6 @@ order define FRCGROUP:UPDATE:MULTI {
         rcc "Color:" -for color
         color color
 
-        rcc "Unit Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist}
-        
         rcc "Force Type" -for forcetype
         enumlong forcetype -dictcmd {eforcetype deflist}
 
@@ -491,7 +453,6 @@ order define FRCGROUP:UPDATE:MULTI {
     prepare ids            -toupper  -required -listof frcgroup
     prepare a              -toupper            -type   actor
     prepare color          -tolower            -type   hexcolor
-    prepare shape          -toupper            -type   eunitshape
     prepare forcetype      -toupper            -type   eforcetype
     prepare training       -toupper            -type   etraining
     prepare base_personnel -num                -type   iquantity

@@ -48,8 +48,6 @@ namespace eval ::athena_test::tests:: {
 g               USAID
 longname        US Aid
 color           #000001
-shape           NEUTRAL
-symbol          organization
 demeanor        AVERAGE
 cost            0.0
 gtype           ORG
@@ -70,8 +68,6 @@ base_personnel  1000
 g               USAID
 longname        US Aid
 color           #000001
-shape           NEUTRAL
-symbol          organization
 demeanor        AVERAGE
 cost            0.0
 gtype           ORG
@@ -119,8 +115,6 @@ base_personnel  1000
 g               USAID
 longname        US Aid
 color           #000001
-shape           NEUTRAL
-symbol          organization
 demeanor        AVERAGE
 cost            0.0
 gtype           ORG
@@ -193,7 +187,6 @@ base_personnel  1000
             longname       "Red Cross"
             a              BOB
             color          "#ff0000"
-            shape          FRIEND
             orgtype        IGO
             demeanor       APATHETIC
             cost           10.0
@@ -206,8 +199,6 @@ base_personnel  1000
 g               USAID
 longname        Red Cross
 color           #ff0000
-shape           FRIEND
-symbol          organization
 demeanor        APATHETIC
 cost            10.0
 gtype           ORG
@@ -243,7 +234,6 @@ base_personnel  1000
             longname       ""
             a              ""
             color          ""
-            shape          ""
             orgtype        ""
             demeanor       ""
             cost           ""
@@ -268,7 +258,6 @@ base_personnel  1000
             longname       "Red Cross"
             a              ""
             color          "#ff0000"
-            shape          FRIEND
             orgtype        IGO
             demeanor       AGGRESSIVE
             cost           10.0

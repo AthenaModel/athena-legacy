@@ -35,7 +35,6 @@ snit::widgetadaptor orggroupbrowser {
         { longname         "\nLong Name"                      }
         { a                "\nOwner"                          }
         { color            "\nColor"                          }
-        { shape            "Unit\nShape"                      }
         { orgtype          "Org\nType"                        }
         { base_personnel   "Base\nPersonnel"                  }
         { demeanor         "\nDemeanor"                       }

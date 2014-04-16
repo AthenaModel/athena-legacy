@@ -75,7 +75,6 @@ snit::type orggroup {
     #    longname         The group's long name
     #    a                The group's owning actor
     #    color            The group's color
-    #    shape            The group's unit shape (eunitshape(n))
     #    orgtype          The group's eorgtype
     #    base_personnel   The group's base personnel
     #    demeanor         The group's demeanor (edemeanor(n))
@@ -92,14 +91,11 @@ snit::type orggroup {
             # FIRST, Put the group in the database
             rdb eval {
                 INSERT INTO 
-                groups(g, longname, a, color, shape, symbol, demeanor,
-                       cost, gtype)
+                groups(g, longname, a, color, demeanor, cost, gtype)
                 VALUES($g,
                        $longname,
                        nullif($a,''),
                        $color,
-                       $shape,
-                       'organization',
                        $demeanor,
                        $cost,
                        'ORG');
@@ -138,7 +134,6 @@ snit::type orggroup {
     #    longname         A new long name, or ""
     #    a                A new owning actor, or ""
     #    color            A new color, or ""
-    #    shape            A new shape, or ""
     #    orgtype          A new orgtype, or ""
     #    demeanor         A new demeanor, or ""
     #    cost             A new cost, or ""
@@ -158,8 +153,7 @@ snit::type orggroup {
                     a      = coalesce(nullif($a,''), a),
                     color      = nonempty($color,        color),
                     demeanor   = nonempty($demeanor,     demeanor),
-                    cost       = nonempty($cost,         cost),
-                    shape      = nonempty($shape,        shape)
+                    cost       = nonempty($cost,         cost)
                 WHERE g=$g;
 
                 UPDATE orggroups
@@ -196,11 +190,8 @@ order define ORGGROUP:CREATE {
         actor a    
 
         rcc "Color:" -for color
-        color color -defvalue #10DDD7
+        color color -defvalue #B300B3
 
-        rcc "Unit Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist} -defvalue NEUTRAL
-        
         rcc "Organization Type" -for orgtype
         enumlong orgtype -dictcmd {eorgtype deflist} -defvalue NGO
 
@@ -220,7 +211,6 @@ order define ORGGROUP:CREATE {
     prepare longname       -normalize
     prepare a              -toupper             -type actor
     prepare color          -tolower   -required -type hexcolor
-    prepare shape          -toupper   -required -type eunitshape
     prepare orgtype        -toupper   -required -type eorgtype
     prepare base_personnel -num       -required -type iquantity
     prepare demeanor       -toupper   -required -type edemeanor
@@ -307,9 +297,6 @@ order define ORGGROUP:UPDATE {
         rcc "Color:" -for color
         color color
 
-        rcc "Unit Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist}
-        
         rcc "Organization Type" -for orgtype
         enumlong orgtype -dictcmd {eorgtype deflist}
 
@@ -329,7 +316,6 @@ order define ORGGROUP:UPDATE {
     prepare a              -toupper   -type actor
     prepare longname       -normalize 
     prepare color          -tolower   -type hexcolor
-    prepare shape          -toupper   -type eunitshape
     prepare orgtype        -toupper   -type eorgtype
     prepare base_personnel -num       -type iquantity
     prepare demeanor       -toupper   -type edemeanor
@@ -361,9 +347,6 @@ order define ORGGROUP:UPDATE:MULTI {
         rcc "Color:" -for color
         color color
 
-        rcc "Unit Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist}
-        
         rcc "Organization Type" -for orgtype
         enumlong orgtype -dictcmd {eorgtype deflist}
 
@@ -382,7 +365,6 @@ order define ORGGROUP:UPDATE:MULTI {
     prepare ids            -toupper  -required -listof orggroup
     prepare a              -toupper            -type   actor
     prepare color          -tolower            -type   hexcolor
-    prepare shape          -toupper            -type   eunitshape
     prepare orgtype        -toupper            -type   eorgtype
     prepare base_personnel -num                -type   iquantity
     prepare demeanor       -toupper            -type   edemeanor

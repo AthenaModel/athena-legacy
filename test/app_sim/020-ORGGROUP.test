@@ -33,7 +33,6 @@ namespace eval ::athena_test::tests:: {
         longname       "US Aid"
         a              JOE
         color          #00ff00
-        shape          NEUTRAL
         orgtype        NGO
         base_personnel 1000
         demeanor       AVERAGE
@@ -45,7 +44,6 @@ namespace eval ::athena_test::tests:: {
         longname       "Haliburton"
         a              JOE
         color          #ffff00
-        shape          NEUTRAL
         orgtype        CTR
         base_personnel 1000
         demeanor       AVERAGE
@@ -116,19 +114,6 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.6 {invalid shape} -setup {
-        ted create JOE
-    } -body {
-        ted order -reject ORGGROUP:CREATE [dict merge $usaid {
-            shape NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
-    }
-
-
     test CREATE-1.7 {invalid orgtype} -setup {
         ted create JOE
     } -body {
@@ -178,8 +163,6 @@ namespace eval ::athena_test::tests:: {
 g               USAID
 longname        US Aid
 color           #00FF00
-shape           NEUTRAL
-symbol          organization
 demeanor        AVERAGE
 cost            0.0
 gtype           ORG
@@ -191,8 +174,6 @@ base_personnel  1000
 g               HAL
 longname        Haliburton
 color           #FFFF00
-shape           NEUTRAL
-symbol          organization
 demeanor        AVERAGE
 cost            0.0
 gtype           ORG
@@ -314,17 +295,6 @@ base_personnel  1000
     }
 
 
-    test UPDATE-1.4 {invalid shape} -setup {
-        ted create USAID
-    } -body {
-        ted order -reject ORGGROUP:UPDATE g USAID shape NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
-    }
-
-
     test UPDATE-1.5 {invalid orgtype} -setup {
         ted create USAID
     } -body {
@@ -364,7 +334,6 @@ base_personnel  1000
             g              USAID
             longname       "Red Cross"
             color          "#ff0000"
-            shape          ENEMY
             orgtype        IGO
             demeanor       AGGRESSIVE
             cost           10.0
@@ -377,8 +346,6 @@ base_personnel  1000
 g               USAID
 longname        Red Cross
 color           #FF0000
-shape           ENEMY
-symbol          organization
 demeanor        AGGRESSIVE
 cost            10.0
 gtype           ORG
@@ -462,17 +429,6 @@ base_personnel  1000
         cleanup
     } -match glob -result {
         color {Invalid hex color*}
-    }
-
-
-    test UPDATE:MULTI-1.6 {invalid shape} -setup {
-        ted create USAID
-    } -body {
-        ted order -reject ORGGROUP:UPDATE:MULTI ids USAID shape NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
     }
 
 

@@ -1300,7 +1300,7 @@ snit::widget mapviewer {
 
     method UnitDrawAll {} {
         rdb eval {
-            SELECT * FROM units JOIN groups USING (g)
+            SELECT * FROM units_view
             WHERE active
         } row {
             $self UnitDraw [array get row]
@@ -1324,20 +1324,31 @@ snit::widget mapviewer {
                 return
             }
 
-            # NEXT, color it.
-            if {$personnel > 0} {
-                set bg black
-            } else {
+            # NEXT, if the unit is an empty civilian unit, skip it.
+            if {$gtype eq "CIV" && $personnel == 0} {
+                return
+            }
+
+            # NEXT, set background color
+            set bg black
+
+            if {$personnel == 0} {
                 set bg gray
             }
 
+            # NEXT, get text
+            set unitText $g
+
+            if {$a ne "NONE"} {
+                append unitText "\n$a"
+            }
+
             # NEXT, draw it.
-            set cid [$canvas icon create unit \
-                         {*}$location         \
-                         -foreground $color   \
-                         -background $bg      \
-                         -shape      $shape   \
-                         -symbol     $symbol]
+            set cid [$canvas icon create unit  \
+                         {*}$location          \
+                         -foreground $color    \
+                         -background $bg       \
+                         -text       $unitText]
             
             # NEXT, save the name by the ID.
             set icons(itype-$cid) unit
@@ -1355,7 +1366,7 @@ snit::widget mapviewer {
 
     method UnitDrawSingle {u} {
         rdb eval {
-            SELECT * FROM units JOIN groups USING (g)
+            SELECT * FROM units_view
             WHERE u=$u
         } row {
             $self UnitDraw [array get row]
@@ -1431,7 +1442,7 @@ snit::widget mapviewer {
             # NEXT, draw it.
             set cid [$canvas icon create situation \
                          {*}$location              \
-                         -text $stype]
+                         -text "$stype"]
 
             if {$state eq "INITIAL"} {
                 $canvas icon configure $cid -foreground red

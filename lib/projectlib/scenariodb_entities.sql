@@ -220,12 +220,6 @@ CREATE TABLE groups (
     -- Group Color, as #RRGGBB
     color       TEXT DEFAULT '#00FFFF',
 
-    -- Unit Shape (eunitshape(n))
-    shape       TEXT DEFAULT 'NEUTRAL',
-
-    -- Unit Symbol (list of eunitsymbol(n), or '')
-    symbol      TEXT DEFAULT '',
-
     -- Group demeanor: edemeanor
     demeanor    TEXT DEFAULT 'AVERAGE',
 
@@ -296,8 +290,6 @@ SELECT g,
        longname,
        bsid,
        color,
-       shape,
-       symbol,
        demeanor,
        basepop,
        pop_cr,

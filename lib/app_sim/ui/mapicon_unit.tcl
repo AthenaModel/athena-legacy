@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    mapicons.tcl
+#    mapicon_unit.tcl
 #
 # AUTHOR:
 #    Will Duquette
@@ -8,6 +8,7 @@
 # DESCRIPTION:
 #    This module defines a generic unit icon for use with
 #    mapcanvas(n).  It adheres to the mapicon(i) interface.
+#    Unit names can consist of multiple lines of text.
 #
 #-----------------------------------------------------------------------
 
@@ -24,8 +25,10 @@ snit::type ::mapicon::unit {
     # Type Variables
 
     # Font to use for symbol text
-    typevariable symfont {"Luxi Sans" -8}
-    typevariable civfont {"Luxi Sans" -10}
+    typevariable symfont {"Luxi Sans" -10}
+    
+    # Padding around text
+    typevariable pad 2 
 
     #-------------------------------------------------------------------
     # Components
@@ -43,48 +46,16 @@ snit::type ::mapicon::unit {
     #-------------------------------------------------------------------
     # Options
 
-    # -shape shape
+    # -text text
     #
-    # Determines the shape of the icon: FRIEND is rectangular,
-    # NEUTRAL is square, ENEMY is diamond.
+    # Determines the text of the icon, typically the unit type.
 
-    option -shape \
-        -default         NEUTRAL                  \
-        -type            ::projectlib::eunitshape \
-        -configuremethod ConfigureShape
+    option -text \
+        -default         UNIT                   \
+        -configuremethod ConfigureText
 
-    method ConfigureShape {opt val} {
-        if {$drawn} {
-            # Need to get origin before the new shape is set.
-            set origin [$self origin]
-        }
-
-        set options($opt) [eunitshape name $val]
-
-        if {$drawn} {
-            # Redraw the icon
-            $self draw {*}$origin
-        }
-    }
-
-
-    # -symbol list
-    #
-    # Determines the symbols displayed in the shape.
-    
-    option -symbol \
-        -default         infantry                                         \
-        -type            {snit::listtype -type ::projectlib::eunitsymbol} \
-        -configuremethod ConfigureSymbols
-
-    method ConfigureSymbols {opt val} {
-        set newval [list]
-
-        foreach sym $val {
-            lappend newval [eunitsymbol name $sym] 
-        }
-
-        set options($opt) $newval
+    method ConfigureText {opt val} {
+        set options($opt) $val
 
         if {$drawn} {
             # Redraw the icon
@@ -95,29 +66,29 @@ snit::type ::mapicon::unit {
     # -foreground color
 
     option -foreground                        \
-        -default         white                \
+        -default         red                  \
         -configuremethod ConfigureForeground
 
     method ConfigureForeground {opt val} {
         set options($opt) $val
 
         if {$drawn} {
-            $can itemconfigure $me&&unitshape   -outline $val
-            $can itemconfigure $me&&unitsymbol -fill    $val
+            $can itemconfigure $me&&shape  -outline $val
+            $can itemconfigure $me&&symbol -fill    $val
         }
     }
 
     # -background color
 
     option -background                        \
-        -default         black                \
+        -default         yellow               \
         -configuremethod ConfigureBackground
 
     method ConfigureBackground {opt val} {
         set options($opt) $val
 
         if {$drawn} {
-            $can itemconfigure $me&&unitshape -fill $val
+            $can itemconfigure $me&&shape -fill $val
         }
     }
 
@@ -135,6 +106,8 @@ snit::type ::mapicon::unit {
     }
 
 
+
+
     #-------------------------------------------------------------------
     # Constructor
 
@@ -146,7 +119,7 @@ snit::type ::mapicon::unit {
         # NEXT, configure the options.  Force configuration of the tags.
         $self configure -tags {} {*}$args
 
-        # NEXT, draw the unit.
+        # NEXT, draw the icon.
         $self draw $cx $cy
     }
 
@@ -171,280 +144,46 @@ snit::type ::mapicon::unit {
         # NEXT, delete the icon from its current location
         $can delete $me
 
-        # NEXT, draw the shape
-        set coords [$self DrawShape $options(-shape) $cx $cy]
+        # NEXT, draw the icon
 
-        # NEXT, draw the symbol(s)
-        foreach sym $options(-symbol) {
-            $self DrawSymbol $sym $coords
-        }
+        set item [$can create text 0 0                \
+                      -anchor sw                      \
+                      -font $symfont                  \
+                      -text $options(-text)           \
+                      -fill $options(-foreground)     \
+                      -tags [concat $tags symbol]]
+
+        lassign [$can bbox $item] x1 y1 x2 y2
+
+        set x1 [expr {$x1 - $pad}]
+        set y1 [expr {$y1 - $pad}]
+        set x2 [expr {$x2 + $pad}]
+        set y2 [expr {$y2 + $pad}]
+
+        $can create rectangle $x1 $y1 $x2 $y2 \
+            -width   2                        \
+            -outline $options(-foreground)    \
+            -fill    $options(-background)    \
+            -tags    [concat $tags shape]
+
+        $can raise $item
+
+        # NEXT, move it into place
+        $can move $me $cx $cy
     }
 
     
-    #-------------------------------------------------------------------
-    # Private Methods
-
-    # DrawShape FRIEND cx cy
-    #
-    # Draws the background shape for FRIENDs.  This is a rectangle
-    # that's 1.5*L wide by L high, per Table VII of MIL-STD-2525B.
-    # Here, L is 20 pixels.
-
-    method {DrawShape FRIEND} {cx cy} {
-        set x1 $cx
-        set x2 [expr {$cx + 30}]
-        set y1 [expr {$cy - 20}]
-        set y2 $cy
-
-        set coords [list $x1 $y1 $x2 $y2]
-
-        $can create rectangle $coords       \
-            -width   2                      \
-            -outline $options(-foreground)  \
-            -fill    $options(-background)  \
-            -tags    [concat $tags unitshape]
-
-        return $coords
-    }
-    
-
-    # DrawShape NEUTRAL cx cy
-    #
-    # Draws the background shape for NEUTRALs.  This is a square
-    # that's 1.1*L wide by 1.1*L high, per Table VII of MIL-STD-2525B.
-    # Here, L is 20 pixels.
-
-    method {DrawShape NEUTRAL} {cx cy} {
-        set x1 $cx
-        set x2 [expr {$cx + 22}]
-        set y1 [expr {$cy - 22}]
-        set y2 $cy
-
-        set coords [list $x1 $y1 $x2 $y2]
-
-        $can create rectangle $coords       \
-            -width   2                      \
-            -outline $options(-foreground)  \
-            -fill    $options(-background)  \
-            -tags    [concat $tags unitshape]
-
-        return $coords
-    }
-
-
-    # DrawShape ENEMY cx cy
-    #
-    # Draws the background shape for ENEMY's.  This is a diamond
-    # that's 1.44*L wide by 1.44*L high, per Table VII of MIL-STD-2525B.
-    # Here, L is 20 pixels, 1.44*L is 28.8.  We'll call it 29.  The 
-    # reference point is the left-hand point of the diamond.
-
-    method {DrawShape ENEMY} {cx cy} {
-        set x1 $cx
-        set x2 [expr {$cx + 22}]
-        set y1 [expr {$cy - 22}]
-        set y2 $cy
-
-        set coords [list $cx $cy                             \
-                        [expr {$cx + 15}] [expr {$cy - 15}]  \
-                        [expr {$cx + 30}] $cy                \
-                        [expr {$cx + 15}] [expr {$cy + 15}]]
-
-        $can create polygon $coords         \
-            -width   2                      \
-            -outline $options(-foreground)  \
-            -fill    $options(-background)  \
-            -tags    [concat $tags unitshape]
-
-        return $coords
-    }
-
-
-    # DrawSymbol infantry coords ?dash?
-    #
-    # coords    Coordinates of the icon shape
-    # stipple   Stipple bitmap
-    #
-    # Draws the infantry symbol.
-
-    method {DrawSymbol infantry} {coords} {
-        if {$options(-shape) eq "ENEMY"} {
-            lassign $coords cx cy
-
-            set x1 [expr {$cx + 5}]
-            set y1 [expr {$cy - 5}]
-            set x2 [expr {$cx + 25}]
-            set y2 [expr {$cy + 5}]
-        } else {
-            lassign $coords x1 y1 x2 y2
-        }
-
-        $self SymLine $x1 $y1 $x2 $y2
-        $self SymLine $x1 $y2 $x2 $y1
-    }
-
-    # DrawSymbol irregular coords
-    #
-    # coords    Coordinates of the icon shape
-    #
-    # Draws the irregular military symbol: "IRR"
-
-    method {DrawSymbol irregular} {coords} {
-        # FIRST, get the center point.
-        lassign [$self Center $coords] cx cy
-
-        $can create text $cx $cy              \
-            -anchor n                         \
-            -font   $symfont                  \
-            -text   I                         \
-            -fill   $options(-foreground)     \
-            -tags   [concat $tags unitsymbol]
-    }
-
-    # DrawSymbol criminal coords
-    #
-    # coords    Coordinates of the icon shape
-    #
-    # Draws the criminal symbol: an angry face
-
-    method {DrawSymbol criminal} {coords} {
-        # FIRST, get the center point.
-        lassign [$self Center $coords] cx cy
-
-        # NEXT, draw left eyebrow
-        $self SymLine \
-            [expr {$cx - 4}] [expr {$cy - 4}]  \
-            [expr {$cx - 1}] [expr {$cy - 1}]
-
-        # NEXT, draw left eye
-        $self SymLine \
-            [expr {$cx - 4}] [expr {$cy - 1}] \
-            [expr {$cx - 3}] [expr {$cy - 0}]
-
-        # NEXT, draw right eyebrow. The pixel choices are odd
-        # to work around weird canvas behavior
-        $self SymLine \
-            [expr {$cx + 5}] [expr {$cy - 5}]  \
-            [expr {$cx + 2}] [expr {$cy - 2}]
-
-        # NEXT, draw right eye
-        $self SymLine \
-            [expr {$cx + 5}] [expr {$cy + 0}] \
-            [expr {$cx + 4}] [expr {$cy - 1}]
-
-        # NEXT, draw mouth
-        $self SymLine \
-            [expr {$cx - 6}] [expr {$cy + 4}]  \
-            [expr {$cx + 7}] [expr {$cy + 4}]
-    }
-
-    # DrawSymbol police coords
-    #
-    # coords    Coordinates of the icon shape
-    #
-    # Draws the police symbol
-
-    method {DrawSymbol police} {coords} {
-        # FIRST, get the center point.
-        lassign [$self Center $coords] cx cy
-
-        # NEXT, draw shield
-        $self SymLine \
-            [expr {$cx - 5}] [expr {$cy - 6}]  \
-            [expr {$cx - 2}] [expr {$cy - 3}]  \
-            $cx              [expr {$cy - 6}]  \
-            [expr {$cx + 2}] [expr {$cy - 3}]  \
-            [expr {$cx + 5}] [expr {$cy - 6}]  \
-            [expr {$cx + 5}] [expr {$cy + 3}]  \
-            $cx              [expr {$cy + 5}]  \
-            [expr {$cx - 5}] [expr {$cy + 3}]  \
-            [expr {$cx - 5}] [expr {$cy - 5}]
-    }
-
-    # DrawSymbol organization coords
-    #
-    # coords    Coordinates of the icon shape
-    #
-    # Draws the organization symbol: "ORG"
-
-    method {DrawSymbol organization} {coords} {
-        # FIRST, get the center point.
-        lassign [$self Center $coords] cx cy
-
-        $can create text $cx $cy            \
-            -font $symfont                  \
-            -text ORG                       \
-            -fill $options(-foreground)     \
-            -tags [concat $tags unitsymbol]
-    }
-
-
-    # DrawSymbol civilian coords
-    #
-    # coords    Coordinates of the icon shape
-    #
-    # Draws the civilian symbol: "CIV"
-
-    method {DrawSymbol civilian} {coords} {
-        # FIRST, get the center point.
-        lassign [$self Center $coords] cx cy
-
-        $can create text $cx $cy            \
-            -font $civfont                  \
-            -text CIV                       \
-            -fill $options(-foreground)     \
-            -tags [concat $tags unitsymbol]
-    }
-
-
-    # SymLine x1 y1 x2 y2...
-    #
-    # Draws a unit symbol line
-
-    method SymLine {args} {
-        $can create line $args                 \
-            -width   1                         \
-            -fill    $options(-foreground)     \
-            -tags    [concat $tags unitsymbol]
-    }
-
-    # Center coords
-    #
-    # coords    shape coordinates
-    #
-    # Returns the icon's center point
-
-    method Center {coords} {
-        if {$options(-shape) eq "ENEMY"} {
-            lassign $coords cx cy
-            set cx [expr {$cx + 15}]
-        } else {
-            lassign $coords x1 y1 x2 y2
-            
-            set cx [expr {($x1 + $x2)/2}]
-            set cy [expr {($y1 + $y2)/2}]
-        }
-
-        return [list $cx $cy]
-    }
-
-
     #-------------------------------------------------------------------
     # Public Meetings
 
     # origin
     #
-    # Returns the current origin of the icon: the lower left point
-    # for FRIEND and NEUTRAL, and the leftmost point for ENEMY.
+    # Returns the current origin of the icon: the lower left point.
 
     method origin {} {
-        set coords [$can coords $me&&unitshape]
+        set coords [$can coords $me&&shape]
 
-        if {$options(-shape) eq "ENEMY"} {
-            return [lrange $coords 0 1]
-        } else {
-            return [list [lindex $coords 0] [lindex $coords 3]]
-        }
+        return [list [lindex $coords 0] [lindex $coords 3]]
     }
 }
 

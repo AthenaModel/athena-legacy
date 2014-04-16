@@ -1319,7 +1319,6 @@ tab "Military/Force Groups" {
     <<group_frc parm longname>>
     <<group_frc parm a -label "Owner">>
     <<group_frc parm color>>
-    <<group_frc parm shape>>
     <<group_frc parm forcetype>>
     <<group_frc parm training>>
     <<group_frc parm base_personnel>>
@@ -1986,7 +1985,6 @@ tab "Social/CivGroups" {
     <<group_civ parm n        -label "Nbhood">>
     <<group_civ parm bsid     -label "Belief System">>
     <<group_civ parm color    -label "Color">>
-    <<group_civ parm shape    -label "Unit Shape">>
     <<group_civ parm demeanor -label "Demeanor">>
     <<group_civ parm basepop  -label "BasePop">>
     <<group_civ parm pop_cr   -label "Population Change Rate">>
@@ -2038,7 +2036,6 @@ tab "Social/OrgGroups" {
     <<group_org parm longname>>
     <<group_org parm a -label "Owner">>
     <<group_org parm color>>
-    <<group_org parm shape>>
     <<group_org parm orgtype -label "Org Type">>
     <<group_org parm base_personnel>>
     <<group_org parm demeanor>>

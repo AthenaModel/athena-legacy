@@ -35,7 +35,6 @@ snit::widgetadaptor frcgroupbrowser {
         { longname         "\nLong Name"                        }
         { a                "\nOwner"                            }
         { color            "\nColor"                            }
-        { shape            "Unit\nShape"                        }
         { forcetype        "Force\nType"                        }
         { training         "Training\nLevel"                    }
         { base_personnel   "Base\nPersonnel"                    }

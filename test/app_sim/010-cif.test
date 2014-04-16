@@ -317,13 +317,13 @@ Marker: 1 start <Add groups> @ 0
 
         cif transaction "Add groups" {
             addgroup G2
-            addgroup G3 shape NONESUCH
+            addgroup G3 color NONESUCH
         }
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -result {shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}}
+    } -result {color {Invalid hex color specifier, should be "#RRGGBB" or "#RRRRGGGGBBBB"}}
     
 
     test transaction-2.2 {error, cif is correct} -setup {
@@ -334,7 +334,7 @@ Marker: 1 start <Add groups> @ 0
         catch {
             cif transaction "Add groups" {
                 addgroup G2
-                addgroup G3 shape NONESUCH
+                addgroup G3 color NONESUCH
             }
         }
 
@@ -362,7 +362,7 @@ Undo Script:
         catch {
             cif transaction "Add groups" {
                 addgroup G2
-                addgroup G3 shape NONESUCH
+                addgroup G3 color NONESUCH
             }
         }
 

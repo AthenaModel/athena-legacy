@@ -34,7 +34,6 @@ namespace eval ::athena_test::tests:: {
         n         NB1
         bsid      1
         color     #ffff00
-        shape     NEUTRAL
         demeanor  AVERAGE
         basepop   10000
         pop_cr    0.0
@@ -51,7 +50,6 @@ namespace eval ::athena_test::tests:: {
         n         NB1
         bsid      1
         color     #ffffff
-        shape     ENEMY
         demeanor  AGGRESSIVE
         basepop   20000
         pop_cr    0.0
@@ -136,17 +134,6 @@ namespace eval ::athena_test::tests:: {
         color {Invalid hex color*}
     }
 
-
-    test CREATE-1.7 {invalid shape} -body {
-        ted create NB1
-        ted order -reject CIVGROUP:CREATE [dict merge $shia {
-            shape NONESUCH
-        }]
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
-    }
 
     test CREATE-1.8 {invalid demeanor} -setup {
         ted create NB1
@@ -290,8 +277,6 @@ g          SHIA
 longname   Shia Locals
 bsid       1
 color      #FFFF00
-shape      NEUTRAL
-symbol     civilian
 demeanor   AVERAGE
 basepop    10000
 pop_cr     0.0
@@ -441,17 +426,6 @@ upc        0.0
     }
 
 
-    test UPDATE-1.5 {invalid shape} -setup {
-        ted create NB1 SHIA
-    } -body {
-        ted order -reject CIVGROUP:UPDATE g SHIA shape NONESUCH
-    } -cleanup {
-        cleanup
-    } -result {
-        shape {invalid value "NONESUCH", should be one of: FRIEND, ENEMY, NEUTRAL}
-    }
-
-
     test UPDATE-1.6 {invalid demeanor} -setup {
         ted create NB1 SHIA
     } -body {
@@ -580,7 +554,6 @@ upc        0.0
             n            NB2
             bsid         2
             color        "#ff0000"
-            shape        ENEMY
             demeanor     APATHETIC
             basepop      5000
             pop_cr       2.5
@@ -598,8 +571,6 @@ g          SHIA
 longname   Shia Folk
 bsid       2
 color      #FF0000
-shape      ENEMY
-symbol     civilian
 demeanor   APATHETIC
 basepop    5000
 pop_cr     2.5

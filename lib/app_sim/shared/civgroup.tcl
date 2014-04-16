@@ -183,7 +183,6 @@ snit::type civgroup {
     #    n          - The group's nbhood
     #    longname   - The group's long name
     #    color      - The group's color
-    #    shape      - The group's unit shape (eunitshape(n))
     #    demeanor   - The group's demeanor (edemeanor(n))
     #    bsid       - The group's belief system ID.
     #    basepop    - The group's base population
@@ -215,13 +214,10 @@ snit::type civgroup {
         # NEXT, Put the group in the database
         rdb eval {
             INSERT INTO
-            groups(g, longname, color, shape, symbol, demeanor,
-                   gtype, bsid)
+            groups(g, longname, color, demeanor, gtype, bsid)
             VALUES($g,
                    $longname,
                    $color,
-                   $shape,
-                   'civilian',
                    $demeanor,
                    'CIV',
                    $bsid);
@@ -292,7 +288,6 @@ snit::type civgroup {
     #    n           - A new nbhood, or ""
     #    longname    - A new long name, or ""
     #    color       - A new color, or ""
-    #    shape       - A new shape, or ""
     #    demeanor    - A new demeanor, or "" (edemeanor(n))
     #    bsid        - A new bsid, or ""
     #    basepop     - A new basepop, or ""
@@ -316,7 +311,6 @@ snit::type civgroup {
                 UPDATE groups
                 SET longname  = nonempty($longname, longname),
                     color     = nonempty($color,    color),
-                    shape     = nonempty($shape,    shape),
                     demeanor  = nonempty($demeanor, demeanor),
                     bsid      = nonempty($bsid,     bsid)
                 WHERE g=$g;
@@ -369,9 +363,6 @@ order define CIVGROUP:CREATE {
         rcc "Color:" -for color
         color color -defvalue #45DD11
 
-        rcc "Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist} -defvalue NEUTRAL
-
         rcc "Demeanor:" -for demeanor
         enumlong demeanor -dictcmd {edemeanor deflist} -defvalue AVERAGE
 
@@ -408,7 +399,6 @@ order define CIVGROUP:CREATE {
     prepare n         -toupper   -required         -type nbhood
     prepare bsid      -num                         -type {bsys system}
     prepare color     -tolower   -required         -type hexcolor
-    prepare shape     -toupper   -required         -type eunitshape
     prepare demeanor  -toupper   -required         -type edemeanor
     prepare basepop   -num       -required         -type iquantity
     prepare pop_cr    -num       -required         -type rpercentpm
@@ -524,9 +514,6 @@ order define CIVGROUP:UPDATE {
         rcc "Color:" -for color
         color color
 
-        rcc "Shape:" -for shape
-        enumlong shape -dictcmd {eunitshape deflist}
-
         rcc "Demeanor:" -for demeanor
         enumlong demeanor -dictcmd {edemeanor deflist}
 
@@ -563,7 +550,6 @@ order define CIVGROUP:UPDATE {
     prepare n         -toupper   -type nbhood
     prepare bsid      -num       -type {bsys system}
     prepare color     -tolower   -type hexcolor
-    prepare shape     -toupper   -type eunitshape
     prepare demeanor  -toupper   -type edemeanor
     prepare basepop   -num       -type iquantity
     prepare pop_cr    -num       -type rpercentpm
