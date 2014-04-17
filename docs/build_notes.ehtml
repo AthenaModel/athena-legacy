@@ -11,6 +11,24 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 7.0.3, 17 April 2014</h3>
+This build contains a Web Map Service (WMS) client that acts like an order
+dialog that allows the user to pick and choose a geo-referenced map from an
+Open GIS compliant WMS server.  This is a general capability but should be 
+useful in the DCGS-A environment as well.  There is also some more GUI 
+simplification and added helps for the new belief system.<p>
+
+<ul>
+<li> Bug 4455: Add basekits for Linux 32 and 64 bit builds to tools directory
+<li> Bug 4456: make_tar utility should automatically tag 64 bit installer .tgz with 64 bit designation in file name
+<li> Bug 4465: athena(1): Implement Web Map Service capability
+<li> Bug 4454: athena(1): Belief System detail browser pages
+<li> Bug 4459: athena(1): Actor and civ group detail browser pages should reference belief systems
+<li> Bug 4461: athena(1): Removing "Until Paused" from Duration pulldown
+<li> Bug 4462: athena(1): econ.disable = yes by default
+<li> Bug 4464: athena(1): Simplified unit icons 
+</ul><p>
+
 <h3>Build 7.0.2, 14 April 2014</h3>
 This build contains a complete reimplementation of belief systems to be
 pure Tcl/Tk based rather than rely on SQLite. Particular attention should be
