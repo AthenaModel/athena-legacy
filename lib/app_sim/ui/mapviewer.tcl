@@ -41,7 +41,6 @@
 #         A. Unit Display
 #         B. Context Menu
 #         C. Event Handlers: notifier(n)
-#         D. Public Methods
 #     V.  Ensit Display and Behavior
 #         A. Ensit Display
 #         B. Context Menu
@@ -107,49 +106,6 @@ snit::widget mapviewer {
             ..........X..........
         } { . trans  X black } d { X gray }
 
-        mkicon ${type}::icon::crosshair {
-            ........XX........
-            ........XX........
-            ........XX........
-            ........XX........
-            ........XX........
-            ........XX........
-            ..................
-            ..................
-            XXXXXX..XX..XXXXXX
-            XXXXXX..XX..XXXXXX
-            ..................
-            ..................
-            ........XX........
-            ........XX........
-            ........XX........
-            ........XX........
-            ........XX........
-            ........XX........
-        } { . trans  X black } d { X gray }
-
-        mkicon ${type}::icon::draw_poly {
-            ..XX..........
-            ..X.XX........
-            ..X...XX......
-            ..X.....XX....
-            .X........XX..
-            .X..........XX
-            .X...........X
-            .X...........X
-            X............X
-            X............X
-            X............X
-            X............X
-            .X...........X
-            .X...........X
-            .X...........X
-            .X.........XXX
-            ..X.....XXX...
-            ..X..XXX......
-            ..XXX.........
-        } { . trans  X black } d { X gray }
-
         mkicon ${type}::icon::fill_poly {
 
             ..XX..........
@@ -200,24 +156,6 @@ snit::widget mapviewer {
             ..XXX.........
         } { . trans  X black } d { X gray }
 
-        mkicon ${type}::icon::newunit {
-            XXXXXXXXXXXXXXXXXXX
-            X.................X
-            X.................X
-            X.................X
-            X.....X....X......X
-            X.....X....X......X
-            X.....X....X......X
-            X.....X....X......X
-            X.....X....X......X
-            X.....X....X......X
-            X......XXXX.......X
-            X.................X
-            X.................X
-            X.................X
-            XXXXXXXXXXXXXXXXXXX
-        } { . trans  X black } d { X gray }
-
 
         mkicon ${type}::icon::envpoly {
             ..XX..........
@@ -241,38 +179,6 @@ snit::widget mapviewer {
             ..XXX.........
         } { . trans  X black } d { X gray }
 
-        mkicon ${type}::icon::extend {
-            ......................
-            .,,,,,,x-------------.
-            .,,,xxx--------------.
-            .,,x-----------^-----.
-            .,,x----------^-^----.
-            .,,,xx-------^-------.
-            .,,,,,xx----^-^--^---.
-            .,,,,,,,x-------^-^--.
-            .,,,,,,x-----^-------.
-            .,,,,,x-----^-^------.
-            .,,,,x---------------.
-            .,,,x-----------,,---.
-            .,,,,xxx-------,,,,--.
-            .,,,,,,x--------,,---.
-            .,,,,xx--------------.
-            .aaaaaaaaaaaaaaaaaaaa.
-            .aaaaaaaaaaaaaaaaaaaa.
-            .aaaaaaaaaaaaaaaaaaaa.
-            .aaaaaaaaaaaaaaaaaaaa.
-            .aaaaaaaaaaaaaaaaaaaa.
-            .aaaaaaaaaaaaaaaaaaaa.
-            ......................
-        } {
-            .  trans
-            X  #000000
-            a  #FFFFFF
-            x  #000000
-            ,  #00CCCC
-            ^  #660000
-            -  #FFCC33
-        }
     }
 
     #-------------------------------------------------------------------
@@ -329,17 +235,23 @@ snit::widget mapviewer {
 
     # View array; used for values that control the view
     #
-    #    fillpoly       1 if polygons should be filled, and 0 otherwise.
-    #    region         normal | extended
-    #    zoom           Current zoom factor show in the zoombox
-    #    filltag        Current fill tag (neighborhood variable)
+    #    CIV      - 1 if CIV units should be displayed, 0 otherwise.
+    #    FRC      - 1 if FRC units should be displayed, 0 otherwise.
+    #    ORG      - 1 if ORG units should be displayed, 0 otherwise.
+    #    names    - 1 if icons should include names, 0 otherwise.
+    #    fillpoly - 1 if polygons should be filled, and 0 otherwise.
+    #    zoom     - Current zoom factor show in the zoombox
+    #    filltag  - Current fill tag (neighborhood variable)
 
     variable view -array {
+        CIV          1
+        FRC          1
+        ORG          1
+        names        1
         fillpoly     0
         filltag     none
         recentFills {}
         filltags    {}
-        region      normal
         zoom        "100%"
     }
 
@@ -389,17 +301,46 @@ snit::widget mapviewer {
             -anchor       e                 \
             -width        60 
 
-        # Extended scroll region toggle
-        ttk::checkbutton $win.hbar.extend           \
-            -style       Toolbutton                 \
-            -onvalue     extended                   \
-            -offvalue    normal                     \
-            -variable    [myvar view(region)]       \
-            -image       ${type}::icon::extend      \
-            -command     [mymethod ButtonExtend]
+        # CIV Icon toggle
+        ttk::checkbutton $win.hbar.civ            \
+            -style       Toolbutton               \
+            -variable    [myvar view(CIV)]        \
+            -text        "CIV"                    \
+            -command     [mymethod UnitDrawAll]
 
-        DynamicHelp::add $win.hbar.extend \
-            -text "Enable the extended scroll region"
+        DynamicHelp::add $win.hbar.civ \
+            -text "Display civilian group icons"
+
+        # FRC Icon toggle
+        ttk::checkbutton $win.hbar.frc            \
+            -style       Toolbutton               \
+            -variable    [myvar view(FRC)]        \
+            -text        "FRC"                    \
+            -command     [mymethod UnitDrawAll]
+
+        DynamicHelp::add $win.hbar.frc \
+            -text "Display force group icons"
+
+        # ORG Icon toggle
+        ttk::checkbutton $win.hbar.org            \
+            -style       Toolbutton               \
+            -variable    [myvar view(ORG)]        \
+            -text        "ORG"                    \
+            -command     [mymethod UnitDrawAll]
+
+        DynamicHelp::add $win.hbar.org \
+            -text "Display organization group icons"
+
+        # CIV Icon toggle
+        ttk::checkbutton $win.hbar.names          \
+            -style       Toolbutton               \
+            -variable    [myvar view(names)]      \
+            -text        "Names"                  \
+            -command     [mymethod UnitDrawAll]
+
+        DynamicHelp::add $win.hbar.names \
+            -text "Display names in icons"
+
 
         # Nbhood fill toggle
         ttk::checkbutton $win.hbar.fillpoly         \
@@ -443,8 +384,11 @@ snit::widget mapviewer {
         pack $win.hbar.zoombox  -side right -padx {5 0}
         pack $win.hbar.fillbox  -side right
         pack $win.hbar.fillpoly -side right -padx 3
-        pack $win.hbar.extend   -side right
-        pack $win.hbar.loc      -side right
+        pack $win.hbar.names    -side right -padx 3
+        pack $win.hbar.org      -side right
+        pack $win.hbar.frc      -side right
+        pack $win.hbar.civ      -side right
+        pack $win.hbar.loc      -side right -padx 5
 
         # Separators
         ttk::separator $win.sep1
@@ -456,8 +400,6 @@ snit::widget mapviewer {
 
         $self AddModeTool browse left_ptr   "Browse tool"
         $self AddModeTool pan    fleur      "Pan tool"
-        $self AddModeTool point  crosshair  "Point tool"
-        $self AddModeTool poly   draw_poly  "Draw Polygon tool"
 
         # Separator
         ttk::separator $win.vbar.sep
@@ -497,6 +439,7 @@ snit::widget mapviewer {
 
         # NEXT, Create the context menus
         $self CreateNbhoodContextMenu
+        $self CreateUnitContextMenu
         $self CreateEnsitContextMenu
 
         # NEXT, process the arguments
@@ -560,14 +503,6 @@ snit::widget mapviewer {
     method ZoomBoxSet {} {
         scan $view(zoom) "%d" factor
         $canvas zoom $factor
-    }
-
-    # ButtonExtend
-    #
-    # Sets the scrollregion to the full 1000x1000 area
-
-    method ButtonExtend {} {
-        $canvas region $view(region)
     }
 
     # FillBoxPost
@@ -704,9 +639,8 @@ snit::widget mapviewer {
         $self UnitDrawAll
         $self EnsitDrawAll
 
-        # NEXT, set zoom and region
+        # NEXT, set zoom
         set view(zoom)   "[$canvas zoom]%"
-        set view(region) [$canvas region]
 
         # NEXT, update the set of fill tags
         $self NbhoodUpdateFillTags
@@ -950,6 +884,10 @@ snit::widget mapviewer {
     method CreateNbhoodContextMenu {} {
         set mnu [menu $canvas.nbhoodmenu]
 
+        $mnu add command \
+            -label   "Browse Neighborhood Detail" \
+            -command [mymethod NbhoodBrowseDetail]
+
         cond::available control \
             [menuitem $mnu command "Create Environmental Situation" \
                  -command [mymethod NbhoodCreateEnsitHere]]         \
@@ -966,6 +904,16 @@ snit::widget mapviewer {
             [menuitem $mnu command "Send Neighborhood to Back" \
                  -command [mymethod NbhoodSendToBack]]         \
             order NBHOOD:LOWER
+    }
+
+
+    # NbhoodBrowseDetail
+    #
+    # Displays the neighborhood's detail page in the detail
+    # browser.
+
+    method NbhoodBrowseDetail {} {
+        app show my://app/nbhood/$nbhoods(trans)
     }
 
 
@@ -1252,6 +1200,10 @@ snit::widget mapviewer {
             situation {
                 tk_popup $canvas.ensitmenu $rx $ry
             }
+
+            unit {
+                tk_popup $canvas.unitmenu $rx $ry
+            }
         }
     }
 
@@ -1319,6 +1271,11 @@ snit::widget mapviewer {
                 $self IconDelete $u
             }
 
+            # NEXT, if we only draw certain group types.
+            if {!$view($gtype)} {
+                return
+            }
+
             # NEXT, we only draw active units.
             if {!$active} {
                 return
@@ -1337,12 +1294,16 @@ snit::widget mapviewer {
             }
 
             # NEXT, get text
-            set unitText $g
+            if {$view(names)} {
+                set unitText $g
 
-            if {$a ne "NONE"} {
-                append unitText "\n$a"
+                if {$a ne "NONE"} {
+                    append unitText "\n$a"
+                }
+            } else {
+                set unitText ""
             }
-
+    
             # NEXT, draw it.
             set cid [$canvas icon create unit  \
                          {*}$location          \
@@ -1373,13 +1334,33 @@ snit::widget mapviewer {
         } 
     }
 
-    # AttritUnit
-    #
-    # Pops up the relevant order dialog for this unit
+    #-------------------------------------------------------------------
+    # Context Menu
 
-    method AttritUnit {} {
-        order enter ATTRIT:UNIT u $icons(context)
+    # CreateUnitContextMenu
+    #
+    # Creates the context menu
+
+    method CreateUnitContextMenu {} {
+        set mnu [menu $canvas.unitmenu]
+
+        $mnu add command \
+            -label   "Browse Group Detail" \
+            -command [mymethod UnitBrowseDetail]
     }
+
+    # UnitBrowseDetail
+    #
+    # Displays the group detail browser page for this unit's 
+    # group.
+
+    method UnitBrowseDetail {} {
+        set g [unit get $icons(context) g]
+
+        app show my://app/group/$g
+    }
+
+    
 
     #-------------------------------------------------------------------
     # Event Handlers: notifier(n)

@@ -145,28 +145,40 @@ snit::type ::mapicon::unit {
         $can delete $me
 
         # NEXT, draw the icon
+        if {$options(-text) ne ""} {
+            set item [$can create text 0 0                \
+                          -anchor sw                      \
+                          -font $symfont                  \
+                          -text $options(-text)           \
+                          -fill $options(-foreground)     \
+                          -tags [concat $tags symbol]]
 
-        set item [$can create text 0 0                \
-                      -anchor sw                      \
-                      -font $symfont                  \
-                      -text $options(-text)           \
-                      -fill $options(-foreground)     \
-                      -tags [concat $tags symbol]]
+            lassign [$can bbox $item] x1 y1 x2 y2
 
-        lassign [$can bbox $item] x1 y1 x2 y2
+            set x1 [expr {$x1 - $pad}]
+            set y1 [expr {$y1 - $pad}]
+            set x2 [expr {$x2 + $pad}]
+            set y2 [expr {$y2 + $pad}]
 
-        set x1 [expr {$x1 - $pad}]
-        set y1 [expr {$y1 - $pad}]
-        set x2 [expr {$x2 + $pad}]
-        set y2 [expr {$y2 + $pad}]
+            set rfill $options(-background)
+        } else {
+            set x1   0
+            set x2  10
+            set y1 -10
+            set y2   0
+            set rfill $options(-foreground)
+        }
+
 
         $can create rectangle $x1 $y1 $x2 $y2 \
             -width   2                        \
             -outline $options(-foreground)    \
-            -fill    $options(-background)    \
+            -fill    $rfill                   \
             -tags    [concat $tags shape]
 
-        $can raise $item
+        if {$options(-text) ne ""} {
+            $can raise $item
+        }
 
         # NEXT, move it into place
         $can move $me $cx $cy

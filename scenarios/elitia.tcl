@@ -1,5 +1,5 @@
 # Exporting C:/Users/will/athena/elitia.adb from current data
-# Exported @ Tue Apr 08 13:17:54 PDT 2014
+# Exported @ Thu Apr 17 11:14:48 PDT 2014
 # Written by Athena version 7.0.x
 #
 # Note: if header has no commands following it, then
@@ -116,12 +116,13 @@ send CIVGROUP:CREATE -g ICS -longname Incognitians -n IN -bsid 11 -color #45DD11
 #-----------------------------------------------------------------
 # Base Entities: Force Groups
 
-send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -color #3B61FF -forcetype REGULAR -training FULL -base_personnel 20000 -demeanor AVERAGE -cost 5,000.00 -local 1
+send FRCGROUP:CREATE -g ARMY -longname {Elitian Army} -a GOV -color #3B61FF -forcetype REGULAR -training FULL -base_personnel 20000 -demeanor AVERAGE -cost 0.00 -local 1
 send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -color #3B61FF -forcetype IRREGULAR -training FULL -base_personnel 6000 -demeanor AGGRESSIVE -cost 1,000.00 -local 1
 
 #-----------------------------------------------------------------
 # Base Entities: Organization Groups
 
+send ORGGROUP:CREATE -g PAL -longname {Peonian Assistance League} -a PELF -color #B300B3 -orgtype NGO -base_personnel 1000 -demeanor AVERAGE -cost 0.00
 
 #-----------------------------------------------------------------
 # Attitudes
@@ -130,6 +131,7 @@ send FRCGROUP:CREATE -g PELFM -longname {PELF Militia} -a PELF -color #3B61FF -f
 #-----------------------------------------------------------------
 # Environmental Situations
 
+send ENSIT:CREATE -location E40C14 -stype COMMOUT -coverage 1.0000 -inception 1 -resolver NONE -rduration 1
 
 #-----------------------------------------------------------------
 # Economics: SAM Inputs
@@ -195,12 +197,19 @@ send PAYLOAD:VREL:CREATE -iom_id PATRIOT -a GOV -mag 13.0
 #-----------------------------------------------------------------
 # Strategy: GOV
 
-block add GOV -onlock 0 -once 0 -intent {} -tmode ALWAYS -t1 {} -t2 {} -cmode ALL -emode ALL
+block add GOV -onlock 1 -once 0 -intent {Deploy Troops} -tmode ALWAYS -t1 {} -t2 {} -cmode ALL -emode ALL
+tactic add - DEPLOY -g ARMY -pmode ALL -personnel 0 -min 0 -max 0 -percent 0 -nlist {_type NBHOODS _rule BY_VALUE nlist CITY alist {} anyall {} glist {}} -nmode BY_POP -redeploy 0
+tactic add - ASSIGN -g ARMY -n CITY -activity PATROL -pmode SOME -personnel 100 -min 0 -max 0 -percent 0.0
+
+block add GOV -onlock 0 -once 0 -intent {Build Infrastructure} -tmode ALWAYS -t1 {} -t2 {} -cmode ALL -emode ALL
 tactic add - BUILD -n CITY -mode CASH -num 1 -amount 100000.0
 
 
 #-----------------------------------------------------------------
 # Strategy: PELF
+
+block add PELF -onlock 1 -once 0 -intent {Deploy ORG} -tmode ALWAYS -t1 {} -t2 {} -cmode ALL -emode ALL
+tactic add - DEPLOY -g PAL -pmode ALL -personnel 0 -min 0 -max 0 -percent 0 -nlist {_type NBHOODS _rule BY_VALUE nlist PE alist {} anyall {} glist {}} -nmode BY_POP -redeploy 0
 
 
 #-----------------------------------------------------------------
