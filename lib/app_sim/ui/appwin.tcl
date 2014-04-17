@@ -61,6 +61,7 @@ snit::widget appwin {
     component content               ;# The content notebook
     component viewer -public viewer ;# The mapviewer(n)
     component slog                  ;# The scrolling log
+    component wmswin                ;# The WMS import toplevel
  
     #-------------------------------------------------------------------
     # Options
@@ -599,10 +600,15 @@ snit::widget appwin {
         $mnu add separator
 
         cond::available control                  \
-            [menuitem $mnu command "Import Map..."    \
+            [menuitem $mnu command "Import Map From File..."    \
                  -underline 4                         \
                  -command   [mymethod FileImportMap]] \
-            order MAP:IMPORT
+            order MAP:IMPORT:FILE
+
+        cond::simIsPrep control                  \
+            [menuitem $mnu command "Import Map From WMS..."    \
+                 -underline 5                         \
+                 -command   [mymethod WmsImportMap]] 
 
         $mnu add separator
 
@@ -1727,6 +1733,18 @@ snit::widget appwin {
     }
 
 
+    # WmsImportMap
+    #
+    # Prompts the user to select a map from a Web Map Service (WMS)
+    
+    method WmsImportMap {} {
+        if {![winfo exists $wmswin]} {
+            set wmswin [wmswin .wmswin]
+        } else {
+            wm deiconify $wmswin
+        }
+    }
+
     # FileImportMap
     #
     # Asks the user to select a map file for import.
@@ -1751,7 +1769,7 @@ snit::widget appwin {
 
         # NEXT, Import the map
         if {[catch {
-            order send gui MAP:IMPORT [list filename $filename]
+            order send gui MAP:IMPORT:FILE [list filename $filename]
         } result]} {
             app error {
                 |<--

@@ -139,6 +139,7 @@ page / release "Release Notes" {
 #======================================================================
 # The following sections are in separate files
 
+include wms.help
 include object.help
 include menu.help
 include tab.help

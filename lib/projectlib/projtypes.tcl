@@ -58,6 +58,7 @@ namespace eval ::projectlib:: {
         leensit          \
         money            \
         polygon          \
+        projection       \
         qcredit          \
         qsecurity        \
         ratrend          \
@@ -906,6 +907,97 @@ snit::type ::projectlib::unitname {
     }
 }
 
+snit::type ::projectlib::projection {
+    # Make it a singleton
+    pragma -hasinstances no
+
+    #-------------------------------------------------------------------
+    # Public Type Methods
+
+    # validate value
+    #
+    # value    Possibly, a valid projection dictionary
+    #
+    # The structure of a projection dictionary depends on the projection
+    # type. All projection types are validated in this method.
+
+    typemethod validate {value} {
+        if {[llength $value] == 0} {
+            return -code error -errorcode INVALID "$value: no data."
+        }
+
+        if {[catch {dict keys $value} result]} {
+            return -code error -errorcode INVALID "$value: not a dictionary."
+        }
+
+        if {![dict exists $value ptype]} {
+            return -code error -errorcode INVALUE \
+                "$value: missing \"ptype\" key."
+        }
+
+        set errmsg {}
+
+        # All projections must have a width and height
+        if {![dict exists $value width]} {
+            lappend errmsg "Missing \"width\" key."
+        }
+
+        if {![dict exists $value height]} {
+            lappend errmsg "Missing \"height\" key."
+        }
+
+        if {[llength $errmsg] > 0} {
+            set msg [join $errmsg ", "]
+            return -code error -errorcode INVALID "$value: $msg"
+        }
+                
+        # Projection specific checks
+        switch -exact -- [dict get $value ptype] {
+            REF {
+                # Only requires width and height
+            }
+
+            RECT {
+                if {![dict exists $value minlon]} {
+                    lappend errmsg "Missing \"minlon\" key."
+                }
+
+                if {![dict exists $value minlat]} {
+                    lappend errmsg "Missing \"minlat\" key."
+                }
+
+                if {![dict exists $value maxlon]} {
+                    lappend errmsg "Missing \"maxlon\" key."
+                }
+
+                if {![dict exists $value maxlat]} {
+                    lappend errmsg "Missing \"maxlat\" key."
+                }
+
+                if {[llength $errmsg] > 0} {
+                    set msg [join $errmsg ", "]
+                    return -code error -errorcode INVALID "$value: $msg"
+                }
+
+                dict with value {}
+
+                if {[catch {
+                    latlong validate [list $minlat $minlon]
+                    latlong validate [list $maxlat $maxlon]
+                } result ]} {
+                    return -code error -errorcode INVALID "$value: $result"
+                }
+            }
+
+            default {
+                return -code error -errorcode INVALID \
+                    "Unrecognized projection type: $ptype"
+            }
+        }
+
+        return $value
+    }
+}
 
 #-----------------------------------------------------------------------
 # polygon type

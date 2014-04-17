@@ -97,5 +97,6 @@ source [file join $::app_sim_ui::library strategybrowser.tcl    ]
 source [file join $::app_sim_ui::library timechart.tcl          ]
 source [file join $::app_sim_ui::library toolbutton.tcl         ]
 source [file join $::app_sim_ui::library vrelbrowser.tcl        ]
+source [file join $::app_sim_ui::library wmswin.tcl             ]
 
 

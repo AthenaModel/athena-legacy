@@ -63,6 +63,11 @@ snit::type nbhood {
     }
 
     #-------------------------------------------------------------------
+    # Delegated methods
+
+    delegate typemethod bbox to geo
+
+    #-------------------------------------------------------------------
     # Queries
     #
     # These routines query information about the entities; they are
@@ -113,8 +118,6 @@ snit::type nbhood {
             WHERE n=$n
         }]
     }
-
-
 
     # names
     #

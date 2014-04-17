@@ -105,9 +105,15 @@ menuitem "File/Save CLI Scrollback Buffer..." {
     This menu item appears only in the main application window.
 }
 
-menuitem "File/Import Map..." {
+menuitem "File/Import Map From File..." {
     Imports an image file in JPEG, GIF, or PNG format to be used as
     a map background for the scenario.  Any image file can be used.
+}
+
+menuitem "File/Import Map From WMS..." {
+    Imports an image file from a Web Map Service (WMS) server using
+    Athena's integrated <<cref /wms "WMS client">>. The image
+    is automatically geo-referenced.
 }
 
 menu "File/Parameters" {

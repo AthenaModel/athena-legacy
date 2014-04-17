@@ -20,6 +20,9 @@
 #            -> MaxWidth => integer, the maximum width in pixels
 #            -> MaxHeight => integer, the maximum height in pixels
 #            -> LayerLimit => integer, the maximum number of requestable layers
+#            -> BoundingBox => list of double (lat1, lon1, lat2, lon2) that
+#                              sets the bounds of data supported by the WMS
+#            -> CRS => The coordinate reference system of the bounding box
 #    Layer => dictionary of layer metadata available
 #            -> Name => string, the name of the layer to be included in
 #               map requests
@@ -65,6 +68,7 @@ snit::type ::projectlib::wmscap {
     # name       - The XML tag name
     # parent     - The parent name of the XML tag
     # stack      - The current stack of tags 
+    # path       - The current stack of tags joined with "." between tags.
 
     typevariable info -array {
         root    {}
@@ -73,6 +77,7 @@ snit::type ::projectlib::wmscap {
         name    {}
         parent  {}
         stack   {}
+        path    {}
     }
 
     # qlayerflag  - flag indicating if a layer is queryable, we only care about
@@ -106,7 +111,9 @@ snit::type ::projectlib::wmscap {
                          Abstract {}          \
                          MaxWidth {}          \
                          MaxHeight {}         \
-                         LayerLimit {}] 
+                         LayerLimit {}        \
+                         BoundingBox {}       \
+                         CRS {}] 
 
         dict set wmsdata Layer [dict create \
                              Name {}        \
@@ -171,8 +178,9 @@ snit::type ::projectlib::wmscap {
             }
         }
 
-        # NEXT, push the tag on the stack and set the name and parent
+        # NEXT, push the tag on the stack and set the path, name and parent
         lappend info(stack) $name
+        set info(path) [join $info(stack) "."]
         set info(name) $name
         set info(parent) [lindex $info(stack) end-1]
 
@@ -222,6 +230,58 @@ snit::type ::projectlib::wmscap {
                     set val [lindex $atts [expr {$idx+1}]]
                     set qlayerflag [snit::boolean validate $val]
                 }
+            }
+
+            BoundingBox {
+                if {[$type StackIs "Capability.Layer.BoundingBox"]} {
+                    set minx ""
+                    set miny ""
+                    set maxx ""
+                    set maxy ""
+
+                    set idx [lsearch $atts "CRS"]
+                    if {$idx > -1} {
+                        set val [lindex $atts [expr {$idx+1}]]
+                        dict set wmsdata Service CRS $val
+                    } else {
+                        return -code error -errorcode INVALID \
+                            "Bounding Box with no CRS encountered."
+                    }
+
+                    set idx [lsearch $atts "minx"]
+                    if {$idx > -1} {
+                        set val [lindex $atts [expr {$idx+1}]]
+                        set minx $val
+                    }
+
+                    set idx [lsearch $atts "miny"]
+                    if {$idx > -1} {
+                        set val [lindex $atts [expr {$idx+1}]]
+                        set miny $val
+                    }
+
+                    set idx [lsearch $atts "maxx"]
+                    if {$idx > -1} {
+                        set val [lindex $atts [expr {$idx+1}]]
+                        set maxx $val
+                    }
+
+                    set idx [lsearch $atts "maxy"]
+                    if {$idx > -1} {
+                        set val [lindex $atts [expr {$idx+1}]]
+                        set maxy $val
+                    }
+
+                    if {$minx eq "" || $miny eq "" ||
+                        $maxx eq "" || $maxy eq ""} {
+                            return -code error -errorcode INVALID \
+                                "Invalid Bounding Box limits encountered."
+                    }
+
+                    dict set wmsdata Service BoundingBox \
+                        [list $minx $miny $maxx $maxy]
+                }
+
             }
 
             WMS_Capabilities {
@@ -287,8 +347,9 @@ snit::type ::projectlib::wmscap {
     # encountering an end tag
 
     typemethod HandleEnd {name} {
-        # FIRST, pop the tag off the stack
+        # FIRST, pop the tag off the stack and update path
         set info(stack) [lrange $info(stack) 0 end-1]
+        set info(path) [join $info(stack) "."]
 
         # NEXT, processing based on the current dictionary key 
         if {$name eq $info(currkey)} {
@@ -415,7 +476,20 @@ snit::type ::projectlib::wmscap {
 
     #------------------------------------------------------------------
     # Helper Methods 
+
+    # StackIs path
+    #
+    # path   - a path of tags
+    #
+    # The method prepends the WMS_Capabilities tag to the supplied path
+    # and compares it to the current path of the parser. If the
+    # paths match, 1 is returned otherwise 0.
     
+    typemethod StackIs {path} {
+        set ipath "WMS_Capabilities.$path"
+        return [expr {$ipath eq $info(path)}]
+    }
+
     # StackContains args
     #
     # args   - A list of XML tags

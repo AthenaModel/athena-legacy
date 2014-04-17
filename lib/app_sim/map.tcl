@@ -23,6 +23,7 @@ snit::type map {
     # Type Components
 
     typecomponent mapimage    ;# Tk image of current map, or ""
+    typecomponent projection  ;# A projection(i) object
 
     #-------------------------------------------------------------------
     # Type Variables
@@ -106,6 +107,38 @@ snit::type map {
         return $projection
     }
 
+
+    # data parmdict
+    #
+    # parmdict   Dictionary of map and projection data
+    #
+    # The method extracts the map and projection data from the supplied
+    # dictionary and sets that data in the maps table.  The application
+    # is then synchronized with the new data.
+
+    typemethod data {parmdict} {
+        # FIRST extract data
+        dict with parmdict {}
+
+        # NEXT extract projection dictionary, exact form depends on 
+        # projection type
+        dict with parmdict proj {}
+
+        if {$ptype eq "RECT"} {
+            # Rectangular projection, grab corners
+            lappend proj_opts -minlat $minlat -minlon $minlon
+            lappend proj_opts -maxlat $maxlat -maxlon $maxlon
+        }
+
+        # NEXT, set the map in the rdb and load it
+        rdb eval {
+            INSERT OR REPLACE
+            INTO maps(id,filename,width,height,projtype,proj_opts,data)
+            VALUES(1,'FromWMS',$width,$height,$ptype,$proj_opts,$data);
+        }
+
+        $type DbSync
+    }
 
     # load filename
     #
@@ -226,6 +259,40 @@ snit::type map {
         return [mytypemethod UndoImport [array get row]]
     }
 
+    # mutate data  parmdict
+    #
+    # parmdict    A dictionary of map data parms
+    #
+    #    data     Image data in binary form
+    #    proj     A dictionary of map projection data
+    #
+    # Imports a map and projection from a data source.
+
+    typemethod {mutate data} {parmdict} {
+        # FIRST, if the app is non-GUI, this is a no-op
+        if {![app tkloaded]} {
+            log detail map "app in non-GUI mode, ignoring map set"
+            return ""
+        }
+
+        # NEXT, get the undo information
+        rdb eval {
+            SELECT * FROM maps WHERE id=1
+        } row {
+            unset row(*)
+            binary scan $row(data) H* row(data)
+        }
+
+        $type data $parmdict
+
+        # NEXT, Notify the application.
+        notifier send $type <MapChanged>
+
+        # NEXT, Return the undo script
+        return [mytypemethod UndoImport [array get row]]
+    }
+
+
     # UndoImport dict
     #
     # dict    A dictionary of map parameters
@@ -260,17 +327,66 @@ snit::type map {
         # NEXT, Notify the application.
         notifier send $type <MapChanged>
     }
+
+    # compatible pdict
+    #
+    # pdict   - dictionary of projection information, exact structure 
+    #           depends on projection type
+    #
+    # This method checks to see if the data in the supplied projection
+    # dictionary is compatible with the current laydown of neighborhoods.
+
+    typemethod compatible {pdict} {
+        dict with pdict {}
+
+        # FIRST, if there are no neighborhoods, then it's always compatible
+        if {[llength [nbhood names]] == 0} {
+            return 1
+        }
+
+        # NEXT, if twe are changing projection types, then it's not 
+        # compatible. Note: This could change in the future.
+        set currptype [rdb onecolumn {SELECT projtype FROM maps WHERE id=1}]
+        if {$currptype ne $ptype} {
+            return 0
+        }
+
+        # NEXT, projection type specific checks
+        switch -exact -- $ptype {
+            REF {
+                # Nothing to be done
+                return 1
+            }
+
+            RECT {
+                # Make sure the bounding box that contains the existing
+                # neighborhoods fit's in the bounding box of the 
+                # projection
+                lassign [nbhood bbox] nminlat nminlon nmaxlat nmaxlon
+                if {$nminlon > $minlon && $nminlat > $minlat &&
+                    $nmaxlat < $maxlat && $nmaxlon < $maxlon} {
+                        return 1
+                }
+
+                return 0
+            }
+
+            default {
+                error "Unknown projection type: $ptype"
+            }
+        }
+    }
 }
 
 #-------------------------------------------------------------------
 # Orders: MAP:*
 
-# MAP:IMPORT
+# MAP:IMPORT:FILE
 #
-# Imports a map into the scenario
+# Imports a map from a file into the scenario
 
-order define MAP:IMPORT {
-    title "Import Map"
+order define MAP:IMPORT:FILE {
+    title "Import Map From File"
     options -sendstates {PREP PAUSED}
 
     # NOTE: Dialog is not usually used.  Could define a "filepicker"
@@ -295,4 +411,28 @@ order define MAP:IMPORT {
     returnOnError
 }
 
+# MAP:IMPORT:DATA
+#
+# Imports map data into the scenario
+
+order define MAP:IMPORT:DATA {
+    title "Import Map As Data"
+    options -sendstates {PREP}
+
+    # NOTE: Dialog cannot easily be used. The format of the
+    # image data is binary, it would be tough to cobble that together.
+    form {
+        text data
+        text proj
+    }
+} {
+    # FIRST, prepare parameters
+    prepare data -required
+    prepare proj -type projection
+
+    returnOnError -final
+
+    # NEXT, set the data in the map
+    setundo [map mutate data [array get parms]]
+}
 
