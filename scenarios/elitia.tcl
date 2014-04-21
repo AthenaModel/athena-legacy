@@ -129,9 +129,9 @@ send ORGGROUP:CREATE -g PAL -longname {Peonian Assistance League} -a PELF -color
 
 
 #-----------------------------------------------------------------
-# Environmental Situations
+# Abstract Situations
 
-send ENSIT:CREATE -location E40C14 -stype COMMOUT -coverage 1.0000 -inception 1 -resolver NONE -rduration 1
+send ABSIT:CREATE -location E40C14 -stype COMMOUT -coverage 1.0000 -inception 1 -resolver NONE -rduration 1
 
 #-----------------------------------------------------------------
 # Economics: SAM Inputs

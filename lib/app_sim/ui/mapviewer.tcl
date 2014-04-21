@@ -302,36 +302,36 @@ snit::widget mapviewer {
             -width        60 
 
         # CIV Icon toggle
-        ttk::checkbutton $win.hbar.civ            \
-            -style       Toolbutton               \
-            -variable    [myvar view(CIV)]        \
-            -text        "CIV"                    \
+        ttk::checkbutton $win.hbar.civ                  \
+            -style       Toolbutton                     \
+            -variable    [myvar view(CIV)]              \
+            -image       ::projectgui::icon::civgroup22 \
             -command     [mymethod UnitDrawAll]
 
         DynamicHelp::add $win.hbar.civ \
             -text "Display civilian group icons"
 
         # FRC Icon toggle
-        ttk::checkbutton $win.hbar.frc            \
-            -style       Toolbutton               \
-            -variable    [myvar view(FRC)]        \
-            -text        "FRC"                    \
+        ttk::checkbutton $win.hbar.frc                  \
+            -style       Toolbutton                     \
+            -variable    [myvar view(FRC)]              \
+            -image       ::projectgui::icon::frcgroup22 \
             -command     [mymethod UnitDrawAll]
 
         DynamicHelp::add $win.hbar.frc \
             -text "Display force group icons"
 
         # ORG Icon toggle
-        ttk::checkbutton $win.hbar.org            \
-            -style       Toolbutton               \
-            -variable    [myvar view(ORG)]        \
-            -text        "ORG"                    \
+        ttk::checkbutton $win.hbar.org                  \
+            -style       Toolbutton                     \
+            -variable    [myvar view(ORG)]              \
+            -image       ::projectgui::icon::orggroup22 \
             -command     [mymethod UnitDrawAll]
 
         DynamicHelp::add $win.hbar.org \
             -text "Display organization group icons"
 
-        # CIV Icon toggle
+        # Icon Names Toggle
         ttk::checkbutton $win.hbar.names          \
             -style       Toolbutton               \
             -variable    [myvar view(names)]      \
@@ -384,10 +384,10 @@ snit::widget mapviewer {
         pack $win.hbar.zoombox  -side right -padx {5 0}
         pack $win.hbar.fillbox  -side right
         pack $win.hbar.fillpoly -side right -padx 3
-        pack $win.hbar.names    -side right -padx 3
-        pack $win.hbar.org      -side right
-        pack $win.hbar.frc      -side right
-        pack $win.hbar.civ      -side right
+        pack $win.hbar.names    -side right -padx 5
+        pack $win.hbar.org      -side right -padx 1
+        pack $win.hbar.frc      -side right -padx 1
+        pack $win.hbar.civ      -side right -padx 1
         pack $win.hbar.loc      -side right -padx 5
 
         # Separators
