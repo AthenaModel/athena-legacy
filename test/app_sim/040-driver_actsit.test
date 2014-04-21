@@ -67,7 +67,7 @@ namespace eval ::athena_test::tests:: {
         # NEXT, create an ensit on request.
         if {$ensit ne ""} {
             parm set dam.$ensit.active no
-            ted order ENSIT:CREATE location B00B00 stype $ensit \
+            ted order ABSIT:CREATE location B00B00 stype $ensit \
                 coverage 1.0 inception 1 resolver NONE
         }
     }
@@ -187,7 +187,7 @@ in neighborhood
 with 2000 effective personnel.
 yielding 100% coverage.<p>
 
-The activity is mitigating the following ensits:
+The activity is mitigating the following absits:
 DISEASE.<p>
 
 Note: The coverage function is 20/1000
@@ -1419,6 +1419,7 @@ sat   SUNN QOL mitigates
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

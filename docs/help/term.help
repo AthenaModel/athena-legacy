@@ -5,7 +5,7 @@
 # AUTHOR:
 #    Will Duquette
 #
-# DESCRIPTION:
+# DESCRIPETION:
 #    Athena Help Documentation: Glossary.  Terms defined in the
 #    glossary have an ID like "term.<tag>", and are referenced
 #    using the <<term <tag> >> macro.
@@ -39,6 +39,26 @@ proc term {slug term text} {
 macro term.header {} {
     |<--
     [mktitle normal [cref /term] [pageinfo title] ""]
+}
+
+#-----------------------------------------------------------------------
+
+term absit "abstract situation" {
+    An <i>abstract situation</i> or <i>absit</i> is an on-going 
+    <<term situation>> within a <<term nbhood>>; it is an 
+    <<term attitude>> <<term driver>>, and affects
+    all of the people living in the neighborhood.  It may also affect
+    surrounding neighborhoods.  For a complete list of situation
+    types, and the effect of each, see the <i>Athena Rules</i> document,
+    delivered with the software.<p>
+
+    <b>Note:</b> Athena tracks the neighborhood in which each 
+    abstract situation is
+    located.  The precise location of an absit within a neighborhood
+    is meaningless.<p>
+
+    Abstract situations can be created and positioned using the 
+    controls on the <<tab Physical/Map>>.  
 }
 
 #-----------------------------------------------------------------------
@@ -195,7 +215,7 @@ term cause "cause" {
     Every <<term attitude>> <<term driver>> has an associated
     <i>cause</i>.  All inputs to <<term uram>> for the driver will be 
     tagged with this cause; for example, the <b>DISEASE</b> and
-    <b>EPIDEMIC</b> <<term ensit>>s both have the cause
+    <b>EPIDEMIC</b> <<term absit>>s both have the cause
     <b>SICKNESS</b>.<p>
 
     The purpose of causes is to prevent multiple inputs of a similar
@@ -335,7 +355,7 @@ term cooperation "cooperation" {
 term coverage "coverage" {
     Coverage is a measure of the fraction of a <<term nbhood>> that
     is affected by something--a <<term group>> <<term activity>>, an
-    <<term ensit>>, etc.--expressed as a number between 0.0 and 1.0.
+    <<term absit>>, etc.--expressed as a number between 0.0 and 1.0.
     It is a common input to the <<term damrules>>.
 }
 
@@ -401,7 +421,7 @@ term driver "driver" {
     Examples of drivers include casualties to 
     <<term civgroup>>s, the presence
     and activities of <<term frcgroup>> in <<term nbhood>>s, 
-    <<term ensit>>s, <<term demsit>>s, <<term iom>>s, 
+    <<term absit>>s, <<term demsit>>s, <<term iom>>s, 
     and <<term mad>>s.<p>
 
     <b>2.</b> A <<term mad>>.<p>
@@ -441,26 +461,6 @@ term emphasis "emphasis" {
     <<::simlib::qemphasis html>>
 }
 
-
-#-----------------------------------------------------------------------
-
-term ensit "environmental situation" {
-    An <i>environmental situation</i> or <i>ensit</i> is an on-going 
-    <<term situation>> within a <<term nbhood>>; it is an 
-    <<term attitude>> <<term driver>>, and affects
-    all of the people living in the neighborhood.  It may also affect
-    surrounding neighborhoods.  For a complete list of situation
-    types, and the effect of each, see the <i>Athena Rules</i> document,
-    delivered with the software.<p>
-
-    <b>Note:</b> Athena tracks the neighborhood in which each 
-    environmental situation is
-    located.  The precise location of an ensit within a neighborhood
-    is meaningless.<p>
-
-    Environmental situations can be created and positioned using the 
-    controls on the <<tab Physical/Map>>.  
-}
 
 #-----------------------------------------------------------------------
 

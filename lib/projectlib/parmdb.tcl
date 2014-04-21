@@ -163,10 +163,10 @@ snit::type ::projectlib::parmdb {
             } {
                 The parameters (c, d) that determine the
                 coverage fraction function for this force activity.  Coverage
-                depends on the asset density, which is the number
+                depends on the asset dabsity, which is the number
                 of active personnel per d people in the population.  If the
-                density is 0, the coverage is 0.  The coverage
-                fraction increases to 2/3 when density is c.
+                dabsity is 0, the coverage is 0.  The coverage
+                fraction increases to 2/3 when dabsity is c.
             }
         }
 
@@ -209,10 +209,10 @@ snit::type ::projectlib::parmdb {
             } {
                 The parameters (c, d) that determine the
                 coverage fraction function for this activity.  Coverage
-                depends on the asset density, which is the number
+                depends on the asset dabsity, which is the number
                 of active personnel per d people in the population.  If the
-                density is 0, the coverage is 0.  The coverage
-                fraction increases to 2/3 when density is c.
+                dabsity is 0, the coverage is 0.  The coverage
+                fraction increases to 2/3 when dabsity is c.
             }
          }
 
@@ -391,15 +391,15 @@ snit::type ::projectlib::parmdb {
                 valid range is 0.1 to 1.0.
         }
 
-        # Ensit global parameters
-        $ps subset dam.ensit {
-            Parameters for the environmental situation rule sets in general.
+        # Absit global parameters
+        $ps subset dam.absit {
+            Parameters for the abstract situation rule sets in general.
         }
 
-        $ps define dam.ensit.nominalCoverage \
+        $ps define dam.absit.nominalCoverage \
             ::projectlib::parmdb_nomcoverage 1.0 \
             {
-                The nominal coverage fraction for environmental
+                The nominal coverage fraction for abstract
                 situation rule sets.
                 Input magnitudes are specified for this nominal coverage,
                 i.e., if a change is specified as "cov * M+" the input
@@ -438,7 +438,7 @@ snit::type ::projectlib::parmdb {
             }
 
             # Add mitigates parm for activities that support mitigation
-            # of ensits. 
+            # of absits. 
             if {$name in {
                 CONSTRUCT
                 EDU
@@ -448,8 +448,8 @@ snit::type ::projectlib::parmdb {
                 MEDICAL
                 RELIEF
             }} {
-                $ps define dam.$name.mitigates ::projectlib::leensit {} {
-                    List of environmental situation types mitigated by this
+                $ps define dam.$name.mitigates ::projectlib::leabsit {} {
+                    List of abstract situation types mitigated by this
                     activity.  Note not all rule sets support this.
                 }
             }
@@ -1017,43 +1017,43 @@ snit::type ::projectlib::parmdb {
         $ps setdefault econ.shares.MAINTAIN.region   0
         $ps setdefault econ.shares.MAINTAIN.world    0
 
-        # ensit.* parameters
-        $ps subset ensit {
-            Environmental situation parameters, by ensit type.
+        # absit.* parameters
+        $ps subset absit {
+            Environmental situation parameters, by absit type.
         }
 
-        foreach name [eensit names] {
-            $ps subset ensit.$name "
-                Parameters for environmental situation type
-                [eensit longname $name].
+        foreach name [eabsit names] {
+            $ps subset absit.$name "
+                Parameters for abstract situation type
+                [eabsit longname $name].
             "
 
-            $ps define ensit.$name.duration ::projectlib::iticks 0 {
-                How long until the ensit auto-resolves, in integer
-                ticks.  If 0, the ensit never auto-resolves.
+            $ps define absit.$name.duration ::projectlib::iticks 0 {
+                How long until the absit auto-resolves, in integer
+                ticks.  If 0, the absit never auto-resolves.
             }
         }
 
         # Tweak the specifics
-        $ps setdefault ensit.BADFOOD.duration        2
-        $ps setdefault ensit.BADWATER.duration       1
-        $ps setdefault ensit.COMMOUT.duration        1
-        $ps setdefault ensit.CULSITE.duration        6
-        $ps setdefault ensit.DISASTER.duration       6
-        $ps setdefault ensit.DISEASE.duration        4
-        $ps setdefault ensit.EPIDEMIC.duration       52
-        $ps setdefault ensit.FOODSHRT.duration       26
-        $ps setdefault ensit.FUELSHRT.duration       4
-        $ps setdefault ensit.GARBAGE.duration        6
-        $ps setdefault ensit.INDSPILL.duration       12
-        $ps setdefault ensit.MINEFIELD.duration      156
-        $ps setdefault ensit.NOWATER.duration        2
-        $ps setdefault ensit.ORDNANCE.duration       78
-        $ps setdefault ensit.PIPELINE.duration       1
-        $ps setdefault ensit.POWEROUT.duration       8
-        $ps setdefault ensit.REFINERY.duration       1
-        $ps setdefault ensit.RELSITE.duration        6
-        $ps setdefault ensit.SEWAGE.duration         9
+        $ps setdefault absit.BADFOOD.duration        2
+        $ps setdefault absit.BADWATER.duration       1
+        $ps setdefault absit.COMMOUT.duration        1
+        $ps setdefault absit.CULSITE.duration        6
+        $ps setdefault absit.DISASTER.duration       6
+        $ps setdefault absit.DISEASE.duration        4
+        $ps setdefault absit.EPIDEMIC.duration       52
+        $ps setdefault absit.FOODSHRT.duration       26
+        $ps setdefault absit.FUELSHRT.duration       4
+        $ps setdefault absit.GARBAGE.duration        6
+        $ps setdefault absit.INDSPILL.duration       12
+        $ps setdefault absit.MINEFIELD.duration      156
+        $ps setdefault absit.NOWATER.duration        2
+        $ps setdefault absit.ORDNANCE.duration       78
+        $ps setdefault absit.PIPELINE.duration       1
+        $ps setdefault absit.POWEROUT.duration       8
+        $ps setdefault absit.REFINERY.duration       1
+        $ps setdefault absit.RELSITE.duration        6
+        $ps setdefault absit.SEWAGE.duration         9
 
         # NEXT, Force/Volatility/Security Parameters
         $ps subset force {
@@ -1613,3 +1613,4 @@ snit::type ::projectlib::parmdb {
         $tempdb destroy
     }
 }
+

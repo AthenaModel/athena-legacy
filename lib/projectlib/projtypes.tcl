@@ -28,7 +28,7 @@ namespace eval ::projectlib:: {
         edamrule         \
         edamruleset      \
         edemeanor        \
-        eensit           \
+        eabsit           \
         eforcetype       \
         egoal_state      \
         egoal_predicate  \
@@ -55,7 +55,7 @@ namespace eval ::projectlib:: {
         ipercent         \
         ipositive        \
         iquantity        \
-        leensit          \
+        leabsit          \
         money            \
         polygon          \
         projection       \
@@ -664,7 +664,7 @@ snit::type ::projectlib::typewrapper {
 
 # The name is the rule set name, e.g., SEWAGE, and the 
 # long name is the full name of the situation
-::marsutil::enum ::projectlib::eensit {
+::marsutil::enum ::projectlib::eabsit {
     BADFOOD     "CONTAMINATED.FOOD.SUPPLY"
     BADWATER    "CONTAMINATED.WATER.SUPPLY"
     COMMOUT     "COMMUNICATIONS.OUTAGE"
@@ -686,9 +686,9 @@ snit::type ::projectlib::typewrapper {
     SEWAGE      "SEWAGE.SPILL"
 }
 
-# List of eensit values
-::projectlib::typewrapper ::projectlib::leensit \
-    snit::listtype -type ::projectlib::eensit 
+# List of eabsit values
+::projectlib::typewrapper ::projectlib::leabsit \
+    snit::listtype -type ::projectlib::eabsit 
 
 # Payload Part Types
 ::marsutil::enum ::projectlib::epayloadpart {
@@ -1208,5 +1208,6 @@ snit::type ::projectlib::posmoney {
         return $newValue
     }
 }
+
 
 

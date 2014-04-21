@@ -1,14 +1,14 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    ensitbrowser.tcl
+#    absitbrowser.tcl
 #
 # AUTHORS:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    ensitbrowser(sim) package: Environmental Situation browser.
+#    absitbrowser(sim) package: Abstract Situation browser.
 #
-#    This widget displays a formatted list of ensits.
+#    This widget displays a formatted list of absits.
 #    It is a wrapper around sqlbrowser(n).
 #
 #-----------------------------------------------------------------------
@@ -16,7 +16,7 @@
 #-----------------------------------------------------------------------
 # Widget Definition
 
-snit::widgetadaptor ensitbrowser {
+snit::widgetadaptor absitbrowser {
     #-------------------------------------------------------------------
     # Options
 
@@ -54,7 +54,7 @@ snit::widgetadaptor ensitbrowser {
         # FIRST, Install the hull
         installhull using sqlbrowser                  \
             -db           ::rdb                       \
-            -view         gui_ensits                  \
+            -view         gui_absits                  \
             -uid          id                          \
             -titlecolumns 1                           \
             -selectioncmd [mymethod SelectionChanged] \
@@ -63,10 +63,10 @@ snit::widgetadaptor ensitbrowser {
                 ::sim <Tick>
             } -layout [string map [list %D $::app::derivedfg] $layout] \
             -views {
-                gui_ensits          "All"
-                gui_ensits_initial  "Unassessed"
-                gui_ensits_ongoing  "Ongoing"
-                gui_ensits_resolved "Resolved"
+                gui_absits          "All"
+                gui_absits_initial  "Unassessed"
+                gui_absits_ongoing  "Ongoing"
+                gui_absits_resolved "Resolved"
             }
 
         # NEXT, get the options.
@@ -81,7 +81,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod AddEntity]
 
         cond::available control $addbtn \
-            order ENSIT:CREATE
+            order ABSIT:CREATE
 
 
         install editbtn using mkeditbutton $bar.edit \
@@ -90,7 +90,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod EditSelected]
 
         cond::availableCanUpdate control $editbtn \
-            order   ENSIT:UPDATE   \
+            order   ABSIT:UPDATE   \
             browser $win
 
         install resolvebtn using mktoolbutton $bar.resolve \
@@ -100,7 +100,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod ResolveSelected]
 
         cond::availableCanResolve control $resolvebtn  \
-            order   ENSIT:RESOLVE   \
+            order   ABSIT:RESOLVE   \
             browser $win
 
         install deletebtn using mkdeletebutton $bar.delete \
@@ -109,7 +109,7 @@ snit::widgetadaptor ensitbrowser {
             -command [mymethod DeleteSelected]
 
         cond::availableCanDelete control $deletebtn \
-            order   ENSIT:DELETE  \
+            order   ABSIT:DELETE  \
             browser $win
 
 
@@ -119,7 +119,7 @@ snit::widgetadaptor ensitbrowser {
         pack $resolvebtn -side right
 
         # NEXT, update individual entities when they change.
-        notifier bind ::rdb <ensits> $self [mymethod uid]
+        notifier bind ::rdb <absits> $self [mymethod uid]
     }
 
     destructor {
@@ -139,7 +139,7 @@ snit::widgetadaptor ensitbrowser {
         if {[llength [$self uid curselection]] == 1} {
             set id [lindex [$self uid curselection] 0]
 
-            if {$id in [ensit initial names]} {
+            if {$id in [absit initial names]} {
                 return 1
             }
         }
@@ -156,7 +156,7 @@ snit::widgetadaptor ensitbrowser {
         if {[llength [$self uid curselection]] == 1} {
             set id [lindex [$self uid curselection] 0]
 
-            if {$id in [ensit initial names]} {
+            if {$id in [absit initial names]} {
                 return 1
             }
         }
@@ -173,7 +173,7 @@ snit::widgetadaptor ensitbrowser {
         if {[llength [$self uid curselection]] == 1} {
             set id [lindex [$self uid curselection] 0]
 
-            if {$id in [ensit live names]} {
+            if {$id in [absit live names]} {
                 return 1
             }
         }
@@ -210,7 +210,7 @@ snit::widgetadaptor ensitbrowser {
 
     method AddEntity {} {
         # FIRST, Pop up the dialog
-        order enter ENSIT:CREATE
+        order enter ABSIT:CREATE
     }
 
     # EditSelected
@@ -222,7 +222,7 @@ snit::widgetadaptor ensitbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
-        order enter ENSIT:UPDATE s $id
+        order enter ABSIT:UPDATE s $id
     }
 
 
@@ -235,7 +235,7 @@ snit::widgetadaptor ensitbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Pop up the order dialog.
-        order enter ENSIT:RESOLVE s $id
+        order enter ABSIT:RESOLVE s $id
     }
 
 
@@ -248,10 +248,12 @@ snit::widgetadaptor ensitbrowser {
         set id [lindex [$hull uid curselection] 0]
 
         # NEXT, Send the delete order.
-        order send gui ENSIT:DELETE s $id
+        order send gui ABSIT:DELETE s $id
     }
 
 }
+
+
 
 
 

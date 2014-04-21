@@ -1163,33 +1163,33 @@ command "dump econ" {
 
 
 #=======================================================================
-# ensit
+# absit
 
-command "ensit" {
+command "absit" {
     <<syntax <i>subcommand</i> ?<i>args...</i>?>>
     
-    This command queries information about environmental situations.
+    This command queries information about <<term absit>>s.
     It has the following subcommands:<p>
 
     <<childlinks>>
 }
 
 #-----------------------------------------------------------------------
-# ensit id
+# absit id
 
-command "ensit id" {
+command "absit id" {
     <<syntax <i>n stype</i> >>
     
-    Returns the situation ID of the environmental situation of type
+    Returns the situation ID of the <<term absit>> of type
     <i>stype</i> in neighborhood <i>n</i>, if any, and the empty string
     otherwise.
 }
 
-command "ensit last" {
+command "absit last" {
     <<syntax>>
     
     Returns the situation ID of the most recently created 
-    environmental situation, or the empty string if none.
+    <<term absit>>, or the empty string if none.
 }
 
 #=======================================================================
@@ -1338,11 +1338,11 @@ command "last condition" {
 
 #-----------------------------------------------------------------------
 
-command "last ensit" {
+command "last absit" {
     <<syntax>>
     
     Returns the ID of the most recently created 
-    <<term ensit>>.
+    <<term absit>>.
 }
 
 #-----------------------------------------------------------------------

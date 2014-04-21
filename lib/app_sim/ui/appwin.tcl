@@ -141,11 +141,11 @@ snit::widget appwin {
             script  { nbrelbrowser %W }
         }
 
-        ensit {
+        absit {
             label   "EnSits"
             vistype *
             parent  physical
-            script  { ensitbrowser %W }
+            script  { absitbrowser %W }
         }
 
         curses {
@@ -745,11 +745,11 @@ snit::widget appwin {
         $ordersmenu add cascade -label "Situation" \
             -underline 0 -menu $submenu
         
-        $self AddOrder $submenu ENSIT:CREATE
-        $self AddOrder $submenu ENSIT:MOVE
-        $self AddOrder $submenu ENSIT:DELETE
-        $self AddOrder $submenu ENSIT:RESOLVE
-        $self AddOrder $submenu ENSIT:UPDATE
+        $self AddOrder $submenu ABSIT:CREATE
+        $self AddOrder $submenu ABSIT:MOVE
+        $self AddOrder $submenu ABSIT:DELETE
+        $self AddOrder $submenu ABSIT:RESOLVE
+        $self AddOrder $submenu ABSIT:UPDATE
 
         # Orders/Magic Attitude Drivers
         set submenu [menu $ordersmenu.mad]
@@ -2047,12 +2047,12 @@ snit::widget appwin {
 
     # Ensit-1 s
     #
-    # s      An ensit ID
+    # s      An absit ID
     #
-    # Called when the user clicks on an ensit icon.
+    # Called when the user clicks on an absit icon.
 
     method Ensit-1 {s} {
-        rdb eval {SELECT * FROM gui_ensits WHERE s=$s} row {
+        rdb eval {SELECT * FROM gui_absits WHERE s=$s} row {
         $self puts \
             "Situation $s: $row(stype)  at: $row(location)  coverage: $row(coverage)"
         }
@@ -2278,6 +2278,8 @@ snit::widget appwin {
     }
 
 }
+
+
 
 
 

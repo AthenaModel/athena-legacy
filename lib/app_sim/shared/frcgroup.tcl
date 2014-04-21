@@ -341,7 +341,7 @@ order define FRCGROUP:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [frcgroup mutate delete $parms(g)]
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -474,6 +474,7 @@ order define FRCGROUP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 

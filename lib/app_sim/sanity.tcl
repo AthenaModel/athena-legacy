@@ -280,9 +280,9 @@ snit::type sanity {
             }
         }
 
-        # NEXT, every ensit must reside in a neighborhood
+        # NEXT, every absit must reside in a neighborhood
         set ids [rdb eval {
-            SELECT s FROM ensits
+            SELECT s FROM absits
             WHERE n = ''
         }]
 
@@ -291,29 +291,29 @@ snit::type sanity {
 
             set ids [join $ids ", "]
 
-            $ht dlitem "<b>Error: Homeless Environmental Situations</b>" "
-                The following ensits are outside any neighborhood: $ids.
+            $ht dlitem "<b>Error: Homeless Abstract Situations</b>" "
+                The following absits are outside any neighborhood: $ids.
                 Either add neighborhoods around them on the Map tab,
                 or delete them on the 
-                <a href=\"gui:/tab/ensits\">Neighborhoods/Ensits</a>
+                <a href=\"gui:/tab/absits\">Neighborhoods/Absits</a>
                 tab.
             "
         }
 
-        # NEXT, you can't have more than one ensit of a type in a 
+        # NEXT, you can't have more than one absit of a type in a 
         # neighborhood.
         rdb eval {
             SELECT count(s) AS count, n, stype
-            FROM ensits
+            FROM absits
             GROUP BY n, stype
             HAVING count > 1
         } {
             set sev ERROR
 
-            $ht dlitem "<b>Error: Duplicate Environmental Situations</b>" "
-                There are duplicate ensits of type $stype in
+            $ht dlitem "<b>Error: Duplicate Abstract Situations</b>" "
+                There are duplicate absits of type $stype in
                 neighborhood $n.  Delete all but one of them on the
-                <a href=\"gui:/tab/ensit\">Neighborhoods/Ensits</a>
+                <a href=\"gui:/tab/absit\">Neighborhoods/Absits</a>
                 tab.
             "
         }
@@ -704,5 +704,6 @@ snit::type sanity {
     }
 
 }
+
 
 

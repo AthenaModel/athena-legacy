@@ -1,19 +1,19 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#   ensit_rules.tcl
+#   absit_rules.tcl
 #
 # AUTHOR:
 #   Will Duquette
 #
 # DESCRIPTION:
-#   Athena Driver Assessment Model (DAM): Environmental Situations
+#   Athena Driver Assessment Model (DAM): Abstract Situations
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# driver::ensit: Family ensemble
+# driver::absit: Family ensemble
 
-snit::type driver::ensit {
+snit::type driver::absit {
     # Make it an ensemble
     pragma -hasinstances 0
 
@@ -22,11 +22,11 @@ snit::type driver::ensit {
 
     # assess
     #
-    # Assesses the existing ensits by running their rule sets.
+    # Assesses the existing absits by running their rule sets.
     
     typemethod assess {} {
         rdb eval {
-            SELECT * FROM ensits ORDER BY s
+            SELECT * FROM absits ORDER BY s
         } sit {
             set dtype $sit(stype)
 
@@ -72,17 +72,17 @@ snit::type driver::ensit {
     # define the "ruleset" subcommand containing the actual rule set.
     #
     # Note that rule sets can make use of procs defined in the
-    # driver::ensit namespace.
+    # driver::absit namespace.
 
     typemethod define {name defscript} {
         # FIRST, define the shared definitions
         set footer "
-            delegate typemethod sigline   using {driver::ensit %m $name}
-            delegate typemethod narrative using {driver::ensit %m}
-            delegate typemethod detail    using {driver::ensit %m}
+            delegate typemethod sigline   using {driver::absit %m $name}
+            delegate typemethod narrative using {driver::absit %m}
+            delegate typemethod detail    using {driver::absit %m}
 
             typeconstructor {
-                namespace path ::driver::ensit::
+                namespace path ::driver::absit::
             }
         "
 
@@ -145,7 +145,7 @@ snit::type driver::ensit {
 
         set pcov [string trim [percent $coverage]]
 
-        $ht putln "An environmental situation of type $dtype"
+        $ht putln "An abstract situation of type $dtype"
 
         if {$state eq "ONGOING"} {
             if {$inception} {
@@ -194,7 +194,7 @@ snit::type driver::ensit {
     proc satinput {flist cov args} {
         assert {[llength $args] != 0 && [llength $args] % 2 == 0}
 
-        set nomCov [parmdb get dam.ensit.nominalCoverage]
+        set nomCov [parmdb get dam.absit.nominalCoverage]
         let mult   {$cov/$nomCov}
 
         set result [list]
@@ -210,10 +210,10 @@ snit::type driver::ensit {
 #-------------------------------------------------------------------
 # Rule Set: BADFOOD: Contaminated Food Supply
 #
-# Environmental Situation: The local food supply has been contaminated.
+# Abstract Situation: The local food supply has been contaminated.
 
 
-driver::ensit define BADFOOD {
+driver::absit define BADFOOD {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -249,9 +249,9 @@ driver::ensit define BADFOOD {
 #-------------------------------------------------------------------
 # Rule Set: BADWATER: Contaminated Water Supply
 #
-# Environmental Situation: The local water supply has been contaminated.
+# Abstract Situation: The local water supply has been contaminated.
  
-driver::ensit define BADWATER {
+driver::absit define BADWATER {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -287,10 +287,10 @@ driver::ensit define BADWATER {
 #-------------------------------------------------------------------
 # Rule Set: COMMOUT: Communications Outage
 #
-# Environmental Situation: Communications are out in the neighborhood.
+# Abstract Situation: Communications are out in the neighborhood.
  
     
-driver::ensit define COMMOUT {
+driver::absit define COMMOUT {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -320,10 +320,10 @@ driver::ensit define COMMOUT {
 #-------------------------------------------------------------------
 # Rule Set: CULSITE: Damage to Cultural Site/Artifact
 #
-# Environmental Situation: A cultural site or artifact is
+# Abstract Situation: A cultural site or artifact is
 # damaged, presumably due to kinetic action.
     
-driver::ensit define CULSITE {
+driver::absit define CULSITE {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -349,9 +349,9 @@ driver::ensit define CULSITE {
 #-------------------------------------------------------------------
 # Rule Set: DISASTER: Disaster
 #
-# Environmental Situation: Disaster
+# Abstract Situation: Disaster
     
-driver::ensit define DISASTER {
+driver::absit define DISASTER {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -386,9 +386,9 @@ driver::ensit define DISASTER {
 #-------------------------------------------------------------------
 # Rule Set: DISEASE: Disease
 #
-# Environmental Situation: General disease due to unhealthy conditions.
+# Abstract Situation: General disease due to unhealthy conditions.
     
-driver::ensit define DISEASE {
+driver::absit define DISEASE {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -424,9 +424,9 @@ driver::ensit define DISEASE {
 #-------------------------------------------------------------------
 # Rule Set: EPIDEMIC: Epidemic
 #
-# Environmental Situation: Epidemic disease
+# Abstract Situation: Epidemic disease
  
-driver::ensit define EPIDEMIC {
+driver::absit define EPIDEMIC {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -463,9 +463,9 @@ driver::ensit define EPIDEMIC {
 #-------------------------------------------------------------------
 # Rule Set: FOODSHRT: Food Shortage
 #
-# Environmental Situation: There is a food shortage in the neighborhood.
+# Abstract Situation: There is a food shortage in the neighborhood.
  
-driver::ensit define FOODSHRT {
+driver::absit define FOODSHRT {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -500,9 +500,9 @@ driver::ensit define FOODSHRT {
 #-------------------------------------------------------------------
 # Rule Set: FUELSHRT: Fuel Shortage
 #
-# Environmental Situation: There is a fuel shortage in the neighborhood.
+# Abstract Situation: There is a fuel shortage in the neighborhood.
  
-driver::ensit define FUELSHRT {
+driver::absit define FUELSHRT {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -537,9 +537,9 @@ driver::ensit define FUELSHRT {
 #-------------------------------------------------------------------
 # Rule Set: GARBAGE: Garbage in the Streets
 #
-# Environmental Situation: Garbage is piling up in the streets.
+# Abstract Situation: Garbage is piling up in the streets.
  
-driver::ensit define GARBAGE {
+driver::absit define GARBAGE {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -577,10 +577,10 @@ driver::ensit define GARBAGE {
 #-------------------------------------------------------------------
 # Rule Set: INDSPILL: Industrial Spill
 #
-# Environmental Situation: Damage to an industrial facility has released
+# Abstract Situation: Damage to an industrial facility has released
 # possibly toxic substances into the surrounding area.
  
-driver::ensit define INDSPILL {
+driver::absit define INDSPILL {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -617,10 +617,10 @@ driver::ensit define INDSPILL {
 #-------------------------------------------------------------------
 # Rule Set: MINEFIELD: Minefield
 #
-# Environmental Situation: The residents of this neighborhood know that
+# Abstract Situation: The residents of this neighborhood know that
 # there is a minefield in the neighborhood.
  
-driver::ensit define MINEFIELD {
+driver::absit define MINEFIELD {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -658,10 +658,10 @@ driver::ensit define MINEFIELD {
 #-------------------------------------------------------------------
 # Rule Set: NOWATER: No Water Supply
 #
-# Environmental Situation: The local water supply is non-functional;
+# Abstract Situation: The local water supply is non-functional;
 # no water is available.
  
-driver::ensit define NOWATER {
+driver::absit define NOWATER {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -696,11 +696,11 @@ driver::ensit define NOWATER {
 #-------------------------------------------------------------------
 # Rule Set: ORDNANCE: Unexploded Ordnance
 #
-# Environmental Situation: The residents of this neighborhood know that
+# Abstract Situation: The residents of this neighborhood know that
 # there is unexploded ordnance (probably from cluster munitions)
 # in the neighborhood.
  
-driver::ensit define ORDNANCE {
+driver::absit define ORDNANCE {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -738,10 +738,10 @@ driver::ensit define ORDNANCE {
 #-------------------------------------------------------------------
 # Rule Set: PIPELINE: Oil Pipeline Fire
 #
-# Environmental Situation: Damage to an oil pipeline has caused to catch
+# Abstract Situation: Damage to an oil pipeline has caused to catch
 # fire.
  
-driver::ensit define PIPELINE {
+driver::absit define PIPELINE {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -779,9 +779,9 @@ driver::ensit define PIPELINE {
 #-------------------------------------------------------------------
 # Rule Set: POWEROUT: Power Outage
 #
-# Environmental Situation: Electrical power is off in the local area.
+# Abstract Situation: Electrical power is off in the local area.
  
-driver::ensit define POWEROUT {
+driver::absit define POWEROUT {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -817,10 +817,10 @@ driver::ensit define POWEROUT {
 #-------------------------------------------------------------------
 # Rule Set: REFINERY: Oil Refinery Fire
 #
-# Environmental Situation: Damage to an oil refinery has caused it to
+# Abstract Situation: Damage to an oil refinery has caused it to
 # catch fire.
  
-driver::ensit define REFINERY {
+driver::absit define REFINERY {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -858,10 +858,10 @@ driver::ensit define REFINERY {
 #-------------------------------------------------------------------
 # Rule Set: RELSITE: Damage to Religious Site/Artifact
 #
-# Environmental Situation: A religious site or artifact is
+# Abstract Situation: A religious site or artifact is
 # damaged, presumably due to kinetic action.
  
-driver::ensit define RELSITE {
+driver::absit define RELSITE {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -900,9 +900,9 @@ driver::ensit define RELSITE {
 #-------------------------------------------------------------------
 # Rule Set: SEWAGE: Sewage Spill
 #
-# Environmental Situation: Sewage is pooling in the streets.
+# Abstract Situation: Sewage is pooling in the streets.
  
-driver::ensit define SEWAGE {
+driver::absit define SEWAGE {
     typemethod ruleset {fdict} {
         dict with fdict {}
 
@@ -932,5 +932,6 @@ driver::ensit define SEWAGE {
         }
     }
 }
+
 
 

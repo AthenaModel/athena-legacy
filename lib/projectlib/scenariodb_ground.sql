@@ -335,10 +335,10 @@ CREATE TABLE activity_nga (
 
 
 ------------------------------------------------------------------------
--- ENVIRONMENTAL SITUATIONS
+-- ABSTRACT SITUATIONS
 
-CREATE TABLE ensits (
-    -- Environmental Situations
+CREATE TABLE absits (
+    -- Abstract Situations
 
     -- Situation ID
     s         INTEGER PRIMARY KEY,
@@ -446,3 +446,4 @@ CREATE TABLE service_g (
 ------------------------------------------------------------------------
 -- End of File
 ------------------------------------------------------------------------
+

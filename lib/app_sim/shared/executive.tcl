@@ -345,16 +345,16 @@ snit::type executive {
         $interp smartalias {dump econ} 0 1 {?page?} \
             [list ::econ dump]
 
-        # ensit
-        $interp ensemble ensit
+        # absit
+        $interp ensemble absit
 
-        # ensit id
-        $interp smartalias {ensit id} 2 2 {n stype} \
-            [myproc ensit_id]
+        # absit id
+        $interp smartalias {absit id} 2 2 {n stype} \
+            [myproc absit_id]
 
-        # ensit last
-        $interp smartalias {ensit last} 0 0 {} \
-            [myproc last_ensit]
+        # absit last
+        $interp smartalias {absit last} 0 0 {} \
+            [myproc last_absit]
 
         
         # errtrace
@@ -388,9 +388,9 @@ snit::type executive {
         $interp smartalias {last condition} 0 0 {} \
             [myproc last_bean ::condition]
 
-        # last ensit
-        $interp smartalias {last ensit} 0 0 {} \
-            [myproc last_ensit]
+        # last absit
+        $interp smartalias {last absit} 0 0 {} \
+            [myproc last_absit]
 
         # last mad
         $interp smartalias {last mad} 0 0 {} \
@@ -2204,31 +2204,31 @@ snit::type executive {
     }
 
 
-    # ensit_id n stype
+    # absit_id n stype
     #
     # n      - Neighborhood
     # stype  - Situation Type
     #
-    # Returns the situation ID of the ensit of the given type
+    # Returns the situation ID of the absit of the given type
     # in the given neighborhood.  Returns "" if none.
 
-    proc ensit_id {n stype} {
+    proc absit_id {n stype} {
         set n [nbhood validate [string toupper $n]]
-        set stype [eensit validate $stype]
+        set stype [eabsit validate $stype]
 
         return [rdb onecolumn {
-            SELECT s FROM ensits 
+            SELECT s FROM absits 
             WHERE n=$n AND stype=$stype
         }]
     }
 
-    # ensit_last
+    # absit_last
     #
-    # Returns the situation ID of the most recently created ensit.
+    # Returns the situation ID of the most recently created absit.
 
-    proc ensit_last {} {
+    proc absit_last {} {
         return [rdb onecolumn {
-            SELECT s FROM ensits ORDER BY s DESC LIMIT 1;
+            SELECT s FROM absits ORDER BY s DESC LIMIT 1;
         }]
     }
 
@@ -2317,18 +2317,18 @@ snit::type executive {
         return $last
     }
 
-    # last_ensit
+    # last_absit
     #
-    # Returns the situation ID of the most recently created ensit.
+    # Returns the situation ID of the most recently created absit.
 
-    proc last_ensit {} {
+    proc last_absit {} {
         rdb eval {
-            SELECT s FROM ensits ORDER BY s DESC LIMIT 1;
+            SELECT s FROM absits ORDER BY s DESC LIMIT 1;
         } {
             return $s
         }
 
-        error "last ensit: no ensits have been created."
+        error "last absit: no absits have been created."
     }
 
     # last_mad
@@ -2735,5 +2735,6 @@ snit::type executive {
 proc usermode {{mode ""}} {
     executive usermode $mode
 }
+
 
 

@@ -483,7 +483,7 @@ order define CIVGROUP:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [civgroup mutate delete $parms(g)]
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -583,4 +583,5 @@ order define CIVGROUP:UPDATE {
     # NEXT, modify the group
     setundo [civgroup mutate update [array get parms]]
 }
+
 

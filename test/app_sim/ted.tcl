@@ -49,7 +49,7 @@ snit::type ted {
         deploy_ng
         deploy_tng
         drivers
-        ensits
+        absits
         expenditures
         frcgroups
         groups
@@ -633,7 +633,7 @@ snit::type ted {
             parm set econ.gdpExp 0
             parm set econ.empExp 0
         }
-        ensit mutate reconcile
+        absit mutate reconcile
         ted order SIM:LOCK
     }
 
@@ -1329,5 +1329,6 @@ snit::type ted {
     }
 
 }
+
 
 

@@ -269,7 +269,7 @@ order define ORGGROUP:DELETE {
 
     # NEXT, Delete the group and dependent entities
     lappend undo [orggroup mutate delete $parms(g)]
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
     
     setundo [join $undo \n]
 }
@@ -384,6 +384,7 @@ order define ORGGROUP:UPDATE:MULTI {
 
     setundo [join $undo \n]
 }
+
 
 
 

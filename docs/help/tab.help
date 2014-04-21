@@ -495,7 +495,7 @@ tab "Physical/Map" {
     The Map tab contains the Athena Map Viewer, the primary means of
     visualizing Athena scenarios.  The Map Viewer is where 
     <<cref /order/nbhood neighborhoods>> and <<cref /order/unit units>> are drawn,
-    <<cref /order/ensit "environmental situations">>  are 
+    <<term absit>>s are 
     created and positioned, and group moods and other <<cref /var/n>>
     are visualized.  The
     browser controls are described <<seebelow controls>>.<p>
@@ -516,7 +516,7 @@ tab "Physical/Map" {
     Press this button to enable selection mode.  In this mode,
     clicking on an object prints a brief description of the object to
     the message line at the bottom of the window.  In addition, you
-    can control-click to drag units and environmental situations from
+    can control-click to drag units and abstracit situations from
     one place to another.  Simply press the <b>Ctrl</b> key, click on
     the unit or situation, holding down the mouse button, and drag the
     object to its new location.
@@ -552,11 +552,11 @@ tab "Physical/Map" {
     <<cref /order/nbhood/create>> order dialog.
     <</topic>>
 
-    <<topic [image button_ensit]>>
+    <<topic [image button_absit]>>
     Press this button to pop up the 
-    <<cref /order/ensit/create>> order
+    <<cref /order/absit/create>> order
     dialog.  Alternatively, right-click on the map and select
-    <<cref /order/ensit/create>> from the context
+    <<cref /order/absit/create>> from the context
     menu--this will pop up the order dialog with the selected location
     already filled in.
     <</topic>>
@@ -716,8 +716,8 @@ tab "Physical/Proximities" {
 
 #-----------------------------------------------------------------------
 
-tab "Physical/EnSits" {
-    This tab shows the environmental situations present in the
+tab "Physical/Absits" {
+    This tab shows the abstracit situations present in the
     playbox.  The browser controls are
     described <<seebelow controls>>; the data fields are as follows:<p>
 
@@ -776,23 +776,23 @@ tab "Physical/EnSits" {
     <<topiclist Control Description>>
 
     <<topic [image button_plus]>>
-    Pops up the <<cref /order/ensit/create>> dialog.
+    Pops up the <<cref /order/absit/create>> dialog.
     <</topic>>
 
     <<topic [image button_pencil]>>
     If a single <b>INITIAL</b> situation is selected, pops up the 
-    <<cref /order/ensit/update>> dialog for
+    <<cref /order/absit/update>> dialog for
     the selected situation.
     <</topic>>
 
     <<topic [image button_check]>>
     If a single unresolved situation is selected, resolves it
-    using the <<cref /order/ensit/resolve>> order.
+    using the <<cref /order/absit/resolve>> order.
     <</topic>>
 
     <<topic [image button_trash]>>
     If a single <b>INITIAL</b> situation is selected, deletes it
-    using the <<cref /order/ensit/delete>> order.
+    using the <<cref /order/absit/delete>> order.
     <</topic>>
 
     <<topic [image viewbox]>>

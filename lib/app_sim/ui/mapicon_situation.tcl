@@ -50,7 +50,7 @@ snit::type ::mapicon::situation {
     # Determines the text of the icon, typically the situation type.
 
     option -text \
-        -default         ENSIT                   \
+        -default         ABSIT                   \
         -configuremethod ConfigureText
 
     method ConfigureText {opt val} {
@@ -187,3 +187,4 @@ snit::type ::mapicon::situation {
 }
 
 ::projectgui::mapcanvas icon register ::mapicon::situation
+

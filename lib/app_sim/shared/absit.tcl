@@ -1,38 +1,38 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    ensit.tcl
+#    absit.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1) Environmental Situation module
+#    athena_sim(1) Abstract Situation module
 #
-#    This module defines a singleton, "ensit", which is used to
-#    manage the collection of environmental situation objects, or ensits.
-#    Ensits are situations; see situation(sim) for additional details.
+#    This module defines a singleton, "absit", which is used to
+#    manage the collection of abstract situation objects, or absits.
+#    Absits are situations; see situation(sim) for additional details.
 #
 #    Entities defined in this file:
 #
-#    ensit      -- The ensit ensemble
-#    ensitType  -- The type for the ensit objects.
+#    absit      -- The absit ensemble
+#    absitType  -- The type for the absit objects.
 #
 #    A single snit::type could do both jobs--but at the expense
-#    of accidentally creating an ensit object if an incorrect ensit
+#    of accidentally creating an absit object if an incorrect absit
 #    method name is used.
 #
-#    * Ensits are created, updated, and deleted via the "mutate *" 
-#      commands and the ENSIT:* orders.
+#    * Absits are created, updated, and deleted via the "mutate *" 
+#      commands and the ABSIT:* orders.
 #
-#    * This module calls the ensit rule on "ensit assess", which is 
+#    * This module calls the absit rule on "absit assess", which is 
 #      done as part of the time advance.
 #
 #-----------------------------------------------------------------------
 
 #-----------------------------------------------------------------------
-# ensit singleton
+# absit singleton
 
-snit::type ensit {
+snit::type absit {
     # Make it an ensemble
     pragma -hasinstances 0
 
@@ -45,21 +45,21 @@ snit::type ensit {
     # state.
     
     typemethod rebase {} {
-        # FIRST, Delete all ensits that have ended.
+        # FIRST, Delete all absits that have ended.
         foreach s [rdb eval {
-            SELECT s FROM ensits WHERE state == 'RESOLVED'
+            SELECT s FROM absits WHERE state == 'RESOLVED'
         }] {
             rdb eval {
-                DELETE FROM ensits WHERE s=$s;
+                DELETE FROM absits WHERE s=$s;
             }
         }
 
-        # NEXT, clean up remaining ensits
+        # NEXT, clean up remaining absits
         foreach {s ts} [rdb eval {
-            SELECT s, ts FROM ensits WHERE state != 'INITIAL'
+            SELECT s, ts FROM absits WHERE state != 'INITIAL'
         }] {
             rdb eval {
-                UPDATE ensits
+                UPDATE absits
                 SET state='INITIAL',
                     ts=now(),
                     inception=0,
@@ -76,37 +76,37 @@ snit::type ensit {
     #
     # Calls the DAM rule sets for each situation requiring assessment.
     #
-    # TBD: Make this [ensit tick]
+    # TBD: Make this [absit tick]
 
     typemethod assess {} {
-        # FIRST, delete ensits that were resolved during past ticks.
+        # FIRST, delete absits that were resolved during past ticks.
         rdb eval {
-            DELETE FROM ensits
+            DELETE FROM absits
             WHERE state == 'RESOLVED' AND tr < now()
         }
 
-        # NEXT, Determine the correct state for each ensit.  Those in the
+        # NEXT, Determine the correct state for each absit.  Those in the
         # INITIAL state are now ONGOING, and those ONGOING whose resolution 
         # time has been reached are now RESOLVED.
         set now [simclock now]
 
         foreach {s state rduration tr} [rdb eval {
-            SELECT s, state, rduration, tr FROM ensits
+            SELECT s, state, rduration, tr FROM absits
         }] {
             # FIRST, put it in the correct state.
             if {$state eq "INITIAL"} {
                 # FIRST, set the state
-                rdb eval {UPDATE ensits SET state='ONGOING' WHERE s=$s}
+                rdb eval {UPDATE absits SET state='ONGOING' WHERE s=$s}
             } elseif {$rduration > 0 && $tr == $now} {
-                rdb eval {UPDATE ensits SET state='RESOLVED' WHERE s=$s}
+                rdb eval {UPDATE absits SET state='RESOLVED' WHERE s=$s}
             }
         }
 
-        # NEXT, assess all ensits.
-        driver::ensit assess
+        # NEXT, assess all absits.
+        driver::absit assess
 
         # NEXT, clear all inception flags.
-        rdb eval {UPDATE ensits SET inception=0}
+        rdb eval {UPDATE absits SET inception=0}
     }
 
     #-------------------------------------------------------------------
@@ -115,14 +115,14 @@ snit::type ensit {
     # get s ?parm?
     #
     # s     - A situation ID
-    # parm  - An ensits column name
+    # parm  - An absits column name
     #
     # Retrieves a row dictionary, or a particular column value, from
-    # ensits.
+    # absits.
 
     typemethod get {s {parm ""}} {
         # FIRST, get the data
-        rdb eval {SELECT * FROM ensits WHERE s=$s} row {
+        rdb eval {SELECT * FROM absits WHERE s=$s} row {
             if {$parm ne ""} {
                 return $row($parm)
             } else {
@@ -139,22 +139,22 @@ snit::type ensit {
     # existsInNbhood n ?stype?
     #
     # n          A neighborhood ID
-    # stype      An ensit type
+    # stype      An absit type
     #
-    # If stype is given, returns 1 if there's a live ensit of the 
+    # If stype is given, returns 1 if there's a live absit of the 
     # specified type already present in n, and 0 otherwise.  Otherwise,
-    # returns a list of the ensit types that exist in n.
+    # returns a list of the absit types that exist in n.
 
     typemethod existsInNbhood {n {stype ""}} {
         if {$stype eq ""} {
             return [rdb eval {
-                SELECT stype FROM ensits
+                SELECT stype FROM absits
                 WHERE n     =  $n
                 AND   state != 'RESOLVED'
             }]
         } else {
             return [rdb exists {
-                SELECT stype FROM ensits
+                SELECT stype FROM absits
                 WHERE n     =  $n
                 AND   state != 'RESOLVED'
                 AND   stype =  $stype
@@ -167,7 +167,7 @@ snit::type ensit {
     #
     # n          A neighborhood ID
     #
-    # Returns a list of the ensits which do not exist in this
+    # Returns a list of the absits which do not exist in this
     # neighborhood.
 
     typemethod absentFromNbhood {n} {
@@ -176,7 +176,7 @@ snit::type ensit {
 
         set absent [list]
 
-        foreach stype [eensit names] {
+        foreach stype [eabsit names] {
             if {$stype ni $present} {
                 lappend absent $stype
             }
@@ -188,11 +188,11 @@ snit::type ensit {
 
     # names
     #
-    # List of ensit IDs.
+    # List of absit IDs.
 
     typemethod names {} {
         return [rdb eval {
-            SELECT s FROM ensits
+            SELECT s FROM absits
         }]
     }
 
@@ -201,12 +201,12 @@ snit::type ensit {
     #
     # s      A situation ID
     #
-    # Verifies that s is an ensit.
+    # Verifies that s is an absit.
 
     typemethod validate {s} {
         if {$s ni [$type names]} {
             return -code error -errorcode INVALID \
-                "Invalid environmental situation ID: \"$s\""
+                "Invalid abstract situation ID: \"$s\""
         }
 
         return $s
@@ -214,11 +214,11 @@ snit::type ensit {
 
     # initial names
     #
-    # List of IDs of ensits in the INITIAL state.
+    # List of IDs of absits in the INITIAL state.
 
     typemethod {initial names} {} {
         return [rdb eval {
-            SELECT s FROM ensits
+            SELECT s FROM absits
             WHERE state = 'INITIAL'
         }]
     }
@@ -246,11 +246,11 @@ snit::type ensit {
 
     # live names
     #
-    # List of IDs of ensits that are still "live"
+    # List of IDs of absits that are still "live"
 
     typemethod {live names} {} {
         return [rdb eval {
-            SELECT s FROM ensits WHERE state != 'RESOLVED'
+            SELECT s FROM absits WHERE state != 'RESOLVED'
         }]
     }
 
@@ -281,21 +281,21 @@ snit::type ensit {
 
     # mutate reconcile
     #
-    # Updates ensits as neighborhoods and groups change:
+    # Updates absits as neighborhoods and groups change:
     #
     # *  If the "resolver" group no longer exists, that
     #    field is set to "NONE".
     #
-    # *  Updates every ensit's "n" attribute to reflect the
+    # *  Updates every absit's "n" attribute to reflect the
     #    current state of the neighborhood.
     #
     # TBD: In the long run, I want to get rid of this routine.
-    # But that's a big job.  Ensits can be created in PREP, and an 
-    # ensit's neighborhood depends on its location.  As neighborhoods come 
-    # and go, an ensit's neighborhood really can change; and this needs
+    # But that's a big job.  Absits can be created in PREP, and an 
+    # absit's neighborhood depends on its location.  As neighborhoods come 
+    # and go, an absit's neighborhood really can change; and this needs
     # to be updated at that time.  This routine handles this.
     #
-    # Ultimately, ensit neighborhood should be primary, and location should
+    # Ultimately, absit neighborhood should be primary, and location should
     # be only for visualization.
 
     typemethod {mutate reconcile} {} {
@@ -304,9 +304,9 @@ snit::type ensit {
         # FIRST, set resolver to NONE if resolver doesn't exist.
         rdb eval {
             SELECT *
-            FROM ensits LEFT OUTER JOIN groups 
-            ON (ensits.resolver = groups.g)
-            WHERE ensits.resolver != 'NONE'
+            FROM absits LEFT OUTER JOIN groups 
+            ON (absits.resolver = groups.g)
+            WHERE absits.resolver != 'NONE'
             AND   longname IS NULL
         } row {
             set row(resolver) NONE
@@ -314,16 +314,16 @@ snit::type ensit {
             lappend undo [$type mutate update [array get row]]
         }
 
-        # NEXT, set n for all ensits
+        # NEXT, set n for all absits
         foreach {s n location} [rdb eval {
-            SELECT s, n, location FROM ensits
+            SELECT s, n, location FROM absits
         }] { 
             set newNbhood [nbhood find {*}$location]
 
             if {$newNbhood ne $n} {
 
                 rdb eval {
-                    UPDATE ensits SET n=$newNbhood
+                    UPDATE absits SET n=$newNbhood
                     WHERE s=$s;
                 }
 
@@ -337,21 +337,21 @@ snit::type ensit {
 
     # RestoreNbhood s n
     #
-    # s     An ensit
+    # s     An absit
     # n     A nbhood
     # 
-    # Sets the ensit's nbhood.
+    # Sets the absit's nbhood.
 
     typemethod RestoreNbhood {s n} {
         # FIRST, save it
-        rdb eval { UPDATE ensits SET n=$n WHERE s=$s; }
+        rdb eval { UPDATE absits SET n=$n WHERE s=$s; }
     }
 
 
 
     # mutate create parmdict
     #
-    # parmdict     A dictionary of ensit parms
+    # parmdict     A dictionary of absit parms
     #
     #    stype          The situation type
     #    location       The situation's initial <loc></loc>ation (map coords)
@@ -360,7 +360,7 @@ snit::type ensit {
     #    resolver       The group that will resolve the situation, or ""
     #    rduration      Auto-resolution duration, in weeks
     #
-    # Creates an ensit given the parms, which are presumed to be
+    # Creates an absit given the parms, which are presumed to be
     # valid.
 
     typemethod {mutate create} {parmdict} {
@@ -371,7 +371,7 @@ snit::type ensit {
         assert {$n ne ""}
 
         if {$rduration eq ""} {
-            set rduration [parmdb get ensit.$stype.duration]
+            set rduration [parmdb get absit.$stype.duration]
         }
 
 
@@ -397,7 +397,7 @@ snit::type ensit {
 
         rdb eval {
             INSERT INTO 
-            ensits(stype, location, n, coverage, inception, 
+            absits(stype, location, n, coverage, inception, 
                    state, ts, resolver, rduration, tr)
             VALUES($stype, $location, $n, $coverage, $inception,
                    'INITIAL', $ts, $resolver, $rduration,
@@ -407,7 +407,7 @@ snit::type ensit {
         set s [rdb last_insert_rowid]
 
         # NEXT, inform all clients about the new object.
-        log detail ensit "$s: created for $n,$stype,$coverage"
+        log detail absit "$s: created for $n,$stype,$coverage"
 
         # NEXT, Return the undo command
         return [mytypemethod mutate delete $s]
@@ -422,7 +422,7 @@ snit::type ensit {
 
     typemethod {mutate delete} {s} {
         # FIRST, delete the records, grabbing the undo information
-        set data [rdb delete -grab ensits {s=$s}]
+        set data [rdb delete -grab absits {s=$s}]
 
         # NEXT, Return the undo script
         return [list rdb ungrab $data]
@@ -451,7 +451,7 @@ snit::type ensit {
         dict with parmdict {}
 
         # FIRST, get the undo information
-        set data [rdb grab ensits {s=$s}]
+        set data [rdb grab absits {s=$s}]
 
         # NEXT, get the new neighborhood if the location changed.
         if {$location ne ""} { 
@@ -469,7 +469,7 @@ snit::type ensit {
 
         # NEXT, update the situation
         rdb eval {
-            UPDATE ensits
+            UPDATE absits
             SET stype     = nonempty($stype,     stype),
                 location  = nonempty($location,  location),
                 n         = nonempty($n,         n),
@@ -500,11 +500,11 @@ snit::type ensit {
         dict with parmdict {}
 
         # FIRST, get the undo information
-        set data [rdb grab ensits {s=$s}]
+        set data [rdb grab absits {s=$s}]
 
         # NEXT, update the situation
         rdb eval {
-            UPDATE ensits
+            UPDATE absits
             SET state     = 'RESOLVED',
                 resolver  = nonempty($resolver, resolver),
                 tr        = now(),
@@ -523,7 +523,7 @@ snit::type ensit {
     #
     # location  - A map location
     #
-    # Returns a list of the ensit types that are not represented in 
+    # Returns a list of the absit types that are not represented in 
     # the neighborhood containing the given location.
 
     typemethod AbsentTypes {location} {
@@ -543,16 +543,16 @@ snit::type ensit {
     #
     # s  - A situation ID
     #
-    # Returns a list of the ensit types that are not represented in 
+    # Returns a list of the absit types that are not represented in 
     # the neighborhood containing the situation, plus the situation's
     # own type.
 
     typemethod AbsentTypesBySit {s} {
         if {$s ne ""} {
-            set n [ensit get $s n]
+            set n [absit get $s n]
 
             set stypes [$type absentFromNbhood $n]
-            lappend stypes [ensit get $s stype]
+            lappend stypes [absit get $s stype]
 
             return [lsort $stypes]
         }
@@ -564,12 +564,12 @@ snit::type ensit {
 #-------------------------------------------------------------------
 # Orders
 
-# ENSIT:CREATE
+# ABSIT:CREATE
 #
-# Creates new ensits.
+# Creates new absits.
 
-order define ENSIT:CREATE {
-    title "Create Environmental Situation"
+order define ABSIT:CREATE {
+    title "Create Abstract Situation"
     options -sendstates {PREP PAUSED TACTIC}
 
     form {
@@ -577,7 +577,7 @@ order define ENSIT:CREATE {
         text location
 
         rcc "Type:" -for stype
-        enum stype -listcmd {ensit AbsentTypes $location}
+        enum stype -listcmd {absit AbsentTypes $location}
 
         rcc "Coverage:" -for coverage
         frac coverage -defvalue 1.0
@@ -597,7 +597,7 @@ order define ENSIT:CREATE {
 } {
     # FIRST, prepare and validate the parameters
     prepare location  -toupper   -required -type refpoint
-    prepare stype     -toupper   -required -type eensit
+    prepare stype     -toupper   -required -type eabsit
     prepare coverage  -num       -required -type rfraction
     prepare inception -toupper   -required -type boolean
     prepare resolver  -toupper   -required -type {ptype g+none}
@@ -624,38 +624,38 @@ order define ENSIT:CREATE {
     returnOnError
 
     validate stype {
-        if {[ensit existsInNbhood $n $parms(stype)]} {
+        if {[absit existsInNbhood $n $parms(stype)]} {
             reject stype \
-                "An ensit of this type already exists in this neighborhood."
+                "An absit of this type already exists in this neighborhood."
         }
     }
 
     returnOnError -final
 
     # NEXT, create the situation.
-    lappend undo [ensit mutate create [array get parms]]
+    lappend undo [absit mutate create [array get parms]]
     
     setundo [join $undo \n]
 }
 
 
-# ENSIT:DELETE
+# ABSIT:DELETE
 #
-# Deletes an ensit.
+# Deletes an absit.
 
-order define ENSIT:DELETE {
-    title "Delete Environmental Situation"
+order define ABSIT:DELETE {
+    title "Delete Abstract Situation"
     options -sendstates {PREP PAUSED}
 
     form {
         rcc "Situation:" -for s
-        key s -table gui_ensits_initial -keys s -dispcols longid
+        key s -table gui_absits_initial -keys s -dispcols longid
     }
 
     parmtags s situation
 } {
     # FIRST, prepare the parameters
-    prepare s -required -type {ensit initial}
+    prepare s -required -type {absit initial}
 
     returnOnError -final
 
@@ -667,7 +667,7 @@ order define ENSIT:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     ENSIT:DELETE   \
+                        -ignoretag     ABSIT:DELETE   \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {
@@ -682,30 +682,30 @@ order define ENSIT:DELETE {
 
 
     # NEXT, delete the situation.
-    lappend undo [ensit mutate delete $parms(s)]
+    lappend undo [absit mutate delete $parms(s)]
     
     setundo [join $undo \n]
 }
 
 
-# ENSIT:UPDATE
+# ABSIT:UPDATE
 #
-# Updates existing ensits.
+# Updates existing absits.
 
-order define ENSIT:UPDATE {
-    title "Update Environmental Situation"
+order define ABSIT:UPDATE {
+    title "Update Abstract Situation"
     options -sendstates {PREP PAUSED TACTIC} 
 
     form {
         rcc "Situation:" -for s
-        key s -table gui_ensits_initial -keys s -dispcols longid \
+        key s -table gui_absits_initial -keys s -dispcols longid \
             -loadcmd {orderdialog keyload s *}
 
         rcc "Location:" -for location
         text location
 
         rcc "Type:" -for stype
-        enum stype -listcmd {ensit AbsentTypesBySit $s}
+        enum stype -listcmd {absit AbsentTypesBySit $s}
 
         rcc "Coverage:" -for coverage
         frac coverage
@@ -727,15 +727,15 @@ order define ENSIT:UPDATE {
     parmtags location nbpoint
 } {
     # FIRST, check the situation
-    prepare s                    -required -type {ensit initial}
+    prepare s                    -required -type {absit initial}
 
     returnOnError
 
-    set stype [ensit get $parms(s) stype]
+    set stype [absit get $parms(s) stype]
 
     # NEXT, prepare the remaining parameters
     prepare location  -toupper  -type refpoint 
-    prepare stype     -toupper  -type eensit -oldvalue $stype
+    prepare stype     -toupper  -type eabsit -oldvalue $stype
     prepare coverage  -num      -type rfraction
     prepare inception -toupper  -type boolean
     prepare resolver  -toupper  -type {ptype g+none}
@@ -745,7 +745,7 @@ order define ENSIT:UPDATE {
     returnOnError
 
     # NEXT, get the old neighborhood
-    set n [ensit get $parms(s) n]
+    set n [absit get $parms(s) n]
 
     # NEXT, validate the other parameters.
     validate location {
@@ -757,9 +757,9 @@ order define ENSIT:UPDATE {
     }
 
     validate stype {
-        if {[ensit existsInNbhood $n $parms(stype)]} {
+        if {[absit existsInNbhood $n $parms(stype)]} {
             reject stype \
-                "An ensit of this type already exists in this neighborhood."
+                "An absit of this type already exists in this neighborhood."
         }
     }
 
@@ -773,22 +773,22 @@ order define ENSIT:UPDATE {
     returnOnError -final
 
     # NEXT, modify the group
-    setundo [ensit mutate update [array get parms]]
+    setundo [absit mutate update [array get parms]]
 }
 
 
-# ENSIT:MOVE
+# ABSIT:MOVE
 #
-# Moves an existing ensit.
+# Moves an existing absit.
 
-order define ENSIT:MOVE {
-    title "Move Environmental Situation"
+order define ABSIT:MOVE {
+    title "Move Abstract Situation"
     options \
         -sendstates {PREP PAUSED}
 
     form {
         rcc "Situation:" -for s
-        key s -table gui_ensits -keys s -dispcols longid
+        key s -table gui_absits -keys s -dispcols longid
 
         rcc "Location:" -for location
         text location
@@ -798,7 +798,7 @@ order define ENSIT:MOVE {
     parmtags location nbpoint
 } {
     # FIRST, check the situation
-    prepare s                    -required -type ensit
+    prepare s                    -required -type absit
 
     returnOnError
 
@@ -808,11 +808,11 @@ order define ENSIT:MOVE {
     returnOnError
 
     # NEXT, validate the other parameters.  In the INITIAL state, the
-    # ensit can be moved to any neighborhood; in any other state it
+    # absit can be moved to any neighborhood; in any other state it
     # can only be moved within the neighborhood.
     # location can be changed.
 
-    if {[ensit get $parms(s) state] eq "INITIAL"} {
+    if {[absit get $parms(s) state] eq "INITIAL"} {
         validate location {
             set n [nbhood find {*}$parms(location)]
             
@@ -825,7 +825,7 @@ order define ENSIT:MOVE {
         validate location {
             set n [nbhood find {*}$parms(location)]
 
-            if {$n ne [ensit get $parms(s) n]} {
+            if {$n ne [absit get $parms(s) n]} {
                 reject location "Cannot remove situation from its neighborhood"
             }
         }
@@ -843,21 +843,21 @@ order define ENSIT:MOVE {
     }
 
     # NEXT, modify the group
-    setundo [ensit mutate update [array get parms]]
+    setundo [absit mutate update [array get parms]]
 }
 
 
-# ENSIT:RESOLVE
+# ABSIT:RESOLVE
 #
-# Resolves an ensit.
+# Resolves an absit.
 
-order define ENSIT:RESOLVE {
-    title "Resolve Environmental Situation"
+order define ABSIT:RESOLVE {
+    title "Resolve Abstract Situation"
     options -sendstates {PREP PAUSED TACTIC}
 
     form {
         rcc "Situation:" -for s
-        key s -table gui_ensits -keys s -dispcols longid \
+        key s -table gui_absits -keys s -dispcols longid \
             -loadcmd {orderdialog keyload s *}
 
         rcc "Resolved By:" -for resolver
@@ -867,16 +867,18 @@ order define ENSIT:RESOLVE {
     parmtags s situation
 } {
     # FIRST, prepare the parameters
-    prepare s         -required -type {ensit live}
+    prepare s         -required -type {absit live}
     prepare resolver  -toupper  -type {ptype g+none}
 
     returnOnError -final
 
     # NEXT, resolve the situation.
-    lappend undo [ensit mutate resolve [array get parms]]
+    lappend undo [absit mutate resolve [array get parms]]
     
     setundo [join $undo \n]
 }
+
+
 
 
 

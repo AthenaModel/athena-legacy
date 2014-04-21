@@ -7,9 +7,9 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    app_sim(1) ENSIT:* order tests.
+#    app_sim(1) ABSIT:* order tests.
 #
-#    This test suite tests the ensit-related orders.
+#    This test suite tests the absit-related orders.
 #
 #-----------------------------------------------------------------------
 
@@ -51,10 +51,10 @@ namespace eval ::athena_test::tests:: {
     }
 
     #-------------------------------------------------------------------
-    # ENSIT:CREATE
+    # ABSIT:CREATE
 
     test CREATE-1.1 {required parms} -body {
-        ted order -reject ENSIT:CREATE {}
+        ted order -reject ABSIT:CREATE {}
     } -result {
         location {required value}
         stype {required value}
@@ -63,7 +63,7 @@ namespace eval ::athena_test::tests:: {
     
     test CREATE-1.2 {location is not a mapref} -body {
         ted create BLUE
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             {*}$s1 location NONESUCH
     } -cleanup {
         cleanup
@@ -74,7 +74,7 @@ namespace eval ::athena_test::tests:: {
 
     test CREATE-1.3 {location not in nbhood} -body {
         ted create BLUE
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             $s1
     } -cleanup {
         cleanup
@@ -85,7 +85,7 @@ namespace eval ::athena_test::tests:: {
 
     test CREATE-1.4 {invalid stype} -body {
         ted create BLUE
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             {*}$s1 stype NONESUCH
     } -cleanup {
         cleanup
@@ -97,19 +97,19 @@ namespace eval ::athena_test::tests:: {
     test CREATE-1.5 {duplicate stype} -setup {
         ted create BLUE
         ted create NB1
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:CREATE $s1
+        ted order -reject ABSIT:CREATE $s1
     } -cleanup {
         cleanup
     } -result {
-        stype {An ensit of this type already exists in this neighborhood.}
+        stype {An absit of this type already exists in this neighborhood.}
     }
 
 
     test CREATE-1.6 {invalid coverage} -body {
         ted create BLUE
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             {*}$s1 coverage 2.0
     } -cleanup {
         cleanup
@@ -121,7 +121,7 @@ namespace eval ::athena_test::tests:: {
     test CREATE-1.7 {coverage can't be 0.0} -setup {
         ted create NB1 BLUE
     } -body {
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             {*}$s1 coverage 0.0
     } -cleanup {
         cleanup
@@ -132,7 +132,7 @@ namespace eval ::athena_test::tests:: {
 
     test CREATE-1.8 {invalid inception} -body {
         ted create BLUE
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             {*}$s1 inception NONESUCH
     } -cleanup {
         cleanup
@@ -143,7 +143,7 @@ namespace eval ::athena_test::tests:: {
 
     test CREATE-1.9 {invalid resolver} -body {
         ted create BLUE
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             {*}$s1 resolver NONESUCH
     } -cleanup {
         cleanup
@@ -154,7 +154,7 @@ namespace eval ::athena_test::tests:: {
 
     test CREATE-1.10 {invalid rduration} -body {
         ted create BLUE
-        ted order -reject ENSIT:CREATE \
+        ted order -reject ABSIT:CREATE \
             {*}$s1 rduration NONESUCH
     } -cleanup {
         cleanup
@@ -164,12 +164,12 @@ namespace eval ::athena_test::tests:: {
 
 
 
-    test CREATE-2.1 {ensit is created} -setup {
+    test CREATE-2.1 {absit is created} -setup {
         ted create NB1 BLUE
     } -body {
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
 
-        ted querylist {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
     } -result {
@@ -190,42 +190,42 @@ tr         1
     test CREATE-2.2 {Effects} -setup {
         ted create NB1 BLUE
     } -body {
-        ted notifier bind ::rdb <ensits>
-        ted order ENSIT:CREATE $s1
+        ted notifier bind ::rdb <absits>
+        ted order ABSIT:CREATE $s1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
 
     test CREATE-3.1 {undo effects} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted notifier bind ::rdb <ensits>
+        ted notifier bind ::rdb <absits>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> delete 1}
+        {::rdb <absits> delete 1}
     }
 
 
     #-------------------------------------------------------------------
-    # ENSIT:DELETE
+    # ABSIT:DELETE
 
     test DELETE-1.1 {required parms} -body {
-        ted order -reject ENSIT:DELETE {}
+        ted order -reject ABSIT:DELETE {}
     } -result {
         s {required value}
     }
 
     
     test DELETE-1.2 {unknown s} -body {
-        ted order -reject ENSIT:DELETE s NONESUCH
+        ted order -reject ABSIT:DELETE s NONESUCH
     } -result {
         s {not a "live" situation: "NONESUCH"}
     }
@@ -233,10 +233,10 @@ tr         1
 
     test DELETE-1.3 {s not in initial state} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
-        rdb eval {UPDATE ensits SET state='ONGOING' WHERE s=1}
+        ted order ABSIT:CREATE $s1
+        rdb eval {UPDATE absits SET state='ONGOING' WHERE s=1}
     } -body {
-        ted order -reject ENSIT:DELETE s 1
+        ted order -reject ABSIT:DELETE s 1
     } -cleanup {
         cleanup
     } -result {
@@ -246,51 +246,51 @@ tr         1
 
     test DELETE-2.1 {Effects} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted notifier bind ::rdb <ensits>
-        ted order ENSIT:DELETE s 1
+        ted notifier bind ::rdb <absits>
+        ted order ABSIT:DELETE s 1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> delete 1}
+        {::rdb <absits> delete 1}
     }
 
 
     test DELETE-3.1 {Undo effects} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
-        ted order ENSIT:DELETE s 1
+        ted order ABSIT:CREATE $s1
+        ted order ABSIT:DELETE s 1
     } -body {
-        ted notifier bind ::rdb <ensits>
+        ted notifier bind ::rdb <absits>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
 
     #-------------------------------------------------------------------
-    # ENSIT:UPDATE
+    # ABSIT:UPDATE
 
     # 1.*: parameter type validation
     # 2.*: correct operation
     # 3.*: undo
 
     test UPDATE-1.1 {required parms} -body {
-        ted order -reject ENSIT:UPDATE {}
+        ted order -reject ABSIT:UPDATE {}
     } -result {
         s {required value}
     }
     
     test UPDATE-1.2 {location is not a mapref} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 location NONESUCH
+        ted order -reject ABSIT:UPDATE s 1 location NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -300,9 +300,9 @@ tr         1
 
     test UPDATE-1.3 {invalid stype} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 stype NONESUCH
+        ted order -reject ABSIT:UPDATE s 1 stype NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -312,9 +312,9 @@ tr         1
 
     test UPDATE-1.4 {invalid coverage} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 coverage NONESUCH
+        ted order -reject ABSIT:UPDATE s 1 coverage NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -324,9 +324,9 @@ tr         1
 
     test UPDATE-1.5 {invalid inception} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 inception NONESUCH
+        ted order -reject ABSIT:UPDATE s 1 inception NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -336,9 +336,9 @@ tr         1
 
     test UPDATE-1.6 {invalid resolver} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 resolver NONESUCH
+        ted order -reject ABSIT:UPDATE s 1 resolver NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -348,9 +348,9 @@ tr         1
 
     test UPDATE-1.7 {invalid rduration} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 rduration NONESUCH
+        ted order -reject ABSIT:UPDATE s 1 rduration NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -360,9 +360,9 @@ tr         1
 
     test UPDATE-1.8 {location is not in a nbhood} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 location A00A00
+        ted order -reject ABSIT:UPDATE s 1 location A00A00
     } -cleanup {
         cleanup
     } -result {
@@ -372,10 +372,10 @@ tr         1
 
     test UPDATE-1.9 {Not INITIAL state} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
-        rdb eval {UPDATE ensits SET state='ONGOING' WHERE s=1}
+        ted order ABSIT:CREATE $s1
+        rdb eval {UPDATE absits SET state='ONGOING' WHERE s=1}
     } -body {
-        ted order -reject ENSIT:UPDATE s 1 \
+        ted order -reject ABSIT:UPDATE s 1 \
             stype     COMMOUT \
             location  A00A00  \
             coverage  0.5     \
@@ -388,11 +388,11 @@ tr         1
     }
 
 
-    test UPDATE-2.1 {ensit is updated} -setup {
+    test UPDATE-2.1 {absit is updated} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order ENSIT:UPDATE {
+        ted order ABSIT:UPDATE {
             s         1 
             location  B01B01
             stype     COMMOUT
@@ -401,7 +401,7 @@ tr         1
             rduration 10
         }
 
-        ted querylist {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
     } -result {
@@ -421,56 +421,56 @@ tr         10
 
     test UPDATE-2.2 {table monitor event} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted notifier bind ::rdb <ensits>
-        ted order ENSIT:UPDATE s 1 stype COMMOUT
+        ted notifier bind ::rdb <absits>
+        ted order ABSIT:UPDATE s 1 stype COMMOUT
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
 
     test UPDATE-3.1 {undo undoes the change} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
-        ted order ENSIT:UPDATE {
+        ted order ABSIT:CREATE $s1
+        ted order ABSIT:UPDATE {
             s         1 
             location  B01B01
             stype     COMMOUT
             inception NO
         }
     } -body {
-        ted notifier bind ::rdb <ensits>
+        ted notifier bind ::rdb <absits>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
 
     #-------------------------------------------------------------------
-    # ENSIT:MOVE
+    # ABSIT:MOVE
 
     # 1.*: parameter type validation
     # 2.*: correct operation
     # 3.*: undo
 
     test MOVE-1.1 {required parms} -body {
-        ted order -reject ENSIT:MOVE {}
+        ted order -reject ABSIT:MOVE {}
     } -result {
         s {required value}
     }
     
     test MOVE-1.2 {location is not a mapref} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:MOVE s 1 location NONESUCH
+        ted order -reject ABSIT:MOVE s 1 location NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -479,9 +479,9 @@ tr         10
 
     test MOVE-1.3 {INITIAL state; location is not in a nbhood} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:MOVE s 1 location A00A00
+        ted order -reject ABSIT:MOVE s 1 location A00A00
     } -cleanup {
         cleanup
     } -result {
@@ -491,10 +491,10 @@ tr         10
 
     test MOVE-1.4 {Not INITIAL sate; location is out of neighborhood} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
-        rdb eval {UPDATE ensits SET state='ONGOING' WHERE s=1}
+        ted order ABSIT:CREATE $s1
+        rdb eval {UPDATE absits SET state='ONGOING' WHERE s=1}
     } -body {
-        ted order -reject ENSIT:MOVE s 1 location A00A00
+        ted order -reject ABSIT:MOVE s 1 location A00A00
     } -cleanup {
         cleanup
     } -result {
@@ -502,16 +502,16 @@ tr         10
     }
 
 
-    test MOVE-2.1 {ensit is updated} -setup {
+    test MOVE-2.1 {absit is updated} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order ENSIT:MOVE {
+        ted order ABSIT:MOVE {
             s         1 
             location  B01B01
         }
 
-        ted query {SELECT s, location FROM ensits}
+        ted query {SELECT s, location FROM absits}
     } -cleanup {
         cleanup
     } -result {
@@ -523,51 +523,51 @@ s location
 
     test MOVE-2.2 {table monitor event} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted notifier bind ::rdb <ensits>
-        ted order ENSIT:MOVE s 1 location B01B01
+        ted notifier bind ::rdb <absits>
+        ted order ABSIT:MOVE s 1 location B01B01
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
 
     test MOVE-3.1 {undo undoes the change} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
-        ted order ENSIT:MOVE {
+        ted order ABSIT:CREATE $s1
+        ted order ABSIT:MOVE {
             s         1 
             location  B01B01
         }
     } -body {
-        ted notifier bind ::rdb <ensits>
+        ted notifier bind ::rdb <absits>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
 
     #-------------------------------------------------------------------
-    # ENSIT:RESOLVE
+    # ABSIT:RESOLVE
 
     # 1.*: parameter type validation
     # 2.*: correct operation
     # 3.*: undo
 
     test RESOLVE-1.1 {required parms} -body {
-        ted order -reject ENSIT:RESOLVE {}
+        ted order -reject ABSIT:RESOLVE {}
     } -result {
         s {required value}
     }
     
     test RESOLVE-1.2 {s is not a live situation} -body {
-        ted order -reject ENSIT:RESOLVE s 1
+        ted order -reject ABSIT:RESOLVE s 1
     } -cleanup {
         cleanup
     } -result {
@@ -577,9 +577,9 @@ s location
 
     test RESOLVE-1.3 {invalid resolver} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ENSIT:RESOLVE s 1 resolver NONESUCH
+        ted order -reject ABSIT:RESOLVE s 1 resolver NONESUCH
     } -cleanup {
         cleanup
     } -result {
@@ -587,13 +587,13 @@ s location
     }
 
 
-    test RESOLVE-2.1 {ensit is resolved} -setup {
+    test RESOLVE-2.1 {absit is resolved} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order ENSIT:RESOLVE s 1 resolver BLUE
+        ted order ABSIT:RESOLVE s 1 resolver BLUE
 
-        ted querylist {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
     } -result {
@@ -611,13 +611,13 @@ tr         0
     }
 
 
-    test RESOLVE-2.2 {ensit is resolved, resolver is omitted} -setup {
+    test RESOLVE-2.2 {absit is resolved, resolver is omitted} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted order ENSIT:RESOLVE s 1
+        ted order ABSIT:RESOLVE s 1
 
-        ted querylist {SELECT * FROM ensits}
+        ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
     } -result {
@@ -637,30 +637,30 @@ tr         0
 
     test RESOLVE-2.3 {table monitor event} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
+        ted order ABSIT:CREATE $s1
     } -body {
-        ted notifier bind ::rdb <ensits>
-        ted order ENSIT:RESOLVE s 1
+        ted notifier bind ::rdb <absits>
+        ted order ABSIT:RESOLVE s 1
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
 
     test RESOLVE-3.1 {undo undoes the change} -setup {
         ted create NB1 BLUE
-        ted order ENSIT:CREATE $s1
-        ted order ENSIT:RESOLVE s 1 resolver BLUE
+        ted order ABSIT:CREATE $s1
+        ted order ABSIT:RESOLVE s 1 resolver BLUE
     } -body {
-        ted notifier bind ::rdb <ensits>
+        ted notifier bind ::rdb <absits>
         cif undo -test
         ted notifier received
     } -cleanup {
         cleanup
     } -result {
-        {::rdb <ensits> update 1}
+        {::rdb <absits> update 1}
     }
 
     #-------------------------------------------------------------------
@@ -670,6 +670,8 @@ tr         0
 }
 
 namespace delete ::athena_test::tests::
+
+
 
 
 

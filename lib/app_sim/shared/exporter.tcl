@@ -255,9 +255,9 @@ snit::type exporter {
         FromRDB $f SAT:UPDATE    {SELECT * FROM gui_sat_override_view}
         FromRDB $f VREL:OVERRIDE {SELECT * FROM gui_vrel_override_view}
 
-        # NEXT, Ensits
-        SectionHeader $f "Environmental Situations"
-        FromRDB $f ENSIT:CREATE {SELECT * FROM gui_ensits}
+        # NEXT, Absits
+        SectionHeader $f "Abstract Situations"
+        FromRDB $f ABSIT:CREATE {SELECT * FROM gui_absits}
 
         # NEXT, Economics
         SectionHeader $f "Economics: SAM Inputs"
@@ -510,3 +510,4 @@ snit::type exporter {
         }
     }
 }
+

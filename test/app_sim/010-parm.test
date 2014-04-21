@@ -41,11 +41,11 @@ namespace eval ::athena_test::tests:: {
 
     test mutate_import-1.1 {Imports a file} -setup {
         makeFile {
-            parm dam.ensit.nominalCoverage 0.5
+            parm dam.absit.nominalCoverage 0.5
         } temp.parmdb
     } -body {
         parm mutate import [file join [temporaryDirectory] temp.parmdb]
-        parm get dam.ensit.nominalCoverage
+        parm get dam.absit.nominalCoverage
     } -cleanup {
         cleanup
     } -result {0.5}
@@ -53,15 +53,15 @@ namespace eval ::athena_test::tests:: {
 
     test mutate_import-1.2 {Changes are undone} -setup {
         makeFile {
-            parm dam.ensit.nominalCoverage 0.5
+            parm dam.absit.nominalCoverage 0.5
         } temp.parmdb
     } -body {
-        set a [parm get dam.ensit.nominalCoverage]
+        set a [parm get dam.absit.nominalCoverage]
         set undo [parm mutate import \
                       [file join [temporaryDirectory] temp.parmdb]]
-        set b [parm get dam.ensit.nominalCoverage]
+        set b [parm get dam.absit.nominalCoverage]
         eval $undo
-        set c [parm get dam.ensit.nominalCoverage]
+        set c [parm get dam.absit.nominalCoverage]
 
         list [expr {$a == $c}] [expr {$a != $b}]
     } -cleanup {
@@ -96,29 +96,29 @@ namespace eval ::athena_test::tests:: {
 
 
     test mutate_set-1.2 {Sets a known parameter to an invalid value} -body {
-        parm mutate set dam.ensit.nominalCoverage foo
+        parm mutate set dam.absit.nominalCoverage foo
     } -returnCodes {
         error
     } -cleanup {
         cleanup
-    } -result {Invalid dam.ensit.nominalCoverage value "foo": invalid value "foo", should be a real number in range 0.1, 1.0}
+    } -result {Invalid dam.absit.nominalCoverage value "foo": invalid value "foo", should be a real number in range 0.1, 1.0}
 
 
     test mutate_set-2.1 {Set is successful} -body {
-        parm mutate set dam.ensit.nominalCoverage 0.1
-        parm get dam.ensit.nominalCoverage
+        parm mutate set dam.absit.nominalCoverage 0.1
+        parm get dam.absit.nominalCoverage
     } -cleanup {
         cleanup
     } -result {0.1}
 
 
     test mutate_set-2.2 {Set can be undone} -body {
-        set a [parm get dam.ensit.nominalCoverage]
+        set a [parm get dam.absit.nominalCoverage]
 
-        set undo [parm mutate set dam.ensit.nominalCoverage 0.2]
+        set undo [parm mutate set dam.absit.nominalCoverage 0.2]
         eval $undo
 
-        set b [parm get dam.ensit.nominalCoverage]
+        set b [parm get dam.absit.nominalCoverage]
 
         expr {$a == $b}
     } -cleanup {
@@ -135,6 +135,7 @@ namespace eval ::athena_test::tests:: {
 }
 
 namespace delete ::athena_test::tests::
+
 
 
 

@@ -41,8 +41,8 @@
 #         A. Unit Display
 #         B. Context Menu
 #         C. Event Handlers: notifier(n)
-#     V.  Ensit Display and Behavior
-#         A. Ensit Display
+#     V.  Absit Display and Behavior
+#         A. Absit Display
 #         B. Context Menu
 #         C. Event Handlers: notifier(n)
 #         D. Public Methods
@@ -157,7 +157,7 @@ snit::widget mapviewer {
         } { . trans  X black } d { X gray }
 
 
-        mkicon ${type}::icon::envpoly {
+        mkicon ${type}::icon::abpoly {
             ..XX..........
             ..X.XX........
             ..X...XX......
@@ -165,13 +165,13 @@ snit::widget mapviewer {
             .X........XX..
             .X..........XX
             .X...........X
-            .X..XXXXXXX..X
-            X...X........X
-            X...X........X
-            X...XXXXX....X
-            X...X........X
-            .X..X........X
-            .X..XXXXXXX..X
+            .X....XXX....X
+            X....X...X...X
+            X....X...X...X
+            X....XXXXX...X
+            X....X...X...X
+            .X...X...X...X
+            .X...X...X...X
             .X...........X
             .X.........XXX
             ..X.....XXX...
@@ -416,19 +416,19 @@ snit::widget mapviewer {
             -text [order title NBHOOD:CREATE]
 
         cond::available control \
-            [ttk::button $win.vbar.newensit                                  \
+            [ttk::button $win.vbar.newabsit                                  \
                  -style   Toolbutton                                         \
-                 -image   [list ${type}::icon::envpoly                       \
-                               disabled ${type}::icon::envpolyd]             \
-                 -command [list order enter ENSIT:CREATE]] \
-            order ENSIT:CREATE
+                 -image   [list ${type}::icon::abpoly                       \
+                               disabled ${type}::icon::abpolyd]             \
+                 -command [list order enter ABSIT:CREATE]] \
+            order ABSIT:CREATE
 
-        DynamicHelp::add $win.vbar.newensit \
-            -text [order title ENSIT:CREATE]
+        DynamicHelp::add $win.vbar.newabsit \
+            -text [order title ABSIT:CREATE]
 
         pack $win.vbar.sep       -side top -fill x -pady 2
         pack $win.vbar.nbhood    -side top -fill x -padx 2
-        pack $win.vbar.newensit  -side top -fill x -padx 2
+        pack $win.vbar.newabsit  -side top -fill x -padx 2
 
         # Pack all of these components
         pack $win.hbar  -side top  -fill x
@@ -440,7 +440,7 @@ snit::widget mapviewer {
         # NEXT, Create the context menus
         $self CreateNbhoodContextMenu
         $self CreateUnitContextMenu
-        $self CreateEnsitContextMenu
+        $self CreateAbsitContextMenu
 
         # NEXT, process the arguments
         $self configurelist $args
@@ -462,7 +462,7 @@ snit::widget mapviewer {
         notifier bind ::rdb      <nbhoods>     $self [mymethod EntityNbhood]
         notifier bind ::nbhood   <Stack>       $self [mymethod NbhoodStack]
         notifier bind ::rdb      <units>       $self [mymethod EntityUnit]
-        notifier bind ::rdb      <ensits>      $self [mymethod EntityEnsit]
+        notifier bind ::rdb      <absits>      $self [mymethod EntityAbsit]
         notifier bind ::rdb      <groups>      $self [mymethod EntityGroup]
         notifier bind ::rdb      <econ_n>      $self [mymethod EntityEcon]
 
@@ -637,7 +637,7 @@ snit::widget mapviewer {
         # NEXT, clear all remembered state, and redraw everything
         $self NbhoodDrawAll
         $self UnitDrawAll
-        $self EnsitDrawAll
+        $self AbsitDrawAll
 
         # NEXT, set zoom
         set view(zoom)   "[$canvas zoom]%"
@@ -890,8 +890,8 @@ snit::widget mapviewer {
 
         cond::available control \
             [menuitem $mnu command "Create Environmental Situation" \
-                 -command [mymethod NbhoodCreateEnsitHere]]         \
-            order ENSIT:CREATE
+                 -command [mymethod NbhoodCreateAbsitHere]]         \
+            order ABSIT:CREATE
 
         $mnu add separator
 
@@ -917,12 +917,12 @@ snit::widget mapviewer {
     }
 
 
-    # NbhoodCreateEnsitHere
+    # NbhoodCreateAbsitHere
     #
-    # Pops up the create ensit dialog with this location filled in.
+    # Pops up the create absit dialog with this location filled in.
 
-    method NbhoodCreateEnsitHere {} {
-        order enter ENSIT:CREATE location $nbhoods(transref)
+    method NbhoodCreateAbsitHere {} {
+        order enter ABSIT:CREATE location $nbhoods(transref)
     }
 
 
@@ -1151,7 +1151,7 @@ snit::widget mapviewer {
         set itype $icons(itype-$cid)
 
         if {$itype eq "situation"} {
-            return [expr {$sid in [ensit initial names]}]
+            return [expr {$sid in [absit initial names]}]
         } else {
             return 1
         }
@@ -1175,7 +1175,7 @@ snit::widget mapviewer {
 
         switch $icons(itype-$cid) {
             unit      { event generate $win <<Unit-1>>   -data $sid }
-            situation { event generate $win <<Ensit-1>> -data $sid }
+            situation { event generate $win <<Absit-1>> -data $sid }
         } 
     }
 
@@ -1198,7 +1198,7 @@ snit::widget mapviewer {
         # NEXT, popup the menu
         switch -exact $icons(itype-$cid) {
             situation {
-                tk_popup $canvas.ensitmenu $rx $ry
+                tk_popup $canvas.absitmenu $rx $ry
             }
 
             unit {
@@ -1229,11 +1229,11 @@ snit::widget mapviewer {
 
             situation {
                 if {[catch {
-                    order send gui ENSIT:MOVE \
+                    order send gui ABSIT:MOVE \
                         s        $icons(sid-$cid)                 \
                         location [$canvas icon ref $cid]
                 }]} {
-                    $self EnsitDrawSingle $icons(sid-$cid)
+                    $self AbsitDrawSingle $icons(sid-$cid)
                 }
             }
         }
@@ -1390,31 +1390,31 @@ snit::widget mapviewer {
     }
       
     #===================================================================
-    # Ensit Display and Behavior
+    # Absit Display and Behavior
 
     #-------------------------------------------------------------------
-    # Ensit Display
+    # Absit Display
 
-    # EnsitDrawAll
+    # AbsitDrawAll
     #
-    # Clears and redraws all ensits
+    # Clears and redraws all absits
 
-    method EnsitDrawAll {} {
+    method AbsitDrawAll {} {
         rdb eval {
-            SELECT * FROM ensits
+            SELECT * FROM absits
         } row {
-            $self EnsitDraw [array get row]
+            $self AbsitDraw [array get row]
         } 
 
     }
 
-    # EnsitDraw parmdict
+    # AbsitDraw parmdict
     #
-    # parmdict   Data about the ensit
+    # parmdict   Data about the absit
 
-    method EnsitDraw {parmdict} {
+    method AbsitDraw {parmdict} {
         dict with parmdict {
-            # FIRST, if there's an existing ensit called this,
+            # FIRST, if there's an existing absit called this,
             # delete it.
             if {[info exists icons(cid-$s)]} {
                 $self IconDelete $s
@@ -1443,27 +1443,27 @@ snit::widget mapviewer {
         }
     }
 
-    # EnsitDrawSingle s
+    # AbsitDrawSingle s
     #
-    # s    The ID of the ensit.
+    # s    The ID of the absit.
     #
-    # Redraws just ensit s.  Use this when only a single ensit is
+    # Redraws just absit s.  Use this when only a single absit is
     # to be redrawn.
     # 
-    # Note that s might be any situation; make sure that non-ensits
+    # Note that s might be any situation; make sure that non-absits
     # are ignored.
 
-    method EnsitDrawSingle {s} {
+    method AbsitDrawSingle {s} {
         # FIRST, draw it, if it's current.
         rdb eval {
-            SELECT * FROM ensits
+            SELECT * FROM absits
             WHERE s=$s
         } row {
-            $self EnsitDraw [array get row]
+            $self AbsitDraw [array get row]
             return
         } 
 
-        # NEXT, the ensit is no longer current; delete the icon.
+        # NEXT, the absit is no longer current; delete the icon.
         if {[info exists icons(cid-$s)]} {
             $self IconDelete $s
         }
@@ -1471,55 +1471,55 @@ snit::widget mapviewer {
 
 
     #-------------------------------------------------------------------
-    # Ensit Context Menu
+    # Absit Context Menu
 
-    # CreateEnsitContextMenu
+    # CreateAbsitContextMenu
     #
     # Creates the context menu
 
-    method CreateEnsitContextMenu {} {
-        set mnu [menu $canvas.ensitmenu]
+    method CreateAbsitContextMenu {} {
+        set mnu [menu $canvas.absitmenu]
 
         cond::availableCanUpdate control \
             [menuitem $mnu command "Update Situation" \
-                 -command [mymethod UpdateEnsit]] \
-            order ENSIT:UPDATE browser $win
+                 -command [mymethod UpdateAbsit]] \
+            order ABSIT:UPDATE browser $win
     }
 
-    # UpdateEnsit
+    # UpdateAbsit
     #
     # Pops up the "Update Environmental Situation" dialog for this unit
 
-    method UpdateEnsit {} {
-        order enter ENSIT:UPDATE s $icons(context)
+    method UpdateAbsit {} {
+        order enter ABSIT:UPDATE s $icons(context)
     }
 
     #-------------------------------------------------------------------
     # Event Handlers: notifier(n)
 
-    # EntityEnsit update s
+    # EntityAbsit update s
     #
-    # s     The ensit ID
+    # s     The absit ID
     #
-    # Something changed about ensit s.  Update it.
+    # Something changed about absit s.  Update it.
     #
-    # Note that s might be any situation; make sure that non-ensits
+    # Note that s might be any situation; make sure that non-absits
     # are ignored.
 
-    method {EntityEnsit update} {s} {
-        $self EnsitDrawSingle $s
+    method {EntityAbsit update} {s} {
+        $self AbsitDrawSingle $s
     }
 
-    # EntityEnsit delete s
+    # EntityAbsit delete s
     #
-    # s     The ensit ID
+    # s     The absit ID
     #
-    # Delete the ensit from the mapcanvas.
+    # Delete the absit from the mapcanvas.
     #
-    # Note that s might be any situation; make sure that non-ensits
+    # Note that s might be any situation; make sure that non-absits
     # are ignored.
 
-    method {EntityEnsit delete} {s} {
+    method {EntityAbsit delete} {s} {
         # FIRST, Delete the icon only if it actually exists.
         if {[info exists icons(cid-$s)]} {
             $self IconDelete $s
@@ -1566,6 +1566,8 @@ snit::widget mapviewer {
         $self NbhoodFill
     }
 }
+
+
 
 
 

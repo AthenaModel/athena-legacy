@@ -641,7 +641,7 @@ order define NBHOOD:DELETE {
 
     # NEXT, delete the neighborhood and dependent entities
     lappend undo [nbhood mutate delete $parms(n)]
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -664,7 +664,7 @@ order define NBHOOD:LOWER {
 
     # NEXT, raise the neighborhood
     lappend undo [nbhood mutate lower $parms(n)]
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -687,7 +687,7 @@ order define NBHOOD:RAISE {
 
     # NEXT, raise the neighborhood
     lappend undo [nbhood mutate raise $parms(n)]
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -806,7 +806,7 @@ order define NBHOOD:UPDATE {
 
     # NEXT, modify the neighborhood
     lappend undo [nbhood mutate update [array get parms]]
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }
@@ -858,10 +858,11 @@ order define NBHOOD:UPDATE:MULTI {
         lappend undo [nbhood mutate update [array get parms]]
     }
 
-    lappend undo [ensit mutate reconcile]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }
+
 
 
 

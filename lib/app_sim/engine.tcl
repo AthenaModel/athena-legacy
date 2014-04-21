@@ -92,7 +92,7 @@ snit::type engine {
         # There will be no attrition and no shifts in neighborhood control.
 
         profile demog stats
-        profile ensit assess
+        profile absit assess
         profile nbstat analyze
         profile control_model analyze
         profile driver::actsit assess
@@ -155,7 +155,7 @@ snit::type engine {
         profile demog stats
 
         # NEXT, do analysis and assessment
-        profile ensit assess
+        profile absit assess
         profile nbstat analyze
         profile driver::MOOD assess
         profile control_model analyze
@@ -309,6 +309,7 @@ snit::type engine {
         aram sat cset {*}$values
     }
 }
+
 
 
 

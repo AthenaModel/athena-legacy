@@ -16,6 +16,7 @@
 
 image athena             "Sculpture of Athena"         img/athena.png
 image button_a           "Button: A"                   img/button_a.png
+image button_absit       "Button: New Absit"           img/button_absit.png
 image button_arrow       "Button: Arrow"               img/button_arrow.png
 image button_autoscroll  "Button: Autoscroll"          img/button_autoscroll.png
 image button_axe         "Button: Axe"                 img/button_axe.png
@@ -24,7 +25,6 @@ image button_check       "Button: Checkmark"           img/button_check.png
 image button_checktxt    "Button: Check"               img/button_checktxt.png
 image button_clock       "Button: Clock"               img/button_clock.png
 image button_closex      "Button: Close X"             img/button_closex.png
-image button_ensit       "Button: New Ensit"           img/button_ensit.png
 image button_export      "Button: Export"              img/button_export.png
 image button_extmap      "Button: Extend Map"          img/button_extmap.png
 image button_forward     "Button: Forward"             img/button_forward.png

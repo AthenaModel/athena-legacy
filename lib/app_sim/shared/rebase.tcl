@@ -62,7 +62,7 @@ snit::type rebase {
     typemethod save {} {
         # FIRST, do the tricky modules.
         econ rebase
-        ensit rebase
+        absit rebase
         strategy rebase
 
         # NEXT, rebase the other scenario tables.
@@ -236,3 +236,4 @@ snit::type rebase {
         }
     }
 }
+

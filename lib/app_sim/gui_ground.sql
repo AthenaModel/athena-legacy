@@ -79,10 +79,10 @@ WHERE active;
 
 
 ------------------------------------------------------------------------
--- ENVIRONMENTAL SITUATIONS VIEWS
+-- ABSTRACT SITUATIONS VIEWS
 
--- gui_ensits: All environmental situations
-CREATE TEMPORARY VIEW gui_ensits AS
+-- gui_absits: All abstract situations
+CREATE TEMPORARY VIEW gui_absits AS
 SELECT s                                              AS id,
        s || ' -- ' || stype || ' in '|| n             AS longid,
        s                                              AS s,
@@ -98,21 +98,21 @@ SELECT s                                              AS id,
        inception                                      AS inception,
        -- Null for g since it's deprecated
        NULL                                           AS g
-FROM ensits;
+FROM absits;
 
--- gui_ensits subview: ensits in INITIAL state
-CREATE TEMPORARY VIEW gui_ensits_initial AS
-SELECT * FROM gui_ensits
+-- gui_absits subview: absits in INITIAL state
+CREATE TEMPORARY VIEW gui_absits_initial AS
+SELECT * FROM gui_absits
 WHERE state = 'INITIAL';
 
--- gui_ensits subview: ONGOING 
-CREATE TEMPORARY VIEW gui_ensits_ongoing AS
-SELECT * FROM gui_ensits
+-- gui_absits subview: ONGOING 
+CREATE TEMPORARY VIEW gui_absits_ongoing AS
+SELECT * FROM gui_absits
 WHERE state = 'ONGOING';
 
--- gui_ensits subview: RESOLVED 
-CREATE TEMPORARY VIEW gui_ensits_resolved AS
-SELECT * FROM gui_ensits
+-- gui_absits subview: RESOLVED 
+CREATE TEMPORARY VIEW gui_absits_resolved AS
+SELECT * FROM gui_absits
 WHERE state = 'RESOLVED';
 
 ------------------------------------------------------------------------
@@ -189,5 +189,6 @@ JOIN gui_nbhoods   AS N ON (G.n = N.n);
 -----------------------------------------------------------------------
 -- End of File
 -----------------------------------------------------------------------
+
 
 

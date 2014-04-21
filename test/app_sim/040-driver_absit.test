@@ -1,15 +1,15 @@
 # -*-Tcl-*-
 #-----------------------------------------------------------------------
 # TITLE:
-#    040-ensit_rules.test
+#    040-absit_rules.test
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    ensit_rules(sim) tests
+#    absit_rules(sim) tests
 #
-#    This test suite tests that the ensit rules fire when appropriate.
+#    This test suite tests that the absit rules fire when appropriate.
 #
 #-----------------------------------------------------------------------
 
@@ -59,19 +59,19 @@ namespace eval ::athena_test::tests:: {
         ted lock
     }
     
-    # ensit etype resolver ?inception?
+    # absit etype resolver ?inception?
     #
-    # etype     - The ensit type
+    # etype     - The absit type
     # resolver  - The resolving group
     # inception - If 1 (the default) we get the inception effect.
     #             If 0, we don't.
     #
-    # Creates an ensit that auto-resolves after two weeks; and then
+    # Creates an absit that auto-resolves after two weeks; and then
     # steps time forward three weeks, so that we see inception,
     # on-going, and resolution.
     
-    proc ensit {etype resolver {inception 1}} {
-        ted order ENSIT:CREATE \
+    proc absit {etype resolver {inception 1}} {
+        ted order ABSIT:CREATE \
             location  B00B00 \
             stype     $etype \
             coverage  1.0 \
@@ -197,7 +197,7 @@ namespace eval ::athena_test::tests:: {
     test detail-1.1 {detail text, inception} -setup {
         setup 
     } -body {
-        ensit DISEASE TAL
+        absit DISEASE TAL
         
         set fdict [rdb onecolumn {
             SELECT fdict FROM rule_firings WHERE firing_id = 1
@@ -208,7 +208,7 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {
-An environmental situation of type DISEASE
+An abstract situation of type DISEASE
 has begun
 in neighborhood
 <a href="my://app/nbhood/NB1">NB1</a> with 100% coverage.<p>
@@ -217,7 +217,7 @@ in neighborhood
     test detail-1.2 {detail text, ongoing} -setup {
         setup 
     } -body {
-        ensit DISEASE TAL
+        absit DISEASE TAL
 
         set fdict [rdb onecolumn {
             SELECT fdict FROM rule_firings WHERE firing_id = 2
@@ -228,7 +228,7 @@ in neighborhood
     } -cleanup {
         cleanup
     } -result {
-An environmental situation of type DISEASE
+An abstract situation of type DISEASE
 is ongoing
 in neighborhood
 <a href="my://app/nbhood/NB1">NB1</a> with 100% coverage.<p>
@@ -237,7 +237,7 @@ in neighborhood
     test detail-1.3 {detail text, resolved by local} -setup {
         setup 
     } -body {
-        ensit DISEASE TAL
+        absit DISEASE TAL
 
         set fdict [rdb onecolumn {
             SELECT fdict FROM rule_firings WHERE firing_id = 3
@@ -248,7 +248,7 @@ in neighborhood
     } -cleanup {
         cleanup
     } -result {
-An environmental situation of type DISEASE
+An abstract situation of type DISEASE
 has been resolved
 by group <a href="my://app/group/TAL">TAL</a>
 in neighborhood <a href="my://app/nbhood/NB1">NB1</a>.<p>
@@ -261,7 +261,7 @@ in neighborhood <a href="my://app/nbhood/NB1">NB1</a>.<p>
     test BADFOOD-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit BADFOOD TAL
+        absit BADFOOD TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -291,7 +291,7 @@ fdict      dtype BADFOOD s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resol
     test BADFOOD-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit BADFOOD BLUE 0
+        absit BADFOOD BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -314,7 +314,7 @@ fdict      dtype BADFOOD s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test BADFOOD-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit BADFOOD TAL        
+        absit BADFOOD TAL        
         inputs
     } -cleanup {
         cleanup
@@ -329,7 +329,7 @@ t rule        aut        cul qol        sft
     test BADFOOD-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit BADFOOD BLUE 0
+        absit BADFOOD BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -346,7 +346,7 @@ t rule        aut        cul qol        sft
     test BADWATER-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit BADWATER TAL
+        absit BADWATER TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -376,7 +376,7 @@ fdict      dtype BADWATER s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test BADWATER-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit BADWATER BLUE 0
+        absit BADWATER BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -399,7 +399,7 @@ fdict      dtype BADWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test BADWATER-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit BADWATER TAL        
+        absit BADWATER TAL        
         inputs
     } -cleanup {
         cleanup
@@ -414,7 +414,7 @@ t rule         aut        cul qol        sft
     test BADWATER-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit BADWATER BLUE 0
+        absit BADWATER BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -431,7 +431,7 @@ t rule         aut        cul qol        sft
     test COMMOUT-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit COMMOUT TAL
+        absit COMMOUT TAL
         # No resolution effect in this rule set.
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
@@ -455,7 +455,7 @@ fdict      dtype COMMOUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test COMMOUT-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit COMMOUT BLUE 0
+        absit COMMOUT BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -478,7 +478,7 @@ fdict      dtype COMMOUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test COMMOUT-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit COMMOUT TAL        
+        absit COMMOUT TAL        
         # No resolution effect in this rule set.
         inputs
     } -cleanup {
@@ -493,7 +493,7 @@ t rule        aut cul        qol        sft
     test COMMOUT-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit COMMOUT BLUE 0
+        absit COMMOUT BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -511,7 +511,7 @@ t rule        aut cul        qol        sft
     test CULSITE-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit CULSITE TAL
+        absit CULSITE TAL
         # No resolution effect in this rule set.
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
@@ -535,7 +535,7 @@ fdict      dtype CULSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test CULSITE-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit CULSITE BLUE 0
+        absit CULSITE BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -558,7 +558,7 @@ fdict      dtype CULSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test CULSITE-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit CULSITE TAL        
+        absit CULSITE TAL        
         # No resolution effect in this rule set.
         inputs
     } -cleanup {
@@ -573,7 +573,7 @@ t rule        aut cul        qol        sft
     test CULSITE-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit CULSITE BLUE 0
+        absit CULSITE BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -590,7 +590,7 @@ t rule        aut cul        qol sft
     test DISASTER-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit DISASTER TAL
+        absit DISASTER TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -620,7 +620,7 @@ fdict      dtype DISASTER s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test DISASTER-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit DISASTER BLUE 0
+        absit DISASTER BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -643,7 +643,7 @@ fdict      dtype DISASTER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test DISASTER-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit DISASTER TAL        
+        absit DISASTER TAL        
         inputs
     } -cleanup {
         cleanup
@@ -658,7 +658,7 @@ t rule         aut        cul qol        sft
     test DISASTER-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit DISASTER BLUE 0
+        absit DISASTER BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -675,7 +675,7 @@ t rule         aut cul qol        sft
     test DISEASE-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit DISEASE TAL
+        absit DISEASE TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -705,7 +705,7 @@ fdict      dtype DISEASE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resol
     test DISEASE-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit DISEASE BLUE 0
+        absit DISEASE BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -728,7 +728,7 @@ fdict      dtype DISEASE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test DISEASE-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit DISEASE TAL        
+        absit DISEASE TAL        
         inputs
     } -cleanup {
         cleanup
@@ -743,7 +743,7 @@ t rule        aut        cul qol        sft
     test DISEASE-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit DISEASE BLUE 0
+        absit DISEASE BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -760,7 +760,7 @@ t rule        aut        cul qol        sft
     test EPIDEMIC-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit EPIDEMIC TAL
+        absit EPIDEMIC TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -790,7 +790,7 @@ fdict      dtype EPIDEMIC s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test EPIDEMIC-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit EPIDEMIC BLUE 0
+        absit EPIDEMIC BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -813,7 +813,7 @@ fdict      dtype EPIDEMIC s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test EPIDEMIC-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit EPIDEMIC TAL        
+        absit EPIDEMIC TAL        
         inputs
     } -cleanup {
         cleanup
@@ -828,7 +828,7 @@ t rule         aut        cul qol        sft
     test EPIDEMIC-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit EPIDEMIC BLUE 0
+        absit EPIDEMIC BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -845,7 +845,7 @@ t rule         aut        cul qol        sft
     test FOODSHRT-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit FOODSHRT TAL
+        absit FOODSHRT TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -875,7 +875,7 @@ fdict      dtype FOODSHRT s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test FOODSHRT-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit FOODSHRT BLUE 0
+        absit FOODSHRT BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -898,7 +898,7 @@ fdict      dtype FOODSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test FOODSHRT-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit FOODSHRT TAL        
+        absit FOODSHRT TAL        
         inputs
     } -cleanup {
         cleanup
@@ -913,7 +913,7 @@ t rule         aut        cul qol        sft
     test FOODSHRT-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit FOODSHRT BLUE 0
+        absit FOODSHRT BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -930,7 +930,7 @@ t rule         aut        cul qol        sft
     test FUELSHRT-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit FUELSHRT TAL
+        absit FUELSHRT TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -960,7 +960,7 @@ fdict      dtype FUELSHRT s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test FUELSHRT-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit FUELSHRT BLUE 0
+        absit FUELSHRT BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -983,7 +983,7 @@ fdict      dtype FUELSHRT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test FUELSHRT-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit FUELSHRT TAL        
+        absit FUELSHRT TAL        
         inputs
     } -cleanup {
         cleanup
@@ -998,7 +998,7 @@ t rule         aut        cul qol        sft
     test FUELSHRT-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit FUELSHRT BLUE 0
+        absit FUELSHRT BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1015,7 +1015,7 @@ t rule         aut        cul qol        sft
     test GARBAGE-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit GARBAGE TAL
+        absit GARBAGE TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1045,7 +1045,7 @@ fdict      dtype GARBAGE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resol
     test GARBAGE-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit GARBAGE BLUE 0
+        absit GARBAGE BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1068,7 +1068,7 @@ fdict      dtype GARBAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test GARBAGE-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit GARBAGE TAL        
+        absit GARBAGE TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1083,7 +1083,7 @@ t rule        aut        cul qol        sft
     test GARBAGE-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit GARBAGE BLUE 0
+        absit GARBAGE BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1101,7 +1101,7 @@ t rule        aut        cul qol        sft
     test INDSPILL-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit INDSPILL TAL
+        absit INDSPILL TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1131,7 +1131,7 @@ fdict      dtype INDSPILL s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test INDSPILL-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit INDSPILL BLUE 0
+        absit INDSPILL BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1154,7 +1154,7 @@ fdict      dtype INDSPILL s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test INDSPILL-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit INDSPILL TAL        
+        absit INDSPILL TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1169,7 +1169,7 @@ t rule         aut        cul qol        sft
     test INDSPILL-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit INDSPILL BLUE 0
+        absit INDSPILL BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1186,7 +1186,7 @@ t rule         aut        cul qol        sft
     test MINEFIELD-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit MINEFIELD TAL
+        absit MINEFIELD TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1216,7 +1216,7 @@ fdict      dtype MINEFIELD s 1 state RESOLVED n NB1 inception 0 coverage 1.0 res
     test MINEFIELD-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit MINEFIELD BLUE 0
+        absit MINEFIELD BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1239,7 +1239,7 @@ fdict      dtype MINEFIELD s 1 state ONGOING n NB1 inception 0 coverage 1.0 reso
     test MINEFIELD-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit MINEFIELD TAL        
+        absit MINEFIELD TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1254,7 +1254,7 @@ t rule          aut        cul qol        sft
     test MINEFIELD-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit MINEFIELD BLUE 0
+        absit MINEFIELD BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1271,7 +1271,7 @@ t rule          aut        cul qol        sft
     test NOWATER-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit NOWATER TAL
+        absit NOWATER TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1301,7 +1301,7 @@ fdict      dtype NOWATER s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resol
     test NOWATER-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit NOWATER BLUE 0
+        absit NOWATER BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1324,7 +1324,7 @@ fdict      dtype NOWATER s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test NOWATER-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit NOWATER TAL        
+        absit NOWATER TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1339,7 +1339,7 @@ t rule        aut        cul qol        sft
     test NOWATER-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit NOWATER BLUE 0
+        absit NOWATER BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1357,7 +1357,7 @@ t rule        aut        cul qol        sft
     test ORDNANCE-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit ORDNANCE TAL
+        absit ORDNANCE TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1387,7 +1387,7 @@ fdict      dtype ORDNANCE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test ORDNANCE-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit ORDNANCE BLUE 0
+        absit ORDNANCE BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1410,7 +1410,7 @@ fdict      dtype ORDNANCE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test ORDNANCE-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit ORDNANCE TAL        
+        absit ORDNANCE TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1425,7 +1425,7 @@ t rule         aut        cul qol        sft
     test ORDNANCE-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit ORDNANCE BLUE 0
+        absit ORDNANCE BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1442,7 +1442,7 @@ t rule         aut        cul qol        sft
     test PIPELINE-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit PIPELINE TAL
+        absit PIPELINE TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1472,7 +1472,7 @@ fdict      dtype PIPELINE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test PIPELINE-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit PIPELINE BLUE 0
+        absit PIPELINE BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1495,7 +1495,7 @@ fdict      dtype PIPELINE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test PIPELINE-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit PIPELINE TAL        
+        absit PIPELINE TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1510,7 +1510,7 @@ t rule         aut        cul qol        sft
     test PIPELINE-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit PIPELINE BLUE 0
+        absit PIPELINE BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1527,7 +1527,7 @@ t rule         aut        cul qol        sft
     test POWEROUT-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit POWEROUT TAL
+        absit POWEROUT TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1557,7 +1557,7 @@ fdict      dtype POWEROUT s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test POWEROUT-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit POWEROUT BLUE 0
+        absit POWEROUT BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1580,7 +1580,7 @@ fdict      dtype POWEROUT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test POWEROUT-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit POWEROUT TAL        
+        absit POWEROUT TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1595,7 +1595,7 @@ t rule         aut        cul qol        sft
     test POWEROUT-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit POWEROUT BLUE 0
+        absit POWEROUT BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1612,7 +1612,7 @@ t rule         aut        cul qol        sft
     test REFINERY-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit REFINERY TAL
+        absit REFINERY TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1642,7 +1642,7 @@ fdict      dtype REFINERY s 1 state RESOLVED n NB1 inception 0 coverage 1.0 reso
     test REFINERY-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit REFINERY BLUE 0
+        absit REFINERY BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1665,7 +1665,7 @@ fdict      dtype REFINERY s 1 state ONGOING n NB1 inception 0 coverage 1.0 resol
     test REFINERY-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit REFINERY TAL        
+        absit REFINERY TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1680,7 +1680,7 @@ t rule         aut        cul qol        sft
     test REFINERY-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit REFINERY BLUE 0
+        absit REFINERY BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1697,7 +1697,7 @@ t rule         aut        cul qol        sft
     test RELSITE-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit RELSITE TAL
+        absit RELSITE TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1727,7 +1727,7 @@ fdict      dtype RELSITE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resol
     test RELSITE-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit RELSITE BLUE 0
+        absit RELSITE BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1750,7 +1750,7 @@ fdict      dtype RELSITE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolv
     test RELSITE-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit RELSITE TAL        
+        absit RELSITE TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1765,7 +1765,7 @@ t rule        aut        cul        qol        sft
     test RELSITE-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit RELSITE BLUE 0
+        absit RELSITE BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1782,7 +1782,7 @@ t rule        aut        cul        qol        sft
     test SEWAGE-1.1 {firings: inception, local resolver} -setup {
         setup 
     } -body {
-        ensit SEWAGE TAL
+        absit SEWAGE TAL
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1812,7 +1812,7 @@ fdict      dtype SEWAGE s 1 state RESOLVED n NB1 inception 0 coverage 1.0 resolv
     test SEWAGE-1.2 {firings: no inception, non-local resolver} -setup {
         setup 
     } -body {
-        ensit SEWAGE BLUE 0
+        absit SEWAGE BLUE 0
         ted querylist {SELECT * FROM rule_firings}
     } -cleanup {
         cleanup
@@ -1835,7 +1835,7 @@ fdict      dtype SEWAGE s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolve
     test SEWAGE-1.3 {inputs: inception, local resolver} -setup {
         setup
     } -body {
-        ensit SEWAGE TAL        
+        absit SEWAGE TAL        
         inputs
     } -cleanup {
         cleanup
@@ -1850,7 +1850,7 @@ t rule       aut        cul qol        sft
     test SEWAGE-1.4 {inputs: no inception, non-local resolver} -setup {
         setup
     } -body {
-        ensit SEWAGE BLUE 0
+        absit SEWAGE BLUE 0
         inputs
     } -cleanup {
         cleanup
@@ -1872,4 +1872,6 @@ t rule       aut        cul qol        sft
 }
 
 namespace delete ::athena_test::tests::
+
+
 

@@ -34,7 +34,7 @@ snit::type driver::actsit {
     #
     # The individual driver type can add the following fields to the fdict:
     #
-    #    mitigates     - A list of ensit types actually being mitigated by
+    #    mitigates     - A list of absit types actually being mitigated by
     #                    this activity.
     
     typemethod assess {} {
@@ -159,7 +159,7 @@ snit::type driver::actsit {
         $ht para
 
         if {[dict exists $fdict mitigates] && [llength $mitigates] > 0} {
-            $ht putln "The activity is mitigating the following ensits:"
+            $ht putln "The activity is mitigating the following absits:"
             $ht putln [join $mitigates ", "].
             $ht para
         }
@@ -233,7 +233,7 @@ snit::type driver::actsit {
     #
     # fdictVar    A variable containing the fdict.
     #
-    # Sets fdict.mitigates to a list of the ensits present in the 
+    # Sets fdict.mitigates to a list of the absits present in the 
     # neighborhood that are mitigated by the current activity,
     # updates the number of stops, and provides a note for the
     # attitude inputs.
@@ -251,21 +251,21 @@ snit::type driver::actsit {
         set ruleset [dict get $fdict dtype]
         set n       [dict get $fdict n]
 
-        # NEXT, get the mitigated ensits and form them into an 
+        # NEXT, get the mitigated absits and form them into an 
         # "IN" list.  If none, just return immediately.
 
-        set ensits [parmdb get dam.$ruleset.mitigates]
+        set absits [parmdb get dam.$ruleset.mitigates]
 
-        if {[llength $ensits] == 0} {
+        if {[llength $absits] == 0} {
             return
         }
 
-        set inList "('[join $ensits ',']')"
+        set inList "('[join $absits ',']')"
 
-        # NEXT, check for active ensits, collecting the affected groups as
+        # NEXT, check for active absits, collecting the affected groups as
         # we go.
         set elist [rdb eval "
-            SELECT stype FROM ensits
+            SELECT stype FROM absits
             WHERE n     = \$n
             AND   state = 'ONGOING'
             AND   stype IN $inList
@@ -857,6 +857,7 @@ driver::actsit define RELIEF {
         }
     }
 }
+
 
 
 

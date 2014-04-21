@@ -49,7 +49,7 @@ snit::type scenario {
         coop_fg
         drivers
         econ_n
-        ensits
+        absits
         frcgroups
         groups
         hook_topics
@@ -150,7 +150,7 @@ snit::type scenario {
         rdb monitor add deploy_ng     {n g}
         rdb monitor add drivers       {driver_id}
         rdb monitor add econ_n        {n}
-        rdb monitor add ensits        {s}
+        rdb monitor add absits        {s}
         rdb monitor add frcgroups     {g}
         rdb monitor add groups        {g}
         rdb monitor add hooks         {hook_id}
@@ -803,3 +803,4 @@ snit::type scenario {
         }
     }
 }
+

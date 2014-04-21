@@ -98,6 +98,7 @@ macro parm.ids {entity} {
 #=======================================================================
 # Order Files
 
+include order_absit.help
 include order_actor.help
 include order_block.help
 include order_bookmark.help
@@ -109,7 +110,6 @@ include order_condition.help
 include order_coop.help
 include order_curse.help
 include order_econ.help
-include order_ensit.help
 include order_frcgroup.help
 include order_hrel.help
 include order_inject.help
