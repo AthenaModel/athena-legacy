@@ -42,6 +42,15 @@ snit::type ::projectlib::wmsclient {
 
     option -servercmd
 
+    # -agent httpagent
+    #
+    # If supplied, the agent for processing http requests. Normally
+    # this is left empty and wmsclient(n) then defaults to httpagent(n)
+    # However, in a test environment there is no guarantee that there
+    # will be a network present so an http agent simulator is used.
+
+    option -agent -default ""
+
     #-------------------------------------------------------------------
     # Instance Variables
 
@@ -88,6 +97,12 @@ snit::type ::projectlib::wmsclient {
 
         # NEXT, configure the options
         $self configurelist $args
+
+        # NEXT, if -agent supplied, use it instead
+        if {$options(-agent) ne ""} {
+            $agent destroy
+            set agent $options(-agent)
+        }
     }
 
     #-------------------------------------------------------------------
@@ -132,7 +147,8 @@ snit::type ::projectlib::wmsclient {
 
     method CapabilitiesCmd {} {
         # FIRST, handle HTTP errors.
-        set info(server-state) [$agent state]
+        set info(server-state)  [$agent state]
+        set info(server-status) [$agent status]
 
         if {$info(server-state) ne "OK"} {
             set info(server-status) [$agent status]
@@ -199,9 +215,8 @@ snit::type ::projectlib::wmsclient {
         callwith $options(-servercmd) WMSCAP
     }
 
-    # server getmap url qparms
+    # server getmap qparms
     #
-    # url      - The server's base URL
     # qparms   - The query parameters
     #
     # Requests a map from the connected server.  Default parameters
@@ -209,9 +224,14 @@ snit::type ::projectlib::wmsclient {
     # At least one layer must be supplied in qparms or the request will
     # fail.
 
-    method {server getmap} {url qparms} {
+    method {server getmap} {qparms} {
         # FIRST, set server state
-        set info(server-url) $url
+        set url $info(GetMap-url)
+
+        if {$url eq ""} {
+            error "No URL defined for GetMap requests."
+        }
+
         set info(server-state) WAITING
         set info(server-status) "Waiting for server"
         set info(server-error) ""

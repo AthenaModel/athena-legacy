@@ -605,14 +605,13 @@ snit::widget wmswin {
     
     method GetDefaultMap {} {
         # NEXT set the URL with user parms
-        set baseURL [dict get [$wms server wmscap] Request GetMap Xref]
         set qparms [dict create]
         dict set qparms LAYERS [lindex $info(clayers) 0]
         dict set qparms WIDTH  $info(cwidth)
         dict set qparms HEIGHT $info(cheight)
     
         # NEXT, make the request
-        $wms server getmap $baseURL $qparms
+        $wms server getmap $qparms
     }
 
     # GetMap
@@ -635,8 +634,7 @@ snit::widget wmswin {
             return
         }
     
-        # NEXT set the URL with user parms
-        set baseURL [dict get [$wms server wmscap] Request GetMap Xref]
+        # NEXT set the user parms
         set qparms [dict create]
         dict set qparms LAYERS [join $info(clayers) ","]
     
@@ -659,7 +657,7 @@ snit::widget wmswin {
         dict set qparms BBOX "$minlat,$minlon,$maxlat,$maxlon"
     
         # NEXT, make the request
-        $wms server getmap $baseURL $qparms
+        $wms server getmap $qparms
     }
     
     # ComputeCanvasDim  
