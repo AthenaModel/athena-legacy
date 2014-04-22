@@ -327,7 +327,7 @@ snit::type ::projectlib::wmsclient {
             # Unexpected content
             set info(server-state) ERROR
             set info(server-status) \
-                "Could not retrive WMS Server Map"
+                "Could not retrieve WMS Server Map"
             set info(server-error) \
                 "Unexpected content type: [$agent meta Content-Type]"
         }

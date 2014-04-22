@@ -77,6 +77,7 @@ source [file join $::projectlib::library beanclass.tcl      ]
 source [file join $::projectlib::library bean.tcl           ]
 source [file join $::projectlib::library clipboardx.tcl     ]
 source [file join $::projectlib::library httpagent.tcl      ]
+source [file join $::projectlib::library httpagentsim.tcl   ]
 source [file join $::projectlib::library wmsclient.tcl      ]
 source [file join $::projectlib::library wfsclient.tcl      ]
 
