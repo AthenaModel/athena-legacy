@@ -564,7 +564,8 @@ snit::widget wmswin {
             # NEXT, response is from a GetMap request
             if {[$wms server state] eq "OK"} {
                 $map clear
-                $map configure -map [$wms map image]
+                set img [image create photo -format png -data [$wms map data]]
+                $map configure -map $img
                 lassign [$wms map bbox] minlat minlon maxlat maxlon
                 set proj [::marsutil::maprect %AUTO% \
                                           -minlon $minlon -minlat $minlat \
@@ -575,7 +576,7 @@ snit::widget wmswin {
                 $map refresh
     
                 # Push retrieved image and projection onto the map stack
-                lappend info(mapstack) [$wms map image] $proj
+                lappend info(mapstack) $img $proj
                 set info(boxchanged) 0
                 set info(lchanged) 0
 

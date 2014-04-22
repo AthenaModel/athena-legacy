@@ -29,7 +29,6 @@ snit::type ::projectlib::wmsclient {
     # Components
 
     component agent -public agent ;# The httpagent(n) object.
-    component mapimage            ;# The mapimage returned from WMS
 
     #-------------------------------------------------------------------
     # Options
@@ -80,6 +79,7 @@ snit::type ::projectlib::wmsclient {
         server-wmscap  {}
 
         GetMap-url     ""
+        map-data       ""
         map-maxwidth   4000
         map-maxheight  3000
         map-layerlimit 20
@@ -321,8 +321,8 @@ snit::type ::projectlib::wmsclient {
             }
 
         } elseif {[$agent meta Content-Type] eq "image/png"} {
-            # Got the map data, create an image
-            set mapimage [image create photo -format png -data [$agent data]]
+            # Got the map data, store it
+            set info(map-data) [$agent data]
         } else {
             # Unexpected content
             set info(server-state) ERROR
@@ -335,12 +335,12 @@ snit::type ::projectlib::wmsclient {
         callwith $options(-servercmd) WMSMAP
     }
 
-    # map image
+    # map data
     #
-    # This method returns the current map image
+    # This method returns the current map image as binary data
 
-    method {map image} {} {
-        return $mapimage
+    method {map data} {} {
+        return $info(map-data)
     }
 
     # map bbox
