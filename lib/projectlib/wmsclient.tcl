@@ -224,7 +224,7 @@ snit::type ::projectlib::wmsclient {
     # At least one layer must be supplied in qparms or the request will
     # fail.
 
-    method {server getmap} {qparms} {
+    method {server getmap} {{qparms {}}} {
         # FIRST, set server state
         set url $info(GetMap-url)
 
@@ -335,38 +335,6 @@ snit::type ::projectlib::wmsclient {
         callwith $options(-servercmd) WMSMAP
     }
 
-    # map data
-    #
-    # This method returns the current map image as binary data
-
-    method {map data} {} {
-        return $info(map-data)
-    }
-
-    # map bbox
-    #
-    # Returns the current bounding box in CRS coordinates
-
-    method {map bbox} {} {
-        return $info(map-bbox)
-    }
-
-    # map width
-    #
-    # Returns the map width in pixels
-
-    method {map width} {} {
-        return $info(map-width)
-    }
-
-    # map height
-    #
-    # Returns the map height in pixels
-
-    method {map height} {} {
-        return $info(map-height)
-    }
-
     # server url
     #
     # Returns the server's base URL
@@ -406,4 +374,37 @@ snit::type ::projectlib::wmsclient {
     method {server wmscap} {} {
         return $info(server-wmscap)
     }
+
+    # map data
+    #
+    # This method returns the current map image as binary data
+
+    method {map data} {} {
+        return $info(map-data)
+    }
+
+    # map bbox
+    #
+    # Returns the current bounding box in CRS coordinates
+
+    method {map bbox} {} {
+        return $info(map-bbox)
+    }
+
+    # map width
+    #
+    # Returns the map width in pixels
+
+    method {map width} {} {
+        return $info(map-width)
+    }
+
+    # map height
+    #
+    # Returns the map height in pixels
+
+    method {map height} {} {
+        return $info(map-height)
+    }
+
 }
