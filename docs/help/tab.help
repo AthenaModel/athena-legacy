@@ -731,7 +731,7 @@ tab "Physical/Absits" {
     An <b>INITIAL</b> situation
     has just been created; its attitude implications have not yet been
     assessed.  <b>INITIAL</b> situations may be modified as desired,
-    and move from one neighborhood to another.<p>
+    and moved from one neighborhood to another.<p>
 
     An <b>ONGOING</b> situation is currently affecting attitudes in the
     neighborhood.<p>
@@ -743,12 +743,8 @@ tab "Physical/Absits" {
 
     <<topic "Type">>The situation type.<</topic>>
 
-    <<topic "Nbhood">>The ID of the neighborhood in which the activity
+    <<topic "Nbhood">>The ID of the neighborhood in which the situation
     is taking place.<</topic>>
-
-    <<topic "Location">>The location at which the situation is
-    displayed on the map.
-    <</topic>>
 
     <<topic Coverage>>The coverage of the situation, as a number
     between 0.0 and 1.0: the fraction of the neighborhood population

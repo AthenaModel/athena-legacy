@@ -72,7 +72,7 @@ namespace eval ::athena_test::tests:: {
     
     proc absit {etype resolver {inception 1}} {
         ted order ABSIT:CREATE \
-            location  B00B00 \
+            n         NB1 \
             stype     $etype \
             coverage  1.0 \
             inception $inception \

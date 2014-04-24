@@ -135,6 +135,7 @@ snit::widget mapviewer {
 
 
         mkicon ${type}::icon::nbpoly {
+            ..............
             ..XX..........
             ..X.XX........
             ..X...XX......
@@ -154,10 +155,13 @@ snit::widget mapviewer {
             ..X.....XXX...
             ..X..XXX......
             ..XXX.........
+            ..............
+            ..............
         } { . trans  X black } d { X gray }
 
 
         mkicon ${type}::icon::abpoly {
+            ..............
             ..XX..........
             ..X.XX........
             ..X...XX......
@@ -177,6 +181,8 @@ snit::widget mapviewer {
             ..X.....XXX...
             ..X..XXX......
             ..XXX.........
+            ..............
+            ..............
         } { . trans  X black } d { X gray }
 
     }
@@ -235,6 +241,7 @@ snit::widget mapviewer {
 
     # View array; used for values that control the view
     #
+    #    absits   - 1 if absits should be displayed, 0 otherwise
     #    CIV      - 1 if CIV units should be displayed, 0 otherwise.
     #    FRC      - 1 if FRC units should be displayed, 0 otherwise.
     #    ORG      - 1 if ORG units should be displayed, 0 otherwise.
@@ -244,6 +251,7 @@ snit::widget mapviewer {
     #    filltag  - Current fill tag (neighborhood variable)
 
     variable view -array {
+        absits       1
         CIV          1
         FRC          1
         ORG          1
@@ -331,12 +339,22 @@ snit::widget mapviewer {
         DynamicHelp::add $win.hbar.org \
             -text "Display organization group icons"
 
+        # Absit Icon toggle
+        ttk::checkbutton $win.hbar.absit                \
+            -style       Toolbutton                     \
+            -variable    [myvar view(absits)]           \
+            -image       ${type}::icon::abpoly          \
+            -command     [mymethod AbsitDrawAll]
+
+        DynamicHelp::add $win.hbar.absit \
+            -text "Display abstract situation icons"
+
         # Icon Names Toggle
         ttk::checkbutton $win.hbar.names          \
             -style       Toolbutton               \
             -variable    [myvar view(names)]      \
             -text        "Names"                  \
-            -command     [mymethod UnitDrawAll]
+            -command     [mymethod IconDrawAll]
 
         DynamicHelp::add $win.hbar.names \
             -text "Display names in icons"
@@ -388,6 +406,7 @@ snit::widget mapviewer {
         pack $win.hbar.org      -side right -padx 1
         pack $win.hbar.frc      -side right -padx 1
         pack $win.hbar.civ      -side right -padx 1
+        pack $win.hbar.absit    -side right -padx 5
         pack $win.hbar.loc      -side right -padx 5
 
         # Separators
@@ -1174,7 +1193,7 @@ snit::widget mapviewer {
         set sid $icons(sid-$cid)
 
         switch $icons(itype-$cid) {
-            unit      { event generate $win <<Unit-1>>   -data $sid }
+            unit      { event generate $win <<Unit-1>>  -data $sid }
             situation { event generate $win <<Absit-1>> -data $sid }
         } 
     }
@@ -1237,6 +1256,15 @@ snit::widget mapviewer {
                 }
             }
         }
+    }
+
+    # IconDrawAll
+    #
+    # Clears and redraws all icons
+
+    method IconDrawAll {} {
+        $self UnitDrawAll
+        $self AbsitDrawAll
     }
 
 
@@ -1420,10 +1448,23 @@ snit::widget mapviewer {
                 $self IconDelete $s
             }
 
+            # NEXT, if we are not drawing absits, don't draw it.
+            if {!$view(absits)} {
+                return
+            }
+
+            # NEXT, determine the text.
+            if {$view(names)} {
+                set text $stype
+            } else {
+                set text ""
+            }
+
+
             # NEXT, draw it.
             set cid [$canvas icon create situation \
                          {*}$location              \
-                         -text "$stype"]
+                         -text $text]
 
             if {$state eq "INITIAL"} {
                 $canvas icon configure $cid -foreground red

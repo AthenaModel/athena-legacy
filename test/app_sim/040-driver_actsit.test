@@ -67,7 +67,7 @@ namespace eval ::athena_test::tests:: {
         # NEXT, create an ensit on request.
         if {$ensit ne ""} {
             parm set dam.$ensit.active no
-            ted order ABSIT:CREATE location B00B00 stype $ensit \
+            ted order ABSIT:CREATE n NB1 stype $ensit \
                 coverage 1.0 inception 1 resolver NONE
         }
     }

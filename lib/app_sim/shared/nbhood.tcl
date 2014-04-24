@@ -597,6 +597,7 @@ order define NBHOOD:CREATE {
 
     # NEXT, create the neighborhood and dependent entities
     lappend undo [nbhood mutate create [array get parms]]
+    lappend undo [absit mutate reconcile]
 
     setundo [join $undo \n]
 }

@@ -38,12 +38,9 @@ macro ABSIT.initial {} {
     after their creation.
 }
 
-macro ABSIT.location {} {
+macro ABSIT.n {} {
     |<--
-    The location of the situation, expressed as a 
-    [term mapref].  The situation affects the
-    neighborhood that contains this location, and so the location must
-    lie within some neighborhood.
+    The neighborhood affected by the situation.
 }
 
 macro ABSIT.stype {} {
@@ -88,9 +85,17 @@ macro ABSIT.rduration {} {
 #-----------------------------------------------------------------------
 
 order ABSIT:CREATE "Create Abstract Situation" {
+    This order creates a new abstract situation.  Note that the
+    <<cref /order/absit/update>> order can be used to
+    edit any of these values so long as the situation has not yet
+    become active, i.e., up until the next time advance.<p>
+
+    This order can be <<cref /command/send sent>> by the
+    <<cref /object/tactic/executive>>.<p>
+
     <<parmlist>>
-    <<parm location "Location">>
-    <b>Required.</b>  <<ABSIT.location>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<ABSIT.n>>
     <</parm>>
 
     <<parm stype "Type">>
@@ -118,14 +123,6 @@ order ABSIT:CREATE "Create Abstract Situation" {
     <</parm>>
 
     <</parmlist>>
-
-    This order creates a new abstract situation.  Note that the
-    <<cref /order/absit/update>> order can be used to
-    edit any of these values so long as the situation has not yet
-    become active, i.e., up until the next time advance.<p>
-
-    This order can be <<cref /command/send sent>> by the
-    <<cref /object/tactic/executive>>.
 }
 
 #-----------------------------------------------------------------------
@@ -144,14 +141,17 @@ order ABSIT:DELETE "Delete Abstract Situation" {
 #-----------------------------------------------------------------------
 
 order ABSIT:UPDATE "Update Abstract Situation" {
+    Updates an existing abstract situation that has not yet
+    become active.<p>
+
     <<parmlist>>
 
     <<parm s "Situation">>
     <b>Required.</b>  <<ABSIT.initial>>
     <</parm>>
 
-    <<parm location "Location">>
-    <b>Required.</b>  <<ABSIT.location>>
+    <<parm n "Neighborhood">>
+    <b>Required.</b>  <<ABSIT.n>>
     <</parm>>
 
     <<parm stype "Type">>
@@ -179,9 +179,6 @@ order ABSIT:UPDATE "Update Abstract Situation" {
     <</parm>>
 
     <</parmlist>>
-
-    Updates an existing abstract situation that has not yet
-    become active.
 }
 
 
@@ -196,9 +193,10 @@ order ABSIT:MOVE "Move Abstract Situation" {
     <</parm>>
 
     <<parm location "Location">>
-    <b>Required.</b>  <<ABSIT.location>>  <b>Note:</b> If the absit
-    has already become active, it cannot be moved out of its
-    neighborhood.
+    <b>Required.</b>  The location of the situation within its
+    neighborhood.  <b>Note:</b> the absit's location within the
+    neighborhood has no effect on model outputs.  The absit
+    cannot be moved out of its neighborhood using this order.
     <</parm>>
 
     <</parmlist>>

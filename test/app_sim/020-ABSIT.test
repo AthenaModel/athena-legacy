@@ -28,7 +28,7 @@ namespace eval ::athena_test::tests:: {
 
     # Standard units
     set s1 {
-        location  B00B00
+        n         NB1
         stype     BADWATER
         coverage  1.0
         inception 1
@@ -36,8 +36,8 @@ namespace eval ::athena_test::tests:: {
     }
 
     set s2 {
-        location  B00B00
-        stype COMMOUT
+        n         NB1
+        stype     COMMOUT
         coverage  0.5
         inception 0
         resolver  BLUE
@@ -56,35 +56,24 @@ namespace eval ::athena_test::tests:: {
     test CREATE-1.1 {required parms} -body {
         ted order -reject ABSIT:CREATE {}
     } -result {
-        location {required value}
+        n {required value}
         stype {required value}
     }
 
     
-    test CREATE-1.2 {location is not a mapref} -body {
+    test CREATE-1.2 {invalid n} -body {
         ted create BLUE
         ted order -reject ABSIT:CREATE \
-            {*}$s1 location NONESUCH
+            {*}$s1 n NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        location {not a map reference string}
+        n {Invalid neighborhood, none are defined}
     }
 
 
-    test CREATE-1.3 {location not in nbhood} -body {
-        ted create BLUE
-        ted order -reject ABSIT:CREATE \
-            $s1
-    } -cleanup {
-        cleanup
-    } -result {
-        location {Should be within a neighborhood}
-    }
-
-
-    test CREATE-1.4 {invalid stype} -body {
-        ted create BLUE
+    test CREATE-1.5 {invalid stype} -body {
+        ted create BLUE NB1
         ted order -reject ABSIT:CREATE \
             {*}$s1 stype NONESUCH
     } -cleanup {
@@ -94,8 +83,8 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.5 {duplicate stype} -setup {
-        ted create BLUE
+    test CREATE-1.6 {duplicate stype} -setup {
+        ted create BLUE NB1
         ted create NB1
         ted order ABSIT:CREATE $s1
     } -body {
@@ -107,8 +96,8 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.6 {invalid coverage} -body {
-        ted create BLUE
+    test CREATE-1.7 {invalid coverage} -body {
+        ted create BLUE NB1
         ted order -reject ABSIT:CREATE \
             {*}$s1 coverage 2.0
     } -cleanup {
@@ -118,7 +107,7 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.7 {coverage can't be 0.0} -setup {
+    test CREATE-1.8 {coverage can't be 0.0} -setup {
         ted create NB1 BLUE
     } -body {
         ted order -reject ABSIT:CREATE \
@@ -130,8 +119,8 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.8 {invalid inception} -body {
-        ted create BLUE
+    test CREATE-1.9 {invalid inception} -body {
+        ted create BLUE NB1
         ted order -reject ABSIT:CREATE \
             {*}$s1 inception NONESUCH
     } -cleanup {
@@ -141,8 +130,8 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.9 {invalid resolver} -body {
-        ted create BLUE
+    test CREATE-1.10 {invalid resolver} -body {
+        ted create BLUE NB1
         ted order -reject ABSIT:CREATE \
             {*}$s1 resolver NONESUCH
     } -cleanup {
@@ -152,8 +141,8 @@ namespace eval ::athena_test::tests:: {
     }
 
 
-    test CREATE-1.10 {invalid rduration} -body {
-        ted create BLUE
+    test CREATE-1.11 {invalid rduration} -body {
+        ted create BLUE NB1
         ted order -reject ABSIT:CREATE \
             {*}$s1 rduration NONESUCH
     } -cleanup {
@@ -172,18 +161,18 @@ namespace eval ::athena_test::tests:: {
         ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 s          1
 stype      BADWATER
-location   100 100
+n          NB1
 coverage   1.0
 inception  1
 resolver   NONE
 rduration  1
-n          NB1
 state      INITIAL
 ts         0
 tr         1
+location   *
     }
 
 
@@ -286,15 +275,15 @@ tr         1
         s {required value}
     }
     
-    test UPDATE-1.2 {location is not a mapref} -setup {
+    test UPDATE-1.2 {invalid n} -setup {
         ted create NB1 BLUE
         ted order ABSIT:CREATE $s1
     } -body {
-        ted order -reject ABSIT:UPDATE s 1 location NONESUCH
+        ted order -reject ABSIT:UPDATE s 1 n NONESUCH
     } -cleanup {
         cleanup
     } -result {
-        location {not a map reference string}
+        n {Invalid neighborhood, should be one of: NB1}
     }
 
 
@@ -357,27 +346,13 @@ tr         1
         rduration {invalid value "NONESUCH", expected integer}
     }
 
-
-    test UPDATE-1.8 {location is not in a nbhood} -setup {
-        ted create NB1 BLUE
-        ted order ABSIT:CREATE $s1
-    } -body {
-        ted order -reject ABSIT:UPDATE s 1 location A00A00
-    } -cleanup {
-        cleanup
-    } -result {
-        location {Should be within a neighborhood}
-    }
-
-
-    test UPDATE-1.9 {Not INITIAL state} -setup {
+    test UPDATE-1.8 {Not INITIAL state} -setup {
         ted create NB1 BLUE
         ted order ABSIT:CREATE $s1
         rdb eval {UPDATE absits SET state='ONGOING' WHERE s=1}
     } -body {
         ted order -reject ABSIT:UPDATE s 1 \
             stype     COMMOUT \
-            location  A00A00  \
             coverage  0.5     \
             inception NO      \
             resolver  NONE
@@ -389,12 +364,12 @@ tr         1
 
 
     test UPDATE-2.1 {absit is updated} -setup {
-        ted create NB1 BLUE
+        ted create NB1 NB2 BLUE
         ted order ABSIT:CREATE $s1
     } -body {
         ted order ABSIT:UPDATE {
             s         1 
-            location  B01B01
+            n         NB2
             stype     COMMOUT
             inception NO
             resolver  BLUE
@@ -404,18 +379,18 @@ tr         1
         ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 s          1
 stype      COMMOUT
-location   101 101
+n          NB2
 coverage   1.0
 inception  0
 resolver   BLUE
 rduration  10
-n          NB1
 state      INITIAL
 ts         0
 tr         10
+location   *
     }
 
 
@@ -438,7 +413,6 @@ tr         10
         ted order ABSIT:CREATE $s1
         ted order ABSIT:UPDATE {
             s         1 
-            location  B01B01
             stype     COMMOUT
             inception NO
         }
@@ -477,19 +451,7 @@ tr         10
         location {not a map reference string}
     }
 
-    test MOVE-1.3 {INITIAL state; location is not in a nbhood} -setup {
-        ted create NB1 BLUE
-        ted order ABSIT:CREATE $s1
-    } -body {
-        ted order -reject ABSIT:MOVE s 1 location A00A00
-    } -cleanup {
-        cleanup
-    } -result {
-        location {Should be within a neighborhood}
-    }
-
-
-    test MOVE-1.4 {Not INITIAL sate; location is out of neighborhood} -setup {
+    test MOVE-1.4 {location is out of neighborhood} -setup {
         ted create NB1 BLUE
         ted order ABSIT:CREATE $s1
         rdb eval {UPDATE absits SET state='ONGOING' WHERE s=1}
@@ -596,18 +558,18 @@ s location
         ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 s          1
 stype      BADWATER
-location   100 100
+n          NB1
 coverage   1.0
 inception  1
 resolver   BLUE
 rduration  0
-n          NB1
 state      RESOLVED
 ts         0
 tr         0
+location   *
     }
 
 
@@ -620,18 +582,18 @@ tr         0
         ted querylist {SELECT * FROM absits}
     } -cleanup {
         cleanup
-    } -result {
+    } -match glob -result {
 s          1
 stype      BADWATER
-location   100 100
+n          NB1
 coverage   1.0
 inception  1
 resolver   NONE
 rduration  0
-n          NB1
 state      RESOLVED
 ts         0
 tr         0
+location   *
     }
 
 

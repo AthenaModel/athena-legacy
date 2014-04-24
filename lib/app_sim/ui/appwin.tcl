@@ -525,7 +525,7 @@ snit::widget appwin {
 
         # NEXT, Prepare to receive window events
         bind $viewer <<Unit-1>>       [mymethod Unit-1   %d]
-        bind $viewer <<Ensit-1>>      [mymethod Ensit-1  %d]
+        bind $viewer <<Absit-1>>      [mymethod Absit-1  %d]
         bind $viewer <<Nbhood-1>>     [mymethod Nbhood-1 %d]
 
         # NEXT, restore the window
@@ -2045,13 +2045,13 @@ snit::widget appwin {
         }
     }
 
-    # Ensit-1 s
+    # Absit-1 s
     #
     # s      An absit ID
     #
     # Called when the user clicks on an absit icon.
 
-    method Ensit-1 {s} {
+    method Absit-1 {s} {
         rdb eval {SELECT * FROM gui_absits WHERE s=$s} row {
         $self puts \
             "Situation $s: $row(stype)  at: $row(location)  coverage: $row(coverage)"

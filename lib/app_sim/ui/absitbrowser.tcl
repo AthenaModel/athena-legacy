@@ -32,7 +32,6 @@ snit::widgetadaptor absitbrowser {
         { state     "State"                         -foreground %D }
         { stype     "Type"                                         }
         { n         "Nbhood"                        -foreground %D }
-        { location  "Location"                                     }
         { coverage  "Coverage"    -sortmode real    -foreground %D }
         { ts        "Began At"                      -foreground %D }
         { resolver  "Resolved By"                                  }

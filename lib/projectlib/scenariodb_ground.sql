@@ -346,8 +346,10 @@ CREATE TABLE absits (
     -- Situation type (this is also the driver type)
     stype     TEXT,
 
-    -- Location, in map coordinates
-    location  TEXT,
+    -- Neighborhood in which the situation exists
+    n         TEXT REFERENCES nbhoods(n)
+                   ON DELETE CASCADE
+                   DEFERRABLE INITIALLY DEFERRED,
 
     -- Coverage: fraction of neighborhood affected.
     coverage  DOUBLE DEFAULT 1.0,
@@ -365,9 +367,6 @@ CREATE TABLE absits (
     -- and a duration in ticks otherwise.
     rduration INTEGER DEFAULT 0,
 
-    -- Neighborhood in which the situation exists
-    n         TEXT,
-
     -- State: esitstate
     state     TEXT DEFAULT 'INITIAL',
 
@@ -375,7 +374,10 @@ CREATE TABLE absits (
     ts        INTEGER,
 
     -- Resolution time, in ticks; null if unresolved and not auto-resolving.
-    tr        INTEGER
+    tr        INTEGER,
+
+    -- Location, in map coordinates -- for visualization only.
+    location  TEXT
 );
 
 ------------------------------------------------------------------------

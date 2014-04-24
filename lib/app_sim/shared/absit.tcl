@@ -294,9 +294,6 @@ snit::type absit {
     # absit's neighborhood depends on its location.  As neighborhoods come 
     # and go, an absit's neighborhood really can change; and this needs
     # to be updated at that time.  This routine handles this.
-    #
-    # Ultimately, absit neighborhood should be primary, and location should
-    # be only for visualization.
 
     typemethod {mutate reconcile} {} {
         set undo [list]
@@ -314,20 +311,22 @@ snit::type absit {
             lappend undo [$type mutate update [array get row]]
         }
 
-        # NEXT, set n for all absits
+        # NEXT, update location for all absits that are out of their
+        # neighborhoods.
         foreach {s n location} [rdb eval {
             SELECT s, n, location FROM absits
         }] { 
-            set newNbhood [nbhood find {*}$location]
+            set nloc [nbhood find {*}$location]
 
-            if {$newNbhood ne $n} {
+            if {$nloc ne $n} {
+                set newloc [$type PickLocation $s $n]
 
                 rdb eval {
-                    UPDATE absits SET n=$newNbhood
+                    UPDATE absits SET location=$newloc
                     WHERE s=$s;
                 }
 
-                lappend undo [mytypemethod RestoreNbhood $s $n]
+                lappend undo [mytypemethod RestoreLocation $s $location]
             }
         }
 
@@ -335,16 +334,16 @@ snit::type absit {
     }
 
 
-    # RestoreNbhood s n
+    # RestoreLocation s location
     #
-    # s     An absit
-    # n     A nbhood
+    # s        - An absit
+    # location - A location in map coordinates
     # 
-    # Sets the absit's nbhood.
+    # Sets the absit's location.
 
-    typemethod RestoreNbhood {s n} {
+    typemethod RestoreLocation {s location} {
         # FIRST, save it
-        rdb eval { UPDATE absits SET n=$n WHERE s=$s; }
+        rdb eval { UPDATE absits SET location=$location WHERE s=$s; }
     }
 
 
@@ -353,12 +352,12 @@ snit::type absit {
     #
     # parmdict     A dictionary of absit parms
     #
-    #    stype          The situation type
-    #    location       The situation's initial <loc></loc>ation (map coords)
-    #    coverage       The situation's coverage
-    #    inception      1 if there are inception effects, and 0 otherwise.
-    #    resolver       The group that will resolve the situation, or ""
-    #    rduration      Auto-resolution duration, in weeks
+    #    stype     - The situation type
+    #    n         - The situation's nbhood.
+    #    coverage  - The situation's coverage
+    #    inception - 1 if there are inception effects, and 0 otherwise.
+    #    resolver  - The group that will resolve the situation, or ""
+    #    rduration - Auto-resolution duration, in weeks
     #
     # Creates an absit given the parms, which are presumed to be
     # valid.
@@ -367,8 +366,7 @@ snit::type absit {
         dict with parmdict {}
 
         # FIRST, get the remaining attribute values
-        set n [nbhood find {*}$location]
-        assert {$n ne ""}
+        set location [nbhood randloc $n]
 
         if {$rduration eq ""} {
             set rduration [parmdb get absit.$stype.duration]
@@ -434,18 +432,14 @@ snit::type absit {
     #
     #    s           - The situation ID
     #    stype       - A new situation type, or ""
-    #    location    - A new location (map coords), or ""
-    #                  (Must be in same neighborhood.)
+    #    n           - A new neighborhood, or ""
     #    coverage    - A new coverage, or ""
     #    inception   - A new inception, or ""
     #    resolver    - A new resolving group, or ""
     #    rduration   - A new auto-resolution duration, or ""
     #
     # Updates a situation given the parms, which are presumed to be
-    # valid.
-    #
-    # Only the "location" parameter can be updated if the state isn't
-    # INITIAL.
+    # valid.  The situation must be in state INITIAL.
 
     typemethod {mutate update} {parmdict} {
         dict with parmdict {}
@@ -454,12 +448,11 @@ snit::type absit {
         set data [rdb grab absits {s=$s}]
 
         # NEXT, get the new neighborhood if the location changed.
-        if {$location ne ""} { 
-            set n [nbhood find {*}$location]
-        } else {
-            set n ""
+        if {$n ne ""} {
+            set location [$type PickLocation $s $n]
         }
 
+        # NEXT, update duration.
         if {$rduration ne ""} {
             set ts [$type get $s ts]
             let tr {$ts + $rduration}
@@ -485,6 +478,35 @@ snit::type absit {
         return [list rdb ungrab $data] 
     }
 
+
+    # mutate move parmdict
+    #
+    # parmdict     A dictionary of entity parms
+    #
+    #    s           - The situation ID
+    #    location    - A new location (map coords), or ""
+    #                  (Must be in same neighborhood.)
+    #
+    # Updates a situation given the parms, which are presumed to be
+    # valid.
+
+    typemethod {mutate move} {parmdict} {
+        dict with parmdict {}
+
+        # FIRST, get the undo information
+        set data [rdb grab absits {s=$s}]
+
+        # NEXT, update the situation
+        rdb eval {
+            UPDATE absits
+            SET stype     = nonempty($stype,     stype),
+                location  = nonempty($location,  location)
+            WHERE s=$s;
+        }
+
+        # NEXT, Return the undo command
+        return [list rdb ungrab $data] 
+    }
 
     # mutate resolve parmdict
     #
@@ -516,23 +538,36 @@ snit::type absit {
         return [list rdb ungrab $data] 
     }
 
+    # PickLocation s n
+    #
+    # Finds a location for s in n, returning s's current location
+    # if possible.
+
+    typemethod PickLocation {s n} {
+        # FIRST, get the old location and neighborhood.
+        array set old [absit get $s]
+
+        set oldN [nbhood find {*}$old(location)]
+
+        if {$oldN ne $n} {
+            return [nbhood randloc $n]
+        } else {
+            return $old(location)
+        }
+    }
+
     #-------------------------------------------------------------------
     # Order Helpers
 
-    # AbsentTypes location
+    # AbsentTypes n
     #
-    # location  - A map location
+    # n  - A neighborhood
     #
     # Returns a list of the absit types that are not represented in 
-    # the neighborhood containing the given location.
+    # the neighborhood.
 
-    typemethod AbsentTypes {location} {
-        if {$location ne "" && 
-            ![catch {
-                set mxy [map ref2m $location]
-                set n [nbhood find {*}$mxy]
-            }]
-        } {
+    typemethod AbsentTypes {n} {
+        if {$n ne ""} {
             return [$type absentFromNbhood $n]
         }
 
@@ -573,11 +608,11 @@ order define ABSIT:CREATE {
     options -sendstates {PREP PAUSED TACTIC}
 
     form {
-        rcc "Location:" -for location
-        text location
+        rcc "Neighborhood:" -for n
+        nbhood n
 
         rcc "Type:" -for stype
-        enum stype -listcmd {absit AbsentTypes $location}
+        enum stype -listcmd {absit AbsentTypes $n}
 
         rcc "Coverage:" -for coverage
         frac coverage -defvalue 1.0
@@ -593,10 +628,10 @@ order define ABSIT:CREATE {
         label "weeks"
     }
 
-    parmtags location nbpoint
+    parmtags n nbhood
 } {
     # FIRST, prepare and validate the parameters
-    prepare location  -toupper   -required -type refpoint
+    prepare n         -toupper   -required -type nbhood
     prepare stype     -toupper   -required -type eabsit
     prepare coverage  -num       -required -type rfraction
     prepare inception -toupper   -required -type boolean
@@ -607,14 +642,6 @@ order define ABSIT:CREATE {
 
     # NEXT, additional validation steps.
 
-    validate location {
-        set n [nbhood find {*}$parms(location)]
-        
-        if {$n eq ""} {
-            reject location "Should be within a neighborhood"
-        }
-    }
-
     validate coverage {
         if {$parms(coverage) == 0.0} {
             reject coverage "Coverage must be greater than 0."
@@ -624,7 +651,7 @@ order define ABSIT:CREATE {
     returnOnError
 
     validate stype {
-        if {[absit existsInNbhood $n $parms(stype)]} {
+        if {[absit existsInNbhood $parms(n) $parms(stype)]} {
             reject stype \
                 "An absit of this type already exists in this neighborhood."
         }
@@ -701,8 +728,8 @@ order define ABSIT:UPDATE {
         key s -table gui_absits_initial -keys s -dispcols longid \
             -loadcmd {orderdialog keyload s *}
 
-        rcc "Location:" -for location
-        text location
+        rcc "Neighborhood:" -for n
+        nbhood n
 
         rcc "Type:" -for stype
         enum stype -listcmd {absit AbsentTypesBySit $s}
@@ -719,12 +746,10 @@ order define ABSIT:UPDATE {
         rcc "Duration:" -for duration
         text rduration
         label "weeks"
-
-        text g -invisible yes
     }
 
     parmtags s situation
-    parmtags location nbpoint
+    parmtags n nbhood
 } {
     # FIRST, check the situation
     prepare s                    -required -type {absit initial}
@@ -734,30 +759,18 @@ order define ABSIT:UPDATE {
     set stype [absit get $parms(s) stype]
 
     # NEXT, prepare the remaining parameters
-    prepare location  -toupper  -type refpoint 
+    prepare n         -toupper  -type nbhood 
     prepare stype     -toupper  -type eabsit -oldvalue $stype
     prepare coverage  -num      -type rfraction
     prepare inception -toupper  -type boolean
     prepare resolver  -toupper  -type {ptype g+none}
     prepare rduration -num      -type iticks
-    prepare g
 
     returnOnError
 
-    # NEXT, get the old neighborhood
-    set n [absit get $parms(s) n]
-
     # NEXT, validate the other parameters.
-    validate location {
-        set n [nbhood find {*}$parms(location)]
-            
-        if {$n eq ""} {
-            reject location "Should be within a neighborhood"
-        }
-    }
-
     validate stype {
-        if {[absit existsInNbhood $n $parms(stype)]} {
+        if {[absit existsInNbhood $parms(n) $parms(stype)]} {
             reject stype \
                 "An absit of this type already exists in this neighborhood."
         }
@@ -807,43 +820,20 @@ order define ABSIT:MOVE {
 
     returnOnError
 
-    # NEXT, validate the other parameters.  In the INITIAL state, the
-    # absit can be moved to any neighborhood; in any other state it
-    # can only be moved within the neighborhood.
-    # location can be changed.
+    # NEXT, validate the other parameters.  
 
-    if {[absit get $parms(s) state] eq "INITIAL"} {
-        validate location {
-            set n [nbhood find {*}$parms(location)]
-            
-            if {$n eq ""} {
-                reject location "Should be within a neighborhood"
-            }
-        }
-    } else {
-        # Not INITIAL
-        validate location {
-            set n [nbhood find {*}$parms(location)]
+    validate location {
+        set n [nbhood find {*}$parms(location)]
 
-            if {$n ne [absit get $parms(s) n]} {
-                reject location "Cannot remove situation from its neighborhood"
-            }
+        if {$n ne [absit get $parms(s) n]} {
+            reject location "Cannot remove situation from its neighborhood"
         }
     }
 
     returnOnError -final
 
-    # NEXT, add blank parms
-    array set parms {
-        stype     ""
-        coverage  ""
-        inception ""
-        resolver  ""
-        rduration ""
-    }
-
     # NEXT, modify the group
-    setundo [absit mutate update [array get parms]]
+    setundo [absit mutate move [array get parms]]
 }
 
 
