@@ -1478,6 +1478,14 @@ click "Products", then "Athena 6.2", then "Edit Versions". Add a version
 Update the version information for subsequent development.  The version
 following 6.2.0-B7 might be 6.2.0-B8, 6.2.1-B8, or 6.3.0-B1:
 <</step/>>
+First, switch your workspace back to the trunk.  Usually, that means 
+returning to your ~/athena directory.
+<pre>
+$ cd ~/athena
+</pre>
+
+Then, update the version toward which we are working:
+
 <pre>
 $ athena_projinfo set -version 6.2.0 -build B8 -commit
 </pre>
