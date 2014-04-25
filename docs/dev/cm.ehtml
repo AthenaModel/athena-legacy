@@ -48,6 +48,10 @@
 
 <<changelog>>
 
+<<change 4/25/2014 Updated will>>
+Version numbers and build numbers are now distinct.
+<</change>>
+
 <<change 6/25/2012 Updated will>>
 Athena now builds against Mars 2.x; updated document accordingly.
 <</change>>
@@ -89,21 +93,34 @@ document explains how Athena uses Subversion to access Mars.<p>
 
 <<section overview.numbering "Athena Version Numbering">>
 
-Versions of the Athena software are numbered <i>x.y.z</i> where <i>x</i>
+At any given time, the Athena development team is working towards a 
+particular version <i>x.y.z</i>, e.g., "6.2.0", where <i>x</i>
 is the major release number, <i>y</i> is the minor release number, and
-<i>z</i> is the build number.  The value of <i>x</i> is incremented at
-the beginning of each development cycle.  The value of <i>y</i> is 0
-during normal development and is incremented for each specific release
-branch.  The value of <i>z</i> is incremented for each build. For
-example, the baseline development build for Athena 4 is 4.0.0, followed
-by 4.0.1, 4.0.2, and so forth.  The first release baseline is 4.1.0,
-followed by 4.1.1, 4.1.2, and so forth, as needed.  Additional release
-branches 4.2, 4.3, and so forth may be added for special releases.
-Meanwhile, main line development then continues with build 5.0.0.<p>
+<i>z</i> is the patch level.  The value of <i>x.y</i> is incremented at
+the beginning of each development cycle.  The value of <i>z</i> is 
+initially 0, and is incremented for future development each time a 
+version is made available to those outside the development.<p>
 
-By convention, the main development branch for Athena 4 is called 4.0.x
-(even though it's really the project trunk); the release branches are
-called 4.1.x, 4.2.x, and so forth.<p>
+For example, a new development might begin working on version 
+6.2.0.  After some number of builds, that version is released, and work
+begins on version 6.2.1.  The project might make several versions 
+of Athena 6.2 available to the sponsor; these would be 6.2.0, 6.2.1, 6.2.2, 
+and so on.<p>
+
+Then, a new development cycle would begin with version 6.3.0.<p>
+
+In addition to version numbers, the project also tracks official build 
+numbers, which are associated with the "x.y" independent of the ".z".  
+Development builds, which take place on the trunk, are numbered 
+"B1", "B2", "B3", and so on.  Release builds, which take place on 
+release branches, are numbered "R1", "R2", "R3", and so on.<p>
+
+The full version specification for any build is thus "<i>x.y.z</i>-B<i>n</i>"
+(for development and engineering builds) or "<i>x.y.z.</i>-R<i>n</i>"
+for release builds.  Note however, that any build released outside the
+team will necessarily have its own unique <i>x.y.z</i>.  To put it
+another way, if Athena 6.4.2-B7 is given to the sponsor as an engineering
+build, then B8 of Athena 6.4 will be necessarily be Athena 6.4.3-B8.<p>
 
 <<section overview.tree "Project Tree">>
 
@@ -203,11 +220,12 @@ The Athena Subversion repository URL is<p>
 
 <pre>    https://oak.jpl.nasa.gov/svn</pre>
 
-For developers at JPL, this may be abbreviated <code>https://oak/svn</code>.<p>
+In theory, this may be abbreviated <code>https://oak/svn</code>; however, 
+this leads to complications and confusion due to caching of URLs in the
+.svn directory, and should be avoided.<p>
 
 In the remainder of this document, the string <i>repository</i> will
-mean the repository's base URL in either of the above forms.<p>
-
+mean the repository's base URL.<p>
 
 The repository can contain multiple projects; for example, there are
 separate projects for Athena and for its infrastructure, Mars.  The
@@ -238,7 +256,7 @@ The <code>trunk</code> directory contains the project's files on the
 main line of development.  Subdirectories of the <code>branches</code>
 directory represent development branches. Subdirectories of the
 <code>tags</code> directory represent snapshots of development, e.g.,
-the 4.0.7 build.
+the 6.2.0-B7 build.
 
 
 <<section vc.branches "Subversion Branches and Tags">>
@@ -262,9 +280,18 @@ facilitate Athena development.  Procedures appear in
 </tr>
 
 <tr valign="top">
-<td><code>tags/athena_<i>x.y.z</i></code></td>
-<td><code>tags/athena_4.0.7</code></td>
-<td>Snapshot of Athena build <i>x.y.x</i></td>
+<td>
+<code>tags/athena_<i>x.y.z</i>-B<i>n</i></code><br>
+<code>tags/athena_<i>x.y.z</i>-R<i>n</i></code><br>
+<code>tags/athena_<i>x.y.z</i></code><br>
+</td>
+<td>
+<code>tags/athena_6.2.0-B7</code>
+<code>tags/athena_6.2.2-R2</code>
+<code>tags/athena_5.1.1</code>
+</td>
+<td>Snapshot of the given Athena build.  The form without
+a build number was used prior to Athena 6.2.</td>
 </tr>
 
 <tr valign="top">
@@ -283,15 +310,16 @@ facilitate Athena development.  Procedures appear in
 <<section vc.branches.builds "Build Tags">>
 
 At each official build during normal development, the trunk is tagged
-for the build as "<code>tags/athena_<i>x.y.z</i></code>".  This serves as
+for the build as "<code>tags/athena_<i>version</i></code>", where
+<i>version</i> is the full version specification.  This serves as
 a snapshot of the build, and allows it to be recovered at any time.<p>
 
 <<section vc.branches.release "Release Branches">>
 
 When preparing for a specific release, a release branch is created as
-directory as "<code>branches/athena_x.y.<i>x</i></code>", where
-<i>x.y</i> is the base version number.  Thus, the 4.1 release branch
-will be "<code>branches/athena_4.1.x</code>". The release branch can be
+directory as "<code>branches/athena_<i>x.y</i></code>", where
+<i>x.y</i> is the base version number.  Thus, the Athena 6.2 release branch
+will be "<code>branches/athena_6.2</code>". The release branch can be
 checked out just as the trunk is; and changes can be committed and
 builds tagged in the same way.  Thus, development can continue on the
 trunk while the last bugs are being fixed for release on the release branch.<p>
@@ -385,17 +413,20 @@ The Athena Bugzilla Server resides at
 
 Bugzilla relates bugs to a specific Product, Version, and Component.
 Each Athena development branch is entered as a separate product, e.g.,
-"Athena 4.0", "Athena 4.1", "Athena 5.0".  All bugs written against a
+"Athena 6.1", "Athena 6.2", "Athena 6.3".  All bugs written against a
 particular branch will assigned to that branch's product.<p>
+
+When Athena 6.2 is in development, the "Athena 6.2" product will be 
+related to work on the repository's trunk.  When the "athena_6.2" 
+release branch is created, the "Athena 6.2" product will contain 
+bugs related to the release branch, and trunk development will proceed
+using the "Athena 6.3" product.<p>
 
 <<section bug.version "Version">>
 
-The "Version" field indicates the build of Athena in which the
-bug was found. If the bug was originally written against the same
-branch, the version will be "B<i>z</i>" where <i>z</i> is the build
-number, the last number in the <i>x.y.z</i> version number.  If the
-bug was originally written against a different branch, then the
-version will be "V<i>x.y</i>" where <i>x.y</i> identifies the branch.<p>
+The Bugzilla "Version" field indicates the build number in which the
+bug was found, e.g., "B1".  Bugs imported into a project will be
+assigned to "B0".<p>
 
 <<section bug.component "Component">>
 
@@ -421,6 +452,11 @@ following components will be used:<p>
 </tr>
 
 <tr valign="top">
+<td>Tools</td>
+<td>Other tools that are not delivered with the application.</td>
+</tr>
+
+<tr valign="top">
 <td>Data</td>
 <td>Data files, plus related documentation</td>
 </tr>
@@ -441,9 +477,10 @@ By convention, the Status Whiteboard field is used to record the build
 in which the bug was fixed or otherwise resolved.  The following text
 is used:<p>
 
-<pre>    Fixed in <i>x.y.z</i></pre>
+<pre>    Fixed in <i>version</i></pre>
 
-where <i>x.y.z</i> is the build version.<p>
+where <i>version</i> is the full version specification, including
+the build number.<p>
 
 <<section bug.severity "Severity">>
 
@@ -807,7 +844,7 @@ checkout</code> in the usual way.  Tags or branches checked out just
 to build the corresponding version are usually checked out under their
 own names under <code>~/athena_pkgs</code>.<p>
 
-When checking out a branch to do active development, it is based to go
+When checking out a branch to do active development, it is best to go
 to your Athena workspace, <code>~/athena</code>, and use <code>svn
 switch</code> to switch from the current branch to the desired
 branch.  This way, you don't need to update your paths.<p>
@@ -1133,7 +1170,7 @@ desired, link it with some other version of Mars.
 <</step/>>
 <pre>
 $ cd ~/athena
-$ mars link 2.3
+$ mars link 2.40
 $ mars link save
 </pre>
 <</step>>
@@ -1175,10 +1212,7 @@ externally linked, i.e., on the Athena trunk.  Release branches generally
 include their own copy of Mars; thus, no special steps need be
 taken.<p>
 
-In addition, some steps are different on Windows than on Linux.  As of
-Athena 3.0.30, Windows is the primary development platform, and we
-will not generally do official builds on Linux.  Nevertheless,
-OS-specific steps are so marked.<p>
+In addition, some steps are different on Windows than on Linux.<p>
 
 <<procedure>>
 
@@ -1194,13 +1228,17 @@ necessary (that is, if anything has changed since the previous Athena
 build).
 <</step/>>
 See the <<xref marscm>>.  We'll assume that the
-resulting Mars build is Mars 2.3.
+resulting Mars build is Mars 2.40.
 <</step>>
 
 <<step>>
-Determine the Athena build number.
+Determine the Athena version specification toward which we have
+been working.
 <</step/>>
-We'll assume it's Athena 4.0.1.
+<pre>
+$ athena_projinfo versionfull
+6.2.0-B7
+</pre>
 <</step>>
 
 <<step>>
@@ -1209,7 +1247,7 @@ for the new build.
 <</step/>>
 <pre>
 $ cd ~/athena_pkgs
-$ svn checkout <i>repository</i>/athena/trunk athena_4.0.1
+$ svn checkout <i>repository</i>/athena/trunk athena_6.2.0-B7
 </pre>
 <</step>>
 
@@ -1219,9 +1257,9 @@ Update the build notes file with a description of the changes, and
 check it into the repository.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1/docs
+$ cd ~/athena_pkgs/athena_6.2.0-B7/docs
 $ emacs build_notes.ehtml
-$ svn commit -m"Updated for Build 4.0.1"
+$ svn commit -m"Updated for Build 6.2.0-B7"
 </pre>
 <</step>>
 
@@ -1235,22 +1273,22 @@ If your <code>PATH</code> environment variable contains
 <code>~/mars/bin/</code>, then
 
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
-$ mars link 2.3
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ mars link 2.40
 </pre>
 
 Otherwise,<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
-$ ./mars/bin/mars link 2.3
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ ./mars/bin/mars link 2.40
 </pre>
 
 This is equivalent to:<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
-$ svn switch <i>repository</i>/mars/tags/mars_2.3 mars
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ svn switch <i>repository</i>/mars/tags/mars_2.40 mars
 </pre>
 
 <</step>>
@@ -1263,7 +1301,7 @@ Resolve any errors, and retest, until the tests all pass. Commit
 any changes.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1/test
+$ cd ~/athena_pkgs/athena_6.2.0-B7/test
 $ athena_test all -notk
 </pre>
 <</step>>
@@ -1273,27 +1311,25 @@ Do a development build and test of the client. Resolve any errors, and
 retest, until the client builds cleanly. Commit any changes.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
+$ cd ~/athena_pkgs/athena_6.2.0-B7
 $ make build
 </pre>
 <</step>>
 
 <<step>>
-Tag the build, updating the working copy to the tagged version. 
+Tag the build. 
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
-$ make tag ATHENA_VERSION=4.0.1
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ make tag
 </pre>
 
 This is equivalent to:<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
-$ svn copy . <i>repository</i>/athena/tags/athena_4.0.1
-$ svn switch <i>repository</i>/athena/tags/athena_4.0.1 .
-$ echo 4.0.1 > lib/projectlib/version.txt
-$ svn commit lib/projectlib/version.txt
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ svn copy . <i>repository</i>/athena/tags/athena_6.2.0-B7
+$ svn switch <i>repository</i>/athena/tags/athena_6.2.0-B7 .
 </pre>
 <</step>>
 
@@ -1303,19 +1339,19 @@ required version of Mars.  Note that the previous step set the
 embedded version of Mars back to the Mars trunk.<p>
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
-$ mars link 2.3
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ mars link 2.40
 $ mars link save
 </pre>
 
 This is equivalent to:<p>
 
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
-$ svn switch <i>repository</i>/mars/tags/mars_2.3 mars
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ svn switch <i>repository</i>/mars/tags/mars_2.40 mars
 $ svn propset svn:externals \
-    "mars <i>repository</i>/mars/tags/mars_2.3" .
-$ svn commit -m"Permanently link with Mars 2.3" .
+    "mars <i>repository</i>/mars/tags/mars_2.40" .
+$ svn commit -m"Permanently link with Mars 2.40" .
 </pre>
 
 <</step>>
@@ -1327,13 +1363,13 @@ tarballs will be created automatically, the installation
 tarball will be created if the build is being done on Linux:<p>
 
 <ul>
-  <li> <code>~/athena_pkgs/athena_4.0.1.tgz</code> (Linux only)
-  <li> <code>~/athena_pkgs/athena_4.0.1_src.tgz</code>
-  <li> <code>~/athena_pkgs/athena_4.0.1_docs.tgz</code>
+  <li> <code>~/athena_pkgs/athena_6.2.0-B7.tgz</code> (Linux only)
+  <li> <code>~/athena_pkgs/athena_6.2.0-B7_src.tgz</code>
+  <li> <code>~/athena_pkgs/athena_6.2.0-B7_docs.tgz</code>
 </ul>
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1
+$ cd ~/athena_pkgs/athena_6.2.0-B7
 $ make cmbuild
 </pre>
 <</step>>
@@ -1343,28 +1379,28 @@ $ make cmbuild
 installer rather than a tarball.  Build the installer.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1/installer
+$ cd ~/athena_pkgs/athena_6.2.0-B7/installer
 $ start athena.iss
 </pre>
 
 In the resulting InnoSetup window:<p>
 
 <ul>
-  <li> Set "MyAppVersion" to 4.0.1
+  <li> Set "MyAppVersion" to 6.2.0-B7
 </ul>
 
 If this is the first build on a release branch:<p>
 
 <ul>
   <li> Set "DefaultDirName" and "DefaultGroupName" to "Athena
-  <i>x.y</i>", e.g., "Athena 4.1".
+  <i>x.y</i>", e.g., "Athena 6.2".
   <li> Update the AppId using the Tools/Generate GUID menu item.
 </ul>
 
 Then, select Build/Compile from the menu bar.  This builds the following file:
 
 <pre>
-    installer/Output/Athena4.0.1_Installer.exe
+    installer/Output/Athena6.2.0-B7_Installer.exe
 </pre><p>
 
 <</step>>
@@ -1373,7 +1409,7 @@ Then, select Build/Compile from the menu bar.  This builds the following file:
 <b>Windows Only.</b>  Commit the changes to the InnoSetup definition file.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.0.1/installer
+$ cd ~/athena_pkgs/athena_6.2.0-B7/installer
 $ svn commit -m"Set version number in installer file"
 <</step>>
 
@@ -1389,11 +1425,11 @@ Install the build's installation files and documentation on the Athena
 web page. The installation files and tarballs will be installed into
 the following AFS directory:
 
-<pre>   /afs/jpl/group/athena/www/archive/athena_4.0.1</pre>
+<pre>   /afs/jpl/group/athena/www/archive/athena_6.2.0-B7</pre>
 
 The documentation will be installed in the following AFS directory:<p>
 
-<pre>   /afs/jpl/group/athena/www/doc_4.0.1</pre>
+<pre>   /afs/jpl/group/athena/www/doc_6.2.0-B7</pre>
 
 The documents will then be available on the web at:
 
@@ -1401,7 +1437,7 @@ The documents will then be available on the web at:
 <</step/>>
 <pre>
 $ klog
-$ cd ~/athena_pkgs/athena_4.0.1
+$ cd ~/athena_pkgs/athena_6.2.0-B7
 $ make install
 </pre>
 <</step>>
@@ -1410,7 +1446,7 @@ $ make install
 Add the new build's documentation tree to the main index on the Athena
 web page.  Add a link to
 
-<pre> http://eis.jpl.nasa.gov/athena/doc_4.0.1/docs/developer.html</pre>
+<pre> http://eis.jpl.nasa.gov/athena/doc_6.2.0-B7/docs/developer.html</pre>
 
 <</step/>>
 <pre>
@@ -1434,8 +1470,26 @@ Add the version to Bugzilla.
 <</step/>>
 
 On the Bugzilla toolbar, click "Administration". On the resulting page
-click "Products", then "Athena 4.0", then "Edit Versions". Add a version
-"B<i>z</i>", e.g., when building Athena 4.0.1 add a version "B1".<p>
+click "Products", then "Athena 6.2", then "Edit Versions". Add a version
+"B<i>n</i>", e.g., when building Athena 6.2.0-B7 add a version "B7".<p>
+<</step>>
+
+<<step>>
+Update the version information for subsequent development.  The version
+following 6.2.0-B7 might be 6.2.0-B8, 6.2.1-B8, or 6.3.0-B1:
+<</step/>>
+<pre>
+$ athena_projinfo set -version 6.2.0 -build B8 -commit
+</pre>
+
+The new version will be remembered in the repository, and can 
+be queried by entering
+
+<pre>
+$ athena_projinfo versionfull
+6.2.0-B8
+$
+</pre>
 <</step>>
 <</procedure>>
 
@@ -1460,8 +1514,8 @@ Create the release branch as follows:<p>
 Copy the desired branch, trunk, or tag to <code>athena/branches</code>.
 <</step/>>
 <pre>
-$ svn copy <i>repository</i>/athena/tags/athena_4.0.33 \
-	<i>repository</i>/athena/branches/athena_4.1.x
+$ svn copy <i>repository</i>/athena/tags/athena_6.2.3-B4 \
+	<i>repository</i>/athena/branches/athena_6.2
 </pre>
 <</step>>
 
@@ -1471,17 +1525,17 @@ Check out the branch.
 <</step/>>
 <pre>
 $ cd ~/athena_pkgs
-$ svn checkout <i>repository</i>/athena/branches/athena_4.1.x
+$ svn checkout <i>repository</i>/athena/branches/athena_6.2
 </pre>
 <</step>>
 
 
 <<step>>
 Determine which version of Mars the branch is currently linked with.
-It will be the same version as the the tag on which the branch is based.
+It will be the same version as the tag on which the branch is based.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.1.x
+$ cd ~/athena_pkgs/athena_6.2
 $ mars link
 </pre>
 <</step>>
@@ -1491,7 +1545,7 @@ $ mars link
 Copy the linked version of Mars into the release branch.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.1.x
+$ cd ~/athena_pkgs/athena_6.2
 $ mars link save -ascopy
 </pre>
 <</step>>
@@ -1500,19 +1554,9 @@ $ mars link save -ascopy
 <<step>>
 Update the default version number for this branch.
 <</step/>>
-Set <code>ATHENA_VERSION_DEFAULT</code> to <code>4.1.x</code>:
-
 <pre>
-$ emacs ~/athena_pkgs/athena_4.1.x/MakeDefs
+$ athena_projinfo -version 6.2.4 -build R1 -commit
 </pre>
-
-Set the version in <code>version.txt</code> to <code>4.1.x</code>:
-
-<pre>
-$ emacs ~/athena_pkgs/athena_4.1.x/lib/projectlib/version.txt
-</pre>
-
-Commit the changes.
 <</step>>
 
 <</procedure>>
@@ -1523,10 +1567,10 @@ Commit the changes.
 <<section proc.cm.co_relbranch "Checking out a Release Branch">>
 
 Release branches are for a particular major and minor version
-<i>x.y</i> of Athena, e.g., Athena 4.1.  All builds on the branch will
+<i>x.y</i> of Athena, e.g., Athena 6.2.  All builds on the branch will
 have the same major and minor versions; consequently the branch is
-usually called "<code>branches/athena_<i>x.y</i>.x</code>", e.g.,
-"<code>branches/athena_4.1.x</code>".  Checking out a
+usually called "<code>branches/athena_<i>x.y</i></code>", e.g.,
+"<code>branches/athena_6.2</code>".  Checking out a
 release branch is just like checking out a tag, except that changes
 can be committed.<p>
 
@@ -1545,7 +1589,7 @@ $ cd ~/athena_pkgs
 Check out the branch.
 <</step/>>
 <pre>
-$ svn checkout <i>repository</i>/athena/branches/athena_4.1.x
+$ svn checkout <i>repository</i>/athena/branches/athena_6.2
 </pre>
 <</step>>
 
@@ -1554,7 +1598,7 @@ $ svn checkout <i>repository</i>/athena/branches/athena_4.1.x
 Go to work.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_4.1.x
+$ cd ~/athena_pkgs/athena_6.2
 </pre>
 <</step>>
 
@@ -1565,7 +1609,7 @@ area.
 <</step/>>
 <pre>
 $ cd ~/athena
-$ svn switch <i>repository</i>/athena/branches/athena_4.1.x .
+$ svn switch <i>repository</i>/athena/branches/athena_6.2 .
 </pre>
 <</step>>
 
@@ -1578,62 +1622,73 @@ $ svn switch <i>repository</i>/athena/branches/athena_4.1.x .
 A new development baseline is established when active development is
 complete for one one major version, and it is desired to allow
 preliminary development to begin for the next major version, e.g.,
-when finishing work on version 4.0 and commencing work on version 5.0.
+when finishing work on version 6.2 and commencing work on version 6.3.
 This process often takes place over a period of some weeks; typical
 steps are as follows.<p>
 
 <<procedure>>
 
 <<step>>
-Create a Bugzilla product for the new version, e.g., "Athena 5.0".  Give
+Create a Bugzilla product for the new effort, e.g., "Athena 6.3".  Give
 it the components specified in <<xref bug.component>>.
+<</step/>>
+n/a
 <</step>>
 
 <<step>>
-Move all "Enhancements" from "Athena 4.0" to "Athena 5.0".  They aren't
-really bugs, and so don't need to be retained with "Athena 4.0".
+Move all "Enhancements" from "Athena 6.2" to "Athena 6.3".  They aren't
+really bugs, and so don't need to be retained with "Athena 6.2".
 This can greatly shrink the set of packages associated with the version
 that's nearing completion, and makes it clearer what remains to be
 done.<p>
 
 These first two steps can often be done well in advance of the rest.
+<</step/>>
+n/a
 <</step>>
 
 <<step>>
-Do the final Athena 4.0 build, e.g., "<code>athena_4.0.33</code>", as
-described in <<xref proc.cm.build>>.
+Create a Athena 6.2 release branch, "<code>athena_6.2</code>", based on
+the final Athena 6.2 development build, as described in 
+<<xref proc.cm.mk_relbranch>>.  All future work leading up to the 
+delivery will be done on this branch. 
+<</step/>>
+n/a
 <</step>>
 
 <<step>>
-Create a Athena 4.1 release branch, "<code>athena_4.1.x</code>", based on
-the final Athena 4.0 build, as described in <<xref proc.cm.mk_relbranch>>.
-All future work leading up to the delivery will be done on this branch. 
+On the release branch, update the version and build number, as described
+in <<xref proc.cm.mk_relbranch>>.
+<</step/>>
+Switch your work area to the release branch, and then:
+<pre>
+$ athena_projinfo -version 6.2.4 -build R1 -commit
+</pre>
 <</step>>
 
 <<step>>
-On the release branch, update <code>lib/projectlib/version.txt</code>,
-e.g., to "4.1.x".
+On the trunk, update the version and build number for new
+development.
+<</step/>>
+Switch your work area to the trunk, and then:
+<pre>
+$ athena_projinfo -version 6.3.0 -build B1 -commit
+</pre>
 <</step>>
 
 <<step>>
-On the trunk, update <code>lib/projectlib/version.txt</code>,
-e.g., to "5.0.x".
+Clone all bugs remaining in the "Athena 6.2" product to the "Athena 6.3" 
+products, to maintain a record of known bugs in each branch.
+<</step/>>
+n/a
 <</step>>
 
 <<step>>
-Create a new Bugzilla product for the release branch, e.g., "Athena 4.1".
-<</step>>
-
-<<step>>
-Clone all bugs remaining in the "Athena 4.0" product to both the "Athena
-4.1" and "Athena 5.0" products, to maintain a record of known bugs in
-each branch.
-<</step>>
-
-<<step>>
-At this point, development can proceed independently on Athena 4.1 and
-Athena 5.0.  Note that any bugs found in Athena 4.1 should be cloned to
-the "Athena 5.0" product in Bugzilla.
+At this point, development can proceed independently on Athena 6.2 and
+Athena 6.3.  Note that any bugs found in Athena 6.2 should be cloned to
+the "Athena 6.3" product in Bugzilla.
+<</step/>>
+n/a
 <</step>>
 
 <</procedure>>

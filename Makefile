@@ -14,8 +14,7 @@
 #    	clean        Deletes all build products
 #       build        Builds code and documentation from scratch,
 #                    and runs tests.
-#       tag          Tags the current branch or trunk.  Requires
-#                    MARS_VERSION=x.y and ATHENA_VERSION=x.y.z.
+#       tag          Tags the current branch or trunk. 
 #       cmbuild      Official build; requires ATHENA_VERSION=x.y.z
 #                    on make command line.  Builds code and 
 #                    documentation from scratch.
