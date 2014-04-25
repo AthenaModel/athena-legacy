@@ -47,7 +47,7 @@ namespace eval ::projectlib:: {
 # Load projectlib(n) submodules
 
 source [file join $::projectlib::library os.tcl             ]
-source [file join $::projectlib::library version.tcl        ]
+source [file join $::projectlib::library projinfo.tcl       ]
 source [file join $::projectlib::library enumx.tcl          ]
 source [file join $::projectlib::library projtypes.tcl      ]
 source [file join $::projectlib::library prefs.tcl          ]
@@ -56,7 +56,6 @@ source [file join $::projectlib::library scenariodb.tcl     ]
 source [file join $::projectlib::library appdir.tcl         ]
 source [file join $::projectlib::library workdir.tcl        ]
 source [file join $::projectlib::library prefsdir.tcl       ]
-source [file join $::projectlib::library verman.tcl         ]
 source [file join $::projectlib::library htools.tcl         ]
 source [file join $::projectlib::library myagent.tcl        ]
 source [file join $::projectlib::library myserver.tcl       ]

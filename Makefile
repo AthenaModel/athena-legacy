@@ -332,7 +332,6 @@ clean: check_env
 
 BUILD_TAG    = athena_$(ATHENA_VERSION)
 TAG_DIR      = https://oak.jpl.nasa.gov/svn/athena/tags/$(BUILD_TAG)
-VERSION_FILE = $(TOP_DIR)/lib/projectlib/version.txt
 
 tag: check_env check_ver
 	@ echo ""
@@ -342,8 +341,6 @@ tag: check_env check_ver
 	@ echo ""
 	svn copy -m"Tagging Athena $(ATHENA_VERSION)" . $(TAG_DIR)
 	svn switch $(TAG_DIR) .
-	echo $(ATHENA_VERSION) > $(VERSION_FILE)
-	svn commit -m"Tagging Athena $(ATHENA_VERSION)" $(VERSION_FILE)
 	@ echo ""
 	@ echo "*****************************************************"
 	@ echo "         Now in $(TAG_DIR)"

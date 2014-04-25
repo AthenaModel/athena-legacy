@@ -1,0 +1,63 @@
+<<manpage {projectlib(n) projinfo(n)} "Athena Project Info Manager">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require projectlib 1.0
+namespace import ::projectlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+The <<xref projinfo(n)>> object is responsible for querying and setting
+Athena's project info, specifically its version and build numbers. 
+The project info is saved as a dictionary in
+the <code>lib/projectlib/projinfo.txt</code> file.  It can be modified
+freely in development, but only queried in in production.<p>
+
+<<section COMMANDS>>
+
+This module defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "projinfo version" {projinfo version ?<i>number</i>?}>>
+
+Returns the current version number, first setting it if <i>number</i> is 
+given.  The <i>number</i> must have the syntax <i>x.y.z</i> where
+<i>x</i>, <i>y</i>, and <i>z</i> are non-negative integers.<p>
+
+<<defitem "projinfo build" {projinfo build ?<i>number</i>?}>>
+
+Returns the current build number, first setting it if <i>number</i> is 
+given.  The <i>number</i> must have the syntax "B<i>n</i>" or "R<i>n</i>", 
+where <i>n</i> is a non-negative integer.<p>
+
+<<defitem "projinfo filename" {projinfo filename}>>
+
+Returns the complete path of the file containing the project information.<p>
+
+<<defitem "projinfo save" {projinfo save}>>
+
+Saves the current version and build numbers to disk.<p>
+
+<<defitem "projinfo clear" {projinfo clear}>>
+
+Resets the version and build numbers to "<code>x.y.z</code>" and
+"<code>Bn</code>".  This command is intended for use in testing only.<p>
+
+<</deflist commands>>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<</manpage>>
+
+
+
+
+
+

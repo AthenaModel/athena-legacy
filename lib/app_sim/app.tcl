@@ -298,7 +298,7 @@ snit::type app {
         if {[app tkloaded]} {
             orderdialog init \
                 -parent    .main              \
-                -appname   "Athena [version]" \
+                -appname   "Athena [projinfo version] ([projinfo build])" \
                 -helpcmd   [list app help]    \
                 -refreshon {
                     ::cif <Update>
@@ -327,11 +327,12 @@ snit::type app {
         }
 
         # NEXT, log that we're up.
-        log normal app "Athena [version]"
+        log normal app "Athena [projinfo version] ([projinfo build])"
         
         # NEXT, if we're in batch mode print that we are up
         if {$opts(-batch)} {
-            puts [format "%-25s %s" "Athena version:"        [version]]
+            puts [format "%-25s %s" "Athena version:"        [projinfo version]]
+            puts [format "%-25s %s" "Athena build:"          [projinfo build]]
             puts [format "%-25s %s" "Application directory:" [appdir join]]
             puts [format "%-25s %s" "Working directory:"     [workdir join]]
         }

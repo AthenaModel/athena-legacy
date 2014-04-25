@@ -21,11 +21,11 @@ include $(TOP_DIR)/mars/MakePlatform
 export ATHENA_TCL_HOME = $(MARS_TCL_HOME)
 
 # Set ATHENA_VERSION for development if it isn't set.
-export ATHENA_VERSION_DEFAULT = 7.0.x
+export ATHENA_VERSION_DEFAULT = 6.2.x
 
 ifndef ATHENA_VERSION
     export ATHENA_VERSION = \
-	$(strip $(shell cat $(TOP_DIR)/lib/projectlib/version.txt))
+	$(strip $(shell $(TOP_DIR)/bin/athena_projinfo versionfull))
 endif
 
 # Set location of Athena documentation directory on AFS.

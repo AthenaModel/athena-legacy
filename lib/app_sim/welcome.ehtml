@@ -1,10 +1,10 @@
 <html> <head>
-<title>Welcome to Athena V[version]</title>
+<title>Welcome to Athena V[projinfo version] ([projinfo build])</title>
 </head>
 
 <body>
 <img src="/docs/Athena_logo_small.png" align="right">
-<h1>Welcome to Athena V[version]</h1>
+<h1>Welcome to Athena V[projinfo version] ([projinfo build])</h1>
 
 Use this browser to examine Athena
 <a href="/actors">actors</a>,
@@ -19,7 +19,7 @@ Navigate as you would in a web browser.<p>
 
 <h3>About Athena</h3>
 
-Athena V[version] Stability and Recovery Operations Simulation<p>
+Athena V[projinfo version] Regional Stability Simulation ([projinfo build])<p>
 
 Copyright 2008-[clock format [clock seconds] -format %Y],
 by the California Institute of Technology. ALL

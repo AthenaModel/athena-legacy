@@ -11,10 +11,10 @@ exec tclsh "$0" "$@"
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Athena: Version Switcher
+#    Athena: Project Info Manager
 #
-#    This script is the launcher for the athena_version(1) application,
-#    which is defined by the app_version(n) package.
+#    This script is the launcher for the athena_projinfo(1) application,
+#    which is defined by the app_projinfo(n) package.
 #     
 #-----------------------------------------------------------------------
 
@@ -48,7 +48,7 @@ lappend auto_path $marsdir $libdir
 #-------------------------------------------------------------------
 # Next, require Tcl
 
-package require Tcl 8.5
+package require Tcl 8.6
 
 #-----------------------------------------------------------------------
 # Main Program 
@@ -66,7 +66,7 @@ proc main {argv} {
     package require marsutil
 
     # NEXT, require the application package
-    package require app_version
+    package require app_projinfo
 
     # NEXT, get the application directory in the host
     # file system.
