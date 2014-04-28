@@ -3,7 +3,7 @@
 #    appserver_bsystems.tcl
 #
 # AUTHOR:
-#    Dave Hanks
+#    Will Duquette
 #
 # DESCRIPTION:
 #    app_sim(n), appserver(sim) module: Belief systems
@@ -39,7 +39,7 @@ appserver module BSYSTEM {
     }
 
     #-------------------------------------------------------------------
-    # /bsystems: All defined semantic bsystems
+    # /bsystems: All defined belief systems
     #
     # No match parameters
 
@@ -236,10 +236,12 @@ appserver module BSYSTEM {
             SELECT longlink,
                    "Actor"
             FROM gui_actors
+            WHERE bsid=$sid
             UNION
             SELECT longlink,
                    gtypelink || " Group"
             FROM gui_groups
+            WHERE bsid=$sid
             ORDER BY longlink
         } -default "None found." -align LL -labels {"Name" "Type"}
 
