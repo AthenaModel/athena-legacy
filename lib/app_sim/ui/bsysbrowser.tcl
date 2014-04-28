@@ -763,6 +763,8 @@ snit::widget bsysbrowser {
         if {$info(sid) ne ""} {
             set view [dict merge $view [bsys belief view $info(sid) $tid]]
         } else {
+            dict set view position ""
+            dict set view emphasis ""
             dict set view textpos  ""
             dict set view textemph ""
         }

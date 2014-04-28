@@ -75,8 +75,9 @@ snit::type bsys {
 
         array set info $defaultInfo
 
-        $type mutate add system 1
-        $type system configure 1 -name "Neutral"
+        set info(system-counter) 1
+        $mam system add $info(system-counter)
+        $type system configure $info(system-counter) -name "Neutral"
     }
 
     # start
