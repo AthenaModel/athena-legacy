@@ -1,0 +1,102 @@
+<<manpage {devtools(1) athena_projinfo(1)} "Athena Project Info Tool">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem {athena_projinfo} {athena_projinfo <i>subcommand</i> ?<i>options</i>?}>>
+
+<</deflist program>>
+
+<<xref athena_projinfo(1)>> is used to set and query the current Athena
+version and build numbers during Athena development.  This data is
+stored in the file <code>lib/projectlib/projinfo.txt</code>, which is 
+managed by the <<xref projectlib(n)>> module <<xref projinfo(n)>>.<p>
+
+See the <i>Athena CM Plan</i> for details on Athena versioning and 
+configuration management procedures.<p>
+
+
+The following subcommands are available:<p>
+
+<<deflist subcommands>>
+
+<<defitem version {athena_projinfo version}>>
+
+Returns the current project version number.<p>
+
+<<defitem build {athena_projinfo build}>>
+
+Returns the current project build number.<p>
+
+<<defitem versionfull {athena_projinfo versionfull}>>
+
+Returns the current project version number and build as one string,
+"x.y.z-Bn".<p>
+
+<<defitem set {athena projinfo set ?<i>options...</i>?}>>
+
+Saves new version and build numbers to the <code>projinfo.txt</code>,
+and optionally commits the changes into the Subversion repository.<p>
+
+The following options are used to set the project information:<p>
+
+<<deflist options>>
+
+<<defopt {-version <i>version</i>}>>
+Sets the version number string.
+It must have the syntax "<i>x.y.z</i>", where <i>x</i>, <i>y</i>, and 
+<i>z</i> are non-negative integers.<p>
+
+<<defopt {-build <i>build</i>}>>
+Sets the build number string in <code>lib/projectlib/projinfo.txt</code>.
+It must have the syntax "B<i>n</i>" or "R<i>n</i>", where <i>n</i> is a
+non-negative integer.<p>
+
+<<defopt {-commit}>>
+If given, the changes to <code>lib/projectlib/projinfo.txt</code> will
+be committed back into the subprojinfo repository.<p>
+
+<</deflist options>>
+
+<<defitem help {athena_projinfo help}>>
+
+Display usage information.<p>
+
+<</deflist subcommands>>
+
+<<section EXAMPLE>>
+
+A developer has just built Athena 6.5.1, build 5; subsequent development
+will now be toward Athena 6.5.1, build 6.  The developer doing the build 
+specifies this by entering the following:<p>
+
+<pre>
+  $ athena_projinfo set -build B6 -save
+</pre>
+
+Athena 6.5.1 B6 is an engineering build delivered to the sponsor, and so
+after it is built it is necessary to bump the projinfo number to 6.5.2:
+
+<pre>
+  $ athena_projinfo set -version 6.5.2 -build B7 -save
+</pre>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+New application.<p>
+
+<</manpage>>
+
+
+
+
+
