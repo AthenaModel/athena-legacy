@@ -11,6 +11,31 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.0-B4, 29 April 2014</h3>
+At the request of TRISA, this build represents the first in a new build
+numbering scheme.  This will allow future releases of Athena to be deployed
+in the field quicker. Essentially, the build number is appended to the future 
+version of Athena.  So this is build 4 of version 6.2.0 of Athena to be 
+released at a future date.  This build contains a number of changes to simplify
+the map UI.  There are also some minor transparent changes to the wmsclient(n)
+API that do not change the functionality but make the interface more robust.   
+There is also a few bug fixes.<p>
+
+<ul>
+<li> Bug 4474: athena(1): WMS client should not require base URL in calls to get a map
+<li> Bug 4475: athena(1): WMS client should store map as data, not as image
+<li> Bug 4476: wmsclient(n): implement automated tests
+<li> Bug 4477: wmsclient(n): query parameters should be optional on a map request
+<li> Bug 4478: Man pages: need man page entries for wmsclient(n), wmscap(n) and wmsexcept(n)
+<li> Bug 4468: athena(1): mapviewer clean up
+<li> Bug 4469: Belief System bgerror
+<li> Bug 4470: athena(1): Ensits become Absits
+<li> Bug 4471: athena(1): mapviewer UI tweak
+<li> Bug 4473: Belief System pages on Detail browser contain all actors and groups
+<li> Bug 4480: athena(1): absits are specified by neighborhood, not map location
+<li> Bug 4481: athena(1): Project Info 
+</ul><p>
+
 <h3>Build 7.0.3, 17 April 2014</h3>
 This build contains a Web Map Service (WMS) client that acts like an order
 dialog that allows the user to pick and choose a geo-referenced map from an
