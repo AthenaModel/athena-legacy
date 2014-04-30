@@ -156,7 +156,25 @@ snit::type demog {
             }
         }
 
-        return
+        # NEXT, if econ is disabled, treat the demographic playbox
+        # unemployment rate as though it were from the econ model
+        # NOTE: the econ model will compute the jobs in the econ_n table
+        # if it is enabled
+        set defaultUR 0.0
+        if {[parm get econ.disable]} {
+            set defaultUR [parm get demog.playboxUR]
+        }
+
+        foreach {n labor_force} [rdb eval {
+             SELECT n,labor_force FROM demog_n
+        }] {
+            let jobs {$labor_force * (1.0 - ($defaultUR / 100.0))}
+            rdb eval {
+                UPDATE econ_n
+                SET jobs=$jobs
+                WHERE n=$n
+            }
+        }
     }
 
     # ComputePopLocal
@@ -644,14 +662,9 @@ snit::type demog {
     # a worker will take a job is controlled by a model parameter.
 
     typemethod ComputeUnemployment {} {
-        # FIRST, if econ is disabled, quick exit
-        if {[parm get econ.disable]} {
-            return
-        }
-
-        # NEXT, extract jobs and labor force available. Those in turbulence
+        # FIRST, extract jobs and labor force available. Those in turbulence
         # are not considered part of the labor force
-        set TurFrac [econ value TurFrac]
+        set TurFrac [parm get demog.turFrac]
 
         rdb eval {
             SELECT E.n           AS n,
@@ -703,33 +716,10 @@ snit::type demog {
     # Computes the neighborhood's economic statistics.
  
     typemethod ComputeNbhoodEconStats {} {
-        # FIRST, if no econ model, no unemployment
-        if {[parm get econ.disable]} {
-            rdb eval {
-                UPDATE demog_n
-                SET unemployed = 0,
-                    ur         = 0.0,
-                    upc        = 0,
-                    uaf        = 0.0;
-            }
-
-            foreach {n labor_force} [rdb eval {
-                SELECT n,labor_force FROM demog_n
-            }] {
-                rdb eval {
-                    UPDATE econ_n
-                    SET jobs=$labor_force
-                    WHERE n=$n
-                }
-            }
-
-            return
-        }
-
-        # NEXT, compute neighborhood statistics based upon the disaggregated
+        # FIRST, compute neighborhood statistics based upon the disaggregated
         # unemployment
         set zuaf [parmdb get demog.Zuaf]
-        set TurFrac [econ value TurFrac]
+        set TurFrac [parm get demog.turFrac]
 
         foreach {n population labor_force} [rdb eval {
             SELECT n, population, labor_force

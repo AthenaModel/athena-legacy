@@ -32,13 +32,6 @@ driver type define UNEMP {n g} {
             return
         }
         
-        # NEXT, skip if the Economic model is disabled.
-        if {[parm get econ.disable]} {
-            log warning UNEMP \
-                "skipping, economic model is disabled"
-            return
-        }
-
         # NEXT, look for and assess unemployment
         rdb eval {
             SELECT n, g, nuaf AS uaf, nupc AS upc

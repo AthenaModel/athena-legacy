@@ -135,7 +135,7 @@ NB2 1000       1000        0         0           0          0.0 0.0 0.0
         demog getg SHIA
     } -cleanup {
         cleanup
-    } -result {subsistence 0 povfrac 0.0 unemployed 0 eloc 0.0 population 1000 uaf 0.0 attrition 0 labor_force 600 tc 0.0 g SHIA consumers 1000 employed 600 rloc 0.0 upc 0.0 real_pop 1000.0 aloc 0.0 ur 0.0}
+    } -result {subsistence 0 povfrac 0.0 unemployed 24 eloc 0.0 population 1000 uaf 0.0 attrition 0 labor_force 600 tc 0.0 g SHIA consumers 1000 employed 576 rloc 0.0 upc 2.4 real_pop 1000.0 aloc 0.0 ur 4.0}
     
     test getg-1.2 {can get one parameter} -setup {
         setup

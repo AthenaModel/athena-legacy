@@ -491,7 +491,6 @@ snit::type ::projectlib::parmdb {
                             "
                 }
             }
-
         }
 
         # Rule Set: BADFOOD
@@ -773,7 +772,19 @@ snit::type ::projectlib::parmdb {
         $ps subset demog {
             Demographics Model parameters.
         }
+
+        $ps define demog.turFrac ::simlib::rfraction 0.04 {
+            The turbulence fraction of those in the labor force. This
+            fraction represents those individuals that are "between jobs"
+            and, thus, make up a portion of the unemployed.
+        }
         
+        $ps define demog.playboxUR ::projectlib::rpercent 0.0 {
+            Playbox wide unemployment rate to use if the economic 
+            model is disabled.  This value will be treated as if it had come
+            from the economic model CGE.  Valid values are from 0.0 to 100.0.
+        }
+
         $ps subset demog.consump {
             Parameters related to the Demographics model's consumption
             model.
@@ -899,12 +910,6 @@ snit::type ::projectlib::parmdb {
             At each tock, Athena updates the economic model with the
             latest demographic data, etc., and computes the new
             state of the economy.
-        }
-
-        $ps define econ.turFrac ::simlib::rfraction 0.04 {
-            The turbulence fraction of those in the labor force. This
-            fraction represents those individuals that are "between jobs"
-            and, thus, make up a portion of the unemployed.
         }
 
         $ps define econ.initCapPct ::projectlib::rpercent 100.0 {
