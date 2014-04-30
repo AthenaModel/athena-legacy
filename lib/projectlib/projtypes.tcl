@@ -793,6 +793,11 @@ snit::type ::projectlib::typewrapper {
 # Rate setting
 ::marsutil::range ::projectlib::rrate -min 0.0
 
+# Expectations factor
+::projectlib::typewrapper ::projectlib::expectf snit::double \
+    -min -3.0 \
+    -max  3.0
+
 #-------------------------------------------------------------------
 # Boolean type
 #

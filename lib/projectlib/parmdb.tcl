@@ -453,6 +453,45 @@ snit::type ::projectlib::parmdb {
                     activity.  Note not all rule sets support this.
                 }
             }
+
+            # Add CONSUMP defaults for when econ is disabled
+            if {$name eq "CONSUMP"} {
+                $ps subset dam.CONSUMP.expectf {
+                    Expectations factor parameters for the CONSUMP ruleset.
+                    Note that these parameters only apply if the econ model
+                    is disabled.
+                }
+
+                $ps subset dam.CONSUMP.povfrac {
+                    Poverty fraction parameters for the CONSUMP ruleset.
+                    Note that these parameters only apply if the econ model
+                    is disabled.
+                }
+
+                foreach urb [eurbanization names] {
+                    $ps define dam.CONSUMP.expectf.$urb \
+                        ::projectlib::expectf 0.0 "
+                            The default expectations factor by urbanization
+                            that the CONSUMP ruleset uses only if the econ 
+                            model is disabled.  When set to 0.0, all civilians
+                            in neighborhoods with urbanization $urb are getting 
+                            their expected level of consumption. The valid
+                            range of values is -3.0 (civilians are consuming
+                            much less than they expect) to 3.0 (civilians are 
+                            consuming much much more than they expect).
+                            "
+                    $ps define dam.CONSUMP.povfrac.$urb \
+                        ::projectlib::rfraction 0.1 " 
+                            The default poverty fraction by urbanization that
+                            the CONSUMP ruleset uses only if the econ model is
+                            disabled.  This represent the fraction of 
+                            civilians in neighborhoods with urbanization $urb
+                            that are below the poverty line. The valid range
+                            of values is 0.0 to 1.0
+                            "
+                }
+            }
+
         }
 
         # Rule Set: BADFOOD

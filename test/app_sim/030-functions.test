@@ -1162,7 +1162,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr mood("sunn")
     } -cleanup {
         cleanup
-    } -result {-1.5}
+    } -result {-1.6}
 
     #-------------------------------------------------------------------
     # nbconsumers()
@@ -1318,7 +1318,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr nbmood("nb1")
     } -cleanup {
         cleanup
-    } -result {-1.5}
+    } -result {-1.6}
 
     #-------------------------------------------------------------------
     # nbplants()
@@ -2125,7 +2125,7 @@ namespace eval ::athena_test::tests:: {
         ted sendex expr sat("sunn","aut")
     } -cleanup {
         cleanup
-    } -result {-3.0}
+    } -result {-3.1}
 
     #-------------------------------------------------------------------
     # security()

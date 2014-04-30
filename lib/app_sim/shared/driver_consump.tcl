@@ -34,13 +34,6 @@ driver type define CONSUMP {g} {
             return
         }
         
-        # NEXT, skip if the Economic model is disabled.
-        if {[parm get econ.disable]} {
-            log warning CONSUMP \
-                "skipping, economic model is disabled"
-            return
-        }
-        
         # NEXT, look for and assess consumption
         rdb eval {
             SELECT G.g, G.aloc, G.eloc, G.povfrac, C.n, N.controller AS a
@@ -55,12 +48,27 @@ driver type define CONSUMP {g} {
             dict set fdict dtype $dtype
             dict with fdict {}
             
-            # NEXT, compute the expectations factor, rounding it to
-            # one decimal place.
+            # NEXT, get the expectations factor gain
             set ge [parm get demog.consump.expectfGain]
             
-            let expectf {$ge*min(1.0, ($aloc - $eloc)/max(1.0, $eloc))}
+            # NEXT, if econ is disabled, pull parmdb parameters for the
+            # rule set otherwise compute the expectations factor
+            # NOTE: when econ is enabled, povfrac comes from demog_g
+            if {[parm get econ.disable]} {
+                set urb \
+                    [rdb onecolumn {
+                        SELECT urbanization FROM nbhoods WHERE n=$n
+                    }]
+
+                set expectf [parm get dam.CONSUMP.expectf.$urb]
+                set povfrac [parm get dam.CONSUMP.povfrac.$urb]
+                dict set fdict povfrac $povfrac
+                let expectf {$ge*$expectf}
+            } else {
+                let expectf {$ge*min(1.0, ($aloc - $eloc)/max(1.0, $eloc))}
+            }
             
+            # NEXT, round to one decimal place
             dict set fdict expectf [format "%.1f" $expectf]
             
             # NEXT, compute the poverty factor, again rounding it to two
@@ -115,13 +123,23 @@ driver type define CONSUMP {g} {
 
         set povfrac [string trim [percent $povfrac]]
 
-        $ht putln "Civilian group\n"
-        $ht link my://app/group/$g $g
-        $ht putln "is consuming goods at a rate of"
-        $ht putln "[format %.1f $aloc] baskets per week;"
-        $ht putln "the group expects to consume at a rate of"
-        $ht putln "[format %.1f $eloc] baskets per week."
-        $ht putln "$povfrac of the group is living in poverty."
+        if {[parm get econ.disable]} {
+            $ht putln "The economic model is disabled, therefore the"
+            $ht putln "consumption of goods by\n"
+            $ht link my://app/group/$g $g
+            $ht putln "is being controlled by CONSUMP rule set\n"
+            $ht link my://app/parmdb?pattern=dam.consump.* "model parameters."
+            $ht putln "To change the rule set inputs, change the value"
+            $ht putln "of the appropriate parameters."
+        } else {
+            $ht putln "Civilian group\n"
+            $ht link my://app/group/$g $g
+            $ht putln "is consuming goods at a rate of"
+            $ht putln "[format %.1f $aloc] baskets per week;"
+            $ht putln "the group expects to consume at a rate of"
+            $ht putln "[format %.1f $eloc] baskets per week."
+            $ht putln "$povfrac of the group is living in poverty."
+        }
 
         if {$a ne ""} {
             $ht putln "Actor "
