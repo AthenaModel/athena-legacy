@@ -75,7 +75,7 @@ snit::type plant {
         }
 
         # NEXT, laydown plants in neighborhoods
-        if {![parmdb get econ.disable]} {
+        if {[econ state] eq "ENABLED"} {
             $type LaydownPlants
         } else {
             log warning plant "econ is disabled"
@@ -324,7 +324,7 @@ snit::type plant {
 
     typemethod degrade {} {
         # FIRST, if the econ model is disabled, do nothing
-        if {[parmdb get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return
         }
 

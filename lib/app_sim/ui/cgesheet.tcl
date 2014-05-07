@@ -660,7 +660,7 @@ snit::widget cgesheet {
     # Refreshes all components in the widget.
     
     method refresh {} {
-        if {[parmdb get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             $sheetlbl configure -text "Current Economy (*DISABLED*)" 
         } else {
             $sheetlbl configure -text "Current Economy" 

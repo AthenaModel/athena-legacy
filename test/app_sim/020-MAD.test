@@ -89,7 +89,7 @@ namespace eval ::athena_test::tests:: {
     # Set up for magic inputs
     proc lock {} {
         variable m1
-        parm set econ.disable yes
+        econ setstate DISABLED
         ted create JOE NB1 NB2 BLUE SHIA KURD
         ted lock
 

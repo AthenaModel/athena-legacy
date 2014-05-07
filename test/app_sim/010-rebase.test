@@ -31,7 +31,7 @@ namespace eval ::athena_test::tests:: {
     
     # Set up for the rebase comparison test.
     proc setup {} {
-        parm set econ.disable no
+        econ setstate ENABLED
         autogen scenario -nb 3
         ted lock
         ted step
@@ -253,7 +253,7 @@ SHIA CIV   1     SHIA CIV   1     1.0 1.0  0         1.0     0
     
     test save-1.7 {sat_gc data} -setup {
         ted create JOE BLUE SHIA
-        parm set econ.disable no
+        econ setstate ENABLED
         ted lock
         ted step
         aram sat bset 1 SHIA QOL 0.9
@@ -288,7 +288,7 @@ SHIA JOE 0.9  1         0.0
 
     test save-1.9 {econ data} -setup {
         ted create JOE BLUE SHIA
-        parm set econ.disable no
+        econ setstate ENABLED
         econ::sam set [list REMChangeRate 10.0]
         ted lock
         ted step

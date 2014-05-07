@@ -199,7 +199,7 @@ snit::type hist {
 
     typemethod econ {} {
         # FIRST, if the econ model has been disabled we're done.
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return
         }
 

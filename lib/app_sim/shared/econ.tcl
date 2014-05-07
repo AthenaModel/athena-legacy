@@ -57,10 +57,11 @@ snit::type econ {
     # changed - 1 if there is unsaved data, and 0 otherwise.
 
     typevariable info -array {
-        changed 0
-        econStatus ok
-        econCellModel {}
-        econPage      {}
+        changed   0
+        status    ok
+        state     DISABLED
+        cellModel {}
+        page      {}
     }
 
     #-------------------------------------------------------------------
@@ -99,7 +100,7 @@ snit::type econ {
 
     typemethod checker {{ht ""}} {
         # FIRST, if econ is disabled, always return OK
-        if {[parmdb get econ.disable]} {
+        if {$info(state) eq "DISABLED"} {
             return OK
         }
 
@@ -131,10 +132,13 @@ snit::type econ {
 
         let URfrac {$cells(BaseUR) / 100.0}
 
+        set turFrac [parmdb get demog.turFrac]
+
         # FIRST, turbulence cannot be greater than the unemployment rate
-        if {$URfrac < [parmdb get demog.turFrac]} {
+        if {$URfrac < $turFrac} {
+            set pct [format "%.1f%%" [expr {$turFrac * 100.0}]]
             dict append edict BaseUR \
-                "The unemployment rate, $cells(BaseUR)%, must be greater than or equal to demog.turFrac."
+                "The unemployment rate, $cells(BaseUR)%, must be greater than or equal to $pct (demog.turFrac)."
         }
 
         # NEXT, per capita demand for goods must be reasonable
@@ -268,7 +272,10 @@ snit::type econ {
     typemethod init {} {
         log normal econ "init"
 
-        # FIRST, create the SAM
+        # FIRST, default state is DISABLED
+        set info(state) "DISABLED"
+
+        # NEXT, create the SAM
         set sam [cellmodel sam \
                      -epsilon 0.000001 \
                      -maxiters 1       \
@@ -309,6 +316,49 @@ snit::type econ {
         log normal econ "init complete"
     }
 
+    # disable
+    #
+    # This method sets the state of the econ model to "DISABLED" if the
+    # simulation state is in PREP
+
+    typemethod disable {} {
+        assert {[sim state] eq "PREP"}
+        set info(state) "DISABLED"
+    }
+
+    # enable 
+    #
+    # This method sets the state of the econ model to "ENABLED" if the
+    # simulation state is in PREP
+
+    typemethod enable {} {
+        assert {[sim state] eq "PREP"}
+        set info(state) "ENABLED"
+    }
+
+    # setstate
+    #
+    # Thie method sets the state of the econ model to the supplied
+    # state, first verifying that a state change can take place and then
+    # sending a notifier event for the UI to update. This method is
+    # used when the CGE or SAM fail to converge for some reason.
+
+    typemethod setstate {state} {
+        if {[sim state] ne "PREP" && $state eq "ENABLED"} {
+            error "Cannot enable econ model, must be in scenario prep."
+        }
+        set info(state) [eeconstate validate $state]
+        notifier send ::econ <State> 
+    }
+
+    # state
+    #
+    # Returns the current state of the econ model, one of "ENABLED" or
+    # "DISABLED"
+
+    typemethod state {} {
+        return $info(state)
+    }
 
     # report ht
     #
@@ -320,8 +370,8 @@ snit::type econ {
 
     typemethod report {ht} {
         # FIRST, if everything is fine, not much to report
-        if {$info(econStatus) eq "ok"} {
-            if {![parmdb get econ.disable]} {
+        if {$info(status) eq "ok"} {
+            if {$info(state) eq "ENABLED"} {
                 $ht putln "The econ model is enabled and is operating without "
                 $ht putln "error."
             } else {
@@ -331,10 +381,10 @@ snit::type econ {
             # NEXT, a cell model has either diverged or has errors, generate
             # the appropriate report 
 
-            if {$info(econStatus) eq "diverge"} {
+            if {$info(status) eq "diverge"} {
                 $ht putln "The econ model was not able to converge on the "
-                $ht put   "$info(econPage) page.  "
-            } elseif {$info(econStatus) eq "errors"} {
+                $ht put   "$info(page) page.  "
+            } elseif {$info(status) eq "errors"} {
                 $ht putln "The econ model has encountered one or more errors. "
                 $ht putln "The list of cells and their problems are: "
                 
@@ -344,8 +394,8 @@ snit::type econ {
                 $ht table {
                     "Cell Name" "Error"
                 } {
-                    foreach {cell} [$info(econCellModel) cells error] {
-                        set err [$info(econCellModel) cellinfo error $cell]
+                    foreach {cell} [$info(cellModel) cells error] {
+                        set err [$info(cellModel) cellinfo error $cell]
                         $ht tr {
                             $ht td left {$ht put $cell}
                             $ht td left {$ht put $err}
@@ -690,19 +740,19 @@ snit::type econ {
 
         set result [$sam solve]
 
-        set info(econStatus) [lindex $result 0]
+        set info(status) [lindex $result 0]
 
         # NEXT, deal with possible errors in the SAM
-        if {$info(econStatus) ne "ok"} {
-            set info(econCellModel) $sam
-            set info(econPage) [lindex $result 1]
+        if {$info(status) ne "ok"} {
+            set info(cellModel) $sam
+            set info(page) [lindex $result 1]
         } else {
-            set info(econCellModel) ""
-            set info(econPage) ""
+            set info(cellModel) ""
+            set info(page) ""
         }
 
         # NEXT, handle failures.
-        if {$info(econStatus) ne "ok"} {
+        if {$info(status) ne "ok"} {
             log warning econ "Failed to initialize SAM"
             $type SamError "SAM Error"
             return 0
@@ -841,7 +891,7 @@ snit::type econ {
     # Returns 1 if the economy is "ok" and 0 otherwise.
 
     typemethod ok {} {
-        return [expr {$info(econStatus) eq "ok"}]
+        return [expr {$info(status) eq "ok"}]
     }
 
     # start
@@ -865,7 +915,7 @@ snit::type econ {
             }
         }
 
-        if {![parmdb get econ.disable]} {
+        if {$info(state) eq "ENABLED"} {
             # FIRST, reset the CGE
             cge reset
 
@@ -889,10 +939,6 @@ snit::type econ {
             log normal econ "start complete"
         } else {
             log warning econ "disabled"
-
-            # Lock the parameter; if the economic model is disabled
-            # at start, it can't be re-enabled.
-            parmdb lock econ.disable
         }
 
     }
@@ -905,7 +951,7 @@ snit::type econ {
     typemethod tock {} {
         log normal econ "tock"
 
-        if {![parmdb get econ.disable]} {
+        if {$info(state) eq "ENABLED"} {
             $type analyze
 
             log normal econ "tock complete"
@@ -914,7 +960,7 @@ snit::type econ {
             return 1
         }
 
-        if {$info(econStatus) ne "ok"} {
+        if {$info(status) ne "ok"} {
             return 0
         }
 
@@ -1042,22 +1088,22 @@ snit::type econ {
             # NEXT, calibrate the CGE.
             set status [cge solve]
 
-            set info(econStatus) [lindex $status 0]
+            set info(status) [lindex $status 0]
 
-            if {$info(econStatus) ne "ok"} {
-                set info(econCellModel) $cge
-                set info(econPage) [lindex $status 1]
+            if {$info(status) ne "ok"} {
+                set info(cellModel) $cge
+                set info(page) [lindex $status 1]
             } else {
-                set info(econCellModel) ""
-                set info(econPage) ""
+                set info(cellModel) ""
+                set info(page) ""
             }
 
             # NEXT, the data has changed.
             set info(changed) 1
 
             # NEXT, handle failures.
-            if {$info(econStatus) ne "ok"} {
-                log warning econ "Failed to calibrate: $info(econPage)"
+            if {$info(status) ne "ok"} {
+                log warning econ "Failed to calibrate: $info(page)"
                 $type CgeError "CGE Calibration Error"
                 return 0
             }
@@ -1138,21 +1184,21 @@ snit::type econ {
 
         # Solve the CGE.
         set status [cge solve In Out]
-        set info(econStatus) [lindex $status 0]
+        set info(status) [lindex $status 0]
 
-        if {$info(econStatus) ne "ok"} {
-            set info(econCellModel) $cge
-            set info(econPage) [lindex $status 1]
+        if {$info(status) ne "ok"} {
+            set info(cellModel) $cge
+            set info(page) [lindex $status 1]
         } else {
-            set info(econCellModel) ""
-            set info(econPage) ""
+            set info(cellModel) ""
+            set info(page) ""
         }
 
         # The data has changed.
         set info(changed) 1
 
         # NEXT, handle failures
-        if {$info(econStatus) ne "ok"} {
+        if {$info(status) ne "ok"} {
             log warning econ "Economic analysis failed"
             $type CgeError "CGE Solution Error"
             return 0
@@ -1375,8 +1421,7 @@ snit::type econ {
         append msg "\nSee the detail browser for more information."
 
         # FIRST, disable the econ model.
-        parmdb set econ.disable 1
-        parmdb lock econ.disable
+        econ setstate DISABLED
 
         # NEXT, if the app in in GUI mode, inform the user about
         # the failure. The on-tick sanity check will also fail
@@ -1406,8 +1451,7 @@ snit::type econ {
         append msg "\nSee the detail browser for more information."
 
         # FIRST, disable the econ model
-        parmdb set econ.disable 1
-        parmdb lock econ.disable
+        econ setstate DISABLED
 
         # NEXT, if the app in in GUI mode, inform the user about the
         # failure. The on-lock sanity check will also fail.
@@ -1691,7 +1735,8 @@ snit::type econ {
         return [list sam [sam get] \
                      cge [cge get] \
                      startdict $startdict \
-                     histdata [array get histdata]]
+                     histdata [array get histdata] \
+                     info [array get info]]
     }
 
     # restore
@@ -1716,6 +1761,7 @@ snit::type econ {
 
         set startdict [dict get $checkpoint startdict]
         array set histdata [dict get $checkpoint histdata]
+        array set info [dict get $checkpoint info]
 
         if {$option eq "-saved"} {
             set info(changed) 0

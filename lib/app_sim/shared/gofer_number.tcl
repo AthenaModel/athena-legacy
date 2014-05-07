@@ -879,7 +879,7 @@ gofer rule NUMBER GDP {} {
     }
 
     typemethod eval {gdict} {
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return 0.00
         } else {
             return [format %.2f [econ value Out::DGDP]]
@@ -942,7 +942,7 @@ gofer rule NUMBER GOODS_IDLE {} {
     }
 
     typemethod eval {gdict} {
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return 0.00
         } else {
             return [format %.2f [econ value Out::IDLECAP.goods]]
@@ -1939,7 +1939,7 @@ gofer rule NUMBER CASH_ON_HAND {a} {
     }
 
     typemethod eval {gdict} {
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             # IF econ disabled return 0.00
             return 0.00
         } elseif {![sim locked]} {
@@ -2377,7 +2377,7 @@ gofer rule NUMBER CASH_RESERVE {a} {
     }
 
     typemethod eval {gdict} {
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             # IF econ disabled return 0.00
             return 0.00
         } elseif {![sim locked]} {

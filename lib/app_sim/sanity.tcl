@@ -449,7 +449,7 @@ snit::type sanity {
     typemethod EconOnTickChecker {ht} {
         # FIRST, if the econ model is disabled, there are no errors to
         # find.
-        if {[parmdb get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return OK
         }
 
@@ -464,13 +464,10 @@ snit::type sanity {
         $ht putln {
             One or more of Athena's economic on-tick sanity checks has 
             failed; the entries below give complete details.  These checks
-            involve the economic model; hence, setting the 
-            <a href="my://help/parmdb/econ/disable">econ.disable</a> parameter
-            to "yes" will disable them and allow the simulation to proceed,
-            at the cost of ignoring the economy.  
-            (See <a href="my://help/parmdb">Model Parameters</a>
-            in the on-line help for information on how to browse and
-            set model parameters.)
+            involve the economic model; hence, disabling the 
+            the Econ model on the <a href="gui:/tab/econ/control">Control</a>
+            tab will allow the simulation to proceed at the cost of ignoring
+            the economy.
         }
         
         $ht para
@@ -515,11 +512,10 @@ snit::type sanity {
                 an error in the CGE.  Enter 
                 <tt><a href="my://help/command/dump/econ">dump econ</a></tt>
                 at the CLI to
-                see the full list of CGE outputs.  Consider setting
-                the 
-                <a href="my://help/parmdb/econ/disable">econ.disable</a>
-                parameter to "yes", since the
-                economic model is clearly malfunctioning.
+                see the full list of CGE outputs.  Consider disabling
+                the economic model on the
+                <a href="my:/gui/tab/econ/control">Econ/Control tab</a> 
+                since it is clearly malfunctioning.
             }
         }
 
@@ -531,11 +527,10 @@ snit::type sanity {
                 an error in the CGE.  Enter 
                 <tt><a href="my://help/command/dump/econ">dump econ</a></tt>
                 at the CLI to
-                see the full list of CGE outputs.  Consider setting
-                the 
-                <a href="my://help/parmdb/econ/disable">econ.disable</a>
-                parameter to "yes", since the
-                economic model is clearly malfunctioning.
+                see the full list of CGE outputs.  Consider disabling
+                the economic model on the
+                <a href="my:/gui/tab/econ/control">Econ/Control tab</a> 
+                since it is clearly malfunctioning.
             }
         }
 

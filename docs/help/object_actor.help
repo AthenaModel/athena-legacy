@@ -121,8 +121,7 @@ object actor_ {
         tolls, bribes, baksheesh, fees, and the like paid to the
         actor during the production of goods.<p>
         
-        If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        If the Economics model is enabled, then this is the actor's income
         from GOODS as of time 0; income in subsequent weeks will depend on 
         the size of the GOODS sector.<p>
 
@@ -142,8 +141,7 @@ object actor_ {
         has any shares of the black market profits, then all profits go to 
         the world sector.<p>
         
-        If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's
+        If the Economics model is enabled, then this is the actor's
         income from Black Market profits as of time 0; income in 
         subsequent weeks will depend on the difference between revenue and
         expenditures of the BLACK sector.<p>
@@ -160,8 +158,7 @@ object actor_ {
         tolls, bribes, baksheesh, fees, and the like paid to the
         actor during the production and sale of black market goods.<p>
         
-        If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's 
+        If the Economics model is enabled, then this is the actor's 
         income from Black Market tax-like payments as of time 0; income 
         in subsequent weeks will depend on the size of the BLACK sector.<p>
 
@@ -177,8 +174,7 @@ object actor_ {
         tolls, bribes, baksheesh, fees, and the like paid by consumers
         to the actor.<p>
 
-        If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        If the Economics model is enabled, then this is the actor's income
         from POP as of time 0; income in subsequent weeks will depend on 
         the size of the POP sector.<p>
 
@@ -192,8 +188,7 @@ object actor_ {
         The actor's income from graft on foreign aid to the region, 
         in dollars per week.<p>
         
-        If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        If the Economics model is enabled, then this is the actor's income
         from graft as of time 0; income in subsequent weeks will depend on 
         the amount of foreign aid coming into the region in those weeks.<p>
 
@@ -209,8 +204,7 @@ object actor_ {
         the playbox who are not modeled explicitly in the scenario, as well as
         money used by foreign actors to fund their operations in the playbox.<p>
         
-        If the Economics model is enabled 
-        (See <<cref /parmdb/econ/disable>>), then this is the actor's income
+        If the Economics model is enabled, then this is the actor's income
         as of time 0; income in subsequent weeks will depend on 
         the amount of money coming into the playbox in those weeks.<p>
 

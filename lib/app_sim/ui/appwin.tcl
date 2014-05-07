@@ -220,6 +220,13 @@ snit::widget appwin {
             script  ""
         }
 
+        econcontrol {
+            label   "Control"
+            vistype *
+            parent  econt
+            script  { econtrol %W }
+        }
+
         econsam {
             vistype *
             label   "SAM"

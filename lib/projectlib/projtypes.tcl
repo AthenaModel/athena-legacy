@@ -29,6 +29,7 @@ namespace eval ::projectlib:: {
         edamruleset      \
         edemeanor        \
         eabsit           \
+        eeconstate       \
         eforcetype       \
         egoal_state      \
         egoal_predicate  \
@@ -442,6 +443,12 @@ snit::type ::projectlib::typewrapper {
     APATHETIC  "Apathetic"
     AVERAGE    "Average"
     AGGRESSIVE "Aggressive"
+}
+
+# Econ Model State
+::marsutil::enum ::projectlib::eeconstate {
+    DISABLED  "Disabled"
+    ENABLED   "Enabled"
 }
 
 # Force Group Type

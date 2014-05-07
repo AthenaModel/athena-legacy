@@ -161,7 +161,7 @@ snit::type demog {
         # NOTE: the econ model will compute the jobs in the econ_n table
         # if it is enabled
         set defaultUR 0.0
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             set defaultUR [parm get demog.playboxUR]
         }
 
@@ -252,7 +252,7 @@ snit::type demog {
 
     typemethod geounemp {} {
         # FIRST, no econ model, no geo-unemployment
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return 0
         }
 
@@ -356,7 +356,7 @@ snit::type demog {
         }
         
         # NEXT, if the economic model is disabled, that's all we'll do.
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return            
         }
         
@@ -406,7 +406,7 @@ snit::type demog {
     
     typemethod ComputeExpectedGroupConsumption {} {
         # FIRST, if the economic model is disabled, we're done.
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             rdb eval {
                 UPDATE demog_g
                 SET eloc = 0;
@@ -466,7 +466,7 @@ snit::type demog {
         }
         
         # NEXT, if the economic model is disabled we're done.
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             return            
         }
     

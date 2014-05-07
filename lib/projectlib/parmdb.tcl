@@ -881,12 +881,6 @@ snit::type ::projectlib::parmdb {
             Parameters which affect the Athena Economic Model.
         }
 
-        $ps define econ.disable ::projectlib::boolean yes {
-            If yes, the Athena economic model is disabled.  The
-            economy will not be computed, and economic results will not
-            be used.
-        }
-
         $ps define econ.gdpExp ::projectlib::rnonneg 0.075 {
             Used to change an exponent on the calibration page in the
             six-by-six economic model.  It is used to tune the 

@@ -51,7 +51,7 @@ namespace eval ::athena_test::tests:: {
         $BJOE configure -state disabled
 
         # NEXT, lock everything and create the coffer
-        parm set econ.disable yes
+        econ setstate DISABLED
         ted lock
         cash load
         personnel load

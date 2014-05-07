@@ -202,7 +202,7 @@ snit::widget samsheet {
 
         # NEXT grid the html frame and scrollbar
         # Note that the widgets in the html frame are layed out once
-        # sim state is determined. See the SimState typemethod below
+        # sim state is determined. See the SimState method below
         grid $win.h       -row 0 -column 0 -sticky nsew
         grid $win.yscroll -row 0 -column 1 -sticky ns
 

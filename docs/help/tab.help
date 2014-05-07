@@ -1495,6 +1495,130 @@ tab "Economics/SAM" {
     computed when Athena is locked. 
 }
 
+page /tab/economics samexample "SAM Example" {
+    <b>SAM Example</b><p>
+
+    This page provides an example of a simple economy that can be used as a 
+    starting point for setting up inputs to model an actual economy. The data
+    in this SAM can be scaled and expanded upon as information becomes 
+    available to the analyst.  
+    For reference, this example approximates an economy about the size of 
+    Pakistan in 2012.<p> 
+
+    The simplest SAM must have at least three components:<p>
+    <ul>
+      <li> A goods sector that demands jobs and produces goods and services.
+      <li> A pop sector that demands goods and services and provides labor.
+      <li> A world sector that has imports and exports.
+    </ul><p>
+
+    Consider the SAM below.  It contains the minimum amount of data
+    in order for Athena's economic model to reach an equilibrium when the
+    scenario is locked.  It must have at least 8 non-zero values
+    provided. Each of these values, which correspond to a cell, are described
+    in detail in the following sections.<p>
+    
+
+    <<image econ_simple_sam>><p>
+
+    <b>NOTE:</b> Users can only change the values of green cells; the other
+    cells are calculated, including those in the actors sector.<p>
+
+    <b>GOODS sector</b><p>
+
+    The first row represents the revenue in the goods sector.  
+    There are four required cells:<b>
+
+    <ul>
+      <li> <b>BX.goods.goods</b> - This is money that stays within the goods
+           sector. It is typically a relatively small fraction of the total 
+           economy.   
+      <li> <b>BX.goods.pop</b> - This is money that flows from the pop sector
+           to the goods sector.  This number represents the consumption of 
+           goods by the local population and should be a significant portion
+           of the total economy.
+      <li> <b>BX.goods.world</b> - This represents goods exported to the 
+           world. Thus money is coming from the world to the goods sector.
+      <li> <b>Base Price</b> - This is the price of one "goods basket" which
+           can be thought of as a representative mix of goods and services in
+           the economy that add up to 1 USD worth of them.  Typically this is
+           left as 1.00.
+    </ul><p>
+
+    <b>BLACK sector</b><p>
+
+    For this simple economy, there is no black market, thus the cells are all 
+    zeroes.<p>
+    
+    <b>POP sector</b><p>
+
+    The next row is the population sector. The required cells
+    are:<p>
+
+    <ul>
+      <li> <b>BX.pop.goods</b> - This is the money that flows from the goods 
+           sector to the pop sector in the form of wages.  It should be a 
+           significant portion of the economy.
+      <li> <b>Base Price</b> - This is the average annual wage of a single
+           worker in the local economy.  This wage affects the average demand
+           for goods by the population.
+    </ul><p>
+
+    <b>ACTORS sector</b><p>
+
+    In order to keep this example simple, 
+    assume all actors in the scenario have been made BUDGET actors and do not
+    spend any money on the economy (ie. their tactics are free.)  Thus, the 
+    actors sector has no revenue or expenditures.  Actor income and spending
+    can be addressed later.<p>
+
+    <b>REGION sector</b><p>
+
+    The region sector is not considered in this example, the cells remain
+    zeroes.<p>
+
+    <b>WORLD sector</b><p>
+
+    In the world sector row, there is only one entry:<p>
+
+    <ul> 
+      <li> <b>BX.world.goods</b> - This represents imported foreign goods,
+           thus the money flow is from the goods sector to the world sector.
+    </ul><p>
+
+    <b>Other Inputs</b><p>
+
+    The diagram below illustrates the "Other Inputs" required for this
+    simple economy.<p>
+
+    <<image econ_ss_inputs>><p>
+
+    The inputs required are:<p>
+
+    <ul>
+      <li> <b>Feedstock per Unit Product</b> - Even though there's no black 
+           market, this value should be left alone, it's used as a divisor
+           in the underlying model.  Otherwise, it can be ignored.
+      <li> <b>Base Consumers</b> - This is an estimate of the total number of
+           consumers in the economy.
+      <li> <b>Base Unemployment Rate</b> - An estimate of the overall 
+           unemployment rate in the economy.
+      <li> <b>Base Subsisters</b> - An estimate of the number of people 
+           engaged in subsistence agriculture.  If not known or insignificant,
+           this can be set to zero.
+    </ul><p>
+
+    <b>Other Economies</b><p>
+
+    This example can be used to model other economies by scaling the 
+    numbers appropriately.  When other data becomes apparent it 
+    can be added to the appropriate sector, input or actor definition.<p>
+
+    See the <b>Athena User's Guide</b> and the <b>Athena Analyst's Guide</b>
+    included in the <i>docs</i> directory of this software distribution for
+    more information on Athena's Economics Model.
+}
+
 tab "Economics/Overview" {
     <b>Simulation Mode only.</b><p>
 

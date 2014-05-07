@@ -54,7 +54,7 @@ driver type define CONSUMP {g} {
             # NEXT, if econ is disabled, pull parmdb parameters for the
             # rule set otherwise compute the expectations factor
             # NOTE: when econ is enabled, povfrac comes from demog_g
-            if {[parm get econ.disable]} {
+            if {[econ state] eq "DISABLED"} {
                 set urb \
                     [rdb onecolumn {
                         SELECT urbanization FROM nbhoods WHERE n=$n
@@ -123,7 +123,7 @@ driver type define CONSUMP {g} {
 
         set povfrac [string trim [percent $povfrac]]
 
-        if {[parm get econ.disable]} {
+        if {[econ state] eq "DISABLED"} {
             $ht putln "The economic model is disabled, therefore the"
             $ht putln "consumption of goods by\n"
             $ht link my://app/group/$g $g

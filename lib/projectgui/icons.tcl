@@ -738,6 +738,71 @@ namespace eval ::projectgui::icon:: {
         ...XXXX...
         ....XX....
     } { . trans X orange }
+
+    #-------------------------------------------------------------------
+    # Econ disable/enable switch icons
+    mkicon ::projectgui::icon::switchon {
+        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        X............................................................X
+        X................................XXXXXXXXXXXXXXXXXXXXXXXXXXX.X
+        X................................XxxxxxxxxxxxxxxxxxxxxxxxxxX.X
+        X................................Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X.....XXXXXX.....................Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X....XXXXXXXX....................Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...................Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...................Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XX..XXX.........Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XX.XXXXX........Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XXXX..XXX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XXX....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XX.....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XX.....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XX.....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XX.....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X...XX......XX...XX.....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X....XXXXXXXX....XX.....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X.....XXXXXX.....XX.....XX.......Xxx-xxx-xxx-xxx-xxx-xxx-xxX.X
+        X................................XxxxxxxxxxxxxxxxxxxxxxxxxxX.X
+        X................................XXXXXXXXXXXXXXXXXXXXXXXXXXX.X
+        X............................................................X
+        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    } { 
+        . "#CCFF99" X black - "#525252" x lightgrey
+    } d {
+        . lightgrey X black - lightgrey x lightgrey 
+    }
+        
+    mkicon ::projectgui::icon::switchoff {
+        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+        X............................................................X
+        X.XXXXXXXXXXXXXXXXXXXXXXXXXXX................................X
+        X.XxxxxxxxxxxxxxxxxxxxxxxxxxX................................X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX................................X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX....XXXXXX......................X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX...XXXXXXXX.....XXX......XXX....X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX...XXXXX....XXXXX...X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XXX..XX..XXX..XX..X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XX...XX..XX...XX..X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XX...XX..XX...XX..X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XX.......XX.......X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XX.......XX.......X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XXXXX....XXXXX....X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XXXXX....XXXXX....X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XX.......XX.......X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XX.......XX.......X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX..XX......XX..XX.......XX.......X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX...XXXXXXXX...XX.......XX.......X
+        X.Xxx-xxx-xxx-xxx-xxx-xxx-xxX....XXXXXX....XX.......XX.......X
+        X.XxxxxxxxxxxxxxxxxxxxxxxxxxX................................X
+        X.XXXXXXXXXXXXXXXXXXXXXXXXXXX................................X
+        X............................................................X
+        XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+    } {
+        . "#FFA9A7" X black - "#525252" x lightgrey
+    } d {
+        . lightgrey X black - lightgrey x lightgrey 
+    }
+    
 }
 
 

@@ -181,7 +181,7 @@ function "gdp()" {
     Returns 0.00 when the scenario is unlocked.<p>
 
     It will return 0.00 if the economic model is
-    disabled see <<cref /parmdb/econ/disable>>.<p>
+    disabled.<p>
 
     This function is equivalent to the <<cref /gofer/number>>'s
     <<cref /gofer/number/gdp>> rule.
@@ -538,7 +538,7 @@ function "onhand(a)" {
     it is the cash on hand for that actor at the time strategy execution began.<p>
 
     It will return 0.00 if the economic model is
-    disabled see <<cref /parmdb/econ/disable>>.<p>
+    disabled.<p>
 
     This function is equivalent to the <<cref /gofer/number>>'s
     <<cref /gofer/number/cash_on_hand>> rule.
@@ -693,7 +693,7 @@ function "reserve(a)" {
     it is the cash reserve for that actor at the time strategy execution began.<p>
 
     It will return 0.00 if the economic model is
-    disabled see <<cref /parmdb/econ/disable>>.<p>
+    disabled.<p>
 
     This function is equivalent to the <<cref /gofer/number>>'s
     <<cref /gofer/number/cash_reserve>> rule.

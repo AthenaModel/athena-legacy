@@ -32,7 +32,7 @@ namespace eval ::athena_test::tests:: {
 
     proc setup {{opt ""}} {
         if {$opt eq "-econ"} {
-            parm set econ.disable no
+            econ setstate ENABLED
         }
         ted create JOE BOB BLUE BRIT TAL SUNN SHIA KURD USAID
     }
