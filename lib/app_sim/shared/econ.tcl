@@ -324,6 +324,7 @@ snit::type econ {
     typemethod disable {} {
         assert {[sim state] eq "PREP"}
         set info(state) "DISABLED"
+        set info(changed) 1
     }
 
     # enable 
@@ -334,6 +335,7 @@ snit::type econ {
     typemethod enable {} {
         assert {[sim state] eq "PREP"}
         set info(state) "ENABLED"
+        set info(changed) 1
     }
 
     # setstate

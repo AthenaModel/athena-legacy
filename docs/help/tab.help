@@ -1359,6 +1359,13 @@ tab "Economics" {
     <<childlinks>>
 }
 
+tab "Economics/Control" {
+    This tab displays a switch that can be used to enable and disable
+    the economic model.  Below the switch is some information that 
+    describes what it means to the user for the model to be in whichever
+    state the user has decided. 
+}
+
 tab "Economics/SAM" {
 
     This tab displays a social accounting matrix (SAM) of the economy

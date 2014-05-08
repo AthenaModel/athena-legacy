@@ -144,19 +144,22 @@ appserver module ECON {
             
             This means it is not necessary
             to supply sector-by-sector monetary flows by way of the Social 
-            Accounting Matrix.  Unemployment and goods consumption still affect
-            the civilian population.  These rule sets 
-            are controlled by model parameters:<p>
+            Accounting Matrix.  Unemployment and goods consumption (or the lack
+            thereof) still affect the civilian population.<p>  
+            
+            For the rulesets these models use:<p>
     
             <ul>
-              <li> CONSUMP rules model parameters control the behavior of the
-                   consumption model. See the 
-                   <a href="my://help/parmdb/dam/consump">dam.CONSUMP.*</a>
-                   family of model parameters for more.
-              <li> Use the playbox unemployment rate to control playbox wide 
-                   unemployment. See the 
+              <li> <b>CONSUMP</b> - Adjust the 
+                   <a href="my://help/parmdb/dam/consump/expectf">
+                   expectations factor</a> and the 
+                   <a href="my://help/parmdb/dam/consump/povfrac">
+                   poverty fraction</a> to alter the behavior of the
+                   consumption model.
+              <li> <b>UNEMP</b> - Adjust the
                    <a href="my://help/parmdb/demog/playboxur">
-                   demog.playboxUR</a> model parameter for more.
+                   playbox unemployment rate</a> to alter the behavior of
+                   the unemployment model.
             </ul><p>
     
             Actor's incomes will not depend on the state of the economy, 
