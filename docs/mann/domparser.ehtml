@@ -33,9 +33,9 @@ Returns the DOM root node. This node can then be used in other domparser(n)
 commands. If no DOM tree has been created with the <<iref domparser doc>>
 command, an error is thrown.<p>
 
-<<defitem "domparser nodes" {domparser nodes <i>tag</i>}>>
+<<defitem "domparser nodebyname" {domparser nodebyname <i>tag</i>}>>
 
-Returns a list of DOM nodes that have the given tag. These nodes can then
+Returns the first DOM node that has the given tag. This node can then
 be used in other domparser(n) commands.  If no DOM tree has been created 
 with the <<iref domparser doc>> command, an error is thrown.<p>
 

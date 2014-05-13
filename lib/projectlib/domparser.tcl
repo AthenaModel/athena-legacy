@@ -54,17 +54,17 @@ snit::type ::projectlib::domparser {
         return [$dtree documentElement]
     }
 
-    # node tag
+    # nodebyname tag
     #
-    # returns all elements in the DOM tree that have the
-    # specfied tag
+    # returns the first node in the DOM tree that has the supplied tag
+    # name
 
-    typemethod nodesbyname {tag} {
+    typemethod nodebyname {tag} {
         if {$dtree eq ""} {
             error "No DOM tree created."
         }
 
-        return [$dtree getElementsByTagName $tag]
+        return [lindex [$dtree getElementsByTagName $tag] 0]
     }
 
     # delete 
