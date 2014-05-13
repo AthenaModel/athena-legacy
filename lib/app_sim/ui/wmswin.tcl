@@ -51,6 +51,7 @@ snit::widget wmswin {
     component centry     ;# commandentry(n)
     component llist      ;# toplevel for displaying available map layers
     component sendbtn    ;# the "Send" button
+    component sendcbtn   ;# the "Send and Close" button
 
     #-------------------------------------------------------------------
     # Options
@@ -232,9 +233,16 @@ snit::widget wmswin {
                 -state disabled   \
                 -command [list $self ExportMap]
 
+        install sendcbtn using ttk::button $win.mapf.btoolbar.sendc \
+                -style Toolbutton     \
+                -text  "Send & Close" \
+                -state disabled       \
+                -command [list $self ExportMap 1]
+
         # pack components into the bottom toolbar
         pack $win.mapf.btoolbar.slbl   -side left  -anchor w -padx {0 5}
         pack $win.mapf.btoolbar.status -side left  -anchor w -padx {0 5}
+        pack $win.mapf.btoolbar.sendc  -side right -anchor e -padx {0 5} 
         pack $win.mapf.btoolbar.send   -side right -anchor e -padx {0 5} 
         pack $win.mapf.btoolbar.cancel -side right -anchor e -padx {0 5}
 
@@ -342,13 +350,13 @@ snit::widget wmswin {
 
     # StateChange
     #
-    # The simulation has changed state, update GUI compoenents
+    # The simulation has changed state, update GUI components
 
     method StateChange {} {
         if {[sim state] eq "PREP"} {
-            $sendbtn configure -state normal
+            $self ButtonState normal
         } else {
-            $sendbtn configure -state disabled
+            $self ButtonState disabled
         }
     }
 
@@ -461,13 +469,16 @@ snit::widget wmswin {
         set info(boxchanged) 1
     }
 
-    # ExportMap
+    # ExportMap ?close?
     # 
+    # close  - optional flag indicating whether the window should be
+    #          closed after the order sent
+    #
     # This callback extracts the map image data and projection meta-data
     # for export to Athena.  The MAP:IMPORT:DATA order is called to set 
     # the map in the application.
 
-    method ExportMap {} {
+    method ExportMap {{close 0}} {
         # FIRST, extract map image data in JPEG format
         set img [$map cget -map]
         set imgdata [$img data -format jpeg]
@@ -504,6 +515,21 @@ snit::widget wmswin {
 
         # NEXT, send the order
         order send gui MAP:IMPORT:DATA [array get parms]
+
+        # NEXT, if this is from the "send and close" button, withdraw the
+        # window.
+        if {$close} {
+            wm withdraw $win
+        }
+    }
+
+    # ButtonState state
+    #
+    # state  - state of the send buttons; one of normal or disabled
+    
+    method ButtonState {state} {
+        $sendbtn  configure -state $state
+        $sendcbtn configure -state $state
     }
 
     # HandleServerResponse ?rtype?
@@ -516,8 +542,8 @@ snit::widget wmswin {
         # FIRST, status information
         set info(status) [$wms server state]
 
-        # NEXT, disable the Ok button, it will be enabled if all is well
-        $sendbtn configure -state disabled
+        # NEXT, disable the send buttons, they will be enabled if all is well
+        $self ButtonState disabled
 
         log detail wmswin "WMS [$wms server state]: [$wms server status]"
         if {[$wms server state] ne "OK"} {
@@ -559,6 +585,9 @@ snit::widget wmswin {
 
                 # NEXT, display default map
                 $self GetDefaultMap
+
+                $win.mapf.ttoolbar.getmap configure -state normal 
+                $win.mapf.ttoolbar.layers configure -state normal
             }
         } elseif {$rtype eq "WMSMAP"} {
             # NEXT, response is from a GetMap request
@@ -581,9 +610,7 @@ snit::widget wmswin {
                 set info(lchanged) 0
 
                 # NEXT, all is good so enable buttons
-                $sendbtn configure -state normal
-                $win.mapf.ttoolbar.getmap configure -state normal
-                $win.mapf.ttoolbar.layers configure -state normal
+                $self ButtonState normal
             } else {
                 tk_messageBox -default "ok" \
                           -icon error   \
