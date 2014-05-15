@@ -83,6 +83,8 @@ snit::widget wmswin {
         mapstack   {}
         lchanged   0
         boxchanged 0
+        urls       {}
+        searchstr  {}
     }
 
     # boxcoords array
@@ -122,10 +124,14 @@ snit::widget wmswin {
         # NEXT, react to simulation state changes
         notifier bind ::sim <State> $win [mymethod StateChange]
 
-        # NEXT, connect to default server
-        set baseurl "http://demo.cubewerx.com/demo/cubeserv/simple"
-        $win.bar.address set $baseurl
-        $self ConnectToAddress $baseurl
+        # NEXT, get user prefs for URLs visited and connect
+        # to the first one as the default
+        set info(urls) [list \
+            http://demo.cubewerx.com/demo/cubeserv/simple \
+            http://107.20.228.18/ArcGIS/services/Wetlands/MapServer/WMSServer]
+
+        $centry set [lindex $info(urls) 0]
+        $self ConnectToAddress [$centry get]
 
         update idletasks 
         wm deiconify $win
@@ -148,8 +154,8 @@ snit::widget wmswin {
         ttk::label $win.bar.lbl \
             -text "Server:  "
 
-        commandentry $win.bar.address \
-            -clearbtn 1           \
+        install centry using commandentry $win.bar.address  \
+            -clearbtn 1                                     \
             -returncmd [mymethod ConnectToAddress]
 
         ttk::button $win.bar.btn \
@@ -588,6 +594,14 @@ snit::widget wmswin {
 
                 $win.mapf.ttoolbar.getmap configure -state normal 
                 $win.mapf.ttoolbar.layers configure -state normal
+
+                # NEXT, if this is a new URL add it to the list
+                # of URLs visited
+                set url [$wms server url]
+                if {[lsearch $info(urls) $url] == -1} {
+                    lappend info(urls) $url
+                    #prefs set wms.urls $info(urls)
+                }
             }
         } elseif {$rtype eq "WMSMAP"} {
             # NEXT, response is from a GetMap request
@@ -595,7 +609,17 @@ snit::widget wmswin {
                 $map clear
                 set img [image create photo -format png -data [$wms map data]]
                 $map configure -map $img
-                lassign [$wms map bbox] minlat minlon maxlat maxlon
+
+                # NEXT, set up projection object based on coordinate reference
+                # system. Note: this will need to be expanded if more than
+                # two CRS are supported
+                if {[$wms map crs] eq "CRS:84"} {
+                    lassign [$wms map bbox] minlon minlat maxlon maxlat
+                } else {
+                    # Assume EPSG:4326
+                    lassign [$wms map bbox] minlat minlon maxlat maxlon
+                }
+
                 set proj [::marsutil::maprect %AUTO% \
                                           -minlon $minlon -minlat $minlat \
                                           -maxlon $maxlon -maxlat $maxlat \
@@ -634,7 +658,20 @@ snit::widget wmswin {
     method GetDefaultMap {} {
         # NEXT set the URL with user parms
         set qparms [dict create]
+        if {[$wms map crs] eq "CRS:84"} {
+            lassign [$wms map bbox] minlon minlat maxlon maxlat
+        } else {
+            # Assume EPSG:4326
+            lassign [$wms map bbox] minlat minlon maxlat maxlon
+        }
+
+        let dlat {$maxlat - $minlat}
+        let dlon {$maxlon - $minlon}
+
+        $self ComputeDimFromLatLong $dlat $dlon
+
         dict set qparms LAYERS [lindex $info(clayers) 0]
+        dict set qparms STYLES default
         dict set qparms WIDTH  $info(cwidth)
         dict set qparms HEIGHT $info(cheight)
     
@@ -665,11 +702,17 @@ snit::widget wmswin {
         # NEXT set the user parms
         set qparms [dict create]
         dict set qparms LAYERS [join $info(clayers) ","]
+
+        # NEXT set layer styles to default
+        # TBD: support selection of styles based on selection of
+        # layers
+        set styles [lrepeat [llength $info(clayers)] "default"]
+        dict set qparms STYLES [join $styles ","]
     
         # NEXT, if there's a bounding box, convert it to lat/lon coords 
         # and set the BBOX parm in the request
         if {[llength [$map find withtag Bbox]] > 0} {
-            $self ComputeCanvasDim
+            $self ComputeDimFromBbox
             lassign [$map bbox Bbox] x1 y1 x2 y2
             lassign [$map c2m $x1 $y1] maxlat minlon
             lassign [$map c2m $x2 $y2] minlat maxlon
@@ -682,18 +725,22 @@ snit::widget wmswin {
 
         dict set qparms WIDTH  $info(cwidth)
         dict set qparms HEIGHT $info(cheight)
-        dict set qparms BBOX "$minlat,$minlon,$maxlat,$maxlon"
+        if {[$wms map crs] eq "CRS:84"} {
+            dict set qparms BBOX "$minlon,$minlat,$maxlon,$maxlat"
+        } else {
+            dict set qparms BBOX "$minlat,$minlon,$maxlat,$maxlon"
+        }
     
         # NEXT, make the request
         $wms server getmap $qparms
     }
     
-    # ComputeCanvasDim  
+    # ComputeDimFromBbox
     #
     # Given a bounding box drawn on the map, pick some canvas dimensions for
     # the map to be requested so that there is no distortion of the image.
 
-    method ComputeCanvasDim {} {
+    method ComputeDimFromBbox {} {
         # FIRST, extract bounding box coordinates
         lassign [$map bbox Bbox] x1 y1 x2 y2
         let dx {$x2-$x1}
@@ -714,6 +761,31 @@ snit::widget wmswin {
         }
     }
     
+    # ComputeDimFromLatLong dlat dlon
+    #
+    # dlat  -   The difference of two latitudes
+    # dlon  -   The difference of two longitudes
+    #
+    # Given a delta in lat and a delta in long, compute canvas dimensions
+    # assuming that the projection is rectangular and assuming an aspect
+    # ratio
+
+    method ComputeDimFromLatLong {dlat dlon} {
+        # Assume an aspect ratio of 1.65, which looks nice for rectangular
+        # projections.
+        let pxlon {int($dlon*(1000.0/360.0))}
+        let pxlat {int($dlat*(650.0/180.0))}
+
+        # Scale up so that one dim or the other is max
+        if {$pxlon/$pxlat > 1.65} {
+            set info(cwidth) 1000
+            let info(cheight) {int($pxlat * (1000.0/$pxlon))}
+        } else {
+            set info(cheight) 650
+            let info(cwidth) {int($pxlon * (650.0/$pxlat))}
+        }
+    }
+
     # SelectLayers 
     #
     # Given the set of map layers available in the WMS, allow the user

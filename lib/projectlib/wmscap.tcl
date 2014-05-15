@@ -20,9 +20,11 @@
 #            -> MaxWidth => integer, the maximum width in pixels
 #            -> MaxHeight => integer, the maximum height in pixels
 #            -> LayerLimit => integer, the maximum number of requestable layers
-#            -> BoundingBox => list of double (lat1, lon1, lat2, lon2) that
-#                              sets the bounds of data supported by the WMS
-#            -> CRS => The coordinate reference system of the bounding box
+#            -> BoundingBox => list of quadruples of double (lat1, lon1, 
+#                              lat2, lon2) that sets the bounds of data 
+#                              supported by the WMS for the different CRS
+#            -> CRS => List of coordinate reference systems for each bounding
+#                      box specified
 #    Layer => dictionary of layer metadata available
 #            -> Name => string, the name of the layer to be included in
 #               map requests
@@ -45,6 +47,8 @@ namespace eval ::projectlib:: {
 # wscap
 
 snit::type ::projectlib::wmscap {
+    pragma -hasinstances no
+    
     #-------------------------------------------------------------------
     # Type Constructor
     typeconstructor {
@@ -80,9 +84,9 @@ snit::type ::projectlib::wmscap {
         path    {}
     }
 
-    # qlayerflag  - flag indicating if a layer is queryable, we only care about
-    #               those
-    typevariable qlayerflag
+    # qflag  - flag indicating if a layer is queryable, we only care about
+    #          those
+    typevariable qflag
 
     # rkeys   - The list of keys that correspond to XML tags that are of
     #           special interest
@@ -106,23 +110,17 @@ snit::type ::projectlib::wmscap {
 
         dict set wmsdata Version "unknown"
 
-        dict set wmsdata Service [dict create \
-                         Title {}             \
-                         Abstract {}          \
-                         MaxWidth {}          \
-                         MaxHeight {}         \
-                         LayerLimit {}        \
-                         BoundingBox {}       \
-                         CRS {}] 
+        dict set wmsdata Service {
+            Title {} Abstract {} MaxWidth {} MaxHeight {} LayerLimit {}
+            BoundingBox {} CRS {} 
+        }
 
-        dict set wmsdata Layer [dict create \
-                             Name {}        \
-                             Title {}]
+        dict set wmsdata Layer {Name {} Title {}}
 
         dict set wmsdata Request {}
 
         # NEXT, initialize the queryable layer flag
-        set qlayerflag 0
+        set qflag 0
 
         # NEXT create the parser and parse the XML, the actual handling
         # of the XML data is done in the callbacks defined here
@@ -130,8 +128,13 @@ snit::type ::projectlib::wmscap {
                           -characterdatacommand [mytypemethod HandleData] \
                           -elementendcommand [mytypemethod HandleEnd]]
 
+
         # NEXT, any  errors encountered while parsing will propagate up
-        $parser parse $xml
+        if {[catch {
+            $parser parse $xml
+        } result]} {
+            bgerror "Error parsing xml: $result"
+        }
 
         # NEXT, parsing is done, free it and return the collected data
         $parser free
@@ -220,15 +223,16 @@ snit::type ::projectlib::wmscap {
         }
 
         # NEXT, operations performed based on the value of the current tag
+        # TBD: Handle EX_GeographicBoundingBox, could be better
         switch -exact -- $info(name) {
             Layer {
                 # The Layer tag indicates a map layer, but only if it is
                 # queryable
-                set qlayerflag 0
-                set idx [lsearch $atts "queryable"]
-                if {$idx > -1} {
-                    set val [lindex $atts [expr {$idx+1}]]
-                    set qlayerflag [snit::boolean validate $val]
+                set qflag [$type AttrVal queryable $atts]
+                if {$qflag ne ""} {
+                    set qflag [snit::boolean validate $qflag]
+                } else {
+                    set qflag 0
                 }
             }
 
@@ -239,38 +243,15 @@ snit::type ::projectlib::wmscap {
                     set maxx ""
                     set maxy ""
 
-                    set idx [lsearch $atts "CRS"]
-                    if {$idx > -1} {
-                        set val [lindex $atts [expr {$idx+1}]]
-                        dict set wmsdata Service CRS $val
-                    } else {
+                    set crs [$type AttrVal CRS $atts]
+                    if {$crs eq ""} {
                         return -code error -errorcode INVALID \
                             "Bounding Box with no CRS encountered."
                     }
-
-                    set idx [lsearch $atts "minx"]
-                    if {$idx > -1} {
-                        set val [lindex $atts [expr {$idx+1}]]
-                        set minx $val
-                    }
-
-                    set idx [lsearch $atts "miny"]
-                    if {$idx > -1} {
-                        set val [lindex $atts [expr {$idx+1}]]
-                        set miny $val
-                    }
-
-                    set idx [lsearch $atts "maxx"]
-                    if {$idx > -1} {
-                        set val [lindex $atts [expr {$idx+1}]]
-                        set maxx $val
-                    }
-
-                    set idx [lsearch $atts "maxy"]
-                    if {$idx > -1} {
-                        set val [lindex $atts [expr {$idx+1}]]
-                        set maxy $val
-                    }
+                    set minx [$type AttrVal minx $atts]
+                    set miny [$type AttrVal miny $atts]
+                    set maxx [$type AttrVal maxx $atts]
+                    set maxy [$type AttrVal maxy $atts]
 
                     if {$minx eq "" || $miny eq "" ||
                         $maxx eq "" || $maxy eq ""} {
@@ -278,28 +259,43 @@ snit::type ::projectlib::wmscap {
                                 "Invalid Bounding Box limits encountered."
                     }
 
-                    dict set wmsdata Service BoundingBox \
-                        [list $minx $miny $maxx $maxy]
+                    set crslist [dict get $wmsdata Service CRS]
+                    lappend crslist $crs
+                    dict set wmsdata Service CRS $crslist
+
+                    set bboxlist [dict get $wmsdata Service BoundingBox]
+                    lappend bboxlist [list $minx $miny $maxx $maxy]
+                    dict set wmsdata Service BoundingBox $bboxlist
                 }
 
             }
 
             WMS_Capabilities {
                 # Extract version number from the attributes
-                set idx [lsearch $atts "version"]
-                if {$idx > -1} {
-                    set val [lindex $atts [expr {$idx+1}]]
-                    if {$val ne $wmsversion} {
-                        return -code error -errorcode VERSION \
-                            "Version mismatch: $val"
-                    }
-
-                    dict set wmsdata Version $val
-                }
+                set version [$type AttrVal version $atts]
+                dict set wmsdata Version $version
             }
 
             default {}
         }
+    }
+
+    # AttrVal attr attrlist
+    #
+    # attr     - an attribute to look for
+    # attrlist - a list of attributes to search
+    #
+    # This helper method searches a list of supplied attributes and thier
+    # values for the given attribute.  If found, it's value is returned.
+    # Otherwise the empty string is returned.
+
+    typemethod AttrVal {attr attrlist} {
+        set idx [lsearch $attrlist $attr]
+        if {$idx > -1} {
+            return [lindex $attrlist [expr {$idx+1}]]
+        }
+
+        return ""
     }
 
     # HandleData s
@@ -317,7 +313,6 @@ snit::type ::projectlib::wmscap {
 
         switch -exact -- $info(currkey) {
             Service -
-            Request - 
             Layer {
                 # Parsing is in part of the XML file that contains data for
                 # keys we are interested in
@@ -357,9 +352,9 @@ snit::type ::projectlib::wmscap {
             # data for this key
             set info(currkey) ""
 
-            # Reset the qlayerflag if the end tag is a Layer
+            # Reset the qflag if the end tag is a Layer
             if {$name eq "Layer"} {
-                set qlayerflag 0
+                set qflag 0
             }
         }
 
@@ -378,7 +373,7 @@ snit::type ::projectlib::wmscap {
     # to a growing list of layers.
 
     typemethod Handle_Name {tag data} {
-        if {$qlayerflag} {
+        if {$qflag} {
             set keys [list Layer Name]
             set flist [dict get $wmsdata {*}$keys]
             lappend flist $data
@@ -400,7 +395,7 @@ snit::type ::projectlib::wmscap {
     # a layer of interest
 
     typemethod Handle_Layer {tag data} {
-        if {$qlayerflag} {
+        if {$qflag} {
             set keys [list Layer $tag]
             switch -exact -- $tag {
                 Title -

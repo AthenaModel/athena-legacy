@@ -172,7 +172,8 @@ snit::type ::projectlib::wmsclient {
         }
 
         if {[catch {
-            set wmscap [wmscap parse [$agent data]]
+            set data [$agent data]
+            set wmscap [wmscap parse $data]
         } result eopts]} {
             set ecode [dict get $eopts -errorcode]
 
@@ -195,7 +196,7 @@ snit::type ::projectlib::wmsclient {
             return
         }
 
-        # NEXT, We have success!
+        # NEXT, We have success, check the returned data
         set info(server-wmscap) $wmscap
 
         # NEXT, extract default capabilities 
@@ -203,8 +204,28 @@ snit::type ::projectlib::wmsclient {
         set info(map-maxwidth)   [dict get $wmscap Service MaxWidth]
         set info(map-maxheight)  [dict get $wmscap Service MaxHeight]
         set info(map-layerlimit) [dict get $wmscap Service LayerLimit]
-        set info(map-maxbbox)    [dict get $wmscap Service BoundingBox]
-        set info(map-crs)        [dict get $wmscap Service CRS]
+
+        if {[string range $info(GetMap-url) end end] ne "?"} {
+            append info(GetMap-url) "?"
+        }
+
+        # NEXT, see if we have a coordinate reference system that is
+        # supported
+        set crslist [dict get $wmscap Service CRS]
+        set idx1 [lsearch $crslist "CRS:84"]
+        set idx2 [lsearch $crslist "EPSG:4326"]
+        if {$idx1 > -1} {
+            set crs [lindex $crslist $idx1]
+            set bbox [lindex [dict get $wmscap Service BoundingBox] $idx1]
+        } elseif {$idx2 > -1} {
+            set crs [lindex $crslist $idx2]
+            set bbox [lindex [dict get $wmscap Service BoundingBox] $idx2]
+        } else {
+            error "No supported coordinate reference systems found."
+        }
+
+        set info(map-crs)      $crs
+        set info(map-maxbbox)  $bbox
 
         # NEXT, set the defaults in the transient values
         set info(map-bbox)       $info(map-maxbbox)
@@ -224,7 +245,7 @@ snit::type ::projectlib::wmsclient {
     # At least one layer must be supplied in qparms or the request will
     # fail.
 
-    method {server getmap} {{qparms {}}} {
+    method {server getmap} {qparms} {
         # FIRST, set server state
         set url $info(GetMap-url)
 
@@ -241,6 +262,7 @@ snit::type ::projectlib::wmsclient {
             SERVICE WMS                        \
             VERSION $wmsVersion                \
             REQUEST GetMap                     \
+            FORMAT  image/png                  \
             CRS     $info(map-crs)             \
             BBOX    [join $info(map-bbox) ","] \
             WIDTH   $info(map-width)           \
@@ -389,6 +411,14 @@ snit::type ::projectlib::wmsclient {
 
     method {map bbox} {} {
         return $info(map-bbox)
+    }
+
+    # map crs
+    #
+    # Returns the coordinate reference system in use
+
+    method {map crs} {} {
+        return $info(map-crs)
     }
 
     # map width

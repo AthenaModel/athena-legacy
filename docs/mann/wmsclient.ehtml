@@ -77,14 +77,11 @@ connection is successful the WMS server capabilities are automatically
 retrieved and stored in a dictionary that can be accessed using other
 commands provided by wmsclient(n).<p>
 
-<<defitem "server getmap" {$client server getmap ?<i>qparms</i>?}>>
+<<defitem "server getmap" {$client server getmap <i>qparms</i>}>>
 
 Attempts to retrieve a map from the WMS server using any supplied query
 parameters in the form of a dictionary of WMS server parameters and values.
-See <<xref "Query Parms">> for the list of recognized parameters.  If no
-parameters are supplied, the parms are defaulted to those of the last request
-made or those defined by the WMS capabilities that were retrieved on 
-<<iref server connect>>, whichever is appropriate.<p>
+See <<xref "Query Parms">> for the list of recognized parameters.<p>
 
 <<defitem "server url" {$client server url}>>
 
@@ -156,6 +153,10 @@ system as specified in the map request.  The bounding box consists of a list
 of four values corresponding to two lat/long pairs, one for the lower left
 of the box and one for the upper right. Thus, the returned list is, in order,
 minumum latitude, minimum longitude, maximum latitude and maximum longitude.<p>
+
+<<defitem "map crs" {$client map crs}>>
+Returns the coordinate reference system in use.  Only CRS:84 or EPSG:4326
+coordinate reference systems are recognized.<p>
 
 <<defitem "map width" {$client map width}>>
 Returns the width of the current map in pixels.<p>
