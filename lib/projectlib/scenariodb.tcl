@@ -45,6 +45,9 @@ snit::type ::projectlib::scenariodb {
     #-------------------------------------------------------------------
     # Type Variables
 
+
+    # Temporary data
+
     typevariable sqlsection_tempdata {
         concerns {
             { c AUT longname "Autonomy"        gtype CIV }
@@ -125,6 +128,7 @@ snit::type ::projectlib::scenariodb {
 
     typemethod {sqlsection schema} {} {
         foreach filename {
+            scenariodb_meta.sql
             scenariodb_entities.sql
             scenariodb_attitude.sql
             scenariodb_ground.sql
@@ -179,6 +183,88 @@ snit::type ::projectlib::scenariodb {
             pair       ::projectlib::scenariodb::Pair
         }
     }
+
+    #-------------------------------------------------------------------
+    # Schema Version Info
+    #
+    # The schema version ID is saved in the database using the
+    # SQLite user_version pragma.  It is set in the schema
+    # file scenariodb_meta.sql.
+
+    # schemaID - The schema version ID, which is saved in
+    # the database using the user_version pragma.
+    typevariable schemaID 4
+
+    # Version Table
+    #
+    # This array relates the schema ID to the Athena version numbers.
+
+    typevariable schemaVersion -array {
+        1 "Athena 1.1"
+        2 "Athena 2.1"
+        3 "Athena 6.1 or prior"
+        4 "Athena 6.2"
+    }
+
+    # checkschema tempdb
+    #
+    # tempdb   - An SQLite3 handle to the database we tried to load.
+    #
+    # Checks to see whether the tempdb contains scenario data
+    # for the expected Athena version.  Throws an error with
+    # an informative error message if not.
+
+    typemethod checkschema {tempdb} {
+        # FIRST, is it a scenario file?
+        if {![$tempdb exists {
+            SELECT name FROM sqlite_master
+            WHERE name = 'scenario'
+        }]} {
+            error "File is not an Athena scenario file"
+        }
+
+
+        # NEXT, get the actual schema version ID for the tempdb.
+        set actualID [$tempdb eval {PRAGMA user_version;}]
+
+        # NEXT, if they match then all is good.
+        if {$actualID == $schemaID} {
+            return
+        }
+
+        # NEXT, infer the version of the temp database.
+        if {$actualID >= 4} {
+            # The version should be in the scenario table.
+            set aVersion [$tempdb onecolumn {
+                SELECT 'Athena ' || coalesce(value,"???") 
+                FROM scenario
+                WHERE parm = 'version';
+            }]
+        } elseif {$actualID == 3} {
+            # In Athena 6.1, tactics are stored in memory,
+            # rather than in a tactics table.
+            if {[$tempdb exists {
+                SELECT name FROM sqlite_master
+                WHERE name = 'tactics'
+            }]} {
+                set aVersion "Athena 5.1 or prior"
+            } else {
+                set aVersion "Athena 6.1"
+            }
+        } elseif {$actualID == 2} {
+            set aVersion "Athena 2.1"
+        } elseif {$actualID == 1} {
+            set aVersion "Athena 1.1"
+        } else {
+            set aVersion "Athena ???"
+        }
+
+        # NEXT, get the expected version
+        set eVersion $schemaVersion($schemaID)
+
+        error "Expected an $eVersion scenario file, got an $aVersion file."
+    }
+
 
     #-------------------------------------------------------------------
     # Components
@@ -259,26 +345,14 @@ snit::type ::projectlib::scenariodb {
         # NEXT, open the database.
         sqlite3 dbToLoad $filename
 
-        # NEXT, Verify that it's a scenario file
-        set name [dbToLoad eval {
-            SELECT name FROM sqlite_master
-            WHERE name = 'scenario'
-        }]
-
-        if {$name eq ""} {
+        # NEXT, if there is a schema mismatch, that's an error; we
+        # need to report it to the user.
+        try {
+            $type checkschema dbToLoad
+        } finally {
+            # FINALLY, close the temporary database handle whether
+            # we throw an error or not.
             dbToLoad close
-            error "File is not a scenario file."
-        }
-
-        # NEXT, get the user versions
-        set v1 [$db eval {PRAGMA user_version;}]
-        set v2 [dbToLoad eval {PRAGMA user_version;}]
-
-        dbToLoad close
-
-        if {$v1 != $v2} {
-            error \
-                "Scenario file mismatch: got version $v2, expected version $v1"
         }
 
         # NEXT, clear the db, and attach the database to load.
@@ -330,6 +404,20 @@ snit::type ::projectlib::scenariodb {
     method clear {} {
         # FIRST, clear the database
         $db clear
+
+        # NEXT, set the schema ID
+        $db eval "PRAGMA user_version=$schemaID"
+
+        # NEXT, set the Athena version and build.
+        set version [projinfo version]
+        set build   [projinfo build]
+        set vfull   "$version-$build"
+
+        $db eval {
+            INSERT INTO scenario(parm,value) VALUES('version',     $version);
+            INSERT INTO scenario(parm,value) VALUES('build',       $build);
+            INSERT INTO scenario(parm,value) VALUES('versionfull', $vfull);
+        }
 
         # NEXT, As of this point all changes are saved.
         $self marksaved

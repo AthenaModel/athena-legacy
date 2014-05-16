@@ -44,6 +44,7 @@ namespace eval ::projectgui:: {
 #-----------------------------------------------------------------------
 # Load projectgui(n) submodules
 
+source [file join $::projectgui::library toolbutton.tcl      ]
 source [file join $::projectgui::library beanbrowser.tcl     ]
 source [file join $::projectgui::library enumbutton.tcl      ]
 source [file join $::projectgui::library goferfield.tcl      ]
@@ -53,3 +54,5 @@ source [file join $::projectgui::library mybrowser.tcl       ]
 source [file join $::projectgui::library modaltextwin.tcl    ]
 source [file join $::projectgui::library textwin.tcl         ]
 source [file join $::projectgui::library rolemapfield.tcl    ]
+source [file join $::projectgui::library sorter.tcl          ]
+source [file join $::projectgui::library sorterbin.tcl       ]

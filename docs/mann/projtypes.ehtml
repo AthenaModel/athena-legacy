@@ -38,6 +38,14 @@ Almost all actors are "normal" actors.<p>
 
 <<::projectlib::eactortype html>>
 
+<<defitem ebeanstate {ebeanstate <i>subcommand</i> ?<i>args</i>?}>>
+
+This <<xref enumx(n)>> enumeration maps the entity states
+<b>normal</b>, <b>disabled</b>, and <b>invalid</b> to standard
+fonts and colors.<p>
+
+<<::projectlib::ebeanstate html>>
+
 <<defitem ecause {ecause <i>subcommand</i> ?<i>args</i>?}>>
 
 An <<xref mars:enum(n)>> type, representing the "causes" of GRAM

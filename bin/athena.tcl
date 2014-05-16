@@ -74,9 +74,15 @@ package require Tcl 8.5
 
 set metadata {
     sim {
-        text "Athena Simulation"
+        text   "Athena Simulation"
         applib app_sim
-        mode gui
+        mode   gui
+    }
+
+    ingest {
+        text   "Athena DCGS-A Ingestion Tool"
+        applib app_ingest
+        mode   gui
     }
 
     pbs {

@@ -150,14 +150,6 @@ enum esector {
     ELSE  else
 }
 
-# Bean State
-
-enumx create ebeanstate {
-    normal     {color black    font codefont       }
-    disabled   {color #999999  font codefontstrike }
-    invalid    {color #C7001B  font codefontstrike }
-}
-
 # Magic Input Mode
 
 enum einputmode {

@@ -6,9 +6,22 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Convenience procs for defining standard tool buttons
+#    Athena: projectgui(n), Convenience procs for defining standard tool 
+#    buttons
 #
 #-----------------------------------------------------------------------
+
+#-----------------------------------------------------------------------
+# Exported Commands
+
+namespace eval ::projectgui:: {
+    namespace export   \
+        mktoolbutton   \
+        mkaddbutton    \
+        mkeditbutton   \
+        mkdeletebutton 
+}
+
 
 # mktoolbutton w icon tooltip ?options...?
 #
@@ -20,7 +33,7 @@
 # Creates a Toolbutton showing the specified icon.  Presumes
 # that ${icon}d is the disabled icon.
 
-proc mktoolbutton {w icon tooltip args} {
+proc ::projectgui::mktoolbutton {w icon tooltip args} {
     ttk::button $w \
         -style  Toolbutton                     \
         -image  [list $icon disabled ${icon}d] \
@@ -39,7 +52,7 @@ proc mktoolbutton {w icon tooltip args} {
 #
 # Creates an "add" Toolbutton showing a "plus sign" icon.
 
-proc mkaddbutton {w tooltip args} {
+proc ::projectgui::mkaddbutton {w tooltip args} {
     mktoolbutton $w ::marsgui::icon::plus22 $tooltip {*}$args
 }
 
@@ -51,7 +64,7 @@ proc mkaddbutton {w tooltip args} {
 #
 # Creates a "delete" Toolbutton showing a red "X" icon.
 
-proc mkdeletebutton {w tooltip args} {
+proc ::projectgui::mkdeletebutton {w tooltip args} {
     mktoolbutton $w ::marsgui::icon::trash22 $tooltip {*}$args
 }
 
@@ -63,7 +76,7 @@ proc mkdeletebutton {w tooltip args} {
 #
 # Creates an "edit" Toolbutton showing a "pencil" icon.
 
-proc mkeditbutton {w tooltip args} {
+proc ::projectgui::mkeditbutton {w tooltip args} {
     mktoolbutton $w ::marsgui::icon::pencil22 $tooltip {*}$args
 }
 

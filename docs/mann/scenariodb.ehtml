@@ -153,6 +153,16 @@ This option is delegated to <<xref mars:sqldocument(n)>>.<p>
 
 <</deflist options>>
 
+<<defitem "scenariodb checkschema" {scenariodb checkschema <i>db</i>}>>
+
+Given an SQLite3 database handle <i>db</i>, this command
+checks to see whether it is an Athena scenario file, and if so, 
+whether it is compatible with this version of scenariodb(n).  If not,
+the command throws an informative error suitable for display to the user.<p>
+
+Note that <i>db</i> can be any SQLite3 database handle; it need not have
+been opened with scenariodb(n) or <<xref mars:sqldocument(n)>>.<p>
+
 <</deflist commands>>
 
 <<section "INSTANCE COMMAND">>

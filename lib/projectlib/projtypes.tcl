@@ -17,6 +17,7 @@ namespace eval ::projectlib:: {
     namespace export     \
         boolean          \
         eactortype       \
+        ebeanstate       \
         ecause           \
         ecivconcern      \
         ecomparator      \
@@ -145,6 +146,13 @@ snit::type ::projectlib::typewrapper {
 ::marsutil::enum ::projectlib::eactortype {
     NORMAL          "Normal"
     PSEUDO          "Pseudo-actor"
+}
+
+# Bean State (or, really, anything with these three states.)
+::projectlib::enumx create ::projectlib::ebeanstate {
+    normal     {color black    font codefont       }
+    disabled   {color #999999  font codefontstrike }
+    invalid    {color #C7001B  font codefontstrike }
 }
 
 
