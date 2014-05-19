@@ -73,10 +73,12 @@ snit::widget wizexport {
         ttk::separator       $win.sep2
 
         ttk::button $win.bscript \
-            -text "Save Script"
+            -text "Save Script"  \
+            -command [mymethod SaveScriptAs]
 
         ttk::button $win.bdoc \
-            -text "Save Documentation"
+            -text "Save Documentation" \
+            -command [mymethod SaveDocsAs]
 
         # NEXT, grid the major components.
         grid $hframe      -row 0 -column 0 -columnspan 2 -sticky ew
@@ -168,6 +170,61 @@ snit::widget wizexport {
     #-------------------------------------------------------------------
     # Event handlers
 
+    # SaveScriptAs
+    #
+    # Prompts the user to save the ingestion script.
+
+    method SaveScriptAs {} {
+        set filename [tk_getSaveFile                        \
+                          -parent $win                      \
+                          -title "Save Ingestion Script As" \
+                          -filetypes {
+                              {{Athena Executive Script} {.tcl} }
+                          }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        # NEXT, Save the scenario using this name
+        try {
+            ingester saveFile $filename [ingester script]
+        } on error {errmsg} {
+            app error "Could not save $filename:\n$errmsg"
+            return
+        } 
+
+        app puts "Saved script as: $filename"
+    }
+
+    # SaveDocsAs
+    #
+    # Prompts the user to save the ingestion docs.
+
+    method SaveDocsAs {} {
+        set filename [tk_getSaveFile                        \
+                          -parent $win                      \
+                          -title "Save Ingestion Documentation As" \
+                          -filetypes {
+                              {{HTML Document} {.html} }
+                          }]
+
+        # NEXT, If none, they cancelled.
+        if {$filename eq ""} {
+            return 0
+        }
+
+        # NEXT, Save the scenario using this name
+        try {
+            ingester saveFile $filename [ingester docs]
+        } on error {errmsg} {
+            app error "Could not save $filename:\n$errmsg"
+            return
+        } 
+
+        app puts "Saved docs as: $filename"
+    }
 
     #-------------------------------------------------------------------
     # Wizard Page Interface

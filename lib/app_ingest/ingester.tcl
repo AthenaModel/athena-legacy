@@ -246,6 +246,22 @@ snit::type ingester {
 
         return [$ht get]
     }
+
+    # saveFile filename text
+    #
+    # filename   - A user selected file name
+    # text       - The text to save
+    #
+    # Attempts to save the text to disk.
+    # Errors are handled by caller.
+
+    typemethod saveFile {filename text} {
+        set f [open $filename w]
+        puts $f $text
+        close $f
+        return
+    }
+
 }
 
 
