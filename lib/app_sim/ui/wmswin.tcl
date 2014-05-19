@@ -48,7 +48,7 @@ snit::widget wmswin {
 
     component wms        ;# wmsclient(n)
     component map        ;# mapcanvas(n)
-    component centry     ;# commandentry(n)
+    component urlbox     ;# URL ttk::combobox
     component llist      ;# toplevel for displaying available map layers
     component sendbtn    ;# the "Send" button
     component sendcbtn   ;# the "Send and Close" button
@@ -84,7 +84,6 @@ snit::widget wmswin {
         lchanged   0
         boxchanged 0
         urls       {}
-        searchstr  {}
     }
 
     # boxcoords array
@@ -126,12 +125,13 @@ snit::widget wmswin {
 
         # NEXT, get user prefs for URLs visited and connect
         # to the first one as the default
-        set info(urls) [list \
-            http://demo.cubewerx.com/demo/cubeserv/simple \
-            http://107.20.228.18/ArcGIS/services/Wetlands/MapServer/WMSServer]
+        set info(urls) [prefs get wms.urls]
 
-        $centry set [lindex $info(urls) 0]
-        $self ConnectToAddress [$centry get]
+        $urlbox configure -values $info(urls)
+
+        $urlbox set [lindex $info(urls) 0]
+
+        $self ConnectToAddress [$urlbox get]
 
         update idletasks 
         wm deiconify $win
@@ -154,14 +154,8 @@ snit::widget wmswin {
         ttk::label $win.bar.lbl \
             -text "Server:  "
 
-        install centry using commandentry $win.bar.address  \
-            -clearbtn 1                                     \
-            -returncmd [mymethod ConnectToAddress]
-
-        ttk::button $win.bar.btn \
-            -style Toolbutton    \
-            -text "Connect"      \
-            -command [mymethod ConnectToServer]
+        install urlbox using ttk::combobox $win.bar.address  \
+            -style Menubox.TCombobox
 
         ttk::button $win.bar.help \
             -style Toolbutton     \
@@ -172,7 +166,6 @@ snit::widget wmswin {
         # Pack the components into the bar
         pack $win.bar.lbl     -side left -padx {0 5}
         pack $win.bar.address -side left -expand yes -fill x -padx {0 5}
-        pack $win.bar.btn     -side left
         pack $win.bar.help    -side left
 
         # Row 2: A separator
@@ -258,6 +251,10 @@ snit::widget wmswin {
         bind $map <ButtonRelease-1> [list $self BboxDone %x %y]   
         bind $map <ButtonPress-3>   [list $self HandleRightClick]
     
+        # URL entry events
+        bind $urlbox <Return>             [list $self GoToURL]
+        bind $urlbox <<ComboboxSelected>> [list $self GoToURL]
+
         # pack components into the map frame
         pack $win.mapf.ttoolbar -side top    -anchor w
         pack $win.mapf.sep1     -side top    -expand yes -fill x
@@ -272,6 +269,10 @@ snit::widget wmswin {
     
         grid rowconfigure    $win 2 -weight 1
         grid columnconfigure $win 0 -weight 1
+    }
+
+    method GoToURL {} {
+        $self ConnectToAddress [$urlbox get]
     }
 
     # CreateLayerSelectionWin
@@ -314,6 +315,11 @@ snit::widget wmswin {
     # An attempt is made to connect to a WMS given by addr.
 
     method ConnectToAddress {addr} {
+        # FIRST, if no base URL, nothing to do
+        if {$addr eq ""} {
+            return
+        }
+
         # FIRST, initialize map information
         set info(layers)     [dict create]
         set info(clayers)    [list]
@@ -336,22 +342,10 @@ snit::widget wmswin {
         $sendbtn configure -state disabled
         $win.mapf.ttoolbar.getmap configure -state disabled
         $win.mapf.ttoolbar.layers configure -state disabled
+        $urlbox configure -state disabled
 
         # NEXT, attempt to connect
         $wms server connect $addr
-    }
-
-    # ConnectToServer
-    #
-    # The "Connect" button was pressed, get the URL from the address bar
-    # and attemp to connect to the server.
-
-    method ConnectToServer {} {
-        # FIRST, get the URL from the address bar
-        set baseurl [$win.bar.address get]
-
-        # NEXT, try to connect
-        $self ConnectToAddress $baseurl
     }
 
     # StateChange
@@ -553,7 +547,7 @@ snit::widget wmswin {
 
         log detail wmswin "WMS [$wms server state]: [$wms server status]"
         if {[$wms server state] ne "OK"} {
-            log detail wmswin "Connection Error: [$wms server error]"
+            set errmsg [$wms server error]
 
             messagebox popup             \
                -title   "Server Error"   \
@@ -561,10 +555,11 @@ snit::widget wmswin {
                -buttons {ok "Ok"}        \
                -default ok               \
                -parent $win              \
-               -message [normalize {
-                   An error occurred trying to connect, see the log for
-                   details.
-                }]
+               -message [normalize "
+                   An error occurred trying to connect: $errmsg
+                "]
+
+            $urlbox configure -state normal
 
             return
         }
@@ -600,7 +595,8 @@ snit::widget wmswin {
                 set url [$wms server url]
                 if {[lsearch $info(urls) $url] == -1} {
                     lappend info(urls) $url
-                    #prefs set wms.urls $info(urls)
+                    $urlbox configure -values $info(urls)
+                    prefs set wms.urls $info(urls)
                 }
             }
         } elseif {$rtype eq "WMSMAP"} {
@@ -635,6 +631,7 @@ snit::widget wmswin {
 
                 # NEXT, all is good so enable buttons
                 $self ButtonState normal
+                $urlbox configure -state normal
             } else {
                 tk_messageBox -default "ok" \
                           -icon error   \

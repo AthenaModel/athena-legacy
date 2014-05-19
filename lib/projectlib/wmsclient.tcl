@@ -121,6 +121,11 @@ snit::type ::projectlib::wmsclient {
         set info(server-status) "Waiting for server"
         set info(server-error)  ""
 
+        # FIRST, make sure we have a valid protocol in the URL (only http)
+        if {[string range $url 0 6] ne "http://" } {
+            set url "http://$url"
+        }
+
         set query [dict create      \
             SERVICE WMS             \
             VERSION $wmsVersion     \
@@ -135,6 +140,18 @@ snit::type ::projectlib::wmsclient {
         }
 
         append url [join $qlist "&"]
+
+        set u [uri::split $url]
+        
+        if {[string first " " [dict get $u path]] > -1} {
+            set info(server-state) ERROR
+            set info(server-status) "Malformed URL"
+            set info(server-error) \
+                "Invalid URL: $url"
+            
+            callwith $options(-servercmd) WMSCAP
+            return
+        }
 
         $agent get $url \
             -command [mymethod CapabilitiesCmd] 

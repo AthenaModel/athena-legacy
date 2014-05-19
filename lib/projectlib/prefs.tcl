@@ -73,6 +73,19 @@ snit::type ::projectlib::prefs {
             an integer number no less than 100.
         }
 
+        $ps subset wms {
+            Parameters which configure the WMS client.
+        }
+
+        $ps define wms.urls snit::listtype "" {
+            A list of previously visited WMS URLs stored as history
+            in the WMS client.
+        }
+
+        $ps setdefault wms.urls {
+            http://demo.cubewerx.com/demo/cubeserv/simple
+        }
+
         $ps subset helper {
             Names of helper applications.
         }

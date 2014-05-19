@@ -196,10 +196,10 @@ snit::type ::projectlib::httpagent {
 
         # NEXT, do the HTTP request.  GetURL does the dirty
         # work.
-        if {[catch {$self GetURL} result]} {
+        if {[catch {$self GetURL}]} {
             set info(state)  ERROR
             set info(status) "Error connecting to server"
-            set info(error)  $result
+            set info(error)  "Could not connect with URL: $info(url)"
          
             # Schedule a -command callback.   
             $timeout schedule
@@ -409,7 +409,8 @@ snit::type ::projectlib::httpagent {
     # url   - A URL lacking a query, or with only a "?" at the end.
     # qdict - A dictionary of query keywords and values
     #
-    # Packages the url and qdict together into one URL.
+    # Packages the url and qdict together into one URL. Makes sure that
+    # there is an http protocol specified.
 
     proc MakeURL {url qdict} {
         # FIRST, if there's no query there's no query.
@@ -423,7 +424,9 @@ snit::type ::projectlib::httpagent {
         }
 
         # NEXT, append the formatted qdict.
+        puts "calling format"
         append url [::http::formatQuery {*}$qdict]
+        puts "done"
 
         return $url
     }
