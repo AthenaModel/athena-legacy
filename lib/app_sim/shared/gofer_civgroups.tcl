@@ -37,6 +37,20 @@ gofer define CIVGROUPS group {
                 -width 30 -height 10
         }
 
+        case SA_IN "Subsistence in Neighborhood(s)" {
+            rc "Select subsistence agriculture groups that reside in any of the following neighborhoods:"
+            rc
+            enumlonglist nlist -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
+        case NON_SA_IN "Non-Subsistence in Neighborhood(s)" {
+            rc "Select non-subsistence agriculture groups that reside in any of the following neighborhoods:"
+            rc
+            enumlonglist nlist -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
         case NOT_RESIDENT_IN "Not Resident in Neighborhood(s)" {
             rc "Select groups that do not reside in any of the following neighborhoods:"
             rc
@@ -276,6 +290,79 @@ gofer rule CIVGROUPS RESIDENT_IN {nlist} {
     }
 
 }
+
+# Rule: SA_IN
+#
+# Non-empty civilian groups who live by subsistence
+# agriculture, resident in some set of neighborhoods.
+
+gofer rule CIVGROUPS SA_IN {nlist} {
+    typemethod construct {nlist} {
+        return [$type validate [dict create nlist $nlist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create nlist \
+            [listval "neighborhoods" {nbhood validate} $nlist]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        set text [listnar "" "these neighborhoods" $nlist $opt]
+
+        return "non-empty subsistence agriculture groups resident in $text"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set out [list]
+        foreach n $nlist {
+            lappend out {*}[demog saIn $n]
+        }
+        return $out
+    }
+}
+
+# Rule: NON_SA_IN
+#
+# Non-empty civilian groups who DO NOT live by subsistence
+# agriculture, resident in some set of neighborhoods.
+
+gofer rule CIVGROUPS NON_SA_IN {nlist} {
+    typemethod construct {nlist} {
+        return [$type validate [dict create nlist $nlist]]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        dict create nlist \
+            [listval "neighborhoods" {nbhood validate} $nlist]
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        set text [listnar "" "these neighborhoods" $nlist $opt]
+
+        return "non-empty non-subsistence agriculture groups resident in $text"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        set out [list]
+        foreach n $nlist {
+            lappend out {*}[demog nonSaIn $n]
+        }
+        return $out
+    }
+}
+
 
 # Rule: NOT_RESIDENT_IN
 #

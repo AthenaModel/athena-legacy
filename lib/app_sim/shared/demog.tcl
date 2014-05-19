@@ -857,6 +857,56 @@ snit::type demog {
         }
     }
 
+    # saIn n
+    #
+    # n  - A neighborhood ID
+    #
+    # Returns a list of the NON-EMPTY subsistence agriculture
+    # that reside in the neighborhood.
+
+    typemethod saIn {n} {
+        if {[sim state] eq "PREP"} {
+            return [rdb eval {
+                SELECT g FROM civgroups 
+                WHERE n=$n AND basepop > 0 AND sa_flag 
+                ORDER BY g
+            }]
+        } else {
+            return [rdb eval {
+                SELECT g
+                FROM demog_g
+                JOIN civgroups USING (g)
+                WHERE n=$n AND population > 0 AND sa_flag
+                ORDER BY g
+            }]
+        }
+    }
+
+    # nonSaIn n
+    #
+    # n  - A neighborhood ID
+    #
+    # Returns a list of the NON-EMPTY non-subsistence agriculture
+    # that reside in the neighborhood.
+
+    typemethod nonSaIn {n} {
+        if {[sim state] eq "PREP"} {
+            return [rdb eval {
+                SELECT g FROM civgroups 
+                WHERE n=$n AND basepop > 0 AND NOT sa_flag 
+                ORDER BY g
+            }]
+        } else {
+            return [rdb eval {
+                SELECT g
+                FROM demog_g
+                JOIN civgroups USING (g)
+                WHERE n=$n AND population > 0 AND NOT sa_flag
+                ORDER BY g
+            }]
+        }
+    }
+
     # pop nbhoods
     #
     # nbhoods  - A list of neighborhoods

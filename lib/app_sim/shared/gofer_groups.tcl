@@ -152,8 +152,24 @@ gofer define GROUPS group {
                 -width 30 -height 10
         }
 
+
+
         case CIV_NOT_RESIDENT_IN "Civilian Groups, Not Resident in Neighborhood(s)" {
             rc "Select civilian groups that do not reside in any of the following neighborhoods:"
+            rc
+            enumlonglist nlist -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
+        case CIV_SA_IN "Subsistence in Neighborhood(s)" {
+            rc "Select subsistence agriculture groups that reside in any of the following neighborhoods:"
+            rc
+            enumlonglist nlist -dictcmd {::nbhood namedict} \
+                -width 30 -height 10
+        }
+
+        case CIV_NON_SA_IN "Non-Subsistence in Neighborhood(s)" {
+            rc "Select non-subsistence agriculture groups that reside in any of the following neighborhoods:"
             rc
             enumlonglist nlist -dictcmd {::nbhood namedict} \
                 -width 30 -height 10
@@ -655,6 +671,8 @@ gofer rule GROUPS DISLIKED_BY_GROUP {anyall glist} {
 # Civgroup Rules
 
 gofer rulefrom GROUPS CIV_RESIDENT_IN        ::gofer::CIVGROUPS::RESIDENT_IN
+gofer rulefrom GROUPS CIV_SA_IN              ::gofer::CIVGROUPS::SA_IN
+gofer rulefrom GROUPS CIV_NON_SA_IN          ::gofer::CIVGROUPS::NON_SA_IN
 gofer rulefrom GROUPS CIV_NOT_RESIDENT_IN    ::gofer::CIVGROUPS::NOT_RESIDENT_IN
 gofer rulefrom GROUPS CIV_MOOD_IS_GOOD       ::gofer::CIVGROUPS::MOOD_IS_GOOD
 gofer rulefrom GROUPS CIV_MOOD_IS_BAD        ::gofer::CIVGROUPS::MOOD_IS_BAD
