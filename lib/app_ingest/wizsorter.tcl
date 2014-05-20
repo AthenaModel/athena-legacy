@@ -55,7 +55,7 @@ snit::widget wizsorter {
         FLOOD      "Flood"
         RIOT       "Riot"
         TRAFFIC    "Traffic"
-        VIOLENCE   "Violence"
+        VIOLENCE   "Random Violence"
     }
 
     

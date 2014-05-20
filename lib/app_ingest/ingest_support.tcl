@@ -43,7 +43,8 @@ script load "athena_ingest(1) Executive Commands"
 # NEXT, Create "Drought" CURSE, replacing any existing DROUGHT curse
 
 catch {send CURSE:DELETE -curse_id DROUGHT}
-send CURSE:CREATE -curse_id DROUGHT -cause THIRST -s 1.0 -p 0.0 -q 0.0
+send CURSE:CREATE -curse_id DROUGHT -cause THIRST -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Drought in Neighborhood"
 send INJECT:SAT:CREATE -curse_id DROUGHT \
     -mode  transient \
     -gtype NEW       \
@@ -74,6 +75,20 @@ send INJECT:SAT:CREATE -curse_id DROUGHT \
     -g     @SACIV    \
     -c     SFT       \
     -mag   XS-
+
+# NEXT, create VIOLENCE ("Random Violence") CURSE, replacing any
+# previous such CURSE.
+
+catch {send CURSE:DELETE -curse_id VIOLENCE}
+send CURSE:CREATE -curse_id VIOLENCE -cause UNIQUE -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Random Violence against Civilians"
+send INJECT:SAT:CREATE -curse_id VIOLENCE \
+    -mode  persistent \
+    -gtype NEW        \
+    -g     @CIVS      \
+    -c     SFT        \
+    -mag   XS-
+
 
 # End of ingest_support.tcl
 #-------------------------------------------------------------------
