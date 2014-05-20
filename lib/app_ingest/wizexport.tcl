@@ -122,11 +122,11 @@ snit::widget wizexport {
 
         ttk::scrollbar $w.xscroll \
             -orient horizontal \
-            -command [list $detail xview]
+            -command [list $script xview]
 
         ttk::scrollbar $w.yscroll \
             -orient vertical \
-            -command [list $detail yview]
+            -command [list $script yview]
 
         grid $w.rotext  -row 0 -column 0 -sticky nsew
         grid $w.yscroll -row 0 -column 1 -sticky ns

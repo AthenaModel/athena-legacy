@@ -40,8 +40,9 @@ script save "athena_ingest(1) Executive Commands" {
 script auto "athena_ingest(1) Executive Commands" on
 script load "athena_ingest(1) Executive Commands"
 
-# NEXT, Create "Drought" CURSE
+# NEXT, Create "Drought" CURSE, replacing any existing DROUGHT curse
 
+catch {send CURSE:DELETE -curse_id DROUGHT}
 send CURSE:CREATE -curse_id DROUGHT -cause THIRST -s 1.0 -p 0.0 -q 0.0
 send INJECT:SAT:CREATE -curse_id DROUGHT \
     -mode  transient \
@@ -73,3 +74,7 @@ send INJECT:SAT:CREATE -curse_id DROUGHT \
     -g     @SACIV    \
     -c     SFT       \
     -mag   XS-
+
+# End of ingest_support.tcl
+#-------------------------------------------------------------------
+

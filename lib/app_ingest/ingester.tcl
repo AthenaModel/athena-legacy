@@ -194,6 +194,8 @@ snit::type ingester {
     # Returns an ingestion script for the ingested events.
 
     typemethod script {} {
+        set supportFile [appdir join lib app_ingest ingest_support.tcl]
+
         set ts [clock format [clock seconds]]
 
         set script [enscript {
@@ -204,14 +206,25 @@ snit::type ingester {
 
         } %timestamp $ts]
 
+
+        append script "\n[readfile $supportFile]\n\n"
+
+        append script [enscript {
+            #-------------------------------------------------------
+            # Ingested Events
+
+        }]
+
         foreach id [simevent ids] {
             append script "\n"
             append script [[simevent get $id] export] "\n"
         }
 
-        append script "\n# End of script\n"
-        append script \
-            "#-------------------------------------------------------"
+        append script [enscript {
+
+            # End of script
+            #-------------------------------------------------------
+        }]
 
         return $script
     }
