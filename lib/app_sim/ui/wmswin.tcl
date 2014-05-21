@@ -195,7 +195,7 @@ snit::widget wmswin {
     
         # Map location display
         ttk::label $win.mapf.ttoolbar.loc \
-            -textvariable [myvar info(maploc)] \
+            -textvariable [myvar info(locvar)] \
             -justify      right                \
             -anchor       e                    \
             -width        60             

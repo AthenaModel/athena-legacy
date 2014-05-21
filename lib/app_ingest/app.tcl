@@ -60,6 +60,7 @@ snit::type app {
         rdb      init
         tigr     init
         ingester init
+        nbhood   init
 
         # NEXT, initialize order handling
         order init \

@@ -40,8 +40,16 @@ snit::type rdb {
             -- TIGR Messages retrieved from the data source.
 
             -- TIGR Fields
-            cid    TEXT PRIMARY KEY,
-            title  TEXT,    -- Message title
+            cid        TEXT PRIMARY KEY,
+            title      TEXT,    -- Message title
+            desc       TEXT,    -- Message description
+            start_str  TEXT,    -- start time as string
+            end_str    TEXT,    -- end time as string
+            start      INTEGER, -- unix timestamp of start time
+            end        INTEGER, -- unix timestamp of end time
+            tz         TEXT,    -- time zone: +/-hhmm
+            locs       TEXT,    -- list of lat/long pairs
+            body       TEXT,    -- full XML body of TIGR message 
 
             -- Derived Fields
             week   TEXT,    -- Julian week(n) string

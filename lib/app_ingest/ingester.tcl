@@ -142,6 +142,8 @@ snit::type ingester {
         adb open $dbfile
         set info(dbfile) $dbfile
 
+        nbhood dbsync 
+
         notifier send ::ingester <update>
     }
 
