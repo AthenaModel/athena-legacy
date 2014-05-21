@@ -110,13 +110,19 @@ snit::type tigr {
                 lassign $loc lat lon
                 set n [nbhood find $lat $lon]
                 if {$n eq ""} {
-                    set n "Unknown"
+                    continue
                 }
 
                 # Unique neighborhoods only
                 if {$n ni $nlist} {
                     lappend nlist $n
                 }
+            }
+
+            # NEXT, if no neighborhoods found, continue to the
+            # next message
+            if {$nlist eq ""} {
+                continue
             }
 
             # NEXT, insert data into the rdb
