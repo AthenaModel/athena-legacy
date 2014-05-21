@@ -110,6 +110,47 @@ namespace eval ::projectlib::test {
         week toInteger 2010w27 
     } -result {546}
 
+    #--------------------------------------------------------------------
+    # toTimestamp
+
+    test toTimestamp-1.1 {epoch} -body {
+        week toTimestamp 2000W01 
+    } -result {946684800}
+
+    test toTimestamp-2.2 {epoch + 1 year} -body {
+        week toTimestamp 2001W01
+    } -result {978134400}
+
+    test toTimestamp-2.3 {epoch + 10 years, 26 weeks} -body {
+        week toTimestamp 2010W27 
+    } -result {1276905600}
+
+    test toTimestamp-2.4 {lowercase is OK} -body {
+        week toTimestamp 2010w27 
+    } -result {1276905600}
+
+    #--------------------------------------------------------------------
+    # toWeek
+
+    test toWeek-1.1 {negative number for timestamp not allowed} -body {
+        week toWeek -604800
+    } -returnCodes {
+        error
+    } -result {Assertion failed: $ts > -1}
+
+    test toWeek-2.1 {epoch} -body {
+        week toWeek 946684800 
+    } -result {0}
+
+    test toWeek-2.2 {epoch + 1 year} -body {
+        week toWeek 978134400
+    } -result {52}
+
+    test toWeek-2.3 {epoch + 10 years, 26 weeks} -body {
+        week toWeek 1276905600 
+    } -result {546}
+
+
     #-------------------------------------------------------------------
     # validate
     #
