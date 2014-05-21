@@ -61,6 +61,23 @@ snit::type app {
         tigr     init
         ingester init
 
+        # NEXT, initialize order handling
+        order init \
+            -subject ::order \
+            -rdb     ::rdb
+
+        order interface configure gui \
+            -checkstate  no                            \
+            -trace       no                            \
+            -errorcmd    [myproc UnexpectedOrderError]
+
+        orderdialog init \
+            -parent    .main              \
+            -appname   "Athena Ingest [projinfo version] ([projinfo build])" \
+            -refreshon {
+                ::order <Accepted>
+            }
+
         # NEXT, create the real main window.
         appwin .main
 
@@ -142,6 +159,33 @@ snit::type app {
 
         return [$topwin {*}$args]
     }
+
+    # UnexpectedOrderError name errmsg
+    #
+    # name    - The order name
+    # errmsg  - The error message
+    # einfo   - Error info (the stack trace)
+    #
+    # Handles unexpected order errors.
+
+    proc UnexpectedOrderError {name errmsg einfo} {
+        puts "Unexpected error while handling order."
+        puts ""
+        puts $einfo
+
+        app error {
+            |<--
+            $name
+
+            There was an unexpected error during the 
+            handling of this order.  The error details
+            have been written to the console.
+        }
+
+
+        return "Unexpected error while handling order."
+    }
+
 }
 
 

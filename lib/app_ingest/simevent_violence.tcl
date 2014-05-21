@@ -100,7 +100,7 @@ simevent define VIOLENCE "Violence" {
 # Updates existing VIOLENCE event.
 
 order define SIMEVENT:VIOLENCE {
-    title "Event: Violenceing in Neighborhood"
+    title "Event: Random Violence in Neighborhood"
     options -sendstates PREP
 
     form {
@@ -110,21 +110,20 @@ order define SIMEVENT:VIOLENCE {
 
         rcc "Duration:" -for duration
         text duration -defvalue 1
+        label "week(s)"
     }
 } {
     # FIRST, prepare the parameters
-    prepare event_id  -required -type event::VIOLENCE
-    prepare duration  -number   -type ipositive
+    prepare event_id  -required -type simevent::VIOLENCE
+    prepare duration  -num      -type ipositive
  
     returnOnError -final
 
-    # NEXT, update the event, saving the undo script, and clearing
-    # historical state data.
-    set event [event get $parms(event_id)]
-    set undo [$event update_ {duration} [array get parms]]
+    # NEXT, update the event.
+    set e [simevent get $parms(event_id)]
+    $e update_ {duration} [array get parms]
 
-    # NEXT, save the undo script
-    setundo $undo
+    return
 }
 
 

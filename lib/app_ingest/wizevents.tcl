@@ -41,6 +41,7 @@ snit::widget wizevents {
 
     component toolbar   ;# Toolbar for the widget
     component elist     ;# databrowser(n), event list
+    component editbtn   ;# Event edit button
     component togglebtn ;# Event toggle state button
     component detail    ;# htmlviewer(n) to display details.
     
@@ -102,7 +103,23 @@ snit::widget wizevents {
         ttk::label $toolbar.lab \
             -text "Candidate Events:"
 
+        # Edit Button
+        install editbtn using mkeditbutton $toolbar.edit \
+            "Edit Event"                                 \
+            -state   disabled                            \
+            -command [mymethod EListEdit]
+
+        # State Toggle button
+        install togglebtn using mktoolbutton $toolbar.toggle \
+            ::marsgui::icon::onoff                           \
+            "Toggle State"                                   \
+            -state   disabled                                \
+            -command [mymethod EListToggle]
+
         pack $toolbar.lab -side left
+        pack $editbtn     -side left
+        pack $togglebtn   -side left
+
     }
 
 
@@ -168,14 +185,6 @@ snit::widget wizevents {
                 { cidcount  "#TIGR"     -sortmode integer }
             }
 
-        # State Toggle button
-        install togglebtn using mktoolbutton $toolbar.toggle   \
-            ::marsgui::icon::onoff                             \
-            "Toggle State"                                     \
-            -state   disabled                                  \
-            -command [mymethod EListToggle]
-
-        pack $togglebtn -side left
 
         # NEXT, respond to updates.
         notifier bind ::simevent <update> $self [list $elist uid update]
@@ -206,12 +215,17 @@ snit::widget wizevents {
     # EListSelection
     #
     # Called when the elist's selection has changed.
+    #
+    # TBD: it may be that some events cannot be edited.  In this
+    # case, we'll need to update the editbtn state logic.
 
     method EListSelection {} {
         # FIRST, enable/disable controls
         if {[llength [$elist curselection]] == 1} {
+            $editbtn configure -state normal
             $togglebtn configure -state normal
         } else {
+            $editbtn configure -state disabled
             $togglebtn configure -state disabled
         }
 
@@ -229,6 +243,25 @@ snit::widget wizevents {
     }
 
     
+    # EListEdit
+    #
+    # Edits the state of the currently selected event.
+
+    method EListEdit {} {
+        # FIRST, there should be only one selected.
+        set id [lindex [$elist uid curselection] 0]
+
+        if {$id eq ""} {
+            return
+        }
+
+        # NEXT, get the event.
+        set e [simevent get $id]
+
+        # NEXT, pop up the order.
+        order enter SIMEVENT:[$e typename] event_id $id
+    }
+
     # EListToggle
     #
     # Toggles the state of the currently selected event.
@@ -251,7 +284,6 @@ snit::widget wizevents {
             $e update_ {state} [list state disabled]
         }
     }
-
 
     #-------------------------------------------------------------------
     # Wizard Page Interface

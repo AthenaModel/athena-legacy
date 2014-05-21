@@ -110,21 +110,20 @@ order define SIMEVENT:FLOOD {
 
         rcc "Duration:" -for duration
         text duration -defvalue 1
+        label "week(s)"
     }
 } {
     # FIRST, prepare the parameters
-    prepare event_id  -required -type event::FLOOD
-    prepare duration  -number   -type ipositive
+    prepare event_id  -required -type simevent::FLOOD
+    prepare duration  -num      -type ipositive
  
     returnOnError -final
 
-    # NEXT, update the event, saving the undo script, and clearing
-    # historical state data.
-    set event [event get $parms(event_id)]
-    set undo [$event update_ {duration} [array get parms]]
+    # NEXT, update the event.
+    set e [simevent get $parms(event_id)]
+    $e update_ {duration} [array get parms]
 
-    # NEXT, save the undo script
-    setundo $undo
+    return
 }
 
 
