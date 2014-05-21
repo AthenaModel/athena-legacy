@@ -71,7 +71,10 @@ snit::type ::projectlib::week {
     # epoch of 1/1/2000
 
     typemethod toWeek {ts} {
-        # FIRST, use unix timestamp for 1/1/2000 00:00:00 (GMT) to convert
+        # FIRST, timestamp must be a positive number
+        assert {$ts > -1}
+
+        # NEXT, use unix timestamp for 1/1/2000 00:00:00 (GMT) to convert
         # to weeks
         set epochSecs [expr {entier($ts) - 946684800}]
         set week      [expr {($epochSecs/86400) / 7}]
