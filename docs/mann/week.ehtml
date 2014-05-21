@@ -46,10 +46,21 @@ This module defines the following commands:<p>
 Converts an integer week expressed as the number of weeks since the
 epoch into a week string.<p>
 
+<<defitem "week toWeek" {week toWeek <i>ts</i>}>>
+
+Converts a Unix timestamp to  the integer number of weeks since the
+epoch.  It could be a negative number.<p>
+
 <<defitem "week toInteger" {week toInteger <i>wstring</i>}>>
 
 Converts a week string into the integer number of weeks since the
 epoch.<p>
+
+<<defitem "week toTimestamp" {week toTimestamp <i>wstring</i>}>>
+
+Converts a week string into a standard Unix timestamp. Note that since
+Athena operates in time units of weeks, using week(n) to convert from a Unix
+timestamp and back will not result in the same timestamp being returned.<p>
 
 <<defitem "week validate" {week validate <i>wstring</i>}>>
 

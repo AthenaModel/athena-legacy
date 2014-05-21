@@ -63,6 +63,39 @@ snit::type ::projectlib::week {
         return [format "%04dW%02d" $year $week]
     }
 
+    # toWeek ts
+    #
+    # ts   - A unix timestamp in seconds since 1/1/1970
+    #
+    # Converts a unix timestamp to a week number using Athena's
+    # epoch of 1/1/2000
+
+    typemethod toWeek {ts} {
+        # FIRST, use unix timestamp for 1/1/2000 00:00:00 (GMT) to convert
+        # to weeks
+        set epochSecs [expr {entier($ts) - 946684800}]
+        set week      [expr {($epochSecs/86400) / 7}]
+
+        return $week
+    }
+
+    # toTimestamp wstring
+    #
+    # wstring - A julian week string
+    #
+    # Converts a julian week string to a unix timestamp at GMT. Athena's
+    # epoch of 1/1/2000 is assumed
+
+    typemethod toTimestamp {wstring} {
+        set weeks [$type toInteger $wstring]
+
+        set epochSecs [expr {entier($weeks*7*86400)}]
+
+        # Add unix time stamp for 1/1/2000 00:00:00 (GMT) to the
+        # seconds 
+        return [expr {946684800 + $epochSecs}]
+    }
+
     # toInteger wstring
     #
     # wstring  - A julian week string
