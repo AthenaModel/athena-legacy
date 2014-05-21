@@ -190,6 +190,14 @@ snit::type exporter {
             MakeSend $f PARM:SET parm $parm value [parm get $parm]
         }
 
+        # NEXT, Map Data and Projection
+        SectionHeader $f "Map and Projection"
+        set imgdata [[map image] data -format jpeg]
+        set projtype [rdb onecolumn {SELECT projtype FROM maps}]
+        set pdict [ProjDict $projtype]
+
+        MakeSend $f MAP:IMPORT:DATA data $imgdata proj [dict get $pdict]
+
         # NEXT, Belief Systems
         SectionHeader $f "Belief Systems"
         FromParms $f BSYS:PLAYBOX:UPDATE gamma [bsys playbox cget -gamma]
@@ -443,6 +451,34 @@ snit::type exporter {
             # NEXT, output the command.
             MakeSend $f $order {*}$parmdict
         }
+    }
+
+    # ProjDict projtype
+    #
+    # projtype   - a supported projection type
+    #
+    # Extracts and packages up projection information into a format
+    # expected by the order.
+
+    proc ProjDict {projtype} {
+        dict set pdict ptype $projtype
+
+        set proj [map projection]
+        dict set pdict width [$proj cget -width]
+        dict set pdict height [$proj cget -height]
+
+        switch -exact -- $projtype {
+            "RECT" {
+                dict set pdict minlon [$proj cget -minlon]
+                dict set pdict maxlon [$proj cget -maxlon]
+                dict set pdict minlat [$proj cget -minlat]
+                dict set pdict maxlat [$proj cget -maxlat]
+            }
+
+            default {}
+        }
+
+        return $pdict
     }
 
     # FromBean order idvar bean
