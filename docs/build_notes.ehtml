@@ -11,6 +11,42 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.0-B5, 22 May 2014</h3>
+This build is the first to contain new enhancements specific to the DCGS-A
+data ingestion effort.  Specifically, a new Athena application called 
+athena_ingest(1) can be used to import DCGS-A TIGR messages.  The messages can
+then be allocated to certain types of predetermined events.  Finally the 
+events can be converted to an order script containing certain kinds of tactics
+that simulate the effects of the events on the entities in the scenario.  For
+this build, the focus is on Afghanistan. As such, there is an Afghanistan
+scenario and a set of Afghanistan based TIGR messages available for use in 
+testing, ask a developer.  There is also some changes to how the economic 
+model is enabled and disabled.  A new tab under the Economics tab allows the
+user to easily switch the model on and off.  TRISA requested that the CONSUMP
+and UNEMP rulesets fire when Econ is disabled.  There's some other enhancements
+as well.<p>
+
+<ul>
+  <li> Bug 4482: athena(1): have CONSUMP ruleset fire when econ is disabled.
+  <li> Bug 4483: athena(1): have UNEMP rulest fire when econ is disabled
+  <li> Bug 4490: athena(1): add control tab to economics that allows user to easily enable and disable the model
+  <li> Bug 4496: WMS Map Client needs Send & Close button
+  <li> Bug 4497: athena(1): a TIGR message parser is needed in support of the Athena ingestion tool
+  <li> Bug 4498: athena(1): implement domparser(n) tDOM wrapper
+  <li> Bug 4499: athena(1): update wfscap(n) to use domparser(n)
+  <li> Bug 4500: athena(1): WMS window needs to be more robust
+  <li> Bug 4502: athena(1): add WMS URL preferences parameter
+  <li> Bug 4509: athena(1): update week(n) to allow conversion to and from Unix timestamps
+  <li> Bug 4510: athena(1): exporter does not export map
+  <li> Bug 4511: athena_ingest(1): Add TIGR message ingestion
+  <li> Bug 4501: athena_ingest(1): Prototype TIGR Ingestion Tool
+  <li> Bug 4503: athena_ingest(1): Save ingestion outputs to disk
+  <li> Bug 4504: athena(1): New civgroups gofers for subsistence/non-subsistence agriculture.
+  <li> Bug 4506: athena_ingest(1): Include "ingestion support" script in ingestion script
+  <li> Bug 4507: athena_ingest(1): "Random Violence" event
+  <li> Bug 4508: athena_ingest(1): Can edit ingested events 
+</ul><p>
+
 <h3>Build 6.2.0-B4, 29 April 2014</h3>
 At the request of TRISA, this build represents the first in a new build
 numbering scheme.  This will allow future releases of Athena to be deployed
