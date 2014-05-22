@@ -82,5 +82,3 @@ proc main {argv} {
 # FIRST, run the main routine, to set everything up.
 main $argv
 
-
-
