@@ -132,7 +132,15 @@ snit::type ::projectlib::wmscap {
         # NEXT, any  errors encountered while parsing will propagate up
         if {[catch {
             $parser parse $xml
-        } result]} {
+        } result eopts]} {
+            set ecode [dict get $eopts -errorcode]
+
+            # Rethrow codes of INVALID
+            if {$ecode eq "INVALID"} {
+                return {*}$eopts $result
+            }
+
+            # Completely unknown problem, bgerror
             bgerror "Error parsing xml: $result"
         }
 
