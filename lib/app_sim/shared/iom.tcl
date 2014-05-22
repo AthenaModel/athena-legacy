@@ -491,7 +491,8 @@ order define IOM:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     IOM:DELETE                    \
+                        -onclose       cancel                           \
+                        -ignoretag     IOM:DELETE                       \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {

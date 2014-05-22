@@ -595,6 +595,7 @@ order define CURSE:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     CURSE:DELETE                     \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \

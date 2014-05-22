@@ -427,7 +427,8 @@ order define MAD:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     MAD:DELETE                      \
+                        -onclose       cancel                           \
+                        -ignoretag     MAD:DELETE                       \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {

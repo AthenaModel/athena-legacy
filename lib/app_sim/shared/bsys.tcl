@@ -634,6 +634,7 @@ order define BSYS:SYSTEM:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     BSYS:SYSTEM:DELETE               \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
@@ -795,6 +796,7 @@ order define BSYS:TOPIC:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     BSYS:TOPIC:DELETE               \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \

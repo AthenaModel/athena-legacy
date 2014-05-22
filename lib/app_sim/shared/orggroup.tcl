@@ -253,7 +253,8 @@ order define ORGGROUP:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     ORGGROUP:DELETE        \
+                        -onclose       cancel                           \
+                        -ignoretag     ORGGROUP:DELETE                  \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {

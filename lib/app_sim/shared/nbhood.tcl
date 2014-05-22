@@ -626,6 +626,7 @@ order define NBHOOD:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     NBHOOD:DELETE                    \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \

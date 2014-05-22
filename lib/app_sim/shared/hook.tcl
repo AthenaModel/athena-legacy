@@ -528,6 +528,7 @@ order define HOOK:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     HOOK:DELETE                      \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \

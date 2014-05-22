@@ -694,6 +694,7 @@ order define ABSIT:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     ABSIT:DELETE   \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \

@@ -467,7 +467,8 @@ order define CIVGROUP:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     CIVGROUP:DELETE            \
+                        -onclose       cancel                           \
+                        -ignoretag     CIVGROUP:DELETE                  \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {

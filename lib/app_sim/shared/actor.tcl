@@ -469,6 +469,7 @@ order define ACTOR:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     ACTOR:DELETE            \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \

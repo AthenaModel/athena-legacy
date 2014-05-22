@@ -325,7 +325,8 @@ order define FRCGROUP:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
-                        -ignoretag     FRCGROUP:DELETE                    \
+                        -onclose       cancel                           \
+                        -ignoretag     FRCGROUP:DELETE                  \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
                         -message       [normalize {

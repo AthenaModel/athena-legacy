@@ -593,6 +593,7 @@ order define CAP:DELETE {
                         -icon          warning                          \
                         -buttons       {ok "Delete it" cancel "Cancel"} \
                         -default       cancel                           \
+                        -onclose       cancel                           \
                         -ignoretag     CAP:DELETE                    \
                         -ignoredefault ok                               \
                         -parent        [app topwin]                     \
