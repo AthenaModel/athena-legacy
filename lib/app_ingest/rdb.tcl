@@ -49,7 +49,6 @@ snit::type rdb {
             end        INTEGER, -- unix timestamp of end time
             tz         TEXT,    -- time zone: +/-hhmm
             locs       TEXT,    -- list of lat/long pairs
-            body       TEXT,    -- full XML body of TIGR message 
 
             -- Derived Fields
             week   TEXT,    -- Julian week(n) string

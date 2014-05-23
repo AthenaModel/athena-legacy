@@ -50,12 +50,12 @@ snit::widget wizsorter {
         ACCIDENT   "Accident"
         CIVCAS     "Civilian Casualties"
         DEMO       "Demonstration"
-        DROUGHT    "Drought"
+        DROUGHT    "*Drought"
         EXPLOSION  "Explosion"
-        FLOOD      "Flood"
+        FLOOD      "*Flood"
         RIOT       "Riot"
         TRAFFIC    "Traffic"
-        VIOLENCE   "Random Violence"
+        VIOLENCE   "*Random Violence"
     }
 
     

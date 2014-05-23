@@ -28,7 +28,7 @@ snit::type tigr {
     #-------------------------------------------------------------------
     # Type Components
 
-    # TBD
+    typecomponent ht ;# HTools object, for details.
 
     #-------------------------------------------------------------------
     # Type Variables
@@ -53,7 +53,7 @@ snit::type tigr {
     # Initializes the module, which prepares the data structures.
     
     typemethod init {} {
-        # TBD
+        set ht [htools ${type}::ht]
     }
 
     # retrieveMessages
@@ -104,6 +104,9 @@ snit::type tigr {
         foreach filename $flist {
             $type ParseFile $filename
         }
+
+        # NEXT, assign numeric week numbers
+        $type AssignWeekNumbers
 
         # NEXT, return the size of the error dictionary
         return [dict size $info(errmsgs)]
@@ -170,7 +173,6 @@ snit::type tigr {
                      end,
                      tz,
                      locs,
-                     body,
                      week,
                      n)
             VALUES($cid,
@@ -182,11 +184,33 @@ snit::type tigr {
                    $end,
                    $tz,
                    $locs,
-                   $body,
                    $week,
                    $n)
         }
     }
+
+    # AssignWeekNumbers
+    #
+    # Assigns a week number (an integer) to each message, based
+    # on the week strings.  The first week is week 1.
+
+    typemethod AssignWeekNumbers {} {
+        set weeks [rdb eval {
+            SELECT DISTINCT week FROM messages ORDER BY week ASC
+        }]
+
+        set t 0
+        foreach week $weeks {
+            incr t
+
+            rdb eval {
+                UPDATE messages
+                SET t = $t
+                WHERE week = $week
+            }
+        }
+    }
+
 
 
     # errmsgs
@@ -231,16 +255,44 @@ snit::type tigr {
     # known to date.
 
     typemethod detail {id} {
-        set desc [rdb onecolumn {SELECT desc FROM messages WHERE cid=$id}]
-        append out "<h1>$id</h1>\n"
+        # FIRST, retrieve the data.
+        rdb eval {SELECT * FROM messages WHERE cid=$id} row {}
 
-        if {$desc eq ""} {
-            set desc "No more information available."
+        set loclist [list]
+        foreach loc $row(locs) {
+            lappend loclist [latlong tomgrs $loc]
         }
 
-        append out $desc
 
-        return $out
+        # NEXT, format the details.
+        $ht clear
+
+        $ht title $row(title) "Message $id"
+
+        $ht putln "<table>"
+        $type VarItem "Week"      $row(week)
+        $type VarItem "Nbhood"    $row(n)
+        $type VarItem "Start/End" "$row(start_str) -- $row(end_str)"
+        $type VarItem "Location"  [join $loclist ", "]
+        $ht putln "</table>" 
+        $ht para
+
+        if {$row(desc) ne ""} {
+            $ht putln $row(desc)
+        } else {
+            $ht putln "No more information available."
+        }
+
+        $ht para
+
+        return [$ht get]
+    }
+
+    # VarItem name value
+    #
+    # Outputs a table row with a name and value.
+    typemethod VarItem {name value} {
+        $ht putln "<tr><td><b>$name:</b></td> <td>$value</td></tr>"
     }
 
 }
