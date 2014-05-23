@@ -101,7 +101,6 @@ simevent define FLOOD "Flood" {
 
 order define SIMEVENT:FLOOD {
     title "Event: Flooding in Neighborhood"
-    options -sendstates PREP
 
     form {
         rcc "Event ID" -for event_id

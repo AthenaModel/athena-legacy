@@ -25,19 +25,20 @@ snit::widget wiztigr {
         Ideally, this page would contain controls for selecting a
         a time interval and possibly other search terms, to be used
         in retrieving some set of TIGR messages.  For the present,
-        however, we have a canned set of TIGR messages.  Press the
-        button, below, to retrieve them.<p>
+        however, we can retrieve canned TIGR messages from disk.
+        To browse for TIGR .xml files on disk, press the "Browse"
+        button; to load our canned set of test .xml messages, 
+        press the "Test Data" button.<p>
 
-        <input name="bretrieve"><p>
-
-        <input name="status"><p>
+        <input name="bbrowse"> <input name="btest"><p>
     }
     
     #-------------------------------------------------------------------
     # Components
 
     component hframe     ;# htmlframe(n) widget to contain the content.
-    component bretrieve  ;# retrieval button
+    component btest      ;# test data button
+    component browse     ;# browse button
     component status     ;# Status message
     
     #-------------------------------------------------------------------
@@ -48,13 +49,6 @@ snit::widget wiztigr {
     #-------------------------------------------------------------------
     # Variables
 
-    # Info array: wizard data
-    #
-    # status  - A status message
-
-    variable info -array {
-        status {}
-    }
 
     #-------------------------------------------------------------------
     # Constructor
@@ -74,31 +68,85 @@ snit::widget wiztigr {
         pack $hframe -fill both -expand yes
 
         # NEXT, create the widgets
-        install bretrieve using ttk::button $hframe.bretrieve \
-            -text    "Retrieve"                               \
-            -command [mymethod RetrieveMessages]
+        install bbrowse using ttk::button $hframe.bbrowse \
+            -text    "Browse"                             \
+            -command [mymethod BrowseForData]
 
-        install status using ttk::label $hframe.status \
-            -textvariable [myvar info(status)]
+        install btest using ttk::button $hframe.btest \
+            -text    "Test Data"                      \
+            -command [mymethod RetrieveTestData]
 
         # NEXT, lay it out.
-        $hframe layout $layout
+        $self layout
     }
+
+    #-------------------------------------------------------------------
+    # Layout Management
+
+    # layout
+    #
+    # Lays out the current content of the widget, starting with the
+    # boilerplate, and adding status information.
+
+    method layout {} {
+        set msgCount [llength [tigr ids]]
+        set errCount [dict size [tigr errmsgs]]
+
+        set status "Retrieved $msgCount messages so far.<p>\n"
+
+        if {$errCount > 0} {
+            append status "Errors in these files:<p>\n
+            "
+            append status "<ul>\n"
+
+            dict for {name msg} [tigr errmsgs] {
+                append status "<li> $name: $msg\n"
+            }
+
+            append status "</ul>\n"
+        }
+
+        $hframe layout "$layout<p>\n\n$status"
+    }
+    
 
     #-------------------------------------------------------------------
     # Event handlers
 
-    # RetrieveMessages
+    # RetrieveTestData
     #
-    # Tells ingester to retrieve the messages.  TBD: This will
-    # ultimately involve an asynchronous event.
+    # Tells ingester to retrieve the test messages.
 
-    method RetrieveMessages {} {
-        ingester retrieveMessages
-        set number [llength [tigr ids]]
-        set info(status) "Retrieved $number messages"
+    method RetrieveTestData {} {
+        ingester retrieveTestMessages
+
+        $self layout
     }
 
+    # BrowseForData
+    #
+    # Browses for .xml files and passes them along.
+
+    method BrowseForData {} {
+        # FIRST, get the filenames to parse
+        set filenames [tk_getOpenFile \
+                       -initialdir [pwd]                  \
+                       -title      "Select TIGR Messages" \
+                       -parent     [app topwin]           \
+                       -multiple   1                      \
+                       -filetypes {
+                           {{TIGR messages} {.xml}}
+                       }]
+
+        if {[llength $filenames] == 0} {
+            return
+        }
+
+        ingester retrieveMessages $filenames
+        set number [llength [tigr ids]]
+
+        $self layout
+    }
 
     #-------------------------------------------------------------------
     # Wizard Page Interface
@@ -110,7 +158,7 @@ snit::widget wiztigr {
     # data from the data model).
 
     method enter {} {
-        set info(status) ""
+        $self layout
         return
     }
 

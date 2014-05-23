@@ -147,14 +147,24 @@ snit::type ingester {
         notifier send ::ingester <update>
     }
 
-    # retrieveMessages
+    # retrieveTestMessages
+    #
+    # Retrieves our canned test messages.
+
+    typemethod retrieveTestMessages {} {
+        tigr readTestData
+
+        notifier send ::ingester <update>
+    }
+
+    # retrieveMessages filenames
     #
     # Ideally, this should have search arguments to pass along to
     # TIGR; or perhaps the wiztigr widget should talk directly to
     # tigr.
 
-    typemethod retrieveMessages {} {
-        tigr retrieveMessages
+    typemethod retrieveMessages {filenames} {
+        tigr readfiles $filenames
 
         notifier send ::ingester <update>
     }
