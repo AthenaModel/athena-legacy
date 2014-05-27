@@ -142,7 +142,7 @@ snit::widget appwin {
         }
 
         absit {
-            label   "EnSits"
+            label   "AbSits"
             vistype *
             parent  physical
             script  { absitbrowser %W }

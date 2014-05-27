@@ -908,7 +908,7 @@ snit::widget mapviewer {
             -command [mymethod NbhoodBrowseDetail]
 
         cond::available control \
-            [menuitem $mnu command "Create Environmental Situation" \
+            [menuitem $mnu command "Create Abstract Situation" \
                  -command [mymethod NbhoodCreateAbsitHere]]         \
             order ABSIT:CREATE
 
@@ -1529,7 +1529,7 @@ snit::widget mapviewer {
 
     # UpdateAbsit
     #
-    # Pops up the "Update Environmental Situation" dialog for this unit
+    # Pops up the "Update Abstract Situation" dialog for this unit
 
     method UpdateAbsit {} {
         order enter ABSIT:UPDATE s $icons(context)
