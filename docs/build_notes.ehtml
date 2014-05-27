@@ -11,6 +11,19 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.0-B6, 27 May 2014</h3>
+This build contains a number of key fixes to the athena_ingest(1) tool. There's
+also a few bug fixes. The list of packages:<p>
+
+<ul>
+<li> Bug 4513: Econ / Groups tab does not output Consumption data
+<li> Bug 4463: Clicking the X in the "Are you Sure?" dialog does not cancel
+<li> Bug 4472: Mouse scroll wheel does not scroll on Detail browser pages
+<li> Bug 4491: Neighborhood context menu still refers to EnSits
+<li> Bug 4514: athena_ingest(1): TIGR Retrieval page improvements
+<li> Bug 4515: athena_ingest(1): Enhancements 
+</ul><p>
+
 <h3>Build 6.2.0-B5, 22 May 2014</h3>
 This build is the first to contain new enhancements specific to the DCGS-A
 data ingestion effort.  Specifically, a new Athena application called 
