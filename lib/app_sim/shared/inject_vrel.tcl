@@ -110,6 +110,12 @@ order define INJECT:VREL:CREATE {
     prepare a        -toupper   -required -type roleid
     prepare mag -num -toupper   -required -type qmag
  
+    validate a {
+        if {$parms(g) eq $parms(a)} {
+            reject a "Inject requires two distinct roles"
+        }
+    }
+
     returnOnError -final
 
     # NEXT, put inject_type in the parmdict

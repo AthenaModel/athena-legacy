@@ -58,6 +58,14 @@ namespace eval ::athena_test::tests:: {
         mag          M+ 
     }
 
+    set BAD1 {
+        curse_id    C2
+        mode         transient
+        g            @C1
+        a            @C1
+        mag          M+ 
+    }
+
     #-------------------------------------------------------------------
     # INJECT:VREL:CREATE
 
@@ -88,6 +96,16 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {
         mag {invalid value "NONESUCH", should be a real number in range -100.0, 100.0, or one of: XXXXL+, XXXL+, XXL+, XL+, L+, M+, S+, XS+, XXS+, XXXS+, ZERO, XXXS-, XXS-, XS-, S-, M-, L-, XL-, XXL-, XXXL-, XXXXL-}
+    }
+
+    test CREATE-1.4 {duplicate role} -setup {
+        setup
+    } -body {
+        ted order -reject INJECT:VREL:CREATE $BAD1
+    } -cleanup {
+        cleanup
+    } -result {
+        a {Inject requires two distinct roles}
     }
 
     test CREATE-2.1 {inject is created} -setup {
