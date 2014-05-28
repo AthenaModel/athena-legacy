@@ -206,7 +206,7 @@ snit::type ingester {
     # Returns an ingestion script for the ingested events.
 
     typemethod script {} {
-        set supportFile [appdir join lib app_ingest ingest_support.tcl]
+        set supportFile [file join $::app_ingest::library ingest_support.tcl]
 
         set ts [clock format [clock seconds]]
 
