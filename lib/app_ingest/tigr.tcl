@@ -82,7 +82,7 @@ snit::type tigr {
 
     typemethod readTestData {} {
         set filenames \
-            [glob -nocomplain [appdir join lib app_ingest messages *.xml]]
+            [glob -nocomplain [file join $::app_ingest::library messages *.xml]]
         $type readfiles $filenames
     }
 
