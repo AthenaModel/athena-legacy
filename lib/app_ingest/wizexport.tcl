@@ -187,6 +187,11 @@ snit::widget wizexport {
             return 0
         }
 
+        # NEXT, add the .tcl, if need be.
+        if {[file extension $filename] eq ""} {
+            set filename "$filename.tcl"
+        }
+
         # NEXT, Save the scenario using this name
         try {
             ingester saveFile $filename [ingester script]
@@ -213,6 +218,11 @@ snit::widget wizexport {
         # NEXT, If none, they cancelled.
         if {$filename eq ""} {
             return 0
+        }
+
+        # NEXT, add the .html, if need be.
+        if {[file extension $filename] eq ""} {
+            set filename "$filename.html"
         }
 
         # NEXT, Save the scenario using this name
