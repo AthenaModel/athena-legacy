@@ -17,7 +17,7 @@
 simevent define VIOLENCE "Violence" {
     A "Random Violence" event represents random violence in a neighborhood 
     causing the residents to fear for their lives, short of actual civilian 
-    casualties.  “Random Violence” events will affect all civilian groups 
+    casualties.  "Random Violence" events will affect all civilian groups 
     in the neighborhood.
 } {
     A "Random Violence" event is represented in Athena as a "block" in the 
