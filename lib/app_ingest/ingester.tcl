@@ -177,6 +177,8 @@ snit::type ingester {
     # current sorting.
 
     typemethod saveSorting {sorting} {
+        rdb eval {DELETE FROM cid2etype}
+        
         dict for {bin idlist} $sorting {
             if {$bin in {unsorted ignored}} {
                 continue
