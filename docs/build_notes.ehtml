@@ -11,6 +11,16 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.0-B7, 28 May 2014</h3>
+A serious bug was found in the athena_ingest(1) application that requires a
+new build.  This build has a fix for that and a couple of other bugs:<p>
+
+<ul>
+<li> Bug 4492: pcf map fill bgerror
+<li> Bug 4517: CURSE Injects do not require unique role names
+<li> Bug 4519: athena_ingest(1): bgerror, cannot find ingest_support.tcl 
+</ul><p>
+
 <h3>Build 6.2.0-B6, 27 May 2014</h3>
 This build contains a number of key fixes to the athena_ingest(1) tool. There's
 also a few bug fixes. The list of packages:<p>
