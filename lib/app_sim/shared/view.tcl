@@ -276,7 +276,7 @@ snit::type view {
             rtype rpcf
             query {
                 SELECT n, pcf AS x0
-                FROM econ_n
+                FROM nbhoods
             }
         }
 
