@@ -61,6 +61,7 @@ Name: "{userdocs}\Athena"
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{userdocs}\Athena"
+Name: "{group}\{#MyAppName} Ingest"; Filename: "{app}\{#MyAppExeName}"; Parameters: "ingest"; WorkingDir: "{userdocs}\Athena"
 Name: "{group}\Athena Documentation"; Filename: "{app}\docs\index.html"
 Name: "{group}\{cm:UninstallProgram,{#MyAppName}}"; Filename: "{uninstallexe}"
 Name: "{commondesktop}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"; WorkingDir: "{userdocs}\Athena"; Tasks: desktopicon

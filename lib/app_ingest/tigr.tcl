@@ -56,26 +56,6 @@ snit::type tigr {
         set ht [htools ${type}::ht]
     }
 
-    # retrieveMessages
-    #
-    # For now, allows the user to pick and choose which files to parse
-
-    typemethod retrieveMessages {} {
-        # FIRST, get the filenames to parse
-        set filenames [tk_getOpenFile \
-                       -initialdir [appdir join] \
-                       -title "Select TIGR Messages" \
-                       -parent [app topwin] \
-                       -multiple 1 \
-                       -filetypes {
-                           {{TIGR messages} {.xml}}
-                       }]
-
-        # NEXT, extract data from the files accumulating errors
-        # along the way, the number of errors is returned
-        return [$type readfiles $filenames]
-    }
-
     # readTestData
     #
     # Reads the test files included with the software.
