@@ -76,14 +76,14 @@ will now be toward Athena 6.5.1, build 6.  The developer doing the build
 specifies this by entering the following:<p>
 
 <pre>
-  $ athena_projinfo set -build B6 -save
+  $ athena_projinfo set -build B6 -commit
 </pre>
 
 Athena 6.5.1 B6 is an engineering build delivered to the sponsor, and so
-after it is built it is necessary to bump the projinfo number to 6.5.2:
+after it is delivered it is necessary to bump the version number to 6.5.2:
 
 <pre>
-  $ athena_projinfo set -version 6.5.2 -build B7 -save
+  $ athena_projinfo set -version 6.5.2 -build B7 -commit
 </pre>
 
 <<section AUTHOR>>
