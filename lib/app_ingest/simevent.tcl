@@ -129,6 +129,24 @@ oo::objdefine simevent {
         return $result
     }
 
+    # normals
+    #
+    # Returns the IDs of the events whose state is "normal", i.e.,
+    # not disabled.
+
+    method normals {} {
+        set result [list]
+
+        foreach id [my ids] {
+            if {[[my get $id] state] eq "normal"} {
+                lappend result $id
+            }
+        }
+
+        return $result
+
+    }
+
     #-------------------------------------------------------------------
     # Ingestion
 
@@ -167,7 +185,6 @@ oo::objdefine simevent {
             }
         }
     }
-
    
     #-------------------------------------------------------------------
     # Order Helpers

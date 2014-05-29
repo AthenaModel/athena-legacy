@@ -229,9 +229,11 @@ snit::type ingester {
 
         }]
 
-        foreach id [simevent ids] {
+        foreach id [simevent normals] {
+            set e [simevent get $id]
+
             append script "\n"
-            append script [[simevent get $id] export] "\n"
+            append script [$e export] "\n"
         }
 
         append script [enscript {
@@ -254,7 +256,7 @@ snit::type ingester {
 
         $ht title "Ingestion Report"
 
-        set nEvents [llength [simevent ids]]
+        set nEvents [llength [simevent normals]]
         set nTigr   [llength [tigr ids]]
 
         $ht putln "<b>At:</b> [clock format [clock seconds]]<br>"
@@ -263,7 +265,7 @@ snit::type ingester {
 
         $ht para
 
-        foreach id [simevent ids] {
+        foreach id [simevent normals] {
             set e [simevent get $id]
 
             $ht putln [$e htmltext]
