@@ -1933,9 +1933,9 @@ page /tab/social/beliefs systems "Belief Systems List" {
 
     The Belief Systems list shows all currently defined belief systems.<p>
 
-    Prior to Athena 7, every actor and every civilian group had its down 
+    Prior to Athena 6.2, every actor and every civilian group had its down 
     distinct belief system, which was automatically created with the
-    actor or group.  In Athena 7, belief systems are separate from actors
+    actor or group.  In Athena 6.2, belief systems are separate from actors
     and groups, and a single belief system can be shared by multiple 
     actors and groups.<p>
 
