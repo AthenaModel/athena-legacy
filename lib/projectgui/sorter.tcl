@@ -585,7 +585,10 @@ snit::widget ::projectgui::sorter {
     # Pops up the context menu for the itemlist.
 
     method OnPopupListMenu {rx ry} {
-        # FIRST, add a label, explaining what choosing an item
+        # FIRST, delete the existing content of the menu; we'll rebuild it.
+        $listmenu delete 0 end
+        
+        # NEXT, add a label, explaining what choosing an item
         # does:
         $listmenu add command \
             -label "Move selected item to:"
