@@ -81,10 +81,7 @@ simevent define DROUGHT "Drought" {
             block add SYSTEM \\
                 -intent  %qintent \\
                 %timeopts
-            tactic add - CURSE \\
-                -curse DROUGHT \\
-                -roles [list @NONSACIV [gofer civgroups non_sa_in %n] \\
-                             @SACIV    [gofer civgroups sa_in %n]]
+            make_drought - %n 
         } %intent   [my intent]        \
           %qintent  [list [my intent]] \
           %timeopts [my timeopts]      \

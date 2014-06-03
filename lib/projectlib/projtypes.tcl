@@ -359,6 +359,8 @@ snit::type ::projectlib::typewrapper {
 }
 
 # DAM Rule Set Causes
+#
+# NOTE: DEMO "Demonstration" is provided for use by CURSEs.
 ::marsutil::enum ::projectlib::ecause {
     CHKPOINT  "Checkpoint/Control Point"
     CIVCAS    "Civilian Casualties"
@@ -370,6 +372,7 @@ snit::type ::projectlib::typewrapper {
     CRIME     "Criminal Activities"
     CULSITE   "Damage to Cultural Site/Artifact"
     CURFEW    "Curfew"
+    DEMO      "Demonstration"
     DISASTER  "Disaster"
     DISPLACED "Displaced Persons"
     EDU       "Schools"

@@ -42,22 +42,6 @@ snit::widget wizsorter {
         The event types are as follows:<p>
     }
 
-    # Event Type Specification
-    #
-    # TBD: Ultimately, this will come from some other module.
-
-    typevariable eventTypes {
-        ACCIDENT   "Accident"
-        CIVCAS     "Civilian Casualties"
-        DEMO       "Demonstration"
-        DROUGHT    "*Drought"
-        EXPLOSION  "Explosion"
-        FLOOD      "*Flood"
-        RIOT       "Riot"
-        TRAFFIC    "Traffic"
-        VIOLENCE   "*Random Violence"
-    }
-
     
     #-------------------------------------------------------------------
     # Components
@@ -87,7 +71,7 @@ snit::widget wizsorter {
         install sorter using sorter $win.sorter    \
             -itemlabel  "Messages"                 \
             -helptext   [$self helptext]           \
-            -binspec    $eventTypes                \
+            -binspec    [simevent typenamedict]    \
             -detailcmd  [list tigr detail]         \
             -itemcmd    [list tigr view]           \
             -changecmd  [mymethod ChangeCmd]       \

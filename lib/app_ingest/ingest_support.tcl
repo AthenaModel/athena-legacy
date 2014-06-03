@@ -40,10 +40,84 @@ script save "athena_ingest(1) Executive Commands" {
 script auto "athena_ingest(1) Executive Commands" on
 script load "athena_ingest(1) Executive Commands"
 
-# NEXT, Create "Drought" CURSE, replacing any existing DROUGHT curse
+# NEXT, create ACCIDENT ("Accident") CURSE, replacing any
+# previous such CURSE.
+
+catch {send CURSE:DELETE -curse_id ACCIDENT}
+send CURSE:CREATE -curse_id ACCIDENT -cause DISASTER -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Accident"
+send INJECT:SAT:CREATE -curse_id ACCIDENT \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIV       \
+    -c     SFT        \
+    -mag   XS-
+
+proc make_accident {block_id n} {
+    tactic add $block_id CURSE -curse ACCIDENT \
+        -roles [list @CIV [gofer civgroups resident_in $n]]
+}
+
+# NEXT, command to create CIVCAS tactics
+
+proc make_civcas {block_id n casualties} {
+    tactic add $block_id ATTRIT \
+        -mode       NBHOOD      \
+        -n          $n          \
+        -casualties $casualties
+}
+
+# NEXT, create DEMO ("Demonstration") CURSE, replacing any
+# previous such CURSE.
+
+catch {send CURSE:DELETE -curse_id DEMO}
+send CURSE:CREATE -curse_id DEMO -cause DEMO -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Demonstration"
+send INJECT:SAT:CREATE -curse_id DEMO \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIVFOR    \
+    -c     AUT        \
+    -mag   XS+
+send INJECT:SAT:CREATE -curse_id DEMO \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIVFOR    \
+    -c     CUL        \
+    -mag   M+
+send INJECT:SAT:CREATE -curse_id DEMO \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIVOPP    \
+    -c     AUT        \
+    -mag   XS-
+send INJECT:SAT:CREATE -curse_id DEMO \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIVOPP    \
+    -c     CUL        \
+    -mag   XS-
+send INJECT:SAT:CREATE -curse_id DEMO \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIVOPP    \
+    -c     QOL        \
+    -mag   XS-
+send INJECT:SAT:CREATE -curse_id DEMO \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIVOPP    \
+    -c     SFT        \
+    -mag   XS-
+
+proc make_demo {block_id n g} {
+    error "Need gofer for liking/disliking groups in same neighborhood."
+}
+
+# NEXT, Create "DROUGHT" CURSE, replacing any existing DROUGHT curse
 
 catch {send CURSE:DELETE -curse_id DROUGHT}
-send CURSE:CREATE -curse_id DROUGHT -cause THIRST -s 1.0 -p 0.0 -q 0.0 \
+send CURSE:CREATE -curse_id DROUGHT -cause DISASTER -s 1.0 -p 0.0 -q 0.0 \
     -longname "Drought in Neighborhood"
 send INJECT:SAT:CREATE -curse_id DROUGHT \
     -mode  transient \
@@ -76,19 +150,116 @@ send INJECT:SAT:CREATE -curse_id DROUGHT \
     -c     SFT       \
     -mag   XS-
 
-# NEXT, create VIOLENCE ("Random Violence") CURSE, replacing any
+proc make_drought {block_id n} {
+    tactic add $block_id CURSE -curse DROUGHT \
+        -roles [list @NONSACIV [gofer civgroups non_sa_in $n] \
+                     @SACIV    [gofer civgroups sa_in $n]]
+}
+
+
+# NEXT, create EXPLOSION ("Explosion") CURSE, replacing any
 # previous such CURSE.
 
-catch {send CURSE:DELETE -curse_id VIOLENCE}
-send CURSE:CREATE -curse_id VIOLENCE -cause UNIQUE -s 1.0 -p 0.0 -q 0.0 \
-    -longname "Random Violence against Civilians"
-send INJECT:SAT:CREATE -curse_id VIOLENCE \
+catch {send CURSE:DELETE -curse_id EXPLOSION}
+send CURSE:CREATE -curse_id EXPLOSION -cause CIVCAS -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Explosion"
+send INJECT:SAT:CREATE -curse_id EXPLOSION \
+    -mode  persistent \
+    -gtype NEW        \
+    -g     @CIVS      \
+    -c     AUT        \
+    -mag   XS-
+send INJECT:SAT:CREATE -curse_id EXPLOSION \
     -mode  persistent \
     -gtype NEW        \
     -g     @CIVS      \
     -c     SFT        \
+    -mag   L-
+
+proc make_explosion {block_id n} {
+    tactic add $block_id CURSE -curse EXPLOSION \
+        -roles [list @CIV [gofer civgroups resident_in $n]]
+}
+
+# NEXT, command to make floods
+
+proc make_flood {block_id n duration} {
+    tactic add $block_id EXECUTIVE \
+        -command [list flood $n $duration]
+}
+
+# NEXT, create RIOT ("Riot") CURSE, replacing any
+# previous such CURSE.
+
+catch {send CURSE:DELETE -curse_id RIOT}
+send CURSE:CREATE -curse_id RIOT -cause CIVCAS -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Riot"
+send INJECT:SAT:CREATE -curse_id RIOT \
+    -mode  persistent \
+    -gtype NEW        \
+    -g     @CIV       \
+    -c     AUT        \
+    -mag   XS-
+send INJECT:SAT:CREATE -curse_id RIOT \
+    -mode  persistent \
+    -gtype NEW        \
+    -g     @CIV       \
+    -c     QOL        \
+    -mag   S-
+send INJECT:SAT:CREATE -curse_id RIOT \
+    -mode  persistent \
+    -gtype NEW        \
+    -g     @CIV       \
+    -c     SFT        \
+    -mag   L-
+
+proc make_riot {block_id n} {
+    tactic add $block_id CURSE -curse RIOT \
+        -roles [list @CIV [gofer civgroups resident_in $n]]
+}
+
+
+# NEXT, create TRAFFIC ("Traffic") CURSE, replacing any
+# previous such CURSE.
+
+catch {send CURSE:DELETE -curse_id TRAFFIC}
+send CURSE:CREATE -curse_id TRAFFIC -cause DISASTER -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Traffic"
+send INJECT:SAT:CREATE -curse_id TRAFFIC \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIV       \
+    -c     AUT        \
+    -mag   S-
+send INJECT:SAT:CREATE -curse_id TRAFFIC \
+    -mode  transient  \
+    -gtype NEW        \
+    -g     @CIV       \
+    -c     QOL        \
+    -mag   S-
+
+proc make_traffic {block_id n} {
+    tactic add $block_id CURSE -curse TRAFFIC \
+        -roles [list @CIV [gofer civgroups resident_in $n]]
+}
+
+# NEXT, create VIOLENCE ("Random Violence") CURSE, replacing any
+# previous such CURSE.
+
+catch {send CURSE:DELETE -curse_id VIOLENCE}
+send CURSE:CREATE -curse_id VIOLENCE -cause CIVCAS -s 1.0 -p 0.0 -q 0.0 \
+    -longname "Random Violence against Civilians"
+send INJECT:SAT:CREATE -curse_id VIOLENCE \
+    -mode  persistent \
+    -gtype NEW        \
+    -g     @CIV       \
+    -c     SFT        \
     -mag   XS-
 
+proc make_violence {block_id n} {
+    tactic add $block_id CURSE -curse VIOLENCE \
+        -roles [list @CIV [gofer civgroups resident_in $n]]
+}
 
 # End of ingest_support.tcl
 #-------------------------------------------------------------------

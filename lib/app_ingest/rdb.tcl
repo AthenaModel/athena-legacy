@@ -77,6 +77,11 @@ snit::type rdb {
         FROM messages
         JOIN cid2etype USING (cid);
 
+        CREATE VIEW ingest_ACCIDENT AS
+        SELECT * FROM ingest_view
+        WHERE etype = 'ACCIDENT'
+        ORDER BY n, t;
+
         CREATE VIEW ingest_DROUGHT AS
         SELECT * FROM ingest_view
         WHERE etype = 'DROUGHT'

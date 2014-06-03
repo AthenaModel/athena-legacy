@@ -78,9 +78,7 @@ simevent define VIOLENCE "Violence" {
             block add SYSTEM \\
                 -intent  %qintent \\
                 %timeopts
-            tactic add - CURSE \\
-                -curse VIOLENCE \\
-                -roles [list @CIVS [gofer civgroups resident_in %n]]
+            make_violence - %n
         } %intent   [my intent]        \
           %qintent  [list [my intent]] \
           %timeopts [my timeopts]      \

@@ -115,15 +115,15 @@ oo::objdefine simevent {
         return $result
     }
 
-    # titledict
+    # typenamedict
     #
-    # Returns a dictionary of titles and type names.
+    # Returns a dictionary of type names and titles.
 
-    method titledict {} {
+    method typenamedict {} {
         set result [dict create]
 
         foreach type [my types] {
-            dict set result "[$type typename]: [$type title]" [$type typename]
+            dict set result [$type typename] [$type title]
         }
 
         return $result

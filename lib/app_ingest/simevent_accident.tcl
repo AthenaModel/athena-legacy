@@ -1,30 +1,33 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    simevent_flood.tcl
+#    simevent_accident.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    athena_sim(1): Simulation Event, FLOOD
+#    athena_sim(1): Simulation Event, ACCIDENT
 #
-#    This module implements the FLOOD event, which represents
-#    a flood in a neighborhood at a particular week.
-#
-#    The "midlist", neighborhood, and start week are usually set on 
-#    creation.
+#    This module implements the ACCIDENT event, which represents
+#    random accidents in a neighborhood at a particular week.
 # 
 #-----------------------------------------------------------------------
 
 # FIRST, create the class.
-simevent define FLOOD "Flood" {
-    A "Flood" event represents a natural disaster consisting of
-    serious flooding in a neighborhood with attendant loss of life.
+simevent define ACCIDENT "Accident" {
+    An "Accident" event represents some small accident in the 
+    neighborhood that temporarily causes the residents to fear for
+    their lives. 
+    "Accident" events will affect all civilian groups 
+    in the neighborhood.
 } {
-    A "Flood" event is represented in Athena as a "block" in a
-    the SYSTEM agent's strategy.  The block will contain an
-    EXECUTIVE tactic that will create a DISASTER abstract situation
-    at the requested time for the requested duration.
+    An "Accident" event is represented in Athena as a "block" in the 
+    SYSTEM agent's strategy.  The block will contain a CURSE tactic that 
+    injects the attitude effects of the accident on the civilians into the 
+    attitude model.<p>
+
+    Note that "Accident" is distinct from the "Civilian Casualties" 
+    event, which reflects actual civilian deaths.
 } {
     #-------------------------------------------------------------------
     # Instance Variables
@@ -60,7 +63,7 @@ simevent define FLOOD "Flood" {
         set t(n)    [coalesce [my get n] "???"]
         set t(week) [coalesce [my get week] "???"]
 
-        set text "Flood in $t(n)"
+        set text "Accident in $t(n)"
 
         if {[my get duration] > 1} {
             append text " for [my get duration] weeks"
@@ -71,18 +74,16 @@ simevent define FLOOD "Flood" {
 
 
     method export {} {
-        # Note: duration is handled by absit code.
         enscript {
             # %intent
             block add SYSTEM \\
                 -intent  %qintent \\
                 %timeopts
-            make_flood - %n %duration
+            make_accident - %n
         } %intent   [my intent]        \
           %qintent  [list [my intent]] \
-          %timeopts [my timeopts 1]    \
-          %n        [my get n]         \
-          %duration [my get duration]
+          %timeopts [my timeopts]      \
+          %n        [my get n]
     }
 
     #-------------------------------------------------------------------
@@ -93,12 +94,13 @@ simevent define FLOOD "Flood" {
 #-----------------------------------------------------------------------
 # EVENT:* orders
 
-# SIMEVENT:FLOOD
+# SIMEVENT:ACCIDENT
 #
-# Updates existing FLOOD event.
+# Updates existing ACCIDENT event.
 
-order define SIMEVENT:FLOOD {
-    title "Event: Flooding in Neighborhood"
+order define SIMEVENT:ACCIDENT {
+    title "Event: Accident in Neighborhood"
+    options -sendstates PREP
 
     form {
         rcc "Event ID" -for event_id
@@ -111,7 +113,7 @@ order define SIMEVENT:FLOOD {
     }
 } {
     # FIRST, prepare the parameters
-    prepare event_id  -required -type simevent::FLOOD
+    prepare event_id  -required -type simevent::ACCIDENT
     prepare duration  -num      -type ipositive
  
     returnOnError -final
