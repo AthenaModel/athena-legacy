@@ -11,6 +11,22 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.1-B8, 3 June 2014</h3>
+
+This build contains a number of bug fixes to 6.2.0-B7's ingestion
+tool.<p>
+
+<ul>
+<li> Bug 4516: Help page refers to Athena 7
+<li> Bug 4520: Athena Ingest sorting messages right click
+<li> Bug 4521: Athena Ingest html page typo
+<li> Bug 4522: Athena Ingest save script does not add .tcl extension
+<li> Bug 4523: athena_projinfo(1): Man page says "-save", not "-commit".
+<li> Bug 4524: Athena Ingest UNIQUE constraint failed error
+<li> Bug 4525: Athena Ingest save script problem
+<li> Bug 4527: athena_ingest(1): enabled/disabled state is ignored.
+</ul><p>
+
 <h3>Build 6.2.0-B7, 28 May 2014</h3>
 A serious bug was found in the athena_ingest(1) application that requires a
 new build.  This build has a fix for that and a couple of other bugs:<p>
