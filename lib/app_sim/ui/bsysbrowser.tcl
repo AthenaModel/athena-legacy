@@ -271,7 +271,11 @@ snit::widget bsysbrowser {
     # not mapped.
     
     method ReloadContent {args} {
-        # FIRST, Reload the SList.  This will retain the 
+        # FIRST, clear the sid and tid; we're starting over.
+        set info(sid) ""
+        set info(tid) ""
+
+        # NEXT, Reload the SList.  This will retain the 
         # current selection, if possible.
         $self SListReload -force
         $self AListReload -force
