@@ -82,6 +82,11 @@ snit::type rdb {
         WHERE etype = 'ACCIDENT'
         ORDER BY n, t;
 
+        CREATE VIEW ingest_CIVCAS AS
+        SELECT * FROM ingest_view
+        WHERE etype = 'CIVCAS'
+        ORDER BY n, t;
+
         CREATE VIEW ingest_DROUGHT AS
         SELECT * FROM ingest_view
         WHERE etype = 'DROUGHT'

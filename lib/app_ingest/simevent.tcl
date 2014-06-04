@@ -177,8 +177,8 @@ oo::objdefine simevent {
 
             # NEXT, if it can extend the previous event,
             # extend the previous event.
-            if {$lastEvent ne "" && [$lastEvent canextend $e]} {
-                $lastEvent extend $e
+            if {$lastEvent ne "" && [$lastEvent canmerge $e]} {
+                $lastEvent merge $e
                 bean uncreate $e  ;# Reuses $e's bean ID
             } else {
                 set lastEvent $e
@@ -359,7 +359,84 @@ oo::define simevent {
         }
     }
 
+    #-------------------------------------------------------------------
+    # Merging Events
 
+    # canmerge evt
+    #
+    # evt   - Another event of the same type.
+    #
+    # This method determines whether this event and the given evt can
+    # be merged into a single event.  In general, two events can be 
+    # merged if they share the same distinguishing attributes and
+    # compatible times.
+    #
+    # The default assumption is that two events can be merged if they
+    # have the same n, and the second event's t is either the same week
+    # or only one week later.
+    #
+    # Other possibilities are as follows:
+    #
+    # * This event type has additional distinguishing variables, i.e.,
+    #   a group or an actor.
+    #
+    # * This event type can not extend over multiple weeks, and so
+    #   t must be the same.
+
+    method canmerge {evt} {
+        assert {[$evt typename] eq [my typename]}
+
+        # FIRST, to merge events the distinguishing attributes must
+        # be identical.
+        foreach var [my distinguishers] {
+            if {[$evt cget -$var] ne [my cget -$var]} {
+                return 0
+            }
+        }
+
+        # NEXT, we can always merge events with the same distinguishing
+        # attributes that take place at exactly the same time.
+        if {[$evt cget -t] == $t} {
+            return 1
+        }
+
+        # NEXT, we cannot always extend an event over into subsequent
+        # weeks.  But if we can, we can merge if the new event takes
+        # place during the same duration or in the week immediately
+        # following.
+
+        if {[my canextend]} {
+            set tnew [$evt cget -t]
+
+            if {$t <= $tnew && $tnew <= $t + $duration} {
+                return 1
+            }
+        }
+
+        # FINALLY, the time settings are inconsistent; no merge.
+        return 0
+    }
+
+    # merge evt
+    #
+    # evt   - Another event of the same type.
+    #
+    # Merges evt into this event, incrementing the duration if
+    # necessary.
+
+    method merge {evt} {
+        assert {[$evt typename] eq [my typename]}
+        assert {[$evt cget -t] <= $t + $duration}
+
+        lappend cidlist {*}[$evt cget -cidlist]
+
+        if {[$evt cget -t] == $t + $duration} {
+            incr duration
+        }
+    }
+
+
+    
 
     #-------------------------------------------------------------------
     # Operations
@@ -369,45 +446,25 @@ oo::define simevent {
     #
     # Subclasses will usually need to override the SanityCheck, narrative,
     # obligate, and IngestEvent methods.  If they define additional
-    # data variables, they will need to extend "canextend" as well.
+    # distinguishing attributes, they will need to extend 
+    # "distinguishers" as well.  If they cannot have an extended duration,
+    # then canextend should be override to return false.
 
-    # canextend evt
+    # canextend
     #
-    # evt   - Another event of the same type.
-    #
-    # evt can extend this event if they have the same n and t is
-    # the same or only one week later.
+    # Returns 1 if the event type allows duration > 1, and 0 otherwise.
 
-    method canextend {evt} {
-        assert {[$evt typename] eq [my typename]}
-
-        if {[$evt cget -n] ne $n} {
-            return 0
-        }
-
-        if {[$evt cget -t] < $t || [$evt cget -t] > $t + 1} {
-            return 0
-        }
-
+    method canextend {} {
         return 1
     }
 
-    # extend evt
+    # distinguishers
     #
-    # evt   - Another event of the same type.
-    #
-    # Extends the duration of this event by one week, merging in
-    # the message IDs from evt.
+    # Returns the names of the variables that distinguish between
+    # events of the same type.
 
-    method extend {evt} {
-        assert {[$evt typename] eq [my typename]}
-        assert {[$evt cget -t] <= $t + 1}
-
-        lappend cidlist {*}[$evt cget -cidlist]
-
-        if {[$evt cget -t] > $t} {
-            incr duration
-        }
+    method distinguishers {} {
+        return [list n]
     }
 
     # check

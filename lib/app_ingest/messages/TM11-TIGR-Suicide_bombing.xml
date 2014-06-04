@@ -3,7 +3,7 @@
     <PLACE CID="6BFA29D8">
         <REVISIONHISTORY>
             <USERNAME>Name</USERNAME>
-            <DATETIME>2014-07-26T13:42:35-0400</DATETIME>
+            <DATETIME>2014-08-4T13:42:35-0400</DATETIME>
             <CREATED></CREATED>
         </REVISIONHISTORY>
         <LOCALUPDATETIME>2014-07-26T13:42:35-0400</LOCALUPDATETIME>
@@ -16,8 +16,8 @@
             </POINT>
         </LOCATIONLIST>
         <TIMEPERIOD>
-            <START>2014-11-18T11:52:39-0500</START>
-            <END>2014-11-18T12:30:39-0500</END>
+            <START>2014-11-25T11:52:39-0500</START>
+            <END>2014-11-25T12:30:39-0500</END>
         </TIMEPERIOD>
     </PLACE>
     <security_class_tx>UNCLASSIFIED</security_class_tx>
