@@ -450,6 +450,15 @@ oo::define simevent {
     # "distinguishers" as well.  If they cannot have an extended duration,
     # then canextend should be override to return false.
 
+    # canedit
+    #
+    # Returns 1 if it is possible edit events of this kind, and 0
+    # otherwise.  We assume that in general you can.
+
+    method canedit {} {
+        return 1
+    }
+
     # canextend
     #
     # Returns 1 if the event type allows duration > 1, and 0 otherwise.
@@ -465,46 +474,6 @@ oo::define simevent {
 
     method distinguishers {} {
         return [list n]
-    }
-
-    # check
-    #
-    # Sanity checks the event, returning a dict of variable names
-    # and error strings:
-    #
-    #   $var -> $errmsg 
-    #
-    # If the dict is empty, there are no problems.
-
-    method check {} {
-        set errdict [my SanityCheck [dict create]]
-
-        if {[dict size $errdict] > 0} {
-            my set state invalid
-        } elseif {$state eq "invalid"} {
-            my set state normal
-        }
-
-        return $errdict
-    }
-
-    # SanityCheck errdict
-    #
-    # errdict   - A dictionary of instance variable names and error
-    #             messages.
-    #
-    # This command should check the class's variables for errors, and
-    # add the error messages to the errdict, returning the errdict
-    # on completion.  The usual pattern for subclasses is this:
-    #
-    #    ... check for errors ...
-    #    return [next $errdict]
-    #
-    # Thus allowing parent classes their chance at it.
-
-    method SanityCheck {errdict} {
-        # No necessary checks at this level.
-        return $errdict
     }
 
     # narrative

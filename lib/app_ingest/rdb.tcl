@@ -92,6 +92,11 @@ snit::type rdb {
         WHERE etype = 'DROUGHT'
         ORDER BY n, t;
 
+        CREATE VIEW ingest_EXPLOSION AS
+        SELECT * FROM ingest_view
+        WHERE etype = 'EXPLOSION'
+        ORDER BY n, t;
+
         CREATE VIEW ingest_FLOOD AS
         SELECT * FROM ingest_view
         WHERE etype = 'FLOOD'

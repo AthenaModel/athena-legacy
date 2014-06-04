@@ -221,7 +221,7 @@ snit::widget wizevents {
 
     method EListSelection {} {
         # FIRST, enable/disable controls
-        if {[llength [$elist curselection]] == 1} {
+        if {[$self EListCanEdit]} {
             $editbtn configure -state normal
             $togglebtn configure -state normal
         } else {
@@ -240,6 +240,21 @@ snit::widget wizevents {
             set e [simevent get $id]
             $detail set [$e htmltext]
         }
+    }
+
+    # EListCanEdit
+    # 
+    # Returns 1 if we can edit a selected event, and 0 otherwise.
+
+    method EListCanEdit {} {
+        if {[llength [$elist uid curselection]] != 1} {
+            return 0
+        }
+
+        set id [lindex [$elist uid curselection]]
+        set e [simevent get $id]
+
+        return [$e canedit]
     }
 
     

@@ -166,13 +166,13 @@ send CURSE:CREATE -curse_id EXPLOSION -cause CIVCAS -s 1.0 -p 0.0 -q 0.0 \
 send INJECT:SAT:CREATE -curse_id EXPLOSION \
     -mode  persistent \
     -gtype NEW        \
-    -g     @CIVS      \
+    -g     @CIV       \
     -c     AUT        \
     -mag   XS-
 send INJECT:SAT:CREATE -curse_id EXPLOSION \
     -mode  persistent \
     -gtype NEW        \
-    -g     @CIVS      \
+    -g     @CIV       \
     -c     SFT        \
     -mag   L-
 
