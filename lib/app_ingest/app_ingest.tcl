@@ -67,6 +67,7 @@ source [file join $::app_ingest::library simevent_civcas.tcl   ]
 source [file join $::app_ingest::library simevent_drought.tcl  ]
 source [file join $::app_ingest::library simevent_explosion.tcl]
 source [file join $::app_ingest::library simevent_flood.tcl    ]
+source [file join $::app_ingest::library simevent_riot.tcl     ]
 source [file join $::app_ingest::library simevent_violence.tcl ]
 
 # GUI

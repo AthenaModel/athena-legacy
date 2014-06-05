@@ -102,6 +102,11 @@ snit::type rdb {
         WHERE etype = 'FLOOD'
         ORDER BY n, t;
 
+        CREATE VIEW ingest_RIOT AS
+        SELECT * FROM ingest_view
+        WHERE etype = 'RIOT'
+        ORDER BY n, t;
+
         CREATE VIEW ingest_VIOLENCE AS
         SELECT * FROM ingest_view
         WHERE etype = 'VIOLENCE'
