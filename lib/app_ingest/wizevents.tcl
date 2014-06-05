@@ -215,9 +215,6 @@ snit::widget wizevents {
     # EListSelection
     #
     # Called when the elist's selection has changed.
-    #
-    # TBD: it may be that some events cannot be edited.  In this
-    # case, we'll need to update the editbtn state logic.
 
     method EListSelection {} {
         # FIRST, enable/disable controls
@@ -322,8 +319,6 @@ snit::widget wizevents {
     # if we can go on to the next page, and 0 otherwise.
 
     method finished {} {
-        # TBD: If sanity check failures are possible, we should
-        # verify that there aren't any.
         return 1
     }
 

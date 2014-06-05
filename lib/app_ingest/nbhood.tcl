@@ -50,9 +50,6 @@ snit::type nbhood {
             # polygon coordinates; tag it with "nbhood".
             $geo create polygon $n $polygon nbhood
         }
-
-        # NEXT, update the obscured_by fields
-        $type SetObscuredBy 
     }
 
     #-------------------------------------------------------------------
@@ -78,40 +75,6 @@ snit::type nbhood {
         return [$geo find [list $mx $my] nbhood]
     }
 
-    # randloc n
-    #
-    # n       A neighborhood short name
-    #
-    # Tries to get a random location from the neighborhood.
-    # If it fails after ten tries, returns the neighborhood's 
-    # reference point.
-
-    typemethod randloc {n} {
-        # FIRST, get the neighborhood polygon's bounding box
-        foreach {x1 y1 x2 y2} [$geo bbox $n] {}
-
-        # NEXT, no more than 10 tries
-        for {set i 0} {$i < 10} {incr i} {
-            # Get a random lat/lon
-            let x {($x2 - $x1)*rand() + $x1}
-            let y {($y2 - $y1)*rand() + $y1}
-
-            # Is it in the neighborhood (taking stacking order
-            # into account)?
-            set pt [list $x $y]
-
-            if {[geo find $pt] eq $n} {
-                return $pt
-            }
-        }
-
-        # Didn't find one; just return the refpoint.
-        return [adb onecolumn {
-            SELECT refpoint FROM nbhoods
-            WHERE n=$n
-        }]
-    }
-
     # names
     #
     # Returns the list of neighborhood names
@@ -120,6 +83,35 @@ snit::type nbhood {
         return [adb eval {
             SELECT n FROM nbhoods ORDER BY n
         }]
+    }
+
+    # fullname n
+    #
+    # Returns the full name of the neighborhood: "$longname ($n)"
+
+    typemethod fullname {n} {
+        return "[$type get $n longname] ($n)"
+    }
+
+    # get n ?parm?
+    #
+    # n  - A neighborhood ID
+    #
+    # Returns the neighborhood's data dictionary; or the specific
+    # parameter, if given.
+
+    typemethod get {n {parm ""}} {
+        # FIRST, get the data
+        adb eval {SELECT * FROM nbhoods WHERE n=$n} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
     }
 
     # namedict
@@ -153,81 +145,6 @@ snit::type nbhood {
         }
 
         return $n
-    }
-
-    # local names
-    #
-    # Returns the list of nbhoods that have the local flag set
-
-    typemethod {local names} {} {
-        return [adb eval {
-            SELECT n FROM local_nbhoods ORDER BY n
-        }]
-    }
-
-    # local namedict
-    #
-    # Returns ID/longname dictionary for local nbhoods
-
-    typemethod {local namedict} {} {
-        return [adb eval {
-            SELECT n, longname FROM local_nbhoods ORDER BY n
-        }]
-    }
-
-    # local validate n
-    #
-    # n    Possibly, a local nbhood short name
-    #
-    # Validates a local nbhood short name
-
-    typemethod {local validate} {n} {
-        if {![adb exists {SELECT n FROM local_nbhoods WHERE n=$n}]} {
-            set names [join [nbhood local names] ", "]
-
-            if {$names ne ""} {
-                set msg "should be one of: $names"
-            } else {
-                set msg "none are defined"
-            }
-
-            return -code error -errorcode INVALID \
-                "Invalid local neighborhood, $msg"
-        }
-
-        return $n
-    }
-
-    #-------------------------------------------------------------------
-    # Private Type Methods
-
-    # SetObscuredBy
-    #
-    # Checks the neighborhoods for obscured reference points, and
-    # sets the obscured_by field accordingly.
-    #
-    # TBD: This could be more efficient if it took into account
-    # the neighborhood that changed and only looked at overlapping
-    # neighborhoods.
-
-    typemethod SetObscuredBy {} {
-        adb eval {
-            SELECT n, refpoint, obscured_by FROM nbhoods
-        } {
-            set in [$geo find $refpoint nbhood]
-
-            if {$in eq $n} {
-                set in ""
-            }
-
-            if {$in ne $obscured_by} {
-                adb eval {
-                    UPDATE nbhoods
-                    SET obscured_by=$in
-                    WHERE n=$n
-                }
-            }
-        }
     }
 }
 

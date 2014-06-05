@@ -230,9 +230,6 @@ snit::type tigr {
     #
     # Returns detail about the message and its contents in the 
     # form of an HTML string.
-    # 
-    # TBD: Pull the data from the RDB, and include everything
-    # known to date.
 
     typemethod detail {id} {
         # FIRST, retrieve the data.
@@ -251,7 +248,7 @@ snit::type tigr {
 
         $ht putln "<table>"
         $type VarItem "Week"      $row(week)
-        $type VarItem "Nbhood"    $row(n)
+        $type VarItem "Nbhood"    [nbhood fullname $row(n)]
         $type VarItem "Start/End" "$row(start_str) -- $row(end_str)"
         $type VarItem "Location"  [join $loclist ", "]
         $ht putln "</table>" 

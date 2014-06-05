@@ -49,18 +49,8 @@ simevent define VIOLENCE "Violence" {
     #-------------------------------------------------------------------
     # Operations
 
-    method SanityCheck {errdict} {
-        # Just make sure it was created properly.
-        assert {$n ne ""}
-        assert {$week ne ""}
-
-        return [next $errdict]
-    }
-
     method narrative {} {
-        # TBD: We'll want to get the neighborhood longname, ultimately.
-        set t(n)    [coalesce [my get n] "???"]
-        set t(week) [coalesce [my get week] "???"]
+        set t(n) [nbhood fullname [my get n]]
 
         set text "Random Violence in $t(n)"
 

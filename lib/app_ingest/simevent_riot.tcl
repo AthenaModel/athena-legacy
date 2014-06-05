@@ -64,8 +64,7 @@ simevent define RIOT "Riot" {
 
 
     method narrative {} {
-        # TBD: We'll want to get the neighborhood longname, ultimately.
-        set t(n) [my get n]
+        set t(n) [nbhood fullname [my get n]]
 
         return "Riot in $t(n)."
     }
