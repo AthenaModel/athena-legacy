@@ -218,17 +218,11 @@ snit::widget wizevents {
 
     method EListSelection {} {
         # FIRST, enable/disable controls
-        if {[$self EListCanEdit]} {
-            $editbtn configure -state normal
-            $togglebtn configure -state normal
-        } else {
-            $editbtn configure -state disabled
-            $togglebtn configure -state disabled
-        }
+        $editbtn   configure -state [$self EListEditState]
+        $togglebtn configure -state [$self EListToggleState]
 
         # NEXT, display the detail for the selected event, if
         # if any.
-
         set id [lindex [$elist uid curselection] 0]
 
         if {$id eq ""} {
@@ -239,21 +233,39 @@ snit::widget wizevents {
         }
     }
 
-    # EListCanEdit
+    # EListEditState
     # 
-    # Returns 1 if we can edit a selected event, and 0 otherwise.
+    # Returns the proper state for the edit button.  We can edit
+    # if exactly one event is selected, and if the event's data
+    # is editable.
 
-    method EListCanEdit {} {
+    method EListEditState {} {
         if {[llength [$elist uid curselection]] != 1} {
-            return 0
+            return disabled
         }
 
         set id [lindex [$elist uid curselection]]
         set e [simevent get $id]
 
-        return [$e canedit]
+        if {[$e canedit]} {
+            return normal
+        } else {
+            return disabled
+        }
     }
 
+    # EListToggleState
+    # 
+    # Returns the proper state for the toggle button.  We can toggle
+    # if exactly one event is selected.
+
+    method EListToggleState {} {
+        if {[llength [$elist uid curselection]] != 1} {
+            return disabled
+        }
+
+        return normal
+    }
     
     # EListEdit
     #
