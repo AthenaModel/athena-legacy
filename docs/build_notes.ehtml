@@ -11,6 +11,17 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.1-B10, 9 June 2014</h3>
+
+This build contains a bug fix for the TRAFFIC ingestion event, and
+some preliminary infrastructure to support the upcoming DEMO
+ingestion event.<p>
+
+<ul>
+<li> Bug 4542: projectlib(n): Add "listbutton" dynaform field type
+<li> Bug 4543: athena_ingest(1): Fails to start, simevent_traffic.tcl no...
+</ul><p>
+
 <h3>Build 6.2.1-B9, 9 June 2014</h3>
 
 This build contains a number of bug fixes, and also some enhancements
