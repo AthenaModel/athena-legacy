@@ -11,6 +11,23 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.1-B9, 9 June 2014</h3>
+
+This build contains a number of bug fixes, and also some enhancements
+to athena_ingest(1).<p>
+
+<ul>
+<li> Bug 4486: Belief System New Scenario bgerror
+<li> Bug 4528: Belief System and Topic bgerror
+<li> Bug 4529: athena_ingest(1): ACCIDENT event type
+<li> Bug 4532: athena_ingest(1): CIVCAS simevent
+<li> Bug 4533: athena_ingest(1): EXPLOSION sim event
+<li> Bug 4534: athena_ingest(1): RIOT sim event
+<li> Bug 4535: athena_ingest(1): Clean up, full neighborhood names
+<li> Bug 4536: athena_ingest(1): TRAFFIC sim event.
+<li> Bug 4539: listbuttonfield(n): Compact List Selection Field Widget
+</ul><p>
+
 <h3>Build 6.2.1-B8, 3 June 2014</h3>
 
 This build contains a number of bug fixes to 6.2.0-B7's ingestion
