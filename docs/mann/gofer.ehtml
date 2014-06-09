@@ -30,14 +30,6 @@ values of the type; see <<xref gofer(i)>> for full details.<p>
 gofer(n) also defines a number of commands for use in defining rules;
 see <<xref "RULE HELPERS">>.<p>
 
-<<section "FIELD TYPE">>
-
-The gofer(n) module also defines a
-<<xref mars:dynaform_field(i)>> field type called <b>gofer</b>.  The field
-type takes the same <b>-typename</b>, <b>-width</b>, and <b>-wraplength</b>
-options as the <<xref goferfield(n)>> widget; the 
-<b>-typename</b> option is required.<p>
-
 <<section COMMANDS>>
 
 This module defines the following commands:<p>
