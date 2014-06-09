@@ -48,6 +48,10 @@
 
 <<changelog>>
 
+<<change 6/9/2014 Updated will>>
+Added test step for athena_ingest(1).
+<</change>>
+
 <<change 4/25/2014 Updated will>>
 Version numbers and build numbers are now distinct.
 <</change>>
@@ -1294,6 +1298,16 @@ $ svn switch <i>repository</i>/mars/tags/mars_2.40 mars
 <</step>>
 
 <<step>>
+Do a development build and test of the client. Resolve any errors, and
+retest, until the client builds cleanly. Commit any changes.
+<</step/>>
+<pre>
+$ cd ~/athena_pkgs/athena_6.2.0-B7
+$ make build
+</pre>
+<</step>>
+
+<<step>>
 <b>Optional.</b> Run the test suite in non-GUI mode. This is to test that
 Athena tests cleanly when there are no Tk modules loaded. This step is
 recommended for builds that will be used in a supercomputing environment.
@@ -1307,12 +1321,13 @@ $ athena_test all -notk
 <</step>>
 
 <<step>>
-Do a development build and test of the client. Resolve any errors, and
-retest, until the client builds cleanly. Commit any changes.
+Verify that athena_ingest(1) can be invoked without error.
+(The automated tests do not include athena_ingest(1).)
+Fix any problems and retest as needed.
 <</step/>>
 <pre>
-$ cd ~/athena_pkgs/athena_6.2.0-B7
-$ make build
+$ cd ~/athena_pkgs/athena_6.2.0-B7/test
+$ athena ingest
 </pre>
 <</step>>
 
