@@ -815,6 +815,11 @@ snit::widget bsysbrowser {
 
             set r [$tlist uid2rindex $tid]
 
+            # If the topic isn't currently displayed, ignore it.
+            if {$r eq ""} {
+                continue
+            }
+
             # position
             set c [$tlist cname2cindex textpos]
             $tlist cellconfigure $r,$c -text [dict get $view textpos]
