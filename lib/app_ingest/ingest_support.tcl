@@ -142,7 +142,7 @@ send INJECT:SAT:CREATE -curse_id DROUGHT \
     -gtype EXISTING  \
     -g     @SACIV    \
     -c     QOL       \
-    -mag   XS-
+    -mag   L-
 send INJECT:SAT:CREATE -curse_id DROUGHT \
     -mode  transient \
     -gtype EXISTING  \
