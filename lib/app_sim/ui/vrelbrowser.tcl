@@ -200,7 +200,7 @@ snit::widgetadaptor vrelbrowser {
         lassign $id g a
 
         set override [rdb onecolumn {
-            SELECT override FROM vrel_view WHERE g=$g AND a=$a
+            SELECT override FROM gui_vrel_view WHERE g=$g AND a=$a
         }]
 
         if {$override ne "" && $override} {
