@@ -191,7 +191,7 @@ snit::widgetadaptor hrelbrowser {
         lassign $id f g
 
         set override [rdb onecolumn {
-            SELECT override FROM hrel_view WHERE f=$f AND g=$g
+            SELECT override FROM gui_hrel_view WHERE f=$f AND g=$g
         }]
 
         if {$override ne "" && $override} {
