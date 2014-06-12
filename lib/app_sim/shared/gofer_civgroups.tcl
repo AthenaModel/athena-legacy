@@ -89,7 +89,7 @@ gofer define CIVGROUPS group {
                 enumlong hwhich -defvalue ALL -dictcmd {::eanyall deflist}
 
                 rcc ""
-                listbutton glist -dictcmd {::group namedict} \
+                listbutton hlist -dictcmd {::group namedict} \
                     -emptymessage "No groups selected."      \
                     -listwidth    40
             } 
@@ -506,7 +506,9 @@ gofer rule CIVGROUPS MEGA {
         dict set gdict byactors $byactors
 
         # awhich
-        dict set gdict awhich [eanyall validate $awhich]
+        if {$byactors ne "IGNORE"} {
+            dict set gdict awhich [eanyall validate $awhich]
+        }
 
         # alist
         if {$byactors ne "IGNORE"} {
@@ -521,7 +523,9 @@ gofer rule CIVGROUPS MEGA {
         dict set gdict bygroups $bygroups
 
         # hwhich
-        dict set gdict hwhich [eanyall validate $hwhich]
+        if {$bygroups ne "IGNORE"} {
+            dict set gdict hwhich [eanyall validate $hwhich]
+        }
 
         # hlist
         if {$bygroups ne "IGNORE"} {
@@ -537,7 +541,90 @@ gofer rule CIVGROUPS MEGA {
     typemethod narrative {gdict {opt ""}} {
         dict with gdict {}
 
-        return "megafilter details"
+        # base, glist
+        if {$base eq "ALL"} {
+            set result "all civilian groups"
+        } else {
+            set result [listnar group groups $glist -brief]
+        }
+
+
+        set clauses [list]
+
+        # where, nlist
+        if {$where ne "IGNORE"} {
+            if {$where eq "IN"} {
+                set clause "living in "
+            } elseif {$where eq "NOTIN"} {
+                set clause "not living in "
+            } 
+
+            append clause [listnar neighborhood neighborhoods $nlist -brief]
+
+            lappend clauses $clause
+        }
+
+        # livingby
+
+        if {$livingby eq "SA"} {
+            lappend clauses "living by subsistence agriculture"
+        } elseif {$livingby eq "CASH"} {
+            lappend clauses "living by the cash economy"
+        }
+
+        # mood
+
+        if {$mood eq "GOOD"} {
+            lappend clauses "whose mood is satisfied or better"
+        } elseif {$mood eq "AMBIVALENT"} {
+            lappend clauses "whose mood is ambivalent"
+        } elseif {$mood eq "BAD"} {
+            lappend clauses "whose mood is dissatisifed or worse"
+        }
+
+        # byactors, awhich, alist
+        if {$byactors ne "IGNORE"} {
+            set adict [dict create anyall $awhich alist $alist]
+
+            if {$byactors eq "SUPPORTING"} {
+                set clause "supporting "
+            } elseif {$byactors eq "LIKING"} {
+                set clause "liking "
+            } elseif {$byactors eq "DISLIKING"} {
+                set clause "disliking "
+            }
+
+            append clause [gofer::anyall_alist narrative $adict -brief]
+    
+            lappend clauses $clause
+        }
+
+        # bygroups, hwhich, hlist
+        if {$bygroups ne "IGNORE"} {
+            set hdict [dict create anyall $hwhich glist $hlist]
+
+            if {$bygroups eq "LIKING"} {
+                set clause "liking "
+            } elseif {$bygroups eq "DISLIKING"} {
+                set clause "disliking "
+            } elseif {$bygroups eq "LIKED_BY"} {
+                set clause "liked by "
+            } elseif {$bygroups eq "DISLIKED_BY"} {
+                set clause "disliked by "
+            }
+
+            append clause [gofer::anyall_glist narrative $hdict -brief]
+    
+            lappend clauses $clause
+        }
+
+        if {[llength $clauses] > 0} {
+            set result "Starting with $result, "
+            append result "select those civilian groups "
+            append result [join $clauses "; "]
+        }
+
+        return $result
     }
 
     typemethod eval {gdict} {
