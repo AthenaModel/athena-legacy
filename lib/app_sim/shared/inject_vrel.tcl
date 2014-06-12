@@ -44,7 +44,24 @@ inject type define VREL {g a mag} {
     typemethod check {pdict} {
         set errors [list]
 
-        # TBD
+        dict with pdict {}
+
+        set rtype [inject roletype $curse_id $a]
+
+        # FIRST, 'a' must me an ACTORS role
+        if {$rtype ne "ACTORS"} {
+            lappend errors \
+                "Role $a is $rtype role, must be an ACTORS role."
+        }
+
+        set rtype [inject roletype $curse_id $g]
+
+        # NEXT, 'g' must be a GROUPS role
+        if {$rtype eq "ACTORS"} {
+            lappend errors \
+                "Role $g is ACTORS role, must be GROUPS role."
+        }
+
         return [join $errors "  "]
     }
 }

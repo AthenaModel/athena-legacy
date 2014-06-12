@@ -43,7 +43,16 @@ inject type define SAT {g c mag} {
     typemethod check {pdict} {
         set errors [list]
 
-        #TBD
+        dict with pdict {}
+
+        # FIRST, only CIVGROUPS role can appear in this inject
+        set rtype [inject roletype $curse_id $g]
+
+        if {$rtype ne "CIVGROUPS"} {
+            lappend errors \
+                "Role $g is $rtype role, must be a CIVGROUPS role."
+        }
+
         return [join $errors "  "]
     }
 }

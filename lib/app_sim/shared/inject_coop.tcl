@@ -44,7 +44,24 @@ inject type define COOP {f g mag} {
     typemethod check {pdict} {
         set errors [list]
 
-        #TBD 
+        dict with pdict {}
+
+        # FIRST, 'f' must be a CIVGROUPS role
+        set rtype [inject roletype $curse_id $f]
+        
+        if {$rtype ne "CIVGROUPS"} {
+            lappend errors \
+                "Role $f is $rtype role, must be CIVGROUPS role."
+        }
+
+        # NEXT, 'g' must be a FRCGROUPS role
+        set rtype [inject roletype $curse_id $g]
+
+        if {$rtype ne "FRCGROUPS"} {
+            lappend errors \
+                "Role $g is $rtype role, must be FRCGROUPS role."
+        }
+
         return [join $errors "  "]
     }
 }

@@ -44,7 +44,24 @@ inject type define HREL {f g mag} {
     typemethod check {pdict} {
         set errors [list]
 
-        # TBD
+        dict with pdict {}
+
+        set rtype [inject roletype $curse_id $g]
+
+        # FIRST, 'g' must be a GROUPS role
+        if {$rtype eq "ACTORS"} {
+            lappend errors \
+                "Role $g is ACTORS role, must be GROUPS role."
+        }
+
+        set rtype [inject roletype $curse_id $f]
+
+        # NEXT, 'f' must alos be a GROUPS role
+        if {$rtype eq "ACTORS"} {
+            lappend errors \
+                "Role $f is ACTORS role, must be GROUPS role."
+        }
+
         return [join $errors "  "]
     }
 }
