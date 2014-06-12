@@ -57,7 +57,7 @@
 ::marsutil::dynaform fieldtype define listbutton {
     typemethod attributes {} {
         return {
-             dict dictcmd listrows listwidth message
+             dict dictcmd emptymessage listrows listwidth message
              showmaxitems showkeys stripe width 
         }
     }
@@ -81,7 +81,7 @@
         listbuttonfield $w                                      \
             -itemdict [dict get $idict dict]                    \
             -state    [expr {$context ? "disabled" : "normal"}] \
-            {*}[asoptions $idict listrows listwidth message \
+            {*}[asoptions $idict emptymessage listrows listwidth message \
                 showmaxitems showkeys stripe width]
     }
 

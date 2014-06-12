@@ -143,7 +143,8 @@ bin: check_env src
 		-pkgref "ctext     -require 3.3"            \
 		-pkgref "TclOO"                             \
 		-pkgref "tls"                               \
-		-pkgref "tdom"
+		-pkgref "tdom"                              \
+		-pkgref "struct::set"
 	@ cat tclapp.log
 
 #---------------------------------------------------------------------

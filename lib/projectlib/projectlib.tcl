@@ -28,6 +28,7 @@ package require tls
 package require marsutil
 package require simlib
 package require tdom
+package require struct::set
 
 #-----------------------------------------------------------------------
 # Package Definition

@@ -27,11 +27,6 @@ namespace eval ::projectgui:: {
 
 snit::widget ::projectgui::listbuttonfield {
     #-------------------------------------------------------------------
-    # Type Variables
-
-    typevariable defaultNarrative "No items selected."
-    
-    #-------------------------------------------------------------------
     # Components
 
     component nlabel   ;# ttk::label; displays narrative text
@@ -91,6 +86,13 @@ snit::widget ::projectgui::listbuttonfield {
 
     option -listwidth \
         -default 20
+
+    # -emptymessage text
+    #
+    # Message to display in empty field.
+
+    option -emptymessage \
+        -default "No items selected."
 
 
     # -state state
@@ -175,7 +177,7 @@ snit::widget ::projectgui::listbuttonfield {
 
         # NEXT, set the initial value
         set info(value) [list]
-        set info(narrative) $defaultNarrative
+        set info(narrative) $options(-emptymessage)
     }
 
     #-------------------------------------------------------------------
@@ -240,7 +242,7 @@ snit::widget ::projectgui::listbuttonfield {
         set nar [join $info(value) ", "]
 
         if {[llength $info(value)] == 0} {
-            set info(narrative) $defaultNarrative
+            set info(narrative) $options(-emptymessage)
         } else {
             set info(narrative) \
                 [joinlist $info(value) $options(-showmaxitems)]

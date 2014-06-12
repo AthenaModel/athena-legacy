@@ -15,19 +15,84 @@
 # gofer::CIVGROUPS
 
 gofer define CIVGROUPS group {
-    rc "" -width 3in -span 3
+    rc "" -width 5in -span 3
     label {
         Enter a rule for selecting a set of civilian groups:
     }
     rc
 
-    rc
+    rc "" -span 3
     selector _rule {
         case BY_VALUE "By name" {
             rc "Select groups from the following list:"
             rc
             enumlonglist raw_value -dictcmd {::civgroup namedict} \
                 -width 30 -height 10 
+        }
+
+        case MEGA "Megafilter" {
+            rc "Select Civilian Groups:" -span 2
+            rc
+            rcc "Starting&nbsp;with:"
+            selector base -defvalue ALL {
+                case ALL "All civilian groups" {}
+                case THESE "These civilian groups" {
+                    rcc ""
+                    listbutton glist -dictcmd {::civgroup namedict} \
+                        -emptymessage "No groups selected."         \
+                        -listwidth    40
+                }
+            } 
+
+
+            rc "As filtered by:" -span 2
+
+            rcc "Residing:"
+            enumlong where -defvalue IGNORE \
+                -dictcmd {::gofer::CIVGROUPS::ewhere asdict longname}
+         
+            when {$where ne "IGNORE"} {
+                rcc ""
+                listbutton nlist -dictcmd {::nbhood namedict}  \
+                    -emptymessage "No neighborhoods selected." \
+                    -listwidth    40
+            }
+
+            rcc "Living&nbsp;By:"
+            enumlong livingby -defvalue IGNORE \
+                -dictcmd {::gofer::CIVGROUPS::elivingby asdict longname}
+
+            rcc "With&nbsp;Mood:"
+            enumlong mood -defvalue IGNORE \
+                -dictcmd {::gofer::CIVGROUPS::emood asdict longname}
+
+            rcc "By&nbsp;Actors:"
+            enumlong byactors -defvalue IGNORE \
+                -dictcmd {::gofer::CIVGROUPS::ebyactors asdict longname}
+
+            when {$byactors ne "IGNORE"} {
+                label " "
+                enumlong awhich -defvalue ALL -dictcmd {::eanyall deflist}
+
+                rcc ""
+                listbutton alist -dictcmd {::actor namedict} \
+                    -emptymessage "No actors selected."      \
+                    -listwidth    40
+            } 
+
+            rcc "By&nbsp;Groups:"
+            enumlong bygroups -defvalue IGNORE \
+                -dictcmd {::gofer::CIVGROUPS::ebygroups asdict longname}
+
+            when {$bygroups ne "IGNORE"} {
+                label " "
+                enumlong hwhich -defvalue ALL -dictcmd {::eanyall deflist}
+
+                rcc ""
+                listbutton glist -dictcmd {::group namedict} \
+                    -emptymessage "No groups selected."      \
+                    -listwidth    40
+            } 
         }
 
         case RESIDENT_IN "Resident in Neighborhood(s)" {
@@ -198,6 +263,51 @@ gofer define CIVGROUPS group {
     }
 }
 
+#-------------------------------------------------------------------
+# Enumerations
+
+# Filter Enum: where does a civgroup live?
+enumx create ::gofer::CIVGROUPS::ewhere {
+    IGNORE  {longname "Ignore"}
+    IN      {longname "In These Neighborhoods"}
+    NOTIN   {longname "Not In These Neighborhoods"}
+}
+
+# Filter Enum: does a civgroup live by subsistence agriculture or
+# by the cash economy?
+enumx create ::gofer::CIVGROUPS::elivingby {
+    IGNORE  {longname "Ignore"}
+    SA      {longname "Subsistence Agriculture"}
+    CASH    {longname "Cash Economy"}
+}
+
+# Filter Enum: what is a civgroup's mood?
+enumx create ::gofer::CIVGROUPS::emood {
+    IGNORE     {longname "Ignore"}
+    GOOD       {longname "Satisfied or better"}
+    AMBIVALENT {longname "Ambivalent"}
+    BAD        {longname "Dissatisfied or worse"}
+}
+
+# Filter Enum: what is a civgroup's relation to a set of actors?
+
+enumx create ::gofer::CIVGROUPS::ebyactors {
+    IGNORE      {longname "Ignore"}
+    SUPPORTING  {longname "Supporting"}
+    LIKING      {longname "Liking"}
+    DISLIKING   {longname "Disliking"}
+}
+
+# Filter Enum: what is a civgroup's relation to a set of groups?
+
+enumx create ::gofer::CIVGROUPS::ebygroups {
+    IGNORE      {longname "Ignore"}
+    LIKING      {longname "Liking"}
+    DISLIKING   {longname "Disliking"}
+    LIKED_BY    {longname "Liked by"}
+    DISLIKED_BY {longname "Disliked by"}
+}
+
 #-----------------------------------------------------------------------
 # Helper Commands
 
@@ -222,6 +332,66 @@ proc gofer::CIVGROUPS::nonempty {glist} {
     return $result
 }
 
+# filterby glistVar filterlist
+#
+# glistVar   - A variable containing a list of civilian groups
+# filterlist - Another list of civilian groups
+# 
+# Computes the intersection of the two lists, and saves it back
+# to glistVar.
+
+proc ::gofer::CIVGROUPS::filterby {glistVar filterlist} {
+    upvar 1 $glistVar glist
+
+    set glist [struct::set intersect $glist $filterlist]
+}
+
+# groupsIn nlist
+#
+# Returns the groups present in a list of neighborhoods.
+
+proc gofer::CIVGROUPS::groupsIn {nlist} {
+    set out [list]
+    foreach n $nlist {
+        lappend out {*}[demog gIn $n]
+    }
+
+    return $out
+}
+
+# groupsNotIn nlist
+#
+# Returns the groups not resident in a list of neighborhoods.
+
+proc gofer::CIVGROUPS::groupsNotIn {nlist} {
+    set out [civgroup names]
+    foreach n $nlist {
+        foreach g [demog gIn $n] {
+            ldelete out $g
+        }
+    }
+    return $out
+}
+
+# selectorValidate rule field value
+#
+# rule   - The gofer::CIVGROUPS rule
+# field  - The selector field within that rule
+# value  - The selector value
+#
+# Validates a selector value.
+
+proc gofer::CIVGROUPS::selectorValidate {rule field value} {
+    set dform [gofer::CIVGROUPS dynaform]
+    set value [string toupper $value]
+    set values [dynaform cases $dform $field [list _rule $rule]]
+
+    if {$value ni $values} {
+        error "Invalid \"$field\" value: \"$value\""
+    }
+
+    return $value
+}
 
 #-----------------------------------------------------------------------
 # Gofer Rules
@@ -255,6 +425,223 @@ gofer rule CIVGROUPS BY_VALUE {raw_value} {
     }
 }
 
+# Rule: MEGA
+#
+# Some set of civilian groups chosen by the user and filtered by
+# an arbitrary number of criteria
+
+
+gofer rule CIVGROUPS MEGA {
+    base       glist
+    where      nlist
+    livingby
+    mood
+    byactors   awhich alist
+    bygroups   hwhich hlist
+} {
+    # construct option value ...
+    #
+    # Option names are attribute names with "-".
+
+    typemethod construct {args} {
+        set pdict {
+            base       ALL     glist {}
+            where      IGNORE  nlist {}
+            livingby   IGNORE
+            mood       IGNORE
+            byactors   IGNORE  awhich ALL alist {}
+            bygroups   IGNORE  hwhich ALL hlist {}
+        }
+
+        while {[llength $args] > 0} {
+            set opt [lshift args]
+            set parm [string range $opt 1 end]
+            set value [lshift args]
+
+            if {![dict exists $pdict $parm]} {
+                error "Unknown option: $opt"
+            }
+
+            dict set pdict $parm $value
+        }
+
+        return [$type validate $pdict]
+    }
+
+    typemethod validate {gdict} {
+        dict with gdict {}
+
+        # base
+        set base [selectorValidate MEGA base $base]
+        dict set gdict base $base
+
+        # glist
+        if {$base eq "THESE"} {
+            dict set gdict glist \
+                [listval "groups" {civgroup validate} $glist]
+        } else {
+            dict set gdict glist [list]
+        }
+
+        # where
+        set where [ewhere validate $where]
+        dict set gdict where $where
+
+        # nlist
+        if {$where ne "IGNORE"} {
+            dict set gdict nlist \
+                [listval "neighborhoods" {nbhood validate} $nlist]
+        } else {
+            dict set gdict nlist [list]
+        }
+
+        # livingby
+        dict set gdict livingby [elivingby validate $livingby]
+
+        # mood
+        dict set gdict mood [emood validate $mood]
+
+        # byactors
+        set byactors [ebyactors validate $byactors]
+        dict set gdict byactors $byactors
+
+        # awhich
+        dict set gdict awhich [eanyall validate $awhich]
+
+        # alist
+        if {$byactors ne "IGNORE"} {
+            dict set gdict alist \
+                [listval "actors" {actor validate} $alist]
+        } else {
+            dict set gdict alist [list]
+        }
+
+        # bygroups
+        set bygroups [ebygroups validate $bygroups]
+        dict set gdict bygroups $bygroups
+
+        # hwhich
+        dict set gdict hwhich [eanyall validate $hwhich]
+
+        # hlist
+        if {$bygroups ne "IGNORE"} {
+            dict set gdict hlist \
+                [listval "groups" {group validate} $hlist]
+        } else {
+            dict set gdict hlist [list]
+        }
+
+        return $gdict
+    }
+
+    typemethod narrative {gdict {opt ""}} {
+        dict with gdict {}
+
+        return "megafilter details"
+    }
+
+    typemethod eval {gdict} {
+        dict with gdict {}
+
+        # base, glist
+        if {$base eq "ALL"} {
+            set result [nonempty [civgroup names]]
+        } else {
+            set result [nonempty $glist]
+        }
+
+        # where, nlist
+        if {$where eq "IN"} {
+            filterby result [groupsIn $nlist]
+        } elseif {$where eq "NOTIN"} {
+            filterby result [groupsNotIn $nlist]]
+        } 
+
+        # livingby
+
+        if {$livingby eq "SA"} {
+            filterby result [rdb eval {
+                SELECT * FROM civgroups WHERE sa_flag
+            }]
+        } elseif {$livingby eq "CASH"} {
+            filterby result [rdb eval {
+                SELECT * FROM civgroups WHERE NOT sa_flag
+            }]
+        }
+
+        # mood
+
+        if {$mood eq "GOOD"} {
+            filterby result [rdb eval {
+                SELECT g FROM uram_mood
+                WHERE mood >= 20.0
+            }]
+        } elseif {$mood eq "AMBIVALENT"} {
+            filterby result [rdb eval {
+                SELECT g FROM uram_mood
+                WHERE mood > -20.0 AND mood < 20.0
+            }]
+        } elseif {$mood eq "BAD"} {
+            filterby result [rdb eval {
+                SELECT g FROM uram_mood
+                WHERE mood <= -20.0
+            }]
+        }
+
+        # byactors, awhich, alist
+        set adict [dict create anyall $awhich alist $alist]
+        switch -exact -- $byactors {
+            IGNORE { 
+                # Do nothing 
+            }
+
+            SUPPORTING {
+                filterby result [anyall_alist supportingActor CIV $adict]
+            }
+
+            LIKING {
+                filterby result [anyall_alist likingActor CIV $adict]
+
+            }
+            
+            DISLIKING {
+                filterby result [anyall_alist dislikingActor CIV $adict]
+            }
+
+            default { error "Unknown byactors value" }
+        }
+
+        # bygroups, hwhich, hlist
+        set hdict [dict create anyall $hwhich glist $hlist]
+        switch -exact -- $bygroups {
+            IGNORE { 
+                # Do nothing 
+            }
+
+            LIKING {
+                filterby result [anyall_glist likingGroup CIV $hdict]
+
+            }
+            
+            DISLIKING {
+                filterby result [anyall_glist dislikingGroup CIV $hdict]
+            }
+
+            LIKED_BY {
+                filterby result [anyall_glist likedbyGroup CIV $hdict]
+            }
+
+            DISLIKED_BY {
+                filterby result [anyall_glist dislikedbyGroup CIV $hdict]
+            }
+
+            default { error "Unknown bygroups value" }
+        }
+
+        return $result
+    }
+}
+
 # Rule: RESIDENT_IN
 #
 # Non-empty civilian groups resident in some set of neighborhoods.
@@ -282,11 +669,7 @@ gofer rule CIVGROUPS RESIDENT_IN {nlist} {
     typemethod eval {gdict} {
         dict with gdict {}
 
-        set out [list]
-        foreach n $nlist {
-            lappend out {*}[demog gIn $n]
-        }
-        return [nonempty $out]
+        return [nonempty [groupsIn $nlist]]
     }
 
 }
@@ -391,13 +774,7 @@ gofer rule CIVGROUPS NOT_RESIDENT_IN {nlist} {
     typemethod eval {gdict} {
         dict with gdict {}
 
-        set out [civgroup names]
-        foreach n $nlist {
-            foreach g [demog gIn $n] {
-                ldelete out $g
-            }
-        }
-        return [nonempty $out]
+        return [nonempty [groupsNotIn $nlist]]
     }
 
 }

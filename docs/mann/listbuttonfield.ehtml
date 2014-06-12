@@ -40,6 +40,11 @@ whenever the field's value changes, for any reason whatsoever
 (including explicit calls to <<iref set>>.  The new value is appended
 to the <i>command</i> as an argument.<p>
 
+<<defopt {-emptymessage <i>text</i>}>>
+
+The text to display in the field when no items are selected.  Defaults to 
+"No items selected."<p>
+
 <<defopt {-itemdict <i>dict</i>}>>
 
 The items from which the user can choose, specified as a dictionary of
