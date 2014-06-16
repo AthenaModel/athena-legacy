@@ -439,26 +439,28 @@ gofer rule CIVGROUPS MEGA {
     byactors   awhich alist
     bygroups   hwhich hlist
 } {
+    typevariable defaultValues {
+        base       ALL     glist {}
+        where      IGNORE  nlist {}
+        livingby   IGNORE
+        mood       IGNORE
+        byactors   IGNORE  awhich ALL alist {}
+        bygroups   IGNORE  hwhich ALL hlist {}
+    }
+
     # construct option value ...
     #
     # Option names are attribute names with "-".
 
     typemethod construct {args} {
-        set pdict {
-            base       ALL     glist {}
-            where      IGNORE  nlist {}
-            livingby   IGNORE
-            mood       IGNORE
-            byactors   IGNORE  awhich ALL alist {}
-            bygroups   IGNORE  hwhich ALL hlist {}
-        }
+        set pdict [dict create]
 
         while {[llength $args] > 0} {
             set opt [lshift args]
             set parm [string range $opt 1 end]
             set value [lshift args]
 
-            if {![dict exists $pdict $parm]} {
+            if {![dict exists $defaultValues $parm]} {
                 error "Unknown option: $opt"
             }
 
@@ -469,6 +471,9 @@ gofer rule CIVGROUPS MEGA {
     }
 
     typemethod validate {gdict} {
+        # FIRST, fill in the defaults.
+        set gdict [dict merge $defaultValues $gdict]
+
         dict with gdict {}
 
         # base
@@ -508,6 +513,8 @@ gofer rule CIVGROUPS MEGA {
         # awhich
         if {$byactors ne "IGNORE"} {
             dict set gdict awhich [eanyall validate $awhich]
+        } else {
+            dict set gdict awhich "ALL"
         }
 
         # alist
@@ -525,6 +532,8 @@ gofer rule CIVGROUPS MEGA {
         # hwhich
         if {$bygroups ne "IGNORE"} {
             dict set gdict hwhich [eanyall validate $hwhich]
+        } else {
+            dict set gdict hwhich "ALL"
         }
 
         # hlist
@@ -579,7 +588,7 @@ gofer rule CIVGROUPS MEGA {
         } elseif {$mood eq "AMBIVALENT"} {
             lappend clauses "whose mood is ambivalent"
         } elseif {$mood eq "BAD"} {
-            lappend clauses "whose mood is dissatisifed or worse"
+            lappend clauses "whose mood is dissatisfied or worse"
         }
 
         # byactors, awhich, alist

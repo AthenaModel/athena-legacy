@@ -38,6 +38,21 @@ namespace eval ::athena_test::tests:: {
         ted order CIVGROUP:CREATE g NOBODY n NB1 basepop 0
     }
 
+    proc setupMood {} {
+        setup
+        ted lock
+        aram sat bset 1 SHIA AUT  100.0
+        aram sat bset 1 SHIA CUL  100.0
+        aram sat bset 1 SHIA QOL  100.0
+        aram sat bset 1 SHIA SFT  100.0
+        aram sat bset 1 SUNN AUT -100.0
+        aram sat bset 1 SUNN CUL -100.0
+        aram sat bset 1 SUNN QOL -100.0
+        aram sat bset 1 SUNN SFT -100.0
+        ted step
+    }
+
+
     proc cleanup {} {
         # Clean up the test environment
         array unset parms
@@ -84,6 +99,654 @@ namespace eval ::athena_test::tests:: {
     } -cleanup {
         cleanup
     } -result {SUNN SHIA}
+
+    #-------------------------------------------------------------------
+    # Rule: MEGA
+
+    test MEGA-1.1 {construct, default} -setup {
+        setup
+    } -body {
+        ted pdicts [::gofer::CIVGROUPS::MEGA construct]
+    } -cleanup {
+        cleanup
+    } -result {
+        alist    {}
+        awhich   ALL
+        base     ALL
+        byactors IGNORE
+        bygroups IGNORE
+        glist    {}
+        hlist    {}
+        hwhich   ALL
+        livingby IGNORE
+        mood     IGNORE
+        nlist    {}
+        where    IGNORE
+    }
+
+    test MEGA-1.2 {construct, options} -setup {
+        setup
+    } -body {
+        ted pdicts [::gofer::CIVGROUPS::MEGA construct \
+            -base     THESE                            \
+            -glist    SHIA                             \
+            -where    IN                               \
+            -nlist    NB1                              \
+            -livingby SA                               \
+            -mood     GOOD                             \
+            -byactors SUPPORTING                       \
+            -awhich   ANY                              \
+            -alist    JOE                              \
+            -bygroups LIKING                           \
+            -hwhich   ANY                              \
+            -hlist    SUNN]
+    } -cleanup {
+        cleanup
+    } -result {
+        alist    JOE
+        awhich   ANY
+        base     THESE
+        byactors SUPPORTING
+        bygroups LIKING
+        glist    SHIA
+        hlist    SUNN
+        hwhich   ANY
+        livingby SA
+        mood     GOOD
+        nlist    NB1
+        where    IN
+    }
+    
+    test MEGA-1.3 {construct, invalid option} -setup {
+        setup
+    } -body {
+        ted pdicts [::gofer::CIVGROUPS::MEGA construct NONESUCH ALL]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Unknown option: NONESUCH}
+
+    test MEGA-1.4 {construct, invalid value} -setup {
+        setup
+    } -body {
+        ted pdicts [::gofer::CIVGROUPS::MEGA construct -base NONESUCH]
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid "base" value: "NONESUCH"}
+
+    test MEGA-2.1 {validate, invalid base} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            base NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid "base" value: "NONESUCH"}
+
+    test MEGA-2.2 {validate, invalid glist} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            base  THESE
+            glist NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid civilian group, should be one of: SHIA, SUNN, KURD, NOBODY}
+
+    test MEGA-2.3 {validate, invalid where} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            where NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: IGNORE, IN, NOTIN}
+
+    test MEGA-2.4 {validate, invalid nlist} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            where IN
+            nlist NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid neighborhood, should be one of: NB1, NB2}
+
+    test MEGA-2.5 {validate, invalid livingby} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            livingby NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: IGNORE, SA, CASH}
+
+    test MEGA-2.6 {validate, invalid mood} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            mood NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: IGNORE, GOOD, AMBIVALENT, BAD}
+
+    test MEGA-2.7 {validate, invalid byactors} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            byactors NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: IGNORE, SUPPORTING, LIKING, DISLIKING}
+
+    test MEGA-2.8 {validate, invalid awhich} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            byactors SUPPORTING
+            awhich   NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: ANY, ALL}
+
+    test MEGA-2.8 {validate, invalid alist} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            byactors SUPPORTING
+            awhich   ALL
+            alist    NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid actor, should be one of: BOB, JOE}
+
+    test MEGA-2.9 {validate, invalid bygroups} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            bygroups NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: IGNORE, LIKING, DISLIKING, LIKED_BY, DISLIKED_BY}
+
+    test MEGA-2.10 {validate, invalid hwhich} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            bygroups LIKING
+            hwhich   NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {invalid value "NONESUCH", should be one of: ANY, ALL}
+
+    test MEGA-2.11 {validate, invalid hlist} -setup {
+        setup
+    } -body {
+        gofer::CIVGROUPS::MEGA validate {
+            bygroups LIKING
+            hwhich   ALL
+            hlist    NONESUCH
+        }
+    } -returnCodes {
+        error
+    } -cleanup {
+        cleanup
+    } -result {Invalid group, should be one of: BLUE, BRIT, KURD, NOBODY, SHIA, SUNN}
+
+    test MEGA-2.12 {validate, ignores and clears irrelevant fields} -setup {
+        setup
+    } -body {
+        # The listed parameters are relevant only if related parameters
+        # have a value other than "IGNORE".  By default they don't.
+        # In this case, the irrelevant parameter values should be ignored,
+        # and the default values returned instead.
+        ted pdicts [gofer::CIVGROUPS::MEGA validate {
+            glist  NONESUCH
+            nlist  NONESUCH
+            awhich NONESUCH
+            alist  NONESUCH
+            hwhich NONESUCH
+            hlist  NONESUCH
+        }]
+    } -cleanup {
+        cleanup
+    } -result {
+        alist    {}
+        awhich   ALL
+        base     ALL
+        byactors IGNORE
+        bygroups IGNORE
+        glist    {}
+        hlist    {}
+        hwhich   ALL
+        livingby IGNORE
+        mood     IGNORE
+        nlist    {}
+        where    IGNORE
+    }
+
+    test MEGA-3.1 {narrative, default} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -result {all civilian groups}
+
+    test MEGA-3.2 {narrative, selected groups} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -base THESE
+            -glist {SUNN SHIA}
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -result {groups (SUNN, SHIA)}
+
+    test MEGA-3.3 {narrative, all groups with constraint} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -base ALL
+            -mood  AMBIVALENT
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {Starting with all civilian groups, select those civilian groups *}
+
+    test MEGA-3.4 {narrative, selected groups with constraints} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -base THESE
+            -glist {SUNN SHIA}
+            -mood  AMBIVALENT
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {Starting with groups (SUNN, SHIA), select those civilian groups *}
+
+    test MEGA-3.6 {narrative: where IN, nlist} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -where IN
+            -nlist {NB1 NB2}
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* living in neighborhoods (NB1, NB2)}
+
+    test MEGA-3.7 {narrative: where NOTIN, nlist} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -where NOTIN
+            -nlist {NB1 NB2}
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* not living in neighborhoods (NB1, NB2)}
+
+    test MEGA-3.8 {narrative: livingby SA} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -livingby SA
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* living by subsistence agriculture}
+
+    test MEGA-3.9 {narrative: livingby CASH} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -livingby CASH
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* living by the cash economy}
+
+    test MEGA-3.10 {narrative: mood GOOD} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -mood GOOD
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* whose mood is satisfied or better}
+
+    test MEGA-3.11 {narrative: mood AMBIVALENT} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -mood AMBIVALENT
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* whose mood is ambivalent}
+
+    test MEGA-3.12 {narrative: mood BAD} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -mood BAD
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* whose mood is dissatisfied or worse}
+
+    test MEGA-3.13 {narrative: byactors SUPPORTING} -setup {
+        setup
+    } -body {
+        # Most of this is handled by anyall_alist, which is
+        # tested elsewhere.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -byactors SUPPORTING
+            -alist    JOE
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* supporting actor JOE}
+
+    test MEGA-3.14 {narrative: byactors LIKING} -setup {
+        setup
+    } -body {
+        # Most of this is handled by anyall_alist, which is
+        # tested elsewhere.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -byactors LIKING
+            -alist    JOE
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* liking actor JOE}
+
+    test MEGA-3.15 {narrative: byactors DISLIKING} -setup {
+        setup
+    } -body {
+        # Most of this is handled by anyall_alist, which is
+        # tested elsewhere.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -byactors DISLIKING
+            -alist    JOE
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* disliking actor JOE}
+
+    test MEGA-3.16 {narrative: bygroups LIKING} -setup {
+        setup
+    } -body {
+        # Most of this is handled by anyall_alist, which is
+        # tested elsewhere.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -bygroups LIKING
+            -hlist    SHIA
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* liking group SHIA}
+
+
+    test MEGA-3.17 {narrative: bygroups DISLIKING} -setup {
+        setup
+    } -body {
+        # Most of this is handled by anyall_alist, which is
+        # tested elsewhere.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -bygroups DISLIKING
+            -hlist    SHIA
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* disliking group SHIA}
+
+    test MEGA-3.18 {narrative: bygroups LIKED_BY} -setup {
+        setup
+    } -body {
+        # Most of this is handled by anyall_alist, which is
+        # tested elsewhere.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -bygroups LIKED_BY
+            -hlist    SHIA
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* liked by group SHIA}
+
+    test MEGA-3.19 {narrative: bygroups DISLIKED_BY} -setup {
+        setup
+    } -body {
+        # Most of this is handled by anyall_alist, which is
+        # tested elsewhere.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -bygroups DISLIKED_BY
+            -hlist    SHIA
+        }]
+
+        gofer::CIVGROUPS::MEGA narrative $gdict
+    } -cleanup {
+        cleanup
+    } -match glob -result {* disliked by group SHIA}
+
+    test MEGA-4.1 {eval: default} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {KURD SHIA SUNN}
+
+    test MEGA-4.2 {eval: THESE} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -base  THESE
+            -glist {SHIA SUNN}
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
+
+    test MEGA-4.3 {eval: where IN} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -where IN
+            -nlist NB1
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
+
+    test MEGA-4.4 {eval: where NOTIN} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -where NOTIN
+            -nlist NB1
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {KURD}
+
+    test MEGA-4.5 {eval: livingby SA} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -livingby SA
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {KURD}
+
+    test MEGA-4.6 {eval: livingby CASH} -setup {
+        setup
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -livingby CASH
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {SHIA SUNN}
+
+    test MEGA-4.7 {eval: mood GOOD} -setup {
+        setupMood
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -mood GOOD
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
+
+    test MEGA-4.8 {eval: mood AMBIVALENT} -setup {
+        setupMood
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -mood AMBIVALENT
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {KURD}
+
+    test MEGA-4.9 {eval: mood BAD} -setup {
+        setupMood
+    } -body {
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -mood BAD
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {SUNN}
+
+    test MEGA-4.10 {eval: byactors SUPPORTING ALL BOB} -setup {
+        setup
+        foreach {g a support} {
+            SHIA BOB 0.3
+            SHIA JOE 0.3
+            SUNN BOB 0.0
+            BLUE BOB 0.3
+        } {
+            rdb eval {
+                INSERT INTO support_nga(n,g,a,support)
+                VALUES('NB1',$g,$a,$support)
+            }
+        }
+    } -body {
+        # This uses anyall_alist, like the specific actor-based rules.
+        # We'll just spot check.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -byactors SUPPORTING
+            -alist BOB
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
+
+    test MEGA-4.11 {eval: bygroups LIKING KURD} -setup {
+        setup
+        ted lock
+        aram hrel bset 1 SHIA KURD  0.3
+        aram hrel bset 1 SHIA SUNN  0.3
+        aram hrel bset 1 SUNN KURD  0.0
+        aram hrel bset 1 BLUE KURD  0.3
+        ted step
+    } -body {
+        # This uses anyall_glist, like the specific group-based rules.
+        # We'll just spot check.
+        set gdict [gofer::CIVGROUPS::MEGA construct {*}{
+            -bygroups LIKING
+            -hlist KURD
+        }]
+        lsort [gofer::CIVGROUPS::MEGA eval $gdict]
+    } -cleanup {
+        cleanup
+    } -result {SHIA}
 
     #-------------------------------------------------------------------
     # Rule: RESIDENT_IN
@@ -263,19 +926,6 @@ namespace eval ::athena_test::tests:: {
     #-------------------------------------------------------------------
     # Rule: MOOD_IS_GOOD
 
-    proc setupMood {} {
-        setup
-        ted lock
-        aram sat bset 1 SHIA AUT  100.0
-        aram sat bset 1 SHIA CUL  100.0
-        aram sat bset 1 SHIA QOL  100.0
-        aram sat bset 1 SHIA SFT  100.0
-        aram sat bset 1 SUNN AUT -100.0
-        aram sat bset 1 SUNN CUL -100.0
-        aram sat bset 1 SUNN QOL -100.0
-        aram sat bset 1 SUNN SFT -100.0
-        ted step
-    }
 
     test MOOD_IS_GOOD-1.1 {construct} -setup {
         setup
