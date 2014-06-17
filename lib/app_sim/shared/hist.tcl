@@ -53,6 +53,7 @@ snit::type hist {
                 DELETE FROM hist_econ_ij;
                 DELETE FROM hist_control;
                 DELETE FROM hist_security;
+                DELETE FROM hist_service_g;
                 DELETE FROM hist_support;
                 DELETE FROM hist_volatility;
                 DELETE FROM hist_hrel;
@@ -73,6 +74,7 @@ snit::type hist {
                 DELETE FROM hist_econ_ij    WHERE t > $t;
                 DELETE FROM hist_control    WHERE t > $t;
                 DELETE FROM hist_security   WHERE t > $t;
+                DELETE FROM hist_service_g  WHERE t > $t;
                 DELETE FROM hist_support    WHERE t > $t;
                 DELETE FROM hist_volatility WHERE t > $t;
                 DELETE FROM hist_hrel       WHERE t > $t;
@@ -188,6 +190,17 @@ snit::type hist {
                 INSERT INTO hist_npop(t,n,population)
                 SELECT now(), n, population
                 FROM demog_n
+            }
+        }
+
+        if {[parm get hist.service]} {
+            rdb eval {
+                INSERT INTO hist_service_g(t,g,saturation_funding,required,
+                                           funding,actual,expected,expectf,
+                                           needs)
+                SELECT now(), g, saturation_funding, required,
+                       funding, actual, expected, expectf, needs
+                FROM service_g
             }
         }
     }

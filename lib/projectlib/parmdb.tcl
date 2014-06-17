@@ -1452,6 +1452,12 @@ snit::type ::projectlib::parmdb {
             group in each neighborhood to the hist_security table.
         }
 
+        $ps define hist.service ::snit::boolean on {
+            If on, Athena will save, each week, the service and funding
+            levels of ENI service for each group in each neighborhood
+            to the hist_service_g table.
+        }
+
         $ps define hist.support ::snit::boolean on {
             If on, Athena will save, each week, the direct
             support, total support, and influence of each actor in

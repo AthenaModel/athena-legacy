@@ -224,6 +224,24 @@ CREATE TABLE hist_flow (
     PRIMARY KEY (case_id,t,f,g)
 );
 
+CREATE TABLE hist_service_g (
+    -- History: service.g (amount of ENI service by g)
+    case_id INTEGER DEFAULT 0,
+
+    t INTEGER,
+    g TEXT,
+    saturation_funding REAL,
+    required           REAL,
+    funding            REAL,
+    actual             REAL,
+    expected           REAL,
+    expectf            REAL,
+    needs              REAL,
+
+    PRIMARY KEY (case_id,t,g)
+);
+
+
 ------------------------------------------------------------------------
 -- End of File
 ------------------------------------------------------------------------
