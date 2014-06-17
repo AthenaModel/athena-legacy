@@ -120,22 +120,81 @@ macro gofer.details {args} {
     set keys [dict keys $args]
 } {
     |<--
+    [gofer.type]
+    [gofer.rule_id]
+    [gofer.constructor <i>$keys</i>]
+    [gofer.sample $args]
+}
+
+# gofer.type
+#
+# Formats the gofer's type name item.
+
+macro gofer.type {} {
+    set plist [split [pageinfo path] "/"]
+
+    set ltype [lindex $plist end-1]
+    set typename [string toupper $ltype]
+    set typelink [link [pageinfo parent] $typename]
+} {
+    |<--
     [item [cref /gofer "Gofer Type:"]]
     $typelink
     [/item]
+}
 
+# gofer.rule_id
+#
+# Formats the specific rule ID in an item list.
+
+macro gofer.rule_id {args} {
+    set plist [split [pageinfo path] "/"]
+    set lrule [lindex $plist end]
+    set rulename [string toupper $lrule]
+} {
+    |<--
     [item [cref /gofer#rule_id "Rule ID:"]]
     $rulename
     [/item]
+}
 
+# gofer.constructor arglist
+#
+# arglist   - The constructor argument list, including <i> tags.
+#
+# Formats the gofer type's constructor in an item list.
+
+macro gofer.constructor {arglist} {
+    set plist [split [pageinfo path] "/"]
+    set ltype [lindex $plist end-1]
+    set lrule [lindex $plist end]
+} {
+    |<--
     [item [cref /gofer#constructor "Constructor:"]] 
-    <tt>[command gofer] $ltype $lrule <i>$keys</i></tt>
-    [/item]
-
-    [item [cref /gofer#gdict "Sample value:"]]
-    <tt>_type $typename _rule $rulename $args</tt>
+    [command gofer] $ltype $lrule $arglist
     [/item]
 }
+
+# gofer.sample
+#
+# Formats the gofer type's sample value in an item list.
+
+macro gofer.sample {arglist} {
+    set plist [split [pageinfo path] "/"]
+
+    set ltype [lindex $plist end-1]
+    set typename [string toupper $ltype]
+
+    set lrule [lindex $plist end]
+    set rulename [string toupper $lrule]
+} {
+    |<--
+    [item [cref /gofer#gdict "Sample value:"]]
+    _type $typename _rule $rulename $arglist
+    [/item]
+}
+
+
 
 # gofer.function function arglist
 #
@@ -458,6 +517,182 @@ gofer_rule CIVGROUPS BY_VALUE "Civilian groups, By name" {
 
     <<topic <tt><i>raw_value</i></tt> >>
     A list of <<cref /object/group/civ>> names.
+    <</topic>>
+
+    <</topiclist>>
+}
+
+gofer_rule CIVGROUPS MEGA "Civilian group Mega-Filter" {
+    Retrieves a list of <<cref /object/group/civ "civilian groups">>,
+    subject to any number of constraints.  The rule begins with the
+    set of all civilian groups (or some arbitrary subset) and then 
+    applies filters to that set, winnowing it down according to the
+    user's requirements, e.g., all civilian groups resident in 
+    one or more specific neighborhoods who live by subsistence 
+    agriculture and support a specific actor.  No empty groups
+    will be included in the retrieved list.<p>
+
+    <<itemlist>>
+    <<gofer.type>>
+    <<gofer.rule_id>>
+    <<gofer.constructor "?<i>option value...</i>?">>
+    <<gofer.sample {base ALL glist {} where IGNORE nlist {} livingby IGNORE mood IGNORE byactors IGNORE awhich ALL alist {} bygroups IGNORE hwhich ALL hlist {}}>>
+    <</itemlist>><p>
+
+    The option names in the constructor are simply the rule's parameter names
+    prefixed with a hyphen ("-").  In order to find all groups living by
+    subsistence agriculture in neighborhood NB1, for example, the constructor
+    looks like this:<p>
+
+    <pre>
+    gofer civgroups mega -where IN -nlist NB1 -livingby SA
+    </pre>
+
+    The rule parameters are as follows:<p>
+    
+    <<topiclist "Parameter">>
+
+    <<topic <tt><i>base</i></tt> >>
+    The rule starts with a base set of civilian groups.  If <i>base</i> is
+    <b>ALL</b> (the default), it starts with all civilian groups in the
+    scenario.  If <i>base</i> is <b>THESE</b>, then it starts with the 
+    specific civilian groups listed in <i>glist</i>.
+    <</topic>>
+
+    <<topic <tt><i>where</i></tt> >>
+    This parameter filters groups by where they live.<p>
+
+    If <i>where</i> is <b>IN</b>, then the rule retains only those
+    civilian groups that live in the neighborhoods listed in <i>nlist</i>.
+    <p>
+
+    If <i>where</i> is <b>NOTIN</b>, the rule retains only those 
+    groups that <b>do not</b> live in the neighborhoods listed in 
+    <i>nlist</i>.<p>
+
+    If <i>where</i> is <b>IGNORE</b> (the default), then this filter is
+    ignored.
+    <</topic>>
+
+
+    <<topic <tt><i>nlist</i></tt> >>
+    When <i>where</i> is set to something other than <b>IGNORE</b>, this
+    parameter must be a list of neighborhood names.  Otherwise, it is
+    ignored.
+    <</topic>>
+
+    <<topic <tt><i>livingby</i></tt> >>
+    This parameter filters groups depending on how they participate in the
+    economy of the region.<p>
+
+    If <i>livingby</i> is <b>SA</b>, the rule retains only those groups
+    that live by subsistence agriculture.<p>
+
+    If <i>livingby</i> is <b>CASH</b>, the rule retains only those groups
+    that participate in the cash economy.<p>
+
+    If <i>livingby</i> is <b>IGNORE</b> (the default), then this filter
+    is ignored.
+    <</topic>>
+
+    <<topic <tt><i>mood</i></tt> >>
+    This parameter filters groups depending on how their moods.<p>
+
+    If <i>mood</i> is <b>GOOD</b>, the rule retains only those groups
+    whose mood is satisfied or very satisfied.<p>
+
+    If <i>mood</i> is <b>AMBIVALENT</b>, the rule retains only those groups
+    whose mood is ambivalent.<p>
+
+    If <i>mood</i> is <b>BAD</b>, the rule retains only those groups
+    whose mood is dissatisfied or very dissatisfied.<p>
+
+    If <i>mood</i> is <b>IGNORE</b> (the default), then this filter
+    is ignored.
+    <</topic>>
+    
+    <<topic <tt><i>byactors</i></tt> >>
+    This parameter filters groups based on their relationships with one or
+    more actors.<p>
+
+    If <i>byactors</i> is <b>SUPPORTING</b>, the rule retains only those 
+    groups that actively support any or all (see <i>awhich</i>) of the
+    actors in the <i>alist</i>.  Note that supporting an actor requires
+    having a positive vertical relationship as well as sufficient 
+    security to act.<p>
+
+    If <i>byactors</i> is <b>LIKING</b>, the rule retains only those groups
+    who have a positive vertical relationship with any or all 
+    (see <i>awhich</i>) of the actors in the <i>alist</i>.<p>
+
+    If <i>byactors</i> is <b>DISLIKING</b>, the rule retains only those groups
+    who have a negative vertical relationship with any or all 
+    (see <i>awhich</i>) of the actors in the <i>alist</i>.<p>
+
+    If <i>byactors</i> is <b>IGNORE</b> (the default), then this filter
+    is ignored.
+    <</topic>>
+
+
+    <<topic <tt><i>awhich</i></tt> >>
+    This parameter can be <b>ALL</b> (the default) or <b>ANY</b>.<p>
+
+    If <b>ALL</b>, then the relationship expressed by <i>byactors</i> must
+    apply to all of the actors in the <i>alist</i>.<p>
+
+    If <b>ANY</b>, then the relationship expressed by <i>byactors</i> must
+    apply to at least one of the actors in the <i>alist</i>.<p>
+
+    If the <i>alist</i> contains only one actor, this parameter is 
+    irrelevant.
+    <</topic>>
+
+    <<topic <tt><i>alist</i></tt> >>
+    When <i>byactors</i> is something other than <b>IGNORE</b>, this
+    parameter must be a list of the names of one or more actors.
+    <</topic>>
+
+    <<topic <tt><i>bygroups</i></tt> >>
+    This parameter filters groups based on their relationships with one or
+    more other groups.<p>
+
+    If <i>bygroups</i> is <b>LIKING</b>, the rule retains only those groups
+    who have a positive horizontal relationship with any or all 
+    (see <i>hwhich</i>) of the groups in the <i>hlist</i>.<p>
+
+    If <i>bygroups</i> is <b>DISLIKING</b>, the rule retains only those groups
+    who have a negative horizontal relationship with any or all 
+    (see <i>hwhich</i>) of the groups in the <i>hlist</i>.<p>
+
+    If <i>bygroups</i> is <b>LIKED_BY</b>, the rule retains only those groups
+    with which any or all (see <i>hwhich</i>) of the groups in the 
+    <i>hlist</i> have a positive horizontal relationship.<p>
+
+    If <i>bygroups</i> is <b>DISLIKED_BY</b>, the rule retains only those groups
+    with which any or all (see <i>hwhich</i>) of the groups in the 
+    <i>hlist</i> have a negative horizontal relationship.<p>
+
+    If <i>bygroups</i> is <b>IGNORE</b> (the default), then this filter
+    is ignored.
+    <</topic>>
+
+    <<topic <tt><i>hwhich</i></tt> >>
+    This parameter can be <b>ALL</b> (the default) or <b>ANY</b>.<p>
+
+    If <b>ALL</b>, then the relationship expressed by <i>bygroups</i> must
+    apply to all of the groups in the <i>hlist</i>.<p>
+
+    If <b>ANY</b>, then the relationship expressed by <i>bygroups</i> must
+    apply to at least one of the groups in the <i>hlist</i>.<p>
+
+    If the <i>hlist</i> contains only one group, this parameter is 
+    irrelevant.
+    <</topic>>
+
+    <<topic <tt><i>hlist</i></tt> >>
+    When <i>bygroups</i> is something other than <b>IGNORE</b>, this
+    parameter must be a list of the names of one or more groups.  The
+    groups can be of any type (i.e., not just civilian groups).
     <</topic>>
 
     <</topiclist>>
