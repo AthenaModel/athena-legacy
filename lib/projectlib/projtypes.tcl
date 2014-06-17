@@ -195,10 +195,7 @@ snit::type ::projectlib::typewrapper {
 
     CURFEW-1-1    "Force is enforcing a curfew"
 
-    CURSE-1-1     "CURSE Horizontal Relationship Inject"
-    CURSE-2-1     "CURSE Vertical Relationship Inject"
-    CURSE-3-1     "CURSE Satisfaction Inject"
-    CURSE-4-1     "CURSE Cooperation Inject"
+    CURSE-1-1     "CURSE Injects"
 
     DISASTER-1-1  "Disaster occurred in the neighborhood"
     DISASTER-1-2  "Disaster continues"

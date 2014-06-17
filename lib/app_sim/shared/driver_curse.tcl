@@ -20,19 +20,109 @@ driver type define CURSE {curse_id} {
 
     # assess fdict
     #
-    # fdict - A MAGIC rule firing dictionary; see "ruleset", below.
+    # fdict - A CURSE rule firing dictionary; see "ruleset", below.
     #
-    # Assesses a particular magic input.
+    # Assesses a particular CURSE.
 
     typemethod assess {fdict} {
-        # FIRST, if the rule set is inactive, skip it.
-        if {![parmdb get dam.CURSE.active]} {
-            log warning CURSE \
-                "driver type has been deactivated"
+        # FIRST, see if the CURSE driver is deactivated
+        set dtype CURSE
+
+        if {![dam isactive $dtype]} {
+            log warning $dtype "driver type has been deactivated"
             return
         }
+        
+        # NEXT, set the driver type in the dictionary
+        dict set fdict dtype $dtype
 
+        # NEXT, go through the injects checking for any zero population
+        # civilian groups
+        dict for {id idict} [dict get $fdict injects] {
+            dict with idict {
+                array unset idata
+                switch -exact -- $inject_type {
+                    HREL {
+                        # Pare out any zero pop CIV groups
+                        set flist [$type GroupsWithPop $f]
+                        set glist [$type GroupsWithPop $g]
+
+                        if {[llength $flist] == 0 ||
+                            [llength $glist] == 0} {
+                                continue
+                        }
+
+                        dict set fdict injects $id f $flist
+                        dict set fdict injects $id g $glist
+                    }
+
+                    VREL {
+                        # Pare out any zero pop CIV groups
+                        set glist [$type GroupsWithPop $g]
+
+                        if {[llength $glist] == 0} {
+                            continue
+                        }
+
+                        dict set fdict injects $id g $glist
+                    }
+
+                    COOP {
+                        # Pare out any zero pop CIV groups, g is FRC grps
+                        set flist [$type GroupsWithPop $f]
+
+                        if {[llength $flist] == 0} {
+                            continue
+                        }
+
+                        dict set fdict injects $id f $flist
+                    }
+
+                    SAT {
+                        # Pare out any zero pop CIV groups
+                        set glist [$type GroupsWithPop $g]
+
+                        if {[llength $glist] == 0} {
+                            continue
+                        }
+
+                        dict set fdict injects $id g $glist
+                    }
+                }
+            }
+        }
+
+        # NEXT, fire the ruleset
+        log detail $dtype $fdict
         $type ruleset $fdict
+    }
+
+    #--------------------------------------------------------------------
+    # Helper Methods
+
+    # GroupsWithPop grps
+    #
+    # grps  - an arbitrary list of groups defined in Athena
+    #
+    # This method goes through the list of groups provided and returns
+    # only those groups in the list that are either:
+    #
+    #      * Not a civilian group
+    #      * A civilian group with non-zero population
+    #
+    # The new list is returned (perhaps unchanged, perhaps empty).
+
+    typemethod GroupsWithPop {grps} {
+        set glist [list]
+        foreach grp $grps {
+            if {$grp ni [civgroup names]} {
+                lappend glist $grp
+            } elseif {[demog getg $grp population]} {
+                lappend glist $grp
+            }
+        }
+
+        return $glist
     }
 
     #-------------------------------------------------------------------
@@ -61,15 +151,36 @@ driver type define CURSE {curse_id} {
     typemethod narrative {fdict} {
         dict with fdict {}
 
-        switch -exact -- $atype {
-            coop { set crv "[join $f {, }] with [join $g {, }]" }
-            hrel { set crv "[join $f {, }] with [join $g {, }]" }
-            sat  { set crv "[join $g {, }] with $c" }
-            vrel { set crv "[join $g {, }] with [join $a {, }]" }
-            default {error "unexpected atype: \"$atype\""}
+        set narr [list]
+        dict for {id idict} [dict get $fdict injects] {
+            dict with idict {
+                switch -exact -- $inject_type {
+                    COOP { 
+                        set msg \
+                            "cooperation of [join $f {, }] with [join $g {, }]" 
+                    }
+                    HREL { 
+                        set msg \
+                    "horiz. relationships of [join $f {, }] with [join $g {, }]"
+                        }
+                    SAT  { 
+                        set msg "satisfaction of [join $g {, }] with $c" 
+                    }
+                    VREL { 
+                        set msg \
+                    "vert. relationships of [join $g {, }] with [join $a {, }]" 
+                    }
+
+                    default {
+                        error "unexpected atype: \"$inject_type\""
+                    }
+                }
+
+                lappend narr $msg
+            }
         }
 
-        return "CURSE {curse:$curse_id} $atype $mode $crv [format %.1f $mag]"
+        return "{curse:$curse_id} affects [join $narr {, }]"
     }
     
     # detail fdict 
@@ -96,100 +207,57 @@ driver type define CURSE {curse_id} {
     # Rule Set: CURSE --
     #    Complex User-defined Role-based Situations and Events
 
-    # ruleset fdict
+    # fdict - Nested dictionary containing CURSE data
     #
-    # fdict - Dictionary containing CURSE data
-    #
-    #   dtype     - CURSE
-    #   curse_id  - CURSE ID
-    #   atype     - coop | hrel | sat | vrel
-    #   mode      - P | T
-    #   cause     - The cause, or UNIQUE for a unique cause
-    #   mag       - Magnitude (numeric)
-    #   f         - groups (if coop or hrel)
-    #   g         - groups (if coop, hrel, sat, or vrel)
-    #   c         - concern (if sat)
-    #   a         - actors (if vrel)
+    #   dtype     -> CURSE
+    #   curse_id  -> CURSE ID
+    #   cause     -> The cause, or UNIQUE for a unique cause
+    #   s         -> Here factor
+    #   p         -> Near factor
+    #   q         -> Far factor
+    #   injects   => dictionary of injects
+    #             -> inject_num  -> ID of inject
+    #             -> inject_type -> COOP | HREL | SAT | VREL
+    #             -> mode        -> P | T
+    #             -> mag         -> Magnitude (numeric)
+    #             -> f           -> groups  (if COOP or HREL)
+    #             -> g           -> groups  (all inject types)
+    #             -> c           -> concern (if SAT)
+    #             -> a           -> actors  (if VREL)
     #
     # Executes the rule set for the magic input
 
     typemethod ruleset {fdict} {
         dict with fdict {}
-        log detail CURSE $fdict
 
-        # FIRST, check group populations, so that we can skip empty
-        # civilian groups.
-        set flist {}
-        set glist {}
-
-        if {[dict exists $fdict f]} {
-            foreach grp $f {
-                if {$grp ni [civgroup names]} {
-                    lappend flist $grp 
-                } elseif {[demog getg $grp population]} {
-                    lappend flist $grp
-                }
-            }
-        }
-
-        if {[dict exists $fdict g]} {
-            foreach grp $g {
-                if {$grp ni [civgroup names]} {
-                    lappend glist $grp
-                } elseif {[demog getg $grp population]} {
-                    lappend glist $grp
-                }
-            }
-        }
-
-        # NEXT, load the curse data.
         rdb eval {
             SELECT * FROM curses WHERE curse_id=$curse_id
-        } curse {}
+        } data {}
 
-        # NEXT, get the cause.  Passing "" will make URAM use the
-        # numeric driver ID as the numeric cause ID.
-        if {$curse(cause) eq "UNIQUE"} {
-            set curse(cause) ""
+        # UNIQUE causes get set to the empty string causing URAM to
+        # associate the cause to the driver
+        if {$data(cause) eq "UNIQUE"} {
+            set data(cause) ""
         }
 
         lappend opts \
-            -cause $curse(cause) \
-            -s     $curse(s)     \
-            -p     $curse(p)     \
-            -q     $curse(q)
+            -cause $data(cause) \
+            -s     $data(s)     \
+            -p     $data(p)     \
+            -q     $data(q)
 
-        # NEXT, here are the rules.
-
-        dam rule CURSE-1-1 $fdict -cause $curse(cause) {
-            $atype eq "hrel"     && 
-            [llength $flist] > 0 &&
-            [llength $glist] > 0
-        } {
-            dam hrel $mode $flist $glist $mag
-        }
-
-        dam rule CURSE-2-1 $fdict -cause $curse(cause) {
-            $atype eq "vrel"     &&
-            [llength $glist] > 0 &&
-            [llength $a]     > 0
-        } {
-            dam vrel $mode $glist $a $mag
-        }
-
-        dam rule CURSE-3-1 $fdict {*}$opts {
-            $atype eq "sat"      &&
-            [llength $glist] > 0 
-        } {
-            dam sat $mode $glist $c $mag
-        }
-
-        dam rule CURSE-4-1 $fdict {*}$opts {
-            $atype eq "coop"     &&
-            [llength $flist] > 0 &&
-            [llength $glist] > 0
-        } {
-            dam coop $mode $flist $glist $mag
+        # Rule fires trivially
+        dam rule CURSE-1-1 $fdict {*}$opts {1} {
+            dict for {id idict} [dict get $fdict injects] {
+                dict with idict {
+                    switch -exact -- $inject_type {
+                        COOP { dam coop $mode $f $g $mag }
+                        HREL { dam hrel $mode $f $g $mag }
+                        SAT  { dam sat  $mode $g $c $mag }
+                        VREL { dam vrel $mode $g $a $mag }
+                    }
+                }
+            }
         }
     }
 }

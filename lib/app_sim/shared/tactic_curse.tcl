@@ -52,7 +52,7 @@ tactic define CURSE "Cause a CURSE" {system} {
     #-------------------------------------------------------------------
     # Operations
 
-    # No ObligateResources method is required; the ROE uses no resources.
+    # No ObligateResources method is required; the CURSE uses no resources.
 
     method SanityCheck {errdict} {
         # FIRST check for existence of the CURSE
@@ -138,15 +138,15 @@ tactic define CURSE "Cause a CURSE" {system} {
     }
 
     method execute {} {
-        set inject_executed 0
+        set fdict [dict create]
+        dict set fdict curse_id $curse
 
-        # NEXT, go through each inject associated with this CURSE
-        # firing rules as we go
         rdb eval {
             SELECT * FROM curse_injects
             WHERE curse_id=$curse AND state='normal'
         } idata {
-            set parms(curse_id) $idata(curse_id)
+            array unset parms
+            set parms(inject_type) $idata(inject_type)
 
             switch -exact -- $idata(inject_type) {
                 HREL {
@@ -162,10 +162,6 @@ tactic define CURSE "Cause a CURSE" {system} {
                             "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
                         continue
                     }
-
-                    set inject_executed 1
-
-                    my hrel [array get parms]
                 }
 
                 VREL {
@@ -181,10 +177,6 @@ tactic define CURSE "Cause a CURSE" {system} {
                             "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
                         continue
                     }
-
-                    set inject_executed 1
-
-                    my vrel [array get parms]
                 }
 
                 COOP {
@@ -200,10 +192,6 @@ tactic define CURSE "Cause a CURSE" {system} {
                             "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
                         continue
                     }
-
-                    set inject_executed 1
-
-                    my coop [array get parms]
                 }
 
                 SAT {
@@ -219,10 +207,6 @@ tactic define CURSE "Cause a CURSE" {system} {
                             "$idata(curse_id) inject $idata(inject_num) did not execute because one or more roles are empty."
                         continue
                     }
-
-                    set inject_executed 1
-
-                    my sat [array get parms]
                 }
 
                 default {
@@ -230,123 +214,12 @@ tactic define CURSE "Cause a CURSE" {system} {
                     error "Unrecognized inject type: $idata(inject_type)"
                 }
             }
+
+            # NEXT, set the inject information in the firing dict
+            dict set fdict injects $idata(inject_num) [array get parms]
         }
-    }
-
-    # hrel parmdict
-    #
-    # Causes an assessment of horizontal relationship among
-    # group(s).
-    #
-    # parmdict:
-    #   curse_id   - ID of the CURSE causing the change
-    #   mode       - P (persistent) or T (transient)
-    #   mag        - qmag(n) value of the change
-    #   f          - One or more groups
-    #   g          - One or more groups
-
-    method hrel {parmdict} {
-        dict with parmdict {}
-
-        set fdict [dict create \
-            dtype    CURSE     \
-            curse_id $curse_id \
-            atype    hrel      \
-            mode     $mode     \
-            mag      $mag      \
-            f        $f        \
-            g        $g        ]
-
-            driver::CURSE assess $fdict
-
-        return
-    }
-
-    # vrel parmdict
-    #
-    # Causes an assessment vertical relationship among
-    # group(s).
-    #
-    # parmdict:
-    #   curse_id   - ID of the CURSE causing the change
-    #   mode       - P (persistent) or T (transient)
-    #   mag        - qmag(n) value of the change
-    #   g          - One or more groups
-    #   a          - One or more actors
-
-    method vrel {parmdict} {
-        dict with parmdict {}
-
-        set fdict [dict create  \
-            dtype    CURSE      \
-            curse_id $curse_id  \
-            atype    vrel       \
-            mode     $mode      \
-            mag      $mag       \
-            g        $g         \
-            a        $a         ]
-
-            driver::CURSE assess $fdict
-
-        return
-    }
-
-    # sat parmdict
-    #
-    # Causes an assessment of satsifaction change of
-    # group(s) with a concern
-    #
-    # parmdict:
-    #   curse_id   - ID of the CURSE causing the change
-    #   mode       - P (persistent) or T (transient)
-    #   mag        - qmag(n) value of the change
-    #   g          - One or more groups
-    #   c          - AUT, SFT, CUL or QOL
-
-    method sat {parmdict} {
-        dict with parmdict {}
-
-        set fdict [dict create \
-            dtype    CURSE     \
-            curse_id $curse_id \
-            atype    sat       \
-            mode     $mode     \
-            mag      $mag      \
-            c        $c        \
-            g        $g        ]
 
         driver::CURSE assess $fdict
-
-        return
-    }
-
-    # coop parmdict
-    #
-    # Causes an assessment of cooperation change of 
-    # CIV group(s) with FRC groups(s)
-    #
-    # parmdict:
-    #   curse_id   - ID of the CURSE causing the change
-    #   mode       - P (persistent) or T (transient)
-    #   mag        - qmag(n) value of the change
-    #   f          - One or more CIV groups
-    #   g          - One or more FRC groups
-
-    method coop {parmdict} {
-        dict with parmdict {}
-
-        set fdict [dict create \
-            dtype    CURSE     \
-            curse_id $curse_id \
-            atype    coop      \
-            mode     $mode     \
-            mag      $mag      \
-            f        $f        \
-            g        $g        ]
-
-        driver::CURSE assess $fdict
-
-        return
     }
 }
 

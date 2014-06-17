@@ -111,9 +111,14 @@ namespace eval ::athena_test::tests:: {
         setup
     } -body {
         
-        curse C1 {
-            @CIV1 {_type GROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @FRC1 {_type GROUPS _rule BY_VALUE raw_value BLUE}
+        curse C5 {
+            @CIV5 {_type GROUPS    _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV6 {_type GROUPS    _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV7 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @CIV8 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
+            @FRC3 {_type GROUPS    _rule BY_VALUE raw_value BLUE}
+            @FRC4 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
+            @ACT2 {_type ACTORS    _rule BY_VALUE raw_value JOE}
         }
 
         ted querylist {
@@ -127,78 +132,10 @@ t          *
 driver_id  1000
 ruleset    CURSE
 rule       CURSE-1-1
-fdict      dtype CURSE curse_id C1 atype hrel mode T mag 3.0 f {SHIA SUNN} g BLUE
+fdict      curse_id C5 injects {1 {mag 3.0 mode T f {SHIA SUNN} inject_type HREL g BLUE} 2 {mag 5.0 mode T a JOE inject_type VREL g {SHIA SUNN}} 3 {mag 7.5 mode T inject_type SAT c AUT g {SHIA SUNN}} 4 {mag 10.0 mode T f {SHIA SUNN} inject_type COOP g BLUE}} dtype CURSE
     }
     
-    test assess-1.2 {Rule 2-1 fires} -setup {
-        setup
-    } -body {
-        
-        curse C2 {
-            @CIV2 {_type GROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @ACT1 {_type ACTORS _rule BY_VALUE raw_value JOE}
-        }
-
-        ted querylist {
-            SELECT * FROM rule_firings
-        }
-    } -cleanup {
-        cleanup
-    } -match glob -result {
-firing_id  1
-t          *
-driver_id  1000
-ruleset    CURSE
-rule       CURSE-2-1
-fdict      dtype CURSE curse_id C2 atype vrel mode T mag 5.0 g {SHIA SUNN} a JOE
-    }
-    
-    test assess-1.3 {Rule 3-1 fires} -setup {
-        setup
-    } -body {
-        
-        curse C3 {
-            @CIV3 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-        }
-
-        ted querylist {
-            SELECT * FROM rule_firings
-        }
-    } -cleanup {
-        cleanup
-    } -match glob -result {
-firing_id  1
-t          *
-driver_id  1000
-ruleset    CURSE
-rule       CURSE-3-1
-fdict      dtype CURSE curse_id C3 atype sat mode T mag 7.5 c AUT g {SHIA SUNN}
-    }
-    
-    test assess-1.4 {Rule 4-1 fires} -setup {
-        setup
-    } -body {
-        
-        curse C4 {
-            @CIV4 {_type CIVGROUPS _rule BY_VALUE raw_value {SHIA SUNN}}
-            @FRC2 {_type FRCGROUPS _rule BY_VALUE raw_value BLUE}
-        }
-
-        ted querylist {
-            SELECT * FROM rule_firings
-        }
-    } -cleanup {
-        cleanup
-    } -match glob -result {
-firing_id  1
-t          *
-driver_id  1000
-ruleset    CURSE
-rule       CURSE-4-1
-fdict      dtype CURSE curse_id C4 atype coop mode T mag 10.0 f {SHIA SUNN} g BLUE
-    }
-    
-    test assess-1.5 {Rule 1-1 inputs} -setup {
+    test assess-1.2 {Rule 1-1 inputs} -setup {
         setup
     } -body {
         curse C5 {
@@ -222,15 +159,15 @@ rule      atype f    g    c   a
 --------- ----- ---- ---- --- --- 
 CURSE-1-1 hrel  SHIA BLUE         
 CURSE-1-1 hrel  SUNN BLUE         
-CURSE-2-1 vrel       SHIA     JOE 
-CURSE-2-1 vrel       SUNN     JOE 
-CURSE-3-1 sat        SHIA AUT     
-CURSE-3-1 sat        SUNN AUT     
-CURSE-4-1 coop  SHIA BLUE         
-CURSE-4-1 coop  SUNN BLUE         
+CURSE-1-1 vrel       SHIA     JOE 
+CURSE-1-1 vrel       SUNN     JOE 
+CURSE-1-1 sat        SHIA AUT     
+CURSE-1-1 sat        SUNN AUT     
+CURSE-1-1 coop  SHIA BLUE         
+CURSE-1-1 coop  SUNN BLUE         
     }
 
-    test assess-1.6 {Rule 1-1 inputs, inject disabled} -setup {
+    test assess-1.3 {Rule 1-1 inputs, inject disabled} -setup {
         setup
         ted order INJECT:STATE id {C5 1} state disabled
     } -body {
@@ -253,12 +190,12 @@ CURSE-4-1 coop  SUNN BLUE
     } -result {
 rule      atype f    g    c   a   
 --------- ----- ---- ---- --- --- 
-CURSE-2-1 vrel       SHIA     JOE 
-CURSE-2-1 vrel       SUNN     JOE 
-CURSE-3-1 sat        SHIA AUT     
-CURSE-3-1 sat        SUNN AUT     
-CURSE-4-1 coop  SHIA BLUE         
-CURSE-4-1 coop  SUNN BLUE         
+CURSE-1-1 vrel       SHIA     JOE 
+CURSE-1-1 vrel       SUNN     JOE 
+CURSE-1-1 sat        SHIA AUT     
+CURSE-1-1 sat        SUNN AUT     
+CURSE-1-1 coop  SHIA BLUE         
+CURSE-1-1 coop  SUNN BLUE         
     }
 
     #-------------------------------------------------------------------
@@ -276,65 +213,121 @@ CURSE-4-1 coop  SUNN BLUE
     #-------------------------------------------------------------------
     # narrative
 
-    test narrative-1.1 {narrative output} -setup {
+    test narrative-1.1 {narrative output, HREL} -setup {
         setup
     } -body {
         driver::CURSE narrative {
             curse_id   C1
-            atype      hrel
-            mode       transient
-            f          SHIA
-            g          BLUE
-            mag        1.0
+            injects    {
+                1 {
+                    inject_type HREL
+                    mode        T
+                    f           SHIA
+                    g           BLUE
+                    mag         1.0
+                }
+            }
         } 
     } -cleanup {
         cleanup
-    } -result {CURSE {curse:C1} hrel transient SHIA with BLUE 1.0}
+    } -result {{curse:C1} affects horiz. relationships of SHIA with BLUE}
 
-    test narrative-1.2 {narrative output} -setup {
+    test narrative-1.2 {narrative output, VREL} -setup {
         setup
     } -body {
         driver::CURSE narrative {
             curse_id   C1
-            atype      vrel
-            mode       transient
-            g          BLUE
-            a          JOE
-            mag        1.0
+            injects    {
+                1 {
+                    inject_type VREL
+                    mode        T
+                    g           BLUE
+                    a           JOE
+                    mag         1.0
+                }
+            }
         } 
     } -cleanup {
         cleanup
-    } -result {CURSE {curse:C1} vrel transient BLUE with JOE 1.0}
+    } -result {{curse:C1} affects vert. relationships of BLUE with JOE}
 
-    test narrative-1.3 {narrative output} -setup {
+    test narrative-1.3 {narrative output, SAT} -setup {
         setup
     } -body {
         driver::CURSE narrative {
             curse_id   C1
-            atype      sat
-            mode       transient
-            g          {SHIA SUNN}
-            c          SFT
-            mag        1.0
+            injects    {
+                1 {
+                    inject_type SAT
+                    mode        T
+                    g           {SHIA SUNN}
+                    c           SFT
+                    mag         1.0
+                }
+            }
         } 
     } -cleanup {
         cleanup
-    } -result {CURSE {curse:C1} sat transient SHIA, SUNN with SFT 1.0}
+    } -result {{curse:C1} affects satisfaction of SHIA, SUNN with SFT}
 
-    test narrative-1.4 {narrative output} -setup {
+    test narrative-1.4 {narrative output, COOP} -setup {
         setup
     } -body {
         driver::CURSE narrative {
             curse_id   C1
-            atype      coop
-            mode       transient
-            f          SHIA
-            g          BLUE
-            mag        1.0
+            injects    {
+                1 {
+                    inject_type COOP
+                    mode        T
+                    f           SHIA
+                    g           BLUE
+                    mag         1.0
+                }
+            }
         } 
     } -cleanup {
         cleanup
-    } -result {CURSE {curse:C1} coop transient SHIA with BLUE 1.0}
+    } -result {{curse:C1} affects cooperation of SHIA with BLUE}
+
+    test narrative-1.5 {narrative output, multiple injects} -setup {
+        setup
+    } -body {
+        driver::CURSE narrative {
+            curse_id   C1
+            injects    {
+                1 {
+                    inject_type COOP
+                    mode        T
+                    f           SHIA
+                    g           BLUE
+                    mag         1.0
+                }
+                2 {
+                    inject_type SAT
+                    mode        T
+                    g           {SHIA SUNN}
+                    c           SFT
+                    mag         1.0
+                }
+                3 {
+                    inject_type VREL
+                    mode        T
+                    g           BLUE
+                    a           JOE
+                    mag         1.0
+                }
+                4 {
+                    inject_type HREL
+                    mode        T
+                    f           SHIA
+                    g           BLUE
+                    mag         1.0
+                }
+            }
+        } 
+    } -cleanup {
+        cleanup
+    } -result {{curse:C1} affects cooperation of SHIA with BLUE, satisfaction of SHIA, SUNN with SFT, vert. relationships of BLUE with JOE, horiz. relationships of SHIA with BLUE}
 
          
     #-------------------------------------------------------------------
