@@ -162,8 +162,8 @@ snit::type ::projectlib::gofer {
 
     typemethod check {} {
         foreach typename [array names types] {
-            if {[catch {$types($typename) SanityCheck} result]} {
-                error "Error in gofer $typename, $result"
+            if {[catch {$types($typename) SanityCheck} result eopts]} {
+                return {*}$eopts "Error in gofer $typename, $result"
             }
         }
 
@@ -767,8 +767,9 @@ snit::type ::projectlib::goferType {
             lappend fields [dict get $dict field]
         }
 
-        if {[dict get $dict itype] eq "selector"} {
-            foreach case [dict get $dict cases] {
+        if {[dict get $dict itype] in {selector when}} {
+            set casedict [dict get $dict cases]
+            foreach case [dict keys $casedict] {
                 foreach cid [dict get $dict cases $case] {
                     GetFieldNames fields $cid
                 }

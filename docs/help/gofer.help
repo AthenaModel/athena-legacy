@@ -719,53 +719,6 @@ gofer_rule CIVGROUPS RESIDENT_IN "Civilian groups, Resident in Neighborhood(s)" 
     <</topiclist>>
 }
 
-gofer_rule CIVGROUPS SA_IN "Civilian groups, Subsistence Agriculture, Resident in Neighborhood(s)" {
-    Retrieves a list of 
-    <<cref /object/group/civ "civilian groups">>
-    resident in a particular 
-    <<cref /object/nbhood "neighborhood or neighborhoods">> who live
-    by means of subsistence agriculture.<p>
-
-    <<itemlist>>
-    <<gofer.details nlist {NB1 NB2}>>
-    <</itemlist>><p>
-
-    The rule parameters are as follows:<p>
-    
-    <<topiclist "Parameter">>
-
-    <<topic <tt><i>nlist</i></tt> >>
-    A list of <<cref /object/nbhood>> names.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-gofer_rule CIVGROUPS NON_SA_IN "Civilian Groups, Non-Subsistence Agriculture, Resident in Neighborhood(s)" {
-    Retrieves a list of 
-    <<cref /object/group/civ "civilian groups">>
-    resident in a particular 
-    <<cref /object/nbhood "neighborhood or neighborhoods">> who 
-    do <b>not</b> live
-    by means of subsistence agriculture, i.e., who participate in the
-    local economy.<p>
-
-    <<itemlist>>
-    <<gofer.details nlist {NB1 NB2}>>
-    <</itemlist>><p>
-
-    The rule parameters are as follows:<p>
-    
-    <<topiclist "Parameter">>
-
-    <<topic <tt><i>nlist</i></tt> >>
-    A list of <<cref /object/nbhood>> names.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-
 gofer_rule CIVGROUPS NOT_RESIDENT_IN "Civilian groups, Not Resident in Neighborhood(s)" {
     Retrieves a list of 
     <<cref /object/group/civ "civilian groups">>
@@ -1537,52 +1490,6 @@ gofer_rule GROUPS CIV_RESIDENT_IN "Civilian groups, Resident in Neighborhood(s)"
     <<cref /object/group/civ "civilian groups">>
     resident in a particular 
     <<cref /object/nbhood "neighborhood or neighborhoods">>.<p>
-
-    <<itemlist>>
-    <<gofer.details nlist {NB1 NB2}>>
-    <</itemlist>><p>
-
-    The rule parameters are as follows:<p>
-    
-    <<topiclist "Parameter">>
-
-    <<topic <tt><i>nlist</i></tt> >>
-    A list of <<cref /object/nbhood>> names.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-gofer_rule GROUPS CIV_SA_IN "Civilian groups, Subsistence Agriculture, Resident in Neighborhood(s)" {
-    Retrieves a list of 
-    <<cref /object/group/civ "civilian groups">>
-    resident in a particular 
-    <<cref /object/nbhood "neighborhood or neighborhoods">> who live
-    by means of subsistence agriculture.<p>
-
-    <<itemlist>>
-    <<gofer.details nlist {NB1 NB2}>>
-    <</itemlist>><p>
-
-    The rule parameters are as follows:<p>
-    
-    <<topiclist "Parameter">>
-
-    <<topic <tt><i>nlist</i></tt> >>
-    A list of <<cref /object/nbhood>> names.
-    <</topic>>
-
-    <</topiclist>>
-}
-
-gofer_rule GROUPS CIV_NON_SA_IN "Civilian groups, Non-Subsistence Agriculture, Resident in Neighborhood(s)" {
-    Retrieves a list of 
-    <<cref /object/group/civ "civilian groups">>
-    resident in a particular 
-    <<cref /object/nbhood "neighborhood or neighborhoods">> who 
-    do <b>not</b> live
-    by means of subsistence agriculture, i.e., who participate in the
-    local economy.<p>
 
     <<itemlist>>
     <<gofer.details nlist {NB1 NB2}>>

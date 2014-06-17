@@ -151,9 +151,11 @@ send INJECT:SAT:CREATE -curse_id DROUGHT \
     -mag   XS-
 
 proc make_drought {block_id n} {
+    set nonsa [gofer civgroups mega -where IN -nlist $n -livingby CASH]
+    set sa    [gofer civgroups mega -where IN -nlist $n -livingby SA]
+
     tactic add $block_id CURSE -curse DROUGHT \
-        -roles [list @NONSACIV [gofer civgroups non_sa_in $n] \
-                     @SACIV    [gofer civgroups sa_in $n]]
+        -roles [list @NONSACIV $nonsa @SACIV $sa]
 }
 
 
