@@ -28,9 +28,9 @@ object inject_ {
         <<term curse>> has its effect on actors and groups.
         Each CURSE has one or more injects, each of which affects
         a specific set of attitudes.  For example, a CURSE may need
-        to cause the vertical relationship between an <<term actor>>
-        and civilian group to simulate the effects of some catastrophic
-        event that is attributed to that actor.<p>
+        to cause the vertical relationship between one or more <<term actor>>s
+        and one or more <<term civgroup>>s to simulate the effects of some 
+        event.<p>
 
         Injects use <<term role>>s rather than explicitly chosen groups
         and actors to cause effects in Athena.  A <<term role>> can be
@@ -49,6 +49,7 @@ object inject_ {
         this inject is attached.
     } -tags {object create}
 
+
     attribute inject_num "Inject Number" {
         The inject number, which identifies the inject relative to 
         its <<term curse>>.
@@ -61,7 +62,7 @@ object inject_ {
         {<i>curse_id inject_number</i>}.
     } -tags {object state}
 
-    attribute inject_mode "Mode" {
+    attribute mode "Mode" {
         The mode, <b>persistent</b> or <b>transient</b>.  Transient
         injects affect the current level of the curve during the next
         time step; persistent injects affect the curve's baseline, and
@@ -71,7 +72,7 @@ object inject_ {
     attribute inject_type "Inject Type" {
         The inject's type, e.g., 
         <b><<cref /object/inject/vrel VREL>></b>.
-    } -tags object
+    } -tags {object}
 
     attribute state "State" {
         The inject's state, one of <b>normal</b>, <b>disabled</b>, or 
@@ -109,7 +110,7 @@ object inject_coop {
         with force groups in the force group <<term role>>.
     }
 
-    include inject_ -attrs {curse_id inject_num state inject_mode}
+    include inject_ -attrs {curse_id inject_num state mode}
 
     attribute ftype "Civlian Group Role Type" {
         This parameter specifies if the <<term role>> is new or already 
@@ -157,7 +158,7 @@ object inject_hrel {
         set of groups in another <<term role>>.
     }
 
-    include inject_ -attrs {curse_id inject_num state inject_mode}
+    include inject_ -attrs {curse_id inject_num state mode}
 
     attribute ftype "Group Role Type" {
         This parameter specifies if the <<term role>> is new or already 
@@ -207,15 +208,15 @@ object inject_sat {
         concern.
     }
 
-    include inject_ -attrs {curse_id inject_num state inject_mode}
+    include inject_ -attrs {curse_id inject_num state mode}
 
-    attribute ftype "Civlian Group Role Type" {
+    attribute gtype "Civlian Group Role Type" {
         This parameter specifies if the <<term role>> is new or already 
         exists. For new roles, it should be set to <b>NEW</b> for roles
         that already exist, it should be set to <b>EXISTING</b>.
     } -tags {create update}
 
-    attribute f "Civ. Group Role" {
+    attribute g "Civ. Group Role" {
         The ID of a <<term role>> for one or more <<term civgroup>>s.  
     } -tags {create update}
 
@@ -249,7 +250,7 @@ object inject_vrel {
         <<term role>>.
     }
 
-    include inject_ -attrs {curse_id inject_num state inject_mode}
+    include inject_ -attrs {curse_id inject_num state mode}
 
     attribute gtype "Group Role Type" {
         This parameter specifies if the <<term role>> is new or already 
