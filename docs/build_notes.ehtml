@@ -11,6 +11,27 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.1-B11, 18 June 2014</h3>
+
+This build adds a new gofer(n) rule for CIVGROUPS called "megafilter".
+It essentially rolls up all other rules into a single rule that allows the user
+to pick and choose which filtering to apply to a list of civilian groups.  It 
+may, in the future, be a rule applied to all of Athena's entities and could, in
+principle, replace all other gofer(n) rules.  There is also a few bug fixes
+to athena_ingest(1) and athena(1).<p>
+
+<ul>
+<li> Bug 4505: athena(1): CURSE tactic execution results in too many rule firings.
+<li> Bug 4526: athena(1): add hist_service_g table to history.
+<li> Bug 4540: Role names can be assigned to conflicting role types
+<li> Bug 4487: HRel tab bgerror
+<li> Bug 4544: Explosion and Riot events cannot be disabled
+<li> Bug 4545: Drought Curse needs to be updated
+<li> Bug 4546: athena(1): bgerror when opening Nangahar scenario
+<li> Bug 4547: VRel tab bgerror
+<li> Bug 4549: athena(1): gofer::CIVGROUPS "megafilter" 
+</ul><p>
+
 <h3>Build 6.2.1-B10, 9 June 2014</h3>
 
 This build contains a bug fix for the TRAFFIC ingestion event, and
