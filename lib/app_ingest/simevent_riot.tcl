@@ -23,7 +23,7 @@ simevent define RIOT "Riot" {
     The duration of a "Riot" event is always 1 week; reports from 
     successive weeks will generate additional events.  
 } {
-    An "Riot" event is represented in Athena as a "block" in the 
+    A "Riot" event is represented in Athena as a "block" in the 
     SYSTEM agent's strategy.  The block will contain a CURSE tactic that 
     injects the attitude effects of the riot on the civilians into the 
     attitude model.<p>

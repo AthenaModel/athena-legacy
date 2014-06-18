@@ -110,8 +110,15 @@ send INJECT:SAT:CREATE -curse_id DEMO \
     -c     SFT        \
     -mag   XS-
 
-proc make_demo {block_id n g} {
-    error "Need gofer for liking/disliking groups in same neighborhood."
+proc make_demo {block_id n glist} {
+    foreach g $glist {
+        set civfor [gofer civgroups mega \
+                        -where IN -nlist $n -bygroups LIKING -hlist $g]
+        set civopp [gofer civgroups mega \
+                        -where IN -nlist $n -bygroups DISLIKING -hlist $g]
+        tactic add $block_id CURSE -curse DEMO \
+            -roles [list @CIVFOR $civfor @CIVOPP $civopp]
+    }
 }
 
 # NEXT, Create "DROUGHT" CURSE, replacing any existing DROUGHT curse

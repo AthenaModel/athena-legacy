@@ -77,6 +77,14 @@ snit::type rdb {
         FROM messages
         JOIN cid2etype USING (cid);
 
+
+        -- TBD: The purpose of having all of these individual views is 
+        -- that a sim event type might have distinguishing
+        -- attributes in addition to n and t.  At present, none do; 
+        -- and we might be able to avoid them in the long run.  In that
+        -- case, the ingestion code can simply use ingest_view 
+        -- directly.
+
         CREATE VIEW ingest_ACCIDENT AS
         SELECT * FROM ingest_view
         WHERE etype = 'ACCIDENT'
@@ -85,6 +93,11 @@ snit::type rdb {
         CREATE VIEW ingest_CIVCAS AS
         SELECT * FROM ingest_view
         WHERE etype = 'CIVCAS'
+        ORDER BY n, t;
+
+        CREATE VIEW ingest_DEMO AS
+        SELECT * FROM ingest_view
+        WHERE etype = 'DEMO'
         ORDER BY n, t;
 
         CREATE VIEW ingest_DROUGHT AS
