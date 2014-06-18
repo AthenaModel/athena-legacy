@@ -347,7 +347,7 @@ snit::type autogen {
 
         # FIRST, there must be no topics and we must have CIV groups and
         # actors defined
-        if {[llength [bsystem topic names]] > 0} {
+        if {[llength [bsys topic ids]] > 0} {
             error "Belief system topics already exist, must delete them first"
         }
 
