@@ -123,6 +123,37 @@ command "=" {
 }
 
 #=======================================================================
+# absit
+
+command "absit" {
+    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
+    
+    This command queries information about <<term absit>>s.
+    It has the following subcommands:<p>
+
+    <<childlinks>>
+}
+
+#-----------------------------------------------------------------------
+# absit id
+
+command "absit id" {
+    <<syntax <i>n stype</i> >>
+    
+    Returns the situation ID of the <<term absit>> of type
+    <i>stype</i> in neighborhood <i>n</i>, if any, and the empty string
+    otherwise.
+}
+
+command "absit last" {
+    <<syntax>>
+    
+    Returns the situation ID of the most recently created 
+    <<term absit>>, or the empty string if none.
+}
+
+
+#=======================================================================
 # advance command
 
 command "advance" {
@@ -1162,35 +1193,6 @@ command "dump econ" {
 }
 
 
-#=======================================================================
-# absit
-
-command "absit" {
-    <<syntax <i>subcommand</i> ?<i>args...</i>?>>
-    
-    This command queries information about <<term absit>>s.
-    It has the following subcommands:<p>
-
-    <<childlinks>>
-}
-
-#-----------------------------------------------------------------------
-# absit id
-
-command "absit id" {
-    <<syntax <i>n stype</i> >>
-    
-    Returns the situation ID of the <<term absit>> of type
-    <i>stype</i> in neighborhood <i>n</i>, if any, and the empty string
-    otherwise.
-}
-
-command "absit last" {
-    <<syntax>>
-    
-    Returns the situation ID of the most recently created 
-    <<term absit>>, or the empty string if none.
-}
 
 #=======================================================================
 # errtrace command
