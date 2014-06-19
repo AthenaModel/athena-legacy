@@ -868,19 +868,32 @@ snit::widget mapviewer {
     # Updates the list of nbhood fill tags on the toolbar
 
     method NbhoodUpdateFillTags {} {
+        # FIRST, get the recent fill tags, verifying that they are
+        # still good.
+        set tags [list]
+
+        foreach tag $picklist(recentFills) {
+            if {[view n exists $tag]} {
+                lappend tags $tag
+            }
+        }
+
+        # NEXT, add the standard fill tags, if they aren't
+        # already on the list.
         set standards $defaultFills
 
         foreach g [frcgroup names] {
             lappend standards "nbcoop.$g"
         }
 
-        set tags $picklist(recentFills)
-
         foreach tag $standards {
-            if {$tag ni $picklist(recentFills)} {
+            if {$tag ni $tags} {
                 lappend tags $tag
             }
         }
+
+        # NEXT, clear the selected fill tag if it is no longer
+        # available.
 
         if {$view(filltag) ni $tags} {
             set view(filltag) none
@@ -890,6 +903,7 @@ snit::widget mapviewer {
             }
         }
 
+        # NEXT, save the list of tags.
         set picklist(filltags) $tags
     }
 
