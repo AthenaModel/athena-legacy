@@ -619,7 +619,7 @@ snit::type autogen {
 
         if {$opts(-orgg) eq ""} {
             set opts(-orgg) \
-                [rdb eval {SELECT g FROM orggroups WHERE a=$owner}]
+                [rdb eval {SELECT g FROM orggroups_view WHERE a=$owner}]
         } else {
             foreach g $opts(-orgg) {
                 if {$g ni [orggroup names]} {
