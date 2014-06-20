@@ -603,6 +603,314 @@ namespace eval ::athena_test::tests:: {
         cleanup
     } -result {2 + 2 == 4}
 
+    #----------------------------------------------------------------------
+    # autogen tests
+
+    #----------------------------------------------------------------------
+    # basic autogen errors
+
+    test autogen_errors-1.1 {actors, bad arguments} -setup {
+    } -body {
+        ted sendex -error autogen actors FOO
+    } -cleanup {
+        cleanup
+    } -result {argument must be integer}
+
+    test autogen_errors-1.2 {nbhoods, no actors} -setup {
+    } -body {
+        ted sendex -error autogen nbhoods
+    } -cleanup {
+        cleanup
+    } -result {Must create actors first}
+
+    test autogen_errors-1.3 {civgroups, no nbhoods} -setup {
+    } -body {
+        ted sendex -error autogen civgroups
+    } -cleanup {
+        cleanup
+    } -result {Must create nbhoods first}
+
+    test autogen_errors-1.4 {orggroups, no actors} -setup {
+    } -body {
+        ted sendex -error autogen orggroups
+    } -cleanup {
+        cleanup
+    } -result {Must create actors first}
+
+    test autogen_errors-1.5 {frcgroups, no actors} -setup {
+    } -body {
+        ted sendex -error autogen frcgroups
+    } -cleanup {
+        cleanup
+    } -result {Must create actors first}
+
+    test autogen_errors-1.6 {bsystem, no CIV groups} -setup {
+    } -body {
+        ted sendex -error autogen bsystem
+    } -cleanup {
+        cleanup
+    } -result {Must create CIV groups first}
+
+    #----------------------------------------------------------------
+    # autogen actors and associated error conditions
+
+    test autogen_actors-1.1 {error, num < 1} -setup {
+    } -body {
+        ted sendex -error autogen actors 0
+    } -cleanup {
+        cleanup
+    } -result {argument must be >= 1}
+
+    test autogen_actors-1.2 {successful creation} -setup {
+    } -body {
+        ted sendex autogen actors
+        expr {[llength [actor names]] > 0}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test autogen_actors-1.3 {creation fails because actors exist} -setup {
+        ted sendex autogen actors
+    } -body {
+        ted sendex -error autogen actors
+    } -cleanup {
+        cleanup
+    } -result {Actors already exist, must delete them first}
+
+    #------------------------------------------------------------------
+    # autogen nbhoods and associated error conditions
+
+    test autogen_nbhoods-1.1 {error, num < 2} -setup {
+        ted sendex autogen actors
+    } -body {
+        ted sendex -error autogen nbhoods 0
+    } -cleanup {
+        cleanup
+    } -result {argument must be >= 2}
+
+    test autogen_nbhoods-1.2 {successful creation} -setup {
+        ted sendex autogen actors
+    } -body {
+        ted sendex autogen nbhoods
+        expr {[llength [nbhood names]] > 0}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test autogen_nbhoods-1.3 {creation fails because nbhoods exist} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex -error autogen nbhoods
+    } -cleanup {
+        cleanup
+    } -result {Nbhoods already exist, must delete them first}
+
+    #------------------------------------------------------------------
+    # autogen civgroups and associated error conditions
+
+    test autogen_civgroups-1.1 {error, num < 1} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex -error autogen civgroups 0
+    } -cleanup {
+        cleanup
+    } -result {argument must be >= 1}
+
+    test autogen_civgroups-1.2 {successful creation} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex autogen civgroups 
+        expr {[llength [civgroup names]] > 0}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test autogen_civgroups-1.3 {creation fails because civgroups exist} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen civgroups 
+    } -body {
+        ted sendex -error autogen civgroups
+    } -cleanup {
+        cleanup
+    } -result {CIV groups already exist, must delete them first}
+
+    #------------------------------------------------------------------
+    # autogen orggroups and associated error conditions
+
+    test autogen_orggroups-1.1 {error, num < 1} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex -error autogen orggroups 0
+    } -cleanup {
+        cleanup
+    } -result {argument must be >= 1}
+
+    test autogen_orggroups-1.2 {successful creation} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex autogen orggroups 
+        expr {[llength [orggroup names]] > 0}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test autogen_orggroups-1.3 {creation fails because orggroups exist} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen orggroups 
+    } -body {
+        ted sendex -error autogen orggroups
+    } -cleanup {
+        cleanup
+    } -result {ORG groups already exist, must delete them first}
+
+    #------------------------------------------------------------------
+    # autogen frcgroups and associated error conditions
+
+    test autogen_frcgroups-1.1 {error, num < 1} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex -error autogen frcgroups 0
+    } -cleanup {
+        cleanup
+    } -result {argument must be >= 1}
+
+    test autogen_frcgroups-1.2 {successful creation} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex autogen frcgroups 
+        expr {[llength [frcgroup names]] > 0}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test autogen_frcgroups-1.3 {creation fails because frcgroups exist} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen frcgroups 
+    } -body {
+        ted sendex -error autogen frcgroups
+    } -cleanup {
+        cleanup
+    } -result {FRC groups already exist, must delete them first}
+
+    #------------------------------------------------------------------
+    # autogen bsystem and associated error conditions
+    # Creating only 1 CIV group for each test greatly reduces the time
+    # to run the test without any loss of robustness
+
+    test autogen_bsystem-1.1 {error, num < 1} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen civgroups 1
+    } -body {
+        ted sendex -error autogen bsystem 0
+    } -cleanup {
+        cleanup
+    } -result {argument must be >= 1}
+
+    test autogen_bsystem-1.2 {successful creation} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen civgroups 1
+    } -body {
+        ted sendex autogen bsystem
+        expr {[llength [bsys topic ids]] > 0}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    test autogen_bsystem-1.3 {creation fails because bsystem exists} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen civgroups 1
+        ted sendex autogen bsystem
+    } -body {
+        ted sendex -error autogen bsystem
+    } -cleanup {
+        cleanup
+    } -result {Belief system topics already exist, must delete them first}
+
+    #------------------------------------------------------------------
+    # autogen scenario and associated error conditions
+
+    test autogen_scenario-1.1 {bad option} -setup {
+    } -body {
+        ted sendex -error autogen scenario -foo
+    } -cleanup {
+        cleanup
+    } -result {Unknown option: -foo}
+
+    test autogen_scenario-1.2 {options not numbers} -setup {
+    } -body {
+        set a [ted sendex -error autogen scenario -actors foo]
+        set b [ted sendex -error autogen scenario -nb foo]
+        set c [ted sendex -error autogen scenario -frcg foo]
+        set d [ted sendex -error autogen scenario -civg foo]
+        set e [ted sendex -error autogen scenario -orgg foo]
+        set f [ted sendex -error autogen scenario -topics foo]
+        list $a $b $c $d $e $f
+    } -cleanup {
+        cleanup
+    } -result {{-actors: must be integer} {-nb: must be integer} {-frcg: must be integer} {-civg: must be integer} {-orgg: must be integer} {-topics: must be integer}}
+
+    test autogen_scenario-1.3 {options out of range, min} -setup {
+    } -body {
+        set a [ted sendex -error autogen scenario -actors 0]
+        set b [ted sendex -error autogen scenario -nb 0]
+        set c [ted sendex -error autogen scenario -frcg 0]
+        set d [ted sendex -error autogen scenario -civg 0]
+        set e [ted sendex -error autogen scenario -orgg -1]
+        set f [ted sendex -error autogen scenario -topics 0]
+        list $a $b $c $d $e $f
+    } -cleanup {
+        cleanup
+    } -result {{-actors: must be positive integer} {-nb: must be integer >= 2} {-frcg: must be positive integer} {-civg: must be positive integer} {-orgg: must be >= 0} {-topics: must be >= 1}}
+
+    test autogen_scenario-1.4 {options out of range, max} -setup {
+    } -body {
+        # There's only a max on nbhoods
+        ted sendex -error autogen scenario -nb 1000
+    } -cleanup {
+        cleanup
+    } -result {-nb: max nbhoods is 999}
+
+    test autogen_scenario-2.1 {successful creation} -setup {
+    } -body {
+        ted sendex autogen scenario -civg 1
+        set a [expr {[llength [actor names]] > 0}]
+        set b [expr {[llength [nbhood names]] > 0}]
+        set c [expr {[llength [civgroup names]] > 0}]
+        set d [expr {[llength [frcgroup names]] > 0}]
+        set e [expr {[llength [orggroup names]] > 0}]
+        set f [expr {[llength [bsys topic ids]] > 0}]
+
+        list $a $b $c $d $e $f
+    } -cleanup {
+        cleanup
+    } -result {1 1 1 1 1 1}
+
+    test autogen_scenario-2.2 {creating whole scenario dumps existing} -setup {
+        ted sendex autogen scenario -civg 1
+    } -body {
+        set a [llength [actor names]]
+        ted sendex autogen scenario -civg 1
+        set b [llength [actor names]] 
+
+        expr {$a == $b}
+
+    } -cleanup {
+        cleanup
+    } -result {1}
+
     cleanupTests
 }
 
