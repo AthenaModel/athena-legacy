@@ -840,6 +840,206 @@ namespace eval ::athena_test::tests:: {
     } -result {Belief system topics already exist, must delete them first}
 
     #------------------------------------------------------------------
+    # autogen assign and associated error conditions
+
+    test autogen_assign-1.1 {error, no actors} -setup {
+    } -body {
+        ted sendex -error autogen assign A00
+    } -cleanup {
+        cleanup
+    } -result {Must create actors first}
+
+    test autogen_assign-1.2 {error, no nbhoods} -setup {
+        ted sendex autogen actors
+    } -body {
+        ted sendex -error autogen assign A00
+    } -cleanup {
+        cleanup
+    } -result {Must create nbhoods first}
+
+    test autogen_assign-1.3 {error, no frcgroups} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+    } -body {
+        ted sendex -error autogen assign A00
+    } -cleanup {
+        cleanup
+    } -result {Must have at least one FRC group or one ORG group}
+
+    test autogen_assign-1.4 {error, unrecognized actor} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen frcgroups
+    } -body {
+        ted sendex -error autogen assign NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized actor: NONESUCH}
+
+    test autogen_assign-1.5 {bad option, -frcg} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen frcgroups
+    } -body {
+        ted sendex -error autogen assign A00 -frcg NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized force group: NONESUCH}
+
+    test autogen_assign-1.6 {bad option, -orgg} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen frcgroups
+    } -body {
+        ted sendex -error autogen assign A00 -orgg NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized org group: NONESUCH}
+
+    test autogen_assign-1.7 {bad option, -frcact} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen frcgroups
+    } -body {
+        ted sendex -error autogen assign A00 -frcact NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {NONESUCH is not a valid force activity}
+
+    test autogen_assign-1.8 {bad option, -orgact} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen frcgroups
+    } -body {
+        ted sendex -error autogen assign A00 -orgact NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {NONESUCH is not a valid org activity}
+
+    test autogen_assign-2.0 {tactics created} -setup {
+        ted sendex autogen actors
+        ted sendex autogen nbhoods
+        ted sendex autogen frcgroups
+        set a [llength [::strategy::A00 blocks]]
+    } -body {
+        ted sendex autogen assign A00 
+        set b [llength [::strategy::A00 blocks]]]
+        expr {$b > $a}
+    } -cleanup {
+        cleanup
+    } -result {1}
+
+    #------------------------------------------------------------------
+    # autogen strategy and associated error conditions
+
+    test autogen_strategy-1.1 {error, no actors} -setup {
+    } -body {
+        ted sendex -error autogen strategy
+    } -cleanup {
+        cleanup
+    } -result {Must create actors first}
+
+    test autogen_strategy-1.2 {error, no nbhoods} -setup {
+        autogen actors
+    } -body {
+        ted sendex -error autogen strategy
+    } -cleanup {
+        cleanup
+    } -result {Must create nbhoods first}
+
+    test autogen_strategy-1.3 {error, no force or org groups} -setup {
+        autogen actors
+        autogen nbhoods
+    } -body {
+        ted sendex -error autogen strategy
+    } -cleanup {
+        cleanup
+    } -result {Must have at least one FRC group or one ORG group}
+
+    test autogen_strategy-1.4 {bad option, -actors} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        ted sendex -error autogen strategy -actors NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized actor: NONESUCH}
+
+    test autogen_strategy-1.5 {bad option, -civg} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        ted sendex -error autogen strategy -civg NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized CIV group: NONESUCH}
+
+    test autogen_strategy-1.6 {bad option, -frcg} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        ted sendex -error autogen strategy -frcg NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized FRC group: NONESUCH}
+
+    test autogen_strategy-1.7 {bad option, -orgg} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        ted sendex -error autogen strategy -orgg NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized ORG group: NONESUCH}
+
+    test autogen_strategy-1.8 {bad option, -nbhoods} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        ted sendex -error autogen strategy -nbhoods NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized nbhood: NONESUCH}
+
+    test autogen_strategy-1.9 {bad option, -frcact} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        ted sendex -error autogen strategy -frcact NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized force activity: NONESUCH}
+
+    test autogen_strategy-1.10 {bad option, -orgact} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        ted sendex -error autogen strategy -orgact NONESUCH
+    } -cleanup {
+        cleanup
+    } -result {Unrecognized org activity: NONESUCH}
+
+    test autogen_strategy-2.0 {strategy created} -setup {
+        autogen actors
+        autogen nbhoods
+        autogen frcgroups
+    } -body {
+        set a [llength [::strategy::A00 blocks]]
+        ted sendex autogen strategy
+        set b [llength [::strategy::A00 blocks]]
+        list $a $b
+    } -cleanup {
+        cleanup
+    } -result {0 1}
+
+    #------------------------------------------------------------------
     # autogen scenario and associated error conditions
 
     test autogen_scenario-1.1 {bad option} -setup {
