@@ -163,10 +163,10 @@ snit::type ::projectlib::parmdb {
             } {
                 The parameters (c, d) that determine the
                 coverage fraction function for this force activity.  Coverage
-                depends on the asset dabsity, which is the number
-                of active personnel per d people in the population.  If the
-                dabsity is 0, the coverage is 0.  The coverage
-                fraction increases to 2/3 when dabsity is c.
+                depends on the asset density, which is the number
+                of personnel conducting the activity per d people in the 
+                population.  If the density is 0, the coverage is 0.  The 
+                coverage fraction increases to 2/3 when density is c.
             }
         }
 
@@ -209,10 +209,10 @@ snit::type ::projectlib::parmdb {
             } {
                 The parameters (c, d) that determine the
                 coverage fraction function for this activity.  Coverage
-                depends on the asset dabsity, which is the number
-                of active personnel per d people in the population.  If the
-                dabsity is 0, the coverage is 0.  The coverage
-                fraction increases to 2/3 when dabsity is c.
+                depends on the asset density, which is the number
+                of personnel conducting the activity per d people in the 
+                population.  If the density is 0, the coverage is 0.  
+                The coverage fraction increases to 2/3 when density is c.
             }
          }
 
