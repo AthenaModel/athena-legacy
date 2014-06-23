@@ -11,6 +11,25 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.1-B12, 23 June 2014</h3>
+
+This build contains mainly some bug fixes and represents a potential candidate
+for use at the I2WD demonstration in July.  There is one new event type for
+athena_ingest(1) called "DEMO" and is meant to simulate a non-violent 
+demonstration occurring in Athena.<p>
+
+<ul>
+  <li> Bug 4447: athena(1): no tests for autogen executive commands
+  <li> Bug 4530: athena(1): CURSE help pages don't match code
+  <li> Bug 4550: autogen bsystem is invalid
+  <li> Bug 4552: autogen assign returns error
+  <li> Bug 4484: Physical/EnSits tab should be renamed
+  <li> Bug 4485: Executive commands list is out of order
+  <li> Bug 4531: nbcoop.<g> map fill bgerror
+  <li> Bug 4541: NON_SA_IN CIVGROUPS gofer help page is inconsistent
+  <li> Bug 4551: athena_ingest(1): DEMO sim event 
+</ul><p>
+
 <h3>Build 6.2.1-B11, 18 June 2014</h3>
 
 This build adds a new gofer(n) rule for CIVGROUPS called "megafilter".
