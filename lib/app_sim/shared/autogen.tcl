@@ -566,7 +566,7 @@ snit::type autogen {
         }
 
         if {[llength [frcgroup names]] == 0 &&
-            [llength [orgrooup names]] == 0} {
+            [llength [orggroup names]] == 0} {
             error "Must have at least one FRC group or one ORG group"
         }
 
@@ -658,7 +658,7 @@ snit::type autogen {
         } else {
             foreach act $opts(-orgact) {
                 if {$act ni [activity org names]} {
-                    error "$act is not a valid force activity"
+                    error "$act is not a valid org activity"
                 }
             }
         }
