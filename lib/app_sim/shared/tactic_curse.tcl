@@ -218,6 +218,14 @@ tactic define CURSE "Cause a CURSE" {system} {
             # NEXT, set the inject information in the firing dict
             dict set fdict injects $idata(inject_num) [array get parms]
         }
+        
+        # NEXT, it's possible that gofers in every inject returned an empty
+        # list, in which case the tactic executes trivially.
+        if {![dict exists $fdict injects]} {
+            log detail tactic \
+                "$idata(curse_id) has no executable injects."
+            return
+        }
 
         driver::CURSE assess $fdict
     }

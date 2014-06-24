@@ -28,6 +28,37 @@ namespace eval ::athena_test::tests:: {
 
     # Set up for tests
 
+    proc esetup {} {
+        variable T2
+        variable coffer
+        set T2 {
+            curse C2
+            roles {
+                @N1 {
+                    _type CIVGROUPS
+                    _rule BY_VALUE
+                    raw_value NO_ONE
+                }
+            }
+        }
+
+        ted create JOE BOB NB1 NB2 NO_ONE SHIA SUNN KURD BLUE
+        ted order CURSE:CREATE curse_id C2
+
+        ted order INJECT:SAT:CREATE \
+            curse_id C2          \
+            mode     transient   \
+            g        @N1         \
+            c        SFT         \
+            mag      1.0
+
+        # Verify that unused columns contain NULL
+        rdb nullvalue "@"
+
+        set B1 [ted addblock SYSTEM]
+        set T2 [ted addtactic $B1 CURSE {*}$T2]
+    }
+
     proc setup {} {
         variable T1
         variable coffer
@@ -57,7 +88,7 @@ namespace eval ::athena_test::tests:: {
                     _rule BY_VALUE
                     raw_value SUNN
                 }
-    
+
                 @F1 {
                     _type FRCGROUPS
                     _rule BY_VALUE
@@ -78,8 +109,11 @@ namespace eval ::athena_test::tests:: {
             }
         }
 
-        ted create JOE BOB NB1 NB2 SHIA SUNN KURD BLUE
+
+
+        ted create JOE BOB NB1 NB2 NO_ONE SHIA SUNN KURD BLUE
         ted order CURSE:CREATE curse_id C1
+        ted order CURSE:CREATE curse_id C2
 
         ted order INJECT:COOP:CREATE \
             curse_id C1          \
@@ -122,6 +156,11 @@ namespace eval ::athena_test::tests:: {
         demog start
     }
 
+    proc empty_setup {} {
+        esetup
+        aram init
+        demog start
+    }
 
     # Clean up after a test
 
@@ -254,6 +293,17 @@ namespace eval ::athena_test::tests:: {
 driver_id dtype signature 
 --------- ----- --------- 
 1000      CURSE C1        
+    }
+
+    test execute-1.2 {EMPTY injects, success} -setup {
+        empty_setup
+    } -body {
+        $T2 execute
+        # No error on execution, no drivers in query is success
+        ted query {SELECT * FROM drivers}
+    } -cleanup {
+        cleanup
+    } -result {
     }
 
     #-------------------------------------------------------------------
