@@ -94,7 +94,7 @@ simevent define DEMO "Demonstration" {
           %qintent  [list [my intent]] \
           %timeopts [my timeopts]      \
           %n        [my get n]         \
-          %glist    [my get glist]
+          %glist    [list [my get glist]]
     }
 
     #-------------------------------------------------------------------
