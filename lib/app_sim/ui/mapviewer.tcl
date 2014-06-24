@@ -653,6 +653,9 @@ snit::widget mapviewer {
         $canvas clear
         $self IconDeleteAll
 
+        # NEXT, update the set of fill tags
+        $self NbhoodUpdateFillTags
+
         # NEXT, clear all remembered state, and redraw everything
         $self NbhoodDrawAll
         $self UnitDrawAll
@@ -660,9 +663,6 @@ snit::widget mapviewer {
 
         # NEXT, set zoom
         set view(zoom)   "[$canvas zoom]%"
-
-        # NEXT, update the set of fill tags
-        $self NbhoodUpdateFillTags
     }
 
     # Method: nbfill
