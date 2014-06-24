@@ -264,8 +264,7 @@ snit::type ::gofer::anyall_glist {
                 SELECT G.g AS g, count(U.hrel) AS num
                 FROM groups AS G
                 JOIN uram_hrel AS U ON (U.f = G.g)
-                WHERE U.f != U.g
-                AND U.g IN ('[join $glist {','}]') 
+                WHERE U.g IN ('[join $glist {','}]') 
                 AND U.hrel >= 0.2
                 $gtypeClause
                 GROUP BY G.g 
@@ -341,8 +340,7 @@ snit::type ::gofer::anyall_glist {
                 SELECT G.g AS g, count(U.hrel) AS num
                 FROM groups AS G
                 JOIN uram_hrel AS U USING (g)
-                WHERE U.f != U.g
-                AND U.f IN ('[join $glist {','}]') 
+                WHERE U.f IN ('[join $glist {','}]') 
                 AND U.hrel >= 0.2
                 $gtypeClause
                 GROUP BY G.g 

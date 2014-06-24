@@ -333,7 +333,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likingGroup "" {anyall ANY glist KURD}
     } -cleanup {
         cleanup
-    } -result {BLUE BRIT SHIA}
+    } -result {BLUE BRIT KURD SHIA}
 
     test anyall_glist-3.2 {likingGroup, any of several groups} -setup {
         setupLikingGroup
@@ -341,7 +341,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likingGroup "" {anyall ANY glist {KURD SHIA}}
     } -cleanup {
         cleanup
-    } -result {BLUE BRIT SHIA SUNN}
+    } -result {BLUE BRIT KURD SHIA SUNN}
 
     test anyall_glist-3.3 {likingGroup, all of several actors} -setup {
         setupLikingGroup
@@ -349,7 +349,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likingGroup "" {anyall ALL glist {KURD SHIA}}
     } -cleanup {
         cleanup
-    } -result {BRIT}
+    } -result {BRIT SHIA}
 
     test anyall_glist-3.4 {likingGroup, by group type} -setup {
         setupLikingGroup
@@ -357,7 +357,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likingGroup CIV {anyall ANY glist KURD}
     } -cleanup {
         cleanup
-    } -result {SHIA}
+    } -result {KURD SHIA}
 
     proc setupDislikingGroup {} {
         setup
@@ -427,7 +427,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likedByGroup "" {anyall ANY glist KURD}
     } -cleanup {
         cleanup
-    } -result {BLUE BRIT SHIA}
+    } -result {BLUE BRIT KURD SHIA}
 
     test anyall_glist-5.2 {likedByGroup, any of several groups} -setup {
         setupLikedByGroup
@@ -435,7 +435,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likedByGroup "" {anyall ANY glist {KURD SHIA}}
     } -cleanup {
         cleanup
-    } -result {BLUE BRIT SHIA SUNN}
+    } -result {BLUE BRIT KURD SHIA SUNN}
 
     test anyall_glist-5.3 {likedByGroup, all of several actors} -setup {
         setupLikedByGroup
@@ -443,7 +443,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likedByGroup "" {anyall ALL glist {KURD SHIA}}
     } -cleanup {
         cleanup
-    } -result {BRIT}
+    } -result {BRIT SHIA}
 
     test anyall_glist-5.4 {likedByGroup, by group type} -setup {
         setupLikedByGroup
@@ -451,7 +451,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::anyall_glist likedByGroup CIV {anyall ANY glist KURD}
     } -cleanup {
         cleanup
-    } -result {SHIA}
+    } -result {KURD SHIA}
 
     proc setupDislikedByGroup {} {
         setup

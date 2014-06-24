@@ -234,7 +234,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::GROUPS::LIKING_GROUP eval {anyall ANY glist SHIA}
     } -cleanup {
         cleanup
-    } -result {BRIT SUNN}
+    } -result {BRIT SHIA SUNN}
 
     #-------------------------------------------------------------------
     # Rule: DISLIKING_GROUP
@@ -308,7 +308,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::GROUPS::LIKED_BY_GROUP eval {anyall ANY glist SHIA}
     } -cleanup {
         cleanup
-    } -result {BLUE SUNN}
+    } -result {BLUE SHIA SUNN}
 
     #-------------------------------------------------------------------
     # Rule: DISLIKED_BY_GROUP

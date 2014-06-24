@@ -746,7 +746,7 @@ namespace eval ::athena_test::tests:: {
         lsort [gofer::CIVGROUPS::MEGA eval $gdict]
     } -cleanup {
         cleanup
-    } -result {SHIA}
+    } -result {KURD SHIA}
 
     #-------------------------------------------------------------------
     # Rule: RESIDENT_IN
@@ -1085,7 +1085,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::CIVGROUPS::LIKING_GROUP eval {anyall ANY glist KURD}
     } -cleanup {
         cleanup
-    } -result {SHIA}
+    } -result {KURD SHIA}
 
     #-------------------------------------------------------------------
     # Rule: DISLIKING_GROUP
@@ -1159,7 +1159,7 @@ namespace eval ::athena_test::tests:: {
         ::gofer::CIVGROUPS::LIKED_BY_GROUP eval {anyall ANY glist SHIA}
     } -cleanup {
         cleanup
-    } -result {SUNN}
+    } -result {SHIA SUNN}
 
     #-------------------------------------------------------------------
     # Rule: DISLIKED_BY_GROUP
