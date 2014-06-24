@@ -11,6 +11,16 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.1-B14, 24 June 2014</h3>
+
+Three more bug fixes related to athena_ingest(1) testing are in this build.<p> 
+
+<ul>
+<li> Bug 4556: CURSE tactics with empty gofers in all injects should execute trivially
+<li> Bug 4554: Ingestion script fails for DEMO events with multiple groups
+<li> Bug 4555: DEMO curse skips demonstrating group 
+</ul><p>
+
 <h3>Build 6.2.1-B13, 24 June 2014</h3>
 
 A few bugs were found during testing of the previous build that requires a
