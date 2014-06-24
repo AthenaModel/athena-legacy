@@ -153,7 +153,7 @@ order define SIMEVENT:DEMO {
     returnOnError -final
 
     # NEXT, update the event.
-    $e update_ {casualties} [array get parms]
+    $e update_ {glist} [array get parms]
 
     return
 }
