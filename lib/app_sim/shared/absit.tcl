@@ -623,7 +623,7 @@ order define ABSIT:CREATE {
         rcc "Resolver:" -for resolver
         enum resolver -listcmd {ptype g+none names} -defvalue NONE
 
-        rcc "Duration:" -for duration
+        rcc "Duration:" -for rduration
         text rduration -defvalue 1
         label "weeks"
     }

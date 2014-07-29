@@ -74,7 +74,7 @@ macro ABSIT.g {} {
 
 macro ABSIT.rduration {} {
     |<--
-    A duration, in integer days.  If positive, the
+    A duration, in integer weeks.  If positive, the
     situation will automatically be resolved at the end of the
     specified time. If 0, no auto-resolution will take place.<p>
 

@@ -88,6 +88,80 @@ page /object tactic "Tactic" {
 }
 
 #-----------------------------------------------------------------------
+# ABSIT Tactic
+
+object tactic_absit {
+    noun "ABSIT tactic"
+    overview {
+        <b>Can execute on lock.</b><p>
+
+        This <<term tactic>> creates an <<term absit>> of a given
+        type in a <<term nbhood>>.  The tactic may specify the 
+        coverage fraction, the duration of the situation in weeks,
+        and the force group that will resolve the situation.<p>
+
+        Note that this tactic is semantically equivalent to sending
+        the <<cref /order/absit/create>> order in an
+        <<cref /object/tactic/executive>>.<p>
+
+        If multiple tactics attempt to create absits of the same type in 
+        the same neighborhood with overlapping durations, only the first
+        will be created.<p> 
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The situation will be created in
+        this neighborhood.
+    } -tags {update}
+
+    attribute stype "Type" {
+        The type of situation to create.<p>
+
+        <<enumdoc ::projectlib::eabsit>>
+    } -tags {update}
+
+    attribute coverage "Coverage" {
+        Neighborhood coverage fraction, as a positive real number
+        less than or equal to 1.0.  The coverage represents the fraction
+        of the neighborhood's population that will be affected by this 
+        situation.
+    } -tags {update}
+
+    attribute resolver "Resolver" {
+        The name of the group that the neighborhood
+        population will consider responsible for resolving this situation,
+        or <b>NONE</b> if none.  This entry is used when the situation
+        resolves itself automatically; it can be overridden if the
+        situation is resolved manually.    
+    } -tags {update}
+
+    attribute duration "Duration" {
+        A duration, in integer weeks.  If positive, the
+        situation will automatically be resolved at the end of the
+        specified time. If 0, no auto-resolution will take place.<p>
+
+        If this value is omitted, it will default to the value of the
+        <b>absit.<i>stype</i>.duration</b> <<cref /parmdb parameter>>.
+    } -tags {update}
+
+}
+
+page /object/tactic absit "ABSIT tactic" {
+    <<sotitle>>
+
+    <<tactic_absit overview>><p>
+
+    Abstract Situation tactics have the following attributes:<p>
+
+    <<tactic_absit parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # ASSIGN Tactic
 
 object tactic_assign {

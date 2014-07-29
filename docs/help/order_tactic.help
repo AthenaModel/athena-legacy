@@ -38,6 +38,16 @@ order TACTIC:STATE "Set Tactic State" {
     <</parmlist>>
 }
 
+order TACTIC:ABSIT "Tactic: Abstract Situation" {
+    <b><<term prep>> Only.</b>  
+    Updates an existing <<cref /object/tactic/absit>>.<p>
+
+    <<parmlist>>
+    <<tactic_ parm tactic_id -required>>
+    <<tactic_absit parms -optional -tags update>>
+    <</parmlist>>
+}
+
 order TACTIC:ASSIGN "Tactic: Assign Personnel" {
     <b><<term prep>> Only.</b>  
     Updates an existing <<cref /object/tactic/assign>>.<p>
