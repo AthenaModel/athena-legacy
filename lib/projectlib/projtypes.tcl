@@ -16,6 +16,7 @@
 namespace eval ::projectlib:: {
     namespace export     \
         boolean          \
+        eabsit           \
         eactortype       \
         ebeanstate       \
         ecause           \
@@ -29,7 +30,6 @@ namespace eval ::projectlib:: {
         edamrule         \
         edamruleset      \
         edemeanor        \
-        eabsit           \
         eeconstate       \
         eforcetype       \
         egoal_state      \
@@ -207,6 +207,9 @@ snit::type ::projectlib::typewrapper {
 
     DISPLACED-1-1 "Displaced persons living in neighborhood"
 
+    DROUGHT-1-1   "Long-term drought affects non-subsistence population"
+    DROUGHT-1-2   "Long-term drought affects subsistence population"
+
     EDU-1-1       "Force is providing schools"
     EDU-2-1       "ORG is providing schools"
 
@@ -302,6 +305,9 @@ snit::type ::projectlib::typewrapper {
     SEWAGE-1-2    "Sewage has pooled in the streets"
     SEWAGE-2-1    "Sewage is cleaned up by locals"
 
+    TRAFFIC-1-1    "Traffic has begun to congest the streets"
+    TRAFFIC-1-2    "Traffic congestion continues"
+
     UNEMP-1-1     "Group is suffering from unemployment"
 }
 
@@ -323,6 +329,7 @@ snit::type ::projectlib::typewrapper {
     DISASTER  "Disaster"
     DISEASE   "Disease"
     DISPLACED "Displaced Persons"
+    DROUGHT   "Long-term Drought"
     EDU       "Schools"
     EMPLOY    "Provide Employment"
     ENI       "ENI Services"
@@ -352,6 +359,7 @@ snit::type ::projectlib::typewrapper {
     RELIEF    "Humanitarian Relief"
     RELSITE   "Damage to Religious Site/Artifact"
     SEWAGE    "Sewage Spill"
+    TRAFFIC   "Traffic Congestion"
     UNEMP     "Unemployment"
 }
 
@@ -372,6 +380,7 @@ snit::type ::projectlib::typewrapper {
     DEMO      "Demonstration"
     DISASTER  "Disaster"
     DISPLACED "Displaced Persons"
+    DROUGHT   "Long-term Drought"
     EDU       "Schools"
     EMPLOY    "Provide Employment"
     ENI       "ENI Services"
@@ -400,6 +409,7 @@ snit::type ::projectlib::typewrapper {
     SEWAGE    "Sewage Spill"
     SICKNESS  "Sickness"
     THIRST    "Thirst"
+    TRAFFIC   "Traffic Congestion"
     UNEMP     "Unemployment"
 }
 
@@ -680,25 +690,27 @@ snit::type ::projectlib::typewrapper {
 # The name is the rule set name, e.g., SEWAGE, and the 
 # long name is the full name of the situation
 ::marsutil::enum ::projectlib::eabsit {
-    BADFOOD     "CONTAMINATED.FOOD.SUPPLY"
-    BADWATER    "CONTAMINATED.WATER.SUPPLY"
-    COMMOUT     "COMMUNICATIONS.OUTAGE"
-    CULSITE     "DAMAGE.TO.CULTURAL.SITE"
-    DISASTER    "DISASTER"
-    DISEASE     "DISEASE"
-    EPIDEMIC    "EPIDEMIC"
-    FOODSHRT    "FOOD.SHORTAGE"
-    FUELSHRT    "FUEL.SHORTAGE"
-    GARBAGE     "GARBAGE.IN.THE.STREETS"
-    INDSPILL    "INDUSTRIAL.SPILL"
-    MINEFIELD   "MINE.FIELD"
-    NOWATER     "NO.WATER"
-    ORDNANCE    "UNEXPLODED.ORDNANCE"
-    PIPELINE    "OIL.PIPELINE.FIRE"
-    POWEROUT    "POWER.OUTAGE"
-    REFINERY    "OIL.REFINERY.FIRE"
-    RELSITE     "DAMAGE.TO.RELIGIOUS.SITE"
-    SEWAGE      "SEWAGE.SPILL"
+    BADFOOD     "Contaminated Food Supply"
+    BADWATER    "Contaminated Water Supply"
+    COMMOUT     "Communications Outage"
+    CULSITE     "Damage To Cultural Site"
+    DISASTER    "Disaster"
+    DISEASE     "Disease"
+    DROUGHT     "Long-term Drought"
+    EPIDEMIC    "Epidemic"
+    FOODSHRT    "Food Shortage"
+    FUELSHRT    "Fuel Shortage"
+    GARBAGE     "Garbage In The Streets"
+    INDSPILL    "Industrial Spill"
+    MINEFIELD   "Mine Field"
+    NOWATER     "No Water"
+    ORDNANCE    "Unexploded Ordnance"
+    PIPELINE    "Oil Pipeline Fire"
+    POWEROUT    "Power Outage"
+    REFINERY    "Oil Refinery Fire"
+    RELSITE     "Damage To Religious Site"
+    SEWAGE      "Sewage Spill"
+    TRAFFIC     "Traffic Congestion"
 }
 
 # List of eabsit values

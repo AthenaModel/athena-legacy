@@ -755,6 +755,98 @@ t rule        aut        cul qol        sft
     }
 
     #-------------------------------------------------------------------
+    # DROUGHT
+    
+    test DROUGHT-1.1 {firings, SA and non-SA} -setup {
+        setup 
+        rdb eval {
+            UPDATE civgroups
+            SET sa_flag = 1
+            WHERE g = 'SUNN'
+        }
+    } -body {
+        absit DROUGHT TAL
+
+        # There's no inception effect.  Should get rule 1.1 for 
+        # non-sa groups and rule 1.2 for sa groups in each time step.
+        # There's no resolution effect.
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          1
+driver_id  1000
+ruleset    DROUGHT
+rule       DROUGHT-1-1
+fdict      dtype DROUGHT s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
+
+firing_id  2
+t          1
+driver_id  1000
+ruleset    DROUGHT
+rule       DROUGHT-1-2
+fdict      dtype DROUGHT s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
+
+firing_id  3
+t          2
+driver_id  1000
+ruleset    DROUGHT
+rule       DROUGHT-1-1
+fdict      dtype DROUGHT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
+
+firing_id  4
+t          2
+driver_id  1000
+ruleset    DROUGHT
+rule       DROUGHT-1-2
+fdict      dtype DROUGHT s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
+    }
+
+    test DROUGHT-1.2 {inputs: inception} -setup {
+        setup
+        rdb eval {
+            UPDATE civgroups
+            SET sa_flag = 1
+            WHERE g = 'SUNN'
+        }
+    } -body {
+        absit DROUGHT TAL        
+        inputs
+    } -cleanup {
+        cleanup
+    } -result {
+t rule        aut   cul qol   sft   
+- ----------- ----- --- ----- ----- 
+1 DROUGHT-1-1 SHIA      SHIA        
+1 DROUGHT-1-2 SUNN      SUNN  SUNN  
+2 DROUGHT-1-1 SHIA      SHIA        
+2 DROUGHT-1-2 SUNN      SUNN  SUNN  
+    }
+
+    test DROUGHT-1.3 {inputs: no inception} -setup {
+        setup
+        rdb eval {
+            UPDATE civgroups
+            SET sa_flag = 1
+            WHERE g = 'SUNN'
+        }
+    } -body {
+        absit DROUGHT BLUE 0
+        inputs
+    } -cleanup {
+        cleanup
+    } -result {
+t rule        aut   cul qol   sft   
+- ----------- ----- --- ----- ----- 
+1 DROUGHT-1-1 SHIA      SHIA        
+1 DROUGHT-1-2 SUNN      SUNN  SUNN  
+2 DROUGHT-1-1 SHIA      SHIA        
+2 DROUGHT-1-2 SUNN      SUNN  SUNN  
+    }
+
+
+    #-------------------------------------------------------------------
     # EPIDEMIC
     
     test EPIDEMIC-1.1 {firings: inception, local resolver} -setup {
@@ -1862,6 +1954,60 @@ t rule       aut        cul qol        sft
     }
 
 
+    #-------------------------------------------------------------------
+    # TRAFFIC
+    
+    test TRAFFIC-1.1 {firings} -setup {
+        setup 
+    } -body {
+        absit TRAFFIC TAL
+        ted querylist {SELECT * FROM rule_firings}
+    } -cleanup {
+        cleanup
+    } -result {
+firing_id  1
+t          1
+driver_id  1000
+ruleset    TRAFFIC
+rule       TRAFFIC-1-1
+fdict      dtype TRAFFIC s 1 state ONGOING n NB1 inception 1 coverage 1.0 resolver TAL
+
+firing_id  2
+t          2
+driver_id  1000
+ruleset    TRAFFIC
+rule       TRAFFIC-1-2
+fdict      dtype TRAFFIC s 1 state ONGOING n NB1 inception 0 coverage 1.0 resolver TAL
+    }
+
+
+    test TRAFFIC-1.2 {inputs: inception} -setup {
+        setup
+    } -body {
+        absit TRAFFIC TAL        
+        inputs
+    } -cleanup {
+        cleanup
+    } -result {
+t rule        aut        cul qol        sft 
+- ----------- ---------- --- ---------- --- 
+1 TRAFFIC-1-1 SHIA SUNN      SHIA SUNN      
+2 TRAFFIC-1-2 SHIA SUNN      SHIA SUNN      
+    }
+
+    test TRAFFIC-1.3 {inputs: no inception} -setup {
+        setup
+    } -body {
+        absit TRAFFIC BLUE 0
+        inputs
+    } -cleanup {
+        cleanup
+    } -result {
+t rule        aut        cul qol        sft 
+- ----------- ---------- --- ---------- --- 
+1 TRAFFIC-1-2 SHIA SUNN      SHIA SUNN      
+2 TRAFFIC-1-2 SHIA SUNN      SHIA SUNN      
+    }
 
 
     

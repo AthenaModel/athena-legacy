@@ -422,6 +422,38 @@ driver::absit define DISEASE {
 }
 
 #-------------------------------------------------------------------
+# Rule Set: DROUGHT: Long-term Drought
+#
+# Abstract Situation: Long-term Drought.
+    
+driver::absit define DROUGHT {
+    typemethod ruleset {fdict} {
+        dict with fdict {}
+
+        set sa    [demog saIn $n]
+        set nonsa [demog nonSaIn $n]
+
+        dam rule DROUGHT-1-1 $fdict {
+           $state eq "ONGOING" && [llength $nonsa] > 0
+        } {
+            satinput $nonsa $coverage \
+                AUT XS-   \
+                QOL XS-
+        }
+
+        dam rule DROUGHT-1-2 $fdict {
+           $state eq "ONGOING" && [llength $sa] > 0
+        } {
+            satinput $sa $coverage \
+                AUT L-    \
+                SFT XS-   \
+                QOL L-
+        }
+    }
+}
+
+
+#-------------------------------------------------------------------
 # Rule Set: EPIDEMIC: Epidemic
 #
 # Abstract Situation: Epidemic disease
@@ -932,6 +964,36 @@ driver::absit define SEWAGE {
         }
     }
 }
+
+#-------------------------------------------------------------------
+# Rule Set: TRAFFIC: Traffic Congestion
+#
+# Abstract Situation: Traffic Congestion in streets
+    
+driver::absit define TRAFFIC {
+    typemethod ruleset {fdict} {
+        dict with fdict {}
+
+        set flist [demog gIn $n]
+
+        dam rule TRAFFIC-1-1 $fdict {
+           $state eq "ONGOING" && $inception
+        } {
+            satinput $flist $coverage \
+                AUT S-    \
+                QOL S-
+        }
+
+        dam rule TRAFFIC-1-2 $fdict {
+           $state eq "ONGOING" && !$inception
+        } {
+            satinput $flist $coverage \
+                AUT S-    \
+                QOL S-
+        }
+    }
+}
+
 
 
 

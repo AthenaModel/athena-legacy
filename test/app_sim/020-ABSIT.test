@@ -78,8 +78,8 @@ namespace eval ::athena_test::tests:: {
             {*}$s1 stype NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, COMMOUT, CULSITE, DISASTER, DISEASE, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MINEFIELD, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, RELSITE, SEWAGE}
+    } -match glob -result {
+        stype {invalid value "NONESUCH", should be one of: BADFOOD, *}
     }
 
 
@@ -294,8 +294,8 @@ location   *
         ted order -reject ABSIT:UPDATE s 1 stype NONESUCH
     } -cleanup {
         cleanup
-    } -result {
-        stype {invalid value "NONESUCH", should be one of: BADFOOD, BADWATER, COMMOUT, CULSITE, DISASTER, DISEASE, EPIDEMIC, FOODSHRT, FUELSHRT, GARBAGE, INDSPILL, MINEFIELD, NOWATER, ORDNANCE, PIPELINE, POWEROUT, REFINERY, RELSITE, SEWAGE}
+    } -match glob -result {
+        stype {invalid value "NONESUCH", should be one of: BADFOOD, *}
     }
 
 

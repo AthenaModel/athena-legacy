@@ -571,16 +571,16 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.DISASTER.nearFactor    0.0
         $ps setdefault dam.DISASTER.farFactor     0.0
 
-        # Rule Set: DISEASE
-        $ps setdefault dam.DISEASE.cause          SICKNESS
-        $ps setdefault dam.DISEASE.nearFactor     0.25
-        $ps setdefault dam.DISEASE.farFactor      0.0
-
         # Rule Set: DISPLACED
         $ps setdefault dam.DISPLACED.active       0
         $ps setdefault dam.DISPLACED.cause        DISPLACED
         $ps setdefault dam.DISPLACED.nearFactor   0.25
         $ps setdefault dam.DISPLACED.farFactor    0.0
+
+        # Rule Set: DROUGHT
+        $ps setdefault dam.DROUGHT.cause          DROUGHT
+        $ps setdefault dam.DROUGHT.nearFactor     0.0
+        $ps setdefault dam.DROUGHT.farFactor      0.0
 
         # Rule Set: EDU
         $ps setdefault dam.EDU.cause              EDU
@@ -767,6 +767,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.SEWAGE.cause           SEWAGE
         $ps setdefault dam.SEWAGE.nearFactor      0.2
         $ps setdefault dam.SEWAGE.farFactor       0.0
+
+        # Rule Set: TRAFFIC
+        $ps setdefault dam.TRAFFIC.cause          TRAFFIC
+        $ps setdefault dam.TRAFFIC.nearFactor     0.0
+        $ps setdefault dam.TRAFFIC.farFactor      0.0
 
         # demog.* parameters
         $ps subset demog {
@@ -1079,6 +1084,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault absit.CULSITE.duration        6
         $ps setdefault absit.DISASTER.duration       6
         $ps setdefault absit.DISEASE.duration        4
+        $ps setdefault absit.DROUGHT.duration        52
         $ps setdefault absit.EPIDEMIC.duration       52
         $ps setdefault absit.FOODSHRT.duration       26
         $ps setdefault absit.FUELSHRT.duration       4
@@ -1092,6 +1098,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault absit.REFINERY.duration       1
         $ps setdefault absit.RELSITE.duration        6
         $ps setdefault absit.SEWAGE.duration         9
+        $ps setdefault absit.TRAFFIC.duration        1
 
         # NEXT, Force/Volatility/Security Parameters
         $ps subset force {
