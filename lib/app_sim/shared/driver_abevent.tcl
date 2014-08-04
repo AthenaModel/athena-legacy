@@ -51,6 +51,22 @@ snit::type driver::abevent {
         lappend pending $fdict
     }
 
+    # reset 
+    #
+    # Clears the pending list.
+
+    typemethod reset {} {
+        set pending [list]
+    }
+
+    # pending
+    #
+    # Returns the events in the pending list.
+
+    typemethod pending {} {
+        return $pending
+    }
+
     # assess 
     #
     # Assesses all pending abstract events.
@@ -266,9 +282,9 @@ driver type define DEMO {n g} {
     # Returns a one-line description of the driver given its signature
     # values.
 
-    typemethod sigline {dtype signature} {
+    typemethod sigline {signature} {
         lassign $signature n g
-        return "$dtype by $g in $n"
+        return "DEMO by $g in $n"
     }
 
     # narrative fdict

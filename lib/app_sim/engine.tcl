@@ -161,6 +161,7 @@ snit::type engine {
         profile control_model analyze
         profile driver::actsit assess
         profile service assess
+        profile driver::abevent assess
 
         # NEXT, do attrition and recompute demog stats, since groups
         # might have lost personnel

@@ -687,14 +687,15 @@ snit::type ted {
             {*}$module dbsync
         }
 
-        cif       clear
-        parm      reset
-        bsys      clear
-        econ      reset
-        simclock  reset
-        aram      clear
-        bean      reset
-        strategy  init
+        cif             clear
+        parm            reset
+        bsys            clear
+        econ            reset
+        simclock        reset
+        aram            clear
+        bean            reset
+        strategy        init
+        driver::abevent reset
     }
 
     # sendex ?-error? command...

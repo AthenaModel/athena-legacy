@@ -162,6 +162,50 @@ page /object/tactic absit "ABSIT tactic" {
 
 
 #-----------------------------------------------------------------------
+# ACCIDENT Tactic
+
+object tactic_accident {
+    noun "ACCIDENT tactic"
+    overview {
+        This <<term tactic>> creates an abstract event of type
+        "ACCIDENT" in a <<term nbhood>>, specifying the neighborhood
+        coverage fraction.  The event will drive civilian attitudes
+        in the neighborhood for each week that the tactic executes.<p>
+
+        See the <i>Athena Rules Document</i> for a description of
+        these abstract events.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The event will occur in
+        this neighborhood.
+    } -tags {update}
+
+    attribute coverage "Coverage" {
+        Neighborhood coverage fraction, as a positive real number
+        less than or equal to 1.0.  The coverage represents the fraction
+        of the neighborhood's population that will be affected by this 
+        event.   A coverage of 0.5 yields the nominal effect.
+    } -tags {update}
+
+}
+
+page /object/tactic accident "ACCIDENT tactic" {
+    <<sotitle>>
+
+    <<tactic_accident overview>><p>
+
+    ACCIDENT tactics have the following attributes:<p>
+
+    <<tactic_accident parmlist>>
+}
+
+
+#-----------------------------------------------------------------------
 # ASSIGN Tactic
 
 object tactic_assign {
@@ -433,7 +477,7 @@ page /object/tactic broadcast "BROADCAST tactic" {
 }
 
 #-----------------------------------------------------------------------
-# BROADCAST
+# BUILD
 
 object tactic_build {
     noun "BUILD tactic"
@@ -600,6 +644,54 @@ page /object/tactic damage "DAMAGE tactic" {
     <<tactic_damage parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# DEMO Tactic
+
+object tactic_demo {
+    noun "DEMO tactic"
+    overview {
+        This <<term tactic>> creates an abstract event of type
+        "DEMO" (non-violent demonstration) in a <<term nbhood>>, 
+        specifying demonstrating group and the neighborhood
+        coverage fraction.  The event will drive civilian attitudes
+        in the neighborhood for each week that the tactic executes.<p>
+
+        See the <i>Athena Rules Document</i> for a description of
+        these abstract events.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The event will occur in
+        this neighborhood.
+    } -tags {update}
+
+    attribute g "Demonstrating Group" {
+        The <<term civgroup>> ID of the group that is demonstrating.
+        The group need not be a resident of the neighborhood.
+    } -tags {update}
+
+    attribute coverage "Coverage" {
+        Neighborhood coverage fraction, as a positive real number
+        less than or equal to 1.0.  The coverage represents the fraction
+        of the neighborhood's population that will be affected by this 
+        event.   A coverage of 0.5 yields the nominal effect.
+    } -tags {update}
+
+}
+
+page /object/tactic demo "DEMO tactic" {
+    <<sotitle>>
+
+    <<tactic_demo overview>><p>
+
+    DEMO tactics have the following attributes:<p>
+
+    <<tactic_demo parmlist>>
+}
 
 #-----------------------------------------------------------------------
 # DEMOB Tactic
@@ -952,6 +1044,49 @@ page /object/tactic executive "EXECUTIVE tactic" {
     EXECUTIVE tactics have the following attributes:<p>
 
     <<tactic_executive parmlist>>
+}
+
+#-----------------------------------------------------------------------
+# EXPLOSION Tactic
+
+object tactic_explosion {
+    noun "EXPLOSION tactic"
+    overview {
+        This <<term tactic>> creates an abstract event of type
+        "EXPLOSION" in a <<term nbhood>>, specifying the neighborhood
+        coverage fraction.  The event will drive civilian attitudes
+        in the neighborhood for each week that the tactic executes.<p>
+
+        See the <i>Athena Rules Document</i> for a description of
+        these abstract events.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The event will occur in
+        this neighborhood.
+    } -tags {update}
+
+    attribute coverage "Coverage" {
+        Neighborhood coverage fraction, as a positive real number
+        less than or equal to 1.0.  The coverage represents the fraction
+        of the neighborhood's population that will be affected by this 
+        event.   A coverage of 0.5 yields the nominal effect.
+    } -tags {update}
+
+}
+
+page /object/tactic explosion "EXPLOSION tactic" {
+    <<sotitle>>
+
+    <<tactic_explosion overview>><p>
+
+    EXPLOSION tactics have the following attributes:<p>
+
+    <<tactic_explosion parmlist>>
 }
 
 #-----------------------------------------------------------------------
@@ -1511,6 +1646,49 @@ page /object/tactic mobilize "MOBILIZE tactic" {
 }
 
 #-----------------------------------------------------------------------
+# RIOT Tactic
+
+object tactic_riot {
+    noun "RIOT tactic"
+    overview {
+        This <<term tactic>> creates an abstract event of type
+        "RIOT" in a <<term nbhood>>, specifying the neighborhood
+        coverage fraction.  The event will drive civilian attitudes
+        in the neighborhood for each week that the tactic executes.<p>
+
+        See the <i>Athena Rules Document</i> for a description of
+        these abstract events.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The event will occur in
+        this neighborhood.
+    } -tags {update}
+
+    attribute coverage "Coverage" {
+        Neighborhood coverage fraction, as a positive real number
+        less than or equal to 1.0.  The coverage represents the fraction
+        of the neighborhood's population that will be affected by this 
+        event.   A coverage of 0.5 yields the nominal effect.
+    } -tags {update}
+
+}
+
+page /object/tactic riot "RIOT tactic" {
+    <<sotitle>>
+
+    <<tactic_riot overview>><p>
+
+    RIOT tactics have the following attributes:<p>
+
+    <<tactic_riot parmlist>>
+}
+
+#-----------------------------------------------------------------------
 # SIGEVENT Tactic
 
 object tactic_sigevent {
@@ -1774,6 +1952,48 @@ page /object/tactic support "SUPPORT tactic" {
     <<tactic_support parmlist>>
 }
 
+#-----------------------------------------------------------------------
+# VIOLENCE Tactic
+
+object tactic_violence {
+    noun "VIOLENCE tactic"
+    overview {
+        This <<term tactic>> creates an abstract event of type
+        "VIOLENCE" in a <<term nbhood>>, specifying the neighborhood
+        coverage fraction.  The event will drive civilian attitudes
+        in the neighborhood for each week that the tactic executes.<p>
+
+        See the <i>Athena Rules Document</i> for a description of
+        these abstract events.
+    }
+
+    include tactic_ -attrs id
+    include tactic_ -attrs agent
+    include tactic_ -attrs state
+
+    attribute n "Neighborhood" {
+        A <<term nbhood>> ID.  The event will occur in
+        this neighborhood.
+    } -tags {update}
+
+    attribute coverage "Coverage" {
+        Neighborhood coverage fraction, as a positive real number
+        less than or equal to 1.0.  The coverage represents the fraction
+        of the neighborhood's population that will be affected by this 
+        event.   A coverage of 0.5 yields the nominal effect.
+    } -tags {update}
+
+}
+
+page /object/tactic violence "VIOLENCE tactic" {
+    <<sotitle>>
+
+    <<tactic_violence overview>><p>
+
+    VIOLENCE tactics have the following attributes:<p>
+
+    <<tactic_violence parmlist>>
+}
 
 
 #-----------------------------------------------------------------------

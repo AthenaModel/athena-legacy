@@ -247,7 +247,7 @@ t rule     aut   cul   qol   sft
     test DEMO-2.1 {sigline text} -setup {
         # none needed
     } -body {
-        driver::DEMO sigline DEMO {NB1 SHIA}
+        driver::DEMO sigline {NB1 SHIA}
     } -cleanup {
         cleanup
     } -result {DEMO by SHIA in NB1}
