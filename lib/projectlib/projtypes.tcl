@@ -158,6 +158,8 @@ snit::type ::projectlib::typewrapper {
 
 # DAM Rules
 ::marsutil::enum ::projectlib::edamrule {
+    ACCIDENT-1.1  "Accident occurs in neighborhood"
+
     BADFOOD-1-1   "Food supply begins to be contaminated"
     BADFOOD-1-2   "Food supply continues to be contaminated"
     BADFOOD-2-1   "Food contamination is resolved by locals"
@@ -197,6 +199,9 @@ snit::type ::projectlib::typewrapper {
 
     CURSE-1-1     "CURSE Injects"
 
+    DEMO-1.1      "Civilians demonstrate in support of cause"
+    DEMO-1.2      "Civilians oppose cause of demonstration"
+
     DISASTER-1-1  "Disaster occurred in the neighborhood"
     DISASTER-1-2  "Disaster continues"
     DISASTER-2-1  "Disaster resolved by locals"
@@ -224,6 +229,8 @@ snit::type ::projectlib::typewrapper {
     EPIDEMIC-1-1  "Epidemic begins to spread"
     EPIDEMIC-1-2  "Epidemic continues to spread"
     EPIDEMIC-2-1  "Spread of epidemic is halted by locals"
+
+    EXPLOSION-1.1 "Explosion in neighborhood"
 
     FOODSHRT-1-1  "Food begins to run short"
     FOODSHRT-1-2  "Food continues to run short"
@@ -301,6 +308,8 @@ snit::type ::projectlib::typewrapper {
     RELSITE-1-2   "Damage has not been resolved"
     RELSITE-2-1   "Damage is resolved by locals"
 
+    RIOT-1.1      "Riot in neighborhood"
+
     SEWAGE-1-1    "Sewage begins to pool in the streets"
     SEWAGE-1-2    "Sewage has pooled in the streets"
     SEWAGE-2-1    "Sewage is cleaned up by locals"
@@ -309,10 +318,13 @@ snit::type ::projectlib::typewrapper {
     TRAFFIC-1-2    "Traffic congestion continues"
 
     UNEMP-1-1     "Group is suffering from unemployment"
+
+    VIOLENCE-1.1  "Random violence in neighborhood"
 }
 
 # DAM Rule Sets
 ::marsutil::enum ::projectlib::edamruleset {
+    ACCIDENT  "Accident"
     BADFOOD   "Contaminated Food Supply"
     BADWATER  "Contaminated Water Supply"
     CHKPOINT  "Checkpoint/Control Point"
@@ -326,6 +338,7 @@ snit::type ::projectlib::typewrapper {
     CULSITE   "Damage to Cultural Site/Artifact"
     CURFEW    "Curfew"
     CURSE     "CURSE Attitude Injects"
+    DEMO      "Non-violent Demonstration"
     DISASTER  "Disaster"
     DISEASE   "Disease"
     DISPLACED "Displaced Persons"
@@ -334,6 +347,7 @@ snit::type ::projectlib::typewrapper {
     EMPLOY    "Provide Employment"
     ENI       "ENI Services"
     EPIDEMIC  "Epidemic"
+    EXPLOSION "Explosion"
     FOODSHRT  "Food Shortage"
     FUELSHRT  "Fuel Shortage"
     GARBAGE   "Garbage in the Streets"
@@ -358,9 +372,11 @@ snit::type ::projectlib::typewrapper {
     REFINERY  "Oil Refinery Fire"
     RELIEF    "Humanitarian Relief"
     RELSITE   "Damage to Religious Site/Artifact"
+    RIOT      "Riot"
     SEWAGE    "Sewage Spill"
     TRAFFIC   "Traffic Congestion"
     UNEMP     "Unemployment"
+    VIOLENCE  "Random Violence"
 }
 
 # DAM Rule Set Causes

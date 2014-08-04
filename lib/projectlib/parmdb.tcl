@@ -376,20 +376,21 @@ snit::type ::projectlib::parmdb {
         #
         # TBD
 
-        # Actsit global parameters
-        $ps subset dam.actsit {
-            Parameters for the activity situation rule sets in general.
+        # Abevent global parameters
+        $ps subset dam.abevent {
+            Parameters for the abstract event rule sets in general.
         }
 
-        $ps define dam.actsit.nominalCoverage \
-            ::projectlib::parmdb_nomcoverage 0.66 \
+        $ps define dam.abevent.nominalCoverage \
+            ::projectlib::parmdb_nomcoverage 0.5 \
             {
-                The nominal coverage fraction for activity rule sets.
+                The nominal coverage fraction for abstract
+                event rule sets.
                 Input magnitudes are specified for this nominal coverage,
                 i.e., if a change is specified as "cov * M+" the input
                 will be "M+" when "cov" equals the nominal coverage.  The
                 valid range is 0.1 to 1.0.
-        }
+            }
 
         # Absit global parameters
         $ps subset dam.absit {
@@ -406,6 +407,22 @@ snit::type ::projectlib::parmdb {
                 will be "M+" when "cov" equals the nominal coverage.  The
                 valid range is 0.1 to 1.0.
         }
+
+        # Actsit global parameters
+        $ps subset dam.actsit {
+            Parameters for the activity situation rule sets in general.
+        }
+
+        $ps define dam.actsit.nominalCoverage \
+            ::projectlib::parmdb_nomcoverage 0.66 \
+            {
+                The nominal coverage fraction for activity rule sets.
+                Input magnitudes are specified for this nominal coverage,
+                i.e., if a change is specified as "cov * M+" the input
+                will be "M+" when "cov" equals the nominal coverage.  The
+                valid range is 0.1 to 1.0.
+            }
+
 
         # First, give each an "active" flag.
         foreach name [edamruleset names] {
@@ -493,6 +510,11 @@ snit::type ::projectlib::parmdb {
             }
         }
 
+        # Rule Set: ACCIDENT
+        $ps setdefault dam.ACCIDENT.cause         DISASTER
+        $ps setdefault dam.ACCIDENT.nearFactor    0.0
+        $ps setdefault dam.ACCIDENT.farFactor     0.0
+
         # Rule Set: BADFOOD
         $ps setdefault dam.BADFOOD.cause          HUNGER
         $ps setdefault dam.BADFOOD.nearFactor     0.0
@@ -566,6 +588,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.CULSITE.nearFactor     0.1
         $ps setdefault dam.CULSITE.farFactor      0.1
 
+        # Rule Set: DEMO
+        $ps setdefault dam.DEMO.cause             DEMO
+        $ps setdefault dam.DEMO.nearFactor        0.0
+        $ps setdefault dam.DEMO.farFactor         0.0
+
         # Rule Set: DISASTER
         $ps setdefault dam.DISASTER.cause         DISASTER
         $ps setdefault dam.DISASTER.nearFactor    0.0
@@ -578,7 +605,7 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.DISPLACED.farFactor    0.0
 
         # Rule Set: DROUGHT
-        $ps setdefault dam.DROUGHT.cause          DROUGHT
+        $ps setdefault dam.DROUGHT.cause          DISASTER
         $ps setdefault dam.DROUGHT.nearFactor     0.0
         $ps setdefault dam.DROUGHT.farFactor      0.0
 
@@ -603,6 +630,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.EPIDEMIC.cause         SICKNESS
         $ps setdefault dam.EPIDEMIC.nearFactor    0.5
         $ps setdefault dam.EPIDEMIC.farFactor     0.2
+
+        # Rule Set: EXPLOSION
+        $ps setdefault dam.EXPLOSION.cause        CIVCAS
+        $ps setdefault dam.EXPLOSION.nearFactor   0.0
+        $ps setdefault dam.EXPLOSION.farFactor    0.0
 
         # Rule Set: FOODSHRT
         $ps setdefault dam.FOODSHRT.cause         HUNGER
@@ -763,6 +795,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.RELSITE.nearFactor     0.1
         $ps setdefault dam.RELSITE.farFactor      0.1
 
+        # Rule Set: RIOT
+        $ps setdefault dam.RIOT.cause             CIVCAS
+        $ps setdefault dam.RIOT.nearFactor        0.0
+        $ps setdefault dam.RIOT.farFactor         0.0
+
         # Rule Set: SEWAGE
         $ps setdefault dam.SEWAGE.cause           SEWAGE
         $ps setdefault dam.SEWAGE.nearFactor      0.2
@@ -772,6 +809,11 @@ snit::type ::projectlib::parmdb {
         $ps setdefault dam.TRAFFIC.cause          TRAFFIC
         $ps setdefault dam.TRAFFIC.nearFactor     0.0
         $ps setdefault dam.TRAFFIC.farFactor      0.0
+
+        # Rule Set: VIOLENCE
+        $ps setdefault dam.VIOLENCE.cause         CIVCAS
+        $ps setdefault dam.VIOLENCE.nearFactor    0.0
+        $ps setdefault dam.VIOLENCE.farFactor     0.0
 
         # demog.* parameters
         $ps subset demog {

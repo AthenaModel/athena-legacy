@@ -1,6 +1,6 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#   absit_rules.tcl
+#   driver_absit.tcl
 #
 # AUTHOR:
 #   Will Duquette
