@@ -189,7 +189,7 @@ snit::type sim {
     # Returns 1 if the simulation is locked, and 0 otherwise.
 
     typemethod locked {} {
-        return [expr {$info(state) ne "PREP"}]
+        return [expr {$info(state) in {PAUSED RUNNING}}]
     }
 
     # stoptime
@@ -212,6 +212,31 @@ snit::type sim {
     typemethod stopreason {} {
         return $info(reason)
     }
+
+    #-------------------------------------------------------------------
+    # Wizard Control
+
+    # wizard ?flag?
+    #
+    # flag   - on | off
+    #
+    # By default, returns true if the sim state is WIZARD.  If the
+    # flag is given, sets the sim state to WIZARD or to PREP, accordingly.
+
+    typemethod wizard {{flag ""}} {
+        if {$flag ne ""} {
+            assert {$info(state) in {PREP WIZARD}}
+
+            if {$flag} {
+                $type SetState WIZARD
+            } else {
+                $type SetState PREP
+            }
+        }
+
+        return [expr {$info(state) eq "WIZARD"}]
+    }
+    
 
     #-------------------------------------------------------------------
     # Mutators
@@ -575,7 +600,7 @@ snit::type sim {
     # Returns a checkpoint of the non-RDB simulation data.
 
     typemethod checkpoint {{option ""}} {
-        assert {$info(state) ne "RUNNING"}
+        assert {$info(state) in {PREP PAUSED}}
 
         if {$option eq "-saved"} {
             set info(changed) 0

@@ -134,11 +134,22 @@ enum esanity {
 }
 
 # esimstate: The current simulation state
+#
+# PREP    - Scenario preparation.  The user can send orders to edit the
+#           scenario.
+# RUNNING - Time is advancing.  The user is generally not allowed to send
+#           orders.  Certain orders can be sent by tactic, and of course
+#           the simulation can be paused.
+# PAUSED  - The scenario has been locked, but time is not advancing.  
+#           Only certain orders may be used.
+# WIZARD  - The application has popped up a Wizard window.  No orders may
+#           be sent until the state has returned to PREP.
 
 enum esimstate {
     PREP     Prep
     RUNNING  Running
     PAUSED   Paused
+    WIZARD   Wizard
 }
 
 # esector: Econ Model sectors, used for the economic display variables
