@@ -192,6 +192,15 @@ snit::type sim {
         return [expr {$info(state) in {PAUSED RUNNING}}]
     }
 
+    # stable
+    #
+    # Returns 1 if the simulation is "stable", with nothing in process.
+    # I.e., the simulation is in either the PREP or PAUSED states.
+
+    typemethod stable {} {
+        return [expr {$info(state) in {PREP PAUSED}}]
+    }
+
     # stoptime
     #
     # Returns the current stop time in ticks

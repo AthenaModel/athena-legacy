@@ -194,7 +194,7 @@ snit::type scenario {
     # Creates a new, blank scenario.
 
     typemethod new {} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "A new scenario cannot be created in this state."
 
         # FIRST, unlock the scenario if it is locked; this
         # will reinitialize modules like URAM.
@@ -243,7 +243,7 @@ snit::type scenario {
     # Opens the specified file name, replacing the existing file.
 
     typemethod open {filename} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "A new scenario cannot be opened in this state."
 
         # FIRST, load the file.
         if {[catch {
@@ -320,7 +320,7 @@ snit::type scenario {
     # the save is successful and 0 otherwise.
 
     typemethod save {{filename ""}} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The scenario cannot be saved in this state."
 
         # FIRST, if filename is not specified, get the dbfile
         if {$filename eq ""} {

@@ -560,7 +560,7 @@ snit::widget appwin {
         set mnu [menu $menubar.file]
         $menubar add cascade -label "File" -underline 0 -menu $mnu
 
-        cond::simNotRunning control \
+        cond::simIsStable control \
             [menuitem $mnu command "New Scenario..."  \
                  -underline 0                         \
                  -accelerator "Ctrl+N"                \
@@ -573,7 +573,7 @@ snit::widget appwin {
             -underline 4                           \
             -command   [list detailbrowser new]
 
-        cond::simNotRunning control \
+        cond::simIsStable control \
             [menuitem $mnu command "Open Scenario..." \
                  -underline 0                         \
                  -accelerator "Ctrl+O"                \
@@ -581,7 +581,7 @@ snit::widget appwin {
         bind $win <Control-o> [mymethod FileOpen]
         bind $win <Control-O> [mymethod FileOpen]
 
-        cond::simNotRunning control \
+        cond::simIsStable control \
             [menuitem $mnu command "Save Scenario" \
                  -underline   0                    \
                  -accelerator "Ctrl+S"             \
@@ -589,7 +589,7 @@ snit::widget appwin {
         bind $win <Control-s> [mymethod FileSave]
         bind $win <Control-S> [mymethod FileSave]
 
-        cond::simNotRunning control \
+        cond::simIsStable control \
             [menuitem $mnu command "Save Scenario As..." \
                  -underline 14                           \
                  -command   [mymethod FileSaveAs]]
@@ -1537,7 +1537,7 @@ snit::widget appwin {
         # FIRST, we can only create a new scenario if we're not RUNNING.
         # The menu item will be unavailable in this case, but we might
         # still get here via a hot-key.
-        if {[sim state] eq "RUNNING"} {
+        if {![sim stable]} {
             return
         }
 
@@ -1558,7 +1558,7 @@ snit::widget appwin {
         # FIRST, we can only open a new scenario if we're not RUNNING.
         # The menu item will be unavailable in this case, but we might
         # still get here via a hot-key.
-        if {[sim state] eq "RUNNING"} {
+        if {![sim stable]} {
             return
         }
 
@@ -1592,7 +1592,7 @@ snit::widget appwin {
         # FIRST, we can only save a new scenario if we're not RUNNING.
         # The menu item will be unavailable in this case, but we might
         # still get here via a hot-key.
-        if {[sim state] eq "RUNNING"} {
+        if {![sim stable]} {
             return
         }
 
@@ -1625,7 +1625,7 @@ snit::widget appwin {
         # FIRST, we can only save a scenario if we're not RUNNING.
         # The menu item will be unavailable in this case, but we might
         # still get here via a hot-key.
-        if {[sim state] eq "RUNNING"} {
+        if {![sim stable]} {
             return
         }
 
@@ -2285,6 +2285,7 @@ snit::widget appwin {
     }
 
 }
+
 
 
 

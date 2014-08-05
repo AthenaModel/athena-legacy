@@ -525,15 +525,18 @@ snit::type app {
             [$browser {*}$predicate]
         }
 
-        # Simulation state is not RUNNING.
+        # Simulation state is not RUNNING or WIZARD
 
-        statecontroller ::cond::simNotRunning -events {
+        statecontroller ::cond::simIsStable -events {
             ::sim <State>
         } -condition {
-            [::sim state] ne "RUNNING"
+            [::sim stable]
         }
 
         # Simulation state is PREP or PAUSED
+        #
+        # Equivalent to simIsStable, but appropriate for controls
+        # that send orders valid in PREP and PAUSED.
 
         statecontroller ::cond::simPrepPaused -events {
             ::sim <State>
@@ -1031,5 +1034,6 @@ proc bgerror {msg} {
         puts "Stack Trace:\n$bgErrorInfo\n$trace"
     }
 }
+
 
 

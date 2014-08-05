@@ -187,7 +187,7 @@ snit::type autogen {
     # all error checking passes.
 
     typemethod actors {{num 3}} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The simulation is running or otherwise busy."
 
         # FIRST, no actors can exist currently
         if {[llength [actor names]] > 0} {
@@ -214,7 +214,7 @@ snit::type autogen {
     # all error checking passes.
 
     typemethod nbhoods {{num 10}} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The simulation is running or otherwise busy."
 
         # FIRST, no nbhoods can exists and we must already have actors
         if {[llength [nbhood names]] > 0} {
@@ -250,7 +250,7 @@ snit::type autogen {
     # each neighborhood provided all error checking passes.
 
     typemethod civgroups {{num 6}} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The simulation is running or otherwise busy."
 
         # FIRST, there must already be neighborhoods and no CIV groups
         if {[llength [nbhood names]] == 0} {
@@ -281,7 +281,7 @@ snit::type autogen {
     # provided all error checking passes.
 
     typemethod orggroups {{num 2}} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The simulation is running or otherwise busy."
 
         # FIRST, there can be no ORG groups and we must have actor(s)
         if {[llength [orggroup names]] > 0} {
@@ -312,7 +312,7 @@ snit::type autogen {
     # provided all error checking passes.
 
     typemethod frcgroups {{num 3}} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The simulation is running or otherwise busy."
 
         # FIRST, there must be no FRC groups and at least one actor
         if {[llength [frcgroup names]] > 0} {
@@ -343,7 +343,7 @@ snit::type autogen {
     # of topics provided all error checking passes.
 
     typemethod bsystem {{num 3}} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The simulation is running or otherwise busy."
 
         # FIRST, there must be no topics and we must have CIV groups and
         # actors defined
@@ -387,7 +387,7 @@ snit::type autogen {
     #    -nbhoods  Neighborhoods to consider when creating tactics or "ALL"
 
     typemethod strategy {args} {
-        require {[sim state] ne "RUNNING"} "The simulation is running."
+        require {[sim stable]} "The simulation is running or otherwise busy."
 
         # FIRST, default options
         array set opts {
