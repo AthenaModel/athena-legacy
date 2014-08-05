@@ -11,6 +11,23 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B15, 5 August 2014</h3>
+This build integrates some of the sim events that were created for DCGS-A as 
+proper rule sets with associated ABSITs.  It also introduces "abstract events"
+or ABEVENT for short.  An ABEVENT is meant to be used to model a phenomenon that
+is abstract but does not have ongoing effects in the simulation.  An example 
+of an ABEVENT would be an ACCIDENT.  ABSITs can now be executed as
+part of an actor's strategy now using the ABSIT tactic.  There is no mechanism,
+yet, to execute an ABEVENT, only rule sets.  The complete list of packages:<p>
+
+<ul>
+<li> Bug 4558: athena(1): ABSIT tactic
+<li> Bug 4560: athena(1): DROUGHT and TRAFFIC rule sets
+<li> Bug 4561: athena(1): abstract event rule sets
+<li> Bug 4562: athena(1): Abtract Event Tactics
+<li> Bug 4563: athena(1): Wizard state 
+</ul><p>
+
 <h3>Build 6.2.1-B14, 24 June 2014</h3>
 
 Three more bug fixes related to athena_ingest(1) testing are in this build.<p> 
