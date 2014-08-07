@@ -58,8 +58,9 @@ if {$::loadTk} {
     package require marsgui
 
     # From Athena
-    package require app_sim_ui
     package require projectgui
+    package require app_sim_ui
+    package require wintel
 
     namespace import ::marsgui::*
     namespace import ::projectgui::*

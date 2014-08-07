@@ -19,23 +19,34 @@
 #    leave     - Called when the user successfully presses the "Next"
 #                button to leave the page.
 # 
-#
 #-----------------------------------------------------------------------
+
+namespace eval ::projectgui:: {
+    namespace export wizman
+}
 
 #-----------------------------------------------------------------------
 # wizman widget
 
-snit::widget wizman {
+snit::widget ::projectgui::wizman {
     #-------------------------------------------------------------------
     # Components
 
     component notebook   ;# ttk::notebook to contain wizard pages.
+    component bcancel    ;# "cancel" button
     component bnext      ;# "next" button
+    component bfinish    ;# "Finish" button
     
     #-------------------------------------------------------------------
     # Options
 
     delegate option * to notebook
+
+    # -cancelcmd cmd
+    option -cancelcmd
+
+    # -finishcmd cmd
+    option -finishcmd
 
     #-------------------------------------------------------------------
     # Variables
@@ -64,12 +75,25 @@ snit::widget wizman {
         # NEXT, create the button bar
         ttk::frame $win.bar
 
+        # NEXT, create the cancel button
+        install bcancel using ttk::button $win.bar.bcancel \
+            -text    "Cancel"                              \
+            -command [mymethod Cancel]
+
         # NEXT, create the next button
         install bnext using ttk::button $win.bar.bnext \
             -text "Next >>" \
             -command [mymethod NextPage]
 
-        pack $bnext -side right -padx 3 
+        # NEXT, create the Finish button
+        install bfinish using ttk::button $win.bar.bfinish \
+            -text "Finish"  \
+            -state disabled \
+            -command [mymethod Finish]
+
+        pack $bcancel -side left  -padx 3
+        pack $bfinish -side right -padx 3
+        pack $bnext   -side right -padx 3 
 
         # NEXT, grid them in
         grid $notebook -row 0 -column 0 -sticky nsew 
@@ -85,6 +109,15 @@ snit::widget wizman {
 
     #-------------------------------------------------------------------
     # Event handlers
+
+    # Cancel
+    # 
+    # This is called when the "Cancel" button is pressed.  It calls
+    # the -cancelcmd, which should shut down the wizard.
+
+    method Cancel {} {
+        callwith $options(-cancelcmd)
+    }
 
     # NextPage
     #
@@ -103,6 +136,17 @@ snit::widget wizman {
         $next enter
         $notebook select $next
         $self refresh
+    }
+
+    # Finish
+    #
+    # This is called when the "Finish" button is pressed.  This only
+    # every happens once, at the very end.  Disables the button and
+    # calls the -finishcmd.
+
+    method Finish {} {
+        $bfinish configure -state disabled
+        callwith $options(-finishcmd)
     }
 
     #-------------------------------------------------------------------
@@ -174,6 +218,7 @@ snit::widget wizman {
         # Otherwise, set its state.
         if {$next eq ""} {
             pack forget $bnext
+            $bfinish configure -state normal
         } elseif {[$page finished]} {
             $bnext configure -state normal
         } else {

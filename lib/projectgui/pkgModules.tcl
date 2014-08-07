@@ -1,12 +1,12 @@
 #-----------------------------------------------------------------------
 # TITLE:
-#    projectgui.tcl
+#    pkgModules.tcl
 #
 # AUTHOR:
 #    Will Duquette
 #
 # DESCRIPTION:
-#    Athena: projectgui(n) main package
+#    Athena: projectgui(n) package loader
 #
 #-----------------------------------------------------------------------
 
@@ -57,3 +57,4 @@ source [file join $::projectgui::library textwin.tcl         ]
 source [file join $::projectgui::library rolemapfield.tcl    ]
 source [file join $::projectgui::library sorter.tcl          ]
 source [file join $::projectgui::library sorterbin.tcl       ]
+source [file join $::projectgui::library wizman.tcl          ]

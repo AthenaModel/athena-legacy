@@ -30,5 +30,7 @@ package ifneeded app_sim_shared 1.0 \
 package ifneeded app_sim_ui 1.0 \
     [list source [file join $dir ui app_sim_ui.tcl]]
 
+package ifneeded wintel 1.0 \
+    [list source [file join $dir wintel pkgModules.tcl]]
 
 

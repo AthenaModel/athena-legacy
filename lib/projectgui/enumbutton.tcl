@@ -6,7 +6,7 @@
 #    Will Duquette
 #
 # DESCRIPTION:
-#    enumbutton(sim) package: button that pops up an enumerated
+#    enumbutton(n) package: button that pops up an enumerated
 #    choice as a menu.
 #
 #-----------------------------------------------------------------------

@@ -129,6 +129,35 @@ snit::type nbhood {
         }]
     }
 
+    # fullname n
+    #
+    # Returns the full name of the neighborhood: "$longname ($n)"
+
+    typemethod fullname {n} {
+        return "[$type get $n longname] ($n)"
+    }
+
+    # get n ?parm?
+    #
+    # n  - A neighborhood ID
+    #
+    # Returns the neighborhood's data dictionary; or the specific
+    # parameter, if given.
+
+    typemethod get {n {parm ""}} {
+        # FIRST, get the data
+        rdb eval {SELECT * FROM nbhoods WHERE n=$n} row {
+            if {$parm ne ""} {
+                return $row($parm)
+            } else {
+                unset row(*)
+                return [array get row]
+            }
+        }
+
+        return ""
+    }
+
     # namedict
     #
     # Returns ID/longname dictionary

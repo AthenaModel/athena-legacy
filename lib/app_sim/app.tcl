@@ -285,6 +285,14 @@ snit::type app {
         order interface add tactic \
             -checkstate  yes
 
+        # wizard: Orders from wizards, used for editing internal
+        # wizard state.  Not traced, because they don't edit the
+        # scenario.
+        order interface add wizard \
+            -checkstate  yes       \
+            -trace       no        \
+            -transaction no
+
         # test: For orders from the test suite.  No special handling
         # for unexpected errors, and no transactions, so that errors
         # remain in place.

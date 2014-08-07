@@ -74,7 +74,6 @@ source [file join $::app_ingest::library simevent_traffic.tcl  ]
 source [file join $::app_ingest::library simevent_violence.tcl ]
 
 # GUI
-source [file join $::app_ingest::library wizman.tcl           ]
 source [file join $::app_ingest::library wizscenario.tcl      ]
 source [file join $::app_ingest::library wiztigr.tcl          ]
 source [file join $::app_ingest::library wizsorter.tcl        ]

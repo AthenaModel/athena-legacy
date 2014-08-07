@@ -882,59 +882,14 @@ snit::widget appwin {
             -command {order enter ECON:UPDATE:HIST [econ hist]}]    \
             order ECON:UPDATE:HIST
 
-        # Help menu
-        set helpmenu [menu $menubar.helpmenu]
-        $menubar add cascade -label "Help" -underline 0 -menu $helpmenu
+        # Wizard menu
+        set wizmenu [menu $menubar.wizmenu]
+        $menubar add cascade -label "Wizard" -underline 0 -menu $wizmenu
 
-        $helpmenu add command                      \
-            -label       "Help Contents"           \
-            -underline   0                         \
-            -accelerator "F1"                      \
-            -command     [list app show my://help]
-
-        bind $win <F1> [list app show my://help]
-
-        $helpmenu add command                           \
-            -label       "Application Menus"            \
-            -underline   0                              \
-            -command     [list app show my://help/menu]
-
-        $helpmenu add command                    \
-            -label       "Application Tabs"      \
-            -underline   0                       \
-            -command     [list app show my://help/tab]
-
-        $helpmenu add command                    \
-            -label       "Orders"                \
-            -underline   0                       \
-            -command     [list app show my://help/order]
-
-        $helpmenu add command                    \
-            -label       "Display Variables"     \
-            -underline   0                       \
-            -command     [list app show my://help/var]
-
-        $helpmenu add command                    \
-            -label       "Executive Commands"    \
-            -underline   0                       \
-            -command     [list app show my://help/command]
-
-        $helpmenu add command                    \
-            -label       "Model Parameters"      \
-            -underline   0                       \
-            -command     [list app show my://help/parmdb]
-
-        $helpmenu add separator
-
-        $helpmenu add command                    \
-            -label       "Release Notes"         \
-            -underline   0                       \
-            -command     [list app show my://help/release]
-
-        $helpmenu add command                    \
-            -label       "About Athena"          \
-            -underline   0                       \
-            -command     [list app show my://help/about]
+        cond::simIsPrep control \
+            [menuitem $wizmenu command "Intel Ingestion..." \
+                 -underline 0                         \
+                 -command   [list wintel::wizard invoke]]
 
     }
 
