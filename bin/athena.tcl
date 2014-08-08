@@ -79,12 +79,6 @@ set metadata {
         mode   gui
     }
 
-    ingest {
-        text   "Athena DCGS-A Ingestion Tool"
-        applib app_ingest
-        mode   gui
-    }
-
     pbs {
         text "Athena Simulation PBS Cluster"
         applib app_pbs
