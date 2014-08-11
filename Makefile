@@ -119,6 +119,7 @@ bin: check_env src
 	tclapp $(TOP_DIR)/bin/athena.tcl                    \
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/lib/*/*/*                        \
+		$(TOP_DIR)/lib/app_sim/wintel/messages/*.xml \
 		$(TOP_DIR)/mars/lib/*/*                     \
 		-log $(TOP_DIR)/tclapp.log                  \
 		-icon $(TOP_DIR)/installer/athena.ico       \
