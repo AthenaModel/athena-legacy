@@ -359,7 +359,7 @@ driver::abevent define EXPLOSION {
         set flist [demog gIn $n]
 
         dam rule EXPLOSION-1-1 $fdict {true} {
-            satinput $flist $coverage T \
+            satinput $flist $coverage P \
                 AUT XS-                 \
                 SFT L-
         }
