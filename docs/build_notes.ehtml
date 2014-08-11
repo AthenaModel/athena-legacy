@@ -11,6 +11,15 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B16, 11 August 2014</h3>
+
+This build adds the first version of the integrated Intel Ingestion Wizard,
+which replaces the standalone athena_ingest(1) tool.<p>
+
+<ul>
+<li> Bug 4568: athena(1): Added intel ingestion wizard
+</ul><p>
+
 <h3>Build 6.2.2-B15, 5 August 2014</h3>
 This build integrates some of the sim events that were created for DCGS-A as 
 proper rule sets with associated ABSITs.  It also introduces "abstract events"
