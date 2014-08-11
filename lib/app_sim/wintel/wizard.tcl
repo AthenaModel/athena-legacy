@@ -173,48 +173,6 @@ snit::type ::wintel::wizard {
         simevent ingest
     }
 
-    # script
-    #
-    # Returns an ingestion script for the ingested events.
-
-    typemethod script {} {
-        set supportFile [file join $::wintel::library ingest_support.tcl]
-
-        set ts [clock format [clock seconds]]
-
-        set script [enscript {
-            #-------------------------------------------------------
-            # athena_ingest(1) Ingestion Script
-            #
-            # Generated at %timestamp
-
-        } %timestamp $ts]
-
-
-        append script "\n[readfile $supportFile]\n\n"
-
-        append script [enscript {
-            #-------------------------------------------------------
-            # Ingested Events
-
-        }]
-
-        foreach id [simevent normals] {
-            set e [simevent get $id]
-
-            append script "\n"
-            append script [$e export] "\n"
-        }
-
-        append script [enscript {
-
-            # End of script
-            #-------------------------------------------------------
-        }]
-
-        return $script
-    }
-
     # docs
     #
     # Returns HTML documentation for the ingested messages.

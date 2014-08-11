@@ -179,7 +179,8 @@ snit::widget ::wintel::wizevents {
             -displaycmd   [mymethod EListDisplay]         \
             -selectioncmd [mymethod EListSelection]       \
             -layout {
-                { id        "ID"                          }
+                { id        "Obj ID"    -sortmode integer }
+                { num       "Number"    -sortmode integer }
                 { state     "State"                       }
                 { week      "Week"                        }
                 { n         "Nbhood"                      }

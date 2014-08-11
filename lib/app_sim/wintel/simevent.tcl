@@ -161,8 +161,16 @@ oo::objdefine ::wintel::simevent {
     # Ingests events of all types.
 
     method ingest {} {
+        # FIRST, ingest the events
         foreach typename [my typenames] {
             my IngestEtype $typename
+        }
+
+        # NEXT, assign numbers
+        set i 0
+        foreach id [my ids] {
+            set e [my get $id]
+            $e set num [incr i]
         }
     }
 
@@ -203,6 +211,7 @@ oo::define ::wintel::simevent {
 
     # Every event has a "id", due to being a bean.
 
+    variable num        ;# Event number, used for output reporting.
     variable state      ;# The event's state: normal, disabled, invalid
     variable n          ;# The neighborhood
     variable week       ;# The start week, as a week(n) string.
@@ -219,7 +228,8 @@ oo::define ::wintel::simevent {
 
     constructor {} {
         next
-        set state normal
+        set num      ""
+        set state    normal
         set n        ""
         set week     ""
         set t        ""
@@ -236,6 +246,14 @@ oo::define ::wintel::simevent {
     # Queries
     #
     # These methods will rarely if ever be overridden by subclasses.
+
+    # num
+    #
+    # Returns the event sequence number.
+
+    method num {} {
+        return $num
+    }
 
     # subject
     #
@@ -276,7 +294,7 @@ oo::define ::wintel::simevent {
     # An "intent" string for the event's strategy block.
 
     method intent {} {
-        return "Event [my id]: [my narrative]"
+        return "Event [my num]: [my narrative]"
     }
 
     #-------------------------------------------------------------------
@@ -307,7 +325,8 @@ oo::define ::wintel::simevent {
         set ht [htools %AUTO%]
 
         try {
-            $ht h1 "Event [my id]: [my typename]"
+            $ht hr
+            $ht h1 "Event [my num]: [my typename]"
             $ht putln "At time $week: "
             $ht putln [my narrative]
             $ht para
@@ -330,14 +349,8 @@ oo::define ::wintel::simevent {
 
             $ht para
 
-            $ht hr 
-
-            $ht para
-
             foreach cid $cidlist {
                 $ht putln [tigr detail $cid]
-                $ht para
-                $ht hr
                 $ht para
             }
 

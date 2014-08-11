@@ -256,9 +256,10 @@ snit::type ::wintel::tigr {
 
         $ht clear
 
-        $ht title $row(title) "Message $id"
+        $ht h3 $row(title)
 
         $ht putln "<table>"
+        VarItem $ht "ID"        $id     
         VarItem $ht "Week"      $row(week)
         VarItem $ht "Nbhood"    [nbhood fullname $row(n)]
         VarItem $ht "Start/End" "$row(start_str) -- $row(end_str)"
