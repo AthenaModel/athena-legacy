@@ -48,6 +48,10 @@
 
 <<changelog>>
 
+<<change 8/11/2014 Update will>>
+Removed test step for athena_ingest(1).
+<</change>>
+
 <<change 6/9/2014 Updated will>>
 Added test step for athena_ingest(1).
 <</change>>
@@ -1317,17 +1321,6 @@ any changes.
 <pre>
 $ cd ~/athena_pkgs/athena_6.2.0-B7/test
 $ athena_test all -notk
-</pre>
-<</step>>
-
-<<step>>
-Verify that athena_ingest(1) can be invoked without error.
-(The automated tests do not include athena_ingest(1).)
-Fix any problems and retest as needed.
-<</step/>>
-<pre>
-$ cd ~/athena_pkgs/athena_6.2.0-B7/test
-$ athena ingest
 </pre>
 <</step>>
 
