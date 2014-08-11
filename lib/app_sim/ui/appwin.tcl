@@ -2073,7 +2073,7 @@ snit::widget appwin {
         }
 
         # NEXT, update the window mode
-        if {[sim state] eq "PREP"} {
+        if {[sim state] in {PREP WIZARD}} {
             $self SetMode scenario
         } else {
             $self SetMode simulation
@@ -2081,10 +2081,14 @@ snit::widget appwin {
         
         # NEXT, update the Prep Lock button
         if {[sim state] eq "PREP"} {
-            $toolbar.preplock configure \
-                -image ::projectgui::icon::unlocked22
+            $toolbar.preplock configure -image {
+                ::projectgui::icon::unlocked22
+                disabled ::projectgui::icon::unlocked22d
+            } -state normal
             DynamicHelp::add $toolbar.preplock \
                 -text "Lock Scenario Preparation"
+        } elseif {[sim state] eq "WIZARD"} {
+            $toolbar.preplock configure -state disabled
         } else {
             $toolbar.preplock configure -image {
                 ::projectgui::icon::locked22
@@ -2124,7 +2128,6 @@ snit::widget appwin {
             DynamicHelp::add $simtools.runpause -text "Run Simulation"
 
             $simtools.duration configure -state disabled
-
         }
     }
 
