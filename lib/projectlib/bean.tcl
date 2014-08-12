@@ -73,8 +73,8 @@ oo::objdefine ::projectlib::bean {
     #-------------------------------------------------------------------
     # Checkpointed Type Variables
     
-    variable idCounter  ;# Used to generate IDs
     variable beans      ;# Dictionary of bean object by ID
+    variable pendingId  ;# The next ID to assign, if > [my lastid]
 
     #-------------------------------------------------------------------
     # Uncheckpointed Type Variables
@@ -102,9 +102,8 @@ oo::objdefine ::projectlib::bean {
             set slots [dict create]
         }
 
-        set idCounter 0
         set beans [dict create]
-
+        set pendingId 0
         set changed 0
         set restoring 0
         set deleting 0
@@ -177,7 +176,7 @@ oo::objdefine ::projectlib::bean {
     #
     # These methods are used by bean instances; they are not for use by
     # outside 
-    
+
     # register bean
     #
     # bean - A bean that is being created
@@ -195,7 +194,7 @@ oo::objdefine ::projectlib::bean {
             return ""
         } else {
             my markchanged
-            set id [incr idCounter]
+            set id [my nextid]
             dict set beans $id $bean
             return $id
         }
@@ -225,18 +224,13 @@ oo::objdefine ::projectlib::bean {
     #
     # bean - The bean to uncreate
     #
-    # Uncreates a bean, which must be the most recently created bean,
-    # resetting the idCounter.  This is used when undoing the creation
-    # of a bean.
-    #
-    # NOTE: This command doesn't really need the name of the bean;
-    # we have it only so we can check it.
+    # Undoes the creation of a bean, which must be the most recently 
+    # created bean.
 
     method uncreate {bean} {
-        require {[$bean id] == $idCounter} "not most recent bean: \"$bean\""
+        require {[$bean id] == [my lastid]} "not most recent bean: \"$bean\""
 
         $bean destroy
-        incr idCounter -1
     }
 
     #-------------------------------------------------------------------
@@ -285,14 +279,38 @@ oo::objdefine ::projectlib::bean {
     #-------------------------------------------------------------------
     # Public Methods
     
-    # nextid
+    # lastid 
     #
-    # Returns the next bean ID that will be assigned.
+    # Returns the ID of the most recently created bean, or 0 if 
+    # there are no beans.
 
-    method nextid {} {
-        return [expr {$idCounter + 1}]
+    method lastid {} {
+        if {[dict size $beans] > 0} {
+            tcl::mathfunc::max {*}[dict keys $beans]        
+        } else {
+            return 0
+        }
     }
 
+    # nextid
+    #
+    # Returns the ID of the next bean to create.
+
+    method nextid {} {
+        return [expr {max($pendingId,[my lastid] + 1)}]
+    }
+    
+    # setnextid nid
+    #
+    # nid   - The next ID to assign.
+    #
+    # Sets the next id to assign.  This is for use in 
+    # order setredo scripts, to ensure that orders yield the same IDs
+    # on redo.
+
+    method setnextid {nid} {
+        set pendingId $nid
+    }
 
     # dump
     #
@@ -466,8 +484,8 @@ oo::objdefine ::projectlib::bean {
     # is given, the object's unsaved changes flag is cleared.
 
     method checkpoint {{flag ""}} {
-        dict set data idCounter $idCounter
-
+        set data [dict create]
+        
         if {$rdb eq ""} {
             dict set data beans [my SerializeAll]
         } else {
@@ -509,8 +527,6 @@ oo::objdefine ::projectlib::bean {
         set restoring 1
 
         try {
-            set idCounter [dict get $checkpoint idCounter]
-
             if {$rdb eq ""} {
                 dict for {id blist} [dict get $checkpoint beans] {
                     my Deserialize $id $blist

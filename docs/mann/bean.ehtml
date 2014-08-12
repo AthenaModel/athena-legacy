@@ -393,6 +393,11 @@ Returns a list of the IDs of all existing beans.<p>
 Initializes the bean(n) mechanism when the program is loaded.  This command
 should not be called by clients.<p>
 
+<<defitem "bean lastid" {bean lastid}>>
+
+Returns the unique ID of the most recently created bean (which is, not
+coincidentally, the bean with the largest ID number).<p>
+
 <<defitem "bean markchanged" {bean markchanged}>>
 
 Sets the bean(n) <<iref bean changed>> flag.  A bean class should call 
@@ -411,7 +416,8 @@ use.<p>
 
 Returns the unique ID that will be assigned to the next bean to be created.
 Application code should generally not need to call this, though it might
-be useful in some circumstances.<p>
+be useful in some circumstances.  Note that <<iref bean setnextid>> can
+be used to control ID assignment.<p>
 
 <<defitem "bean register" {bean register <i>bean</i>}>>
 
@@ -437,6 +443,15 @@ If the <<iref bean configure>> <b>-rdb</b> option has been set, this
 routine assumes that the individual beans were saved in the RDB's
 <code>beans</code> table, and that the <i>checkpoint</i> string
 contains only bean metadata.<p>
+
+<<defitem "bean setnextid" {bean setnextid <i>nid</i>}>>
+
+Sets the bean ID, <i>nid</i>, to be returned the next time 
+<<iref bean nextid>> is used to assign a bean ID.  The <i>nid</i> must
+be greater than <<iref bean lastid>> to have any effect.<p>
+
+This command is for use in <<xref order(n)>> <<xref order(n) setredo>>
+scripts, to ensure that an order produces the same bean IDs on redo.<p>
 
 
 <<defitem "bean uncreate" {bean uncreate <i>bean</i>}>>
