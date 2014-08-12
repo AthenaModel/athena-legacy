@@ -179,15 +179,16 @@ snit::type cif {
         }
     }
 
-    # add order parmdict ?undo?
+    # add order parmdict ?undo? ?redo?
     #
     # order      The name of the order to be saved
     # parmdict   The order's parameter dictionary
     # undo       A script that will undo the order
+    # redo       A script that prepares for redoing the order.
     #
     # Saves the order in the CIF.
 
-    typemethod add {order parmdict {undo ""}} {
+    typemethod add {order parmdict {undo ""} {redo ""}} {
         # FIRST, clear the redo stack, unless we're redoing an order.
         # In that case, [cif redo] has already made the necessary
         # changes.
@@ -201,8 +202,8 @@ snit::type cif {
         set narrative [order narrative $order $parmdict]
 
         rdb eval {
-            INSERT INTO cif(time,name,narrative,parmdict,undo)
-            VALUES($now, $order, $narrative, $parmdict, $undo);
+            INSERT INTO cif(time,name,narrative,parmdict,undo,redo)
+            VALUES($now, $order, $narrative, $parmdict, $undo,$redo);
         }
 
         notifier send ::cif <Update>
@@ -311,12 +312,12 @@ snit::type cif {
             }
         }
 
-        # NEXT, put the undo data on the undo stack.
+        # NEXT, put the undo data on the redo stack.
 
         set record [dict create narrative $narrative]
 
         dict set record orders [rdb eval {
-            SELECT name, parmdict
+            SELECT name, parmdict, redo
             FROM cif
             WHERE id > $start AND kind == 'order'
             ORDER BY id ASC
@@ -347,7 +348,7 @@ snit::type cif {
 
         # NEXT, get the undo information
         rdb eval {
-            SELECT id, name, narrative, parmdict, undo
+            SELECT id, name, narrative, parmdict, undo, redo
             FROM cif 
             WHERE id=$id
         } {}
@@ -361,10 +362,10 @@ snit::type cif {
                 DELETE FROM cif WHERE id = $id
             }
 
-            # NEXT, add it to the undo stack.
+            # NEXT, add it to the redo stack.
             set record [dict create                \
                  narrative $narrative              \
-                 orders    [list $name $parmdict]]
+                 orders    [list $name $parmdict $redo]]
 
             lappend info(redoStack) $record
 
@@ -510,7 +511,10 @@ snit::type cif {
             $type startblock $narrative
         }
 
-        foreach {name parmdict} $orders {
+        foreach {name parmdict redo} $orders {
+            if {$redo ne ""} {
+                uplevel #0 $redo
+            }
             order send gui $name $parmdict
         }
 

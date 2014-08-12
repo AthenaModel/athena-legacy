@@ -1139,6 +1139,9 @@ order define BLOCK:TACTIC:ADD {
     setundo [$block addtactic_ $parms(typename)]
 
     set tactic [$block tactics end]
+
+    setredo [list bean setnextid [$tactic id]]
+
     return [$tactic id]
 }
 
@@ -1237,6 +1240,9 @@ order define BLOCK:CONDITION:ADD {
     setundo [$block addcondition_ $parms(typename)]
 
     set cond [$block conditions end]
+
+    setredo [list bean setnextid [$cond id]]
+
     return [$cond id]
 }
 

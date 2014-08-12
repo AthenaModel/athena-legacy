@@ -574,6 +574,8 @@ order define STRATEGY:BLOCK:ADD {
 
     # NEXT, return the new block's ID
     set block [lindex [$s blocks] end]
+
+    setredo [list bean setnextid [$block id]]
     return [$block id]
 }
 

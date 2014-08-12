@@ -84,8 +84,11 @@ CREATE TABLE cif (
     -- Parameter Dictionary
     parmdict  TEXT default '',
 
-    -- Undo Command, or ''
-    undo      TEXT DEFAULT ''
+    -- Undo Script, or ''
+    undo      TEXT DEFAULT '',
+
+    -- Redo Helper Script, or ''
+    redo      TEXT DEFAULT ''
 );
 
 CREATE INDEX cif_index ON cif(time,id);

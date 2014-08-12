@@ -430,17 +430,18 @@ snit::type app {
         return $::loadTk
     }
 
-    # AddOrderToCIF interface name parmdict undoScript
+    # AddOrderToCIF interface name parmdict undoScript ?redoScript?
     #
     # interface  - The interface by which the order was sent
     # name       - The order name
     # parmdict   - The order parameters
     # undoScript - The order's undo script, or "" if not undoable.
+    # redoScript - The order's redo helper script, or "" if none.
     #
     # Adds accepted orders to the CIF.
 
-    proc AddOrderToCIF {interface name parmdict undoScript} {
-        cif add $name $parmdict $undoScript
+    proc AddOrderToCIF {interface name parmdict undoScript {redoScript ""}} {
+        cif add $name $parmdict $undoScript $redoScript
     }
 
     # UnexpectedOrderError name errmsg
