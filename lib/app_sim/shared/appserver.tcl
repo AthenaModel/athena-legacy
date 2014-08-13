@@ -330,7 +330,7 @@ snit::type appserver {
     # adds a disclaimer to the output.
 
     proc locked {{option ""}} {
-        if {[sim state] ne "PREP"} {
+        if {[sim locked]} {
             return 1
         } else {
             if {$option ne ""} {
