@@ -26,6 +26,7 @@ Ingestion wizard.<p>
 <li> Bug 4575: bean(n): setnextid
 <li> Bug 4577: athena(1): Intel Ingestion undo problem
 <li> Bug 4578: athena(1): add module to parse KML polygons
+<li> Bug 4579: athena(1): Extraneous markers in undo stack.
 </ul><p>
 
 <h3>Build 6.2.2-B16, 11 August 2014</h3>
