@@ -505,7 +505,8 @@ snit::type cif {
 
         log normal cif "redo: $narrative"
 
-        set gotBlock [expr {[llength $orders] > 2}]
+        # Each order to be undone adds three elements to the list.
+        set gotBlock [expr {[llength $orders] > 3}]
 
         if {$gotBlock} {
             $type startblock $narrative
@@ -589,6 +590,13 @@ snit::type cif {
             if {$row(undo) ne ""} {
                 append out "Undo Script:\n"
                 foreach line [split $row(undo) "\n"] {
+                    append out "    $line\n"
+                }
+            }
+
+            if {$row(redo) ne ""} {
+                append out "Redo Script:\n"
+                foreach line [split $row(redo) "\n"] {
                     append out "    $line\n"
                 }
             }
