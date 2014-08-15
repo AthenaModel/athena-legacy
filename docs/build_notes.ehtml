@@ -11,6 +11,23 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B17, 15 August 2014</h3>
+
+This build fixes a number of issues relating to the new Intel
+Ingestion wizard.<p>
+
+<ul>
+<li> Bug 4567: Wizard State unlock bgerror
+<li> Bug 4566: EXPLOSION event should be persistent
+<li> Bug 4570: Ingest Test Data button is broken
+<li> Bug 4571: Tabs displayed in Wizard state should match Scenario Prep
+<li> Bug 4572: Remove athena_ingest(1) from CM plan
+<li> Bug 4574: Detail Browser problems in Wizard State
+<li> Bug 4575: bean(n): setnextid
+<li> Bug 4577: athena(1): Intel Ingestion undo problem
+<li> Bug 4578: athena(1): add module to parse KML polygons
+</ul><p>
+
 <h3>Build 6.2.2-B16, 11 August 2014</h3>
 
 This build adds the first version of the integrated Intel Ingestion Wizard,
