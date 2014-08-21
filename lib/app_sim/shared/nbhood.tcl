@@ -631,6 +631,166 @@ order define NBHOOD:CREATE {
     setundo [join $undo \n]
 }
 
+# NBHOOD:CREATE:RAW
+#
+# Creates new neighborhoods from raw lat/long data.
+
+order define NBHOOD:CREATE:RAW {
+    title "Create Neighborhood From Raw Data"
+    options -sendstates PREP
+
+    form {
+        rcc "Neighborhood:" -for n
+        text n
+
+        rcc "Long Name:" -for longname
+        longname longname 
+
+        rcc "Local Neighborhood?" -for local
+        selector local -defvalue YES {
+            case YES "Yes" {
+                rcc "Prod. Capacity Factor:" -for pcf
+                text pcf -defvalue 1.0
+            }
+
+            case NO "No" {}
+        }
+
+        rcc "Urbanization:" -for urbanization
+        enum urbanization -listcmd {eurbanization names} -defvalue URBAN
+
+        rcc "Controller:" -for controller
+        enum controller -listcmd {ptype a+none names} -defvalue NONE
+
+        rcc "Reference Point:" -for refpoint
+        text refpoint
+
+        rcc "Polygon:" -for polygon
+        text polygon -width 40
+    }
+
+    parmtags refpoint point
+    parmtags polygon polygon
+} {
+    # FIRST, prepare the parameters
+    prepare n             -required -toupper -unused -type ident
+    prepare longname      -normalize
+    prepare refpoint      -required  
+    prepare polygon       -required           
+    prepare local         -toupper            -type boolean
+    prepare urbanization  -toupper            -type eurbanization
+    prepare controller    -toupper            -type {ptype a+none}
+    prepare pcf           -num                -type rnonneg
+
+    returnOnError
+
+    # NEXT, perform custom checks
+
+    # polygon
+    #
+    
+    # Generic tests, this is raw data
+
+    if {[valid polygon]} {
+        # Must have at least 6 points
+        if {[llength $parms(polygon)] < 6} {
+            reject polygon "Not enough coordinate pairs to be lat/long poly"
+        }
+
+        # The must be an even number of coordinates
+        if {[llength $parms(polygon)] % 2 != 0} {
+            reject polygon "Odd number of points in polygon."
+        }
+
+    }
+
+    returnOnError
+
+    if {[valid polygon]} {
+        # The coordinates must make sense
+        foreach {lat lon} $parms(polygon) {
+            set loc [list $lat $lon]
+            if {[catch {
+                latlong validate $loc
+            } result]} {
+                reject polygon $result
+            }
+        }
+    }
+
+    # Must be unique.
+
+    if {[valid polygon] && [rdb exists {
+        SELECT n FROM nbhoods
+        WHERE polygon = $parms(polygon)
+    }]} {
+        reject polygon "A neighborhood with this polygon already exists"
+    }
+
+    # refpoint
+    #
+    # Must be lat/long pair
+    if {[valid refpoint]} {
+        if {[catch {
+            latlong validate $parms(refpoint)
+        } result]} {
+            reject refpoint $result
+        }
+    }
+
+    # Must be unique
+
+    if {[valid refpoint] && [rdb exists {
+        SELECT n FROM nbhoods
+        WHERE refpoint = $parms(refpoint)
+    }]} {
+        reject refpoint \
+            "A neighborhood with this reference point already exists"
+    }
+
+    # NEXT, do cross-validation.
+
+    if {[valid refpoint] && [valid polygon]} {
+        if {![ptinpoly $parms(polygon) $parms(refpoint)]} {
+            reject refpoint "not in polygon"
+        }
+    }
+
+    # NEXT, check for missing unrequired parms and default them
+    if {$parms(local) eq ""} {
+        set parms(local) 1
+    }
+
+    if {$parms(pcf) eq ""} {
+        set parms(pcf) 1.0
+    }
+
+    # NEXT, If non-local pcf is 0.0, otherwise validate it
+    if {!$parms(local)} {
+        set parms(pcf) 0.0
+    } elseif {[catch {rnonneg validate $parms(pcf)} result]} {
+        reject pcf $result
+    }
+
+    returnOnError -final
+
+    # NEXT, if urbanization is not been supplied, defaults to URBAN
+    if {$parms(urbanization) eq ""} {
+        set parms(urbanization) URBAN
+    }
+
+    # NEXT, If longname is "", defaults to ID.
+    if {$parms(longname) eq ""} {
+        set parms(longname) $parms(n)
+    }
+
+    # NEXT, create the neighborhood and dependent entities
+    lappend undo [nbhood mutate create [array get parms]]
+    lappend undo [absit mutate reconcile]
+
+    setundo [join $undo \n]
+}
+
 # NBHOOD:DELETE
 
 order define NBHOOD:DELETE {
