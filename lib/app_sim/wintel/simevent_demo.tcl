@@ -96,8 +96,9 @@
     }
 
     method sendevent {} {
+        set block_id [my block SYSTEM]
         foreach g $glist {
-            my tactic [my block SYSTEM] DEMO \
+            my tactic $block_id DEMO \
                 n        [my get n]          \
                 coverage [my get coverage]   \
                 g        $g
