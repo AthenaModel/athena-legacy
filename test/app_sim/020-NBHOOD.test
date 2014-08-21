@@ -73,6 +73,28 @@ namespace eval ::athena_test::tests:: {
         polygon      {C80C80 D20C80 D00D20}
     }
 
+    set rawnb1 {
+        n            RAW1
+        longname     "Raw1"
+        refpoint     {30 30}
+        polygon      {-90 -180 90 -180 90 180 -90 180}
+        urbanization URBAN
+        controller   NONE
+        pcf          1.0
+        local        YES
+    }
+
+    set rawnb2 {
+        n            RAW2
+        longname     "Raw2"
+        refpoint     {31 31}
+        polygon      {-89 -179 89 -179 89 179 -89 179}
+        urbanization URBAN
+        controller   NONE
+        pcf          1.0
+        local        YES
+    }
+
     # Clean up after a test
 
     proc cleanup {} {
@@ -270,6 +292,190 @@ polygon       80 80 120 80 100 120
         cleanup
     } -result {
         {::rdb <nbhoods> delete NB1}
+    }
+
+    #-------------------------------------------------------------------
+    # NBHOOD:CREATE:RAW
+
+    test CREATE_RAW-1.1 {required parms} -body {
+        ted order -reject NBHOOD:CREATE:RAW {}
+    } -result {
+        n {required value}
+        refpoint {required value}
+        polygon {required value}
+    }
+
+    
+    test CREATE_RAW-1.2 {Duplicate n} -setup {
+        ted order NBHOOD:CREATE:RAW $rawnb1
+    } -body {
+        ted order -reject NBHOOD:CREATE:RAW $rawnb1 
+    } -cleanup {
+        cleanup
+    } -result {
+        n {An entity with this ID already exists}
+    }
+
+
+    test CREATE_RAW-1.4 {invalid identifier} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {n "NONE-SUCH"}]
+    } -cleanup {
+        cleanup
+    } -result {
+        n {Identifiers begin with a letter and contain only letters and digits.}
+    }
+
+    test CREATE_RAW-1.4 {invalid urbanization} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {
+            urbanization NONESUCH
+        }]
+    } -result {
+        urbanization {invalid value "NONESUCH", should be one of: ISOLATED, RURAL, SUBURBAN, URBAN}
+    }
+
+    test CREATE_RAW-1.5 {invalid controller} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {
+            controller NONESUCH
+        }]
+    } -result {
+        controller {Invalid actor "NONESUCH", should be one of: NONE}
+    }
+
+    # CREATE_RAW-1.6 obsolete
+
+    test CREATE_RAW-1.7 {invalid pcf} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {
+            pcf -1.0
+        }]
+    } -result {
+        pcf {invalid value "-1.0", should be a real number no less than 0.0}
+    }
+
+    test CREATE_RAW-1.10 {polygon: duplicate polygon} -setup {
+        ted order NBHOOD:CREATE:RAW  $rawnb1
+    } -body {
+        ted order -reject NBHOOD:CREATE:RAW \
+            [dict merge $rawnb2 [list polygon [dict get $rawnb1 polygon]]]
+    } -cleanup {
+        cleanup
+    } -result {
+        polygon {A neighborhood with this polygon already exists}
+    }
+    
+
+    test CREATE_RAW-1.11 {refpoint: invalid ref point, not coord} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {
+            refpoint 180
+        }]
+    } -result {
+        refpoint {expected lat/long pair, got: "180"}
+    }
+
+    test CREATE_RAW-1.12 {refpoint: invalid ref point, invalid coord} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {
+            refpoint {-91 180}
+        }]
+    } -result {
+        refpoint {invalid latitude, should be -90.0 to 90.0 degrees: "-91.0"}
+    }
+
+
+    test CREATE_RAW-1.13 {refpoint: duplicate refpoint} -setup {
+        ted order NBHOOD:CREATE:RAW  $rawnb1
+    } -body {
+        ted order -reject NBHOOD:CREATE:RAW \
+            [dict merge $rawnb2 [list refpoint [dict get $rawnb1 refpoint]]]
+    } -cleanup {
+        cleanup
+    } -result {
+        refpoint {A neighborhood with this reference point already exists}
+    }
+
+
+    test CREATE_RAW-1.14 {refpoint not in polygon} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {
+            polygon {0 0 1 0 1 1 0 1}
+        }]
+    } -result {
+        refpoint {not in polygon}
+    }
+
+
+    test CREATE_RAW-1.15 {local: invalid boolean} -body {
+        ted order -reject NBHOOD:CREATE:RAW [dict merge $rawnb1 {
+            local NONESUCH
+        }]
+    } -result {
+        local {invalid boolean "NONESUCH", should be one of: 1, 0, true, false, yes, no, on, off}
+    }
+
+
+    test CREATE_RAW-2.1 {nbhood is created, controller is NONE} -body {
+        ted order NBHOOD:CREATE:RAW $rawnb1
+        set parms [join [dict keys $rawnb1] ","]
+        ted querylist "SELECT $parms FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n             RAW1
+longname      Raw1
+refpoint      30 30
+polygon       -90 -180 90 -180 90 180 -90 180
+urbanization  URBAN
+controller    
+pcf           1.0
+local         1
+    }
+
+    test CREATE_RAW-2.2 {nbhood is created, controller is given} -setup {
+        ted create JOE
+    } -body {
+        ted order NBHOOD:CREATE:RAW [dict merge $rawnb1 {controller JOE}]
+        set parms [join [dict keys $rawnb1] ","]
+        ted querylist "SELECT $parms FROM nbhoods"
+    } -cleanup {
+        cleanup
+    } -result {
+n             RAW1
+longname      Raw1
+refpoint      30 30
+polygon       -90 -180 90 -180 90 180 -90 180
+urbanization  URBAN
+controller    JOE
+pcf           1.0
+local         1
+    }
+
+    test CREATE_RAW-2.3 {longname defaults to ID} -body {
+        ted order NBHOOD:CREATE:RAW [dict merge $rawnb1 {longname ""}]
+
+        rdb onecolumn {SELECT longname FROM nbhoods}
+    } -cleanup {
+        cleanup
+    } -result {RAW1}
+
+    test CREATE_RAW-2.4 {Effects} -body {
+        ted notifier bind ::rdb <nbhoods>
+        ted order NBHOOD:CREATE:RAW $rawnb1
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <nbhoods> update RAW1}
+        {::rdb <nbhoods> update RAW1}
+    }
+
+
+    test CREATE_RAW-3.1 {undo effects} -setup {
+        ted order NBHOOD:CREATE:RAW $rawnb1
+    } -body {
+        ted notifier bind ::rdb <nbhoods>
+        cif undo -test
+        ted notifier received
+    } -cleanup {
+        cleanup
+    } -result {
+        {::rdb <nbhoods> delete RAW1}
     }
 
 
