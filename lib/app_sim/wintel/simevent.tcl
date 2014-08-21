@@ -156,11 +156,13 @@ oo::objdefine ::wintel::simevent {
     #-------------------------------------------------------------------
     # Ingestion
 
-    # ingest
+    # ingest inum
+    #
+    # inum - Ingestion number
     #
     # Ingests events of all types.
 
-    method ingest {} {
+    method ingest {inum} {
         # FIRST, ingest the events
         foreach typename [my typenames] {
             my IngestEtype $typename
@@ -170,7 +172,7 @@ oo::objdefine ::wintel::simevent {
         set i 0
         foreach id [my ids] {
             set e [my get $id]
-            $e set num [incr i]
+            $e set num $inum-[incr i]
         }
     }
 

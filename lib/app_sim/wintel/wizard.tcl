@@ -29,6 +29,19 @@ snit::type ::wintel::wizard {
     # Wizard Window Name
     typevariable win .wintelwizard   
 
+    # checkpointed data array
+    #
+    # Data saved in the scenario.
+    #
+    # nextIngestion  - serial number of next ingestion.
+
+    typevariable cpdata -array {
+        nextIngestion 1
+    }
+
+    # cpdata changed flag
+    typevariable cpChanged 0
+
     # info array: data structure for the ingested data.
     #
     # events => dictionary of simevents by event type
@@ -170,7 +183,7 @@ snit::type ::wintel::wizard {
     # Creates candidate events based on the message sorting.
 
     typemethod ingestEvents {} {
-        simevent ingest
+        simevent ingest $cpdata(nextIngestion)
     }
 
     # docs
@@ -249,12 +262,61 @@ snit::type ::wintel::wizard {
         sim wizard off
 
         # NEXT, ingest the events into the scenario
-        $type saveEvents        
+        $type saveEvents  
+
+        # NEXT, update the ingestion number.
+        incr cpdata(nextIngestion)
+        set cpChanged 1      
 
         # NEXT, cleanup.
         destroy $win
     }
     
+    #-------------------------------------------------------------------
+    # Saveable(i) interface
+
+    # checkpoint ?-saved?
+    #
+    # Returns a checkpoint of the non-RDB simulation data.  If 
+    # -saved is specified, the data is marked unchanged.
+    #
+
+    typemethod checkpoint {{option ""}} {
+        if {$option eq "-saved"} {
+            set cpChanged 0
+        }
+
+        return [array get cpdata]
+    }
+
+    # restore checkpoint ?-saved?
+    #
+    # checkpoint - A string returned by the checkpoint typemethod
+    #
+    # Restores the non-RDB state of the module to that contained
+    # in the checkpoint.  If -saved is specified, the data is marked
+    # unchanged.
+    
+    typemethod restore {checkpoint {option ""}} {
+        array unset cpdata
+        array set cpdata $checkpoint
+
+        if {$option eq "-saved"} {
+            set cpChanged 0
+        }
+    }
+
+    # changed
+    #
+    # Returns 1 if saveable(i) data has changed, and 0 otherwise.
+    #
+    # Syntax:
+    #   changed
+
+    typemethod changed {} {
+        return $cpChanged
+    }
+
     
 }
 

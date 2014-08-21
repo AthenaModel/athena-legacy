@@ -241,9 +241,10 @@ snit::type app {
 
         coverage_model init
 
-        # NEXT, register saveables from projectlib.
+        # NEXT, register other saveables
         scenario register ::projectlib::bean
-        
+        scenario register ::wintel::wizard
+
         # NEXT, register my:// servers with myagent.
         appserver init
 
