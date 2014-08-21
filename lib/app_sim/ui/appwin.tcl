@@ -887,6 +887,11 @@ snit::widget appwin {
         $menubar add cascade -label "Wizard" -underline 0 -menu $wizmenu
 
         cond::simIsPrep control \
+            [menuitem $wizmenu command "Neighborhood Ingestion..." \
+                 -underline 0                         \
+                 -command   [list wnbhood::wizard invoke]]
+
+        cond::simIsPrep control \
             [menuitem $wizmenu command "Intel Ingestion..." \
                  -underline 0                         \
                  -command   [list wintel::wizard invoke]]

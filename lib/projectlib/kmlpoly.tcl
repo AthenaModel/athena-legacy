@@ -73,12 +73,12 @@ snit::type ::projectlib::kmlpoly {
         # NEXT, create the DOM and get the top node
         set doc     [$dp doc $xml]
         set root    [$dp root]
-        set topNode [$dp nodebyname Folder]
+        set topNode [$dp nodebyname kml]
 
         # NEXT check to see if this is the right format and version
         if {$topNode eq ""} {
             return -code error -errorcode INVALID \
-                "Unable to parse KML, expected Folder data."
+                "Unable to parse KML, no \"kml\" root element found."
         }
 
         set pmnodes [$topNode getElementsByTagName "Placemark"]
@@ -86,10 +86,16 @@ snit::type ::projectlib::kmlpoly {
         set names {}
         set polys {}
 
+        # NEXT, we only consider Polygon tags within Placemarks
         foreach node $pmnodes {
-            lappend names [$dp ctextbyname $node name]
-            set poly [$dp ctextbyname $node coordinates]
-            lappend polys [$type NormalizePoly $poly]
+            if {[$node getElementsByTagName "Polygon"] ne ""} {
+                lappend names [$dp ctextbyname $node "name"]
+
+                # Take the first set of coordinates presented, Athena doesn't
+                # deal with multiple sets of LinearRings per polygon
+                set cnode [lindex [$node getElementsByTagName "coordinates"] 0]
+                lappend polys [$type NormalizePoly [$cnode text]]
+            }
         }
 
         dict set kmldata NAMES $names
