@@ -44,6 +44,23 @@ order NBHOOD:CREATE "Create Neighborhood" {
 
 #-----------------------------------------------------------------------
 
+order NBHOOD:CREATE+RAW "Create Neighborhood From Raw Data" {
+    <b><<term prep>> Only.</b>  This order creates a new 
+    <<term nbhood>> from raw lat/long data.  A minimum number of
+    parameters are required and there is minimal validation 
+    of parameters done.  It is intended that the parameters in this 
+    order be independantly validated before attempting to send them to 
+    Athena.
+    The order parameters are as follows:<p>
+
+    <<parmlist>>
+    <<nbhood_ parms -required -tags raw>>
+    <<nbhood_ parms -optional -tags optraw>>
+    <</parmlist>>
+}
+
+#-----------------------------------------------------------------------
+
 order NBHOOD:DELETE "Delete Neighborhood" {
     <b><<term prep>> Only.</b>  Deletes an existing
     neighborhood, along with all entities (e.g., civilian groups)

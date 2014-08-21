@@ -41,12 +41,12 @@ object nbhood_ {
         
         A neighborhood ID cannot be the same as the ID of any actor, group, 
         other neighborhood, etc.
-    } -tags {create}
+    } -tags {create raw}
 
     attribute longname "Long Name" {
         The neighborhood's long name, a human-readable equivalent to the
         neighborhood's ID, e.g., "Northwest Frontier Provinces".
-    } -tags {create update}
+    } -tags {create update optraw}
 
     attribute local "Local Neighborhood?" {
         Whether or not the neighborhood's labor force and production 
@@ -55,13 +55,13 @@ object nbhood_ {
         neighborhoods do not.<p>
 
         <<enumdoc ::projectlib::eyesno>>
-    } -tags {create update multi}
+    } -tags {create update multi optraw}
 
     attribute urbanization "Urbanization" {
         The neighborhood's urbanization level:<p>
 
         <<enumdoc ::projectlib::eurbanization>>
-    } -tags {create update multi}
+    } -tags {create update multi optraw}
 
     attribute controller "Controller" {
         A neighborhood can be controlled by at most one 
@@ -69,7 +69,7 @@ object nbhood_ {
         initially in control of the neighborhood.  The attribute may
         be blank if no actor is initially in control.  As the
         simulation runs, control can shift from actor to actor.
-    } -tags {create update multi}
+    } -tags {create update multi optraw}
 
     attribute pcf "Production Capacity Factor" {
         The production capacity factor is a value between 0.0 and 1.0. 
@@ -77,7 +77,7 @@ object nbhood_ {
         capacity a neighborhood can have.  Set to 0.0, there will be
         no infrastructure. Set to 1.0, there will be the maximum capacity 
         that could possibly be present at scenario lock.      
-    } -tags {create update multi}
+    } -tags {create update multi optraw}
 
     attribute stacking_order "Stacking Order" {
         The neighborhood's Stacking Order.  When
@@ -98,16 +98,16 @@ object nbhood_ {
     }
 
     attribute refpoint "Reference Point" {
-        The neighborhood's reference point, expressed as
-        a <<term mapref>>.  The reference point is
-        a location within the neighborhood that is guaranteed not to be
-        obscured by an overlapping or nested neighborhood.
-    } -tags {create update}
+        The neighborhood's reference point, expressed either as
+        a <<term mapref>> or as a lat/long coordinate pair.  The reference
+        point is a location within the neighborhood that is guaranteed not 
+        to be obscured by an overlapping or nested neighborhood.  
+    } -tags {create raw update}
 
     attribute polygon "Polygon" {
         The neighborhood's boundary polygon, expressed as
-        a list of <<term mapref>>s.
-    } -tags {create update}
+        a list of <<term mapref>>s or as a list of lat/long coordinate pairs.
+    } -tags {create raw update}
 }
 
 page /object nbhood "Neighborhood" {
