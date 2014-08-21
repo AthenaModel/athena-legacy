@@ -107,13 +107,13 @@ order define SIMEVENT:EXPLOSION {
             -loadcmd {beanload}
 
         rcc "Coverage:" -for coverage
-        frac coverage
+        posfrac coverage
         label "Fraction of neighborhood"
     }
 } {
     # FIRST, prepare the parameters
     prepare event_id  -required -type ::wintel::simevent::EXPLOSION
-    prepare coverage  -num      -type rfraction
+    prepare coverage  -num      -type rposfrac
  
     returnOnError -final
 

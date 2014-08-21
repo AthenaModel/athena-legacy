@@ -498,7 +498,7 @@ snit::type ::projectlib::parmdb {
                             consuming much much more than they expect).
                             "
                     $ps define dam.CONSUMP.povfrac.$urb \
-                        ::projectlib::rfraction 0.1 " 
+                        ::simlib::rfraction 0.1 " 
                             The default poverty fraction by urbanization that
                             the CONSUMP ruleset uses only if the econ model is
                             disabled.  This represent the fraction of 
@@ -1260,7 +1260,7 @@ snit::type ::projectlib::parmdb {
             PARTIAL    0.7
             NONE       0.4
         } {
-            $ps define force.discipline.$name ::projectlib::rfraction $value "
+            $ps define force.discipline.$name ::simlib::rfraction $value "
                 Dial that determines a force group's level of discipline
                 given a training level of $name; a number between 0.0 and
                 1.0.
@@ -1295,7 +1295,7 @@ snit::type ::projectlib::parmdb {
             criminal activity, and hence on volatility.
         }
 
-        $ps define force.law.suppfrac ::projectlib::rfraction 0.6 {
+        $ps define force.law.suppfrac ::simlib::rfraction 0.6 {
             Suppressible fraction: the fraction of a civilian group's
             criminal activity that can be suppressed by law enforcement.
         }
@@ -1568,7 +1568,7 @@ snit::type ::projectlib::parmdb {
             The average cost to build a GOODS production plant from scratch.
         }
 
-        $ps define plant.repairfrac ::projectlib::rfraction 0.001 {
+        $ps define plant.repairfrac ::simlib::rfraction 0.001 {
             The cost to repair a GOODS production plant from total disrepair
             to fully functional expressed as a fraction of the cost to
             build a plant from scratch.

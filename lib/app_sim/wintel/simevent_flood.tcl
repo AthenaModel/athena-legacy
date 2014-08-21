@@ -107,14 +107,14 @@ order define SIMEVENT:FLOOD {
         label "week(s)"
 
         rcc "Coverage:" -for coverage
-        frac coverage
+        posfrac coverage
         label "Fraction of neighborhood"
     }
 } {
     # FIRST, prepare the parameters
     prepare event_id  -required -type ::wintel::simevent::FLOOD
     prepare duration  -num      -type ipositive
-    prepare coverage  -num      -type rfraction
+    prepare coverage  -num      -type rposfrac
  
     returnOnError -final
 

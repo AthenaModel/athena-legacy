@@ -338,6 +338,12 @@ A <<xref mars:range(n)>> representing a positive or negative percentage, e.g.,
 a floating-point value between -100.0 and 100.0, inclusive.
 On error, throws an error with <code>-errorcode</code> <b>INVALID</b>.<p>
 
+<<defitem "rposfrac validate" {rposfrac validate <i>value</i>}>>
+
+A <<xref mars:range(n)>> representing a positive fraction from 0.01 to
+1.0, inclusive.  On error, throws an error with <code>-errorcode</code> 
+<b>INVALID</b>.<p>
+
 <<defitem "rrate validate" {rrate validate <i>value</i>}>>
 
 A <<xref mars:range(n)>> representing a rate, e.g.,

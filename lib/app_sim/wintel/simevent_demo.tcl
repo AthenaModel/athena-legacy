@@ -130,7 +130,7 @@ order define SIMEVENT:DEMO {
 
 
         rcc "Coverage:" -for coverage
-        frac coverage
+        posfrac coverage
         label "Fraction of neighborhood"
     }
 } {
@@ -141,7 +141,7 @@ order define SIMEVENT:DEMO {
     set e [::wintel::simevent get $parms(event_id)]
 
     prepare glist     -toupper -listof ::civgroup
-    prepare coverage  -num     -type   rfraction
+    prepare coverage  -num     -type   rposfrac
    
  
     returnOnError -final

@@ -166,6 +166,11 @@ dynaform fieldtype alias payload key \
 # percent: Pick a percentage.
 dynaform fieldtype alias percent range -datatype ::ipercent
 
+# posfrac: Fraction, 0.01 to 1.0
+dynaform fieldtype alias posfrac range \
+    -datatype   ::rposfrac             \
+    -resolution 0.01
+
 # rel: Relationship value
 dynaform fieldtype alias rel range \
     -datatype   ::qaffinity \

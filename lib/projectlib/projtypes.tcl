@@ -63,8 +63,6 @@ namespace eval ::projectlib:: {
         projection       \
         qcredit          \
         qsecurity        \
-        ratrend          \
-        rdtrend          \
         rdays            \
         rgain            \
         rnomcoverage     \
@@ -73,6 +71,7 @@ namespace eval ::projectlib:: {
         rolemap          \
         rpercent         \
         rpercentpm       \
+        rposfrac         \
         rrate            \
         typewrapper      \
         unitname         \
@@ -812,10 +811,10 @@ snit::type ::projectlib::typewrapper {
 ::marsutil::range ::projectlib::rdays \
     -min 0.0 -format "%.1f"
 
-# Fraction
-::projectlib::typewrapper ::projectlib::rfraction snit::double \
-    -min 0.0 \
-    -max 1.0
+# Positive Fraction
+::projectlib::typewrapper ::projectlib::rposfrac snit::double \
+    -min 0.01 \
+    -max 1.00
 
 # Non-negative percentage
 ::projectlib::typewrapper ::projectlib::rpercent snit::double \
