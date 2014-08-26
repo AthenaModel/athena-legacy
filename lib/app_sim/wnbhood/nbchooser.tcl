@@ -260,6 +260,7 @@ snit::widget ::wnbhood::nbchooser {
             $btn configure -state disabled -background #CCCCCC
         }
 
+        # NEXT, references to the cell that contains the button
         set info(btnidx-$key) "$row,$col"
     }
 
@@ -308,10 +309,17 @@ snit::widget ::wnbhood::nbchooser {
             set info(selected-$info(key-$n)) $state
         }
 
+        # NEXT, using the parents key, collapse or expand the tree
         set key $info(key-$trans(active_parent))
         
         if {$state} {
             $nblist expand $key -partly
+
+            # NEXT, if all children are selected, deselect parent, but
+            # only if it doesn't already exist
+            if {!$info(exists-$info(nb-$key))} {
+                let info(selected-$key) 0
+            }
         } else {
             $nblist collapse $key -partly
         }
@@ -525,7 +533,7 @@ snit::widget ::wnbhood::nbchooser {
     
                 # Configure the look of the deselected nbhood
                 $map nbhood configure $info(id-$key) \
-                    -fill $color -polycolor #CCCCCC -pointcolor #CCCCCC
+                    -fill $color -polycolor #808080 -pointcolor #CCCCCC
     
                  # Configure background of the checkbutton to be the same
                  # as the deselected nbhood
@@ -597,19 +605,19 @@ snit::widget ::wnbhood::nbchooser {
     # contains name/polygon pairs.
 
     method setpolys {polydict} {
+        # FIRST, clear everything out
         $self clear
 
+        # NEXT, go through the dictionary checking for polygons that
+        # already exist in the scenario
         dict for {name poly} $polydict {
             $geo create polygon $name $poly nbhood
             set info(ref-$name) [$self GetRefPt $name]
-            set info(exists-$name) [$self PolyExists $poly]
+            set info(exists-$name) \
+                [rdb exists {SELECT n FROM nbhoods WHERE polygon=$poly}]
         }
         
         $self CreateTree
-    }
-
-    method PolyExists {poly} {
-        return [rdb exists {SELECT n FROM nbhoods WHERE polygon=$poly}]
     }
 
     # getpolys 
@@ -661,9 +669,15 @@ snit::widget ::wnbhood::nbchooser {
                         continue
                     }
 
-                    set refpt [$map nbhood point $info(id-$ckey)]
+                    set childpt [$map nbhood point $info(id-$ckey)]
 
-                    break
+                    # Get random ref point inside child
+                    set refpt [$self RandPt $child]
+
+                    # Now, in the unlikely event it's not unique keep trying
+                    while {$refpt eq $childpt} {
+                        set refpt [$self RandPt $child]
+                    }
                 }
             }
 
@@ -711,6 +725,36 @@ snit::widget ::wnbhood::nbchooser {
                 return $pt
             }
         }
+    }
+
+    # RandPt  n
+    #
+    # n   - A neighborhood polygon in the geoset(n)
+    #
+    # This method tries to find a random point inside the neighborhood
+    # supplied. If it fails, it returns the empty string, which must
+    # be dealt with by the caller.
+
+    method RandPt {n} {
+        # FIRST, get the neighborhood polygon's bounding box
+        foreach {x1 y1 x2 y2} [$geo bbox $n] {}
+
+        # NEXT, no more than 100 tries
+        for {set i 0} {$i < 100} {incr i} {
+            # Get a random lat/lon
+            let x {($x2 - $x1)*rand() + $x1}
+            let y {($y2 - $y1)*rand() + $y1}
+
+            # Is it in the neighborhood (taking stacking order
+            # into account)?
+            set pt [list $x $y]
+
+            if {[$geo find $pt] eq $n} {
+                return $pt
+            }
+        }
+
+        return ""
     }
 
     # AllChildrenSelected  n
