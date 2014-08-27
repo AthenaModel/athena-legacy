@@ -60,7 +60,28 @@ snit::widget ::wnbhood::wiznbhood {
           Laghman {}
           Logar {}
           Wardak {}
-          Nangarhar {}
+          Nangarhar {
+              Achin
+              Bati_Kot
+              Chaparhar
+              Dara_I_Nur
+              Dih_Bala
+              Dur_Baba
+              Goshta
+              Hisarak
+              Jalalabad
+              Kama
+              Khogyani
+              Kuz_Kunar
+              Lal_Pur
+              Muhmand_Dara
+              Nazyan
+              Pachir_Wa_Agam
+              Rodat
+              Sherzad
+              Shiwar
+              Surkh_Rod
+          }
           Nimroz {}
           Nuristan {}
           Paktya {}

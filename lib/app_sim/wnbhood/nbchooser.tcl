@@ -144,7 +144,7 @@ snit::widget ::wnbhood::nbchooser {
 
         # NEXT, create the popup menu for selecting/deselecting children
         # of a neighborhood
-        set popup [menu .p]
+        set popup [menu .p_%AUTO%]
         $popup add command \
             -label "Select All Children" \
             -command [mymethod ChildrenState 1]
@@ -155,7 +155,7 @@ snit::widget ::wnbhood::nbchooser {
     }
 
     destructor {
-        destroy .p
+        destroy $popup
     }
 
     # MakeMapCanvas w
@@ -429,6 +429,7 @@ snit::widget ::wnbhood::nbchooser {
                     set info(pkey-$botn)         $pkey
                     set info(nb-$dkey)           $botn
                     lappend info(children-$midn) $botn
+                    set info(children-$botn) [list]
                     set info(selected-$dkey) 0
                 }
             }
