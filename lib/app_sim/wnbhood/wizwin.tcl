@@ -145,9 +145,15 @@ snit::widget ::wnbhood::wizwin {
     # Saves the selected neighborhoods to the scenario
 
     method save {} {
+        # FIRST get the max ID and neighborhood dictionary
         set ctr [$self MaxNbhoodID]
         set ndict [$win.nbhood getnbhoods]
         set num [dict size $ndict]
+
+        # NEXT, if no neighborhoods, nothing to do
+        if {$num == 0} {
+            return
+        }
 
         cif transaction "Ingest $num Neighborhoods" {
             dict for {name data} $ndict {

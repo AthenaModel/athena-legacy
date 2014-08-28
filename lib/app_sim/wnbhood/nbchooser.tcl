@@ -36,7 +36,6 @@ snit::widget ::wnbhood::nbchooser {
     component nblist  ;# tablelist of neighborhoods
     component map     ;# mapcanvas(n) to display neighborhood polygons
     component geo     ;# geoset(n) that contains the polygons
-    component colors  ;# gradient(n) of colors to use for polygons
     component popup   ;# popup menu for selecting/deselecting all children
 
     #-------------------------------------------------------------------
@@ -67,7 +66,7 @@ snit::widget ::wnbhood::nbchooser {
     # info array
     #
     # active    - the current selection in nblist
-    # locvar    - variable that contains map locations to display
+    # maxdepth  - maximum depth of the tree structure
     #
     # neighborhood relationships
     #
@@ -87,12 +86,27 @@ snit::widget ::wnbhood::nbchooser {
 
     variable info -array {
         active  0
+        maxdepth 0
     }
     
     # Transient array to keep track of a right clicked parent nbhood
     variable trans -array {
         active_parent ""
     }
+
+    variable gradients -array {
+        0 "#004C1A #009933 #80CC99"
+        1 "#003D99 #0066FF #80B2FF"
+        2 "#990099 #FF00FF #FF66FF"
+        3 "#663300 #CC6600 #EBC299"
+        4 "#990000 #FF0000 #FF8080"
+        5 "#997A00 #FFCC00 #FFE680"
+        6 "#3D0099 #6600FF #B280FF"
+        7 "#003D3D #006666 #80B2B2"
+    }
+
+    variable colors -array {}
+    variable pbbox
 
     #--------------------------------------------------------------------
     # Constructor
@@ -104,10 +118,13 @@ snit::widget ::wnbhood::nbchooser {
         assert {$options(-projection) ne ""}
 
         # NEXT, configure colors for polygons
-        set colors [::marsutil::gradient %AUTO% \
-            -mincolor #29663D -minlevel 0 \
-            -midcolor #5CE68A -midlevel 3 \
-            -maxcolor #85FFAD -maxlevel 7]
+        foreach {id levels} [array get gradients]  {
+            set colors($id) \
+                [::marsutil::gradient %AUTO% \
+                    -mincolor [lindex $levels 0] -minlevel 0 \
+                    -midcolor [lindex $levels 1] -midlevel 3 \
+                    -maxcolor [lindex $levels 2] -maxlevel 7]
+        }
 
         # NEXT, create geoset(n) to hold polygons
         set geo [::marsutil::geoset %AUTO%]
@@ -152,6 +169,18 @@ snit::widget ::wnbhood::nbchooser {
         $popup add command \
             -label "Deselect All Children" \
             -command [mymethod ChildrenState 0]
+
+        set projdata [rdb eval {SELECT proj_opts FROM maps WHERE id=1}]
+        foreach {opt val} {*}$projdata {
+            switch -exact -- $opt {
+                -minlat {set minlat $val}
+                -minlon {set minlon $val}
+                -maxlat {set maxlat $val}
+                -maxlon {set maxlon $val}
+                default {}
+            }
+        }
+        set pbbox [list $minlat $minlon $maxlat $maxlon]
     }
 
     destructor {
@@ -388,87 +417,187 @@ snit::widget ::wnbhood::nbchooser {
     #----------------------------------------------------------------
     # Private methods
 
-    # CreateTree
+    # AddTreeLevel   polydict pkey
     #
-    # This method creates the tablelist hierarchy based on the supplied
-    # tree specification and sets the color of each neighborhood.  Finally
-    # the map is drawn.  For now, only three levels of hierarchy are
-    # handled.
+    # polydict    - a dictionary of polygon and (perhaps) children pairs
+    # pkey        - the tablelist(n) key of the parent, should already exist
+    #
+    # This method adds children to a parent in the tablelist tree, if they
+    # exist, otherwise it moves on to the next child for the parent.
+    # This method is called recursively until the tree is filled in.
 
-    method CreateTree {} {
-        # FIRST, get the treespec from the options
-        set tree $options(-treespec)
+    method AddTreeLevel {polydict pkey} {
+        # FIRST, if we are adding to parent key "root" then the 
+        # parents name is also "root"
+        if {$pkey eq "root"} {
+            set parent "root"
+        } else {
+            set parent $info(nb-$pkey)
+        }
 
-        # NEXT, the assumption, for now, is that there is a maximum of
-        # three levels of political boundary: TopN -> MidN -> BotN.
-        # Of course, this will not do in the long run, a more flexible way
-        # of defining and extracting polygon heirarchy must be determined.
-        set info(children-root) [list]
-        foreach {topn plist} $tree {
-            set nkey [$nblist insertchild root end $topn]
-            set info(key-$topn)         $nkey
-            set info(pkey-$topn)        root
-            set info(nb-$nkey)          $topn
-            lappend info(children-root) $topn
-            set info(children-$topn) [list]
-            set info(selected-$nkey) 1
-            # Collapse all top level entries
+        # NEXT, initialize list of children (which may end up empty)
+        set info(children-$parent) [list]
 
-            $nblist collapse $nkey -fully
-            foreach {midn dlist} $plist {
-                set pkey [$nblist insertchild $nkey end $midn]
-                set info(key-$midn)          $pkey
-                set info(pkey-$midn)         $nkey
-                set info(nb-$pkey)           $midn
-                lappend info(children-$topn) $midn
-                set info(children-$midn) [list]
-                set info(selected-$pkey) 0
-                foreach botn $dlist {
-                    set dkey [$nblist insertchild $pkey end $botn]
-                    set info(key-$botn)          $dkey
-                    set info(pkey-$botn)         $pkey
-                    set info(nb-$dkey)           $botn
-                    lappend info(children-$midn) $botn
-                    set info(children-$botn) [list]
-                    set info(selected-$dkey) 0
-                }
+        # NEXT go through the polygon dictionary and insert any children
+        dict for {name children} $polydict {
+
+            # NEXT, if the neighborhood is outside the map selected, no
+            # need to include it
+            if {![$self NbhoodInView $name]} {
+                continue
+            }
+
+            set key [$nblist insertchild $pkey end $name]
+
+            set info(depth-$key) [$nblist depth $key]
+            set info(maxdepth) [expr {max($info(maxdepth), $info(depth-$key))}]
+
+            # NEXT, cross reference information
+            set info(key-$name)   $key
+            set info(pkey-$name)  $pkey
+            set info(nb-$key)     $name
+
+            # NEXT, initialize potential children of this node and 
+            # add this one as a child of the parent 
+            set info(children-$name) [list]
+            lappend info(children-$parent) $name
+
+            # NEXT, initially, the polygon is deselected unless it's
+            # parent is "root"
+            set info(selected-$key) 0
+
+            # NEXT, if the parent is root we want to collapse the node
+            if {$parent eq "root"} {
+                $nblist collapse $key -fully
+                set info(selected-$key)  1
+            }
+
+            # NEXT, if the parent has polygons of it's own, then add
+            # that level to the tree
+            if {[dict exists $polydict $name]} {
+                $self AddTreeLevel [dict get $polydict $name] $key
             }
         }
-    
-        # NEXT, add a toggle to each row in the second column and 
+    }
+
+    # NbhoodInView  nb
+    #
+    # nb   - The name of a neighborhood in the geoset(n)
+    #
+    # This method determines if a neighborhood in the geoset should be
+    # displayed in the tree and, consequently, on the map. 
+    #
+    # Returns 1 if any part of the neighborhood is inside the playbox
+    # and 0 otherwise.
+
+    method NbhoodInView {nb} {
+        # FIRST, get the neighborhood's bounding box
+        set nbbox [$geo bbox $nb]
+
+        # NEXT, if the neighborhood is entirely contained within the playbox
+        # it is in view
+        if {[$self IsInside $nbbox $pbbox]} {
+            return 1
+        }
+
+        # NEXT, if the playbox is entirely contained within the neighborhood
+        # it is in view
+        if {[$self IsInside $pbbox $nbbox]} {
+            return 1
+        }
+
+        # NEXT, if at least two bbox coords are inside the playbox, it is
+        # in view
+        lassign $nbbox minlat minlon maxlat maxlon
+        set pbpoly [MakePolyFromBbox $pbbox]
+
+        set ctr 0
+        if {[ptinpoly $pbpoly [list $minlat $minlon]]} {incr ctr}
+        if {[ptinpoly $pbpoly [list $minlat $maxlon]]} {incr ctr}
+        if {[ptinpoly $pbpoly [list $maxlat $maxlon]]} {incr ctr}
+        if {[ptinpoly $pbpoly [list $maxlat $minlon]]} {incr ctr}
+        if {$ctr >= 2} {
+            return 1
+        }
+
+        # NEXT if none of them are inside the playbox it's outside
+        # Note: we already checked if the playbox is entirely inside
+        if {$ctr == 0} {
+            return 0
+        }
+        
+        # NEXT, hopefully we've exhausted almost all the neighborhoods
+        # before the brute force, point by point check
+        foreach {lat lon} [$geo coords $nb] {
+            if {[ptinpoly $pbpoly [list $lat $lon]]} {
+                return 1
+            }
+        }
+
+        # NEXT, it must be outside the playbox and not in view
+        return 0
+    }
+
+
+
+    # AddToggles
+    #
+    # Given the tree structure created, add the toggles to the "Use?"
+    # column in the table list.
+
+    method AddToggles {} {
+        # FIRST, add a toggle to each row in the second column and 
         # determine the maximum depth of the tree along with the
         # depth of each row, which will determine color
-        set maxdepth 0
         foreach key [$nblist getfullkeys 0 end] {
             set row [$nblist index $key]
             $nblist cellconfigure $row,1 -window [mymethod InsertToggle]
-            set info(depth-$key) [$nblist depth $key]
-            set maxdepth [expr {max($maxdepth, $info(depth-$key))}]
         }
 
-        # NEXT, determine color. A maximum depth of 8 is supported.
-        if {$maxdepth > 8} {
+    }
+
+    # SetColors
+    #
+    # Given the tree hierarchy loaded into the nbchooser determine the
+    # color scheme.  A max depth of 8 tree levels is supported.
+
+    method SetColors {} {
+        # NEXT, determine color.
+        if {$info(maxdepth) > 8} {
             error "Too many levels in the hierarchy."
         }
 
         # NEXT, based on max depth determine the delta between colors
         # in the gradient.
-        set delta [expr {round(8.0/$maxdepth)}]
+        set delta [expr {round(8.0/$info(maxdepth))}]
         
         # NEXT, set color and draw the map
+        set cid -1
         foreach key [$nblist getfullkeys 0 end] {
             set nb $info(nb-$key)
 
-            # If the nbhood exists already, grey it out
+            # NEXT, if the parent is the root, bump the color scheme to
+            # the next gradient, making sure not to run off the end
+            if {$info(pkey-$nb) eq "root"} {
+                if {$cid >= 7} {
+                    set cid 0
+                } else {
+                    incr cid
+                }
+
+                set gradient $colors($cid)
+            }
+
+            # NEXT, if the nbhood exists already, grey it out
             if {$info(exists-$nb)} {
                 set info(color-$info(nb-$key)) #CCCCCC
                 continue
             } 
-            set idx [expr {($info(depth-$key)-1) * $delta}]
-            set info(color-$nb) [$colors color $idx]
-        }
 
-        $self UpdateMap
+            # NEXT, set color based on depth in tree
+            set idx [expr {($info(depth-$key)-1) * $delta}]
+            set info(color-$nb) [$gradient color $idx]
+        }
     }
 
     # UpdateMap
@@ -598,6 +727,7 @@ snit::widget ::wnbhood::nbchooser {
         $nblist delete 0 end
         array unset info
         set info(active) ""
+        set info(maxdepth) 0
     }
 
     # setpoly polydict
@@ -618,7 +748,11 @@ snit::widget ::wnbhood::nbchooser {
                 [rdb exists {SELECT n FROM nbhoods WHERE polygon=$poly}]
         }
         
-        $self CreateTree
+        # NEXT, do all the work to fill the UI
+        $self AddTreeLevel $options(-treespec) root
+        $self AddToggles
+        $self SetColors
+        $self UpdateMap
     }
 
     # getpolys 
@@ -787,6 +921,43 @@ snit::widget ::wnbhood::nbchooser {
         }
 
         return $flag
+    }
+
+    # IsInside  ibox obox
+    #
+    # ibox   - a bounding box asserted as the inner bounding box
+    # obox   - a bounding box asserted as the outer bounding box
+    #
+    # This method returns 1 if the inner bounding box is entirely
+    # contained within the outer bounding box and 0 otherwise
+
+    method IsInside {ibox obox} {
+        lassign $obox ominlat ominlon omaxlat omaxlon
+        lassign $ibox iminlat iminlon imaxlat imaxlon
+
+        if {$iminlat >= $ominlat && $iminlon >= $ominlon &&
+            $imaxlat <= $omaxlat && $imaxlon <= $omaxlon} {
+            return 1
+        }
+
+        return 0
+    }
+
+    #---------------------------------------------------------------------
+    # Helper procs
+    
+    # MakePolyFromBbox bbox
+    #
+    # bbox  - a bounding box
+    #
+    # Takes the coords of a bounding box and returns a list of counter-
+    # clockwise coords that make up the bounding box.
+
+    proc MakePolyFromBbox {bbox} {
+        lassign $bbox minlat minlon maxlat maxlon
+
+        return [list $minlat $minlon $minlat $maxlon \
+                     $maxlat $maxlon $maxlat $minlon]
     }
 }
 
