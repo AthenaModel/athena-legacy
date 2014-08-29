@@ -11,6 +11,21 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B18, 29 August 2014</h3>
+
+This build introduces the Neighborhood Ingestion wizard.  It also contains
+a few bug fixes to the Intel Ingestion wizard.<p>
+
+<ul>
+<li> Bug 4584: athena(1): need neighborhood order handler that can deal with raw lat/long data
+<li> Bug 4585: Neighborhood Ingestion Wizard
+<li> Bug 4586: athena(1): Neighborhood Wizard not handling 3rd level polygon children properly
+<li> Bug 4587: athena(1): more neighborhood ingestion wizard improvements
+<li> Bug 4581: Intel Ingest 0% Coverage bgerror
+<li> Bug 4582: Ingested events can have the same number
+<li> Bug 4583: Demonstration event ingested as multiple tactics 
+</ul><p>
+
 <h3>Build 6.2.2-B17, 15 August 2014</h3>
 
 This build fixes a number of issues relating to the new Intel
