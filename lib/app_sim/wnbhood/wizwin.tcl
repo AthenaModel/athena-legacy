@@ -183,6 +183,7 @@ snit::widget ::wnbhood::wizwin {
 
     method MaxNbhoodID {} {
         set num 0
+        # FIRST, get the highest existing ID
         rdb eval {
             SELECT n FROM nbhoods
         } {
@@ -194,7 +195,8 @@ snit::widget ::wnbhood::wizwin {
             }
         }
 
-        return $num
+        # NEXT, return the highest bumped up by one
+        return [expr {$num+1}]
     }
 
     # puts text
