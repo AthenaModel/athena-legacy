@@ -191,6 +191,7 @@ snit::widget ::wnbhood::wiznbhood {
 
 
     method Refresh {args} {
+        # FIRST, grab polygons from the WDB
         set pdict [dict create]
         wdb eval {
             SELECT name, polygon FROM polygons
@@ -198,8 +199,33 @@ snit::widget ::wnbhood::wiznbhood {
             dict set pdict $name $polygon
         }
 
+        # NEXT, clear the nb chooser and set the polygons
+        # in it. If no neighborhoods can be displayed, pop up
+        # a message box with the information.
         $nbchooser clear
-        $nbchooser setpolys $pdict
+
+        if {[$nbchooser setpolys $pdict] == 0} {
+            lassign [$nbchooser bbox] minlat minlon maxlat maxlon
+            set minlat [format "%.3f" $minlat]
+            set minlon [format "%.3f" $minlon] 
+            set maxlat [format "%.3f" $maxlat]
+            set maxlon [format "%.3f" $maxlon]
+
+            messagebox popup \
+                -title "No Neighborhoods" \
+                -icon  info               \
+                -buttons {ok "Ok"}        \
+                -default ok               \
+                -parent [app topwin]      \
+                -message [normalize "
+                    The map selected is outside the bounds of all available
+                    neighborhoods.  Neighborhoods available are contained 
+                    within the box bounded on the lower left by 
+                    $minlat deg. latitude and $minlon deg. longitude and 
+                    the upper right by $maxlat deg. latitude and $maxlon deg.
+                    longitude.
+                "]
+        }
     }
 
     # getnbhoods

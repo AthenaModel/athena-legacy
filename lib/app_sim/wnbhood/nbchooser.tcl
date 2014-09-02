@@ -727,7 +727,7 @@ snit::widget ::wnbhood::nbchooser {
         $nblist delete 0 end
         array unset info
         set info(active) ""
-        set info(maxdepth) 0
+        set info(maxdepth) 1
     }
 
     # setpoly polydict
@@ -753,6 +753,9 @@ snit::widget ::wnbhood::nbchooser {
         $self AddToggles
         $self SetColors
         $self UpdateMap
+
+        # NEXT, return the number of neighborhoods actually in the display
+        return [$nblist size]
     }
 
     # getpolys 
@@ -821,6 +824,11 @@ snit::widget ::wnbhood::nbchooser {
 
         return $ndict
     }
+
+    #--------------------------------------------------------------------
+    # Delegated public methods
+
+    delegate method bbox to geo
 
     #--------------------------------------------------------------------
     # Helper Methods
