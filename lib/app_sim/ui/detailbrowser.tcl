@@ -33,25 +33,9 @@ snit::widget detailbrowser {
 
         set w .detail$count
 
-        toplevel $w
+        detailbrowserwin $w
 
         wm title $w "Athena [version]: Detail Browser #$count"
-
-        # NEXT, create the widgets
-        detailbrowser $w.browser \
-            -messagecmd [list $w.status.msgline puts]
-
-        ttk::separator $w.sep
-
-        ttk::frame $w.status \
-            -borderwidth 2 
-        messageline $w.status.msgline
-
-        pack $w.status.msgline -fill x
-
-        pack $w.status  -side bottom -fill x
-        pack $w.sep     -side bottom -fill x
-        pack $w.browser -fill both -expand yes
     }
 
 
@@ -363,6 +347,58 @@ snit::widget detailbrowser {
     # Public Methods
 
     delegate method * to browser
+
+    # puts text
+    #
+    # Writes text to status line via -messagecmd.
+
+    method puts {text} {
+        callwith [$browser cget -messagecmd] $text
+    }
 }
 
 
+snit::widget detailbrowserwin {
+    hulltype toplevel
+    widgetclass Topwin
+
+    #-------------------------------------------------------------------
+    # Options
+
+    # Options delegated to the hull
+    delegate option * to browser
+    delegate method * to browser
+
+    #-------------------------------------------------------------------
+    # Components
+
+    component browser ;# The detailbrowser(n)
+
+    #--------------------------------------------------------------------
+    # Constructor
+
+    constructor {args} {
+
+        install browser using detailbrowser $win.browser \
+            -messagecmd [list $win.status.msgline puts]
+
+        ttk::separator $win.sep
+
+        ttk::frame $win.status \
+            -borderwidth 2 
+        messageline $win.status.msgline
+
+        pack $win.status.msgline -fill x
+
+        pack $win.status  -side bottom -fill x
+        pack $win.sep     -side bottom -fill x
+        pack $win.browser -fill both -expand yes
+
+        # NEXT, get the options.
+        $self configurelist $args
+    }
+
+    method puts {text} {
+        $win.status.msgline puts $text
+    }
+}

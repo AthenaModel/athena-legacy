@@ -399,7 +399,7 @@ snit::type app {
                     log error app "Unexpected error in -script:\n$result"
                     log error app "Stack Trace:\n[dict get $eopts -errorinfo]"
                     
-                    after idle {[app topwin] tab view slog}
+                    after idle {app showlog}
                     
                     app error {
                         |<--
@@ -457,7 +457,7 @@ snit::type app {
         log error app "Unexpected error in $name:\n$errmsg"
         log error app "Stack Trace:\n$einfo"
 
-        [app topwin] tab view slog
+        app showlog
 
         app error {
             |<--
@@ -739,17 +739,31 @@ snit::type app {
     #   text - A tsubst'd text string
 
     typemethod error {text} {
+        set text [uplevel 1 [list tsubst $text]]
+
         if {$opts(-batch)} {
             # Uplevel, so that [app exit] can expand the text.
             uplevel 1 [list app exit $text]
         } else {
-            set topwin [app topwin]
-
-            if {$topwin ne ""} {
-                uplevel 1 [list [app topwin] error $text]
+            if {[winfo exists .main]} {
+                wm deiconify .main
+                raise .main
+                .main error $text
             } else {
                 error $text
             }
+        }
+    }
+
+    # showlog
+    #
+    # Makes .main visible and shows the scrolling log.
+
+    typemethod showlog {} {
+        if {[winfo exists .main]} {
+            wm deiconify .main
+            raise .main
+            .main tab view slog
         }
     }
 
