@@ -1030,14 +1030,14 @@ proc bgerror {msg} {
     if {$app::opts(-batch)} {
         # app exit subst's in the caller's context
         app exit {$msg\n\nStack Trace:\n$bgErrorInfo\n$trace}
-    } elseif {[winfo exists .main] ne ""} {
+    } elseif {[winfo exists .main]} {
         if {$trace ne ""} {
             log error app $trace
         }
 
-        if {[app topwin] ne ""} {
-            [app topwin] tab view slog
-        }
+        wm deiconify .main
+        raise .main
+        .main tab view slog
 
         app error {
             |<--
