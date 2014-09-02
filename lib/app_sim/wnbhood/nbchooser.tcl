@@ -335,6 +335,12 @@ snit::widget ::wnbhood::nbchooser {
         # FIRST, go through all the children of the parent setting their
         # selected state
         foreach n $info(children-$trans(active_parent)) {
+
+            # If the children of this neighborhood are already all 
+            # selected, then do not show it as selected
+            if {$state && [$self AllChildrenSelected $n]} {
+                continue
+            }
             set info(selected-$info(key-$n)) $state
         }
 
@@ -669,6 +675,17 @@ snit::widget ::wnbhood::nbchooser {
                  # as the deselected nbhood
                  $nblist cellconfigure $info(btnidx-$key) \
                     -bg $color -selectbackground $color
+
+            }
+
+            # NEXT, configure check button based on whether all the
+            # children of this neighborhood are selected or not
+            set win [$nblist windowpath $info(btnidx-$key)]
+            if {[$self AllChildrenSelected $n]} {
+                set info(selected-$key) 0
+                $win configure -state disabled
+            } else {
+                $win configure -state normal
             }
         }
     
@@ -917,10 +934,17 @@ snit::widget ::wnbhood::nbchooser {
         }
 
         # NEXT, go through the list of children and see if they are
-        # all selected without giving consideration to those that may 
-        # already exist.
+        # all selected 
         foreach child $info(children-$n) {
+            # If the neighborhood already exists, selection state 
+            # doesn't matter
             if {$info(exists-$child)} {
+                continue
+            }
+
+            # This child may have children that are all selected, if so
+            # selection state doesn't matter
+            if {[$self AllChildrenSelected $child]} {
                 continue
             }
 
