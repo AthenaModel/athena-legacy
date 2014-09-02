@@ -42,8 +42,7 @@ snit::widgetadaptor nbhoodbrowser {
         { stacking_order "StkOrd"            -sortmode integer \
                                                           -foreground %D } 
         { obscured_by    "ObscuredBy"                     -foreground %D }
-        { refpoint       "RefPoint"                                      }
-        { polygon        "Polygon"           -stretchable yes            }
+        { refpoint       "RefPoint"          -stretchable yes            }
     }
 
     #-------------------------------------------------------------------

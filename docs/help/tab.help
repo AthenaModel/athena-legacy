@@ -630,7 +630,6 @@ tab "Physical/Neighborhoods" {
     <<nbhood_ parm stacking_order -label "StkOrder">>
     <<nbhood_ parm obscured_by    -label "ObscuredBy">>
     <<nbhood_ parm refpoint       -label "RefPoint">>
-    <<nbhood_ parm polygon        -label "Polygon">>
 
     <</parmlist>>
 
