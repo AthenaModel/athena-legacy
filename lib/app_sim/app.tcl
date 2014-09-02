@@ -306,9 +306,9 @@ snit::type app {
         # GUI mode
         if {[app tkloaded]} {
             orderdialog init \
-                -parent    .main              \
+                -parent    [list app topwin]                              \
                 -appname   "Athena [projinfo version] ([projinfo build])" \
-                -helpcmd   [list app help]    \
+                -helpcmd   [list app help]                                \
                 -refreshon {
                     ::cif <Update>
                     ::sim <Tick>
@@ -818,16 +818,14 @@ snit::type app {
         }
     }
 
-    # Type Method: topwin
+    # topwin ?subcommand...?
     #
-    # If there's no subcommand, returns the name of the topmost appwin.
+    # If there's no subcommand, returns the name of the topmost "Topwin"
+    # widget.  A "Topwin" is a widget in which the user does work, and
+    # from which he can pop up dialogs.
+    #
     # Otherwise, delegates the subcommand to the top win.  If there is
     # no top win, this is a noop.
-    #
-    # Syntax:
-    #   topwin _?subcommand...?_
-    #
-    #   subcommand - A subcommand of the topwin, as one argument or many
 
     typemethod topwin {args} {
         # FIRST, if no Tk then nothing to do
@@ -835,11 +833,12 @@ snit::type app {
             return ""
         }
 
-        # NEXT, determine the topwin
+        # NEXT, determine the topwin.  Note that [wm stackorder]
+        # skips windows that are not mapped.
         set topwin ""
 
         foreach w [lreverse [wm stackorder .]] {
-            if {[winfo class $w] eq "Appwin"} {
+            if {[winfo class $w] eq "Topwin"} {
                 set topwin $w
                 break
             }
@@ -849,6 +848,10 @@ snit::type app {
             return $topwin
         } elseif {[llength $args] == 1} {
             set args [lindex $args 0]
+        }
+
+        if {$topwin eq ""} {
+            error "No topwin to execute command."
         }
 
         return [$topwin {*}$args]
@@ -1027,12 +1030,14 @@ proc bgerror {msg} {
     if {$app::opts(-batch)} {
         # app exit subst's in the caller's context
         app exit {$msg\n\nStack Trace:\n$bgErrorInfo\n$trace}
-    } elseif {[app topwin] ne ""} {
+    } elseif {[winfo exists .main] ne ""} {
         if {$trace ne ""} {
             log error app $trace
         }
 
-        [app topwin] tab view slog
+        if {[app topwin] ne ""} {
+            [app topwin] tab view slog
+        }
 
         app error {
             |<--

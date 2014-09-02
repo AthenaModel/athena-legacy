@@ -22,6 +22,7 @@
 
 snit::widget appwin {
     hulltype toplevel
+    widgetclass Topwin
 
     #-------------------------------------------------------------------
     # Lookup Variables

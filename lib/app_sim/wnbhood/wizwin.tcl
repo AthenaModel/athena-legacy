@@ -24,6 +24,7 @@
 
 snit::widget ::wnbhood::wizwin {
     hulltype toplevel
+    widgetclass Topwin
 
     #-------------------------------------------------------------------
     # Components
