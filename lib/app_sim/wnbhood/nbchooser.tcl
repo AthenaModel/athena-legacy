@@ -92,6 +92,7 @@ snit::widget ::wnbhood::nbchooser {
     # Transient array to keep track of a right clicked parent nbhood
     variable trans -array {
         active_parent ""
+        leaf_descendants ""
     }
 
     variable gradients -array {
@@ -680,12 +681,12 @@ snit::widget ::wnbhood::nbchooser {
 
             # NEXT, configure check button based on whether all the
             # children of this neighborhood are selected or not
-            set win [$nblist windowpath $info(btnidx-$key)]
-            if {[$self AllChildrenSelected $n]} {
+            set btn [$nblist windowpath $info(btnidx-$key)]
+            if {[$self AllChildrenSelected $n] || $info(exists-$n)} {
                 set info(selected-$key) 0
-                $win configure -state disabled
+                $btn configure -state disabled
             } else {
-                $win configure -state normal
+                $btn configure -state normal
             }
         }
     
@@ -787,6 +788,7 @@ snit::widget ::wnbhood::nbchooser {
     method getpolys {} {
         # FIRST, get ready to send neighborhood dictionary
         set ndict [dict create]
+        set trans(leaf_descendants) [list]
 
         # NEXT, go through the entire tree and pull out neighborhoods
         # that have been selected
@@ -813,28 +815,18 @@ snit::widget ::wnbhood::nbchooser {
             set poly [$map nbhood polygon $info(id-$key)]
 
             # NEXT, determine ref point. If there's no children then
-            # use it's own refpoint. If there are children find the first
-            # one that is not selected.
+            # use it's own refpoint otherwise, find a descendant that
+            # we can use to determine ref point
             if {[llength $info(children-$n)] == 0} {
                 set refpt [$map nbhood point $info(id-$key)]
             } else {
-                foreach child $info(children-$n) {
-                    set ckey $info(key-$child)
-                    if {$info(selected-$ckey) || $info(exists-$child)} {
-                        continue
-                    }
-
-                    set childpt [$map nbhood point $info(id-$ckey)]
-
-                    # Get random ref point inside child
-                    set refpt [$self RandPt $child]
-
-                    # Now, in the unlikely event it's not unique keep trying
-                    while {$refpt eq $childpt} {
-                        set refpt [$self RandPt $child]
-                    }
-                }
+                set refpt [$self FindDescendantRefPoint $n]
             }
+
+            # NEXT, check for serious error condition
+            if {$refpt eq ""} {
+                error "No viable descendant of $n to determine a ref. point."
+            } 
 
             dict set ndict $n [list $refpt $poly]
         }
@@ -849,6 +841,64 @@ snit::widget ::wnbhood::nbchooser {
 
     #--------------------------------------------------------------------
     # Helper Methods
+
+    # FindDescendantRefPoint   n
+    #
+    # n  - a neighborhood that has children
+    #
+    # This method traverses the tree of neighborhoods starting with the
+    # supplied neighborhood and finds all descendants that do not have
+    # any children (the leaves of the tree starting with n). Then it
+    # uses that list of leaves to find an appropriate child that can be
+    # used to determine a reference point, which is returned to the caller.
+
+    method FindDescendantRefPoint {n} {
+        # FIRST, initialize transient data
+        set trans(leaf_descendants) [list]
+
+        # NEXT, accumulate transient data
+        $self GetLeafDescendants $n
+
+        # NEXT, go through the leaves finding an appropriate descendant
+        foreach child $trans(leaf_descendants) {
+            set ckey $info(key-$child)
+
+            if {$info(selected-$ckey) || $info(exists-$child)} {
+                continue
+            }
+
+            # NEXT, got one, extract a random point from within it
+            # and, in an act of wanton paranoia, make sure there's no way
+            # it could match exactly the refpoint the child was created
+            # with.
+            set randpt [$self RandPt $child]
+            set childpt [$map nbhood point $info(id-$ckey)]
+
+            while {$randpt eq $childpt} {
+                set randpt [$self RandPt $child]
+            }
+
+            return $randpt
+        }
+    }
+
+    # GetLeafDescendants  n
+    #
+    # n   - a neighborhood with children
+    #
+    # This method recursively traverses the tree of polygons starting with
+    # n to find and accumulate all the leaves of the tree from that 
+    # neighborhood (ie. all childless descendants).
+
+    method GetLeafDescendants {n} {
+        foreach child $info(children-$n) {
+            if {[llength $info(children-$child)] == 0} {
+                lappend trans(leaf_descendants) $child
+            } else {
+                $self GetLeafDescendants $child
+            }
+        }
+    }
 
     # GetRefPt  n
     #
