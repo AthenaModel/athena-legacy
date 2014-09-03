@@ -11,6 +11,21 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B18, 3 September 2014</h3>
+
+This build contains a number of fixes to the Neighborhood Ingestion wizard
+and a better way of handling popup windows.<p>
+
+<ul>
+<li> Bug 4590: Neighborhood Ingestion bgerror
+<li> Bug 4591: Parent neighborhoods not disabled when all children are selected
+<li> Bug 4592: Neighborhood Ingestion Reference Point bgerror
+<li> Bug 4588: Edit Event dialog does not appear
+<li> Bug 4589: Ingested neighborhood have same ID numbers
+<li> Bug 4594: athena(1): bgerror handling
+<li> Bug 4595: athena(1) Detail Browser windows aren't Topwins 
+</ul><p>
+
 <h3>Build 6.2.2-B18, 29 August 2014</h3>
 
 This build introduces the Neighborhood Ingestion wizard.  It also contains
