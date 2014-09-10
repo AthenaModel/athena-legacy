@@ -33,75 +33,15 @@ snit::widget ::wnbhood::wiznbhood {
         to be used in an Athena scenario.  For now, polygons can only
         be retrieved from disk  by using canned test data.  Press the
         "Test Data" button to ingest polygons from test KML files.<p>
+
+        <input name="bbrowse"><p>
     }
     
-    # Tree specification. This is stop gap for the prototype. Ideally,
-    # this data would be acquired automatically through some other means.
-    typevariable treespec {
-        Afghanistan {
-          Badakhshan {}
-          Badghis {}
-          Baghlan {}
-          Balkh {}
-          Bamyan {}
-          Farah {}
-          Faryab {}
-          Ghazni {}
-          Ghor {}
-          Hilmand {}
-          Hirat {}
-          Jawzjan {}
-          Kabul {}
-          Kandahar {}
-          Kapisa {}
-          Khost {}
-          Kunar {}
-          Kunduz {}
-          Laghman {}
-          Logar {}
-          Wardak {}
-          Nangarhar {
-              Achin {}
-              Bati_Kot {}
-              Chaparhar {}
-              Dara_I_Nur {}
-              Dih_Bala {}
-              Dur_Baba {}
-              Goshta {}
-              Hisarak {}
-              Jalalabad {}
-              Kama {}
-              Khogyani {}
-              Kuz_Kunar {}
-              Lal_Pur {}
-              Muhmand_Dara {}
-              Nazyan {}
-              Pachir_Wa_Agam {}
-              Rodat {}
-              Sherzad {}
-              Shiwar {}
-              Surkh_Rod {}
-          }
-          Nimroz {}
-          Nuristan {}
-          Paktya {}
-          Paktika {}
-          Parwan {}
-          Samangan {}
-          Sari_Pul {}
-          Takhar {}
-          Uruzgan {}
-          Zabul {}
-        }
-        Pakistan {}
-        Tajikistan {}
-    }
-
     #-------------------------------------------------------------------
     # Components
 
     component hframe     ;# htmlframe(n) widget to contain the content.
-    component btest      ;# test data button
+    component bbrowse    ;# browse button
     component nbchooser  ;# nbchooser(n) widget
     
     #-------------------------------------------------------------------
@@ -131,22 +71,20 @@ snit::widget ::wnbhood::wiznbhood {
         # NEXT, create the HTML frame.
         install hframe using htmlframe $win.hframe
 
+        install bbrowse using ttk::button $hframe.bbrowse \
+            -text    "Browse"                             \
+            -command [mymethod BrowseForData]
+
         # NEXT, lay it out.
         $hframe layout $layout
-
-        # NEXT, create the other widgets
-        install btest using ttk::button $win.btest \
-            -text "Test Data"                         \
-            -command [mymethod RetrieveTestData]
 
         $self CreateNbChooser $win.nbchooser
 
         grid columnconfigure $win 0 -weight 1
-        grid rowconfigure    $win 2 -weight 1
+        grid rowconfigure    $win 1 -weight 1
 
         grid $win.hframe    -row 0 -column 0 -sticky ew
-        grid $win.btest     -row 1 -column 0 -sticky w
-        grid $win.nbchooser -row 2 -column 0 -sticky nsew
+        grid $win.nbchooser -row 1 -column 0 -sticky nsew
 
         notifier bind ::wnbhood::wizard <update> $win [mymethod Refresh]
     }
@@ -177,7 +115,6 @@ snit::widget ::wnbhood::wiznbhood {
         }
 
         install nbchooser using nbchooser $w \
-            -treespec   $treespec            \
             -projection $proj                \
             -map        $mapimage
     }
@@ -185,27 +122,37 @@ snit::widget ::wnbhood::wiznbhood {
     #-------------------------------------------------------------------
     # Event handlers
 
-    method RetrieveTestData {} {
-        wizard retrieveTestPolygons
-    }
+    # BrowseForData
+    #
+    # Browses for .npf files and passes them along.
 
+    method BrowseForData {} {
+        # FIRST, get the filenames to parse
+        set fname [tk_getOpenFile \
+                       -initialdir [pwd]                  \
+                       -title      "Select NPF files"     \
+                       -parent     [app topwin]           \
+                       -multiple   0                      \
+                       -filetypes {
+                           {{NPF files} {.npf}}
+                       }]
 
-    method Refresh {args} {
-        # FIRST, grab polygons from the WDB
-        set pdict [dict create]
-        wdb eval {
-            SELECT name, polygon FROM polygons
-        } {
-            dict set pdict $name $polygon
+        if {$fname eq ""} {
+            return
         }
 
-        # NEXT, clear the nb chooser and set the polygons
+        wizard retrievePolygons $fname
+    }
+
+    method Refresh {args} {
+        # FIRST, clear the nb chooser and refresh the polygons
         # in it. If no neighborhoods can be displayed, pop up
         # a message box with the information.
         $nbchooser clear
+        $nbchooser refresh
 
-        if {[$nbchooser setpolys $pdict] == 0} {
-            lassign [$nbchooser bbox] minlat minlon maxlat maxlon
+        if {[$nbchooser size] == 0} {
+            lassign [$nbchooser pbbox] minlat minlon maxlat maxlon
             set minlat [format "%.3f" $minlat]
             set minlon [format "%.3f" $minlon] 
             set maxlat [format "%.3f" $maxlat]

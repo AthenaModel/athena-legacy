@@ -27,14 +27,22 @@ snit::type ::wnbhood::wizard {
     # Type Variables
 
     # Wizard Window Name
+
     typevariable win .wnbhoodwizard   
 
-    # ndict
+    # pdictlist
     #
-    # ndict => dictionary of neighborhoods
-    #       -> $name => list of refpoint/polygon pairs
+    # pdictlist => list of polygon dictionaries read from .npf file
+    #           -> id       => Integer number, the nth polygon read
+    #           -> polyset  => filename that this polygon is in 
+    #           -> setnum   => Integer ID of file, not yet used
+    #           -> name     => Name to display for polygon in wizard
+    #           -> ptype    => Type of polygon (ie. National, District)
+    #           -> children => list of names of other polygons that are
+    #                          embedded in this polygon, if any
+    #           -> parent   => The name of the parent polygon, if any
 
-    typevariable ndict
+    typevariable pdictlist
 
     #-------------------------------------------------------------------
     # Wizard Invocation
@@ -126,29 +134,137 @@ snit::type ::wnbhood::wizard {
     #-------------------------------------------------------------------
     # Mutators
 
-    # retrieveTestPolygons
+    # retrievePolygons fname
     #
-    # Retrieves our canned test messages.
+    # fname   - the name of a .npf file that contains metadata about the
+    #           polygons to be read. Currently, only KML is supported for
+    #           the actual polygon data
 
-    typemethod retrieveTestPolygons {} {
-        set filenames \
-            [glob -nocomplain [file join $::wnbhood::library *.kml]]
+    typemethod retrievePolygons {fname} {
+        # FIRST, blow away the contents of the WDB
+        wdb eval {DELETE FROM polygons;}
 
-        $type readfiles $filenames
-
-        notifier send ::wnbhood::wizard <update>
-    }
-
-    # retrievePolygons filenames
-    #
-    # TBD
-
-    typemethod retrievePolygons {filenames} {
-        $type readfiles $filenames
+        # NEXT, read them and notify the wizard
+        $type readnpf $fname
 
         notifier send ::wnbhood::wizard <update>
     }
     
+    # readnpf fname
+    #
+    # fname   - the name of a .npf file that contains metadata about the
+    #           polygons to be read.  Currently, only KML is supported for
+    #           the actual polygon data
+    #
+    # The .npf file format is a flat text file of polygon records with the
+    # following structure:
+    #
+    # poly {
+    #     id       N
+    #     polyset  filename
+    #     setnum   M
+    #     name     string
+    #     ptype    string
+    #     children list of strings
+    #     parent   string
+    # }
+    # ...
+    #
+    # Where 
+    #    id       - the nth polygon to read, this ID must correspond to the
+    #               position of the polygon data in the KML file
+    #    polyset  - the name of the KML file to read, this polygons data from 
+    #    setnum   - an integer ID for the KML file, not yet used
+    #    name     - the name to display in the wizard for the nth polygon read
+    #    ptype    - free form string for polygon type (ie. National, District)
+    #    children - list of names of other polygons
+
+    typemethod readnpf {fname} {
+        # FIRST, initialize the list of polygon dictionaries
+        set pdictlist [list]
+
+        # NEXT, read in the polygon metadata
+        set f [open $fname "r"]
+        set data [read $f]
+        close $f
+
+        # NEXT, parse the polygon data out into a dictionary
+        foreach {keyword pdata} $data {
+            switch -exact -- $keyword {
+                poly {
+                    $type ParsePolyRecord $pdata
+                }
+
+                default {
+                    error "Unknown keyword found in $fname: $keyword"
+                }
+            }
+        }
+
+        # NEXT, put the specified polygon metadata in the WDB, the
+        # polygon coordinate data will be read in later.  Each polygon 
+        # has a unique ID of the following form:
+        #
+        #      <ID>_<filename>
+        #
+        # Where ID is an integer representing the nth polygon read from
+        # the file.  The "id" field in the .npf must correspond to this
+        # integer so that the metadata in it can be associated to it.
+
+        set polydir [file dirname $fname]
+        set filenames [list]
+
+        foreach pdict $pdictlist {
+            set name       [dict get $pdict name]
+            set pid        [dict get $pdict id]
+            set children   [dict get $pdict children]
+            set parent     [dict get $pdict parent]
+            set filen      [dict get $pdict polyset]
+            append pid "_" $filen
+
+            wdb eval {
+                INSERT INTO polygons(pid, dispname, children, parent, fname)
+                VALUES ($pid, $name, $children, $parent, $filen)
+            }
+
+            set fullname [file join $polydir $filen]
+
+            if {$fullname ni $filenames} {
+                lappend filenames $fullname
+            }
+        }
+
+        # NEXT, read all the KML polygon coordinate data
+        $type readfiles $filenames
+
+        # NEXT, the polygons with no parent are set to "root", this is
+        # what the tablelist widget uses as a the base parent
+        wdb eval {
+            UPDATE polygons
+            SET parent = 'root'
+            WHERE parent = ""
+        }
+    }
+
+    # ParsePolyRecord  pdata
+    #
+    # pdata   - a list of keyword/value pairs for a polygon record read from
+    #           an .npf file
+    #
+    # The method puts the polygon metadata into a dictionary and adds it
+    # to the list of growing metdata records that will be associated with
+    # the actual polygon coordinates read from KML.
+
+    typemethod ParsePolyRecord {pdata} {
+        set pdict [dict create]
+
+        foreach {key val} $pdata {
+            dict set pdict $key [normalize $val]
+        }
+
+        lappend pdictlist $pdict
+    }
+
     # readfiles flist
     #
     # flist  - a list of file names
@@ -176,7 +292,7 @@ snit::type ::wnbhood::wizard {
     typemethod ParseFile {fname} {
         # FIRST, use the kmlpoly object to parse the data
         if {[catch {
-            set pdict [kmlpoly parsefile $fname]
+            set kmldict [kmlpoly parsefile $fname]
         } result]} {
             dict set info(errmsgs) $fname $result
             return
@@ -184,23 +300,28 @@ snit::type ::wnbhood::wizard {
 
         # NEXT, extract the data from the returned dictionary and add it
         # it to the wdb.
-        set names [dict get $pdict NAMES]
-        set polys [dict get $pdict POLYGONS]
+        set names [dict get $kmldict NAMES]
+        set polys [dict get $kmldict POLYGONS]
+        set ids   [dict get $kmldict IDS]
 
-        if {[llength $names] ne [llength $polys]} {
+        if {[llength $names] != [llength $polys]} {
             dict set info(errmsgs) $fname "Name/Polygon size mismatch."
             return
         }
 
-        foreach name $names poly $polys {
+        set tailf [file tail $fname]
+        foreach name $names poly $polys id $ids {
+            set pid $id
+            append pid "_$tailf"
             wdb eval {
-                INSERT OR REPLACE INTO
-                polygons(name, polygon)
-                VALUES($name, $poly)
+                UPDATE polygons
+                SET polygon = $poly,
+                    name    = $name,
+                    id      = $id
+                WHERE pid = $pid
             }
         }
     }
-
 
     # errmsgs
     #
@@ -224,6 +345,7 @@ snit::type ::wnbhood::wizard {
     #
     # Attempts to save the text to disk.
     # Errors are handled by caller.
+    # Not yet used.
 
     typemethod saveFile {filename text} {
         set f [open $filename w]

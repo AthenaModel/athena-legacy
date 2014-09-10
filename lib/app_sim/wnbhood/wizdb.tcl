@@ -30,7 +30,29 @@ snit::type ::wnbhood::wizdb {
 
     typevariable schema {
         CREATE TABLE polygons (
-            name       TEXT PRIMARY KEY,
+            -- Polygon ID, must be unique across all polygon IDs
+            pid        TEXT PRIMARY KEY,
+
+            -- ID assigned automatically upon read from whatever source
+            id         INTEGER,
+
+            -- File name from which polygon was read
+            fname      TEXT,
+
+            -- The name of the polygon, could be the empty string or NULL
+            name       TEXT,
+
+            -- The display name of the polygon, this is assigned to it 
+            dispname   TEXT,
+
+            -- List of any children that are embedded inside this polygon
+            children   TEXT,
+
+            -- The parent, if any, of this polygon
+            parent     TEXT,
+
+            -- The list of coordinates, normally a flat list of lat/long
+            -- pairs
             polygon    TEXT
         );
     }

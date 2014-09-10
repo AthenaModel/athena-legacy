@@ -41,13 +41,6 @@ snit::widget ::wnbhood::nbchooser {
     #-------------------------------------------------------------------
     # Options
 
-    # -treespec dict
-    #
-    # Nested dictionary containing heirarchical set of nbhoods
-
-    option -treespec \
-        -readonly yes
-
     # -projection proj
     #
     # The map projection to use when displaying nbhood polygons
@@ -74,7 +67,9 @@ snit::widget ::wnbhood::nbchooser {
     # nb-$key     - the neighborhood name for the tablelist key
     # pkey-$n     - the tablelist parent key for neighborhood n
     # children-$n - list of the children of neighborhood n and of "root"
-    # depth-$key  - depth in the hierarchy of neighborhood with tablelist key
+    # parent-$n   - the name of the neighborhoods parent or "root"
+    # depth-$key  - depth in the hierarchy of neighborhood with 
+    #               tablelist key
     #
     # neighborhood display
     #
@@ -275,8 +270,6 @@ snit::widget ::wnbhood::nbchooser {
         # FIRST get the key
         set key [$w getfullkeys $row]
 
-        set exists $info(exists-$info(nb-$key))
-
         # NEXT, create the checkbutton linked to a variable
         # in the info array and store it's index
         checkbutton $btn                            \
@@ -284,9 +277,9 @@ snit::widget ::wnbhood::nbchooser {
             -background white                       \
             -command    [mymethod UpdateMap]        
 
-        # NEXT, if the neighborhood already exists in the scenario
+        # NEXT, if the neighborhood is already in the RDB
         # then show it disabled
-        if {$exists} {
+        if {$info(inrdb-$info(nb-$key))} {
             $btn configure -state disabled -background #CCCCCC
         }
 
@@ -352,8 +345,8 @@ snit::widget ::wnbhood::nbchooser {
             $nblist expand $key -partly
 
             # NEXT, if all children are selected, deselect parent, but
-            # only if it doesn't already exist
-            if {!$info(exists-$info(nb-$key))} {
+            # only if it isn't already in the RDB
+            if {!$info(inrdb-$info(nb-$key))} {
                 let info(selected-$key) 0
             }
         } else {
@@ -377,7 +370,7 @@ snit::widget ::wnbhood::nbchooser {
         foreach {tbl x y} [tablelist::convEventFields $w $x $y] {}
     
         set key [$tbl getfullkeys [$tbl containing $y]]
-        if {$key ne ""} {
+        if {[info exists info(id-$key)]} {
             set info(active) $info(id-$key)
         } 
     
@@ -408,10 +401,17 @@ snit::widget ::wnbhood::nbchooser {
 
     method ToggleNbhood {id} {
         set key $info(key-$id)
+        set nb  $info(nb-$key)
 
-        # FIRST, if the neighborhood already exists in the scenario
+        # FIRST, cannot toggle neighborhoods that have all
+        # children selected
+        if {[$self AllChildrenSelected $nb]} {
+            return
+        }
+
+        # NEXT, if the neighborhood is already in the scenario
         # then its a no-op
-        if {$info(exists-$info(nb-$key))} {
+        if {$info(inrdb-$nb)} {
             return
         }
 
@@ -424,65 +424,127 @@ snit::widget ::wnbhood::nbchooser {
     #----------------------------------------------------------------
     # Private methods
 
-    # AddTreeLevel   polydict pkey
+    # AddToTree  polys pkey
     #
-    # polydict    - a dictionary of polygon and (perhaps) children pairs
-    # pkey        - the tablelist(n) key of the parent, should already exist
+    # polys    A list of neighborhood polygons to display
+    # pkey     The key of the parent or 'root'
     #
-    # This method adds children to a parent in the tablelist tree, if they
-    # exist, otherwise it moves on to the next child for the parent.
-    # This method is called recursively until the tree is filled in.
+    # This method traverses the WDB extracting polygons that
+    # have the given parent and sets up the tablelist widget
+    # to display them in their proper hierarchy.
+    #
+    # If a polygon has descendants, the method is called recursively
+    # until all descendants have been added.
 
-    method AddTreeLevel {polydict pkey} {
-        # FIRST, if we are adding to parent key "root" then the 
-        # parents name is also "root"
+    method AddToTree {polys pkey} {
+        # FIRST, determine the name of the parent, special case is
+        # "root"
         if {$pkey eq "root"} {
             set parent "root"
         } else {
             set parent $info(nb-$pkey)
         }
 
-        # NEXT, initialize list of children (which may end up empty)
-        set info(children-$parent) [list]
+        # NEXT, set the list of children in the parent
+        set info(children-$parent) $polys
 
-        # NEXT go through the polygon dictionary and insert any children
-        dict for {name children} $polydict {
-
-            # NEXT, if the neighborhood is outside the map selected, no
-            # need to include it
-            if {![$self NbhoodInView $name]} {
-                continue
-            }
-
+        # NEXT, go through the list of children and add them
+        # to the parent
+        foreach name $polys {
             set key [$nblist insertchild $pkey end $name]
 
-            set info(depth-$key) [$nblist depth $key]
-            set info(maxdepth) [expr {max($info(maxdepth), $info(depth-$key))}]
-
-            # NEXT, cross reference information
-            set info(key-$name)   $key
-            set info(pkey-$name)  $pkey
-            set info(nb-$key)     $name
-
-            # NEXT, initialize potential children of this node and 
-            # add this one as a child of the parent 
-            set info(children-$name) [list]
-            lappend info(children-$parent) $name
-
-            # NEXT, initially, the polygon is deselected unless it's
-            # parent is "root"
+            # NEXT, by default, the neighborhood is deselected
             set info(selected-$key) 0
 
-            # NEXT, if the parent is root we want to collapse the node
+            # NEXT, the depth of the children in the
+            # tree will determine thier color 
+            set info(depth-$key) [$nblist depth $key]
+            set info(maxdepth) \
+                [expr {max($info(maxdepth), $info(depth-$key))}]
+
+            # NEXT, cross reference information
+            set info(key-$name)    $key
+            set info(pkey-$name)   $pkey
+            set info(nb-$key)      $name
+            set info(parent-$name) $parent
+
+            # NEXT, initialze the list of children for this
+            # neighborhood, this may remain an empty list
+            set info(children-$name) [list]
+
+            # NEXT, by default we assume that this polygon
+            # does not already reside in the scenario RDB
+            set info(inrdb-$name) 0
+
+            # NEXT, collapse neighborhoods with "root" as the parent
             if {$parent eq "root"} {
                 $nblist collapse $key -fully
-                set info(selected-$key)  1
             }
 
-            # NEXT, if the parent has polygons of it's own, then add
-            # that level to the tree
-            if {[dict exists $polydict $name]} {
-                $self AddTreeLevel [dict get $polydict $name] $key
+            # NEXT, if there are children to this polygon
+            # add them to the tree
+            set children [wdb onecolumn {
+                SELECT children FROM polygons 
+                WHERE dispname = $name
+            }]
+
+            if {[llength $children] > 0} {
+                $self AddToTree $children $key
+            }
+        }
+    }
+
+    # Configure Tree
+    #
+    # This method is called after the geoset(n) is created from the
+    # polygons read in by the user.  It configure all elements of the
+    # tree based upon what is in the geoset(n) and what neighborhoods may
+    # already exist in the Athena scenario.  Note that the set of polygons
+    # loaded may be a subset of what is in the tree, so that must be taken 
+    # into account.
+
+    method ConfigureTree {} {
+        # FIRST, get the neighborhood names in the tree
+        set nbhoods [$nblist getcolumns 0]
+
+        foreach n $nbhoods {
+            # NEXT, assume it is in the geoset and extract key
+            set info(geo-$n) 1
+            set key $info(key-$n)
+
+            # NEXT, there may not be a polygon for the neighborhood
+            if {![$geo exists $n]} {
+                # NEXT, mark it as not being in the geoset
+                set info(geo-$n) 0
+
+                # NEXT, if no children hide it, otherwise display it, but
+                # disable selection
+                if {[llength $info(children-$n)] == 0} {
+                    $nblist rowconfigure $info(key-$n) -hide 1
+                } else {
+                    set btn [$nblist windowpath $info(btnidx-$key)]
+                    $btn configure -state disabled
+                    set info(selected-$key) 0
+                }
+
+            } else {
+                # NEXT, a polygon exists, but it may not be in the selected
+                # maps field of view
+                if {![$self NbhoodInView $n]} {
+                    $nblist rowconfigure $info(key-$n) -hide 1
+                }
+                
+                # NEXT, compare the polygon to neighborhoods that already
+                # exist and mark them.
+                set poly [$geo coords $n]
+                set info(inrdb-$n) \
+                    [rdb exists {SELECT n FROM nbhoods WHERE polygon=$poly}]
+
+                # NEXT, if it's parent is "root" then it is selected by
+                # default
+                if {$info(parent-$n) eq "root"} {
+                    set info(selected-$key) 1
+                }
             }
         }
     }
@@ -545,8 +607,6 @@ snit::widget ::wnbhood::nbchooser {
         return 0
     }
 
-
-
     # AddToggles
     #
     # Given the tree structure created, add the toggles to the "Use?"
@@ -596,7 +656,7 @@ snit::widget ::wnbhood::nbchooser {
             }
 
             # NEXT, if the nbhood exists already, grey it out
-            if {$info(exists-$nb)} {
+            if {$info(inrdb-$nb)} {
                 set info(color-$info(nb-$key)) #CCCCCC
                 continue
             } 
@@ -619,6 +679,11 @@ snit::widget ::wnbhood::nbchooser {
     
         # NEXT, go through and draw them based on nbhood selection state
         foreach n $nbhoods {
+            # NEXT, neighborhood not in geoset, can't draw it
+            if {!$info(geo-$n)} {
+                continue
+            }
+
             # NEXT, extract the nbhood key from the info array
             set key $info(key-$n)
     
@@ -646,7 +711,7 @@ snit::widget ::wnbhood::nbchooser {
             }
     
             # NEXT, configure the look of deselected neighborhoods
-            if {!$info(selected-$key) && !$info(exists-$n)} {
+            if {!$info(selected-$key) && !$info(inrdb-$n)} {
     
                 # The nbhood is not selected, determine if any parent is
                 # selected and adopt that color
@@ -682,7 +747,7 @@ snit::widget ::wnbhood::nbchooser {
             # NEXT, configure check button based on whether all the
             # children of this neighborhood are selected or not
             set btn [$nblist windowpath $info(btnidx-$key)]
-            if {[$self AllChildrenSelected $n] || $info(exists-$n)} {
+            if {[$self AllChildrenSelected $n] || $info(inrdb-$n)} {
                 set info(selected-$key) 0
                 $btn configure -state disabled
             } else {
@@ -708,16 +773,19 @@ snit::widget ::wnbhood::nbchooser {
             foreach child $info(children-$n) {
                 set key $info(key-$child)
     
-                if {$info(selected-$key) || $info(exists-$child)} {
+                if {$info(selected-$key) || $info(inrdb-$child)} {
                     lappend selected $child
                 } else {
                     lappend unselected $child
                 }
             }
-    
+
             # NEXT, raise unselected ones first, we want the selected
             # ones to appear on top
             foreach uchild $unselected {
+                if {!$info(geo-$uchild)} {
+                    continue
+                }
                 set key $info(key-$uchild)
                 set id $info(id-$key)
                 $map raise $id
@@ -725,6 +793,9 @@ snit::widget ::wnbhood::nbchooser {
     
             # NEXT, finally raise the selected ones
             foreach schild $selected {
+                if {!$info(geo-$schild)} {
+                    continue
+                }
                 set key $info(key-$schild)
                 set id $info(id-$key)
                 $map raise $id
@@ -742,37 +813,53 @@ snit::widget ::wnbhood::nbchooser {
 
     method clear {} {
         $geo clear
+        $map clear
         $nblist delete 0 end
         array unset info
         set info(active) ""
         set info(maxdepth) 1
     }
 
-    # setpoly polydict
+    # refresh
     #
-    # Sets the dictionary of polygons for display.  The dictionary
-    # contains name/polygon pairs.
+    # Reads the loaded polygons and thier metadata from the WDB and sets 
+    # up the GUI with the loaded polygons.
 
-    method setpolys {polydict} {
-        # FIRST, clear everything out
+    method refresh {} {
+        # FIRST, clear the GUI
         $self clear
 
-        # NEXT, go through the dictionary checking for polygons that
-        # already exist in the scenario
-        dict for {name poly} $polydict {
-            $geo create polygon $name $poly nbhood
-            set info(ref-$name) [$self GetRefPt $name]
-            set info(exists-$name) \
-                [rdb exists {SELECT n FROM nbhoods WHERE polygon=$poly}]
+        # NEXT, extract all polygons from the WDB that have
+        # "root" as a parent, we will build each part of the 
+        # tree from there.
+        set polys [wdb eval {
+            SELECT dispname FROM polygons 
+            WHERE parent = 'root'
+        }]
+
+        # NEXT, add the polygons to the tree starting at the root
+        $self AddToTree $polys root
+
+        # NEXT, fill in the geoset(n)
+        wdb eval {
+            SELECT dispname, polygon 
+            FROM polygons
+        } {
+            $geo create polygon $dispname $polygon nbhood
+            set info(ref-$dispname) [$self GetRefPt $dispname]
         }
         
-        # NEXT, do all the work to fill the UI
-        $self AddTreeLevel $options(-treespec) root
+        # NEXT, finish building the GUI components and configuring
+        # them
         $self AddToggles
+        $self ConfigureTree 
+
         $self SetColors
         $self UpdateMap
 
-        # NEXT, return the number of neighborhoods actually in the display
+    }
+
+    method size {} {
         return [$nblist size]
     }
 
@@ -790,29 +877,19 @@ snit::widget ::wnbhood::nbchooser {
         set ndict [dict create]
         set trans(leaf_descendants) [list]
 
-        # NEXT, go through the entire tree and pull out neighborhoods
-        # that have been selected
-        set nbhoods [$nblist getcolumns 0]
-        foreach n $nbhoods {
-            set refpt ""
-            set poly  ""
-
+        # NEXT, go through the geoset and include polygons that have
+        # been selected for output
+        foreach n [$geo list] {
             set key $info(key-$n)
 
             # NEXT, if it's not selected or already exists, it is not
             # included
-            if {!$info(selected-$key) || $info(exists-$n)} {
-                continue
-            }
-
-            # NEXT, if all it's children are selected, the assumption is
-            # that it's completely covered and not included
-            if {[$self AllChildrenSelected $n]} {
+            if {!$info(selected-$key)} {
                 continue
             }
 
             # NEXT, set polygon. 
-            set poly [$map nbhood polygon $info(id-$key)]
+            set poly [$geo coords $n]
 
             # NEXT, determine ref point. If there's no children then
             # use it's own refpoint otherwise, find a descendant that
@@ -834,8 +911,16 @@ snit::widget ::wnbhood::nbchooser {
         return $ndict
     }
 
+    # pbbox
+    #
+    # Returns the playbox bounding box
+
+    method pbbox {} {
+        return $pbbox
+    }
+
     #--------------------------------------------------------------------
-    # Delegated public methods
+    # Delegated Methods
 
     delegate method bbox to geo
 
@@ -863,7 +948,7 @@ snit::widget ::wnbhood::nbchooser {
         foreach child $trans(leaf_descendants) {
             set ckey $info(key-$child)
 
-            if {$info(selected-$ckey) || $info(exists-$child)} {
+            if {$info(selected-$ckey) || $info(inrdb-$child)} {
                 continue
             }
 
@@ -986,9 +1071,9 @@ snit::widget ::wnbhood::nbchooser {
         # NEXT, go through the list of children and see if they are
         # all selected 
         foreach child $info(children-$n) {
-            # If the neighborhood already exists, selection state 
+            # If the neighborhood is in the RDB, selection state 
             # doesn't matter
-            if {$info(exists-$child)} {
+            if {$info(inrdb-$child)} {
                 continue
             }
 
