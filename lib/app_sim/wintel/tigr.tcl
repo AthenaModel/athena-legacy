@@ -71,7 +71,7 @@ snit::type ::wintel::tigr {
 
     typemethod readTestData {} {
         set filenames \
-            [glob -nocomplain [file join $::wintel::library messages *.xml]]
+            [glob -nocomplain [appdir join data messages *.xml]]
         $type readfiles $filenames
     }
 

@@ -34,7 +34,7 @@ snit::widget ::wnbhood::wiznbhood {
         be retrieved from disk  by using canned test data.  Press the
         "Test Data" button to ingest polygons from test KML files.<p>
 
-        <input name="bbrowse"><p>
+        <input name="bbrowse"> <input name="btest"><p>
     }
     
     #-------------------------------------------------------------------
@@ -70,6 +70,10 @@ snit::widget ::wnbhood::wiznbhood {
 
         # NEXT, create the HTML frame.
         install hframe using htmlframe $win.hframe
+
+        install bbrowse using ttk::button $hframe.btest \
+            -text    "Test Data"                        \
+            -command [mymethod TestData]
 
         install bbrowse using ttk::button $hframe.bbrowse \
             -text    "Browse"                             \
@@ -122,9 +126,18 @@ snit::widget ::wnbhood::wiznbhood {
     #-------------------------------------------------------------------
     # Event handlers
 
+    # TestData
+    #
+    # Loads the test data straight from disk
+
+    method TestData {} {
+        wizard retrievePolygons \
+            [appdir join data polygons SE_Asia.npf]
+    }
+
     # BrowseForData
     #
-    # Browses for .npf files and passes them along.
+    # Browses for .npf files and passes it along.
 
     method BrowseForData {} {
         # FIRST, get the filenames to parse

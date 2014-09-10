@@ -15,6 +15,8 @@
 #     NAMES    -> List of names of the polygons, one for each nbhood
 #     POLYGONS -> List of the polygons coordinates in lat/lon pairs,
 #                 one for each nieghborhood.
+#     IDS      -> List of assigned IDs, a monotonically increasing number
+#                 starting at 1
 # 
 # There should be one name for each polygon and vice-versa and 
 # their position in the list should correspond.
@@ -68,7 +70,7 @@ snit::type ::projectlib::kmlpoly {
             POLYGONS ""
         }
 
-        #dict set kmldata BODY $xml
+        set nodectr 0
 
         # NEXT, create the DOM and get the top node
         set doc     [$dp doc $xml]
@@ -95,11 +97,13 @@ snit::type ::projectlib::kmlpoly {
                 # deal with multiple sets of LinearRings per polygon
                 set cnode [lindex [$node getElementsByTagName "coordinates"] 0]
                 lappend polys [$type NormalizePoly [$cnode text]]
+                lappend ids [incr nodectr]
             }
         }
 
         dict set kmldata NAMES $names
         dict set kmldata POLYGONS $polys
+        dict set kmldata IDS $ids
 
         # NEXT, delete DOM and return data
         $dp delete

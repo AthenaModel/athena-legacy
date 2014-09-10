@@ -80,6 +80,9 @@ set patterns(install) {
     mars/docs/dev/*.odt
     maps/*.png
     maps/*.tif
+    data/polygons/*.npf
+    data/polygons/*.kml
+    data/messages/*.xml
     mods/*
 }
 
