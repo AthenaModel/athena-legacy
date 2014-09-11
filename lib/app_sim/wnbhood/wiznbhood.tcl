@@ -30,11 +30,10 @@ snit::widget ::wnbhood::wiznbhood {
         <h1>Retrieve Neighborhood Polygons</h1>
 
         This wizard allows for the retrieval of neighborhood polygons
-        to be used in an Athena scenario.  For now, polygons can only
-        be retrieved from disk  by using canned test data.  Press the
-        "Test Data" button to ingest polygons from test KML files.<p>
+        to be used in an Athena scenario.  Press the "Test Data" button 
+        to ingest polygons from test files.  Press the "Browse" button
+        to browse for Neighborhood Polygon (.npf) files<p>
 
-        <input name="bbrowse"> <input name="btest"><p>
     }
     
     #-------------------------------------------------------------------
@@ -68,7 +67,7 @@ snit::widget ::wnbhood::wiznbhood {
             -height 600 \
             -width  800
 
-        # NEXT, create the HTML frame.
+        # NEXT, create the HTML frame and widgets that go in it
         install hframe using htmlframe $win.hframe
 
         install bbrowse using ttk::button $hframe.btest \
@@ -79,10 +78,9 @@ snit::widget ::wnbhood::wiznbhood {
             -text    "Browse"                             \
             -command [mymethod BrowseForData]
 
-        # NEXT, lay it out.
-        $hframe layout $layout
-
+        # NEXT, create the nbchooser widget and layout the GUI
         $self CreateNbChooser $win.nbchooser
+        $self layout
 
         grid columnconfigure $win 0 -weight 1
         grid rowconfigure    $win 1 -weight 1
@@ -157,35 +155,69 @@ snit::widget ::wnbhood::wiznbhood {
         wizard retrievePolygons $fname
     }
 
+    # layout
+    #
+    # Lays out the content at the top of the page, including the boiler
+    # plate first and then buttons and ancillary data about what's going
+    # on.
+
+    method layout {} {
+        # FIRST, grab some info from the nbchooser object
+        lassign [$nbchooser pbbox] minlat minlon maxlat maxlon
+
+        # NEXT, layout the buttons and polygon information
+        set status [$self LayoutStatus]
+
+        # NEXT, layout the playbox boundary to give a reference
+        set title "Playbox boundary:"
+        append status [$self LayoutBox $title [$nbchooser pbbox]]
+
+        $hframe layout "$layout<p>\n\n$status"
+    }
+
+    # LayoutStatus
+    #
+    # Lays out the buttons and the number of polygons read and number
+    # inside the playbox
+
+    template method LayoutStatus {} {
+        set numread [$nbchooser size]
+        set numvis  [$nbchooser visible]
+    } {
+        |<--
+        <table width="500">
+        <tr><td><input name="bbrowse"> <input name="btest"></td>
+            <td>Polygons Read: $numread</td>
+            <td>Polygons In Playbox: $numvis</td>
+        </tr>
+        </table><p>
+    }
+
+    # LayoutBox
+    # 
+    # Formats the coordinates of a bounding box into a nice human
+    # readable form and returns them in a table.
+
+    template method LayoutBox {title bbox} {
+        lassign $bbox minlat minlon maxlat maxlon
+        set ll "([format "%.3fN" $minlat], [format "%.3fE" $minlon])"
+        set ur "([format "%.3fN" $maxlat], [format "%.3fE" $maxlon])"
+    } {
+        |<--
+        <table>
+        <tr><td colspan="2"><b>$title</b><td></tr>
+        <tr><td>Lower Left:</td>  <td>$ll</td></tr>
+        <tr><td>Upper Right:</td> <td>$ur</td></tr>
+        </table>
+    }
+
     method Refresh {args} {
         # FIRST, clear the nb chooser and refresh the polygons
-        # in it. If no neighborhoods can be displayed, pop up
-        # a message box with the information.
+        # in it. 
         $nbchooser clear
         $nbchooser refresh
 
-        if {[$nbchooser size] == 0} {
-            lassign [$nbchooser pbbox] minlat minlon maxlat maxlon
-            set minlat [format "%.3f" $minlat]
-            set minlon [format "%.3f" $minlon] 
-            set maxlat [format "%.3f" $maxlat]
-            set maxlon [format "%.3f" $maxlon]
-
-            messagebox popup \
-                -title "No Neighborhoods" \
-                -icon  info               \
-                -buttons {ok "Ok"}        \
-                -default ok               \
-                -parent [app topwin]      \
-                -message [normalize "
-                    The map selected is outside the bounds of all available
-                    neighborhoods.  Neighborhoods available are contained 
-                    within the box bounded on the lower left by 
-                    $minlat deg. latitude and $minlon deg. longitude and 
-                    the upper right by $maxlat deg. latitude and $maxlon deg.
-                    longitude.
-                "]
-        }
+        $self layout
     }
 
     # getnbhoods

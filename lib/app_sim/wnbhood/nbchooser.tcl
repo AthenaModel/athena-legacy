@@ -859,8 +859,20 @@ snit::widget ::wnbhood::nbchooser {
 
     }
 
-    method size {} {
-        return [$nblist size]
+    # visible
+    #
+    # Returns the number of visible rows in the tablelist widget
+
+    method visible {} {
+        set keys [$nblist getkeys 0 end]
+        set count 0
+        foreach key $keys {
+            if {![$nblist rowcget $key -hide]} {
+                incr count
+            }
+        }
+
+        return $count
     }
 
     # getpolys 
@@ -923,6 +935,7 @@ snit::widget ::wnbhood::nbchooser {
     # Delegated Methods
 
     delegate method bbox to geo
+    delegate method size to nblist
 
     #--------------------------------------------------------------------
     # Helper Methods
