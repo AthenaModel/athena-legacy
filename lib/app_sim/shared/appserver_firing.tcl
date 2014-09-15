@@ -309,7 +309,10 @@ appserver module firing {
 
         ht record {
             ht field "Rule:" {
-                ht put "<b>$data(rule)</b> -- $data(narrative)"
+                ht put "<b>$data(rule)</b> -- [edamrule longname $data(rule)]"
+            }
+            ht field "Detail:" {
+                ht put $data(narrative)
             }
             ht field "Driver:" { 
                 ht put "$ddata(link) -- $ddata(sigline)"
