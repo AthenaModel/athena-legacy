@@ -130,8 +130,7 @@ results can be viewed in two ways.<p>
 First, you can open the file in Athena and browse it interactively.<p>
 
 Second, the scenario file is an SQLite3 database; any SQLite3 client
-can open it and execute queries.  See the <<xref scenariodb(n)>> man
-page for the schema, or alternatively, you can browse the schema
+can open it and execute queries.  You can browse the schema
 by running Athena interactively and entering "my://rdb" into the
 Detail Browser's address bar.<p>
 
