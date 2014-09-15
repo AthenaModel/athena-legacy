@@ -28,21 +28,23 @@ ifndef ATHENA_VERSION
 	$(strip $(shell $(TOP_DIR)/bin/athena_projinfo versionfull))
 endif
 
-# Set location of Athena documentation directory on AFS.
+# Set location of Athena documentation directory on the web server
+ATHENA_SERVER   = pepper.jpl.nasa.gov
+ATHENA_HOME     = /home/www/athena
+
 ifeq "$(MARS_OS)" "win"
-    # Assumes that AFS is mounted as K:
-    ATHENA_WEB_HOME = /k/group/athena/www
     ATHENA_INSTALLER = $(TOP_DIR)/installer/Output/Athena$(ATHENA_VERSION)_Installer.exe
 else
-    ATHENA_WEB_HOME = /afs/jpl.nasa.gov/group/athena/www
     ATHENA_INSTALLER =
 endif
 
-ATHENA_DOCS = $(ATHENA_WEB_HOME)/docs_$(ATHENA_VERSION)
-ATHENA_ARCHIVE = $(ATHENA_WEB_HOME)/archive/athena_$(ATHENA_VERSION)
+ATHENA_DOCS = $(ATHENA_HOME)/docs/athena_6.2/$(ATHENA_VERSION)
+ATHENA_ARCHIVE = $(ATHENA_HOME)/archive/athena_$(ATHENA_VERSION)
 
 
 # Tools
+export SSH        = ssh -q $(ATHENA_SERVER)
+export SCP        = scp -q 
 export TCLSH      = $(ATHENA_TCL_HOME)/bin/tclsh
 export TCLLIBPATH = $(TOP_DIR)/lib $(TOP_DIR)/mars/lib
 

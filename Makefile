@@ -119,7 +119,6 @@ bin: check_env src
 	tclapp $(TOP_DIR)/bin/athena.tcl                    \
 		$(TOP_DIR)/lib/*/*                          \
 		$(TOP_DIR)/lib/*/*/*                        \
-		$(TOP_DIR)/lib/app_sim/wintel/messages/*.xml \
 		$(TOP_DIR)/mars/lib/*/*                     \
 		-log $(TOP_DIR)/tclapp.log                  \
 		-icon $(TOP_DIR)/installer/athena.ico       \
@@ -183,73 +182,68 @@ test: check_env
 #
 # Copy tarballs and documentation to the Athena AFS page.
 
-INSTALLDIRS = \
-	$(ATHENA_ARCHIVE)             \
-	$(ATHENA_DOCS)                \
-	$(ATHENA_DOCS)/docs           \
-	$(ATHENA_DOCS)/docs/man1      \
-	$(ATHENA_DOCS)/docs/man5      \
-	$(ATHENA_DOCS)/docs/mani      \
-	$(ATHENA_DOCS)/docs/mann      \
-	$(ATHENA_DOCS)/docs/mansim    \
-	$(ATHENA_DOCS)/docs/dev       \
-	$(ATHENA_DOCS)/mars           \
-	$(ATHENA_DOCS)/mars/docs      \
-	$(ATHENA_DOCS)/mars/docs/man1 \
-	$(ATHENA_DOCS)/mars/docs/man5 \
-	$(ATHENA_DOCS)/mars/docs/mani \
-	$(ATHENA_DOCS)/mars/docs/mann \
-	$(ATHENA_DOCS)/mars/docs/dev
 
 install: installdist installdocs
 
-installdist: $(INSTALLDIRS)
-	cp $(TOP_DIR)/../*.tgz $(ATHENA_ARCHIVE)
-	if test -n "$(ATHENA_INSTALLER)" ; then \
-	    cp $(ATHENA_INSTALLER) $(ATHENA_ARCHIVE); fi
+installdist: installdirs
+	$(SCP) $(TOP_DIR)/../*.tgz $(ATHENA_SERVER):$(ATHENA_ARCHIVE)
+	if test -e "$(ATHENA_INSTALLER)" ; then \
+	    $(SCP) $(ATHENA_INSTALLER) $(ATHENA_SERVER):$(ATHENA_ARCHIVE); fi
 
-installdocs: $(INSTALLDIRS)
-	-cp docs/index.html            $(ATHENA_DOCS)/docs
-	-cp docs/install.txt           $(ATHENA_DOCS)/docs
-	-cp docs/developer.html        $(ATHENA_DOCS)/docs
-	-cp docs/build_notes.html      $(ATHENA_DOCS)/docs
-	-cp docs/dev/*.html            $(ATHENA_DOCS)/docs/dev
-	-cp docs/dev/*.doc             $(ATHENA_DOCS)/docs/dev
-	-cp docs/dev/*.docx            $(ATHENA_DOCS)/docs/dev
-	-cp docs/dev/*.pptx            $(ATHENA_DOCS)/docs/dev
-	-cp docs/dev/*.odt             $(ATHENA_DOCS)/docs/dev
-	-cp docs/dev/*.ods             $(ATHENA_DOCS)/docs/dev
-	-cp docs/dev/*.pdf             $(ATHENA_DOCS)/docs/dev
-	-cp docs/dev/*.txt             $(ATHENA_DOCS)/docs/dev
-	-cp docs/man1/*.html           $(ATHENA_DOCS)/docs/man1
-	-cp docs/man5/*.html           $(ATHENA_DOCS)/docs/man5
-	-cp docs/mani/*.html           $(ATHENA_DOCS)/docs/mani
-	-cp docs/mann/*.html           $(ATHENA_DOCS)/docs/mann
-	-cp docs/mansim/*.html         $(ATHENA_DOCS)/docs/mansim
-	-cp docs/man1/*.gif            $(ATHENA_DOCS)/docs/man1
-	-cp docs/man5/*.gif            $(ATHENA_DOCS)/docs/man5
-	-cp docs/mani/*.gif            $(ATHENA_DOCS)/docs/mani
-	-cp docs/mann/*.gif            $(ATHENA_DOCS)/docs/mann
-	-cp docs/mansim/*.gif          $(ATHENA_DOCS)/docs/mansim
-	-cp mars/docs/index.html       $(ATHENA_DOCS)/mars/docs
-	-cp mars/docs/build_notes.html $(ATHENA_DOCS)/mars/docs
-	-cp mars/docs/dev/*.html       $(ATHENA_DOCS)/mars/docs/dev
-	-cp mars/docs/dev/*.doc        $(ATHENA_DOCS)/mars/docs/dev
-	-cp mars/docs/dev/*.docx       $(ATHENA_DOCS)/mars/docs/dev
-	-cp mars/docs/dev/*.pptx       $(ATHENA_DOCS)/mars/docs/dev
-	-cp mars/docs/dev/*.pdf        $(ATHENA_DOCS)/mars/docs/dev
-	-cp mars/docs/dev/*.txt        $(ATHENA_DOCS)/mars/docs/dev
-	-cp mars/docs/man1/*.html      $(ATHENA_DOCS)/mars/docs/man1
-	-cp mars/docs/man5/*.html      $(ATHENA_DOCS)/mars/docs/man5
-	-cp mars/docs/mani/*.html      $(ATHENA_DOCS)/mars/docs/mani
-	-cp mars/docs/mann/*.html      $(ATHENA_DOCS)/mars/docs/mann
-	-cp mars/docs/man1/*.gif       $(ATHENA_DOCS)/mars/docs/man1
-	-cp mars/docs/man5/*.gif       $(ATHENA_DOCS)/mars/docs/man5
-	-cp mars/docs/mani/*.gif       $(ATHENA_DOCS)/mars/docs/mani
-	-cp mars/docs/mann/*.gif       $(ATHENA_DOCS)/mars/docs/mann
+installdocs: installdirs
+	-$(SCP) docs/index.html            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs
+	-$(SCP) docs/developer.html        $(ATHENA_SERVER):$(ATHENA_DOCS)/docs
+	-$(SCP) docs/build_notes.html      $(ATHENA_SERVER):$(ATHENA_DOCS)/docs
+	-$(SCP) docs/dev/*.html            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/dev/*.doc             $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/dev/*.docx            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/dev/*.pptx            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/dev/*.odt             $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/dev/*.ods             $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/dev/*.pdf             $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/dev/*.txt             $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/dev
+	-$(SCP) docs/man1/*.html           $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/man1
+	-$(SCP) docs/man5/*.html           $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/man5
+	-$(SCP) docs/mani/*.html           $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/mani
+	-$(SCP) docs/mann/*.html           $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/mann
+	-$(SCP) docs/mansim/*.html         $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/mansim
+	-$(SCP) docs/man1/*.gif            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/man1
+	-$(SCP) docs/man5/*.gif            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/man5
+	-$(SCP) docs/mani/*.gif            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/mani
+	-$(SCP) docs/mann/*.gif            $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/mann
+	-$(SCP) docs/mansim/*.gif          $(ATHENA_SERVER):$(ATHENA_DOCS)/docs/mansim
+	-$(SCP) mars/docs/index.html       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs
+	-$(SCP) mars/docs/build_notes.html $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs
+	-$(SCP) mars/docs/dev/*.html       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/dev
+	-$(SCP) mars/docs/dev/*.doc        $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/dev
+	-$(SCP) mars/docs/dev/*.docx       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/dev
+	-$(SCP) mars/docs/dev/*.pptx       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/dev
+	-$(SCP) mars/docs/dev/*.pdf        $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/dev
+	-$(SCP) mars/docs/dev/*.txt        $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/dev
+	-$(SCP) mars/docs/man1/*.html      $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/man1
+	-$(SCP) mars/docs/man5/*.html      $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/man5
+	-$(SCP) mars/docs/mani/*.html      $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/mani
+	-$(SCP) mars/docs/mann/*.html      $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/mann
+	-$(SCP) mars/docs/man1/*.gif       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/man1
+	-$(SCP) mars/docs/man5/*.gif       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/man5
+	-$(SCP) mars/docs/mani/*.gif       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/mani
+	-$(SCP) mars/docs/mann/*.gif       $(ATHENA_SERVER):$(ATHENA_DOCS)/mars/docs/mann
 
-$(INSTALLDIRS):
-	mkdir -p $@
+installdirs:
+	$(SSH) mkdir -p $(ATHENA_ARCHIVE)
+	$(SSH) mkdir -p $(ATHENA_DOCS)
+	$(SSH) mkdir -p $(ATHENA_DOCS)/docs/man1
+	$(SSH) mkdir -p $(ATHENA_DOCS)/docs/man5
+	$(SSH) mkdir -p $(ATHENA_DOCS)/docs/mani
+	$(SSH) mkdir -p $(ATHENA_DOCS)/docs/mann
+	$(SSH) mkdir -p $(ATHENA_DOCS)/docs/dev
+	$(SSH) mkdir -p $(ATHENA_DOCS)/mars
+	$(SSH) mkdir -p $(ATHENA_DOCS)/mars/docs
+	$(SSH) mkdir -p $(ATHENA_DOCS)/mars/docs/man1
+	$(SSH) mkdir -p $(ATHENA_DOCS)/mars/docs/man5
+	$(SSH) mkdir -p $(ATHENA_DOCS)/mars/docs/mani
+	$(SSH) mkdir -p $(ATHENA_DOCS)/mars/docs/mann
+	$(SSH) mkdir -p $(ATHENA_DOCS)/mars/docs/dev
 
 
 #---------------------------------------------------------------------
