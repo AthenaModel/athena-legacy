@@ -59,6 +59,7 @@ appserver module PARMDB {
         # parm names (alas); we really should be grabbing this automatically. 
         foreach subset {
             sim
+            absit
             activity
             app
             attitude
@@ -66,7 +67,6 @@ appserver module PARMDB {
             dam
             demog
             econ
-            absit
             force
             hist
             plant

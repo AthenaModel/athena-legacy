@@ -104,6 +104,46 @@ snit::type ::projectlib::parmdb {
             remain.
         }
 
+        # absit.* parameters
+        $ps subset absit {
+            Environmental situation parameters, by absit type.
+        }
+
+        foreach name [eabsit names] {
+            $ps subset absit.$name "
+                Parameters for abstract situation type
+                [eabsit longname $name].
+            "
+
+            $ps define absit.$name.duration ::projectlib::iticks 0 {
+                How long until the absit auto-resolves, in integer
+                ticks.  If 0, the absit never auto-resolves.
+            }
+        }
+
+        # Tweak the specifics
+        $ps setdefault absit.BADFOOD.duration        2
+        $ps setdefault absit.BADWATER.duration       1
+        $ps setdefault absit.COMMOUT.duration        1
+        $ps setdefault absit.CULSITE.duration        6
+        $ps setdefault absit.DISASTER.duration       6
+        $ps setdefault absit.DISEASE.duration        4
+        $ps setdefault absit.DROUGHT.duration        52
+        $ps setdefault absit.EPIDEMIC.duration       52
+        $ps setdefault absit.FOODSHRT.duration       26
+        $ps setdefault absit.FUELSHRT.duration       4
+        $ps setdefault absit.GARBAGE.duration        6
+        $ps setdefault absit.INDSPILL.duration       12
+        $ps setdefault absit.MINEFIELD.duration      156
+        $ps setdefault absit.NOWATER.duration        2
+        $ps setdefault absit.ORDNANCE.duration       78
+        $ps setdefault absit.PIPELINE.duration       1
+        $ps setdefault absit.POWEROUT.duration       8
+        $ps setdefault absit.REFINERY.duration       1
+        $ps setdefault absit.RELSITE.duration        6
+        $ps setdefault absit.SEWAGE.duration         9
+        $ps setdefault absit.TRAFFIC.duration        1
+
         # NEXT, Activity Parameters
 
         $ps subset activity {
@@ -1102,45 +1142,6 @@ snit::type ::projectlib::parmdb {
         $ps setdefault econ.shares.MAINTAIN.region   0
         $ps setdefault econ.shares.MAINTAIN.world    0
 
-        # absit.* parameters
-        $ps subset absit {
-            Environmental situation parameters, by absit type.
-        }
-
-        foreach name [eabsit names] {
-            $ps subset absit.$name "
-                Parameters for abstract situation type
-                [eabsit longname $name].
-            "
-
-            $ps define absit.$name.duration ::projectlib::iticks 0 {
-                How long until the absit auto-resolves, in integer
-                ticks.  If 0, the absit never auto-resolves.
-            }
-        }
-
-        # Tweak the specifics
-        $ps setdefault absit.BADFOOD.duration        2
-        $ps setdefault absit.BADWATER.duration       1
-        $ps setdefault absit.COMMOUT.duration        1
-        $ps setdefault absit.CULSITE.duration        6
-        $ps setdefault absit.DISASTER.duration       6
-        $ps setdefault absit.DISEASE.duration        4
-        $ps setdefault absit.DROUGHT.duration        52
-        $ps setdefault absit.EPIDEMIC.duration       52
-        $ps setdefault absit.FOODSHRT.duration       26
-        $ps setdefault absit.FUELSHRT.duration       4
-        $ps setdefault absit.GARBAGE.duration        6
-        $ps setdefault absit.INDSPILL.duration       12
-        $ps setdefault absit.MINEFIELD.duration      156
-        $ps setdefault absit.NOWATER.duration        2
-        $ps setdefault absit.ORDNANCE.duration       78
-        $ps setdefault absit.PIPELINE.duration       1
-        $ps setdefault absit.POWEROUT.duration       8
-        $ps setdefault absit.REFINERY.duration       1
-        $ps setdefault absit.RELSITE.duration        6
-        $ps setdefault absit.SEWAGE.duration         9
-        $ps setdefault absit.TRAFFIC.duration        1
 
         # NEXT, Force/Volatility/Security Parameters
         $ps subset force {
