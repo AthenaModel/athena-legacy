@@ -229,7 +229,13 @@ snit::type cif {
     # and "" otherwise.
 
     typemethod canundo {} {
-        # FIRST, get the undo information
+        # FIRST, we can only undo when the simulation is "stable", i.e.,
+        # when normal orders are possible.
+        if {![sim stable]} {
+            return ""
+        }
+
+        # NEXT, get the undo information
         set top [cif top]
 
         if {$top eq ""} {
@@ -456,14 +462,20 @@ snit::type cif {
     # and "" otherwise.
 
     typemethod canredo {} {
-        # FIRST, get the redo information
+        # FIRST, we can only redo when the simulation is "stable", i.e.,
+        # when normal orders are possible.
+        if {![sim stable]} {
+            return ""
+        }
+
+        # NEXT, get the redo information
         set record [lindex $info(redoStack) end]
 
         if {[dict size $record] > 0} {
             return [dict get $record narrative]
         }
 
-        return
+        return ""
     }
 
     # redo
