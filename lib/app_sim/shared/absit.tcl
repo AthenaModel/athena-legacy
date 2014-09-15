@@ -594,6 +594,17 @@ snit::type absit {
 
         return [list]
     }
+
+    # DefaultDuration fdict stype
+    #
+    # Returns the default duration for the situation type.
+
+    typemethod DefaultDuration {fdict stype} {
+        if {$stype eq ""} {
+            return {}
+        }
+        return [dict create rduration [parmdb get absit.$stype.duration]]
+    }
 }
 
 #-------------------------------------------------------------------
@@ -612,7 +623,8 @@ order define ABSIT:CREATE {
         nbhood n
 
         rcc "Type:" -for stype
-        enum stype -listcmd {absit AbsentTypes $n}
+        enum stype -listcmd {absit AbsentTypes $n} \
+            -loadcmd {absit DefaultDuration}
 
         rcc "Coverage:" -for coverage
         frac coverage -defvalue 1.0
@@ -624,7 +636,7 @@ order define ABSIT:CREATE {
         enum resolver -listcmd {ptype g+none names} -defvalue NONE
 
         rcc "Duration:" -for rduration
-        text rduration -defvalue 1
+        text rduration
         label "weeks"
     }
 
