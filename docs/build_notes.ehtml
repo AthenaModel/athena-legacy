@@ -11,7 +11,28 @@
 
 <h2>Build Notes</h2>
 
-<h3>Build 6.2.2-B18, 3 September 2014</h3>
+<h3>Build 6.2.2-B20, 16 September 2014</h3>
+
+This build contains an enhancement to the Neighborhood Ingestion wizard that
+allows the user to configure neighborhoods via a home-brewed text file.  The
+idea is that, in the absence of the World Database, this would serve as a
+proxy to describe things like neighborhood heirarchy.  There are also some
+bug fixes to that wizard and some other bug fixes to Athena proper.<p>
+
+<ul>
+<li> Bug 4598: Neighborhood Ingestion Wizard not consistent with Athena Playbox
+<li> Bug 4600: Nbhood Ingestion Wizard: Use a metadata input file to describe polygon relationship
+<li> Bug 4601: Include TIGR messages and Neighborhood polygon data in Athena installers
+<li> Bug 4602: Parent neighborhood should turn white when last child is selected
+<li> Bug 4538: Broken link in man pages
+<li> Bug 4548: "make" starts slowly
+<li> Bug 4559: athena(1): Rule firing pages don't show rule title
+<li> Bug 4564: Model Parameters tree in Detail browser out of order
+<li> Bug 4565: ABSIT tactic duration
+<li> Bug 4597: Undo and Redo in Wizard State 
+</ul><p>
+
+<h3>Build 6.2.2-B19, 3 September 2014</h3>
 
 This build contains a number of fixes to the Neighborhood Ingestion wizard
 and a better way of handling popup windows.<p>
