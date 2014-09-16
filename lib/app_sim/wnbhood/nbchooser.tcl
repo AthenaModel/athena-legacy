@@ -955,9 +955,11 @@ snit::widget ::wnbhood::nbchooser {
         foreach n [$geo list] {
             set key $info(key-$n)
 
-            # NEXT, if it's not selected or already exists, it is not
-            # included
-            if {!$info(selected-$key) || $info(inrdb-$n)} {
+            # NEXT, if it's not selected, already exists or is hidden, 
+            # it is not included
+            if {!$info(selected-$key) || 
+                $info(inrdb-$n)       ||
+                [$nblist rowcget $key -hide]} {
                 continue
             }
 
