@@ -275,7 +275,7 @@ snit::widget ::wnbhood::nbchooser {
         checkbutton $btn                            \
             -variable   [myvar info(selected-$key)] \
             -background white                       \
-            -command    [mymethod UpdateMap]        
+            -command    [mymethod ToggleKey $key]        
 
         # NEXT, if the neighborhood is already in the RDB
         # then show it disabled
@@ -335,11 +335,17 @@ snit::widget ::wnbhood::nbchooser {
             if {$state && [$self AllChildrenSelected $n]} {
                 continue
             }
+
+            if {$info(inrdb-$n)} {
+                continue
+            }
+
             set info(selected-$info(key-$n)) $state
         }
 
         # NEXT, using the parents key, collapse or expand the tree
         set key $info(key-$trans(active_parent))
+        set btn [$nblist windowpath $info(btnidx-$key)]
         
         if {$state} {
             $nblist expand $key -partly
@@ -347,14 +353,19 @@ snit::widget ::wnbhood::nbchooser {
             # NEXT, if all children are selected, deselect parent, but
             # only if it isn't already in the RDB
             if {!$info(inrdb-$info(nb-$key))} {
+                $btn configure -state disabled
                 let info(selected-$key) 0
             }
         } else {
             $nblist collapse $key -partly
+
+            if {!$info(inrdb-$info(nb-$key))} {
+                $btn configure -state normal
+            }
         }
 
         # NEXT, redraw the map
-        $self UpdateMap
+        $self UpdateMap 
     }
 
     # ActivateNbhood  w x y
@@ -392,6 +403,37 @@ snit::widget ::wnbhood::nbchooser {
         $self UpdateMap
     }
 
+    # ToggleKey  key
+    #
+    # key  - the row key for a checkbutton in the tablelist
+    #
+    # For the neighborhood toggled with the given key, this method 
+    # checks if it's parent now has all it's children selected. If so,
+    # the parent is deselected, under the assumption that when all
+    # children are selected, the parent is completely covered with polygons
+    # and cannot, therefore, be selected for output.
+
+    method ToggleKey {key} {
+        # FIRST, get parent
+        set nbhood $info(nb-$key)
+        set parent $info(parent-$nbhood)
+
+        # NEXT, if the parent is not root and all children are now
+        # selected, deselect the parent
+        if {$parent ne "root"} {
+            set pkey $info(key-$parent)
+            set btn [$nblist windowpath $info(btnidx-$pkey)]
+            if {[$self AllChildrenSelected $parent]} {
+                set info(selected-$pkey) 0
+                $btn configure -state disabled
+            } else {
+                $btn configure -state normal
+            }
+        } 
+
+        $self UpdateMap
+    }
+
     # ToggleNbhood id
     #
     # id   - The mapcanvas(n) ID of a neighborhood polygon
@@ -400,8 +442,9 @@ snit::widget ::wnbhood::nbchooser {
     # and redraws the map.
 
     method ToggleNbhood {id} {
-        set key $info(key-$id)
-        set nb  $info(nb-$key)
+        set key    $info(key-$id)
+        set nb     $info(nb-$key)
+        set parent $info(parent-$nb)
 
         # FIRST, cannot toggle neighborhoods that have all
         # children selected
@@ -418,7 +461,21 @@ snit::widget ::wnbhood::nbchooser {
         # NEXT, toggle the selection and update
         set info(selected-$key) [expr {!$info(selected-$key)}]
 
-        $self UpdateMap
+        # NEXT, selection (or deselection) of this neighborhood may
+        # have resulted in all children being selected (or not selected)
+        # so configure the parent if there is one
+        if {$parent ne "root"} {
+            set pkey $info(key-$parent)
+            set btn [$nblist windowpath $info(btnidx-$pkey)]
+            if {[$self AllChildrenSelected $parent]} {
+                set info(selected-$pkey) 0
+                $btn configure -state disabled
+            } else {
+                $btn configure -state normal
+            }
+        } 
+
+        $self UpdateMap 
     }
 
     #----------------------------------------------------------------
@@ -537,14 +594,30 @@ snit::widget ::wnbhood::nbchooser {
                 # NEXT, compare the polygon to neighborhoods that already
                 # exist and mark them.
                 set poly [$geo coords $n]
-                set info(inrdb-$n) \
-                    [rdb exists {SELECT n FROM nbhoods WHERE polygon=$poly}]
+                if {[rdb exists {SELECT n FROM nbhoods WHERE polygon=$poly}]} {
+                    set info(inrdb-$n) 1
+                    set info(selected-$key) 1
+                    set btn [$nblist windowpath $info(btnidx-$key)]
+                    $btn configure -state disabled
+                }
 
                 # NEXT, if it's parent is "root" then it is selected by
                 # default
                 if {$info(parent-$n) eq "root"} {
                     set info(selected-$key) 1
                 }
+            }
+        }
+
+        # NEXT, now that all neighborhoods have been configured, check
+        # parent neighborhoods for state
+        foreach n $nbhoods {
+            set key $info(key-$n)
+            if {$info(parent-$n) eq "root" &&
+                [$self AllChildrenSelected $n]} {
+                    set btn [$nblist windowpath $info(btnidx-$key)]
+                    $btn configure -state disabled
+                    set info(selected-$key) 0
             }
         }
     }
@@ -613,9 +686,7 @@ snit::widget ::wnbhood::nbchooser {
     # column in the table list.
 
     method AddToggles {} {
-        # FIRST, add a toggle to each row in the second column and 
-        # determine the maximum depth of the tree along with the
-        # depth of each row, which will determine color
+        # FIRST, add a toggle to each row in the second column 
         foreach key [$nblist getfullkeys 0 end] {
             set row [$nblist index $key]
             $nblist cellconfigure $row,1 -window [mymethod InsertToggle]
@@ -638,7 +709,7 @@ snit::widget ::wnbhood::nbchooser {
         # in the gradient.
         set delta [expr {round(8.0/$info(maxdepth))}]
         
-        # NEXT, set color and draw the map
+        # NEXT, set color 
         set cid -1
         foreach key [$nblist getfullkeys 0 end] {
             set nb $info(nb-$key)
@@ -742,16 +813,6 @@ snit::widget ::wnbhood::nbchooser {
                  $nblist cellconfigure $info(btnidx-$key) \
                     -bg $color -selectbackground $color
 
-            }
-
-            # NEXT, configure check button based on whether all the
-            # children of this neighborhood are selected or not
-            set btn [$nblist windowpath $info(btnidx-$key)]
-            if {[$self AllChildrenSelected $n] || $info(inrdb-$n)} {
-                set info(selected-$key) 0
-                $btn configure -state disabled
-            } else {
-                $btn configure -state normal
             }
         }
     
@@ -896,7 +957,7 @@ snit::widget ::wnbhood::nbchooser {
 
             # NEXT, if it's not selected or already exists, it is not
             # included
-            if {!$info(selected-$key)} {
+            if {!$info(selected-$key) || $info(inrdb-$n)} {
                 continue
             }
 
@@ -1084,18 +1145,6 @@ snit::widget ::wnbhood::nbchooser {
         # NEXT, go through the list of children and see if they are
         # all selected 
         foreach child $info(children-$n) {
-            # If the neighborhood is in the RDB, selection state 
-            # doesn't matter
-            if {$info(inrdb-$child)} {
-                continue
-            }
-
-            # This child may have children that are all selected, if so
-            # selection state doesn't matter
-            if {[$self AllChildrenSelected $child]} {
-                continue
-            }
-
             set key $info(key-$child)
             let flag {$flag * $info(selected-$key)}
         }
