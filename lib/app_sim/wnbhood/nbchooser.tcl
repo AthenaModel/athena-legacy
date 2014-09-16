@@ -662,12 +662,6 @@ snit::widget ::wnbhood::nbchooser {
             return 1
         }
 
-        # NEXT if none of them are inside the playbox it's outside
-        # Note: we already checked if the playbox is entirely inside
-        if {$ctr == 0} {
-            return 0
-        }
-        
         # NEXT, hopefully we've exhausted almost all the neighborhoods
         # before the brute force, point by point check
         foreach {lat lon} [$geo coords $nb] {
