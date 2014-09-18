@@ -11,6 +11,16 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B21, 18 September 2014</h3>
+
+This build contains one fix to the Neighborhood Ingestion wizard.  It is also
+the build that will be used to demonstrate that capability at I2WD if there are
+no severe problems discovered.<p>
+
+<ul>
+<li> Bug 4604: Athena ingests neighborhoods outside of playbox
+</ul><p>
+
 <h3>Build 6.2.2-B20, 16 September 2014</h3>
 
 This build contains an enhancement to the Neighborhood Ingestion wizard that
