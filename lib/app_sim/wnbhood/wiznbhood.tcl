@@ -162,14 +162,11 @@ snit::widget ::wnbhood::wiznbhood {
     # on.
 
     method layout {} {
-        # FIRST, grab some info from the nbchooser object
-        lassign [$nbchooser pbbox] minlat minlon maxlat maxlon
-
         # NEXT, layout the buttons and polygon information
         set status [$self LayoutStatus]
 
+        set title "Playbox:"
         # NEXT, layout the playbox boundary to give a reference
-        set title "Playbox boundary:"
         append status [$self LayoutBox $title [$nbchooser pbbox]]
 
         $hframe layout "$layout<p>\n\n$status"
@@ -185,12 +182,12 @@ snit::widget ::wnbhood::wiznbhood {
         set numvis  [$nbchooser visible]
     } {
         |<--
-        <table width="500">
-        <tr><td><input name="bbrowse"> <input name="btest"></td>
-            <td>Polygons Read: $numread</td>
-            <td>Polygons In Playbox: $numvis</td>
+        <table>
+        <tr><td width="200"><input name="bbrowse"> <input name="btest"></td>
+            <td width="150">Polygons Read: $numread</td>
+            <td width="200">Polygons In Playbox: $numvis</td>
         </tr>
-        </table><p>
+        </table>
     }
 
     # LayoutBox
@@ -205,9 +202,11 @@ snit::widget ::wnbhood::wiznbhood {
     } {
         |<--
         <table>
-        <tr><td colspan="2"><b>$title</b><td></tr>
-        <tr><td>Lower Left:</td>  <td>$ll</td></tr>
-        <tr><td>Upper Right:</td> <td>$ur</td></tr>
+        <tr>
+            <td width="80"><b>$title</b><td>
+            <td width="200">Lower Left: $ll</td>
+            <td width="200">Upper Right: $ur</td>
+        </tr>
         </table>
     }
 
