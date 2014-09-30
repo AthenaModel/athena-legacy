@@ -17,7 +17,13 @@
         set title [$section sqlsection title]
 
         if {[regexp {^\w+\([1-9in]\)$} $title]} {
-            set title [xref $title]
+            # FIRST, mars sections have different xref syntax
+            if {[string range $section 0 5] eq "::mars" ||
+                [string range $section 0 7] eq "::simlib"} {
+                set title [xref mars:$title]
+            } else {
+                set title [xref $title]
+            }
         }
 
         return $title
@@ -98,7 +104,7 @@ database format.  It is an SQLite3 format based on
 also includes all tables, indices, and so forth defined explicitly for
 Mars.<p>
 
-<<xref athena_sim(1)>> uses scenariodb(n) to define its
+<<xref athena(1)>> uses scenariodb(n) to define its
 run-time database (RDB), and to save and load scenario data to and
 from external files.  By convention, these "scenario files" have a
 "<code>.adb</code>" (Athena Scenario) extension.<p>
@@ -110,7 +116,7 @@ schema:<p>
 
 Every <<xref scenariodb(n)>> database will contain at least the
 following schema definitions, in addition to those from any other
-<<xref sqlsection(i)>>'s loaded explicitly by the application.<p>
+<<xref mars:sqlsection(i)>>'s loaded explicitly by the application.<p>
 
 <<schemaDoc>>
 
@@ -143,9 +149,9 @@ The scenariodb(n) may be created with the following options:<p>
 
 <<defopt {-clock <i>clock</i>}>>
 
-Specifies a <<xref simclock(n)>> object, or the equivalent.  This
-option is delegated to the underlying <<xref sqldocument(n)>> object,
-which uses it to provide <<xref simclock(n)>>-related SQL functions.<p>
+Specifies a <<xref mars:simclock(n)>> object, or the equivalent.  This
+option is delegated to the underlying <<xref mars:sqldocument(n)>> object,
+which uses it to provide <<xref mars:simclock(n)>>-related SQL functions.<p>
 
 <<defopt {-explaincmd <i>command</i>}>>
 
@@ -192,7 +198,7 @@ adds additional behavior on top of <<iref clear>>.<p>
 <<defitem open {<i>obj</i> open <i>filename</i>}>>
 
 Opens an existing scenario file, and clears the <<iref unsaved>>
-flag.  <<xref athena_sim(1)>> will usually use this to open a working
+flag.  <<xref athena(1)>> will usually use this to open a working
 RDB, into which the user's scenario file will be <<iref load>>ed.
 If <i>filename</i> is "<code>:memory:</code>", the database will be
 opened in memory rather than on the disk.<p>
