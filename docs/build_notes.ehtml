@@ -11,6 +11,18 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B22, 2 October 2014</h3>
+
+This build has mainly documentation updates but also contains a couple of bug fixes.<p>
+
+<ul>
+<li> Bug 4603: broken links on scenariodb(n) man page
+<li> Bug 4607: Athena Map Scrollbars should not scroll
+<li> Bug 4609: Make neighborhood ingestion wizard header more compact
+<li> Bug 4610: Add section on neighborhood ingestion wizard to AUG
+<li> Bug 4611: AUG updates 
+</ul><p>
+
 <h3>Build 6.2.2-B21, 18 September 2014</h3>
 
 This build contains one fix to the Neighborhood Ingestion wizard.  It is also
