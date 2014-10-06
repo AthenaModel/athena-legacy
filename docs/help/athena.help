@@ -33,6 +33,7 @@ page "" "" "Athena Help" {
     <li> <<cref /release>>
     <li> <<cref /object>>
     <li> <<cref /menu>>
+    <li> <<cref /wizard>>
     <li> <<cref /tab>>
     <li> <<cref /order>>
     <li> <<cref /gofer>>
@@ -140,6 +141,7 @@ page / release "Release Notes" {
 # The following sections are in separate files
 
 include wms.help
+include wizard.help
 include object.help
 include menu.help
 include tab.help
