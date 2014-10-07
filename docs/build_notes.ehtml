@@ -11,6 +11,18 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.2-B23, 7 October 2014</h3>
+
+This build is the release candidate for Athena 6.2.2.  It contains
+documentation updates to the AAG, AUG and online help.  It also restores the
+accidentally removed "Help" menu in main window menu bar.<p>
+
+<ul>
+<li> Bug 4612: Add online help page for Wizards
+<li> Bug 4599: AAG section 9.8.3 typo
+<li> Bug 4613: Final help changes for 6.2 release 
+</ul><p>
+
 <h3>Build 6.2.2-B22, 2 October 2014</h3>
 
 This build has mainly documentation updates but also contains a couple of bug fixes.<p>
