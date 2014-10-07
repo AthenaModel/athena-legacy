@@ -1,0 +1,7 @@
+simlib(n) -- Mars Simulation Package
+
+This directory contains non-GUI simulation infrastructure modules.
+Related GUI modules (if any) will be in simgui(n).
+
+
+

@@ -1,0 +1,987 @@
+<<manpage gramdb(5) "GRAM Database File Format">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+gramdb(5) defines a database format used for initializing
+instances of <<xref gram(n)>>.  Note that <<xref gram(n)>> does not
+require that gramdb(5) be used; it is a convenience for testing and
+development.<p>
+
+<<xref gramdb(n)>> parses gramdb(5) files into SQL tables in
+an <<xref sqldocument(n)>> database.
+run-time database.  The syntax of the file mirrors the SQL
+<<xref "DATABASE SCHEMA">>.<p> 
+
+<<swallow {
+# Let's let simlib do some of the work.
+package require simlib
+namespace import -force ::simlib::*
+}>>
+
+<<section "BASIC SYNTAX">>
+
+A gramdb(5) file is a text file which defines the contents of a number
+of SQL tables.  This section describes the file's syntax; see
+<<xref TABLES>> for an example of each gramdb(5) table.<p>
+
+The gramdb(5) file may contain comments and <b>table</b>
+statements. A comment is a line of text beginning with the "#"
+character:<p>
+
+<pre>
+# This is a comment.
+</pre>
+
+<<subsection "Table Syntax">>
+
+A <b>table</b> statement defines the content of a single
+database table; each table consists of zero or more records.  The
+<b>table</b> statement has this syntax:<p>
+
+<pre>
+<b>table</b> <i>tableName</i> {
+    <i>record</i>
+    <i>record</i>
+        .
+        .
+        .
+}
+</pre><p>
+
+<<subsection "Records and Keys">>
+
+The records of each table are identified by the table's key fields.
+Each record in the <b>gramdb_g</b> table, for example, defines a single
+group; the key field, <b>g</b>, is the name of the group.  This
+name must be unique for each record in the table.  Some tables
+have two or even three key fields.  The <b>gramdb_fg</b> table, for
+example, contains the playbox-wide group relationship values; it has
+two keys, <b>f</b> and <b>g</b>, each of which is the name of a
+group.<p>
+
+Each record is defined by a <b>record</b> statement, which has this syntax:<p>
+
+<pre>
+<b>table</b> <i>tableName</i> {
+    <b>record</b> <i>keyName</i> <i>keyValue</i> ... {
+         <i>field</i>
+         <i>field</i>
+         .
+         .
+         .
+    }
+    .
+    .
+    .
+}
+</pre><p>
+
+<<subsection Fields>>
+
+In addition to its key field or fields, most tables also have one or
+more data fields.  Field values are defined using the <b>field</b>
+statement, which has this syntax:<p>
+
+<pre>
+<b>table</b> <i>tableName</i> {
+    <b>record</b> <i>keyName</i> <i>keyValue</i> ... {
+         <b>field</b> <i>fieldName</i> <i>fieldValue</i>
+         <b>field</b> <i>fieldName</i> <i>fieldValue</i>
+         .
+         .
+         .
+    }
+    .
+    .
+    .
+}
+</pre>
+
+Field values containing whitespace must be quoted with double
+quotes or curly brackets.  By convention, double quotes are used
+for short strings and curly brackets for structured values
+(e.g., lists) and for text which spills onto more than one line.
+See the example for each of the gramdb(5) <<xref TABLES>> to see what
+each form looks like in practice.<p>
+
+<<section CONCERNS>>
+
+Several of the tables (<b>gramdb_gc</b>, <b>gramdb_ngc</b>) depend on the
+following sets of concerns; the symbolic name of each concern is
+shown in parentheses.<p>
+
+<<subsection "Civilian Concerns">>
+
+Civilian population groups have the following concerns:
+
+<dl>
+  <dt> <b>Autonomy (AUT)</b>
+  <dd> Does the group feel it can maintain order and govern itself 
+       with a stable government and a viable economy?<p>
+
+  <dt> <b>Quality of Life (QOL)</b>
+  <dd> QOL includes the physical plants that provide services, 
+       including water, power, public transportation, commercial 
+       markets, hospitals, etc. and those things associated with 
+       these services such as sanitation, health, education, 
+       employment, food, clothing, and shelter.<p>
+
+  <dt> <b>Culture (CUL)</b>
+  <dd> Does the group feel that its culture and religion, 
+       including cultural and religious sites and artifacts, 
+       are respected or denigrated? <p>
+
+  <dt> <b>Physical Safety (SFT)</b>
+  <dd> Do members of the group fear for their lives, both from 
+       hostile attack and from collateral damage from CF activities?
+       This fear includes environmental concerns such as life 
+       threatening disease, starvation, and dying of thirst.<p>
+</dl>
+
+<<subsection "Organization Concerns">>
+
+Organization population groups have the following concerns:<p>
+
+<dl>
+  <dt> <b>Casualties (CAS)</b>
+  <dd> CAS is how dangerous the ORG group views its environment to 
+       be in relationship to its members willingness to risk (or 
+       continue risking) their lives to do their work.<p>
+
+  <dt> <b>Service (SVC)</b>
+  <dd> SVC is concern on the part of an ORG group toward being able 
+       to provide its service, i.e., to perform good works.  ORGs 
+       have higher SVC satisfaction when performing good works, and 
+       lower SVC satisfaction when they can't perform good works.<p>
+</dl>
+
+<<section TABLES>>
+
+<<subsection gramdb_g>>
+
+The <b>gramdb_g</b> table defines the complete set of population groups
+of all group types (e.g., CIV, ORG, and FRC).  The table has a single key
+field, the group name, <b>g</b>.<p>
+
+Many of the fields defined for this table serve as defaults for the
+<b>gramdb_ng</b> table, which contains data which varies by neighborhood
+and group.  Thus, if the gramdb(5) input does not contain a
+<b>rollup_weight</b> for group A in neighborhood B, the
+<b>rollup_weight</b> for group A from this table is used.<p>
+
+<b>Constraints:</b><p>
+
+<ul>
+  <li> The table must contain at least one CIV group.
+  <li> The table must contain at least one ORG group.
+  <li> The table must contain at least one FRC group.
+</ul><p>
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>g</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A symbolic name for the group.  The name may
+consist of uppercase letters, digits, and underscores only--no white
+space or other punctuation.
+</td>
+</tr>
+
+<tr valign=top>
+<td>gtype</td>
+<td>n/a</td>
+<td>
+<b>Required.</b>  The value must be from the
+<<xref simtypes(n) egrouptype>> enumeration:
+
+<<egrouptype html>>
+
+The <b>gtype</b> determines whether the group consists of local
+civilians, of organizations (NGOs, IGOs, contractors) working in the
+playbox, or of military or other organized forces.  For example,<p>
+
+<pre>
+record g SUNB {
+    gtype CIV
+    .
+    .
+    .
+}
+</pre>
+
+Note that GRAM does not track the satisfaction of <b>FRC</b> groups,
+only of <b>CIV</b> and <b>ORG</b> groups.<p>
+
+</td>
+</tr>
+
+<tr valign=top>
+<td>rollup_weight</td>
+<td>1.0</td>
+<td>
+<b>CIV and ORG groups only.</b>  A non-negative decimal number used
+as the default for 
+<b>rollup_weight</b> in <b>gramdb_ng</b>.  See <<xref gramdb_ng>> for how the
+<b>rollup_weight</b> is used.
+</td>
+</tr>
+
+<tr valign=top>
+<td>effects_factor</td>
+<td>1.0</td>
+<td>
+<b>CIV and ORG groups only.</b>
+A non-negative decimal number used as the default for
+<b>effects_factor</b> in <b>gramdb_ng</b>.  See <<xref gramdb_ng>> for how the
+<b>effects_factor</b> is used.
+</td>
+</tr>
+
+</table><p>
+
+The following example defines a CIV group and an ORG group.<p>
+
+<pre>
+table gramdb_g {
+    #-------------------------------------------------------------------
+    # CIV groups
+
+    record g SUNB {
+        field gtype CIV
+        field rollup_weight  0.5
+        field effects_factor 0.6
+    }
+
+    .
+    .
+    .
+
+    #-------------------------------------------------------------------
+    # ORG groups
+
+    record g IMC {
+        field gtype ORG
+        field rollup_weight  0.5
+        field effects_factor 0.6
+    }
+
+    .
+    .
+    .
+
+    #-------------------------------------------------------------------
+    # FRC groups
+
+    record g BLUE {
+        field gtype FRC
+    }
+
+    .
+    .
+    .
+
+}
+</pre>
+
+
+<<subsection gramdb_n>>
+
+This table defines neighborhoods within the playbox.  GRAM tracks
+civilian satisfaction within each neighborhood for the groups who
+live there.  Table <b>gramdb_mn</b> describes the relationships between
+the different neighborhoods. Table
+<b>gramdb_ng</b> defines the population of each neighborhood by group.
+Table <b>gramdb_ngc</b> contains neighborhood-specific modifications to
+the initial satisfaction levels defined in <b>gramdb_gc</b>.  Table
+<b>gramdb_nfg</b> contains neighborhood-specific modifications to the
+group relationships defined in <b>gramdb_fg</b>.<p>
+
+<b>Constraints:</b><p>
+
+<ul>
+  <li> The table must define at least one neighborhood.
+</ul><p>
+
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>n</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A symbolic name for the neighborhood.  The name may
+consist of uppercase letters, digits, and underscores only--no white
+space or other punctuation.
+</td>
+</tr>
+
+</table><p>
+
+For example,<p>
+
+<pre>
+table gramdb_n {
+    record n N1 {}
+    record n N2 {}
+}
+</pre>
+
+
+<<subsection gramdb_gc>>
+
+This table contains all data which is defined by group and concern.
+At present, the data consists of the playbox-wide defaults for the
+group satisfaction curves.  These values are defaults because they
+are used to initialize the satisfaction curves for each group within
+each neighborhood.  Note that the <<xref gramdb_ngc>> table is used to
+enter any neighborhood-specific modifications.<p>
+
+This table has two keys, <b>g</b> (the group name) and
+<b>c</b> (the concern name, see <<xref CONCERNS>>).  If the table is
+omitted from the gramdb(5) input, the <<xref sqldocument(n)>> table
+will be populated with default values for all valid combinations of
+group and concern.<p>
+
+<b>Constraints:</b><p>
+
+<ul>
+  <li> Only CIV and ORG groups may be entered.
+  <li> The group and concern in each record must have the same group type,
+       CIV or ORG.
+</ul><p>
+
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>g</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A CIV or ORG group name, as defined in the
+<b>gramdb_g</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>c</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A concern name, as defined in
+<<xref CONCERNS>>.  Note that concern <b>c</b> must have the same
+<b>gtype</b> as group <b>g</b>.
+</td>
+</tr>
+
+<tr valign=top>
+<td>sat0</td>
+<td>0.0</td>
+<td>
+The initial satisfaction at time 0.0, a numeric or symbolic
+<<xref simtypes(n) qsat>> value:
+
+<<qsat html>>
+</td>
+</tr>
+
+<tr valign=top>
+<td>saliency</td>
+<td>1.0</td>
+<td>
+The saliency (importance) of this concern to this group, a numeric or
+symbolic <<xref simtypes(n) qsaliency>> value:
+
+<<qsaliency html>>
+</td>
+</tr>
+
+</table><p>
+
+For example,<p>
+
+<pre>
+table gramdb_gc {
+    record g SUNB c AUT {
+        field sat0     -61
+        field saliency 1
+    }
+
+    record g SUNB c CUL {
+        field sat0     -61
+        field saliency 1
+    }
+
+    .
+    .
+    .
+}
+</pre>
+
+<<subsection gramdb_fg>>
+
+This table contains all data which is defined by pairs of groups.
+At present, the data consists of the playbox-wide defaults for the
+group relationship matrix and initial cooperation level matrix.
+These values are defaults because they
+are used to initialize the relationship matrices for each
+neighborhood.  Note that the <<xref gramdb_nfg>> table is used to
+enter any neighborhood-specific modifications.<p>
+
+This table has two keys, <b>f</b> (the name of the first
+group) and <b>g</b> (the name of the second group).  If the
+table is omitted from the gramdb(5) input, the <<xref sqldocument(n)>>
+table will be populated with default values for all pairs
+of groups.<p>
+
+<b>Constraints:</b><p>
+
+<ul>
+  <li> The relationship, <b>rel</b>, must be 1.0 when <b>f</b> equals
+       <b>g</b>.
+  <li> Cooperation (<b>coop0</b>) is ignored by GRAM unless
+       <b>f</b> is a CIV and <b>g</b> is a FRC.
+</ul><p>
+
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>f</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  The first group name, as defined in the
+<b>gramdb_g</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>g</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  The second group name, as defined in the
+<b>gramdb_g</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>rel</td>
+<td>
+1.0 if <b>f</b> == <b>g</b><br>
+0.0 otherwise.</td>
+<td>
+The relationship between the two groups from group <b>f</b>'s point
+of view (the relationship need not be symmetric).  The value is a
+<<xref simtypes(n) qrel>> value and may range from
+<<qrel cget -min>> to <<qrel cget -max>>. The
+following symbolic constants may be used during data entry:<p>
+
+<<qrel html>>
+</td>
+</tr>
+
+<tr valign=top>
+<td>coop0</td>
+<td>
+100.0 if <b>f</b> == <b>g</b><br>
+50.0 otherwise.</td>
+<td>
+The probability that group <b>f</b> will cooperate with (provide
+information to) group <b>g</b> (the relationship need not be
+symmetric).  The value is a
+<<xref simtypes(n) qcooperation>> value and may range from
+<<qcooperation cget -min>> to <<qcooperation cget -max>>.  The
+following symbolic constants may be used during data entry:<p>
+
+<<qcooperation html>>
+</td>
+</tr>
+
+
+</table><p>
+
+For example,<p>
+
+<pre>
+table gramdb_fg {
+    record f SUNB g BLUE {
+        field rel   -0.3
+        field coop0 U
+    }
+
+    record f SUNB g OPFOR {
+        field rel    0.6
+        field coop0 75.0
+    }
+    .
+    .
+    .
+}
+</pre>
+
+<<subsection gramdb_mn>>
+
+This table contains all data which is defined by pairs of
+<<xref gramdb_n>>: the <b>proximity</b> and the <b>effects_delay</b>.<p>
+
+This table has two keys, <b>m</b> (the name of the first
+neighborhood) and <b>n</b> (the name of the second
+neighborhood). If the table is omitted from the gramdb(5) input,
+the <<xref sqldocument(n)>> table will be populated with default
+values for all pairs of neighborhoods.<p> 
+
+<b>Constraints:</b><p>
+
+<ul>
+  <li> When <b>m</b> equals <b>n</b>, the <b>proximity</b> must be
+       <b>HERE</b> and the <b>effects_delay</b> must be 0.0.
+  <li> When <b>m</b> does not equal <b>n</b>, the <b>proximity</b> must
+       <i>not</i> be <b>HERE</b>.<p>
+</ul><p>
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>m</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  The first neighborhood name, as defined in the
+<b>gramdb_n</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>n</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  The second neighborhood name, as defined in the
+<b>gramdb_n</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>proximity</td>
+<td>
+HERE if <b>m</b> == <b>n</b>,
+FAR otherwise</td>
+<td>
+The value is the proximity of neighborhood <b>n</b> to neighborhood
+<b>m</b> from the point of view of residents of <b>m</b>.  Whereas
+<b>effects_delay</b> measures the speed of information flow,
+<b>proximity</b> measures the physical distance between the
+neighborhoods, as perceived by the residents.  Proximity can have any
+of the following <<xref simtypes(n) eproximity>> values:
+
+<<eproximity html>>
+
+Note that proximity need not be symmetric.  Consider a neighborhood
+<b>n</b> which contains an important resource (a bridge, or a shopping
+area).  Residents of many neighborhoods might consider <b>n</b> to be
+<b>NEAR</b> because they frequently travel to or through <b>n</b>,
+even though the residents of <b>n</b> might consider these other
+neighborhoods to be <b>FAR</b>.<p>
+</td>
+</tr>
+
+<tr valign=top>
+<td>effects_delay</td>
+<td>0.0</td>
+<td>
+The value is the indirect effects delay in decimal days--that is, the
+delay before indirect effects begin in neighborhood <b>m</b> for a direct
+effect in neighborhood <b>n</b>.  If <b>m</b> == <b>n</b>, then the value is
+the delay for indirect effects within the same neighborhood (this will
+usually be 0.0).
+<p>
+
+Note that the delay between two neighborhoods need not be symmetric;
+indirect effects in outlying areas from a direct effect in the capital
+will likely begin more quickly than indirect effects in the capital from
+a direct effect in an outlying area.
+</td>
+</tr>
+
+</table><p>
+
+The following example states that all neighborhoods are <b>FAR</b>
+from each other, except for those explicitly mentioned as being
+<b>NEAR</b>.<p>
+
+<pre>
+table gramdb_mn {
+    record m N1 n N2 {
+        field proximity      NEAR
+        field effects_delay  0.2
+    }
+
+    record m N2 n N1 {
+        field proximity      NEAR
+        field effects_delay  0.2
+    }
+}
+
+</pre>
+
+<<subsection gramdb_ng>>
+
+This table contains all data which is defined by neighborhood and
+group, and in particular which groups are present in each
+neighborhood.<p>
+
+This table has two keys, <b>n</b> (the name of the
+neighborhood) and <b>g</b> (the name of the group).<p>
+
+This table need not contain any data for ORG groups, as all values
+have well-know defaults.<p>
+
+Many of the fields in this table will default to the value for
+the same group in <b>gramdb_g</b>.<p>
+
+<b>Constraints:</b><p>
+
+<ul>
+  <li> Every neighborhood must contain at
+       least one CIV group with a <b>population</b> greater than
+       0.
+  <li> Every CIV group must have a <b>population</b> greater than 0 in
+       at least one neighborhood.
+  <li> Population should be 0 (or not entered) for each ORG group.
+</ul><p>
+
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>n</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A neighborhood name, as defined in the
+<b>gramdb_n</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>g</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A CIV or ORG group name, as defined in the
+<b>gramdb_g</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>rollup_weight</td>
+<td>From <b>gramdb_g</b></td>
+<td>
+The <b>rollup_weight</b> is used when rolling up satisfaction
+from the neighborhood level to the top-level; every satisfaction value
+is weighted by the group's <b>rollup_weight</b> and the concern's
+<b>saliency</b> in the particular neighborhood.  More important
+groups can be weighted more highly than less important groups.
+The <b>rollup_weight</b> is a non-negative decimal number.
+</td>
+</tr>
+
+<tr valign=top>
+<td>effects_factor</td>
+<td>From <b>gramdb_g</b></td>
+<td>
+The <b>effects_factor</b> is a multiplier used when generating
+the indirect effects in other neighborhoods of a satisfaction input
+in neighborhood <b>n</b>.  If it is higher, folks in other
+neighborhoods care more about what happens to this group in this
+neighborhood; if it is smaller, they care less.<p>
+
+The <b>effects_factor</b> is a non-negative decimal number; it will
+usually be less than or equal to 1.0, but may be greater in unusual
+cases.<p>
+</td>
+</tr>
+
+<tr valign=top>
+<td>population</td>
+<td>0</td>
+<td>
+The population of the group in the neighborhood,
+i.e., the total number of people living in the neighborhood who belong
+to the group (an integer number).  If the population is 0 for a CIV
+group, then the group does not appear in the neighborhood.
+</td>
+</tr>
+
+</table><p>
+
+For example,<p>
+
+<pre>
+table gramdb_ng {
+    # Note: Not every group needs to be represented in each
+    # neighborhood
+
+    record n N1 g SHIF {
+        field rollup_weight  0.6
+        field effects_factor 0.6
+        field population     50000
+    }
+
+    record n N1 g SHIM {
+        field rollup_weight  0.2
+        field effects_factor 0.2
+        field population     10000
+    }
+
+    .
+    .
+    .
+}
+</pre>
+
+<<subsection gramdb_ngc>>
+
+The <b>gramdb_gc</b> table contains the playbox-wide defaults for the
+group satisfaction curves. This table is used to adjust these for specific
+neighborhoods. Once all records have been read from the gramdb(5) file, the
+missing entries will be initialized from the <b>gramdb_gc</b> table;
+consequently, if this table is omitted altogether from the gramdb(5) file,
+the matching <<xref sqldocument(n)>> table will contain one copy of the
+<b>gramdb_gc</b> data for each neighborhood <p>
+
+This table has three keys, <b>n</b> (the name of the
+neighborhood) <b>g</b> (the name of the group), and
+<b>c</b> (the name of the concern, see <<xref CONCERNS>>).<p>
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>n</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A neighborhood name, as defined in the
+<b>gramdb_n</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>g</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A CIV or ORG group name, as defined in the
+<b>gramdb_g</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>c</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  A concern name, as defined in the
+<<xref CONCERNS>> section.  Note that <b>g</b> and
+<b>c</b> must have the same <b>gtype</b>, i.e., either civilian (CIV)
+or organization (ORG).
+</td>
+</tr>
+
+<tr valign=top>
+<td>sat0</td>
+<td>0.0</td>
+<td>
+The initial satisfaction at time 0.0, a numeric or symbolic
+<<xref simtypes(n) qsat>> value:
+
+<<qsat html>>
+</td>
+</tr>
+
+<tr valign=top>
+<td>saliency</td>
+<td>1.0</td>
+<td>
+The saliency (importance) of this concern to this group, a numeric or
+symbolic <<xref simtypes(n) qsaliency>> value:
+
+<<qsaliency html>>
+</td>
+</tr>
+
+</table><p>
+
+For example,<p>
+
+<pre>
+table gramdb_ngc {
+    # SHIFs are less happy in N1 than in N2
+    # The saliencies are the same as the playbox default for
+    # SHIF QOL.
+
+    record n N1 g SHIF c QOL {
+        field sat0     -60
+    }
+
+    record n N2 g SHIF c QOL {
+        field sat0     -20
+    }
+
+    .
+    .
+    .
+}
+</pre>
+
+<<subsection gramdb_nfg>>
+
+The <b>gramdb_fg</b> table contains the playbox-wide defaults for the
+group relationships and initial cooperation levels. This table is used to
+adjust the playbox-wide defaults for specific neighborhoods. Once all
+records have been read from the gramdb(5) file, the missing entries will
+be initialized from the <b>gramdb_fg</b> table; consequently, if this table
+is omitted altogether from the gramdb(5) file, the matching
+<<xref sqldocument(n)>> table will contain one copy of the
+<b>gramdb_fg</b> data for each neighborhood <p>
+
+This table has three keys, <b>n</b> (the name of the
+neighborhood), <b>f</b> (the name of the first
+group) and <b>g</b> (the name of the second group).<p> 
+
+<b>Constraints:</b><p>
+
+<ul>
+  <li> The relationship, <b>rel</b>, must be 1.0 when <b>f</b> equals
+       <b>g</b>.
+  <li> Cooperation (<b>coop0</b>) is ignored by GRAM unless
+       <b>f</b> is a CIV and <b>g</b> is a FRC.
+</ul><p>
+
+<table border=1 cellspacing=0>
+<tr align=left>
+<th>Field</th> <th>Default</th> <th>Description</th>
+</tr>
+
+<tr valign=top>
+<td>n</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  The neighborhood name, as defined in the
+<b>gramdb_n</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>f</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  The first group name, as defined in the
+<b>gramdb_g</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>g</td>
+<td>n/a</td>
+<td>
+<b>Key Field.</b>  The second group name, as defined in the
+<b>gramdb_g</b> table.
+</td>
+</tr>
+
+<tr valign=top>
+<td>rel</td>
+<td>
+From <b>gramdb_fg</b></td>
+<td>
+The relationship between the two groups from group <b>f</b>'s point
+of view (the relationship need not be symmetric).  The value is a
+<<xref simtypes(n) qrel>> value and may range from
+<<qrel cget -min>> to <<qrel cget -max>>.   The
+following symbolic constants may be used during data entry:<p>
+
+<<qrel html>>
+</td>
+</tr>
+
+<tr valign=top>
+<td>coop0</td>
+<td>
+From <b>gramdb_fg</b></td>
+<td>
+The probability that group <b>f</b> will cooperate with (provide
+information to) group <b>g</b> (the relationship need not be
+symmetric).  The value is a
+<<xref simtypes(n) qcooperation>> value and may range from
+<<qcooperation cget -min>> to <<qcooperation cget -max>>.  The
+following symbolic constants may be used during data entry:<p>
+
+<<qcooperation html>>
+</td>
+</tr>
+
+
+</table><p>
+
+For example,<p>
+
+<pre>
+table gramdb_nfg {
+    record n N1 f SUNB g BLUE {
+        field rel   -0.3
+        field coop0 U
+    }
+
+    .
+    .
+    .
+}
+</pre>
+
+<<section "DATABASE SCHEMA">>
+
+The <<xref gramdb(n)>> parser defines the following SQL schema which
+will receive the <<xref gramdb(5)>> data:<p>
+
+<pre>
+<<gramdb sqlsection schema>>
+</pre>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+gramdb(5) is a modified (and greatly simplified) version of the simdb(5)
+format used by JNEM.<p>
+
+<</manpage>>
+
+
+
+
+
+
+
+
+

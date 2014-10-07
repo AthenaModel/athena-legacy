@@ -1,0 +1,83 @@
+<html> <head>
+<title>Mars <<version>>: Sample mars_doc(5) Document</title>
+<style>
+<<standardstyle>>
+</style>
+</head>
+
+<body>
+<<banner>>
+
+<h2>Mars <<version>>: Sample mars_doc(5) Document</h2>
+
+<<hrule>>
+
+<<contents>>
+
+<<hrule>>
+
+<<preface changelog "Change Log">>
+
+<<changelog>>
+
+<<change 10/01/2008 New whd>>
+This is a brand new document!
+<</change>>
+
+<</changelog>>
+
+<<preface foreword "Forward">>
+
+This is a sample <code>preface</code> section to a document
+processed by <<xref mars_doc(1)>>.  It's written in
+<<xref mars_doc(5)>> format.<p>
+
+We can look up man pages in a variety of places.  Here's
+the Tcl <<xref tcl:regexp(n)>> man page, and the
+Tk <<xref tk:canvas(n)>> man page.<p>
+
+<<section sec "Sample Numbered Section">>
+
+This is a sample numbered section.<p>
+
+<<figure fig.sample "Sample Figure" nonesuch.gif>>
+
+And here's some text after the figure.<p>
+
+<<section sec.sub "Sample Subsection">>
+
+This is a sample subsection.<p>
+
+<<table tab.this "Sample Table">>
+<pre>
+This isn't really a table.
+</pre>
+<</table>>
+
+<<section sec.sub.subsub "Sample Subsubsection">>
+
+This is a sample subsubsection.<p>
+
+<<section another "Another Sample Numbered Section">>
+
+This is another sample numbered section.<p>
+
+<<table tab.that "Another Sample Table">>
+<pre>
+This one isn't really a table either.
+</pre>
+<</table>>
+
+
+<<section another.sub "Another Sample Subsection">>
+
+This is another sample subsection.<p>
+
+<<section another.sub.subsub "Another Sample Subsubsection">>
+
+This is another sample subsubsection.<p>
+
+
+</body> </html>
+
+

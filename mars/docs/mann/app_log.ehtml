@@ -1,0 +1,101 @@
+<<manpage app_log(n) "Log Browser Application Framework">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require app_log(n) 1.0
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+app_log(n) is an framework for a standalone application to
+browse <<xref logger(n)>> log files.  Invoke the application
+as follows:<p>
+
+<ul>
+<li> Require the framework's package.
+<li> Configure the framework using <<iref app configure>>.
+<li> Invoke the application using <<iref app init>>.
+</ul><p>
+
+The <<xref mars_log(1)>> application is an instance of this framework.<p>
+
+
+<<section COMMANDS>>
+
+This module defines the following commands:<p>
+
+<<deflist commands>>
+
+<<defitem "app configure" {app configure <i>option</i> ?<i>value</i>? ?<i>option value...</i>?}>>
+
+Sets/queries the framework's configuration options, which are as follows:<p>
+
+<<deflist options>>
+
+<<defopt {-appname <i>appname</i>}>>
+
+The application name, for use in error messages.  The application name for
+<<xref mars_log(1)>> is "mars log".<p>
+
+<<defopt {-defaultappdir <i>dirname</i>}>>
+
+Projects with multiple logging applications, like JNEM, will typically have
+a log directory containing multiple subdirectories, one for each
+application.  At startup, app_log(n) by default shows the most recent log
+file for the first application subdirectory in alphabetical order.  If it
+should show some other directory by default, specify the bare directory
+name, e.g., "jnem_sim".<p>
+
+<<xref mars_log(1)>> leaves this option unset.<p>
+
+<<defopt {-manpage <i>name</i>}>>
+
+The application's man page name, for use in error messages.  The man page
+name for <<xref mars_log(1)>> is, of course, "mars_log(1)".<p>
+
+<<defopt {-project <i>name</i>}>>
+
+The project name, for display in the title bar of the application window.
+For <<xref mars_log(1)>> the project name is "Mars".<p>
+
+<</deflist options>>
+
+<<defitem "app init" {app init <i>argv</i>}>>
+
+Invokes the application; <i>argv</i> is expected to be the list of
+command line arguments.<p>
+
+<<iref app init>> expects one optional argument, the name of the log
+directory.  If not given, it defaults to "./log".<p>
+
+The log directory can be either a directory containing log files or
+a directory whose subdirectories contain log files.  In the latter case,
+the GUI displays a list of the subdirectories for the user's selection.<p>
+
+<</deflist commands>>
+
+<<section ENVIRONMENT>>
+
+marsgui(n) requires Tcl 8.5 or later.
+
+To use marsgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package, based on <<xref scrollinglog(n)>> and
+jnem_log(1).<p>
+
+<</manpage>>
+
+
+
+
