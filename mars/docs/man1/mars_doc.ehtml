@@ -1,0 +1,88 @@
+<<manpage {mars(1) mars_doc(1)} "Mars Document Processor">>
+
+<<section SYNOPSIS>>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+<<deflist program>>
+
+<<defitem mars_doc {mars doc ?<i>options...</i>? file.ehtml ?file.ehtml...?}>>
+
+<</deflist program>>
+
+mars_doc(1) is a program to convert <<xref mars_doc(5)>> documents
+into standard HTML.  The <<xref mars_doc(5)>> format is an
+"Extended HTML" format; <<xref mars_doc(5)>> input consists of
+arbitrary HTML text with embedded macros.  mars_doc(1)
+expands the macros, producing a full-fledged HTML page.<p>
+
+Unlike <<xref mars_man(1)>>, which simply produces man pages,
+mars_doc(1) can be used for arbitrary documents.<p>
+
+The tool is designed to process all of the ".ehtml" files specified on
+its command-line, producing a matching ".html" file for each in the same
+directory.<p>
+
+The standard set of macros is defined in <<xref mars_doc(5)>>; in
+addition, individual documents can define their own macros.<p>
+
+<<section OPTIONS>>
+
+<<deflist options>>
+
+<<defopt {-manroots <i>roots</i>}>>
+
+Specifies the mapping from man page names to URLs to be used
+when processing cross-references in documents.  See
+<<xref ehtml(n) manroots>> in <<xref ehtml(n)>> for the syntax
+of <i>roots</i>.<p>
+
+<<defopt {-version <i>version</i>}>>
+
+Specifies the version number for the project being documented.
+Defaults to the current Mars version number.  Drives the
+<<xref mars_doc(5) version>> macro.<p>
+
+<<defopt {-project <i>project</i>}>>
+
+Specifies the name of the project being documented. 
+Defaults to "Mars".  Drives the
+<<xref mars_doc(5) project>> macro.<p>
+
+<<defopt {-longproject <i>name</i>}>>
+
+Specifies the long name of the project being documented. 
+Defaults to "Simulation Infrastructure Library".  Drives the
+<<xref mars_doc(5) longproject>> macro.<p>
+
+<<defopt {-anchors}>>
+
+If specified, each output document will include, at the very end, an
+HTML comment which lists all of the sections, tables, and figures in
+the document, with their xref IDs.<p>
+
+<</deflist options>>
+
+<<section ENVIRONMENT>>
+
+mars_doc(1) requires Tcl 8.5 or later.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Originally written for JNEM as jnem_ehtml(1); migrated to Mars in
+September 2008.
+
+<</manpage>>
+
+
+
+
+
+
+

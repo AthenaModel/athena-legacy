@@ -1,0 +1,180 @@
+#-----------------------------------------------------------------------
+# TITLE:
+#    test.gramdb
+#
+# AUTHOR:
+#    Will Duquette
+#
+# DESCRIPTION:
+#    Test file for simlib unit tests.  For now, this is used only
+#    for gramdb(n); it might eventually be used in the gram(n)
+#    test suite.
+#
+#-----------------------------------------------------------------------
+
+table gramdb_g {
+    record g SHIA {
+        field gtype CIV
+        field rollup_weight 1.0
+        field effects_factor 1.0
+    }
+
+    record g KURD  {
+        field gtype CIV
+        field rollup_weight  1.0
+        field effects_factor 1.0
+    }
+
+    record g SUNN  {
+        field gtype CIV
+        field rollup_weight 1.0
+        field effects_factor 1.0
+    }
+
+    record g ORGA {
+        field gtype ORG
+        field rollup_weight   1.0
+        field effects_factor 1.0
+    }
+
+    record g ORGB {
+        field gtype ORG
+        field rollup_weight   1.0
+        field effects_factor 1.0
+    }
+
+    record g BLUE {
+        field gtype FRC
+    }
+
+    record g BRIT {
+        field gtype FRC
+    }
+
+    record g OPFOR {
+        field gtype FRC
+    }
+}
+
+table gramdb_n {
+    record n N1 { }
+    record n N2 { }
+}
+
+table gramdb_ng {
+    record n N1 g SHIA {
+        field population 10000
+    }
+
+    record n N1 g KURD {
+        field population 10000
+    }
+
+    record n N1 g SUNN {
+        field population 10000
+    }
+
+    record n N2 g SHIA {
+        field population 10000
+    }
+
+    record n N2 g KURD {
+        field population 10000
+    }
+
+    record n N2 g SUNN {
+        field population 10000
+    }
+}
+
+table gramdb_fg {
+    record f SHIA g KURD  {field rel   0.6}
+    record f SHIA g SUNN  {field rel   0.0}
+    record f SHIA g BLUE  {field rel   0.3}
+    record f SHIA g BRIT  {field rel   0.3}
+    record f SHIA g OPFOR {field rel  -0.3}
+
+    record f KURD g SHIA  {field rel   0.6}
+    record f KURD g SUNN  {field rel  -0.6}
+    record f KURD g BLUE  {field rel   0.6}
+    record f KURD g BRIT  {field rel   0.6}
+    record f KURD g OPFOR {field rel  -0.6}
+
+    record f SUNN g SHIA  {field rel  -0.3}
+    record f SUNN g KURD  {field rel  -0.6}
+    record f SUNN g BLUE  {field rel  -0.6}
+    record f SUNN g BRIT  {field rel  -0.6}
+    record f SUNN g OPFOR {field rel   0.6}
+
+    record f BLUE g BRIT  {field rel   0.8}
+    record f BLUE g OPFOR {field rel  -0.8}
+
+    record f BRIT g BLUE  {field rel   0.8}
+    record f BRIT g OPFOR {field rel  -0.8}
+
+    record f OPFOR g BLUE {field rel  -0.8}
+    record f OPFOR g BRIT {field rel  -0.8}
+}
+
+table gramdb_gc {
+    record g SHIA c AUT {
+        field sat0 S
+        field saliency CR
+    }
+
+    record g SHIA c QOL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SHIA c CUL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SHIA c SFT {
+        field sat0 S
+        field saliency CR
+    }
+
+    record g KURD c AUT {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD c QOL {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD c CUL {
+        field sat0 A
+        field saliency CR
+    }
+
+    record g KURD c SFT {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN c AUT {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN c QOL {
+        field sat0 D
+        field saliency CR
+    }
+
+    record g SUNN c CUL {
+        field sat0 VD
+        field saliency CR
+    }
+
+    record g SUNN c SFT {
+        field sat0 VD
+        field saliency CR
+    }
+}
+

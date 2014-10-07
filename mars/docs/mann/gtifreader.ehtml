@@ -1,0 +1,77 @@
+<<manpage {marsgui(n) gtifreader(n)} "GeoTIFF reader binding">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+gtifreader(n) implements a partial Tcl binding to the open source
+libgeotiff library that can be found at the <a href="http://www.remotesensing.org/geotiff">libgeotiff</a> home page. 
+
+A complete description of the libgeotiff API is well beyond the scope of
+this man page; read the specification at the URL above for details.
+Instead, this man page details which parts of the libgeotiff API are available
+as part of the binding, as well as the Tcl-specific features of the 
+interface.<p>
+
+<<section COMMANDS>>
+
+<<deflist commands>>
+
+<<defitem gtifreader {gtifreader <i>name</i>}>>
+
+Creates a new <<iref gtifreader>> object called <i>name</i> and 
+attempts to read the GeoTIFF image called <i>filename</i>.
+The object is represented as a new Tcl command; if <i>name</i> isn't
+qualified with a namespace, it will be created within the global
+namespace. An attempt to create a <code><b>gtifreader</code></b>
+without the C++ Tcl binding loaded will result in an appropriate 
+error being generated.<p>
+
+<<defitem read {$gtr read <i>filename</i>}>>
+
+Opens and attempts to read <i>filename</i> as a GeoTIFF image. If it is 
+not a GeoTIFF an appropriate TCL_ERROR is returned.<p>
+
+<<defitem getGeoKeyInfo \
+    {$gtr getGeoKeyInfo <i>geokeyidx</i>}>>
+
+Given a geo key index return information associated with it. 
+If there is no information found, the empty string is returned. This call
+would be used, for example, to get the GeoTIFF citation using the citation geo key index
+as the argument.<p>
+
+<<defitem getGeoKey \
+   {$gtr getGeoKey <i>geokey</i>}>>
+
+Given a geo key return the value associated with the key. This call would
+be used to get the type of projection as an example. This call always returns
+one or no values. The complete list of valid geo keys can be found at the 
+<a href="http://www.remotesensing.org/geotiff">libgeotiff</a> home page.<p>
+
+<<defitem getGeoField \
+   {$gtr getGeoField <i>geofield</i>}>>
+
+Given a geo field return the data associated with it. This call would be used
+to retrieve information such as a list of tie points. This call returns a 
+variable amount of data in the form of a Tcl list. The complete list of valid 
+geo fields can be found at the 
+<a href="http://www.remotesensing.org/geotiff">libgeotiff</a> home page.<p>
+
+<</deflist commands>>
+
+<<section AUTHOR>>
+
+Dave Hanks<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>

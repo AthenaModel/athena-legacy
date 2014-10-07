@@ -1,0 +1,18 @@
+#-------------------------------------------------------------------------
+#
+# TITLE:
+#	pkgIndex.tcl
+#
+# AUTHOR:
+#	William H. Duquette
+#
+# DESCRIPTION:
+#	JNEM: app_sequence(n) package index file
+
+package ifneeded app_sequence 1.0 \
+    [list source [file join $dir app_sequence.tcl]]
+
+
+
+
+

@@ -1,0 +1,106 @@
+<<manpage {marsgui(n) reportviewerwin(n)} "Report Viewer Window Widget">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require marsgui 1.0
+namespace import ::marsgui::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+This module defines the reportviewerwin(n)
+report viewer window widget; it is used to display a single report in its
+own toplevel window.<p>
+
+<<section COMMANDS>>
+
+This module defines the following command:<p>
+
+<<deflist commands>>
+
+<<defitem reportviewerwin {reportviewerwin <i>pathName ?options...?</i>}>>
+
+Creates a new <<iref reportviewerwin>> widget named <i>pathName</i>.
+However, the more usual way to create a reportviewerwin is via
+<<iref reportviewerwin display>>.<p>
+
+The <<iref reportviewerwin>> widget inherits the options of the standard
+Tk <code>toplevel</code> widget.  In addition, it may be created with
+the following options:<p>
+
+<<deflist reportviewerwin options>>
+
+<<defopt {-db <i>dbname</i>}>>
+
+Specifies the name of the database object for the database containing
+the report to display.
+
+<</deflist reportviewerwin options>>
+
+<<defitem "reportviewerwin display" {reportviewerwin display <i>db id</i>}>>
+
+Pops up a new reportviewerwin which displays report <i>id</i> from
+database <i>db</i>, where <i>db</i> is the name of the SQLite
+database object.  If a reportviewerwin already exists for this report ID,
+the existing window, pops up the old one rather than creating
+a new one.<p>
+
+<b>Note:</b>  This command assumes that all the report windows it
+creates will be connected to a single database <i>db</i>.  If multiple
+databases are in use, create and manage the windows directly instead.<p>
+
+<</deflist commands>>
+
+<<section "INSTANCE COMMAND">>
+
+<<deflist instance>>
+
+<<defitem configure {$reportviewerwin configure <i>option value...</i>}>>
+
+Sets the values of the specified <i>options</i>.<p>
+
+<<defitem cget {$reportviewerwin cget <i>option</i>}>>
+
+Returns the value of the specified <i>option</i>.<p>
+
+<<defitem display {$reportviewerwin display <i>id</i>}>>
+
+Directs the reportviewerwin to display report <i>id</i> from the
+<code>-db</code>.<p>
+
+<<defitem show {$reportviewerwin show}>>
+
+Pops up the reportviewerwin if it is obscured or withdrawn.<p>
+
+<</deflist>>
+
+<<section "BINDINGS">>
+
+The <<xref reportviewerwin(n)>> widget is a simple wrapper around the
+<<xref reportviewer(n)>> widget; see that man page for bindings.<p>
+
+<<section ENVIRONMENT>>
+
+marsgui(n) requires Tcl 8.5 or later.
+
+To use marsgui(n) in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Original package.
+
+<</manpage>>
+
+
+
+
+

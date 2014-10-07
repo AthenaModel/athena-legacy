@@ -1,0 +1,46 @@
+<<manpage simlib(n) "Mars Simulation Library">>
+
+<<section SYNOPSIS>>
+
+<pre>
+package require simlib
+namespace import ::simlib::*
+</pre>
+
+<<itemlist>>
+
+<<section DESCRIPTION>>
+
+simlib(n) contains non-GUI simulation infrastructure modules.<p>
+
+<<section MODULES>>
+
+simlib(n) includes the following submodules:<p>
+
+<ul>
+  <li> <<xref uram(n)>> -- Unified Regional Analysis Model (URAM) V1.0</i>
+  <li> <<xref gram(n)>> -- Generalized Regional Analysis Model (GRAM) V1.0</i>
+  <li> <<xref rmf(n)>> -- Relationship Multiplier Functions</li>
+  <li> <<xref simtypes(n)>> -- Simulation Data Types</li>
+</ul>
+
+<<section ENVIRONMENT>>
+
+Requires Tcl 8.5 or later.<p>
+
+To use this package in a Tcl script, the environment variable
+<code>TCLLIBPATH</code> must include the parent of the package
+directory.<p>
+
+<<section AUTHOR>>
+
+Will Duquette<p>
+
+<<section HISTORY>>
+
+Some content (<<xref gram(n)>>, <<xref rmf(n)>>, and some of the
+<<xref simtypes(n)>>) derives from earlier versions in JNEM's simlib(n).<p>
+
+<</manpage>>
+
+
