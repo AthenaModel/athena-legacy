@@ -33,10 +33,10 @@ page "" "" "Athena Help" {
     <li> <<cref /release>>
     <li> <<cref /object>>
     <li> <<cref /menu>>
-    <li> <<cref /wizard>>
     <li> <<cref /tab>>
     <li> <<cref /order>>
     <li> <<cref /gofer>>
+    <li> <<cref /wizard>>
     <li> <<cref /var>>
     <li> <<cref /command>>
     <li> <<cref /function>>
@@ -51,6 +51,9 @@ page "" "" "Athena Help" {
 page / changelog "Change Log" {
     <<title>>
     <<changelog>>
+    <<change 10/7/2014 New whd>>
+    Final changes for Athena 6.2.
+    <</change>>
     <<change 2/19/2014 New whd>>
     Final changes for Athena 6.
     <</change>>
@@ -104,6 +107,29 @@ page / release "Release Notes" {
 
     The <i>Athena Users's Guide</i> gives a complete list of 
     changes for Athena V<<version>>. Here is a summary:<p>
+
+    <b>Athena 6.2</b><p>
+
+    <ul>
+    <li> Belief Systems are now assigned to civilian groups and actors;
+         multiple groups and actors can share a single belief system.
+    <li> The <<tab Social/Beliefs>> is now simpler and easier 
+         to use.
+    <li> Athena now includes two <<cref /wizard wizards>>, to aid in
+         building scenarios.
+    <li> Environment situations are now called abstract situations.
+    <li> There are a number of new tactics; in particular, the
+         <<cref /object/tactic/absit>> creates abstract situations.
+    <li> There are a number of new abstract situation and event types;
+         see the <i>Athena Rules Document</i>
+    </ul><p>
+
+    <b>NOTE:</b> Because of the significant changes to the belief system
+    code, it is not generally possible to import Athena 6.1 order scripts
+    as is.  At a minimum it will be necessary to strip out the BSYSTEM:*
+    orders and rebuild the belief systems by hand.<p>
+
+    <b>Athena 6.1</b><p>
 
     <ul>
     <li> The user interface and documentation are now organized around the 
