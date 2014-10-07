@@ -1,16 +1,16 @@
-<<manpage {devtools(1) make_tar(1)} "Installation Set Builder">>
+<manpage {devtools(1) make_tar(1)} "Installation Set Builder">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-<<deflist program>>
+<deflist program>
 
-<<defitem make_tar {make_tar <i>type x.y.z</i>}>>
+<defitem make_tar {make_tar <i>type x.y.z</i>}>
 
-<</deflist program>>
+</deflist program>
 
 make_tar(1) is used during the CM build process to build the
 source, docs, and installation tar files from the build tree.  The
@@ -41,15 +41,15 @@ the SVN directories and obvious temporary files (e.g., emacs backup
 files).  As a result, the source tar file should be generated
 immediately after a "make clean".<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Modified from a similar JNEM script.
 
-<</manpage>>
+</manpage>
 
 
 

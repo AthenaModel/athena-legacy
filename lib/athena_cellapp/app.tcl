@@ -4,7 +4,7 @@
 #   Application Ensemble.
 #
 # PACKAGE:
-#   app_pbs(n) -- athena_pbs(1) implementation package
+#   athena_cellapp(n) -- athena_cell(1) implementation package
 #
 # PROJECT:
 #   Athena S&RO Simulation
@@ -17,21 +17,22 @@
 #-----------------------------------------------------------------------
 # Required Packages
 
-# All needed packages are required in app_pbs.tcl.
+# All needed packages are required in athena_cellapp.tcl.
  
 #-----------------------------------------------------------------------
 # app
 #
-# app_pbs(n) Application Ensemble
+# athena_cellapp(n) Application Ensemble
 #
 # This module defines app, the application ensemble.  app encapsulates 
 # all of the functionality of athena_sim(1), including the application's 
 # start-up behavior.  To invoke the  application,
 #
-# > package require app_pbs
+# > package require athena_cellapp
 # > app init $argv
 #
-# The app_pbs(n) package can be invoked by athena(1).
+# The athena_cellapp(n) package can be invoked by athena(1) and by 
+# athena_test(1).
 
 snit::type app {
     pragma -hastypedestroy 0 -hasinstances 0
@@ -66,58 +67,33 @@ snit::type app {
         # NEXT, get the application directory
         appdir init
 
-        # NEXT, this application is not available on Windows
-        if {[os flavor] ne "linux"} {
-            messagebox popup \
-                -title  "Application Not Available" \
-                -icon   error                       \
-                -buttons {ok "Ok"}                  \
-                -parent  .                          \
-                -message [normalize "
-                    The Athena PBS application is only available on
-                    Linux clusters running the Portable Batch System
-                    (PBS).
-                "]
-
-            app exit
-        }
-
-        # NEXT, see if PBS is available, take into account the which
-        # command may be undefined
-        set qsub ""
-        set pbs_exists 1
-
-        if {[catch {set qsub [exec which qsub]}]} {
-            set pbs_exists 0
-        } elseif {$qsub eq ""} {
-            set pbs_exists 0
-        }
-                
-        if {!$pbs_exists} {
-            app exit \
-                "This application is not available on systems that do not have PBS"
-        }
-
         # NEXT, initialize the non-GUI modules
+        cmscript init
+        snapshot init
 
         # NEXT, create statecontrollers.
         namespace eval ::sc {}
 
         # Have a syntactically correct model
-        statecontroller ::sc::notrunning -events {
-            ::main <State>
+        statecontroller ::sc::gotModel -events {
+            ::cmscript <New>
+            ::cmscript <Open>
+            ::cmscript <Check>
         } -condition {
-            [.main jobstate] ne "RUNNING"
+            [::cmscript checkstate] ni {unchecked syntax}
         }
 
-        statecontroller ::sc::running -events {
-            ::main <State>
-        } -condition {
-            [.main jobstate] eq "RUNNING"
-        }
+        # NEXT, initialize the appserver
+        appserver init
+        myagent register app ::appserver
 
         # NEXT, create the real main window.
         appwin .main
+
+        # NEXT, if there's a cellmodel(5) file on the command line, open it.
+        if {[llength $argv] == 1} {
+            cmscript open [file normalize [lindex $argv 0]]
+        }
     }
 
     # exit ?text?
@@ -191,6 +167,76 @@ snit::type app {
         }
 
         return [$topwin {*}$args]
+    }
+
+    # show uri
+    #
+    # uri - A URI for some application resource
+    #
+    # Shows the URI in some way.  If it's a "gui:" URI, tries to
+    # handle it locally.  Otherwise, it passes it
+    # to the Detail browser.
+
+    typemethod show {uri} {
+        # FIRST, get the scheme.  If it's not a gui:, punt to 
+        # the Detail browser.
+
+        if {[catch {
+            array set parts [uri::split $uri]
+        }]} {
+            # Punt to normal error handling
+            $type ShowInDetailBrowser $uri
+            return
+        }
+
+        # NEXT, if the scheme isn't "gui", show in detail browser.
+        if {$parts(scheme) ne "gui"} {
+            $type ShowInDetailBrowser $uri
+            return
+        }
+
+        # NEXT, what kind of "gui" url is it?
+
+        if {$parts(host) eq "editor"} {
+            if {[regexp {^(\d+)$} $parts(path) dummy line]} {
+                .main gotoline $line
+                return
+            }
+        }
+
+        # NEXT, unknown kind of win; punt to normal error handling.
+        $type GuiUrlError $uri "No such window"
+    }
+
+    # ShowInDetailBrowser uri
+    #
+    # uri - A URI for some application resource
+    #
+    # Shows the URI in the Detail browser.
+
+    typemethod ShowInDetailBrowser {uri} {
+        .main show $uri
+        return
+    }
+
+    # GuiUrlError uri message
+    #
+    # uri     - A URI for a window we don't have.
+    # message - A specific error message
+    #
+    # Shows an error.
+
+    typemethod GuiUrlError {uri message} {
+        app error {
+            |<--
+            Error in URI:
+            
+            $uri
+
+            The requested gui:// URL cannot be displayed by the application:
+
+            $message
+        }
     }
 }
 

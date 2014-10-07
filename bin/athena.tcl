@@ -59,15 +59,14 @@ if {[info exists env(TCLLIBPATH)]} {
 
 set appdir  [file normalize [file dirname [info script]]]
 set libdir  [file normalize [file join $appdir .. lib]]
-set marsdir [file normalize [file join $appdir .. mars lib]]
 
 # Add Athena libs to the new lib path.
-lappend auto_path $marsdir $libdir
+lappend auto_path $libdir
 
 #-------------------------------------------------------------------
 # Next, require Tcl/Tk
 
-package require Tcl 8.5
+package require Tcl 8.6
 
 #-----------------------------------------------------------------------
 # Application Metadata
@@ -75,13 +74,13 @@ package require Tcl 8.5
 set metadata {
     sim {
         text   "Athena Simulation"
-        applib app_sim
+        applib athenaapp
         mode   gui
     }
 
     pbs {
         text "Athena Simulation PBS Cluster"
-        applib app_pbs
+        applib athena_pbsapp
         mode gui
     }
 }
@@ -130,7 +129,7 @@ proc main {argv} {
         set argv [nonTkArgs $argv]
 
         # NEXT, load Tk.
-        package require Tk 8.5
+        package require Tk 8.6
     }
 
     # NEXT extract the appname, if none specified we assume app_sim(1)
@@ -148,10 +147,6 @@ proc main {argv} {
             set mode [dict get $meta($appname) mode]
         }
     }
-
-    # NEXT, go ahead and load marsutil(n).  Don't import it;
-    # leave that for the applications.
-    package require marsutil
 
     # NEXT, load the application package.
     package require [dict get $meta($appname) applib]

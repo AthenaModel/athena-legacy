@@ -11,7 +11,7 @@
 #    This object is responsible for providing access to
 #    the Athena preferences directory, which resides at
 #
-#       [os prefsdir]
+#       [osdir prefsdir]
 #
 #-----------------------------------------------------------------------
 
@@ -44,13 +44,13 @@ snit::type ::projectlib::prefsdir {
     typemethod init {} {
         if {!$initialized} {
             # FIRST, create the prefs dir if it doesn't exist.
-            file mkdir [os prefsdir]
+            file mkdir [osdir prefsdir]
 
             set initialized 1
         }
 
         # NEXT, return the prefs directory
-        return [os prefsdir]
+        return [osdir prefsdir]
     }
 
     # initialized
@@ -68,7 +68,7 @@ snit::type ::projectlib::prefsdir {
     # Any arguments are joined to the working directory using [file join].
 
     typemethod join {args} {
-        file join [os prefsdir] {*}$args
+        file join [osdir prefsdir] {*}$args
     }
 }
 

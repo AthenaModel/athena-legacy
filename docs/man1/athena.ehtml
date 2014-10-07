@@ -1,22 +1,22 @@
-<<manpage {athena(1)} "Athena S&amp;RO Simulation">>
+<manpage {athena(1)} "Athena S&amp;RO Simulation">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-<<deflist program>>
+<deflist program>
 
-<<defitem {athena} {athena ?options...? ?<i>filename</i>.adb?}>>
+<defitem {athena} {athena ?options...? ?<i>filename</i>.adb?}>
 
-<</deflist program>>
+</deflist program>
 
-<<xref athena(1)>> is the Athena simulation application.  Details of
+<xref athena(1)> is the Athena simulation application.  Details of
 the simulation model are to be found in the <i>Athena Analyst's
 Guide</i> and related documents, rather than here.<p>
 
-<<xref athena(1)>> is a documentic-centric application, like a
+<xref athena(1)> is a documentic-centric application, like a
 word-processor; here, however, the documents are Athena scenario
 files, which conventionally have a "<code>.adb</code>" extension.
 If a scenario file name is given on the command line, it will be
@@ -24,38 +24,38 @@ opened automatically.<p>
 
 The following options may be used:<p>
 
-<<deflist options>>
+<deflist options>
 
-<<defopt {-batch}>>
+<defopt {-batch}>
 
-Runs Athena in <<xref "BATCH MODE">>.<p>
+Runs Athena in <xref "BATCH MODE">.<p>
 
-<<defopt {-scratch <i>dir</i>}>>
+<defopt {-scratch <i>dir</i>}>
 
 Names a directory to use for writing runtime files to.  Log files and
 temporary database files are written here.  If left out, Athena defaults
 to a temporary directory defined by the operating system.  For Windows 
 systems, this is typically a directory under the user's home directory.<p>
 
-<<defopt {-script <i>filename</i>.tcl}>>
+<defopt {-script <i>filename</i>.tcl}>
 
 Names an Athena executive script to be executed at start-up,
 immediately after loading scenario file (if any).  This option is
 usually used to execute exported order scripts.<p>
 
-<<defopt {-dev}>>
+<defopt {-dev}>
 
 Tells the application to ensure that all GUI elements of interest to
 the developer are made visible at start-up.  This includes the command
 line interface (CLI), the scrolling log, and the order history tab.<p>
 
-<<defopt {-ignoreuser}>>
+<defopt {-ignoreuser}>
 
 This option is intended for use during testing; it tells the
 application to ignore user preference settings, so that the tests
 always begin with the application in a known state.<p>
 
-<<defopt {-threads}>>
+<defopt {-threads}>
 
 By default, Athena runs single-threaded.  Some experimental work has
 been done towards a multi-threaded mode, to improve
@@ -63,22 +63,22 @@ performance and to keep the user interface responsive while the
 simulation is working.  This option enables the experimental
 multi-threaded mode; it is not recommended for general use.<p>
 
-<<defopt {-url <i>url</i>}>>
+<defopt {-url <i>url</i>}>
 
 If given, Athena will show the <i>url</i> in the Detail Browser on
 start-up.<p>
 
-<</deflist options>>
+</deflist options>
 
 The application has extensive on-line help; invoke the application
 and see the <b>Help</b> menu.<p>
 
-<<section "BATCH MODE">>
+<section "BATCH MODE">
 
 Athena can be run in batch mode by specifying <code>-batch</code> on
 the Athena command line.<p>
 
-<<subsection "Differences from Interactive Mode">>
+<subsection "Differences from Interactive Mode">
 
 In batch mode:<p>
 
@@ -96,7 +96,7 @@ any error occurs, details about the error will be written to the file
 "<code>error.log</code>" in the user's working directory, and Athena
 will terminate with exit code 1.<p>
 
-<<subsection "Simulation Control">>
+<subsection "Simulation Control">
 
 In batch mode, the simulation is controlled by a script of executive
 commands specified using the <code>-script</code> option.
@@ -120,7 +120,7 @@ full details, including command syntax:<p>
        scenario data can be changed.
 </ul><p>
 
-<<subsection "Simulation Results">>
+<subsection "Simulation Results">
 
 To process simulation results, use the <code>save</code> executive
 command to save a scenario file after advancing time; this file will
@@ -134,20 +134,22 @@ can open it and execute queries.  You can browse the schema
 by running Athena interactively and entering "my://rdb" into the
 Detail Browser's address bar.<p>
 
-<<section MODS>>
+<section MODS>
 
 It is possible to patch Athena post-delivery by means of Athena
 mod files.  To use a mod, just copy the mod file to the installation's
 <code>mods/</code> directory, typically <code>~/athena/mods</code>.<p>
 
-<<subsection "Mod Syntax">>
+<subsection "Mod Syntax">
 
 A mod file is a Tcl-formatted file that may contain one or more mods.
 Each mod has this syntax:<p>
 
-<b>mod</b> <i>version num title</i> {<br>
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<i>body</i><br>
-}<p>
+<example>
+<b>mod</b> <i>version num title</i> {
+    <i>body</i>
+}
+</example>
 
 where <i>version</i> is the Athena version, e.g.,
 "<b>2.1.0</b>"; <i>num</i> is the serial number of this mod;
@@ -158,15 +160,15 @@ It's an error if the mod is
 written for a different version of Athena than the one attempting to
 load it, or if there are two mods present with the same <i>num</i>.<p>
 
-Mods are loaded in numerical order.<p.
+Mods are loaded in numerical order.<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 

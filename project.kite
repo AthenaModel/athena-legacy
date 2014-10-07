@@ -1,0 +1,26 @@
+# project.kite
+project athena-sim 6.3.1a0 {Athena Regional Stability Simulation}
+poc William.H.Duquette@jpl.nasa.gov
+
+# External Dependencies
+require snit 2.3
+require comm 4.6
+require Img 1.4
+require BWidget 1.9
+require Tktable 2.11
+require treectrl 2.4
+require sqlite3 3.8.5
+require tablelist 5.11
+require textutil::expander 1.3
+require textutil::adjust 0.7
+require Tkhtml 3.0
+require uri 1.2
+require fileutil 1.14
+require ctext 3.3
+require tls 1.6
+require tdom 0.8
+require struct::set 2.2
+require kiteutils 0.3.1a0
+require marsutil 3.0.1a0
+require marsgui 3.0.1a0
+require simlib 3.0.1a0

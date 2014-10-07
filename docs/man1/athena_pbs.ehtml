@@ -1,18 +1,18 @@
-<<manpage {athena_pbs(1)} "Athena PBS">>
+<manpage {athena_pbs(1)} "Athena PBS">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-<<deflist program>>
+<deflist program>
 
-<<defitem {athena pbs} {athena pbs}>>
+<defitem {athena pbs} {athena pbs}>
 
-<</deflist program>>
+</deflist program>
 
-<<xref athena_pbs(1)>> is an application with a user interface that 
+<xref athena_pbs(1)> is an application with a user interface that 
 is used to launch multiple instances
 of Athena on a Linux cluster running the Portable Batch System (PBS) 
 Professional.  This application was developed with version 10 of PBS 
@@ -20,29 +20,29 @@ Professional on the target computing cluster,  it is not known if it will
 work with other versions.  Details of how to use Athena PBS are found 
 in the <i>Athena User's Guide</i>, rather than here.<p>
 
-<<xref athena_pbs(1)>> is used to import test cases defined in an 
+<xref athena_pbs(1)> is used to import test cases defined in an 
 Athena eXperiment Database (AXDB) file in order to modify an imported 
 baseline scenario with a number of parameter changes. 
 It invokes many instances of Athena in batch mode in 
 parallel in order to generate outputs for each test case in a single 
 database that can then be queried for historical data from each of the 
-test case runs.  See <<xref athena(1)>> for information about running Athena 
+test case runs.  See <xref athena(1)> for information about running Athena 
 in batch mode.<p>
 
-<<section "ENVIRONMENT">>
+<section "ENVIRONMENT">
 
 Athena PBS can only be invoked on a Red Hat Linux system that has the 
 Portable Batch System installed.  If an attempt is made to invoke this 
 application on a system that does not meet these requirements an appropriate
 message is generated and the application will halt.<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Dave Hanks<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 

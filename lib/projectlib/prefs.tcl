@@ -90,7 +90,7 @@ snit::type ::projectlib::prefs {
             Names of helper applications.
         }
 
-        foreach ostype [os types] {
+        foreach ostype [osdir types] {
             $ps subset helper.$ostype \
                 "Helper applications for the \"$ostype\" operating system."
         
@@ -101,8 +101,8 @@ snit::type ::projectlib::prefs {
         }
 
         $ps setdefault helper.linux.browser "firefox"
-        $ps setdefault helper.win32.browser "cmd /C start"
-        $ps setdefault helper.macosx.browser "open"
+        $ps setdefault helper.windows.browser "cmd /C start"
+        $ps setdefault helper.osx.browser "open"
     }
 
     # help parm
