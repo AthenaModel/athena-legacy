@@ -183,6 +183,22 @@ snit::type ::wnbhood::wizard {
         # FIRST, initialize the list of polygon dictionaries
         set pdictlist [list]
 
+        if {![file exists $fname]} {
+            log error wiz "Could not find $fname"
+
+            messagebox popup   \
+                -title "NPF file not found" \
+                -icon  error                \
+                -buttons {ok "Ok"}          \
+                -default ok                 \
+                -parent [app topwin]        \
+                -message [normalize "
+                    Unable to read polygons, $fname could not be found.
+                "]
+
+            return
+        }
+
         # NEXT, read in the polygon metadata
         set f [open $fname "r"]
         set data [read $f]
