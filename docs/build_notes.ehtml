@@ -11,6 +11,15 @@
 
 <h2>Build Notes</h2>
 
+<h3>Build 6.2.3-R2, 8 October 2014</h3>
+A couple of bugs were found while testing Athena on Linux. The fixes are in
+this build.<p>
+
+<ul>
+<li> Bug 4617: Neighborhood Ingestion wizard "Test Data" button causes bgerror
+<li> Bug 4618: message box bgerror 
+</ul><p>
+
 <h3>Build 6.2.3-R1, 7 October 2014</h3>
 
 This build is identical to Athena 6.2.2-B23 except for the version number and
