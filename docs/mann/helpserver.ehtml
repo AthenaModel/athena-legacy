@@ -1,28 +1,28 @@
-<<manpage {projectlib(n) helpserver(n)} "help(5) myserver(i) Server">>
+<manpage {projectlib(n) helpserver(n)} "help(5) myserver(i) Server">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::helpserver
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-helpserver(n) is a <<xref myserver(i)>> implementation designed for
-browsing <<xref help(5)>> help files.
+helpserver(n) is a <xref myserver(i)> implementation designed for
+browsing <xref help(5)> help files.
 The application creates an instance of helpserver(n), specifying a
 help database using the <code>-helpdb</code> option, and registers the
-instance with <<xref myagent(n)>>.  At that point, <<xref myagent(n)>>
-clients like <<xref mybrowser(n)>> can query it.<p>
+instance with <xref myagent(n)>.  At that point, <xref myagent(n)>
+clients like <xref mybrowser(n)> can query it.<p>
 
-The resources known to the server are listed under <<xref RESOURCES>>;
+The resources known to the server are listed under <xref RESOURCES>;
 they can also be seen by querying the server's 
 <code>/urlhelp</code> resource.<p>
 
-<<subsection "Searching">>
+<subsection "Searching">
 
 A page URL can include a query in the usual way, delimited with a
 question mark, e.g.,<p>
@@ -45,21 +45,21 @@ Searching proceeds as follows:<p>
 </ol><p>
 
 
-<<section "CONTENT TYPES">>
+<section "CONTENT TYPES">
 
-All <<xref help(5)>> pages have the content type <b>text/html</b>.
+All <xref help(5)> pages have the content type <b>text/html</b>.
 Embedded images have the content type <b>tk/image</b>.  All page URLs
 can also be retrieved as <b>tcl/linkdict</b>, in which the data
 returned is a dictionary of links to the page's children, if any.<p>
 
-<<section "RESOURCES">>
+<section "RESOURCES">
 
 In addition to the standard resources provided by
-<<xref myserver(n)>>, helpserver(n) provides the following:<p>
+<xref myserver(n)>, helpserver(n) provides the following:<p>
 
-<<deflist resources>>
+<deflist resources>
 
-<<defitem / {/}>>
+<defitem / {/}>
 
 This is the main help page; lower level pages can be referenced by
 adding on to the path in the usual way.  The <b>text/html</b> content type
@@ -67,63 +67,63 @@ is the help text itself; the <b>tcl/linkdict</b> content type is a
 dictionary of links to the child pages, if any.<p>
 
 If the URL contains a query, the help database will be searched.  See
-<<xref Searching>> for details.
+<xref Searching> for details.
 
-<<defitem /image {/image/<i>name</i>}>>
+<defitem /image {/image/<i>name</i>}>
 
 Returns the <b>tk/image</b> resources compiled into the help database
 with the given name.<p>
 
-<</deflist resources>>
+</deflist resources>
 
-<<section "COMMANDS">>
+<section "COMMANDS">
 
 helpserver(n) provides the following commands for use by the
 application.<p>
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem helpserver {helpserver <i>name</i> ?<i>options...</i>?}>>
+<defitem helpserver {helpserver <i>name</i> ?<i>options...</i>?}>
 
 Creates a new instance of helpserver(n) called <i>name</i>; returns the
 fully-qualified command name.<p>
 
 helpserver(n) has the following option:<p>
 
-<<deflist options>>
+<deflist options>
 
-<<defopt {-helpdb <i>database</i>}>>
+<defopt {-helpdb <i>database</i>}>
 
-Specifies the <<xref help(5)>> database to query, expressed as an
-<<xref sqldocument(n)>> object.<p>
+Specifies the <xref help(5)> database to query, expressed as an
+<xref sqldocument(n)> object.<p>
 
-<<defopt {-headercmd <i>command</i>}>>
+<defopt {-headercmd <i>command</i>}>
 
 Specifies a <i>command</i> that will be called for each returned
 <b>text/html</b> help page.  It take one argument, the "udict" passed
-to the <<xref myserver(n)>> content handler, and returns a snippet of
+to the <xref myserver(n)> content handler, and returns a snippet of
 HTML text to be inserted at the top of the HTML page.<p>
 
-<</deflist options>>
+</deflist options>
 
-<</deflist commands>>
+</deflist commands>
 
 
-<<section "INSTANCE COMMANDS">>
+<section "INSTANCE COMMANDS">
 
 Instances of helpserver(n) provide the following subcommands for use by
 the application.<p>
 
-<<deflist instance>>
+<deflist instance>
 
-<<defitem ctypes {$server ctypes <i>rtype</i>}>>
+<defitem ctypes {$server ctypes <i>rtype</i>}>
 
 Given a resource type name, <i>rtype</i>, returns a list of the
 available content types.<p>
 
-<<defitem get {$server get <i>url</i> ?<i>contentTypes</i>?}>>
+<defitem get {$server get <i>url</i> ?<i>contentTypes</i>?}>
 
-<b>From <<xref myserver(i)>>:</b> Retrieves the <i>url</i> from the
+<b>From <xref myserver(i)>:</b> Retrieves the <i>url</i> from the
 server.  If the <i>url</i> cannot be retrieved for any reason, the
 server throws an error with error code <b>NOTFOUND</b>; the error
 message is a human-readable message explaining why the resource cannot
@@ -142,47 +142,47 @@ is available for the requested <i>url</i>.<p>
 Note that the content types listed in <i>contentTypes</i> can include
 wild cards, e.g., <b>text/*</b> and <b>*/*</b>.<p>
 
-On success, the <<iref get>> command returns a dictionary with the
+On success, the <iref get> command returns a dictionary with the
 following keys:<p>
 
-<<deflist getdict>>
+<deflist getdict>
 
-<<defitem url {url}>>
+<defitem url {url}>
 
 The complete URL given to the server.  This is of interest because the
-<<xref myagent(n)>> might have performed address resolution; hence,
+<xref myagent(n)> might have performed address resolution; hence,
 the URL given to the server might not be the same as the URL given to
 the agent.<p>
 
-<<defitem contentType {contentType}>>
+<defitem contentType {contentType}>
 
 The content type of the returned content.<p>
 
-<<defitem content {content}>>
+<defitem content {content}>
 
 The returned content itself.
 
-<</deflist>>
+</deflist>
 
-<<defitem resources {$server resources}>>
+<defitem resources {$server resources}>
 
 Returns a list of the names of the registered resource types.<p>
 
-<</deflist instance>>
+</deflist instance>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 Requires Tcl 8.5 or later.<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

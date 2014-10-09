@@ -1,48 +1,48 @@
-<<manpage {projectlib(n) rdbserver(n)} "Database Introspection myserver(i) Server">>
+<manpage {projectlib(n) rdbserver(n)} "Database Introspection myserver(i) Server">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::rdbserver
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-rdbserver(n) is a <<xref myserver(i)>> implementation designed for
+rdbserver(n) is a <xref myserver(i)> implementation designed for
 developer introspection of SQLite3 databases.
 The application creates an instance of rdbserver(n), specifying a
 database using the <code>-rdb</code> option, and registers the
-instance with <<xref myagent(n)>>.  At that point, <<xref myagent(n)>>
-clients like <<xref mybrowser(n)>> can query it.<p>
+instance with <xref myagent(n)>.  At that point, <xref myagent(n)>
+clients like <xref mybrowser(n)> can query it.<p>
 
-The resources known to the server are listed under <<xref RESOURCES>>;
+The resources known to the server are listed under <xref RESOURCES>;
 they can also be seen by querying the server's 
 <code>/urlhelp</code> resource.<p>
 
-<<section "CONTENT TYPES">>
+<section "CONTENT TYPES">
 
 All rdbserver(n) data has the content type <b>text/html</b>.<p>
 
-<<section "RESOURCES">>
+<section "RESOURCES">
 
 In addition to the standard resources provided by
-<<xref myserver(n)>>, rdbserver(n) provides the following:<p>
+<xref myserver(n)>, rdbserver(n) provides the following:<p>
 
-<<deflist resources>>
+<deflist resources>
 
-<<defitem / {/}>>
-<<defitem /main {/main}>>
-<<defitem /temp {/temp}>>
+<defitem / {/}>
+<defitem /main {/main}>
+<defitem /temp {/temp}>
 
 Returns a tabular list of tables, views, and triggers.  The list
 contains either all entities ("/"), persistent entities ("/main"), or
 temporary entiteis ("/temp").  All three of this resources accept a
 query string, which is a wildcard pattern.  The tabular list will
 contain all entities whose names match the pattern.  For example, if
-the rdbserver(n) is registered with <<xref myagent(n)>> as "rdb", the
+the rdbserver(n) is registered with <xref myagent(n)> as "rdb", the
 URL<p>
 
 <pre>
@@ -52,7 +52,7 @@ URL<p>
 will return a tabular listing of all temporary tables, views, and
 triggers whose names begin with "gui_".<p>
 
-<<defitem /content {/content/<i>name</i>}>>
+<defitem /content {/content/<i>name</i>}>
 
 Displays the content of the table or view called <i>name</i> in
 tabular form.  This resource accepts a query string of the form<p>
@@ -66,54 +66,54 @@ will return all rows for which the columns have the specified values.
 Note that the values may be wildcard patterns.  Query values are
 case-sensitive.<p>
 
-<<defitem /schema {/schema/<i>name</i>}>>
+<defitem /schema {/schema/<i>name</i>}>
 
 Displays the SQL schema for the table, view, or trigger with the
 specified name.<p>
 
-<</deflist resources>>
+</deflist resources>
 
-<<section "COMMANDS">>
+<section "COMMANDS">
 
 rdbserver(n) provides the following commands for use by the
 application.<p>
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem rdbserver {rdbserver <i>name</i> ?<i>options...</i>?}>>
+<defitem rdbserver {rdbserver <i>name</i> ?<i>options...</i>?}>
 
 Creates a new instance of rdbserver(n) called <i>name</i>; returns the
 fully-qualified command name.<p>
 
 rdbserver(n) has the following option:<p>
 
-<<deflist options>>
+<deflist options>
 
-<<defopt {-rdb <i>database</i>}>>
+<defopt {-rdb <i>database</i>}>
 
 Specifies the SQLite3 database to query, expressed as an
-<<xref sqldocument(n)>> object.<p>
+<xref sqldocument(n)> object.<p>
 
-<</deflist options>>
+</deflist options>
 
-<</deflist commands>>
+</deflist commands>
 
 
-<<section "INSTANCE COMMANDS">>
+<section "INSTANCE COMMANDS">
 
 Instances of rdbserver(n) provide the following subcommands for use by
 the application.<p>
 
-<<deflist instance>>
+<deflist instance>
 
-<<defitem ctypes {$server ctypes <i>rtype</i>}>>
+<defitem ctypes {$server ctypes <i>rtype</i>}>
 
 Given a resource type name, <i>rtype</i>, returns a list of the
 available content types.<p>
 
-<<defitem get {$server get <i>url</i> ?<i>contentTypes</i>?}>>
+<defitem get {$server get <i>url</i> ?<i>contentTypes</i>?}>
 
-<b>From <<xref myserver(i)>>:</b> Retrieves the <i>url</i> from the
+<b>From <xref myserver(i)>:</b> Retrieves the <i>url</i> from the
 server.  If the <i>url</i> cannot be retrieved for any reason, the
 server throws an error with error code <b>NOTFOUND</b>; the error
 message is a human-readable message explaining why the resource cannot
@@ -132,47 +132,47 @@ is available for the requested <i>url</i>.<p>
 Note that the content types listed in <i>contentTypes</i> can include
 wild cards, e.g., <b>text/*</b> and <b>*/*</b>.<p>
 
-On success, the <<iref get>> command returns a dictionary with the
+On success, the <iref get> command returns a dictionary with the
 following keys:<p>
 
-<<deflist getdict>>
+<deflist getdict>
 
-<<defitem url {url}>>
+<defitem url {url}>
 
 The complete URL given to the server.  This is of interest because the
-<<xref myagent(n)>> might have performed address resolution; hence,
+<xref myagent(n)> might have performed address resolution; hence,
 the URL given to the server might not be the same as the URL given to
 the agent.<p>
 
-<<defitem contentType {contentType}>>
+<defitem contentType {contentType}>
 
 The content type of the returned content.<p>
 
-<<defitem content {content}>>
+<defitem content {content}>
 
 The returned content itself.
 
-<</deflist>>
+</deflist>
 
-<<defitem resources {$server resources}>>
+<defitem resources {$server resources}>
 
 Returns a list of the names of the registered resource types.<p>
 
-<</deflist instance>>
+</deflist instance>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 Requires Tcl 8.5 or later.<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

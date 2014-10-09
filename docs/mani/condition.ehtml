@@ -1,10 +1,10 @@
-<<manpage {condition(i)} "Condition Interface">>
+<manpage {condition(i)} "Condition Interface">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
 A condition is an object can be true or false based on the state
 of the simulation.  We say that the condition is "met" or "unmet".
@@ -25,7 +25,7 @@ Every condition ensemble must implement the subcommands defined in
 this interface; it may also define other commands as needed.  Thus, a
 condition is essentially a special kind of module.<p>
 
-<<subsection "Condition Orders">>
+<subsection "Condition Orders">
 
 Every condition type must provide two orders,
 CONDITION:<i>type</i>:CREATE and CONDITION:<i>type</i>:UPDATE.  The
@@ -33,22 +33,22 @@ CONDITION:<i>type</i>:UPDATE order is expected to use RefreshUPDATE as
 its <code>-refreshcmd</code> so that the user cannot switch to a
 different condition.<p>
 
-<<section "SUBCOMMANDS">>
+<section "SUBCOMMANDS">
 
-Each <<xref condition(i)>> ensemble must implement at least the following
+Each <xref condition(i)> ensemble must implement at least the following
 subcommands.  Note that most of them take the "condition parameter
 dictionary", or <i>cdict</i>, as their first argument.  This is simply a
 row from the conditions table in the form of a dictionary.<p>
 
-<<deflist subcommands>>
+<deflist subcommands>
 
-<<defitem narrative {narrative <i>cdict</i>}>>
+<defitem narrative {narrative <i>cdict</i>}>
 
 Returns a human-readable narrative description of the condition.  The
 description should include all of the condition's parameters, so that the
 narrative is a complete description of the condition.<p>
 
-<<defitem check {check <i>cdict</i>}>>
+<defitem check {check <i>cdict</i>}>
 
 Sanity-checks the condition's parameters.  Returns a human-readable
 string describing any errors that are found, and the empty string
@@ -66,7 +66,7 @@ inconvenient for the user.  Instead, we simply sanity-check all
 conditions at appropriate times, such as when the scenario is locked.
 We make any problems known to the user, and allow them to fix them.<p>
 
-<<defitem eval {eval <i>cdict</i>}>>
+<defitem eval {eval <i>cdict</i>}>
 
 Evaluates the condition, returning 1 if true (met), 0 if false
 (unmet), and the empty string, "", if no value can be computed.<p>
@@ -77,17 +77,17 @@ value for a condition with "normal" state.  The primary exception is a
 condition that evaluates an expression provided by the user, which may
 contain errors.<p>
 
-<</deflist subcommands>>
+</deflist subcommands>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original interface.
 
-<</manpage>>
+</manpage>
 
 
 

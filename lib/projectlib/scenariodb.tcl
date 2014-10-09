@@ -185,6 +185,56 @@ snit::type ::projectlib::scenariodb {
     }
 
     #-------------------------------------------------------------------
+    # General Schema Data
+
+    # sqlsections
+    #
+    # Returns a list of the SQL sections loaded by scenariodb(n).
+
+    typemethod sqlsections {} {
+        lappend result \
+            ::marsutil::undostack \
+            ::simlib::ucurve      \
+            ::simlib::uram        \
+            $type
+
+        return $result
+    }
+
+
+    # sectiondict
+    #
+    # Returns a dictionary of data about the schemas, by sql section.
+    # The structure is as follows:
+    #
+    # $section => An SQL section registered by scenariodb
+    #          -> title => The section's title
+    #          -> schema => The section's schema string
+    #          -> tempschema => The section's tempschema string
+    #          -> functions  => Dictionary of SQL functions by name
+    #                        -> $name => SQL function name
+    #                                 -> function definition
+
+    typemethod sectiondict {} {
+        set result [dict create]
+
+        foreach section [$type sqlsections] {
+            dict set result $section title \
+                [$section sqlsection title]
+            dict set result $section schema \
+                [$section sqlsection schema]
+            dict set result $section tempschema \
+                [$section sqlsection tempschema]
+            dict set result $section functions \
+                [$section sqlsection functions]
+        }
+
+        return $result
+    }
+
+
+
+    #-------------------------------------------------------------------
     # Schema Version Info
     #
     # The schema version ID is saved in the database using the
@@ -306,10 +356,9 @@ snit::type ::projectlib::scenariodb {
         $db configurelist $args
 
         # NEXT, register the schema sections
-        $db register ::marsutil::undostack
-        $db register ::simlib::ucurve
-        $db register ::simlib::uram
-        $db register $type
+        foreach section [$type sqlsections] {
+            $db register $section
+        }
     }
 
     #-------------------------------------------------------------------

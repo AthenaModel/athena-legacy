@@ -1,26 +1,26 @@
-<<manpage {projectlib(n) oohelpers(n)} "TclOO Convenience Package">>
+<manpage {projectlib(n) oohelpers(n)} "TclOO Convenience Package">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::*
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
 The oohelpers(n) package contains commands that make using TclOO a bit easier.
 
-<<section "CLASS-DEFINITION COMMANDS">>
+<section "CLASS-DEFINITION COMMANDS">
 
 This module defines the following commands to be used in class definitions or
 with <code>oo::define</code>:<p>
 
-<<deflist define>>
+<deflist define>
 
-<<defitem "typemethod" {typemethod <i>method arglist body</i>}>>
+<defitem "typemethod" {typemethod <i>method arglist body</i>}>
 
 Defines a method on the class's class object.  In other words,
 
@@ -39,36 +39,36 @@ is equivalent to
     }
 </pre>
 
-<</deflist define>>
+</deflist define>
 
-<<section "BODY COMMANDS">>
+<section "BODY COMMANDS">
 
 This module defines the following commands for use in method bodies
 (including constructor and destructor bodies):<p>
 
-<<deflist body>>
+<deflist body>
 
-<<defitem "mymethod" {mymethod <i>method</i> ?<i>args...</i>?}>>
+<defitem "mymethod" {mymethod <i>method</i> ?<i>args...</i>?}>
 
 Returns a command prefix consisting of a call to the current object's
 named <i>method</i> plus any additional arguments.  The command prefix
 can be called by other objects even if the method is unexported.<p>
 
-<</deflist body>>
+</deflist body>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 This package requires Tcl 8.5 or later.
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

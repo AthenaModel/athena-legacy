@@ -1,24 +1,24 @@
-<<manpage {projectlib(n) parmdb(n)} "Athena Model Parameter Database">>
+<manpage {projectlib(n) parmdb(n)} "Athena Model Parameter Database">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require app_sim 1.0
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
 parmdb(n) manages the Athena model parameter database: the collection of
 parameters which are used to tune the behavior of the models and
-software.  At base, the parameter database is a <<xref mars:parmset(n)>>
+software.  At base, the parameter database is a <xref mars:parmset(n)>
 which collections the application-specific and library module
 parameters into one place, and wraps them with additional behavior.<p>
 
-The full set of parameters is defined in <<xref parmdb(5)>>.<p>
+The full set of parameters is defined in <xref parmdb(5)>.<p>
 
-<<section "Default Parameters">>
+<section "Default Parameters">
 
 Each parameter has a default value, specified when the parameter is
 defined.  This is the parameter's "programmatic default".  In
@@ -29,35 +29,35 @@ defined, rather than the programmatic defaults.<p>
 The user's defaults are saved in the file
 <code>~/.athena/defaults.parmdb</code>.
 
-<<section "COMMANDS">>
+<section "COMMANDS">
 
-parmdb(n) provides all of the <<xref parmset(n)>> instance
+parmdb(n) provides all of the <xref parmset(n)> instance
 subcommands; in addition, it adds the following.<p>
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem "parmdb init" {parmdb init}>>
+<defitem "parmdb init" {parmdb init}>
 
 Initializes the module.  This should be called once, at application
 start-up.  It defines the application-specific parameters, and pulls
 in all those from library modules.<p>
 
 
-<</deflist commands>>
+</deflist commands>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 Requires Tcl 8.5 or later.<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

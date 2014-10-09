@@ -1,17 +1,12 @@
 <manpage prefs(5) "User Preference Definitions">
 
-<!-- We need the prefs to be initialized. -->
-<swallow {
-     package require projectlib
-     ::projectlib::prefs init
-}>
-
 <section SYNOPSIS>
 
-<!-- Instead of the default itemlist, we'll use a special one for -->
-<!-- parms. -->
-
-<ehtml expand [::projectlib::prefs manlinks]>
+<expand [project tclsh {
+    package require projectlib
+    ::projectlib::parmdb init
+    ::projectlib::parmdb manlinks
+}]>
 
 <section DESCRIPTION>
 
@@ -38,7 +33,11 @@ where <i>value</i> must be quoted if it contains whitespace.  See
 
 The valid parameters are as follows:<p>
 
-<ehtml expand [::projectlib::prefs manpage]>
+<expand [project tclsh {
+    package require projectlib
+    ::projectlib::parmdb init
+    ::projectlib::parmdb manpage
+}]>
 
 <section AUTHOR>
 

@@ -1,19 +1,19 @@
-<<manpage {projectlib(n) workdir(n)} "Working Directory Utility">>
+<manpage {projectlib(n) workdir(n)} "Working Directory Utility">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::*
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-<<xref workdir(n)>> is responsible for creating and locating
+<xref workdir(n)> is responsible for creating and locating
 Athena working directories.  At start-up, Athena calls
-<<iref workdir init>>, which creates the working directory either
+<iref workdir init>, which creates the working directory either
 as
 
 <pre>    [fileutil::tempdir]/<i>NNNNNNNN</i>/</pre>
@@ -22,36 +22,36 @@ or as
 
 <pre>    <i>name</i>/<i>NNNNNNNN</i>/</pre>
 
-depending on whether <<iref workdir init>> is called with an optional
+depending on whether <iref workdir init> is called with an optional
 directory name as an argument. <i>NNNNNNNN</i> is a random 8-digit number 
 generated at runtime.  This directory is referred to as the working directory.  
 Within that, it then creates the following subdirectories:<p>
 
-<dl>
-  <dt> <b><code><i>working</i>/log</code></b>
-  <dd> For log files.  Individual apps will put their logs in
-       subdirectories of this directory, e.g., <<xref athena_sim(1)>>
+<deflist>
+  <def {<tt><i working>/log</tt>}>
+  For log files.  Individual apps will put their logs in
+       subdirectories of this directory, e.g., <xref athena_sim(1)>
        will put its logs in<p>
 
-       <pre><i>working</i>/log/sim/</pre>
+       <tt><i working>/log/sim/</tt>
 
-  <dt> <b><code><i>working</i>/rdb</code></b>
-  <dd> <<xref athena_sim(1)>> will put its run-time database (RDB) in
+  <def {<tt><i working>/rdb</tt>}>
+  <xref athena_sim(1)> will put its run-time database (RDB) in
        this directory.<p>
-</dl>
+</deflist>
 
-<<section "COMMANDS">>
+<section "COMMANDS">
 
 This module defines the following commands:<p>
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem "workdir cleanup" {workdir cleanup}>>
+<defitem "workdir cleanup" {workdir cleanup}>
 
 Deletes the current working directory and its contents, and "uninitializes"
 workdir(n).<p>
 
-<<defitem "workdir init" {workdir init ?<i>scratchdir</i>?}>>
+<defitem "workdir init" {workdir init ?<i>scratchdir</i>?}>
 
 Initializes workdir(n).  In particular, it determines and saves the
 full path to the working directory, and creates the standard
@@ -60,7 +60,7 @@ the working directory to that, otherwise it chooses an OS dependent
 temporary directory as the root of the working directory.  It returns the 
 full path to the working directory.<p>
 
-<<defitem "workdir join" {workdir join ?<i>arg arg...</i>?}>>
+<defitem "workdir join" {workdir join ?<i>arg arg...</i>?}>
 
 Called with no arguments, returns the name of the working directory.
 Otherwise, returns the path name resulting from joining the
@@ -72,22 +72,22 @@ following command returns the absolute path of a file called
 set rdbfile [workdir join rdb working.rdb]
 </pre>
 
-<</deflist commands>>
+</deflist commands>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 This package requires Tcl 8.5 or later.
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 Dave Hanks<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

@@ -1,85 +1,85 @@
-<<manpage {projectlib(n) myserver(n)} "Basic myserver(i) Server">>
+<manpage {projectlib(n) myserver(n)} "Basic myserver(i) Server">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::myserver
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-myserver(n) is a basic <<xref myserver(i)>> implementation.
+myserver(n) is a basic <xref myserver(i)> implementation.
 The application creates an instance of myserver(n) and registers
 resources and resource handlers with it; it then registers the
-instance with <<xref myagent(n)>>.  At that point, <<xref myagent(n)>>
-clients like <<xref mybrowser(n)>> can query it.<p>
+instance with <xref myagent(n)>.  At that point, <xref myagent(n)>
+clients like <xref mybrowser(n)> can query it.<p>
 
 The only resources known to a newly created myserver(n) are
 <code>/urlhelp</code> and <code>/urlhelp/{url}</code>, which are used
 to browse the set of resources known to the server.<p>
 
-<<section "CONTENT TYPES">>
+<section "CONTENT TYPES">
 
 By default, myserver(n) serves only the following content types<p>
 
-<<deflist ctypes>>
+<deflist ctypes>
 
-<<defitem text/html {text/html}>>
+<defitem text/html {text/html}>
 
 HTML text.<p>
 
 However, registered resource handlers can provide content in any
 desired form; myserver(n) doesn't care.<p>
 
-<</deflist>>
+</deflist>
 
-<<section "COMMANDS">>
+<section "COMMANDS">
 
 myserver(n) provides the following commands for use by the
 application.<p>
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem myserver {myserver <i>name</i> ?<i>option value...</i>?}>>
+<defitem myserver {myserver <i>name</i> ?<i>option value...</i>?}>
 
 Creates a new instance of myserver(n) called <i>name</i>; returns the
 fully-qualified command name.<p>
 
 Instances of myserver(n) take the following options:<p>
 
-<<deflist options>>
-<<defopt {-logcmd <i>cmd</i>}>>
+<deflist options>
+<defopt {-logcmd <i>cmd</i>}>
 Defines a command prefix to be called with three additional arguments
 when the instance wishes to write to the debugging log: a verbosity
 level, a module name, and a log message.  Note that <i>cmd</i> will
-often be a <<xref mars:logger(n)>> instances.<p>
+often be a <xref mars:logger(n)> instances.<p>
 
 The most important thing logged by myserver(n) are the requested URLs
 and the time (in microseconds) required to produce the content.<p>
 
-<</deflist options>>
+</deflist options>
 
-<</deflist commands>>
+</deflist commands>
 
 
-<<section "INSTANCE COMMANDS">>
+<section "INSTANCE COMMANDS">
 
 Instances of myserver(n) provide the following subcommands for use by
 the application.<p>
 
-<<deflist instance>>
+<deflist instance>
 
-<<defitem ctypes {$server ctypes <i>rtype</i>}>>
+<defitem ctypes {$server ctypes <i>rtype</i>}>
 
 Given a resource type name, <i>rtype</i>, returns a list of the
 available content types.<p>
 
-<<defitem get {$server get <i>url</i> ?<i>contentTypes</i>?}>>
+<defitem get {$server get <i>url</i> ?<i>contentTypes</i>?}>
 
-<b>From <<xref myserver(i)>>:</b> Retrieves the <i>url</i> from the
+<b>From <xref myserver(i)>:</b> Retrieves the <i>url</i> from the
 server.  If the <i>url</i> cannot be retrieved for any reason, the
 server throws an error with error code <b>NOTFOUND</b>; the error
 message is a human-readable message explaining why the resource cannot
@@ -98,31 +98,31 @@ is available for the requested <i>url</i>.<p>
 Note that the content types listed in <i>contentTypes</i> can include
 wild cards, e.g., <b>text/*</b> and <b>*/*</b>.<p>
 
-On success, the <<iref get>> command returns a dictionary with the
+On success, the <iref get> command returns a dictionary with the
 following keys:<p>
 
-<<deflist getdict>>
+<deflist getdict>
 
-<<defitem url {url}>>
+<defitem url {url}>
 
 The complete URL given to the server.  This is of interest because the
-<<xref myagent(n)>> might have performed address resolution; hence,
+<xref myagent(n)> might have performed address resolution; hence,
 the URL given to the server might not be the same as the URL given to
 the agent.<p>
 
-<<defitem contentType {contentType}>>
+<defitem contentType {contentType}>
 
 The content type of the returned content.<p>
 
-<<defitem content {content}>>
+<defitem content {content}>
 
 The returned content itself.
 
-<</deflist>>
+</deflist>
 
-<<defitem register {$server register <i>rtype pattern ctype handler</i>
+<defitem register {$server register <i>rtype pattern ctype handler</i>
 ?<i>ctype handler...</i>? <i>doc</i>
-}>>
+}>
 
 Registers (or re-registers) a resource type with the server; clients
 can now query resources of this type.<p>
@@ -167,25 +167,25 @@ as determined by parentheses in the <i>pattern</i>.<p>
 The handler must either return the desired content, or throw a
 NOTFOUND error with a human-readable error message.<p>
 
-<<defitem resources {$server resources}>>
+<defitem resources {$server resources}>
 
 Returns a list of the names of the registered resource types.<p>
 
-<</deflist instance>>
+</deflist instance>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 Requires Tcl 8.5 or later.<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

@@ -1,18 +1,18 @@
-<<manpage {projectlib(n) rolemap(n)} "Rolemap Dynaform Field">>
+<manpage {projectlib(n) rolemap(n)} "Rolemap Dynaform Field">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::*
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-The <<xref rolemap(n)>> module defines the <<xref dynaform_field(i)>>
-wrapper for the <<xref rolemapfield(n)>> widget.  The field type is
+The <xref rolemap(n)> module defines the <xref dynaform_field(i)>
+wrapper for the <xref rolemapfield(n)> widget.  The field type is
 called <b>rolemap</b>.  
 
 The field
@@ -25,7 +25,7 @@ as Tcl variables, e.g.,<p>
 
 <pre>    -rolespeccmd {::MyRoleSpec $curse_id}</pre>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 This package requires Tcl 8.5 or later.
 
@@ -33,15 +33,15 @@ To use the package in a Tcl script, the environment variable
 <code>TCLLIBPATH</code> must include the parent of the package
 directory.
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.<p>
 
-<</manpage>>
+</manpage>
 
 
 

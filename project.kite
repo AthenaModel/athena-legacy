@@ -24,3 +24,4 @@ require kiteutils 0.3.1a0 -local
 require marsutil 3.0.1a0  -local
 require marsgui 3.0.1a0 -local
 require simlib 3.0.1a0 -local
+require Marsbin 3.0.1a0 -local

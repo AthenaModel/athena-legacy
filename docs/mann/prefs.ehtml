@@ -1,106 +1,75 @@
-<html> <head>
-<title><<manpage {projectlib(n) prefs(n)} "User Preferences Manager">>
+<manpage {projectlib(n) prefs(n)} "User Preferences Manager">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require app_sim 1.0
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-prefs(n) manages the Athena user preferences; see <<xref prefs(5)>>.
+prefs(n) manages the Athena user preferences; see <xref prefs(5)>.
 The preferences are saved automatically whenever a parameter's value
 changes to the file <code>~/.athena/user.prefs</code>.<p>
 
-<<section "COMMANDS">>
+<section "COMMANDS">
 
 prefs(n) provides the following commands:<p>
 
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem "prefs init" {prefs init}>>
+<defitem "prefs init" {prefs init}>
 
 Initializes the module.  This should be called once, at application
 start-up.  It defines the full set of preference parameters.<p>
 
-<<defitem "prefs get"      {prefs get <i>parm</i>}>>
-<<defitem "prefs names"    {prefs names ?<i>pattern</i>?}>>
-<<defitem "prefs manlinks" {prefs manlinks}>>
-<<defitem "prefs manpage"  {prefs manpage}>>
+<defitem "prefs get"      {prefs get <i>parm</i>}>
+<defitem "prefs names"    {prefs names ?<i>pattern</i>?}>
+<defitem "prefs manlinks" {prefs manlinks}>
+<defitem "prefs manpage"  {prefs manpage}>
 
 These commands are simply delegated to the underlying
-<<xref parmset(n)>>.<p>
+<xref parmset(n)>.<p>
 
-<<defitem "prefs help" {prefs help <i>parm</i>}>>
+<defitem "prefs help" {prefs help <i>parm</i>}>
 
 Returns the parameter's help string.<p>
 
-<<defitem "prefs set" {prefs set <i>parm value</i>}>>
+<defitem "prefs set" {prefs set <i>parm value</i>}>
 
 Sets the parameter's value and saves the preferences to disk.<p>
 
-<<defitem "prefs reset" {prefs reset}>>
+<defitem "prefs reset" {prefs reset}>
 
 Resets all preference parameters to their default values, and
 saves them to disk.<p>
 
-<<defitem "prefs list" {prefs list ?<i>pattern</i>?}>>
+<defitem "prefs list" {prefs list ?<i>pattern</i>?}>
 
 Lists all parameters and their values.  If <i>pattern</i> is given,
 it's a wildcard pattern; only parameters whose names match the pattern
 are listed.<p>
 
-<<defitem "prefs load" {prefs load}>>
+<defitem "prefs load" {prefs load}>
 
 Loads the preferences from disk, if the preference file exists.  This
 is usually only done at application start-up.<p>
 
-<</deflist commands>>
+</deflist commands>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 Requires Tcl 8.5 or later.<p>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
-
-
-
-
-
-</title>
-</head>
-
-<body>
-<table>
-<tr><td><b>To:  </b></td> <td></td></tr>
-<tr><td><b>From:</b></td> <td>Will Duquette</td></tr>
-<tr><td><b>Date:</b></td> <td></td></tr>
-<tr><td><b>File:</b></td> <td></td></tr>
-<tr><td><b>Status:</b></td>
-<td>
-<!-- hhmts start -->
-Last modified: Fri Apr  3 14:36:02 2009
-<!-- hhmts end -->
-</td></tr></table>
-
-<h1></h1>
-
-
-
-<hr>
-<address><a href="http://eis.jpl.nasa.gov/~will/">Will Duquette</a> / <a href="mailto:William.H.Duquette@jpl.nasa.gov">
-William.H.Duquette@jpl.nasa.gov</a></address>
-
-</body> </html>
+</manpage>

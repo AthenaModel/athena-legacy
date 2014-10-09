@@ -1,32 +1,30 @@
-<<manpage {projectlib(n) urlquery(n)} "URL Query Parameter Utilities">>
+<manpage {projectlib(n) urlquery(n)} "URL Query Parameter Utilities">
 
-<<swallow {package require projectlib}>>
-
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::*
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-This module defines the <<iref urlquery>> command for manipulating
+This module defines the <iref urlquery> command for manipulating
 URL query parameter strings.<p>
 
-<<section COMMANDS>>
+<section COMMANDS>
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem urlquery {urlquery <i>subcommand</i> ?<i>args...</i>?}>>
+<defitem urlquery {urlquery <i>subcommand</i> ?<i>args...</i>?}>
 
-All urlquery(n) commands are subcommands of <<iref urlquery>>.<p>
+All urlquery(n) commands are subcommands of <iref urlquery>.<p>
 
-<<deflist urlquery>>
+<deflist urlquery>
 
-<<defitem fromdict {urlquery fromdict <i>dict</i>}>>
+<defitem fromdict {urlquery fromdict <i>dict</i>}>
 
 Converts a parameter dictionary into a form usables as a URL query
 string.  E.g., it converts the dictionary<p>
@@ -45,7 +43,7 @@ out for that parameter.<p>
 Parameters and their values may not contain white space, "+", or
 "=".<p>
 
-<<defitem todict {urlquery todict <i>query</i>}>>
+<defitem todict {urlquery todict <i>query</i>}>
 
 Converts a URL query string into a parameter dictionary.  E.g., it
 converts the string<p>
@@ -65,7 +63,7 @@ empty value.  If a parameter has more than one "=", e.g.,
 
 then the second and any subsequent "=" values are ignored.<p>
 
-<<defitem get {urlquery get <i>query parmlist</i>}>>
+<defitem get {urlquery get <i>query parmlist</i>}>
 
 Converts a URL query string into a parameter dictionary with the full
 canonical list of parameters, i.e., all parameters in <i>parmlist</i> are
@@ -73,30 +71,30 @@ included and parameters in the <i>query</i> but not in <i>parmlist</i> are
 omitted.<p>
 
 The <i>parmlist</i> can be a simple list of parameter names; but as with the
-<<xref tcl:proc(n)>> command each entry can be a pair, 
+<xref tcl:proc(n)> command each entry can be a pair, 
 {<i>name</i> <i>default</i>}.  If parameter <i>name</i> is missing from the
 query, it will be assigned the given <i>default</i>.<p>
 
-<</deflist urlquery>>
-<</deflist commands>>
+</deflist urlquery>
+</deflist commands>
 
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 Requires Tcl 8.5 or later.
 
 To use this package in a Tcl script, the environment variable
 <code>TCLLIBPATH</code> must include the parent of the package directory.
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

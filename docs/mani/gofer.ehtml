@@ -1,10 +1,10 @@
-<<manpage {gofer(i)} "Gopher Type Interface">>
+<manpage {gofer(i)} "Gopher Type Interface">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
 A gofer type is a collection of recipes for computing a particular kind of
 output value, so called because it goes and gets the output value on
@@ -12,13 +12,13 @@ demand.  A value of a gofer type specifies a particular recipe and the
 ingredients it needs to compute the desired output.<p>
 
 This man page originally described the interface that one would implement 
-by hand; given the increasing maturity of the <<xref gofer(n)>> 
+by hand; given the increasing maturity of the <xref gofer(n)> 
 infrastucture, there is no little reason to do so: it is better to simply
-use <<xref gofer(n)>>'s <<xref gofer(n) "gofer define">> command.  As
+use <xref gofer(n)>'s <xref gofer(n) "gofer define"> command.  As
 a result, rather than describing the gofer type interface, as such, 
 this man page now documents the gofer type architecture.<p>
 
-<<section "Overview">>
+<section "Overview">
 
 The Athena application has many orders and tactics that operate on a 
 list of groups.  Typically, the order dialogs allow the user to select
@@ -50,11 +50,11 @@ identify the groups in the set.  For this reason, we refer to a gofer type's
 recipes as <i>gofer rules</i>, or just <i>rules</i> for short.<p>
 
 A gofer type is implemented as a Tcl ensemble command using the
-<<xref gofer(n)>> infrastructure.  Each gofer type has a name, an identifier
+<xref gofer(n)> infrastructure.  Each gofer type has a name, an identifier
 in upper case like "CIVGROUPS"; the command will always be in the
 <code>::gofer</code> namespace, e.g., <code>::gofer::CIVGROUPS</code>.<p>
 
-<<subsection Operations>>
+<subsection Operations>
 
 Gofer types support the following operations on their values.<p>
 
@@ -81,7 +81,7 @@ Actor JOE funds $25M of ENI for <b>all non-empty civilian groups in N1</b><p>
 Finally, when the tactic executes it will evaluate the value, and make use
 of the output.<p>
 
-<<subsection "Gofer Dictionaries">>
+<subsection "Gofer Dictionaries">
 
 Every gofer type value is a Tcl dictionary with at least two keys:
 <b>_type</b>, which is the name of the type (e.g., "CIVGROUPS"), and
@@ -106,7 +106,7 @@ canonical form,<p>
     <li> The values of those keys will be in canonical form for their types.
 </ul><p>
 
-<<subsection "Required Rules">>
+<subsection "Required Rules">
 
 The set of rules will usually vary significantly from one gofer type to
 another.  However, every gofer type must implement at least the
@@ -124,7 +124,7 @@ Thus,<p>
 
 will evaluate (if valid) to "A B C".<p> 
 
-<<subsection "Raw Value Conversion">>
+<subsection "Raw Value Conversion">
 
 Gofer types are a new construct, and there are many existing orders and
 tactics that ought to use them.  For example, the FUNDENI tactic has a 
@@ -140,16 +140,16 @@ can assume that the value is a raw value and convert it to a gofer value
 using the <b>BY_VALUE</b> rule.  (This is another reason why all types
 must support the <b>BY_VALUE</b> rule.)<p>
 
-<<section "EDITING">>
+<section "EDITING">
 
 Gofer type values can be edited by using the <b>gofer</b> field type
-in <<xref dynaform(n)>> scripts, or by using the <<xref goferfield(n)>>
+in <xref dynaform(n)> scripts, or by using the <xref goferfield(n)>
 widget directly in other contexts.<p>
 
 Because gofer type values can be arbitrarily complex, each type must define
-a <<xref dynaform(n)>> script that will be used to display and edit its values
+a <xref dynaform(n)> script that will be used to display and edit its values
 in an appropriate way.  The form will be used by itself in a 
-<<xref dynabox(n)>> popup, rather than being embedded within a larger form,
+<xref dynabox(n)> popup, rather than being embedded within a larger form,
 so it can use all of the space it needs to.<p>
 
 The dynaform script should include prose that makes it clear what the user is
@@ -184,19 +184,19 @@ the rules to the user; thus, the <b>BY_VALUE</b> rule is presented as
 <b>NOTE:</b> The dynaform script must have a field for each <i>gdict</i>
 key, in the required order; thus, the first two fields in the dynaform script
 must be the <b>_type</b> and the <b>_rule</b> selector.  However, the
-<<xref gofer(n)>> infrastructure automatically inserts the <b>_type</b>
+<xref gofer(n)> infrastructure automatically inserts the <b>_type</b>
 as an invisible context field, so it is omitted from the example.<p>  
 
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original interface.
 
-<</manpage>>
+</manpage>
 
 
 

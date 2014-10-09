@@ -1,41 +1,41 @@
-<<manpage {projectlib(n) prefsdir(n)} "Preferences Directory Utility">>
+<manpage {projectlib(n) prefsdir(n)} "Preferences Directory Utility">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
 <pre>
 package require projectlib 1.0
 namespace import ::projectlib::*
 </pre>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
-<<xref prefsdir(n)>> is responsible for creating and locating
+<xref prefsdir(n)> is responsible for creating and locating
 the Athena preferences directory, where user preferences and similar
 user data are stored.  At start-up, Athena calls
-<<iref prefsdir init>>, which creates the <<xref os(n) "os prefsdir">>
-directory.  The <<iref prefsdir join>> command can then be used to
+<iref prefsdir init>, which creates the <xref os(n) "os prefsdir">
+directory.  The <iref prefsdir join> command can then be used to
 produce file names within that directry.<p>
 
-<<section "COMMANDS">>
+<section "COMMANDS">
 
 This module defines the following commands:<p>
 
-<<deflist commands>>
+<deflist commands>
 
-<<defitem "prefsdir init" {prefsdir init}>>
+<defitem "prefsdir init" {prefsdir init}>
 
 Initializes prefsdir(n).  In particular, it determines and saves the
 full path to the preferences directory, and returns the full path to it;
 in addition, it creates the directory itself.<p>
 
-<<defitem "prefsdir initialized" {prefsdir initialized}>>
+<defitem "prefsdir initialized" {prefsdir initialized}>
 
 Returns 1 if the preferences directory has been successfully initialized,
 and false otherwise.<p>
 
-<<defitem "prefsdir join" {prefsdir join ?<i>arg arg...</i>?}>>
+<defitem "prefsdir join" {prefsdir join ?<i>arg arg...</i>?}>
 
 Called with no arguments, returns the name of the preferences directory.
 Otherwise, returns the path name resulting from joining the
@@ -50,21 +50,21 @@ set prefsFil [prefsdir join prefs.dat]
 Note that this command always succeeds, even if the preferences directory
 could not be successfully created.<p> 
 
-<</deflist commands>>
+</deflist commands>
 
-<<section ENVIRONMENT>>
+<section ENVIRONMENT>
 
 This package requires Tcl 8.5 or later.
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original package.
 
-<</manpage>>
+</manpage>
 
 
 

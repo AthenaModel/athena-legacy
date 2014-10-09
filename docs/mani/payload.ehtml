@@ -1,10 +1,10 @@
-<<manpage {payload(i)} "Payload Interface">>
+<manpage {payload(i)} "Payload Interface">
 
-<<section SYNOPSIS>>
+<section SYNOPSIS>
 
-<<itemlist>>
+<itemlist>
 
-<<section DESCRIPTION>>
+<section DESCRIPTION>
 
 An Info Operations Message (IOM) payload is an action attached to an
 IOM that affects one or more attitudes, e.g., satisfaction levels or
@@ -29,22 +29,22 @@ Thus, a payload is essentially a special kind of module.<p>
 In addition, every payload type must provide two orders,
 PAYLOAD:<i>type</i>:CREATE and PAYLOAD:<i>type</i>:UPDATE.<p>
 
-<<section "SUBCOMMANDS">>
+<section "SUBCOMMANDS">
 
-Each <<xref payload(i)>> ensemble must implement at least the following
+Each <xref payload(i)> ensemble must implement at least the following
 subcommands.  Note that they all take the "payload parameter
 dictionary", or <i>tdict</i>, as their first argument.  This is simply a
 row from the payloads table in the form of a dictionary.<p>
 
-<<deflist subcommands>>
+<deflist subcommands>
 
-<<defitem narrative {narrative <i>tdict</i>}>>
+<defitem narrative {narrative <i>tdict</i>}>
 
 Returns a human-readable narrative description of the payload.  The
 description should include all of the payload's parameters, so that the
 narrative is a complete description of the payload.<p>
 
-<<defitem check {check <i>tdict</i>}>>
+<defitem check {check <i>tdict</i>}>
 
 Sanity-checks the payload's parameters.  Returns a human-readable
 string describing any errors that are found, and the empty string
@@ -63,17 +63,17 @@ payloads at appropriate times, such as when the scenario is locked.
 We make any problems known to the user, and allow them to fix them.<p>
 
 
-<</deflist subcommands>>
+</deflist subcommands>
 
-<<section AUTHOR>>
+<section AUTHOR>
 
 Will Duquette<p>
 
-<<section HISTORY>>
+<section HISTORY>
 
 Original interface.
 
-<</manpage>>
+</manpage>
 
 
 

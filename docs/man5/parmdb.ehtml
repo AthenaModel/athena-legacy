@@ -1,13 +1,12 @@
 <manpage parmdb(5) "Athena Model Parameter Definitions">
 
-<toproject {
-     package require projectlib
-     ::projectlib::parmdb init
-}>
-
 <section SYNOPSIS>
 
-<expand [fromproject {::projectlib::parmdb manlinks}]>
+<expand [project tclsh {
+    package require projectlib
+    ::projectlib::parmdb init
+    ::projectlib::parmdb manlinks
+}]>
 
 <section DESCRIPTION>
 
@@ -32,8 +31,11 @@ The majority of the parameters in parmdb(5) are defined by
 modules.<p>
 
 The valid parameters are as follows:<p>
-
-<expand [fromproject {::projectlib::parmdb manpage}]>
+<expand [project tclsh {
+    package require projectlib
+    ::projectlib::parmdb init
+    ::projectlib::parmdb manpage
+}]>
 
 <section AUTHOR>
 
