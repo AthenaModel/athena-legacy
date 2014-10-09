@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Athena"
-#define MyAppVersion "6.2.2-B23"
+#define MyAppVersion "6.2.3-R2"
 #define MyAppPublisher "Jet Propulsion Laboratory, California Institute of Technology"
 #define MyAppExeName "athena.exe"
 
@@ -15,8 +15,8 @@ AppName={#MyAppName}
 AppVersion={#MyAppVersion}
 ;AppVerName={#MyAppName} {#MyAppVersion}
 AppPublisher={#MyAppPublisher}
-DefaultDirName={pf}\Athena {#MyAppVersion}
-DefaultGroupName=Athena {#MyAppVersion}
+DefaultDirName={pf}\Athena 6.2
+DefaultGroupName=Athena 6.2
 LicenseFile=..\license.txt
 ;InfoBeforeFile=before.txt
 InfoAfterFile=after.txt
